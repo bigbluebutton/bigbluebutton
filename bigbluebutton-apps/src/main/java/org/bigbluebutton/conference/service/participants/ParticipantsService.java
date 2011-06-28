@@ -44,8 +44,11 @@ public class ParticipantsService {
 		Map participants = new HashMap();
 		if (p == null) {
 			participants.put("count", 0);
+			log.debug("partipants of {} is null",roomName);
 		} else {		
+			
 			participants.put("count", p.size());
+			log.debug("number of partipants is {}",p.size());
 			if (p.size() > 0) {
 				/**
 				 * Somehow we need to convert to Map so the client will be

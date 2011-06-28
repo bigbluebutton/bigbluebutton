@@ -11,12 +11,16 @@ opts = Trollop::options do
 end
 
 meeting_id = opts[:meeting_id]
-
+puts meeting_id
 match = /(.*)-(.*)/.match meeting_id
 meeting_id = match[1]
 playback = match[2]
 
+puts meeting_id
+puts playback
+
 if (playback == "simple")
+	puts "publishing #{meeting_id}"
 	logger = Logger.new("/var/log/bigbluebutton/simple-publish-#{meeting_id}.log", 'daily' )
 	BigBlueButton.logger = logger
 
@@ -42,8 +46,33 @@ if (playback == "simple")
 		FileUtils.cp("#{process_dir}/audio.ogg", audio_dir)
 		FileUtils.cp("#{process_dir}/events.xml", package_dir)
 		FileUtils.cp_r("#{process_dir}/presentation", package_dir)
+
+		# Create metadata.xml
+		b = Builder::XmlMarkup.new(:indent => 2)		 
+		metaxml = b.recording {
+		  b.id(meeting_id) 
+		  b.state("available")
+		  b.published(true)
+		  b.start_time(Time.at((BigBlueButton::Events.first_event_timestamp("#{process_dir}/events.xml").to_f/1000.0)).utc)
+		  b.end_time(Time.at((BigBlueButton::Events.last_event_timestamp("#{process_dir}/events.xml").to_f/1000.0)).utc)
+		  b.playback {
+		  	b.format("simple")
+		  	b.link("http://#{playback_host}/playback/simple/playback.html?meetingId=#{meeting_id}")
+	  	}
+		  b.meta {
+		  	BigBlueButton::Events.get_meeting_metadata("#{process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
+	  	}			
+		}
 		
+		puts "writing metadata to #{package_dir}/metadata.xml" 
+		metadata_xml = File.new("#{package_dir}/metadata.xml","w")
+		metadata_xml.write(metaxml)
+		metadata_xml.close		
+		
+		# Now publish this recording		
 		FileUtils.cp_r(package_dir, publish_dir)
+			
+		# Create index.html
 		dir_list = Dir.entries(publish_dir) - ['.', '..']
 		recordings = []
 		dir_list.each do |d|
@@ -57,8 +86,7 @@ if (playback == "simple")
 		  end
 		end
 		
-		b = Builder::XmlMarkup.new(:indent => 2)
-		 
+		b = Builder::XmlMarkup.new(:indent => 2)		 
 		html = b.html {
 		  b.head {
 		    b.title "Simple Playback Recordings"

@@ -70,9 +70,6 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     @Override
     public void streamPublishStart(IBroadcastStream stream) {
     	super.streamPublishStart(stream);
-        if (recordVideoStream) {
-	    	recordStream(stream);
-        }
     }
     
     @Override
@@ -80,7 +77,12 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     	IConnection conn = Red5.getConnectionLocal();  
     	super.streamBroadcastStart(stream);
     	log.info("streamBroadcastStart " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
-		Map<String, String> event = new HashMap<String, String>();
+
+        if (recordVideoStream) {
+	    	recordStream(stream);
+        }
+        
+    	Map<String, String> event = new HashMap<String, String>();
 		event.put("module", "WEBCAM");
 		event.put("timestamp", new Long(System.currentTimeMillis()).toString());
 		event.put("meetingId", conn.getScope().getName());
@@ -94,12 +96,14 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     public void streamBroadcastClose(IBroadcastStream stream) {
     	IConnection conn = Red5.getConnectionLocal();  
     	super.streamBroadcastClose(stream);
+    	long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
     	log.info("streamBroadcastClose " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
 		Map<String, String> event = new HashMap<String, String>();
 		event.put("module", "WEBCAM");
 		event.put("timestamp", new Long(System.currentTimeMillis()).toString());
 		event.put("meetingId", conn.getScope().getName());
 		event.put("stream", stream.getPublishedName());
+		event.put("duration", new Long(publishDuration).toString());
 		event.put("eventName", "StopWebcamShareEvent");
 		
 		recordingService.record(conn.getScope().getName(), event);
@@ -112,7 +116,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
     private void recordStream(IBroadcastStream stream) {
     	IConnection conn = Red5.getConnectionLocal();   
     	long now = System.currentTimeMillis();
-    	String recordingStreamName = stream.getPublishedName() + "-" + now;
+    	String recordingStreamName = stream.getPublishedName(); // + "-" + now; /** Comment out for now...forgot why I added this - ralam */
      
     	try {    		
     		log.info("Recording stream " + recordingStreamName );

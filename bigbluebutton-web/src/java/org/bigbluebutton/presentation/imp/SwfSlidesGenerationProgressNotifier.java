@@ -24,8 +24,10 @@ package org.bigbluebutton.presentation.imp;
 
 import java.util.Map;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.bigbluebutton.api.messaging.MessagingConstants;
+import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.presentation.ConversionMessageConstants;
-import org.bigbluebutton.presentation.ConversionProgressNotifier;
 import org.bigbluebutton.presentation.ConversionUpdateMessage;
 import org.bigbluebutton.presentation.GeneratedSlidesInfoHelper;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -33,17 +35,23 @@ import org.bigbluebutton.presentation.ConversionUpdateMessage.MessageBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
+
 public class SwfSlidesGenerationProgressNotifier {
 	private static Logger log = LoggerFactory.getLogger(SwfSlidesGenerationProgressNotifier.class);
+
+	private MessagingService messagingService;
 	
-	private ConversionProgressNotifier notifier;
 	private GeneratedSlidesInfoHelper generatedSlidesInfoHelper;
 			
-	private void notifyProgressListener(Map<String, Object> msg) {		
-		if (notifier != null) {
-			notifier.sendConversionProgress(msg);	
+	private void notifyProgressListener(Map<String, Object> msg) {	
+		if(messagingService !=null){
+			Gson gson= new Gson();
+			String updateMsg=gson.toJson(msg);
+			log.debug("sending: "+updateMsg);
+			messagingService.send(MessagingConstants.PRESENTATION_CHANNEL, updateMsg);
 		} else {
-			log.warn("ConversionProgressNotifier has not been set");
+			log.warn("MessagingService has not been set");
 		}
 	}
 
@@ -72,15 +80,15 @@ public class SwfSlidesGenerationProgressNotifier {
 		}
 		
 		String xml = generatedSlidesInfoHelper.generateUploadedPresentationInfo(pres);
-		
+		String escape_xml = StringEscapeUtils.escapeXml(xml);
 		MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
 		builder.messageKey(ConversionMessageConstants.CONVERSION_COMPLETED_KEY);
-		builder.slidesInfo(xml);
+		builder.slidesInfo(escape_xml);
 		notifyProgressListener(builder.build().getMessage());	
 	}
-			
-	public void setConversionProgressNotifier(ConversionProgressNotifier notifier) {
-		this.notifier = notifier;
+	
+	public void setMessagingService(MessagingService m) {
+		messagingService = m;
 	}
 	
 	public void setGeneratedSlidesInfoHelper(GeneratedSlidesInfoHelper helper) {

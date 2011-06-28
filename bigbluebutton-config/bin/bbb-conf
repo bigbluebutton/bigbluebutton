@@ -39,6 +39,7 @@
 #   2010-12-12 FFD  Fixed bug #778
 #   2010-12-12 FFD  Added support for Intalio VM
 #   2010-02-28 FFD  Fixed #834 
+#   2011-06-26 FFD  Updates for 0.8
 
 #set -x
 
@@ -528,7 +529,7 @@ fi
 
 if [ $SALT ]; then
 	need_root
-	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties beans.dynamicConferenceService.securitySalt $SALT
+	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
 	echo "Changed the security salt to $SALT"
 fi
 
@@ -1464,6 +1465,61 @@ if [ $DEBUG ]; then
 		fi
 	fi
 
+	#
+	# Additional checks for record and playback
+	#
+	rm -rf /tmp/t
+	if ls /var/log/bigbluebutton/simple-process-* > /dev/null 2>1; then
+		  sudo grep -i Error /var/log/bigbluebutton/simple-process-* > /tmp/t 
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/simple-process-*.log -- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+
+	rm -rf /tmp/t
+	if ls /var/log/bigbluebutton/simple-publish-* > /dev/null 2>1; then
+		  sudo grep -i Error /var/log/bigbluebutton/simple-publish-* > /tmp/t 
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/simple-publish-*.log -- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+
+	rm -rf /tmp/t
+	if ls /var/log/bigbluebutton/simple-process-* > /dev/null 2>1; then
+		for file in /var/log/bigbluebutton/simple-process-*; do 
+		  if [ ! -f $(echo $file | sed 's/process/publish/g') ]; then 
+			echo "  $file" >> /tmp/t
+                  fi 
+                done
+
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing: found process file but not publish -- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+
+
+	rm -rf /tmp/t
+	if ls /var/bigbluebutton/recording/status/recorded/*.done > /dev/null 2>1; then
+		for file in /var/bigbluebutton/recording/status/recorded/*.done; do 
+		  if [ ! -f $(echo $file | sed 's/recorded/archived/g') ]; then 
+			echo "  $file" >> /tmp/t
+                  fi 
+                done
+
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing: found recorded meeting but no archive files-- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+	
+	
 	exit 0
 fi
 

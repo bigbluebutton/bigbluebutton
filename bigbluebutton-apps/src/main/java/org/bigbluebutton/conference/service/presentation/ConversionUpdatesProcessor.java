@@ -28,56 +28,11 @@ import org.slf4j.LoggerFactory;
 import org.red5.logging.Red5LoggerFactory;
 public class ConversionUpdatesProcessor {
 	private static Logger log = Red5LoggerFactory.getLogger(ConversionUpdatesProcessor.class, "bigbluebutton");
-	
-	@SuppressWarnings("unchecked")
-	private BlockingQueue<Map> updatesQueue = new LinkedBlockingQueue<Map>();
-	private final ExecutorService exec = Executors.newSingleThreadExecutor();	
 
 	private PresentationApplication presentationApplication;
-	private volatile boolean processMessage = true;
 	
-	@SuppressWarnings("unchecked")
 	public void process(Map message) {
-		try {
-			updatesQueue.put(message);
-		} catch (InterruptedException e) {
-			log.warn(e.getMessage());
-		}
-	}
-
-	public void start() {
-		log.debug("Starting conversion updates processor.");
-		try {
-			// Create a Runnable (Closures implements Runnable) to process the messages.
-			
-			exec.execute(new Runnable() {
-				
-				@SuppressWarnings("unchecked")
-				@Override
-				public void run() {
-					log.debug("Waiting for JMS message to process.");
-					while (processMessage) {
-						try {
-							Map message = (Map) updatesQueue.take();
-							log.debug("Processing updates message " + message);
-							presentationApplication.sendUpdateMessage(message);
-						} catch (InterruptedException e) {
-							log.warn(e.getMessage());
-						}
-					}
-				}
-			});
-			
-		} catch (RejectedExecutionException e) {
-			if (!exec.isShutdown())
-				log.warn("RejectedExecutionException when trying to receive presentaion conversion updates.");
-		}	
-	}
-	
-	public void stop() {
-		log.debug("Stopping conversion updates processor.");
-		processMessage = false;
-		exec.shutdown();
+		presentationApplication.sendUpdateMessage(message);
 	}
 	
 	public void setPresentationApplication(PresentationApplication a) {

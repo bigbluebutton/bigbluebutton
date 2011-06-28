@@ -1,62 +1,39 @@
 package org.bigbluebutton.conference.service.recorder;
 
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 public class RedisDispatcher implements Recorder {
+	private static Logger log = Red5LoggerFactory.getLogger(Recorder.class, "bigbluebutton");
 	private static final String COLON=":";
-	private String host;
-	private int port;
-
-	private Jedis jedis;
-
+	JedisPool redisPool;
 	
-//	Jedis jedis;
-	JedisPool jpool;
-	public RedisDispatcher(String host, int port){
-		this.host = host;
-		this.port = port;
-		
-//		jedis = new Jedis(host, port);		
-//		Config poolConfig = new Config();
-//		jpool = new JedisPool(poolConfig, host, port);
+	public RedisDispatcher(){
+		super();
+		log.debug("setting redis dispatcher");
 	}
 	
 	@Override
-	public void record(String meetingId, RecordEvent message) {
-		Jedis jedis = new Jedis(host, port);
-		Long msgid = jedis.incr("global:nextRecordedMsgId");
-		jedis.hmset("recording" + COLON + meetingId + COLON + msgid, message.toMap());
-		jedis.rpush("meeting" + COLON + meetingId + COLON + "recordings", msgid.toString());						
+	public void record(String session, RecordEvent message) {		
+		Jedis jedis = redisPool.getResource();
+		try {
+			Long msgid = jedis.incr("global:nextRecordedMsgId");
+			jedis.hmset("recording" + COLON + session + COLON + msgid, message.toMap());
+			jedis.rpush("meeting" + COLON + session + COLON + "recordings", msgid.toString());
+		} finally {
+			redisPool.returnResource(jedis);
+		}						
 	}
-/*	
-	@Override
-	public void record(String session, RecordEvent message) {
-		boolean tryAgain = true;
-		int howMany = 10;
-		while (tryAgain) {
-			Jedis jedis = jpool.getResource();
-			try {
-				Long msgid = jedis.incr("global:nextRecordedMsgId");
-				jedis.hmset("recording" + COLON + session + COLON + msgid, message.toMap());
-				jedis.rpush("meeting" + COLON + session + COLON + "recordings", msgid.toString());
-				jpool.returnResource(jedis);				
-			} catch(JedisException e) {
-				System.out.println("Failed to get redis connection...trying again...");
-				if (howMany < 0) {
-					tryAgain = false;
-				} else {
-					howMany--;
-					jpool.returnBrokenResource(jedis);
-				}
-			}
-			
-		}
+	
+	public JedisPool getRedisPool() {
+		return redisPool;
 	}
-*/
 
-	public Jedis getJedis(){
-		return jedis;
+	public void setRedisPool(JedisPool redisPool) {
+		this.redisPool = redisPool;
 	}
+	
 
 }

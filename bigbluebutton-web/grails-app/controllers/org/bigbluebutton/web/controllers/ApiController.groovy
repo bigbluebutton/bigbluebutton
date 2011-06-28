@@ -24,769 +24,817 @@ package org.bigbluebutton.web.controllers
 import java.text.MessageFormat;
 import java.util.Collections;
 import org.apache.commons.codec.binary.Hex;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
-
-import org.bigbluebutton.web.services.DynamicConferenceService;
-import org.bigbluebutton.api.domain.DynamicConference;
-import org.bigbluebutton.conference.Room
-import org.bigbluebutton.api.IApiConferenceEventListener;
+import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.MeetingService;
+import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
-
 import org.codehaus.groovy.grails.commons.ConfigurationHolder;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
 import grails.converters.XML;
+import org.bigbluebutton.api.ApiErrors;
+import org.bigbluebutton.api.ParamsProcessorUtil;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 class ApiController {
-    private static final Integer SESSION_TIMEOUT = 10800  // 3 hours
+  private static final Integer SESSION_TIMEOUT = 10800  // 3 hours    
+  private static final String CONTROLLER_NAME = 'ApiController'		
+  private static final String RESP_CODE_SUCCESS = 'SUCCESS'
+  private static final String RESP_CODE_FAILED = 'FAILED'
+  private static final String ROLE_MODERATOR = "MODERATOR";
+  private static final String ROLE_ATTENDEE = "VIEWER";
+  private static final String SECURITY_SALT = '639259d4-9dd8-4b25-bf01-95f9567eaf4b'
     
-	private static final String CONTROLLER_NAME = 'ApiController'		
-	private static final String RESP_CODE_SUCCESS = 'SUCCESS'
-	private static final String RESP_CODE_FAILED = 'FAILED'
-	private static final String ROLE_MODERATOR = "MODERATOR";
-	private static final String ROLE_ATTENDEE = "VIEWER";
-
-	private static final String SECURITY_SALT = '639259d4-9dd8-4b25-bf01-95f9567eaf4b'
-
-	def DIAL_NUM = /%%DIALNUM%%/
-	def CONF_NUM = /%%CONFNUM%%/
-	def CONF_NAME = /%%CONFNAME%%/
-	
-	def keywordList = [DIAL_NUM, CONF_NUM, CONF_NAME];
-		
-	DynamicConferenceService dynamicConferenceService;
-	PresentationService presentationService
-	IApiConferenceEventListener conferenceEventListener;
-	org.bigbluebutton.api.IRedisDispatcher redisDispatcher;
-
-	/* general methods */
-	def index = {
-			log.debug CONTROLLER_NAME + "#index"
-			response.addHeader("Cache-Control", "no-cache")
-			withFormat {	
-				xml {
-					render(contentType:"text/xml") {
-						response() {
-							returncode(RESP_CODE_SUCCESS)
-							version(dynamicConferenceService.apiVersion)
-						}
-					}
-				}
-			}
-	}
-
-	/* interface (API) methods */
-	def create = {
-//		redisDispatcher.publish("bu","bu");
-		log.debug CONTROLLER_NAME + "#create"
-
-		if (!doChecksumSecurity("create")) {
-			invalidChecksum(); return;
-		}
-
-		String name = params.name
-		if (name == null) {
-			invalid("missingParamName", "You must specify a name for the meeting.");
-			return
-		}
-		
-		String mtgID = params.meetingID
-		if (StringUtils.isEmpty(mtgID)) {
-			invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
-			return
-		}
-		
-		log.debug("passed parameter validation - creating conference");
-		String attPW = params.attendeePW
-		String modPW = params.moderatorPW
-		String voiceBr = params.voiceBridge
-		String welcomeMessage = params.welcome
-		String dialNumber = params.dialNumber
-		String logoutUrl = params.logoutURL
-		/* record development */
-		boolean record = false
-		
-		if(!StringUtils.isEmpty(params.record)){
-			try {
-				record = Boolean.parseBoolean(params.record)
-			} catch(Exception ex){ }
-		}
-
-		Integer maxParts = -1;
-		
-		try {
-			maxParts = Integer.parseInt(params.maxParticipants);
-		} catch(Exception ex) { /* do nothing */ }
-		
-		String mmRoom = params.meetmeRoom
-		String mmServer = params.meetmeServer
-
-		// check for existing:
-		DynamicConference existing = dynamicConferenceService.getConferenceByMeetingID(mtgID);
-		if (existing != null) {
-			log.debug "Existing conference found"
-			if (existing.getAttendeePassword().equals(attPW) && existing.getModeratorPassword().equals(modPW)) {
-				// trying to create a conference a second time
-				// return success, but give extra info
-				uploadDocuments(existing);
-				respondWithConference(existing, "duplicateWarning", "This conference was already in existence and may currently be in progress.");
-			} else {
-				// enforce meetingID unique-ness
-				invalid("idNotUnique", "A meeting already exists with that meeting ID.  Please use a different meeting ID.");
-			}
-			return;
-		}
-		if (StringUtils.isEmpty(attPW)) {
-			attPW = RandomStringUtils.randomAlphanumeric(8);
-		}
-		if (StringUtils.isEmpty(modPW)) {
-			modPW = RandomStringUtils.randomAlphanumeric(8);
-		}
-		DynamicConference conf = new DynamicConference(name, mtgID, attPW, modPW, maxParts)
-		conf.setVoiceBridge(voiceBr == null || voiceBr == "" ? mtgID : voiceBr)
-
-                /* record development */
-		conf.record = record
-		
-		log.debug("Adding metadata values")
-		params.keySet().each{ metadata ->
-			if(metadata.contains("meta")){
-				String[] meta=metadata.split("_")
-				if(meta.length==2){
-					conf.addMetadataValue(meta[1],params.get(metadata))
-					log.debug(meta[1]+":"+params.get(metadata))
-				}
-				
-			}
-		}
-		
-                
-		if ((dynamicConferenceService.testVoiceBridge != null) && (conf.voiceBridge == dynamicConferenceService.testVoiceBridge)) {
-			if (dynamicConferenceService.testConferenceMock != null) 
-				conf.meetingToken = dynamicConferenceService.testConferenceMock
-			else
-				log.warn("Cannot set test conference because it is not set in bigbluebutton.properties")	
-		} 
-		
-		if ((logoutUrl != null) || (logoutUrl != "")) {
-			conf.logoutUrl = logoutUrl
-		}
-		
-		if (welcomeMessage == null || welcomeMessage == "") {
-			welcomeMessage = dynamicConferenceService.defaultWelcomeMessage
-		}
-
-		if ((dialNumber == null) || (dialNumber == "")) {
-			dialNumber = dynamicConferenceService.defaultDialAccessNumber
-		}
-
-		if (welcomeMessage != null || welcomeMessage != "") {
-			log.debug "Substituting keywords"
-			
-			keywordList.each{ keyword ->
-				switch(keyword){
-					case DIAL_NUM:
-						if ((dialNumber != null) || (dialNumber != "")) {
-							welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber)
-						}
-						break
-					case CONF_NUM:
-						welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, conf.voiceBridge)
-						break
-					case CONF_NAME:
-						welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, conf.name)
-						break
-				}			  
-			}
-		}
-				
-		conf.welcome = welcomeMessage
-								
-		log.debug("Conference created: " + conf);
-		// TODO: support voiceBridge and voiceServer
-
-		// success!
-		uploadDocuments(conf);
-		dynamicConferenceService.storeConference(conf);
-		respondWithConference(conf, null, null)
-	}
-
-	def uploadDocuments(conf) { 
-		log.debug("ApiController#uploadDocuments(${conf.meetingID})");
-
-		String requestBody = request.inputStream == null ? null : request.inputStream.text;
-		requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
-
-		if (requestBody == null) {
-			return;
-		}
-				
-		log.debug "Request body: \n" + requestBody;
-
-		def xml = XML.parse(requestBody);
-		xml.children().each { module ->
-			log.debug("module config found: [${module.@name}]");
-			if ("presentation".equals(module.@name.toString())) {
-				// need to iterate over presentation files and process them
-				module.children().each { document -> 
-					if (!StringUtils.isEmpty(document.@url.toString())) {
-						downloadAndProcessDocument(document.@url.toString(), conf);
-					} else if (!StringUtils.isEmpty(document.@name.toString())) {
-						def b64 = new Base64()
-						def decodedBytes = b64.decode(document.text().getBytes())
-						processDocumentFromRawBytes(decodedBytes, document.@name.toString(), conf);
-					} else {
-						log.debug("presentation module config found, but it did not contain url or name attributes");
-					}
-				}
-			}
-		}
-	}
-
-
-	def cleanFilename(filename) {
-		def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
-		return filename.replaceAll(notValidCharsRegExp, '-')
-	}
-	
-	def processDocumentFromRawBytes(bytes, filename, conf) {
-		def cleanName = cleanFilename(filename);
-
-		File uploadDir = presentationService.uploadedPresentationDirectory(conf.getMeetingToken(), conf.getMeetingToken(), cleanName);
-		def pres = new File(uploadDir.absolutePath + File.separatorChar + cleanName);
-		
-		FileOutputStream fos = new java.io.FileOutputStream(pres)
-		fos.write(bytes)
-		fos.flush()
-		fos.close()
-		
-		processUploadedFile(cleanName, pres, conf);
-	}
-		
-	def downloadAndProcessDocument(address, conf) {
-		log.debug("ApiController#downloadAndProcessDocument({$address}, ${conf.meetingID})");
-		String name = cleanFilename(address.tokenize("/")[-1]);
-		log.debug("Uploading presentation: ${name} from ${address} [starting download]");
-		
-		def out;
-		def pres;
-		try {
-			File uploadDir = presentationService.uploadedPresentationDirectory(conf.getMeetingToken(), conf.getMeetingToken(), name);
-			pres = new File(uploadDir.absolutePath + File.separatorChar + name);
-			out = new BufferedOutputStream(new FileOutputStream(pres))
-			out << new URL(address).openStream()
-		} finally {
-			if (out != null) {
-				out.close()
-			}
-		}
-
-		processUploadedFile(name, pres, conf);
-	}
-	
-	def processUploadedFile(name, pres, conf) {
-		UploadedPresentation uploadedPres = new UploadedPresentation(conf.getMeetingToken(), conf.getMeetingToken(), name);
-		uploadedPres.setUploadedFile(pres);
-		presentationService.processUploadedPresentation(uploadedPres);
-
-		// TODO: it is successfully uploaded and converted - now how do we automatically show it?		
-	}
-
-	def join = {
-		log.debug CONTROLLER_NAME + "#join"
-
-		if (!doChecksumSecurity("join")) {
-			invalidChecksum(); return;
-		}
-
-		String fullName = params.fullName
-		if (fullName == null) {
-			invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
-			return
-		}
-		
-		String webVoice = params.webVoiceConf
-		String mtgID = params.meetingID
-		String attPW = params.password
-		boolean redirectImm = parseBoolean(params.redirectImmediately)
-		String externUserID = params.userID
-		if ((externUserID == null) || (externUserID == "")) {
-			externUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
-		}
-        
-		// check for existing:
-		DynamicConference conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
-		if (conf == null) {
-			invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
-			return;
-		}
-		
-		if (conf.isForciblyEnded()) {
-			invalid("meetingForciblyEnded", "You can not re-join a meeting that has already been forcibly ended.  However, once the meeting is removed from memory (according to the timeout configured on this server, you will be able to once again create a meeting with the same meeting ID");
-			return;
-		}
-
-		String role = null;
-		if (conf.getModeratorPassword().equals(attPW)) {
-			role = ROLE_MODERATOR;
-		} else if (conf.getAttendeePassword().equals(attPW)) {
-			role = ROLE_ATTENDEE;
-		}
-		if (role == null) {
-			invalidPassword("You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference."); return;
-		}
-		
-		conf.setWebVoiceConf(webVoice == null || webVoice == "" ? conf.voiceBridge : webVoice)
-		
-		// TODO: success....
-		log.debug "join successful - setting session parameters and redirecting to join"
-		session["conferencename"] = conf.meetingID
-		session["meetingID"] = conf.meetingID
-		session["externUserID"] = externUserID
-		session["fullname"] = fullName 
-		session["role"] = role
-		session["conference"] = conf.getMeetingToken()
-		session["room"] = conf.getMeetingToken()
-		session["voicebridge"] = conf.getVoiceBridge()
-		session["webvoiceconf"] = conf.getWebVoiceConf()
-		session["mode"] = "LIVE"
-		session["record"] = conf.record
-		session['welcome'] = conf.welcome
-		
-		session.setMaxInactiveInterval(SESSION_TIMEOUT);
-		
-    	def config = ConfigurationHolder.config
-    	def hostURL = config.bigbluebutton.web.serverURL
-		def redirectUrl = "${hostURL}/client/BigBlueButton.html";
-		log.debug("join done, redirecting to ${redirectUrl}"); 		
-		redirect(url:redirectUrl)
-	}
-
-	def isMeetingRunning = {
-		log.debug CONTROLLER_NAME + "#isMeetingRunning"
-
-		if (!doChecksumSecurity("isMeetingRunning")) {
-			invalidChecksum(); return;
-		}
-
-		String mtgID = params.meetingID
-
-		// check for existing:
-		DynamicConference conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
-		boolean isRunning = conf != null && conf.isRunning();
-		response.addHeader("Cache-Control", "no-cache")
-		withFormat {	
-			xml {
-				render(contentType:"text/xml") {
-					response() {
-						returncode(RESP_CODE_SUCCESS)
-						running(isRunning ? "true" : "false")
-					}
-				}
-			}
-		}
-	}
-
-	def end = {
-		log.debug CONTROLLER_NAME + "#end"
-
-		if (!doChecksumSecurity("end")) {
-			invalidChecksum(); return;
-		}
-
-		String mtgID = params.meetingID
-		String callPW = params.password
-
-		// check for existing:
-		DynamicConference conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
-		Room room = dynamicConferenceService.getRoomByMeetingID(mtgID);
-		
-		if (conf == null || room == null) {
-			invalid("notFound", "We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?");
-			return;
-		}
-		
-		if (conf.getModeratorPassword().equals(callPW) == false) {
-			invalidPassword("You must supply the moderator password for this call."); return;
-		}
-		
-		conf.setForciblyEnded(true);
-		
-		conferenceEventListener.endMeetingRequest(room);
-//		redisDispatcher.publish();
-		
-		response.addHeader("Cache-Control", "no-cache")
-		withFormat {	
-			xml {
-				render(contentType:"text/xml") {
-					response() {
-						returncode(RESP_CODE_SUCCESS)
-						messageKey("sentEndMeetingRequest")
-						message("A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.")
-					}
-				}
-			}
-		}
-	}
-
-	def getMeetingInfo = {
-		log.debug CONTROLLER_NAME + "#getMeetingInfo"
-
-		if (!doChecksumSecurity("getMeetingInfo")) {
-			invalidChecksum(); return;
-		}
-
-		String mtgID = params.meetingID
-		String callPW = params.password
-
-		// check for existing:
-		DynamicConference conf = dynamicConferenceService.getConferenceByMeetingID(mtgID);
-		Room room = dynamicConferenceService.getRoomByMeetingID(mtgID);
-		
-		if (conf == null) {
-			invalid("notFound", "We could not find a meeting with that meeting ID");
-			return;
-		}
-		
-		if (conf.getModeratorPassword().equals(callPW) == false) {
-			invalidPassword("You must supply the moderator password for this call."); return;
-		}
-
-		respondWithConferenceDetails(conf, room, null, null);
-		//just for redis testing purpose 
-		//respondWithConferenceDetails2(conf, room, null, null);
-	}
-	
-	def getMeetings = {
-		log.debug CONTROLLER_NAME + "#getMeetings"
-
-		if (!doChecksumSecurity("getMeetings")) {
-			invalidChecksum(); return;
-		}
-
-		// check for existing:
-		Collection<DynamicConference> confs = dynamicConferenceService.getAllConferences();
-		
-		if (confs == null || confs.size() == 0) {
-			response.addHeader("Cache-Control", "no-cache")
-			withFormat {	
-				xml {
-					log.debug "Rendering as xml"
-					render(contentType:"text/xml") {
-						response() {
-							returncode(RESP_CODE_SUCCESS)
-							meetings(null)
-							messageKey("noMeetings")
-							message("no meetings were found on this server")
-						}
-					}
-				}
-			}
-			return;
-		}
-		
-		response.addHeader("Cache-Control", "no-cache")
-		withFormat {	
-			xml {
-				log.debug "Rendering as xml"
-				render(contentType:"text/xml") {
-					response() {
-						returncode(RESP_CODE_SUCCESS)
-						meetings() {
-							confs.each { conf ->
-								meeting() {
-									meetingID("${conf.meetingID}")
-									attendeePW("${conf.attendeePassword}")
-									moderatorPW("${conf.moderatorPassword}")
-									hasBeenForciblyEnded(conf.isForciblyEnded() ? "true" : "false")
-									running(conf.isRunning() ? "true" : "false")
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	def enter = {
-		
-		println "Entered Enter"
-		
-		def fname = session["fullname"]
-	    def rl = session["role"]
-	    def cnf = session["conference"]
-	    def rm = session["room"]
-		def vb = session["voicebridge"] 
-		def wbv = session["webvoiceconf"]  
-	    def rec = session["record"]
-	    def md = session["mode"]
-	    def confName = session["conferencename"]
-	    def welcomeMsg = session['welcome']
-	    def meetID = session["meetingID"] 
-        def externUID = session["externUserID"] 
-        
-        println "After reading from cookie"
-        
-        
-	    if (!rm) {
-	    	println "Could not find conference"
-	    	response.addHeader("Cache-Control", "no-cache")
-	    	withFormat {				
-				xml {
-					render(contentType:"text/xml") {
-						response() {
-							returncode("FAILED")
-							message("Could not find conference ${params.conference}.")
-						}
-					}
-				}
-			}
-	    } else {	
-	    	println "Found conference"
-	    	response.addHeader("Cache-Control", "no-cache")
-	    	withFormat {				
-				xml {
-					render(contentType:"text/xml") {
-						response() {
-							returncode("SUCCESS")
-							fullname("$fname")
-							confname("$confName")
-							meetingID("$meetID")
-							externUserID("$externUID")
-	        				role("$rl")
-	        				conference("$cnf")
-	        				room("$rm")
-	        				voicebridge("${vb}")
-	        				webvoiceconf("${wbv}")
-	        				mode("$md")
-	        				record("$rec")
-	        				welcome("$welcomeMsg")
-						}
-					}
-				}
-			}
-	    }  
-		println "Leaving Enter"
-	}
-	
-	def signOut = {
-	    def config = ConfigurationHolder.config
-        def hostURL = config.bigbluebutton.web.logoutURL
-        
-        log.debug("LogoutURL=$hostURL")
-        
-        // For backward compatibility. We renamed "loggedOutUrl" to
-        // "logoutURL" in 0.64 to be consistent with the API. Remove this
-        // in later iterations (ralam mar 26, 2010)
-        //if ((hostURL == null) || (hostURL == "")) {
-        if (hostURL.isEmpty()) {
-            log.debug("No logoutURL property set. Checking for old loggedOutUrl.")
-            hostURL = config.bigbluebutton.web.loggedOutUrl
-            if (!hostURL.isEmpty()) 
-               log.debug("Old loggedOutUrl property set to $hostURL") 
+  MeetingService meetingService;
+  PresentationService presentationService
+  ParamsProcessorUtil paramsProcessorUtil
+  
+  /* general methods */
+  def index = {
+    log.debug CONTROLLER_NAME + "#index"
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {	
+      xml {
+        render(contentType:"text/xml") {
+          response() {
+            returncode(RESP_CODE_SUCCESS)
+            version(paramsProcessorUtil.getApiVersion())
+          }
         }
+      }
+    }
+  }
+ 
         
-	    def meetingToken = session["conference"]
-        DynamicConference conf = dynamicConferenceService.getConferenceByToken(meetingToken)
-        if (conf != null) {
-        	if ((conf.logoutUrl != null) && (conf.logoutUrl != "")) {
-        	   hostURL = conf.logoutUrl
-        	   log.debug("logoutURL has been set from API. Redirecting to server url $hostURL.")
-    		}
+  /*********************************** 
+   * CREATE (API) 
+   ***********************************/
+  def create = {
+    String API_CALL = 'create'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+  	
+  	ApiErrors errors = new ApiErrors();  	
+    paramsProcessorUtil.processRequiredCreateParams(params, errors);
+
+    if (errors.hasErrors()) {
+    	respondWithErrors(errors)
+    	return
+    }
+            
+    // Do we agree with the checksum? If not, complain.
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      errors.checksumError()
+    	respondWithErrors(errors)
+    	return
+    }
+    
+    
+    // Translate the external meeting id into an internal meeting id.
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);		
+    Meeting existing = meetingService.getMeeting(internalMeetingId);
+    if (existing != null) {
+      log.debug "Existing conference found"
+      Map<String, Object> updateParams = paramsProcessorUtil.processUpdateCreateParams(params);
+      if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW"))) {
+        paramsProcessorUtil.updateMeeting(updateParams, existing);
+        // trying to create a conference a second time, return success, but give extra info
+        uploadDocuments(existing);
+        respondWithConference(existing, "duplicateWarning", "This conference was already in existence and may currently be in progress.");
+      } else {
+        // enforce meetingID unique-ness
+        errors.nonUniqueMeetingIdError()
+        respondWithErrors(errors)
+      } 
+      
+      return;    
+    }
+     
+    Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);            
+    meetingService.createMeeting(newMeeting);
+    
+    // See if the request came with pre-uploading of presentation.
+    uploadDocuments(newMeeting);
+    
+    respondWithConference(newMeeting, null, null)
+  }
+
+  /**********************************************
+   * JOIN API
+   *********************************************/
+  def join = {
+    String API_CALL = 'join'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+  	ApiErrors errors = new ApiErrors()
+  	  
+    // Do we have a checksum? If none, complain.
+    if (StringUtils.isEmpty(params.checksum)) {
+      errors.missingParamError("checksum");		
+    }
+
+    // Do we have a name for the user joining? If none, complain.
+    String fullName = params.fullName
+    if (StringUtils.isEmpty(fullName)) {
+      errors.missingParamError("fullName");
+    }
+
+    // Do we have a meeting id? If none, complain.
+    String externalMeetingId = params.meetingID
+    if (StringUtils.isEmpty(externalMeetingId)) {
+      errors.missingParamError("meetingID");
+    }
+
+    // Do we have a password? If not, complain.
+    String attPW = params.password
+    if (StringUtils.isEmpty(attPW)) {
+      errors.missingParamError("password");
+    }
+    
+    if (errors.hasErrors()) {
+    	respondWithErrors(errors)
+    	return
+    }
+        
+    // Do we agree on the checksum? If not, complain.		
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      	errors.checksumError()
+    	respondWithErrors(errors)
+    	return
+    }
+
+    String createTime = params.createTime
+//    if (StringUtils.isEmpty(createTime)) {
+//      errors.missingParamError("createTime");
+//    }
+    
+    // Everything is good so far. Translate the external meeting id to an internal meeting id. If
+    // we can't find the meeting, complain.					        
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
+    log.info("Retrieving meeting ${internalMeetingId}")		
+    Meeting meeting = meetingService.getMeeting(internalMeetingId);
+    if (meeting == null) {
+	   errors.invalidMeetingIdError();
+	   respondWithErrors(errors)
+	   return;
+    }
+    
+    // Is this user joining a meeting that has been ended. If so, complain.
+    if (meeting.isForciblyEnded()) {
+      errors.meetingForciblyEndedError();
+      respondWithErrors(errors)
+      return;
+    }
+
+    // Now determine if this user is a moderator or a viewer.
+    String role = null;
+    if (meeting.getModeratorPassword().equals(attPW)) {
+      role = ROLE_MODERATOR;
+    } else if (meeting.getAttendeePassword().equals(attPW)) {
+      role = ROLE_ATTENDEE;
+    }
+    
+    if (role == null) {
+    	errors.invalidPasswordError()
+	    respondWithErrors(errors)
+	    return;
+    }
+        
+    String webVoice = StringUtils.isEmpty(params.webVoiceConf) ? meeting.getTelVoice() : params.webVoiceConf
+
+    boolean redirectImm = parseBoolean(params.redirectImmediately)
+    
+    String externUserID = params.userID
+    if (StringUtils.isEmpty(externUserID)) {
+      externUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+    }
+    
+    session["conferencename"] = meeting.getName()
+    session["meetingID"] = meeting.getInternalId()
+    session["externUserID"] = externUserID
+    session["fullname"] = fullName 
+    session["role"] = role
+    session["conference"] = meeting.getInternalId()
+    session["room"] = meeting.getInternalId()
+    session["voicebridge"] = meeting.getTelVoice()
+    session["webvoiceconf"] = meeting.getWebVoice()
+    session["mode"] = "LIVE"
+    session["record"] = meeting.isRecord()
+    session['welcome'] = meeting.getWelcomeMessage()
+    
+    session.setMaxInactiveInterval(SESSION_TIMEOUT);
+    
+    log.info("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}"); 		
+    redirect(url: paramsProcessorUtil.getDefaultClientUrl())
+  }
+
+  /*******************************************
+   * IS_MEETING_RUNNING API
+   *******************************************/
+  def isMeetingRunning = {
+    String API_CALL = 'isMeetingRunning'
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+
+  	ApiErrors errors = new ApiErrors()
+  	
+    // Do we have a checksum? If none, complain.
+    if (StringUtils.isEmpty(params.checksum)) {
+      errors.missingParamError("checksum");			
+    }
+
+    // Do we have a meeting id? If none, complain.
+    String externalMeetingId = params.meetingID
+    if (StringUtils.isEmpty(externalMeetingId)) {
+      errors.missingParamError("meetingID");
+    }
+
+    if (errors.hasErrors()) {
+    	respondWithErrors(errors)
+    	return
+    }
+    
+    // Do we agree on the checksum? If not, complain.		
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      	errors.checksumError()
+    	respondWithErrors(errors)
+    	return
+    }
+            
+    // Everything is good so far. Translate the external meeting id to an internal meeting id. If
+    // we can't find the meeting, complain.					        
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
+    log.info("Retrieving meeting ${internalMeetingId}")		
+    Meeting meeting = meetingService.getMeeting(internalMeetingId);
+    if (meeting == null) {
+	   errors.invalidMeetingIdError();
+	   respondWithErrors(errors)
+	   return;
+    }
+    
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {	
+      xml {
+        render(contentType:"text/xml") {
+          response() {
+            returncode(RESP_CODE_SUCCESS)
+            running(meeting.isRunning() ? "true" : "false")
+          }
         }
-	    	    
-        if (hostURL.isEmpty()) {           
-        	hostURL = config.bigbluebutton.web.serverURL
-        	log.debug("No logout url. Redirecting to server url $hostURL.")
+      }
+    }
+  }
+
+  /************************************
+   * END API
+   ************************************/
+  def end = {
+    String API_CALL = "end"
+    
+    log.debug CONTROLLER_NAME + "#${API_CALL}"    
+    ApiErrors errors = new ApiErrors()
+    
+    // Do we have a checksum? If none, complain.
+    if (StringUtils.isEmpty(params.checksum)) {
+      errors.missingParamError("checksum");		
+    }
+
+    // Do we have a meeting id? If none, complain.
+    String externalMeetingId = params.meetingID
+    if (StringUtils.isEmpty(externalMeetingId)) {
+      errors.missingParamError("meetingID");
+    }
+
+    // Do we have a password? If not, complain.
+    String modPW = params.password
+    if (StringUtils.isEmpty(modPW)) {
+      errors.missingParamError("password");
+    }
+
+    if (errors.hasErrors()) {
+    	respondWithErrors(errors)
+    	return
+    }
+    
+    // Do we agree on the checksum? If not, complain.		
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      	errors.checksumError()
+    	respondWithErrors(errors)
+    	return
+    }
+            
+    // Everything is good so far. Translate the external meeting id to an internal meeting id. If
+    // we can't find the meeting, complain.					        
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
+    log.info("Retrieving meeting ${internalMeetingId}")		
+    Meeting meeting = meetingService.getMeeting(internalMeetingId);
+    if (meeting == null) {
+	   errors.invalidMeetingIdError();
+	   respondWithErrors(errors)
+	   return;
+    }
+    
+    if (meeting.getModeratorPassword().equals(modPW) == false) {
+	   errors.invalidPasswordError();
+	   respondWithErrors(errors)
+	   return;
+    }
+       
+    meetingService.endMeeting(internalMeetingId);
+    
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {	
+      xml {
+        render(contentType:"text/xml") {
+          response() {
+            returncode(RESP_CODE_SUCCESS)
+            messageKey("sentEndMeetingRequest")
+            message("A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.")
+          }
         }
-        // Log the user out of the application.
-	    session.invalidate()
-	    /**
-	     * Temporary way to trigger ingest and processing. For demo purposes only. (richard)
-	    **/
-	    if (conf.isRecord())
-	    	dynamicConferenceService.processRecording(meetingToken)
-	    
-        println "serverURL $hostURL"	
-	    redirect(url: hostURL)
-	}
-	
-	/* helper methods */
-	def doChecksumSecurity(callName) {
-		log.debug CONTROLLER_NAME + "#doChecksumSecurity"
-		log.debug "checksum: " + params.checksum + "; query string: " + request.getQueryString()
-		if (StringUtils.isEmpty(callName)) {
-			throw new RuntimeException("Programming error - you must pass the call name to doChecksumSecurity so it can be used in the checksum");
-		}
-		if (StringUtils.isEmpty(request.getQueryString())) {
-			invalid("noQueryString", "No query string was found in your request.")
-			return false;
-		}
-	
-		if (StringUtils.isEmpty(securitySalt()) == false) {
-			String qs = request.getQueryString()
-			// handle either checksum as first or middle / end parameter
-			// TODO: this is hackish - should be done better
-			qs = qs.replace("&checksum=" + params.checksum, "")
-			qs = qs.replace("checksum=" + params.checksum + "&", "")
-			log.debug "query string after checksum removed: " + qs
-			String cs = DigestUtils.shaHex(callName + qs + securitySalt());
-			log.debug "our checksum: " + cs
-			if (cs == null || cs.equals(params.checksum) == false) {
-				log.info("checksumError: request did not pass the checksum security check")
-				return false;
-			}
-			log.debug("checksum ok: request passed the checksum security check")
-			return true; 
-		}
-		
-		log.warn "Security is disabled in this service. Make sure this is intentional."
-		return true;
-	}
+      }
+    }
+  }
 
-	private String securitySalt() {
-		return dynamicConferenceService.securitySalt
-	}
-	
-	def beforeInterceptor = {
-		if (dynamicConferenceService.serviceEnabled == false) {
-			log.info("apiNotEnabled: The API service and/or controller is not enabled on this server.  To use it, you must first enable it.")
-			// TODO: this doesn't stop the request - so it generates invalid XML
-			//			since the request continues and renders a second response
-			invalid("apiNotEnabled", "The API service and/or controller is not enabled on this server.  To use it, you must first enable it.")
-		}
-	}
+  /*****************************************
+   * GETMEETINGINFO API
+   *****************************************/
+  def getMeetingInfo = {
+    String API_CALL = "getMeetingInfo"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+    
+    ApiErrors errors = new ApiErrors()
+        
+    // Do we have a checksum? If none, complain.
+    if (StringUtils.isEmpty(params.checksum)) {
+      errors.missingParamError("checksum");				
+    }
 
-	def respondWithConferenceDetails(conf, room, msgKey, msg) {
-		response.addHeader("Cache-Control", "no-cache")
-		withFormat {				
-			xml {
-				render(contentType:"text/xml") {
-					response() {
-						returncode(RESP_CODE_SUCCESS)
-						meetingID("${conf.meetingID}")
-						attendeePW("${conf.attendeePassword}")
-						moderatorPW("${conf.moderatorPassword}")
-						running(conf.isRunning() ? "true" : "false")
-						hasBeenForciblyEnded(conf.isForciblyEnded() ? "true" : "false")
-						startTime("${conf.startTime}")
-						endTime("${conf.endTime}")
-						participantCount(room == null ? 0 : room.getNumberOfParticipants())
-						moderatorCount(room == null ? 0 : room.getNumberOfModerators())
-						attendees() {
-							room == null ? Collections.emptyList() : room.participantCollection.each { att ->
-								attendee() {
-									userID("${att.externUserID}")
-									fullName("${att.name}")
-									role("${att.role}")
-								}
-							}
-						}
-						messageKey(msgKey == null ? "" : msgKey)
-						message(msg == null ? "" : msg)
-					}
-				}
-			}
-		}			 
-	}
-	
-	def respondWithConferenceDetails2(conf, room, msgKey, msg) {
-		response.addHeader("Cache-Control", "no-cache")
-		withFormat {
-			xml {
-				render(contentType:"text/xml") {
-					response() {
-						returncode(RESP_CODE_SUCCESS)
-						meetingID("${conf.meetingID}")
-						attendeePW("${conf.attendeePassword}")
-						moderatorPW("${conf.moderatorPassword}")
-						running(conf.isRunning() ? "true" : "false")
-						hasBeenForciblyEnded(conf.isForciblyEnded() ? "true" : "false")
-						startTime("${conf.startTime}")
-						endTime("${conf.endTime}")
-						participantCount(conf.getNumberOfParticipants())
-						moderatorCount(conf.getNumberOfModerators())
-						attendees() {
-							conf.getParticipants().each { att ->
-								attendee() {
-									userID("${att.userid}")
-									fullName("${att.fullname}")
-									role("${att.role}")
-								}
-							}
-						}
-						messageKey(msgKey == null ? "" : msgKey)
-						message(msg == null ? "" : msg)
-					}
-				}
-			}
-		}
-	}
+    // Do we have a meeting id? If none, complain.
+    String externalMeetingId = params.meetingID
+    if (StringUtils.isEmpty(externalMeetingId)) {
+      errors.missingParamError("meetingID");
+    }
 
-	def respondWithConference(conf, msgKey, msg) {
-		response.addHeader("Cache-Control", "no-cache")
-		withFormat {	
-			xml {
-				log.debug "Rendering as xml"
-				render(contentType:"text/xml") {
-					response() {
-						returncode(RESP_CODE_SUCCESS)
-						meetingID("${conf.meetingID}")
-						attendeePW("${conf.attendeePassword}")
-						moderatorPW("${conf.moderatorPassword}")
-						hasBeenForciblyEnded(conf.isForciblyEnded() ? "true" : "false")
-						messageKey(msgKey == null ? "" : msgKey)
-						message(msg == null ? "" : msg)
-					}
-				}
-			}
-		}
-	}
-	
-	def invalidPassword(msg) {
-		invalid("invalidPassword", msg);
-	}
-	
-	def invalidChecksum() {
-		invalid("checksumError", "You did not pass the checksum security check")
-	}
-	
-	def invalid(key, msg) {
-		log.debug CONTROLLER_NAME + "#invalid"
-		response.addHeader("Cache-Control", "no-cache")
-		withFormat {				
-			xml {
-				render(contentType:"text/xml") {
-					response() {
-						returncode(RESP_CODE_FAILED)
-						messageKey(key)
-						message(msg)
-					}
-				}
-			}
-			json {
-				log.debug "Rendering as json"
-				render(contentType:"text/json") {
-						returncode(RESP_CODE_FAILED)
-						messageKey(key)
-						message(msg)
-				}
-			}
-		}			 
-	}
+    // Do we have a password? If not, complain.
+    String modPW = params.password
+    if (StringUtils.isEmpty(modPW)) {
+      errors.missingParamError("password");
+    }
 
-	def parseBoolean(obj) {
+    if (errors.hasErrors()) {
+    	respondWithErrors(errors)
+    	return
+    }
+    
+    // Do we agree on the checksum? If not, complain.		
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      	errors.checksumError()
+    	respondWithErrors(errors)
+    	return
+    }
+    
+    // Everything is good so far. Translate the external meeting id to an internal meeting id. If
+    // we can't find the meeting, complain.					        
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
+    log.info("Retrieving meeting ${internalMeetingId}")		
+    Meeting meeting = meetingService.getMeeting(internalMeetingId);
+    if (meeting == null) {
+	   errors.invalidMeetingIdError();
+	   respondWithErrors(errors)
+	   return;
+    }
+    
+    if (meeting.getModeratorPassword().equals(modPW) == false) {
+	   errors.invalidPasswordError();
+	   respondWithErrors(errors)
+	   return;
+    }
+    
+    respondWithConferenceDetails(meeting, null, null, null);
+  }
+  
+  /************************************
+   *	GETMEETINGS API
+   ************************************/
+  def getMeetings = {
+    String API_CALL = "getMeetings"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+    
+    ApiErrors errors = new ApiErrors()
+        
+    // Do we have a checksum? If none, complain.
+    if (StringUtils.isEmpty(params.checksum)) {
+      errors.missingParamError("checksum");				
+    }
+
+    if (errors.hasErrors()) {
+    	respondWithErrors(errors)
+    	return
+    }
+    
+    // Do we agree on the checksum? If not, complain.		
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+      	errors.checksumError()
+    	respondWithErrors(errors)
+    	return
+    }
+        
+    Collection<Meeting> mtgs = meetingService.getMeetings();
+    
+    if (mtgs == null || mtgs.isEmpty()) {
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {	
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode(RESP_CODE_SUCCESS)
+              meetings(null)
+              messageKey("noMeetings")
+              message("no meetings were found on this server")
+            }
+          }
+        }
+      }
+      return;
+    }
+    
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {	
+      xml {
+        render(contentType:"text/xml") {
+          response() {
+            returncode(RESP_CODE_SUCCESS)
+            meetings() {
+              mtgs.each { m ->
+                meeting() {
+                  meetingID(m.getExternalId())
+                  attendeePW(m.getViewerPassword())
+                  moderatorPW(m.getModeratorPassword())
+                  hasBeenForciblyEnded(m.isForciblyEnded() ? "true" : "false")
+                  running(m.isRunning() ? "true" : "false")
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /***********************************************
+   * ENTER API
+   ***********************************************/
+  def enter = {
+    def fname = session["fullname"]
+    def rl = session["role"]
+    def cnf = session["conference"]
+    def rm = session["room"]
+    def vb = session["voicebridge"] 
+    def wbv = session["webvoiceconf"]  
+    def rec = session["record"]
+    def md = session["mode"]
+    def confName = session["conferencename"]
+    def welcomeMsg = session['welcome']
+    def meetID = session["meetingID"] 
+    def externUID = session["externUserID"] 
+        
+    if (!rm) {
+      println "Could not find conference"
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {				
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode("FAILED")
+              message("Could not find conference ${params.conference}.")
+            }
+          }
+        }
+      }
+      } else {	
+        println "Found conference"
+        response.addHeader("Cache-Control", "no-cache")
+        withFormat {				
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode("SUCCESS")
+              fullname("$fname")
+              confname("$confName")
+              meetingID("$meetID")
+              externUserID("$externUID")
+              role("$rl")
+              conference("$cnf")
+              room("$rm")
+              voicebridge("${vb}")
+              webvoiceconf("${wbv}")
+              mode("$md")
+              record("$rec")
+              welcome("$welcomeMsg")
+            }
+          }
+        }
+      }
+      }  
+  }
+  
+  /*************************************************
+   * SIGNOUT API
+   *************************************************/
+  def signOut = {        
+  	String meetingId = session["conference"]
+  	Meeting meeting = meetingService.getMeeting(meetingId);
+  	String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+      log.debug("Logging out from [" + meeting.getInternalId() + "]");
+               
+  	// Log the user out of the application.
+  	session.invalidate()
+  
+  	if (meeting != null) {
+  		logoutUrl = meeting.getLogoutUrl();
+  		if (meeting.isRecord()) {
+  			log.debug("[" + meeting.getInternalId() + "] is recorded. Process it.");		
+  			meetingService.processRecording(meeting.getInternalId())
+  		}
+  	} else {
+  		log.warn("Signing out from a non-existing meeting [" + meetingId + "]");	
+  	}      
+   
+  	log.debug("Signing out. Redirecting to " + logoutUrl)
+  	redirect(url: logoutUrl)
+  }
+ 
+  /******************************************************
+   * GET_RECORDINGS API
+   ******************************************************/
+  def getRecordings = {
+    String API_CALL = "getRecordings"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+    
+    ApiErrors errors = new ApiErrors()
+        
+    // Do we have a checksum? If none, complain.
+    if (StringUtils.isEmpty(params.checksum)) {
+      errors.missingParamError("checksum");       
+    }
+
+    // Do we have a meeting id? If none, complain.
+    String externalMeetingId = params.meetingID
+    if (StringUtils.isEmpty(externalMeetingId)) {
+      errors.missingParamError("meetingID");
+    }
+
+    if (errors.hasErrors()) {
+      respondWithErrors(errors)
+      return
+    }
+
+    // Do we agree on the checksum? If not, complain.   
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+        errors.checksumError()
+      respondWithErrors(errors)
+      return
+    }
+    
+    // Everything is good so far. Translate the external meeting id to an internal meeting id. If
+    // we can't find the meeting, complain.                 
+    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
+            
+    ArrayList<Recording> recs = meetingService.getRecordings(internalMeetingId);
+    if (recs.isEmpty()) {
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {  
+        xml {
+          render(contentType:"text/xml") {
+            response() {
+              returncode(RESP_CODE_SUCCESS)
+              recordings(null)
+              messageKey("noRecordings")
+              message("There are not recordings for meeting [${externalMeetingId}]")
+            }
+          }
+        }
+      }
+      return;
+    }
+    
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {  
+      xml {
+        render(contentType:"text/xml") {
+          response() {
+            returncode(RESP_CODE_SUCCESS)
+            recordings() {
+              recs.each { r ->
+                recording() {
+                  id(r.getId())
+                  state(r.getState())
+                  published(r.isPublished())
+                  startTime(r.getStartTime())
+                  endTime(r.getEndTime())
+                  playback() {
+                    format(r.getPlaybackFormat())
+                    link(r.getPlaybackLink())
+                  }
+                  meta() {
+                    r.getMetadata().each {m ->
+                      "$m.key"("$m.value")
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } 
+  
+  
+  
+  def uploadDocuments(conf) { 
+    log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
+
+    String requestBody = request.inputStream == null ? null : request.inputStream.text;
+    requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
+
+    if (requestBody == null) {
+      return;
+    }
+        
+    log.debug "Request body: \n" + requestBody;
+
+    def xml = XML.parse(requestBody);
+    xml.children().each { module ->
+      log.debug("module config found: [${module.@name}]");
+      if ("presentation".equals(module.@name.toString())) {
+        // need to iterate over presentation files and process them
+        module.children().each { document -> 
+          if (!StringUtils.isEmpty(document.@url.toString())) {
+            downloadAndProcessDocument(document.@url.toString(), conf);
+          } else if (!StringUtils.isEmpty(document.@name.toString())) {
+            def b64 = new Base64()
+            def decodedBytes = b64.decode(document.text().getBytes())
+            processDocumentFromRawBytes(decodedBytes, document.@name.toString(), conf);
+          } else {
+            log.debug("presentation module config found, but it did not contain url or name attributes");
+          }
+        }
+      }
+    }
+  }
+
+
+
+  def cleanFilename(filename) {
+    def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
+    return filename.replaceAll(notValidCharsRegExp, '-')
+  }
+  
+  def processDocumentFromRawBytes(bytes, filename, conf) {
+    def cleanName = cleanFilename(filename);
+
+    File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), cleanName);
+    def pres = new File(uploadDir.absolutePath + File.separatorChar + cleanName);
+    
+    FileOutputStream fos = new java.io.FileOutputStream(pres)
+    fos.write(bytes)
+    fos.flush()
+    fos.close()
+    
+    processUploadedFile(cleanName, pres, conf);
+  }
+    
+  def downloadAndProcessDocument(address, conf) {
+    log.debug("ApiController#downloadAndProcessDocument({$address}, ${conf.getInternalId()})");
+    String name = cleanFilename(address.tokenize("/")[-1]);
+    log.debug("Uploading presentation: ${name} from ${address} [starting download]");
+    
+    def out;
+    def pres;
+    try {
+      File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), name);
+      pres = new File(uploadDir.absolutePath + File.separatorChar + name);
+      out = new BufferedOutputStream(new FileOutputStream(pres))
+      out << new URL(address).openStream()
+    } finally {
+      if (out != null) {
+        out.close()
+      }
+    }
+
+    processUploadedFile(name, pres, conf);
+  }
+  
+  def processUploadedFile(name, pres, conf) {
+    UploadedPresentation uploadedPres = new UploadedPresentation(conf.getInternalId(), conf.getInternalId(), name);
+    uploadedPres.setUploadedFile(pres);
+    presentationService.processUploadedPresentation(uploadedPres);
+  }
+  
+  def beforeInterceptor = {
+    if (paramsProcessorUtil.isServiceEnabled() == false) {
+      log.info("apiNotEnabled: The API service and/or controller is not enabled on this server.  To use it, you must first enable it.")
+      // TODO: this doesn't stop the request - so it generates invalid XML
+      //			since the request continues and renders a second response
+      invalid("apiNotEnabled", "The API service and/or controller is not enabled on this server.  To use it, you must first enable it.")
+    }
+  }
+
+  def respondWithConferenceDetails(meeting, room, msgKey, msg) {
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {				
+      xml {
+        render(contentType:"text/xml") {
+          response() {
+            returncode(RESP_CODE_SUCCESS)
+            meetingID(meeting.getExternalId())
+            attendeePW(meeting.getViewerPassword())
+            moderatorPW(meeting.getModeratorPassword())
+            running(meeting.isRunning() ? "true" : "false")
+            hasBeenForciblyEnded(meeting.isForciblyEnded() ? "true" : "false")
+            startTime(meeting.getStartTime())
+            endTime(meeting.getEndTime())
+            participantCount(meeting.getNumUsers())
+            maxUsers(meeting.getMaxUsers())
+            moderatorCount(meeting.getNumModerators())
+            attendees() {
+              meeting.getUsers().each { att ->
+                attendee() {
+                  userID("${att.userid}")
+                  fullName("${att.fullname}")
+                  role("${att.role}")
+                }
+              }
+            }
+            messageKey(msgKey == null ? "" : msgKey)
+            message(msg == null ? "" : msg)
+          }
+        }
+      }
+    }			 
+  }
+  
+  def respondWithConference(meeting, msgKey, msg) {
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {	
+      xml {
+        log.debug "Rendering as xml"
+        render(contentType:"text/xml") {
+          response() {
+            returncode(RESP_CODE_SUCCESS)
+            meetingID(meeting.getExternalId())
+            attendeePW(meeting.getViewerPassword())
+            moderatorPW(meeting.getModeratorPassword())
+            createTime(meeting.getCreateTime())
+            hasBeenForciblyEnded(meeting.isForciblyEnded() ? "true" : "false")
+            messageKey(msgKey == null ? "" : msgKey)
+            message(msg == null ? "" : msg)
+          }
+        }
+      }
+    }
+  }
+  
+  def respondWithErrors(errorList) {
+    log.debug CONTROLLER_NAME + "#invalid"
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {				
+      xml {
+        render(contentType:"text/xml") {
+          response() {
+            returncode(RESP_CODE_FAILED)
+            errors() {
+              ArrayList errs = errorList.getErrors();
+              Iterator itr = errs.iterator();
+              while (itr.hasNext()){
+                String[] er = (String[]) itr.next();
+                log.debug CONTROLLER_NAME + "#invalid" + er[0]
+                error(key: er[0], message: er[1])
+              }          
+            }
+          }
+        }
+      }
+      json {
+        log.debug "Rendering as json"
+        render(contentType:"text/json") {
+            returncode(RESP_CODE_FAILED)
+            messageKey(key)
+            message(msg)
+        }
+      }
+    }  
+  }
+  
+  def parseBoolean(obj) {
 		if (obj instanceof Number) {
 			return ((Number) obj).intValue() == 1;
 		}
 		return false
-	}
+  }  
 }

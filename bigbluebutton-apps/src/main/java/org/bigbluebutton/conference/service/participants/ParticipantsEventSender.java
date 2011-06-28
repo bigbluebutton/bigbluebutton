@@ -51,7 +51,6 @@ public class ParticipantsEventSender implements IRoomListener {
 	@Override
 	public void endAndKickAll() {
 		so.sendMessage("logout", new ArrayList());
-		//recordEvent(parseParticipantsToXML(new ArrayList(), this.RECORD_EVENT_LEAVE_ALL));
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -62,7 +61,6 @@ public class ParticipantsEventSender implements IRoomListener {
 		args.add(p.toMap());
 		log.debug("Sending participantJoined {} to client.",p.getUserid());
 		so.sendMessage("participantJoined", args);
-		//recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_JOIN));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -71,7 +69,6 @@ public class ParticipantsEventSender implements IRoomListener {
 		ArrayList args = new ArrayList();
 		args.add(userid);
 		so.sendMessage("participantLeft", args);
-		//recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_LEAVE));
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -83,67 +80,6 @@ public class ParticipantsEventSender implements IRoomListener {
 		args.add(status);
 		args.add(value);
 		so.sendMessage("participantStatusChange", args);
-		//recordEvent(parseParticipantsToXML(args, this.RECORD_EVENT_STATUS_CHANGE));
-	}
-	
-	/****** parse method ********/
-	@SuppressWarnings("unchecked")
-	private String parseParticipantsToJSON(ArrayList list, String type){
-		String json="{ ";
-		
-		json+="\"module\":\"participants\", ";
-		if(type.equalsIgnoreCase(this.RECORD_EVENT_STATUS_CHANGE)){
-			json+="\"event\":\""+this.RECORD_EVENT_STATUS_CHANGE+"\", ";
-			json+="\"userid\":\""+list.get(0)+"\", ";
-			json+="\"status\":\""+list.get(1)+"\", ";
-			json+="\"value\":\""+list.get(2)+"\" ";
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_JOIN)){
-			Map map=(Map) list.get(0);
-			json+="\"event\":\""+this.RECORD_EVENT_JOIN+"\", ";
-			json+="\"userid\":\""+map.get("userid")+"\", ";
-			json+="\"name\":\""+map.get("name")+"\", ";
-			json+="\"role\":\""+map.get("role")+"\" ";
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_LEAVE)){
-			json+="\"event\":\""+this.RECORD_EVENT_LEAVE+"\", ";
-			json+="\"userid\":\""+list.get(0)+"\" ";
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_LEAVE_ALL)){
-			json+="\"event\":\""+this.RECORD_EVENT_LEAVE_ALL+"\" ";			
-		}
-		json+="}";
-		return json;
-	}
-	
-	/***********************************************************
-	 * Participants XML Test
-	 ***********************************************************/
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private String parseParticipantsToXML(ArrayList list, String type){
-		Hashtable keyvalues=new Hashtable();
-		if(type.equalsIgnoreCase(this.RECORD_EVENT_STATUS_CHANGE)){
-			keyvalues.put("event", this.RECORD_EVENT_STATUS_CHANGE);
-			keyvalues.put("userid", list.get(0));
-			keyvalues.put("status", list.get(1));
-			keyvalues.put("value", list.get(2));
-			
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_JOIN)){
-			Map map=(Map) list.get(0);
-			keyvalues.put("event", this.RECORD_EVENT_JOIN);
-			keyvalues.put("userid", map.get("userid"));
-			keyvalues.put("status", map.get("name"));
-			keyvalues.put("value", map.get("role"));
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_LEAVE)){
-			keyvalues.put("event", this.RECORD_EVENT_LEAVE);
-			keyvalues.put("userid", list.get(0));
-		}
-		else if(type.equalsIgnoreCase(this.RECORD_EVENT_LEAVE_ALL)){
-			keyvalues.put("event", this.RECORD_EVENT_LEAVE_ALL);
-		}
-		return BigBlueButtonUtils.parseEventsToXML("participants", keyvalues);
 	}
 
 	@Override
