@@ -45,7 +45,7 @@ module BigBlueButton
     
   def self.execute(command)
     output=""
-    Open3.popen3(command) do | stdin, stdout, stderr|
+    status = Open4::popen4(command) do | pid, stdin, stdout, stderr|
         BigBlueButton.logger.info("Executing: #{command}")
 	output = stdout.readlines
         BigBlueButton.logger.info( "Output: #{output} ") unless output.empty?
@@ -55,6 +55,7 @@ module BigBlueButton
           raise errors.to_s 
         end
     end
+    BigBlueButton.logger.info("Process Status: #{status}")
     output
   end
 end
