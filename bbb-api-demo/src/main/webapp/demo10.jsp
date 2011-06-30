@@ -118,6 +118,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		var s = jQuery("#recordgrid").jqGrid('getGridParam','selarrrow');
 		if(s.length==0){
 			alert("Select at least one row");
+			$("#actionscmb").val("novalue");
 			return;
 		}
 		var recordid="";
@@ -131,9 +132,10 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 			var answer = confirm ("Are you sure to delete the selected recordings?");
 			if (answer)
 				sendRecordingAction(recordid,action);
-			else
+			else{
+				$("#actionscmb").val("novalue");
 				return;
-
+			}
 		}else{
 			sendRecordingAction(recordid,action);
 		}
@@ -190,8 +192,8 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 			height: 150,
 			colNames:['Id','Course','Description', 'Date Recorded', 'Published'],
 			colModel:[
-				{name:'id',index:'id', width:50, hidden:true, xmlmap: "id"},
-				{name:'course',index:'course', width:150, xmlmap: "metadata>meetingId", formatter:playbackFormat},
+				{name:'id',index:'id', width:50, hidden:true, xmlmap: "recordID"},
+				{name:'course',index:'course', width:150, xmlmap: "meetingID", formatter:playbackFormat},
 				{name:'description',index:'description', width:300, xmlmap: "metadata>description"},
 				{name:'daterecorded',index:'daterecorded', width:200, xmlmap: "startTime"},
 				{name:'published',index:'published', width:80, xmlmap: "published" }		
@@ -209,7 +211,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 	
 	function playbackFormat( cellvalue, options, rowObject ){
 		if($(rowObject).find('published:first').text()=="true")
-			return '<a href="'+$(rowObject).find('playback link:first').text()+'">'+cellvalue+'</a>';
+			return '<a href="'+$(rowObject).find('playback format url:first').text()+'">'+cellvalue+'</a>';
 		return cellvalue;
 	}
 

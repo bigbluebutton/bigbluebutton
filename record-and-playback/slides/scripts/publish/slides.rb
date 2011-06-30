@@ -54,7 +54,7 @@ if (playback == "slides")
 		  b.start_time(Time.at((BigBlueButton::Events.first_event_timestamp("#{process_dir}/events.xml").to_f/1000.0)).utc)
 		  b.end_time(Time.at((BigBlueButton::Events.last_event_timestamp("#{process_dir}/events.xml").to_f/1000.0)).utc)
 		  b.playback {
-		  	b.format("simple")
+		  	b.format("slides")
 		  	b.link("http://#{playback_host}/playback/slides/playback.html?meetingId=#{meeting_id}")
 	  	}
 		  b.meta {

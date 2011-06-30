@@ -39,6 +39,8 @@ import java.security.NoSuchAlgorithmException;
 //import grails.converters.XML;
 import org.bigbluebutton.api.ApiErrors;
 import org.bigbluebutton.api.ParamsProcessorUtil;
+
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
 
@@ -622,7 +624,8 @@ class ApiController {
     
     // Everything is good so far. Translate the external meeting ids to an internal meeting ids.             
     ArrayList<String> internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);        
-    ArrayList<Recording> recs = meetingService.getRecordings(internalMeetingIds);
+    //ArrayList<Recording> recs = meetingService.getRecordings(internalMeetingIds);
+	HashMap<String,Recording> recs = meetingService.getRecordings(internalMeetingIds);
 	
     if (recs.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
@@ -648,22 +651,29 @@ class ApiController {
           response() {
            returncode(RESP_CODE_SUCCESS)
             recordings() {
-              recs.each { r ->
+              recs.values().each { r ->
 				  recording() {
-                  id(r.getId())
-                  state(r.getState())
+                  recordID(r.getId())
+				  meetingID(r.getMeetingID())
+				  name(r.getName())
                   published(r.isPublished())
                   startTime(r.getStartTime())
                   endTime(r.getEndTime())
-                  playback() {
-                    format(r.getPlaybackFormat())
-                    link(r.getPlaybackLink())
+				  metadata() {
+					 r.getMetadata().each { k,v ->
+						 "$k"("$v")
+					 }
+				  }
+				  playback() {
+					  r.getPlaybacks().each { item ->
+						  format{
+							  type(item.getFormat())
+							  url(item.getUrl())
+							  length(item.getLength())
+						  }
+					  }
                   }
-                  metadata() {
-          					r.getMetadata().each { k,v -> 
-          						"$k"("$v")
-          					}
-                  }
+                  
                 }
               }
             }
@@ -674,11 +684,11 @@ class ApiController {
   } 
   
   /******************************************************
-  * SET_PUBLISH_RECORDINGS API
+  * PUBLISH_RECORDINGS API
   ******************************************************/
   
-  def setPublishRecordings = {
-	  String API_CALL = "setPublishRecordings"
+  def publishRecordings = {
+	  String API_CALL = "publishRecordings"
 	  log.debug CONTROLLER_NAME + "#${API_CALL}"
 	  
 	  ApiErrors errors = new ApiErrors()

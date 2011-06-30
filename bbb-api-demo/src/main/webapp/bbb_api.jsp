@@ -554,12 +554,12 @@
 	}
 	
 	public String getPublishRecordingsURL(boolean publish, String recordID) {
-		String base_url_publish = BigBlueButtonURL + "api/setPublishRecordings?";
+		String base_url_publish = BigBlueButtonURL + "api/publishRecordings?";
 		String publish_parameters = "recordID=" + urlEncode(recordID)
 				+ "&publish=" + publish;
 
 		return base_url_publish + publish_parameters + "&checksum="
-				+ checksum("setPublishRecordings" + publish_parameters + salt);
+				+ checksum("publishRecordings" + publish_parameters + salt);
 	}
 	
 	public String setPublishRecordings(boolean publish, String recordID){

@@ -1,11 +1,14 @@
 package org.bigbluebutton.api;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.*;
 import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.domain.Playback;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.messaging.MessageListener;
@@ -72,8 +75,53 @@ public class MeetingService {
 		return null;
 	}
 
-	public ArrayList<Recording> getRecordings(ArrayList<String> idList) {		
-		return recordingService.getRecordings(idList);
+	public HashMap<String,Recording> getRecordings(ArrayList<String> idList) {
+		//TODO: this method shouldn't be used 
+		HashMap<String,Recording> recs= reorderRecordings(recordingService.getRecordings(idList));
+		return recs;
+	}
+	
+	public HashMap<String,Recording> reorderRecordings(ArrayList<Recording> olds){
+		HashMap<String,Recording> map= new HashMap<String, Recording>();
+		for(Recording r:olds){
+			if(!map.containsKey(r.getId())){
+				Map<String,String> meta= r.getMetadata();
+				String mid=meta.remove("meetingId");
+				r.setName(mid);
+				r.setMeetingID(mid);
+
+				ArrayList<Playback> plays=new ArrayList<Playback>();
+				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getMinutesRecording(r.getStartTime(), r.getEndTime())));
+				r.setPlaybacks(plays);
+				map.put(r.getId(), r);
+			}
+			else{
+				Recording rec=map.get(r.getId());
+				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getMinutesRecording(r.getStartTime(), r.getEndTime())));
+			}
+		}
+		
+		return map;
+	}
+	private int getMinutesRecording(String dateini, String dateend){
+		//setting according to "Fri Jul 22 21:06:06 UTC 2011"
+		SimpleDateFormat sdf=new SimpleDateFormat("EEE MMM d HH:mm:ss z yyyy");
+		int total=0;
+		try {
+			Calendar cal=Calendar.getInstance();
+			
+			cal.setTime(sdf.parse(dateend));
+			long end_time=cal.getTimeInMillis();
+			
+			cal.setTime(sdf.parse(dateini));
+			long start_time=cal.getTimeInMillis();
+			
+			total = (int)((end_time - start_time)/60000);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return total;
 	}
 	
 	public boolean existsAnyRecording(ArrayList<String> idList){
