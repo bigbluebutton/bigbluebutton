@@ -28,10 +28,9 @@ import org.red5.server.api.IScope;
 import org.red5.server.api.Red5;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IServerStream;
+import org.red5.server.api.stream.IStreamListener;
 import org.red5.server.stream.ClientBroadcastStream;
 import org.slf4j.Logger;
-import org.red5.server.api.stream.IBroadcastStream;
-import org.red5.server.stream.ClientBroadcastStream;
 
 public class VideoApplication extends MultiThreadedApplicationAdapter {
 	private static Logger log = Red5LoggerFactory.getLogger(VideoApplication.class, "video");
@@ -41,7 +40,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	
 	private boolean recordVideoStream = false;
 	private EventRecordingService recordingService;
-	
+	private final Map<String, IStreamListener> streamListeners = new HashMap<String, IStreamListener>();
 	
     @Override
 	public boolean appStart(IScope app) {
@@ -80,33 +79,36 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 
         if (recordVideoStream) {
 	    	recordStream(stream);
+	    	VideoStreamListener listener = new VideoStreamListener(); 
+	        listener.setEventRecordingService(recordingService);
+	        stream.addStreamListener(listener); 
+	        streamListeners.put(conn.getScope().getName() + "-" + stream.getPublishedName(), listener);
         }
-        
-    	Map<String, String> event = new HashMap<String, String>();
-		event.put("module", "WEBCAM");
-		event.put("timestamp", new Long(System.currentTimeMillis()).toString());
-		event.put("meetingId", conn.getScope().getName());
-		event.put("stream", stream.getPublishedName());
-		event.put("eventName", "StartWebcamShareEvent");
-		
-		recordingService.record(conn.getScope().getName(), event);
     }
 
     @Override
     public void streamBroadcastClose(IBroadcastStream stream) {
     	IConnection conn = Red5.getConnectionLocal();  
     	super.streamBroadcastClose(stream);
-    	long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
-    	log.info("streamBroadcastClose " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
-		Map<String, String> event = new HashMap<String, String>();
-		event.put("module", "WEBCAM");
-		event.put("timestamp", new Long(System.currentTimeMillis()).toString());
-		event.put("meetingId", conn.getScope().getName());
-		event.put("stream", stream.getPublishedName());
-		event.put("duration", new Long(publishDuration).toString());
-		event.put("eventName", "StopWebcamShareEvent");
-		
-		recordingService.record(conn.getScope().getName(), event);
+    	
+    	if (recordVideoStream) {
+    		IStreamListener listener = streamListeners.remove(conn.getScope().getName() + "-" + stream.getPublishedName());
+    		if (listener != null) {
+    			stream.removeStreamListener(listener);
+    		}
+    		
+        	long publishDuration = (System.currentTimeMillis() - stream.getCreationTime()) / 1000;
+        	log.info("streamBroadcastClose " + stream.getPublishedName() + " " + System.currentTimeMillis() + " " + conn.getScope().getName());
+    		Map<String, String> event = new HashMap<String, String>();
+    		event.put("module", "WEBCAM");
+    		event.put("timestamp", new Long(System.currentTimeMillis()).toString());
+    		event.put("meetingId", conn.getScope().getName());
+    		event.put("stream", stream.getPublishedName());
+    		event.put("duration", new Long(publishDuration).toString());
+    		event.put("eventName", "StopWebcamShareEvent");
+    		
+    		recordingService.record(conn.getScope().getName(), event);    		
+    	}
     }
     
     /**
@@ -120,7 +122,7 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
      
     	try {    		
     		log.info("Recording stream " + recordingStreamName );
-    		ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName() );
+    		ClientBroadcastStream cstream = (ClientBroadcastStream) this.getBroadcastStream(conn.getScope(), stream.getPublishedName());
     		cstream.saveAs(recordingStreamName, false);
     	} catch(Exception e) {
     		log.error("ERROR while recording stream " + e.getMessage());
@@ -135,4 +137,5 @@ public class VideoApplication extends MultiThreadedApplicationAdapter {
 	public void setEventRecordingService(EventRecordingService s) {
 		recordingService = s;
 	}
+	
 }
