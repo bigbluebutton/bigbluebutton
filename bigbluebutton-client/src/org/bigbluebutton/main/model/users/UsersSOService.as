@@ -149,7 +149,6 @@ package org.bigbluebutton.main.model.users
 			_participants.addUser(user);
 
 			participantStatusChange(user.userid, "hasStream", joinedUser.status.hasStream);
-			participantStatusChange(user.userid, "streamName", joinedUser.status.streamName);
 			participantStatusChange(user.userid, "presenter", joinedUser.status.presenter);
 			participantStatusChange(user.userid, "raiseHand", joinedUser.status.raiseHand);
 
@@ -216,15 +215,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function addStream(userid:Number, streamName:String):void {
-			var nc:NetConnection = netConnectionDelegate.connection;
-/*			nc.call(
-				"participants.setParticipantStatus",// Remote function name
-				responder,
-				userid,
-				"streamName",
-				streamName
-			); //_netConnection.call
-*/			
+			var nc:NetConnection = netConnectionDelegate.connection;	
 			nc.call(
 				"participants.setParticipantStatus",// Remote function name
 				responder,
@@ -236,14 +227,6 @@ package org.bigbluebutton.main.model.users
 		
 		public function removeStream(userid:Number, streamName:String):void {
 			var nc:NetConnection = netConnectionDelegate.connection;
-/*			nc.call(
-				"participants.setParticipantStatus",// Remote function name
-				responder,
-				userid,
-				"streamName",
-				""
-			); //_netConnection.call
-*/			
 			nc.call(
 				"participants.setParticipantStatus",// Remote function name
 				responder,

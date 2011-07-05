@@ -68,13 +68,22 @@ package org.bigbluebutton.main.model.users
 					break;
 				case "hasStream":
 					var streamInfo:Array = String(status.value).split(/,/); 
-					var camShared:Boolean = status.value 
-					hasStream = new Boolean(streamInfo[0]);
-					streamName = String(streamInfo[0].split(/=/))
+					/**
+					 * Cannot use this statement as new Boolean(expression)
+					 * return true if the expression is a non-empty string not
+					 * when the string equals "true". See Boolean class def.
+					 * 
+					 * hasStream = new Boolean(String(streamInfo[0]));
+					 */					
+					if (String(streamInfo[0]).toUpperCase() == "TRUE") {
+						hasStream = true;
+					} else {
+						hasStream = false;
+					}
+					
+					var streamNameInfo:Array = String(streamInfo[1]).split(/=/);
+					streamName = streamNameInfo[1]; 
 					if (hasStream) sendStreamStartedEvent();
-					break;
-				case "streamName":
-					streamName = status.value as String;
 					break;
 				case "raiseHand":
 					raiseHand = status.value as Boolean;
