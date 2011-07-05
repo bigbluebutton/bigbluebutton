@@ -1,81 +1,105 @@
 #!/bin/bash
-BBB_VERSION="0.8"
 
-#Log files
+#
+#Redis configuration file
+#
+REDIS_CONF_FILE=/etc/redis/redis.conf
+
+#
+#Log file
+#
 ARCHIVE_LOG_FILE=/var/log/bigbluebutton/archive.log
-PROCESS_LOG_FILE=$ARCHIVE_LOG_FILE
-PUBLISH_LOG_FILE=$ARCHIVE_LOG_FILE
 
+#
 #Error strings patterns
-#ARCHIVE_ERROR_PATTERN="ERROR"
-ARCHIVE_ERROR_PATTERN="Failed to archive"
-PROCESS_ERROR_PATTERN="Failed to process"
-PUBLISH_ERROR_PATTERN="Failed to publish"
+#
+GENERAL_ERROR_PATTERN="Failed to"
 
-usage() {
-	echo "BigBlueButton Record and Playback Configuration Utility - Version $BBB_VERSION"
-        echo "http://code.google.com/p/bigbluebutton/wiki/BBBRap"
-        echo
-        echo "   bbb-rap [options]"
-        echo
-        echo
-        echo "Monitoring:"
-        echo "   --check <verbose>                Check configuration files and processes for problems"
-        echo "   --debug                          Scan the log files for error messages in record and playback phases"
-        echo "   --debug-archive                  Scan the log files for error messages in archiving phase"
-        echo "   --debug-process                  Scan the log files for error messages in processing phase"
-        echo "   --debug-publish                  Scan the log files for error messages in publish phase"
 
+
+#
+#BigBlueButton-apps,desksahre,video,web configuration files
+#
+APPS_PROPS="/usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
+DESKSHARE_PROPS="/usr/share/red5/webapps/deskshare/WEB-INF/deskshare.properties"
+VIDEO_PROPS="/usr/share/red5/webapps/video/WEB-INF/bigbluebutton-video.properties"
+WEB_PROPS="/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
+declare -A prop_files
+prop_files=([apps]=$APPS_PROPS [deskshare]=$DESKSHARE_PROPS [video]=$VIDEO_PROPS [web]=$WEB_PROPS)
+
+
+
+#
+#Redis port in use.  Its value is set in /etc/redis/redis.conf
+#
+redis_port=`grep '^port \d*' $REDIS_CONF_FILE | awk '{print $2}'`
+
+
+#
+#Check redis port in bigbluebutton-apps,deskshare,video,web
+#If not equal to redis port in /etc/redis/redis.conf => show problem, else OK
+#
+check_redis_port(){
+  echo " -- Checking Redis port in Bigbluebutton configuration files --"
+  for i in "${!prop_files[@]}"
+  do
+    port=`grep -i 'redis[.]*port=\d*' ${prop_files[$i]} | cut -d "=" -f2 | sed 's/\s//g'`
+    if [ $port -ne $redis_port ];
+    then
+      echo "Configured redis port<$port> in bigbluebutton-$i does not match Redis port<$redis_port> in use"
+    else
+      echo "bigbluebutton-$i redis port <$port> is OK"
+    fi
+  done
 }
 
+
+#
+#Set redis port in  bigbluebutton-apps,deskshare,video,web to port value in  redis configuration file
+#
+set_redis_port(){
+  echo " -- Setting Redis port<$redis_port> in BigBlueButton configuration files -- "
+  for i in "${!prop_files[@]}"
+  do
+    #sudo sed -i "s/\(redis[.]*port=\)\([0-9]*.*\)/\1$1/gI" ${prop_files[$i]} 
+    sudo sed -i "s/\(redis[.]*port=\)\([0-9]*.*\)/\1$redis_port/gI" ${prop_files[$i]} 
+   done
+}
+
+
+#
+#Show configured redis host in bigbluebutton-apps,deskshare,video,web
+#
+check_redis_host(){
+  echo " -- Checking Redis host in Bigbluebutton configuration files --"
+  for i in "${!prop_files[@]}"
+  do
+    host=`grep -i 'redis[.]*host=.*' ${prop_files[$i]} | cut -d "=" -f2 | sed 's/\s//g'`
+    echo "Configured redis host in bigbluebutton-$i is: $host"
+  done
+}
+
+
+
+#
+#Set redis host in  bigbluebutton-apps,deskshare,video,web 
+#input param : host
+#
+set_redis_host(){
+  echo " -- Setting Redis host<$1> in BigBlueButton configuration files -- "
+  for i in "${!prop_files[@]}"
+  do
+    sudo sed -i "s/\(redis[.]*host=\)\(.*\)/\1$1/gI" ${prop_files[$i]} 
+  done
+}
+
+
+
+#
+#Scan errors in archive log file
+#
 scan_errors(){
-	rm -rf /tmp/t
-	grep "$1" $2 > /tmp/t
-	if [ -s /tmp/t ]; then
-		echo "  -- ERRORS found in $2 -- "
-		cat /tmp/t
-		echo
-	fi
-	
+ meetings=`grep "$GENERAL_ERROR_PATTERN" "$ARCHIVE_LOG_FILE" | awk '{print $6}' | uniq`
+ echo "  -- There are potential ERRORS in the following meeting ids -- "
+ echo "$meetings"
 }
-scan_archive_err(){ 
- scan_errors  "$ARCHIVE_ERROR_PATTERN" "$ARCHIVE_LOG_FILE" 
-}
-scan_process_err(){ 
- scan_errors  "$PROCESS_ERROR_PATTERN" "$PROCESS_LOG_FILE" 
-}
-scan_publish_err(){
-  scan_errors  "$PUBLISH_ERROR_PATTERN" "$PUBLISH_LOG_FILE" 
-}
-
-
-# Parse the parameters
-while [ $# -gt 0 ]; do
-
-	if [ "$1" = "-debug" -o "$1" = "--debug" ]; then
-		scan_archive_err
-		scan_process_err
-		scan_publish_err
-		shift
-		continue
-	fi
-	if [ "$1" = "-debug-a" -o "$1" = "--debug-archive" ]; then
-		scan_archive_err
-		shift
-		continue
-	fi
-	if [ "$1" = "-debug-p" -o "$1" = "--debug-process" ]; then
-		scan_process_err
-		shift
-		continue
-	fi
-	if [ "$1" = "-debug-a" -o "$1" = "--debug-publish" ]; then
-		scan_publish_err
-		shift
-		continue
-	fi
-
-	usage
-	exit 1
-done
-
