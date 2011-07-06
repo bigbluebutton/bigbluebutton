@@ -176,9 +176,10 @@
 					btnStartPublish.visible = true;
 					cmbCameraSelector.visible = true;
 				} else{					
-					videoOptionsBar.visible = true;
-					btnStartPublish.visible = true;
+					videoOptionsBar.visible = false;
+					btnStartPublish.visible = false;
 					cmbCameraSelector.visible = false;
+					videoOptionsBar.visible = false;
 				}
 			}
 			
@@ -340,7 +341,7 @@
 	
 	<mx:UIComponent id="videoHolder" width="{camWidth}" height="{camHeight}" />
 	
-	<mx:ControlBar id="videoOptionsBar">
+	<mx:ControlBar id="videoOptionsBar" visible="true">
 		<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" />
 		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" />
 		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" />
