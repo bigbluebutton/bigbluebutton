@@ -27,8 +27,8 @@ $Id: $
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.core.mx_internal;
 			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.common.LogUtil;
@@ -36,6 +36,8 @@ $Id: $
 			import org.bigbluebutton.modules.settings.SettingsPanel;
 			import org.bigbluebutton.modules.settings.util.PersistUserPreferences;
 			import org.bigbluebutton.modules.settings.util.Requirements;
+			
+			import spark.components.Application;
 			
 			private var _moduleName:String = "Settings Module";			
 			private var _attributes:Object;
@@ -87,12 +89,12 @@ $Id: $
 			}
 			
 			private function openSettingsPanel(e:SettingsEvent = null):void{
-				var settingsPanel:SettingsPanel = SettingsPanel(PopUpManager.createPopUp(Application.application as DisplayObject, SettingsPanel, true));
+				var settingsPanel:SettingsPanel = SettingsPanel(PopUpManager.createPopUp(FlexGlobals.topLevelApplication.mx_internal.Application as DisplayObject, SettingsPanel, true));
 				
 				var point1:Point = new Point();
-				// Calculate position of TitleWindow in Application's coordinates. 
-				settingsPanel.x = Application.application.width/2 - settingsPanel.width/2;
-				settingsPanel.y = Application.application.height/2 - settingsPanel.height/2;
+				// Calculate position of TitleWindow in Application's coordinates. 				
+				settingsPanel.x = FlexGlobals.topLevelApplication.mx_internal.Application.width/2 - settingsPanel.width/2;
+				settingsPanel.y = FlexGlobals.topLevelApplication.mx_internal.Application.height/2 - settingsPanel.height/2;
 				
 				PersistUserPreferences.saveSettingsVisited();
 			}

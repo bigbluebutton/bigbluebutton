@@ -3,7 +3,7 @@
 		 click="showWarning()" textAlign="left" >
 	<mx:Script>
 		<![CDATA[
-			import mx.core.Application;
+			import mx.core.FlexGlobals;
 			import mx.managers.PopUpManager;
 			
 			private var warningLabel:String;
@@ -23,8 +23,8 @@
 				var userAlert:UserAlert = UserAlert(PopUpManager.createPopUp(this.parent, UserAlert, true));
 				userAlert.setAlert(warningText, optionalLabel, optionalCallback);
 				
-				userAlert.x = Application.application.width/2 - userAlert.width/2;
-				userAlert.y = Application.application.height/2 - userAlert.height/2;
+				userAlert.x = FlexGlobals.topLevelApplication.mx_internal.Application.width/2 - userAlert.width/2;
+				userAlert.y = FlexGlobals.topLevelApplication.mx_internal.Application.height/2 - userAlert.height/2;
 			}
 		]]>
 	</mx:Script>
