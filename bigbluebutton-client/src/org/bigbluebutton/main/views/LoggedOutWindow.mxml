@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton - http://www.bigbluebutton.org
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
   
-  Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
   
   BigBlueButton is free software; you can redistribute it and/or modify it under the 
   terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 3 of the License, or (at your option) any later 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
   version. 
   
   BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
@@ -15,10 +15,10 @@
   PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
   
   You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  
   $Id: $
---> 
+-->
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
     title="Logged Out" showCloseButton="false" creationComplete="init()"
@@ -30,6 +30,7 @@
 			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 						
 			[Bindable] private var message:String = "You have logged out of the conference";
 			
@@ -53,28 +54,28 @@
 			public function setReason(reason:String):void{
 				switch(reason){
 					case ConnectionFailedEvent.APP_SHUTDOWN:
-						message = "The red5 server app has been shut down";
+						message = ResourceUtil.getInstance().getString('bbb.logout.appshutdown');
 						break;
 					case ConnectionFailedEvent.ASYNC_ERROR:
-						message = "An Asyng Error occured";
+						message = ResourceUtil.getInstance().getString('bbb.logout.asyncerror');
 						break;
 					case ConnectionFailedEvent.CONNECTION_CLOSED:
-						message = "The connection to the server has been closed";
+						message = ResourceUtil.getInstance().getString('bbb.logout.connectionclosed');
 						break;
 					case ConnectionFailedEvent.CONNECTION_FAILED:
-						message = "The connection to the server has failed";
+						message = ResourceUtil.getInstance().getString('bbb.logout.connectionfailed');
 						break;
 					case ConnectionFailedEvent.CONNECTION_REJECTED:
-						message = "The connection to the server has been rejected";
+						message = ResourceUtil.getInstance().getString('bbb.logout.rejected');
 						break;
 					case ConnectionFailedEvent.INVALID_APP:
-						message = "The red5 app does not exist";
+						message = ResourceUtil.getInstance().getString('bbb.logout.invalidapp');
 						break;
 					case ConnectionFailedEvent.UNKNOWN_REASON:
-						message = "Your client has lost connection with the server";
+						message = ResourceUtil.getInstance().getString('bbb.logout.unknown');
 						break;
 					case ConnectionFailedEvent.USER_LOGGED_OUT:
-						message = "You have logged out";
+						message = ResourceUtil.getInstance().getString('bbb.logout.usercommand');
 						break;
 				}
 			}

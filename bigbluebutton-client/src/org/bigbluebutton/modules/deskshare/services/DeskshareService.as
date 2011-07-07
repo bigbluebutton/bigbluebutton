@@ -1,24 +1,21 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * Authors: Denis Zgonjanin <me.snap@gmail.com>
- *          Richard Alam <ritzalam@gmail.com> 
- * $Id: $
- */
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+*/
 package org.bigbluebutton.modules.deskshare.services
 {
 	import com.asfusion.mate.events.Dispatcher;
@@ -28,11 +25,12 @@ package org.bigbluebutton.modules.deskshare.services
 	import flash.net.SharedObject;
 	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.common.red5.Connection;
-	import org.bigbluebutton.common.red5.ConnectionEvent;
+	import org.bigbluebutton.main.events.RecordStatusEvent;
 	import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
 	import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 	import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+	import org.bigbluebutton.modules.deskshare.services.red5.Connection;
+	import org.bigbluebutton.modules.deskshare.services.red5.ConnectionEvent;
 	
 	/**
 	 * The DeskShareProxy communicates with the Red5 deskShare server application 
@@ -50,6 +48,7 @@ package org.bigbluebutton.modules.deskshare.services
 		
 		private var width:Number;
 		private var height:Number;
+		private var uri:String;
 		
 		public function DeskshareService()
 		{
@@ -63,6 +62,7 @@ package org.bigbluebutton.modules.deskshare.services
 		}
 		
 		public function connect(uri:String):void {
+			this.uri = uri;
 			LogUtil.debug("Deskshare Service connecting to " + uri);
 			conn = new Connection();
 			conn.addEventListener(Connection.SUCCESS, connectionSuccessHandler);
@@ -96,9 +96,9 @@ package org.bigbluebutton.modules.deskshare.services
 		}
 		
 		private function connectionSuccessHandler(e:ConnectionEvent):void{
-			LogUtil.debug("Successully connection to " + module.uri);
+			LogUtil.debug("Successully connection to " + uri);
 			nc = conn.getConnection();
-			deskSO = SharedObject.getRemote("deskSO", module.uri, false);
+			deskSO = SharedObject.getRemote("deskSO", uri, false);
             deskSO.client = this;
             deskSO.connect(nc);
             
@@ -110,11 +110,11 @@ package org.bigbluebutton.modules.deskshare.services
 		}
 			
 		public function connectionFailedHandler(e:ConnectionEvent):void{
-			LogUtil.error("connection failed to " + module.uri + " with message " + e.toString());
+			LogUtil.error("connection failed to " + uri + " with message " + e.toString());
 		}
 			
 		public function connectionRejectedHandler(e:ConnectionEvent):void{
-			LogUtil.error("connection rejected " + module.uri + " with message " + e.toString());
+			LogUtil.error("connection rejected " + uri + " with message " + e.toString());
 		}
 					
 		/**
@@ -201,6 +201,13 @@ package org.bigbluebutton.modules.deskshare.services
 			var event:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR_LOC_EVENT);
 			event.x = x;
 			event.y = y;
+			dispatcher.dispatchEvent(event);
+		}
+		
+		public function recordingStatusCallback(status:String):void {
+			var event:RecordStatusEvent = new RecordStatusEvent();
+			event.module = "DESKSHARE";
+			event.status = status;
 			dispatcher.dispatchEvent(event);
 		}
 		

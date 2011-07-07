@@ -1,32 +1,30 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: $
- */
+/** 
+*
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+**/
 package org.bigbluebutton.voiceconf.red5;
 
-import java.text.MessageFormat;
 import java.util.List;
 import org.slf4j.Logger;
 import org.bigbluebutton.voiceconf.sip.PeerNotFoundException;
 import org.bigbluebutton.voiceconf.sip.SipPeerManager;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
-import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.IScope;
 import org.red5.server.api.Red5;
@@ -72,22 +70,43 @@ public class Application extends MultiThreadedApplicationAdapter {
     }
 
     @Override
-    public boolean appJoin(IClient client, IScope scope) {
-        log.debug("VoiceConferenceApplication roomJoin[" + client.getId() + "]");
-        clientConnManager.createClient(client.getId(), (IServiceCapableConnection) Red5.getConnectionLocal());
+    public boolean appConnect(IConnection conn, Object[] params) {
+    	String userid = ((String) params[0]).toString();
+        String username = ((String) params[1]).toString();
+        String clientId = Red5.getConnectionLocal().getClient().getId();
+        String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+        int remotePort = Red5.getConnectionLocal().getRemotePort();
+        
+        if ((userid == null) || ("".equals(userid))) userid = "unknown-userid";
+        if ((username == null) || ("".equals(username))) username = "UNKNOWN-CALLER";
+        Red5.getConnectionLocal().setAttribute("USERID", userid);
+        Red5.getConnectionLocal().setAttribute("USERNAME", username);
+        
+        log.info("{} [clientid={}] has connected to the voice conf app.", username + "[uid=" + userid + "]", clientId);
+        log.info("[clientid={}] connected from {}.", clientId, remoteHost + ":" + remotePort);
+        
+        clientConnManager.createClient(clientId, userid, username, (IServiceCapableConnection) Red5.getConnectionLocal());
         return true;
     }
 
     @Override
-    public void appLeave(IClient client, IScope scope) {
-        log.debug("VoiceConferenceApplication roomLeave[" + client.getId() + "]");
-    	clientConnManager.removeClient(client.getId());
-        log.debug( "Red5SIP Client closing client {}", client.getId());
+    public void appDisconnect(IConnection conn) {
+    	String clientId = Red5.getConnectionLocal().getClient().getId();
+    	String userid = getUserId();
+    	String username = getUsername();
+    	
+        String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+        int remotePort = Red5.getConnectionLocal().getRemotePort();    	
+    	log.info("[clientid={}] disconnnected from {}.", clientId, remoteHost + ":" + remotePort);
+        log.debug("{} [clientid={}] is leaving the voice conf app. Removing from ConnectionManager.", username + "[uid=" + userid + "]", clientId);
+    	
+        clientConnManager.removeClient(clientId);
 
         String peerId = (String) Red5.getConnectionLocal().getAttribute("VOICE_CONF_PEER");
         if (peerId != null) {
 			try {
-				sipPeerManager.hangup(peerId, client.getId());
+				log.debug("Forcing hang up {} [clientid={}] in case the user is still in the conference.", username + "[uid=" + userid + "]", clientId);
+				sipPeerManager.hangup(peerId, clientId);
 			} catch (PeerNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -97,13 +116,16 @@ public class Application extends MultiThreadedApplicationAdapter {
     
     @Override
     public void streamPublishStart(IBroadcastStream stream) {
-    	log.debug("streamPublishStart: {}; {}", stream, stream.getPublishedName());
+    	String clientId = Red5.getConnectionLocal().getClient().getId();
+    	String userid = getUserId();
+    	String username = getUsername();
+    	
+    	log.debug("{} has started publishing stream [{}]", username + "[uid=" + userid + "][clientid=" + clientId + "]", stream.getPublishedName());
     	System.out.println("streamPublishStart: " + stream.getPublishedName());
     	IConnection conn = Red5.getConnectionLocal();
     	String peerId = (String) conn.getAttribute("VOICE_CONF_PEER");
         if (peerId != null) {
-        	super.streamPublishStart(stream);	    	
-	    	String clientId = conn.getClient().getId();
+        	super.streamPublishStart(stream);
 	    	sipPeerManager.startTalkStream(peerId, clientId, stream, conn.getScope());
 //	    	recordStream(stream);
         }
@@ -128,12 +150,15 @@ public class Application extends MultiThreadedApplicationAdapter {
     
     @Override
     public void streamBroadcastClose(IBroadcastStream stream) {
-    	System.out.println("streamBroadcastClose: " + stream.getPublishedName());
+    	String clientId = Red5.getConnectionLocal().getClient().getId();
+    	String userid = getUserId();
+    	String username = getUsername();
+    	
+    	log.debug("{} has stopped publishing stream [{}]", username + "[uid=" + userid + "][clientid=" + clientId + "]", stream.getPublishedName());
     	IConnection conn = Red5.getConnectionLocal();
     	String peerId = (String) conn.getAttribute("VOICE_CONF_PEER");
         if (peerId != null) {
         	super.streamPublishStart(stream);	    	
-	    	String clientId = conn.getClient().getId();
 	    	sipPeerManager.stopTalkStream(peerId, clientId, stream, conn.getScope());
 	    	super.streamBroadcastClose(stream);
         }
@@ -178,5 +203,17 @@ public class Application extends MultiThreadedApplicationAdapter {
 	
 	public void setClientConnectionManager(ClientConnectionManager ccm) {
 		clientConnManager = ccm;
+	}
+	
+	private String getUserId() {
+		String userid = (String) Red5.getConnectionLocal().getAttribute("USERID");
+		if ((userid == null) || ("".equals(userid))) userid = "unknown-userid";
+		return userid;
+	}
+	
+	private String getUsername() {
+		String username = (String) Red5.getConnectionLocal().getAttribute("USERNAME");
+		if ((username == null) || ("".equals(username))) username = "UNKNOWN-CALLER";
+		return username;
 	}
 }

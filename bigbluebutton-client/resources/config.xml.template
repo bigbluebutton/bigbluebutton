@@ -1,16 +1,25 @@
 <?xml version="1.0" ?>
 <config>
-    <localeversion>0.7</localeversion>
+    <localeversion suppressWarning="false">0.71</localeversion>
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <porttest host="HOST" application="video"/>    
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
-    <skinning enabled="false" url="branding/css/theme.swf" />
+    <skinning enabled="false" url="branding/css/theme.css.swf" />
     <debug showDebugWindow="false" />
     
 	<modules>
-
+		
+		<module name="SettingsModule" url="SettingsModule.swf?v=VERSION"
+			voice="rtmp://HOST/video"
+			video="rtmp://HOST/video"
+			deskshare="rtmp://HOST/deskShare"
+			java_required="1.6.0_22"
+			flash_required="10,0,0"
+			check_deskshare="true"
+		/>
+		
 		<module name="ChatModule" url="ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="ViewersModule"	
@@ -21,7 +30,7 @@
 		<module name="ViewersModule" url="ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
-			allowKickUser="true"
+			allowKickUser="false"
 		/>
 			
 		<module name="ListenersModule" url="ListenersModule.swf?v=VERSION" 
@@ -36,14 +45,27 @@
 		
 		<module name="PhoneModule" url="PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
+			autoJoin="false"
 			dependsOn="ViewersModule"
 		/>
+
+		<!--<module name="ClassroomAudioModule" url="ClassroomAudioModule.swf?v=VERSION" 
+                        uri="rtmp://HOST/sip" 
+                        dependsOn="ViewersModule"
+                />-->
+		
+		<!--<module name="ClassroomAudioModule" url="ClassroomAudioModule.swf?v=VERSION" 
+			uri="rtmp://HOST/sip" 
+			pushToTalkEnabled="true"
+			dependsOn="ViewersModule"
+		/>-->
 		
 		<module name="VideoconfModule" url="VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"
 			dependsOn="ViewersModule"
-			videoQuality="100"
+			videoQuality="70"
 			presenterShareOnly="false"
+			resolutions="160x120,320x240,640x480,1280x720"
 		/>
 		
 		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=VERSION" 
@@ -75,6 +97,11 @@
 			host="http://192.168.0.225" 
 			dependsOn="ViewersModule"
 			salt="1708e5ecf25b7142b06f2338b4ea3cf1"
+		/>-->
+		
+		<!--<module name="SharedNotesModule" url="SharedNotesModule.swf?v=VERSION" 
+			uri="http://192.168.0.225/bigbluebutton" 
+			dependsOn="ViewersModule"
 		/>-->
 		
 	</modules>

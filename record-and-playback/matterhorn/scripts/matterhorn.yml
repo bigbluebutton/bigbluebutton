@@ -1,0 +1,6 @@
+scp_server: 192.168.0.147
+scp_user: root
+scp_key: /home/firstuser/.ssh/matt_id_rsa
+scp_inbox: /opt/matterhorn/felix/inbox/
+rest_server: http://192.168.0.147:8080
+

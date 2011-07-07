@@ -1,23 +1,22 @@
-/*
- * Copyright (C) 2005 Luca Veltri - University of Parma - Italy
- * 
- * This source code is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- * 
- * This source code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this source code; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- * 
- * Author(s):
- * Luca Veltri (luca.veltri@unipr.it)
- */
+/** 
+*
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+**/
 
 package org.bigbluebutton.voiceconf.red5.media.net;
 
@@ -41,6 +40,8 @@ public class RtpSocket {
    /** Remote port */
    int r_port;
 
+   private final byte[] payload = new byte[10];
+   
    /** Creates a new RTP socket (only receiver) */ 
    public RtpSocket(DatagramSocket datagram_socket) {  
 	   socket=datagram_socket;
@@ -60,19 +61,24 @@ public class RtpSocket {
 	   return socket;
    }
 
+   private final DatagramPacket rxDatagram = new DatagramPacket(payload, payload.length);
+   
    /** Receives a RTP packet from this socket */
    public void receive(RtpPacket rtpp) throws IOException {  
-	   DatagramPacket datagram = new DatagramPacket(rtpp.getPacket(), rtpp.getLength());
-	   socket.receive(datagram);
-	   rtpp.setPacketLength(datagram.getLength());     
+	   rxDatagram.setData(rtpp.getPacket());
+	   socket.receive(rxDatagram);
+	   rtpp.setPacketLength(rxDatagram.getLength());     
    }
+   
+   private final DatagramPacket txDatagram = new DatagramPacket(payload, payload.length);
    
    /** Sends a RTP packet from this socket */      
    public void send(RtpPacket rtpp) throws IOException {  
-	   DatagramPacket datagram = new DatagramPacket(rtpp.getPacket(), rtpp.getLength());
-	   datagram.setAddress(r_addr);
-	   datagram.setPort(r_port);
-	   socket.send(datagram);
+	   txDatagram.setData(rtpp.getPacket());
+	   txDatagram.setAddress(r_addr);
+	   txDatagram.setPort(r_port);
+	   if (!socket.isClosed())
+		   socket.send(txDatagram);
    }
 
    /** Closes this socket */      

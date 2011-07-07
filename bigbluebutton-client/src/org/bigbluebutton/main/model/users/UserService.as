@@ -1,3 +1,21 @@
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+*/
 package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
@@ -60,14 +78,14 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.username = _conference.me.name;
 				_conferenceParameters.role = _conference.me.role;
 				_conferenceParameters.room = _conference.me.room;
-				_conferenceParameters.authToken = _conference.me.authToken;
-				_conferenceParameters.mode = result.mode;
 				_conferenceParameters.webvoiceconf = result.webvoiceconf;
 				_conferenceParameters.voicebridge = result.voicebridge;
-				_conferenceParameters.conferenceName = result.conferenceName;
 				_conferenceParameters.welcome = result.welcome;
-				_conferenceParameters.meetingID = result.meetingID;
 				_conferenceParameters.externUserID = result.externUserID;
+				_conferenceParameters.record = true;
+				if(result.record=="false")
+					_conferenceParameters.record = false;
+				
 				
 				var e:ConferenceCreatedEvent = new ConferenceCreatedEvent(ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT);
 				e.conference = _conference;

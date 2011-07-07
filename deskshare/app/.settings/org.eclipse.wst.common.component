@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project-modules id="moduleCoreId" project-version="1.5.0">
+  <wb-module deploy-name="app">
+    <property name="context-root" value="app"/>
+    <wb-resource deploy-path="/WEB-INF/classes" source-path="src/main/java"/>
+    <wb-resource deploy-path="/WEB-INF/classes" source-path="src/main/resources"/>
+    <wb-resource deploy-path="/" source-path="src/main/webapp"/>
+    <property name="java-output-path" value="build/classes/main"/>
+    <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib///home/firstuser/.gradle/cache/commons-fileupload/commons-fileupload/jars/commons-fileupload-1.2.1.jar">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib///home/firstuser/.gradle/cache/commons-io/commons-io/jars/commons-io-1.4.jar">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib///home/firstuser/.gradle/cache/net/lag/configgy/configgy/jars/configgy-1.5.jar">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib///home/firstuser/.gradle/cache/org.apache.mina/mina-integration-spring/jars/mina-integration-spring-1.1.7.jar">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib///home/firstuser/.gradle/cache/org.scala-lang/scala-library/jars/scala-library-2.7.7.jar">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib///home/firstuser/.gradle/cache/spring/spring-webmvc/jars/spring-webmvc-2.5.6.jar">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/common/common">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+  </wb-module>
+</project-modules>

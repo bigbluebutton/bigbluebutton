@@ -1,22 +1,21 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: $
- */
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+*/
 
 package org.bigbluebutton.conference.service.participants;
 
@@ -34,6 +33,7 @@ import org.red5.server.api.Red5;
 import java.util.HashMap;
 import java.util.Map;import org.bigbluebutton.conference.RoomsManager;
 import org.bigbluebutton.conference.Room;import org.bigbluebutton.conference.Participant;import org.bigbluebutton.conference.RoomListener;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.bigbluebutton.conference.service.recorder.RecorderApplication;
+import org.bigbluebutton.conference.service.recorder.participants.ParticipantsEventRecorder;
 
 public class ParticipantsHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsHandler.class, "bigbluebutton" );
@@ -82,17 +82,15 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug(APP+":roomConnect");
 		
-		log.debug("In live mode");
 		ISharedObject so = getSharedObject(connection.getScope(), PARTICIPANTS_SO);
+		ParticipantsEventSender sender = new ParticipantsEventSender(so);
+		ParticipantsEventRecorder recorder = new ParticipantsEventRecorder(connection.getScope().getName(), recorderApplication);
 		
-		//log.debug("Setting up recorder with recording {}", getBbbSession().getRecord())
-		ParticipantsEventRecorder recorder = new ParticipantsEventRecorder(so, getBbbSession().getRecord());
-		log.debug("adding event recorder to {}",connection.getScope().getName());
-		recorderApplication.addEventRecorder(connection.getScope().getName(), recorder);				
-		
-		log.debug("Adding room listener");
+		log.debug("Adding room listener {}", connection.getScope().getName());
 		participantsApplication.addRoomListener(connection.getScope().getName(), recorder);
+		participantsApplication.addRoomListener(connection.getScope().getName(), sender);
 		log.debug("Done setting up recorder and listener");
+		
 		return true;
 	}
 
@@ -121,12 +119,25 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		participantsApplication.participantLeft(bbbSession.getSessionName(), userid);
 	}
 
+	private void setupRoom(IScope scope) {
+		ISharedObject so = getSharedObject(scope, PARTICIPANTS_SO);
+		if (so == null) log.debug("SHARED OBJECT is NULL!!!!");
+		if (getBbbSession().getRecord() == null) log.debug("SESSION is NULL!!!!");
+		ParticipantsEventSender sender = new ParticipantsEventSender(so);
+		ParticipantsEventRecorder recorder = new ParticipantsEventRecorder(scope.getName(), recorderApplication);
+		
+		log.debug("Adding room listener {}", scope.getName());
+		participantsApplication.addRoomListener(scope.getName(), recorder);
+		participantsApplication.addRoomListener(scope.getName(), sender);
+		log.debug("Done setting up recorder and listener");
+	}
+	
 	@Override
 	public boolean roomStart(IScope scope) {
 		log.debug(APP+" - roomStart "+scope.getName());
     	// create ParticipantSO if it is not already created
     	if (!hasSharedObject(scope, PARTICIPANTS_SO)) {
-    		if (createSharedObject(scope, PARTICIPANTS_SO, false)) {    			
+    		if (createSharedObject(scope, PARTICIPANTS_SO, false)) {   
     			return true; 			
     		}    		
     	}  	

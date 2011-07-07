@@ -1,10 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
 		 xmlns:mate="http://mate.asfusion.com/"
 		 creationComplete="onCreationComplete()"
 		 xmlns:flexlib="http://code.google.com/p/flexlib/"
 		 width="100%" height="100%" xmlns:containers="flexlib.containers.*"
-		 implements="org.bigbluebutton.main.api.IUserListener"
+		 implements="org.bigbluebutton.common.IUserListener"
 		 verticalScrollPolicy="off">
 	
 	<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
@@ -50,9 +71,9 @@
 			import mx.core.UIComponent;
 			import mx.events.IndexChangedEvent;
 			
+			import org.bigbluebutton.common.IUserListener;
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.api.IUserListener;
-			import org.bigbluebutton.main.api.UserManager;
+			import org.bigbluebutton.common.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
 			import org.bigbluebutton.main.model.User;
@@ -98,11 +119,16 @@
 				
 				UserManager.getInstance().registerListener(this);
 				
-				//var g:GoogleTranslation = new GoogleTranslation();
-				//var e:GoogleApiEvent;
-				
-				//setColor(); //Uncomment this to automatically assign colors to chat participants
+				registerExternalListener();
 			}       
+			
+			private function registerExternalListener():void{
+				ExternalInterface.addCallback('sendChatMessage', setChatMessage);
+			}
+			
+			private function setChatMessage(message:String):void{
+				txtMsg.text += message;
+			}
 			
 			private function setColor():void{
 				var r:int = Math.round(Math.random()*12);
@@ -117,6 +143,7 @@
 				ExternalInterface.call("clearblink");
 				this.focus = true;
 			}
+			
 			private function deactivate(event:Event):void{
 				this.focus = false;
 			}
@@ -139,36 +166,29 @@
 				chatTabs.setClosePolicyForTab(chatTabs.getChildIndex(tabBox), SuperTab.CLOSE_NEVER);
 			}
 			
-			public function setFocusOn(component:UIComponent):void
-			{
+			public function setFocusOn(component:UIComponent):void {
 				if (component.id == "txtMsg") {
 					component.setFocus();
 					component.drawFocus(true);
 				}
-				else
-				{
+				else {
 					this.txtMsg.setFocus();
 					this.txtMsg.drawFocus(true);
 				}
 			}
 			
-			public function setFocusOff():void
-			{
+			public function setFocusOff():void {
 				this.txtMsg.drawFocus(false);
 			}
 			
-			private function currentTime() : String
-			{
+			private function currentTime() : String {
 				return ChatBox.getHours() + ":" + ChatBox.getMinutes();
 			}
 			
-			private function sendMessages():void
-			{
-				trace("Sending message");
-				
+			private function sendMessages():void {
 				if (hasMessageToSend()){				
 					if (isChatBoxCurrentlySelected(PUBLIC_CHAT_USERID)) {						
-						sendPublicChatMessage();
+						sendPublicChatMessage(txtMsg.text);
 					} else{						
 						sendPrivateChatMessage();
 					}
@@ -208,10 +228,9 @@
 				return parsedString;
 			}
 			
-			private function sendPublicChatMessage():void {
-				trace("Sending public chat message");
+			private function sendPublicChatMessage(message:String):void {
 				var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
-				publicEvent.message = parseURLs(cleanup(txtMsg.text));
+				publicEvent.message = parseURLs(cleanup(message));
 				publicEvent.color = cmpColorPicker.selectedColor.toString();
 				publicEvent.time = currentTime();
 				publicEvent.language = currentLangCode;
@@ -219,13 +238,11 @@
 			}
 			
 			private function queryForParticipants():void {
-				trace("Sending query for participants message");
 				var event:QueryParticipantsEvent = new QueryParticipantsEvent(QueryParticipantsEvent.QUERY_PARTICIPANTS_EVENT);
 				globalDispatcher.dispatchEvent(event);
 			}
 			
 			private function sendPrivateChatMessage():void {
-				trace("Sending private chat message");
 				var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
 				privateEvent.message = parseURLs(cleanup(txtMsg.text));
 				privateEvent.toUser = chatTabs.selectedChild.name;
@@ -262,7 +279,6 @@
 			private function updateChatBoxThatParticipantHasLeft(userid:String):void {
 				if (participantHasChatBox(userid)) {
 					var chatBox:ChatBox = getChatBoxForParticipant(userid);
-					trace("Setting participantLoggedOut to true");
 					chatBox.participantLoggedOut = true;
 					
 					if (isChatBoxCurrentlySelected(userid)) {
@@ -295,10 +311,8 @@
 				txtMsg.enabled = true;
 				var chatBox:ChatBox = chatTabs.getChildAt(chatTabs.selectedIndex) as ChatBox;
 				if (chatBox.participantLoggedOut) {
-					trace("Disabling message box");
 					disableMessageEntryTextBox();
 				} else {
-					trace("Enabling message box");
 					enableMessageEntryTextBox();
 				}				
 			}

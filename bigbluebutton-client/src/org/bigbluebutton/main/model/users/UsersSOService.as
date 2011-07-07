@@ -1,22 +1,21 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: $
- */
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+*/
 package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
@@ -37,7 +36,6 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 
 	public class UsersSOService
 	{
@@ -51,7 +49,6 @@ package org.bigbluebutton.main.model.users
 		private var netConnectionDelegate: NetConnectionDelegate;
 		
 		private var _participants:Conference;
-		private var _mode:String;
 		private var _room:String;
 		private var _applicationURI:String;
 		
@@ -66,7 +63,6 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function connect(params:ConferenceParameters):void {
-			_mode = params.mode;
 			_room = params.room;
 			netConnectionDelegate.connect(params);
 		}
@@ -153,9 +149,7 @@ package org.bigbluebutton.main.model.users
 
 			LogUtil.info("Joined as [" + user.userid + "," + user.name + "," + user.role + "]");
 			_participants.addUser(user);
-
 			participantStatusChange(user.userid, "hasStream", joinedUser.status.hasStream);
-			participantStatusChange(user.userid, "streamName", joinedUser.status.streamName);
 			participantStatusChange(user.userid, "presenter", joinedUser.status.presenter);
 			participantStatusChange(user.userid, "raiseHand", joinedUser.status.raiseHand);
 
@@ -172,9 +166,12 @@ package org.bigbluebutton.main.model.users
 			dispatcher.dispatchEvent(joinEvent);				
 		}
 		
+		/**
+		 * Called by the server to tell the client that the meeting has ended.
+		 */
 		public function logout():void {
 			var dispatcher:Dispatcher = new Dispatcher();
-			var endMeetingEvent:BBBEvent = new BBBEvent("EndMeetingKickAllEvent");
+			var endMeetingEvent:BBBEvent = new BBBEvent(BBBEvent.END_MEETING_EVENT);
 			dispatcher.dispatchEvent(endMeetingEvent);
 		}
 		
@@ -219,40 +216,24 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function addStream(userid:Number, streamName:String):void {
-			var nc:NetConnection = netConnectionDelegate.connection;
-			nc.call(
-				"participants.setParticipantStatus",// Remote function name
-				responder,
-				userid,
-				"streamName",
-				streamName
-			); //_netConnection.call
-			
+			var nc:NetConnection = netConnectionDelegate.connection;			
 			nc.call(
 				"participants.setParticipantStatus",// Remote function name
 				responder,
 				userid,
 				"hasStream",
-				true
+				"true,stream=" + streamName
 			); //_netConnection.call
 		}
 		
 		public function removeStream(userid:Number, streamName:String):void {
-			var nc:NetConnection = netConnectionDelegate.connection;
-			nc.call(
-				"participants.setParticipantStatus",// Remote function name
-				responder,
-				userid,
-				"streamName",
-				""
-			); //_netConnection.call
-			
+			var nc:NetConnection = netConnectionDelegate.connection;			
 			nc.call(
 				"participants.setParticipantStatus",// Remote function name
 				responder,
 				userid,
 				"hasStream",
-				false
+				"false,stream=" + streamName
 			); //_netConnection.call
 		}
 

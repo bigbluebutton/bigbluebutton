@@ -26,16 +26,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Basic FreeSWITCH Event Socket messages from the server are decoded into this data object.
- * </p>
+ * <p>
  * An ESL message is modelled as text lines.  A message always has one or more header lines, and 
  * optionally may have some body lines.
- * <p/>
+ * <p>
  * Header lines are parsed and cached in a map keyed by the {@link EslHeaders.Name} enum.  A message
- * is always expected to have a "Content-Type" header</br>
+ * is always expected to have a "Content-Type" header
+ * <p>
  * Any Body lines are cached in a list.
  * 
  * @author  david varnes
- * @version $Id$
  * @see EslHeaders.Name
  */
 public class EslMessage
@@ -46,7 +46,6 @@ public class EslMessage
     private final List<String> body = new ArrayList<String>();
     
     private Integer contentLength = null;
-    private int receivedContentLength = 0;
 
     /**
      * All the received message headers in a map keyed by {@link EslHeaders.Name}. The string mapped value 
@@ -152,23 +151,7 @@ public class EslMessage
         {
             return;
         }
-        receivedContentLength += ( line.length() + 1 );
-        // ignore empty lines (signals the end of a body section)
-        if ( line.length() > 0 )
-        {
-            body.add( line );
-        }
-    }
-
-    /**
-     * Used by the {@link EslMessageDecoder}
-     * 
-     * @return true if receivedContentLength < contentLength
-     */
-    boolean waitingForContent()
-    {
-        log.debug( "received [{}], expecting [{}]", receivedContentLength, getContentLength() );
-        return receivedContentLength < getContentLength();
+        body.add( line );
     }
 
     @Override

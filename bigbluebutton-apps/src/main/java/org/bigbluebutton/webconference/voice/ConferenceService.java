@@ -1,24 +1,24 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * Author: Richard Alam <ritzalam@gmail.com>
- * 
- * $Id: $
- */
+/** 
+* ===License Header===
+*
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+* ===License Header===
+*/
 package org.bigbluebutton.webconference.voice;
 
 import java.util.ArrayList;
@@ -35,7 +35,6 @@ public class ConferenceService implements ConferenceEventListener {
 	private ConferenceEventListener conferenceEventListener;
 	
 	public void startup() {
-		roomMgr = new RoomManager(this);
 		confProvider.startup();
 	}
 	
@@ -44,10 +43,11 @@ public class ConferenceService implements ConferenceEventListener {
 		roomMgr = null;
 	}
 	
-	public void createConference(String room) {
+	public void createConference(String room, String meetingid, boolean record) {
 		if (roomMgr.hasRoom(room)) return;
-		roomMgr.createRoom(room);
+		roomMgr.createRoom(room, record, meetingid);
 		confProvider.populateRoom(room);
+		
 	}
 	
 	public void destroyConference(String room) {
@@ -60,6 +60,10 @@ public class ConferenceService implements ConferenceEventListener {
 			ParticipantLockedEvent ple = new ParticipantLockedEvent(participant, room, lock);
 			conferenceEventListener.handleConferenceEvent(ple);
 		}			
+	}
+	
+	public void recordSession(String room, String meetingid){
+		confProvider.record(room, meetingid);
 	}
 	
 	public void mute(Integer participant, String room, Boolean mute) {
@@ -122,5 +126,10 @@ public class ConferenceService implements ConferenceEventListener {
 	
 	public void setConferenceEventListener(ConferenceEventListener l) {
 		conferenceEventListener = l;
+	}
+	
+	public void setRoomManager(RoomManager roomManager) {
+		this.roomMgr = roomManager;
+		roomManager.setConferenceService(this);
 	}
 }

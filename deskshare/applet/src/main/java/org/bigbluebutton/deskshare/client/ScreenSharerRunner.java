@@ -1,3 +1,24 @@
+/** 
+* ===License Header===
+*
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+* ===License Header===
+*/
 package org.bigbluebutton.deskshare.client;
 
 import org.bigbluebutton.deskshare.client.blocks.BlockManager;
@@ -61,6 +82,36 @@ public class ScreenSharerRunner {
 		}
 	}
 	
+	/*****************************************************************************
+    ;  disconnectSharing
+    ;----------------------------------------------------------------------------
+	; DESCRIPTION
+	;   This routine is used to stop the screen capture, change desktop 
+	;   sharing system icon tray message.
+	;
+	; RETURNS : N/A
+	;
+	; INTERFACE NOTES
+	; 
+	;       INPUT : N/A
+	; 
+	;       OUTPUT : N/A
+	; 
+	; IMPLEMENTATION
+	;
+	; HISTORY
+	; __date__ :        PTS:  
+	; 2010.11.19		problem 272
+	;
+	******************************************************************************/
+	public void disconnectSharing(){
+		System.out.println(NAME + "Disconneted");
+		System.out.println(NAME + "Change system tray icon message");
+		tray.disconnectIconSystemTrayMessage();
+		captureTaker.stop();
+		mouseLocTaker.stop();
+	} // END FUNCTION disconnectSharing
+	
 	public void stopSharing() {
 		System.out.println(NAME + "Stopping");
 		System.out.println(NAME + "Removing icon from system tray.");
@@ -107,7 +158,7 @@ public class ScreenSharerRunner {
 		System.out.println("-----------------------------------------------------------------------");
 		System.out.println(LICENSE_HEADER);
 		System.out.println("-----------------------------------------------------------------------\n\n");
-		System.out.println("Desktop Sharing v0.71-dev");
+		System.out.println("Desktop Sharing v0.71");
 		System.out.println("Start");
 		System.out.println("Connecting to " + ssi.host + ":" + ssi.port + " room " + ssi.room);
 		System.out.println("Sharing " + ssi.captureWidth + "x" + ssi.captureHeight + " at " + ssi.x + "," + ssi.y);

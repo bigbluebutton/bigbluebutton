@@ -1,27 +1,27 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: $
- */
+/** 
+* ===License Header===
+*
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+* ===License Header===
+*/
 package org.bigbluebutton.deskshare.server;
 
-import java.awt.Point;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -29,7 +29,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.event.IEvent;
-import org.red5.server.api.so.ISharedObject;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IStreamCodecInfo;
 import org.red5.server.api.stream.IStreamListener;
@@ -58,16 +57,13 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 
 	private String publishedStreamName;
 	private IPipe livePipe;
-	private IScope mScope;
+	private IScope scope;
 
 	// Codec handling stuff for frame dropping
 	private StreamCodecInfo streamCodecInfo;
-	private Long mCreationTime;
-	private ISharedObject deskSO;
+	private Long creationTime;
 	
-	public ScreenVideoBroadcastStream(String name, ISharedObject deskSO) {
-		this.deskSO = deskSO;
-		
+	public ScreenVideoBroadcastStream(String name) {	
 		publishedStreamName = name;
 		livePipe = null;
 		log.trace("name: {}", name);
@@ -75,7 +71,7 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 		// we want to create a video codec when we get our
 		// first video packet.
 		streamCodecInfo = new StreamCodecInfo();
-		mCreationTime = null;
+		creationTime = null;
 	}
 
 	public IProvider getProvider() {
@@ -136,12 +132,12 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	}
 
 	public void setScope(IScope scope) {
-		mScope = scope;
+		this.scope = scope;
 	}
 
 	public IScope getScope() {
-		log.trace("getScope(): {}", mScope);
-		return mScope;
+		log.trace("getScope(): {}", scope);
+		return scope;
 	}
 
 	public void start() {
@@ -152,8 +148,7 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 		log.trace("stop");
 	}
 
-	public void onOOBControlMessage(IMessageComponent source, IPipe pipe,
-			OOBControlMessage oobCtrlMsg) {
+	public void onOOBControlMessage(IMessageComponent source, IPipe pipe, OOBControlMessage oobCtrlMsg) {
 		log.trace("onOOBControlMessage");
 	}
 
@@ -202,8 +197,8 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 					RTMPMessage msg = new RTMPMessage();
 					msg.setBody(rtmpEvent);
           
-					if (mCreationTime == null)
-						mCreationTime = (long)rtmpEvent.getTimestamp();
+					if (creationTime == null)
+						creationTime = (long)rtmpEvent.getTimestamp();
           
 					try {
 						IVideoStreamCodec videoStreamCodec = new ScreenVideo();
@@ -233,30 +228,11 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	}
 
 	public long getCreationTime() {
-		return mCreationTime != null ? mCreationTime : 0L;
+		return creationTime != null ? creationTime : 0L;
 	}
   
 	public Notify getMetaData() {
 	  System.out.println("**** GETTING METADATA ******");
 	  return null;
-	}
-	
-	public void sendDeskshareStreamStopped(ArrayList<Object> msg) {
-
-		deskSO.sendMessage("deskshareStreamStopped" , msg);
-	}
-	
-	public void sendDeskshareStreamStarted(int width, int height) {
-		ArrayList<Object> msg = new ArrayList<Object>();
-		msg.add(new Integer(width));
-		msg.add(new Integer(height));
-		deskSO.sendMessage("appletStarted" , msg);
-	}
-	
-	public void sendMouseLocation(Point mouseLoc) {
-		ArrayList<Object> msg = new ArrayList<Object>();
-		msg.add(new Integer(mouseLoc.x));
-		msg.add(new Integer(mouseLoc.y));
-		deskSO.sendMessage("mouseLocationCallback", msg);
 	}
 }

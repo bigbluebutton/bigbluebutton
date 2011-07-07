@@ -20,17 +20,15 @@ package org.freeswitch.esl.client.transport.message;
  * header string values.
  * 
  * @author  david varnes
- * @version $Id$
  */
 public class EslHeaders
 {
     /**
      * Standard ESL header names.
-     * </p>
+     * <p>
      * Note this enum will need to be kept in synch with any new headers introduced on the server side.
      * 
      * @author david varnes 
-     * @version $Id$
      */
     public enum Name
     {
@@ -93,12 +91,11 @@ public class EslHeaders
     
     /**
      * Some common ESL header values. These are provided as a convenience for commonly used values.
-     * </p>
+     * <p>
      * This values are not coded as an enum to allow for the very large range of possible values,
      * since they are just Strings.
      *
      * @author david varnes
-     * @version $Id$
      */
     public static final class Value 
     {

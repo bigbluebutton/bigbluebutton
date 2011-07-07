@@ -1,22 +1,82 @@
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+*/
 package org.bigbluebutton.main.model
 {
 	import flash.net.NetConnection;
 
+	/**
+	 * The ConferenceParameters class holds attributes that define the conference. You can access them in your module through the
+	 * attributes property that is passed to your IBigBlueButtonModule instance on startup.
+	 * 
+	 */	
 	public class ConferenceParameters
 	{
+		/**
+		 * The name of the conference
+		 */		
 		public var conference:String;
+		
+		/**
+		 * The username of the local user
+		 */		
 		public var username:String;
+		
+		/**
+		 * The role of the local user. Could be MODERATOR or VIEWER 
+		 */		
 		public var role:String;
+		
+		/**
+		 * The room unique id, as specified in the API /create call.
+		 */		
 		public var room:String;
-		public var authToken:String;
-		public var mode:String;
+		
+		/**
+		 * Voice conference bridge for the client
+		 */		
 		public var webvoiceconf:String;
+		
+		/**
+		 * Voice conference bridge that external SIP clients use. Usually the same as webvoiceconf 
+		 */		
 		public var voicebridge:String;
-		public var conferenceName:String;
+		
+		/**
+		 *  The welcome string, as passed in through the API /create call.
+		 */		
 		public var welcome:String;
-		public var meetingID:String;
+		
+		/**
+		 * External unique user id.
+		 */		
 		public var externUserID:String;
+		
+		/**
+		 * A flash.net.NetConnection object that bbb-client connects to on startup. This connection reference is 
+		 * passed to your module as an already open connection. Use it to talk to the bigbluebutton server.
+		 */		
 		public var connection:NetConnection;
+		
+		/**
+		 * The unique userid internal to bbb-client.
+		 */		
 		public var userid:Number;
+		public var record:Boolean;
 	}
 }

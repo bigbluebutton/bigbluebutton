@@ -1,31 +1,36 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: $
- */
+/** 
+*
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+**/
 package org.bigbluebutton.voiceconf.red5.media.transcoder;
 
 import java.util.Random;
 
-import org.bigbluebutton.voiceconf.red5.media.AudioByteData;
+import org.bigbluebutton.voiceconf.red5.media.SipToFlashAudioStream;
 import org.red5.app.sip.codecs.Codec;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
+/**
+ * Speex wideband to speex wideband Sip to Flash Transcoder.
+ * This is just a passthrough transcoder.
+ *
+ */
 public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 	protected static Logger log = Red5LoggerFactory.getLogger(SpeexSipToFlashTranscoderImp.class, "sip");
 	
@@ -33,7 +38,8 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 	private Codec audioCodec = null;
 	private long timestamp = 0;
 	private static final int TS_INCREMENT = 20; // Determined from PCAP traces.
-	
+	private TranscodedAudioDataListener transcodedAudioListener;
+
 	public SpeexSipToFlashTranscoderImp(Codec codec) {
 		this.audioCodec = codec;
         Random rgen = new Random();
@@ -41,9 +47,8 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 	}
 
 	@Override
-	public void transcode(AudioByteData audioData, TranscodedAudioDataListener listener) {
-		byte[] codedBuffer = audioData.getData();
-		listener.handleTranscodedAudioData(codedBuffer, timestamp += TS_INCREMENT);
+	public void transcode(byte[] audioData ) {
+		transcodedAudioListener.handleTranscodedAudioData(audioData, timestamp += TS_INCREMENT);
 	}
 	
 	@Override
@@ -56,5 +61,26 @@ public class SpeexSipToFlashTranscoderImp implements SipToFlashTranscoder {
 		return audioCodec.getIncomingEncodedFrameSize();
 	}
 
+	@Override
+	public void handleData(byte[] audioData, int offset, int len) {
+		byte[] data = new byte[len];
+		System.arraycopy(audioData, offset, data, 0, len);
+		transcode(data);		
+	}
 
+	@Override
+	public void setTranscodedAudioListener(SipToFlashAudioStream sipToFlashAudioStream) {
+		this.transcodedAudioListener = sipToFlashAudioStream;
+		
+	}
+
+	@Override
+	public void start() {
+		// do nothing
+	}
+
+	@Override
+	public void stop() {
+		// do nothing
+	}
 }

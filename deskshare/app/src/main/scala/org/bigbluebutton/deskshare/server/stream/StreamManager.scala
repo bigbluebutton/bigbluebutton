@@ -1,22 +1,24 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: $
- */
+/** 
+* ===License Header===
+*
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+* ===License Header===
+*/
 package org.bigbluebutton.deskshare.server.stream
 
 import org.bigbluebutton.deskshare.server.red5.DeskshareApplication
@@ -28,17 +30,18 @@ import java.util.ArrayList
 import scala.actors.Actor
 import scala.actors.Actor._
 import scala.collection.mutable.HashMap
+import org.bigbluebutton.deskshare.server.recorder._
 
 import net.lag.logging.Logger
 
 case class IsStreamPublishing(room: String)
 case class StreamPublishingReply(publishing: Boolean, width: Int, height: Int)
 
-class StreamManager extends Actor {
+class StreamManager(record:Boolean, recordingService:RecordingService) extends Actor {
 	private val log = Logger.get
  
 	var app: DeskshareApplication = null
- 
+ 	
 	def setDeskshareApplication(a: DeskshareApplication) {
 	  app = a
 	}
@@ -74,7 +77,7 @@ class StreamManager extends Actor {
  
 	def createStream(room: String, width: Int, height: Int): Option[DeskshareStream] = {	  	  
 	  try {                                                                       
-		val stream = new DeskshareStream(app, room, width, height)
+		val stream = new DeskshareStream(app, room, width, height, record, recordingService.getRecorderFor(room))
 		if (stream.initializeStream) {
 		  stream.start
 		  this ! new AddStream(room, stream)
@@ -95,7 +98,7 @@ class StreamManager extends Actor {
   		this ! new RemoveStream(room)
   	}  	
    
-  	override def  exit() : Nothing = {
+  	override def exit() : Nothing = {
 	  log.warning("StreamManager: **** Exiting  Actor")
 	  super.exit()
 	}

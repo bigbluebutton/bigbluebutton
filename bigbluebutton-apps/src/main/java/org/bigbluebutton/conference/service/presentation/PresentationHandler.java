@@ -1,24 +1,29 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: $
- */
+/** 
+* ===License Header===
+*
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+* ===License Header===
+*/
 
 package org.bigbluebutton.conference.service.presentation;
+
+import java.io.File;
+import java.io.FileFilter;
 
 import org.red5.server.adapter.IApplication;
 import org.red5.server.api.IClient;
@@ -29,7 +34,11 @@ import org.red5.logging.Red5LoggerFactory;
 
 import org.red5.server.api.so.ISharedObject;
 import org.red5.server.adapter.ApplicationAdapter;
-import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.bigbluebutton.conference.service.recorder.RecorderApplication;
+import org.red5.server.api.Red5;
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
+import org.bigbluebutton.conference.service.recorder.RecorderApplication;
+import org.bigbluebutton.conference.service.recorder.presentation.PresentationEventRecorder;
 
 public class PresentationHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationHandler.class, "bigbluebutton" );
@@ -86,12 +95,12 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 		ISharedObject so = getSharedObject(connection.getScope(), PRESENTATION_SO);
 		
 		log.debug("Setting up recorder");
-		PresentationEventRecorder recorder = new PresentationEventRecorder(so, getBbbSession().getRecord());
-		log.debug("adding event recorder to {}",connection.getScope().getName());
-		recorderApplication.addEventRecorder(connection.getScope().getName(), recorder);				
-		
+		PresentationEventSender sender = new PresentationEventSender(so);
+		PresentationEventRecorder recorder = new PresentationEventRecorder(connection.getScope().getName(), recorderApplication);
+						
 		log.debug("Adding room listener");
 		presentationApplication.addRoomListener(connection.getScope().getName(), recorder);
+		presentationApplication.addRoomListener(connection.getScope().getName(), sender);
 		log.debug("Done setting up recorder and listener");
 		return true;
 	}
@@ -119,6 +128,27 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 		presentationApplication.createRoom(scope.getName());
     	if (!hasSharedObject(scope, PRESENTATION_SO)) {
     		if (createSharedObject(scope, PRESENTATION_SO, false)) {    			
+				log.debug("{} - scanning for presentations - ", APP, scope.getName());
+				try {
+					// TODO: this is hard-coded, and not really a great abstraction.  need to fix this up later
+					String folderPath = "/var/bigbluebutton/" + scope.getName() + "/" + scope.getName();
+					File folder = new File(folderPath);
+					//log.debug("folder: {} - exists: {} - isDir: {}", folder.getAbsolutePath(), folder.exists(), folder.isDirectory());
+					if (folder.exists() && folder.isDirectory()) {
+						File[] presentations = folder.listFiles(new FileFilter() {
+							public boolean accept(File path) {
+								log.debug("\tfound: {}", path.getAbsolutePath());
+								return path.isDirectory();
+							}
+						});
+						for (File presFile : presentations) {
+							log.debug("\tshare: {}", presFile.getName());
+							presentationApplication.sharePresentation(scope.getName(), presFile.getName(), true);
+						}
+					}
+				} catch (Exception ex) {
+					log.error(scope.getName() + ": error scanning for existing presentations [" + ex.getMessage() + "]", ex);
+				}
     			return true; 			
     		}    		
     	}  	
@@ -150,7 +180,4 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 		conversionUpdatesMessageListener = service;
 	}
 	
-	private BigBlueButtonSession getBbbSession() {
-		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-	}
 }

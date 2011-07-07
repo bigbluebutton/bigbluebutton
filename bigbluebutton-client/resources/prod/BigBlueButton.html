@@ -25,6 +25,17 @@ Learn more about Flex at http://flex.org
 <script src="history/history.js" language="javascript"></script>
 <!--  END Browser History required section -->
 
+<script src="jquery-1.5.1.min.js" language="javascript"></script>
+<script src="bigbluebutton.js" language="javascript"></script>
+<script src="bbb_localization.js" language="javascript"></script>
+<script src="deployJava.js" language="javascript"></script>
+<script src="bbb_blinker.js" language="javascript"></script>
+<script src="bbb_deskshare.js" language="javascript"></script>
+
+<!-- Shared Noted javascript files. Uncomment for shared notes module -->
+<!--<script src="sharednotes/diff_match_patch_uncompressed.js" language="javascript"></script>-->
+<!--<script src="sharednotes/shared_notes.js" language="javascript"></script>-->
+
 <style>
 body { margin: 0px; overflow:hidden }
 </style>
@@ -101,93 +112,6 @@ if ( hasProductInstall && !hasRequestedVersion ) {
     document.write(alternateContent);  // insert non-flash content
   }
 // -->
-
-function startApplet(IP, roomNumber, fullScreen)
-{
-	var iframe = document.createElement("iframe");
-  	iframe.id = "iframe";
-   	document.body.appendChild(iframe);
-   	frames[frames.length - 1].document.write(
-   		"<applet code=\"org.bigbluebutton.deskshare.client.DeskShareApplet.class\"" +
-   			"id=\"DeskShareApplet\" width=\"0\" height=\"400\" archive=\"bbb-deskshare-applet-0.64.jar\">" +
-        	"<param name=\"ROOM\" value=\"" + roomNumber  + "\"/>" +
-        	"<param name=\"IP\" value=\"" + IP + "\"/>" +
-        	"<param name=\"FULL_SCREEN\" value=\"" + fullScreen + "\"/>" +       	
-      	"</applet>"
-     );
-}
-
-function removeFrame () {
-    var iframe = document.getElementById("iframe");
-    iframe.parentNode.removeChild(iframe);
-}
-
-function setScreenCoordinates(x, y) {
-   return frames[frames.length - 1].document.DeskShareApplet.setScreenCoordinates(x,y);
-}
-
-function stopApplet(){
-	frames[frames.length - 1].document.DeskShareApplet.destroy();
-	removeFrame();
-}
-
-function checkForJava(){
-//	if (navigator.javaEnabled() || window.navigator.javaEnabled())
-		return 1;
-}
-
-var blinkTimer = false;
-var blinking = false;
-
-var startblink = function(message1, message2)
-{
-	if(!blinking)
-	{
-		document.title = (document.title == message2)?message1:message2;
-		blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "', 1)", 500);
-		blinking = true;
-	}
-}
-
-var blinktitle = function(message1, message2)
-{
-	document.title = (document.title == message2)?message1:message2;
-	blinkTimer = window.setTimeout("blinktitle('" + message1 + "', '" + message2 + "', 1)", 500);
-}
-
-var clearblink = function()
-{
-	blinking = false;
-	if(blinkTimer)
-	{
-		window.clearTimeout(blinkTimer);
-	}
-	document.title = 'BigBlueButton';
-}
-
-// Check locale
-var localeChain = "en_US";
-
-if (navigator.language)
-	localeChain = navigator.language;
-else if (navigator.browserLanguage)
-	localeChain = navigator.browserLanguage;
-
-if(/^([a-z]+)-([a-z]+)$/i.test(localeChain)){
-	var matches = /^([a-z]+)-([a-z]+)$/i.exec(localeChain);
-	localeChain = matches[1].toLowerCase() + "_" + matches[2].toUpperCase();
-}
-else if(/^([a-z]+)$/i.test(localeChain)){
-	var matches = /^([a-z]+)$/i.exec(localeChain);
-	localeChain = matches[1].toLowerCase();
-}
-else{
-	localeChain = "en_US";
-}
-
-function getLanguage(){
-	return localeChain;
-}
 
 </script>
 <noscript>

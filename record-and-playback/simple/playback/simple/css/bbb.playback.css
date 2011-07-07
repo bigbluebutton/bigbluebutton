@@ -1,0 +1,16 @@
+body {
+	
+}
+
+#playbackArea{
+	width: 800px;
+	height: 600px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#audioRecording{
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}

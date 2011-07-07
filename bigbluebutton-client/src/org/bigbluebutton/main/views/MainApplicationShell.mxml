@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton - http://www.bigbluebutton.org
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
   
-  Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
   
   BigBlueButton is free software; you can redistribute it and/or modify it under the 
   terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 3 of the License, or (at your option) any later 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
   version. 
   
   BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
@@ -15,10 +15,10 @@
   PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
   
   You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  
   $Id: $
---> 
+-->
 
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
 		xmlns:flexmdi="flexlib.mdi.containers.*"
@@ -28,7 +28,7 @@
 		xmlns:maps="org.bigbluebutton.main.maps.*"
 		xmlns:api="org.bigbluebutton.main.api.*"
 		width="100%" height="100%"
-		creationComplete="initializeShell()">
+		creationComplete="initializeShell()" xmlns:common="org.bigbluebutton.common.*">
 		
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="setLogVisibility" />
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
@@ -40,12 +40,10 @@
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
-
-	<api:APIEventMap />
-	
+	<common:APIEventMap />
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.main.events.AppVersionEvent;
+			import org.bigbluebutton.main.events.RecordStatusEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.MouseEvent;
@@ -63,11 +61,12 @@
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.events.AddUIComponentToMainCanvas;
-			import org.bigbluebutton.main.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
-			import org.bigbluebutton.main.events.OpenWindowEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -89,6 +88,7 @@
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
 			[Bindable] public var appVersion:String = '0.7';
+			private var localeVersion:String = 'old';
 			[Bindable] public var numberOfModules:int = 0;
 			
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
@@ -112,6 +112,9 @@
 			
 			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
 				appVersion = event.appVersion;
+				localeVersion = event.localVersion;
+				
+				if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
@@ -158,6 +161,7 @@
 	   		}	
 	   		
 	   		private function handleOpenWindowEvent(event:OpenWindowEvent):void {
+	   			
 	   			var window:IBbbModuleWindow = event.window;
 	   			mdiCanvas.addWindow(window);
 	   		}
@@ -218,14 +222,36 @@
 			}
 			
 			private function attemptReconnect(e:ConnectionFailedEvent):void{
-				if (connectionLostWindow != null) return;
+				/*if (connectionLostWindow != null) return;
 				connectionLostWindow = ConnectionLostWindow(PopUpManager.createPopUp( mdiCanvas, ConnectionLostWindow, true));
 				connectionLostWindow.x = mdiCanvas.width/2 - connectionLostWindow.width/2;
-				connectionLostWindow.y = mdiCanvas.height/2 - connectionLostWindow.height/2;
+				connectionLostWindow.y = mdiCanvas.height/2 - connectionLostWindow.height/2;*/
+				
+				//Temporary fix
+				handleLogout(e);
+			}
+			
+			private function handleRecordStatusEvent(evt:RecordStatusEvent):void {
+				Alert.show(evt.status, evt.module);
 			}
 			
 			private function setLogVisibility(e:ConfigEvent):void{
 				logBtn.visible = e.config.showDebug;
+			}
+			
+			private function changeLayout():void{
+				switch (cmbLayout.selectedIndex) {
+					case 0:
+						mdiCanvas.layoutSmallVideos();
+						break;
+					case 1:
+						mdiCanvas.layoutPresenter();
+						break;
+					case 2:
+						mdiCanvas.layoutMeeting();
+						break;
+				}
+				cmbLayout.selectedIndex = -1;
 			}
 			
 		]]>
@@ -234,11 +260,22 @@
 	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="false" verticalAlign="middle"/>
 	<views:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off" effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" width="100%" height="100%">
 		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
+		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
+	
 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
 	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
+		<mx:ComboBox width="100" height="20" id="cmbLayout" change="changeLayout()" prompt="Layout" selectedItem="-1">
+           <mx:dataProvider>
+              <mx:Array>
+			      <mx:String>Small videos</mx:String>
+			      <!--mx:String>Presenter + presentation</mx:String>
+			      <mx:String>Meeting</mx:String-->
+              </mx:Array>
+           </mx:dataProvider>
+      	</mx:ComboBox>
 		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
 		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
 	</mx:ControlBar>

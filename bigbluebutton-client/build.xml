@@ -26,8 +26,10 @@
 	<property name="WHITEBOARD" value="WhiteboardModule" />
 	<property name="DYN_INFO" value="DynamicInfoModule" />
 	<property name="BREAKOUT" value="BreakoutModule" />
+	<property name="CLASSROOM_AUDIO" value="ClassroomAudioModule" />
+	<property name="SETTINGS" value="SettingsModule" />
 	
-	<property name="AVAILABLE_LOCALES" value="az_AZ,bg_BG,de_DE,el_GR,en_US,es_ES,es_LA,fr_FR,fr_CA,hu_HU,it_IT,lt_LT,nb_NO,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,tr_TR,vi_VN,zh_CN,zh_TW,sv_SE,fa_IR,ja_JP"/>
+	<property name="AVAILABLE_LOCALES" value="az_AZ,bn_BN,bg_BG,cs_CZ,da_DK,de_DE,el_GR,en_US,es_ES,es_LA,eu_EU,fa_IR,fr_FR,fr_CA,hr_HR,hu_HU,id_ID,it_IT,ja_JP,ko_KR,lv_LV,lt_LT,mn_MN,nb_NO,ne_NE,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,sv_SE,sr_RS,sr_SR,th_TH,tr_TR,vi_VN,uk_UA,zh_CN,zh_TW"/>
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
 	
@@ -45,7 +47,7 @@
 	
 	<target name="branding" depends="init-ant-contrib">
 		<sequential>
-			<mxmlc file="${SRC_DIR}/branding/css/theme.css" output="${OUTPUT_DIR}/branding/css/theme.swf" debug="false" optimize="true">
+			<mxmlc file="${SRC_DIR}/branding/css/${themeFile}" output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" debug="false" optimize="true">
 			</mxmlc>
 		</sequential>
 	</target>
@@ -150,7 +152,7 @@
 	<target name="build-deskshare" description="Compile Deskshare Module">
 		<build-module src="${SRC_DIR}" target="${DESKSHARE}" />
 		<echo message="Copying deskshare applet for Deskshare Module" />
-		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.64.jar" todir="${OUTPUT_DIR}"/>		
+		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.71.jar" todir="${OUTPUT_DIR}"/>		
 	</target>
 	
 	<target name="build-phone" description="Compile Phone Module">
@@ -160,6 +162,14 @@
 		<copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/phone/views/assets/images/" >
 			<fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/phone/views/assets/images/" />
 		</copy>		
+	</target>
+
+	<target name="build-classroom-audio" description="Compile Classroom Audio Module">
+		<build-module src="${SRC_DIR}" target="${CLASSROOM_AUDIO}" />
+	</target>
+	
+	<target name="build-settings" description="Compile Settings Module">
+		<build-module src="${SRC_DIR}" target="${SETTINGS}" />
 	</target>
 	
 	<target name="build-video" description="Compile Video Module">
@@ -182,7 +192,7 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
-			depends="build-deskshare, build-phone, build-video, build-whiteboard, build-dyn"
+			depends="build-deskshare, build-phone, build-video, build-whiteboard, build-dyn, build-classroom-audio, build-settings"
 			description="Compile deskshare, phone, video, whiteboard, dynamic info modules">
 	</target>
 	
@@ -278,7 +288,13 @@
 		<copy file="${PROD_RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>		
 		<copy file="${PROD_RESOURCES_DIR}/locales.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>		
-		<copy file="${PROD_RESOURCES_DIR}/example-info-data.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>		
+		<copy file="${PROD_RESOURCES_DIR}/example-info-data.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/jquery-1.5.1.min.js" todir="${OUTPUT_DIR}" overwrite="true" />
+		<copy file="${PROD_RESOURCES_DIR}/bigbluebutton.js" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/deployJava.js" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/bbb_blinker.js" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/bbb_deskshare.js" todir="${OUTPUT_DIR}" overwrite="true"/>
+		<copy file="${PROD_RESOURCES_DIR}/bbb_localization.js" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<if>
            		<equals arg1="${BUILD_ENV}" arg2="DEV"/>
            		<then>
@@ -286,8 +302,6 @@
 				<copy file="${BASE_DIR}/src/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
               			<echo message="Copying join-mock.xml for development environment"/>
 				<copy file="${BASE_DIR}/src/conf/join-mock.xml" todir="${OUTPUT_DIR}/conf" /> 
-              			<echo message="Copying locales.xml for development environment"/>
-				<copy file="${BASE_DIR}/src/conf/locales.xml" todir="${OUTPUT_DIR}/conf" /> 
            		</then>
            	<else>
               		<echo message="Need to copy config.xml.template for production environment"/>
@@ -323,6 +337,28 @@
 		/>
 	</target>
 
+	<target name="asdoc">
+		<echo message="Generating ASDocs"/>
+		<delete dir="${BASE_DIR}/asdoc" />
+                <mkdir dir="${BASE_DIR}/asdoc" />
+		<!-- asdoc task not natively supported for ant flexTasks.jar for flex3. It is supported for flex 4, so it should be enabled here
+		when bbb-client is moved to Flex 4 -->
+		<!--<asdoc output="${BASE_DIR}/asdoc" 
+			external-library-path="{BASE_DIR}/libs" 
+			lenient="true" 
+			failonerror="true"
+			source-path="${SRC_DIR}"
+			doc-sources="${SRC_DIR}"
+		/> -->
+		<exec executable="${FLEX_HOME}/bin/asdoc" failonerror="true">
+			<arg line="-source-path ${SRC_DIR}/ "/>
+			<arg line="-doc-sources ${SRC_DIR}/ "/>
+			<arg line="-external-library-path '${BASE_DIR}/libs/' "/>
+			<arg line="-output '${BASE_DIR}/asdoc' "/>
+		</exec>
+		<echo message="Done Generating ASDocs" />
+	</target>
+
 	<target name="clean">
 		<delete dir="${OUTPUT_DIR}" />
 		<mkdir dir="${OUTPUT_DIR}"/>
@@ -337,4 +373,6 @@
 	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, compile-bbb"
                         description="Build BBB client without locales"/>		
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
+
+	<target name="build-custom" depends="init-ant-contrib, build-classroom-audio" description="Build a custom defined module only, to save time as each build takes several minutes" />
 </project>

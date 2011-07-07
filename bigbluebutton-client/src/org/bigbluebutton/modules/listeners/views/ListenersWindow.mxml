@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton - http://www.bigbluebutton.org
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
   
-  Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
   
   BigBlueButton is free software; you can redistribute it and/or modify it under the 
   terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 3 of the License, or (at your option) any later 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
   version. 
   
   BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
@@ -15,10 +15,10 @@
   PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
   
   You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  
   $Id: $
---> 
+-->
 
 <MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 			xmlns="flexlib.mdi.containers.*"
@@ -26,7 +26,6 @@
 			title="{windowTitle}"
 			creationComplete="onCreationComplete()" xmlns:mate="http://mate.asfusion.com/">
 	
-	<mate:Listener type="{ListenersEvent.FIRST_LISTENER_JOINED_EVENT}" method="firstListenerJoined" />
 	<mate:Listener type="{ListenersEvent.ROOM_MUTE_STATE}" method="roomMuteStateChange" />
 	<mate:Listener type="{ListenersEvent.REGISTER_LISTENERS}" method="registerListeners" />
 	<mate:Listener type="{ListenersEvent.SET_LOCAL_MODERATOR_STATUS}" method="{setModerator}" />
@@ -128,31 +127,23 @@
 				dispatchEvent(unmuteCommand);
 			}
 			
-			private function firstListenerJoined(e:ListenersEvent):void{
-				
-			}
-			
 			private function roomMuteStateChange(e:ListenersEvent):void{
 				setMuteState(e.mute_state);
 			}
 			
 			private function registerListeners(e:ListenersEvent):void{
 				this.listeners = e.listeners.listeners;
+				/*
+				 * Bind into this object to display the number of listeners.
+				 */
+				BindingUtils.bindSetter(updateNumberOfListeners, listeners, "length");
 			}
 			
 			private function setModerator(e:ListenersEvent):void{
 				moderator = e.moderator;
 				showCloseButton = false;
 			}
-			
-			override protected function resourcesChanged():void{
-				super.resourcesChanged();
-				if (listeners.length > 4)
-					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', [":", listeners.length]) ;
-				else 
-					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', ["", ""]) ;
-			}
-			
+						
 			private function onItemRollOver(e:ListEvent):void{
 				var item:ListenerItem = e.itemRenderer as ListenerItem;
 				item.onRollOver();
@@ -161,6 +152,14 @@
 			private function onItemRollOut(e:ListEvent):void{
 				var item:ListenerItem = e.itemRenderer as ListenerItem;
 				item.onRollOut();
+			}
+			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();				
+				if (listeners.length > 4)
+					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', [":", listeners.length]);
+				else 
+					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', ["",""]);
 			}
 		]]>
 	</mx:Script>

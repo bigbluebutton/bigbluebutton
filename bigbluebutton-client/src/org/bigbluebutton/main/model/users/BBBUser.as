@@ -1,32 +1,28 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 *
-* Copyright (c) 2008 by respective authors (see below).
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
 * Foundation; either version 2.1 of the License, or (at your option) any later
 * version.
 *
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
-* with this program; if not, write to the Free Software Foundation, Inc.,
-* 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
 package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import flash.events.TimerEvent;
-	import flash.utils.Timer;
-	
 	import mx.collections.ArrayCollection;
-	import mx.controls.Alert;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	
@@ -72,11 +68,23 @@ package org.bigbluebutton.main.model.users
 					presenter = status.value;
 					break;
 				case "hasStream":
-					hasStream = status.value;
+					var streamInfo:Array = String(status.value).split(/,/); 
+					/**
+					 * Cannot use this statement as new Boolean(expression)
+					 * return true if the expression is a non-empty string not
+					 * when the string equals "true". See Boolean class def.
+					 * 
+					 * hasStream = new Boolean(String(streamInfo[0]));
+					 */					
+					if (String(streamInfo[0]).toUpperCase() == "TRUE") {
+						hasStream = true;
+					} else {
+						hasStream = false;
+					}
+					
+					var streamNameInfo:Array = String(streamInfo[1]).split(/=/);
+					streamName = streamNameInfo[1]; 
 					if (hasStream) sendStreamStartedEvent();
-					break;
-				case "streamName":
-					streamName = status.value as String;
 					break;
 				case "raiseHand":
 					raiseHand = status.value as Boolean;

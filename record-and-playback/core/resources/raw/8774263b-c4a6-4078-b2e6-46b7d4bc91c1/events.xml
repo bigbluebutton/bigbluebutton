@@ -1,0 +1,293 @@
+<recording>
+  <head>
+    <title>matterhorn's meeting</title>
+  </head>
+  <event timestamp="1301433157600" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <status>{raiseHand=false, hasStream=false, presenter=false}</status>
+    <userId>1</userId>
+    <role>MODERATOR</role>
+  </event>
+  <event timestamp="1301433159230" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
+    <status>presenter</status>
+    <userId>1</userId>
+    <value>true</value>
+  </event>
+  <event timestamp="1301433159318" module="PRESENTATION" eventname="AssignPresenterEvent">
+    <userid>1</userid>
+    <assignedBy>1</assignedBy>
+    <name>matterhorn</name>
+  </event>
+  <event timestamp="1301433166792" module="VOICE" eventname="ParticipantJoinedEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <callername>matterhorn</callername>
+    <muted>true</muted>
+    <talking>false</talking>
+    <locked>false</locked>
+    <callernumber>matterhorn</callernumber>
+  </event>
+  <event timestamp="1301433171309" module="VOICE" eventname="ParticipantMutedEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <muted>false</muted>
+  </event>
+  <event timestamp="1301433174470" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433176329" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433177205" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433179947" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433180523" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
+    <status>hasStream</status>
+    <userId>1</userId>
+    <value>true,stream=320x240-1-1301433140446</value>
+  </event>
+  <event timestamp="1301433180636" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433183169" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433183808" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433185687" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433187779" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433191568" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433197187" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433199248" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433199890" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433203130" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433204669" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433207133" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433208794" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433209120" module="Deskshare" eventname="DeskshareStartedEvent">
+    <file>/var/bigbluebutton/deskshare/8774263b-c4a6-4078-b2e6-46b7d4bc91c1-1301433207838.flv</file>
+  </event>
+  <event timestamp="1301433210647" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433212330" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433214209" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433214927" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433218329" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433219009" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433220747" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433221887" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433224349" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433224647" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433225791" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433226687" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433226724" module="Deskshare" eventname="DeskshareStoppedEvent">
+    <file>/var/bigbluebutton/deskshare/8774263b-c4a6-4078-b2e6-46b7d4bc91c1-1301433207838.flv</file>
+  </event>
+  <event timestamp="1301433228587" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433229989" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433230112" module="PARTICIPANT" eventname="ParticipantStatusChangeEvent">
+    <status>hasStream</status>
+    <userId>1</userId>
+    <value>false,stream=320x240-1-1301433140446</value>
+  </event>
+  <event timestamp="1301433231847" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433232567" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433234068" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>false</talking>
+  </event>
+  <event timestamp="1301433234767" module="VOICE" eventname="ParticipantTalkingEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+    <talking>true</talking>
+  </event>
+  <event timestamp="1301433235171" module="VOICE" eventname="ParticipantLeftEvent">
+    <bridge>79689</bridge>
+    <participant>12</participant>
+  </event>
+  <event timestamp="1301433258092" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>aSimple-Layout</presentationName>
+    <numberOfPages>6</numberOfPages>
+    <pagesCompleted>1</pagesCompleted>
+  </event>
+  <event timestamp="1301433258241" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>aSimple-Layout</presentationName>
+    <numberOfPages>6</numberOfPages>
+    <pagesCompleted>2</pagesCompleted>
+  </event>
+  <event timestamp="1301433258389" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <numberOfPages>6</numberOfPages>
+    <presentationName>aSimple-Layout</presentationName>
+    <pagesCompleted>3</pagesCompleted>
+  </event>
+  <event timestamp="1301433258613" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <numberOfPages>6</numberOfPages>
+    <presentationName>aSimple-Layout</presentationName>
+    <pagesCompleted>4</pagesCompleted>
+  </event>
+  <event timestamp="1301433258826" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <presentationName>aSimple-Layout</presentationName>
+    <numberOfPages>6</numberOfPages>
+    <pagesCompleted>5</pagesCompleted>
+  </event>
+  <event timestamp="1301433258895" module="PRESENTATION" eventname="GenerateSlideEvent">
+    <numberOfPages>6</numberOfPages>
+    <presentationName>aSimple-Layout</presentationName>
+    <pagesCompleted>6</pagesCompleted>
+  </event>
+  <event timestamp="1301433263199" module="PRESENTATION" eventname="ConversionCompletedEvent">
+    <presentationName>aSimple-Layout</presentationName>
+    <slidesInfo>&lt;uploadedpresentation&gt;
+  &lt;conference id='8774263b-c4a6-4078-b2e6-46b7d4bc91c1' room='8774263b-c4a6-4078-b2e6-46b7d4bc91c1'&gt;
+    &lt;presentation eventname='aSimple-Layout'&gt;
+      &lt;slides count='6'&gt;
+        &lt;slide number='1' eventname='slide/1' thumb='thumbnail/1' /&gt;
+        &lt;slide number='2' eventname='slide/2' thumb='thumbnail/2' /&gt;
+        &lt;slide number='3' eventname='slide/3' thumb='thumbnail/3' /&gt;
+        &lt;slide number='4' eventname='slide/4' thumb='thumbnail/4' /&gt;
+        &lt;slide number='5' eventname='slide/5' thumb='thumbnail/5' /&gt;
+        &lt;slide number='6' eventname='slide/6' thumb='thumbnail/6' /&gt;
+      &lt;/slides&gt;
+    &lt;/presentation&gt;
+  &lt;/conference&gt;
+&lt;/uploadedpresentation&gt;</slidesInfo>
+  </event>
+  <event timestamp="1301433264690" module="PRESENTATION" eventname="SharePresentationEvent">
+    <presentationName>aSimple-Layout</presentationName>
+    <share>true</share>
+  </event>
+  <event timestamp="1301433264692" module="PRESENTATION" eventname="ResizeAndMoveSlideEvent">
+    <widthRatio>1.0</widthRatio>
+    <yOffset>0.0</yOffset>
+    <heightRatio>1.0</heightRatio>
+    <xOffset>0.0</xOffset>
+  </event>
+  <event timestamp="1301433267614" module="PRESENTATION" eventname="GotoSlideEvent">
+    <slide>0</slide>
+  </event>
+  <event timestamp="1301433275714" module="PARTICIPANT" eventname="ParticipantLeftEvent">
+    <userId>1</userId>
+  </event>
+  <event timestamp="1301433275779" module="PARTICIPANT" eventname="EndAndKickAllEvent"/>
+</recording>

@@ -1,22 +1,22 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: $
- */
+/** 
+*
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+**/
 package org.bigbluebutton.voiceconf.red5.media;
 
 import java.io.IOException;
@@ -60,12 +60,7 @@ public class RtpStreamReceiver {
     }
     
     private void initializeSocket() {
-/*    	try {
-			rtpSocket.getDatagramSocket().setSoTimeout(SO_TIMEOUT);
-		} catch (SocketException e1) {
-			log.warn("SocketException while setting socket block time.");
-		}
-*/    }
+    }
     
     public void start() {
     	receivePackets = true;
@@ -84,19 +79,13 @@ public class RtpStreamReceiver {
     public void receiveRtpPackets() {    
         int packetReceivedCounter = 0;
         int internalBufferLength = payloadLength + RTP_HEADER_SIZE;
-        byte[] internalBuffer; 
-        RtpPacket rtpPacket;
+        byte[] internalBuffer = new byte[internalBufferLength];
+        RtpPacket rtpPacket = new RtpPacket(internalBuffer, internalBufferLength);;
         
         while (receivePackets) {
-        	try {
-        		internalBuffer = new byte[internalBufferLength];
-            	rtpPacket = new RtpPacket(internalBuffer, internalBufferLength);        			
-
+        	try {       			
         		rtpSocket.receive(rtpPacket);        		
         		packetReceivedCounter++;  
-//    			log.debug("Received packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
-//    					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			       			
-     
         		if (shouldDropDelayedPacket(rtpPacket)) {
         			continue;
         		}
@@ -110,9 +99,9 @@ public class RtpStreamReceiver {
         					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			
         		} else {
             		if (shouldHandlePacket(rtpPacket)) {        			            			
-//            			log.debug("Handling packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
-//            					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			       			
-            			processRtpPacket(rtpPacket);
+            			lastSequenceNumber = rtpPacket.getSeqNum();
+            			lastPacketTimestamp = rtpPacket.getTimestamp();
+            			processRtpPacket(internalBuffer, RTP_HEADER_SIZE, rtpPacket.getPayloadLength());
             		} else {
             			if (log.isDebugEnabled())
             				log.debug("Corrupt packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
@@ -132,7 +121,7 @@ public class RtpStreamReceiver {
     
     private boolean shouldDropDelayedPacket(RtpPacket rtpPacket) {
     	long now = System.currentTimeMillis();
-    	if (now - lastPacketReceived > 100) {
+    	if (now - lastPacketReceived > 200) {
     		if (log.isDebugEnabled())
     			log.debug("Delayed packet [" + rtpPacket.getRtcpPayloadType() + "," + rtpPacket.getPayloadType() + ", length=" + rtpPacket.getPayloadLength() + "] seqNum[rtpSeqNum=" + rtpPacket.getSeqNum() + ",lastSeqNum=" + lastSequenceNumber 
 					+ "][rtpTS=" + rtpPacket.getTimestamp() + ",lastTS=" + lastPacketTimestamp + "][port=" + rtpSocket.getDatagramSocket().getLocalPort() + "]");          			       			
@@ -217,11 +206,8 @@ public class RtpStreamReceiver {
     	return false;
     }
 
-    private void processRtpPacket(RtpPacket rtpPacket) {
-		lastSequenceNumber = rtpPacket.getSeqNum();
-		lastPacketTimestamp = rtpPacket.getTimestamp();
-		AudioByteData audioData = new AudioByteData(rtpPacket.getPayload());
-		if (listener != null) listener.onAudioDataReceived(audioData);
+    private void processRtpPacket(byte[] rtpAudio, int offset, int len) {
+		if (listener != null) listener.onAudioDataReceived(rtpAudio, offset, len);
 		else log.debug("No listener for incoming audio packet");    	
     }
 }

@@ -32,7 +32,7 @@ import org.bigbluebutton.presentation.UploadedPresentation
 class PresentationService {
 
     static transactional = false
-	def documentConversionService
+	DocumentConversionService documentConversionService
 	def presentationDir
 	def testConferenceMock
 	def testRoomMock

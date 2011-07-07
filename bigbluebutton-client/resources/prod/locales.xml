@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <locales>
 	<locale code="az_AZ" name="Azerbaijani"/>
+	<locale code="da_DK" name="Danish" />
 	<locale code="de_DE" name="German"/>
 	<locale code="el_GR" name="Greek"/>
 	<locale code="en_US" name="English"/>
@@ -9,7 +10,9 @@
 	<locale code="fr_FR" name="French"/>
 	<locale code="fr_CA" name="French Canadian"/>
 	<locale code="hu_HU" name="Hungarian"/>
+    <locale code="id_ID" name="Indonesian"/>
 	<locale code="it_IT" name="Italian"/>
+    <locale code="ko_KR" name="Korean"/>
 	<locale code="lt_LT" name="Lithuania"/>
 	<locale code="nb_NO" name="Norwegian"/>
 	<locale code="nl_NL" name="Netherland"/>
@@ -19,6 +22,7 @@
 	<locale code="ro_RO" name="Romanian"/>
 	<locale code="ru_RU" name="Russian"/>
 	<locale code="tr_TR" name="Turkish"/>
+	<locale code="uk_UA" name="Ukrainian"/>
 	<locale code="vi_VN" name="Vietnamese"/>
 	<locale code="zh_CN" name="Chinese (Simplified)"/>
 	<locale code="zh_TW" name="Chinese (Traditional)"/>

@@ -1,24 +1,24 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * Author: Richard Alam <ritzalam@gmail.com>
- * 
- * $Id: $
- */
+/** 
+* ===License Header===
+*
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+* ===License Header===
+*/
 package org.bigbluebutton.webconference.voice.internal;
 
 import java.util.ArrayList;
@@ -35,12 +35,18 @@ import net.jcip.annotations.ThreadSafe;
 @ThreadSafe
 public class RoomImp implements Room {
 	private final String name;
+	
 	private final ConcurrentMap<Integer, Participant> participants;
 	
 	private boolean muted = false;
+	private boolean record = false;
+	private String meetingid;
+	private boolean recording = false;
 	
-	public RoomImp(String name) {
+	public RoomImp(String name,boolean record, String meetingid) {
 		this.name = name;
+		this.record = record;
+		this.meetingid = meetingid;
 		participants = new ConcurrentHashMap<Integer, Participant>();
 	}
 	
@@ -48,7 +54,7 @@ public class RoomImp implements Room {
 		return name;
 	}
 	
-	public int countParticipants() {
+	public int numParticipants() {
 		return participants.size();
 	}
 	
@@ -76,6 +82,31 @@ public class RoomImp implements Room {
 	public boolean isMuted() {
 		return muted;
 	}
+	
+	public void record(boolean record){
+		this.record = record;
+	}
+	
+	public boolean record() {
+		return record;
+	}
+	
+	public void recording(boolean rec) {
+		recording = rec;
+	}
+	
+	public boolean isRecording(){
+		return recording;
+	}
+	
+	public String getMeeting() {
+		return meetingid;
+	}
+
+	public void setMeeting(String meetingid) {
+		this.meetingid = meetingid;
+	}
+	
 	
 	public ArrayList<Participant> getParticipants() {
 		Map<Integer, Participant> p = Collections.unmodifiableMap(participants);

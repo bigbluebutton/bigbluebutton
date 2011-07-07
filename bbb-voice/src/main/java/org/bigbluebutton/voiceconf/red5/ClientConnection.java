@@ -1,22 +1,22 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: $
- */
+/** 
+*
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+**/
 package org.bigbluebutton.voiceconf.red5;
 
 import org.red5.logging.Red5LoggerFactory;
@@ -28,10 +28,14 @@ private static Logger log = Red5LoggerFactory.getLogger(ClientConnection.class, 
 	
 	private final IServiceCapableConnection connection;
 	private final String connId;
+	private final String userid;
+	private final String username;
 	
-	public ClientConnection(String connId, IServiceCapableConnection connection) {
+	public ClientConnection(String connId, String userid, String username, IServiceCapableConnection connection) {
 		this.connection = connection;
 		this.connId = connId;
+		this.userid = userid;
+		this.username = username;
 	}
 	
 	public String getConnId() {
@@ -39,17 +43,17 @@ private static Logger log = Red5LoggerFactory.getLogger(ClientConnection.class, 
 	}
 	
     public void onJoinConferenceSuccess(String publishName, String playName, String codec) {
-    	log.debug( "SIP Call Connected" );
+    	log.debug("Notify client that {} [{}] has joined the conference.", username, userid);
         connection.invoke("successfullyJoinedVoiceConferenceCallback", new Object[] {publishName, playName, codec});
     }
 
     public void onJoinConferenceFail() {
-        log.debug("onOutgoingCallFailed");
+    	log.debug("Notify client that {} [{}] failed to join the conference.", username, userid);
         connection.invoke("failedToJoinVoiceConferenceCallback", new Object[] {"onUaCallFailed"});
     }
 
     public void onLeaveConference() {
-    	log.debug("onCallClosed");
+    	log.debug("Notify client that {} [{}] left the conference.", username, userid);
         connection.invoke("disconnectedFromJoinVoiceConferenceCallback", new Object[] {"onUaCallClosed"});
     }
 }

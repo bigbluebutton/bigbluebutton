@@ -1,24 +1,27 @@
-/*
- * BigBlueButton - http://www.bigbluebutton.org
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: $
- */
+/** 
+* ===License Header===
+*
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+* ===License Header===
+*/
 package org.bigbluebutton.deskshare.server.stream
 
+import org.bigbluebutton.deskshare.server.recorder.Recorder
 import org.bigbluebutton.deskshare.server.red5.DeskshareApplication
 import org.bigbluebutton.deskshare.server.ScreenVideoBroadcastStream
 import org.red5.server.api.{IContext, IScope}
@@ -32,10 +35,11 @@ import scala.actors.Actor._
 
 import net.lag.logging.Logger
 
-class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, val height: Int) extends Stream {
+class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, val height: Int, record: Boolean, recorder: Recorder) extends Stream {
 	private val log = Logger.get
 	private var broadcastStream:ScreenVideoBroadcastStream = null 
-
+	private var dsClient:RtmpClientAdapter = null
+		
 	var startTimestamp: Long = System.currentTimeMillis()
  
 	def act() = {
@@ -53,16 +57,28 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 	def initializeStream():Boolean = {
 	   app.createScreenVideoBroadcastStream(name) match {
 	     case None => return false
-	     case Some(bs) => broadcastStream = bs; return true
+	     case Some(bs) => {
+	     		broadcastStream = bs; 
+		       	app.createDeskshareClient(name) match {
+				     case None => return false
+				     case Some(dsc) => {
+				     		dsClient = dsc; 
+				     		recorder.addListener(dsClient)
+				     		return true
+				     }       
+		       }	
+	       }     	
 	   } 
-    
 	   return false
 	}
  
 	private def stopStream() = {
 		log.debug("DeskShareStream: Stopping stream %s", name)
 		log.info("DeskShareStream: Sending deskshareStreamStopped for %s", name)
-		broadcastStream.sendDeskshareStreamStopped(new ArrayList[Object]())
+		if (record) {
+	  		recorder.stop()
+	  	}
+		dsClient.sendDeskshareStreamStopped(new ArrayList[Object]())
 		broadcastStream.stop()
 	    broadcastStream.close()	  
 	    exit()
@@ -70,12 +86,14 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 	
 	private def startStream() = {
 	  log.debug("DeskShareStream: Starting stream %s", name)
-	  
-   	  broadcastStream.sendDeskshareStreamStarted(width, height)
+	  if (record) {
+	  	recorder.start()
+	  }
+   	  dsClient.sendDeskshareStreamStarted(width, height)
 	}
 	
 	private def updateStreamMouseLocation(ml: UpdateStreamMouseLocation) = {
-		broadcastStream.sendMouseLocation(ml.loc)
+		dsClient.sendMouseLocation(ml.loc)
 	}
  
 	private def updateStream(us: UpdateStream) {
@@ -85,13 +103,25 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 		/* Set the marker back to zero position so that "gets" start from the beginning.
 		 * Otherwise, you get BufferUnderFlowException.
 		 */		
-		buffer.rewind();	
+		buffer.rewind();
+		
+		if (record) {
+			System.out.println("Recording")
+			recorder.record(buffer)
+		} else {
+			System.out.println("Not Recording")
+		}	
 
 		val data: VideoData = new VideoData(buffer)
 		data.setTimestamp((System.currentTimeMillis() - startTimestamp).toInt)
 		broadcastStream.dispatchEvent(data)
 		data.release()
 		
+		if (record) {
+			System.out.println("Recording")
+		} else {
+			System.out.println("Not Recording")
+		}
 	}
  
 	override def  exit() : Nothing = {

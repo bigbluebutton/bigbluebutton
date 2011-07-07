@@ -1,3 +1,21 @@
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+*/
 package org.bigbluebutton.main.model
 {
 	import com.asfusion.mate.events.Dispatcher;
@@ -20,6 +38,7 @@ package org.bigbluebutton.main.model
 		
 		public var version:String;
 		public var localeVersion:String;
+		public var suppressLocaleWarning:Boolean = false;
 		public var portTestHost:String;
 		public var portTestApplication:String;
 		public var helpURL:String;
@@ -62,12 +81,11 @@ package org.bigbluebutton.main.model
 			helpURL = xml.help.@url;
 			version = xml.version;
 			localeVersion = xml.localeversion;	
+			if (xml.localeversion.@suppressWarning == "true") suppressLocaleWarning = true;
 			if (xml.language.@userSelectionEnabled == "true") languageEnabled = true;
 			else languageEnabled = false;
 			if (xml.skinning.@enabled == "true") skinning = xml.skinning.@url;
-			var versionEvent:AppVersionEvent = new AppVersionEvent();
-			versionEvent.appVersion = version;			
-			dispatcher.dispatchEvent(versionEvent);
+
 			if (xml.debug.@showDebugWindow == "true") showDebug = true;
 		}
 		

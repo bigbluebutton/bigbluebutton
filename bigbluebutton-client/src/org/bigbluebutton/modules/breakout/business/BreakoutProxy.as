@@ -1,3 +1,22 @@
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 2.1 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+* 
+*/
+
 package org.bigbluebutton.modules.breakout.business
 {
 	import com.adobe.crypto.SHA1;
@@ -15,7 +34,7 @@ package org.bigbluebutton.modules.breakout.business
 	import mx.controls.Alert;
 	import mx.events.CloseEvent;
 	
-	import org.bigbluebutton.main.api.UserManager;
+	import org.bigbluebutton.common.UserManager;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.Conference;
 
@@ -83,7 +102,7 @@ package org.bigbluebutton.modules.breakout.business
 			this.usersList = usersList;
 			this.kickUsers = kickUsers;
 			
-			meetingName = Math.random().toString();
+			meetingName = (Math.round(Math.random()*(9999))+70000).toString();
 			var createString:String = "create" + "name=" + meetingName + "&meetingID=" + meetingName + api_salt;
 			var hash:String = SHA1.hash(createString);
 			

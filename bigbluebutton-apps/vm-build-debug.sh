@@ -1,7 +1,15 @@
-cd ~/dev/bbb-apps
-gradle resolveDeps war deploy
+pushd .
 
+#stop current
+sudo /etc/init.d/red5 stop
+
+# build
+cd ~/dev/source/bigbluebutton/bigbluebutton-apps
+gradle resolveDeps war deploy || exit
+
+# run
 cd /usr/share/red5/
-./red5.sh 
+sudo -u red5 ./red5.sh || exit
 
-cd ~/dev/bbb-apps
+#return to working dir
+popd

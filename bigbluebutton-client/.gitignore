@@ -1,4 +1,8 @@
+.settings/org.eclipse.core.resources.prefs
+.actionScriptProperties
+.flexProperties
 linker-report.xml
 bin
 client
 bbbResources.properties.*
+asdoc/
