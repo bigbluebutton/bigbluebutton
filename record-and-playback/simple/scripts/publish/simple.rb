@@ -105,5 +105,6 @@ if (playback == "simple")
 		index_html = File.new("#{publish_dir}/index.html","w")
 		index_html.write(html)
 		index_html.close
+    File.chmod(0644, "#{publish_dir}/index.html")
 	end
 end
