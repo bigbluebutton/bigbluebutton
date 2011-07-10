@@ -42,12 +42,12 @@ public class ParamsProcessorUtil {
 	    	String keyword = (String) itr.next();
 	    	if (keyword.equals(DIAL_NUM)) {
 	          welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber);
-	    	} else if (keyword.equals(CONF_NUM)) { 
-	          welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, telVoice);
 	    	} else if (keyword.equals(CONF_NUM)) {
+	          welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, telVoice);
+	    	} else if (keyword.equals(CONF_NAME)) {
 	          welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, meetingName);
 	    	}     
-	    }	    
+	    }	
 	    return  welcomeMessage;		
 	}
 
