@@ -194,7 +194,7 @@ class ApiController {
     String role = null;
     if (meeting.getModeratorPassword().equals(attPW)) {
       role = ROLE_MODERATOR;
-    } else if (meeting.getAttendeePassword().equals(attPW)) {
+    } else if (meeting.getViewerPassword().equals(attPW)) {
       role = ROLE_ATTENDEE;
     }
     
