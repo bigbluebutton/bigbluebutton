@@ -29,7 +29,8 @@
 	layout="horizontal"
 	horizontalAlign="center"
 	verticalAlign="middle"
-	resize="onChildAdd()">
+	resize="onChildAdd()"
+	backgroundColor="0xDDDDDD">
 
 	<mx:Script>
 		<![CDATA[
