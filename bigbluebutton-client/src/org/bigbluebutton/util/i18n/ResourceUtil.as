@@ -85,11 +85,16 @@ package org.bigbluebutton.util.i18n
 				if (resourceManager.localeChain[0] == localeChain[i]) localeAvailable = true;
 			}
 			
-			if (!localeAvailable){
-				resourceManager.localeChain = [DEFAULT_LANGUAGE];
-				changeLocale([DEFAULT_LANGUAGE]);
-			} else changeLocale(resourceManager.localeChain[0]);			
+			/**
+             *  http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/mx/resources/IResourceManager.html#localeChain
+             *  Always load the default language, so if the chosen language 
+             *  doesn't provide a resource, the default language resource is used
+			 */
+			load(DEFAULT_LANGUAGE);
 			
+			if (!localeAvailable)
+				resourceManager.localeChain = [DEFAULT_LANGUAGE];
+            changeLocale(resourceManager.localeChain[0]);			
 		}
 		
 		public static function getInstance():ResourceUtil {
@@ -100,11 +105,15 @@ package org.bigbluebutton.util.i18n
 			return instance;
         }
         
+        private function load(language:String):IEventDispatcher {
+            var localeURI:String = 'locale/' + language + '_resources.swf';
+            return resourceManager.loadResourceModule(localeURI, false);
+        }
+        
         public function changeLocale(... chain):void{        	
         	if(chain != null && chain.length > 0)
         	{
-        		var localeURI:String = 'locale/' + chain[0] + '_resources.swf';
-        		eventDispatcher = resourceManager.loadResourceModule(localeURI,true);
+        		eventDispatcher = load(chain[0]);
 				localeChain = [chain[0]];
 				eventDispatcher.addEventListener(ResourceEvent.COMPLETE, localeChangeComplete);
 				eventDispatcher.addEventListener(ResourceEvent.ERROR, handleResourceNotLoaded);
@@ -114,6 +123,8 @@ package org.bigbluebutton.util.i18n
         }
         
         private function localeChangeComplete(event:ResourceEvent):void{
+            if (localeChain[0] != DEFAULT_LANGUAGE)
+                localeChain.push(DEFAULT_LANGUAGE);
         	resourceManager.localeChain = localeChain;
         	update();
         }
