@@ -24,7 +24,8 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="ViewersModule"	
 			translationOn="true"
-			translationEnabled="true"	 
+			translationEnabled="true"	
+			privateEnabled="true"  
 		/>
 		
 		<module name="ViewersModule" url="ViewersModule.swf?v=VERSION" 

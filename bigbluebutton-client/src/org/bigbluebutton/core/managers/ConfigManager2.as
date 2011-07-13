@@ -1,0 +1,32 @@
+package org.bigbluebutton.core.managers
+{
+	import flash.events.Event;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
+	
+	import org.bigbluebutton.core.model.Config;
+	
+	public class ConfigManager2
+	{
+		private var _config:Config = null;
+				
+		public function ConfigManager2()
+		{
+		}
+		
+		public function loadConfig():void {
+			var urlLoader:URLLoader = new URLLoader();
+			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+			var date:Date = new Date();
+			urlLoader.load(new URLRequest("conf/config.xml" + "?a=" + date.time));			
+		}		
+		
+		private function handleComplete(e:Event):void{
+			_config = new Config(new XML(e.target.data));	
+		}
+		
+		public function get config():Config {
+			return _config;
+		}
+	}
+}
