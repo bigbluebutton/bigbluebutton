@@ -51,18 +51,13 @@ package org.bigbluebutton.modules.chat.maps {
 		private function getChatOptions():void {
 			var cxml:XML = 	BBB.initConfigManager().config.getModuleConfig("ChatModule");
 			if (cxml != null) {
-				LogUtil.debug("*** CHAT Options = " + cxml.toXMLString());
 				chatOptions.privateEnabled = (cxml.@privateEnabled.toUpperCase() == "TRUE") ? true : false;
 			}
 		}
 		
 		public function openChatWindow():void {	
-			LogUtil.debug("**** HELP = " + BBB.initConfigManager().config.help.url);
 			getChatOptions();
 			_chatWindow.chatOptions = chatOptions;
-			
-					
-			LogUtil.debug("Opening Chat Window!!!! " + (_chatWindow != null));
 		   	_chatWindow.title = ResourceUtil.getInstance().getString("bbb.chat.title");
 		   	_chatWindow.showCloseButton = false;
 		   	
