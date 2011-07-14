@@ -37,5 +37,12 @@ module BigBlueButton
         BigBlueButton.execute(command)
 #        Process.wait  
     end
+
+    #Convert an image to a png	
+    def self.convert_image_to_png(image,png_image)
+        command="convert #{image} #{png_image}"
+        BigBlueButton.execute(command)
+    end
+
   end
 end

@@ -56,7 +56,7 @@ if not FileTest.directory?(target_dir)
          end
     else
         ext = File.extname("#{images[0]}")
-        FileUtils.cp_r("#{images[0]}", "#{target_pres_dir}/slide-1#{ext}")
+	BigBlueButton::Presentation.convert_image_to_png(images[0],"#{target_pres_dir}/slide-1.png")
     end
   
   end
