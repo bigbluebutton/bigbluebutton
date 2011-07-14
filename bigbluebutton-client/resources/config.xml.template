@@ -32,13 +32,13 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
 			allowKickUser="false"
-			visible="true"
+			windowVisible="true"
 		/>
 			
 		<module name="ListenersModule" url="ListenersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
-			visible="true"
+			windowVisible="true"
 		/>
 		
 		<module name="DeskShareModule" 
