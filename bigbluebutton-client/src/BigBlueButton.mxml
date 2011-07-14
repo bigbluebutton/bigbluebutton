@@ -25,36 +25,40 @@
 	xmlns:maps="org.bigbluebutton.main.maps.*"
 	xmlns:mate="http://mate.asfusion.com/"
 	pageTitle="BigBlueButton"
-	layout="absolute"
+	layout="absolute" creationComplete="init()"
 	preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
 	
 	<mx:Script>
 		<![CDATA[
-		import mx.managers.HistoryManager;
-		
-		import org.bigbluebutton.main.views.MainApplicationShell;
-		import org.bigbluebutton.util.i18n.ResourceUtil;
-		
-		private var langResources:ResourceUtil = ResourceUtil.getInstance();
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.managers.ConfigManager2;
+			import mx.managers.HistoryManager;
 			
-		/**
-		 * Thse two lines are workaround for this. (ralam - Nov 8, 2008)
-		 * http://gregjessup.com/flex-3-advanceddatagrid-cannot-convert-mxmanagersdragmanagerimpl-to-mxmanagersidragmanager/
-		 * http://butterfliesandbugs.wordpress.com/2007/10/25/workaround-for-error-when-loading-popups-from-modules/
-		 */
-		import mx.managers.IDragManager; 
-		private var iDragManager:IDragManager;  
-
-		/** another workaround - for this issue: https://bugs.adobe.com/jira/browse/SDK-13121*/
-		private var hist:HistoryManager
-
-		private function handleChatEvent(e:Event):void {
-			trace('Got CHAT_EVENT');
-		}
-
+			import org.bigbluebutton.main.views.MainApplicationShell;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private var langResources:ResourceUtil = ResourceUtil.getInstance();
+				
+			/**
+			 * Thse two lines are workaround for this. (ralam - Nov 8, 2008)
+			 * http://gregjessup.com/flex-3-advanceddatagrid-cannot-convert-mxmanagersdragmanagerimpl-to-mxmanagersidragmanager/
+			 * http://butterfliesandbugs.wordpress.com/2007/10/25/workaround-for-error-when-loading-popups-from-modules/
+			 */
+			import mx.managers.IDragManager; 
+			private var iDragManager:IDragManager;  
+	
+			/** another workaround - for this issue: https://bugs.adobe.com/jira/browse/SDK-13121*/
+			private var hist:HistoryManager
+	
+			private var configMgr:ConfigManager2 = BBB.initConfigManager();
+			
+			private function init():void {
+				configMgr.loadConfig();
+			}
+	
 		]]>
 	</mx:Script>		
 	<maps:ApplicationEventMap />	
-	
+
 	<views:MainApplicationShell id="mainShell"/>	
 </mx:Application>

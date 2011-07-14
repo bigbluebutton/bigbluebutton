@@ -24,18 +24,21 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="ViewersModule"	
 			translationOn="true"
-			translationEnabled="true"	 
+			translationEnabled="true"	
+			privateEnabled="true"  
 		/>
 		
 		<module name="ViewersModule" url="ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
 			allowKickUser="false"
+			visible="true"
 		/>
 			
 		<module name="ListenersModule" url="ListenersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
+			visible="true"
 		/>
 		
 		<module name="DeskShareModule" 

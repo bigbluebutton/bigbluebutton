@@ -82,7 +82,7 @@ if (playback == "simple")
 		    
 		    metadata = BigBlueButton::Events.get_meeting_metadata("#{publish_dir}/#{d}/events.xml")
 		    
-		    recordings << {:rec_time => rec_time, :link => play_link, :title => metadata['title']}
+                    recordings << {:rec_time => rec_time, :link => play_link, :title => metadata['title'].nil? ? metadata['meetingId'] : metadata['title']}
 		  end
 		end
 		
@@ -105,5 +105,6 @@ if (playback == "simple")
 		index_html = File.new("#{publish_dir}/index.html","w")
 		index_html.write(html)
 		index_html.close
+    File.chmod(0644, "#{publish_dir}/index.html")
 	end
 end
