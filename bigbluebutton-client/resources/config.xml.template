@@ -7,7 +7,7 @@
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
     <skinning enabled="false" url="branding/css/theme.css.swf" />
-    <debug showDebugWindow="false" />
+    <layout showDebugWindow="true" showVideoLayout="true" showResetLayout="true"/>
     
 	<modules>
 		
@@ -49,6 +49,7 @@
 		<module name="PhoneModule" url="PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
 			autoJoin="false"
+			showButton="true"
 			dependsOn="ViewersModule"
 		/>
 
@@ -69,6 +70,9 @@
 			videoQuality="70"
 			presenterShareOnly="false"
 			resolutions="160x120,320x240,640x480,1280x720"
+			autoStart="false"
+			showButton="true"
+			publishWindowVisible="true"
 		/>
 		
 		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=VERSION" 
