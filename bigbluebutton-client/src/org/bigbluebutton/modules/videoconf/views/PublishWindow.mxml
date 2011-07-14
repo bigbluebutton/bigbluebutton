@@ -33,6 +33,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 			import org.bigbluebutton.common.LogUtil;
 			import flexlib.mdi.events.MDIWindowEvent;
 			
@@ -70,6 +71,12 @@
 			private var _nOldWindowWidth:Number = 0;
 			private var _nOldWindowHeight:Number = 0;
 			
+			// Timer to make sure the video fits to window whenever the window is resized.
+			private var fitToWindowTimer:Timer;
+			
+			[Bindable]
+			public var videoOptions:VideoConfOptions;
+			
 			private function init():void{
 				currentState = "dispVideoOptionsControlBar";
 				checkIfMacCamera();
@@ -87,8 +94,28 @@
 				this.resizable = false;
 				
 				loadPrefs();
+				
+				this.visible = videoOptions.publishWindowVisible;
+				
+				if (videoOptions.autoStart) {
+					/*
+					 * Need to have a timer to trigger resizing video to window after the 
+					 * window has been maximized/restored. The MAXIMIZE/RESTORE events are
+					 * generated when the button is clicked so the width and height are not
+					 * the ones we want.
+					 */
+					fitToWindowTimer = new Timer(3000);
+					fitToWindowTimer.addEventListener(TimerEvent.TIMER, maximizeTimerHandler);
+					fitToWindowTimer.start();
+				}
+				
 			}
-			
+
+			private function maximizeTimerHandler(event:TimerEvent):void {				
+				startPublishing();
+				fitToWindowTimer.stop();
+			}
+						
 			private function loadPrefs():void{
 				var sharedObject:SharedObject = SharedObject.getLocal("bbbUserProperties", "/");
 				var webcam:String = sharedObject.data["webcam"] as String;

@@ -51,10 +51,12 @@ package org.bigbluebutton.core.model
 			a.url = config.skinning.@url;
 			return a
 		}
-			
-		public function get debug():Object {
+					
+		public function get layout():Object {
 			var a:Object = new Object();
-			a.showDebugWindow = ((config.debug.@showDebugWindow).toUpperCase() == "TRUE") ? true : false;
+			a.showDebugWindow = ((config.layout.@showDebugWindow).toUpperCase() == "TRUE") ? true : false;
+			a.showVideoLayout = ((config.layout.@showVideoLayout).toUpperCase() == "TRUE") ? true : false;
+			a.showResetLayout = ((config.layout.@showResetLayout).toUpperCase() == "TRUE") ? true : false;
 			return a
 		}
 			

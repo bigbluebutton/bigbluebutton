@@ -80,7 +80,7 @@
 				BindingUtils.bindSetter(updateNumberOfViewers, participants, "length");	
 				dispatcher = new Dispatcher();
 				
-				this.visible = viewerOptions.visible;
+				this.visible = viewerOptions.windowVisible;
 			}
 			
 			private function updateNumberOfViewers(numViewers:int):void {
