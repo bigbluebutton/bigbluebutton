@@ -22,7 +22,6 @@
  */
 package org.bigbluebutton.presentation.imp
 
-import org.springframework.util.FileCopyUtils
 import org.codehaus.groovy.grails.commons.*
 
 import groovy.mock.interceptor.StubFor

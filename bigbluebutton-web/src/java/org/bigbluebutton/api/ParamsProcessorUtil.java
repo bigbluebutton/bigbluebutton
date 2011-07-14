@@ -1,6 +1,9 @@
 package org.bigbluebutton.api;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -13,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 public class ParamsProcessorUtil {
 	private static Logger log = LoggerFactory.getLogger(ParamsProcessorUtil.class);
+	
+	private final String URLDECODER_SEPARATOR=",";
 	
 	private String apiVersion;
 	private boolean serviceEnabled = false;
@@ -405,6 +410,8 @@ public class ParamsProcessorUtil {
 		// TODO: this is hackish - should be done better
 		queryString = queryString.replace("&checksum=" + checksum, "");
 		queryString = queryString.replace("checksum=" + checksum + "&", "");
+		queryString = queryString.replace("checksum=" + checksum, "");
+		
 		log.debug("query string after checksum removed: [{}]", queryString);
 		String cs = DigestUtils.shaHex(apiCall + queryString + securitySalt);
 		log.debug("our checksum: [{}], client: [{}]", cs, checksum);
@@ -415,7 +422,6 @@ public class ParamsProcessorUtil {
 		log.debug("checksum ok: request passed the checksum security check");
 		return true; 
 	}
-	
 	
 	/*************************************************
 	 * Setters
@@ -471,5 +477,24 @@ public class ParamsProcessorUtil {
 
 	public void setDefaultMeetingDuration(int defaultMeetingDuration) {
 		this.defaultMeetingDuration = defaultMeetingDuration;
+	}
+	
+	public ArrayList<String> decodeIds(String encodeid){
+		ArrayList<String> ids=new ArrayList<String>();
+		try {
+			ids.addAll(Arrays.asList(URLDecoder.decode(encodeid,"UTF-8").split(URLDECODER_SEPARATOR)));
+		} catch (UnsupportedEncodingException e) {
+			log.error("Couldn't decode the IDs");
+		}
+		
+		return ids;
+	}
+	
+	public ArrayList<String> convertToInternalMeetingId(ArrayList<String> extMeetingIds) {
+		ArrayList<String> internalMeetingIds=new ArrayList<String>();
+		for(String extid : extMeetingIds){
+			internalMeetingIds.add(convertToInternalMeetingId(extid));
+		}
+		return internalMeetingIds;
 	}
 }

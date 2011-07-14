@@ -62,7 +62,9 @@ public class MeetingService {
 		}
 	}
 
-	public Meeting getMeeting(String meetingId) {		
+	public Meeting getMeeting(String meetingId) {
+		if(meetingId==null)
+			return null;
 		for (String key : meetings.keySet()) {
 			if (key.startsWith(meetingId))
 				return (Meeting) meetings.get(key);
@@ -71,8 +73,21 @@ public class MeetingService {
 		return null;
 	}
 
-	public ArrayList<Recording> getRecordings(String meetingId) {		
-		return recordingService.getRecordings(meetingId);
+	public ArrayList<Recording> getRecordings(ArrayList<String> idList) {		
+		return recordingService.getRecordings(idList);
+	}
+	public boolean existsAnyRecording(ArrayList<String> idList){
+		return recordingService.existAnyRecording(idList);
+	}
+	public void setPublishRecording(ArrayList<String> idList,boolean publish){
+		for(String id:idList){
+			recordingService.publish(id,publish);
+		}
+	}
+	public void deleteRecordings(ArrayList<String> idList){
+		for(String id:idList){
+			recordingService.delete(id);
+		}
 	}
 	
 	public void processRecording(String meetingId) {

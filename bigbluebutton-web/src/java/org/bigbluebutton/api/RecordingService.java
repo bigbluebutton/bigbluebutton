@@ -34,20 +34,52 @@ public class RecordingService {
 		}
 	}
 	
-	public ArrayList<Recording> getRecordings(String meetingId) {
+	public ArrayList<Recording> getRecordings(ArrayList<String> meetingIds) {
 		ArrayList<Recording> recs = new ArrayList<Recording>();
 		
-		ArrayList<Recording> published = getRecordingsForPath(meetingId, publishedDir);
-		if (!published.isEmpty()) {
-			recs.addAll(published);
+		if(meetingIds.isEmpty()){
+			meetingIds.addAll(getAllRecordingIds(publishedDir));
+			meetingIds.addAll(getAllRecordingIds(unpublishedDir));
 		}
 		
-		ArrayList<Recording> unpublished = getRecordingsForPath(meetingId, unpublishedDir);
-		if (!unpublished.isEmpty()) {
-			recs.addAll(unpublished);
+		for(String meetingId : meetingIds){
+			ArrayList<Recording> published = getRecordingsForPath(meetingId, publishedDir);
+			if (!published.isEmpty()) {
+				recs.addAll(published);
+			}
+			
+			ArrayList<Recording> unpublished = getRecordingsForPath(meetingId, unpublishedDir);
+			if (!unpublished.isEmpty()) {
+				recs.addAll(unpublished);
+			}	
 		}
 		
 		return recs;
+	}
+	
+	public boolean existAnyRecording(ArrayList<String> idList){
+		ArrayList<String> publishList=getAllRecordingIds(publishedDir);
+		ArrayList<String> unpublishList=getAllRecordingIds(unpublishedDir);
+		
+		for(String id:idList){
+			if(publishList.contains(id)||unpublishList.contains(id)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private ArrayList<String> getAllRecordingIds(String path){
+		ArrayList<String> ids=new ArrayList<String>();
+		
+		String[] format = getPlaybackFormats(path);
+		for (int i = 0; i < format.length; i++) {
+			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
+			for (int f = 0; f < recordings.length; f++) {
+				ids.add(recordings[f].getName());				
+			}
+		}
+		return ids;
 	}
 	
 	private ArrayList<Recording> getRecordingsForPath(String meetingId, String path) {
@@ -55,8 +87,10 @@ public class RecordingService {
 		
 		String[] format = getPlaybackFormats(path);
 		for (int i = 0; i < format.length; i++) {
-			File[] recordings = getDirectories(path + File.pathSeparatorChar + format[i]);
+			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
+			log.debug("number of recording dirs: "+recordings.length);
 			for (int f = 0; f < recordings.length; f++) {
+				log.debug("recording dir: "+recordings[f].getName()+" meetingid:"+meetingId);
 				if (recordings[f].getName().startsWith(meetingId)) {
 					Recording r = getRecordingInfo(path, recordings[f].getName(), format[i]);
 					if (r != null) recs.add(r);
@@ -76,28 +110,33 @@ public class RecordingService {
 	}
 	
 	public void publish(String recordingId, boolean publish) {
-		publish(publishedDir, recordingId, publish);
-		publish(unpublishedDir, recordingId, publish);
+		if(publish)
+			publish(unpublishedDir, recordingId, publish);
+		else
+			publish(publishedDir, recordingId, publish);		
 	}
 	
 	private void publish(String path, String recordingId, boolean publish) {
 		String[] format = getPlaybackFormats(path);
 		for (int i = 0; i < format.length; i++) {
-			File[] recordings = getDirectories(path + File.pathSeparatorChar + format[i]);
+			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
 			for (int f = 0; f < recordings.length; f++) {
-				if (recordings[f].getName().equals(recordingId)) {
-					Recording r = getRecordingInfo(recordingId, path, format[i]);
+				if (recordings[f].getName().equalsIgnoreCase(recordingId)) {
+					Recording r = getRecordingInfo(path, recordingId, format[i]);
 					if (r != null) {
+						log.debug("Recording is NOT Null!");
 						File dest;
 						if (publish) {
-							dest = new File(publishedDir);
+							dest = new File(publishedDir+ File.separatorChar + format[i]);
 						} else {
-							dest = new File(unpublishedDir);
+							dest = new File(unpublishedDir+ File.separatorChar + format[i]);
 						}
+						if(!dest.exists()) dest.mkdir();
 						boolean moved = recordings[f].renameTo(new File(dest, recordings[f].getName()));
 						if (moved) {
+							log.debug("Recording successfully moved!");
 							r.setPublished(publish);
-							recordingServiceHelper.writeRecordingInfo(dest.getAbsolutePath() + File.pathSeparatorChar + recordings[f].getName(), r);
+							recordingServiceHelper.writeRecordingInfo(dest.getAbsolutePath() + File.separatorChar + recordings[f].getName(), r);
 						}
 					}
 				}				
@@ -113,7 +152,7 @@ public class RecordingService {
 	private void deleteRecording(String id, String path) {
 		String[] format = getPlaybackFormats(path);
 		for (int i = 0; i < format.length; i++) {
-			File[] recordings = getDirectories(path + File.pathSeparatorChar + format[i]);
+			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
 			for (int f = 0; f < recordings.length; f++) {
 				if (recordings[f].getName().equals(id)) {
 					deleteDirectory(recordings[f]);
@@ -141,6 +180,7 @@ public class RecordingService {
 	}
 	
 	private File[] getDirectories(String path) {
+		
 		File dir = new File(path);
 		FileFilter fileFilter = new FileFilter() {
 		    public boolean accept(File file) {
