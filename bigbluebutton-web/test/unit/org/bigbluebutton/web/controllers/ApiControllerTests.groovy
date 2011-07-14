@@ -1,6 +1,6 @@
 package org.bigbluebutton.web.controllers
 
-import grails.test.*
+//import grails.test.*
 
 import org.bigbluebutton.api.ParamsProcessorUtil;
 import org.bigbluebutton.api.RecordingService;
@@ -11,7 +11,7 @@ import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.messaging.NullMessagingService;
 import org.bigbluebutton.api.messaging.MessagingService;
 
-class ApiControllerTests extends ControllerUnitTestCase {
+class ApiControllerTests {//extends ControllerUnitTestCase {
 	final String API_VERSION = "0.7"
 	final boolean SERVICE_ENABLED = true;
 	final String SALT = 'ab56fda9fc1c2bde2d65ff76134b47ad'
