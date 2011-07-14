@@ -71,8 +71,11 @@
 			private var _nOldWindowWidth:Number = 0;
 			private var _nOldWindowHeight:Number = 0;
 			
-			// Timer to make sure the video fits to window whenever the window is resized.
-			private var fitToWindowTimer:Timer;
+			// Timer to auto-publish webcam. We need this timer to delay
+			// the auto-publishing until after the Viewers's window has loaded
+			// to receive the publishing events. Otherwise, the user joining next
+			// won't be able to view the webcam.
+			private var autoPublishTimer:Timer;
 			
 			[Bindable]
 			public var videoOptions:VideoConfOptions;
@@ -99,21 +102,17 @@
 				
 				if (videoOptions.autoStart) {
 					/*
-					 * Need to have a timer to trigger resizing video to window after the 
-					 * window has been maximized/restored. The MAXIMIZE/RESTORE events are
-					 * generated when the button is clicked so the width and height are not
-					 * the ones we want.
+					 * Need to have a timer to trigger auto-publishing of webcam.
 					 */
-					fitToWindowTimer = new Timer(3000);
-					fitToWindowTimer.addEventListener(TimerEvent.TIMER, maximizeTimerHandler);
-					fitToWindowTimer.start();
-				}
-				
+					autoPublishTimer = new Timer(3000);
+					autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
+					autoPublishTimer.start();
+				}				
 			}
 
-			private function maximizeTimerHandler(event:TimerEvent):void {				
+			private function autopublishTimerHandler(event:TimerEvent):void {				
 				startPublishing();
-				fitToWindowTimer.stop();
+				autoPublishTimer.stop();
 			}
 						
 			private function loadPrefs():void{
