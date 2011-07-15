@@ -12,6 +12,7 @@ require 'recordandplayback/generators/video'
 require 'recordandplayback/generators/matterhorn_processor'
 require 'recordandplayback/generators/audio_processor'
 require 'recordandplayback/generators/presentation'
+require 'open4'
 
 module BigBlueButton
   class MissingDirectoryException < RuntimeError
