@@ -30,6 +30,8 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.core.EventBroadcaster;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.managers.ConfigManager2;
 			import mx.managers.HistoryManager;
@@ -53,7 +55,13 @@
 			private var configMgr:ConfigManager2 = BBB.initConfigManager();
 			
 			private function init():void {
+				EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
 				configMgr.loadConfig();
+				
+			}
+			
+			private function configLoadedEventHandler(e:Event):void {
+				LogUtil.debug("***** Config Loaded ****");
 			}
 	
 		]]>
