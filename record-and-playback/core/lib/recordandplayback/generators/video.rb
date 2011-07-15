@@ -9,9 +9,7 @@ module BigBlueButton
   #    strip_audio_from_video(orig-video.flv, video2.flv)
   def self.strip_audio_from_video(video_in, video_out)
     command = "ffmpeg -i #{video_in} -an -vcodec copy #{video_out}"
-    BigBlueButton.logger.info(command)
-    IO.popen(command)
-    Process.wait
+    BigBlueButton.execute(command)	
     # TODO: check for result, raise an exception when there is an error
   end
 
@@ -24,9 +22,7 @@ module BigBlueButton
   #   create_blank_video(15, 1000, canvas.jpg, blank-video.flv)
   def self.create_blank_deskshare_video(length, rate, blank_canvas, video_out)
     command = "ffmpeg -loop_input -t #{length} -i #{blank_canvas} -r #{rate} -vcodec flashsv #{video_out}"
-    BigBlueButton.logger.info(command)
-    IO.popen(command)
-    Process.wait
+    BigBlueButton.execute(command)
     # TODO: check for result, raise exception when there is an error
   end
 
@@ -39,9 +35,7 @@ module BigBlueButton
   #   create_blank_video(15, 1000, canvas.jpg, blank-video.flv)
   def self.create_blank_video(length, rate, blank_canvas, video_out)
     command = "ffmpeg -loop_input -t #{length} -i #{blank_canvas} -r #{rate} #{video_out}"
-    BigBlueButton.logger.info(command)
-    IO.popen(command)
-    Process.wait
+    BigBlueButton.execute(command)
     # TODO: check for result, raise exception when there is an error
   end
 
@@ -54,9 +48,7 @@ module BigBlueButton
   #   create_blank_canvas(1280, 720, white, blank_canvas.jpg)
   def self.create_blank_canvas(width, height, color, out_file)
     command = "convert -size #{width}x#{height} xc:#{color} #{out_file}"
-    BigBlueButton.logger.info(command)
-    IO.popen(command)
-    Process.wait
+    BigBlueButton.execute(command)
     # TODO: check for result, raise an exception when there is an error
   end
 
@@ -70,8 +62,10 @@ module BigBlueButton
     #command = "mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}"
     #BigBlueButton.execute(command)
     # Somehow, using the backtick works but not using popen.
-    BigBlueButton.logger.info("mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}")
-    `mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}`
+    #BigBlueButton.logger.info("mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}")
+    #`mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}`
+    command = "mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}"
+    BigBlueButton.execute(command)
   end
 
   # Multiplexes an audio and video
@@ -79,9 +73,7 @@ module BigBlueButton
   #  video - the video file. Must not contain an audio stream. 
   def self.multiplex_audio_and_video(audio, video, video_out)
     command = "ffmpeg -i #{audio} -i #{video} -map 1:0 -map 0:0 -ar 22050 #{video_out}"
-    BigBlueButton.logger.info(command)
-    IO.popen(command)
-    Process.wait 
+    BigBlueButton.execute(command)
     # TODO: check result, raise an exception when there is an error
   end
 
@@ -290,9 +282,10 @@ module BigBlueButton
    			# Use for newer version of FFMPEG
     		padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"       
 		    command = "ffmpeg -i #{stripped_webcam} -aspect 4:3 -r 1000 -sameq #{frame_size} #{padding} #{scaled_flv}" 
-		    BigBlueButton.logger.info(command)
-		    IO.popen(command)
-		    Process.wait                
+		    #BigBlueButton.logger.info(command)
+		    #IO.popen(command)
+		    #Process.wait                
+		    BigBlueButton.execute(command)	
       end
     end
                
@@ -337,9 +330,10 @@ module BigBlueButton
    			# Use for newer version of FFMPEG
     		padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"       
 		    command = "ffmpeg -i #{flv_in} -aspect 4:3 -r 1000 -sameq #{frame_size} #{padding} -vcodec flashsv #{scaled_flv}" 
-		    BigBlueButton.logger.info(command)
-		    IO.popen(command)
-		    Process.wait 
+		    BigBlueButton.execute(command)
+		    #BigBlueButton.logger.info(command)
+		    #IO.popen(command)
+		    #Process.wait 
       end
     end
                

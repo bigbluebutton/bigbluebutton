@@ -73,11 +73,11 @@ module BigBlueButton
         #    Volume adjustment:        1.215
       command = "sox #{file} -n stat 2>&1"
       BigBlueButton.logger.info("#{command}\n") 
-      IO.popen(command, "w+") do |output|
-        output.each do |line|
-          stats = line if line =~ /Length(.+)/
-        end
+      output = BigBlueButton.execute(command)
+      if output.to_s =~ /Length(.+)/
+        stats = $1
       end
+
       # Extract  55.560000 from "Length (seconds):     55.560000"
       match = /\d+\.\d+/.match(stats)
       if match
