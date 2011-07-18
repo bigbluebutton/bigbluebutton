@@ -107,7 +107,8 @@
 			private function initOptions():void {
 				layoutOptions.showLogButton = BBB.initConfigManager().config.layout.showDebugWindow;	
 				layoutOptions.showResetLayout = BBB.initConfigManager().config.layout.showResetLayout;	
-				layoutOptions.showVideoLayout = BBB.initConfigManager().config.layout.showVideoLayout;					
+				layoutOptions.showVideoLayout = BBB.initConfigManager().config.layout.showVideoLayout;		
+				layoutOptions.showToolbar = BBB.initConfigManager().config.layout.showToolbar;				
 			}
 			
 			protected function initializeShell():void {					
@@ -268,7 +269,7 @@
 		]]>
 	</mx:Script>
 			
-	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="false" verticalAlign="middle"/>
+	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="false" verticalAlign="middle" layoutOptions="{layoutOptions}"/>
 	<views:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off" effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" width="100%" height="100%">
 		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />

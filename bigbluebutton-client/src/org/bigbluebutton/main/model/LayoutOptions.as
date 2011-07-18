@@ -10,7 +10,10 @@ package org.bigbluebutton.main.model
 		
 		[Bindable]
 		public var showResetLayout:Boolean = false;
-		
+
+		[Bindable]
+		public var showToolbar:Boolean = false;
+				
 		public function LayoutOptions()
 		{
 		}
