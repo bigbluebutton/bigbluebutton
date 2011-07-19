@@ -75,14 +75,17 @@ public class MeetingService {
 	public ArrayList<Recording> getRecordings(ArrayList<String> idList) {		
 		return recordingService.getRecordings(idList);
 	}
+	
 	public boolean existsAnyRecording(ArrayList<String> idList){
 		return recordingService.existAnyRecording(idList);
 	}
+	
 	public void setPublishRecording(ArrayList<String> idList,boolean publish){
 		for(String id:idList){
 			recordingService.publish(id,publish);
 		}
 	}
+	
 	public void deleteRecordings(ArrayList<String> idList){
 		for(String id:idList){
 			recordingService.delete(id);
