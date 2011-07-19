@@ -3,8 +3,6 @@ require 'rubygems'
 require 'trollop'
 require 'yaml'
 
-
-
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
 end
@@ -17,9 +15,9 @@ props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 
-target_dir = "#{recording_dir}/process/simple/#{meeting_id}"
+target_dir = "#{recording_dir}/process/slides/#{meeting_id}"
 if not FileTest.directory?(target_dir)
-	logger = Logger.new("/var/log/bigbluebutton/simple-process-#{meeting_id}.log", 'daily' )
+	logger = Logger.new("/var/log/bigbluebutton/slides-process-#{meeting_id}.log", 'daily' )
 	BigBlueButton.logger = logger
   
 	FileUtils.mkdir_p target_dir
@@ -61,7 +59,7 @@ if not FileTest.directory?(target_dir)
   
   end
   
-	process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-simple.done", "w")
+	process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-slides.done", "w")
   process_done.write("Processed #{meeting_id}")
   process_done.close
 else

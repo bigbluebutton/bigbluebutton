@@ -13,7 +13,6 @@ import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.lang.StringUtils;
 
 public class MeetingService {
 	private static Logger log = LoggerFactory.getLogger(MeetingService.class);
