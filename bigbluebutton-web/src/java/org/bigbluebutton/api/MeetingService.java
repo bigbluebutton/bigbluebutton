@@ -121,6 +121,10 @@ public class MeetingService {
 	
 	public void endMeeting(String meetingId) {		
 		messagingService.endMeeting(meetingId);
+		Meeting m = getMeeting(meetingId);
+		if (m != null) {
+			m.setForciblyEnded(true);
+		}
 	}
 		
 	public void setDefaultMeetingExpireDuration(int meetingExpiration) {

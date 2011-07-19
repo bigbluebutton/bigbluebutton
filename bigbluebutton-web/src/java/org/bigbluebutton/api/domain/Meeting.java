@@ -104,8 +104,7 @@ public class Meeting {
 	}
 	
 	public boolean isRunning() {
-		boolean running = startTime != 0 && endTime == 0;
-		return running;
+		return ! users.isEmpty();
 	}
 
 	public String getName() {
