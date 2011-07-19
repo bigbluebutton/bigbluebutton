@@ -22,7 +22,7 @@ public class MeetingService {
 	private RecordingService recordingService;
 	private MessagingService messagingService;
 	private ExpiredMeetingCleanupTimerTask cleaner;
-
+	private boolean removeMeetingWhenEnded = false;
 	
 	public MeetingService() {
 		meetings = new ConcurrentHashMap<String, Meeting>();		
@@ -62,7 +62,7 @@ public class MeetingService {
 	}
 
 	public Meeting getMeeting(String meetingId) {
-		if(meetingId==null)
+		if(meetingId == null)
 			return null;
 		for (String key : meetings.keySet()) {
 			if (key.startsWith(meetingId))
@@ -84,6 +84,10 @@ public class MeetingService {
 		for(String id:idList){
 			recordingService.publish(id,publish);
 		}
+	}
+	
+	public void setRemoveMeetingWhenEnded(boolean s) {
+		removeMeetingWhenEnded = s;
 	}
 	
 	public void deleteRecordings(ArrayList<String> idList){
@@ -123,9 +127,14 @@ public class MeetingService {
 	
 	public void endMeeting(String meetingId) {		
 		messagingService.endMeeting(meetingId);
-		Meeting m = getMeeting(meetingId);
-		if (m != null) {
-			m.setForciblyEnded(true);
+		
+		if (removeMeetingWhenEnded) {
+			meetings.remove(meetingId);
+		} else {
+			Meeting m = getMeeting(meetingId);
+			if (m != null) {
+				m.setForciblyEnded(true);
+			}			
 		}
 	}
 		
