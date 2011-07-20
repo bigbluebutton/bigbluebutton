@@ -567,12 +567,12 @@ class ApiController {
   	String meetingId = session["conference"]
   	Meeting meeting = meetingService.getMeeting(meetingId);
   	String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-      log.debug("Logging out from [" + meeting.getInternalId() + "]");
-               
+                  
   	// Log the user out of the application.
   	session.invalidate()
   
   	if (meeting != null) {
+  	  log.debug("Logging out from [" + meeting.getInternalId() + "]");
   		logoutUrl = meeting.getLogoutUrl();
   		if (meeting.isRecord()) {
   			log.debug("[" + meeting.getInternalId() + "] is recorded. Process it.");		
@@ -660,9 +660,9 @@ class ApiController {
                     link(r.getPlaybackLink())
                   }
                   metadata() {
-					r.getMetadata().each { k,v -> 
-						"$k"("$v")
-					}
+          					r.getMetadata().each { k,v -> 
+          						"$k"("$v")
+          					}
                   }
                 }
               }
@@ -734,6 +734,7 @@ class ApiController {
 		  }
 		}
   }
+  
   /******************************************************
   * DELETE_RECORDINGS API
   ******************************************************/
