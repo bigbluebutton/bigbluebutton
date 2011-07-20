@@ -1244,11 +1244,11 @@ check_state() {
 		fi
 	fi
 
-        PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/simple.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
+        PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/slides.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
         if [ $PLAYBACK_IP != $IP ]; then
                         echo
                         echo "# The IP address ($PLAYBACK_IP) set for playback_host in"
-                        echo "#    /usr/local/bigbluebutton/core/scripts/simple.yml"
+                        echo "#    /usr/local/bigbluebutton/core/scripts/slides.yml"
                         echo "# does not match the local IP address ($IP)."
                         echo
                 fi
@@ -1325,10 +1325,10 @@ if [ $CHECK ]; then
 	echo "/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml (red5)"
 	echo "                  voice conference: $CONFERENCING_MODULE"
 
-	if [ -f /usr/local/bigbluebutton/core/scripts/simple.yml ]; then
-		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/simple.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
+	if [ -f /usr/local/bigbluebutton/core/scripts/slides.yml ]; then
+		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/slides.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
 		echo
-		echo "/usr/local/bigbluebutton/core/scripts/simple.yml (record and playback)"
+		echo "/usr/local/bigbluebutton/core/scripts/slides.yml (record and playback)"
 		echo "                     playback host: $PLAYBACK_IP"
 	fi
 
@@ -1490,28 +1490,28 @@ if [ $DEBUG ]; then
 	# Additional checks for record and playback
 	#
 	rm -rf /tmp/t
-	if ls /var/log/bigbluebutton/simple-process-* > /dev/null 2>1; then
-		  sudo grep -i Error /var/log/bigbluebutton/simple-process-* > /tmp/t 
+	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
+		  sudo grep -i Error /var/log/bigbluebutton/slides-process-* > /tmp/t 
 		  if [ -s /tmp/t ]; then
-			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/simple-process-*.log -- "
+			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-process-*.log -- "
 			cat /tmp/t
 			echo
 		  fi
 	fi
 
 	rm -rf /tmp/t
-	if ls /var/log/bigbluebutton/simple-publish-* > /dev/null 2>1; then
-		  sudo grep -i Error /var/log/bigbluebutton/simple-publish-* > /tmp/t 
+	if ls /var/log/bigbluebutton/slides-publish-* > /dev/null 2>1; then
+		  sudo grep -i Error /var/log/bigbluebutton/slides-publish-* > /tmp/t 
 		  if [ -s /tmp/t ]; then
-			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/simple-publish-*.log -- "
+			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-publish-*.log -- "
 			cat /tmp/t
 			echo
 		  fi
 	fi
 
 	rm -rf /tmp/t
-	if ls /var/log/bigbluebutton/simple-process-* > /dev/null 2>1; then
-		for file in /var/log/bigbluebutton/simple-process-*; do 
+	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
+		for file in /var/log/bigbluebutton/slides-process-*; do 
 		  if [ ! -f $(echo $file | sed 's/process/publish/g') ]; then 
 			echo "  $file" >> /tmp/t
                   fi 
@@ -1611,9 +1611,9 @@ if [ -n "$HOST" ]; then
 			${SERVLET_DIR}/bigbluebutton/demo/bbb_api_conf.jsp
 	fi
 	
-	if [ -f /usr/local/bigbluebutton/core/scripts/simple.yml ]; then
-		echo "Assigning $HOST for record and playback in /usr/local/bigbluebutton/core/scripts/simple.yml"
-		change_yml_value /usr/local/bigbluebutton/core/scripts/simple.yml $redis_host playback_host $HOST
+	if [ -f /usr/local/bigbluebutton/core/scripts/slides.yml ]; then
+		echo "Assigning $HOST for record and playback in /usr/local/bigbluebutton/core/scripts/slides.yml"
+		change_yml_value /usr/local/bigbluebutton/core/scripts/slides.yml $redis_host playback_host $HOST
 	fi
 	
 
