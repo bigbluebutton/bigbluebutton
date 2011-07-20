@@ -20,7 +20,7 @@
   $Id: $
 -->
 
-<VideoWindowItf xmlns="org.bigbluebutton.modules.videoconf.*" 
+<VideoWindowItf xmlns="org.bigbluebutton.modules.videoconf.business.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	creationComplete="init()" 
 	xmlns:mate="http://mate.asfusion.com/"

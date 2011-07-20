@@ -29,7 +29,6 @@ package org.bigbluebutton.common.events
         public static const DRAG_START:String = "DRAG_START";
         public static const DRAG_END:String = "DRAG_END";
 
-		public var mouseLocal:Point;
 		public var mouseGlobal:Point;
 		public var window:MDIWindow;
 		public var mode:String;

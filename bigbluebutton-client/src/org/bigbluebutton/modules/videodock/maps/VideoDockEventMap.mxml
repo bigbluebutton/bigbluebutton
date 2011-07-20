@@ -25,6 +25,7 @@
 		<![CDATA[
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
 
 			import org.bigbluebutton.modules.videodock.views.VideoDock;
 			
@@ -34,6 +35,7 @@
 			public function startModule():void{
 				videoDock = new VideoDock();
 				videoDock.autoDock = module.autoDock;
+				
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = videoDock;
 				globalDispatcher.dispatchEvent(windowEvent);
@@ -41,6 +43,10 @@
 			
 			public function stopModule():void {
 				videoDock.removeAllChildren();
+				
+				var windowEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
+				windowEvent.window = videoDock;
+				globalDispatcher.dispatchEvent(windowEvent);
 			}
 			
 		]]>

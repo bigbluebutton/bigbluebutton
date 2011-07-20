@@ -20,9 +20,9 @@
   $Id: $
 --> 
 
-<pubVid:VideoWindowItf xmlns="org.bigbluebutton.modules.videoconf.*" 
+<pubVid:VideoWindowItf xmlns="org.bigbluebutton.modules.videoconf.business.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	xmlns:pubVid="org.bigbluebutton.modules.videoconf.*"
+	xmlns:pubVid="org.bigbluebutton.modules.videoconf.business.*"
 	creationComplete="init()"
 	width="{camWidth + 6}" height="{camHeight + 75}" 
 	backgroundImage="{bbbLogo}" 

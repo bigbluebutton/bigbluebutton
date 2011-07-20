@@ -17,7 +17,7 @@
 * 
 */
 
-package org.bigbluebutton.modules.videoconf
+package org.bigbluebutton.modules.videoconf.business
 {
 	import flexlib.mdi.containers.MDIWindow;
 	import flexlib.mdi.events.MDIWindowEvent;
@@ -52,7 +52,7 @@ package org.bigbluebutton.modules.videoconf
 		protected var keepAspect:Boolean = false;
 		protected var originalWidth:Number;
 		protected var originalHeight:Number;
-
+		
 		protected var mousePositionOnDragStart:Point;
 		
 		public var streamName:String;
@@ -82,7 +82,7 @@ package org.bigbluebutton.modules.videoconf
         private var resizeDirection:int = RESIZING_DIRECTION_BOTH;
 		
 		/**
-		 * when the window is resized by the user, the aplication doesn't know
+		 * when the window is resized by the user, the application doesn't know
 		 * about the resize direction
 		 */
         public function onResizeStart(event:MDIWindowEvent = null):void {
@@ -187,18 +187,13 @@ package org.bigbluebutton.modules.videoconf
 			
 		public function onDragStart(event:MDIWindowEvent = null):void {
             var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG_START);
-            e.mouseLocal = new Point(mouseX, mouseY);
-            e.mouseGlobal = this.localToGlobal(new Point(mouseX, mouseY));
             e.window = this;
             dispatchEvent(e);
 		}
 		
 		public function onDragEnd(event:MDIWindowEvent = null):void {
 			var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG_END);
-		//	e.localPosition = mousePositionOnDragStart;
-			e.mouseLocal = new Point(mouseX, mouseY);
 			e.mouseGlobal = this.localToGlobal(new Point(mouseX, mouseY));
-		//	LogUtil.debug("e.globalPosition " + e.globalPosition.toString());
 			e.window = this;
 			dispatchEvent(e);
 		}
@@ -211,12 +206,7 @@ package org.bigbluebutton.modules.videoconf
 			super.close(event);
 		}
 		
-		private var keepAspectBtn:Button = null;
-		private var fitVideoBtn:Button = null;
-		private var originalSizeBtn:Button = null;
-		private var BUTTONS_SIZE:int = 20;
-		private var BUTTONS_PADDING:int = 10;
-		private var _buttonsVisible:Boolean = true;
+		private var _buttons:ButtonsOverlay = null;
 		private var _buttonsEnabled:Boolean = true;
 		
 		private var img_unlock_keep_aspect:Class = images.lock_open;
@@ -224,68 +214,47 @@ package org.bigbluebutton.modules.videoconf
 		private var img_fit_video:Class = images.arrow_in;
 		private var img_original_size:Class = images.shape_handles;
 		
+		protected function get buttons():ButtonsOverlay {
+			if (_buttons == null) {
+				_buttons = new ButtonsOverlay;
+				_buttons.add("originalSizeBtn", img_original_size, ResourceUtil.getInstance().getString('bbb.video.originalSizeBtn.tooltip'), onOriginalSizeClick);
+				
+				// hiding the other buttons
+				//_buttons.add("keepAspectBtn", img_lock_keep_aspect, ResourceUtil.getInstance().getString('bbb.video.keepAspectBtn.tooltip'), onKeepAspectClick);
+				//_buttons.add("fitVideoBtn", img_fit_video, ResourceUtil.getInstance().getString('bbb.video.fitVideoBtn.tooltip'), onFitVideoClick);
+				
+				_buttons.visible = false;
+				
+				this.addChild(_buttons);
+			} 
+			return _buttons;
+		}
+		
 		protected function createButtons():void {
-			keepAspectBtn = new Button();
-			fitVideoBtn = new Button();
-			originalSizeBtn = new Button();
-			
-			keepAspectBtn.setStyle("icon", img_lock_keep_aspect);
-			fitVideoBtn.setStyle("icon", img_fit_video);
-			originalSizeBtn.setStyle("icon", img_original_size);
-
-			keepAspectBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.keepAspectBtn.tooltip');
-			fitVideoBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.fitVideoBtn.tooltip');
-			originalSizeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.originalSizeBtn.tooltip');
-			
-			keepAspectBtn.addEventListener(MouseEvent.CLICK, onKeepAspectClick);
-			fitVideoBtn.addEventListener(MouseEvent.CLICK, onFitVideoClick);
-			originalSizeBtn.addEventListener(MouseEvent.CLICK, onOriginalSizeClick);
-			
-			keepAspectBtn.width = keepAspectBtn.height 
-				= fitVideoBtn.width = fitVideoBtn.height
-				= originalSizeBtn.width = originalSizeBtn.height = BUTTONS_SIZE;
-			
-			hideButtons();
-			updateButtonsPosition();
-			
-			addChild(keepAspectBtn);
-			addChild(fitVideoBtn);
-			addChild(originalSizeBtn);
-			
 			// creates the window keeping the aspect ratio 
 			onKeepAspectClick();
 		}
 		
 		protected function updateButtonsPosition():void {
-			if (keepAspectBtn == null
-					|| fitVideoBtn == null
-					|| originalSizeBtn == null)
-				return;
-			
-			// put the buttons uppon the video
-			keepAspectBtn.y = fitVideoBtn.y = originalSizeBtn.y = _video.y + _video.height - keepAspectBtn.height - BUTTONS_PADDING;
-			keepAspectBtn.x = _video.x + _video.width - keepAspectBtn.width - BUTTONS_PADDING;
-			fitVideoBtn.x = keepAspectBtn.x - fitVideoBtn.width - BUTTONS_PADDING;
-			originalSizeBtn.x = fitVideoBtn.x - originalSizeBtn.width - BUTTONS_PADDING;
+			if (buttons.visible == false) {
+				buttons.y = buttons.x = 0;
+			} else {
+				buttons.y = _video.y + _video.height - buttons.height - buttons.padding;
+				buttons.x = _video.x + _video.width - buttons.width - buttons.padding;
+			}
 		}
 		
 		protected function showButtons(event:MouseEvent = null):void {
-			if (!_buttonsVisible && _buttonsEnabled) {
-				//LogUtil.debug("showButtons");
-				keepAspectBtn.visible = true;
-				fitVideoBtn.visible = true;
-				originalSizeBtn.visible = true;
-				_buttonsVisible = true;
+			if (_buttonsEnabled && buttons.visible == false) {
+				buttons.visible = true;
+				updateButtonsPosition();
 			}
 		}
 		
 		protected function hideButtons(event:MouseEvent = null):void {
-			if (_buttonsVisible && _buttonsEnabled) {
-				//LogUtil.debug("hideButtons");
-				keepAspectBtn.visible = false;
-				fitVideoBtn.visible = false;
-				originalSizeBtn.visible = false;
-				_buttonsVisible = false;
+			if (_buttonsEnabled && buttons.visible == true) {
+				buttons.visible = false;
+				updateButtonsPosition();
 			}
 		}
 		
@@ -303,7 +272,8 @@ package org.bigbluebutton.modules.videoconf
 		}
 
 		public function set buttonsEnabled(enabled:Boolean):void {
-			if (!enabled) hideButtons();
+			if (!enabled) 
+				hideButtons();
 			_buttonsEnabled = enabled;
 		}
 		
@@ -326,10 +296,17 @@ package org.bigbluebutton.modules.videoconf
 		
 		protected function onKeepAspectClick(event:MouseEvent = null):void {
 			keepAspect = !keepAspect;
-			keepAspectBtn.selected = keepAspect;
-			fitVideoBtn.enabled = !keepAspect;
 			
-			keepAspectBtn.setStyle("icon", (keepAspect? img_lock_keep_aspect: img_unlock_keep_aspect));
+			var keepAspectBtn:Button = buttons.get("keepAspectBtn");
+			if (keepAspectBtn != null) { 
+				keepAspectBtn.selected = keepAspect;
+				keepAspectBtn.setStyle("icon", (keepAspect? img_lock_keep_aspect: img_unlock_keep_aspect));
+			}
+			
+			var fitVideoBtn:Button = buttons.get("fitVideoBtn");
+			if (fitVideoBtn != null) {
+				fitVideoBtn.enabled = !keepAspect;
+			}		
 			
 			onFitVideoClick();
 		}
