@@ -8,16 +8,12 @@ function getUrlParameters() {
 
 (function($){
 	
-	var slideTransitions = new Array();
-    var presentations = new Array();
-    var presentationName;
 	var audio;
-	var meetingTime;
-	
-    var params = getUrlParameters();
+    	var events = new Array();
+    	var params = getUrlParameters();
 	var MEETINGID = params['meetingId']
-    var HOST = window.location.hostname
-    var RECORDINGS = "http://" + HOST + "/slides/" + MEETINGID
+    	var HOST = window.location.hostname
+    	var RECORDINGS = "http://" + HOST + "/simple/" + MEETINGID
 	var PRESENTATION = RECORDINGS + '/presentation/'
 	var LOGO = 'logo.png';
 		
@@ -26,7 +22,7 @@ function getUrlParameters() {
 			type: "GET",
 			url: RECORDINGS + "/events.xml",
 			dataType: "xml",
-			success: parseXml
+			success: preLoadImages
 		});
 	});
 	
@@ -42,88 +38,79 @@ function getUrlParameters() {
 		
 		audio.addEventListener('timeupdate', onTimeUpdate, false);
 	}, false);
-	
-	function parseXml(xml){
-		//Find the timestamp the meeting started, so we can calculate relative offsets of events		
+
+	function preLoadImages(xml){
+		var presentationName;
 		var start;
+
+		 $(xml).find("event").each(function(){
+                        var event = $(this);
+                        if (event.attr('eventname') === 'ParticipantJoinEvent'){
+                                start = event.attr('timestamp');
+                                return false; //Breaks the each() loop
+                        }
+                });
+
+
 		$(xml).find("event").each(function(){
 			var event = $(this);
-			if (event.attr('eventname') === 'ParticipantJoinEvent'){
-				start = event.attr('timestamp');
-				return false; //Breaks the each() loop
+			var eventName = event.attr("eventname");
+			if( eventName === 'SharePresentationEvent' ){
+				presentationName=event.find("presentationName").text();
+			}else if( eventName === "GotoSlideEvent"){
+				var time = (event.attr("timestamp") - start)/1000;
+				var slide = event.find("slide").text();
+				var imageObj = {
+					'time' : time,
+					'presentation' : presentationName,
+					'name' : slide
+				};
+				events.push(imageObj);
+				loadHiddenImage(imageObj);
+
 			}
 		});
 		
-		$(xml).find("event").each(function(){
-			var event = $(this);
-			if (event.attr('eventname') === 'EndAndKickAllEvent'){
-				meetingTime = event.attr('timestamp') - start;
-			}
-		});
+		function loadHiddenImage(imgObj){
 
-    var p = 0;
-		$(xml).find("event").each(function(){
-			var event = $(this);
-			if (event.attr('eventname') === 'SharePresentationEvent'){
-				var sharePresentationEvent = {
-					name : event.find('presentationName').text(),                    
-					time : (event.attr('timestamp') - start) / 1000
-				};
-				presentations[p] = sharePresentationEvent;
-        p++;
+			var id = imgObj.presentation + "_" + imgObj.name;
+			var duplicateImages = $('#'+id);
+			if(duplicateImages.length == 0){
+				var source = PRESENTATION + imgObj.presentation + "/slide-" + (parseInt(imgObj.name)+1) + ".png"; 
+				var img = new Image();
+				img.src = source;
+				$(img).hide();
+				$(img).attr('id',id);
+				$(img).height(600);
+				$(img).width(800);
+				$('#slidesContainer').append(img);			
 			}
-		});
-		    
-		var i = 0;
-		$(xml).find("event").each(function(){
-			var event = $(this);
-			if (event.attr('eventname') === 'GotoSlideEvent'){
-				var transitionEvent = {
-					slide : event.find('slide').text(),                    
-					time : (event.attr('timestamp') - start) / 1000
-				};
-				slideTransitions[i] = transitionEvent;
-				i++;
-			}
-                
-		}); 
+			
+		}
 	}
+	
 	
 	function onTimeUpdate(){
 		var now = audio.currentTime;
 		sinfo = document.getElementById('slideinfo');
         
-		var firstTransition = slideTransitions[0].time;
-		if (firstTransition > now){
-			$('#imgSlide').attr('src', LOGO);
-			return;
-		}
 
-		$.each(presentations, function(index, value){
-			var time = value.time;
-			
-			if (time < now && presentations[index].time < now){
-				presentationName = presentations[index].name		
-			} 
-		});        
         
-    var lastTransition = slideTransitions[slideTransitions.length-1].time;
-    if (lastTransition < now) {
-      var slideIndex = parseInt(slideTransitions[slideTransitions.length-1].slide) + 1; 
-      var slideToShow = PRESENTATION + presentationName + '/slide-' + slideIndex + '.png';
-      $('#imgSlide').attr('src', slideToShow);      
-      return;                
-    }
+		 var lastTransition = events[events.length-1].time;
+		    if (lastTransition < now) {
+		      var event = events[events.length-1];    
+		      $('#slidesContainer img').hide();
+		      $('#'+event.presentation + '_' + event.name).show();		
+		      return;                
+		}
         
-		$.each(slideTransitions, function(index, value){
+		$.each(events, function(index, value){
 			var time = value.time;
-			
-			if (slideTransitions[index + 1] == null) return; //Break for last slide, to avoid null reference error
-			
-			if ((time < now && slideTransitions[index + 1].time > now)) {
-				var slideIndex = parseInt(value.slide) + 1; 
-				var slideToShow = PRESENTATION + presentationName + '/slide-' + slideIndex + '.png';     
-				$('#imgSlide').attr('src', slideToShow);
+			if (events[index + 1] == null) return; //Break for last slide, to avoid null reference error
+			if ((time < now && events[index + 1].time > now)) {
+				var event = events[index];
+				 $('#slidesContainer img').hide();
+                      		 $('#'+event.presentation + '_' + event.name).show();
 			} 
 		});
         
@@ -131,3 +118,4 @@ function getUrlParameters() {
 	}
 	
 })(jQuery);
+
