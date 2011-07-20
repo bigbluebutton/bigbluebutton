@@ -49,7 +49,7 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 		if (publisher != null) {
 			HashMap<String,String> map= new HashMap<String, String>();
 			map.put("meetingId", this.room.getName());
-			map.put("action", "status");
+			map.put("messageId", MessagingConstants.USER_STATUS_CHANGE_EVENT);
 			map.put("userid", userid.toString());
 			map.put("status", status);
 			map.put("value", value.toString());
@@ -64,7 +64,7 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 		if (publisher != null) {
 			HashMap<String,String> map= new HashMap<String, String>();
 			map.put("meetingId", this.room.getName());
-			map.put("action", "join");
+			map.put("messageId", MessagingConstants.USER_JOINED_EVENT);
 			map.put("userid", p.getUserid().toString());
 			map.put("fullname", p.getName());
 			map.put("role", p.getRole());
@@ -79,7 +79,7 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 		if (publisher != null) {
 			HashMap<String,String> map= new HashMap<String, String>();
 			map.put("meetingId", this.room.getName());
-			map.put("action", "left");
+			map.put("messageId", MessagingConstants.USER_LEFT_EVENT);
 			map.put("userid", userid.toString());
 			
 			Gson gson= new Gson();

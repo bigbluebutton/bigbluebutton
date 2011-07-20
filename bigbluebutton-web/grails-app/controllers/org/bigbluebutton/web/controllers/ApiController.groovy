@@ -359,7 +359,7 @@ class ApiController {
 	   return;
     }
        
-    meetingService.endMeeting(internalMeetingId);
+    meetingService.endMeeting(meeting.getInternalId());
     
     response.addHeader("Cache-Control", "no-cache")
     withFormat {	
