@@ -82,7 +82,7 @@
 				// this event will dock the window, if it's enabled
 				var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();
 				openVideoEvent.window = this;
-				dispatchEvent(openVideoEvent);				
+				globalDispatcher.dispatchEvent(openVideoEvent);
 			}
 			
 			private function onCloseEvent(event:MDIWindowEvent = null):void {

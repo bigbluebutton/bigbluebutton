@@ -40,14 +40,14 @@
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.videoconf.VideoWindowItf;
+			import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
 			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			import mx.events.ChildExistenceChangedEvent;
 
 			public var autoDock:Boolean = false;
-			private var childrenDimension:Array = new Array();
+			private var childrenDimension:Dictionary = new Dictionary();
 
 			private function init():void{
 				this.showCloseButton = false;
@@ -97,7 +97,7 @@
 			}
 			
 			private function isVideoWindow(window:Object):Boolean {
-				return (getQualifiedSuperclassName(window) == "org.bigbluebutton.modules.videoconf::VideoWindowItf")
+				return (getQualifiedSuperclassName(window) == "org.bigbluebutton.modules.videoconf.business::VideoWindowItf")
 			}
 			
 			private function onCloseWindow(e:CloseWindowEvent):void {
@@ -125,6 +125,7 @@
 				window.resizable = false;
 				window.buttonsEnabled = false;
 				
+				//window.parent.removeChild(window);
 				this.addChild(window);
 			}
 			
@@ -136,6 +137,7 @@
 				window.maximizeRestoreBtn.visible = true;
 				window.resizable = true;
 				window.buttonsEnabled = true;
+				//window.parent.removeChild(window);
 				this.parent.addChild(window);
 				
 				// restores window dimensions
@@ -153,8 +155,7 @@
 			
 			override public function close(event:MouseEvent = null):void {
 				removeAllChildren();
-				//super.close(event);
-				minimize();
+				super.close(event);
 			}
 			
             private function updateChildrenDimensions(children:Array):void {
