@@ -3,6 +3,9 @@ require 'rubygems'
 require 'yaml'
 require 'fileutils'
 
+logger = Logger.new("/var/log/bigbluebutton/bbb-rap-worker.log",'daily' )
+logger.level = Logger::ERROR
+BigBlueButton.logger = logger
 
 def archive_recorded_meeting()
   `ruby archive/archive.rb`
