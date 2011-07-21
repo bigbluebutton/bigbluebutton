@@ -27,6 +27,7 @@
 			import flexlib.mdi.containers.MDIWindow;
 			
 			import mx.controls.Alert;
+			import mx.utils.ArrayUtil;
 			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.LogUtil;
@@ -61,8 +62,14 @@
 				positionWindow(window);
 			}
 			
-			public function removeWindow(window:IBbbModuleWindow):void{
-				windowManager.remove(window as MDIWindow);
+			public function removeWindow(window:IBbbModuleWindow):void {
+				// the flexlib windowManager remove method doesn't test if the given window is on the windows list
+				// this test avoid some exceptions when run the app on debugger flash player
+				if (ArrayUtil.getItemIndex(window, windowManager.windowList) != -1) {
+					windowManager.remove(window as MDIWindow);
+				} else {
+					LogUtil.debug("Trying to remove the window [ " + window + " ] but it's not a MainCanvas child");
+				}
 			}
 			
 			public function removeAllWindows():void{

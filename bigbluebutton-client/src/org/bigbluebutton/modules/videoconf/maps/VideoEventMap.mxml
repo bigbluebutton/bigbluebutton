@@ -39,6 +39,7 @@
 			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
+			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.views.PublishWindow;
@@ -68,6 +69,11 @@
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = window;
 				globalDispatcher.dispatchEvent(windowEvent);
+
+				// this event will dock the window, if it's enabled
+				var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();
+				openVideoEvent.window = window;
+				globalDispatcher.dispatchEvent(openVideoEvent);
 			}
 
 			private function viewVideoFile(e:BBBEvent):void {

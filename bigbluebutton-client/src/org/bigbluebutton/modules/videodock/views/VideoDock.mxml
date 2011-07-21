@@ -101,8 +101,9 @@
 			}
 			
 			private function onCloseWindow(e:CloseWindowEvent):void {
-				if (isVideoWindow(e.window))
-					removeVideoChild(e.window as VideoWindowItf);
+				// it should not just undock the window, it should close the window forever
+				if (isVideoWindow(e.window) && this.contains(e.window as VideoWindowItf))
+					this.removeChild(e.window as VideoWindowItf);
 			}
 			
 			private function onOpenWindow(e:OpenVideoWindowEvent):void {
@@ -125,7 +126,9 @@
 				window.resizable = false;
 				window.buttonsEnabled = false;
 				
-				//window.parent.removeChild(window);
+				var e:CloseWindowEvent = new CloseWindowEvent();
+				e.window = window;
+				dispatchEvent(e);
 				this.addChild(window);
 			}
 			
@@ -137,20 +140,16 @@
 				window.maximizeRestoreBtn.visible = true;
 				window.resizable = true;
 				window.buttonsEnabled = true;
-				//window.parent.removeChild(window);
-				this.parent.addChild(window);
 				
+				this.removeChild(window);
+				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				e.window = window;
+				dispatchEvent(e);
+
 				// restores window dimensions
 				window.width = childrenDimension[window].width;
 				window.height = childrenDimension[window].height;
 				window.updateWidth();
-			}
-			
-			override public function removeAllChildren():void {
-				while (this.numChildren > 0) {
-					removeVideoChild(getChildren().pop());
-				}
-				super.removeAllChildren();
 			}
 			
 			override public function close(event:MouseEvent = null):void {

@@ -43,10 +43,6 @@
 			
 			public function stopModule():void {
 				videoDock.removeAllChildren();
-				
-				var windowEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
-				windowEvent.window = videoDock;
-				globalDispatcher.dispatchEvent(windowEvent);
 			}
 			
 		]]>
