@@ -184,6 +184,13 @@ package org.bigbluebutton.modules.videoconf.business
 				// the window is docked, so it should not be moved on reset layout
 				return MainCanvas.UNTOUCHED;
 		}
+		
+		public function onDrag(event:MDIWindowEvent = null):void {
+			var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG);
+			e.mouseGlobal = this.localToGlobal(new Point(mouseX, mouseY));
+			e.window = this;
+			dispatchEvent(e);
+		}
 			
 		public function onDragStart(event:MDIWindowEvent = null):void {
             var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG_START);

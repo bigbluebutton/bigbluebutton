@@ -48,6 +48,7 @@
 
 			public var autoDock:Boolean = false;
 			private var childrenDimension:Dictionary = new Dictionary();
+			private var borderColor:String;
 
 			private function init():void{
 				this.showCloseButton = false;
@@ -83,12 +84,39 @@
 			}
 			
 			private function onDragVideoWindow(e:DragWindowEvent):void{
-                if (e.mode == DragWindowEvent.DRAG_START) {
-                    removeVideoChild(e.window as VideoWindowItf);
-                } else if (e.mode == DragWindowEvent.DRAG_END
-                        && hitTestPoint(e.mouseGlobal.x, e.mouseGlobal.y, true)) {
-                    addVideoChild(e.window as VideoWindowItf);
-                }
+				switch (e.mode) {
+					case DragWindowEvent.DRAG:
+						if (hitTestPoint(e.mouseGlobal.x, e.mouseGlobal.y, true)) {
+							setStyle("borderColor","0xFF0000");
+							e.window.width = e.window.minWidth;
+							e.window.height = e.window.minHeight;
+						} else {
+							setStyle("borderColor",borderColor);
+							restoreWindowDimensions(e.window);
+						}
+						break;
+					case DragWindowEvent.DRAG_START:
+						borderColor = getStyle("borderColor");
+	                    removeVideoChild(e.window as VideoWindowItf);
+	                    saveWindowDimensions(e.window);
+						break;
+					case DragWindowEvent.DRAG_END:
+						setStyle("borderColor",borderColor);
+						restoreWindowDimensions(e.window);
+						if (hitTestPoint(e.mouseGlobal.x, e.mouseGlobal.y, true))
+							addVideoChild(e.window as VideoWindowItf);
+						break;
+				}
+			}
+			
+			private function saveWindowDimensions(window:MDIWindow):void {
+				var dimensions:Object = {width:window.width, height:window.height};
+				childrenDimension[window] = dimensions;
+			}
+			
+			private function restoreWindowDimensions(window:MDIWindow):void {
+				window.width = childrenDimension[window].width;
+				window.height = childrenDimension[window].height;
 			}
 			
 			private function repositionWindow(window:MDIWindow):void {
@@ -117,9 +145,7 @@
 			
 				LogUtil.debug("Docking window");
 				
-				// saves the window dimensions to restore it later
-				var dimensions:Object = {width:window.width, height:window.height};
-				childrenDimension[window] = dimensions;
+				saveWindowDimensions(window);
 				
 				window.minimizeBtn.visible = false;
 				window.maximizeRestoreBtn.visible = false;
@@ -146,10 +172,7 @@
 				e.window = window;
 				dispatchEvent(e);
 
-				// restores window dimensions
-				window.width = childrenDimension[window].width;
-				window.height = childrenDimension[window].height;
-				window.updateWidth();
+				restoreWindowDimensions(window);
 			}
 			
 			override public function close(event:MouseEvent = null):void {

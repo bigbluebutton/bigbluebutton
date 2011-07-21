@@ -28,6 +28,7 @@ package org.bigbluebutton.common.events
 		public static const DRAG_WINDOW_EVENT:String = "DRAG_WINDOW_EVENT";
         public static const DRAG_START:String = "DRAG_START";
         public static const DRAG_END:String = "DRAG_END";
+        public static const DRAG:String = "DRAG";
 
 		public var mouseGlobal:Point;
 		public var window:MDIWindow;
