@@ -26,7 +26,10 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.events.SecurityErrorEvent;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
-	
+	import flash.media.VideoCodec;
+	import flash.media.H264VideoStreamSettings;
+	import flash.media.H264Profile;
+	import flash.media.H264Level;
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.common.LogUtil;
@@ -118,6 +121,9 @@ package org.bigbluebutton.modules.videoconf.business
 			ns.addEventListener( AsyncErrorEvent.ASYNC_ERROR, onAsyncError );
 			ns.client = this;
 			ns.attachCamera(e.camera);
+			var h264:H264VideoStreamSettings = new H264VideoStreamSettings();
+			h264.setProfileLevel(H264Profile.MAIN, H264Level.LEVEL_4_1);
+			ns.videoStreamSettings = h264;
 			ns.publish(e.stream);
 		}
 		

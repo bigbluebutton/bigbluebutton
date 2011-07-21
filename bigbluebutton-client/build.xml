@@ -14,6 +14,7 @@
 	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
 
 	<!-- Declare module names here -->
+	<property name="BBB_MAIN_TEST" value="BigBlueButtonTest" />
 	<property name="BBB_MAIN" value="BigBlueButton" />
 	<property name="CHAT" value="ChatModule" />
 	<property name="VIEWERS" value="ViewersModule" />
@@ -35,11 +36,15 @@
 	
 	<target name="branding" depends="init-ant-contrib">
 		<sequential>
-			<mxmlc file="${SRC_DIR}/branding/css/${themeFile}" output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="12" optimize="true">
+			<mxmlc file="${SRC_DIR}/branding/css/${themeFile}" output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true">
 			</mxmlc>
 		</sequential>
 	</target>
 		
+	<target name="build-bbb-main-test" description="Compile BigBlueButton Main Test">
+                <build-main src="${SRC_DIR}" target="${BBB_MAIN_TEST}" />
+	</target>
+
 	<target name="build-bbb-main" description="Compile BigBlueButton Main">
 		<build-main src="${SRC_DIR}" target="${BBB_MAIN}" />
 		
@@ -116,7 +121,7 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present, build-breakout"
+			depends="build-bbb-main, build-bbb-main-test, build-chat, build-viewers, build-listeners, build-present, build-breakout"
 			description="Compile main, chat, viewers, listeners, present, breakout modules">
 	</target>
 	
@@ -132,8 +137,8 @@
 			<attribute name="app" default="."/>
 			<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 			<sequential>
-				<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="12" optimize="true" link-report="linker-report.xml">
-					<target-player>10.3.0</target-player>
+				<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true" link-report="linker-report.xml">
+					<target-player>11.2</target-player>
 					<load-config filename="@{flex}/frameworks/flex-config.xml" />
 					<source-path path-element="@{flex}/frameworks" />
 					<compiler.library-path dir="@{flex}/frameworks" append="true">
@@ -157,8 +162,8 @@
 		<attribute name="app" default="."/>
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
-			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="12">
-				<target-player>10.3.0</target-player>
+			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="13">
+				<target-player>11</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<compiler.library-path dir="@{flex}/frameworks" append="true">
@@ -182,8 +187,8 @@
 		<attribute name="app" default="."/>
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
-			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="12" optimize="true" load-externs="linker-report.xml">
-				<target-player>10.3.0</target-player>
+			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true" load-externs="linker-report.xml">
+				<target-player>11</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<compiler.library-path dir="@{flex}/frameworks" append="true">
@@ -217,6 +222,7 @@
 		<copy todir="${OUTPUT_DIR}/locale" >
 			<fileset dir="${BASE_DIR}/locale/" />
 		</copy>	
+		<copy file="${PROD_RESOURCES_DIR}/BigBlueButtonTest.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>		
@@ -261,8 +267,8 @@
 			bgcolor="grey"
 			application="BBB"
 			swf="BigBlueButton"
-			version-major="10"
-			version-minor="3"
+			version-major="11"
+			version-minor="2"
 			version-revision="0"
 			history="true"
 			output="${OUTPUT_DIR}"
