@@ -71,8 +71,8 @@ public class Meeting {
 		metadata.put("meetingId", extMeetingId);
 	}
 
-	public Collection<String> getMetadata() {
-		return metadata.isEmpty() ? Collections.<String>emptySet() : Collections.unmodifiableCollection(metadata.values());
+	public Map<String, String> getMetadata() {
+		return metadata;
 	}
 	
 	public Collection<User> getUsers() {
@@ -104,8 +104,7 @@ public class Meeting {
 	}
 	
 	public boolean isRunning() {
-		boolean running = startTime != 0 && endTime == 0;
-		return running;
+		return ! users.isEmpty();
 	}
 
 	public String getName() {
@@ -209,6 +208,7 @@ public class Meeting {
 	}
 
 	private boolean pastDuration() {
+		if (duration == 0) return false; /* Meeting runs infinitely */
 		return (System.currentTimeMillis() - startTime > (duration * MILLIS_IN_A_SECOND));
 	}
 	private boolean hasStarted() {

@@ -4,8 +4,6 @@ require 'trollop'
 require 'yaml'
 require 'builder'
 
-
-
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
 end
@@ -19,21 +17,21 @@ playback = match[2]
 puts meeting_id
 puts playback
 
-if (playback == "simple")
+if (playback == "slides")
 	puts "publishing #{meeting_id}"
-	logger = Logger.new("/var/log/bigbluebutton/simple-publish-#{meeting_id}.log", 'daily' )
+	logger = Logger.new("/var/log/bigbluebutton/slides-publish-#{meeting_id}.log", 'daily' )
 	BigBlueButton.logger = logger
 
 	# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 	bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
-	simple_props = YAML::load(File.open('simple.yml'))
+	simple_props = YAML::load(File.open('slides.yml'))
 	
 	recording_dir = bbb_props['recording_dir']
-	process_dir = "#{recording_dir}/process/simple/#{meeting_id}"
+	process_dir = "#{recording_dir}/process/slides/#{meeting_id}"
 	publish_dir = simple_props['publish_dir']
 	playback_host = simple_props['playback_host']
 	
-	target_dir = "#{recording_dir}/publish/simple/#{meeting_id}"
+	target_dir = "#{recording_dir}/publish/slides/#{meeting_id}"
 	if not FileTest.directory?(target_dir)
 		FileUtils.mkdir_p target_dir
 		
@@ -57,7 +55,7 @@ if (playback == "simple")
 		  b.end_time(Time.at((BigBlueButton::Events.last_event_timestamp("#{process_dir}/events.xml").to_f/1000.0)).utc)
 		  b.playback {
 		  	b.format("simple")
-		  	b.link("http://#{playback_host}/playback/simple/playback.html?meetingId=#{meeting_id}")
+		  	b.link("http://#{playback_host}/playback/slides/playback.html?meetingId=#{meeting_id}")
 	  	}
 		  b.meta {
 		  	BigBlueButton::Events.get_meeting_metadata("#{process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
@@ -78,21 +76,21 @@ if (playback == "simple")
 		dir_list.each do |d|
 		  if File::directory?("#{publish_dir}/#{d}")
 		    rec_time = File.ctime("#{publish_dir}/#{d}") 
-		    play_link = "http://#{playback_host}/playback/simple/playback.html?meetingId=#{d}"
+		    play_link = "http://#{playback_host}/playback/slides/playback.html?meetingId=#{d}"
 		    
 		    metadata = BigBlueButton::Events.get_meeting_metadata("#{publish_dir}/#{d}/events.xml")
 		    
-		    recordings << {:rec_time => rec_time, :link => play_link, :title => metadata['title']}
+                    recordings << {:rec_time => rec_time, :link => play_link, :title => metadata['title'].nil? ? metadata['meetingId'] : metadata['title']}
 		  end
 		end
 		
 		b = Builder::XmlMarkup.new(:indent => 2)		 
 		html = b.html {
 		  b.head {
-		    b.title "Simple Playback Recordings"
+		    b.title "Slides Playback Recordings"
 		  }
 		  b.body {
-		    b.h1 "Simple Playback Recordings"
+		    b.h1 "Slides Playback Recordings"
 		      recordings.each do |r|
 		        b.p { |y| 
 		          y << r[:rec_time].to_s
@@ -105,5 +103,6 @@ if (playback == "simple")
 		index_html = File.new("#{publish_dir}/index.html","w")
 		index_html.write(html)
 		index_html.close
+    File.chmod(0644, "#{publish_dir}/index.html")
 	end
 end

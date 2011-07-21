@@ -22,13 +22,14 @@ package org.bigbluebutton.modules.phone.maps
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import flash.events.IEventDispatcher;
-	
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
+	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.modules.phone.PhoneOptions;
 	import org.bigbluebutton.modules.phone.views.components.ToolbarButton;
 	
 	public class PhoneEventMapDelegate
 	{
+		private var phoneOptions:PhoneOptions;
 		private var phoneButton:ToolbarButton;
 		private var buttonOpen:Boolean = false;
 		private var globalDispatcher:Dispatcher;
@@ -37,20 +38,25 @@ package org.bigbluebutton.modules.phone.maps
 		{
 			phoneButton = new ToolbarButton();
 			globalDispatcher = new Dispatcher();
+			phoneOptions = new PhoneOptions();
+			var vxml:XML = BBB.initConfigManager().config.getModuleConfig("PhoneModule");
+			if (vxml != null) {
+				phoneOptions.showButton = (vxml.@showButton.toUpperCase() == "TRUE") ? true : false;
+			}			
 		}
 
 		public function addToolbarButton():void {
 		   	phoneButton.toggle = true;
 		   	
-		   	// Use the GLobal Dispatcher so that this message will be heard by the
-		   	// main application.		   	
-			var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
-			event.button = phoneButton;
-			trace("Dispatching ADD TOOLBAR BUTTON EVENT");
-			globalDispatcher.dispatchEvent(event);
-		   	
-		   	buttonOpen = true;
-
+		   	if (phoneOptions.showButton) {
+			   	// Use the GLobal Dispatcher so that this message will be heard by the
+			   	// main application.		   	
+				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
+				event.button = phoneButton;
+				trace("Dispatching ADD TOOLBAR BUTTON EVENT");
+				globalDispatcher.dispatchEvent(event);		   	
+			   	buttonOpen = true;		   		
+		   	}
 		}
 		
 		public function removeToolbarButton():void {

@@ -34,18 +34,29 @@ package org.bigbluebutton.modules.videoconf.business
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.UserManager;
+	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
-	import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 	
 	public class VideoProxy
-	{
+	{		
+		public var videoOptions:VideoConfOptions;
+		
 		private var nc:NetConnection;
 		private var ns:NetStream;
 		
 		public function VideoProxy(url:String)
 		{
+			videoOptions = new VideoConfOptions();
+			var vxml:XML = BBB.initConfigManager().config.getModuleConfig("VideoconfModule");
+			if (vxml != null) {
+				videoOptions.showButton = (vxml.@showButton.toUpperCase() == "TRUE") ? true : false;
+				videoOptions.autoStart = (vxml.@autoStart.toUpperCase() == "TRUE") ? true : false;
+				videoOptions.publishWindowVisible = (vxml.@publishWindowVisible.toUpperCase() == "TRUE") ? true : false;
+			}
+			
 			nc = new NetConnection();
 			nc.client = this;
 			nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);

@@ -27,7 +27,7 @@
 		xmlns:mate="http://mate.asfusion.com/"
 		xmlns:maps="org.bigbluebutton.main.maps.*"
 		xmlns:api="org.bigbluebutton.main.api.*"
-		width="100%" height="100%"
+		width="100%" height="100%" 
 		creationComplete="initializeShell()" xmlns:common="org.bigbluebutton.common.*">
 		
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="setLogVisibility" />
@@ -43,6 +43,8 @@
 	<common:APIEventMap />
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.events.RecordStatusEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
@@ -99,9 +101,19 @@
 				return _mode;
 			}
 			
-			protected function initializeShell():void {		
-				trace('Initializing');	
-				globalDispatcher = new Dispatcher();
+			[Bindable]
+			private var layoutOptions:LayoutOptions = new LayoutOptions();
+			
+			private function initOptions():void {
+				layoutOptions.showLogButton = BBB.initConfigManager().config.layout.showDebugWindow;	
+				layoutOptions.showResetLayout = BBB.initConfigManager().config.layout.showResetLayout;	
+				layoutOptions.showVideoLayout = BBB.initConfigManager().config.layout.showVideoLayout;		
+				layoutOptions.showToolbar = BBB.initConfigManager().config.layout.showToolbar;		
+				layoutOptions.showLogoutWindow = BBB.initConfigManager().config.layout.showLogoutWindow;		
+			}
+			
+			protected function initializeShell():void {					
+				globalDispatcher = new Dispatcher();	
 			}
 
 			protected function initFullScreen():void {				
@@ -204,22 +216,35 @@
 				localeWindow.y = point1.y + 25;	
             }
 			
-			private function handleLogout(e:ConnectionFailedEvent):void{
-				if (logoutWindow != null) return;
-				logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
-				
-				var point1:Point = new Point();
-				// Calculate position of TitleWindow in Application's coordinates. 
-				point1.x = 400;
-				point1.y = 300;                
-				point1 = localToGlobal(point1);
-				logoutWindow.x = point1.x + 25;
-				logoutWindow.y = point1.y + 25;	
-				if (e is ConnectionFailedEvent) logoutWindow.setReason((e as ConnectionFailedEvent).type);
-				else logoutWindow.setReason("You have logged out of the conference");
-				
-				mdiCanvas.removeAllWindows(); 
+			private function handleLogout(e:ConnectionFailedEvent):void {
+				if (layoutOptions.showLogoutWindow) {
+					if (logoutWindow != null) return;
+					logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
+					
+					var point1:Point = new Point();
+					// Calculate position of TitleWindow in Application's coordinates. 
+					point1.x = 400;
+					point1.y = 300;                
+					point1 = localToGlobal(point1);
+					logoutWindow.x = point1.x + 25;
+					logoutWindow.y = point1.y + 25;	
+					if (e is ConnectionFailedEvent) logoutWindow.setReason((e as ConnectionFailedEvent).type);
+					else logoutWindow.setReason("You have logged out of the conference");	
+					
+					mdiCanvas.removeAllWindows(); 				
+				} else {
+					mdiCanvas.removeAllWindows();
+					redirect();
+				}				
 			}
+			
+            private function redirect():void { 
+            	var pageHost:String = mx.core.Application.application.url.split("/")[0];
+            	var pageURL:String = mx.core.Application.application.url.split("/")[2];
+            	var url:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+            	LogUtil.debug("Log out url: " + pageURL);
+				navigateToURL(url, '_self');
+            }
 			
 			private function attemptReconnect(e:ConnectionFailedEvent):void{
 				/*if (connectionLostWindow != null) return;
@@ -236,7 +261,8 @@
 			}
 			
 			private function setLogVisibility(e:ConfigEvent):void{
-				logBtn.visible = e.config.showDebug;
+		//		logBtn.visible = e.config.showDebug;
+				initOptions();
 			}
 			
 			private function changeLayout():void{
@@ -257,7 +283,7 @@
 		]]>
 	</mx:Script>
 			
-	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="false" verticalAlign="middle"/>
+	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="false" verticalAlign="middle" layoutOptions="{layoutOptions}"/>
 	<views:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off" effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" width="100%" height="100%">
 		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
@@ -267,16 +293,14 @@
 	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
-		<mx:ComboBox width="100" height="20" id="cmbLayout" change="changeLayout()" prompt="Layout" selectedItem="-1">
+		<mx:ComboBox width="100" height="20" id="cmbLayout" change="changeLayout()" prompt="Layout" selectedItem="-1" visible="{layoutOptions.showVideoLayout}">
            <mx:dataProvider>
               <mx:Array>
 			      <mx:String>Small videos</mx:String>
-			      <!--mx:String>Presenter + presentation</mx:String>
-			      <mx:String>Meeting</mx:String-->
               </mx:Array>
            </mx:dataProvider>
       	</mx:ComboBox>
-		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
-		<mx:Button width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
+		<mx:Button width="20" height="20" visible="{layoutOptions.showLogButton}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
+		<mx:Button width="20" height="20" visible="{layoutOptions.showResetLayout}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
 	</mx:ControlBar>
 </mx:VBox>

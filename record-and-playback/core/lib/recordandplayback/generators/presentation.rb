@@ -27,17 +27,22 @@ module BigBlueButton
     # Extract a page from the pdf file.    
     def self.extract_page_from_pdf(page_num, pdf_presentation, pdf_out)
         command = "ghostscript #{OPTIONS} #{FIRSTPAGE}=#{page_num} #{LASTPAGE}=#{page_num} #{OUTPUTFILE}=#{pdf_out} #{NO_PDF_MARK_WORKAROUND} #{pdf_presentation}"
-        BigBlueButton.logger.info(command)
-        IO.popen(command)
-        Process.wait
+        BigBlueButton.execute(command)
+ #       Process.wait
     end
     
     # Convert a pdf page to a png.
     def self.convert_pdf_to_png(pdf_page, png_out)
-        command = "convert -density 600x600 -resize 800x560 -quality 90 #{pdf_page} #{png_out}"
-        BigBlueButton.logger.info(command)
-        IO.popen(command)
-        Process.wait  
+        command = "convert -density 96x96 -resize 800x600 -quality 90 +dither -depth 8 -colors 256 #{pdf_page} #{png_out}"
+        BigBlueButton.execute(command)
+#        Process.wait  
     end
+
+    #Convert an image to a png	
+    def self.convert_image_to_png(image,png_image)
+        command="convert #{image} #{png_image}"
+        BigBlueButton.execute(command)
+    end
+
   end
 end

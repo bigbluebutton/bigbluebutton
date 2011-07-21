@@ -1,17 +1,18 @@
 package org.bigbluebutton.api;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.*;
 import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.lang.StringUtils;
 
 public class MeetingService {
 	private static Logger log = LoggerFactory.getLogger(MeetingService.class);
@@ -21,7 +22,7 @@ public class MeetingService {
 	private RecordingService recordingService;
 	private MessagingService messagingService;
 	private ExpiredMeetingCleanupTimerTask cleaner;
-
+	private boolean removeMeetingWhenEnded = false;
 	
 	public MeetingService() {
 		meetings = new ConcurrentHashMap<String, Meeting>();		
@@ -31,7 +32,6 @@ public class MeetingService {
 	 * Remove the meetings that have ended from the list of
 	 * running meetings.
 	 */
-//	@Override
 	public void removeExpiredMeetings() {
 		for (Meeting m : meetings.values()) {
 			if (m.hasExpired(defaultMeetingExpireDuration) || m.wasNeverStarted(defaultMeetingExpireDuration)) {
@@ -56,19 +56,44 @@ public class MeetingService {
 	public void createMeeting(Meeting m) {
 		log.debug("Storing Meeting with internal id:" + m.getInternalId());
 		meetings.put(m.getInternalId(), m);
+		if (m.isRecord()) {
+			messagingService.recordMeetingInfo(m.getInternalId(), m.getMetadata());
+		}
 	}
 
 	public Meeting getMeeting(String meetingId) {
-		if (StringUtils.isEmpty(meetingId)) {
+		if(meetingId == null)
 			return null;
-		}
-		
 		for (String key : meetings.keySet()) {
 			if (key.startsWith(meetingId))
 				return (Meeting) meetings.get(key);
 		}
 		
 		return null;
+	}
+
+	public ArrayList<Recording> getRecordings(ArrayList<String> idList) {		
+		return recordingService.getRecordings(idList);
+	}
+	
+	public boolean existsAnyRecording(ArrayList<String> idList){
+		return recordingService.existAnyRecording(idList);
+	}
+	
+	public void setPublishRecording(ArrayList<String> idList,boolean publish){
+		for(String id:idList){
+			recordingService.publish(id,publish);
+		}
+	}
+	
+	public void setRemoveMeetingWhenEnded(boolean s) {
+		removeMeetingWhenEnded = s;
+	}
+	
+	public void deleteRecordings(ArrayList<String> idList){
+		for(String id:idList){
+			recordingService.delete(id);
+		}
 	}
 	
 	public void processRecording(String meetingId) {
@@ -102,6 +127,15 @@ public class MeetingService {
 	
 	public void endMeeting(String meetingId) {		
 		messagingService.endMeeting(meetingId);
+		
+		if (removeMeetingWhenEnded) {
+			meetings.remove(meetingId);
+		} else {
+			Meeting m = getMeeting(meetingId);
+			if (m != null) {
+				m.setForciblyEnded(true);
+			}			
+		}
 	}
 		
 	public void setDefaultMeetingExpireDuration(int meetingExpiration) {

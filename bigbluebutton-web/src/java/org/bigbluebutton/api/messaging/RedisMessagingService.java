@@ -42,7 +42,12 @@ public class RedisMessagingService implements MessagingService {
 	public void recordMeetingInfo(String meetingId, Map<String, String> info) {
 		Jedis jedis = redisPool.getResource();
 		try {
-			jedis.hmset("meeting.info:" + meetingId, info);
+		    for (String key: info.keySet()) {
+				    	log.debug("Storing metadata {} = {}", key, info.get(key));
+				}   
+
+		    log.debug("Saving metadata in {}", meetingId);
+			jedis.hmset("meeting:info:" + meetingId, info);
 		} catch (Exception e){
 			log.warn("Cannot record the info meeting:"+meetingId,e);
 		} finally {
@@ -63,7 +68,7 @@ public class RedisMessagingService implements MessagingService {
 
 	public void endMeeting(String meetingId) {
 		HashMap<String,String> map = new HashMap<String, String>();
-		map.put("request", "endMeeting");
+		map.put("messageId", MessagingConstants.END_MEETING_REQUEST_EVENT);
 		map.put("meetingId", meetingId);
 		Gson gson = new Gson();
 		send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
@@ -123,28 +128,32 @@ public class RedisMessagingService implements MessagingService {
 
 		@Override
 		public void onPMessage(String pattern, String channel, String message) {
-			log.debug("Message Received in channel: "+channel);
+			log.debug("Message Received in channel: " + channel);
 			
 			Gson gson = new Gson();
 			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 			
+			for (String key: map.keySet()) {
+				log.debug("rx: {} = {}", key, map.get(key));
+			}
+			
 			if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
 				String meetingId = map.get("meetingId");
-				String state = map.get("state");
-
+				String messageId = map.get("messageId");
+				log.debug("*** Meeting {} Message {}", meetingId, messageId);
+				
 				for (MessageListener listener : listeners) {
-					if(state.equalsIgnoreCase("started")) {
+					if(MessagingConstants.MEETING_STARTED_EVENT.equalsIgnoreCase(messageId)) {
 						listener.meetingStarted(meetingId);
-					} else if(state.equalsIgnoreCase("ended")) {
+					} else if(MessagingConstants.MEETING_ENDED_EVENT.equalsIgnoreCase(messageId)) {
 						listener.meetingEnded(meetingId);
 					}
 				}
-
 			}
 			else if(channel.equalsIgnoreCase(MessagingConstants.PARTICIPANTS_CHANNEL)){
 				String meetingId = map.get("meetingId");
-				String action = map.get("action");
-				if(action.equalsIgnoreCase("join")){
+				String messageId = map.get("messageId");
+				if(MessagingConstants.USER_JOINED_EVENT.equalsIgnoreCase(messageId)){
 					String userid = map.get("userid");
 					String fullname = map.get("fullname");
 					String role = map.get("role");
@@ -152,8 +161,7 @@ public class RedisMessagingService implements MessagingService {
 					for (MessageListener listener : listeners) {
 						listener.userJoined(meetingId, userid, fullname, role);
 					}
-				}
-				else if(action.equalsIgnoreCase("status")){
+				} else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageId)){
 					String userid = map.get("userid");
 					String status = map.get("status");
 					String value = map.get("value");
@@ -161,8 +169,7 @@ public class RedisMessagingService implements MessagingService {
 					for (MessageListener listener : listeners) {
 						listener.updatedStatus(meetingId, userid, status, value);
 					}
-				}
-				else if(action.equalsIgnoreCase("left")){
+				} else if(MessagingConstants.USER_LEFT_EVENT.equalsIgnoreCase(messageId)){
 					String userid = map.get("userid");
 					
 					for (MessageListener listener : listeners) {

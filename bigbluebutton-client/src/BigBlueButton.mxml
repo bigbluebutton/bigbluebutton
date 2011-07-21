@@ -26,15 +26,16 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:m="library://melomel/2010"
 	pageTitle="BigBlueButton"
-	layout="absolute"
+	layout="absolute" creationComplete="init()"
 	preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
+
+			import com.asfusion.mate.events.Dispatcher;			
 			import mx.managers.HistoryManager;
-			
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.managers.ConfigManager2;			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainApplicationShell;
@@ -193,15 +194,25 @@
 				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.START_DESKSHARE));
 				return "true";
 			}			
+
+			private var configMgr:ConfigManager2 = BBB.initConfigManager();
 			
+			private function init():void {
+			EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
+			configMgr.loadConfig();
 			
+			}
+			
+			private function configLoadedEventHandler(e:Event):void {
+			LogUtil.debug("***** Config Loaded ****");
+			}
 		]]>
 	</mx:Script>	
 	
 	<m:Melomel/>
 	
 	<maps:ApplicationEventMap />	
-	
+
 	<views:MainApplicationShell id="mainShell"/>	
 	
 	<mate:Listener type="{BBBEvent.LOGIN_EVENT}" method="handleLoginEvent"/>

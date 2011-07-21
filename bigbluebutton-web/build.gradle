@@ -46,4 +46,7 @@ dependencies {
 	compile 'commons-pool:commons-pool:1.5.5'
 	compile 'commons-lang:commons-lang:2.5'
         compile 'com.google.code.gson:gson:1.7.1'
+	
+	//junit
+	compile 'junit:junit:4.8.2'
 }

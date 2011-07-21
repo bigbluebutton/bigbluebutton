@@ -24,7 +24,7 @@ module BigBlueButton
     end
     
     def metadata_for(meeting_id)
-      @redis.hgetall("meeting:#{meeting_id}:metadata")
+      @redis.hgetall("meeting:info:#{meeting_id}")
     end
     
     def num_events_for(meeting_id)

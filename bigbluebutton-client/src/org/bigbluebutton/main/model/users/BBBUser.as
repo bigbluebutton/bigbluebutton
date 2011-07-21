@@ -22,6 +22,7 @@ package org.bigbluebutton.main.model.users
 	
 	import mx.collections.ArrayCollection;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	

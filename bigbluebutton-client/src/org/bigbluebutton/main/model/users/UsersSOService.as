@@ -26,6 +26,8 @@ package org.bigbluebutton.main.model.users
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
@@ -147,7 +149,6 @@ package org.bigbluebutton.main.model.users
 
 			LogUtil.info("Joined as [" + user.userid + "," + user.name + "," + user.role + "]");
 			_participants.addUser(user);
-
 			participantStatusChange(user.userid, "hasStream", joinedUser.status.hasStream);
 			participantStatusChange(user.userid, "presenter", joinedUser.status.presenter);
 			participantStatusChange(user.userid, "raiseHand", joinedUser.status.raiseHand);
@@ -226,7 +227,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function removeStream(userid:Number, streamName:String):void {
-			var nc:NetConnection = netConnectionDelegate.connection;
+			var nc:NetConnection = netConnectionDelegate.connection;			
 			nc.call(
 				"participants.setParticipantStatus",// Remote function name
 				responder,

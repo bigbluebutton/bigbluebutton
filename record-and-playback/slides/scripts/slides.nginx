@@ -1,9 +1,9 @@
-        location /playback/simple {
+        location /playback/slides {
                 root    /var/bigbluebutton;
                 index  index.html index.htm;
         }
 
-        location /simple {
+        location /slides {
                 root    /var/bigbluebutton/published;
                 index  index.html index.htm;
         }

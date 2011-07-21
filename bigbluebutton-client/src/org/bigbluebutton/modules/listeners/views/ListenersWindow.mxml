@@ -33,6 +33,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.listeners.model.ListenerOptions;
 			import flash.events.MouseEvent;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -63,9 +64,12 @@
 			[Bindable] public var moderator:Boolean;
 			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.listeners.title', ["",""]);
 			
+			[Bindable] public var listenerOptions:ListenerOptions;
 			
 			private function onCreationComplete():void {
-				BindingUtils.bindSetter(updateNumberOfListeners, listeners, "length");				
+				BindingUtils.bindSetter(updateNumberOfListeners, listeners, "length");		
+				
+				this.visible = listenerOptions.windowVisible;		
 			}
 			
 			private function updateNumberOfListeners(numListeners:int):void {

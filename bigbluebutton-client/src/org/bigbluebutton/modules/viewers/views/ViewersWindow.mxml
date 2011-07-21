@@ -33,6 +33,7 @@
 	
     <mx:Script>
         <![CDATA[
+        	import org.bigbluebutton.modules.viewers.model.ViewerOptions;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -70,6 +71,8 @@
             [Bindable] public var presenterIcon : Class = images.presenter;
    			[Bindable] public var handIcon:Class = images.raisehand;
    			
+   			[Bindable] public var viewerOptions:ViewerOptions;
+   			
 			private var dispatcher:Dispatcher;
 			
 			private function onCreationComplete():void {
@@ -78,6 +81,8 @@
 				this.isModerator = (conference.me.role == Role.MODERATOR);
 				BindingUtils.bindSetter(updateNumberOfViewers, participants, "length");	
 				dispatcher = new Dispatcher();
+				
+				this.visible = viewerOptions.windowVisible;
 			}
 			
 			private function updateNumberOfViewers(numViewers:int):void {

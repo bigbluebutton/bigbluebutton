@@ -39,6 +39,7 @@
 #   2010-12-12 FFD  Fixed bug #778
 #   2010-12-12 FFD  Added support for Intalio VM
 #   2010-02-28 FFD  Fixed #834 
+#   2011-06-26 FFD  Updates for 0.8
 
 #set -x
 
@@ -239,6 +240,10 @@ change_var_salt() {
 comment () {
 	check_and_backup $1
 	sed -i "s<^[[:blank:]]*\(${2}.*\)<#\1<" $1
+}
+
+change_yml_value () {
+        sed -i "s<^[[:blank:]#]*\(${2}\):[ ].*<\1: ${3}<" $1
 }
 
 # comment lines matching $2 ($1 is the file)
@@ -528,7 +533,7 @@ fi
 
 if [ $SALT ]; then
 	need_root
-	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties beans.dynamicConferenceService.securitySalt $SALT
+	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
 	echo "Changed the security salt to $SALT"
 fi
 
@@ -1239,6 +1244,15 @@ check_state() {
 		fi
 	fi
 
+        PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/slides.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
+        if [ $PLAYBACK_IP != $IP ]; then
+                        echo
+                        echo "# The IP address ($PLAYBACK_IP) set for playback_host in"
+                        echo "#    /usr/local/bigbluebutton/core/scripts/slides.yml"
+                        echo "# does not match the local IP address ($IP)."
+                        echo
+                fi
+
 	exit 0
 }
 
@@ -1268,7 +1282,7 @@ if [ $CHECK ]; then
 	echo "                            Memory: $MEM MB"
 
 	echo
-	echo "/var/www/bigbluebutton/client/conf/config.xml"
+	echo "/var/www/bigbluebutton/client/conf/config.xml (bbb-client)"
 	PORT_IP=$(cat /var/www/bigbluebutton/client/conf/config.xml | sed -n '/porttest /{s/.*host="//;s/".*//;p}')
 	echo "  		Port test (tunnel): $PORT_IP"
 
@@ -1279,7 +1293,7 @@ if [ $CHECK ]; then
 #        echo "          host for bbb-web interface: $HOST"
 
 	echo
-	echo "/etc/nginx/sites-available/bigbluebutton"
+	echo "/etc/nginx/sites-available/bigbluebutton (nginx)"
 	NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/server_name/{s/.*name[ ]*//;s/;//;p}')
 	echo "                       server name: $NGINX_IP"
 
@@ -1308,8 +1322,16 @@ if [ $CHECK ]; then
 	fi
 
 	echo
-	echo "/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
+	echo "/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml (red5)"
 	echo "                  voice conference: $CONFERENCING_MODULE"
+
+	if [ -f /usr/local/bigbluebutton/core/scripts/slides.yml ]; then
+		PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/slides.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
+		echo
+		echo "/usr/local/bigbluebutton/core/scripts/slides.yml (record and playback)"
+		echo "                     playback host: $PLAYBACK_IP"
+	fi
+
 
 	#SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
 	#echo
@@ -1464,6 +1486,61 @@ if [ $DEBUG ]; then
 		fi
 	fi
 
+	#
+	# Additional checks for record and playback
+	#
+	rm -rf /tmp/t
+	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
+		  sudo grep -i Error /var/log/bigbluebutton/slides-process-* > /tmp/t 
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-process-*.log -- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+
+	rm -rf /tmp/t
+	if ls /var/log/bigbluebutton/slides-publish-* > /dev/null 2>1; then
+		  sudo grep -i Error /var/log/bigbluebutton/slides-publish-* > /tmp/t 
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-publish-*.log -- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+
+	rm -rf /tmp/t
+	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
+		for file in /var/log/bigbluebutton/slides-process-*; do 
+		  if [ ! -f $(echo $file | sed 's/process/publish/g') ]; then 
+			echo "  $file" >> /tmp/t
+                  fi 
+                done
+
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing: found process file but not publish -- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+
+
+	rm -rf /tmp/t
+	if ls /var/bigbluebutton/recording/status/recorded/*.done > /dev/null 2>1; then
+		for file in /var/bigbluebutton/recording/status/recorded/*.done; do 
+		  if [ ! -f $(echo $file | sed 's/recorded/archived/g') ]; then 
+			echo "  $file" >> /tmp/t
+                  fi 
+                done
+
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing: found recorded meeting but no archive files-- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+	
+	
 	exit 0
 fi
 
@@ -1533,6 +1610,12 @@ if [ -n "$HOST" ]; then
 		sudo sed -i "s/BigBlueButtonURL = \"http:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"http:\/\/$HOST\2/g" \
 			${SERVLET_DIR}/bigbluebutton/demo/bbb_api_conf.jsp
 	fi
+	
+	if [ -f /usr/local/bigbluebutton/core/scripts/slides.yml ]; then
+		echo "Assigning $HOST for record and playback in /usr/local/bigbluebutton/core/scripts/slides.yml"
+		change_yml_value /usr/local/bigbluebutton/core/scripts/slides.yml $redis_host playback_host $HOST
+	fi
+	
 
 	#
 	# Update Freeswitch config
