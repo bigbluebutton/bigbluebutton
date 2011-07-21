@@ -108,7 +108,8 @@
 				layoutOptions.showLogButton = BBB.initConfigManager().config.layout.showDebugWindow;	
 				layoutOptions.showResetLayout = BBB.initConfigManager().config.layout.showResetLayout;	
 				layoutOptions.showVideoLayout = BBB.initConfigManager().config.layout.showVideoLayout;		
-				layoutOptions.showToolbar = BBB.initConfigManager().config.layout.showToolbar;				
+				layoutOptions.showToolbar = BBB.initConfigManager().config.layout.showToolbar;		
+				layoutOptions.showLogoutWindow = BBB.initConfigManager().config.layout.showLogoutWindow;		
 			}
 			
 			protected function initializeShell():void {					
@@ -215,22 +216,35 @@
 				localeWindow.y = point1.y + 25;	
             }
 			
-			private function handleLogout(e:ConnectionFailedEvent):void{
-				if (logoutWindow != null) return;
-				logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
-				
-				var point1:Point = new Point();
-				// Calculate position of TitleWindow in Application's coordinates. 
-				point1.x = 400;
-				point1.y = 300;                
-				point1 = localToGlobal(point1);
-				logoutWindow.x = point1.x + 25;
-				logoutWindow.y = point1.y + 25;	
-				if (e is ConnectionFailedEvent) logoutWindow.setReason((e as ConnectionFailedEvent).type);
-				else logoutWindow.setReason("You have logged out of the conference");
-				
-				mdiCanvas.removeAllWindows(); 
+			private function handleLogout(e:ConnectionFailedEvent):void {
+				if (layoutOptions.showLogoutWindow) {
+					if (logoutWindow != null) return;
+					logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
+					
+					var point1:Point = new Point();
+					// Calculate position of TitleWindow in Application's coordinates. 
+					point1.x = 400;
+					point1.y = 300;                
+					point1 = localToGlobal(point1);
+					logoutWindow.x = point1.x + 25;
+					logoutWindow.y = point1.y + 25;	
+					if (e is ConnectionFailedEvent) logoutWindow.setReason((e as ConnectionFailedEvent).type);
+					else logoutWindow.setReason("You have logged out of the conference");	
+					
+					mdiCanvas.removeAllWindows(); 				
+				} else {
+					mdiCanvas.removeAllWindows();
+					redirect();
+				}				
 			}
+			
+            private function redirect():void { 
+            	var pageHost:String = mx.core.Application.application.url.split("/")[0];
+            	var pageURL:String = mx.core.Application.application.url.split("/")[2];
+            	var url:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+            	LogUtil.debug("Log out url: " + pageURL);
+				navigateToURL(url, '_self');
+            }
 			
 			private function attemptReconnect(e:ConnectionFailedEvent):void{
 				/*if (connectionLostWindow != null) return;

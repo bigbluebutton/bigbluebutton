@@ -58,6 +58,7 @@ package org.bigbluebutton.core.model
 			a.showVideoLayout = ((config.layout.@showVideoLayout).toUpperCase() == "TRUE") ? true : false;
 			a.showResetLayout = ((config.layout.@showResetLayout).toUpperCase() == "TRUE") ? true : false;
 			a.showToolbar = ((config.layout.@showToolbar).toUpperCase() == "TRUE") ? true : false;
+			a.showLogoutWindow = ((config.layout.@showLogoutWindow).toUpperCase() == "TRUE") ? true : false;
 			return a
 		}
 			
