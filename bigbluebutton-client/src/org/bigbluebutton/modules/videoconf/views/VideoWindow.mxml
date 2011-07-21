@@ -129,7 +129,8 @@
 						break;
 					case "NetStream.Play.UnpublishNotify":
 						ns.close();
-						this.close();
+						// shouldn't call onCloseEvent() here because of the viewer cam icon
+						super.close();
 						break;
 					case "NetStream.Play.Start":
 						LogUtil.debug("Netstatus: " + e.info.code);
@@ -139,7 +140,7 @@
 			
 			override public function close(event:MouseEvent=null):void{
 				ns.close();
-				//onCloseEvent();
+				onCloseEvent();
 			
 				super.close(event);
 			}		
