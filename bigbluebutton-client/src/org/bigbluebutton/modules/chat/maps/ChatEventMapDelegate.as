@@ -51,7 +51,7 @@ package org.bigbluebutton.modules.chat.maps {
 		private function getChatOptions():void {
 			var cxml:XML = 	BBB.initConfigManager().config.getModuleConfig("ChatModule");
 			if (cxml != null) {
-				chatOptions.privateEnabled = (cxml.@privateEnabled.toUpperCase() == "TRUE") ? true : false;
+				chatOptions.privateEnabled = (cxml.@privateEnabled.toString().toUpperCase() == "TRUE") ? true : false;
 			}
 		}
 		

@@ -20,6 +20,7 @@ package org.bigbluebutton.modules.viewers.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.core.BBB;
@@ -39,16 +40,17 @@ package org.bigbluebutton.modules.viewers.managers
 		
 		public function ViewersManager(){
 			dispatcher = new Dispatcher();
-			viewerOptions = new ViewerOptions();
-			
-			var vxml:XML = BBB.initConfigManager().config.getModuleConfig("ViewersModule");
-			if (vxml != null) {
-				viewerOptions.windowVisible = (vxml.@windowVisible.toUpperCase() == "TRUE") ? true : false;
-			}
 		}
 		
 		public function moduleStarted(e:ViewersModuleStartedEvent):void{
 			_module = e.module;
+
+			viewerOptions = new ViewerOptions();
+			
+			var vxml:XML = BBB.initConfigManager().config.getModuleConfig("ViewersModule");
+			if (vxml != null) {
+				viewerOptions.windowVisible = (vxml.@windowVisible.toString().toUpperCase() == "TRUE") ? true : false;
+			}
 			
 			if (viewersWindow == null){
 				viewersWindow = new ViewersWindow();

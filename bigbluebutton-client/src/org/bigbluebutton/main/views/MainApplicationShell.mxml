@@ -43,9 +43,6 @@
 	<common:APIEventMap />
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.main.model.LayoutOptions;
-			import org.bigbluebutton.main.events.RecordStatusEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.MouseEvent;
@@ -56,7 +53,7 @@
 			import mx.collections.ArrayCollection;
 			import mx.containers.TitleWindow;
 			import mx.controls.Alert;
-			import mx.core.Application;
+			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
 			
@@ -66,14 +63,19 @@
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
+			import org.bigbluebutton.main.events.RecordStatusEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
+			
+			import spark.components.Application;
 			
 			private var globalDispatcher:Dispatcher;
 			
@@ -239,9 +241,9 @@
 			}
 			
             private function redirect():void { 
-            	var pageHost:String = mx.core.Application.application.url.split("/")[0];
-            	var pageURL:String = mx.core.Application.application.url.split("/")[2];
-            	var url:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+				var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
+				var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
+				var url:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
             	LogUtil.debug("Log out url: " + pageURL);
 				navigateToURL(url, '_self');
             }

@@ -52,9 +52,9 @@ package org.bigbluebutton.modules.videoconf.business
 			videoOptions = new VideoConfOptions();
 			var vxml:XML = BBB.initConfigManager().config.getModuleConfig("VideoconfModule");
 			if (vxml != null) {
-				videoOptions.showButton = (vxml.@showButton.toUpperCase() == "TRUE") ? true : false;
-				videoOptions.autoStart = (vxml.@autoStart.toUpperCase() == "TRUE") ? true : false;
-				videoOptions.publishWindowVisible = (vxml.@publishWindowVisible.toUpperCase() == "TRUE") ? true : false;
+				videoOptions.showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
+				videoOptions.autoStart = (vxml.@autoStart.toString().toUpperCase() == "TRUE") ? true : false;
+				videoOptions.publishWindowVisible = (vxml.@publishWindowVisible.toString().toUpperCase() == "TRUE") ? true : false;
 			}
 			
 			nc = new NetConnection();
