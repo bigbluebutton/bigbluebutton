@@ -202,7 +202,11 @@
                     var columns:Number = Math.ceil(numChildren / rows);
                     var maxWidth:Number = Math.floor((availableWidth - horizontalGap * (columns - 1)) / columns) - VideoWindowItf.PADDING_HORIZONTAL;
                     var maxHeight:Number = Math.floor((availableHeight - verticalGap * (rows - 1)) / rows) - VideoWindowItf.PADDING_VERTICAL;
-                    
+
+                    // the possible dimensions shouldn't be less or equal 0 (it could happen with many videos)
+                    if (maxWidth <= 0 || maxHeight <=0)
+                        continue;
+                        
                     var desiredAR:Number = 4/3;
                     var width:Number = maxWidth;
                     var height:Number = maxHeight;
