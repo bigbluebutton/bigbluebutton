@@ -51,6 +51,7 @@ package org.bigbluebutton.util.i18n
 		private var eventDispatcher:Dispatcher = new Dispatcher();
 		
 		private var localeChain:Array = new Array();
+		private var resourceManager:IResourceManager;
 		private var currentLocalization:Dictionary = new Dictionary();
 		
 		public function ResourceUtil(enforcer:SingletonEnforcer) {
