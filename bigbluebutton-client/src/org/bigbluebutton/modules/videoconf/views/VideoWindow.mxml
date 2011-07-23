@@ -34,10 +34,7 @@
 			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import mx.controls.Alert;
-			import mx.core.UIComponent;
-			import flash.media.H264VideoStreamSettings;
-			import flash.media.H264Profile;
-			import flash.media.H264Level;			
+			import mx.core.UIComponent;			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
@@ -103,10 +100,6 @@
 				ns.receiveVideo(true);
 				ns.receiveAudio(false);
 				
-				var h264:H264VideoStreamSettings = new H264VideoStreamSettings();
-				h264.setProfileLevel(H264Profile.MAIN, H264Level.LEVEL_4_1);
-				ns.videoStreamSettings = h264;
-				
 				setVideoResolution(stream);
 				video = new Video(this.width, this.height);
 				video.width = this.width;
@@ -114,7 +107,7 @@
 				video.attachNetStream(ns);
 				ns.play(stream);	
 				this.stream = stream;
-//				LogUtil.debug("**** Netstatus: Codec " + ns.videoStreamSettings.codec);
+
 				this.width = video.width + 6;
 				this.height = video.height + 29;
 			}
