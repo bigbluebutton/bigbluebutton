@@ -18,7 +18,7 @@ public class ExpiredMeetingCleanupTimerTask {
 	
 	public void start() {
 		cleanupTimer = new Timer("bbb-api-cleanup", true);
-		cleanupTimer.scheduleAtFixedRate(new CleanupTask(), 60000, 300000);				
+		cleanupTimer.scheduleAtFixedRate(new CleanupTask(), 60000, 60000);				
 	}
 	
 	private class CleanupTask extends TimerTask {
