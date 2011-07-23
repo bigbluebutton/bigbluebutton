@@ -37,6 +37,7 @@ public class MeetingService {
 	 * running meetings.
 	 */
 	public void removeExpiredMeetings() {
+		log.info("Cleaning up expired meetings");
 		for (Meeting m : meetings.values()) {
 			if (m.hasExpired(defaultMeetingExpireDuration) || m.wasNeverStarted(defaultMeetingCreateJoinDuration)) {
 				log.info("Removing expired meeting [{} - {}]", m.getInternalId(), m.getName());
