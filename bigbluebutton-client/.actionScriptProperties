@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <actionScriptProperties mainApplicationPath="BigBlueButton.mxml" projectUUID="2f78753b-2e4c-41b4-8cf4-eddb768eb4b3" version="6">
-  <compiler additionalCompilerArguments="-locale= -swf-version=12" autoRSLOrdering="false" copyDependentFiles="true" flex3CompatMode="true" fteInMXComponents="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin" sourceFolderPath="src" strict="true" targetPlayerVersion="10.3.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
+  <compiler additionalCompilerArguments="-locale=" autoRSLOrdering="false" copyDependentFiles="true" flexSDK="Flex 3.5" fteInMXComponents="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin" sourceFolderPath="src" strict="true" targetPlayerVersion="10.0.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
     <compilerSourcePath/>
     <libraryPath defaultLinkType="1">
       <libraryPathEntry kind="4" path="">
+        <modifiedEntries>
+          <libraryPathEntry kind="3" linkType="4" path="${PROJECT_FRAMEWORKS}/libs/framework.swc" useDefaultLinkType="true">
+            <crossDomainRsls>
+              <crossDomainRslEntry autoExtract="true" policyFileUrl="" rslUrl="framework_3.1.0.2710.swz"/>
+              <crossDomainRslEntry autoExtract="true" policyFileUrl="" rslUrl="framework_3.1.0.2710.swf"/>
+            </crossDomainRsls>
+          </libraryPathEntry>
+        </modifiedEntries>
         <excludedEntries>
           <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/qtp.swc" useDefaultLinkType="false"/>
           <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation.swc" useDefaultLinkType="false"/>
@@ -45,3 +53,4 @@
     <buildCSSFileEntry destPath="bin" sourcePath="src/branding/css/theme.css"/>
   </buildCSSFiles>
 </actionScriptProperties>
+

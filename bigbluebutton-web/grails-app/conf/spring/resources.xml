@@ -18,6 +18,7 @@
   		
 	<bean id="meetingService" class="org.bigbluebutton.api.MeetingService">
 	  <property name="defaultMeetingExpireDuration" value="${defaultMeetingExpireDuration}"/>
+	  <property name="defaultMeetingCreateJoinDuration" value="${defaultMeetingCreateJoinDuration}"/>
 	  <property name="removeMeetingWhenEnded" value="${removeMeetingWhenEnded}"/>
 		<property name="messagingService" ref="messagingService"/>
 		<property name="recordingService" ref="recordingService"/>

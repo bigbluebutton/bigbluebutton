@@ -21,7 +21,8 @@ public class MeetingService {
 	private static Logger log = LoggerFactory.getLogger(MeetingService.class);
 	
 	private final ConcurrentMap<String, Meeting> meetings;	
-	private int defaultMeetingExpireDuration = 60;	
+	private int defaultMeetingExpireDuration = 1;	
+	private int defaultMeetingCreateJoinDuration = 5;
 	private RecordingService recordingService;
 	private MessagingService messagingService;
 	private ExpiredMeetingCleanupTimerTask cleaner;
@@ -37,8 +38,12 @@ public class MeetingService {
 	 */
 	public void removeExpiredMeetings() {
 		for (Meeting m : meetings.values()) {
-			if (m.hasExpired(defaultMeetingExpireDuration) || m.wasNeverStarted(defaultMeetingExpireDuration)) {
+			if (m.hasExpired(defaultMeetingExpireDuration) || m.wasNeverStarted(defaultMeetingCreateJoinDuration)) {
 				log.info("Removing expired meeting [{} - {}]", m.getInternalId(), m.getName());
+		  		if (m.isRecord()) {
+		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		
+		  			processRecording(m.getInternalId());
+		  		}
 				meetings.remove(m.getInternalId());
 				continue;
 			}
@@ -185,7 +190,11 @@ public class MeetingService {
 			}			
 		}
 	}
-		
+
+	public void setDefaultMeetingCreateJoinDuration(int expiration) {
+		this.defaultMeetingCreateJoinDuration = expiration;
+	}
+	
 	public void setDefaultMeetingExpireDuration(int meetingExpiration) {
 		this.defaultMeetingExpireDuration = meetingExpiration;
 	}

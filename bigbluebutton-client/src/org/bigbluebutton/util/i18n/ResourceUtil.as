@@ -86,13 +86,11 @@ package org.bigbluebutton.util.i18n
 				localeChain.push(locale.@code);
 			}							
 			
-			var setLocale:String = ExternalInterface.call("getLanguage");
-
-			for (var i:Number = 0; i<localeChain.length; i++){
-				if (setLocale == localeChain[i]){
-					changeLocale(setLocale);
-					return;
-				}
+			resourceManager = ResourceManager.getInstance();
+			resourceManager.localeChain = [ExternalInterface.call("getLanguage")];
+			var localeAvailable:Boolean = false;
+			for (var i:Number = 0; i < localeChain.length; i++){
+				if (resourceManager.localeChain[0] == localeChain[i]) localeAvailable = true;
 			}
 			
 			//Locale not found, set default
