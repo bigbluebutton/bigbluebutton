@@ -26,9 +26,13 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.events.SecurityErrorEvent;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
+
+/** Uncomment if you want to build support for H264. But you need at least FP 11. (ralam july 23, 2011)		
 	import flash.media.H264VideoStreamSettings;
 	import flash.media.H264Profile;
 	import flash.media.H264Level;
+**/
+	
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.common.LogUtil;
@@ -132,13 +136,13 @@ package org.bigbluebutton.modules.videoconf.business
 			ns.addEventListener( AsyncErrorEvent.ASYNC_ERROR, onAsyncError );
 			ns.client = this;
 			ns.attachCamera(e.camera);
-			
+/*		Uncomment if you want to build support for H264. But you need at least FP 11. (ralam july 23, 2011)	
 			if (Capabilities.version.search("11,0") != -1) {
 				var h264:H264VideoStreamSettings = new H264VideoStreamSettings();
 				h264.setProfileLevel(H264Profile.MAIN, H264Level.LEVEL_4_1);
 				ns.videoStreamSettings = h264;
 			}
-			
+*/			
 			ns.publish(e.stream);
 		}
 		

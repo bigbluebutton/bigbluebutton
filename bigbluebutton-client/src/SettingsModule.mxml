@@ -28,7 +28,6 @@ $Id: $
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			import mx.core.FlexGlobals;
-			import mx.core.mx_internal;
 			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.common.LogUtil;
@@ -93,8 +92,10 @@ $Id: $
 				
 				var point1:Point = new Point();
 				// Calculate position of TitleWindow in Application's coordinates. 				
-				settingsPanel.x = FlexGlobals.topLevelApplication.mx_internal.Application.width/2 - settingsPanel.width/2;
-				settingsPanel.y = FlexGlobals.topLevelApplication.mx_internal.Application.height/2 - settingsPanel.height/2;
+				settingsPanel.x = 0;
+				settingsPanel.y = 0;
+		//		settingsPanel.x = FlexGlobals.topLevelApplication.mx_internal.Application.width/2 - settingsPanel.width/2;
+		//		settingsPanel.y = FlexGlobals.topLevelApplication.mx_internal.Application.height/2 - settingsPanel.height/2;
 				
 				PersistUserPreferences.saveSettingsVisited();
 			}
