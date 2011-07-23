@@ -4,10 +4,10 @@ package org.bigbluebutton.modules.phone
 	{
 		[Bindable]
 		public var showButton:Boolean = true;
+
+		[Bindable]
+		public var autoJoin:Boolean = false;
 		
-		public function PhoneOptions()
-		{
-		}
 
 	}
 }

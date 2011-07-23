@@ -34,8 +34,7 @@
 			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import mx.controls.Alert;
-			import mx.core.UIComponent;
-			
+			import mx.core.UIComponent;			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
@@ -108,7 +107,7 @@
 				video.attachNetStream(ns);
 				ns.play(stream);	
 				this.stream = stream;
-				
+
 				this.width = video.width + 6;
 				this.height = video.height + 29;
 			}
@@ -153,7 +152,14 @@
 						break;
 					case "NetStream.Play.Start":
 						LogUtil.debug("Netstatus: " + e.info.code);
-						globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.VIDEO_STARTED));
+						globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.VIDEO_STARTED));						
+						break;
+					case "NetStream.Play.FileStructureInvalid":
+						LogUtil.debug("The MP4's file structure is invalid.");
+						break;
+					case "NetStream.Play.NoSupportedTrackFound":
+						LogUtil.debug("The MP4 doesn't contain any supported tracks");
+						break;
 				}
 			}
 			

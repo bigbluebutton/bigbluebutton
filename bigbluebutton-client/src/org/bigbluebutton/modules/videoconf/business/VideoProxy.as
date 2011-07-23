@@ -26,7 +26,9 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.events.SecurityErrorEvent;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
-	
+	import flash.media.H264VideoStreamSettings;
+	import flash.media.H264Profile;
+	import flash.media.H264Level;
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.common.LogUtil;
@@ -36,6 +38,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+	import flash.system.Capabilities;
 	
 	public class VideoProxy
 	{		
@@ -49,9 +52,9 @@ package org.bigbluebutton.modules.videoconf.business
 			videoOptions = new VideoConfOptions();
 			var vxml:XML = BBB.initConfigManager().config.getModuleConfig("VideoconfModule");
 			if (vxml != null) {
-				videoOptions.showButton = (vxml.@showButton.toUpperCase() == "TRUE") ? true : false;
-				videoOptions.autoStart = (vxml.@autoStart.toUpperCase() == "TRUE") ? true : false;
-				videoOptions.publishWindowVisible = (vxml.@publishWindowVisible.toUpperCase() == "TRUE") ? true : false;
+				videoOptions.showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
+				videoOptions.autoStart = (vxml.@autoStart.toString().toUpperCase() == "TRUE") ? true : false;
+				videoOptions.publishWindowVisible = (vxml.@publishWindowVisible.toString().toUpperCase() == "TRUE") ? true : false;
 			}
 			
 			nc = new NetConnection();
@@ -129,6 +132,13 @@ package org.bigbluebutton.modules.videoconf.business
 			ns.addEventListener( AsyncErrorEvent.ASYNC_ERROR, onAsyncError );
 			ns.client = this;
 			ns.attachCamera(e.camera);
+			
+			if (Capabilities.version.search("11,0") != -1) {
+				var h264:H264VideoStreamSettings = new H264VideoStreamSettings();
+				h264.setProfileLevel(H264Profile.MAIN, H264Level.LEVEL_4_1);
+				ns.videoStreamSettings = h264;
+			}
+			
 			ns.publish(e.stream);
 		}
 		
