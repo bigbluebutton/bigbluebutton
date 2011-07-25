@@ -169,10 +169,6 @@ class ApiController {
     	return
     }
 
-//    if (StringUtils.isEmpty(createTime)) {
-//      errors.missingParamError("createTime");
-//    }
-    
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.					        
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
@@ -186,7 +182,7 @@ class ApiController {
 
 	// the createTime mismatch with meeting's createTime, complain
 	// In the future, the createTime param will be required
-	if(params.createTime!=null){
+	if (params.createTime != null){
 		long createTime = 0;
 		try{
 			createTime=Long.parseLong(params.createTime);
@@ -576,10 +572,6 @@ class ApiController {
   	if (meeting != null) {
   	  log.debug("Logging out from [" + meeting.getInternalId() + "]");
   		logoutUrl = meeting.getLogoutUrl();
-  		if (meeting.isRecord()) {
-  			log.debug("[" + meeting.getInternalId() + "] is recorded. Process it.");		
-  			meetingService.processRecording(meeting.getInternalId())
-  		}
   	} else {
   		log.warn("Signing out from a non-existing meeting [" + meetingId + "]");	
   	}      

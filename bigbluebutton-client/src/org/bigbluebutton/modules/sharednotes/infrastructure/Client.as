@@ -112,7 +112,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 				trace(logPrefix + "sending " + messageToSend);
 			}
 			
-			server.send("m, " + JSON.encode(messageToSend));
+			//server.send("m, " + JSON.encode(messageToSend));
 
 			timeoutTimer.start();
 		}

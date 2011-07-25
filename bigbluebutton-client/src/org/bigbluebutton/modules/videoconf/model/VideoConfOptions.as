@@ -11,9 +11,11 @@ package org.bigbluebutton.modules.videoconf.model
 		[Bindable]
 		public var publishWindowVisible:Boolean = true;
 		
-		public function VideoConfOptions()
-		{
-		}
+		[Bindable]
+		public var viewerWindowMaxed:Boolean = false;
 
+		[Bindable]
+		public var viewerWindowLocation:String = "middle";
+		
 	}
 }

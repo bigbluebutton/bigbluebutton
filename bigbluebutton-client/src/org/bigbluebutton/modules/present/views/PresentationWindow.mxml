@@ -46,6 +46,7 @@
 	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
 	<mate:Listener type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" method="addOverlayCanvas" />
 	<mate:Listener type="{AddButtonToPresentationEvent.ADD_BUTTON}" method="addButton" />
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -67,6 +68,7 @@
 			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.present.api.IPresentationButton;
@@ -538,6 +540,10 @@
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				if ((slideView != null) && (!slideView.visible)) this.title = ResourceUtil.getInstance().getString('bbb.presentation.title');
+			}
+			
+			private function localeChanged(e:LocaleChangeEvent):void{
+				resourcesChanged();
 			}
             
 		]]>

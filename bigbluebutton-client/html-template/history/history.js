@@ -19,18 +19,12 @@ BrowserHistory = (function() {
     // type of browser
     var browser = {
         ie: false, 
+        ie8: false, 
         firefox: false, 
         safari: false, 
         opera: false, 
         version: -1
     };
-
-    // if setDefaultURL has been called, our first clue
-    // that the SWF is ready and listening
-    //var swfReady = false;
-
-    // the URL we'll send to the SWF once it is ready
-    //var pendingURL = '';
 
     // Default app state URL to use when no fragment ID present
     var defaultHash = '';
@@ -49,6 +43,9 @@ BrowserHistory = (function() {
 
     // History maintenance (used only by Safari)
     var currentHistoryLength = -1;
+    
+    // Flag to denote the existence of onhashchange
+    var browserHasHashChange = false;
 
     var historyHash = [];
 
@@ -67,6 +64,11 @@ BrowserHistory = (function() {
     } else if (useragent.indexOf("msie") != -1) {
         browser.ie = true;
         browser.version = parseFloat(useragent.substring(useragent.indexOf('msie') + 4));
+        if (browser.version == 8)
+        {
+            browser.ie = false;
+            browser.ie8 = true;
+        }
     } else if (useragent.indexOf("safari") != -1) {
         browser.safari = true;
         browser.version = parseFloat(useragent.substring(useragent.indexOf('safari') + 7));
@@ -78,15 +80,25 @@ BrowserHistory = (function() {
         window["_ie_firstload"] = false;
     }
 
+    function hashChangeHandler()
+    {
+        currentHref = document.location.href;
+        var flexAppUrl = getHash();
+        //ADR: to fix multiple
+        if (typeof BrowserHistory_multiple != "undefined" && BrowserHistory_multiple == true) {
+            var pl = getPlayers();
+            for (var i = 0; i < pl.length; i++) {
+                pl[i].browserURLChange(flexAppUrl);
+            }
+        } else {
+            getPlayer().browserURLChange(flexAppUrl);
+        }
+    }
+
     // Accessor functions for obtaining specific elements of the page.
     function getHistoryFrame()
     {
         return document.getElementById('ie_historyFrame');
-    }
-
-    function getAnchorElement()
-    {
-        return document.getElementById('firefox_anchorDiv');
     }
 
     function getFormElement()
@@ -102,6 +114,8 @@ BrowserHistory = (function() {
     // Get the Flash player object for performing ExternalInterface callbacks.
     // Updated for changes to SWFObject2.
     function getPlayer(id) {
+        var i;
+
 		if (id && document.getElementById(id)) {
 			var r = document.getElementById(id);
 			if (typeof r.SetVariable != "undefined") {
@@ -110,40 +124,53 @@ BrowserHistory = (function() {
 			else {
 				var o = r.getElementsByTagName("object");
 				var e = r.getElementsByTagName("embed");
-				if (o.length > 0 && typeof o[0].SetVariable != "undefined") {
-					return o[0];
-				}
-				else if (e.length > 0 && typeof e[0].SetVariable != "undefined") {
-					return e[0];
-				}
+                for (i = 0; i < o.length; i++) {
+                    if (typeof o[i].browserURLChange != "undefined")
+                        return o[i];
+                }
+                for (i = 0; i < e.length; i++) {
+                    if (typeof e[i].browserURLChange != "undefined")
+                        return e[i];
+                }
 			}
 		}
 		else {
 			var o = document.getElementsByTagName("object");
 			var e = document.getElementsByTagName("embed");
-			if (e.length > 0 && typeof e[0].SetVariable != "undefined") {
-				return e[0];
-			}
-			else if (o.length > 0 && typeof o[0].SetVariable != "undefined") {
-				return o[0];
-			}
-			else if (o.length > 1 && typeof o[1].SetVariable != "undefined") {
-				return o[1];
-			}
+            for (i = 0; i < e.length; i++) {
+                if (typeof e[i].browserURLChange != "undefined")
+                {
+                    return e[i];
+                }
+            }
+            for (i = 0; i < o.length; i++) {
+                if (typeof o[i].browserURLChange != "undefined")
+                {
+                    return o[i];
+                }
+            }
 		}
 		return undefined;
 	}
     
     function getPlayers() {
+        var i;
         var players = [];
         if (players.length == 0) {
             var tmp = document.getElementsByTagName('object');
-            players = tmp;
+            for (i = 0; i < tmp.length; i++)
+            {
+                if (typeof tmp[i].browserURLChange != "undefined")
+                    players.push(tmp[i]);
+            }
         }
-        
         if (players.length == 0 || players[0].object == null) {
             var tmp = document.getElementsByTagName('embed');
-            players = tmp;
+            for (i = 0; i < tmp.length; i++)
+            {
+                if (typeof tmp[i].browserURLChange != "undefined")
+                    players.push(tmp[i]);
+            }
         }
         return players;
     }
@@ -216,7 +243,7 @@ BrowserHistory = (function() {
                 backStack[backStack.length - 1] = createState(baseUrl, newUrl, flexAppUrl);
             }
 
-            if (browser.safari) {
+            if (browser.safari && !browserHasHashChange) {
                 // for Safari, submit a form whose action points to the desired URL
                 if (browser.version <= 419.3) {
                     var file = window.location.pathname.toString();
@@ -241,8 +268,7 @@ BrowserHistory = (function() {
                 historyHash[history.length] = flexAppUrl;
                 _storeStates();
             } else {
-                // Otherwise, write an anchor into the page and tell the browser to go there
-                addAnchor(flexAppUrl);
+                // Otherwise, just tell the browser to go there
                 setHash(flexAppUrl);
             }
         }
@@ -298,12 +324,13 @@ BrowserHistory = (function() {
 						// this.iframe.src = this.blankURL + hash;
 						var sourceToSet = historyFrameSourcePrefix + getHash();
 						getHistoryFrame().src = sourceToSet;
+                        currentHref = document.location.href;
 					}
                 }
             }
         }
 
-        if (browser.safari) {
+        if (browser.safari && !browserHasHashChange) {
             // For Safari, we have to check to see if history.length changed.
             if (currentHistoryLength >= 0 && history.length != currentHistoryLength) {
                 //alert("did change: " + history.length + ", " + historyHash.length + "|" + historyHash[history.length] + "|>" + historyHash.join("|"));
@@ -314,7 +341,7 @@ BrowserHistory = (function() {
                     // then we have to look the old state up in our hand-maintained 
                     // array since document.location.hash won't have changed, 
                     // then call back into BrowserManager.
-                    currentHistoryLength = history.length;
+                currentHistoryLength = history.length;
                     flexAppUrl = historyHash[currentHistoryLength];
                 }
 
@@ -330,7 +357,7 @@ BrowserHistory = (function() {
                 _storeStates();
             }
         }
-        if (browser.firefox) {
+        if (browser.firefox && !browserHasHashChange) {
             if (currentHref != document.location.href) {
                 var bsl = backStack.length;
 
@@ -389,9 +416,6 @@ BrowserHistory = (function() {
                 // Firefox changed; do a callback into BrowserManager to tell it.
                 currentHref = document.location.href;
                 var flexAppUrl = getHash();
-                if (flexAppUrl == '') {
-                    //flexAppUrl = defaultHash;
-                }
                 //ADR: to fix multiple
                 if (typeof BrowserHistory_multiple != "undefined" && BrowserHistory_multiple == true) {
                     var pl = getPlayers();
@@ -403,18 +427,12 @@ BrowserHistory = (function() {
                 }
             }
         }
-        //setTimeout(checkForUrlChange, 50);
-    }
-
-    /* Write an anchor into the page to legitimize it as a URL for Firefox et al. */
-    function addAnchor(flexAppUrl)
-    {
-       if (document.getElementsByName(flexAppUrl).length == 0) {
-           getAnchorElement().innerHTML += "<a name='" + flexAppUrl + "'>" + flexAppUrl + "</a>";
-       }
     }
 
     var _initialize = function () {
+        
+        browserHasHashChange = ("onhashchange" in document.body);
+        
         if (browser.ie)
         {
             var scripts = document.getElementsByTagName('script');
@@ -429,7 +447,8 @@ BrowserHistory = (function() {
             var iframe = document.createElement("iframe");
             iframe.id = 'ie_historyFrame';
             iframe.name = 'ie_historyFrame';
-            //iframe.src = historyFrameSourcePrefix;
+            iframe.src = 'javascript:false;'; 
+
             try {
                 document.body.appendChild(iframe);
             } catch(e) {
@@ -439,7 +458,7 @@ BrowserHistory = (function() {
             }
         }
 
-        if (browser.safari)
+        if (browser.safari && !browserHasHashChange)
         {
             var rememberDiv = document.createElement("div");
             rememberDiv.id = 'safari_rememberDiv';
@@ -467,17 +486,10 @@ BrowserHistory = (function() {
             if (document.getElementById("safari_remember_field").value != "" ) {
                 historyHash = document.getElementById("safari_remember_field").value.split(",");
             }
-
         }
 
-        if (browser.firefox)
-        {
-            var anchorDiv = document.createElement("div");
-            anchorDiv.id = 'firefox_anchorDiv';
-            document.body.appendChild(anchorDiv);
-        }
-        
-        //setTimeout(checkForUrlChange, 50);
+        if (browserHasHashChange)        
+            document.body.onhashchange = hashChangeHandler;
     }
 
     return {
@@ -547,7 +559,6 @@ BrowserHistory = (function() {
                 } else {
                     //alert(historyHash[historyHash.length-1]);
                 }
-                //setHash(def);
                 setInterval(checkForUrlChange, 50);
             }
             
@@ -561,7 +572,6 @@ BrowserHistory = (function() {
                     window.location.replace(newloc);
                 }
                 setInterval(checkForUrlChange, 50);
-                //setHash(def);
             }
 
         }, 
@@ -594,7 +604,6 @@ BrowserHistory = (function() {
             if (browser.ie && currentObjectId != null) {
                 objectId = currentObjectId;
             }
-            pendingURL = '';
             
             if (typeof BrowserHistory_multiple != "undefined" && BrowserHistory_multiple == true) {
                 var pl = getPlayers();

@@ -92,9 +92,8 @@
 				'ko_KR',
 				'lv_LV',
 				'lt_LT',
-				'mn_MN',
-				'ne_NE',
 				'nb_NO',
+				'nl_NL',
 				'fa_IR',
 				'pt_PT',
 				'pt_BR',
@@ -113,7 +112,7 @@
 			
 			private function changeLanguage():void{
 				var lang:String = this.langCodes[this.selectedIndex];
-				ResourceUtil.getInstance().changeLocale([lang]);
+				ResourceUtil.getInstance().changeLocale(lang);
 			}
 		]]>
 	</mx:Script>

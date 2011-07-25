@@ -1,5 +1,7 @@
 package org.bigbluebutton.core.model
 {
+	import org.bigbluebutton.common.LogUtil;
+
 	public class Config
 	{
 		private var config:XML = null;
@@ -63,16 +65,22 @@ package org.bigbluebutton.core.model
 		}
 			
 		public function isModulePresent(name:String):Boolean {
-			for each (var n:XML in config.modules..@name) {
-				if (n.toString().toUpperCase() == name.toUpperCase()) return true;
+			var mn:XMLList = config.modules..@name;
+			var found:Boolean = false;
+			
+			for each (var n:XML in mn) {
+				if (n.toString().toUpperCase() == name.toUpperCase()) {
+					found = true;
+					break;
+				}
 			}	
-			return false;
+			return found;
 		}
 			
-		public function getModuleConfig(name:String):XML {
-			if (isModulePresent(name))
-				return new XML(config.modules.module.(@name.toUpperCase() == name.toUpperCase()).toXMLString());
-				
+		public function getModuleConfig(moduleName:String):XML {
+			if (isModulePresent(moduleName)) {
+					return new XML(config.modules.module.(@name.toUpperCase() == moduleName.toUpperCase()).toXMLString());
+			}
 			return null;
 		}
 	}

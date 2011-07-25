@@ -29,6 +29,7 @@
 	showCloseButton="false">
 
 	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="conferenceStarted" />
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	
     <mx:Script>
         <![CDATA[
@@ -47,6 +48,7 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.common.UserManager;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
@@ -138,6 +140,10 @@
 					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', [":", participants.length]);
 				else 
 					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', ["", ""]);
+			}
+			
+			private function localeChanged(e:LocaleChangeEvent):void{
+				resourcesChanged();
 			}
 			
 			private function onItemRollOver(event:ListEvent):void{
