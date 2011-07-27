@@ -88,7 +88,7 @@ $Id: $
 			}
 			
 			private function openSettingsPanel(e:SettingsEvent = null):void{
-				var settingsPanel:SettingsPanel = SettingsPanel(PopUpManager.createPopUp(FlexGlobals.topLevelApplication.mx_internal.Application as DisplayObject, SettingsPanel, true));
+				var settingsPanel:SettingsPanel = SettingsPanel(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, SettingsPanel, true));
 				
 				var point1:Point = new Point();
 				// Calculate position of TitleWindow in Application's coordinates. 				
