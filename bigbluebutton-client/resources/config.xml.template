@@ -73,6 +73,8 @@
 			autoStart="false"
 			showButton="true"
 			publishWindowVisible="true"
+			viewerWindowMaxed="true"
+			viewerWindowLocation="middle"
 		/>
 		
 		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=VERSION" 

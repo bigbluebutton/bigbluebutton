@@ -59,6 +59,8 @@ package org.bigbluebutton.modules.videoconf.business
 				videoOptions.showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
 				videoOptions.autoStart = (vxml.@autoStart.toString().toUpperCase() == "TRUE") ? true : false;
 				videoOptions.publishWindowVisible = (vxml.@publishWindowVisible.toString().toUpperCase() == "TRUE") ? true : false;
+				videoOptions.viewerWindowMaxed = (vxml.@viewerWindowMaxed.toString().toUpperCase() == "TRUE") ? true : false;
+				videoOptions.viewerWindowLocation = vxml.@viewerWindowLocation.toString().toUpperCase();
 			}
 			
 			nc = new NetConnection();

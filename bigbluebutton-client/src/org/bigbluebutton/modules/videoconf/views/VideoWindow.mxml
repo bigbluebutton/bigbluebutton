@@ -34,11 +34,13 @@
 			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import mx.controls.Alert;
-			import mx.core.UIComponent;			
+			import mx.core.UIComponent;
+			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 		
 			public var resolutions:Array = new Array("320x240", "640x480");
 			
@@ -64,6 +66,9 @@
 			private var _yPosition:int;
 			
 			private var globalDispatcher:Dispatcher;
+
+			[Bindable]
+			public var videoOptions:VideoConfOptions;
 			
 			private function init():void{
 				videoHolder = new UIComponent();
@@ -82,6 +87,8 @@
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = true;
 				this.resizable = true;
+				if (videoOptions.viewerWindowMaxed)
+					this.maximize();
 			}
 			
 			private function onCloseEvent(event:MDIWindowEvent = null):void {
@@ -137,7 +144,10 @@
 				adjustWindowSize();
 			}
 			
-			public function getPrefferedPosition():String{
+			public function getPrefferedPosition():String {
+				if (videoOptions.viewerWindowLocation == "MIDDLE") {
+					return MainCanvas.MIDDLE;
+				}
 				return MainCanvas.POPUP;
 			}
 			

@@ -56,6 +56,8 @@
 				if (userid == module.userid) return;
 				
 				var window:VideoWindow = new VideoWindow();
+				window.videoOptions = proxy.videoOptions;
+				
 				window.resolutions = module.resolutions.split(",");
 				
 				if (mock) {
