@@ -58,6 +58,9 @@ package org.bigbluebutton.modules.videoconf.model
 				if (vxml.@viewerWindowLocation != undefined) {
 					viewerWindowLocation = vxml.@viewerWindowLocation.toString().toUpperCase();
 				}	
+				if (vxml.@camKeyFrameInterval != undefined) {
+					camKeyFrameInterval = Number(vxml.@camKeyFrameInterval.toString());
+				}	
 				if (vxml.@camModeFps != undefined) {
 					camModeFps = Number(vxml.@camModeFps.toString());
 				}				
