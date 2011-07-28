@@ -132,9 +132,9 @@
 				
 				setResolution();
 				
-				camera.setKeyFrameInterval(5);
-				camera.setMode(camWidth,camHeight,15);
-				camera.setQuality(0,quality);
+				camera.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
+				camera.setMode(camWidth, camHeight, videoOptions.camModeFps);
+				camera.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
 				
 				video = new Video(camWidth, camHeight);
 				//Next two lines may seem redundant but they're not. Do not delete.

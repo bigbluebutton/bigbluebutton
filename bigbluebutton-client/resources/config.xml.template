@@ -75,6 +75,12 @@
 			publishWindowVisible="true"
 			viewerWindowMaxed="true"
 			viewerWindowLocation="middle"
+			camKeyFrameInterval="5"
+			camModeFps="15"
+			camQualityBandwidth="0"
+			camQualityPicture="50"
+			h264Level="4.1"
+			h264Profile="main"			
 		/>
 		
 		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=VERSION" 
