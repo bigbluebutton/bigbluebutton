@@ -213,18 +213,24 @@ module BigBlueButton
   # Determine the width and height of the video that fits
   # within 640x480 while maintaining aspect ratio.
   def self.fit_to_640_by_480(width, height)
+    BigBlueButton.logger.info("Fitting the video to 640 x 480?")
     anamorphic_factor = calc_anamorphic_factor(width, height)
-    if (width < MAX_VID_WIDTH) and (height > MAX_VID_HEIGHT)  
+    if (width <= MAX_VID_WIDTH) and (height > MAX_VID_HEIGHT)  
       # Fit the video vertically and adjust the width then pad it to fit into 640x480 video.
       width = calc_width(anamorphic_factor)
       height = MAX_VID_HEIGHT
-    elsif (height < MAX_VID_HEIGHT) and (width > MAX_VID_WIDTH) 
+    elsif (height <= MAX_VID_HEIGHT) and (width > MAX_VID_WIDTH) 
       # Fit the video horizontally and adjust the height then pad the top and bottom to fit the 640x480 video.
       height = calc_height(anamorphic_factor)
       width = MAX_VID_WIDTH
     else
-      height = calc_height(anamorphic_factor)
-      width = calc_width(anamorphic_factor)    
+      if (height > width)
+        width = calc_width(anamorphic_factor)
+        height = MAX_VID_HEIGHT
+      elsif (width >= height)
+        height = calc_height(anamorphic_factor)
+        width = MAX_VID_WIDTH
+      end
     end   
     {:width => width.to_i, :height => height.to_i}    
   end

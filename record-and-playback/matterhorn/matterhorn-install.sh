@@ -196,6 +196,17 @@ sudo mvn install -DskipTests=true -DdeployTo=/opt/matterhorn/felix/matterhorn
 #THIRD PARTY TOOLS
 #
 
+
+echo "Fixing bug about libpng12 broken url. Replacing config data"
+echo "New URL is : http://downloads.sourceforge.net/project/libpng/libpng12/1.2.46/libpng-1.2.46.tar.gz"
+
+echo "URL: http://downloads.sourceforge.net/project/libpng/libpng12/1.2.46/libpng-1.2.46.tar.gz
+PKG: libpng-1.2.46.tar.gz
+SHA: d5f3a2439b0b6d85a26499b2be09918eb54ea13a
+DIR: libpng-1.2.46
+PCP: pc-png.zip" > /opt/matterhorn/1.1.0/docs/scripts/3rd_party/base_libs/png/config.txt
+
+
 echo "Go to third party directory and run the script to install them"
 echo "------------------------------------------------------"
 echo "cd /opt/matterhorn/1.1.0/docs/scripts/3rd_party"
