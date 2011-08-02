@@ -30,7 +30,7 @@ package org.bigbluebutton.conference.service.recorder;
 public interface Recorder {
 	/** 
      * Receive the messages from the bigbluebutton modules and send 
-     * them to a JMS queue. These messages are the events generated in a conference.
+     * them to a queue. These messages are the events generated in a conference.
      * @param message a JSON String message with the attributes of an event 
      */
 	public void record(String session, RecordEvent event);

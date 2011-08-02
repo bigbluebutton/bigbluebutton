@@ -27,9 +27,12 @@ package org.bigbluebutton.modules.phone.managers
 	import flash.events.NetStatusEvent;
 	import flash.events.StatusEvent;
 	import flash.media.Microphone;
+	import flash.media.MicrophoneEnhancedMode;
+	import flash.media.MicrophoneEnhancedOptions;
 	import flash.media.SoundCodec;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
+	import flash.system.Capabilities;
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.phone.events.MicMutedEvent;
@@ -70,6 +73,17 @@ package org.bigbluebutton.modules.phone.managers
 		}	
 		
 		private function setupMicrophone():void {
+			if (Capabilities.version.search("10,3") != -1){
+				LogUtil.debug("Enhanced mic available");
+				mic = Microphone(Microphone["getEnhancedMicrophone"]());
+				var options:MicrophoneEnhancedOptions = new MicrophoneEnhancedOptions();
+				options.mode = MicrophoneEnhancedMode.FULL_DUPLEX;
+				options.autoGain = false;
+				options.echoPath = 128;
+				options.nonLinearProcessing = true;
+				mic['enhancedOptions'] = options;
+			}
+			
 			mic.setUseEchoSuppression(true);
 			mic.setLoopBack(false);
 			mic.setSilenceLevel(0,20000);

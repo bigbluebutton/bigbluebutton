@@ -51,18 +51,12 @@ module BigBlueButton
       end      
       matched_events.sort { |a, b| a[:start_timestamp] <=> b[:start_timestamp] }
     end
-            
+      
     def self.get_start_video_events(events_xml)
       start_events = []
       doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@eventname='ParticipantStatusChangeEvent']").each do |start_event|
-        if (start_event.xpath('status').text == "hasStream") 
-          match = /(.+),stream=(.+)/.match start_event.xpath('value').text
-          shared = match[1].match(/true$/i) != nil
-          if (shared)
-            start_events << {:start_timestamp => start_event['timestamp'].to_i, :stream => match[2], :shared => shared, :userid => start_event.xpath('userId').text}
-          end
-        end
+      doc.xpath("//event[@eventname='StartWebcamShareEvent']").each do |start_event|
+        start_events << {:start_timestamp => start_event['timestamp'].to_i, :stream => start_event.xpath('stream').text}
       end
       start_events
     end
@@ -70,14 +64,8 @@ module BigBlueButton
     def self.get_stop_video_events(events_xml)
       stop_events = []
       doc = Nokogiri::XML(File.open(events_xml))
-      doc.xpath("//event[@eventname='ParticipantStatusChangeEvent']").each do |stop_event|
-        if (stop_event.xpath('status').text == "hasStream")
-          match = /(.+),stream=(.+)/.match stop_event.xpath('value').text
-          not_shared = match[1].match(/false$/i) != nil
-          if (not_shared)
-            stop_events << {:stop_timestamp => stop_event['timestamp'].to_i, :userid => stop_event.xpath('userId').text, :stream => match[2], :shared => not_shared}
-          end
-        end
+      doc.xpath("//event[@eventname='StopWebcamShareEvent']").each do |stop_event|
+        stop_events << {:stop_timestamp => stop_event['timestamp'].to_i, :stream => stop_event.xpath('stream').text}
       end
       stop_events
     end

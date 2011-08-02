@@ -5,4 +5,5 @@ public interface MessageListener {
 	void meetingEnded(String meetingId);
 	void userJoined(String meetingId, String userId, String name, String role);
 	void userLeft(String meetingId, String userId);
+	void updatedStatus(String meetingId, String userId, String status, String value);
 }

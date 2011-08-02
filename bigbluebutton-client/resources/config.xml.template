@@ -7,7 +7,7 @@
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
     <skinning enabled="false" url="branding/css/theme.css.swf" />
-    <debug showDebugWindow="false" />
+    <layout showDebugWindow="true" showVideoLayout="true" showResetLayout="true" showToolbar="true" showLogoutWindow="true"/>
     
 	<modules>
 		
@@ -24,18 +24,21 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="ViewersModule"	
 			translationOn="true"
-			translationEnabled="true"	 
+			translationEnabled="true"	
+			privateEnabled="true"  
 		/>
 		
 		<module name="ViewersModule" url="ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
 			allowKickUser="false"
+			windowVisible="true"
 		/>
 			
 		<module name="ListenersModule" url="ListenersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
+			windowVisible="true"
 		/>
 		
 		<module name="DeskShareModule" 
@@ -46,6 +49,7 @@
 		<module name="PhoneModule" url="PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
 			autoJoin="false"
+			showButton="true"
 			dependsOn="ViewersModule"
 		/>
 
@@ -66,6 +70,17 @@
 			videoQuality="70"
 			presenterShareOnly="false"
 			resolutions="160x120,320x240,640x480,1280x720"
+			autoStart="false"
+			showButton="true"
+			publishWindowVisible="true"
+			viewerWindowMaxed="true"
+			viewerWindowLocation="middle"
+			camKeyFrameInterval="5"
+			camModeFps="15"
+			camQualityBandwidth="0"
+			camQualityPicture="50"
+			h264Level="4.1"
+			h264Profile="main"			
 		/>
 		
 		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=VERSION" 

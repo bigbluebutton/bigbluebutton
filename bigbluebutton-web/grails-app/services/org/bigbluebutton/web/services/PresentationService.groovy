@@ -22,17 +22,15 @@
  */
 package org.bigbluebutton.web.services
 
-import java.util.*;
 import java.util.concurrent.*;
 import java.lang.InterruptedException
-import org.springframework.util.FileCopyUtils
 import org.bigbluebutton.presentation.DocumentConversionService
 import org.bigbluebutton.presentation.UploadedPresentation
 
 class PresentationService {
 
     static transactional = false
-	def documentConversionService
+	DocumentConversionService documentConversionService
 	def presentationDir
 	def testConferenceMock
 	def testRoomMock

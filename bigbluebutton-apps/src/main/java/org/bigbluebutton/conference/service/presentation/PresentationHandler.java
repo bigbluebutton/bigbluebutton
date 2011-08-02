@@ -95,7 +95,7 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 		ISharedObject so = getSharedObject(connection.getScope(), PRESENTATION_SO);
 		
 		log.debug("Setting up recorder");
-		PresentationEventSender sender = new PresentationEventSender(so, getBbbSession().getRecord());
+		PresentationEventSender sender = new PresentationEventSender(so);
 		PresentationEventRecorder recorder = new PresentationEventRecorder(connection.getScope().getName(), recorderApplication);
 						
 		log.debug("Adding room listener");
@@ -180,7 +180,4 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 		conversionUpdatesMessageListener = service;
 	}
 	
-	private BigBlueButtonSession getBbbSession() {
-		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-	}
 }

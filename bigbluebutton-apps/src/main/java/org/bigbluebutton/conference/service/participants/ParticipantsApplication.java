@@ -29,9 +29,12 @@ public class ParticipantsApplication {
 	private RoomsManager roomsManager;
 	
 	public boolean createRoom(String name) {
-		log.info("Creating room {}", name);
-		roomsManager.addRoom(new Room(name));
-		return true;
+		if(!roomsManager.hasRoom(name)){
+			log.info("Creating room {}", name);
+			roomsManager.addRoom(new Room(name));
+			return true;
+		}
+		return false;
 	}
 	
 	public boolean destroyRoom(String name) {
@@ -68,7 +71,7 @@ public class ParticipantsApplication {
 	public Map getParticipants(String roomName) {
 		log.debug("getParticipants - " + roomName);
 		if (! roomsManager.hasRoom(roomName)) {
-			log.warn("Could not find room "+roomName);
+			log.warn("Could not find room "+roomName+" Total rooms "+roomsManager.numberOfRooms());
 			return null;
 		}
 

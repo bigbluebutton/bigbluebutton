@@ -1,1 +1,1 @@
-ant resolve deploy
+gradle resolveDeps deploy

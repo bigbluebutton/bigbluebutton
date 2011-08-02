@@ -1,20 +1,25 @@
 package org.bigbluebutton.api.messaging;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
 
 public class RedisMessagingService implements MessagingService {
-	private Jedis jedis;
-	private final String host;
-	private final int port;
+	private static Logger log = LoggerFactory.getLogger(RedisMessagingService.class);
+	
+	private JedisPool redisPool;
+	private String host;
+	private int port;
 	private final Set<MessageListener> listeners = new HashSet<MessageListener>();
 
 	private final Executor exec = Executors.newSingleThreadExecutor();
@@ -30,154 +35,169 @@ public class RedisMessagingService implements MessagingService {
  		listeners.add(listener);
 	}
  	
- 	@Override
 	public void removeListener(MessageListener listener) {
  		listeners.remove(listener);
  	}
 
-	@Override
 	public void recordMeetingInfo(String meetingId, Map<String, String> info) {
-		// TODO Auto-generated method stub
-		
+		Jedis jedis = redisPool.getResource();
+		try {
+		    for (String key: info.keySet()) {
+				    	log.debug("Storing metadata {} = {}", key, info.get(key));
+				}   
+
+		    log.debug("Saving metadata in {}", meetingId);
+			jedis.hmset("meeting:info:" + meetingId, info);
+		} catch (Exception e){
+			log.warn("Cannot record the info meeting:"+meetingId,e);
+		} finally {
+			redisPool.returnResource(jedis);
+		}		
 	}
 
-	@Override
-	public void recordMeetingMetadata(String meetingId,
-			Map<String, String> metadata) {
-		// TODO Auto-generated method stub
-		
+	public void recordMeetingMetadata(String meetingId,	Map<String, String> metadata) {
+		Jedis jedis = redisPool.getResource();
+		try { 
+			jedis.hmset("meeting:metadata:" + meetingId, metadata);
+		} catch (Exception e) {
+			log.warn("Cannot record the metadata meeting:"+meetingId,e);
+		} finally {
+			redisPool.returnResource(jedis);
+		}				
 	}
 
-	@Override
+	public void endMeeting(String meetingId) {
+		HashMap<String,String> map = new HashMap<String, String>();
+		map.put("messageId", MessagingConstants.END_MEETING_REQUEST_EVENT);
+		map.put("meetingId", meetingId);
+		Gson gson = new Gson();
+		send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
+	}
+
 	public void send(String channel, String message) {
-		// TODO Auto-generated method stub
-		
+		Jedis jedis = redisPool.getResource();
+		try {
+			System.out.println("Sending " + message + " to " + channel);
+			jedis.publish(channel, message);
+		} catch(Exception e){
+			log.warn("Cannot publish the message to redis",e);
+		}finally{
+			redisPool.returnResource(jedis);
+		}
 	}
 
-	@Override
 	public void start() {
-		jedis = new Jedis(host, port, 0);
+		log.debug("Starting redis pubsub...");		
+		//Currently, the pool gets blocked for publish if a resource subscribe to a channel
+		final Jedis jedis = new Jedis(this.host,this.port);
 		try {
 			jedis.connect();
-			 pubsubListener = new Runnable() {
-		    	public void run() {
-		    		jedis.psubscribe(new PubSubListener(), "bigbluebutton:conference:*");       			
-		    	}
-			 };
-		    exec.execute(pubsubListener);
-
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			pubsubListener = new Runnable() {
+			    public void run() {
+			    	jedis.psubscribe(new PubSubListener(), MessagingConstants.BIGBLUEBUTTON_PATTERN);       			
+			    }
+			};
+			exec.execute(pubsubListener);
+		} catch (Exception e) {
+			log.error("Cannot connect to [" + host + ":" + port + "]");
 		}
 	}
 
-	@Override
 	public void stop() {
 		try {
-			jedis.disconnect();
-		} catch (IOException e) {
+			redisPool.destroy();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
 	
-	/*
-	 * Pubsub channels:
-	 * 		- bigbluebutton:conference:status --> value: "<confid>:started" or "<confid>:ended"
-	 * 		- bigbluebutton:conference:join   --> value: "<confid>:<userid>:<fullname>:<role>"
-	 * 		- bigbluebutton:conference:remove --> value: "<confid>:<userid>"
-	 * 
-	 * 
-	 **/
+	public void setRedisPool(JedisPool redisPool){
+		this.redisPool=redisPool;
+	}
 	
 	private class PubSubListener extends JedisPubSub {
-		private final String PATTERN_CONFERENCE="bigbluebutton:conference:*";
 		
-		private final String CHANNEL_STATUS="bigbluebutton:conference:status";
-		private final String CHANNEL_JOIN="bigbluebutton:conference:join";
-		private final String CHANNEL_LEAVE="bigbluebutton:conference:remove";
-		
-		private final String COLON=":";
-
 		public PubSubListener() {
 			super();			
 		}
 
 		@Override
 		public void onMessage(String channel, String message) {
-			
+			// Not used.
 		}
 
 		@Override
-		public void onPMessage(String pattern, String channel,
-	            String message) {
+		public void onPMessage(String pattern, String channel, String message) {
+			log.debug("Message Received in channel: " + channel);
 			
-			System.out.println("redis message received. pattern:"+pattern+" channel:"+channel+" message:"+message);
+			Gson gson = new Gson();
+			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 			
-			if(pattern.equalsIgnoreCase(PATTERN_CONFERENCE)){
-				String[] args = message.split(COLON);
+			for (String key: map.keySet()) {
+				log.debug("rx: {} = {}", key, map.get(key));
+			}
+			
+			if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
+				String meetingId = map.get("meetingId");
+				String messageId = map.get("messageId");
+				log.debug("*** Meeting {} Message {}", meetingId, messageId);
 				
-				if(channel.equalsIgnoreCase(CHANNEL_STATUS)){
-					//params extract
-					String meetingId = args[0];
-					String status = args[1];
-					
-					for (MessageListener listener : listeners) {
-						if(status.equalsIgnoreCase("started")) {
-							listener.meetingStarted(meetingId);
-						} else if(status.equalsIgnoreCase("ended")) {
-							listener.meetingStarted(meetingId);
-						}
-					}
-				} else if(channel.equalsIgnoreCase(CHANNEL_JOIN)){
-					//params extract
-					String meetingId = args[0];
-					String userId = args[1];
-					String name = args[2];
-					String role = args[3];
-				
-					for (MessageListener listener : listeners) {
-						listener.userJoined(meetingId, userId, name, role);
-					}
-				} else if(channel.equalsIgnoreCase(CHANNEL_LEAVE)){
-					String meetingId = args[0];
-					String userId = args[1];
-					
-					for (MessageListener listener : listeners) {
-						listener.userLeft(meetingId, userId);
+				for (MessageListener listener : listeners) {
+					if(MessagingConstants.MEETING_STARTED_EVENT.equalsIgnoreCase(messageId)) {
+						listener.meetingStarted(meetingId);
+					} else if(MessagingConstants.MEETING_ENDED_EVENT.equalsIgnoreCase(messageId)) {
+						listener.meetingEnded(meetingId);
 					}
 				}
 			}
-			
+			else if(channel.equalsIgnoreCase(MessagingConstants.PARTICIPANTS_CHANNEL)){
+				String meetingId = map.get("meetingId");
+				String messageId = map.get("messageId");
+				if(MessagingConstants.USER_JOINED_EVENT.equalsIgnoreCase(messageId)){
+					String userid = map.get("userid");
+					String fullname = map.get("fullname");
+					String role = map.get("role");
+					
+					for (MessageListener listener : listeners) {
+						listener.userJoined(meetingId, userid, fullname, role);
+					}
+				} else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageId)){
+					String userid = map.get("userid");
+					String status = map.get("status");
+					String value = map.get("value");
+					
+					for (MessageListener listener : listeners) {
+						listener.updatedStatus(meetingId, userid, status, value);
+					}
+				} else if(MessagingConstants.USER_LEFT_EVENT.equalsIgnoreCase(messageId)){
+					String userid = map.get("userid");
+					
+					for (MessageListener listener : listeners) {
+						listener.userLeft(meetingId, userid);
+					}
+				}
+			}
 		}
 
 		@Override
 		public void onPSubscribe(String pattern, int subscribedChannels) {
-			// TODO Auto-generated method stub
-
+			log.debug("Subscribed to the pattern:"+pattern);
 		}
 
 		@Override
 		public void onPUnsubscribe(String pattern, int subscribedChannels) {
-			// TODO Auto-generated method stub
-
+			// Not used.
 		}
 
 		@Override
 		public void onSubscribe(String channel, int subscribedChannels) {
-			// TODO Auto-generated method stub
-
+			// Not used.
 		}
 
 		@Override
 		public void onUnsubscribe(String channel, int subscribedChannels) {
-			// TODO Auto-generated method stub
-
-		}
-		
+			// Not used.
+		}		
 	}
+
 }

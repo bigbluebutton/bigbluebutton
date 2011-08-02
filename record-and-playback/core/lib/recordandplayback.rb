@@ -1,5 +1,6 @@
 path = File.expand_path(File.join(File.dirname(__FILE__), '../lib'))
 $LOAD_PATH << path
+
 require 'recordandplayback/audio_archiver'
 require 'recordandplayback/events_archiver'
 require 'recordandplayback/video_archiver'
@@ -11,7 +12,7 @@ require 'recordandplayback/generators/video'
 require 'recordandplayback/generators/matterhorn_processor'
 require 'recordandplayback/generators/audio_processor'
 require 'recordandplayback/generators/presentation'
-
+require 'open4'
 
 module BigBlueButton
   class MissingDirectoryException < RuntimeError
@@ -44,11 +45,22 @@ module BigBlueButton
   end
     
   def self.execute(command)
-    Open3.popen3(command) do | stdin, stdout, stderr|
+    output=""
+    status = Open4::popen4(command) do | pid, stdin, stdout, stderr|
         BigBlueButton.logger.info("Executing: #{command}")
+
+	output = stdout.readlines
+        BigBlueButton.logger.info( "Output: #{output} ") unless output.empty?
+ 
         errors = stderr.readlines
-        BigBlueButton.logger.info( "Output: #{stdout.readlines} ")
-        BigBlueButton.logger.info( "Error: stderr: #{errors}"); raise errors.to_s unless errors.empty?
+        unless errors.empty?
+          BigBlueButton.logger.error( "Error: stderr: #{errors}")
+          raise errors.to_s 
+        end
     end
+    BigBlueButton.logger.info("Success ?:  #{status.success?}")
+    BigBlueButton.logger.info("Process exited? #{status.exited?}")
+    BigBlueButton.logger.info("Exit status: #{status.exitstatus}")
+    output
   end
 end

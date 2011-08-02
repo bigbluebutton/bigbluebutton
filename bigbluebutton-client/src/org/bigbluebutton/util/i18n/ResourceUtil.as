@@ -18,32 +18,41 @@
 */
 package org.bigbluebutton.util.i18n
 {
+	import com.adobe.utils.StringUtil;
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
+	import flash.events.IOErrorEvent;
 	import flash.external.ExternalInterface;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.utils.Dictionary;
 	
+	import mx.controls.Alert;
 	import mx.events.ResourceEvent;
 	import mx.resources.IResourceManager;
 	import mx.resources.ResourceManager;
+	import mx.utils.StringUtil;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.common.events.LocaleChangeEvent;
 
 	public class ResourceUtil extends EventDispatcher {
 		private static var instance:ResourceUtil = null;
 		public static const LOCALES_FILE:String = "conf/locales.xml";
+		public static const VERSION:String = "0.8-PRE";
 		private var inited:Boolean = false;
 		
 		private static var BBB_RESOURCE_BUNDLE:String = 'bbbResources';
 		public static var DEFAULT_LANGUAGE:String = "en_US";
 		private static var currentLanguage:String = DEFAULT_LANGUAGE;
-		private var eventDispatcher:IEventDispatcher;
+		private var eventDispatcher:Dispatcher = new Dispatcher();
 		
 		private var localeChain:Array = new Array();
-		
 		private var resourceManager:IResourceManager;
+		private var currentLocalization:Dictionary = new Dictionary();
 		
 		public function ResourceUtil(enforcer:SingletonEnforcer) {
 			if (enforcer == null) {
@@ -69,7 +78,7 @@ package org.bigbluebutton.util.i18n
 			parse(new XML(e.target.data));				
 		}
 		
-		public function parse(xml:XML):void{			
+		public function parse(xml:XML):void{		 	
 			var list:XMLList = xml.locale;
 			LogUtil.debug("--- Supported locales --- \n" + xml.toString() + "\n --- \n");
 			var locale:XML;
@@ -81,14 +90,12 @@ package org.bigbluebutton.util.i18n
 			resourceManager = ResourceManager.getInstance();
 			resourceManager.localeChain = [ExternalInterface.call("getLanguage")];
 			var localeAvailable:Boolean = false;
-			for (var i:Number = 0; i<localeChain.length; i++){
+			for (var i:Number = 0; i < localeChain.length; i++){
 				if (resourceManager.localeChain[0] == localeChain[i]) localeAvailable = true;
 			}
 			
-			if (!localeAvailable){
-				resourceManager.localeChain = [DEFAULT_LANGUAGE];
-				changeLocale([DEFAULT_LANGUAGE]);
-			} else changeLocale(resourceManager.localeChain[0]);			
+			//Locale not found, set default
+			changeLocale(DEFAULT_LANGUAGE);			
 			
 		}
 		
@@ -100,40 +107,62 @@ package org.bigbluebutton.util.i18n
 			return instance;
         }
         
-        public function changeLocale(... chain):void{        	
-        	if(chain != null && chain.length > 0)
-        	{
-        		var localeURI:String = 'locale/' + chain[0] + '_resources.swf';
-        		eventDispatcher = resourceManager.loadResourceModule(localeURI,true);
-				localeChain = [chain[0]];
-				eventDispatcher.addEventListener(ResourceEvent.COMPLETE, localeChangeComplete);
-				eventDispatcher.addEventListener(ResourceEvent.ERROR, handleResourceNotLoaded);
+        public function changeLocale(language:String):void{        	
+    		var localeURI:String = 'locale/' + language + '/bbbResources.properties';
+
+			var date:Date = new Date();
+			var _urlLoader:URLLoader = new URLLoader();
+			_urlLoader.addEventListener(Event.COMPLETE, handleLocaleLoaded);
+			_urlLoader.addEventListener(IOErrorEvent.IO_ERROR, handleResourceNotLoaded);
+			_urlLoader.load(new URLRequest(localeURI + "?a=" + date.time));
+			
+			currentLanguage = language;
+        }
+		
+		private function handleLocaleLoaded(e:Event):void{
+			var fulltext:String = (e.target.data as String);
+			fulltext = com.adobe.utils.StringUtil.remove(fulltext, "\r");
+			
+			var allStrings:Array = fulltext.split("\n");
+			for (var i:Number=0; i<allStrings.length; i++){
+				var str:String = allStrings[i] as String;
 				
-				currentLanguage = chain[0];
-        	}
-        }
-        
-        private function localeChangeComplete(event:ResourceEvent):void{
-        	resourceManager.localeChain = localeChain;
-        	update();
-        }
+				if (str.charAt(0) != '#'){
+					var keyValue:Array = str.split("=");
+					var key:String = mx.utils.StringUtil.trim(keyValue[0] as String);
+					var value:String = mx.utils.StringUtil.trim(keyValue[1] as String);
+					currentLocalization[key] = value;
+					trace(key + "=" + value);
+				}
+			}
+			
+			trace(currentLocalization['bbb.logout.usercommand']);
+			
+			update();
+		}
         
         /**
          * Defaults to DEFAULT_LANGUAGE when an error is thrown by the ResourceManager 
          * @param event
          */        
         private function handleResourceNotLoaded(event:ResourceEvent):void{
-        	resourceManager.localeChain = [DEFAULT_LANGUAGE];
+			currentLanguage = DEFAULT_LANGUAGE;
         	update();
         }
         
         public function update():void{
+			eventDispatcher.dispatchEvent(new LocaleChangeEvent(LocaleChangeEvent.LOCALE_CHANGED));
         	dispatchEvent(new Event(Event.CHANGE));
         }
         
         [Bindable("change")]
         public function getString(resourceName:String, parameters:Array = null, locale:String = null):String{
-			return resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, locale);
+			if (!parameters) return currentLocalization[resourceName]; //resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, locale);
+			else return insertParameters(currentLocalization[resourceName], parameters);
+		}
+		
+		private function insertParameters(text:String, parameters:Array):String{
+			return mx.utils.StringUtil.substitute(text, parameters);
 		}
 		
 		public function getCurrentLanguageCode():String{

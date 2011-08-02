@@ -69,6 +69,7 @@ public class RecorderApplication {
 	
 	public void setRecorder(Recorder recorder) {
 		this.recorder = recorder;
+		log.debug("setting recorder");
 	}
 }
 

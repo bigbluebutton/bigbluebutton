@@ -19,48 +19,72 @@
 
 package org.bigbluebutton.conference;
 
-import org.bigbluebutton.conference.service.recorder.pubsub.RedisPublisher;
+import java.util.HashMap;
+
+import org.bigbluebutton.conference.service.messaging.MessagingConstants;
+import org.bigbluebutton.conference.service.messaging.RedisPublisher;
+import org.red5.logging.Red5LoggerFactory;
+import org.slf4j.Logger;
+
+import com.google.gson.Gson;
 
 
 public class ParticipantUpdatingRoomListener implements IRoomListener{
 
+	private static Logger log = Red5LoggerFactory.getLogger(ParticipantUpdatingRoomListener.class, "bigbluebutton");
+	
 	RedisPublisher publisher;
-	private IConferenceEventListener conferenceEventListener;
 	private Room room;
 	
-	public ParticipantUpdatingRoomListener(IConferenceEventListener lstnr, Room room, RedisPublisher publisher) {
-		this.conferenceEventListener = lstnr;
+	public ParticipantUpdatingRoomListener(Room room, RedisPublisher publisher) {
 		this.room = room;
 		this.publisher=publisher;
 	}
 	
 	public String getName() {
-		return "TEMPNAME";
+		return "PARTICIPANT:UPDATE:ROOM";
 	}
 	
 	public void participantStatusChange(Long userid, String status, Object value){
-		if (conferenceEventListener != null) {
-			conferenceEventListener.participantsUpdated(room);
-			//redis pubsub
+		if (publisher != null) {
+			HashMap<String,String> map= new HashMap<String, String>();
+			map.put("meetingId", this.room.getName());
+			map.put("messageId", MessagingConstants.USER_STATUS_CHANGE_EVENT);
+			map.put("userid", userid.toString());
+			map.put("status", status);
+			map.put("value", value.toString());
+			
+			Gson gson= new Gson();
+			publisher.publish(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
+			log.debug("Publishing a status change in:{}",this.room.getName());
 		}
 	}
 	
 	public void participantJoined(Participant p) {
-		if (conferenceEventListener != null) {
-			conferenceEventListener.participantsUpdated(room);
-			//redis pubsub
-			//redis pubsub test
-			publisher.publish("bigbluebutton:conference:join", room.getName()+":"+p.getUserid()+":"+p.getName()+":"+p.getRole());
+		if (publisher != null) {
+			HashMap<String,String> map= new HashMap<String, String>();
+			map.put("meetingId", this.room.getName());
+			map.put("messageId", MessagingConstants.USER_JOINED_EVENT);
+			map.put("userid", p.getUserid().toString());
+			map.put("fullname", p.getName());
+			map.put("role", p.getRole());
 			
+			Gson gson= new Gson();
+			publisher.publish(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
+			log.debug("Publishing message participant joined in {}",this.room.getName());
 		}
 	}
 	
 	public void participantLeft(Long userid) {		
-		if (conferenceEventListener != null) {
-			conferenceEventListener.participantsUpdated(room);
-			//redis pubsub
-			//redis pubsub test
-			publisher.publish("bigbluebutton:conference:remove", room.getName()+":"+userid);
+		if (publisher != null) {
+			HashMap<String,String> map= new HashMap<String, String>();
+			map.put("meetingId", this.room.getName());
+			map.put("messageId", MessagingConstants.USER_LEFT_EVENT);
+			map.put("userid", userid.toString());
+			
+			Gson gson= new Gson();
+			publisher.publish(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
+			log.debug("Publishing message participant left in {}",this.room.getName());
 		}
 	}
 

@@ -29,9 +29,11 @@
 	<mate:Listener type="{ListenersEvent.ROOM_MUTE_STATE}" method="roomMuteStateChange" />
 	<mate:Listener type="{ListenersEvent.REGISTER_LISTENERS}" method="registerListeners" />
 	<mate:Listener type="{ListenersEvent.SET_LOCAL_MODERATOR_STATUS}" method="{setModerator}" />
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.listeners.model.ListenerOptions;
 			import flash.events.MouseEvent;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -44,6 +46,7 @@
 			import mx.events.ListEvent;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.listeners.events.ListenersCommand;
 			import org.bigbluebutton.modules.listeners.events.ListenersEvent;
@@ -61,9 +64,12 @@
 			[Bindable] public var moderator:Boolean;
 			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.listeners.title', ["",""]);
 			
+			[Bindable] public var listenerOptions:ListenerOptions;
 			
 			private function onCreationComplete():void {
-				BindingUtils.bindSetter(updateNumberOfListeners, listeners, "length");				
+				BindingUtils.bindSetter(updateNumberOfListeners, listeners, "length");		
+				
+				this.visible = listenerOptions.windowVisible;		
 			}
 			
 			private function updateNumberOfListeners(numListeners:int):void {
@@ -161,6 +167,11 @@
 				else 
 					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', ["",""]);
 			}
+			
+			private function localeChanged(e:LocaleChangeEvent):void{
+				resourcesChanged();
+			}
+			
 		]]>
 	</mx:Script>
     	<mx:List id="listenersList" height="100%" width="100%"
