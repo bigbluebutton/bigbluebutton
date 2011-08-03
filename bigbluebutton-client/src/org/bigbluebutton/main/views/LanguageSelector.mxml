@@ -21,7 +21,7 @@
 -->
 
 <mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{this.langNames}" 
-			 selectedIndex="7" change="changeLanguage()" rowCount="15" width="120">
+			 selectedIndex="10" change="changeLanguage()" rowCount="15" width="120">
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
@@ -92,8 +92,9 @@
 				'ko_KR',
 				'lv_LV',
 				'lt_LT',
-				'nb_NO',
+				'mn_MN',
 				'nl_NL',
+				'nb_NO',
 				'fa_IR',
 				'pt_PT',
 				'pt_BR',
