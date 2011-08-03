@@ -61,8 +61,11 @@
 			public var layoutOptions:LayoutOptions = new LayoutOptions();
 						
 			public function loggedIn(name:String, room:String, role:String):void{
-				if (layoutOptions.showToolbar)
+				if (layoutOptions.showToolbar) {
 					this.visible = false;
+				} else {
+					this.visible = true;
+				}
 			}
 			
 			public function addButton(name:String):Button{
@@ -90,8 +93,11 @@
 			}
 			
 			private function hideToolbar(e:ConnectionFailedEvent):void{
-				if (layoutOptions.showToolbar)
+				if (layoutOptions.showToolbar) {
 					this.visible = false;
+				} else {
+					this.visible = true;
+				}
 			}
 			
 			private function handleAddToolbarButtonEvent(event:ToolbarButtonEvent):void {
