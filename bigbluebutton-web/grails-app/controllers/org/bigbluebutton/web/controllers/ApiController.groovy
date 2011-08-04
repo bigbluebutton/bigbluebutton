@@ -904,6 +904,11 @@ class ApiController {
                 }
               }
             }
+			metadata(){
+				meeting.getMetadata().each{ k,v ->
+					"$k"("$v")
+				}
+			}
             messageKey(msgKey == null ? "" : msgKey)
             message(msg == null ? "" : msg)
           }
