@@ -55,7 +55,7 @@ module BigBlueButton
         errors = stderr.readlines
         unless errors.empty?
           BigBlueButton.logger.error( "Error: stderr: #{errors}")
-          raise errors.to_s 
+ #         raise errors.to_s 
         end
     end
     BigBlueButton.logger.info("Success ?:  #{status.success?}")
