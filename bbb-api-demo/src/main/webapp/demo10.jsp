@@ -31,6 +31,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 	<link rel="stylesheet" type="text/css" href="css/ui.jqgrid.css" />
 	<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/redmond/jquery-ui.css" />
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+	<script type="text/javascript" src="http://view.jquery.com/trunk/plugins/validate/jquery.validate.min.js"></script>
 	<script src="js/jquery.jqGrid.min.js" type="text/javascript"></script>
 	<script src="js/jquery.xml2json.js" type="text/javascript"></script>
 	<title>Recording Meeting Demo</title>
@@ -38,7 +39,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 	 #formcreate{
 		margin-bottom:30px;
 	 }
-	 #formcreate label{
+	 #formcreate label.labform{
 	 	display:block;
 	 	float:left;
 	 	width:100px;
@@ -47,16 +48,28 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 	 }
 	 #formcreate div{
 		margin-bottom:5px;
+		clear:both;
 	 }
 	 #formcreate .submit{
 		margin-left:100px;
 		margin-top:15px;
 	 }
-	 .descript{
+	 #descript{
 	 	vertical-align:top;
+	 }
+	 #meta_description , #username1{
+		float:left;
 	 }
 	 .ui-jqgrid{
 		font-size:0.7em
+	}
+	label.error{
+		float: none; 
+		color: red; 
+		padding-left: .5em; 
+		vertical-align: top;
+		width:200px;
+		text-align:left;
 	}
 	</style>
 </head>
@@ -77,7 +90,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 
 	<form id="formcreate" name="formcreate" method="get" action=""> 		
 		<div>
-			<label for="meetingID">Meeting:</label>
+			<label class="labform" for="meetingID">Meeting:</label>
 			<select name="meetingID" onchange="onChangeMeeting(this.value);">
 				<option value="English 232">English 232</option>
 				<option value="English 300">English 300</option>
@@ -86,13 +99,14 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 			</select>
 		</div>
 		<div>
-			<label class="descript" for="meta_description">Description:</label>
-			<textarea id="meta_description" name="meta_description" cols="17" rows="4"></textarea>
+			<label class="labform" id="descript" for="meta_description">Description:</label>
+			<textarea id="meta_description" name="meta_description" cols="50" rows="6" class="required"></textarea>
 		</div>
 		<div>
-			<label for="username1">Your Name:</label>
-			<input id="username1" name="username1" type="text" />	
+			<label class="labform" for="username1">Your Name:</label>
+			<input id="username1" name="username1" type="text" class="required" size="30" />	
 		</div>	
+		<div style="clear:both"></div>
 		<input class="submit" type="submit" value="Join" >
 		<input type="hidden" name="action" value="create" />
 	</form>
@@ -185,6 +199,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 	}
 	var meetingID="English 232,English 300,English 402,Demo Meeting";
 	$(document).ready(function(){
+		$("#formcreate").validate();
 		$("#meetingID option[value='English 232']").attr("selected","selected");
 		jQuery("#recordgrid").jqGrid({
 			url: "demo10_helper.jsp?command=getRecords&meetingID="+meetingID,
