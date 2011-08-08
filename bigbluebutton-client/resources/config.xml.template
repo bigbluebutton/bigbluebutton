@@ -48,7 +48,7 @@
 		
 		<module name="PhoneModule" url="PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
-			autoJoin="false"
+			autoJoin="true"
 			showButton="true"
 			dependsOn="ViewersModule"
 		/>
