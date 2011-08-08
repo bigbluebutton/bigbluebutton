@@ -669,7 +669,7 @@ if [ $SETUPDEV ]; then
                 cp ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ~/.grails/bigbluebutton-config.properties
 
                 echo "# Copying the bbb_api_conf.jsp into ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ${BBBWEBHOME}/web-app/demo"
-                cp ${SERVLET_DIR}/bigbluebutton/demo/bbb_api_conf.jsp ${BBBWEBHOME}/web-app/demo
+                cp ${SERVLET_DIR}/demo/bbb_api_conf.jsp ${BBBWEBHOME}/web-app/demo
 
                 echo "# Enabling $USER to write to /var/bigbluebutton to upload slides"
                 sudo chmod -R ugo+rwx /var/bigbluebutton
@@ -895,20 +895,6 @@ check_configuration() {
 		fi
 	fi	
 	
-	
-	#
-	# Make sure the salt for the API matches the server
-	#
-	SALT_PROPERTIES=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
-	SALT_DEMO=$(cat ${SERVLET_DIR}/bigbluebutton/demo/bbb_api_conf.jsp | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
-
-	if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
-		echo "# Salt mismatch: "
-		echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties=$SALT_PROPERTIES"
-		echo "#  ${SERVLET_DIR}/bigbluebutton/demo/bbb_api_conf.jsp=$SALT_DEMO"
-	fi
-
-
 	#
 	# Look for properties with no values set
 	#
@@ -961,6 +947,28 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 			echo "# IP does not match:"
 			echo "#                           IP from ifconfig: $IP"
 			echo "#   /etc/nginx/sites-available/bigbluebutton: $NGINX_IP"
+		fi
+	fi
+
+
+	if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then	
+		#
+		# Make sure the salt for the API matches the server
+		#
+		SALT_PROPERTIES=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+		SALT_DEMO=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
+
+		if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
+			echo "# API Salt mismatch: "
+			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties=$SALT_PROPERTIES"
+			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp=$SALT_DEMO"
+		fi
+
+		API_IP=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
+		if [ "$IP" != "$API_IP" ]; then
+			echo "# API URL IPs do not match host:"
+			echo "#                                IP from ifconfig: $IP"
+			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp: $API_IP"
 		fi
 	fi
 
@@ -1308,10 +1316,10 @@ if [ $CHECK ]; then
 	echo "${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties (bbb-web)"
 	echo "                      bbb-web host: $BBB_WEB_IP"
 
-	if [ -f ${SERVLET_DIR}/bigbluebutton/demo/bbb_api_conf.jsp ]; then
-		API_IP=$(cat ${SERVLET_DIR}/bigbluebutton/demo/bbb_api_conf.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
+	if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then
+		API_IP=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
 		echo
-		echo "${SERVLET_DIR}/bigbluebutton/demo/bbb_api_conf.jsp (API demos)"
+		echo "${SERVLET_DIR}/demo/bbb_api_conf.jsp (API demos)"
 		echo "                  bbb-web-api host: $API_IP"
 	fi
 
@@ -1605,10 +1613,10 @@ if [ -n "$HOST" ]; then
 	# Update api demos
 	#
 
-	if [ -f ${SERVLET_DIR}/bigbluebutton/demo/bbb_api_conf.jsp ]; then
+	if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then
 		echo "Assigning $HOST for api demos in ${SERVLET_DIR}/bigbluebutton/demo/bbb_api_conf.jsp"
 		sudo sed -i "s/BigBlueButtonURL = \"http:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"http:\/\/$HOST\2/g" \
-			${SERVLET_DIR}/bigbluebutton/demo/bbb_api_conf.jsp
+			${SERVLET_DIR}/demo/bbb_api_conf.jsp
 	fi
 	
 	if [ -f /usr/local/bigbluebutton/core/scripts/slides.yml ]; then
