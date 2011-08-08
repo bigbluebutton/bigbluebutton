@@ -136,6 +136,7 @@ module BigBlueButton
         ae.start_record_timestamp = start_event.xpath(RECORD_TIMESTAMP).text
         start_events << ae
       end
+      start_events.uniq!
       return start_events.sort {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
     end
     
@@ -260,6 +261,11 @@ module BigBlueButton
       "[startEvent=#{start_event_timestamp}, startRecord=#{start_record_timestamp}, stopRecord=#{stop_record_timestamp}, stopEvent=#{stop_event_timestamp}, " +
       "brige=#{bridge}, file=#{file}, exist=#{file_exist}, padding=#{padding}]\n"
     end
+
+    def eql?(other)
+      start_record_timestamp == other.start_record_timestamp
+    end
+
     
   end
 end
