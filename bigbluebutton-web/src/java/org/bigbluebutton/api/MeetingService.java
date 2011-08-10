@@ -42,7 +42,12 @@ public class MeetingService {
 			if (m.hasExpired(defaultMeetingExpireDuration) || m.wasNeverStarted(defaultMeetingCreateJoinDuration)) {
 				log.info("Removing expired meeting [{} - {}]", m.getInternalId(), m.getName());
 		  		if (m.isRecord()) {
-		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		
+		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");
+		  			
+		  			//TODO: This is temp solution, after a refactor in the structure of recording this won't be necessary
+		  			m.getMetadata().put("meetingId", m.getExternalId());
+		  			m.getMetadata().put("meetingName", m.getName());
+		  			
 		  			processRecording(m.getInternalId());
 		  		}
 				meetings.remove(m.getInternalId());
@@ -93,8 +98,10 @@ public class MeetingService {
 			if(!map.containsKey(r.getId())){
 				Map<String,String> meta= r.getMetadata();
 				String mid=meta.remove("meetingId");
-				r.setName(mid);
+				String name=meta.remove("meetingName");
+				
 				r.setMeetingID(mid);
+				r.setName(name);
 
 				ArrayList<Playback> plays=new ArrayList<Playback>();
 				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getMinutesRecording(r.getStartTime(), r.getEndTime())));

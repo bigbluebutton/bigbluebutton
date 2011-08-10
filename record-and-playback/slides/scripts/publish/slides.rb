@@ -48,7 +48,7 @@ if (playback == "slides")
 		# Create metadata.xml
 		b = Builder::XmlMarkup.new(:indent => 2)		 
 		metaxml = b.recording {
-		  b.id(meeting_id) 
+		  b.id(meeting_id)
 		  b.state("available")
 		  b.published(true)
 		  b.start_time(Time.at((BigBlueButton::Events.first_event_timestamp("#{process_dir}/events.xml").to_f/1000.0)).utc)
@@ -67,7 +67,10 @@ if (playback == "slides")
 		metadata_xml.write(metaxml)
 		metadata_xml.close		
 		
-		# Now publish this recording		
+		# Now publish this recording	
+		if not FileTest.directory?(publish_dir)
+			FileUtils.mkdir_p publish_dir
+		end
 		FileUtils.cp_r(package_dir, publish_dir)
 			
 		# Create index.html
