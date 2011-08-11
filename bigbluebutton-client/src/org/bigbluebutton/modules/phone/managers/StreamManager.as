@@ -61,7 +61,7 @@ package org.bigbluebutton.modules.phone.managers
 		}
 		
 		public function initMicrophone():void {
-			mic = Microphone.getMicrophone();
+			mic = Microphone.getMicrophone(-1);
 
 			if(mic == null){
 				initWithNoMicrophone();
