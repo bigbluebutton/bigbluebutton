@@ -191,6 +191,9 @@ module BigBlueButton
           elsif (event.stop_event_timestamp == nil)
             event.stop_record_timestamp = event.stop_event_timestamp = event.start_event_timestamp.to_i + event.audio_length
           end
+        else 
+          BigBlueButton.logger.error("Failed to determine the length of the audio.\n")
+          raise Exception,  "Failed to determine the length of the audio."
         end
       end
     end
@@ -211,8 +214,11 @@ module BigBlueButton
       events.sort! {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
       
       length_of_gap = events[0].start_event_timestamp.to_i - BigBlueButton::Events.first_event_timestamp(events_xml).to_i
-      if  (length_of_gap > 0)
+      if ((length_of_gap > 0) and (ength_of_gap < 600000))
         paddings << create_gap_audio_event(length_of_gap, BigBlueButton::Events.first_event_timestamp(events_xml), events[0].start_event_timestamp.to_i - 1)
+      else
+        BigBlueButton.logger.error("Length of silence is too long #{length_of_gap}.\n")
+        raise Exception,  "Length of silence is too long #{length_of_gap}."       
       end
       
       i = 0
@@ -221,16 +227,22 @@ module BigBlueButton
         ar_next = events[i+1]
         length_of_gap = ar_next.start_event_timestamp.to_i - ar_prev.stop_event_timestamp.to_i
         
-        if (length_of_gap > 0) 
+        if ((length_of_gap > 0) and (ength_of_gap < 600000))
           paddings << create_gap_audio_event(length_of_gap, ar_prev.stop_event_timestamp.to_i + 1, ar_next.start_event_timestamp.to_i - 1)
+        else
+          BigBlueButton.logger.error("Length of silence is too long #{length_of_gap}.\n")
+          raise Exception,  "Length of silence is too long #{length_of_gap}."  
         end
         
         i += 1
       end
       
       length_of_gap = BigBlueButton::Events.last_event_timestamp(events_xml).to_i - events[-1].stop_event_timestamp.to_i
-      if (length_of_gap > 0)
+      if ((length_of_gap > 0) and (ength_of_gap < 600000))
         paddings << create_gap_audio_event(length_of_gap, events[-1].stop_event_timestamp.to_i + 1, BigBlueButton::Events.last_event_timestamp(events_xml))
+      else
+        BigBlueButton.logger.error("Length of silence is too long #{length_of_gap}.\n")
+        raise Exception,  "Length of silence is too long #{length_of_gap}."  
       end
       
       paddings
