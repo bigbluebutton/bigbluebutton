@@ -210,10 +210,13 @@ module BigBlueButton
     
     # Determine the audio padding we need to generate.
     def self.generate_audio_paddings(events, events_xml)
+    # TODO: Need to make this a lot DRYer.
       paddings = []
       events.sort! {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
       
       length_of_gap = events[0].start_event_timestamp.to_i - BigBlueButton::Events.first_event_timestamp(events_xml).to_i
+      # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
+      # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.
       if ((length_of_gap > 0) and (length_of_gap < 600000))
         paddings << create_gap_audio_event(length_of_gap, BigBlueButton::Events.first_event_timestamp(events_xml), events[0].start_event_timestamp.to_i - 1)
       else
@@ -226,7 +229,9 @@ module BigBlueButton
         ar_prev = events[i]
         ar_next = events[i+1]
         length_of_gap = ar_next.start_event_timestamp.to_i - ar_prev.stop_event_timestamp.to_i
-        
+
+      # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
+      # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.        
         if ((length_of_gap > 0) and (length_of_gap < 600000))
           paddings << create_gap_audio_event(length_of_gap, ar_prev.stop_event_timestamp.to_i + 1, ar_next.start_event_timestamp.to_i - 1)
         else
@@ -236,7 +241,9 @@ module BigBlueButton
         
         i += 1
       end
-      
+
+      # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
+      # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.      
       length_of_gap = BigBlueButton::Events.last_event_timestamp(events_xml).to_i - events[-1].stop_event_timestamp.to_i
       if ((length_of_gap > 0) and (length_of_gap < 600000))
         paddings << create_gap_audio_event(length_of_gap, events[-1].stop_event_timestamp.to_i + 1, BigBlueButton::Events.last_event_timestamp(events_xml))
