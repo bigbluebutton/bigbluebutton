@@ -138,7 +138,7 @@
 			<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 			<sequential>
 				<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true" link-report="linker-report.xml">
-					<target-player>11.2</target-player>
+					<target-player>10.3.0</target-player>
 					<load-config filename="@{flex}/frameworks/flex-config.xml" />
 					<source-path path-element="@{flex}/frameworks" />
 					<compiler.library-path dir="@{flex}/frameworks" append="true">
@@ -163,7 +163,7 @@
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
 			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="13">
-				<target-player>11</target-player>
+				<target-player>10.3.0</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<compiler.library-path dir="@{flex}/frameworks" append="true">
@@ -188,7 +188,7 @@
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
 			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true" load-externs="linker-report.xml">
-				<target-player>11</target-player>
+				<target-player>10.3.0</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<compiler.library-path dir="@{flex}/frameworks" append="true">
@@ -267,8 +267,8 @@
 			bgcolor="grey"
 			application="BBB"
 			swf="BigBlueButton"
-			version-major="11"
-			version-minor="2"
+			version-major="10"
+			version-minor="3"
 			version-revision="0"
 			history="true"
 			output="${OUTPUT_DIR}"
