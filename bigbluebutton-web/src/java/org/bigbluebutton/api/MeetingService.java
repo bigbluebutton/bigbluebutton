@@ -39,7 +39,7 @@ public class MeetingService {
 	public void removeExpiredMeetings() {
 		log.info("Cleaning up expired meetings");
 		for (Meeting m : meetings.values()) {
-			if (m.hasExpired(defaultMeetingExpireDuration) || m.wasNeverStarted(defaultMeetingCreateJoinDuration)) {
+			if (m.hasExpired(defaultMeetingExpireDuration)) {
 				log.info("Removing expired meeting [{} - {}]", m.getInternalId(), m.getName());
 		  		if (m.isRecord()) {
 		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");
@@ -50,8 +50,14 @@ public class MeetingService {
 				continue;
 			}
 			
+			if (m.wasNeverStarted(defaultMeetingCreateJoinDuration)) {
+				log.info("Removing non-joined meeting [{} - {}]", m.getInternalId(), m.getName());
+				meetings.remove(m.getInternalId());
+				continue;
+			}
+			
 			if (m.hasExceededDuration()) {
-				log.info("Ending meeting [{} - {}]", m.getInternalId(), m.getName());
+				log.info("Forcibly ending meeting [{} - {}]", m.getInternalId(), m.getName());
 				m.setForciblyEnded(true);
 				endMeeting(m.getInternalId());
 			}
