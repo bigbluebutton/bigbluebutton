@@ -44,10 +44,6 @@ public class MeetingService {
 		  		if (m.isRecord()) {
 		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");
 		  			
-		  			//TODO: This is temp solution, after a refactor in the structure of recording this won't be necessary
-		  			m.getMetadata().put("meetingId", m.getExternalId());
-		  			m.getMetadata().put("meetingName", m.getName());
-		  			
 		  			processRecording(m.getInternalId());
 		  		}
 				meetings.remove(m.getInternalId());
