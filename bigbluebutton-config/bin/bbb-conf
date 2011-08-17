@@ -76,7 +76,6 @@ IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" |
 PLATFORM=ubuntu
 
 RED5_DIR=/usr/share/red5
-ACTIVEMQ_DIR=/usr/share/activemq
 
 SERVLET_CONTAINER=tomcat6
 SERVLET_LOGS=/var/lib/tomcat6/logs
@@ -265,8 +264,6 @@ stop_bigbluebutton () {
 		/etc/init.d/asterisk stop
 	fi
         
-	/etc/init.d/activemq stop
-
 	if [ -f /etc/init.d/bbb-openoffice-headless ]; then
 		/etc/init.d/bbb-openoffice-headless stop
 	fi
@@ -280,15 +277,7 @@ start_bigbluebutton () {
 		echo "Starting Asterisk"
 		/etc/init.d/asterisk start
 	fi
-	/etc/init.d/activemq start
 	
-	echo -n "Waiting for ActiveMQ to start: "
-	while ! nc -z -w 1 127.0.0.1 61616; do
-		echo -n "."
-                sleep 1
-        done
-	echo
-
 	if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
 		FREESWITCH_ESL_IP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
 		check_no_value listen-ip /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml $FREESWITCH_ESL_IP
@@ -357,7 +346,6 @@ start_bigbluebutton () {
 }
 
 display_bigbluebutton_status () {
-	/etc/init.d/activemq status
 	/etc/init.d/nginx status
 	/etc/init.d/red5 status
 	/etc/init.d/${SERVLET_CONTAINER} status
@@ -986,13 +974,6 @@ check_state() {
 
 	RUNNING_APPS=""
 	NOT_RUNNING_APPS=""
-
-	if ! ps aux | grep -v grep | grep "$ACTIVEMQ_DIR" > /dev/null; then
-		print_header
-		NOT_RUNNING_APPS="activemq"
-	else
-		RUNNING_APPS="activemq"
-	fi	
 
 	if ! ps aux | grep -v grep | grep 'org.red5.server.Bootstrap' > /dev/null; then
 		print_header
