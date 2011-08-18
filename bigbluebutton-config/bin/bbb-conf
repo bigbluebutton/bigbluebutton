@@ -1595,7 +1595,7 @@ if [ -n "$HOST" ]; then
 	#
 
 	if [ -f ${SERVLET_DIR}/demo/bbb_api_conf.jsp ]; then
-		echo "Assigning $HOST for api demos in ${SERVLET_DIR}/bigbluebutton/demo/bbb_api_conf.jsp"
+		echo "Assigning $HOST for api demos in ${SERVLET_DIR}/demo/bbb_api_conf.jsp"
 		sudo sed -i "s/BigBlueButtonURL = \"http:\/\/\([^\"\/]*\)\([\"\/]\)/BigBlueButtonURL = \"http:\/\/$HOST\2/g" \
 			${SERVLET_DIR}/demo/bbb_api_conf.jsp
 	fi
