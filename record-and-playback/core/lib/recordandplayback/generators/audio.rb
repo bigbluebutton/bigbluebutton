@@ -220,7 +220,7 @@ module BigBlueButton
       if ((length_of_gap > 0) and (length_of_gap < 600000))
         paddings << create_gap_audio_event(length_of_gap, BigBlueButton::Events.first_event_timestamp(events_xml), events[0].start_event_timestamp.to_i - 1)
       else
-        BigBlueButton.logger.error("Length of silence is too long #{length_of_gap}.\n")
+        BigBlueButton.logger.error("Front padding: #{length_of_gap} [#{events[0].start_event_timestamp.to_i} - #{BigBlueButton::Events.first_event_timestamp(events_xml).to_i}].\n")
         raise Exception,  "Length of silence is too long #{length_of_gap}."       
       end
       
@@ -235,7 +235,7 @@ module BigBlueButton
         if ((length_of_gap > 0) and (length_of_gap < 600000))
           paddings << create_gap_audio_event(length_of_gap, ar_prev.stop_event_timestamp.to_i + 1, ar_next.start_event_timestamp.to_i - 1)
         else
-          BigBlueButton.logger.error("Length of silence is too long #{length_of_gap}.\n")
+          BigBlueButton.logger.error("Between padding #{i}: #{length_of_gap} [#{events[0].start_event_timestamp.to_i} - #{BigBlueButton::Events.first_event_timestamp(events_xml).to_i}].\n")
           raise Exception,  "Length of silence is too long #{length_of_gap}."  
         end
         
