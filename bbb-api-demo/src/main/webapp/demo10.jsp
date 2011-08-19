@@ -86,16 +86,22 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		// Assume we want to create a meeting
 		//
 %>
-	<h2>Demo: Join a Recorded Class</h2>
+	<h2>BigBlueButton 0.8-dev Record and Playback Test</h2>
 
 	<form id="formcreate" name="formcreate" method="get" action=""> 		
 		<div>
-			<label class="labform" for="meetingID">Meeting:</label>
+			<label class="labform" for="meetingID">Class:</label>
 			<select name="meetingID" onchange="onChangeMeeting(this.value);">
-				<option value="English 232">English 232</option>
-				<option value="English 300">English 300</option>
-				<option value="English 402">English 402</option>
-				<option value="Demo Meeting">Demo Meeting</option>
+				<option value="English 101">English 101</option>
+				<option value="English 102">English 102</option>
+				<option value="English 103">English 103</option>
+				<option value="English 104">English 104</option>
+				<option value="English 105">English 105</option>
+				<option value="English 106">English 106</option>
+				<option value="English 107">English 107</option>
+				<option value="English 108">English 108</option>
+				<option value="English 109">English 109</option>
+				<option value="English 110">English 110</option>
 			</select>
 		</div>
 		<div>
@@ -103,14 +109,17 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 			<textarea id="meta_description" name="meta_description" cols="50" rows="6" class="required"></textarea>
 		</div>
 		<div>
-			<label class="labform" for="username1">Your Name:</label>
-			<input id="username1" name="username1" type="text" class="required" size="30" />	
+			<label class="labform" for="meta_email">Your Email:</label>
+			<input id="meta_email" name="meta_email" type="text" class="required" size="30" />
 		</div>	
 		<div style="clear:both"></div>
 		<input class="submit" type="submit" value="Join" >
 		<input type="hidden" name="action" value="create" />
 	</form>
-	
+
+<!--
+<strong>Note:</strong> If you created the meeting and entered a valid e-mail address, shortly after the meeting finishes (all users have left) you'll receive an e-mail from <i>bigbluebutton.notify@gmail.com</i> with a link to playback the recorded meeting (slides + audio).  The playback link will also appear in the table below. 
+-->
 	<h3>Recorded Sessions</h3>
 	<select id="actionscmb" name="actions" onchange="recordedAction(this.value);">
 		<option value="novalue" selected>Actions...</option>
@@ -164,6 +173,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 			dataType: "xml",
 			cache: false,
 			success: function(xml) {
+				window.location.reload(true);
 				$("#recordgrid").trigger("reloadGrid");
 			},
 			error: function() {
@@ -197,21 +207,24 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 			}
 		});
 	}
-	var meetingID="English 232,English 300,English 402,Demo Meeting";
+	var meetingID="English 101,English 102,English 103,English 104,English 105,English 106,English 107,English 108,English 109,English 110";
 	$(document).ready(function(){
+		isRunningMeeting("English 232");
 		$("#formcreate").validate();
-		$("#meetingID option[value='English 232']").attr("selected","selected");
+		$("#meetingID option[value='English 101']").attr("selected","selected");
 		jQuery("#recordgrid").jqGrid({
 			url: "demo10_helper.jsp?command=getRecords&meetingID="+meetingID,
 			datatype: "xml",
 			height: 150,
+			loadonce: true,
+			sortable: true,
 			colNames:['Id','Course','Description', 'Date Recorded', 'Published'],
 			colModel:[
 				{name:'id',index:'id', width:50, hidden:true, xmlmap: "recordID"},
-				{name:'course',index:'course', width:150, xmlmap: "meetingID", formatter:playbackFormat},
-				{name:'description',index:'description', width:300, xmlmap: "metadata>description"},
-				{name:'daterecorded',index:'daterecorded', width:200, xmlmap: "startTime"},
-				{name:'published',index:'published', width:80, xmlmap: "published" }		
+				{name:'course',index:'course', width:150, xmlmap: "meetingID", formatter:playbackFormat, sortable:false},
+				{name:'description',index:'description', width:300, xmlmap: "metadata>description",sortable: false},
+				{name:'daterecorded',index:'daterecorded', width:200, xmlmap: "startTime", sortable: false},
+				{name:'published',index:'published', width:80, xmlmap: "published", sortable:false }		
 			],
 			xmlReader: {
 				root : "recordings",
@@ -220,7 +233,10 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 				id: "id"
 			},
 			multiselect: true,
-			caption: "Recorded Sessions"
+			caption: "Recorded Sessions",
+			loadComplete: function(){
+				$("#recordgrid").trigger("reloadGrid");
+			}
 		});
 	});
 	
@@ -229,23 +245,24 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 			return '<a href="'+$(rowObject).find('playback format url:first').text()+'">'+cellvalue+'</a>';
 		return cellvalue;
 	}
-
 	</script>
 <%
 	} else if (request.getParameter("action").equals("create")) {
 		
 		String meetingID=request.getParameter("meetingID");
-		String username = request.getParameter("username1");
+		String username = request.getParameter("meta_email");
 		
 		//metadata
 		Map<String,String> metadata=new HashMap<String,String>();
 		
 		metadata.put("description",request.getParameter("meta_description"));
+		metadata.put("email",request.getParameter("meta_email"));
 
 		//
 		// This is the URL for to join the meeting as moderator
 		//
-		String joinURL = getJoinURL(username, meetingID, "true", "Welcome to " + meetingID , metadata);
+		String welcome = "<br>Welcome to %%CONFNAME%%!<br><br>For help see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a><br><br>This meeting is being recorded (audio + slides).<br><br>Shortly after this meeting finishes (all users have left), the BigBlueButton server will process the meeting and publish a playback link to <a href=\"event:http://test.bigbluebutton.org/\"><u>this page</u></a>.";
+		String joinURL = getJoinURL(username, meetingID, "true", welcome, metadata);
 		if (joinURL.startsWith("http://")) {
 %>
 <script language="javascript" type="text/javascript">
