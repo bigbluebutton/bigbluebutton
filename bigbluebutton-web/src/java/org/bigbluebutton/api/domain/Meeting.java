@@ -194,7 +194,11 @@ public class Meeting {
 	}
 	
 	public boolean wasNeverStarted(int expiry) {
-		return (!hasStarted() && !hasEnded() && didExpire(expiry));
+		return (!hasStarted() && !hasEnded() && nobodyJoined(expiry));
+	}
+	
+	private boolean nobodyJoined(int expiry) {
+		return (System.currentTimeMillis() - createdTime) >  (expiry * MILLIS_IN_A_SECOND);
 	}
 	
 	public boolean hasExpired(int expiry) {
