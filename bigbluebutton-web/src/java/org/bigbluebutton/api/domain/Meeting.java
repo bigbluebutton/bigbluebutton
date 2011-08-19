@@ -213,6 +213,7 @@ public class Meeting {
 		if (duration == 0) return false; /* Meeting runs infinitely */
 		return (System.currentTimeMillis() - startTime > (duration * MILLIS_IN_A_SECOND));
 	}
+	
 	private boolean hasStarted() {
 		return startTime > 0;
 	}
