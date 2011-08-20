@@ -19,7 +19,7 @@ puts playback
 
 if (playback == "slides")
 	puts "publishing #{meeting_id}"
-	logger = Logger.new("/var/log/bigbluebutton/slides-publish-#{meeting_id}.log", 'daily' )
+	logger = Logger.new("/var/log/bigbluebutton/slides/publish-#{meeting_id}.log", 'daily' )
 	BigBlueButton.logger = logger
 
 	# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
