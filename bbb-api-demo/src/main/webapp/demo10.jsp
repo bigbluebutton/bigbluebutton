@@ -249,14 +249,17 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 <%
 	} else if (request.getParameter("action").equals("create")) {
 		
-		String meetingID=request.getParameter("meetingID");
+		String meetingID = request.getParameter("meetingID");
 		String username = request.getParameter("meta_email");
 		
 		//metadata
 		Map<String,String> metadata=new HashMap<String,String>();
 		
-		metadata.put("description",request.getParameter("meta_description"));
-		metadata.put("email",request.getParameter("meta_email"));
+		metadata.put("description", request.getParameter("meta_description"));
+		metadata.put("email", request.getParameter("meta_email"));
+		// Use the meetingID (e.g English 101) as the title as slides playback
+		// uses the title to display the link.
+		metadata.put("title", request.getParameter("meetingID"));
 
 		//
 		// This is the URL for to join the meeting as moderator

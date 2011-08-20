@@ -67,6 +67,9 @@ public class Meeting {
     	metadata = builder.metadata;
     	createdTime = builder.createdTime;
 		users = new ConcurrentHashMap<String, User>();
+		
+		metadata.put("meetingId", extMeetingId);
+		metadata.put("meetingName", name);
 	}
 
 	public Map<String, String> getMetadata() {
@@ -194,7 +197,11 @@ public class Meeting {
 	}
 	
 	public boolean wasNeverStarted(int expiry) {
-		return (!hasStarted() && !hasEnded() && didExpire(expiry));
+		return (!hasStarted() && !hasEnded() && nobodyJoined(expiry));
+	}
+	
+	private boolean nobodyJoined(int expiry) {
+		return (System.currentTimeMillis() - createdTime) >  (expiry * MILLIS_IN_A_SECOND);
 	}
 	
 	public boolean hasExpired(int expiry) {
@@ -209,6 +216,7 @@ public class Meeting {
 		if (duration == 0) return false; /* Meeting runs infinitely */
 		return (System.currentTimeMillis() - startTime > (duration * MILLIS_IN_A_SECOND));
 	}
+	
 	private boolean hasStarted() {
 		return startTime > 0;
 	}
