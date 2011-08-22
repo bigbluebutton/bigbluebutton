@@ -40,10 +40,10 @@ public class MeetingService {
 		log.info("Cleaning up expired meetings");
 		for (Meeting m : meetings.values()) {
 			if (m.hasExpired(defaultMeetingExpireDuration)) {
-				log.info("Removing expired meeting [{} - {}]", m.getInternalId(), m.getName());
+				log.info("Removing expired meeting [id={} , name={}]", m.getInternalId(), m.getName());
+				log.info("Expired meeting [start={} , end={}]", m.getStartTime(), m.getEndTime());
 		  		if (m.isRecord()) {
-		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");
-		  			
+		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			
 		  			processRecording(m.getInternalId());
 		  		}
 				meetings.remove(m.getInternalId());
@@ -160,7 +160,7 @@ public class MeetingService {
 	}
 	
 	public void processRecording(String meetingId) {
-		log.debug("Checking if we need to process recording for [{}]", meetingId);
+		log.debug("Process recording for [{}]", meetingId);
 		Meeting m = getMeeting(meetingId);
 		if (m != null) {
 			int numUsers = m.getNumUsers();
