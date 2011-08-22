@@ -99,8 +99,8 @@ public class MeetingService {
 		for(Recording r:olds){
 			if(!map.containsKey(r.getId())){
 				Map<String,String> meta= r.getMetadata();
-				String mid=meta.remove("meetingId");
-				String name=meta.remove("meetingName");
+				String mid = meta.remove("meetingId");
+				String name = meta.remove("meetingName");
 				
 				r.setMeetingID(mid);
 				r.setName(name);
@@ -235,8 +235,8 @@ public class MeetingService {
 		public void meetingStarted(String meetingId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				m.setStartTime(System.currentTimeMillis());
 				log.debug("Setting meeting started time");
+				m.setStartTime(System.currentTimeMillis());
 			}
 		}
 
@@ -244,8 +244,8 @@ public class MeetingService {
 		public void meetingEnded(String meetingId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				m.setEndTime(System.currentTimeMillis());
 				log.debug("Setting meeting end time");
+				m.setEndTime(System.currentTimeMillis());
 			}
 		}
 
@@ -255,7 +255,7 @@ public class MeetingService {
 			if (m != null) {
 				User user = new User(userId, name, role);
 				m.userJoined(user);
-				log.debug("New user in meeting:"+user.getFullname());
+				log.debug("New user in meeting:" + user.getFullname());
 			}
 		}
 
