@@ -512,6 +512,9 @@ package org.bigbluebutton.modules.present.business {
 			uploadEvent.presentationName = presentationName;
 			dispatcher.dispatchEvent(uploadEvent);
 			dispatcher.dispatchEvent(new BBBEvent(BBBEvent.PRESENTATION_CONVERTED));
+			var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
+			readyEvent.presentationName = presentationName;
+			dispatcher.dispatchEvent(readyEvent);
 		}
 				
 		public function conversionUpdateMessageCallback(conference:String, room:String, 
