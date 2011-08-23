@@ -4,10 +4,10 @@ require 'yaml'
 
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 matt_props = YAML::load(File.open('matterhorn.yml'))
-scp_server = matt_props['scp_server']
-scp_inbox = matt_props['scp_inbox']
-scp_key = matt_props['scp_key']
-scp_user = matt_props['scp_user']
+scp_server = matt_props['server']
+scp_inbox = matt_props['inbox']
+scp_key = matt_props['key']
+scp_user = matt_props['user']
 recording_dir = bbb_props['recording_dir']
 
 done_files = Dir.glob("#{recording_dir}/status/processed/*.done")

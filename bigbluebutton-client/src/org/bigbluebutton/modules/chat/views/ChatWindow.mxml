@@ -30,15 +30,18 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import mx.controls.Alert;
 			import mx.core.Application;
+			import mx.core.FlexGlobals;
 			import mx.resources.ResourceBundle;
 			import mx.resources.ResourceManager;
 			
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -47,6 +50,7 @@
 			private var _yPosition:int;
 			
 			private var dispState:String;
+			[Bindable] public var chatOptions:ChatOptions;
 			
 			public function getPrefferedPosition():String{
 				return MainCanvas.RIGHT;
@@ -54,8 +58,8 @@
 			
 			private function onCreationComplete():void {
 				/* Set up full screen handler. */
-				Application.application.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
-				dispState = Application.application.stage.displayState;
+				FlexGlobals.topLevelApplication.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
+				dispState = FlexGlobals.topLevelApplication.stage.displayState;
 				
 				var disp:Dispatcher = new Dispatcher();
 				disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
@@ -63,7 +67,7 @@
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
-				dispState = Application.application.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
+				dispState = FlexGlobals.topLevelApplication.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
 					chatView.txtMsg.text = "Chat not enabled in full screen mode";
 					chatView.txtMsg.enabled = false;
@@ -80,8 +84,13 @@
 				this.title = ResourceUtil.getInstance().getString("bbb.chat.title");
 			}
 			
+			private function localeChanged(e:LocaleChangeEvent):void{
+				resourcesChanged();
+			}
+			
 		]]>
 	</mx:Script>
 	
-	<views:ChatView id="chatView"/>
+	<views:ChatView id="chatView" chatOptions="{chatOptions}"/>
+
 </MDIWindow>

@@ -36,18 +36,20 @@
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />	
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="closePublishWindow" />
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	
 	<mx:Script>
 		<![CDATA[
-			import flexlib.scheduling.scheduleClasses.BackgroundItem;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
+			import flexlib.scheduling.scheduleClasses.BackgroundItem;
 			
 			import mx.core.UIComponent;
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
@@ -98,7 +100,7 @@
 				if (autoStart) {
 					shareScreen(true);	
 				}		
-				currentState = "dispFullRegionControlBar";
+				setCurrentState("dispFullRegionControlBar");			
 			}
 			
 			public function get defaultWidth():int{
@@ -134,15 +136,19 @@
 			}
 			
 			private function shareScreen(fullScreen:Boolean):void {
+				LogUtil.debug("Calling shareScreen");
 				startSharing(connection, uri, room, fullScreen);
 			}
 			
 			private function startSharing(connection:NetConnection, uri:String, room:String, fullScreen:Boolean):void {
+				LogUtil.debug("Calling startSharing");
 				var captureX:Number = 0;
 				var captureY:Number = 0;
 				
 				sharingFullScreen = fullScreen;
-				currentState = "dispQuitControlBar";
+				LogUtil.debug("Calling startSharing1");
+			//	setCurrentState("dispQuitControlBar");
+				LogUtil.debug("Calling startApplet");
 				ExternalInterface.call("startApplet", uri, room, fullScreen);
 			}
 			
@@ -223,6 +229,8 @@
 				ns.play(streamName);
 				
 				btnClosePublish.enabled = true;
+				btnFSPublish.enabled = false;				
+				btnRegionPublish.enabled = false;
 			}
 			
 			private function stopStream():void{
@@ -276,6 +284,10 @@
 				this.title = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
 			}
 			
+			private function localeChanged(e:LocaleChangeEvent):void{
+				resourcesChanged();
+			}
+			
 			private function closePublishWindow(event:ViewStreamEvent):void{
 				stopStream();
 			}
@@ -283,29 +295,21 @@
 		]]>
 	</mx:Script>
 
-	<dspub:states>
-	    <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
+	<!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
+	<dspub:states>	    
         <mx:State name="dispFullRegionControlBar">   
             <mx:AddChild>
 				<mx:ControlBar id="fullRegionBottomBar">
 					<mx:Button id="btnFSPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}" visible="true" click="shareScreen(true)" />
 					<mx:Spacer width="100%"/>
-					<mx:Button id="btnRegionPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" visible="true" click="shareScreen(false)" />		
-				</mx:ControlBar>
-            </mx:AddChild>
-        </mx:State>		
-        <mx:State name="dispQuitControlBar">   
-            <mx:AddChild>
-				<mx:ControlBar id="quitBottomBar">
-					<mx:Spacer width="50%"/>
 					<mx:Button id="btnClosePublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}" visible="true" enabled="false" click="stopSharing()" />
-					<mx:Spacer width="50%"/>
+					<mx:Spacer width="100%"/>
+					<mx:Button id="btnRegionPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" visible="true" click="shareScreen(false)" />		
 				</mx:ControlBar>
             </mx:AddChild>
         </mx:State>	
 	</dspub:states>
-				
+
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
-	
 
 </dspub:MDIWindow>

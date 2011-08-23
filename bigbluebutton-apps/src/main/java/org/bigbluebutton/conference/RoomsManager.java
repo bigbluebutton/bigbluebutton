@@ -21,13 +21,9 @@ package org.bigbluebutton.conference;
 import org.slf4j.Logger;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.RedisPublisher;
-import org.bigbluebutton.conference.service.recorder.RedisDispatcher;
 import org.red5.logging.Red5LoggerFactory;
-
 import com.google.gson.Gson;
-
 import net.jcip.annotations.ThreadSafe;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,8 +40,7 @@ public class RoomsManager {
 	RedisPublisher publisher;
 	
 	public RoomsManager() {
-		rooms = new ConcurrentHashMap<String, Room>();
-		
+		rooms = new ConcurrentHashMap<String, Room>();		
 	}
 	
 	public void addRoom(Room room) {
@@ -53,11 +48,11 @@ public class RoomsManager {
 		room.addRoomListener(new ParticipantUpdatingRoomListener(room,publisher)); 	
 		
 		if (checkPublisher()) {
-			HashMap<String,String> map=new HashMap<String,String>();
+			HashMap<String,String> map = new HashMap<String,String>();
 			map.put("meetingId", room.getName());
-			map.put("state", "started");
+			map.put("messageId", MessagingConstants.MEETING_STARTED_EVENT);
 			
-			Gson gson= new Gson();
+			Gson gson = new Gson();
 			publisher.publish(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
 			
 			log.debug("Notified event listener of conference start");
@@ -70,12 +65,12 @@ public class RoomsManager {
 		Room room = rooms.remove(name);
 		if (checkPublisher() && room != null) {
 			room.endAndKickAll();
-			HashMap<String,String> map=new HashMap<String,String>();
+			HashMap<String,String> map = new HashMap<String,String>();
 			map.put("meetingId", room.getName());
-			map.put("state", "ended");
+			map.put("messageId", MessagingConstants.MEETING_ENDED_EVENT);
 			
-			Gson gson= new Gson();
-			publisher.publish(MessagingConstants.SYSTEM_CHANNEL,gson.toJson(map));
+			Gson gson = new Gson();
+			publisher.publish(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
 			
 			log.debug("Notified event listener of conference end");
 		}
@@ -103,9 +98,12 @@ public class RoomsManager {
 	
 	// this method is called by incoming JMS requests (Spring integration)
 	public void endMeetingRequest(String roomname) {
+		log.debug("End meeting request for room: {} ", roomname);
 		Room room = getRoom(roomname); // must do this because the room coming in is serialized (no transient values are present)
-		log.debug("End meeting request for room: {} ", room.getName());
-		room.endAndKickAll();
+		if (room != null)
+			room.endAndKickAll();
+		else
+			log.debug("Could not find room {}", roomname);
 	}
 	
 	/**
@@ -150,21 +148,20 @@ public class RoomsManager {
 		log.debug("Add participant {}", participant.getName());
 		Room r = getRoom(roomName);
 		if (r != null) {
-			if (checkPublisher()) {
+/*			if (checkPublisher()) {
 
 				if (r.getNumberOfParticipants() == 0) {
-					//conferenceEventListener.started(r);
 					log.debug("Notified event listener of conference start");
-					HashMap<String,String> map=new HashMap<String,String>();
+					HashMap<String,String> map = new HashMap<String,String>();
 					map.put("meetingId", roomName);
-					map.put("state", "started");
+					map.put("messageId", MessagingConstants.USER_JOINED_EVENT);
 					
-					Gson gson= new Gson();
+					Gson gson = new Gson();
 					publisher.publish(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
 					
 				}
 			}
-			r.addParticipant(participant);
+*/			r.addParticipant(participant);
 
 			return;
 		}

@@ -216,7 +216,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function addStream(userid:Number, streamName:String):void {
-			var nc:NetConnection = netConnectionDelegate.connection;			
+			var nc:NetConnection = netConnectionDelegate.connection;	
 			nc.call(
 				"participants.setParticipantStatus",// Remote function name
 				responder,

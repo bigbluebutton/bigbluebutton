@@ -1,6 +1,9 @@
 package org.bigbluebutton.api;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -13,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 public class ParamsProcessorUtil {
 	private static Logger log = LoggerFactory.getLogger(ParamsProcessorUtil.class);
+	
+	private final String URLDECODER_SEPARATOR=",";
 	
 	private String apiVersion;
 	private boolean serviceEnabled = false;
@@ -42,19 +47,20 @@ public class ParamsProcessorUtil {
 	    	String keyword = (String) itr.next();
 	    	if (keyword.equals(DIAL_NUM)) {
 	          welcomeMessage = welcomeMessage.replaceAll(DIAL_NUM, dialNumber);
-	    	} else if (keyword.equals(CONF_NUM)) { 
-	          welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, telVoice);
 	    	} else if (keyword.equals(CONF_NUM)) {
+	          welcomeMessage = welcomeMessage.replaceAll(CONF_NUM, telVoice);
+	    	} else if (keyword.equals(CONF_NAME)) {
 	          welcomeMessage = welcomeMessage.replaceAll(CONF_NAME, meetingName);
 	    	}     
-	    }	    
+	    }	
 	    return  welcomeMessage;		
 	}
 
+	
 	public void processRequiredCreateParams(Map<String, String> params, ApiErrors errors) {
 	    // Do we have a checksum? If not, complain.
 	    if (StringUtils.isEmpty(params.get("checksum"))) {
-	      errors.missingParamError("checksum");			
+	      errors.missingParamError("checksum");
 	    }
 	    
 	    // Do we have a meeting name? If not, complain.
@@ -264,7 +270,7 @@ public class ParamsProcessorUtil {
 	    		String[] meta = key.split("_");
 			    if(meta.length == 2){
 			    	log.debug("Got metadata {} = {}", key, params.get(key));
-			    	meetingInfo.put(meta[1], params.get(key));
+			    	meetingInfo.put(meta[1].toLowerCase(), params.get(key));
 			    }
 			}   
 	    }
@@ -405,6 +411,8 @@ public class ParamsProcessorUtil {
 		// TODO: this is hackish - should be done better
 		queryString = queryString.replace("&checksum=" + checksum, "");
 		queryString = queryString.replace("checksum=" + checksum + "&", "");
+		queryString = queryString.replace("checksum=" + checksum, "");
+		
 		log.debug("query string after checksum removed: [{}]", queryString);
 		String cs = DigestUtils.shaHex(apiCall + queryString + securitySalt);
 		log.debug("our checksum: [{}], client: [{}]", cs, checksum);
@@ -415,7 +423,6 @@ public class ParamsProcessorUtil {
 		log.debug("checksum ok: request passed the checksum security check");
 		return true; 
 	}
-	
 	
 	/*************************************************
 	 * Setters
@@ -471,5 +478,24 @@ public class ParamsProcessorUtil {
 
 	public void setDefaultMeetingDuration(int defaultMeetingDuration) {
 		this.defaultMeetingDuration = defaultMeetingDuration;
+	}
+	
+	public ArrayList<String> decodeIds(String encodeid){
+		ArrayList<String> ids=new ArrayList<String>();
+		try {
+			ids.addAll(Arrays.asList(URLDecoder.decode(encodeid,"UTF-8").split(URLDECODER_SEPARATOR)));
+		} catch (UnsupportedEncodingException e) {
+			log.error("Couldn't decode the IDs");
+		}
+		
+		return ids;
+	}
+	
+	public ArrayList<String> convertToInternalMeetingId(ArrayList<String> extMeetingIds) {
+		ArrayList<String> internalMeetingIds=new ArrayList<String>();
+		for(String extid : extMeetingIds){
+			internalMeetingIds.add(convertToInternalMeetingId(extid));
+		}
+		return internalMeetingIds;
 	}
 }

@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.events.SecurityErrorEvent;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
+	import flash.system.Capabilities;
 	
 	import mx.collections.ArrayCollection;
 	
@@ -34,15 +35,31 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
-	import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+
+/** Uncomment if you want to build support for H264. But you need at least FP 11. (ralam july 23, 2011)		
+	 
+ 	 import flash.media.H264VideoStreamSettings;
+	 import flash.media.H264Profile;
+	 import flash.media.H264Level;
+**/
 	
 	public class VideoProxy
-	{
+	{		
+		public var videoOptions:VideoConfOptions;
+		
 		private var nc:NetConnection;
 		private var ns:NetStream;
 		
+		private function parseOptions():void {
+			videoOptions = new VideoConfOptions();
+			videoOptions.parseOptions();	
+		}
+		
 		public function VideoProxy(url:String)
 		{
+			parseOptions();
+			
 			nc = new NetConnection();
 			nc.client = this;
 			nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
@@ -118,8 +135,56 @@ package org.bigbluebutton.modules.videoconf.business
 			ns.addEventListener( AsyncErrorEvent.ASYNC_ERROR, onAsyncError );
 			ns.client = this;
 			ns.attachCamera(e.camera);
+/*		Uncomment if you want to build support for H264. But you need at least FP 11. (ralam july 23, 2011)	
+			if (Capabilities.version.search("11,0") != -1) {
+				var h264:H264VideoStreamSettings = new H264VideoStreamSettings();
+				var h264profile:String = H264Profile.MAIN;
+				if (videoOptions.h264Profile != "main") {
+					h264profile = H264Profile.BASELINE;
+				}
+				var h264Level:String = H264Level.LEVEL_4_1;
+				if (videoOptions.h264Level != "1") {
+					h264Level = H264Level.LEVEL_1;
+				} else if (videoOptions.h264Level != "1.1") {
+					h264Level = H264Level.LEVEL_1_1;
+				} else if (videoOptions.h264Level != "1.2") {
+					h264Level = H264Level.LEVEL_1_2;
+				} else if (videoOptions.h264Level != "1.3") {
+					h264Level = H264Level.LEVEL_1_3;
+				} else if (videoOptions.h264Level != "1b") {
+					h264Level = H264Level.LEVEL_1B;
+				} else if (videoOptions.h264Level != "2") {
+					h264Level = H264Level.LEVEL_2;
+				} else if (videoOptions.h264Level != "2.1") {
+					h264Level = H264Level.LEVEL_2_1;
+				} else if (videoOptions.h264Level != "2.2") {
+					h264Level = H264Level.LEVEL_2_2;
+				} else if (videoOptions.h264Level != "3") {
+					h264Level = H264Level.LEVEL_3;
+				} else if (videoOptions.h264Level != "3.1") {
+					h264Level = H264Level.LEVEL_3_1;
+				} else if (videoOptions.h264Level != "3.2") {
+					h264Level = H264Level.LEVEL_3_2;
+				} else if (videoOptions.h264Level != "4") {
+					h264Level = H264Level.LEVEL_4;
+				} else if (videoOptions.h264Level != "4.1") {
+					h264Level = H264Level.LEVEL_4_1;
+				} else if (videoOptions.h264Level != "4.2") {
+					h264Level = H264Level.LEVEL_4_2;
+				} else if (videoOptions.h264Level != "5") {
+					h264Level = H264Level.LEVEL_5;
+				} else if (videoOptions.h264Level != "5.1") {
+					h264Level = H264Level.LEVEL_5_1;
+				}
+				
+				h264.setProfileLevel(h264profile, h264Level);
+				ns.videoStreamSettings = h264;
+			}
+	*/		
 			ns.publish(e.stream);
 		}
+		
+		
 		
 		public function stopBroadcasting():void{
 			if (ns != null) {

@@ -33,12 +33,14 @@ import org.bigbluebutton.api.MeetingService;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
-import org.codehaus.groovy.grails.commons.ConfigurationHolder;
+//import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import grails.converters.XML;
+//import grails.converters.XML;
 import org.bigbluebutton.api.ApiErrors;
 import org.bigbluebutton.api.ParamsProcessorUtil;
+
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
 
@@ -50,6 +52,7 @@ class ApiController {
   private static final String ROLE_MODERATOR = "MODERATOR";
   private static final String ROLE_ATTENDEE = "VIEWER";
   private static final String SECURITY_SALT = '639259d4-9dd8-4b25-bf01-95f9567eaf4b'
+  private static final String API_VERSION = '0.8'
     
   MeetingService meetingService;
   PresentationService presentationService
@@ -79,8 +82,33 @@ class ApiController {
     String API_CALL = 'create'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
   	
-  	ApiErrors errors = new ApiErrors();  	
-    paramsProcessorUtil.processRequiredCreateParams(params, errors);
+	// BEGIN - backward compatibility	
+	String checksum = params.checksum
+	if (checksum == null) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+
+	String name = params.name
+	if (name == null) {
+		invalid("missingParamName", "You must specify a name for the meeting.");
+		return
+	}
+
+	String mtgID = params.meetingID
+	if (StringUtils.isEmpty(mtgID)) {
+		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+		return
+	}
+	
+	if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+	// END - backward compatibility
+	
+	ApiErrors errors = new ApiErrors();
+	paramsProcessorUtil.processRequiredCreateParams(params, errors);
 
     if (errors.hasErrors()) {
     	respondWithErrors(errors)
@@ -107,6 +135,11 @@ class ApiController {
         uploadDocuments(existing);
         respondWithConference(existing, "duplicateWarning", "This conference was already in existence and may currently be in progress.");
       } else {
+	  	// BEGIN - backward compatibility
+	  	invalid("idNotUnique", "A meeting already exists with that meeting ID.  Please use a different meeting ID.");
+		return;
+	  	// END - backward compatibility
+	  
         // enforce meetingID unique-ness
         errors.nonUniqueMeetingIdError()
         respondWithErrors(errors)
@@ -132,9 +165,39 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
   	ApiErrors errors = new ApiErrors()
   	  
+	// BEGIN - backward compatibility
+    String checksum = params.checksum
+    if (checksum == null) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+	String fullName1 = params.fullName
+	if (fullName1 == null) {
+		invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
+		return
+	}
+	
+	String externalMeetingId1 = params.meetingID
+	if (externalMeetingId1 == null) {
+		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+		return
+	}
+	
+	String password = params.password
+	if (password == null) {
+		invalid("invalidPassword","You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.");
+		return
+	}
+	
+	if (!paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+	// END - backward compatibility
+  
     // Do we have a checksum? If none, complain.
     if (StringUtils.isEmpty(params.checksum)) {
-      errors.missingParamError("checksum");		
+      errors.missingParamError("checksum");
     }
 
     // Do we have a name for the user joining? If none, complain.
@@ -167,24 +230,46 @@ class ApiController {
     	return
     }
 
-    String createTime = params.createTime
-//    if (StringUtils.isEmpty(createTime)) {
-//      errors.missingParamError("createTime");
-//    }
-    
     // Everything is good so far. Translate the external meeting id to an internal meeting id. If
     // we can't find the meeting, complain.					        
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
     log.info("Retrieving meeting ${internalMeetingId}")		
     Meeting meeting = meetingService.getMeeting(internalMeetingId);
     if (meeting == null) {
+		// BEGIN - backward compatibility
+		invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
+		return;
+		// END - backward compatibility
+		
 	   errors.invalidMeetingIdError();
 	   respondWithErrors(errors)
 	   return;
     }
+
+	// the createTime mismatch with meeting's createTime, complain
+	// In the future, the createTime param will be required
+	if (params.createTime != null){
+		long createTime = 0;
+		try{
+			createTime=Long.parseLong(params.createTime);
+		}catch(Exception e){
+			log.warn("could not parse createTime param");
+			createTime = -1;
+		}
+		if(createTime != meeting.getCreateTime()){
+			errors.mismatchCreateTimeParam();
+			respondWithErrors(errors);
+			return;
+		}
+	}
     
     // Is this user joining a meeting that has been ended. If so, complain.
     if (meeting.isForciblyEnded()) {
+		// BEGIN - backward compatibility
+		invalid("meetingForciblyEnded", "You can not re-join a meeting that has already been forcibly ended.  However, once the meeting is removed from memory (according to the timeout configured on this server, you will be able to once again create a meeting with the same meeting ID");
+		return;
+		// END - backward compatibility
+		
       errors.meetingForciblyEndedError();
       respondWithErrors(errors)
       return;
@@ -194,11 +279,16 @@ class ApiController {
     String role = null;
     if (meeting.getModeratorPassword().equals(attPW)) {
       role = ROLE_MODERATOR;
-    } else if (meeting.getAttendeePassword().equals(attPW)) {
+    } else if (meeting.getViewerPassword().equals(attPW)) {
       role = ROLE_ATTENDEE;
     }
     
     if (role == null) {
+		// BEGIN - backward compatibility
+		invalid("invalidPassword","You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.");
+		return
+		// END - backward compatibility
+		
     	errors.invalidPasswordError()
 	    respondWithErrors(errors)
 	    return;
@@ -239,11 +329,30 @@ class ApiController {
     String API_CALL = 'isMeetingRunning'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
+	// BEGIN - backward compatibility
+	String checksum = params.checksum
+	if (checksum == null) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+
+	String mtgID = params.meetingID
+	if (StringUtils.isEmpty(mtgID)) {
+		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+		return
+	}
+	
+	if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+	// END - backward compatibility
+	
   	ApiErrors errors = new ApiErrors()
   	
     // Do we have a checksum? If none, complain.
     if (StringUtils.isEmpty(params.checksum)) {
-      errors.missingParamError("checksum");			
+      errors.missingParamError("checksum");
     }
 
     // Do we have a meeting id? If none, complain.
@@ -270,6 +379,11 @@ class ApiController {
     log.info("Retrieving meeting ${internalMeetingId}")		
     Meeting meeting = meetingService.getMeeting(internalMeetingId);
     if (meeting == null) {
+		// BEGIN - backward compatibility
+		invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
+		return;
+		// END - backward compatibility
+		
 	   errors.invalidMeetingIdError();
 	   respondWithErrors(errors)
 	   return;
@@ -295,11 +409,37 @@ class ApiController {
     String API_CALL = "end"
     
     log.debug CONTROLLER_NAME + "#${API_CALL}"    
+	
+	// BEGIN - backward compatibility
+	String checksum = params.checksum
+	if (checksum == null) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+
+	String mtgID = params.meetingID
+	if (StringUtils.isEmpty(mtgID)) {
+		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+		return
+	}
+	
+	String password = params.password
+	if (password == null) {
+		invalid("invalidPassword","You must supply the moderator password for this call.");
+		return
+	}
+	
+	if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+	// END - backward compatibility
+	
     ApiErrors errors = new ApiErrors()
     
     // Do we have a checksum? If none, complain.
     if (StringUtils.isEmpty(params.checksum)) {
-      errors.missingParamError("checksum");		
+      errors.missingParamError("checksum");
     }
 
     // Do we have a meeting id? If none, complain.
@@ -332,18 +472,28 @@ class ApiController {
     log.info("Retrieving meeting ${internalMeetingId}")		
     Meeting meeting = meetingService.getMeeting(internalMeetingId);
     if (meeting == null) {
+		// BEGIN - backward compatibility
+		invalid("notFound", "We could not find a meeting with that meeting ID - perhaps the meeting is not yet running?");
+		return;
+		// END - backward compatibility
+		
 	   errors.invalidMeetingIdError();
 	   respondWithErrors(errors)
 	   return;
     }
     
     if (meeting.getModeratorPassword().equals(modPW) == false) {
+		// BEGIN - backward compatibility
+		invalid("invalidPassword","You must supply the moderator password for this call.");
+		return;
+		// END - backward compatibility
+		
 	   errors.invalidPasswordError();
 	   respondWithErrors(errors)
 	   return;
     }
        
-    meetingService.endMeeting(internalMeetingId);
+    meetingService.endMeeting(meeting.getInternalId());
     
     response.addHeader("Cache-Control", "no-cache")
     withFormat {	
@@ -366,11 +516,36 @@ class ApiController {
     String API_CALL = "getMeetingInfo"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
     
+	// BEGIN - backward compatibility
+	String checksum = params.checksum
+	if (checksum == null) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+
+	String mtgID = params.meetingID
+	if (StringUtils.isEmpty(mtgID)) {
+		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+		return
+	}
+	
+	String password = params.password
+	if (password == null) {
+		invalid("invalidPassword","You must supply the moderator password for this call.");
+		return
+	}
+	
+	if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+	// END - backward compatibility
+	
     ApiErrors errors = new ApiErrors()
         
     // Do we have a checksum? If none, complain.
     if (StringUtils.isEmpty(params.checksum)) {
-      errors.missingParamError("checksum");				
+      errors.missingParamError("checksum");
     }
 
     // Do we have a meeting id? If none, complain.
@@ -403,12 +578,22 @@ class ApiController {
     log.info("Retrieving meeting ${internalMeetingId}")		
     Meeting meeting = meetingService.getMeeting(internalMeetingId);
     if (meeting == null) {
+		// BEGIN - backward compatibility
+		invalid("notFound", "We could not find a meeting with that meeting ID");
+		return;
+		// END - backward compatibility
+		
 	   errors.invalidMeetingIdError();
 	   respondWithErrors(errors)
 	   return;
     }
     
     if (meeting.getModeratorPassword().equals(modPW) == false) {
+		// BEGIN - backward compatibility
+		invalidPassword("You must supply the moderator password for this call."); 
+		return;
+		// END - backward compatibility
+		
 	   errors.invalidPasswordError();
 	   respondWithErrors(errors)
 	   return;
@@ -424,11 +609,24 @@ class ApiController {
     String API_CALL = "getMeetings"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
     
+	// BEGIN - backward compatibility
+	String checksum = params.checksum
+	if (checksum == null) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+	
+	if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+	// END - backward compatibility
+	
     ApiErrors errors = new ApiErrors()
         
     // Do we have a checksum? If none, complain.
     if (StringUtils.isEmpty(params.checksum)) {
-      errors.missingParamError("checksum");				
+      errors.missingParamError("checksum");
     }
 
     if (errors.hasErrors()) {
@@ -472,6 +670,8 @@ class ApiController {
               mtgs.each { m ->
                 meeting() {
                   meetingID(m.getExternalId())
+				  meetingName(m.getName())
+				  createTime(m.getCreateTime())
                   attendeePW(m.getViewerPassword())
                   moderatorPW(m.getModeratorPassword())
                   hasBeenForciblyEnded(m.isForciblyEnded() ? "true" : "false")
@@ -549,17 +749,13 @@ class ApiController {
   	String meetingId = session["conference"]
   	Meeting meeting = meetingService.getMeeting(meetingId);
   	String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-      log.debug("Logging out from [" + meeting.getInternalId() + "]");
-               
+                  
   	// Log the user out of the application.
   	session.invalidate()
   
   	if (meeting != null) {
+  	  log.debug("Logging out from [" + meeting.getInternalId() + "]");
   		logoutUrl = meeting.getLogoutUrl();
-  		if (meeting.isRecord()) {
-  			log.debug("[" + meeting.getInternalId() + "] is recorded. Process it.");		
-  			meetingService.processRecording(meeting.getInternalId())
-  		}
   	} else {
   		log.warn("Signing out from a non-existing meeting [" + meetingId + "]");	
   	}      
@@ -575,36 +771,44 @@ class ApiController {
     String API_CALL = "getRecordings"
     log.debug CONTROLLER_NAME + "#${API_CALL}"
     
+	// BEGIN - backward compatibility
+	String checksum = params.checksum
+	if (checksum == null) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+	
+	if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+	// END - backward compatibility
+	
     ApiErrors errors = new ApiErrors()
         
     // Do we have a checksum? If none, complain.
     if (StringUtils.isEmpty(params.checksum)) {
-      errors.missingParamError("checksum");       
+      errors.missingParamError("checksum");
+	  respondWithErrors(errors)
+	  return
     }
-
-    // Do we have a meeting id? If none, complain.
-    String externalMeetingId = params.meetingID
-    if (StringUtils.isEmpty(externalMeetingId)) {
-      errors.missingParamError("meetingID");
-    }
-
-    if (errors.hasErrors()) {
-      respondWithErrors(errors)
-      return
-    }
-
+	
     // Do we agree on the checksum? If not, complain.   
     if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
         errors.checksumError()
       respondWithErrors(errors)
       return
     }
+	
+	ArrayList<String> externalMeetingIds = new ArrayList<String>();
+	if (!StringUtils.isEmpty(params.meetingID)) {
+		externalMeetingIds=paramsProcessorUtil.decodeIds(params.meetingID);
+	}
     
-    // Everything is good so far. Translate the external meeting id to an internal meeting id. If
-    // we can't find the meeting, complain.                 
-    String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
-            
-    ArrayList<Recording> recs = meetingService.getRecordings(internalMeetingId);
+    // Everything is good so far. Translate the external meeting ids to an internal meeting ids.             
+    ArrayList<String> internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);        
+	HashMap<String,Recording> recs = meetingService.getRecordings(internalMeetingIds);
+	
     if (recs.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {  
@@ -614,7 +818,7 @@ class ApiController {
               returncode(RESP_CODE_SUCCESS)
               recordings(null)
               messageKey("noRecordings")
-              message("There are not recordings for meeting [${externalMeetingId}]")
+              message("There are not recordings for the meetings")
             }
           }
         }
@@ -627,24 +831,31 @@ class ApiController {
       xml {
         render(contentType:"text/xml") {
           response() {
-            returncode(RESP_CODE_SUCCESS)
+           returncode(RESP_CODE_SUCCESS)
             recordings() {
-              recs.each { r ->
-                recording() {
-                  id(r.getId())
-                  state(r.getState())
+              recs.values().each { r ->
+				  recording() {
+                  recordID(r.getId())
+				  meetingID(r.getMeetingID())
+				  name(r.getName())
                   published(r.isPublished())
                   startTime(r.getStartTime())
                   endTime(r.getEndTime())
-                  playback() {
-                    format(r.getPlaybackFormat())
-                    link(r.getPlaybackLink())
+				  metadata() {
+					 r.getMetadata().each { k,v ->
+						 "$k"("$v")
+					 }
+				  }
+				  playback() {
+					  r.getPlaybacks().each { item ->
+						  format{
+							  type(item.getFormat())
+							  url(item.getUrl())
+							  length(item.getLength())
+						  }
+					  }
                   }
-                  meta() {
-                    r.getMetadata().each {m ->
-                      "$m.key"("$m.value")
-                    }
-                  }
+                  
                 }
               }
             }
@@ -654,7 +865,177 @@ class ApiController {
     }
   } 
   
+  /******************************************************
+  * PUBLISH_RECORDINGS API
+  ******************************************************/
   
+  def publishRecordings = {
+	  String API_CALL = "publishRecordings"
+	  log.debug CONTROLLER_NAME + "#${API_CALL}"
+	  
+	  // BEGIN - backward compatibility
+	  String checksum = params.checksum
+	  if (checksum == null) {
+		  invalid("checksumError", "You did not pass the checksum security check")
+		  return
+	  }
+	  
+	  String rid = params.recordID
+	  if (rid == null) {
+		  invalid("missingParamRecordID", "You must specify a recordID.");
+		  return
+	  }
+	  
+	  String pubparam = params.publish
+	  if (pubparam == null) {
+		  invalid("missingParamPublish", "You must specify a publish value true or false.");
+		  return
+	  }
+	  
+	  if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+		  invalid("checksumError", "You did not pass the checksum security check")
+		  return
+	  }
+	  // END - backward compatibility
+	  
+	  ApiErrors errors = new ApiErrors()
+	  
+	  // Do we have a checksum? If none, complain.
+	  if (StringUtils.isEmpty(params.checksum)) {
+		errors.missingParamError("checksum");
+	  }
+	
+	  // Do we have a recording id? If none, complain.
+	  String recordId = params.recordID
+	  if (StringUtils.isEmpty(recordId)) {
+		errors.missingParamError("recordID");
+	  }
+	  // Do we have a publish status? If none, complain.
+	  String publish = params.publish
+	  if (StringUtils.isEmpty(publish)) {
+		errors.missingParamError("publish");
+	  }
+	
+	  if (errors.hasErrors()) {
+		  respondWithErrors(errors)
+		  return
+	  }
+  
+	  // Do we agree on the checksum? If not, complain.
+	  if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+		  errors.checksumError()
+		  respondWithErrors(errors)
+		  return
+	  }
+	  
+	  ArrayList<String> recordIdList = new ArrayList<String>();
+	  if (!StringUtils.isEmpty(recordId)) {
+		  recordIdList=paramsProcessorUtil.decodeIds(recordId);
+	  }
+	  
+	  if(!meetingService.existsAnyRecording(recordIdList)){
+		  // BEGIN - backward compatibility
+		  invalid("notFound", "We could not find recordings");
+		  return;
+		  // END - backward compatibility
+		  
+		  errors.recordingNotFound();
+		  respondWithErrors(errors);
+		  return;
+	  }
+	  
+	  meetingService.setPublishRecording(recordIdList,publish.toBoolean());
+	  withFormat {
+		  xml {
+			render(contentType:"text/xml") {
+			  response() {
+				  returncode(RESP_CODE_SUCCESS)
+				  published(publish)
+			  }
+			}
+		  }
+		}
+  }
+  
+  /******************************************************
+  * DELETE_RECORDINGS API
+  ******************************************************/
+  def deleteRecordings = {
+	  String API_CALL = "deleteRecordings"
+	  log.debug CONTROLLER_NAME + "#${API_CALL}"
+	  
+	  // BEGIN - backward compatibility
+	  String checksum = params.checksum
+	  if (checksum == null) {
+		  invalid("checksumError", "You did not pass the checksum security check")
+		  return
+	  }
+	  
+	  String rid = params.recordID
+	  if (rid == null) {
+		  invalid("missingParamRecordID", "You must specify a recordID.");
+		  return
+	  }
+	  
+	  if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+		  invalid("checksumError", "You did not pass the checksum security check")
+		  return
+	  }
+	  // END - backward compatibility
+	  
+	  ApiErrors errors = new ApiErrors()
+	  
+	  // Do we have a checksum? If none, complain.
+	  if (StringUtils.isEmpty(params.checksum)) {
+		errors.missingParamError("checksum");
+	  }
+	
+	  // Do we have a recording id? If none, complain.
+	  String recordId = params.recordID
+	  if (StringUtils.isEmpty(recordId)) {
+		errors.missingParamError("recordID");
+	  }
+	
+	  if (errors.hasErrors()) {
+		  respondWithErrors(errors)
+		  return
+	  }
+  
+	  // Do we agree on the checksum? If not, complain.
+	  if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+		  errors.checksumError()
+		  respondWithErrors(errors)
+		  return
+	  }
+	  
+	  ArrayList<String> recordIdList = new ArrayList<String>();
+	  if (!StringUtils.isEmpty(recordId)) {
+		  recordIdList=paramsProcessorUtil.decodeIds(recordId);
+	  }
+	  
+	  if(recordIdList.isEmpty()){
+		  // BEGIN - backward compatibility
+		  invalid("notFound", "We could not find recordings");
+		  return;
+		  // END - backward compatibility
+		  
+		  errors.recordingNotFound();
+		  respondWithErrors(errors);
+		  return;
+	  }
+	  
+	  meetingService.deleteRecordings(recordIdList);
+	  withFormat {
+		  xml {
+			render(contentType:"text/xml") {
+			  response() {
+				  returncode(RESP_CODE_SUCCESS)
+				  deleted(true)
+			  }
+			}
+		  }
+		}
+  }
   
   def uploadDocuments(conf) { 
     log.debug("ApiController#uploadDocuments(${conf.getInternalId()})");
@@ -668,7 +1049,7 @@ class ApiController {
         
     log.debug "Request body: \n" + requestBody;
 
-    def xml = XML.parse(requestBody);
+    def xml = new XmlSlurper().parseText(requestBody);
     xml.children().each { module ->
       log.debug("module config found: [${module.@name}]");
       if ("presentation".equals(module.@name.toString())) {
@@ -752,7 +1133,9 @@ class ApiController {
         render(contentType:"text/xml") {
           response() {
             returncode(RESP_CODE_SUCCESS)
+			meetingName(meeting.getName())
             meetingID(meeting.getExternalId())
+			createTime(meeting.getCreateTime())
             attendeePW(meeting.getViewerPassword())
             moderatorPW(meeting.getModeratorPassword())
             running(meeting.isRunning() ? "true" : "false")
@@ -771,6 +1154,11 @@ class ApiController {
                 }
               }
             }
+			metadata(){
+				meeting.getMetadata().each{ k,v ->
+					"$k"("$v")
+				}
+			}
             messageKey(msgKey == null ? "" : msgKey)
             message(msg == null ? "" : msg)
           }
@@ -829,6 +1217,31 @@ class ApiController {
         }
       }
     }  
+  }
+  //TODO: method added for backward compability, it will be removed in next versions after 0.8
+  def invalid(key, msg) {
+	  String deprecatedMsg=" Note: This xml scheme will be DEPRECATED."
+	  log.debug CONTROLLER_NAME + "#invalid"
+	  response.addHeader("Cache-Control", "no-cache")
+	  withFormat {
+		  xml {
+			  render(contentType:"text/xml") {
+				  response() {
+					  returncode(RESP_CODE_FAILED)
+					  messageKey(key)
+					  message(msg+deprecatedMsg)
+				  }
+			  }
+		  }
+		  json {
+			  log.debug "Rendering as json"
+			  render(contentType:"text/json") {
+					  returncode(RESP_CODE_FAILED)
+					  messageKey(key)
+					  message(msg+deprecatedMsg)
+			  }
+		  }
+	  }
   }
   
   def parseBoolean(obj) {

@@ -21,7 +21,7 @@
 -->
 
 <mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{this.langNames}" 
-			 selectedIndex="7" change="changeLanguage()" rowCount="15" width="120">
+			 selectedIndex="10" change="changeLanguage()" rowCount="15" width="120">
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
@@ -93,7 +93,7 @@
 				'lv_LV',
 				'lt_LT',
 				'mn_MN',
-				'ne_NE',
+				'nl_NL',
 				'nb_NO',
 				'fa_IR',
 				'pt_PT',
@@ -113,7 +113,7 @@
 			
 			private function changeLanguage():void{
 				var lang:String = this.langCodes[this.selectedIndex];
-				ResourceUtil.getInstance().changeLocale([lang]);
+				ResourceUtil.getInstance().changeLocale(lang);
 			}
 		]]>
 	</mx:Script>

@@ -18,12 +18,19 @@
 */
 package org.bigbluebutton.core.services
 {
+	import mx.styles.IStyleManager2;
 	import mx.styles.StyleManager;
 	
 	public class SkinningService
 	{
+		private var myStyleManager: IStyleManager2;
+		
 		public function loadSkins(skin:String):void {
-			if (skin != "") StyleManager.loadStyleDeclarations(skin); 
+		//	IStyleManager2.loadStyleDeclarations(skin);
+			if (skin != "") {
+				myStyleManager = StyleManager.getStyleManager(null);
+				myStyleManager.loadStyleDeclarations(skin); 
+			}
 		}
 	}
 }

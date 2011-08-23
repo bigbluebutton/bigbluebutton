@@ -1,11 +1,14 @@
 package org.bigbluebutton.api;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.*;
 import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.domain.Playback;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.messaging.MessageListener;
@@ -13,17 +16,17 @@ import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.lang.StringUtils;
 
 public class MeetingService {
 	private static Logger log = LoggerFactory.getLogger(MeetingService.class);
 	
 	private final ConcurrentMap<String, Meeting> meetings;	
-	private int defaultMeetingExpireDuration = 60;	
+	private int defaultMeetingExpireDuration = 1;	
+	private int defaultMeetingCreateJoinDuration = 5;
 	private RecordingService recordingService;
 	private MessagingService messagingService;
 	private ExpiredMeetingCleanupTimerTask cleaner;
-
+	private boolean removeMeetingWhenEnded = false;
 	
 	public MeetingService() {
 		meetings = new ConcurrentHashMap<String, Meeting>();		
@@ -34,15 +37,27 @@ public class MeetingService {
 	 * running meetings.
 	 */
 	public void removeExpiredMeetings() {
+		log.info("Cleaning up expired meetings");
 		for (Meeting m : meetings.values()) {
-			if (m.hasExpired(defaultMeetingExpireDuration) || m.wasNeverStarted(defaultMeetingExpireDuration)) {
-				log.info("Removing expired meeting [{} - {}]", m.getInternalId(), m.getName());
+			if (m.hasExpired(defaultMeetingExpireDuration)) {
+				log.info("Removing expired meeting [id={} , name={}]", m.getInternalId(), m.getName());
+				log.info("Expired meeting [start={} , end={}]", m.getStartTime(), m.getEndTime());
+		  		if (m.isRecord()) {
+		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			
+		  			processRecording(m.getInternalId());
+		  		}
+				meetings.remove(m.getInternalId());
+				continue;
+			}
+			
+			if (m.wasNeverStarted(defaultMeetingCreateJoinDuration)) {
+				log.info("Removing non-joined meeting [{} - {}]", m.getInternalId(), m.getName());
 				meetings.remove(m.getInternalId());
 				continue;
 			}
 			
 			if (m.hasExceededDuration()) {
-				log.info("Ending meeting [{} - {}]", m.getInternalId(), m.getName());
+				log.info("Forcibly ending meeting [{} - {}]", m.getInternalId(), m.getName());
 				m.setForciblyEnded(true);
 				endMeeting(m.getInternalId());
 			}
@@ -62,7 +77,9 @@ public class MeetingService {
 		}
 	}
 
-	public Meeting getMeeting(String meetingId) {		
+	public Meeting getMeeting(String meetingId) {
+		if(meetingId == null)
+			return null;
 		for (String key : meetings.keySet()) {
 			if (key.startsWith(meetingId))
 				return (Meeting) meetings.get(key);
@@ -71,12 +88,79 @@ public class MeetingService {
 		return null;
 	}
 
-	public ArrayList<Recording> getRecordings(String meetingId) {		
-		return recordingService.getRecordings(meetingId);
+	public HashMap<String,Recording> getRecordings(ArrayList<String> idList) {
+		//TODO: this method shouldn't be used 
+		HashMap<String,Recording> recs= reorderRecordings(recordingService.getRecordings(idList));
+		return recs;
+	}
+	
+	public HashMap<String,Recording> reorderRecordings(ArrayList<Recording> olds){
+		HashMap<String,Recording> map= new HashMap<String, Recording>();
+		for(Recording r:olds){
+			if(!map.containsKey(r.getId())){
+				Map<String,String> meta= r.getMetadata();
+				String mid = meta.remove("meetingId");
+				String name = meta.remove("meetingName");
+				
+				r.setMeetingID(mid);
+				r.setName(name);
+
+				ArrayList<Playback> plays=new ArrayList<Playback>();
+				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getMinutesRecording(r.getStartTime(), r.getEndTime())));
+				r.setPlaybacks(plays);
+				map.put(r.getId(), r);
+			}
+			else{
+				Recording rec=map.get(r.getId());
+				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getMinutesRecording(r.getStartTime(), r.getEndTime())));
+			}
+		}
+		
+		return map;
+	}
+	private int getMinutesRecording(String dateini, String dateend){
+		//setting according to "Fri Jul 22 21:06:06 UTC 2011"
+		SimpleDateFormat sdf=new SimpleDateFormat("EEE MMM d HH:mm:ss z yyyy");
+		int total=0;
+		try {
+			Calendar cal=Calendar.getInstance();
+			
+			cal.setTime(sdf.parse(dateend));
+			long end_time=cal.getTimeInMillis();
+			
+			cal.setTime(sdf.parse(dateini));
+			long start_time=cal.getTimeInMillis();
+			
+			total = (int)((end_time - start_time)/60000);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return total;
+	}
+	
+	public boolean existsAnyRecording(ArrayList<String> idList){
+		return recordingService.existAnyRecording(idList);
+	}
+	
+	public void setPublishRecording(ArrayList<String> idList,boolean publish){
+		for(String id:idList){
+			recordingService.publish(id,publish);
+		}
+	}
+	
+	public void setRemoveMeetingWhenEnded(boolean s) {
+		removeMeetingWhenEnded = s;
+	}
+	
+	public void deleteRecordings(ArrayList<String> idList){
+		for(String id:idList){
+			recordingService.delete(id);
+		}
 	}
 	
 	public void processRecording(String meetingId) {
-		log.debug("Checking if we need to process recording for [{}]", meetingId);
+		log.debug("Process recording for [{}]", meetingId);
 		Meeting m = getMeeting(meetingId);
 		if (m != null) {
 			int numUsers = m.getNumUsers();
@@ -106,8 +190,21 @@ public class MeetingService {
 	
 	public void endMeeting(String meetingId) {		
 		messagingService.endMeeting(meetingId);
-	}
 		
+		if (removeMeetingWhenEnded) {
+			meetings.remove(meetingId);
+		} else {
+			Meeting m = getMeeting(meetingId);
+			if (m != null) {
+				m.setForciblyEnded(true);
+			}			
+		}
+	}
+
+	public void setDefaultMeetingCreateJoinDuration(int expiration) {
+		this.defaultMeetingCreateJoinDuration = expiration;
+	}
+	
 	public void setDefaultMeetingExpireDuration(int meetingExpiration) {
 		this.defaultMeetingExpireDuration = meetingExpiration;
 	}
@@ -138,8 +235,8 @@ public class MeetingService {
 		public void meetingStarted(String meetingId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				m.setStartTime(System.currentTimeMillis());
 				log.debug("Setting meeting started time");
+				m.setStartTime(System.currentTimeMillis());
 			}
 		}
 
@@ -147,8 +244,8 @@ public class MeetingService {
 		public void meetingEnded(String meetingId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				m.setEndTime(System.currentTimeMillis());
 				log.debug("Setting meeting end time");
+				m.setEndTime(System.currentTimeMillis());
 			}
 		}
 
@@ -158,7 +255,7 @@ public class MeetingService {
 			if (m != null) {
 				User user = new User(userId, name, role);
 				m.userJoined(user);
-				log.debug("New user in meeting:"+user.getFullname());
+				log.debug("New user in meeting:" + user.getFullname());
 			}
 		}
 

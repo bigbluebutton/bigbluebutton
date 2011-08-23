@@ -1,17 +1,24 @@
 package org.bigbluebutton.api.domain;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Recording {
 	private String id;
-	private String state;
+	private String meetingID;
+	private String name;
 	private boolean published;
 	private String startTime;
 	private String endTime;
+	private Map<String, String> metadata = new HashMap<String, String>();
+	private ArrayList<Playback> playbacks=new ArrayList<Playback>();
+	
+	//TODO: 
+	private String state;
 	private String playbackLink;
 	private String playbackFormat;
-	private Map<String, String> metadata = new HashMap<String, String>();
+	
 	
 	public String getId() {
 		return id;
@@ -76,6 +83,31 @@ public class Recording {
 	public void setMetadata(Map<String, String> metadata) {
 		this.metadata = metadata;
 	}
+
+	public String getMeetingID() {
+		return meetingID;
+	}
+
+	public void setMeetingID(String meetingID) {
+		this.meetingID = meetingID;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public ArrayList<Playback> getPlaybacks() {
+		return playbacks;
+	}
+
+	public void setPlaybacks(ArrayList<Playback> playbacks) {
+		this.playbacks = playbacks;
+	}
+	
 	
 }
 

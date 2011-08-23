@@ -56,6 +56,8 @@
 				if (userid == module.userid) return;
 				
 				var window:VideoWindow = new VideoWindow();
+				window.videoOptions = proxy.videoOptions;
+				
 				window.resolutions = module.resolutions.split(",");
 				
 				if (mock) {
@@ -79,15 +81,18 @@
 			}
 			
 			public function addToolbarButton():void{
-				button = new ToolbarButton();	  
-				button.isPresenter = !module.presenterShareOnly;
-				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
-				event.button = button;
-				globalDispatcher.dispatchEvent(event);
+				if (proxy.videoOptions.showButton) {
+					button = new ToolbarButton();	  
+					button.isPresenter = !module.presenterShareOnly;
+					var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
+					event.button = button;
+					globalDispatcher.dispatchEvent(event);
+				}
 			}
 			
 			private function openPublishWindow():void{
 				publishWindow = new PublishWindow();
+				publishWindow.videoOptions = proxy.videoOptions;
 				publishWindow.streamName = "-" + module.userid.toString();
 				publishWindow.userrole = module.role;
 				publishWindow.quality = module.quality;

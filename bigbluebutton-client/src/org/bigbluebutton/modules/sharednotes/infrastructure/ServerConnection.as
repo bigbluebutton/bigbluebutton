@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 			var request:Object = new Object();
 			request.documentName = Client.documentName;
 			request.connectionType = ServerConnection.connectionType;
-			send("c, " + JSON.encode(request));
+			//send("c, " + JSON.encode(request));
 			connectionTimeout.start();
 		}
 		
@@ -62,14 +62,14 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 		protected function receive(data:String):void { 
 			if (data.indexOf("c,") == 0) {
 				trace("Received connection data: " + data);
-				var clientData:Object = JSON.decode(data.substring(2));
-				client.initClient(clientData.id, this, clientData.initialDocument);
+				//var clientData:Object = JSON.decode(data.substring(2));
+				//client.initClient(clientData.id, this, clientData.initialDocument);
 				connectionTimeout.stop();
 				pendingResponse = false;
 			}
 			else if (data.indexOf("m,") == 0) {
-				var message:Message = Message.deserialize(JSON.decode(data.substring(2)));
-				client.receiveMessage(message);
+				//var message:Message = Message.deserialize(JSON.decode(data.substring(2)));
+				//client.receiveMessage(message);
 			}
 			else {
 				trace("unrecognized data: " + data);

@@ -3,6 +3,7 @@
 	xmlns:maps="org.bigbluebutton.modules.videoconf.maps.*" implements="org.bigbluebutton.common.IBigBlueButtonModule">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.controls.Alert;
@@ -85,6 +86,11 @@
 				eventMap.module = this;
 				eventMap.proxy = proxy;
 				eventMap.addToolbarButton();
+				
+				if (proxy.videoOptions.autoStart) {
+					var dispatcher:Dispatcher = new Dispatcher();        
+					dispatcher.dispatchEvent(new OpenPublishWindowEvent());					
+				}
 			}
 		
 			public function stop():void {

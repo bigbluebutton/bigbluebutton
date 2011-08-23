@@ -34,6 +34,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.model.LayoutOptions;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.controls.Alert;
@@ -56,8 +57,15 @@
 			public static const ALIGN_RIGHT:String ="ALIGN_RIGHT";
 			public static const ALIGN_LEFT:String = "ALIGN_LEFT";
 			
+			[Bindable]
+			public var layoutOptions:LayoutOptions = new LayoutOptions();
+						
 			public function loggedIn(name:String, room:String, role:String):void{
-				this.visible = true;
+				if (layoutOptions.showToolbar) {
+					this.visible = false;
+				} else {
+					this.visible = true;
+				}
 			}
 			
 			public function addButton(name:String):Button{
@@ -85,7 +93,11 @@
 			}
 			
 			private function hideToolbar(e:ConnectionFailedEvent):void{
-				this.visible = false;
+				if (layoutOptions.showToolbar) {
+					this.visible = false;
+				} else {
+					this.visible = true;
+				}
 			}
 			
 			private function handleAddToolbarButtonEvent(event:ToolbarButtonEvent):void {
@@ -107,7 +119,8 @@
 			
 			private function loginSuccess(e:SuccessfulLoginEvent):void{
 				loggedIn(e.conferenceParameters.username, e.conferenceParameters.room, e.conferenceParameters.role);
-				visible = true;
+				if (layoutOptions.showToolbar)
+					visible = true;
 			}
 			
 			private function gotConfigParameters(e:ConfigEvent):void{
