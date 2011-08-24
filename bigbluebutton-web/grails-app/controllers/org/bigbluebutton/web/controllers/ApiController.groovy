@@ -82,21 +82,18 @@ class ApiController {
     String API_CALL = 'create'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
   	
-	// BEGIN - backward compatibility	
-	String checksum = params.checksum
-	if (checksum == null) {
+	// BEGIN - backward compatibility
+	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
 
-	String name = params.name
-	if (name == null) {
+	if (StringUtils.isEmpty(params.name)) {
 		invalid("missingParamName", "You must specify a name for the meeting.");
 		return
 	}
 
-	String mtgID = params.meetingID
-	if (StringUtils.isEmpty(mtgID)) {
+	if (StringUtils.isEmpty(params.meetingID)) {
 		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
 		return
 	}
@@ -166,25 +163,22 @@ class ApiController {
   	ApiErrors errors = new ApiErrors()
   	  
 	// BEGIN - backward compatibility
-    String checksum = params.checksum
-    if (checksum == null) {
+    if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
-	String fullName1 = params.fullName
-	if (fullName1 == null) {
+
+	if (StringUtils.isEmpty(params.fullName)) {
 		invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
 		return
 	}
 	
-	String externalMeetingId1 = params.meetingID
-	if (externalMeetingId1 == null) {
+	if (StringUtils.isEmpty(params.meetingID)) {
 		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
 		return
 	}
 	
-	String password = params.password
-	if (password == null) {
+	if (StringUtils.isEmpty(params.password)) {
 		invalid("invalidPassword","You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.");
 		return
 	}
@@ -330,14 +324,12 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
 	// BEGIN - backward compatibility
-	String checksum = params.checksum
-	if (checksum == null) {
+	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
 
-	String mtgID = params.meetingID
-	if (StringUtils.isEmpty(mtgID)) {
+	if (StringUtils.isEmpty(params.meetingID)) {
 		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
 		return
 	}
@@ -411,20 +403,17 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"    
 	
 	// BEGIN - backward compatibility
-	String checksum = params.checksum
-	if (checksum == null) {
+	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
 
-	String mtgID = params.meetingID
-	if (StringUtils.isEmpty(mtgID)) {
+	if (StringUtils.isEmpty(params.meetingID)) {
 		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
 		return
 	}
 	
-	String password = params.password
-	if (password == null) {
+	if (StringUtils.isEmpty(params.password)) {
 		invalid("invalidPassword","You must supply the moderator password for this call.");
 		return
 	}
@@ -517,20 +506,17 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
     
 	// BEGIN - backward compatibility
-	String checksum = params.checksum
-	if (checksum == null) {
+	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
 
-	String mtgID = params.meetingID
-	if (StringUtils.isEmpty(mtgID)) {
+	if (StringUtils.isEmpty(params.meetingID)) {
 		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
 		return
 	}
 	
-	String password = params.password
-	if (password == null) {
+	if (StringUtils.isEmpty(params.password)) {
 		invalid("invalidPassword","You must supply the moderator password for this call.");
 		return
 	}
@@ -610,8 +596,7 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
     
 	// BEGIN - backward compatibility
-	String checksum = params.checksum
-	if (checksum == null) {
+	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
@@ -772,8 +757,7 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
     
 	// BEGIN - backward compatibility
-	String checksum = params.checksum
-	if (checksum == null) {
+	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
@@ -874,20 +858,17 @@ class ApiController {
 	  log.debug CONTROLLER_NAME + "#${API_CALL}"
 	  
 	  // BEGIN - backward compatibility
-	  String checksum = params.checksum
-	  if (checksum == null) {
+	  if (StringUtils.isEmpty(params.checksum)) {
 		  invalid("checksumError", "You did not pass the checksum security check")
 		  return
 	  }
 	  
-	  String rid = params.recordID
-	  if (rid == null) {
+	  if (StringUtils.isEmpty(params.recordID)) {
 		  invalid("missingParamRecordID", "You must specify a recordID.");
 		  return
 	  }
 	  
-	  String pubparam = params.publish
-	  if (pubparam == null) {
+	  if (StringUtils.isEmpty(params.publish)) {
 		  invalid("missingParamPublish", "You must specify a publish value true or false.");
 		  return
 	  }
@@ -965,14 +946,12 @@ class ApiController {
 	  log.debug CONTROLLER_NAME + "#${API_CALL}"
 	  
 	  // BEGIN - backward compatibility
-	  String checksum = params.checksum
-	  if (checksum == null) {
+	  if (StringUtils.isEmpty(params.checksum)) {
 		  invalid("checksumError", "You did not pass the checksum security check")
 		  return
 	  }
 	  
-	  String rid = params.recordID
-	  if (rid == null) {
+	  if (StringUtils.isEmpty(params.recordID)) {
 		  invalid("missingParamRecordID", "You must specify a recordID.");
 		  return
 	  }
