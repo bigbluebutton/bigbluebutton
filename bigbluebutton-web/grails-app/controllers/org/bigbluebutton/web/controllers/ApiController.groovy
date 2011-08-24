@@ -576,7 +576,7 @@ class ApiController {
     
     if (meeting.getModeratorPassword().equals(modPW) == false) {
 		// BEGIN - backward compatibility
-		invalidPassword("You must supply the moderator password for this call."); 
+		invalid("invalidPassword","You must supply the moderator password for this call."); 
 		return;
 		// END - backward compatibility
 		
