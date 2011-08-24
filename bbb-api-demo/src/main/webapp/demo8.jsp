@@ -5,6 +5,7 @@
  <%@ include file="demo_header.jsp"%>
 <%
 String fileURL = BigBlueButtonURL.replace("/bigbluebutton",":8080/demo");
+String name0="BigBlueButton.pptx";
 String name1="Demo123.pdf";
 String name2="Demo456.pdf";
 String name3="Demo789.pdf";
@@ -29,6 +30,7 @@ String name3="Demo789.pdf";
 						<td style="text-align: right">File Name:</td>
 						<td style="width: 5px;">&nbsp;</td>
 						<td><select name=filename>
+							<option value=<%=name0%>><%=name0.substring(0,name0.length()-5)%></option>
 							<option value=<%=name1%>><%=name1.substring(0,name1.length()-4)%></option>
 							<option value=<%=name2%>><%=name2.substring(0,name2.length()-4)%></option>
 							<option value=<%=name3%>><%=name3.substring(0,name3.length()-4)%></option>
