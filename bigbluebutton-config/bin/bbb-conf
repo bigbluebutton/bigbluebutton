@@ -267,6 +267,11 @@ stop_bigbluebutton () {
 	if [ -f /etc/init.d/bbb-openoffice-headless ]; then
 		/etc/init.d/bbb-openoffice-headless stop
 	fi
+
+	if [ -f /etc/init.d/bbb-record-core ]; then
+		/etc/init.d/bbb-record-core stop
+	fi
+
 }
 
 start_bigbluebutton () {
@@ -306,6 +311,11 @@ start_bigbluebutton () {
 	/etc/init.d/nginx start
 	/etc/init.d/red5 start
 	/etc/init.d/${SERVLET_CONTAINER} start
+
+	if [ -f /etc/init.d/bbb-record-core ]; then
+		/etc/init.d/bbb-record-core start
+	fi
+
 
 	#
 	# At this point the red5 and servlet container applications are starting up.
@@ -895,7 +905,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 		 	echo "# Error: File not found: $file"
 		else
 			if grep -q "^[^=]*=[ ]*$" $file; then
-        			echo "# The following properties in $file has no value."
+        			echo "# The following properties in $file have no value."
         			echo "#     $(grep '^[^=]*=[ ]*$' $file | sed 's/=//g')"
 			fi
 		fi
@@ -1045,7 +1055,14 @@ check_state() {
                 print_header
                 NOT_RUNNING_APPS="${NOT_RUNNING_APPS} redis-server"
         else
-                RUNNING_APPS="${RUNNING_APPS} redis"
+                RUNNING_APPS="${RUNNING_APPS} redis-server"
+        fi
+
+        if ! ps -C god > /dev/null; then
+                print_header
+                NOT_RUNNING_APPS="${NOT_RUNNING_APPS} bbb-record-core"
+        else
+                RUNNING_APPS="${RUNNING_APPS} bbb-record-core"
         fi
 
 	#echo "  Running:     ${RUNNING_APPS}"
@@ -1849,6 +1866,16 @@ if [ $CLEAN ]; then
 	rm -f /var/log/asterisk/messages* 
 	rm -f /var/log/asterisk/queue* 
 	rm -f /var/log/bigbluebutton/bbb-web.log*
+
+	#
+	# Clean out the log files for record and playback
+	#
+	rm -f /var/log/bigbluebutton/bbb-rap-worker.log*
+	rm -f /var/log/bigbluebutton/archive.log*
+	if [ -d /var/log/bigbluebutton/slides ]; then
+		rm -f /var/log/bigbluebutton/slides/*
+	fi
+		
 	
 	if [ $RED5_DIR ]; then
 		rm -rf $RED5_DIR/log/*

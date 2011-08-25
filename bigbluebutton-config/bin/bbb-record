@@ -1,0 +1,204 @@
+#!/bin/bash
+#
+# Copyright (c) 2008-2011 by BigBlueButton Inc.
+#
+# This file is part of BigBlueButton - http://www.bigbluebutton.org
+#
+# BigBlueButton is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+#
+# Author(s):
+#       Fred Dixon <ffdixon@bigbluebutton.org>
+#
+# Changelog:
+#   2011-08-18 FFD  Inital Version
+
+
+set -e
+#set -x
+
+BASE=/var/bigbluebutton/recording
+STATUS=$BASE/status
+
+BBB_VERSION=0.8-dev
+
+need_root() {
+        if [ $EUID != 0 ]; then
+                echo "Need to be root to run this option"
+                exit 1
+        fi
+}
+
+usage() {
+        echo "BigBlueButton Recording Utility - Version $BBB_VERSION"
+        echo
+        echo "   bbb-record [options]"
+        echo
+        echo "Configuration:"
+        echo "   --version                        Display BigBlueButton version (packages)"
+	echo
+        echo "Monitoring:"
+        echo "   --watch                          watch the processing in real-time"
+        echo "   --rebuild                        rebuild the recordings"
+        echo "   --reset                          rebuild the recordings"
+	echo
+}
+
+if [ $# -eq 0 ]; then
+        usage
+        exit 1
+fi
+
+# Parse the parameters
+while [ $# -gt 0 ]; do
+        if [ "$1" = "-watch" -o "$1" = "--watch" ]; then
+                WATCH=1
+		shift
+                continue
+        fi
+        if [ "$1" = "-rebuild" -o "$1" = "--rebuild" ]; then
+		need_root
+                REBUILD=1
+		shift
+                continue
+        fi
+	usage
+        if [ "$1" = "-reset" -o "$1" = "--reset" ]; then
+		need_root
+                RESET=1
+		shift
+                continue
+        fi
+	usage
+	exit 1
+done
+
+if [ $REBUILD ]; then
+
+#set -x
+
+for recording in $(dir $BASE/raw); do
+	echo "Marking for rebuild: $recording"
+
+	rm -f $STATUS/processed/$recording-slides.done
+	rm -f $STATUS/archived/$recording.done
+
+	#
+	# Remove all the processed
+	rm -rf $BASE/recording/slides/$recording
+	rm -rf $BASE/publish/slides/$recording
+
+	if [ -d /var/bigbluebutton/published/$recording ]; then
+		rm -rf /var/bigbluebutton/published/$recording
+	fi 		
+	if [ -d /var/bigbluebutton/unpublished/$recording ]; then
+		rm -rf /var/bigbluebutton/unpublished/$recording
+	fi 		
+done
+
+fi
+
+if [ $RESET ]; then
+	rm -rf /var/bigbluebutton/published/slides/*
+	rm -rf /var/bigbluebutton/unpublished/slides/*
+	rm -rf /var/bigbluebutton/recording/process/slides/*
+	rm -rf /var/bigbluebutton/recording/publish/matterhorn/*
+	rm -rf /var/bigbluebutton/recording/raw/*
+
+	rm /var/bigbluebutton/recording/status/recorded/*
+	rm /var/bigbluebutton/recording/status/archived/*
+	rm /var/bigbluebutton/recording/status/processed/*
+
+	for meeting in $(ls /var/bigbluebutton | grep "[0-9]\{13\}$"); do
+		echo "deleting: $meeting"
+	done
+fi
+
+if [ $WATCH ]; then
+
+
+	#ps -fC god
+	#ps -uxfp $(cat /var/run/god.pid)
+	#RAP_PID=$(ps -fC ruby | grep rap-worker | awk '{print $2}')	
+	#if [ "$RAP_PID" != "" ]; then
+	#echo
+		#ps fU tomcat6 -o "%c%a"
+		#ps af -C tomcat6 -o "%c%a"
+	#	pstree --ascii -alp $RAP_PID
+	#fi
+
+
+echo "MeetingID                                               Slides Recorded Archived Processed    Description"
+echo "------------------------------------------------------  ------ -------- -------- ---------    -----------------------------"
+for meeting in $(ls /var/bigbluebutton | grep "[0-9]\{13\}$"); do
+	echo -n "$meeting"
+
+	printf "%8s" $(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
+	#echo "/var/bigbluebutton/$meeting/$meeting"
+
+	#echo $BASE/raw/$meeting 
+	if [ -d $BASE/raw/$meeting ]; then
+		recording=$meeting
+
+#for recording in $(dir $BASE/raw); do
+
+	#echo -n "$recording: "
+
+	#
+	# Check archived
+	if [ -f $STATUS/recorded/$recording.done ]; then
+		echo -n "  1done  "
+	else
+		echo -n "         "
+	fi
+
+
+	#
+	# Check archived
+	if [ -f $STATUS/archived/$recording.done ]; then
+		echo -n "  2done  "
+	else
+		echo -n "         "
+	fi
+
+
+	#
+	# Check archived
+	if [ -f $STATUS/processed/$recording-slides.done ]; then
+		echo -n "  3done  "
+	else
+		echo -n "         "
+	fi
+
+	if [ -f /var/bigbluebutton/recording/raw/$recording/events.xml ]; then
+		echo -n "      "
+		echo -n $(head -n 5 /var/bigbluebutton/recording/raw/$recording/events.xml | grep description | sed s/.*description=\"//g | sed s/\".*//g)
+	fi
+
+fi
+	echo
+done
+	echo
+	echo "--"
+	ps fU tomcat6 -o "%c%a" | grep -v COMMAND | grep -v logging.properties
+
+	echo "--"
+
+	if tail -n 20 /var/log/bigbluebutton/bbb-web.log | grep -q "is recorded. Process it."; then
+		echo -n "Last meeting processed (bbb-web.log): "
+		tail -n 20 /var/log/bigbluebutton/bbb-web.log | grep "is recorded. Process it." | sed "s/.*\[//g" | sed "s/\].*//g"
+	fi
+
+
+fi
+
+
