@@ -146,8 +146,12 @@
 			 * Presentation
 			 */ 
 			
-			public function testPresentationConversion():String {
-				return didPresentationConvert.toString();
+			public function checkPresentation():String {
+				if (didPresentationConvert) {
+					didPresentationConvert = false;
+					return "true";
+				} else
+					return "false";
 			}
 			
 			public function handlePresentationConversion(event:Event):void {

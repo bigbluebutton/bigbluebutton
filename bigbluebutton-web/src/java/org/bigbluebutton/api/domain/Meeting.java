@@ -205,7 +205,7 @@ public class Meeting {
 	}
 	
 	public boolean hasExpired(int expiry) {
-		return (hasStarted() && hasEnded() && didExpire(expiry));
+		return (hasStarted() && hasEnded() && !isRunning() && didExpire(expiry));
 	}
 	
 	public boolean hasExceededDuration() {

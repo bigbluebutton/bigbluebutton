@@ -297,9 +297,6 @@
 		private function convertSuccess(e:UploadEvent):void{
 			okCancelBtn.label = ResourceUtil.getInstance().getString('bbb.presentation.ok');
 			okCancelBtn.visible = true;
-			var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-			readyEvent.presentationName = e.presentationName;
-			globalDispatch.dispatchEvent(readyEvent);
 			globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
 		}
 

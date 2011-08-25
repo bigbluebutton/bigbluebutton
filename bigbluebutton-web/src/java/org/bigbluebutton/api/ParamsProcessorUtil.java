@@ -56,10 +56,11 @@ public class ParamsProcessorUtil {
 	    return  welcomeMessage;		
 	}
 
+	
 	public void processRequiredCreateParams(Map<String, String> params, ApiErrors errors) {
 	    // Do we have a checksum? If not, complain.
 	    if (StringUtils.isEmpty(params.get("checksum"))) {
-	      errors.missingParamError("checksum");			
+	      errors.missingParamError("checksum");
 	    }
 	    
 	    // Do we have a meeting name? If not, complain.
