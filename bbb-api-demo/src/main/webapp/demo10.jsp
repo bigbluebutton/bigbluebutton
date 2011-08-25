@@ -218,13 +218,14 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 			height: 150,
 			loadonce: true,
 			sortable: true,
-			colNames:['Id','Course','Description', 'Date Recorded', 'Published'],
+			colNames:['Id','Course','Description', 'Date Recorded', 'Published', 'Playback'],
 			colModel:[
 				{name:'id',index:'id', width:50, hidden:true, xmlmap: "recordID"},
-				{name:'course',index:'course', width:150, xmlmap: "meetingID", formatter:playbackFormat, sortable:false},
+				{name:'course',index:'course', width:150, xmlmap: "meetingID", sortable:false},
 				{name:'description',index:'description', width:300, xmlmap: "metadata>description",sortable: false},
 				{name:'daterecorded',index:'daterecorded', width:200, xmlmap: "startTime", sortable: false},
-				{name:'published',index:'published', width:80, xmlmap: "published", sortable:false }		
+				{name:'published',index:'published', width:80, xmlmap: "published", sortable:false },
+				{name:'playback',index:'playback', width:150, formatter:playbackFormat, sortable:false}
 			],
 			xmlReader: {
 				root : "recordings",
@@ -241,9 +242,16 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 	});
 	
 	function playbackFormat( cellvalue, options, rowObject ){
-		if($(rowObject).find('published:first').text()=="true")
-			return '<a href="'+$(rowObject).find('playback format url:first').text()+'">'+cellvalue+'</a>';
-		return cellvalue;
+		if($(rowObject).find('published:first').text()=="true"){
+			var newval="<p>";
+			$(rowObject).find('playback format').each(function(i) {
+				newval = newval + '<a href="'+$(i).find("format url:first").text()+'">'+$(i).find("format type:first").text()+'</a>';
+				newval = newval + "  ";
+			});
+			newval = newval + "</p>"
+			return newval;
+		}
+		return "";
 	}
 	</script>
 <%
