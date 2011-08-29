@@ -244,9 +244,11 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 	function playbackFormat( cellvalue, options, rowObject ){
 		if($(rowObject).find('published:first').text()=="true"){
 			var newval="<p>";
-			$(rowObject).find('playback format').each(function(i) {
-				newval = newval + '<a href="'+$(i).find("format url:first").text()+'">'+$(i).find("format type:first").text()+'</a>';
-				newval = newval + "  ";
+			$(rowObject).find('playback format').each(function() {
+				if (newval != "<p>") {
+					newval += ", ";
+				}
+				newval += '<a href="'+$(this).find("url").text()+'">'+$(this).find("type").text()+'</a>';
 			});
 			newval = newval + "</p>"
 			return newval;
