@@ -29,6 +29,27 @@ set -e
 BASE=/var/bigbluebutton/recording
 STATUS=$BASE/status
 
+TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
+
+mark_for_rebuild() {
+	MEETING_ID=$1
+	for type in $TYPES; do
+                if [ -d $BASE/process/$type/$MEETING_ID ]; then
+                        rm -rf $BASE/process/$type/$MEETING_ID
+                else
+                        echo "Warn: Didn't find $BASE/process/$type/$MEETING_ID"
+                        exit 1
+                fi
+
+                if [ -f $STATUS/processed/$MEETING_ID-$type.done ]; then
+                        rm $STATUS/processed/$MEETING_ID-$type.done
+                else
+                        echo "Warn: Didn't find $STATUS/processed/$MEETING_ID-$type.done"
+                        exit 1
+                fi
+	done
+}
+
 BBB_VERSION=0.8-dev
 
 need_root() {
@@ -48,8 +69,8 @@ usage() {
 	echo
         echo "Monitoring:"
         echo "   --watch                          watch the processing in real-time"
-        echo "   --rebuild                        rebuild the recordings"
-        echo "   --reset                          rebuild the recordings"
+        echo "   --rebuild [meetingID]            rebuild the output for meetingID"
+        echo "   --reset                          remove all meetings and recordings"
 	echo
 }
 
@@ -67,6 +88,10 @@ while [ $# -gt 0 ]; do
         fi
         if [ "$1" = "-rebuild" -o "$1" = "--rebuild" ]; then
 		need_root
+		if [ ! -z "${2}" ]; then
+                	MEETING_ID="${2}"
+			shift
+		fi
                 REBUILD=1
 		shift
                 continue
@@ -83,36 +108,44 @@ while [ $# -gt 0 ]; do
 done
 
 if [ $REBUILD ]; then
-
-#set -x
-
-for recording in $(dir $BASE/raw); do
-	echo "Marking for rebuild: $recording"
-
-	rm -f $STATUS/processed/$recording-slides.done
-	rm -f $STATUS/archived/$recording.done
-
+    if [ -z "$MEETING_ID" ]; then
 	#
-	# Remove all the processed
-	rm -rf $BASE/recording/slides/$recording
-	rm -rf $BASE/publish/slides/$recording
+	# Regenerate all meetings
+	#
+	for recording in $(dir $BASE/raw); do
+		echo "Marking for rebuild: $MEETING_ID"
+		mark_for_rebuild $MEETING_ID
 
-	if [ -d /var/bigbluebutton/published/$recording ]; then
-		rm -rf /var/bigbluebutton/published/$recording
-	fi 		
-	if [ -d /var/bigbluebutton/unpublished/$recording ]; then
-		rm -rf /var/bigbluebutton/unpublished/$recording
-	fi 		
-done
+#sudo rm -rf /var/bigbluebutton/recording/process/slides/6e35e3b2778883f5db637d7a5dba0a427f692e91-1314313817423
+#sudo rm /var/bigbluebutton/recording/status/processed/6e35e3b2778883f5db637d7a5dba0a427f692e91-1314313817423-slides.done
 
-fi
+		#rm -rf $BASE/recording/process/slides/$recording
+		#rm -rf $BASE/publish/slides/$recording
+
+		#if [ -d /var/bigbluebutton/published/$recording ]; then
+		#	rm -rf /var/bigbluebutton/published/$recording
+		#fi 		
+		#if [ -d /var/bigbluebutton/unpublished/$recording ]; then
+		#	rm -rf /var/bigbluebutton/unpublished/$recording
+		#fi 		
+	done
+    else
+		echo "Marking for rebuild: $MEETING_ID"
+		mark_for_rebuild $MEETING_ID
+
+    fi
+fi 
 
 if [ $RESET ]; then
-	rm -rf /var/bigbluebutton/published/slides/*
-	rm -rf /var/bigbluebutton/unpublished/slides/*
-	rm -rf /var/bigbluebutton/recording/process/slides/*
-	rm -rf /var/bigbluebutton/recording/publish/matterhorn/*
-	rm -rf /var/bigbluebutton/recording/raw/*
+	for type in $TYPES; do
+		rm -rf /var/bigbluebutton/published/$type/*
+		rm -rf /var/bigbluebutton/unpublished/$type/*
+
+		rm -rf /var/bigbluebutton/recording/process/$type/*
+		rm -rf /var/bigbluebutton/recording/publish/$type/*
+	
+		rm -rf /var/bigbluebutton/recording/raw/*
+	done
 
 	rm /var/bigbluebutton/recording/status/recorded/*
 	rm /var/bigbluebutton/recording/status/archived/*
@@ -137,12 +170,17 @@ if [ $WATCH ]; then
 	#fi
 
 
-echo "MeetingID                                               Slides Recorded Archived Processed    Description"
-echo "------------------------------------------------------  ------ -------- -------- ---------    -----------------------------"
-for meeting in $(ls /var/bigbluebutton | grep "[0-9]\{13\}$"); do
+echo "MeetingID                                               Time                         Slides Recorded Archived Processed             Description"
+echo "------------------------------------------------------  ---------------------------- ------ -------- -------- --------------------  -----------------------------"
+                                                              
+for meeting in $(ls -u /var/bigbluebutton | grep "[0-9]\{13\}$"); do
 	echo -n "$meeting"
+	timestamp=$(echo $meeting | sed s/.*-//g)
+	epoc=$(($timestamp/1000))
+	echo -n "  "
+	echo -n $(date --date "Jan 1, 1970 00:00:00 +0000 + $epoc seconds")
 
-	printf "%8s" $(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
+	printf "%7s" $(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
 	#echo "/var/bigbluebutton/$meeting/$meeting"
 
 	#echo $BASE/raw/$meeting 
@@ -156,7 +194,7 @@ for meeting in $(ls /var/bigbluebutton | grep "[0-9]\{13\}$"); do
 	#
 	# Check archived
 	if [ -f $STATUS/recorded/$recording.done ]; then
-		echo -n "  1done  "
+		echo -n "   done  "
 	else
 		echo -n "         "
 	fi
@@ -165,22 +203,27 @@ for meeting in $(ls /var/bigbluebutton | grep "[0-9]\{13\}$"); do
 	#
 	# Check archived
 	if [ -f $STATUS/archived/$recording.done ]; then
-		echo -n "  2done  "
+		echo -n "   done   "
 	else
-		echo -n "         "
+		echo -n "          "
 	fi
 
 
 	#
 	# Check archived
-	if [ -f $STATUS/processed/$recording-slides.done ]; then
-		echo -n "  3done  "
-	else
-		echo -n "         "
-	fi
+	output=""
+	for type in $TYPES; do
+		if [ -f $STATUS/processed/$recording-$type.done ]; then
+			if [ ! -z "$output" ]; then
+				output="$output,"
+			fi
+			output="$output$type"
+		fi	
+	done
+        printf "%-17s" $output
 
 	if [ -f /var/bigbluebutton/recording/raw/$recording/events.xml ]; then
-		echo -n "      "
+		echo -n "     "
 		echo -n $(head -n 5 /var/bigbluebutton/recording/raw/$recording/events.xml | grep description | sed s/.*description=\"//g | sed s/\".*//g)
 	fi
 
