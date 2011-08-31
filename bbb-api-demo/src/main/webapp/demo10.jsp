@@ -86,11 +86,11 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		// Assume we want to create a meeting
 		//
 %>
-	<h2>BigBlueButton 0.8-dev Record and Playback Test</h2>
+	<h2>Join a Course (Recorded)</h2>
 
 	<form id="formcreate" name="formcreate" method="get" action=""> 		
 		<div>
-			<label class="labform" for="meetingID">Class:</label>
+			<label class="labform" for="meetingID">Course:</label>
 			<select name="meetingID" onchange="onChangeMeeting(this.value);">
 				<option value="English 101">English 101</option>
 				<option value="English 102">English 102</option>
@@ -109,7 +109,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 			<textarea id="meta_description" name="meta_description" cols="50" rows="6" class="required"></textarea>
 		</div>
 		<div>
-			<label class="labform" for="meta_email">Your Email:</label>
+			<label class="labform" for="meta_email">Your Name:</label>
 			<input id="meta_email" name="meta_email" type="text" class="required" size="30" />
 		</div>	
 		<div style="clear:both"></div>
@@ -274,7 +274,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		//
 		// This is the URL for to join the meeting as moderator
 		//
-		String welcome = "<br>Welcome to %%CONFNAME%%!<br><br>For help see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a><br><br>This meeting is being recorded (audio + slides).<br><br>Shortly after this meeting finishes (all users have left), the BigBlueButton server will process the meeting and publish a playback link to <a href=\"event:http://test.bigbluebutton.org/\"><u>this page</u></a>.";
+		String welcome = "<br>Welcome to %%CONFNAME%%!<br><br>For help see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a><br><br>This meeting is being recorded (audio + slides).<br><br>Shortly after this meeting finishes (all users have left)";
 		String joinURL = getJoinURL(username, meetingID, "true", welcome, metadata);
 		if (joinURL.startsWith("http://")) {
 %>
