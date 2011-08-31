@@ -1,26 +1,49 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
-        <head>
-                <title>BigBlueButton Recording</title>
-                <link rel="stylesheet" href="css/bbb.playback.css">
+<head>
 
-                <script src="lib/jquery-1.4.4.js"></script>
-                <script src="playback.js"></script>
+  <title>Popcorn Image Plug-in Demo</title>
+  <link rel="stylesheet" href="css/bbb.playback.css">
+  <script type="text/javascript">
 
-                <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-                <title>Untitled Document</title>
-        </head>
-        <body>
-                <div id="playbackArea">
-                        <div id="slidesContainer">
-                                <img id="imgSlide" width="800" height="600" src="logo.png" >
-                        </div>
-                        <br/>
-                        <audio id="audioRecording" controls> You must use an HTML5 capable browser to view this page. Go download Chrome or Opera </audio>
-                </div>
+    document.addEventListener( "DOMContentLoaded", function() {
+	function getUrlParameters() {
+	    var map = {};
+	    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+	    map[key] = value;
+	    });
+	    return map; 
+	}
 
+	/*http://192.168.1.11/playback/slides/playback.html?meetingId=a3be3c36bf3136c4718f64457bbcccb17b6ab760-1312582961289*/
+	var audio;
+	var slides;
+    	var params = getUrlParameters();
+	var MEETINGID = params['meetingId'];
+    	var HOST = window.location.hostname;
+	var RECORDINGS = "http://" + HOST + "/slides/" + MEETINGID;
+	var SLIDES_XML = "http://" + HOST + "/popcorn/" + MEETINGID + '/slides.xml';
+	console.log(RECORDINGS);
+	audio = document.getElementById("audioRecording");
+	console.log(audio);
+	audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
+	audio.setAttribute('type','audio/ogg')
+	//http://192.168.1.11/slides/6065595f17b19d9c1dc4810f88cc3465ff6e6d55-1313607330265/slides.xml
+	audio.setAttribute('data-timeline-sources', SLIDES_XML)
 
+    }, false);
+  </script>
+  <script src="lib/popcorn-complete.min.js"></script>
+  <script src="lib/popcorn.image.js"></script>
 
-        </body>
+</head>
+<body>
+
+  <div id="playbackArea">
+    <h1 >BigBlueButton Popcorn Playback</h1>
+    <div style="width:800px; height:600px;" id="slide" > </div> 
+    <audio id="audioRecording" controls > You must use an HTML5 capable browser to view this page. Go download Chrome or Opera </audio>
+  </div>
+
+</body>
 </html>
-
