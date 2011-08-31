@@ -62,11 +62,49 @@ if (playback == "slides")
 	  	}			
 		}
 		
-		puts "writing metadata to #{package_dir}/metadata.xml" 
 		metadata_xml = File.new("#{package_dir}/metadata.xml","w")
 		metadata_xml.write(metaxml)
 		metadata_xml.close		
 		
+    #Create slides.xml
+    presentation_url = "http://" + playback_host + "/slides/" + meeting_id + "/presentation"
+  	@doc = Nokogiri::XML(File.open("#{process_dir}/events.xml"))
+	  meeting_start = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0]['timestamp']
+	  meeting_end = @doc.xpath("//event[@eventname='EndAndKickAllEvent']").last()['timestamp']
+	  first_presentation_start = @doc.xpath("//event[@eventname='SharePresentationEvent']")[0]['timestamp']
+	  first_slide_start = (first_presentation_start.to_i - meeting_start.to_i) / 1000
+	  events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
+	  presentation_name = ""
+
+    #Create slides.xml
+	  slides_doc = Nokogiri::XML::Builder.new do |xml|
+	    xml.popcorn {
+	      xml.timeline {
+          xml.image(:in => 0, :out => first_slide_start, :src => "logo.png", :target => "slide", :width => 200, :width => 200 )
+	        events.each do |node|
+        	  eventname =  node['eventname']
+	          if eventname == "SharePresentationEvent"
+	             presentation_name = node.xpath(".//presentationName")[0].text()
+	          else
+	             slide_timestamp =  node['timestamp']
+        	     slide_start = (slide_timestamp.to_i - meeting_start.to_i) / 1000
+	             slide_number = node.xpath(".//slide")[0].text()
+	             slide_src = "#{presentation_url}/#{presentation_name}/slide-#{slide_number.to_i + 1}.png"
+	             current_index = events.index(node)
+	             if( current_index + 1 < events.length)
+	                 slide_end = ( events[current_index + 1]['timestamp'].to_i - meeting_start.to_i ) / 1000
+        	     else
+	                slide_end = ( meeting_end.to_i - meeting_start.to_i ) / 1000
+	             end
+	             xml.image(:in => slide_start, :out => slide_end, :src => slide_src, :target => "slide", :width => 200, :width => 200 )    
+	          end
+	        end
+	      }
+	   }
+	  end
+
+	  File.open("#{package_dir}/slides.xml", 'w') { |f| f.puts slides_doc.to_xml }    
+        
 		# Now publish this recording	
 		if not FileTest.directory?(publish_dir)
 			FileUtils.mkdir_p publish_dir

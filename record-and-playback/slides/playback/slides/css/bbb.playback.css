@@ -14,3 +14,24 @@ body {
 	margin-left: auto;
 	margin-right: auto;
 }
+
+br{
+	display:none
+}
+#chat{
+	border:1px solid black;
+/*	width: 700px;
+	height: 100px;*/
+	margin-left: auto;
+	margin-right: auto;
+	padding-left:10px;
+	padding-right:10px;
+}
+#chat div p{
+	margin-bottom:-10px;
+	padding:0px;
+	border-bottom:1px solid #BFE3FE;
+	font-size:11px
+}
+#big {display:none}
+#mid {display:none}
