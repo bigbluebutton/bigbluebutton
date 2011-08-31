@@ -47,6 +47,14 @@ mark_for_rebuild() {
                         echo "Warn: Didn't find $STATUS/processed/$MEETING_ID-$type.done"
                         exit 1
                 fi
+
+                if [ -d /var/bigbluebutton/published/$type/$MEETING_ID ]; then
+                        rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
+                fi
+
+                if [ -d /var/bigbluebutton/unpublished/$type/$MEETING_ID ]; then
+                        rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
+                fi
 	done
 }
 
@@ -70,7 +78,7 @@ usage() {
         echo "Monitoring:"
         echo "   --watch                          watch the processing in real-time"
         echo "   --rebuild [meetingID]            rebuild the output for meetingID"
-        echo "   --reset                          remove all meetings and recordings"
+        echo "   --deletall                       delete all meetings and recordings"
 	echo
 }
 
@@ -97,9 +105,9 @@ while [ $# -gt 0 ]; do
                 continue
         fi
 	usage
-        if [ "$1" = "-reset" -o "$1" = "--reset" ]; then
+        if [ "$1" = "-deleteall" -o "$1" = "--deleteall" ]; then
 		need_root
-                RESET=1
+                DELETEALL=1
 		shift
                 continue
         fi
@@ -136,7 +144,7 @@ if [ $REBUILD ]; then
     fi
 fi 
 
-if [ $RESET ]; then
+if [ $DELETEALL ]; then
 	for type in $TYPES; do
 		rm -rf /var/bigbluebutton/published/$type/*
 		rm -rf /var/bigbluebutton/unpublished/$type/*
@@ -145,14 +153,17 @@ if [ $RESET ]; then
 		rm -rf /var/bigbluebutton/recording/publish/$type/*
 	
 		rm -rf /var/bigbluebutton/recording/raw/*
+
+		rm -rf /var/log/bigbluebutton/$type/*
 	done
 
-	rm /var/bigbluebutton/recording/status/recorded/*
-	rm /var/bigbluebutton/recording/status/archived/*
-	rm /var/bigbluebutton/recording/status/processed/*
+	rm -f /var/bigbluebutton/recording/status/recorded/*
+	rm -f /var/bigbluebutton/recording/status/archived/*
+	rm -f /var/bigbluebutton/recording/status/processed/*
 
 	for meeting in $(ls /var/bigbluebutton | grep "[0-9]\{13\}$"); do
 		echo "deleting: $meeting"
+		rm -rf /var/bigbluebutton/$meeting
 	done
 fi
 
@@ -170,8 +181,8 @@ if [ $WATCH ]; then
 	#fi
 
 
-echo "MeetingID                                               Time                         Slides Recorded Archived Processed             Description"
-echo "------------------------------------------------------  ---------------------------- ------ -------- -------- --------------------  -----------------------------"
+echo "MeetingID                                               Time                         Slides Recorded Archived Processed            Published             Description"
+echo "------------------------------------------------------  ---------------------------- ------ -------- -------- -------------------- --------------------  -----------------------------"
                                                               
 for meeting in $(ls -u /var/bigbluebutton | grep "[0-9]\{13\}$"); do
 	echo -n "$meeting"
@@ -211,16 +222,30 @@ for meeting in $(ls -u /var/bigbluebutton | grep "[0-9]\{13\}$"); do
 
 	#
 	# Check archived
-	output=""
+	processed=""
 	for type in $TYPES; do
 		if [ -f $STATUS/processed/$recording-$type.done ]; then
-			if [ ! -z "$output" ]; then
-				output="$output,"
+			if [ ! -z "$processed" ]; then
+				processed="$processed,"
 			fi
-			output="$output$type"
+			processed="$processed$type"
 		fi	
 	done
-        printf "%-17s" $output
+        printf "%-21s" $processed
+
+	#
+	# Check archived
+	published=""
+	for type in $TYPES; do
+		if [ -f /var/bigbluebutton/published/$type/$recording/metadata.xml ]; then
+			if [ ! -z "$published" ]; then
+				published="$published,"
+			fi
+			published="$published$type"
+		fi	
+	done
+        printf "%-17s" $published
+
 
 	if [ -f /var/bigbluebutton/recording/raw/$recording/events.xml ]; then
 		echo -n "     "
