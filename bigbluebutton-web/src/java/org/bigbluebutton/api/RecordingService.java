@@ -76,7 +76,8 @@ public class RecordingService {
 		for (int i = 0; i < format.length; i++) {
 			File[] recordings = getDirectories(path + File.separatorChar + format[i]);
 			for (int f = 0; f < recordings.length; f++) {
-				ids.add(recordings[f].getName());				
+				if(!ids.contains(recordings[f].getName()))
+					ids.add(recordings[f].getName());				
 			}
 		}
 		return ids;
