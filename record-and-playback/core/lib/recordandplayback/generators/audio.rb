@@ -286,13 +286,9 @@ module BigBlueButton
 
     def eql?(other)
       (start_record_timestamp == other.start_record_timestamp) and
-      (stop_event_timestamp == other.stop_event_timestamp) and
       (file == other.file) and
-      (bridge == other.bridge) and
-      (start_event_timestamp == other.start_event_timestamp)
+      (bridge == other.bridge)
     end
-
-
     
   end
 end
