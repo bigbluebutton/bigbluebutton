@@ -76,12 +76,12 @@ if (playback == "slides")
 	  events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
 	  presentation_name = ""
 
-    #Create slides.xml
+    #Create slides.xml and chat.
 	  slides_doc = Nokogiri::XML::Builder.new do |xml|
 	    xml.popcorn {
 	      xml.timeline {
           xml.image(:in => 0, :out => first_slide_start, :src => "logo.png", :target => "slide", :width => 200, :width => 200 )
-	        events.each do |node|
+	        slides_events.each do |node|
         	  eventname =  node['eventname']
 	          if eventname == "SharePresentationEvent"
 	             presentation_name = node.xpath(".//presentationName")[0].text()
@@ -89,18 +89,26 @@ if (playback == "slides")
 	             slide_timestamp =  node['timestamp']
         	     slide_start = (slide_timestamp.to_i - meeting_start.to_i) / 1000
 	             slide_number = node.xpath(".//slide")[0].text()
-	             slide_src = "#{presentation_url}/#{presentation_name}/slide-#{slide_number.to_i + 1}.png"
-	             current_index = events.index(node)
-	             if( current_index + 1 < events.length)
-	                 slide_end = ( events[current_index + 1]['timestamp'].to_i - meeting_start.to_i ) / 1000
+	             slide_src = "#{presentation_dir}/#{presentation_name}/slide-#{slide_number.to_i + 1}.png"
+	             current_index = slides_events.index(node)
+	             if( current_index + 1 < slides_events.length)
+	                 slide_end = ( slides_events[current_index + 1]['timestamp'].to_i - meeting_start.to_i ) / 1000
         	     else
 	                slide_end = ( meeting_end.to_i - meeting_start.to_i ) / 1000
 	             end
-	             xml.image(:in => slide_start, :out => slide_end, :src => slide_src, :target => "slide", :width => 200, :width => 200 )    
+	             xml.image(:in => slide_start, :out => slide_end, :src => slide_src, :target => "slide", :width => 200, :width => 200 )
+	             puts "#{slide_src} : #{slide_start} -> #{slide_end}"      
 	          end
 	        end
 	      }
-	   }
+	       chat_events.each do |node|
+		   chat_timestamp =  node['timestamp']
+		   chat_sender = node.xpath(".//sender")[0].text()
+		   chat_message =  node.xpath(".//message")[0].text() 
+		   chat_start = (chat_timestamp.to_i - meeting_start.to_i) / 1000
+                   xml.timeline(:in => chat_start, :direction => "up",  :innerHTML => "<span><strong>#{chat_sender}:</strong> #{chat_message}</span>", :target => "chat" )
+	       end
+	     }
 	  end
 
 	  File.open("#{package_dir}/slides.xml", 'w') { |f| f.puts slides_doc.to_xml }    

@@ -7,41 +7,44 @@
   <script type="text/javascript">
 
     document.addEventListener( "DOMContentLoaded", function() {
-	function getUrlParameters() {
-	    var map = {};
-	    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-	    map[key] = value;
-	    });
-	    return map; 
-	}
+      function getUrlParameters() {
+        var map = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        map[key] = value;
+        });
+        return map; 
+      }
 
-	/*http://192.168.1.11/playback/slides/playback.html?meetingId=a3be3c36bf3136c4718f64457bbcccb17b6ab760-1312582961289*/
-	var audio;
-	var slides;
-    	var params = getUrlParameters();
-	var MEETINGID = params['meetingId'];
-    	var HOST = window.location.hostname;
-	var RECORDINGS = "http://" + HOST + "/slides/" + MEETINGID;
-	var SLIDES_XML = "http://" + HOST + "/slides/" + MEETINGID + '/slides.xml';
-	console.log(RECORDINGS);
-	audio = document.getElementById("audioRecording");
-	console.log(audio);
-	audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
-	audio.setAttribute('type','audio/ogg')
-	//http://192.168.1.11/slides/6065595f17b19d9c1dc4810f88cc3465ff6e6d55-1313607330265/slides.xml
-	audio.setAttribute('data-timeline-sources', SLIDES_XML)
-
+      /*http://192.168.1.11/playback/slides/playback.html?meetingId=a3be3c36bf3136c4718f64457bbcccb17b6ab760-1312582961289*/
+      var audio;
+      var slides;
+      var params = getUrlParameters();
+      var MEETINGID = params['meetingId'];
+      var HOST = window.location.hostname;
+      var RECORDINGS = "http://" + HOST + "/slides/" + MEETINGID;
+      var SLIDES_XML = "http://" + HOST + "/slides/" + MEETINGID + '/slides.xml';
+      console.log(RECORDINGS);
+      audio = document.getElementById("audioRecording");
+      console.log(audio);
+      audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
+      audio.setAttribute('type','audio/ogg')
+      //http://192.168.1.11/slides/6065595f17b19d9c1dc4810f88cc3465ff6e6d55-1313607330265/slides.xml
+      audio.setAttribute('data-timeline-sources', SLIDES_XML)
     }, false);
   </script>
   <script src="lib/popcorn-complete.min.js"></script>
   <script src="lib/popcorn.image.js"></script>
-
+  <script src="scripts/popcorn.timeline.js"></script>
 </head>
 <body>
 
   <div id="playbackArea">
     <div style="width:800px; height:650px;" id="slide"> </div> 
     <audio id="audioRecording" controls > You must use an HTML5 capable browser to view this page.</audio>
+    <div class="chatcontainer">
+	    <h4 class="chattitle">Chat</h4>	
+	    <div id="chat"> </div>	
+    </div>
   </div>
 
 </body>
