@@ -67,9 +67,6 @@ public class Meeting {
     	metadata = builder.metadata;
     	createdTime = builder.createdTime;
 		users = new ConcurrentHashMap<String, User>();
-		
-		metadata.put("meetingId", extMeetingId);
-		metadata.put("meetingName", name);
 	}
 
 	public Map<String, String> getMetadata() {
