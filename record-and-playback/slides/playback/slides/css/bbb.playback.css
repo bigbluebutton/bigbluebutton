@@ -14,7 +14,7 @@ br{
 	margin-left: auto;
 	margin-right: auto;
 }
-/*#slide{float:left}*/
+
 #audioRecording{
 	display: block;
 	margin-left: auto;
@@ -23,13 +23,10 @@ br{
 
 #slide{
 	background-image:url('../images/logo.png');
-	float: left;
-	
 }
 
 
 .chatcontainer{
-	background:url('../images/chat.png') no-repeat top center;
 	width:420px;
 	height:350px;
 	margin-left: auto;
