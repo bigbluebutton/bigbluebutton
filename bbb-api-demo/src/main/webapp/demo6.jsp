@@ -144,8 +144,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 		//
 		// This is the URL for to join the meeting as moderator
 		//
-		String joinURL = getJoinURL(username, confname, "true", null, metadata);
-
+		String joinURL = getJoinURL(username, confname, "true", null, metadata, null);
 		
 		String inviteURL = BigBlueButtonURL	+ "demo/demo6.jsp?action=invite&confname=" + URLEncoder.encode(confname, "UTF-8");
 %>

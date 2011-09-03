@@ -30,7 +30,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title>Join a Course</title>
+	<title>Join Demo Meeting</title>
 </head>
 <body>
 
@@ -85,12 +85,9 @@ if (request.getParameterMap().isEmpty()) {
 	// Got an action=create
 	//
 	
-	//
-    // Request a URL to join a meeting called "Demo Meeting"
-    // Pass null for welcome message to use the default message (see defaultWelcomeMessage in bigbluebutton.properties)
-    // Update: Added record parameter, default: false 
-    //
-	String joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null, null);
+	String url = BigBlueButtonURL.replace("/bigbluebutton",":8080/demo");
+	String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"/pdfs/sample.pdf'/></module></modules>";
+	String joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null, null, preUploadPDF);
 
 	if (joinURL.startsWith("http://")) { 
 %>

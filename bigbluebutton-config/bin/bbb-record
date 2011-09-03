@@ -85,7 +85,7 @@ usage() {
         echo "   --version                        Display BigBlueButton version (packages)"
 	echo
         echo "Monitoring:"
-        echo "   --watch                          watch the processing in real-time"
+        echo "   --watch                          monitor processing of recordings: watch -n 2 \"bbb-record --watch\""
         echo "   --rebuild [meetingID]            rebuild the output for meetingID"
         echo "   --deletall                       delete all meetings and recordings"
 	echo

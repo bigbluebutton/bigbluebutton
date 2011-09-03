@@ -107,7 +107,9 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 		// String joinURL = getJoinURL(username, meetingID, "Welcome to " + meetingID );
 		// Update: added record parameter, default false
-		String joinURL = getJoinURL(username, meetingID,"false", "<br>Welcome to course: %%CONFNAME%%.<br>", null );
+		String url = BigBlueButtonURL.replace("/bigbluebutton",":8080/demo");
+		String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"/pdfs/sample.pdf'/></module></modules>";
+		String joinURL = getJoinURL(username, meetingID, "false", "<br>Welcome to course: %%CONFNAME%%.<br>", null, preUploadPDF );
 
 		if (joinURL.startsWith("http://")) {
 %>

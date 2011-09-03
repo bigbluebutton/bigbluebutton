@@ -117,9 +117,6 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		<input type="hidden" name="action" value="create" />
 	</form>
 
-<!--
-<strong>Note:</strong> If you created the meeting and entered a valid e-mail address, shortly after the meeting finishes (all users have left) you'll receive an e-mail from <i>bigbluebutton.notify@gmail.com</i> with a link to playback the recorded meeting (slides + audio).  The playback link will also appear in the table below. 
--->
 	<h3>Recorded Sessions</h3>
 	<select id="actionscmb" name="actions" onchange="recordedAction(this.value);">
 		<option value="novalue" selected>Actions...</option>
@@ -274,8 +271,8 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		//
 		// This is the URL for to join the meeting as moderator
 		//
-		String welcome = "<br>Welcome to %%CONFNAME%%!<br><br>For help see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a><br><br>This meeting is being recorded (audio + slides).<br><br>Shortly after this meeting finishes (all users have left)";
-		String joinURL = getJoinURL(username, meetingID, "true", welcome, metadata);
+		String welcome = "<br>Welcome to %%CONFNAME%%!<br><br>For help see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a>.<br><br>To join the voice bridge for this meeting click the headset icon in the upper-left <b>(please use a headset to prevent echo)</b>.   This meeting is being recorded (audio + slides + chat ).";
+		String joinURL = getJoinURL(username, meetingID, "true", welcome, metadata, null);
 		if (joinURL.startsWith("http://")) {
 %>
 <script language="javascript" type="text/javascript">

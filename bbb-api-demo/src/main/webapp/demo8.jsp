@@ -4,11 +4,11 @@
  <%@ include file="bbb_api.jsp"%>  
  <%@ include file="demo_header.jsp"%>
 <%
-String fileURL = BigBlueButtonURL.replace("/bigbluebutton",":8080/demo");
+String demoURL = BigBlueButtonURL.replace("/bigbluebutton",":8080/demo");
 String name0="BigBlueButton.pptx";
-String name1="Demo123.pdf";
-String name2="Demo456.pdf";
-String name3="Demo789.pdf";
+String name1="pdfs/Demo123.pdf";
+String name2="pdfs/Demo456.pdf";
+String name3="pdfs/Demo789.pdf";
 %>
 
 <h2>Demo #8: Send a presentation URL before joining a Course...</h2> 
@@ -18,7 +18,7 @@ String name3="Demo789.pdf";
 				<tbody>
 					<tr>
 						<td>&nbsp;</td>
-						<td style="text-align: right;">Full Name:</td>
+						<td style="text-align: right;">Full Name::</td>
 						<td style="width: 5px;">&nbsp;</td>
 						<td style="text-align: left"><input type="text"
 							name="username" />
@@ -27,13 +27,13 @@ String name3="Demo789.pdf";
 	
 					<tr>
 						<td>&nbsp;</td>
-						<td style="text-align: right">File Name:</td>
+						<td style="text-align: right">Preupload:</td>
 						<td style="width: 5px;">&nbsp;</td>
 						<td><select name=filename>
-							<option value=<%=name0%>><%=name0.substring(0,name0.length()-5)%></option>
-							<option value=<%=name1%>><%=name1.substring(0,name1.length()-4)%></option>
-							<option value=<%=name2%>><%=name2.substring(0,name2.length()-4)%></option>
-							<option value=<%=name3%>><%=name3.substring(0,name3.length()-4)%></option>
+							<option value=<%=name0%>><%=name0%></option>
+							<option value=<%=name1%>><%=name1%></option>
+							<option value=<%=name2%>><%=name2%></option>
+							<option value=<%=name3%>><%=name3%></option>
 						</select>
 						</td>
 					</tr>
@@ -92,8 +92,8 @@ String name3="Demo789.pdf";
 			fname=value;
 		}
 	}
-	xml = "<?xml version='1.0' encoding='UTF-8'?> <modules>	<module name='presentation'>		<document url='"+fileURL+fname+"' />	</module></modules>";
-	String joinURL = getJoinURLXML(uname, "Demo Meeting", "Presentation URL should be passed.", xml );
+	xml = "<?xml version='1.0' encoding='UTF-8'?> <modules>	<module name='presentation'>		<document url='"+demoURL+fname+"' />	</module></modules>";
+	String joinURL = getJoinURL(uname, "Demo Meeting2", "false", "Presentation URL should be passed::" + xml + "##", null, xml );
 	if (joinURL.startsWith("http://")) { 
 		%>
 		    <center><h1>Your presentation URL has been passed</h1></center>
