@@ -146,8 +146,8 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 		//
 		String joinURL = getJoinURL(username, confname, "true", null, metadata, null);
 		
-		String inviteURL = BigBlueButtonURL.replace("/bigbluebutton","/demo")
-			+ "/demo6.jsp?action=invite&confname=" + URLEncoder.encode(confname, "UTF-8");
+		String inviteURL = BigBlueButtonURL.replace("bigbluebutton/","demo/")
+			+ "demo6.jsp?action=invite&confname=" + URLEncoder.encode(confname, "UTF-8");
 %>
 
 	
@@ -169,8 +169,8 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 		String confname = request.getParameter("confname");
 		String username = request.getParameter("username");
 
-		String enterURL = BigBlueButtonURL.replace("/bigbluebutton","/demo")
-			+ "/demo6.jsp?action=join&username="
+		String enterURL = BigBlueButtonURL.replace("bigbluebutton/","demo/")
+			+ "demo6.jsp?action=join&username="
 			+ URLEncoder.encode(username, "UTF-8") + "&confname="
 			+ URLEncoder.encode(confname, "UTF-8");
 

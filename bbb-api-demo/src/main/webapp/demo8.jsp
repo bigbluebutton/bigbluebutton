@@ -4,7 +4,7 @@
  <%@ include file="bbb_api.jsp"%>  
  <%@ include file="demo_header.jsp"%>
 <%
-String demoURL = BigBlueButtonURL.replace("/bigbluebutton","/demo");
+String demoURL = BigBlueButtonURL.replace("bigbluebutton/","demo/");
 String name0="BigBlueButton.pptx";
 String name1="pdfs/Demo123.pdf";
 String name2="pdfs/Demo456.pdf";

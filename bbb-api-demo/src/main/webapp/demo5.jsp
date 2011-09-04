@@ -115,8 +115,8 @@ $(document).ready(function(){
 		String joinURL = getJoinURL(username, meetingID, record, "<br>Welcome to %%CONFNAME%%.<br>", null);
 
 		
-		String inviteURL = BigBlueButtonURL.replace("/bigbluebutton","/demo")
-			+ "/demo5.jsp?action=invite&meetingID=" + URLEncoder.encode(meetingID, "UTF-8");
+		String inviteURL = BigBlueButtonURL.replace("bigbluebutton/","demo/")
+			+ "demo5.jsp?action=invite&meetingID=" + URLEncoder.encode(meetingID, "UTF-8");
 %>
 
 <hr />
@@ -168,8 +168,8 @@ $(document).ready(function(){
 		String meetingID = request.getParameter("meetingID");
 		String username = request.getParameter("username");
 
-		String enterURL = BigBlueButtonURL.replace("/bigbluebutton","/demo")
-			+ "/demo5.jsp?action=join&username="
+		String enterURL = BigBlueButtonURL.replace("bigbluebutton/","demo/")
+			+ "demo5.jsp?action=join&username="
 			+ URLEncoder.encode(username, "UTF-8") + "&meetingID="
 			+ URLEncoder.encode(meetingID, "UTF-8");
 

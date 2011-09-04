@@ -83,8 +83,8 @@ if (request.getParameterMap().isEmpty()) {
 	// Got an action=create
 	//
 	
-	String url = BigBlueButtonURL.replace("/bigbluebutton","/demo");
-	String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"/pdfs/sample.pdf'/></module></modules>";
+	String url = BigBlueButtonURL.replace("bigbluebutton/","demo/");
+	String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"pdfs/sample.pdf'/></module></modules>";
 	String joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null, null, preUploadPDF);
 
 	if (joinURL.startsWith("http://")) { 
