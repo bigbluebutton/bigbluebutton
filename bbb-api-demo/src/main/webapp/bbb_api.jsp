@@ -283,7 +283,7 @@ public String getJoinURLViewer(String username, String meetingID) {
 // getURLisMeetingRunning() -- return a URL that the client can use to poll for whether the given meeting is running
 //
 public String getURLisMeetingRunning(String meetingID) {
-	String meetingParameters = "&meetingID=" + urlEncode(meetingID);
+	String meetingParameters = "meetingID=" + urlEncode(meetingID);
 	return BigBlueButtonURL + "api/isMeetingRunning?" + meetingParameters
 		+ "&checksum="
 		+ checksum("isMeetingRunning" + meetingParameters + salt);	
