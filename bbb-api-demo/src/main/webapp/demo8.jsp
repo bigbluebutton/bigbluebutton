@@ -4,15 +4,15 @@
  <%@ include file="bbb_api.jsp"%>  
 
 <%
-        if (request.getParameterMap().isEmpty()) {
-                //
-                // Assume we want to create a meeting
-	HashMap<String, String> presentations = new HashMap<String, String>();
+	String welcome = "<br>Welcome to <b>%%CONFNAME%%</b>!<br><br>To understand how BigBlueButton works see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a>.<br><br>To join the audio bridge click the headset icon (upper-left hand corner). <b>Please use a headset to avoid causing echo for others.</b>";
 
-	presentations.put( "BigBlueButton.pptx", "BigBlueButton.pptx" );
-	presentations.put( "presentation1.pdf", "pdfs/presentation1.pdf" );
-	presentations.put( "presentation2.pdf", "pdfs/presentation2.pdf" );
-	presentations.put( "presentation3.pdf", "pdfs/presentation3.pdf" );
+        if (request.getParameterMap().isEmpty()) {
+		HashMap<String, String> presentations = new HashMap<String, String>();
+
+		presentations.put( "BigBlueButton.pptx", "BigBlueButton.pptx" );
+		presentations.put( "presentation1.pdf", "pdfs/presentation1.pdf" );
+		presentations.put( "presentation2.pdf", "pdfs/presentation2.pdf" );
+		presentations.put( "presentation3.pdf", "pdfs/presentation3.pdf" );
 %>
 
 <%@ include file="demo_header.jsp"%>
@@ -73,8 +73,10 @@
 	
 	String demoURL = BigBlueButtonURL.replace("bigbluebutton/","demo/");
 	String xml = "<?xml version='1.0' encoding='UTF-8'?> <modules>	<module name='presentation'> <document url='"+demoURL+presentationFileName+"' /> </module></modules>";
-	String joinURL = getJoinURL(username, "Demo Meeting4", "false", 
- 		"The presentation " + presentationFileName + " will appear in moment.  To download this presentation click <a href=\"event:"+ demoURL+presentationFileName+ "\"><u>here</u></a>", null, xml );
+	String welcomeMsg = "The presentation will appear in moment.  To download click <a href=\"event:"+ demoURL+presentationFileName+ "\"><u>" + presentationFileName +"</u></a>.<br>" + welcome;
+
+	String meetingID = presentationFileName.replace("pdfs/","").replace(".pdf","").replace(".pptx","");
+	String joinURL = getJoinURL(username, meetingID, "false", welcomeMsg, null, xml );
 
 	if (joinURL.startsWith("http://")) { 
 		%>

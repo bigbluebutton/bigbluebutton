@@ -95,8 +95,12 @@
 		} catch (Exception e) {
 		   e.printStackTrace();
 	    }
+
+		 String welcome = "<br>Welcome to <b>%%CONFNAME%%</b>!<br><br>To understand how BigBlueButton works see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a>.<br><br>To join the audio bridge click the headset icon (upper-left hand corner). <b>Please use a headset to avoid causing echo for others.</b>";
+		String welcomeMsg = "The uploaded presentation will appear in moment.<br>" + welcome;
+
 		
-		String joinURL = getJoinURLXML(uname, "Demo Meeting", "If you uploaded a presentation it will presentation area after conversion.", xml );
+		String joinURL = getJoinURLXML(uname, "Join and Upload example", welcomeMsg, xml );
 		if (joinURL.startsWith("http://")) { 
 			%>
 			<script language="javascript" type="text/javascript">

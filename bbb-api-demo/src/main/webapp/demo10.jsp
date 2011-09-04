@@ -271,7 +271,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		//
 		// This is the URL for to join the meeting as moderator
 		//
-		String welcome = "<br>Welcome to %%CONFNAME%%!<br><br>For help see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a>.<br><br>To join the voice bridge for this meeting click the headset icon in the upper-left <b>(please use a headset to prevent echo)</b>.   This meeting is being recorded (audio + slides + chat ).";
+		String welcome = "<br>Welcome to %%CONFNAME%%!<br><br>For help see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a>.<br><br>To join the voice bridge for this meeting click the headset icon in the upper-left <b>(please use a headset to prevent echo)</b>.   This meeting is being recorded (audio + slides + chat).";
 		String joinURL = getJoinURL(username, meetingID, "true", welcome, metadata, null);
 		if (joinURL.startsWith("http://")) {
 %>

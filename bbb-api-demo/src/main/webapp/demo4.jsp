@@ -54,7 +54,7 @@ Author: Islam El-Ashi <ielashi@gmail.com>
 if (request.getParameterMap().isEmpty()) {
 %>
 
-<h2>Demo #4: Activity Monitor</h2>
+<h2>Activity Monitor</h2>
 
 <p id="no_meetings"></p>
 
@@ -73,7 +73,7 @@ if (request.getParameterMap().isEmpty()) {
 
 %>
 
-<h2>Demo #4: Activity Monitor</h2>
+<h2>Activity Monitor</h2>
 
 <%=meetingID%> has been terminated.
 
@@ -83,7 +83,7 @@ if (request.getParameterMap().isEmpty()) {
 
 <% } else { %>
 
-<h2>Demo #4: Activity Monitor</h2>
+<h2>Activity Monitor</h2>
 
 
 Unable to end meeting: <%=meetingID%>
