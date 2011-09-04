@@ -1,10 +1,10 @@
 <html> 
- <head><title>Preupload Presentation</title></head></p> <p>
+ <head><title>Join & Upload Presentation</title></head></p> <p>
  <body>
  <%@ include file="bbb_api.jsp"%> 
  <%@ include file="demo_header.jsp"%>
 
-<h2>Demo #7: Upload a presentation before joining a Course...</h2> 
+<h2>Join & Upload Presentation</h2> 
 	 <form action="demo7.jsp" method="post" enctype="multipart/form-data" name="form1" id="form1">
 			<table cellpadding="5" cellspacing="5" style="width: 400px;">
 				<tbody>

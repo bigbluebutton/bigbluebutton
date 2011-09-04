@@ -30,13 +30,11 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title>Join a Course (Password Required)</title>
+	<title>Join Password</title>
 </head>
 <body>
 
 <%@ include file="bbb_api.jsp"%>
-
-<br>
 
 <% 
 
@@ -148,7 +146,7 @@ if (request.getParameterMap().isEmpty()) {
 	%> 
 <%@ include file="demo_header.jsp"%>
 
-<h2>Demo #3: Join a Course (password required)</h2>
+<h2>Join a Session (password required)</h2>
 
 
 <FORM NAME="form1" METHOD="GET">
@@ -171,7 +169,7 @@ if (request.getParameterMap().isEmpty()) {
 			<td>
 				&nbsp;</td>
 			<td style="text-align: right; ">
-				Course:</td>
+				Session:</td>
 			<td>
 				&nbsp;
 			</td>

@@ -1,5 +1,5 @@
 <html> 
- <head><title>Preupload Presentation</title></head></p> <p>
+ <head><title>Join & Upload Presentation (URL)</title></head></p> <p>
  <body>
  <%@ include file="bbb_api.jsp"%>  
  <%@ include file="demo_header.jsp"%>
@@ -11,7 +11,7 @@ String name2="pdfs/Demo456.pdf";
 String name3="pdfs/Demo789.pdf";
 %>
 
-<h2>Demo #8: Send a presentation URL before joining a Course...</h2> 
+<h2>Join & Upload Presentation (URL)</h2> 
 	 <form action="demo8.jsp" method="post" enctype
 		="multipart/form-data" name="form1" id="form1">
 			<table cellpadding="5" cellspacing="5" style="width: 400px;">

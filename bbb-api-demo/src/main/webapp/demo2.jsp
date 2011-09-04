@@ -30,13 +30,11 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Join a Selected Course</title>
+<title>Join Selected</title>
 </head>
 <body>
 
 <%@ include file="bbb_api.jsp"%>
-
-<br>
 
 <%
 	if (request.getParameterMap().isEmpty()) {
@@ -47,7 +45,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 <%@ include file="demo_header.jsp"%>
 
-<h2>Demo #2: Join a Selected Course</h2>
+<h2>Join Selected</h2>
 
 
 <FORM NAME="form1" METHOD="GET">

@@ -36,8 +36,6 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 <%@ include file="bbb_api.jsp"%>
 
-<br>
-
 <% 
 if (request.getParameterMap().isEmpty()) {
 	//
@@ -46,7 +44,7 @@ if (request.getParameterMap().isEmpty()) {
 	%> 
 <%@ include file="demo_header.jsp"%>
 
-<h2>Demo #1: Join a Course</h2>
+<h2>Join Demo Meeting</h2>
 
 
 <FORM NAME="form1" METHOD="GET"> 

@@ -47,8 +47,6 @@ Author: Islam El-Ashi <ielashi@gmail.com>
 
 <%@ include file="bbb_api.jsp"%>
 
-<br>
-
 <%@ include file="demo_header.jsp"%>
 
 

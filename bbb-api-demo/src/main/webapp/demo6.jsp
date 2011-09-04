@@ -71,7 +71,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 		// Assume we want to create a meeting
 		//
 %>
-	<h2>Demo Recording</h2>
+	<h2>Record (Matterhorn)</h2>
 
 	<form id="formcreate" name="formcreate" method="get" action=""> 
 		<fieldset>
@@ -255,6 +255,8 @@ Error: getJoinURL() failed
  	}
  }
  %> 
+
+About Matterhorn: XXX
 
 <%@ include file="demo_footer.jsp"%>
 
