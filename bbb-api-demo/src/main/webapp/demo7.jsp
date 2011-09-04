@@ -70,7 +70,7 @@
    while (itr.hasNext()) {
 	   FileItem item = (FileItem) itr.next();
 		String xml = null;
- 		String url = BigBlueButtonURL.replace("/bigbluebutton",":8080/demo");
+ 		String url = BigBlueButtonURL.replace("/bigbluebutton","/demo");
 		String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"/pdfs/sample.pdf'/></module></modules>";
  
 		xml = preUploadPDF;
@@ -99,7 +99,6 @@
 		String joinURL = getJoinURLXML(uname, "Demo Meeting", "If you uploaded a presentation it will presentation area after conversion.", xml );
 		if (joinURL.startsWith("http://")) { 
 			%>
-			    <center><h1>Your presentation has been Uploaded</h1></center>
 			<script language="javascript" type="text/javascript">
 			  window.location.href="<%=joinURL%>";
 			</script>
@@ -117,3 +116,10 @@
    }
    }
    %>
+
+<%@ include file="demo_footer.jsp"%>
+
+</body>
+</html>
+
+

@@ -59,7 +59,7 @@ allMeetings.put( "ENGL-2013: Research Methods in English", meeting );	// The tit
 	meeting.put("moderatorPW", 	"prof123");			// The password for moderator
 	meeting.put("viewerPW", 	"student123");			// The password for viewer
 	meeting.put("voiceBridge", 	"72013");			// The extension number for the voice bridge (use if connected to phone system)
-	meeting.put("logoutURL", 	"/bigbluebutton/demo/demo3.jsp");  // The logout URL (use if you want to return to your pages)
+	meeting.put("logoutURL", 	"/demo/demo3.jsp");  // The logout URL (use if you want to return to your pages)
 
 meeting = new HashMap<String, String>();
 allMeetings.put( "ENGL-2213: Drama Production I", meeting );
@@ -67,7 +67,7 @@ allMeetings.put( "ENGL-2213: Drama Production I", meeting );
 	meeting.put("moderatorPW", 	"prof123");
 	meeting.put("viewerPW", 	"student123");
 	meeting.put("voiceBridge", 	"72213");
-	meeting.put("logoutURL", 	"/bigbluebutton/demo/demo3.jsp");
+	meeting.put("logoutURL", 	"/demo/demo3.jsp");
 
 meeting = new HashMap<String, String>();
 allMeetings.put( "ENGL-2023: Survey of English Literature", meeting );
@@ -75,7 +75,7 @@ allMeetings.put( "ENGL-2023: Survey of English Literature", meeting );
 	meeting.put("moderatorPW", 	"prof123");
 	meeting.put("viewerPW", 	"student123");
 	meeting.put("voiceBridge", 	"72023");
-	meeting.put("logoutURL", 	"/bigbluebutton/demo/demo3.jsp");
+	meeting.put("logoutURL", 	"/demo/demo3.jsp");
 
 //
 // Law Courses
@@ -87,7 +87,7 @@ allMeetings.put( "LAW-1323: Fundamentals of Advocacy ", meeting );
 	meeting.put("moderatorPW", 	"prof123");
 	meeting.put("viewerPW", 	"student123");
 	meeting.put("voiceBridge", 	"71232");
-	meeting.put("logoutURL", 	"/bigbluebutton/demo/demo3.jsp");
+	meeting.put("logoutURL", 	"/demo/demo3.jsp");
 
 meeting = new HashMap<String, String>();
 allMeetings.put( "LAW-2273: Business Organizations", meeting );
@@ -95,7 +95,7 @@ allMeetings.put( "LAW-2273: Business Organizations", meeting );
 	meeting.put("moderatorPW", 	"prof123");
 	meeting.put("viewerPW", 	"student123");
 	meeting.put("voiceBridge", 	"72273");
-	meeting.put("logoutURL", 	"/bigbluebutton/demo/demo3.jsp");
+	meeting.put("logoutURL", 	"/demo/demo3.jsp");
 
 meeting = new HashMap<String, String>();
 allMeetings.put( "LAW-3113: Corporate Finance", meeting );
@@ -103,7 +103,7 @@ allMeetings.put( "LAW-3113: Corporate Finance", meeting );
 	meeting.put("moderatorPW", 	"theprof");
 	meeting.put("viewerPW", 	"student123");
 	meeting.put("voiceBridge", 	"71642");
-	meeting.put("logoutURL", 	"/bigbluebutton/demo/demo3.jsp");
+	meeting.put("logoutURL", 	"/demo/demo3.jsp");
 
 
 //
@@ -116,7 +116,7 @@ allMeetings.put( "Virtual Office Hours - Steve Stoyan", meeting );
 	meeting.put("moderatorPW", 	"prof123");
 	meeting.put("viewerPW", 	"student123");
 	meeting.put("voiceBridge", 	"70001");
-	meeting.put("logoutURL", 	"/bigbluebutton/demo/demo3.jsp");
+	meeting.put("logoutURL", 	"/demo/demo3.jsp");
 
 meeting = new HashMap<String, String>();
 allMeetings.put( "Virtual Office Hours - Michael Bailetti", meeting );
@@ -124,7 +124,7 @@ allMeetings.put( "Virtual Office Hours - Michael Bailetti", meeting );
 	meeting.put("moderatorPW", 	"prof123");
 	meeting.put("viewerPW", 	"student123");
 	meeting.put("voiceBridge", 	"70002");
-	meeting.put("logoutURL", 	"/bigbluebutton/demo/demo3.jsp");
+	meeting.put("logoutURL", 	"/demo/demo3.jsp");
 
 meeting = new HashMap<String, String>();
 allMeetings.put( "Virtual Office Hours - Tony Weiss", meeting );
@@ -132,7 +132,7 @@ allMeetings.put( "Virtual Office Hours - Tony Weiss", meeting );
 	meeting.put("moderatorPW", 	"prof123");
 	meeting.put("viewerPW", 	"student123");
 	meeting.put("voiceBridge", 	"70003");
-	meeting.put("logoutURL", 	"/bigbluebutton/demo/demo3.jsp");
+	meeting.put("logoutURL", 	"/demo/demo3.jsp");
 
 
 meeting = null;

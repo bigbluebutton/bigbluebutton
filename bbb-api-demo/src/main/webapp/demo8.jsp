@@ -4,7 +4,7 @@
  <%@ include file="bbb_api.jsp"%>  
  <%@ include file="demo_header.jsp"%>
 <%
-String demoURL = BigBlueButtonURL.replace("/bigbluebutton",":8080/demo");
+String demoURL = BigBlueButtonURL.replace("/bigbluebutton","/demo");
 String name0="BigBlueButton.pptx";
 String name1="pdfs/Demo123.pdf";
 String name2="pdfs/Demo456.pdf";
@@ -96,7 +96,6 @@ String name3="pdfs/Demo789.pdf";
 	String joinURL = getJoinURL(uname, "Demo Meeting2", "false", "Presentation URL should be passed::" + xml + "##", null, xml );
 	if (joinURL.startsWith("http://")) { 
 		%>
-		    <center><h1>Your presentation URL has been passed</h1></center>
 		<script language="javascript" type="text/javascript">
 		  window.location.href="<%=joinURL%>";
 		</script>
@@ -112,3 +111,8 @@ String name3="pdfs/Demo789.pdf";
 				}
 }
 %>
+
+<%@ include file="demo_footer.jsp"%>
+
+</body>
+</html>
