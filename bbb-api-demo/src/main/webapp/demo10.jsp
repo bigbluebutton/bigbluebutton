@@ -125,7 +125,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		<option value="delete">Delete</option>
 	</select>
 	<table id="recordgrid"></table>
-	<p>Note: Refresh the browser for update the recording list.</p>
+	<p>Note: New recordings will appear in the above list after processing.  Refresh your browser to update the list.</p>
 	<script>
 	function onChangeMeeting(meetingID){
 		isRunningMeeting(meetingID);
@@ -271,8 +271,8 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		//
 		// This is the URL for to join the meeting as moderator
 		//
-		String welcome = "<br>Welcome to %%CONFNAME%%!<br><br>For help see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a>.<br><br>To join the voice bridge for this meeting click the headset icon in the upper-left <b>(please use a headset to prevent echo)</b>.   This meeting is being recorded (audio + slides + chat).";
-		String joinURL = getJoinURL(username, meetingID, "true", welcome, metadata, null);
+		String welcomeMsg = "<br>Welcome to %%CONFNAME%%!<br><br>For help see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a>.<br><br>To join the voice bridge for this meeting click the headset icon in the upper-left <b>(please use a headset to prevent echo)</b>.   This meeting is being recorded (audio + slides + chat).";
+		String joinURL = getJoinURL(username, meetingID, "true", welcomeMsg, metadata, null);
 		if (joinURL.startsWith("http://")) {
 %>
 <script language="javascript" type="text/javascript">
