@@ -809,8 +809,6 @@ class ApiController {
       }
       return;
     }
-    
-    response.addHeader("Cache-Control", "no-cache")
     withFormat {  
       xml {
         render(contentType:"text/xml") {
@@ -821,13 +819,17 @@ class ApiController {
 				  recording() {
                   recordID(r.getId())
 				  meetingID(r.getMeetingID())
-				  name(r.getName())
+				  name(''){
+					  mkp.yieldUnescaped("<![CDATA["+r.getName()+"]]>")
+				  }
                   published(r.isPublished())
                   startTime(r.getStartTime())
                   endTime(r.getEndTime())
 				  metadata() {
 					 r.getMetadata().each { k,v ->
-						 "$k"("$v")
+						 "$k"(''){ 
+							 mkp.yieldUnescaped("<![CDATA[$v]]>") 
+						 }
 					 }
 				  }
 				  playback() {
