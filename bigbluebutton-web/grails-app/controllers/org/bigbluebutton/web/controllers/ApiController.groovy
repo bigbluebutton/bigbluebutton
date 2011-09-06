@@ -129,7 +129,8 @@ class ApiController {
       if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW"))) {
         paramsProcessorUtil.updateMeeting(updateParams, existing);
         // trying to create a conference a second time, return success, but give extra info
-        uploadDocuments(existing);
+        // Ignore pre-uploaded presentations. We only allow uploading of presentation once.
+        //uploadDocuments(existing);
         respondWithConference(existing, "duplicateWarning", "This conference was already in existence and may currently be in progress.");
       } else {
 	  	// BEGIN - backward compatibility
