@@ -74,7 +74,7 @@
 			showButton="true"
 			publishWindowVisible="true"
 			viewerWindowMaxed="true"
-			viewerWindowLocation="middle"
+			viewerWindowLocation="top"
 			camKeyFrameInterval="5"
 			camModeFps="15"
 			camQualityBandwidth="0"
