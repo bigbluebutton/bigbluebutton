@@ -114,19 +114,13 @@ module BigBlueButton
         audio_events.sort! {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
 
         unique_events = []
-        i = 0
-        unique_events << audio_events[0]
-        while i < audio_events.length - 1
-          ar_prev = audio_events[i]
-          ar_next = audio_events[i+1]
-          if (not ar_prev.eql?(ar_next))
-            unique_events << ar_prev
-          else
-            puts "discarding duplicate"
+        audio_events.each do |x|
+          if (unique_events.empty?)
+            unique_events << x
+          elsif (not x.eql?(unique_events[-1]))
+            unique_events << x
           end
-          i += 1
         end
-        puts unique_events
 
         audio_paddings = generate_audio_paddings(unique_events, events_xml)
         unique_events.concat(audio_paddings)
