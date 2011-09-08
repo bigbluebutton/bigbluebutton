@@ -66,7 +66,6 @@ public class RedisMessagingService implements MessagingService {
 	public void send(String channel, String message) {
 		Jedis jedis = redisPool.getResource();
 		try {
-			System.out.println("Sending " + message + " to " + channel);
 			jedis.publish(channel, message);
 		} catch(Exception e){
 			log.warn("Cannot publish the message to redis",e);

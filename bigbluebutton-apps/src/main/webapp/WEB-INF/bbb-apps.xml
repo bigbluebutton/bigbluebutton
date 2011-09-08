@@ -18,7 +18,8 @@
 			">
 	
 	<bean id="roomsManager" class="org.bigbluebutton.conference.RoomsManager">
-		<property name="publisher" ref="redisPublisher"></property>
+		<property name="messagingService" ref="messagingService"></property>
+		<property name="conversionUpdatesMessageListener" ref="conversionUpdatesMessageListener"></property>
 	</bean>
 			
 	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
@@ -46,7 +47,7 @@
 			<ref local="recorderApplication"/>
 		</property>
 		<property name="conversionUpdatesMessageListener"> 
-			<ref local="messageListener"/>
+			<ref local="conversionUpdatesMessageListener" />
 		</property>
 	</bean>
 	
@@ -65,7 +66,7 @@
 		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
 	</bean>
 
-	<bean id="messageListener" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener">
+	<bean id="conversionUpdatesMessageListener" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener">
 		<property name="conversionUpdatesProcessor" ref="conversionUpdatesProcessor" />
 	</bean>
 
@@ -113,17 +114,11 @@
         <property name="redisPool"><ref local="redisPool" /> </property>
     </bean>
 	
-	<bean id="redisListener" class="org.bigbluebutton.conference.service.messaging.RedisListener" init-method="init">
-		<constructor-arg index="0" value="${redis.host}"/>
-        <constructor-arg index="1" value="${redis.port}"/>
-	    <property name="redisPool"><ref local="redisPool" /> </property>
-	    <property name="roomsManager"> <ref local="roomsManager"/></property>
-	    <property name="messageListener"> <ref local="messageListener"/></property>
-	</bean>
-	
-	<bean id="redisPublisher" class="org.bigbluebutton.conference.service.messaging.RedisPublisher">
-        <property name="redisPool"><ref local="redisPool" /> </property>
-    </bean>
+    <bean id="messagingService" class="org.bigbluebutton.conference.service.messaging.RedisMessagingService">
+    	<constructor-arg index="0" value="${redis.host}"/>
+    	<constructor-arg index="1" value="${redis.port}"/>
+    	<property name="redisPool" ref="redisPool"/>
+  	</bean>
     
     <bean id="redisPool" class="redis.clients.jedis.JedisPool">
         <constructor-arg index="0" value="${redis.host}"/>
