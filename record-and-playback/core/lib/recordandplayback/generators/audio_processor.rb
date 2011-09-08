@@ -9,7 +9,7 @@ module BigBlueButton
     def self.process(archive_dir, ogg_file)
       audio_dir = "#{archive_dir}/audio"
       events_xml = "#{archive_dir}/events.xml"
-      audio_events = BigBlueButton::AudioEvents.process_events(events_xml)
+      audio_events = BigBlueButton::AudioEvents.process_events(audio_dir, events_xml)
       audio_files = []
       audio_events.each do |ae|
         if ae.padding 

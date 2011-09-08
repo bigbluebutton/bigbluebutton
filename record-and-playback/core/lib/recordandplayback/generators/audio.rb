@@ -102,9 +102,9 @@ module BigBlueButton
     end
     
     # Process the audio events for this recording
-    def self.process_events(events_xml)
-      audio_events = match_start_and_stop_events(start_audio_recording_events(events_xml),
-                          stop_audio_recording_events(events_xml)).each do |audio_event|
+    def self.process_events(archive_dir, events_xml)
+      audio_events = match_start_and_stop_events(start_audio_recording_events(archive_dir, events_xml),
+                          stop_audio_recording_events(archive_dir, events_xml)).each do |audio_event|
         if not audio_event.matched
             determine_start_stop_timestamps_for_unmatched_event!(audio_event)
         end
@@ -136,14 +136,14 @@ module BigBlueButton
     RECORD_TIMESTAMP = 'recordingTimestamp'
     
     # Get the start audio recording events.
-    def self.start_audio_recording_events(events_xml)
+    def self.start_audio_recording_events(archive_dir, events_xml)
       start_events = []
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("//event[@eventname='StartRecordingEvent']").each do |start_event|
         ae = AudioRecordingEvent.new
         ae.start_event_timestamp = start_event[TIMESTAMP]
         ae.bridge = start_event.xpath(BRIDGE).text
-        ae.file = start_event.xpath(FILE).text
+        ae.file = start_event.xpath(FILE).text.sub(/.+\//, "#{archive_dir}/")
         ae.start_record_timestamp = start_event.xpath(RECORD_TIMESTAMP).text
         start_events << ae
       end
@@ -152,14 +152,14 @@ module BigBlueButton
     end
     
     # Get the stop audio recording events.
-    def self.stop_audio_recording_events(events_xml)
+    def self.stop_audio_recording_events(archive_dir, events_xml)
       stop_events = []
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("//event[@eventname='StopRecordingEvent']").each do |stop_event|
         ae = AudioRecordingEvent.new
         ae.stop_event_timestamp = stop_event[TIMESTAMP]
         ae.bridge = stop_event.xpath(BRIDGE).text
-        ae.file = stop_event.xpath(FILE).text
+        ae.file = stop_event.xpath(FILE).text.sub(/.+\//, "#{archive_dir}/")
         ae.stop_record_timestamp = stop_event.xpath(RECORD_TIMESTAMP).text
         stop_events << ae
       end
