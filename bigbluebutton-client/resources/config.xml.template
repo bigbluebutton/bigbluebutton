@@ -73,7 +73,7 @@
 			autoStart="false"
 			showButton="true"
 			publishWindowVisible="true"
-			viewerWindowMaxed="true"
+			viewerWindowMaxed="false"
 			viewerWindowLocation="top"
 			camKeyFrameInterval="5"
 			camModeFps="15"
