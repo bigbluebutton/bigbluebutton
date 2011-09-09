@@ -1,5 +1,9 @@
+html{
+	height:100%;
+}
 body {
-	
+	font-family: Verdana;
+	height:100%;
 }
 h1 {
 	text-align:center
@@ -10,7 +14,7 @@ br{
 
 #playbackArea{
 	width: 800px;
-	height: 600px;
+	height: 700px;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -28,11 +32,11 @@ br{
 
 .chatcontainer{
 	width:420px;
-	height:350px;
+	height:600px;
 	margin-left: auto;
-        margin-right: auto;
+    margin-right: auto;
 	position: relative;
-	top:-500px;
+	top:-650px;
 	left:610px;
 }
 #chat{
@@ -51,8 +55,8 @@ br{
 #big {display:none}
 #mid {display:none}
 
-.chattitle{
-	position:relative;
-	top:20px;
-	left:145px
+#footer{
+	position: absolute;
+	bottom: 0;
+	left: 40%;
 }

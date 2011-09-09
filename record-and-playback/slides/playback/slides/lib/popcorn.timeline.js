@@ -41,7 +41,7 @@
         newdiv = document.createElement( "div" );
 
     target.style.width = "380px";
-    target.style.height = "180px";
+    target.style.height = "600px";
     target.style.overflow = "auto";
 
     newdiv.style.display = "none";
