@@ -40,8 +40,8 @@
     var target = document.getElementById( options.target ),
         newdiv = document.createElement( "div" );
 
-    target.style.width = "380px";
-    target.style.height = "180px";
+    target.style.width = "auto";
+    target.style.height = "525px";
     target.style.overflow = "auto";
 
     newdiv.style.display = "none";
