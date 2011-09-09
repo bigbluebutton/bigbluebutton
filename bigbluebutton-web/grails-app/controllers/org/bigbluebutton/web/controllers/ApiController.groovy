@@ -1212,7 +1212,7 @@ class ApiController {
 				  response() {
 					  returncode(RESP_CODE_FAILED)
 					  messageKey(key)
-					  message(msg+deprecatedMsg)
+					  message(msg)
 				  }
 			  }
 		  }
@@ -1221,7 +1221,7 @@ class ApiController {
 			  render(contentType:"text/json") {
 					  returncode(RESP_CODE_FAILED)
 					  messageKey(key)
-					  message(msg+deprecatedMsg)
+					  message(msg)
 			  }
 		  }
 	  }
