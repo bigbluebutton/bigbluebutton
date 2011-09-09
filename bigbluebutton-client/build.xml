@@ -216,6 +216,9 @@
 	</target>
 
 	<target name="copy-resource-files">
+		<copy todir="${OUTPUT_DIR}/assets/" >
+			<fileset dir="${PROD_RESOURCES_DIR}/assets/" />
+		</copy>	
 		<copy todir="${OUTPUT_DIR}/swfobject/" >
 			<fileset dir="${BASE_DIR}/src/swfobject/" />
 		</copy>	
