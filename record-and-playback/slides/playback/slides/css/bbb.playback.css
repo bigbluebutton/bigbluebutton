@@ -1,25 +1,18 @@
-/*body {
-	
+body {
+	font-family: Verdana;
 }
 h1 {
 	text-align:center
 }
 br{
 	display:none
-}*/
-#wrapper{
-	width:1200px;
-	height:auto;
-	margin:0px auto;
 }
+
 #playbackArea{
-	width: 1000px;
-	height: 650px;
-	border: 1px solid black;
-	padding:2px;
-	-webkit-box-shadow: 0 0 10px rgb(0,0,0);
-	-moz-box-shadow: 0 0 10px rgb(0,0,0);
-	box-shadow: 0 0 10px rgb(0,0,0);
+	width: 800px;
+	height: 700px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #audioRecording{
@@ -30,41 +23,16 @@ br{
 
 #slide{
 	background-image:url('../images/logo.png');
-	float:left;
-	width:800px;
-	height:600px;
 }
+
 
 .chatcontainer{
-	float:left;
-	width:194px;
-	height:600px;
-	padding-left: 5px;
-	border-left: 1px solid black;
-}
-.chatcontainer br{
-	display:none;
-}
-.chatcontainer h3{
-	text-decoration:underline;
-}
-
-#chat div p{
-	margin-bottom:-10px;
-}
-
-#audioRecording{
-	width:100%;
-}
-
-
-/*.chatcontainer{
 	width:420px;
-	height:350px;
+	height:600px;
 	margin-left: auto;
-        margin-right: auto;
+    margin-right: auto;
 	position: relative;
-	top:-500px;
+	top:-650px;
 	left:610px;
 }
 #chat{
@@ -79,13 +47,16 @@ br{
 	margin-bottom:-10px;
 	padding:0px;
 	font-size:13px
-}*/
+}
 #big {display:none}
 #mid {display:none}
 
-/*.chattitle{
+.chattitle{
 	position:relative;
 	top:20px;
 	left:145px
 }
-*/
+
+#footer{
+	text-align:center;
+}
