@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
+		width="100%" height="100%" creationComplete="initDefaultMic()">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.ItemClickEvent;
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.main.events.BBBEvent;
+			
+			private var url:String = "assets/audio-test.mp3";
+			private var channel:SoundChannel;
+			private var soundFactory:Sound;
+			private var timer:Timer;
+			private var mic:Microphone;
+			private var playingAudio:Boolean = false;
+			
+			private function initDefaultMic():void {
+				mic = Microphone.getMicrophone(-1);
+				mic.setLoopBack(true);
+				if (mic != null) {
+					mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);				
+				} else {
+					LogUtil.warn("**** MIC IS USED ***");
+				}
+				timer = new Timer(100);
+				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
+				timer.start();	
+			}
+			
+			private function micStatusEventHandler(event:StatusEvent):void {					
+				switch(event.code) {
+					case "Microphone.Muted":						
+						LogUtil.warn("***ACCESS TO MIC DENIED***");
+						break;
+					case "Microphone.Unmuted":
+						LogUtil.warn("***ACCESS TO MIC ALLOWED***");
+						break;
+					default:
+						LogUtil.debug("unknown micStatusHandler event: " + event);
+				}
+			}			
+			
+			private function updateMicLevel(e:TimerEvent):void{
+				if (mic != null) {
+					mic1Label.text = mic.name;
+					micLevel1.setProgress(mic.activityLevel, 100);					
+				}
+			}
+						
+			public function playButtonClickHandler():void {
+				if (playButton.selected) {
+					var request:URLRequest = new URLRequest(url);
+					soundFactory = new Sound();
+					soundFactory.addEventListener(Event.COMPLETE, completeHandler);
+					soundFactory.addEventListener(Event.ID3, id3Handler);
+					soundFactory.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
+					soundFactory.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+					soundFactory.load(request);          			
+				} else {
+					channel.stop();
+					playButton.label = "Play";
+					playingAudio = false;
+				}	                     
+			}
+			
+			private function completeHandler(event:Event):void {
+				trace("completeHandler: " + event);
+				channel = soundFactory.play();
+				playButton.label = "Stop";
+				playingAudio = true;
+			}
+			
+			private function id3Handler(event:Event):void {
+				trace("id3Handler: " + event);
+			}
+			
+			private function ioErrorHandler(event:Event):void {
+				trace("ioErrorHandler: " + event);
+			}
+			
+			private function progressHandler(event:ProgressEvent):void {
+				trace("progressHandler: " + event);
+			}
+			
+			private function showMicSettingsPanel():void {
+				Security.showSettings(SecurityPanel.MICROPHONE);
+			}
+			
+			private function closeWindow():void {
+				timer.stop();
+				mic.setLoopBack(false);
+				mic = null;
+				if (playingAudio) channel.stop();
+				var event:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+				event.payload['useMicrophone'] = true;
+				dispatchEvent(event);
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%">
+		<mx:HBox width="100%">
+			<mx:Spacer width="50%"/>
+			<mx:Label fontSize="20" text="Audio Setup"/>
+			<mx:Spacer width="50%"/>
+		</mx:HBox>
+		<mx:HBox width="100%">
+			<mx:Spacer width="50%"/>
+			<mx:Label fontSize="16" color="red" text="You need to use a headset with BigBlueButton."/>
+			<mx:Spacer width="50%"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="50%">
+			<mx:VBox width="45%" height="100%">
+				<mx:Label fontSize="18" text="1. Listen"/>
+				<mx:Label text="Click Play Sound."/>
+				<mx:Text text="You should hear audio in your headset (not your computer speakers)."/>
+				<mx:Text text="Click here for help."/>
+			</mx:VBox>	
+			<mx:Spacer width="10%"/>
+			<mx:VBox width="45%" height="100%">
+				<mx:Button id="playButton" label="Play Sound" click="playButtonClickHandler()" toggle="true"/>
+			</mx:VBox>			
+		</mx:HBox>
+		<mx:HBox width="100%" height="50%">
+			<mx:VBox width="45%" height="100%">
+				<mx:Label fontSize="18" text="2. Speak"/>
+				<mx:Label text="Speak into the microphone."/>
+				<mx:Text text="You should hear audio in your headset (not your computer speakers)."/>
+				<mx:Text text="Click here for help."/>				
+			</mx:VBox>			
+			<mx:Spacer width="10%"/>
+			<mx:VBox width="45%" height="100%">				
+				<mx:ProgressBar id="micLevel1" minimum="0" maximum="100" label="Activity" labelPlacement="left" 
+								direction="right" mode="manual" visible="true" width="120"/>
+				<mx:Label id="mic1Label" text="Microphone Volume" />
+				<mx:Button id="settingBtn" label="Change Microphone" click="showMicSettingsPanel()"/>
+			</mx:VBox>
+		</mx:HBox>	
+		<mx:Label fontSize="18" text="3. Ready"/>
+		<mx:HBox width="100%">
+			<mx:Spacer width="50%"/>
+			<mx:Button id="okBtn" label="Join" click="closeWindow()"/>
+			<mx:Spacer width="50%"/>
+		</mx:HBox>
+		<mx:HBox width="100%">
+			<mx:Spacer width="50%"/>
+			<mx:Spacer width="50%"/>
+		</mx:HBox>
+	</mx:VBox>		
+</mx:TitleWindow>

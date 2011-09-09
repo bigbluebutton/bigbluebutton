@@ -17,12 +17,10 @@
  *
  * $Id: $
  */
-package org.bigbluebutton.main.events
-{
+package org.bigbluebutton.main.events {
 	import flash.events.Event;
 
-	public class BBBEvent extends Event
-	{
+	public class BBBEvent extends Event {
 		public static const END_MEETING_EVENT:String = 'END_MEETING_EVENT';
 		public static const LOGIN_EVENT:String = 'loginEvent';
 		public static const RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT:String = 'RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT';
@@ -37,12 +35,11 @@ package org.bigbluebutton.main.events
 		public static const DESKSHARE_STARTED:String = 'BBB_DESKSHARE_STARTED';
 		
 		public var message:String;
+		public var payload:Object = new Object();
 		
-		public function BBBEvent(type:String, message:String = "", bubbles:Boolean=true, cancelable:Boolean=false)
-		{
+		public function BBBEvent(type:String, message:String = "", bubbles:Boolean=true, cancelable:Boolean=false) {
 			super(type, bubbles, cancelable);
 			this.message = message;
-		}
-		
+		}		
 	}
 }
