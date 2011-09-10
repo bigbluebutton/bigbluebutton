@@ -37,16 +37,16 @@ mark_for_rebuild() {
 	for type in $TYPES; do
                 if [ -d $BASE/process/$type/$MEETING_ID ]; then
                         rm -rf $BASE/process/$type/$MEETING_ID
-                else
-                        echo "Warn: Didn't find $BASE/process/$type/$MEETING_ID"
-                        exit 1
+#                else
+#                        echo "Warn: Didn't find $BASE/process/$type/$MEETING_ID"
+#                        exit 1
                 fi
 
                 if [ -f $STATUS/processed/$MEETING_ID-$type.done ]; then
                         rm $STATUS/processed/$MEETING_ID-$type.done
-                else
-                        echo "Warn: Didn't find $STATUS/processed/$MEETING_ID-$type.done"
-                        exit 1
+#                else
+#                        echo "Warn: Didn't find $STATUS/processed/$MEETING_ID-$type.done"
+#                        exit 1
                 fi
 
                 if [ -d $BASE/publish/$type/$MEETING_ID ]; then
@@ -84,8 +84,11 @@ usage() {
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
 	echo
+        echo "Reporting:"
+        echo "   --list                           List all recordings"
+	echo
         echo "Monitoring:"
-        echo "   --watch                          monitor processing of recordings: watch -n 2 \"bbb-record --watch\""
+        echo "   --watch                          Watch processing of recordings"
         echo "   --rebuild [meetingID]            rebuild the output for meetingID"
         echo "   --deletall                       delete all meetings and recordings"
 	echo
@@ -100,6 +103,17 @@ fi
 while [ $# -gt 0 ]; do
         if [ "$1" = "-watch" -o "$1" = "--watch" ]; then
                 WATCH=1
+		shift
+                continue
+        fi
+        if [ "$1" = "-list" -o "$1" = "--list" ]; then
+                LIST=1
+		shift
+                continue
+        fi
+        if [ "$1" "--list20" ]; then
+                LIST=1
+		HEAD=20
 		shift
                 continue
         fi
@@ -176,7 +190,7 @@ if [ $DELETEALL ]; then
 	done
 fi
 
-if [ $WATCH ]; then
+if [ $LIST ]; then
 
 
 	#ps -fC god
@@ -192,13 +206,18 @@ if [ $WATCH ]; then
 
 echo "MeetingID                                               Time                         Slides Recorded Archived Processed            Published             Description"
 echo "------------------------------------------------------  ---------------------------- ------ -------- -------- -------------------- --------------------  -----------------------------"
+
+if [ -z $HEAD ]; then
+	# If we're not called with --list20, show all recordings
+	HEAD=99999
+fi
                                                               
-for meeting in $(ls -u /var/bigbluebutton | grep "[0-9]\{13\}$"); do
+for meeting in $(ls -u /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD); do
 	echo -n "$meeting"
 	timestamp=$(echo $meeting | sed s/.*-//g)
 	epoc=$(($timestamp/1000))
 	echo -n "  "
-	echo -n $(date --date "Jan 1, 1970 00:00:00 +0000 + $epoc seconds")
+	echo -n $(date --date "Jan 1, 1970 00:00:00 +0000 + $epoc seconds") | awk '{ printf("%-28s",$0) }'
 
 	printf "%7s" $(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
 	#echo "/var/bigbluebutton/$meeting/$meeting"
@@ -278,4 +297,6 @@ done
 
 fi
 
-
+if [ $WATCH ]; then
+	watch -n 2 "bbb-record --list20"
+fi
