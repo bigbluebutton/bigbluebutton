@@ -111,7 +111,7 @@ while [ $# -gt 0 ]; do
 		shift
                 continue
         fi
-        if [ "$1" "--list20" ]; then
+        if [ "$1" = "--list20" ]; then
                 LIST=1
 		HEAD=20
 		shift
