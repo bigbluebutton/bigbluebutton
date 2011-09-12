@@ -14,8 +14,7 @@
         });
         return map; 
       }
-
-      /*http://192.168.1.11/playback/slides/playback.html?meetingId=a3be3c36bf3136c4718f64457bbcccb17b6ab760-1312582961289*/
+     
       var audio;
       var slides;
       var params = getUrlParameters();
@@ -23,14 +22,20 @@
       var HOST = window.location.hostname;
       var RECORDINGS = "http://" + HOST + "/slides/" + MEETINGID;
       var SLIDES_XML = "http://" + HOST + "/slides/" + MEETINGID + '/slides.xml';
-      console.log(RECORDINGS);
-      audio = document.getElementById("audioRecording");
-      console.log(audio);
-      audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
-      audio.setAttribute('type','audio/ogg')
-      //http://192.168.1.11/slides/6065595f17b19d9c1dc4810f88cc3465ff6e6d55-1313607330265/slides.xml
-      audio.setAttribute('data-timeline-sources', SLIDES_XML)
-    }, false);
+      var appName = navigator.appName;
+	  var appVersion = navigator.appVersion;
+	  audio = document.getElementById("audioRecording");
+	  
+	  if(appName == "Microsoft Internet Explorer" ||  (appVersion.match("Safari") != null && appVersion.match("Chrome") == null) ){
+	  	audio.setAttribute('src', RECORDINGS + '/audio/recording.wav');
+        audio.setAttribute('type','audio/x-wav');
+	  }
+	  else {
+		audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
+        audio.setAttribute('type','audio/ogg');
+	  }
+     audio.setAttribute('data-timeline-sources', SLIDES_XML) 
+	}, false);
   </script>
   <script src="lib/popcorn-complete.min.js"></script>
   <script src="lib/popcorn.image.js"></script>

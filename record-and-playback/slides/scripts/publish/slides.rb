@@ -16,7 +16,6 @@ playback = match[2]
 
 puts meeting_id
 puts playback
-
 if (playback == "slides")
 	puts "publishing #{meeting_id}"
 	logger = Logger.new("/var/log/bigbluebutton/slides/publish-#{meeting_id}.log", 'daily' )
@@ -42,6 +41,7 @@ if (playback == "slides")
 		FileUtils.mkdir_p audio_dir
 		
 		FileUtils.cp("#{process_dir}/audio.ogg", audio_dir)
+		FileUtils.cp("#{process_dir}/temp/#{meeting_id}/audio/recording.wav", audio_dir)
 		FileUtils.cp("#{process_dir}/events.xml", package_dir)
 		FileUtils.cp_r("#{process_dir}/presentation", package_dir)
 
