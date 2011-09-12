@@ -26,7 +26,6 @@
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
-	<mate:Listener type="{CallConnectedEvent.CALL_CONNECTED_EVENT}" method="handleCallConnectedEvent"/>
 	<mate:Listener type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="handleCallDisconnectedEvent"/>
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_CONFERENCE}" method="handleBBBJoinConferenceEvent"/>
 	
@@ -39,8 +38,6 @@
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
-			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
-			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceEvent;
 			import org.bigbluebutton.modules.phone.views.assets.Images;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -50,13 +47,10 @@
 			[Bindable] public var phoneIcon:Class = images.headset_icon;
 			
 			private function startPhone():void {
-				//this.enabled = false;
 				if (this.selected) {
-					LogUtil.debug("Joining voice conference");
-					dispatcher.dispatchEvent(new JoinVoiceConferenceEvent());					
+					dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));				
 				} else {
-					LogUtil.debug("Leaving voice conference");
-					dispatcher.dispatchEvent(new LeaveVoiceConferenceEvent());
+					dispatcher.dispatchEvent(new BBBEvent("LEAVE_VOICE_CONFERENCE_EVENT"));
 				}
 				
 				this.enabled = false;
@@ -69,19 +63,14 @@
 				this.enabled = true;
 			}
 			
-			private function handleCallConnectedEvent(event:CallConnectedEvent):void {
-				//this.enabled = false;
-			}
-			
 			private function handleCallDisconnectedEvent(event:CallDisconnectedEvent):void {
-				//this.enabled = true;
 				this.selected = false;
 			}
 			
 			private function handleBBBJoinConferenceEvent(event:BBBEvent):void {
-				var e:JoinVoiceConferenceEvent = new JoinVoiceConferenceEvent();
-				e.useMicrophone = false;
-				dispatcher.dispatchEvent(e);
+				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+				joinEvent.payload['useMicrophone'] = false;
+				dispatcher.dispatchEvent(joinEvent);
 			}
 			
 			//For whatever reason the tooltip does not update when localization is changed dynamically. Overrideing it here
