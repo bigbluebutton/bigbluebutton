@@ -25,16 +25,19 @@
       var appName = navigator.appName;
 	  var appVersion = navigator.appVersion;
 	  audio = document.getElementById("audioRecording");
-	  
-	  if(appName == "Microsoft Internet Explorer" ||  (appVersion.match("Safari") != null && appVersion.match("Chrome") == null) ){
+	  if(appName == "Microsoft Internet Explorer" ){
+		var message = "This playback requires modern browser, please use FF, Safari, Chrome, Opera";
+		var line = document.createElement("p");
+		line.appendChild(document.createTextNode(message));
+		document.getElementById("chat").appendChild(line);
+	  }else if (appVersion.match("Safari") != null && appVersion.match("Chrome") == null){
 	  	audio.setAttribute('src', RECORDINGS + '/audio/recording.wav');
         audio.setAttribute('type','audio/x-wav');
-	  }
-	  else {
+	  }else {
 		audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
         audio.setAttribute('type','audio/ogg');
-	  }
-     audio.setAttribute('data-timeline-sources', SLIDES_XML) 
+	  }	
+	  audio.setAttribute('data-timeline-sources', SLIDES_XML) 
 	}, false);
   </script>
   <script src="lib/popcorn-complete.min.js"></script>
@@ -44,7 +47,8 @@
 <body>
 	<div id="playbackArea">
 		<div style="width:800px; height:650px;" id="slide"></div> 
-		<audio id="audioRecording" controls > You must use an HTML5 capable browser to view this page.</audio>
+		<audio id="audioRecording" controls > You must use an HTML5 capable browser to view this page.
+		This playback requires modern browser, please use FF, Safari, Chrome</audio>
 		<div class="chatcontainer">
 			<div id="chat"></div>			
 		</div>
