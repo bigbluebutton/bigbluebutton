@@ -28,6 +28,7 @@
 	
 	<mate:Listener type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="handleCallDisconnectedEvent"/>
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_CONFERENCE}" method="handleBBBJoinConferenceEvent"/>
+	<mate:Listener type="MIC_SETTINGS_CLOSED" method="handleMicSettingsClosedEvent"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -64,6 +65,10 @@
 			}
 			
 			private function handleCallDisconnectedEvent(event:CallDisconnectedEvent):void {
+				this.selected = false;
+			}
+			
+			private function handleMicSettingsClosedEvent(event:BBBEvent):void {
 				this.selected = false;
 			}
 			
