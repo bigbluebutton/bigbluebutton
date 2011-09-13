@@ -25,15 +25,16 @@
     x="168" y="86" layout="vertical" width="400" height="100" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 						
 			[Bindable] private var message:String = "You have logged out of the conference";
+			private var urlLoader:URLLoader;
 			
 			private function init():void {
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
@@ -42,12 +43,21 @@
             private function redirect():void { 
             	var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
             	var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-            	var url:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
-            	LogUtil.debug("Log out url: " + pageURL);
-				navigateToURL(url, '_self');
-            	PopUpManager.removePopUp(this);
+            	var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+				LogUtil.debug("Log out url: " + pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+				request.method = URLRequestMethod.GET;
+				urlLoader = new URLLoader();
+				urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
+				urlLoader.load(request);
             }
             
+			private function handleComplete(e:Event):void {	
+				var request:URLRequest = new URLRequest(BBB.initUserConfigManager().getLogoutUrl());
+				LogUtil.debug("Logging out to: " + BBB.initUserConfigManager().getLogoutUrl());
+				navigateToURL(request, '_self');
+				PopUpManager.removePopUp(this);				
+			}
+			
             private function onUserLoggedOutWindowClose(e:Event):void {
             	PopUpManager.removePopUp(this);
             }

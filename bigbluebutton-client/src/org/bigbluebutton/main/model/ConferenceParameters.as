@@ -67,6 +67,8 @@ package org.bigbluebutton.main.model
 		 */		
 		public var externUserID:String;
 		
+		public var logoutUrl:String;
+		
 		/**
 		 * A flash.net.NetConnection object that bbb-client connects to on startup. This connection reference is 
 		 * passed to your module as an already open connection. Use it to talk to the bigbluebutton server.

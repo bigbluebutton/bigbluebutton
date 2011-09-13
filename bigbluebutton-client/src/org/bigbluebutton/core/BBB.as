@@ -3,22 +3,30 @@ package org.bigbluebutton.core
 	import org.bigbluebutton.core.managers.ConfigManager2;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.StreamManager;
+	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.Session;
 	
-	public class BBB
-	{
+	public class BBB {
 		private static var userManager:UserManager = null;
 		private static var configManager:ConfigManager2 = null;
 		private static var streamManager:StreamManager = null;
 		private static var connectionManager:ConnectionManager = null;
 		private static var session:Session = null;
+		private static var userConfigManager:UserConfigManager = null;
 		
 		public static function initUserManager():UserManager {
 			if (userManager == null) {
 				userManager = new UserManager();
 			}
 			return userManager;
+		}
+		
+		public static function initUserConfigManager():UserConfigManager {
+			if (userConfigManager == null) {
+				userConfigManager = new UserConfigManager();
+			}
+			return userConfigManager;
 		}
 		
 		public static function initConfigManager():ConfigManager2 {

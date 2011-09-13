@@ -23,8 +23,9 @@ package org.bigbluebutton.main.model.users
 	import flash.net.NetConnection;
 	
 	import mx.collections.ArrayCollection;
-	import mx.controls.Alert;
 	
+	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -36,8 +37,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 
-	public class UserService
-	{
+	public class UserService {
 		private var joinService:JoinService;
 		private var _conference:Conference;
 		private var _userSOService:UsersSOService;
@@ -51,8 +51,7 @@ package org.bigbluebutton.main.model.users
 		
 		private var dispatcher:Dispatcher;
 		
-		public function UserService()
-		{
+		public function UserService() {
 			dispatcher = new Dispatcher();
 		}
 		
@@ -82,10 +81,18 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.voicebridge = result.voicebridge;
 				_conferenceParameters.welcome = result.welcome;
 				_conferenceParameters.externUserID = result.externUserID;
+				_conferenceParameters.logoutUrl = result.logoutUrl;
 				_conferenceParameters.record = true;
-				if(result.record=="false")
-					_conferenceParameters.record = false;
 				
+				if(result.record == "false") {
+					_conferenceParameters.record = false;
+				}
+				
+				/**
+				 * Temporarily store the parameters in global BBB so we get easy access to it.
+				 */
+				var ucm:UserConfigManager = BBB.initUserConfigManager();
+				ucm.setConferenceParameters(_conferenceParameters);
 				
 				var e:ConferenceCreatedEvent = new ConferenceCreatedEvent(ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT);
 				e.conference = _conference;

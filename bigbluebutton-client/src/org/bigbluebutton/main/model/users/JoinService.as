@@ -67,7 +67,7 @@ package org.bigbluebutton.main.model.users
 										meetingID:xml.meetingID, externUserID:xml.externUserID,
 										role:xml.role, room:xml.room, authToken:xml.room, record:xml.record, 
 										webvoiceconf:xml.webvoiceconf,
-										voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome};
+										voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome, logoutUrl:xml.logoutUrl};
 				
 				if (_resultListener != null) _resultListener(true, user);
 			}

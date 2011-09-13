@@ -23,15 +23,13 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 
-	public class Conference
-	{		
+	public class Conference {		
 		private var _myUserid : Number;
 		
 		[Bindable] public var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;			
 				
-		public function Conference() : void
-		{
+		public function Conference():void {
 			me = new BBBUser();
 			users = new ArrayCollection();
 		}
@@ -41,8 +39,7 @@ package org.bigbluebutton.main.model.users
 		 * @param newuser
 		 * 
 		 */		
-		public function addUser(newuser:BBBUser) : void
-		{				
+		public function addUser(newuser:BBBUser):void {				
 			if (! hasParticipant(newuser.userid)) {
 				
 				if (newuser.userid == me.userid) {
