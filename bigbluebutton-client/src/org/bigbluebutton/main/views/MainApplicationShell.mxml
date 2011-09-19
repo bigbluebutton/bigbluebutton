@@ -313,6 +313,8 @@
            <mx:dataProvider>
               <mx:Array>
 			      <mx:String>Small videos</mx:String>
+				  <mx:String>Presenter + presentation</mx:String>
+				  <mx:String>Meeting</mx:String>
               </mx:Array>
            </mx:dataProvider>
       	</mx:ComboBox>
