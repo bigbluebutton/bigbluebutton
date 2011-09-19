@@ -163,7 +163,7 @@
 			<mx:Spacer width="80%"/>
 			<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.join')}" click="onJoinClicked()"/>
 			<mx:Spacer width="10%"/>
-			<mx:LinkButton fontSize="14" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="onHelpButtonClicked()"/>
+			<mx:LinkButton fontSize="10" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="onHelpButtonClicked()"/>
 		</mx:HBox>
 		<mx:HBox width="100%">
 			<mx:Spacer width="50%"/>
