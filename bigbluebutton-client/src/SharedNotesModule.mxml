@@ -96,7 +96,7 @@
 				SharedNotesWindow.document = _attributes.room;
 				// The following line has been removed, as the uri should be in 
 				// the URI property in the config.xml file of the client
-					HTTPServerConnection.syncURL = (_attributes.uri as String).replace("RTMP", "http") + "/notes/notes.jsp";
+					HTTPServerConnection.syncURL = (_attributes.uri as String).replace("RTMP", "http") + "/demo/notes.jsp";
 				addToolbarButton();
 			}
 			
