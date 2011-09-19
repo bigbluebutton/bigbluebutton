@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
-		width="100%" height="100%" creationComplete="initDefaultMic()">
+		width="600" height="300" creationComplete="initDefaultMic()" showCloseButton="true" close="onCancelClicked()">
 	<mx:Script>
 		<![CDATA[
 			import mx.events.ItemClickEvent;
@@ -120,11 +120,10 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:VBox width="100%" height="100%">
+	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
 		<mx:HBox width="100%">
 			<mx:Spacer width="50%"/>
 			<mx:Spacer width="50%"/>
-			<mx:Button id="cancelBtn" icon="{cancelIcon}" width="20" height="20" toolTip="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel')}" click="onCancelClicked()"/>
 		</mx:HBox>
 		<mx:HBox width="100%" height="20">
 			<mx:Spacer width="50%"/>
@@ -132,12 +131,11 @@
 		</mx:HBox>
 		<mx:HBox width="100%" height="50%">
 			<mx:VBox width="70%" height="100%">
-				<mx:Text text="{ResourceUtil.getInstance().getString('bbb.micSettings.hearFromHeadset')}"/>
+				<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.hearFromHeadset')}"/>
 			</mx:VBox>	
 			<mx:VBox width="50%" height="100%">
 				<mx:Button id="playButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}" 
 						   click="playButtonClickHandler()" toggle="true"/>
-				<mx:Spacer width="100%"/>
 			</mx:VBox>			
 		</mx:HBox>
 		<mx:HBox width="100%" height="20">
@@ -146,17 +144,15 @@
 		</mx:HBox>
 		<mx:HBox width="100%" height="50%">
 			<mx:VBox width="70%" height="100%">
-				<mx:Text text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"/>
+				<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"/>
 			</mx:VBox>			
 			<mx:Spacer width="10%"/>
 			<mx:VBox width="20%" height="100%">		
-				<mx:Spacer width="10%"/>
-				<mx:Label id="mic1Label" text="Microphone Name" />
+				<mx:Text id="mic1Label" text="Microphone Name" />
 				<mx:ProgressBar id="micLevel1" minimum="0" maximum="100"  
 								labelPlacement="right" label=""
 								direction="right" mode="manual" visible="true" width="120"/>				
-				<mx:Button id="settingBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic')}" click="showMicSettingsPanel()"/>
-				
+				<mx:Button id="settingBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic')}" click="showMicSettingsPanel()"/>				
 			</mx:VBox>
 		</mx:HBox>	
 		<mx:HBox width="100%" height="20">
