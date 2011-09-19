@@ -118,6 +118,10 @@ dependencies {
     // Libraries needed for scala api
     compile 'org.scala-lang:scala-library:2.7.7'   
     compile 'org/bigbluebutton/common:bbb-common-message:0.7@jar' 
+
+    //redis	
+    compile 'redis.clients:jedis:1.5.1'
+    compile 'commons-pool:commons-pool:1.5.5'
 }
 
 test {

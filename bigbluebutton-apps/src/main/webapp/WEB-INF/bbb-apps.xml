@@ -136,6 +136,20 @@
 	<bean id="whiteboardRoomManager" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardRoomManager"/>
 	<!-- END WHITEBOARD -->
 	
+	<!-- BEGIN RTMPAdapter -->
+	<bean id="RTMPAdapter" 
+            class="org.bigbluebutton.conference.service.rtmpadapter.RTMPAdapterApp">
+	    <!--<property name="channelManager"> <ref local="channelManager"/></property>-->
+        </bean>
+
+	<bean id="rtmpadapter.service" class="org.bigbluebutton.conference.service.rtmpadapter.RTMPAdapterService">
+                <property name="RTMPAdapter"> <ref local="RTMPAdapter"/></property>
+        </bean>
+
+	<!--<bean id="channelManager" class="org.bigbluebutton.conference.service.rtmpadapter.ChannelManager"/>-->
+	<!-- END RTMPAdapter -->
+
+	
 	<!-- Starting the Spring Integration configuration for JMS integration -->
 
 	<!-- INCOMING MESSAGES -->
