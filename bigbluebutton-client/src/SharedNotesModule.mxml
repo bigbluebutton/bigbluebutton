@@ -93,15 +93,12 @@
 			public function start(attributes:Object):void {	
 				LogUtil.debug("notes attr: " + attributes.username);
 				_attributes = attributes;
-				SharedNotesWindow.document = _attributes.room;
-				// The following line has been removed, as the uri should be in 
-				// the URI property in the config.xml file of the client
-				HTTPServerConnection.syncURL = (_attributes.uri as String).replace("RTMP", "http") + "/demo/notes.jsp";
 				addToolbarButton();
 			}
 			
 			public function addToolbarButton():void{
-				var button:ToolbarButton = new ToolbarButton();	   	
+				var button:ToolbarButton = new ToolbarButton();
+				button.attributes = _attributes;
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 				event.button = button;
 				globalDispatcher.dispatchEvent(event);

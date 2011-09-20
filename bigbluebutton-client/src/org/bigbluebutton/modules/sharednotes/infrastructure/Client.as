@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 	import com.adobe.serialization.json.JSON;
 	
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.events.IEventDispatcher;
 	import flash.events.TimerEvent;
 	import flash.utils.ByteArray;	
@@ -49,15 +50,109 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 		private var server:ServerConnection;
 		
 		private var testCharacterTimer:Timer;
-		private var documentCheckTimer:Timer;	// timer to check for changes in the document
-		private var timeoutTimer:Timer = new Timer(5000); // setting the timeout for server requests to 5 seconds
+		private var timeoutTimer:Timer;
 		
-		public static var documentName:String = "";
+		private var _documentName:String = "";
+		private var _host:String = "";
 		
+		private var _dispatcher:IEventDispatcher;
+		private const STATE_NONE:String = "STATE_NONE";
+		private const STATE_INIT:String = "STATE_INIT";
+		private const STATE_WAITING_PATCH_APPROVAL:String = "STATE_WAITING_PATCH_APPROVAL";
+		private const STATE_UPDATING_REMOTE_USERS:String = "STATE_UPDATING_REMOTE_USERS";
+		private const STATE_WAITING_REMOTE_PATCH:String = "STATE_WAITING_REMOTE_PATCH";
+		private var _state:String = STATE_NONE;
+		private var _delayedEvent:Event = null;
 	
-		public function Client(textComponent:PatchableTextArea, dispatcher:IEventDispatcher) {
+		public function Client(textComponent:PatchableTextArea, host:String, documentName:String, refreshTimeout:int, dispatcher:IEventDispatcher) {
 			textArea = textComponent;
+			_documentName = documentName;
+			_host = host;
+			_dispatcher = dispatcher;
+			
+			_dispatcher.addEventListener(ServerConnection.INIT_EVENT, function(e:Event):void {
+				LogUtil.debug("Received " + e.type + ", current state = " + state);
+				state = STATE_INIT;
+			});
+			_dispatcher.addEventListener(ServerConnection.SEND_PATCH_EVENT, function(e:Event):void {
+				LogUtil.debug("Received " + e.type + ", current state = " + state);
+				switch(state) {
+					case STATE_INIT:
+						sendMessage();
+						state = STATE_WAITING_PATCH_APPROVAL;
+						break;
+					case STATE_WAITING_REMOTE_PATCH: // special state that occurs when there's concurrent typing
+						delayEvent(e);
+						break;
+					default:
+						LogUtil.debug("Inconsistent state!");
+						break;
+				}
+			});
+			_dispatcher.addEventListener(ServerConnection.HANDLE_PATCH_EVENT, function(e:Event):void {
+				LogUtil.debug("Received " + e.type + ", current state = " + state);
+				switch(state) {
+					case STATE_WAITING_PATCH_APPROVAL:
+						_dispatcher.dispatchEvent(new Event(ServerConnection.UPDATE_REMOTE_EVENT));
+						state = STATE_UPDATING_REMOTE_USERS;
+						break;
+					case STATE_WAITING_REMOTE_PATCH:
+						state = STATE_INIT;
+						break;
+					default:
+						LogUtil.debug("Inconsistent state!");
+						break;
+				}
+			});
+			_dispatcher.addEventListener(ServerConnection.UPDATE_EVENT, function(e:Event):void {
+				LogUtil.debug("Received " + e.type + ", current state = " + state);
+				switch(state) {
+					case STATE_UPDATING_REMOTE_USERS:
+						state = STATE_INIT;
+						break;
+					case STATE_INIT:
+						sendMessage();
+						state = STATE_WAITING_REMOTE_PATCH;
+						break;
+					case STATE_WAITING_REMOTE_PATCH: // special state that occurs when there's concurrent typing
+					case STATE_WAITING_PATCH_APPROVAL:
+						delayEvent(e);
+						break;
+					default:
+						LogUtil.debug("Inconsistent state!");
+						break;
+				}
+			});
+			
+			timeoutTimer = new Timer(refreshTimeout);
+			timeoutTimer.addEventListener(TimerEvent.TIMER, function(e:Event):void {
+				timeoutTimer.stop();
+				sendMessage();
+			});
+			
+			// used for testing
+			testCharacterTimer = new Timer(10);
+			testCharacterTimer.addEventListener(TimerEvent.TIMER, playSentence);
+			
 			server = new HTTPServerConnection(this, dispatcher);
+		}
+		
+		private function delayEvent(e:Event):void {
+			LogUtil.debug("Delaying event");
+			if (_delayedEvent == null || _delayedEvent.type != ServerConnection.SEND_PATCH_EVENT) 
+				_delayedEvent = new Event(e.type);
+		}
+		
+		private function set state(newState:String):void {
+			_state = newState;
+			if (_state == STATE_INIT && _delayedEvent != null) {
+				_dispatcher.dispatchEvent(_delayedEvent);
+				_delayedEvent = null;
+			}
+		}
+		
+		private function get state():String {
+			return _state;
 		}
 		
 		public function initClient(id:int, serverConnection:ServerConnection, document:String = ""):void {
@@ -68,61 +163,12 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 			server = serverConnection;
 			
 			logPrefix = "[Client " + id + "] ";
-			initDocumentCheckTimer();
 			
-			timeoutTimer.addEventListener(TimerEvent.TIMER, function(e:Event):void {
-				timeoutTimer.stop();
-				sendMessage();
-			});
-			
-			// used for testing
-			testCharacterTimer = new Timer(10);
-			testCharacterTimer.addEventListener(TimerEvent.TIMER, playSentence);
-		}
-		
-		private function initDocumentCheckTimer():void {
-			// changed the timer for 5 seconds to test concurrent typing
-			documentCheckTimer = new Timer(5000);
-			documentCheckTimer.addEventListener(TimerEvent.TIMER, documentCheckEventHandler);
-			documentCheckTimer.start();
-		}
-		
-		private function documentCheckEventHandler(e:TimerEvent):void {
-			if (!server.pendingResponse) {
-				sendMessage();
-			}
-		}
-
-		public function sendMessage():void {
-			var messageToSend:Message = new Message(id, documentName, ServerConnection.connectionType);
-			
-			if (documentShadow != textArea.textFieldText) {
-				trace("****** SENDING MESSAGE *******");
-				
-				textArea.editable = false;
-				var clientText:String = new String(textArea.textFieldText); // a snapshot of the client text
-				
-				messageToSend.patchData = DiffPatch.diff(documentShadow, clientText);
-				
-				patchHistory.push(messageToSend.patchData);
-				
-				documentShadow = clientText;
-
-				//messageToSend.checksum = SHA1.hash(documentShadow);
-				messageToSend.checksum = calculateChecksum(documentShadow);
-				
-				textArea.editable = true;
-				
-				trace(logPrefix + "sending " + messageToSend);
-			}
-			
-			server.send("m, " + JSON.encode(messageToSend));
-
-			timeoutTimer.start();
+			_dispatcher.dispatchEvent(new Event(ServerConnection.INIT_EVENT));
 		}
 		
 		/**
-		 *	There's a problem on the hash calculation when there are special
+		 *	There was a problem on the hash calculation when there are special
 		 *	characters on the String. It doesn't occur when it's implemented 
 		 *	using a ByteArray instead of a String directly.
 		 */
@@ -132,26 +178,53 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 			return SHA1.hashBytes(text);
 		}
 
+		public function sendMessage():void {
+			var messageToSend:Message = new Message(id, _documentName, ServerConnection.connectionType);
+			
+			if (documentShadow != textArea.textFieldText) {
+				textArea.editable = false;
+				var clientText:String = new String(textArea.textFieldText); // a snapshot of the client text
+				
+				messageToSend.patchData = DiffPatch.diff(documentShadow, clientText);
+				
+				patchHistory.push(messageToSend.patchData);
+				
+				documentShadow = clientText;
+
+				messageToSend.checksum = calculateChecksum(documentShadow);
+				
+				textArea.editable = true;
+				
+				LogUtil.debug(logPrefix + "sending message.\n" + messageToSend);
+			}
+			
+			server.send("m, " + JSON.encode(messageToSend));
+
+			server.pendingResponse = true;
+
+			timeoutTimer.start();
+		}
+		
 		public function receiveMessage(serverMessage:Message): void {
 			timeoutTimer.stop();	// we received a response - cancel the time out
 			
-			trace(logPrefix + "received message.\nMessage: " + serverMessage);
+			LogUtil.debug(logPrefix + "received message.\n" + serverMessage);
 			
 			if (serverMessage.patchData != "") {
 				var result:String = DiffPatch.patch(serverMessage.patchData, documentShadow);
 				
-				//if (SHA1.hash(result) == serverMessage.checksum) {
 				if (calculateChecksum(result) == serverMessage.checksum) {
 					documentShadow = result;
 					textArea.patch = serverMessage.patchData;
 					patchHistory.push(serverMessage.patchData);
 				}
 				else {
-					throw new Error("Checksum mismatch");
+					LogUtil.error("Checksum mismatch");
 				}
 			}
 			
 			server.pendingResponse = false;
+			_dispatcher.dispatchEvent(new Event(ServerConnection.HANDLE_PATCH_EVENT));
 		}
 		
 		public function getSnapshotAtVersion(initialVersion:int, finalVersion:int, documentSnapshot:String = ""):String {
@@ -188,10 +261,10 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 				if (testCounter == testSentence.length)  {
 					testCounter = 0;
 					textArea.tackOnText += "\n";
-				}
-				else {
+				} else {
 					textArea.tackOnText += testSentence.charAt(testCounter++);
 				}
+				textArea.dispatchEvent(new KeyboardEvent(KeyboardEvent.KEY_DOWN));
 				textArea.editable = true;
 			}
 		}
@@ -205,10 +278,6 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 			receiveMessage(pendingServerMessage);
 		}
 		
-		private function timeoutHandler(event:TimerEvent):void {
-			sendMessage();
-		}
-		
 		public function get version():int { return patchHistory.length; }
 		
 		public function get id():int { return _id; }
@@ -216,8 +285,15 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 		public function shutdown():void {
 			server.shutdown();
 			if (testCharacterTimer) testCharacterTimer.stop();
-			if (documentCheckTimer) documentCheckTimer.stop();
 			if (timeoutTimer) timeoutTimer.stop();
+		}
+		
+		public function get documentName():String {
+			return _documentName;
+		}
+		
+		public function get host():String {
+			return _host;
 		}
 	}
 }
