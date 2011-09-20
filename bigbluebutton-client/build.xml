@@ -41,6 +41,23 @@
 	</target>
 	
 	<target name="localization" depends="init-ant-contrib">
+		<available file="${OUTPUT_DIR}/locale" type="file" property="locale.dir.present"/>
+		<if> 
+        	<equals arg1="${locale.dir.present}" arg2="true"/> 
+           	<then> 
+              		<echo message="Deleting contents of ${OUTPUT_DIR}/locale"/> 
+              		<delete>
+						<fileset dir="${OUTPUT_DIR}/locale">
+		  					<include name="**/*"/>
+						</fileset>
+  					</delete>
+           	</then> 
+           	<else> 
+              		<echo message="Creating ${OUTPUT_DIR}/locale"/> 
+              		<mkdir dir="${OUTPUT_DIR}/locale"/>
+           	</else> 
+        </if>
+
 		<echo message="Parsing ${SRC_DIR}/conf/locales.xml for supported locales"/>
 		<echo message="Available locales ${AVAILABLE_LOCALES}"/>
 		<!--foreach list="${locales.locale.code}" target="build-locale" param="supportedlocale" delimiter=","/-->
@@ -108,9 +125,24 @@
 				<locale>@{locale}</locale>
 				<target-player>10.3.0</target-player>
 				<source-path path-element="locale/{locale}"/>
+				
+				<!--
+				  Look into bundles.txt to find out what resources to include here.
+				  http://forums.adobe.com/thread/758619
+				  ralam - sept 20, 2011
+				-->
 				<include-resource-bundles>bbbResources</include-resource-bundles>
-				<include-resource-bundles>core</include-resource-bundles>
-				<include-resource-bundles>controls</include-resource-bundles>
+				<include-resource-bundles>collections</include-resource-bundles> 
+				<include-resource-bundles>containers</include-resource-bundles> 
+				<include-resource-bundles>controls</include-resource-bundles> 
+				<include-resource-bundles>core</include-resource-bundles> 
+				<include-resource-bundles>effects</include-resource-bundles> 
+				<include-resource-bundles>logging</include-resource-bundles> 
+				<include-resource-bundles>messaging</include-resource-bundles> 
+				<include-resource-bundles>modules</include-resource-bundles> 
+				<include-resource-bundles>rpc</include-resource-bundles> 
+				<include-resource-bundles>skins</include-resource-bundles> 
+				<include-resource-bundles>styles</include-resource-bundles>
 				<source-path path-element="${FLEX_HOME}/frameworks"/>
 			</mxmlc>
 		</sequential>
@@ -216,6 +248,14 @@
 					<target-player>10.3.0</target-player>
 					<load-config filename="@{flex}/frameworks/flex-config.xml" />
 					<source-path path-element="@{flex}/frameworks" />
+					
+					<!--
+				  		Dump out resources to find out what resources to include building the locales.
+				  		http://forums.adobe.com/thread/758619
+				  		ralam - sept 20, 2011
+					-->
+					<resource-bundle-list>bundles.txt</resource-bundle-list>
+					
 					<compiler.library-path dir="@{flex}/frameworks" append="true">
 						<include name="libs" />
 						<include name="../bundles/{locale}" />
@@ -297,9 +337,6 @@
 		<copy todir="${OUTPUT_DIR}/swfobject/" >
 			<fileset dir="${BASE_DIR}/src/swfobject/" />
 		</copy>	
-		<copy todir="${OUTPUT_DIR}/locale" >
-			<fileset dir="${BASE_DIR}/locale/" />
-		</copy>	
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButtonTest.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/DeskshareStandalone.html" todir="${OUTPUT_DIR}" overwrite="true"/>
@@ -376,15 +413,26 @@
 	</target>
 
 	<target name="clean">
-		<delete dir="${OUTPUT_DIR}" />
-		<mkdir dir="${OUTPUT_DIR}"/>
+		<fileset id="foo" dir="${OUTPUT_DIR}" >
+	  		<include name="**/*"/>
+	  		<exclude name="locale/**/*.swf, **/.gitignore"/>
+	  		<exclude name=".gitignore"/>
+		</fileset>
+		<dirset id="bar" dir="${OUTPUT_DIR}">
+	  		<include name="**/*"/>
+	  		<exclude name="locale"/>
+		</dirset>
+		<delete>
+    		<fileset refid="foo" />
+    		<dirset refid="bar"/>
+  		</delete>
 	</target>
 
 	<!-- NOTE: compile-deskshare-standalone MUST come first before compile-bbb as we need the deskshare-standalone
 				to be compiled withouth being optimized by using the linker -->
 	<target name="clean-build-bbb" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, compile-bbb" 
 			description="Build BBB client skipping compiling of locales"/>	
-	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, localization, compile-deskshare-standalone, compile-bbb" 
+	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, compile-bbb" 
 			description="Build BBB client including locales"/>
 	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, compile-bbb"
                         description="Build BBB client without locales"/>		
