@@ -26,8 +26,10 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
 	import flash.events.TimerEvent;
+	import flash.utils.ByteArray;	
 	import flash.utils.Timer;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.sharednotes.components.PatchableTextArea;
 	import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 
@@ -79,7 +81,8 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 		}
 		
 		private function initDocumentCheckTimer():void {
-			documentCheckTimer = new Timer(500);
+			// changed the timer for 5 seconds to test concurrent typing
+			documentCheckTimer = new Timer(5000);
 			documentCheckTimer.addEventListener(TimerEvent.TIMER, documentCheckEventHandler);
 			documentCheckTimer.start();
 		}
@@ -105,7 +108,8 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 				
 				documentShadow = clientText;
 
-				messageToSend.checksum = SHA1.hash(documentShadow);
+				//messageToSend.checksum = SHA1.hash(documentShadow);
+				messageToSend.checksum = calculateChecksum(documentShadow);
 				
 				textArea.editable = true;
 				
@@ -117,6 +121,17 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 			timeoutTimer.start();
 		}
 		
+		/**
+		 *	There's a problem on the hash calculation when there are special
+		 *	characters on the String. It doesn't occur when it's implemented 
+		 *	using a ByteArray instead of a String directly.
+		 */
+		private function calculateChecksum(value:String): String {
+			var text:ByteArray = new ByteArray;
+			text.writeUTFBytes(value);
+			return SHA1.hashBytes(text);
+		}
+
 		public function receiveMessage(serverMessage:Message): void {
 			timeoutTimer.stop();	// we received a response - cancel the time out
 			
@@ -125,7 +140,8 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 			if (serverMessage.patchData != "") {
 				var result:String = DiffPatch.patch(serverMessage.patchData, documentShadow);
 				
-				if (SHA1.hash(result) == serverMessage.checksum) {
+				//if (SHA1.hash(result) == serverMessage.checksum) {
+				if (calculateChecksum(result) == serverMessage.checksum) {
 					documentShadow = result;
 					textArea.patch = serverMessage.patchData;
 					patchHistory.push(serverMessage.patchData);
