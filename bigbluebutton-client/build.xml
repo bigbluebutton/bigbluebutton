@@ -32,14 +32,14 @@
 	<property name="VIDEO_DOCK" value="VideodockModule" />
 	
 	<property name="AVAILABLE_LOCALES" value="az_AZ,bg_BG,bn_BN,cs_CZ,da_DK,de_DE,el_GR,en_US,es_ES,es_LA,eu_EU,fa_IR,fr_FR,fr_CA,hr_HR,hu_HU,id_ID,it_IT,ja_JP,ko_KR,lv_LV,lt_LT,mn_MN,nb_NO,ne_NE,nl_NL,pl_PL,pt_BR,pt_PT,ro_RO,ru_RU,sr_RS,sr_SR,sv_SE,th_TH,tr_TR,uk_UA,vi_VN,zh_CN,zh_TW"/>
-	
+
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
 	
 	<target name="init-ant-contrib">
 		<property name="ant-contrib.jar" location="${BASE_DIR}/build/lib/ant-contrib-0.6.jar"/>
 		<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="${ant-contrib.jar}"/>
 	</target>
-	
+	  
 	<target name="localization" depends="init-ant-contrib">
 		<available file="${OUTPUT_DIR}/locale" type="file" property="locale.dir.present"/>
 		<if> 
@@ -58,15 +58,21 @@
            	</else> 
         </if>
 
-		<echo message="Parsing ${SRC_DIR}/conf/locales.xml for supported locales"/>
-		<echo message="Available locales ${AVAILABLE_LOCALES}"/>
-		<!--foreach list="${locales.locale.code}" target="build-locale" param="supportedlocale" delimiter=","/-->
-		<foreach list="${AVAILABLE_LOCALES}" target="build-locale" param="supportedlocale" delimiter=","/>
+		<foreach target="build-locale" param="supportedlocale">
+			<path id="lib.path.ref">
+		    	<dirset dir="${BASE_DIR}/locale"/>
+		  	</path>
+		</foreach>
 	</target>
-	
+		
 	<target name="branding" depends="init-ant-contrib">
 		<sequential>
-			<mxmlc file="${SRC_DIR}/branding/css/${themeFile}" output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true">
+			<mxmlc file="${SRC_DIR}/branding/css/${themeFile}" 
+				output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" 
+				debug="false" 
+				mxml.compatibility-version="3.0.0" 
+				swf-version="13" 
+				optimize="true">
 			</mxmlc>
 		</sequential>
 	</target>
@@ -76,49 +82,42 @@
 	</target>
 
 	<target name="build-locale">
-		<echo message="Building ${supportedlocale}"/>
-		<available file="${LOCALE_DIR}/${supportedlocale}" type="dir" property="locale.dir.present"/>
-		<if> 
-           		<equals arg1="${locale.dir.present}" arg2="true"/> 
-           	<then> 
-              		<echo message="No need to copy ${LOCALE_DIR}/${supportedlocale}"/> 
-           	</then> 
-           	<else> 
-              		<echo message="Need to copy ${LOCALE_DIR}/${supportedlocale}"/> 
-              		<exec dir="${BASE_DIR}" vmlauncher="true" executable="copylocale">
-				<arg value="en_US"/>
-    				<arg value="${supportedlocale}"/>
-			</exec>
-           	</else> 
-        	</if>
-        	<compileLocale locale="${supportedlocale}" />        
+		<echo message="prop is ${supportedlocale}" />
+	   <basename property="dir.name" file="${supportedlocale}"/>  
+   		<echo message="${dir.name}"/>
+
+		<sequential>
+			<echo message="Building ${dir.name}"/>
+			<available file="${LOCALE_DIR}/${dir.name}" type="dir" property="locale.dir.present"/>
+              <if>
+                <equals arg1="${dir.name}" arg2="locale"/>
+                <then>
+                	<echo message="No need to copy ${dir.name}"/> 
+                </then>
+              	<else>		
+					<if> 
+		           		<equals arg1="${locale.dir.present}" arg2="true"/> 
+		           		<then> 
+		              		<echo message="No need to copy ${LOCALE_DIR}/${dir.name}"/> 
+		           		</then> 
+		           		<else> 	
+		              		<echo message="Need to copy ${LOCALE_DIR}/${dir.name}"/>         
+		              		<exec  vmlauncher="true" executable="copylocale">
+								<arg value="en_US"/>
+		    					<arg value="${dir.name}"/>
+							</exec>	
+			  			</else>
+					</if>	
+					<compileLocale locale="${dir.name}" />  
+           		</else> 
+        	</if>       	   
+       </sequential>
 	</target>
 		
 	<macrodef name="compileLocale" description="Compiles the Resource package for the given locale">
 		<attribute name="locale" default="en_US"/>
 		<sequential>
 			<echo message="Building @{locale}"/>
-		<available file="${LOCALE_DIR}/@{locale}" type="dir" property="locale.dir.present"/>
-		<if> 
-           <equals arg1="${locale.dir.present}" arg2="true"/> 
-           <then> 
-              <echo message="No need to copy ${LOCALE_DIR}/@{locale}"/> 
-           </then> 
-           <else> 
-              <echo message="Need to copy ${LOCALE_DIR}/@{locale}"/> 
-              <exec dir="${BASE_DIR}" vmlauncher="true" executable="copylocale">
-				<arg value="en_US"/>
-    			<arg value="@{locale}"/>
-			</exec>
-           </else> 
-        </if>
-        
-			<!--
-			Create the Flex Home directory for the language in question.
-			This is necessary to compensate for a bug in pre-3.2 releases of 
-			mxmlc.
-			
-			<mkdir dir="${FLEX_HOME}/frameworks/locale/@{locale}"/>-->
 			
 			<!-- Invoke MXMLC -->
 			<mxmlc output="${OUTPUT_DIR}/locale/@{locale}_resources.swf">
