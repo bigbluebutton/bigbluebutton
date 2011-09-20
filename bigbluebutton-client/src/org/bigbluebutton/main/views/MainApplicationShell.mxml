@@ -77,9 +77,7 @@
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
-			
-			import spark.components.Application;
-			
+	
 			private var globalDispatcher:Dispatcher;
 			
 			private var dispState:String; //full-screen?
@@ -213,11 +211,10 @@
 				var micSettings:MicSettings = MicSettings(PopUpManager.createPopUp(mdiCanvas, MicSettings, true));				
 				var point1:Point = new Point();
 				// Calculate position of TitleWindow in Application's coordinates. 
-				point1.x = 400;
-				point1.y = 300;                
-				point1 = mdiCanvas.localToGlobal(point1);
-				micSettings.x = point1.x + 25;
-				micSettings.y = point1.y + 25;	
+				point1.x = width/2;
+				point1.y = height/2;                
+				micSettings.x = point1.x - (micSettings.width/2);
+				micSettings.y = point1.y - (micSettings.height/2);	
 			}
 			
 	   		private function wrongLocaleVersion():void {
@@ -225,11 +222,10 @@
 
 				var point1:Point = new Point();
 	        	// Calculate position of TitleWindow in Application's coordinates. 
-	        	point1.x = 400;
-	        	point1.y = 300;                
-	        	point1 = mdiCanvas.localToGlobal(point1);
-				localeWindow.x = point1.x + 25;
-				localeWindow.y = point1.y + 25;	
+				point1.x = width/2;
+				point1.y = height/2;              
+				localeWindow.x = point1.x - (localeWindow.width/2);
+				localeWindow.y = point1.y - (localeWindow.height/2);	
             }
 			
 			private function handleLogout(e:ConnectionFailedEvent):void {
@@ -239,11 +235,11 @@
 					
 					var point1:Point = new Point();
 					// Calculate position of TitleWindow in Application's coordinates. 
-					point1.x = 400;
-					point1.y = 300;                
-					point1 = localToGlobal(point1);
-					logoutWindow.x = point1.x + 25;
-					logoutWindow.y = point1.y + 25;	
+					point1.x = width/2;
+					point1.y = height/2;                 
+					logoutWindow.x = point1.x - (logoutWindow.width/2);
+					logoutWindow.y = point1.y - (logoutWindow.height/2);
+					
 					if (e is ConnectionFailedEvent) logoutWindow.setReason((e as ConnectionFailedEvent).type);
 					else logoutWindow.setReason("You have logged out of the conference");	
 					
