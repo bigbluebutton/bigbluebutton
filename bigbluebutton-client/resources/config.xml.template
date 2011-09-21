@@ -103,7 +103,7 @@
 			host="http://HOST/bigbluebutton/demo/notes.jsp"
 			refreshDelay="500"
 			responseTimeout="3000"
-			enablePlayback="true"
+			enablePlayback="false"
 			dependsOn="ViewersModule"
 		/>
 		
