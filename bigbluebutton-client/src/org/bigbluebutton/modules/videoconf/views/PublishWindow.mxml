@@ -73,8 +73,7 @@
 				_videoHolder.height = camHeight;
 				this.addChild(_videoHolder);				
 				this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
-				currentState = "dispVideoOptionsControlBar";
-				
+
 				checkIfMacCamera();
 				if (isPresenter()) showResControls(true);
 				if (Camera.names.length > 1) showVideoControls(true);
@@ -200,16 +199,17 @@
 			
 			private function showVideoControls(show:Boolean):void{
 				if (show){
-					currentState = "dispVideoOptionsControlBar"
 					videoOptionsBar.visible = true;
 					btnStartPublish.visible = true;
 					cmbCameraSelector.visible = true;
 				} else{					
 					videoOptionsBar.visible = false;
+					videoOptionsBar.width = 0;
+					videoOptionsBar.height = 0;
 					btnStartPublish.visible = false;
 					cmbCameraSelector.visible = false;
 					videoOptionsBar.visible = false;
-					currentState = "dispVideo";
+					
 				}
 			}
 			
@@ -237,27 +237,21 @@
 				}
 			}
 			
-
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				// when the user starts to publish, the window title is your name + (you)                   
-				if (currentState == "dispVideoOptionsControlBar")
-					this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
+			//	if (currentState == "dispVideoOptionsControlBar")
+			//		this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
 			}			
 		]]>
 	</mx:Script>
-	<pubVid:states>
-		<mx:State name="dispVideo"/>
-		<mx:State name="dispVideoOptionsControlBar">   
-			<mx:AddChild>
-				<mx:ControlBar id="videoOptionsBar" visible="true">
-					<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" />
-					<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" />
-					<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" />
-				</mx:ControlBar>
-			</mx:AddChild>
-		</mx:State>
-	</pubVid:states>
+
+	<mx:UIComponent id="videoHolder" width="{camWidth}" height="{camHeight}" />	
+	<mx:ControlBar id="videoOptionsBar" visible="true">
+		<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" />
+		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" />
+		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" />
+	</mx:ControlBar>
 	
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
 </pubVid:VideoWindowItf>
