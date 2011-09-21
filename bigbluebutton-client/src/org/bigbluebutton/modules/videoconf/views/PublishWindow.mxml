@@ -28,6 +28,8 @@
 	width="{camWidth + 6}" height="{camHeight + 80}" 
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()"
+	horizontalScrollPolicy="off"
+	verticalScrollPolicy="off"
 	layout="absolute">
 	
 	<mx:Script>
@@ -239,10 +241,8 @@
 			
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
-				// when the user starts to publish, the window title is your name + (you)                   
-			//	if (currentState == "dispVideoOptionsControlBar")
-			//		this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
-			}			
+			}		
+
 		]]>
 	</mx:Script>
 
