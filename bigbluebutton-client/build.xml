@@ -422,18 +422,15 @@
 	</target>
 
 	<target name="clean">
-		<fileset id="foo" dir="${OUTPUT_DIR}" >
-	  		<include name="**/*"/>
-	  		<exclude name="locale/**/*.swf, **/.gitignore"/>
-	  		<exclude name=".gitignore"/>
-		</fileset>
-		<dirset id="bar" dir="${OUTPUT_DIR}">
-	  		<include name="**/*"/>
-	  		<exclude name="locale"/>
-		</dirset>
 		<delete>
-    		<fileset refid="foo" />
-    		<dirset refid="bar"/>
+			<fileset dir="${OUTPUT_DIR}" >
+		  		<exclude name="locale/*.swf"/>
+		  		<exclude name=".gitignore"/>
+			</fileset>
+			<dirset dir="${OUTPUT_DIR}">
+		  		<include name="**/*"/>
+		  		<exclude name="locale"/>
+			</dirset>
   		</delete>
 	</target>
 
