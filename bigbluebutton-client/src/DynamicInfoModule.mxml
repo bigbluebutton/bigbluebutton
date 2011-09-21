@@ -20,7 +20,11 @@
   $Id: $
 -->
 
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="onCreationComplete()" implements="org.bigbluebutton.common.IBigBlueButtonModule" xmlns:maps="org.bigbluebutton.modules.dynamicinfo.maps.*" xmlns:views="org.bigbluebutton.modules.dynamicinfo.views.*">
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   creationComplete="onCreationComplete()" 
+		   implements="org.bigbluebutton.common.IBigBlueButtonModule" 
+		   xmlns:maps="org.bigbluebutton.modules.dynamicinfo.maps.*" 
+		   xmlns:views="org.bigbluebutton.modules.dynamicinfo.views.*">
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -142,7 +146,8 @@
 						cmp.height = 22;
 						var evt:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 						evt.button = cmp as IBbbToolbarComponent;
-						globalDispatcher.dispatchEvent(evt);
+						var dispatcher:Dispatcher = new Dispatcher();
+						dispatcher.dispatchEvent(evt);
 					}
 				}
 			}

@@ -62,6 +62,7 @@ package org.bigbluebutton.main.model
 		 */		
 		public var welcome:String;
 		
+		public var meetingID:String;
 		/**
 		 * External unique user id.
 		 */		
