@@ -40,9 +40,6 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 		public static const STATE_UPDATING_REMOTE_USERS:String = "STATE_UPDATING_REMOTE_USERS";
 		public static const STATE_WAITING_REMOTE_PATCH:String = "STATE_WAITING_REMOTE_PATCH";
 
-		private var nextFeasibleState:Dictionary = new Dictionary;
-		private var nextFeasibleEvent:Dictionary = new Dictionary;
-
 		private static var _nextState:Dictionary = null;
 		private var _delayedEvents:Array = new Array;
 		private var _currentState:String = STATE_NONE;

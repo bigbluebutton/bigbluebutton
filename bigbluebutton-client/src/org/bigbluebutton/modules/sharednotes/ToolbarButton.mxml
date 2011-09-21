@@ -53,8 +53,8 @@
 				window.connection = _attributes.connection;
 				window.uri = _attributes.uri;
 				window.host = _attributes.host;
-				window.updateDelay = _attributes.updateDelay;
-				window.refreshTimeout = _attributes.refreshTimeout;
+				window.refreshDelay = _attributes.refreshDelay;
+				window.responseTimeout = _attributes.responseTimeout;
 				window.enablePlayback = _attributes.enablePlayback;
 				
 				var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);

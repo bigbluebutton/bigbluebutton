@@ -27,7 +27,6 @@ package org.bigbluebutton.modules.sharednotes.components
 	import flash.events.Event;
 	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.modules.sharednotes.infrastructure.ServerConnection;
 	import org.bigbluebutton.modules.sharednotes.infrastructure.SharedNotesDispatcher;
 	import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 	
@@ -38,8 +37,6 @@ package org.bigbluebutton.modules.sharednotes.components
 		
 		private var _patch : String = "";
 		private var _patchChanged : Boolean = false;
-		
-		//private var dispatcher:Dispatcher = new Dispatcher();
 		
 		public function set tackOnText(value:String):void
 		{
@@ -88,7 +85,6 @@ package org.bigbluebutton.modules.sharednotes.components
 				patchClientText();
 				_patchChanged = false;
 				patch = "";
-//				return DiffPatch.patchClientText(patch, textField.text, selectionBeginIndex, selectionEndIndex)[1];
 			}
 			return textField.text;
 		}
@@ -100,9 +96,6 @@ package org.bigbluebutton.modules.sharednotes.components
 
 			var cursorSelection:Array = results[0];
 			textField.setSelection(cursorSelection[0], cursorSelection[1]);			
-
-//			LogUtil.debug("===================> patching");
-//			dispatchEvent(new Event(SharedNotesDispatcher.PATCHED_EVENT));
 		}
 	}
 }

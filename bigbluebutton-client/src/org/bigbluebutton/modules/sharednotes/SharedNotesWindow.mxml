@@ -53,8 +53,8 @@
 			private var _uri:String;
 			private var _host:String;
 			private var _connection:NetConnection;
-			private var _updateDelay:int;
-			private var _refreshTimeout:int;
+			private var _refreshDelay:int;
+			private var _responseTimeout:int;
 			private var _enablePlayback:Boolean;
 
 			public static const SHARED_NOTES_CLOSED:String = "SHARED_NOTES_CLOSED";
@@ -62,7 +62,7 @@
 			private var sendUpdateTimer:Timer;
 			
 			public function init():void {
-				sendUpdateTimer = new Timer(_updateDelay, 1);
+				sendUpdateTimer = new Timer(_refreshDelay, 1);
 				lblPlaybackVersion.visible = btnPlayback.visible = playbackSlider.visible = _enablePlayback;
 			
 				textArea.addEventListener(Event.CHANGE, onTextChange);
@@ -219,16 +219,16 @@
 				return _connection;
 			}
 			
-			public function set updateDelay(updateDelay:int):void {
-				_updateDelay = updateDelay;
+			public function set refreshDelay(refreshDelay:int):void {
+				_refreshDelay = refreshDelay;
 			}
 
-			public function set refreshTimeout(refreshTimeout:int):void {
-				_refreshTimeout = refreshTimeout;
+			public function set responseTimeout(responseTimeout:int):void {
+				_responseTimeout = responseTimeout;
 			}
 			
-			public function get refreshTimeout():int {
-				return _refreshTimeout;
+			public function get responseTimeout():int {
+				return _responseTimeout;
 			}
 
 			public function set enablePlayback(enablePlayback:String):void {
@@ -252,7 +252,7 @@
 	<mx:Button x="10" y="425" icon="@Embed(source='images/arrow_left.png')" id="btnBackPlayback" click="btnBackPlayback_clickHandler(event)" visible="false"/>
 	<mx:Label id="lblPlaybackVersion" x="10" y="399" text="Version 0:"/>
 	<components:PatchableTextArea x="10" y="10" id="textArea" hideEffect="{dissolveOut}" showEffect="{dissolveIn}" creationComplete="addBlur()" width="482" height="407" editable="true"/>
-	<mx:Button x="0" y="0" label="Start" id="btnPlay" click="btnPlay_clickHandler(event)" visible="true"/>
+	<mx:Button x="0" y="0" label="Start" id="btnPlay" click="btnPlay_clickHandler(event)" visible="false"/>
 	<mx:Label x="211.5" y="186" text="Connecting..." id="lblConnecting"/>
 
 </containers:MDIWindow>
