@@ -21,7 +21,7 @@
 --> 
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{notesIcon}" 
-		   click="openNotesWindow()" creationComplete="init()" toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip')}" xmlns:mate="http://mate.asfusion.com/">
+		   click="openNotesWindow()" creationComplete="init()" toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.sharednotes.toolTip')}" xmlns:mate="http://mate.asfusion.com/">
 	
 	<mate:Listener type="{SharedNotesWindow.SHARED_NOTES_CLOSED}" method="closeEventHandler" />
 	<mx:Script>
