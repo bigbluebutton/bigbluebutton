@@ -9,8 +9,8 @@ public class Recording {
 	private String meetingID;
 	private String name;
 	private boolean published;
-	private String startTime;
-	private String endTime;
+	private long startTime;
+	private long endTime;
 	private Map<String, String> metadata = new HashMap<String, String>();
 	private ArrayList<Playback> playbacks=new ArrayList<Playback>();
 	
@@ -44,19 +44,19 @@ public class Recording {
 		this.published = published;
 	}
 	
-	public String getStartTime() {
+	public long getStartTime() {
 		return startTime;
 	}
 	
-	public void setStartTime(String startTime) {
+	public void setStartTime(long startTime) {
 		this.startTime = startTime;
 	}
 	
-	public String getEndTime() {
+	public long getEndTime() {
 		return endTime;
 	}
 	
-	public void setEndTime(String endTime) {
+	public void setEndTime(long endTime) {
 		this.endTime = endTime;
 	}
 	

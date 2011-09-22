@@ -112,37 +112,17 @@ public class MeetingService {
 				r.setName(name);
 
 				ArrayList<Playback> plays=new ArrayList<Playback>();
-				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getMinutesRecording(r.getStartTime(), r.getEndTime())));
+				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), (int)((r.getEndTime() - r.getStartTime())/60000)));
 				r.setPlaybacks(plays);
 				map.put(r.getId(), r);
 			}
 			else{
 				Recording rec=map.get(r.getId());
-				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getMinutesRecording(r.getStartTime(), r.getEndTime())));
+				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), (int)((r.getEndTime() - r.getStartTime())/60000)));
 			}
 		}
 		
 		return map;
-	}
-	private int getMinutesRecording(String dateini, String dateend){
-		//setting according to "Fri Jul 22 21:06:06 UTC 2011"
-		SimpleDateFormat sdf=new SimpleDateFormat("EEE MMM d HH:mm:ss z yyyy");
-		int total=0;
-		try {
-			Calendar cal=Calendar.getInstance();
-			
-			cal.setTime(sdf.parse(dateend));
-			long end_time=cal.getTimeInMillis();
-			
-			cal.setTime(sdf.parse(dateini));
-			long start_time=cal.getTimeInMillis();
-			
-			total = (int)((end_time - start_time)/60000);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return total;
 	}
 	
 	public boolean existsAnyRecording(ArrayList<String> idList){

@@ -41,6 +41,7 @@ import org.bigbluebutton.api.ParamsProcessorUtil;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.text.DateFormat;
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 10800  // 3 hours    
@@ -789,6 +790,9 @@ class ApiController {
     ArrayList<String> internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);        
 	HashMap<String,Recording> recs = meetingService.getRecordings(internalMeetingIds);
 	
+	//date format: 26/09/08 22:07
+	def plainFormatter = DateFormat.instance
+	
     if (recs.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {  
@@ -819,8 +823,8 @@ class ApiController {
 					  mkp.yieldUnescaped("<![CDATA["+r.getName()+"]]>")
 				  }
                   published(r.isPublished())
-                  startTime(r.getStartTime())
-                  endTime(r.getEndTime())
+                  startTime(plainFormatter.format(r.getStartTime()))
+                  endTime(plainFormatter.format(r.getEndTime()))
 				  metadata() {
 					 r.getMetadata().each { k,v ->
 						 "$k"(''){ 
