@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+
+Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+
+BigBlueButton is free software; you can redistribute it and/or modify it under the 
+terms of the GNU Lesser General Public License as published by the Free Software 
+Foundation; either version 2.1 of the License, or (at your option) any later 
+version. 
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along 
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+$Id: $
+-->
+
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+		   xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   creationComplete="init()" 
+		   implements="org.bigbluebutton.common.IBbbModuleWindow"
+		   title="{ResourceUtil.getInstance().getString('bbb.videodock.title')}"
+		   xmlns:mate="http://mate.asfusion.com/"
+		   layout="absolute"
+		   horizontalAlign="center"
+		   verticalAlign="middle"
+		   resize="onChildAdd()"
+		   backgroundColor="0xDDDDDD">
+	
+	<mx:Script>
+		<![CDATA[
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.DragWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
+			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			import mx.events.ChildExistenceChangedEvent;
+			
+			public var autoDock:Boolean = false;
+			private var childrenDimension:Dictionary = new Dictionary();
+			private var borderColor:String;
+			
+			private function init():void{
+				this.showCloseButton = false;
+				
+				this.minWidth = 172;
+				this.minHeight = 179;
+				this.maxWidth = this.parent.width;
+				this.maxHeight = this.parent.height;
+				
+				this.width = this.minWidth;
+				this.height = this.minHeight;
+				
+				addEventListener(ChildExistenceChangedEvent.CHILD_ADD, onChildAdd);			
+				addEventListener(ChildExistenceChangedEvent.CHILD_REMOVE, onChildRemove);
+				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+			}
+			
+			private function onChildAdd(e:ChildExistenceChangedEvent = null):void {
+				updateChildrenDimensions(this.getChildren());
+			}
+			
+			private function onChildRemove(e:ChildExistenceChangedEvent = null):void {
+				// copy the children array to "remove" the removing child and update the dimensions correctly
+				var children:Array = this.getChildren();
+				var index:int = children.indexOf(e.relatedObject);
+				if (index != -1)
+					children.splice(index, 1);
+				updateChildrenDimensions(children);
+			}
+			
+			public function getPrefferedPosition():String{
+				return MainCanvas.BOTTOM_RIGHT;
+			}
+			
+			private function onDragVideoWindow(e:DragWindowEvent):void{
+				switch (e.mode) {
+					case DragWindowEvent.DRAG:
+						if (hitTestPoint(e.mouseGlobal.x, e.mouseGlobal.y, true)) {
+							setStyle("borderColor","0xFF0000");
+							e.window.width = e.window.minWidth;
+							e.window.height = e.window.minHeight;
+						} else {
+							setStyle("borderColor",borderColor);
+							restoreWindowDimensions(e.window);
+						}
+						break;
+					case DragWindowEvent.DRAG_START:
+						borderColor = getStyle("borderColor");
+						removeVideoChild(e.window as VideoWindowItf);
+						saveWindowDimensions(e.window);
+						break;
+					case DragWindowEvent.DRAG_END:
+						setStyle("borderColor",borderColor);
+						restoreWindowDimensions(e.window);
+						if (hitTestPoint(e.mouseGlobal.x, e.mouseGlobal.y, true))
+							addVideoChild(e.window as VideoWindowItf);
+						break;
+				}
+			}
+			
+			private function saveWindowDimensions(window:MDIWindow):void {
+				var dimensions:Object = {width:window.width, height:window.height};
+				childrenDimension[window] = dimensions;
+			}
+			
+			private function restoreWindowDimensions(window:MDIWindow):void {
+				window.width = childrenDimension[window].width;
+				window.height = childrenDimension[window].height;
+			}
+			
+			private function repositionWindow(window:MDIWindow):void {
+				// \TODO reposition the window correctly between the windows
+				// setChildIndex(window, ?);
+			}
+			
+			private function isVideoWindow(window:Object):Boolean {
+				return (getQualifiedSuperclassName(window) == "org.bigbluebutton.modules.videoconf.business::VideoWindowItf")
+			}
+			
+			private function onCloseWindow(e:CloseWindowEvent):void {
+				// it should not just undock the window, it should close the window forever
+				if (isVideoWindow(e.window) && this.contains(e.window as VideoWindowItf))
+					this.removeChild(e.window as VideoWindowItf);
+			}
+			
+			private function onOpenWindow(e:OpenVideoWindowEvent):void {
+				if (isVideoWindow(e.window) && autoDock)
+					addVideoChild(e.window as VideoWindowItf);
+			}
+			
+			private function addVideoChild(window:VideoWindowItf):void {
+				if (this.contains(window))
+					return;
+				
+				LogUtil.debug("Docking window");
+				
+				saveWindowDimensions(window);
+				
+				window.minimizeBtn.visible = false;
+				window.maximizeRestoreBtn.visible = false;
+				window.resizable = false;
+				window.buttonsEnabled = false;
+				
+				var e:CloseWindowEvent = new CloseWindowEvent();
+				e.window = window;
+				dispatchEvent(e);
+				this.addChild(window);
+			}
+			
+			private function removeVideoChild(window:VideoWindowItf):void {
+				if (!this.contains(window))
+					return;
+				
+				window.minimizeBtn.visible = true;
+				window.maximizeRestoreBtn.visible = true;
+				window.resizable = true;
+				window.buttonsEnabled = true;
+				
+				this.removeChild(window);
+				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				e.window = window;
+				dispatchEvent(e);
+				
+				restoreWindowDimensions(window);
+			}
+			
+			override public function close(event:MouseEvent = null):void {
+				removeAllChildren();
+				super.close(event);
+			}
+			
+			private function updateChildrenDimensions(children:Array):void {
+				var numChildren:int = children.length;
+				if (numChildren == 0) return;
+				
+				var horizontalGap:Number = getStyle("horizontalGap");
+				var verticalGap:Number = getStyle("verticalGap");
+				
+				var availableWidth:Number = this.width
+					- this.borderMetrics.left - this.borderMetrics.right;
+				var availableHeight:Number = this.height
+					- this.borderMetrics.top - this.borderMetrics.bottom;
+				
+				var childWidth:Number = 0;
+				var childHeight:Number = 0;
+				var nRows:Number = 0;
+				var nColumns:Number = 0;
+				
+				// we would like to maximize the window size
+				for (var rows:Number = 1; rows <= numChildren; ++rows) {
+					var columns:Number = Math.ceil(numChildren / rows);
+					var maxWidth:Number = Math.floor((availableWidth - horizontalGap * (columns - 1)) / columns) - VideoWindowItf.PADDING_HORIZONTAL;
+					var maxHeight:Number = Math.floor((availableHeight - verticalGap * (rows - 1)) / rows) - VideoWindowItf.PADDING_VERTICAL;
+					
+					// the possible dimensions shouldn't be less or equal 0 (it could happen with many videos)
+					if (maxWidth <= 0 || maxHeight <=0)
+						continue;
+					
+					var desiredAR:Number = 4/3;
+					var width:Number = maxWidth;
+					var height:Number = maxHeight;
+					if (maxWidth / maxHeight > desiredAR)
+						width = Math.floor(maxHeight * desiredAR);
+					else
+						height = Math.floor(maxWidth / desiredAR);
+					
+					if (width > childWidth) {
+						childWidth = width;
+						childHeight = height;
+						nRows = rows;
+						nColumns = columns;
+					}
+				}                        
+				
+				childWidth += VideoWindowItf.PADDING_HORIZONTAL;
+				childHeight += VideoWindowItf.PADDING_VERTICAL;
+				
+				for (var childIndex:int = 0; childIndex < numChildren; ++childIndex) {
+					var window:VideoWindowItf = children[childIndex];
+					window.width = childWidth;
+					window.updateHeight();
+					
+					if (window.height > childHeight) {
+						window.height = childHeight;
+						window.updateWidth();
+					}
+					
+					var row:int = childIndex / nColumns;
+					var column:int = childIndex % nColumns;
+					
+					var borderTop:int = (availableHeight - nRows * childHeight - (nRows - 1) * verticalGap) / 2;
+					var borderLeft:int = (availableWidth - nColumns * childWidth - (nColumns - 1) * horizontalGap) / 2;
+					
+					window.y = row * (childHeight + verticalGap) + borderTop;
+					window.x = column * (childWidth + horizontalGap) + borderLeft;
+				} 
+			}
+			
+			protected function onDoubleClick(event:MouseEvent = null):void {
+				this.maximizeRestore();
+			}
+			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();
+				this.title = ResourceUtil.getInstance().getString('bbb.videodock.title');
+			}			
+			
+		]]>
+	</mx:Script>
+	
+	<mate:Listener type="{DragWindowEvent.DRAG_WINDOW_EVENT}" method="onDragVideoWindow" />
+	<mate:Listener type="{OpenVideoWindowEvent.OPEN_VIDEO_WINDOW_EVENT}" method="onOpenWindow" />
+	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="onCloseWindow" />
+</MDIWindow>

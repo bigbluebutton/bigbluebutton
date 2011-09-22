@@ -27,7 +27,7 @@
 			import flexlib.mdi.containers.MDIWindow;
 			
 			import mx.controls.Alert;
-			
+			import mx.utils.ArrayUtil;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.LogUtil;
 
@@ -35,8 +35,10 @@
 			public static const BOTTOM_LEFT:String = "BOTTOM_LEFT_WINDOW";
 			public static const MIDDLE:String = "MIDDLE_WINDOW";
 			public static const BOTTOM:String = "BOTTOM_WINDOW";
-			public static const RIGHT:String = "RIGHT_WINDOW";
+			public static const TOP_RIGHT:String = "TOP_RIGHT_WINDOW";
+			public static const BOTTOM_RIGHT:String = "BOTTOM_RIGHT_WINDOW";
 			public static const POPUP:String = "POP_UP_WINDOW";
+			public static const UNTOUCHED:String = "UNTOUCHED_WINDOW";
 			
 			public static const DESKTOP_SHARING_VIEW:String = "POP_UP_DESKSHARE_VIEW";
 			public static const DESKTOP_SHARING_PUBLISH:String = "POP_UP_DESKSHARE_PUBLISH";
@@ -60,7 +62,13 @@
 			}
 			
 			public function removeWindow(window:IBbbModuleWindow):void{
-				windowManager.remove(window as MDIWindow);
+				// the flexlib windowManager remove method doesn't test if the given window is on the windows list
+				// this test avoid some exceptions when run the app on debugger flash player
+				if (ArrayUtil.getItemIndex(window, windowManager.windowList) != -1) {
+					windowManager.remove(window as MDIWindow);
+				} else {
+					LogUtil.debug("Trying to remove the window [ " + window + " ] but it's not a MainCanvas child");
+				}
 			}
 			
 			public function removeAllWindows():void{
@@ -114,12 +122,18 @@
 						win.width = this.width - 5;
 						win.height = 300;
 						break;
-					case RIGHT:
+					case TOP_RIGHT:
 						x = this.width - rightWindowWidth - 10;
 						y = 1;
 						win.width = rightWindowWidth;
 						win.height = rightWindowHeight;
 						break;
+					case BOTTOM_RIGHT:
+						x = this.width - rightWindowWidth - 10;
+						y = rightWindowHeight + 10;;
+						win.width = rightWindowWidth;
+						win.height = this.height - rightWindowHeight - 10;
+						break;					
 					case POPUP:
 						x = (Math.random() * this.width) - 640;
 						y = (Math.random() * this.height) - 520;
@@ -134,6 +148,10 @@
 						x = 1;
 						y = 1;
 						break;
+					case UNTOUCHED:
+						// don't reposition the window
+						x = win.x;
+						y = win.y;
 				}
 				windowManager.absPos(win, x, y);
 			}

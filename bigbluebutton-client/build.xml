@@ -29,22 +29,129 @@
 	<property name="BREAKOUT" value="BreakoutModule" />
 	<property name="CLASSROOM_AUDIO" value="ClassroomAudioModule" />
 	<property name="SETTINGS" value="SettingsModule" />
+	<property name="VIDEO_DOCK" value="VideodockModule" />
+	
+	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
+	
 	<target name="init-ant-contrib">
 		<property name="ant-contrib.jar" location="${BASE_DIR}/build/lib/ant-contrib-0.6.jar"/>
 		<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpath="${ant-contrib.jar}"/>
 	</target>
-	
+	  
+	<target name="locales" depends="init-ant-contrib">
+		<echo message="Checking if locale output dir exists"/>
+		<available file="${OUTPUT_DIR}/locale" type="file" property="locale.dir.present"/>
+		<if> 
+        	<equals arg1="${locale.dir.present}" arg2="true"/> 
+           	<then> 
+				<echo message="Locale output dir exists. Deleting contents of ${OUTPUT_DIR}/locale"/> 
+				<delete>
+					<fileset dir="${OUTPUT_DIR}/locale">
+						<include name="**/*"/>
+					</fileset>
+				</delete>
+           	</then> 
+           	<else> 
+				<echo message="Locale output dir does not exists. Creating ${OUTPUT_DIR}/locale"/> 
+				<mkdir dir="${OUTPUT_DIR}/locale"/>
+           	</else> 
+        </if>
+
+		<echo message="Determining supported locales."/>
+		<foreach target="build-locale" param="supportedlocale">
+			<path id="locales.path.ref">
+		    	<dirset dir="${BASE_DIR}/locale"/>
+		  	</path>
+		</foreach>
+	</target>
+		
 	<target name="branding" depends="init-ant-contrib">
 		<sequential>
-			<mxmlc file="${SRC_DIR}/branding/css/${themeFile}" output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true">
+			<mxmlc file="${SRC_DIR}/branding/css/${themeFile}" 
+				output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" 
+				debug="false" 
+				mxml.compatibility-version="3.0.0" 
+				swf-version="13" 
+				optimize="true">
 			</mxmlc>
 		</sequential>
 	</target>
 		
 	<target name="build-bbb-main-test" description="Compile BigBlueButton Main Test">
-                <build-main src="${SRC_DIR}" target="${BBB_MAIN_TEST}" />
+    	<build-main src="${SRC_DIR}" target="${BBB_MAIN_TEST}" />
 	</target>
 
+	<target name="build-locale">
+		<echo message="Locale dir is ${supportedlocale}. Extract locale name." />
+	   	<basename property="locale.name" file="${supportedlocale}"/>  
+   		<echo message="Locale name is ${locale.name}"/>
+
+		<sequential>
+			<echo message="Building ${locale.name}"/>
+			<available file="${LOCALE_DIR}/${locale.name}" type="dir" property="locale.dir.present"/>
+			<if>
+                <equals arg1="${locale.name}" arg2="locale"/>
+                <then>
+                	<echo message="Somehow, the dirset for locales is passing the parent (${locale.name}) dir."/>
+                	<echo message="We don't want it, so we need to skip it."/> 
+                </then>
+              	<else>		
+					<if> 
+		           		<equals arg1="${locale.dir.present}" arg2="true"/> 
+		           		<then> 
+		           			<echo message="We already have a copy of the framework locale. No need to copy ${LOCALE_DIR}/${locale.name}"/>
+		           		</then> 
+		           		<else> 	
+		           			<echo message="No copy of the framework locale. Copying ${LOCALE_DIR}/${locale.name}"/>       
+		              		<exec  vmlauncher="true" executable="copylocale">
+								<arg value="en_US"/>
+		    					<arg value="${locale.name}"/>
+							</exec>	
+			  			</else>
+					</if>	
+					<echo message="Compiling locale ${locale.name}"/>
+					<compileLocale locale="${locale.name}" />  
+           		</else> 
+        	</if>       	   
+       </sequential>
+	</target>
+		
+	<macrodef name="compileLocale" description="Compiles the Resource package for the given locale">
+		<attribute name="locale" default="en_US"/>
+		<sequential>
+			<echo message="Start building @{locale}"/>
+			<echo message="**********************************************"/>
+			<echo message="*    Did you check bundles.txt  and made     *"/>
+			<echo message="*    all resources listed here?              *"/>
+			<echo message="**********************************************"/>			
+			<!-- Invoke MXMLC -->
+			<mxmlc output="${OUTPUT_DIR}/locale/@{locale}_resources.swf">
+				<locale>@{locale}</locale>
+				<target-player>10.3.0</target-player>
+				<source-path path-element="locale/{locale}"/>
+				
+				<!--
+				  Look into bundles.txt to find out what resources to include here.
+				  http://forums.adobe.com/thread/758619
+				  ralam - sept 20, 2011
+				-->
+				<include-resource-bundles>bbbResources</include-resource-bundles>
+				<include-resource-bundles>collections</include-resource-bundles> 
+				<include-resource-bundles>containers</include-resource-bundles> 
+				<include-resource-bundles>controls</include-resource-bundles> 
+				<include-resource-bundles>core</include-resource-bundles> 
+				<include-resource-bundles>effects</include-resource-bundles> 
+				<include-resource-bundles>logging</include-resource-bundles> 
+				<include-resource-bundles>messaging</include-resource-bundles> 
+				<include-resource-bundles>modules</include-resource-bundles> 
+				<include-resource-bundles>rpc</include-resource-bundles> 
+				<include-resource-bundles>skins</include-resource-bundles> 
+				<include-resource-bundles>styles</include-resource-bundles>
+				<source-path path-element="${FLEX_HOME}/frameworks"/>
+			</mxmlc>
+		</sequential>
+	</macrodef>
+	
 	<target name="build-bbb-main" description="Compile BigBlueButton Main">
 		<build-main src="${SRC_DIR}" target="${BBB_MAIN}" />
 		
@@ -110,7 +217,11 @@
 	<target name="build-video" description="Compile Video Module">
 		<build-module src="${SRC_DIR}" target="${VIDEO}" />
 	</target>
-	
+
+	<target name="build-videodock" description="Compile Video Dock Module">
+		<build-module src="${SRC_DIR}" target="${VIDEO_DOCK}" />
+	</target>
+		
 	<target name="build-whiteboard" description="Compile Whiteboard Module">
 		<build-module src="${SRC_DIR}" target="${WHITEBOARD}" />
 	</target>
@@ -127,7 +238,7 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
-			depends="build-deskshare, build-phone, build-video, build-whiteboard, build-dyn, build-classroom-audio, build-settings"
+			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard, build-dyn, build-classroom-audio, build-settings"
 			description="Compile deskshare, phone, video, whiteboard, dynamic info modules">
 	</target>
 	
@@ -141,6 +252,14 @@
 					<target-player>10.3.0</target-player>
 					<load-config filename="@{flex}/frameworks/flex-config.xml" />
 					<source-path path-element="@{flex}/frameworks" />
+					
+					<!--
+				  		Dump out resources to find out what resources to include building the locales.
+				  		http://forums.adobe.com/thread/758619
+				  		ralam - sept 20, 2011
+					-->
+					<resource-bundle-list>bundles.txt</resource-bundle-list>
+					
 					<compiler.library-path dir="@{flex}/frameworks" append="true">
 						<include name="libs" />
 						<include name="../bundles/{locale}" />
@@ -153,6 +272,11 @@
 
 					<default-size width="500" height="600" />
 				</mxmlc>
+				<echo message="**********************************************"/>
+				<echo message="*    Generated bundles.txt                   *"/>
+				<echo message="* Make sure you include all resources listed *"/>
+				<echo message="* in the file when building the locales.     *"/>
+				<echo message="**********************************************"/>
 			</sequential>
 		</macrodef>
 	
@@ -220,10 +344,10 @@
 			<fileset dir="${PROD_RESOURCES_DIR}/assets/" />
 		</copy>	
 		<copy todir="${OUTPUT_DIR}/swfobject/" >
-			<fileset dir="${BASE_DIR}/src/swfobject/" />
+			<fileset dir="${PROD_RESOURCES_DIR}/swfobject" />
 		</copy>	
-		<copy todir="${OUTPUT_DIR}/locale" >
-			<fileset dir="${BASE_DIR}/locale/" />
+		<copy todir="${OUTPUT_DIR}/lib/" >
+			<fileset dir="${PROD_RESOURCES_DIR}/lib"/>
 		</copy>	
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButtonTest.html" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<copy file="${PROD_RESOURCES_DIR}/BigBlueButton.html" todir="${OUTPUT_DIR}" overwrite="true"/>
@@ -231,12 +355,6 @@
 		<copy file="${PROD_RESOURCES_DIR}/bbb.gif" todir="${OUTPUT_DIR}" overwrite="true"/>		
 		<copy file="${PROD_RESOURCES_DIR}/locales.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>		
 		<copy file="${PROD_RESOURCES_DIR}/example-info-data.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
-		<copy file="${PROD_RESOURCES_DIR}/jquery-1.5.1.min.js" todir="${OUTPUT_DIR}" overwrite="true" />
-		<copy file="${PROD_RESOURCES_DIR}/bigbluebutton.js" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<copy file="${PROD_RESOURCES_DIR}/deployJava.js" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<copy file="${PROD_RESOURCES_DIR}/bbb_blinker.js" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<copy file="${PROD_RESOURCES_DIR}/bbb_deskshare.js" todir="${OUTPUT_DIR}" overwrite="true"/>
-		<copy file="${PROD_RESOURCES_DIR}/bbb_localization.js" todir="${OUTPUT_DIR}" overwrite="true"/>
 		<if>
            	   <equals arg1="${BUILD_ENV}" arg2="DEV"/>
            	      <then>
@@ -301,8 +419,16 @@
 	</target>
 
 	<target name="clean">
-		<delete dir="${OUTPUT_DIR}" />
-		<mkdir dir="${OUTPUT_DIR}"/>
+		<delete>
+			<fileset dir="${OUTPUT_DIR}" >
+		  		<exclude name="locale/*.swf"/>
+		  		<exclude name=".gitignore"/>
+			</fileset>
+			<dirset dir="${OUTPUT_DIR}">
+		  		<include name="**/*"/>
+		  		<exclude name="locale"/>
+			</dirset>
+  		</delete>
 	</target>
 
 	<!-- NOTE: compile-deskshare-standalone MUST come first before compile-bbb as we need the deskshare-standalone
