@@ -35,7 +35,7 @@
 			import org.bigbluebutton.modules.present.events.SlideEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.managers.PresentManager;
-			import org.bigbluebutton.modules.present.views.PresentationWindow;
+			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 
 			private var apiInstance:PresentationAPI;
 			
