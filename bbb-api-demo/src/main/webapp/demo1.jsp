@@ -32,6 +32,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Join Demo Meeting</title>
 </head>
+
 <body>
 
 <%@ include file="bbb_api.jsp"%>
@@ -58,7 +59,7 @@ if (request.getParameterMap().isEmpty()) {
 			<td style="width: 5px; ">
 				&nbsp;</td>
 			<td style="text-align: left ">
-				<input type="text" name="username" /></td>
+				<input type="text" autofocus required name="username" /></td>
 		</tr>
 		<tr>
 			<td>

@@ -106,11 +106,11 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		</div>
 		<div>
 			<label class="labform" id="descript" for="meta_description">Description:</label>
-			<textarea id="meta_description" name="meta_description" cols="50" rows="6" class="required"></textarea>
+			<textarea id="meta_description" name="meta_description" cols="50" rows="6" autofocus required></textarea>
 		</div>
 		<div>
 			<label class="labform" for="meta_email">Your Name:</label>
-			<input id="meta_email" name="meta_email" type="text" class="required" size="30" />
+			<input id="meta_email" name="meta_email" type="text" required size="30" />
 		</div>	
 		<div style="clear:both"></div>
 		<input class="submit" type="submit" value="Join" >

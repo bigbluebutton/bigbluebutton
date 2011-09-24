@@ -59,7 +59,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 			<td style="width: 5px; ">
 				&nbsp;</td>
 			<td style="text-align: left ">
-				<input type="text" name="username" /></td>
+				<input type="text" autofocus required name="username" /></td>
 		</tr>
 		
 		<tr>

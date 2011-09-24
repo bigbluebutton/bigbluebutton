@@ -66,7 +66,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 			<td width="50%">Create your own meeting.
 			<p />
 			</td>
-			<td width="50%">Step 1. Enter your name: <input type="text"
+			<td width="50%">Step 1. Enter your name: <input type="text" autofocus required
 				name="username1" /> <br />
 			<INPUT TYPE=hidden NAME=action VALUE="create"> <br />
 			<input id="submit-button" type="submit" value="Create meeting" /></td>
