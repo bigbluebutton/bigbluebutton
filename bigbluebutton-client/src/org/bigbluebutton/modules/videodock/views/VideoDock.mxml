@@ -34,17 +34,18 @@ $Id: $
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.events.ChildExistenceChangedEvent;
 			
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.UserManager;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.DragWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
 			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
-			import mx.events.ChildExistenceChangedEvent;
 			
 			public var autoDock:Boolean = false;
 			private var childrenDimension:Dictionary = new Dictionary();
@@ -144,6 +145,8 @@ $Id: $
 					return;
 				
 				LogUtil.debug("Docking window");
+				var meeting:Conference = UserManager.getInstance().getConference();
+				LogUtil.debug("Is user presenter? " + meeting.isUserPresenter(window.userId));
 				
 				saveWindowDimensions(window);
 				
