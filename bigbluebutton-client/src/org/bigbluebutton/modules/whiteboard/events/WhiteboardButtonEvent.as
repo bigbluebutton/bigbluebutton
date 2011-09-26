@@ -20,7 +20,7 @@ package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
 	
-	import org.bigbluebutton.modules.present.views.PresentationWindow;
+	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 	
 	public class WhiteboardButtonEvent extends Event
 	{

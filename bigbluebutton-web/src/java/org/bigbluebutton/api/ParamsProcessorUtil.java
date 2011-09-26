@@ -62,13 +62,13 @@ public class ParamsProcessorUtil {
 	    if (StringUtils.isEmpty(params.get("checksum"))) {
 	      errors.missingParamError("checksum");
 	    }
-	    
+/*	    
 	    // Do we have a meeting name? If not, complain.
 	    String meetingName = params.get("name");
 	    if (StringUtils.isEmpty(meetingName) ) {
 	      errors.missingParamError("name");
 	    }
-	    
+*/	    
 	    // Do we have a meeting id? If not, complain.
 	    String externalMeetingId = params.get("meetingID");
 	    if (StringUtils.isEmpty(externalMeetingId)) {

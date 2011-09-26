@@ -182,7 +182,7 @@
 				video.attachNetStream(ns);
 				ns.play(stream);	
 				this.stream = stream;
-				this.title = "Blah";
+				this.title = "Viewing Remote Desktop";
 		//		this.title = UserManager.getInstance().getPresenter().name + " is sharing their desktop with you";
 			}
 			

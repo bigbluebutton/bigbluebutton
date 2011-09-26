@@ -87,11 +87,12 @@ class ApiController {
 		return
 	}
 
+/*
 	if (StringUtils.isEmpty(params.name)) {
 		invalid("missingParamName", "You must specify a name for the meeting.");
 		return
 	}
-
+*/
 	if (StringUtils.isEmpty(params.meetingID)) {
 		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
 		return

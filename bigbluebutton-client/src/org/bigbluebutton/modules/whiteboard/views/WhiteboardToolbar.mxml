@@ -64,7 +64,7 @@
 			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
-			import org.bigbluebutton.modules.present.views.PresentationWindow;
+			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();

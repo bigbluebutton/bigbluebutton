@@ -25,7 +25,7 @@
 						<td>&nbsp;</td>
 						<td style="text-align: right;">Full Name:</td>
 						<td style="width: 5px;">&nbsp;</td>
-						<td style="text-align: left"><input type="text"
+						<td style="text-align: left"><input type="text" autofocus required 
 							name="username" />
 						</td>
 					</tr>

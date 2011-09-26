@@ -5,7 +5,7 @@ server {
      access_log  /var/log/nginx/bigbluebutton.access.log;
 
 	 # Handle RTMPT (RTMP Tunneling).  Forwards requests
-	 # to Red5 on port 8088.
+	 # to Red5 on port 5080
       location ~ (/open/|/close/|/idle/|/send/) {
           proxy_pass         http://127.0.0.1:5080;
           proxy_redirect     off;

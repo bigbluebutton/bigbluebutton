@@ -30,9 +30,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
-	<script type="text/javascript" src="js/heartbeat.js"></script>
-	<title>Recording Meeting Demo</title>
+	<title>Record (Matterhorn)</title>
 	<style type="text/css">
 	 #formcreate{ 
 	 	width:500px; 
@@ -61,8 +59,6 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 
 <%@ include file="bbb_api.jsp"%>
-<%@ page import="java.util.regex.*"%>
-
 <%@ include file="demo_header.jsp"%>
 
 <%
@@ -79,11 +75,11 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 			<ul>
 				<li>
 					<label for="confname">Meeting Name:</label>
-					<input id="confname" name="confname" type="text" />
+					<input id="confname" autofocus required name="confname" type="text" />
 				</li>
 				<li>
 					<label for="username1">Your Name:</label>
-					<input id="username1" name="username1" type="text" />	
+					<input id="username1" required name="username1" type="text" />	
 				</li>
 			</ul>
 		</fieldset>
@@ -127,7 +123,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <%
 	} else if (request.getParameter("action").equals("create")) {
 		
-		String confname=request.getParameter("confname");
+		String confname = request.getParameter("confname");
 		String username = request.getParameter("username1");
 		
 		//metadata
@@ -144,101 +140,11 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 		//
 		// This is the URL for to join the meeting as moderator
 		//
-		String joinURL = getJoinURL(username, confname, "true", null, metadata, null);
-		
-		String inviteURL = BigBlueButtonURL.replace("bigbluebutton/","demo/")
-			+ "demo6.jsp?action=invite&confname=" + URLEncoder.encode(confname, "UTF-8");
-%>
+		String url = BigBlueButtonURL.replace("bigbluebutton/","demo/");
+		String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"pdfs/matterhorn.pdf'/></module></modules>";
+		String joinURL = getJoinURL(username, confname, "true", null, metadata, preUploadPDF);
 
-	
-<h2>Session Created</h2>
-
-<label style="display:block;">Use the following link to invite others:</label>
-<textarea cols="50" rows="6" style="overflow:hidden; display:block;" readonly="readonly">
-	<%=inviteURL%>
-</textarea>
-
-<a href="<%=joinURL%>">Start Session</a>
-
-
-<%
-	} else if (request.getParameter("action").equals("enter")) {
-		//
-		// The user is now attempting to joing the meeting
-		//
-		String confname = request.getParameter("confname");
-		String username = request.getParameter("username");
-
-		String enterURL = BigBlueButtonURL.replace("bigbluebutton/","demo/")
-			+ "demo6.jsp?action=join&username="
-			+ URLEncoder.encode(username, "UTF-8") + "&confname="
-			+ URLEncoder.encode(confname, "UTF-8");
-
-		if (isMeetingRunning(confname).equals("true")) {
-
-%>
-<script type="text/javascript">
-	window.location = "<%=enterURL%>";
-</script>
-<%
-	} else {
-
-			String checkMeetingStatus = getURLisMeetingRunning(confname);
-%>
-
-<script type="text/javascript">
-$(document).ready(function(){
-		$.jheartbeat.set({
-		   url: "<%=checkMeetingStatus%>",
-		   delay: 5000
-		}, function () {
-			mycallback();
-		});
-	});
-
-
-function mycallback() {
-	// Not elegant, but works around a bug in IE8 
-	var isMeetingRunning = ($("#HeartBeatDIV").text().search("true") > 0 );
-
-	if (isMeetingRunning) {
-		window.location = "<%=enterURL%>"; 
-	}
-}
-</script>
-
-<h2><%=confname%> has not yet started.</h2>
-<label style="display:block;">Hi <%=username%>, Now waiting for the moderator to start <%=confname%>.</label>
-<label style="display:block;">(Your browser will automatically refresh and join the meeting when it starts.)</label>
-
-
-<%
-}
-	} else if (request.getParameter("action").equals("invite")) {
-
-		String meetingID = request.getParameter("confname");
-%>
-
-<h2>Invite</h2>
-
-<form name="inviteform" method="get" action="">
-
-<label style="display:block; font-weight:bold;">You have been invited to join <%=meetingID%></label>
-<label for="username">Enter your name: </label>
-<input type="text" name="username" id="username" />
-<input type="hidden" name="confname" value="<%=meetingID%>" /> 
-<input type="hidden" name="action" value="enter" />
-<input type="submit" value="Join" />
-
-</form>
-
-
-<%
-	} else if (request.getParameter("action").equals("join")) {
-
-		String joinURL = getJoinURLViewer(request.getParameter("username"), request.getParameter("confname"));
-			
-		if (joinURL.startsWith("http://")) {
+		if (joinURL.startsWith("http://")) { 
 %>
 
 <script language="javascript" type="text/javascript">
@@ -246,18 +152,20 @@ function mycallback() {
 </script>
 
 <%
-	} else { 
+	} else {
 %>
 
 Error: getJoinURL() failed
-<p /><%=joinURL%> 
+<p/>
+<%=joinURL %>
 
-<%
- 	}
- }
- %> 
+<% 
+	}
+} 
+%>
 
-About Matterhorn: XXX
+<p>
+See: <a href="http://code.google.com/p/bigbluebutton/wiki/MatterhornIntegration">Matterhorn Integration</a>
 
 <%@ include file="demo_footer.jsp"%>
 

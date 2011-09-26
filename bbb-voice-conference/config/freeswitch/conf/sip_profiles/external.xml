@@ -59,11 +59,7 @@
     <param name="sip-ip" value="$${local_ip_v4}"/>
     <param name="ext-rtp-ip" value="auto-nat"/>
     <param name="ext-sip-ip" value="auto-nat"/>
-    <!--
-       Set the RTP timeout for 3 hours to prevent FS from hanging up bbb clients
-       who are muted and not sending any audio.
-    -->
-    <param name="rtp-timeout-sec" value="10800"/>
+    <param name="rtp-timeout-sec" value="300"/>
     <param name="rtp-hold-timeout-sec" value="1800"/>
     <!--<param name="enable-3pcc" value="true"/>-->
 
