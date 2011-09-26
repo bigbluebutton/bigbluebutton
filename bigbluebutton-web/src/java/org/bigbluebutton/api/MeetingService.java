@@ -112,17 +112,28 @@ public class MeetingService {
 				r.setName(name);
 
 				ArrayList<Playback> plays=new ArrayList<Playback>();
-				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), (int)((r.getEndTime() - r.getStartTime())/60000)));
+				
+				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getDurationRecording(r.getEndTime(), r.getStartTime())));
 				r.setPlaybacks(plays);
 				map.put(r.getId(), r);
 			}
 			else{
 				Recording rec=map.get(r.getId());
-				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), (int)((r.getEndTime() - r.getStartTime())/60000)));
+				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getDurationRecording(r.getEndTime(), r.getStartTime())));
 			}
 		}
 		
 		return map;
+	}
+	
+	private int getDurationRecording(long end, long start){
+		int duration;
+		try{
+			duration = (int)((end - start)/60000);
+		}catch(Exception e){
+			duration = 0;
+		}
+		return duration;
 	}
 	
 	public boolean existsAnyRecording(ArrayList<String> idList){
