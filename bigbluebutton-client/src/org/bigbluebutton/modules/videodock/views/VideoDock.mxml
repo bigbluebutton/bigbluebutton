@@ -143,11 +143,7 @@ $Id: $
 			private function addVideoChild(window:VideoWindowItf):void {
 				if (this.contains(window))
 					return;
-				
-				LogUtil.debug("Docking window");
-				var meeting:Conference = UserManager.getInstance().getConference();
-				LogUtil.debug("Is user presenter? " + meeting.isUserPresenter(window.userId));
-				
+								
 				saveWindowDimensions(window);
 				
 				window.minimizeBtn.visible = false;
@@ -190,10 +186,8 @@ $Id: $
 				var horizontalGap:Number = getStyle("horizontalGap");
 				var verticalGap:Number = getStyle("verticalGap");
 				
-				var availableWidth:Number = this.width
-					- this.borderMetrics.left - this.borderMetrics.right;
-				var availableHeight:Number = this.height
-					- this.borderMetrics.top - this.borderMetrics.bottom;
+				var availableWidth:Number = this.width - this.borderMetrics.left - this.borderMetrics.right;
+				var availableHeight:Number = this.height - this.borderMetrics.top - this.borderMetrics.bottom;
 				
 				var childWidth:Number = 0;
 				var childHeight:Number = 0;
@@ -211,8 +205,13 @@ $Id: $
 						continue;
 					
 					var desiredAR:Number = 4/3;
-					var width:Number = maxWidth;
-					var height:Number = maxHeight;
+					
+					/**
+					 * Multiply the max width and height so we can display presenter on bigger window.
+					 */
+					var width:Number = maxWidth + 30;
+					var height:Number = maxHeight + 30;
+					
 					if (maxWidth / maxHeight > desiredAR)
 						width = Math.floor(maxHeight * desiredAR);
 					else
@@ -228,25 +227,37 @@ $Id: $
 				
 				childWidth += VideoWindowItf.PADDING_HORIZONTAL;
 				childHeight += VideoWindowItf.PADDING_VERTICAL;
-				
+								
 				for (var childIndex:int = 0; childIndex < numChildren; ++childIndex) {
 					var window:VideoWindowItf = children[childIndex];
-					window.width = childWidth;
+					var wWidth:int = childWidth;
+					var wHeight:int = childHeight;
+					
+					var meeting:Conference = UserManager.getInstance().getConference();
+					if (! meeting.isUserPresenter(window.userId)) {
+						/**
+						 * Not a presenter, so take out what we added above for presenter.
+						 */
+						wWidth = childWidth - 20;
+						wHeight = childHeight - 20;
+					}					
+					
+					window.width = wWidth;
 					window.updateHeight();
 					
-					if (window.height > childHeight) {
-						window.height = childHeight;
+					if (window.height > wHeight) {
+						window.height = wHeight;
 						window.updateWidth();
 					}
 					
 					var row:int = childIndex / nColumns;
 					var column:int = childIndex % nColumns;
 					
-					var borderTop:int = (availableHeight - nRows * childHeight - (nRows - 1) * verticalGap) / 2;
-					var borderLeft:int = (availableWidth - nColumns * childWidth - (nColumns - 1) * horizontalGap) / 2;
+					var borderTop:int = (availableHeight - nRows * wHeight - (nRows - 1) * verticalGap) / 2;
+					var borderLeft:int = (availableWidth - nColumns * wWidth - (nColumns - 1) * horizontalGap) / 2;
 					
-					window.y = row * (childHeight + verticalGap) + borderTop;
-					window.x = column * (childWidth + horizontalGap) + borderLeft;
+					window.y = row * (wHeight + verticalGap) + borderTop;
+					window.x = column * (wWidth + horizontalGap) + borderLeft;
 				} 
 			}
 			
