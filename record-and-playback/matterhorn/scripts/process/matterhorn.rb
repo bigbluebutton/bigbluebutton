@@ -48,8 +48,8 @@ if not FileTest.directory?(target_dir)
   process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-matterhorn.done", "w")
   process_done.write("Processed #{meeting_id}")
   process_done.close
-else
-  BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been processed.")
+#else
+#  BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been processed.")
 end
                                                                 
                                                               

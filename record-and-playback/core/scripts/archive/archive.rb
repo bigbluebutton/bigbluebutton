@@ -93,8 +93,8 @@ done_files.each do |df|
 	  archive_done = File.new("#{recording_dir}/status/archived/#{meeting_id}.done", "w")
 		archive_done.write("Archived #{meeting_id}")
 		archive_done.close
-	else
-		BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been archived.")
+	#else
+	#	BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been archived.")
   end
 end
 
