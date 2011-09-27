@@ -1,5 +1,5 @@
 <!--
-
+XX
 BigBlueButton - http://www.bigbluebutton.org
 
 Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
@@ -223,7 +223,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 				{name:'daterecorded',index:'daterecorded', width:200, xmlmap: "startTime", sortable: false},
 				{name:'published',index:'published', width:80, xmlmap: "published", sortable:false },
 				{name:'playback',index:'playback', width:150, formatter:playbackFormat, sortable:false},
-				{name:'length',index:'length', width:80, formatter:lengthFormat, sortable:false}
+				{name:'length',index:'length', width:80, sortable:false}
 			],
 			xmlReader: {
 				root : "recordings",
