@@ -20,24 +20,8 @@
 				return (_attributes.autoDock == "true");
 			}
 			
-			public function get  presenterDock():Boolean {
-				return (_attributes.presenterDock == "true");
-			}
-			
-			public function get  defaultX():int {
-				return Number(_attributes.defaultX);
-			}
-			
-			public function get  defaultY():int {
-				return Number(_attributes.defaultY);
-			}
-			
-			public function get  defaultWidth():int {
-				return Number(_attributes.defaultWidth);
-			}
-			
-			public function get  defaultHeight():int {
-				return Number(_attributes.defaultHeight);
+			public function get  maximizeWindow():Boolean {
+				return (_attributes.maximizeWindow == "true");
 			}
 			
 			public function start(attributes:Object):void {	

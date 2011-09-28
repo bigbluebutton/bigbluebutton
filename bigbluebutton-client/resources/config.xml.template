@@ -99,11 +99,7 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="VideoconfModule, ViewersModule"
 			autoDock="true"
-			presenterDock="false"
-			defaultX="10"
-			defaultY="300"
-			defaultWidth="600"
-			defaultHeight="300"
+			maximizeWindow="false"
 		/>-->
 		
 		<!-- new module in development: 

@@ -41,7 +41,6 @@ $Id: $
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.DragWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
@@ -49,11 +48,7 @@ $Id: $
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			public var autoDock:Boolean = false;
-			public var presenterDock:Boolean = true
-			public var defaultX:int = 100;
-			public var defaultY:int = 100;
-			public var defaultWidth:int = 400;
-			public var defaultHeight:int = 300;
+			public var maximizeWindow:Boolean = true
 				
 			private var childrenDimension:Dictionary = new Dictionary();
 			private var borderColor:String;
@@ -72,6 +67,8 @@ $Id: $
 				addEventListener(ChildExistenceChangedEvent.CHILD_ADD, onChildAdd);			
 				addEventListener(ChildExistenceChangedEvent.CHILD_REMOVE, onChildRemove);
 				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+				
+				if (maximizeWindow) this.maximize();
 			}
 			
 			private function onChildAdd(e:ChildExistenceChangedEvent = null):void {
@@ -88,15 +85,6 @@ $Id: $
 			}
 			
 			public function getPrefferedPosition():String {
-				var meeting:Conference = UserManager.getInstance().getConference();
-				if (!meeting.me.presenter && !presenterDock) {					
-					this.x = defaultX;
-					this.y = defaultY;
-					this.width = defaultWidth;
-					this.height = defaultHeight;
-					
-					return MainCanvas.UNTOUCHED;
-				}
 				return MainCanvas.BOTTOM_RIGHT;
 			}
 			
@@ -160,10 +148,13 @@ $Id: $
 				if (this.contains(window))
 					return;
 				
-				var meeting:Conference = UserManager.getInstance().getConference();
-				if (meeting.isUserPresenter(window.userId) && !presenterDock) {
-					return;
-				}	
+				/**
+				 * Check if the window is visible. Right now, a publisher window can ba made invisible by setting
+				 * a param in config.xml. If the window is invisible, don't add it. We'll have to do this properly
+				 * when we refactor to remove the window UIs. We should just be adding Videos here instead of windows.
+				 * But for now, this is good enough.
+				 */
+				if (! window.visible) return;
 				
 				saveWindowDimensions(window);
 				
@@ -278,18 +269,10 @@ $Id: $
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString('bbb.videodock.title');
 			}			
-			
-			private function onPresenterMode(e:Event):void {
-				var meeting:Conference = UserManager.getInstance().getConference();
-				if (meeting.me.presenter && !presenterDock) {
-					this.maximize();
-				} 
-			}
 						
 		]]>
 	</mx:Script>
 	
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onPresenterMode" />
 	<mate:Listener type="{DragWindowEvent.DRAG_WINDOW_EVENT}" method="onDragVideoWindow" />
 	<mate:Listener type="{OpenVideoWindowEvent.OPEN_VIDEO_WINDOW_EVENT}" method="onOpenWindow" />
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="onCloseWindow" />
