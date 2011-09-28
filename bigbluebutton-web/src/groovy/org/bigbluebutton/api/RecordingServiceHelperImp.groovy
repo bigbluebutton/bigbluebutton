@@ -74,8 +74,8 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 		r.setId(rec.id.text());
 		r.setState(rec.state.text());
 		r.setPublished(Boolean.parseBoolean(rec.published.text()));
-		r.setStartTime(Long.parseLong(rec.start_time.text()));
-		r.setEndTime(Long.parseLong(rec.end_time.text()));
+		r.setStartTime(rec.start_time.text());
+		r.setEndTime(rec.end_time.text());
 		r.setPlaybackFormat(rec.playback.format.text());
 		r.setPlaybackLink(rec.playback.link.text());
 		
