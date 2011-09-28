@@ -41,6 +41,7 @@ $Id: $
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.DragWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
@@ -48,6 +49,12 @@ $Id: $
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			public var autoDock:Boolean = false;
+			public var presenterDock:Boolean = true
+			public var defaultX:int = 100;
+			public var defaultY:int = 100;
+			public var defaultWidth:int = 400;
+			public var defaultHeight:int = 300;
+				
 			private var childrenDimension:Dictionary = new Dictionary();
 			private var borderColor:String;
 			
@@ -80,7 +87,16 @@ $Id: $
 				updateChildrenDimensions(children);
 			}
 			
-			public function getPrefferedPosition():String{
+			public function getPrefferedPosition():String {
+				var meeting:Conference = UserManager.getInstance().getConference();
+				if (!meeting.me.presenter && !presenterDock) {					
+					this.x = defaultX;
+					this.y = defaultY;
+					this.width = defaultWidth;
+					this.height = defaultHeight;
+					
+					return MainCanvas.UNTOUCHED;
+				}
 				return MainCanvas.BOTTOM_RIGHT;
 			}
 			
@@ -143,14 +159,19 @@ $Id: $
 			private function addVideoChild(window:VideoWindowItf):void {
 				if (this.contains(window))
 					return;
-								
+				
+				var meeting:Conference = UserManager.getInstance().getConference();
+				if (meeting.isUserPresenter(window.userId) && !presenterDock) {
+					return;
+				}	
+				
 				saveWindowDimensions(window);
 				
 				window.minimizeBtn.visible = false;
 				window.maximizeRestoreBtn.visible = false;
 				window.resizable = false;
 				window.buttonsEnabled = false;
-				
+									
 				var e:CloseWindowEvent = new CloseWindowEvent();
 				e.window = window;
 				dispatchEvent(e);
@@ -206,11 +227,8 @@ $Id: $
 					
 					var desiredAR:Number = 4/3;
 					
-					/**
-					 * Multiply the max width and height so we can display presenter on bigger window.
-					 */
-					var width:Number = maxWidth + 30;
-					var height:Number = maxHeight + 30;
+					var width:Number = maxWidth;
+					var height:Number = maxHeight;
 					
 					if (maxWidth / maxHeight > desiredAR)
 						width = Math.floor(maxHeight * desiredAR);
@@ -232,15 +250,6 @@ $Id: $
 					var window:VideoWindowItf = children[childIndex];
 					var wWidth:int = childWidth;
 					var wHeight:int = childHeight;
-					
-					var meeting:Conference = UserManager.getInstance().getConference();
-					if (! meeting.isUserPresenter(window.userId)) {
-						/**
-						 * Not a presenter, so take out what we added above for presenter.
-						 */
-						wWidth = childWidth - 20;
-						wHeight = childHeight - 20;
-					}					
 					
 					window.width = wWidth;
 					window.updateHeight();
@@ -270,9 +279,17 @@ $Id: $
 				this.title = ResourceUtil.getInstance().getString('bbb.videodock.title');
 			}			
 			
+			private function onPresenterMode(e:Event):void {
+				var meeting:Conference = UserManager.getInstance().getConference();
+				if (meeting.me.presenter && !presenterDock) {
+					this.maximize();
+				} 
+			}
+						
 		]]>
 	</mx:Script>
 	
+	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onPresenterMode" />
 	<mate:Listener type="{DragWindowEvent.DRAG_WINDOW_EVENT}" method="onDragVideoWindow" />
 	<mate:Listener type="{OpenVideoWindowEvent.OPEN_VIDEO_WINDOW_EVENT}" method="onOpenWindow" />
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="onCloseWindow" />
