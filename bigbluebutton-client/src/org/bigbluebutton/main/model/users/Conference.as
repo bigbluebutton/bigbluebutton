@@ -19,7 +19,7 @@
 package org.bigbluebutton.main.model.users
 {
 	import mx.collections.ArrayCollection;
-	
+	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 
@@ -110,6 +110,16 @@ package org.bigbluebutton.main.model.users
 			}
 						
 			return null;				
+		}
+
+		public function isUserPresenter(userid:Number):Boolean {
+			var user:Object = getParticipantIndex(userid);
+			if (user == null) {
+				LogUtil.warn("User not found with id=" + userid);
+				return false;
+			}
+			var a:BBBUser = user.participant as BBBUser;
+			return a.presenter;
 		}
 		
 		/**

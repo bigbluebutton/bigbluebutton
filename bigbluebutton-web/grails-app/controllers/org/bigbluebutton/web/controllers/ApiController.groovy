@@ -791,9 +791,6 @@ class ApiController {
     ArrayList<String> internalMeetingIds = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingIds);        
 	HashMap<String,Recording> recs = meetingService.getRecordings(internalMeetingIds);
 	
-	//date format: 26/09/08 22:07
-	def plainFormatter = DateFormat.instance
-	
     if (recs.isEmpty()) {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {  
@@ -824,8 +821,8 @@ class ApiController {
 					  mkp.yieldUnescaped("<![CDATA["+r.getName()+"]]>")
 				  }
                   published(r.isPublished())
-                  startTime(plainFormatter.format(r.getStartTime()))
-                  endTime(plainFormatter.format(r.getEndTime()))
+                  startTime(r.getStartTime())
+                  endTime(r.getEndTime())
 				  metadata() {
 					 r.getMetadata().each { k,v ->
 						 "$k"(''){ 

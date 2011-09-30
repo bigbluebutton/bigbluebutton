@@ -20,6 +20,10 @@
 				return (_attributes.autoDock == "true");
 			}
 			
+			public function get  maximizeWindow():Boolean {
+				return (_attributes.maximizeWindow == "true");
+			}
+			
 			public function start(attributes:Object):void {	
 				LogUtil.debug("Videodock attr: " + attributes.username);
 				_attributes = attributes;

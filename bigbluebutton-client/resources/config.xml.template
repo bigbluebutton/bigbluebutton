@@ -91,13 +91,15 @@
 		<module name="PresentModule" url="PresentModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 
+			showPresentWindow="true"
 			dependsOn="ViewersModule"
 		/>
 
 		<!--<module name="VideodockModule" url="VideodockModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
-			dependsOn="VideoconfModule"
+			dependsOn="VideoconfModule, ViewersModule"
 			autoDock="true"
+			maximizeWindow="false"
 		/>-->
 		
 		<!-- new module in development: 

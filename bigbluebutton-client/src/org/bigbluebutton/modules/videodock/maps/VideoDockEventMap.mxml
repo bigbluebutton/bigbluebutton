@@ -35,6 +35,8 @@ $Id: $
 			public function startModule():void{
 				videoDock = new VideoDock();
 				videoDock.autoDock = module.autoDock;
+				videoDock.maximizeWindow = module.maximizeWindow;
+
 				
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = videoDock;

@@ -34,19 +34,22 @@ $Id: $
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.events.ChildExistenceChangedEvent;
 			
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.UserManager;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.DragWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
 			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			import mx.events.ChildExistenceChangedEvent;
-			
 			public var autoDock:Boolean = false;
+			public var maximizeWindow:Boolean = true
+				
 			private var childrenDimension:Dictionary = new Dictionary();
 			private var borderColor:String;
 			
@@ -64,6 +67,8 @@ $Id: $
 				addEventListener(ChildExistenceChangedEvent.CHILD_ADD, onChildAdd);			
 				addEventListener(ChildExistenceChangedEvent.CHILD_REMOVE, onChildRemove);
 				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+				
+				if (maximizeWindow) this.maximize();
 			}
 			
 			private function onChildAdd(e:ChildExistenceChangedEvent = null):void {
@@ -79,7 +84,7 @@ $Id: $
 				updateChildrenDimensions(children);
 			}
 			
-			public function getPrefferedPosition():String{
+			public function getPrefferedPosition():String {
 				return MainCanvas.BOTTOM_RIGHT;
 			}
 			
@@ -143,7 +148,13 @@ $Id: $
 				if (this.contains(window))
 					return;
 				
-				LogUtil.debug("Docking window");
+				/**
+				 * Check if the window is visible. Right now, a publisher window can ba made invisible by setting
+				 * a param in config.xml. If the window is invisible, don't add it. We'll have to do this properly
+				 * when we refactor to remove the window UIs. We should just be adding Videos here instead of windows.
+				 * But for now, this is good enough.
+				 */
+				if (! window.visible) return;
 				
 				saveWindowDimensions(window);
 				
@@ -151,7 +162,7 @@ $Id: $
 				window.maximizeRestoreBtn.visible = false;
 				window.resizable = false;
 				window.buttonsEnabled = false;
-				
+									
 				var e:CloseWindowEvent = new CloseWindowEvent();
 				e.window = window;
 				dispatchEvent(e);
@@ -187,10 +198,8 @@ $Id: $
 				var horizontalGap:Number = getStyle("horizontalGap");
 				var verticalGap:Number = getStyle("verticalGap");
 				
-				var availableWidth:Number = this.width
-					- this.borderMetrics.left - this.borderMetrics.right;
-				var availableHeight:Number = this.height
-					- this.borderMetrics.top - this.borderMetrics.bottom;
+				var availableWidth:Number = this.width - this.borderMetrics.left - this.borderMetrics.right;
+				var availableHeight:Number = this.height - this.borderMetrics.top - this.borderMetrics.bottom;
 				
 				var childWidth:Number = 0;
 				var childHeight:Number = 0;
@@ -208,8 +217,10 @@ $Id: $
 						continue;
 					
 					var desiredAR:Number = 4/3;
+					
 					var width:Number = maxWidth;
 					var height:Number = maxHeight;
+					
 					if (maxWidth / maxHeight > desiredAR)
 						width = Math.floor(maxHeight * desiredAR);
 					else
@@ -225,25 +236,28 @@ $Id: $
 				
 				childWidth += VideoWindowItf.PADDING_HORIZONTAL;
 				childHeight += VideoWindowItf.PADDING_VERTICAL;
-				
+								
 				for (var childIndex:int = 0; childIndex < numChildren; ++childIndex) {
 					var window:VideoWindowItf = children[childIndex];
-					window.width = childWidth;
+					var wWidth:int = childWidth;
+					var wHeight:int = childHeight;
+					
+					window.width = wWidth;
 					window.updateHeight();
 					
-					if (window.height > childHeight) {
-						window.height = childHeight;
+					if (window.height > wHeight) {
+						window.height = wHeight;
 						window.updateWidth();
 					}
 					
 					var row:int = childIndex / nColumns;
 					var column:int = childIndex % nColumns;
 					
-					var borderTop:int = (availableHeight - nRows * childHeight - (nRows - 1) * verticalGap) / 2;
-					var borderLeft:int = (availableWidth - nColumns * childWidth - (nColumns - 1) * horizontalGap) / 2;
+					var borderTop:int = (availableHeight - nRows * wHeight - (nRows - 1) * verticalGap) / 2;
+					var borderLeft:int = (availableWidth - nColumns * wWidth - (nColumns - 1) * horizontalGap) / 2;
 					
-					window.y = row * (childHeight + verticalGap) + borderTop;
-					window.x = column * (childWidth + horizontalGap) + borderLeft;
+					window.y = row * (wHeight + verticalGap) + borderTop;
+					window.x = column * (wWidth + horizontalGap) + borderLeft;
 				} 
 			}
 			
@@ -255,7 +269,7 @@ $Id: $
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString('bbb.videodock.title');
 			}			
-			
+						
 		]]>
 	</mx:Script>
 	
