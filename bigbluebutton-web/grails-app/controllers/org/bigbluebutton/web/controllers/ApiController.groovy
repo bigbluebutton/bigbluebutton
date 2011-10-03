@@ -371,24 +371,15 @@ class ApiController {
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
     log.info("Retrieving meeting ${internalMeetingId}")		
     Meeting meeting = meetingService.getMeeting(internalMeetingId);
-    if (meeting == null) {
-		// BEGIN - backward compatibility
-		invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
-		return;
-		// END - backward compatibility
-		
-	   errors.invalidMeetingIdError();
-	   respondWithErrors(errors)
-	   return;
-    }
-    
+	boolean isRunning = meeting != null && meeting.isRunning();
+   
     response.addHeader("Cache-Control", "no-cache")
     withFormat {	
       xml {
         render(contentType:"text/xml") {
           response() {
             returncode(RESP_CODE_SUCCESS)
-            running(meeting.isRunning() ? "true" : "false")
+            running(isRunning ? "true" : "false")
           }
         }
       }
