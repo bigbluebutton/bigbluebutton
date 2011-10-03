@@ -39,42 +39,8 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 
 	private RecorderApplication recorderApplication;
 	private ChatApplication chatApplication;
-	private IScope scope;
+
 	
-	@Override
-	public boolean appConnect(IConnection conn, Object[] params) {
-		log.debug("appConnect");
-		return true;
-	}
-
-	@Override
-	public void appDisconnect(IConnection conn) {
-		log.debug("appDisconnect");
-	}
-
-	@Override
-	public boolean appJoin(IClient client, IScope scope) {
-		log.debug("appJoin: {}", scope.getName());
-		return true;
-	}
-
-	@Override
-	public void appLeave(IClient client, IScope scope) {
-		log.debug("appLeave: {}", scope.getName());
-	}
-
-	@Override
-	public boolean appStart(IScope scope) {
-		this.scope = scope;
-		log.debug("appStart: {}", scope.getName());
-		return true;
-	}
-
-	@Override
-	public void appStop(IScope scope) {
-		log.debug("appStop: {}", scope.getName());
-	}
-
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("roomConnect");
@@ -88,22 +54,6 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 		chatApplication.addRoomListener(connection.getScope().getName(), messageSender);
 		log.debug("Done setting up recorder and listener");
 		return true;
-	}
-
-	@Override
-	public void roomDisconnect(IConnection connection) {
-		log.debug("roomDisconnect");
-	}
-
-	@Override
-	public boolean roomJoin(IClient client, IScope scope) {
-		log.debug("roomJoin {}", scope.getName(), scope.getParent().getName());
-		return true;
-	}
-
-	@Override
-	public void roomLeave(IClient client, IScope scope) {
-		log.debug("roomLeave: {}", scope.getName());
 	}
 
 	@Override
@@ -129,13 +79,11 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 	}
 	
 	public void setChatApplication(ChatApplication a) {
-		log.debug("Setting chat application");
 		chatApplication = a;
 		chatApplication.handler = this;
 	}
 	
 	public void setRecorderApplication(RecorderApplication a) {
-		log.debug("Setting archive application");
 		recorderApplication = a;
 	}
 	

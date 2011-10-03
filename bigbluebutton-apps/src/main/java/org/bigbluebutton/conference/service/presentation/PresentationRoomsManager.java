@@ -200,7 +200,8 @@ public class PresentationRoomsManager {
         PresentationRoom r = getRoom(room);
         if (r != null) {
             r.removePresentation(name);
-        }   
-        log.warn("Removing presentation from a non-existing room {}",room); 
+        } else {  
+        	log.warn("Removing presentation from a non-existing room {}",room);
+        }
     }
 }

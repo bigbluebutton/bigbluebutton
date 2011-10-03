@@ -89,9 +89,9 @@ public class PresentationApplication {
 	public void removePresentation(String room, String name){
        if (roomsManager.hasRoom(room)){
             roomsManager.removePresentation(room, name);           
+        } else {
+        	log.warn("Removing presentation from a non-existant room {}",room);
         }
-        log.warn("Removing presentation from a non-existant room {}",room);
-        
     }
 	
 	public int getCurrentSlide(String room){
