@@ -112,13 +112,14 @@
 				layoutOptions.showResetLayout = BBB.initConfigManager().config.layout.showResetLayout;	
 				layoutOptions.showVideoLayout = BBB.initConfigManager().config.layout.showVideoLayout;		
 				layoutOptions.showToolbar = BBB.initConfigManager().config.layout.showToolbar;		
-				layoutOptions.showLogoutWindow = BBB.initConfigManager().config.layout.showLogoutWindow;		
+				layoutOptions.showLogoutWindow = BBB.initConfigManager().config.layout.showLogoutWindow;	
+				layoutOptions.showHelpButton = BBB.initConfigManager().config.layout.showHelpButton;
 			}
 			
-			protected function initializeShell():void {					
+			protected function initializeShell():void {	
 				globalDispatcher = new Dispatcher();	
 			}
-
+			
 			protected function initFullScreen():void {				
 				/* Set up full screen handler. */
 				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);

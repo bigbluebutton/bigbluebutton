@@ -15,6 +15,9 @@ package org.bigbluebutton.main.model
 		public var showToolbar:Boolean = false;
 		
 		[Bindable]
+		public var showHelpButton:Boolean = true;
+		
+		[Bindable]
 		public var showLogoutWindow:Boolean = true;
 		
 	}

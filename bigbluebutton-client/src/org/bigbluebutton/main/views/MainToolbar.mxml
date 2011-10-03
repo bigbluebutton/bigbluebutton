@@ -66,6 +66,12 @@
 				} else {
 					this.visible = true;
 				}
+				
+				if (layoutOptions.showHelpButton) {
+					helpBtn.visible = true;
+				} else {
+					helpBtn.visible = false;
+				}
 			}
 			
 			public function addButton(name:String):Button{
@@ -153,7 +159,7 @@
 	</mx:HBox>		
 	<mx:Spacer width="100%"/>
 	<views:LanguageSelector id="langSelector" visible="false" />
-	<mx:LinkButton label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="onHelpButtonClicked()"/>
+	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" visible="false" click="onHelpButtonClicked()"/>
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>
 </mx:ApplicationControlBar>
