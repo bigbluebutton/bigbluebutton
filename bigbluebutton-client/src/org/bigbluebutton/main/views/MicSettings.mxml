@@ -41,7 +41,7 @@
 						LogUtil.warn("Access to microphone has been denied.");
 						break;
 					case "Microphone.Unmuted":
-						LogUtil.warn("Access to the microphone has been allowed.");
+						LogUtil.debug("Access to the microphone has been allowed.");
 						break;
 					default:
 						LogUtil.debug("unknown micStatusHandler event: " + event);
