@@ -107,7 +107,7 @@
 			[Bindable]
 			private var layoutOptions:LayoutOptions = new LayoutOptions();
 			
-			private function initOptions():void {
+			public function initOptions():void {
 				layoutOptions.showLogButton = BBB.initConfigManager().config.layout.showDebugWindow;	
 				layoutOptions.showResetLayout = BBB.initConfigManager().config.layout.showResetLayout;	
 				layoutOptions.showVideoLayout = BBB.initConfigManager().config.layout.showVideoLayout;		
@@ -275,7 +275,7 @@
 			
 			private function setLogVisibility(e:ConfigEvent):void{
 		//		logBtn.visible = e.config.showDebug;
-				initOptions();
+		//		initOptions();
 			}
 			
 			private function changeLayout():void{

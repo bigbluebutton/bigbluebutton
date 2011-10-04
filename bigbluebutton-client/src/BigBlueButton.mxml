@@ -204,13 +204,13 @@
 			private var configMgr:ConfigManager2 = BBB.initConfigManager();
 			
 			private function init():void {
-			EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
-			configMgr.loadConfig();
-			
+				EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
+				configMgr.loadConfig();			
 			}
 			
 			private function configLoadedEventHandler(e:Event):void {
-			LogUtil.debug("***** Config Loaded ****");
+				LogUtil.debug("***** Config Loaded ****");
+				mainShell.initOptions();
 			}
 		]]>
 	</mx:Script>	
