@@ -37,8 +37,6 @@
 			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.core.EventBroadcaster;
-			import org.bigbluebutton.core.managers.ConfigManager2;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainApplicationShell;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -201,17 +199,7 @@
 				return "true";
 			}			
 
-			private var configMgr:ConfigManager2 = BBB.initConfigManager();
-			
-			private function init():void {
-				EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
-				configMgr.loadConfig();			
-			}
-			
-			private function configLoadedEventHandler(e:Event):void {
-				LogUtil.debug("***** Config Loaded ****");
-				mainShell.initOptions();
-			}
+
 		]]>
 	</mx:Script>	
 	
