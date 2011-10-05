@@ -40,6 +40,7 @@
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
+	<mate:Listener type="configLoadedEvent" method="initOptions"  />
 	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
 	<common:APIEventMap />
 	
@@ -58,8 +59,7 @@
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
-			import org.bigbluebutton.core.EventBroadcaster;
-			import org.bigbluebutton.core.managers.ConfigManager2;
+
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -100,8 +100,7 @@
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 			[Bindable] private var logs_icon:Class = images.table;
 			[Bindable] private var reset_layout_icon:Class = images.layout;
-			private var configMgr:ConfigManager2 = BBB.initConfigManager();
-			
+
 			public function get mode():String {
 				return _mode;
 			}
@@ -109,7 +108,8 @@
 			[Bindable]
 			private var layoutOptions:LayoutOptions = new LayoutOptions();
 			
-			private function initOptions():void {
+			private function initOptions(e:Event):void {
+				LogUtil.debug("**** Init options ***");
 				layoutOptions.showLogButton = BBB.initConfigManager().config.layout.showDebugWindow;	
 				layoutOptions.showResetLayout = BBB.initConfigManager().config.layout.showResetLayout;	
 				layoutOptions.showVideoLayout = BBB.initConfigManager().config.layout.showVideoLayout;		
@@ -120,15 +120,8 @@
 			
 			protected function initializeShell():void {	
 				globalDispatcher = new Dispatcher();	
-				EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
-				configMgr.loadConfig();	
 			}
-
-			private function configLoadedEventHandler(e:Event):void {
-				LogUtil.debug("***** Config Loaded ****");
-				initOptions();
-			}
-			
+		
 			protected function initFullScreen():void {				
 				/* Set up full screen handler. */
 				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);

@@ -34,7 +34,8 @@
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.managers.HistoryManager;
-			
+			import org.bigbluebutton.core.EventBroadcaster;
+			import org.bigbluebutton.core.managers.ConfigManager2;			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -88,6 +89,8 @@
 			// Video test
 			private static var didVideoStart:Boolean = false;
 			
+			private var configMgr:ConfigManager2 = BBB.initConfigManager();
+		
 			
 			public  function handleLoginEvent(event:BBBEvent):void {
 				LogUtil.debug("******************* Received loggedin event");
@@ -199,6 +202,14 @@
 				return "true";
 			}			
 
+			protected function init():void {	
+				EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
+				configMgr.loadConfig();	
+			}
+			
+			private function configLoadedEventHandler(e:Event):void {
+				LogUtil.debug("***** Config Loaded ****");
+			}
 
 		]]>
 	</mx:Script>	

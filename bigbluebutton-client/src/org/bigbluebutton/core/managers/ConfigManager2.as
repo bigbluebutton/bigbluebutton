@@ -1,5 +1,7 @@
 package org.bigbluebutton.core.managers
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.net.URLLoader;
@@ -26,6 +28,8 @@ package org.bigbluebutton.core.managers
 		private function handleComplete(e:Event):void{
 			_config = new Config(new XML(e.target.data));
 			 EventBroadcaster.getInstance().dispatchEvent(new Event("configLoadedEvent", true));	
+			 var dispatcher:Dispatcher = new Dispatcher();
+			 dispatcher.dispatchEvent(new Event("configLoadedEvent", true));
 		}
 		
 		public function get config():Config {
