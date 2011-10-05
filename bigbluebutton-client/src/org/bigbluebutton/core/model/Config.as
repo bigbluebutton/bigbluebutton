@@ -55,13 +55,6 @@ package org.bigbluebutton.core.model
 		}
 					
 		public function get layout():Object {
-			LogUtil.debug("Layout options showDebugWindow= " + (config.layout.@showDebugWindow).toUpperCase());
-			LogUtil.debug("Layout options showVideoLayout= " + (config.layout.@showVideoLayout).toUpperCase()); 
-			LogUtil.debug("Layout options showResetLayout= " + (config.layout.@showResetLayout).toUpperCase()); 
-			LogUtil.debug("Layout options showToolbar= " + (config.layout.@showToolbar).toUpperCase()); 
-			LogUtil.debug("Layout options showLogoutWindow= " + (config.layout.@showLogoutWindow).toUpperCase()); 
-			LogUtil.debug("Layout options showHelpButton= " + (config.layout.@showHelpButton).toUpperCase()); 
-			
 			var a:Object = new Object();
 			a.showDebugWindow = ((config.layout.@showDebugWindow).toUpperCase() == "TRUE") ? true : false;
 			a.showVideoLayout = ((config.layout.@showVideoLayout).toUpperCase() == "TRUE") ? true : false;
