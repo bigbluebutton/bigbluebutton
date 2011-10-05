@@ -7,6 +7,7 @@ package org.bigbluebutton.core.managers
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.EventBroadcaster;
 	import org.bigbluebutton.core.model.Config;
 	
@@ -29,6 +30,7 @@ package org.bigbluebutton.core.managers
 			_config = new Config(new XML(e.target.data));
 			 EventBroadcaster.getInstance().dispatchEvent(new Event("configLoadedEvent", true));	
 			 var dispatcher:Dispatcher = new Dispatcher();
+			 LogUtil.debug("*** Sending config loaded event.");
 			 dispatcher.dispatchEvent(new Event("configLoadedEvent", true));
 		}
 		
