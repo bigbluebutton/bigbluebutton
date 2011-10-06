@@ -7,18 +7,9 @@
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
     <skinning enabled="false" url="branding/css/theme.css.swf" />
-    <layout showDebugWindow="true" showVideoLayout="true" showResetLayout="true" showToolbar="true" showHelpButton="true" showLogoutWindow="true"/>
+    <layout showDebugWindow="false" showVideoLayout="false" showResetLayout="true" showToolbar="true" showHelpButton="true" showLogoutWindow="true"/>
     
 	<modules>
-		
-		<!-- module name="SettingsModule" url="SettingsModule.swf?v=VERSION"
-			voice="rtmp://HOST/video"
-			video="rtmp://HOST/video"
-			deskshare="rtmp://HOST/deskShare"
-			java_required="1.6.0_22"
-			flash_required="10,0,0"
-			check_deskshare="true"
-		/-->
 		
 		<module name="ChatModule" url="ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
@@ -53,17 +44,6 @@
 			dependsOn="ViewersModule"
 		/>
 
-		<!--<module name="ClassroomAudioModule" url="ClassroomAudioModule.swf?v=VERSION" 
-                        uri="rtmp://HOST/sip" 
-                        dependsOn="ViewersModule"
-                />-->
-		
-		<!--<module name="ClassroomAudioModule" url="ClassroomAudioModule.swf?v=VERSION" 
-			uri="rtmp://HOST/sip" 
-			pushToTalkEnabled="true"
-			dependsOn="ViewersModule"
-		/>-->
-		
 		<module name="VideoconfModule" url="VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"
 			dependsOn="ViewersModule"
@@ -111,15 +91,8 @@
 		-->
 		
 		<!--<module name="ExampleChatModule" url="ExampleChatModule.swf?v=56" 
-            uri="rtmp://HOST/bigbluebutton" 
-            host="http://HOST"
-		/>-->
-		
-		<!--<module name="BreakoutModule" url="BreakoutModule.swf?v=VERSION" 
-			uri="rtmp://192.168.0.225/bigbluebutton" 
-			host="http://192.168.0.225" 
-			dependsOn="ViewersModule"
-			salt="1708e5ecf25b7142b06f2338b4ea3cf1"
+			uri="rtmp://HOST/bigbluebutton" 
+			host="http://HOST"
 		/>-->
 		
 		<!--<module name="SharedNotesModule" url="SharedNotesModule.swf?v=VERSION" 
