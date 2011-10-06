@@ -18,8 +18,7 @@
 */
 
 package org.bigbluebutton.modules.phone.managers {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.ActivityEvent;
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IEventDispatcher;
@@ -77,6 +76,8 @@ package org.bigbluebutton.modules.phone.managers {
 				options.echoPath = 128;
 				options.nonLinearProcessing = true;
 				mic['enhancedOptions'] = options;
+			} else {
+				
 			}
 			
 			mic.setUseEchoSuppression(true);

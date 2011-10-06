@@ -37,7 +37,7 @@ package org.bigbluebutton.modules.phone.maps
 			phoneButton = new ToolbarButton();
 			globalDispatcher = new Dispatcher();
 			phoneOptions = new PhoneOptions();
-			var vxml:XML = BBB.initConfigManager().config.getModuleConfig("PhoneModule");
+			var vxml:XML = BBB.getConfigForModule("PhoneModule");
 			if (vxml != null) {
 				phoneOptions.showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
 				phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;

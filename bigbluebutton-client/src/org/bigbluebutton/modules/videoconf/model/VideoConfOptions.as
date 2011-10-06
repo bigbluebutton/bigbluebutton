@@ -38,7 +38,7 @@ package org.bigbluebutton.modules.videoconf.model
 		public var camQualityPicture:Number = 50;	
 		
 		public function parseOptions():void {
-			var vxml:XML = BBB.initConfigManager().config.getModuleConfig("VideoconfModule");
+			var vxml:XML = BBB.getConfigForModule("VideoconfModule");
 			if (vxml != null) {
 				if (vxml.@showButton != undefined) {
 					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;

@@ -47,7 +47,7 @@ package org.bigbluebutton.modules.viewers.managers
 
 			viewerOptions = new ViewerOptions();
 			
-			var vxml:XML = BBB.initConfigManager().config.getModuleConfig("ViewersModule");
+			var vxml:XML = BBB.getConfigForModule("ViewersModule");
 			if (vxml != null) {
 				viewerOptions.windowVisible = (vxml.@windowVisible.toString().toUpperCase() == "TRUE") ? true : false;
 			}

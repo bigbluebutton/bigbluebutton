@@ -78,7 +78,7 @@ package org.bigbluebutton.core.model
 			return found;
 		}
 			
-		public function getModuleConfig(moduleName:String):XML {
+		public function getConfigFor(moduleName:String):XML {
 			if (isModulePresent(moduleName)) {
 					return new XML(config.modules.module.(@name.toUpperCase() == moduleName.toUpperCase()).toXMLString());
 			}
