@@ -38,6 +38,10 @@ package org.bigbluebutton.core
 			return configManager;
 		}
 
+		public static function getConfigForModule(module:String):XML {
+			return initConfigManager().config.getConfigFor(module);
+		}
+		
 		public static function initStreamManager():StreamManager {
 			if (streamManager == null) {
 				streamManager = new StreamManager();
@@ -63,8 +67,7 @@ package org.bigbluebutton.core
 			var versionString:String = Capabilities.version;
 			var pattern:RegExp = /^(\w*) (\d*),(\d*),(\d*),(\d*)$/;
 			var result:Object = pattern.exec(versionString);
-			if (result != null)
-			{
+			if (result != null) {
 			//	trace("input: " + result.input);
 			//	trace("platform: " + result[1]);
 			//	trace("majorVersion: " + result[2]);

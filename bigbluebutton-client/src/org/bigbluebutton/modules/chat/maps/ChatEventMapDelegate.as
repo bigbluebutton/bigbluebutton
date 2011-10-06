@@ -49,7 +49,7 @@ package org.bigbluebutton.modules.chat.maps {
 		}
 
 		private function getChatOptions():void {
-			var cxml:XML = 	BBB.initConfigManager().config.getModuleConfig("ChatModule");
+			var cxml:XML = 	BBB.getConfigForModule("ChatModule");
 			if (cxml != null) {
 				chatOptions.privateEnabled = (cxml.@privateEnabled.toString().toUpperCase() == "TRUE") ? true : false;
 			}
@@ -65,13 +65,9 @@ package org.bigbluebutton.modules.chat.maps {
 		   	// main application.		   	
 			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			event.window = _chatWindow; 
-			globalDispatcher.dispatchEvent(event);
-		   	
-		   	_chatWindowOpen = true;
-			
-			dispatchTranslationOptions();
-
-			
+			globalDispatcher.dispatchEvent(event);		   	
+		   	_chatWindowOpen = true;			
+			dispatchTranslationOptions();			
 		}
 		
 		public function closeChatWindow():void {
