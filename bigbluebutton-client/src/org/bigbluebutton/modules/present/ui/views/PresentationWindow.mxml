@@ -34,7 +34,7 @@
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{currentPresentation}" keyUp="onKeyUp(event)"
-	resize="maximizeHandler()" backgroundColor="0xDDDDDD" xmlns:views="org.bigbluebutton.modules.present.ui.views.*">
+	resize="maximizeHandler()" xmlns:views="org.bigbluebutton.modules.present.ui.views.*">
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />

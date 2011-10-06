@@ -138,6 +138,7 @@ public class PresentationRoom {
 		sharing = share;
 		if (share) {
 		  currentPresentation = presentationName;
+		  presentationNames.add(presentationName);   
 		} else {
 		  currentPresentation = "";
 		}

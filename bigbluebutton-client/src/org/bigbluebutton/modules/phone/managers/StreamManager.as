@@ -30,9 +30,7 @@ package org.bigbluebutton.modules.phone.managers {
 	import flash.media.MicrophoneEnhancedOptions;
 	import flash.media.SoundCodec;
 	import flash.net.NetConnection;
-	import flash.net.NetStream;
-	import flash.system.Capabilities;
-	
+	import flash.net.NetStream;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.main.events.BBBEvent;
@@ -70,7 +68,8 @@ package org.bigbluebutton.modules.phone.managers {
 		}	
 		
 		private function setupMicrophone():void {
-			if (Capabilities.version.search("10,3") != -1){
+			if (BBB.getFlashPlayerVersion() >= 10.3){
+				LogUtil.debug("Using acoustic echo cancellation.");
 				mic = Microphone(Microphone["getEnhancedMicrophone"]());
 				var options:MicrophoneEnhancedOptions = new MicrophoneEnhancedOptions();
 				options.mode = MicrophoneEnhancedMode.FULL_DUPLEX;
@@ -88,11 +87,11 @@ package org.bigbluebutton.modules.phone.managers {
 				mic.codec = SoundCodec.SPEEX;
 				mic.framesPerPacket = 1;
 				mic.rate = 16; 
-				LogUtil.debug("Using codec=SPEEX,framesPerPacket=1,rate=16");
+				LogUtil.debug("Using SPEEX whideband codec.");
 			} else {
 				mic.codec = SoundCodec.NELLYMOSER;
 				mic.rate = 8;
-				LogUtil.debug("Using codec=NELLYMOSER,rate=8");
+				LogUtil.debug("Using Nellymoser codec.");
 			}			
 			mic.gain = 60;			
 		}

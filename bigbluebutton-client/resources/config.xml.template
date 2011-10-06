@@ -7,7 +7,7 @@
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
     <skinning enabled="false" url="branding/css/theme.css.swf" />
-    <layout showDebugWindow="true" showVideoLayout="true" showResetLayout="true" showToolbar="true" showLogoutWindow="true"/>
+    <layout showDebugWindow="true" showVideoLayout="true" showResetLayout="true" showToolbar="true" showHelpButton="true" showLogoutWindow="true"/>
     
 	<modules>
 		
@@ -95,12 +95,12 @@
 			dependsOn="ViewersModule"
 		/>
 
-		<!--<module name="VideodockModule" url="VideodockModule.swf?v=VERSION"
+		<module name="VideodockModule" url="VideodockModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="VideoconfModule, ViewersModule"
 			autoDock="true"
 			maximizeWindow="false"
-		/>-->
+		/>
 		
 		<!-- new module in development: 
 		<module name="DynamicInfoModule" url="DynamicInfoModule.swf?v=VERSION" 

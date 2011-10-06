@@ -6,6 +6,7 @@ package org.bigbluebutton.core
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.Session;
+	import flash.system.Capabilities;
 	
 	public class BBB {
 		private static var userManager:UserManager = null;
@@ -57,5 +58,25 @@ package org.bigbluebutton.core
 			}
 			return session;
 		}		
+		
+		public static function getFlashPlayerVersion():Number {
+			var versionString:String = Capabilities.version;
+			var pattern:RegExp = /^(\w*) (\d*),(\d*),(\d*),(\d*)$/;
+			var result:Object = pattern.exec(versionString);
+			if (result != null)
+			{
+			//	trace("input: " + result.input);
+			//	trace("platform: " + result[1]);
+			//	trace("majorVersion: " + result[2]);
+			//	trace("minorVersion: " + result[3]);    
+			//	trace("buildNumber: " + result[4]);
+			//	trace("internalBuildNumber: " + result[5]);
+				return Number(result[2] + "." + result[3]);
+			} else {
+			//	trace("Unable to match RegExp.");
+				return 0;
+			}		
+		}
+		
 	}
 }

@@ -11,9 +11,11 @@
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			private var url:String = "assets/audio-test.mp3";
-			private var channel:SoundChannel;
-			private var soundFactory:Sound;
+			[Embed(source="assets/audio-test.mp3")]
+			[Bindable] private var soundClass:Class;
+			private var sound:Sound = new soundClass() as Sound;			
+			private var soundChannel:SoundChannel;
+
 			private var timer:Timer;
 			private var mic:Microphone;
 			private var playingAudio:Boolean = false;
@@ -39,7 +41,7 @@
 						LogUtil.warn("Access to microphone has been denied.");
 						break;
 					case "Microphone.Unmuted":
-						LogUtil.warn("Access to the microphone has been allowed.");
+						LogUtil.debug("Access to the microphone has been allowed.");
 						break;
 					default:
 						LogUtil.debug("unknown micStatusHandler event: " + event);
@@ -55,38 +57,15 @@
 						
 			public function playButtonClickHandler():void {
 				if (playButton.selected) {
-					var request:URLRequest = new URLRequest(url);
-					soundFactory = new Sound();
-					soundFactory.addEventListener(Event.COMPLETE, completeHandler);
-					soundFactory.addEventListener(Event.ID3, id3Handler);
-					soundFactory.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
-					soundFactory.addEventListener(ProgressEvent.PROGRESS, progressHandler);
-					soundFactory.load(request);          			
+					soundChannel = sound.play();  
+					playingAudio = true;
 				} else {
-					channel.stop();
+					soundChannel.stop();
 					playButton.label = ResourceUtil.getInstance().getString('bbb.micSettings.playSound');
 					playingAudio = false;
 				}	                     
 			}
-			
-			private function completeHandler(event:Event):void {
-				channel = soundFactory.play();
-				playButton.label = "Stop";
-				playingAudio = true;
-			}
-			
-			private function id3Handler(event:Event):void {
-				trace("id3Handler: " + event);
-			}
-			
-			private function ioErrorHandler(event:Event):void {
-				trace("ioErrorHandler: " + event);
-			}
-			
-			private function progressHandler(event:ProgressEvent):void {
-				trace("progressHandler: " + event);
-			}
-			
+						
 			private function showMicSettingsPanel():void {
 				Security.showSettings(SecurityPanel.MICROPHONE);
 			}
@@ -111,7 +90,7 @@
 				timer.stop();
 				mic.setLoopBack(false);
 				mic = null;
-				if (playingAudio) channel.stop();				
+				if (playingAudio) soundChannel.stop();				
 			}
 			
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";

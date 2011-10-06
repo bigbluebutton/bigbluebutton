@@ -29,8 +29,7 @@ $Id: $
 		   layout="absolute"
 		   horizontalAlign="center"
 		   verticalAlign="middle"
-		   resize="onChildAdd()"
-		   backgroundColor="0xDDDDDD">
+		   resize="onChildAdd()">
 	
 	<mx:Script>
 		<![CDATA[
