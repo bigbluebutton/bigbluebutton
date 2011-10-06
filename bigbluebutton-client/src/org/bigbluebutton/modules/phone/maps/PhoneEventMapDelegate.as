@@ -41,6 +41,7 @@ package org.bigbluebutton.modules.phone.maps
 			if (vxml != null) {
 				phoneOptions.showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
 				phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
+				phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
 			}			
 		}
 

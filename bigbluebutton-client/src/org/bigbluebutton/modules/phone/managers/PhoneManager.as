@@ -18,7 +18,12 @@
 */
 
 package org.bigbluebutton.modules.phone.managers {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.main.events.BBBEvent;
+	import org.bigbluebutton.modules.phone.PhoneOptions;
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 	
 	public class PhoneManager {		
@@ -26,6 +31,7 @@ package org.bigbluebutton.modules.phone.managers {
 		private var streamManager:StreamManager;
 		private var onCall:Boolean = false;
 		private var attributes:Object;
+		private var phoneOptions:PhoneOptions;
 		
 		public function PhoneManager() {
 			connectionManager = new ConnectionManager();
@@ -34,7 +40,22 @@ package org.bigbluebutton.modules.phone.managers {
 
 		public function setModuleAttributes(attributes:Object):void {
 			this.attributes = attributes;
-			if (attributes.autoJoin == "true") joinVoice(true);
+			var vxml:XML = BBB.getConfigForModule("PhoneModule");
+			phoneOptions = new PhoneOptions();
+			if (vxml != null) {
+				phoneOptions.showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
+				phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
+				phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
+			}
+			
+			if (phoneOptions.autoJoin) {
+				if (phoneOptions.skipCheck) {
+					joinVoice(true);
+				} else {
+					var dispatcher:Dispatcher = new Dispatcher();
+					dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
+				}
+			}
 		}
 				
 		private function setupMic(useMic:Boolean):void {

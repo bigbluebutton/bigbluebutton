@@ -7,6 +7,7 @@ package org.bigbluebutton.modules.phone
 		[Bindable]
 		public var autoJoin:Boolean = false;
 		
-
+		[Bindable]
+		public var skipCheck:Boolean = false;
 	}
 }
