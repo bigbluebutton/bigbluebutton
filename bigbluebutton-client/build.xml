@@ -2,6 +2,7 @@
 <!-- BigBlueButton Client build.xml for use by Hudson builds.   -->
 <project name="BigBlueButton Client" basedir="." default="clean-build-all" >
     	<property environment="env" />
+    	<property name="STATIC_RSL" value="false" />
     	<property name="BUILD_ENV" value="DEV" />
     	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
     	<property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
@@ -259,7 +260,8 @@
 				  		ralam - sept 20, 2011
 					-->
 					<resource-bundle-list>bundles.txt</resource-bundle-list>
-					
+	        			<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
+				
 					<compiler.library-path dir="@{flex}/frameworks" append="true">
 						<include name="libs" />
 						<include name="../bundles/{locale}" />
@@ -290,6 +292,8 @@
 				<target-player>10.3.0</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
+				<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
+
 				<compiler.library-path dir="@{flex}/frameworks" append="true">
 					<include name="libs" />
 					<include name="../bundles/{locale}" />
@@ -315,6 +319,8 @@
 				<target-player>10.3.0</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
+				<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
+
 				<compiler.library-path dir="@{flex}/frameworks" append="true">
 					<include name="libs" />
 					<include name="../bundles/{locale}" />

@@ -40,6 +40,7 @@
 		<module name="PhoneModule" url="PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
 			autoJoin="false"
+			skipCheck="false"
 			showButton="true"
 			dependsOn="ViewersModule"
 		/>

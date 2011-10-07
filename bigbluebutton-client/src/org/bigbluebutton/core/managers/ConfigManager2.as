@@ -11,14 +11,9 @@ package org.bigbluebutton.core.managers
 	import org.bigbluebutton.core.EventBroadcaster;
 	import org.bigbluebutton.core.model.Config;
 	
-	public class ConfigManager2 extends EventDispatcher
-	{
+	public class ConfigManager2 extends EventDispatcher {
 		private var _config:Config = null;
 				
-		public function ConfigManager2()
-		{
-		}
-		
 		public function loadConfig():void {
 			var urlLoader:URLLoader = new URLLoader();
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);

@@ -40,7 +40,7 @@ package org.bigbluebutton.modules.listeners.managers
 			dispatcher = new Dispatcher();
 			listenerOptions = new ListenerOptions();
 			
-			var vxml:XML = BBB.initConfigManager().config.getModuleConfig("ListenersModule");
+			var vxml:XML = BBB.getConfigForModule("ListenersModule");
 			if (vxml != null) {
 				listenerOptions.windowVisible = (vxml.@windowVisible.toString().toUpperCase() == "TRUE") ? true : false;
 			}			
