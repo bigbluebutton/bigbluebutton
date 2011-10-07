@@ -76,10 +76,10 @@
 			
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_LEFT;
+            }
 
 			public function set attributes(attributes:Object):void {
 				_attributes = attributes;
-
 			}
 		]]>
 	</mx:Script>
