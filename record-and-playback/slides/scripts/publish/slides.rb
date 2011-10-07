@@ -68,7 +68,8 @@ if (playback == "slides")
 		metadata_xml.close		
 		
     #Create slides.xml
-    presentation_url = "http://" + playback_host + "/slides/" + meeting_id + "/presentation"
+    #presentation_url = "http://" + playback_host + "/slides/" + meeting_id + "/presentation"
+    presentation_url = "/slides/" + meeting_id + "/presentation"
   	@doc = Nokogiri::XML(File.open("#{process_dir}/events.xml"))
 	  meeting_start = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0]['timestamp']
 	  meeting_end = @doc.xpath("//event[@eventname='EndAndKickAllEvent']").last()['timestamp']
