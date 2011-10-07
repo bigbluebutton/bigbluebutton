@@ -46,7 +46,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 		}
 		
 		public function toString():String {
-			return "Message: " + ", senderId " + senderId + ", patchData: " + patchData + ", checksum " + checksum
+			return "Message: " + "\nsenderId " + senderId + "\npatchData: " + patchData + "\nchecksum " + checksum;
 		}
 
 	}

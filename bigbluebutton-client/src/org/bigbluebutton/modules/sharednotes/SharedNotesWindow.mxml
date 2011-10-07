@@ -18,9 +18,17 @@
 	
 	Author: Islam El-Ashi <ielashi@gmail.com>, <http://www.ielashi.com>
 -->
-<containers:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:containers="flexlib.mdi.containers.*" 
-					 layout="absolute" width="508" height="494" implements="org.bigbluebutton.common.IBbbModuleWindow" 
-					 title="Notes" creationComplete="init()" xmlns:components="org.bigbluebutton.modules.sharednotes.components.*">
+<containers:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:containers="flexlib.mdi.containers.*" 
+	layout="absolute" 
+	minWidth="160" 
+	minHeight="160" 
+	implements="org.bigbluebutton.common.IBbbModuleWindow" 
+	title="Notes" 
+	creationComplete="init()" 
+	xmlns:components="org.bigbluebutton.modules.sharednotes.components.*"
+	resize="onResize()">
+	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -32,38 +40,61 @@
 			import mx.events.ResizeEvent;
 			import mx.events.SliderEvent;
 			
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.sharednotes.infrastructure.Client;
 			import org.bigbluebutton.modules.sharednotes.infrastructure.ServerConnection;
 			
-			private var _xPosition:int, _yPosition:int;
-			private var _defaultWidth:int = 400;
-			private var _defaultHeight:int = 300;
-			private var client:org.bigbluebutton.modules.sharednotes.infrastructure.Client;
+			private var client:Client;
+			private var so:SharedObject = null;
 			
-			private static var _room:String;
-			
+			private var _room:String;
+			private var _uri:String;
+			private var _host:String;
+			private var _connection:NetConnection;
+			private var _updateDelay:int;
+			private var _refreshTimeout:int;
+			private var _enablePlayback:Boolean;
+
 			public static const SHARED_NOTES_CLOSED:String = "SHARED_NOTES_CLOSED";
 			
-			private var resizeTimer:Timer = new Timer(500);
+			private var sendUpdateTimer:Timer;
 			
 			public function init():void {
+				sendUpdateTimer = new Timer(_updateDelay, 1);
+				lblPlaybackVersion.visible = btnPlayback.visible = playbackSlider.visible = _enablePlayback;
+			
 				textArea.addEventListener(Event.CHANGE, onTextChange);
+				textArea.addEventListener(KeyboardEvent.KEY_DOWN, function(e:Event):void {
+					if (!sendUpdateTimer.running) {
+						sendUpdateTimer.reset();
+						sendUpdateTimer.start();
+					} 
+				});
+				sendUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:Event):void {
+					dispatchEvent(new Event(ServerConnection.SEND_PATCH_EVENT));
+				});
+				addEventListener(ServerConnection.UPDATE_REMOTE_EVENT, function(e:Event):void {
+					so.send("refresh", client.id);
+				});
 				addEventListener(ServerConnection.SYNCED_EVENT, onSynced);
 				addEventListener(ServerConnection.SYNCING_EVENT, onSyncing);
+			
 				addEventListener(MDIWindowEvent.RESIZE, onResize);
-				addEventListener(MDIWindowEvent.MAXIMIZE, function(e:Event):void { resizeTimer.start(); });
-				addEventListener(MDIWindowEvent.RESTORE, function(e:Event):void { resizeTimer.start(); });
 				addEventListener(MDIWindowEvent.CLOSE, function(e:Event):void { if (client) client.shutdown(); });
-				resizeTimer.addEventListener(TimerEvent.TIMER, onResizeTimer);
+				
+				client = new Client(textArea, _host, _room, _refreshTimeout, this);
+				so = SharedObject.getRemote("sharedNotesSO", _uri + "/" + _room, false);
+				so.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
+				so.client = this;
+				so.connect(_connection);
 
-				client = new Client(textArea, this);
+				onResize();
 			}
 			
-			private function onResizeTimer(e:Event):void {
-				onResize();
-				resizeTimer.stop();
+			private function sharedObjectSyncHandler(event:SyncEvent):void {	
+				LogUtil.debug("sharedObjectSyncHandler");
 			}
 			
 			private function addBlur():void {
@@ -77,25 +108,40 @@
 			}
 			
 			private function onResize(e:Event = null):void {
-				const RIGHT_PADDING:int = textArea.x * 2, TOP_PADDING:int = 35, BOTTOM_PADDING:int = 60;
+				// limits the window size to the parent size
+				this.width = (this.parent != null? Math.min(this.width, this.parent.width): this.width);
+				this.height = (this.parent != null? Math.min(this.height, this.parent.height): this.height);
+			
+				const DEFAULT_PADDING:int = 10, RIGHT_PADDING:int = 10, LEFT_PADDING:int = 10, TOP_PADDING:int = 10, BOTTOM_PADDING:int = 40;
+				const availableWidth:int = this.width - this.borderMetrics.left - this.borderMetrics.right;
+				const availableHeight:int = this.height - this.borderMetrics.top - this.borderMetrics.bottom;
 				
-				textArea.width = canvas.width - RIGHT_PADDING;
-				textArea.height = canvas.height - BOTTOM_PADDING;
-				txtPlayback.width = canvas.width - RIGHT_PADDING;
-				txtPlayback.height = canvas.height - BOTTOM_PADDING - 20;
-				btnPlayback.y = canvas.height - TOP_PADDING;
-				btnBackPlayback.y = canvas.height - TOP_PADDING;
-				icoSynced.y = canvas.height - TOP_PADDING;
-				icoSyncing.y = canvas.height - TOP_PADDING;
-				icoSynced.x = canvas.width - RIGHT_PADDING - 10;
-				icoSyncing.x = canvas.width - RIGHT_PADDING - 10;
-				playbackSlider.width = canvas.width - playbackSlider.x - RIGHT_PADDING;
-				playbackSlider.y = canvas.height - BOTTOM_PADDING - 10;
-				lblPlaybackVersion.y = playbackSlider.y + 3;
+				textArea.width = txtPlayback.width = textArea.measuredWidth = availableWidth - RIGHT_PADDING - LEFT_PADDING;
+				textArea.x = txtPlayback.x = LEFT_PADDING;
+				textArea.height = txtPlayback.height = availableHeight - TOP_PADDING - BOTTOM_PADDING;
+				textArea.y = txtPlayback.y = TOP_PADDING;
+
+				btnPlayback.y = btnBackPlayback.y = availableHeight - (BOTTOM_PADDING + btnPlayback.height) / 2 + 1;
+				lblPlaybackVersion.y = availableHeight - (BOTTOM_PADDING + lblPlaybackVersion.height) / 2 + 2;
+				playbackSlider.y = availableHeight - (BOTTOM_PADDING + playbackSlider.height) / 2;
+
+				btnPlayback.x = btnBackPlayback.x = LEFT_PADDING;
+				lblPlaybackVersion.x = LEFT_PADDING + (btnPlayback.visible? btnPlayback.width: 0) + (btnBackPlayback.visible? btnBackPlayback.width: 0) + (btnPlayback.visible || btnBackPlayback.visible? DEFAULT_PADDING: 0);
+				playbackSlider.x = lblPlaybackVersion.x + lblPlaybackVersion.width + DEFAULT_PADDING;
+				
+				icoSynced.y = icoSyncing.y = availableHeight - (BOTTOM_PADDING + icoSynced.height) / 2;
+				icoSynced.x = icoSyncing.x = availableWidth - RIGHT_PADDING - icoSynced.width;
+				playbackSlider.width = availableWidth - playbackSlider.x - 2 * RIGHT_PADDING - icoSynced.width;
+				
+				lblConnecting.x = (availableWidth - lblConnecting.measuredWidth - LEFT_PADDING - RIGHT_PADDING) / 2 + LEFT_PADDING;
+				lblConnecting.y = (availableHeight - lblConnecting.measuredHeight - TOP_PADDING - BOTTOM_PADDING) / 2 + TOP_PADDING;
 			}
 			
 			private function onSynced(e:Event):void {
-				if (client.version > 0 && !btnBackPlayback.visible) { btnPlayback.visible = true; }
+				if (client.version > 0 && !btnBackPlayback.visible && _enablePlayback) {
+					btnPlayback.visible = true;
+					onResize();
+				} 
 				icoSynced.visible = true;
 				icoSyncing.visible = false;
 				lblConnecting.visible = false;
@@ -106,19 +152,20 @@
 				icoSynced.visible = false;
 			}
 			
+			public function refresh(... args):void {
+				dispatchEvent(new Event(ServerConnection.UPDATE_EVENT));
+			}
+			
 			private function onTextChange(e:Event):void {
 				onSyncing(e);
 			}
 			
 			protected function btnPlay_clickHandler(event:MouseEvent):void
 			{
-				if (client.isTypingTestRunning())
-				{
+				if (client.isTypingTestRunning()) {
 					client.stopTyping();
 					btnPlay.label = "Start";
-				}
-				else
-				{
+				} else {
 					client.startTyping();
 					btnPlay.label = "Stop";
 				}
@@ -140,6 +187,7 @@
 				btnPlayback.visible = false;
 				previousSliderValue = 0;
 				txtPlayback.text = client.getSnapshotAtVersion(0, 0, "");
+				onResize();
 			}
 			
 			protected function btnBackPlayback_clickHandler(event:MouseEvent):void
@@ -147,55 +195,44 @@
 				textArea.visible = true;
 				btnBackPlayback.visible = false;
 				btnPlayback.visible = true;
+				onResize();
 			}
-			
-			public function get xPosition():int {
-				return _xPosition;
-			} 
-			
-			public function get yPosition():int {
-				return _yPosition;
-			}
-			
-			public function set xPosition(x:int):void {
-				_xPosition = x;
-			}
-			
-			public function set yPosition(y:int):void {
-				_yPosition = y;
-			}
-			
-			public function get defaultWidth():int{
-				return _defaultWidth;
-			}
-			
-			public function get defaultHeight():int{
-				return _defaultHeight;
-			}
-			
-			public function set defaultHeight(height:int):void{
-				this._defaultHeight = height;
-			}
-			
-			public function set defaultWidth(width:int):void{
-				this._defaultWidth = width;
-			}
-			
-			public function resetWidthAndHeight():void{
-				this.width = _defaultWidth;
-				this.height = _defaultHeight;
-			}
-			
+					
 			public function getPrefferedPosition():String{
 				return MainCanvas.MIDDLE;
 			}
 			
-			public static function set document(document:String):void {
-				Client.documentName = document;
+			public function set room(room:String):void {
+				_room = room;
 			}
 			
+			public function set uri(uri:String):void {
+				_uri = uri;
+			} 
+			
+			public function set host(host:String):void {
+				_host = host;
+			}
+			
+			public function set connection(connection:NetConnection):void {
+				_connection = connection;
+			}
+			
+			public function set updateDelay(updateDelay:int):void {
+				_updateDelay = updateDelay;
+			}
+
+			public function set refreshTimeout(refreshTimeout:int):void {
+				_refreshTimeout = refreshTimeout;
+			}
+
+			public function set enablePlayback(enablePlayback:String):void {
+				_enablePlayback = (enablePlayback.toUpperCase() == "TRUE");
+			}
+
 			override public function close(event:MouseEvent=null):void {
 				new Dispatcher().dispatchEvent(new Event(SHARED_NOTES_CLOSED, true));
+				so.close();
 				super.close(event);
 			}
 		]]>
@@ -203,8 +240,6 @@
 	<mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
 	<mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
 	
-	<mx:Canvas id="canvas" x="0" y="0" width="100%" height="100%">
-
 	<mx:Button x="10" y="425" label="Playback" id="btnPlayback" click="btnPlayback_clickHandler(event)" icon="@Embed(source='images/play-icon.png')" visible="false"/>
 	<mx:HSlider x="79" y="395" width="413" id="playbackSlider" liveDragging="true" snapInterval="1" change="playbackSlider_changeHandler(event)" maximum="0"/>
 	<mx:TextArea x="10" y="10" width="482" height="387" id="txtPlayback"/>
@@ -212,9 +247,8 @@
 	<mx:Image x="476" y="431" source="@Embed(source='images/action_refresh.gif')" id="icoSyncing" visible="false" toolTip="Updating document..."/>
 	<mx:Button x="10" y="425" icon="@Embed(source='images/arrow_left.png')" id="btnBackPlayback" click="btnBackPlayback_clickHandler(event)" visible="false"/>
 	<mx:Label id="lblPlaybackVersion" x="10" y="399" text="Version 0:"/>
-	<components:PatchableTextArea x="10" y="10" id="textArea" hideEffect="{dissolveOut}" showEffect="{dissolveIn}" creationComplete="addBlur()" width="482" height="407"/>
-	<mx:Button x="114" y="425" label="Start" id="btnPlay" click="btnPlay_clickHandler(event)" visible="false"/>
+	<components:PatchableTextArea x="10" y="10" id="textArea" hideEffect="{dissolveOut}" showEffect="{dissolveIn}" creationComplete="addBlur()" width="482" height="407" editable="true"/>
+	<mx:Button x="0" y="0" label="Start" id="btnPlay" click="btnPlay_clickHandler(event)" visible="false"/>
 	<mx:Label x="211.5" y="186" text="Connecting..." id="lblConnecting"/>
-		
-	</mx:Canvas>
+
 </containers:MDIWindow>

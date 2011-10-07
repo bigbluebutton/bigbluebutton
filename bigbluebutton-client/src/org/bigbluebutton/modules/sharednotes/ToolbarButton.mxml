@@ -21,7 +21,7 @@
 --> 
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{notesIcon}" 
-		   click="openPublishWindow()" creationComplete="init()" 
+		   click="openNotesWindow()" creationComplete="init()" 
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip')}" xmlns:mate="http://mate.asfusion.com/"
 		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
@@ -39,6 +39,7 @@
 			[Embed(source="images/note_edit.png")]
 			public var notes:Class;
 			
+			private var _attributes:Object;
 			
 			[Bindable] public var notesIcon:Class = notes;
 			
@@ -49,8 +50,15 @@
 				this.addEventListener(SharedNotesWindow.SHARED_NOTES_CLOSED, closeEventHandler);
 			}
 			
-			private function openPublishWindow():void{
-				var window:IBbbModuleWindow = new SharedNotesWindow();
+			private function openNotesWindow():void{
+				var window:SharedNotesWindow = new SharedNotesWindow();
+				window.room = _attributes.room;
+				window.connection = _attributes.connection;
+				window.uri = _attributes.uri;
+				window.host = _attributes.host;
+				window.updateDelay = _attributes.updateDelay;
+				window.refreshTimeout = _attributes.refreshTimeout;
+				window.enablePlayback = _attributes.enablePlayback;
 				
 				var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				event.window = window;
@@ -68,6 +76,10 @@
 			
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_LEFT;
+
+			public function set attributes(attributes:Object):void {
+				_attributes = attributes;
+
 			}
 		]]>
 	</mx:Script>
