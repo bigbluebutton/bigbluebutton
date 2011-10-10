@@ -27,13 +27,18 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 	import flash.events.KeyboardEvent;
 	import flash.events.IEventDispatcher;
 	import flash.events.TimerEvent;
+	import flash.events.SyncEvent;
+	import flash.net.SharedObject;
 	import flash.utils.ByteArray;	
 	import flash.utils.Timer;
+	
+ 	//import mx.events.StateChangeEvent;
+ 	import mx.events.FlexEvent; 	
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.sharednotes.components.PatchableTextArea;
 	import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
-
+	import org.bigbluebutton.modules.sharednotes.SharedNotesWindow;
 
 	public class Client
 	{
@@ -54,69 +59,62 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 		
 		private var _documentName:String = "";
 		private var _host:String = "";
+		private var so:SharedObject = null;
 		
-		private var _dispatcher:IEventDispatcher;
-		private const STATE_NONE:String = "STATE_NONE";
-		private const STATE_INIT:String = "STATE_INIT";
-		private const STATE_WAITING_PATCH_APPROVAL:String = "STATE_WAITING_PATCH_APPROVAL";
-		private const STATE_UPDATING_REMOTE_USERS:String = "STATE_UPDATING_REMOTE_USERS";
-		private const STATE_WAITING_REMOTE_PATCH:String = "STATE_WAITING_REMOTE_PATCH";
-		private var _state:String = STATE_NONE;
-		private var _delayedEvent:Event = null;
+		private var _dispatcher:SharedNotesDispatcher = new SharedNotesDispatcher();
+		private var _state:String = SharedNotesDispatcher.STATE_NONE;
 	
-		public function Client(textComponent:PatchableTextArea, host:String, documentName:String, refreshTimeout:int, dispatcher:IEventDispatcher) {
-			textArea = textComponent;
-			_documentName = documentName;
-			_host = host;
-			_dispatcher = dispatcher;
+		public function Client(window:SharedNotesWindow) {
+			textArea = window.textArea;
+			_documentName = window.room;
+			_host = window.host;
 			
-			_dispatcher.addEventListener(ServerConnection.INIT_EVENT, function(e:Event):void {
-				LogUtil.debug("Received " + e.type + ", current state = " + state);
-				state = STATE_INIT;
+			// this event comes from the SharedNotesWindow class
+			window.addEventListener(SharedNotesDispatcher.SEND_PATCH_EVENT, function(e:Event):void {
+				_dispatcher.dispatchDelayedEvent(new Event(SharedNotesDispatcher.SEND_PATCH_EVENT));
 			});
-			_dispatcher.addEventListener(ServerConnection.SEND_PATCH_EVENT, function(e:Event):void {
-				LogUtil.debug("Received " + e.type + ", current state = " + state);
-				switch(state) {
-					case STATE_INIT:
+			_dispatcher.addEventListener(SharedNotesDispatcher.INIT_EVENT, function(e:Event):void {
+				LogUtil.debug("Received " + e.type + ", current state = " + _state);
+				_state = SharedNotesDispatcher.STATE_INIT;
+			});
+			_dispatcher.addEventListener(SharedNotesDispatcher.SEND_PATCH_EVENT, function(e:Event):void {
+				LogUtil.debug("Received " + e.type + ", current state = " + _state);
+				switch(_state) {
+					case SharedNotesDispatcher.STATE_INIT:
 						sendMessage();
-						state = STATE_WAITING_PATCH_APPROVAL;
-						break;
-					case STATE_WAITING_REMOTE_PATCH: // special state that occurs when there's concurrent typing
-						delayEvent(e);
+						_state = SharedNotesDispatcher.STATE_WAITING_PATCH_APPROVAL;
 						break;
 					default:
 						LogUtil.debug("Inconsistent state!");
 						break;
 				}
 			});
-			_dispatcher.addEventListener(ServerConnection.HANDLE_PATCH_EVENT, function(e:Event):void {
-				LogUtil.debug("Received " + e.type + ", current state = " + state);
-				switch(state) {
-					case STATE_WAITING_PATCH_APPROVAL:
-						_dispatcher.dispatchEvent(new Event(ServerConnection.UPDATE_REMOTE_EVENT));
-						state = STATE_UPDATING_REMOTE_USERS;
+			_dispatcher.addEventListener(SharedNotesDispatcher.HANDLE_PATCH_EVENT, function(e:Event):void {
+				LogUtil.debug("Received " + e.type + ", current state = " + _state);
+				switch(_state) {
+					case SharedNotesDispatcher.STATE_WAITING_PATCH_APPROVAL:
+						//_dispatcher.dispatchDelayedEvent(new Event(SharedNotesDispatcher.UPDATE_REMOTE_EVENT));
+						LogUtil.debug("Sending refresh");			
+						so.send("refresh", _id);
+						_state = SharedNotesDispatcher.STATE_UPDATING_REMOTE_USERS;
 						break;
-					case STATE_WAITING_REMOTE_PATCH:
-						state = STATE_INIT;
+					case SharedNotesDispatcher.STATE_WAITING_REMOTE_PATCH:
+						_state = SharedNotesDispatcher.STATE_INIT;
 						break;
 					default:
 						LogUtil.debug("Inconsistent state!");
 						break;
 				}
 			});
-			_dispatcher.addEventListener(ServerConnection.UPDATE_EVENT, function(e:Event):void {
-				LogUtil.debug("Received " + e.type + ", current state = " + state);
-				switch(state) {
-					case STATE_UPDATING_REMOTE_USERS:
-						state = STATE_INIT;
+			_dispatcher.addEventListener(SharedNotesDispatcher.UPDATE_EVENT, function(e:Event):void {
+				LogUtil.debug("Received " + e.type + ", current state = " + _state);
+				switch(_state) {
+					case SharedNotesDispatcher.STATE_UPDATING_REMOTE_USERS:
+						_state = SharedNotesDispatcher.STATE_INIT;
 						break;
-					case STATE_INIT:
+					case SharedNotesDispatcher.STATE_INIT:
 						sendMessage();
-						state = STATE_WAITING_REMOTE_PATCH;
-						break;
-					case STATE_WAITING_REMOTE_PATCH: // special state that occurs when there's concurrent typing
-					case STATE_WAITING_PATCH_APPROVAL:
-						delayEvent(e);
+						_state = SharedNotesDispatcher.STATE_WAITING_REMOTE_PATCH;
 						break;
 					default:
 						LogUtil.debug("Inconsistent state!");
@@ -124,7 +122,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 				}
 			});
 			
-			timeoutTimer = new Timer(refreshTimeout);
+			timeoutTimer = new Timer(window.responseTimeout);
 			timeoutTimer.addEventListener(TimerEvent.TIMER, function(e:Event):void {
 				timeoutTimer.stop();
 				sendMessage();
@@ -134,27 +132,23 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 			testCharacterTimer = new Timer(10);
 			testCharacterTimer.addEventListener(TimerEvent.TIMER, playSentence);
 			
-			server = new HTTPServerConnection(this, dispatcher);
+			so = SharedObject.getRemote("sharedNotesSO", window.uri + "/" + window.room, false);
+			so.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
+			so.client = this;
+			so.connect(window.connection);
+
+			server = new HTTPServerConnection(this, window);
 		}
-		
-		private function delayEvent(e:Event):void {
-			LogUtil.debug("Delaying event");
-			if (_delayedEvent == null || _delayedEvent.type != ServerConnection.SEND_PATCH_EVENT) 
-				_delayedEvent = new Event(e.type);
+
+		private function sharedObjectSyncHandler(event:SyncEvent):void {	
+			LogUtil.debug("SharedObject SyncEvent.SYNC");
 		}
-		
-		private function set state(newState:String):void {
-			_state = newState;
-			if (_state == STATE_INIT && _delayedEvent != null) {
-				_dispatcher.dispatchEvent(_delayedEvent);
-				_delayedEvent = null;
-			}
+
+		public function refresh(... args):void {
+			LogUtil.debug("Refreshing...");
+			_dispatcher.dispatchDelayedEvent(new Event(SharedNotesDispatcher.UPDATE_EVENT));
 		}
-		
-		private function get state():String {
-			return _state;
-		}
-		
+			
 		public function initClient(id:int, serverConnection:ServerConnection, document:String = ""):void {
 			_id = id;
 			documentShadow = new String(document);
@@ -164,7 +158,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 			
 			logPrefix = "[Client " + id + "] ";
 			
-			_dispatcher.dispatchEvent(new Event(ServerConnection.INIT_EVENT));
+			_dispatcher.dispatchDelayedEvent(new Event(SharedNotesDispatcher.INIT_EVENT));
 		}
 		
 		/**
@@ -181,9 +175,9 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 		public function sendMessage():void {
 			var messageToSend:Message = new Message(id, _documentName, ServerConnection.connectionType);
 			
-			if (documentShadow != textArea.textFieldText) {
+			var clientText:String = new String(textArea.textFieldText); // a snapshot of the client text
+			if (documentShadow != clientText) {
 				textArea.editable = false;
-				var clientText:String = new String(textArea.textFieldText); // a snapshot of the client text
 				
 				messageToSend.patchData = DiffPatch.diff(documentShadow, clientText);
 				
@@ -224,7 +218,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 			}
 			
 			server.pendingResponse = false;
-			_dispatcher.dispatchEvent(new Event(ServerConnection.HANDLE_PATCH_EVENT));
+			_dispatcher.dispatchDelayedEvent(new Event(SharedNotesDispatcher.HANDLE_PATCH_EVENT));
 		}
 		
 		public function getSnapshotAtVersion(initialVersion:int, finalVersion:int, documentSnapshot:String = ""):String {
@@ -286,6 +280,7 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 			server.shutdown();
 			if (testCharacterTimer) testCharacterTimer.stop();
 			if (timeoutTimer) timeoutTimer.stop();
+			so.close();
 		}
 		
 		public function get documentName():String {

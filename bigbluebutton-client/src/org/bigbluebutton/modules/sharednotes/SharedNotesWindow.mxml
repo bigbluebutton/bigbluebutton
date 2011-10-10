@@ -45,16 +45,16 @@
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.sharednotes.infrastructure.Client;
 			import org.bigbluebutton.modules.sharednotes.infrastructure.ServerConnection;
+			import org.bigbluebutton.modules.sharednotes.infrastructure.SharedNotesDispatcher;
 			
 			private var client:Client;
-			private var so:SharedObject = null;
 			
 			private var _room:String;
 			private var _uri:String;
 			private var _host:String;
 			private var _connection:NetConnection;
-			private var _updateDelay:int;
-			private var _refreshTimeout:int;
+			private var _refreshDelay:int;
+			private var _responseTimeout:int;
 			private var _enablePlayback:Boolean;
 
 			public static const SHARED_NOTES_CLOSED:String = "SHARED_NOTES_CLOSED";
@@ -62,7 +62,7 @@
 			private var sendUpdateTimer:Timer;
 			
 			public function init():void {
-				sendUpdateTimer = new Timer(_updateDelay, 1);
+				sendUpdateTimer = new Timer(_refreshDelay, 1);
 				lblPlaybackVersion.visible = btnPlayback.visible = playbackSlider.visible = _enablePlayback;
 			
 				textArea.addEventListener(Event.CHANGE, onTextChange);
@@ -73,10 +73,7 @@
 					} 
 				});
 				sendUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:Event):void {
-					dispatchEvent(new Event(ServerConnection.SEND_PATCH_EVENT));
-				});
-				addEventListener(ServerConnection.UPDATE_REMOTE_EVENT, function(e:Event):void {
-					so.send("refresh", client.id);
+					dispatchEvent(new Event(SharedNotesDispatcher.SEND_PATCH_EVENT));
 				});
 				addEventListener(ServerConnection.SYNCED_EVENT, onSynced);
 				addEventListener(ServerConnection.SYNCING_EVENT, onSyncing);
@@ -84,17 +81,9 @@
 				addEventListener(MDIWindowEvent.RESIZE, onResize);
 				addEventListener(MDIWindowEvent.CLOSE, function(e:Event):void { if (client) client.shutdown(); });
 				
-				client = new Client(textArea, _host, _room, _refreshTimeout, this);
-				so = SharedObject.getRemote("sharedNotesSO", _uri + "/" + _room, false);
-				so.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
-				so.client = this;
-				so.connect(_connection);
+				client = new Client(this);
 
 				onResize();
-			}
-			
-			private function sharedObjectSyncHandler(event:SyncEvent):void {	
-				LogUtil.debug("sharedObjectSyncHandler");
 			}
 			
 			private function addBlur():void {
@@ -152,10 +141,6 @@
 				icoSynced.visible = false;
 			}
 			
-			public function refresh(... args):void {
-				dispatchEvent(new Event(ServerConnection.UPDATE_EVENT));
-			}
-			
 			private function onTextChange(e:Event):void {
 				onSyncing(e);
 			}
@@ -206,24 +191,44 @@
 				_room = room;
 			}
 			
+			public function get room():String {
+				return _room;
+			}
+			
 			public function set uri(uri:String):void {
 				_uri = uri;
 			} 
 			
+			public function get uri():String {
+				return _uri;
+			}
+			
 			public function set host(host:String):void {
 				_host = host;
+			}
+			
+			public function get host():String {
+				return _host;
 			}
 			
 			public function set connection(connection:NetConnection):void {
 				_connection = connection;
 			}
 			
-			public function set updateDelay(updateDelay:int):void {
-				_updateDelay = updateDelay;
+			public function get connection():NetConnection {
+				return _connection;
+			}
+			
+			public function set refreshDelay(refreshDelay:int):void {
+				_refreshDelay = refreshDelay;
 			}
 
-			public function set refreshTimeout(refreshTimeout:int):void {
-				_refreshTimeout = refreshTimeout;
+			public function set responseTimeout(responseTimeout:int):void {
+				_responseTimeout = responseTimeout;
+			}
+			
+			public function get responseTimeout():int {
+				return _responseTimeout;
 			}
 
 			public function set enablePlayback(enablePlayback:String):void {
@@ -232,7 +237,6 @@
 
 			override public function close(event:MouseEvent=null):void {
 				new Dispatcher().dispatchEvent(new Event(SHARED_NOTES_CLOSED, true));
-				so.close();
 				super.close(event);
 			}
 		]]>

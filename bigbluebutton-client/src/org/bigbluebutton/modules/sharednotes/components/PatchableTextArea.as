@@ -20,8 +20,14 @@
 */
 package org.bigbluebutton.modules.sharednotes.components
 {
+	import com.asfusion.mate.events.Dispatcher;
+
 	import mx.controls.TextArea;
 	
+	import flash.events.Event;
+	
+	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.modules.sharednotes.infrastructure.SharedNotesDispatcher;
 	import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 	
 	public class PatchableTextArea extends TextArea
@@ -57,9 +63,9 @@ package org.bigbluebutton.modules.sharednotes.components
 		} 
 		
 		override protected function commitProperties():void
-		{
+		{			
 			super.commitProperties();
-			
+
 			if (_patchChanged) {
 					patchClientText();
 					patch = "";
@@ -74,7 +80,13 @@ package org.bigbluebutton.modules.sharednotes.components
 		}
 		
 		public function get textFieldText():String {
-			return this.textField.text;
+			if (_patchChanged) {
+				LogUtil.debug("Patching before commit properties");
+				patchClientText();
+				_patchChanged = false;
+				patch = "";
+			}
+			return textField.text;
 		}
 		
 		private function patchClientText():void {
@@ -83,7 +95,7 @@ package org.bigbluebutton.modules.sharednotes.components
 			textField.text = results[1];
 
 			var cursorSelection:Array = results[0];
-			textField.setSelection(cursorSelection[0], cursorSelection[1]);
+			textField.setSelection(cursorSelection[0], cursorSelection[1]);			
 		}
 	}
 }

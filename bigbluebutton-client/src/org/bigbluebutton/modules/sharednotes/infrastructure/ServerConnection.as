@@ -34,12 +34,6 @@ package org.bigbluebutton.modules.sharednotes.infrastructure
 		public static const SYNCING_EVENT : String = "SN_SYNCING_EVENT";
 		public static const SYNCED_EVENT : String = "SN_SYNCED_EVENT";
 
-		public static const INIT_EVENT : String = "SN_INIT_EVENT";
-		public static const UPDATE_REMOTE_EVENT : String = "SN_UPDATE_REMOTE_EVENT";
-		public static const UPDATE_EVENT : String = "SN_UPDATE_EVENT";
-		public static const SEND_PATCH_EVENT : String = "SN_SEND_PATCH_EVENT";
-		public static const HANDLE_PATCH_EVENT : String = "SN_HANDLE_PATCH_EVENT";
-		
 		private var client:Client;
 		protected var dispatcher:IEventDispatcher;
 		
