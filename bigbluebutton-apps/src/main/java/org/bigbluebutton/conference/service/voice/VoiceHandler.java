@@ -88,7 +88,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 		String meetingid = getBbbSession().getConference(); 
 		Boolean record = getBbbSession().getRecord();
 		
-		log.debug("Setting up voiceBridge $voiceBridge");
+		log.debug("Setting up voiceBridge {}", voiceBridge);
 		clientManager.addSharedObject(connection.getScope().getName(), voiceBridge, so);
 		conferenceService.createConference(voiceBridge, meetingid, record); 		
 		return true;
@@ -126,12 +126,16 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	@Override
 	public void roomStop(IScope scope) {
 		log.debug("${APP}:roomStop ${scope.name}");
-		conferenceService.destroyConference(scope.getName());
+		/**
+		 * Remove the voicebridge from the list of running
+		 * voice conference.
+		 */
+		String voiceBridge = getBbbSession().getVoiceBridge();
+		conferenceService.destroyConference(voiceBridge);
 		clientManager.removeSharedObject(scope.getName());
 		if (!hasSharedObject(scope, VOICE_SO)) {
     		clearSharedObjects(scope, VOICE_SO);
     	}
-		log.debug("I think for stop record, it will be here...");
 	}
 	
 	public void setClientNotifier(ClientNotifier c) {
