@@ -25,7 +25,7 @@
 	xmlns:pubVid="org.bigbluebutton.modules.videoconf.business.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="init()"
-	width="{camWidth + 6}" height="{camHeight + 80}" 
+	width="{defaultWidth + 6}" height="{defaultHeight + 75}" 
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()"
 	horizontalScrollPolicy="off"
@@ -55,9 +55,13 @@
 			[Bindable] public var camIcon:Class = images.control_play;
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
 
-			[Bindable] private var camWidth:Number = 320;
-			[Bindable] private var camHeight:Number = 240;
+			[Bindable] private var defaultWidth:Number = 320;
+			[Bindable] private var defaultHeight:Number = 240;
+			
+			private var camWidth:Number = 320;
+			private var camHeight:Number = 240;
 			private var _userrole:String;
+			private var _camera:Camera = null;
 			public var quality:Number = 0;
 						
 			// Timer to auto-publish webcam. We need this timer to delay
@@ -97,7 +101,10 @@
 					autoPublishTimer = new Timer(3000);
 					autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
 					autoPublishTimer.start();
-				}				
+				}
+				
+				// start a preview
+				updateCamera();
 			}
 
 			private function autopublishTimerHandler(event:TimerEvent):void {				
@@ -112,29 +119,51 @@
 					if (Camera.names[i] == webcam) cmbCameraSelector.selectedIndex = i;
 				}
 			}
+			
+			private function updateCamera():void {
+				stopCamera();
+			
+				_camera = Camera.getCamera(cmbCameraSelector.selectedIndex.toString());
+				if (_camera == null) return;
+				
+				setComboResolution();
+				
+				_camera.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
+				_camera.setMode(camWidth, camHeight, videoOptions.camModeFps);
+				_camera.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
+				
+				if (_camera.width != camWidth || _camera.height != camHeight) {
+					LogUtil.debug("Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
+					setResolution(_camera.width, _camera.height);
+				}				
+				
+				_video = new Video;
+				_video.attachCamera(_camera);
+
+				if (aspectRatio > _videoHolder.width / _videoHolder.height) {
+					_video.width = _videoHolder.width;
+					_video.height = _videoHolder.width / aspectRatio;
+					_video.x = 0;
+					_video.y = (_videoHolder.height - _video.height) / 2;
+				} else {
+					_video.width = _videoHolder.height * aspectRatio;
+					_video.height = _videoHolder.height;
+					_video.x = (_videoHolder.width - _video.width) / 2;
+					_video.y = 0;
+				}				
+
+				_videoHolder.addChild(_video);
+			}
 						
 			private function startPublishing():void{
-				var camera:Camera = Camera.getCamera(cmbCameraSelector.selectedIndex.toString());
-				if (camera == null) return;
-				
-				setResolution();
-				
-				camera.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
-				camera.setMode(camWidth, camHeight, videoOptions.camModeFps);
-				camera.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
-				
-				_video = new Video(camWidth, camHeight);
-				//Next two lines may seem redundant but they're not. Do not delete.
-				_video.width = camWidth;
-				_video.height = camHeight;
-				onResize();
-				_video.attachCamera(camera);
-				_videoHolder.addChild(_video);
-//				addChild(videoHolder);
-				
+				if (_camera == null) return;
+
+				defaultWidth = originalWidth;
+				defaultHeight = originalHeight;
+
 				var e:StartBroadcastEvent = new StartBroadcastEvent();
 				e.stream = this.streamName;
-				e.camera = camera;
+				e.camera = _camera;
 				dispatchEvent(e);
 				
 				showVideoControls(false);
@@ -142,6 +171,7 @@
 
 				maximizeRestoreBtn.visible = true;
 				this.resizable = true;
+				onResize();
 				
 				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
@@ -165,27 +195,37 @@
 				super.close(event);
 			}
 			
-			private function stopPublishing():void{
+			private function stopCamera():void {
 				if (_video != null) {
+					_videoHolder.removeChild(_video);
 					_video.attachCamera(null);
 					_video.clear();
 					_video = null;
+					_camera = null;
 				}
+			}
+			
+			private function stopPublishing():void{
+				stopCamera();
 				var e:StopBroadcastEvent = new StopBroadcastEvent()
 				e.stream = streamName;
 				dispatchEvent(e);
 			}
 			
-			private function setResolution():void{
+			private function setComboResolution():void {
 				var res:Array = cmbResolution.selectedLabel.split( "x" );
-				camWidth = originalWidth = Number(res[0]);
-				camHeight = originalHeight = Number(res[1]);
+				setResolution(Number(res[0]), Number(res[1]));
+			}
+			
+			private function setResolution(width:int, height:int):void {
+				camWidth = originalWidth = width;
+				camHeight = originalHeight = height;
 				setAspectRatio(camWidth, camHeight);
 				
  				/**
-         		* Add timestamp to create a unique stream name. This way we can record	 	
-         		* stream without overwriting previously recorded streams.	 	
-         		*/	 	
+         		 * Add timestamp to create a unique stream name. This way we can record	 	
+         		 * stream without overwriting previously recorded streams.	 	
+         		 */	 	
 				var curTime:Number = new Date().getTime();	 	
         		this.streamName = cmbResolution.selectedLabel.concat(this.userId) + "-" + curTime;
 			}
@@ -225,6 +265,7 @@
 			}
 			
 			private function closeThisWindow():void {
+				stopCamera();
 				this.close();
 			}
 			
@@ -246,11 +287,10 @@
 		]]>
 	</mx:Script>
 
-	<mx:UIComponent id="videoHolder" width="{camWidth}" height="{camHeight}" />	
 	<mx:ControlBar id="videoOptionsBar" visible="true">
 		<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" />
-		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" />
-		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" />
+		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" change="updateCamera()"/>
+		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" change="updateCamera()"/>
 	</mx:ControlBar>
 	
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
