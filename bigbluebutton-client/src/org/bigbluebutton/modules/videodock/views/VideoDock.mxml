@@ -51,6 +51,7 @@ $Id: $
 				
 			private var childrenDimension:Dictionary = new Dictionary();
 			private var borderColor:String;
+			private var minChildAspectRatio:Number;
 			
 			private function init():void{
 				this.showCloseButton = false;
@@ -70,7 +71,27 @@ $Id: $
 				if (maximizeWindow) this.maximize();
 			}
 			
+			/**
+			 *	The windows docked are organized in a MxN grid equally divided.
+			 *	Then, the aspect ratio of the cells is the equal of the window
+			 *	with lower aspect ratio. For example, if there are two windows, 
+			 *	one 4x3 and one 16x9, the aspect ratio of the grid cells will be
+			 *	4x3, to better fit all the windows. The aspect ratio of the grid
+			 *	cells is updated every time a window is added or removed. 
+			 */
+			private function updateMinAspectRatio(children:Array):void {
+				minChildAspectRatio = 0;
+				for each(var window:VideoWindowItf in children) {
+				    const windowAspectRatio:Number = (window.width - VideoWindowItf.PADDING_HORIZONTAL) / (window.height - VideoWindowItf.PADDING_VERTICAL);
+				    if (minChildAspectRatio == 0 || windowAspectRatio < minChildAspectRatio)
+				        minChildAspectRatio = windowAspectRatio;				        
+				}
+				LogUtil.debug("Using aspect ratio grid = " + minChildAspectRatio);
+			}
+			
 			private function onChildAdd(e:ChildExistenceChangedEvent = null):void {
+				if (e != null)
+					updateMinAspectRatio(this.getChildren());
 				updateChildrenDimensions(this.getChildren());
 			}
 			
@@ -80,6 +101,8 @@ $Id: $
 				var index:int = children.indexOf(e.relatedObject);
 				if (index != -1)
 					children.splice(index, 1);
+				if (e != null)
+					updateMinAspectRatio(children);
 				updateChildrenDimensions(children);
 			}
 			
@@ -125,6 +148,7 @@ $Id: $
 			
 			private function repositionWindow(window:MDIWindow):void {
 				// \TODO reposition the window correctly between the windows
+				// one idea is to use a "shadow" window
 				// setChildIndex(window, ?);
 			}
 			
@@ -148,7 +172,7 @@ $Id: $
 					return;
 				
 				/**
-				 * Check if the window is visible. Right now, a publisher window can ba made invisible by setting
+				 * Check if the window is visible. Right now, a publisher window can be made invisible by setting
 				 * a param in config.xml. If the window is invisible, don't add it. We'll have to do this properly
 				 * when we refactor to remove the window UIs. We should just be adding Videos here instead of windows.
 				 * But for now, this is good enough.
@@ -215,15 +239,13 @@ $Id: $
 					if (maxWidth <= 0 || maxHeight <=0)
 						continue;
 					
-					var desiredAR:Number = 4/3;
-					
 					var width:Number = maxWidth;
 					var height:Number = maxHeight;
 					
-					if (maxWidth / maxHeight > desiredAR)
-						width = Math.floor(maxHeight * desiredAR);
+					if (maxWidth / maxHeight > minChildAspectRatio)
+						width = Math.floor(maxHeight * minChildAspectRatio);
 					else
-						height = Math.floor(maxWidth / desiredAR);
+						height = Math.floor(maxWidth / minChildAspectRatio);
 					
 					if (width > childWidth) {
 						childWidth = width;
@@ -238,8 +260,8 @@ $Id: $
 								
 				for (var childIndex:int = 0; childIndex < numChildren; ++childIndex) {
 					var window:VideoWindowItf = children[childIndex];
-					var wWidth:int = childWidth;
-					var wHeight:int = childHeight;
+					const wWidth:int = childWidth;
+					const wHeight:int = childHeight;
 					
 					window.width = wWidth;
 					window.updateHeight();
@@ -249,14 +271,18 @@ $Id: $
 						window.updateWidth();
 					}
 					
+					// the extra padding is used to center the windows with higher aspect ratio
+					const horizontalExtraPadding:int = (wWidth - window.width) / 2;
+					const verticalExtraPadding:int = (wHeight - window.height) / 2;
+					
 					var row:int = childIndex / nColumns;
 					var column:int = childIndex % nColumns;
 					
 					var borderTop:int = (availableHeight - nRows * wHeight - (nRows - 1) * verticalGap) / 2;
 					var borderLeft:int = (availableWidth - nColumns * wWidth - (nColumns - 1) * horizontalGap) / 2;
 					
-					window.y = row * (wHeight + verticalGap) + borderTop;
-					window.x = column * (wWidth + horizontalGap) + borderLeft;
+					window.y = row * (wHeight + verticalGap) + borderTop + verticalExtraPadding;;
+					window.x = column * (wWidth + horizontalGap) + borderLeft + horizontalExtraPadding;
 				} 
 			}
 			
