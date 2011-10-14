@@ -64,7 +64,7 @@ public class RoomManager {
 	}
 	
 	public void destroyRoom(String name) {
-		log.debug("Destorying room: + name");
+		log.debug("Destroying room: " + name);
 		RoomImp r = rooms.remove(name);
 		if (r != null) r = null;
 	}

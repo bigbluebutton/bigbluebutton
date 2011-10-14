@@ -61,7 +61,7 @@
 					this.enabled = false;
 					if (phoneOptions.skipCheck) {
 						var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-						joinEvent.payload['useMicrophone'] = false;
+						joinEvent.payload['useMicrophone'] = true;
 						dispatcher.dispatchEvent(joinEvent);
 					} else {
 						dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
