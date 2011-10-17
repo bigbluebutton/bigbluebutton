@@ -42,6 +42,7 @@
 			autoJoin="false"
 			skipCheck="false"
 			showButton="true"
+			enabledEchoCancel="true"
 			dependsOn="ViewersModule"
 		/>
 

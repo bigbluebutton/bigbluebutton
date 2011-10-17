@@ -18,22 +18,22 @@
 */
 
 package org.bigbluebutton.modules.phone.managers {
-	import com.asfusion.mate.events.Dispatcher;	
-	import flash.events.ActivityEvent;
-	import flash.events.AsyncErrorEvent;
-	import flash.events.IEventDispatcher;
-	import flash.events.NetStatusEvent;
-	import flash.events.StatusEvent;
-	import flash.media.Microphone;
-	import flash.media.MicrophoneEnhancedMode;
-	import flash.media.MicrophoneEnhancedOptions;
-	import flash.media.SoundCodec;
-	import flash.net.NetConnection;
-	import flash.net.NetStream;	
+        import com.asfusion.mate.events.Dispatcher;
+        import flash.events.ActivityEvent;
+        import flash.events.AsyncErrorEvent;
+        import flash.events.IEventDispatcher;
+        import flash.events.NetStatusEvent;
+        import flash.events.StatusEvent;
+        import flash.media.Microphone;
+        import flash.media.MicrophoneEnhancedMode;
+        import flash.media.MicrophoneEnhancedOptions;
+        import flash.media.SoundCodec;
+        import flash.net.NetConnection;
+        import flash.net.NetStream;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.main.events.BBBEvent;
-	import org.bigbluebutton.modules.phone.events.MicMutedEvent;
+	import org.bigbluebutton.modules.phone.PhoneOptions;
 	import org.bigbluebutton.modules.phone.events.MicrophoneUnavailEvent;
 	import org.bigbluebutton.modules.phone.events.PlayStreamStatusEvent;
 	
@@ -67,7 +67,13 @@ package org.bigbluebutton.modules.phone.managers {
 		}	
 		
 		private function setupMicrophone():void {
-			if (BBB.getFlashPlayerVersion() >= 10.3){
+			var vxml:XML = BBB.getConfigForModule("PhoneModule");
+			var phoneOptions:PhoneOptions = new PhoneOptions();
+			if (vxml != null) {
+				phoneOptions.enabledEchoCancel = (vxml.@enabledEchoCancel.toString().toUpperCase() == "TRUE") ? true : false;
+			}
+			
+			if ((BBB.getFlashPlayerVersion() >= 10.3) && (phoneOptions.enabledEchoCancel)) {
 				LogUtil.debug("Using acoustic echo cancellation.");
 				mic = Microphone(Microphone["getEnhancedMicrophone"]());
 				var options:MicrophoneEnhancedOptions = new MicrophoneEnhancedOptions();

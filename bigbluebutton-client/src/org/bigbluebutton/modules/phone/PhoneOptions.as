@@ -9,5 +9,8 @@ package org.bigbluebutton.modules.phone
 		
 		[Bindable]
 		public var skipCheck:Boolean = false;
+		
+		[Bindable]
+		public var enabledEchoCancel:Boolean = false;
 	}
 }
