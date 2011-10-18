@@ -57,7 +57,7 @@ $Id: $
 			
 			private var prioritizeWindow:Boolean = false;
 			private var priorityWindow:VideoWindowItf = null;
-			// the prioritize video will fit a portion of the dock that is represented by this weight
+			// the priority video will fit a portion of the dock that is represented by this weight
 			// bigger the weight, bigger will be the window and less space the other windows will have
 			private var priorityWindowWeight:Number = 2/3;
 			
@@ -197,7 +197,7 @@ $Id: $
 				window.resizable = false;
 				window.buttonsEnabled = false;
 
-				window.addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+				window.addEventListener(MouseEvent.CLICK, onWindowClick);
 
 				var e:CloseWindowEvent = new CloseWindowEvent();
 				e.window = window;
@@ -214,7 +214,7 @@ $Id: $
 				window.resizable = true;
 				window.buttonsEnabled = true;
 				
-				window.removeEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+				window.removeEventListener(MouseEvent.CLICK, onWindowClick);
 	
 				this.removeChild(window);
 				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
@@ -306,10 +306,10 @@ $Id: $
 				
 				childWidth += VideoWindowItf.PADDING_HORIZONTAL;
 				childHeight += VideoWindowItf.PADDING_VERTICAL;
-								
+
 				borderTop += (availableHeight - nRows * childHeight - (nRows - 1) * verticalGap) / 2;
 				borderLeft += (availableWidth - nColumns * childWidth - (nColumns - 1) * horizontalGap) / 2;
-					
+									
 				for (var childIndex:int = (prioritizeWindow? 1: 0); childIndex < children.length; ++childIndex) {
 					var window:VideoWindowItf = children[childIndex];
 					const wWidth:int = childWidth;
@@ -335,7 +335,7 @@ $Id: $
 				} 
 			}
 			
-			protected function onDoubleClick(event:MouseEvent = null):void {
+			protected function onWindowClick(event:MouseEvent = null):void {
 				if (mutableChildrenArray.length <= 1)
 					return;
 					
@@ -343,7 +343,7 @@ $Id: $
 					priorityWindow = null;
 					prioritizeWindow = false;
 				} else {
-					var index:int = mutableChildrenArray.indexOf(event.currentTarget);				
+					var index:int = mutableChildrenArray.indexOf(event.currentTarget);
 					if (index != -1) {
 						mutableChildrenArray[index] = mutableChildrenArray[0];
 						mutableChildrenArray[0] = event.currentTarget;
