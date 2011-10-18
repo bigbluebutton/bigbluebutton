@@ -307,8 +307,24 @@ $Id: $
 				childWidth += VideoWindowItf.PADDING_HORIZONTAL;
 				childHeight += VideoWindowItf.PADDING_VERTICAL;
 
-				borderTop += (availableHeight - nRows * childHeight - (nRows - 1) * verticalGap) / 2;
-				borderLeft += (availableWidth - nColumns * childWidth - (nColumns - 1) * horizontalGap) / 2;
+				const horizontalBorder:int = availableWidth - nColumns * childWidth - (nColumns - 1) * horizontalGap;
+				const verticalBorder:int = availableHeight - nRows * childHeight - (nRows - 1) * verticalGap;
+				// this couple of lines will center the priority window on the available space for it
+				if (prioritizeWindow) {
+					if (priorityWindow.x == 0) {
+						priorityWindow.x = horizontalBorder / 3;
+						borderTop += verticalBorder / 2;
+						borderLeft += horizontalBorder * (2 / 3);
+					} else {
+						priorityWindow.y = verticalBorder / 3;  
+						borderTop += verticalBorder * (2 / 3);
+						borderLeft += horizontalBorder / 2;
+					}
+				} else {
+					// if there's no priority window, the border will be only around the little windows
+					borderTop += verticalBorder / 2;
+					borderLeft += horizontalBorder / 2;
+				}
 									
 				for (var childIndex:int = (prioritizeWindow? 1: 0); childIndex < children.length; ++childIndex) {
 					var window:VideoWindowItf = children[childIndex];
