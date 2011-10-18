@@ -106,13 +106,13 @@ $Id: $
 			}
 			
 			private function onChildRemove(e:ChildExistenceChangedEvent = null):void {
-				if (e.relatedObject == priorityWindow)
-					prioritizeWindow = false;
-					
 				var index:int = mutableChildrenArray.indexOf(e.relatedObject);
 				if (index != -1)
 					mutableChildrenArray.splice(index, 1);
 				
+				if (e.relatedObject == priorityWindow || mutableChildrenArray.length <= 1)
+					prioritizeWindow = false;
+					
 				updateMinAspectRatio(mutableChildrenArray);
 				updateChildrenDimensions(mutableChildrenArray);
 			}
@@ -336,6 +336,9 @@ $Id: $
 			}
 			
 			protected function onDoubleClick(event:MouseEvent = null):void {
+				if (mutableChildrenArray.length <= 1)
+					return;
+					
 				if (event.currentTarget == priorityWindow) {
 					priorityWindow = null;
 					prioritizeWindow = false;
