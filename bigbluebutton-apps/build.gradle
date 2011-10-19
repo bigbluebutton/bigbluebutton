@@ -1,10 +1,8 @@
-usePlugin 'scala'
-usePlugin 'groovy'
 usePlugin 'java'
 usePlugin 'war'
 usePlugin 'eclipse'
 
-version = '0.7'
+version = '0.8'
 jar.enabled = true
 
 def appName = 'bigbluebutton'
@@ -26,18 +24,18 @@ repositories {
        		addArtifactPattern "http://red5.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
        		addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
 		}
-       	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
        		name = "blindside-repos"
        		addArtifactPattern "http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
        		addArtifactPattern "http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
 		}			 
-       	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
        		name = "maven2-central"
        		m2compatible = true
        		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
        		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
 		}  
-       	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
        		name = "testng_ibiblio_maven2"
        		m2compatible = true
        		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])-jdk15.[ext]"
@@ -48,60 +46,47 @@ repositories {
             m2compatible = true
             addArtifactPattern "http://repository.jboss.org/nexus/content/groups/public-jboss/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
             addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
-        }
+    }
 		add(new org.apache.ivy.plugins.resolver.URLResolver()) {
             name = "spring-bundles"
             m2compatible = true
-            addArtifactPattern "http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
-            addArtifactPattern "http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+            addArtifactPattern "http://repository.springsource.com/maven/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+            addArtifactPattern "http://repository.springsource.com/maven/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
         }        
    	}
-   	mavenRepo urls: 'http://scala-tools.org/repo-releases/'
-   	//flatDir name: 'fileRepo', dirs: System.getenv()['FLAT_REPO']
 }
 
-dependencies {	 
-    
-	// JMS
-	compile 'org.apache.activemq:activemq-core:5.1.0@jar'
-	compile 'org/apache/geronimo:geronimo-j2ee-management_1.0_spec:1.0@jar'
-	compile 'org/apache/geronimo:geronimo-jms_1.1_spec:1.0@jar'
-	
+dependencies {	 	
 	// Servlet
 	providedCompile 'javax.servlet:servlet-api:2.5@jar'
 	
 	// Mina
-	providedCompile 'org.apache.mina:mina-core:2.0.0-RC1@jar'
-	providedCompile 'org.apache.mina:mina-integration-spring:1.1.7@jar'
+	providedCompile 'mina:mina-core:2.0.4@jar'
+	providedCompile 'mina:mina-integration-beans:2.0.4@jar'
+	providedCompile 'mina:mina-integration-jmx:2.0.4@jar'
 	
 	// Asterisk-Java
 	compile 'org.asteriskjava:asterisk-java:1.0.0.M3@jar'
-
+	 
 	// Spring 
-    providedCompile 'org.springframework:spring-web:3.0.5.RELEASE@jar', 'aopalliance:aopalliance:1.0:@jar'    
-    providedCompile  'org.springframework:spring-beans:3.0.5.RELEASE@jar'
-    providedCompile 'org.springframework:spring-context:3.0.5.RELEASE@jar', 'org.springframework:spring-core:3.0.5.RELEASE@jar'
-    compile 'org.springframework:spring-tx:3.0.5.RELEASE@jar', 'org.springframework:spring-jms:3.0.5.RELEASE@jar'
-	
-	compile 'org.springframework:spring-aop:3.0.5.RELEASE@jar'
+  providedCompile 'org.springframework:spring-web:3.0.5.RELEASE@jar'    
+  providedCompile 'org.springframework:spring-beans:3.0.5.RELEASE@jar'
+  providedCompile 'org.springframework:spring-context:3.0.5.RELEASE@jar'
+  providedCompile 'org.springframework:spring-core:3.0.5.RELEASE@jar'
 
-	// Spring Integration
-	compile 'org.springframework.integration:spring-integration-core:2.0.3.RELEASE@jar'
-	compile 'org/spring/integration:spring-integration-adapter:2.0.0.M2@jar'
-	compile 'org.springframework.integration:spring-integration-stream:2.0.3.RELEASE@jar'
-	compile 'org.springframework.integration:spring-integration-file:2.0.3.RELEASE@jar'
-	compile 'org.springframework.integration:spring-integration-jms:2.0.3.RELEASE@jar'
-	
-	// GROOVY - needed for spring integration to work
-	groovy 'org.codehaus.groovy:groovy-all:1.6.4@jar'
-		
+  		
 	// Red5
 	providedCompile 'org/red5:red5:1.0rc1@jar'
 	
 	// Logging
-    providedCompile ':logback-core:0.9.18@jar', ':logback-classic:0.9.18@jar', ':slf4j-api:1.5.10@jar'
-    providedCompile ':jcl-over-slf4j:1.5.10@jar', ':log4j-over-slf4j:1.5.10@jar' 
-     
+	providedCompile 'org.slf4j:com.springsource.slf4j.api:1.6.1@jar'
+  providedCompile 'org.slf4j:com.springsource.slf4j.bridge:1.6.1@jar'
+  providedCompile ':logback-core:0.9.28@jar'
+  providedCompile ':logback-classic:0.9.28@jar'
+  providedCompile ':log4j-over-slf4j:1.6.1@jar' 
+  providedCompile ':jcl-over-slf4j:1.6.1@jar'
+  providedCompile ':jul-to-slf4j:1.6.1@jar'
+    
     // Java Concurrency In Practice
     providedCompile 'net.jcip:jcip-annotations:1.0@jar'
         
@@ -111,15 +96,14 @@ dependencies {
   
 	//redis
 	compile 'redis.clients:jedis:2.0.0'
-	compile 'commons-pool:commons-pool:1.5.5'
+	providedCompile 'commons:commons-pool:1.5.6'
     
-    //compile 'org/bigbluebutton/common:bbb-common-message:0.8@jar' 
-            
-    // Freeswitch ESL Client
-    compile 'org/freeswitch:fs-esl-client:0.8.1@jar'
-    compile 'org.jboss.netty:netty:3.2.1.Final@jar'
-    compile 'com.google.code.gson:gson:1.7.1'
-    compile 'commons-lang:commons-lang:2.5'
+  
+   // Freeswitch ESL Client
+   compile 'org/freeswitch:fs-esl-client:0.8.1@jar'
+   compile 'org.jboss.netty:netty:3.2.1.Final@jar'
+   compile 'com.google.code.gson:gson:1.7.1'
+   providedCompile 'commons:commons-lang3:3.0-beta'
 }
 
 test {
