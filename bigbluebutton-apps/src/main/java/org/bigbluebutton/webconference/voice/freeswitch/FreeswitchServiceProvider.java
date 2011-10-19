@@ -25,6 +25,7 @@ import org.freeswitch.esl.client.inbound.Client;
 import org.freeswitch.esl.client.inbound.InboundConnectionFailure;
 import org.freeswitch.esl.client.manager.ManagerConnection;
 import org.bigbluebutton.webconference.voice.ConferenceServiceProvider;
+import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
@@ -33,6 +34,7 @@ public class FreeswitchServiceProvider implements ConferenceServiceProvider {
 	
 	private ConferenceServiceProvider appDelegate;
 	private ManagerConnection connection;
+	private ConferenceEventListener conferenceEventListener;
 	
 	@Override
     public void record(String room, String meetingid){
@@ -57,11 +59,11 @@ public class FreeswitchServiceProvider implements ConferenceServiceProvider {
 	@Override
 	public void shutdown() {
 		if ((connection != null) ) {
-                    Client c = connection.getESLClient();
-                    if((c != null ) && c.canSend()) {
-			log.info("Logging off fom [" + connection.toString() + "]");
-			connection.disconnect();
-                    }
+			Client c = connection.getESLClient();
+			if((c != null ) && c.canSend()) {
+				log.info("Logging off fom [" + connection.toString() + "]");
+				connection.disconnect();
+            }
 		}
 		appDelegate.shutdown();
 	}
@@ -77,7 +79,7 @@ public class FreeswitchServiceProvider implements ConferenceServiceProvider {
 		if (connect()) {
 //			ping = new KeepAlivePing(connection);
 //			ping.start();
-                    appDelegate.startup();
+            appDelegate.startup();
 		}
 	}
 	
@@ -97,7 +99,14 @@ public class FreeswitchServiceProvider implements ConferenceServiceProvider {
 		connection = c;
 	}
 
-        public void setFreeswitchApplication(FreeswitchApplication f) {
-                appDelegate = f;
-        }
+	public void setFreeswitchApplication(FreeswitchApplication f) {
+		appDelegate = f;
+		
+    }
+
+	@Override
+	public void setConferenceEventListener(ConferenceEventListener l) {
+		conferenceEventListener = l;		
+		appDelegate.setConferenceEventListener(conferenceEventListener);
+	}
 }

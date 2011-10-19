@@ -21,10 +21,7 @@
 */
 package org.bigbluebutton.webconference.voice.events;
 
-import org.springframework.integration.annotation.Gateway;
-
 public interface ConferenceEventListener {
 
-	@Gateway(requestChannel="conferenceEventChannel")
 	public void handleConferenceEvent(ConferenceEvent event);
 }

@@ -22,8 +22,6 @@
 package org.bigbluebutton.webconference.voice.freeswitch;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -78,7 +76,6 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     
     @Override
     public void startup() {
-
         Client c = manager.getESLClient();
         c.addEventListener( this );
         c.cancelEventSubscriptions();
@@ -163,8 +160,7 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
         boolean muted = headers.get("Speak").equals("true") ? false : true; //Was inverted which was causing a State issue
         boolean speeking = headers.get("Talking").equals("true") ? true : false;
 
-        ParticipantJoinedEvent pj = new ParticipantJoinedEvent(memberId, confName,
-                        callerId, callerIdName, muted, speeking);
+        ParticipantJoinedEvent pj = new ParticipantJoinedEvent(memberId, confName, callerId, callerIdName, muted, speeking);
         conferenceEventListener.handleConferenceEvent(pj);
     }
 
