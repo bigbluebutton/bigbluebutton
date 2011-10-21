@@ -70,6 +70,11 @@
 			// won't be able to view the webcam.
 			private var autoPublishTimer:Timer;
 			
+			// Timer used to enable the start publishing button, only after get
+			// any activity on the camera. It avoids the problem of publishing
+			// a blank video
+			private var _activationTimer:Timer = null;
+			
 			[Bindable]
 			public var videoOptions:VideoConfOptions;
 			
@@ -123,9 +128,24 @@
 			private function updateCamera():void {
 				stopCamera();
 			
+				btnStartPublish.enabled = false;
 				_camera = Camera.getCamera(cmbCameraSelector.selectedIndex.toString());
-				if (_camera == null) return;
-				
+				if (_camera == null) {
+					LogUtil.debug("Can't open your camera, it probably is being used by another application");
+					return;
+				}
+
+				LogUtil.debug("Opened camera: " + _camera.name);
+			    _camera.addEventListener(ActivityEvent.ACTIVITY, activityHandler);
+
+				// set timer to ensure that the camera activates.  If not, it might be in use by another application
+				if (_activationTimer != null)
+					_activationTimer.stop();
+			    _activationTimer = new Timer(5000, 1);
+			    _activationTimer.addEventListener(TimerEvent.TIMER, activationTimeout);
+			    _activationTimer.start();
+			    LogUtil.debug("Starting activation timer");
+
 				setComboResolution();
 				
 				_camera.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
@@ -153,7 +173,19 @@
 				}				
 
 				_videoHolder.addChild(_video);
+   			}
+   			
+			private function activityHandler(e:ActivityEvent):void {
+			    if (e.activating) {
+			        _activationTimer.stop();
+			     	btnStartPublish.enabled = true;
+			     	LogUtil.debug("Enabling start publishing button");
+			    }
 			}
+			
+			private function activationTimeout(e:TimerEvent):void {
+				LogUtil.debug("There's no activity in your camera, so probably it is being used by another application");
+			}   			
 						
 			private function startPublishing():void{
 				if (_camera == null) return;
@@ -288,7 +320,7 @@
 	</mx:Script>
 
 	<mx:ControlBar id="videoOptionsBar" visible="true">
-		<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" />
+		<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" enabled="false"/>
 		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" change="updateCamera()"/>
 		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" change="updateCamera()"/>
 	</mx:ControlBar>
