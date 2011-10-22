@@ -33,14 +33,14 @@
 
 			public static const TOP_2_3:String = "top-two-thirds";
 			public static const BOTTOM_1_3:String = "bottom-one-third";
-			public static const TOP_LEFT:String = "TOP_LEFT_WINDOW";
-			public static const BOTTOM_LEFT:String = "BOTTOM_LEFT_WINDOW";
-			public static const MIDDLE:String = "MIDDLE_WINDOW";
-			public static const BOTTOM:String = "BOTTOM_WINDOW";
+			public static const TOP_LEFT:String = "top-left";
+			public static const BOTTOM_LEFT:String = "bottom-left";
+			public static const MIDDLE:String = "middle";
+			public static const BOTTOM:String = "bottom";
 			public static const TOP_RIGHT:String = "top-right";
-			public static const BOTTOM_RIGHT:String = "BOTTOM_RIGHT_WINDOW";
-			public static const POPUP:String = "POP_UP_WINDOW";
-			public static const ABSOLUTE:String = "UNTOUCHED_WINDOW";
+			public static const BOTTOM_RIGHT:String = "bottom-right";
+			public static const POPUP:String = "popup";
+			public static const ABSOLUTE:String = "absolute";
 			
 			public static const DESKTOP_SHARING_VIEW:String = "POP_UP_DESKSHARE_VIEW";
 			public static const DESKTOP_SHARING_PUBLISH:String = "POP_UP_DESKSHARE_PUBLISH";
