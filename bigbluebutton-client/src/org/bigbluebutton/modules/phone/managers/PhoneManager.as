@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.phone.managers {
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.common.UserManager;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.phone.PhoneOptions;
@@ -72,7 +73,7 @@ package org.bigbluebutton.modules.phone.managers {
 		public function joinVoice(autoJoin:Boolean):void {
 			setupMic(autoJoin);
 			var uid:String = String(Math.floor(new Date().getTime()));
-			connectionManager.connect(uid, attributes.externUserID, attributes.username, attributes.room, attributes.uri);
+			connectionManager.connect(uid, attributes.externUserID, UserManager.getInstance().getConference().me.userid + "-" + attributes.username, attributes.room, attributes.uri);
 		}		
 				
 		public function dialConference():void {
