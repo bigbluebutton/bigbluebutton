@@ -29,7 +29,7 @@ import org.bigbluebutton.deskshare.server.session.ScreenVideoFrame
 
 class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) extends BlockFactory {
    
-	private val blocksMap = new ConcurrentHashMap[Integer, Block]
+	private var blocksMap = new ConcurrentHashMap[Integer, Block]
 	
 	private var numberOfRows = getNumberOfRows(screenDim, blockDim)
 	private var numberOfColumns = getNumberOfColumns(screenDim, blockDim)

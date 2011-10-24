@@ -31,9 +31,8 @@ public final class ScreenVideoFlvEncoder {
 	private long startTimestamp = 0;
 	private boolean firstTag = true;
 	
-	private static byte FLV_TAG_HEADER_SIZE = 11;
-	
-	ByteArrayOutputStream flvDataStream = new ByteArrayOutputStream();
+	private static byte FLV_TAG_HEADER_SIZE = 11;	
+	private ByteArrayOutputStream flvDataStream = new ByteArrayOutputStream();
 	
 	public byte[] encodeHeader() {
 		byte[] prevTagSize =  encodePreviousTagSize(0);
@@ -54,7 +53,6 @@ public final class ScreenVideoFlvEncoder {
     }
     
     public byte[] encodeFlvData (byte[] screenVideoData) throws FlvEncodeException {
-
         byte[] flvData;
 		try {
 			flvData = encodeFlvTag(screenVideoData);
@@ -65,9 +63,7 @@ public final class ScreenVideoFlvEncoder {
 	}
 	
 	private byte[] encodeFlvTag(byte[] videoData) throws IOException {   
-
-		flvDataStream.reset();
-		
+		flvDataStream.reset();		
 		flvDataStream.write(videoTagType);
 		flvDataStream.write(encodeDataSize(videoData.length));
 	    flvDataStream.write(encodeTimestamp());
