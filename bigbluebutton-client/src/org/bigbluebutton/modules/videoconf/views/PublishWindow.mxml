@@ -70,6 +70,12 @@
 			// won't be able to view the webcam.
 			private var autoPublishTimer:Timer;
 			
+			// Timer used to enable the start publishing button, only after get
+			// any activity on the camera. It avoids the problem of publishing
+			// a blank video
+			private var _activationTimer:Timer = null;
+			private var _waitingForActivation:Boolean = false;
+			
 			[Bindable]
 			public var videoOptions:VideoConfOptions;
 			
@@ -103,7 +109,7 @@
 					autoPublishTimer.start();
 				}
 				
-				// start a preview
+				// start the camera preview
 				updateCamera();
 			}
 
@@ -123,9 +129,29 @@
 			private function updateCamera():void {
 				stopCamera();
 			
-				_camera = Camera.getCamera(cmbCameraSelector.selectedIndex.toString());
-				if (_camera == null) return;
+				btnStartPublish.enabled = false;
 				
+				if (Camera.names.length == 0) {
+					showWarning("No camera available");
+					return;
+				}
+				
+				_camera = Camera.getCamera(cmbCameraSelector.selectedIndex.toString());
+				if (_camera == null) {
+					showWarning("Can't open your camera");
+					return;
+				}
+
+			    _camera.addEventListener(ActivityEvent.ACTIVITY, activityHandler);
+
+				// set timer to ensure that the camera activates.  If not, it might be in use by another application
+				_waitingForActivation = true;
+				if (_activationTimer != null)
+					_activationTimer.stop();
+			    _activationTimer = new Timer(5000, 1);
+			    _activationTimer.addEventListener(TimerEvent.TIMER, activationTimeout);
+			    _activationTimer.start();
+
 				setComboResolution();
 				
 				_camera.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
@@ -153,11 +179,27 @@
 				}				
 
 				_videoHolder.addChild(_video);
+   			}
+   			
+			private function activityHandler(e:ActivityEvent):void {
+			    if (_waitingForActivation && e.activating) {
+			        _activationTimer.stop();
+					showWarning("Video preview", false, "0xFFFF00");
+			     	btnStartPublish.enabled = true;
+			     	_waitingForActivation = false;
+			    }
 			}
+
+			private function activationTimeout(e:TimerEvent):void {
+				showWarning("Your camera is being used by another application");
+				updateCamera();
+			}   			
 						
 			private function startPublishing():void{
 				if (_camera == null) return;
 
+				showWarning("Publishing...", true, "0xFFFF00");
+				
 				defaultWidth = originalWidth;
 				defaultHeight = originalHeight;
 
@@ -201,8 +243,8 @@
 					_video.attachCamera(null);
 					_video.clear();
 					_video = null;
-					_camera = null;
 				}
+				_camera = null;
 			}
 			
 			private function stopPublishing():void{
@@ -251,7 +293,6 @@
 					btnStartPublish.visible = false;
 					cmbCameraSelector.visible = false;
 					videoOptionsBar.visible = false;
-					
 				}
 			}
 			
@@ -283,12 +324,38 @@
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 			}		
-
+			
+			
+			private var hideWarningTimer:Timer = null;
+			
+			private function showWarning(text:String, autoHide:Boolean=false, color:String="0xFF0000"):void {
+				if (hideWarningTimer != null)
+					hideWarningTimer.stop();
+				if (autoHide) {
+					hideWarningTimer = new Timer(3000, 1);
+					hideWarningTimer.addEventListener(TimerEvent.TIMER, hideWarning);
+					hideWarningTimer.start();
+				}
+				
+				// bring the label to front
+				setChildIndex(lblWarning, getChildren().length - 1);
+				lblWarning.text = text;
+				lblWarning.setStyle("color", color);
+				lblWarning.visible = true;
+			}
+			
+			private function hideWarning(e:TimerEvent):void {
+				lblWarning.visible = false;
+			}
+			
 		]]>
 	</mx:Script>
 
+	<mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
+	<mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
+	<mx:Text id="lblWarning" width="100%" textAlign="right" fontSize="14" fontWeight="bold" y="{this.height - (videoOptionsBar.visible? videoOptionsBar.height: 0) - lblWarning.height - 30}" visible="false" selectable="false" hideEffect="{dissolveOut}" showEffect="{dissolveIn}"/>
 	<mx:ControlBar id="videoOptionsBar" visible="true">
-		<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" />
+		<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" enabled="false"/>
 		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" change="updateCamera()"/>
 		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" change="updateCamera()"/>
 	</mx:ControlBar>

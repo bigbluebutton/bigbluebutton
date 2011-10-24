@@ -43,6 +43,9 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var room:String = "";
 		[Bindable] public var authToken:String = "";
 		[Bindable] public var selected:Boolean = false;
+		[Bindable] public var voiceUserid:Number;
+		[Bindable] public var voiceMuted:Boolean = false;
+		[Bindable] public var voiceJoined:Boolean = false;
 		
 		private var _status:StatusCollection = new StatusCollection();
 				

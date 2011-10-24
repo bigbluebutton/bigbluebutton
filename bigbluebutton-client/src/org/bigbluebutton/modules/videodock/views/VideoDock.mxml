@@ -33,13 +33,13 @@ $Id: $
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.events.ChildExistenceChangedEvent;
-			
+			import mx.events.ChildExistenceChangedEvent;			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.UserManager;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.DragWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
@@ -52,12 +52,24 @@ $Id: $
 			private var childrenDimension:Dictionary = new Dictionary();
 			private var borderColor:String;
 			private var minChildAspectRatio:Number;
+			// the mutable array is used to change the order of the dock children
+			private var mutableChildrenArray:Array = new Array();
 			
-			private function init():void{
-				this.showCloseButton = false;
+			private var prioritizeWindow:Boolean = false;
+			private var priorityWindow:VideoWindowItf = null;
+			// the priority video will fit a portion of the dock that is represented by this weight
+			// bigger the weight, bigger will be the window and less space the other windows will have
+			private var priorityWindowWeight:Number = 2/3;
+			
+			private var options:DockOptions;
+			
+			private function init():void {				
+				options = new DockOptions();
 				
-				this.minWidth = 172;
-				this.minHeight = 179;
+				this.showCloseButton = false;		
+				
+				this.minWidth = options.width;
+				this.minHeight = options.height;
 				this.maxWidth = this.parent.width;
 				this.maxHeight = this.parent.height;
 				
@@ -66,7 +78,6 @@ $Id: $
 				
 				addEventListener(ChildExistenceChangedEvent.CHILD_ADD, onChildAdd);			
 				addEventListener(ChildExistenceChangedEvent.CHILD_REMOVE, onChildRemove);
-				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
 				
 				if (maximizeWindow) this.maximize();
 			}
@@ -90,24 +101,28 @@ $Id: $
 			}
 			
 			private function onChildAdd(e:ChildExistenceChangedEvent = null):void {
-				if (e != null)
-					updateMinAspectRatio(this.getChildren());
-				updateChildrenDimensions(this.getChildren());
+				if (e != null) {
+					mutableChildrenArray.push(getChildren().pop());
+					updateMinAspectRatio(mutableChildrenArray);
+				}
+				updateChildrenDimensions(mutableChildrenArray);
 			}
 			
 			private function onChildRemove(e:ChildExistenceChangedEvent = null):void {
-				// copy the children array to "remove" the removing child and update the dimensions correctly
-				var children:Array = this.getChildren();
-				var index:int = children.indexOf(e.relatedObject);
+				var index:int = mutableChildrenArray.indexOf(e.relatedObject);
 				if (index != -1)
-					children.splice(index, 1);
-				if (e != null)
-					updateMinAspectRatio(children);
-				updateChildrenDimensions(children);
+					mutableChildrenArray.splice(index, 1);
+				
+				if (e.relatedObject == priorityWindow || mutableChildrenArray.length <= 1)
+					prioritizeWindow = false;
+					
+				updateMinAspectRatio(mutableChildrenArray);
+				updateChildrenDimensions(mutableChildrenArray);
 			}
 			
 			public function getPrefferedPosition():String {
-				return MainCanvas.BOTTOM_RIGHT;
+				//return MainCanvas.BOTTOM_RIGHT;
+				return options.position;
 			}
 			
 			private function onDragVideoWindow(e:DragWindowEvent):void{
@@ -185,7 +200,9 @@ $Id: $
 				window.maximizeRestoreBtn.visible = false;
 				window.resizable = false;
 				window.buttonsEnabled = false;
-									
+
+				window.addEventListener(MouseEvent.CLICK, onWindowClick);
+
 				var e:CloseWindowEvent = new CloseWindowEvent();
 				e.window = window;
 				dispatchEvent(e);
@@ -201,6 +218,8 @@ $Id: $
 				window.resizable = true;
 				window.buttonsEnabled = true;
 				
+				window.removeEventListener(MouseEvent.CLICK, onWindowClick);
+	
 				this.removeChild(window);
 				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				e.window = window;
@@ -215,8 +234,7 @@ $Id: $
 			}
 			
 			private function updateChildrenDimensions(children:Array):void {
-				var numChildren:int = children.length;
-				if (numChildren == 0) return;
+				if (children.length == 0) return;
 				
 				var horizontalGap:Number = getStyle("horizontalGap");
 				var verticalGap:Number = getStyle("verticalGap");
@@ -224,14 +242,49 @@ $Id: $
 				var availableWidth:Number = this.width - this.borderMetrics.left - this.borderMetrics.right;
 				var availableHeight:Number = this.height - this.borderMetrics.top - this.borderMetrics.bottom;
 				
+				var borderTop:int = 0;
+				var borderLeft:int = 0;
+				
+				if (prioritizeWindow) {
+					// the first window will be prioritized
+					priorityWindow = children[0];
+					
+					// if the aspect ratio of the dock is smaller than the window (like 1:1 against 16:9)
+					// the window will be on top of the dock 
+					if (availableWidth / availableHeight < priorityWindow.width / priorityWindow.height) {
+						priorityWindow.width = availableWidth;
+						priorityWindow.updateHeight();
+						if (priorityWindow.height > availableHeight * priorityWindowWeight) {
+							priorityWindow.height = availableHeight * priorityWindowWeight;
+							priorityWindow.updateWidth();
+						}
+						priorityWindow.y = 0;
+						priorityWindow.x = (availableWidth - priorityWindow.width) / 2;
+						availableHeight -= (priorityWindow.height + verticalGap);
+						borderTop += priorityWindow.height + verticalGap;
+					} else {
+						// the window will be on left of the dock 
+						priorityWindow.height = availableHeight;
+						priorityWindow.updateWidth();
+						if (priorityWindow.width > availableWidth * priorityWindowWeight) {
+							priorityWindow.width = availableWidth * priorityWindowWeight;
+							priorityWindow.updateHeight();
+						}
+						priorityWindow.y = (availableHeight - priorityWindow.height) / 2;
+						priorityWindow.x = 0;
+						availableWidth -= (priorityWindow.width + horizontalGap);
+						borderLeft += priorityWindow.width + horizontalGap;
+					}
+				}
+				
 				var childWidth:Number = 0;
 				var childHeight:Number = 0;
 				var nRows:Number = 0;
 				var nColumns:Number = 0;
 				
 				// we would like to maximize the window size
-				for (var rows:Number = 1; rows <= numChildren; ++rows) {
-					var columns:Number = Math.ceil(numChildren / rows);
+				for (var rows:Number = 1; rows <= children.length - (prioritizeWindow? 1: 0); ++rows) {
+					var columns:Number = Math.ceil((children.length - (prioritizeWindow? 1: 0))/ rows);
 					var maxWidth:Number = Math.floor((availableWidth - horizontalGap * (columns - 1)) / columns) - VideoWindowItf.PADDING_HORIZONTAL;
 					var maxHeight:Number = Math.floor((availableHeight - verticalGap * (rows - 1)) / rows) - VideoWindowItf.PADDING_VERTICAL;
 					
@@ -257,8 +310,27 @@ $Id: $
 				
 				childWidth += VideoWindowItf.PADDING_HORIZONTAL;
 				childHeight += VideoWindowItf.PADDING_VERTICAL;
-								
-				for (var childIndex:int = 0; childIndex < numChildren; ++childIndex) {
+
+				const horizontalBorder:int = availableWidth - nColumns * childWidth - (nColumns - 1) * horizontalGap;
+				const verticalBorder:int = availableHeight - nRows * childHeight - (nRows - 1) * verticalGap;
+				// this couple of lines will center the priority window on the available space for it
+				if (prioritizeWindow) {
+					if (priorityWindow.x == 0) {
+						priorityWindow.x = horizontalBorder / 3;
+						borderTop += verticalBorder / 2;
+						borderLeft += horizontalBorder * (2 / 3);
+					} else {
+						priorityWindow.y = verticalBorder / 3;  
+						borderTop += verticalBorder * (2 / 3);
+						borderLeft += horizontalBorder / 2;
+					}
+				} else {
+					// if there's no priority window, the border will be only around the little windows
+					borderTop += verticalBorder / 2;
+					borderLeft += horizontalBorder / 2;
+				}
+									
+				for (var childIndex:int = (prioritizeWindow? 1: 0); childIndex < children.length; ++childIndex) {
 					var window:VideoWindowItf = children[childIndex];
 					const wWidth:int = childWidth;
 					const wHeight:int = childHeight;
@@ -275,19 +347,30 @@ $Id: $
 					const horizontalExtraPadding:int = (wWidth - window.width) / 2;
 					const verticalExtraPadding:int = (wHeight - window.height) / 2;
 					
-					var row:int = childIndex / nColumns;
-					var column:int = childIndex % nColumns;
-					
-					var borderTop:int = (availableHeight - nRows * wHeight - (nRows - 1) * verticalGap) / 2;
-					var borderLeft:int = (availableWidth - nColumns * wWidth - (nColumns - 1) * horizontalGap) / 2;
+					var row:int = (childIndex - (prioritizeWindow? 1: 0)) / nColumns;
+					var column:int = (childIndex - (prioritizeWindow? 1: 0)) % nColumns;
 					
 					window.y = row * (wHeight + verticalGap) + borderTop + verticalExtraPadding;;
 					window.x = column * (wWidth + horizontalGap) + borderLeft + horizontalExtraPadding;
 				} 
 			}
 			
-			protected function onDoubleClick(event:MouseEvent = null):void {
-				this.maximizeRestore();
+			protected function onWindowClick(event:MouseEvent = null):void {
+				if (mutableChildrenArray.length <= 1)
+					return;
+					
+				if (event.currentTarget == priorityWindow) {
+					priorityWindow = null;
+					prioritizeWindow = false;
+				} else {
+					var index:int = mutableChildrenArray.indexOf(event.currentTarget);
+					if (index != -1) {
+						mutableChildrenArray[index] = mutableChildrenArray[0];
+						mutableChildrenArray[0] = event.currentTarget;
+						prioritizeWindow = true;
+					}
+				}
+				updateChildrenDimensions(mutableChildrenArray);
 			}
 			
 			override protected function resourcesChanged():void{

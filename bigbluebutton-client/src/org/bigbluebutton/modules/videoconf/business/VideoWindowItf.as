@@ -182,7 +182,7 @@ package org.bigbluebutton.modules.videoconf.business
 				return MainCanvas.POPUP;
 			else
 				// the window is docked, so it should not be moved on reset layout
-				return MainCanvas.UNTOUCHED;
+				return MainCanvas.ABSOLUTE;
 		}
 		
 		public function onDrag(event:MDIWindowEvent = null):void {

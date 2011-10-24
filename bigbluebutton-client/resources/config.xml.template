@@ -17,6 +17,7 @@
 			translationOn="true"
 			translationEnabled="true"	
 			privateEnabled="true"  
+			position="top-right"
 		/>
 		
 		<module name="ViewersModule" url="ViewersModule.swf?v=VERSION" 
@@ -82,6 +83,9 @@
 			dependsOn="VideoconfModule, ViewersModule"
 			autoDock="true"
 			maximizeWindow="false"
+			position="bottom-right"
+			width="172"
+			height="179"
 		/>
 		
 		<!-- new module in development: 
