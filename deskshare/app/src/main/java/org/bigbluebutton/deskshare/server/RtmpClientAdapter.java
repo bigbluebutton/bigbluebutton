@@ -59,7 +59,7 @@ public class RtmpClientAdapter implements DeskshareClient, RecordStatusListener 
 			msg.add(new String("DESKSHARE_RECORD_ERROR_EVENT"));
 		}
 		
-		so.sendMessage("recordingStatusCallback", msg);	
+//		so.sendMessage("recordingStatusCallback", msg);	
 	}	
 	
 }
