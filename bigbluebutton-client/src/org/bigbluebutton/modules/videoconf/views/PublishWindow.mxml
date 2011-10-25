@@ -76,7 +76,7 @@
 			private var _activationTimer:Timer = null;
 			private var _waitingForActivation:Boolean = false;
 			
-			static private var _cameraAccessDisallowed:Boolean = false;
+			static private var _cameraAccessDenied:Boolean = false;
 			
 			[Bindable]
 			public var videoOptions:VideoConfOptions;
@@ -134,22 +134,22 @@
 				btnStartPublish.enabled = false;
 				
 				if (Camera.names.length == 0) {
-					showWarning("No camera available");
+					showWarning('bbb.video.publish.hint.noCamera');
 					return;
 				}
 				
 				_camera = Camera.getCamera(cmbCameraSelector.selectedIndex.toString());
 				if (_camera == null) {
-					showWarning("Can't open your camera");
+					showWarning('bbb.video.publish.hint.cantOpenCamera');
 					return;
 				}
 				
 				if (_camera.muted) {
-					if (_cameraAccessDisallowed) {
+					if (_cameraAccessDenied) {
 						onCameraAccessDisallowed();
 						return;
 					} else {
-						showWarning("Waiting for approval");
+						showWarning('bbb.video.publish.hint.waitingApproval');
 					}
 				} else {
 					// if the camera isn't muted, that is because the user has
@@ -192,7 +192,7 @@
 			private function onActivityEvent(e:ActivityEvent):void {
 			    if (_waitingForActivation && e.activating) {
 			        _activationTimer.stop();
-					showWarning("Video preview", false, "0xFFFF00");
+					showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
 			     	btnStartPublish.enabled = true;
 			     	_waitingForActivation = false;
 			    }
@@ -202,7 +202,7 @@
 				if (e.code == "Camera.Unmuted") {
 					onCameraAccessAllowed();
 					// this is just to overwrite the message of waiting for approval
-				    showWarning("Opening camera...");
+				    showWarning('bbb.video.publish.hint.openingCamera');
 			    } else if (e.code == "Camera.Muted") {
 			    	onCameraAccessDisallowed();
 			    }
@@ -219,12 +219,12 @@
 			}
 			
 			private function onCameraAccessDisallowed():void {
-		    	showWarning("Camera access disallowed");
-		    	_cameraAccessDisallowed = true;
+		    	showWarning('bbb.video.publish.hint.cameraDenied');
+		    	_cameraAccessDenied = true;
 			}
 
 			private function activationTimeout(e:TimerEvent):void {
-				showWarning("Your camera is being used by another application");
+				showWarning('bbb.video.publish.hint.cameraIsBeingUsed');
 				// it will try to reopen the camera after the timeout
 				updateCamera();
 			}   			
@@ -232,7 +232,7 @@
 			private function startPublishing():void{
 				if (_camera == null) return;
 
-				showWarning("Publishing...", true, "0xFFFF00");
+				showWarning('bbb.video.publish.hint.publishing', true, "0xFFFF00");
 				
 				defaultWidth = originalWidth;
 				defaultHeight = originalHeight;
@@ -362,7 +362,9 @@
 			
 			private var hideWarningTimer:Timer = null;
 			
-			private function showWarning(text:String, autoHide:Boolean=false, color:String="0xFF0000"):void {
+			private function showWarning(resourceName:String, autoHide:Boolean=false, color:String="0xFF0000"):void {
+				const text:String = ResourceUtil.getInstance().getString(resourceName);
+				
 				if (hideWarningTimer != null)
 					hideWarningTimer.stop();
 				if (autoHide) {
