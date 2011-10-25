@@ -107,22 +107,12 @@ package org.bigbluebutton.modules.listeners.business
 		public function addConnectionStatusListener(connectionListener:Function):void {
 			_connectionListener = connectionListener;
 		}
-		
-		private function stripUseridFromUsername(uname:String):String {
-			var pattern:RegExp = /(\d*)-(\w*)$/;
-			var result:Object = pattern.exec(uname);
-			if (result != null) {
-				return result[2];
-			}			
-			return uname;
-		}
-		
+				
 		public function userJoin(userId:Number, cidName:String, cidNum:String, 
-									muted:Boolean, talking:Boolean, locked:Boolean):void
-		{
+					muted:Boolean, talking:Boolean, locked:Boolean):void {
 			if (! _listeners.hasListener(userId)) {
 				var n:Listener = new Listener();
-				n.callerName = (cidName != null) ? stripUseridFromUsername(cidName) : "<Unknown Caller>";
+				n.callerName = cidName != null ? cidName : "<Unknown Caller>";
 				n.callerNumber = cidNum;
 				n.muted = muted;
 				n.userid = userId;
@@ -136,8 +126,12 @@ package org.bigbluebutton.modules.listeners.business
 				var pattern:RegExp = /(\d*)-(\w*)$/;
 				var result:Object = pattern.exec(n.callerName);
 				if (result != null) {
+					/**
+					 * The first item is the userid and the second is the username.
+					 */
 					if (UserManager.getInstance().getConference().me.userid == result[1]) {
 						UserManager.getInstance().getConference().me.voiceUserid = n.userid;
+						n.callerName = result[2]; /* Store the username */
 						UserManager.getInstance().getConference().me.voiceMuted = n.muted;
 						UserManager.getInstance().getConference().me.voiceJoined = true;
 					}					
