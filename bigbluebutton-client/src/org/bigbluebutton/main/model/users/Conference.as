@@ -16,8 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.main.model.users
-{
+package org.bigbluebutton.main.model.users {
 	import mx.collections.ArrayCollection;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.common.LogUtil;
@@ -57,8 +56,7 @@ package org.bigbluebutton.main.model.users
 			var p:BBBUser;
 			var moderatorCount:int = 0;
 			
-			for (var i:int = 0; i < users.length; i++)
-			{
+			for (var i:int = 0; i < users.length; i++) {
 				p = users.getItemAt(i) as BBBUser;				
 				if (p.role == Role.MODERATOR) {
 					moderatorCount++;

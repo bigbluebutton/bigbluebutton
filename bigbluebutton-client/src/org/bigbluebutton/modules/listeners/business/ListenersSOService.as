@@ -245,7 +245,7 @@ package org.bigbluebutton.modules.listeners.business
 						LogUtil.error("Error occurred:"); 
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 
-							} 
+						} 
 					}
 				),//new Responder
 				userid,
