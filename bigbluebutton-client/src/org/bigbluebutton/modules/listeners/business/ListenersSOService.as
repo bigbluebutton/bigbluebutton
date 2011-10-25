@@ -108,12 +108,21 @@ package org.bigbluebutton.modules.listeners.business
 			_connectionListener = connectionListener;
 		}
 		
+		private function stripUseridFromUsername(uname:String):String {
+			var pattern:RegExp = /(\d*)-(\w*)$/;
+			var result:Object = pattern.exec(uname);
+			if (result != null) {
+				return result[2];
+			}			
+			return uname;
+		}
+		
 		public function userJoin(userId:Number, cidName:String, cidNum:String, 
 									muted:Boolean, talking:Boolean, locked:Boolean):void
 		{
 			if (! _listeners.hasListener(userId)) {
 				var n:Listener = new Listener();
-				n.callerName = (cidName != null) ? cidName : "<Unknown Caller>";
+				n.callerName = (cidName != null) ? stripUseridFromUsername(cidName) : "<Unknown Caller>";
 				n.callerNumber = cidNum;
 				n.muted = muted;
 				n.userid = userId;

@@ -26,14 +26,10 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import flash.events.MouseEvent;
-			
-			import mx.binding.utils.BindingUtils;
-			import mx.collections.ArrayCollection;
+			import flash.events.MouseEvent;			
 			import mx.controls.Image;
 			import mx.controls.Label;
-			import mx.controls.TileList;
-			
+			import mx.controls.TileList;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.listeners.events.ListenersCommand;
 			import org.bigbluebutton.util.i18n.ResourceUtil; 
@@ -48,8 +44,6 @@
 			[Bindable] private var ejectIcon:Class = images.delete_icon;
 			[Bindable] private var statusTooltip : String = "";
 			[Bindable] private var ejectTooltip : String = ResourceUtil.getInstance().getString('bbb.listeners.ejectTooltip');
-			[Bindable] private var username:String = "init";
-			
 			[Bindable] private var moderator:Boolean = false;
 			
 			public function onRollOver():void{
@@ -91,19 +85,10 @@
 			}
 			
 			private function onCreationComplete():void {
-				BindingUtils.bindSetter(stripUseridFromUsername, data, "callerName");
 				if ((data != null) && data.moderator) muteCB.visible = true;		
 				else muteCB.visible = false;
 				
 				if (data != null) this.moderator = data.moderator;
-			}
-			
-			private function stripUseridFromUsername(uname:String):void {
-				var pattern:RegExp = /(\d*)-(\w*)$/;
-				var result:Object = pattern.exec(uname);
-				if (result != null) {
-					username = result[2];
-				}			
 			}
 			
 			private function handleEjectButtonClick():void {
@@ -118,7 +103,7 @@
 	<mx:Button id="muteBtn" width="20" height="20" visible="true" enabled="{data.moderator}" 
 			   toolTip="{data.moderator ? ResourceUtil.getInstance().getString('bbb.listenerItem.muteUnmute.toolTip') : ''}"
 			   icon="{data.muted ? muteIcon : unmuteIcon}" click="muteUser()"/>
-	<mx:Label id="nameLabel" textAlign="left" text="{username}" minWidth="120"
+	<mx:Label id="nameLabel" textAlign="left" text="{data.callerName}" minWidth="120"
 			  toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.nameLbl.toolTip')}"/>
 	<mx:Button id="muteCB" width="20" height="20" visible="true" enabled="{data.moderator}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.lockImg.toolTip')}"
