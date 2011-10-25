@@ -44,12 +44,17 @@ public class ChatService {
 		application = a;
 	}
 	
-	public void privateMessage(String message, String sender, String recepient){
-		log.debug("Received private message: " + message + " from " + sender + " to " + recepient + " The client scope is: " + Red5.getConnectionLocal().getScope().getName());
-		ISharedObject sharedObject = application.handler.getSharedObject(Red5.getConnectionLocal().getScope(), recepient);
-		ArrayList<String> arguments = new ArrayList<String>();
-		arguments.add(sender);
-		arguments.add(message);
-		sharedObject.sendMessage("messageReceived", arguments);
+	public void privateMessage(String message, String sender, String receiver){
+		log.debug("Received private message: " + message + " from " + sender + " to " + receiver + " The client scope is: " + Red5.getConnectionLocal().getScope().getName());
+		ISharedObject sharedObject = application.handler.getSharedObject(Red5.getConnectionLocal().getScope(), receiver);
+		if (sharedObject != null) {
+			ArrayList<String> arguments = new ArrayList<String>();
+			arguments.add(sender);
+			arguments.add(message);
+			sharedObject.sendMessage("messageReceived", arguments);			
+		} else {
+			log.debug("Not sending private message from {} to {} as the user may have already left.", sender, receiver);
+		}
+
 	}
 }
