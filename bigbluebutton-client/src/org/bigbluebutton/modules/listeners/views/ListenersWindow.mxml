@@ -46,7 +46,7 @@
 			import mx.events.ListEvent;
 			
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.UserManager;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.listeners.events.ListenersCommand;

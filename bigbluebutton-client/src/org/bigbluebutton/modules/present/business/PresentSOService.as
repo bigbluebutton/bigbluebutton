@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.present.business {
 	import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.common.UserManager;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.model.users.Conference;

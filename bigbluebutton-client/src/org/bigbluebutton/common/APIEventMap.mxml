@@ -23,6 +23,7 @@
 <EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml" >
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.core.managers.UserManager;
 			import mx.events.FlexEvent;
 			
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;

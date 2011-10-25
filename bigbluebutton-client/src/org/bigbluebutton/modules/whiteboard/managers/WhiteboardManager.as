@@ -21,7 +21,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
-	import org.bigbluebutton.common.UserManager;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.modules.present.api.PresentationAPI;

@@ -27,7 +27,7 @@
 			import mx.controls.Alert;
 			
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.UserManager;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.main.events.BBBEvent;

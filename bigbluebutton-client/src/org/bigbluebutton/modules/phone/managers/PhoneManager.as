@@ -21,7 +21,7 @@ package org.bigbluebutton.modules.phone.managers {
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.common.UserManager;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.phone.PhoneOptions;

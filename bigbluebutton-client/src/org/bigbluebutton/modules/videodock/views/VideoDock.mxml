@@ -35,7 +35,7 @@ $Id: $
 		<![CDATA[
 			import mx.events.ChildExistenceChangedEvent;			
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.UserManager;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.DragWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;

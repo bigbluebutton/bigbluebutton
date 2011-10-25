@@ -27,7 +27,7 @@ package org.bigbluebutton.modules.listeners.business
 	import flash.net.SharedObject;
 	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.common.UserManager;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.listeners.business.vo.Listener;
 	import org.bigbluebutton.modules.listeners.business.vo.Listeners;
