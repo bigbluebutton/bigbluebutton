@@ -37,8 +37,6 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) exte
     private var lastKeyFrameTime = 0L
     private val KEYFRAME_INTERVAL = 20000
     
-    private var screenVideoFrame: ByteArrayOutputStream = new ByteArrayOutputStream()
-    
 	def initialize(): Unit = {
 		println("Initialize BlockManager")
 		val numberOfBlocks: Int = numberOfRows * numberOfColumns
@@ -61,7 +59,8 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) exte
 	}
 	
 	def generateFrame(genKeyFrame: Boolean): Array[Byte] = {
-		screenVideoFrame.reset();
+		var screenVideoFrame: ByteArrayOutputStream = new ByteArrayOutputStream()
+		
 		val encodedDim: Array[Byte] = ScreenVideoEncoder.encodeBlockAndScreenDimensions(blockDim.width, screenDim.width, blockDim.height, screenDim.height)
      	    	
     	val numberOfBlocks = numberOfRows * numberOfColumns 		
