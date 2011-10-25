@@ -163,6 +163,12 @@ package org.bigbluebutton.modules.listeners.business
 			if (l != null) {
 				l.locked = locked;
 				LogUtil.debug(LOGNAME + 'Lock Un/Muting user ' + userId + " locked=" + locked);
+				/**
+				 * Let's store the voice userid so we can do push to talk.
+				 */
+				if (UserManager.getInstance().getConference().me.voiceUserid == userId) {
+					UserManager.getInstance().getConference().me.voiceLocked = l.locked;
+				}
 			}					
 		}
 		
@@ -183,6 +189,7 @@ package org.bigbluebutton.modules.listeners.business
 			if (UserManager.getInstance().getConference().me.voiceUserid == userId) {
 				UserManager.getInstance().getConference().me.voiceJoined = false;
 				UserManager.getInstance().getConference().me.voiceUserid = 0;
+				UserManager.getInstance().getConference().me.voiceLocked = false;
 			}
 		}
 		
