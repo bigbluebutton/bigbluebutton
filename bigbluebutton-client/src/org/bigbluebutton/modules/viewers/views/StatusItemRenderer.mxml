@@ -55,8 +55,7 @@
 			[Bindable] private var kickButtonEnabled:Boolean = false;
 			
 			private function onCreationComplete():void{
-				var conf:Conference = UserManager.getInstance().getConference();
-				this.isModerator = (conf.me.role == Role.MODERATOR);
+				this.isModerator = UserManager.getInstance().getConference().amIModerator();
 				allowKickUser = ViewersModule.allowKickUser;
 				
 				kickButtonEnabled = this.isModerator && allowKickUser;

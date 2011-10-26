@@ -67,16 +67,16 @@ package org.bigbluebutton.main.model.users
 		private function joinListener(success:Boolean, result:Object):void{
 			if (success) {
 				_conference = new Conference();
-				_conference.me.name = result.username;
-				_conference.me.role = result.role;
-				_conference.me.room = result.room;
-				_conference.me.authToken = result.authToken;
+				_conference.setMyName(result.username);
+				_conference.setMyRole(result.role);
+				_conference.setMyRoom(result.room);
+				_conference.setMyAuthToken(result.authToken);
 				
 				_conferenceParameters = new ConferenceParameters();
 				_conferenceParameters.conference = result.conference;
-				_conferenceParameters.username = _conference.me.name;
-				_conferenceParameters.role = _conference.me.role;
-				_conferenceParameters.room = _conference.me.room;
+				_conferenceParameters.username = result.username;
+				_conferenceParameters.role = result.role;
+				_conferenceParameters.room = result.room;
 				_conferenceParameters.webvoiceconf = result.webvoiceconf;
 				_conferenceParameters.voicebridge = result.voicebridge;
 				_conferenceParameters.welcome = result.welcome;
@@ -109,7 +109,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function userLoggedIn(e:UsersConnectionEvent):void{
-			_conference.me.userid = e.userid;
+			_conference.setMyUserid(e.userid);
 			_conferenceParameters.connection = e.connection;
 			_conferenceParameters.userid = e.userid;
 			
@@ -128,16 +128,12 @@ package org.bigbluebutton.main.model.users
 			_userSOService.disconnect(false);
 		}
 		
-		public function get me():BBBUser {
-			return _conference.me;
-		}
+//		public function getMe():BBBUser {
+//			return _conference.me;
+//		}
 		
 		public function isModerator():Boolean {
-			if (me.role == "MODERATOR") {
-				return true;
-			}
-			
-			return false;
+			return _conference.amIModerator();
 		}
 		
 		public function get participants():ArrayCollection {
@@ -145,7 +141,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function assignPresenter(assignTo:Number):void {
-			_userSOService.assignPresenter(assignTo, me.userid);
+			_userSOService.assignPresenter(assignTo, _conference.getMyUserId());
 		}
 		
 		public function addStream(e:BroadcastStartedEvent):void {
@@ -157,8 +153,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function raiseHand(e:RaiseHandEvent):void {
-			var userid:Number = _conference.me.userid;
-			_userSOService.raiseHand(userid, e.raised);
+			_userSOService.raiseHand(_conference.getMyUserId(), e.raised);
 		}
 		
 		public function lowerHand(e:LowerHandEvent):void {

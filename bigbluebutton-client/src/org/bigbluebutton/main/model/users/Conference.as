@@ -18,13 +18,14 @@
 */
 package org.bigbluebutton.main.model.users {
 	import mx.collections.ArrayCollection;
-	import org.bigbluebutton.core.BBB;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
+	import org.bigbluebutton.core.BBB;
 
 	public class Conference {		
 		private var _myUserid:Number;		
-		[Bindable] public var me:BBBUser = null;		
+		[Bindable] private var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;			
 				
 		public function Conference():void {
@@ -128,6 +129,100 @@ package org.bigbluebutton.main.model.users {
 			return null;
 		}
 	
+		public function amIPresenter():Boolean {
+			return me.presenter;
+		}
+		
+		public function setMePresenter(presenter:Boolean):void {
+			me.presenter = presenter;
+		}
+		
+		public function amIModerator():Boolean {
+			return me.role == Role.MODERATOR;
+		}
+		
+		public function amIThisUser(userid:int):Boolean {
+			return me.userid == userid;
+		}
+		
+		public function muteMyVoice(mute:Boolean):void {
+			voiceMuted = mute;
+		}
+		
+		public function isMyVoiceMuted():Boolean {
+			return me.voiceMuted;
+		}
+		
+		[Bindable]
+		public function set voiceMuted(m:Boolean):void {
+			me.voiceMuted = m;
+		}
+		
+		public function get voiceMuted():Boolean {
+			return me.voiceMuted;
+		}
+		
+		public function setMyVoiceUserId(userid:int):void {
+			me.voiceUserid = userid;
+		}
+		
+		public function getMyVoiceUserId():Number {
+			return me.voiceUserid;
+		}
+		
+		public function amIThisVoiceUser(userid:int):Boolean {
+			return me.voiceUserid == userid;
+		}
+		
+		public function setMyVoiceJoined(joined:Boolean):void {
+			voiceJoined = joined;
+		}
+		
+		public function amIVoiceJoined():Boolean {
+			return me.voiceJoined;
+		}
+		
+		/** Hook to make the property Bindable **/
+		[Bindable]
+		public function set voiceJoined(j:Boolean):void {
+			me.voiceJoined = j;			
+		}
+		
+		public function get voiceJoined():Boolean {
+			return me.voiceJoined;
+		}
+		
+		public function setMyVoiceLocked(locked:Boolean):void {
+			me.voiceLocked = locked;
+		}
+		
+		public function isMyVoiceLocked():Boolean {
+			return me.voiceLocked;
+		}
+		
+		public function getMyUserId():Number {
+			return me.userid;
+		}
+		public function setMyUserid(userid:int):void {
+			me.userid = userid;
+		}
+		
+		public function setMyName(name:String):void {
+			me.name = name;
+		}
+		
+		public function setMyRole(role:String):void {
+			me.role = role;
+		}
+		
+		public function setMyRoom(room:String):void {
+			me.room = room;
+		}
+		
+		public function setMyAuthToken(token:String):void {
+			me.authToken = token;
+		}
+		
 		public function removeAllParticipants():void {
 			users.removeAll();
 		}		
