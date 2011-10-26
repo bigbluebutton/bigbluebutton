@@ -18,9 +18,10 @@
 */
 package org.bigbluebutton.core.managers {
 	import mx.collections.ArrayCollection;
+	
+	import org.bigbluebutton.common.IUserListener;
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.main.model.users.Conference;
-	import org.bigbluebutton.common.IUserListener;
 
 	/**
 	 * The UserManager allows you to interact with the user data of those currently logged in to the conference.
@@ -30,7 +31,7 @@ package org.bigbluebutton.core.managers {
 		private static var instance:UserManager = null;
 		private var listeners:ArrayCollection;
 		private var users:ArrayCollection;
-		private var conference:Conference;
+		private var conference:Conference = new Conference();
 		
 		/**
 		 * This class is a singleton. Please initialize it using the getInstance() method.
