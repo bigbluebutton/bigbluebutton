@@ -47,7 +47,7 @@
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Role;
-			import org.bigbluebutton.common.UserManager;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
 			import org.bigbluebutton.main.model.users.BBBUser;
@@ -78,7 +78,7 @@
 			private function onCreationComplete():void {
 				conference = UserManager.getInstance().getConference();
 				participants = conference.users;
-				this.isModerator = (conference.me.role == Role.MODERATOR);
+				this.isModerator = UserManager.getInstance().getConference().amIModerator();
 				BindingUtils.bindSetter(updateNumberOfViewers, participants, "length");	
 				dispatcher = new Dispatcher();
 				
@@ -131,7 +131,7 @@
 			
 			private function conferenceStarted(e:ConferenceCreatedEvent):void{
 				this.participants = e.conference.users;
-				this.isModerator = (e.conference.me.role == Role.MODERATOR);
+				this.isModerator = UserManager.getInstance().getConference().amIModerator();
 			}
 			
 			override protected function resourcesChanged():void{

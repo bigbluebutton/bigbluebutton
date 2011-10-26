@@ -9,20 +9,12 @@ package org.bigbluebutton.core
 	import flash.system.Capabilities;
 	
 	public class BBB {
-		private static var userManager:UserManager = null;
 		private static var configManager:ConfigManager2 = null;
 		private static var streamManager:StreamManager = null;
 		private static var connectionManager:ConnectionManager = null;
 		private static var session:Session = null;
 		private static var userConfigManager:UserConfigManager = null;
-		
-		public static function initUserManager():UserManager {
-			if (userManager == null) {
-				userManager = new UserManager();
-			}
-			return userManager;
-		}
-		
+			
 		public static function initUserConfigManager():UserConfigManager {
 			if (userConfigManager == null) {
 				userConfigManager = new UserConfigManager();

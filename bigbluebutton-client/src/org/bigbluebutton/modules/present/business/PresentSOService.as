@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.present.business {
 	import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.common.UserManager;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.model.users.Conference;
@@ -383,18 +383,16 @@ package org.bigbluebutton.modules.present.business {
 			LogUtil.debug("assignPresenterCallback " + userid + "," + name + "," + assignedBy);
 			var meeting:Conference = UserManager.getInstance().getConference();
 			if (this.userid == userid) {
-				meeting.me.presenter = true;
-				
+				meeting.setMePresenter(true);				
 				var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
 				e.userid = userid;
 				e.presenterName = name;
 				e.assignerBy = assignedBy;
-				dispatcher.dispatchEvent(e);
-													
+				dispatcher.dispatchEvent(e);													
 				setPresenterName(name);
 			} else {
 				
-				meeting.me.presenter = false;
+				meeting.setMePresenter(false);
 				var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
 				viewerEvent.userid = userid;
 				viewerEvent.presenterName = name;

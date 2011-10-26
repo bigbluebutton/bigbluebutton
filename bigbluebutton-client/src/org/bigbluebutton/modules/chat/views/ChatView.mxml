@@ -74,7 +74,7 @@
 			
 			import org.bigbluebutton.common.IUserListener;
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.UserManager;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
 			import org.bigbluebutton.main.model.User;

@@ -36,8 +36,6 @@ $Id: $
 			import org.bigbluebutton.modules.settings.util.PersistUserPreferences;
 			import org.bigbluebutton.modules.settings.util.Requirements;
 			
-			import spark.components.Application;
-			
 			private var _moduleName:String = "Settings Module";			
 			private var _attributes:Object;
 			

@@ -26,8 +26,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	
-	public class BBBUser
-	{
+	public class BBBUser {
 		public static const MODERATOR:String = "MODERATOR";
 		public static const VIEWER:String = "VIEWER";
 		public static const PRESENTER:String = "PRESENTER";

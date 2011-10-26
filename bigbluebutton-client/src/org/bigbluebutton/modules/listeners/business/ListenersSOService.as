@@ -27,7 +27,7 @@ package org.bigbluebutton.modules.listeners.business
 	import flash.net.SharedObject;
 	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.common.UserManager;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.listeners.business.vo.Listener;
 	import org.bigbluebutton.modules.listeners.business.vo.Listeners;
@@ -129,14 +129,13 @@ package org.bigbluebutton.modules.listeners.business
 					/**
 					 * The first item is the userid and the second is the username.
 					 */
-					if (UserManager.getInstance().getConference().me.userid == result[1]) {
-						UserManager.getInstance().getConference().me.voiceUserid = n.userid;
-						n.callerName = result[2]; /* Store the username */
-						UserManager.getInstance().getConference().me.voiceMuted = n.muted;
-						UserManager.getInstance().getConference().me.voiceJoined = true;
+					if (UserManager.getInstance().getConference().amIThisUser(result[1])) {
+						UserManager.getInstance().getConference().setMyVoiceUserId(n.userid);						
+						UserManager.getInstance().getConference().muteMyVoice(n.muted);
+						UserManager.getInstance().getConference().setMyVoiceJoined(true);
 					}					
 				}
-								
+				n.callerName = result[2]; /* Store the username */				
 				LogUtil.info(LOGNAME + "Adding listener [" + n.callerName + "," + userId + "]");
 				_listeners.addListener(n);
 				
@@ -146,22 +145,20 @@ package org.bigbluebutton.modules.listeners.business
 			}
 		}
 
-		public function userMute(userId:Number, mute:Boolean):void
-		{
+		public function userMute(userId:Number, mute:Boolean):void {
 			var l:Listener = _listeners.getListener(userId);			
 			if (l != null) {
 				l.muted = mute;
 				/**
 				 * Let's store the voice userid so we can do push to talk.
 				 */
-				if (UserManager.getInstance().getConference().me.voiceUserid == userId) {
-					UserManager.getInstance().getConference().me.voiceMuted = l.muted;
+				if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
+					UserManager.getInstance().getConference().muteMyVoice(l.muted);
 				}					
 			}					
 		}
 
-		public function userLockedMute(userId:Number, locked:Boolean):void
-		{
+		public function userLockedMute(userId:Number, locked:Boolean):void {
 			var l:Listener = _listeners.getListener(userId);			
 			if (l != null) {
 				l.locked = locked;
@@ -169,8 +166,8 @@ package org.bigbluebutton.modules.listeners.business
 				/**
 				 * Let's store the voice userid so we can do push to talk.
 				 */
-				if (UserManager.getInstance().getConference().me.voiceUserid == userId) {
-					UserManager.getInstance().getConference().me.voiceLocked = l.locked;
+				if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
+					UserManager.getInstance().getConference().setMyVoiceLocked(l.locked);
 				}
 			}					
 		}
@@ -189,10 +186,10 @@ package org.bigbluebutton.modules.listeners.business
 			/**
 			 * Let's store the voice userid so we can do push to talk.
 			 */
-			if (UserManager.getInstance().getConference().me.voiceUserid == userId) {
-				UserManager.getInstance().getConference().me.voiceJoined = false;
-				UserManager.getInstance().getConference().me.voiceUserid = 0;
-				UserManager.getInstance().getConference().me.voiceLocked = false;
+			if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
+				UserManager.getInstance().getConference().setMyVoiceJoined(false);
+				UserManager.getInstance().getConference().setMyVoiceUserId(0);
+				UserManager.getInstance().getConference().setMyVoiceJoined(false);
 			}
 		}
 		
@@ -207,8 +204,7 @@ package org.bigbluebutton.modules.listeners.business
 			}
 		}
 		
-		public function lockMuteUser(userid:Number, lock:Boolean):void
-		{
+		public function lockMuteUser(userid:Number, lock:Boolean):void {
 			var nc:NetConnection = _module.connection;
 			nc.call(
 				"voice.lockMuteUser",// Remote function name
@@ -245,7 +241,7 @@ package org.bigbluebutton.modules.listeners.business
 						LogUtil.error("Error occurred:"); 
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 
-							} 
+						} 
 					}
 				),//new Responder
 				userid,

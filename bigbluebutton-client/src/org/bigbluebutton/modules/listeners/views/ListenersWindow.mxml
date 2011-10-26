@@ -46,7 +46,7 @@
 			import mx.events.ListEvent;
 			
 			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.UserManager;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.listeners.events.ListenersCommand;
@@ -126,11 +126,11 @@
 			}
 			
 			private function toggleMuteMeState():void{
-				if (UserManager.getInstance().getConference().me.voiceLocked) return;
+				if (UserManager.getInstance().getConference().isMyVoiceLocked()) return;
 				
 				var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);
-				e.userid = UserManager.getInstance().getConference().me.voiceUserid;
-				e.mute = !UserManager.getInstance().getConference().me.voiceMuted;
+				e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
+				e.mute = !UserManager.getInstance().getConference().isMyVoiceMuted();
 				dispatchEvent(e);
 			}
 			
@@ -197,11 +197,11 @@
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}" 
     	   			click="toggleMuteState()" width="18" height="18"/>         	   
      	   <mx:Spacer width="100%"/>
-			<flc:CanvasButton id="pushToTalkBtn" visible="{UserManager.getInstance().getConference().me.voiceJoined}" 
-					   	toolTip="{UserManager.getInstance().getConference().me.voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" 
+			<flc:CanvasButton id="pushToTalkBtn" visible="{UserManager.getInstance().getConference().voiceJoined}" 
+					   	toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" 
 					   	click="toggleMuteMeState()" width="60" height="30">
 				<mx:HBox verticalAlign="middle" horizontalGap="0" paddingLeft="5" paddingTop="5" paddingRight="5" paddingBottom="5">
-					<mx:Image source="{UserManager.getInstance().getConference().me.voiceMuted ? images.blankCircle : images.greenCircle}" />
+					<mx:Image source="{UserManager.getInstance().getConference().voiceMuted ? images.blankCircle : images.greenCircle}" />
 					<mx:Label text="{ResourceUtil.getInstance().getString('bbb.listeners.talk')}" />
 				</mx:HBox> 
 			</flc:CanvasButton>

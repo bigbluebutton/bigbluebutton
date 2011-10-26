@@ -82,7 +82,7 @@ package org.bigbluebutton.main.model.users
 
 			queryForParticipants();		
 			
-			_participants.me.userid = userid;
+			_participants.setMyUserid(userid);
 		}
 		
 		private function queryForParticipants():void {
@@ -118,7 +118,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function kickUserCallback(userid:Number):void{
-			if (userid == _participants.me.userid){
+			if (userid == _participants.getMyUserId()){
 				dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
 			}
 		}

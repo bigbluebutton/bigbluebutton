@@ -39,7 +39,7 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Role;
-			import org.bigbluebutton.common.UserManager;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
@@ -55,8 +55,7 @@
 			[Bindable] private var kickButtonEnabled:Boolean = false;
 			
 			private function onCreationComplete():void{
-				var conf:Conference = UserManager.getInstance().getConference();
-				this.isModerator = (conf.me.role == Role.MODERATOR);
+				this.isModerator = UserManager.getInstance().getConference().amIModerator();
 				allowKickUser = ViewersModule.allowKickUser;
 				
 				kickButtonEnabled = this.isModerator && allowKickUser;
