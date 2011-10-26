@@ -65,26 +65,7 @@ package org.bigbluebutton.core.managers {
 		public function registerListener(listener:IUserListener):void{
 			listeners.addItem(listener);
 		}
-		
-		/**
-		 * Returns an ArrayCollection of User objects, containing all users currently in the room.
-		 */
-		public function getUserList():ArrayCollection{
-			return users;
-		}
-		
-		/**
-		 * Returns the current Presenter. Returns NULL if there is currently no presenter assigned in the room
-		 */
-		public function getPresenter():User{
-			var j:int = 0;
-			var u:User = null;
-			for (var i:int = 0; i<users.length; i++){
-				if ((users.getItemAt(i) as User).isPresenter) u = users.getItemAt(i) as User;
-			}
-			return u;
-		}
-		
+						
 		public function getConference():Conference{
 			return this.conference;
 		}
