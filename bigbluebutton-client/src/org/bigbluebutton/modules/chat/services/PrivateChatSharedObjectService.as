@@ -65,8 +65,7 @@ package org.bigbluebutton.modules.chat.services
 					function(result:Object):void { 
 						trace("Successfully queried participants: " + result.count); 
 						if (result.count > 0) {
-							for(var p:Object in result.participants) 
-							{
+							for(var p:Object in result.participants) {
 								participantJoined(result.participants[p]);
 							}							
 						}	
@@ -82,18 +81,15 @@ package org.bigbluebutton.modules.chat.services
 				);				
 		}
 						
-	    public function join(userid:String, uri:String):void
-		{
+	    public function join(userid:String, uri:String):void {
 			this.userid = userid;
 			chatSO = SharedObject.getRemote(userid, uri, false);
 			chatSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
 			chatSO.client = this;
-			chatSO.connect(connection);	
-						
+			chatSO.connect(connection);							
 		}
 		
-	    public function leave():void
-	    {
+	    public function leave():void {
 	    	if (chatSO != null) {
 	    		chatSO.close();
 	    	}

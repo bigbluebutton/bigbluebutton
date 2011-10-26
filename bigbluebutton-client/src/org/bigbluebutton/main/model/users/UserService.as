@@ -26,6 +26,7 @@ package org.bigbluebutton.main.model.users
 	
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserConfigManager;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -94,7 +95,7 @@ package org.bigbluebutton.main.model.users
 				 */
 				var ucm:UserConfigManager = BBB.initUserConfigManager();
 				ucm.setConferenceParameters(_conferenceParameters);
-				
+				UserManager.getInstance().conferenceCreated(_conference);
 				var e:ConferenceCreatedEvent = new ConferenceCreatedEvent(ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT);
 				e.conference = _conference;
 				dispatcher.dispatchEvent(e);
@@ -104,7 +105,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		private function connect():void{
-			_userSOService = new UsersSOService(applicationURI, _conference);
+			_userSOService = new UsersSOService(applicationURI);
 			_userSOService.connect(_conferenceParameters);	
 		}
 		

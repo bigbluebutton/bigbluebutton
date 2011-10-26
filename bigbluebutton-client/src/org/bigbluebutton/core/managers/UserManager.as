@@ -16,10 +16,8 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.core.managers
-{
+package org.bigbluebutton.core.managers {
 	import mx.collections.ArrayCollection;
-	
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.common.IUserListener;
@@ -28,22 +26,17 @@ package org.bigbluebutton.core.managers
 	 * The UserManager allows you to interact with the user data of those currently logged in to the conference.
 	 * 
 	 */	
-	public class UserManager
-	{
+	public class UserManager {
 		private static var instance:UserManager = null;
-		
 		private var listeners:ArrayCollection;
-		
 		private var users:ArrayCollection;
-		
 		private var conference:Conference;
 		
 		/**
 		 * This class is a singleton. Please initialize it using the getInstance() method.
 		 * 
 		 */		
-		public function UserManager(enforcer:SingletonEnforcer)
-		{
+		public function UserManager(enforcer:SingletonEnforcer) {
 			if (enforcer == null){
 				throw new Error("There can only be 1 UserManager instance");
 			}
@@ -101,7 +94,7 @@ package org.bigbluebutton.core.managers
 		
 		public function participantJoined(participant:User):void{
 			users.addItem(participant);
-			for (var i:int = 0; i<listeners.length; i++){
+			for (var i:int = 0; i < listeners.length; i++){
 				(listeners.getItemAt(i) as IUserListener).userJoined(participant);
 			}
 		}
