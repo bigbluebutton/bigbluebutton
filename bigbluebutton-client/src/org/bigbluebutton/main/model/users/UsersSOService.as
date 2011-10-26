@@ -66,7 +66,6 @@ package org.bigbluebutton.main.model.users {
 		}
 		
 	    public function join(userid:Number, room:String):void {
-			LogUtil.debug("appUri " + _applicationURI + " " + room + " " + userid);
 			_participantsSO = SharedObject.getRemote(SO_NAME, _applicationURI + "/" + room, false);
 			_participantsSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 			_participantsSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
@@ -88,8 +87,7 @@ package org.bigbluebutton.main.model.users {
 							for(var p:Object in result.participants) {
 								participantJoined(result.participants[p]);
 							}
-						}	
-						
+						}							
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -120,13 +118,16 @@ package org.bigbluebutton.main.model.users {
 			p.userid = String(participant.userid);
 			p.name = participant.name;
 			
+			UserManager.getInstance().participantLeft(p);
+			UserManager.getInstance().getConference().removeParticipant(Number(user));	
+			
 			var dispatcher:Dispatcher = new Dispatcher();
 			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
 			joinEvent.participant = p;
 			joinEvent.join = false;
 			dispatcher.dispatchEvent(joinEvent);	
 			
-			UserManager.getInstance().getConference().removeParticipant(Number(user));	
+
 		}
 		
 		public function participantJoined(joinedUser:Object):void { 
@@ -148,12 +149,14 @@ package org.bigbluebutton.main.model.users {
 			participant.name = user.name;
 			participant.isPresenter = joinedUser.status.presenter;
 			participant.role = user.role;
+			UserManager.getInstance().participantJoined(participant);
 			
 			var dispatcher:Dispatcher = new Dispatcher();
 			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
 			joinEvent.participant = participant;
 			joinEvent.join = true;
-			dispatcher.dispatchEvent(joinEvent);				
+			dispatcher.dispatchEvent(joinEvent);	
+			
 		}
 		
 		/**
@@ -178,8 +181,7 @@ package org.bigbluebutton.main.model.users {
 				e.userid = userid;
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(e);
-			}
-			
+			}		
 		}
 					
 		public function assignPresenter(userid:Number, assignedBy:Number):void {	

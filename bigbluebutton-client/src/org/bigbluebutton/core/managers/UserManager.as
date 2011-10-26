@@ -88,11 +88,7 @@ package org.bigbluebutton.core.managers {
 		public function getConference():Conference{
 			return this.conference;
 		}
-		
-		public function conferenceCreated(conference:Conference):void{
-			this.conference = conference;
-		}
-		
+				
 		public function participantJoined(participant:User):void{
 			users.addItem(participant);
 			for (var i:int = 0; i < listeners.length; i++){

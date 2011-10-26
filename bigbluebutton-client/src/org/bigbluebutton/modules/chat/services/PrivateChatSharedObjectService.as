@@ -26,11 +26,12 @@ package org.bigbluebutton.modules.chat.services
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
 	import org.bigbluebutton.modules.chat.model.MessageVO;
-	import org.bigbluebutton.common.LogUtil;
 
 	public class PrivateChatSharedObjectService
 	{
@@ -122,9 +123,13 @@ package org.bigbluebutton.modules.chat.services
 			var participant:User = new User();
 			participant.userid = joinedUser.userid;
 			participant.name = joinedUser.name;
+			participant.role = joinedUser.role;
+			
 			trace("ParticipantJoined " + joinedUser.name + "[" + joinedUser.userid + "]");
 			
 			if (joinedUser.userid == userid) return;
+			
+			UserManager.getInstance().participantJoined(participant);
 			
 			var globalDispatcher:Dispatcher = new Dispatcher();
 			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
