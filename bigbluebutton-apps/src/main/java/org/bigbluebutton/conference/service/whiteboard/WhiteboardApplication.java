@@ -53,7 +53,6 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	public boolean appStart(IScope app){
 		log.info("Starting Whiteboard Application");
 		this.scope = app;
-		//roomManager.addRoom(app);
 		return true;
 	}
 	
@@ -70,10 +69,8 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		WhiteboardRoom room = roomManager.getRoom(getLocalScope().getName());
 		if (room.presentationExists(name)) {
 			room.setActivePresentation(name);
-			//System.out.println("Presentation " + name + " exists");
 		} else {
 			room.addPresentation(name, numPages);
-			//System.out.println("Presentation " + name + " doesn't exists, setting it as active presentation");
 		}
 	}
 	

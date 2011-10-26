@@ -38,7 +38,7 @@ public class PresentationService {
 
 	@SuppressWarnings("unchecked")
 	public void assignPresenter(Long userid, String name, Long assignedBy) {
-		log.debug("assignPresenter "+userid+" "+name+" "+assignedBy);
+		log.debug("assignPresenter " + userid + " " + name + " " + assignedBy);
 		IScope scope = Red5.getConnectionLocal().getScope();
 		ArrayList presenter = new ArrayList();
 		presenter.add(userid);
@@ -50,7 +50,7 @@ public class PresentationService {
 		if (curPresenter != null){ 
 			long curUserid=(Long) curPresenter.get(0);
 			if( curUserid!= userid){
-				log.debug("Changing presenter from {} to {}",curPresenter.get(0),userid);
+				log.debug("Changing presenter from " + curPresenter.get(0) + " to " + userid);
 				participantsApplication.setParticipantStatus(scope.getName(), (Long)curPresenter.get(0), "presenter", false);
 			}
 		}
@@ -58,7 +58,7 @@ public class PresentationService {
 	}
 	
 	public void removePresentation(String name) {
-		log.debug("removePresentation {}",name);
+		log.debug("removePresentation " + name);
 		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.removePresentation(scope.getName(), name);
 	}
@@ -80,7 +80,7 @@ public class PresentationService {
 			presenter.put("user", curPresenter.get(0));
 			presenter.put("name", curPresenter.get(1));
 			presenter.put("assignedBy",curPresenter.get(2));
-			log.debug("Presenter: "+curPresenter.get(0)+" "+curPresenter.get(1)+" "+curPresenter.get(2));
+			log.debug("Presenter: " + curPresenter.get(0) + " " + curPresenter.get(1) + " " + curPresenter.get(2));
 		} else {
 			presenter.put("hasPresenter", false);
 		}
@@ -96,7 +96,7 @@ public class PresentationService {
 				presentation.put("widthRatio", presentersSettings.get("widthRatio"));
 				presentation.put("heightRatio", presentersSettings.get("heightRatio"));
 			}
-			log.debug("Presentation: presentation={} slide={}",currentPresentation,curSlide);
+			log.debug("Presentation: presentation=" + currentPresentation + " slide=" + curSlide);
 		} else {
 			presentation.put("sharing", false);
 		}
@@ -111,19 +111,19 @@ public class PresentationService {
 	}
 	
 	public void gotoSlide(int slideNum) {
-		log.debug("Request to go to slide {}",slideNum);
+		log.debug("Request to go to slide " + slideNum);
 		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.gotoSlide(scope.getName(), slideNum);
 	}
 	
 	public void sharePresentation(String presentationName, Boolean share) {
-		log.debug("Request to go to sharePresentation {} {}",presentationName,share);
+		log.debug("Request to go to sharePresentation " + presentationName + " " + share);
 		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.sharePresentation(scope.getName(), presentationName, share);
 	}
 	
 	public void resizeAndMoveSlide(Double xOffset,Double yOffset,Double widthRatio,Double heightRatio) {
-		log.debug("Request to resize and move slide["+xOffset+","+yOffset+","+widthRatio+","+heightRatio);
+		log.debug("Request to resize and move slide[" + xOffset + "," + yOffset + "," + widthRatio + "," + heightRatio);
 		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.resizeAndMoveSlide(scope.getName(), xOffset, yOffset, widthRatio, heightRatio);
 	}

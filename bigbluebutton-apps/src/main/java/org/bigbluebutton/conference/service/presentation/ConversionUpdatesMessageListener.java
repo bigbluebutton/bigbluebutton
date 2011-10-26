@@ -64,7 +64,7 @@ public class ConversionUpdatesMessageListener {
 			message.put("presentationName", presentationName);
 			message.put("messageKey", messageKey);
 			
-			log.debug("JMS: {}[{}]",messageKey,presentationName);
+			log.debug("Message: " + messageKey + "[ " + presentationName + "]");
 			
 			if(messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_SUCCESS_KEY)||
 					messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_FAILED_KEY)||
@@ -73,11 +73,10 @@ public class ConversionUpdatesMessageListener {
 					messageKey.equalsIgnoreCase(GENERATING_THUMBNAIL_KEY)||
 					messageKey.equalsIgnoreCase(GENERATED_THUMBNAIL_KEY)||
 					messageKey.equalsIgnoreCase(PAGE_COUNT_FAILED_KEY)){
-				log.debug("message: {}[{}]",messageKey,presentationName);
+				
 				conversionUpdatesProcessor.process(message);
 			}
 			else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
-				log.debug("JMS: {}[{}]",messageKey,presentationName);
 				String numberOfPages = (String) mapMessage.get("numberOfPages");
 				String maxNumberPages = (String) mapMessage.get("maxNumberPages");
 				message.put("numberOfPages", numberOfPages);
@@ -90,13 +89,11 @@ public class ConversionUpdatesMessageListener {
 				message.put("numberOfPages", numberOfPages);
 				message.put("pagesCompleted", pagesCompleted);
 				
-				log.debug("message: {}[{}]",messageKey,presentationName);
 				conversionUpdatesProcessor.process(message);
 			}
 			else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
 				String slidesInfo = (String) mapMessage.get("slidesInfo");
 				message.put("slidesInfo", StringEscapeUtils.unescapeXml(slidesInfo));				
-				log.debug("message: {}[{}]",messageKey,presentationName);
 				conversionUpdatesProcessor.process(message);
 			}
 			else{

@@ -56,7 +56,7 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 			
 			Gson gson= new Gson();
 			messagingService.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
-			log.debug("Publishing a status change in:{}",this.room.getName());
+			log.debug("Publishing a status change in: " + this.room.getName());
 		}
 	}
 	
@@ -71,7 +71,7 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 			
 			Gson gson= new Gson();
 			messagingService.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
-			log.debug("Publishing message participant joined in {}",this.room.getName());
+			log.debug("Publishing message participant joined in " + this.room.getName());
 		}
 	}
 	
@@ -84,7 +84,7 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 			
 			Gson gson= new Gson();
 			messagingService.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
-			log.debug("Publishing message participant left in {}",this.room.getName());
+			log.debug("Publishing message participant left in " + this.room.getName());
 		}
 	}
 

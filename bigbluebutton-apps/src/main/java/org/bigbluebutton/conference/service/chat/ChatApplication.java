@@ -55,7 +55,7 @@ public class ChatApplication {
 			roomsManager.addRoomListener(room, listener);
 			return true;
 		}
-		log.warn("Adding listener to a non-existant room {}", room);
+		log.warn("Adding listener to a non-existant room " + room);
 		return false;
 	}
 	
