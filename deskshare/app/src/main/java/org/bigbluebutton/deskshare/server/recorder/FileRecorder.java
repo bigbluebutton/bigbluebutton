@@ -116,6 +116,7 @@ public class FileRecorder implements Recorder {
     	try {
     		log.info("Closing stream");
 			fo.close();
+			svf = null;
 		} catch (IOException e) {
 			log.error(StackTraceUtil.getStackTrace(e));
 			RecordErrorEvent event = new RecordErrorEvent(session);

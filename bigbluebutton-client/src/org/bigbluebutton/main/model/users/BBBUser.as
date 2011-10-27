@@ -26,8 +26,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	
-	public class BBBUser
-	{
+	public class BBBUser {
 		public static const MODERATOR:String = "MODERATOR";
 		public static const VIEWER:String = "VIEWER";
 		public static const PRESENTER:String = "PRESENTER";
@@ -43,6 +42,10 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var room:String = "";
 		[Bindable] public var authToken:String = "";
 		[Bindable] public var selected:Boolean = false;
+		[Bindable] public var voiceUserid:Number;
+		[Bindable] public var voiceMuted:Boolean = false;
+		[Bindable] public var voiceJoined:Boolean = false;
+		[Bindable] public var voiceLocked:Boolean = false;
 		
 		private var _status:StatusCollection = new StatusCollection();
 				

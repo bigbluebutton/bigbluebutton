@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class Meeting {
-	private static final int MILLIS_IN_A_SECOND = 60000;
+	private static final int MILLIS_IN_A_MINUTE = 60000;
 	
 	private String name;
 	private String extMeetingId;
@@ -198,10 +198,11 @@ public class Meeting {
 	}
 	
 	private boolean nobodyJoined(int expiry) {
-		return (System.currentTimeMillis() - createdTime) >  (expiry * MILLIS_IN_A_SECOND);
+		return (System.currentTimeMillis() - createdTime) >  (expiry * MILLIS_IN_A_MINUTE);
 	}
 	
 	public boolean hasExpired(int expiry) {
+		System.out.println("meeting-id=" + intMeetingId + " started=" + hasStarted() + " ended=" + hasEnded() + " notRunning=" + !isRunning() + " expired=" + didExpire(expiry));
 		return (hasStarted() && hasEnded() && !isRunning() && didExpire(expiry));
 	}
 	
@@ -211,7 +212,7 @@ public class Meeting {
 
 	private boolean pastDuration() {
 		if (duration == 0) return false; /* Meeting runs infinitely */
-		return (System.currentTimeMillis() - startTime > (duration * MILLIS_IN_A_SECOND));
+		return (System.currentTimeMillis() - startTime > (duration * MILLIS_IN_A_MINUTE));
 	}
 	
 	private boolean hasStarted() {
@@ -223,7 +224,9 @@ public class Meeting {
 	}
 	
 	private boolean didExpire(int expiry) {
-		return (System.currentTimeMillis() - endTime > (expiry * MILLIS_IN_A_SECOND));
+		long now = System.currentTimeMillis();
+		System.out.println("Expiry " + now + " endTime=" + endTime + "expiry=" + (expiry * MILLIS_IN_A_MINUTE));
+		return (System.currentTimeMillis() - endTime > (expiry * MILLIS_IN_A_MINUTE));
 	}
 	
 	/***

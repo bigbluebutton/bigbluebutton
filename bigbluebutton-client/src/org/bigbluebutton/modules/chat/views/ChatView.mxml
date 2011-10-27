@@ -58,23 +58,18 @@
 		<![CDATA[
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import be.boulevart.google.ajaxapi.translation.GoogleTranslation;
-			import be.boulevart.google.events.GoogleApiEvent;
-			
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.external.ExternalInterface;
-			
+			import be.boulevart.google.events.GoogleApiEvent;			
+			import com.asfusion.mate.events.Dispatcher;			
+			import flash.external.ExternalInterface;			
 			import flexlib.controls.tabBarClasses.SuperTab;
-			import flexlib.events.SuperTabEvent;
-			
+			import flexlib.events.SuperTabEvent;			
 			import mx.collections.ArrayCollection;
 			import mx.core.Container;
 			import mx.core.UIComponent;
-			import mx.events.IndexChangedEvent;
-			
+			import mx.events.IndexChangedEvent;			
 			import org.bigbluebutton.common.IUserListener;
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.UserManager;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
 			import org.bigbluebutton.main.model.User;
@@ -338,8 +333,7 @@
 					chatBox = getChatBoxForParticipant(userid);
 				} else {
 					chatBox = createChatBoxFor(userid);
-				}
-				
+				}				
 			}
 			
 			private function createChatBoxFor(userid:String):ChatBox {				
@@ -435,7 +429,6 @@
 			
 			public function userLeft(user:User):void{
 				removeParticipantFromList(user.userid);
-				//showMessage(PUBLIC_CHAT_USERID, "<b>" +  event.participant.name + " has left the conference </b>");
 			}
 			/** end IUserListener methods */
 			

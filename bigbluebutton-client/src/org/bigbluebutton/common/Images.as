@@ -21,6 +21,14 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
+		[Embed(source="assets/images/green-circle.png")]
+		public var greenCircle:Class;
+		
+		[Embed(source="assets/images/blank-circle.png")]
+		public var blankCircle:Class;
+		
+		[Embed(source="assets/images/red-circle.png")]
+		public var redCircle:Class;
 		
         [Embed(source="assets/images/user_gray.png")]
         public var user_gray:Class; 

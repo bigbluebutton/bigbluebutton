@@ -68,7 +68,7 @@ public class RedisMessagingService implements MessagingService{
 		try {
 			jedis.publish(channel, message);
 		} catch(Exception e){
-			log.warn("Cannot publish the message to redis",e);
+			log.warn("Cannot publish the message to redis", e);
 		}finally{
 			redisPool.returnResource(jedis);
 		}
@@ -126,7 +126,7 @@ public class RedisMessagingService implements MessagingService{
 
 		@Override
 		public void onPSubscribe(String pattern, int subscribedChannels) {
-			log.debug("Subscribed to the pattern:"+pattern);
+			log.debug("Subscribed to the pattern: " + pattern);
 		}
 
 		@Override

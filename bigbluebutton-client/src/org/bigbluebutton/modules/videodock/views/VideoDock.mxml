@@ -33,13 +33,12 @@ $Id: $
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.events.ChildExistenceChangedEvent;
-			
+			import mx.events.ChildExistenceChangedEvent;			
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.UserManager;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.DragWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
@@ -57,16 +56,19 @@ $Id: $
 			
 			private var prioritizeWindow:Boolean = false;
 			private var priorityWindow:VideoWindowItf = null;
-			// the prioritize video will fit a portion of the dock that is represented by this weight
+			// the priority video will fit a portion of the dock that is represented by this weight
 			// bigger the weight, bigger will be the window and less space the other windows will have
 			private var priorityWindowWeight:Number = 2/3;
 			
+			private var options:DockOptions;
 			
-			private function init():void{
-				this.showCloseButton = false;
+			private function init():void {				
+				options = new DockOptions();
 				
-				this.minWidth = 172;
-				this.minHeight = 179;
+				this.showCloseButton = false;		
+				
+				this.minWidth = options.width;
+				this.minHeight = options.height;
 				this.maxWidth = this.parent.width;
 				this.maxHeight = this.parent.height;
 				
@@ -118,7 +120,8 @@ $Id: $
 			}
 			
 			public function getPrefferedPosition():String {
-				return MainCanvas.BOTTOM_RIGHT;
+				//return MainCanvas.BOTTOM_RIGHT;
+				return options.position;
 			}
 			
 			private function onDragVideoWindow(e:DragWindowEvent):void{
@@ -197,7 +200,7 @@ $Id: $
 				window.resizable = false;
 				window.buttonsEnabled = false;
 
-				window.addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+				window.addEventListener(MouseEvent.CLICK, onWindowClick);
 
 				var e:CloseWindowEvent = new CloseWindowEvent();
 				e.window = window;
@@ -214,7 +217,7 @@ $Id: $
 				window.resizable = true;
 				window.buttonsEnabled = true;
 				
-				window.removeEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+				window.removeEventListener(MouseEvent.CLICK, onWindowClick);
 	
 				this.removeChild(window);
 				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
@@ -306,10 +309,26 @@ $Id: $
 				
 				childWidth += VideoWindowItf.PADDING_HORIZONTAL;
 				childHeight += VideoWindowItf.PADDING_VERTICAL;
-								
-				borderTop += (availableHeight - nRows * childHeight - (nRows - 1) * verticalGap) / 2;
-				borderLeft += (availableWidth - nColumns * childWidth - (nColumns - 1) * horizontalGap) / 2;
-					
+
+				const horizontalBorder:int = availableWidth - nColumns * childWidth - (nColumns - 1) * horizontalGap;
+				const verticalBorder:int = availableHeight - nRows * childHeight - (nRows - 1) * verticalGap;
+				// this couple of lines will center the priority window on the available space for it
+				if (prioritizeWindow) {
+					if (priorityWindow.x == 0) {
+						priorityWindow.x = horizontalBorder / 3;
+						borderTop += verticalBorder / 2;
+						borderLeft += horizontalBorder * (2 / 3);
+					} else {
+						priorityWindow.y = verticalBorder / 3;  
+						borderTop += verticalBorder * (2 / 3);
+						borderLeft += horizontalBorder / 2;
+					}
+				} else {
+					// if there's no priority window, the border will be only around the little windows
+					borderTop += verticalBorder / 2;
+					borderLeft += horizontalBorder / 2;
+				}
+									
 				for (var childIndex:int = (prioritizeWindow? 1: 0); childIndex < children.length; ++childIndex) {
 					var window:VideoWindowItf = children[childIndex];
 					const wWidth:int = childWidth;
@@ -335,7 +354,7 @@ $Id: $
 				} 
 			}
 			
-			protected function onDoubleClick(event:MouseEvent = null):void {
+			protected function onWindowClick(event:MouseEvent = null):void {
 				if (mutableChildrenArray.length <= 1)
 					return;
 					
@@ -343,7 +362,7 @@ $Id: $
 					priorityWindow = null;
 					prioritizeWindow = false;
 				} else {
-					var index:int = mutableChildrenArray.indexOf(event.currentTarget);				
+					var index:int = mutableChildrenArray.indexOf(event.currentTarget);
 					if (index != -1) {
 						mutableChildrenArray[index] = mutableChildrenArray[0];
 						mutableChildrenArray[0] = event.currentTarget;

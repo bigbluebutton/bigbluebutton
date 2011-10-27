@@ -22,9 +22,10 @@
 
 <MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 			xmlns="flexlib.mdi.containers.*"
+			xmlns:flc="flexlib.controls.*"
 			implements="org.bigbluebutton.common.IBbbModuleWindow"
 			title="{windowTitle}"
-			creationComplete="onCreationComplete()" xmlns:mate="http://mate.asfusion.com/">
+			creationComplete="onCreationComplete()" xmlns:mate="http://mate.asfusion.com/" xmlns:controls="flexlib.controls.*">
 	
 	<mate:Listener type="{ListenersEvent.ROOM_MUTE_STATE}" method="roomMuteStateChange" />
 	<mate:Listener type="{ListenersEvent.REGISTER_LISTENERS}" method="registerListeners" />
@@ -33,7 +34,6 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.listeners.model.ListenerOptions;
 			import flash.events.MouseEvent;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -46,17 +46,19 @@
 			import mx.events.ListEvent;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.listeners.events.ListenersCommand;
 			import org.bigbluebutton.modules.listeners.events.ListenersEvent;
+			import org.bigbluebutton.modules.listeners.model.ListenerOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images= new Images();
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
- 			  			
+ 			
 			[Bindable] private var muteAllIcon:Class = images.sound_mute; 
 			[Bindable] private var unmuteAllIcon:Class = images.sound_none;
 			[Bindable] private var kickIcon:Class = images.eject_user;
@@ -123,6 +125,15 @@
 				setMuteState(muteAllBtn.selected);
 			}
 			
+			private function toggleMuteMeState():void{
+				if (UserManager.getInstance().getConference().isMyVoiceLocked()) return;
+				
+				var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);
+				e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
+				e.mute = !UserManager.getInstance().getConference().isMyVoiceMuted();
+				dispatchEvent(e);
+			}
+			
 			private function muteAllListeners():void{
 				var muteCommand:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_ALL);
 				dispatchEvent(muteCommand);
@@ -182,10 +193,18 @@
     	</mx:List>				
     	    	
     	<mx:ControlBar width="100%">
-    	    <mx:Button id="muteAllBtn" icon="{muteAllIcon}" visible="{moderator}" toggle="true" selected="false"
+    	   <mx:Button id="muteAllBtn" icon="{muteAllIcon}" visible="{moderator}" toggle="true" selected="false"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}" 
     	   			click="toggleMuteState()" width="18" height="18"/>         	   
      	   <mx:Spacer width="100%"/>
+			<flc:CanvasButton id="pushToTalkBtn" visible="{UserManager.getInstance().getConference().voiceJoined}" 
+					   	toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" 
+					   	click="toggleMuteMeState()" width="60" height="30">
+				<mx:HBox verticalAlign="middle" horizontalGap="0" paddingLeft="5" paddingTop="5" paddingRight="5" paddingBottom="5">
+					<mx:Image source="{UserManager.getInstance().getConference().voiceMuted ? images.blankCircle : images.greenCircle}" />
+					<mx:Label text="{ResourceUtil.getInstance().getString('bbb.listeners.talk')}" />
+				</mx:HBox> 
+			</flc:CanvasButton>
     	</mx:ControlBar>
 
 </MDIWindow>

@@ -47,7 +47,7 @@ public class RoomsManager {
 	}
 	
 	public void addRoom(Room room) {
-		log.debug("Adding room {}", room.getName());
+		log.debug("Adding room " + room.getName());
 		room.addRoomListener(new ParticipantUpdatingRoomListener(room,messagingService)); 	
 		
 		if (checkPublisher()) {
@@ -64,7 +64,7 @@ public class RoomsManager {
 	}
 	
 	public void removeRoom(String name) {
-		log.debug("Remove room {}", name);
+		log.debug("Remove room " + name);
 		Room room = rooms.remove(name);
 		if (checkPublisher() && room != null) {
 			room.endAndKickAll();
@@ -104,7 +104,7 @@ public class RoomsManager {
 	 */
 	//TODO: this method becomes public for ParticipantsApplication, ask if it's right? 
 	public Room getRoom(String name) {
-		log.debug("Get room {}", name);
+		log.debug("Get room " + name);
 		return rooms.get(name);
 	}
 	
@@ -113,7 +113,7 @@ public class RoomsManager {
 		if (r != null) {
 			return r.getParticipants();
 		}
-		log.warn("Getting participants from a non-existing room {}", roomName);
+		log.warn("Getting participants from a non-existing room " + roomName);
 		return null;
 	}
 	
@@ -123,7 +123,7 @@ public class RoomsManager {
 			r.addRoomListener(listener);
 			return;
 		}
-		log.warn("Adding listener to a non-existing room {}", roomName);
+		log.warn("Adding listener to a non-existing room " + roomName);
 	}
 	
 	// TODO: this must be broken, right?  where is roomName? (JRT: 9/25/2009)
@@ -138,7 +138,7 @@ public class RoomsManager {
 //	}
 
 	public void addParticipant(String roomName, Participant participant) {
-		log.debug("Add participant {}", participant.getName());
+		log.debug("Add participant " + participant.getName());
 		Room r = getRoom(roomName);
 		if (r != null) {
 /*			if (checkPublisher()) {
@@ -158,11 +158,11 @@ public class RoomsManager {
 
 			return;
 		}
-		log.warn("Adding participant to a non-existing room {}", roomName);
+		log.warn("Adding participant to a non-existing room " + roomName);
 	}
 	
 	public void removeParticipant(String roomName, Long userid) {
-		log.debug("Remove participant {} from {}", userid, roomName);
+		log.debug("Remove participant " + userid + " from " + roomName);
 		Room r = getRoom(roomName);
 		if (r != null) {
 			if (checkPublisher()) {
@@ -173,17 +173,17 @@ public class RoomsManager {
 
 			return;
 		}
-		log.warn("Removing listener from a non-existing room ${roomName}");
+		log.warn("Removing listener from a non-existing room " + roomName);
 	}
 	
 	public void changeParticipantStatus(String roomName, Long userid, String status, Object value) {
-		log.debug("Change participant status {} - {} [" + value + "]", userid, status);
+		log.debug("Change participant status " + userid + " - " + status + " [" + value + "]");
 		Room r = getRoom(roomName);
 		if (r != null) {
 			r.changeParticipantStatus(userid, status, value);
 			return;
 		}		
-		log.warn("Changing participant status on a non-existing room {}", roomName);
+		log.warn("Changing participant status on a non-existing room " + roomName);
 	}
 
 	public void setMessagingService(MessagingService messagingService) {
@@ -199,12 +199,12 @@ public class RoomsManager {
 
 		@Override
 		public void endMeetingRequest(String meetingId) {
-			log.debug("End meeting request for room: {} ", meetingId);
+			log.debug("End meeting request for room: " + meetingId);
 			Room room = getRoom(meetingId); // must do this because the room coming in is serialized (no transient values are present)
 			if (room != null)
 				room.endAndKickAll();
 			else
-				log.debug("Could not find room {}", meetingId);
+				log.debug("Could not find room " + meetingId);
 		}
 		
 		@Override

@@ -26,11 +26,12 @@ package org.bigbluebutton.modules.listeners.business
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.listeners.business.vo.Listener;
 	import org.bigbluebutton.modules.listeners.business.vo.Listeners;
 	import org.bigbluebutton.modules.listeners.events.ListenersEvent;
-	import org.bigbluebutton.common.LogUtil;
 
 	public class ListenersSOService
 	{
@@ -106,32 +107,37 @@ package org.bigbluebutton.modules.listeners.business
 		public function addConnectionStatusListener(connectionListener:Function):void {
 			_connectionListener = connectionListener;
 		}
-		
+				
 		public function userJoin(userId:Number, cidName:String, cidNum:String, 
-									muted:Boolean, talking:Boolean, locked:Boolean):void
-		{
+					muted:Boolean, talking:Boolean, locked:Boolean):void {
 			if (! _listeners.hasListener(userId)) {
 				var n:Listener = new Listener();
-				n.callerName = (cidName != null) ? cidName : "<Unknown Caller>";
+				n.callerName = cidName != null ? cidName : "<Unknown Caller>";
 				n.callerNumber = cidNum;
 				n.muted = muted;
 				n.userid = userId;
 				n.talking = talking;
 				n.locked = locked;
 				n.moderator = _module.isModerator();
-				
+			
+				/**
+				 * Let's store the voice userid so we can do push to talk.
+				 */
+				var pattern:RegExp = /(\d*)-(\w*)$/;
+				var result:Object = pattern.exec(n.callerName);
+				if (result != null) {
+					/**
+					 * The first item is the userid and the second is the username.
+					 */
+					if (UserManager.getInstance().getConference().amIThisUser(result[1])) {
+						UserManager.getInstance().getConference().setMyVoiceUserId(n.userid);						
+						UserManager.getInstance().getConference().muteMyVoice(n.muted);
+						UserManager.getInstance().getConference().setMyVoiceJoined(true);
+					}					
+				}
+				n.callerName = result[2]; /* Store the username */				
 				LogUtil.info(LOGNAME + "Adding listener [" + n.callerName + "," + userId + "]");
 				_listeners.addListener(n);
-				/**
-				 * Let's send an event that the first user has joined the voice conference.
-				 * We use this as a trigger to playback the recorded audio.
-				 * NOTE: THis is just a hack...need to do this properly. (ralam - march 26, 2009)
-				 */
-				if (_module.mode == 'PLAYBACK') {
-					if (_listeners.listeners.length == 1) {
-						dispatcher.dispatchEvent(new ListenersEvent(ListenersEvent.FIRST_LISTENER_JOINED_EVENT));
-					}
-				}
 				
 				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.ADDED_LISTENER, n.callerName));
 			} else {
@@ -139,21 +145,30 @@ package org.bigbluebutton.modules.listeners.business
 			}
 		}
 
-		public function userMute(userId:Number, mute:Boolean):void
-		{
+		public function userMute(userId:Number, mute:Boolean):void {
 			var l:Listener = _listeners.getListener(userId);			
 			if (l != null) {
 				l.muted = mute;
-//				LogUtil.debug(LOGNAME + 'Un/Muting user ' + userId + " mute=" + mute);
+				/**
+				 * Let's store the voice userid so we can do push to talk.
+				 */
+				if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
+					UserManager.getInstance().getConference().muteMyVoice(l.muted);
+				}					
 			}					
 		}
 
-		public function userLockedMute(userId:Number, locked:Boolean):void
-		{
+		public function userLockedMute(userId:Number, locked:Boolean):void {
 			var l:Listener = _listeners.getListener(userId);			
 			if (l != null) {
 				l.locked = locked;
 				LogUtil.debug(LOGNAME + 'Lock Un/Muting user ' + userId + " locked=" + locked);
+				/**
+				 * Let's store the voice userid so we can do push to talk.
+				 */
+				if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
+					UserManager.getInstance().getConference().setMyVoiceLocked(l.locked);
+				}
 			}					
 		}
 		
@@ -168,6 +183,14 @@ package org.bigbluebutton.modules.listeners.business
 		public function userLeft(userId:Number):void
 		{
 			_listeners.removeListener(userId);	
+			/**
+			 * Let's store the voice userid so we can do push to talk.
+			 */
+			if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
+				UserManager.getInstance().getConference().setMyVoiceJoined(false);
+				UserManager.getInstance().getConference().setMyVoiceUserId(0);
+				UserManager.getInstance().getConference().setMyVoiceJoined(false);
+			}
 		}
 		
 		public function ping(message:String):void {
@@ -181,8 +204,7 @@ package org.bigbluebutton.modules.listeners.business
 			}
 		}
 		
-		public function lockMuteUser(userid:Number, lock:Boolean):void
-		{
+		public function lockMuteUser(userid:Number, lock:Boolean):void {
 			var nc:NetConnection = _module.connection;
 			nc.call(
 				"voice.lockMuteUser",// Remote function name
@@ -219,7 +241,7 @@ package org.bigbluebutton.modules.listeners.business
 						LogUtil.error("Error occurred:"); 
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 
-							} 
+						} 
 					}
 				),//new Responder
 				userid,

@@ -56,7 +56,7 @@ repositories {
    	}
 }
 
-dependencies {	 	
+dependencies {	 
 	// Servlet
 	providedCompile 'javax.servlet:servlet-api:2.5@jar'
 	
@@ -65,16 +65,12 @@ dependencies {
 	providedCompile 'mina:mina-integration-beans:2.0.4@jar'
 	providedCompile 'mina:mina-integration-jmx:2.0.4@jar'
 	
-	// Asterisk-Java
-	compile 'org.asteriskjava:asterisk-java:1.0.0.M3@jar'
-	 
 	// Spring 
-  providedCompile 'org.springframework:spring-web:3.0.5.RELEASE@jar'    
-  providedCompile 'org.springframework:spring-beans:3.0.5.RELEASE@jar'
+  providedCompile 'org.springframework:spring-web:3.0.5.RELEASE@jar' 
+  providedCompile  'org.springframework:spring-beans:3.0.5.RELEASE@jar'
   providedCompile 'org.springframework:spring-context:3.0.5.RELEASE@jar'
   providedCompile 'org.springframework:spring-core:3.0.5.RELEASE@jar'
-
-  		
+			
 	// Red5
 	providedCompile 'org/red5:red5:1.0rc1@jar'
 	

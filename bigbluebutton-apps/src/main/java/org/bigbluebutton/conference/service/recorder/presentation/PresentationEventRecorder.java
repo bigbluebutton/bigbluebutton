@@ -39,12 +39,12 @@ public class PresentationEventRecorder implements IPresentationRoomListener {
 			handleConversionCompletedEvent(message);
 		}
 		else{
-			log.error("NOT recording received message {}",messageKey);
+			log.error("NOT recording received message " + messageKey);
 		}
 	}
 	
 	private void handleGeneratedSlideEvent(Map<String, Object> message) {
-		log.debug("Generated Slide Event [{}]", (String)message.get("presentationName"));
+		log.debug("Generated Slide Event [" + message.get("presentationName") + "]");
 		
 		GenerateSlidePresentationRecordEvent event = new GenerateSlidePresentationRecordEvent();
 		event.setMeetingId(session);
@@ -56,7 +56,7 @@ public class PresentationEventRecorder implements IPresentationRoomListener {
 	}
 
 	private void handleConversionCompletedEvent(Map<String, Object> message) {
-		log.debug("Conversion Completed Event [{}]", (String)message.get("presentationName"));
+		log.debug("Conversion Completed Event [" + message.get("presentationName") + "]");
 		
 		ConversionCompletedPresentationRecordEvent event = new ConversionCompletedPresentationRecordEvent();
 		event.setMeetingId(session);
