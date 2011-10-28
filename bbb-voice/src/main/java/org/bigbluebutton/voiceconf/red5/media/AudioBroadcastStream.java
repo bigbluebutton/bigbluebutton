@@ -184,16 +184,14 @@ public class AudioBroadcastStream implements IBroadcastStream, IProvider, IPipeC
 	    		break;
 		}
 	}
-
-	private final RTMPMessage msg = new RTMPMessage();
 	
 	public void dispatchEvent(IEvent event) {
 //		log.trace("dispatchEvent(event:{})", event);
 		if (event instanceof IRTMPEvent) {
 			IRTMPEvent rtmpEvent = (IRTMPEvent) event;
 			if (livePipe != null) {
-				
-				msg.setBody(rtmpEvent);
+				RTMPMessage msg = RTMPMessage.build(rtmpEvent);
+				//msg.setBody(rtmpEvent);
           
 				if (creationTime == null)
 					creationTime = (long)rtmpEvent.getTimestamp();
