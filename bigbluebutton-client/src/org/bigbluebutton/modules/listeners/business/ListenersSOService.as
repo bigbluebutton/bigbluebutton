@@ -167,7 +167,7 @@ package org.bigbluebutton.modules.listeners.business
 				 * Let's store the voice userid so we can do push to talk.
 				 */
 				if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
-					UserManager.getInstance().getConference().setMyVoiceLocked(l.locked);
+					UserManager.getInstance().getConference().voiceLocked = l.locked;
 				}
 			}					
 		}

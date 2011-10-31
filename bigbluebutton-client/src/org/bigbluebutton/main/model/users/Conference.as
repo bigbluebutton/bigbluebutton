@@ -136,15 +136,15 @@ package org.bigbluebutton.main.model.users {
 		public function setMePresenter(presenter:Boolean):void {
 			me.presenter = presenter;
 		}
-		
-		public function amIModerator():Boolean {
-			return me.role == Role.MODERATOR;
-		}
-		
+				
 		public function amIThisUser(userid:int):Boolean {
 			return me.userid == userid;
 		}
-		
+				
+		public function amIModerator():Boolean {
+			return me.role == Role.MODERATOR;
+		}
+
 		public function muteMyVoice(mute:Boolean):void {
 			voiceMuted = mute;
 		}
@@ -192,11 +192,12 @@ package org.bigbluebutton.main.model.users {
 			return me.voiceJoined;
 		}
 		
-		public function setMyVoiceLocked(locked:Boolean):void {
+		[Bindable]
+		public function set voiceLocked(locked:Boolean):void {
 			me.voiceLocked = locked;
 		}
 		
-		public function isMyVoiceLocked():Boolean {
+		public function get voiceLocked():Boolean {
 			return me.voiceLocked;
 		}
 		
