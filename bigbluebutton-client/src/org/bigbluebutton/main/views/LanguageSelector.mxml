@@ -111,7 +111,7 @@
 			
 			private function changeLanguage():void{
 				var lang:String = this.langCodes[this.selectedIndex];
-				ResourceUtil.getInstance().changeLocale(lang);
+				ResourceUtil.getInstance().setPreferredLocale(lang);
 			}
 		]]>
 	</mx:Script>

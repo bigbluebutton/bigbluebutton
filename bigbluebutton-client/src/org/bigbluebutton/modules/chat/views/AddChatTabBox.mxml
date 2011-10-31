@@ -27,13 +27,11 @@
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
-			import com.adobe.utils.StringUtil;
-			
+			import com.adobe.utils.StringUtil;			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.events.ListEvent;
-			import mx.utils.StringUtil;
-			
+			import mx.utils.StringUtil;			
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -41,8 +39,7 @@
 			[Bindable] public var chatView:ChatView;
 			[Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
 			
-			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();
-			
+			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();			
 			[Bindable] private var langNames:Array=[ 
 								'AFRIKAANS' , 
 								'ALBANIAN' , 
