@@ -64,7 +64,7 @@
 				chatView.openChatBoxFor(id);
 			}
 			
-			private function changeFontSize():void{
+			private function changeFontSize():void {
 				var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.CHANGE_FONT_SIZE);
 				e.fontSize = int(cmbFontSize.selectedItem);
 				dispatchEvent(e);

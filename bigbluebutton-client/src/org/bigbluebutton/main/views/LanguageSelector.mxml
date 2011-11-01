@@ -20,17 +20,17 @@
   $Id: $
 -->
 
-<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{this.langNames}" 
-			 selectedIndex="10" change="changeLanguage()" rowCount="15" width="120">
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{ResourceUtil.getInstance().localeNames}" 
+			 selectedIndex="{localeIndex}"
+			 change="changeLanguage()" rowCount="15" width="120">
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			[Bindable] private var langNames:Array = ResourceUtil.getInstance().localeNames;			
-			[Bindable] private var langCodes:Array = ResourceUtil.getInstance().localeCodes;
 			
-			private function changeLanguage():void{
-				var lang:String = this.langCodes[this.selectedIndex];
-				ResourceUtil.getInstance().setPreferredLocale(lang);
+			[Bindable] private var localeIndex:Number = ResourceUtil.getInstance().localeIndex;
+			
+			private function changeLanguage():void {
+				ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(selectedIndex));
 			}
 		]]>
 	</mx:Script>
