@@ -105,7 +105,9 @@ package org.bigbluebutton.util.i18n
 		}
 		
 		private function load(language:String):IEventDispatcher {
-			var localeURI:String = 'locale/' + language + '_resources.swf';
+			// Add a random string on the query so that we don't get a cached version.
+			var date:Date = new Date();
+			var localeURI:String = 'locale/' + language + '_resources.swf?a=' + date.time;
 			return resourceManager.loadResourceModule(localeURI, false);
 		}		
 		
