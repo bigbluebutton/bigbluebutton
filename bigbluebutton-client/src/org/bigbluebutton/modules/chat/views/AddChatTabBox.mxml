@@ -45,15 +45,6 @@
 			
 			private function init():void{
 				participants = new ArrayCollection();
-				
-				var langCode:String = (ExternalInterface.call('getLanguage') as String);
-				if (langCode == null) return;
-				
-				var language:String = langCode.split("_")[0];
-				if (langCodes.indexOf(language) != -1){
-					langComboBox.selectedIndex = langCodes.indexOf(language);
-					changeLanguage();
-				} 
 			}
 
 
@@ -76,7 +67,7 @@
 			}
 			
 			private function toggleTranslation():void {
-				var e:ChatOptionsEvent=new ChatOptionsEvent(ChatOptionsEvent.TOGGLE_TRANSLATE);	
+				var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.TOGGLE_TRANSLATE);	
 				e.translateOn = autoTransCheckBox.selected;
 				dispatchEvent(e);
 			}
@@ -95,12 +86,7 @@
 			
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
-				
-				var language:String = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
-				if ((langCodes.indexOf(language) != -1) && (langComboBox != null)){
-					langComboBox.selectedIndex = langCodes.indexOf(language);
-					changeLanguage();
-				} 
+//				ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(langComboBox.selectedIndex)); 
 			}
 			
 		]]>
@@ -118,7 +104,7 @@
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
 				<mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" selectedIndex="1" />
 			</mx:HBox>
-			<mx:ComboBox id="langComboBox" dataProvider="{this.langNames}" selectedIndex="12"  change="changeLanguage()" rowCount="15" />
+			<mx:ComboBox id="langComboBox" dataProvider="{this.langNames}" selectedIndex="{ResourceUtil.getInstance().localeIndex}"  change="changeLanguage()" rowCount="15" />
 			<mx:CheckBox id="autoTransCheckBox" selected="false" label="AutoTranslate" toolTip="Auto detect language and translate" change="toggleTranslation()"/>
 		</mx:VBox>
 	</mx:HBox>
