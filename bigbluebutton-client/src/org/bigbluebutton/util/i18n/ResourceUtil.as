@@ -110,7 +110,7 @@ package org.bigbluebutton.util.i18n
 		public function setPreferredLocale(locale:String):void {
 			LogUtil.debug("Setting up preferred locale " + locale);
 			preferredLocale = locale;
-			if ((preferredLocale != MASTER_LOCALE) && isPreferredLocaleAvailable(preferredLocale)) {				
+			if (isPreferredLocaleAvailable(preferredLocale)) {				
 				changeLocale(preferredLocale);				
 			}
 		}
@@ -145,7 +145,12 @@ package org.bigbluebutton.util.i18n
 		
 		private function localeChangeComplete(event:ResourceEvent):void {
 			// Set the preferred locale and master as backup.
-			resourceManager.localeChain = [preferredLocale, MASTER_LOCALE];
+			if (preferredLocale != MASTER_LOCALE) {
+				resourceManager.localeChain = [preferredLocale, MASTER_LOCALE];
+			} else {
+				resourceManager.localeChain = [MASTER_LOCALE];
+			}
+			
 			update();
 		}
 		
