@@ -47,7 +47,9 @@ package org.bigbluebutton.util.i18n
 		private static var BBB_RESOURCE_BUNDLE:String = 'bbbResources';
 		private static var MASTER_LOCALE:String = "en_US";
 		
+		[Bindable]
 		public var localeCodes:Array = new Array();
+		[Bindable]
 		public var localeNames:Array = new Array();
 		
 		private var eventDispatcher:IEventDispatcher;

@@ -40,113 +40,8 @@
 			[Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
 			
 			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();			
-			[Bindable] private var langNames:Array=[ 
-								'AFRIKAANS' , 
-								'ALBANIAN' , 
-								'ARABIC' , 
-								'BELARUSIAN' , 
-								'BULGARIAN' , 
-								'CATALAN' , 
-								'CHINESE' , 
-								'CHINESE_SIMPLIFIED' , 
-								'CHINESE_TRADITIONAL' , 
-								'CZECH' ,  
-								'DANISH' , 
-								'DUTCH',   
-								'ENGLISH' , 
-								'ESTONIAN' , 
-								'FILIPINO' , 
-								'FINNISH' , 
-								'FRENCH' ,  
-								'GALICIAN' , 
-								'GERMAN' , 
-								'GREEK' , 
-								'HEBREW' , 
-								'HINDI' , 
-								'HUNGARIAN' , 
-								'ICELANDIC' , 
-								'INDONESIAN' , 
-								'IRISH' , 
-								'ITALIAN' , 
-								'JAPANESE' , 
-								'KOREAN' , 
-								'LATVIAN' , 
-								'LITHUANIAN' , 
-								'MACEDONIAN' , 
-								'MALAY' , 
-								'MALTESE' , 
-								'NORWEGIAN' , 
-								'PERSIAN' , 
-								'POLISH' , 
-								'PORTUGUESE' , 
-								'ROMANIAN' , 
-								'RUSSIAN' , 
-								'SERBIAN' , 
-								'SLOVAK' , 
-								'SLOVENIAN' , 
-								'SPANISH' , 
-								'SWAHILI' , 
-								'SWEDISH' , 
-								'THAI' , 
-								'TURKISH' , 
-								'UKRAINIAN' , 
-								'VIETNAMESE' , 
-								'WELSH' ,  
-								'YIDDISH' ]  ;
-			
-			private var langCodes:Array=[
-									'af', 
-									'sq', 
-									'ar', 
-									'be', 
-									'bg', 
-									'ca', 
-									'zh', 
-									'zh-CN', 
-									'zh-TW', 
-									'cs', 
-									'da', 
-									'nl',   
-									'en', 
-									'et', 
-									'tl', 
-									'fi', 
-									'fr', 
-									'gl', 
-									'de', 
-									'el', 
-									'iw', 
-									'hi', 
-									'hu', 
-									'is', 
-									'id', 
-									'ga', 
-									'it', 
-									'ja', 
-									'ko', 
-									'lv', 
-									'lt', 
-									'mk', 
-									'ms', 
-									'mt', 
-									'no', 
-									'fa', 
-									'pl', 
-									'pt', 
-									'ro', 
-									'ru', 
-									'sr', 
-									'sk', 
-									'sl', 
-									'es', 
-									'sw', 
-									'sv', 
-									'th', 
-									'tr', 
-									'uk', 
-									'vi', 
-									'cy', 
-									'yi']  ;
+			[Bindable] private var langNames:Array = ResourceUtil.getInstance().localeNames;		
+			[Bindable] private var langCodes:Array = ResourceUtil.getInstance().localeCodes;
 			
 			private function init():void{
 				participants = new ArrayCollection();
@@ -175,16 +70,12 @@
 				dispatchEvent(e);
 			}
 			
-			private function changeLanguage():void
-			{
+			private function changeLanguage():void {
 				var lang:String = this.langCodes[this.langComboBox.selectedIndex];
-				var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.CHANGE_LANGUAGE);
-				e.language= lang;
-				dispatchEvent(e);
+				ResourceUtil.getInstance().setPreferredLocale(lang);
 			}
 			
-			private function toggleTranslation():void
-			{
+			private function toggleTranslation():void {
 				var e:ChatOptionsEvent=new ChatOptionsEvent(ChatOptionsEvent.TOGGLE_TRANSLATE);	
 				e.translateOn = autoTransCheckBox.selected;
 				dispatchEvent(e);
@@ -205,19 +96,13 @@
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				
-				var language:String = overrideNorwegian(ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0]);
+				var language:String = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
 				if ((langCodes.indexOf(language) != -1) && (langComboBox != null)){
 					langComboBox.selectedIndex = langCodes.indexOf(language);
 					changeLanguage();
 				} 
 			}
 			
-			private function overrideNorwegian(lang:String):String{
-				var code:String = lang;
-				if (lang == "nb") code = "no"; //Code for norwegian in the google api is different than in bbb localization (ours is nb, google is no)
-				return code;
-			}
-
 		]]>
 	</mx:Script>
 	
