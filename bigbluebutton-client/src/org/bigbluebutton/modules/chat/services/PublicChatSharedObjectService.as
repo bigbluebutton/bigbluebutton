@@ -157,13 +157,11 @@ package org.bigbluebutton.modules.chat.services
 			sendTranscriptLoadedEvent();
 		}
 		
-		private function asyncErrorHandler(event:AsyncErrorEvent):void
-		{
+		private function asyncErrorHandler(event:AsyncErrorEvent):void {
 			trace("PresentSO asynchronous error.");
 		}
 		
-		private function sharedObjectSyncHandler(event:SyncEvent) : void
-		{
+		private function sharedObjectSyncHandler(event:SyncEvent):void {
 			var connEvent:ConnectionEvent = new ConnectionEvent(ConnectionEvent.CONNECT_EVENT);	
 			connEvent.success = true;		
 			trace("Dispatching NET CONNECTION SUCCESS");

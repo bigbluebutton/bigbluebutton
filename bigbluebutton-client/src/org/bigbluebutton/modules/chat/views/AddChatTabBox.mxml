@@ -29,7 +29,6 @@
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import com.adobe.utils.StringUtil;			
 			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
 			import mx.events.ListEvent;
 			import mx.utils.StringUtil;			
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
@@ -47,7 +46,6 @@
 				participants = new ArrayCollection();
 			}
 
-
 			protected function openPrivateChat(event:ListEvent):void{
 				if (participantsList.selectedIndex == -1) return;
 				var id:String = participantsList.selectedItem.userid;
@@ -62,8 +60,7 @@
 			}
 			
 			private function changeLanguage():void {
-				var lang:String = this.langCodes[this.langComboBox.selectedIndex];
-				ResourceUtil.getInstance().setPreferredLocale(lang);
+				ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(this.langComboBox.selectedIndex));
 			}
 			
 			private function toggleTranslation():void {
@@ -83,12 +80,7 @@
 				autoTransCheckBox.selected = e.translateOn;
 				toggleTranslation();
 			}
-			
-			override protected function resourcesChanged():void{
-				super.resourcesChanged();
-//				ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(langComboBox.selectedIndex)); 
-			}
-			
+						
 		]]>
 	</mx:Script>
 	
