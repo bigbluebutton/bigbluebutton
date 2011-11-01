@@ -21,13 +21,11 @@
 -->
 
 <mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{ResourceUtil.getInstance().localeNames}" 
-			 selectedIndex="{localeIndex}"
+			 selectedIndex="{ResourceUtil.getInstance().localeIndex}"
 			 change="changeLanguage()" rowCount="15" width="120">
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
-			[Bindable] private var localeIndex:Number = ResourceUtil.getInstance().localeIndex;
 			
 			private function changeLanguage():void {
 				ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(selectedIndex));

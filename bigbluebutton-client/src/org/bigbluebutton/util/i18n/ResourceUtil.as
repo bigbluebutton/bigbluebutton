@@ -108,11 +108,20 @@ package org.bigbluebutton.util.i18n
 			return false;
 		}
 		
+		private function getIndexForLocale(prefLocale:String):int {
+			for (var i:Number = 0; i < localeCodes.length; i++){
+				if (prefLocale == localeCodes[i]) 
+					return i;
+			}
+			return -1;
+		}
+		
 		public function setPreferredLocale(locale:String):void {
 			LogUtil.debug("Setting up preferred locale " + locale);
 			if (isPreferredLocaleAvailable(preferredLocale)) {
 				preferredLocale = locale;
-				localeIndex = localeCodes.indexOf(preferredLocale);
+				localeIndex = getIndexForLocale(preferredLocale);
+				LogUtil.debug("Setting up preferred locale index " + localeIndex);
 				changeLocale(preferredLocale);				
 			}
 		}
@@ -151,11 +160,11 @@ package org.bigbluebutton.util.i18n
 			// Set the preferred locale and master as backup.
 			if (preferredLocale != MASTER_LOCALE) {
 				resourceManager.localeChain = [preferredLocale, MASTER_LOCALE];
-				localeIndex = localeCodes.indexOf(preferredLocale);
+				localeIndex = getIndexForLocale(preferredLocale);
 			} else {
 				resourceManager.localeChain = [MASTER_LOCALE];
 				preferredLocale = MASTER_LOCALE;
-				localeIndex = localeCodes.indexOf(preferredLocale);
+				localeIndex = getIndexForLocale(preferredLocale);
 			}
 			
 			update();
@@ -168,7 +177,7 @@ package org.bigbluebutton.util.i18n
 		private function handleResourceNotLoaded(event:ResourceEvent):void{
 			resourceManager.localeChain = [MASTER_LOCALE];
 			preferredLocale = MASTER_LOCALE;
-			localeIndex = localeCodes.indexOf(preferredLocale);
+			localeIndex = getIndexForLocale(preferredLocale);
 			update();
 		}
 		
