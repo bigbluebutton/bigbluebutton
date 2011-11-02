@@ -14,8 +14,8 @@
 		<module name="ChatModule" url="ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="ViewersModule"	
-			translationOn="true"
-			translationEnabled="true"	
+			translationOn="false"
+			translationEnabled="false"	
 			privateEnabled="true"  
 			position="top-right"
 		/>
@@ -62,7 +62,8 @@
 			camModeFps="15"
 			camQualityBandwidth="0"
 			camQualityPicture="50"
-			h264Level="4.1"
+			enableH264="false"
+			h264Level="2.1"
 			h264Profile="main"			
 		/>
 		

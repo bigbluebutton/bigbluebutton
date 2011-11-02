@@ -247,17 +247,20 @@
 					mdiCanvas.removeAllWindows(); 				
 				} else {
 					mdiCanvas.removeAllWindows();
-					redirect();
+					var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
+					var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
+					var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+					var urlLoader:URLLoader = new URLLoader();
+					urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);	
+					urlLoader.load(request);
 				}				
 			}
 			
-            private function redirect():void { 
-				var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
-				var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-				var url:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
-            	LogUtil.debug("Log out url: " + pageURL);
-				navigateToURL(url, '_self');
-            }
+			private function handleLogoutComplete(e:Event):void {	
+				var request:URLRequest = new URLRequest(BBB.initUserConfigManager().getLogoutUrl());
+				LogUtil.debug("Logging out to: " + BBB.initUserConfigManager().getLogoutUrl());
+				navigateToURL(request, '_self');			
+			}
 			
 			private function attemptReconnect(e:ConnectionFailedEvent):void{
 				/*if (connectionLostWindow != null) return;

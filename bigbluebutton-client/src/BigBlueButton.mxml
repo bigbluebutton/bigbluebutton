@@ -217,7 +217,6 @@
 	<m:Melomel/>
 	
 	<maps:ApplicationEventMap />	
-
 	<views:MainApplicationShell id="mainShell"/>	
 	
 	<mate:Listener type="{BBBEvent.LOGIN_EVENT}" method="handleLoginEvent"/>
