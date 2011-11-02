@@ -45,20 +45,16 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.MouseEvent;
-			
+			import com.asfusion.mate.events.Dispatcher;			
+			import flash.events.MouseEvent;			
 			import flexlib.mdi.containers.MDIWindow;
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-			
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;			
 			import mx.collections.ArrayCollection;
 			import mx.containers.TitleWindow;
 			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
-
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -78,15 +74,12 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
 	
-			private var globalDispatcher:Dispatcher;
-			
+			private var globalDispatcher:Dispatcher;			
 			private var dispState:String; //full-screen?
 			private var images:Images = new Images();
-			private var stoppedModules:ArrayCollection;
-			
+			private var stoppedModules:ArrayCollection;			
 			private var logs:Logger = new Logger();
-			private var logWindow:LogWindow;
-			
+			private var logWindow:LogWindow;			
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
 			
@@ -104,16 +97,13 @@
 				return _mode;
 			}
 			
-			[Bindable]
-			private var layoutOptions:LayoutOptions = new LayoutOptions();
+			[Bindable] private var layoutOptions:LayoutOptions;
 			
-			private function initOptions(e:Event):void {
-				layoutOptions.showLogButton = BBB.initConfigManager().config.layout.showDebugWindow;	
-				layoutOptions.showResetLayout = BBB.initConfigManager().config.layout.showResetLayout;	
-				layoutOptions.showVideoLayout = BBB.initConfigManager().config.layout.showVideoLayout;		
-				layoutOptions.showToolbar = BBB.initConfigManager().config.layout.showToolbar;		
-				layoutOptions.showLogoutWindow = BBB.initConfigManager().config.layout.showLogoutWindow;	
-				layoutOptions.showHelpButton = BBB.initConfigManager().config.layout.showHelpButton;
+			public function initOptions(e:Event):void {
+				LogUtil.debug("**** Init layout options ***");
+				layoutOptions = new LayoutOptions();
+				layoutOptions.parseOptions();
+				LogUtil.debug("*** show toolbar = " + layoutOptions.showToolbar);
 			}
 			
 			protected function initializeShell():void {	
@@ -299,7 +289,7 @@
 		]]>
 	</mx:Script>
 			
-	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="true" verticalAlign="middle" layoutOptions="{layoutOptions}"/>
+	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="{layoutOptions.showToolbar}" verticalAlign="middle" toolbarOptions="{layoutOptions}"/>
 	<views:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off" effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" width="100%" height="100%">
 		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />

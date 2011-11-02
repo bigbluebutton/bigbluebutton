@@ -54,15 +54,8 @@ package org.bigbluebutton.core.model
 			return a
 		}
 					
-		public function get layout():Object {
-			var a:Object = new Object();
-			a.showDebugWindow = ((config.layout.@showDebugWindow).toUpperCase() == "TRUE") ? true : false;
-			a.showVideoLayout = ((config.layout.@showVideoLayout).toUpperCase() == "TRUE") ? true : false;
-			a.showResetLayout = ((config.layout.@showResetLayout).toUpperCase() == "TRUE") ? true : false;
-			a.showToolbar = ((config.layout.@showToolbar).toUpperCase() == "TRUE") ? true : false;
-			a.showLogoutWindow = ((config.layout.@showLogoutWindow).toUpperCase() == "TRUE") ? true : false;
-			a.showHelpButton = ((config.layout.@showHelpButton).toUpperCase() == "TRUE") ? true : false;
-			return a
+		public function get layout():XML {
+			return new XML(config.layout.toXMLString());
 		}
 			
 		public function isModulePresent(name:String):Boolean {
