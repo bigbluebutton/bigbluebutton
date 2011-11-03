@@ -108,8 +108,7 @@ package org.bigbluebutton.modules.listeners.business
 			_connectionListener = connectionListener;
 		}
 				
-		public function userJoin(userId:Number, cidName:String, cidNum:String, 
-					muted:Boolean, talking:Boolean, locked:Boolean):void {
+		public function userJoin(userId:Number, cidName:String, cidNum:String, muted:Boolean, talking:Boolean, locked:Boolean):void {
 			if (! _listeners.hasListener(userId)) {
 				var n:Listener = new Listener();
 				n.callerName = cidName != null ? cidName : "<Unknown Caller>";
@@ -123,7 +122,7 @@ package org.bigbluebutton.modules.listeners.business
 				/**
 				 * Let's store the voice userid so we can do push to talk.
 				 */
-				var pattern:RegExp = /(\d*)-(\w*)$/;
+				var pattern:RegExp = /(\d*)-(.*)$/;
 				var result:Object = pattern.exec(n.callerName);
 				if (result != null) {
 					/**
@@ -133,9 +132,10 @@ package org.bigbluebutton.modules.listeners.business
 						UserManager.getInstance().getConference().setMyVoiceUserId(n.userid);						
 						UserManager.getInstance().getConference().muteMyVoice(n.muted);
 						UserManager.getInstance().getConference().setMyVoiceJoined(true);
-					}					
+					}	
+					n.callerName = result[2]; /* Store the username */
 				}
-				n.callerName = result[2]; /* Store the username */				
+								
 				LogUtil.info(LOGNAME + "Adding listener [" + n.callerName + "," + userId + "]");
 				_listeners.addListener(n);
 				
@@ -167,7 +167,7 @@ package org.bigbluebutton.modules.listeners.business
 				 * Let's store the voice userid so we can do push to talk.
 				 */
 				if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
-					UserManager.getInstance().getConference().setMyVoiceLocked(l.locked);
+					UserManager.getInstance().getConference().voiceLocked = l.locked;
 				}
 			}					
 		}
