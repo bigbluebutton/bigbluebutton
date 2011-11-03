@@ -17,14 +17,14 @@ task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
 
 repositories {
    	add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
-       	name = 'remote'
+		 name = 'remote'
        	returnFirst = true
        	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
        		name = "googlecode"
        		addArtifactPattern "http://red5.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
        		addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
 		}
-    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+		   add(new org.apache.ivy.plugins.resolver.URLResolver()) {
        		name = "blindside-repos"
        		addArtifactPattern "http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
        		addArtifactPattern "http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
@@ -66,22 +66,22 @@ dependencies {
 	providedCompile 'mina:mina-integration-jmx:2.0.4@jar'
 	
 	// Spring 
-  providedCompile 'org.springframework:spring-web:3.0.5.RELEASE@jar' 
-  providedCompile  'org.springframework:spring-beans:3.0.5.RELEASE@jar'
-  providedCompile 'org.springframework:spring-context:3.0.5.RELEASE@jar'
-  providedCompile 'org.springframework:spring-core:3.0.5.RELEASE@jar'
+	providedCompile 'org.springframework:spring-web:3.0.6.RELEASE@jar' 
+	providedCompile  'org.springframework:spring-beans:3.0.6.RELEASE@jar'
+	providedCompile 'org.springframework:spring-context:3.0.6.RELEASE@jar'
+	providedCompile 'org.springframework:spring-core:3.0.6.RELEASE@jar'
 			
 	// Red5
-	providedCompile 'org/red5:red5:1.0rc1@jar'
+	providedCompile 'org/red5:red5:1.0r4293@jar'
 	
 	// Logging
 	providedCompile 'org.slf4j:com.springsource.slf4j.api:1.6.1@jar'
-  providedCompile 'org.slf4j:com.springsource.slf4j.bridge:1.6.1@jar'
-  providedCompile ':logback-core:0.9.28@jar'
-  providedCompile ':logback-classic:0.9.28@jar'
-  providedCompile ':log4j-over-slf4j:1.6.1@jar' 
-  providedCompile ':jcl-over-slf4j:1.6.1@jar'
-  providedCompile ':jul-to-slf4j:1.6.1@jar'
+	providedCompile 'org.slf4j:com.springsource.slf4j.bridge:1.6.1@jar'
+	providedCompile ':logback-core:0.9.28@jar'
+	providedCompile ':logback-classic:0.9.28@jar'
+	providedCompile ':log4j-over-slf4j:1.6.1@jar' 
+	providedCompile ':jcl-over-slf4j:1.6.1@jar'
+	providedCompile ':jul-to-slf4j:1.6.1@jar'
     
     // Java Concurrency In Practice
     providedCompile 'net.jcip:jcip-annotations:1.0@jar'
@@ -100,6 +100,7 @@ dependencies {
    compile 'org.jboss.netty:netty:3.2.1.Final@jar'
    compile 'com.google.code.gson:gson:1.7.1'
    providedCompile 'commons:commons-lang3:3.0-beta'
+   compile 'commons-lang:commons-lang:2.5'
 }
 
 test {
