@@ -82,7 +82,12 @@ dependencies {
 	providedCompile ':log4j-over-slf4j:1.6.1@jar' 
 	providedCompile ':jcl-over-slf4j:1.6.1@jar'
 	providedCompile ':jul-to-slf4j:1.6.1@jar'
-    
+
+	// Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
+	// Otherwise we get exception on aop utils class not found.
+	compile 'org.springframework:spring-aop:3.0.6.RELEASE@jar'
+	compile 'aopalliance:aopalliance:1.0@jar'
+	
     // Java Concurrency In Practice
     providedCompile 'net.jcip:jcip-annotations:1.0@jar'
         
