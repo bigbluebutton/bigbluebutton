@@ -93,9 +93,8 @@ dependencies {
 	testRuntime 'org.easymock:easymock:2.4@jar'
 	
 	compile project(':common')
-	compile 'commons-fileupload:commons-fileupload:1.2.1@jar'
-	compile 'commons-io:commons-io:1.4@jar'
-	compile 'com/sun/java:plugin:1.6.0_16@jar'
+    compile 'commons-fileupload:commons-fileupload:1.2.2@jar'
+	compile 'commons-io:commons-io:2.1@jar' 
 	
 	// Java Concurrency In Practice
 	compile 'net.jcip:jcip-annotations:1.0@jar'
