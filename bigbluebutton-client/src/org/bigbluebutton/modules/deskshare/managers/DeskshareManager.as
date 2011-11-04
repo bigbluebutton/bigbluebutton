@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.deskshare.managers
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
 			
 	public class DeskshareManager
@@ -79,16 +80,25 @@ package org.bigbluebutton.modules.deskshare.managers
 			LogUtil.debug("Got MadePresenterEvent ");
 			toolbarButtonManager.addToolbarButton();
 			sharing = false;
+			var option:DeskshareOptions = new DeskshareOptions();
+			option.parseOptions();
+			if (option.autoStart) {
+				handleStartSharingEvent(true);
+			}
 		}
 		
 		public function handleMadeViewerEvent(e:MadePresenterEvent):void{
 			LogUtil.debug("Got MadeViewerEvent ");
 			toolbarButtonManager.removeToolbarButton();
+			if (sharing) {
+				publishWindowManager.stopSharing();
+			}
 			sharing = false;
 		}
 		
 		public function handleStartSharingEvent(autoStart:Boolean):void {
 			LogUtil.debug("DeskshareManager::handleStartSharingEvent");
+			toolbarButtonManager.disableToolbarButton();
 			publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), autoStart);
 			sharing = true;
 		}
