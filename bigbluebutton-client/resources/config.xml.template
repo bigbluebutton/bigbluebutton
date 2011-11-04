@@ -87,6 +87,7 @@
 			position="bottom-right"
 			width="172"
 			height="179"
+			layout="smart"
 		/>
 		
 		<!-- new module in development: 

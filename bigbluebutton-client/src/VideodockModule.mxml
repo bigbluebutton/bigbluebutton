@@ -6,7 +6,6 @@
 			import org.bigbluebutton.common.LogUtil;
 			
 			private var _moduleName:String = "Videodock Module";			
-			private var _attributes:Object; 
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("VideodockModule initialized");	
@@ -16,19 +15,9 @@
 				return _moduleName;
 			}
 			
-			public function get autoDock():Boolean {
-				return (_attributes.autoDock == "true");
-			}
-			
-			public function get  maximizeWindow():Boolean {
-				return (_attributes.maximizeWindow == "true");
-			}
-			
 			public function start(attributes:Object):void {	
 				LogUtil.debug("Videodock attr: " + attributes.username);
-				_attributes = attributes;
 				
-				eventMap.module = this;
 				eventMap.startModule();
 			}
 			
