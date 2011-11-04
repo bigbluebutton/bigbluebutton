@@ -56,10 +56,10 @@ public class ParticipantsEventSender implements IRoomListener {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void participantJoined(Participant p) {
-		log.debug("A participant has joined {}.",p.getUserid());
+		log.debug("A participant has joined " + p.getUserid());
 		ArrayList args = new ArrayList();
 		args.add(p.toMap());
-		log.debug("Sending participantJoined {} to client.",p.getUserid());
+		log.debug("Sending participantJoined " + p.getUserid() + " to client.");
 		so.sendMessage("participantJoined", args);
 	}
 
@@ -74,7 +74,7 @@ public class ParticipantsEventSender implements IRoomListener {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void participantStatusChange(Long userid, String status, Object value) {
-		log.debug("A participant's status has changed "+userid+" "+status+" "+value);
+		log.debug("A participant's status has changed " + userid + " " + status + " " + value);
 		ArrayList args = new ArrayList();
 		args.add(userid);
 		args.add(status);

@@ -40,17 +40,17 @@ public class ChatRoomsManager {
 	}
 	
 	public void addRoom(ChatRoom room) {
-		log.debug("In ChatRoomsManager adding room {}", room.getName());
+		log.debug("In ChatRoomsManager adding room " + room.getName());
 		rooms.put(room.getName(), room);
 	}
 	
 	public void removeRoom(String name) {
-		log.debug("In ChatRoomsManager remove room {}", name);
+		log.debug("In ChatRoomsManager remove room " + name);
 		rooms.remove(name);
 	}
 		
 	public boolean hasRoom(String name) {
-		log.debug("In ChatRoomsManager has Room {}", name);
+		log.debug("In ChatRoomsManager has Room " + name);
 		return rooms.containsKey(name);
 	}
 	
@@ -59,7 +59,7 @@ public class ChatRoomsManager {
 	 * Keeping getRoom private so that all access to ChatRoom goes through here.
 	 */
 	private ChatRoom getRoom(String name) {
-		log.debug("In ChatRoomsManager get room {}", name);
+		log.debug("In ChatRoomsManager get room " + name);
 		return rooms.get(name);
 	}
 	
@@ -68,7 +68,7 @@ public class ChatRoomsManager {
 		if (r != null) {
 			return r.getChatMessages();
 		}
-		log.warn("Getting messages from a non-existing room {}", room);
+		log.warn("Getting messages from a non-existing room " + room);
 		return null;
 	}
 	
@@ -77,7 +77,7 @@ public class ChatRoomsManager {
 		if (r != null) {
 			r.sendMessage(message);
 		} else {
-			log.warn("Sending message to a non-existing room {}", room);
+			log.warn("Sending message to a non-existing room " + room);
 		}
 	} 
 	
@@ -87,7 +87,7 @@ public class ChatRoomsManager {
 			r.addRoomListener(listener);
 			return;
 		}
-		log.warn("Adding listener to a non-existing room {}", roomName);
+		log.warn("Adding listener to a non-existing room " + roomName);
 	}
 	
 	//TODO: roomName?	

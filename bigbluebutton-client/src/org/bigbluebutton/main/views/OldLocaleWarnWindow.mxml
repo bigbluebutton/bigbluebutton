@@ -30,7 +30,9 @@
 			import mx.managers.PopUpManager;
 			
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.util.i18n.ResourceUtil; 
+			
 			private const windowTitleDefault:String = "Warning: Old Language Version";
 			private const reminder1Default:String = "You have an old language translation of BigBlueButton.";
 			private const reminder2Default:String = "Please clear your browser cache and try again.";
@@ -57,12 +59,21 @@
             private function redirect():void { 
 				var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
 				var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-            	var url:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
-            	LogUtil.debug("Log out url: " + pageURL);
-				navigateToURL(url, '_self');
-            	PopUpManager.removePopUp(this);
+				var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+				LogUtil.debug("Log out url: " + pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+				request.method = URLRequestMethod.GET;
+				var urlLoader:URLLoader = new URLLoader();
+				urlLoader.addEventListener(Event.COMPLETE, handleComplete);	
+				urlLoader.load(request);
             }
             
+			private function handleComplete(e:Event):void {	
+				var request:URLRequest = new URLRequest(BBB.initUserConfigManager().getLogoutUrl());
+				LogUtil.debug("Logging out to: " + BBB.initUserConfigManager().getLogoutUrl());
+				navigateToURL(request, '_self');
+				PopUpManager.removePopUp(this);				
+			}
+			
             private function onUserLoggedOutWindowClose(e:Event):void {
             	PopUpManager.removePopUp(this);
             }

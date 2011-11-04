@@ -53,43 +53,42 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
-		log.debug("{}:appConnect",APP);
+		log.debug(APP + ":appConnect");
 		return true;
 	}
 
 	@Override
 	public void appDisconnect(IConnection conn) {
-		log.debug( "{}:appDisconnect",APP);
+		log.debug(APP + ":appDisconnect");
 	}
 
 	@Override
 	public boolean appJoin(IClient client, IScope scope) {
-		log.debug( "{}:appJoin {}",APP,scope.getName());
+		log.debug(APP + ":appJoin " + scope.getName());
 		return true;
 	}
 
 	@Override
 	public void appLeave(IClient client, IScope scope) {
-		log.debug("{}:appLeave {}",APP,scope.getName());
-
+		log.debug(APP + ":appLeave " + scope.getName());
 	}
 
 	@Override
 	public boolean appStart(IScope scope) {
-		log.debug("{}:appStart {}",APP,scope.getName());
+		log.debug(APP + ":appStart " + scope.getName());
 		conversionUpdatesMessageListener.start();
 		return true;
 	}
 
 	@Override
 	public void appStop(IScope scope) {
-		log.debug("{}:appStop {}",APP,scope.getName());
+		log.debug(APP + ":appStop " + scope.getName());
 		conversionUpdatesMessageListener.stop();
 	}
 
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
-		log.debug("{}:roomConnect",APP);
+		log.debug(APP + ":roomConnect");
 		
 		log.debug("In live mode");
 		ISharedObject so = getSharedObject(connection.getScope(), PRESENTATION_SO);
@@ -107,28 +106,28 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 
 	@Override
 	public void roomDisconnect(IConnection connection) {
-		log.debug("{}:roomDisconnect",APP);
+		log.debug(APP + ":roomDisconnect");
 
 	}
 
 	@Override
 	public boolean roomJoin(IClient client, IScope scope) {
-		log.debug(APP+":roomJoin "+scope.getName()+" - "+scope.getParent().getName());
+		log.debug(APP + ":roomJoin " + scope.getName() + " - " + scope.getParent().getName());
 		return true;
 	}
 
 	@Override
 	public void roomLeave(IClient client, IScope scope) {
-		log.debug("{}:roomLeave {}",APP,scope.getName());
+		log.debug(APP + ":roomLeave " + scope.getName());
 	}
 
 	@Override
 	public boolean roomStart(IScope scope) {
-		log.debug("{} - roomStart {}",APP,scope.getName());
+		log.debug(APP + " - roomStart "+ scope.getName());
 		presentationApplication.createRoom(scope.getName());
     	if (!hasSharedObject(scope, PRESENTATION_SO)) {
     		if (createSharedObject(scope, PRESENTATION_SO, false)) {    			
-				log.debug("{} - scanning for presentations - ", APP, scope.getName());
+				log.debug(APP + " - scanning for presentations - " + scope.getName());
 				try {
 					// TODO: this is hard-coded, and not really a great abstraction.  need to fix this up later
 					String folderPath = "/var/bigbluebutton/" + scope.getName() + "/" + scope.getName();
@@ -137,12 +136,12 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 					if (folder.exists() && folder.isDirectory()) {
 						File[] presentations = folder.listFiles(new FileFilter() {
 							public boolean accept(File path) {
-								log.debug("\tfound: {}", path.getAbsolutePath());
+								log.debug("\tfound: " + path.getAbsolutePath());
 								return path.isDirectory();
 							}
 						});
 						for (File presFile : presentations) {
-							log.debug("\tshare: {}", presFile.getName());
+							log.debug("\tshare: " + presFile.getName());
 							presentationApplication.sharePresentation(scope.getName(), presFile.getName(), true);
 						}
 					}
@@ -152,13 +151,13 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
     			return true; 			
     		}    		
     	}  	
-		log.error("Failed to start room {}",scope.getName());
+		log.error("Failed to start room " + scope.getName());
     	return false;
 	}
 
 	@Override
 	public void roomStop(IScope scope) {
-		log.debug("{}:roomStop {}",APP,scope.getName());
+		log.debug(APP + ":roomStop " + scope.getName());
 		presentationApplication.destroyRoom(scope.getName());
 		if (!hasSharedObject(scope, PRESENTATION_SO)) {
     		clearSharedObjects(scope, PRESENTATION_SO);

@@ -30,7 +30,7 @@ public class ParticipantsApplication {
 	
 	public boolean createRoom(String name) {
 		if(!roomsManager.hasRoom(name)){
-			log.info("Creating room {}", name);
+			log.info("Creating room " + name);
 			roomsManager.addRoom(new Room(name));
 			return true;
 		}
@@ -39,10 +39,10 @@ public class ParticipantsApplication {
 	
 	public boolean destroyRoom(String name) {
 		if (roomsManager.hasRoom(name)) {
-			log.info("Destroying room {}", name);
+			log.info("Destroying room " + name);
 			roomsManager.removeRoom(name);
 		} else {
-			log.warn("Destroying non-existing room {}", name);
+			log.warn("Destroying non-existing room " + name);
 		}
 		return true;
 	}
@@ -60,7 +60,7 @@ public class ParticipantsApplication {
 			roomsManager.addRoomListener(room, listener);
 			return true;
 		}
-		log.warn("Adding listener to a non-existant room {}",room);
+		log.warn("Adding listener to a non-existant room " + room);
 		return false;
 	}
 	
@@ -71,7 +71,7 @@ public class ParticipantsApplication {
 	public Map getParticipants(String roomName) {
 		log.debug("getParticipants - " + roomName);
 		if (! roomsManager.hasRoom(roomName)) {
-			log.warn("Could not find room "+roomName+" Total rooms "+roomsManager.numberOfRooms());
+			log.warn("Could not find room " + roomName + ". Total rooms " + roomsManager.numberOfRooms());
 			return null;
 		}
 
@@ -82,7 +82,7 @@ public class ParticipantsApplication {
 		log.debug("Participant " + userid + " leaving room " + roomName);
 		if (roomsManager.hasRoom(roomName)) {
 			Room room = roomsManager.getRoom(roomName);
-			log.debug("Removing "+ userid + " from room " + roomName);
+			log.debug("Removing " + userid + " from room " + roomName);
 			room.removeParticipant(userid);
 			return true;
 		}
@@ -97,10 +97,10 @@ public class ParticipantsApplication {
 			Participant p = new Participant(userid, username, role, externUserID, status);			
 			Room room = roomsManager.getRoom(roomName);
 			room.addParticipant(p);
-			log.debug(":participant joined room "+roomName);
+			log.debug("participant joined room " + roomName);
 			return true;
 		}
-		log.debug(":participant failed to join room"+roomName);
+		log.debug("participant failed to join room " + roomName);
 		return false;
 	}
 	

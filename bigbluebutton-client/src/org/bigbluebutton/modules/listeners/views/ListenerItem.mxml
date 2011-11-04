@@ -26,13 +26,10 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import flash.events.MouseEvent;
-			
-			import mx.collections.ArrayCollection;
+			import flash.events.MouseEvent;			
 			import mx.controls.Image;
 			import mx.controls.Label;
-			import mx.controls.TileList;
-			
+			import mx.controls.TileList;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.listeners.events.ListenersCommand;
 			import org.bigbluebutton.util.i18n.ResourceUtil; 
@@ -47,7 +44,6 @@
 			[Bindable] private var ejectIcon:Class = images.delete_icon;
 			[Bindable] private var statusTooltip : String = "";
 			[Bindable] private var ejectTooltip : String = ResourceUtil.getInstance().getString('bbb.listeners.ejectTooltip');
-			
 			[Bindable] private var moderator:Boolean = false;
 			
 			public function onRollOver():void{
@@ -103,17 +99,7 @@
 			}	 
 		]]>
 	</mx:Script>
-	
-	<!--<mx:states>
-	<mx:State name="dispMuteCheckBox">      
-	<mx:AddChild relativeTo="{talkImg}" position="before">
-	<mx:Button id="muteCB" width="20" height="20" visible="true" enabled="{data.moderator}" 
-	toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.lockImg.toolTip')}"
-	icon="{data.locked ? lockedIcon : unlockedIcon}" click="lockMuteUser()"/>
-	</mx:AddChild>
-	</mx:State>		
-	</mx:states>-->
-	
+		
 	<mx:Button id="muteBtn" width="20" height="20" visible="true" enabled="{data.moderator}" 
 			   toolTip="{data.moderator ? ResourceUtil.getInstance().getString('bbb.listenerItem.muteUnmute.toolTip') : ''}"
 			   icon="{data.muted ? muteIcon : unmuteIcon}" click="muteUser()"/>

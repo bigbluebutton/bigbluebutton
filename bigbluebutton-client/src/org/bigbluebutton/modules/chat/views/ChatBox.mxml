@@ -32,8 +32,7 @@
 			import org.bigbluebutton.modules.chat.model.ChatMessage;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Button;
-			import mx.core.ScrollPolicy;
-			
+			import mx.core.ScrollPolicy;			
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 			import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
 			
@@ -48,10 +47,8 @@
 			private var lastTime:String = "";
 			
 			[Bindable] private var messages:ArrayCollection = new ArrayCollection();
-			private var lastCount:Number = 0;
-			
-			private var scrollTimer:Timer;
-			
+			private var lastCount:Number = 0;			
+			private var scrollTimer:Timer;			
 			private var scrollBarWorkaround:Boolean = false;
 			
 			private function onCreationComplete():void {

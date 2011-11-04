@@ -22,9 +22,10 @@
 
 <MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 			xmlns="flexlib.mdi.containers.*"
+			xmlns:flc="flexlib.controls.*"
 			implements="org.bigbluebutton.common.IBbbModuleWindow"
 			title="{windowTitle}"
-			creationComplete="onCreationComplete()" xmlns:mate="http://mate.asfusion.com/">
+			creationComplete="onCreationComplete()" xmlns:mate="http://mate.asfusion.com/" xmlns:controls="flexlib.controls.*">
 	
 	<mate:Listener type="{ListenersEvent.ROOM_MUTE_STATE}" method="roomMuteStateChange" />
 	<mate:Listener type="{ListenersEvent.REGISTER_LISTENERS}" method="registerListeners" />
@@ -33,8 +34,8 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.listeners.model.ListenerOptions;
 			import flash.events.MouseEvent;
+			import flash.sampler.getInvocationCount;
 			
 			import flexlib.mdi.events.MDIWindowEvent;
 			
@@ -44,32 +45,42 @@
 			import mx.controls.Image;
 			import mx.controls.Label;
 			import mx.events.ListEvent;
+			import mx.messaging.channels.AMFChannel;
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.listeners.events.ListenersCommand;
 			import org.bigbluebutton.modules.listeners.events.ListenersEvent;
+			import org.bigbluebutton.modules.listeners.model.ListenerOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			private var images:Images= new Images();
-			
+			private var images:Images= new Images();			
 			private var _xPosition:int;
 			private var _yPosition:int;
- 			  			
+ 			
 			[Bindable] private var muteAllIcon:Class = images.sound_mute; 
 			[Bindable] private var unmuteAllIcon:Class = images.sound_none;
 			[Bindable] private var kickIcon:Class = images.eject_user;
 			[Bindable] public var listeners:ArrayCollection = new ArrayCollection();
 			[Bindable] public var moderator:Boolean;
-			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.listeners.title', ["",""]);
-			
+			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.listeners.title', ["",""]);			
 			[Bindable] public var listenerOptions:ListenerOptions;
+			[Bindable] private var showPushToTalkBtn:Boolean = UserManager.getInstance().getConference().voiceLocked &&
+				UserManager.getInstance().getConference().voiceJoined;
 			
 			private function onCreationComplete():void {
 				BindingUtils.bindSetter(updateNumberOfListeners, listeners, "length");		
-				
+				BindingUtils.bindSetter(updateShowPushToTalkBtn, UserManager.getInstance().getConference(), "voiceLocked");
+				BindingUtils.bindSetter(updateShowPushToTalkBtn, UserManager.getInstance().getConference(), "voiceJoined");
 				this.visible = listenerOptions.windowVisible;		
+			}
+			
+			private function updateShowPushToTalkBtn(show:Boolean):void {
+				showPushToTalkBtn = UserManager.getInstance().getConference().voiceJoined &&
+									(UserManager.getInstance().getConference().amIModerator() || 
+										!UserManager.getInstance().getConference().voiceLocked);
 			}
 			
 			private function updateNumberOfListeners(numListeners:int):void {
@@ -121,6 +132,15 @@
 				if (muteAllBtn.selected) muteAllListeners();
 				else if (!muteAllBtn.selected) unmuteAllListeners();
 				setMuteState(muteAllBtn.selected);
+			}
+			
+			private function toggleMuteMeState():void{
+				if (UserManager.getInstance().getConference().voiceLocked && ! UserManager.getInstance().getConference().amIModerator()) return;
+				
+				var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);
+				e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
+				e.mute = !UserManager.getInstance().getConference().isMyVoiceMuted();
+				dispatchEvent(e);
 			}
 			
 			private function muteAllListeners():void{
@@ -182,10 +202,18 @@
     	</mx:List>				
     	    	
     	<mx:ControlBar width="100%">
-    	    <mx:Button id="muteAllBtn" icon="{muteAllIcon}" visible="{moderator}" toggle="true" selected="false"
-    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}" 
-    	   			click="toggleMuteState()" width="18" height="18"/>         	   
-     	   <mx:Spacer width="100%"/>
+			<flc:CanvasButton id="pushToTalkBtn" visible="{showPushToTalkBtn}" 
+							  toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" 
+							  click="toggleMuteMeState()" width="60" height="30">
+				<mx:HBox verticalAlign="middle" horizontalGap="0" paddingLeft="5" paddingTop="5" paddingRight="5" paddingBottom="5">
+					<mx:Image source="{UserManager.getInstance().getConference().voiceMuted ? images.sound_mute : images.sound_none}" />
+					<mx:Label text="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.talk') : ResourceUtil.getInstance().getString('bbb.listeners.mute')}" />
+				</mx:HBox> 
+			</flc:CanvasButton>
+     	   	<mx:Spacer width="100%"/>
+			<mx:Button id="muteAllBtn" icon="{muteAllIcon}" visible="{moderator}" toggle="true" selected="false"
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}" 
+					   click="toggleMuteState()" width="18" height="18"/> 
     	</mx:ControlBar>
 
 </MDIWindow>

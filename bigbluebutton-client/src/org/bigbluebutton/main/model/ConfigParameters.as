@@ -28,8 +28,7 @@ package org.bigbluebutton.main.model
 	import org.bigbluebutton.main.events.AppVersionEvent;
 	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
 
-	public class ConfigParameters
-	{
+	public class ConfigParameters {
 		public static const FILE_PATH:String = "conf/config.xml";
 		
 		private var _urlLoader:URLLoader;

@@ -29,15 +29,11 @@ $Id: $
 			
 			import org.bigbluebutton.modules.videodock.views.VideoDock;
 			
-			public var module:VideodockModule;
 			private var videoDock:VideoDock;
 			
 			public function startModule():void{
-				videoDock = new VideoDock();
-				videoDock.autoDock = module.autoDock;
-				videoDock.maximizeWindow = module.maximizeWindow;
+				videoDock = new VideoDock();			
 
-				
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = videoDock;
 				globalDispatcher.dispatchEvent(windowEvent);

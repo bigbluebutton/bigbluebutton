@@ -41,7 +41,7 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
                  blockDim: Dimension, streamManager: StreamManager) extends Actor {
 	private val log = Logger.get
  
-	private val blockManager: BlockManager = new BlockManager(room, screenDim, blockDim)
+	private var blockManager: BlockManager = new BlockManager(room, screenDim, blockDim)
 	private var stream:Stream = null
 	private var lastUpdate:Long = System.currentTimeMillis()
 	private var stop = true
@@ -121,6 +121,7 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 		stream ! StopStream
 		stop = true
 		streamManager.destroyStream(room)
+		blockManager = null
 	}
 	
 	private def updateBlock(position: Int, videoData: Array[Byte], keyFrame: Boolean, seqNum: Int): Unit = {
@@ -133,8 +134,10 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 			log.warning("Session: Did not received updates for more than 1 minute. Removing session %s", room)
 			sessionManager ! new RemoveSession(room)
 		} else {
-		   stream ! new UpdateStream(room, blockManager.generateFrame(keyframe))
-		   stream ! new UpdateStreamMouseLocation(room, mouseLoc)
+		  if (blockManager != null) {
+			  stream ! new UpdateStream(room, blockManager.generateFrame(keyframe))
+			  stream ! new UpdateStreamMouseLocation(room, mouseLoc)
+		  }
 		}
 	}
  

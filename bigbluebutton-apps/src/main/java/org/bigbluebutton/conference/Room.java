@@ -67,16 +67,14 @@ public class Room implements Serializable {
 
 	public void addParticipant(Participant participant) {
 		synchronized (this) {
-			log.debug("adding participant {}",participant.getUserid());
+			log.debug("adding participant " + participant.getUserid());
 			participants.put(participant.getUserid(), participant);
 //			unmodifiableMap = Collections.unmodifiableMap(participants)
 		}
-		log.debug("addparticipant - informing roomlisteners {}",listeners.size());
+		log.debug("Informing roomlisteners " + listeners.size());
 		for (Iterator it = listeners.values().iterator(); it.hasNext();) {
-		//for (IRoomListener listener : listeners) {
-			log.debug("calling participantJoined on listener");
 			IRoomListener listener = (IRoomListener) it.next();
-			log.debug("calling participantJoined on listener {}",listener.getName());
+			log.debug("calling participantJoined on listener " + listener.getName());
 			listener.participantJoined(participant);
 		}
 	}
@@ -92,9 +90,8 @@ public class Room implements Serializable {
 		}
 		if (present) {
 			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
-				log.debug("calling participantLeft on listener");
 				IRoomListener listener = (IRoomListener) it.next();
-				log.debug("calling participantLeft on listener {}",listener.getName());
+				log.debug("calling participantLeft on listener " + listener.getName());
 				listener.participantLeft(userid);
 			}
 		}
@@ -114,9 +111,8 @@ public class Room implements Serializable {
 		}
 		if (present) {
 			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
-				log.debug("calling participantStatusChange on listener");
 				IRoomListener listener = (IRoomListener) it.next();
-				log.debug("calling participantStatusChange on listener {}",listener.getName());
+				log.debug("calling participantStatusChange on listener " + listener.getName());
 				listener.participantStatusChange(userid, status, value);
 			}
 		}		
@@ -125,7 +121,7 @@ public class Room implements Serializable {
 	public void endAndKickAll() {
 		for (Iterator it = listeners.values().iterator(); it.hasNext();) {
 			IRoomListener listener = (IRoomListener) it.next();
-			log.debug("calling endAndKickAll on listener {}",listener.getName());
+			log.debug("calling endAndKickAll on listener " + listener.getName());
 			listener.endAndKickAll();
 		}
 	}

@@ -24,9 +24,9 @@ package org.bigbluebutton.core.managers
 		private function handleComplete(e:Event):void{
 			_config = new Config(new XML(e.target.data));
 			 EventBroadcaster.getInstance().dispatchEvent(new Event("configLoadedEvent", true));	
-			 var dispatcher:Dispatcher = new Dispatcher();
-			 LogUtil.debug("*** Sending config loaded event.");
-			 dispatcher.dispatchEvent(new Event("configLoadedEvent", true));
+		//	 var dispatcher:Dispatcher = new Dispatcher();
+		//	 LogUtil.debug("*** Sending config loaded event.");
+		//	 dispatcher.dispatchEvent(new Event("configLoadedEvent", true));
 		}
 		
 		public function get config():Config {

@@ -42,7 +42,7 @@ public class RtmpClientAdapter implements DeskshareClient, RecordStatusListener 
 	@Override
 	public void notify(RecordEvent event) {
 		// TODO Auto-generated method stub
-		System.out.println("RtmpClientAdapter: TODO Notify client of recording status");
+//		System.out.println("RtmpClientAdapter: TODO Notify client of recording status");
 		ArrayList<Object> msg = new ArrayList<Object>();
 		if (event instanceof RecordStoppedEvent) {
 			msg.add(new String("DESKSHARE_RECORD_STOPPED_EVENT"));
@@ -59,7 +59,7 @@ public class RtmpClientAdapter implements DeskshareClient, RecordStatusListener 
 			msg.add(new String("DESKSHARE_RECORD_ERROR_EVENT"));
 		}
 		
-		so.sendMessage("recordingStatusCallback", msg);	
+//		so.sendMessage("recordingStatusCallback", msg);	
 	}	
 	
 }

@@ -32,7 +32,7 @@
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
 			
-			import org.bigbluebutton.common.UserManager;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.model.users.Conference;
 			import org.bigbluebutton.modules.breakout.events.CreateRoomEvent;
 			

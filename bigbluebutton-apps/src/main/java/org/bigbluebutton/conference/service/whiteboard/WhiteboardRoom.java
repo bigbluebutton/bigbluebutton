@@ -127,7 +127,6 @@ public class WhiteboardRoom {
 	public void notifyAddShape(Presentation presentation, Shape shape){
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
-			//log.debug("calling newChatMessage on listener {}",listener.getName());
 			listener.addShape(shape, presentation);
 		}
 	}
@@ -135,7 +134,6 @@ public class WhiteboardRoom {
 	public void notifyUndoShape(Presentation presentation){
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
-			//log.debug("calling newChatMessage on listener {}",listener.getName());
 			listener.undoShape(presentation);
 		}
 	}
@@ -143,7 +141,6 @@ public class WhiteboardRoom {
 	public void notifyClearPage(Presentation presentation){
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
-			//log.debug("calling newChatMessage on listener {}",listener.getName());
 			listener.clearPage(presentation);
 		}
 	}

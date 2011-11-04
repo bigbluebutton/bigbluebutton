@@ -7,16 +7,17 @@
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
     <skinning enabled="false" url="branding/css/theme.css.swf" />
-    <layout showDebugWindow="false" showVideoLayout="false" showResetLayout="true" showToolbar="true" showHelpButton="true" showLogoutWindow="true"/>
+    <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" showToolbar="true" showHelpButton="true" showLogoutWindow="true"/>
     
 	<modules>
 		
 		<module name="ChatModule" url="ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="ViewersModule"	
-			translationOn="true"
-			translationEnabled="true"	
+			translationOn="false"
+			translationEnabled="false"	
 			privateEnabled="true"  
+			position="top-right"
 		/>
 		
 		<module name="ViewersModule" url="ViewersModule.swf?v=VERSION" 
@@ -61,7 +62,8 @@
 			camModeFps="15"
 			camQualityBandwidth="0"
 			camQualityPicture="50"
-			h264Level="4.1"
+			enableH264="false"
+			h264Level="2.1"
 			h264Profile="main"			
 		/>
 		
@@ -82,6 +84,10 @@
 			dependsOn="VideoconfModule, ViewersModule"
 			autoDock="true"
 			maximizeWindow="false"
+			position="bottom-right"
+			width="172"
+			height="179"
+			layout="smart"
 		/>
 		
 		<!-- new module in development: 

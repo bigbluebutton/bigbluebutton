@@ -28,15 +28,12 @@ $Id: $
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			import mx.core.FlexGlobals;
-			import mx.managers.PopUpManager;
-			
+			import mx.managers.PopUpManager;		
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.SettingsEvent;
 			import org.bigbluebutton.modules.settings.SettingsPanel;
 			import org.bigbluebutton.modules.settings.util.PersistUserPreferences;
 			import org.bigbluebutton.modules.settings.util.Requirements;
-			
-			import spark.components.Application;
 			
 			private var _moduleName:String = "Settings Module";			
 			private var _attributes:Object;

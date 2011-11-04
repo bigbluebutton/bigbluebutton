@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bigbluebutton.conference.service.chat.IChatRoomListener;import org.red5.server.api.so.ISharedObject;
+import org.red5.server.api.statistics.ISharedObjectStatistics;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
@@ -38,13 +39,19 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageSender.class
 		this.so = so; 
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void newChatMessage(String message) {
-		log.debug("New chat message...");
-		List list=new ArrayList();
+		List<String> list = new ArrayList<String>();
 		list.add(message);
+		log.debug("Sending public chat message [" + message + "]");
+		if (so.isLocked()) log.info("Chat message SO is locked");
+		if (so.isAcquired()) log.info("Chat message SO is acquired");
+		ISharedObjectStatistics stats = so.getStatistics();
+		log.debug("Before: Chat SO stats [total-sends=" + stats.getTotalSends() + "]");
 		so.sendMessage("newChatMessage", list);
+		log.debug("After: Chat SO stats [total-sends=" + stats.getTotalSends() + "]");
+		if (so.isLocked()) log.info("Chat message SO is locked");
+		if (so.isAcquired()) log.info("Chat message SO is acquired");
 	}
 
 	@Override

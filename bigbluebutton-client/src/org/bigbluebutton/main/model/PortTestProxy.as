@@ -16,20 +16,15 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.main.model
-{
+package org.bigbluebutton.main.model {
 	import com.asfusion.mate.events.Dispatcher;
-	
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
-	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.PortTestEvent;
 	import org.bigbluebutton.main.model.modules.ModulesDispatcher;
 
-	public class PortTestProxy
-	{
-		
+	public class PortTestProxy {
 		private var nc:NetConnection;
 		private var protocol:String;
 		private var port:String;
@@ -38,16 +33,11 @@ package org.bigbluebutton.main.model
 		private var uri:String;
 		private var modulesDispatcher:ModulesDispatcher;
 		
-		public function PortTestProxy()
-		{
+		public function PortTestProxy() {
 			modulesDispatcher = new ModulesDispatcher();
 		}
 		
-		public function connect(protocol:String = "",
-								  hostname:String = "",
-								  port:String = "",
-								  application:String = ""):void
-		{
+		public function connect(protocol:String = "", hostname:String = "", port:String = "", application:String = ""):void {
 			var portTest:PortTest = new PortTest(protocol,hostname,port,application);
 			portTest.addConnectionSuccessListener(connectionListener);
 			portTest.connect();
@@ -65,59 +55,24 @@ package org.bigbluebutton.main.model
 				modulesDispatcher.sendPortTestFailedEvent(port, hostname, protocol, application);
 			}				 		
 		}
-		
-		public function connect1(protocol:String = "",
-								  hostname:String = "",
-								  port:String = "",
-								  application:String = ""):void
-		{
-			this.protocol = protocol;
-			this.hostname = hostname;
-			this.port = port;
-			this.application = application;
-			
-			nc = new NetConnection();
-			nc.client = this;
-			nc.addEventListener( NetStatusEvent.NET_STATUS, netStatusEventHandler );
-
-			uri = protocol + "://" + hostname + "/" + application;
-			LogUtil.debug("Testing connection to " + uri);
-			try 
-			{
-				nc.connect( uri );
-			}
-			catch(e:ArgumentError) 
-			{
-				LogUtil.error("Incorrect arguments on connecting wiht port testing");
-				//facade.sendNotification(MainApplicationConstants.PORT_TEST_FAILED, 
-				// 		{protocol:protocol, hostname:hostname, port:port, application:application});
-			}	
-		}
-			
-		public function close() : void
-		{	
+					
+		public function close():void {	
 			nc.removeEventListener(NetStatusEvent.NET_STATUS, netStatusEventHandler);
 			nc.close();
 		}
 	
-		protected function netStatusEventHandler(event:NetStatusEvent):void 
-		{
+		protected function netStatusEventHandler(event:NetStatusEvent):void  {
 			var info:Object = event.info;
 			var statusCode : String = info.code;
 			
-			if ( statusCode == "NetConnection.Connect.Success" )
-			{
+			if (statusCode == "NetConnection.Connect.Success") {
 				LogUtil.debug("Successfully connected to " + uri);
 				modulesDispatcher.sendPortTestSuccessEvent(port, hostname, protocol, application);
-			}
-			else if ( statusCode == "NetConnection.Connect.Rejected" ||
+			} else if (statusCode == "NetConnection.Connect.Rejected" ||
 				 	  statusCode == "NetConnection.Connect.Failed" || 
-				 	  statusCode == "NetConnection.Connect.Closed" ) 
-			{
+				 	  statusCode == "NetConnection.Connect.Closed" ) {
 				LogUtil.error("Failed to connect to " + uri);
-
 				modulesDispatcher.sendPortTestFailedEvent(port, hostname, protocol, application);
-				
 			} else {
 				LogUtil.error("Failed to connect to " + uri + " due to " + statusCode);
 			}
@@ -129,7 +84,5 @@ package org.bigbluebutton.main.model
 		 * The Red5 oflaDemo returns bandwidth stats.
 		 */		
 		public function onBWDone() : void {	}
-		
-		
 	}
 }
