@@ -18,12 +18,10 @@
 */
 package org.bigbluebutton.modules.deskshare.services
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;
-	
+	import flash.net.SharedObject;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.RecordStatusEvent;
 	import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
@@ -72,7 +70,7 @@ package org.bigbluebutton.modules.deskshare.services
 			conn.connect();
 			
 			responder = new Responder(
-							function(result:Object):void{
+							function(result:Object):void {
 								if (result != null && (result.publishing as Boolean)){
 									width = result.width as Number;
 									height = result.height as Number;

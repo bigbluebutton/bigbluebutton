@@ -19,15 +19,13 @@
 
 package org.bigbluebutton.modules.deskshare.managers
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 	import org.bigbluebutton.modules.deskshare.services.DeskshareService;
 			
-	public class DeskshareManager
-	{		
+	public class DeskshareManager {		
 		private var publishWindowManager:PublishWindowManager;
 		private var viewWindowManager:ViewerWindowManager;
 		private var toolbarButtonManager:ToolbarButtonManager;
@@ -36,8 +34,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		private var globalDispatcher:Dispatcher;
 		private var sharing:Boolean = false;
 		
-		public function DeskshareManager()
-		{
+		public function DeskshareManager() {
 			service = new DeskshareService();
 			globalDispatcher = new Dispatcher();
 			publishWindowManager = new PublishWindowManager(service);
@@ -58,25 +55,17 @@ package org.bigbluebutton.modules.deskshare.managers
 			service.disconnect();
 		}
 					
-		public function handleStreamStartedEvent(videoWidth:Number, videoHeight:Number):void{
+		public function handleStreamStartedEvent(videoWidth:Number, videoHeight:Number):void {
 			LogUtil.debug("Sending startViewing command");
 			service.sendStartViewingNotification(videoWidth, videoHeight);
 		}
 		
-		public function handleStartedViewingEvent():void{
+		public function handleStartedViewingEvent():void {
 			LogUtil.debug("handleStartedViewingEvent");
 			service.sendStartedViewingNotification();
 		}
-		
-		public function handleStreamStoppedEvent():void {
-			notifyOthersToStopViewing();			
-		}
-
-		private function notifyOthersToStopViewing():void {
-			LogUtil.debug("notifyOthersToStopViewing()");		
-		}
-										
-		public function handleMadePresenterEvent(e:MadePresenterEvent):void{
+											
+		public function handleMadePresenterEvent(e:MadePresenterEvent):void {
 			LogUtil.debug("Got MadePresenterEvent ");
 			toolbarButtonManager.addToolbarButton();
 			sharing = false;

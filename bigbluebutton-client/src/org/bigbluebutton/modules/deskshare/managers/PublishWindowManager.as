@@ -21,6 +21,9 @@ package org.bigbluebutton.modules.deskshare.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
@@ -30,10 +33,15 @@ package org.bigbluebutton.modules.deskshare.managers
 			
 	public class PublishWindowManager {		
 		private var shareWindow:DesktopPublishWindow;
-		private var isSharing:Boolean = false;
 		private var globalDispatcher:Dispatcher;
 		private var service:DeskshareService;
 		private var buttonShownOnToolbar:Boolean = false;
+		
+		// Timer to auto-publish webcam. We need this timer to delay
+		// the auto-publishing until after the Viewers's window has loaded
+		// to receive the publishing events. Otherwise, the user joining next
+		// won't be able to view the webcam.
+		private var autoPublishTimer:Timer;
 		
 		public function PublishWindowManager(service:DeskshareService) {
 			LogUtil.debug("PublishWindowManager init");
@@ -42,7 +50,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 					
 		public function stopSharing():void {
-			if (isSharing) shareWindow.stopSharing();
+			shareWindow.stopSharing();
 		}
 																			
 		public function startSharing(uri:String, room:String, autoStart:Boolean):void {
@@ -51,13 +59,27 @@ package org.bigbluebutton.modules.deskshare.managers
 			shareWindow.initWindow(service.getConnection(), uri, room, autoStart);
 			shareWindow.visible = true;
 			openWindow(shareWindow);
+			if (autoStart) {
+				/*
+				* Need to have a timer to trigger auto-publishing of deskshare.
+				*/
+				shareWindow.btnFSPublish.enabled = false;
+				shareWindow.btnRegionPublish.enabled = false;
+				autoPublishTimer = new Timer(3000, 1);
+				autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
+				autoPublishTimer.start();
+			}			
+		}
+		
+		private function autopublishTimerHandler(event:TimerEvent):void {				
+			shareWindow.shareScreen(true);
 		}
 		
 		public function handleShareWindowCloseEvent():void {
 			closeWindow(shareWindow);
 		}
 		
-		private function openWindow(window:IBbbModuleWindow):void{				
+		private function openWindow(window:IBbbModuleWindow):void {				
 			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			event.window = window;
 			globalDispatcher.dispatchEvent(event);

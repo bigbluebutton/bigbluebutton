@@ -104,7 +104,7 @@
 					/*
 					 * Need to have a timer to trigger auto-publishing of webcam.
 					 */
-					autoPublishTimer = new Timer(3000);
+					autoPublishTimer = new Timer(3000, 1);
 					autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
 					autoPublishTimer.start();
 				}
