@@ -25,6 +25,9 @@ package org.bigbluebutton.modules.videodock.views
 		static public const LAYOUT_HANGOUT:String = "HANGOUT";
 		static public const LAYOUT_SMART:String = "SMART";
 		
+		[Bindable]
+		public var oneAlwaysBigger:Boolean = false;
+		
 		public function DockOptions()
 		{
 			var vxml:XML = BBB.getConfigForModule("VideodockModule");
@@ -48,6 +51,9 @@ package org.bigbluebutton.modules.videodock.views
 					layout = vxml.@layout.toString().toUpperCase();
 					if (layout != LAYOUT_NONE && layout != LAYOUT_HANGOUT && layout != LAYOUT_SMART)
 						layout = LAYOUT_NONE;					
+				}
+				if (vxml.@oneAlwaysBigger != undefined) {
+					oneAlwaysBigger = (vxml.@oneAlwaysBigger.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 			}
 		}
