@@ -76,6 +76,8 @@
 			private var _activationTimer:Timer = null;
 			private var _waitingForActivation:Boolean = false;
 			
+			static private var _cameraAccessDenied:Boolean = false;
+			
 			[Bindable]
 			public var videoOptions:VideoConfOptions;
 			
@@ -132,25 +134,33 @@
 				btnStartPublish.enabled = false;
 				
 				if (Camera.names.length == 0) {
-					showWarning("No camera available");
+					showWarning('bbb.video.publish.hint.noCamera');
 					return;
 				}
 				
 				_camera = Camera.getCamera(cmbCameraSelector.selectedIndex.toString());
 				if (_camera == null) {
-					showWarning("Can't open your camera");
+					showWarning('bbb.video.publish.hint.cantOpenCamera');
 					return;
 				}
+				
+				_camera.setMotionLevel(5, 1000);
 
-			    _camera.addEventListener(ActivityEvent.ACTIVITY, activityHandler);
+				if (_camera.muted) {
+					if (_cameraAccessDenied) {
+						onCameraAccessDisallowed();
+						return;
+					} else {
+						showWarning('bbb.video.publish.hint.waitingApproval');
+					}
+				} else {
+					// if the camera isn't muted, that is because the user has
+					// previously allowed the camera capture on the flash privacy box
+					onCameraAccessAllowed();
+				}
 
-				// set timer to ensure that the camera activates.  If not, it might be in use by another application
-				_waitingForActivation = true;
-				if (_activationTimer != null)
-					_activationTimer.stop();
-			    _activationTimer = new Timer(5000, 1);
-			    _activationTimer.addEventListener(TimerEvent.TIMER, activationTimeout);
-			    _activationTimer.start();
+			    _camera.addEventListener(ActivityEvent.ACTIVITY, onActivityEvent);
+			    _camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
 
 				setComboResolution();
 				
@@ -181,24 +191,50 @@
 				_videoHolder.addChild(_video);
    			}
    			
-			private function activityHandler(e:ActivityEvent):void {
+			private function onActivityEvent(e:ActivityEvent):void {
 			    if (_waitingForActivation && e.activating) {
 			        _activationTimer.stop();
-					showWarning("Video preview", false, "0xFFFF00");
+					showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
 			     	btnStartPublish.enabled = true;
 			     	_waitingForActivation = false;
 			    }
 			}
 
+			private function onStatusEvent(e:StatusEvent):void {
+				if (e.code == "Camera.Unmuted") {
+					onCameraAccessAllowed();
+					// this is just to overwrite the message of waiting for approval
+				    showWarning('bbb.video.publish.hint.openingCamera');
+			    } else if (e.code == "Camera.Muted") {
+			    	onCameraAccessDisallowed();
+			    }
+			}
+			
+			private function onCameraAccessAllowed():void {
+				// set timer to ensure that the camera activates.  If not, it might be in use by another application
+				_waitingForActivation = true;
+				if (_activationTimer != null)
+					_activationTimer.stop();
+			    _activationTimer = new Timer(10000, 1);
+			    _activationTimer.addEventListener(TimerEvent.TIMER, activationTimeout);
+			    _activationTimer.start();
+			}
+			
+			private function onCameraAccessDisallowed():void {
+		    	showWarning('bbb.video.publish.hint.cameraDenied');
+		    	_cameraAccessDenied = true;
+			}
+
 			private function activationTimeout(e:TimerEvent):void {
-				showWarning("Your camera is being used by another application");
+				showWarning('bbb.video.publish.hint.cameraIsBeingUsed');
+				// it will try to reopen the camera after the timeout
 				updateCamera();
 			}   			
 						
 			private function startPublishing():void{
 				if (_camera == null) return;
 
-				showWarning("Publishing...", true, "0xFFFF00");
+				showWarning('bbb.video.publish.hint.publishing', true, "0xFFFF00");
 				
 				defaultWidth = originalWidth;
 				defaultHeight = originalHeight;
@@ -328,7 +364,9 @@
 			
 			private var hideWarningTimer:Timer = null;
 			
-			private function showWarning(text:String, autoHide:Boolean=false, color:String="0xFF0000"):void {
+			private function showWarning(resourceName:String, autoHide:Boolean=false, color:String="0xFF0000"):void {
+				const text:String = ResourceUtil.getInstance().getString(resourceName);
+				
 				if (hideWarningTimer != null)
 					hideWarningTimer.stop();
 				if (autoHide) {
@@ -336,12 +374,12 @@
 					hideWarningTimer.addEventListener(TimerEvent.TIMER, hideWarning);
 					hideWarningTimer.start();
 				}
-				
 				// bring the label to front
 				setChildIndex(lblWarning, getChildren().length - 1);
 				lblWarning.text = text;
 				lblWarning.setStyle("color", color);
 				lblWarning.visible = true;
+				LogUtil.debug("Showing warning: " + text);
 			}
 			
 			private function hideWarning(e:TimerEvent):void {

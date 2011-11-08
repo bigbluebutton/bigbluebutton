@@ -5,7 +5,7 @@ package org.bigbluebutton.modules.videodock.views
 	public class DockOptions
 	{
 		[Bindable]
-		public var audoDock:Boolean = true;
+		public var autoDock:Boolean = true;
 		
 		[Bindable]
 		public var maximize:Boolean = false;
@@ -19,10 +19,19 @@ package org.bigbluebutton.modules.videodock.views
 		[Bindable]
 		public var height:int = 179;
 		
+		[Bindable]
+		public var layout:String = LAYOUT_SMART;
+		static public const LAYOUT_NONE:String = "NONE";
+		static public const LAYOUT_HANGOUT:String = "HANGOUT";
+		static public const LAYOUT_SMART:String = "SMART";
+		
 		public function DockOptions()
 		{
 			var vxml:XML = BBB.getConfigForModule("VideodockModule");
 			if (vxml != null) {
+				if (vxml.@autoDock != undefined) {
+					autoDock = (vxml.@autoDock.toString().toUpperCase() == "TRUE") ? true : false;
+				}
 				if (vxml.@maximizeWindow != undefined) {
 					maximize = (vxml.@maximizeWindow.toString().toUpperCase() == "TRUE") ? true : false;
 				}
@@ -34,6 +43,11 @@ package org.bigbluebutton.modules.videodock.views
 				}
 				if (vxml.@height != undefined) {
 					height = Number(vxml.@height);
+				}
+				if (vxml.@layout != undefined) {
+					layout = vxml.@layout.toString().toUpperCase();
+					if (layout != LAYOUT_NONE && layout != LAYOUT_HANGOUT && layout != LAYOUT_SMART)
+						layout = LAYOUT_NONE;					
 				}
 			}
 		}
