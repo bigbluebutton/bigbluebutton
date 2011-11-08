@@ -144,6 +144,8 @@
 					return;
 				}
 				
+				_camera.setMotionLevel(5, 1000);
+
 				if (_camera.muted) {
 					if (_cameraAccessDenied) {
 						onCameraAccessDisallowed();
@@ -213,7 +215,7 @@
 				_waitingForActivation = true;
 				if (_activationTimer != null)
 					_activationTimer.stop();
-			    _activationTimer = new Timer(5000, 1);
+			    _activationTimer = new Timer(10000, 1);
 			    _activationTimer.addEventListener(TimerEvent.TIMER, activationTimeout);
 			    _activationTimer.start();
 			}
