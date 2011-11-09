@@ -69,5 +69,9 @@ package org.bigbluebutton.modules.deskshare.managers
 		public function enableToolbarButton():void {
 			button.enabled = true;
 		}
+		
+		public function disableToolbarButton():void {
+			button.enabled = false;
+		}
 	}
 }

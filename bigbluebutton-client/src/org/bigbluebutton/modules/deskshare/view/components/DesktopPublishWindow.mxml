@@ -26,6 +26,7 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:dspub="flexlib.mdi.containers.*"
 	creationComplete="onCreationComplete()"
+	
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	width="320" height="240"
 	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
@@ -40,13 +41,10 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
+			import com.asfusion.mate.events.Dispatcher;			
 			import flexlib.mdi.events.MDIWindowEvent;
-			import flexlib.scheduling.scheduleClasses.BackgroundItem;
-			
-			import mx.core.UIComponent;
-			
+			import flexlib.scheduling.scheduleClasses.BackgroundItem;			
+			import mx.core.UIComponent;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
@@ -96,10 +94,7 @@
 				cursor = new Sprite();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);		
-				
-				if (autoStart) {
-					shareScreen(true);	
-				}		
+					
 				setCurrentState("dispFullRegionControlBar");			
 			}
 			
@@ -135,19 +130,15 @@
 				this.autoStart = autoStart;		
 			}
 			
-			private function shareScreen(fullScreen:Boolean):void {
+			public function shareScreen(fullScreen:Boolean):void {
 				LogUtil.debug("Calling shareScreen");
 				startSharing(connection, uri, room, fullScreen);
 			}
 			
 			private function startSharing(connection:NetConnection, uri:String, room:String, fullScreen:Boolean):void {
-				LogUtil.debug("Calling startSharing");
 				var captureX:Number = 0;
-				var captureY:Number = 0;
-				
+				var captureY:Number = 0;				
 				sharingFullScreen = fullScreen;
-				LogUtil.debug("Calling startSharing1");
-			//	setCurrentState("dispQuitControlBar");
 				LogUtil.debug("Calling startApplet");
 				ExternalInterface.call("startApplet", uri, room, fullScreen);
 			}

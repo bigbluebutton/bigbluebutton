@@ -155,8 +155,8 @@
 						if (y < 0) y = 1;
 						break;
 					case DESKTOP_SHARING_PUBLISH:
-						y = (this.height - win.height) / 2;
-						x = (this.width - win.width) / 2;
+						y = (this.height - win.height);
+						x = 1;
 						break;
 					case DESKTOP_SHARING_VIEW:
 						x = 1;

@@ -45,7 +45,7 @@
 
 
 FREESWITCH_INIT_D="/etc/init.d/bbb-freeswitch"
-BBB_VERSION="0.8-beta-2"
+BBB_VERSION="0.8-beta-3"
 
 if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
 	echo "#"
@@ -1227,13 +1227,14 @@ check_state() {
 		fi
 
 		SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
-		#IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | head -1 | cut -d: -f2 | awk '{ print $1}')
-		if [ $SIP_SERVER_HOST != $IP ]; then
-			echo 
-			echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host in"
-			echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
-			echo "# does not match the local IP address ($IP)."
-			echo 
+		if [ $SIP_SERVER_HOST != "127.0.0.1" ]; then
+			if [ $SIP_SERVER_HOST != $IP ]; then
+				echo 
+				echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host in"
+				echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+				echo "# does not match the local IP address ($IP)."
+				echo 
+			fi
 		fi
 	fi
 

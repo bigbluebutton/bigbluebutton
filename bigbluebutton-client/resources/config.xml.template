@@ -36,6 +36,7 @@
 		<module name="DeskShareModule" 
 			url="DeskShareModule.swf?v=VERSION" 
 			uri="rtmp://HOST/deskShare"
+			autoStart="false"
 		/>
 		
 		<module name="PhoneModule" url="PhoneModule.swf?v=VERSION" 
