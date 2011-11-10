@@ -88,6 +88,8 @@
 			position="bottom-right"
 			width="172"
 			height="179"
+			layout="smart"
+			oneAlwaysBigger="false"
 		/>
 		
 		<!-- new module in development: 
