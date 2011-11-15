@@ -40,7 +40,7 @@ module BigBlueButton
 
     #Convert an image to a png	
     def self.convert_image_to_png(image,png_image)
-        command="convert #{image} #{png_image}"
+        command="convert -resize 800x600 #{image} #{png_image}"
         BigBlueButton.execute(command)
     end
 
