@@ -29,9 +29,11 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel="stylesheet" type="text/css" href="css/ui.jqgrid.css" />
-	<link rel="stylesheet" type="text/css" href="js/jquery-ui.css" />
+	<link rel="stylesheet" type="text/css" href="css/redmond/jquery-ui-redmond.css" />
+	<script type="text/javascript" src="js/jquery-ui.js"></script>
 	<script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/jquery.validate.min.js"></script>
+	<script src="js/grid.locale-en.js" type="text/javascript"></script>
 	<script src="js/jquery.jqGrid.min.js" type="text/javascript"></script>
 	<script src="js/jquery.xml2json.js" type="text/javascript"></script>
 	<title>Recording Meeting Demo</title>
@@ -125,6 +127,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		<option value="delete">Delete</option>
 	</select>
 	<table id="recordgrid"></table>
+	<div id="pager"></div> 
 	<p>Note: New recordings will appear in the above list after processing.  Refresh your browser to update the list.</p>
 	<script>
 	function onChangeMeeting(meetingID){
@@ -218,19 +221,21 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 			colNames:['Id','Course','Description', 'Date Recorded', 'Published', 'Playback', 'Length'],
 			colModel:[
 				{name:'id',index:'id', width:50, hidden:true, xmlmap: "recordID"},
-				{name:'course',index:'course', width:150, xmlmap: "meetingID", sortable:false},
-				{name:'description',index:'description', width:300, xmlmap: "metadata>description",sortable: false},
+				{name:'course',index:'course', width:150, xmlmap: "name", sortable:true},
+				{name:'description',index:'description', width:300, xmlmap: "description",sortable: true},
 				{name:'daterecorded',index:'daterecorded', width:200, xmlmap: "startTime", sortable: false},
-				{name:'published',index:'published', width:80, xmlmap: "published", sortable:false },
-				{name:'playback',index:'playback', width:150, formatter:playbackFormat, sortable:false},
-				{name:'length',index:'length', width:80, sortable:false}
+				{name:'published',index:'published', width:80, xmlmap: "published", sortable:true },
+				{name:'playback',index:'playback', width:150, xmlmap:"playback", sortable:false},
+				{name:'length',index:'length', width:80, xmlmap:"length", sortable:true}
 			],
 			xmlReader: {
 				root : "recordings",
 				row: "recording",
 				repeatitems:false,
-				id: "id"
+				id: "recordID"
 			},
+			pager : '#pager',
+			emptyrecords: "Nothing to display",
 			multiselect: true,
 			caption: "Recorded Sessions",
 			loadComplete: function(){
@@ -239,30 +244,6 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		});
 	});
 	
-	function playbackFormat( cellvalue, options, rowObject ){
-		if($(rowObject).find('published:first').text()=="true"){
-			var newval="<p>";
-			$(rowObject).find('playback format').each(function() {
-				if (newval != "<p>") {
-					newval += ", ";
-				}
-				newval += '<a href="'+$(this).find("url").text()+'">'+$(this).find("type").text()+'</a>';
-			});
-			newval = newval + "</p>"
-			return newval;
-		}
-		return "";
-	}
-	function lengthFormat( cellvalue, options, rowObject ){
-		var duration = 0;
-		$(rowObject).find('playback format').each(function() {
-			var duration = parseInt($(this).find("length").text());
-			if (duration != 0) {
-				return false;
-			}
-		});
-		return duration;
-	}
 	</script>
 <%
 	} else if (request.getParameter("action").equals("create")) {
