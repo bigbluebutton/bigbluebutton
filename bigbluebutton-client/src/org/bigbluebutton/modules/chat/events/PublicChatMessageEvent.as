@@ -25,6 +25,11 @@ package org.bigbluebutton.modules.chat.events
 		public static const PUBLIC_CHAT_MESSAGE_EVENT:String = 'PUBLIC_CHAT_MESSAGE_EVENT';
 		
 		public var message:String;
+		public var username:String;
+		public var color:String;
+		public var time:String;
+		public var language:String;
+		public var userid:String;
 		
 		public function PublicChatMessageEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

@@ -63,8 +63,8 @@ public class ChatApplication {
 		return roomsManager.getChatMessages(room);
 	}
 	
-	public void sendMessage(String room, String message) {
-		roomsManager.sendMessage(room, message);
+	public void sendMessage(String room,String message, String username, String color, String time, String language, String userid) {
+		roomsManager.sendMessage(room, message, username, color, time, language, userid);
 	}
 	
 	public void setRoomsManager(ChatRoomsManager r) {

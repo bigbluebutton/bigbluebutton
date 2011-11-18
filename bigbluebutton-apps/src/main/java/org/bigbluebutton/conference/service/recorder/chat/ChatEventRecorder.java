@@ -3,6 +3,7 @@ package org.bigbluebutton.conference.service.recorder.chat;
 import java.util.Hashtable;
 
 import org.bigbluebutton.conference.BigBlueButtonUtils;
+import org.bigbluebutton.conference.service.chat.ChatObject;
 import org.bigbluebutton.conference.service.chat.IChatRoomListener;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.red5.logging.Red5LoggerFactory;
@@ -26,19 +27,18 @@ public class ChatEventRecorder implements IChatRoomListener {
 	}
 
 	@Override
-	public void newChatMessage(String message) {
-		recorder.record(session, buildEvent(message));		
+	public void newChatMessage(ChatObject chatobj) {
+		recorder.record(session, buildEvent(chatobj));		
 	}
 	
-	private PublicChatRecordEvent buildEvent(String message) {
+	private PublicChatRecordEvent buildEvent(ChatObject chatobj) {
 		PublicChatRecordEvent ev = new PublicChatRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());
 		ev.setMeetingId(session);
-		String[] chatAttribs = message.trim().split("\\|",-1);
-		ev.setSender(chatAttribs[1]);
-		ev.setMessage(chatAttribs[0]);
-		ev.setLocale(chatAttribs[4]);
-		ev.setColor(chatAttribs[2]);
+		ev.setSender(chatobj.getUsername());
+		ev.setMessage(chatobj.getMessage());
+		ev.setLocale(chatobj.getLanguage());
+		ev.setColor(chatobj.getColor());
 		return ev;
 	}
 }

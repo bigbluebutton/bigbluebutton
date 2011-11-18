@@ -83,8 +83,9 @@ package org.bigbluebutton.modules.chat.services
 			dispatcher.dispatchEvent(connEvent);
 		}
 		
-		public function sendMessage(message:String):void
+		public function sendMessage(message:String,username:String,color:String,time:String,language:String,userid:String):void
 		{
+			
 			var nc:NetConnection = connection;
 			nc.call(
 				"chat.sendMessage",// Remote function name
@@ -101,16 +102,26 @@ package org.bigbluebutton.modules.chat.services
 						} 
 					}
 				),//new Responder
-				message
+				message,
+				username,
+				color,
+				time,
+				language,
+				userid
 			); //_netConnection.call
 		}
 		
 		/**
 		 * Called by the server to deliver a new chat message.
 		 */	
-		public function newChatMessage(message:String):void{
+		public function newChatMessage(message:String,username:String,color:String,time:String,language:String,userid:String):void{
 			var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
 			event.message = message;
+			event.username = username;
+			event.color = color;
+			event.time = time;
+			event.language = language;
+			event.userid = userid;
 			
 			var globalDispatcher:Dispatcher = new Dispatcher();
 			globalDispatcher.dispatchEvent(event);	   			
@@ -151,7 +162,9 @@ package org.bigbluebutton.modules.chat.services
 			
 			var messages:Array = result as Array;
 			for (var i:int = 0; i < messages.length; i++){
-				newChatMessage(messages[i] as String);
+				var fullmessage = messages[i] as String;
+				var components:Array = fullmessage.split("|");
+				newChatMessage(components[0],components[1],components[2],components[3],components[4],components[5]);
 			}
 			
 			sendTranscriptLoadedEvent();

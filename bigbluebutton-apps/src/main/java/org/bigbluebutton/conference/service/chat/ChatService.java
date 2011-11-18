@@ -35,9 +35,9 @@ public class ChatService {
 		return application.getChatMessages(roomName);
 	}
 	
-	public void sendMessage(String message) {
+	public void sendMessage(String message, String username, String color, String time, String language, String userid) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.sendMessage(roomName, message);
+		application.sendMessage(roomName, message, username, color, time, language, userid);
 	}
 	public void setChatApplication(ChatApplication a) {
 		log.debug("Setting Chat Applications");

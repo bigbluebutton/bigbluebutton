@@ -55,17 +55,22 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import be.boulevart.google.ajaxapi.translation.GoogleTranslation;
-			import be.boulevart.google.events.GoogleApiEvent;			
-			import com.asfusion.mate.events.Dispatcher;			
-			import flash.external.ExternalInterface;			
+			import be.boulevart.google.events.GoogleApiEvent;
+			
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.external.ExternalInterface;
+			
 			import flexlib.controls.tabBarClasses.SuperTab;
-			import flexlib.events.SuperTabEvent;			
+			import flexlib.controls.textClasses.StringBoundaries;
+			import flexlib.events.SuperTabEvent;
+			
 			import mx.collections.ArrayCollection;
 			import mx.core.Container;
 			import mx.core.UIComponent;
-			import mx.events.IndexChangedEvent;			
+			import mx.events.IndexChangedEvent;
+			
 			import org.bigbluebutton.common.IUserListener;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -78,6 +83,7 @@
 			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
 			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import org.bigbluebutton.modules.chat.model.MessageVO;
 			import org.bigbluebutton.modules.chat.model.business.UserVO;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -355,10 +361,11 @@
 			
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
 				LogUtil.debug("Got PublicChatMessageEvent");
-				showMessage(PUBLIC_CHAT_USERID, event.message, autoTranslation);
+				var message:String = event.message + "|" + event.username + "|" + event.color + "|" + event.time + "|" + event.language + "|" + event.userid;
+				showMessage(PUBLIC_CHAT_USERID, message, autoTranslation);
 				if (!this.focus)
 					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting2'));
-				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT, event.message));
+				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT, message));
 			}
 			
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {

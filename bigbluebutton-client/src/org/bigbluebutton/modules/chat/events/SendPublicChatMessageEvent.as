@@ -25,7 +25,7 @@ package org.bigbluebutton.modules.chat.events
 		public static const SEND_PUBLIC_CHAT_MESSAGE_EVENT:String = 'sendPublicChatMessageEvent';
 		
 		public var message:String;
-		public var time:String;
+		public var time:String; // should be changed to timestamp
 		public var color:String;
 		public var language:String;
 		

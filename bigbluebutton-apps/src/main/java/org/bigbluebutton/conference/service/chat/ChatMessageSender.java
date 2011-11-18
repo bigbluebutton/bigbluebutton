@@ -40,10 +40,16 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageSender.class
 	}
 
 	@Override
-	public void newChatMessage(String message) {
+	public void newChatMessage(ChatObject chatobj) {
 		List<String> list = new ArrayList<String>();
-		list.add(message);
-		log.debug("Sending public chat message [" + message + "]");
+		list.add(chatobj.getMessage());
+		list.add(chatobj.getUsername());
+		list.add(chatobj.getColor());
+		list.add(chatobj.getTime());
+		list.add(chatobj.getLanguage());
+		list.add(chatobj.getUserid());
+		
+		log.debug("Sending public chat message [" + chatobj.getMessage() + "]");
 		if (so.isLocked()) log.info("Chat message SO is locked");
 		if (so.isAcquired()) log.info("Chat message SO is acquired");
 		ISharedObjectStatistics stats = so.getStatistics();
