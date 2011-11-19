@@ -167,4 +167,3 @@ subprojects {
     manifest.mainAttributes(provider: 'bigbluebutton')
 }
 
-dependsOnChildren()
