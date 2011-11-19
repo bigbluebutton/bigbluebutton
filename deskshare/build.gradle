@@ -100,11 +100,11 @@ dependencies {
 	compile 'net.jcip:jcip-annotations:1.0@jar'
 	
 	// Libraries needed to run the scala tools
-	scalaTools 'org.scala-lang:scala-compiler:2.9.1'
-	scalaTools 'org.scala-lang:scala-library:2.9.1'
+	scalaTools 'org.scala-lang:scala-compiler:2.7.7'
+	scalaTools 'org.scala-lang:scala-library:2.7.7'
 
 	// Libraries needed for scala api
-	compile 'org.scala-lang:scala-library:2.9.1'
+	compile 'org.scala-lang:scala-library:2.7.7'
 	
 	compile 'net/lag/configgy:configgy:1.5@jar'
 	
