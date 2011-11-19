@@ -30,7 +30,7 @@ public class ChatService {
 	
 	private ChatApplication application;
 
-	public List<String> getChatMessages() {
+	public List<ChatObject> getChatMessages() {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		return application.getChatMessages(roomName);
 	}

@@ -59,7 +59,7 @@ public class ChatApplication {
 		return false;
 	}
 	
-	public List<String> getChatMessages(String room) {
+	public List<ChatObject> getChatMessages(String room) {
 		return roomsManager.getChatMessages(room);
 	}
 	

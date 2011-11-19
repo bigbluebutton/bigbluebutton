@@ -63,7 +63,7 @@ public class ChatRoomsManager {
 		return rooms.get(name);
 	}
 	
-	public List<String> getChatMessages(String room) {
+	public List<ChatObject> getChatMessages(String room) {
 		ChatRoom r = getRoom(room);
 		if (r != null) {
 			return r.getChatMessages();

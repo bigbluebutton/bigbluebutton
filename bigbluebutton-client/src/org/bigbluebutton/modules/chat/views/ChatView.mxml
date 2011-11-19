@@ -83,6 +83,7 @@
 			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
 			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
 			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+			import org.bigbluebutton.modules.chat.model.ChatObject;
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import org.bigbluebutton.modules.chat.model.MessageVO;
 			import org.bigbluebutton.modules.chat.model.business.UserVO;
@@ -361,18 +362,17 @@
 			
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
 				LogUtil.debug("Got PublicChatMessageEvent");
-				var message:String = event.message + "|" + event.username + "|" + event.color + "|" + event.time + "|" + event.language + "|" + event.userid;
-				showMessage(PUBLIC_CHAT_USERID, message, autoTranslation);
+				showMessage(PUBLIC_CHAT_USERID, event.chatobj, autoTranslation);
 				if (!this.focus)
 					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting2'));
-				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT, message));
+				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT, event.chatobj.message));
 			}
 			
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
 				LogUtil.debug("Got PrivateChatMessageEvent");
 				if (!this.focus)
 					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
-				showMessage(event.message.sender, event.message.message, autoTranslation);
+				showMessage(event.chatobj.userid, event.chatobj, autoTranslation);
 			}
 			
 			private function participantHasChatBox(id:String):Boolean {
@@ -384,15 +384,15 @@
 			private function getChatBoxForParticipant(id:String):ChatBox {
 				return chatTabs.getChildByName(id) as ChatBox;
 			}
-			
-			private function showMessage(sender:String, message:String, translate:Boolean):void{
+			/* it should receive the ChatObject */
+			private function showMessage(sender:String, chatobj:ChatObject, translate:Boolean):void{
 				var chatBox:ChatBox;
 				if (! participantHasChatBox(sender)) {
 					chatBox = createChatBoxFor(sender);
 				}
 				
 				chatBox = getChatBoxForParticipant(sender);
-				chatBox.showNewMessage(message, translate, ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0]);
+				chatBox.showNewMessage(chatobj, translate, ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0]);
 				
 				if (! isChatBoxCurrentlySelected(sender)) {
 					notifyParticipantOfUnreadMessageFrom(sender);

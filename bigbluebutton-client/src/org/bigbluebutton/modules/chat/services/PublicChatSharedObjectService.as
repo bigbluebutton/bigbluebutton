@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.chat.services
 	import org.bigbluebutton.modules.chat.events.ConnectionEvent;
 	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 	import org.bigbluebutton.modules.chat.events.TranscriptEvent;
+	import org.bigbluebutton.modules.chat.model.ChatObject;
 
 	public class PublicChatSharedObjectService
 	{
@@ -116,12 +117,16 @@ package org.bigbluebutton.modules.chat.services
 		 */	
 		public function newChatMessage(message:String,username:String,color:String,time:String,language:String,userid:String):void{
 			var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-			event.message = message;
-			event.username = username;
-			event.color = color;
-			event.time = time;
-			event.language = language;
-			event.userid = userid;
+			
+			var chatobj:ChatObject = new ChatObject();
+			chatobj.message = message;
+			chatobj.username = username;
+			chatobj.color = color;
+			chatobj.time = time;
+			chatobj.language = language;
+			chatobj.userid = userid;
+			
+			event.chatobj = chatobj;
 			
 			var globalDispatcher:Dispatcher = new Dispatcher();
 			globalDispatcher.dispatchEvent(event);	   			
@@ -162,9 +167,8 @@ package org.bigbluebutton.modules.chat.services
 			
 			var messages:Array = result as Array;
 			for (var i:int = 0; i < messages.length; i++){
-				var fullmessage = messages[i] as String;
-				var components:Array = fullmessage.split("|");
-				newChatMessage(components[0],components[1],components[2],components[3],components[4],components[5]);
+				var chatobj:ChatObject = messages[i] as ChatObject;
+				newChatMessage(chatobj.message,chatobj.username,chatobj.color,chatobj.time,chatobj.language,chatobj.userid);
 			}
 			
 			sendTranscriptLoadedEvent();

@@ -59,14 +59,8 @@ public class ChatRoom {
 		listeners.remove(listener);		
 	}
 	
-	public List<String> getChatMessages(){
-		/*temporary solution*/
-		List<String> newlist = new ArrayList<String>();
-		for(int i = 0; i < messages.size(); i++){
-			ChatObject temp = messages.get(i);
-			newlist.add(temp.getMessage()+"|"+temp.getUsername()+ "|"+temp.getColor()+"|"+temp.getTime()+"|"+temp.getLanguage()+"|"+temp.getUserid());
-		}
-		return newlist;
+	public List<ChatObject> getChatMessages(){
+		return messages;
 	}
 	
 	@SuppressWarnings("unchecked")
