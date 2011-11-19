@@ -34,8 +34,8 @@ dependencies {
 	providedCompile ':jul-to-slf4j:1.6.1@jar'
 	
 	compile project(':common')
-    compile 'commons-fileupload:commons-fileupload:1.2.2@jar'
-	compile 'commons-io:commons-io:2.1@jar' 
+    providedCompile 'commons-fileupload:commons-fileupload:1.2.2@jar'
+	providedCompile 'commons-io:commons-io:2.1@jar' 
     
     // Libraries needed to run the scala tools
     scalaTools 'org.scala-lang:scala-compiler:2.7.7'

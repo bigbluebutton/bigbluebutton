@@ -85,7 +85,7 @@ dependencies {
 
 	// Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
 	// Otherwise we get exception on aop utils class not found.
-	compile 'org.springframework:spring-aop:3.0.6.RELEASE@jar'
+	providedCompile 'org.springframework:spring-aop:3.0.6.RELEASE@jar'
 	compile 'aopalliance:aopalliance:1.0@jar'
 	
     // Java Concurrency In Practice
