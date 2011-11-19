@@ -77,7 +77,7 @@ public class ManagerConnectionImpl implements ManagerConnection
         esl_client.addEventFilter( "Event-Name", "custom" );
         esl_client.addEventFilter( "Event-Name", "background_job" );
         try {
-            Thread.sleep(25000);
+            Thread.sleep(5000);
         } catch (InterruptedException ex) {
             Logger.getLogger(ManagerConnectionImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
