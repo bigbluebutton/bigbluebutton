@@ -372,7 +372,7 @@
 				LogUtil.debug("Got PrivateChatMessageEvent");
 				if (!this.focus)
 					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
-				showMessage(event.chatobj.userid, event.chatobj, autoTranslation);
+				showMessage(event.message.sender, event.message.chatobj, autoTranslation);
 			}
 			
 			private function participantHasChatBox(id:String):Boolean {

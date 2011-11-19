@@ -28,8 +28,8 @@ package org.bigbluebutton.modules.chat.events
 		
 		public static const PRIVATE_CHAT_MESSAGE_EVENT:String = 'PRIVATE_CHAT_MESSAGE_EVENT';
 		
-		//public var message:MessageVO;
-		public var chatobj:ChatObject;
+		public var message:MessageVO;
+		//public var chatobj:ChatObject;
 		
 		public function PrivateChatMessageEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
 		{
