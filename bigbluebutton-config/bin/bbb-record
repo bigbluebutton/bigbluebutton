@@ -21,6 +21,7 @@
 #
 # Changelog:
 #   2011-08-18 FFD  Inital Version
+#   2011-11-20 FFD  Added more checks for processing of recording
 
 
 set -e
@@ -28,6 +29,13 @@ set -e
 
 BASE=/var/bigbluebutton/recording
 STATUS=$BASE/status
+
+RECORDING_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(recording_dir\)/{s/.*recording_dir:[ ]*//;s/;//;p}')
+PUBLISHED_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(published_dir\)/{s/.*published_dir:[ ]*//;s/;//;p}')
+RAW_AUDIO_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_audio_src\)/{s/.*raw_audio_src:[ ]*//;s/;//;p}')
+RAW_VIDEO_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_video_src\)/{s/.*raw_video_src:[ ]*//;s/;//;p}')
+RAW_DESKSHARE_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_deskshare_src\)/{s/.*raw_deskshare_src:[ ]*//;s/;//;p}')
+RAW_PRESENTATION_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_presentation_src\)/{s/.*raw_presentation_src:[ ]*//;s/;//;p}')
 
 TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
 
@@ -67,7 +75,7 @@ mark_for_rebuild() {
 	done
 }
 
-BBB_VERSION=0.8-dev
+BBB_VERSION=0.8-beta-3
 
 need_root() {
         if [ $EUID != 0 ]; then
@@ -77,7 +85,7 @@ need_root() {
 }
 
 usage() {
-        echo "BigBlueButton Recording Utility - Version $BBB_VERSION"
+        echo "BigBlueButton Recording Diagnostic Utility - Version $BBB_VERSION"
         echo
         echo "   bbb-record [options]"
         echo
@@ -146,24 +154,10 @@ if [ $REBUILD ]; then
 	for recording in $(dir $BASE/raw); do
 		echo "Marking for rebuild: $MEETING_ID"
 		mark_for_rebuild $MEETING_ID
-
-#sudo rm -rf /var/bigbluebutton/recording/process/slides/6e35e3b2778883f5db637d7a5dba0a427f692e91-1314313817423
-#sudo rm /var/bigbluebutton/recording/status/processed/6e35e3b2778883f5db637d7a5dba0a427f692e91-1314313817423-slides.done
-
-		#rm -rf $BASE/recording/process/slides/$recording
-		#rm -rf $BASE/publish/slides/$recording
-
-		#if [ -d /var/bigbluebutton/published/$recording ]; then
-		#	rm -rf /var/bigbluebutton/published/$recording
-		#fi 		
-		#if [ -d /var/bigbluebutton/unpublished/$recording ]; then
-		#	rm -rf /var/bigbluebutton/unpublished/$recording
-		#fi 		
 	done
     else
-		echo "Marking for rebuild: $MEETING_ID"
-		mark_for_rebuild $MEETING_ID
-
+	echo "Marking for rebuild: $MEETING_ID"
+	mark_for_rebuild $MEETING_ID
     fi
 fi 
 
@@ -184,6 +178,9 @@ if [ $DELETEALL ]; then
 	rm -f /var/bigbluebutton/recording/status/archived/*
 	rm -f /var/bigbluebutton/recording/status/processed/*
 
+	rm -f /usr/share/red5/webapps/video/streams/*.flv
+	rm -f /var/bigbluebutton/deskshare/*.flv
+
 	for meeting in $(ls /var/bigbluebutton | grep "[0-9]\{13\}$"); do
 		echo "deleting: $meeting"
 		rm -rf /var/bigbluebutton/$meeting
@@ -193,63 +190,121 @@ fi
 if [ $LIST ]; then
 
 
-	#ps -fC god
-	#ps -uxfp $(cat /var/run/god.pid)
-	#RAP_PID=$(ps -fC ruby | grep rap-worker | awk '{print $2}')	
-	#if [ "$RAP_PID" != "" ]; then
-	#echo
-		#ps fU tomcat6 -o "%c%a"
-		#ps af -C tomcat6 -o "%c%a"
-	#	pstree --ascii -alp $RAP_PID
-	#fi
-
-
-echo "MeetingID                                               Time                         Slides Recorded Archived Processed            Published             Description"
-echo "------------------------------------------------------  ---------------------------- ------ -------- -------- -------------------- --------------------  -----------------------------"
+echo "MeetingID                                               Time                         APVD APVDE RA Slides Processed            Published             Description"
+echo "------------------------------------------------------  ---------------------------- ---- ----- -- ------ -------------------- --------------------  -----------------------------"
 
 if [ -z $HEAD ]; then
 	# If we're not called with --list20, show all recordings
 	HEAD=99999
 fi
                                                               
-for meeting in $(ls -u /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD); do
+for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD); do
 	echo -n "$meeting"
 	timestamp=$(echo $meeting | sed s/.*-//g)
 	epoc=$(($timestamp/1000))
 	echo -n "  "
 	echo -n $(date --date "Jan 1, 1970 00:00:00 +0000 + $epoc seconds") | awk '{ printf("%-28s",$0) }'
+	echo -n " "
+     
+	#
+	# Monitor the live recordings
+	#
+ 
+	#
+	# Check if there is any recorded audio
+	if ls -A $RAW_AUDIO_SRC/$meeting-*.wav &> /dev/null; then
+		echo -n "X"
+	else
+		echo -n " "
+	fi
 
+	#
+	# Check if there area uploaded presentations 
+	if [ -d $RAW_PRESENTATION_SRC/$meeting/$meeting ]; then
+		if [ "$(ls -A $RAW_PRESENTATION_SRC/$meeting/$meeting)" ]; then 
+			echo -n "X"
+		else
+			echo -n " "
+		fi
+	else 
+		echo -n " "
+	fi
+
+
+	#
+	# Check if there is any recorded videos
+	if [ -d $RAW_VIDEO_SRC/$meeting ]; then
+		if [ "$(ls -A $RAW_VIDEO_SRC/$meeting)" ]; then 
+			echo -n "X"
+		else
+			echo -n " "
+		fi
+	else
+		echo -n " "
+	fi
+
+	#
+	# Check if there is any recorded desktop sharing
+	if ls -A $RAW_DESKSHARE_SRC/$meeting-*.flv &> /dev/null; then
+		echo -n "X"
+	else
+		echo -n " "
+	fi
+
+
+	#
+	# Monitor the archived files
+	#
+	RAW_DIR=$RAW_PRESENTATION_SRC/recording/raw/$meeting
+	echo -n " "
+
+	# Check if there area uploaded presentations 
+	#echo "$RAW/audio"
+	DIRS="audio presentation video deskshare"
+	for dir in $DIRS; do
+		if [ -d $RAW_DIR/$dir ]; then
+			if [ "$(ls -A $RAW_DIR/$dir)" ]; then 
+				echo -n "X"
+			else
+				echo -n " "
+			fi
+		else 
+			echo -n " "
+		fi
+	done
+
+	if [ -f $RAW_DIR/events.xml ]; then
+		echo -n "X"
+	else
+		echo -n " "
+	fi
+
+	#
+	# Check the status files
+	#
+	echo -n " "
+	STATUS_DIR=$RAW_PRESENTATION_SRC/recording/status
+	DIRS="recorded archived"
+	for dir in $DIRS; do
+		if [ -f $STATUS_DIR/$dir/$meeting.done ]; then
+			echo -n "X"
+		else 
+			echo -n " "
+		fi
+	done
+
+	#
+	# Numbe rof slides
 	printf "%7s" $(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
-	#echo "/var/bigbluebutton/$meeting/$meeting"
 
+
+	echo -n " "
 	#echo $BASE/raw/$meeting 
 	if [ -d $BASE/raw/$meeting ]; then
 		recording=$meeting
 
-#for recording in $(dir $BASE/raw); do
-
-	#echo -n "$recording: "
-
 	#
-	# Check archived
-	if [ -f $STATUS/recorded/$recording.done ]; then
-		echo -n "   done  "
-	else
-		echo -n "         "
-	fi
-
-
-	#
-	# Check archived
-	if [ -f $STATUS/archived/$recording.done ]; then
-		echo -n "   done   "
-	else
-		echo -n "          "
-	fi
-
-
-	#
-	# Check archived
+	# Checka processed 
 	processed=""
 	for type in $TYPES; do
 		if [ -f $STATUS/processed/$recording-$type.done ]; then
