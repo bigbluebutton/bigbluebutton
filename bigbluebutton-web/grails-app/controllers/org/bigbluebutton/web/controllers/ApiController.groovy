@@ -1042,12 +1042,13 @@ class ApiController {
 
 
   def cleanFilename(filename) {
+	String fname = URLDecoder.decode(filename)
     def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
-    return filename.replaceAll(notValidCharsRegExp, '-')
+    return fname.replaceAll(notValidCharsRegExp, '-')
   }
   
   def processDocumentFromRawBytes(bytes, filename, conf) {
-    def cleanName = cleanFilename(filename);
+	def cleanName = cleanFilename(filename);
 
     File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), cleanName);
     def pres = new File(uploadDir.absolutePath + File.separatorChar + cleanName);

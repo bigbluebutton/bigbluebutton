@@ -50,7 +50,7 @@ package org.bigbluebutton.modules.deskshare.managers
 		}
 					
 		public function stopSharing():void {
-			shareWindow.stopSharing();
+			if (shareWindow != null) shareWindow.stopSharing();
 		}
 																			
 		public function startSharing(uri:String, room:String, autoStart:Boolean):void {

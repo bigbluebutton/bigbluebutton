@@ -56,6 +56,7 @@
 			resolutions="320x240,640x480,1280x720"
 			autoStart="false"
 			showButton="true"
+			showCloseButton="true"
 			publishWindowVisible="true"
 			viewerWindowMaxed="false"
 			viewerWindowLocation="top"
@@ -89,6 +90,7 @@
 			width="172"
 			height="179"
 			layout="smart"
+			oneAlwaysBigger="false"
 		/>
 		
 		<!-- new module in development: 

@@ -66,6 +66,7 @@ server {
         location / {
           root   /var/www/bigbluebutton-default;
           index  index.html index.htm;
+	  expires 1m;
         }
 
 	# BigBlueButton.html is here so we can expire it every 1 minute to

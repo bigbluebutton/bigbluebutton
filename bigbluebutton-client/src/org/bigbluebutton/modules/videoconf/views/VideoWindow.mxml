@@ -83,6 +83,8 @@
 				
 				if (videoOptions.viewerWindowMaxed)
 					this.maximize();
+				
+				this.showCloseButton = videoOptions.showCloseButton;
 			}
 			
 			private function onCloseEvent(event:MDIWindowEvent = null):void {

@@ -51,17 +51,15 @@ $Id: $
 			// the mutable array is used to change the order of the dock children
 			private var mutableChildrenArray:Array = new Array();
 			
-			private var prioritizeWindow:Boolean = false;
+			private var _prioritizeWindow:Boolean = false;
 			private var priorityWindow:VideoWindowItf = null;
 			// the priority video will fit a portion of the dock that is represented by this weight
 			// bigger the weight, bigger will be the window and less space the other windows will have
 			private var priorityWindowWeight:Number = 2/3;
 			
-			private var options:DockOptions;
+			private var options:DockOptions = new DockOptions();
 			
 			private function init():void {				
-				options = new DockOptions();
-				
 				this.showCloseButton = false;		
 				
 				this.minWidth = options.width;
@@ -101,6 +99,10 @@ $Id: $
 					mutableChildrenArray.push(getChildren().pop());
 					updateMinAspectRatio(mutableChildrenArray);
 				}
+				
+				if (options.oneAlwaysBigger && !_prioritizeWindow)
+					prioritizeAnyWindow();
+				
 				updateChildrenDimensions(mutableChildrenArray);
 			}
 			
@@ -110,7 +112,7 @@ $Id: $
 					mutableChildrenArray.splice(index, 1);
 				
 				if (e.relatedObject == priorityWindow || mutableChildrenArray.length <= 1)
-					prioritizeWindow = false;
+					deprioritizeWindow();
 					
 				updateMinAspectRatio(mutableChildrenArray);
 				updateChildrenDimensions(mutableChildrenArray);
@@ -202,6 +204,7 @@ $Id: $
 				var e:CloseWindowEvent = new CloseWindowEvent();
 				e.window = window;
 				dispatchEvent(e);
+				
 				this.addChild(window);
 			}
 			
@@ -241,7 +244,7 @@ $Id: $
 				var borderTop:int = 0;
 				var borderLeft:int = 0;
 				
-				if (prioritizeWindow) {
+				if (_prioritizeWindow) {
 					// the first window will be prioritized
 					priorityWindow = children[0];
 					
@@ -280,8 +283,8 @@ $Id: $
 				var nColumns:Number = 0;
 				
 				// we would like to maximize the window size
-				for (var rows:Number = 1; rows <= children.length - (prioritizeWindow? 1: 0); ++rows) {
-					var columns:Number = Math.ceil((children.length - (prioritizeWindow? 1: 0))/ rows);
+				for (var rows:Number = 1; rows <= children.length - (_prioritizeWindow? 1: 0); ++rows) {
+					var columns:Number = Math.ceil((children.length - (_prioritizeWindow? 1: 0))/ rows);
 					var maxWidth:int = Math.floor((availableWidth - horizontalGap * (columns - 1)) / columns) - VideoWindowItf.PADDING_HORIZONTAL;
 					var maxHeight:int = Math.floor((availableHeight - verticalGap * (rows - 1)) / rows) - VideoWindowItf.PADDING_VERTICAL;
 					
@@ -311,7 +314,7 @@ $Id: $
 				const horizontalBorder:int = availableWidth - nColumns * childWidth - (nColumns - 1) * horizontalGap;
 				const verticalBorder:int = availableHeight - nRows * childHeight - (nRows - 1) * verticalGap;
 				// this couple of lines will center the priority window on the available space for it
-				if (prioritizeWindow) {
+				if (_prioritizeWindow) {
 					if (priorityWindow.x == 0) {
 						priorityWindow.x = horizontalBorder / 3;
 						borderTop += verticalBorder / 2;
@@ -327,7 +330,7 @@ $Id: $
 					borderLeft += horizontalBorder / 2;
 				}
 									
-				for (var childIndex:int = (prioritizeWindow? 1: 0); childIndex < children.length; ++childIndex) {
+				for (var childIndex:int = (_prioritizeWindow? 1: 0); childIndex < children.length; ++childIndex) {
 					var window:VideoWindowItf = children[childIndex];
 					const wWidth:int = childWidth;
 					const wHeight:int = childHeight;
@@ -344,8 +347,8 @@ $Id: $
 					const horizontalExtraPadding:int = (wWidth - window.width) / 2;
 					const verticalExtraPadding:int = (wHeight - window.height) / 2;
 					
-					var row:int = (childIndex - (prioritizeWindow? 1: 0)) / nColumns;
-					var column:int = (childIndex - (prioritizeWindow? 1: 0)) % nColumns;
+					var row:int = (childIndex - (_prioritizeWindow? 1: 0)) / nColumns;
+					var column:int = (childIndex - (_prioritizeWindow? 1: 0)) % nColumns;
 					
 					window.y = row * (wHeight + verticalGap) + borderTop + verticalExtraPadding;;
 					window.x = column * (wWidth + horizontalGap) + borderLeft + horizontalExtraPadding;
@@ -353,22 +356,38 @@ $Id: $
 			}
 			
 			protected function onWindowClick(event:MouseEvent = null):void {
+				prioritizeWindow(event.currentTarget);
+			}
+			
+			private function prioritizeWindow(window:Object):void {
 				if (mutableChildrenArray.length <= 1
 						|| options.layout == DockOptions.LAYOUT_NONE)
 					return;
-					
-				if (event.currentTarget == priorityWindow) {
-					priorityWindow = null;
-					prioritizeWindow = false;
+				
+				if (window == priorityWindow && !options.oneAlwaysBigger) {
+					deprioritizeWindow();
 				} else {
-					var index:int = mutableChildrenArray.indexOf(event.currentTarget);
+					var index:int = mutableChildrenArray.indexOf(window);
 					if (index != -1) {
 						mutableChildrenArray[index] = mutableChildrenArray[0];
-						mutableChildrenArray[0] = event.currentTarget;
-						prioritizeWindow = true;
+						mutableChildrenArray[0] = window;
+						_prioritizeWindow = true;
 					}
 				}
 				updateChildrenDimensions(mutableChildrenArray);
+			}
+			
+			private function prioritizeAnyWindow():void {
+				if (mutableChildrenArray.length > 0)
+					prioritizeWindow(mutableChildrenArray[0]);
+			}
+			
+			private function deprioritizeWindow():void {
+				if (options.oneAlwaysBigger && mutableChildrenArray.length > 1)
+					prioritizeAnyWindow();
+				else {
+					_prioritizeWindow = false;
+				}
 			}
 			
 			override protected function resourcesChanged():void{
