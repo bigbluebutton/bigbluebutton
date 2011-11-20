@@ -33,9 +33,9 @@ Author: Islam El-Ashi <ielashi@gmail.com>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Activity Monitor</title>
-<link href="js/jquery-ui.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="js/jquery.min.js"></script>
-<script src="js/jquery-ui.min.js"></script>
+<link href="css/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="js/demo/jdemoquery.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
 <script type="text/javascript" src="js/demo4.js"></script>
 <script type="text/javascript" src="js/md5.js"></script>
 <script type="text/javascript" src="js/jquery.xml2json.js"></script>

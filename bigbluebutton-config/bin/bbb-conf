@@ -1267,6 +1267,17 @@ check_state() {
                         echo
         fi
 
+	if [ -d ${SERVLET_DIR}/demo ]; then
+		if test ${SERVLET_DIR}/demo.war -nt ${SERVLET_DIR}/demo; then 
+                        echo
+                        echo "# Tomcat6 didn't deploy the updated demo.war file.  To fix:"
+			echo "#"
+                        echo "#    sudo touch ${SERVLET_DIR}/demo.war"
+			echo "#"
+                        echo
+		fi
+	fi
+
 	exit 0
 }
 
