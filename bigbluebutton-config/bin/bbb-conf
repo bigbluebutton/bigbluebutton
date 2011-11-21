@@ -596,7 +596,7 @@ if [ $CHECKOUT ]; then
 	which git
 	if [ $? != 0 ]; then
 		echo "# Installing git and ant"
-		sudo apt-get install git ant -y --force-yes
+		sudo apt-get install git-core ant -y --force-yes
 	fi
         
         BBBSRCGIT="~/dev/source/bigbluebutton"	
