@@ -1,5 +1,11 @@
 package org.bigbluebutton.conference.service.chat;
 
+/*
+ * This class has been setted his attributes to public, for serialize with the model of the bigbluebutton-client, in order
+ *  to enable the communication. This class is used for send public and private.
+ * 
+ * */
+
 public class ChatObject {
 	public String message;
 	public String username;
