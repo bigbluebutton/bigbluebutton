@@ -72,10 +72,10 @@ public class ChatRoomsManager {
 		return null;
 	}
 	
-	public void sendMessage(String room, String message, String username, String color, String time, String language, String userid) {
+	public void sendMessage(String room, ChatObject chatobj) {
 		ChatRoom r = getRoom(room);
 		if (r != null) {
-			r.sendMessage(message, username, color, time, language, userid);
+			r.sendMessage(chatobj);
 		} else {
 			log.warn("Sending message to a non-existing room " + room);
 		}

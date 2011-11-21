@@ -64,8 +64,7 @@ public class ChatRoom {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void sendMessage(String msg, String username, String color, String time, String language, String userid){
-		ChatObject chatobj = new ChatObject(msg, username, color, time, language, userid);
+	public void sendMessage(ChatObject chatobj){
 		messages.add(chatobj);
 		
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {

@@ -35,27 +35,23 @@ public class ChatService {
 		return application.getChatMessages(roomName);
 	}
 	
-	public void sendMessage(String message, String username, String color, String time, String language, String userid) {
+	//public void sendMessage(String message, String username, String color, String time, String language, String userid) {
+	public void sendMessage(ChatObject chatobj) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.sendMessage(roomName, message, username, color, time, language, userid);
+		application.sendMessage(roomName, chatobj);
 	}
 	public void setChatApplication(ChatApplication a) {
 		log.debug("Setting Chat Applications");
 		application = a;
 	}
 	
-	public void privateMessage(String message, String username, String color, String time, String language, String userid, String sender, String receiver){
-		log.debug("Received private message: " + message + " from " + sender + " to " + receiver + ". The client scope is: " + Red5.getConnectionLocal().getScope().getName());
+	public void privateMessage(ChatObject chatobj, String sender, String receiver){
+		log.debug("Received private message: " + chatobj.message + " from " + sender + " to " + receiver + ". The client scope is: " + Red5.getConnectionLocal().getScope().getName());
 		ISharedObject sharedObject = application.handler.getSharedObject(Red5.getConnectionLocal().getScope(), receiver);
 		if (sharedObject != null) {
-			ArrayList<String> arguments = new ArrayList<String>();
+			ArrayList<Object> arguments = new ArrayList<Object>();
 			arguments.add(sender);
-			arguments.add(message);
-			arguments.add(username);
-			arguments.add(color);
-			arguments.add(time);
-			arguments.add(language);
-			arguments.add(userid);
+			arguments.add(chatobj);
 			sharedObject.sendMessage("messageReceived", arguments);			
 		} else {
 			log.debug("Not sending private message from " + sender + " to " + receiver + " as the user may have already left.");

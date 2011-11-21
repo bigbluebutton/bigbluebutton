@@ -98,26 +98,19 @@ package org.bigbluebutton.modules.chat.services
 	    }
 		
 		public function sendMessage(message:MessageVO):void{
-			connection.call("chat.privateMessage", privateResponder, message.chatobj.message, message.chatobj.username, message.chatobj.color, message.chatobj.time, message.chatobj.language, message.chatobj.userid, message.sender , message.recepient);
+			connection.call("chat.privateMessage", privateResponder, message.chatobj, message.sender , message.recepient);
 			
 			sendMessageToSelf(message);
 		}
 		
 		private function sendMessageToSelf(message:MessageVO):void {
-			messageReceived(message.recepient, message.chatobj.message,message.chatobj.username,message.chatobj.color,message.chatobj.time,message.chatobj.language,message.chatobj.userid);
+			messageReceived(message.recepient, message.chatobj);
 		}
 		
-		public function messageReceived(from:String, message:String, username:String, color:String, time:String, language:String, userid:String):void {
+		public function messageReceived(from:String, chatobj:ChatObject):void {
 			var event:PrivateChatMessageEvent = new PrivateChatMessageEvent(PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT);
-			var chatobj:ChatObject = new ChatObject();
-			chatobj.message = message;
-			chatobj.username = username;
-			chatobj.color = color;
-			chatobj.time = time;
-			chatobj.language = language;
-			chatobj.userid = userid;
 			
-			event.message = new MessageVO(chatobj, from, userid);
+			event.message = new MessageVO(chatobj, from, this.userid);
 			
 			//trace("Sending private message " + message);
 			var globalDispatcher:Dispatcher = new Dispatcher();

@@ -35,10 +35,10 @@ public class ChatEventRecorder implements IChatRoomListener {
 		PublicChatRecordEvent ev = new PublicChatRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());
 		ev.setMeetingId(session);
-		ev.setSender(chatobj.getUsername());
-		ev.setMessage(chatobj.getMessage());
-		ev.setLocale(chatobj.getLanguage());
-		ev.setColor(chatobj.getColor());
+		ev.setSender(chatobj.username);
+		ev.setMessage(chatobj.message);
+		ev.setLocale(chatobj.language);
+		ev.setColor(chatobj.color);
 		return ev;
 	}
 }
