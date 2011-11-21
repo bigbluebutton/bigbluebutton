@@ -135,13 +135,13 @@ while [ $# -gt 0 ]; do
 		shift
                 continue
         fi
-	usage
         if [ "$1" = "-deleteall" -o "$1" = "--deleteall" ]; then
 		need_root
                 DELETEALL=1
 		shift
                 continue
         fi
+
 	usage
 	exit 1
 done
@@ -180,6 +180,7 @@ if [ $DELETEALL ]; then
 
 	rm -f /usr/share/red5/webapps/video/streams/*.flv
 	rm -f /var/bigbluebutton/deskshare/*.flv
+	rm -f /var/freeswitch/meetings/*.wav
 
 	for meeting in $(ls /var/bigbluebutton | grep "[0-9]\{13\}$"); do
 		echo "deleting: $meeting"
