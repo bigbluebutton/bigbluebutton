@@ -197,9 +197,10 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 		if (event instanceof IRTMPEvent) {
 			IRTMPEvent rtmpEvent = (IRTMPEvent) event;
 			if (livePipe != null) {
-				RTMPMessage msg = new RTMPMessage();
-				msg.setBody(rtmpEvent);
-          
+				RTMPMessage msg = RTMPMessage.build(rtmpEvent);
+				//RTMPMessage msg = new RTMPMessage();
+				//msg.setBody(rtmpEvent);
+				
 				if (creationTime == null)
 					creationTime = (long)rtmpEvent.getTimestamp();
           

@@ -115,7 +115,7 @@
 			}
 			
 			public function getPrefferedPosition():String{
-				return MainCanvas.BOTTOM_LEFT;
+				return listenerOptions.position;
 			}
 			
 			public function setMuteState(mute:Boolean):void{

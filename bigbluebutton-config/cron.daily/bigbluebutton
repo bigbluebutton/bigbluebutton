@@ -21,16 +21,22 @@
 test -x /var/bigbluebutton || exit 0
 
 #
-# Delete old presentation directories in /var/bigbluebutton
+# Delete presentation directories in /var/bigbluebutton older than 10 days
 #
 find /var/bigbluebutton -maxdepth 1 -type d -name "*-*" -mtime +11 -exec rm -r '{}' \;
 
 #
-# Delete saved webcam streams in red5
+# Delete webcam streams in red5 older than one day
 #
 find /usr/share/red5/webapps/video/streams -name "*.flv" -mtime +1 -exec rm '{}' \;
 
 #
-# Delete saved desktop sharing streams in red5
+# Delete desktop sharing streams in red5 older than one day
 #
 find /var/bigbluebutton/deskshare -name "*.flv" -mtime +1 -exec rm '{}' \;
+
+#
+# Delete FreeSWITCH wav recordings older than one day
+#
+find /var/freeswitch/meetings -name "*.wav" -mtime +1 -exec rm '{}' \;
+
