@@ -65,7 +65,18 @@ module BigBlueButton
               xml.event(:timestamp => res[TIMESTAMP], :module => res[MODULE], :eventname => res[EVENTNAME]) {
                 res.each do |key, val|
                   if not [TIMESTAMP, MODULE, EVENTNAME, MEETINGID].include?(key)
-                    xml.method_missing(key,  val)
+					# a temporary solution for enable a good display of the xml in the presentation module and for add CDATA to chat
+					if res[MODULE] == "PRESENTATION" && key == "slidesInfo"
+						xml.method_missing(key){
+							xml << val
+						}
+					elsif res[MODULE] == "CHAT" && res[EVENTNAME] == "PublicChatEvent" && key == "message"
+						xml.method_missing(key){
+							xml.cdata!(val)
+						}
+					else
+						xml.method_missing(key,  val)
+					end
                   end
                 end
               }
