@@ -59,12 +59,12 @@ public class ChatApplication {
 		return false;
 	}
 	
-	public List<String> getChatMessages(String room) {
+	public List<ChatObject> getChatMessages(String room) {
 		return roomsManager.getChatMessages(room);
 	}
 	
-	public void sendMessage(String room, String message) {
-		roomsManager.sendMessage(room, message);
+	public void sendMessage(String room, ChatObject chatobj) {
+		roomsManager.sendMessage(room, chatobj);
 	}
 	
 	public void setRoomsManager(ChatRoomsManager r) {

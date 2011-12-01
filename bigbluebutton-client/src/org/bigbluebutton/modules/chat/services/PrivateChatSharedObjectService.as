@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.chat.services
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+	import org.bigbluebutton.modules.chat.model.ChatObject;
 	import org.bigbluebutton.modules.chat.model.MessageVO;
 
 	public class PrivateChatSharedObjectService
@@ -97,19 +98,21 @@ package org.bigbluebutton.modules.chat.services
 	    }
 		
 		public function sendMessage(message:MessageVO):void{
-			connection.call("chat.privateMessage", privateResponder, message.message, message.sender , message.recepient);
+			connection.call("chat.privateMessage", privateResponder, message.chatobj, message.sender , message.recepient);
 			
 			sendMessageToSelf(message);
 		}
 		
 		private function sendMessageToSelf(message:MessageVO):void {
-			messageReceived(message.recepient, message.message);
+			messageReceived(message.recepient, message.chatobj);
 		}
 		
-		public function messageReceived(from:String, message:String):void {
+		public function messageReceived(from:String, chatobj:ChatObject):void {
 			var event:PrivateChatMessageEvent = new PrivateChatMessageEvent(PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT);
-			event.message = new MessageVO(message, from, userid);
-			trace("Sending private message " + message);
+			
+			event.message = new MessageVO(chatobj, from, this.userid);
+			
+			//trace("Sending private message " + message);
 			var globalDispatcher:Dispatcher = new Dispatcher();
 			globalDispatcher.dispatchEvent(event);	 
 		}

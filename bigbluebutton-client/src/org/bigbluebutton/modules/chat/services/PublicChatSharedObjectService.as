@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.chat.services
 	import org.bigbluebutton.modules.chat.events.ConnectionEvent;
 	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 	import org.bigbluebutton.modules.chat.events.TranscriptEvent;
+	import org.bigbluebutton.modules.chat.model.ChatObject;
 
 	public class PublicChatSharedObjectService
 	{
@@ -83,8 +84,17 @@ package org.bigbluebutton.modules.chat.services
 			dispatcher.dispatchEvent(connEvent);
 		}
 		
-		public function sendMessage(message:String):void
+		public function sendMessage(message:String,username:String,color:String,time:String,language:String,userid:String):void
 		{
+			
+			var chatobj:ChatObject = new ChatObject();
+			chatobj.message = message;
+			chatobj.username = username;
+			chatobj.color = color;
+			chatobj.time = time;
+			chatobj.language = language;
+			chatobj.userid = userid;
+			
 			var nc:NetConnection = connection;
 			nc.call(
 				"chat.sendMessage",// Remote function name
@@ -101,16 +111,17 @@ package org.bigbluebutton.modules.chat.services
 						} 
 					}
 				),//new Responder
-				message
+				chatobj
 			); //_netConnection.call
 		}
 		
 		/**
 		 * Called by the server to deliver a new chat message.
 		 */	
-		public function newChatMessage(message:String):void{
+		public function newChatMessage(chatobj:ChatObject):void{
 			var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-			event.message = message;
+			
+			event.chatobj = chatobj;
 			
 			var globalDispatcher:Dispatcher = new Dispatcher();
 			globalDispatcher.dispatchEvent(event);	   			
@@ -151,7 +162,8 @@ package org.bigbluebutton.modules.chat.services
 			
 			var messages:Array = result as Array;
 			for (var i:int = 0; i < messages.length; i++){
-				newChatMessage(messages[i] as String);
+				var chatobj:ChatObject = messages[i] as ChatObject;
+				newChatMessage(chatobj);
 			}
 			
 			sendTranscriptLoadedEvent();
