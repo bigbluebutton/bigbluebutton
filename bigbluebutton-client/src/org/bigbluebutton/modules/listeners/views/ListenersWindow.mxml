@@ -115,7 +115,7 @@
 			}
 			
 			public function getPrefferedPosition():String{
-				return MainCanvas.BOTTOM_LEFT;
+				return listenerOptions.position;
 			}
 			
 			public function setMuteState(mute:Boolean):void{
@@ -204,7 +204,7 @@
     	<mx:ControlBar width="100%">
 			<flc:CanvasButton id="pushToTalkBtn" visible="{showPushToTalkBtn}" 
 							  toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" 
-							  click="toggleMuteMeState()" width="60" height="30">
+							  click="toggleMuteMeState()" height="30" maxWidth="180">
 				<mx:HBox verticalAlign="middle" horizontalGap="0" paddingLeft="5" paddingTop="5" paddingRight="5" paddingBottom="5">
 					<mx:Image source="{UserManager.getInstance().getConference().voiceMuted ? images.sound_mute : images.sound_none}" />
 					<mx:Label text="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.talk') : ResourceUtil.getInstance().getString('bbb.listeners.mute')}" />

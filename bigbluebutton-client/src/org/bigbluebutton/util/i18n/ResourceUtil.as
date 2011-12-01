@@ -119,11 +119,15 @@ package org.bigbluebutton.util.i18n
 		public function setPreferredLocale(locale:String):void {
 			LogUtil.debug("Setting up preferred locale " + locale);
 			if (isPreferredLocaleAvailable(preferredLocale)) {
+				LogUtil.debug("The locale " + preferredLocale + " is available");
 				preferredLocale = locale;
-				localeIndex = getIndexForLocale(preferredLocale);
-				LogUtil.debug("Setting up preferred locale index " + localeIndex);
-				changeLocale(preferredLocale);				
+			}else{
+				LogUtil.debug("The locale " + preferredLocale + " isn't available. Default will be: " + MASTER_LOCALE);
+				preferredLocale = MASTER_LOCALE;
 			}
+			localeIndex = getIndexForLocale(preferredLocale);
+			LogUtil.debug("Setting up preferred locale index " + localeIndex);
+			changeLocale(preferredLocale);
 		}
 		
 		private function loadMasterLocale(locale:String):void {					
