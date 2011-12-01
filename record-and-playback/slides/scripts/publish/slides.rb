@@ -122,39 +122,5 @@ if (playback == "slides")
 		end
 		FileUtils.cp_r(package_dir, publish_dir)
 			
-		# Create index.html
-		dir_list = Dir.entries(publish_dir) - ['.', '..']
-		recordings = []
-		dir_list.each do |d|
-		  if File::directory?("#{publish_dir}/#{d}")
-		    rec_time = File.ctime("#{publish_dir}/#{d}") 
-		    play_link = "http://#{playback_host}/playback/slides/playback.html?meetingId=#{d}"
-		    
-		    metadata = BigBlueButton::Events.get_meeting_metadata("#{publish_dir}/#{d}/events.xml")
-		    
-                    recordings << {:rec_time => rec_time, :link => play_link, :title => metadata['title'].nil? ? metadata['meetingId'] : metadata['title']}
-		  end
-		end
-		
-		b = Builder::XmlMarkup.new(:indent => 2)		 
-		html = b.html {
-		  b.head {
-		    b.title "Slides Playback Recordings"
-		  }
-		  b.body {
-		    b.h1 "Slides Playback Recordings"
-		      recordings.each do |r|
-		        b.p { |y| 
-		          y << r[:rec_time].to_s
-		          b.a({:href => r[:link]}, r[:title])
-		        }
-		      end
-		   }
-		 }
-		 
-		index_html = File.new("#{publish_dir}/index.html","w")
-		index_html.write(html)
-		index_html.close
-    File.chmod(0644, "#{publish_dir}/index.html")
 	end
 end
