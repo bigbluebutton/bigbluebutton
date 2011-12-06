@@ -64,6 +64,12 @@ end
 ################## START ################################
 BigBlueButton.logger = Logger.new('/var/log/bigbluebutton/archive.log', 'daily' )
 
+opts = Trollop::options do
+  opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
+end
+
+meeting_id = opts[:meeting_id]
+
 # This script lives in scripts/archive/steps while bigbluebutton.yml lives in scripts/
 props = YAML::load(File.open('bigbluebutton.yml'))
 
@@ -76,27 +82,18 @@ redis_port = props['redis_port']
 presentation_dir = props['raw_presentation_src']
 video_dir = props['raw_video_src']
 
-done_files = Dir.glob("#{recording_dir}/status/recorded/*.done")
 
-done_files.each do |df|
-  match = /(.*).done/.match df.sub(/.+\//, "")
-  meeting_id = match[1]
-
-  target_dir = "#{raw_archive_dir}/#{meeting_id}"
-	if not FileTest.directory?(target_dir)
-    FileUtils.mkdir_p target_dir
-	  archive_events(meeting_id, redis_host, redis_port, raw_archive_dir)
-	  archive_audio(meeting_id, audio_dir, raw_archive_dir)
-	  archive_presentation(meeting_id, presentation_dir, raw_archive_dir)
-	  archive_deskshare(meeting_id, deskshare_dir, raw_archive_dir)
-	  archive_video(meeting_id, video_dir, raw_archive_dir)   
-	  archive_done = File.new("#{recording_dir}/status/archived/#{meeting_id}.done", "w")
-		archive_done.write("Archived #{meeting_id}")
-		archive_done.close
-	#else
-	#	BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been archived.")
-  end
+target_dir = "#{raw_archive_dir}/#{meeting_id}"
+if not FileTest.directory?(target_dir)
+  FileUtils.mkdir_p target_dir
+  archive_events(meeting_id, redis_host, redis_port, raw_archive_dir)
+  archive_audio(meeting_id, audio_dir, raw_archive_dir)
+  archive_presentation(meeting_id, presentation_dir, raw_archive_dir)
+  archive_deskshare(meeting_id, deskshare_dir, raw_archive_dir)
+  archive_video(meeting_id, video_dir, raw_archive_dir)   
+  archive_done = File.new("#{recording_dir}/status/archived/#{meeting_id}.done", "w")
+	archive_done.write("Archived #{meeting_id}")
+	archive_done.close
+#else
+#	BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been archived.")
 end
-
-
-
