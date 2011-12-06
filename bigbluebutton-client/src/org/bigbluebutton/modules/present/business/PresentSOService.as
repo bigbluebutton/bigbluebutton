@@ -27,15 +27,17 @@ package org.bigbluebutton.modules.present.business {
 	
 	import mx.controls.Alert;
 	
+	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.modules.present.events.CursorEvent;
 	import org.bigbluebutton.modules.present.events.MoveEvent;
 	import org.bigbluebutton.modules.present.events.NavigationEvent;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.ZoomEvent;
-	import org.bigbluebutton.common.LogUtil;
 	
 	public class PresentSOService {
 		public static const NAME:String = "PresentSOService";
@@ -379,15 +381,18 @@ package org.bigbluebutton.modules.present.business {
 		 */
 		public function assignPresenterCallback(userid:Number, name:String, assignedBy:Number):void {
 			LogUtil.debug("assignPresenterCallback " + userid + "," + name + "," + assignedBy);
+			var meeting:Conference = UserManager.getInstance().getConference();
 			if (this.userid == userid) {
+				meeting.setMePresenter(true);				
 				var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
 				e.userid = userid;
 				e.presenterName = name;
 				e.assignerBy = assignedBy;
-				dispatcher.dispatchEvent(e);
-				
+				dispatcher.dispatchEvent(e);													
 				setPresenterName(name);
 			} else {
+				
+				meeting.setMePresenter(false);
 				var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
 				viewerEvent.userid = userid;
 				viewerEvent.presenterName = name;

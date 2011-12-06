@@ -35,7 +35,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 	<title>Create Your Own Meeting</title>
 
 	<script type="text/javascript"
-		src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+		src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/heartbeat.js"></script>
 </head>
 <body>
@@ -66,13 +66,8 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 			<td width="50%">Create your own meeting.
 			<p />
 			</td>
-			<td width="50%">Step 1. Enter your name: <input type="text"
+			<td width="50%">Step 1. Enter your name: <input type="text" autofocus required
 				name="username1" /> <br />
-			<label for="crecord">record? </label>
-			<select id="crecord" name="record1">
-				<option value="true">yes</option>
-				<option value="false" selected>no</option>
-			</select>
 			<INPUT TYPE=hidden NAME=action VALUE="create"> <br />
 			<input id="submit-button" type="submit" value="Create meeting" /></td>
 		</tr>
@@ -105,17 +100,14 @@ $(document).ready(function(){
 
 		String username = request.getParameter("username1");
 		String meetingID = username + "'s meeting";
-		String record = request.getParameter("record1");
-
-		String meeting_ID = "";
 
 		//
 		// This is the URL for to join the meeting as moderator
 		//
-		String joinURL = getJoinURL(username, meetingID, record, "<br>Welcome to %%CONFNAME%%.<br>", null);
+		String joinURL = getJoinURL(username, meetingID, "false", "<br>Welcome to %%CONFNAME%%.<br>", null, null);
 
-		
-		String inviteURL = BigBlueButtonURL	+ "demo/create.jsp?action=invite&meetingID=" + URLEncoder.encode(meetingID, "UTF-8");
+		String url = BigBlueButtonURL.replace("bigbluebutton/","demo/");
+		String inviteURL = url + "create.jsp?action=invite&meetingID=" + URLEncoder.encode(meetingID, "UTF-8");
 %>
 
 <hr />
@@ -167,8 +159,8 @@ $(document).ready(function(){
 		String meetingID = request.getParameter("meetingID");
 		String username = request.getParameter("username");
 
-		String enterURL = BigBlueButtonURL
-			+ "demo/create.jsp?action=join&username="
+		String url = BigBlueButtonURL.replace("bigbluebutton/","demo/");
+		String enterURL = url + "create.jsp?action=join&username="
 			+ URLEncoder.encode(username, "UTF-8") + "&meetingID="
 			+ URLEncoder.encode(meetingID, "UTF-8");
 

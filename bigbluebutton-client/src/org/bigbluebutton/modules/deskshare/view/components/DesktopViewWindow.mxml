@@ -48,7 +48,7 @@
 			import org.bigbluebutton.common.IUserListener;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.UserManager;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.model.User;
 			import org.bigbluebutton.main.views.MainCanvas;
@@ -182,7 +182,7 @@
 				video.attachNetStream(ns);
 				ns.play(stream);	
 				this.stream = stream;
-				this.title = "Blah";
+				this.title = "Viewing Remote Desktop";
 		//		this.title = UserManager.getInstance().getPresenter().name + " is sharing their desktop with you";
 			}
 			

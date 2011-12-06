@@ -44,43 +44,43 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
-		log.debug("${APP}:appConnect");
+		log.debug(APP + ":appConnect");
 		return true;
 	}
 
 	@Override
 	public void appDisconnect(IConnection conn) {
-		log.debug( "${APP}:appDisconnect");
+		log.debug(APP + ":appDisconnect");
 	}
 
 	@Override
 	public boolean appJoin(IClient client, IScope scope) {
-		log.debug( "${APP}:appJoin ${scope.name}");
+		log.debug(APP + ":appJoin " + scope.getName());
 		return true;
 	}
 
 	@Override
 	public void appLeave(IClient client, IScope scope) {
-		log.debug("${APP}:appLeave ${scope.name}");
+		log.debug(APP + ":appLeave " + scope.getName());
 
 	}
 
 	@Override
 	public boolean appStart(IScope scope) {
-		log.debug("${APP}:appStart ${scope.name}");
+		log.debug(APP + ":appStart " + scope.getName());
 		conferenceService.startup();
 		return true;
 	}
 
 	@Override
 	public void appStop(IScope scope) {
-		log.debug("${APP}:appStop ${scope.name}");
+		log.debug(APP + ":appStop " + scope.getName());
 		conferenceService.shutdown();
 	}
 
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
-		log.debug("${APP}:roomConnect");
+		log.debug(APP + ":roomConnect");
 		log.debug("In live mode");
 		ISharedObject so = getSharedObject(connection.getScope(), VOICE_SO);
 		    		
@@ -88,7 +88,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 		String meetingid = getBbbSession().getConference(); 
 		Boolean record = getBbbSession().getRecord();
 		
-		log.debug("Setting up voiceBridge $voiceBridge");
+		log.debug("Setting up voiceBridge " + voiceBridge);
 		clientManager.addSharedObject(connection.getScope().getName(), voiceBridge, so);
 		conferenceService.createConference(voiceBridge, meetingid, record); 		
 		return true;
@@ -96,42 +96,46 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 
 	@Override
 	public void roomDisconnect(IConnection connection) {
-		log.debug("${APP}:roomDisconnect");
+		log.debug(APP + ":roomDisconnect");
 	}
 
 	@Override
 	public boolean roomJoin(IClient client, IScope scope) {
-		log.debug("${APP}:roomJoin ${scope.name} - ${scope.parent.name}");
+		log.debug(APP + ":roomJoin " + scope.getName() + " - " + scope.getParent().getName());
 		return true;
 	}
 
 	@Override
 	public void roomLeave(IClient client, IScope scope) {
-		log.debug("${APP}:roomLeave ${scope.name}");
+		log.debug(APP + ":roomLeave " + scope.getName());
 	}
 
 	@Override
 	public boolean roomStart(IScope scope) {
-		log.debug("${APP} - roomStart ${scope.name}");
+		log.debug(APP + " - roomStart " + scope.getName());
 
     	if (!hasSharedObject(scope, VOICE_SO)) {
     		if (createSharedObject(scope, VOICE_SO, false)) {    			
     			return true; 			
     		}    		
     	}  	
-		log.error("Failed to start room ${scope.name}");
+		log.error("Failed to start room " + scope.getName());
     	return false;
 	}
 
 	@Override
 	public void roomStop(IScope scope) {
-		log.debug("${APP}:roomStop ${scope.name}");
-		conferenceService.destroyConference(scope.getName());
+		log.debug(APP + ":roomStop " + scope.getName());
+		/**
+		 * Remove the voicebridge from the list of running
+		 * voice conference.
+		 */
+		String voiceBridge = getBbbSession().getVoiceBridge();
+		conferenceService.destroyConference(voiceBridge);
 		clientManager.removeSharedObject(scope.getName());
 		if (!hasSharedObject(scope, VOICE_SO)) {
     		clearSharedObjects(scope, VOICE_SO);
     	}
-		log.debug("I think for stop record, it will be here...");
 	}
 	
 	public void setClientNotifier(ClientNotifier c) {

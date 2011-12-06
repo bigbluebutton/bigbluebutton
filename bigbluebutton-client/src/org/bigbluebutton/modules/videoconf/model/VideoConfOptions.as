@@ -8,6 +8,9 @@ package org.bigbluebutton.modules.videoconf.model
 		public var autoStart:Boolean = false;
 		
 		[Bindable]
+		public var showCloseButton:Boolean = true;
+		
+		[Bindable]
 		public var showButton:Boolean = true;
 		
 		[Bindable]
@@ -38,8 +41,11 @@ package org.bigbluebutton.modules.videoconf.model
 		public var camQualityPicture:Number = 50;	
 		
 		public function parseOptions():void {
-			var vxml:XML = BBB.initConfigManager().config.getModuleConfig("VideoconfModule");
+			var vxml:XML = BBB.getConfigForModule("VideoconfModule");
 			if (vxml != null) {
+				if (vxml.@showCloseButton != undefined) {
+					showCloseButton = (vxml.@showCloseButton.toString().toUpperCase() == "TRUE") ? true : false;
+				}
 				if (vxml.@showButton != undefined) {
 					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
 				}

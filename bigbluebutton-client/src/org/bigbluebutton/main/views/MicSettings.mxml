@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
+		width="600" height="300" creationComplete="initDefaultMic()" showCloseButton="true" close="onCancelClicked()">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.ItemClickEvent;
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			[Embed(source="assets/audio-test.mp3")]
+			[Bindable] private var soundClass:Class;
+			private var sound:Sound = new soundClass() as Sound;			
+			private var soundChannel:SoundChannel;
+
+			private var timer:Timer;
+			private var mic:Microphone;
+			private var playingAudio:Boolean = false;
+			private var images:Images = new Images();
+			[Bindable] private var cancelIcon:Class = images.delete_icon;
+			
+			private function initDefaultMic():void {
+				mic = Microphone.getMicrophone(-1);
+				mic.setLoopBack(true);
+				if (mic != null) {
+					mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);				
+				} else {
+					LogUtil.warn("Microphone is used by another application.");
+				}
+				timer = new Timer(100);
+				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
+				timer.start();	
+			}
+			
+			private function micStatusEventHandler(event:StatusEvent):void {					
+				switch(event.code) {
+					case "Microphone.Muted":						
+						LogUtil.warn("Access to microphone has been denied.");
+						break;
+					case "Microphone.Unmuted":
+						LogUtil.debug("Access to the microphone has been allowed.");
+						break;
+					default:
+						LogUtil.debug("unknown micStatusHandler event: " + event);
+				}
+			}			
+			
+			private function updateMicLevel(e:TimerEvent):void{
+				if (mic != null) {
+					mic1Label.text = mic.name;
+					micLevel1.setProgress(mic.activityLevel, 100);					
+				}
+			}
+						
+			public function playButtonClickHandler():void {
+				if (playButton.selected) {
+					soundChannel = sound.play();  
+					playingAudio = true;
+				} else {
+					soundChannel.stop();
+					playButton.label = ResourceUtil.getInstance().getString('bbb.micSettings.playSound');
+					playingAudio = false;
+				}	                     
+			}
+						
+			private function showMicSettingsPanel():void {
+				Security.showSettings(SecurityPanel.MICROPHONE);
+			}
+			
+			private function onJoinClicked():void {
+				cleanUp();
+				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+				joinEvent.payload['useMicrophone'] = true;
+				dispatchEvent(joinEvent);
+				PopUpManager.removePopUp(this);
+			}	
+
+			private function onCancelClicked():void {
+				cleanUp();
+				var event:BBBEvent = new BBBEvent("MIC_SETTINGS_CLOSED");
+				event.payload['clicked'] = "cancel";
+				dispatchEvent(event);
+				PopUpManager.removePopUp(this);
+			}
+
+			private function cleanUp():void {
+				timer.stop();
+				mic.setLoopBack(false);
+				mic = null;
+				if (playingAudio) soundChannel.stop();				
+			}
+			
+			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
+			private function onHelpButtonClicked():void {
+				navigateToURL(new URLRequest(DEFAULT_HELP_URL));
+			}
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+		<mx:HBox width="100%">
+			<mx:Spacer width="50%"/>
+			<mx:Spacer width="50%"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="20">
+			<mx:Spacer width="50%"/>
+			<mx:Spacer width="50%"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="50%">
+			<mx:VBox width="70%" height="100%">
+				<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.hearFromHeadset')}"/>
+			</mx:VBox>	
+			<mx:VBox width="50%" height="100%">
+				<mx:Button id="playButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}" 
+						   click="playButtonClickHandler()" toggle="true"/>
+			</mx:VBox>			
+		</mx:HBox>
+		<mx:HBox width="100%" height="20">
+			<mx:Spacer width="50%"/>
+			<mx:Spacer width="50%"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="50%">
+			<mx:VBox width="70%" height="100%">
+				<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"/>
+			</mx:VBox>			
+			<mx:Spacer width="10%"/>
+			<mx:VBox width="20%" height="100%">		
+				<mx:Text id="mic1Label" text="Microphone Name" />
+				<mx:ProgressBar id="micLevel1" minimum="0" maximum="100"  
+								labelPlacement="right" label=""
+								direction="right" mode="manual" visible="true" width="120"/>				
+				<mx:Button id="settingBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic')}" click="showMicSettingsPanel()"/>				
+			</mx:VBox>
+		</mx:HBox>	
+		<mx:HBox width="100%" height="20">
+			<mx:Spacer width="50%"/>
+			<mx:Spacer width="50%"/>
+		</mx:HBox>
+		<mx:HBox width="100%">
+			<mx:Spacer width="80%"/>
+			<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.join')}" click="onJoinClicked()"/>
+			<mx:Spacer width="10%"/>
+			<mx:LinkButton fontSize="10" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="onHelpButtonClicked()"/>
+		</mx:HBox>
+		<mx:HBox width="100%">
+			<mx:Spacer width="50%"/>
+			<mx:Spacer width="50%"/>
+		</mx:HBox>
+	</mx:VBox>		
+</mx:TitleWindow>

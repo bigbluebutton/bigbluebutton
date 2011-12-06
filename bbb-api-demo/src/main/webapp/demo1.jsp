@@ -30,13 +30,12 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title>Join a Course</title>
+	<title>Join Demo Meeting</title>
 </head>
+
 <body>
 
 <%@ include file="bbb_api.jsp"%>
-
-<br>
 
 <% 
 if (request.getParameterMap().isEmpty()) {
@@ -46,7 +45,7 @@ if (request.getParameterMap().isEmpty()) {
 	%> 
 <%@ include file="demo_header.jsp"%>
 
-<h2>Demo #1: Join a Course</h2>
+<h2>Join Demo Meeting</h2>
 
 
 <FORM NAME="form1" METHOD="GET"> 
@@ -60,7 +59,7 @@ if (request.getParameterMap().isEmpty()) {
 			<td style="width: 5px; ">
 				&nbsp;</td>
 			<td style="text-align: left ">
-				<input type="text" name="username" /></td>
+				<input type="text" autofocus required name="username" /></td>
 		</tr>
 		<tr>
 			<td>
@@ -85,12 +84,9 @@ if (request.getParameterMap().isEmpty()) {
 	// Got an action=create
 	//
 	
-	//
-    // Request a URL to join a meeting called "Demo Meeting"
-    // Pass null for welcome message to use the default message (see defaultWelcomeMessage in bigbluebutton.properties)
-    // Update: Added record parameter, default: false 
-    //
-	String joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null, null);
+	String url = BigBlueButtonURL.replace("bigbluebutton/","demo/");
+	String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"pdfs/sample.pdf'/></module></modules>";
+	String joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null, null, preUploadPDF);
 
 	if (joinURL.startsWith("http://")) { 
 %>

@@ -18,12 +18,12 @@
 */
 package org.bigbluebutton.modules.whiteboard.managers
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
-	
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
+	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.modules.present.api.PresentationAPI;
 	import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
@@ -65,6 +65,9 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 		
 		private function addHighlighterToolbar(e:TimerEvent):void{
+			if (UserManager.getInstance().getConference().amIPresenter()) {
+				whiteboardButton.setVisible(true);
+			}
 			PresentationAPI.getInstance().addButtonToToolbar(whiteboardButton);
 		}
 		

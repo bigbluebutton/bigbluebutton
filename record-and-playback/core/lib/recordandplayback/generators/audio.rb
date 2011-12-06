@@ -102,18 +102,29 @@ module BigBlueButton
     end
     
     # Process the audio events for this recording
-    def self.process_events(events_xml)
-      audio_events = match_start_and_stop_events(start_audio_recording_events(events_xml), 
-                          stop_audio_recording_events(events_xml)).each do |audio_event|
-        if not audio_event.matched 
+    def self.process_events(archive_dir, events_xml)
+      audio_events = match_start_and_stop_events(start_audio_recording_events(archive_dir, events_xml),
+                          stop_audio_recording_events(archive_dir, events_xml)).each do |audio_event|
+        if not audio_event.matched
             determine_start_stop_timestamps_for_unmatched_event!(audio_event)
         end
       end
 
       if audio_events.length > 0
-        audio_paddings = generate_audio_paddings(audio_events, events_xml)
-        audio_events.concat(audio_paddings)
-        return audio_events.sort! {|a,b| a.start_event_timestamp.to_i <=> b.start_event_timestamp.to_i}
+        audio_events.sort! {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
+
+        unique_events = []
+        audio_events.each do |x|
+          if (unique_events.empty?)
+            unique_events << x
+          elsif (not x.eql?(unique_events[-1]))
+            unique_events << x
+          end
+        end
+
+        audio_paddings = generate_audio_paddings(unique_events, events_xml)
+        unique_events.concat(audio_paddings)
+        return unique_events.sort! {|a,b| a.start_event_timestamp.to_i <=> b.start_event_timestamp.to_i}
       else
         return nil
       end
@@ -125,14 +136,14 @@ module BigBlueButton
     RECORD_TIMESTAMP = 'recordingTimestamp'
     
     # Get the start audio recording events.
-    def self.start_audio_recording_events(events_xml)
+    def self.start_audio_recording_events(archive_dir, events_xml)
       start_events = []
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("//event[@eventname='StartRecordingEvent']").each do |start_event|
         ae = AudioRecordingEvent.new
         ae.start_event_timestamp = start_event[TIMESTAMP]
         ae.bridge = start_event.xpath(BRIDGE).text
-        ae.file = start_event.xpath(FILE).text
+        ae.file = start_event.xpath(FILE).text.sub(/.+\//, "#{archive_dir}/")
         ae.start_record_timestamp = start_event.xpath(RECORD_TIMESTAMP).text
         start_events << ae
       end
@@ -141,14 +152,14 @@ module BigBlueButton
     end
     
     # Get the stop audio recording events.
-    def self.stop_audio_recording_events(events_xml)
+    def self.stop_audio_recording_events(archive_dir, events_xml)
       stop_events = []
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("//event[@eventname='StopRecordingEvent']").each do |stop_event|
         ae = AudioRecordingEvent.new
         ae.stop_event_timestamp = stop_event[TIMESTAMP]
         ae.bridge = stop_event.xpath(BRIDGE).text
-        ae.file = stop_event.xpath(FILE).text
+        ae.file = stop_event.xpath(FILE).text.sub(/.+\//, "#{archive_dir}/")
         ae.stop_record_timestamp = stop_event.xpath(RECORD_TIMESTAMP).text
         stop_events << ae
       end
@@ -210,35 +221,36 @@ module BigBlueButton
     
     # Determine the audio padding we need to generate.
     def self.generate_audio_paddings(events, events_xml)
-    # TODO: Need to make this a lot DRYer.
+      # TODO: Need to make this a lot DRYer.
       paddings = []
       events.sort! {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
       
       length_of_gap = events[0].start_event_timestamp.to_i - BigBlueButton::Events.first_event_timestamp(events_xml).to_i
       # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
       # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.
-      if ((length_of_gap > 0) and (length_of_gap < 600000))
+      if ((length_of_gap > 0) and (length_of_gap < 3600000))
         paddings << create_gap_audio_event(length_of_gap, BigBlueButton::Events.first_event_timestamp(events_xml), events[0].start_event_timestamp.to_i - 1)
       else
         BigBlueButton.logger.error("Front padding: #{length_of_gap} [#{events[0].start_event_timestamp.to_i} - #{BigBlueButton::Events.first_event_timestamp(events_xml).to_i}].\n")
-        raise Exception,  "Length of silence is too long #{length_of_gap}."       
+        raise Exception,  "Length of silence is too long #{length_of_gap}."
       end
-      
+
       i = 0
       while i < events.length - 1
         ar_prev = events[i]
         ar_next = events[i+1]
-        length_of_gap = ar_next.start_event_timestamp.to_i - ar_prev.stop_event_timestamp.to_i
+        if (not ar_prev.eql?(ar_next))
+          length_of_gap = ar_next.start_event_timestamp.to_i - ar_prev.stop_event_timestamp.to_i
 
-      # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
-      # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.        
-        if ((length_of_gap > 0) and (length_of_gap < 600000))
-          paddings << create_gap_audio_event(length_of_gap, ar_prev.stop_event_timestamp.to_i + 1, ar_next.start_event_timestamp.to_i - 1)
-        else
-          BigBlueButton.logger.error("Between padding #{i}: #{length_of_gap} [#{events[0].start_event_timestamp.to_i} - #{BigBlueButton::Events.first_event_timestamp(events_xml).to_i}].\n")
-          raise Exception,  "Length of silence is too long #{length_of_gap}."  
+          # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
+          # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.
+          if ((length_of_gap > 0) and (length_of_gap < 3600000))
+            paddings << create_gap_audio_event(length_of_gap, ar_prev.stop_event_timestamp.to_i + 1, ar_next.start_event_timestamp.to_i - 1)
+          else
+            BigBlueButton.logger.error("Between padding #{i}: #{length_of_gap} [#{ar_next.start_event_timestamp.to_i} - #{ar_prev.stop_event_timestamp.to_i}].\n")
+            raise Exception,  "Length of silence is too long #{length_of_gap}."
+          end
         end
-        
         i += 1
       end
 
@@ -284,9 +296,10 @@ module BigBlueButton
     end
 
     def eql?(other)
-      start_record_timestamp == other.start_record_timestamp
+      (start_record_timestamp == other.start_record_timestamp) and
+      (file == other.file) and
+      (bridge == other.bridge)
     end
-
     
   end
 end

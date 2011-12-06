@@ -30,13 +30,11 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Join a Selected Course</title>
+<title>Join Selected</title>
 </head>
 <body>
 
 <%@ include file="bbb_api.jsp"%>
-
-<br>
 
 <%
 	if (request.getParameterMap().isEmpty()) {
@@ -47,7 +45,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 <%@ include file="demo_header.jsp"%>
 
-<h2>Demo #2: Join a Selected Course</h2>
+<h2>Join Selected</h2>
 
 
 <FORM NAME="form1" METHOD="GET">
@@ -61,7 +59,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 			<td style="width: 5px; ">
 				&nbsp;</td>
 			<td style="text-align: left ">
-				<input type="text" name="username" /></td>
+				<input type="text" autofocus required name="username" /></td>
 		</tr>
 		
 		<tr>
@@ -107,7 +105,10 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 
 		// String joinURL = getJoinURL(username, meetingID, "Welcome to " + meetingID );
 		// Update: added record parameter, default false
-		String joinURL = getJoinURL(username, meetingID,"false", "<br>Welcome to course: %%CONFNAME%%.<br>", null );
+		String url = BigBlueButtonURL.replace("bigbluebutton/","demo/");
+		String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"pdfs/sample.pdf'/></module></modules>";
+		// String joinURL = getJoinURL(username, meetingID, "false", "<br>Welcome to course: %%CONFNAME%%.<br>", null, preUploadPDF );
+		String joinURL = getJoinURL(username, meetingID, "false", null, null, preUploadPDF );
 
 		if (joinURL.startsWith("http://")) {
 %>

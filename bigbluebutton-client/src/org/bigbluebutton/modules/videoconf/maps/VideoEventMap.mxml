@@ -24,10 +24,7 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
-			
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.UserManager;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -39,6 +36,7 @@
 			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
+			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.views.PublishWindow;
@@ -51,11 +49,17 @@
 			private var button:ToolbarButton;
 			private var publishWindow:PublishWindow;
 			public var proxy:VideoProxy;
+
+			// This variable is used to avoid dispatching the BroadcastStoppedEvent
+			// when the user just open the publish window and close it before start
+			// publishing
+			private var _publishing:Boolean = false;		
 			
 			private function viewCamera(userid:Number, stream:String, name:String, mock:Boolean = false):void{
 				if (userid == module.userid) return;
 				
 				var window:VideoWindow = new VideoWindow();
+				window.userId = userid;
 				window.videoOptions = proxy.videoOptions;
 				
 				window.resolutions = module.resolutions.split(",");
@@ -70,6 +74,11 @@
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = window;
 				globalDispatcher.dispatchEvent(windowEvent);
+				
+				// this event will dock the window, if it's enabled
+				var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();
+				openVideoEvent.window = window;
+				globalDispatcher.dispatchEvent(openVideoEvent);
 			}
 
 			private function viewVideoFile(e:BBBEvent):void {
@@ -93,7 +102,7 @@
 			private function openPublishWindow():void{
 				publishWindow = new PublishWindow();
 				publishWindow.videoOptions = proxy.videoOptions;
-				publishWindow.streamName = "-" + module.userid.toString();
+				publishWindow.userId = module.userid;
 				publishWindow.userrole = module.role;
 				publishWindow.quality = module.quality;
 				publishWindow.resolutions = module.resolutions.split(",");
@@ -110,15 +119,20 @@
 				broadcastEvent.stream = e.stream;
 				broadcastEvent.userid = module.userid;
 				globalDispatcher.dispatchEvent(broadcastEvent);
+				publishWindow.title = module.username + " (you)";
+				_publishing = true;
 			}
 			
 			private function stopPublishing(e:StopBroadcastEvent):void{
-				proxy.stopBroadcasting();
-				
-				var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
-				broadcastEvent.stream = publishWindow.streamName;
-				broadcastEvent.userid = module.userid;
-				globalDispatcher.dispatchEvent(broadcastEvent);
+				if (_publishing) {
+					proxy.stopBroadcasting();
+					
+					var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
+					broadcastEvent.stream = publishWindow.streamName;
+					broadcastEvent.userid = module.userid;
+					globalDispatcher.dispatchEvent(broadcastEvent);
+					_publishing = false;
+				}
 				
 				//Make toolbar button enabled again
 				button.show();

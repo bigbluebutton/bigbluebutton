@@ -33,16 +33,15 @@ import org.bigbluebutton.api.MeetingService;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
-//import org.codehaus.groovy.grails.commons.ConfigurationHolder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-//import grails.converters.XML;
 import org.bigbluebutton.api.ApiErrors;
 import org.bigbluebutton.api.ParamsProcessorUtil;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.text.DateFormat;
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 10800  // 3 hours    
@@ -82,21 +81,19 @@ class ApiController {
     String API_CALL = 'create'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
   	
-	// BEGIN - backward compatibility	
-	String checksum = params.checksum
-	if (checksum == null) {
+	// BEGIN - backward compatibility
+	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
 
-	String name = params.name
-	if (name == null) {
+/*
+	if (StringUtils.isEmpty(params.name)) {
 		invalid("missingParamName", "You must specify a name for the meeting.");
 		return
 	}
-
-	String mtgID = params.meetingID
-	if (StringUtils.isEmpty(mtgID)) {
+*/
+	if (StringUtils.isEmpty(params.meetingID)) {
 		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
 		return
 	}
@@ -132,7 +129,8 @@ class ApiController {
       if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW"))) {
         paramsProcessorUtil.updateMeeting(updateParams, existing);
         // trying to create a conference a second time, return success, but give extra info
-        uploadDocuments(existing);
+        // Ignore pre-uploaded presentations. We only allow uploading of presentation once.
+        //uploadDocuments(existing);
         respondWithConference(existing, "duplicateWarning", "This conference was already in existence and may currently be in progress.");
       } else {
 	  	// BEGIN - backward compatibility
@@ -152,8 +150,7 @@ class ApiController {
     meetingService.createMeeting(newMeeting);
     
     // See if the request came with pre-uploading of presentation.
-    uploadDocuments(newMeeting);
-    
+    uploadDocuments(newMeeting);    
     respondWithConference(newMeeting, null, null)
   }
 
@@ -166,25 +163,22 @@ class ApiController {
   	ApiErrors errors = new ApiErrors()
   	  
 	// BEGIN - backward compatibility
-    String checksum = params.checksum
-    if (checksum == null) {
+    if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
-	String fullName1 = params.fullName
-	if (fullName1 == null) {
+
+	if (StringUtils.isEmpty(params.fullName)) {
 		invalid("missingParamFullName", "You must specify a name for the attendee who will be joining the meeting.");
 		return
 	}
 	
-	String externalMeetingId1 = params.meetingID
-	if (externalMeetingId1 == null) {
+	if (StringUtils.isEmpty(params.meetingID)) {
 		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
 		return
 	}
 	
-	String password = params.password
-	if (password == null) {
+	if (StringUtils.isEmpty(params.password)) {
 		invalid("invalidPassword","You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.");
 		return
 	}
@@ -315,6 +309,7 @@ class ApiController {
     session["mode"] = "LIVE"
     session["record"] = meeting.isRecord()
     session['welcome'] = meeting.getWelcomeMessage()
+	session['logoutUrl'] = meeting.getLogoutUrl();
     
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
     
@@ -330,14 +325,12 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
 	// BEGIN - backward compatibility
-	String checksum = params.checksum
-	if (checksum == null) {
+	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
 
-	String mtgID = params.meetingID
-	if (StringUtils.isEmpty(mtgID)) {
+	if (StringUtils.isEmpty(params.meetingID)) {
 		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
 		return
 	}
@@ -378,24 +371,15 @@ class ApiController {
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(externalMeetingId);
     log.info("Retrieving meeting ${internalMeetingId}")		
     Meeting meeting = meetingService.getMeeting(internalMeetingId);
-    if (meeting == null) {
-		// BEGIN - backward compatibility
-		invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
-		return;
-		// END - backward compatibility
-		
-	   errors.invalidMeetingIdError();
-	   respondWithErrors(errors)
-	   return;
-    }
-    
+	boolean isRunning = meeting != null && meeting.isRunning();
+   
     response.addHeader("Cache-Control", "no-cache")
     withFormat {	
       xml {
         render(contentType:"text/xml") {
           response() {
             returncode(RESP_CODE_SUCCESS)
-            running(meeting.isRunning() ? "true" : "false")
+            running(isRunning ? "true" : "false")
           }
         }
       }
@@ -411,20 +395,17 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"    
 	
 	// BEGIN - backward compatibility
-	String checksum = params.checksum
-	if (checksum == null) {
+	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
 
-	String mtgID = params.meetingID
-	if (StringUtils.isEmpty(mtgID)) {
+	if (StringUtils.isEmpty(params.meetingID)) {
 		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
 		return
 	}
 	
-	String password = params.password
-	if (password == null) {
+	if (StringUtils.isEmpty(params.password)) {
 		invalid("invalidPassword","You must supply the moderator password for this call.");
 		return
 	}
@@ -517,20 +498,17 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
     
 	// BEGIN - backward compatibility
-	String checksum = params.checksum
-	if (checksum == null) {
+	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
 
-	String mtgID = params.meetingID
-	if (StringUtils.isEmpty(mtgID)) {
+	if (StringUtils.isEmpty(params.meetingID)) {
 		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
 		return
 	}
 	
-	String password = params.password
-	if (password == null) {
+	if (StringUtils.isEmpty(params.password)) {
 		invalid("invalidPassword","You must supply the moderator password for this call.");
 		return
 	}
@@ -590,7 +568,7 @@ class ApiController {
     
     if (meeting.getModeratorPassword().equals(modPW) == false) {
 		// BEGIN - backward compatibility
-		invalidPassword("You must supply the moderator password for this call."); 
+		invalid("invalidPassword","You must supply the moderator password for this call."); 
 		return;
 		// END - backward compatibility
 		
@@ -610,8 +588,7 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
     
 	// BEGIN - backward compatibility
-	String checksum = params.checksum
-	if (checksum == null) {
+	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
@@ -688,21 +665,8 @@ class ApiController {
   /***********************************************
    * ENTER API
    ***********************************************/
-  def enter = {
-    def fname = session["fullname"]
-    def rl = session["role"]
-    def cnf = session["conference"]
-    def rm = session["room"]
-    def vb = session["voicebridge"] 
-    def wbv = session["webvoiceconf"]  
-    def rec = session["record"]
-    def md = session["mode"]
-    def confName = session["conferencename"]
-    def welcomeMsg = session['welcome']
-    def meetID = session["meetingID"] 
-    def externUID = session["externUserID"] 
-        
-    if (!rm) {
+  def enter = {	    
+    if (! session["room"]) {
       println "Could not find conference"
       response.addHeader("Cache-Control", "no-cache")
       withFormat {				
@@ -723,18 +687,19 @@ class ApiController {
           render(contentType:"text/xml") {
             response() {
               returncode("SUCCESS")
-              fullname("$fname")
-              confname("$confName")
-              meetingID("$meetID")
-              externUserID("$externUID")
-              role("$rl")
-              conference("$cnf")
-              room("$rm")
-              voicebridge("${vb}")
-              webvoiceconf("${wbv}")
-              mode("$md")
-              record("$rec")
-              welcome("$welcomeMsg")
+              fullname(session["fullname"])
+              confname(session["conferencename"])
+              meetingID(session["meetingID"] )
+              externUserID(session["externUserID"] )
+              role(session["role"])
+              conference(session["conference"])
+              room(session["room"])
+              voicebridge(session["voicebridge"] )
+              webvoiceconf(session["webvoiceconf"])
+              mode(session["mode"])
+              record(session["record"])
+              welcome(session['welcome'])
+			  logoutUrl(session["logoutUrl"])
             }
           }
         }
@@ -761,7 +726,16 @@ class ApiController {
   	}      
    
   	log.debug("Signing out. Redirecting to " + logoutUrl)
-  	redirect(url: logoutUrl)
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {	
+      xml {
+        render(contentType:"text/xml") {
+          response() {
+            returncode(RESP_CODE_SUCCESS)
+          }
+        }
+      }
+    }
   }
  
   /******************************************************
@@ -772,8 +746,7 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
     
 	// BEGIN - backward compatibility
-	String checksum = params.checksum
-	if (checksum == null) {
+	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
@@ -825,8 +798,6 @@ class ApiController {
       }
       return;
     }
-    
-    response.addHeader("Cache-Control", "no-cache")
     withFormat {  
       xml {
         render(contentType:"text/xml") {
@@ -837,13 +808,17 @@ class ApiController {
 				  recording() {
                   recordID(r.getId())
 				  meetingID(r.getMeetingID())
-				  name(r.getName())
+				  name(''){
+					  mkp.yieldUnescaped("<![CDATA["+r.getName()+"]]>")
+				  }
                   published(r.isPublished())
                   startTime(r.getStartTime())
                   endTime(r.getEndTime())
 				  metadata() {
 					 r.getMetadata().each { k,v ->
-						 "$k"("$v")
+						 "$k"(''){ 
+							 mkp.yieldUnescaped("<![CDATA[$v]]>") 
+						 }
 					 }
 				  }
 				  playback() {
@@ -874,20 +849,17 @@ class ApiController {
 	  log.debug CONTROLLER_NAME + "#${API_CALL}"
 	  
 	  // BEGIN - backward compatibility
-	  String checksum = params.checksum
-	  if (checksum == null) {
+	  if (StringUtils.isEmpty(params.checksum)) {
 		  invalid("checksumError", "You did not pass the checksum security check")
 		  return
 	  }
 	  
-	  String rid = params.recordID
-	  if (rid == null) {
+	  if (StringUtils.isEmpty(params.recordID)) {
 		  invalid("missingParamRecordID", "You must specify a recordID.");
 		  return
 	  }
 	  
-	  String pubparam = params.publish
-	  if (pubparam == null) {
+	  if (StringUtils.isEmpty(params.publish)) {
 		  invalid("missingParamPublish", "You must specify a publish value true or false.");
 		  return
 	  }
@@ -965,14 +937,12 @@ class ApiController {
 	  log.debug CONTROLLER_NAME + "#${API_CALL}"
 	  
 	  // BEGIN - backward compatibility
-	  String checksum = params.checksum
-	  if (checksum == null) {
+	  if (StringUtils.isEmpty(params.checksum)) {
 		  invalid("checksumError", "You did not pass the checksum security check")
 		  return
 	  }
 	  
-	  String rid = params.recordID
-	  if (rid == null) {
+	  if (StringUtils.isEmpty(params.recordID)) {
 		  invalid("missingParamRecordID", "You must specify a recordID.");
 		  return
 	  }
@@ -1072,12 +1042,13 @@ class ApiController {
 
 
   def cleanFilename(filename) {
+	String fname = URLDecoder.decode(filename)
     def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
-    return filename.replaceAll(notValidCharsRegExp, '-')
+    return fname.replaceAll(notValidCharsRegExp, '-')
   }
   
   def processDocumentFromRawBytes(bytes, filename, conf) {
-    def cleanName = cleanFilename(filename);
+	def cleanName = cleanFilename(filename);
 
     File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), cleanName);
     def pres = new File(uploadDir.absolutePath + File.separatorChar + cleanName);
@@ -1136,9 +1107,11 @@ class ApiController {
 			meetingName(meeting.getName())
             meetingID(meeting.getExternalId())
 			createTime(meeting.getCreateTime())
+			voiceBridge(meeting.getTelVoice())
             attendeePW(meeting.getViewerPassword())
             moderatorPW(meeting.getModeratorPassword())
             running(meeting.isRunning() ? "true" : "false")
+			recording(meeting.isRecord() ? "true" : "false")
             hasBeenForciblyEnded(meeting.isForciblyEnded() ? "true" : "false")
             startTime(meeting.getStartTime())
             endTime(meeting.getEndTime())
@@ -1229,7 +1202,7 @@ class ApiController {
 				  response() {
 					  returncode(RESP_CODE_FAILED)
 					  messageKey(key)
-					  message(msg+deprecatedMsg)
+					  message(msg)
 				  }
 			  }
 		  }
@@ -1238,7 +1211,7 @@ class ApiController {
 			  render(contentType:"text/json") {
 					  returncode(RESP_CODE_FAILED)
 					  messageKey(key)
-					  message(msg+deprecatedMsg)
+					  message(msg)
 			  }
 		  }
 	  }

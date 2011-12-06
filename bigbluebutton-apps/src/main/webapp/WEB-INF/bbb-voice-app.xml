@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans:beans xmlns="http://www.springframework.org/schema/integration"
+<beans:beans 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:beans="http://www.springframework.org/schema/beans"
-    xmlns:stream="http://www.springframework.org/schema/integration/stream"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-            http://www.springframework.org/schema/integration
-            http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
-            http://www.springframework.org/schema/integration/stream
-            http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd">
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 	
 	<beans:bean id="voiceHandler" class="org.bigbluebutton.conference.service.voice.VoiceHandler">
 		<beans:property name="conferenceService" ref="conferenceService"/>
@@ -19,8 +14,8 @@
 		
 	<beans:bean id="conferenceService" class="org.bigbluebutton.webconference.voice.ConferenceService">
 		<beans:property name="conferenceServiceProvider" ref="conferenceServiceProvider"/>
-		<beans:property name="conferenceEventListener" ref="voiceConferenceEventListener"/>
 		<beans:property name="roomManager" ref="roomManager"/>
+		<beans:property name="clientManager" ref="clientNotifier"/>
 	</beans:bean>
 
 	<beans:bean id="roomManager" class="org.bigbluebutton.webconference.voice.internal.RoomManager">
@@ -34,10 +29,5 @@
 	<beans:bean id="voice.service" class="org.bigbluebutton.conference.service.voice.VoiceService">
 		<beans:property name="conferenceService" ref="conferenceService"/>
 	</beans:bean>
-
-    <gateway id="voiceConferenceEventListener" service-interface="org.bigbluebutton.webconference.voice.events.ConferenceEventListener"/>
-    <publish-subscribe-channel id="conferenceEventChannel"/>    
-    <service-activator input-channel="conferenceEventChannel" ref="conferenceService"  method="handleConferenceEvent"/>
-    <service-activator input-channel="conferenceEventChannel" ref="clientNotifier"  method="handleConferenceEvent"/>
 
 </beans:beans>

@@ -62,13 +62,13 @@ public class ParamsProcessorUtil {
 	    if (StringUtils.isEmpty(params.get("checksum"))) {
 	      errors.missingParamError("checksum");
 	    }
-	    
+/*	    
 	    // Do we have a meeting name? If not, complain.
 	    String meetingName = params.get("name");
 	    if (StringUtils.isEmpty(meetingName) ) {
 	      errors.missingParamError("name");
 	    }
-	    
+*/	    
 	    // Do we have a meeting id? If not, complain.
 	    String externalMeetingId = params.get("meetingID");
 	    if (StringUtils.isEmpty(externalMeetingId)) {
@@ -266,7 +266,7 @@ public class ParamsProcessorUtil {
 	    // Collect metadata for this meeting that the third-party app wants to store if meeting is recorded.
 	    Map<String, String> meetingInfo = new HashMap<String, String>();
 	    for (String key: params.keySet()) {
-	    	if (key.contains("meta")){
+	    	if (key.contains("meta")&&key.indexOf("meta")==0){
 	    		String[] meta = key.split("_");
 			    if(meta.length == 2){
 			    	log.debug("Got metadata {} = {}", key, params.get(key));

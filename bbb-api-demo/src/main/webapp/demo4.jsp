@@ -33,9 +33,9 @@ Author: Islam El-Ashi <ielashi@gmail.com>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>Activity Monitor</title>
-<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<link href="css/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="js/demo4/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
 <script type="text/javascript" src="js/demo4.js"></script>
 <script type="text/javascript" src="js/md5.js"></script>
 <script type="text/javascript" src="js/jquery.xml2json.js"></script>
@@ -47,8 +47,6 @@ Author: Islam El-Ashi <ielashi@gmail.com>
 
 <%@ include file="bbb_api.jsp"%>
 
-<br>
-
 <%@ include file="demo_header.jsp"%>
 
 
@@ -56,7 +54,7 @@ Author: Islam El-Ashi <ielashi@gmail.com>
 if (request.getParameterMap().isEmpty()) {
 %>
 
-<h2>Demo #4: Activity Monitor</h2>
+<h2>Activity Monitor</h2>
 
 <p id="no_meetings"></p>
 
@@ -75,7 +73,7 @@ if (request.getParameterMap().isEmpty()) {
 
 %>
 
-<h2>Demo #4: Activity Monitor</h2>
+<h2>Activity Monitor</h2>
 
 <%=meetingID%> has been terminated.
 
@@ -85,7 +83,7 @@ if (request.getParameterMap().isEmpty()) {
 
 <% } else { %>
 
-<h2>Demo #4: Activity Monitor</h2>
+<h2>Activity Monitor</h2>
 
 
 Unable to end meeting: <%=meetingID%>

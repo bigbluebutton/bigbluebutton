@@ -1,5 +1,5 @@
 <!--
-
+XX
 BigBlueButton - http://www.bigbluebutton.org
 
 Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
@@ -29,9 +29,11 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel="stylesheet" type="text/css" href="css/ui.jqgrid.css" />
-	<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/redmond/jquery-ui.css" />
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-	<script type="text/javascript" src="http://view.jquery.com/trunk/plugins/validate/jquery.validate.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/redmond/jquery-ui-redmond.css" />
+	<script type="text/javascript" src="js/jquery-ui.js"></script>
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/jquery.validate.min.js"></script>
+	<script src="js/grid.locale-en.js" type="text/javascript"></script>
 	<script src="js/jquery.jqGrid.min.js" type="text/javascript"></script>
 	<script src="js/jquery.xml2json.js" type="text/javascript"></script>
 	<title>Recording Meeting Demo</title>
@@ -86,11 +88,11 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		// Assume we want to create a meeting
 		//
 %>
-	<h2>BigBlueButton 0.8-dev Record and Playback Test</h2>
+	<h2>Join a Course (Recorded)</h2>
 
 	<form id="formcreate" name="formcreate" method="get" action=""> 		
 		<div>
-			<label class="labform" for="meetingID">Class:</label>
+			<label class="labform" for="meetingID">Course:</label>
 			<select name="meetingID" onchange="onChangeMeeting(this.value);">
 				<option value="English 101">English 101</option>
 				<option value="English 102">English 102</option>
@@ -106,20 +108,17 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		</div>
 		<div>
 			<label class="labform" id="descript" for="meta_description">Description:</label>
-			<textarea id="meta_description" name="meta_description" cols="50" rows="6" class="required"></textarea>
+			<textarea id="meta_description" name="meta_description" cols="50" rows="6" autofocus required></textarea>
 		</div>
 		<div>
-			<label class="labform" for="meta_email">Your Email:</label>
-			<input id="meta_email" name="meta_email" type="text" class="required" size="30" />
+			<label class="labform" for="meta_email">Your Name:</label>
+			<input id="meta_email" name="meta_email" type="text" required size="30" />
 		</div>	
 		<div style="clear:both"></div>
 		<input class="submit" type="submit" value="Join" >
 		<input type="hidden" name="action" value="create" />
 	</form>
 
-<!--
-<strong>Note:</strong> If you created the meeting and entered a valid e-mail address, shortly after the meeting finishes (all users have left) you'll receive an e-mail from <i>bigbluebutton.notify@gmail.com</i> with a link to playback the recorded meeting (slides + audio).  The playback link will also appear in the table below. 
--->
 	<h3>Recorded Sessions</h3>
 	<select id="actionscmb" name="actions" onchange="recordedAction(this.value);">
 		<option value="novalue" selected>Actions...</option>
@@ -128,7 +127,8 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		<option value="delete">Delete</option>
 	</select>
 	<table id="recordgrid"></table>
-	<p>Note: Refresh the browser for update the recording list.</p>
+	<div id="pager"></div> 
+	<p>Note: New recordings will appear in the above list after processing.  Refresh your browser to update the list.</p>
 	<script>
 	function onChangeMeeting(meetingID){
 		isRunningMeeting(meetingID);
@@ -218,20 +218,24 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 			height: 150,
 			loadonce: true,
 			sortable: true,
-			colNames:['Id','Course','Description', 'Date Recorded', 'Published'],
+			colNames:['Id','Course','Description', 'Date Recorded', 'Published', 'Playback', 'Length'],
 			colModel:[
 				{name:'id',index:'id', width:50, hidden:true, xmlmap: "recordID"},
-				{name:'course',index:'course', width:150, xmlmap: "meetingID", formatter:playbackFormat, sortable:false},
-				{name:'description',index:'description', width:300, xmlmap: "metadata>description",sortable: false},
-				{name:'daterecorded',index:'daterecorded', width:200, xmlmap: "startTime", sortable: false},
-				{name:'published',index:'published', width:80, xmlmap: "published", sortable:false }		
+				{name:'course',index:'course', width:150, xmlmap: "name", sortable:true},
+				{name:'description',index:'description', width:300, xmlmap: "description",sortable: true},
+				{name:'daterecorded',index:'daterecorded', width:200, xmlmap: "startTime", sortable: true},
+				{name:'published',index:'published', width:80, xmlmap: "published", sortable:true },
+				{name:'playback',index:'playback', width:150, xmlmap:"playback", sortable:false},
+				{name:'length',index:'length', width:80, xmlmap:"length", sortable:true}
 			],
 			xmlReader: {
 				root : "recordings",
 				row: "recording",
 				repeatitems:false,
-				id: "id"
+				id: "recordID"
 			},
+			pager : '#pager',
+			emptyrecords: "Nothing to display",
 			multiselect: true,
 			caption: "Recorded Sessions",
 			loadComplete: function(){
@@ -240,11 +244,6 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		});
 	});
 	
-	function playbackFormat( cellvalue, options, rowObject ){
-		if($(rowObject).find('published:first').text()=="true")
-			return '<a href="'+$(rowObject).find('playback format url:first').text()+'">'+cellvalue+'</a>';
-		return cellvalue;
-	}
 	</script>
 <%
 	} else if (request.getParameter("action").equals("create")) {
@@ -264,8 +263,8 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		//
 		// This is the URL for to join the meeting as moderator
 		//
-		String welcome = "<br>Welcome to %%CONFNAME%%!<br><br>For help see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a><br><br>This meeting is being recorded (audio + slides).<br><br>Shortly after this meeting finishes (all users have left), the BigBlueButton server will process the meeting and publish a playback link to <a href=\"event:http://test.bigbluebutton.org/\"><u>this page</u></a>.";
-		String joinURL = getJoinURL(username, meetingID, "true", welcome, metadata);
+		String welcomeMsg = "<br>Welcome to %%CONFNAME%%!<br><br>For help see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a>.<br><br>To join the voice bridge for this meeting click the headset icon in the upper-left <b>(please use a headset to prevent echo)</b>.<br><br>This meeting is being recorded (audio + slides + chat).";
+		String joinURL = getJoinURL(username, meetingID, "true", welcomeMsg, metadata, null);
 		if (joinURL.startsWith("http://")) {
 %>
 <script language="javascript" type="text/javascript">

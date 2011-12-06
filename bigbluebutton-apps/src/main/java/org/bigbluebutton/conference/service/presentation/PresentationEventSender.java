@@ -81,6 +81,8 @@ public class PresentationEventSender implements IPresentationRoomListener {
 		list.add(presentationName);
 		list.add(messageKey);
 		
+		log.debug("message " + messageKey + "[" + presentationName + "]");
+		
 		if(messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_SUCCESS_KEY)||
 				messageKey.equalsIgnoreCase(OFFICE_DOC_CONVERSION_FAILED_KEY)||
 				messageKey.equalsIgnoreCase(SUPPORTED_DOCUMENT_KEY)||
@@ -88,25 +90,21 @@ public class PresentationEventSender implements IPresentationRoomListener {
 				messageKey.equalsIgnoreCase(GENERATING_THUMBNAIL_KEY)||
 				messageKey.equalsIgnoreCase(GENERATED_THUMBNAIL_KEY)||
 				messageKey.equalsIgnoreCase(PAGE_COUNT_FAILED_KEY)){
-			log.debug("{}[{}]",messageKey,presentationName);
+			
 			// no extra data to send
 			so.sendMessage("conversionUpdateMessageCallback", list);
 		}
 		else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
-			log.debug("{}[{}]",messageKey,presentationName);
 			list.add(message.get("numberOfPages"));
 			list.add(message.get("maxNumberPages"));
 			so.sendMessage("pageCountExceededUpdateMessageCallback", list);
 		}
 		else if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
-			log.debug("{}[{}]",messageKey,presentationName);
 			list.add(message.get("numberOfPages"));
 			list.add(message.get("pagesCompleted"));
 			so.sendMessage("generatedSlideUpdateMessageCallback", list);
-			//recordEvent(parsePresentationToXML(list, this.RECORD_EVENT_GENERATED_SLIDE));
 		}
 		else if(messageKey.equalsIgnoreCase(CONVERSION_COMPLETED_KEY)){
-			log.debug("{}[{}]",messageKey,presentationName);
 			list.add(message.get("slidesInfo"));								
 			so.sendMessage("conversionCompletedUpdateMessageCallback", list);
 		}
@@ -118,7 +116,7 @@ public class PresentationEventSender implements IPresentationRoomListener {
 	
 	@SuppressWarnings("unchecked")
 	public void removePresentation(String name){
-	   log.debug("calling removePresentationCallback {}",name);
+	   log.debug("calling removePresentationCallback " + name);
 	   ArrayList list=new ArrayList();
 	   list.add(name);
 	   so.sendMessage("removePresentationCallback", list);
@@ -126,7 +124,7 @@ public class PresentationEventSender implements IPresentationRoomListener {
 	
 	@SuppressWarnings("unchecked")
 	public void gotoSlide(int slide){
-		log.debug("calling gotoSlideCallback {}",slide);
+		log.debug("calling gotoSlideCallback " + slide);
 		ArrayList list=new ArrayList();
 		list.add(slide);
 		so.sendMessage("gotoSlideCallback", list);	
@@ -135,7 +133,7 @@ public class PresentationEventSender implements IPresentationRoomListener {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void sharePresentation(String presentationName, Boolean share){
-		log.debug("calling sharePresentationCallback {} {}",presentationName,share);
+		log.debug("calling sharePresentationCallback " + presentationName + " " + share);
 		ArrayList list=new ArrayList();
 		list.add(presentationName);
 		list.add(share);
@@ -145,14 +143,14 @@ public class PresentationEventSender implements IPresentationRoomListener {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void assignPresenter(ArrayList presenter) {
-		log.debug("calling assignPresenterCallback "+presenter.get(0)+", "+presenter.get(1)+" "+presenter.get(2));
+		log.debug("calling assignPresenterCallback " + presenter.get(0) + ", " + presenter.get(1) + " " + presenter.get(2));
 		so.sendMessage("assignPresenterCallback", presenter);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void resizeAndMoveSlide(Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
-		log.debug("calling moveCallback["+xOffset+","+yOffset+","+widthRatio+","+heightRatio+"]");
+		log.debug("calling moveCallback[" + xOffset + "," + yOffset + "," + widthRatio + "," + heightRatio + "]");
 		ArrayList list=new ArrayList();
 		list.add(xOffset);
 		list.add(yOffset);

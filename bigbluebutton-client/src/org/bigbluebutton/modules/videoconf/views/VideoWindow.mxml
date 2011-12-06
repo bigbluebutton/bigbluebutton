@@ -20,66 +20,50 @@
   $Id: $
 -->
 
-<MDIWindow xmlns="flexlib.mdi.containers.*" 
+<VideoWindowItf xmlns="org.bigbluebutton.modules.videoconf.business.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	creationComplete="init()" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
-	resize="onResize()">
+	resize="onResize()"
+	layout="absolute">
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flexlib.mdi.events.MDIWindowEvent;
-			
+			import com.asfusion.mate.events.Dispatcher;			
+			import flexlib.mdi.events.MDIWindowEvent;			
 			import mx.controls.Alert;
-			import mx.core.UIComponent;
-			
+			import mx.core.UIComponent;			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-		
-			public var resolutions:Array = new Array("320x240", "640x480");
-			
-			private var video:Video;
-			private var ns:NetStream;
-			private var videoHolder:UIComponent;
-			private var stream:String;
-			private var videoHeight:Number;
-			private var videoWidth:Number;
-
-			private var _bResizePossible:Boolean = true;
-			private var _nAspectRatio:Number = 1;
-
-			static private var _minWidth:int = 166;
-			static private var _minHeight:int = 149;
-
-			private var _nSavedVideoWidth:Number = 0;
-			private var _nSavedVideoHeight:Number = 0;
-			private var _nOldWindowWidth:Number = 0;
-			private var _nOldWindowHeight:Number = 0;
-							
-			private var _xPosition:int;
-			private var _yPosition:int;
-			
+					
+			private var ns:NetStream;			
 			private var globalDispatcher:Dispatcher;
 
 			[Bindable]
 			public var videoOptions:VideoConfOptions;
 			
 			private function init():void{
-				videoHolder = new UIComponent();
-				videoHolder.addChild(video);
-				this.addChild(videoHolder);
+				_videoHolder = new UIComponent();
+				_videoHolder.addChild(_video);
+				this.addChild(_videoHolder);
 				
-				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEvent);
-				addEventListener(MDIWindowEvent.RESIZE, onResizeEvent);
-				addEventListener(MDIWindowEvent.MAXIMIZE, onMaximize);
-				addEventListener(MDIWindowEvent.RESTORE, onRestore);
+				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
+				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
 				addEventListener(MDIWindowEvent.CLOSE, onCloseEvent);
+
+				addEventListener(MDIWindowEvent.DRAG_START, onDragStart);
+				addEventListener(MDIWindowEvent.DRAG, onDrag);
+				addEventListener(MDIWindowEvent.DRAG_END, onDragEnd);
+				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
+				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
+				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+				
+				createButtons();
 				
 				globalDispatcher = new Dispatcher();
 
@@ -87,14 +71,26 @@
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = true;
 				this.resizable = true;
+				
+				/**
+				 *  At this point, the function startVideo has been called, and 
+				 *   the video has the exactly dimensions of the original stream.
+				 *  It's needed to call onResize() to fit the video window in the
+				 *  main canvas in case that the video dimensions are larger than
+				 *  the parent window. 
+				 */
+				onResize();				
+				
 				if (videoOptions.viewerWindowMaxed)
 					this.maximize();
+				
+				this.showCloseButton = videoOptions.showCloseButton;
 			}
 			
 			private function onCloseEvent(event:MDIWindowEvent = null):void {
-				LogUtil.debug("ViewWindow closing " + stream);
+				LogUtil.debug("ViewWindow closing " + streamName);
 				var bbbEvt:BBBEvent = new BBBEvent("ViewVideoCloseEvent");
-				bbbEvt.message = stream;
+				bbbEvt.message = streamName;
 				dispatchEvent(bbbEvt);
 			}
 			
@@ -107,58 +103,43 @@
 				ns.receiveVideo(true);
 				ns.receiveAudio(false);
 				
-				setVideoResolution(stream);
-				video = new Video(this.width, this.height);
-				video.width = this.width;
-				video.height = this.height;
-				video.attachNetStream(ns);
-				ns.play(stream);	
-				this.stream = stream;
-
-				this.width = video.width + 6;
-				this.height = video.height + 29;
+				var res:Array = getVideoResolution(stream);
+				if (res == null) // error
+					return;
+				_video = new Video(Number(res[0]), Number(res[1]));
+				_video.width = originalWidth = Number(res[0]);
+				_video.height = originalHeight = Number(res[1]);
+				setAspectRatio(Number(res[0]), Number(res[1])); 
+				_video.attachNetStream(ns);
+				ns.play(stream);
+				this.streamName = stream;
+				
+				this.width = _video.width + paddingHorizontal;
+				this.height = _video.height + paddingVertical;	
 			}
-			
-			private function setVideoResolution(stream:String):void{
-				for each (var resStr:String in resolutions){
-					LogUtil.debug("VideoWindow::setVideoResolution testing " + resStr);
-					if (resStr == stream.substr(0, resStr.length)) {
-						var res:Array = resStr.split( "x" );
-						this.width = Number(res[0]);
-						this.height = Number(res[1]);
-						LogUtil.debug("VideoWindow::setVideoResolution width=" + this.width + " height=" + this.height);
-						_nAspectRatio = (this.width/this.height);
-						break;
-					}
-				}
-			}
-			
+						
 			private function onAsyncError(e:AsyncErrorEvent):void{
 				LogUtil.debug("VideoWindow::asyncerror " + e.toString());
 			}
 			
 			public function onMetaData(info:Object):void{
 				LogUtil.debug("metadata: width=" + info.width + " height=" + info.height);
-				video.width = info.width;
-				video.height = info.height;
-				adjustWindowSize();
+				_video.width = info.width;
+				_video.height = info.height;
+				setAspectRatio(info.width, info.height);
+				onResize();
 			}
-			
-			public function getPrefferedPosition():String {
-				if (videoOptions.viewerWindowLocation == "MIDDLE") {
-					return MainCanvas.MIDDLE;
-				}
-				return MainCanvas.POPUP;
-			}
-			
+						
 			private function onNetStatus(e:NetStatusEvent):void{
 				switch(e.info.code){
 					case "NetStream.Publish.Start":
-						LogUtil.debug("NetStream.Publish.Start for broadcast stream " + stream);
+						LogUtil.debug("NetStream.Publish.Start for broadcast stream " + streamName);
 						break;
 					case "NetStream.Play.UnpublishNotify":
 						ns.close();
 						this.close();
+						// shouldn't call onCloseEvent() here because of the viewer cam icon
+						super.close();
 						break;
 					case "NetStream.Play.Start":
 						LogUtil.debug("Netstatus: " + e.info.code);
@@ -175,131 +156,16 @@
 			
 			override public function close(event:MouseEvent=null):void{
 				ns.close();
-				//onCloseEvent();
+				onCloseEvent();
 				super.close(event);
 			}		
 			
 			private function closeWindow(e:CloseAllWindowsEvent):void{
 				this.close();
 			}
-			
-			private function adjustWindowSize():void{
-				if (videoHolder == null) return; 
-				
-				videoHolder.width = video.width;
-				videoHolder.height = video.height;
-				this.width = video.width + 6;
-				this.height = video.height + 29;
-				
-				// prevent to show a video window bigger than the parent window
-				if (this.width > this.parent.width) {
-					video.width = this.parent.width - 6;
-					video.height = Math.floor(video.width / _nAspectRatio);
-					adjustWindowSize();
-				}
-				if (this.height > this.parent.height) {
-					video.height = this.parent.height - 29;
-					video.width = Math.floor(video.height * _nAspectRatio);
-					adjustWindowSize();
-				}
-				if (this.width < _minWidth) {
-					video.width = _minWidth - 6;
-					video.height = Math.floor(video.width / _nAspectRatio);
-					adjustWindowSize();
-				}
-				if (this.height < _minHeight) {
-					video.height = _minHeight - 29;
-					video.width = Math.floor(video.height * _nAspectRatio);
-					adjustWindowSize();
-				}
-			}			
-			
-			public function onResizeEvent(event:MDIWindowEvent):void {
-				if (event.type == MDIWindowEvent.RESIZE) {
-					// test if we are already resizing
-					if (_bResizePossible) {
-						_bResizePossible = false;
-						resizeWindow();
-						_bResizePossible = true;
-					}
-				} else if (event.type == MDIWindowEvent.RESIZE_END) {
-					adjustWindowSize();
-				}
-			}
-			
-			private function resizeWindow():void {
-				// prevent the window for blinking
-				if (this.width == _nOldWindowWidth && this.height == _nOldWindowHeight) {
-					adjustWindowSize();
-					return;
-				}
-
-				_nOldWindowWidth = this.width;
-				_nOldWindowHeight = this.height;
-
-				if (this.width == video.width + 6) {
-					// if it's a vertical resizing
-					video.height = this.height - 29;
-					video.width = video.height * _nAspectRatio;
-				} else {
-					// if it's a horizontal resizing
-					video.width = this.width - 6;
-					video.height  = Math.floor (video.width / _nAspectRatio);
-				}
-
-				adjustWindowSize();
-			}
-			
-			public function onMaximize(event:MDIWindowEvent):void {
-				_nSavedVideoWidth = video.width;
-				_nSavedVideoHeight = video.height;
-			
-			
-				var tmpWidth:Number = this.parent.width - 6;
-				var tmpHeight:Number = this.parent.height - 29;
-
-				if (tmpWidth > tmpHeight * _nAspectRatio)
-					tmpWidth = tmpHeight * _nAspectRatio;
-				if (tmpHeight > Math.floor(tmpWidth / _nAspectRatio))
-					tmpHeight = Math.floor(tmpWidth / _nAspectRatio);
-				
-				video.width = tmpWidth;
-				video.height = tmpHeight;
-				
-				video.x = Math.floor ((this.parent.width - 6 - video.width) / 2);
-				video.y = Math.floor ((this.parent.height - 29 - video.height) / 2);
-			}
-			
-			public function onRestore(event:MDIWindowEvent):void {
-				video.x = 0;
-				video.y = 0;
-				video.width = _nSavedVideoWidth;
-				video.height = _nSavedVideoHeight;
-				adjustWindowSize();
-			}
-			
-			public function setWindowWidth(width:int):void {
-				if (video == null) return;
-				
-				video.width = width - 6;
-				video.height = Math.floor(video.width / _nAspectRatio);
-				adjustWindowSize();
-			}
-			
-			static public function getMinWidth():int {
-				return _minWidth;
-			}
-		
-			static public function getMinHeight():int {
-				return _minHeight;
-			}
-			
-			private function onResize():void{
-				setWindowWidth(this.width);
-			}
-
+												
 		]]>
 	</mx:Script>
 	
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
-</MDIWindow>
+</VideoWindowItf>

@@ -27,16 +27,21 @@
 			import flexlib.mdi.containers.MDIWindow;
 			
 			import mx.controls.Alert;
-			
+			import mx.utils.ArrayUtil;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.LogUtil;
 
-			public static const TOP_LEFT:String = "TOP_LEFT_WINDOW";
-			public static const BOTTOM_LEFT:String = "BOTTOM_LEFT_WINDOW";
-			public static const MIDDLE:String = "MIDDLE_WINDOW";
-			public static const BOTTOM:String = "BOTTOM_WINDOW";
-			public static const RIGHT:String = "RIGHT_WINDOW";
-			public static const POPUP:String = "POP_UP_WINDOW";
+			public static const TOP_2_3:String = "top-two-thirds";
+			public static const BOTTOM_1_3:String = "bottom-one-third";
+			public static const BOTTOM_1_3_RIGHT:String = "bottom-one-third-right";
+			public static const TOP_LEFT:String = "top-left";
+			public static const BOTTOM_LEFT:String = "bottom-left";
+			public static const MIDDLE:String = "middle";
+			public static const BOTTOM:String = "bottom";
+			public static const TOP_RIGHT:String = "top-right";
+			public static const BOTTOM_RIGHT:String = "bottom-right";
+			public static const POPUP:String = "popup";
+			public static const ABSOLUTE:String = "absolute";
 			
 			public static const DESKTOP_SHARING_VIEW:String = "POP_UP_DESKSHARE_VIEW";
 			public static const DESKTOP_SHARING_PUBLISH:String = "POP_UP_DESKSHARE_PUBLISH";
@@ -60,7 +65,13 @@
 			}
 			
 			public function removeWindow(window:IBbbModuleWindow):void{
-				windowManager.remove(window as MDIWindow);
+				// the flexlib windowManager remove method doesn't test if the given window is on the windows list
+				// this test avoid some exceptions when run the app on debugger flash player
+				if (ArrayUtil.getItemIndex(window, windowManager.windowList) != -1) {
+					windowManager.remove(window as MDIWindow);
+				} else {
+					LogUtil.debug("Trying to remove the window [ " + window + " ] but it's not a MainCanvas child");
+				}
 			}
 			
 			public function removeAllWindows():void{
@@ -90,6 +101,24 @@
 				var x:Number;
 				var y:Number;
 				switch(position){
+					case TOP_2_3:
+						x = 1;
+						y = 1;
+						win.width = this.width;
+						win.height = ((this.height/3) * 2) - 2;
+						break;
+					case BOTTOM_1_3:
+						x = 1;
+						y = (this.height/3) * 2 + 2;
+						win.width = this.width - leftWindowWidth;
+						win.height = (this.height/3) - 2;
+						break;
+					case BOTTOM_1_3_RIGHT:
+						x = this.width - leftWindowWidth;
+						y = (this.height/3) * 2 + 2;
+						win.width = leftWindowWidth;
+						win.height = (this.height/3) - 2;
+						break;
 					case TOP_LEFT:
 						x = 1;
 						y = 1;
@@ -114,12 +143,18 @@
 						win.width = this.width - 5;
 						win.height = 300;
 						break;
-					case RIGHT:
+					case TOP_RIGHT:
 						x = this.width - rightWindowWidth - 10;
 						y = 1;
 						win.width = rightWindowWidth;
 						win.height = rightWindowHeight;
 						break;
+					case BOTTOM_RIGHT:
+						x = this.width - rightWindowWidth - 10;
+						y = rightWindowHeight + 10;;
+						win.width = rightWindowWidth;
+						win.height = this.height - rightWindowHeight - 10;
+						break;					
 					case POPUP:
 						x = (Math.random() * this.width) - 640;
 						y = (Math.random() * this.height) - 520;
@@ -127,13 +162,17 @@
 						if (y < 0) y = 1;
 						break;
 					case DESKTOP_SHARING_PUBLISH:
-						y = (this.height - win.height) / 2;
-						x = (this.width - win.width) / 2;
+						y = (this.height - win.height);
+						x = 1;
 						break;
 					case DESKTOP_SHARING_VIEW:
 						x = 1;
 						y = 1;
 						break;
+					case ABSOLUTE:
+						// don't reposition the window
+						x = win.x;
+						y = win.y;
 				}
 				windowManager.absPos(win, x, y);
 			}

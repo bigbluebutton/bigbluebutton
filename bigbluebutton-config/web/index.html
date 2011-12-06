@@ -6,26 +6,6 @@
 <link rel="stylesheet" href="css/style.css" type="text/css" />
 </head>
 
-<script type="text/javascript">
-        function autoFocus() {
-                document.getElementById("username").focus();
-        }
-
-	function checkform(f) {
-	    if (f.username.value==''){
-		alert("Please enter your username");
-		f.username.focus();
-		f.username.style.border='1px solid #ff0000';
-		return false;
-	    } else {
-		return true;
-	    }
-	}
-
-</script>
-
-<body onload="autoFocus();">
-
 <!-- Header Start -->
     <div id="wrapper">
         <div id="header">
@@ -34,9 +14,10 @@
                 <div id="slogan"><h3>Demo Server</h3></div>
             </div>
             <div id="versionNum">
-                <p style="text-align:right;"><strong>What's new in version 0.8-dev</strong></p>
-                <p style="text-align:right;">Record and plabyack</p>
-                <p style="text-align:right;">Reduced latency of audio</p>
+                <p style="text-align:right;"><strong>What's new in version 0.8-beta-3</strong></p>
+                <p style="text-align:right;">Recording of sessions</p>
+                <p style="text-align:right;">HTML5 playback of recordings</p>
+                <p style="text-align:right;">Improved audio</p>
                 <p style="text-align:right;"><a href="http://code.google.com/p/bigbluebutton/wiki/ReleaseNotes"><font color="#0000FF">more....</font></a></p>
             </div>
         </div>
@@ -61,7 +42,7 @@
             <FORM NAME="form1" METHOD="GET" onSubmit="return checkform(this);" action="/demo/demo1.jsp">
 
                         <p class="content">Enter your name:</p>
-                        <input type="text" id="username"  name="username" size="29" /><input type="submit" value="Join"/> <br />
+                        <input type="text" id="username" required autofocus name="username" size="29" /><input type="submit" value="Join"/> <br />
 
                         <input TYPE="hidden" NAME="action" VALUE="create">
 

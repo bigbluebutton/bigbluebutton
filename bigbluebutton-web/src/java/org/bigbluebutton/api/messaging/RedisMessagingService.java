@@ -55,17 +55,6 @@ public class RedisMessagingService implements MessagingService {
 		}		
 	}
 
-	public void recordMeetingMetadata(String meetingId,	Map<String, String> metadata) {
-		Jedis jedis = redisPool.getResource();
-		try { 
-			jedis.hmset("meeting:metadata:" + meetingId, metadata);
-		} catch (Exception e) {
-			log.warn("Cannot record the metadata meeting:"+meetingId,e);
-		} finally {
-			redisPool.returnResource(jedis);
-		}				
-	}
-
 	public void endMeeting(String meetingId) {
 		HashMap<String,String> map = new HashMap<String, String>();
 		map.put("messageId", MessagingConstants.END_MEETING_REQUEST_EVENT);
@@ -77,7 +66,6 @@ public class RedisMessagingService implements MessagingService {
 	public void send(String channel, String message) {
 		Jedis jedis = redisPool.getResource();
 		try {
-			System.out.println("Sending " + message + " to " + channel);
 			jedis.publish(channel, message);
 		} catch(Exception e){
 			log.warn("Cannot publish the message to redis",e);

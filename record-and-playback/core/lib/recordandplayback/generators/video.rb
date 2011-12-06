@@ -64,8 +64,27 @@ module BigBlueButton
     # Somehow, using the backtick works but not using popen.
     #BigBlueButton.logger.info("mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}")
     #`mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}`
-    command = "mencoder -forceidx -of lavf -oac copy -ovc copy -o #{video_out} #{videos_in.join(' ')}"
-    BigBlueButton.execute(command)
+    #Converting .flv input videos to .mpg and then concatenating them also works using popen.
+   
+       #Create .mpg files
+        mpgs = []
+	videos_in.each do |flv| 
+		mpg =  "#{flv}.mpg"
+		mpg_command = "ffmpeg -i #{flv} -sameq -f mpegts #{mpg}"
+		mpgs << mpg
+		BigBlueButton.execute(mpg_command)
+    	end
+    
+	target_dir = File.dirname("#{video_out}")
+
+	#Concatenate mpg files
+	concatenate_command = "cat #{mpgs.join(' ')} >  #{target_dir}/webcam.mpg"
+	BigBlueButton.execute(concatenate_command)
+    
+	#Convert mpg to flv
+	convert_command = "ffmpeg -i  #{target_dir}/webcam.mpg -sameq  #{video_out}"
+	BigBlueButton.execute(convert_command)
+
   end
 
   # Multiplexes an audio and video

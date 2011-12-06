@@ -73,7 +73,13 @@ public class MeetingService {
 		log.debug("Storing Meeting with internal id:" + m.getInternalId());
 		meetings.put(m.getInternalId(), m);
 		if (m.isRecord()) {
-			messagingService.recordMeetingInfo(m.getInternalId(), m.getMetadata());
+			Map<String,String> metadata=new HashMap<String,String>();
+			metadata.putAll(m.getMetadata());
+			//TODO: Need a better way to store these values for recordings
+			metadata.put("meetingId", m.getExternalId());
+			metadata.put("meetingName", m.getName());
+			
+			messagingService.recordMeetingInfo(m.getInternalId(), metadata);
 		}
 	}
 
@@ -106,37 +112,39 @@ public class MeetingService {
 				r.setName(name);
 
 				ArrayList<Playback> plays=new ArrayList<Playback>();
-				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getMinutesRecording(r.getStartTime(), r.getEndTime())));
+				
+				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getDurationRecording(r.getEndTime(), r.getStartTime())));
 				r.setPlaybacks(plays);
 				map.put(r.getId(), r);
 			}
 			else{
 				Recording rec=map.get(r.getId());
-				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getMinutesRecording(r.getStartTime(), r.getEndTime())));
+				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getDurationRecording(r.getEndTime(), r.getStartTime())));
 			}
 		}
 		
 		return map;
 	}
-	private int getMinutesRecording(String dateini, String dateend){
-		//setting according to "Fri Jul 22 21:06:06 UTC 2011"
-		SimpleDateFormat sdf=new SimpleDateFormat("EEE MMM d HH:mm:ss z yyyy");
-		int total=0;
-		try {
+	
+	private int getDurationRecording(String end, String start){
+		// Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss z yyyy");
+		int duration;
+		try{
 			Calendar cal=Calendar.getInstance();
 			
-			cal.setTime(sdf.parse(dateend));
+			cal.setTime(sdf.parse(end));
 			long end_time=cal.getTimeInMillis();
 			
-			cal.setTime(sdf.parse(dateini));
+			cal.setTime(sdf.parse(start));
 			long start_time=cal.getTimeInMillis();
 			
-			total = (int)((end_time - start_time)/60000);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			duration = (int)Math.ceil((end_time - start_time)/60000.0);
+		}catch(Exception e){
+			log.debug(e.getMessage());
+			duration = 0;
 		}
-		return total;
+		return duration;
 	}
 	
 	public boolean existsAnyRecording(ArrayList<String> idList){

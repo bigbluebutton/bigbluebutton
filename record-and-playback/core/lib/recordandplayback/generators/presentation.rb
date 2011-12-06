@@ -33,14 +33,14 @@ module BigBlueButton
     
     # Convert a pdf page to a png.
     def self.convert_pdf_to_png(pdf_page, png_out)
-        command = "convert -density 96x96 -resize 800x600 -quality 90 +dither -depth 8 -colors 256 #{pdf_page} #{png_out}"
+        command = "convert -density 300x300 -resize 800x600 -quality 90 +dither -depth 8 -colors 256 #{pdf_page} #{png_out}"
         BigBlueButton.execute(command)
 #        Process.wait  
     end
 
     #Convert an image to a png	
     def self.convert_image_to_png(image,png_image)
-        command="convert #{image} #{png_image}"
+        command="convert -resize 800x600 #{image} #{png_image}"
         BigBlueButton.execute(command)
     end
 

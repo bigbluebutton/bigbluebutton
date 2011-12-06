@@ -26,21 +26,21 @@
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
-	<mate:Listener type="{CallConnectedEvent.CALL_CONNECTED_EVENT}" method="handleCallConnectedEvent"/>
 	<mate:Listener type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="handleCallDisconnectedEvent"/>
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_CONFERENCE}" method="handleBBBJoinConferenceEvent"/>
+	<mate:Listener type="MIC_SETTINGS_CLOSED" method="handleMicSettingsClosedEvent"/>
 	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainToolbar;
+			import org.bigbluebutton.modules.phone.PhoneOptions;
 			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
-			import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
-			import org.bigbluebutton.modules.phone.events.LeaveVoiceConferenceEvent;
 			import org.bigbluebutton.modules.phone.views.assets.Images;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -50,16 +50,27 @@
 			[Bindable] public var phoneIcon:Class = images.headset_icon;
 			
 			private function startPhone():void {
-				//this.enabled = false;
 				if (this.selected) {
-					LogUtil.debug("Joining voice conference");
-					dispatcher.dispatchEvent(new JoinVoiceConferenceEvent());					
+					var vxml:XML = BBB.getConfigForModule("PhoneModule");
+					var phoneOptions:PhoneOptions = new PhoneOptions();
+					if (vxml != null) {
+						phoneOptions.showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
+						phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
+						phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
+					}
+					this.enabled = false;
+					if (phoneOptions.skipCheck) {
+						var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+						joinEvent.payload['useMicrophone'] = true;
+						dispatcher.dispatchEvent(joinEvent);
+					} else {
+						dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
+					}
 				} else {
-					LogUtil.debug("Leaving voice conference");
-					dispatcher.dispatchEvent(new LeaveVoiceConferenceEvent());
+					dispatcher.dispatchEvent(new BBBEvent("LEAVE_VOICE_CONFERENCE_EVENT"));
 				}
 				
-				this.enabled = false;
+				
 				var t:Timer = new Timer(3000, 1);
 				t.addEventListener(TimerEvent.TIMER, onTimer);
 				t.start();
@@ -69,19 +80,18 @@
 				this.enabled = true;
 			}
 			
-			private function handleCallConnectedEvent(event:CallConnectedEvent):void {
-				//this.enabled = false;
+			private function handleCallDisconnectedEvent(event:CallDisconnectedEvent):void {
+				this.selected = false;
 			}
 			
-			private function handleCallDisconnectedEvent(event:CallDisconnectedEvent):void {
-				//this.enabled = true;
+			private function handleMicSettingsClosedEvent(event:BBBEvent):void {
 				this.selected = false;
 			}
 			
 			private function handleBBBJoinConferenceEvent(event:BBBEvent):void {
-				var e:JoinVoiceConferenceEvent = new JoinVoiceConferenceEvent();
-				e.useMicrophone = false;
-				dispatcher.dispatchEvent(e);
+				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+				joinEvent.payload['useMicrophone'] = false;
+				dispatcher.dispatchEvent(joinEvent);
 			}
 			
 			//For whatever reason the tooltip does not update when localization is changed dynamically. Overrideing it here

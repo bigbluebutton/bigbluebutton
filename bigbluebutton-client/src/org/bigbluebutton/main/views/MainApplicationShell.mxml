@@ -40,23 +40,21 @@
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
-	<common:APIEventMap />
+	<mate:Listener type="configLoadedEvent" method="initOptions"  />
+	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
+	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.MouseEvent;
-			
+			import com.asfusion.mate.events.Dispatcher;			
+			import flash.events.MouseEvent;			
 			import flexlib.mdi.containers.MDIWindow;
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
-			
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;			
 			import mx.collections.ArrayCollection;
 			import mx.containers.TitleWindow;
 			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
-			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -65,6 +63,7 @@
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.events.AppVersionEvent;
+			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
@@ -74,18 +73,13 @@
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
-			
-			import spark.components.Application;
-			
-			private var globalDispatcher:Dispatcher;
-			
+	
+			private var globalDispatcher:Dispatcher;			
 			private var dispState:String; //full-screen?
 			private var images:Images = new Images();
-			private var stoppedModules:ArrayCollection;
-			
+			private var stoppedModules:ArrayCollection;			
 			private var logs:Logger = new Logger();
-			private var logWindow:LogWindow;
-			
+			private var logWindow:LogWindow;			
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
 			
@@ -98,26 +92,24 @@
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 			[Bindable] private var logs_icon:Class = images.table;
 			[Bindable] private var reset_layout_icon:Class = images.layout;
-			
+
 			public function get mode():String {
 				return _mode;
 			}
 			
-			[Bindable]
-			private var layoutOptions:LayoutOptions = new LayoutOptions();
+			[Bindable] private var layoutOptions:LayoutOptions;
 			
-			private function initOptions():void {
-				layoutOptions.showLogButton = BBB.initConfigManager().config.layout.showDebugWindow;	
-				layoutOptions.showResetLayout = BBB.initConfigManager().config.layout.showResetLayout;	
-				layoutOptions.showVideoLayout = BBB.initConfigManager().config.layout.showVideoLayout;		
-				layoutOptions.showToolbar = BBB.initConfigManager().config.layout.showToolbar;		
-				layoutOptions.showLogoutWindow = BBB.initConfigManager().config.layout.showLogoutWindow;		
+			public function initOptions(e:Event):void {
+				LogUtil.debug("**** Init layout options ***");
+				layoutOptions = new LayoutOptions();
+				layoutOptions.parseOptions();
+				LogUtil.debug("*** show toolbar = " + layoutOptions.showToolbar);
 			}
 			
-			protected function initializeShell():void {					
+			protected function initializeShell():void {	
 				globalDispatcher = new Dispatcher();	
 			}
-
+		
 			protected function initFullScreen():void {				
 				/* Set up full screen handler. */
 				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
@@ -205,17 +197,26 @@
 					if (version != localeVersion) wrongLocaleVersion();
 				}	   			
 	   		}
-	   		
+
+			private function showMicSettings(event:BBBEvent):void {
+				var micSettings:MicSettings = MicSettings(PopUpManager.createPopUp(mdiCanvas, MicSettings, true));				
+				var point1:Point = new Point();
+				// Calculate position of TitleWindow in Application's coordinates. 
+				point1.x = width/2;
+				point1.y = height/2;                
+				micSettings.x = point1.x - (micSettings.width/2);
+				micSettings.y = point1.y - (micSettings.height/2);	
+			}
+			
 	   		private function wrongLocaleVersion():void {
 				var localeWindow:OldLocaleWarnWindow = OldLocaleWarnWindow(PopUpManager.createPopUp(mdiCanvas, OldLocaleWarnWindow, false));
 
 				var point1:Point = new Point();
 	        	// Calculate position of TitleWindow in Application's coordinates. 
-	        	point1.x = 400;
-	        	point1.y = 300;                
-	        	point1 = mdiCanvas.localToGlobal(point1);
-				localeWindow.x = point1.x + 25;
-				localeWindow.y = point1.y + 25;	
+				point1.x = width/2;
+				point1.y = height/2;              
+				localeWindow.x = point1.x - (localeWindow.width/2);
+				localeWindow.y = point1.y - (localeWindow.height/2);	
             }
 			
 			private function handleLogout(e:ConnectionFailedEvent):void {
@@ -225,28 +226,31 @@
 					
 					var point1:Point = new Point();
 					// Calculate position of TitleWindow in Application's coordinates. 
-					point1.x = 400;
-					point1.y = 300;                
-					point1 = localToGlobal(point1);
-					logoutWindow.x = point1.x + 25;
-					logoutWindow.y = point1.y + 25;	
+					point1.x = width/2;
+					point1.y = height/2;                 
+					logoutWindow.x = point1.x - (logoutWindow.width/2);
+					logoutWindow.y = point1.y - (logoutWindow.height/2);
+					
 					if (e is ConnectionFailedEvent) logoutWindow.setReason((e as ConnectionFailedEvent).type);
 					else logoutWindow.setReason("You have logged out of the conference");	
 					
 					mdiCanvas.removeAllWindows(); 				
 				} else {
 					mdiCanvas.removeAllWindows();
-					redirect();
+					var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
+					var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
+					var request:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
+					var urlLoader:URLLoader = new URLLoader();
+					urlLoader.addEventListener(Event.COMPLETE, handleLogoutComplete);	
+					urlLoader.load(request);
 				}				
 			}
 			
-            private function redirect():void { 
-				var pageHost:String = FlexGlobals.topLevelApplication.url.split("/")[0];
-				var pageURL:String = FlexGlobals.topLevelApplication.url.split("/")[2];
-				var url:URLRequest = new URLRequest(pageHost + "//" + pageURL + "/bigbluebutton/api/signOut");
-            	LogUtil.debug("Log out url: " + pageURL);
-				navigateToURL(url, '_self');
-            }
+			private function handleLogoutComplete(e:Event):void {	
+				var request:URLRequest = new URLRequest(BBB.initUserConfigManager().getLogoutUrl());
+				LogUtil.debug("Logging out to: " + BBB.initUserConfigManager().getLogoutUrl());
+				navigateToURL(request, '_self');			
+			}
 			
 			private function attemptReconnect(e:ConnectionFailedEvent):void{
 				/*if (connectionLostWindow != null) return;
@@ -264,7 +268,7 @@
 			
 			private function setLogVisibility(e:ConfigEvent):void{
 		//		logBtn.visible = e.config.showDebug;
-				initOptions();
+		//		initOptions();
 			}
 			
 			private function changeLayout():void{
@@ -285,7 +289,7 @@
 		]]>
 	</mx:Script>
 			
-	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="true" verticalAlign="middle" layoutOptions="{layoutOptions}"/>
+	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="{layoutOptions.showToolbar}" verticalAlign="middle" toolbarOptions="{layoutOptions}"/>
 	<views:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off" effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" width="100%" height="100%">
 		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
@@ -299,6 +303,8 @@
            <mx:dataProvider>
               <mx:Array>
 			      <mx:String>Small videos</mx:String>
+				  <mx:String>Presenter + presentation</mx:String>
+				  <mx:String>Meeting</mx:String>
               </mx:Array>
            </mx:dataProvider>
       	</mx:ComboBox>

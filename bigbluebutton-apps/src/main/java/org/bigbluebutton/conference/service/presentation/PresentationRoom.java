@@ -78,7 +78,7 @@ public class PresentationRoom {
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			log.debug("calling on listener");
 			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
-			log.debug("calling sendUpdateMessage on listener {}",listener.getName());
+			log.debug("calling sendUpdateMessage on listener " + listener.getName());
 			listener.sendUpdateMessage(message);
 		}	
 		
@@ -91,7 +91,7 @@ public class PresentationRoom {
         String messageKey = (String) message.get("messageKey");
              
         if (messageKey.equalsIgnoreCase("CONVERSION_COMPLETED")) {            
-            log.debug("{}[{}]",messageKey,presentationName);
+            log.debug(messageKey + "[" + presentationName + "]");
             presentationNames.add(presentationName);                                
         }           
     }
@@ -105,7 +105,7 @@ public class PresentationRoom {
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			log.debug("calling on listener");
 			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
-			log.debug("calling sendUpdateMessage on listener {}",listener.getName());
+			log.debug("calling sendUpdateMessage on listener " + listener.getName());
 			listener.resizeAndMoveSlide(xOffset, yOffset, widthRatio, heightRatio);
 		}		
 	}
@@ -115,29 +115,30 @@ public class PresentationRoom {
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			log.debug("calling on listener");
 			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
-			log.debug("calling sendUpdateMessage on listener {}",listener.getName());
+			log.debug("calling sendUpdateMessage on listener " + listener.getName());
 			listener.assignPresenter(presenter);
 		}	
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void gotoSlide(int curslide){
-		log.debug("Request to go to slide $it for room $name");
+		log.debug("Request to go to slide " + curslide + "for room " + name);
 		currentSlide = curslide;
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			log.debug("calling on listener");
 			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
-			log.debug("calling sendUpdateMessage on listener {}",listener.getName());
+			log.debug("calling sendUpdateMessage on listener " + listener.getName());
 			listener.gotoSlide(curslide);
 		}			
 	}	
 	
 	@SuppressWarnings("unchecked")
 	public void sharePresentation(String presentationName, Boolean share){
-		log.debug("Request share presentation "+presentationName+" "+share+" for room "+name);
+		log.debug("Request share presentation " + presentationName + " " + share + " for room " + name);
 		sharing = share;
 		if (share) {
 		  currentPresentation = presentationName;
+		  presentationNames.add(presentationName);   
 		} else {
 		  currentPresentation = "";
 		}
@@ -145,17 +146,17 @@ public class PresentationRoom {
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			log.debug("calling on listener");
 			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
-			log.debug("calling sharePresentation on listener {}",listener.getName());
+			log.debug("calling sharePresentation on listener " + listener.getName());
 			listener.sharePresentation(presentationName, share);
 		}			
 	}
 	    
     public void removePresentation(String presentationName){
-        log.debug("Request remove presentation {}",presentationName);
+        log.debug("Request remove presentation " + presentationName);
         int index = presentationNames.indexOf(presentationName);
         
         if (index < 0) {
-            log.warn("Request remove presentation {}. Presentation not found.",presentationName);
+            log.warn("Request remove presentation " + presentationName + ". Presentation not found.");
             return;
         }
         
@@ -164,7 +165,7 @@ public class PresentationRoom {
         for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
             log.debug("calling on listener");
             IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
-            log.debug("calling removePresentation on listener {}",listener.getName());
+            log.debug("calling removePresentation on listener " + listener.getName());
             listener.removePresentation(presentationName);
         }   
         

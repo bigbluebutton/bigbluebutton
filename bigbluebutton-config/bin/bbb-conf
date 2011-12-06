@@ -45,7 +45,7 @@
 
 
 FREESWITCH_INIT_D="/etc/init.d/bbb-freeswitch"
-BBB_VERSION="0.8-beta"
+BBB_VERSION="0.8-beta-3"
 
 if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
 	echo "#"
@@ -267,6 +267,11 @@ stop_bigbluebutton () {
 	if [ -f /etc/init.d/bbb-openoffice-headless ]; then
 		/etc/init.d/bbb-openoffice-headless stop
 	fi
+
+	if [ -f /etc/init.d/bbb-record-core ]; then
+		/etc/init.d/bbb-record-core stop
+	fi
+
 }
 
 start_bigbluebutton () {
@@ -306,6 +311,11 @@ start_bigbluebutton () {
 	/etc/init.d/nginx start
 	/etc/init.d/red5 start
 	/etc/init.d/${SERVLET_CONTAINER} start
+
+	if [ -f /etc/init.d/bbb-record-core ]; then
+		/etc/init.d/bbb-record-core start
+	fi
+
 
 	#
 	# At this point the red5 and servlet container applications are starting up.
@@ -586,7 +596,7 @@ if [ $CHECKOUT ]; then
 	which git
 	if [ $? != 0 ]; then
 		echo "# Installing git and ant"
-		sudo apt-get install git ant -y --force-yes
+		sudo apt-get install git-core ant -y --force-yes
 	fi
         
         BBBSRCGIT="~/dev/source/bigbluebutton"	
@@ -895,7 +905,7 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 		 	echo "# Error: File not found: $file"
 		else
 			if grep -q "^[^=]*=[ ]*$" $file; then
-        			echo "# The following properties in $file has no value."
+        			echo "# The following properties in $file have no value."
         			echo "#     $(grep '^[^=]*=[ ]*$' $file | sed 's/=//g')"
 			fi
 		fi
@@ -1045,7 +1055,14 @@ check_state() {
                 print_header
                 NOT_RUNNING_APPS="${NOT_RUNNING_APPS} redis-server"
         else
-                RUNNING_APPS="${RUNNING_APPS} redis"
+                RUNNING_APPS="${RUNNING_APPS} redis-server"
+        fi
+
+        if ! ps -C god > /dev/null; then
+                print_header
+                NOT_RUNNING_APPS="${NOT_RUNNING_APPS} bbb-record-core"
+        else
+                RUNNING_APPS="${RUNNING_APPS} bbb-record-core"
         fi
 
 	#echo "  Running:     ${RUNNING_APPS}"
@@ -1210,13 +1227,14 @@ check_state() {
 		fi
 
 		SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
-		#IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | head -1 | cut -d: -f2 | awk '{ print $1}')
-		if [ $SIP_SERVER_HOST != $IP ]; then
-			echo 
-			echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host in"
-			echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
-			echo "# does not match the local IP address ($IP)."
-			echo 
+		if [ $SIP_SERVER_HOST != "127.0.0.1" ]; then
+			if [ $SIP_SERVER_HOST != $IP ]; then
+				echo 
+				echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host in"
+				echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
+				echo "# does not match the local IP address ($IP)."
+				echo 
+			fi
 		fi
 	fi
 
@@ -1248,6 +1266,17 @@ check_state() {
                         echo "# does not match the local IP address ($IP)."
                         echo
         fi
+
+	if [ -d ${SERVLET_DIR}/demo ]; then
+		if test ${SERVLET_DIR}/demo.war -nt ${SERVLET_DIR}/demo; then 
+                        echo
+                        echo "# Tomcat6 didn't deploy the updated demo.war file.  To fix:"
+			echo "#"
+                        echo "#    sudo touch ${SERVLET_DIR}/demo.war"
+			echo "#"
+                        echo
+		fi
+	fi
 
 	exit 0
 }
@@ -1849,6 +1878,16 @@ if [ $CLEAN ]; then
 	rm -f /var/log/asterisk/messages* 
 	rm -f /var/log/asterisk/queue* 
 	rm -f /var/log/bigbluebutton/bbb-web.log*
+
+	#
+	# Clean out the log files for record and playback
+	#
+	rm -f /var/log/bigbluebutton/bbb-rap-worker.log*
+	rm -f /var/log/bigbluebutton/archive.log*
+	if [ -d /var/log/bigbluebutton/slides ]; then
+		rm -f /var/log/bigbluebutton/slides/*
+	fi
+		
 	
 	if [ $RED5_DIR ]; then
 		rm -rf $RED5_DIR/log/*

@@ -1,29 +1,28 @@
 <html> 
- <head><title>Preupload Presentation</title></head></p> <p>
+ <head><title>Join & Upload Presentation</title></head></p> <p>
  <body>
  <%@ include file="bbb_api.jsp"%> 
  <%@ include file="demo_header.jsp"%>
 
-<h2>Demo #7: Upload a presentation before joining a Course...</h2> 
-	 <form action="demo7.jsp" method="post" enctype
-		="multipart/form-data" name="form1" id="form1">
+<h2>Join & Upload Presentation</h2> 
+	 <form action="demo7.jsp" method="post" enctype="multipart/form-data" name="form1" id="form1">
 			<table cellpadding="5" cellspacing="5" style="width: 400px;">
 				<tbody>
 					<tr>
 						<td>&nbsp;</td>
-						<td style="text-align: right;">Full Name:</td>
+						<td style="text-align: right;">Full&nbsp;Name:</td>
 						<td style="width: 5px;">&nbsp;</td>
-						<td style="text-align: left"><input type="text"
+						<td style="text-align: left"><input type="text" autofocus required 
 							name="username" />
 						</td>
 					</tr>
 	
 					<tr>
 						<td>&nbsp;</td>
-						<td style="text-align: left">Upload File:</td>
+						<td style="text-align: left">Upload&nbsp;File:</td>
 						<td style="width: 5px;">&nbsp;</td>
 						<td style="text-align: left"><input type="file"
-							name="filename" /><!--  <input type="submit" />-->
+							name="filename" /><!--  <input type="submit" / -->
 						</td>
 					</tr>
 	
@@ -71,7 +70,10 @@
    while (itr.hasNext()) {
 	   FileItem item = (FileItem) itr.next();
 		String xml = null;
-		xml = "<?xml version='1.0' encoding='UTF-8'?> <modules>	<module name='presentation'>		<document url='http://www.samplepdf.com/sample.pdf' />	</module></modules>";
+ 		String url = BigBlueButtonURL.replace("bigbluebutton/","demo/");
+		String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"pdfs/sample.pdf'/></module></modules>";
+ 
+		xml = preUploadPDF;
 	   if (item.isFormField())
 		   {
 		      String name = item.getFieldName();
@@ -85,22 +87,22 @@
 		
 			String itemName = item.getName();
 			 
-			if(itemName==""){
-				xml = "<?xml version='1.0' encoding='UTF-8'?> <modules>	<module name='presentation'>		<document url='http://www.samplepdf.com/sample.pdf' />	</module></modules>";
-			}
-			else {
+			if(itemName!=""){
 				byte[] b = item.get();
 				String encoded = Base64.encodeBase64String(b); 
-				xml = "<?xml version='1.0' encoding='UTF-8'?> <modules>	<module name=\"presentation\">		<document name=\""+itemName+"\">"+encoded+"\"</document>	</module></modules>";
+				xml = "<?xml version='1.0' encoding='UTF-8'?><modules><module name=\"presentation\"><document name=\""+itemName+"\">"+encoded+"\"</document></module></modules>";
 			}
 		} catch (Exception e) {
 		   e.printStackTrace();
 	    }
+
+		 String welcome = "<br>Welcome to <b>%%CONFNAME%%</b>!<br><br>To understand how BigBlueButton works see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a>.<br><br>To join the audio bridge click the headset icon (upper-left hand corner). <b>Please use a headset to avoid causing echo for others.</b>";
+		String welcomeMsg = "The uploaded presentation will appear in moment.<br>" + welcome;
+
 		
-		String joinURL = getJoinURLXML(uname, "Demo Meeting", "Presentation should be uploaded.  It was uploaded as an encoded file", xml );
+		String joinURL = getJoinURLXML(uname, "Join and Upload example", welcomeMsg, xml );
 		if (joinURL.startsWith("http://")) { 
 			%>
-			    <center><h1>Your presentation has been Uploaded</h1></center>
 			<script language="javascript" type="text/javascript">
 			  window.location.href="<%=joinURL%>";
 			</script>
@@ -118,3 +120,10 @@
    }
    }
    %>
+
+<%@ include file="demo_footer.jsp"%>
+
+</body>
+</html>
+
+

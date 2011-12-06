@@ -296,7 +296,7 @@
 			}
 			
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
-				LogUtil.debug("WhiteboardCanvas::aceptOverlayCanvas()");
+				LogUtil.debug("WhiteboardCanvas::acceptOverlayCanvas()");
 				this.bbbCanvas = overlay;
 				//Load existing shapes onto the canvas.
 				dispatchEvent(new PageEvent(PageEvent.LOAD_PAGE));

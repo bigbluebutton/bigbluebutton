@@ -31,14 +31,12 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
+			import com.asfusion.mate.events.Dispatcher;		
 			import mx.managers.HistoryManager;
-			
+			import org.bigbluebutton.core.EventBroadcaster;
+			import org.bigbluebutton.core.managers.ConfigManager2;			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.core.EventBroadcaster;
-			import org.bigbluebutton.core.managers.ConfigManager2;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainApplicationShell;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -146,8 +144,12 @@
 			 * Presentation
 			 */ 
 			
-			public function testPresentationConversion():String {
-				return didPresentationConvert.toString();
+			public function checkPresentation():String {
+				if (didPresentationConvert) {
+					didPresentationConvert = false;
+					return "true";
+				} else
+					return "false";
 			}
 			
 			public function handlePresentationConversion(event:Event):void {
@@ -197,24 +199,22 @@
 				return "true";
 			}			
 
-			private var configMgr:ConfigManager2 = BBB.initConfigManager();
-			
-			private function init():void {
-			EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
-			configMgr.loadConfig();
-			
+			protected function init():void {	
+				EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
+				BBB.initConfigManager();
 			}
 			
 			private function configLoadedEventHandler(e:Event):void {
-			LogUtil.debug("***** Config Loaded ****");
+				LogUtil.debug("***** Config Loaded ****");
+				mainShell.initOptions(null);
 			}
+
 		]]>
 	</mx:Script>	
 	
 	<m:Melomel/>
 	
 	<maps:ApplicationEventMap />	
-
 	<views:MainApplicationShell id="mainShell"/>	
 	
 	<mate:Listener type="{BBBEvent.LOGIN_EVENT}" method="handleLoginEvent"/>
