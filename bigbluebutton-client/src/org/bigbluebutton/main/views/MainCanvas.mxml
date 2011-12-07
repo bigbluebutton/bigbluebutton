@@ -33,6 +33,7 @@
 
 			public static const TOP_2_3:String = "top-two-thirds";
 			public static const BOTTOM_1_3:String = "bottom-one-third";
+			public static const BOTTOM_1_3_RIGHT:String = "bottom-one-third-right";
 			public static const TOP_LEFT:String = "top-left";
 			public static const BOTTOM_LEFT:String = "bottom-left";
 			public static const MIDDLE:String = "middle";
@@ -109,9 +110,15 @@
 					case BOTTOM_1_3:
 						x = 1;
 						y = (this.height/3) * 2 + 2;
-						win.width = this.width;
+						win.width = this.width - leftWindowWidth;
 						win.height = (this.height/3) - 2;
-						break
+						break;
+					case BOTTOM_1_3_RIGHT:
+						x = this.width - leftWindowWidth;
+						y = (this.height/3) * 2 + 2;
+						win.width = leftWindowWidth;
+						win.height = (this.height/3) - 2;
+						break;
 					case TOP_LEFT:
 						x = 1;
 						y = 1;

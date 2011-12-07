@@ -28,8 +28,7 @@ package org.bigbluebutton.modules.listeners.managers
 	import org.bigbluebutton.modules.listeners.views.ListenersWindow;
 
 	public class ListenersManager
-	{
-		
+	{		
 		private var dispatcher:Dispatcher;
 		private var listenersWindow:ListenersWindow;
 		
@@ -38,16 +37,11 @@ package org.bigbluebutton.modules.listeners.managers
 		
 		public function ListenersManager(){
 			dispatcher = new Dispatcher();
-			listenerOptions = new ListenerOptions();
-			
-			var vxml:XML = BBB.getConfigForModule("ListenersModule");
-			if (vxml != null) {
-				listenerOptions.windowVisible = (vxml.@windowVisible.toString().toUpperCase() == "TRUE") ? true : false;
-			}			
 		}
 		
 		public function moduleStarted(event:StartListenersModuleEvent):void{
 			if (listenersWindow == null){
+				listenerOptions = new ListenerOptions();
 				listenersWindow = new ListenersWindow();
 				listenersWindow.listenerOptions = listenerOptions;
 				
