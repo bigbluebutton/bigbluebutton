@@ -24,6 +24,7 @@ import org.red5.logging.Red5LoggerFactory;
 import net.jcip.annotations.ThreadSafe;
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -34,7 +35,7 @@ import java.util.Map;
 @ThreadSafe
 public class Room implements Serializable {
 	private static Logger log = Red5LoggerFactory.getLogger( Room.class, "bigbluebutton" );	
-
+	ArrayList<String> currentPresenter = null;
 	private String name;
 	private Map <Long, Participant> participants;
 
@@ -151,4 +152,17 @@ public class Room implements Serializable {
 		return sum;
 	}
 
+	public ArrayList<String> getCurrentPresenter() {
+		return currentPresenter;
+	}
+	
+	public void assignPresenter(ArrayList<String> presenter){
+		currentPresenter = presenter;
+		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+			log.debug("calling on listener");
+			IRoomListener listener = (IRoomListener) iter.next();
+			log.debug("calling sendUpdateMessage on listener " + listener.getName());
+			listener.assignPresenter(presenter);
+		}	
+	}
 }

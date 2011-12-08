@@ -29,34 +29,12 @@ import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.red5.server.api.IScope;import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 
-public class PresentationService {
-	
+public class PresentationService {	
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationService.class, "bigbluebutton" );
 	
 	private ParticipantsApplication participantsApplication;
 	private PresentationApplication presentationApplication;
 
-	@SuppressWarnings("unchecked")
-	public void assignPresenter(Long userid, String name, Long assignedBy) {
-		log.debug("assignPresenter " + userid + " " + name + " " + assignedBy);
-		IScope scope = Red5.getConnectionLocal().getScope();
-		ArrayList presenter = new ArrayList();
-		presenter.add(userid);
-		presenter.add(name);
-		presenter.add(assignedBy);
-		ArrayList curPresenter = presentationApplication.getCurrentPresenter(scope.getName());
-		participantsApplication.setParticipantStatus(scope.getName(), userid, "presenter", true);
-		
-		if (curPresenter != null){ 
-			long curUserid=(Long) curPresenter.get(0);
-			if( curUserid!= userid){
-				log.debug("Changing presenter from " + curPresenter.get(0) + " to " + userid);
-				participantsApplication.setParticipantStatus(scope.getName(), (Long)curPresenter.get(0), "presenter", false);
-			}
-		}
-		presentationApplication.assignPresenter(scope.getName(), presenter);
-	}
-	
 	public void removePresentation(String name) {
 		log.debug("removePresentation " + name);
 		IScope scope = Red5.getConnectionLocal().getScope();
@@ -67,7 +45,7 @@ public class PresentationService {
 	public Map getPresentationInfo() {
 		log.debug("Getting presentation information.");
 		IScope scope = Red5.getConnectionLocal().getScope();
-		ArrayList curPresenter = presentationApplication.getCurrentPresenter(scope.getName());
+		ArrayList<String> curPresenter = participantsApplication.getCurrentPresenter(scope.getName());
 		int curSlide = presentationApplication.getCurrentSlide(scope.getName());
 		Boolean isSharing = presentationApplication.getSharingPresentation(scope.getName());
 		String currentPresentation = presentationApplication.getCurrentPresentation(scope.getName());
@@ -127,10 +105,10 @@ public class PresentationService {
 		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.resizeAndMoveSlide(scope.getName(), xOffset, yOffset, widthRatio, heightRatio);
 	}
-	
+
 	public void setParticipantsApplication(ParticipantsApplication a) {
-		log.debug("Setting participants application");
-		participantsApplication = a;
+	    log.debug("Setting participants application");
+	    participantsApplication = a;
 	}
 	
 	public void setPresentationApplication(PresentationApplication a) {

@@ -18,10 +18,8 @@
 */
 package org.bigbluebutton.modules.present.managers
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import mx.managers.PopUpManager;
-	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -54,8 +52,6 @@ package org.bigbluebutton.modules.present.managers
 			presentWindow = new PresentationWindow();
 			presentWindow.visible = (e.data.showPresentWindow == "true");
 			openWindow(presentWindow);
-			
-			becomePresenterIfLoneModerator();
 		}
 		
 		public function handleStopModuleEvent():void{
@@ -95,19 +91,6 @@ package org.bigbluebutton.modules.present.managers
 				presentationNames.splice(index, 1);
 				LogUtil.debug("Removing presentation " + e.presentationName + " at index " + index);
 			}
-		}
-		
-		private function becomePresenterIfLoneModerator():void {
-			var participants:Conference = UserManager.getInstance().getConference();
-			if (participants.hasOnlyOneModerator()) {
-				var user:BBBUser = participants.getTheOnlyModerator();
-				if (user.me) {
-					var presenterEvent:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-					presenterEvent.userid = user.userid;
-					presenterEvent.username = user.name;
-					globalDispatcher.dispatchEvent(presenterEvent);
-				} 
-			} 
 		}
 	}
 }

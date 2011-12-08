@@ -63,20 +63,7 @@ package org.bigbluebutton.modules.present.business
 			connection = a.connection;
 			url = connection.uri;
 		}
-		
- 		/**
- 		 * Assign a new presenter 
- 		 * @param e
- 		 * 
- 		 */		
- 		public function assignPresenter(e:RoleChangeEvent):void{
-			var assignTo:Number = e.userid;
-			var name:String = e.username;
-			soService.assignPresenter(assignTo, name, 1);
-			soService.setPresenterName(name);
-			//antAlert.show(e.username + " " + e.userid);
-		}
-		
+				
 		/**
 		 * Start uploading the selected file 
 		 * @param e

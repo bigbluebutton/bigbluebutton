@@ -23,9 +23,12 @@ import org.bigbluebutton.conference.service.messaging.MessageListener;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.MessagingService;
 import org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener;
+import org.bigbluebutton.conference.service.presentation.PresentationRoom;
 import org.red5.logging.Red5LoggerFactory;
 import com.google.gson.Gson;
 import net.jcip.annotations.ThreadSafe;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -191,6 +194,25 @@ public class RoomsManager {
 		this.messagingService.addListener(new RoomsManagerListener());
 		this.messagingService.start();
 	}
+	
+	public ArrayList<String> getCurrentPresenter( String room){
+		Room r = getRoom(room);
+		if (r != null) {
+			return r.getCurrentPresenter();		
+		}	
+		log.warn("Getting presenter from a non-existing room " + room);
+		return null;
+	}
+	
+	public void assignPresenter(String room, ArrayList presenter){
+		Room r = getRoom(room);
+		if (r != null) {
+			r.assignPresenter(presenter);
+			return;
+		}	
+		log.warn("Assigning presenter to a non-existing room " + room);	
+	}
+	
 	public void setConversionUpdatesMessageListener(ConversionUpdatesMessageListener conversionUpdatesMessageListener) {
 		this.conversionUpdatesMessageListener = conversionUpdatesMessageListener;
 	}

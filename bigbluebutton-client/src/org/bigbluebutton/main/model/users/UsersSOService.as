@@ -29,11 +29,13 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
+	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
+	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 
 	public class UsersSOService {
 		public static const NAME:String = "ViewersSOService";
@@ -87,7 +89,8 @@ package org.bigbluebutton.main.model.users {
 							for(var p:Object in result.participants) {
 								participantJoined(result.participants[p]);
 							}
-						}							
+						}	
+						becomePresenterIfLoneModerator();
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -99,6 +102,71 @@ package org.bigbluebutton.main.model.users {
 					}
 				)//new Responder
 			); //_netConnection.call
+		}
+		
+		private function becomePresenterIfLoneModerator():void {
+			var participants:Conference = UserManager.getInstance().getConference();
+			if (participants.hasOnlyOneModerator()) {
+				var user:BBBUser = participants.getTheOnlyModerator();
+				if (user.me) {
+					var presenterEvent:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
+					presenterEvent.userid = user.userid;
+					presenterEvent.username = user.name;
+					var dispatcher:Dispatcher = new Dispatcher();
+					dispatcher.dispatchEvent(presenterEvent);
+				} 
+			} 
+		}
+		
+		public function assignPresenter(userid:Number, name:String, assignedBy:Number):void {
+			var nc:NetConnection = netConnectionDelegate.connection;
+			nc.call("participants.assignPresenter",// Remote function name
+				new Responder(
+					// On successful result
+					function(result:Boolean):void { 
+						
+						if (result) {
+							LogUtil.debug("Successfully assigned presenter to: " + userid);							
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				), //new Responder
+				userid,
+				name,
+				assignedBy
+			); //_netConnection.call
+		}
+		
+		/**
+		 * Called by the server to assign a presenter
+		 */
+		public function assignPresenterCallback(userid:Number, name:String, assignedBy:Number):void {
+			LogUtil.debug("assignPresenterCallback " + userid + "," + name + "," + assignedBy);
+			var dispatcher:Dispatcher = new Dispatcher();
+			var meeting:Conference = UserManager.getInstance().getConference();
+			if (meeting.amIThisUser(userid)) {
+				meeting.setMePresenter(true);				
+				var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
+				e.userid = userid;
+				e.presenterName = name;
+				e.assignerBy = assignedBy;
+				
+				dispatcher.dispatchEvent(e);													
+			} else {				
+				meeting.setMePresenter(false);
+				var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
+				viewerEvent.userid = userid;
+				viewerEvent.presenterName = name;
+				viewerEvent.assignerBy = assignedBy;
+
+				dispatcher.dispatchEvent(viewerEvent);
+			}
 		}
 		
 		public function kickUser(userid:Number):void{
@@ -184,16 +252,6 @@ package org.bigbluebutton.main.model.users {
 			}		
 		}
 					
-		public function assignPresenter(userid:Number, assignedBy:Number):void {	
-			var nc:NetConnection = netConnectionDelegate.connection;
-			nc.call(
-				"participants.assignPresenter",// Remote function name
-				responder,
-				userid,
-				assignedBy
-			); //_netConnection.call
-		}
-
 		public function raiseHand(userid:Number, raise:Boolean):void {
 			var nc:NetConnection = netConnectionDelegate.connection;			
 			nc.call(

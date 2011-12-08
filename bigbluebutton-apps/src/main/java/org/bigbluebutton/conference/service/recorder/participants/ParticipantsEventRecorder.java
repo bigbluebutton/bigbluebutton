@@ -1,7 +1,6 @@
 package org.bigbluebutton.conference.service.recorder.participants;
 
-import java.util.HashMap;
-
+import java.util.ArrayList;
 import org.bigbluebutton.conference.IRoomListener;
 import org.bigbluebutton.conference.Participant;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
@@ -62,6 +61,19 @@ public class ParticipantsEventRecorder implements IRoomListener {
 		recorder.record(session, ev);
 	}
 
+	@Override
+	public void assignPresenter(ArrayList<String> presenter) {
+		log.debug("RECORD module:presentation event:assign_presenter");
+		AssignPresenterRecordEvent event = new AssignPresenterRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());
+		event.setUserId(presenter.get(0).toString());
+		event.setName(presenter.get(1).toString());
+		event.setAssignedBy(presenter.get(2).toString());
+		
+		recorder.record(session, event);
+	}
+	
 	@Override
 	public String getName() {
 		return this.name;
