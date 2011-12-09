@@ -79,7 +79,19 @@ package org.bigbluebutton.main.model.users {
 			
 			return null;	
 		}
+		
+		public function getPresenter():BBBUser {
+			var p:BBBUser;
+			for (var i:int = 0; i < users.length; i++) {
+				p = users.getItemAt(i) as BBBUser;	
+				if (isUserPresenter(p.userid)) {
+					return BBBUser.copy(p);
+				}
+			}		
 			
+			return null;
+		}
+		
 		public function getParticipant(userid:Number):BBBUser {
 			var p:Object = getParticipantIndex(userid);
 			if (p != null) {
@@ -210,6 +222,10 @@ package org.bigbluebutton.main.model.users {
 		
 		public function setMyName(name:String):void {
 			me.name = name;
+		}
+		
+		public function getMyName():String {
+			return me.name;
 		}
 		
 		public function setMyRole(role:String):void {

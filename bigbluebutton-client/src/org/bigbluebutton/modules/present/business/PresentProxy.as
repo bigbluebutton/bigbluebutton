@@ -18,6 +18,8 @@
 */
 package org.bigbluebutton.modules.present.business
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.utils.Timer;
@@ -25,6 +27,10 @@ package org.bigbluebutton.modules.present.business
 	import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.main.model.users.BBBUser;
+	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresenterCommands;
@@ -118,6 +124,8 @@ package org.bigbluebutton.modules.present.business
 			var service:PresentationService = new PresentationService();
 			service.load(fullUri, slides, slideUri);
 			LogUtil.debug('number of slides=' + slides.size());
+			
+			triggerSwitchPresenter();
 		}
 		
 		/**
@@ -142,6 +150,43 @@ package org.bigbluebutton.modules.present.business
 		private function sendViewerNotify(e:TimerEvent):void{
 			if (soService == null) return;
 			soService.gotoSlide(0);
+			
+			
+		}
+		
+		/***
+		 * NOTE:
+		 * This is a workaround to trigger the UI to switch to presenter or viewer.
+		 * The reason is that when the user joins, the MadePresenterEvent in UserServiceSO
+		 * doesn't get received by the modules as the modules hasn't started yet. 
+		 * Need to redo the proper sequence of events but will take a lot of changes.
+		 * (ralam dec 8, 2011).
+		 */
+		public function triggerSwitchPresenter():void {
+			
+			var dispatcher:Dispatcher = new Dispatcher();
+			var meeting:Conference = UserManager.getInstance().getConference();
+			if (meeting.amIPresenter()) {		
+				LogUtil.debug("trigger Switch to Presenter mode ");
+				var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
+				e.userid = meeting.getMyUserId();
+				e.presenterName = meeting.getMyName();
+				e.assignerBy = meeting.getMyUserId();
+				
+				dispatcher.dispatchEvent(e);													
+			} else {				
+				
+				var p:BBBUser = meeting.getPresenter();
+				if (p != null) {
+					LogUtil.debug("trigger Switch to Viewer mode ");
+					var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
+					viewerEvent.userid = p.userid;
+					viewerEvent.presenterName = p.name;
+					viewerEvent.assignerBy = p.userid;
+					
+					dispatcher.dispatchEvent(viewerEvent);					
+				}
+			}
 		}
 		
 		/**
