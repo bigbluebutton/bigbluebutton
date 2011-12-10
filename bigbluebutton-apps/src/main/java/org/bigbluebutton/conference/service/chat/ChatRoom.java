@@ -35,12 +35,12 @@ public class ChatRoom {
 	
 	private final String name;
 	private final Map<String, IChatRoomListener> listeners;
-	ArrayList<String> messages;
+	ArrayList<ChatObject> messages;
 	
 	public ChatRoom(String name) {
 		this.name = name;
 		listeners   = new ConcurrentHashMap<String, IChatRoomListener>();
-		this.messages = new ArrayList<String>();
+		this.messages = new ArrayList<ChatObject>();
 	}
 	
 	public String getName() {
@@ -59,19 +59,19 @@ public class ChatRoom {
 		listeners.remove(listener);		
 	}
 	
-	public List<String> getChatMessages(){
+	public List<ChatObject> getChatMessages(){
 		return messages;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void sendMessage(String msg){
-		messages.add(msg);
+	public void sendMessage(ChatObject chatobj){
+		messages.add(chatobj);
 		
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			log.debug("calling on listener");
 			IChatRoomListener listener = (IChatRoomListener) iter.next();
 			log.debug("calling newChatMessage on listener " + listener.getName());
-			listener.newChatMessage(msg);
+			listener.newChatMessage(chatobj);
 		}
 	}
 		

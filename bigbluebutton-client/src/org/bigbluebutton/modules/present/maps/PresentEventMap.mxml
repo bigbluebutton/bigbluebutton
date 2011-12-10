@@ -67,11 +67,7 @@
 	<EventHandlers type="{UploadEvent.CLOSE_UPLOAD_WINDOW}" >
 		<MethodInvoker generator="{PresentManager}" method="handleCloseUploadWindow" />
 	</EventHandlers>
-	
-	<EventHandlers type="{RoleChangeEvent.ASSIGN_PRESENTER}" >
-		<MethodInvoker generator="{PresentProxy}" method="assignPresenter" arguments="{event}" />
-	</EventHandlers>
-	
+		
 	<EventHandlers type="{UploadEvent.START_UPLOAD}">
 		<MethodInvoker generator="{PresentProxy}" method="startUpload" arguments="{event}" />
 	</EventHandlers>

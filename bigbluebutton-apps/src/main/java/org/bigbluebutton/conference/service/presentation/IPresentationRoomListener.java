@@ -28,7 +28,6 @@ import java.util.Map;
 public interface IPresentationRoomListener {
 	public String getName();
 	public void sendUpdateMessage(Map<String, Object> message);
-	public void assignPresenter(ArrayList presenter);
 	public void gotoSlide(int curslide);
 	public void resizeAndMoveSlide(Double xOffset, Double yOffset, Double widthRatio, Double heightRatio);
 	public void removePresentation(String name);

@@ -53,6 +53,13 @@ public class ParticipantsEventSender implements IRoomListener {
 		so.sendMessage("logout", new ArrayList());
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public void assignPresenter(ArrayList<String> presenter) {
+		log.debug("calling assignPresenterCallback " + presenter.get(0) + ", " + presenter.get(1) + " " + presenter.get(2));
+		so.sendMessage("assignPresenterCallback", presenter);
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void participantJoined(Participant p) {

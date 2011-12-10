@@ -58,6 +58,10 @@ public class RoomListener implements IRoomListener{
 		so.sendMessage("participantLeft", args);
 	}
 
+	public void assignPresenter(ArrayList<String> presenter) {
+		so.sendMessage("assignPresenterCallback", presenter);
+	}
+	
 	public void endAndKickAll() {
 		// no-op
 	}	

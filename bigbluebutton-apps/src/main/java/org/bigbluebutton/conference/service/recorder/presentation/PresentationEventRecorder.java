@@ -66,20 +66,6 @@ public class PresentationEventRecorder implements IPresentationRoomListener {
 		recorder.record(session, event);
 	}
 	
-	@SuppressWarnings("rawtypes")
-	@Override
-	public void assignPresenter(ArrayList presenter) {
-		log.debug("RECORD module:presentation event:assign_presenter");
-		AssignPresenterPresentationRecordEvent event = new AssignPresenterPresentationRecordEvent();
-		event.setMeetingId(session);
-		event.setTimestamp(System.currentTimeMillis());
-		event.setUserId(presenter.get(0).toString());
-		event.setName(presenter.get(1).toString());
-		event.setAssignedBy(presenter.get(2).toString());
-		
-		recorder.record(session, event);
-	}
-
 	@Override
 	public void gotoSlide(int curslide) {
 		log.debug("RECORD module:presentation event:update_slide");

@@ -84,7 +84,7 @@ server {
         }
 
 	# Include specific rules for record and playback
-        include /etc/bigbluebutton/nginx/*;
+        include /etc/bigbluebutton/nginx/*.nginx;
 
         #error_page  404  /404.html;
 

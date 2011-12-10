@@ -96,16 +96,7 @@ public class PresentationRoomsManager {
 		}	
 		log.warn("Sending update message to a non-existing room " + room);			
 	}
-	
-	public ArrayList getCurrentPresenter( String room){
-		PresentationRoom r = getRoom(room);
-		if (r != null) {
-			return r.getCurrentPresenter();		
-		}	
-		log.warn("Getting presenter from a non-existing room " + room);
-		return null;
-	}
-	
+		
 	public Boolean getSharingPresentation(String room){
 		PresentationRoom r = getRoom(room);
 		if (r != null) {
@@ -114,16 +105,7 @@ public class PresentationRoomsManager {
 		log.warn("Getting sharing from a non-existing room " + room);
 		return null;
 	}
-	
-	public void assignPresenter(String room, ArrayList presenter){
-		PresentationRoom r = getRoom(room);
-		if (r != null) {
-			r.assignPresenter(presenter);
-			return;
-		}	
-		log.warn("Assigning presenter to a non-existing room " + room);	
-	}
-	
+		
 	@SuppressWarnings("unchecked")
 	public Map getPresenterSettings(String room){
 		PresentationRoom r = getRoom(room);

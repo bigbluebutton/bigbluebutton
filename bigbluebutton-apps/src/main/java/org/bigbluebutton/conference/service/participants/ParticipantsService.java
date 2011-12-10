@@ -23,8 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.red5.logging.Red5LoggerFactory;
 
+import org.red5.server.api.IScope;
 import org.red5.server.api.Red5;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -36,11 +38,33 @@ public class ParticipantsService {
 	private ParticipantsApplication application;
 
 	@SuppressWarnings("unchecked")
+	public void assignPresenter(Long userid, String name, Long assignedBy) {
+		log.info("Receive assignPresenter request from client [" + userid + "," + name + "," + assignedBy + "]");
+		IScope scope = Red5.getConnectionLocal().getScope();
+		ArrayList<String> presenter = new ArrayList<String>();
+		presenter.add(userid.toString());
+		presenter.add(name);
+		presenter.add(assignedBy.toString());
+		ArrayList<String> curPresenter = application.getCurrentPresenter(scope.getName());
+		application.setParticipantStatus(scope.getName(), userid, "presenter", true);
+		
+		if (curPresenter != null){ 
+			String curUserid = (String) curPresenter.get(0);
+			if (! curUserid.equals(userid.toString())){
+				log.info("Changing the current presenter [" + curPresenter.get(0) + "] to viewer.");
+				application.setParticipantStatus(scope.getName(), new Long(curPresenter.get(0)), "presenter", false);
+			}
+		} else {
+			log.info("No current presenter. So do nothing.");
+		}
+		application.assignPresenter(scope.getName(), presenter);
+	}
+	
+	@SuppressWarnings("unchecked")
 	public Map getParticipants() {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		log.debug("getting participants for " + roomName);
+		log.info("Client is requesting for list of participants in [" + roomName + "].");
 		Map p = application.getParticipants(roomName);
-		log.debug("getting participants for " + roomName);
 		Map participants = new HashMap();
 		if (p == null) {
 			participants.put("count", 0);

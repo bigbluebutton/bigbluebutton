@@ -123,23 +123,20 @@
 						
 			private function onCreationComplete():void{
 				windowControls.maximizeRestoreBtn.toolTip = "Maximize this window";
-				windowControls.minimizeBtn.toolTip = "Minimize this window";
-				
-				videoHolder.addChild(video);
-				
+				windowControls.minimizeBtn.toolTip = "Minimize this window";				
+				videoHolder.addChild(video);				
 				this.addChild(videoHolder);
 				videoHolder.percentWidth = 100;
 				videoHolder.percentHeight = 100;
-				this.width = 600;
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);				
-				fitToActualSize();
-				
+				fitToActualSize();				
 				cursor = new Shape();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);
 				videoHolder.addChild(cursor);
 				videoHolder.addChild(cursorImg);
 				cursor.visible = false;
+				maximize();
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -183,7 +180,6 @@
 				ns.play(stream);	
 				this.stream = stream;
 				this.title = "Viewing Remote Desktop";
-		//		this.title = UserManager.getInstance().getPresenter().name + " is sharing their desktop with you";
 			}
 			
 			public function stopViewing():void {

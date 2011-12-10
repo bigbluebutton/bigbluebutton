@@ -63,7 +63,7 @@ public class ChatRoomsManager {
 		return rooms.get(name);
 	}
 	
-	public List<String> getChatMessages(String room) {
+	public List<ChatObject> getChatMessages(String room) {
 		ChatRoom r = getRoom(room);
 		if (r != null) {
 			return r.getChatMessages();
@@ -72,10 +72,10 @@ public class ChatRoomsManager {
 		return null;
 	}
 	
-	public void sendMessage(String room, String message) {
+	public void sendMessage(String room, ChatObject chatobj) {
 		ChatRoom r = getRoom(room);
 		if (r != null) {
-			r.sendMessage(message);
+			r.sendMessage(chatobj);
 		} else {
 			log.warn("Sending message to a non-existing room " + room);
 		}
