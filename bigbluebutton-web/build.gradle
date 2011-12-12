@@ -39,7 +39,7 @@ repositories {
 dependencies {   
     	//redis
 	compile 'redis.clients:jedis:2.0.0'
-	compile 'commons-pool:commons-pool:1.5.5'
+	compile 'commons-pool:commons-pool:1.5.6'
 	compile 'commons-lang:commons-lang:2.5'
         compile 'com.google.code.gson:gson:1.7.1'
 	

@@ -18,16 +18,13 @@ public class RedisMessagingService implements MessagingService {
 	private static Logger log = LoggerFactory.getLogger(RedisMessagingService.class);
 	
 	private JedisPool redisPool;
-	private String host;
-	private int port;
 	private final Set<MessageListener> listeners = new HashSet<MessageListener>();
 
 	private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable pubsubListener;
 
-	public RedisMessagingService(String host, int port) {
-		this.host = host;
-		this.port = port;
+	public RedisMessagingService(){
+		
 	}
 	
  	@Override
@@ -76,10 +73,9 @@ public class RedisMessagingService implements MessagingService {
 
 	public void start() {
 		log.debug("Starting redis pubsub...");		
-		//Currently, the pool gets blocked for publish if a resource subscribe to a channel
-		final Jedis jedis = new Jedis(this.host,this.port);
+
+		final Jedis jedis = redisPool.getResource();
 		try {
-			jedis.connect();
 			pubsubListener = new Runnable() {
 			    public void run() {
 			    	jedis.psubscribe(new PubSubListener(), MessagingConstants.BIGBLUEBUTTON_PATTERN);       			
@@ -87,7 +83,7 @@ public class RedisMessagingService implements MessagingService {
 			};
 			exec.execute(pubsubListener);
 		} catch (Exception e) {
-			log.error("Cannot connect to [" + host + ":" + port + "]");
+			log.error("Error in subscribe: " + e.getMessage());
 		}
 	}
 
