@@ -69,15 +69,7 @@ public class PresentationApplication {
 		}
 		log.warn("Sending update message to a non-existant room " + room);	
 	}
-	
-	public ArrayList getCurrentPresenter(String room){
-		if (roomsManager.hasRoom(room)){
-			return roomsManager.getCurrentPresenter(room);			
-		}
-		log.warn("Getting presenter on a non-existant room " + room);
-		return null;
-	}
-	
+		
 	public ArrayList<String> getPresentations(String room){
 	   if (roomsManager.hasRoom(room)){
             return roomsManager.getPresentations(room);           
@@ -134,15 +126,7 @@ public class PresentationApplication {
 		}
 		log.warn("resizeAndMoveSlide on a non-existant room " + room);		
 	}
-	
-	public void assignPresenter(String room, ArrayList presenter){
-		if (roomsManager.hasRoom(room)){
-			roomsManager.assignPresenter(room, presenter);
-			return;
-		}
-		log.warn("Assigning presenter on a non-existant room " + room);	
-	}
-	
+		
 	public void gotoSlide(String room, int slide){
 		if (roomsManager.hasRoom(room)){
 			log.debug("Request to go to slide " + slide + " for room " + room);

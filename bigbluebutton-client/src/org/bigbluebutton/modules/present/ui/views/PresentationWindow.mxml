@@ -89,7 +89,7 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
              			
             public static const TITLE:String = "Presentation";
-			private var presenterName:String = "";
+//			private var presenterName:String = "";
 			private static const NEXT_BUTTON:String = "Next";
 			private static const PREVIOUS_BUTTON:String = "Previous";
 			private static const GOTO_PAGE_BUTTON:String = "Go to Page..."
@@ -312,7 +312,7 @@
 			}
 			
 			private function setPresentersName(name:String):void {
-				if (name != null) presenterName = name;
+//				if (name != null) presenterName = name;
 			}
 			
 			private function handlePresentationLoadedEvent(e:PresentationEvent):void {	

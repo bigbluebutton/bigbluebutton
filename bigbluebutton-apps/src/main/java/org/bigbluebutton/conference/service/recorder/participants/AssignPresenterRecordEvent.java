@@ -1,14 +1,12 @@
-package org.bigbluebutton.conference.service.recorder.presentation;
+package org.bigbluebutton.conference.service.recorder.participants;
 
+public class AssignPresenterRecordEvent extends AbstractParticipantRecordEvent {
 
-public class AssignPresenterPresentationRecordEvent extends
-		AbstractPresentationRecordEvent {
-	
-	public AssignPresenterPresentationRecordEvent() {
+	public AssignPresenterRecordEvent() {
 		super();
 		setEvent("AssignPresenterEvent");
 	}
-	
+		
 	public void setUserId(String userid) {
 		eventMap.put("userid", userid);
 	}

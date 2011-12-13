@@ -20,7 +20,8 @@ package org.bigbluebutton.conference.service.participants;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import java.util.Map;import org.bigbluebutton.conference.RoomsManager;
+import java.util.ArrayList;
+import java.util.Map;import org.bigbluebutton.conference.RoomsManager;
 import org.bigbluebutton.conference.Room;import org.bigbluebutton.conference.Participant;import org.bigbluebutton.conference.IRoomListener;
 
 public class ParticipantsApplication {
@@ -102,6 +103,22 @@ public class ParticipantsApplication {
 		}
 		log.debug("participant failed to join room " + roomName);
 		return false;
+	}
+	
+	public ArrayList<String> getCurrentPresenter(String room){
+		if (roomsManager.hasRoom(room)){
+			return roomsManager.getCurrentPresenter(room);			
+		}
+		log.warn("Getting presenter on a non-existant room " + room);
+		return null;
+	}
+	
+	public void assignPresenter(String room, ArrayList presenter){
+		if (roomsManager.hasRoom(room)){
+			roomsManager.assignPresenter(room, presenter);
+			return;
+		}
+		log.warn("Assigning presenter on a non-existant room " + room);	
 	}
 	
 	public void setRoomsManager(RoomsManager r) {

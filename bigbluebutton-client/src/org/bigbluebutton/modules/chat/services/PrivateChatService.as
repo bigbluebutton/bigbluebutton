@@ -20,7 +20,9 @@ package org.bigbluebutton.modules.chat.services
 {
 	import flash.events.IEventDispatcher;
 	
+	import org.bigbluebutton.main.views.LanguageSelector;
 	import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
+	import org.bigbluebutton.modules.chat.model.ChatObject;
 	import org.bigbluebutton.modules.chat.model.MessageVO;
 	
 
@@ -49,11 +51,18 @@ package org.bigbluebutton.modules.chat.services
 		
 		public function sendChatMessageEvent(event:SendPrivateChatMessageEvent):void {
 			trace("Receive receivedSendPrivateChatMessageEvent");
-			var newMessage:String;			
 			/*newMessage = "<font color=\"#" + event.color + "\"><b>[" + 
 						attributes.username +" - "+ event.time + "]</b> " + event.message + "</font><br/>";*/
-			newMessage = event.message + "|" + attributes.username + "|" + event.color + "|" + event.time + "|" + event.language + "|" + attributes.userid;
-			var messageVO:MessageVO = new MessageVO(newMessage, attributes.userid, event.toUser);
+			var chatobj:ChatObject = new ChatObject();
+			chatobj.message = event.message;
+			chatobj.username = attributes.username;
+			chatobj.color = event.color;
+			chatobj.time = event.time;
+			chatobj.language = event.language;
+			chatobj.userid = attributes.userid;
+			
+			var messageVO:MessageVO = new MessageVO(chatobj, attributes.userid, event.toUser);
+			
 			chatSOService.sendMessage(messageVO);
 		}
 		

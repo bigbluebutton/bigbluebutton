@@ -36,6 +36,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
 	import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 	import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
+	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
 
 	public class UserService {
@@ -129,11 +130,7 @@ package org.bigbluebutton.main.model.users
 		public function get participants():ArrayCollection {
 			return UserManager.getInstance().getConference().users;
 		}
-		
-		public function assignPresenter(assignTo:Number):void {
-			_userSOService.assignPresenter(assignTo, UserManager.getInstance().getConference().getMyUserId());
-		}
-		
+				
 		public function addStream(e:BroadcastStartedEvent):void {
 			_userSOService.addStream(e.userid, e.stream);
 		}
@@ -152,6 +149,17 @@ package org.bigbluebutton.main.model.users
 		
 		public function kickUser(e:KickUserEvent):void{
 			if (this.isModerator()) _userSOService.kickUser(e.userid);
+		}
+		
+		/**
+		 * Assign a new presenter 
+		 * @param e
+		 * 
+		 */		
+		public function assignPresenter(e:RoleChangeEvent):void{
+			var assignTo:Number = e.userid;
+			var name:String = e.username;
+			_userSOService.assignPresenter(assignTo, name, 1);
 		}
 	}
 }

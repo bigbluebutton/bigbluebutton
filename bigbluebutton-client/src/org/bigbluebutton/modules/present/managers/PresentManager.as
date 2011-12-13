@@ -24,8 +24,9 @@ package org.bigbluebutton.modules.present.managers
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
+	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
@@ -54,8 +55,6 @@ package org.bigbluebutton.modules.present.managers
 			presentWindow = new PresentationWindow();
 			presentWindow.visible = (e.data.showPresentWindow == "true");
 			openWindow(presentWindow);
-			
-			becomePresenterIfLoneModerator();
 		}
 		
 		public function handleStopModuleEvent():void{
@@ -66,7 +65,13 @@ package org.bigbluebutton.modules.present.managers
 			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			event.window = window;
 			globalDispatcher.dispatchEvent(event);
+			
+			
+			
 		}
+
+
+		
 		
 		public function handleOpenUploadWindow(e:UploadEvent):void{
 			if (uploadWindow != null) return;
@@ -95,19 +100,6 @@ package org.bigbluebutton.modules.present.managers
 				presentationNames.splice(index, 1);
 				LogUtil.debug("Removing presentation " + e.presentationName + " at index " + index);
 			}
-		}
-		
-		private function becomePresenterIfLoneModerator():void {
-			var participants:Conference = UserManager.getInstance().getConference();
-			if (participants.hasOnlyOneModerator()) {
-				var user:BBBUser = participants.getTheOnlyModerator();
-				if (user.me) {
-					var presenterEvent:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-					presenterEvent.userid = user.userid;
-					presenterEvent.username = user.name;
-					globalDispatcher.dispatchEvent(presenterEvent);
-				} 
-			} 
 		}
 	}
 }

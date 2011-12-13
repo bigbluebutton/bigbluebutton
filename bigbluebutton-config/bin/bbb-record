@@ -89,9 +89,6 @@ usage() {
         echo
         echo "   bbb-record [options]"
         echo
-        echo "Configuration:"
-        echo "   --version                        Display BigBlueButton version (packages)"
-	echo
         echo "Reporting:"
         echo "   --list                           List all recordings"
 	echo

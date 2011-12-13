@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.conference;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
@@ -88,6 +89,10 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 		}
 	}
 
+	public void assignPresenter(ArrayList<String> presenter) {
+		// Do nothing.
+	}
+	
 	public void endAndKickAll() {
 		// no-op
 	}

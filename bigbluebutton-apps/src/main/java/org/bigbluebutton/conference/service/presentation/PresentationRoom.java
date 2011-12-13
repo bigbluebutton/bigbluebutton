@@ -40,9 +40,6 @@ public class PresentationRoom {
 	private final String name;
 	private final Map<String, IPresentationRoomListener> listeners;
 	
-	//TODO: check this type of attributes...
-	@SuppressWarnings("unchecked")
-	ArrayList currentPresenter = null;
 	int currentSlide = 0;
 	Boolean sharing = false;
 	String currentPresentation = "";
@@ -109,17 +106,7 @@ public class PresentationRoom {
 			listener.resizeAndMoveSlide(xOffset, yOffset, widthRatio, heightRatio);
 		}		
 	}
-	
-	public void assignPresenter(ArrayList presenter){
-		currentPresenter = presenter;
-		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
-			log.debug("calling on listener");
-			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
-			log.debug("calling sendUpdateMessage on listener " + listener.getName());
-			listener.assignPresenter(presenter);
-		}	
-	}
-	
+		
 	@SuppressWarnings("unchecked")
 	public void gotoSlide(int curslide){
 		log.debug("Request to go to slide " + curslide + "for room " + name);
@@ -188,10 +175,6 @@ public class PresentationRoom {
 
 	public ArrayList<String> getPresentationNames() {
 		return presentationNames;
-	}
-
-	public ArrayList getCurrentPresenter() {
-		return currentPresenter;
 	}
 
 	public Double getxOffset() {
