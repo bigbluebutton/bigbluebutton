@@ -46,12 +46,14 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 		return "PARTICIPANT:UPDATE:ROOM";
 	}
 	
-	public void participantStatusChange(Long userid, String status, Object value){
+	public void participantStatusChange(Participant p, String status, Object value){
 		if (messagingService != null) {
 			HashMap<String,String> map= new HashMap<String, String>();
 			map.put("meetingId", this.room.getName());
 			map.put("messageId", MessagingConstants.USER_STATUS_CHANGE_EVENT);
-			map.put("userid", userid.toString());
+			
+			//In the API, it's shown the externalUserID
+			map.put("userid", p.getExternalUserID());
 			map.put("status", status);
 			map.put("value", value.toString());
 			
@@ -66,7 +68,7 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 			HashMap<String,String> map= new HashMap<String, String>();
 			map.put("meetingId", this.room.getName());
 			map.put("messageId", MessagingConstants.USER_JOINED_EVENT);
-			map.put("userid", p.getUserid().toString());
+			map.put("userid", p.getExternalUserID());
 			map.put("fullname", p.getName());
 			map.put("role", p.getRole());
 			
@@ -76,12 +78,12 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 		}
 	}
 	
-	public void participantLeft(Long userid) {		
+	public void participantLeft(Participant p) {		
 		if (messagingService != null) {
 			HashMap<String,String> map= new HashMap<String, String>();
 			map.put("meetingId", this.room.getName());
 			map.put("messageId", MessagingConstants.USER_LEFT_EVENT);
-			map.put("userid", userid.toString());
+			map.put("userid", p.getExternalUserID());
 			
 			Gson gson= new Gson();
 			messagingService.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));

@@ -68,8 +68,8 @@ public class Room implements Serializable {
 
 	public void addParticipant(Participant participant) {
 		synchronized (this) {
-			log.debug("adding participant " + participant.getUserid());
-			participants.put(participant.getUserid(), participant);
+			log.debug("adding participant " + participant.getInternalUserID());
+			participants.put(participant.getInternalUserID(), participant);
 //			unmodifiableMap = Collections.unmodifiableMap(participants)
 		}
 		log.debug("Informing roomlisteners " + listeners.size());
@@ -82,29 +82,31 @@ public class Room implements Serializable {
 
 	public void removeParticipant(Long userid) {
 		boolean present = false;
+		Participant p = null;
 		synchronized (this) {
 			present = participants.containsKey(userid);
 			if (present) {
 				log.debug("removing participant");
-				participants.remove(userid);
+				p = participants.remove(userid);
 			}
 		}
 		if (present) {
 			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
 				IRoomListener listener = (IRoomListener) it.next();
 				log.debug("calling participantLeft on listener " + listener.getName());
-				listener.participantLeft(userid);
+				listener.participantLeft(p);
 			}
 		}
 	}
 
 	public void changeParticipantStatus(Long userid, String status, Object value) {
 		boolean present = false;
+		Participant p = null;
 		synchronized (this) {
 			present = participants.containsKey(userid);
 			if (present) {
 				log.debug("change participant status");
-				Participant p = participants.get(userid);
+				p = participants.get(userid);
 				p.setStatus(status, value);
 				//participants.put(userid, p);
 				//unmodifiableMap = Collections.unmodifiableMap(participants);
@@ -114,7 +116,7 @@ public class Room implements Serializable {
 			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
 				IRoomListener listener = (IRoomListener) it.next();
 				log.debug("calling participantStatusChange on listener " + listener.getName());
-				listener.participantStatusChange(userid, status, value);
+				listener.participantStatusChange(p, status, value);
 			}
 		}		
 	}
