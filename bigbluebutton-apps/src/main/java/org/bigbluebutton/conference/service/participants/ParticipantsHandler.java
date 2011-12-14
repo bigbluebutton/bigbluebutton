@@ -115,8 +115,8 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		} else {
 			log.debug("roomLeave - session is NOT null");
 		}
-		Long userid = bbbSession.getUserid();
-		participantsApplication.participantLeft(bbbSession.getSessionName(), userid);
+		Long internalUserID = bbbSession.getInternalUserID();
+		participantsApplication.participantLeft(bbbSession.getSessionName(), internalUserID);
 	}
 
 	private void setupRoom(IScope scope) {
@@ -161,7 +161,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 			log.warn("bbb session is null");
 		}
 		
-		Long userid = bbbSession.getUserid();
+		Long userid = bbbSession.getInternalUserID();
 		log.debug(APP + ":participantJoin - userid " + userid);
 		String username = bbbSession.getUsername();
 		log.debug(APP + ":participantJoin - username " + username);

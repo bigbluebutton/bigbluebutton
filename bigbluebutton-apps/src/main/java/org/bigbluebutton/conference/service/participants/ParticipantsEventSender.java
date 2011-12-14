@@ -63,27 +63,27 @@ public class ParticipantsEventSender implements IRoomListener {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void participantJoined(Participant p) {
-		log.debug("A participant has joined " + p.getUserid());
+		log.debug("A participant has joined " + p.getInternalUserID());
 		ArrayList args = new ArrayList();
 		args.add(p.toMap());
-		log.debug("Sending participantJoined " + p.getUserid() + " to client.");
+		log.debug("Sending participantJoined " + p.getExternalUserID() + " to client.");
 		so.sendMessage("participantJoined", args);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void participantLeft(Long userid) {
+	public void participantLeft(Participant p) {
 		ArrayList args = new ArrayList();
-		args.add(userid);
+		args.add(p.getInternalUserID());
 		so.sendMessage("participantLeft", args);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void participantStatusChange(Long userid, String status, Object value) {
-		log.debug("A participant's status has changed " + userid + " " + status + " " + value);
+	public void participantStatusChange(Participant p, String status, Object value) {
+		log.debug("A participant's status has changed " + p.getInternalUserID() + " " + status + " " + value);
 		ArrayList args = new ArrayList();
-		args.add(userid);
+		args.add(p.getInternalUserID());
 		args.add(status);
 		args.add(value);
 		so.sendMessage("participantStatusChange", args);

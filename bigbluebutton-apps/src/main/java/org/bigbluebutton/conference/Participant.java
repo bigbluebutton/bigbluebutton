@@ -31,19 +31,19 @@ import java.lang.Long;
  */
 @ThreadSafe
 public class Participant implements Serializable {
-	private Long userid;
+	private Long internalUserID;
 	private String name;
 	private String role = "VIEWER";
-	private String externUserID;
+	private String externalUserID;
 	
 	private final Map status;
 	private Map<String, Object> unmodifiableStatus;
 	
-	public Participant(Long userid, String name, String role, String externUserID, Map<String, Object> status) {
-		this.userid = userid;
+	public Participant(Long internalUserID, String name, String role, String externalUserID, Map<String, Object> status) {
+		this.internalUserID = internalUserID;
 		this.name = name;
 		this.role = role;
-		this.externUserID = externUserID;
+		this.externalUserID = externalUserID;
 		this.status = new ConcurrentHashMap<String, Object>(status);
 		unmodifiableStatus = Collections.unmodifiableMap(status);
 	}
@@ -56,16 +56,16 @@ public class Participant implements Serializable {
 		return name;
 	}
 	
-	public Long getUserid() {
-		return userid;
+	public Long getInternalUserID() {
+		return internalUserID;
 	}
 	
 	public String getRole() {
 		return role;
 	}
 	
-	public String getExternUserID() {
-	   return externUserID;
+	public String getExternalUserID() {
+	   return externalUserID;
 	}
 	
 	/**
@@ -104,7 +104,7 @@ public class Participant implements Serializable {
 	
 	public Map toMap() {
 		Map m = new HashMap();
-		m.put("userid", userid);
+		m.put("userid", internalUserID);
 		m.put("name", name);
 		m.put("role", role);
 		/**

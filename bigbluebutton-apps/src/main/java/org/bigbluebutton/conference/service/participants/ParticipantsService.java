@@ -83,7 +83,7 @@ public class ParticipantsService {
 	    		Map pm = new HashMap();
 	    		for (Iterator it = pc.iterator(); it.hasNext();) {
 	    			Participant ap = (Participant) it.next();
-	    			pm.put(ap.getUserid(), ap.toMap()); 
+	    			pm.put(ap.getInternalUserID(), ap.toMap()); 
 	    		}  
 				participants.put("participants", pm);
 			}			
