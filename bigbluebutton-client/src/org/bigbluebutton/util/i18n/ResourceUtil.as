@@ -163,9 +163,11 @@ package org.bigbluebutton.util.i18n
 		private function localeChangeComplete(event:ResourceEvent):void {
 			// Set the preferred locale and master as backup.
 			if (preferredLocale != MASTER_LOCALE) {
+				LogUtil.debug("Loaded locale [" + preferredLocale + "] but setting [" + MASTER_LOCALE + "] as fallback");
 				resourceManager.localeChain = [preferredLocale, MASTER_LOCALE];
 				localeIndex = getIndexForLocale(preferredLocale);
 			} else {
+				LogUtil.debug("Failed to load locale [" + preferredLocale + "]. Using [" + MASTER_LOCALE + "] instead.");
 				resourceManager.localeChain = [MASTER_LOCALE];
 				preferredLocale = MASTER_LOCALE;
 				localeIndex = getIndexForLocale(preferredLocale);
@@ -191,7 +193,18 @@ package org.bigbluebutton.util.i18n
 		
 		[Bindable("change")]
 		public function getString(resourceName:String, parameters:Array = null, locale:String = null):String{
-			return resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, locale);
+			/**
+			 * Get the translated string from the current locale. If empty, get the string from the master
+			 * locale. Locale chaining isn't working because mygengo actually puts the key and empty value
+			 * for untranslated strings into the locale file. So, when Flash does a lookup, it will see that
+			 * the key is available in the locale and thus not bother falling back to the master locale.
+			 *    (ralam dec 15, 2011).
+			 */
+			var localeTxt:String = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, null);
+			if (localeTxt == "") {
+				localeTxt = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, MASTER_LOCALE);
+			}
+			return localeTxt;
 		}
 		
 		public function getCurrentLanguageCode():String{
