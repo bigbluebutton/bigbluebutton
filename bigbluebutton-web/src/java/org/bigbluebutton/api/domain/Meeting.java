@@ -198,6 +198,7 @@ public class Meeting {
 	}
 	
 	private boolean nobodyJoined(int expiry) {
+		if (expiry == 0) return false; /* Meeting stays created infinitely */
 		return (System.currentTimeMillis() - createdTime) >  (expiry * MILLIS_IN_A_MINUTE);
 	}
 	
