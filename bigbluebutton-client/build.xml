@@ -2,7 +2,7 @@
 <!-- BigBlueButton Client build.xml for use by Hudson builds.   -->
 <project name="BigBlueButton Client" basedir="." default="clean-build-all" >
     	<property environment="env" />
-    	<property name="STATIC_RSL" value="false" />
+    	<property name="STATIC_RSL" value="true" />
     	<property name="BUILD_ENV" value="DEV" />
     	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
     	<property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
