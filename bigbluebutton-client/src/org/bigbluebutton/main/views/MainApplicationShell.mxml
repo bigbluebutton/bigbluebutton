@@ -85,7 +85,7 @@
 			
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
-			[Bindable] public var appVersion:String = '0.7';
+			[Bindable] public var appVersion:String = ' ';
 			private var localeVersion:String = 'old';
 			[Bindable] public var numberOfModules:int = 0;
 			
