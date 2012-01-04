@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.present.business {
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.modules.present.events.CursorEvent;
 	import org.bigbluebutton.modules.present.events.MoveEvent;
@@ -334,6 +335,9 @@ package org.bigbluebutton.modules.present.business {
 								sendPresentationName(u as String);
 							}
 						}
+						
+						// Force switching the presenter.
+						triggerSwitchPresenter();
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -344,6 +348,41 @@ package org.bigbluebutton.modules.present.business {
 					}
 				) //new Responder
 			); //_netConnection.call
+		}
+		
+		/***
+		 * NOTE:
+		 * This is a workaround to trigger the UI to switch to presenter or viewer.
+		 * The reason is that when the user joins, the MadePresenterEvent in UserServiceSO
+		 * doesn't get received by the modules as the modules hasn't started yet. 
+		 * Need to redo the proper sequence of events but will take a lot of changes.
+		 * (ralam dec 8, 2011).
+		 */
+		public function triggerSwitchPresenter():void {
+			
+			var dispatcher:Dispatcher = new Dispatcher();
+			var meeting:Conference = UserManager.getInstance().getConference();
+			if (meeting.amIPresenter()) {		
+				LogUtil.debug("trigger Switch to Presenter mode ");
+				var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
+				e.userid = meeting.getMyUserId();
+				e.presenterName = meeting.getMyName();
+				e.assignerBy = meeting.getMyUserId();
+				
+				dispatcher.dispatchEvent(e);													
+			} else {				
+				
+				var p:BBBUser = meeting.getPresenter();
+				if (p != null) {
+					LogUtil.debug("trigger Switch to Viewer mode ");
+					var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
+					viewerEvent.userid = p.userid;
+					viewerEvent.presenterName = p.name;
+					viewerEvent.assignerBy = p.userid;
+					
+					dispatcher.dispatchEvent(viewerEvent);					
+				}
+			}
 		}
 		
 		private function sendPresentationName(presentationName:String):void {
