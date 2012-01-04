@@ -6,10 +6,8 @@ server {
 	
         if ($request_uri ~* bigbluebutton/api(.*)?$)
 	{
-		rewrite ^(.*)$ /api_maintenance.xml redirect;
-		add_header Content-Type "text/xml; charset=UTF-8";
+		return 404;
 	}
-
         try_files $uri  /maintenance.html;
 
      }        
