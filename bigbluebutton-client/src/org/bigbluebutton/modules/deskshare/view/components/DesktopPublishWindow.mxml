@@ -132,6 +132,8 @@
 			
 			public function shareScreen(fullScreen:Boolean):void {
 				LogUtil.debug("Calling shareScreen");
+				btnFSPublish.enabled = false;
+				btnRegionPublish.enabled = false;
 				startSharing(connection, uri, room, fullScreen);
 			}
 			
