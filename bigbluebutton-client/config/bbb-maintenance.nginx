@@ -3,6 +3,14 @@ server {
      server_name  192.168.1.32;
      root    /var/www/bigbluebutton-default;
      location / {
-               try_files $uri  /maintenance.html;
-        }        
+	
+        if ($request_uri ~* bigbluebutton/api(.*)?$)
+	{
+		rewrite ^(.*)$ /api_maintenance.xml redirect;
+		add_header Content-Type "text/xml; charset=UTF-8";
+	}
+
+        try_files $uri  /maintenance.html;
+
+     }        
 }
