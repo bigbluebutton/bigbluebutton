@@ -62,7 +62,7 @@ module BigBlueButton
         }
       }
 
-      BigBlueButton.logger.info("Creating manifest.xml = \n#{result}")
+      BigBlueButton.logger.info("Task: Creating manifest.xml = \n#{result}")
 
       aFile = File.new(manifest,"w+")
         aFile.write(result)
@@ -99,7 +99,7 @@ module BigBlueButton
           xml.tag!("dcterms:identifier", metadata[:identifier])
       }
 
-      BigBlueButton.logger.info("Creating dublincore.xml = \n#{result}")
+      BigBlueButton.logger.info("Task: Creating dublincore.xml = \n#{result}")
 
       aFile = File.new(dublin_core_xml, "w+")
       aFile.write(result)
@@ -107,7 +107,7 @@ module BigBlueButton
     end
 
     def self.zip_artifacts(webcam, deskshare, dublincore, manifest, zipped_file)
-      BigBlueButton.logger.info("Zipping package... #{zipped_file} #{webcam} #{deskshare} #{dublincore} #{manifest}")
+      BigBlueButton.logger.info("Task: Zipping package... #{zipped_file} #{webcam} #{deskshare} #{dublincore} #{manifest}")
       files = [webcam, deskshare, dublincore, manifest]
       Zip::ZipFile.open(zipped_file, Zip::ZipFile::CREATE) do |zipfile|
         files.each { |f| 
@@ -119,7 +119,7 @@ module BigBlueButton
     end
     
     def upload_to_matterhorn(host, username, password, file)
-      puts "Sending zipped package..."
+      BigBlueButton.logger.info("Task: Sending zipped package")
       c = Curl::Easy.new("#{host}/ingest/rest/addZippedMediaPackage")
       c.http_auth_types = :digest
       c.username = username
