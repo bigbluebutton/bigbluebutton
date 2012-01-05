@@ -22,7 +22,7 @@
 # Changelog:
 #   2011-08-18 FFD  Inital Version
 #   2011-11-20 FFD  Added more checks for processing of recording
-
+#   2012-01-04 GUG  Add option to check for errors
 
 set -e
 #set -x
@@ -96,6 +96,7 @@ usage() {
         echo "   --watch                          Watch processing of recordings"
         echo "   --rebuild [meetingID]            rebuild the output for meetingID"
         echo "   --deletall                       delete all meetings and recordings"
+        echo "   --check                          check for errors while archiving, processing or publishing recordings"
 	echo
 }
 
@@ -135,6 +136,12 @@ while [ $# -gt 0 ]; do
         if [ "$1" = "-deleteall" -o "$1" = "--deleteall" ]; then
 		need_root
                 DELETEALL=1
+		shift
+                continue
+        fi
+        if [ "$1" = "-check" -o "$1" = "--check" ]; then
+		need_root
+                CHECK=1
 		shift
                 continue
         fi
@@ -352,4 +359,120 @@ fi
 
 if [ $WATCH ]; then
 	watch -n 2 "bbb-record --list20"
+fi
+
+if [ $CHECK ]; then
+
+
+	#
+	#Failures while archiving files
+	#
+        if [ -f /var/log/bigbluebutton/archive.log ]; then
+	  grep "Failed to" "/var/log/bigbluebutton/archive.log" > /tmp/t
+     	  if [ -s /tmp/t ]; then
+                  echo "  -- ERRORS found while archiving files -- "
+                  cat /tmp/t
+                  echo
+          fi
+	fi 
+	#
+	#Errors while processing slides
+	#
+	grep -B 3 "ERROR -- : Error:" /var/log/bigbluebutton/slides/process-* | egrep -w 'Task:| Error:' > /tmp/t
+	if [ -s /tmp/t ]; then
+		echo "  -- ERRORS found while processing slides /var/log/bigbluebutton/slides/process-* -- "
+		cat /tmp/t
+		echo
+	fi
+
+	#
+	#Errors while publishing slides
+	#
+	grep  "ERROR -- : Error:" /var/log/bigbluebutton/slides/publish-* > /tmp/t
+	if [ -s /tmp/t ]; then
+		echo "  -- ERRORS found while publishing slides /var/log/bigbluebutton/slides/publish-* -- "
+		cat /tmp/t
+		echo
+	fi
+
+
+  	#
+        #Errors while processing matterhorn
+        #
+        grep  "ERROR -- : Error:" /var/log/bigbluebutton/matterhorn-process-* > /tmp/t
+        if [ -s /tmp/t ]; then
+                echo "  -- ERRORS found while processing matterhorn /var/log/bigbluebutton/matterhorn-process-* -- "
+                cat /tmp/t
+                echo
+        fi
+
+        #
+        #Errors while publishing matterhorn
+        #
+        grep  "ERROR -- : Error:" /var/log/bigbluebutton/matterhorn-publish-* > /tmp/t
+        if [ -s /tmp/t ]; then
+                echo "  -- ERRORS found while publishing matterhorn /var/log/bigbluebutton/matterhorn-publish-* -- "
+                cat /tmp/t
+                echo
+        fi
+
+
+
+
+	#
+	# Additional checks for record and playback
+	#
+	rm -rf /tmp/t
+	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
+		  sudo grep -i Error /var/log/bigbluebutton/slides-process-* > /tmp/t 
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-process-*.log -- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+
+	rm -rf /tmp/t
+	if ls /var/log/bigbluebutton/slides-publish-* > /dev/null 2>1; then
+		  sudo grep -i Error /var/log/bigbluebutton/slides-publish-* > /tmp/t 
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-publish-*.log -- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+
+	rm -rf /tmp/t
+	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
+		for file in /var/log/bigbluebutton/slides-process-*; do 
+		  if [ ! -f $(echo $file | sed 's/process/publish/g') ]; then 
+			echo "  $file" >> /tmp/t
+                  fi 
+                done
+
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing: found process file but not publish -- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+
+
+	rm -rf /tmp/t
+	if ls /var/bigbluebutton/recording/status/recorded/*.done > /dev/null 2>1; then
+		for file in /var/bigbluebutton/recording/status/recorded/*.done; do 
+		  if [ ! -f $(echo $file | sed 's/recorded/archived/g') ]; then 
+			echo "  $file" >> /tmp/t
+                  fi 
+                done
+
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing: found recorded meeting but no archive files-- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+	
+	
+	exit 0
 fi
