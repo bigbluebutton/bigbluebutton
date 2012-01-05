@@ -104,6 +104,7 @@
 				layoutOptions = new LayoutOptions();
 				layoutOptions.parseOptions();
 				LogUtil.debug("*** show toolbar = " + layoutOptions.showToolbar);
+				toolbar.displayToolbar();
 			}
 			
 			protected function initializeShell():void {	
