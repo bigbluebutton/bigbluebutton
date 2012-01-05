@@ -30,7 +30,6 @@
 		width="100%" height="100%" 
 		creationComplete="initializeShell()" xmlns:common="org.bigbluebutton.common.*">
 		
-	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="setLogVisibility" />
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
 	<mate:Listener type="{AddUIComponentToMainCanvas.ADD_COMPONENT}" method="addComponentToCanvas" />
@@ -266,27 +265,7 @@
 			private function handleRecordStatusEvent(evt:RecordStatusEvent):void {
 				Alert.show(evt.status, evt.module);
 			}
-			
-			private function setLogVisibility(e:ConfigEvent):void{
-		//		logBtn.visible = e.config.showDebug;
-		//		initOptions();
-			}
-			
-			private function changeLayout():void{
-				switch (cmbLayout.selectedIndex) {
-					case 0:
-						mdiCanvas.layoutSmallVideos();
-						break;
-					case 1:
-						mdiCanvas.layoutPresenter();
-						break;
-					case 2:
-						mdiCanvas.layoutMeeting();
-						break;
-				}
-				cmbLayout.selectedIndex = -1;
-			}
-			
+						
 		]]>
 	</mx:Script>
 			
@@ -300,15 +279,6 @@
 	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
-		<mx:ComboBox width="100" height="20" id="cmbLayout" change="changeLayout()" prompt="Layout" selectedItem="-1" visible="{layoutOptions.showVideoLayout}">
-           <mx:dataProvider>
-              <mx:Array>
-			      <mx:String>Small videos</mx:String>
-				  <mx:String>Presenter + presentation</mx:String>
-				  <mx:String>Meeting</mx:String>
-              </mx:Array>
-           </mx:dataProvider>
-      	</mx:ComboBox>
 		<mx:Button width="20" height="20" visible="{layoutOptions.showLogButton}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
 		<mx:Button width="20" height="20" visible="{layoutOptions.showResetLayout}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
 	</mx:ControlBar>
