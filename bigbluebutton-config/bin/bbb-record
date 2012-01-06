@@ -373,7 +373,7 @@ if [ $CHECK ]; then
                   echo "  -- ERRORS found while archiving files -- "
                   cat /tmp/t
                   echo
-		  grep "ASCII" /tmp/t > /tmp/u
+		  grep "on ASCII" /tmp/t > /tmp/u
                   if [ -s /tmp/u ]; then
                           echo "  -- events.xml was not created. There is a problem with the character encoding "
                           echo
