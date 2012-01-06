@@ -126,7 +126,9 @@ module BigBlueButton
         unique_events.concat(audio_paddings)
         return unique_events.sort! {|a,b| a.start_event_timestamp.to_i <=> b.start_event_timestamp.to_i}
       else
-        return nil
+        first_event = BigBlueButton::Events.first_event_timestamp(events_xml).to_i
+        last_event = BigBlueButton::Events.last_event_timestamp(events_xml).to_i
+        return [create_gap_audio_event(last_event - first_event + 1, last_event, first_event)]
       end
     end
         
