@@ -258,39 +258,39 @@ public class MeetingService {
 		}
 
 		@Override
-		public void userJoined(String meetingId, String userId, String name, String role) {
+		public void userJoined(String meetingId, String internalUserId, String externalUserId, String name, String role) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				User user = new User(userId, name, role);
+				User user = new User(internalUserId, externalUserId, name, role);
 				m.userJoined(user);
 				log.debug("New user in meeting:" + user.getFullname());
 			}
 		}
 
 		@Override
-		public void userLeft(String meetingId, String userId) {
+		public void userLeft(String meetingId, String internalUserId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				User user = m.userLeft(userId);
+				User user = m.userLeft(internalUserId);
 				if(user != null){
 					log.debug("User removed from meeting:" + user.getFullname());
 					return;
 				}
-				log.warn("The participant " + userId + " doesn't exist in the meeting " + meetingId);				
+				log.warn("The participant " + internalUserId + " doesn't exist in the meeting " + meetingId);				
 			}
 		}
 		
 		@Override
-		public void updatedStatus(String meetingId, String userId, String status, String value) {
+		public void updatedStatus(String meetingId, String internalUserId, String status, String value) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				User user = m.getUserById(userId);
+				User user = m.getUserById(internalUserId);
 				if(user != null){
 					user.setStatus(status, value);
 					log.debug("Setting new status value for participant:"+user.getFullname());
 					return;
 				}
-				log.warn("The participant " + userId + " doesn't exist in the meeting " + meetingId);
+				log.warn("The participant " + internalUserId + " doesn't exist in the meeting " + meetingId);
 			}
 		}
 	}

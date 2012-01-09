@@ -165,7 +165,7 @@ public class Meeting {
 	}
 	
 	public void userJoined(User user){
-		this.users.put(user.getUserid(), user);
+		this.users.put(user.getInternalUserId(), user);
 	}
 	
 	public User userLeft(String userid){

@@ -1121,7 +1121,7 @@ class ApiController {
             attendees() {
               meeting.getUsers().each { att ->
                 attendee() {
-                  userID("${att.userid}")
+                  userID("${att.externalUserId}")
                   fullName("${att.fullname}")
                   role("${att.role}")
                 }

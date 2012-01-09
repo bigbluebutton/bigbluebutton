@@ -138,26 +138,27 @@ public class RedisMessagingService implements MessagingService {
 				String meetingId = map.get("meetingId");
 				String messageId = map.get("messageId");
 				if(MessagingConstants.USER_JOINED_EVENT.equalsIgnoreCase(messageId)){
-					String userid = map.get("userid");
+					String internalUserId = map.get("internalUserId");
+					String externalUserId = map.get("externalUserId");
 					String fullname = map.get("fullname");
 					String role = map.get("role");
 					
 					for (MessageListener listener : listeners) {
-						listener.userJoined(meetingId, userid, fullname, role);
+						listener.userJoined(meetingId, internalUserId, externalUserId, fullname, role);
 					}
 				} else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageId)){
-					String userid = map.get("userid");
+					String internalUserId = map.get("internalUserId");
 					String status = map.get("status");
 					String value = map.get("value");
 					
 					for (MessageListener listener : listeners) {
-						listener.updatedStatus(meetingId, userid, status, value);
+						listener.updatedStatus(meetingId, internalUserId, status, value);
 					}
 				} else if(MessagingConstants.USER_LEFT_EVENT.equalsIgnoreCase(messageId)){
-					String userid = map.get("userid");
+					String internalUserId = map.get("internalUserId");
 					
 					for (MessageListener listener : listeners) {
-						listener.userLeft(meetingId, userid);
+						listener.userLeft(meetingId, internalUserId);
 					}
 				}
 			}
