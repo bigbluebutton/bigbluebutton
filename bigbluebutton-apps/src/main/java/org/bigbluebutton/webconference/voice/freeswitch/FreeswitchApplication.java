@@ -75,54 +75,81 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     }
     
     @Override
-    public void startup() {
+    public void startup() {    	
         Client c = manager.getESLClient();
-        c.addEventListener( this );
-        c.cancelEventSubscriptions();
-        c.setEventSubscriptions( "plain", "all" );
-        c.addEventFilter( "Event-Name", "heartbeat" );
-        c.addEventFilter( "Event-Name", "custom" );
-        c.addEventFilter( "Event-Name", "background_job" );
-        
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(FreeswitchApplication.class.getName()).log(Level.SEVERE, null, ex);
+        if (c.canSend()) {
+            c.addEventListener( this );
+            c.cancelEventSubscriptions();
+            c.setEventSubscriptions( "plain", "all" );
+            c.addEventFilter( "Event-Name", "heartbeat" );
+            c.addEventFilter( "Event-Name", "custom" );
+            c.addEventFilter( "Event-Name", "background_job" );
+            
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException ex) {
+                java.util.logging.Logger.getLogger(FreeswitchApplication.class.getName()).log(Level.SEVERE, null, ex);
+            }        	
         }
 
-
         //Start Heartbeat and exception Event Observer Monitor
+        startHeartbeatMonitor();
+    }
+
+    private void startHeartbeatMonitor() {      
         if(heartbeatMonitor == null) { //Only startup once. as startup will be called for reconnect.
             heartbeatMonitor = new FreeswitchHeartbeatMonitor(manager, this);
             this.addObserver(heartbeatMonitor);
             heartbeatMonitor.start();
-        }
+        }   	
     }
-
+    
     @Override
     public void shutdown() {
         heartbeatMonitor.stop();
     }
 
     @Override
-    public void populateRoom(String room) {
-        PopulateRoomCommand prc = new PopulateRoomCommand(room, USER);
-        EslMessage response = manager.getESLClient().sendSyncApiCommand(prc.getCommand(), prc.getCommandArgs());
-        prc.handleResponse(response, conferenceEventListener);
+    public void populateRoom(String room) {       
+        Client c = manager.getESLClient();
+        if (c.canSend()) {
+        	PopulateRoomCommand prc = new PopulateRoomCommand(room, USER);
+            EslMessage response = c.sendSyncApiCommand(prc.getCommand(), prc.getCommandArgs());
+            prc.handleResponse(response, conferenceEventListener);        	
+        } else {
+        	log.warn("Can't send populate room request to FreeSWITCH as we are not connected.");
+        	// Let's see if we can recover the connection.
+        	startHeartbeatMonitor();
+        }
     }
 
     @Override
     public void mute(String room, Integer participant, Boolean mute) {
-        MuteParticipantCommand mpc = new MuteParticipantCommand(room, participant, mute, USER);
-        String jobId = manager.getESLClient().sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
-        log.debug("mute called for room [{}] jobid [{}]", room, jobId);
+    	Client c = manager.getESLClient();
+        if (c.canSend()) {
+            MuteParticipantCommand mpc = new MuteParticipantCommand(room, participant, mute, USER);
+            String jobId = c.sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
+            log.debug("mute called for room [{}] jobid [{}]", room, jobId);        	
+        }else {
+        	log.warn("Can't send mute request to FreeSWITCH as we are not connected.");
+        	// Let's see if we can recover the connection.
+        	startHeartbeatMonitor();
+        }
+
     }
 
     @Override
     public void eject(String room, Integer participant) {
-        EjectParticipantCommand mpc = new EjectParticipantCommand(room, participant, USER);
-        String jobId = manager.getESLClient().sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
-        log.debug("eject/kick called for room [{}] jobid [{}]", room, jobId);
+        Client c = manager.getESLClient();
+        if (c.canSend()) {
+        	EjectParticipantCommand mpc = new EjectParticipantCommand(room, participant, USER);
+            String jobId = c.sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
+            log.debug("eject/kick called for room [{}] jobid [{}]", room, jobId);        	
+        }else {
+        	log.warn("Can't send eject request to FreeSWITCH as we are not connected.");
+        	// Let's see if we can recover the connection.
+        	startHeartbeatMonitor();
+        }
     }
     
     @Override
@@ -133,10 +160,17 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     	if (log.isDebugEnabled())
     		log.debug("Asking Freeswitch to start recording in {}", voicePath);
     	
-    	RecordConferenceCommand rcc = new RecordConferenceCommand(room, USER, true, voicePath);
-    	log.debug(rcc.getCommand() + rcc.getCommandArgs());
-    	EslMessage response = manager.getESLClient().sendSyncApiCommand(rcc.getCommand(), rcc.getCommandArgs());
-        rcc.handleResponse(response, conferenceEventListener);
+    	Client c = manager.getESLClient();
+        if (c.canSend()) {
+        	RecordConferenceCommand rcc = new RecordConferenceCommand(room, USER, true, voicePath);
+        	log.debug(rcc.getCommand() + rcc.getCommandArgs());
+        	EslMessage response = manager.getESLClient().sendSyncApiCommand(rcc.getCommand(), rcc.getCommandArgs());
+            rcc.handleResponse(response, conferenceEventListener);       	
+        }else {
+        	log.warn("Can't send record request to FreeSWITCH as we are not connected.");
+        	// Let's see if we can recover the connection.
+        	startHeartbeatMonitor();
+        }
     }
 
     @Override

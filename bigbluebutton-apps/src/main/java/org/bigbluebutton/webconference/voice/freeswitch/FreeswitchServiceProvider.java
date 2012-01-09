@@ -21,6 +21,8 @@
 */
 package org.bigbluebutton.webconference.voice.freeswitch;
 
+import java.net.ConnectException;
+
 import org.freeswitch.esl.client.inbound.Client;
 import org.freeswitch.esl.client.inbound.InboundConnectionFailure;
 import org.freeswitch.esl.client.manager.ManagerConnection;
@@ -75,23 +77,19 @@ public class FreeswitchServiceProvider implements ConferenceServiceProvider {
 			return;
 		}
 
-
 		if (connect()) {
-//			ping = new KeepAlivePing(connection);
-//			ping.start();
             appDelegate.startup();
 		}
 	}
 	
 	private boolean connect() {
-		log.info("Logging in as [" + connection.getPassword() +
-				"] to [" + connection.getHostname() + ":" + connection.getPort() + "]");
+		log.info("Logging in as [" + connection.getPassword() + "] to [" + connection.getHostname() + ":" + connection.getPort() + "]");
 		try {
 			connection.connect();
 			return true;
-                } catch ( InboundConnectionFailure e ) {
+        } catch ( InboundConnectionFailure e ) {
 			log.error( "Connect to FreeSwitch ESL socket failed", e );
-		}
+		} 
 		return false;
 	}
 	
