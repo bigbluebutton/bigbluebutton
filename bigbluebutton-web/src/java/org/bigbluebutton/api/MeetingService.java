@@ -272,7 +272,11 @@ public class MeetingService {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
 				User user = m.userLeft(userId);
-				log.debug("User removed from meeting:" + user.getFullname());
+				if(user != null){
+					log.debug("User removed from meeting:" + user.getFullname());
+					return;
+				}
+				log.warn("The participant " + userId + " doesn't exist in the meeting " + meetingId);				
 			}
 		}
 		
@@ -281,8 +285,12 @@ public class MeetingService {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
 				User user = m.getUserById(userId);
-				user.setStatus(status, value);
-				log.debug("Setting new status value for participant:"+user.getFullname());
+				if(user != null){
+					user.setStatus(status, value);
+					log.debug("Setting new status value for participant:"+user.getFullname());
+					return;
+				}
+				log.warn("The participant " + userId + " doesn't exist in the meeting " + meetingId);
 			}
 		}
 	}
