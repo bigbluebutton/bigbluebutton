@@ -68,8 +68,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	@Override
 	public boolean appStart(IScope scope) {
 		log.debug(APP + ":appStart " + scope.getName());
-		conferenceService.startup();
-		return true;
+		return conferenceService.startup();
 	}
 
 	@Override

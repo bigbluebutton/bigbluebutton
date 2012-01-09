@@ -71,14 +71,16 @@ public class FreeswitchServiceProvider implements ConferenceServiceProvider {
 	}
 
 	@Override
-	public void startup() {
+	public boolean startup() {
 		if (connection == null) {
 			log.error("Cannot start application as ESL Client has not been set.");
-			return;
+			return false;
 		}
 
 		if (connect()) {
-            appDelegate.startup();
+            return appDelegate.startup();
+		} else {
+			return false;
 		}
 	}
 	

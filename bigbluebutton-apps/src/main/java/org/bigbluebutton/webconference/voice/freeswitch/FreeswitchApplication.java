@@ -75,7 +75,7 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     }
     
     @Override
-    public void startup() {    	
+    public boolean startup() {    	
         Client c = manager.getESLClient();
         if (c.canSend()) {
             c.addEventListener( this );
@@ -89,11 +89,13 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
                 Thread.sleep(5000);
             } catch (InterruptedException ex) {
                 java.util.logging.Logger.getLogger(FreeswitchApplication.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
             }        	
         }
 
         //Start Heartbeat and exception Event Observer Monitor
         startHeartbeatMonitor();
+        return true;
     }
 
     private void startHeartbeatMonitor() {      
