@@ -337,7 +337,7 @@ public class ParamsProcessorUtil {
 	
 	public String processLogoutUrl(String logoutUrl) {
 		if (StringUtils.isEmpty(logoutUrl)) {
-	        if (StringUtils.isEmpty(defaultLogoutUrl)) {          
+	        if ((StringUtils.isEmpty(defaultLogoutUrl)) || defaultLogoutUrl.equalsIgnoreCase("default")) {          
         		return defaultServerUrl;
         	} else {
         		return defaultLogoutUrl;
