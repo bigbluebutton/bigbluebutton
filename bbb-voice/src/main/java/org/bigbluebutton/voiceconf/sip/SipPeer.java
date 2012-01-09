@@ -102,8 +102,13 @@ public class SipPeer implements SipRegisterAgentListener {
 
     public void call(String clientId, String callerName, String destination) {
     	if (!registered) {
-    		log.warn("Call request for {} but not registered.", id);
-    		return;
+    		/* We call FreeSWITCH even if we are not registered.
+    		 * We don't actually need to register. We can remove the registration step
+    		 * in the future. In FS view, we will act as a gateway that forwards calls
+    		 * to it.
+    		 */
+    		log.warn("We are not registered. Have {} call to {} anyway.", callerName, destination);
+//    		return;
     	}
     	
     	SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);    	
