@@ -24,7 +24,7 @@ package org.bigbluebutton.webconference.voice;
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
 
 public interface ConferenceServiceProvider {
-	public void startup();
+	public boolean startup();
 	public void shutdown();
 	public void populateRoom(String room);
 	public void mute(String room, Integer participant, Boolean mute);	

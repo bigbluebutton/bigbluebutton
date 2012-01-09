@@ -59,7 +59,10 @@
 						phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
 					}
 					this.enabled = false;
-					if (phoneOptions.skipCheck) {
+					if (phoneOptions.skipCheck || noMicrophone()) {
+						/*
+						 * If the user had no mic, let her join but she'll just be listening.	
+						*/
 						var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
 						joinEvent.payload['useMicrophone'] = true;
 						dispatcher.dispatchEvent(joinEvent);
@@ -74,6 +77,10 @@
 				var t:Timer = new Timer(3000, 1);
 				t.addEventListener(TimerEvent.TIMER, onTimer);
 				t.start();
+			}
+			
+			private function noMicrophone():Boolean {
+				return (Microphone.getMicrophone() == null || Microphone.names.length == 0);
 			}
 			
 			private function onTimer(e:TimerEvent):void{

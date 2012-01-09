@@ -102,7 +102,14 @@ public class SipPeer implements SipRegisterAgentListener {
 
     public void call(String clientId, String callerName, String destination) {
     	if (!registered) {
-    		log.warn("Call request for {} but not registered.", id);
+    		/* 
+    		 * If we failed to register with FreeSWITCH, reject all calls right away.
+    		 * This way the user will know that there is a problem as quickly as possible.
+    		 * If we pass the call, it take more that 30seconds for the call to timeout
+    		 * (in case FS is offline) and the user will be kept wondering why the call
+    		 * isn't going through.
+    		 */
+    		log.warn("We are not registered to FreeSWITCH. We are not allowing {} to call {}.", callerName, destination);
     		return;
     	}
     	

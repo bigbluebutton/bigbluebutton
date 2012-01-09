@@ -63,8 +63,6 @@
 			public var toolbarOptions:LayoutOptions = new LayoutOptions();
 						
 			public function displayToolbar():void{
-				if (toolbarOptions == null) LogUtil.error("***** TOOLBAR OPTIONS is NULL!!!!");
-				else LogUtil.error("***** TOOLBAR OPTIONS is NOT NULL!!!!");
 				toolbarOptions = new LayoutOptions();
 				toolbarOptions.parseOptions();	
 				if (toolbarOptions.showToolbar) {

@@ -105,8 +105,7 @@ public class FreeswitchHeartbeatMonitor implements Observer {
                         log.info("Logging off fom [" + connection.toString() + "]");
                         connection.disconnect();
                     }
-                    log.info("Logging in as [" + connection.getPassword() +
-                                    "] to [" + connection.getHostname() + ":" + connection.getPort() + "]");
+                    log.info("Logging in as [" + connection.getPassword() + "] to [" + connection.getHostname() + ":" + connection.getPort() + "]");
                     try {
                         connection.connect();
                         eventListner.startup(); //Re-call startup to setup eventListner and filters...
