@@ -167,7 +167,10 @@ package org.bigbluebutton.util.i18n
 				resourceManager.localeChain = [preferredLocale, MASTER_LOCALE];
 				localeIndex = getIndexForLocale(preferredLocale);
 			} else {
-				LogUtil.debug("Failed to load locale [" + preferredLocale + "]. Using [" + MASTER_LOCALE + "] instead.");
+				if (preferredLocale != MASTER_LOCALE) {
+					LogUtil.debug("Failed to load locale [" + preferredLocale + "].");
+				}
+				LogUtil.debug("Using [" + MASTER_LOCALE + "] locale.");
 				resourceManager.localeChain = [MASTER_LOCALE];
 				preferredLocale = MASTER_LOCALE;
 				localeIndex = getIndexForLocale(preferredLocale);
