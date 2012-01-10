@@ -52,7 +52,9 @@
 			import mx.events.FlexEvent;
 			import mx.events.ValidationResultEvent;
 			import mx.managers.PopUpManager;
+		        import mx.utils.*;
 			import mx.validators.*;
+
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
@@ -160,7 +162,7 @@
         			enableControls();
 					displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.maxUploadFileExceededAlert'));
         		} else {
-        			var presentationName:String = fileToUpload.name
+        			var presentationName:String = StringUtil.trim(fileToUpload.name);
 	        		LogUtil.debug("Uploading file : " + presentationName);
 	        		
 					var filenamePattern:RegExp = /(.+)(\..+)/i;
