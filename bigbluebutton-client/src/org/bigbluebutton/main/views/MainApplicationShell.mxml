@@ -44,16 +44,20 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
-			import flash.events.MouseEvent;			
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.events.MouseEvent;
+			
 			import flexlib.mdi.containers.MDIWindow;
-			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;			
+			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
+			
 			import mx.collections.ArrayCollection;
 			import mx.containers.TitleWindow;
 			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
+			
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -92,6 +96,9 @@
 			[Bindable] private var logs_icon:Class = images.table;
 			[Bindable] private var reset_layout_icon:Class = images.layout;
 
+			private var receivedConfigLocaleVer:Boolean = false;
+			private var receivedResourceLocaleVer:Boolean = false;
+			
 			public function get mode():String {
 				return _mode;
 			}
@@ -117,10 +124,19 @@
 			}					
 			
 			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
-				appVersion = event.appVersion;
-				localeVersion = event.localVersion;
+				if (event.configLocaleVersion == true) {
+					receivedConfigLocaleVer = true;
+					appVersion = event.appVersion;
+					localeVersion = event.localeVersion;
+					LogUtil.debug("!!!!!Received locale version fron config.xml");
+				} else {
+					receivedResourceLocaleVer = true;
+					LogUtil.debug("!!!!!Received locale version fron locale file.");
+				}
 				
-				if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
+				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
+					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
+				}				
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {

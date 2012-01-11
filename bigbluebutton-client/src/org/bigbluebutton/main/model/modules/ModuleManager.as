@@ -150,7 +150,8 @@ package org.bigbluebutton.main.model.modules
 			var dispatcher:Dispatcher = new Dispatcher();
 			var versionEvent:AppVersionEvent = new AppVersionEvent();
 			versionEvent.appVersion = configParameters.version;	
-			versionEvent.localVersion = configParameters.localeVersion; 
+			versionEvent.localeVersion = configParameters.localeVersion; 
+			versionEvent.configLocaleVersion = true;
 			versionEvent.suppressLocaleWarning = configParameters.suppressLocaleWarning;
 			dispatcher.dispatchEvent(versionEvent);			
 		}

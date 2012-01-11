@@ -19,6 +19,7 @@
 package org.bigbluebutton.util.i18n
 {
 	import com.adobe.utils.StringUtil;
+	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -37,6 +38,7 @@ package org.bigbluebutton.util.i18n
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.LocaleChangeEvent;
+	import org.bigbluebutton.main.events.AppVersionEvent;
 
 	public class ResourceUtil extends EventDispatcher {
 		private static var instance:ResourceUtil = null;
@@ -179,9 +181,16 @@ package org.bigbluebutton.util.i18n
 				preferredLocale = MASTER_LOCALE;
 				localeIndex = getIndexForLocale(preferredLocale);
 			}
-			
+			sendAppAndLocaleVersions();
 			update();
 		}
+		
+		private function sendAppAndLocaleVersions():void {
+			var dispatcher:Dispatcher = new Dispatcher();
+			var versionEvent:AppVersionEvent = new AppVersionEvent();
+			versionEvent.configLocaleVersion = false;
+			dispatcher.dispatchEvent(versionEvent);			
+		}		
 		
 		/**
 		 * Defaults to DEFAULT_LANGUAGE when an error is thrown by the ResourceManager 
