@@ -79,9 +79,11 @@ package org.bigbluebutton.util.i18n
 				
 		private function handleComplete(e:Event):void{
 			parse(new XML(e.target.data));		
-			
-			loadMasterLocale(MASTER_LOCALE);			
+									
 			preferredLocale = getDefaultLocale();
+			if (preferredLocale != MASTER_LOCALE) {
+				loadMasterLocale(MASTER_LOCALE);
+			}
 			setPreferredLocale(preferredLocale);
 		}
 		
@@ -141,8 +143,10 @@ package org.bigbluebutton.util.i18n
 		
 		private function loadResource(language:String):IEventDispatcher {
 			// Add a random string on the query so that we don't get a cached version.
+			
 			var date:Date = new Date();
 			var localeURI:String = 'locale/' + language + '_resources.swf?a=' + date.time;
+			LogUtil.debug("Loading locale at [ " + localeURI + " ]");
 			return resourceManager.loadResourceModule(localeURI, false);
 		}		
 		
@@ -184,6 +188,7 @@ package org.bigbluebutton.util.i18n
 		 * @param event
 		 */        
 		private function handleResourceNotLoaded(event:ResourceEvent):void{
+			LogUtil.warn("Resource locale [" + preferredLocale + "] could not be loaded.");
 			resourceManager.localeChain = [MASTER_LOCALE];
 			preferredLocale = MASTER_LOCALE;
 			localeIndex = getIndexForLocale(preferredLocale);
@@ -204,7 +209,7 @@ package org.bigbluebutton.util.i18n
 			 *    (ralam dec 15, 2011).
 			 */
 			var localeTxt:String = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, null);
-			if (localeTxt == "") {
+			if ((localeTxt == "") || (localeTxt == null)) {
 				localeTxt = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, MASTER_LOCALE);
 			}
 			return localeTxt;
