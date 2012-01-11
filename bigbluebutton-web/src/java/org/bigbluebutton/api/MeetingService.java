@@ -243,8 +243,13 @@ public class MeetingService {
 		public void meetingStarted(String meetingId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				log.debug("Setting meeting started time");
-				m.setStartTime(System.currentTimeMillis());
+				if(m.getStartTime() == 0){
+					log.debug("Setting meeting started time");
+					m.setStartTime(System.currentTimeMillis());
+				}else{
+					log.debug("The meeting has been started again...");
+				}
+				m.setEndTime(0);
 			}
 		}
 
