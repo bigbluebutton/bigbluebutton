@@ -243,18 +243,27 @@ public class MeetingService {
 		public void meetingStarted(String meetingId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				log.debug("Setting meeting started time");
-				m.setStartTime(System.currentTimeMillis());
+				if(m.getStartTime() == 0){
+					log.debug("Setting meeting " + meetingId + " started time");
+					m.setStartTime(System.currentTimeMillis());
+				}else{
+					log.debug("The meeting " + meetingId + " has been started again...");
+				}
+				m.setEndTime(0);
+				return;
 			}
+			log.warn("The meeting " + meetingId + " doesn't exist");
 		}
 
 		@Override
 		public void meetingEnded(String meetingId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				log.debug("Setting meeting end time");
+				log.debug("Setting meeting " + meetingId + " end time");
 				m.setEndTime(System.currentTimeMillis());
+				return;
 			}
+			log.warn("The meeting " + meetingId + " doesn't exist");
 		}
 
 		@Override
@@ -263,8 +272,10 @@ public class MeetingService {
 			if (m != null) {
 				User user = new User(internalUserId, externalUserId, name, role);
 				m.userJoined(user);
-				log.debug("New user in meeting:" + user.getFullname());
+				log.debug("New user in meeting " + meetingId + ":" + user.getFullname());
+				return;
 			}
+			log.warn("The meeting " + meetingId + " doesn't exist");
 		}
 
 		@Override
@@ -273,11 +284,13 @@ public class MeetingService {
 			if (m != null) {
 				User user = m.userLeft(internalUserId);
 				if(user != null){
-					log.debug("User removed from meeting:" + user.getFullname());
+					log.debug("User removed from meeting " + meetingId + ":" + user.getFullname());
 					return;
 				}
-				log.warn("The participant " + internalUserId + " doesn't exist in the meeting " + meetingId);				
+				log.warn("The participant " + internalUserId + " doesn't exist in the meeting " + meetingId);
+				return;
 			}
+			log.warn("The meeting " + meetingId + " doesn't exist");
 		}
 		
 		@Override
@@ -287,11 +300,13 @@ public class MeetingService {
 				User user = m.getUserById(internalUserId);
 				if(user != null){
 					user.setStatus(status, value);
-					log.debug("Setting new status value for participant:"+user.getFullname());
+					log.debug("Setting new status value in meeting " + meetingId + " for participant:"+user.getFullname());
 					return;
 				}
 				log.warn("The participant " + internalUserId + " doesn't exist in the meeting " + meetingId);
+				return;
 			}
+			log.warn("The meeting " + meetingId + " doesn't exist");
 		}
 	}
 	
