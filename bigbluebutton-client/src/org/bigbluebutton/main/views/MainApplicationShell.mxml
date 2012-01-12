@@ -136,7 +136,15 @@
 				
 				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
 					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
-				}				
+					sendStartAllModulesEvent();
+				}			
+				
+			}
+			
+			public function sendStartAllModulesEvent():void{
+				LogUtil.debug("Sending start all modules event");
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {

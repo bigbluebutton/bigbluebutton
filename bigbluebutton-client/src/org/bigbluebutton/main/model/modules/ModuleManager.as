@@ -90,7 +90,7 @@ package org.bigbluebutton.main.model.modules
 		private function startModule(name:String):void {
 			var m:ModuleDescriptor = getModule(name);
 			if (m != null) {
-				LogUtil.debug('Starting module' + name);
+				LogUtil.debug('Starting module ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
 				m.loadConfigAttributes(conferenceParameters, _protocol);
 				bbb.start(m.attributes);		
@@ -141,8 +141,8 @@ package org.bigbluebutton.main.model.modules
 			
 			if (allModulesLoaded()) {
 				sendAppAndLocaleVersions();
-				startAllModules();
-				modulesDispatcher.sendAllModulesLoadedEvent();	
+//				startAllModules();
+//				modulesDispatcher.sendAllModulesLoadedEvent();	
 			}
 		}
 		
@@ -185,6 +185,7 @@ package org.bigbluebutton.main.model.modules
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
 				startModule(m.getName());
 			}
+			modulesDispatcher.sendAllModulesLoadedEvent();
 		}
 		
 		public function handleLogout():void {
