@@ -105,10 +105,13 @@
 			
 			[Bindable] private var layoutOptions:LayoutOptions;
 			
+			[Bindable] private var showToolbarOpt:Boolean = true;
+			
 			public function initOptions(e:Event):void {
 				LogUtil.debug("**** Init layout options ***");
 				layoutOptions = new LayoutOptions();
 				layoutOptions.parseOptions();
+				showToolbarOpt = layoutOptions.showToolbar;
 				LogUtil.debug("*** show toolbar = " + layoutOptions.showToolbar);
 				toolbar.displayToolbar();
 			}
@@ -137,8 +140,7 @@
 				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
 					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
 					sendStartAllModulesEvent();
-				}			
-				
+				}						
 			}
 			
 			public function sendStartAllModulesEvent():void{
@@ -293,7 +295,7 @@
 		]]>
 	</mx:Script>
 			
-	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="{layoutOptions.showToolbar}" verticalAlign="middle" toolbarOptions="{layoutOptions}"/>
+	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="{showToolbarOpt}" verticalAlign="middle" toolbarOptions="{layoutOptions}"/>
 	<views:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off" effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" width="100%" height="100%">
 		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
