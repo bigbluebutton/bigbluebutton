@@ -42,7 +42,7 @@
 		
 		<module name="PhoneModule" url="PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
-			autoJoin="false"
+			autoJoin="true"
 			skipCheck="false"
 			showButton="true"
 			enabledEchoCancel="true"
