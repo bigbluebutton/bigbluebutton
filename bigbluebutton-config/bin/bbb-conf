@@ -40,6 +40,7 @@
 #   2010-12-12 FFD  Added support for Intalio VM
 #   2010-02-28 FFD  Fixed #834 
 #   2011-06-26 FFD  Updates for 0.8
+#   2011-01-03 GUG  Add maintenace page option
 
 #set -x
 
@@ -192,6 +193,7 @@ usage() {
         echo "   --start                          Start BigBueButton"
         echo "   --clean                          Restart and clean all log files"
         echo "   --zip                            Zip up log files for reporting an error"
+        echo "   --maintenance [on|off]           Show maintenance page for every request"
         echo
         if [ "$(is_vm)" ]; then
                 echo "Development:"
@@ -452,6 +454,21 @@ while [ $# -gt 0 ]; do
 	#
 	# all other parameters requires at least 1 argument
 	#
+	
+	if [ "$1" = "-maintenance" -o "$1" = "--maintenance" ]; then
+	        need_root
+	        ON_OFF="${2}"
+	        if [ $ON_OFF == "on" ]; then
+	                 rm /etc/nginx/sites-enabled/bigbluebutton
+  		         ln -s /etc/nginx/sites-available/bbb-maintenance /etc/nginx/sites-enabled/bigbluebutton	                 
+        	elif [ "$ON_OFF" == "off" ]; then
+  		         rm /etc/nginx/sites-enabled/bigbluebutton
+  		         ln -s /etc/nginx/sites-available/bigbluebutton /etc/nginx/sites-enabled/bigbluebutton
+        	fi
+        	service nginx restart
+        	shift; shift
+		continue
+	fi
 	
 	if [ "$1" = "-setip" -o "$1" = "--setip" ]; then
 		HOST="${2}"
@@ -1584,6 +1601,10 @@ if [ -n "$HOST" ]; then
 
 	echo "Assigning $HOST for servername in /etc/nginx/sites-available/bigbluebutton"
 	sudo sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
+
+	echo "Assigning $HOST for servername in /etc/nginx/sites-available/bbb-maintenance"
+	sudo sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bbb-maintenance
+
 
 	#
 	# Use port for remaining substitutions

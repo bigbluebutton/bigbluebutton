@@ -1,0 +1,14 @@
+server {
+     listen  80;
+     server_name  192.168.1.32;
+     root    /var/www/bigbluebutton-default;
+     location / {
+	
+        if ($request_uri ~* bigbluebutton/api(.*)?$)
+	{
+		return 404;
+	}
+        try_files $uri  /maintenance.html;
+
+     }        
+}
