@@ -40,17 +40,21 @@
 #   2010-12-12 FFD  Added support for Intalio VM
 #   2010-02-28 FFD  Fixed #834 
 #   2011-06-26 FFD  Updates for 0.8
+#   2012-01-14 FFD  Tsting the development environment for 0.8
 
 #set -x
+#set -e
 
 
 FREESWITCH_INIT_D="/etc/init.d/bbb-freeswitch"
-BBB_VERSION="0.8-beta-3"
+BBB_VERSION="0.8-beta-4"
 
 if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
 	echo "#"
-	echo "# BigBlueButton does not appear to be installed ... exiting"
+	echo "# BigBlueButton does not appear to be installed.  Could not"
+	echo "# locate:"
 	echo "#"
+	echo "# /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml"
 	exit 1
 fi
 
@@ -95,19 +99,6 @@ if [ -f /etc/lsb-release ]; then
 		fi
 	fi
 fi
-
-if [ -f /etc/redhat-release ]; then
-	#
-	# unsupported
-	#
-	PLATFORM=redhat
-        SERVLET_LOGS=/var/log/tomcat6
-fi
-
-
-# 
-# Helper functions
-#
 
 
 #
@@ -167,6 +158,8 @@ need_root() {
 	fi
 }
 
+
+
 usage() {
 	echo "BigBlueButton Configuration Utility - Version $BBB_VERSION"
         echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
@@ -176,8 +169,6 @@ usage() {
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
-        echo "   --conference [konference|meetme|freeswitch]"
-        echo "                                    Switch conference module"
 	echo "   --setsalt <salt>		  Change the security salt in bigbluebutton.properties"
         echo
         echo "Monitoring:"
@@ -593,58 +584,51 @@ if [ $CHECKOUT ]; then
 	check_root
 
 	# This is a step towards setting up a development environment on a non-BigBlueButton VM
-	which git
-	if [ $? != 0 ]; then
+	if ! which git > /dev/null; then
 		echo "# Installing git and ant"
-		sudo apt-get install git-core ant -y --force-yes
+		sudo apt-get install git-core -y --force-yes
+	fi
+
+	if ! which ant > /dev/null; then
+		echo "# Installing git and ant"
+		sudo apt-get install ant -y --force-yes
 	fi
         
-        BBBSRCGIT="~/dev/source/bigbluebutton"	
+        
+        BBBSRCGIT="$HOME/dev/source/bigbluebutton"	
+
 	if [ -d $BBBSRCGIT ]; then
 		echo "# "
-                echo "**** ERROR: ${BBBSRCGIT} exists. ***"
-                echo "**** ERROR: You have already checked-out bigbluebutton. Please delete ${BBBSRCGIT} and try again. ***"
+                echo "# Looks like you already have $BBBSRCGIT.  Your good to go."
 		echo "# "
-		exit 1
-        fi
-
-        if [ ! -d ~/dev ]; then
-		echo "# Creating dev directory"
-		mkdir ~/dev
+		exit
 	fi
 
-	echo "# Changing to the dev directory"
-	cd ~/dev
-	
-	if [ ! -d ~/dev/source ]; then
-                echo "# Creating source directory"
-                mkdir ~/dev/source
-        fi
+	mkdir -p $HOME/dev/source
 
 	echo "# Changing to the dev directory"
-        cd ~/dev/source
+        cd $HOME/dev/source
 
-	echo "#                                         "
-        echo "# Cloning BigBlueButton."
-        echo "#                                         "
-        echo "# "
+        echo "#"
+        echo "# Cloning the BigBlueButton GIT source"
+        echo "#"
         git clone $CHECKOUT
-	cd ~/dev/source/bigbluebutton
+	cd $HOME/dev/source/bigbluebutton
 	echo " Checking out version $BBB_VERSION "
  	#git checkout -b 0.7-release-workspace v0.7	
  	#git checkout -b 0.7-release-workspace v0.7	
-        echo "# "
-        echo "#                                         "
-        echo "# Checked out BigBlueButton. "
-        echo "#                                         "
-	echo " You can now run 'bbb-conf --setup-dev [client|web|apps]' to setup dev environment "
-        echo "#                                         "
+
+        echo "#"
+        echo "# Done"
+        echo "#"
+	echo "# You can now run 'bbb-conf --setup-dev [client|web|apps]' to setup dev environment "
+        echo 
 fi
 
 if [ $SETUPDEV ]; then
         check_root
 
-        if [ ! -d ~/dev/source/bigbluebutton ]; then
+        if [ ! -d $HOME/dev/source/bigbluebutton ]; then
                 echo "# "
                 echo "*** ERROR: You haven't checked-out BigBlueButton source yet. Please run 'bbb-conf --checkout' first. "
                 echo "# "
@@ -653,7 +637,7 @@ if [ $SETUPDEV ]; then
 
 
         if [ $SETUPDEV == "web" ]; then
-	    	BBBWEBHOME=~/dev/source/bigbluebutton/bigbluebutton-web
+	    	BBBWEBHOME=$HOME/dev/source/bigbluebutton/bigbluebutton-web
             	if [ ! -d $BBBWEBHOME ]; then
 			echo "# "
 			echo "*** ERROR: Cannot find ${BBBWEBHOME} "
@@ -663,8 +647,8 @@ if [ $SETUPDEV ]; then
 	 	fi
 
                 echo "# Copying the bigbluebutton.properites in ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ~/.grails/bigbluebutton-config.properties"
-                mkdir -p ~/.grails
-                cp ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ~/.grails/bigbluebutton-config.properties
+                mkdir -p $HOME/.grails
+                cp ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties $HOME/.grails/bigbluebutton-config.properties
 
                 echo "# Copying the bbb_api_conf.jsp into ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ${BBBWEBHOME}/web-app/demo"
                 cp ${SERVLET_DIR}/demo/bbb_api_conf.jsp ${BBBWEBHOME}/web-app/demo
@@ -675,10 +659,9 @@ if [ $SETUPDEV ]; then
                 echo "# Enabling $USER to write to /var/log/bigbluebutton to write log files"
                 sudo chmod -R ugo+rwx /var/log/bigbluebutton
 
-                echo "# Copying bbb-common-message-0.7.jar into ${BBBWEBHOME}/lib"
-                if [ -f $RED5_DIR/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.7.jar ]; then
-                        cp /usr/share/red5/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.7.jar ${BBBWEBHOME}/lib
-                fi
+		echo "# Resolving dependencies"
+		cd $BBBWEBHOME
+		gradle resolveDeps
 
                 echo "
 # Done.  To run your local build of bbb-web:
@@ -691,7 +674,7 @@ if [ $SETUPDEV ]; then
 
 
         if [ $SETUPDEV == "client" ]; then
-		BBBCLIENTHOME=~/dev/source/bigbluebutton/bigbluebutton-client
+		BBBCLIENTHOME=$HOME/dev/source/bigbluebutton/bigbluebutton-client
             	if [ ! -d $BBBCLIENTHOME ]; then
                         echo "# "
                         echo "*** ERROR: Cannot find ${BBBCLIENTHOME} "
@@ -755,19 +738,6 @@ if [ $SETUPDEV ]; then
                         echo "*** ERROR: You haven't checked-out BigBlueButton source yet. Please run 'bbb-conf --checkout' first. "
                         echo "# "
                         exit 1
-                fi
-
-                echo "# Checking if ~/dev/repo/bbb-common-message-0.7.jar is present"
-                if [ ! -f ~/dev/repo/bbb-common-message-0.7.jar ]; then
-                        echo "# Copying bbb-common-message-0.7.jar into ${BBBAPPSHOME}"
-                        if [ -f $RED5_DIR/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.7.jar ]; then
-				if [ ! -d ~/dev/repo ]; then
-                        		mkdir -p ~/dev/repo
-                		fi
-                                cp /usr/share/red5/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.7.jar ~/dev/repo/
-                        else
-                                echo "# $RED5_DIR/webapps/bigbluebutton/WEB-INF/lib/bbb-common-message-0.7.jar does NOT exist!"
-                        fi
                 fi
 
                 #
@@ -905,8 +875,8 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 		 	echo "# Error: File not found: $file"
 		else
 			if grep -q "^[^=]*=[ ]*$" $file; then
-        			echo "# The following properties in $file have no value."
-        			echo "#     $(grep '^[^=]*=[ ]*$' $file | sed 's/=//g')"
+        			echo "# The following properties in $file have no value:"
+        			echo "#     $(grep '^[^=#]*=[ ]*$' $file | sed 's/=//g')"
 			fi
 		fi
 	done
@@ -1075,6 +1045,7 @@ check_state() {
 	# Check if running development environment
 	#
 	if grep -v \# /etc/nginx/sites-available/bigbluebutton | grep /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client > /dev/null; then
+		echo 
         	echo "# Nginx: serving client from /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client"
         	echo "#          instead of the usual /var/www/bigbluebutton"
 	fi
@@ -1206,16 +1177,6 @@ check_state() {
 		fi
 	fi
 
-
-	if ! dpkg -l | grep -q bbb-freeswitch-config; then
-		if ! dpkg -l | grep -q bbb-voice-conference; then
-			echo 
-			echo "# You don't have either bbb-freeswitch-config or bbb-voice-conference"
-			echo "# installed.  Install one of these packages, then run sudo bbb-conf --clean"
-			echo
-		fi
-	fi
-
 	if dpkg -l | grep -q bbb-freeswitch-config; then
 		if [ "$VOICE_CONFERENCE" == "bbb-voice-asterisk.xml" ]; then
 			echo 
@@ -1236,6 +1197,11 @@ check_state() {
 				echo 
 			fi
 		fi
+	else
+		echo 
+		echo "# You don't have either bbb-freeswitch-config installed.  To install"
+		echo "#      sudo apt-get install bbb-freeswitch-config"
+		echo
 	fi
 
 	if dpkg -l | grep -q bbb-voice-conference; then
