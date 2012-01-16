@@ -126,6 +126,8 @@
 				dispState = stage.displayState;
 			}					
 			
+			private var sendStartModulesEvent:Boolean = true;
+			
 			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
 				if (event.configLocaleVersion == true) {
 					receivedConfigLocaleVer = true;
@@ -140,7 +142,10 @@
 				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
 					LogUtil.debug("Comparing locale versions.");
 					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
-					sendStartAllModulesEvent();
+					if (sendStartModulesEvent) {
+						sendStartModulesEvent = false;
+						sendStartAllModulesEvent();
+					}				
 				}						
 			}
 			
