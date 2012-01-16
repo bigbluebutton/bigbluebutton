@@ -57,7 +57,7 @@ module BigBlueButton
     #
     def self.determine_length_of_audio_from_file(file)
       audio_length = 0
-      stats = ""        
+      stats = ""
       # If everything goes well, output should be in the following format. We need to get the Length (seconds) value
         #    Samples read:            888960
         #    Length (seconds):     55.560000
@@ -75,7 +75,8 @@ module BigBlueButton
         #    Rough   frequency:          504
         #    Volume adjustment:        1.215
       command = "sox #{file} -n stat 2>&1"
-      BigBlueButton.logger.info("Task: Getting length of audio")      
+      # Try "sox --i -D file" as it is much shorter
+      BigBlueButton.logger.info("Task: Getting length of audio")
       output = BigBlueButton.execute(command)
       if output.to_s =~ /Length(.+)/
         stats = $1
@@ -86,10 +87,29 @@ module BigBlueButton
       if match
       # Convert to milliseconds
         audio_length = (match[0].to_f * 1000).to_i
+        BigBlueButton.logger.info("Determined audio length from stats using sox [#{audio_length}]")
       end
-      audio_length
+      if (audio_length == 0)
+         # Could not deternime the length from information on the file.
+         # Try calculating the length from the size of the file.
+         # For WAV files, there will be 32000 bps ot 32bpms
+         len_from_file = File.size?(file)/32
+         # We've got a corrupted header information (http://comments.gmane.org/gmane.comp.audio.sox/2637)
+         # Now we need to repair the file otherwise all operations involving sox will fail as the length
+         # will be zero.
+         temp_wav_file = "#{file}.temp.wav"
+         command = "sox --ignore-length #{file} #{temp_wav_file} trim 0 #{len_from_file}"
+         BigBlueButton.logger.info("Task: Fixing length of audio")
+         BigBlueButton.execute(command)
+         File.delete(file)
+         File.rename(temp_wav_file, file)
+         audio_length = (len_from_file).to_i
+        BigBlueButton.logger.info("Determined audio length from file size [#{audio_length}]")
+      end
+        BigBlueButton.logger.info("Determined audio length is [#{audio_length}]")
+      return audio_length
     end
-     
+   
     def self.to_xml_file(events, file)
       BigBlueButton.logger.info("Task: Converting events to xml file")
       xml = Builder::XmlMarkup.new( :indent => 2 )
