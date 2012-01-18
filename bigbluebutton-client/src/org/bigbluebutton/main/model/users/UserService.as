@@ -78,6 +78,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.welcome = result.welcome;
 				_conferenceParameters.meetingID = result.meetingID;
 				_conferenceParameters.externUserID = result.externUserID;
+				_conferenceParameters.internalUserID = result.internalUserId;
 				_conferenceParameters.logoutUrl = result.logoutUrl;
 				_conferenceParameters.record = true;
 				

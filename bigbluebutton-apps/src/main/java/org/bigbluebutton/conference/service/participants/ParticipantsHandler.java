@@ -24,21 +24,17 @@ import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.IScope;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.red5.logging.Red5LoggerFactory;
-
 import org.red5.server.api.so.ISharedObject;
 import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.api.Red5;
 import java.util.HashMap;
-import java.util.Map;import org.bigbluebutton.conference.RoomsManager;
-import org.bigbluebutton.conference.Room;import org.bigbluebutton.conference.Participant;import org.bigbluebutton.conference.RoomListener;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.bigbluebutton.conference.service.recorder.RecorderApplication;
+import java.util.Map;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.conference.service.recorder.participants.ParticipantsEventRecorder;
 
 public class ParticipantsHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsHandler.class, "bigbluebutton" );
 
-	private static final String PARTICIPANTS = "PARTICIPANTS";
 	private static final String PARTICIPANTS_SO = "participantsSO";   
 	private static final String APP = "PARTICIPANTS";
 
@@ -113,23 +109,8 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		if (bbbSession == null) {
 			log.debug("roomLeave - session is null"); 
 		} else {
-			log.debug("roomLeave - session is NOT null");
-		}
-		Long internalUserID = bbbSession.getInternalUserID();
-		participantsApplication.participantLeft(bbbSession.getSessionName(), internalUserID);
-	}
-
-	private void setupRoom(IScope scope) {
-		ISharedObject so = getSharedObject(scope, PARTICIPANTS_SO);
-		if (so == null) log.debug("SHARED OBJECT is NULL!!!!");
-		if (getBbbSession().getRecord() == null) log.debug("SESSION is NULL!!!!");
-		ParticipantsEventSender sender = new ParticipantsEventSender(so);
-		ParticipantsEventRecorder recorder = new ParticipantsEventRecorder(scope.getName(), recorderApplication);
-		
-		log.debug("Adding room listener " + scope.getName());
-		participantsApplication.addRoomListener(scope.getName(), recorder);
-		participantsApplication.addRoomListener(scope.getName(), sender);
-		log.debug("Done setting up recorder and listener");
+			participantsApplication.participantLeft(bbbSession.getSessionName(), bbbSession.getClientID());
+		}		
 	}
 	
 	@Override
@@ -153,42 +134,31 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
     	}
 	}
 	
-	@SuppressWarnings("unchecked")
 	public boolean participantJoin() {
 		log.debug(APP + ":participantJoin - getting userid");
 		BigBlueButtonSession bbbSession = getBbbSession();
-		if (bbbSession == null) {
-			log.warn("bbb session is null");
+		if (bbbSession != null) {
+			Long userid = bbbSession.getClientID();
+			String username = bbbSession.getUsername();
+			String role = bbbSession.getRole();
+			String room = bbbSession.getRoom();
+			log.debug(APP + ":participantJoin - [" + room + "] [" + userid + ", " + username + ", " + role + "]");
+			
+			Map<String, Boolean> status = new HashMap<String, Boolean>();
+			status.put("raiseHand", false);
+			status.put("presenter", false);
+			status.put("hasStream", false);	
+			return participantsApplication.participantJoin(room, userid, username, role, bbbSession.getExternUserID(), status);
 		}
-		
-		Long userid = bbbSession.getInternalUserID();
-		log.debug(APP + ":participantJoin - userid " + userid);
-		String username = bbbSession.getUsername();
-		log.debug(APP + ":participantJoin - username " + username);
-		String role = bbbSession.getRole();
-		log.debug(APP + ":participantJoin - role " + role);
-		String room = bbbSession.getRoom();
-		log.debug(APP + ":participantJoin - room " + room);
-		
-		String externUserID = bbbSession.getExternUserID();
-		
-		log.debug(APP + ":participantJoin");
-		Map status = new HashMap();
-		status.put("raiseHand", false);
-		status.put("presenter", false);
-		status.put("hasStream", false);
-		
-		log.debug(APP + ":participantJoin setting status");		
-		return participantsApplication.participantJoin(room, userid, username, role, externUserID, status);
+		log.warn("Can't send user join as session is null.");
+		return false;
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {
-		log.debug("Setting participants application");
 		participantsApplication = a;
 	}
 	
 	public void setRecorderApplication(RecorderApplication a) {
-		log.debug("Setting recorder application");
 		recorderApplication = a;
 	}
 	

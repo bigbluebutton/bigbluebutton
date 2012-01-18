@@ -297,6 +297,7 @@ class ApiController {
       externUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
     }
     
+	session["internalUserId"] = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
     session["conferencename"] = meeting.getName()
     session["meetingID"] = meeting.getInternalId()
     session["externUserID"] = externUserID
@@ -691,6 +692,7 @@ class ApiController {
               confname(session["conferencename"])
               meetingID(session["meetingID"] )
               externUserID(session["externUserID"] )
+			  internalUserID(session["internalUserId"] )
               role(session["role"])
               conference(session["conference"])
               room(session["room"])

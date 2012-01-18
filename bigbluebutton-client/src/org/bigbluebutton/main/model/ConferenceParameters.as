@@ -68,6 +68,11 @@ package org.bigbluebutton.main.model
 		 */		
 		public var externUserID:String;
 		
+		/**
+		 * Internal unique user id.
+		 */		
+		public var internalUserID:String;		
+		
 		public var logoutUrl:String;
 		
 		/**
