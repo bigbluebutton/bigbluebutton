@@ -252,6 +252,22 @@ module BigBlueButton
       return ae
     end
     
+    # Trim audio file
+    def self.trim_audio_file(file, length)
+      audio_length = determine_length_of_audio_from_file(file)
+      if (audio_length == 0)
+        BigBlueButton.logger.error("Can't trim #{file} as it's length is zero\n")
+        return
+      else
+        temp_wav_file = "#{file}.temp.wav"
+        command = "sox #{file} #{temp_wav_file} trim 0 #{audio_length - length}"
+        BigBlueButton.logger.info("Task: Trimming audio")
+        BigBlueButton.execute(command)
+        File.delete(file)
+        File.rename(temp_wav_file, file)
+      end
+    end
+    
     # Determine the audio padding we need to generate.
     def self.generate_audio_paddings(events, events_xml)
       BigBlueButton.logger.info("Task: Generating audio paddings")
@@ -262,8 +278,12 @@ module BigBlueButton
       length_of_gap = events[0].start_event_timestamp.to_i - BigBlueButton::Events.first_event_timestamp(events_xml).to_i
       # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
       # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.
-      if ((length_of_gap > 0) and (length_of_gap < 3600000))
-        paddings << create_gap_audio_event(length_of_gap, BigBlueButton::Events.first_event_timestamp(events_xml), events[0].start_event_timestamp.to_i - 1)
+      if (length_of_gap < 3600000)
+        if (length_of_gap < 0)
+            trim_audio_file(events[0].file, length_of_gap.abs)
+        else
+          paddings << create_gap_audio_event(length_of_gap, BigBlueButton::Events.first_event_timestamp(events_xml), events[0].start_event_timestamp.to_i - 1)
+        end
       else
         BigBlueButton.logger.error("Front padding: #{length_of_gap} [#{events[0].start_event_timestamp.to_i} - #{BigBlueButton::Events.first_event_timestamp(events_xml).to_i}].\n")
         raise Exception,  "Length of silence is too long #{length_of_gap}."
@@ -278,8 +298,12 @@ module BigBlueButton
 
           # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
           # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.
-          if ((length_of_gap > 0) and (length_of_gap < 3600000))
-            paddings << create_gap_audio_event(length_of_gap, ar_prev.stop_event_timestamp.to_i + 1, ar_next.start_event_timestamp.to_i - 1)
+          if (length_of_gap < 3600000)
+            if (length_of_gap < 0)
+              trim_audio_file(ar_prev.file, length_of_gap.abs)
+            else
+              paddings << create_gap_audio_event(length_of_gap, ar_prev.stop_event_timestamp.to_i + 1, ar_next.start_event_timestamp.to_i - 1)
+            end
           else
             BigBlueButton.logger.error("Between padding #{i}: #{length_of_gap} [#{ar_next.start_event_timestamp.to_i} - #{ar_prev.stop_event_timestamp.to_i}].\n")
             raise Exception,  "Length of silence is too long #{length_of_gap}."
