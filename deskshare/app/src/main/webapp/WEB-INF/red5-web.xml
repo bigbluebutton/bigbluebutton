@@ -39,6 +39,7 @@
   	
 	<bean id="deskShareServer" class="org.bigbluebutton.deskshare.server.socket.DeskShareServer" >
 		<property name="screenCaptureHandler" ref="screenCaptureHandler"/>
+		<property name="port" value="${serverPort}"/>
 	</bean>
 	
     <!-- The IoHandler implementation -->
