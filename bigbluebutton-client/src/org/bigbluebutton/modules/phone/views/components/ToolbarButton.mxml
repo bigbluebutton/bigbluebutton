@@ -80,7 +80,8 @@
 			}
 			
 			private function noMicrophone():Boolean {
-				return (Microphone.getMicrophone() == null || Microphone.names.length == 0);
+				return ((Microphone.getMicrophone() == null) || (Microphone.names.length == 0) 
+					|| ((Microphone.names.length == 1) && (Microphone.names[0] == "Unknown Microphone")));
 			}
 			
 			private function onTimer(e:TimerEvent):void{
