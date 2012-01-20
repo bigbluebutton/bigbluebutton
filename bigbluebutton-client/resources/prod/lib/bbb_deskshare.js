@@ -8,6 +8,7 @@ function startApplet(IP, roomNumber, fullScreen)
                         "id=\"DeskShareApplet\" width=\"0\" height=\"1\" archive=\"bbb-deskshare-applet-0.71.jar\">" +
                 "<param name=\"ROOM\" value=\"" + roomNumber  + "\"/>" +
                 "<param name=\"IP\" value=\"" + IP + "\"/>" +
+                "<param name=\"PORT\" value=\"9123\"/>" +
                 "<param name=\"FULL_SCREEN\" value=\"" + fullScreen + "\"/>" +          
         "</applet>"
      );

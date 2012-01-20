@@ -19,9 +19,10 @@
 **/
 package org.bigbluebutton.deskshare.client.net;
 
-public interface Message {
-
-	public enum MessageType {BLOCK, CURSOR, POISON};
+public class PoisonMessage implements Message {
 	
-	public MessageType getMessageType();
+	@Override
+	public MessageType getMessageType() {
+		return MessageType.POISON;
+	}
 }

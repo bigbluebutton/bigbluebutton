@@ -180,6 +180,7 @@ package org.bigbluebutton.main.model.modules
 			addAttribute("webvoiceconf", conferenceParameters.webvoiceconf);
 			addAttribute("welcome", conferenceParameters.welcome);
 			addAttribute("externUserID", conferenceParameters.externUserID);
+			addAttribute("internalUserID", conferenceParameters.internalUserID);
 			addAttribute("meetingID", conferenceParameters.meetingID);
 			addAttribute("protocol", protocol);
 			useProtocol(protocol);

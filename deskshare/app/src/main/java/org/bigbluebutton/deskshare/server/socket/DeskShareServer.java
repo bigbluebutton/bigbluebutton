@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 public class DeskShareServer {
 	final private Logger log = Red5LoggerFactory.getLogger(DeskShareServer.class, "deskshare");
 	
-    private static final int PORT = 9123;
+    private int port = 1270;
 
     private IoHandlerAdapter screenCaptureHandler;
     private NioSocketAcceptor acceptor;
@@ -49,9 +49,9 @@ public class DeskShareServer {
         acceptor.getSessionConfig().setIdleTime( IdleStatus.BOTH_IDLE, 10 );
         acceptor.setReuseAddress(true);
         try {
-			acceptor.bind( new InetSocketAddress(PORT) );
+			acceptor.bind( new InetSocketAddress(port) );
 		} catch (IOException e) {
-			log.error("IOException while binding to port {}", PORT);
+			log.error("IOException while binding to port {}", port);
 		}
     }
 
@@ -63,4 +63,8 @@ public class DeskShareServer {
 		acceptor.unbind();
 		acceptor.dispose();
 	}	
+	
+	public void setPort(int port) {
+		this.port = port;
+	}
 }
