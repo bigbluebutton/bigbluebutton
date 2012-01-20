@@ -1244,6 +1244,23 @@ check_state() {
 		fi
 	fi
 
+        if grep -q removeMeetingWhenEnded=false $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties; then
+                echo
+                echo "# Warning: In"
+                echo "#"
+                echo "#    $SERVLET_DIR/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
+                echo "#"
+                echo "# detected the setting"
+                echo "#"
+                echo "#    removeMeetingWhenEnded=false"
+                echo "#"
+                echo "# You may want to set it to true to avoid users having to wait for"
+                echo "# bbb-web to purge purge this meeting from memory (about 2 minutes)"
+                echo "# before changing the settings and restarting."
+                echo
+        fi
+
+
 	exit 0
 }
 
@@ -1322,7 +1339,6 @@ if [ $CHECK ]; then
 		echo "/usr/local/bigbluebutton/core/scripts/slides.yml (record and playback)"
 		echo "                     playback host: $PLAYBACK_IP"
 	fi
-
 
 	#SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
 	#echo
