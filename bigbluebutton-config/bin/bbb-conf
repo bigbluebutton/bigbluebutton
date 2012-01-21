@@ -59,6 +59,14 @@ if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
 fi
 
 #
+# We're going to give ^bigbluebutton.web.logoutURL a default value so bbb-conf does not give a warning
+#
+if [ -f /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties ]; then
+	if cat /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | grep -q ^bigbluebutton.web.logoutURL=$; then
+		sudo sed -i s/^bigbluebutton.web.logoutURL=$/bigbluebutton.web.logoutURL=default/g /var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
+	fi
+fi
+#
 # Figure out if we're using Asterisk or FreeSWITCH
 #
 if cat /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml | grep -v '<!--' | grep -q 'bbb-voice-asterisk.xml'; then
@@ -71,6 +79,8 @@ fi
 # Determine IP so it works on multilingual installations
 #
 IP=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | head -1 | cut -d: -f2 | awk '{ print $1}')
+MEM=`free -m | grep Mem | awk '{ print $2}'`
+
 
 
 #
@@ -169,6 +179,7 @@ usage() {
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
+        echo "   --setfreeswtichip <host>         Set IP for FreeSWITCH" 
 	echo "   --setsalt <salt>		  Change the security salt in bigbluebutton.properties"
         echo
         echo "Monitoring:"
@@ -500,6 +511,15 @@ while [ $# -gt 0 ]; do
 		continue
 	fi
 
+	if [ "$1" = "-setfreeswitchip" -o "$1" = "--setfreeswitchip" ]; then
+		if test -z "${2}"; then
+			usage;
+		fi
+		FREESWITCHIP="${2}"
+                shift; shift
+                continue
+	fi
+
 	usage 
 	exit 1
 done
@@ -523,9 +543,17 @@ fi
 if [ $SALT ]; then
 	need_root
 	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
-	echo "Changed the security salt to $SALT"
+	echo "Changed BigBlueButton's security salt to $SALT"
+	echo
 fi
 
+if [ $FREESWITCHIP ]; then
+	need_root
+	change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties sip.server.host $FREESWITCHIP
+	echo "Changed the value for sip.server.host to $FREESWITCHIP"
+	echo
+	CLEAN=1
+fi
 
 #
 # Setup samba
@@ -1196,6 +1224,20 @@ check_state() {
 				echo "# does not match the local IP address ($IP)."
 				echo 
 			fi
+
+			SIP_IP=$(netstat -ant | grep 5060 | awk -F" " '{print $4}' | cut -d: -f1)
+			if [ $SIP_SERVER_HOST != $SIP_IP ]; then
+				echo 
+				echo "# FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
+				echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host."
+				echo "#"
+				echo "# If your audio is not working (users click the  headset icon "
+				echo "# and don't appear in the Listeners window, try the command"
+				echo "#"
+				echo "#   sudo bbb-conf --setfreeswitchip $SIP_IP"
+				echo "#"
+				echo 
+			fi
 		fi
 	else
 		echo 
@@ -1254,12 +1296,18 @@ check_state() {
                 echo "#"
                 echo "#    removeMeetingWhenEnded=false"
                 echo "#"
-                echo "# You may want to set it to true to avoid users having to wait for"
-                echo "# bbb-web to purge purge this meeting from memory (about 2 minutes)"
-                echo "# before changing the settings and restarting."
+                echo "# You should set this value to true.  It enables bbb-web to immediately purge a meeting from"
+		echo "# memory when receiving an end API call.  Otherwise, users must wait about 2 minutes"
+		echo "# request before creating a meeting with the same meetingID but with different parameters."
                 echo
         fi
 
+        if (( $MEM < 1990 )); then
+		echo "#"
+		echo "# Warning: You are running BigBlueButton on a server with less than 2G of memory.  Your"
+		echo "# performance may suffer."
+		echo "#"
+	fi
 
 	exit 0
 }
@@ -1286,7 +1334,6 @@ if [ $CHECK ]; then
 		echo "(32-bit)"
 	fi
 
-	MEM=`free -m | grep Mem | awk '{ print $2}'`
 	echo "                            Memory: $MEM MB"
 
 	echo
