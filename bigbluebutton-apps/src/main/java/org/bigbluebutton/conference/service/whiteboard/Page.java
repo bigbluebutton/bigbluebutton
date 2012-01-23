@@ -53,7 +53,8 @@ public class Page {
 	}
 	
 	public void undo(){
-		shapes.remove(shapes.size()-1);
+		if(shapes.size() > 0)
+			shapes.remove(shapes.size()-1);
 	}
 	
 	public int getNumShapesOnPage(){

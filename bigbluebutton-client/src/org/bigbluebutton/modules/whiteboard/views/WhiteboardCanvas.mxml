@@ -25,6 +25,8 @@
 	mouseOver="setCursor()" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[
+			import flexunit.utils.ArrayList;
+			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.core.Application;
@@ -51,8 +53,9 @@
 			
 			public var d:DrawObject;	
 			private var isDrawing:Boolean; 
+			private var sending:Boolean = false;
 			private var feedback:Shape = new Shape();
-			private var latentFeedback:Shape = new Shape();
+			private var latentFeedbacks:ArrayCollection = new ArrayCollection();
 			private var segment:Array = new Array();
 			private var newShape:Shape = new Shape();
 			private var shapeList:Array = new Array();
@@ -102,6 +105,7 @@
 				var startY:Number = segment[segment.length - 1] as Number;
 				sendShapeToServer();
 				startShape(startX,startY);
+				LogUtil.debug("StartShape from onDrawTimer: "+startX+" "+startY);
 			}
 			
 			private function sendShapeToServer():void{
@@ -114,7 +118,7 @@
 				event.message = d;
 				dispatchEvent(event);
 				
-				latentFeedback = feedback;
+				latentFeedbacks.addItem(feedback);
 				
 				feedback = new Shape();
 				segment = new Array();
@@ -139,7 +143,7 @@
 				isDrawing = true;
 				segment.push(startX);
 				segment.push(startY);
-				rawChildren.addChild(feedback);
+				rawChildren.addChild(feedback);				
 			}
 			
 			/**
@@ -178,10 +182,15 @@
 			}
 			
 			private function draw(o:DrawObject):void{
-				if (rawChildren.contains(latentFeedback)){
-					rawChildren.removeChild(latentFeedback);
+
+				for( var i:int = 0; i<latentFeedbacks.length;i++){
+					var tempshape:Shape = latentFeedbacks.getItemAt(i) as Shape;
+					if(rawChildren.contains(tempshape))
+					{
+						rawChildren.removeChild(tempshape);
+						latentFeedbacks.removeItemAt(i);
+					}
 				}
-				latentFeedback = new Shape();
 				
 				newShape = shapeFactory.makeShape(o);
 				newShape.width = newShape.width * (this.width/o.parentWidth);
