@@ -273,6 +273,6 @@
 	<mx:ControlBar id="bottomBar" height="35" horizontalAlign="center">
 		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" selected="false"
 			height="90%" label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
-			toolTip="{ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow')}" />
+			toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" />
 	</mx:ControlBar>
 </MDIWindow>
