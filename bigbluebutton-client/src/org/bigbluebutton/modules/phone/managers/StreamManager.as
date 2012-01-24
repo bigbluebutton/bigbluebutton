@@ -135,7 +135,7 @@ package org.bigbluebutton.modules.phone.managers {
 			publish(publishStreamName);
 		}
 		
-		private function play(playStreamName:String):void {			
+		private function play(playStreamName:String):void {		
 			incomingStream.play(playStreamName);
 		}
 		
@@ -158,7 +158,9 @@ package org.bigbluebutton.modules.phone.managers {
 			 * http://stackoverflow.com/questions/1079935/actionscript-netstream-stutters-after-buffering
 			 * ralam (Dec 13, 2010)
 			 */
-			incomingStream.bufferTime = 0;			
+			incomingStream.bufferTime = 0;	
+			incomingStream.receiveAudio(true);
+			incomingStream.receiveVideo(false);
 		}
 		
 		private function setupOutgoingStream():void {
@@ -201,7 +203,7 @@ package org.bigbluebutton.modules.phone.managers {
 
 		private function netStatus (evt:NetStatusEvent ):void {		 
 			var event:PlayStreamStatusEvent = new PlayStreamStatusEvent();
-			
+			LogUtil.debug("******* evt.info.code  " + evt.info.code);
 			switch(evt.info.code) {			
 				case "NetStream.Play.StreamNotFound":
 					event.status = PlayStreamStatusEvent.PLAY_STREAM_STATUS_EVENT;

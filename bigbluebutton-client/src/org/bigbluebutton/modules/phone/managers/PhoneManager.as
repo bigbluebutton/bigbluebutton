@@ -53,7 +53,11 @@ package org.bigbluebutton.modules.phone.managers {
 			
 			if (phoneOptions.autoJoin) {
 				if (phoneOptions.skipCheck || noMicrophone()) {
-					joinVoice(true);
+					if (noMicrophone()) {
+						joinVoice(false);
+					} else {
+						joinVoice(true);						
+					}
 				} else {
 					var dispatcher:Dispatcher = new Dispatcher();
 					dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
