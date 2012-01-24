@@ -25,7 +25,6 @@
 	mouseOver="setCursor()" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[
-			import flexunit.utils.ArrayList;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
