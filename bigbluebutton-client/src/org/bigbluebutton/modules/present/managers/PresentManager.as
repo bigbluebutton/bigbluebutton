@@ -54,6 +54,7 @@ package org.bigbluebutton.modules.present.managers
 			if (presentWindow != null) return;
 			presentWindow = new PresentationWindow();
 			presentWindow.visible = (e.data.showPresentWindow == "true");
+			presentWindow.showControls = (e.data.showWindowControls == "true");
 			openWindow(presentWindow);
 		}
 		
