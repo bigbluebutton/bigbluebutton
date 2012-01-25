@@ -29,9 +29,10 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" 
 	showCloseButton="false" 
-	verticalScrollPolicy="off" 
+	verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"
 	horizontalScrollPolicy="off"
 	showControls="true"
+	backgroundColor="gray"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
@@ -135,13 +136,13 @@
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
 				
-				this.y = 0;
-				if (this.maximized) {
-					callLater(restore);
-					var timer:Timer = new Timer(500, 1);
-					timer.addEventListener(TimerEvent.TIMER, adjustPosition);
-					timer.start();
-				}
+//				this.y = 0;
+//				if (this.maximized) {
+//					callLater(restore);
+//					var timer:Timer = new Timer(500, 1);
+//					timer.addEventListener(TimerEvent.TIMER, adjustPosition);
+//					timer.start();
+//				}
 				stage.focus = this; //Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.
 				
 			}
@@ -188,7 +189,7 @@
 					slideWidth = this.width - WIDTH_PADDING;
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
 				}
-				
+/*				
 				this.width = slideWidth + WIDTH_PADDING;
 				this.height = slideHeight + CONTROL_BAR_HEIGHT + TOP_WINDOW_BORDER;
 
@@ -205,7 +206,7 @@
 					slideWidth = this.width - WIDTH_PADDING;
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
 				}
-				sendWindowResizedEvent(slideWidth, slideHeight);
+*/				sendWindowResizedEvent(slideWidth, slideHeight);
 			}
 			
 			/*
