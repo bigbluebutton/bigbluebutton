@@ -69,6 +69,8 @@ public class CallStream implements StreamObserver {
 
 		userListenStream = new SipToFlashAudioStream(scope, sipToFlashTranscoder, connInfo.getSocket());
 		userListenStream.addListenStreamObserver(this);	
+		log.debug("Starting userListenStream so that users with no mic can listen.");
+		userListenStream.start();
 		userTalkStream = new FlashToSipAudioStream(flashToSipTranscoder, connInfo.getSocket(), connInfo); 
     }
     
@@ -81,8 +83,6 @@ public class CallStream implements StreamObserver {
     }
     
     public void startTalkStream(IBroadcastStream broadcastStream, IScope scope) throws StreamException {
-    	log.debug("Starting userListenSteam");
-    	userListenStream.start();
     	log.debug("userTalkStream setup");
     	userTalkStream.start(broadcastStream, scope);
     	log.debug("userTalkStream Started");

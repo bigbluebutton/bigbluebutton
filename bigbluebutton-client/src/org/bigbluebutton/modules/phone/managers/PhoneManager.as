@@ -20,6 +20,8 @@
 package org.bigbluebutton.modules.phone.managers {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import flash.media.Microphone;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -50,15 +52,24 @@ package org.bigbluebutton.modules.phone.managers {
 			}
 			
 			if (phoneOptions.autoJoin) {
-				if (phoneOptions.skipCheck) {
-					joinVoice(true);
+				if (phoneOptions.skipCheck || noMicrophone()) {
+					if (noMicrophone()) {
+						joinVoice(false);
+					} else {
+						joinVoice(true);						
+					}
 				} else {
 					var dispatcher:Dispatcher = new Dispatcher();
 					dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
 				}
 			}
 		}
-				
+
+		private function noMicrophone():Boolean {
+			return ((Microphone.getMicrophone() == null) || (Microphone.names.length == 0) 
+				|| ((Microphone.names.length == 1) && (Microphone.names[0] == "Unknown Microphone")));
+		}
+		
 		private function setupMic(useMic:Boolean):void {
 			if (useMic)
 				streamManager.initMicrophone();

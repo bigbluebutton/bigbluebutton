@@ -79,6 +79,7 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 
 			showPresentWindow="true"
+			showWindowControls="true"
 			dependsOn="ViewersModule"
 		/>
 
