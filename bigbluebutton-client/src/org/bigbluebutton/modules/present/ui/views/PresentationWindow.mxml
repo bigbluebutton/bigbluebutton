@@ -134,28 +134,10 @@
 			private function maximizeHandler():void {
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
-				
-//				this.y = 0;
-//				if (this.maximized) {
-//					callLater(restore);
-//					var timer:Timer = new Timer(500, 1);
-//					timer.addEventListener(TimerEvent.TIMER, adjustPosition);
-//					timer.start();
-//				}
 				stage.focus = this; //Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.
 				
 			}
-			
-			private function adjustPosition(t:TimerEvent):void{
-				if ((DEFAULT_X_POSITION + this.width) > this.parent.width) {
-					// Adjust presentation window so that it doesn't go over the side of the browser window
-					this.x = this.parent.width - this.width;
-				} else {
-					// Move window so that it won't overlap with Participant's window.
-					this.x = ((Capabilities.screenResolutionX / 20) * 3) + 10;
-				}
-			}
-		
+					
 			private function onCreationComplete():void{
 				thumbY = this.height - 160;
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
@@ -476,11 +458,7 @@
 					(externalButtons.getItemAt(i) as IPresentationButton).presenterChanged(isPresenter, presenterName);
 				}
 			}
-			
-			public function getSlideView():SlideView{
-				return this.slideView;
-			}
-			
+					
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				if ((slideView != null) && (!slideView.visible)) this.title = ResourceUtil.getInstance().getString('bbb.presentation.title');
@@ -492,17 +470,7 @@
             
 		]]>
 	</mx:Script>
-
-	<pres:states>
-	    <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
-        <mx:State name="dispUploadPresLabel">      
-            <mx:AddChild relativeTo="{spacer1}" position="before">
-                <mx:Label id="uploadPresentationLabel" visible="true" width="100%"
-    	  			text="{ResourceUtil.getInstance().getString('bbb.presentation.clickToUpload')}"/>
-            </mx:AddChild>
-        </mx:State>		
-	</pres:states>
-    	 
+  	 
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 
