@@ -235,9 +235,8 @@
 				
 				slideLoader.width = this.width;
 				slideLoader.height = this.height;
-				slideLoader.x = this.x;
-				slideLoader.y = this.y;
-				
+				slideLoader.x = 0;
+				slideLoader.y = 0;				
 				fitSlideToLoader();						
 			}
 
@@ -305,11 +304,11 @@
 					zoomPercentage = percent;
 				}
 				
- 	//			if (zoomPercentage == 100) {
+ 				if (zoomPercentage == 100) {
  					fitLoaderToCanvas();
- 	//			} else {
+ 				} else {
  					resizeAndMoveLoaderBy(zoomPercentage);
- 	//			}
+ 				}
 				notifyOthersOfZoomEvent();
 			}
 			
