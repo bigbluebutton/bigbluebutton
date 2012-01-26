@@ -32,7 +32,7 @@
 	verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"
 	horizontalScrollPolicy="off"
 	showControls="true"
-	backgroundColor="gray"
+	backgroundColor="#efefef"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
@@ -93,7 +93,6 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
              			
             public static const TITLE:String = "Presentation";
-//			private var presenterName:String = "";
 			private static const NEXT_BUTTON:String = "Next";
 			private static const PREVIOUS_BUTTON:String = "Previous";
 			private static const GOTO_PAGE_BUTTON:String = "Go to Page..."
@@ -189,24 +188,7 @@
 					slideWidth = this.width - WIDTH_PADDING;
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
 				}
-/*				
-				this.width = slideWidth + WIDTH_PADDING;
-				this.height = slideHeight + CONTROL_BAR_HEIGHT + TOP_WINDOW_BORDER;
-
-				// Test if the height and width are bigger than it's parent. If so, resize
-				// to make it fit inside so that the controls will still be visible.
-				if (this.height > this.parent.height) {
-					this.height = this.parent.height;
-					slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
-					slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
-				}				
-				
-				if (this.width > this.parent.width) {
-					this.width = this.parent.width;
-					slideWidth = this.width - WIDTH_PADDING;
-					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
-				}
-*/				sendWindowResizedEvent(slideWidth, slideHeight);
+				sendWindowResizedEvent(slideWidth, slideHeight);
 			}
 			
 			/*
@@ -256,15 +238,7 @@
 				if (slideView.slides != null)
 					displaySlideNumber(slideView.selectedSlide + 1);
 			}
-			
-			private function showThumbsXXX():void {
-				 if (isPresenter){
-					//readjust the position of the thumbnails in case the window was resized
-					//Note: this is necessary because the MDIWindow does not let you listen to the resize() event!
-					thumbY = this.height - 150;
-				}				
-			}
-			
+						
 			private function onSliderZoom():void {
 				dispatchResizeEvent(zoomSlider.value);
 			}
@@ -303,22 +277,11 @@
 				if (presentationLoaded) {
 	            	displaySlideNumber(slideView.selectedSlide + 1);	
 					displaySlideNavigationControls(isPresenter);
-					showUploadPresentationLabel(false);
-				} else {
-					if (isPresenter)
-						showUploadPresentationLabel(true);
-					else
-						showUploadPresentationLabel(false);
 				}
-				
-				setPresentersName(presentersName);	
+					
 				notifyComponentsOfPresenterChange(isPresenter, presentersName);
 			}
-			
-			private function setPresentersName(name:String):void {
-//				if (name != null) presenterName = name;
-			}
-			
+					
 			private function handlePresentationLoadedEvent(e:PresentationEvent):void {	
 				if (e.presentationName == currentPresentation) return;			
 				currentPresentation = e.presentationName;
@@ -327,8 +290,6 @@
 				slideView.visible = true;		
 	
 				if (slideManager != null) slideManager.clear();	
-				
-				showUploadPresentationLabel(false);
 				displaySlideNumber(slideView.selectedSlide + 1);	
 				if (isPresenter) {
 					displaySlideNavigationControls(true);					
@@ -337,8 +298,6 @@
 					dispatchEvent(new SlideEvent(SlideEvent.LOAD_CURRENT_SLIDE));
 				}
 				onResetZoom();
-				reinitWindowToDefaultSize();
-				//this.setFocus();
 			}
 			
 			private function displaySlideNavigationControls(show:Boolean):void {
@@ -446,30 +405,11 @@
 				slideView.selectedSlide = 0;
 				btnSlideNum.label = "";
 				displaySlideNavigationControls(false);
-				showUploadPresentationLabel(false);
-				
+
 				// Change the title of the window.
 				currentPresentation = ResourceUtil.getInstance().getString('bbb.presentation.title');				
-				reinitWindowToDefaultSize();
 			}
 			
-			private function reinitWindowToDefaultSize():void {
-				if ((this.width < DEFAULT_WINDOW_WIDTH) || (this.height < DEFAULT_WINDOW_HEIGHT)) {
-					currentSlideWidth = DEFAULT_WINDOW_WIDTH;
-					currentSlideHeight = DEFAULT_WINDOW_HEIGHT;
-					this.width = DEFAULT_WINDOW_WIDTH;
-					this.height = DEFAULT_WINDOW_HEIGHT;
-				}				
-			}
-			
-			private function showUploadPresentationLabel(show:Boolean):void {
-				if (!show) {		
-					currentState = "";		
-				} else {
-					currentState = "dispUploadPresLabel";
-				}				
-			}
-
 			private function gotoPreviousSlide():void {
 				if ((slideView.selectedSlide - 1) >= 0)
 					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide - 1));
@@ -566,7 +506,7 @@
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 
-		<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" 
+	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" backgroundColor="gray"
 			mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />
 		    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
