@@ -42,17 +42,14 @@
     
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.Event;
-			
+			import com.asfusion.mate.events.Dispatcher;			
+			import flash.events.Event;			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.Button;
 			import mx.events.FlexEvent;
-			import mx.events.ListEvent;
-			
+			import mx.events.ListEvent;			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.present.events.CursorEvent;

@@ -119,7 +119,9 @@
 
 			[Bindable] private var DEFAULT_WINDOW_WIDTH:int = 510;
 			[Bindable] private var DEFAULT_WINDOW_HEIGHT:int = 451;
-						
+			[Bindable] private var viewportW:int = 451;
+			[Bindable] private var viewportH:int = 451;
+			
 			// Init to the size of the window.
 			private var currentSlideWidth:int = DEFAULT_WINDOW_WIDTH;
 			private var currentSlideHeight:int = DEFAULT_WINDOW_HEIGHT;
@@ -134,12 +136,13 @@
 			private function maximizeHandler():void {
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
-				stage.focus = this; //Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.
-				
+				//Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.	
+				stage.focus = this; 
 			}
 					
 			private function onCreationComplete():void{
 				thumbY = this.height - 160;
+				
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
 			}
@@ -154,6 +157,8 @@
 				}
 			}
 			
+			private var fitToPage:Boolean = false;
+			
 			private function fitSlideToWindowMaintainingAspectRatio():void {
 				if (this.minimized) return;
 				
@@ -161,15 +166,21 @@
 				var slideWidth:int = this.width;
 				var slideHeight:int = this.height;
 				
-				// If the height is smaller than the width, we use the height as the 
-				// base to determine the size of the slide.
-				if (this.height < this.width) {					
-					slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
-					slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
+				if (fitToPage) {
+					// If the height is smaller than the width, we use the height as the 
+					// base to determine the size of the slide.
+					if (this.height < this.width) {					
+						slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
+						slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
+					} else {
+						slideWidth = this.width - WIDTH_PADDING;
+						slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
+					}					
 				} else {
 					slideWidth = this.width - WIDTH_PADDING;
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
 				}
+
 				sendWindowResizedEvent(slideWidth, slideHeight);
 			}
 			
@@ -467,6 +478,11 @@
 			private function localeChanged(e:LocaleChangeEvent):void{
 				resourcesChanged();
 			}
+			
+			private function onFitToPage():void {
+				fitToPage = !fitToPage;
+				maximizeHandler();
+			}
             
 		]]>
 	</mx:Script>
@@ -475,8 +491,7 @@
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 
 	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" backgroundColor="gray"
-			mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />
-		    
+						 mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />			    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
     	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
@@ -494,9 +509,10 @@
     		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
     		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>
     	<mx:Spacer width="50%" id="spacer3"/>
-    	<!--containers:Docker id="toolbarDocker" height="100%" width="250" visible="{isPresenter}" /-->
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.resetZoomBtn.toolTip')}" click="onResetZoom()"/>
+		<mx:Button id="btnFitToPage" icon="{magnifierIcon}" visible="true" width="20" height="20" 
+				   click="onFitToPage()"/>
     	<mx:Spacer width="5" id="spacer4"/>
     </mx:ApplicationControlBar>
 </pres:MDIWindow>
