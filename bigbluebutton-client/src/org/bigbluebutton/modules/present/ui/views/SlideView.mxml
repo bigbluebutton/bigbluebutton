@@ -305,11 +305,11 @@
 					zoomPercentage = percent;
 				}
 				
- 				if (zoomPercentage == 100) {
+ 	//			if (zoomPercentage == 100) {
  					fitLoaderToCanvas();
- 				} else {
+ 	//			} else {
  					resizeAndMoveLoaderBy(zoomPercentage);
- 				}
+ 	//			}
 				notifyOthersOfZoomEvent();
 			}
 			

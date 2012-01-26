@@ -28,11 +28,11 @@
 	xmlns:containers="flexlib.containers.*"
 	xmlns:mate="http://mate.asfusion.com/"
 	paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" 
-	showCloseButton="false" 
-	verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"
+	showCloseButton="false" horizontalAlign="center" verticalAlign="middle"
+	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off"
 	showControls="true"
-	backgroundColor="#efefef"
+	backgroundColor="red"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
@@ -157,7 +157,7 @@
 				}
 			}
 			
-			private var fitToPage:Boolean = false;
+			private var fitToPage:Boolean = true;
 			
 			private function fitSlideToWindowMaintainingAspectRatio():void {
 				if (this.minimized) return;
@@ -178,6 +178,7 @@
 					}					
 				} else {
 					slideWidth = this.width - WIDTH_PADDING;
+//					slideHeight = (this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER) * (currentSlideWidth/currentSlideHeight);
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
 				}
 
@@ -490,7 +491,7 @@
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 
-	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" backgroundColor="gray"
+	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" backgroundColor="blue"
 						 mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />			    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
@@ -511,8 +512,8 @@
     	<mx:Spacer width="50%" id="spacer3"/>
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.resetZoomBtn.toolTip')}" click="onResetZoom()"/>
-		<mx:Button id="btnFitToPage" icon="{magnifierIcon}" visible="true" width="20" height="20" 
-				   click="onFitToPage()"/>
+<!--		<mx:Button id="btnFitToPage" icon="{magnifierIcon}" visible="true" width="20" height="20" 
+				   click="onFitToPage()"/>-->
     	<mx:Spacer width="5" id="spacer4"/>
     </mx:ApplicationControlBar>
 </pres:MDIWindow>
