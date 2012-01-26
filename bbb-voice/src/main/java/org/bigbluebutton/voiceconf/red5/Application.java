@@ -174,15 +174,15 @@ public class Application extends MultiThreadedApplicationAdapter {
     }
 		
     public void setSipServerHost(String h) {
-    	sipServerHost = h;
+    	sipServerHost = h.trim();
     }
     
     public void setUsername(String un) {
-    	this.username = un;
+    	this.username = un.trim();
     }
     
     public void setPassword(String pw) {
-    	this.password = pw;
+    	this.password = pw.trim();
     }
     
     public void setSipPort(int sipPort) {
