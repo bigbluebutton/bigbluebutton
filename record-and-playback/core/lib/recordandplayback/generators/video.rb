@@ -9,7 +9,7 @@ module BigBlueButton
   #    strip_audio_from_video(orig-video.flv, video2.flv)
   def self.strip_audio_from_video(video_in, video_out)
     BigBlueButton.logger.info("Task: Stripping audio from video")      
-    command = "ffmpeg -i #{video_in} -an -vcodec copy #{video_out}"
+    command = "ffmpeg -i #{video_in} -loglevel fatal -v -10 -an -vcodec copy #{video_out}"
     BigBlueButton.execute(command)	
     # TODO: check for result, raise an exception when there is an error
   end
@@ -23,7 +23,7 @@ module BigBlueButton
   #   create_blank_video(15, 1000, canvas.jpg, blank-video.flv)
   def self.create_blank_deskshare_video(length, rate, blank_canvas, video_out)
     BigBlueButton.logger.info("Task: Creating blank deskshare video")      
-    command = "ffmpeg -loop_input -t #{length} -i #{blank_canvas} -r #{rate} -vcodec flashsv #{video_out}"
+    command = "ffmpeg -loop_input -t #{length} -i #{blank_canvas} -loglevel fatal -v -10 -r #{rate} -vcodec flashsv #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check for result, raise exception when there is an error
   end
@@ -37,7 +37,7 @@ module BigBlueButton
   #   create_blank_video(15, 1000, canvas.jpg, blank-video.flv)
   def self.create_blank_video(length, rate, blank_canvas, video_out)
     BigBlueButton.logger.info("Task: Creating blank video")      
-    command = "ffmpeg -loop_input -t #{length} -i #{blank_canvas} -r #{rate} #{video_out}"
+    command = "ffmpeg -loop_input -t #{length} -i #{blank_canvas} -loglevel fatal -v -10 -r #{rate} #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check for result, raise exception when there is an error
   end
@@ -91,7 +91,7 @@ module BigBlueButton
 
   #Converts flv to mpg
   def self.convert_flv_to_mpg(flv_video, mpg_video_out)
-        command = "ffmpeg -i #{flv_video} -sameq -f mpegts #{mpg_video_out}"
+        command = "ffmpeg -i #{flv_video} -loglevel fatal -v -10 -sameq -f mpegts #{mpg_video_out}"
         BigBlueButton.logger.info("Task: Converting .flv to .mpg")    
         BigBlueButton.execute(command)
   end
@@ -105,7 +105,7 @@ module BigBlueButton
 
   #Converts .mpg to .flv
   def self.convert_mpg_to_flv(mpg_video,flv_video_out)
-        command = "ffmpeg -i  #{mpg_video} -sameq  #{flv_video_out}"
+        command = "ffmpeg -i  #{mpg_video} -loglevel fatal -v -10 -sameq  #{flv_video_out}"
         BigBlueButton.logger.info("Task: Converting .mpg to .flv")
         BigBlueButton.execute(command);
   end
@@ -116,7 +116,7 @@ module BigBlueButton
   #  video - the video file. Must not contain an audio stream. 
   def self.multiplex_audio_and_video(audio, video, video_out)
     BigBlueButton.logger.info("Task: Multiplexing audio and video")      
-    command = "ffmpeg -i #{audio} -i #{video} -map 1:0 -map 0:0 -ar 22050 #{video_out}"
+    command = "ffmpeg -i #{audio} -i #{video} -loglevel fatal -v -10 -map 1:0 -map 0:0 -ar 22050 #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check result, raise an exception when there is an error
   end
@@ -342,7 +342,7 @@ module BigBlueButton
  
    			# Use for newer version of FFMPEG
     		padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"       
-		    command = "ffmpeg -i #{stripped_webcam} -aspect 4:3 -r 1000 -sameq #{frame_size} #{padding} #{scaled_flv}" 
+		    command = "ffmpeg -i #{stripped_webcam} -loglevel fatal -v -10 -aspect 4:3 -r 1000 -sameq #{frame_size} #{padding} #{scaled_flv}" 
 		    #BigBlueButton.logger.info(command)
 		    #IO.popen(command)
 		    #Process.wait                
@@ -391,7 +391,7 @@ module BigBlueButton
  
    			# Use for newer version of FFMPEG
     		padding = "-vf pad=#{MAX_VID_WIDTH}:#{MAX_VID_HEIGHT}:#{side_padding}:#{top_bottom_padding}:FFFFFF"       
-		    command = "ffmpeg -i #{flv_in} -aspect 4:3 -r 1000 -sameq #{frame_size} #{padding} -vcodec flashsv #{scaled_flv}" 
+		    command = "ffmpeg -i #{flv_in} -loglevel fatal -v -10 -aspect 4:3 -r 1000 -sameq #{frame_size} #{padding} -vcodec flashsv #{scaled_flv}" 
 		    BigBlueButton.execute(command)
 		    #BigBlueButton.logger.info(command)
 		    #IO.popen(command)
