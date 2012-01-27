@@ -181,6 +181,11 @@
 						slideWidth = this.width - WIDTH_PADDING;
 						slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
 						LogUtil.debug("**** [" + this.width + "," + this.height + "] [" + slideWidth + "," + slideHeight + "]");
+						if (this.height < slideHeight) {
+							slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
+							slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
+							LogUtil.debug("recalc [" + this.width + "," + this.height + "] [" + slideWidth + "," + slideHeight + "]");							
+						}												
 					}					
 				} else {
 					slideWidth = this.width - WIDTH_PADDING;
@@ -206,7 +211,7 @@
 			
 			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {				
 				currentSlideWidth = event.slideWidth;
-				currentSlideHeight = event.slideHeight;
+				currentSlideHeight = event.slideHeight;				
 				fitSlideToWindowMaintainingAspectRatio();			
 			}
 			
@@ -487,8 +492,8 @@
 			}
 			
 			private function onFitToPage():void {
-				fitToPage = !fitToPage;
-				maximizeHandler();
+//				fitToPage = !fitToPage;
+//				maximizeHandler();
 			}
             
 		]]>
