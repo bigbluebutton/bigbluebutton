@@ -28,7 +28,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.ThumbnailCreator;
+import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,9 +44,9 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 	
 	private static String TEMP_THUMB_NAME = "temp-thumb";
 	
-	public boolean createThumbnails(File presentationFile, int pageCount){
+	public boolean createThumbnails(UploadedPresentation pres){
 		boolean success = false;
-	 	File thumbsDir = determineThumbnailDirectory(presentationFile);
+	 	File thumbsDir = determineThumbnailDirectory(pres.getUploadedFile());
 	 	
 	 	if (! thumbsDir.exists())
 	 		thumbsDir.mkdir();
@@ -52,28 +54,38 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 	 	cleanDirectory(thumbsDir);
 	 	
 		try {
-			success = generateThumbnails(thumbsDir, presentationFile);
+			success = generateThumbnails(thumbsDir, pres);
 	    } catch (InterruptedException e) {
 	        success = false;
 	    }
 	    
-	    if (! success) createBlankThumbnails(thumbsDir, pageCount);
+	    if (! success) createBlankThumbnails(thumbsDir, pres.getNumberOfPages());
 	    
-	    renameThumbnails(thumbsDir);
+	    if(SupportedFileTypes.isImageFile(pres.getFileType()))
+	    	renameThumbnails(thumbsDir);
 	    
 	    return true;
 	}
 
-	private boolean generateThumbnails(File thumbsDir, File presentationFile) throws InterruptedException {
-	 	String source = presentationFile.getAbsolutePath();
-	 	String dest = thumbsDir.getAbsolutePath() + File.separator + TEMP_THUMB_NAME + ".png";
+	private boolean generateThumbnails(File thumbsDir, UploadedPresentation pres) throws InterruptedException {
+	 	String source = pres.getUploadedFile().getAbsolutePath();
+	 	String dest;
+	 	String COMMAND = "";
 	 	
-		String COMMAND = IMAGEMAGICK_DIR + "/convert -thumbnail 150x150 " + source + " " + dest;
-		
+	 	if(SupportedFileTypes.isImageFile(pres.getFileType())){
+	 		dest = thumbsDir.getAbsolutePath() + File.separator + TEMP_THUMB_NAME + ".png";
+	 		COMMAND = IMAGEMAGICK_DIR + "/convert -thumbnail 150x150 " + source + " " + dest;
+	 	}else{
+	 		dest = thumbsDir.getAbsolutePath() + File.separator + "thumb-";
+	 		COMMAND = IMAGEMAGICK_DIR + "/gs -q -sDEVICE=pngalpha -dBATCH -dNOPAUSE -dNOPROMPT -dDOINTERPOLATE -dPDFFitPage -r16 -sOutputFile=" + dest +"%d.png " + source;
+	 	}
 		Process p;
+		
 		try {
 			p = Runtime.getRuntime().exec(COMMAND);
+			log.debug("begin waiting for... "+source+" "+dest);
 			int exitValue = p.waitFor();
+			log.debug("finish waiting for... "+ source);
 			if (exitValue != 0) {
 		    	log.warn("Exit Value != 0 while for " + COMMAND);
 		    } else {
