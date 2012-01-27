@@ -31,14 +31,14 @@
 	showCloseButton="false" horizontalAlign="center" verticalAlign="middle"
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off"
-	showControls="true"
+	showControls="true" 
 	backgroundColor="red"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{currentPresentation}" keyUp="onKeyUp(event)"
-	resize="maximizeHandler()" xmlns:views="org.bigbluebutton.modules.present.ui.views.*">
+	xmlns:views="org.bigbluebutton.modules.present.ui.views.*">
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
@@ -72,6 +72,7 @@
 			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
@@ -143,7 +144,7 @@
 			private function onCreationComplete():void{
 				thumbY = this.height - 160;
 				
-				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
+				this.addEventListener(ResizeEvent.RESIZE, onResizeEndEvent);
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
 			}
 			
@@ -151,10 +152,8 @@
 				this.displaySlideNumber(e.columnIndex + 1);
 			}
 			
-			private function onResizeEndEvent(event:MDIWindowEvent):void {
-				if (event.window == this) {
-					fitSlideToWindowMaintainingAspectRatio();
-				}
+			private function onResizeEndEvent(event:ResizeEvent):void {
+				fitSlideToWindowMaintainingAspectRatio();
 			}
 			
 			private var fitToPage:Boolean = true;
@@ -172,14 +171,21 @@
 					if (this.height < this.width) {					
 						slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
 						slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
+						LogUtil.debug("[" + this.width + "," + this.height + "] [" + slideWidth + "," + slideHeight + "]");
+						if (this.width < slideWidth) {
+							slideWidth = this.width - WIDTH_PADDING;
+							slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
+							LogUtil.debug("recalc [" + this.width + "," + this.height + "] [" + slideWidth + "," + slideHeight + "]");							
+						}
 					} else {
 						slideWidth = this.width - WIDTH_PADDING;
 						slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
+						LogUtil.debug("**** [" + this.width + "," + this.height + "] [" + slideWidth + "," + slideHeight + "]");
 					}					
 				} else {
 					slideWidth = this.width - WIDTH_PADDING;
-//					slideHeight = (this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER) * (currentSlideWidth/currentSlideHeight);
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
+					LogUtil.debug("FTW **** [" + this.width + "," + this.height + "] [" + slideWidth + "," + slideHeight + "]");
 				}
 
 				sendWindowResizedEvent(slideWidth, slideHeight);
@@ -512,8 +518,8 @@
     	<mx:Spacer width="50%" id="spacer3"/>
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.resetZoomBtn.toolTip')}" click="onResetZoom()"/>
-<!--		<mx:Button id="btnFitToPage" icon="{magnifierIcon}" visible="true" width="20" height="20" 
-				   click="onFitToPage()"/>-->
+		<mx:Button id="btnFitToPage" icon="{magnifierIcon}" visible="true" width="20" height="20" 
+				   click="onFitToPage()"/>
     	<mx:Spacer width="5" id="spacer4"/>
     </mx:ApplicationControlBar>
 </pres:MDIWindow>
