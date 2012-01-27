@@ -1043,36 +1043,35 @@ class ApiController {
 	}
 
   }
-
   def cleanFilename(filename) {
-	String fname = URLDecoder.decode(filename)
+    String fname = URLDecoder.decode(filename).trim()
     def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
     return fname.replaceAll(notValidCharsRegExp, '-')
   }
-  
-  def processDocumentFromRawBytes(bytes, filename, conf) {
-	def cleanName = cleanFilename(filename);
 
-    File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), cleanName);
+ def processDocumentFromRawBytes(bytes, filename, conf) {
+    def cleanName = cleanFilename(filename);
+    def nameWithoutExt = cleanName.substring(0, cleanName.lastIndexOf("."));
+    File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), nameWithoutExt);
     def pres = new File(uploadDir.absolutePath + File.separatorChar + cleanName);
-    
+
     FileOutputStream fos = new java.io.FileOutputStream(pres)
     fos.write(bytes)
     fos.flush()
     fos.close()
-    
-    processUploadedFile(cleanName, pres, conf);
+
+    processUploadedFile(nameWithoutExt, pres, conf);
   }
-    
-  def downloadAndProcessDocument(address, conf) {
+  
+ def downloadAndProcessDocument(address, conf) {
     log.debug("ApiController#downloadAndProcessDocument({$address}, ${conf.getInternalId()})");
     String name = cleanFilename(address.tokenize("/")[-1]);
     log.debug("Uploading presentation: ${name} from ${address} [starting download]");
-    
+    String nameWithoutExt = name.substring(0, name.lastIndexOf("."));
     def out;
     def pres;
     try {
-      File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), name);
+      File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), nameWithoutExt);
       pres = new File(uploadDir.absolutePath + File.separatorChar + name);
       out = new BufferedOutputStream(new FileOutputStream(pres))
       out << new URL(address).openStream()
@@ -1082,8 +1081,9 @@ class ApiController {
       }
     }
 
-    processUploadedFile(name, pres, conf);
+    processUploadedFile(nameWithoutExt, pres, conf);
   }
+
   
   def processUploadedFile(name, pres, conf) {
     UploadedPresentation uploadedPres = new UploadedPresentation(conf.getInternalId(), conf.getInternalId(), name);
