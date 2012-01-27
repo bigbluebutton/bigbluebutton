@@ -30,8 +30,8 @@
 	paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" 
 	showCloseButton="false" horizontalAlign="center" verticalAlign="middle"
 	verticalScrollPolicy="off" 
-	horizontalScrollPolicy="off"
-	showControls="true" 
+	horizontalScrollPolicy="off" 
+	showControls="true" resize="maximizeHandler()"
 	backgroundColor="red"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="onCreationComplete()" 
@@ -135,6 +135,7 @@
 			private var externalButtons:ArrayCollection = new ArrayCollection();
 			
 			private function maximizeHandler():void {
+				LogUtil.debug("Max handler");
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
 				//Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.	
@@ -144,7 +145,7 @@
 			private function onCreationComplete():void{
 				thumbY = this.height - 160;
 				
-				this.addEventListener(ResizeEvent.RESIZE, onResizeEndEvent);
+				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
 			}
 			
@@ -152,7 +153,8 @@
 				this.displaySlideNumber(e.columnIndex + 1);
 			}
 			
-			private function onResizeEndEvent(event:ResizeEvent):void {
+			private function onResizeEndEvent(event:MDIWindowEvent):void {
+				LogUtil.debug("onResizeEndEvent");
 				fitSlideToWindowMaintainingAspectRatio();
 			}
 			
@@ -171,26 +173,26 @@
 					if (this.height < this.width) {					
 						slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
 						slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
-						LogUtil.debug("[" + this.width + "," + this.height + "] [" + slideWidth + "," + slideHeight + "]");
+						LogUtil.debug("[" + this.width + "," + this.height + "] [" + slideView.x + "," + slideView.y + "] [" + slideWidth + "," + slideHeight + "] [" + currentSlideWidth + "," + currentSlideHeight + "]");
 						if (this.width < slideWidth) {
 							slideWidth = this.width - WIDTH_PADDING;
 							slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
-							LogUtil.debug("recalc [" + this.width + "," + this.height + "] [" + slideWidth + "," + slideHeight + "]");							
+							LogUtil.debug("recalc [" + this.width + "," + this.height + "] [" + slideView.x + "," + slideView.y + "] [" + slideWidth + "," + slideHeight + "] [" + currentSlideWidth + "," + currentSlideHeight + "]");							
 						}
 					} else {
 						slideWidth = this.width - WIDTH_PADDING;
 						slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
-						LogUtil.debug("**** [" + this.width + "," + this.height + "] [" + slideWidth + "," + slideHeight + "]");
+						LogUtil.debug("**** [" + this.width + "," + this.height + "] [" + slideView.x + "," + slideView.y + "] [" + slideWidth + "," + slideHeight + "] [" + currentSlideWidth + "," + currentSlideHeight + "]");
 						if (this.height < slideHeight) {
 							slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
 							slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
-							LogUtil.debug("recalc [" + this.width + "," + this.height + "] [" + slideWidth + "," + slideHeight + "]");							
+							LogUtil.debug("*** recalc [" + this.width + "," + this.height + "] [" + slideView.x + "," + slideView.y + "] [" + slideWidth + "," + slideHeight + "] [" + currentSlideWidth + "," + currentSlideHeight + "]");							
 						}												
 					}					
 				} else {
 					slideWidth = this.width - WIDTH_PADDING;
 					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
-					LogUtil.debug("FTW **** [" + this.width + "," + this.height + "] [" + slideWidth + "," + slideHeight + "]");
+					LogUtil.debug("FTW **** [" + this.width + "," + this.height + "] [" + slideView.x + "," + slideView.y + "] [" + slideWidth + "," + slideHeight + "] [" + currentSlideWidth + "," + currentSlideHeight + "]");
 				}
 
 				sendWindowResizedEvent(slideWidth, slideHeight);
@@ -211,7 +213,14 @@
 			
 			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {				
 				currentSlideWidth = event.slideWidth;
-				currentSlideHeight = event.slideHeight;				
+				currentSlideHeight = event.slideHeight;		
+				
+				fitToPage = true;
+				
+				if (event.slideHeight > event.slideWidth) {
+					fitToPage = false;
+				}
+				
 				fitSlideToWindowMaintainingAspectRatio();			
 			}
 			
