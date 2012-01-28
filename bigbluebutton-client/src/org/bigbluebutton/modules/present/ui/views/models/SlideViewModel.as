@@ -242,13 +242,17 @@ package org.bigbluebutton.modules.present.ui.views.models
 			if (fitToPage) {
 				var cpw:int = _calcPageW;
 				var cph:int = _calcPageH;
-				var cpx:Number = _calcPageX/_calcPageW;
-				var cpy:Number = _calcPageY/_calcPageH;
+			//	var cpx:Number = _calcPageX/_calcPageW;
+			//	var cpy:Number = _calcPageY/_calcPageH;
 				LogUtil.debug("** Zooming [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
-					_calcPageX + "," + _calcPageY + "][" + cpx + "," + cpy + "," + delta + "]");
+					_calcPageX + "," + _calcPageY + "][" + pageOrigW + "," + pageOrigH + "] ," + delta + "]");
 				
-				_calcPageW += delta*4;
-				_calcPageH += delta*4;
+			//	_calcPageW += delta*4;
+			//	_calcPageH += delta*4;
+				if (delta < 0) _calcPageW *= 0.95
+				else _calcPageW *= 1.05
+				_calcPageH = (_calcPageW/cpw) * cph; 
+			
 				if ((_calcPageW < viewportW) || (_calcPageH < viewportH)) {
 					_calcPageW = viewportW;
 					_calcPageH = viewportH;
@@ -258,7 +262,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 					_calcPageX -= delta;
 					_calcPageY -= delta;		
 					LogUtil.debug("** Zooming 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
-						_calcPageX + "," + _calcPageY + "][" + cpx + "," + cpy + "," + delta + "]");
+						_calcPageX + "," + _calcPageY + "][" + pageOrigW + "," + pageOrigH + "] ," + delta + "]");
 				}
 			} else {
 				// For FTW, zooming isn't making the page bigger but actually scrolling.
