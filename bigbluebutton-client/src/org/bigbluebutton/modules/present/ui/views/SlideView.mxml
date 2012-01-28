@@ -42,14 +42,17 @@
     
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
-			import flash.events.Event;			
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.events.Event;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.Button;
 			import mx.events.FlexEvent;
-			import mx.events.ListEvent;			
+			import mx.events.ListEvent;
+			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.present.events.CursorEvent;
@@ -61,6 +64,7 @@
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			import org.bigbluebutton.modules.present.events.ZoomEvent;
+			import org.bigbluebutton.modules.whiteboard.views.models.SlideViewModel;
 
 			public var zoomPercentage:int = 100;
 			public static const ZOOM_STEP:int = 5;
@@ -103,7 +107,14 @@
 			[Bindable] private var isPresenter:Boolean = false;
 			
 			private var dispatcher:Dispatcher = new Dispatcher();
-				
+			
+			private var viewportX:Number = 0;
+			private var viewportY:Number = 0;
+			private var viewportW:Number = 0;
+			private var viewportH:Number = 0;
+			
+			private var slideModel:SlideViewModel = new SlideViewModel();
+			
 			private function onCreationComplete():void {
 				slideLoader.width = this.width;
 				slideLoader.height = this.height;
@@ -200,9 +211,15 @@
 			private function handleWindowResizeEvent(event:WindowResizedEvent):void {						
 				this.width = event.width;
 				this.height = event.height;
-				resizeAndMoveLoaderInRelationToCanvas();		
+				scaleSlideLoader(event.width, event.height);
+				viewportW = event.width;
+				viewportH = event.height;
 			}
-			
+
+			private function calculateViewPort():void {				
+
+			}
+					
 			/**
 			 * Resize and moves the slide loader within the canvas container.
 			 */			
@@ -462,7 +479,11 @@
 			
 			private function handleSlideLoadedCompleteEvent(event:Event):void {		
 				var slideRealWidth:int = slideLoader.content.width;
-				var slideRealHeight:int = slideLoader.content.height;				
+				var slideRealHeight:int = slideLoader.content.height;
+				viewportX = viewportY = 0;
+				viewportW = this.width; 
+				viewportH = this.height;
+				
 				fitLoaderToCanvas();
 				dispatchNewSlideDisplayedEvent(slideRealWidth, slideRealHeight);				
 			}
