@@ -22,6 +22,8 @@ package org.bigbluebutton.modules.present.ui.views.models
 		private var _calcPageX:int = 0;
 		private var _calcPageY:int = 0;
 		
+		private var _zoom:Number = 1;
+		
 		private var _parentW:int = 0;
 		private var _parentH:int = 0;
 		
@@ -63,7 +65,8 @@ package org.bigbluebutton.modules.present.ui.views.models
 			viewedRegionW = loaderW = _pageOrigW;
 			viewedRegionH = loaderH = _pageOrigH;
 			loaderX = 0;
-			loaderY = 0;			
+			loaderY = 0;		
+			_zoom = 1;	
 		}
 		
 		public function parentChange(parentW:int, parentH:int, fitToPage:Boolean):void {
@@ -237,8 +240,8 @@ package org.bigbluebutton.modules.present.ui.views.models
 				var cph:int = _calcPageH;
 				var zpx:int = Math.abs(_calcPageX) + mouseX;
 				var zpy:int = Math.abs(_calcPageY) + mouseY;
-			//	var cpx:Number = _calcPageX/_calcPageW;
-			//	var cpy:Number = _calcPageY/_calcPageH;
+				var zpxp:Number = zpx/cpw;
+				var zpyp:Number = zpy/cph;
 			
 				LogUtil.debug("** Zoompoint [" + viewportW + "," + viewportH + "][" + mouseX + "," + mouseY + "][" + 
 					_calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + zpx + "," + zpy + "] ");			
@@ -246,28 +249,20 @@ package org.bigbluebutton.modules.present.ui.views.models
 				if (delta < 0) _calcPageW *= 0.95
 				else _calcPageW *= 1.05
 				_calcPageH = (_calcPageW/cpw) * cph; 
-			
-				var wDelta:int = _calcPageW - cpw;
-				var hDelta:int = _calcPageH - cph;
-				LogUtil.debug("** Zooming [" + _calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY+ "][" + 
-					wDelta + "," + hDelta + "]");
+
+				var zpx1:int = _calcPageW * zpxp;
+				var zpy1:int = _calcPageH * zpyp;
+				_calcPageX = -((zpx1 + zpx)/2) + mouseX;
+				_calcPageY = -((zpy1 + zpy)/2) + mouseY;
 					
 				if ((_calcPageW < viewportW) || (_calcPageH < viewportH)) {
 					_calcPageW = viewportW;
 					_calcPageH = viewportH;
 					_calcPageX = 0;
 					_calcPageY = 0;
-				} else {
-					_calcPageX -= wDelta/2;
-					_calcPageY -= hDelta/2;
-					if ((_calcPageX > 0) || (_calcPageY > 0)) {
-						_calcPageX = 0;
-						_calcPageY = 0;
-					}
-					LogUtil.debug("** Zooming 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
+				} 
+				LogUtil.debug("** Zooming 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
 						_calcPageX + "," + _calcPageY + "]");
-						
-				}
 			} else {
 				// For FTW, zooming isn't making the page bigger but actually scrolling.
 				// -delta means scrolling down, +delta means scrolling up.
