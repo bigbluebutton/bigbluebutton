@@ -23,7 +23,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:local="*"
-    width="100%" height="100%" 
+    width="{slideModel.viewportW}" height="{slideModel.viewportH}" 
     creationComplete="onCreationComplete()" 
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off"      
@@ -54,6 +54,7 @@
 			import mx.events.ListEvent;
 			
 			import org.bigbluebutton.common.IBbbCanvas;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.present.events.CursorEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
@@ -113,6 +114,7 @@
 			private var viewportW:Number = 0;
 			private var viewportH:Number = 0;
 			
+			[Bindable]
 			private var slideModel:SlideViewModel = new SlideViewModel();
 			
 			private function onCreationComplete():void {
@@ -170,12 +172,14 @@
 				var deltaCanvasMouseY:Number = this.mouseY - canvasMouseYOnMouseDown;
 
 				// Now we move the slide by the amount of mouse location change.
-				slideLoader.x = loaderXOnMouseDown + deltaCanvasMouseX;
-				slideLoader.y = loaderYOnMouseDown + deltaCanvasMouseY;
-				
+				var newX:int = slideModel.allowMoveX(loaderXOnMouseDown + deltaCanvasMouseX);
+				var newY:int = slideModel.allowMoveY(loaderYOnMouseDown + deltaCanvasMouseY);
+				slideModel.moveLoader(newX, newY);
+				slideModel.calcViewedRegion();
+				slideModel.printViewedRegion();
 				// Move the slide within the loader.
 				fitSlideToLoader();				
-				notifyOtherParticipantsOfSlideMoving();
+//				notifyOtherParticipantsOfSlideMoving();
 			}
 			
 			/**
@@ -208,16 +212,21 @@
 			 * Handles the resizing of the presenter's window. This is for the presenter resizing
 			 * his/her window.
 			 */
-			private function handleWindowResizeEvent(event:WindowResizedEvent):void {						
-				this.width = event.width;
-				this.height = event.height;
-				scaleSlideLoader(event.width, event.height);
-				viewportW = event.width;
-				viewportH = event.height;
-			}
-
-			private function calculateViewPort():void {				
-
+			private function handleWindowResizeEvent(event:WindowResizedEvent):void {		
+				LogUtil.debug("Received window resizing event.");
+				slideModel.parentChange(event.width, event.height, event.fitToPage);
+				slideModel.calculateViewportSize();
+				
+				LogUtil.debug("Is there a loaded doc?");
+				if (noSlideContentLoaded()) return;
+				LogUtil.debug("Yes there is a loaded doc?");
+				
+				slideModel.calcViewedRegion();
+				LogUtil.debug("Display viewed region");
+				slideModel.printViewedRegion();
+				LogUtil.debug("Displaying viewed region");
+				slideModel.displayRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
+				fitSlideToLoader();
 			}
 					
 			/**
@@ -257,56 +266,16 @@
 				fitSlideToLoader();						
 			}
 
-			/**
-			 * 
-			 */
 			private function resizeAndMoveLoaderBy(percent:Number):void {	
-				// Save the old loader dimensions. We need these to calculate
-				// the new position of the loader;
-				var oldLoaderHeight:int = slideLoader.height;
-				var oldLoaderWidth:int = slideLoader.width;
-
-				slideLoader.width = this.width * percent/100; 
-				slideLoader.height = this.height * percent/100;
-
-				slideLoader.x = calculateNewLoaderX(oldLoaderWidth);
-				slideLoader.y = calculateNewLoaderY(oldLoaderHeight);
 				
+				slideModel.calcViewedRegion();
+				slideModel.printViewedRegion();
+				slideModel.resizeAndMoveLoaderBy(percent);	
+				slideModel.displayRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
+
 				fitSlideToLoader();
 			}
 			
-			/**
-			 * Determines the new y coordinate of the loader. This determines if the location has
-			 * changed because the slide was resized or moved.
-			 */
-			private function calculateNewLoaderY(oldLoaderHeight:int):int {				
-				var deltaPercentHeight:Number = (slideLoader.height - oldLoaderHeight) /oldLoaderHeight;
-								
-				var newLoaderY:int = (slideLoader.y/slideLoader.height) * deltaPercentHeight;				
-				if (newLoaderY == 0) {
-					newLoaderY = slideLoader.y - (deltaPercentHeight * 100);
-				} else {
-					newLoaderY = slideLoader.y - newLoaderY;
-				}
-				
-				return newLoaderY;
-			}
-			
-			/**
-			 * Determines the new y coordinate of the loader. This determines if the location has
-			 * changed because the slide was resized or moved.
-			 */
-			private function calculateNewLoaderX(oldLoaderWidth:int):int {				
-				var deltaPercentWidth:Number = (slideLoader.width - oldLoaderWidth) / oldLoaderWidth;
-				var newLoaderX:int = (slideLoader.x/slideLoader.width) * deltaPercentWidth;
-				if (newLoaderX == 0) {
-					newLoaderX = slideLoader.x - (deltaPercentWidth * 100);
-				} else {
-					newLoaderX = slideLoader.x - newLoaderX;
-				}		
-				
-				return newLoaderX;		
-			}
 			
 			private function handleSlideResizeEvent(event:PresenterCommands):void {
 				zoomLoaderBy(event.newSizeInPercent);
@@ -340,7 +309,7 @@
 				}
 				
 				zoomLoaderBy(zoomPercentage);	
-				notifyListenersOfSlideResize(zoomPercentage);			
+//				notifyListenersOfSlideResize(zoomPercentage);			
 			}
 			
 			public function notifyListenersOfSlideResize(percent:Number):void {
@@ -478,14 +447,13 @@
 			}
 			
 			private function handleSlideLoadedCompleteEvent(event:Event):void {		
-				var slideRealWidth:int = slideLoader.content.width;
-				var slideRealHeight:int = slideLoader.content.height;
-				viewportX = viewportY = 0;
-				viewportW = this.width; 
-				viewportH = this.height;
-				
-				fitLoaderToCanvas();
-				dispatchNewSlideDisplayedEvent(slideRealWidth, slideRealHeight);				
+				slideModel.pageOrigW = slideLoader.content.width;
+				slideModel.pageOrigH = slideLoader.content.height;
+				slideModel.viewedRegionW = slideModel.loaderW = slideModel.pageOrigW;
+				slideModel.viewedRegionH = slideModel.loaderH = slideModel.pageOrigH;
+				slideModel.loaderX = 0;
+				slideModel.loaderY = 0;
+				dispatchNewSlideDisplayedEvent(slideModel.pageOrigW, slideModel.pageOrigH);				
 			}
 			
 			private function dispatchNewSlideDisplayedEvent(slideRealWidth:int, slideRealHeight:int):void {
@@ -553,7 +521,8 @@
 		]]>
 	</mx:Script>
 	
-	<mx:SWFLoader id="slideLoader" width="100%" height="100%" creationComplete="listenForSlideLoadedCompleteEvent()"
+	<mx:SWFLoader id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" x="{slideModel.loaderX}" y="{slideModel.loaderY}" 
+				  creationComplete="listenForSlideLoadedCompleteEvent()"
     		scaleContent="false" maintainAspectRatio="true" showBusyCursor="true" completeEffect="Fade"/>   
     		
     <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.ui.views.Thumbnail" itemRollOver="changeIndex(event)" 
