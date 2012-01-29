@@ -322,7 +322,7 @@
 			 * Triggered when the presenter uses the mouse wheel to zoom in/out of the slide.
 			 */
 			private function onMouseWheelZoomEvent(e:MouseEvent):void {
-				slideModel.onZoom(e.delta, this.x, this.y);
+				slideModel.onZoom(e.delta, this.mouseX, this.mouseY);
 				slideModel.calcViewedRegion();
 				slideModel.calcViewedRegionXY();
 				//					LogUtil.debug("Display viewed region");

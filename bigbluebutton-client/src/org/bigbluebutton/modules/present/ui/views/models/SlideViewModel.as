@@ -151,13 +151,6 @@ package org.bigbluebutton.modules.present.ui.views.models
 					_calcPageY = newY;
 				}
 				LogUtil.debug("** FTP calcPageY [" + deltaX + "," + deltaY + "] [" + _calcPageX + "," + _calcPageY + "]");									
-				
-//				if ((newX) > 0) _calcPageX = 0;
-//				else if ((Math.abs(newX) + viewportW) > _calcPageW) {
-//					_calcPageX = viewportW - _calcPageW;
-//				} else {
-//					_calcPageX = newX;
-//				}
 			} else {				
 				_calcPageX = 0
 				LogUtil.debug("** FTW calcPageY [" + deltaX + "," + deltaY + "] [" + _calcPageY + "<" + viewportH + "]");									
@@ -242,27 +235,38 @@ package org.bigbluebutton.modules.present.ui.views.models
 			if (fitToPage) {
 				var cpw:int = _calcPageW;
 				var cph:int = _calcPageH;
+				var zpx:int = Math.abs(_calcPageX) + mouseX;
+				var zpy:int = Math.abs(_calcPageY) + mouseY;
 			//	var cpx:Number = _calcPageX/_calcPageW;
 			//	var cpy:Number = _calcPageY/_calcPageH;
-				LogUtil.debug("** Zooming [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
-					_calcPageX + "," + _calcPageY + "][" + pageOrigW + "," + pageOrigH + "] ," + delta + "]");
+			
+				LogUtil.debug("** Zoompoint [" + viewportW + "," + viewportH + "][" + mouseX + "," + mouseY + "][" + 
+					_calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + zpx + "," + zpy + "] ");			
 				
-			//	_calcPageW += delta*4;
-			//	_calcPageH += delta*4;
 				if (delta < 0) _calcPageW *= 0.95
 				else _calcPageW *= 1.05
 				_calcPageH = (_calcPageW/cpw) * cph; 
 			
+				var wDelta:int = _calcPageW - cpw;
+				var hDelta:int = _calcPageH - cph;
+				LogUtil.debug("** Zooming [" + _calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY+ "][" + 
+					wDelta + "," + hDelta + "]");
+					
 				if ((_calcPageW < viewportW) || (_calcPageH < viewportH)) {
 					_calcPageW = viewportW;
 					_calcPageH = viewportH;
 					_calcPageX = 0;
 					_calcPageY = 0;
 				} else {
-					_calcPageX -= delta;
-					_calcPageY -= delta;		
+					_calcPageX -= wDelta/2;
+					_calcPageY -= hDelta/2;
+					if ((_calcPageX > 0) || (_calcPageY > 0)) {
+						_calcPageX = 0;
+						_calcPageY = 0;
+					}
 					LogUtil.debug("** Zooming 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
-						_calcPageX + "," + _calcPageY + "][" + pageOrigW + "," + pageOrigH + "] ," + delta + "]");
+						_calcPageX + "," + _calcPageY + "]");
+						
 				}
 			} else {
 				// For FTW, zooming isn't making the page bigger but actually scrolling.
