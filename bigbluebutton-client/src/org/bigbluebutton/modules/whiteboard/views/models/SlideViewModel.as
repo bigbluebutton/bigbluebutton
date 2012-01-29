@@ -130,7 +130,7 @@ package org.bigbluebutton.modules.whiteboard.views.models
 				}				
 			} else {
 				viewedRegionW = pageOrigW;
-					viewedRegionH = (viewportH/viewportW) * pageOrigH;
+				viewedRegionH = (viewportH/viewportW) * pageOrigH;
 			}
 		}
 		
@@ -227,6 +227,17 @@ package org.bigbluebutton.modules.whiteboard.views.models
 			loaderY = (y*loaderH)/pageOrigH;
 			LogUtil.debug("calc loaderY [(" + y + "*" + loaderH + ")/" + pageOrigH + "=" + loaderY + "]");
 			LogUtil.debug("Displaying [" + loaderW + "," + loaderH + "] [" + loaderX + "," + loaderY + "]");			
+		}
+		
+		public function calculateViewportNeededForRegion(regionW:int, regionH:int):void {
+			viewportH = parentH;
+			viewportW = parentW;
+			
+			if (parentW < parentH) {
+				viewportH = (regionH/regionW)*parentW;
+			} else {
+				viewportW = (regionW/regionH)*parentH;
+			}
 		}
 		
 	}

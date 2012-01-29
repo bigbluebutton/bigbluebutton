@@ -55,6 +55,7 @@
 			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.present.events.CursorEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
@@ -227,6 +228,7 @@
 				LogUtil.debug("Displaying viewed region");
 				slideModel.displayRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
 				fitSlideToLoader();
+				notifyOthersOfZoomEvent();
 			}
 					
 			/**
@@ -320,10 +322,10 @@
 						
 			private function notifyOthersOfZoomEvent():void {
 				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ZOOM);
-				presentEvent.xOffset = slideLoader.x/slideLoader.width;
-				presentEvent.yOffset = slideLoader.y/slideLoader.height;
-				presentEvent.slideToCanvasWidthRatio = slideLoader.width/this.width;
-				presentEvent.slideToCanvasHeightRatio = slideLoader.height/this.height;
+				presentEvent.xOffset = slideModel.viewedRegionX;
+				presentEvent.yOffset = slideModel.viewedRegionY;
+				presentEvent.slideToCanvasWidthRatio = slideModel.viewedRegionW;
+				presentEvent.slideToCanvasHeightRatio = slideModel.viewedRegionH;
 				dispatchEvent(presentEvent);
 			}
 			
@@ -336,24 +338,32 @@
 			 * Handles notification from presenter that the slide has moved.
 			 */
 			private function handleMoveEvent(e:MoveEvent):void{
-				savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);				
-				if (!isPresenter) {
-					resizeAndMoveLoaderInRelationToCanvas();
+				if (UserManager.getInstance().getConference().amIPresenter()) {
+					return;
 				}
-				
-				moveCanvas(slideLoader.x, slideLoader.y);
+				LogUtil.debug("Got resizing event from presenter [" + e.xOffset + "," + e.yOffset + "," + e.slideToCanvasWidthRatio + "," + e.slideToCanvasHeightRatio + "]");
+				slideModel.calculateViewportNeededForRegion(e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+				slideModel.displayRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+				fitSlideToLoader();
+//				savePresentersSettings(e.xOffset, e.xOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);				
+//				if (!isPresenter) {
+//					slideModel.displayRegion(e.xOffset, e.xOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+//				}
+//				
+//				moveCanvas(slideLoader.x, slideLoader.y);
 			}
 			
 			/**
 			 * Handle notification from presenter that the slide has been zoomed.
 			 */						
 			private function handleZoomEvent(e:ZoomEvent):void {
-				savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);													
-				if (!isPresenter) {
-					resizeAndMoveLoaderInRelationToCanvas();
-				}
+//				LogUtil.debug("Got resizing event from presenter [" + e.xOffset + "," + e.yOffset + "," + e.slideToCanvasWidthRatio + "," + e.slideToCanvasHeightRatio + "]");
+//				savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);													
+//				if (!isPresenter) {
+//					resizeAndMoveLoaderInRelationToCanvas();
+//				}
 				
-				zoomCanvas(slideLoader.width, slideLoader.height);
+//				zoomCanvas(slideLoader.width, slideLoader.height);
 			}
 			
 			/**
