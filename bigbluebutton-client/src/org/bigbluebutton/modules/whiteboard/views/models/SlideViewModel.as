@@ -228,15 +228,32 @@ package org.bigbluebutton.modules.whiteboard.views.models
 			LogUtil.debug("calc loaderY [(" + y + "*" + loaderH + ")/" + pageOrigH + "=" + loaderY + "]");
 			LogUtil.debug("Displaying [" + loaderW + "," + loaderH + "] [" + loaderX + "," + loaderY + "]");			
 		}
+
+		public function saveViewedRegion(x:int, y:int, regionW:int, regionH:int):void {
+			viewedRegionX = x;
+			viewedRegionY = y;
+			viewedRegionW = regionW;
+			viewedRegionH = regionH;
+		}
 		
-		public function calculateViewportNeededForRegion(regionW:int, regionH:int):void {
+		public function calculateViewportNeededForRegion(x:int, y:int, regionW:int, regionH:int):void {			
 			viewportH = parentH;
 			viewportW = parentW;
 			
 			if (parentW < parentH) {
 				viewportH = (regionH/regionW)*parentW;
+				if (parentH < viewportH) {
+					viewportH = parentH;
+					viewportW = ((regionW * viewportH)/viewportH);
+//					LogUtil.debug("calc viewport ***** resizing [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
+				}
 			} else {
 				viewportW = (regionW/regionH)*parentH;
+				if (parentW < viewportW) {
+					viewportW = parentW;
+					viewportH = ((regionH * viewportW)/regionW);
+//					LogUtil.debug("calc viewport resizing [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
+				}
 			}
 		}
 		
