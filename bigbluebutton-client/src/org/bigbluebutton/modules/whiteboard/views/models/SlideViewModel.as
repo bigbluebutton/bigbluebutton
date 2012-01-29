@@ -110,22 +110,27 @@ package org.bigbluebutton.modules.whiteboard.views.models
 		}
 		
 		private function calcViewedRegionWidth():void {
-			if (viewedRegionW == pageOrigW) {
-				viewedRegionW = pageOrigW;
-			} else {
-				viewedRegionW = (viewportW/loaderW) * pageOrigW;
-				if (viewedRegionW >= loaderW) {
+			if (fitToPage) {
+				if (viewedRegionW == pageOrigW) {
 					viewedRegionW = pageOrigW;
+				} else {
+					viewedRegionW = (viewportW/loaderW) * pageOrigW;
+					if (viewedRegionW >= loaderW) {
+						viewedRegionW = pageOrigW;
+					}
 				}
-			}
-			
-			if (viewedRegionH == pageOrigH) {
-				viewedRegionH = pageOrigH;
-			} else {
-				viewedRegionH = (viewportH/loaderH) * pageOrigH;
-				if (viewedRegionH >= loaderH) {
+				
+				if (viewedRegionH == pageOrigH) {
 					viewedRegionH = pageOrigH;
-				}
+				} else {
+					viewedRegionH = (viewportH/loaderH) * pageOrigH;
+					if (viewedRegionH >= loaderH) {
+						viewedRegionH = pageOrigH;
+					}
+				}				
+			} else {
+				viewedRegionW = pageOrigW;
+					viewedRegionH = (viewportH/viewportW) * pageOrigH;
 			}
 		}
 		
@@ -186,24 +191,24 @@ package org.bigbluebutton.modules.whiteboard.views.models
 		
 		public function allowMoveX(newX:int):int {
 			if (newX > 0) {
-				LogUtil.debug("LoaderX is getting into viewport " + newX);
+//				LogUtil.debug("LoaderX is getting into viewport " + newX);
 				return 0;
 			}
-			if ((loaderW + newX) < viewportW) return 0;
+			if ((loaderW + newX) < viewportW) return (viewportW - loaderW);
 			
-			LogUtil.debug("LoaderX is NOT getting into viewport " + newX);
+//			LogUtil.debug("LoaderX is NOT getting into viewport " + newX);
 			return newX;
 		}
 		
 		public function allowMoveY(newY:int):int {
 			if (newY > 0) {
-				LogUtil.debug("LoaderY is getting into viewport " + newY);
+//				LogUtil.debug("LoaderY is getting into viewport " + newY);
 				return 0;
 			}			
 			
-			if ((loaderH + newY) < viewportH) return 0;
+			if ((loaderH + newY) < viewportH) return (viewportH - loaderH);
 			
-			LogUtil.debug("LoaderY is NOT getting into viewport " + newY);
+//			LogUtil.debug("LoaderY is NOT getting into viewport " + newY);
 			return newY;
 		}
 		

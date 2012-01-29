@@ -267,7 +267,7 @@
 			}
 
 			private function resizeAndMoveLoaderBy(percent:Number):void {	
-				
+				LogUtil.debug("Handling zoom");				
 				slideModel.calcViewedRegion();
 				slideModel.printViewedRegion();
 				slideModel.resizeAndMoveLoaderBy(percent);	
