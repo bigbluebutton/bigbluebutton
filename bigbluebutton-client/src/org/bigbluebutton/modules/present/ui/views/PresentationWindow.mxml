@@ -135,7 +135,7 @@
 			private var externalButtons:ArrayCollection = new ArrayCollection();
 			
 			private function maximizeHandler():void {
-				LogUtil.debug("Max handler");
+//				LogUtil.debug("Max handler");
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
 				//Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.	
@@ -154,7 +154,7 @@
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
-				LogUtil.debug("onResizeEndEvent");
+//				LogUtil.debug("onResizeEndEvent");
 				fitSlideToWindowMaintainingAspectRatio();
 			}
 			
@@ -474,12 +474,7 @@
 			private function localeChanged(e:LocaleChangeEvent):void{
 				resourcesChanged();
 			}
-			
-			private function onFitToPage():void {
-				fitToPage = !fitToPage;
-				maximizeHandler();
-			}
-            
+			          
 		]]>
 	</mx:Script>
   	 
@@ -507,8 +502,6 @@
     	<mx:Spacer width="50%" id="spacer3"/>
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.resetZoomBtn.toolTip')}" click="onResetZoom()"/>
-		<mx:Button id="btnFitToPage" icon="{magnifierIcon}" visible="true" width="20" height="20" 
-				   click="onFitToPage()"/>
     	<mx:Spacer width="5" id="spacer4"/>
     </mx:ApplicationControlBar>
 </pres:MDIWindow>

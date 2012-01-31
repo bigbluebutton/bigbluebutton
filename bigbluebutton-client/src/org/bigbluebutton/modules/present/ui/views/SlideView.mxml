@@ -66,7 +66,7 @@
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			import org.bigbluebutton.modules.present.events.ZoomEvent;
-			import org.bigbluebutton.modules.whiteboard.views.models.SlideViewModel;
+			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
 
 			public var zoomPercentage:int = 100;
 			public static const ZOOM_STEP:int = 5;
@@ -178,6 +178,8 @@
 				slideModel.moveLoader(newX, newY);
 				slideModel.calcViewedRegion();
 				slideModel.printViewedRegion();
+//				slideModel.displayViewerRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
+
 				// Move the slide within the loader.
 				fitSlideToLoader();				
 //				notifyOtherParticipantsOfSlideMoving();
@@ -214,27 +216,27 @@
 			 * his/her window.
 			 */
 			private function handleWindowResizeEvent(event:WindowResizedEvent):void {		
-				LogUtil.debug("Received window resizing event.");
+//				LogUtil.debug("Received window resizing event.");
 				slideModel.parentChange(event.width, event.height, event.fitToPage);
 				
 				if (UserManager.getInstance().getConference().amIPresenter()) {
 					slideModel.calculateViewportSize();
 					
-					LogUtil.debug("Is there a loaded doc?");
+//					LogUtil.debug("Is there a loaded doc?");
 					if (noSlideContentLoaded()) return;
-					LogUtil.debug("Yes there is a loaded doc?");
+//					LogUtil.debug("Yes there is a loaded doc?");
 					
 					slideModel.calcViewedRegion();
-					LogUtil.debug("Display viewed region");
+//					LogUtil.debug("Display viewed region");
 					slideModel.printViewedRegion();
-					LogUtil.debug("Displaying viewed region");
-					slideModel.displayRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
+//					LogUtil.debug("Displaying viewed region");
+					slideModel.displayPresenterRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
 					fitSlideToLoader();
 					notifyOthersOfZoomEvent();
 				} else {
-					LogUtil.debug("Got resizing event from viewer [" + slideModel.viewedRegionX + "," + slideModel.viewedRegionY + "," + slideModel.viewedRegionW + "," + slideModel.viewedRegionH + "]");
+//					LogUtil.debug("Got resizing event from viewer [" + slideModel.viewedRegionX + "," + slideModel.viewedRegionY + "," + slideModel.viewedRegionW + "," + slideModel.viewedRegionH + "]");
 					slideModel.calculateViewportNeededForRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
-					slideModel.displayRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
+					slideModel.displayViewerRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
 					fitSlideToLoader();					
 				}				
 
@@ -267,7 +269,7 @@
 				zoomCanvas(slideLoader.width, slideLoader.height);
 			}
 									
-			private function fitLoaderToCanvas():void{
+			private function fitLoaderToCanvas1():void{
 				if (noSlideContentLoaded()) return;
 				
 				slideLoader.width = this.width;
@@ -282,7 +284,7 @@
 				slideModel.calcViewedRegion();
 				slideModel.printViewedRegion();
 				slideModel.resizeAndMoveLoaderBy(percent);	
-				slideModel.displayRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
+				slideModel.displayPresenterRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
 
 				fitSlideToLoader();
 			}
@@ -302,7 +304,7 @@
 				}
 				
  				if (zoomPercentage == 100) {
- 					fitLoaderToCanvas();
+ //					fitLoaderToCanvas();
  				} else {
  					resizeAndMoveLoaderBy(zoomPercentage);
  				}
@@ -319,7 +321,7 @@
 					zoomPercentage += ZOOM_STEP;
 				}
 				
-				zoomLoaderBy(zoomPercentage);	
+//				zoomLoaderBy(zoomPercentage);	
 //				notifyListenersOfSlideResize(zoomPercentage);			
 			}
 			
@@ -350,10 +352,10 @@
 				if (UserManager.getInstance().getConference().amIPresenter()) {
 					return;
 				}
-				LogUtil.debug("Got resizing event from presenter [" + e.xOffset + "," + e.yOffset + "," + e.slideToCanvasWidthRatio + "," + e.slideToCanvasHeightRatio + "]");
+//				LogUtil.debug("Got resizing event from presenter [" + e.xOffset + "," + e.yOffset + "," + e.slideToCanvasWidthRatio + "," + e.slideToCanvasHeightRatio + "]");
 				slideModel.saveViewedRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 				slideModel.calculateViewportNeededForRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
-				slideModel.displayRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+				slideModel.displayViewerRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 				fitSlideToLoader();
 			}
 			
@@ -461,12 +463,7 @@
 			}
 			
 			private function handleSlideLoadedCompleteEvent(event:Event):void {		
-				slideModel.pageOrigW = slideLoader.content.width;
-				slideModel.pageOrigH = slideLoader.content.height;
-				slideModel.viewedRegionW = slideModel.loaderW = slideModel.pageOrigW;
-				slideModel.viewedRegionH = slideModel.loaderH = slideModel.pageOrigH;
-				slideModel.loaderX = 0;
-				slideModel.loaderY = 0;
+				slideModel.reset(slideLoader.content.width, slideLoader.content.height);
 				dispatchNewSlideDisplayedEvent(slideModel.pageOrigW, slideModel.pageOrigH);				
 			}
 			
