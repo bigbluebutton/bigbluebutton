@@ -11,6 +11,7 @@ import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Playback;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.User;
+import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
@@ -21,6 +22,7 @@ public class MeetingService {
 	private static Logger log = LoggerFactory.getLogger(MeetingService.class);
 	
 	private final ConcurrentMap<String, Meeting> meetings;	
+	private final ConcurrentMap<String, UserSession> sessions;
 	private int defaultMeetingExpireDuration = 1;	
 	private int defaultMeetingCreateJoinDuration = 5;
 	private RecordingService recordingService;
@@ -29,7 +31,20 @@ public class MeetingService {
 	private boolean removeMeetingWhenEnded = false;
 	
 	public MeetingService() {
-		meetings = new ConcurrentHashMap<String, Meeting>();		
+		meetings = new ConcurrentHashMap<String, Meeting>();	
+		sessions = new ConcurrentHashMap<String, UserSession>();
+	}
+	
+	public void addUserSession(String token, UserSession user) {
+		sessions.put(token, user);
+	}
+	
+	public UserSession getUserSession(String token) {
+		return sessions.get(token);
+	}
+	
+	public UserSession removeUserSession(String token) {
+		return sessions.remove(token);
 	}
 	
 	/**
