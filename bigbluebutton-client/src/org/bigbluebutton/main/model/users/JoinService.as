@@ -26,6 +26,7 @@ package org.bigbluebutton.main.model.users
 	import flash.net.navigateToURL;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.BBB;
 	        	
 	public class JoinService
 	{  
@@ -62,7 +63,15 @@ package org.bigbluebutton.main.model.users
 			var returncode:String = xml.returncode;
 			if (returncode == 'FAILED') {
 				LogUtil.debug("Join FAILED = " + xml);
-				navigateToURL(new URLRequest(xml.logoutURL),'_self')
+				
+				// THe user lost his session. Determine where we will send him
+				// so he can rejoin.
+				var lurl:String = BBB.initUserConfigManager().getLogoutUrl();
+				if (lurl == null) {
+					lurl = xml.logoutURL;
+				}
+				
+				navigateToURL(new URLRequest(lurl),'_self')
 				
 			} else if (returncode == 'SUCCESS') {
 				LogUtil.debug("Join SUCESS = " + xml);
