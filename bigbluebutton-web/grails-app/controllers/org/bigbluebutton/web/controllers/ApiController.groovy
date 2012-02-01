@@ -668,7 +668,7 @@ class ApiController {
    ***********************************************/
   def enter = {	    
     if (! session["room"]) {
-      println "Could not find conference"
+      log.info("No session for user in confenrece.")
       response.addHeader("Cache-Control", "no-cache")
       withFormat {				
         xml {
@@ -681,7 +681,7 @@ class ApiController {
         }
       }
       } else {	
-        println "Found conference"
+        log.info("Found conference for " + session["fullname"])
         response.addHeader("Cache-Control", "no-cache")
         withFormat {				
         xml {
