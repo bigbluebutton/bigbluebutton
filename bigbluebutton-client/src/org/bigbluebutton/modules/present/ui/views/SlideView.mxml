@@ -230,6 +230,8 @@
 					//					LogUtil.debug("Yes there is a loaded doc?");
 					
 					slideModel.calcCalcPageSize();
+					// Move on resize ***
+					slideModel.onResizeMove(this.x, this.y);
 					slideModel.calcViewedRegion();
 					slideModel.calcViewedRegionXY();
 					//					LogUtil.debug("Display viewed region");

@@ -86,6 +86,9 @@ package org.bigbluebutton.modules.present.managers
 		
 		public function updatePresentationNames(e:UploadEvent):void{
 			LogUtil.debug("Adding presentation " + e.presentationName);
+			for (var i:int = 0; i < presentationNames.length; i++) {
+				if (presentationNames[i] == e.presentationName) return;
+			}
 			presentationNames.push(String(e.presentationName));
 		}
 

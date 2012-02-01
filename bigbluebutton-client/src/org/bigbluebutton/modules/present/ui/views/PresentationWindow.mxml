@@ -116,7 +116,7 @@
 			
 			[Bindable] private var CONTROL_BAR_HEIGHT:int = 45;
 			private static const TOP_WINDOW_BORDER:int = 30;
-			private static const WIDTH_PADDING:int = 5;
+			private static const WIDTH_PADDING:int = 6;
 
 			[Bindable] private var DEFAULT_WINDOW_WIDTH:int = 510;
 			[Bindable] private var DEFAULT_WINDOW_HEIGHT:int = 451;
