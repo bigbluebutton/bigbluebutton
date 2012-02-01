@@ -42,17 +42,14 @@
     
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.Event;
-			
+			import com.asfusion.mate.events.Dispatcher;			
+			import flash.events.Event;			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.Button;
 			import mx.events.FlexEvent;
-			import mx.events.ListEvent;
-			
+			import mx.events.ListEvent;			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -152,15 +149,16 @@
 				dispatchEvent(e);
 			}
 			
+			private var prevMouseX:int;
+			private	var prevMouseY:int;
+			
 			/**
 			 * Triggered when the presenter clicks on the slides with the intent of moving it.
 			 */		
 			private function onMouseDown(e:MouseEvent):void {						
-				canvasMouseXOnMouseDown = this.mouseX;
-				canvasMouseYOnMouseDown = this.mouseY;
-				loaderXOnMouseDown = slideLoader.x;
-				loaderYOnMouseDown = slideLoader.y;
-							
+				prevMouseX = this.mouseX;
+				prevMouseY = this.mouseY;
+				slideModel.onMoveStart();			
 				addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 			}
 			
@@ -169,13 +167,15 @@
 			 */ 
 			private function onMouseMove(e:MouseEvent):void {	
 				// Compute the change in mouse position from where the mouse was clicked.
-				var deltaCanvasMouseX:Number = this.mouseX - canvasMouseXOnMouseDown;
-				var deltaCanvasMouseY:Number = this.mouseY - canvasMouseYOnMouseDown;
+				var deltaCanvasMouseX:Number = this.mouseX - prevMouseX;
+				var deltaCanvasMouseY:Number = this.mouseY - prevMouseY;
+				prevMouseX = this.mouseX;
+				prevMouseY = this.mouseY;				
 
 //				LogUtil.debug("Move [" + this.mouseX + "," + this.mouseY + "][" + canvasMouseXOnMouseDown + "," + canvasMouseYOnMouseDown + "][" +
 //					deltaCanvasMouseX + "," + deltaCanvasMouseY + "]");
 				
-				slideModel.move(loaderXOnMouseDown + deltaCanvasMouseX, loaderYOnMouseDown + deltaCanvasMouseY); 
+				slideModel.onMove(deltaCanvasMouseX, deltaCanvasMouseY); 
 				slideModel.calcViewedRegion();
 				slideModel.calcViewedRegionXY();
 				//					LogUtil.debug("Display viewed region");
@@ -221,7 +221,9 @@
 				slideModel.parentChange(event.width, event.height, event.fitToPage);
 				
 				if (UserManager.getInstance().getConference().amIPresenter()) {
+					LogUtil.debug("Before resizing viewport [" + this.width + "," + this.height + "][" + this.x + "," + this.y + "]");
 					slideModel.calculateViewportSize();
+					LogUtil.debug("After resizing viewport [" + this.width + "," + this.height + "][" + this.x + "," + this.y + "]");
 					
 					//					LogUtil.debug("Is there a loaded doc?");
 					if (noSlideContentLoaded()) return;
