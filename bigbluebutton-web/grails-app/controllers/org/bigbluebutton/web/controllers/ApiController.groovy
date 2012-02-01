@@ -38,11 +38,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import org.bigbluebutton.api.ApiErrors;
 import org.bigbluebutton.api.ParamsProcessorUtil;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.text.DateFormat;
+
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours    
@@ -314,8 +314,12 @@ class ApiController {
     us.welcome = meeting.getWelcomeMessage()
 	us.logoutUrl = meeting.getLogoutUrl();
     
+	// Store the following into a session so we can handle
+	// logout, restarts properly.
 	session['meeting-id'] = us.meetingID
 	session['user-token'] = us.meetingID + "-" + us.internalUserId;
+	session['logout-url'] = us.logoutUrl
+	
 	meetingService.addUserSession(session['user-token'], us);
 	
 	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")
@@ -680,7 +684,9 @@ class ApiController {
       log.info("No session for user in conference.")
 	  
 	  Meeting meeting = null;	  
-	  String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+	  
+	  // Determine the logout url so we can send the user there.
+	  String logoutUrl = session["logout-url"]
 					
 	  if (! session['meeting-id']) {
 		  meeting = meetingService.getMeeting(session['meeting-id']);
@@ -693,6 +699,9 @@ class ApiController {
 		  log.debug("Logging out from [" + meeting.getInternalId() + "]");
 		  logoutUrl = meeting.getLogoutUrl();
 	  }
+	  
+	  if (StringUtils.isEmpty(logoutUrl))
+	  	logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
 	  
       response.addHeader("Cache-Control", "no-cache")
       withFormat {				
