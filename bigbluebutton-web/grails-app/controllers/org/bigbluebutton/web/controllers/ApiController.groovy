@@ -314,6 +314,7 @@ class ApiController {
     us.welcome = meeting.getWelcomeMessage()
 	us.logoutUrl = meeting.getLogoutUrl();
     
+	session['meeting-id'] = us.meetingID
 	session['user-token'] = us.meetingID + "-" + us.internalUserId;
 	meetingService.addUserSession(session['user-token'], us);
 	
@@ -677,6 +678,22 @@ class ApiController {
   def enter = {	    
     if (! session["user-token"] || (meetingService.getUserSession(session['user-token']) == null)) {
       log.info("No session for user in conference.")
+	  
+	  Meeting meeting = null;	  
+	  String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+					
+	  if (! session['meeting-id']) {
+		  meeting = meetingService.getMeeting(session['meeting-id']);
+	  }
+	
+	  // Log the user out of the application.
+	  session.invalidate()
+	
+	  if (meeting != null) {
+		  log.debug("Logging out from [" + meeting.getInternalId() + "]");
+		  logoutUrl = meeting.getLogoutUrl();
+	  }
+	  
       response.addHeader("Cache-Control", "no-cache")
       withFormat {				
         xml {
@@ -684,10 +701,12 @@ class ApiController {
             response() {
               returncode("FAILED")
               message("Could not find conference.")
+			  logoutURL(logoutUrl)
             }
           }
         }
       }
+	  
     } else {
 		UserSession us = meetingService.getUserSession(session['user-token']);	
         log.info("Found conference for " + us.fullname)
@@ -731,16 +750,18 @@ class ApiController {
 	}
 		  
   	String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-                  
-  	// Log the user out of the application.
-  	session.invalidate()
-  
+                    
+	if ((meeting == null) && (! session['meeting-id'])) {
+		meeting = meetingService.getMeeting(session['meeting-id']);
+	}
+	
+	// Log the user out of the application.
+	session.invalidate()
+	
   	if (meeting != null) {
   	  log.debug("Logging out from [" + meeting.getInternalId() + "]");
   		logoutUrl = meeting.getLogoutUrl();
-  	} else {
-  		log.warn("Signing out from a non-existing meeting [" + meetingId + "]");	
-  	}      
+  	}     
    
   	log.debug("Signing out. Redirecting to " + logoutUrl)
     response.addHeader("Cache-Control", "no-cache")
