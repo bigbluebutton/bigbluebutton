@@ -119,7 +119,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 
 		public function onResizeMove(vpx:int, vpy:int):void {
 			if (fitToPage) {
-			//	
+				//
 			} else {
 				_calcPageX = 0;
 //				LogUtil.debug("onResizeMove [" + vpx + "," + vpy + "] [" + _calcPageH + "," + viewportH + "] [" + _calcPageY + "]");	
@@ -132,7 +132,10 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}
 		
 		public function onMove(deltaX:int, deltaY:int):void {
-			if (fitToPage) {				
+			if (fitToPage) {	
+				_calcPageX += deltaX;
+				_calcPageY += deltaY;
+				
 //				if ((newX) > 0) _calcPageX = 0;
 //				else if ((Math.abs(newX) + viewportW) > _calcPageW) {
 //					_calcPageX = viewportW - _calcPageW;
@@ -221,14 +224,16 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}
 		
 		public function onZoom(delta:int):void {
-			LogUtil.debug("** Zooming " + delta);
+			LogUtil.debug("** Zooming [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" +_calcPageX + "," + _calcPageY + "," + delta + "]");
 			if (fitToPage) {
-				_calcPageW += delta*2;
-				_calcPageH += delta*2;
+				_calcPageW += delta*4;
+				_calcPageH += delta*4;
 				if ((_calcPageW < viewportW) || (_calcPageH < viewportH)) {
 					_calcPageW = viewportW;
 					_calcPageH = viewportH;
 				}
+				_calcPageX -= delta*2;
+				_calcPageY -= delta*2;
 			} else {
 				// For FTW, zooming isn't making the page bigger but actually scrolling.
 				// -delta means scrolling down, +delta means scrolling up.
