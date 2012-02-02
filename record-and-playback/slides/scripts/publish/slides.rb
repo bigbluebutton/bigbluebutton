@@ -73,8 +73,15 @@ if (playback == "slides")
   	@doc = Nokogiri::XML(File.open("#{process_dir}/events.xml"))
 	  meeting_start = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0]['timestamp']
 	  meeting_end = @doc.xpath("//event[@eventname='EndAndKickAllEvent']").last()['timestamp']
-	  first_presentation_start = @doc.xpath("//event[@eventname='SharePresentationEvent']")[0]['timestamp']
-	  first_slide_start = (first_presentation_start.to_i - meeting_start.to_i) / 1000
+	  
+	  first_presentation_start_node = @doc.xpath("//event[@eventname='SharePresentationEvent']")
+	  first_presentation_start = meeting_end
+      if not first_presentation_start_node.empty?
+		first_presentation_start = first_presentation_start_node[0]['timestamp']
+      end
+      first_slide_start = (first_presentation_start.to_i - meeting_start.to_i) / 1000
+	  
+	  
     slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
     chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
 	  presentation_name = ""

@@ -304,7 +304,11 @@ public class ParamsProcessorUtil {
 	}
 	
 	public String getDefaultLogoutUrl() {
-		return defaultLogoutUrl;
+		 if ((StringUtils.isEmpty(defaultLogoutUrl)) || defaultLogoutUrl.equalsIgnoreCase("default")) {          
+     		return defaultServerUrl;
+     	} else {
+     		return defaultLogoutUrl;
+     	}
 	}
 	
 	public String processWelcomeMessage(String message) {
