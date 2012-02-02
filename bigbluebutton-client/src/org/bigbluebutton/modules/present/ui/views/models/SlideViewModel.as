@@ -143,7 +143,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				_calcPageX = 0
 			}
 			
-//			LogUtil.debug("** calcPageY [" + deltaX + "," + deltaY + "] [" + _calcPageY + "<" + viewportH + "]");									
+			LogUtil.debug("** calcPageY [" + deltaX + "," + deltaY + "] [" + _calcPageY + "<" + viewportH + "]");									
 
 			var newY:int = _calcPageY + deltaY;
 			
@@ -217,6 +217,22 @@ package org.bigbluebutton.modules.present.ui.views.models
 				if (viewedRegionH >= pageOrigH) {
 					viewedRegionH = pageOrigH;
 				}
+			}
+		}
+		
+		public function onZoom(delta:int):void {
+			LogUtil.debug("** Zooming " + delta);
+			if (fitToPage) {
+				_calcPageW += delta*2;
+				_calcPageH += delta*2;
+				if ((_calcPageW < viewportW) || (_calcPageH < viewportH)) {
+					_calcPageW = viewportW;
+					_calcPageH = viewportH;
+				}
+			} else {
+				// For FTW, zooming isn't making the page bigger but actually scrolling.
+				// -delta means scrolling down, +delta means scrolling up.
+				onMove(0, delta*2);
 			}
 		}
 		

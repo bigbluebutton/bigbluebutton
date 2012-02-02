@@ -183,7 +183,7 @@
 				//					LogUtil.debug("Displaying viewed region");
 				slideModel.displayPresenterView();
 				fitSlideToLoader();		
-//				notifyOtherParticipantsOfSlideMoving();
+				notifyOthersOfZoomEvent();
 			}
 			
 			/**
@@ -248,34 +248,7 @@
 				}				
 				
 			}
-			
-			private function handleWindowResizeEvent1(event:WindowResizedEvent):void {		
-//				LogUtil.debug("Received window resizing event.");
-				slideModel.parentChange(event.width, event.height, event.fitToPage);
-				
-				if (UserManager.getInstance().getConference().amIPresenter()) {
-					slideModel.calculateViewportSize();
-					
-//					LogUtil.debug("Is there a loaded doc?");
-					if (noSlideContentLoaded()) return;
-//					LogUtil.debug("Yes there is a loaded doc?");
-					
-					slideModel.calcViewedRegion();
-//					LogUtil.debug("Display viewed region");
-					slideModel.printViewedRegion();
-//					LogUtil.debug("Displaying viewed region");
-					slideModel.displayPresenterRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
-					fitSlideToLoader();
-					notifyOthersOfZoomEvent();
-				} else {
-//					LogUtil.debug("Got resizing event from viewer [" + slideModel.viewedRegionX + "," + slideModel.viewedRegionY + "," + slideModel.viewedRegionW + "," + slideModel.viewedRegionH + "]");
-					slideModel.calculateViewportNeededForRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
-					slideModel.displayViewerRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
-					fitSlideToLoader();					
-				}				
-
-			}
-					
+								
 			/**
 			 * Resize and moves the slide loader within the canvas container.
 			 */			
@@ -349,11 +322,20 @@
 			 * Triggered when the presenter uses the mouse wheel to zoom in/out of the slide.
 			 */
 			private function onMouseWheelZoomEvent(e:MouseEvent):void {
-				if (presenterIsZoomingOut(e.delta)) {
-					zoomPercentage -= ZOOM_STEP;
-				} else {
-					zoomPercentage += ZOOM_STEP;
-				}
+				slideModel.onZoom(e.delta);
+				slideModel.calcViewedRegion();
+				slideModel.calcViewedRegionXY();
+				//					LogUtil.debug("Display viewed region");
+				slideModel.printViewedRegion();
+				//					LogUtil.debug("Displaying viewed region");
+				slideModel.displayPresenterView();
+				fitSlideToLoader();		
+				notifyOthersOfZoomEvent();				
+//				if (presenterIsZoomingOut(e.delta)) {
+//					zoomPercentage -= ZOOM_STEP;
+//				} else {
+//					zoomPercentage += ZOOM_STEP;
+//				}
 				
 //				zoomLoaderBy(zoomPercentage);	
 //				notifyListenersOfSlideResize(zoomPercentage);			
