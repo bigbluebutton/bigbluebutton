@@ -223,17 +223,28 @@ package org.bigbluebutton.modules.present.ui.views.models
 			}
 		}
 		
-		public function onZoom(delta:int):void {
-			LogUtil.debug("** Zooming [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" +_calcPageX + "," + _calcPageY + "," + delta + "]");
+		public function onZoom(delta:int, mouseX:int, mouseY:int):void {
 			if (fitToPage) {
+				var cpw:int = _calcPageW;
+				var cph:int = _calcPageH;
+				var cpx:Number = _calcPageX/_calcPageW;
+				var cpy:Number = _calcPageY/_calcPageH;
+				LogUtil.debug("** Zooming [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
+					_calcPageX + "," + _calcPageY + "][" + cpx + "," + cpy + "," + delta + "]");
+				
 				_calcPageW += delta*4;
 				_calcPageH += delta*4;
 				if ((_calcPageW < viewportW) || (_calcPageH < viewportH)) {
 					_calcPageW = viewportW;
 					_calcPageH = viewportH;
+					_calcPageX = 0;
+					_calcPageY = 0;
+				} else {
+					_calcPageX -= delta;
+					_calcPageY -= delta;		
+					LogUtil.debug("** Zooming 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
+						_calcPageX + "," + _calcPageY + "][" + cpx + "," + cpy + "," + delta + "]");
 				}
-				_calcPageX -= delta*2;
-				_calcPageY -= delta*2;
 			} else {
 				// For FTW, zooming isn't making the page bigger but actually scrolling.
 				// -delta means scrolling down, +delta means scrolling up.
