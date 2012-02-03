@@ -88,6 +88,12 @@
 					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', [":", numListeners]) ;
 				else 
 					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', ["", ""]) ;
+				
+				if (moderator && numListeners > 0) {
+					muteAllBtn.visible = true;
+				} else {
+					muteAllBtn.visible = false;
+				}
 			}
 			
 			//The following code block is to deal with a bug in FLexLib with MDI windows not responding well to being maximized
@@ -122,9 +128,11 @@
 				if (mute){
 					muteAllBtn.toolTip = ResourceUtil.getInstance().getString('bbb.listeners.unmuteAllBtn.toolTip');
 					muteAllBtn.selected = true;
+					muteAllIcon = images.sound_mute;
 				} else{
 					muteAllBtn.toolTip = ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip');
 					muteAllBtn.selected = false;
+					muteAllIcon = images.sound_none;
 				}
 			}
 			
@@ -211,9 +219,13 @@
 				</mx:HBox> 
 			</flc:CanvasButton>
      	   	<mx:Spacer width="100%"/>
-			<mx:Button id="muteAllBtn" icon="{muteAllIcon}" visible="{moderator}" toggle="true" selected="false"
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}" 
-					   click="toggleMuteState()" width="18" height="18"/> 
+			<flc:CanvasButton id="muteAllBtn" visible="false" toggle="true" selected="false"
+							  toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}" 
+							  click="toggleMuteState()" height="30" maxWidth="180">
+				<mx:HBox verticalAlign="middle" horizontalGap="0" paddingLeft="5" paddingTop="5" paddingRight="5" paddingBottom="5">
+					<mx:Label text="{muteAllBtn.selected ?  ResourceUtil.getInstance().getString('bbb.listeners.unmuteAllBtn.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}" />
+				</mx:HBox> 
+			</flc:CanvasButton>
     	</mx:ControlBar>
 
 </MDIWindow>
