@@ -65,12 +65,9 @@ package org.bigbluebutton.modules.present.managers
 		private function openWindow(window:IBbbModuleWindow):void{				
 			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			event.window = window;
-			globalDispatcher.dispatchEvent(event);			
+			globalDispatcher.dispatchEvent(event);		
 		}
-
-
-		
-		
+	
 		public function handleOpenUploadWindow(e:UploadEvent):void{
 			if (uploadWindow != null) return;
 			

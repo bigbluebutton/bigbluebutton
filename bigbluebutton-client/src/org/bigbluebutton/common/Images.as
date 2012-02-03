@@ -63,10 +63,10 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/raisehand.png")]
         public var raisehand:Class;
         
-        [Embed(source="assets/images/sound_mute.png")]
+        [Embed(source="assets/images/mic_muted.png")]
         public var sound_mute:Class;
         
-        [Embed(source="assets/images/sound_none.png")]
+        [Embed(source="assets/images/mic_unmuted.png")]
         public var sound_none:Class;
         
         [Embed(source="assets/images/sound.png")]

@@ -257,6 +257,8 @@
 				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
 				this.contextMenu = new ContextMenu();
 				this.contextMenu.hideBuiltInItems();
+				if (slideView.thumbnailView.visible)
+					showThumbnails();
 			}
 						
 			private function setupPresenter(isPresenter:Boolean, presentersName:String):void {
