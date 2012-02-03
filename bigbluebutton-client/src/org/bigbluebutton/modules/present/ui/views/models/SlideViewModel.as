@@ -135,12 +135,18 @@ package org.bigbluebutton.modules.present.ui.views.models
 			if (fitToPage) {
 				var newX:int = _calcPageX + deltaX;				
 				if (newX > 0) _calcPageX = 0;
+				else if ((_calcPageW + newX*2) < viewportW) {
+					//				LogUtil.debug("calcPageY [" + _calcPageH + "," + _calcPageY + "] [" + (_calcPageH + _calcPageY) + "<" + viewportH + "] [" + _calcPageY + "]");						
+				} 
 				else {
 					_calcPageX = newX;
 				}
 				
 				var newY:int = _calcPageY + deltaY;				
 				if (newY > 0) _calcPageY = 0;
+				else if ((_calcPageH + newY*2) < viewportH) {
+					//				LogUtil.debug("calcPageY [" + _calcPageH + "," + _calcPageY + "] [" + (_calcPageH + _calcPageY) + "<" + viewportH + "] [" + _calcPageY + "]");						
+				} 
 				else {
 					_calcPageY = newY;
 				}
