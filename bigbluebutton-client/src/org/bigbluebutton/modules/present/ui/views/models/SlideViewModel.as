@@ -132,9 +132,19 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}
 		
 		public function onMove(deltaX:int, deltaY:int):void {
-			if (fitToPage) {	
-				_calcPageX += deltaX;
-				_calcPageY += deltaY;
+			if (fitToPage) {
+				var newX:int = _calcPageX + deltaX;				
+				if (newX > 0) _calcPageX = 0;
+				else {
+					_calcPageX = newX;
+				}
+				
+				var newY:int = _calcPageY + deltaY;				
+				if (newY > 0) _calcPageY = 0;
+				else {
+					_calcPageY = newY;
+				}
+				LogUtil.debug("** FTP calcPageY [" + deltaX + "," + deltaY + "] [" + _calcPageX + "," + _calcPageY + "]");									
 				
 //				if ((newX) > 0) _calcPageX = 0;
 //				else if ((Math.abs(newX) + viewportW) > _calcPageW) {
@@ -144,18 +154,17 @@ package org.bigbluebutton.modules.present.ui.views.models
 //				}
 			} else {				
 				_calcPageX = 0
-			}
-			
-			LogUtil.debug("** calcPageY [" + deltaX + "," + deltaY + "] [" + _calcPageY + "<" + viewportH + "]");									
-
-			var newY:int = _calcPageY + deltaY;
-			
-			if (newY > 0) _calcPageY = 0;
-			else if ((_calcPageH + newY*2) < viewportH) {
-//				LogUtil.debug("calcPageY [" + _calcPageH + "," + _calcPageY + "] [" + (_calcPageH + _calcPageY) + "<" + viewportH + "] [" + _calcPageY + "]");						
-			} else {
-				_calcPageY = newY;
-			}					
+				LogUtil.debug("** FTW calcPageY [" + deltaX + "," + deltaY + "] [" + _calcPageY + "<" + viewportH + "]");									
+				
+				var newY:int = _calcPageY + deltaY;
+				
+				if (newY > 0) _calcPageY = 0;
+				else if ((_calcPageH + newY*2) < viewportH) {
+					//				LogUtil.debug("calcPageY [" + _calcPageH + "," + _calcPageY + "] [" + (_calcPageH + _calcPageY) + "<" + viewportH + "] [" + _calcPageY + "]");						
+				} else {
+					_calcPageY = newY;
+				}
+			}	
 		}
 				
 		public function calculateViewportSize():void {
