@@ -202,9 +202,9 @@ package org.bigbluebutton.modules.present.ui.views.models
 			} else {
 				viewportW = parentW;
 				viewportH = parentH;
-				if (viewportW < pageOrigW) {
-					viewportH = (viewportW/pageOrigW)*pageOrigH;
-				}
+//				if (viewportW < pageOrigW) {
+//					viewportH = (viewportW/pageOrigW)*pageOrigH;
+//				}
 				LogUtil.debug("calc viewport FTW [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
 
 			}		
