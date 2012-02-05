@@ -254,7 +254,11 @@ package org.bigbluebutton.modules.present.ui.views.models
 				var zpy1:int = _calcPageH * zpyp;
 				_calcPageX = -((zpx1 + zpx)/2) + mouseX;
 				_calcPageY = -((zpy1 + zpy)/2) + mouseY;
-					
+				
+				if ((_calcPageX > 0) || (_calcPageX + _calcPageW < viewportW)) _calcPageX = 0;
+				if ((_calcPageY > 0) || (_calcPageY + _calcPageH < viewportH)) _calcPageY = 0;
+		
+				  	
 				if ((_calcPageW < viewportW) || (_calcPageH < viewportH)) {
 					_calcPageW = viewportW;
 					_calcPageH = viewportH;
