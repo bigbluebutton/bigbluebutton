@@ -268,11 +268,11 @@ package org.bigbluebutton.modules.present.ui.views.models
 					LogUtil.debug("** Zoom 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
 						_calcPageX + "," + _calcPageY + "]");				
 				} else {
-					if (_calcPageY + _calcPageH < viewportH) {
-						_calcPageY = viewportH - _calcPageH;
+					if (_calcPageY*2 + _calcPageH < viewportH) {
+						_calcPageY = (viewportH - _calcPageH)/2;
 					}
-					if (_calcPageX + _calcPageW < viewportW) {
-						_calcPageX = viewportW - _calcPageW;
+					if (_calcPageX*2 + _calcPageW < viewportW) {
+						_calcPageX = (viewportW - _calcPageW)/2;
 					}					
 					LogUtil.debug("** Zoom 3 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
 						_calcPageX + "," + _calcPageY + "]");

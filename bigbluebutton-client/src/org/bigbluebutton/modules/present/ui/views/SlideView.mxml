@@ -332,7 +332,7 @@
 				fitSlideToLoader();		
 
 				LogUtil.debug("** OnZoom [" + this.width + "," + this.height + "," + this.x + "," + this.y + "][" +
-						slideLoader.width + "," + slideLoader.height + "," + slideLoader.x + "," + slideLoader.y "][" + 
+						slideLoader.width + "," + slideLoader.height + "," + slideLoader.x + "," + slideLoader.y + "][" + 
 						slideLoader.content.width + "," + slideLoader.content.height + "," + slideLoader.content.x + "," + slideLoader.content.y + "]");
 				
 //				notifyOthersOfZoomEvent();				
