@@ -64,7 +64,8 @@
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			import org.bigbluebutton.modules.present.events.ZoomEvent;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
-
+			import org.bigbluebutton.modules.present.managers.Slide;
+			
 			public var zoomPercentage:int = 100;
 			public static const ZOOM_STEP:int = 5;
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
@@ -113,7 +114,7 @@
 			private var viewportH:Number = 0;
 			
 			[Bindable]
-			private var slideModel:SlideViewModel = new SlideViewModel();
+			private var slideModel:Slide;
 			
 			private function onCreationComplete():void {
 				slideLoader.width = this.width;
@@ -397,6 +398,7 @@
 			 * Handle notification from loader that a slide has been loaded.
 			 */						
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
+				slideModel = e.page;
 				slideLoader.source = e.slide;
 			}
 			
