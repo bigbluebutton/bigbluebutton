@@ -136,6 +136,9 @@ package org.bigbluebutton.modules.present.ui.views.models
 		
 		public function onMove(deltaX:int, deltaY:int):void {
 			if (fitToPage) {
+				LogUtil.debug("** FTP move 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
+						_calcPageX + "," + _calcPageY + "]");
+
 				var newX:int = _calcPageX + deltaX;				
 				if (newX > 0) _calcPageX = 0;
 				else if ((_calcPageW + newX*2) < viewportW) {
@@ -153,7 +156,8 @@ package org.bigbluebutton.modules.present.ui.views.models
 				else {
 					_calcPageY = newY;
 				}
-				LogUtil.debug("** FTP calcPageY [" + deltaX + "," + deltaY + "] [" + _calcPageX + "," + _calcPageY + "]");									
+				LogUtil.debug("** FTP move 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
+						_calcPageX + "," + _calcPageY + "]");
 			} else {				
 				_calcPageX = 0
 				LogUtil.debug("** FTW calcPageY [" + deltaX + "," + deltaY + "] [" + _calcPageY + "<" + viewportH + "]");									
@@ -234,7 +238,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 			}
 		}
 		
-		public function onZoom(delta:int, mouseX:int, mouseY:int):void {
+		public function onZoom(delta:int, vpx:int, vpy:int, mouseX:int, mouseY:int):void {
 			if (fitToPage) {
 				var cpw:int = _calcPageW;
 				var cph:int = _calcPageH;
@@ -244,7 +248,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				var zpyp:Number = zpy/cph;
 			
 				LogUtil.debug("** Zoompoint [" + viewportW + "," + viewportH + "][" + mouseX + "," + mouseY + "][" + 
-					_calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + zpx + "," + zpy + "] ");			
+					_calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + vpx + "," + vpy + "," + zpx + "," + zpy + "] ");			
 				
 				if (delta < 0) _calcPageW *= 0.95
 				else _calcPageW *= 1.05
@@ -255,17 +259,34 @@ package org.bigbluebutton.modules.present.ui.views.models
 				_calcPageX = -((zpx1 + zpx)/2) + mouseX;
 				_calcPageY = -((zpy1 + zpy)/2) + mouseY;
 				
-				if ((_calcPageX > 0) || (_calcPageX + _calcPageW < viewportW)) _calcPageX = 0;
-				if ((_calcPageY > 0) || (_calcPageY + _calcPageH < viewportH)) _calcPageY = 0;
-		
-				  	
+				LogUtil.debug("** Zoom 1 [" + viewportW + "," + viewportH + "][" + mouseX + "," + mouseY + "][" + 
+					_calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + zpx1 + "," + zpy1 + "] ");				
+				
+				if (_calcPageX > 0 || _calcPageY > 0) {
+					if (_calcPageX > 0) _calcPageX = 0				
+					if (_calcPageY > 0) _calcPageY = 0		
+					LogUtil.debug("** Zoom 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
+						_calcPageX + "," + _calcPageY + "]");				
+				} else {
+					if (_calcPageY + _calcPageH < viewportH) {
+						_calcPageY = viewportH - _calcPageH;
+					}
+					if (_calcPageX + _calcPageW < viewportW) {
+						_calcPageX = viewportW - _calcPageW;
+					}					
+					LogUtil.debug("** Zoom 3 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
+						_calcPageX + "," + _calcPageY + "]");
+				}
+					  	
 				if ((_calcPageW < viewportW) || (_calcPageH < viewportH)) {
 					_calcPageW = viewportW;
 					_calcPageH = viewportH;
 					_calcPageX = 0;
 					_calcPageY = 0;
+					LogUtil.debug("** Zoom 4 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
+						_calcPageX + "," + _calcPageY + "]");
 				} 
-				LogUtil.debug("** Zooming 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
+				LogUtil.debug("** Zoom 5 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
 						_calcPageX + "," + _calcPageY + "]");
 			} else {
 				// For FTW, zooming isn't making the page bigger but actually scrolling.

@@ -273,7 +273,7 @@
 				slideLoader.content.width = slideLoader.width;
 				slideLoader.content.height = slideLoader.height;	
 				
-				zoomCanvas(slideLoader.width, slideLoader.height);
+//				zoomCanvas(slideLoader.width, slideLoader.height);
 			}
 									
 			private function fitLoaderToCanvas1():void{
@@ -322,7 +322,7 @@
 			 * Triggered when the presenter uses the mouse wheel to zoom in/out of the slide.
 			 */
 			private function onMouseWheelZoomEvent(e:MouseEvent):void {
-				slideModel.onZoom(e.delta, this.mouseX, this.mouseY);
+				slideModel.onZoom(e.delta, this.x, this.y, this.mouseX, this.mouseY);
 				slideModel.calcViewedRegion();
 				slideModel.calcViewedRegionXY();
 				//					LogUtil.debug("Display viewed region");
@@ -330,7 +330,12 @@
 				//					LogUtil.debug("Displaying viewed region");
 				slideModel.displayPresenterView();
 				fitSlideToLoader();		
-				notifyOthersOfZoomEvent();				
+
+				LogUtil.debug("** OnZoom [" + this.width + "," + this.height + "," + this.x + "," + this.y + "][" +
+						slideLoader.width + "," + slideLoader.height + "," + slideLoader.x + "," + slideLoader.y "][" + 
+						slideLoader.content.width + "," + slideLoader.content.height + "," + slideLoader.content.x + "," + slideLoader.content.y + "]");
+				
+//				notifyOthersOfZoomEvent();				
 //				if (presenterIsZoomingOut(e.delta)) {
 //					zoomPercentage -= ZOOM_STEP;
 //				} else {
