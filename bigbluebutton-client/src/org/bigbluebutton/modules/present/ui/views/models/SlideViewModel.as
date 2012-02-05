@@ -122,7 +122,21 @@ package org.bigbluebutton.modules.present.ui.views.models
 
 		public function onResizeMove(vpx:int, vpy:int):void {
 			if (fitToPage) {
-				//
+				if (_calcPageX > 0 || _calcPageY > 0) {
+					if (_calcPageX > 0) _calcPageX = 0				
+					if (_calcPageY > 0) _calcPageY = 0		
+					LogUtil.debug("** FTP resize 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
+						_calcPageX + "," + _calcPageY + "]");				
+				} else {
+					if (_calcPageY*2 + _calcPageH < viewportH) {
+						_calcPageY = (viewportH - _calcPageH)/2;
+					}
+					if (_calcPageX*2 + _calcPageW < viewportW) {
+						_calcPageX = (viewportW - _calcPageW)/2;
+					}					
+					LogUtil.debug("** FTP resize 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
+						_calcPageX + "," + _calcPageY + "]");
+				}
 			} else {
 				_calcPageX = 0;
 //				LogUtil.debug("onResizeMove [" + vpx + "," + vpy + "] [" + _calcPageH + "," + viewportH + "] [" + _calcPageY + "]");	
