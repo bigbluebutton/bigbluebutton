@@ -24,6 +24,7 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:local="*"
     width="{slideModel.viewportW}" height="{slideModel.viewportH}" 
+	x="{slideModel.viewportX}" y="{slideModel.viewportY}"
     creationComplete="onCreationComplete()" 
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off"      
@@ -31,7 +32,6 @@
     xmlns:views="org.bigbluebutton.modules.present.views.*"
     implements="org.bigbluebutton.common.IBbbCanvas">
     
-    <mate:Listener type="{ZoomEvent.ZOOM}" method="handleZoomEvent" />
     <mate:Listener type="{MoveEvent.MOVE}" method="handleMoveEvent" />
     <mate:Listener type="{SlideEvent.SLIDE_LOADED}" method="handleSlideLoadedEvent" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleSwitchToPresenterEvent" />
@@ -219,11 +219,14 @@
 			 */
 			private function handleWindowResizeEvent(event:WindowResizedEvent):void {		
 				//				LogUtil.debug("Received window resizing event.");
+				if (slideModel == null) return;
+				
 				slideModel.parentChange(event.width, event.height, event.fitToPage);
 				
 				if (UserManager.getInstance().getConference().amIPresenter()) {
 					LogUtil.debug("Before resizing viewport [" + this.width + "," + this.height + "][" + this.x + "," + this.y + "]");
 					slideModel.calculateViewportSize();
+					slideModel.calculateViewportXY();
 					LogUtil.debug("After resizing viewport [" + this.width + "," + this.height + "][" + this.x + "," + this.y + "]");
 					
 					//					LogUtil.debug("Is there a loaded doc?");
@@ -299,6 +302,7 @@
 			
 			
 			private function handleSlideResizeEvent(event:PresenterCommands):void {
+				if (slideModel == null) return;
 				zoomLoaderBy(event.newSizeInPercent);
 			}
 			
@@ -336,7 +340,7 @@
 						slideLoader.width + "," + slideLoader.height + "," + slideLoader.x + "," + slideLoader.y + "][" + 
 						slideLoader.content.width + "," + slideLoader.content.height + "," + slideLoader.content.x + "," + slideLoader.content.y + "]");
 				
-//				notifyOthersOfZoomEvent();				
+				notifyOthersOfZoomEvent();				
 //				if (presenterIsZoomingOut(e.delta)) {
 //					zoomPercentage -= ZOOM_STEP;
 //				} else {
@@ -378,22 +382,10 @@
 				slideModel.saveViewedRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 				slideModel.calculateViewportNeededForRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 				slideModel.displayViewerRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+				slideModel.displayPresenterView();
 				fitSlideToLoader();
 			}
-			
-			/**
-			 * Handle notification from presenter that the slide has been zoomed.
-			 */						
-			private function handleZoomEvent(e:ZoomEvent):void {
-//				LogUtil.debug("Got resizing event from presenter [" + e.xOffset + "," + e.yOffset + "," + e.slideToCanvasWidthRatio + "," + e.slideToCanvasHeightRatio + "]");
-//				savePresentersSettings(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);													
-//				if (!isPresenter) {
-//					resizeAndMoveLoaderInRelationToCanvas();
-//				}
-				
-//				zoomCanvas(slideLoader.width, slideLoader.height);
-			}
-			
+					
 			/**
 			 * Handle notification from loader that a slide has been loaded.
 			 */						

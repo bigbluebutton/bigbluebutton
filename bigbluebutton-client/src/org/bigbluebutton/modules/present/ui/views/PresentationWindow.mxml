@@ -28,7 +28,7 @@
 	xmlns:containers="flexlib.containers.*"
 	xmlns:mate="http://mate.asfusion.com/"
 	paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" 
-	showCloseButton="false" horizontalAlign="center" verticalAlign="middle"
+	showCloseButton="false" layout="absolute"
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off" 
 	showControls="true" resize="maximizeHandler()"
@@ -199,7 +199,7 @@
 				fitSlideToWindowMaintainingAspectRatio();			
 			}
 			
-			private function onKeyUp(event:KeyboardEvent):void{
+			private function onKeyUp(event:KeyboardEvent):void{	
 				switch (event.keyCode) {
 				case Keyboard.LEFT:
 				case Keyboard.UP:
@@ -484,7 +484,7 @@
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 
 	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" backgroundColor="blue"
-						 mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />			    
+			 mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />			    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
     	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
