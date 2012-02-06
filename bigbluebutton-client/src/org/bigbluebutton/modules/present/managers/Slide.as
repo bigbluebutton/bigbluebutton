@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.present.managers
 	import flash.net.URLLoader;
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
+	
 	import org.bigbluebutton.common.LogUtil;
 	
 	[Bindable]
@@ -358,8 +359,7 @@ package org.bigbluebutton.modules.present.managers
 				var zpxp:Number = zpx/cpw;
 				var zpyp:Number = zpy/cph;
 			
-				LogUtil.debug("** Zoompoint [" + viewportW + "," + viewportH + "][" + mouseX + "," + mouseY + "][" + 
-					_calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + vpx + "," + vpy + "," + zpx + "," + zpy + "] ");			
+				LogUtil.debug("** Zoompoint [" + viewportW + "," + viewportH + "][" + mouseX + "," + mouseY + "][" + _calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + vpx + "," + vpy + "," + zpx + "," + zpy + "] ");			
 				
 				if (delta < 0) _calcPageW *= 0.95
 				else _calcPageW *= 1.05
@@ -367,26 +367,59 @@ package org.bigbluebutton.modules.present.managers
 
 				var zpx1:int = _calcPageW * zpxp;
 				var zpy1:int = _calcPageH * zpyp;
+/*				
+				var newX:int = -((zpx1 + zpx)/2) + mouseX;	
+				var newY:int = -((zpy1 + zpy)/2) + mouseY;	
+				
+				LogUtil.debug("** FTP zoom 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + 
+					newX + "," + newY + "]");
+				
+				if (newX > 0) {
+					_calcPageX = 0;
+				} else if ((_calcPageW + newX*2) < viewportW) {
+					// do nothing
+				//	_calcPageX = (viewportW - _calcPageW)/2;
+					LogUtil.debug("** FTP zoom 1.1");
+				} else {
+					_calcPageX = newX;
+					LogUtil.debug("** FTP zoom 1.2");
+				}
+				
+				if (newY > 0) {
+					_calcPageY = 0;
+				} else if ((_calcPageH + newY*2) < viewportH) {
+					// do nothing
+				//	_calcPageY = (viewportH - _calcPageH)/2;
+					LogUtil.debug("** FTP zoom 1.3");
+				} else {
+					_calcPageY = newY;
+					LogUtil.debug("** FTP zoom 1.4");
+				}
+*/				
+				
 				_calcPageX = -((zpx1 + zpx)/2) + mouseX;
 				_calcPageY = -((zpy1 + zpy)/2) + mouseY;
 				
-				LogUtil.debug("** Zoom 1 [" + viewportW + "," + viewportH + "][" + mouseX + "," + mouseY + "][" + 
-					_calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + zpx1 + "," + zpy1 + "] ");				
+				LogUtil.debug("** Zoom 1 [" + viewportW + "," + viewportH + "][" + mouseX + "," + mouseY + "][" + _calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + zpx1 + "," + zpy1 + "] ");				
 				
-				if (_calcPageX > 0 || _calcPageY > 0) {
-					if (_calcPageX > 0) _calcPageX = 0				
-					if (_calcPageY > 0) _calcPageY = 0		
-					LogUtil.debug("** Zoom 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
-						_calcPageX + "," + _calcPageY + "]");				
+				if (_calcPageX > 0) {
+					_calcPageX = 0;
+					LogUtil.debug("** Zoom 1.1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");				
 				} else {
-					if (_calcPageY + _calcPageH < viewportH) {
-						_calcPageY = (viewportH - _calcPageH);
-					}
-					if (_calcPageX + _calcPageW < viewportW) {
-						_calcPageX = (viewportW - _calcPageW);
+					if (_calcPageX*2 + _calcPageW < viewportW) {
+						_calcPageX = (viewportW - _calcPageW)/2;
+						LogUtil.debug("** Zoom 1.2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");				
 					}					
-					LogUtil.debug("** Zoom 3 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
-						_calcPageX + "," + _calcPageY + "]");
+				}
+				 				
+				if (_calcPageY > 0) {
+					_calcPageY = 0;		
+					LogUtil.debug("** Zoom 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");				
+				} else {
+					if (_calcPageY*2 + _calcPageH < viewportH) {
+						_calcPageY = (viewportH - _calcPageH)/2;
+						LogUtil.debug("** Zoom 3 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
+					}					
 				}
 					  	
 				if ((_calcPageW < viewportW) || (_calcPageH < viewportH)) {
@@ -394,11 +427,9 @@ package org.bigbluebutton.modules.present.managers
 					_calcPageH = viewportH;
 					_calcPageX = 0;
 					_calcPageY = 0;
-					LogUtil.debug("** Zoom 4 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
-						_calcPageX + "," + _calcPageY + "]");
+					LogUtil.debug("** Zoom 4 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 				} 
-				LogUtil.debug("** Zoom 5 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
-						_calcPageX + "," + _calcPageY + "]");
+				LogUtil.debug("** Zoom 5 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 			} else {
 				// For FTW, zooming isn't making the page bigger but actually scrolling.
 				// -delta means scrolling down, +delta means scrolling up.
