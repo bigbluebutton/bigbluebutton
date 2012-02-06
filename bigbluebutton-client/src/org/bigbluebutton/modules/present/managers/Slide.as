@@ -209,11 +209,11 @@ package org.bigbluebutton.modules.present.managers
 					LogUtil.debug("** FTP resize 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
 						_calcPageX + "," + _calcPageY + "]");				
 				} else {
-					if (_calcPageY*2 + _calcPageH < viewportH) {
-						_calcPageY = (viewportH - _calcPageH)/2;
+					if (_calcPageY + _calcPageH < viewportH) {
+						_calcPageY = (viewportH - _calcPageH);
 					}
-					if (_calcPageX*2 + _calcPageW < viewportW) {
-						_calcPageX = (viewportW - _calcPageW)/2;
+					if (_calcPageX + _calcPageW < viewportW) {
+						_calcPageX = (viewportW - _calcPageW);
 					}					
 					LogUtil.debug("** FTP resize 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
 						_calcPageX + "," + _calcPageY + "]");
@@ -221,49 +221,55 @@ package org.bigbluebutton.modules.present.managers
 			} else {
 				_calcPageX = 0;
 //				LogUtil.debug("onResizeMove [" + vpx + "," + vpy + "] [" + _calcPageH + "," + viewportH + "] [" + _calcPageY + "]");	
-				if ((_calcPageH + _calcPageY*2) < viewportH) {
+				if ((_calcPageH + _calcPageY) < viewportH) {
 					// After lots of trial and error on why move doesn't work properly, I found I had to 
 					// multiply the y by 2. Don't know why I need to double the delta to align the edges.
-					_calcPageY =  (viewportH - _calcPageH)/2;
+					_calcPageY =  (viewportH - _calcPageH);
 				} 								
 			}
 		}
 		
 		public function onMove(deltaX:int, deltaY:int):void {
 			if (fitToPage) {
-				LogUtil.debug("** FTP move 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
-						_calcPageX + "," + _calcPageY + "]");
-
-				var newX:int = _calcPageX + deltaX;				
-				if (newX > 0) _calcPageX = 0;
-				else if ((_calcPageW + newX*2) < viewportW) {
-					//				LogUtil.debug("calcPageY [" + _calcPageH + "," + _calcPageY + "] [" + (_calcPageH + _calcPageY) + "<" + viewportH + "] [" + _calcPageY + "]");						
-				} 
-				else {
-					_calcPageX = newX;
-				}
+				var newX:int = _calcPageX + deltaX;	
+				var newY:int = _calcPageY + deltaY;	
 				
-				var newY:int = _calcPageY + deltaY;				
-				if (newY > 0) _calcPageY = 0;
-				else if ((_calcPageH + newY*2) < viewportH) {
-					//				LogUtil.debug("calcPageY [" + _calcPageH + "," + _calcPageY + "] [" + (_calcPageH + _calcPageY) + "<" + viewportH + "] [" + _calcPageY + "]");						
-				} 
-				else {
-					_calcPageY = newY;
+				LogUtil.debug("** FTP move 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + 
+					newX + "," + newY + "][" + deltaX + "," + deltaY + "]");
+			
+				if (newX > 0) {
+					_calcPageX = 0;
+				} else if ((_calcPageW + newX*2) < viewportW) {
+					// do nothing
+					LogUtil.debug("** FTP move 1.1");
+				} else {
+					_calcPageX = newX;
+					LogUtil.debug("** FTP move 1.2");
 				}
-				LogUtil.debug("** FTP move 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
-						_calcPageX + "," + _calcPageY + "]");
+											
+				if (newY > 0) {
+					_calcPageY = 0;
+				} else if ((_calcPageH + newY*2) < viewportH) {
+					// do nothing
+					LogUtil.debug("** FTP move 1.3");
+				} else {
+					_calcPageY = newY;
+					LogUtil.debug("** FTP move 1.4");
+				}
+				LogUtil.debug("** FTP move 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 			} else {				
 				_calcPageX = 0
 				LogUtil.debug("** FTW calcPageY [" + deltaX + "," + deltaY + "] [" + _calcPageY + "<" + viewportH + "]");									
 				
-				var newY:int = _calcPageY + deltaY;
-				
+				var newY:int = _calcPageY + deltaY;				
 				if (newY > 0) _calcPageY = 0;
 				else if ((_calcPageH + newY*2) < viewportH) {
+					// do nothing
+					LogUtil.debug("** FTW move 1.1");
 					//				LogUtil.debug("calcPageY [" + _calcPageH + "," + _calcPageY + "] [" + (_calcPageH + _calcPageY) + "<" + viewportH + "] [" + _calcPageY + "]");						
 				} else {
 					_calcPageY = newY;
+					LogUtil.debug("** FTP move 1.2");
 				}
 			}	
 		}
@@ -373,11 +379,11 @@ package org.bigbluebutton.modules.present.managers
 					LogUtil.debug("** Zoom 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
 						_calcPageX + "," + _calcPageY + "]");				
 				} else {
-					if (_calcPageY*2 + _calcPageH < viewportH) {
-						_calcPageY = (viewportH - _calcPageH)/2;
+					if (_calcPageY + _calcPageH < viewportH) {
+						_calcPageY = (viewportH - _calcPageH);
 					}
-					if (_calcPageX*2 + _calcPageW < viewportW) {
-						_calcPageX = (viewportW - _calcPageW)/2;
+					if (_calcPageX + _calcPageW < viewportW) {
+						_calcPageX = (viewportW - _calcPageW);
 					}					
 					LogUtil.debug("** Zoom 3 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + 
 						_calcPageX + "," + _calcPageY + "]");
