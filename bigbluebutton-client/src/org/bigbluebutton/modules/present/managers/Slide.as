@@ -159,11 +159,11 @@ package org.bigbluebutton.modules.present.managers
 		
 		public function calcViewedRegion():void {
 			if (fitToPage) {
-				_viewedRegionW = (viewportW/_calcPageW) * _pageOrigW;
-				_viewedRegionH = (viewportH/_calcPageH) * _pageOrigH;
+				_viewedRegionW = (viewportW/_calcPageW) * 100;
+				_viewedRegionH = (viewportH/_calcPageH) * 100;
 			} else {
-				_viewedRegionW = _pageOrigW;
-				_viewedRegionH = (viewportH/_calcPageH) * _pageOrigH;
+				_viewedRegionW = 100;
+				_viewedRegionH = (viewportH/_calcPageH) * 100;
 			}
 		}
 		
@@ -179,11 +179,11 @@ package org.bigbluebutton.modules.present.managers
 		
 		public function calcViewedRegionXY():void {
 			if (fitToPage) {
-				_viewedRegionX = (_calcPageW/_pageOrigW) * _calcPageX;
-				_viewedRegionY = (_calcPageH/_pageOrigH) * _calcPageY;
+				_viewedRegionX = (Math.abs(_calcPageX)/_calcPageW) * 100;
+				_viewedRegionY = (Math.abs(_calcPageY)/_calcPageH) * 100;
 			} else {
 				_viewedRegionX = 0;
-				_viewedRegionY = (_calcPageH/_pageOrigH) * _calcPageY;
+				_viewedRegionY = (Math.abs(_calcPageY)/_calcPageH) * 100;
 			}
 		}
 		
@@ -323,29 +323,29 @@ package org.bigbluebutton.modules.present.managers
 		}
 		
 		public function printViewedRegion():void {
-	//		LogUtil.debug("Region [" + viewedRegionW + "," + viewedRegionH + "] [" + viewedRegionX + "," + viewedRegionY + "]");			
+			LogUtil.debug("Region [" + viewedRegionW + "," + viewedRegionH + "] [" + viewedRegionX + "," + viewedRegionY + "]");			
 		}
 			
 		private function calcViewedRegionSize():void {
 			if (fitToPage) {
 				if (_viewedRegionW != pageOrigW) {
-					_viewedRegionW = (viewportW/_calcPageW) * pageOrigW;
+					_viewedRegionW = (viewportW/_calcPageW) * 100;
 					if (_viewedRegionW >= _calcPageW) {
-						_viewedRegionW = pageOrigW;
+						_viewedRegionW = 100;
 					}
 				}
 				
 				if (_viewedRegionH != pageOrigH) {
-					_viewedRegionH = (viewportH/_calcPageH) * pageOrigH;
+					_viewedRegionH = (viewportH/_calcPageH) * 100;
 					if (_viewedRegionH >= _calcPageH) {
-						_viewedRegionH = pageOrigH;
+						_viewedRegionH = 100;
 					}
 				}				
 			} else {
-				_viewedRegionW = pageOrigW;
-				_viewedRegionH = (viewportH/viewportW) * pageOrigH;
+				_viewedRegionW = 100;
+				_viewedRegionH = (viewportH/viewportW) * 100;
 				if (_viewedRegionH >= pageOrigH) {
-					_viewedRegionH = pageOrigH;
+					_viewedRegionH = 100;
 				}
 			}
 		}
@@ -366,37 +366,7 @@ package org.bigbluebutton.modules.present.managers
 				_calcPageH = (_calcPageW/cpw) * cph; 
 
 				var zpx1:int = _calcPageW * zpxp;
-				var zpy1:int = _calcPageH * zpyp;
-/*				
-				var newX:int = -((zpx1 + zpx)/2) + mouseX;	
-				var newY:int = -((zpy1 + zpy)/2) + mouseY;	
-				
-				LogUtil.debug("** FTP zoom 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + 
-					newX + "," + newY + "]");
-				
-				if (newX > 0) {
-					_calcPageX = 0;
-				} else if ((_calcPageW + newX*2) < viewportW) {
-					// do nothing
-				//	_calcPageX = (viewportW - _calcPageW)/2;
-					LogUtil.debug("** FTP zoom 1.1");
-				} else {
-					_calcPageX = newX;
-					LogUtil.debug("** FTP zoom 1.2");
-				}
-				
-				if (newY > 0) {
-					_calcPageY = 0;
-				} else if ((_calcPageH + newY*2) < viewportH) {
-					// do nothing
-				//	_calcPageY = (viewportH - _calcPageH)/2;
-					LogUtil.debug("** FTP zoom 1.3");
-				} else {
-					_calcPageY = newY;
-					LogUtil.debug("** FTP zoom 1.4");
-				}
-*/				
-				
+				var zpy1:int = _calcPageH * zpyp;				
 				_calcPageX = -((zpx1 + zpx)/2) + mouseX;
 				_calcPageY = -((zpy1 + zpy)/2) + mouseY;
 				
