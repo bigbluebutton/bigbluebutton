@@ -290,16 +290,6 @@
 				fitSlideToLoader();						
 			}
 
-			private function resizeAndMoveLoaderBy(percent:Number):void {	
-				LogUtil.debug("Handling zoom");				
-				slideModel.calcViewedRegion();
-				slideModel.printViewedRegion();
-				slideModel.resizeAndMoveLoaderBy(percent);	
-				slideModel.displayPresenterRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
-
-				fitSlideToLoader();
-			}
-			
 			
 			private function handleSlideResizeEvent(event:PresenterCommands):void {
 				if (slideModel == null) return;
@@ -318,7 +308,7 @@
  				if (zoomPercentage == 100) {
  //					fitLoaderToCanvas();
  				} else {
- 					resizeAndMoveLoaderBy(zoomPercentage);
+// 					resizeAndMoveLoaderBy(zoomPercentage);
  				}
 				notifyOthersOfZoomEvent();
 			}
@@ -340,15 +330,7 @@
 						slideLoader.width + "," + slideLoader.height + "," + slideLoader.x + "," + slideLoader.y + "][" + 
 						slideLoader.content.width + "," + slideLoader.content.height + "," + slideLoader.content.x + "," + slideLoader.content.y + "]");
 				
-				notifyOthersOfZoomEvent();				
-//				if (presenterIsZoomingOut(e.delta)) {
-//					zoomPercentage -= ZOOM_STEP;
-//				} else {
-//					zoomPercentage += ZOOM_STEP;
-//				}
-				
-//				zoomLoaderBy(zoomPercentage);	
-//				notifyListenersOfSlideResize(zoomPercentage);			
+				notifyOthersOfZoomEvent();						
 			}
 			
 			public function notifyListenersOfSlideResize(percent:Number):void {
