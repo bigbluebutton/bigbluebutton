@@ -159,11 +159,11 @@ package org.bigbluebutton.modules.present.managers
 		
 		public function calcViewedRegion():void {
 			if (fitToPage) {
-				_viewedRegionW = (viewportW/_calcPageW) * 100;
-				_viewedRegionH = (viewportH/_calcPageH) * 100;
+				_viewedRegionW = (viewportW/_calcPageW) * _pageOrigW;
+				_viewedRegionH = (viewportH/_calcPageH) * _pageOrigH;
 			} else {
-				_viewedRegionW = 100;
-				_viewedRegionH = (viewportH/_calcPageH) * 100;
+				_viewedRegionW = _pageOrigW;
+				_viewedRegionH = (viewportH/_calcPageH) * _pageOrigH;
 			}
 		}
 		
@@ -179,11 +179,11 @@ package org.bigbluebutton.modules.present.managers
 		
 		public function calcViewedRegionXY():void {
 			if (fitToPage) {
-				_viewedRegionX = (Math.abs(_calcPageX)/_calcPageW) * 100;
-				_viewedRegionY = (Math.abs(_calcPageY)/_calcPageH) * 100;
+				_viewedRegionX = (_calcPageW/_pageOrigW) * _calcPageX;
+				_viewedRegionY = (_calcPageH/_pageOrigH) * _calcPageY;
 			} else {
 				_viewedRegionX = 0;
-				_viewedRegionY = (Math.abs(_calcPageY)/_calcPageH) * 100;
+				_viewedRegionY = (_calcPageH/_pageOrigH) * _calcPageY;
 			}
 		}
 		
