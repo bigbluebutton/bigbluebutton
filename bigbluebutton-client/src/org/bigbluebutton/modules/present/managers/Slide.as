@@ -209,22 +209,32 @@ package org.bigbluebutton.modules.present.managers
 		}
 
 		public function onResizeMove(vpx:int, vpy:int):void {
-			if (fitToPage) {
-				if (_calcPageX > 0 || _calcPageY > 0) {
-					if (_calcPageX > 0) _calcPageX = 0				
-					if (_calcPageY > 0) _calcPageY = 0		
-					LogUtil.debug("** FTP resize 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");				
+			if (fitToPage) {		
+				LogUtil.debug("** FTP resize 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "]");
+								
+				if (_calcPageX >= 0) {
+					_calcPageX = 0;
+				} else if ((_calcPageW + _calcPageX*2) < viewportW) {
+					_calcPageX = (viewportW - _calcPageW)/2;
+					LogUtil.debug("** FTP resize 1.1");
 				} else {
-					if (_calcPageY + _calcPageH < viewportH) {
-						_calcPageY = (viewportH - _calcPageH);
-					}
-					if (_calcPageX + _calcPageW < viewportW) {
-						_calcPageX = (viewportW - _calcPageW);
-					}					
-					LogUtil.debug("** FTP resize 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
+				//	_calcPageX = newX;
+					LogUtil.debug("** FTP resize 1.2");
 				}
+				
+				if (_calcPageY >= 0) {
+					_calcPageY = 0;
+				} else if ((_calcPageH + _calcPageY*2) < viewportH) {
+					_calcPageY = (viewportH - _calcPageH)/2;
+					LogUtil.debug("** FTP resize 1.3");
+				} else {
+		//			_calcPageY = newY;
+					LogUtil.debug("** FTP resize 1.4");
+				}
+				
+//				LogUtil.debug("** FTP resize 2 [" + viewportW + "," + viewportH + "][" + _calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "]");				}
 			} else {
-				LogUtil.debug("** FTW resize 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
+				LogUtil.debug("** FTW resize 1 [" + viewportW + "," + viewportH + "][" + _calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 
 				_calcPageX = 0;
 				if (_calcPageY >= 0 ) {
@@ -235,7 +245,6 @@ package org.bigbluebutton.modules.present.managers
 					_calcPageY = (viewportH - _calcPageH)/2;
 					LogUtil.debug("** FTW resize 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 				} else {
-		//			_calcPageY = (viewportH - _calcPageH)/2;
 					LogUtil.debug("** FTW resize 2.5 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 				}	
 
