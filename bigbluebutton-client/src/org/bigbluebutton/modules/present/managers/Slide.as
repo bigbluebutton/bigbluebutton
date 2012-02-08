@@ -159,7 +159,7 @@ package org.bigbluebutton.modules.present.managers
 			this.fitToPage = fitToPage;
 		}
 		
-		public function calcViewedRegion():void {
+		private function calcViewedRegion():void {
 			if (fitToPage) {
 				_viewedRegionW = (viewportW/_calcPageW) * 100;
 				_viewedRegionH = (viewportH/_calcPageH) * 100;
@@ -171,7 +171,7 @@ package org.bigbluebutton.modules.present.managers
 			}
 		}
 		
-		public function calcCalcPageSize():void {
+		private function calcCalcPageSize():void {
 			if (fitToPage) {
 				_calcPageW = (viewportW/_viewedRegionW) * 100;
 				_calcPageH = (viewportH/_viewedRegionH) * 100;
@@ -183,7 +183,7 @@ package org.bigbluebutton.modules.present.managers
 			}
 		}
 		
-		public function calcViewedRegionXY():void {
+		private function calcViewedRegionXY():void {
 			if (fitToPage) {
 				_viewedRegionX = (_calcPageW/_pageOrigW) * _calcPageX;
 				_viewedRegionY = (_calcPageH/_pageOrigH) * _calcPageY;
@@ -208,7 +208,28 @@ package org.bigbluebutton.modules.present.managers
 			_pageYOnStart = _calcPageY;
 		}
 
-		public function onResizeMove(vpx:int, vpy:int):void {
+		public function adjustSlideAfterParentResized():void {
+			if (fitToPage) {
+				calculateViewportSize();
+				calculateViewportXY();
+//				LogUtil.debug("After resizing viewport [" + this.width + "," + this.height + "]");					
+				calcCalcPageSize();
+				onResizeMove();
+				calcViewedRegion();
+				calcViewedRegionXY();				
+			} else {
+				calculateViewportSize();
+				calculateViewportXY();
+//				LogUtil.debug("After resizing viewport [" + this.width + "," + this.height + "]");					
+				calcCalcPageSize();
+				onResizeMove();
+				calcViewedRegion();
+				calcViewedRegionXY();				
+			}
+			
+		}
+		
+		private function onResizeMove():void {
 			if (fitToPage) {		
 				LogUtil.debug("** FTP resize 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "]");
 								
@@ -295,6 +316,9 @@ package org.bigbluebutton.modules.present.managers
 					LogUtil.debug("** FTP move 1.2");
 				}
 			}	
+			
+			calcViewedRegion();
+			calcViewedRegionXY();
 		}
 				
 		public function calculateViewportSize():void {
@@ -407,6 +431,9 @@ package org.bigbluebutton.modules.present.managers
 				// -delta means scrolling down, +delta means scrolling up.
 				onMove(0, delta*2);
 			}
+			
+			calcViewedRegion();
+			calcViewedRegionXY();
 		}
 		
 		public function displayPresenterRegion(x:int, y:int, width:int, height:int):void {

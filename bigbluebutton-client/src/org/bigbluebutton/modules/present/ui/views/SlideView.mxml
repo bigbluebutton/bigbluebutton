@@ -177,8 +177,7 @@
 //					deltaCanvasMouseX + "," + deltaCanvasMouseY + "]");
 				
 				slideModel.onMove(deltaCanvasMouseX, deltaCanvasMouseY); 
-				slideModel.calcViewedRegion();
-				slideModel.calcViewedRegionXY();
+
 				//					LogUtil.debug("Display viewed region");
 				slideModel.printViewedRegion();
 				//					LogUtil.debug("Displaying viewed region");
@@ -220,24 +219,15 @@
 			private function handleWindowResizeEvent(event:WindowResizedEvent):void {		
 				//				LogUtil.debug("Received window resizing event.");
 				if (slideModel == null) return;
+				//					LogUtil.debug("Is there a loaded doc?");
+				if (noSlideContentLoaded()) return;
+				//					LogUtil.debug("Yes there is a loaded doc?");
 				
 				slideModel.parentChange(event.width, event.height, event.fitToPage);
 				
 				if (UserManager.getInstance().getConference().amIPresenter()) {
 					LogUtil.debug("Before resizing viewport [" + this.width + "," + this.height + "][" + this.x + "," + this.y + "]");
-					slideModel.calculateViewportSize();
-					slideModel.calculateViewportXY();
-					LogUtil.debug("After resizing viewport [" + this.width + "," + this.height + "][" + this.x + "," + this.y + "]");
-					
-					//					LogUtil.debug("Is there a loaded doc?");
-					if (noSlideContentLoaded()) return;
-					//					LogUtil.debug("Yes there is a loaded doc?");
-					
-					slideModel.calcCalcPageSize();
-					// Move on resize ***
-					slideModel.onResizeMove(this.x, this.y);
-					slideModel.calcViewedRegion();
-					slideModel.calcViewedRegionXY();
+					slideModel.adjustSlideAfterParentResized();
 					//					LogUtil.debug("Display viewed region");
 					slideModel.printViewedRegion();
 					//					LogUtil.debug("Displaying viewed region");
@@ -318,8 +308,7 @@
 			 */
 			private function onMouseWheelZoomEvent(e:MouseEvent):void {
 				slideModel.onZoom(e.delta, this.x, this.y, this.mouseX, this.mouseY);
-				slideModel.calcViewedRegion();
-				slideModel.calcViewedRegionXY();
+
 				//					LogUtil.debug("Display viewed region");
 				slideModel.printViewedRegion();
 				//					LogUtil.debug("Displaying viewed region");
