@@ -457,16 +457,13 @@ package org.bigbluebutton.modules.present.managers
 			//			LogUtil.debug("Displaying [" + loaderW + "," + loaderH + "] [" + loaderX + "," + loaderY + "]");			
 		}
 		
-		public function displayViewerRegion(x:int, y:int, width:int, height:int):void {
-			loaderW = (viewportW*pageOrigW)/width;
-			LogUtil.debug("calc loaderW [(" + viewportW + "*" + pageOrigW + ")/" + width + "=" + loaderW + "]");
-			loaderH = (viewportH*pageOrigH)/height;
-			LogUtil.debug("calc loaderH [(" + viewportH + "*" + pageOrigH + ")/" + height + "=" + loaderH + "]");
-			loaderX = (x*loaderW)/pageOrigW;
-			LogUtil.debug("calc loaderX [(" + x + "*" + loaderW + ")/" + pageOrigW + "=" + loaderX + "]");
-			loaderY = (y*loaderH)/pageOrigH;
-			LogUtil.debug("calc loaderY [(" + y + "*" + loaderH + ")/" + pageOrigH + "=" + loaderY + "]");
-			LogUtil.debug("Displaying [" + loaderW + "," + loaderH + "] [" + loaderX + "," + loaderY + "]");			
+		public function displayViewerRegion(x:Number, y:Number, regionW:Number, regionH:Number):void {
+			LogUtil.debug("** disp viewer 1 [" + regionW + "," + regionH + "][" + x + "," + y + "]");
+			_calcPageW = viewportW/(regionW/100);
+			_calcPageH = viewportH/(regionH/100);
+			_calcPageX = (_calcPageW * (x/100));
+			_calcPageY = (_calcPageH * (y/100));			
+			LogUtil.debug("** disp viewer 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 		}
 
 		public function saveViewedRegion(x:int, y:int, regionW:int, regionH:int):void {
@@ -476,22 +473,24 @@ package org.bigbluebutton.modules.present.managers
 			_viewedRegionH = regionH;
 		}
 		
-		public function calculateViewportNeededForRegion(x:int, y:int, regionW:int, regionH:int):void {			
-			viewportH = parentH;
-			viewportW = parentW;
+		public function calculateViewportNeededForRegion(x:Number, y:Number, regionW:Number, regionH:Number):void {			
+			var vrwp:int = pageOrigW * (regionW/100);
+			var vrhp:int = pageOrigH * (regionH/100);
 			
 			if (parentW < parentH) {
-				viewportH = (regionH/regionW)*parentW;
+				viewportW = parentW;
+				viewportH = (vrhp/vrwp)*parentW;				 
 				if (parentH < viewportH) {
 					viewportH = parentH;
-					viewportW = ((regionW * viewportH)/viewportH);
-//					LogUtil.debug("calc viewport ***** resizing [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
+					viewportW = ((vrwp * viewportH)/viewportH);
+					LogUtil.debug("calc viewport ***** resizing [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
 				}
 			} else {
-				viewportW = (regionW/regionH)*parentH;
+				viewportH = parentH;
+				viewportW = (vrwp/vrhp)*parentH;
 				if (parentW < viewportW) {
 					viewportW = parentW;
-					viewportH = ((regionH * viewportW)/regionW);
+					viewportH = ((vrhp * viewportW)/vrwp);
 //					LogUtil.debug("calc viewport resizing [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
 				}
 			}
