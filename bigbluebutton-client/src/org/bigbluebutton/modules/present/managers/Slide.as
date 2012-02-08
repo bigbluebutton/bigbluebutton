@@ -224,6 +224,8 @@ package org.bigbluebutton.modules.present.managers
 					LogUtil.debug("** FTP resize 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 				}
 			} else {
+				LogUtil.debug("** FTW resize 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
+
 				_calcPageX = 0;
 				var newY:int  =  viewportH - _calcPageH;
 				if (newY > 0) {
@@ -231,11 +233,13 @@ package org.bigbluebutton.modules.present.managers
 				} else if ((_calcPageH + _calcPageY*2) < viewportH) {
 					// After lots of trial and error on why move doesn't work properly, I found I had to 
 					// multiply the y by 2. Don't know why I need to double the delta to align the edges.
-					
+					_calcPageY = (viewportH - _calcPageH)/2;
+					LogUtil.debug("** FTW resize 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 				} else {
-					_calcPageY = newY;
-				}								
-				LogUtil.debug("** FTW resize 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
+					_calcPageY = newY/2;
+				}	
+
+				LogUtil.debug("** FTW resize 3 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 			}
 		}
 		
