@@ -214,9 +214,10 @@ package org.bigbluebutton.modules.present.managers
 				calculateViewportXY();
 //				LogUtil.debug("After resizing viewport [" + this.width + "," + this.height + "]");					
 				calcCalcPageSize();
-				onResizeMove();
 				calcViewedRegion();
-				calcViewedRegionXY();				
+				calcViewedRegionXY();
+				onResizeMove();
+				
 			} else {
 				calculateViewportSize();
 				calculateViewportXY();
