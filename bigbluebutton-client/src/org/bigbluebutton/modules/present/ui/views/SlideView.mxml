@@ -158,8 +158,7 @@
 			 */		
 			private function onMouseDown(e:MouseEvent):void {						
 				prevMouseX = this.mouseX;
-				prevMouseY = this.mouseY;
-				slideModel.onMoveStart();			
+				prevMouseY = this.mouseY;			
 				addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 			}
 			
@@ -335,6 +334,7 @@
 				presentEvent.yOffset = slideModel.viewedRegionY;
 				presentEvent.slideToCanvasWidthRatio = slideModel.viewedRegionW;
 				presentEvent.slideToCanvasHeightRatio = slideModel.viewedRegionH;
+				LogUtil.debug("sending resizing event [" + presentEvent.xOffset + "," + presentEvent.yOffset + "," + presentEvent.slideToCanvasWidthRatio + "," + presentEvent.slideToCanvasHeightRatio + "]");
 				dispatchEvent(presentEvent);
 			}
 			

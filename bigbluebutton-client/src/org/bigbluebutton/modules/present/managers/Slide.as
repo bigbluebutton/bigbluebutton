@@ -40,10 +40,10 @@ package org.bigbluebutton.modules.present.managers
 		public var viewportW:int = 0;
 		public var viewportH:int = 0;
 		
-		private var _viewedRegionX:int = 0;
-		private var _viewedRegionY:int = 0;
-		private var _viewedRegionW:int = 0;
-		private var _viewedRegionH:int = 0;
+		private var _viewedRegionX:Number = 0;
+		private var _viewedRegionY:Number = 0;
+		private var _viewedRegionW:Number = 100;
+		private var _viewedRegionH:Number = 100;
 		
 		private var _pageOrigW:int = 0;
 		private var _pageOrigH:int = 0;
@@ -185,8 +185,8 @@ package org.bigbluebutton.modules.present.managers
 		
 		private function calcViewedRegionXY():void {
 			if (fitToPage) {
-				_viewedRegionX = (_calcPageW/_pageOrigW) * _calcPageX;
-				_viewedRegionY = (_calcPageH/_pageOrigH) * _calcPageY;
+				_viewedRegionX = (_calcPageX*100) / _calcPageW;
+				_viewedRegionY = (_calcPageY*100) / _calcPageH;
 			} else {
 				_viewedRegionX = 0;
 				_viewedRegionY = (_calcPageH/_pageOrigH) * _calcPageY;
@@ -200,14 +200,6 @@ package org.bigbluebutton.modules.present.managers
 			loaderH = _calcPageH;
 		}
 		
-		private var _pageXOnStart:int = 0;
-		private var _pageYOnStart:int = 0;
-		
-		public function onMoveStart():void {
-			_pageXOnStart = _calcPageX;
-			_pageYOnStart = _calcPageY;
-		}
-
 		public function adjustSlideAfterParentResized():void {
 			if (fitToPage) {
 				calculateViewportSize();
@@ -461,8 +453,8 @@ package org.bigbluebutton.modules.present.managers
 			LogUtil.debug("** disp viewer 1 [" + regionW + "," + regionH + "][" + x + "," + y + "]");
 			_calcPageW = viewportW/(regionW/100);
 			_calcPageH = viewportH/(regionH/100);
-			_calcPageX = (_calcPageW * (x/100));
-			_calcPageY = (_calcPageH * (y/100));			
+			_calcPageX = (x/100) * _calcPageW;
+			_calcPageY =  (y/100) * _calcPageH;					
 			LogUtil.debug("** disp viewer 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 		}
 
@@ -491,7 +483,7 @@ package org.bigbluebutton.modules.present.managers
 				if (parentW < viewportW) {
 					viewportW = parentW;
 					viewportH = ((vrhp * viewportW)/vrwp);
-//					LogUtil.debug("calc viewport resizing [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
+					LogUtil.debug("calc viewport resizing [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
 				}
 			}
 		}		
