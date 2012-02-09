@@ -59,4 +59,32 @@ public class User {
 	public Map<String,String> getStatus(){
 		return this.status;
 	}
+
+	public boolean isPresenter() {
+		String isPresenter = this.status.get("presenter");
+		if (isPresenter != null) {
+			return isPresenter.equalsIgnoreCase("true");
+		}
+		return false;
+	}
+
+	public boolean hasStream() {
+		String hasStream = this.status.get("hasStream");
+		if (hasStream != null) {
+			// hasStream example: "false,stream=320x24038-1328716010847"
+			String[] a = hasStream.split(",");
+			return (a.length > 0) && (a[0].equalsIgnoreCase("true"));
+		}
+		return false;
+	}
+
+	public String getStreamName() {
+		if (this.hasStream()) {
+			// hasStream example: "true,stream=320x24038-1328716010847"
+			String str = this.status.get("hasStream");
+			int pos = str.indexOf("stream=");
+			return str.substring(pos + 7, str.length());
+		}
+		return "";
+	}
 }
