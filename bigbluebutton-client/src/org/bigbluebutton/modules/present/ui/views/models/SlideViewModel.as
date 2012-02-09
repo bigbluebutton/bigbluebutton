@@ -117,7 +117,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				_viewedRegionY = (_calcPageY*100) / _calcPageH;
 			} else {
 				_viewedRegionX = 0;
-				_viewedRegionY = (_calcPageH/_pageOrigH) * _calcPageY;
+				_viewedRegionY = (_calcPageY*100) / _calcPageH;
 			}
 		}
 		
@@ -142,8 +142,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				calcCalcPageSize();
 				calcViewedRegion();
 				calcViewedRegionXY();
-				onResizeMove();
-				
+				onResizeMove();				
 			}			
 		}
 		
