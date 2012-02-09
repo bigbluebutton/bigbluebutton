@@ -42,14 +42,17 @@
     
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
-			import flash.events.Event;			
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.events.Event;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.Button;
 			import mx.events.FlexEvent;
-			import mx.events.ListEvent;			
+			import mx.events.ListEvent;
+			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -63,8 +66,8 @@
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			import org.bigbluebutton.modules.present.events.ZoomEvent;
-			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
 			import org.bigbluebutton.modules.present.managers.Slide;
+			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
 			
 			public var zoomPercentage:int = 100;
 			public static const ZOOM_STEP:int = 5;
@@ -114,7 +117,7 @@
 			private var viewportH:Number = 0;
 			
 			[Bindable]
-			private var slideModel:Slide;
+			private var slideModel:SlideViewModel = new SlideViewModel();
 			
 			private function onCreationComplete():void {
 				slideLoader.width = this.width;
@@ -171,15 +174,8 @@
 				var deltaCanvasMouseY:Number = this.mouseY - prevMouseY;
 				prevMouseX = this.mouseX;
 				prevMouseY = this.mouseY;				
-
-//				LogUtil.debug("Move [" + this.mouseX + "," + this.mouseY + "][" + canvasMouseXOnMouseDown + "," + canvasMouseYOnMouseDown + "][" +
-//					deltaCanvasMouseX + "," + deltaCanvasMouseY + "]");
-				
 				slideModel.onMove(deltaCanvasMouseX, deltaCanvasMouseY); 
-
-				//					LogUtil.debug("Display viewed region");
 				slideModel.printViewedRegion();
-				//					LogUtil.debug("Displaying viewed region");
 				slideModel.displayPresenterView();
 				fitSlideToLoader();		
 				notifyOthersOfZoomEvent();
@@ -216,46 +212,26 @@
 			 * his/her window.
 			 */
 			private function handleWindowResizeEvent(event:WindowResizedEvent):void {		
-				//				LogUtil.debug("Received window resizing event.");
-				if (slideModel == null) return;
-				//					LogUtil.debug("Is there a loaded doc?");
-				if (noSlideContentLoaded()) return;
-				//					LogUtil.debug("Yes there is a loaded doc?");
-				
+				if (slideModel == null || noSlideContentLoaded()) return;
+
 				slideModel.parentChange(event.width, event.height, event.fitToPage);
 				
 				if (UserManager.getInstance().getConference().amIPresenter()) {
 					LogUtil.debug("Before resizing viewport [" + this.width + "," + this.height + "][" + this.x + "," + this.y + "]");
 					slideModel.adjustSlideAfterParentResized();
-					//					LogUtil.debug("Display viewed region");
 					slideModel.printViewedRegion();
-					//					LogUtil.debug("Displaying viewed region");
 					slideModel.displayPresenterView();
 					fitSlideToLoader();
 					notifyOthersOfZoomEvent();
 				} else {
-					//					LogUtil.debug("Got resizing event from viewer [" + slideModel.viewedRegionX + "," + slideModel.viewedRegionY + "," + slideModel.viewedRegionW + "," + slideModel.viewedRegionH + "]");
 					slideModel.calculateViewportNeededForRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
 					slideModel.displayViewerRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
+					slideModel.calculateViewportXY();
 					slideModel.displayPresenterView();
-					fitSlideToLoader();					
-				}				
-				
+					fitSlideToLoader();	
+				}								
 			}
-								
-			/**
-			 * Resize and moves the slide loader within the canvas container.
-			 */			
-			private function resizeAndMoveLoaderInRelationToCanvas():void {
-				slideLoader.width = this.width * presentersLoaderCanvasWidthRatio; 
-				slideLoader.height = this.height * presentersLoaderCanvasHeightRatio;
-				
-				slideLoader.x = slideLoader.width * presentersLoaderXOffsetFromCanvas;
-				slideLoader.y = slideLoader.height * presentersLoaderYOffsetFromCanvas;
-				
-				fitSlideToLoader();
-			}
-			
+											
 			/**
 			 * Fit the slide inside the loader.
 			 */			
@@ -266,8 +242,6 @@
 				slideLoader.content.y = slideLoader.y;
 				slideLoader.content.width = slideLoader.width;
 				slideLoader.content.height = slideLoader.height;	
-				
-//				zoomCanvas(slideLoader.width, slideLoader.height);
 			}
 									
 			private function fitLoaderToCanvas1():void{
@@ -308,10 +282,7 @@
 			 */
 			private function onMouseWheelZoomEvent(e:MouseEvent):void {
 				slideModel.onZoom(e.delta, this.x, this.y, this.mouseX, this.mouseY);
-
-				//					LogUtil.debug("Display viewed region");
 				slideModel.printViewedRegion();
-				//					LogUtil.debug("Displaying viewed region");
 				slideModel.displayPresenterView();
 				fitSlideToLoader();		
 
@@ -354,6 +325,7 @@
 				slideModel.saveViewedRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 				slideModel.calculateViewportNeededForRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 				slideModel.displayViewerRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
+				slideModel.calculateViewportXY();
 				slideModel.displayPresenterView();
 				fitSlideToLoader();
 			}
@@ -362,7 +334,6 @@
 			 * Handle notification from loader that a slide has been loaded.
 			 */						
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
-				slideModel = e.page;
 				slideLoader.source = e.slide;
 			}
 			

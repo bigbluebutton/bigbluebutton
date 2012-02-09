@@ -322,10 +322,11 @@ package org.bigbluebutton.modules.present.business {
 						if (result.presentation.xOffset) {
 							LogUtil.debug("Sending presenters slide settings");
 							var e:MoveEvent = new MoveEvent(MoveEvent.MOVE);
-							e.xOffset = result.presentation.xOffset;
-							e.yOffset = result.presentation.yOffset;
-							e.slideToCanvasWidthRatio = result.presentation.widthRatio;
-							e.slideToCanvasHeightRatio = result.presentation.heightRatio;
+							e.xOffset = Number(result.presentation.xOffset);
+							e.yOffset = Number(result.presentation.yOffset);
+							e.slideToCanvasWidthRatio = Number(result.presentation.widthRatio);
+							e.slideToCanvasHeightRatio = Number(result.presentation.heightRatio);
+							LogUtil.debug("****presenter settings [" + e.xOffset + "," + e.yOffset + "," + e.slideToCanvasWidthRatio + "," + e.slideToCanvasHeightRatio + "]");
 							dispatcher.dispatchEvent(e);
 						}
 						if (result.presentations) {
