@@ -106,7 +106,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				LogUtil.debug("** calc cp ftp [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _viewedRegionW + "," + _viewedRegionH + "]");				
 			} else {
 				_calcPageW = viewportW;
-				_calcPageH = (viewportH/_viewedRegionH) * 100;
+				_calcPageH = (_calcPageW/_pageOrigW) * _pageOrigH;
 				LogUtil.debug("** calc cp ftw [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _viewedRegionW + "," + _viewedRegionH + "]");				
 			}
 		}
@@ -140,9 +140,10 @@ package org.bigbluebutton.modules.present.ui.views.models
 				calculateViewportSize();
 				calculateViewportXY();
 				calcCalcPageSize();
-				onResizeMove();
 				calcViewedRegion();
-				calcViewedRegionXY();				
+				calcViewedRegionXY();
+				onResizeMove();
+				
 			}			
 		}
 		
