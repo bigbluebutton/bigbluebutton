@@ -180,7 +180,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				LogUtil.debug("** FTW resize 1 [" + viewportW + "," + viewportH + "][" + _calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 				
 				_calcPageX = 0;
-				if (_calcPageY >= 0 ) {
+				if (_calcPageY > 0 ) {
 					_calcPageY = 0;
 				} else if ((_calcPageH + _calcPageY*2) < viewportH) {
 					// After lots of trial and error on why move doesn't work properly, I found I had to 

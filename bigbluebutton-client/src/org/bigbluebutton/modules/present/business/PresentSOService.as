@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.present.business {
 	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
+	import flash.events.SyncEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
@@ -100,14 +101,14 @@ package org.bigbluebutton.modules.present.business {
 		}
 		
 	    private function join() : void {
-			_presentationSO = SharedObject.getRemote(SHAREDOBJECT, url, false);			
-			_presentationSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
-			_presentationSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
+			_presentationSO = SharedObject.getRemote(SHAREDOBJECT, url, false);	
 			_presentationSO.client = this;
+			_presentationSO.addEventListener(SyncEvent.SYNC, syncHandler);
+			_presentationSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
+			_presentationSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);					
 			_presentationSO.connect(nc);
 			LogUtil.debug(NAME + ": PresentationModule is connected to Shared object");
-			notifyConnectionStatusListener(true);		
-			getPresentationInfo();		
+				
 		}
 		
 	    private function leave():void {
@@ -219,6 +220,11 @@ package org.bigbluebutton.modules.present.business {
 				widthRatio,
 				heightRatio
 			); //_netConnection.call
+			
+			presenterViewedRegionX = xOffset;
+			presenterViewedRegionY = yOffset;
+			presenterViewedRegionW = widthRatio;
+			presenterViewedRegionH = heightRatio;
 		}
 		
 		/**
@@ -235,6 +241,42 @@ package org.bigbluebutton.modules.present.business {
 			e.slideToCanvasHeightRatio = heightRatio;
 			dispatcher.dispatchEvent(e);
 		}
+		
+		/***
+		 * A hack for the viewer to sync with the presenter. Have the viewer query the presenter for it's x,y,width and height info.
+		 */
+		private var presenterViewedRegionX:Number = 0;
+		private var presenterViewedRegionY:Number = 0;
+		private var presenterViewedRegionW:Number = 100;
+		private var presenterViewedRegionH:Number = 100;
+		
+		private function queryPresenterForSlideInfo():void {
+			LogUtil.debug("Query for slide info");
+			_presentationSO.send("whatIsTheSlideInfo", UserManager.getInstance().getConference().getMyUserId());
+		}
+		
+		public function whatIsTheSlideInfo(userid:Number):void {
+			LogUtil.debug("Rx Query for slide info");
+			if (UserManager.getInstance().getConference().amIPresenter()) {
+				LogUtil.debug("User Query for slide info");
+				_presentationSO.send("whatIsTheSlideInfoReply", userid, presenterViewedRegionX, presenterViewedRegionY, presenterViewedRegionW, presenterViewedRegionH);
+			}
+		}
+		
+		public function whatIsTheSlideInfoReply(userId:Number, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
+			LogUtil.debug("Rx whatIsTheSlideInfoReply");
+			if (UserManager.getInstance().getConference().amIThisUser(userId)) {
+				LogUtil.debug("Got reply for Query for slide info");
+				var e:MoveEvent = new MoveEvent(MoveEvent.CUR_SLIDE_SETTING);
+				e.xOffset = xOffset;
+				e.yOffset = yOffset;
+				e.slideToCanvasWidthRatio = widthRatio;
+				e.slideToCanvasHeightRatio = heightRatio;
+				dispatcher.dispatchEvent(e);				
+			}
+
+		}
+		
 		
 		/**
 		 * Sends an event out for the clients to maximize the presentation module 
@@ -311,14 +353,7 @@ package org.bigbluebutton.modules.present.business {
 						if (result.presenter.hasPresenter) {
 							dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE));						
 						}	
-						
-						if (result.presentation.sharing) {							
-							currentSlide = Number(result.presentation.slide);
-							LogUtil.debug("The presenter has shared slides and showing slide " + currentSlide);
-							var shareEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-							shareEvent.presentationName = String(result.presentation.currentPresentation);
-							dispatcher.dispatchEvent(shareEvent);
-						}
+
 						if (result.presentation.xOffset) {
 							LogUtil.debug("Sending presenters slide settings");
 							var e:MoveEvent = new MoveEvent(MoveEvent.CUR_SLIDE_SETTING);
@@ -339,6 +374,14 @@ package org.bigbluebutton.modules.present.business {
 						
 						// Force switching the presenter.
 						triggerSwitchPresenter();
+						
+						if (result.presentation.sharing) {							
+							currentSlide = Number(result.presentation.slide);
+							LogUtil.debug("The presenter has shared slides and showing slide " + currentSlide);
+							var shareEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
+							shareEvent.presentationName = String(result.presentation.currentPresentation);
+							dispatcher.dispatchEvent(shareEvent);
+						}
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -560,12 +603,22 @@ package org.bigbluebutton.modules.present.business {
 			}
 		}
 
+		private function syncHandler(event:SyncEvent):void {
+	//		var statusCode:String = event.info.code;
+			LogUtil.debug("!!!!! Presentation sync handler - " + event.changeList.length );
+			notifyConnectionStatusListener(true);		
+			getPresentationInfo();	
+			queryPresenterForSlideInfo();
+		}
+		
 		private function netStatusHandler (event:NetStatusEvent):void {
 			var statusCode:String = event.info.code;
-			
+			LogUtil.debug("!!!!! Presentation status handler - " + event.info.code );
 			switch (statusCode) {
 				case "NetConnection.Connect.Success":
-					LogUtil.debug(NAME + ":Connection Success");			
+					LogUtil.debug(NAME + ":Connection Success");
+					notifyConnectionStatusListener(true);		
+					getPresentationInfo();	
 					break;			
 				case "NetConnection.Connect.Failed":
 					addError("PresentSO connection failed");			

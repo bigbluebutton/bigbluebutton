@@ -252,7 +252,7 @@
 				}
 				LogUtil.debug("Got resizing event from presenter [" + e.xOffset + "," + e.yOffset + "," + e.slideToCanvasWidthRatio + "," + e.slideToCanvasHeightRatio + "]");
 				presenterViewedRegionX = e.xOffset;
-				presenterViewedRegionY = e.xOffset;
+				presenterViewedRegionY = e.yOffset;
 				presenterViewedRegionW = e.slideToCanvasWidthRatio;
 				presenterViewedRegionH = e.slideToCanvasHeightRatio;
 			}
