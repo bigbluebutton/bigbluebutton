@@ -210,6 +210,8 @@
 				slideLoader.content.y = slideLoader.y;
 				slideLoader.content.width = slideLoader.width;
 				slideLoader.content.height = slideLoader.height;	
+				moveCanvas(slideLoader.x, slideLoader.y);
+				zoomCanvas(slideLoader.width, slideLoader.height);
 			}
 												
 			/**
