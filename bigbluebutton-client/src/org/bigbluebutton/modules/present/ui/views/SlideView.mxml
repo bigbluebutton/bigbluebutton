@@ -32,13 +32,14 @@
     xmlns:views="org.bigbluebutton.modules.present.views.*"
     implements="org.bigbluebutton.common.IBbbCanvas">
     
+	<mate:Listener type="{MoveEvent.CUR_SLIDE_SETTING}" method="handleCurSlideSettingEvent" />
     <mate:Listener type="{MoveEvent.MOVE}" method="handleMoveEvent" />
     <mate:Listener type="{SlideEvent.SLIDE_LOADED}" method="handleSlideLoadedEvent" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleSwitchToPresenterEvent" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
     <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
     <mate:Listener type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}" method="handleWindowResizeEvent"/>
-    <mate:Listener type="{PresenterCommands.RESIZE}" method="handleSlideResizeEvent"/>
+
     
 	<mx:Script>
 		<![CDATA[
@@ -73,13 +74,6 @@
 			public static const ZOOM_STEP:int = 5;
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
 			
-			/**
-			 * Variables that holds the presenter's locations of the
-			 * loader so we can move the participant's slides in the
-			 * same scale to maintain sync on the presenter's cursor.
-			 */ 
-			private var presentersLoaderXOffsetFromCanvas:Number = 0;
-			private var presentersLoaderYOffsetFromCanvas:Number = 0;
 			
 			/**
 			 * Variables that stores the presenter's ratio between
@@ -87,35 +81,21 @@
 			 * same scale as the presenter so that the cursor syncs
 			 * properly.
 			 */
-			private var presentersLoaderCanvasWidthRatio:Number = 1;
-			private var presentersLoaderCanvasHeightRatio:Number = 1;
-			
-			private var canvasMouseXOnMouseDown:int;
-			private	var canvasMouseYOnMouseDown:int;
-			private var loaderXOnMouseDown:int;
-			private var loaderYOnMouseDown:int;
+			private var presenterViewedRegionX:Number = 0;
+			private var presenterViewedRegionY:Number = 0;
+			private var presenterViewedRegionW:Number = 100;
+			private var presenterViewedRegionH:Number = 100;
 						
 			private var cursor:Shape;
 			private var overlayChildrenHolder:Canvas = new Canvas();
 			private var overlayCanvas:IBbbCanvas;
-			
-			//The following few variables concern text selection
-			private var slideClip:MovieClip;
-			private var slideText:TextSnapshot;
-			private var firstChar:Number = -1;
-			private var lastChar:Number = -1;
-				
+							
         	[Bindable] public var slides:ArrayCollection;
 			[Bindable] public var selectedSlide:int=0;
-			[Bindable] private var isPresenter:Boolean = false;
+			[Bindable] private var lateComerSynched:Boolean = false;
 			
 			private var dispatcher:Dispatcher = new Dispatcher();
-			
-			private var viewportX:Number = 0;
-			private var viewportY:Number = 0;
-			private var viewportW:Number = 0;
-			private var viewportH:Number = 0;
-			
+						
 			[Bindable]
 			private var slideModel:SlideViewModel = new SlideViewModel();
 			
@@ -180,19 +160,7 @@
 				fitSlideToLoader();		
 				notifyOthersOfZoomEvent();
 			}
-			
-			/**
-			 * Send a message to other participants indicating the presenter has moved the slide.
-			 */
-			private function notifyOtherParticipantsOfSlideMoving():void {
-				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.MOVE);
-				presentEvent.xOffset = slideLoader.x/slideLoader.width;
-				presentEvent.yOffset = slideLoader.y/slideLoader.height;
-				presentEvent.slideToCanvasWidthRatio = slideLoader.width/this.width;
-				presentEvent.slideToCanvasHeightRatio = slideLoader.height/this.height;
-				dispatchEvent(presentEvent);
-			}
-			
+						
 			/**
 			 * Triggered when the presenter releases the mouse button.
 			 */		
@@ -243,40 +211,7 @@
 				slideLoader.content.width = slideLoader.width;
 				slideLoader.content.height = slideLoader.height;	
 			}
-									
-			private function fitLoaderToCanvas1():void{
-				if (noSlideContentLoaded()) return;
-				
-				slideLoader.width = this.width;
-				slideLoader.height = this.height;
-				slideLoader.x = 0;
-				slideLoader.y = 0;				
-				fitSlideToLoader();						
-			}
-
-			
-			private function handleSlideResizeEvent(event:PresenterCommands):void {
-				if (slideModel == null) return;
-				zoomLoaderBy(event.newSizeInPercent);
-			}
-			
-			public function zoomLoaderBy(percent:Number):void {				
-				if (percent < 100) {
-					zoomPercentage = 100;
-				} else if (percent > 400) {
-					zoomPercentage = 400;
-				} else {
-					zoomPercentage = percent;
-				}
-				
- 				if (zoomPercentage == 100) {
- //					fitLoaderToCanvas();
- 				} else {
-// 					resizeAndMoveLoaderBy(zoomPercentage);
- 				}
-				notifyOthersOfZoomEvent();
-			}
-			
+												
 			/**
 			 * Triggered when the presenter uses the mouse wheel to zoom in/out of the slide.
 			 */
@@ -292,13 +227,7 @@
 				
 				notifyOthersOfZoomEvent();						
 			}
-			
-			public function notifyListenersOfSlideResize(percent:Number):void {
-				var event:SlideResizedEvent = new SlideResizedEvent();
-				event.percent = percent;
-				dispatcher.dispatchEvent(event);
-			}
-						
+									
 			private function notifyOthersOfZoomEvent():void {
 				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ZOOM);
 				presentEvent.xOffset = slideModel.viewedRegionX;
@@ -312,6 +241,20 @@
 			private function presenterIsZoomingOut(delta:Number):Boolean {
 				// If delta is negative, the presenter is zooming-out of the presentation.
 				return delta < 0;
+			}
+			
+			/**
+			 * Handles notification from presenter that the slide has moved.
+			 */
+			private function handleCurSlideSettingEvent(e:MoveEvent):void{
+				if (UserManager.getInstance().getConference().amIPresenter()) {
+					return;
+				}
+				LogUtil.debug("Got resizing event from presenter [" + e.xOffset + "," + e.yOffset + "," + e.slideToCanvasWidthRatio + "," + e.slideToCanvasHeightRatio + "]");
+				presenterViewedRegionX = e.xOffset;
+				presenterViewedRegionY = e.xOffset;
+				presenterViewedRegionW = e.slideToCanvasWidthRatio;
+				presenterViewedRegionH = e.slideToCanvasHeightRatio;
 			}
 			
 			/**
@@ -341,7 +284,6 @@
 			 * Handle the event where this presenter becomes a viewer because another attendee became presenter.
 			 */			
 			private function handleSwitchToViewerEvent(e:MadePresenterEvent):void{
-				participantIsNowPresenter(false);
 				removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
 				slideLoader.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 				slideLoader.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
@@ -353,17 +295,14 @@
 			 * Makes the attendee the presenter.
 			 */
 			private function handleSwitchToPresenterEvent(e:MadePresenterEvent):void{
-				participantIsNowPresenter(true);
 				addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
 				slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 				slideLoader.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 				slideLoader.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 				addEventListener(MouseEvent.MOUSE_MOVE, mouseCursorUpdateListener);
+				notifyOthersOfZoomEvent();
 			}
 			
-			private function participantIsNowPresenter(presenter:Boolean):void {
-				this.isPresenter = presenter;
-			}
 			
 			/**
 			 * Listen for mouse events to track the cursor.
@@ -402,17 +341,7 @@
 			private function noSlideContentLoaded():Boolean {
 				return slideLoader.content == null
 			}
-			
-			/**
-			 * Keep track of the presenter's x,y coordinates and the size of his/her presentation window.
-			 */
-			private function savePresentersSettings(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void {
-				presentersLoaderXOffsetFromCanvas = xOffset;
-				presentersLoaderYOffsetFromCanvas = yOffset;
-				presentersLoaderCanvasWidthRatio = widthRatio;
-				presentersLoaderCanvasHeightRatio = heightRatio;
-			}
-			
+						
 			/*
 			 * Fire an event when a single slide has been loaded.
 			 */
@@ -420,11 +349,18 @@
 				slideLoader.addEventListener(Event.COMPLETE, handleSlideLoadedCompleteEvent);
 			}
 			
-			private function handleSlideLoadedCompleteEvent(event:Event):void {		
-				slideModel.reset(slideLoader.content.width, slideLoader.content.height);
+			private function handleSlideLoadedCompleteEvent(event:Event):void {
+				if (lateComerSynched) {
+					slideModel.resetForNewSlide(slideLoader.content.width, slideLoader.content.height);					
+				} else {
+					lateComerSynched = true;
+					slideModel.reset(slideLoader.content.width, slideLoader.content.height);
+					slideModel.saveViewedRegion(presenterViewedRegionX, presenterViewedRegionY, presenterViewedRegionW, presenterViewedRegionH);					
+				}
+								
 				dispatchNewSlideDisplayedEvent(slideModel.pageOrigW, slideModel.pageOrigH);				
 			}
-			
+					
 			private function dispatchNewSlideDisplayedEvent(slideRealWidth:int, slideRealHeight:int):void {
 				var dispEvent:DisplaySlideEvent = new DisplaySlideEvent(DisplaySlideEvent.DISPLAY_SLIDE_EVENT);
 				dispEvent.slideWidth = slideRealWidth;

@@ -73,12 +73,17 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}
 		
 		public function reset(pageWidth:int, pageHeight:int):void {
-			_pageOrigW = pageWidth;
-			_pageOrigH = pageHeight;
-			loaderH = _pageOrigH;
-			loaderW = _pageOrigW;
-			loaderX = 0;
-			loaderY = 0;		
+			_calcPageW = _pageOrigW = pageWidth;
+			_calcPageH = _pageOrigH = pageHeight;
+		}
+
+		public function resetForNewSlide(pageWidth:int, pageHeight:int):void {
+			_calcPageW = _pageOrigW = pageWidth;
+			_calcPageH = _pageOrigH = pageHeight;
+			_calcPageX = 0;
+			_calcPageY = 0;		
+			_viewedRegionW = _viewedRegionH = 100;
+			_viewedRegionX = _viewedRegionY = 0;
 		}
 		
 		public function parentChange(parentW:int, parentH:int, fitToPage:Boolean):void {

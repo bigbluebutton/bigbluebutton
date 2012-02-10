@@ -321,7 +321,7 @@ package org.bigbluebutton.modules.present.business {
 						}
 						if (result.presentation.xOffset) {
 							LogUtil.debug("Sending presenters slide settings");
-							var e:MoveEvent = new MoveEvent(MoveEvent.MOVE);
+							var e:MoveEvent = new MoveEvent(MoveEvent.CUR_SLIDE_SETTING);
 							e.xOffset = Number(result.presentation.xOffset);
 							e.yOffset = Number(result.presentation.yOffset);
 							e.slideToCanvasWidthRatio = Number(result.presentation.widthRatio);
