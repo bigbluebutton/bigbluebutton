@@ -179,7 +179,7 @@ usage() {
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
-        echo "   --setfreeswtichip <host>         Set IP for FreeSWITCH" 
+        echo "   --setsipip <host>                Set IP for FreeSWITCH" 
 	echo "   --setsalt <salt>		  Change the security salt in bigbluebutton.properties"
         echo
         echo "Monitoring:"
@@ -511,11 +511,11 @@ while [ $# -gt 0 ]; do
 		continue
 	fi
 
-	if [ "$1" = "-setfreeswitchip" -o "$1" = "--setfreeswitchip" ]; then
+	if [ "$1" = "-setsipip" -o "$1" = "--setsipip" ]; then
 		if test -z "${2}"; then
 			usage;
 		fi
-		FREESWITCHIP="${2}"
+		SIPIP="${2}"
                 shift; shift
                 continue
 	fi
@@ -547,10 +547,10 @@ if [ $SALT ]; then
 	echo
 fi
 
-if [ $FREESWITCHIP ]; then
+if [ $SIPIP ]; then
 	need_root
-	change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties sip.server.host $FREESWITCHIP
-	echo "Changed the value for sip.server.host to $FREESWITCHIP"
+	change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties sip.server.host $SIPIP
+	echo "Changed the value for sip.server.host to $SIPIP"
 	echo
 	CLEAN=1
 fi
