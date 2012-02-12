@@ -1225,7 +1225,7 @@ check_state() {
 				echo 
 			fi
 
-			SIP_IP=$(netstat -ant | grep 5060 | awk -F" " '{print $4}' | cut -d: -f1)
+			SIP_IP=$(netstat -ant | grep 5060 | head -n1 | awk -F" " '{print $4}' | cut -d: -f1)
 			if [ $SIP_SERVER_HOST != $SIP_IP ]; then
 				echo 
 				echo "# FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
