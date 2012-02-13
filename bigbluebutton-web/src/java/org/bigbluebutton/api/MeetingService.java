@@ -323,6 +323,38 @@ public class MeetingService {
 			}
 			log.warn("The meeting " + meetingId + " doesn't exist");
 		}
+
+		@Override
+		public void userJoinedVoice(String meetingId, String externalUserId) {
+			Meeting m = getMeeting(meetingId);
+			if (m != null) {
+				User user = m.getUserByExternalId(externalUserId);
+				if(user != null){
+					user.setIsListener(true);
+					log.debug("The user " + user.getFullname() + " joined the voice meeting in the meeting " + meetingId);
+					return;
+				}
+				log.warn("The participant " + externalUserId + " doesn't exist in the meeting " + meetingId);
+				return;
+			}
+			log.warn("The meeting " + meetingId + " doesn't exist");
+		}
+
+		@Override
+		public void userLeftVoice(String meetingId, String externalUserId) {
+			Meeting m = getMeeting(meetingId);
+			if (m != null) {
+				User user = m.getUserByExternalId(externalUserId);
+				if(user != null){
+					user.setIsListener(false);
+					log.debug("The user " + user.getFullname() + " left the voice meeting in the meeting " + meetingId);
+					return;
+				}
+				log.warn("The participant " + externalUserId + " doesn't exist in the meeting " + meetingId);
+				return;
+			}
+			log.warn("The meeting " + meetingId + " doesn't exist");
+		}
 	}
 	
 }

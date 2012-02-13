@@ -193,10 +193,11 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
         Map<String, String> headers = event.getEventHeaders();
         String callerId = this.getCallerIdFromEvent(event);
         String callerIdName = this.getCallerIdNameFromEvent(event);
+        String callerIdExternalUserId = this.getCallerIdExternalUserIdFromEvent(event);
         boolean muted = headers.get("Speak").equals("true") ? false : true; //Was inverted which was causing a State issue
         boolean speeking = headers.get("Talking").equals("true") ? true : false;
 
-        ParticipantJoinedEvent pj = new ParticipantJoinedEvent(memberId, confName, callerId, callerIdName, muted, speeking);
+        ParticipantJoinedEvent pj = new ParticipantJoinedEvent(memberId, confName, callerId, callerIdName, callerIdExternalUserId, muted, speeking);
         conferenceEventListener.handleConferenceEvent(pj);
     }
 
@@ -365,7 +366,13 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
 
     private String getCallerIdNameFromEvent(EslEvent e)
     {
-        return e.getEventHeaders().get("Caller-Caller-ID-Name");
+        return e.getEventHeaders().get("Caller-Caller-ID-Name").split(";")[0];
+    }
+
+    private String getCallerIdExternalUserIdFromEvent(EslEvent e)
+    {
+	// TODO: this information should get here in another header section
+        return e.getEventHeaders().get("Caller-Caller-ID-Name").split(";")[1];
     }
     
     private String getRecordFilenameFromEvent(EslEvent e) {

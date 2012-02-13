@@ -28,14 +28,16 @@ import net.jcip.annotations.ThreadSafe;
 @ThreadSafe
 class ParticipantImp implements Participant {
 	private final int id;
+	private final String externalUserId;
 	private final String name;
 	private boolean muted = false;
 	private boolean talking = false;
 	private boolean locked = false;
 	
-	ParticipantImp(int id, String name) {
+	ParticipantImp(int id, String name, String externalUserId) {
 		this.id = id;
 		this.name = name;
+		this.externalUserId = externalUserId;
 	}
 	
 	synchronized void setTalking(boolean talking) {
@@ -68,5 +70,9 @@ class ParticipantImp implements Participant {
 	
 	public String getName() {
 		return name;
+	}
+
+	public String getExternalUserId() {
+		return externalUserId;
 	}
 }

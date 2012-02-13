@@ -1176,6 +1176,7 @@ class ApiController {
                   isPresenter("${att.isPresenter()}")
                   hasVideoStream("${att.hasStream()}")
                   videoStreamName("${att.getStreamName()}")
+                  isListener("${att.isListener()}")
                 }
               }
             }

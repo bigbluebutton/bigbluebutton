@@ -21,6 +21,8 @@ package org.bigbluebutton.webconference.voice.internal;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import org.bigbluebutton.conference.Constants;
+import org.bigbluebutton.conference.service.messaging.MessagingService;
 import org.bigbluebutton.webconference.voice.ConferenceService;
 import org.bigbluebutton.webconference.voice.Participant;
 import org.bigbluebutton.webconference.voice.VoiceEventRecorder;
@@ -34,6 +36,7 @@ import org.bigbluebutton.webconference.voice.events.StartRecordingEvent;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 import net.jcip.annotations.ThreadSafe;
+//import org.red5.server.api.IConnection;
 
 @ThreadSafe
 public class RoomManager {
@@ -42,14 +45,21 @@ public class RoomManager {
 	private final ConcurrentHashMap<String, RoomImp> rooms;
 	private ConferenceService confService;
 	private VoiceEventRecorder recorder;
+	private MessagingService messagingService;
 		
 	public RoomManager() {
 		rooms = new ConcurrentHashMap<String, RoomImp>();
 	}
 	
+	public void setMessagingService(MessagingService messagingService) {
+		this.messagingService = messagingService;
+		this.messagingService.start();
+	}
+
 	public void createRoom(String name,boolean record, String meetingid) {
 		log.debug("Creating room: " + name);
 		RoomImp r = new RoomImp(name,record,meetingid);
+		r.addRoomListener(new ParticipantUpdatingRoomListener(r, messagingService));
 		rooms.putIfAbsent(name, r);
 	}
 	
@@ -140,17 +150,18 @@ public class RoomManager {
 		/**
 		 * Record the event if the meeting is being recorded.
 		 */
-		recorder.recordConferenceEvent(event, rm.getMeeting());
+		recorder.recordConferenceEvent(event, rm.getMeetingId());
 	}
 
 	private void handleParticipantJoinedEvent(ConferenceEvent event, RoomImp rm) {
 		log.debug("Processing ParticipantJoinedEvent for room: " + event.getRoom());
 		ParticipantJoinedEvent pje = (ParticipantJoinedEvent) event;
-		ParticipantImp p = new ParticipantImp(pje.getParticipantId(), pje.getCallerIdName());
+		ParticipantImp p = new ParticipantImp(pje.getParticipantId(), pje.getCallerIdName(), pje.getCallerIdExternalUserId());
+
 		p.setMuted(pje.getMuted());
 		p.setTalking(pje.getSpeaking());
-		log.debug("Joined [" + p.getId() + "," + p.getName() + "," + p.isMuted() + "," + p.isTalking() + "] to room " + rm.getName());
-		
+		log.debug("Joined [" + p.getId() + "," + p.getName() + "," + p.getExternalUserId() + "," + p.isMuted() + "," + p.isTalking() + "] to room " + rm.getName());
+
 		rm.add(p);
 		
 		if ((rm.numParticipants() == 1) && rm.record() && !rm.isRecording()) {
@@ -162,7 +173,7 @@ public class RoomManager {
 			rm.recording(true);
 			log.debug("Starting recording of voice conference");
 			log.warn(" ** WARNING: Prototyping only. Works only with FreeSWITCH for now. We need to come up with a generic way to trigger recording for both Asterisk and FreeSWITCH.");
-			confService.recordSession(event.getRoom(), rm.getMeeting());
+			confService.recordSession(event.getRoom(), rm.getMeetingId());
 		}
 		
 		if (rm.isMuted() && !p.isMuted()) {

@@ -23,10 +23,13 @@ package org.bigbluebutton.webconference.voice.internal;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.slf4j.Logger;
+import org.red5.logging.Red5LoggerFactory;
 import org.bigbluebutton.webconference.voice.Participant;
 import org.bigbluebutton.webconference.voice.Room;
 
@@ -34,6 +37,7 @@ import net.jcip.annotations.ThreadSafe;
 
 @ThreadSafe
 public class RoomImp implements Room {
+	private static Logger log = Red5LoggerFactory.getLogger( RoomImp.class, "bigbluebutton" );
 	private final String name;
 	
 	private final ConcurrentMap<Integer, Participant> participants;
@@ -42,18 +46,33 @@ public class RoomImp implements Room {
 	private boolean record = false;
 	private String meetingid;
 	private boolean recording = false;
+
+	private transient final Map<String, IRoomListener> listeners;
 	
 	public RoomImp(String name,boolean record, String meetingid) {
 		this.name = name;
 		this.record = record;
 		this.meetingid = meetingid;
 		participants = new ConcurrentHashMap<Integer, Participant>();
+		listeners = new ConcurrentHashMap<String, IRoomListener>();
 	}
 	
 	public String getName() {
 		return name;
 	}
-	
+
+	public void addRoomListener(IRoomListener listener) {
+		if (! listeners.containsKey(listener.getName())) {
+			log.debug("adding room listener");
+			listeners.put(listener.getName(), listener);
+		}
+	}
+
+	public void removeRoomListener(IRoomListener listener) {
+		log.debug("removing room listener");
+		listeners.remove(listener);
+	}
+
 	public int numParticipants() {
 		return participants.size();
 	}
@@ -63,8 +82,22 @@ public class RoomImp implements Room {
 	}
 	
 	public Participant add(Participant p) {
-		return participants.putIfAbsent(p.getId(), p);
-	}
+		int key = p.getId();
+		if (!participants.containsKey(key)) {
+			participants.put(key, p);
+
+			log.debug("Informing roomlisteners " + listeners.size());
+			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+				IRoomListener listener = (IRoomListener) it.next();
+				log.debug("calling participantJoined on listener " + listener.getName());
+				listener.participantJoined(p);
+			}
+
+			return p;
+		} else {
+			return participants.get(key);
+		}
+ 	}
 	
 	public boolean hasParticipant(Integer id) {
 		return participants.containsKey(id);
@@ -72,7 +105,14 @@ public class RoomImp implements Room {
 	
 	public void remove(Integer id) {
 		Participant p = participants.remove(id);
-		if (p != null) p = null;
+		if (p != null) {
+			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+				IRoomListener listener = (IRoomListener) it.next();
+				log.debug("calling participantLeft on listener " + listener.getName());
+				listener.participantLeft(p);
+			}
+			p = null;
+		}
 	}
 	
 	public void mute(boolean mute) {
@@ -99,11 +139,11 @@ public class RoomImp implements Room {
 		return recording;
 	}
 	
-	public String getMeeting() {
+	public String getMeetingId() {
 		return meetingid;
 	}
 
-	public void setMeeting(String meetingid) {
+	public void setMeetingId(String meetingid) {
 		this.meetingid = meetingid;
 	}
 	

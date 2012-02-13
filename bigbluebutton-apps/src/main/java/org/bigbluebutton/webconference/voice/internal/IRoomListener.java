@@ -1,6 +1,4 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 *
 * Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
@@ -17,24 +15,14 @@
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
-* ===License Header===
 */
-package org.bigbluebutton.webconference.voice;
 
-import java.util.ArrayList;
+package org.bigbluebutton.webconference.voice.internal;
+
 import org.bigbluebutton.webconference.voice.Participant;
 
-public interface Room {		
-	public String getName();	
-	public int numParticipants();	
-	public Participant getParticipant(Integer id);
-	public boolean hasParticipant(Integer id);
-	public ArrayList<Participant> getParticipants();
-	public boolean isMuted();
-	public void record(boolean rec);
-	public boolean record();
-	public void recording(boolean rec);
-	public boolean isRecording();
-	public String getMeetingId();
-	public void setMeetingId(String meetingid);
+public interface IRoomListener {
+    public String getName();
+    public void participantJoined(Participant participant);
+    public void participantLeft(Participant participant);
 }

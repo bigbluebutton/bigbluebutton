@@ -175,6 +175,15 @@ public class Meeting {
 	public User getUserById(String id){
 		return this.users.get(id);
 	}
+
+	public User getUserByExternalId(String externalUserId){
+		for (String key : users.keySet()) {
+		    User u =  (User) users.get(key);
+		    if (u.getExternalUserId().equals(externalUserId))
+			return u;
+		}
+		return null;
+	}
 	
 	public int getNumUsers(){
 		return this.users.size();
