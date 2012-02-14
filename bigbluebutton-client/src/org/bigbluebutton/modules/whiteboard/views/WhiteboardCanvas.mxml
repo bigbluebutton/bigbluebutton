@@ -263,7 +263,7 @@
 			}
 			
 			private function scaleCanvas(e:WindowResizedEvent):void{
-				zoomCanvas(e.width, e.height);
+//				zoomCanvas(e.width, e.height);
 			}
 			
 			private function changePage(e:PageEvent):void{
@@ -324,6 +324,7 @@
 				
 				this.width = width;
 				this.height = height;
+				shapeFactory.setParentDim(width, height);
 			}
 			
 			public function showCanvas(show:Boolean):void{
