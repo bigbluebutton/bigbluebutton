@@ -50,16 +50,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return 
 		 * 
 		 */		
-		public function makeShape(shape:DrawObject):Shape{
-			var s:Shape = null;
+		public function makeShape(shape:DrawObject):DrawObject{
 			if (shape.getType() == DrawObject.PENCIL){
-				s = makePencil(Pencil(shape));
+				return makePencil(Pencil(shape));
 			} else if (shape.getType() == DrawObject.RECTANGLE){
-				s = makeRectangle(Rectangle(shape));
+				return makeRectangle(Rectangle(shape));
 			} else if (shape.getType() == DrawObject.ELLIPSE){
-				s = makeEllipse(Ellipse(shape));
+				return makeEllipse(Ellipse(shape));
 			}
-			return s;
+			return null;
 		}
 		
 		/**
@@ -71,7 +70,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return A Flash Shape object
 		 * 
 		 */		
-		public function makeFeedback(segment:Array, type:String, color:uint, thickness:uint):Shape{
+		public function makeFeedback(segment:Array, type:String, color:uint, thickness:uint):DrawObject{
 			return makeShape(drawFactory.makeDrawObject(type,segment, color, thickness));
 		}
 		
@@ -81,8 +80,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return a Shape
 		 * 
 		 */		
-		private function makePencil(p:Pencil):Shape{
-			var newShape:Shape = new Shape();
+		private function makePencil(p:Pencil):DrawObject{
+			var newShape:Shape = p.getShape();
 			newShape.graphics.lineStyle(p.getThickness(), p.getColor());
 			
 			var graphicsCommands:Vector.<int> = new Vector.<int>();
@@ -100,7 +99,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
            	if (p.getColor() == 0x000000 || p.getColor() == 0xFFFFFF) newShape.alpha = 1;
            	else newShape.alpha = 0.6;
 	            
-	        return newShape;
+	        return p;
 		}
 		
 		/**
@@ -109,8 +108,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return a Shape
 		 * 
 		 */		
-		private function makeRectangle(r:Rectangle):Shape{
-			var newShape:Shape = new Shape();
+		private function makeRectangle(r:Rectangle):DrawObject{
+			var newShape:Shape = r.getShape();
 			newShape.graphics.lineStyle(r.getThickness(), r.getColor());
 			var arrayEnd:Number = r.getShapeArray().length;
 			var x:Number = r.getShapeArray()[0];
@@ -122,7 +121,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			if (r.getColor() == 0x000000 || r.getColor() == 0xFFFFFF) newShape.alpha = 1.0;
 			else newShape.alpha = 0.6;
 			
-			return newShape;	
+			return r;	
 		}
 		
 		/**
@@ -131,8 +130,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return a Shape
 		 * 
 		 */		
-		private function makeEllipse(e:Ellipse):Shape{
-			var newShape:Shape = new Shape();
+		private function makeEllipse(e:Ellipse):DrawObject{
+			var newShape:Shape = e.getShape();
 			newShape.graphics.lineStyle(e.getThickness(), e.getColor());
 			var arrayEnd:Number = e.getShapeArray().length;
 			var x:Number = e.getShapeArray()[0];
@@ -144,7 +143,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			if (e.getColor() == 0x000000 || e.getColor() == 0xFFFFFF) newShape.alpha = 1.0;
 			else newShape.alpha = 0.6;
 			
-			return newShape;
+			return e;
 		}
 
 	}

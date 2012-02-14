@@ -18,6 +18,8 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+	import flash.display.Shape;
+
 	/**
 	 * The DrawObject class provides an interface for other geometric representations.
 	 * This is a simple implementation of the Template design pattern. Other classes extend the
@@ -41,6 +43,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public var parentWidth:Number;
 		public var parentHeight:Number;
 		
+		protected var _shape:Shape = new Shape();
+		
 		/**
 		 * The default constructor for the DrawObject 
 		 * 
@@ -52,6 +56,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.color = color;
 			this.thickness = thickness;
 			this.optimize();
+		}
+		
+		public function getShape():Shape {
+			return _shape;
 		}
 		
 		/**

@@ -56,7 +56,6 @@
 			private var feedback:Shape = new Shape();
 			private var latentFeedbacks:ArrayCollection = new ArrayCollection();
 			private var segment:Array = new Array();
-			private var newShape:Shape = new Shape();
 			private var shapeList:Array = new Array();
 			
 			protected var drawFactory:DrawObjectFactory;
@@ -161,7 +160,8 @@
 					segment.push(y2);
 					
 					rawChildren.removeChild(feedback);
-					feedback = shapeFactory.makeFeedback(segment,this.shapeStyle, this.drawColor, this.thickness);
+					var doFb:DrawObject = shapeFactory.makeFeedback(segment,this.shapeStyle, this.drawColor, this.thickness);
+					feedback = doFb.getShape();
 					rawChildren.addChild(feedback);
 					
 					x1 = x2;
@@ -191,13 +191,13 @@
 					}
 				}
 				
-				newShape = shapeFactory.makeShape(o);
+				var drawObject:DrawObject = shapeFactory.makeShape(o);
+				var newShape:Shape = drawObject.getShape();
 				newShape.width = newShape.width * (this.width/o.parentWidth);
 				newShape.height = newShape.height * (this.height/o.parentHeight);
 	            shapeList.push(newShape);
 	            //rawChildren.addChild(shapeList[shapeList.length-1]);
 	            bbbCanvas.addRawChild(shapeList[shapeList.length-1]);
-	            newShape = new Shape();
 			}
 			
 			/**
