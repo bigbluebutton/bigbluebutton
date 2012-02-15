@@ -113,9 +113,9 @@
 				event.message = d;
 				dispatchEvent(event);
 				
-				latentFeedbacks.addItem(feedback);
+//				latentFeedbacks.addItem(feedback);
 				
-				feedback = new Shape();
+//				feedback = new Shape();
 				segment = new Array();
 			}
 
@@ -138,7 +138,7 @@
 				isDrawing = true;
 				segment.push(startX);
 				segment.push(startY);
-				rawChildren.addChild(feedback);				
+//				rawChildren.addChild(feedback);				
 			}
 			
 			/**
@@ -156,10 +156,10 @@
 					segment.push(x2);
 					segment.push(y2);
 					
-					rawChildren.removeChild(feedback);
-					var doFb:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
-					feedback = doFb.getShape();
-					rawChildren.addChild(feedback);
+//					rawChildren.removeChild(feedback);
+//					var doFb:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
+//					feedback = doFb.getShape();
+//					rawChildren.addChild(feedback);
 					
 					x1 = x2;
 					y1 = y2;
@@ -179,14 +179,14 @@
 			
 			private function draw(o:DrawObject):void{
 
-				for( var i:int = 0; i < latentFeedbacks.length;i++){
-					var tempshape:Shape = latentFeedbacks.getItemAt(i) as Shape;
-					if(rawChildren.contains(tempshape))
-					{
-						rawChildren.removeChild(tempshape);
-						latentFeedbacks.removeItemAt(i);
-					}
-				}
+//				for( var i:int = 0; i < latentFeedbacks.length;i++){
+//					var tempshape:Shape = latentFeedbacks.getItemAt(i) as Shape;
+//					if(rawChildren.contains(tempshape))
+//					{
+//						rawChildren.removeChild(tempshape);
+//						latentFeedbacks.removeItemAt(i);
+//					}
+//				}
 				
 				var drawObject:DrawObject = shapeFactory.makeShape(o);
 				var newShape:Shape = drawObject.getShape();

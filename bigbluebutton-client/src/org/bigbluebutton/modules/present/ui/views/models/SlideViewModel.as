@@ -96,6 +96,10 @@ package org.bigbluebutton.modules.present.ui.views.models
 			if (fitToPage) {
 				_viewedRegionW = (viewportW/_calcPageW) * 100;
 				_viewedRegionH = (viewportH/_calcPageH) * 100;
+				
+				if (_viewedRegionW > 100) _viewedRegionW = 100;
+				if (_viewedRegionH > 100) _viewedRegionH = 100;
+				
 				LogUtil.debug("** calc vr ftp [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _viewedRegionW + "," + _viewedRegionH + "]");				
 			} else {
 				_viewedRegionW = 100;
