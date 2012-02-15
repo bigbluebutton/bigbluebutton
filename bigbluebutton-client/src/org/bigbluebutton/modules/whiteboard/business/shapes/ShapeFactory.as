@@ -61,7 +61,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return null;
 		}
 		
-		private function denormalize(val:Number, side:int):int {
+		private function denormalize(val:Number, side:int):Number {
 			return (val/100)*side;
 		}
 		
