@@ -50,7 +50,6 @@
 			private var x2:int; 
 			private var y2:int;
 			
-			public var d:DrawObject;	
 			private var isDrawing:Boolean; 
 			private var sending:Boolean = false;
 			private var feedback:Shape = new Shape();
@@ -58,7 +57,6 @@
 			private var segment:Array = new Array();
 			private var shapeList:Array = new Array();
 			
-			protected var drawFactory:DrawObjectFactory;
 			protected var shapeFactory:ShapeFactory;
 			protected var bbbCanvas:IBbbCanvas;
 		
@@ -78,7 +76,6 @@
 			private var drawTimer:Timer;
 			
 			private function init():void{
-				drawFactory = new DrawObjectFactory();
 				shapeFactory = new ShapeFactory();
 				this.label = "Highlighter";
 			}
@@ -109,9 +106,9 @@
 			private function sendShapeToServer():void{
 				if (segment.length == 0) return;
 				
-				this.d = drawFactory.makeDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
-				this.d.parentHeight = this.height;
-				this.d.parentWidth = this.width;
+				var d:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
+				d.parentHeight = (d.getShape().height / this.height) * 100;
+				d.parentWidth = (d.getShape().width / this.width) * 100;
 				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
 				event.message = d;
 				dispatchEvent(event);
@@ -160,7 +157,7 @@
 					segment.push(y2);
 					
 					rawChildren.removeChild(feedback);
-					var doFb:DrawObject = shapeFactory.makeFeedback(segment,this.shapeStyle, this.drawColor, this.thickness);
+					var doFb:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
 					feedback = doFb.getShape();
 					rawChildren.addChild(feedback);
 					
@@ -182,7 +179,7 @@
 			
 			private function draw(o:DrawObject):void{
 
-				for( var i:int = 0; i<latentFeedbacks.length;i++){
+				for( var i:int = 0; i < latentFeedbacks.length;i++){
 					var tempshape:Shape = latentFeedbacks.getItemAt(i) as Shape;
 					if(rawChildren.contains(tempshape))
 					{
@@ -193,11 +190,11 @@
 				
 				var drawObject:DrawObject = shapeFactory.makeShape(o);
 				var newShape:Shape = drawObject.getShape();
-				newShape.width = newShape.width * (this.width/o.parentWidth);
-				newShape.height = newShape.height * (this.height/o.parentHeight);
-	            shapeList.push(newShape);
-	            //rawChildren.addChild(shapeList[shapeList.length-1]);
-	            bbbCanvas.addRawChild(shapeList[shapeList.length-1]);
+				newShape.width = ((o.parentWidth/100) * this.width);
+				newShape.height = ((o.parentHeight/100) * this.height);
+
+	            shapeList.push(drawObject);
+	            bbbCanvas.addRawChild(newShape);
 			}
 			
 			/**
@@ -231,17 +228,19 @@
 			 * Clears the entire board
 			 */
 			public function clearBoard(event:WhiteboardUpdate = null):void{
-				for (var i:Number = 0; i<this.shapeList.length; i++){
-					if (this.bbbCanvas.doesContain(this.shapeList[i])){
-						this.bbbCanvas.removeRawChild(this.shapeList[i]);	
+				for (var i:Number = 0; i < this.shapeList.length; i++){
+					var dobj:DrawObject = this.shapeList[i] as DrawObject;
+					if (this.bbbCanvas.doesContain(dobj.getShape())){
+						this.bbbCanvas.removeRawChild(dobj.getShape());	
 					}
 				}
 				this.shapeList = new Array();
 			}
 			
 			public function undoShape(event:WhiteboardUpdate):void{
-				if (this.shapeList.length > 0){
-					this.bbbCanvas.removeRawChild(this.shapeList[this.shapeList.length-1]);
+				if (this.shapeList.length > 0) {
+					var dobj:DrawObject = this.shapeList[this.shapeList.length-1] as DrawObject;
+					this.bbbCanvas.removeRawChild(dobj.getShape());
 					shapeList.pop();
 				}
 			}
@@ -270,7 +269,7 @@
 				var page:Number = e.pageNum;
 				var shapes:ArrayCollection = e.shapes;
 				clearBoard();
-				for (var i:int = 0; i<shapes.length; i++){
+				for (var i:int = 0; i < shapes.length; i++){
 					var o:DrawObject = shapes.getItemAt(i) as DrawObject;
 					draw(o);
 				}
@@ -315,16 +314,42 @@
 				this.y = y;
 			}
 			
+			private function cleanShapes():void {
+				for (var i:Number = 0; i < this.shapeList.length; i++){
+					var dobj:DrawObject = this.shapeList[i] as DrawObject;
+					if (this.bbbCanvas.doesContain(dobj.getShape())){
+						this.bbbCanvas.removeRawChild(dobj.getShape());	
+					}
+				}
+			}
+			
+			private function redrawShapes():void {
+				for (var i:Number = 0; i < this.shapeList.length; i++){
+					var dobj:DrawObject = this.shapeList[i] as DrawObject;
+					shapeFactory.makeShape(dobj);
+					var newShape:Shape = dobj.getShape();
+					bbbCanvas.addRawChild(newShape);
+				}
+			}
+			
 			public function zoomCanvas(width:int, height:int):void{
-				for (var i:int = 0; i<this.shapeList.length; i++){
-					var s:Shape = this.shapeList[i] as Shape;
-					s.width = s.width * (width /this.width);
-					s.height = s.height * (height /this.height);
+				shapeFactory.setParentDim(width, height);
+//				cleanShapes();
+//				redrawShapes();
+				
+				for (var i:int = 0; i < this.shapeList.length; i++){
+					var dobj:DrawObject = this.shapeList[i] as DrawObject;
+					var s:Shape = dobj.getShape();
+	//				s.width = newShape.width * ((o.parentWidth/100) * this.width);
+	//				s.height = newShape.height * ((o.parentHeight/100) * this.height);
+					
+					s.width = ((dobj.parentWidth/100) * width);
+					s.height = ((dobj.parentHeight/100) * height);
 				}
 				
 				this.width = width;
 				this.height = height;
-				shapeFactory.setParentDim(width, height);
+				
 			}
 			
 			public function showCanvas(show:Boolean):void{

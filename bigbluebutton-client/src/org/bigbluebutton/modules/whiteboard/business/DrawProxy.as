@@ -217,7 +217,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * 
 		 */		
 		public function addSegment(array:Array, type:String, color:uint, thickness:uint, parentWidth:Number, parentHeight:Number):void{
-			var d:DrawObject = drawFactory.makeDrawObject(type,array,color,thickness);
+			var d:DrawObject = drawFactory.makeDrawObject(type, array, color, thickness);
 			d.parentWidth = parentWidth;
 			d.parentHeight = parentHeight;
 			var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);

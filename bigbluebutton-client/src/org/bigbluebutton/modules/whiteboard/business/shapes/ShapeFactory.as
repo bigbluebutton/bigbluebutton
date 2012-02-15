@@ -52,13 +52,30 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 */		
 		public function makeShape(shape:DrawObject):DrawObject{
 			if (shape.getType() == DrawObject.PENCIL){
-				return makePencil(Pencil(shape));
+				return makePencil(shape as Pencil);
 			} else if (shape.getType() == DrawObject.RECTANGLE){
-				return makeRectangle(Rectangle(shape));
+				return makeRectangle(shape as Rectangle);
 			} else if (shape.getType() == DrawObject.ELLIPSE){
-				return makeEllipse(Ellipse(shape));
+				return makeEllipse(shape as Ellipse);
 			}
 			return null;
+		}
+		
+		private function denormalize(val:Number, side:int):int {
+			return (val/100)*side;
+		}
+		
+		private function normalize(val:Number, side:int):Number {
+			return (val/side)*100;
+		}
+		
+		public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint):DrawObject {
+			var normSegment:Array = new Array();
+			for (var i:int = 0; i < segment.length; i += 2) {
+				normSegment[i] = normalize(segment[i], _parentWidth);
+				normSegment[i+1] = normalize(segment[i+1], _parentHeight);
+			}
+			return makeShape(drawFactory.makeDrawObject(type, normSegment, color, thickness));
 		}
 		
 		/**
@@ -70,9 +87,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return A Flash Shape object
 		 * 
 		 */		
-		public function makeFeedback(segment:Array, type:String, color:uint, thickness:uint):DrawObject{
-			return makeShape(drawFactory.makeDrawObject(type,segment, color, thickness));
+		public function makeFeedback(type:String, segment:Array, color:uint, thickness:uint):DrawObject{
+			return makeShape(drawFactory.makeDrawObject(type, segment, color, thickness));
 		}
+		
+
 		
 		/**
 		 * Creates a Flash Shape from a Pencil DrawObject 
@@ -87,11 +106,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			var graphicsCommands:Vector.<int> = new Vector.<int>();
 			graphicsCommands.push(1);
 			var coordinates:Vector.<Number> = new Vector.<Number>();
-			coordinates.push(p.getShapeArray()[0], p.getShapeArray()[1]);
+			coordinates.push(denormalize(p.getShapeArray()[0], _parentWidth), denormalize(p.getShapeArray()[1], _parentHeight));
 			
 			for (var i:int = 2; i < p.getShapeArray().length; i += 2){
 				graphicsCommands.push(2);
-				coordinates.push(p.getShapeArray()[i], p.getShapeArray()[i+1]);
+				coordinates.push(denormalize(p.getShapeArray()[i], _parentWidth), denormalize(p.getShapeArray()[i+1], _parentHeight));
 			}
 
 			newShape.graphics.drawPath(graphicsCommands, coordinates);
@@ -112,10 +131,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			var newShape:Shape = r.getShape();
 			newShape.graphics.lineStyle(r.getThickness(), r.getColor());
 			var arrayEnd:Number = r.getShapeArray().length;
-			var x:Number = r.getShapeArray()[0];
-			var y:Number = r.getShapeArray()[1];
-			var width:Number = r.getShapeArray()[arrayEnd-2] - x;
-			var height:Number = r.getShapeArray()[arrayEnd-1] - y;
+			var x:Number = denormalize(r.getShapeArray()[0], _parentWidth);
+			var y:Number = denormalize(r.getShapeArray()[1], _parentHeight);
+			var width:Number = denormalize(r.getShapeArray()[arrayEnd-2], _parentWidth) - x;
+			var height:Number = denormalize(r.getShapeArray()[arrayEnd-1], _parentHeight) - y;
 			
 			newShape.graphics.drawRect(x,y,width,height);
 			if (r.getColor() == 0x000000 || r.getColor() == 0xFFFFFF) newShape.alpha = 1.0;
@@ -134,10 +153,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			var newShape:Shape = e.getShape();
 			newShape.graphics.lineStyle(e.getThickness(), e.getColor());
 			var arrayEnd:Number = e.getShapeArray().length;
-			var x:Number = e.getShapeArray()[0];
-			var y:Number = e.getShapeArray()[1];
-			var width:Number = e.getShapeArray()[arrayEnd-2] - x;
-			var height:Number = e.getShapeArray()[arrayEnd-1] - y;
+			var x:Number = denormalize(e.getShapeArray()[0], _parentWidth);
+			var y:Number = denormalize(e.getShapeArray()[1], _parentHeight);
+			var width:Number = denormalize(e.getShapeArray()[arrayEnd-2], _parentWidth) - x;
+			var height:Number = denormalize(e.getShapeArray()[arrayEnd-1], _parentHeight) - y;
 			
 			newShape.graphics.drawEllipse(x,y,width,height);
 			if (e.getColor() == 0x000000 || e.getColor() == 0xFFFFFF) newShape.alpha = 1.0;
