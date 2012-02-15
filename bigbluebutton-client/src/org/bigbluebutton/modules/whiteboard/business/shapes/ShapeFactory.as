@@ -72,10 +72,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint):DrawObject {
 			var normSegment:Array = new Array();
 			for (var i:int = 0; i < segment.length; i += 2) {
-				normSegment[i] = normalize(segment[i], _parentWidth);
+				normSegment[i] = normalize(segment[i] , _parentWidth);
 				normSegment[i+1] = normalize(segment[i+1], _parentHeight);
 			}
 			return makeShape(drawFactory.makeDrawObject(type, normSegment, color, thickness));
+			//return makeShape(drawFactory.makeDrawObject(type, segment, color, thickness));
 		}
 		
 		/**
@@ -100,6 +101,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		private function makePencil(p:Pencil):DrawObject{
+			
 			var newShape:Shape = p.getShape();
 			newShape.graphics.lineStyle(p.getThickness(), p.getColor());
 			
@@ -117,7 +119,29 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			
            	if (p.getColor() == 0x000000 || p.getColor() == 0xFFFFFF) newShape.alpha = 1;
            	else newShape.alpha = 0.6;
-	            
+
+/*			
+			var newShape:Shape = p.getShape();
+			newShape.graphics.lineStyle(p.getThickness(), p.getColor());
+			
+			var graphicsCommands:Vector.<int> = new Vector.<int>();
+			var coordinates:Vector.<Number> = new Vector.<Number>();
+			
+			graphicsCommands.push(1);
+			coordinates.push(0, 0);
+			graphicsCommands.push(1);
+			coordinates.push(p.getShapeArray()[0], p.getShapeArray()[1]);
+			
+			for (var i:int = 2; i < p.getShapeArray().length; i += 2){
+				graphicsCommands.push(2);
+				coordinates.push(p.getShapeArray()[i], p.getShapeArray()[i+1]);
+			}
+			
+			newShape.graphics.drawPath(graphicsCommands, coordinates);
+			
+			if (p.getColor() == 0x000000 || p.getColor() == 0xFFFFFF) newShape.alpha = 1;
+			else newShape.alpha = 0.6;
+*/			
 	        return p;
 		}
 		

@@ -399,8 +399,9 @@
 				overlayCanvas = overlay;
 				var c:Canvas = overlay as Canvas;
 				this.addChild(c);
-				c.x = 0;
-            	c.y = 0;
+				c.x = c.y = 0;
+//				moveCanvas(slideLoader.x, slideLoader.y);
+//				zoomCanvas(slideLoader.width, slideLoader.height);
 			}
 			
 			public function moveCanvas(x:int, y:int):void{
