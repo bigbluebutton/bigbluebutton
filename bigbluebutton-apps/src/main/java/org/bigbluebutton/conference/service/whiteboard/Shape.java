@@ -46,7 +46,7 @@ public class Shape {
 		this.parentWidth = parentWidth;
 		this.parentHeight = parentHeight;
 		
-		if(this.type.equalsIgnoreCase(PENCIL)) this.shape = optimizeFreeHand();
+//		if(this.type.equalsIgnoreCase(PENCIL)) this.shape = optimizeFreeHand();
 	}
 	
 	public ArrayCollection<Object> toList(){
