@@ -9,7 +9,6 @@ public class User {
 	private String fullname;
 	private String role;
 	private Map<String,String> status;
-	private boolean isListener;
 	
 	public User(String internalUserId, String externalUserId, String fullname, String role) {
 		this.internalUserId = internalUserId;
@@ -17,7 +16,6 @@ public class User {
 		this.fullname = fullname;
 		this.role = role;
 		this.status = new ConcurrentHashMap<String, String>();
-		this.isListener = false;
 	}
 	
 	public String getInternalUserId() {
@@ -60,14 +58,6 @@ public class User {
 	}
 	public Map<String,String> getStatus(){
 		return this.status;
-	}
-
-	public boolean isListener() {
-		return isListener;
-	}
-
-	public void setIsListener(boolean isListener) {
-		this.isListener = isListener;
 	}
 
 	public boolean isPresenter() {

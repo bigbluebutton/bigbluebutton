@@ -25,17 +25,15 @@ public class ParticipantJoinedEvent extends ConferenceEvent {
 
 	private final String callerIdNum;
 	private final String callerIdName;
-	private final String callerIdExternalUserId;
 	private final Boolean muted;
 	private final Boolean speaking;
 	private final Boolean locked = false;
 	
 	public ParticipantJoinedEvent(Integer participantId, String room, 
-				      String callerIdNum, String callerIdName, String callerIdExternalUserId,
+				      String callerIdNum, String callerIdName,
 				      Boolean muted, Boolean speaking) {
 		super(participantId, room);
 		this.callerIdName = callerIdName;
-		this.callerIdExternalUserId = callerIdExternalUserId;
 		this.callerIdNum = callerIdNum;
 		this.muted = muted;
 		this.speaking = speaking;
@@ -47,10 +45,6 @@ public class ParticipantJoinedEvent extends ConferenceEvent {
 
 	public String getCallerIdName() {
 		return callerIdName;
-	}
-
-	public String getCallerIdExternalUserId() {
-		return callerIdExternalUserId;
 	}
 
 	public Boolean getMuted() {

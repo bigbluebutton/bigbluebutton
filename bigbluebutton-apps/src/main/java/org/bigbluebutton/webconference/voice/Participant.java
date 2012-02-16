@@ -25,7 +25,6 @@ public interface Participant {
 	public boolean isMuted();
 	public boolean isTalking();
 	public int getId();
-	public String getExternalUserId();
 	public String getName();
 	public boolean isMuteLocked();
 }

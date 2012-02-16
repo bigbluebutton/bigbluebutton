@@ -46,6 +46,7 @@ public class Meeting {
 	private int maxUsers;
 	private boolean record;
 	private String dialNumber;
+	private int listenerCount = 0;
 
 	private Map<String, String> metadata;	
 	private final ConcurrentMap<String, User> users; 
@@ -176,15 +177,6 @@ public class Meeting {
 		return this.users.get(id);
 	}
 
-	public User getUserByExternalId(String externalUserId){
-		for (String key : users.keySet()) {
-		    User u =  (User) users.get(key);
-		    if (u.getExternalUserId().equals(externalUserId))
-			return u;
-		}
-		return null;
-	}
-	
 	public int getNumUsers(){
 		return this.users.size();
 	}
@@ -238,6 +230,19 @@ public class Meeting {
 		System.out.println("Expiry " + now + " endTime=" + endTime + "expiry=" + (expiry * MILLIS_IN_A_MINUTE));
 		return (System.currentTimeMillis() - endTime > (expiry * MILLIS_IN_A_MINUTE));
 	}
+
+	public void userJoinedVoice() {
+		listenerCount++;
+	}
+
+	public void userLeftVoice() {
+		listenerCount--;
+	}
+
+	public int getNumListeners() {
+		return listenerCount;
+	}
+
 	
 	/***
 	 * Meeting Builder

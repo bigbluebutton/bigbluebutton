@@ -52,7 +52,6 @@ public class ParticipantUpdatingRoomListener implements IRoomListener {
 			HashMap<String,String> map= new HashMap<String, String>();
 			map.put("meetingId", this.room.getMeetingId());
 			map.put("messageId", MessagingConstants.USER_JOINED_VOICE_EVENT);
-			map.put("externalUserId", p.getExternalUserId());
 
 			Gson gson= new Gson();
 			messagingService.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));
@@ -65,7 +64,6 @@ public class ParticipantUpdatingRoomListener implements IRoomListener {
 			HashMap<String,String> map= new HashMap<String, String>();
 			map.put("meetingId", this.room.getMeetingId());
 			map.put("messageId", MessagingConstants.USER_LEFT_VOICE_EVENT);
-			map.put("externalUserId", p.getExternalUserId());
 
 			Gson gson= new Gson();
 			messagingService.send(MessagingConstants.PARTICIPANTS_CHANNEL, gson.toJson(map));

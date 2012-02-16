@@ -1167,6 +1167,7 @@ class ApiController {
             participantCount(meeting.getNumUsers())
             maxUsers(meeting.getMaxUsers())
             moderatorCount(meeting.getNumModerators())
+            listenerCount(meeting.getNumListeners())
             attendees() {
               meeting.getUsers().each { att ->
                 attendee() {
@@ -1176,7 +1177,6 @@ class ApiController {
                   isPresenter("${att.isPresenter()}")
                   hasVideoStream("${att.hasStream()}")
                   videoStreamName("${att.getStreamName()}")
-                  isListener("${att.isListener()}")
                 }
               }
             }

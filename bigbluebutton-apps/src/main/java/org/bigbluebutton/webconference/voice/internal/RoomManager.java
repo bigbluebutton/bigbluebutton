@@ -156,11 +156,11 @@ public class RoomManager {
 	private void handleParticipantJoinedEvent(ConferenceEvent event, RoomImp rm) {
 		log.debug("Processing ParticipantJoinedEvent for room: " + event.getRoom());
 		ParticipantJoinedEvent pje = (ParticipantJoinedEvent) event;
-		ParticipantImp p = new ParticipantImp(pje.getParticipantId(), pje.getCallerIdName(), pje.getCallerIdExternalUserId());
+		ParticipantImp p = new ParticipantImp(pje.getParticipantId(), pje.getCallerIdName());
 
 		p.setMuted(pje.getMuted());
 		p.setTalking(pje.getSpeaking());
-		log.debug("Joined [" + p.getId() + "," + p.getName() + "," + p.getExternalUserId() + "," + p.isMuted() + "," + p.isTalking() + "] to room " + rm.getName());
+		log.debug("Joined [" + p.getId() + "," + p.getName() + "," + p.isMuted() + "," + p.isTalking() + "] to room " + rm.getName());
 
 		rm.add(p);
 		
