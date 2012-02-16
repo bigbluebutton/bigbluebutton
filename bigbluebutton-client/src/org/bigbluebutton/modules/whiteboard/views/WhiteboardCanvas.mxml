@@ -27,7 +27,6 @@
 		<![CDATA[
 			
 			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
 			import mx.core.Application;
 			import mx.managers.CursorManager;
 			
@@ -89,9 +88,17 @@
 			*The method also deleted the temporary feedback shape from the screen.
 			*/
 			private function doMouseUp():void{
-				isDrawing = false;
-				sendShapeToServer();
-				if (drawTimer != null) drawTimer.stop();
+				if (isDrawing) {
+					/**
+					 * Check if we are drawing because when resizing the window, it generates
+					 * a mouseUp event at the end of resize. We don't want to dispatch another
+					 * shape to the viewers.
+					 */
+					isDrawing = false;
+					sendShapeToServer();
+					if (drawTimer != null) drawTimer.stop();					
+				}
+
 			}
 			
 			private function onDrawTimer(e:TimerEvent):void{
@@ -105,7 +112,6 @@
 			
 			private function sendShapeToServer():void{
 				if (segment.length == 0) return;
-				
 				var d:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
 				d.parentHeight = (d.getShape().height / this.height) * 100;
 				d.parentWidth = (d.getShape().width / this.width) * 100;
@@ -128,14 +134,11 @@
 			private function doMouseDown():void{
 				isDrawing = true;
 				segment = new Array();
-//				x1 = this.mouseX;
-//				y1 = this.mouseY;
-//				startShape(x1, y1);
 				segment.push(this.mouseX);
 				segment.push(this.mouseY);
 				drawTimer = new Timer(1000, 0);
 				drawTimer.addEventListener(TimerEvent.TIMER, onDrawTimer);
-				drawTimer.start();
+//				drawTimer.start();
 			}
 			
 			private function startShape(startX:Number, startY:Number):void{
@@ -177,7 +180,6 @@
 			}
 			
 			private function draw(o:DrawObject):void{
-
 //				for( var i:int = 0; i < latentFeedbacks.length;i++){
 //					var tempshape:Shape = latentFeedbacks.getItemAt(i) as Shape;
 //					if(rawChildren.contains(tempshape))
@@ -187,6 +189,7 @@
 //					}
 //				}
 				
+				LogUtil.debug("**** Drawing object");
 				var drawObject:DrawObject = shapeFactory.makeShape(o);
 				var newShape:Shape = drawObject.getShape();
 				/* No need to set the size as we already adjusted the points for this canvas size */
@@ -257,18 +260,14 @@
 			public function set yPosition(y:int):void {
 				_yPosition = y;
 			}
-			
-			private function scaleCanvas(e:WindowResizedEvent):void{
-//				zoomCanvas(e.width, e.height);
-			}
-			
+						
 			private function changePage(e:PageEvent):void{
 				var page:Number = e.pageNum;
 				var shapes:ArrayCollection = e.shapes;
 				clearBoard();
 				for (var i:int = 0; i < shapes.length; i++){
 					var o:DrawObject = shapes.getItemAt(i) as DrawObject;
-					draw(o);
+//					draw(o);
 				}
 			}
 			
@@ -320,7 +319,7 @@
 					s.x *= (this.width/width);
 					s.y *= (this.height/height);
 					s.width = ((dobj.parentWidth/100) * width);
-					s.height = ((dobj.parentHeight/100) * height);						
+					s.height = ((dobj.parentHeight/100) * height);
 				}
 				
 				this.width = width;
@@ -356,7 +355,6 @@
 	<mate:Listener type="{WhiteboardUpdate.BOARD_CLEARED}" method="clearBoard" />
 	<mate:Listener type="{WhiteboardUpdate.BOARD_UPDATED}" method="drawSegment" />
 	<mate:Listener type="{WhiteboardUpdate.SHAPE_UNDONE}" method="undoShape" />
-	<mate:Listener type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}" method="scaleCanvas" />
 	<mate:Listener type="{PageEvent.CHANGE_PAGE}" method="changePage" />
 	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />
 	<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableWhiteboard" />
