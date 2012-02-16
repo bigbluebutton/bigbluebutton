@@ -24,12 +24,10 @@
 	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()" visible="false"
 	mouseOver="setCursor()" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
-		<![CDATA[
-			
+		<![CDATA[			
 			import mx.collections.ArrayCollection;
 			import mx.core.Application;
-			import mx.managers.CursorManager;
-			
+			import mx.managers.CursorManager;			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -107,22 +105,22 @@
 				var startY:Number = segment[segment.length - 1] as Number;
 				sendShapeToServer();
 				startShape(startX,startY);
-				LogUtil.debug("StartShape from onDrawTimer: "+startX+" "+startY);
+				LogUtil.debug("StartShape from onDrawTimer: " + startX + " " + startY);
 			}
 			
 			private function sendShapeToServer():void{
 				if (segment.length == 0) return;
 				
-				var d:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
-				d.width = (d.getShape().width / this.width) * 100;
-				d.x = (d.getShape().x / this.width) * 100;
-				d.height = (d.getShape().height / this.height) * 100;
-				d.y = (d.getShape().y / this.height) * 100;
+				var dobj:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
+				dobj.width = (dobj.getShape().width / this.width) * 100;
+				dobj.x = (dobj.getShape().x / this.width) * 100;
+				dobj.height = (dobj.getShape().height / this.height) * 100;
+				dobj.y = (dobj.getShape().y / this.height) * 100;
 				var date:Date = new Date();
-				d.id = date.time.toString();
+				dobj.id = date.time.toString();
 				
 				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
-				event.message = d;
+				event.message = dobj;
 				dispatchEvent(event);
 //				draw(d);
 //				latentFeedbacks.addItem(feedback);
@@ -199,6 +197,8 @@
 				var drawObject:DrawObject = shapeFactory.makeShape(o);
 				var newShape:Shape = drawObject.getShape();
 				/* No need to set the size as we already adjusted the points for this canvas size */
+				newShape.x = ((drawObject.x/100) * this.width);
+				newShape.y = ((drawObject.y/100) * this.height);
 	            shapeList.push(drawObject);
 	            bbbCanvas.addRawChild(newShape);
 			}
@@ -317,19 +317,31 @@
 			}
 					
 			public function zoomCanvas(width:int, height:int):void{
-				shapeFactory.setParentDim(width, height);				
+				shapeFactory.setParentDim(width, height);	
+				
+				/**
+				 * Let's be careful on the sequence of actions we do here.
+				 * 1. Adjust the size of the canvas.
+				 * 2. Calculate the width and height of the shape. This will change the
+				 *    x and y coordinate of the shape.
+				 * 3. Force the x and y coordinate to be where we want it to be.
+				 */
+				
+				/* 1. Adjust the size of the canvas. */
+				this.width = width;
+				this.height = height;
+				
 				for (var i:int = 0; i < this.shapeList.length; i++){
 					var dobj:DrawObject = this.shapeList[i] as DrawObject;
 					var s:Shape = dobj.getShape();
-					/* Adjust the size and location */
-					s.x *= (this.width/width);
-					s.y *= (this.height/height);
+					/* 2. Calculate the width and height which changes the x and y coordinate of the shape. */
 					s.width = ((dobj.width/100) * width);
 					s.height = ((dobj.height/100) * height);
+					/* 3. Force the x and y to where we want the shape */
+					s.x = ((dobj.x/100) * width);
+					s.y = ((dobj.y/100) * height);
 				}
-				
-				this.width = width;
-				this.height = height;
+
 				
 			}
 			
