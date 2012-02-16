@@ -213,14 +213,19 @@ public class MeetingService {
 	
 	public void endMeeting(String meetingId) {		
 		messagingService.endMeeting(meetingId);
-		
-		if (removeMeetingWhenEnded) {
-			meetings.remove(meetingId);
-		} else {
-			Meeting m = getMeeting(meetingId);
-			if (m != null) {
-				m.setForciblyEnded(true);
-			}			
+		Meeting m = getMeeting(meetingId);
+		if(m != null){
+			if (removeMeetingWhenEnded) {                        
+				if (m.isRecord()) {
+		  			log.debug("[" + meetingId + "] is recorded. Process it.");		  			
+		  			processRecording(meetingId);
+		  		}
+				meetings.remove(meetingId);
+			} else {
+				m.setForciblyEnded(true);			
+			}
+		}else{
+			log.debug("endMeeting - meeting doesn't exist: " + meetingId);
 		}
 	}
 
