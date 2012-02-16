@@ -112,9 +112,15 @@
 			
 			private function sendShapeToServer():void{
 				if (segment.length == 0) return;
+				
 				var d:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
-				d.parentHeight = (d.getShape().height / this.height) * 100;
-				d.parentWidth = (d.getShape().width / this.width) * 100;
+				d.width = (d.getShape().width / this.width) * 100;
+				d.x = (d.getShape().x / this.width) * 100;
+				d.height = (d.getShape().height / this.height) * 100;
+				d.y = (d.getShape().y / this.height) * 100;
+				var date:Date = new Date();
+				d.id = date.time.toString();
+				
 				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
 				event.message = d;
 				dispatchEvent(event);
@@ -318,8 +324,8 @@
 					/* Adjust the size and location */
 					s.x *= (this.width/width);
 					s.y *= (this.height/height);
-					s.width = ((dobj.parentWidth/100) * width);
-					s.height = ((dobj.parentHeight/100) * height);
+					s.width = ((dobj.width/100) * width);
+					s.height = ((dobj.height/100) * height);
 				}
 				
 				this.width = width;

@@ -30,8 +30,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 * @author dzgonjan
 	 * 
 	 */	
-	public class DrawObject
-	{
+	public class DrawObject {
 		public static const PENCIL:String = "pencil";
 		public static const RECTANGLE:String = "rectangle";
 		public static const ELLIPSE:String = "ellipse";
@@ -40,8 +39,26 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		protected var shape:Array;
 		protected var color:uint;
 		protected var thickness:uint;
-		public var parentWidth:Number;
-		public var parentHeight:Number;
+		
+		/**
+		 * Id we can use to match the feedback shape in the presenter's view so we can
+		 * remove it.
+		 */
+		public var id:String = null;
+		
+		/**
+		 * Status = [START, UPDATE, END]
+		 */ 
+		public var status:String = "START";
+		
+		/**
+		 * The w,h,x,y in percentage. This way we can calculate it's exact location
+		 * and size using the users window size.
+		 */
+		public var width:Number;
+		public var height:Number;
+		public var x:Number;
+		public var y:Number;
 		
 		protected var _shape:Shape = new Shape();
 		
@@ -49,8 +66,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * The default constructor for the DrawObject 
 		 * 
 		 */		
-		public function DrawObject(type:String, segment:Array, color:uint, thickness:uint)
-		{
+		public function DrawObject(type:String, segment:Array, color:uint, thickness:uint) {
 			this.type = type;
 			this.shape = segment;
 			this.color = color;

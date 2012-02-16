@@ -30,23 +30,30 @@ public class Shape {
 	private String type;
 	private int thickness;
 	private int color;
-	private double parentWidth;
-	private double parentHeight;
+	private double width;
+	private double height;
+	private double x;
+	private double y;
+	private String id;
+	private String status;
+	
 	private double[] shape;
 	
 	public static final String PENCIL = "pencil";
 	public static final String RECTANGLE = "rectangle";
 	public static final String ELLIPSE = "ellipse";
 	
-	public Shape(double[] shape, String type, int color, int thickness, double parentWidth, double parentHeight){
+	public Shape(double[] shape, String type, int color, int thickness, double width, double height, double x, double y, String id, String status){
 		this.shape = shape;
 		this.type = type;
 		this.color = color;
 		this.thickness = thickness;
-		this.parentWidth = parentWidth;
-		this.parentHeight = parentHeight;
-		
-//		if(this.type.equalsIgnoreCase(PENCIL)) this.shape = optimizeFreeHand();
+		this.width = width;
+		this.height = height;
+		this.x = x;
+		this.y = y;
+		this.id = id;
+		this.status = status;
 	}
 	
 	public ArrayCollection<Object> toList(){
@@ -55,19 +62,27 @@ public class Shape {
 		sendableList.add(type);
 		sendableList.add(color);
 		sendableList.add(thickness);
-		sendableList.add(parentWidth);
-		sendableList.add(parentHeight);
+		sendableList.add(width);
+		sendableList.add(height);
+		sendableList.add(x);
+		sendableList.add(y);
+		sendableList.add(id);
+		sendableList.add(status);
 		return sendableList;
 	}
 	
 	public Object[] toObjectArray(){
-		Object[] objects = new Object[6];
+		Object[] objects = new Object[10];
 		objects[0] = shape;
 		objects[1] = type;
 		objects[2] = color;
 		objects[3] = thickness;
-		objects[4] = parentWidth;
-		objects[5] = parentHeight;
+		objects[4] = width;
+		objects[5] = height;
+		objects[6] = x;
+		objects[7] = y;
+		objects[8] = id;
+		objects[9] = status;
 		return objects;
 	}
 	

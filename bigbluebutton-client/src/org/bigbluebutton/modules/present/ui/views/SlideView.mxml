@@ -185,7 +185,7 @@
 				slideModel.parentChange(event.width, event.height, event.fitToPage);
 				
 				if (UserManager.getInstance().getConference().amIPresenter()) {
-					LogUtil.debug("Before resizing viewport [" + this.width + "," + this.height + "][" + this.x + "," + this.y + "]");
+//					LogUtil.debug("Before resizing viewport [" + this.width + "," + this.height + "][" + this.x + "," + this.y + "]");
 					slideModel.adjustSlideAfterParentResized();
 					slideModel.printViewedRegion();
 					slideModel.displayPresenterView();
@@ -236,7 +236,7 @@
 				presentEvent.yOffset = slideModel.viewedRegionY;
 				presentEvent.slideToCanvasWidthRatio = slideModel.viewedRegionW;
 				presentEvent.slideToCanvasHeightRatio = slideModel.viewedRegionH;
-				LogUtil.debug("sending resizing event [" + presentEvent.xOffset + "," + presentEvent.yOffset + "," + presentEvent.slideToCanvasWidthRatio + "," + presentEvent.slideToCanvasHeightRatio + "]");
+//				LogUtil.debug("sending resizing event [" + presentEvent.xOffset + "," + presentEvent.yOffset + "," + presentEvent.slideToCanvasWidthRatio + "," + presentEvent.slideToCanvasHeightRatio + "]");
 				dispatchEvent(presentEvent);
 			}
 			
