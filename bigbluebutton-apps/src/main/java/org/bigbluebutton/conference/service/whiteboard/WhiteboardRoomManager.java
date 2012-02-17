@@ -33,8 +33,11 @@ public class WhiteboardRoomManager {
 		rooms = new ArrayList<WhiteboardRoom>();
 	}
 	
-	public void addRoom(IScope scope){
-		rooms.add(new WhiteboardRoom(scope));
+	public WhiteboardRoom addRoom(IScope scope){
+		WhiteboardRoom newRoom = new WhiteboardRoom(scope);
+		rooms.add(newRoom);
+		
+		return newRoom;
 	}
 	
 	public WhiteboardRoom getRoom(String scopeName){

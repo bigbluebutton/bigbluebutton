@@ -1,102 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:integration="http://www.springframework.org/schema/integration"
-	xmlns:jms="http://www.springframework.org/schema/integration/jms"
-	xmlns:file="http://www.springframework.org/schema/integration/file"
-	xmlns:stream="http://www.springframework.org/schema/integration/stream"
+	xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-			http://www.springframework.org/schema/integration
-			http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
-			http://www.springframework.org/schema/integration/jms
-			http://www.springframework.org/schema/integration/jms/spring-integration-jms-1.0.xsd
-			http://www.springframework.org/schema/integration/stream
-			http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd
-			http://www.springframework.org/schema/integration/file
-			http://www.springframework.org/schema/integration/file/spring-integration-file-1.0.xsd
-			">
+			http://www.springframework.org/schema/util 
+			http://www.springframework.org/schema/util/spring-util-2.0.xsd
+			">  
 	
-   <bean class="org.asteriskjava.fastagi.AgiServerThread"
-      init-method="startup" destroy-method="shutdown">
-      <property name="agiServer" ref="agiServer"/>
-   </bean>   
-   
-   <bean id="agiServer" class="org.asteriskjava.fastagi.DefaultAgiServer">
-      <property name="bindPort" value="4573"/>
-      <property name="mappingStrategy" ref="mappingStrategy" />
-   </bean>
-   
-	<bean id="mappingStrategy" class="org.asteriskjava.fastagi.SimpleMappingStrategy">
-		<property name="mappings">
-			<map>
-				<entry key="meetme.groovy" value-ref="asteriskAgi" />
-				<entry key="findConference" value-ref="asteriskAgi" />
-			</map>
-		</property>
-	</bean>
-			
-	<bean id="asteriskAgi" class="org.bigbluebutton.pbx.asterisk.AsteriskAgiService">
-		<property name="dynamicConferenceService" ref="dynamicConferenceService"/>
-	</bean>
+  <bean id="config" class="org.bigbluebutton.api.messaging.GenericObjectPoolConfigWrapper">
+	  <!-- Action to take when trying to acquire a connection and all connections are taken -->
+	  <property name="whenExhaustedAction">
+	    <!-- Fail-fast behaviour, we don't like to keep the kids waiting -->
+	    <util:constant static-field="org.apache.commons.pool.impl.GenericObjectPool.WHEN_EXHAUSTED_FAIL" />
+	    <!-- Default behaviour, block the caller until a resource becomes available -->
+	    <!--<util:constant static-field="org.apache.commons.pool.impl.GenericObjectPool.WHEN_EXHAUSTED_BLOCK" />-->
+	  </property>
+	  <!-- Maximum active connections to Redis instance -->
+	  <property name="maxActive" value="12" />
+	  <!-- Number of connections to Redis that just sit there and do nothing -->
+	  <property name="maxIdle" value="6" />
+	  <!-- Minimum number of idle connections to Redis - these can be seen as always open and ready to serve -->
+	  <property name="minIdle" value="1" />
+	  <!-- Tests whether connection is dead when connection retrieval method is called -->
+	  <property name="testOnBorrow" value="true" />
+	  <!-- Tests whether connection is dead when returning a connection to the pool -->
+	  <property name="testOnReturn" value="true" />
+	  <!-- Tests whether connections are dead during idle periods -->
+	  <property name="testWhileIdle" value="true" />
+	  <!-- Maximum number of connections to test in each idle check -->
+	  <property name="numTestsPerEvictionRun" value="12" />
+	  <!-- Idle connection checking period -->
+	  <property name="timeBetweenEvictionRunsMillis" value="60000" />
+	  <!-- Maximum time, in milliseconds, to wait for a resource when exausted action is set to WHEN_EXAUSTED_BLOCK -->
+	  <property name="maxWait" value="5000" />
+  </bean>
 	
-	<!-- Spring Integration / JMS gateways -->
-    <bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-        <property name="brokerURL">
-            <value>tcp://localhost:61616</value>
-        </property>
-    </bean>
+  <bean id="messagingService" class="org.bigbluebutton.api.messaging.RedisMessagingService">
+    <property name="redisPool" ref="redisPool"/>
+  </bean>
+    
+  <bean id="redisPool" class="redis.clients.jedis.JedisPool">
+  	<constructor-arg index="0">
+  		<bean factory-bean="config" factory-method="getConfig" />
+  	</constructor-arg>
+    <constructor-arg index="1" value="${redisHost}"/>
+    <constructor-arg index="2" value="${redisPort}"/>
+  </bean>
+  
+  <bean id="expiredMeetingCleanupTimerTask" class="org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask"/>
+  		
+	<bean id="meetingService" class="org.bigbluebutton.api.MeetingService">
+	  <property name="defaultMeetingExpireDuration" value="${defaultMeetingExpireDuration}"/>
+	  <property name="defaultMeetingCreateJoinDuration" value="${defaultMeetingCreateJoinDuration}"/>
+	  <property name="removeMeetingWhenEnded" value="${removeMeetingWhenEnded}"/>
+	  <property name="expiredMeetingCleanupTimerTask" ref="expiredMeetingCleanupTimerTask"/>
+		<property name="messagingService" ref="messagingService"/>
+		<property name="recordingService" ref="recordingService"/>
+  </bean>
 
-	<!-- INCOMING MESSAGES -->
-
-	<!-- conferenceStarted -->
-	<jms:inbound-channel-adapter id="jmsInConferenceStarted"
-		destination-name="conferenceStartedEvents"
-        channel="conferenceStarted"
-        extract-payload="true">
-		<integration:poller>
-			<integration:interval-trigger interval="5" time-unit="SECONDS"/>
-		</integration:poller>
-	</jms:inbound-channel-adapter>
-	<integration:channel id="conferenceStarted"/>
-	<integration:service-activator input-channel="conferenceStarted" ref="dynamicConferenceService" method="conferenceStarted" />
-
-	<!-- conferenceEnded -->
-	<jms:inbound-channel-adapter id="jmsInConferenceEnded"
-		destination-name="conferenceEndedEvents"
-        channel="conferenceEnded"
-        extract-payload="true">
-		<integration:poller>
-			<integration:interval-trigger interval="5" time-unit="SECONDS"/>
-		</integration:poller>
-	</jms:inbound-channel-adapter>
-	<integration:channel id="conferenceEnded"/>
-	<integration:service-activator input-channel="conferenceEnded" ref="dynamicConferenceService" method="conferenceEnded" />
-
-	<!-- participantsUpdated -->
-	<jms:inbound-channel-adapter id="jmsInParticipantsUpdated"
-		destination-name="participantsUpdatedEvents"
-        channel="participantsUpdated"
-        extract-payload="true">
-		<integration:poller>
-			<integration:interval-trigger interval="5" time-unit="SECONDS"/>
-		</integration:poller>
-	</jms:inbound-channel-adapter>
-	<integration:channel id="participantsUpdated"/>
-	<integration:service-activator input-channel="participantsUpdated" ref="dynamicConferenceService" method="participantsUpdated" />
-
-<!--	<stream:stdout-channel-adapter id="stdout" channel="jmsinToStdoutChannel" append-newline="true"/>-->
-
-	<!-- OUTGOING MESSAGES -->
-	<integration:gateway id="conferenceEventListener" service-interface="org.bigbluebutton.api.IApiConferenceEventListener" />
-
-	<!-- endMeetingRequest -->
-	<integration:channel id="endMeetingRequest" />
-	<jms:outbound-channel-adapter id="endMeetingRequestJmsOut" destination="endMeetingRequestEvents" channel="endMeetingRequest" />
-    <bean id="endMeetingRequestEvents" class="org.apache.activemq.command.ActiveMQQueue">
-		<constructor-arg value="endMeetingRequestEvents"/>
-    </bean>
-
+  <bean id="recordingServiceHelper" class="org.bigbluebutton.api.RecordingServiceHelperImp"/>
+  
+  <bean id="recordingService" class="org.bigbluebutton.api.RecordingService" >
+    <property name="recordingStatusDir" value="${recordStatusDir}"/>  
+    <property name="publishedDir" value="${publishedDir}"/>
+    <property name="unpublishedDir" value="${unpublishedDir}"/>  
+    <property name="recordingServiceHelper" ref="recordingServiceHelper"/>
+  </bean>
+     
+  <bean id="paramsProcessorUtil" class="org.bigbluebutton.api.ParamsProcessorUtil">
+    <property name="apiVersion" value="${apiVersion}"/>
+    <property name="serviceEnabled" value="${serviceEnabled}"/>
+    <property name="securitySalt" value="${securitySalt}"/>
+    <property name="defaultMaxUsers" value="${defaultMaxUsers}"/>
+    <property name="defaultWelcomeMessage" value="${defaultWelcomeMessage}"/>
+    <property name="defaultDialAccessNumber" value="${defaultDialAccessNumber}"/>
+    <property name="testVoiceBridge" value="${testVoiceBridge}"/>
+    <property name="testConferenceMock" value="${testConferenceMock}"/>
+    <property name="defaultLogoutUrl" value="${bigbluebutton.web.logoutURL}"/>
+    <property name="defaultServerUrl" value="${bigbluebutton.web.serverURL}"/>
+    <property name="defaultNumDigitsForTelVoice" value="${defaultNumDigitsForTelVoice}"/>
+    <property name="defaultClientUrl" value="${defaultClientUrl}"/>
+    <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
+  </bean>
+        
 	<import resource="doc-conversion.xml" />
-
 </beans>

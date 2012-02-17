@@ -8,7 +8,7 @@ version = '0.71'
 archivesBaseName = 'bbb-deskshare-applet' 
 
 dependencies {	   
-	testRuntime 'org/testng:testng:5.8@jar'  
+	compile 'org/testng:testng:5.8@jar'  
 	compile project(':common')
 	compile 'net/jcip:jcip-annotations:1.0@jar'
 	compile 'com/sun/java:plugin:1.6.0_16@jar'

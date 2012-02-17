@@ -62,10 +62,18 @@ package org.bigbluebutton.main.model
 		 */		
 		public var welcome:String;
 		
+		public var meetingID:String;
 		/**
 		 * External unique user id.
 		 */		
 		public var externUserID:String;
+		
+		/**
+		 * Internal unique user id.
+		 */		
+		public var internalUserID:String;		
+		
+		public var logoutUrl:String;
 		
 		/**
 		 * A flash.net.NetConnection object that bbb-client connects to on startup. This connection reference is 
@@ -77,5 +85,6 @@ package org.bigbluebutton.main.model
 		 * The unique userid internal to bbb-client.
 		 */		
 		public var userid:Number;
+		public var record:Boolean;
 	}
 }

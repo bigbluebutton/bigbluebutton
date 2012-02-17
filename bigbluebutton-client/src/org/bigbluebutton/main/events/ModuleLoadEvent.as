@@ -26,6 +26,7 @@ package org.bigbluebutton.main.events
 		public static const MODULE_LOAD_READY:String = "MODULE_LOAD_READY";
 		public static const ALL_MODULES_LOADED:String = "ALL_MODULES_LOADED";
 		public static const MODULE_LOADING_STARTED:String = "MODULE_LOADING_START";
+		public static const START_ALL_MODULES:String = "START_ALL_MODULES";
 		
 		public var moduleName:String;
 		public var progress:Number;

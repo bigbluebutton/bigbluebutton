@@ -21,9 +21,9 @@ package org.bigbluebutton.conference;
 
 import org.red5.server.api.Red5;
 
-class BigBlueButtonUtils{
+public class BigBlueButtonUtils{
 
 	public BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-	}	
+	}
 }

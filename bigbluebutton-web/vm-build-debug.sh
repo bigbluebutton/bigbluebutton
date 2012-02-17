@@ -5,7 +5,7 @@ sudo /etc/init.d/tomcat6 stop
 
 # build
 cd ~/dev/source/bigbluebutton/bigbluebutton-web
-gradle copyToLib
+gradle resolveDeps
 
 # run
 ant

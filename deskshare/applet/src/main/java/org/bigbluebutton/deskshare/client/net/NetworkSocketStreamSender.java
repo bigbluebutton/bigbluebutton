@@ -115,19 +115,8 @@ public class NetworkSocketStreamSender implements Runnable {
 	public void disconnect() throws ConnectionException {
 		System.out.println("Disconnecting socket stream");
 		if (!processMessages) return;
-		
-		try {
-			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
-			dataToSend.reset();
-			BlockStreamProtocolEncoder.encodeEndStreamMessage(room, dataToSend, seqNumGenerator.getNext());
-			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
-			sendToStream(dataToSend);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			processMessages = false;
-		}
+
+
 	}
 	
 	private void processNextMessageToSend(Message message) throws IOException {
@@ -158,6 +147,21 @@ public class NetworkSocketStreamSender implements Runnable {
 		} else if (message.getMessageType() == Message.MessageType.CURSOR) {
 			CursorMessage msg = (CursorMessage)message;
 			sendCursor(msg.getMouseLocation(), msg.getRoom());
+		} else if (message.getMessageType() == Message.MessageType.POISON) {
+			System.out.println("Received poison message.");
+			try {
+				ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
+				dataToSend.reset();
+				BlockStreamProtocolEncoder.encodeEndStreamMessage(room, dataToSend, seqNumGenerator.getNext());
+				sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
+				sendToStream(dataToSend);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				processMessages = false;
+				System.out.println("Disconnected socket stream");
+			}			
 		}
 	}
 	

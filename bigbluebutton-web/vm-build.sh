@@ -1,1 +1,1 @@
-gradle copyToLib && ant
+gradle resolveDeps && ant

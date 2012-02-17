@@ -33,7 +33,7 @@ public class ImageMagickPageConverter implements PageConverter {
 	private static Logger log = LoggerFactory.getLogger(ImageMagickPageConverter.class);
 	
 	private String IMAGEMAGICK_DIR;
-	
+
 	public boolean convert(File presentationFile, File output, int page){
 		
         String COMMAND = IMAGEMAGICK_DIR + "/convert -depth 8 " + presentationFile.getAbsolutePath() + " " + output.getAbsolutePath();          
@@ -65,3 +65,5 @@ public class ImageMagickPageConverter implements PageConverter {
 		IMAGEMAGICK_DIR = dir;
 	}
 }
+
+

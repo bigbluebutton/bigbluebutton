@@ -1,0 +1,37 @@
+From 29dea3d414ce15d1b0088f01884f28148b1dd44b Mon Sep 17 00:00:00 2001
+From: Marco Calderon <mcmarkos86@gmail.com>
+Date: Fri, 19 Nov 2010 04:25:37 +0000
+Subject: [PATCH] support bbb recording
+
+---
+ popup.html |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
+ mode change 100644 => 100755 popup.html
+
+diff --git a/popup.html b/popup.html
+old mode 100644
+new mode 100755
+index a132308..e37b9b4
+--- a/popup.html
++++ b/popup.html
+@@ -152,6 +152,9 @@ function callChanged() {
+             if (version == '0.64') {
+                 addCallConfigField('meetingToken', 'Meeting Token:', '');
+             }
++			if (version == '0.8'){
++				addCallConfigField('record', 'Recording:', 'false');
++			}
+             addCallConfigField('name', 'Meeting Name:', 'BBB Example Meeting');
+             addCallConfigField('moderatorPW', 'Moderator Password:', '123456');
+             addCallConfigField('attendeePW', 'Attendee Password:', '234567');
+@@ -400,6 +403,7 @@ function showMessage(msg, xml) {
+                 <select id="apiVersion" name="apiVersion" onchange="callChanged()" onblur="callChanged()">
+                     <option value="0.64">0.64</option>
+                     <option value="0.7">0.7</option>
++					<option value="0.8">0.8</option>
+                 </select>
+             </div>
+             <div class="field">
+-- 
+1.7.0.4
+

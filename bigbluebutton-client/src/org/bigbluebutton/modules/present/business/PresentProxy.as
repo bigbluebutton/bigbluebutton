@@ -18,6 +18,8 @@
 */
 package org.bigbluebutton.modules.present.business
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.utils.Timer;
@@ -25,6 +27,10 @@ package org.bigbluebutton.modules.present.business
 	import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.main.model.users.BBBUser;
+	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.PresenterCommands;
@@ -63,20 +69,7 @@ package org.bigbluebutton.modules.present.business
 			connection = a.connection;
 			url = connection.uri;
 		}
-		
- 		/**
- 		 * Assign a new presenter 
- 		 * @param e
- 		 * 
- 		 */		
- 		public function assignPresenter(e:RoleChangeEvent):void{
-			var assignTo:Number = e.userid;
-			var name:String = e.username;
-			soService.assignPresenter(assignTo, name, 1);
-			soService.setPresenterName(name);
-			//antAlert.show(e.username + " " + e.userid);
-		}
-		
+				
 		/**
 		 * Start uploading the selected file 
 		 * @param e
@@ -155,8 +148,10 @@ package org.bigbluebutton.modules.present.business
 		private function sendViewerNotify(e:TimerEvent):void{
 			if (soService == null) return;
 			soService.gotoSlide(0);
+			
+			
 		}
-		
+			
 		/**
 		 * Move the slide within the presentation window 
 		 * @param e

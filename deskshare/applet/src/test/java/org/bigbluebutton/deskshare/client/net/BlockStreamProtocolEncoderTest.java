@@ -38,8 +38,8 @@ public class BlockStreamProtocolEncoderTest {
 	public void testEncodeFlvHeader() throws IOException {
 		ByteArrayOutputStream data = new ByteArrayOutputStream();
 		data.reset();
-		BlockStreamProtocolEncoder.encodeStartStreamMessage("testroom", new Dimension(64,64), new Dimension(32,32), data);
-		Assert.assertEquals(data.size(), 26);
+//		BlockStreamProtocolEncoder.encodeStartStreamMessage("testroom", new Dimension(64,64), new Dimension(32,32), data);
+//		Assert.assertEquals(data.size(), 26);
 //		BlockStreamProtocolEncoder.encodeHeaderAndLength(data);
 		
 	}

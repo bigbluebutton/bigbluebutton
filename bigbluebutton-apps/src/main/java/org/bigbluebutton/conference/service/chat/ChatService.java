@@ -30,26 +30,32 @@ public class ChatService {
 	
 	private ChatApplication application;
 
-	public List<String> getChatMessages() {
+	public List<ChatObject> getChatMessages() {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		return application.getChatMessages(roomName);
 	}
 	
-	public void sendMessage(String message) {
+	//public void sendMessage(String message, String username, String color, String time, String language, String userid) {
+	public void sendMessage(ChatObject chatobj) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.sendMessage(roomName, message);
+		application.sendMessage(roomName, chatobj);
 	}
 	public void setChatApplication(ChatApplication a) {
 		log.debug("Setting Chat Applications");
 		application = a;
 	}
 	
-	public void privateMessage(String message, String sender, String recepient){
-		log.debug("Received private message: " + message + " from " + sender + " to " + recepient + " The client scope is: " + Red5.getConnectionLocal().getScope().getName());
-		ISharedObject sharedObject = application.handler.getSharedObject(Red5.getConnectionLocal().getScope(), recepient);
-		ArrayList<String> arguments = new ArrayList<String>();
-		arguments.add(sender);
-		arguments.add(message);
-		sharedObject.sendMessage("messageReceived", arguments);
+	public void privateMessage(ChatObject chatobj, String sender, String receiver){
+		log.debug("Received private message: " + chatobj.message + " from " + sender + " to " + receiver + ". The client scope is: " + Red5.getConnectionLocal().getScope().getName());
+		ISharedObject sharedObject = application.handler.getSharedObject(Red5.getConnectionLocal().getScope(), receiver);
+		if (sharedObject != null) {
+			ArrayList<Object> arguments = new ArrayList<Object>();
+			arguments.add(sender);
+			arguments.add(chatobj);
+			sharedObject.sendMessage("messageReceived", arguments);			
+		} else {
+			log.debug("Not sending private message from " + sender + " to " + receiver + " as the user may have already left.");
+		}
+
 	}
 }

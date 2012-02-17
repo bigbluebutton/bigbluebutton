@@ -1,6 +1,6 @@
 package org.bigbluebutton.web.services
 
-import org.springframework.util.FileCopyUtils
+//import org.springframework.util.FileCopyUtils
 import org.codehaus.groovy.grails.commons.*
 
 import groovy.mock.interceptor.StubFor

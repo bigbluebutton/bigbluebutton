@@ -24,6 +24,8 @@ package org.bigbluebutton.conference.service.whiteboard;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
 import org.red5.compatibility.flex.messaging.io.ArrayCollection;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.IApplication;
@@ -34,6 +36,8 @@ import org.red5.server.api.IScope;
 import org.red5.server.api.Red5;
 import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
+import org.bigbluebutton.conference.service.recorder.RecorderApplication;
+import org.bigbluebutton.conference.service.recorder.whiteboard.WhiteboardEventRecorder;
 
 public class WhiteboardApplication extends MultiThreadedApplicationAdapter implements IApplication {
 	
@@ -43,12 +47,12 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	public static final String PRESENTATION_SHARED_OBJECT = "presentationSO";
 	
 	private WhiteboardRoomManager roomManager;
+	private RecorderApplication recorderApplication;
 	
 	@Override
 	public boolean appStart(IScope app){
 		log.info("Starting Whiteboard Application");
 		this.scope = app;
-		//roomManager.addRoom(app);
 		return true;
 	}
 	
@@ -65,10 +69,8 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		WhiteboardRoom room = roomManager.getRoom(getLocalScope().getName());
 		if (room.presentationExists(name)) {
 			room.setActivePresentation(name);
-			//System.out.println("Presentation " + name + " exists");
 		} else {
 			room.addPresentation(name, numPages);
-			//System.out.println("Presentation " + name + " doesn't exists, setting it as active presentation");
 		}
 	}
 	
@@ -137,6 +139,13 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
+		log.debug("WHITEBOARD - getting record parameters");
+		if (getBbbSession().getRecord()){
+			log.debug("WHITEBOARD - recording : true");
+			WhiteboardEventRecorder recorder = new WhiteboardEventRecorder(getLocalScope().getName(), recorderApplication);
+			roomManager.getRoom(getLocalScope().getName()).addRoomListener(recorder);
+			log.debug("event session is " + getLocalScope().getName());
+		}
     	return true;
 	}
 
@@ -167,6 +176,14 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	
 	private IScope getLocalScope(){
 		return Red5.getConnectionLocal().getScope();
+	}
+	
+	private BigBlueButtonSession getBbbSession() {
+		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
+	}
+	
+	public void setRecorderApplication(RecorderApplication a) {
+		recorderApplication = a;
 	}
 	
 }

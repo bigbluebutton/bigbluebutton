@@ -1,0 +1,483 @@
+#!/bin/bash
+#
+# Copyright (c) 2008-2011 by BigBlueButton Inc.
+#
+# This file is part of BigBlueButton - http://www.bigbluebutton.org
+#
+# BigBlueButton is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+#
+# Author(s):
+#       Fred Dixon <ffdixon@bigbluebutton.org>
+#
+# Changelog:
+#   2011-08-18 FFD  Inital Version
+#   2011-11-20 FFD  Added more checks for processing of recording
+#   2012-01-04 GUG  Add option to check for errors
+
+set -e
+#set -x
+
+BASE=/var/bigbluebutton/recording
+STATUS=$BASE/status
+
+RECORDING_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(recording_dir\)/{s/.*recording_dir:[ ]*//;s/;//;p}')
+PUBLISHED_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(published_dir\)/{s/.*published_dir:[ ]*//;s/;//;p}')
+RAW_AUDIO_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_audio_src\)/{s/.*raw_audio_src:[ ]*//;s/;//;p}')
+RAW_VIDEO_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_video_src\)/{s/.*raw_video_src:[ ]*//;s/;//;p}')
+RAW_DESKSHARE_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_deskshare_src\)/{s/.*raw_deskshare_src:[ ]*//;s/;//;p}')
+RAW_PRESENTATION_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_presentation_src\)/{s/.*raw_presentation_src:[ ]*//;s/;//;p}')
+
+TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
+
+mark_for_rebuild() {
+	MEETING_ID=$1
+	set -x
+	for type in $TYPES; do
+                if [ -d $BASE/process/$type/$MEETING_ID ]; then
+                        rm -rf $BASE/process/$type/$MEETING_ID
+#                else
+#                        echo "Warn: Didn't find $BASE/process/$type/$MEETING_ID"
+#                        exit 1
+                fi
+
+                if [ -f $STATUS/processed/$MEETING_ID-$type.done ]; then
+                        rm $STATUS/processed/$MEETING_ID-$type.done
+#                else
+#                        echo "Warn: Didn't find $STATUS/processed/$MEETING_ID-$type.done"
+#                        exit 1
+                fi
+
+                if [ -d $BASE/publish/$type/$MEETING_ID ]; then
+			rm -rf $BASE/publish/$type/$MEETING_ID
+		fi
+
+                if [ -d /var/bigbluebutton/processed/$type/$MEETING_ID ]; then
+                        rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
+                fi
+
+                if [ -d /var/bigbluebutton/published/$type/$MEETING_ID ]; then
+                        rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
+                fi
+
+                if [ -d /var/bigbluebutton/unpublished/$type/$MEETING_ID ]; then
+                        rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
+                fi
+	done
+}
+
+BBB_VERSION=0.8-beta-3
+
+need_root() {
+        if [ $EUID != 0 ]; then
+                echo "Need to be root to run this option"
+                exit 1
+        fi
+}
+
+usage() {
+        echo "BigBlueButton Recording Diagnostic Utility - Version $BBB_VERSION"
+        echo
+        echo "   bbb-record [options]"
+        echo
+        echo "Reporting:"
+        echo "   --list                           List all recordings"
+	echo
+        echo "Monitoring:"
+        echo "   --watch                          Watch processing of recordings"
+        echo "   --rebuild [meetingID]            rebuild the output for meetingID"
+        echo "   --deletall                       delete all meetings and recordings"
+        echo "   --check                          check for errors while archiving, processing or publishing recordings"
+	echo
+}
+
+if [ $# -eq 0 ]; then
+        usage
+        exit 1
+fi
+
+# Parse the parameters
+while [ $# -gt 0 ]; do
+        if [ "$1" = "-watch" -o "$1" = "--watch" ]; then
+                WATCH=1
+		shift
+                continue
+        fi
+        if [ "$1" = "-list" -o "$1" = "--list" ]; then
+                LIST=1
+		shift
+                continue
+        fi
+        if [ "$1" = "--list20" ]; then
+                LIST=1
+		HEAD=20
+		shift
+                continue
+        fi
+        if [ "$1" = "-rebuild" -o "$1" = "--rebuild" ]; then
+		need_root
+		if [ ! -z "${2}" ]; then
+                	MEETING_ID="${2}"
+			shift
+		fi
+                REBUILD=1
+		shift
+                continue
+        fi
+        if [ "$1" = "-deleteall" -o "$1" = "--deleteall" ]; then
+		need_root
+                DELETEALL=1
+		shift
+                continue
+        fi
+        if [ "$1" = "-check" -o "$1" = "--check" ]; then
+		need_root
+                CHECK=1
+		shift
+                continue
+        fi
+
+	usage
+	exit 1
+done
+
+if [ $REBUILD ]; then
+    if [ -z "$MEETING_ID" ]; then
+	#
+	# Regenerate all meetings
+	#
+	for recording in $(dir $BASE/raw); do
+		echo "Marking for rebuild: $MEETING_ID"
+		mark_for_rebuild $MEETING_ID
+	done
+    else
+	echo "Marking for rebuild: $MEETING_ID"
+	mark_for_rebuild $MEETING_ID
+    fi
+fi 
+
+if [ $DELETEALL ]; then
+	for type in $TYPES; do
+		rm -rf /var/bigbluebutton/published/$type/*
+		rm -rf /var/bigbluebutton/unpublished/$type/*
+
+		rm -rf /var/bigbluebutton/recording/process/$type/*
+		rm -rf /var/bigbluebutton/recording/publish/$type/*
+	
+		rm -rf /var/bigbluebutton/recording/raw/*
+
+		rm -rf /var/log/bigbluebutton/$type/*
+	done
+
+	rm -f /var/bigbluebutton/recording/status/recorded/*
+	rm -f /var/bigbluebutton/recording/status/archived/*
+	rm -f /var/bigbluebutton/recording/status/processed/*
+
+	rm -f /usr/share/red5/webapps/video/streams/*.flv
+	rm -f /var/bigbluebutton/deskshare/*.flv
+	rm -f /var/freeswitch/meetings/*.wav
+
+	for meeting in $(ls /var/bigbluebutton | grep "[0-9]\{13\}$"); do
+		echo "deleting: $meeting"
+		rm -rf /var/bigbluebutton/$meeting
+	done
+fi
+
+if [ $LIST ]; then
+
+
+echo "MeetingID                                               Time                         APVD APVDE RA Slides Processed            Published             Description"
+echo "------------------------------------------------------  ---------------------------- ---- ----- -- ------ -------------------- --------------------  -----------------------------"
+
+if [ -z $HEAD ]; then
+	# If we're not called with --list20, show all recordings
+	HEAD=99999
+fi
+                                                              
+for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD); do
+	echo -n "$meeting"
+	timestamp=$(echo $meeting | sed s/.*-//g)
+	epoc=$(($timestamp/1000))
+	echo -n "  "
+	echo -n $(date --date "Jan 1, 1970 00:00:00 +0000 + $epoc seconds") | awk '{ printf("%-28s",$0) }'
+	echo -n " "
+     
+	#
+	# Monitor the live recordings
+	#
+ 
+	#
+	# Check if there is any recorded audio
+	if ls -A $RAW_AUDIO_SRC/$meeting-*.wav &> /dev/null; then
+		echo -n "X"
+	else
+		echo -n " "
+	fi
+
+	#
+	# Check if there area uploaded presentations 
+	if [ -d $RAW_PRESENTATION_SRC/$meeting/$meeting ]; then
+		if [ "$(ls -A $RAW_PRESENTATION_SRC/$meeting/$meeting)" ]; then 
+			echo -n "X"
+		else
+			echo -n " "
+		fi
+	else 
+		echo -n " "
+	fi
+
+
+	#
+	# Check if there is any recorded videos
+	if [ -d $RAW_VIDEO_SRC/$meeting ]; then
+		if [ "$(ls -A $RAW_VIDEO_SRC/$meeting)" ]; then 
+			echo -n "X"
+		else
+			echo -n " "
+		fi
+	else
+		echo -n " "
+	fi
+
+	#
+	# Check if there is any recorded desktop sharing
+	if ls -A $RAW_DESKSHARE_SRC/$meeting-*.flv &> /dev/null; then
+		echo -n "X"
+	else
+		echo -n " "
+	fi
+
+
+	#
+	# Monitor the archived files
+	#
+	RAW_DIR=$RAW_PRESENTATION_SRC/recording/raw/$meeting
+	echo -n " "
+
+	# Check if there area uploaded presentations 
+	#echo "$RAW/audio"
+	DIRS="audio presentation video deskshare"
+	for dir in $DIRS; do
+		if [ -d $RAW_DIR/$dir ]; then
+			if [ "$(ls -A $RAW_DIR/$dir)" ]; then 
+				echo -n "X"
+			else
+				echo -n " "
+			fi
+		else 
+			echo -n " "
+		fi
+	done
+
+	if [ -f $RAW_DIR/events.xml ]; then
+		echo -n "X"
+	else
+		echo -n " "
+	fi
+
+	#
+	# Check the status files
+	#
+	echo -n " "
+	STATUS_DIR=$RAW_PRESENTATION_SRC/recording/status
+	DIRS="recorded archived"
+	for dir in $DIRS; do
+		if [ -f $STATUS_DIR/$dir/$meeting.done ]; then
+			echo -n "X"
+		else 
+			echo -n " "
+		fi
+	done
+
+	#
+	# Numbe rof slides
+	printf "%7s" $(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
+
+
+	echo -n " "
+	#echo $BASE/raw/$meeting 
+	if [ -d $BASE/raw/$meeting ]; then
+		recording=$meeting
+
+	#
+	# Checka processed 
+	processed=""
+	for type in $TYPES; do
+		if [ -f $STATUS/processed/$recording-$type.done ]; then
+			if [ ! -z "$processed" ]; then
+				processed="$processed,"
+			fi
+			processed="$processed$type"
+		fi	
+	done
+        printf "%-21s" $processed
+
+	#
+	# Check archived
+	published=""
+	for type in $TYPES; do
+		if [ -f /var/bigbluebutton/published/$type/$recording/metadata.xml ]; then
+			if [ ! -z "$published" ]; then
+				published="$published,"
+			fi
+			published="$published$type"
+		fi	
+	done
+        printf "%-17s" $published
+
+
+	if [ -f /var/bigbluebutton/recording/raw/$recording/events.xml ]; then
+		echo -n "     "
+		echo -n $(head -n 5 /var/bigbluebutton/recording/raw/$recording/events.xml | grep description | sed s/.*description=\"//g | sed s/\".*//g)
+	fi
+
+fi
+	echo
+done
+	echo
+	echo "--"
+	ps fU tomcat6 -o "%c%a" | grep -v COMMAND | grep -v logging.properties
+
+	echo "--"
+
+	if tail -n 20 /var/log/bigbluebutton/bbb-web.log | grep -q "is recorded. Process it."; then
+		echo -n "Last meeting processed (bbb-web.log): "
+		tail -n 20 /var/log/bigbluebutton/bbb-web.log | grep "is recorded. Process it." | sed "s/.*\[//g" | sed "s/\].*//g"
+	fi
+
+
+fi
+
+if [ $WATCH ]; then
+	watch -n 2 "bbb-record --list20"
+fi
+
+if [ $CHECK ]; then
+
+
+	#
+	#Failures while archiving files
+	#
+        if [ -f /var/log/bigbluebutton/archive.log ]; then
+	  grep "Failed to" "/var/log/bigbluebutton/archive.log" > /tmp/t
+     	  if [ -s /tmp/t ]; then
+                  echo "  -- ERRORS found while archiving files -- "
+                  cat /tmp/t
+                  echo
+		  grep "on ASCII" /tmp/t > /tmp/u
+                  if [ -s /tmp/u ]; then
+                          echo "  -- events.xml was not created. There is a problem with the character encoding "
+                          echo
+                  fi 
+          fi
+	fi 
+	#
+	#Errors while processing slides
+	#
+	grep -B 3 "ERROR -- : Error:" /var/log/bigbluebutton/slides/process-* | egrep -w 'Task:| Error:' > /tmp/t
+	if [ -s /tmp/t ]; then
+		echo "  -- ERRORS found while processing slides /var/log/bigbluebutton/slides/process-* -- "
+		cat /tmp/t
+		echo
+	fi
+
+	#
+	#Errors while publishing slides
+	#
+	grep  "ERROR -- : Error:" /var/log/bigbluebutton/slides/publish-* > /tmp/t
+	if [ -s /tmp/t ]; then
+		echo "  -- ERRORS found while publishing slides /var/log/bigbluebutton/slides/publish-* -- "
+		cat /tmp/t
+		echo
+	fi
+
+
+  	#
+        #Errors while processing matterhorn
+        #
+        grep  "ERROR -- : Error:" /var/log/bigbluebutton/matterhorn-process-* > /tmp/t
+        if [ -s /tmp/t ]; then
+                echo "  -- ERRORS found while processing matterhorn /var/log/bigbluebutton/matterhorn-process-* -- "
+                cat /tmp/t
+                echo
+        fi
+
+        #
+        #Errors while publishing matterhorn
+        #
+        grep  "ERROR -- : Error:" /var/log/bigbluebutton/matterhorn-publish-* > /tmp/t
+        if [ -s /tmp/t ]; then
+                echo "  -- ERRORS found while publishing matterhorn /var/log/bigbluebutton/matterhorn-publish-* -- "
+                cat /tmp/t
+                echo
+        fi
+
+
+
+
+	#
+	# Additional checks for record and playback
+	#
+	rm -rf /tmp/t
+	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
+		  sudo grep -i Error /var/log/bigbluebutton/slides-process-* > /tmp/t 
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-process-*.log -- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+
+	rm -rf /tmp/t
+	if ls /var/log/bigbluebutton/slides-publish-* > /dev/null 2>1; then
+		  sudo grep -i Error /var/log/bigbluebutton/slides-publish-* > /tmp/t 
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-publish-*.log -- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+
+	rm -rf /tmp/t
+	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
+		for file in /var/log/bigbluebutton/slides-process-*; do 
+		  if [ ! -f $(echo $file | sed 's/process/publish/g') ]; then 
+			echo "  $file" >> /tmp/t
+                  fi 
+                done
+
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing: found process file but not publish -- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+
+
+	rm -rf /tmp/t
+	if ls /var/bigbluebutton/recording/status/recorded/*.done > /dev/null 2>1; then
+		for file in /var/bigbluebutton/recording/status/recorded/*.done; do 
+		  if [ ! -f $(echo $file | sed 's/recorded/archived/g') ]; then 
+			echo "  $file" >> /tmp/t
+                  fi 
+                done
+
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing: found recorded meeting but no archive files-- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+	
+	
+	exit 0
+fi

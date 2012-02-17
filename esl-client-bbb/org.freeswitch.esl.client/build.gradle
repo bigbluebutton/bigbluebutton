@@ -1,0 +1,80 @@
+usePlugin 'eclipse'
+usePlugin 'java'
+
+version = '0.8.2'
+jar.enabled = true
+
+def appName = 'fs-esl-client'
+
+archivesBaseName = appName 
+
+artifacts {
+    archives jar
+}
+
+sourceSets {
+    	main {
+        	java {
+            	srcDir 'src/java'
+        	}
+        	resources {
+            	srcDir 'src/resources'
+        	}
+        }
+}
+
+repositories {
+        add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
+        name = 'remote'
+        returnFirst = true
+        add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+                name = "googlecode"
+                addArtifactPattern "http://red5.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
+                addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
+                }
+        add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+                name = "blindside-repos"
+                addArtifactPattern "http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
+                addArtifactPattern "http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
+                }
+        add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+                name = "maven2-central"
+                m2compatible = true
+                addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
+                addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
+                }
+        add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+                name = "netty-dependency"
+                m2compatible = true
+                addArtifactPattern "http://repository.jboss.org/nexus/content/groups/public-jboss/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
+                addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
+                }
+        }
+        flatDir name: 'fileRepo', dirs: "/home/firstuser/dev/repo"
+}
+
+dependencies {
+
+    // Logging
+    compile ':slf4j-api:1.6.1@jar'
+    compile ':logback-core:0.9.18@jar'
+    compile ':logback-classic:0.9.18@jar'
+    compile ':jcl-over-slf4j:1.5.10@jar'
+    compile ':log4j-over-slf4j:1.5.10@jar'
+    testRuntime 'junit:junit:4.8.1.@jar'
+    compile 'org.jboss.netty:netty:3.2.1.Final@jar'
+}
+
+
+uploadArchives {
+    uploadDescriptor = false
+    repositories {
+        add project.repositories.fileRepo
+    }
+}
+
+task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+    into('lib')
+    from configurations.default
+    from configurations.default.allArtifacts*.file
+}

@@ -91,7 +91,6 @@ public class Shape {
 			double y2 = shape[i+1];
 			
 			newSlope = (y2 - y1)/(x2 - x1);
-			//System.out.println("Slope change: " + (Math.abs(stableSlope / newSlope - 1)));
 			if (slopeDifference(stableSlope, newSlope) < 5){
 				lastStableX = x2;
 				lastStableY = y2;
@@ -117,14 +116,32 @@ public class Shape {
 			returnArray[j] = newShape.get(j);
 		}
 		
-		//System.out.println("Original: " + shape.length);
-		//System.out.println("Optimized: " + returnArray.length);
 		return returnArray;
 	}
 	
 	private double slopeDifference(double oldSlope, double newSlope){
 		double differenceInRad = Math.atan(oldSlope) - Math.atan(newSlope);
-		//System.out.println(Math.abs(Math.toDegrees(differenceInRad)));
 		return Math.abs(Math.toDegrees(differenceInRad));
+	}
+	
+	public String getShape(){
+		String dataToString = "";
+		for (int i=0; i<shape.length - 1; i++){
+			dataToString += shape[i] + ",";
+		}
+		dataToString += shape[shape.length-1]; //We don't want a trailing comma
+		return dataToString;
+	}
+	
+	public String getType(){
+		return type;
+	}
+	
+	public int getColor(){
+		return color;
+	}
+	
+	public int getThickness(){
+		return thickness;
 	}
 }

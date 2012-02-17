@@ -20,92 +20,15 @@
   $Id: $
 -->
 
-<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{this.langNames}" 
-			 selectedIndex="7" change="changeLanguage()" rowCount="15" width="120">
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{ResourceUtil.getInstance().localeNames}" 
+			 selectedIndex="{ResourceUtil.getInstance().localeIndex}"
+			 change="changeLanguage()" rowCount="15" width="120">
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
-			
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			[Bindable] private var langNames:Array=[ 
-				'Azeri' ,
-				'Bulgarian',
-				'Czech',
-				'Chinese Simplified',
-				'Chinese Traditional' ,
-				'Croatian',
-				'Danish' , 
-				'English' , 
-				'Farsi',
-				'French',
-				'French Canadian',
-				'German',
-				'Greek',
-				'Indonesian',
-				'Italian',
-				'Japanese',
-				'Korean',
-				'Latvian',
-				'Lithuanian',
-				'Norwegian',
-				'Dutch',
-				'Persian',
-				'Portugese',
-				'Portugese (Brazil)',
-				'Polish',
-				'Romanian',
-				'Russian',
-				'Spanish',
-				'Spanish (Latin)',
-				'Swedish',
-				'Serbian (Cyrillic)',
-				'Serbian (Latin)',
-				'Thai',
-				'Turkish',
-				'Ukrainian',
-				'Vietnamese',]  ;
 			
-			private var langCodes:Array=[
-				'az_AZ',
-				'bg_BG',
-				'cs_CZ',
-				'zh_CN',
-				'zh_TW',
-				'hr_HR',
-				'da_DK',
-				'en_US',
-				'fa_IR',
-				'fr_FR',
-				'fr_CA',
-				'de_DE',
-				'el_GR',
-				'id_ID',
-				'it_IT',
-				'ja_JP',
-				'ko_KR',
-				'lv_LV',
-				'lt_LT',
-				'nb_NO',
-				'nl_NL',
-				'fa_IR',
-				'pt_PT',
-				'pt_BR',
-				'pl_PL',
-				'ro_RO',
-				'ru_RU',
-				'es_ES',
-				'es_LA',
-				'sv_SE',
-				'sr_SR',
-				'sr_RS',
-				'th_TH',
-				'tr_TR',
-				'uk_UA',
-				'vi_VN']  ;
-			
-			private function changeLanguage():void{
-				var lang:String = this.langCodes[this.selectedIndex];
-				ResourceUtil.getInstance().changeLocale([lang]);
+			private function changeLanguage():void {
+				ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(selectedIndex));
 			}
 		]]>
 	</mx:Script>

@@ -1,0 +1,11 @@
+scripts_dir: /home/firstuser/dev/source/bigbluebutton/record-and-playback/rap/scripts
+recording_dir: /var/bigbluebutton/recording
+published_dir: /var/bigbluebutton/published
+raw_audio_src: /var/freeswitch/meetings
+raw_video_src: /usr/share/red5/webapps/video/streams
+raw_deskshare_src: /var/bigbluebutton/deskshare
+raw_presentation_src: /var/bigbluebutton
+redis_host: 127.0.0.1
+redis_port: 6379
+
+

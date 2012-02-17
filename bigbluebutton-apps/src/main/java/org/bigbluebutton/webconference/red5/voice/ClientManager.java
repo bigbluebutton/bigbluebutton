@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import org.bigbluebutton.webconference.voice.events.ConferenceEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantJoinedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantLeftEvent;
@@ -41,7 +40,7 @@ public class ClientManager implements ClientNotifier {
 
 	private final ConcurrentMap<String, RoomInfo> voiceRooms;
 	private final ConcurrentMap<String, RoomInfo> webRooms;
-	
+
 	public ClientManager() {
 		voiceRooms = new ConcurrentHashMap<String, RoomInfo>();
 		webRooms = new ConcurrentHashMap<String, RoomInfo>();

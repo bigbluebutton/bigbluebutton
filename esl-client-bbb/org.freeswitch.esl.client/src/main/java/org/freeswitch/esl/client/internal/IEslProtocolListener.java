@@ -22,11 +22,10 @@ import org.jboss.netty.channel.ExceptionEvent;
 
 /**
  * End users of the {@link Client} should not need to use this class. 
- * </p>
+ * <p>
  * Allow client implementations to observe events arriving from the server.
  * 
  * @author  david varnes
- * @version $Id$
  */
 public interface IEslProtocolListener
 {

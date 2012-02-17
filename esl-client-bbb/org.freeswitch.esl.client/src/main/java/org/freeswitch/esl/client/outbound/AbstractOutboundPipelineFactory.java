@@ -16,39 +16,27 @@
 package org.freeswitch.esl.client.outbound;
 
 import org.freeswitch.esl.client.internal.debug.ExecutionHandler;
-import org.freeswitch.esl.client.transport.message.EslMessageDecoder;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
+import org.freeswitch.esl.client.transport.message.EslFrameDecoder;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
-import org.jboss.netty.handler.codec.frame.DelimiterBasedFrameDecoder;
-import org.jboss.netty.handler.codec.string.StringDecoder;
 import org.jboss.netty.handler.codec.string.StringEncoder;
 import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 
 /**
- * </p>
  * An abstract factory to assemble a Netty processing pipeline for outbound clients.
  * 
  * @author  david varnes
- * @version $Id$
  */
 public abstract class AbstractOutboundPipelineFactory implements ChannelPipelineFactory
 {
-    
-    private final ChannelBuffer[] delimiters = 
-        new ChannelBuffer[] { ChannelBuffers.wrappedBuffer( new byte[] { '\n' } ),
-                              ChannelBuffers.wrappedBuffer( new byte[] { '\n', '\n' } ) };
-    
     public ChannelPipeline getPipeline() throws Exception
     {
         ChannelPipeline pipeline = Channels.pipeline(); 
         // Add the text line codec combination first
-        pipeline.addLast( "framer", new DelimiterBasedFrameDecoder( 8192, delimiters ) );  
-        pipeline.addLast( "stringDecoder", new StringDecoder() );
         pipeline.addLast( "encoder", new StringEncoder() );
-        pipeline.addLast( "eslMessageDecoder", new EslMessageDecoder( true ) );
+        // Note that outbound mode requires the decoder to treat many 'headers' as body lines
+        pipeline.addLast( "decoder", new EslFrameDecoder( 8092, true ) );
         // Add an executor to ensure separate thread for each upstream message from here
         pipeline.addLast( "executor", new ExecutionHandler( 
             new OrderedMemoryAwareThreadPoolExecutor( 16, 1048576, 1048576 ) ) );

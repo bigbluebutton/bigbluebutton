@@ -39,7 +39,6 @@
 			import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
 			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
 			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
-			import org.bigbluebutton.modules.chat.managers.ChatManager;
 			import org.bigbluebutton.modules.chat.services.PrivateChatService;
 			import org.bigbluebutton.modules.chat.services.PublicChatService;
 			import org.bigbluebutton.modules.chat.views.ChatView;
@@ -48,14 +47,11 @@
 	
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
 		<ObjectBuilder generator="{ChatEventMapDelegate}" constructorArguments="{scope.dispatcher}"/>
-		<ObjectBuilder generator="{ChatManager}" />
 		<ObjectBuilder generator="{PublicChatService}" />
-		<ObjectBuilder generator="{PrivateChatService}" />
-		
+		<ObjectBuilder generator="{PrivateChatService}" />		
 	</EventHandlers>
 	
 	<EventHandlers type="{StartChatModuleEvent.START_CHAT_MODULE_EVENT}">        
-   		<MethodInvoker generator="{ChatManager}" method="setModuleAttributes" arguments="{event.attributes}"/>
    		<MethodInvoker generator="{PublicChatService}" method="setModuleAttributes" arguments="{event.attributes}" />
    		<MethodInvoker generator="{PublicChatService}" method="join"/>
    		<MethodInvoker generator="{PrivateChatService}" method="setModuleAttributes" arguments="{event.attributes}" />
@@ -85,11 +81,7 @@
     <EventHandlers type="{QueryParticipantsEvent.QUERY_PARTICIPANTS_EVENT}">        
  		<MethodInvoker generator="{PrivateChatService}" method="queryForParticipants"/>		
     </EventHandlers>
-	
-	<EventHandlers type="{ChatEvent.CHAT_EVENT}">        
-		<MethodInvoker generator="{ChatManager}" method="receivedGlobalMessage" /> 
-	</EventHandlers>
-	
+		
 	<EventHandlers type="{TranscriptEvent.LOAD_TRANSCRIPT}" >
 		<MethodInvoker generator="{PublicChatService}" method="loadTranscript" />
 	</EventHandlers>    

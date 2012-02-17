@@ -19,9 +19,17 @@
 package org.bigbluebutton.conference;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.conference.service.messaging.MessageListener;
+import org.bigbluebutton.conference.service.messaging.MessagingConstants;
+import org.bigbluebutton.conference.service.messaging.MessagingService;
+import org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener;
+import org.bigbluebutton.conference.service.presentation.PresentationRoom;
 import org.red5.logging.Red5LoggerFactory;
-
+import com.google.gson.Gson;
 import net.jcip.annotations.ThreadSafe;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,29 +42,42 @@ public class RoomsManager {
 	
 	private final Map <String, Room> rooms;
 
-	private IConferenceEventListener conferenceEventListener;
+	MessagingService messagingService;
+	ConversionUpdatesMessageListener conversionUpdatesMessageListener;
 	
 	public RoomsManager() {
-		rooms = new ConcurrentHashMap<String, Room>();
+		rooms = new ConcurrentHashMap<String, Room>();		
 	}
 	
-	public void addRoom(final Room room) {
-		log.debug("Adding room {}", room.getName());
-		room.addRoomListener(new ParticipantUpdatingRoomListener(conferenceEventListener, room)); 	
+	public void addRoom(Room room) {
+		log.debug("Adding room " + room.getName());
+		room.addRoomListener(new ParticipantUpdatingRoomListener(room,messagingService)); 	
 		
-		if (checkEvtListener()) {
-			conferenceEventListener.started(room);
+		if (checkPublisher()) {
+			HashMap<String,String> map = new HashMap<String,String>();
+			map.put("meetingId", room.getName());
+			map.put("messageId", MessagingConstants.MEETING_STARTED_EVENT);
+			
+			Gson gson = new Gson();
+			messagingService.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
+			
 			log.debug("Notified event listener of conference start");
 		}
 		rooms.put(room.getName(), room);
 	}
 	
 	public void removeRoom(String name) {
-		log.debug("Remove room {}", name);
+		log.debug("Remove room " + name);
 		Room room = rooms.remove(name);
-		if (checkEvtListener() && room != null) {
+		if (checkPublisher() && room != null) {
 			room.endAndKickAll();
-			conferenceEventListener.ended(room);
+			HashMap<String,String> map = new HashMap<String,String>();
+			map.put("meetingId", room.getName());
+			map.put("messageId", MessagingConstants.MEETING_ENDED_EVENT);
+			
+			Gson gson = new Gson();
+			messagingService.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
+			
 			log.debug("Notified event listener of conference end");
 		}
 	}
@@ -68,8 +89,8 @@ public class RoomsManager {
 		}
 	}
 	
-	private boolean checkEvtListener() {
-		return conferenceEventListener != null;
+	private boolean checkPublisher() {
+		return messagingService != null;
 	}
 
 		
@@ -81,19 +102,12 @@ public class RoomsManager {
 		return rooms.size();
 	}
 	
-	// this method is called by incoming JMS requests (Spring integration)
-	public void endMeetingRequest(Room room) {
-		room = getRoom(room.getName()); // must do this because the room coming in is serialized (no transient values are present)
-		log.debug("End meeting request for room: {} ", room.getName());
-		room.endAndKickAll();
-	}
-	
 	/**
 	 * Keeping getRoom private so that all access to Room goes through here.
 	 */
 	//TODO: this method becomes public for ParticipantsApplication, ask if it's right? 
 	public Room getRoom(String name) {
-		log.debug("Get room {}", name);
+		log.debug("Get room " + name);
 		return rooms.get(name);
 	}
 	
@@ -102,7 +116,7 @@ public class RoomsManager {
 		if (r != null) {
 			return r.getParticipants();
 		}
-		log.warn("Getting participants from a non-existing room {}", roomName);
+		log.warn("Getting participants from a non-existing room " + roomName);
 		return null;
 	}
 	
@@ -112,7 +126,7 @@ public class RoomsManager {
 			r.addRoomListener(listener);
 			return;
 		}
-		log.warn("Adding listener to a non-existing room {}", roomName);
+		log.warn("Adding listener to a non-existing room " + roomName);
 	}
 	
 	// TODO: this must be broken, right?  where is roomName? (JRT: 9/25/2009)
@@ -127,50 +141,99 @@ public class RoomsManager {
 //	}
 
 	public void addParticipant(String roomName, Participant participant) {
-		log.debug("Add participant {}", participant.getName());
+		log.debug("Add participant " + participant.getName());
 		Room r = getRoom(roomName);
 		if (r != null) {
-			if (checkEvtListener()) {
-				conferenceEventListener.participantsUpdated(r);
+/*			if (checkPublisher()) {
+
 				if (r.getNumberOfParticipants() == 0) {
-					conferenceEventListener.started(r);
 					log.debug("Notified event listener of conference start");
+					HashMap<String,String> map = new HashMap<String,String>();
+					map.put("meetingId", roomName);
+					map.put("messageId", MessagingConstants.USER_JOINED_EVENT);
+					
+					Gson gson = new Gson();
+					publisher.publish(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
+					
 				}
 			}
-			r.addParticipant(participant);
+*/			r.addParticipant(participant);
+
 			return;
 		}
-		log.warn("Adding participant to a non-existing room {}", roomName);
+		log.warn("Adding participant to a non-existing room " + roomName);
 	}
 	
 	public void removeParticipant(String roomName, Long userid) {
-		log.debug("Remove participant {} from {}", userid, roomName);
+		log.debug("Remove participant " + userid + " from " + roomName);
 		Room r = getRoom(roomName);
 		if (r != null) {
-			if (checkEvtListener()) {
-				conferenceEventListener.participantsUpdated(r);
+			if (checkPublisher()) {
+				//conferenceEventListener.participantsUpdated(r);
+				//missing method()?
 			}
 			r.removeParticipant(userid);
+
 			return;
 		}
-		log.warn("Removing listener from a non-existing room ${roomName}");
+		log.warn("Removing listener from a non-existing room " + roomName);
 	}
 	
 	public void changeParticipantStatus(String roomName, Long userid, String status, Object value) {
-		log.debug("Change participant status {} - {} [" + value + "]", userid, status);
+		log.debug("Change participant status " + userid + " - " + status + " [" + value + "]");
 		Room r = getRoom(roomName);
 		if (r != null) {
 			r.changeParticipantStatus(userid, status, value);
 			return;
 		}		
-		log.warn("Changing participant status on a non-existing room {}", roomName);
+		log.warn("Changing participant status on a non-existing room " + roomName);
 	}
 
-	public void setConferenceEventListener(IConferenceEventListener conferenceEventListener) {
-		this.conferenceEventListener = conferenceEventListener;
+	public void setMessagingService(MessagingService messagingService) {
+		this.messagingService = messagingService;
+		this.messagingService.addListener(new RoomsManagerListener());
+		this.messagingService.start();
 	}
+	
+	public ArrayList<String> getCurrentPresenter( String room){
+		Room r = getRoom(room);
+		if (r != null) {
+			return r.getCurrentPresenter();		
+		}	
+		log.warn("Getting presenter from a non-existing room " + room);
+		return null;
+	}
+	
+	public void assignPresenter(String room, ArrayList presenter){
+		Room r = getRoom(room);
+		if (r != null) {
+			r.assignPresenter(presenter);
+			return;
+		}	
+		log.warn("Assigning presenter to a non-existing room " + room);	
+	}
+	
+	public void setConversionUpdatesMessageListener(ConversionUpdatesMessageListener conversionUpdatesMessageListener) {
+		this.conversionUpdatesMessageListener = conversionUpdatesMessageListener;
+	}
+	
+	private class RoomsManagerListener implements MessageListener{
 
-	public IConferenceEventListener getConferenceEventListener() {
-		return conferenceEventListener;
+		@Override
+		public void endMeetingRequest(String meetingId) {
+			log.debug("End meeting request for room: " + meetingId);
+			Room room = getRoom(meetingId); // must do this because the room coming in is serialized (no transient values are present)
+			if (room != null)
+				room.endAndKickAll();
+			else
+				log.debug("Could not find room " + meetingId);
+		}
+		
+		@Override
+		public void presentationUpdates(HashMap<String, String> map) {
+			conversionUpdatesMessageListener.handleReceivedMessage(map);
+		}
+		
 	}
+	
 }

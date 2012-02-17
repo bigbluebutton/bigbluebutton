@@ -27,13 +27,12 @@ $Id: $
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.core.Application;
-			import mx.managers.PopUpManager;
-			
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;		
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.SettingsEvent;
 			import org.bigbluebutton.modules.settings.SettingsPanel;
+			import org.bigbluebutton.modules.settings.util.PersistUserPreferences;
 			import org.bigbluebutton.modules.settings.util.Requirements;
 			
 			private var _moduleName:String = "Settings Module";			
@@ -74,23 +73,28 @@ $Id: $
 				globalDispatcher = new Dispatcher();
 				Requirements.setRequirements(attributes);
 				
-				//var startEvent:StartWhiteboardModuleEvent = new StartWhiteboardModuleEvent();
-				//startEvent.attributes = attributes;
-				//globalDispatcher.dispatchEvent(startEvent);
+				globalDispatcher.dispatchEvent(new SettingsEvent(SettingsEvent.SETTINGS_MODULE_LOADED));
+				
+				var sharedObject:SharedObject = SharedObject.getLocal("bbbUserProperties", "/");
+				var firstTime:Boolean = sharedObject.data["previouslyvisited"] as Boolean;
+				if (!firstTime) openSettingsPanel();
 				
 			}
 			
 			public function stop():void {
-				//globalDispatcher.dispatchEvent(new StopWhiteboardModuleEvent(StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT));
 			}
 			
-			private function openSettingsPanel(e:SettingsEvent):void{
-				var settingsPanel:SettingsPanel = SettingsPanel(PopUpManager.createPopUp(Application.application as DisplayObject, SettingsPanel, true));
+			private function openSettingsPanel(e:SettingsEvent = null):void{
+				var settingsPanel:SettingsPanel = SettingsPanel(PopUpManager.createPopUp(FlexGlobals.topLevelApplication as DisplayObject, SettingsPanel, true));
 				
 				var point1:Point = new Point();
-				// Calculate position of TitleWindow in Application's coordinates. 
-				settingsPanel.x = Application.application.width/2 - settingsPanel.width/2;
-				settingsPanel.y = Application.application.height/2 - settingsPanel.height/2
+				// Calculate position of TitleWindow in Application's coordinates. 				
+				settingsPanel.x = 0;
+				settingsPanel.y = 0;
+		//		settingsPanel.x = FlexGlobals.topLevelApplication.mx_internal.Application.width/2 - settingsPanel.width/2;
+		//		settingsPanel.y = FlexGlobals.topLevelApplication.mx_internal.Application.height/2 - settingsPanel.height/2;
+				
+				PersistUserPreferences.saveSettingsVisited();
 			}
 		]]>
 	</mx:Script>

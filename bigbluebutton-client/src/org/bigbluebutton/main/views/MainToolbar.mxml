@@ -21,21 +21,20 @@
 -->
 
 <mx:ApplicationControlBar xmlns:mx="http://www.adobe.com/2006/mxml" 
-	xmlns:mate="http://mate.asfusion.com/"
+	xmlns:mate="http://mate.asfusion.com/" visible="{showToolbar}"
 	enabled="true" xmlns:views="org.bigbluebutton.main.views.*" >   
 	
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
 	<mate:Listener type="{BBBEvent.END_MEETING_EVENT}" method="handleEndMeetingEvent"/>
 	<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="hideToolbar" />
-	<mate:Listener type="{SuccessfulLoginEvent.USER_LOGGED_IN}" method="loginSuccess" />
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="gotConfigParameters" />
+	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
 	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
-			import mx.controls.Alert;
 			import mx.core.UIComponent;
 			
 			import org.bigbluebutton.common.IBbbToolbarComponent;
@@ -47,6 +46,7 @@
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.SettingsEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -55,8 +55,27 @@
 			public static const ALIGN_RIGHT:String ="ALIGN_RIGHT";
 			public static const ALIGN_LEFT:String = "ALIGN_LEFT";
 			
-			public function loggedIn(name:String, room:String, role:String):void{
-				this.visible = true;
+			[Bindable]
+			private var showHelpBtn:Boolean = false;
+			[Bindable]
+			private var showToolbar:Boolean = false;
+			[Bindable]
+			public var toolbarOptions:LayoutOptions = new LayoutOptions();
+						
+			public function displayToolbar():void{
+				toolbarOptions = new LayoutOptions();
+				toolbarOptions.parseOptions();	
+				if (toolbarOptions.showToolbar) {
+					showToolbar = true;
+				} else {
+					showToolbar = false;
+				}
+				
+				if (toolbarOptions.showHelpButton) {
+					showHelpBtn = true;
+				} else {
+					showHelpBtn = false;
+				}
 			}
 			
 			public function addButton(name:String):Button{
@@ -84,7 +103,11 @@
 			}
 			
 			private function hideToolbar(e:ConnectionFailedEvent):void{
-				this.visible = false;
+				if (toolbarOptions.showToolbar) {
+					this.visible = false;
+				} else {
+					this.visible = true;
+				}
 			}
 			
 			private function handleAddToolbarButtonEvent(event:ToolbarButtonEvent):void {
@@ -103,12 +126,7 @@
 					else if (toolbarComponent.getAlignment() == ALIGN_RIGHT) addedBtns.setChildIndex(button, addedBtns.numChildren - 1);
 				}
 			}
-			
-			private function loginSuccess(e:SuccessfulLoginEvent):void{
-				loggedIn(e.conferenceParameters.username, e.conferenceParameters.room, e.conferenceParameters.role);
-				visible = true;
-			}
-			
+						
 			private function gotConfigParameters(e:ConfigEvent):void{
 				langSelector.visible = e.config.languageEnabled;
 				DEFAULT_HELP_URL = e.config.helpURL;
@@ -120,7 +138,15 @@
 				d.dispatchEvent(e);
 			}
 			
-			private function openSettings():void{
+			private function showSettingsButton(e:SettingsEvent):void{
+				var b:Button = new Button();
+				b.label = ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn');
+				b.toolTip = ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn.toolTip');
+				b.addEventListener(MouseEvent.CLICK, openSettings);
+				this.addChild(b);
+			}
+			
+			private function openSettings(e:Event = null):void{
 				var d:Dispatcher = new Dispatcher();
 				d.dispatchEvent(new SettingsEvent(SettingsEvent.OPEN_SETTINGS_PANEL));
 			}
@@ -131,9 +157,7 @@
 	</mx:HBox>		
 	<mx:Spacer width="100%"/>
 	<views:LanguageSelector id="langSelector" visible="false" />
-	<mx:LinkButton label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" click="onHelpButtonClicked()"/>
-	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn')}" id="btnSettings"
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.settingsBtn.toolTip')}" right="10" click="openSettings()"/>
+	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" visible="{showHelpBtn}" click="onHelpButtonClicked()"/>
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>
 </mx:ApplicationControlBar>

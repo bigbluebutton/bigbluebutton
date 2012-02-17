@@ -6,6 +6,7 @@
 		<![CDATA[			
 			import org.bigbluebutton.modules.settings.connectors.AudioConnector;
 			import org.bigbluebutton.modules.settings.util.PersistUserPreferences;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 						
 			private var timer:Timer;
 			private var mic:Microphone;
@@ -48,12 +49,16 @@
 				mic.gain = sldVolume.value;
 				PersistUserPreferences.saveMicrophoneGain(mic.gain);
 			}
+			
+			public function stop():void{
+				audioConnector.stop();
+			}
 		]]>
 	</mx:Script>
 	
-	<mx:ProgressBar id="micLevel" minimum="0" maximum="100" label="Microphone Activity" labelPlacement="top" 
+	<mx:ProgressBar id="micLevel" minimum="0" maximum="100" label="{ResourceUtil.getInstance().getString('bbb.settings.voice.volume')}" labelPlacement="top" 
 					direction="right" mode="manual" visible="true" width="120"/>
 	<mx:HSlider id="sldVolume" minimum="0" maximum="100" change="changeVolume()" labels="[silent, loud]" />
-	<mx:Label text="Adjust Volume" />
+	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.settings.voice.volume')}" />
 	<mx:ComboBox id="cmbMicSelector" dataProvider="{Microphone.names}" change="changeMic()" textAlign="left" width="150" />
 </mx:VBox>

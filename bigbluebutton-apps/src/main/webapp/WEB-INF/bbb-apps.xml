@@ -1,24 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:integration="http://www.springframework.org/schema/integration"
-	xmlns:jms="http://www.springframework.org/schema/integration/jms"
-	xmlns:file="http://www.springframework.org/schema/integration/file"
-	xmlns:stream="http://www.springframework.org/schema/integration/stream"
+	xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-			http://www.springframework.org/schema/integration
-			http://www.springframework.org/schema/integration/spring-integration-1.0.xsd
-			http://www.springframework.org/schema/integration/jms
-			http://www.springframework.org/schema/integration/jms/spring-integration-jms-1.0.xsd
-			http://www.springframework.org/schema/integration/stream
-			http://www.springframework.org/schema/integration/stream/spring-integration-stream-1.0.xsd
-			http://www.springframework.org/schema/integration/file
-			http://www.springframework.org/schema/integration/file/spring-integration-file-1.0.xsd
+			http://www.springframework.org/schema/util 
+			http://www.springframework.org/schema/util/spring-util-2.0.xsd
 			">
 	
 	<bean id="roomsManager" class="org.bigbluebutton.conference.RoomsManager">
-		<property name="conferenceEventListener" ref="conferenceEventListener" />
+		<property name="messagingService" ref="messagingService"></property>
+		<property name="conversionUpdatesMessageListener" ref="conversionUpdatesMessageListener"></property>
 	</bean>
 			
 	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
@@ -35,23 +27,6 @@
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 	</bean>
 	
-	<!-- BEGIN JMS EVENTS -->
-	<bean id="jmsRecorder" class="org.apache.activemq.command.ActiveMQQueue">
-	    <constructor-arg index="0">
-            <value>RecorderEventsQueue</value>
-        </constructor-arg>
-	</bean>
-	
-	<bean id="templateEvent" class="org.springframework.jms.core.JmsTemplate">
-	    <property name="connectionFactory"><ref local="connectionFactory" /></property>
-	    <property name="defaultDestination"><ref local="jmsRecorder" /> </property>
-	</bean>
-	
-	<bean id="recorderApplication" class="org.bigbluebutton.conference.service.recorder.RecorderApplication">
-		<property name="jmsTemplate"><ref local="templateEvent" /> </property>
-	</bean>
-	
-	<!-- END JMS EVENTS -->
 	<!-- BEGIN PRESENTATION -->	
 	<bean id="presentationRoomsManager" class="org.bigbluebutton.conference.service.presentation.PresentationRoomsManager"/>
 			
@@ -63,7 +38,7 @@
 			<ref local="recorderApplication"/>
 		</property>
 		<property name="conversionUpdatesMessageListener"> 
-			<ref local="messageListener"/>
+			<ref local="conversionUpdatesMessageListener" />
 		</property>
 	</bean>
 	
@@ -77,32 +52,15 @@
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
 	</bean>
-		
-    <bean id="connectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-        <property name="brokerURL">
-            <value>tcp://localhost:61616</value>
-        </property>
-    </bean>
-    
-    <bean id="destination" class="org.apache.activemq.command.ActiveMQQueue">
-        <constructor-arg index="0">
-            <value>UpdatesQueue</value>
-        </constructor-arg>
-    </bean>
 
 	<bean id="conversionUpdatesProcessor" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesProcessor">
 		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
 	</bean>
 
-	<bean id="messageListener" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener">
+	<bean id="conversionUpdatesMessageListener" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener">
 		<property name="conversionUpdatesProcessor" ref="conversionUpdatesProcessor" />
 	</bean>
 
-	<bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-  		<property name="connectionFactory" ref="connectionFactory"/>
-  		<property name="destination" ref="destination"/>
-  		<property name="messageListener" ref="messageListener" />
-	</bean>
   	<!-- END PRESENTATION -->
   	
   	<!-- BEGIN CHAT -->
@@ -127,6 +85,7 @@
 	<bean id="whiteboardApplication" 
 	    class="org.bigbluebutton.conference.service.whiteboard.WhiteboardApplication">
 	    <property name="roomManager"> <ref local="whiteboardRoomManager"/></property>
+	    <property name="recorderApplication"> <ref local="recorderApplication"/></property>
 	</bean>
 	
 	<bean id="whiteboard.service" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardService">
@@ -149,44 +108,57 @@
 	<!--<bean id="channelManager" class="org.bigbluebutton.conference.service.rtmpadapter.ChannelManager"/>-->
 	<!-- END RTMPAdapter -->
 
+	<!-- RECORDER AND MESSAGING -->
 	
-	<!-- Starting the Spring Integration configuration for JMS integration -->
-
-	<!-- INCOMING MESSAGES -->
-	<!-- endMeetingRequest -->
-	<jms:inbound-channel-adapter id="jmsInEndMeetingRequest"
-		destination-name="endMeetingRequestEvents"
-        channel="endMeetingRequest"
-        extract-payload="true">
-		<integration:poller>
-			<integration:interval-trigger interval="5" time-unit="SECONDS"/>
-		</integration:poller>
-	</jms:inbound-channel-adapter>
-	<integration:channel id="endMeetingRequest"/>
-	<integration:service-activator input-channel="endMeetingRequest" ref="roomsManager" method="endMeetingRequest" />
-
-	<!-- OUTGOING MESSAGES -->
-	<integration:gateway id="conferenceEventListener" service-interface="org.bigbluebutton.conference.IConferenceEventListener" />
-
-	<!-- conferenceStarted -->
-	<integration:channel id="conferenceStarted" />
-	<jms:outbound-channel-adapter id="conferenceStartedJmsOut" destination="conferenceStartedEvents" channel="conferenceStarted" />
-    <bean id="conferenceStartedEvents" class="org.apache.activemq.command.ActiveMQQueue">
-		<constructor-arg value="conferenceStartedEvents"/>
-    </bean>
-
-	<!-- conferenceEnded -->
-	<integration:channel id="conferenceEnded" />
-	<jms:outbound-channel-adapter id="conferenceEndedJmsOut" destination="conferenceEndedEvents" channel="conferenceEnded" />
-    <bean id="conferenceEndedEvents" class="org.apache.activemq.command.ActiveMQQueue">
-		<constructor-arg value="conferenceEndedEvents"/>
-    </bean>
-
-	<!-- participantsUpdated -->
-	<integration:channel id="participantsUpdated" />
-	<jms:outbound-channel-adapter id="participantsUpdatedJmsOut" destination="participantsUpdatedEvents" channel="participantsUpdated" />
-	<bean id="participantsUpdatedEvents" class="org.apache.activemq.command.ActiveMQQueue">
-		<constructor-arg value="participantsUpdatedEvents"/>
+	<bean id="recorderApplication" class="org.bigbluebutton.conference.service.recorder.RecorderApplication">
+		<property name="recorder"><ref local="redisRecorder" /> </property>
 	</bean>
 	
+	<bean id="redisRecorder" class="org.bigbluebutton.conference.service.recorder.RedisDispatcher">
+        <property name="redisPool"><ref local="redisPool" /> </property>
+    </bean>
+	
+    <bean id="messagingService" class="org.bigbluebutton.conference.service.messaging.RedisMessagingService">
+    	<property name="redisPool" ref="redisPool"/>
+  	</bean>
+    
+    <bean id="config" class="org.bigbluebutton.conference.service.recorder.GenericObjectPoolConfigWrapper">
+	  <!-- Action to take when trying to acquire a connection and all connections are taken -->
+	  <property name="whenExhaustedAction">
+	    <!-- Fail-fast behaviour, we don't like to keep the kids waiting -->
+	    <util:constant static-field="org.apache.commons.pool.impl.GenericObjectPool.WHEN_EXHAUSTED_FAIL" />
+	    <!-- Default behaviour, block the caller until a resource becomes available -->
+	    <!--<util:constant static-field="org.apache.commons.pool.impl.GenericObjectPool.WHEN_EXHAUSTED_BLOCK" />-->
+	  </property>
+	  <!-- Maximum active connections to Redis instance -->
+	  <property name="maxActive" value="12" />
+	  <!-- Number of connections to Redis that just sit there and do nothing -->
+	  <property name="maxIdle" value="6" />
+	  <!-- Minimum number of idle connections to Redis - these can be seen as always open and ready to serve -->
+	  <property name="minIdle" value="1" />
+	  <!-- Tests whether connection is dead when connection retrieval method is called -->
+	  <property name="testOnBorrow" value="true" />
+	  <!-- Tests whether connection is dead when returning a connection to the pool -->
+	  <property name="testOnReturn" value="true" />
+	  <!-- Tests whether connections are dead during idle periods -->
+	  <property name="testWhileIdle" value="true" />
+	  <!-- Maximum number of connections to test in each idle check -->
+	  <property name="numTestsPerEvictionRun" value="12" />
+	  <!-- Idle connection checking period -->
+	  <property name="timeBetweenEvictionRunsMillis" value="60000" />
+	  <!-- Maximum time, in milliseconds, to wait for a resource when exausted action is set to WHEN_EXAUSTED_BLOCK -->
+	  <property name="maxWait" value="5000" />
+	</bean>
+    
+    <bean id="redisPool" class="redis.clients.jedis.JedisPool">
+    	<constructor-arg index="0">
+    		<bean factory-bean="config" factory-method="getConfig" />
+  		</constructor-arg>
+        <constructor-arg index="1" value="${redis.host}"/>
+        <constructor-arg index="2" value="${redis.port}"/>
+    </bean>
+	
+    
+    <!-- END RECORDER AND MESSAGING -->
+    
 </beans>

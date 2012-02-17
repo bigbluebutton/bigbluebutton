@@ -26,11 +26,13 @@ package org.bigbluebutton.modules.chat.services
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+	import org.bigbluebutton.modules.chat.model.ChatObject;
 	import org.bigbluebutton.modules.chat.model.MessageVO;
-	import org.bigbluebutton.common.LogUtil;
 
 	public class PrivateChatSharedObjectService
 	{
@@ -65,8 +67,7 @@ package org.bigbluebutton.modules.chat.services
 					function(result:Object):void { 
 						trace("Successfully queried participants: " + result.count); 
 						if (result.count > 0) {
-							for(var p:Object in result.participants) 
-							{
+							for(var p:Object in result.participants) {
 								participantJoined(result.participants[p]);
 							}							
 						}	
@@ -82,37 +83,36 @@ package org.bigbluebutton.modules.chat.services
 				);				
 		}
 						
-	    public function join(userid:String, uri:String):void
-		{
+	    public function join(userid:String, uri:String):void {
 			this.userid = userid;
 			chatSO = SharedObject.getRemote(userid, uri, false);
 			chatSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
 			chatSO.client = this;
-			chatSO.connect(connection);	
-						
+			chatSO.connect(connection);							
 		}
 		
-	    public function leave():void
-	    {
+	    public function leave():void {
 	    	if (chatSO != null) {
 	    		chatSO.close();
 	    	}
 	    }
 		
 		public function sendMessage(message:MessageVO):void{
-			connection.call("chat.privateMessage", privateResponder, message.message, message.sender , message.recepient);
+			connection.call("chat.privateMessage", privateResponder, message.chatobj, message.sender , message.recepient);
 			
 			sendMessageToSelf(message);
 		}
 		
 		private function sendMessageToSelf(message:MessageVO):void {
-			messageReceived(message.recepient, message.message);
+			messageReceived(message.recepient, message.chatobj);
 		}
 		
-		public function messageReceived(from:String, message:String):void {
+		public function messageReceived(from:String, chatobj:ChatObject):void {
 			var event:PrivateChatMessageEvent = new PrivateChatMessageEvent(PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT);
-			event.message = new MessageVO(message, from, userid);
-			trace("Sending private message " + message);
+			
+			event.message = new MessageVO(chatobj, from, this.userid);
+			
+			//trace("Sending private message " + message);
 			var globalDispatcher:Dispatcher = new Dispatcher();
 			globalDispatcher.dispatchEvent(event);	 
 		}
@@ -126,9 +126,13 @@ package org.bigbluebutton.modules.chat.services
 			var participant:User = new User();
 			participant.userid = joinedUser.userid;
 			participant.name = joinedUser.name;
+			participant.role = joinedUser.role;
+			
 			trace("ParticipantJoined " + joinedUser.name + "[" + joinedUser.userid + "]");
 			
 			if (joinedUser.userid == userid) return;
+			
+			UserManager.getInstance().participantJoined(participant);
 			
 			var globalDispatcher:Dispatcher = new Dispatcher();
 			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);

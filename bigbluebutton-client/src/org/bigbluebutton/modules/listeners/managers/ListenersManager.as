@@ -22,14 +22,18 @@ package org.bigbluebutton.modules.listeners.managers
 	
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
+	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.modules.listeners.events.StartListenersModuleEvent;
+	import org.bigbluebutton.modules.listeners.model.ListenerOptions;
 	import org.bigbluebutton.modules.listeners.views.ListenersWindow;
 
 	public class ListenersManager
-	{
-		
+	{		
 		private var dispatcher:Dispatcher;
 		private var listenersWindow:ListenersWindow;
+		
+		[Bindable]
+		public var listenerOptions:ListenerOptions;
 		
 		public function ListenersManager(){
 			dispatcher = new Dispatcher();
@@ -37,7 +41,10 @@ package org.bigbluebutton.modules.listeners.managers
 		
 		public function moduleStarted(event:StartListenersModuleEvent):void{
 			if (listenersWindow == null){
+				listenerOptions = new ListenerOptions();
 				listenersWindow = new ListenersWindow();
+				listenersWindow.listenerOptions = listenerOptions;
+				
 				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				e.window = listenersWindow;
 				dispatcher.dispatchEvent(e);

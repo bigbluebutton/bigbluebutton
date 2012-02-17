@@ -19,8 +19,7 @@
 
 package org.bigbluebutton.modules.phone.managers {
 	
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.Event;
 	import flash.events.IEventDispatcher;
@@ -28,8 +27,7 @@ package org.bigbluebutton.modules.phone.managers {
 	import flash.events.SecurityErrorEvent;
 	import flash.external.*;
 	import flash.net.NetConnection;
-	import flash.net.NetStream;
-	
+	import flash.net.NetStream;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
 	import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
@@ -172,6 +170,17 @@ package org.bigbluebutton.modules.phone.managers {
 				netConnection.call("voiceconf.hangup", null, "default");
 				isConnected = false;
 			}
+		}
+		
+		public function onBWCheck(... rest):Number { 
+			return 0; 
+		} 
+		public function onBWDone(... rest):void { 
+			var p_bw:Number; 
+			if (rest.length > 0) p_bw = rest[0]; 
+			// your application should do something here 
+			// when the bandwidth check is complete 
+			trace("bandwidth = " + p_bw + " Kbps."); 
 		}
 	}
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="955" minHeight="600" xmlns:checkers="checkers.*"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="955" minHeight="450" xmlns:checkers="checkers.*"
 				creationComplete="init();" xmlns:uihelpers="uihelpers.*" xmlns:checkers1="org.bigbluebutton.modules.settings.checkers.*" 
 				xmlns:uihelpers1="org.bigbluebutton.modules.settings.uihelpers.*" showCloseButton="true" close="onSaveClose()">
 	
@@ -11,19 +11,18 @@
 			import org.bigbluebutton.modules.settings.uihelpers.JavaOKEvent;
 			import org.bigbluebutton.modules.settings.uihelpers.WarningEvent;
 			import org.bigbluebutton.modules.settings.util.Requirements;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var isJavaOk:Boolean = false;
 			
 			private function init():void{
 				requirementsLoaded();
 				setText();
+				startTest();
 			}
 			
 			private function setText():void{
-				txtInstructions.text = "To start the test, click the Start button bellow. Accept the Flash prompt that asks you " + 
-					"for camera permissions. If you can see yourself and  hear yourself, your browser has been " +
-					"set up correctly. Other potentials issues are shown bellow. Click on each to find a possible" + 
-					" solution.";
+				txtInstructions.text = ResourceUtil.getInstance().getString('bbb.settings.instructions');
 			}
 			
 			private function requirementsLoaded():void{
@@ -46,13 +45,25 @@
 			private function startTest():void{
 				webcamCheck.init();
 				micCheck.init();
-				deskshareCheck.startTheApplet();
 				
-				btnStart.enabled = false;
+				if (Requirements.check_deskshare == "true") checkDesktopSharing();
+				
+				//btnStart.enabled = false;
 			}
 			
 			private function onSaveClose(e:Event = null):void{
+				webcamCheck.stop();
+				micCheck.stop();
+				deskshareCheck.stop();
+				//this.removeAllChildren();
 				PopUpManager.removePopUp(this);
+			}
+			
+			private function checkDesktopSharing():void{
+				//deskshareCheck.startTheApplet();
+				
+				deskshareCheck.visible = true;
+				//this.width = 955;
 			}
 			
 		]]>
@@ -62,13 +73,11 @@
 		<checkers1:MicChecker id="micCheck" />
 	</mx:VBox>
 	<checkers1:SystemCheck id="systemCheck"  width="52" height="11" x="10" y="494"/>
-	<checkers1:DeskShareChecker id="deskshareCheck" x="540" y="20" />
+	<checkers1:DeskShareChecker id="deskshareCheck" x="540" y="20" visible="false" />
 	<uihelpers1:WarningsList id="warningsList" x="10" y="201" width="300" height="195"/>
 	<mx:Text x="10" y="10" width="300"
 			 id="txtInstructions" height="108" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"
-			 selectable="false"/>
-	<mx:Button id="btnStart" x="21" y="144" label="Start Test" click="startTest()"/>
-	
+			 selectable="false"/>	
 	<mx:Button id="btnSaveClose" label="Save Settings and Close" click="onSaveClose()" bottom="15" horizontalCenter="0" />
 	
 </mx:TitleWindow>

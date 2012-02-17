@@ -21,7 +21,6 @@
 --> 
 
 <EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
-
 	<!--
 	This is the main event map for the application, think of it as the application controller.
 	-->
@@ -94,12 +93,20 @@
 		<MethodInvoker generator="{SkinningService}" method="loadSkins" arguments="{event.config.skinning}" />
 	</EventHandlers>
 
+	<EventHandlers type="{RoleChangeEvent.ASSIGN_PRESENTER}">
+		<MethodInvoker generator="{UserService}" method="assignPresenter" arguments="{event}" />
+	</EventHandlers>
+
+	<EventHandlers type="{ModuleLoadEvent.START_ALL_MODULES}">
+		<MethodInvoker generator="{ModulesProxy}" method="startAllModules" />
+	</EventHandlers>
+	
 	<mx:Script>
 	<![CDATA[
-		import org.bigbluebutton.core.services.SkinningService;
-		import org.bigbluebutton.core.managers.ConfigManager;
 		import mx.events.FlexEvent;
 		
+		import org.bigbluebutton.core.managers.ConfigManager;
+		import org.bigbluebutton.core.services.SkinningService;
 		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModuleLoadEvent;
@@ -115,6 +122,7 @@
 		import org.bigbluebutton.main.model.users.events.KickUserEvent;
 		import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 		import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
+		import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 		import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;		
 	]]>
 	</mx:Script>

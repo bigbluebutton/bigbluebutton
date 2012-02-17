@@ -31,15 +31,14 @@ import org.slf4j.LoggerFactory;
 /**
  * Entry point to run a socket client that a running FreeSWITCH Event Socket Library module can
  * make outbound connections to.
- * </p>
+ * <p>
  * This class provides for what the FreeSWITCH documentation refers to as 'Outbound' connections
  * from the Event Socket module. That is, with reference to the module running on the FreeSWITCH
  * server, this client accepts an outbound connection from the server module.
- * </p>
- * See http://wiki.freeswitch.org/wiki/Mod_event_socket
+ * <p>
+ * See <a href="http://wiki.freeswitch.org/wiki/Mod_event_socket">http://wiki.freeswitch.org/wiki/Mod_event_socket</a>
  * 
  * @author  david varnes
- * @version $Id$
  */
 public class SocketClient
 {

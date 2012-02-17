@@ -21,9 +21,7 @@
 */
 package org.bigbluebutton.deskshare.server;
 
-import java.awt.Point;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -31,7 +29,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.event.IEvent;
-import org.red5.server.api.so.ISharedObject;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IStreamCodecInfo;
 import org.red5.server.api.stream.IStreamListener;
@@ -60,16 +57,13 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 
 	private String publishedStreamName;
 	private IPipe livePipe;
-	private IScope mScope;
+	private IScope scope;
 
 	// Codec handling stuff for frame dropping
 	private StreamCodecInfo streamCodecInfo;
-	private Long mCreationTime;
-	private ISharedObject deskSO;
+	private Long creationTime;
 	
-	public ScreenVideoBroadcastStream(String name, ISharedObject deskSO) {
-		this.deskSO = deskSO;
-		
+	public ScreenVideoBroadcastStream(String name) {	
 		publishedStreamName = name;
 		livePipe = null;
 		log.trace("name: {}", name);
@@ -77,7 +71,7 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 		// we want to create a video codec when we get our
 		// first video packet.
 		streamCodecInfo = new StreamCodecInfo();
-		mCreationTime = null;
+		creationTime = null;
 	}
 
 	public IProvider getProvider() {
@@ -138,12 +132,12 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	}
 
 	public void setScope(IScope scope) {
-		mScope = scope;
+		this.scope = scope;
 	}
 
 	public IScope getScope() {
-		log.trace("getScope(): {}", mScope);
-		return mScope;
+		log.trace("getScope(): {}", scope);
+		return scope;
 	}
 
 	public void start() {
@@ -154,8 +148,7 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 		log.trace("stop");
 	}
 
-	public void onOOBControlMessage(IMessageComponent source, IPipe pipe,
-			OOBControlMessage oobCtrlMsg) {
+	public void onOOBControlMessage(IMessageComponent source, IPipe pipe, OOBControlMessage oobCtrlMsg) {
 		log.trace("onOOBControlMessage");
 	}
 
@@ -201,11 +194,10 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 			if (event instanceof IRTMPEvent) {
 				IRTMPEvent rtmpEvent = (IRTMPEvent) event;
 				if (livePipe != null) {
-					RTMPMessage msg = new RTMPMessage();
-					msg.setBody(rtmpEvent);
-          
-					if (mCreationTime == null)
-						mCreationTime = (long)rtmpEvent.getTimestamp();
+					RTMPMessage msg = RTMPMessage.build(rtmpEvent);
+					
+					if (creationTime == null)
+						creationTime = (long)rtmpEvent.getTimestamp();
           
 					try {
 						IVideoStreamCodec videoStreamCodec = new ScreenVideo();
@@ -235,30 +227,11 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	}
 
 	public long getCreationTime() {
-		return mCreationTime != null ? mCreationTime : 0L;
+		return creationTime != null ? creationTime : 0L;
 	}
   
 	public Notify getMetaData() {
 	  System.out.println("**** GETTING METADATA ******");
 	  return null;
-	}
-	
-	public void sendDeskshareStreamStopped(ArrayList<Object> msg) {
-
-		deskSO.sendMessage("deskshareStreamStopped" , msg);
-	}
-	
-	public void sendDeskshareStreamStarted(int width, int height) {
-		ArrayList<Object> msg = new ArrayList<Object>();
-		msg.add(new Integer(width));
-		msg.add(new Integer(height));
-		deskSO.sendMessage("appletStarted" , msg);
-	}
-	
-	public void sendMouseLocation(Point mouseLoc) {
-		ArrayList<Object> msg = new ArrayList<Object>();
-		msg.add(new Integer(mouseLoc.x));
-		msg.add(new Integer(mouseLoc.y));
-		deskSO.sendMessage("mouseLocationCallback", msg);
 	}
 }

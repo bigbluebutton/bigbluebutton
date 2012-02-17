@@ -90,7 +90,7 @@ public class PdfToSwfSlidesGenerationService {
 	private void createThumbnails(UploadedPresentation pres) {
 		log.debug("Creating thumbnails.");
 		notifier.sendCreatingThumbnailsUpdateMessage(pres);
-		thumbnailCreator.createThumbnails(pres.getUploadedFile(), pres.getNumberOfPages());
+		thumbnailCreator.createThumbnails(pres);
 	}
 	
 	private void convertPdfToSwf(UploadedPresentation pres) {

@@ -29,12 +29,14 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.chat.model.ChatMessage;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Button;
 			import mx.core.ScrollPolicy;
 			
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+			import org.bigbluebutton.modules.chat.model.ChatMessage;
+			import org.bigbluebutton.modules.chat.model.ChatObject;
 			import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
 			
 			public static const COPY_ALL_BUTTON:String = "Copy All Text";
@@ -48,10 +50,8 @@
 			private var lastTime:String = "";
 			
 			[Bindable] private var messages:ArrayCollection = new ArrayCollection();
-			private var lastCount:Number = 0;
-			
-			private var scrollTimer:Timer;
-			
+			private var lastCount:Number = 0;			
+			private var scrollTimer:Timer;			
 			private var scrollBarWorkaround:Boolean = false;
 			
 			private function onCreationComplete():void {
@@ -67,26 +67,26 @@
 				scrollTimer.start();			
 			}
 
-			public function showNewMessage(message:String, translate:Boolean, language:String = null):void {	
+			public function showNewMessage(chatobj:ChatObject, translate:Boolean, language:String = null):void {	
 				var timeString:String = getHours() + ":" + getMinutes();
-				var components:Array = message.split("|");
+				//var components:Array = message.split("|");
 				
 				var msg:ChatMessage = new ChatMessage();
 				msg.lastSenderId = lastSenderId;
-				lastSenderId = components[5];
-				msg.senderId = components[5];
+				lastSenderId = chatobj.userid;
+				msg.senderId = chatobj.userid;
 				
-				msg.senderLanguage = components[4].toString();
+				msg.senderLanguage = chatobj.language;
 				msg.receiverLanguage = language.toString();
 				msg.translate = translate;
 
-				msg.translatedText = components[0];
-				msg.senderText = components[0];
+				msg.translatedText = chatobj.message;
+				msg.senderText = chatobj.message;
 				
-				msg.name = components[1];
-				msg.senderColor = uint(components[2]);
+				msg.name = chatobj.username;
+				msg.senderColor = uint(chatobj.color);
 				msg.translatedColor = msg.senderColor;
-				msg.senderTime = components[3];			
+				msg.senderTime = chatobj.time;			
 				msg.time = timeString;
 				msg.lastTime = lastTime;
 				lastTime = timeString;

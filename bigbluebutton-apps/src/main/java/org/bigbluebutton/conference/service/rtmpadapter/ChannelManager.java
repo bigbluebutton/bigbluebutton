@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 import java.lang.Runnable;
-import redis.clients.jedis.JedisException;
+import redis.clients.jedis.exceptions.JedisException;
 
 public class ChannelManager implements Runnable {
 

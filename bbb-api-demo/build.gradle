@@ -1,0 +1,26 @@
+//usePlugin 'war'
+usePlugin 'war'
+version = '0.8'
+
+repositories {
+    mavenCentral()
+}
+
+task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+    into('lib')
+    from configurations.default
+    from configurations.default.allArtifacts*.file
+}
+
+war {
+   baseName = 'demo' 
+   version = ''
+}
+dependencies {
+
+	  compile group: 'commons-codec', name: 'commons-codec', version: '1.4'
+	  compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.2'
+	  compile group: 'commons-io', name: 'commons-io', version: '2.0'
+	  compile group: 'commons-httpclient', name: 'commons-httpclient', version: '3.1'
+	  compile group: 'commons-lang', name: 'commons-lang', version: '2.5'
+}

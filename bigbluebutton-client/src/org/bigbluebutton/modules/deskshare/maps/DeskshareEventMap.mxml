@@ -62,8 +62,7 @@
 	</EventHandlers>
 			
 	<EventHandlers type="{StreamEvent.START}">
-		<MethodInvoker generator="{DeskshareManager}" 
-			method="handleStreamStartedEvent" arguments="{[event.videoWidth, event.videoHeight]}"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleStreamStartedEvent" arguments="{[event.videoWidth, event.videoHeight]}"/>
 	</EventHandlers>
 
 	<EventHandlers type="{StreamEvent.STOP}" >
@@ -71,8 +70,7 @@
 	</EventHandlers>
 		
 	<EventHandlers type="{ViewStreamEvent.START}">
-		<MethodInvoker generator="{DeskshareManager}" 
-						method="handleStreamStartEvent" arguments="{[event.videoWidth, event.videoHeight]}"/>
+		<MethodInvoker generator="{DeskshareManager}" method="handleStreamStartEvent" arguments="{[event.videoWidth, event.videoHeight]}"/>
 	</EventHandlers>
 
 	<EventHandlers type="{ShareWindowEvent.CLOSE}">		

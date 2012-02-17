@@ -20,17 +20,13 @@ package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import flash.events.TimerEvent;
-	import flash.utils.Timer;
-	
 	import mx.collections.ArrayCollection;
-	import mx.controls.Alert;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	
-	public class BBBUser
-	{
+	public class BBBUser {
 		public static const MODERATOR:String = "MODERATOR";
 		public static const VIEWER:String = "VIEWER";
 		public static const PRESENTER:String = "PRESENTER";
@@ -46,6 +42,10 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var room:String = "";
 		[Bindable] public var authToken:String = "";
 		[Bindable] public var selected:Boolean = false;
+		[Bindable] public var voiceUserid:Number;
+		[Bindable] public var voiceMuted:Boolean = false;
+		[Bindable] public var voiceJoined:Boolean = false;
+		[Bindable] public var voiceLocked:Boolean = false;
 		
 		private var _status:StatusCollection = new StatusCollection();
 				
@@ -71,11 +71,23 @@ package org.bigbluebutton.main.model.users
 					presenter = status.value;
 					break;
 				case "hasStream":
-					hasStream = status.value;
+					var streamInfo:Array = String(status.value).split(/,/); 
+					/**
+					 * Cannot use this statement as new Boolean(expression)
+					 * return true if the expression is a non-empty string not
+					 * when the string equals "true". See Boolean class def.
+					 * 
+					 * hasStream = new Boolean(String(streamInfo[0]));
+					 */					
+					if (String(streamInfo[0]).toUpperCase() == "TRUE") {
+						hasStream = true;
+					} else {
+						hasStream = false;
+					}
+					
+					var streamNameInfo:Array = String(streamInfo[1]).split(/=/);
+					streamName = streamNameInfo[1]; 
 					if (hasStream) sendStreamStartedEvent();
-					break;
-				case "streamName":
-					streamName = status.value as String;
 					break;
 				case "raiseHand":
 					raiseHand = status.value as Boolean;

@@ -29,7 +29,6 @@ import org.jboss.netty.channel.ChannelHandlerContext;
  * then hangup the call.  
  * 
  * @author  david varnes
- * @version $Id$
  */
 public class SimpleHangupOutboundHandler extends AbstractOutboundClientHandler
 {
@@ -78,7 +77,7 @@ public class SimpleHangupOutboundHandler extends AbstractOutboundClientHandler
         }
         else
         {
-            
+            log.error( "Call hangup failed: [{}}", response.getHeaderValue( Name.REPLY_TEXT ) );
         }
     }
 }

@@ -1,0 +1,31 @@
+<recording>
+  <head>
+    <title>matterhorn's meeting</title>
+  </head>
+  <event timestamp="50" module="PARTICIPANT" eventname="ParticipantJoinEvent">
+    <status>{raiseHand=false, hasStream=false, presenter=false}</status>
+    <userId>1</userId>
+    <role>MODERATOR</role>
+  </event>
+  <event timestamp="100" module="VOICE" eventname="StartRecordingEvent">
+    <bridge>70919</bridge>
+    <filename>meeting-id-98.wav</filename>
+    <recordingTimestamp>98</recordingTimestamp>
+  </event>
+  <event timestamp="350" module="VOICE" eventname="StopRecordingEvent">
+    <bridge>70919</bridge>
+    <filename>meeting-id-98.wav</filename>
+    <recordingTimestamp>345</recordingTimestamp>
+  </event>
+  <event timestamp="500" module="VOICE" eventname="StartRecordingEvent">
+    <bridge>70919</bridge>
+    <filename>meeting-id-498.wav</filename>
+    <recordingTimestamp>498</recordingTimestamp>
+  </event>
+  <event timestamp="800" module="VOICE" eventname="StopRecordingEvent">
+    <bridge>70919</bridge>
+    <filename>meeting-id-498.wav</filename>
+    <recordingTimestamp>796</recordingTimestamp>
+  </event>
+  <event timestamp="1000" module="PARTICIPANT" eventname="EndAndKickAllEvent"/>
+</recording>

@@ -24,12 +24,9 @@ package org.bigbluebutton.main.model
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.utils.Dictionary;
-	
-	import org.bigbluebutton.main.events.AppVersionEvent;
 	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
 
-	public class ConfigParameters
-	{
+	public class ConfigParameters {
 		public static const FILE_PATH:String = "conf/config.xml";
 		
 		private var _urlLoader:URLLoader;
@@ -54,9 +51,7 @@ package org.bigbluebutton.main.model
 		
 		private var _modules:Dictionary;
 		
-		public function ConfigParameters(loadedListener:Function, file:String = FILE_PATH)
-		{
-			
+		public function ConfigParameters(loadedListener:Function, file:String = FILE_PATH) {			
 			this.numModules = 0;
 			this.loadedListener = loadedListener;
 			_urlLoader = new URLLoader();

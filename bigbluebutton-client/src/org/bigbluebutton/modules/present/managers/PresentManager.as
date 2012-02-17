@@ -24,15 +24,17 @@ package org.bigbluebutton.modules.present.managers
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.common.UserManager;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
+	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+	import org.bigbluebutton.modules.present.events.PresentModuleEvent;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
-	import org.bigbluebutton.modules.present.views.FileUploadWindow;
-	import org.bigbluebutton.modules.present.views.PresentationWindow;
+	import org.bigbluebutton.modules.present.ui.views.FileUploadWindow;
+	import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 	
 	public class PresentManager
 	{
@@ -48,12 +50,12 @@ package org.bigbluebutton.modules.present.managers
 			globalDispatcher = new Dispatcher();
 		}
 		
-		public function handleStartModuleEvent():void{
+		public function handleStartModuleEvent(e:PresentModuleEvent):void{
 			if (presentWindow != null) return;
 			presentWindow = new PresentationWindow();
+			presentWindow.visible = (e.data.showPresentWindow == "true");
+			presentWindow.showControls = (e.data.showWindowControls == "true");
 			openWindow(presentWindow);
-			
-			becomePresenterIfLoneModerator();
 		}
 		
 		public function handleStopModuleEvent():void{
@@ -63,9 +65,9 @@ package org.bigbluebutton.modules.present.managers
 		private function openWindow(window:IBbbModuleWindow):void{				
 			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			event.window = window;
-			globalDispatcher.dispatchEvent(event);
+			globalDispatcher.dispatchEvent(event);		
 		}
-		
+	
 		public function handleOpenUploadWindow(e:UploadEvent):void{
 			if (uploadWindow != null) return;
 			
@@ -81,6 +83,9 @@ package org.bigbluebutton.modules.present.managers
 		
 		public function updatePresentationNames(e:UploadEvent):void{
 			LogUtil.debug("Adding presentation " + e.presentationName);
+			for (var i:int = 0; i < presentationNames.length; i++) {
+				if (presentationNames[i] == e.presentationName) return;
+			}
 			presentationNames.push(String(e.presentationName));
 		}
 
@@ -93,25 +98,6 @@ package org.bigbluebutton.modules.present.managers
 				presentationNames.splice(index, 1);
 				LogUtil.debug("Removing presentation " + e.presentationName + " at index " + index);
 			}
-		}
-		
-		private function becomePresenterIfLoneModerator():void {
-			var participants:Conference = UserManager.getInstance().getConference();
-			if (participants.hasOnlyOneModerator()) {
-				var user:BBBUser = participants.getTheOnlyModerator();
-				if (user.me) {
-					trace("I am the only moderator");
-					var presenterEvent:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-					presenterEvent.userid = user.userid;
-					presenterEvent.username = user.name;
-					globalDispatcher.dispatchEvent(presenterEvent);
-				} else {
-					trace("The moderator is not me");
-				}
-			} else {
-				trace("I am not the only moderator");
-			}
-			
 		}
 	}
 }

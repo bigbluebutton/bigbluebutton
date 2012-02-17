@@ -1,6 +1,7 @@
 usePlugin 'java'
+usePlugin 'eclipse'
 
-task copyToLib(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
     into('lib')
     from configurations.default
     from configurations.default.allArtifacts*.file
@@ -33,10 +34,15 @@ repositories {
             addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]"
         }  
     }
-    mavenRepo urls: 'http://scala-tools.org/repo-releases/'
-    flatDir name: 'fileRepo', dirs: System.getenv()['FLAT_REPO']
 }
 
 dependencies {   
-    compile 'org/bigbluebutton/common:bbb-common-message:0.7@jar' 
+    	//redis
+	compile 'redis.clients:jedis:2.0.0'
+	compile 'commons-pool:commons-pool:1.5.6'
+	compile 'commons-lang:commons-lang:2.5'
+        compile 'com.google.code.gson:gson:1.7.1'
+	
+	//junit
+	compile 'junit:junit:4.8.2'
 }

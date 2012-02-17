@@ -20,12 +20,13 @@ package org.bigbluebutton.modules.viewers.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-	import mx.controls.Alert;
-	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
+	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.modules.viewers.events.ViewersModuleEndEvent;
 	import org.bigbluebutton.modules.viewers.events.ViewersModuleStartedEvent;
+	import org.bigbluebutton.modules.viewers.model.ViewerOptions;
 	import org.bigbluebutton.modules.viewers.views.ViewersWindow;
 
 	public class ViewersManager
@@ -34,6 +35,8 @@ package org.bigbluebutton.modules.viewers.managers
 		private var dispatcher:Dispatcher;
 		
 		private var _module:ViewersModule;
+		[Bindable]
+		private var viewerOptions:ViewerOptions;
 		
 		public function ViewersManager(){
 			dispatcher = new Dispatcher();
@@ -41,9 +44,18 @@ package org.bigbluebutton.modules.viewers.managers
 		
 		public function moduleStarted(e:ViewersModuleStartedEvent):void{
 			_module = e.module;
+
+			viewerOptions = new ViewerOptions();
+			
+			var vxml:XML = BBB.getConfigForModule("ViewersModule");
+			if (vxml != null) {
+				viewerOptions.windowVisible = (vxml.@windowVisible.toString().toUpperCase() == "TRUE") ? true : false;
+			}
 			
 			if (viewersWindow == null){
 				viewersWindow = new ViewersWindow();
+				viewersWindow.viewerOptions = viewerOptions;
+				
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = viewersWindow;
 				dispatcher.dispatchEvent(windowEvent);

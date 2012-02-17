@@ -26,13 +26,11 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.adobe.utils.StringUtil;
-			
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
+			import com.adobe.utils.StringUtil;			
 			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
 			import mx.events.ListEvent;
-			import mx.utils.StringUtil;
-			
+			import mx.utils.StringUtil;			
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -40,127 +38,13 @@
 			[Bindable] public var chatView:ChatView;
 			[Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
 			
-			[Bindable] private var langNames:Array=[ 
-								'AFRIKAANS' , 
-								'ALBANIAN' , 
-								'ARABIC' , 
-								'BELARUSIAN' , 
-								'BULGARIAN' , 
-								'CATALAN' , 
-								'CHINESE' , 
-								'CHINESE_SIMPLIFIED' , 
-								'CHINESE_TRADITIONAL' , 
-								'CZECH' ,  
-								'DANISH' , 
-								'DUTCH',   
-								'ENGLISH' , 
-								'ESTONIAN' , 
-								'FILIPINO' , 
-								'FINNISH' , 
-								'FRENCH' ,  
-								'GALICIAN' , 
-								'GERMAN' , 
-								'GREEK' , 
-								'HEBREW' , 
-								'HINDI' , 
-								'HUNGARIAN' , 
-								'ICELANDIC' , 
-								'INDONESIAN' , 
-								'IRISH' , 
-								'ITALIAN' , 
-								'JAPANESE' , 
-								'KOREAN' , 
-								'LATVIAN' , 
-								'LITHUANIAN' , 
-								'MACEDONIAN' , 
-								'MALAY' , 
-								'MALTESE' , 
-								'NORWEGIAN' , 
-								'PERSIAN' , 
-								'POLISH' , 
-								'PORTUGUESE' , 
-								'ROMANIAN' , 
-								'RUSSIAN' , 
-								'SERBIAN' , 
-								'SLOVAK' , 
-								'SLOVENIAN' , 
-								'SPANISH' , 
-								'SWAHILI' , 
-								'SWEDISH' , 
-								'THAI' , 
-								'TURKISH' , 
-								'UKRAINIAN' , 
-								'VIETNAMESE' , 
-								'WELSH' ,  
-								'YIDDISH' ]  ;
-			
-			private var langCodes:Array=[
-									'af', 
-									'sq', 
-									'ar', 
-									'be', 
-									'bg', 
-									'ca', 
-									'zh', 
-									'zh-CN', 
-									'zh-TW', 
-									'cs', 
-									'da', 
-									'nl',   
-									'en', 
-									'et', 
-									'tl', 
-									'fi', 
-									'fr', 
-									'gl', 
-									'de', 
-									'el', 
-									'iw', 
-									'hi', 
-									'hu', 
-									'is', 
-									'id', 
-									'ga', 
-									'it', 
-									'ja', 
-									'ko', 
-									'lv', 
-									'lt', 
-									'mk', 
-									'ms', 
-									'mt', 
-									'no', 
-									'fa', 
-									'pl', 
-									'pt', 
-									'ro', 
-									'ru', 
-									'sr', 
-									'sk', 
-									'sl', 
-									'es', 
-									'sw', 
-									'sv', 
-									'th', 
-									'tr', 
-									'uk', 
-									'vi', 
-									'cy', 
-									'yi']  ;
+			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();			
+			[Bindable] private var langNames:Array = ResourceUtil.getInstance().localeNames;		
+			[Bindable] private var langCodes:Array = ResourceUtil.getInstance().localeCodes;
 			
 			private function init():void{
 				participants = new ArrayCollection();
-				
-				var langCode:String = (ExternalInterface.call('getLanguage') as String);
-				if (langCode == null) return;
-				
-				var language:String = langCode.split("_")[0];
-				if (langCodes.indexOf(language) != -1){
-					langComboBox.selectedIndex = langCodes.indexOf(language);
-					changeLanguage();
-				} 
 			}
-
 
 			protected function openPrivateChat(event:ListEvent):void{
 				if (participantsList.selectedIndex == -1) return;
@@ -169,23 +53,18 @@
 				chatView.openChatBoxFor(id);
 			}
 			
-			private function changeFontSize():void{
+			private function changeFontSize():void {
 				var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.CHANGE_FONT_SIZE);
 				e.fontSize = int(cmbFontSize.selectedItem);
 				dispatchEvent(e);
 			}
 			
-			private function changeLanguage():void
-			{
-				var lang:String = this.langCodes[this.langComboBox.selectedIndex];
-				var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.CHANGE_LANGUAGE);
-				e.language= lang;
-				dispatchEvent(e);
+			private function changeLanguage():void {
+				ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(this.langComboBox.selectedIndex));
 			}
 			
-			private function toggleTranslation():void
-			{
-				var e:ChatOptionsEvent=new ChatOptionsEvent(ChatOptionsEvent.TOGGLE_TRANSLATE);	
+			private function toggleTranslation():void {
+				var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.TOGGLE_TRANSLATE);	
 				e.translateOn = autoTransCheckBox.selected;
 				dispatchEvent(e);
 			}
@@ -201,28 +80,12 @@
 				autoTransCheckBox.selected = e.translateOn;
 				toggleTranslation();
 			}
-			
-			override protected function resourcesChanged():void{
-				super.resourcesChanged();
-				
-				var language:String = overrideNorwegian(ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0]);
-				if ((langCodes.indexOf(language) != -1) && (langComboBox != null)){
-					langComboBox.selectedIndex = langCodes.indexOf(language);
-					changeLanguage();
-				} 
-			}
-			
-			private function overrideNorwegian(lang:String):String{
-				var code:String = lang;
-				if (lang == "nb") code = "no"; //Code for norwegian in the google api is different than in bbb localization (ours is nb, google is no)
-				return code;
-			}
-
+						
 		]]>
 	</mx:Script>
 	
 	<mx:HBox width="100%" height="100%" >
-		<mx:VBox height="100%" width="50%">
+		<mx:VBox height="100%" width="50%" visible="{chatOptions.privateEnabled}">
 			<mx:Label id="lblSelect" text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" />
 			<mx:List id="participantsList" height="100%" width="100%" dataProvider="{chatView.participants}" change="openPrivateChat(event)">
 			</mx:List>
@@ -233,7 +96,7 @@
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
 				<mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" selectedIndex="1" />
 			</mx:HBox>
-			<mx:ComboBox id="langComboBox" dataProvider="{this.langNames}" selectedIndex="12"  change="changeLanguage()" rowCount="15" />
+			<mx:ComboBox id="langComboBox" dataProvider="{this.langNames}" selectedIndex="{ResourceUtil.getInstance().localeIndex}"  change="changeLanguage()" rowCount="15" />
 			<mx:CheckBox id="autoTransCheckBox" selected="false" label="AutoTranslate" toolTip="Auto detect language and translate" change="toggleTranslation()"/>
 		</mx:VBox>
 	</mx:HBox>

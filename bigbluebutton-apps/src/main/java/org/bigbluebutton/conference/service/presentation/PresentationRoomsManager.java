@@ -46,17 +46,17 @@ public class PresentationRoomsManager {
 	}
 	
 	public void addRoom(PresentationRoom room) {
-		log.debug("In PresentationRoomsManager adding room {}",room.getName());
+		log.debug("In PresentationRoomsManager adding room " + room.getName());
 		rooms.put(room.getName(), room);
 	}
 	
 	public void removeRoom(String name) {
-		log.debug("In PresentationRoomsManager remove room {}",name);
+		log.debug("In PresentationRoomsManager remove room " + name);
 		rooms.remove(name);
 	}
 		
 	public boolean hasRoom(String name) {
-		log.debug("In PresentationRoomsManager has Room {}",name);
+		log.debug("In PresentationRoomsManager has Room " + name);
 		return rooms.containsKey(name);
 	}
 	
@@ -65,7 +65,7 @@ public class PresentationRoomsManager {
 	 * Keeping getRoom private so that all access to ChatRoom goes through here.
 	 */
 	private PresentationRoom getRoom(String name) {
-		log.debug("In PresentationRoomsManager get room {}",name);
+		log.debug("In PresentationRoomsManager get room " + name);
 		return rooms.get(name);
 	}
 		
@@ -75,7 +75,7 @@ public class PresentationRoomsManager {
 			r.addRoomListener(listener);
 			return;
 		}
-		log.warn("Adding listener to a non-existing room {}",roomName);
+		log.warn("Adding listener to a non-existing room " + roomName);
 	}
 	//TODO: where is roomName???
 	/*public void removeRoomListener(IPresentationRoomListener listener) {
@@ -94,36 +94,18 @@ public class PresentationRoomsManager {
 			r.sendUpdateMessage(message);
 			return;
 		}	
-		log.warn("Sending update message to a non-existing room {}",room);			
+		log.warn("Sending update message to a non-existing room " + room);			
 	}
-	
-	public ArrayList getCurrentPresenter( String room){
-		PresentationRoom r = getRoom(room);
-		if (r != null) {
-			return r.getCurrentPresenter();		
-		}	
-		log.warn("Getting presenter from a non-existing room {}",room);
-		return null;
-	}
-	
+		
 	public Boolean getSharingPresentation(String room){
 		PresentationRoom r = getRoom(room);
 		if (r != null) {
 			return r.getSharing();			
 		}	
-		log.warn("Getting sharing from a non-existing room {}",room);
+		log.warn("Getting sharing from a non-existing room " + room);
 		return null;
 	}
-	
-	public void assignPresenter(String room, ArrayList presenter){
-		PresentationRoom r = getRoom(room);
-		if (r != null) {
-			r.assignPresenter(presenter);
-			return;
-		}	
-		log.warn("Assigning presenter to a non-existing room {}",room);	
-	}
-	
+		
 	@SuppressWarnings("unchecked")
 	public Map getPresenterSettings(String room){
 		PresentationRoom r = getRoom(room);
@@ -135,38 +117,38 @@ public class PresentationRoomsManager {
 			settings.put("heightRatio", r.getHeightRatio());
 			return settings;			
 		}
-		log.warn("Getting settings information on a non-existant room {}",room);	
+		log.warn("Getting settings information on a non-existant room " + room);	
 		return null;
 	}
 	
 	public void resizeAndMoveSlide(String room, Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
 		PresentationRoom r = getRoom(room);
 		if (r != null){
-			log.debug("Request to resize and move slide["+xOffset+","+yOffset+","+widthRatio+","+heightRatio+"]");
+			log.debug("Request to resize and move slide[" + xOffset + "," + yOffset + "," + widthRatio + "," + heightRatio + "]");
 			r.resizeAndMoveSlide(xOffset, yOffset, widthRatio, heightRatio);
 			return;
 		}
-		log.warn("resizeAndMoveSlide on a non-existant room {}",room);		
+		log.warn("resizeAndMoveSlide on a non-existant room " + room);		
 	}
 	
 	public void gotoSlide(String room, int slide){
 		PresentationRoom r = getRoom(room);
 		if (r != null) {
-			log.debug("Request to go to slide {} for room {}",slide,room);
+			log.debug("Request to go to slide " + slide + " for room " + room);
 			r.gotoSlide(slide);
 			return;
 		}	
-		log.warn("Changing slide on a non-existing room {}",room);	
+		log.warn("Changing slide on a non-existing room " + room);	
 	}
 	
 	public void sharePresentation(String room, String presentationName, Boolean share){
 		PresentationRoom r = getRoom(room);
 		if (r != null) {
-			log.debug("Request share presentation "+presentationName+" "+share+" for room "+room);
+			log.debug("Request share presentation " + presentationName + " " + share + " for room " + room);
 			r.sharePresentation(presentationName, share);
 			return;
 		}	
-		log.warn("Sharing presentation on a non-existing room {}",room);	
+		log.warn("Sharing presentation on a non-existing room " + room);	
 	}
 	
 	public int getCurrentSlide(String room){
@@ -174,7 +156,7 @@ public class PresentationRoomsManager {
 		if (r != null) {
 			return r.getCurrentSlide();
 		}	
-		log.warn("Getting slide on a non-existing room {}",room);
+		log.warn("Getting slide on a non-existing room " + room);
 		return -1;
 	}
 	
@@ -183,7 +165,7 @@ public class PresentationRoomsManager {
 		if (r != null) {
 			return r.getCurrentPresentation();
 		}	
-		log.warn("Getting current presentation on a non-existing room {}",room);
+		log.warn("Getting current presentation on a non-existing room " + room);
 		return null;
 	}
 	
@@ -192,7 +174,7 @@ public class PresentationRoomsManager {
         if (r != null) {
             return r.getPresentationNames();
         }   
-        log.warn("Getting current presentation on a non-existing room {}",room);
+        log.warn("Getting current presentation on a non-existing room " + room);
         return null;
     }
     
@@ -200,7 +182,8 @@ public class PresentationRoomsManager {
         PresentationRoom r = getRoom(room);
         if (r != null) {
             r.removePresentation(name);
-        }   
-        log.warn("Removing presentation from a non-existing room {}",room); 
+        } else {  
+        	log.warn("Removing presentation from a non-existing room " + room);
+        }
     }
 }

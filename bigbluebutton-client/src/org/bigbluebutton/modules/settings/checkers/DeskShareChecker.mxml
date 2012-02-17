@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" creationComplete="onCreationComplete()">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" creationComplete="onCreationComplete()" horizontalAlign="center" verticalAlign="middle">
 	
 	<mx:Script>
 		<![CDATA[			
@@ -7,6 +7,7 @@
 			
 			import org.bigbluebutton.modules.settings.connectors.DeskShareConnector;
 			import org.bigbluebutton.modules.settings.util.Requirements;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var deskshareConnector:DeskShareConnector;
 			private var ns:NetStream;
@@ -22,6 +23,7 @@
 			 */
 			public function startTheApplet():void{
 				ExternalInterface.call("startApplet", getCaptureServerUri(), deskshareConnector.room, true);
+				this.removeAllChildren();
 			}
 			
 			private function appletStarted(videoWidth:Number, videoHeight:Number):void{
@@ -123,7 +125,14 @@
 				uri = uri.split("/")[2];
 				return uri;
 			}
+			
+			public function stop():void{
+				if (ns != null) ns.close();
+				ExternalInterface.call("stopApplet");
+			}
 		]]>
 	</mx:Script>
 	
+	<mx:Button id="btnStartDeskshare" click="startTheApplet()" label="{ResourceUtil.getInstance().getString('bbb.settings.deskshare.start')}" />
+	<mx:Text width="200" textAlign="center" text="{ResourceUtil.getInstance().getString('bbb.settings.deskshare.instructions')}" id="txtInstructions" />
 </mx:VBox>

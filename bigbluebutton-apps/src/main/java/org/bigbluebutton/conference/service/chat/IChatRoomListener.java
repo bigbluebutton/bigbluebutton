@@ -19,7 +19,7 @@
 
 package org.bigbluebutton.conference.service.chat;
 
-interface IChatRoomListener {
+public interface IChatRoomListener {
 	public String getName();
-	public void newChatMessage(String message);
+	public void newChatMessage(ChatObject message);
 }

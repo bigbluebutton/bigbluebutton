@@ -29,9 +29,11 @@ import org.red5.compatibility.flex.messaging.io.ArrayCollection;
 public class Page {
 	
 	private ArrayCollection<Shape> shapes;
+	private int pageIndex;
 	
-	public Page(){
+	public Page(int pageIndex){
 		this.shapes = new ArrayCollection<Shape>();
+		this.setPageIndex(pageIndex);
 	}
 	
 	public void addShape(Shape shape){
@@ -51,10 +53,19 @@ public class Page {
 	}
 	
 	public void undo(){
-		shapes.remove(shapes.size()-1);
+		if(shapes.size() > 0)
+			shapes.remove(shapes.size()-1);
 	}
 	
 	public int getNumShapesOnPage(){
 		return this.shapes.size();
+	}
+
+	public void setPageIndex(int pageIndex) {
+		this.pageIndex = pageIndex;
+	}
+
+	public int getPageIndex() {
+		return pageIndex;
 	}
 }

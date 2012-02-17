@@ -2,7 +2,7 @@
 .actionScriptProperties
 .flexProperties
 linker-report.xml
-bin
+bundles.txt
 client
 bbbResources.properties.*
 asdoc/

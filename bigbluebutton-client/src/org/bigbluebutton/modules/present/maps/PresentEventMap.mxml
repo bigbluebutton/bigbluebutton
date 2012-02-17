@@ -35,7 +35,7 @@
 			import org.bigbluebutton.modules.present.events.SlideEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.managers.PresentManager;
-			import org.bigbluebutton.modules.present.views.PresentationWindow;
+			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 
 			private var apiInstance:PresentationAPI;
 			
@@ -53,7 +53,7 @@
 	
 	<EventHandlers type="{PresentModuleEvent.START_MODULE}" >
 		<MethodInvoker generator="{PresentProxy}" method="connect" arguments="{event}" />
-		<MethodInvoker generator="{PresentManager}" method="handleStartModuleEvent" />
+		<MethodInvoker generator="{PresentManager}" method="handleStartModuleEvent" arguments="{event}"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{PresentModuleEvent.STOP_MODULE}" >
@@ -67,11 +67,7 @@
 	<EventHandlers type="{UploadEvent.CLOSE_UPLOAD_WINDOW}" >
 		<MethodInvoker generator="{PresentManager}" method="handleCloseUploadWindow" />
 	</EventHandlers>
-	
-	<EventHandlers type="{RoleChangeEvent.ASSIGN_PRESENTER}" >
-		<MethodInvoker generator="{PresentProxy}" method="assignPresenter" arguments="{event}" />
-	</EventHandlers>
-	
+		
 	<EventHandlers type="{UploadEvent.START_UPLOAD}">
 		<MethodInvoker generator="{PresentProxy}" method="startUpload" arguments="{event}" />
 	</EventHandlers>

@@ -24,8 +24,10 @@ package org.bigbluebutton.modules.chat.maps {
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
+	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 	import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
+	import org.bigbluebutton.modules.chat.model.ChatOptions;
 	import org.bigbluebutton.modules.chat.views.ChatWindow;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
@@ -38,6 +40,7 @@ package org.bigbluebutton.modules.chat.maps {
 		
 		private var translationEnabled:Boolean;
 		private var translationOn:Boolean;
+		private var chatOptions:ChatOptions;
 				
 		public function ChatEventMapDelegate() {
 			this.dispatcher = dispatcher;
@@ -45,8 +48,13 @@ package org.bigbluebutton.modules.chat.maps {
 			globalDispatcher = new Dispatcher();
 		}
 
-		public function openChatWindow():void {			
-			LogUtil.debug("Opening Chat Window!!!! " + (_chatWindow != null));
+		private function getChatOptions():void {
+			chatOptions = new ChatOptions();
+		}
+		
+		public function openChatWindow():void {	
+			getChatOptions();
+			_chatWindow.chatOptions = chatOptions;
 		   	_chatWindow.title = ResourceUtil.getInstance().getString("bbb.chat.title");
 		   	_chatWindow.showCloseButton = false;
 		   	
@@ -54,12 +62,9 @@ package org.bigbluebutton.modules.chat.maps {
 		   	// main application.		   	
 			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			event.window = _chatWindow; 
-			globalDispatcher.dispatchEvent(event);
-		   	
-		   	_chatWindowOpen = true;
-			
-			dispatchTranslationOptions();
-
+			globalDispatcher.dispatchEvent(event);		   	
+		   	_chatWindowOpen = true;			
+			dispatchTranslationOptions();			
 		}
 		
 		public function closeChatWindow():void {

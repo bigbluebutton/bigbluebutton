@@ -35,10 +35,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.support.AbstractApplicationContext;
 
 public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
-
 	private static Logger log = Red5LoggerFactory.getLogger(BigBlueButtonApplication.class, "bigbluebutton");
-	
-	private static final String APP = "BigBlueButtonApplication";
+
 	private ParticipantsApplication participantsApplication;
 	private RecorderApplication recorderApplication;
 	private AbstractApplicationContext appCtx;
@@ -47,7 +45,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	
 	@Override
     public boolean appStart(IScope app) {
-        log.debug("Starting BigBlueButton version {}", version); 
+        log.debug("Starting BigBlueButton version " + version); 
         IContext context = app.getContext();
         appCtx = (AbstractApplicationContext) context.getApplicationContext();
         appCtx.addApplicationListener(new ShutdownHookListener());
@@ -57,21 +55,21 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     
 	@Override
     public void appStop(IScope app) {
-        log.debug("Stopping BigBlueButton version {}", version);
+        log.debug("Stopping BigBlueButton version " + version);
         super.appStop(app);
     }
     
 	@Override
     public boolean roomStart(IScope room) {
-    	log.debug("Starting room [{}].", room.getName());
+    	log.debug("Starting room [" + room.getName() + "].");
     	assert participantsApplication != null;
-    	participantsApplication.createRoom(room.getName());
+    	
     	return super.roomStart(room);
     }	
 	
 	@Override
     public void roomStop(IScope room) {
-    	log.debug("Stopping room [{}]", room.getName());
+    	log.debug("Stopping room [" + room.getName() + "].");
     	super.roomStop(room);
     	assert participantsApplication != null;
     	participantsApplication.destroyRoom(room.getName());
@@ -84,45 +82,46 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		assert recorderApplication != null;
 		recorderApplication.destroyRecordSession(bbbSession.getSessionName());
 		
-		log.debug("Stopped room [{}]", room.getName());
+		log.debug("Stopped room [" + room.getName() + "].");
     }
     
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
         String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
         int remotePort = Red5.getConnectionLocal().getRemotePort();
-        String clientId = Red5.getConnectionLocal().getClient().getId();
-        log.info("[clientid={}] connected from {}.", clientId, remoteHost + ":" + remotePort);
-    	
         String username = ((String) params[0]).toString();
         String role = ((String) params[1]).toString();
         String conference = ((String)params[2]).toString();
-        String mode = ((String) params[3]).toString();
+
         /*
          * Convert the id to Long because it gets converted to ascii decimal
          * equivalent (i.e. zero (0) becomes 48) if we don't.
          */
-        long userid = Long.parseLong(Red5.getConnectionLocal().getClient().getId());
+        long clientID = Long.parseLong(Red5.getConnectionLocal().getClient().getId());
         String sessionName = connection.getScope().getName();
-   
-        String voiceBridge = ((String) params[5]).toString();
+        log.info("[clientid=" + clientID + "] connected from " + remoteHost + ":" + remotePort + ".");
+        
+        String voiceBridge = ((String) params[4]).toString();
 		String room = sessionName;
 		assert recorderApplication != null;
-		boolean record = (Boolean)params[6];
+		boolean record = (Boolean)params[5];
+		log.debug("record value - [" + record + "]"); 
 
-    	String externUserID = ((String) params[7]).toString();
-
+    	String externalUserID = ((String) params[6]).toString();
+    	String internalUserID = ((String) params[6]).toString();
+    	
 		if (record == true) {
-			recorderApplication.createRecordSession(conference, room, sessionName);
+			recorderApplication.createRecordSession(sessionName);
 		}
 			
-    	BigBlueButtonSession bbbSession = new BigBlueButtonSession(sessionName, userid,  username, role, 
-    			conference, mode, room, voiceBridge, record, externUserID);
+    	BigBlueButtonSession bbbSession = new BigBlueButtonSession(sessionName, clientID, internalUserID,  username, role, 
+    			conference, room, voiceBridge, record, externalUserID);
         connection.setAttribute(Constants.SESSION, bbbSession);        
         
-        String debugInfo = "userid=" + userid + ",username=" + username + ",role=" +  role + ",conference=" + conference + "," + 
-        					"session=" + sessionName + ",voiceConf=" + voiceBridge + ",room=" + room + ",externsUserid=" + externUserID;
+        String debugInfo = "internalUserID=" + internalUserID + ",username=" + username + ",role=" +  role + ",conference=" + conference + "," + 
+        					"session=" + sessionName + ",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID;
 		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
+		participantsApplication.createRoom(room);
         super.roomConnect(connection, params);
     	return true;
 	}
@@ -132,17 +131,17 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
         int remotePort = Red5.getConnectionLocal().getRemotePort();    	
         String clientId = Red5.getConnectionLocal().getClient().getId();
-    	log.info("[clientid={}] disconnnected from {}.", clientId, remoteHost + ":" + remotePort);
+    	log.info("[clientid=" + clientId + "] disconnnected from " + remoteHost + ":" + remotePort + ".");
     	
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
-		log.info("User [{}] disconnected from room [{}]", bbbSession.getUsername(), bbbSession.getRoom());
+		log.info("User [" + bbbSession.getUsername() + "] disconnected from room [" + bbbSession.getRoom() +"]");
 		super.roomDisconnect(conn);
 	}
 	
 	public String getMyUserId() {
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 		assert bbbSession != null;
-		return bbbSession.getUserid()+"";
+		return Long.toString(bbbSession.getClientID());
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {

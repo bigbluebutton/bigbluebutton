@@ -20,19 +20,23 @@
   $Id: $
 --> 
 
-<pubVid:MDIWindow xmlns="flexlib.mdi.containers.*" 
+<pubVid:VideoWindowItf xmlns="org.bigbluebutton.modules.videoconf.business.*"
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	xmlns:pubVid="flexlib.mdi.containers.*"
+	xmlns:pubVid="org.bigbluebutton.modules.videoconf.business.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="init()"
-	width="{camWidth + 6}" height="{camHeight + 75}" 
-	title="{ResourceUtil.getInstance().getString('bbb.publishVideo.title')}" 
-	backgroundImage="{bbbLogo}" 
+	width="{defaultWidth + 6}" height="{defaultHeight + 75}" 
 	xmlns:mate="http://mate.asfusion.com/"
-	resize="onResize()">
+	resize="onResize()"
+	horizontalScrollPolicy="off"
+	verticalScrollPolicy="off"
+	layout="absolute">
 	
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import mx.core.UIComponent;
@@ -40,46 +44,54 @@
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			private var images:Images = new Images();
 			[Bindable] public var camIcon:Class = images.control_play;
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
-			[Bindable] public var resolutions:Array = new Array("320x240", "640x480");
-			
-			private var video:Video;
-			public var streamName:String;
-			[Bindable] private var camWidth:Number = 320;
-			[Bindable] private var camHeight:Number = 240;
-			private var _userrole:String;
-			public var quality:Number = 0;
-			
-			private var _bResizePossible:Boolean = true;
-			private var _nAspectRatio:Number = 1;
-			
-			static private var _minWidth:int = 166;
-			static private var _minHeight:int = 149;
 
-			private var _nSavedVideoWidth:Number = 0;
-			private var _nSavedVideoHeight:Number = 0;
-			private var _nOldWindowWidth:Number = 0;
-			private var _nOldWindowHeight:Number = 0;
+			[Bindable] private var defaultWidth:Number = 320;
+			[Bindable] private var defaultHeight:Number = 240;
+			
+			private var camWidth:Number = 320;
+			private var camHeight:Number = 240;
+			private var _userrole:String;
+			private var _camera:Camera = null;
+			public var quality:Number = 0;
+						
+			// Timer to auto-publish webcam. We need this timer to delay
+			// the auto-publishing until after the Viewers's window has loaded
+			// to receive the publishing events. Otherwise, the user joining next
+			// won't be able to view the webcam.
+			private var autoPublishTimer:Timer;
+			
+			// Timer used to enable the start publishing button, only after get
+			// any activity on the camera. It avoids the problem of publishing
+			// a blank video
+			private var _activationTimer:Timer = null;
+			private var _waitingForActivation:Boolean = false;
+			
+			static private var _cameraAccessDenied:Boolean = false;
+			
+			[Bindable]
+			public var videoOptions:VideoConfOptions;
 			
 			private function init():void{
-				currentState = "dispVideoOptionsControlBar";
+				_videoHolder = new UIComponent();
+				_videoHolder.width = camWidth;
+				_videoHolder.height = camHeight;
+				this.addChild(_videoHolder);				
+				this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
+
 				checkIfMacCamera();
 				if (isPresenter()) showResControls(true);
 				if (Camera.names.length > 1) showVideoControls(true);
 				if (!isPresenter() && Camera.names.length == 1) startPublishing();
-
-				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEvent);
-				addEventListener(MDIWindowEvent.RESIZE, onResizeEvent);
-				addEventListener(MDIWindowEvent.MAXIMIZE, onMaximize);
-				addEventListener(MDIWindowEvent.RESTORE, onRestore);
 
 				this.minWidth = _minWidth;
 				this.minHeight = _minHeight;
@@ -87,8 +99,27 @@
 				this.resizable = false;
 				
 				loadPrefs();
+				
+				this.visible = videoOptions.publishWindowVisible;
+				
+				if (videoOptions.autoStart) {
+					/*
+					 * Need to have a timer to trigger auto-publishing of webcam.
+					 */
+					autoPublishTimer = new Timer(3000, 1);
+					autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
+					autoPublishTimer.start();
+				}
+				
+				// start the camera preview
+				updateCamera();
 			}
-			
+
+			private function autopublishTimerHandler(event:TimerEvent):void {				
+				startPublishing();
+				autoPublishTimer.stop();
+			}
+						
 			private function loadPrefs():void{
 				var sharedObject:SharedObject = SharedObject.getLocal("bbbUserProperties", "/");
 				var webcam:String = sharedObject.data["webcam"] as String;
@@ -97,32 +128,120 @@
 				}
 			}
 			
-			public function getPrefferedPosition():String{
-				return MainCanvas.POPUP;
+			private function updateCamera():void {
+				stopCamera();
+			
+				btnStartPublish.enabled = false;
+				
+				if (Camera.names.length == 0) {
+					showWarning('bbb.video.publish.hint.noCamera');
+					return;
+				}
+				
+				_camera = Camera.getCamera(cmbCameraSelector.selectedIndex.toString());
+				if (_camera == null) {
+					showWarning('bbb.video.publish.hint.cantOpenCamera');
+					return;
+				}
+				
+				_camera.setMotionLevel(5, 1000);
+
+				if (_camera.muted) {
+					if (_cameraAccessDenied) {
+						onCameraAccessDisallowed();
+						return;
+					} else {
+						showWarning('bbb.video.publish.hint.waitingApproval');
+					}
+				} else {
+					// if the camera isn't muted, that is because the user has
+					// previously allowed the camera capture on the flash privacy box
+					onCameraAccessAllowed();
+				}
+
+			    _camera.addEventListener(ActivityEvent.ACTIVITY, onActivityEvent);
+			    _camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
+
+				setComboResolution();
+				
+				_camera.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
+				_camera.setMode(camWidth, camHeight, videoOptions.camModeFps);
+				_camera.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
+				
+				if (_camera.width != camWidth || _camera.height != camHeight) {
+					LogUtil.debug("Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
+					setResolution(_camera.width, _camera.height);
+				}				
+				
+				_video = new Video;
+				_video.attachCamera(_camera);
+
+				if (aspectRatio > _videoHolder.width / _videoHolder.height) {
+					_video.width = _videoHolder.width;
+					_video.height = _videoHolder.width / aspectRatio;
+					_video.x = 0;
+					_video.y = (_videoHolder.height - _video.height) / 2;
+				} else {
+					_video.width = _videoHolder.height * aspectRatio;
+					_video.height = _videoHolder.height;
+					_video.x = (_videoHolder.width - _video.width) / 2;
+					_video.y = 0;
+				}				
+
+				_videoHolder.addChild(_video);
+   			}
+   			
+			private function onActivityEvent(e:ActivityEvent):void {
+			    if (_waitingForActivation && e.activating) {
+			        _activationTimer.stop();
+					showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
+			     	btnStartPublish.enabled = true;
+			     	_waitingForActivation = false;
+			    }
+			}
+
+			private function onStatusEvent(e:StatusEvent):void {
+				if (e.code == "Camera.Unmuted") {
+					onCameraAccessAllowed();
+					// this is just to overwrite the message of waiting for approval
+				    showWarning('bbb.video.publish.hint.openingCamera');
+			    } else if (e.code == "Camera.Muted") {
+			    	onCameraAccessDisallowed();
+			    }
 			}
 			
+			private function onCameraAccessAllowed():void {
+				// set timer to ensure that the camera activates.  If not, it might be in use by another application
+				_waitingForActivation = true;
+				if (_activationTimer != null)
+					_activationTimer.stop();
+			    _activationTimer = new Timer(10000, 1);
+			    _activationTimer.addEventListener(TimerEvent.TIMER, activationTimeout);
+			    _activationTimer.start();
+			}
+			
+			private function onCameraAccessDisallowed():void {
+		    	showWarning('bbb.video.publish.hint.cameraDenied');
+		    	_cameraAccessDenied = true;
+			}
+
+			private function activationTimeout(e:TimerEvent):void {
+				showWarning('bbb.video.publish.hint.cameraIsBeingUsed');
+				// it will try to reopen the camera after the timeout
+				updateCamera();
+			}   			
+						
 			private function startPublishing():void{
-				var camera:Camera = Camera.getCamera(cmbCameraSelector.selectedIndex.toString());
-				if (camera == null) return;
+				if (_camera == null) return;
+
+				showWarning('bbb.video.publish.hint.publishing', true, "0xFFFF00");
 				
-				setResolution();
-				
-				camera.setKeyFrameInterval(5);
-				camera.setMode(camWidth,camHeight,15);
-				camera.setQuality(0,quality);
-				
-				video = new Video(camWidth, camHeight);
-				//Next two lines may seem redundant but they're not. Do not delete.
-				video.width = camWidth;
-				video.height = camHeight;
-				adjustWindowSize();
-				video.attachCamera(camera);
-				videoHolder.addChild(video);
-//				addChild(videoHolder);
-				
+				defaultWidth = originalWidth;
+				defaultHeight = originalHeight;
+
 				var e:StartBroadcastEvent = new StartBroadcastEvent();
 				e.stream = this.streamName;
-				e.camera = camera;
+				e.camera = _camera;
 				dispatchEvent(e);
 				
 				showVideoControls(false);
@@ -130,6 +249,23 @@
 
 				maximizeRestoreBtn.visible = true;
 				this.resizable = true;
+				onResize();
+				
+				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
+				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
+				addEventListener(MDIWindowEvent.DRAG_START, onDragStart);
+				addEventListener(MDIWindowEvent.DRAG, onDrag);
+				addEventListener(MDIWindowEvent.DRAG_END, onDragEnd);
+				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
+				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
+				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+				
+				createButtons();
+				
+				// this event will dock the window, if it's enabled
+				var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();
+				openVideoEvent.window = this;
+				dispatchEvent(openVideoEvent);					
 			}
 			
 			override public function close(event:MouseEvent=null):void{
@@ -137,23 +273,39 @@
 				super.close(event);
 			}
 			
-			private function stopPublishing():void{
-				if (video != null) {
-					video.attachCamera(null);
-					video.clear();
-					video = null;
+			private function stopCamera():void {
+				if (_video != null) {
+					_videoHolder.removeChild(_video);
+					_video.attachCamera(null);
+					_video.clear();
+					_video = null;
 				}
+				_camera = null;
+			}
+			
+			private function stopPublishing():void{
+				stopCamera();
 				var e:StopBroadcastEvent = new StopBroadcastEvent()
-				e.stream = this.streamName;
+				e.stream = streamName;
 				dispatchEvent(e);
 			}
 			
-			private function setResolution():void{
+			private function setComboResolution():void {
 				var res:Array = cmbResolution.selectedLabel.split( "x" );
-				camWidth = Number(res[0]);
-				camHeight = Number(res[1]);
-				_nAspectRatio = (camWidth/camHeight);
-				this.streamName = cmbResolution.selectedLabel.concat(this.streamName);
+				setResolution(Number(res[0]), Number(res[1]));
+			}
+			
+			private function setResolution(width:int, height:int):void {
+				camWidth = originalWidth = width;
+				camHeight = originalHeight = height;
+				setAspectRatio(camWidth, camHeight);
+				
+ 				/**
+         		 * Add timestamp to create a unique stream name. This way we can record	 	
+         		 * stream without overwriting previously recorded streams.	 	
+         		 */	 	
+				var curTime:Number = new Date().getTime();	 	
+        		this.streamName = cmbResolution.selectedLabel.concat(this.userId) + "-" + curTime;
 			}
 			
 			public function set userrole(role:String):void{
@@ -167,15 +319,16 @@
 			
 			private function showVideoControls(show:Boolean):void{
 				if (show){
-					currentState = "dispVideoOptionsControlBar"
 					videoOptionsBar.visible = true;
 					btnStartPublish.visible = true;
 					cmbCameraSelector.visible = true;
 				} else{					
-					videoOptionsBar.visible = true;
-					btnStartPublish.visible = true;
+					videoOptionsBar.visible = false;
+					videoOptionsBar.width = 0;
+					videoOptionsBar.height = 0;
+					btnStartPublish.visible = false;
 					cmbCameraSelector.visible = false;
-					currentState = "dispVideo";
+					videoOptionsBar.visible = false;
 				}
 			}
 			
@@ -189,6 +342,7 @@
 			}
 			
 			private function closeThisWindow():void {
+				stopCamera();
 				this.close();
 			}
 			
@@ -203,159 +357,46 @@
 				}
 			}
 			
-			private function adjustWindowSize():void{
-				videoHolder.width = video.width;
-				videoHolder.height = video.height;
-				this.width = video.width + 6;
-				this.height = video.height + 29;
-				
-				// prevent to show a video window bigger than the parent window
-				if (this.width > this.parent.width) {
-					video.width = this.parent.width - 6;
-					video.height = Math.floor(video.width / _nAspectRatio);
-					adjustWindowSize();
-				}
-				if (this.height > this.parent.height) {
-					video.height = this.parent.height - 29;
-					video.width = Math.floor(video.height * _nAspectRatio);
-					adjustWindowSize();
-				}
-				if (this.width < _minWidth) {
-					video.width = _minWidth - 6;
-					video.height = Math.floor(video.width / _nAspectRatio);
-					adjustWindowSize();
-				}
-				if (this.height < _minHeight) {
-					video.height = _minHeight - 29;
-					video.width = Math.floor(video.height * _nAspectRatio);
-					adjustWindowSize();
-				}
-			}			
-			
-			public function onResizeEvent(event:MDIWindowEvent):void {
-				if (event.type == MDIWindowEvent.RESIZE) {
-					// test if we are already resizing
-					if (_bResizePossible) {
-						_bResizePossible = false;
-						resizeWindow();
-						_bResizePossible = true;
-					}
-				} else if (event.type == MDIWindowEvent.RESIZE_END) {
-					adjustWindowSize();
-				}
-			}
-			
-			private function resizeWindow():void {
-				// prevent the window for blinking
-				if (this.width == _nOldWindowWidth && this.height == _nOldWindowHeight) {
-					adjustWindowSize();
-					return;
-				}
-
-				_nOldWindowWidth = this.width;
-				_nOldWindowHeight = this.height;
-
-				if (this.width == video.width + 6) {
-					// if it's a vertical resizing
-					video.height = this.height - 29;
-					video.width = video.height * _nAspectRatio;
-				} else {
-					// if it's a horizontal resizing
-					video.width = this.width - 6;
-					video.height  = Math.floor (video.width / _nAspectRatio);
-				}
-				adjustWindowSize();
-			}
-			
-			public function onMaximize(event:MDIWindowEvent):void {
-				_nSavedVideoWidth = video.width;
-				_nSavedVideoHeight = video.height;
-			
-			
-				var tmpWidth:Number = this.parent.width - 6;
-				var tmpHeight:Number = this.parent.height - 29;
-
-				if (tmpWidth > tmpHeight * _nAspectRatio)
-					tmpWidth = tmpHeight * _nAspectRatio;
-				if (tmpHeight > Math.floor(tmpWidth / _nAspectRatio))
-					tmpHeight = Math.floor(tmpWidth / _nAspectRatio);
-				
-				video.width = tmpWidth;
-				video.height = tmpHeight;
-				
-				video.x = Math.floor ((this.parent.width - 6 - video.width) / 2);
-				video.y = Math.floor ((this.parent.height - 29 - video.height) / 2);
-			}
-			
-			public function onRestore(event:MDIWindowEvent):void {
-				video.x = 0;
-				video.y = 0;
-				video.width = _nSavedVideoWidth;
-				video.height = _nSavedVideoHeight;
-				adjustWindowSize();
-			}
-
-			public function setWindowWidth(width:int):void {
-				if (video == null) return;
-				
-				video.width = width - 6;
-				video.height = Math.floor(video.width / _nAspectRatio);
-				adjustWindowSize();
-			}
-			
-			static public function getMinWidth():int {
-				return _minWidth;
-			}
-		
-			static public function getMinHeight():int {
-				return _minHeight;
-			}
-			
-			static public function getWindowHeightByWidth(width:int, aspect:Number):int {
-				return Math.floor((width - 6) / aspect) + 29;
-			}
-			
-			static public function getWindowWidthByHeight(height:int, aspect:Number):int {
-				return Math.floor((height - 29) * aspect) + 6;
-			}
-
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
-				this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
+			}		
+			
+			
+			private var hideWarningTimer:Timer = null;
+			
+			private function showWarning(resourceName:String, autoHide:Boolean=false, color:String="0xFF0000"):void {
+				const text:String = ResourceUtil.getInstance().getString(resourceName);
+				
+				if (hideWarningTimer != null)
+					hideWarningTimer.stop();
+				if (autoHide) {
+					hideWarningTimer = new Timer(3000, 1);
+					hideWarningTimer.addEventListener(TimerEvent.TIMER, hideWarning);
+					hideWarningTimer.start();
+				}
+				// bring the label to front
+				setChildIndex(lblWarning, getChildren().length - 1);
+				lblWarning.text = text;
+				lblWarning.setStyle("color", color);
+				lblWarning.visible = true;
+				LogUtil.debug("Showing warning: " + text);
 			}
 			
-			private function onResize():void{
-				setWindowWidth(this.width);
+			private function hideWarning(e:TimerEvent):void {
+				lblWarning.visible = false;
 			}
 			
 		]]>
 	</mx:Script>
 
-	<pubVid:states>
-	    <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
-	    <mx:State name="dispVideo">
-	    </mx:State>
-        <!--mx:State name="dispQuitControlBar">   
-            <mx:AddChild>
-            	<mx:ControlBar id="quitOptionsBar">
-            		<mx:Spacer width="50%"/>
-					<mx:Button id="btnQuitPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.video.publish.close.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.video.publish.close.label')}" visible="true" click="closeThisWindow()" />
-					<mx:Spacer width="50%"/>
-				</mx:ControlBar>	
-            </mx:AddChild>
-        </mx:State-->		
-        <mx:State name="dispVideoOptionsControlBar">   
-            <mx:AddChild>
-				<mx:ControlBar id="videoOptionsBar">
-					<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" />
-					<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" />
-					<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" />
-				</mx:ControlBar>
-            </mx:AddChild>
-        </mx:State>	
-	</pubVid:states>
-		
-	<mx:UIComponent id="videoHolder" width="{camWidth}" height="{camHeight}" />
-
+	<mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
+	<mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
+	<mx:Text id="lblWarning" width="100%" textAlign="right" fontSize="14" fontWeight="bold" y="{this.height - (videoOptionsBar.visible? videoOptionsBar.height: 0) - lblWarning.height - 30}" visible="false" selectable="false" hideEffect="{dissolveOut}" showEffect="{dissolveIn}"/>
+	<mx:ControlBar id="videoOptionsBar" visible="true">
+		<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" enabled="false"/>
+		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" change="updateCamera()"/>
+		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" change="updateCamera()"/>
+	</mx:ControlBar>
+	
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
-</pubVid:MDIWindow>
+</pubVid:VideoWindowItf>

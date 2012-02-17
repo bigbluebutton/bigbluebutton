@@ -29,15 +29,13 @@ import org.bigbluebutton.deskshare.server.session.ScreenVideoFrame
 
 class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) extends BlockFactory {
    
-	private val blocksMap = new ConcurrentHashMap[Integer, Block]
+	private var blocksMap = new ConcurrentHashMap[Integer, Block]
 	
 	private var numberOfRows = getNumberOfRows(screenDim, blockDim)
 	private var numberOfColumns = getNumberOfColumns(screenDim, blockDim)
     private var lastFrameTime = 0L
     private var lastKeyFrameTime = 0L
     private val KEYFRAME_INTERVAL = 20000
-    
-    private var screenVideoFrame: ByteArrayOutputStream = new ByteArrayOutputStream()
     
 	def initialize(): Unit = {
 		println("Initialize BlockManager")
@@ -61,7 +59,8 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) exte
 	}
 	
 	def generateFrame(genKeyFrame: Boolean): Array[Byte] = {
-		screenVideoFrame.reset();
+		var screenVideoFrame: ByteArrayOutputStream = new ByteArrayOutputStream()
+		
 		val encodedDim: Array[Byte] = ScreenVideoEncoder.encodeBlockAndScreenDimensions(blockDim.width, screenDim.width, blockDim.height, screenDim.height)
      	    	
     	val numberOfBlocks = numberOfRows * numberOfColumns 		

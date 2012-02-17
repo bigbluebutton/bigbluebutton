@@ -27,7 +27,11 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.so.ISharedObject;
 import org.red5.server.adapter.ApplicationAdapter;
-import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.bigbluebutton.conference.service.recorder.RecorderApplication;
+import org.red5.server.api.Red5;
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
+import org.bigbluebutton.conference.service.recorder.RecorderApplication;
+import org.bigbluebutton.conference.service.recorder.chat.ChatEventRecorder;
 
 public class ChatHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger( ChatHandler.class, "bigbluebutton" );
@@ -53,25 +57,25 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 
 	@Override
 	public boolean appJoin(IClient client, IScope scope) {
-		log.debug("appJoin: {}", scope.getName());
+		log.debug("appJoin: " + scope.getName());
 		return true;
 	}
 
 	@Override
 	public void appLeave(IClient client, IScope scope) {
-		log.debug("appLeave: {}", scope.getName());
+		log.debug("appLeave: " + scope.getName());
 	}
 
 	@Override
 	public boolean appStart(IScope scope) {
 		this.scope = scope;
-		log.debug("appStart: {}", scope.getName());
+		log.debug("appStart: " + scope.getName());
 		return true;
 	}
 
 	@Override
 	public void appStop(IScope scope) {
-		log.debug("appStop: {}", scope.getName());
+		log.debug("appStop: " + scope.getName());
 	}
 
 	@Override
@@ -79,11 +83,12 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 		log.debug("roomConnect");
 		ISharedObject so = getSharedObject(connection.getScope(), CHAT_SO);
 		log.debug("Setting up recorder");
-		ChatEventRecorder recorder = new ChatEventRecorder(so, getBbbSession().getRecord());
-		log.debug("adding event recorder to {}", connection.getScope().getName());
-		recorderApplication.addEventRecorder(connection.getScope().getName(), recorder);
+		ChatMessageSender messageSender = new ChatMessageSender(so);
+		ChatEventRecorder recorder = new ChatEventRecorder(connection.getScope().getName(), recorderApplication);
+		log.debug("adding event recorder to " + connection.getScope().getName());
 		log.debug("Adding room listener");
 		chatApplication.addRoomListener(connection.getScope().getName(), recorder);
+		chatApplication.addRoomListener(connection.getScope().getName(), messageSender);
 		log.debug("Done setting up recorder and listener");
 		return true;
 	}
@@ -95,25 +100,25 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 
 	@Override
 	public boolean roomJoin(IClient client, IScope scope) {
-		log.debug("roomJoin {}", scope.getName(), scope.getParent().getName());
+		log.debug("roomJoin " + scope.getName(), scope.getParent().getName());
 		return true;
 	}
 
 	@Override
 	public void roomLeave(IClient client, IScope scope) {
-		log.debug("roomLeave: {}", scope.getName());
+		log.debug("roomLeave: " + scope.getName());
 	}
 
 	@Override
 	public boolean roomStart(IScope scope) {
-		log.debug("roomStart {}", scope.getName());
+		log.debug("roomStart " + scope.getName());
 		chatApplication.createRoom(scope.getName());
     	if (!hasSharedObject(scope, CHAT_SO)) {
     		if (createSharedObject(scope, CHAT_SO, false)) {    			
     			return true; 			
     		}    		
     	}  	
-		log.error("Failed to start room {}", scope.getName());
+		log.error("Failed to start room " + scope.getName());
     	return false;
 	}
 

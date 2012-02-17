@@ -27,15 +27,18 @@ package org.bigbluebutton.modules.present.business {
 	
 	import mx.controls.Alert;
 	
+	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.main.model.users.BBBUser;
+	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.modules.present.events.CursorEvent;
 	import org.bigbluebutton.modules.present.events.MoveEvent;
 	import org.bigbluebutton.modules.present.events.NavigationEvent;
 	import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 	import org.bigbluebutton.modules.present.events.UploadEvent;
 	import org.bigbluebutton.modules.present.events.ZoomEvent;
-	import org.bigbluebutton.common.LogUtil;
 	
 	public class PresentSOService {
 		public static const NAME:String = "PresentSOService";
@@ -332,6 +335,9 @@ package org.bigbluebutton.modules.present.business {
 								sendPresentationName(u as String);
 							}
 						}
+						
+						// Force switching the presenter.
+						triggerSwitchPresenter();
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -344,58 +350,47 @@ package org.bigbluebutton.modules.present.business {
 			); //_netConnection.call
 		}
 		
+		/***
+		 * NOTE:
+		 * This is a workaround to trigger the UI to switch to presenter or viewer.
+		 * The reason is that when the user joins, the MadePresenterEvent in UserServiceSO
+		 * doesn't get received by the modules as the modules hasn't started yet. 
+		 * Need to redo the proper sequence of events but will take a lot of changes.
+		 * (ralam dec 8, 2011).
+		 */
+		public function triggerSwitchPresenter():void {
+			
+			var dispatcher:Dispatcher = new Dispatcher();
+			var meeting:Conference = UserManager.getInstance().getConference();
+			if (meeting.amIPresenter()) {		
+				LogUtil.debug("trigger Switch to Presenter mode ");
+				var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
+				e.userid = meeting.getMyUserId();
+				e.presenterName = meeting.getMyName();
+				e.assignerBy = meeting.getMyUserId();
+				
+				dispatcher.dispatchEvent(e);													
+			} else {				
+				
+				var p:BBBUser = meeting.getPresenter();
+				if (p != null) {
+					LogUtil.debug("trigger Switch to Viewer mode ");
+					var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
+					viewerEvent.userid = p.userid;
+					viewerEvent.presenterName = p.name;
+					viewerEvent.assignerBy = p.userid;
+					
+					dispatcher.dispatchEvent(viewerEvent);					
+				}
+			}
+		}
+		
 		private function sendPresentationName(presentationName:String):void {
 			var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
 			uploadEvent.presentationName = presentationName;
 			dispatcher.dispatchEvent(uploadEvent)
 		}
-		
-		public function assignPresenter(userid:Number, name:String, assignedBy:Number):void {
-			nc.call("presentation.assignPresenter",// Remote function name
-				new Responder(
-	        		// On successful result
-					function(result:Boolean):void { 
-						 
-						if (result) {
-							LogUtil.debug("Successfully assigned presenter to: " + userid);							
-						}	
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-							} 
-					}
-				), //new Responder
-				userid,
-				name,
-				assignedBy
-			); //_netConnection.call
-		}
-		
-		/**
-		 * Called by the server to assign a presenter
-		 */
-		public function assignPresenterCallback(userid:Number, name:String, assignedBy:Number):void {
-			LogUtil.debug("assignPresenterCallback " + userid + "," + name + "," + assignedBy);
-			if (this.userid == userid) {
-				var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
-				e.userid = userid;
-				e.presenterName = name;
-				e.assignerBy = assignedBy;
-				dispatcher.dispatchEvent(e);
-				
-				setPresenterName(name);
-			} else {
-				var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
-				viewerEvent.userid = userid;
-				viewerEvent.presenterName = name;
-				viewerEvent.assignerBy = assignedBy;
-				dispatcher.dispatchEvent(viewerEvent);
-			}
-		}
-		
+					
 		/**
 		 * Send an event out to the server to go to a new page in the SlidesDeck 
 		 * @param page
@@ -512,6 +507,9 @@ package org.bigbluebutton.modules.present.business {
 			uploadEvent.presentationName = presentationName;
 			dispatcher.dispatchEvent(uploadEvent);
 			dispatcher.dispatchEvent(new BBBEvent(BBBEvent.PRESENTATION_CONVERTED));
+			var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
+			readyEvent.presentationName = presentationName;
+			dispatcher.dispatchEvent(readyEvent);
 		}
 				
 		public function conversionUpdateMessageCallback(conference:String, room:String, 

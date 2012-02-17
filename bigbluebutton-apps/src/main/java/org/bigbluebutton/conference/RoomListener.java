@@ -21,8 +21,8 @@ package org.bigbluebutton.conference;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.red5.server.api.so.ISharedObject;
+
 public class RoomListener implements IRoomListener{
 
 	private ISharedObject so;
@@ -36,9 +36,9 @@ public class RoomListener implements IRoomListener{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void participantStatusChange(Long userid, String status, Object value){
-		List list=new ArrayList();
-		list.add(userid);
+	public void participantStatusChange(Participant p, String status, Object value){
+		List list = new ArrayList();
+		list.add(p.getInternalUserID());
 		list.add(status);
 		list.add(value);
 		so.sendMessage("participantStatusChange", list);
@@ -52,12 +52,16 @@ public class RoomListener implements IRoomListener{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void participantLeft(Long userid) {		
+	public void participantLeft(Participant p) {		
 		List args = new ArrayList();
-		args.add(userid);
+		args.add(p.getInternalUserID());
 		so.sendMessage("participantLeft", args);
 	}
 
+	public void assignPresenter(ArrayList<String> presenter) {
+		so.sendMessage("assignPresenterCallback", presenter);
+	}
+	
 	public void endAndKickAll() {
 		// no-op
 	}	

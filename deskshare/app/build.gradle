@@ -9,14 +9,33 @@ jar.enabled = true
 archivesBaseName = 'bbb-deskshare-app' 
 
 dependencies {	  
-    providedCompile 'javax.servlet:servlet-api:2.5@jar', 'org.apache.mina:mina-core:2.0.0-RC1@jar' 
-    providedCompile 'spring:spring-web:3.0.0@jar', 'spring:spring-core:3.0.0@jar'
-    providedCompile 'spring:spring-aop:3.0.0@jar', 'spring:spring-beans:3.0.0@jar', 'spring:spring-context:3.0.0@jar'
-	providedCompile 'org/red5:red5:0.91@jar'
-    providedCompile ':log4j-over-slf4j:1.5.6@jar',':logback-core:0.9.14@jar', ':logback-classic:0.9.14@jar', ':slf4j-api:1.5.6@jar'
+    providedCompile 'javax.servlet:servlet-api:2.5@jar'
+	
+	providedCompile 'mina:mina-core:2.0.4@jar' 
+
+	
+	// Spring
+	providedCompile 'org.springframework:spring-web:3.0.6.RELEASE@jar'
+	providedCompile  'org.springframework:spring-beans:3.0.6.RELEASE@jar'
+	providedCompile 'org.springframework:spring-context:3.0.6.RELEASE@jar'
+	providedCompile 'org.springframework:spring-core:3.0.6.RELEASE@jar'
+	compile 'org.springframework:spring-webmvc:3.0.6.RELEASE@jar'
+		
+	providedCompile 'org/red5:red5:1.0r4297@jar'
+	
+
+	// Logging
+	providedCompile 'org.slf4j:com.springsource.slf4j.api:1.6.1@jar'
+	providedCompile 'org.slf4j:com.springsource.slf4j.bridge:1.6.1@jar'
+	providedCompile ':logback-core:0.9.28@jar'
+	providedCompile ':logback-classic:0.9.28@jar'
+	providedCompile ':log4j-over-slf4j:1.6.1@jar'
+	providedCompile ':jcl-over-slf4j:1.6.1@jar'
+	providedCompile ':jul-to-slf4j:1.6.1@jar'
+	
 	compile project(':common')
-    compile 'commons-fileupload:commons-fileupload:1.2.1@jar', 'commons-io:commons-io:1.4@jar' 
-    compile 'spring:spring-webmvc:2.5.6@jar', 'org.apache.mina:mina-integration-spring:1.1.7@jar'
+    providedCompile 'commons-fileupload:commons-fileupload:1.2.2@jar'
+	providedCompile 'commons-io:commons-io:2.1@jar' 
     
     // Libraries needed to run the scala tools
     scalaTools 'org.scala-lang:scala-compiler:2.7.7'
@@ -25,6 +44,22 @@ dependencies {
     // Libraries needed for scala api
     compile 'org.scala-lang:scala-library:2.7.7'   
     compile 'net/lag/configgy:configgy:1.5@jar'
+    
+        // Testing
+    compile 'org.testng:testng:5.8@jar' 
+    compile 'org.easymock:easymock:2.4@jar'
+
+	// Testing
+	testRuntime 'org/testng:testng:5.8@jar'
+	testRuntime 'org.easymock:easymock:2.4@jar'
+	
+        //redis
+	compile 'redis.clients:jedis:1.5.1'
+	providedCompile 'commons-pool:commons-pool:1.5.6'
+}
+
+test {
+	useTestNG() 
 }
 
 war.doLast {
@@ -42,13 +77,3 @@ task deploy() << {
     	fileset(dir: "$buildDir/deskshare")
     }
 } 
-/*   
-task deploy(type:Copy) {
-	def red5AppsDir = '/usr/share/red5/webapps'
-	def deskshareDir = new File("${red5AppsDir}/deskshare")
-	println "Deleting $deskshareDir"
-	ant.delete(dir: deskshareDir)
-	into(deskshareDir)
-    from "$buildDir/deskshare"
-} 
-*/

@@ -14,6 +14,7 @@
 			
 			import mx.controls.Alert;
 			import mx.core.Application;
+			import mx.core.FlexGlobals;
 			
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.views.MainToolbar;
@@ -35,11 +36,11 @@
 			
 			private function onMouseDown(e:MouseEvent):void{
 				dispatcher.dispatchEvent(new PushToTalkEvent(PushToTalkEvent.BUTTON_PUSHED));
-				Application.application.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+				FlexGlobals.topLevelApplication.mx_internal.Application.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 			}
 			
 			private function onMouseUp(e:MouseEvent):void{
-				Application.application.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
+				FlexGlobals.topLevelApplication.mx_internal.Application.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 				dispatcher.dispatchEvent(new PushToTalkEvent(PushToTalkEvent.BUTTON_RELEASED));
 			}
 			

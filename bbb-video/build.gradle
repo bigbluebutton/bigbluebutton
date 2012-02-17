@@ -1,0 +1,123 @@
+usePlugin 'java'
+usePlugin 'war'
+usePlugin 'eclipse'
+
+version = '0.7'
+jar.enabled = true
+archivesBaseName = 'video' 
+
+task dependencies(type: Copy) {
+    into('lib')
+    from configurations.default
+    from configurations.default.allArtifacts*.file
+}
+
+task resolveDeps(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+    into('lib')
+    from configurations.default
+    from configurations.default.allArtifacts*.file
+}
+
+task resolveDependencies(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+    into('lib')
+    from configurations.default
+    from configurations.default.allArtifacts*.file
+}
+
+repositories {
+   	add(new org.apache.ivy.plugins.resolver.ChainResolver()) {
+		 name = 'remote'
+       	returnFirst = true
+       	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+       		name = "googlecode"
+       		addArtifactPattern "http://red5.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
+       		addArtifactPattern "http://red5.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
+		}
+		   add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+       		name = "blindside-repos"
+       		addArtifactPattern "http://blindside.googlecode.com/svn/repository/[artifact](-[revision]).[ext]"
+       		addArtifactPattern "http://blindside.googlecode.com/svn/repository/[organisation]/[artifact](-[revision]).[ext]"
+		}			 
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+       		name = "maven2-central"
+       		m2compatible = true
+       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
+       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
+		}  
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+       		name = "testng_ibiblio_maven2"
+       		m2compatible = true
+       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[module]/[revision]/[artifact](-[revision])-jdk15.[ext]"
+       		addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision])-jdk15.[ext]"
+		}  
+		add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+            name = "netty-dependency"
+            m2compatible = true
+            addArtifactPattern "http://repository.jboss.org/nexus/content/groups/public-jboss/[organisation]/[module]/[revision]/[artifact](-[revision]).[ext]"
+            addArtifactPattern "http://repo1.maven.org/maven2/[organisation]/[artifact]/[revision]/[artifact](-[revision]).[ext]"
+    }
+		add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+            name = "spring-bundles"
+            m2compatible = true
+            addArtifactPattern "http://repository.springsource.com/maven/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+            addArtifactPattern "http://repository.springsource.com/maven/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"
+        }        
+   	}
+}
+
+dependencies {	 
+	// Servlet
+	providedCompile 'javax.servlet:servlet-api:2.5@jar'
+	
+	// Mina
+	providedCompile 'mina:mina-core:2.0.4@jar'
+	providedCompile 'mina:mina-integration-beans:2.0.4@jar'
+	providedCompile 'mina:mina-integration-jmx:2.0.4@jar'
+	
+	// Spring 
+	providedCompile 'org.springframework:spring-web:3.0.6.RELEASE@jar' 
+	providedCompile  'org.springframework:spring-beans:3.0.6.RELEASE@jar'
+	providedCompile 'org.springframework:spring-context:3.0.6.RELEASE@jar'
+	providedCompile 'org.springframework:spring-core:3.0.6.RELEASE@jar'
+			
+	// Red5
+	providedCompile 'org/red5:red5:1.0r4297@jar'
+	
+	// Logging
+	providedCompile 'org.slf4j:com.springsource.slf4j.api:1.6.1@jar'
+	providedCompile 'org.slf4j:com.springsource.slf4j.bridge:1.6.1@jar'
+	providedCompile ':logback-core:0.9.28@jar'
+	providedCompile ':logback-classic:0.9.28@jar'
+	providedCompile ':log4j-over-slf4j:1.6.1@jar' 
+	providedCompile ':jcl-over-slf4j:1.6.1@jar'
+	providedCompile ':jul-to-slf4j:1.6.1@jar'
+    
+    // Testing
+    compile 'org.testng:testng:5.8@jar' 
+    compile 'org.easymock:easymock:2.4@jar'
+  
+	//redis
+	compile 'redis.clients:jedis:2.0.0'
+	providedCompile 'commons:commons-pool:1.5.6'
+}
+
+test {
+    useTestNG()
+}
+
+war.doLast {
+  ant.unzip(src: war.archivePath, dest: "$buildDir/video")
+  ant.copy(file: "$buildDir/video/WEB-INF/logback-video.xml", todir: "$buildDir/video/WEB-INF/classes")
+}
+
+
+task deploy() << {
+	def red5AppsDir = '/usr/share/red5/webapps'
+	def videoDir = new File("${red5AppsDir}/video")
+	if (videoDir.exists()) ant.delete(dir: videoDir)
+	ant.mkdir(dir: videoDir)
+	ant.copy(todir: videoDir) {
+    	fileset(dir: "$buildDir/video")
+    }
+} 
+

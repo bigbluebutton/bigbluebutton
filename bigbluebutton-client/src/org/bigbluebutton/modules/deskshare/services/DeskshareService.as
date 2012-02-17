@@ -18,18 +18,17 @@
 */
 package org.bigbluebutton.modules.deskshare.services
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;
-	
+	import flash.net.SharedObject;	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.modules.deskshare.services.red5.Connection;
-	import org.bigbluebutton.modules.deskshare.services.red5.ConnectionEvent;
+	import org.bigbluebutton.main.events.RecordStatusEvent;
 	import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
 	import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 	import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+	import org.bigbluebutton.modules.deskshare.services.red5.Connection;
+	import org.bigbluebutton.modules.deskshare.services.red5.ConnectionEvent;
 	
 	/**
 	 * The DeskShareProxy communicates with the Red5 deskShare server application 
@@ -71,7 +70,7 @@ package org.bigbluebutton.modules.deskshare.services
 			conn.connect();
 			
 			responder = new Responder(
-							function(result:Object):void{
+							function(result:Object):void {
 								if (result != null && (result.publishing as Boolean)){
 									width = result.width as Number;
 									height = result.height as Number;
@@ -200,6 +199,13 @@ package org.bigbluebutton.modules.deskshare.services
 			var event:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR_LOC_EVENT);
 			event.x = x;
 			event.y = y;
+			dispatcher.dispatchEvent(event);
+		}
+		
+		public function recordingStatusCallback(status:String):void {
+			var event:RecordStatusEvent = new RecordStatusEvent();
+			event.module = "DESKSHARE";
+			event.status = status;
 			dispatcher.dispatchEvent(event);
 		}
 		

@@ -17,18 +17,24 @@
 * 
 */
 
-package org.bigbluebutton.modules.phone.managers
-{
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
-	import org.bigbluebutton.modules.phone.events.JoinVoiceConferenceEvent;
+package org.bigbluebutton.modules.phone.managers {
+	import com.asfusion.mate.events.Dispatcher;
 	
-	public class PhoneManager {
-		
+	import flash.media.Microphone;
+	
+	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.events.BBBEvent;
+	import org.bigbluebutton.modules.phone.PhoneOptions;
+	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
+	
+	public class PhoneManager {		
 		private var connectionManager:ConnectionManager;
 		private var streamManager:StreamManager;
 		private var onCall:Boolean = false;
 		private var attributes:Object;
+		private var phoneOptions:PhoneOptions;
 		
 		public function PhoneManager() {
 			connectionManager = new ConnectionManager();
@@ -37,11 +43,33 @@ package org.bigbluebutton.modules.phone.managers
 
 		public function setModuleAttributes(attributes:Object):void {
 			this.attributes = attributes;
-			LogUtil.debug("Attributes Set... webvoiceconf:" + attributes.webvoiceconf);
-
-			if (attributes.autoJoin == "true") joinVoice(true);
+			var vxml:XML = BBB.getConfigForModule("PhoneModule");
+			phoneOptions = new PhoneOptions();
+			if (vxml != null) {
+				phoneOptions.showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
+				phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
+				phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
+			}
+			
+			if (phoneOptions.autoJoin) {
+				if (phoneOptions.skipCheck || noMicrophone()) {
+					if (noMicrophone()) {
+						joinVoice(false);
+					} else {
+						joinVoice(true);						
+					}
+				} else {
+					var dispatcher:Dispatcher = new Dispatcher();
+					dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
+				}
+			}
 		}
-				
+
+		private function noMicrophone():Boolean {
+			return ((Microphone.getMicrophone() == null) || (Microphone.names.length == 0) 
+				|| ((Microphone.names.length == 1) && (Microphone.names[0] == "Unknown Microphone")));
+		}
+		
 		private function setupMic(useMic:Boolean):void {
 			if (useMic)
 				streamManager.initMicrophone();
@@ -52,38 +80,28 @@ package org.bigbluebutton.modules.phone.managers
 		private function setupConnection():void {
 			streamManager.setConnection(connectionManager.getConnection());
 		}
-		
-		public function join(e:JoinVoiceConferenceEvent):void {
-			joinVoice(e.useMicrophone);
-		}
-		
+				
 		public function joinVoice(autoJoin:Boolean):void {
 			setupMic(autoJoin);
-			var uid:String = String( Math.floor( new Date().getTime() ) );
-			connectionManager.connect(uid, attributes.externUserID, attributes.username, attributes.room, attributes.uri);
+			var uid:String = String(Math.floor(new Date().getTime()));
+			var uname:String = encodeURIComponent(UserManager.getInstance().getConference().getMyUserId() + "-" + attributes.username);
+			connectionManager.connect(uid, attributes.externUserID, uname , attributes.room, attributes.uri);
 		}		
 				
 		public function dialConference():void {
-			LogUtil.debug("Dialing...." + attributes.webvoiceconf + "...." + attributes.externUserID);
 			connectionManager.doCall(attributes.webvoiceconf);
 		}
 		
 		public function callConnected(event:CallConnectedEvent):void {
-			LogUtil.debug("Call connected...");
 			setupConnection();
-			LogUtil.debug("callConnected: Connection Setup");
 			streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec);
-			LogUtil.debug("callConnected::onCall set");
 			onCall = true;
 		}
 		
 		public function hangup():void {
-			LogUtil.debug("PhoneManager hangup");
 			if (onCall) {
-				LogUtil.debug("PM OnCall");
 				streamManager.stopStreams();
 				connectionManager.doHangUp();
-				LogUtil.debug("PM hangup::doHangUp");
 				onCall = false;
 			}			
 		}

@@ -21,6 +21,14 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
+		[Embed(source="assets/images/green-circle.png")]
+		public var greenCircle:Class;
+		
+		[Embed(source="assets/images/blank-circle.png")]
+		public var blankCircle:Class;
+		
+		[Embed(source="assets/images/red-circle.png")]
+		public var redCircle:Class;
 		
         [Embed(source="assets/images/user_gray.png")]
         public var user_gray:Class; 
@@ -55,10 +63,10 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/raisehand.png")]
         public var raisehand:Class;
         
-        [Embed(source="assets/images/sound_mute.png")]
+        [Embed(source="assets/images/mic_muted.png")]
         public var sound_mute:Class;
         
-        [Embed(source="assets/images/sound_none.png")]
+        [Embed(source="assets/images/mic_unmuted.png")]
         public var sound_none:Class;
         
         [Embed(source="assets/images/sound.png")]
@@ -141,5 +149,17 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/presenter.png")]
 		public var presenter:Class;
+		
+		[Embed(source="assets/images/lock_open.png")]
+		public var lock_open:Class;
+		
+		[Embed(source="assets/images/lock_close.png")]
+		public var lock_close:Class;
+		
+		[Embed(source="assets/images/arrow_in.png")]
+		public var arrow_in:Class;
+		
+		[Embed(source="assets/images/shape_handles.png")]
+		public var shape_handles:Class;		
 	}
 }

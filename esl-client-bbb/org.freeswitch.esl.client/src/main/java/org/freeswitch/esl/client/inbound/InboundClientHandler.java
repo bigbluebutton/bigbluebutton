@@ -19,33 +19,29 @@ import org.freeswitch.esl.client.internal.AbstractEslClientHandler;
 import org.freeswitch.esl.client.internal.IEslProtocolListener;
 import org.freeswitch.esl.client.transport.CommandResponse;
 import org.freeswitch.esl.client.transport.event.EslEvent;
-import org.freeswitch.esl.client.transport.message.EslMessage;
 import org.freeswitch.esl.client.transport.message.EslHeaders.Value;
+import org.freeswitch.esl.client.transport.message.EslMessage;
 import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelPipelineCoverage;
-import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 
 /**
  * End users of the inbound {@link Client} should not need to use this class. 
- * </p>
+ * <p>
  * Specialised {@link AbstractEslClientHandler} that implements the connection logic for an 
  * 'Inbound' FreeSWITCH Event Socket connection.  The responsibilities for this class are:
- * </p>
- * * To handle the auth request that the FreeSWITCH server will send immediately following a new 
+ * <ul><li>
+ * To handle the auth request that the FreeSWITCH server will send immediately following a new 
  * connection when mode is Inbound.
- * </p>
- * * To signal the observing {@link IEslProtocolListener} (expected to be the Inbound client 
- * implementation when ESL events are received.
- * </p>
+ * <li>
+ * To signal the observing {@link IEslProtocolListener} (expected to be the Inbound client 
+ * implementation) when ESL events are received.
+ * </ul>
  * Note: implementation requirement is that an {@link ExecutionHandler} is placed in the processing 
  * pipeline prior to this handler. This will ensure that each incoming message is processed in its
  * own thread (although still guaranteed to be processed in the order of receipt).
  * 
  * @author  david varnes
- * @version $Id$
  */
-@ChannelPipelineCoverage( "one" )
 public class InboundClientHandler extends AbstractEslClientHandler
 {
     private final String password;
@@ -61,7 +57,6 @@ public class InboundClientHandler extends AbstractEslClientHandler
     {
         log.debug( "Received event: [{}]", event );
         listener.eventReceived( event );
-
     }
 
     protected void handleAuthRequest( ChannelHandlerContext ctx )
@@ -86,13 +81,6 @@ public class InboundClientHandler extends AbstractEslClientHandler
     {
         log.debug( "Received disconnection notice" );
         listener.disconnected();
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception
-    {
-        log.debug( "Received exception caught notice" );
-        listener.exceptionCaught(e);
     }
     
 }

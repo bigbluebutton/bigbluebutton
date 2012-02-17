@@ -4,6 +4,7 @@
 		 visible="false">
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.Alert;
 			import mx.core.Application;
 			import mx.managers.PopUpManager;
 			
@@ -26,12 +27,23 @@
 				this.visible = true;
 				this.videoConnector = new VideoConnector(onNetStatus);
 				
+				checkIfNoCamera();
 				var isMac:Boolean = checkIfMacCamera();
 				if (isMac) checkIfGoogleTalkPluginInstalled();				
 			}
 			
 			public function saveCurrentWebcam():void{
 				PersistUserPreferences.saveWebcamPreference(Camera.names[cmbCameraSelector.selectedIndex]);
+			}
+			
+			private function checkIfNoCamera():void{
+				if (Camera.names.length == 0 || Camera.names[0] == ""){
+					var e:WarningEvent = new WarningEvent(WarningEvent.WARNING_EVENT);
+					e.warningLabel = "No Camera Detected";
+					e.warningText = "We did not detect a webcam connected to your system. If you do have a webcam connected, make sure it is installed and working " +
+									"properly, and is not currently in use by another program.";
+					dispatchEvent(e);
+				}
 			}
 			
 			private function checkIfMacCamera():Boolean{
@@ -143,6 +155,10 @@
 			private static function connectionError(serverUrl:String):String{
 				return "The connection failed while trying to check video connectivity with the " +
 						"server at " + serverUrl + ". Please contact your server administrator.";
+			}
+			
+			public function stop():void{
+				if (ns != null) ns.close();
 			}
 
 		]]>

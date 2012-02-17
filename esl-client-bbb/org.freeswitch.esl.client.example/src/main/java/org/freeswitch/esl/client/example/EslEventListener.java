@@ -73,6 +73,10 @@ public class EslEventListener implements IEslEventListener {
         //Noop
     }
 
+    public void conferenceEventRecord(String uniqueId, String confName, int confSize, EslEvent event) {
+        //Noop
+    }
+    
     public void conferenceEventThreadRun(String uniqueId, String confName, int confSize, EslEvent event) {
         //Noop
     }

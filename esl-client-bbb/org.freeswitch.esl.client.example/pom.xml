@@ -18,8 +18,8 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.freeswitch.esl.client</groupId>
-    <artifactId>esl-client-parent</artifactId>
-    <version>0.9.0-SNAPSHOT</version>
+    <artifactId>java-esl-client</artifactId>
+    <version>0.9.1-SNAPSHOT</version>
   </parent>
   <artifactId>org.freeswitch.esl.client.example</artifactId>
   <name>FreeSWITCH Event Socket Library - Java Client example usage</name>
@@ -27,7 +27,7 @@
     <dependency>
       <groupId>org.freeswitch.esl.client</groupId>
       <artifactId>org.freeswitch.esl.client</artifactId>
-      <version>0.9.0-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>

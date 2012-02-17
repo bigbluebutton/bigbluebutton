@@ -56,8 +56,8 @@ public class ConferenceMember {
         return flags.getIsMuted();
     }
 
-    public boolean getSpeeking() {
-        return flags.getIsSpeeking();
+    public boolean getSpeaking() {
+        return flags.getIsSpeaking();
     }
 
     public void setFlags(ConferenceMemberFlags flags) {

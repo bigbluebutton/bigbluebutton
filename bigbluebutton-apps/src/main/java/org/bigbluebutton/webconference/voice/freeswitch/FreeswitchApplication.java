@@ -21,6 +21,7 @@
 */
 package org.bigbluebutton.webconference.voice.freeswitch;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,9 +34,11 @@ import org.bigbluebutton.webconference.voice.events.ParticipantJoinedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantLeftEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantMutedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantTalkingEvent;
+import org.bigbluebutton.webconference.voice.events.StartRecordingEvent;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.EjectParticipantCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.PopulateRoomCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.MuteParticipantCommand;
+import org.bigbluebutton.webconference.voice.freeswitch.actions.RecordConferenceCommand;
 import org.freeswitch.esl.client.IEslEventListener;
 import org.freeswitch.esl.client.inbound.Client;
 import org.freeswitch.esl.client.manager.ManagerConnection;
@@ -59,64 +62,117 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     private static final Map<String, Integer> ESL_EVENT_ACTIONS_MAP = createMap();
     private static final int ESL_ACTION_START_TALKING = 1;
     private static final int ESL_ACTION_STOP_TALKING = 2;
+    private static final int ESL_ACTION_START_RECORDING = 3;
+    private static final int ESL_ACTION_STOP_RECORDING = 4;
     
     private static Map<String, Integer> createMap() {
         Map<String,Integer> result = new HashMap<String,Integer>();
         result.put("start-talking", ESL_ACTION_START_TALKING);
         result.put("stop-talking", ESL_ACTION_STOP_TALKING);
+        result.put("start-recording", ESL_ACTION_START_RECORDING);
+        result.put("stop-recording", ESL_ACTION_STOP_RECORDING);
         return Collections.unmodifiableMap(result);
     }
     
     @Override
-    public void startup() {
-
+    public boolean startup() {    	
         Client c = manager.getESLClient();
-        c.addEventListener( this );
-        c.cancelEventSubscriptions();
-        c.setEventSubscriptions( "plain", "all" );
-        c.addEventFilter( "Event-Name", "heartbeat" );
-        c.addEventFilter( "Event-Name", "custom" );
-        c.addEventFilter( "Event-Name", "background_job" );
-        
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(FreeswitchApplication.class.getName()).log(Level.SEVERE, null, ex);
+        if (c.canSend()) {
+            c.addEventListener( this );
+            c.cancelEventSubscriptions();
+            c.setEventSubscriptions( "plain", "all" );
+            c.addEventFilter( "Event-Name", "heartbeat" );
+            c.addEventFilter( "Event-Name", "custom" );
+            c.addEventFilter( "Event-Name", "background_job" );
+            
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException ex) {
+                java.util.logging.Logger.getLogger(FreeswitchApplication.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }        	
         }
 
-
         //Start Heartbeat and exception Event Observer Monitor
+        startHeartbeatMonitor();
+        return true;
+    }
+
+    private void startHeartbeatMonitor() {      
         if(heartbeatMonitor == null) { //Only startup once. as startup will be called for reconnect.
             heartbeatMonitor = new FreeswitchHeartbeatMonitor(manager, this);
             this.addObserver(heartbeatMonitor);
             heartbeatMonitor.start();
-        }
+        }   	
     }
-
+    
     @Override
     public void shutdown() {
         heartbeatMonitor.stop();
     }
 
     @Override
-    public void populateRoom(String room) {
-        PopulateRoomCommand prc = new PopulateRoomCommand(room, USER);
-        EslMessage response = manager.getESLClient().sendSyncApiCommand(prc.getCommand(), prc.getCommandArgs());
-        prc.handleResponse(response, conferenceEventListener);
+    public void populateRoom(String room) {       
+        Client c = manager.getESLClient();
+        if (c.canSend()) {
+        	PopulateRoomCommand prc = new PopulateRoomCommand(room, USER);
+            EslMessage response = c.sendSyncApiCommand(prc.getCommand(), prc.getCommandArgs());
+            prc.handleResponse(response, conferenceEventListener);        	
+        } else {
+        	log.warn("Can't send populate room request to FreeSWITCH as we are not connected.");
+        	// Let's see if we can recover the connection.
+        	startHeartbeatMonitor();
+        }
     }
 
     @Override
     public void mute(String room, Integer participant, Boolean mute) {
-        MuteParticipantCommand mpc = new MuteParticipantCommand(room, participant, mute, USER);
-        String jobId = manager.getESLClient().sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
-        log.debug("mute called for room [{}] jobid [{}]", room, jobId);
+    	Client c = manager.getESLClient();
+        if (c.canSend()) {
+            MuteParticipantCommand mpc = new MuteParticipantCommand(room, participant, mute, USER);
+            String jobId = c.sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
+            log.debug("mute called for room [{}] jobid [{}]", room, jobId);        	
+        }else {
+        	log.warn("Can't send mute request to FreeSWITCH as we are not connected.");
+        	// Let's see if we can recover the connection.
+        	startHeartbeatMonitor();
+        }
+
     }
 
     @Override
     public void eject(String room, Integer participant) {
-        EjectParticipantCommand mpc = new EjectParticipantCommand(room, participant, USER);
-        String jobId = manager.getESLClient().sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
-        log.debug("eject/kick called for room [{}] jobid [{}]", room, jobId);
+        Client c = manager.getESLClient();
+        if (c.canSend()) {
+        	EjectParticipantCommand mpc = new EjectParticipantCommand(room, participant, USER);
+            String jobId = c.sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
+            log.debug("eject/kick called for room [{}] jobid [{}]", room, jobId);        	
+        }else {
+        	log.warn("Can't send eject request to FreeSWITCH as we are not connected.");
+        	// Let's see if we can recover the connection.
+        	startHeartbeatMonitor();
+        }
+    }
+    
+    @Override
+    public void record(String room, String meetingid){
+    	String RECORD_DIR = "/var/freeswitch/meetings";        
+    	String voicePath = RECORD_DIR + File.separatorChar + meetingid + "-" + System.currentTimeMillis() + ".wav";
+    	
+    	if (log.isDebugEnabled())
+    		log.debug("Asking Freeswitch to start recording in {}", voicePath);
+    	
+    	Client c = manager.getESLClient();
+        if (c.canSend()) {
+        	RecordConferenceCommand rcc = new RecordConferenceCommand(room, USER, true, voicePath);
+        	log.debug(rcc.getCommand() + rcc.getCommandArgs());
+        	EslMessage response = manager.getESLClient().sendSyncApiCommand(rcc.getCommand(), rcc.getCommandArgs());
+            rcc.handleResponse(response, conferenceEventListener);       	
+        }else {
+        	log.warn("Can't send record request to FreeSWITCH as we are not connected.");
+        	// Let's see if we can recover the connection.
+        	startHeartbeatMonitor();
+        }
     }
 
     @Override
@@ -133,42 +189,41 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
 
     @Override
     public void conferenceEventJoin(String uniqueId, String confName, int confSize, EslEvent event) {
-        Integer memberId = this.getMemeberIdFromEvent(event);
+        Integer memberId = this.getMemberIdFromEvent(event);
         Map<String, String> headers = event.getEventHeaders();
         String callerId = this.getCallerIdFromEvent(event);
         String callerIdName = this.getCallerIdNameFromEvent(event);
         boolean muted = headers.get("Speak").equals("true") ? false : true; //Was inverted which was causing a State issue
         boolean speeking = headers.get("Talking").equals("true") ? true : false;
 
-        ParticipantJoinedEvent pj = new ParticipantJoinedEvent(memberId, confName,
-                        callerId, callerIdName, muted, speeking);
+        ParticipantJoinedEvent pj = new ParticipantJoinedEvent(memberId, confName, callerId, callerIdName, muted, speeking);
         conferenceEventListener.handleConferenceEvent(pj);
     }
 
     @Override
     public void conferenceEventLeave(String uniqueId, String confName, int confSize, EslEvent event) {
-        Integer memberId = this.getMemeberIdFromEvent(event);
+        Integer memberId = this.getMemberIdFromEvent(event);
         ParticipantLeftEvent pl = new ParticipantLeftEvent(memberId, confName);
         conferenceEventListener.handleConferenceEvent(pl);
     }
 
     @Override
     public void conferenceEventMute(String uniqueId, String confName, int confSize, EslEvent event) {
-        Integer memberId = this.getMemeberIdFromEvent(event);
+        Integer memberId = this.getMemberIdFromEvent(event);
         ParticipantMutedEvent pm = new ParticipantMutedEvent(memberId, confName, true);
         conferenceEventListener.handleConferenceEvent(pm);
     }
 
     @Override
     public void conferenceEventUnMute(String uniqueId, String confName, int confSize, EslEvent event) {
-        Integer memberId = this.getMemeberIdFromEvent(event);
+        Integer memberId = this.getMemberIdFromEvent(event);
         ParticipantMutedEvent pm = new ParticipantMutedEvent(memberId, confName, false);
         conferenceEventListener.handleConferenceEvent(pm);
     }
 
     @Override
     public void conferenceEventAction(String uniqueId, String confName, int confSize, String action, EslEvent event) {
-        Integer memberId = this.getMemeberIdFromEvent(event);
+        Integer memberId = this.getMemberIdFromEvent(event);
         ParticipantTalkingEvent pt;
 
         if(action == null) {
@@ -212,7 +267,61 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
 
     @Override
     public void conferenceEventThreadRun(String uniqueId, String confName, int confSize, EslEvent event) {
-        //Ignored, Noop
+    	
+    }
+    
+    //@Override
+    public void conferenceEventRecord(String uniqueId, String confName, int confSize, EslEvent event) {
+    	String action = event.getEventHeaders().get("Action");
+    	
+        if(action == null) {
+            if(debug) {
+                Map<String, String> eventHeaders = event.getEventHeaders();
+                StringBuilder sb = new StringBuilder("\n");
+                for (Iterator it=eventHeaders.entrySet().iterator(); it.hasNext(); ) {
+                    Map.Entry entry = (Map.Entry)it.next();
+                    sb.append(entry.getKey());
+                    sb.append(" => '");
+                    sb.append(entry.getValue());
+                    sb.append("'\n");
+                }
+                log.debug ("NULL Conference Action [{}] Headers:\n{}\nEND", confName, sb.toString());
+            }
+            return;
+        }
+        
+    	if (log.isDebugEnabled())
+    		log.debug("Handling conferenceEventRecord " + action);
+    	
+        try {
+            switch(ESL_EVENT_ACTIONS_MAP.get(action)) {
+                case ESL_ACTION_START_RECORDING:                	
+                    StartRecordingEvent sre = new StartRecordingEvent(123, confName, true);
+                    sre.setRecordingFilename(getRecordFilenameFromEvent(event));
+                    sre.setTimestamp(getRecordTimestampFromEvent(event));
+                    
+                    if (log.isDebugEnabled())
+                    	log.debug("Processing conference event - action: {} time: {} file: {}", new Object[] {action,  sre.getTimestamp(), sre.getRecordingFilename()});
+                    
+                    conferenceEventListener.handleConferenceEvent(sre);
+                    break;
+                case ESL_ACTION_STOP_RECORDING:
+                	StartRecordingEvent srev = new StartRecordingEvent(123, confName, false);
+                    srev.setRecordingFilename(getRecordFilenameFromEvent(event));
+                    srev.setTimestamp(getRecordTimestampFromEvent(event));
+                    
+                    if (log.isDebugEnabled())
+                    	log.debug("Processing conference event - action: {} time: {} file: {}", new Object[] {action,  srev.getTimestamp(), srev.getRecordingFilename()});
+                    
+                    conferenceEventListener.handleConferenceEvent(srev);
+                    break;
+                default:
+                	if (log.isDebugEnabled())
+                		log.warn("Processing UNKNOWN conference Action {}", action);
+            }
+        }catch(NullPointerException npe) {
+            log.warn("Unknown NPE conference Action [{}]", action);
+        }
     }
 
     @Override
@@ -244,7 +353,7 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
         this.debug = enabled;
     }
     
-    private Integer getMemeberIdFromEvent(EslEvent e)
+    private Integer getMemberIdFromEvent(EslEvent e)
     {
         return new Integer(e.getEventHeaders().get("Member-ID"));
     }
@@ -257,5 +366,13 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     private String getCallerIdNameFromEvent(EslEvent e)
     {
         return e.getEventHeaders().get("Caller-Caller-ID-Name");
+    }
+    
+    private String getRecordFilenameFromEvent(EslEvent e) {
+    	return e.getEventHeaders().get("Path");
+    }
+    
+    private String getRecordTimestampFromEvent(EslEvent e) {
+    	return e.getEventHeaders().get("Event-Date-Timestamp");
     }
 }
