@@ -53,7 +53,7 @@
     </bean>
             
     <bean id="streamManager" class="org.bigbluebutton.deskshare.server.stream.StreamManager">
-    	<constructor-arg index="0" value="true"/>
+    	<constructor-arg index="0" value="false"/>
     	<constructor-arg index="1" ref="recordingService"/>
     </bean>    
     
