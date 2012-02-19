@@ -1304,17 +1304,14 @@ check_state() {
 
         if (( $MEM < 1990 )); then
                 echo
-		echo "#"
 		echo "# Warning: You are running BigBlueButton on a server with less than 2G of memory.  Your"
 		echo "# performance may suffer."
-		echo "#"
 	fi
 
 	
 	if [ -f /var/lib/tomcat6/webapps/demo/demo1.jsp ]; then
 		BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
                 echo
-		echo "#"
 		echo "# Warning: You have the API demos installed and accessible from:"
 		echo "#"
 		echo "#    http://$BBB_WEB/"
