@@ -1074,8 +1074,10 @@ check_state() {
 	#
 	if grep -v \# /etc/nginx/sites-available/bigbluebutton | grep /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client > /dev/null; then
 		echo 
-        	echo "# Nginx: serving client from /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client"
-        	echo "#          instead of the usual /var/www/bigbluebutton"
+        	echo "# Warning:"
+		echo "#   nginx is serving client from /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client"
+        	echo "#           instead of the usual /var/www/bigbluebutton"
+        	echo "#   (This is OK if you have a development environment setup)"
 	fi
 
 
@@ -1138,8 +1140,11 @@ check_state() {
 		#
         	if cat /usr/share/red5/log/sip.log | grep -q "Failed to register with Sip Server"; then
         		echo 
-                	echo "# The voice application failed to register with the sip server."
-                	echo "#   Try running: sudo bbb-conf --clean"
+                	echo "# Error: The voice application failed to register with the sip server."
+                	echo "#   Try running: "
+                	echo "#"
+                	echo "#      sudo bbb-conf --clean"
+                	echo "#"
 		fi
 
 		#	
@@ -1147,10 +1152,12 @@ check_state() {
 		#
 
 		if cat /usr/share/red5/log/sip.log | tail -n1 | grep -q "Call request for default but not registered"; then
-			echo "# The voice app is not registered with SIP server. Audio might not be working correctly."
+        		echo 
+			echo "# Error: The voice app is not registered with SIP server. Audio might not be working correctly."
 		fi
 	else
-		echo "#      No /usr/share/red5/log/sip.log"
+        	echo 
+		echo "# Error: /usr/share/red5/log/sip.log"
         fi
 
 	#
@@ -1182,12 +1189,11 @@ check_state() {
  	check_no_value server_name /etc/nginx/sites-available/bigbluebutton $BBB_WEB
 	if ! wget http://$BBB_WEB/bigbluebutton/api -O - --quiet | grep -q SUCCESS; then 
 		echo 
-		echo "#  This server could not connect to BigBlueButton through http://$BBB_WEB/"
+		echo "# Error: This server could not connect to BigBlueButton through http://$BBB_WEB/"
 		echo "#"
-		echo "#  If you are setting up BigBlueButton behind a firewall, see the FAQ"
-		echo "#  for steps to setup BigBlueButton behind a firewall."
+		echo "# If you are setting up BigBlueButton behind a firewall, see the FAQ"
+		echo "# for steps to setup BigBlueButton behind a firewall."
 		echo "#  	http://code.google.com/p/bigbluebutton/wiki/FAQ"
-		echo
 	fi
 
 	#
@@ -1196,39 +1202,37 @@ check_state() {
 	if [ ! -z $NGINX_IP ]; then
 		if ! nc -z -w 3 $NGINX_IP 1935; then
 			echo 
-			echo "# Unable to connect to port 1935 (RTMP) on $NGINX_IP"
+			echo "# Error: Unable to connect to port 1935 (RTMP) on $NGINX_IP"
 		fi
 
 		if ! nc -z -w 3 $NGINX_IP 9123; then
 			echo 
-			echo "# Unable to connect to port 9123 (desktop sharing) on $NGINX_IP"
+			echo "# Error: Unable to connect to port 9123 (desktop sharing) on $NGINX_IP"
 		fi
 	fi
 
 	if dpkg -l | grep -q bbb-freeswitch-config; then
 		if [ "$VOICE_CONFERENCE" == "bbb-voice-asterisk.xml" ]; then
 			echo 
-			echo "# You have freeswitch installed, but the current voice conference set"
+			echo "# Error: You have freeswitch installed, but the current voice conference set"
 			echo "# to asterisk.  To switch to freeswitch, enter"
 			echo "#"
 			echo "#   sudo bbb-conf --conference freeswitch"
-			echo
 		fi
 
 		SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
 		if [ $SIP_SERVER_HOST != "127.0.0.1" ]; then
 			if [ $SIP_SERVER_HOST != $IP ]; then
 				echo 
-				echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host in"
+				echo "# Error: The setting of ($SIP_SERVER_HOST) for sip.server.host in"
 				echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 				echo "# does not match the local IP address ($IP)."
-				echo 
 			fi
 
 			SIP_IP=$(netstat -ant | grep 5060 | head -n1 | awk -F" " '{print $4}' | cut -d: -f1)
 			if [ $SIP_SERVER_HOST != $SIP_IP ]; then
 				echo 
-				echo "# FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
+				echo "# Error: FreeSWITCH is listening on IP address $SIP_IP for SIP calls, but "
 				echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host."
 				echo "#"
 				echo "# If your audio is not working (users click the  headset icon "
@@ -1236,14 +1240,14 @@ check_state() {
 				echo "#"
 				echo "#   sudo bbb-conf --setfreeswitchip $SIP_IP"
 				echo "#"
-				echo 
 			fi
 		fi
 	else
 		echo 
-		echo "# You don't have either bbb-freeswitch-config installed.  To install"
+		echo "# Error: You don't have bbb-freeswitch-config installed.  To install FreeSWITCH"
+		echo "#"
 		echo "#      sudo apt-get install bbb-freeswitch-config"
-		echo
+		echo "#"
 	fi
 
 	if dpkg -l | grep -q bbb-voice-conference; then
@@ -1253,7 +1257,6 @@ check_state() {
 			echo "# to freeswitch.  To switch to asterisk, enter"
 			echo "#"
 			echo "#   sudo bbb-conf --conference konference"
-			echo
 		fi
 
 		SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
@@ -1262,27 +1265,25 @@ check_state() {
 			echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host in"
 			echo "#    /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 			echo "# should be 127.0.0.1 for Asterisk."
-			echo 
 		fi
 	fi
 
         PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/slides.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
         if [ $PLAYBACK_IP != $IP ]; then
                         echo
-                        echo "# The IP address ($PLAYBACK_IP) set for playback_host in"
+                        echo "# Warning: The value ($PLAYBACK_IP) for playback_host in"
                         echo "#    /usr/local/bigbluebutton/core/scripts/slides.yml"
                         echo "# does not match the local IP address ($IP)."
-                        echo
+                        echo "# (This is OK if the value resolves to the above IP address.)"
         fi
 
 	if [ -d ${SERVLET_DIR}/demo ]; then
 		if test ${SERVLET_DIR}/demo.war -nt ${SERVLET_DIR}/demo; then 
                         echo
-                        echo "# Tomcat6 didn't deploy the updated demo.war file.  To fix:"
+                        echo "# Error: Tomcat6 didn't deploy the updated demo.war file.  To fix:"
 			echo "#"
                         echo "#    sudo touch ${SERVLET_DIR}/demo.war"
 			echo "#"
-                        echo
 		fi
 	fi
 
@@ -1299,14 +1300,28 @@ check_state() {
                 echo "# You should set this value to true.  It enables bbb-web to immediately purge a meeting from"
 		echo "# memory when receiving an end API call.  Otherwise, users must wait about 2 minutes"
 		echo "# request before creating a meeting with the same meetingID but with different parameters."
-                echo
         fi
 
         if (( $MEM < 1990 )); then
+                echo
 		echo "#"
 		echo "# Warning: You are running BigBlueButton on a server with less than 2G of memory.  Your"
 		echo "# performance may suffer."
 		echo "#"
+	fi
+
+	
+	if [ -f /var/lib/tomcat6/webapps/demo/demo1.jsp ]; then
+		BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+                echo
+		echo "#"
+		echo "# Warning: You have the API demos installed and accessible from:"
+		echo "#"
+		echo "#    http://$BBB_WEB/"
+		echo "#"
+		echo "# This is OK if you intend to use the built-in API demos.  To remove the demos:"
+		echo "#"
+		echo "#    sudo apt-get purge bbb-demo"
 	fi
 
 	exit 0
@@ -1391,6 +1406,7 @@ if [ $CHECK ]; then
 	#echo
 	#echo "/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 	#echo "                   SIP server host: $SIP_SERVER_HOST"
+
 	check_state
 	echo ""
 
