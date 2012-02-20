@@ -21,7 +21,7 @@
 -->
 
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:mate="http://mate.asfusion.com/"
-	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()" visible="false" alpha="0.5" backgroundColor="#cecece"
+	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()" visible="false" 
 	mouseOver="setCursor()" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[			
@@ -56,7 +56,7 @@
 			private var shapeList:Array = new Array();
 			
 			protected var shapeFactory:ShapeFactory = new ShapeFactory();
-//			protected var bbbCanvas:IBbbCanvas;
+			protected var bbbCanvas:IBbbCanvas;
 		
 			protected var shapeStyle:String = DrawObject.PENCIL;
 			protected var drawColor:uint = 0x000000;
@@ -104,9 +104,9 @@
 				
 				var dobj:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
 				
-				addRawChild(dobj.getShape());
+				this.addRawChild(dobj.getShape());
 				var rect:Rectangle = dobj.getShape().getBounds(this);
-				removeRawChild(dobj.getShape());
+				this.removeRawChild(dobj.getShape());
 				LogUtil.debug("*** Shape [" + dobj.getShape().width + " , " + dobj.getShape().height + "] [" +  dobj.getShape().x + " , " + dobj.getShape().y + "]");
 				LogUtil.debug("*** Bounds [" + rect.width + " , " + rect.height + "] [" +  rect.x + " , " + rect.y + "]");
 
@@ -201,7 +201,7 @@
 				LogUtil.debug("*** Rx shape [" + o.id + "][" + o.width + " , " + o.height + "] [" +  o.x + " , " + o.y + "]");
 				var dobj:DrawObject = shapeFactory.makeShape(o);
 				var newShape:Shape = dobj.getShape();
-				addRawChild(newShape);
+				bbbCanvas.addRawChild(newShape);
 				var rect:Rectangle = newShape.getBounds(this);
 				/* No need to set the size as we already adjusted the points for this canvas size */
 //				newShape.width = ((dobj.width/100) * this.width);
@@ -330,7 +330,7 @@
 			
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
 				LogUtil.debug("WhiteboardCanvas::acceptOverlayCanvas()");
-//				this.bbbCanvas = overlay;
+				this.bbbCanvas = overlay;
 				//Load existing shapes onto the canvas.
 				dispatchEvent(new PageEvent(PageEvent.LOAD_PAGE));
 			}
