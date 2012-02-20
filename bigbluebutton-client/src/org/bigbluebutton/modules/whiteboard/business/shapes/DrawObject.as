@@ -49,7 +49,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		/**
 		 * Status = [START, UPDATE, END]
 		 */ 
-		public var status:String = "START";
+		public var status:String = "UPDATE";
 		
 		/**
 		 * The w,h,x,y in percentage. This way we can calculate it's exact location
@@ -61,6 +61,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public var y:Number;
 		
 		protected var _shape:Shape = new Shape();
+		protected var _segment:Array;
 		
 		/**
 		 * The default constructor for the DrawObject 
@@ -115,7 +116,16 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		protected function optimize():void{
-			
+			// do nothing
+		}
+		
+		public function push(x:int, y:int):void {
+			_segment.push(x);
+			_segment.push(y);
+		}
+		
+		protected function readyToSend():Boolean {
+			return false;
 		}
 
 	}

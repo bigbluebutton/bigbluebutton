@@ -21,13 +21,14 @@
 -->
 
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:mate="http://mate.asfusion.com/"
-	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()" visible="false"
+	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()" visible="false" alpha="0.5" backgroundColor="#cecece"
 	mouseOver="setCursor()" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[			
 			import mx.collections.ArrayCollection;
 			import mx.core.Application;
-			import mx.managers.CursorManager;			
+			import mx.managers.CursorManager;
+			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -54,8 +55,8 @@
 			private var segment:Array = new Array();
 			private var shapeList:Array = new Array();
 			
-			protected var shapeFactory:ShapeFactory;
-			protected var bbbCanvas:IBbbCanvas;
+			protected var shapeFactory:ShapeFactory = new ShapeFactory();
+//			protected var bbbCanvas:IBbbCanvas;
 		
 			protected var shapeStyle:String = DrawObject.PENCIL;
 			protected var drawColor:uint = 0x000000;
@@ -73,7 +74,6 @@
 			private var drawTimer:Timer;
 			
 			private function init():void{
-				shapeFactory = new ShapeFactory();
 				this.label = "Highlighter";
 			}
 			
@@ -93,42 +93,60 @@
 					 * shape to the viewers.
 					 */
 					isDrawing = false;
-					sendShapeToServer();
-					if (drawTimer != null) drawTimer.stop();					
+					sendShapeToServer(false);
 				}
-
 			}
 			
-			private function onDrawTimer(e:TimerEvent):void{
-				if (this.shapeStyle != DrawObject.PENCIL) return;
-				var startX:Number = segment[segment.length - 2] as Number;
-				var startY:Number = segment[segment.length - 1] as Number;
-				sendShapeToServer();
-				startShape(startX,startY);
-				LogUtil.debug("StartShape from onDrawTimer: " + startX + " " + startY);
-			}
+			private var objCount:int = 0;
 			
-			private function sendShapeToServer():void{
+			private function sendShapeToServer(update:Boolean):void{
 				if (segment.length == 0) return;
 				
 				var dobj:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
-				dobj.width = (dobj.getShape().width / this.width) * 100;
-				dobj.x = (dobj.getShape().x / this.width) * 100;
-				dobj.height = (dobj.getShape().height / this.height) * 100;
-				dobj.y = (dobj.getShape().y / this.height) * 100;
-				var date:Date = new Date();
-				dobj.id = date.time.toString();
 				
+				addRawChild(dobj.getShape());
+				var rect:Rectangle = dobj.getShape().getBounds(this);
+				removeRawChild(dobj.getShape());
+				LogUtil.debug("*** Shape [" + dobj.getShape().width + " , " + dobj.getShape().height + "] [" +  dobj.getShape().x + " , " + dobj.getShape().y + "]");
+				LogUtil.debug("*** Bounds [" + rect.width + " , " + rect.height + "] [" +  rect.x + " , " + rect.y + "]");
+
+				dobj.width = (rect.width / this.width) * 100;
+				dobj.x = (rect.x / this.width) * 100;
+				dobj.height = (rect.height / this.height) * 100;
+				dobj.y = (rect.y / this.height) * 100;
+				
+//				dobj.width = (dobj.getShape().width / this.width) * 100;
+//				dobj.x = (dobj.getShape().x / this.width) * 100;
+//				dobj.height = (dobj.getShape().height / this.height) * 100;
+//				dobj.y = (dobj.getShape().y / this.height) * 100;
+				
+//				var date:Date = new Date();
+//				dobj.id = date.time.toString();
+								
+				dobj.id = "" + objCount++;
+
+				LogUtil.debug("*** SEND Display Container [" + dobj.id + "][" + this.width + " , " + this.height + "," +  this.x + " , " + this.y + "]");
+				LogUtil.debug("*** Send shape [" + dobj.id + "][" + dobj.width + " , " + dobj.height + "] [" +  dobj.x + " , " + dobj.y + "]"); 
+				
+/*				
+				if (update) {
+					dobj.status = "UPDATE";
+					if (this.shapeStyle == DrawObject.PENCIL) {
+			//			var startX:Number = segment[segment.length - 2] as Number;
+			//			var startY:Number = segment[segment.length - 1] as Number;
+						segment = new Array();						
+						segment.push(this.mouseX);
+						segment.push(this.mouseY);
+					}					
+				} else {					
+					dobj.status = "END";
+				}
+*/				
 				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
 				event.message = dobj;
-				dispatchEvent(event);
-//				draw(d);
-//				latentFeedbacks.addItem(feedback);
-				
-//				feedback = new Shape();
-				
+				dispatchEvent(event);				
 			}
-
+			
 			/**
 			*Method is invoked when the mouse is pressed
 			*<p>
@@ -140,18 +158,8 @@
 				segment = new Array();
 				segment.push(this.mouseX);
 				segment.push(this.mouseY);
-				drawTimer = new Timer(1000, 0);
-				drawTimer.addEventListener(TimerEvent.TIMER, onDrawTimer);
-//				drawTimer.start();
 			}
-			
-			private function startShape(startX:Number, startY:Number):void{
-				
-				segment.push(startX);
-				segment.push(startY);
-//				rawChildren.addChild(feedback);				
-			}
-			
+						
 			/**
 			*Method is invoked when the mouse is moved over the canvas
 			*<p>
@@ -164,11 +172,7 @@
 				if (isDrawing){
 					segment.push(this.mouseX);
 					segment.push(this.mouseY);
-					
-//					rawChildren.removeChild(feedback);
-//					var doFb:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
-//					feedback = doFb.getShape();
-//					rawChildren.addChild(feedback);
+//					if (segment.length > 100) sendShapeToServer(true);
 				}
 			}
 			
@@ -192,15 +196,35 @@
 //						latentFeedbacks.removeItemAt(i);
 //					}
 //				}
+
 				
-				LogUtil.debug("**** Drawing object");
-				var drawObject:DrawObject = shapeFactory.makeShape(o);
-				var newShape:Shape = drawObject.getShape();
+				LogUtil.debug("*** Rx shape [" + o.id + "][" + o.width + " , " + o.height + "] [" +  o.x + " , " + o.y + "]");
+				var dobj:DrawObject = shapeFactory.makeShape(o);
+				var newShape:Shape = dobj.getShape();
+				addRawChild(newShape);
+				var rect:Rectangle = newShape.getBounds(this);
 				/* No need to set the size as we already adjusted the points for this canvas size */
-				newShape.x = ((drawObject.x/100) * this.width);
-				newShape.y = ((drawObject.y/100) * this.height);
-	            shapeList.push(drawObject);
-	            bbbCanvas.addRawChild(newShape);
+//				newShape.width = ((dobj.width/100) * this.width);
+//				newShape.height = ((dobj.height/100) * this.height);
+//				newShape.x = ((dobj.x/100) * this.width);
+//				newShape.y = ((dobj.y/100) * this.height);
+
+//				dobj.width = rect.width;
+//				dobj.height = rect.height;
+//				dobj.x = rect.x;
+//				dobj.y = rect.y;
+				rect.width = ((dobj.width/100.0) * Number(width));
+				rect.height = ((dobj.height/100.0) * Number(height));
+				rect.x = ((dobj.x/100.0) * width as Number);
+				rect.y = ((dobj.y/100.0) * Number(height));
+//				rect.x = (0.5 * width as Number);
+//				rect.y = (0.5 * Number(height));
+				LogUtil.debug("*** Display Rx shape [" + dobj.id + "][" + dobj.width + " , " + dobj.height + "] [" +  dobj.x + " , " + dobj.y + "]");
+				LogUtil.debug("*** Display Rx new shape [" + dobj.id + "][" + newShape.width + " , " + newShape.height + "] [" +  newShape.x + " , " + newShape.y + "]");
+				LogUtil.debug("*** Display Rx rect shape [" + dobj.id + "][" + rect.width + " , " + rect.height + "] [" +  rect.x + " , " + rect.y + "]");
+				LogUtil.debug("*** RX Display Container [" + dobj.id + "][" + this.width + " , " + this.height + "," +  this.x + " , " + this.y + "]");
+				
+	            shapeList.push(dobj);	            
 			}
 			
 			/**
@@ -236,8 +260,8 @@
 			public function clearBoard(event:WhiteboardUpdate = null):void{
 				for (var i:Number = 0; i < this.shapeList.length; i++){
 					var dobj:DrawObject = this.shapeList[i] as DrawObject;
-					if (this.bbbCanvas.doesContain(dobj.getShape())){
-						this.bbbCanvas.removeRawChild(dobj.getShape());	
+					if (this.doesContain(dobj.getShape())){
+						this.removeRawChild(dobj.getShape());	
 					}
 				}
 				this.shapeList = new Array();
@@ -246,7 +270,7 @@
 			public function undoShape(event:WhiteboardUpdate):void{
 				if (this.shapeList.length > 0) {
 					var dobj:DrawObject = this.shapeList[this.shapeList.length-1] as DrawObject;
-					this.bbbCanvas.removeRawChild(dobj.getShape());
+					this.removeRawChild(dobj.getShape());
 					shapeList.pop();
 				}
 			}
@@ -273,7 +297,7 @@
 				clearBoard();
 				for (var i:int = 0; i < shapes.length; i++){
 					var o:DrawObject = shapes.getItemAt(i) as DrawObject;
-//					draw(o);
+					draw(o);
 				}
 			}
 			
@@ -306,17 +330,17 @@
 			
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
 				LogUtil.debug("WhiteboardCanvas::acceptOverlayCanvas()");
-				this.bbbCanvas = overlay;
+//				this.bbbCanvas = overlay;
 				//Load existing shapes onto the canvas.
 				dispatchEvent(new PageEvent(PageEvent.LOAD_PAGE));
 			}
 			
-			public function moveCanvas(x:int, y:int):void{
+			public function moveCanvas(x:Number, y:Number):void{
 				this.x = x;
 				this.y = y;
 			}
 					
-			public function zoomCanvas(width:int, height:int):void{
+			public function zoomCanvas(width:Number, height:Number):void{
 				shapeFactory.setParentDim(width, height);	
 				
 				/**
@@ -327,6 +351,8 @@
 				 * 3. Force the x and y coordinate to be where we want it to be.
 				 */
 				
+				var oldW:int = this.width;
+				var oldH:int = this.height;
 				/* 1. Adjust the size of the canvas. */
 				this.width = width;
 				this.height = height;
@@ -334,17 +360,45 @@
 				for (var i:int = 0; i < this.shapeList.length; i++){
 					var dobj:DrawObject = this.shapeList[i] as DrawObject;
 					var s:Shape = dobj.getShape();
-					/* 2. Calculate the width and height which changes the x and y coordinate of the shape. */
-					s.width = ((dobj.width/100) * width);
-					s.height = ((dobj.height/100) * height);
-					/* 3. Force the x and y to where we want the shape */
-					s.x = ((dobj.x/100) * width);
-					s.y = ((dobj.y/100) * height);
-				}
+//					s.scaleX = (width/this.width);
+//					s.scaleY = (height/this.height);
+//					/* 2. Calculate the width and height which changes the x and y coordinate of the shape. */
+					s.width = ((dobj.width/100.0) * Number(width));
+					s.height = ((dobj.height/100.0) * Number(height));
+//					var newW:int = ((dobj.width/100.0) * Number(width));
+//					if (s.width >= 1) 
+//						s.width = newW;
+//					var newH:int = ((dobj.height/100.0) * Number(height));
+//					if (s.height >= 1)
+//						s.height = newH;
+//					/* 3. Force the x and y to where we want the shape */
+//					s.x = ((dobj.x/100.0) * width as Number) + this.x;
+//					s.y = ((dobj.y/100.0) * Number(height)) + this.y;
+					
+					LogUtil.debug("*** Display Container [" + dobj.id + "][" + this.width + "," + this.height + "," +  this.x + " , " + this.y + "]");
+					LogUtil.debug("*** Display Resize shape [" + dobj.id + "][" + s.width + " , " + s.height + "] [" +  s.x + " , " + s.y + "]");
+					
+					
+					var rect:Rectangle = s.getBounds(this);
+//					rect.width *= (this.width/oldW);
+//					rect.height *= (this.height/oldH);
+//					rect.x *= (this.width/oldW);
+//					rect.y *= (this.height/oldH);
+//					rect.width = (dobj.width/100) * width;
+//					rect.height = (dobj.height/100) * height;
+					rect.x = (dobj.x/100) * width + this.x;
+					rect.y = (dobj.y/100) * height + this.y;
+//					rect.x += this.x;
+//					rect.y += this.y;
+					
+				LogUtil.debug("*** Display Resize shape [" + dobj.id + "][" + rect.width + " , " + rect.height + "] [" +  rect.x + " , " + rect.y + "]");
 
+				}
+			//					this.width = width;
+			//					this.height = height;
 				
 			}
-			
+					
 			public function showCanvas(show:Boolean):void{
 				this.showWhiteboard = show;
 				setWhiteboardVisibility();

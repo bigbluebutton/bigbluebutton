@@ -36,6 +36,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		{
 			super(DrawObject.PENCIL, segment, color, thickness);
 		}
-		
+			
 	}
 }
