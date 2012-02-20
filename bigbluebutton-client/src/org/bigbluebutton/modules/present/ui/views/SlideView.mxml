@@ -133,8 +133,8 @@
 				dispatchEvent(e);
 			}
 			
-			private var prevMouseX:int;
-			private	var prevMouseY:int;
+			private var prevMouseX:Number;
+			private	var prevMouseY:Number;
 			
 			/**
 			 * Triggered when the presenter clicks on the slides with the intent of moving it.

@@ -5,10 +5,10 @@ package org.bigbluebutton.modules.present.ui.views.models
 	[Bindable]
 	public class SlideViewModel
 	{
-		public var viewportX:int = 0;
-		public var viewportY:int = 0;
-		public var viewportW:int = 0;
-		public var viewportH:int = 0;
+		public var viewportX:Number = 0;
+		public var viewportY:Number = 0;
+		public var viewportW:Number = 0;
+		public var viewportH:Number = 0;
 		
 		private var _viewedRegionX:Number = 0;
 		private var _viewedRegionY:Number = 0;
@@ -17,42 +17,42 @@ package org.bigbluebutton.modules.present.ui.views.models
 		
 		private var _pageOrigW:int = 0;
 		private var _pageOrigH:int = 0;
-		private var _calcPageW:int = 0;
-		private var _calcPageH:int = 0;
-		private var _calcPageX:int = 0;
-		private var _calcPageY:int = 0;
-		private var _parentW:int = 0;
-		private var _parentH:int = 0;
+		private var _calcPageW:Number = 0;
+		private var _calcPageH:Number = 0;
+		private var _calcPageX:Number = 0;
+		private var _calcPageY:Number = 0;
+		private var _parentW:Number = 0;
+		private var _parentH:Number = 0;
 		
-		public var loaderW:int = 0;
-		public var loaderH:int = 0;
-		public var loaderX:int = 0;
-		public var loaderY:int = 0;
+		public var loaderW:Number = 0;
+		public var loaderH:Number = 0;
+		public var loaderX:Number = 0;
+		public var loaderY:Number = 0;
 		
 		public var fitToPage:Boolean = true;
 		public var hasPageLoaded:Boolean = false;
 		
-		public function set parentW(width:int):void {
+		public function set parentW(width:Number):void {
 			_parentW = width;
 		}
 		
-		public function set parentH(height:int):void {
+		public function set parentH(height:Number):void {
 			_parentH = height;
 		}
 		
-		public function get parentW():int {
+		public function get parentW():Number {
 			return _parentW;
 		}
 		
-		public function get parentH():int {
+		public function get parentH():Number {
 			return _parentH;
 		}
 		
-		public function get pageOrigW():int {
+		public function get pageOrigW():Number {
 			return _pageOrigW;
 		}
 		
-		public function get pageOrigH():int {
+		public function get pageOrigH():Number {
 			return _pageOrigH;
 		}
 		
@@ -72,12 +72,12 @@ package org.bigbluebutton.modules.present.ui.views.models
 			return _viewedRegionY;
 		}
 		
-		public function reset(pageWidth:int, pageHeight:int):void {
+		public function reset(pageWidth:Number, pageHeight:Number):void {
 			_calcPageW = _pageOrigW = pageWidth;
 			_calcPageH = _pageOrigH = pageHeight;
 		}
 
-		public function resetForNewSlide(pageWidth:int, pageHeight:int):void {
+		public function resetForNewSlide(pageWidth:Number, pageHeight:Number):void {
 			_calcPageW = _pageOrigW = pageWidth;
 			_calcPageH = _pageOrigH = pageHeight;
 			_calcPageX = 0;
@@ -86,7 +86,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 			_viewedRegionX = _viewedRegionY = 0;
 		}
 		
-		public function parentChange(parentW:int, parentH:int, fitToPage:Boolean):void {
+		public function parentChange(parentW:Number, parentH:Number, fitToPage:Boolean):void {
 			viewportW = this.parentW = parentW;
 			viewportH = this.parentH = parentH;
 			this.fitToPage = fitToPage;
@@ -197,10 +197,10 @@ package org.bigbluebutton.modules.present.ui.views.models
 			}
 		}
 		
-		public function onMove(deltaX:int, deltaY:int):void {
+		public function onMove(deltaX:Number, deltaY:Number):void {
 			if (fitToPage) {
-				var newX:int = _calcPageX + deltaX;	
-				var newY:int = _calcPageY + deltaY;	
+				var newX:Number = _calcPageX + deltaX;	
+				var newY:Number = _calcPageY + deltaY;	
 				
 //				LogUtil.debug("** FTP move 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + 
 //					newX + "," + newY + "][" + deltaX + "," + deltaY + "]");
@@ -229,7 +229,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				_calcPageX = 0
 //				LogUtil.debug("** FTW calcPageY [" + deltaX + "," + deltaY + "] [" + _calcPageY + "<" + viewportH + "]");									
 				
-				var newY:int = _calcPageY + deltaY;				
+				var newY:Number = _calcPageY + deltaY;				
 				if (newY > 0) _calcPageY = 0;
 				else if ((_calcPageH + newY*2) < viewportH) {
 					// do nothing
@@ -300,12 +300,12 @@ package org.bigbluebutton.modules.present.ui.views.models
 //			LogUtil.debug("Region [" + viewedRegionW + "," + viewedRegionH + "] [" + viewedRegionX + "," + viewedRegionY + "]");			
 		}
 		
-		public function onZoom(delta:int, vpx:int, vpy:int, mouseX:int, mouseY:int):void {
+		public function onZoom(delta:Number, vpx:Number, vpy:Number, mouseX:Number, mouseY:Number):void {
 			if (fitToPage) {
-				var cpw:int = _calcPageW;
-				var cph:int = _calcPageH;
-				var zpx:int = Math.abs(_calcPageX) + mouseX;
-				var zpy:int = Math.abs(_calcPageY) + mouseY;
+				var cpw:Number = _calcPageW;
+				var cph:Number = _calcPageH;
+				var zpx:Number = Math.abs(_calcPageX) + mouseX;
+				var zpy:Number = Math.abs(_calcPageY) + mouseY;
 				var zpxp:Number = zpx/cpw;
 				var zpyp:Number = zpy/cph;
 				
@@ -377,8 +377,8 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}
 		
 		public function calculateViewportNeededForRegion(x:Number, y:Number, regionW:Number, regionH:Number):void {			
-			var vrwp:int = pageOrigW * (regionW/100);
-			var vrhp:int = pageOrigH * (regionH/100);
+			var vrwp:Number = pageOrigW * (regionW/100);
+			var vrhp:Number = pageOrigH * (regionH/100);
 			
 			if (parentW < parentH) {
 				viewportW = parentW;
