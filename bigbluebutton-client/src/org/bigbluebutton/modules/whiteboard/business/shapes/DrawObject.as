@@ -50,16 +50,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * Status = [START, UPDATE, END]
 		 */ 
 		public var status:String = "UPDATE";
-		
-		/**
-		 * The w,h,x,y in percentage. This way we can calculate it's exact location
-		 * and size using the users window size.
-		 */
-		public var width:Number;
-		public var height:Number;
-		public var x:Number;
-		public var y:Number;
-		
+				
 		protected var _shape:Shape = new Shape();
 		protected var _segment:Array;
 		

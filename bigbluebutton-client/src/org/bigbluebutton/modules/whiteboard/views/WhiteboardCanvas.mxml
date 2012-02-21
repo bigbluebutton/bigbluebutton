@@ -27,8 +27,7 @@
 		<![CDATA[			
 			import mx.collections.ArrayCollection;
 			import mx.core.Application;
-			import mx.managers.CursorManager;
-			
+			import mx.managers.CursorManager;			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -109,11 +108,7 @@
 				this.removeRawChild(dobj.getShape());
 //				LogUtil.debug("*** Shape [" + dobj.getShape().width + " , " + dobj.getShape().height + "] [" +  dobj.getShape().x + " , " + dobj.getShape().y + "]");
 //				LogUtil.debug("*** Bounds [" + rect.width + " , " + rect.height + "] [" +  rect.x + " , " + rect.y + "]");
-
-				dobj.width = (rect.width / this.width) * 100;
-				dobj.x = (rect.x / this.width) * 100;
-				dobj.height = (rect.height / this.height) * 100;
-				dobj.y = (rect.y / this.height) * 100;							
+						
 				dobj.id = "" + objCount++;
 
 //				LogUtil.debug("*** SEND Display Container [" + dobj.id + "][" + this.width + " , " + this.height + "," +  this.x + " , " + this.y + "]");
@@ -188,18 +183,25 @@
 //					}
 //				}
 
-				
-				LogUtil.debug("*** Rx shape [" + o.id + "][" + o.width + " , " + o.height + "] [" +  o.x + " , " + o.y + "]");
-				var dobj:DrawObject = shapeFactory.makeShape(o);
-				var newShape:Shape = dobj.getShape();
-				if (bbbCanvas == null) LogUtil.error("BBBCANVAS iS NULL!!!");
-				bbbCanvas.addRawChild(newShape);
-				var rect:Rectangle = newShape.getBounds(bbbCanvas as Canvas);
-//				LogUtil.debug("*** Display Rx rect shape [" + dobj.id + "][" + rect.width + " , " + rect.height + "] [" +  rect.x + " , " + rect.y + "]");
-//				LogUtil.debug("*** RX Display Container [" + dobj.id + "][" + this.width + " , " + this.height + "," +  this.x + " , " + this.y + "]");
-//				LogUtil.debug("*** Displayed Shape [" + ((rect.width/this.width)*100) + "," + ((rect.height/this.height)*100) + "," +
-//						((rect.x/this.width)*100) + "," + ((rect.y/this.height)*100) + "]");
-	            shapeList.push(dobj);	            
+				if (shapeFactory == null) {
+					LogUtil.error("shapeFactory iS NULL!!!");
+				} else {
+					var dobj:DrawObject = shapeFactory.makeShape(o);
+					var newShape:Shape = dobj.getShape();
+					if (bbbCanvas == null) {
+						LogUtil.error("BBBCANVAS iS NULL!!!");
+					} else {
+						bbbCanvas.addRawChild(newShape);
+					}
+					
+					if (shapeList == null) {
+						LogUtil.error("shapeList iS NULL!!!");
+					} else {
+						shapeList.push(dobj);
+					}
+											
+				}
+            
 			}
 			
 			/**

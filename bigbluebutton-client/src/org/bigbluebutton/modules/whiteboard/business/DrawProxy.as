@@ -202,7 +202,7 @@ package org.bigbluebutton.modules.whiteboard.business
 					}
 				),//new Responder
 				shape.getShapeArray(), shape.getType(), shape.getColor(), shape.getThickness(), 
-				shape.width, shape.height, shape.x, shape.y, shape.id, shape.status
+				shape.id, shape.status
 			); //_netConnection.call
 		}
 		
@@ -211,13 +211,9 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * @param array The array representation of a shape
 		 * 
 		 */		
-		public function addSegment(array:Array, type:String, color:uint, thickness:uint, width:Number, height:Number, x:Number, y:Number, id:String, status:String):void{
+		public function addSegment(array:Array, type:String, color:uint, thickness:uint, id:String, status:String):void{
 			LogUtil.debug("Rx add segment ****");
 			var d:DrawObject = drawFactory.makeDrawObject(type, array, color, thickness);
-			d.width = width;
-			d.height = height;
-			d.x = x;
-			d.y = y;
 			d.id = id;
 			d.status = status;
 			
@@ -357,13 +353,9 @@ package org.bigbluebutton.modules.whiteboard.business
 				var type:String = shape[1] as String;
 				var color:uint = shape[2] as uint;
 				var thickness:uint = shape[3] as uint;
-				var width:Number = shape[4] as Number;
-				var height:Number = shape[5] as Number;
-				var x:Number = shape[6] as Number;
-				var y:Number = shape[7] as Number;
-				var id:String = shape[8] as String;
-				var status:String = shape[9] as String;
-				addSegment(shapeArray, type, color, thickness, width, height, x, y, id, status);
+				var id:String = shape[4] as String;
+				var status:String = shape[5] as String;
+				addSegment(shapeArray, type, color, thickness, id, status);
 			}
 		}
 	}
