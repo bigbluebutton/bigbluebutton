@@ -139,12 +139,19 @@ package org.bigbluebutton.modules.present.ui.views.models
 		
 		public function adjustSlideAfterParentResized():void {
 			if (fitToPage) {
+				/*
 				calculateViewportSize();
 				calculateViewportXY();
 				calcCalcPageSize();
 				calcViewedRegion();
 				calcViewedRegionXY();
-				onResizeMove();				
+				onResizeMove();
+				*/
+				calculateViewportNeededForRegion(_viewedRegionX, _viewedRegionY, _viewedRegionW, _viewedRegionH);
+				displayViewerRegion(_viewedRegionX, _viewedRegionY, _viewedRegionW, _viewedRegionH);
+				calculateViewportXY();
+				displayPresenterView();
+				printViewedRegion();
 			} else {
 				calculateViewportSize();
 				calculateViewportXY();
