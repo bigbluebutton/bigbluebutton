@@ -359,10 +359,12 @@ package org.bigbluebutton.modules.whiteboard.business
 				var thickness:uint = shape[3] as uint;
 				var width:Number = shape[4] as Number;
 				var height:Number = shape[5] as Number;
-				LogUtil.debug("*** TODO: get shape history ***");
-			//	addSegment(shapeArray, type, color, thickness, width, height);
+				var x:Number = shape[6] as Number;
+				var y:Number = shape[7] as Number;
+				var id:String = shape[8] as String;
+				var status:String = shape[9] as String;
+				addSegment(shapeArray, type, color, thickness, width, height, x, y, id, status);
 			}
 		}
-
 	}
 }
