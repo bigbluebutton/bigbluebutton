@@ -111,21 +111,21 @@
 			private var slideManager:SlideManager = new SlideManager();
 			private var pageDialog:GotoPageDialog;
 			
-			[Bindable] private var DEFAULT_X_POSITION:int = 237;
-			[Bindable] private var DEFAULT_Y_POSITION:int = 0;
+			[Bindable] private var DEFAULT_X_POSITION:Number = 237;
+			[Bindable] private var DEFAULT_Y_POSITION:Number = 0;
 			
-			[Bindable] private var CONTROL_BAR_HEIGHT:int = 45;
-			private static const TOP_WINDOW_BORDER:int = 30;
-			private static const WIDTH_PADDING:int = 6;
+			[Bindable] private var CONTROL_BAR_HEIGHT:Number = 45;
+			private static const TOP_WINDOW_BORDER:Number = 30;
+			private static const WIDTH_PADDING:Number = 6;
 
-			[Bindable] private var DEFAULT_WINDOW_WIDTH:int = 510;
-			[Bindable] private var DEFAULT_WINDOW_HEIGHT:int = 451;
-			[Bindable] private var viewportW:int = 451;
-			[Bindable] private var viewportH:int = 451;
+			[Bindable] private var DEFAULT_WINDOW_WIDTH:Number = 510;
+			[Bindable] private var DEFAULT_WINDOW_HEIGHT:Number = 451;
+			[Bindable] private var viewportW:Number = 451;
+			[Bindable] private var viewportH:Number = 451;
 			
 			// Init to the size of the window.
-			private var currentSlideWidth:int = DEFAULT_WINDOW_WIDTH;
-			private var currentSlideHeight:int = DEFAULT_WINDOW_HEIGHT;
+			private var currentSlideWidth:Number = DEFAULT_WINDOW_WIDTH;
+			private var currentSlideHeight:Number = DEFAULT_WINDOW_HEIGHT;
 									
 			private var mouseDown:Boolean = false;
 			[Bindable] private var isPresenter:Boolean = false;
@@ -417,6 +417,7 @@
             }
             
             private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
+				LogUtil.debug("OVERLAYING WHITEBOARD CANVAS");
             	slideView.acceptOverlayCanvas(e.canvas);
             	e.canvas.acceptOverlayCanvas(slideView);
             }

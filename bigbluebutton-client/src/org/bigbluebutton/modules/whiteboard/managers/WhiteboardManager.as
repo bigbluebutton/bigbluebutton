@@ -54,7 +54,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 			whiteboardButton = new WhiteboardButton();
 			
 			//Necessary now because of module loading race conditions
-			var t:Timer = new Timer(2000, 1);
+			var t:Timer = new Timer(1000, 1);
 			t.addEventListener(TimerEvent.TIMER, addHighlighterCanvas);
 			t.addEventListener(TimerEvent.TIMER, addHighlighterToolbar);
 			t.start();

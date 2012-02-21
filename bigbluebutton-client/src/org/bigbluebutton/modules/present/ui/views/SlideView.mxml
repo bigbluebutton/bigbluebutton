@@ -187,8 +187,8 @@
 				if (UserManager.getInstance().getConference().amIPresenter()) {
 //					LogUtil.debug("Before resizing viewport [" + this.width + "," + this.height + "][" + this.x + "," + this.y + "]");
 					slideModel.adjustSlideAfterParentResized();
-					slideModel.printViewedRegion();
 					slideModel.displayPresenterView();
+					slideModel.printViewedRegion();
 					fitSlideToLoader();
 					notifyOthersOfZoomEvent();
 				} else {
@@ -196,6 +196,7 @@
 					slideModel.displayViewerRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
 					slideModel.calculateViewportXY();
 					slideModel.displayPresenterView();
+					slideModel.printViewedRegion();
 					fitSlideToLoader();	
 				}								
 			}
@@ -209,7 +210,13 @@
 				slideLoader.content.x = slideLoader.x;
 				slideLoader.content.y = slideLoader.y;
 				slideLoader.content.width = slideLoader.width;
-				slideLoader.content.height = slideLoader.height;	
+				slideLoader.content.height = slideLoader.height;
+				
+				LogUtil.debug("** FS2L [" + this.width + "," + this.height + "," + this.x + "," + this.y + "][" +
+					slideLoader.width + "," + slideLoader.height + "," + slideLoader.x + "," + slideLoader.y + "][" + 
+					slideLoader.content.width + "," + slideLoader.content.height + "," + slideLoader.content.x + "," + slideLoader.content.y + "]");
+
+				
 				moveCanvas(slideLoader.x, slideLoader.y);
 				zoomCanvas(slideLoader.width, slideLoader.height);
 			}
@@ -272,6 +279,7 @@
 				slideModel.displayViewerRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 				slideModel.calculateViewportXY();
 				slideModel.displayPresenterView();
+				slideModel.printViewedRegion();
 				fitSlideToLoader();
 			}
 					
@@ -399,8 +407,8 @@
 				whiteboardCanvas = overlay;
 				var c:Canvas = overlay as Canvas;
 				this.addChild(c);
-				c.x = slideLoader.x;
-				c.y = slideLoader.y;
+				c.x = slideLoader.x * 2;
+				c.y = slideLoader.y * 2;
 				c.width = slideLoader.width;
 				c.height = slideLoader.height;
 			}

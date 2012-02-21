@@ -15,8 +15,8 @@ package org.bigbluebutton.modules.present.ui.views.models
 		private var _viewedRegionW:Number = 100;
 		private var _viewedRegionH:Number = 100;
 		
-		private var _pageOrigW:int = 0;
-		private var _pageOrigH:int = 0;
+		private var _pageOrigW:Number = 0;
+		private var _pageOrigH:Number = 0;
 		private var _calcPageW:Number = 0;
 		private var _calcPageH:Number = 0;
 		private var _calcPageX:Number = 0;
@@ -131,10 +131,10 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}
 		
 		public function displayPresenterView():void {
-			loaderX = _calcPageX;
-			loaderY = _calcPageY;
-			loaderW = _calcPageW;
-			loaderH = _calcPageH;
+			loaderX = Math.round(_calcPageX);
+			loaderY = Math.round(_calcPageY);
+			loaderW = Math.round(_calcPageW);
+			loaderH = Math.round(_calcPageH);
 		}
 		
 		public function adjustSlideAfterParentResized():void {
@@ -297,7 +297,9 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}
 		
 		public function printViewedRegion():void {
-//			LogUtil.debug("Region [" + viewedRegionW + "," + viewedRegionH + "] [" + viewedRegionX + "," + viewedRegionY + "]");			
+			LogUtil.debug("Region [" + viewedRegionW + "," + viewedRegionH + "] [" + viewedRegionX + "," + viewedRegionY + "]");			
+			LogUtil.debug("Region [" + ((viewedRegionW/100)*_calcPageW) + "," + ((viewedRegionH/100)*_calcPageH) + 
+				"] [" + ((viewedRegionX/100)*_calcPageW) + "," + ((viewedRegionY/100)*_calcPageH) + "]");
 		}
 		
 		public function onZoom(delta:Number, vpx:Number, vpy:Number, mouseX:Number, mouseY:Number):void {
@@ -315,8 +317,8 @@ package org.bigbluebutton.modules.present.ui.views.models
 				else _calcPageW *= 1.05
 				_calcPageH = (_calcPageW/cpw) * cph; 
 				
-				var zpx1:int = _calcPageW * zpxp;
-				var zpy1:int = _calcPageH * zpyp;				
+				var zpx1:Number = _calcPageW * zpxp;
+				var zpy1:Number = _calcPageH * zpyp;				
 				_calcPageX = -((zpx1 + zpx)/2) + mouseX;
 				_calcPageY = -((zpy1 + zpy)/2) + mouseY;
 				

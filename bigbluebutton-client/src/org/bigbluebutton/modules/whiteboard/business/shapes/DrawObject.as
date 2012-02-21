@@ -118,15 +118,21 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		protected function optimize():void{
 			// do nothing
 		}
-		
-		public function push(x:int, y:int):void {
-			_segment.push(x);
-			_segment.push(y);
-		}
-		
+			
 		protected function readyToSend():Boolean {
 			return false;
 		}
 
+		public function makeShape(width:Number, height:Number):void {
+			
+		}
+		
+		protected function denormalize(val:Number, side:Number):Number {
+			return (val*side)/100.0;
+		}
+		
+		protected function normalize(val:Number, side:Number):Number {
+			return (val*100.0)/side;
+		}
 	}
 }

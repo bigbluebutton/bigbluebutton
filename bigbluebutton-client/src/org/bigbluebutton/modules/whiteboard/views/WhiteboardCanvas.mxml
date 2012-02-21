@@ -201,11 +201,12 @@
 				LogUtil.debug("*** Rx shape [" + o.id + "][" + o.width + " , " + o.height + "] [" +  o.x + " , " + o.y + "]");
 				var dobj:DrawObject = shapeFactory.makeShape(o);
 				var newShape:Shape = dobj.getShape();
+				if (bbbCanvas == null) LogUtil.error("BBBCANVAS iS NULL!!!");
 				bbbCanvas.addRawChild(newShape);
-				var rect:Rectangle = newShape.getBounds(this);
+				var rect:Rectangle = newShape.getBounds(bbbCanvas as Canvas);
 				/* No need to set the size as we already adjusted the points for this canvas size */
-//				newShape.width = ((dobj.width/100) * this.width);
-//				newShape.height = ((dobj.height/100) * this.height);
+//				newShape.width = 0.99999 * newShape.width; //((dobj.width/100) * this.width);
+//				newShape.height = 0.99999 * newShape.height; //((dobj.height/100) * this.height);
 //				newShape.x = ((dobj.x/100) * this.width);
 //				newShape.y = ((dobj.y/100) * this.height);
 
@@ -213,17 +214,18 @@
 //				dobj.height = rect.height;
 //				dobj.x = rect.x;
 //				dobj.y = rect.y;
-				rect.width = ((dobj.width/100.0) * Number(width));
-				rect.height = ((dobj.height/100.0) * Number(height));
-				rect.x = ((dobj.x/100.0) * width as Number);
-				rect.y = ((dobj.y/100.0) * Number(height));
+//				rect.width = ((dobj.width/100.0) * Number(width));
+//				rect.height = ((dobj.height/100.0) * Number(height));
+//				rect.x = ((dobj.x/100.0) * width as Number);
+//				rect.y = ((dobj.y/100.0) * Number(height));
 //				rect.x = (0.5 * width as Number);
 //				rect.y = (0.5 * Number(height));
-				LogUtil.debug("*** Display Rx shape [" + dobj.id + "][" + dobj.width + " , " + dobj.height + "] [" +  dobj.x + " , " + dobj.y + "]");
-				LogUtil.debug("*** Display Rx new shape [" + dobj.id + "][" + newShape.width + " , " + newShape.height + "] [" +  newShape.x + " , " + newShape.y + "]");
+//				LogUtil.debug("*** Display Rx shape [" + dobj.id + "][" + dobj.width + " , " + dobj.height + "] [" +  dobj.x + " , " + dobj.y + "]");
+//				LogUtil.debug("*** Display Rx new shape [" + dobj.id + "][" + newShape.width + " , " + newShape.height + "] [" +  newShape.x + " , " + newShape.y + "]");
 				LogUtil.debug("*** Display Rx rect shape [" + dobj.id + "][" + rect.width + " , " + rect.height + "] [" +  rect.x + " , " + rect.y + "]");
 				LogUtil.debug("*** RX Display Container [" + dobj.id + "][" + this.width + " , " + this.height + "," +  this.x + " , " + this.y + "]");
-				
+				LogUtil.debug("*** Displayed Shape [" + ((rect.width/this.width)*100) + "," + ((rect.height/this.height)*100) + "," +
+						((rect.x/this.width)*100) + "," + ((rect.y/this.height)*100) + "]");
 	            shapeList.push(dobj);	            
 			}
 			
@@ -330,6 +332,7 @@
 			
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
 				LogUtil.debug("WhiteboardCanvas::acceptOverlayCanvas()");
+				LogUtil.debug("OVERLAYING PRESENTATION CANVAS");
 				this.bbbCanvas = overlay;
 				//Load existing shapes onto the canvas.
 				dispatchEvent(new PageEvent(PageEvent.LOAD_PAGE));
@@ -351,20 +354,29 @@
 				 * 3. Force the x and y coordinate to be where we want it to be.
 				 */
 				
-				var oldW:int = this.width;
-				var oldH:int = this.height;
+//				var oldW:int = this.width;
+//				var oldH:int = this.height;
 				/* 1. Adjust the size of the canvas. */
-				this.width = width;
-				this.height = height;
+//				this.width = width;
+//				this.height = height;
 				
 				for (var i:int = 0; i < this.shapeList.length; i++){
 					var dobj:DrawObject = this.shapeList[i] as DrawObject;
-					var s:Shape = dobj.getShape();
+					if (bbbCanvas.doesContain(dobj.getShape())) {
+						LogUtil.warn("Recreating shape [" + dobj.id + "]");
+						bbbCanvas.removeRawChild(dobj.getShape());
+						shapeFactory.makeShape(dobj);
+						var s:Shape = dobj.getShape();
+						bbbCanvas.addRawChild(s);
+					} else {
+						LogUtil.warn("Cannot find shape [" + dobj.id + "]");
+					}
+					
 //					s.scaleX = (width/this.width);
 //					s.scaleY = (height/this.height);
 //					/* 2. Calculate the width and height which changes the x and y coordinate of the shape. */
-					s.width = ((dobj.width/100.0) * Number(width));
-					s.height = ((dobj.height/100.0) * Number(height));
+//					s.width = ((dobj.width * Number(width))/100);
+//					s.height = ((dobj.height * Number(height))/100);
 //					var newW:int = ((dobj.width/100.0) * Number(width));
 //					if (s.width >= 1) 
 //						s.width = newW;
@@ -376,26 +388,28 @@
 //					s.y = ((dobj.y/100.0) * Number(height)) + this.y;
 					
 					LogUtil.debug("*** Display Container [" + dobj.id + "][" + this.width + "," + this.height + "," +  this.x + " , " + this.y + "]");
-					LogUtil.debug("*** Display Resize shape [" + dobj.id + "][" + s.width + " , " + s.height + "] [" +  s.x + " , " + s.y + "]");
+//					LogUtil.debug("*** Display Resize shape [" + dobj.id + "][" + s.width + " , " + s.height + "] [" +  s.x + " , " + s.y + "]");
 					
 					
-					var rect:Rectangle = s.getBounds(this);
+					var rect:Rectangle = s.getBounds(bbbCanvas as Canvas);
 //					rect.width *= (this.width/oldW);
 //					rect.height *= (this.height/oldH);
 //					rect.x *= (this.width/oldW);
 //					rect.y *= (this.height/oldH);
 //					rect.width = (dobj.width/100) * width;
 //					rect.height = (dobj.height/100) * height;
-					rect.x = (dobj.x/100) * width + this.x;
-					rect.y = (dobj.y/100) * height + this.y;
+//					rect.x = (dobj.x/100) * width + this.x;
+//					rect.y = (dobj.y/100) * height + this.y;
 //					rect.x += this.x;
 //					rect.y += this.y;
-					
+				rect.x = (dobj.x * width) / 100;
+					rect.y = (dobj.y * height) / 100;					
 				LogUtil.debug("*** Display Resize shape [" + dobj.id + "][" + rect.width + " , " + rect.height + "] [" +  rect.x + " , " + rect.y + "]");
-
+				LogUtil.debug("*** Displayed Resize Shape [" + ((rect.width/this.width)*100) + "," + ((rect.height/this.height)*100) + "," +
+					((rect.x/this.width)*100) + "," + ((rect.y/this.height)*100) + "]")
 				}
-			//					this.width = width;
-			//					this.height = height;
+								this.width = width;
+								this.height = height;
 				
 			}
 					

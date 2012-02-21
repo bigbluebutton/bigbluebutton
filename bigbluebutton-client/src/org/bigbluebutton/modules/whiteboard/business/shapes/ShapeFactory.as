@@ -31,14 +31,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	public class ShapeFactory
 	{
 		private var drawFactory:DrawObjectFactory;
-		private var _parentWidth:int = 0;
-		private var _parentHeight:int = 0;
+		private var _parentWidth:Number = 0;
+		private var _parentHeight:Number = 0;
 		
 		public function ShapeFactory() {
 			drawFactory = new DrawObjectFactory();
 		}
 		
-		public function setParentDim(width:int, height:int):void {
+		public function setParentDim(width:Number, height:Number):void {
 			_parentWidth = width;
 			_parentHeight = height;
 		}
@@ -60,12 +60,12 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return null;
 		}
 		
-		private function denormalize(val:Number, side:int):Number {
-			return (val/100)*side;
+		private function denormalize(val:Number, side:Number):Number {
+			return (val*side)/100.0;
 		}
 		
-		private function normalize(val:Number, side:int):Number {
-			return (val/side)*100;
+		private function normalize(val:Number, side:Number):Number {
+			return (val*100.0)/side;
 		}
 		
 		public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint):DrawObject {
@@ -99,7 +99,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		private function makePencil(p:Pencil):DrawObject{
-			
+			p.makeShape(_parentWidth, _parentHeight);
+/*			
 			var newShape:Shape = p.getShape();
 			newShape.graphics.lineStyle(p.getThickness(), p.getColor());
 			
@@ -117,7 +118,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			
            	if (p.getColor() == 0x000000 || p.getColor() == 0xFFFFFF) newShape.alpha = 1;
            	else newShape.alpha = 0.6;
-		
+*/		
 	        return p;
 		}
 		
@@ -128,17 +129,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		private function makeRectangle(r:Rectangle):DrawObject{
-			var newShape:Shape = r.getShape();
-			newShape.graphics.lineStyle(r.getThickness(), r.getColor());
-			var arrayEnd:Number = r.getShapeArray().length;
-			var x:Number = denormalize(r.getShapeArray()[0], _parentWidth);
-			var y:Number = denormalize(r.getShapeArray()[1], _parentHeight);
-			var width:Number = denormalize(r.getShapeArray()[arrayEnd-2], _parentWidth) - x;
-			var height:Number = denormalize(r.getShapeArray()[arrayEnd-1], _parentHeight) - y;
-			
-			newShape.graphics.drawRect(x,y,width,height);
-			if (r.getColor() == 0x000000 || r.getColor() == 0xFFFFFF) newShape.alpha = 1.0;
-			else newShape.alpha = 0.6;
+			r.makeShape(_parentWidth, _parentHeight);
 			
 			return r;	
 		}
@@ -150,18 +141,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		private function makeEllipse(e:Ellipse):DrawObject{
-			var newShape:Shape = e.getShape();
-			newShape.graphics.lineStyle(e.getThickness(), e.getColor());
-			var arrayEnd:Number = e.getShapeArray().length;
-			var x:Number = denormalize(e.getShapeArray()[0], _parentWidth);
-			var y:Number = denormalize(e.getShapeArray()[1], _parentHeight);
-			var width:Number = denormalize(e.getShapeArray()[arrayEnd-2], _parentWidth) - x;
-			var height:Number = denormalize(e.getShapeArray()[arrayEnd-1], _parentHeight) - y;
-			
-			newShape.graphics.drawEllipse(x,y,width,height);
-			if (e.getColor() == 0x000000 || e.getColor() == 0xFFFFFF) newShape.alpha = 1.0;
-			else newShape.alpha = 0.6;
-			
+			e.makeShape(_parentWidth, _parentHeight);
 			return e;
 		}
 
