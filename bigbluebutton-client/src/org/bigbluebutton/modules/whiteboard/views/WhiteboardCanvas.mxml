@@ -27,7 +27,8 @@
 		<![CDATA[			
 			import mx.collections.ArrayCollection;
 			import mx.core.Application;
-			import mx.managers.CursorManager;			
+			import mx.managers.CursorManager;
+			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -50,7 +51,7 @@
 			private var isDrawing:Boolean; 
 			private var sending:Boolean = false;
 			private var feedback:Shape = new Shape();
-			private var latentFeedbacks:ArrayCollection = new ArrayCollection();
+			private var latentFeedbacks:Array = new Array();
 			private var segment:Array = new Array();
 			private var shapeList:Array = new Array();
 			
@@ -70,7 +71,7 @@
 			private var whiteboardEnabled:Boolean = false;
 			private var showWhiteboard:Boolean = true;
 			
-			private var drawTimer:Timer;
+			private var drawStatus:String = DrawObject.DRAW_START;
 			
 			private function init():void{
 				this.label = "Highlighter";
@@ -92,42 +93,45 @@
 					 * shape to the viewers.
 					 */
 					isDrawing = false;
-					sendShapeToServer(false);
+					sendShapeToServer(DrawObject.DRAW_END);
 				}
 			}
 			
 			private var objCount:int = 0;
 			
-			private function sendShapeToServer(update:Boolean):void{
+			private function sendShapeToServer(status:String):void{
 				if (segment.length == 0) return;
 				
 				var dobj:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
-				
-				this.addRawChild(dobj.getShape());
-				var rect:Rectangle = dobj.getShape().getBounds(this);
-				this.removeRawChild(dobj.getShape());
-//				LogUtil.debug("*** Shape [" + dobj.getShape().width + " , " + dobj.getShape().height + "] [" +  dobj.getShape().x + " , " + dobj.getShape().y + "]");
-//				LogUtil.debug("*** Bounds [" + rect.width + " , " + rect.height + "] [" +  rect.x + " , " + rect.y + "]");
-						
+									
 				dobj.id = "" + objCount++;
-
-//				LogUtil.debug("*** SEND Display Container [" + dobj.id + "][" + this.width + " , " + this.height + "," +  this.x + " , " + this.y + "]");
-//				LogUtil.debug("*** Send shape [" + dobj.id + "][" + dobj.width + " , " + dobj.height + "] [" +  dobj.x + " , " + dobj.y + "]"); 
-				
-/*				
-				if (update) {
-					dobj.status = "UPDATE";
-					if (this.shapeStyle == DrawObject.PENCIL) {
-			//			var startX:Number = segment[segment.length - 2] as Number;
-			//			var startY:Number = segment[segment.length - 1] as Number;
-						segment = new Array();						
-						segment.push(this.mouseX);
-						segment.push(this.mouseY);
-					}					
-				} else {					
-					dobj.status = "END";
+							
+				switch (status) {
+					case DrawObject.DRAW_START:
+						dobj.status = DrawObject.DRAW_START;
+						drawStatus = DrawObject.DRAW_UPDATE;
+						break;
+					case DrawObject.DRAW_UPDATE:
+						dobj.status = DrawObject.DRAW_UPDATE;								
+						break;
+					case DrawObject.DRAW_END:
+						dobj.status = DrawObject.DRAW_END;
+						drawStatus = DrawObject.DRAW_START;
+						break;
 				}
-*/				
+				
+				LogUtil.error("SEGMENT LENGTH = [" + segment.length + "] STATUS = [" + dobj.status + "]");
+				
+				if (this.shapeStyle == DrawObject.PENCIL) {
+					dobj.status = DrawObject.DRAW_END;
+					drawStatus = DrawObject.DRAW_START;
+					segment = new Array();						
+					segment.push(this.mouseX);
+					segment.push(this.mouseY);
+				}
+				
+				
+				
 				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
 				event.message = dobj;
 				dispatchEvent(event);				
@@ -141,6 +145,7 @@
 			*/
 			private function doMouseDown():void{
 				isDrawing = true;
+				drawStatus = DrawObject.DRAW_START;
 				segment = new Array();
 				segment.push(this.mouseX);
 				segment.push(this.mouseY);
@@ -158,7 +163,9 @@
 				if (isDrawing){
 					segment.push(this.mouseX);
 					segment.push(this.mouseY);
-//					if (segment.length > 100) sendShapeToServer(true);
+					if (segment.length > 30) {
+						sendShapeToServer(drawStatus);
+					}
 				}
 			}
 			
@@ -183,26 +190,54 @@
 //					}
 //				}
 
-				if (shapeFactory == null) {
-					LogUtil.error("shapeFactory iS NULL!!!");
-				} else {
-					var dobj:DrawObject = shapeFactory.makeShape(o);
-					var newShape:Shape = dobj.getShape();
-					if (bbbCanvas == null) {
-						LogUtil.error("BBBCANVAS iS NULL!!!");
-					} else {
-						bbbCanvas.addRawChild(newShape);
-					}
-					
-					if (shapeList == null) {
-						LogUtil.error("shapeList iS NULL!!!");
-					} else {
-						shapeList.push(dobj);
-					}
-											
+				LogUtil.debug("Got shape [" + o.getType() + " " + o.status + "]");
+				if (o.status == null) {
+					LogUtil.error("STATUS IS NULL");
+					return;
 				}
-            
+				switch (o.status) {
+					case DrawObject.DRAW_START:
+						if (shapeFactory == null) {
+							LogUtil.error("shapeFactory iS NULL!!!");
+							return;
+						} else {
+							addNewShape(o);											
+						}						
+						break;
+					case DrawObject.DRAW_UPDATE:
+					case DrawObject.DRAW_END:
+						if (shapeFactory == null) {
+							LogUtil.error("shapeFactory 1 iS NULL!!!");
+							return;
+						}
+						if (shapeList.length == 0 || o.getType() == DrawObject.PENCIL) {
+							addNewShape(o);
+						} else {
+							removeLastShape();		
+							addNewShape(o);
+						}
+
+						break;
+				}        
 			}
+			
+			private function addNewShape(o:DrawObject):void {
+				LogUtil.error("Adding new shape");
+				var dobj:DrawObject = shapeFactory.makeShape(o);
+				var newShape:Shape = dobj.getShape();
+				if (bbbCanvas == null) {
+					LogUtil.error("BBBCANVAS iS NULL!!!");
+				} else {
+					bbbCanvas.addRawChild(newShape);
+				}
+				
+				if (shapeList == null) {
+					LogUtil.error("shapeList iS NULL!!!");
+				} else {
+					shapeList.push(dobj);
+				}
+			}
+						
 			
 			/**
 			 * Sets the type of shape we're drawing (pencil, rectangle, etc...) 
@@ -231,24 +266,27 @@
 				this.thickness = e.target.value;
 			}
 			
+			
+			private function removeLastShape():void {
+				var dobj:DrawObject = shapeList.pop() as DrawObject;
+				if (this.doesContain(dobj.getShape())){
+					this.removeRawChild(dobj.getShape());	
+				}
+			}
+			
 			/**
 			 * Clears the entire board
 			 */
 			public function clearBoard(event:WhiteboardUpdate = null):void{
-				for (var i:Number = 0; i < this.shapeList.length; i++){
-					var dobj:DrawObject = this.shapeList[i] as DrawObject;
-					if (this.doesContain(dobj.getShape())){
-						this.removeRawChild(dobj.getShape());	
-					}
+				var numShapes:int = this.shapeList.length;
+				for (var i:Number = 0; i < numShapes; i++){
+					removeLastShape();
 				}
-				this.shapeList = new Array();
 			}
 			
 			public function undoShape(event:WhiteboardUpdate):void{
 				if (this.shapeList.length > 0) {
-					var dobj:DrawObject = this.shapeList[this.shapeList.length-1] as DrawObject;
-					this.removeRawChild(dobj.getShape());
-					shapeList.pop();
+					removeLastShape();
 				}
 			}
 			
@@ -317,7 +355,18 @@
 				this.x = x;
 				this.y = y;
 			}
-					
+			
+			private function redrawShape(dobj:DrawObject):void {
+				LogUtil.warn("REDRAWING shape [" + dobj.id + "]");
+				if (bbbCanvas.doesContain(dobj.getShape())) {
+					bbbCanvas.removeRawChild(dobj.getShape());
+					shapeFactory.makeShape(dobj);
+					bbbCanvas.addRawChild(dobj.getShape());
+				} else {
+					LogUtil.warn("Cannot find shape [" + dobj.id + "]");
+				}
+			}
+			
 			public function zoomCanvas(width:Number, height:Number):void{
 				shapeFactory.setParentDim(width, height);	
 				
@@ -325,16 +374,7 @@
 				this.height = height;
 				
 				for (var i:int = 0; i < this.shapeList.length; i++){
-					var dobj:DrawObject = this.shapeList[i] as DrawObject;
-					if (bbbCanvas.doesContain(dobj.getShape())) {
-						LogUtil.warn("Recreating shape [" + dobj.id + "]");
-						bbbCanvas.removeRawChild(dobj.getShape());
-						shapeFactory.makeShape(dobj);
-						var s:Shape = dobj.getShape();
-						bbbCanvas.addRawChild(s);
-					} else {
-						LogUtil.warn("Cannot find shape [" + dobj.id + "]");
-					}
+					redrawShape(this.shapeList[i] as DrawObject);
 				}				
 			}
 					
