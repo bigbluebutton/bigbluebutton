@@ -107,26 +107,17 @@
 				this.addRawChild(dobj.getShape());
 				var rect:Rectangle = dobj.getShape().getBounds(this);
 				this.removeRawChild(dobj.getShape());
-				LogUtil.debug("*** Shape [" + dobj.getShape().width + " , " + dobj.getShape().height + "] [" +  dobj.getShape().x + " , " + dobj.getShape().y + "]");
-				LogUtil.debug("*** Bounds [" + rect.width + " , " + rect.height + "] [" +  rect.x + " , " + rect.y + "]");
+//				LogUtil.debug("*** Shape [" + dobj.getShape().width + " , " + dobj.getShape().height + "] [" +  dobj.getShape().x + " , " + dobj.getShape().y + "]");
+//				LogUtil.debug("*** Bounds [" + rect.width + " , " + rect.height + "] [" +  rect.x + " , " + rect.y + "]");
 
 				dobj.width = (rect.width / this.width) * 100;
 				dobj.x = (rect.x / this.width) * 100;
 				dobj.height = (rect.height / this.height) * 100;
-				dobj.y = (rect.y / this.height) * 100;
-				
-//				dobj.width = (dobj.getShape().width / this.width) * 100;
-//				dobj.x = (dobj.getShape().x / this.width) * 100;
-//				dobj.height = (dobj.getShape().height / this.height) * 100;
-//				dobj.y = (dobj.getShape().y / this.height) * 100;
-				
-//				var date:Date = new Date();
-//				dobj.id = date.time.toString();
-								
+				dobj.y = (rect.y / this.height) * 100;							
 				dobj.id = "" + objCount++;
 
-				LogUtil.debug("*** SEND Display Container [" + dobj.id + "][" + this.width + " , " + this.height + "," +  this.x + " , " + this.y + "]");
-				LogUtil.debug("*** Send shape [" + dobj.id + "][" + dobj.width + " , " + dobj.height + "] [" +  dobj.x + " , " + dobj.y + "]"); 
+//				LogUtil.debug("*** SEND Display Container [" + dobj.id + "][" + this.width + " , " + this.height + "," +  this.x + " , " + this.y + "]");
+//				LogUtil.debug("*** Send shape [" + dobj.id + "][" + dobj.width + " , " + dobj.height + "] [" +  dobj.x + " , " + dobj.y + "]"); 
 				
 /*				
 				if (update) {
@@ -204,28 +195,10 @@
 				if (bbbCanvas == null) LogUtil.error("BBBCANVAS iS NULL!!!");
 				bbbCanvas.addRawChild(newShape);
 				var rect:Rectangle = newShape.getBounds(bbbCanvas as Canvas);
-				/* No need to set the size as we already adjusted the points for this canvas size */
-//				newShape.width = 0.99999 * newShape.width; //((dobj.width/100) * this.width);
-//				newShape.height = 0.99999 * newShape.height; //((dobj.height/100) * this.height);
-//				newShape.x = ((dobj.x/100) * this.width);
-//				newShape.y = ((dobj.y/100) * this.height);
-
-//				dobj.width = rect.width;
-//				dobj.height = rect.height;
-//				dobj.x = rect.x;
-//				dobj.y = rect.y;
-//				rect.width = ((dobj.width/100.0) * Number(width));
-//				rect.height = ((dobj.height/100.0) * Number(height));
-//				rect.x = ((dobj.x/100.0) * width as Number);
-//				rect.y = ((dobj.y/100.0) * Number(height));
-//				rect.x = (0.5 * width as Number);
-//				rect.y = (0.5 * Number(height));
-//				LogUtil.debug("*** Display Rx shape [" + dobj.id + "][" + dobj.width + " , " + dobj.height + "] [" +  dobj.x + " , " + dobj.y + "]");
-//				LogUtil.debug("*** Display Rx new shape [" + dobj.id + "][" + newShape.width + " , " + newShape.height + "] [" +  newShape.x + " , " + newShape.y + "]");
-				LogUtil.debug("*** Display Rx rect shape [" + dobj.id + "][" + rect.width + " , " + rect.height + "] [" +  rect.x + " , " + rect.y + "]");
-				LogUtil.debug("*** RX Display Container [" + dobj.id + "][" + this.width + " , " + this.height + "," +  this.x + " , " + this.y + "]");
-				LogUtil.debug("*** Displayed Shape [" + ((rect.width/this.width)*100) + "," + ((rect.height/this.height)*100) + "," +
-						((rect.x/this.width)*100) + "," + ((rect.y/this.height)*100) + "]");
+//				LogUtil.debug("*** Display Rx rect shape [" + dobj.id + "][" + rect.width + " , " + rect.height + "] [" +  rect.x + " , " + rect.y + "]");
+//				LogUtil.debug("*** RX Display Container [" + dobj.id + "][" + this.width + " , " + this.height + "," +  this.x + " , " + this.y + "]");
+//				LogUtil.debug("*** Displayed Shape [" + ((rect.width/this.width)*100) + "," + ((rect.height/this.height)*100) + "," +
+//						((rect.x/this.width)*100) + "," + ((rect.y/this.height)*100) + "]");
 	            shapeList.push(dobj);	            
 			}
 			
@@ -319,15 +292,15 @@
 			
 			/** Inherited from org.bigbluebutton.common.IBbbCanvas*/
 			public function addRawChild(child:DisplayObject):void{
-				this.rawChildren.addChild(child);
+				this.bbbCanvas.addRawChild(child);
 			}
 			
 			public function removeRawChild(child:DisplayObject):void{
-				this.rawChildren.removeChild(child);
+				this.bbbCanvas.removeRawChild(child);
 			}
 			
 			public function doesContain(child:DisplayObject):Boolean{
-				return this.rawChildren.contains(child);
+				return bbbCanvas.doesContain(child);
 			}
 			
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
@@ -346,19 +319,8 @@
 			public function zoomCanvas(width:Number, height:Number):void{
 				shapeFactory.setParentDim(width, height);	
 				
-				/**
-				 * Let's be careful on the sequence of actions we do here.
-				 * 1. Adjust the size of the canvas.
-				 * 2. Calculate the width and height of the shape. This will change the
-				 *    x and y coordinate of the shape.
-				 * 3. Force the x and y coordinate to be where we want it to be.
-				 */
-				
-//				var oldW:int = this.width;
-//				var oldH:int = this.height;
-				/* 1. Adjust the size of the canvas. */
-//				this.width = width;
-//				this.height = height;
+				this.width = width;
+				this.height = height;
 				
 				for (var i:int = 0; i < this.shapeList.length; i++){
 					var dobj:DrawObject = this.shapeList[i] as DrawObject;
@@ -371,46 +333,7 @@
 					} else {
 						LogUtil.warn("Cannot find shape [" + dobj.id + "]");
 					}
-					
-//					s.scaleX = (width/this.width);
-//					s.scaleY = (height/this.height);
-//					/* 2. Calculate the width and height which changes the x and y coordinate of the shape. */
-//					s.width = ((dobj.width * Number(width))/100);
-//					s.height = ((dobj.height * Number(height))/100);
-//					var newW:int = ((dobj.width/100.0) * Number(width));
-//					if (s.width >= 1) 
-//						s.width = newW;
-//					var newH:int = ((dobj.height/100.0) * Number(height));
-//					if (s.height >= 1)
-//						s.height = newH;
-//					/* 3. Force the x and y to where we want the shape */
-//					s.x = ((dobj.x/100.0) * width as Number) + this.x;
-//					s.y = ((dobj.y/100.0) * Number(height)) + this.y;
-					
-					LogUtil.debug("*** Display Container [" + dobj.id + "][" + this.width + "," + this.height + "," +  this.x + " , " + this.y + "]");
-//					LogUtil.debug("*** Display Resize shape [" + dobj.id + "][" + s.width + " , " + s.height + "] [" +  s.x + " , " + s.y + "]");
-					
-					
-					var rect:Rectangle = s.getBounds(bbbCanvas as Canvas);
-//					rect.width *= (this.width/oldW);
-//					rect.height *= (this.height/oldH);
-//					rect.x *= (this.width/oldW);
-//					rect.y *= (this.height/oldH);
-//					rect.width = (dobj.width/100) * width;
-//					rect.height = (dobj.height/100) * height;
-//					rect.x = (dobj.x/100) * width + this.x;
-//					rect.y = (dobj.y/100) * height + this.y;
-//					rect.x += this.x;
-//					rect.y += this.y;
-				rect.x = (dobj.x * width) / 100;
-					rect.y = (dobj.y * height) / 100;					
-				LogUtil.debug("*** Display Resize shape [" + dobj.id + "][" + rect.width + " , " + rect.height + "] [" +  rect.x + " , " + rect.y + "]");
-				LogUtil.debug("*** Displayed Resize Shape [" + ((rect.width/this.width)*100) + "," + ((rect.height/this.height)*100) + "," +
-					((rect.x/this.width)*100) + "," + ((rect.y/this.height)*100) + "]")
-				}
-								this.width = width;
-								this.height = height;
-				
+				}				
 			}
 					
 			public function showCanvas(show:Boolean):void{

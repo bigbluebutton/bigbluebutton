@@ -99,26 +99,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		private function makePencil(p:Pencil):DrawObject{
-			p.makeShape(_parentWidth, _parentHeight);
-/*			
-			var newShape:Shape = p.getShape();
-			newShape.graphics.lineStyle(p.getThickness(), p.getColor());
-			
-			var graphicsCommands:Vector.<int> = new Vector.<int>();
-			graphicsCommands.push(1);
-			var coordinates:Vector.<Number> = new Vector.<Number>();
-			coordinates.push(denormalize(p.getShapeArray()[0], _parentWidth), denormalize(p.getShapeArray()[1], _parentHeight));
-			
-			for (var i:int = 2; i < p.getShapeArray().length; i += 2){
-				graphicsCommands.push(2);
-				coordinates.push(denormalize(p.getShapeArray()[i], _parentWidth), denormalize(p.getShapeArray()[i+1], _parentHeight));
-			}
-
-			newShape.graphics.drawPath(graphicsCommands, coordinates);
-			
-           	if (p.getColor() == 0x000000 || p.getColor() == 0xFFFFFF) newShape.alpha = 1;
-           	else newShape.alpha = 0.6;
-*/		
+			p.makeShape(_parentWidth, _parentHeight);	
 	        return p;
 		}
 		
@@ -129,8 +110,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		private function makeRectangle(r:Rectangle):DrawObject{
-			r.makeShape(_parentWidth, _parentHeight);
-			
+			r.makeShape(_parentWidth, _parentHeight);			
 			return r;	
 		}
 		
