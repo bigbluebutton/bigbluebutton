@@ -41,6 +41,7 @@
 #   2010-02-28 FFD  Fixed #834 
 #   2011-06-26 FFD  Updates for 0.8
 #   2012-01-14 FFD  Tsting the development environment for 0.8
+#   2012-02-22 FFD  Updates to development environment
 
 #set -x
 #set -e
@@ -179,14 +180,13 @@ usage() {
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
-        echo "   --setsipip <host>                Set IP for FreeSWITCH" 
 	echo "   --setsalt <salt>		  Change the security salt in bigbluebutton.properties"
         echo
         echo "Monitoring:"
-        echo "   --check <verbose>                Check configuration files and processes for problems"
+        echo "   --check                          Check configuration files and processes for problems"
         echo "   --debug                          Scan the log files for error messages"
         echo "   --watch                          Scan the log files for error messages every 2 seconds"
-        echo "   --salt                           View the URL and security salt for the server"
+        echo "   --salt                           View the URL and salt (shared secret) for the server"
         echo
         echo "Administration:"
         echo "   --restart                        Restart BigBueButton"
@@ -363,6 +363,26 @@ display_bigbluebutton_status () {
 	/etc/init.d/${SERVLET_CONTAINER} status
 }
 
+check_source() {
+	mkdir -p $HOME/dev
+        if [ -d $1 ]; then
+                echo "# "
+                echo "# Error: Could not find $1."
+                echo "# You need to checkout the BigBlueButton source from GitHub in your"
+		echo "#"
+		echo "#     $HOME/dev"
+                echo "#"
+                echo "# directory.  After checkout you should have the folder"
+                echo "#"
+		echo "#     $HOME/dev/bigbluebutton"
+                echo "#"
+                echo "# For more information, see:"
+                echo "#    http://code.google.com/p/bigbluebutton/w/edit/08SettingDevEnvironment"
+		echo
+		exit 1
+        fi
+}
+
 if [ $# -eq 0 ]; then
 	usage
 	exit 1
@@ -463,7 +483,6 @@ while [ $# -gt 0 ]; do
 
 		if echo $HOST|grep -q ":"; then
 			HOST=`echo ${2}|cut -d: -f1`
-			PORT=`echo ${2}|cut -d: -f2`
 		fi
 		shift; shift
 		continue
@@ -511,15 +530,6 @@ while [ $# -gt 0 ]; do
 		continue
 	fi
 
-	if [ "$1" = "-setsipip" -o "$1" = "--setsipip" ]; then
-		if test -z "${2}"; then
-			usage;
-		fi
-		SIPIP="${2}"
-                shift; shift
-                continue
-	fi
-
 	usage 
 	exit 1
 done
@@ -545,14 +555,6 @@ if [ $SALT ]; then
 	change_var_salt ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties securitySalt $SALT
 	echo "Changed BigBlueButton's security salt to $SALT"
 	echo
-fi
-
-if [ $SIPIP ]; then
-	need_root
-	change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties sip.server.host $SIPIP
-	echo "Changed the value for sip.server.host to $SIPIP"
-	echo
-	CLEAN=1
 fi
 
 #
@@ -611,6 +613,9 @@ fi
 if [ $CHECKOUT ]; then
 	check_root
 
+	check_source $HOME/dev
+
+	exit 0
 	# This is a step towards setting up a development environment on a non-BigBlueButton VM
 	if ! which git > /dev/null; then
 		echo "# Installing git and ant"
@@ -655,24 +660,80 @@ fi
 
 if [ $SETUPDEV ]; then
         check_root
+	check_source $HOME/dev
 
-        if [ ! -d $HOME/dev/source/bigbluebutton ]; then
-                echo "# "
-                echo "*** ERROR: You haven't checked-out BigBlueButton source yet. Please run 'bbb-conf --checkout' first. "
-                echo "# "
-		exit 1
+	#
+	# Check for core development tools
+	#
+        if ! which git > /dev/null; then
+                sudo apt-get install git-core -y --force-yes
+        fi
+
+        if ! which ant > /dev/null; then
+                sudo apt-get install ant -y --force-yes
+        fi
+
+        if ! which javac > /dev/null; then
+                sudo apt-get install openjdk-6-jdk -y --force-yes
         fi
 
 
+	#
+	# Check for BigBlueButton-specific development tools
+	#
+	TOOLS="gradle-0.8 grails-1.1.1 groovy-1.6.5"
+	for tool in $TOOLS; do
+		if [ ! -d /usr/share/$tool ]; then
+			cd /tmp
+			if [ ! -f /tmp/$tool.tar.gz ]; then
+				get http://bigbluebutton.googlecode.com/files/$tool.tar.gz
+			fi
+			echo "Installing $tool to /usr/share/$tool"
+			sudo tar xvfz $tool.tar.gz -C /usr/share
+		fi
+	done
+
+	if [ ! -d /usr/share/flex-4.5.0.20967 ]; then
+		cd /tmp
+		if [ ! -f flex_sdk_4.5.0.20967_mpl.zip ]; then
+			wget http://fpdownload.adobe.com/pub/flex/sdk/builds/flex4.5/flex_sdk_4.5.0.20967_mpl.zip
+			cd /usr/share
+			unzip /tmp/flex_sdk_4.5.0.20967_mpl.zip
+		fi
+
+	fi
+
+	if [ ! -L /usr/share/flex ]; then
+		ln -s /usr/share/flex-4.5.0.20967 /usr/share/flex
+	fi
+
+
+	if [ ! -f /usr/share/flex-4.5.0.20967/frameworks/libs/player/10.3/playerglobal.swc ]; then
+		cd /tmp
+		if [ ! -f playerglobal.swc ]; then
+			wget http://fpdownload.macromedia.com/pub/flashplayer/updaters/10/playerglobal10_3.swc
+			mv playerglobal10_3.swc /usr/share/flex-4.5.0.20967/frameworks/libs/player/10.3/playerglobal.swc
+		fi
+	fi
+
+	mkdir -p $HOME/dev
+
+        if [ ! -d $HOME/dev/bigbluebutton ]; then
+                echo "# "
+                echo "# Error: Could not find BigBlueButotn source in $HOME/dev/bigbluebutton."
+                echo "# You need to checkout the BigBlueButton source from GitHub.  Please see"
+                echo "# "
+                echo "#    http://code.google.com/p/bigbluebutton/w/edit/08SettingDevEnvironment"
+		echo
+		exit 1
+        fi
+
+	exit
+
         if [ $SETUPDEV == "web" ]; then
 	    	BBBWEBHOME=$HOME/dev/source/bigbluebutton/bigbluebutton-web
-            	if [ ! -d $BBBWEBHOME ]; then
-			echo "# "
-			echo "*** ERROR: Cannot find ${BBBWEBHOME} "
-			echo "*** ERROR: You haven't checked-out BigBlueButton source yet. Please run 'bbb-conf --checkout' first. "
-			echo "# "
-			exit 1
-	 	fi
+		check_source $BBBWEBHOME
+
 
                 echo "# Copying the bigbluebutton.properites in ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ~/.grails/bigbluebutton-config.properties"
                 mkdir -p $HOME/.grails
@@ -702,19 +763,15 @@ if [ $SETUPDEV ]; then
 
 
         if [ $SETUPDEV == "client" ]; then
-		BBBCLIENTHOME=$HOME/dev/source/bigbluebutton/bigbluebutton-client
-            	if [ ! -d $BBBCLIENTHOME ]; then
-                        echo "# "
-                        echo "*** ERROR: Cannot find ${BBBCLIENTHOME} "
-                        echo "*** ERROR: You haven't checked-out BigBlueButton source yet. Please run 'bbb-conf --checkout' first. "
-                        echo "# "
-                        exit 1
-                fi
+		BBBCLIENTHOME=$HOME/dev/bigbluebutton/bigbluebutton-client
+		check_source $BBBCLIENTHOME
 
                 #
                 # Setup the directories so we can point /etc/nginx/sites-available/bigbluebutton to this
                 # local copy of the client
                 #
+
+		# XXX
                 if [ ! -d $BBBCLIENTHOME/bin ]; then
                         mkdir -p $BBBCLIENTHOME/bin
                 fi
@@ -727,16 +784,30 @@ if [ $SETUPDEV ]; then
                         ln -s $BBBCLIENTHOME/bin $BBBCLIENTHOME/client
                 fi
 
-                echo "Modifying /etc/nginx/sites-available/bigbluebutton to point to your local copy of bbb-client"
-                sudo sed -i "s/\/var\/www\/bigbluebutton;/\/home\/firstuser\/dev\/source\/bigbluebutton\/bigbluebutton-client;/g" \
-                        /etc/nginx/sites-available/bigbluebutton
+                echo "Modifying /etc/bigbluebutton/nginx/client.nginx to point to your development environment"
+
+		#
+		# We're going to create a symbolic link to the new location for BigBlueButton client
+		#
+		if [ ! -f /etc/bigbluebutton/nginx/client_dev ]; then
+			cat > sudo tee /etc/bigbluebutton/nginx/client_dev <<HERE
+        location /client/BigBlueButton.html {
+                root    $BBBCLIENTHOME;
+                index  index.html index.htm;
+                expires 1m;
+        }
+
+        # BigBlueButton Flash client.
+        location /client {
+                root    $BBBCLIENTHOME;
+                index  index.html index.htm;
+        }
+HERE
+		fi
+		sudo rm /etc/bigbluebutton/nginx/client.nginx
+		sudo ln -s /etc/bigbluebutton/nginx/client_dev /etc/bigbluebutton/nginx/client.nginx
+
                 sudo /etc/init.d/nginx restart
-
-                echo "# Copying /var/www/bigbluebutton/client/conf/config.xml to ${BBBCLIENTHOME}/src/conf/config.xml"
-                cp /var/www/bigbluebutton/client/conf/config.xml $BBBCLIENTHOME/src/conf/config.xml
-
-                echo "# Copying ${BBBCLIENTHOME}/resources/dev/join-mock.xml to ${BBBCLIENTHOME}/src/conf/join-mock.xml"
-                cp $BBBCLIENTHOME/resources/dev/join-mock.xml $BBBCLIENTHOME/src/conf/join-mock.xml
 
 		if [ ! -d /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default ]; then
 			echo "# Creating /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default"
@@ -748,7 +819,11 @@ if [ $SETUPDEV ]; then
                 cd $BBBCLIENTHOME
 
                 echo "
-# Done.  To build your local build of bbb-client:
+# Done.  To build your local build of bbb-client, first:
+
+	ant locales
+
+# then
 
         cd ${BBBCLIENTHOME}
         ant
@@ -821,8 +896,9 @@ if [ $RESET_DEV ]; then
 	check_root
 
 	echo "Reseting /etc/nginx/sites-available/bigbluebutton to point to /var/www/bigbluebutton"
-	sudo sed -i "s/\/home\/firstuser\/dev\/source\/bigbluebutton\/bigbluebutton-client;/\/var\/www\/bigbluebutton;/g" \
-					/etc/nginx/sites-available/bigbluebutton
+        sudo rm /etc/bigbluebutton/nginx/client.nginx
+        sudo ln -s /etc/bigbluebutton/nginx/client /etc/bigbluebutton/nginx/client.nginx
+
 	sudo /etc/init.d/nginx restart
 fi
 
@@ -1367,7 +1443,7 @@ if [ $CHECK ]; then
 	PORT=$(cat /etc/nginx/sites-available/bigbluebutton | sed -n '/listen/{s/.*listen[ ]*//;s/;//;p}')
 	echo "                              port: $PORT"
 
-	BBB_CLIENT_DOC_ROOT=$(cat /etc/nginx/sites-available/bigbluebutton | grep \/client -A 1 | head -n 2 | grep root | sed -n '{s/[ ]*root[ ]*//;s/;//;p}')
+	BBB_CLIENT_DOC_ROOT=$(cat /etc/bigbluebutton/nginx/client.nginx | grep \/client -A 1 | head -n 2 | grep root | sed -n '{s/[ \t]*root[ ]*//;s/;//;p}')
 	echo "                    bbb-client dir: $BBB_CLIENT_DOC_ROOT"
 
 	BBB_WEB_IP=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
@@ -1628,13 +1704,6 @@ if [ -n "$HOST" ]; then
 	sudo sed -i "s/server_name  .*/server_name  $HOST;/g" /etc/nginx/sites-available/bigbluebutton
 
 	#
-	# Use port for remaining substitutions
-	#
-	if [ $PORT ]; then
-		HOST="$HOST:$PORT"
-	fi
-
-	#
 	# Update configuration for BigBlueButton client
 	#
 	echo "Assigning $HOST for http:// in /var/www/bigbluebutton/client/conf/config.xml"
@@ -1655,15 +1724,6 @@ if [ -n "$HOST" ]; then
 
 	# cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties
 
-	#
-	# Update nginx
-	#
-
-	if [ $PORT ]; then
-		echo "Assigning $PORT for listen in /etc/nginx/sites-available/bigbluebutton"
-		sudo sed -i "s/listen  .*/listen  $PORT;/g" /etc/nginx/sites-available/bigbluebutton
-	fi
-
 	if ! grep -q server_names_hash_bucket_size /etc/nginx/nginx.conf; then
 		sudo sed -i "s/gzip  on;/gzip  on;\n    server_names_hash_bucket_size  64;/g" /etc/nginx/nginx.conf
 	fi
@@ -1683,42 +1743,6 @@ if [ -n "$HOST" ]; then
 		change_yml_value /usr/local/bigbluebutton/core/scripts/slides.yml $redis_host playback_host $HOST
 	fi
 	
-
-	#
-	# Update Freeswitch config
-	#
-	# Not needed -- we can keep this at 127.0.0.1
-	#
-	#HOSTIP=$(ifconfig | grep -v '127.0.0.1' | grep -m 1 'inet addr:' | cut -d: -f2 | awk '{ print $1}');
-	#if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then
-	#	EVENTIP=$(cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-	#		sed -i "s/$EVENTIP/$HOSTIP/g" \
-	#			/opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
-	#fi
-
-	#
-	# Update bigbluebutton-sip.properties
-	#
-	# Not needed -- we can keep this at 127.0.0.1
-	#
-	#SIPIP=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | grep 'sip.server.host' | cut -d= -f2)
-	#if [ -f /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties ]; then
-	#	sed -i "s/$SIPIP/$HOSTIP/g" \
-	#			/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
-	#fi
-
-	#
-        #if [ $VOICE_CONFERENCE == "bbb-voice-freeswitch.xml" ]; then
-        #        if [ -f /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties ]; then
-	#		if echo "$HOST" | grep -q -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*"; then 
-	#			IP=$HOST
-	#		fi
-        #
-        #                echo "Assigning $IP for sip.server.host in /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
-        #                sudo sed -i "s/sip.server.host=.*/sip.server.host=$IP/g" \
-        #                        /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
-        #        fi
-        #fi
 
 	echo "Restarting the bigbluebutton server ..."
 	stop_bigbluebutton
@@ -1751,6 +1775,9 @@ if [ $CONFERENCE ]; then
 		fi
 	fi
 
+	#
+	# Depreciated
+	#
 	if [ $CONFERENCE = "meetme" ]; then
 	        if [ ! -f /etc/asterisk/bbb_extensions.conf ]; then
 			echo
@@ -1797,7 +1824,10 @@ if [ $CONFERENCE ]; then
 		sudo /etc/init.d/asterisk restart
 		sudo /etc/init.d/red5 restart
 	fi
- 
+
+	#
+	# Depreciated
+	# 
 	if [ $CONFERENCE = "app_konference" ]; then
 	        if [ ! -f /etc/asterisk/bbb_extensions.conf ]; then
 			echo
@@ -1867,13 +1897,7 @@ if [ $CONFERENCE ]; then
 			/usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml
 		fi
 
-		#if [ -f /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml ]; then
-        	#	EVENTIP=$(sudo cat /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml | grep 'name="listen-ip"' | cut -d\" -f4  | awk '{print $1}')
-		#        sed -i "s/$EVENTIP/$IP/g" \
-        	#       /opt/freeswitch/conf/autoload_configs/event_socket.conf.xml
-		#fi
-
-	        change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties sip.server.host $IP
+	        change_var_ip /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties sip.server.host 127.0.0.1
 
 		echo "Switching to $CONFERENCE ... "
 		if [ -f /etc/init.d/asterisk ]; then
