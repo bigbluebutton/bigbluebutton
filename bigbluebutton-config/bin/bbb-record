@@ -41,7 +41,6 @@ TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g
 
 mark_for_rebuild() {
 	MEETING_ID=$1
-	set -x
 	for type in $TYPES; do
                 if [ -d $BASE/process/$type/$MEETING_ID ]; then
                         rm -rf $BASE/process/$type/$MEETING_ID

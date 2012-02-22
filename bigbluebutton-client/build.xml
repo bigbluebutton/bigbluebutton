@@ -335,7 +335,7 @@
 			</mxmlc>
 		</sequential>
 	</macrodef>
-	
+
 	<target name="compile-deskshare-standalone" depends="build-deskshare-standalone"
 			description="Compiling standalone desktop sharing">	
 			<echo message="Deskshare standalone built without optimization." />
@@ -345,7 +345,25 @@
 			description="Compiling the BBB without copying config.xml">	
 	</target>
 
-	<target name="copy-resource-files">
+	<target name="copy-config-if-needed">
+    		<if>
+        		<available file="${BASE_DIR}/src/conf/config.xml"/>
+        	<else>
+            		<copy file="/var/www/bigbluebutton/client/conf/config.xml" todir="${BASE_DIR}/src/conf" />
+        	</else>
+    		</if>
+	</target>	
+
+	<target name="copy-join-mock-if-needed">
+    		<if>
+        		<available file="${BASE_DIR}/src/conf/join-mock.xml"/>
+        	<else>
+            		<copy file="${RESOURCES_DIR}/dev/join-mock.xml" todir="${BASE_DIR}/src/conf" />
+        	</else>
+    		</if>
+	</target>	
+
+	<target name="copy-resource-files" depends="copy-config-if-needed,copy-join-mock-if-needed">
 		<copy todir="${OUTPUT_DIR}/swfobject/" >
 			<fileset dir="${PROD_RESOURCES_DIR}/swfobject" />
 		</copy>	
@@ -374,14 +392,6 @@
         	</if>
 	</target>
 	
-	<target name="check-config-xml">
-    		<available file="/var/www/bigbluebutton/client/conf/config.xml" property="config-xml.present"/>
-	</target>
-
-	<target name="copy-config-xml" depends="check-config-xml" if="config-xml.present">
-		<echo message="Updating config.xml from /var/www/bigbluebutton/client/conf/config.xml" />
-		<copy file="/var/www/bigbluebutton/client/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
-	</target>
 
 	<target name="generate-html-wrapper">
 		<html-wrapper
