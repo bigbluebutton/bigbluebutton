@@ -408,6 +408,7 @@
 				c.y = slideLoader.y * 2;
 				c.width = slideLoader.width;
 				c.height = slideLoader.height;
+				fitSlideToLoader();
 			}
 			
 			public function moveCanvas(x:Number, y:Number):void{

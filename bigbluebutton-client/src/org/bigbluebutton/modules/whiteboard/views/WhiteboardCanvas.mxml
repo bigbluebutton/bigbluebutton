@@ -190,6 +190,10 @@
 //					}
 //				}
 
+				if (bbbCanvas == null) {
+					shapeList.push(o);
+					return;
+				}
 				LogUtil.debug("Got shape [" + o.getType() + " " + o.status + "]");
 				if (o.status == null) {
 					LogUtil.error("STATUS IS NULL");
@@ -309,6 +313,11 @@
 			private function changePage(e:PageEvent):void{
 				var page:Number = e.pageNum;
 				var shapes:ArrayCollection = e.shapes;
+				if (bbbCanvas == null) {
+					LogUtil.debug("Shape canvas not yet ready");
+					return;
+				}
+				
 				clearBoard();
 				for (var i:int = 0; i < shapes.length; i++){
 					var o:DrawObject = shapes.getItemAt(i) as DrawObject;
@@ -360,12 +369,14 @@
 				LogUtil.warn("REDRAWING shape [" + dobj.id + "]");
 				if (bbbCanvas.doesContain(dobj.getShape())) {
 					bbbCanvas.removeRawChild(dobj.getShape());
-					shapeFactory.makeShape(dobj);
-					bbbCanvas.addRawChild(dobj.getShape());
+
 				} else {
 					LogUtil.warn("Cannot find shape [" + dobj.id + "]");
 				}
+				shapeFactory.makeShape(dobj);
+				bbbCanvas.addRawChild(dobj.getShape());
 			}
+			
 			
 			public function zoomCanvas(width:Number, height:Number):void{
 				shapeFactory.setParentDim(width, height);	

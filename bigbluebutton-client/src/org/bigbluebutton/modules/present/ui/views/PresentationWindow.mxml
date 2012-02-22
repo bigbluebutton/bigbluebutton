@@ -418,8 +418,9 @@
             
             private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
 				LogUtil.debug("OVERLAYING WHITEBOARD CANVAS");
+				e.canvas.acceptOverlayCanvas(slideView);
             	slideView.acceptOverlayCanvas(e.canvas);
-            	e.canvas.acceptOverlayCanvas(slideView);
+            	
             }
             
             /**
