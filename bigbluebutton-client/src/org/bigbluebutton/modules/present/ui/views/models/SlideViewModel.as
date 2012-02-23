@@ -101,45 +101,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 			viewportH = this.parentH = parentH;
 			this.fitToPage = fitToPage;
 		}
-		
-		private function calcViewedRegion():void {
-			if (fitToPage) {
-				_viewedRegionW = (viewportW/_calcPageW) * HUNDRED_PERCENT;
-				_viewedRegionH = (viewportH/_calcPageH) * HUNDRED_PERCENT;
-				
-				if (_viewedRegionW > HUNDRED_PERCENT) _viewedRegionW = HUNDRED_PERCENT;
-				if (_viewedRegionH > HUNDRED_PERCENT) _viewedRegionH = HUNDRED_PERCENT;
-				
-//				LogUtil.debug("** calc vr ftp [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _viewedRegionW + "," + _viewedRegionH + "]");				
-			} else {
-				_viewedRegionW = HUNDRED_PERCENT;
-				_viewedRegionH = (viewportH/_calcPageH) * HUNDRED_PERCENT;
-//				LogUtil.debug("** calc vr ftw [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _viewedRegionW + "," + _viewedRegionH + "]");				
-			}
-		}
-		
-		private function calcCalcPageSize():void {
-			if (fitToPage) {
-				_calcPageW = (viewportW/_viewedRegionW) * HUNDRED_PERCENT;
-				_calcPageH = (viewportH/_viewedRegionH) * HUNDRED_PERCENT;
-//				LogUtil.debug("** calc cp ftp [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _viewedRegionW + "," + _viewedRegionH + "]");				
-			} else {
-				_calcPageW = viewportW;
-				_calcPageH = (_calcPageW/_pageOrigW) * _pageOrigH;
-//				LogUtil.debug("** calc cp ftw [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _viewedRegionW + "," + _viewedRegionH + "]");				
-			}
-		}
-		
-		private function calcViewedRegionXY():void {
-			if (fitToPage) {
-				_viewedRegionX = (_calcPageX * HUNDRED_PERCENT) / _calcPageW;
-				_viewedRegionY = (_calcPageY * HUNDRED_PERCENT) / _calcPageH;
-			} else {
-				_viewedRegionX = 0;
-				_viewedRegionY = (_calcPageY * HUNDRED_PERCENT) / _calcPageH;
-			}
-		}
-		
+									
 		public function displayPresenterView():void {
 			loaderX = Math.round(_calcPageX);
 			loaderY = Math.round(_calcPageY);
@@ -157,9 +119,12 @@ package org.bigbluebutton.modules.present.ui.views.models
 			} else {
 				calculateViewportSize();
 				calculateViewportXY();
-				calcCalcPageSize();
-				calcViewedRegion();
-				calcViewedRegionXY();
+				_calcPageW = SlideCalcUtil.calcCalcPageSizeWidth(fitToPage, viewportW, _viewedRegionW);
+				_calcPageH = SlideCalcUtil.calcCalcPageSizeHeight(fitToPage, viewportH, _viewedRegionH, _calcPageW, _calcPageH, _pageOrigW, _pageOrigH);
+				_viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(fitToPage, viewportW, _calcPageW);
+				_viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(fitToPage, viewportH, _calcPageH);
+				_viewedRegionX = SlideCalcUtil.calcViewedRegionX(fitToPage, _calcPageX, _calcPageW);
+				_viewedRegionY = SlideCalcUtil.calcViewedRegionY(fitToPage, _calcPageY, _calcPageH);
 				onResizeMove();				
 			}			
 		}
@@ -207,8 +172,10 @@ package org.bigbluebutton.modules.present.ui.views.models
 			
 			onResizeMove();	
 			
-			calcViewedRegion();
-			calcViewedRegionXY();
+			_viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(fitToPage, viewportW, _calcPageW);
+			_viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(fitToPage, viewportH, _calcPageH);
+			_viewedRegionX = SlideCalcUtil.calcViewedRegionX(fitToPage, _calcPageX, _calcPageW);
+			_viewedRegionY = SlideCalcUtil.calcViewedRegionY(fitToPage, _calcPageY, _calcPageH);
 		}
 		
 		public function calculateViewportSize():void {
@@ -216,8 +183,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 			viewportH = parentH;
 			
 			if (fitToPage) {
-				// If the height is smaller than the width, we use the height as the 
-				// base to determine the size of the slide.
+				// If the height is smaller than the width, we use the height as the base to determine the size of the slide.
 				if (parentH < parentW) {					
 					viewportH = parentH;
 					viewportW = ((pageOrigW * viewportH)/pageOrigH);					
@@ -328,8 +294,10 @@ package org.bigbluebutton.modules.present.ui.views.models
 				}
 			}
 			
-			calcViewedRegion();
-			calcViewedRegionXY();
+			_viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(fitToPage, viewportW, _calcPageW);
+			_viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(fitToPage, viewportH, _calcPageH);
+			_viewedRegionX = SlideCalcUtil.calcViewedRegionX(fitToPage, _calcPageX, _calcPageW);
+			_viewedRegionY = SlideCalcUtil.calcViewedRegionY(fitToPage, _calcPageY, _calcPageH);
 		}
 		
 		public function displayViewerRegion(x:Number, y:Number, regionW:Number, regionH:Number):void {
