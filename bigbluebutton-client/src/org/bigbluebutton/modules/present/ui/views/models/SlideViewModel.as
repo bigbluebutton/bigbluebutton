@@ -101,7 +101,19 @@ package org.bigbluebutton.modules.present.ui.views.models
 			viewportH = this.parentH = parentH;
 			this.fitToPage = fitToPage;
 		}
-									
+		
+		public function calculateViewportXY():void {
+			viewportX = SlideCalcUtil.calculateViewportX(viewportW, parentW);
+			viewportY = SlideCalcUtil.calculateViewportY(viewportH, parentH);			
+	    }
+	
+		private function calcViewedRegion():void {
+			_viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(fitToPage, viewportW, _calcPageW);
+			_viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(fitToPage, viewportH, _calcPageH);
+			_viewedRegionX = SlideCalcUtil.calcViewedRegionX(fitToPage, _calcPageX, _calcPageW);
+			_viewedRegionY = SlideCalcUtil.calcViewedRegionY(fitToPage, _calcPageY, _calcPageH);
+		}
+		
 		public function displayPresenterView():void {
 			loaderX = Math.round(_calcPageX);
 			loaderY = Math.round(_calcPageY);
@@ -121,10 +133,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				calculateViewportXY();
 				_calcPageW = SlideCalcUtil.calcCalcPageSizeWidth(fitToPage, viewportW, _viewedRegionW);
 				_calcPageH = SlideCalcUtil.calcCalcPageSizeHeight(fitToPage, viewportH, _viewedRegionH, _calcPageW, _calcPageH, _pageOrigW, _pageOrigH);
-				_viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(fitToPage, viewportW, _calcPageW);
-				_viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(fitToPage, viewportH, _calcPageH);
-				_viewedRegionX = SlideCalcUtil.calcViewedRegionX(fitToPage, _calcPageX, _calcPageW);
-				_viewedRegionY = SlideCalcUtil.calcViewedRegionY(fitToPage, _calcPageY, _calcPageH);
+				calcViewedRegion();
 				onResizeMove();				
 			}			
 		}
@@ -171,11 +180,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 			_calcPageY += deltaY;
 			
 			onResizeMove();	
-			
-			_viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(fitToPage, viewportW, _calcPageW);
-			_viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(fitToPage, viewportH, _calcPageH);
-			_viewedRegionX = SlideCalcUtil.calcViewedRegionX(fitToPage, _calcPageX, _calcPageW);
-			_viewedRegionY = SlideCalcUtil.calcViewedRegionY(fitToPage, _calcPageY, _calcPageH);
+			calcViewedRegion();
 		}
 		
 		public function calculateViewportSize():void {
@@ -212,22 +217,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 //				LogUtil.debug("calc viewport FTW [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
 			}		
 		}	
-		
-		public function calculateViewportXY():void {
-			if (viewportW == parentW) {
-				viewportX = 0;
-			} else {
-				viewportX = (parentW - viewportW) / MYSTERY_NUM;
-			}
 			
-			if (viewportH == parentH) {
-				viewportY = 0;
-			} else {
-				viewportY = (parentH - viewportH) / MYSTERY_NUM;
-			}
-//			LogUtil.debug("calc viewport xy [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + viewportX + "," + viewportY + "]");
-		}
-		
 		public function printViewedRegion():void {
 			LogUtil.debug("Region [" + viewedRegionW + "," + viewedRegionH + "] [" + viewedRegionX + "," + viewedRegionY + "]");			
 			LogUtil.debug("Region [" + ((viewedRegionW / HUNDRED_PERCENT)*_calcPageW) + "," + ((viewedRegionH/HUNDRED_PERCENT)*_calcPageH) + 
@@ -243,8 +233,6 @@ package org.bigbluebutton.modules.present.ui.views.models
 				var zpxp:Number = zpx/cpw;
 				var zpyp:Number = zpy/cph;
 				
-//				LogUtil.debug("** Zoompoint [" + viewportW + "," + viewportH + "][" + mouseX + "," + mouseY + "][" + _calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + vpx + "," + vpy + "," + zpx + "," + zpy + "] ");			
-				
 				_calcPageW = pageOrigW * zoomValue / HUNDRED_PERCENT;
 				_calcPageH = (_calcPageW/cpw) * cph; 
 				
@@ -253,36 +241,15 @@ package org.bigbluebutton.modules.present.ui.views.models
 				_calcPageX = -((zpx1 + zpx)/2) + mouseX;
 				_calcPageY = -((zpy1 + zpy)/2) + mouseY;
 				
-//				LogUtil.debug("** Zoom 1 [" + viewportW + "," + viewportH + "][" + mouseX + "," + mouseY + "][" + _calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + zpx1 + "," + zpy1 + "] ");				
+				doWidthBoundsDetection();
+				doHeightBoundsDetection();
 				
-				if (_calcPageX > 0) {
-					_calcPageX = 0;
-//					LogUtil.debug("** Zoom 1.1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");				
-				} else {
-					if (_calcPageX * MYSTERY_NUM + _calcPageW < viewportW) {
-						_calcPageX = (viewportW - _calcPageW) / MYSTERY_NUM;
-//						LogUtil.debug("** Zoom 1.2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");				
-					}					
-				}
-				
-				if (_calcPageY > 0) {
-					_calcPageY = 0;		
-//					LogUtil.debug("** Zoom 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");				
-				} else {
-					if (_calcPageY * MYSTERY_NUM + _calcPageH < viewportH) {
-						_calcPageY = (viewportH - _calcPageH) / MYSTERY_NUM;
-//						LogUtil.debug("** Zoom 3 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
-					}					
-				}
-				
-				if ((_calcPageW < viewportW) || (_calcPageH < viewportH)) {
+				if (zoomValue == HUNDRED_PERCENT) {
 					_calcPageW = viewportW;
 					_calcPageH = viewportH;
 					_calcPageX = 0;
 					_calcPageY = 0;
-//					LogUtil.debug("** Zoom 4 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 				} 
-//				LogUtil.debug("** Zoom 5 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 			} else {
 				// For FTW, zooming isn't making the page bigger but actually scrolling.
 				// -delta means scrolling down, +delta means scrolling up.
@@ -290,14 +257,10 @@ package org.bigbluebutton.modules.present.ui.views.models
 				_calcPageY = (HUNDRED_PERCENT/MAX_ZOOM_PERCENT) * _calcPageH - (zoomValue/MAX_ZOOM_PERCENT) * _calcPageH;
 				if (_calcPageY * MYSTERY_NUM + _calcPageH < viewportH) {
 					_calcPageY = (viewportH - _calcPageH) / MYSTERY_NUM;
-					//						LogUtil.debug("** Zoom 3 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 				}
 			}
 			
-			_viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(fitToPage, viewportW, _calcPageW);
-			_viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(fitToPage, viewportH, _calcPageH);
-			_viewedRegionX = SlideCalcUtil.calcViewedRegionX(fitToPage, _calcPageX, _calcPageW);
-			_viewedRegionY = SlideCalcUtil.calcViewedRegionY(fitToPage, _calcPageY, _calcPageH);
+			calcViewedRegion();
 		}
 		
 		public function displayViewerRegion(x:Number, y:Number, regionW:Number, regionH:Number):void {
