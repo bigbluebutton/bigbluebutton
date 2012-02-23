@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 #
 # Copyright (c) 2008-2010 by BigBlueButton Inc.
 #
@@ -198,7 +198,6 @@ usage() {
         if [ "$(is_vm)" ]; then
                 echo "Development:"
                 echo "   --setup-samba                    Setup samba share for development (VM only)"
-                echo "   --checkout  <repo>               Checkout from github or passed in repository"
                 echo "   --setup-dev [client|web|apps]	  Setup development environment "
                 echo "   --reset-dev                      Reset environment back to using packages"
         fi
@@ -365,14 +364,14 @@ display_bigbluebutton_status () {
 
 check_source() {
 	mkdir -p $HOME/dev
-        if [ -d $1 ]; then
-                echo "# "
+        if [ ! -d $1 ]; then
+                echo 
                 echo "# Error: Could not find $1."
-                echo "# You need to checkout the BigBlueButton source from GitHub in your"
+                echo "# You need to clone the BigBlueButton source from GitHub in your"
 		echo "#"
 		echo "#     $HOME/dev"
                 echo "#"
-                echo "# directory.  After checkout you should have the folder"
+                echo "# directory.  After cloning you should have the folder"
                 echo "#"
 		echo "#     $HOME/dev/bigbluebutton"
                 echo "#"
@@ -459,17 +458,6 @@ while [ $# -gt 0 ]; do
                 shift
                 continue
         fi
-
-	if [ "$1" = "--checkout" -o "$1" = "-checkout" ]; then
-		echo "# Request to checkout BigBlueButton"
-		if [ $# -lt 2 ]; then
-			CHECKOUT="git://github.com/bigbluebutton/bigbluebutton.git"
-		else
-			CHECKOUT="${2}"
-		fi	
-		shift; shift
-		continue
-	fi
 
 	#
 	# all other parameters requires at least 1 argument
@@ -606,61 +594,9 @@ you can map the above path to a drive letter.
 fi
 
 
-#
-# Setup the development environemnt.
-#
-
-if [ $CHECKOUT ]; then
-	check_root
-
-	check_source $HOME/dev
-
-	exit 0
-	# This is a step towards setting up a development environment on a non-BigBlueButton VM
-	if ! which git > /dev/null; then
-		echo "# Installing git and ant"
-		sudo apt-get install git-core -y --force-yes
-	fi
-
-	if ! which ant > /dev/null; then
-		echo "# Installing git and ant"
-		sudo apt-get install ant -y --force-yes
-	fi
-        
-        
-        BBBSRCGIT="$HOME/dev/source/bigbluebutton"	
-
-	if [ -d $BBBSRCGIT ]; then
-		echo "# "
-                echo "# Looks like you already have $BBBSRCGIT.  Your good to go."
-		echo "# "
-		exit
-	fi
-
-	mkdir -p $HOME/dev/source
-
-	echo "# Changing to the dev directory"
-        cd $HOME/dev/source
-
-        echo "#"
-        echo "# Cloning the BigBlueButton GIT source"
-        echo "#"
-        git clone $CHECKOUT
-	cd $HOME/dev/source/bigbluebutton
-	echo " Checking out version $BBB_VERSION "
- 	#git checkout -b 0.7-release-workspace v0.7	
- 	#git checkout -b 0.7-release-workspace v0.7	
-
-        echo "#"
-        echo "# Done"
-        echo "#"
-	echo "# You can now run 'bbb-conf --setup-dev [client|web|apps]' to setup dev environment "
-        echo 
-fi
-
 if [ $SETUPDEV ]; then
         check_root
-	check_source $HOME/dev
+	check_source ~/dev/bigbluebutton
 
 	#
 	# Check for core development tools
@@ -678,58 +614,98 @@ if [ $SETUPDEV ]; then
         fi
 
 
+	BASE=~/dev/tools
+	mkdir -p $BASE
 	#
 	# Check for BigBlueButton-specific development tools
 	#
 	TOOLS="gradle-0.8 grails-1.1.1 groovy-1.6.5"
 	for tool in $TOOLS; do
-		if [ ! -d /usr/share/$tool ]; then
-			cd /tmp
-			if [ ! -f /tmp/$tool.tar.gz ]; then
-				get http://bigbluebutton.googlecode.com/files/$tool.tar.gz
+		if [ ! -d $BASE/$tool ]; then
+			cd $BASE
+			if [ ! -f $tool.tar.gz ]; then
+				wget http://bigbluebutton.googlecode.com/files/$tool.tar.gz
 			fi
-			echo "Installing $tool to /usr/share/$tool"
-			sudo tar xvfz $tool.tar.gz -C /usr/share
+			echo "Installing $tool to $BASE/$tool"
+			tar xvfz $tool.tar.gz 
 		fi
 	done
 
-	if [ ! -d /usr/share/flex-4.5.0.20967 ]; then
-		cd /tmp
+	if [ ! -f $BASE/flex-4.5.0.20967/flex-sdk-description.xml ]; then
+		cd $BASE
 		if [ ! -f flex_sdk_4.5.0.20967_mpl.zip ]; then
 			wget http://fpdownload.adobe.com/pub/flex/sdk/builds/flex4.5/flex_sdk_4.5.0.20967_mpl.zip
-			cd /usr/share
-			unzip /tmp/flex_sdk_4.5.0.20967_mpl.zip
 		fi
-
+		mkdir -p $BASE/flex-4.5.0.20967
+		cd $BASE/flex-4.5.0.20967
+		unzip $BASE/flex_sdk_4.5.0.20967_mpl.zip
+		#
+		# The permissions are not in good shape, so let's fix them 
+		#
+		#sudo find $BASE/flex-4.5.0.20967 -type d -exec chmod o+rx '{}' \;
+		chmod 755 $BASE/flex-4.5.0.20967/bin/*
+		#sudo chmod -R +r /usr/share/flex-4.5.0.20967
+		#sudo chmod o+w /usr/share/flex-4.5.0.20967/frameworks/projects/framework/bundles
 	fi
 
-	if [ ! -L /usr/share/flex ]; then
-		ln -s /usr/share/flex-4.5.0.20967 /usr/share/flex
+	if [ ! -L $BASE/flex ]; then
+		ln -s $BASE/flex-4.5.0.20967 $BASE/flex
 	fi
 
 
-	if [ ! -f /usr/share/flex-4.5.0.20967/frameworks/libs/player/10.3/playerglobal.swc ]; then
-		cd /tmp
-		if [ ! -f playerglobal.swc ]; then
+	if [ ! -f $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3/playerglobal.swc ]; then
+		mkdir -p $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
+		cd $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
+		if [ ! -f playerglobal10_3.swc ]; then
 			wget http://fpdownload.macromedia.com/pub/flashplayer/updaters/10/playerglobal10_3.swc
-			mv playerglobal10_3.swc /usr/share/flex-4.5.0.20967/frameworks/libs/player/10.3/playerglobal.swc
 		fi
+		mv -f playerglobal10_3.swc playerglobal.swc
 	fi
 
-	mkdir -p $HOME/dev
+	if ! grep GROOVY_HOME ~/.profile; then
+		echo "
+#
+# BigBlueButton: Setup development environment
 
-        if [ ! -d $HOME/dev/bigbluebutton ]; then
-                echo "# "
-                echo "# Error: Could not find BigBlueButotn source in $HOME/dev/bigbluebutton."
-                echo "# You need to checkout the BigBlueButton source from GitHub.  Please see"
-                echo "# "
-                echo "#    http://code.google.com/p/bigbluebutton/w/edit/08SettingDevEnvironment"
-		echo
-		exit 1
-        fi
+export GROOVY_HOME=$HOME/dev/tools/groovy-1.6.5
+export PATH=\$PATH:\$GROOVY_HOME/bin
 
-	exit
+export GRAILS_HOME=$HOME/dev/tools/grails-1.1.1
+export PATH=\$PATH:\$GRAILS_HOME/bin
 
+export FLEX_HOME=$HOME/dev/tools/flex
+export PATH=\$PATH:\$FLEX_HOME/bin
+
+export GRADLE_HOME=$HOME/dev/tools/gradle-0.8
+export PATH=\$PATH:\$GRADLE_HOME/bin
+
+export JAVA_HOME=/usr/lib/jvm/java-6-openjdk
+export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
+" >> ~/.profile
+		echo "
+
+# Finished setting up your development environment variables in
+#
+#   $HOME/.bashrc
+#
+# Before you continue, you need to load them into your environment.
+# Do the following
+#
+#   source ~/.profile
+#
+# and execute 
+#
+#     bbb-conf --setup-dev $SETUPDEV 
+#
+# command again.
+"		exit 0
+	fi
+
+	echo "######"
+	exit 0
+	#
+	# Now, setup the specific development environment
+	#
         if [ $SETUPDEV == "web" ]; then
 	    	BBBWEBHOME=$HOME/dev/source/bigbluebutton/bigbluebutton-web
 		check_source $BBBWEBHOME
@@ -766,31 +742,17 @@ if [ $SETUPDEV ]; then
 		BBBCLIENTHOME=$HOME/dev/bigbluebutton/bigbluebutton-client
 		check_source $BBBCLIENTHOME
 
-                #
-                # Setup the directories so we can point /etc/nginx/sites-available/bigbluebutton to this
-                # local copy of the client
-                #
-
-		# XXX
-                if [ ! -d $BBBCLIENTHOME/bin ]; then
-                        mkdir -p $BBBCLIENTHOME/bin
-                fi
-
-                if [ ! -d $BBBCLIENTHOME/conf ]; then
-                        mkdir -p $BBBCLIENTHOME/bin/conf
-                fi
-
-                if [ ! -h $BBBCLIENTHOME/client ]; then
-                        ln -s $BBBCLIENTHOME/bin $BBBCLIENTHOME/client
-                fi
-
-                echo "Modifying /etc/bigbluebutton/nginx/client.nginx to point to your development environment"
+		#
+		# Setup initial values from the working environment
+		# 
+                cp /var/www/bigbluebutton/client/conf/config.xml $BBBCLIENTHOME/src/conf/config.xml
+                cp $BBBCLIENTHOME/resources/dev/join-mock.xml $BBBCLIENTHOME/src/conf/join-mock.xml
 
 		#
 		# We're going to create a symbolic link to the new location for BigBlueButton client
 		#
 		if [ ! -f /etc/bigbluebutton/nginx/client_dev ]; then
-			cat > sudo tee /etc/bigbluebutton/nginx/client_dev <<HERE
+			echo "
         location /client/BigBlueButton.html {
                 root    $BBBCLIENTHOME;
                 index  index.html index.htm;
@@ -802,46 +764,44 @@ if [ $SETUPDEV ]; then
                 root    $BBBCLIENTHOME;
                 index  index.html index.htm;
         }
-HERE
+" | sudo tee /etc/bigbluebutton/nginx/client_dev > /dev/null 2>&1
+
 		fi
 		sudo rm /etc/bigbluebutton/nginx/client.nginx
 		sudo ln -s /etc/bigbluebutton/nginx/client_dev /etc/bigbluebutton/nginx/client.nginx
 
                 sudo /etc/init.d/nginx restart
 
-		if [ ! -d /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default ]; then
-			echo "# Creating /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default"
-                        sudo mkdir -p /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default
-			echo "# chown /var/bigbluebutton/conference-mock-default to tomcat6"
-			sudo chown -R tomcat6:tomcat6 /var/bigbluebutton/conference-mock-default
-                fi
+		# xxx
+		#if [ ! -d /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default ]; then
+		#	echo "# Creating /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default"
+                #        sudo mkdir -p /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default
+		#	echo "# chown /var/bigbluebutton/conference-mock-default to tomcat6"
+		#	sudo chown -R tomcat6:tomcat6 /var/bigbluebutton/conference-mock-default
+                #fi
 
                 cd $BBBCLIENTHOME
 
                 echo "
-# Done.  To build your local build of bbb-client, first:
+# Setup of development for bigbluebutton-client complete.
+#
+# 1.  Build the language files.  (You need only do this once unless
+# you change the language files in the future.)
+#
+#       cd ${BBBCLIENTHOME}
+#	ant locales
+#
+# 2.  Build the client
+#
+#       cd ${BBBCLIENTHOME}
+#	ant
 
-	ant locales
-
-# then
-
-        cd ${BBBCLIENTHOME}
-        ant
-
-# The nginx server now loads the BigBlueButton Flash client from
-# ${BBBCLIENTHOME}.
 "
         fi
 
         if [ $SETUPDEV == "apps" ]; then
 	    	BBBAPPSHOME=~/dev/source/bigbluebutton/bigbluebutton-apps
-            	if [ ! -d $BBBAPPSHOME ]; then
-                        echo "# "
-                        echo "*** ERROR: Cannot find ${BBBAPPSHOME} "
-                        echo "*** ERROR: You haven't checked-out BigBlueButton source yet. Please run 'bbb-conf --checkout' first. "
-                        echo "# "
-                        exit 1
-                fi
+		check_source $BBBAPPSHOME
 
                 #
                 # We're going to make it easier to deploy by giving write access to others to
@@ -1148,12 +1108,11 @@ check_state() {
 	#
 	# Check if running development environment
 	#
-	if grep -v \# /etc/nginx/sites-available/bigbluebutton | grep /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client > /dev/null; then
+	if ! grep /var/www/bigbluebutton /etc/bigbluebutton/nginx/client.nginx > /dev/null; then
 		echo 
-        	echo "# Warning:"
-		echo "#   nginx is serving client from /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client"
-        	echo "#           instead of the usual /var/www/bigbluebutton"
-        	echo "#   (This is OK if you have a development environment setup)"
+		echo "# Warning: nginx is not serving client from /var/www/bigbluebutton-client."
+		echo "#"
+		echo "# (This is OK if you have setup this server for development.) "
 	fi
 
 
@@ -1392,7 +1351,7 @@ check_state() {
 		echo "#"
 		echo "#    http://$BBB_WEB/"
 		echo "#"
-		echo "# This is OK if you intend to use the built-in API demos.  To remove the demos:"
+		echo "# (This is OK if you intend to use the built-in API demos.)  To remove the demos:"
 		echo "#"
 		echo "#    sudo apt-get purge bbb-demo"
 	fi
