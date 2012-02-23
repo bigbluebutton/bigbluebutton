@@ -362,7 +362,11 @@ package org.bigbluebutton.modules.present.ui.views.models
 				// -delta means scrolling down, +delta means scrolling up.
 				//onMove(0, delta*2);
 				_calcPageX = 0;
-				_calcPageY = (zoomValue/MAX_ZOOM_PERCENT) * _calcPageH - (HUNDRED_PERCENT/MAX_ZOOM_PERCENT) * _calcPageH;
+				_calcPageY = (HUNDRED_PERCENT/MAX_ZOOM_PERCENT) * _calcPageH - (zoomValue/MAX_ZOOM_PERCENT) * _calcPageH;
+				if (_calcPageY * MYSTERY_NUM + _calcPageH < viewportH) {
+					_calcPageY = (viewportH - _calcPageH) / MYSTERY_NUM;
+					//						LogUtil.debug("** Zoom 3 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
+				}
 			}
 			
 			calcViewedRegion();
