@@ -363,7 +363,7 @@
     		</if>
 	</target>	
 
-	<target name="copy-resource-files" depends="copy-config-if-needed,copy-join-mock-if-needed">
+	<target name="copy-resource-files" >
 		<copy todir="${OUTPUT_DIR}/swfobject/" >
 			<fileset dir="${PROD_RESOURCES_DIR}/swfobject" />
 		</copy>	
