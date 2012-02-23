@@ -164,88 +164,48 @@ package org.bigbluebutton.modules.present.ui.views.models
 			}			
 		}
 		
+		private function doWidthBoundsDetection():void {
+			if (_calcPageX >= 0) {
+				// Don't let the left edge move inside the view.
+				_calcPageX = 0;
+			} else if ((_calcPageW + _calcPageX * MYSTERY_NUM) < viewportW) {
+				// Don't let the right edge move inside the view.
+				_calcPageX = (viewportW - _calcPageW) / MYSTERY_NUM;
+			} else {
+				// Let the move happen.
+			}			
+		}
+		
+		private function doHeightBoundsDetection():void {
+			if (_calcPageY >= 0) {
+				// Don't let the top edge move into the view.
+				_calcPageY = 0;
+			} else if ((_calcPageH + _calcPageY * MYSTERY_NUM) < viewportH) {
+				// Don't let the bottome edge move into the view.
+				_calcPageY = (viewportH - _calcPageH) / MYSTERY_NUM;
+			} else {
+				// Let the move happen.
+			}			
+		}
+		
 		private function onResizeMove():void {
 			if (fitToPage) {			
 				/** Bounds detection **/
-				if (_calcPageX >= 0) {
-					// Don't let the left edge move inside the view.
-					_calcPageX = 0;
-				} else if ((_calcPageW + _calcPageX * MYSTERY_NUM) < viewportW) {
-					// Don't let the right edge move inside the view.
-					_calcPageX = (viewportW - _calcPageW) / MYSTERY_NUM;
-				} else {
-					// Let the move happen.
-				}
-				
-				if (_calcPageY >= 0) {
-					// Don't let the top edge move into the view.
-					_calcPageY = 0;
-				} else if ((_calcPageH + _calcPageY * MYSTERY_NUM) < viewportH) {
-					// Don't let the bottome edge move into the view.
-					_calcPageY = (viewportH - _calcPageH) / MYSTERY_NUM;
-				} else {
-					// Let the move happen.
-				}
+				doWidthBoundsDetection();
+				doHeightBoundsDetection();
 			} else {
 				/** Bounds detection **/				
 				// The left edge should alway align the view.
-				_calcPageX = 0;
-				
-				if (_calcPageY > 0 ) {
-					// Don't let the top edge into the view.
-					_calcPageY = 0;
-				} else if ((_calcPageH + _calcPageY * MYSTERY_NUM) < viewportH) {
-					// Don't let the bottome edge into the view.
-					_calcPageY = (viewportH - _calcPageH) / MYSTERY_NUM;
-				} else {
-					// Let the move happen.
-				}	
+				_calcPageX = 0;				
+				doHeightBoundsDetection();	
 			}
 		}
 		
 		public function onMove(deltaX:Number, deltaY:Number):void {
-			if (fitToPage) {
-				var newX:Number = _calcPageX + deltaX;	
-				var newY:Number = _calcPageY + deltaY;	
-				
-//				LogUtil.debug("** FTP move 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + 
-//					newX + "," + newY + "][" + deltaX + "," + deltaY + "]");
-				
-				if (newX > 0) {
-					_calcPageX = 0;
-				} else if ((_calcPageW + newX * MYSTERY_NUM) < viewportW) {
-					// do nothing
-//					LogUtil.debug("** FTP move 1.1");
-				} else {
-					_calcPageX = newX;
-//					LogUtil.debug("** FTP move 1.2");
-				}
-				
-				if (newY > 0) {
-					_calcPageY = 0;
-				} else if ((_calcPageH + newY * MYSTERY_NUM) < viewportH) {
-					// do nothing
-//					LogUtil.debug("** FTP move 1.3");
-				} else {
-					_calcPageY = newY;
-//					LogUtil.debug("** FTP move 1.4");
-				}
-//				LogUtil.debug("** FTP move 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
-			} else {				
-				_calcPageX = 0
-//				LogUtil.debug("** FTW calcPageY [" + deltaX + "," + deltaY + "] [" + _calcPageY + "<" + viewportH + "]");									
-				
-				var newY:Number = _calcPageY + deltaY;				
-				if (newY > 0) _calcPageY = 0;
-				else if ((_calcPageH + newY * MYSTERY_NUM) < viewportH) {
-					// do nothing
-//					LogUtil.debug("** FTW move 1.1");
-					//				LogUtil.debug("calcPageY [" + _calcPageH + "," + _calcPageY + "] [" + (_calcPageH + _calcPageY) + "<" + viewportH + "] [" + _calcPageY + "]");						
-				} else {
-					_calcPageY = newY;
-//					LogUtil.debug("** FTP move 1.2");
-				}
-			}	
+			_calcPageX += deltaX;
+			_calcPageY += deltaY;
+			
+			onResizeMove();	
 			
 			calcViewedRegion();
 			calcViewedRegionXY();
@@ -360,7 +320,6 @@ package org.bigbluebutton.modules.present.ui.views.models
 			} else {
 				// For FTW, zooming isn't making the page bigger but actually scrolling.
 				// -delta means scrolling down, +delta means scrolling up.
-				//onMove(0, delta*2);
 				_calcPageX = 0;
 				_calcPageY = (HUNDRED_PERCENT/MAX_ZOOM_PERCENT) * _calcPageH - (zoomValue/MAX_ZOOM_PERCENT) * _calcPageH;
 				if (_calcPageY * MYSTERY_NUM + _calcPageH < viewportH) {
