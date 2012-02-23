@@ -127,24 +127,5 @@
 	<EventHandlers type="{PresentationEvent.PRESENTATION_LOADED}">
 		<InlineInvoker method="dummyMethod" />
 	</EventHandlers>
-
-	<EventHandlers type="{WhiteboardUpdate.BOARD_CLEARED}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="clearBoard" arguments="{event}"/>
-	</EventHandlers>
-	<EventHandlers type="{WhiteboardUpdate.BOARD_UPDATED}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="drawSegment" arguments="{event}"/>
-	</EventHandlers>
-	<EventHandlers type="{WhiteboardUpdate.SHAPE_UNDONE}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="undoShape" arguments="{event}" />
-	</EventHandlers>
-	<EventHandlers type="{PageEvent.CHANGE_PAGE}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="changePage" arguments="{event}" />
-	</EventHandlers>
-	<EventHandlers type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="enableWhiteboard" arguments="{event}" />
-	</EventHandlers>
-	<EventHandlers type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="disableWhiteboard" arguments="{event}" />
-	</EventHandlers>
-		
+	
 </EventMap>

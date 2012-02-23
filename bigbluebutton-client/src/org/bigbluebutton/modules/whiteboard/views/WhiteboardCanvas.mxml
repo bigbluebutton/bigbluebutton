@@ -33,6 +33,7 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
+			import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
@@ -43,257 +44,51 @@
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 			import org.bigbluebutton.modules.whiteboard.maps.WhiteboardEventMap;
 			
-			private var x1:int;
-			private var y1:int;
-			private var x2:int; 
-			private var y2:int;
-			
-			private var isDrawing:Boolean; 
-			private var sending:Boolean = false;
-			private var feedback:Shape = new Shape();
-			private var latentFeedbacks:Array = new Array();
-			private var segment:Array = new Array();
-			private var shapeList:Array = new Array();
-			
-			protected var shapeFactory:ShapeFactory = new ShapeFactory();
-			protected var bbbCanvas:IBbbCanvas;
-		
-			protected var shapeStyle:String = DrawObject.PENCIL;
-			protected var drawColor:uint = 0x000000;
-			protected var thickness:uint = 1;
-			
+			public var model:WhiteboardCanvasModel;			
+			private var bbbCanvas:IBbbCanvas;
+
 			private var _xPosition:int;
 			private var _yPosition:int;
-			
 			private var images:Images = new Images();
 			[Bindable] private var pencil_icon:Class = images.pencil_icon;
-			
 			private var whiteboardEnabled:Boolean = false;
 			private var showWhiteboard:Boolean = true;
-			
-			private var drawStatus:String = DrawObject.DRAW_START;
+
 			
 			private function init():void{
 				this.label = "Highlighter";
 			}
 			
-			/**
-			*Method is invoked when the mouse is released
-			*<p>
-			*The method finalizes the shape that was being edited. The shape is then sent as 
-			*an event, which updates all client views.  
-			*<p>
-			*The method also deleted the temporary feedback shape from the screen.
-			*/
-			private function doMouseUp():void{
-				if (isDrawing) {
-					/**
-					 * Check if we are drawing because when resizing the window, it generates
-					 * a mouseUp event at the end of resize. We don't want to dispatch another
-					 * shape to the viewers.
-					 */
-					isDrawing = false;
-					sendShapeToServer(DrawObject.DRAW_END);
-				}
+			private function doMouseUp():void {
+				model.doMouseUp();
+			}
+
+			private function doMouseDown():void{
+				model.doMouseDown(this.mouseX, this.mouseY);
+			}
+						
+			private function doMouseMove():void{
+				model.doMouseMove(this.mouseX, this.mouseY);
 			}
 			
-			private var objCount:int = 0;
-			
-			private function sendShapeToServer(status:String):void{
-				if (segment.length == 0) return;
-				
-				var dobj:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
-									
-				dobj.id = "" + objCount++;
-							
-				switch (status) {
-					case DrawObject.DRAW_START:
-						dobj.status = DrawObject.DRAW_START;
-						drawStatus = DrawObject.DRAW_UPDATE;
-						break;
-					case DrawObject.DRAW_UPDATE:
-						dobj.status = DrawObject.DRAW_UPDATE;								
-						break;
-					case DrawObject.DRAW_END:
-						dobj.status = DrawObject.DRAW_END;
-						drawStatus = DrawObject.DRAW_START;
-						break;
-				}
-				
-				LogUtil.error("SEGMENT LENGTH = [" + segment.length + "] STATUS = [" + dobj.status + "]");
-				
-				if (this.shapeStyle == DrawObject.PENCIL) {
-					dobj.status = DrawObject.DRAW_END;
-					drawStatus = DrawObject.DRAW_START;
-					segment = new Array();						
-					segment.push(this.mouseX);
-					segment.push(this.mouseY);
-				}
-				
-				
-				
+			public function sendShapeToServer(dobj:DrawObject):void{
 				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
 				event.message = dobj;
-				dispatchEvent(event);				
+				dispatchEvent(event);					
 			}
 			
-			/**
-			*Method is invoked when the mouse is pressed
-			*<p>
-			*The method captures the x and y coordinates of the mouse click and uses the point as
-			*the starting point in a shape
-			*/
-			private function doMouseDown():void{
-				isDrawing = true;
-				drawStatus = DrawObject.DRAW_START;
-				segment = new Array();
-				segment.push(this.mouseX);
-				segment.push(this.mouseY);
-			}
-						
-			/**
-			*Method is invoked when the mouse is moved over the canvas
-			*<p>
-			*The method captures the x and y coordinates of the mouse, adding the points to the current
-			*shape being drawn. 
-			*<p>
-			*Note: The method only works if the mouse is pressed, otherwise does nothing.
-			*/
-			private function doMouseMove():void{
-				if (isDrawing){
-					segment.push(this.mouseX);
-					segment.push(this.mouseY);
-					if (segment.length > 30) {
-						sendShapeToServer(drawStatus);
-					}
-				}
-			}
-			
-			/**
-			 * Draws the segment stored in the drawVO Value Object
-			 * <p>
-			 * This method is executed by the BoardMediator upon reception of an Update request. The method
-			 * is executed on all clients, even the one which sent the update request.
-			 */
-			public function drawSegment(event:WhiteboardUpdate):void{
-				var o:DrawObject = event.data;
-				draw(o);
-			}
-			
-			private function draw(o:DrawObject):void{
-//				for( var i:int = 0; i < latentFeedbacks.length;i++){
-//					var tempshape:Shape = latentFeedbacks.getItemAt(i) as Shape;
-//					if(rawChildren.contains(tempshape))
-//					{
-//						rawChildren.removeChild(tempshape);
-//						latentFeedbacks.removeItemAt(i);
-//					}
-//				}
-
-				if (bbbCanvas == null) {
-					shapeList.push(o);
-					return;
-				}
-				LogUtil.debug("Got shape [" + o.getType() + " " + o.status + "]");
-				if (o.status == null) {
-					LogUtil.error("STATUS IS NULL");
-					return;
-				}
-				switch (o.status) {
-					case DrawObject.DRAW_START:
-						if (shapeFactory == null) {
-							LogUtil.error("shapeFactory iS NULL!!!");
-							return;
-						} else {
-							addNewShape(o);											
-						}						
-						break;
-					case DrawObject.DRAW_UPDATE:
-					case DrawObject.DRAW_END:
-						if (shapeFactory == null) {
-							LogUtil.error("shapeFactory 1 iS NULL!!!");
-							return;
-						}
-						if (shapeList.length == 0 || o.getType() == DrawObject.PENCIL) {
-							addNewShape(o);
-						} else {
-							removeLastShape();		
-							addNewShape(o);
-						}
-
-						break;
-				}        
-			}
-			
-			private function addNewShape(o:DrawObject):void {
-				LogUtil.error("Adding new shape");
-				var dobj:DrawObject = shapeFactory.makeShape(o);
-				var newShape:Shape = dobj.getShape();
-				if (bbbCanvas == null) {
-					LogUtil.error("BBBCANVAS iS NULL!!!");
-				} else {
-					bbbCanvas.addRawChild(newShape);
-				}
-				
-				if (shapeList == null) {
-					LogUtil.error("shapeList iS NULL!!!");
-				} else {
-					shapeList.push(dobj);
-				}
-			}
-						
-			
-			/**
-			 * Sets the type of shape we're drawing (pencil, rectangle, etc...) 
-			 * @param s The type
-			 * 
-			 */		
 			public function setShape(s:String):void{
-				this.shapeStyle = s;
+				model.setShape(s);
 			}
-			
-			/**
-			 * Sets the color 
-			 * @param e event containing the color (e.target.selectedColor)
-			 * 
-			 */		
+				
 			public function changeColor(e:Event):void{
-				drawColor = e.target.selectedColor;
+				model.changeColor(e.target.selectedColor);
 			}
-			
-			/**
-			 * Sets the thickness 
-			 * @param e event containing the thickness (e.target.value)
-			 * 
-			 */		
+	
 			public function changeThickness(e:Event):void{
-				this.thickness = e.target.value;
+				model.changeThickness(e.target.value);
 			}
-			
-			
-			private function removeLastShape():void {
-				var dobj:DrawObject = shapeList.pop() as DrawObject;
-				if (this.doesContain(dobj.getShape())){
-					this.removeRawChild(dobj.getShape());	
-				}
-			}
-			
-			/**
-			 * Clears the entire board
-			 */
-			public function clearBoard(event:WhiteboardUpdate = null):void{
-				var numShapes:int = this.shapeList.length;
-				for (var i:Number = 0; i < numShapes; i++){
-					removeLastShape();
-				}
-			}
-			
-			public function undoShape(event:WhiteboardUpdate):void{
-				if (this.shapeList.length > 0) {
-					removeLastShape();
-				}
-			}
-			
+					
 			public function get xPosition():int {
 				return _xPosition;
 			}
@@ -309,22 +104,7 @@
 			public function set yPosition(y:int):void {
 				_yPosition = y;
 			}
-						
-			private function changePage(e:PageEvent):void{
-				var page:Number = e.pageNum;
-				var shapes:ArrayCollection = e.shapes;
-				if (bbbCanvas == null) {
-					LogUtil.debug("Shape canvas not yet ready");
-					return;
-				}
-				
-				clearBoard();
-				for (var i:int = 0; i < shapes.length; i++){
-					var o:DrawObject = shapes.getItemAt(i) as DrawObject;
-					draw(o);
-				}
-			}
-			
+									
 			private function setWhiteboardVisibility():void{
 				if (this.whiteboardEnabled && this.showWhiteboard) this.visible = true;
 				else this.visible = false;
@@ -360,33 +140,29 @@
 				dispatchEvent(new PageEvent(PageEvent.LOAD_PAGE));
 			}
 			
-			public function moveCanvas(x:Number, y:Number):void{
+			public function moveCanvas(x:Number, y:Number):void {
 				this.x = x;
 				this.y = y;
 			}
 			
-			private function redrawShape(dobj:DrawObject):void {
-				LogUtil.warn("REDRAWING shape [" + dobj.id + "]");
-				if (bbbCanvas.doesContain(dobj.getShape())) {
-					bbbCanvas.removeRawChild(dobj.getShape());
-
-				} else {
-					LogUtil.warn("Cannot find shape [" + dobj.id + "]");
-				}
-				shapeFactory.makeShape(dobj);
-				bbbCanvas.addRawChild(dobj.getShape());
+			public function getMouseXY():Array {
+				return [this.mouseX, this.mouseY];
 			}
 			
+			public function removeShape(child:DisplayObject):void {
+				if (bbbCanvas == null) return;
+				if (doesContain(child)) removeRawChild(child);
+			}
 			
-			public function zoomCanvas(width:Number, height:Number):void{
-				shapeFactory.setParentDim(width, height);	
-				
+			public function addShape(child:DisplayObject):void {
+				if (bbbCanvas == null) return;
+				addRawChild(child);
+			}
+						
+			public function zoomCanvas(width:Number, height:Number):void {
 				this.width = width;
-				this.height = height;
-				
-				for (var i:int = 0; i < this.shapeList.length; i++){
-					redrawShape(this.shapeList[i] as DrawObject);
-				}				
+				this.height = height;	
+				model.zoomCanvas(width, height);
 			}
 					
 			public function showCanvas(show:Boolean):void{
@@ -396,28 +172,20 @@
 			
 			/** End IBBBCanvas*/
 			
-			public function isPageEmpty():Boolean{
-				return (this.shapeList.length == 0);
+			public function isPageEmpty():Boolean {
+				return model.isPageEmpty();
 			}
 			
-			private function enableWhiteboard(e:WhiteboardButtonEvent):void{
+			public function enableWhiteboard(e:WhiteboardButtonEvent):void{
 				this.whiteboardEnabled = true;
 				setWhiteboardVisibility();
 			}
 			
-			private function disableWhiteboard(e:WhiteboardButtonEvent):void{
+			public function disableWhiteboard(e:WhiteboardButtonEvent):void{
 				this.whiteboardEnabled = false;
 				setWhiteboardVisibility();
 			}
 			
 		]]>
 	</mx:Script>
-	
-	<mate:Debugger level="{Debugger.ALL}" />
-	<mate:Listener type="{WhiteboardUpdate.BOARD_CLEARED}" method="clearBoard" />
-	<mate:Listener type="{WhiteboardUpdate.BOARD_UPDATED}" method="drawSegment" />
-	<mate:Listener type="{WhiteboardUpdate.SHAPE_UNDONE}" method="undoShape" />
-	<mate:Listener type="{PageEvent.CHANGE_PAGE}" method="changePage" />
-	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />
-	<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableWhiteboard" />
 </mx:Canvas>
