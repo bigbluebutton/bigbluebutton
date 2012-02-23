@@ -5,6 +5,9 @@ package org.bigbluebutton.modules.present.ui.views.models
 	[Bindable]
 	public class SlideViewModel
 	{
+		public static const MAX_ZOOM_PERCENT:Number = 400;
+		public static const HUNDRED_PERCENT:Number = 100;
+		
 		public var viewportX:Number = 0;
 		public var viewportY:Number = 0;
 		public var viewportW:Number = 0;
@@ -12,8 +15,8 @@ package org.bigbluebutton.modules.present.ui.views.models
 		
 		private var _viewedRegionX:Number = 0;
 		private var _viewedRegionY:Number = 0;
-		private var _viewedRegionW:Number = 100;
-		private var _viewedRegionH:Number = 100;
+		private var _viewedRegionW:Number = HUNDRED_PERCENT;
+		private var _viewedRegionH:Number = HUNDRED_PERCENT;
 		
 		private var _pageOrigW:Number = 0;
 		private var _pageOrigH:Number = 0;
@@ -29,8 +32,15 @@ package org.bigbluebutton.modules.present.ui.views.models
 		public var loaderX:Number = 0;
 		public var loaderY:Number = 0;
 		
+
+		
 		public var fitToPage:Boolean = true;
 		public var hasPageLoaded:Boolean = false;
+		
+		// After lots of trial and error on why synching doesn't work properly, I found I had to 
+		// multiply the coordinates by 2. There's something I don't understand probably on the
+		// canvas coordinate system. (ralam feb 22, 2012)
+		private const MYSTERY_NUM:int = 2;
 		
 		public function set parentW(width:Number):void {
 			_parentW = width;
@@ -82,7 +92,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 			_calcPageH = _pageOrigH = pageHeight;
 			_calcPageX = 0;
 			_calcPageY = 0;		
-			_viewedRegionW = _viewedRegionH = 100;
+			_viewedRegionW = _viewedRegionH = HUNDRED_PERCENT;
 			_viewedRegionX = _viewedRegionY = 0;
 		}
 		
@@ -94,24 +104,24 @@ package org.bigbluebutton.modules.present.ui.views.models
 		
 		private function calcViewedRegion():void {
 			if (fitToPage) {
-				_viewedRegionW = (viewportW/_calcPageW) * 100;
-				_viewedRegionH = (viewportH/_calcPageH) * 100;
+				_viewedRegionW = (viewportW/_calcPageW) * HUNDRED_PERCENT;
+				_viewedRegionH = (viewportH/_calcPageH) * HUNDRED_PERCENT;
 				
-				if (_viewedRegionW > 100) _viewedRegionW = 100;
-				if (_viewedRegionH > 100) _viewedRegionH = 100;
+				if (_viewedRegionW > HUNDRED_PERCENT) _viewedRegionW = HUNDRED_PERCENT;
+				if (_viewedRegionH > HUNDRED_PERCENT) _viewedRegionH = HUNDRED_PERCENT;
 				
 //				LogUtil.debug("** calc vr ftp [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _viewedRegionW + "," + _viewedRegionH + "]");				
 			} else {
-				_viewedRegionW = 100;
-				_viewedRegionH = (viewportH/_calcPageH) * 100;
+				_viewedRegionW = HUNDRED_PERCENT;
+				_viewedRegionH = (viewportH/_calcPageH) * HUNDRED_PERCENT;
 //				LogUtil.debug("** calc vr ftw [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _viewedRegionW + "," + _viewedRegionH + "]");				
 			}
 		}
 		
 		private function calcCalcPageSize():void {
 			if (fitToPage) {
-				_calcPageW = (viewportW/_viewedRegionW) * 100;
-				_calcPageH = (viewportH/_viewedRegionH) * 100;
+				_calcPageW = (viewportW/_viewedRegionW) * HUNDRED_PERCENT;
+				_calcPageH = (viewportH/_viewedRegionH) * HUNDRED_PERCENT;
 //				LogUtil.debug("** calc cp ftp [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _viewedRegionW + "," + _viewedRegionH + "]");				
 			} else {
 				_calcPageW = viewportW;
@@ -122,11 +132,11 @@ package org.bigbluebutton.modules.present.ui.views.models
 		
 		private function calcViewedRegionXY():void {
 			if (fitToPage) {
-				_viewedRegionX = (_calcPageX*100) / _calcPageW;
-				_viewedRegionY = (_calcPageY*100) / _calcPageH;
+				_viewedRegionX = (_calcPageX * HUNDRED_PERCENT) / _calcPageW;
+				_viewedRegionY = (_calcPageY * HUNDRED_PERCENT) / _calcPageH;
 			} else {
 				_viewedRegionX = 0;
-				_viewedRegionY = (_calcPageY*100) / _calcPageH;
+				_viewedRegionY = (_calcPageY * HUNDRED_PERCENT) / _calcPageH;
 			}
 		}
 		
@@ -139,14 +149,6 @@ package org.bigbluebutton.modules.present.ui.views.models
 		
 		public function adjustSlideAfterParentResized():void {
 			if (fitToPage) {
-				/*
-				calculateViewportSize();
-				calculateViewportXY();
-				calcCalcPageSize();
-				calcViewedRegion();
-				calcViewedRegionXY();
-				onResizeMove();
-				*/
 				calculateViewportNeededForRegion(_viewedRegionX, _viewedRegionY, _viewedRegionW, _viewedRegionH);
 				displayViewerRegion(_viewedRegionX, _viewedRegionY, _viewedRegionW, _viewedRegionH);
 				calculateViewportXY();
@@ -163,44 +165,41 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}
 		
 		private function onResizeMove():void {
-			if (fitToPage) {		
-//				LogUtil.debug("** FTP resize 1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "]");
-				
+			if (fitToPage) {			
+				/** Bounds detection **/
 				if (_calcPageX >= 0) {
+					// Don't let the left edge move inside the view.
 					_calcPageX = 0;
-				} else if ((_calcPageW + _calcPageX*2) < viewportW) {
-					_calcPageX = (viewportW - _calcPageW)/2;
-//					LogUtil.debug("** FTP resize 1.1");
+				} else if ((_calcPageW + _calcPageX * MYSTERY_NUM) < viewportW) {
+					// Don't let the right edge move inside the view.
+					_calcPageX = (viewportW - _calcPageW) / MYSTERY_NUM;
 				} else {
-//					LogUtil.debug("** FTP resize 1.2");
+					// Let the move happen.
 				}
 				
 				if (_calcPageY >= 0) {
+					// Don't let the top edge move into the view.
 					_calcPageY = 0;
-				} else if ((_calcPageH + _calcPageY*2) < viewportH) {
-					_calcPageY = (viewportH - _calcPageH)/2;
-//					LogUtil.debug("** FTP resize 1.3");
+				} else if ((_calcPageH + _calcPageY * MYSTERY_NUM) < viewportH) {
+					// Don't let the bottome edge move into the view.
+					_calcPageY = (viewportH - _calcPageH) / MYSTERY_NUM;
 				} else {
-//					LogUtil.debug("** FTP resize 1.4");
+					// Let the move happen.
 				}
-				
-				//				LogUtil.debug("** FTP resize 2 [" + viewportW + "," + viewportH + "][" + _calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "]");				}
 			} else {
-//				LogUtil.debug("** FTW resize 1 [" + viewportW + "," + viewportH + "][" + _calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
-				
+				/** Bounds detection **/				
+				// The left edge should alway align the view.
 				_calcPageX = 0;
-				if (_calcPageY > 0 ) {
-					_calcPageY = 0;
-				} else if ((_calcPageH + _calcPageY*2) < viewportH) {
-					// After lots of trial and error on why move doesn't work properly, I found I had to 
-					// multiply the y by 2. Don't know why I need to double the delta to align the edges.
-					_calcPageY = (viewportH - _calcPageH)/2;
-//					LogUtil.debug("** FTW resize 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
-				} else {
-//					LogUtil.debug("** FTW resize 2.5 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
-				}	
 				
-//				LogUtil.debug("** FTW resize 3 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
+				if (_calcPageY > 0 ) {
+					// Don't let the top edge into the view.
+					_calcPageY = 0;
+				} else if ((_calcPageH + _calcPageY * MYSTERY_NUM) < viewportH) {
+					// Don't let the bottome edge into the view.
+					_calcPageY = (viewportH - _calcPageH) / MYSTERY_NUM;
+				} else {
+					// Let the move happen.
+				}	
 			}
 		}
 		
@@ -214,7 +213,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				
 				if (newX > 0) {
 					_calcPageX = 0;
-				} else if ((_calcPageW + newX*2) < viewportW) {
+				} else if ((_calcPageW + newX * MYSTERY_NUM) < viewportW) {
 					// do nothing
 //					LogUtil.debug("** FTP move 1.1");
 				} else {
@@ -224,7 +223,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				
 				if (newY > 0) {
 					_calcPageY = 0;
-				} else if ((_calcPageH + newY*2) < viewportH) {
+				} else if ((_calcPageH + newY * MYSTERY_NUM) < viewportH) {
 					// do nothing
 //					LogUtil.debug("** FTP move 1.3");
 				} else {
@@ -238,7 +237,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				
 				var newY:Number = _calcPageY + deltaY;				
 				if (newY > 0) _calcPageY = 0;
-				else if ((_calcPageH + newY*2) < viewportH) {
+				else if ((_calcPageH + newY * MYSTERY_NUM) < viewportH) {
 					// do nothing
 //					LogUtil.debug("** FTW move 1.1");
 					//				LogUtil.debug("calcPageY [" + _calcPageH + "," + _calcPageY + "] [" + (_calcPageH + _calcPageY) + "<" + viewportH + "] [" + _calcPageY + "]");						
@@ -292,24 +291,24 @@ package org.bigbluebutton.modules.present.ui.views.models
 			if (viewportW == parentW) {
 				viewportX = 0;
 			} else {
-				viewportX = (parentW - viewportW)/2;
+				viewportX = (parentW - viewportW) / MYSTERY_NUM;
 			}
 			
 			if (viewportH == parentH) {
 				viewportY = 0;
 			} else {
-				viewportY = (parentH - viewportH)/2;
+				viewportY = (parentH - viewportH) / MYSTERY_NUM;
 			}
 //			LogUtil.debug("calc viewport xy [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + viewportX + "," + viewportY + "]");
 		}
 		
 		public function printViewedRegion():void {
 			LogUtil.debug("Region [" + viewedRegionW + "," + viewedRegionH + "] [" + viewedRegionX + "," + viewedRegionY + "]");			
-			LogUtil.debug("Region [" + ((viewedRegionW/100)*_calcPageW) + "," + ((viewedRegionH/100)*_calcPageH) + 
-				"] [" + ((viewedRegionX/100)*_calcPageW) + "," + ((viewedRegionY/100)*_calcPageH) + "]");
+			LogUtil.debug("Region [" + ((viewedRegionW / HUNDRED_PERCENT)*_calcPageW) + "," + ((viewedRegionH/HUNDRED_PERCENT)*_calcPageH) + 
+				"] [" + ((viewedRegionX/HUNDRED_PERCENT)*_calcPageW) + "," + ((viewedRegionY/HUNDRED_PERCENT)*_calcPageH) + "]");
 		}
 		
-		public function onZoom(delta:Number, vpx:Number, vpy:Number, mouseX:Number, mouseY:Number):void {
+		public function onZoom(zoomValue:Number, mouseX:Number, mouseY:Number):void {
 			if (fitToPage) {
 				var cpw:Number = _calcPageW;
 				var cph:Number = _calcPageH;
@@ -320,8 +319,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				
 //				LogUtil.debug("** Zoompoint [" + viewportW + "," + viewportH + "][" + mouseX + "," + mouseY + "][" + _calcPageW + "," + _calcPageH + "," + _calcPageX + "," + _calcPageY + "][" + vpx + "," + vpy + "," + zpx + "," + zpy + "] ");			
 				
-				if (delta < 0) _calcPageW *= 0.95
-				else _calcPageW *= 1.05
+				_calcPageW = pageOrigW * zoomValue / HUNDRED_PERCENT;
 				_calcPageH = (_calcPageW/cpw) * cph; 
 				
 				var zpx1:Number = _calcPageW * zpxp;
@@ -333,21 +331,21 @@ package org.bigbluebutton.modules.present.ui.views.models
 				
 				if (_calcPageX > 0) {
 					_calcPageX = 0;
-					LogUtil.debug("** Zoom 1.1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");				
+//					LogUtil.debug("** Zoom 1.1 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");				
 				} else {
-					if (_calcPageX*2 + _calcPageW < viewportW) {
-						_calcPageX = (viewportW - _calcPageW)/2;
-						LogUtil.debug("** Zoom 1.2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");				
+					if (_calcPageX * MYSTERY_NUM + _calcPageW < viewportW) {
+						_calcPageX = (viewportW - _calcPageW) / MYSTERY_NUM;
+//						LogUtil.debug("** Zoom 1.2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");				
 					}					
 				}
 				
 				if (_calcPageY > 0) {
 					_calcPageY = 0;		
-					LogUtil.debug("** Zoom 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");				
+//					LogUtil.debug("** Zoom 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");				
 				} else {
-					if (_calcPageY*2 + _calcPageH < viewportH) {
-						_calcPageY = (viewportH - _calcPageH)/2;
-						LogUtil.debug("** Zoom 3 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
+					if (_calcPageY * MYSTERY_NUM + _calcPageH < viewportH) {
+						_calcPageY = (viewportH - _calcPageH) / MYSTERY_NUM;
+//						LogUtil.debug("** Zoom 3 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 					}					
 				}
 				
@@ -356,13 +354,15 @@ package org.bigbluebutton.modules.present.ui.views.models
 					_calcPageH = viewportH;
 					_calcPageX = 0;
 					_calcPageY = 0;
-					LogUtil.debug("** Zoom 4 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
+//					LogUtil.debug("** Zoom 4 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 				} 
-				LogUtil.debug("** Zoom 5 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
+//				LogUtil.debug("** Zoom 5 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 			} else {
 				// For FTW, zooming isn't making the page bigger but actually scrolling.
 				// -delta means scrolling down, +delta means scrolling up.
-				onMove(0, delta*2);
+				//onMove(0, delta*2);
+				_calcPageX = 0;
+				_calcPageY = (zoomValue/MAX_ZOOM_PERCENT) * _calcPageH - (HUNDRED_PERCENT/MAX_ZOOM_PERCENT) * _calcPageH;
 			}
 			
 			calcViewedRegion();
@@ -371,10 +371,10 @@ package org.bigbluebutton.modules.present.ui.views.models
 		
 		public function displayViewerRegion(x:Number, y:Number, regionW:Number, regionH:Number):void {
 			LogUtil.debug("** disp viewer 1 [" + regionW + "," + regionH + "][" + x + "," + y + "]");
-			_calcPageW = viewportW/(regionW/100);
-			_calcPageH = viewportH/(regionH/100);
-			_calcPageX = (x/100) * _calcPageW;
-			_calcPageY =  (y/100) * _calcPageH;					
+			_calcPageW = viewportW/(regionW/HUNDRED_PERCENT);
+			_calcPageH = viewportH/(regionH/HUNDRED_PERCENT);
+			_calcPageX = (x/HUNDRED_PERCENT) * _calcPageW;
+			_calcPageY =  (y/HUNDRED_PERCENT) * _calcPageH;					
 			LogUtil.debug("** disp viewer 2 [" + viewportW + "," + viewportH + "][" +_calcPageW + "," + _calcPageH + "][" + _calcPageX + "," + _calcPageY + "]");
 		}
 		
@@ -386,8 +386,8 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}
 		
 		public function calculateViewportNeededForRegion(x:Number, y:Number, regionW:Number, regionH:Number):void {			
-			var vrwp:Number = pageOrigW * (regionW/100);
-			var vrhp:Number = pageOrigH * (regionH/100);
+			var vrwp:Number = pageOrigW * (regionW/HUNDRED_PERCENT);
+			var vrhp:Number = pageOrigH * (regionH/HUNDRED_PERCENT);
 			
 			if (parentW < parentH) {
 				viewportW = parentW;

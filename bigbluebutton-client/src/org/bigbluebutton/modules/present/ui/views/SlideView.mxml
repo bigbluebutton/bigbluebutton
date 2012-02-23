@@ -43,14 +43,17 @@
     
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
-			import flash.events.Event;			
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.events.Event;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.Button;
 			import mx.events.FlexEvent;
-			import mx.events.ListEvent;			
+			import mx.events.ListEvent;
+			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -67,7 +70,8 @@
 			import org.bigbluebutton.modules.present.managers.Slide;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
 			
-			public var zoomPercentage:int = 100;
+			[Bindable]
+			public var zoomPercentage:Number = 100;
 			public static const ZOOM_STEP:int = 5;
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
 			
@@ -222,16 +226,41 @@
 			 * Triggered when the presenter uses the mouse wheel to zoom in/out of the slide.
 			 */
 			private function onMouseWheelZoomEvent(e:MouseEvent):void {
-				slideModel.onZoom(e.delta, this.x, this.y, this.mouseX, this.mouseY);
+				if (presenterIsZoomingOut(e.delta)) {
+					zoomPercentage -= ZOOM_STEP;
+				} else {
+					zoomPercentage += ZOOM_STEP;
+				}
+				
+				zoomSlide(zoomPercentage, this.mouseX, this.mouseY);
+						
+			}
+			
+			public function onZoomSlide(zoom:Number):void {
+				LogUtil.debug("onZoomSlide [" + zoom + "]");
+				if (slideLoader.content == null) return;
+				zoomSlide(zoom, slideLoader.content.width/2, slideLoader.content.height/2);
+			}
+			
+			private function zoomSlide(zoom:Number, mouseX:Number, mouseY:Number):void {
+				LogUtil.debug("Zooming [" + zoom + "]");
+				zoomPercentage = zoom;
+				if (zoomPercentage <= SlideViewModel.HUNDRED_PERCENT) {
+					zoomPercentage = SlideViewModel.HUNDRED_PERCENT;
+				} else if (zoomPercentage >= SlideViewModel.MAX_ZOOM_PERCENT) {
+					zoomPercentage = SlideViewModel.MAX_ZOOM_PERCENT
+				}
+				
+				slideModel.onZoom(zoomPercentage, mouseX, mouseY);
 				slideModel.printViewedRegion();
 				slideModel.displayPresenterView();
-				fitSlideToLoader();		
-
-//				LogUtil.debug("** OnZoom [" + this.width + "," + this.height + "," + this.x + "," + this.y + "][" +
-//						slideLoader.width + "," + slideLoader.height + "," + slideLoader.x + "," + slideLoader.y + "][" + 
-//						slideLoader.content.width + "," + slideLoader.content.height + "," + slideLoader.content.x + "," + slideLoader.content.y + "]");
+				fitSlideToLoader();	
 				
-				notifyOthersOfZoomEvent();						
+				//				LogUtil.debug("** OnZoom [" + this.width + "," + this.height + "," + this.x + "," + this.y + "][" +
+				//						slideLoader.width + "," + slideLoader.height + "," + slideLoader.x + "," + slideLoader.y + "][" + 
+				//						slideLoader.content.width + "," + slideLoader.content.height + "," + slideLoader.content.x + "," + slideLoader.content.y + "]");
+				
+				notifyOthersOfZoomEvent();	
 			}
 									
 			private function notifyOthersOfZoomEvent():void {
@@ -357,6 +386,7 @@
 			}
 			
 			private function handleSlideLoadedCompleteEvent(event:Event):void {
+				zoomPercentage = 100;
 				if (lateComerSynched) {
 					slideModel.resetForNewSlide(slideLoader.content.width, slideLoader.content.height);					
 				} else {
