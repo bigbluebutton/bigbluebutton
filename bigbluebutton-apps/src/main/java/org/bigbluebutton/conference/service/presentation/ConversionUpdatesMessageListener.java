@@ -77,15 +77,15 @@ public class ConversionUpdatesMessageListener {
 				conversionUpdatesProcessor.process(message);
 			}
 			else if(messageKey.equalsIgnoreCase(PAGE_COUNT_EXCEEDED_KEY)){
-				String numberOfPages = (String) mapMessage.get("numberOfPages");
-				String maxNumberPages = (String) mapMessage.get("maxNumberPages");
+				Integer numberOfPages = new Integer((String) mapMessage.get("numberOfPages"));
+				Integer maxNumberPages = new Integer((String) mapMessage.get("maxNumberPages"));
 				message.put("numberOfPages", numberOfPages);
 				message.put("maxNumberPages", maxNumberPages);
 				conversionUpdatesProcessor.process(message);
 			}
 			else if(messageKey.equalsIgnoreCase(GENERATED_SLIDE_KEY)){
-				String numberOfPages = (String) mapMessage.get("numberOfPages");
-				String pagesCompleted = (String) mapMessage.get("pagesCompleted");
+				Integer numberOfPages = new Integer((String)mapMessage.get("numberOfPages"));
+				Integer pagesCompleted = new Integer((String)mapMessage.get("pagesCompleted"));
 				message.put("numberOfPages", numberOfPages);
 				message.put("pagesCompleted", pagesCompleted);
 				
