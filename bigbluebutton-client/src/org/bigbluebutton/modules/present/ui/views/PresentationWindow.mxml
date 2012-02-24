@@ -54,11 +54,9 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import flash.geom.Point;
-			
+			import flash.geom.Point;			
 			import flexlib.containers.DockableToolBar;
-			import flexlib.mdi.events.MDIWindowEvent;
-			
+			import flexlib.mdi.events.MDIWindowEvent;			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.containers.TitleWindow;
@@ -68,8 +66,7 @@
 			import mx.events.ListEvent;
 			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
-			import mx.rpc.events.*;
-			
+			import mx.rpc.events.*;			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -190,6 +187,7 @@
 				if (event.slideHeight > event.slideWidth) {
 					fitToPage = false;
 					zoomSlider.visible = false;
+					btnResetZoom.visible = false;
 				}
 				
 				fitSlideToWindowMaintainingAspectRatio();			
