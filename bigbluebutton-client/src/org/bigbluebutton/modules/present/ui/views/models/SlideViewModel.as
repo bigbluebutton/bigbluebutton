@@ -85,9 +85,23 @@ package org.bigbluebutton.modules.present.ui.views.models
 		public function reset(pageWidth:Number, pageHeight:Number):void {
 			_calcPageW = _pageOrigW = pageWidth;
 			_calcPageH = _pageOrigH = pageHeight;
+			fitToPage = true;
+			
+			if (pageHeight > pageWidth) {
+				fitToPage = false;
+			}
+//			LogUtil.debug("reset[" + fitToPage + "," + pageOrigW + "," + pageOrigH + "]");
 		}
 
 		public function resetForNewSlide(pageWidth:Number, pageHeight:Number):void {
+			fitToPage = true;
+			
+			if (pageHeight > pageWidth) {
+				fitToPage = false;
+			}
+			
+//			LogUtil.debug("resetForNewSlide[" + fitToPage + "," + pageOrigW + "," + pageOrigH + "]");
+			
 			_calcPageW = _pageOrigW = pageWidth;
 			_calcPageH = _pageOrigH = pageHeight;
 			_calcPageX = 0;
@@ -99,7 +113,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 		public function parentChange(parentW:Number, parentH:Number, fitToPage:Boolean):void {
 			viewportW = this.parentW = parentW;
 			viewportH = this.parentH = parentH;
-			this.fitToPage = fitToPage;
+//			this.fitToPage = fitToPage;
 		}
 		
 		public function calculateViewportXY():void {
@@ -235,7 +249,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				doWidthBoundsDetection();
 				doHeightBoundsDetection();
 				
-				if (zoomValue <= HUNDRED_PERCENT) {
+				if ((zoomValue <= HUNDRED_PERCENT) || (_calcPageW < viewportW) || (_calcPageH < viewportH)) {
 					_calcPageW = viewportW;
 					_calcPageH = viewportH;
 					_calcPageX = 0;

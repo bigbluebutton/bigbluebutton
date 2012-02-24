@@ -392,12 +392,11 @@
 			private function handleSlideLoadedCompleteEvent(event:Event):void {
 				zoomPercentage = 100;
 				if (lateComerSynched) {
-					slideModel.resetForNewSlide(slideLoader.content.width, slideLoader.content.height);					
+					slideModel.resetForNewSlide(slideLoader.contentWidth, slideLoader.contentHeight);					
 					slideModel.saveViewedRegion(presenterViewedRegionX, presenterViewedRegionY, presenterViewedRegionW, presenterViewedRegionH);					
-
 				} else {
 					lateComerSynched = true;
-					slideModel.reset(slideLoader.content.width, slideLoader.content.height);
+					slideModel.reset(slideLoader.contentWidth, slideLoader.contentHeight);
 					slideModel.saveViewedRegion(presenterViewedRegionX, presenterViewedRegionY, presenterViewedRegionW, presenterViewedRegionH);					
 				}
 								
@@ -477,7 +476,7 @@
 	</mx:Script>
 		<mx:SWFLoader id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" x="{slideModel.loaderX}" y="{slideModel.loaderY}" 
 					  creationComplete="listenForSlideLoadedCompleteEvent()"
-					  scaleContent="false" maintainAspectRatio="true" showBusyCursor="true" completeEffect="Fade"/>			
+					  scaleContent="false" showBusyCursor="true" completeEffect="Fade"/>			
 	
    		
     <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.ui.views.Thumbnail" itemRollOver="changeIndex(event)" 
