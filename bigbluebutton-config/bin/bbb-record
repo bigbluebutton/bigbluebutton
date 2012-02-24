@@ -41,7 +41,6 @@ TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g
 
 mark_for_rebuild() {
 	MEETING_ID=$1
-	set -x
 	for type in $TYPES; do
                 if [ -d $BASE/process/$type/$MEETING_ID ]; then
                         rm -rf $BASE/process/$type/$MEETING_ID
@@ -75,7 +74,7 @@ mark_for_rebuild() {
 	done
 }
 
-BBB_VERSION=0.8-beta-3
+BBB_VERSION=0.8-beta-4
 
 need_root() {
         if [ $EUID != 0 ]; then
@@ -96,7 +95,7 @@ usage() {
         echo "   --watch                          Watch processing of recordings"
         echo "   --rebuild [meetingID]            rebuild the output for meetingID"
         echo "   --deletall                       delete all meetings and recordings"
-        echo "   --check                          check for errors while archiving, processing or publishing recordings"
+        echo "   --check                          check for errors"
 	echo
 }
 
@@ -194,6 +193,23 @@ fi
 
 if [ $LIST ]; then
 
+# Does the meeting contain:
+#	A -- Audio
+#	P -- Presentation
+#	V -- Video
+#	D -- Desktop 
+#	
+# Does the archive contain
+#	A -- Audio
+#	P -- Presentation
+#	V -- Video
+#	D -- Desktop 
+#	E -- Events
+#	
+# Is there a done flag (trigger rap-worker.rb to process) for
+#	R -- Recording
+# 	A -- Archiving
+#
 
 echo "MeetingID                                               Time                         APVD APVDE RA Slides Processed            Published             Description"
 echo "------------------------------------------------------  ---------------------------- ---- ----- -- ------ -------------------- --------------------  -----------------------------"
@@ -364,11 +380,13 @@ fi
 if [ $CHECK ]; then
 
 
+	LOG_DIR=/var/log/bigbluebutton
+
 	#
 	#Failures while archiving files
 	#
-        if [ -f /var/log/bigbluebutton/archive.log ]; then
-	  grep "Failed to" "/var/log/bigbluebutton/archive.log" > /tmp/t
+        if [ -f $LOG_DIR/archive.log ]; then
+	  grep "Failed to" "$LOG_DIR/archive.log" > /tmp/t
      	  if [ -s /tmp/t ]; then
                   echo "  -- ERRORS found while archiving files -- "
                   cat /tmp/t
@@ -380,46 +398,25 @@ if [ $CHECK ]; then
                   fi 
           fi
 	fi 
-	#
-	#Errors while processing slides
-	#
-	grep -B 3 "ERROR -- : Error:" /var/log/bigbluebutton/slides/process-* | egrep -w 'Task:| Error:' > /tmp/t
-	if [ -s /tmp/t ]; then
-		echo "  -- ERRORS found while processing slides /var/log/bigbluebutton/slides/process-* -- "
-		cat /tmp/t
-		echo
-	fi
 
 	#
-	#Errors while publishing slides
+	# We're going to look through the output files for each of the processed types
 	#
-	grep  "ERROR -- : Error:" /var/log/bigbluebutton/slides/publish-* > /tmp/t
-	if [ -s /tmp/t ]; then
-		echo "  -- ERRORS found while publishing slides /var/log/bigbluebutton/slides/publish-* -- "
-		cat /tmp/t
-		echo
-	fi
+	STAGES="process publish"
+        for type in $TYPES; do
+        	for stage in $STAGES; do
+			if ls -A $LOG_DIR/$type/$stage-* &> /dev/null; then
+				rm -rf /tmp/t
+				grep -B 3 "ERROR -- : Error:" $LOG_DIR/$type/$stag-* | egrep -w 'Task:| Error:' > /tmp/t
+				if [ -s /tmp/t ]; then
+					echo "  -- ERRORS found while processing slides $LOG_DIR/$type/$stag-* -- "
+					cat /tmp/t
+					echo
+				fi
+			fi
+		done
+	done
 
-
-  	#
-        #Errors while processing matterhorn
-        #
-        grep  "ERROR -- : Error:" /var/log/bigbluebutton/matterhorn-process-* > /tmp/t
-        if [ -s /tmp/t ]; then
-                echo "  -- ERRORS found while processing matterhorn /var/log/bigbluebutton/matterhorn-process-* -- "
-                cat /tmp/t
-                echo
-        fi
-
-        #
-        #Errors while publishing matterhorn
-        #
-        grep  "ERROR -- : Error:" /var/log/bigbluebutton/matterhorn-publish-* > /tmp/t
-        if [ -s /tmp/t ]; then
-                echo "  -- ERRORS found while publishing matterhorn /var/log/bigbluebutton/matterhorn-publish-* -- "
-                cat /tmp/t
-                echo
-        fi
 
 
 
