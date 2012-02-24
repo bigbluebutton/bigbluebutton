@@ -31,7 +31,7 @@
 	showCloseButton="false" layout="absolute"
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off" 
-	showControls="true" resize="maximizeHandler()" maximize="maximizeHandler()"
+	showControls="true"
 	backgroundColor="red"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="onCreationComplete()" 
@@ -189,6 +189,7 @@
 				
 				if (event.slideHeight > event.slideWidth) {
 					fitToPage = false;
+					zoomSlider.visible = false;
 				}
 				
 				fitSlideToWindowMaintainingAspectRatio();			
