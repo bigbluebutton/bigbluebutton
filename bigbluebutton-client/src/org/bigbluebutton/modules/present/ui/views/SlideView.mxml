@@ -299,7 +299,11 @@
 				if (UserManager.getInstance().getConference().amIPresenter()) {
 					return;
 				}
-//				LogUtil.debug("Got resizing event from presenter [" + e.xOffset + "," + e.yOffset + "," + e.slideToCanvasWidthRatio + "," + e.slideToCanvasHeightRatio + "]");
+				presenterViewedRegionX = e.xOffset;
+				presenterViewedRegionY = e.yOffset;
+				presenterViewedRegionW = e.slideToCanvasWidthRatio;
+				presenterViewedRegionH = e.slideToCanvasHeightRatio;
+				
 				slideModel.saveViewedRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 				slideModel.calculateViewportNeededForRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 				slideModel.displayViewerRegion(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
@@ -389,6 +393,8 @@
 				zoomPercentage = 100;
 				if (lateComerSynched) {
 					slideModel.resetForNewSlide(slideLoader.content.width, slideLoader.content.height);					
+					slideModel.saveViewedRegion(presenterViewedRegionX, presenterViewedRegionY, presenterViewedRegionW, presenterViewedRegionH);					
+
 				} else {
 					lateComerSynched = true;
 					slideModel.reset(slideLoader.content.width, slideLoader.content.height);

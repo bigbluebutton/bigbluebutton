@@ -164,11 +164,9 @@ package org.bigbluebutton.modules.present.ui.views.models
 		
 		private function onResizeMove():void {
 			if (fitToPage) {			
-				/** Bounds detection **/
 				doWidthBoundsDetection();
 				doHeightBoundsDetection();
-			} else {
-				/** Bounds detection **/				
+			} else {			
 				// The left edge should alway align the view.
 				_calcPageX = 0;				
 				doHeightBoundsDetection();	
@@ -192,29 +190,22 @@ package org.bigbluebutton.modules.present.ui.views.models
 				if (parentH < parentW) {					
 					viewportH = parentH;
 					viewportW = ((pageOrigW * viewportH)/pageOrigH);					
-					//					LogUtil.debug("calc viewport [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");					
 					if (parentW < viewportW) {
 						viewportW = parentW;
 						viewportH = ((pageOrigH * viewportW)/pageOrigW);
-						//						LogUtil.debug("calc viewport resizing [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
 					}
 				} else {
 					viewportW = parentW;
-					viewportH = ((pageOrigH * viewportW)/pageOrigW);
-					//					LogUtil.debug("calc viewport ***** [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
+					viewportH = (viewportW/pageOrigW) * pageOrigH;
 					if (parentH < viewportH) {
 						viewportH = parentH;
 						viewportW = ((pageOrigW * viewportH)/pageOrigH);
-						//						LogUtil.debug("calc viewport ***** resizing [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
 					}												
 				}					
 			} else {
-				viewportW = parentW;
-				viewportH = parentH;
 				if (viewportW < pageOrigW) {
 					viewportH = (viewportW/pageOrigW)*pageOrigH;
 				}
-//				LogUtil.debug("calc viewport FTW [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
 			}		
 		}	
 			
@@ -244,7 +235,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				doWidthBoundsDetection();
 				doHeightBoundsDetection();
 				
-				if (zoomValue == HUNDRED_PERCENT) {
+				if (zoomValue <= HUNDRED_PERCENT) {
 					_calcPageW = viewportW;
 					_calcPageH = viewportH;
 					_calcPageX = 0;
@@ -252,7 +243,6 @@ package org.bigbluebutton.modules.present.ui.views.models
 				} 
 			} else {
 				// For FTW, zooming isn't making the page bigger but actually scrolling.
-				// -delta means scrolling down, +delta means scrolling up.
 				_calcPageX = 0;
 				_calcPageY = (HUNDRED_PERCENT/MAX_ZOOM_PERCENT) * _calcPageH - (zoomValue/MAX_ZOOM_PERCENT) * _calcPageH;
 				if (_calcPageY * MYSTERY_NUM + _calcPageH < viewportH) {
