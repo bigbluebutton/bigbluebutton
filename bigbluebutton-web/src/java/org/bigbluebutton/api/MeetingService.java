@@ -54,7 +54,7 @@ public class MeetingService {
 	public void removeExpiredMeetings() {
 		log.info("Cleaning up expired meetings");
 		for (Meeting m : meetings.values()) {
-			if (m.hasExpired(defaultMeetingExpireDuration)) {
+			if (m.hasExpired(defaultMeetingExpireDuration)|| (m.getEndTime() != 0 && removeMeetingWhenEnded) ) {
 				log.info("Removing expired meeting [id={} , name={}]", m.getInternalId(), m.getName());
 				log.info("Expired meeting [start={} , end={}]", m.getStartTime(), m.getEndTime());
 		  		if (m.isRecord()) {
@@ -73,9 +73,9 @@ public class MeetingService {
 			
 			if (m.hasExceededDuration()) {
 				log.info("Forcibly ending meeting [{} - {}]", m.getInternalId(), m.getName());
-				m.setForciblyEnded(true);
 				endMeeting(m.getInternalId());
 			}
+			
 		}
 	}
 	
@@ -213,14 +213,11 @@ public class MeetingService {
 	
 	public void endMeeting(String meetingId) {		
 		messagingService.endMeeting(meetingId);
-		
-		if (removeMeetingWhenEnded) {
-			meetings.remove(meetingId);
-		} else {
-			Meeting m = getMeeting(meetingId);
-			if (m != null) {
-				m.setForciblyEnded(true);
-			}			
+		Meeting m = getMeeting(meetingId);
+		if(m != null){
+			m.setForciblyEnded(true);			
+		}else{
+			log.debug("endMeeting - meeting doesn't exist: " + meetingId);
 		}
 	}
 
@@ -276,6 +273,7 @@ public class MeetingService {
 			if (m != null) {
 				log.debug("Setting meeting " + meetingId + " end time");
 				m.setEndTime(System.currentTimeMillis());
+				
 				return;
 			}
 			log.warn("The meeting " + meetingId + " doesn't exist");
