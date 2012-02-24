@@ -177,7 +177,7 @@
 					progBarLbl.visible = true;
 					progressBar.visible = true;
 					
-					okCancelBtn.visible = false;
+					okCancelBtn.visible = true;
 					selectBtn.enabled = false;
 					uploadBtn.enabled = false;
 					fileTxtInput.enabled = false;

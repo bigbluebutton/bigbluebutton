@@ -31,7 +31,7 @@
 	showCloseButton="false" layout="absolute"
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off" 
-	showControls="true"
+	showControls="true" resize="maximizeHandler()"
 	backgroundColor="red"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="onCreationComplete()" 
