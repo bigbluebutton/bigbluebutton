@@ -41,6 +41,7 @@ TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g
 
 mark_for_rebuild() {
 	MEETING_ID=$1
+	set -x
 	for type in $TYPES; do
                 if [ -d $BASE/process/$type/$MEETING_ID ]; then
                         rm -rf $BASE/process/$type/$MEETING_ID
@@ -83,6 +84,14 @@ need_root() {
         fi
 }
 
+print_header() {
+        if [ ! $HEADER ]; then
+                echo
+                echo "** Potential problems described below **"
+                HEADER=1
+        fi
+}
+
 usage() {
         echo "BigBlueButton Recording Diagnostic Utility - Version $BBB_VERSION"
         echo
@@ -95,7 +104,8 @@ usage() {
         echo "   --watch                          Watch processing of recordings"
         echo "   --rebuild [meetingID]            rebuild the output for meetingID"
         echo "   --deletall                       delete all meetings and recordings"
-        echo "   --check                          check for errors"
+        echo "   --debug                          check for recording errors"
+        echo "   --check                          check for configuration errors"
 	echo
 }
 
@@ -141,6 +151,13 @@ while [ $# -gt 0 ]; do
         if [ "$1" = "-check" -o "$1" = "--check" ]; then
 		need_root
                 CHECK=1
+		shift
+                continue
+        fi
+
+        if [ "$1" = "-debug" -o "$1" = "--debug" ]; then
+		need_root
+                DEBUG=1
 		shift
                 continue
         fi
@@ -378,9 +395,25 @@ if [ $WATCH ]; then
 fi
 
 if [ $CHECK ]; then
+	if [ ! -w  /var/bigbluebutton/recording/process/slides ]; then
+		print_header
+		echo "# Error: The output director for slides"
+		echo "#"
+		echo "# /var/bigbluebutton/recording/process/slides"
+		echo "#"
+		echo "# is not writeable."
+		echo
+	fi
+fi
 
+if [ $DEBUG ]; then
 
+	echo "YES"
 	LOG_DIR=/var/log/bigbluebutton
+
+	if [ -f /var/log/bigbluebutton/bbb-rap-worker.log ]; then
+		grep -i error /var/log/bigbluebutton/bbb-rap-worker.*
+	fi
 
 	#
 	#Failures while archiving files
