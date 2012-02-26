@@ -43,9 +43,10 @@
 #   2012-01-14 FFD  Tsting the development environment for 0.8
 #   2012-02-22 FFD  Updates to development environment
 
-#set -x
+##set -x
 #set -e
 
+PATH=$PATH:/sbin
 
 FREESWITCH_INIT_D="/etc/init.d/bbb-freeswitch"
 BBB_VERSION="0.8-beta-4"
@@ -133,17 +134,6 @@ check_file() {
 	fi
 }
 
-
-is_vm() {
-	#
-	# Is the the BigBlueButton VM?
-	#
-	if [ -f /home/firstuser/.profile ]; then
-		echo $(cat /home/firstuser/.profile | grep BigBlueButton)
-	fi
-}
-
-
 print_header() {
 	if [ ! $HEADER ]; then
 		echo
@@ -180,7 +170,7 @@ usage() {
         echo "Configuration:"
         echo "   --version                        Display BigBlueButton version (packages)"
         echo "   --setip <host>                   Set IP/hostname for BigBlueButton"
-	echo "   --setsalt <salt>		  Change the security salt in bigbluebutton.properties"
+	echo "   --setsalt <salt>                 Change the security salt in bigbluebutton.properties"
         echo
         echo "Monitoring:"
         echo "   --check                          Check configuration files and processes for problems"
@@ -195,12 +185,11 @@ usage() {
         echo "   --clean                          Restart and clean all log files"
         echo "   --zip                            Zip up log files for reporting an error"
         echo
-        if [ "$(is_vm)" ]; then
-                echo "Development:"
-                echo "   --setup-samba                    Setup samba share for development (VM only)"
-                echo "   --setup-dev [client|web|apps]	  Setup development environment "
-                echo "   --reset-dev                      Reset environment back to using packages"
-        fi
+
+        echo "Development:"
+        echo "   --setup-samba                    Setup samba share for current users"
+        echo "   --setup-dev [client|web|apps]    Setup development environment "
+        echo "   --reset-dev                      Reset environment back to using packages"
         echo
 }
 
@@ -613,7 +602,6 @@ if [ $SETUPDEV ]; then
                 sudo apt-get install openjdk-6-jdk -y --force-yes
         fi
 
-
 	BASE=~/dev/tools
 	mkdir -p $BASE
 	#
@@ -642,9 +630,9 @@ if [ $SETUPDEV ]; then
 		#
 		# The permissions are not in good shape, so let's fix them 
 		#
-		#sudo find $BASE/flex-4.5.0.20967 -type d -exec chmod o+rx '{}' \;
+		sudo find $BASE/flex-4.5.0.20967 -type d -exec chmod o+rx '{}' \;
 		chmod 755 $BASE/flex-4.5.0.20967/bin/*
-		#sudo chmod -R +r /usr/share/flex-4.5.0.20967
+		sudo chmod -R +r $BASE/flex-4.5.0.20967
 		#sudo chmod o+w /usr/share/flex-4.5.0.20967/frameworks/projects/framework/bundles
 	fi
 
@@ -662,7 +650,7 @@ if [ $SETUPDEV ]; then
 		mv -f playerglobal10_3.swc playerglobal.swc
 	fi
 
-	if ! grep GROOVY_HOME ~/.profile; then
+	if ! grep -q GROOVY_HOME ~/.profile; then
 		echo "
 #
 # BigBlueButton: Setup development environment
@@ -682,6 +670,9 @@ export PATH=\$PATH:\$GRADLE_HOME/bin
 export JAVA_HOME=/usr/lib/jvm/java-6-openjdk
 export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
 " >> ~/.profile
+	fi
+
+	if [ ! -n "$GROOVY_HOME" ]; then
 		echo "
 
 # Finished setting up your development environment variables in
@@ -698,42 +689,78 @@ export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
 #     bbb-conf --setup-dev $SETUPDEV 
 #
 # command again.
-"		exit 0
+"		
+		exit 0
 	fi
 
-	echo "######"
-	exit 0
+	check_source ~/dev/bigbluebutton
+
 	#
 	# Now, setup the specific development environment
 	#
         if [ $SETUPDEV == "web" ]; then
-	    	BBBWEBHOME=$HOME/dev/source/bigbluebutton/bigbluebutton-web
+	    	BBBWEBHOME=$HOME/dev/bigbluebutton/bigbluebutton-web
 		check_source $BBBWEBHOME
 
 
-                echo "# Copying the bigbluebutton.properites in ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ~/.grails/bigbluebutton-config.properties"
                 mkdir -p $HOME/.grails
                 cp ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties $HOME/.grails/bigbluebutton-config.properties
 
-                echo "# Copying the bbb_api_conf.jsp into ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ${BBBWEBHOME}/web-app/demo"
+                # Copying the bbb_api_conf.jsp into ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ${BBBWEBHOME}/web-app/demo
                 cp ${SERVLET_DIR}/demo/bbb_api_conf.jsp ${BBBWEBHOME}/web-app/demo
 
-                echo "# Enabling $USER to write to /var/bigbluebutton to upload slides"
+                # Enabling $USER to write to /var/bigbluebutton to upload slides
                 sudo chmod -R ugo+rwx /var/bigbluebutton
 
-                echo "# Enabling $USER to write to /var/log/bigbluebutton to write log files"
+                # Enabling $USER to write to /var/log/bigbluebutton to write log files
                 sudo chmod -R ugo+rwx /var/log/bigbluebutton
 
-		echo "# Resolving dependencies"
+		# Resolving dependencies
 		cd $BBBWEBHOME
 		gradle resolveDeps
+
+                if [ ! -f /etc/bigbluebutton/nginx/web_dev ]; then
+                        echo "
+         # Handle request to bbb-web running within Tomcat.  This is for
+         # the BBB-API and Presentation.
+       location /bigbluebutton {
+           proxy_pass         http://127.0.0.1:8080;
+           proxy_redirect     default;
+           proxy_set_header   X-Forwarded-For   \$proxy_add_x_forwarded_for;
+
+        # Allow 30M uploaded presentation document.
+           client_max_body_size       30m;
+           client_body_buffer_size    128k;
+
+           proxy_connect_timeout      90;
+           proxy_send_timeout         90;
+           proxy_read_timeout         90;
+
+           proxy_buffer_size          4k;
+           proxy_buffers              4 32k;
+           proxy_busy_buffers_size    64k;
+           proxy_temp_file_write_size 64k;
+
+           include    fastcgi_params;
+       }
+" | sudo tee /etc/bigbluebutton/nginx/web_dev > /dev/null 2>&1
+
+                fi
+
+                sudo rm /etc/bigbluebutton/nginx/web.nginx
+                sudo ln -s /etc/bigbluebutton/nginx/web_dev /etc/bigbluebutton/nginx/web.nginx
+
+                sudo /etc/init.d/nginx restart
 
                 echo "
 # Done.  To run your local build of bbb-web:
 
-        sudo /etc/init.d/${SERVLET_CONTAINER} stop
         cd ${BBBWEBHOME}
-        ant
+        grails -Dserver.port=8888 run-app
+
+## Note ## 
+
+   You'll get an error running the above the first time.  Just cancel and run again.
 "
         fi
 
@@ -770,6 +797,10 @@ export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
 		sudo rm /etc/bigbluebutton/nginx/client.nginx
 		sudo ln -s /etc/bigbluebutton/nginx/client_dev /etc/bigbluebutton/nginx/client.nginx
 
+		if [ ! -L $BBBCLIENTHOME/client ]; then
+			ln -s $BBBCLIENTHOME/bin $BBBCLIENTHOME/client
+		fi
+	
                 sudo /etc/init.d/nginx restart
 
 		# xxx
@@ -991,14 +1022,14 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 		SALT_DEMO=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp | tr -d '\r' | sed -n '/salt[ ]*=/{s/.*=[ ]*"//;s/".*//g;p}')
 
 		if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
-			echo "# API Salt mismatch: "
+			echo "# Warning: API Salt mismatch: "
 			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties=$SALT_PROPERTIES"
 			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp=$SALT_DEMO"
 		fi
 
 		API_IP=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
 		if [ "$IP" != "$API_IP" ]; then
-			echo "# API URL IPs do not match host:"
+			echo "# Warning: API URL IPs do not match host:"
 			echo "#                                IP from ifconfig: $IP"
 			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp: $API_IP"
 		fi
@@ -1109,10 +1140,14 @@ check_state() {
 	# Check if running development environment
 	#
 	if ! grep /var/www/bigbluebutton /etc/bigbluebutton/nginx/client.nginx > /dev/null; then
+		NEW_LOCATION=$(cat  /etc/bigbluebutton/nginx/client.nginx  | sed -n '/root/{s/[ \t]*root[ \t]*//;s/;//;p}' | head -n 1)
 		echo 
-		echo "# Warning: nginx is not serving client from /var/www/bigbluebutton-client."
+		echo "# Warning: nginx is not serving client from /var/www/bigbluebutton/."
+		echo "# The current setting is:"
 		echo "#"
-		echo "# (This is OK if you have setup this server for development.) "
+		echo "#    $NEW_LOCATION"
+		echo "#"
+		echo "# (This is OK if you have setup a development environment on this server.) "
 	fi
 
 
@@ -1347,11 +1382,12 @@ check_state() {
 	if [ -f /var/lib/tomcat6/webapps/demo/demo1.jsp ]; then
 		BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
                 echo
-		echo "# Warning: You have the API demos installed and accessible from:"
+		echo "# Warning: The API demos are installed and accessible from:"
 		echo "#"
 		echo "#    http://$BBB_WEB/"
 		echo "#"
-		echo "# (This is OK if you intend to use the built-in API demos.)  To remove the demos:"
+		echo "# Use the API demos test your BigBlueButton setup. To remove the"
+		echo "# api Demos:"
 		echo "#"
 		echo "#    sudo apt-get purge bbb-demo"
 	fi
