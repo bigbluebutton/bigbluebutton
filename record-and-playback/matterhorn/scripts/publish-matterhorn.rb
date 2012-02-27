@@ -15,7 +15,7 @@ done_files.each do |df|
   match = /(.*)-(.*).done/.match df.sub(/.+\//, "")
   meeting_id = match[1]
   if (match[2] == "matterhorn")
-    BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/matterhorn-publish-#{meeting_id}.log", 'daily' )
+    BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/matterhorn/publish-#{meeting_id}.log", 'daily' )
 
     process_dir = "#{recording_dir}/process/matterhorn/#{meeting_id}"
     target_dir = "#{recording_dir}/publish/matterhorn/#{meeting_id}"
