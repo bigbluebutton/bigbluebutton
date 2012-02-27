@@ -9,7 +9,7 @@ end
 
 meeting_id = opts[:meeting_id]
 
-logger = Logger.new("/var/log/bigbluebutton/matterhorn-process-#{meeting_id}.log", 'daily' )
+logger = Logger.new("/var/log/bigbluebutton/matterhorn/process-#{meeting_id}.log", 'daily' )
 BigBlueButton.logger = logger
 
 # This script lives in scripts/archive/steps while bigbluebutton.yml lives in scripts/
