@@ -23,6 +23,7 @@
 #   2011-08-18 FFD  Inital Version
 #   2011-11-20 FFD  Added more checks for processing of recording
 #   2012-01-04 GUG  Add option to check for errors
+#   2012-02-27 GUG  Add option to delete one meeting and recording
 
 set -e
 #set -x
@@ -103,6 +104,7 @@ usage() {
         echo "Monitoring:"
         echo "   --watch                          Watch processing of recordings"
         echo "   --rebuild [meetingID]            rebuild the output for meetingID"
+		echo "   --delete [meetingID]             delete one meeting and recording"
         echo "   --deletall                       delete all meetings and recordings"
         echo "   --debug                          check for recording errors"
         echo "   --check                          check for configuration errors"
@@ -142,6 +144,18 @@ while [ $# -gt 0 ]; do
 		shift
                 continue
         fi
+		
+		if [ "$1" = "-delete" -o "$1" = "--delete" ]; then
+                need_root
+                if [ ! -z "${2}" ]; then
+                        MEETING_ID="${2}"
+                        shift
+                fi
+                DELETE=1
+                shift
+                continue
+        fi
+
         if [ "$1" = "-deleteall" -o "$1" = "--deleteall" ]; then
 		need_root
                 DELETEALL=1
@@ -180,6 +194,34 @@ if [ $REBUILD ]; then
 	mark_for_rebuild $MEETING_ID
     fi
 fi 
+
+if [ $DELETE ]; then
+  if [ ! -z "$MEETING_ID" ]; then
+        for type in $TYPES; do
+                rm -rf /var/bigbluebutton/published/$type/$MEETING_ID*
+                rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID*
+
+                rm -rf /var/bigbluebutton/recording/process/$type/$MEETING_ID*
+                rm -rf /var/bigbluebutton/recording/publish/$type/$MEETING_ID*
+
+                rm -rf /var/bigbluebutton/recording/raw/$MEETING_ID*
+
+                rm -rf /var/log/bigbluebutton/$type/*$MEETING_ID*
+        done
+
+        rm -f /var/bigbluebutton/recording/status/recorded/$MEETING_ID*
+        rm -f /var/bigbluebutton/recording/status/archived/$MEETING_ID*
+        rm -f /var/bigbluebutton/recording/status/processed/$MEETING_ID*
+
+        rm -rf /usr/share/red5/webapps/video/streams/$MEETING_ID
+        rm -f /var/bigbluebutton/deskshare/$MEETING_ID*.flv
+        rm -f /var/freeswitch/meetings/$MEETING_ID*.wav
+
+        echo "deleting: $MEETING_ID"
+  else
+        echo "Give a meeting id or use --deleteall"
+  fi
+fi
 
 if [ $DELETEALL ]; then
 	for type in $TYPES; do
