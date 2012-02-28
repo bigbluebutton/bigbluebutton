@@ -1386,10 +1386,13 @@ check_state() {
 		echo "#"
 		echo "#    http://$BBB_WEB/"
 		echo "#"
-		echo "# Use the API demos test your BigBlueButton setup. To remove the"
-		echo "# api Demos:"
+		echo "# Use the API demos test your BigBlueButton setup. To remove"
 		echo "#"
 		echo "#    sudo apt-get purge bbb-demo"
+		echo "#"
+		echo "# You can easily integrate BigBlueButton with other systems."
+		echo "#"
+		echo "#    http://www.bigbluebutton.org/open-source-integrations/"
 	fi
 
 	exit 0
