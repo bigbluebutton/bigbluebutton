@@ -872,29 +872,12 @@ export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
             sudo apt-get purge --yes bbb-apps
         fi
 
-        if [ ! -f ~/.bbb-apps-build.properties ]; then
-            echo "#
-# Override the default properties for bbb-apps
-#
-red5.home = $RED5_DIR
-" > ~/.bbb-apps-build.properties
-        fi
-
- 		if [ ! -L /etc/nginx/sites-enabled/bigbluebutton ]; then
-            echo "  No symbolic link in /etc/nginx/sites-enabled/bigbluebutton to /etc/nginx/sites-available/bigbluebutton "
-			sudo ln -s /etc/nginx/sites-available/bigbluebutton /etc/nginx/sites-enabled/bigbluebutton
-		fi
-
-        #
-        # Setup the directories so we can point /etc/nginx/sites-available/bigbluebutton to this
-        # local copy of the client
-        #
         echo "
 # Done.  To run your local build of bbb-apps:
 
     sudo /etc/init.d/red5 stop
     cd ${BBBAPPSHOME}
-    gradle war deploy
+    gradle clean war deploy
     cd $RED5_DIR
     sudo -u red5 ./red5.sh
 
