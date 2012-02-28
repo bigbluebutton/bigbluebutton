@@ -49,7 +49,7 @@
 PATH=$PATH:/sbin
 
 FREESWITCH_INIT_D="/etc/init.d/bbb-freeswitch"
-BBB_VERSION="0.8-beta-4"
+source /etc/bigbluebutton/bigbluebutton-release
 
 if [ ! -f /usr/share/red5/webapps/bigbluebutton/WEB-INF/red5-web.xml ]; then
 	echo "#"
@@ -162,7 +162,7 @@ need_root() {
 
 
 usage() {
-	echo "BigBlueButton Configuration Utility - Version $BBB_VERSION"
+	echo "BigBlueButton Configuration Utility - Version $BIGBLUEBUTTON_RELEASE"
         echo "http://code.google.com/p/bigbluebutton/wiki/BBBConf"
         echo
         echo "   bbb-conf [options]"
@@ -1386,10 +1386,13 @@ check_state() {
 		echo "#"
 		echo "#    http://$BBB_WEB/"
 		echo "#"
-		echo "# Use the API demos test your BigBlueButton setup. To remove the"
-		echo "# api Demos:"
+		echo "# Use the API demos test your BigBlueButton setup. To remove"
 		echo "#"
 		echo "#    sudo apt-get purge bbb-demo"
+		echo "#"
+		echo "# You can easily integrate BigBlueButton with other systems."
+		echo "#"
+		echo "#    http://www.bigbluebutton.org/open-source-integrations/"
 	fi
 
 	exit 0
@@ -1403,7 +1406,7 @@ if [ $CHECK ]; then
 	need_root
 	
 	echo 
-	echo "BigBlueButton Server $BBB_VERSION"
+	echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE"
 	echo "                    Kernel version:" `uname -r`
 
 	if [ -e /etc/lsb-release ]; then
