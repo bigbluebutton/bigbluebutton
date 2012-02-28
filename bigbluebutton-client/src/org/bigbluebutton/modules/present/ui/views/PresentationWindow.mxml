@@ -32,7 +32,7 @@
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off" 
 	showControls="true" resize="maximizeHandler()"
-	backgroundColor="red"
+	backgroundColor="#efefef"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
@@ -101,7 +101,8 @@
 			[Bindable] private var forwardIcon:Class = images.forward;
 			[Bindable] private var backwardIcon:Class = images.backward;
 			[Bindable] private var magnifierIcon:Class = images.magnifier;
-			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
+			[Bindable] public var fitToWidthIcon:Class = images.fitToWidth;
+			[Bindable] public var fitToPageIcon:Class = images.fitToPage;
 						
 			[Bindable] private var thumbY:Number;
 			public var uploadWindow:FileUploadWindow = null;
@@ -185,11 +186,7 @@
 				currentSlideWidth = event.slideWidth;
 				currentSlideHeight = event.slideHeight;		
 				fitToPage = true;
-				
-				if (currentSlideHeight > currentSlideWidth) {
-					fitToPage = false;
-				}		
-		//		slideView.switchToFitToPage(fitToPage);
+
 				fitSlideToWindowMaintainingAspectRatio();			
 			}
 			
@@ -291,6 +288,7 @@
 				zoomSlider.visible = show;
 				btnResetZoom.visible = show;
 				btnSlideNum.visible = show;
+				btnFitToPage.visible = show;
 				setButtonsVisibility(show);
 			}
 			
@@ -485,7 +483,7 @@
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 
-	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" backgroundColor="blue"
+	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" backgroundColor="#efefef"
 			 mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />			    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
@@ -504,8 +502,9 @@
     		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
     		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>
     	<mx:Spacer width="50%" id="spacer3"/>
-		<mx:Button id="btnFitToPage" icon="{magnifierIcon}" visible="true" width="20" height="20" toggle="true" selected="{!fitToPage}"
-				   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.resetZoomBtn.toolTip')}" click="onFitToPage()"/>
+		<mx:Button id="btnFitToPage" icon="{fitToPage ? fitToWidthIcon : fitToPageIcon}" visible="false" width="20" height="20" toggle="true" selected="{!fitToPage}"
+				   toolTip="{fitToPage ? ResourceUtil.getInstance().getString('bbb.presentation.fitToWidth.toolTip') : ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
+				   click="onFitToPage()"/>
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.resetZoomBtn.toolTip')}" click="onResetZoom()"/>
     	<mx:Spacer width="5" id="spacer4"/>
