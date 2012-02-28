@@ -286,8 +286,9 @@
 				backButton.visible = show;
 				forwardButton.visible = show;
 				zoomSlider.visible = show;
-				btnResetZoom.visible = show;
+			//	btnResetZoom.visible = show;
 				btnSlideNum.visible = show;
+				btnFitToWidth.visible = show;
 				btnFitToPage.visible = show;
 				setButtonsVisibility(show);
 			}
@@ -471,8 +472,8 @@
 				resourcesChanged();
 			}
 			
-			private function onFitToPage():void {				
-				fitToPage = !fitToPage;
+			private function onFitToPage(ftp:Boolean):void {				
+				fitToPage = ftp;
 				slideView.switchToFitToPage(fitToPage);
 				fitSlideToWindowMaintainingAspectRatio();				
 			}
@@ -502,11 +503,14 @@
     		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
     		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>
     	<mx:Spacer width="50%" id="spacer3"/>
-		<mx:Button id="btnFitToPage" icon="{fitToPage ? fitToWidthIcon : fitToPageIcon}" visible="false" width="20" height="20" toggle="true" selected="{!fitToPage}"
-				   toolTip="{fitToPage ? ResourceUtil.getInstance().getString('bbb.presentation.fitToWidth.toolTip') : ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
-				   click="onFitToPage()"/>
-    	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
+    	<mx:Button id="btnFitToWidth" icon="{fitToWidthIcon}" visible="false" width="20" height="20" 
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToWidth.toolTip')}" 
+				   click="onFitToPage(false)"/>
+		<mx:Button id="btnFitToPage" icon="{fitToPageIcon}" visible="false" width="20" height="20" 
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
+				   click="onFitToPage(true)"/>
+<!--    	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.resetZoomBtn.toolTip')}" click="onResetZoom()"/>
-    	<mx:Spacer width="5" id="spacer4"/>
+-->    	<mx:Spacer width="5" id="spacer4"/>
     </mx:ApplicationControlBar>
 </pres:MDIWindow>
