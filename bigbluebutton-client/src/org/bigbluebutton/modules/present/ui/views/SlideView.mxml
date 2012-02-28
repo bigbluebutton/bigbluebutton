@@ -43,17 +43,14 @@
     
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.events.Event;
-			
+			import com.asfusion.mate.events.Dispatcher;			
+			import flash.events.Event;			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.Button;
 			import mx.events.FlexEvent;
-			import mx.events.ListEvent;
-			
+			import mx.events.ListEvent;			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -181,7 +178,7 @@
 			 * his/her window.
 			 */
 			private function handleWindowResizeEvent(event:WindowResizedEvent):void {		
-				if (slideModel == null || noSlideContentLoaded()) return;
+/*				if (slideModel == null || noSlideContentLoaded()) return;
 
 				slideModel.parentChange(event.width, event.height, event.fitToPage);
 				
@@ -200,6 +197,28 @@
 					slideModel.printViewedRegion();
 					fitSlideToLoader();	
 				}								
+*/			}
+			
+			public function onParentResized(parentWidth:Number, parentHeight:Number):void {
+				if (slideModel == null || noSlideContentLoaded()) return;
+				
+				slideModel.parentChange(parentWidth, parentHeight);
+				
+				if (UserManager.getInstance().getConference().amIPresenter()) {
+					//					LogUtil.debug("Before resizing viewport [" + this.width + "," + this.height + "][" + this.x + "," + this.y + "]");
+					slideModel.adjustSlideAfterParentResized();
+					slideModel.displayPresenterView();
+					slideModel.printViewedRegion();
+					fitSlideToLoader();
+					notifyOthersOfZoomEvent();
+				} else {
+					slideModel.calculateViewportNeededForRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
+					slideModel.displayViewerRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
+					slideModel.calculateViewportXY();
+					slideModel.displayPresenterView();
+					slideModel.printViewedRegion();
+					fitSlideToLoader();	
+				}				
 			}
 											
 			/**
@@ -236,14 +255,19 @@
 						
 			}
 			
+			public function switchToFitToPage(ftp:Boolean):void {
+				slideModel.switchToFitToPage(ftp);
+				onZoomSlide(100);
+			}
+			
 			public function onZoomSlide(zoom:Number):void {
-				LogUtil.debug("onZoomSlide [" + zoom + "]");
+//				LogUtil.debug("onZoomSlide [" + zoom + "]");
 				if (slideLoader.content == null) return;
 				zoomSlide(zoom, slideLoader.content.width/2, slideLoader.content.height/2);
 			}
 			
 			private function zoomSlide(zoom:Number, mouseX:Number, mouseY:Number):void {
-				LogUtil.debug("Zooming [" + zoom + "]");
+//				LogUtil.debug("Zooming [" + zoom + "]");
 				zoomPercentage = zoom;
 				if (zoomPercentage <= SlideViewModel.HUNDRED_PERCENT) {
 					zoomPercentage = SlideViewModel.HUNDRED_PERCENT;
@@ -475,7 +499,7 @@
 		]]>
 	</mx:Script>
 		<mx:SWFLoader id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" x="{slideModel.loaderX}" y="{slideModel.loaderY}" 
-					  creationComplete="listenForSlideLoadedCompleteEvent()"
+					  creationComplete="listenForSlideLoadedCompleteEvent()" 
 					  scaleContent="false" showBusyCursor="true" completeEffect="Fade"/>			
 	
    		

@@ -32,7 +32,7 @@
 	verticalScrollPolicy="off" 
 	horizontalScrollPolicy="off" 
 	showControls="true" resize="maximizeHandler()"
-	backgroundColor="#EFEFEF"
+	backgroundColor="red"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
@@ -141,7 +141,7 @@
 					
 			private function onCreationComplete():void{
 				thumbY = this.height - 160;
-				
+			
 				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
 			}
@@ -155,6 +155,7 @@
 				fitSlideToWindowMaintainingAspectRatio();
 			}
 			
+			[Bindable]
 			private var fitToPage:Boolean = true;
 			
 			private function fitSlideToWindowMaintainingAspectRatio():void {
@@ -176,20 +177,19 @@
 				dispEvent.old_width = this.slideView.width;
 				dispEvent.old_height = this.slideView.height;
 				dispatcher.dispatchEvent(dispEvent);
+				
+				slideView.onParentResized(slideWidth, slideHeight);
 			}
 			
 			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {				
 				currentSlideWidth = event.slideWidth;
 				currentSlideHeight = event.slideHeight;		
-				
 				fitToPage = true;
 				
-				if (event.slideHeight > event.slideWidth) {
+				if (currentSlideHeight > currentSlideWidth) {
 					fitToPage = false;
-					zoomSlider.visible = false;
-					btnResetZoom.visible = false;
-				}
-				
+				}		
+		//		slideView.switchToFitToPage(fitToPage);
 				fitSlideToWindowMaintainingAspectRatio();			
 			}
 			
@@ -472,6 +472,12 @@
 			private function localeChanged(e:LocaleChangeEvent):void{
 				resourcesChanged();
 			}
+			
+			private function onFitToPage():void {				
+				fitToPage = !fitToPage;
+				slideView.switchToFitToPage(fitToPage);
+				fitSlideToWindowMaintainingAspectRatio();				
+			}
 			          
 		]]>
 	</mx:Script>
@@ -479,7 +485,7 @@
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 
-	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" backgroundColor="#EFEFEF"
+	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" backgroundColor="blue"
 			 mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />			    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
@@ -498,6 +504,8 @@
     		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
     		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>
     	<mx:Spacer width="50%" id="spacer3"/>
+		<mx:Button id="btnFitToPage" icon="{magnifierIcon}" visible="true" width="20" height="20" toggle="true" selected="{!fitToPage}"
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.resetZoomBtn.toolTip')}" click="onFitToPage()"/>
     	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
     		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.resetZoomBtn.toolTip')}" click="onResetZoom()"/>
     	<mx:Spacer width="5" id="spacer4"/>
