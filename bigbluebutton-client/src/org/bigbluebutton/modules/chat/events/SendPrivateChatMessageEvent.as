@@ -28,7 +28,8 @@ package org.bigbluebutton.modules.chat.events
 		public var time:String;
 		public var color:String;
 		public var language:String;
-				
+	        public var reverse:Boolean;	
+
 		public function SendPrivateChatMessageEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
