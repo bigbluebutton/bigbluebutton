@@ -877,6 +877,7 @@ export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
 
     sudo /etc/init.d/red5 stop
     cd ${BBBAPPSHOME}
+    gradle resolveDeps
     gradle clean war deploy
     cd $RED5_DIR
     sudo -u red5 ./red5.sh
