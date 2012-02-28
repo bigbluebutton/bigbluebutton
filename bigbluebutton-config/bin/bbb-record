@@ -30,6 +30,7 @@ set -e
 
 BASE=/var/bigbluebutton/recording
 STATUS=$BASE/status
+source /etc/bigbluebutton/bigbluebutton-release
 
 RECORDING_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(recording_dir\)/{s/.*recording_dir:[ ]*//;s/;//;p}')
 PUBLISHED_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(published_dir\)/{s/.*published_dir:[ ]*//;s/;//;p}')
@@ -76,7 +77,7 @@ mark_for_rebuild() {
 	done
 }
 
-BBB_VERSION=0.8-beta-4
+BIGBLUEBUTTON_RELEASE=0.8-beta-4
 
 need_root() {
         if [ $EUID != 0 ]; then
@@ -94,7 +95,7 @@ print_header() {
 }
 
 usage() {
-        echo "BigBlueButton Recording Diagnostic Utility - Version $BBB_VERSION"
+        echo "BigBlueButton Recording Diagnostic Utility (BigBlueButton Version $BIGBLUEBUTTON_RELEASE)"
         echo
         echo "   bbb-record [options]"
         echo
