@@ -51,8 +51,7 @@ package org.bigbluebutton.modules.chat.services
 		
 		public function sendChatMessageEvent(event:SendPrivateChatMessageEvent):void {
 			trace("Receive receivedSendPrivateChatMessageEvent");
-			/*newMessage = "<font color=\"#" + event.color + "\"><b>[" + 
-						attributes.username +" - "+ event.time + "]</b> " + event.message + "</font><br/>";*/
+
 			var chatobj:ChatObject = new ChatObject();
 			chatobj.message = event.message;
 			chatobj.username = attributes.username;
@@ -61,6 +60,17 @@ package org.bigbluebutton.modules.chat.services
 			chatobj.language = event.language;
 			chatobj.userid = attributes.userid;
 			
+			var newMessage:String  = event.message;
+			if(event.reverse){
+				var arStr:Array = event.message.split(" ");
+				newMessage = "";
+				for (var i:int = ( arStr.length - 1 ); i > -1; i--) 
+				{
+					newMessage+=" "+arStr[i];
+				}
+			}
+			
+			chatobj.message = newMessage;
 			var messageVO:MessageVO = new MessageVO(chatobj, attributes.userid, event.toUser);
 			
 			chatSOService.sendMessage(messageVO);
