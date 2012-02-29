@@ -117,12 +117,21 @@ package org.bigbluebutton.modules.present.ui.views.models
 			loaderH = Math.round(_calcPageH);
 		}
 		
-		public function adjustSlideAfterParentResized():void {
-			calculateViewportNeededForRegion(_viewedRegionX, _viewedRegionY, _viewedRegionW, _viewedRegionH);
-			displayViewerRegion(_viewedRegionX, _viewedRegionY, _viewedRegionW, _viewedRegionH);
-			calculateViewportXY();
-			displayPresenterView();
-			printViewedRegion();			
+		public function adjustSlideAfterParentResized():void {			
+			if (fitToPage) {
+				calculateViewportNeededForRegion(_viewedRegionX, _viewedRegionY, _viewedRegionW, _viewedRegionH);
+				displayViewerRegion(_viewedRegionX, _viewedRegionY, _viewedRegionW, _viewedRegionH);
+				calculateViewportXY();
+				displayPresenterView();
+				printViewedRegion();
+			} else {
+				calculateViewportSize();
+				calculateViewportXY();
+				_calcPageW = SlideCalcUtil.calcCalcPageSizeWidth(fitToPage, viewportW, _viewedRegionW);
+				_calcPageH = SlideCalcUtil.calcCalcPageSizeHeight(!isPortraitDoc(), viewportH, _viewedRegionH, _calcPageW, _calcPageH, _pageOrigW, _pageOrigH);
+				calcViewedRegion();
+				onResizeMove();				
+			}
 		}
 		
 		public function switchToFitToPage(ftp:Boolean):void {
