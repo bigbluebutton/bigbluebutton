@@ -45,8 +45,7 @@ package org.bigbluebutton.modules.present.managers
 		//format: presentationNames = [{label:"00"}, {label:"11"}, {label:"22"} ];
 		[Bindable] public var presentationNames:Array = new Array();
 		
-		public function PresentManager()
-		{
+		public function PresentManager() {
 			globalDispatcher = new Dispatcher();
 		}
 		

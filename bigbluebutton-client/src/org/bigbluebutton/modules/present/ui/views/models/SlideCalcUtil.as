@@ -13,21 +13,15 @@ package org.bigbluebutton.modules.present.ui.views.models
 		/**
 		 * Calculate the viewed region width
 		 */
-		public static function calcViewedRegionWidth(ftp:Boolean, vpw:Number, cpw:Number):Number {
-//			if (ftp) {
-				var width:Number = (vpw/cpw) * HUNDRED_PERCENT;								
-				if (width > HUNDRED_PERCENT) return HUNDRED_PERCENT;				
-				return width;					
-//			} else {
-//				return HUNDRED_PERCENT;		
-//			}
+		public static function calcViewedRegionWidth(vpw:Number, cpw:Number):Number {
+			var width:Number = (vpw/cpw) * HUNDRED_PERCENT;								
+			if (width > HUNDRED_PERCENT) return HUNDRED_PERCENT;				
+			return width;					
 		}
 		
-		public static function calcViewedRegionHeight(ftp:Boolean, vph:Number, cph:Number):Number {
-			var height:Number = (vph/cph) * HUNDRED_PERCENT;
-//			if (ftp) {								
-				if (height > HUNDRED_PERCENT) return HUNDRED_PERCENT;			
-//			} 
+		public static function calcViewedRegionHeight(vph:Number, cph:Number):Number {
+			var height:Number = (vph/cph) * HUNDRED_PERCENT;							
+			if (height > HUNDRED_PERCENT) return HUNDRED_PERCENT;			
 			return height;		
 		}		
 		
@@ -47,15 +41,11 @@ package org.bigbluebutton.modules.present.ui.views.models
 			}
 		}		
 		
-		public static function calcViewedRegionX(ftp:Boolean, cpx:Number, cpw:Number):Number {
-//			if (ftp) {
-				return (cpx * HUNDRED_PERCENT) / cpw;
-//			} else {
-//				return 0;
-//			}
+		public static function calcViewedRegionX(cpx:Number, cpw:Number):Number {
+			return (cpx * HUNDRED_PERCENT) / cpw;
 		}
 		
-		public static function calcViewedRegionY(ftp:Boolean, cpy:Number, cph:Number):Number {
+		public static function calcViewedRegionY(cpy:Number, cph:Number):Number {
 			return (cpy * HUNDRED_PERCENT) / cph;
 		}
 		

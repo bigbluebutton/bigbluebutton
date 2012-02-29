@@ -38,19 +38,20 @@
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleSwitchToPresenterEvent" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
     <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
-    <mate:Listener type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}" method="handleWindowResizeEvent"/>
-
     
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
-			import flash.events.Event;			
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.events.Event;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.controls.Button;
 			import mx.events.FlexEvent;
-			import mx.events.ListEvent;			
+			import mx.events.ListEvent;
+			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -172,40 +173,13 @@
 			private function onMouseOut(e:MouseEvent):void{
 				removeEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 			}
-			
-			/**
-			 * Handles the resizing of the presenter's window. This is for the presenter resizing
-			 * his/her window.
-			 */
-			private function handleWindowResizeEvent(event:WindowResizedEvent):void {		
-/*				if (slideModel == null || noSlideContentLoaded()) return;
-
-				slideModel.parentChange(event.width, event.height, event.fitToPage);
-				
-				if (UserManager.getInstance().getConference().amIPresenter()) {
-//					LogUtil.debug("Before resizing viewport [" + this.width + "," + this.height + "][" + this.x + "," + this.y + "]");
-					slideModel.adjustSlideAfterParentResized();
-					slideModel.displayPresenterView();
-					slideModel.printViewedRegion();
-					fitSlideToLoader();
-					notifyOthersOfZoomEvent();
-				} else {
-					slideModel.calculateViewportNeededForRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
-					slideModel.displayViewerRegion(slideModel.viewedRegionX, slideModel.viewedRegionY, slideModel.viewedRegionW, slideModel.viewedRegionH);
-					slideModel.calculateViewportXY();
-					slideModel.displayPresenterView();
-					slideModel.printViewedRegion();
-					fitSlideToLoader();	
-				}								
-*/			}
-			
+						
 			public function onParentResized(parentWidth:Number, parentHeight:Number):void {
 				if (slideModel == null || noSlideContentLoaded()) return;
-				
+				LogUtil.debug("OnParentResized");
 				slideModel.parentChange(parentWidth, parentHeight);
 				
 				if (UserManager.getInstance().getConference().amIPresenter()) {
-					//					LogUtil.debug("Before resizing viewport [" + this.width + "," + this.height + "][" + this.x + "," + this.y + "]");
 					slideModel.adjustSlideAfterParentResized();
 					slideModel.displayPresenterView();
 					slideModel.printViewedRegion();
@@ -231,12 +205,7 @@
 				slideLoader.content.y = slideLoader.y;
 				slideLoader.content.width = slideLoader.width;
 				slideLoader.content.height = slideLoader.height;
-				
-//				LogUtil.debug("** FS2L [" + this.width + "," + this.height + "," + this.x + "," + this.y + "][" +
-//					slideLoader.width + "," + slideLoader.height + "," + slideLoader.x + "," + slideLoader.y + "][" + 
-//					slideLoader.content.width + "," + slideLoader.content.height + "," + slideLoader.content.x + "," + slideLoader.content.y + "]");
-
-				
+	
 				moveCanvas(slideLoader.x, slideLoader.y);
 				zoomCanvas(slideLoader.width, slideLoader.height);
 			}
@@ -256,18 +225,17 @@
 			}
 			
 			public function switchToFitToPage(ftp:Boolean):void {
+				LogUtil.debug("slideview switchToFitToPage");
 				slideModel.switchToFitToPage(ftp);
 				onZoomSlide(100);
 			}
 			
 			public function onZoomSlide(zoom:Number):void {
-//				LogUtil.debug("onZoomSlide [" + zoom + "]");
 				if (slideLoader.content == null) return;
 				zoomSlide(zoom, slideLoader.content.width/2, slideLoader.content.height/2);
 			}
 			
 			private function zoomSlide(zoom:Number, mouseX:Number, mouseY:Number):void {
-//				LogUtil.debug("Zooming [" + zoom + "]");
 				zoomPercentage = zoom;
 				if (zoomPercentage <= SlideViewModel.HUNDRED_PERCENT) {
 					zoomPercentage = SlideViewModel.HUNDRED_PERCENT;
@@ -280,10 +248,6 @@
 				slideModel.displayPresenterView();
 				fitSlideToLoader();	
 				
-				//				LogUtil.debug("** OnZoom [" + this.width + "," + this.height + "," + this.x + "," + this.y + "][" +
-				//						slideLoader.width + "," + slideLoader.height + "," + slideLoader.x + "," + slideLoader.y + "][" + 
-				//						slideLoader.content.width + "," + slideLoader.content.height + "," + slideLoader.content.x + "," + slideLoader.content.y + "]");
-				
 				notifyOthersOfZoomEvent();	
 			}
 									
@@ -293,7 +257,6 @@
 				presentEvent.yOffset = slideModel.viewedRegionY;
 				presentEvent.slideToCanvasWidthRatio = slideModel.viewedRegionW;
 				presentEvent.slideToCanvasHeightRatio = slideModel.viewedRegionH;
-//				LogUtil.debug("sending resizing event [" + presentEvent.xOffset + "," + presentEvent.yOffset + "," + presentEvent.slideToCanvasWidthRatio + "," + presentEvent.slideToCanvasHeightRatio + "]");
 				dispatchEvent(presentEvent);
 			}
 			
@@ -414,16 +377,14 @@
 			}
 			
 			private function handleSlideLoadedCompleteEvent(event:Event):void {
-				zoomPercentage = 100;
 				if (lateComerSynched) {
 					slideModel.resetForNewSlide(slideLoader.contentWidth, slideLoader.contentHeight);					
-					slideModel.saveViewedRegion(presenterViewedRegionX, presenterViewedRegionY, presenterViewedRegionW, presenterViewedRegionH);					
 				} else {
 					lateComerSynched = true;
 					slideModel.reset(slideLoader.contentWidth, slideLoader.contentHeight);
 					slideModel.saveViewedRegion(presenterViewedRegionX, presenterViewedRegionY, presenterViewedRegionW, presenterViewedRegionH);					
 				}
-								
+				
 				dispatchNewSlideDisplayedEvent(slideModel.pageOrigW, slideModel.pageOrigH);				
 			}
 					

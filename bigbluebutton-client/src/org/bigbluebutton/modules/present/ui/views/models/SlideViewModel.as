@@ -2,16 +2,21 @@ package org.bigbluebutton.modules.present.ui.views.models
 {
 	import org.bigbluebutton.common.LogUtil;
 
-	[Bindable]
+	
 	public class SlideViewModel
 	{
 		public static const MAX_ZOOM_PERCENT:Number = 400;
 		public static const HUNDRED_PERCENT:Number = 100;
 		
-		public var viewportX:Number = 0;
-		public var viewportY:Number = 0;
-		public var viewportW:Number = 0;
-		public var viewportH:Number = 0;
+		[Bindable] public var viewportX:Number = 0;
+		[Bindable] public var viewportY:Number = 0;
+		[Bindable] public var viewportW:Number = 0;
+		[Bindable] public var viewportH:Number = 0;
+		
+		[Bindable] public var loaderW:Number = 0;
+		[Bindable] public var loaderH:Number = 0;
+		[Bindable] public var loaderX:Number = 0;
+		[Bindable] public var loaderY:Number = 0;
 		
 		private var _viewedRegionX:Number = 0;
 		private var _viewedRegionY:Number = 0;
@@ -26,14 +31,8 @@ package org.bigbluebutton.modules.present.ui.views.models
 		private var _calcPageY:Number = 0;
 		private var _parentW:Number = 0;
 		private var _parentH:Number = 0;
-		
-		public var loaderW:Number = 0;
-		public var loaderH:Number = 0;
-		public var loaderX:Number = 0;
-		public var loaderY:Number = 0;
-				
-		public var fitToPage:Boolean = true;
-		public var hasPageLoaded:Boolean = false;
+
+		private var fitToPage:Boolean = true;
 		
 		// After lots of trial and error on why synching doesn't work properly, I found I had to 
 		// multiply the coordinates by 2. There's something I don't understand probably on the
@@ -85,17 +84,13 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}
 		
 		public function reset(pageWidth:Number, pageHeight:Number):void {
-			_calcPageW = _pageOrigW = pageWidth;
-			_calcPageH = _pageOrigH = pageHeight;
+			_pageOrigW = pageWidth;
+			_pageOrigH = pageHeight;
 		}
 
-		public function resetForNewSlide(pageWidth:Number, pageHeight:Number):void {		
-			_calcPageW = _pageOrigW = pageWidth;
-			_calcPageH = _pageOrigH = pageHeight;
-			_calcPageX = 0;
-			_calcPageY = 0;		
-			_viewedRegionW = _viewedRegionH = HUNDRED_PERCENT;
-			_viewedRegionX = _viewedRegionY = 0;
+		public function resetForNewSlide(pageWidth:Number, pageHeight:Number):void {
+			_pageOrigW = pageWidth;
+			_pageOrigH = pageHeight;
 		}
 		
 		public function parentChange(parentW:Number, parentH:Number):void {
@@ -109,10 +104,10 @@ package org.bigbluebutton.modules.present.ui.views.models
 	    }
 	
 		private function calcViewedRegion():void {
-			_viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(fitToPage, viewportW, _calcPageW);
-			_viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(fitToPage, viewportH, _calcPageH);
-			_viewedRegionX = SlideCalcUtil.calcViewedRegionX(fitToPage, _calcPageX, _calcPageW);
-			_viewedRegionY = SlideCalcUtil.calcViewedRegionY(fitToPage, _calcPageY, _calcPageH);
+			_viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(viewportW, _calcPageW);
+			_viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(viewportH, _calcPageH);
+			_viewedRegionX = SlideCalcUtil.calcViewedRegionX(_calcPageX, _calcPageW);
+			_viewedRegionY = SlideCalcUtil.calcViewedRegionY(_calcPageY, _calcPageH);
 		}
 		
 		public function displayPresenterView():void {
@@ -123,32 +118,19 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}
 		
 		public function adjustSlideAfterParentResized():void {
-//			if (fitToPage) {
-				calculateViewportNeededForRegion(_viewedRegionX, _viewedRegionY, _viewedRegionW, _viewedRegionH);
-				displayViewerRegion(_viewedRegionX, _viewedRegionY, _viewedRegionW, _viewedRegionH);
-				calculateViewportXY();
-				displayPresenterView();
-				printViewedRegion();
-//			} else {
-//				calculateViewportSize();
-//				calculateViewportXY();
-//				_calcPageW = (viewportW/_viewedRegionW) * 100;
-//				_calcPageH = (_pageOrigH/_pageOrigW) * _calcPageW;
-				
-//				_calcPageW = SlideCalcUtil.calcCalcPageSizeWidth(fitToPage, viewportW, _viewedRegionW);
-//				_calcPageH = SlideCalcUtil.calcCalcPageSizeHeight(!isPortraitDoc(), viewportH, _viewedRegionH, _calcPageW, _calcPageH, _pageOrigW, _pageOrigH);
-//				calcViewedRegion();
-//				onResizeMove();				
-//			}			
+			calculateViewportNeededForRegion(_viewedRegionX, _viewedRegionY, _viewedRegionW, _viewedRegionH);
+			displayViewerRegion(_viewedRegionX, _viewedRegionY, _viewedRegionW, _viewedRegionH);
+			calculateViewportXY();
+			displayPresenterView();
+			printViewedRegion();			
 		}
 		
 		public function switchToFitToPage(ftp:Boolean):void {
+			LogUtil.debug("switchToFitToPage");
+			
 			this.fitToPage = ftp;
 			calculateViewportSize();
 			calculateViewportXY();			
-//			if (fitToPage) {
-//				
-//			}
 		}
 		
 		private function doWidthBoundsDetection():void {
@@ -175,15 +157,9 @@ package org.bigbluebutton.modules.present.ui.views.models
 			}			
 		}
 		
-		private function onResizeMove():void {
-//			if (fitToPage) {			
-				doWidthBoundsDetection();
-				doHeightBoundsDetection();
-//			} else {			
-//				// The left edge should alway align the view.
-//				_calcPageX = 0;				
-//				doHeightBoundsDetection();	
-//			}
+		private function onResizeMove():void {		
+			doWidthBoundsDetection();
+			doHeightBoundsDetection();
 		}
 		
 		public function onMove(deltaX:Number, deltaY:Number):void {
@@ -223,67 +199,57 @@ package org.bigbluebutton.modules.present.ui.views.models
 		}	
 			
 		public function printViewedRegion():void {
-			LogUtil.debug("Region [" + viewedRegionW + "," + viewedRegionH + "] [" + viewedRegionX + "," + viewedRegionY + "]");			
-			LogUtil.debug("Region [" + ((viewedRegionW / HUNDRED_PERCENT)*_calcPageW) + "," + ((viewedRegionH/HUNDRED_PERCENT)*_calcPageH) + 
-				"] [" + ((viewedRegionX/HUNDRED_PERCENT)*_calcPageW) + "," + ((viewedRegionY/HUNDRED_PERCENT)*_calcPageH) + "]");
+//			LogUtil.debug("Region [" + viewedRegionW + "," + viewedRegionH + "] [" + viewedRegionX + "," + viewedRegionY + "]");			
+//			LogUtil.debug("Region [" + ((viewedRegionW / HUNDRED_PERCENT)*_calcPageW) + "," + ((viewedRegionH/HUNDRED_PERCENT)*_calcPageH) + 
+//				"] [" + ((viewedRegionX/HUNDRED_PERCENT)*_calcPageW) + "," + ((viewedRegionY/HUNDRED_PERCENT)*_calcPageH) + "]");
 		}
 		
 		public function onZoom(zoomValue:Number, mouseX:Number, mouseY:Number):void {
-//			if (fitToPage) {
-				var cpw:Number = _calcPageW;
-				var cph:Number = _calcPageH;
-				var zpx:Number = Math.abs(_calcPageX) + mouseX;
-				var zpy:Number = Math.abs(_calcPageY) + mouseY;
-				var zpxp:Number = zpx/cpw;
-				var zpyp:Number = zpy/cph;
+			var cpw:Number = _calcPageW;
+			var cph:Number = _calcPageH;
+			var zpx:Number = Math.abs(_calcPageX) + mouseX;
+			var zpy:Number = Math.abs(_calcPageY) + mouseY;
+			var zpxp:Number = zpx/cpw;
+			var zpyp:Number = zpy/cph;
 				
-				_calcPageW = pageOrigW * zoomValue / HUNDRED_PERCENT;
-				_calcPageH = (_calcPageW/cpw) * cph; 
+			_calcPageW = pageOrigW * zoomValue / HUNDRED_PERCENT;
+			_calcPageH = (_calcPageW/cpw) * cph; 
 				
-				var zpx1:Number = _calcPageW * zpxp;
-				var zpy1:Number = _calcPageH * zpyp;				
-				_calcPageX = -((zpx1 + zpx)/2) + mouseX;
-				_calcPageY = -((zpy1 + zpy)/2) + mouseY;
+			var zpx1:Number = _calcPageW * zpxp;
+			var zpy1:Number = _calcPageH * zpyp;				
+			_calcPageX = -((zpx1 + zpx)/2) + mouseX;
+			_calcPageY = -((zpy1 + zpy)/2) + mouseY;
 				
-				doWidthBoundsDetection();
-				doHeightBoundsDetection();
+			doWidthBoundsDetection();
+			doHeightBoundsDetection();
 				
-				if ((zoomValue <= HUNDRED_PERCENT) || (_calcPageW < viewportW) || (_calcPageH < viewportH)) {
-					if (isPortraitDoc()) {
-						if (fitToPage) {
-							_calcPageY = 0;
-							_calcPageH = viewportH;
-							_calcPageW = (_pageOrigW/_pageOrigH)*_calcPageH;
-							_calcPageX = 0;
-						} else {
-							_calcPageX = 0;
-							_calcPageY = 0;
-							_calcPageW = viewportW;
-							_calcPageH = (_calcPageW/_pageOrigW)*_pageOrigH;
-						}
+			if ((zoomValue <= HUNDRED_PERCENT) || (_calcPageW < viewportW) || (_calcPageH < viewportH)) {
+				if (isPortraitDoc()) {
+					if (fitToPage) {
+						_calcPageY = 0;
+						_calcPageH = viewportH;
+						_calcPageW = (_pageOrigW/_pageOrigH)*_calcPageH;
+						_calcPageX = 0;
 					} else {
-						if (fitToPage) {
-							_calcPageW = viewportW;
-							_calcPageH = viewportH;
-							_calcPageY = 0;
-							_calcPageX = 0;							
-						} else {
-							_calcPageX = 0;
-							_calcPageY = 0;
-							_calcPageW = viewportW;
-							_calcPageH = (_calcPageW/_pageOrigW)*_pageOrigH;							
-						}
+						_calcPageX = 0;
+						_calcPageY = 0;
+						_calcPageW = viewportW;
+						_calcPageH = (_calcPageW/_pageOrigW)*_pageOrigH;
 					}
-				} 
-//			} else {
-				// For FTW, zooming isn't making the page bigger but actually scrolling.
-//				_calcPageX = 0;
-//				_calcPageY = (HUNDRED_PERCENT/MAX_ZOOM_PERCENT) * _calcPageH - (zoomValue/MAX_ZOOM_PERCENT) * _calcPageH;
-//				if (_calcPageY * MYSTERY_NUM + _calcPageH < viewportH) {
-//					_calcPageY = (viewportH - _calcPageH) / MYSTERY_NUM;
-//				}
-//			}
-			
+				} else {
+					if (fitToPage) {
+						_calcPageW = viewportW;
+						_calcPageH = viewportH;
+						_calcPageY = 0;
+						_calcPageX = 0;							
+					} else {
+						_calcPageX = 0;
+						_calcPageY = 0;
+						_calcPageW = viewportW;
+						_calcPageH = (_calcPageW/_pageOrigW)*_pageOrigH;							
+					}
+				}
+			} 
 			calcViewedRegion();
 		}
 		
