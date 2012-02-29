@@ -127,8 +127,10 @@ package org.bigbluebutton.modules.present.ui.views.models
 			} else {
 				calculateViewportSize();
 				calculateViewportXY();
-				_calcPageW = SlideCalcUtil.calcCalcPageSizeWidth(fitToPage, viewportW, _viewedRegionW);
-				_calcPageH = SlideCalcUtil.calcCalcPageSizeHeight(!isPortraitDoc(), viewportH, _viewedRegionH, _calcPageW, _calcPageH, _pageOrigW, _pageOrigH);
+				_calcPageW = (viewportW/_viewedRegionW) * 100;
+				_calcPageH = (_pageOrigH/_pageOrigW) * _calcPageW;
+//				_calcPageW = SlideCalcUtil.calcCalcPageSizeWidth(fitToPage, viewportW, _viewedRegionW);
+//				_calcPageH = SlideCalcUtil.calcCalcPageSizeHeight(!isPortraitDoc(), viewportH, _viewedRegionH, _calcPageW, _calcPageH, _pageOrigW, _pageOrigH);
 				calcViewedRegion();
 				onResizeMove();				
 			}
