@@ -66,10 +66,10 @@
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			import org.bigbluebutton.modules.present.events.ZoomEvent;
 			import org.bigbluebutton.modules.present.managers.Slide;
+			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
 			
-			[Bindable]
-			public var zoomPercentage:Number = 100;
+			[Bindable] public var zoomPercentage:Number = 100;
 			public static const ZOOM_STEP:int = 5;
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
 			
@@ -176,7 +176,7 @@
 						
 			public function onParentResized(parentWidth:Number, parentHeight:Number):void {
 				if (slideModel == null || noSlideContentLoaded()) return;
-				LogUtil.debug("OnParentResized");
+				
 				slideModel.parentChange(parentWidth, parentHeight);
 				
 				if (UserManager.getInstance().getConference().amIPresenter()) {
@@ -225,7 +225,6 @@
 			}
 			
 			public function switchToFitToPage(ftp:Boolean):void {
-				LogUtil.debug("slideview switchToFitToPage");
 				slideModel.switchToFitToPage(ftp);
 				onZoomSlide(100);
 			}
@@ -272,7 +271,7 @@
 				if (UserManager.getInstance().getConference().amIPresenter()) {
 					return;
 				}
-//				LogUtil.debug("Got resizing event from presenter [" + e.xOffset + "," + e.yOffset + "," + e.slideToCanvasWidthRatio + "," + e.slideToCanvasHeightRatio + "]");
+
 				presenterViewedRegionX = e.xOffset;
 				presenterViewedRegionY = e.yOffset;
 				presenterViewedRegionW = e.slideToCanvasWidthRatio;
@@ -286,6 +285,7 @@
 				if (UserManager.getInstance().getConference().amIPresenter()) {
 					return;
 				}
+				
 				presenterViewedRegionX = e.xOffset;
 				presenterViewedRegionY = e.yOffset;
 				presenterViewedRegionW = e.slideToCanvasWidthRatio;
@@ -424,16 +424,16 @@
 				whiteboardCanvas = overlay;
 				var c:Canvas = overlay as Canvas;
 				this.addChild(c);
-				c.x = slideLoader.x * 2;
-				c.y = slideLoader.y * 2;
+				c.x = slideLoader.x * SlideCalcUtil.MYSTERY_NUM;
+				c.y = slideLoader.y * SlideCalcUtil.MYSTERY_NUM;
 				c.width = slideLoader.width;
 				c.height = slideLoader.height;
 				fitSlideToLoader();
 			}
 			
 			public function moveCanvas(x:Number, y:Number):void{
-				whiteboardCanvasHolder.x = slideLoader.x * 2;
-				whiteboardCanvasHolder.y = slideLoader.y * 2;
+				whiteboardCanvasHolder.x = slideLoader.x * SlideCalcUtil.MYSTERY_NUM;
+				whiteboardCanvasHolder.y = slideLoader.y * SlideCalcUtil.MYSTERY_NUM;
 				
 				if (whiteboardCanvas != null) {
 					whiteboardCanvas.moveCanvas(whiteboardCanvasHolder.x, whiteboardCanvasHolder.y);
@@ -459,9 +459,8 @@
 			
 		]]>
 	</mx:Script>
-		<mx:SWFLoader id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" x="{slideModel.loaderX}" y="{slideModel.loaderY}" 
-					  creationComplete="listenForSlideLoadedCompleteEvent()" 
-					  scaleContent="false" showBusyCursor="true" completeEffect="Fade"/>			
+	<mx:SWFLoader id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" x="{slideModel.loaderX}" y="{slideModel.loaderY}" 
+		creationComplete="listenForSlideLoadedCompleteEvent()" scaleContent="false" showBusyCursor="true" completeEffect="Fade"/>			
 	
    		
     <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.ui.views.Thumbnail" itemRollOver="changeIndex(event)" 
