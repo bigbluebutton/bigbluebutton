@@ -355,12 +355,13 @@ check_source() {
 	mkdir -p $HOME/dev
         if [ ! -d $1 ]; then
                 echo 
-                echo "# Error: Could not find $1."
-                echo "# You need to clone the BigBlueButton source from GitHub in your"
+                echo "# Error: Could not find $1"
+		echo "#"
+                echo "# You need to clone the BigBlueButton source from GitHub into"
 		echo "#"
 		echo "#     $HOME/dev"
                 echo "#"
-                echo "# directory.  After cloning you should have the folder"
+                echo "# After cloning you should have the folder"
                 echo "#"
 		echo "#     $HOME/dev/bigbluebutton"
                 echo "#"
@@ -368,6 +369,8 @@ check_source() {
                 echo "#    http://code.google.com/p/bigbluebutton/w/edit/08SettingDevEnvironment"
 		echo
 		exit 1
+	else
+		echo "# Found source at $1"
         fi
 }
 
@@ -585,7 +588,6 @@ fi
 
 if [ $SETUPDEV ]; then
         check_root
-	check_source ~/dev/bigbluebutton
 
 	#
 	# Check for core development tools
@@ -724,7 +726,7 @@ export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
          # Handle request to bbb-web running within Tomcat.  This is for
          # the BBB-API and Presentation.
        location /bigbluebutton {
-           proxy_pass         http://127.0.0.1:8080;
+           proxy_pass         http://127.0.0.1:8888;
            proxy_redirect     default;
            proxy_set_header   X-Forwarded-For   \$proxy_add_x_forwarded_for;
 
@@ -747,8 +749,8 @@ export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
 
                 fi
 
-                sudo rm /etc/bigbluebutton/nginx/web.nginx
-                sudo ln -s /etc/bigbluebutton/nginx/web_dev /etc/bigbluebutton/nginx/web.nginx
+                #sudo rm /etc/bigbluebutton/nginx/web.nginx
+                sudo ln -s -f /etc/bigbluebutton/nginx/web_dev /etc/bigbluebutton/nginx/web.nginx
 
                 sudo /etc/init.d/nginx restart
 
@@ -822,7 +824,11 @@ export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
 #       cd ${BBBCLIENTHOME}
 #	ant locales
 #
-# 2.  Build the client
+# 2.  Modify the source for the client.  The source is locatedtat
+# 
+#       $BBBCLIENTHOME
+#
+# 3.  Build the client
 #
 #       cd ${BBBCLIENTHOME}
 #	ant
