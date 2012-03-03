@@ -721,14 +721,11 @@ export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
 	# Now, setup the specific development environment
 	#
     if [ $SETUPDEV == "web" ]; then
-	    BBBWEBHOME=$HOME/dev/bigbluebutton/bigbluebutton-web
-		check_source $BBBWEBHOME
+	BBBWEBHOME=$HOME/dev/bigbluebutton/bigbluebutton-web
+	check_source $BBBWEBHOME
 
-        mkdir -p $HOME/.grails
-        cp ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties $HOME/.grails/bigbluebutton-config.properties
+        cp ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties $BBBWEBHOME/grails-app/conf
 
-        # Copying the bbb_api_conf.jsp into ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ${BBBWEBHOME}/web-app/demo
-        cp ${SERVLET_DIR}/demo/bbb_api_conf.jsp ${BBBWEBHOME}/web-app/demo
 
         # Enabling $USER to write to /var/bigbluebutton to upload slides
         sudo chmod -R ugo+rwx /var/bigbluebutton
@@ -736,9 +733,9 @@ export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
         # Enabling $USER to write to /var/log/bigbluebutton to write log files
         sudo chmod -R ugo+rwx /var/log/bigbluebutton
 
-		# Resolving dependencies
-		cd $BBBWEBHOME
-		gradle resolveDeps
+	# Resolving dependencies
+	cd $BBBWEBHOME
+	gradle resolveDeps
 
         if [ ! -f /etc/bigbluebutton/nginx/web_dev ]; then
             echo "
