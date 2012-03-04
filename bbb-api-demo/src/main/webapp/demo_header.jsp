@@ -1,4 +1,4 @@
-<img src="/bigbluebutton/images/bbb_banner.jpg" /><br> 
+<img src="images/bbb_banner.jpg" /><br> 
 <a href="demo1.jsp">Join</a> |
 <a href="demo2.jsp">Join Selected</a> | 
 <a href="demo3.jsp">Join Password</a> &nbsp;&nbsp;&nbsp;
