@@ -1,22 +1,3 @@
-/*
- * Copyright (c) 2008, 2009 by Xuggle Incorporated.  All rights reserved.
- * 
- * This file is part of Xuggler.
- * 
- * You can redistribute Xuggler and/or modify it under the terms of the GNU
- * Affero General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any
- * later version.
- * 
- * Xuggler is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public
- * License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with Xuggler.  If not, see <http://www.gnu.org/licenses/>.
- * 
- */
 package org.red5.app.sip;
 
 import java.io.IOException;
@@ -63,29 +44,23 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 	public AudioStream(String name) {
 		publishedStreamName = name;
 		livePipe = null;
-		log.trace("name: {}", name);
-
 		streamCodecInfo = new StreamCodecInfo();
 		creationTime = null;
 	}
 
 	public IProvider getProvider() {
-		log.trace("getProvider()");
 		return this;
 	}
 
 	public Notify getMetaData() {
-		System.out.println("**** GETTING METADATA ******");
 		return null;
 	}
 
 	public String getPublishedName()  {
-		log.trace("getPublishedName()");
 		return publishedStreamName;
 	}
 
 	public String getSaveFilename() {
-		log.trace("getSaveFilename()");
 		throw new Error("unimplemented method");
 	}
 
@@ -95,7 +70,6 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 	}
 
 	public Collection<IStreamListener> getStreamListeners() {
-		//    log.trace("getStreamListeners()");
 		return streamListeners;
 	}
 
@@ -104,14 +78,11 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 		streamListeners.remove(listener);
 	}
 
-	public void saveAs(String filePath, boolean isAppend) throws IOException,
-						ResourceNotFoundException, ResourceExistException {
-		log.trace("saveAs(filepath:{}, isAppend:{})", filePath, isAppend);
+	public void saveAs(String filePath, boolean isAppend) throws IOException, ResourceNotFoundException, ResourceExistException {
 		throw new Error("unimplemented method");
 	}
 
 	public void setPublishedName(String name) {
-		log.trace("setPublishedName(name:{})", name);
 		publishedStreamName = name;
 	}
 
@@ -120,13 +91,10 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 	}
 
 	public IStreamCodecInfo getCodecInfo() {
-		//    log.trace("getCodecInfo()");
-		// we don't support this right now.
 		return streamCodecInfo;
 	}
 
 	public String getName() {
-		log.trace("getName(): {}", publishedStreamName);
 		// for now, just return the published name
 		return publishedStreamName;
 	}
@@ -159,9 +127,7 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 	    	case PipeConnectionEvent.PROVIDER_CONNECT_PUSH:
 	    		log.trace("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
 	    		System.out.println("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
-	    		if (event.getProvider() == this
-	    				&& (event.getParamMap() == null 
-	    				|| !event.getParamMap().containsKey("record"))) {
+	    		if (event.getProvider() == this && (event.getParamMap() == null || !event.getParamMap().containsKey("record"))) {
 	    			log.trace("Creating a live pipe");
 	    			System.out.println("Creating a live pipe");
 	    			this.livePipe = (IPipe) event.getSource();
@@ -169,24 +135,19 @@ public class AudioStream implements IBroadcastStream, IProvider, IPipeConnection
 	    		break;
 	    	case PipeConnectionEvent.PROVIDER_DISCONNECT:
 	    		log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT");
-	    		System.out.println("PipeConnectionEvent.PROVIDER_DISCONNECT");
 	    		if (this.livePipe == event.getSource()) {
 	    			log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
-	    			System.out.println("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
 	    			this.livePipe = null;
 	    		}
 	    		break;
 	    	case PipeConnectionEvent.CONSUMER_CONNECT_PUSH:
 	    		log.trace("PipeConnectionEvent.CONSUMER_CONNECT_PUSH");
-	    		System.out.println("PipeConnectionEvent.CONSUMER_CONNECT_PUSH");
 	    		break;
 	    	case PipeConnectionEvent.CONSUMER_DISCONNECT:
 	    		log.trace("PipeConnectionEvent.CONSUMER_DISCONNECT");
-	    		System.out.println("PipeConnectionEvent.CONSUMER_DISCONNECT");
 	    		break;
 	    	default:
 	    		log.trace("PipeConnectionEvent default");
-	    		System.out.println("PipeConnectionEvent default");
 	    		break;
 		}
 	}
