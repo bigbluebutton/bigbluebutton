@@ -54,10 +54,10 @@ public class MeetingService {
 	public void removeExpiredMeetings() {
 		log.info("Cleaning up expired meetings");
 		for (Meeting m : meetings.values()) {
-			if (m.hasExpired(defaultMeetingExpireDuration)|| (m.getEndTime() != 0 && removeMeetingWhenEnded) ) {
+			if (m.hasExpired(defaultMeetingExpireDuration) ) {
 				log.info("Removing expired meeting [id={} , name={}]", m.getInternalId(), m.getName());
 				log.info("Expired meeting [start={} , end={}]", m.getStartTime(), m.getEndTime());
-		  		if (m.isRecord()) {
+		  		if (m.isRecord() && m.getNumUsers()==0) {
 		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			
 		  			processRecording(m.getInternalId());
 		  		}
@@ -184,17 +184,7 @@ public class MeetingService {
 	
 	public void processRecording(String meetingId) {
 		log.debug("Process recording for [{}]", meetingId);
-		Meeting m = getMeeting(meetingId);
-		if (m != null) {
-			int numUsers = m.getNumUsers();
-			if (numUsers == 0) {
-				recordingService.startIngestAndProcessing(meetingId);		
-			} else {
-				log.debug("Meeting [{}] is not empty with {} users.", meetingId, numUsers);
-			}
-		} else {
-			log.warn("Meeting [{}] does not exist.", meetingId);
-		}
+		recordingService.startIngestAndProcessing(meetingId);
 	}
 		
 	public boolean isMeetingWithVoiceBridgeExist(String voiceBridge) {
@@ -215,7 +205,15 @@ public class MeetingService {
 		messagingService.endMeeting(meetingId);
 		Meeting m = getMeeting(meetingId);
 		if(m != null){
-			m.setForciblyEnded(true);			
+			m.setForciblyEnded(true);
+			if(removeMeetingWhenEnded)
+			{
+				if (m.isRecord()) {
+					log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			
+					processRecording(m.getInternalId());
+				}
+				meetings.remove(m.getInternalId());
+			}
 		}else{
 			log.debug("endMeeting - meeting doesn't exist: " + meetingId);
 		}
@@ -273,7 +271,6 @@ public class MeetingService {
 			if (m != null) {
 				log.debug("Setting meeting " + meetingId + " end time");
 				m.setEndTime(System.currentTimeMillis());
-				
 				return;
 			}
 			log.warn("The meeting " + meetingId + " doesn't exist");
