@@ -325,7 +325,7 @@ module BigBlueButton
       if (comb[:gap])
       	blank_flv = "#{temp_dir}/#{comb[:stream]}"
         webcams << blank_flv
-        BigBlueButton.create_blank_video((comb[:stop_timestamp] - comb[:start_timestamp])/1000.0, 1000, blank_canvas, blank_flv)
+        BigBlueButton.create_blank_video((comb[:stop_timestamp] - comb[:start_timestamp].to_f)/1000.0, 1000, blank_canvas, blank_flv)
       else
         stripped_webcam = "#{temp_dir}/stripped-wc-#{comb[:stream]}.flv"
         BigBlueButton.strip_audio_from_video("#{video_dir}/#{comb[:stream]}.flv", stripped_webcam)
@@ -375,7 +375,7 @@ module BigBlueButton
       if (comb[:gap])
       	blank_flv = "#{temp_dir}/#{comb[:stream]}"
         flvs << blank_flv
-        BigBlueButton.create_blank_deskshare_video((comb[:stop_timestamp] - comb[:start_timestamp])/1000, 1000, blank_canvas, blank_flv)
+        BigBlueButton.create_blank_deskshare_video((comb[:stop_timestamp] - comb[:start_timestamp].to_f)/1000, 1000, blank_canvas, blank_flv)
       else
       	scaled_flv = "#{temp_dir}/#{meeting_id}/deskshare/scaled-#{comb[:stream]}"
         flvs << scaled_flv

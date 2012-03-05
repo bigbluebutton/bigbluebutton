@@ -23,6 +23,9 @@ package org.bigbluebutton.modules.present.managers
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
 	
+	import org.bigbluebutton.common.LogUtil;
+	
+	[Bindable]
 	public class Slide
 	{
 		private var _loader:URLLoader;
@@ -32,6 +35,8 @@ package org.bigbluebutton.modules.present.managers
 		private var _slideNum:Number;
 		private var _thumbUri:String;
 		
+
+				
 		public function Slide(slideNum:Number, slideUri:String, thumbUri:String)
 		{
 			_slideNum = slideNum;
@@ -65,6 +70,7 @@ package org.bigbluebutton.modules.present.managers
 		public function get slideNumber():Number {
 			return _slideNum;
 		}
+				
 		
 	}
 }

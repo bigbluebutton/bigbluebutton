@@ -27,15 +27,15 @@ package org.bigbluebutton.modules.whiteboard.business
 	import flash.net.Responder;
 	import flash.net.SharedObject;
 	
+	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
+	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
+	import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
-	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
-	import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
-	import org.bigbluebutton.modules.present.events.PresentationEvent;
-	import org.bigbluebutton.common.LogUtil;
 	
 	/**
 	 * The DrawProxy class is a Delegate class for the Red5 Server. It communicates directly with the Red5
@@ -184,7 +184,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		 */		
 		public function sendShape(e:WhiteboardDrawEvent):void{
 			var shape:DrawObject = e.message;
-			
+			LogUtil.debug("*** Sending shape");
 			var nc:NetConnection = connection;
 			nc.call(
 				"whiteboard.sendShape",// Remote function name
@@ -201,14 +201,9 @@ package org.bigbluebutton.modules.whiteboard.business
 						} 
 					}
 				),//new Responder
-				shape.getShapeArray(), shape.getType(), shape.getColor(), shape.getThickness(), shape.parentWidth, shape.parentHeight
+				shape.getShapeArray(), shape.getType(), shape.getColor(), shape.getThickness(), 
+				shape.id, shape.status
 			); //_netConnection.call
-			
-			/*try{
-				drawSO.send("addSegment", shape.getShapeArray(), shape.getType(), shape.getColor(), shape.getThickness(), shape.parentWidth, shape.parentHeight);	
-			} catch(e:Error){
-				LogUtil.error("DrawProxy::sendShape - sending shape failed");
-			}*/
 		}
 		
 		/**
@@ -216,10 +211,12 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * @param array The array representation of a shape
 		 * 
 		 */		
-		public function addSegment(array:Array, type:String, color:uint, thickness:uint, parentWidth:Number, parentHeight:Number):void{
-			var d:DrawObject = drawFactory.makeDrawObject(type,array,color,thickness);
-			d.parentWidth = parentWidth;
-			d.parentHeight = parentHeight;
+		public function addSegment(array:Array, type:String, color:uint, thickness:uint, id:String, status:String):void{
+			LogUtil.debug("Rx add segment ****");
+			var d:DrawObject = drawFactory.makeDrawObject(type, array, color, thickness);
+			d.id = id;
+			d.status = status;
+			
 			var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
 			e.data = d;
 			dispatcher.dispatchEvent(e);
@@ -350,17 +347,16 @@ package org.bigbluebutton.modules.whiteboard.business
 			var shapes:Array = result as Array;
 			//LogUtil.debug("Whiteboard::recievedShapesHistory() : recieved " + shapes.length);
 			
-			for (var i:int=0; i<shapes.length; i++){
+			for (var i:int=0; i < shapes.length; i++){
 				var shape:Array = shapes[i] as Array;
 				var shapeArray:Array = shape[0] as Array;
 				var type:String = shape[1] as String;
 				var color:uint = shape[2] as uint;
 				var thickness:uint = shape[3] as uint;
-				var width:Number = shape[4] as Number;
-				var height:Number = shape[5] as Number;
-				addSegment(shapeArray, type, color, thickness, width, height);
+				var id:String = shape[4] as String;
+				var status:String = shape[5] as String;
+				addSegment(shapeArray, type, color, thickness, id, status);
 			}
 		}
-
 	}
 }

@@ -28,16 +28,17 @@
 	xmlns:containers="flexlib.containers.*"
 	xmlns:mate="http://mate.asfusion.com/"
 	paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" 
-	showCloseButton="false" 
+	showCloseButton="false" layout="absolute"
 	verticalScrollPolicy="off" 
-	horizontalScrollPolicy="off"
-	showControls="true"
+	horizontalScrollPolicy="off" 
+	showControls="true" resize="maximizeHandler()"
+	backgroundColor="#efefef"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{currentPresentation}" keyUp="onKeyUp(event)"
-	resize="maximizeHandler()" xmlns:views="org.bigbluebutton.modules.present.ui.views.*">
+	xmlns:views="org.bigbluebutton.modules.present.ui.views.*">
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
@@ -53,11 +54,9 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import flash.geom.Point;
-			
+			import flash.geom.Point;			
 			import flexlib.containers.DockableToolBar;
-			import flexlib.mdi.events.MDIWindowEvent;
-			
+			import flexlib.mdi.events.MDIWindowEvent;			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.containers.TitleWindow;
@@ -67,10 +66,10 @@
 			import mx.events.ListEvent;
 			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
-			import mx.rpc.events.*;
-			
+			import mx.rpc.events.*;			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
@@ -92,7 +91,6 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
              			
             public static const TITLE:String = "Presentation";
-//			private var presenterName:String = "";
 			private static const NEXT_BUTTON:String = "Next";
 			private static const PREVIOUS_BUTTON:String = "Previous";
 			private static const GOTO_PAGE_BUTTON:String = "Go to Page..."
@@ -103,26 +101,29 @@
 			[Bindable] private var forwardIcon:Class = images.forward;
 			[Bindable] private var backwardIcon:Class = images.backward;
 			[Bindable] private var magnifierIcon:Class = images.magnifier;
-			[Bindable] public var fitToWidthIcon:Class = images.magnifier;
+			[Bindable] public var fitToWidthIcon:Class = images.fitToWidth;
+			[Bindable] public var fitToPageIcon:Class = images.fitToPage;
 						
 			[Bindable] private var thumbY:Number;
 			public var uploadWindow:FileUploadWindow = null;
 			private var slideManager:SlideManager = new SlideManager();
 			private var pageDialog:GotoPageDialog;
 			
-			[Bindable] private var DEFAULT_X_POSITION:int = 237;
-			[Bindable] private var DEFAULT_Y_POSITION:int = 0;
+			[Bindable] private var DEFAULT_X_POSITION:Number = 237;
+			[Bindable] private var DEFAULT_Y_POSITION:Number = 0;
 			
-			[Bindable] private var CONTROL_BAR_HEIGHT:int = 45;
-			private static const TOP_WINDOW_BORDER:int = 30;
-			private static const WIDTH_PADDING:int = 5;
+			[Bindable] private var CONTROL_BAR_HEIGHT:Number = 45;
+			private static const TOP_WINDOW_BORDER:Number = 30;
+			private static const WIDTH_PADDING:Number = 6;
 
-			[Bindable] private var DEFAULT_WINDOW_WIDTH:int = 510;
-			[Bindable] private var DEFAULT_WINDOW_HEIGHT:int = 451;
-						
+			[Bindable] private var DEFAULT_WINDOW_WIDTH:Number = 510;
+			[Bindable] private var DEFAULT_WINDOW_HEIGHT:Number = 451;
+			[Bindable] private var viewportW:Number = 451;
+			[Bindable] private var viewportH:Number = 451;
+			
 			// Init to the size of the window.
-			private var currentSlideWidth:int = DEFAULT_WINDOW_WIDTH;
-			private var currentSlideHeight:int = DEFAULT_WINDOW_HEIGHT;
+			private var currentSlideWidth:Number = DEFAULT_WINDOW_WIDTH;
+			private var currentSlideHeight:Number = DEFAULT_WINDOW_HEIGHT;
 									
 			private var mouseDown:Boolean = false;
 			[Bindable] private var isPresenter:Boolean = false;
@@ -132,33 +133,17 @@
 			private var externalButtons:ArrayCollection = new ArrayCollection();
 			
 			private function maximizeHandler():void {
+//				LogUtil.debug("Max handler");
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
-				
-				this.y = 0;
-				if (this.maximized) {
-					callLater(restore);
-					var timer:Timer = new Timer(500, 1);
-					timer.addEventListener(TimerEvent.TIMER, adjustPosition);
-					timer.start();
-				}
-				stage.focus = this; //Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.
-				
+				//Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.	
+				stage.focus = this; 
 			}
-			
-			private function adjustPosition(t:TimerEvent):void{
-				if ((DEFAULT_X_POSITION + this.width) > this.parent.width) {
-					// Adjust presentation window so that it doesn't go over the side of the browser window
-					this.x = this.parent.width - this.width;
-				} else {
-					// Move window so that it won't overlap with Participant's window.
-					this.x = ((Capabilities.screenResolutionX / 20) * 3) + 10;
-				}
-			}
-		
+					
 			private function onCreationComplete():void{
 				thumbY = this.height - 160;
-				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
+			
+				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
 			}
 			
@@ -167,67 +152,42 @@
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
-				if (event.window == this) {
-					fitSlideToWindowMaintainingAspectRatio();
-				}
+//				LogUtil.debug("onResizeEndEvent");
+				fitSlideToWindowMaintainingAspectRatio();
 			}
+			
+			[Bindable] private var fitToPage:Boolean = true;
 			
 			private function fitSlideToWindowMaintainingAspectRatio():void {
 				if (this.minimized) return;
 				
-				// Initialize to snap to take the width of the window as the size of the slide.
-				var slideWidth:int = this.width;
-				var slideHeight:int = this.height;
-				
-				// If the height is smaller than the width, we use the height as the 
-				// base to determine the size of the slide.
-				if (this.height < this.width) {					
-					slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
-					slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
-				} else {
-					slideWidth = this.width - WIDTH_PADDING;
-					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
-				}
-				
-				this.width = slideWidth + WIDTH_PADDING;
-				this.height = slideHeight + CONTROL_BAR_HEIGHT + TOP_WINDOW_BORDER;
-
-				// Test if the height and width are bigger than it's parent. If so, resize
-				// to make it fit inside so that the controls will still be visible.
-				if (this.height > this.parent.height) {
-					this.height = this.parent.height;
-					slideHeight = this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER;
-					slideWidth = ((currentSlideWidth * slideHeight)/currentSlideHeight);
-				}				
-				
-				if (this.width > this.parent.width) {
-					this.width = this.parent.width;
-					slideWidth = this.width - WIDTH_PADDING;
-					slideHeight = ((currentSlideHeight * slideWidth)/currentSlideWidth);
-				}
-				sendWindowResizedEvent(slideWidth, slideHeight);
+				// Send the available space to display the slide.				
+				sendWindowResizedEvent((this.width - WIDTH_PADDING), (this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER));
 			}
 			
 			/*
 			 * Notify the slide container telling it the available dimensions to display the slide.
 			 */
-			private function sendWindowResizedEvent(slideWidth:int, slideHeight:int):void {
+			private function sendWindowResizedEvent(parentWidth:Number, parentHeight:Number):void {
 				var dispatcher:Dispatcher = new Dispatcher();
 				var dispEvent:WindowResizedEvent = new WindowResizedEvent(WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT);
-				dispEvent.width = slideWidth;
-				dispEvent.height = slideHeight;
+				dispEvent.width = parentWidth;
+				dispEvent.height = parentHeight;
+				dispEvent.fitToPage = fitToPage;
 				dispEvent.old_width = this.slideView.width;
 				dispEvent.old_height = this.slideView.height;
 				dispatcher.dispatchEvent(dispEvent);
+				
+				slideView.onParentResized(parentWidth, parentHeight);
 			}
 			
 			private function handleDisplaySlideEvent(event:DisplaySlideEvent):void {				
 				currentSlideWidth = event.slideWidth;
-				currentSlideHeight = event.slideHeight;
+				currentSlideHeight = event.slideHeight;		
 				fitSlideToWindowMaintainingAspectRatio();			
 			}
 			
-			private function onKeyUp(event:KeyboardEvent):void{
+			private function onKeyUp(event:KeyboardEvent):void{	
 				switch (event.keyCode) {
 				case Keyboard.LEFT:
 				case Keyboard.UP:
@@ -255,17 +215,9 @@
 				if (slideView.slides != null)
 					displaySlideNumber(slideView.selectedSlide + 1);
 			}
-			
-			private function showThumbsXXX():void {
-				 if (isPresenter){
-					//readjust the position of the thumbnails in case the window was resized
-					//Note: this is necessary because the MDIWindow does not let you listen to the resize() event!
-					thumbY = this.height - 150;
-				}				
-			}
-			
+						
 			private function onSliderZoom():void {
-				dispatchResizeEvent(zoomSlider.value);
+				slideView.onZoomSlide(zoomSlider.value);
 			}
 			
 			private function dispatchResizeEvent(newSize:int):void {
@@ -276,7 +228,7 @@
 			
 			private function onResetZoom():void {
 				zoomSlider.value = 100;
-				dispatchResizeEvent(zoomSlider.value);
+				slideView.onZoomSlide(zoomSlider.value);
 			}
 			
 			private function handleSlideResizedEvent(e:SlideResizedEvent):void{
@@ -304,22 +256,11 @@
 				if (presentationLoaded) {
 	            	displaySlideNumber(slideView.selectedSlide + 1);	
 					displaySlideNavigationControls(isPresenter);
-					showUploadPresentationLabel(false);
-				} else {
-					if (isPresenter)
-						showUploadPresentationLabel(true);
-					else
-						showUploadPresentationLabel(false);
 				}
-				
-				setPresentersName(presentersName);	
+					
 				notifyComponentsOfPresenterChange(isPresenter, presentersName);
 			}
-			
-			private function setPresentersName(name:String):void {
-//				if (name != null) presenterName = name;
-			}
-			
+					
 			private function handlePresentationLoadedEvent(e:PresentationEvent):void {	
 				if (e.presentationName == currentPresentation) return;			
 				currentPresentation = e.presentationName;
@@ -328,8 +269,6 @@
 				slideView.visible = true;		
 	
 				if (slideManager != null) slideManager.clear();	
-				
-				showUploadPresentationLabel(false);
 				displaySlideNumber(slideView.selectedSlide + 1);	
 				if (isPresenter) {
 					displaySlideNavigationControls(true);					
@@ -338,16 +277,15 @@
 					dispatchEvent(new SlideEvent(SlideEvent.LOAD_CURRENT_SLIDE));
 				}
 				onResetZoom();
-				reinitWindowToDefaultSize();
-				//this.setFocus();
 			}
 			
 			private function displaySlideNavigationControls(show:Boolean):void {
 				backButton.visible = show;
 				forwardButton.visible = show;
 				zoomSlider.visible = show;
-				btnResetZoom.visible = show;
 				btnSlideNum.visible = show;
+				btnFitToWidth.visible = show;
+				btnFitToPage.visible = show;
 				setButtonsVisibility(show);
 			}
 			
@@ -447,30 +385,11 @@
 				slideView.selectedSlide = 0;
 				btnSlideNum.label = "";
 				displaySlideNavigationControls(false);
-				showUploadPresentationLabel(false);
-				
+
 				// Change the title of the window.
 				currentPresentation = ResourceUtil.getInstance().getString('bbb.presentation.title');				
-				reinitWindowToDefaultSize();
 			}
 			
-			private function reinitWindowToDefaultSize():void {
-				if ((this.width < DEFAULT_WINDOW_WIDTH) || (this.height < DEFAULT_WINDOW_HEIGHT)) {
-					currentSlideWidth = DEFAULT_WINDOW_WIDTH;
-					currentSlideHeight = DEFAULT_WINDOW_HEIGHT;
-					this.width = DEFAULT_WINDOW_WIDTH;
-					this.height = DEFAULT_WINDOW_HEIGHT;
-				}				
-			}
-			
-			private function showUploadPresentationLabel(show:Boolean):void {
-				if (!show) {		
-					currentState = "";		
-				} else {
-					currentState = "dispUploadPresLabel";
-				}				
-			}
-
 			private function gotoPreviousSlide():void {
 				if ((slideView.selectedSlide - 1) >= 0)
 					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide - 1));
@@ -492,8 +411,10 @@
             }
             
             private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
+				LogUtil.debug("OVERLAYING WHITEBOARD CANVAS");
+				e.canvas.acceptOverlayCanvas(slideView);
             	slideView.acceptOverlayCanvas(e.canvas);
-            	e.canvas.acceptOverlayCanvas(slideView);
+            	
             }
             
             /**
@@ -510,7 +431,7 @@
             * Sets the visibility of buttons added throught the Presentation API
             */
             private function setButtonsVisibility(visible:Boolean):void{
-            	for (var i:int = 0; i<externalButtons.length; i++){
+            	for (var i:int = 0; i < externalButtons.length; i++){
             		(externalButtons.getItemAt(i) as IPresentationButton).setButtonVisibility(visible);
             	}
             }
@@ -537,11 +458,7 @@
 					(externalButtons.getItemAt(i) as IPresentationButton).presenterChanged(isPresenter, presenterName);
 				}
 			}
-			
-			public function getSlideView():SlideView{
-				return this.slideView;
-			}
-			
+					
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				if ((slideView != null) && (!slideView.visible)) this.title = ResourceUtil.getInstance().getString('bbb.presentation.title');
@@ -550,26 +467,21 @@
 			private function localeChanged(e:LocaleChangeEvent):void{
 				resourcesChanged();
 			}
-            
+			
+			private function onFitToPage(ftp:Boolean):void {				
+				fitToPage = ftp;
+				slideView.switchToFitToPage(fitToPage);
+				fitSlideToWindowMaintainingAspectRatio();				
+			}
+			          
 		]]>
 	</mx:Script>
-
-	<pres:states>
-	    <!--http://stackoverflow.com/questions/369120/why-does-mxstates-have-trouble-being-resolved-to-a-component-implementation-->
-        <mx:State name="dispUploadPresLabel">      
-            <mx:AddChild relativeTo="{spacer1}" position="before">
-                <mx:Label id="uploadPresentationLabel" visible="true" width="100%"
-    	  			text="{ResourceUtil.getInstance().getString('bbb.presentation.clickToUpload')}"/>
-            </mx:AddChild>
-        </mx:State>		
-	</pres:states>
-    	 
+  	 
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 
-		<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" 
-			mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />
-		    
+	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" backgroundColor="#efefef"
+			 mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />			    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="20" height="20"
     	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
@@ -582,14 +494,17 @@
     	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="gotoNextSlide()"/>    				
 		<mx:Spacer width="10%" id="spacer2"/>
-    	<mx:HSlider id="zoomSlider" visible="false"
-    		minimum="100" maximum="400" value="100" dataTipPlacement="top" labels="['100%','400%']" 
+    	<mx:HSlider id="zoomSlider" visible="false" value="{slideView.zoomPercentage}"
+    		minimum="100" maximum="400" dataTipPlacement="top" labels="['100%','400%']" 
     		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
     		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>
     	<mx:Spacer width="50%" id="spacer3"/>
-    	<!--containers:Docker id="toolbarDocker" height="100%" width="250" visible="{isPresenter}" /-->
-    	<mx:Button id="btnResetZoom" icon="{magnifierIcon}" visible="false" width="20" height="20" 
-    		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.resetZoomBtn.toolTip')}" click="onResetZoom()"/>
+    	<mx:Button id="btnFitToWidth" icon="{fitToWidthIcon}" visible="false" width="20" height="20" 
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToWidth.toolTip')}" 
+				   click="onFitToPage(false)"/>
+		<mx:Button id="btnFitToPage" icon="{fitToPageIcon}" visible="false" width="20" height="20" 
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
+				   click="onFitToPage(true)"/>
     	<mx:Spacer width="5" id="spacer4"/>
     </mx:ApplicationControlBar>
 </pres:MDIWindow>

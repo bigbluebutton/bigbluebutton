@@ -46,16 +46,13 @@
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.common.LogUtil;
-			import com.asfusion.mate.events.Dispatcher;
-			
+			import com.asfusion.mate.events.Dispatcher;			
 			import mx.collections.*;
 			import mx.events.FlexEvent;
 			import mx.events.ValidationResultEvent;
 			import mx.managers.PopUpManager;
-		        import mx.utils.*;
-			import mx.validators.*;
-
-			
+		    import mx.utils.*;
+			import mx.validators.*;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
 			import org.bigbluebutton.modules.present.events.UploadEvent;
@@ -180,7 +177,7 @@
 					progBarLbl.visible = true;
 					progressBar.visible = true;
 					
-					okCancelBtn.visible = false;
+					okCancelBtn.visible = true;
 					selectBtn.enabled = false;
 					uploadBtn.enabled = false;
 					fileTxtInput.enabled = false;
@@ -189,8 +186,7 @@
 					presentationNamesCombobox.visible = false;
 					deleteBtn.visible = false;
 					showBtn.visible = false;
-        		}
-        		
+        		}       		
         	}
         	
         	private function uploadProgressUpdate(e:UploadEvent):void{
@@ -203,8 +199,8 @@
         	}
         	
         	private function uploadComplete(e:UploadEvent):void{
-        		progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.uploadcomplete')
-				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.uploadwindow.uploadsuccessful');
+        		progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.uploadcomplete');
+				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.uploadcomplete');
 				progressBar.setProgress(0, 100);
 				progressBar.validateNow();
 				progressLbl.validateNow();
@@ -221,7 +217,7 @@
 			}   
 			
 			private function handleOfficeDocumentConversionSuccess(e:UploadEvent):void {
-				progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.document.converted')
+				progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.document.converted');
 				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.document.converted');
 				progressBar.setProgress(0, 100);
 				progressBar.validateNow();
@@ -230,7 +226,7 @@
 			
 			private function handleSupportedDocument(e:UploadEvent):void {
 				LogUtil.debug("handleSupportedDocument");
-				progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.document.supported')
+				progressLbl.text = ResourceUtil.getInstance().getString('bbb.presentation.document.supported');
 				progressBar.label = ResourceUtil.getInstance().getString('bbb.presentation.document.supported');
 				progressBar.setProgress(0, 100);
 				progressBar.validateNow();
@@ -323,7 +319,7 @@
 		enabled="false" icon="{bulletGoIcon}" x="466" y="9"/>
 
 	<mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" x="21" y="75" visible="false"/>
-	<mx:ProgressBar id="progressBar" mode="manual" label="" labelPlacement="center" width="460" y="75" x="87" visible="false"/>
+	<mx:ProgressBar id="progressBar" mode="manual" label="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" labelPlacement="center" width="460" y="75" x="87" visible="false"/>
 	
 	<mx:Label id="presentationNamesLb" text="{ResourceUtil.getInstance().getString('bbb.fileupload.presentationNamesLbl')}" x="50" y="40"/>
     <mx:ComboBox id="presentationNamesCombobox" width="365" x="50" y="66" dataProvider="{presentationNamesAC}"/> 

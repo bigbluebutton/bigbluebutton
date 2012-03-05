@@ -221,7 +221,7 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 //
 //Create a meeting and return a URL to join it as moderator
 //
-public String getJoinURLXML(String username, String meetingID, String welcome, String xml_param) {
+public String getJoinURLXML(String username, String meetingID, String welcome, String xml) {
 	String base_url_create = BigBlueButtonURL + "api/create?";
 	String base_url_join = BigBlueButtonURL + "api/join?";
 
@@ -234,6 +234,11 @@ public String getJoinURLXML(String username, String meetingID, String welcome, S
 		welcome_param = "&welcome=" + urlEncode(welcome);
 	}
 
+        String xml_param = "";
+        if ((xml != null) && !xml.equals("")) {
+                xml_param = xml;
+        }
+
 	String create_parameters = "name=" + urlEncode(meetingID)
 		+ "&meetingID=" + urlEncode(meetingID) + welcome_param
 		+ "&attendeePW=ap&moderatorPW=mp&voiceBridge=" + voiceBridge;
@@ -242,10 +247,10 @@ public String getJoinURLXML(String username, String meetingID, String welcome, S
 
 	try {
 		// Attempt to create a meeting using meetingID
-		String xml = postURL(base_url_create + create_parameters
+		String params = postURL(base_url_create + create_parameters
 			+ "&checksum="
 			+ checksum("create" + create_parameters + salt), xml_param);
-		doc = parseXml(xml);
+		doc = parseXml(params);
 	} catch (Exception e) {
 		e.printStackTrace();
 	}
