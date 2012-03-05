@@ -703,7 +703,9 @@ export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
 #
 #   source ~/.profile
 #
-# You can now clone bigbluebutton from your fork.
+# You then need to checkout the source for BigBlueButton.  See
+#
+#   http://code.google.com/p/bigbluebutton/wiki/08SettingDevEnvironment
 #
 "
 		
@@ -1382,7 +1384,6 @@ check_state() {
                         echo "#    /usr/local/bigbluebutton/core/scripts/slides.yml"
 			echo "#"
                         echo "# does not match the local IP address ($IP)."
-                        echo "# (This is OK if the value resolves to the above IP address.)"
                         echo
         fi
 
@@ -1422,7 +1423,7 @@ check_state() {
 		BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 		echo "# Warning: The API demos are installed and accessible from:"
 		echo "#"
-		echo "#    http://$BBB_WEB/demo/demo1.jsp"
+		echo "#    http://$BBB_WEB/"
 		echo "#"
 		echo "# Use the API demos test your BigBlueButton setup. To remove"
 		echo "#"
