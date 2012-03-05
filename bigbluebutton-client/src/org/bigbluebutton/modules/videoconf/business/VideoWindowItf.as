@@ -60,11 +60,16 @@ package org.bigbluebutton.modules.videoconf.business
 		[Bindable] public var resolutions:Array;
 		
 		protected function getVideoResolution(stream:String):Array {
-			for each (var resStr:String in resolutions){
-				if (resStr == stream.substr(0, resStr.length))
-					return resStr.split( "x" );
+			// streamname: <width>x<height><userId>-<timestamp>
+			// example: 320x2405-1329334829687
+			var pattern:RegExp = new RegExp("\\d+x\\d+-\\d+", "");
+			if (pattern.test(stream)) {
+				LogUtil.debug("The stream name is well formatted");
+				return stream.substr(0, stream.split("-")[0].length - String(this.userId).length).split("x");
+			} else {
+				LogUtil.error("The stream name doesn't follow the pattern <width>x<height><userId>-<timestamp>. However, the video resolution will be set to the lowest defined resolution in the config.xml: " + resolutions[0]);
+				return resolutions[0].split("x");
 			}
-			return null;
 		}
 		
 		protected function get paddingVertical():Number {
