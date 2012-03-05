@@ -21,7 +21,15 @@
 test -x /var/bigbluebutton || exit 0
 
 #
-# Delete presentation directories in /var/bigbluebutton older than 10 days
+# Disable this cron job for now (the administrator can manually enable it).
+#
+# We disable it for now to ensure if rap-worker.rb didn't archive a recording
+# we can try and archive it again without having the source files deleted.
+#
+exit 0
+
+#
+# Delete presentations older than a day
 #
 find /var/bigbluebutton -maxdepth 1 -type d -name "*-*" -mtime +11 -exec rm -r '{}' \;
 
