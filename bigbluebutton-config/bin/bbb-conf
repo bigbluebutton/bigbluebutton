@@ -369,8 +369,6 @@ check_source() {
 	mkdir -p $HOME/dev
         if [ ! -d $1 ]; then
                 echo 
-                echo "# Error: Could not find $1"
-		echo "#"
                 echo "# You need to clone the BigBlueButton source from GitHub into"
 		echo "#"
 		echo "#     $HOME/dev"
@@ -380,7 +378,7 @@ check_source() {
 		echo "#     $HOME/dev/bigbluebutton"
                 echo "#"
                 echo "# For more information, see:"
-                echo "#    http://code.google.com/p/bigbluebutton/w/edit/08SettingDevEnvironment"
+                echo "#    http://code.google.com/p/bigbluebutton/wiki/08SettingDevEnvironment"
 		echo
 		exit 1
 	else
@@ -721,14 +719,11 @@ export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
 	# Now, setup the specific development environment
 	#
     if [ $SETUPDEV == "web" ]; then
-	    BBBWEBHOME=$HOME/dev/bigbluebutton/bigbluebutton-web
-		check_source $BBBWEBHOME
+	BBBWEBHOME=$HOME/dev/bigbluebutton/bigbluebutton-web
+	check_source $BBBWEBHOME
 
-        mkdir -p $HOME/.grails
-        cp ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties $HOME/.grails/bigbluebutton-config.properties
+        cp ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties $BBBWEBHOME/grails-app/conf
 
-        # Copying the bbb_api_conf.jsp into ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties to ${BBBWEBHOME}/web-app/demo
-        cp ${SERVLET_DIR}/demo/bbb_api_conf.jsp ${BBBWEBHOME}/web-app/demo
 
         # Enabling $USER to write to /var/bigbluebutton to upload slides
         sudo chmod -R ugo+rwx /var/bigbluebutton
@@ -736,9 +731,9 @@ export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
         # Enabling $USER to write to /var/log/bigbluebutton to write log files
         sudo chmod -R ugo+rwx /var/log/bigbluebutton
 
-		# Resolving dependencies
-		cd $BBBWEBHOME
-		gradle resolveDeps
+	# Resolving dependencies
+	cd $BBBWEBHOME
+	gradle resolveDeps
 
         if [ ! -f /etc/bigbluebutton/nginx/web_dev ]; then
             echo "
@@ -1033,13 +1028,16 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 			echo "# Warning: API Salt mismatch: "
 			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties=$SALT_PROPERTIES"
 			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp=$SALT_DEMO"
+			echo 
 		fi
 
 		API_IP=$(cat ${SERVLET_DIR}/demo/bbb_api_conf.jsp  | sed -n '/String BigBlueButtonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
 		if [ "$IP" != "$API_IP" ]; then
 			echo "# Warning: API URL IPs do not match host:"
+			echo "#"
 			echo "#                                IP from ifconfig: $IP"
 			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp: $API_IP"
+			echo
 		fi
 	fi
 
@@ -1390,6 +1388,7 @@ check_state() {
 
 	if [ -d ${SERVLET_DIR}/demo ]; then
 		if test ${SERVLET_DIR}/demo.war -nt ${SERVLET_DIR}/demo; then 
+			echo "# Error: The updated demo.war did not deploy.  To manually deploy:"
 			echo "#"
                         echo "#    sudo touch ${SERVLET_DIR}/demo.war"
 			echo "#"
