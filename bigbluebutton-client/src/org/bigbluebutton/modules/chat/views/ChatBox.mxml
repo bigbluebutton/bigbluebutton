@@ -135,8 +135,7 @@
 			private function scrollToBottom():void {
 				chatMessagesList.invalidateSize();
 				chatMessagesList.invalidateDisplayList();
-				chatMessagesList.scrollToIndex(messages.length);
-				chatMessagesList.verticalScrollPosition = chatMessagesList.maxVerticalScrollPosition;		
+				chatMessagesList.scrollToIndex(messages.length);		
 				chatMessagesList.validateDisplayList();
 				chatMessagesList.validateNow();		
 			}
