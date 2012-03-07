@@ -48,26 +48,27 @@ public class GhostscriptPageExtractor implements PageExtractor {
 							+ OUTPUT_FILE + SPACE + noPdfMarkWorkaround + SPACE + presentationFile.getAbsolutePath();
 		
         log.debug(COMMAND);
-        
+        System.out.println(COMMAND);
         Process process;
         int exitVal = -1;
         
         try {
         	process = Runtime.getRuntime().exec(COMMAND);                    	
         	// Wait for the process to finish.
-        	exitVal = process.waitFor();    				
+        	exitVal = process.waitFor();   
+    	    if (exitVal == 0) {
+    	    	return true;
+    	    } else {
+    	    	log.warn("Error executing [ " + COMMAND + " ]");
+    	    	return false;
+    	    }
         } catch (InterruptedException e) {
         	log.error("InterruptedException while processing " + COMMAND);
         } catch (IOException e) {
         	log.error("IOException while processing " + COMMAND);
 		}
         
-	    if (exitVal == 0) {
-	    	return true;
-	    } else {
-	    	log.warn("Exit Value != 0 while for " + COMMAND);
-	    	return false;
-	    }
+        return false;
 	}	
 	
 	public void setGhostscriptExec(String exec) {

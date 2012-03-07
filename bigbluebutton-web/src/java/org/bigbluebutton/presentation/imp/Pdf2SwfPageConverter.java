@@ -41,7 +41,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
 	    String AVM2SWF = "-T9";
 	    
 	    String COMMAND = SWFTOOLS_DIR + File.separator + "pdf2swf " + AVM2SWF + " -F " + fontsDir + " -p " + page + " " + source + " -o " + dest;    
-	    log.debug(COMMAND);
+	    log.debug("Executing: " + COMMAND);
 	    
 		Process process;
 		int exitValue = -1;
@@ -51,7 +51,7 @@ public class Pdf2SwfPageConverter implements PageConverter {
 			// Wait for the process to finish
 			exitValue = process.waitFor();
 			if (exitValue != 0) {
-		    	log.warn("Exit Value != 0 while for " + COMMAND);
+		    	log.warn("Failed to create page " + page);
 		    }
 		} catch (IOException e) {
 			log.error("IOException while processing " + COMMAND);
