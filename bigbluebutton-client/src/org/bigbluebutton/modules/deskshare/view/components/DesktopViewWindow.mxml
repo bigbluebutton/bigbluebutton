@@ -138,7 +138,6 @@
 				ns.play(stream);	
 				this.stream = stream;
 				// this.title = "Viewing Remote Desktop";
-				// this.title = ResourceUtil.getInstance().getString('bbb.desktopviewwindow.title');
 				this.title = ResourceUtil.getInstance().getString('bbb.desktopView.title');
 			}
 			
