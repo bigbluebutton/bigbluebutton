@@ -34,6 +34,8 @@ import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mysql.jdbc.log.LogUtils;
+
 public class ThumbnailCreatorImp implements ThumbnailCreator {
 	private static Logger log = LoggerFactory.getLogger(ThumbnailCreatorImp.class);
 	
@@ -56,13 +58,14 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 		try {
 			success = generateThumbnails(thumbsDir, pres);
 	    } catch (InterruptedException e) {
+	    	log.warn("Interrupted Exception while generating thumbnails.");
 	        success = false;
 	    }
 	    
-	    if (! success) createBlankThumbnails(thumbsDir, pres.getNumberOfPages());
+	    // Create blank thumbnails for pages that failed to generate a thumbnail.
+	    createBlankThumbnails(thumbsDir, pres.getNumberOfPages());
 	    
-	    if(SupportedFileTypes.isImageFile(pres.getFileType()))
-	    	renameThumbnails(thumbsDir);
+	    renameThumbnails(thumbsDir);
 	    
 	    return true;
 	}
@@ -83,11 +86,11 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 		
 		try {
 			p = Runtime.getRuntime().exec(COMMAND);
-			log.debug("begin waiting for... "+source+" "+dest);
+			log.debug("Waiting for [" + COMMAND + "] to finish.");
 			int exitValue = p.waitFor();
-			log.debug("finish waiting for... "+ source);
+			log.debug("[" + COMMAND + "] has finished.");
 			if (exitValue != 0) {
-		    	log.warn("Exit Value != 0 while for " + COMMAND);
+		    	log.warn("FAILED [" + COMMAND + "]");
 		    } else {
 		    	return true;
 		    }
@@ -141,6 +144,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 			for (int i = 0; i < pageCount; i++) {
 				File thumb = new File(thumbsDir.getAbsolutePath() + File.separator + TEMP_THUMB_NAME + "-" + i + ".png");
 				if (! thumb.exists()) {
+					log.info("Copying blank thumbnail for slide " + i);
 					copyBlankThumbnail(thumb);
 				}
 			}
