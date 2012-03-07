@@ -1,6 +1,6 @@
 server {
      listen   80;
-     server_name  192.168.0.103;
+     server_name  10.10.27.27; #conference.ksproject.org;
 
      access_log  /var/log/nginx/bigbluebutton.access.log;
 
