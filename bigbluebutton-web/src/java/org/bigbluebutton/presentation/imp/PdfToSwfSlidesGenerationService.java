@@ -140,14 +140,7 @@ public class PdfToSwfSlidesGenerationService {
 				log.error("ExecutionException while creating slide " + pres.getName());
 			} 
 		}
-		
-		for (Future<PdfToSwfSlide> f : tasks) {
-			if (!f.isDone()) {
-				log.info("Cancelling convert task.");
-				f.cancel(true);				
-			}
-		}
-		
+				
 		for (final PdfToSwfSlide slide : slides) {
 			if (! slide.isDone()){
 				log.warn("Creating blank slide for " + slide.getPageNumber());
