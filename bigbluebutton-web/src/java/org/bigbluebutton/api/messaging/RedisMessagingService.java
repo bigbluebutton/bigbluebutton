@@ -113,6 +113,7 @@ public class RedisMessagingService implements MessagingService {
 		@Override
 		public void onPMessage(String pattern, String channel, String message) {
 			log.debug("Message Received in channel: " + channel);
+			log.debug("Message: " + message);
 			
 			Gson gson = new Gson();
 			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
