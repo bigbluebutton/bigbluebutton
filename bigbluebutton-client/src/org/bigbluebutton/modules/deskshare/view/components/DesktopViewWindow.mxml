@@ -137,7 +137,8 @@
 				video.attachNetStream(ns);
 				ns.play(stream);	
 				this.stream = stream;
-				this.title = "Viewing Remote Desktop";
+				// this.title = "Viewing Remote Desktop";
+				this.title = ResourceUtil.getInstance().getString('bbb.desktopView.title');
 			}
 			
 			public function stopViewing():void {
