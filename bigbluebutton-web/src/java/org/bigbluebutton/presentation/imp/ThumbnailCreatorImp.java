@@ -82,23 +82,15 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 	 		dest = thumbsDir.getAbsolutePath() + File.separator + "thumb-";
 	 		COMMAND = IMAGEMAGICK_DIR + "/gs -q -sDEVICE=pngalpha -dBATCH -dNOPAUSE -dNOPROMPT -dDOINTERPOLATE -dPDFFitPage -r16 -sOutputFile=" + dest +"%d.png " + source;
 	 	}
-		Process p;
-		
-		try {
-			p = Runtime.getRuntime().exec(COMMAND);
-			log.debug("Waiting for [" + COMMAND + "] to finish.");
-			int exitValue = p.waitFor();
-			log.debug("[" + COMMAND + "] has finished.");
-			if (exitValue != 0) {
-		    	log.warn("FAILED [" + COMMAND + "]");
-		    } else {
-		    	return true;
-		    }
-		} catch (IOException e) {
-			log.error("IOException while processing " + COMMAND);
-		}       
-		
-		log.warn("Failed to create thumbnails: " + COMMAND);
+	 	
+	 	boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
+	 	
+	 	if (done) {
+	 		return true;
+	 	} else {			
+			log.warn("Failed to create thumbnails: " + COMMAND);	 		
+	 	}
+
 		return false;		
 	}
 	

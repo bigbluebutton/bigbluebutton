@@ -23,8 +23,6 @@
 package org.bigbluebutton.presentation.imp;
 
 import java.io.File;
-import java.io.IOException;
-
 import org.bigbluebutton.presentation.PageConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,24 +41,10 @@ public class Pdf2SwfPageConverter implements PageConverter {
 	    String COMMAND = SWFTOOLS_DIR + File.separator + "pdf2swf " + AVM2SWF + " -F " + fontsDir + " -p " + page + " " + source + " -o " + dest;    
 	    log.debug("Executing: " + COMMAND);
 	    
-		Process process;
-		int exitValue = -1;
-		
-		try {
-			process = Runtime.getRuntime().exec(COMMAND);			
-			// Wait for the process to finish
-			exitValue = process.waitFor();
-			if (exitValue != 0) {
-		    	log.warn("Failed to create page " + page);
-		    }
-		} catch (IOException e) {
-			log.error("IOException while processing " + COMMAND);
-		} catch (InterruptedException e) {
-			log.error("InterruptedException while processing " + COMMAND);
-		}
+	    boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);      
 		
 		File destFile = new File(dest);
-		if (destFile.exists()) {
+		if (done && destFile.exists()) {
 			return true;		
 		} else {
 			log.warn("Failed to convert: " + dest + " does not exist.");

@@ -23,8 +23,6 @@
 package org.bigbluebutton.presentation.imp;
 
 import java.io.File;
-import java.io.IOException;
-
 import org.bigbluebutton.presentation.PageExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,26 +47,7 @@ public class GhostscriptPageExtractor implements PageExtractor {
 		
         log.debug(COMMAND);
         System.out.println(COMMAND);
-        Process process;
-        int exitVal = -1;
-        
-        try {
-        	process = Runtime.getRuntime().exec(COMMAND);                    	
-        	// Wait for the process to finish.
-        	exitVal = process.waitFor();   
-    	    if (exitVal == 0) {
-    	    	return true;
-    	    } else {
-    	    	log.warn("Error executing [ " + COMMAND + " ]");
-    	    	return false;
-    	    }
-        } catch (InterruptedException e) {
-        	log.error("InterruptedException while processing " + COMMAND);
-        } catch (IOException e) {
-        	log.error("IOException while processing " + COMMAND);
-		}
-        
-        return false;
+        return new ExternalProcessExecutor().exec(COMMAND, 60000);
 	}	
 	
 	public void setGhostscriptExec(String exec) {
@@ -78,5 +57,4 @@ public class GhostscriptPageExtractor implements PageExtractor {
 	public void setNoPdfMarkWorkaround(String noPdfMarkWorkaround) {
 		this.noPdfMarkWorkaround = noPdfMarkWorkaround;
 	}
-
 }

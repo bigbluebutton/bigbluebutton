@@ -40,7 +40,7 @@ public class PdfToSwfSlide {
 	private PdfPageToImageConversionService imageConvertService;
 	private String BLANK_SLIDE;
 	
-	private boolean done = false;
+	private volatile boolean done = false;
 	private File slide;
 	
 	public PdfToSwfSlide(UploadedPresentation pres, int page) {
