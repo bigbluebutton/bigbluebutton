@@ -108,8 +108,7 @@ public class PdfToSwfSlidesGenerationService {
 	
 	private void handleSlideGenerationResult(UploadedPresentation pres, PdfToSwfSlide[] slides, CompletionService<PdfToSwfSlide> completionService) {
 		long endTime = System.currentTimeMillis() + MAX_CONVERSION_TIME;
-		int slideGenerated = 0;
-		
+
 		for (int t = 0; t < slides.length; t++) {
 			Future<PdfToSwfSlide> future = null;
 			PdfToSwfSlide slide = null;
@@ -129,9 +128,8 @@ public class PdfToSwfSlidesGenerationService {
 					future.cancel(true);
 					slide.generateBlankSlide();
 				}
-			}
-			slideGenerated++;	
-			notifier.sendConversionUpdateMessage(slideGenerated, pres);
+				notifier.sendConversionUpdateMessage(slide.getPageNumber(), pres);
+			}	
 		}
 	}
 	

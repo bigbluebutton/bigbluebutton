@@ -117,9 +117,9 @@ public class RedisMessagingService implements MessagingService {
 			Gson gson = new Gson();
 			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 			
-			for (String key: map.keySet()) {
-				log.debug("rx: {} = {}", key, map.get(key));
-			}
+//			for (String key: map.keySet()) {
+//				log.debug("rx: {} = {}", key, map.get(key));
+//			}
 			
 			if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
 				String meetingId = map.get("meetingId");
