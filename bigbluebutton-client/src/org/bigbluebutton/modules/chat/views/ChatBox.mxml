@@ -97,7 +97,7 @@
 				 */
 				if (!scrollBarWorkaround) {
 					scrollBarWorkaround = true;
-					var blankStr:String = "                 \n";
+					var blankStr:String = "                 ";
 					var shimMsg:ChatMessage = new ChatMessage();
 					shimMsg.lastSenderId = blankStr;
 					shimMsg.senderId = blankStr;					
@@ -111,15 +111,17 @@
 					shimMsg.translatedColor = 0xCECECE;
 					shimMsg.senderTime = blankStr;			
 					shimMsg.time = blankStr;
-					shimMsg.lastTime = blankStr;
+					shimMsg.lastTime = blankStr + "\n";
 
+					// Add to blank lines to force the last message to be displayed.
+					messages.addItem(shimMsg);
 					messages.addItem(shimMsg);
 				}
 				
 				/**
 				 * Add the REAL message before the shim message above. 
 				 */				 
-				messages.addItemAt(msg, messages.length - 1);
+				messages.addItemAt(msg, messages.length - 2);
 					
 				/**
 				 * Trigger to force the scrollbar to show the last message.
