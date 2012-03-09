@@ -852,7 +852,7 @@ export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
     fi
 
     if [ $SETUPDEV == "apps" ]; then
-	    BBBAPPSHOME=~/dev/source/bigbluebutton/bigbluebutton-apps
+	    BBBAPPSHOME=~/dev/bigbluebutton/bigbluebutton-apps
 		check_source $BBBAPPSHOME
 
         #
