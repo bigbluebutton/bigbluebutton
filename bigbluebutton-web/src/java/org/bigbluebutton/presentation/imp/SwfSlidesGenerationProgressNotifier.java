@@ -45,11 +45,12 @@ public class SwfSlidesGenerationProgressNotifier {
 	private GeneratedSlidesInfoHelper generatedSlidesInfoHelper;
 			
 	private void notifyProgressListener(Map<String, Object> msg) {	
-		if(messagingService !=null){
+		if(messagingService != null){
 			Gson gson= new Gson();
 			String updateMsg=gson.toJson(msg);
-			log.debug("sending: "+updateMsg);
+			log.debug("SENDING: " + updateMsg);
 			messagingService.send(MessagingConstants.PRESENTATION_CHANNEL, updateMsg);
+			log.debug("SENT: " + updateMsg);
 		} else {
 			log.warn("MessagingService has not been set");
 		}

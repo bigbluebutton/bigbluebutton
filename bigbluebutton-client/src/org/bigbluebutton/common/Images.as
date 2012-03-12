@@ -21,6 +21,12 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
+		[Embed(source="assets/images/fit-to-page.png")]
+		public var fitToPage:Class;
+		
+		[Embed(source="assets/images/fit-to-width.png")]
+		public var fitToWidth:Class;
+		
 		[Embed(source="assets/images/green-circle.png")]
 		public var greenCircle:Class;
 		

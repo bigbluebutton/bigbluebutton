@@ -22,6 +22,8 @@
  */
 package org.bigbluebutton.presentation.imp;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -29,6 +31,7 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -95,48 +98,63 @@ public class PdfToSwfSlidesGenerationService {
 	
 	private void convertPdfToSwf(UploadedPresentation pres) {
 		int numPages = pres.getNumberOfPages();				
-		PdfToSwfSlide[] slides = setupSlides(pres, numPages);
+		List<PdfToSwfSlide> slides = setupSlides(pres, numPages);
 		
 		ExecutorService executor;
 		CompletionService<PdfToSwfSlide> completionService;
 		int numThreads = Runtime.getRuntime().availableProcessors();
 		executor = Executors.newFixedThreadPool(numThreads);
-		completionService = new ExecutorCompletionService<PdfToSwfSlide>(executor);		
-		generateSlides(slides, completionService);		
-		handleSlideGenerationResult(pres, slides, completionService);		
+		completionService = new ExecutorCompletionService<PdfToSwfSlide>(executor);			
+		generateSlides(pres, slides, completionService);		
 	}
 	
-	private void handleSlideGenerationResult(UploadedPresentation pres, PdfToSwfSlide[] slides, CompletionService<PdfToSwfSlide> completionService) {
-		long endTime = System.currentTimeMillis() + MAX_CONVERSION_TIME;
-		int slideGenerated = 0;
+	private void generateSlides(UploadedPresentation pres, List<PdfToSwfSlide> slides, CompletionService<PdfToSwfSlide> completionService) {
+		long MAXWAIT = MAX_CONVERSION_TIME * 60 /*seconds*/ * 1000 /*millis*/;
+
+		List<FutureTask<PdfToSwfSlide>> tasks = new ArrayList<FutureTask<PdfToSwfSlide>>(slides.size());
+		for (final PdfToSwfSlide slide : slides) {
+			Callable<PdfToSwfSlide> c = new Callable<PdfToSwfSlide>() {
+				public PdfToSwfSlide call() {
+					return slide.createSlide();
+				};
+			};
+			
+			FutureTask<PdfToSwfSlide> task = new FutureTask<PdfToSwfSlide>(c);
+			tasks.add(task);
+			completionService.submit(c);
+		}		
 		
-		for (int t = 0; t < slides.length; t++) {
+		int slidesCompleted = 0;
+		
+		for (final PdfToSwfSlide slide : slides) {
 			Future<PdfToSwfSlide> future = null;
-			PdfToSwfSlide slide = null;
 			try {
-				long timeLeft = endTime - System.currentTimeMillis();
-				future = completionService.take();
-				slide = future.get(timeLeft, TimeUnit.MILLISECONDS);
+				future = completionService.poll(MAXWAIT, TimeUnit.MILLISECONDS);
+				if (future != null) {
+					PdfToSwfSlide s = future.get();
+					slidesCompleted++;
+					notifier.sendConversionUpdateMessage(slidesCompleted, pres);
+				} else {
+					log.info("Timedout waiting for page to finish conversion.");
+				}
 			} catch (InterruptedException e) {
 				log.error("InterruptedException while creating slide " + pres.getName());
 			} catch (ExecutionException e) {
 				log.error("ExecutionException while creating slide " + pres.getName());
-			} catch (TimeoutException e) {
-				log.error("TimeoutException while converting " + pres.getName());				
-			} finally {
-				if ((slide != null) && (! slide.isDone())){
-					log.warn("Creating blank slide for " + slide.getPageNumber());
-					future.cancel(true);
-					slide.generateBlankSlide();
-				}
-			}
-			slideGenerated++;	
-			notifier.sendConversionUpdateMessage(slideGenerated, pres);
+			} 
+		}
+				
+		for (final PdfToSwfSlide slide : slides) {
+			if (! slide.isDone()){
+				log.warn("Creating blank slide for " + slide.getPageNumber());
+				slide.generateBlankSlide();				
+				notifier.sendConversionUpdateMessage(slidesCompleted++, pres);
+			}	
 		}
 	}
 	
-	private PdfToSwfSlide[] setupSlides(UploadedPresentation pres, int numPages) {
-		PdfToSwfSlide[] slides = new PdfToSwfSlide[numPages];
+	private List<PdfToSwfSlide> setupSlides(UploadedPresentation pres, int numPages) {
+		List<PdfToSwfSlide> slides = new ArrayList<PdfToSwfSlide>(numPages);
 		
 		for (int page = 1; page <= numPages; page++) {		
 			PdfToSwfSlide slide = new PdfToSwfSlide(pres, page);
@@ -144,23 +162,13 @@ public class PdfToSwfSlidesGenerationService {
 			slide.setPageConverter(pdfToSwfConverter);
 			slide.setPdfPageToImageConversionService(imageConvertService);
 			
-			// Array index is zero-based
-			slides[page-1] = slide;
+			slides.add(slide);
 		}
 		
 		return slides;
 	}
 	
-	private void generateSlides(PdfToSwfSlide[] slides, CompletionService<PdfToSwfSlide> completionService) {
-		for (int i = 0; i < slides.length; i++) {
-			final PdfToSwfSlide slide = slides[i];
-			completionService.submit(new Callable<PdfToSwfSlide>() {
-				public PdfToSwfSlide call() {
-					return slide.createSlide();
-				}
-			});
-		}
-	}
+
 		
 	public void setCounterService(PageCounterService counterService) {
 		this.counterService = counterService;

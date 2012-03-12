@@ -76,6 +76,8 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 		
 		private function gotoPage(pageNumber:int):void{
+			if (pages == null || pages.length < pageNumber) return;
+			
 			var event:PageEvent = new PageEvent(PageEvent.CHANGE_PAGE);
 			event.pageNum = pageNumber;
 			this.pageNum = pageNumber;

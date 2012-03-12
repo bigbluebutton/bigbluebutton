@@ -30,8 +30,8 @@ package org.bigbluebutton.common
 		function removeRawChild(child:DisplayObject):void;
 		function doesContain(child:DisplayObject):Boolean;
 		function acceptOverlayCanvas(overlay:IBbbCanvas):void;
-		function moveCanvas(x:int, y:int):void;
-		function zoomCanvas(width:int, height:int):void;
+		function moveCanvas(x:Number, y:Number):void;
+		function zoomCanvas(width:Number, height:Number):void;
 		function showCanvas(show:Boolean):void;
 	}
 }

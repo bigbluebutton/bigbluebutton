@@ -18,6 +18,8 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+	import flash.display.Shape;
+
 	/**
 	 * The Rectangle class. Extends a DrawObject 
 	 * @author dzgonjan
@@ -53,6 +55,22 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.shape.push(y1);
 			this.shape.push(x2);
 			this.shape.push(y2);
+		}
+		
+		override public function makeShape(parentWidth:Number, parentHeight:Number):void {
+			var newShape:Shape = new Shape();
+			newShape.graphics.lineStyle(getThickness(), getColor());
+			var arrayEnd:Number = getShapeArray().length;
+			var x:Number = denormalize(getShapeArray()[0], parentWidth);
+			var y:Number = denormalize(getShapeArray()[1], parentHeight);
+			var width:Number = denormalize(getShapeArray()[arrayEnd-2], parentWidth) - x;
+			var height:Number = denormalize(getShapeArray()[arrayEnd-1], parentHeight) - y;
+			
+			newShape.graphics.drawRect(x,y,width,height);
+			if (getColor() == 0x000000 || getColor() == 0xFFFFFF) newShape.alpha = 1.0;
+			else newShape.alpha = 0.6;
+			
+			_shape = newShape;
 		}
 		
 	}

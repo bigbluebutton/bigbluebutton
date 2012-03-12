@@ -23,11 +23,12 @@ package org.bigbluebutton.modules.present.events
 	public class WindowResizedEvent extends Event
 	{
 		public static const PRESENTATION_WINDOW_RESIZED_EVENT:String = "PRESENTATION_WINDOW_RESIZED_EVENT";
-		public var width:int = 450;
-		public var height:int = 450;
+		public var width:Number = 450;
+		public var height:Number = 450;
+		public var fitToPage:Boolean = true;
 		
-		public var old_width:int = 450;
-		public var old_height:int = 450;
+		public var old_width:Number = 450;
+		public var old_height:Number = 450;
 		
 		public function WindowResizedEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=true)
 		{

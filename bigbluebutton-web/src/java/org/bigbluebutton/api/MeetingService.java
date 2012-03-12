@@ -54,10 +54,10 @@ public class MeetingService {
 	public void removeExpiredMeetings() {
 		log.info("Cleaning up expired meetings");
 		for (Meeting m : meetings.values()) {
-			if (m.hasExpired(defaultMeetingExpireDuration)) {
+			if (m.hasExpired(defaultMeetingExpireDuration) ) {
 				log.info("Removing expired meeting [id={} , name={}]", m.getInternalId(), m.getName());
 				log.info("Expired meeting [start={} , end={}]", m.getStartTime(), m.getEndTime());
-		  		if (m.isRecord()) {
+		  		if (m.isRecord() && m.getNumUsers()==0) {
 		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			
 		  			processRecording(m.getInternalId());
 		  		}
@@ -73,9 +73,9 @@ public class MeetingService {
 			
 			if (m.hasExceededDuration()) {
 				log.info("Forcibly ending meeting [{} - {}]", m.getInternalId(), m.getName());
-				m.setForciblyEnded(true);
 				endMeeting(m.getInternalId());
 			}
+			
 		}
 	}
 	
@@ -184,17 +184,7 @@ public class MeetingService {
 	
 	public void processRecording(String meetingId) {
 		log.debug("Process recording for [{}]", meetingId);
-		Meeting m = getMeeting(meetingId);
-		if (m != null) {
-			int numUsers = m.getNumUsers();
-			if (numUsers == 0) {
-				recordingService.startIngestAndProcessing(meetingId);		
-			} else {
-				log.debug("Meeting [{}] is not empty with {} users.", meetingId, numUsers);
-			}
-		} else {
-			log.warn("Meeting [{}] does not exist.", meetingId);
-		}
+		recordingService.startIngestAndProcessing(meetingId);
 	}
 		
 	public boolean isMeetingWithVoiceBridgeExist(String voiceBridge) {
@@ -213,14 +203,19 @@ public class MeetingService {
 	
 	public void endMeeting(String meetingId) {		
 		messagingService.endMeeting(meetingId);
-		
-		if (removeMeetingWhenEnded) {
-			meetings.remove(meetingId);
-		} else {
-			Meeting m = getMeeting(meetingId);
-			if (m != null) {
-				m.setForciblyEnded(true);
-			}			
+		Meeting m = getMeeting(meetingId);
+		if(m != null){
+			m.setForciblyEnded(true);
+			if(removeMeetingWhenEnded)
+			{
+				if (m.isRecord()) {
+					log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			
+					processRecording(m.getInternalId());
+				}
+				meetings.remove(m.getInternalId());
+			}
+		}else{
+			log.debug("endMeeting - meeting doesn't exist: " + meetingId);
 		}
 	}
 

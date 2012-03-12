@@ -18,6 +18,7 @@
 */
 package org.bigbluebutton.modules.present.events
 {
+	import org.bigbluebutton.modules.present.managers.Slide;
 	import flash.events.Event;
 	import flash.utils.ByteArray;
 	
@@ -28,6 +29,7 @@ package org.bigbluebutton.modules.present.events
 		
 		public var slideNumber:Number;
 		public var slide:ByteArray;
+		public var page:Slide;
 		
 		public function SlideEvent(type:String)
 		{

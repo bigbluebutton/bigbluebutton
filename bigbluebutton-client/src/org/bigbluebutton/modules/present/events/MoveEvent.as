@@ -22,7 +22,8 @@ package org.bigbluebutton.modules.present.events
 	
 	public class MoveEvent extends Event
 	{
-		public static const MOVE:String = "MOVE";
+		public static const MOVE:String = "MOVE_SLIDE";
+		public static const CUR_SLIDE_SETTING:String = "CUR_SLIDE_SETTING";
 		
 		public var xOffset:Number;
 		public var yOffset:Number;

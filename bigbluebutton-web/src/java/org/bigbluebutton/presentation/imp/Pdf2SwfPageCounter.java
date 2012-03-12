@@ -26,10 +26,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bigbluebutton.presentation.PageCounter;
+import org.bigbluebutton.presentation.imp.ExternalProcessExecutor.InterruptTimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +46,16 @@ public class Pdf2SwfPageCounter implements PageCounter {
 		int numPages = 0; //total numbers of this pdf	
 
 		String COMMAND = SWFTOOLS_DIR + "/pdf2swf -I " + presentationFile.getAbsolutePath(); 
-		
-		try {
-			Process p = Runtime.getRuntime().exec(COMMAND);            
-        	
-			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+   	
+        Timer timer = null;
+        Process p = null;
+        try {
+            timer = new Timer(true);
+            InterruptTimerTask interrupter = new InterruptTimerTask(Thread.currentThread());
+            timer.schedule(interrupter, 60000);
+            
+            p = Runtime.getRuntime().exec(COMMAND); 
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String info;
 			Matcher matcher;
@@ -64,22 +72,38 @@ public class Pdf2SwfPageCounter implements PageCounter {
 			}
 			stdInput.close();
 			stdError.close();
+            p.waitFor();
+        } catch(Exception e) {
+        	log.info("TIMEDOUT excuting : " + COMMAND);
+            p.destroy();
+        } finally {
+            timer.cancel();     // If the process returns within the timeout period, we have to stop the interrupter
+                                // so that it does not unexpectedly interrupt some other code later.
 
-			// Wait for the process to finish.
-        	int exitValue = p.waitFor();
-        	if (exitValue != 0) {
-		    	log.warn("Exit Value != 0 while for " + COMMAND);
-		    }
-		} catch (IOException e) {
-			log.error("IOException while processing " + COMMAND);
-		} catch (InterruptedException e) {
-			log.error("InterruptedException while processing " + COMMAND);
-		}		
+            Thread.interrupted();   // We need to clear the interrupt flag on the current thread just in case
+                                    // interrupter executed after waitFor had already returned but before timer.cancel
+                                    // took effect.
+                                    //
+                                    // Oh, and there's also Sun bug 6420270 to worry about here.
+        }  
 
 		return numPages;
 	}
 		
 	public void setSwfToolsDir(String dir) {
 		SWFTOOLS_DIR = dir;
+	}
+	
+	class InterruptTimerTask extends TimerTask {
+	    private Thread thread;
+
+	    public InterruptTimerTask(Thread t) {
+	        this.thread = t;
+	    }
+
+	    public void run() {
+	        thread.interrupt();
+	    }
+
 	}
 }
