@@ -8,7 +8,7 @@ package org.bigbluebutton.modules.listeners.model
 		public var windowVisible:Boolean = true;
 		
 		[Bindable]
-		public var position:String = "bottom-left";
+		public var position:String = "middle-left";
 		
 		public function ListenerOptions()
 		{

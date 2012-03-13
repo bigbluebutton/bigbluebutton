@@ -31,7 +31,7 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
 			windowVisible="true"
-			position="bottom-left"
+			position="middle-left"
 		/>
 		
 		<module name="DeskShareModule" 
@@ -114,6 +114,7 @@
 			refreshDelay="500"
 			responseTimeout="3000"
 			enablePlayback="false"
+			autoStart="false"
 			dependsOn="ViewersModule"
 		/>
 		

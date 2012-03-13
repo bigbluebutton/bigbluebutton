@@ -35,6 +35,7 @@
 			public static const BOTTOM_1_3:String = "bottom-one-third";
 			public static const BOTTOM_1_3_RIGHT:String = "bottom-one-third-right";
 			public static const TOP_LEFT:String = "top-left";
+			public static const MIDDLE_LEFT:String = "middle-left";
 			public static const BOTTOM_LEFT:String = "bottom-left";
 			public static const MIDDLE:String = "middle";
 			public static const BOTTOM:String = "bottom";
@@ -55,7 +56,13 @@
 			private var rightWindowWidth:Number;
 			private var rightWindowHeight:Number;
 			
-			private static const MIN_HEIGHT:int = 768;
+			/**
+			 *	1440x900
+			 *	Ubuntu Desktop 11.10 and Google Chrome
+			 *	this.parent.height = 814
+			 *	this.height = 752
+			 */
+			private static const MIN_HEIGHT:int = 620; // 768 - (900 - 752)
 			
 			private function determineWindowSizes():void{
 				
@@ -89,7 +96,7 @@
 			}
 			
 			private function positionWindow(window:IBbbModuleWindow):void{
-				leftWindowHeight = this.height/3;
+				leftWindowHeight = (this.height - 20) / 3;
 				leftWindowWidth = 245;
 				rightWindowHeight = this.height * 0.6;
 				rightWindowWidth = (this.width / 20) * 6;
@@ -127,9 +134,15 @@
 						win.width = leftWindowWidth;
 						win.height = leftWindowHeight;
 						break;
-					case BOTTOM_LEFT:
+					case MIDDLE_LEFT:
 						x = 1;
 						y = leftWindowHeight + 10;
+						win.width = leftWindowWidth;
+						win.height = leftWindowHeight;
+						break;
+					case BOTTOM_LEFT:
+						x = 1;
+						y = 2 * (leftWindowHeight + 10);
 						win.width = leftWindowWidth;
 						win.height = leftWindowHeight;
 						break;
@@ -154,36 +167,41 @@
 						 * to occupy the whole top-to-bottom region. This
 						 * removes the problem where the chat doesn't display
 						 * properly because the window is small.
+						 * (fcecagno) it's not being used anymore because we
+						 * started to use the shared notes module positioned
+						 * on bottom-left, so the videodock will be positioned
+						 * on bottom-right by default
 						 */
-						if (this.height < MIN_HEIGHT) {
-							win.height = this.height - 3;
-						} else {					
+//						if (this.height < MIN_HEIGHT) {
+//							win.height = this.height - 3;
+//						} else {
 							win.height = rightWindowHeight;
-						}
+//						}
 						break;
 					case BOTTOM_RIGHT:
 						/**
 						 * If the display is small, move the video dock
 						 * window to the bottom left so that the chat
 						 * window occupies the left section.
+						 * (fcecagno) it's not being used anymore because we
+						 * started to use the shared notes module positioned
+						 * on bottom-left
 						 */
-						if (this.height < MIN_HEIGHT) {
-							x = 1;
-							y = (this.height/3) * 2 + 15;
-							win.width = leftWindowWidth;
-							win.height = (this.height/3) - 15;							
-						} else {
+//						if (this.height < MIN_HEIGHT) {
+//							x = 1;
+//							y = 2 * (leftWindowHeight + 10);
+//							win.width = leftWindowWidth;
+//							win.height = leftWindowHeight;
+//						} else {
 							x = this.width - rightWindowWidth - 10;
-							y = rightWindowHeight + 10;;
+							y = rightWindowHeight + 10;
 							win.width = rightWindowWidth;
 							win.height = this.height - rightWindowHeight - 10;							
-						}
+//						}
 						break;					
 					case POPUP:
-						x = (Math.random() * this.width) - 640;
-						y = (Math.random() * this.height) - 520;
-						if (x < 0) x = 1;
-						if (y < 0) y = 1;
+						x = Math.random() * (this.width - win.width);
+						y = Math.random() * (this.height - win.height);
 						break;
 					case DESKTOP_SHARING_PUBLISH:
 						y = (this.height - win.height);
