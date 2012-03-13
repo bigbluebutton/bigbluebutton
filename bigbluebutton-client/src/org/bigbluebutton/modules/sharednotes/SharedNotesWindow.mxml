@@ -53,17 +53,28 @@
 			private var _uri:String;
 			private var _host:String;
 			private var _connection:NetConnection;
-			private var _refreshDelay:int;
-			private var _responseTimeout:int;
-			private var _enablePlayback:Boolean;
+
+			private var options:SharedNotesOptions = new SharedNotesOptions();
 
 			public static const SHARED_NOTES_CLOSED:String = "SHARED_NOTES_CLOSED";
 			
 			private var sendUpdateTimer:Timer;
 			
+			[Bindable] private var DEFAULT_PADDING:int = 5; 
+			[Bindable] private var RIGHT_PADDING:int = DEFAULT_PADDING; 
+			[Bindable] private var LEFT_PADDING:int = DEFAULT_PADDING;
+			[Bindable] private var TOP_PADDING:int = DEFAULT_PADDING;
+			[Bindable] private var BOTTOM_PADDING:int = 20;
+			
+			
 			public function init():void {
-				sendUpdateTimer = new Timer(_refreshDelay, 1);
-				lblPlaybackVersion.visible = btnPlayback.visible = playbackSlider.visible = _enablePlayback;
+				sendUpdateTimer = new Timer(options.refreshDelay, 1);
+			
+				textArea.visible = true;
+				btnBackPlayback.visible = false;
+				btnPlayback.visible = options.enablePlayback;
+				playbackSlider.visible = false;
+				lblPlaybackVersion.visible = false;
 			
 				textArea.addEventListener(Event.CHANGE, onTextChange);
 				textArea.addEventListener(KeyboardEvent.KEY_DOWN, function(e:Event):void {
@@ -97,29 +108,39 @@
 			}
 			
 			private function onResize(e:Event = null):void {
+				if (this.minimized)
+					return;
+					
 				// limits the window size to the parent size
 				this.width = (this.parent != null? Math.min(this.width, this.parent.width): this.width);
 				this.height = (this.parent != null? Math.min(this.height, this.parent.height): this.height);
 			
-				const DEFAULT_PADDING:int = 10, RIGHT_PADDING:int = 10, LEFT_PADDING:int = 10, TOP_PADDING:int = 10, BOTTOM_PADDING:int = 40;
 				const availableWidth:int = this.width - this.borderMetrics.left - this.borderMetrics.right;
 				const availableHeight:int = this.height - this.borderMetrics.top - this.borderMetrics.bottom;
 				
-				textArea.width = txtPlayback.width = textArea.measuredWidth = availableWidth - RIGHT_PADDING - LEFT_PADDING;
+				if (options.enablePlayback) {
+					if (BOTTOM_PADDING < Math.max(btnPlayback.height, btnBackPlayback.height) + 4)
+						BOTTOM_PADDING = Math.max(btnPlayback.height, btnBackPlayback.height) + 4;
+					btnPlayback.x = btnBackPlayback.x = LEFT_PADDING;
+					btnPlayback.y = btnBackPlayback.y = availableHeight - BOTTOM_PADDING + (BOTTOM_PADDING - Math.max(btnPlayback.height, btnBackPlayback.height)) / 2;
+				} else {
+					btnPlayback.x = btnBackPlayback.x = 0;
+					btnPlayback.y = btnBackPlayback.y = 0;
+				} 
+				
+				textArea.width = textArea.measuredWidth = txtPlayback.width = availableWidth - RIGHT_PADDING - LEFT_PADDING;
+				textArea.height = textArea.measuredHeight = txtPlayback.height = availableHeight - TOP_PADDING - BOTTOM_PADDING;
 				textArea.x = txtPlayback.x = LEFT_PADDING;
-				textArea.height = txtPlayback.height = availableHeight - TOP_PADDING - BOTTOM_PADDING;
 				textArea.y = txtPlayback.y = TOP_PADDING;
 
-				btnPlayback.y = btnBackPlayback.y = availableHeight - (BOTTOM_PADDING + btnPlayback.height) / 2 + 1;
-				lblPlaybackVersion.y = availableHeight - (BOTTOM_PADDING + lblPlaybackVersion.height) / 2 + 2;
-				playbackSlider.y = availableHeight - (BOTTOM_PADDING + playbackSlider.height) / 2;
-
-				btnPlayback.x = btnBackPlayback.x = LEFT_PADDING;
 				lblPlaybackVersion.x = LEFT_PADDING + (btnPlayback.visible? btnPlayback.width: 0) + (btnBackPlayback.visible? btnBackPlayback.width: 0) + (btnPlayback.visible || btnBackPlayback.visible? DEFAULT_PADDING: 0);
+				lblPlaybackVersion.y = availableHeight - (BOTTOM_PADDING + lblPlaybackVersion.height) / 2;
+
 				playbackSlider.x = lblPlaybackVersion.x + lblPlaybackVersion.width + DEFAULT_PADDING;
+				playbackSlider.y = availableHeight - (BOTTOM_PADDING + playbackSlider.height) / 2;
 				
-				icoSynced.y = icoSyncing.y = availableHeight - (BOTTOM_PADDING + icoSynced.height) / 2;
 				icoSynced.x = icoSyncing.x = availableWidth - RIGHT_PADDING - icoSynced.width;
+				icoSynced.y = icoSyncing.y = availableHeight - BOTTOM_PADDING + (BOTTOM_PADDING - icoSynced.height) / 2;
 				playbackSlider.width = availableWidth - playbackSlider.x - 2 * RIGHT_PADDING - icoSynced.width;
 				
 				lblConnecting.x = (availableWidth - lblConnecting.measuredWidth - LEFT_PADDING - RIGHT_PADDING) / 2 + LEFT_PADDING;
@@ -127,7 +148,7 @@
 			}
 			
 			private function onSynced(e:Event):void {
-				if (client.version > 0 && !btnBackPlayback.visible && _enablePlayback) {
+				if (client.version > 0 && !btnBackPlayback.visible && options.enablePlayback) {
 					btnPlayback.visible = true;
 					onResize();
 				} 
@@ -167,24 +188,30 @@
 			{
 				playbackSlider.maximum = client.version;
 				playbackSlider.value = 0;
-				textArea.visible = false;
-				btnBackPlayback.visible = true;
-				btnPlayback.visible = false;
 				previousSliderValue = 0;
 				txtPlayback.text = client.getSnapshotAtVersion(0, 0, "");
+
+				switchComponentsVisibility();
 				onResize();
 			}
 			
 			protected function btnBackPlayback_clickHandler(event:MouseEvent):void
 			{
-				textArea.visible = true;
-				btnBackPlayback.visible = false;
-				btnPlayback.visible = true;
+				switchComponentsVisibility();
 				onResize();
+			}
+			
+			protected function switchComponentsVisibility():void
+			{
+				textArea.visible = !textArea.visible;
+				btnBackPlayback.visible = !btnBackPlayback.visible;
+				btnPlayback.visible = !btnPlayback.visible;
+				playbackSlider.visible = !playbackSlider.visible;
+				lblPlaybackVersion.visible = !lblPlaybackVersion.visible;
 			}
 					
 			public function getPrefferedPosition():String{
-				return MainCanvas.MIDDLE;
+				return options.position;
 			}
 			
 			public function set room(room:String):void {
@@ -219,20 +246,8 @@
 				return _connection;
 			}
 			
-			public function set refreshDelay(refreshDelay:int):void {
-				_refreshDelay = refreshDelay;
-			}
-
-			public function set responseTimeout(responseTimeout:int):void {
-				_responseTimeout = responseTimeout;
-			}
-			
 			public function get responseTimeout():int {
-				return _responseTimeout;
-			}
-
-			public function set enablePlayback(enablePlayback:String):void {
-				_enablePlayback = (enablePlayback.toUpperCase() == "TRUE");
+				return options.responseTimeout;
 			}
 
 			override public function close(event:MouseEvent=null):void {
@@ -254,5 +269,4 @@
 	<components:PatchableTextArea x="10" y="10" id="textArea" hideEffect="{dissolveOut}" showEffect="{dissolveIn}" creationComplete="addBlur()" width="482" height="407" editable="true"/>
 	<mx:Button x="0" y="0" label="Start" id="btnPlay" click="btnPlay_clickHandler(event)" visible="false"/>
 	<mx:Label x="211.5" y="186" text="Connecting..." id="lblConnecting"/>
-
 </containers:MDIWindow>

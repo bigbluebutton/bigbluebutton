@@ -239,9 +239,6 @@
                 <copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/sharednotes/images/" >
                         <fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/sharednotes/images/" />
                 </copy>
-		<copy todir="${OUTPUT_DIR}/sharednotes/" >
-                        <fileset dir="${BASE_DIR}/html-template/sharednotes/" />
-                </copy>
         </target>
 
 	

@@ -91,7 +91,7 @@
 				addToolbarButton();
 			}
 			
-			public function addToolbarButton():void{
+			public function addToolbarButton():void {
 				var button:ToolbarButton = new ToolbarButton();
 				button.attributes = _attributes;
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
@@ -99,7 +99,8 @@
 				globalDispatcher.dispatchEvent(event);
 			}
 			
-			public function stop():void {}
+			public function stop():void {
+			}
 		]]>
 	</mx:Script>
 </mx:Module>
