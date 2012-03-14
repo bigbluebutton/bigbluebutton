@@ -217,6 +217,7 @@ if [ $DELETE ]; then
         rm -rf /usr/share/red5/webapps/video/streams/$MEETING_ID
         rm -f /var/bigbluebutton/deskshare/$MEETING_ID*.flv
         rm -f /var/freeswitch/meetings/$MEETING_ID*.wav
+		rm -rf /var/bigbluebutton/$MEETING_ID
 
         echo "deleting: $MEETING_ID"
   else
