@@ -56,42 +56,17 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     		
     	byte[] header = new byte[HEADER.length];    
     	
-    	int start = in.position();
-    	
+    	int start = in.position();    	
     	in.get(header, 0, HEADER.length);    	
-    	
-    	
+    	    	
     	int messageLength = in.getInt();    	
-//    	System.out.println("Message Length " + messageLength);
+
     	if (in.remaining() < messageLength) {
     		in.position(start);
     		return false;
     	}
     	
-    	Integer numMsg = (Integer)session.getAttribute("NUM_MSG", 0);
-    	numMsg++;
-    	session.setAttribute("NUM_MSG", numMsg);
-    //	System.out.println("**** Num msgs [" + numMsg + "]");
-    //	if (numMsg % 10 == 0)
-    //		log.debug("**** Num msgs [{}]", numMsg);
- /*   	if (numMsg >= 50) {
-    		System.out.println("**** Closing connection. Corrupt packet.");
-    		if (numMsg == 50) {
-    			int seqNum = 0;
-    			String room = (String)session.getAttribute(ROOM, null);
-    			if (room != null) {
-    				System.out.println("Closing room " + room);
-    				CaptureEndBlockEvent event = new CaptureEndBlockEvent(room, seqNum);
-    				out.write(event);
-    			} else {
-    				System.out.println("Cannot determine room for session.");
-    			}
-        		CloseFuture future = session.close(true);   			
-    		}
-    	} else {
-    		System.out.println("Decoding");
-*/    		decodeMessage(session, in, out);
-//    	}
+    	decodeMessage(session, in, out);
     	
     	return true;
     }
