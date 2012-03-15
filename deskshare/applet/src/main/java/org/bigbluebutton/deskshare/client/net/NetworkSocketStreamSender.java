@@ -80,6 +80,7 @@ public class NetworkSocketStreamSender implements Runnable {
 			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 			dataToSend.reset();
 			BlockStreamProtocolEncoder.encodeStartStreamMessage(room, screenDim, blockDim, dataToSend, seqNumGenerator.getNext());
+			BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 			sendToStream(dataToSend);
 		} catch (IOException e) {
@@ -92,6 +93,7 @@ public class NetworkSocketStreamSender implements Runnable {
 		ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 		dataToSend.reset();
 		BlockStreamProtocolEncoder.encodeMouseLocation(mouseLoc, room, dataToSend, seqNumGenerator.getNext());
+		BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 		sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 		sendToStream(dataToSend);
 	}
@@ -128,7 +130,7 @@ public class NetworkSocketStreamSender implements Runnable {
 			Integer[] changedBlocks = ((BlockMessage)message).getBlocks();
 
 			BlockStreamProtocolEncoder.numBlocksChanged(changedBlocks.length, dataToSend);
-//			System.out.println("Number of blocks changed: " + changedBlocks.length);
+
 			String blocksStr = "Encoding ";
 			for (int i = 0; i < changedBlocks.length; i++) {
 				blocksStr += " " + (Integer)changedBlocks[i];
@@ -138,7 +140,8 @@ public class NetworkSocketStreamSender implements Runnable {
 			}
 			
 //			System.out.println(blocksStr);
-			
+
+			BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 			sendToStream(dataToSend);
 			for (int i = 0; i< changedBlocks.length; i++) {
@@ -153,6 +156,7 @@ public class NetworkSocketStreamSender implements Runnable {
 				ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 				dataToSend.reset();
 				BlockStreamProtocolEncoder.encodeEndStreamMessage(room, dataToSend, seqNumGenerator.getNext());
+				BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 				sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 				sendToStream(dataToSend);
 			} catch (IOException e) {
