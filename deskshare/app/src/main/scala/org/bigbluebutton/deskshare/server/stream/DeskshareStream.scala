@@ -106,10 +106,7 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 		buffer.rewind();
 		
 		if (record) {
-			System.out.println("Recording")
 			recorder.record(buffer)
-		} else {
-			System.out.println("Not Recording")
 		}	
 
 		val data: VideoData = new VideoData(buffer)
@@ -117,11 +114,6 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 		broadcastStream.dispatchEvent(data)
 		data.release()
 		
-		if (record) {
-			System.out.println("Recording")
-		} else {
-			System.out.println("Not Recording")
-		}
 	}
  
 	override def  exit() : Nothing = {
