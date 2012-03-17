@@ -1323,7 +1323,7 @@ check_state() {
 			echo 
 		fi
 
-		SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/sip.server.host=/{s/.*=//;s/;//;p}')
+		SIP_SERVER_HOST=$(cat /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties | sed -n '/^sip.server.host=/{s/.*=//;s/;//;p}')
 		if [ $SIP_SERVER_HOST != "127.0.0.1" ]; then
 			if [ $SIP_SERVER_HOST != $IP ]; then
 				echo "# Error: The setting of ($SIP_SERVER_HOST) for sip.server.host in"
@@ -1340,9 +1340,9 @@ check_state() {
 				echo "# The IP address ($SIP_SERVER_HOST) set for sip.server.host."
 				echo "#"
 				echo "# If your audio is not working (users click the  headset icon "
-				echo "# and don't appear in the Listeners window, try the command"
-				echo "#"
-				echo "#   sudo bbb-conf --setfreeswitchip $SIP_IP"
+				echo "# and don't appear in the Listeners window, ensure FreeSWITCH uses"
+				echo "# the local loopback 127.0.0.1 address.  See"
+				echo "#   http://code.google.com/p/bigbluebutton/wiki/FAQ#Users_do_not_appear_in_the_listeners_window"
 				echo 
 			fi
 		fi
