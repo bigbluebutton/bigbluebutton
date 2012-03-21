@@ -49,29 +49,51 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     private static final byte MOUSE_LOCATION_EVENT = 3;
         
     protected boolean doDecode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
-     	
-    	// Let's work with a buffer that contains header and the message length,
-    	// ten (10) should be enough since header (6-bytes) plus length (4-bytes)
-    	if (in.remaining() < 10) return false;
-    		
-    	byte[] header = new byte[HEADER.length];    
-    	
-    	int start = in.position();    	
-    	in.get(header, 0, HEADER.length);    	
-    	    	
-    	int messageLength = in.getInt();    	
+     	try {
+        	// Let's work with a buffer that contains header and the message length,
+        	// ten (10) should be enough since header (6-bytes) plus length (4-bytes)
+        	if (in.remaining() < 10) return false;
+        		
+        	byte[] header = new byte[HEADER.length];    
+        	
+        	int start = in.position();    	
+        	in.get(header, 0, HEADER.length);    	
+        	    	
+        	int messageLength = in.getInt();    	
 
-    	if (in.remaining() < messageLength) {
-    		in.position(start);
-    		return false;
-    	}
-    	
-    	decodeMessage(session, in, out);
-    	
-    	return true;
+        	if (in.remaining() < messageLength) {
+        		in.position(start);
+        		return false;
+        	}
+        	
+        	decodeMessage(session, in, out);
+        	
+        	return true;    		
+     	} catch (Exception e) {
+			throwAwayCorruptedPacket(in);
+	    	Integer numErrors = (Integer)session.getAttribute("NUM_ERRORS", 0);    	    	
+	    	session.setAttribute("NUM_ERRORS", numErrors++);
+	    	
+	    	if (numErrors > 50) {
+	    		log.info("Closing session. Too many corrupt packets.");
+	    		int seqNum = 0;
+	    		String room = (String)session.getAttribute(ROOM, null);
+	    		if (room != null) {
+	    			log.info("Closing session [" + room + "]. Too many corrupt packets.");
+	    			CaptureEndBlockEvent ceb = new CaptureEndBlockEvent(room, seqNum);
+	    			out.write(ceb);
+	    		} else {
+	    			log.info("Cannot determine session. Too many corrupt packets.");
+	    		}
+	        	CloseFuture future = session.close(true);   			
+	    	} 
+	    	
+	    	return true;
+		}
+
     }
     
-    private void decodeMessage(IoSession session, IoBuffer in, ProtocolDecoderOutput out) {
+    private void decodeMessage(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
     	byte event = in.get();
     	switch (event) {
 	    	case CAPTURE_START_EVENT:
@@ -92,25 +114,7 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
 	    		break;
 	    	default:
     			log.error("Unknown event: " + event);
-    			throwAwayCorruptedPacket(in);
-    	    	Integer numErrors = (Integer)session.getAttribute("NUM_ERRORS", 0);    	    	
-    	    	session.setAttribute("NUM_ERRORS", numErrors++);
-    	    	
-    	    	if (numErrors > 50) {
-    	    		log.info("Closing session. Too many corrupt packets.");
-    	    		int seqNum = 0;
-    	    		String room = (String)session.getAttribute(ROOM, null);
-    	    		if (room != null) {
-    	    			log.info("Closing session [" + room + "]. Too many corrupt packets.");
-    	    			CaptureEndBlockEvent ceb = new CaptureEndBlockEvent(room, seqNum);
-    	    			out.write(ceb);
-    	    		} else {
-    	    			log.info("Cannot determine session. Too many corrupt packets.");
-    	    		}
-    	        	CloseFuture future = session.close(true);   			
-    	    	} 
-    	    	break;
-    	    	
+    			throw new Exception("Unknown event: " + event);  	    	
     	}
     }
     
@@ -150,6 +154,7 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
             previous = current;
         }
 
+        log.warn("Could not find end of corrupted packet.");
         // Could not find CRLF in the buffer. Reset the initial
         // position to the one we recorded above.
         in.position(start);
