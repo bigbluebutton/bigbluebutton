@@ -36,6 +36,7 @@ class PresentationService {
 	def testRoomMock
 	def testPresentationName
 	def testUploadedPresentation
+	def defaultUploadedPresentation
 	
     def deletePresentation = {conf, room, filename ->
     		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)

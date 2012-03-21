@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <config>
-    <localeversion suppressWarning="false">0.8-beta2</localeversion>
+    <localeversion suppressWarning="false">0.8-beta4</localeversion>
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <porttest host="HOST" application="video"/>    
@@ -42,7 +42,7 @@
 		
 		<module name="PhoneModule" url="PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
-			autoJoin="false"
+			autoJoin="true"
 			skipCheck="false"
 			showButton="true"
 			enabledEchoCancel="true"
@@ -51,23 +51,23 @@
 
 		<module name="VideoconfModule" url="VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"
-			dependsOn="ViewersModule"
-			videoQuality="70"
-			presenterShareOnly="false"
-			resolutions="320x240,640x480,1280x720"
-			autoStart="false"
-			showButton="true"
-			showCloseButton="true"
-			publishWindowVisible="true"
-			viewerWindowMaxed="false"
-			viewerWindowLocation="top"
-			camKeyFrameInterval="5"
-			camModeFps="15"
-			camQualityBandwidth="0"
-			camQualityPicture="50"
-			enableH264="false"
-			h264Level="2.1"
-			h264Profile="main"			
+			dependson = "ViewersModule"
+			videoQuality = "100"
+			presenterShareOnly = "false"
+			resolutions = "320x240,640x480,1280x720"
+			autoStart = "false"
+			showButton = "true"
+			showCloseButton = "true"
+			publishWindowVisible = "true"
+			viewerWindowMaxed = "false"
+			viewerWindowLocation = "top"
+			camKeyFrameInterval = "30"
+			camModeFps = "10"
+			camQualityBandwidth = "0"
+			camQualityPicture = "90"
+			enableH264 = "false"
+			h264Level = "2.1"
+			h264Profile = "main"			
 		/>
 		
 		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=VERSION" 
@@ -79,6 +79,7 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 
 			showPresentWindow="true"
+			showWindowControls="true"
 			dependsOn="ViewersModule"
 		/>
 

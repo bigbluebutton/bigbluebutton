@@ -34,8 +34,8 @@ public class ConferenceService implements ConferenceEventListener {
 	private ConferenceServiceProvider confProvider;
 	private ClientManager clientManager;
 	
-	public void startup() {
-		confProvider.startup();
+	public boolean startup() {
+		return confProvider.startup();
 	}
 	
 	public void shutdown() {

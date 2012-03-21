@@ -18,16 +18,21 @@
 */
 package org.bigbluebutton.modules.whiteboard.managers
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
-	import org.bigbluebutton.core.managers.UserManager;
+	
 	import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.modules.present.api.PresentationAPI;
 	import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
+	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardButton;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
@@ -38,15 +43,17 @@ package org.bigbluebutton.modules.whiteboard.managers
 		private var highlighterCanvas:WhiteboardCanvas;
 		private var highlighterToolbar:WhiteboardToolbar;
 		private var whiteboardButton:WhiteboardButton;
+		private var model:WhiteboardCanvasModel = new WhiteboardCanvasModel();
 		
-		public function WhiteboardManager()
-		{
+		public function WhiteboardManager() {
 			globalDispatcher = new Dispatcher();
 		}
 		
 		public function handleStartModuleEvent():void{	
 			if (highlighterCanvas != null) return;
 			highlighterCanvas = new WhiteboardCanvas();
+			highlighterCanvas.model = model;
+			model.wbCanvas = highlighterCanvas;
 			if (highlighterToolbar != null) return;
 			highlighterToolbar = new WhiteboardToolbar();
 			highlighterToolbar.canvas = highlighterCanvas;
@@ -54,7 +61,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 			whiteboardButton = new WhiteboardButton();
 			
 			//Necessary now because of module loading race conditions
-			var t:Timer = new Timer(2000, 1);
+			var t:Timer = new Timer(1000, 1);
 			t.addEventListener(TimerEvent.TIMER, addHighlighterCanvas);
 			t.addEventListener(TimerEvent.TIMER, addHighlighterToolbar);
 			t.start();
@@ -78,5 +85,28 @@ package org.bigbluebutton.modules.whiteboard.managers
 			highlighterToolbar.positionToolbar(e.window);
 		}
 
+		public function drawSegment(event:WhiteboardUpdate):void{
+			model.drawSegment(event);
+		}
+		
+		public function clearBoard(event:WhiteboardUpdate = null):void{
+			model.clearBoard();
+		}
+		
+		public function undoShape(event:WhiteboardUpdate):void{
+			model.undoShape();
+		}
+		
+		public function changePage(e:PageEvent):void{
+			model.changePage(e);
+		}
+		
+		public function enableWhiteboard(e:WhiteboardButtonEvent):void{
+			highlighterCanvas.enableWhiteboard(e);
+		}
+		
+		public function disableWhiteboard(e:WhiteboardButtonEvent):void{
+			highlighterCanvas.disableWhiteboard(e);
+		}
 	}
 }

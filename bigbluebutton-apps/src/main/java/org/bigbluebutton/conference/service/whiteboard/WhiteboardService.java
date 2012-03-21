@@ -38,9 +38,9 @@ public class WhiteboardService {
 		this.application = a;
 	}
 	
-	public void sendShape(double[] shape, String type, int color, int thickness, double parentWidth, double parentHeight){
+	public void sendShape(double[] shape, String type, int color, int thickness, String id, String status){
 		log.info("WhiteboardApplication - Sending share");
-		application.sendShape(shape, type, color, thickness, parentWidth, parentHeight);
+		application.sendShape(shape, type, color, thickness, id, status);
 	}
 	
 	/**

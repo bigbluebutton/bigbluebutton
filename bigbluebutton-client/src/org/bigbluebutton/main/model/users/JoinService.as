@@ -23,8 +23,10 @@ package org.bigbluebutton.main.model.users
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
+	import flash.net.navigateToURL;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.BBB;
 	        	
 	public class JoinService
 	{  
@@ -41,8 +43,9 @@ package org.bigbluebutton.main.model.users
 		
 		public function load(url:String) : void
 		{
+			var date:Date = new Date();
+//			url += "?a=" + date.time
 			LogUtil.debug("JoinService:load(...) " + url);
-			            
             request = new URLRequest(url);
             request.method = URLRequestMethod.GET;		
             
@@ -60,11 +63,13 @@ package org.bigbluebutton.main.model.users
 			var returncode:String = xml.returncode;
 			if (returncode == 'FAILED') {
 				LogUtil.debug("Join FAILED = " + xml);
-				_resultListener(false, {message:xml.message});
+							
+				navigateToURL(new URLRequest(xml.logoutURL),'_self')
+				
 			} else if (returncode == 'SUCCESS') {
 				LogUtil.debug("Join SUCESS = " + xml);
 				var user:Object = {username:xml.fullname, conference:xml.conference, conferenceName:xml.confname,
-										meetingID:xml.meetingID, externUserID:xml.externUserID,
+										meetingID:xml.meetingID, externUserID:xml.externUserID, internalUserId:xml.internalUserId,
 										role:xml.role, room:xml.room, authToken:xml.room, record:xml.record, 
 										webvoiceconf:xml.webvoiceconf,
 										voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome, logoutUrl:xml.logoutUrl};

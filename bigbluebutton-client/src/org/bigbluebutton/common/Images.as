@@ -21,6 +21,12 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
+		[Embed(source="assets/images/fit-to-page.png")]
+		public var fitToPage:Class;
+		
+		[Embed(source="assets/images/fit-to-width.png")]
+		public var fitToWidth:Class;
+		
 		[Embed(source="assets/images/green-circle.png")]
 		public var greenCircle:Class;
 		
@@ -63,10 +69,10 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/raisehand.png")]
         public var raisehand:Class;
         
-        [Embed(source="assets/images/sound_mute.png")]
+        [Embed(source="assets/images/mic_muted.png")]
         public var sound_mute:Class;
         
-        [Embed(source="assets/images/sound_none.png")]
+        [Embed(source="assets/images/mic_unmuted.png")]
         public var sound_none:Class;
         
         [Embed(source="assets/images/sound.png")]

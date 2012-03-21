@@ -73,6 +73,7 @@
 			
 			import org.bigbluebutton.common.IUserListener;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ParticipantJoinEvent;
@@ -361,17 +362,21 @@
 			}
 			
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-				LogUtil.debug("Got PublicChatMessageEvent");
+				LogUtil.debug("Got PublicChatMessageEvent from userid [ " + event.chatobj.userid + " ]");
 				showMessage(PUBLIC_CHAT_USERID, event.chatobj, autoTranslation);
-				if (!this.focus)
+				if ((!this.focus) && 
+					(! UserManager.getInstance().getConference().amIThisUser(new Number(event.chatobj.userid))) &&
+					(event.chatobj.userid != "")) {
 					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting2'));
+				}
 				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT, event.chatobj.message));
 			}
 			
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
 				LogUtil.debug("Got PrivateChatMessageEvent");
-				if (!this.focus)
-					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
+				if ((!this.focus) && (! UserManager.getInstance().getConference().amIThisUser(new Number(event.message.sender)))) {
+					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));					
+				}
 				showMessage(event.message.sender, event.message.chatobj, autoTranslation);
 			}
 			

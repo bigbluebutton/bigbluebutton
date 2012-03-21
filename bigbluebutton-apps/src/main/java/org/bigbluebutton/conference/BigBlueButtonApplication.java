@@ -89,9 +89,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	public boolean roomConnect(IConnection connection, Object[] params) {
         String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
         int remotePort = Red5.getConnectionLocal().getRemotePort();
-        String clientId = Red5.getConnectionLocal().getClient().getId();
-        log.info("[clientid=" + clientId + "] connected from " + remoteHost + ":" + remotePort + ".");
-    	
         String username = ((String) params[0]).toString();
         String role = ((String) params[1]).toString();
         String conference = ((String)params[2]).toString();
@@ -100,27 +97,29 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
          * Convert the id to Long because it gets converted to ascii decimal
          * equivalent (i.e. zero (0) becomes 48) if we don't.
          */
-        long userid = Long.parseLong(Red5.getConnectionLocal().getClient().getId());
+        long clientID = Long.parseLong(Red5.getConnectionLocal().getClient().getId());
         String sessionName = connection.getScope().getName();
-   
+        log.info("[clientid=" + clientID + "] connected from " + remoteHost + ":" + remotePort + ".");
+        
         String voiceBridge = ((String) params[4]).toString();
 		String room = sessionName;
 		assert recorderApplication != null;
 		boolean record = (Boolean)params[5];
 		log.debug("record value - [" + record + "]"); 
 
-    	String externUserID = ((String) params[6]).toString();
-
+    	String externalUserID = ((String) params[6]).toString();
+    	String internalUserID = ((String) params[6]).toString();
+    	
 		if (record == true) {
 			recorderApplication.createRecordSession(sessionName);
 		}
 			
-    	BigBlueButtonSession bbbSession = new BigBlueButtonSession(sessionName, userid,  username, role, 
-    			conference, room, voiceBridge, record, externUserID);
+    	BigBlueButtonSession bbbSession = new BigBlueButtonSession(sessionName, clientID, internalUserID,  username, role, 
+    			conference, room, voiceBridge, record, externalUserID);
         connection.setAttribute(Constants.SESSION, bbbSession);        
         
-        String debugInfo = "userid=" + userid + ",username=" + username + ",role=" +  role + ",conference=" + conference + "," + 
-        					"session=" + sessionName + ",voiceConf=" + voiceBridge + ",room=" + room + ",externsUserid=" + externUserID;
+        String debugInfo = "internalUserID=" + internalUserID + ",username=" + username + ",role=" +  role + ",conference=" + conference + "," + 
+        					"session=" + sessionName + ",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID;
 		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
 		participantsApplication.createRoom(room);
         super.roomConnect(connection, params);
@@ -142,7 +141,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	public String getMyUserId() {
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 		assert bbbSession != null;
-		return Long.toString(bbbSession.getUserid());
+		return Long.toString(bbbSession.getClientID());
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {

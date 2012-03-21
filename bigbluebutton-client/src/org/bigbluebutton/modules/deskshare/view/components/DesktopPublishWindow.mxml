@@ -31,7 +31,7 @@
 	width="320" height="240"
 	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
 	resizable="false">
-		
+	
 	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />	
@@ -132,6 +132,8 @@
 			
 			public function shareScreen(fullScreen:Boolean):void {
 				LogUtil.debug("Calling shareScreen");
+				btnFSPublish.enabled = false;
+				btnRegionPublish.enabled = false;
 				startSharing(connection, uri, room, fullScreen);
 			}
 			
@@ -226,7 +228,6 @@
 			
 			private function stopStream():void{
 				streaming = false;
-				this.removeChild(videoHolder);
 				captureHeight = Capabilities.screenResolutionY;
 				captureWidth = Capabilities.screenResolutionX;
 				ns.close();
@@ -281,6 +282,7 @@
 			
 			private function closePublishWindow(event:ViewStreamEvent):void{
 				stopStream();
+				closeWindow();
 			}
 			
 		]]>

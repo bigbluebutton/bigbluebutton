@@ -18,16 +18,13 @@ public class RedisMessagingService implements MessagingService {
 	private static Logger log = LoggerFactory.getLogger(RedisMessagingService.class);
 	
 	private JedisPool redisPool;
-	private String host;
-	private int port;
 	private final Set<MessageListener> listeners = new HashSet<MessageListener>();
 
 	private final Executor exec = Executors.newSingleThreadExecutor();
 	private Runnable pubsubListener;
 
-	public RedisMessagingService(String host, int port) {
-		this.host = host;
-		this.port = port;
+	public RedisMessagingService(){
+		
 	}
 	
  	@Override
@@ -76,10 +73,9 @@ public class RedisMessagingService implements MessagingService {
 
 	public void start() {
 		log.debug("Starting redis pubsub...");		
-		//Currently, the pool gets blocked for publish if a resource subscribe to a channel
-		final Jedis jedis = new Jedis(this.host,this.port);
+
+		final Jedis jedis = redisPool.getResource();
 		try {
-			jedis.connect();
 			pubsubListener = new Runnable() {
 			    public void run() {
 			    	jedis.psubscribe(new PubSubListener(), MessagingConstants.BIGBLUEBUTTON_PATTERN);       			
@@ -87,7 +83,7 @@ public class RedisMessagingService implements MessagingService {
 			};
 			exec.execute(pubsubListener);
 		} catch (Exception e) {
-			log.error("Cannot connect to [" + host + ":" + port + "]");
+			log.error("Error in subscribe: " + e.getMessage());
 		}
 	}
 
@@ -117,13 +113,14 @@ public class RedisMessagingService implements MessagingService {
 		@Override
 		public void onPMessage(String pattern, String channel, String message) {
 			log.debug("Message Received in channel: " + channel);
+			log.debug("Message: " + message);
 			
 			Gson gson = new Gson();
 			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 			
-			for (String key: map.keySet()) {
-				log.debug("rx: {} = {}", key, map.get(key));
-			}
+//			for (String key: map.keySet()) {
+//				log.debug("rx: {} = {}", key, map.get(key));
+//			}
 			
 			if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
 				String meetingId = map.get("meetingId");
@@ -142,26 +139,27 @@ public class RedisMessagingService implements MessagingService {
 				String meetingId = map.get("meetingId");
 				String messageId = map.get("messageId");
 				if(MessagingConstants.USER_JOINED_EVENT.equalsIgnoreCase(messageId)){
-					String userid = map.get("userid");
+					String internalUserId = map.get("internalUserId");
+					String externalUserId = map.get("externalUserId");
 					String fullname = map.get("fullname");
 					String role = map.get("role");
 					
 					for (MessageListener listener : listeners) {
-						listener.userJoined(meetingId, userid, fullname, role);
+						listener.userJoined(meetingId, internalUserId, externalUserId, fullname, role);
 					}
 				} else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageId)){
-					String userid = map.get("userid");
+					String internalUserId = map.get("internalUserId");
 					String status = map.get("status");
 					String value = map.get("value");
 					
 					for (MessageListener listener : listeners) {
-						listener.updatedStatus(meetingId, userid, status, value);
+						listener.updatedStatus(meetingId, internalUserId, status, value);
 					}
 				} else if(MessagingConstants.USER_LEFT_EVENT.equalsIgnoreCase(messageId)){
-					String userid = map.get("userid");
+					String internalUserId = map.get("internalUserId");
 					
 					for (MessageListener listener : listeners) {
-						listener.userLeft(meetingId, userid);
+						listener.userLeft(meetingId, internalUserId);
 					}
 				}
 			}

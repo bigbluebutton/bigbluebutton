@@ -36,15 +36,10 @@
 		
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flash.sampler.NewObjectSample;
-			
+			import com.asfusion.mate.events.Dispatcher;			
+			import flash.sampler.NewObjectSample;			
 			import flexlib.mdi.events.MDIWindowEvent;
-			
-			import mx.controls.Alert;
-			import mx.core.UIComponent;
-			
+			import mx.core.UIComponent;			
 			import org.bigbluebutton.common.IUserListener;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -84,43 +79,7 @@
 			private var savedX:Number;
 			private var savedY:Number;
 			private var isMaximized:Boolean = false;
-			
-			// Timer to make sure the video fits to window whenever the window is resized.
-			private var fitToWindowTimer:Timer;
-			
-			override public function maximize():void{
-				if (!isMaximized){
-					savedWindowHeight = this.height;
-					savedWindowWidth = this.width;
-					savedX = this.x;
-					savedY = this.y;    
-					dispatchEvent(new MDIWindowEvent(MDIWindowEvent.MAXIMIZE, this));            	
-                	isMaximized = true;
-                	windowControls.maximizeRestoreBtn.toolTip = "Restore to previous size";
-				} else{
-					this.width = savedWindowWidth;
-					this.height = savedWindowHeight;
-					this.x = savedX;
-					this.y = savedY;
-					isMaximized = false;
-					windowControls.maximizeRestoreBtn.toolTip = "Maximize this window";
-				}		
-				/*
-				 * Need to have a timer to trigger resizing video to window after the 
-				 * window has been maximized/restored. The MAXIMIZE/RESTORE events are
-				 * generated when the button is clicked so the width and height are not
-				 * the ones we want.
-				 */
-				fitToWindowTimer = new Timer(100);
-				fitToWindowTimer.addEventListener(TimerEvent.TIMER, maximizeTimerHandler);
-				fitToWindowTimer.start();		
-			}
-			
-			private function maximizeTimerHandler(event:TimerEvent):void {				
-				fitToWindow();
-				fitToWindowTimer.stop();
-			}
-						
+									
 			private function onCreationComplete():void{
 				windowControls.maximizeRestoreBtn.toolTip = "Maximize this window";
 				windowControls.minimizeBtn.toolTip = "Minimize this window";				
@@ -148,8 +107,7 @@
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
 				cursor.x = ((event.x/videoWidth)) * videoHolder.width;
 				cursor.y = ((event.y/videoHeight)) * videoHolder.height;
-//				cursor.visible = true;
-				
+			
 				cursorImg.visible = true;
                 // DO NOT compute the x and y coordinate and assign directly to the cursorImg
                 // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
@@ -315,6 +273,6 @@
 	<mx:ControlBar id="bottomBar" height="35" horizontalAlign="center">
 		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" selected="false"
 			height="90%" label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
-			toolTip="{ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow')}" />
+			toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" />
 	</mx:ControlBar>
 </MDIWindow>

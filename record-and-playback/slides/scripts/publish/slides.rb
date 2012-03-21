@@ -17,10 +17,9 @@ playback = match[2]
 puts meeting_id
 puts playback
 if (playback == "slides")
-	puts "publishing #{meeting_id}"
 	logger = Logger.new("/var/log/bigbluebutton/slides/publish-#{meeting_id}.log", 'daily' )
 	BigBlueButton.logger = logger
-
+        BigBlueButton.logger.info("Publishing #{meeting_id}")
 	# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 	bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 	simple_props = YAML::load(File.open('slides.yml'))
@@ -45,6 +44,7 @@ if (playback == "slides")
 		FileUtils.cp("#{process_dir}/events.xml", package_dir)
 		FileUtils.cp_r("#{process_dir}/presentation", package_dir)
 
+                BigBlueButton.logger.info("Creating metadata.xml")
 		# Create metadata.xml
 		b = Builder::XmlMarkup.new(:indent => 2)		 
 		metaxml = b.recording {
@@ -66,15 +66,22 @@ if (playback == "slides")
 		metadata_xml = File.new("#{package_dir}/metadata.xml","w")
 		metadata_xml.write(metaxml)
 		metadata_xml.close		
-		
+    BigBlueButton.logger.info("Generating xml for slides and chat")		
     #Create slides.xml
     #presentation_url = "http://" + playback_host + "/slides/" + meeting_id + "/presentation"
     presentation_url = "/slides/" + meeting_id + "/presentation"
   	@doc = Nokogiri::XML(File.open("#{process_dir}/events.xml"))
 	  meeting_start = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0]['timestamp']
 	  meeting_end = @doc.xpath("//event[@eventname='EndAndKickAllEvent']").last()['timestamp']
-	  first_presentation_start = @doc.xpath("//event[@eventname='SharePresentationEvent']")[0]['timestamp']
-	  first_slide_start = (first_presentation_start.to_i - meeting_start.to_i) / 1000
+	  
+	  first_presentation_start_node = @doc.xpath("//event[@eventname='SharePresentationEvent']")
+	  first_presentation_start = meeting_end
+      if not first_presentation_start_node.empty?
+		first_presentation_start = first_presentation_start_node[0]['timestamp']
+      end
+      first_slide_start = (first_presentation_start.to_i - meeting_start.to_i) / 1000
+	  
+	  
     slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
     chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
 	  presentation_name = ""
@@ -113,9 +120,10 @@ if (playback == "slides")
         end
       }
     end
-
+          
 	  File.open("#{package_dir}/slides.xml", 'w') { |f| f.puts slides_doc.to_xml }    
-        
+  
+          BigBlueButton.logger.info("Publishing slides")
 		# Now publish this recording	
 		if not FileTest.directory?(publish_dir)
 			FileUtils.mkdir_p publish_dir

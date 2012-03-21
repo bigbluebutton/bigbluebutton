@@ -11,6 +11,7 @@ import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Playback;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.User;
+import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.messaging.MessageListener;
 import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.web.services.ExpiredMeetingCleanupTimerTask;
@@ -21,6 +22,7 @@ public class MeetingService {
 	private static Logger log = LoggerFactory.getLogger(MeetingService.class);
 	
 	private final ConcurrentMap<String, Meeting> meetings;	
+	private final ConcurrentMap<String, UserSession> sessions;
 	private int defaultMeetingExpireDuration = 1;	
 	private int defaultMeetingCreateJoinDuration = 5;
 	private RecordingService recordingService;
@@ -29,7 +31,20 @@ public class MeetingService {
 	private boolean removeMeetingWhenEnded = false;
 	
 	public MeetingService() {
-		meetings = new ConcurrentHashMap<String, Meeting>();		
+		meetings = new ConcurrentHashMap<String, Meeting>();	
+		sessions = new ConcurrentHashMap<String, UserSession>();
+	}
+	
+	public void addUserSession(String token, UserSession user) {
+		sessions.put(token, user);
+	}
+	
+	public UserSession getUserSession(String token) {
+		return sessions.get(token);
+	}
+	
+	public UserSession removeUserSession(String token) {
+		return sessions.remove(token);
 	}
 	
 	/**
@@ -39,10 +54,10 @@ public class MeetingService {
 	public void removeExpiredMeetings() {
 		log.info("Cleaning up expired meetings");
 		for (Meeting m : meetings.values()) {
-			if (m.hasExpired(defaultMeetingExpireDuration)) {
+			if (m.hasExpired(defaultMeetingExpireDuration) ) {
 				log.info("Removing expired meeting [id={} , name={}]", m.getInternalId(), m.getName());
 				log.info("Expired meeting [start={} , end={}]", m.getStartTime(), m.getEndTime());
-		  		if (m.isRecord()) {
+		  		if (m.isRecord() && m.getNumUsers()==0) {
 		  			log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			
 		  			processRecording(m.getInternalId());
 		  		}
@@ -58,9 +73,9 @@ public class MeetingService {
 			
 			if (m.hasExceededDuration()) {
 				log.info("Forcibly ending meeting [{} - {}]", m.getInternalId(), m.getName());
-				m.setForciblyEnded(true);
 				endMeeting(m.getInternalId());
 			}
+			
 		}
 	}
 	
@@ -169,17 +184,7 @@ public class MeetingService {
 	
 	public void processRecording(String meetingId) {
 		log.debug("Process recording for [{}]", meetingId);
-		Meeting m = getMeeting(meetingId);
-		if (m != null) {
-			int numUsers = m.getNumUsers();
-			if (numUsers == 0) {
-				recordingService.startIngestAndProcessing(meetingId);		
-			} else {
-				log.debug("Meeting [{}] is not empty with {} users.", meetingId, numUsers);
-			}
-		} else {
-			log.warn("Meeting [{}] does not exist.", meetingId);
-		}
+		recordingService.startIngestAndProcessing(meetingId);
 	}
 		
 	public boolean isMeetingWithVoiceBridgeExist(String voiceBridge) {
@@ -198,14 +203,19 @@ public class MeetingService {
 	
 	public void endMeeting(String meetingId) {		
 		messagingService.endMeeting(meetingId);
-		
-		if (removeMeetingWhenEnded) {
-			meetings.remove(meetingId);
-		} else {
-			Meeting m = getMeeting(meetingId);
-			if (m != null) {
-				m.setForciblyEnded(true);
-			}			
+		Meeting m = getMeeting(meetingId);
+		if(m != null){
+			m.setForciblyEnded(true);
+			if(removeMeetingWhenEnded)
+			{
+				if (m.isRecord()) {
+					log.debug("[" + m.getInternalId() + "] is recorded. Process it.");		  			
+					processRecording(m.getInternalId());
+				}
+				meetings.remove(m.getInternalId());
+			}
+		}else{
+			log.debug("endMeeting - meeting doesn't exist: " + meetingId);
 		}
 	}
 
@@ -243,47 +253,70 @@ public class MeetingService {
 		public void meetingStarted(String meetingId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				log.debug("Setting meeting started time");
-				m.setStartTime(System.currentTimeMillis());
+				if(m.getStartTime() == 0){
+					log.debug("Setting meeting " + meetingId + " started time");
+					m.setStartTime(System.currentTimeMillis());
+				}else{
+					log.debug("The meeting " + meetingId + " has been started again...");
+				}
+				m.setEndTime(0);
+				return;
 			}
+			log.warn("The meeting " + meetingId + " doesn't exist");
 		}
 
 		@Override
 		public void meetingEnded(String meetingId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				log.debug("Setting meeting end time");
+				log.debug("Setting meeting " + meetingId + " end time");
 				m.setEndTime(System.currentTimeMillis());
+				return;
 			}
+			log.warn("The meeting " + meetingId + " doesn't exist");
 		}
 
 		@Override
-		public void userJoined(String meetingId, String userId, String name, String role) {
+		public void userJoined(String meetingId, String internalUserId, String externalUserId, String name, String role) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				User user = new User(userId, name, role);
+				User user = new User(internalUserId, externalUserId, name, role);
 				m.userJoined(user);
-				log.debug("New user in meeting:" + user.getFullname());
+				log.debug("New user in meeting " + meetingId + ":" + user.getFullname());
+				return;
 			}
+			log.warn("The meeting " + meetingId + " doesn't exist");
 		}
 
 		@Override
-		public void userLeft(String meetingId, String userId) {
+		public void userLeft(String meetingId, String internalUserId) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				User user = m.userLeft(userId);
-				log.debug("User removed from meeting:" + user.getFullname());
+				User user = m.userLeft(internalUserId);
+				if(user != null){
+					log.debug("User removed from meeting " + meetingId + ":" + user.getFullname());
+					return;
+				}
+				log.warn("The participant " + internalUserId + " doesn't exist in the meeting " + meetingId);
+				return;
 			}
+			log.warn("The meeting " + meetingId + " doesn't exist");
 		}
 		
 		@Override
-		public void updatedStatus(String meetingId, String userId, String status, String value) {
+		public void updatedStatus(String meetingId, String internalUserId, String status, String value) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				User user = m.getUserById(userId);
-				user.setStatus(status, value);
-				log.debug("Setting new status value for participant:"+user.getFullname());
+				User user = m.getUserById(internalUserId);
+				if(user != null){
+					user.setStatus(status, value);
+					log.debug("Setting new status value in meeting " + meetingId + " for participant:"+user.getFullname());
+					return;
+				}
+				log.warn("The participant " + internalUserId + " doesn't exist in the meeting " + meetingId);
+				return;
 			}
+			log.warn("The meeting " + meetingId + " doesn't exist");
 		}
 	}
 	

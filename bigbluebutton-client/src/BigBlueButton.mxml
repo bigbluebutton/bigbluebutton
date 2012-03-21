@@ -26,7 +26,7 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:m="library://melomel/2010"
 	pageTitle="BigBlueButton"
-	layout="absolute" creationComplete="init()"
+	layout="absolute" preinitialize="init()"
 	preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
 	
 	<mx:Script>

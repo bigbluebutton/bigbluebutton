@@ -51,6 +51,7 @@ package org.bigbluebutton.modules.present.managers
 			var e:SlideEvent = new SlideEvent(SlideEvent.SLIDE_LOADED);
 			e.slide = slide;
 			e.slideNumber = slideNum;
+			e.page = slides[slideNum];
 			dispatcher.dispatchEvent(e);
 		}
 	}

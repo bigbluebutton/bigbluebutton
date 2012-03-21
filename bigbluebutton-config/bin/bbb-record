@@ -22,13 +22,15 @@
 # Changelog:
 #   2011-08-18 FFD  Inital Version
 #   2011-11-20 FFD  Added more checks for processing of recording
-
+#   2012-01-04 GUG  Add option to check for errors
+#   2012-02-27 GUG  Add option to delete one meeting and recording
 
 set -e
 #set -x
 
 BASE=/var/bigbluebutton/recording
 STATUS=$BASE/status
+source /etc/bigbluebutton/bigbluebutton-release
 
 RECORDING_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(recording_dir\)/{s/.*recording_dir:[ ]*//;s/;//;p}')
 PUBLISHED_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(published_dir\)/{s/.*published_dir:[ ]*//;s/;//;p}')
@@ -41,7 +43,7 @@ TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g
 
 mark_for_rebuild() {
 	MEETING_ID=$1
-	set -x
+	#set -x
 	for type in $TYPES; do
                 if [ -d $BASE/process/$type/$MEETING_ID ]; then
                         rm -rf $BASE/process/$type/$MEETING_ID
@@ -75,7 +77,7 @@ mark_for_rebuild() {
 	done
 }
 
-BBB_VERSION=0.8-beta-3
+BIGBLUEBUTTON_RELEASE=0.8-beta-4
 
 need_root() {
         if [ $EUID != 0 ]; then
@@ -84,8 +86,16 @@ need_root() {
         fi
 }
 
+print_header() {
+        if [ ! $HEADER ]; then
+                echo
+                echo "** Potential problems described below **"
+                HEADER=1
+        fi
+}
+
 usage() {
-        echo "BigBlueButton Recording Diagnostic Utility - Version $BBB_VERSION"
+        echo "BigBlueButton Recording Diagnostic Utility (BigBlueButton Version $BIGBLUEBUTTON_RELEASE)"
         echo
         echo "   bbb-record [options]"
         echo
@@ -95,7 +105,10 @@ usage() {
         echo "Monitoring:"
         echo "   --watch                          Watch processing of recordings"
         echo "   --rebuild [meetingID]            rebuild the output for meetingID"
+	echo "   --delete [meetingID]             delete one meeting and recording"
         echo "   --deletall                       delete all meetings and recordings"
+        echo "   --debug                          check for recording errors"
+        echo "   --check                          check for configuration errors"
 	echo
 }
 
@@ -132,9 +145,34 @@ while [ $# -gt 0 ]; do
 		shift
                 continue
         fi
+		
+		if [ "$1" = "-delete" -o "$1" = "--delete" ]; then
+                need_root
+                if [ ! -z "${2}" ]; then
+                        MEETING_ID="${2}"
+                        shift
+                fi
+                DELETE=1
+                shift
+                continue
+        fi
+
         if [ "$1" = "-deleteall" -o "$1" = "--deleteall" ]; then
 		need_root
                 DELETEALL=1
+		shift
+                continue
+        fi
+        if [ "$1" = "-check" -o "$1" = "--check" ]; then
+		need_root
+                CHECK=1
+		shift
+                continue
+        fi
+
+        if [ "$1" = "-debug" -o "$1" = "--debug" ]; then
+		need_root
+                DEBUG=1
 		shift
                 continue
         fi
@@ -157,6 +195,35 @@ if [ $REBUILD ]; then
 	mark_for_rebuild $MEETING_ID
     fi
 fi 
+
+if [ $DELETE ]; then
+  if [ ! -z "$MEETING_ID" ]; then
+        for type in $TYPES; do
+                rm -rf /var/bigbluebutton/published/$type/$MEETING_ID*
+                rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID*
+
+                rm -rf /var/bigbluebutton/recording/process/$type/$MEETING_ID*
+                rm -rf /var/bigbluebutton/recording/publish/$type/$MEETING_ID*
+
+                rm -rf /var/bigbluebutton/recording/raw/$MEETING_ID*
+
+                rm -rf /var/log/bigbluebutton/$type/*$MEETING_ID*
+        done
+
+        rm -f /var/bigbluebutton/recording/status/recorded/$MEETING_ID*
+        rm -f /var/bigbluebutton/recording/status/archived/$MEETING_ID*
+        rm -f /var/bigbluebutton/recording/status/processed/$MEETING_ID*
+
+        rm -rf /usr/share/red5/webapps/video/streams/$MEETING_ID
+        rm -f /var/bigbluebutton/deskshare/$MEETING_ID*.flv
+        rm -f /var/freeswitch/meetings/$MEETING_ID*.wav
+		rm -rf /var/bigbluebutton/$MEETING_ID
+
+        echo "deleting: $MEETING_ID"
+  else
+        echo "Give a meeting id or use --deleteall"
+  fi
+fi
 
 if [ $DELETEALL ]; then
 	for type in $TYPES; do
@@ -187,6 +254,23 @@ fi
 
 if [ $LIST ]; then
 
+# Does the meeting contain:
+#	A -- Audio
+#	P -- Presentation
+#	V -- Video
+#	D -- Desktop 
+#	
+# Does the archive contain
+#	A -- Audio
+#	P -- Presentation
+#	V -- Video
+#	D -- Desktop 
+#	E -- Events
+#	
+# Is there a done flag (trigger rap-worker.rb to process) for
+#	R -- Recording
+# 	A -- Archiving
+#
 
 echo "MeetingID                                               Time                         APVD APVDE RA Slides Processed            Published             Description"
 echo "------------------------------------------------------  ---------------------------- ---- ----- -- ------ -------------------- --------------------  -----------------------------"
@@ -352,4 +436,123 @@ fi
 
 if [ $WATCH ]; then
 	watch -n 2 "bbb-record --list20"
+fi
+
+if [ $CHECK ]; then
+	if [ -f /var/bigbluebutton/recording/process/slides ]; then 
+	    if [ ! -w  /var/bigbluebutton/recording/process/slides ]; then
+		print_header
+		echo "# Error: The output director for slides"
+		echo "#"
+		echo "# /var/bigbluebutton/recording/process/slides"
+		echo "#"
+		echo "# is not writeable."
+		echo
+	    fi
+	fi
+fi
+
+if [ $DEBUG ]; then
+
+	LOG_DIR=/var/log/bigbluebutton
+
+	if [ -f /var/log/bigbluebutton/bbb-rap-worker.log ]; then
+		grep -i error /var/log/bigbluebutton/bbb-rap-worker.*
+	fi
+
+	#
+	#Failures while archiving files
+	#
+        if [ -f $LOG_DIR/archive.log ]; then
+	  grep "Failed to" "$LOG_DIR/archive.log" > /tmp/t
+     	  if [ -s /tmp/t ]; then
+                  echo "  -- ERRORS found while archiving files -- "
+                  cat /tmp/t
+                  echo
+		  grep "on ASCII" /tmp/t > /tmp/u
+                  if [ -s /tmp/u ]; then
+                          echo "  -- events.xml was not created. There is a problem with the character encoding "
+                          echo
+                  fi 
+          fi
+	fi 
+
+	#
+	# We're going to look through the output files for each of the processed types
+	#
+	STAGES="process publish"
+        for type in $TYPES; do
+        	for stage in $STAGES; do
+			if ls -A $LOG_DIR/$type/$stage-* &> /dev/null; then
+				rm -rf /tmp/t
+				grep -B 3 "ERROR -- : Error:" $LOG_DIR/$type/$stag-* | egrep -w 'Task:| Error:' > /tmp/t
+				if [ -s /tmp/t ]; then
+					echo "  -- ERRORS found while processing slides $LOG_DIR/$type/$stag-* -- "
+					cat /tmp/t
+					echo
+				fi
+			fi
+		done
+	done
+
+
+
+
+
+	#
+	# Additional checks for record and playback
+	#
+	rm -rf /tmp/t
+	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
+		  sudo grep -i Error /var/log/bigbluebutton/slides-process-* > /tmp/t 
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-process-*.log -- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+
+	rm -rf /tmp/t
+	if ls /var/log/bigbluebutton/slides-publish-* > /dev/null 2>1; then
+		  sudo grep -i Error /var/log/bigbluebutton/slides-publish-* > /tmp/t 
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-publish-*.log -- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+
+	rm -rf /tmp/t
+	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
+		for file in /var/log/bigbluebutton/slides-process-*; do 
+		  if [ ! -f $(echo $file | sed 's/process/publish/g') ]; then 
+			echo "  $file" >> /tmp/t
+                  fi 
+                done
+
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing: found process file but not publish -- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+
+
+	rm -rf /tmp/t
+	if ls /var/bigbluebutton/recording/status/recorded/*.done > /dev/null 2>1; then
+		for file in /var/bigbluebutton/recording/status/recorded/*.done; do 
+		  if [ ! -f $(echo $file | sed 's/recorded/archived/g') ]; then 
+			echo "  $file" >> /tmp/t
+                  fi 
+                done
+
+		  if [ -s /tmp/t ]; then
+			echo "   -- Ingest and Processing: found recorded meeting but no archive files-- "
+			cat /tmp/t
+			echo
+		  fi
+	fi
+	
+	
+	exit 0
 fi

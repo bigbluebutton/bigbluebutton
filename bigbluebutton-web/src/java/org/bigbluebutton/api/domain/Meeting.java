@@ -165,7 +165,7 @@ public class Meeting {
 	}
 	
 	public void userJoined(User user){
-		this.users.put(user.getUserid(), user);
+		this.users.put(user.getInternalUserId(), user);
 	}
 	
 	public User userLeft(String userid){
@@ -198,6 +198,7 @@ public class Meeting {
 	}
 	
 	private boolean nobodyJoined(int expiry) {
+		if (expiry == 0) return false; /* Meeting stays created infinitely */
 		return (System.currentTimeMillis() - createdTime) >  (expiry * MILLIS_IN_A_MINUTE);
 	}
 	

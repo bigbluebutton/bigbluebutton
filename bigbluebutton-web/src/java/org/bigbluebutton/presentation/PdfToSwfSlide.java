@@ -40,7 +40,7 @@ public class PdfToSwfSlide {
 	private PdfPageToImageConversionService imageConvertService;
 	private String BLANK_SLIDE;
 	
-	private boolean done = false;
+	private volatile boolean done = false;
 	private File slide;
 	
 	public PdfToSwfSlide(UploadedPresentation pres, int page) {
@@ -51,19 +51,20 @@ public class PdfToSwfSlide {
 	public PdfToSwfSlide createSlide() {		
 		File presentationFile = pres.getUploadedFile();
 		slide = new File(presentationFile.getParent() + File.separatorChar + "slide-" + page + ".swf");
-		System.out.println("Creating slide " + slide.getAbsolutePath());
+		log.info("Creating slide " + slide.getAbsolutePath());
 		if (! pdfToSwfConverter.convert(presentationFile, slide, page)) {
+			log.info("Failed to convert slide. Let's take an image snapshot and convert to SWF");
 			imageConvertService.convertPageAsAnImage(presentationFile, slide, page);
 		} else {			
 			if (slideMayHaveTooManyObjects(slide)) {
-				log.info(slide.getAbsolutePath() + "[size= " + slide.length() + "]");
+				log.info("Slide is too big. Let's take an image snapshot and convert to SWF");
 				imageConvertService.convertPageAsAnImage(presentationFile, slide, page);
 			}
 		}
 
 		// If all fails, generate a blank slide.
 		if (!slide.exists()) {
-			log.warn("Creating blank slide for " + slide.getAbsolutePath());
+			log.warn("Failed to create slide. Creating blank slide for " + slide.getAbsolutePath());
 			generateBlankSlide();
 		}
 		

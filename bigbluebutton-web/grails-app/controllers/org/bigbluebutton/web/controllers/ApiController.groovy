@@ -29,6 +29,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.MeetingService;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.web.services.PresentationService
@@ -37,14 +38,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import org.bigbluebutton.api.ApiErrors;
 import org.bigbluebutton.api.ParamsProcessorUtil;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.text.DateFormat;
 
+
 class ApiController {
-  private static final Integer SESSION_TIMEOUT = 10800  // 3 hours    
+  private static final Integer SESSION_TIMEOUT = 14400  // 4 hours    
   private static final String CONTROLLER_NAME = 'ApiController'		
   private static final String RESP_CODE_SUCCESS = 'SUCCESS'
   private static final String RESP_CODE_FAILED = 'FAILED'
@@ -297,20 +298,33 @@ class ApiController {
       externUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
     }
     
-    session["conferencename"] = meeting.getName()
-    session["meetingID"] = meeting.getInternalId()
-    session["externUserID"] = externUserID
-    session["fullname"] = fullName 
-    session["role"] = role
-    session["conference"] = meeting.getInternalId()
-    session["room"] = meeting.getInternalId()
-    session["voicebridge"] = meeting.getTelVoice()
-    session["webvoiceconf"] = meeting.getWebVoice()
-    session["mode"] = "LIVE"
-    session["record"] = meeting.isRecord()
-    session['welcome'] = meeting.getWelcomeMessage()
-	session['logoutUrl'] = meeting.getLogoutUrl();
+	UserSession us = new UserSession();
+	us.internalUserId = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+    us.conferencename = meeting.getName()
+    us.meetingID = meeting.getInternalId()
+    us.externUserID = externUserID
+    us.fullname = fullName 
+    us.role = role
+    us.conference = meeting.getInternalId()
+    us.room = meeting.getInternalId()
+    us.voicebridge = meeting.getTelVoice()
+    us.webvoiceconf = meeting.getWebVoice()
+    us.mode = "LIVE"
+    us.record = meeting.isRecord()
+    us.welcome = meeting.getWelcomeMessage()
+	us.logoutUrl = meeting.getLogoutUrl();
     
+	// Store the following into a session so we can handle
+	// logout, restarts properly.
+	session['meeting-id'] = us.meetingID
+	session['user-token'] = us.meetingID + "-" + us.internalUserId;
+	session['logout-url'] = us.logoutUrl
+	
+	meetingService.addUserSession(session['user-token'], us);
+	
+	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")
+	
+	
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
     
     log.info("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}"); 		
@@ -666,40 +680,65 @@ class ApiController {
    * ENTER API
    ***********************************************/
   def enter = {	    
-    if (! session["room"]) {
-      println "Could not find conference"
+    if (! session["user-token"] || (meetingService.getUserSession(session['user-token']) == null)) {
+      log.info("No session for user in conference.")
+	  
+	  Meeting meeting = null;	  
+	  
+	  // Determine the logout url so we can send the user there.
+	  String logoutUrl = session["logout-url"]
+					
+	  if (! session['meeting-id']) {
+		  meeting = meetingService.getMeeting(session['meeting-id']);
+	  }
+	
+	  // Log the user out of the application.
+	  session.invalidate()
+	
+	  if (meeting != null) {
+		  log.debug("Logging out from [" + meeting.getInternalId() + "]");
+		  logoutUrl = meeting.getLogoutUrl();
+	  }
+	  
+	  if (StringUtils.isEmpty(logoutUrl))
+	  	logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+	  
       response.addHeader("Cache-Control", "no-cache")
       withFormat {				
         xml {
           render(contentType:"text/xml") {
             response() {
               returncode("FAILED")
-              message("Could not find conference ${params.conference}.")
+              message("Could not find conference.")
+			  logoutURL(logoutUrl)
             }
           }
         }
       }
-      } else {	
-        println "Found conference"
+	  
+    } else {
+		UserSession us = meetingService.getUserSession(session['user-token']);	
+        log.info("Found conference for " + us.fullname)
         response.addHeader("Cache-Control", "no-cache")
         withFormat {				
         xml {
           render(contentType:"text/xml") {
             response() {
               returncode("SUCCESS")
-              fullname(session["fullname"])
-              confname(session["conferencename"])
-              meetingID(session["meetingID"] )
-              externUserID(session["externUserID"] )
-              role(session["role"])
-              conference(session["conference"])
-              room(session["room"])
-              voicebridge(session["voicebridge"] )
-              webvoiceconf(session["webvoiceconf"])
-              mode(session["mode"])
-              record(session["record"])
-              welcome(session['welcome'])
-			  logoutUrl(session["logoutUrl"])
+              fullname(us.fullname)
+              confname(us.conferencename)
+              meetingID(us.meetingID)
+              externUserID(us.externUserID)
+			  internalUserID(us.internalUserId)
+              role(us.role)
+              conference(us.conference)
+              room(us.room)
+              voicebridge(us.voicebridge)
+              webvoiceconf(us.webvoiceconf)
+              mode(us.mode)
+              record(us.record)
+              welcome(us.welcome)
+			  logoutUrl(us.logoutUrl)
             }
           }
         }
@@ -710,20 +749,28 @@ class ApiController {
   /*************************************************
    * SIGNOUT API
    *************************************************/
-  def signOut = {        
-  	String meetingId = session["conference"]
-  	Meeting meeting = meetingService.getMeeting(meetingId);
+  def signOut = {  
+	Meeting meeting = null;
+  	
+	if (session["user-token"] && (meetingService.getUserSession(session['user-token']) != null)) {
+		  log.info("Found session for user in conference.")
+		  UserSession us = meetingService.removeUserSession(session['user-token']);
+		  meeting = meetingService.getMeeting(us.meetingID);
+	}
+		  
   	String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-                  
-  	// Log the user out of the application.
-  	session.invalidate()
-  
+                    
+	if ((meeting == null) && (! session['meeting-id'])) {
+		meeting = meetingService.getMeeting(session['meeting-id']);
+	}
+	
+	// Log the user out of the application.
+	session.invalidate()
+	
   	if (meeting != null) {
   	  log.debug("Logging out from [" + meeting.getInternalId() + "]");
   		logoutUrl = meeting.getLogoutUrl();
-  	} else {
-  		log.warn("Signing out from a non-existing meeting [" + meetingId + "]");	
-  	}      
+  	}     
    
   	log.debug("Signing out. Redirecting to " + logoutUrl)
     response.addHeader("Cache-Control", "no-cache")
@@ -1014,62 +1061,62 @@ class ApiController {
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
 
     if (requestBody == null) {
-      return;
-    }
-        
-    log.debug "Request body: \n" + requestBody;
+		System.out.println("No pre-uploaded presentation. Downloading default presentation.");
+		downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf);
+    } else {
+		System.out.println("Request body: \n" + requestBody);
+		log.debug "Request body: \n" + requestBody;
+	
+		def xml = new XmlSlurper().parseText(requestBody);
+		xml.children().each { module ->
+		  log.debug("module config found: [${module.@name}]");
+		  if ("presentation".equals(module.@name.toString())) {
+			// need to iterate over presentation files and process them
+			module.children().each { document ->
+			  if (!StringUtils.isEmpty(document.@url.toString())) {
+				downloadAndProcessDocument(document.@url.toString(), conf);
+			  } else if (!StringUtils.isEmpty(document.@name.toString())) {
+				def b64 = new Base64()
+				def decodedBytes = b64.decode(document.text().getBytes())
+				processDocumentFromRawBytes(decodedBytes, document.@name.toString(), conf);
+			  } else {
+				log.debug("presentation module config found, but it did not contain url or name attributes");
+			  }
+			}
+		  }
+		}
+	}
 
-    def xml = new XmlSlurper().parseText(requestBody);
-    xml.children().each { module ->
-      log.debug("module config found: [${module.@name}]");
-      if ("presentation".equals(module.@name.toString())) {
-        // need to iterate over presentation files and process them
-        module.children().each { document -> 
-          if (!StringUtils.isEmpty(document.@url.toString())) {
-            downloadAndProcessDocument(document.@url.toString(), conf);
-          } else if (!StringUtils.isEmpty(document.@name.toString())) {
-            def b64 = new Base64()
-            def decodedBytes = b64.decode(document.text().getBytes())
-            processDocumentFromRawBytes(decodedBytes, document.@name.toString(), conf);
-          } else {
-            log.debug("presentation module config found, but it did not contain url or name attributes");
-          }
-        }
-      }
-    }
   }
-
-
-
   def cleanFilename(filename) {
-	String fname = URLDecoder.decode(filename)
+    String fname = URLDecoder.decode(filename).trim()
     def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
     return fname.replaceAll(notValidCharsRegExp, '-')
   }
-  
-  def processDocumentFromRawBytes(bytes, filename, conf) {
-	def cleanName = cleanFilename(filename);
 
-    File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), cleanName);
+ def processDocumentFromRawBytes(bytes, filename, conf) {
+    def cleanName = cleanFilename(filename);
+    def nameWithoutExt = cleanName.substring(0, cleanName.lastIndexOf("."));
+    File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), nameWithoutExt);
     def pres = new File(uploadDir.absolutePath + File.separatorChar + cleanName);
-    
+
     FileOutputStream fos = new java.io.FileOutputStream(pres)
     fos.write(bytes)
     fos.flush()
     fos.close()
-    
-    processUploadedFile(cleanName, pres, conf);
+
+    processUploadedFile(nameWithoutExt, pres, conf);
   }
-    
-  def downloadAndProcessDocument(address, conf) {
+  
+ def downloadAndProcessDocument(address, conf) {
     log.debug("ApiController#downloadAndProcessDocument({$address}, ${conf.getInternalId()})");
     String name = cleanFilename(address.tokenize("/")[-1]);
     log.debug("Uploading presentation: ${name} from ${address} [starting download]");
-    
+    String nameWithoutExt = name.substring(0, name.lastIndexOf("."));
     def out;
     def pres;
     try {
-      File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), name);
+      File uploadDir = presentationService.uploadedPresentationDirectory(conf.getInternalId(), conf.getInternalId(), nameWithoutExt);
       pres = new File(uploadDir.absolutePath + File.separatorChar + name);
       out = new BufferedOutputStream(new FileOutputStream(pres))
       out << new URL(address).openStream()
@@ -1079,8 +1126,9 @@ class ApiController {
       }
     }
 
-    processUploadedFile(name, pres, conf);
+    processUploadedFile(nameWithoutExt, pres, conf);
   }
+
   
   def processUploadedFile(name, pres, conf) {
     UploadedPresentation uploadedPres = new UploadedPresentation(conf.getInternalId(), conf.getInternalId(), name);
@@ -1121,7 +1169,7 @@ class ApiController {
             attendees() {
               meeting.getUsers().each { att ->
                 attendee() {
-                  userID("${att.userid}")
+                  userID("${att.externalUserId}")
                   fullName("${att.fullname}")
                   role("${att.role}")
                 }

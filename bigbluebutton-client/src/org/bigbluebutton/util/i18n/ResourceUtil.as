@@ -19,6 +19,7 @@
 package org.bigbluebutton.util.i18n
 {
 	import com.adobe.utils.StringUtil;
+	import com.asfusion.mate.events.Dispatcher;
 	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -37,6 +38,7 @@ package org.bigbluebutton.util.i18n
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.LocaleChangeEvent;
+	import org.bigbluebutton.main.events.AppVersionEvent;
 
 	public class ResourceUtil extends EventDispatcher {
 		private static var instance:ResourceUtil = null;
@@ -79,9 +81,11 @@ package org.bigbluebutton.util.i18n
 				
 		private function handleComplete(e:Event):void{
 			parse(new XML(e.target.data));		
-			
-			loadMasterLocale(MASTER_LOCALE);			
+									
 			preferredLocale = getDefaultLocale();
+			if (preferredLocale != MASTER_LOCALE) {
+				loadMasterLocale(MASTER_LOCALE);
+			}
 			setPreferredLocale(preferredLocale);
 		}
 		
@@ -141,8 +145,10 @@ package org.bigbluebutton.util.i18n
 		
 		private function loadResource(language:String):IEventDispatcher {
 			// Add a random string on the query so that we don't get a cached version.
+			
 			var date:Date = new Date();
 			var localeURI:String = 'locale/' + language + '_resources.swf?a=' + date.time;
+			LogUtil.debug("Loading locale at [ " + localeURI + " ]");
 			return resourceManager.loadResourceModule(localeURI, false);
 		}		
 		
@@ -163,22 +169,35 @@ package org.bigbluebutton.util.i18n
 		private function localeChangeComplete(event:ResourceEvent):void {
 			// Set the preferred locale and master as backup.
 			if (preferredLocale != MASTER_LOCALE) {
+				LogUtil.debug("Loaded locale [" + preferredLocale + "] but setting [" + MASTER_LOCALE + "] as fallback");
 				resourceManager.localeChain = [preferredLocale, MASTER_LOCALE];
 				localeIndex = getIndexForLocale(preferredLocale);
 			} else {
+				if (preferredLocale != MASTER_LOCALE) {
+					LogUtil.debug("Failed to load locale [" + preferredLocale + "].");
+				}
+				LogUtil.debug("Using [" + MASTER_LOCALE + "] locale.");
 				resourceManager.localeChain = [MASTER_LOCALE];
 				preferredLocale = MASTER_LOCALE;
 				localeIndex = getIndexForLocale(preferredLocale);
 			}
-			
+			sendAppAndLocaleVersions();
 			update();
 		}
+		
+		private function sendAppAndLocaleVersions():void {
+			var dispatcher:Dispatcher = new Dispatcher();
+			var versionEvent:AppVersionEvent = new AppVersionEvent();
+			versionEvent.configLocaleVersion = false;
+			dispatcher.dispatchEvent(versionEvent);			
+		}		
 		
 		/**
 		 * Defaults to DEFAULT_LANGUAGE when an error is thrown by the ResourceManager 
 		 * @param event
 		 */        
 		private function handleResourceNotLoaded(event:ResourceEvent):void{
+			LogUtil.warn("Resource locale [" + preferredLocale + "] could not be loaded.");
 			resourceManager.localeChain = [MASTER_LOCALE];
 			preferredLocale = MASTER_LOCALE;
 			localeIndex = getIndexForLocale(preferredLocale);
@@ -191,7 +210,18 @@ package org.bigbluebutton.util.i18n
 		
 		[Bindable("change")]
 		public function getString(resourceName:String, parameters:Array = null, locale:String = null):String{
-			return resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, locale);
+			/**
+			 * Get the translated string from the current locale. If empty, get the string from the master
+			 * locale. Locale chaining isn't working because mygengo actually puts the key and empty value
+			 * for untranslated strings into the locale file. So, when Flash does a lookup, it will see that
+			 * the key is available in the locale and thus not bother falling back to the master locale.
+			 *    (ralam dec 15, 2011).
+			 */
+			var localeTxt:String = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, null);
+			if ((localeTxt == "") || (localeTxt == null)) {
+				localeTxt = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, MASTER_LOCALE);
+			}
+			return localeTxt;
 		}
 		
 		public function getCurrentLanguageCode():String{

@@ -67,10 +67,10 @@ public class OfficeToPdfConversionSuccessFilter {
 	}
 	
 	private void sendNotification(Map<String, Object> msg) {
-		if(messagingService !=null){
-			Gson gson= new Gson();
-			String updateMsg=gson.toJson(msg);
-			log.debug("sending: "+updateMsg);
+		if (messagingService != null){
+			Gson gson = new Gson();
+			String updateMsg = gson.toJson(msg);
+			log.debug("sending: " + updateMsg);
 			messagingService.send(MessagingConstants.PRESENTATION_CHANNEL, updateMsg);
 		} else {
 			log.warn("MessagingService has not been set!.");

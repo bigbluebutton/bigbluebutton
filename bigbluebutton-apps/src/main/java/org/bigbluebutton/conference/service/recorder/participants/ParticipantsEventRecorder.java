@@ -31,7 +31,7 @@ public class ParticipantsEventRecorder implements IRoomListener {
 	public void participantJoined(Participant p) {
 		ParticipantJoinRecordEvent ev = new ParticipantJoinRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());
-		ev.setUserId(p.getUserid().toString());
+		ev.setUserId(p.getInternalUserID().toString());
 		ev.setMeetingId(session);
 		ev.setStatus(p.getStatus().toString());
 		ev.setRole(p.getRole());
@@ -40,20 +40,20 @@ public class ParticipantsEventRecorder implements IRoomListener {
 	}
 
 	@Override
-	public void participantLeft(Long userid) {
+	public void participantLeft(Participant p) {
 		ParticipantLeftRecordEvent ev = new ParticipantLeftRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());
-		ev.setUserId(userid.toString());
+		ev.setUserId(p.getInternalUserID().toString());
 		ev.setMeetingId(session);
 		
 		recorder.record(session, ev);
 	}
 
 	@Override
-	public void participantStatusChange(Long userid, String status, Object value) {
+	public void participantStatusChange(Participant p, String status, Object value) {
 		ParticipantStatusChangeRecordEvent ev = new ParticipantStatusChangeRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());
-		ev.setUserId(userid.toString());
+		ev.setUserId(p.getInternalUserID().toString());
 		ev.setMeetingId(session);
 		ev.setStatus(status);
 		ev.setValue(value.toString());

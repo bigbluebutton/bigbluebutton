@@ -86,8 +86,8 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		return roomManager.getRoom(getLocalScope().getName()).isWhiteboardEnabled();
 	}
 	
-	public void sendShape(double[] shape, String type, int color, int thickness, double parentWidth, double parentHeight){
-		Shape newShape = new Shape(shape, type, color, thickness, parentWidth, parentHeight);
+	public void sendShape(double[] shape, String type, int color, int thickness, String id, String status){
+		Shape newShape = new Shape(shape, type, color, thickness, id, status);
 		roomManager.getRoom(getLocalScope().getName()).addShape(newShape);
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
 		List<Object> arguments = newShape.toList();

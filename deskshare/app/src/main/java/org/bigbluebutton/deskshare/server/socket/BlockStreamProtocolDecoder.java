@@ -24,7 +24,7 @@ package org.bigbluebutton.deskshare.server.socket;
 import java.awt.Point;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-
+import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
@@ -49,29 +49,51 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     private static final byte MOUSE_LOCATION_EVENT = 3;
         
     protected boolean doDecode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
-     	
-    	// Let's work with a buffer that contains header and the message length,
-    	// ten (10) should be enough since header (6-bytes) plus length (4-bytes)
-    	if (in.remaining() < 10) return false;
-    		
-    	byte[] header = new byte[HEADER.length];    
-    	
-    	int start = in.position();
-    	
-    	in.get(header, 0, HEADER.length);    	
-    	int messageLength = in.getInt();    	
-//    	System.out.println("Message Length " + messageLength);
-    	if (in.remaining() < messageLength) {
-    		in.position(start);
-    		return false;
-    	}
-    		
-    	decodeMessage(session, in, out);
-    	
-    	return true;
+     	try {
+        	// Let's work with a buffer that contains header and the message length,
+        	// ten (10) should be enough since header (6-bytes) plus length (4-bytes)
+        	if (in.remaining() < 10) return false;
+        		
+        	byte[] header = new byte[HEADER.length];    
+        	
+        	int start = in.position();    	
+        	in.get(header, 0, HEADER.length);    	
+        	    	
+        	int messageLength = in.getInt();    	
+
+        	if (in.remaining() < messageLength) {
+        		in.position(start);
+        		return false;
+        	}
+        	
+        	decodeMessage(session, in, out);
+        	
+        	return true;    		
+     	} catch (Exception e) {
+			throwAwayCorruptedPacket(in);
+	    	Integer numErrors = (Integer)session.getAttribute("NUM_ERRORS", 0);    	    	
+	    	session.setAttribute("NUM_ERRORS", numErrors++);
+	    	
+	    	if (numErrors > 50) {
+	    		log.info("Closing session. Too many corrupt packets.");
+	    		int seqNum = 0;
+	    		String room = (String)session.getAttribute(ROOM, null);
+	    		if (room != null) {
+	    			log.info("Closing session [" + room + "]. Too many corrupt packets.");
+	    			CaptureEndBlockEvent ceb = new CaptureEndBlockEvent(room, seqNum);
+	    			out.write(ceb);
+	    		} else {
+	    			log.info("Cannot determine session. Too many corrupt packets.");
+	    		}
+	        	CloseFuture future = session.close(true);   			
+	    	} 
+	    	
+	    	return true;
+		}
+
     }
     
-    private void decodeMessage(IoSession session, IoBuffer in, ProtocolDecoderOutput out) {
+    private void decodeMessage(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
     	byte event = in.get();
     	switch (event) {
 	    	case CAPTURE_START_EVENT:
@@ -92,7 +114,50 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
 	    		break;
 	    	default:
     			log.error("Unknown event: " + event);
+    			throw new Exception("Unknown event: " + event);  	    	
     	}
+    }
+    
+    private static final byte CR = 13;
+    private static final byte LF = 10;
+    
+    private void throwAwayCorruptedPacket(IoBuffer in) {
+    	// Remember the initial position.
+        int start = in.position();
+
+        // Now find the first CRLF in the buffer.
+        byte previous = 0;
+        while (in.hasRemaining()) {
+            byte current = in.get();
+
+            if (previous == CR && current == LF) {
+                // Remember the current position and limit.
+                int position = in.position();
+                int limit = in.limit();
+                try {
+                    in.position(start);
+                    in.limit(position);
+                    // The bytes between in.position() and in.limit()
+                    // now contain a full CRLF terminated byte stream.
+                    log.info("Throwing corrupted packet.");
+                    in.slice();
+                } finally {
+                    // Set the position to point right after the
+                    // detected CRLF and set the limit to the old
+                    // one.
+                    in.position(position);
+                    in.limit(limit);
+                }
+                return;
+            }
+
+            previous = current;
+        }
+
+        log.warn("Could not find end of corrupted packet.");
+        // Could not find CRLF in the buffer. Reset the initial
+        // position to the one we recorded above.
+        in.position(start);
     }
     
     private void decodeMouseLocationEvent(IoSession session, IoBuffer in, ProtocolDecoderOutput out) {
@@ -100,6 +165,11 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     	int seqNum = in.getInt();
     	int mouseX = in.getInt();
     	int mouseY = in.getInt();
+    	
+    	/** Swallow CRLF **/
+    	byte cr = in.get();
+    	byte lf = in.get();
+    	
     	MouseLocationEvent event = new MouseLocationEvent(room, new Point(mouseX, mouseY), seqNum);
     	out.write(event);
     }
@@ -110,6 +180,11 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     	if (! "".equals(room)) {
     		log.info("CaptureEndEvent for " + room);
     		int seqNum = in.getInt();
+        	
+    		/** Swallow CRLF **/
+        	byte cr = in.get();
+        	byte lf = in.get();
+        	
     		CaptureEndBlockEvent event = new CaptureEndBlockEvent(room, seqNum);
     		out.write(event);
     	} else {
@@ -124,7 +199,11 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     	
 		Dimension blockDim = decodeDimension(in);
 		Dimension screenDim = decodeDimension(in);    	
-
+		
+		/** Swallow CRLF **/
+    	byte cr = in.get();
+    	byte lf = in.get();
+    			
 	    log.info("CaptureStartEvent for " + room);
 	    CaptureStartBlockEvent event = new CaptureStartBlockEvent(room, screenDim, blockDim, seqNum);	
 	    out.write(event);
@@ -159,7 +238,7 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
     	String room = decodeRoom(session, in);
     	int seqNum = in.getInt();
     	int numBlocks = in.getShort();
-//    	System.out.println("Number of blocks changed " + numBlocks);
+
     	String blocksStr = "Blocks changed ";
     	
     	for (int i = 0; i < numBlocks; i++) {
@@ -173,6 +252,10 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
         	CaptureUpdateBlockEvent event = new CaptureUpdateBlockEvent(room, position, data, isKeyFrame, seqNum);
         	out.write(event);    		
     	}
-//    	System.out.println(blocksStr);
+    	
+    	/** Swallow CRLF **/
+    	byte cr = in.get();
+    	byte lf = in.get();
+    	
     }
 }

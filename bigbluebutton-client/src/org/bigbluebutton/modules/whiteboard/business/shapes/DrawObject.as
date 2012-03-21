@@ -18,6 +18,8 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+	import flash.display.Shape;
+
 	/**
 	 * The DrawObject class provides an interface for other geometric representations.
 	 * This is a simple implementation of the Template design pattern. Other classes extend the
@@ -28,30 +30,47 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 * @author dzgonjan
 	 * 
 	 */	
-	public class DrawObject
-	{
+	public class DrawObject {
 		public static const PENCIL:String = "pencil";
 		public static const RECTANGLE:String = "rectangle";
 		public static const ELLIPSE:String = "ellipse";
-		
+				
 		protected var type:String;
 		protected var shape:Array;
 		protected var color:uint;
 		protected var thickness:uint;
-		public var parentWidth:Number;
-		public var parentHeight:Number;
+		
+		/**
+		 * Id we can use to match the feedback shape in the presenter's view so we can
+		 * remove it.
+		 */
+		public var id:String = null;
+		
+		/**
+		 * Status = [START, UPDATE, END]
+		 */ 
+		public static const DRAW_UPDATE:String = "DRAW_UPDATE";
+		public static const DRAW_END:String = "DRAW_END";
+		public static const DRAW_START:String = "DRAW_START";
+		public var status:String = DRAW_START;
+				
+		protected var _shape:Shape = new Shape();
+		protected var _segment:Array;
 		
 		/**
 		 * The default constructor for the DrawObject 
 		 * 
 		 */		
-		public function DrawObject(type:String, segment:Array, color:uint, thickness:uint)
-		{
+		public function DrawObject(type:String, segment:Array, color:uint, thickness:uint) {
 			this.type = type;
 			this.shape = segment;
 			this.color = color;
 			this.thickness = thickness;
 			this.optimize();
+		}
+		
+		public function getShape():Shape {
+			return _shape;
 		}
 		
 		/**
@@ -91,8 +110,23 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		protected function optimize():void{
+			// do nothing
+		}
 			
+		protected function readyToSend():Boolean {
+			return false;
 		}
 
+		public function makeShape(width:Number, height:Number):void {
+			
+		}
+		
+		protected function denormalize(val:Number, side:Number):Number {
+			return (val*side)/100.0;
+		}
+		
+		protected function normalize(val:Number, side:Number):Number {
+			return (val*100.0)/side;
+		}
 	}
 }

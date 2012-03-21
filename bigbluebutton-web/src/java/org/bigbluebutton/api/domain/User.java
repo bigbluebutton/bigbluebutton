@@ -4,24 +4,35 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class User {
-	private String userid;
+	private String internalUserId;
+	private String externalUserId;
 	private String fullname;
 	private String role;
 	private Map<String,String> status;
 	
-	public User(String userid, String fullname, String role) {
-		this.userid = userid;
+	public User(String internalUserId, String externalUserId, String fullname, String role) {
+		this.internalUserId = internalUserId;
+		this.externalUserId = externalUserId;
 		this.fullname = fullname;
 		this.role = role;
 		this.status = new ConcurrentHashMap<String, String>();
 	}
 	
-	public String getUserid() {
-		return userid;
+	public String getInternalUserId() {
+		return this.internalUserId;
 	}
-	public void setUserid(String userid) {
-		this.userid = userid;
+	public void setInternalUserId(String internalUserId) {
+		this.internalUserId = internalUserId;
 	}
+	
+	public String getExternalUserId(){
+		return this.externalUserId;
+	}
+	
+	public void setExternalUserId(String externalUserId){
+		this.externalUserId = externalUserId;
+	}
+	
 	public String getFullname() {
 		return fullname;
 	}

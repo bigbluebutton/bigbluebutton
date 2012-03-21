@@ -36,9 +36,9 @@ public class RoomListener implements IRoomListener{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void participantStatusChange(Long userid, String status, Object value){
+	public void participantStatusChange(Participant p, String status, Object value){
 		List list = new ArrayList();
-		list.add(userid);
+		list.add(p.getInternalUserID());
 		list.add(status);
 		list.add(value);
 		so.sendMessage("participantStatusChange", list);
@@ -52,9 +52,9 @@ public class RoomListener implements IRoomListener{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void participantLeft(Long userid) {		
+	public void participantLeft(Participant p) {		
 		List args = new ArrayList();
-		args.add(userid);
+		args.add(p.getInternalUserID());
 		so.sendMessage("participantLeft", args);
 	}
 

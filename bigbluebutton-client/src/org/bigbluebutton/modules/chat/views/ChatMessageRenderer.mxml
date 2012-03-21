@@ -47,6 +47,7 @@
 				ChangeWatcher.watch(this, "data", dataChangeHandler);
 				if (data != null) {
 					chatMsg = data as ChatMessage;
+					data = null;
 					chatMsg.translateMessage();					
 				}
 				
@@ -64,6 +65,7 @@
 					return;
 				}				
 				chatMsg = data as ChatMessage;
+				data = null;
 				chatMsg.translateMessage();	
 			}
 			

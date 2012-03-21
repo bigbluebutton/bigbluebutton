@@ -164,6 +164,8 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 		stopped = false;
 	}
 	
+	private volatile boolean clearQ = true;
+	
 	public void stop() throws ConnectionException {
 		stopped = true;
 		System.out.println(NAME + "Stopping network sender");
@@ -171,11 +173,18 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 			if (tunneling) {
 				httpSenders[i].disconnect();
 			} else {
-				socketSenders[i].disconnect();
+			//	socketSenders[i].disconnect();
+				if (clearQ) {
+					clearQ = false;
+					blockDataQ.clear();
+					
+				}
+				send(new PoisonMessage());
 			}				
 		}
-		
+		System.out.println("Shutting down executor");
 		executor.shutdownNow();
+		System.out.println("Shutting down executor [DONE]");
 		httpSenders = null;
 		socketSenders = null;
 		

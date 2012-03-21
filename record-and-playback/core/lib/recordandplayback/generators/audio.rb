@@ -23,6 +23,7 @@ module BigBlueButton
       end
       
       f.close();
+      BigBlueButton.logger.info("Task: Generating silence. Filename: #{filename} with duration #{millis} milliseconds")
       command = "sox #{temp_file} -b 16 -r #{sampling_rate} -c 1 -s #{filename}"
       BigBlueButton.execute(command)
       # Delete the temporary raw audio file
@@ -36,6 +37,7 @@ module BigBlueButton
     def self.concatenate_audio_files(files, outfile)
       file_list = files.join(' ')
       command = "sox #{file_list} #{outfile}"
+      BigBlueButton.logger.info("Task: Concatenating audio files")
       BigBlueButton.execute(command)  
     end
     
@@ -45,6 +47,7 @@ module BigBlueButton
     #   ogg_file - resulting ogg file
     def self.wav_to_ogg(wav_file, ogg_file)  
       command = "oggenc -Q -o #{ogg_file} #{wav_file} 2>&1"
+      BigBlueButton.logger.info("Converting .wav to .ogg")
       BigBlueButton.execute(command)
     end    
     
@@ -54,7 +57,7 @@ module BigBlueButton
     #
     def self.determine_length_of_audio_from_file(file)
       audio_length = 0
-      stats = ""        
+      stats = ""
       # If everything goes well, output should be in the following format. We need to get the Length (seconds) value
         #    Samples read:            888960
         #    Length (seconds):     55.560000
@@ -72,7 +75,8 @@ module BigBlueButton
         #    Rough   frequency:          504
         #    Volume adjustment:        1.215
       command = "sox #{file} -n stat 2>&1"
-      BigBlueButton.logger.info("#{command}\n") 
+      # Try "sox --i -D file" as it is much shorter
+      BigBlueButton.logger.info("Task: Getting length of audio")
       output = BigBlueButton.execute(command)
       if output.to_s =~ /Length(.+)/
         stats = $1
@@ -83,11 +87,31 @@ module BigBlueButton
       if match
       # Convert to milliseconds
         audio_length = (match[0].to_f * 1000).to_i
+        BigBlueButton.logger.info("Determined audio length from stats using sox [#{audio_length}]")
       end
-      audio_length
+      if (audio_length == 0)
+         # Could not deternime the length from information on the file.
+         # Try calculating the length from the size of the file.
+         # For WAV files, there will be 32000 bps ot 32bpms
+         len_from_file = File.size?(file)/32
+         # We've got a corrupted header information (http://comments.gmane.org/gmane.comp.audio.sox/2637)
+         # Now we need to repair the file otherwise all operations involving sox will fail as the length
+         # will be zero.
+         temp_wav_file = "#{file}.temp.wav"
+         command = "sox --ignore-length #{file} #{temp_wav_file} trim 0 #{len_from_file}"
+         BigBlueButton.logger.info("Task: Fixing length of audio")
+         BigBlueButton.execute(command)
+         File.delete(file)
+         File.rename(temp_wav_file, file)
+         audio_length = (len_from_file).to_i
+        BigBlueButton.logger.info("Determined audio length from file size [#{audio_length}]")
+      end
+        BigBlueButton.logger.info("Determined audio length is [#{audio_length}]")
+      return audio_length
     end
-     
+   
     def self.to_xml_file(events, file)
+      BigBlueButton.logger.info("Task: Converting events to xml file")
       xml = Builder::XmlMarkup.new( :indent => 2 )
       result = xml.instruct! :xml, :version => "1.0"
       
@@ -103,6 +127,7 @@ module BigBlueButton
     
     # Process the audio events for this recording
     def self.process_events(archive_dir, events_xml)
+      BigBlueButton.logger.info("Task: Processing events")
       audio_events = match_start_and_stop_events(start_audio_recording_events(archive_dir, events_xml),
                           stop_audio_recording_events(archive_dir, events_xml)).each do |audio_event|
         if not audio_event.matched
@@ -126,7 +151,9 @@ module BigBlueButton
         unique_events.concat(audio_paddings)
         return unique_events.sort! {|a,b| a.start_event_timestamp.to_i <=> b.start_event_timestamp.to_i}
       else
-        return nil
+        first_event = BigBlueButton::Events.first_event_timestamp(events_xml).to_i
+        last_event = BigBlueButton::Events.last_event_timestamp(events_xml).to_i
+        return [create_gap_audio_event(last_event - first_event + 1, last_event, first_event)]
       end
     end
         
@@ -137,6 +164,7 @@ module BigBlueButton
     
     # Get the start audio recording events.
     def self.start_audio_recording_events(archive_dir, events_xml)
+      BigBlueButton.logger.info("Task: Getting start audio recording events")
       start_events = []
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("//event[@eventname='StartRecordingEvent']").each do |start_event|
@@ -152,7 +180,8 @@ module BigBlueButton
     end
     
     # Get the stop audio recording events.
-    def self.stop_audio_recording_events(archive_dir, events_xml)
+    def self.stop_audio_recording_events(archive_dir, events_xml)      
+      BigBlueButton.logger.info("Task: Getting stop audio recording events")
       stop_events = []
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("//event[@eventname='StopRecordingEvent']").each do |stop_event|
@@ -168,6 +197,7 @@ module BigBlueButton
     
     # Determine if the start and stop event matched.
     def self.event_matched?(start_events, stop_event)      
+      BigBlueButton.logger.info("Task: Events matched?")
       start_events.each do |start_event|
         if (start_event.file == stop_event.file)
           start_event.matched = true
@@ -181,6 +211,7 @@ module BigBlueButton
     
     # Match the start and stop events.
     def self.match_start_and_stop_events(start_events, stop_events)
+      BigBlueButton.logger.info("Task: Matching start and stop events")
       combined_events = []
       stop_events.each do |stop|
         if not event_matched?(start_events, stop) 
@@ -193,6 +224,7 @@ module BigBlueButton
     # Determine the corresponding start or stop event if it doesn't
     # have an entry in events.xml
     def self.determine_start_stop_timestamps_for_unmatched_event!(event)
+      BigBlueButton.logger.info("Task: Determine start and stop timestamps for unmatched event")
       event.file_exist = determine_if_recording_file_exist(event)
       if ((not event.matched) and event.file_exist)
         event.audio_length = determine_length_of_audio_from_file(event.file)
@@ -210,6 +242,7 @@ module BigBlueButton
     end
     
     def self.create_gap_audio_event(length_of_gap, start_timestamp, stop_timestamp)
+      BigBlueButton.logger.info("Task: Creating audio gap event")
       ae = AudioRecordingEvent.new
       ae.start_event_timestamp = ae.start_record_timestamp = start_timestamp
       ae.padding = true
@@ -219,8 +252,25 @@ module BigBlueButton
       return ae
     end
     
+    # Trim audio file
+    def self.trim_audio_file(file, length)
+      audio_length = determine_length_of_audio_from_file(file)
+      if (audio_length == 0)
+        BigBlueButton.logger.error("Can't trim #{file} as it's length is zero\n")
+        return
+      else
+        temp_wav_file = "#{file}.temp.wav"
+        command = "sox #{file} #{temp_wav_file} trim 0 #{audio_length - length}"
+        BigBlueButton.logger.info("Task: Trimming audio")
+        BigBlueButton.execute(command)
+        File.delete(file)
+        File.rename(temp_wav_file, file)
+      end
+    end
+    
     # Determine the audio padding we need to generate.
     def self.generate_audio_paddings(events, events_xml)
+      BigBlueButton.logger.info("Task: Generating audio paddings")
       # TODO: Need to make this a lot DRYer.
       paddings = []
       events.sort! {|a,b| a.start_event_timestamp <=> b.start_event_timestamp}
@@ -228,8 +278,12 @@ module BigBlueButton
       length_of_gap = events[0].start_event_timestamp.to_i - BigBlueButton::Events.first_event_timestamp(events_xml).to_i
       # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
       # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.
-      if ((length_of_gap > 0) and (length_of_gap < 3600000))
-        paddings << create_gap_audio_event(length_of_gap, BigBlueButton::Events.first_event_timestamp(events_xml), events[0].start_event_timestamp.to_i - 1)
+      if (length_of_gap < 3600000)
+        if (length_of_gap < 0)
+            trim_audio_file(events[0].file, length_of_gap.abs)
+        else
+          paddings << create_gap_audio_event(length_of_gap, BigBlueButton::Events.first_event_timestamp(events_xml), events[0].start_event_timestamp.to_i - 1)
+        end
       else
         BigBlueButton.logger.error("Front padding: #{length_of_gap} [#{events[0].start_event_timestamp.to_i} - #{BigBlueButton::Events.first_event_timestamp(events_xml).to_i}].\n")
         raise Exception,  "Length of silence is too long #{length_of_gap}."
@@ -244,8 +298,12 @@ module BigBlueButton
 
           # Check if the silence is greater that 10 minutes long. If it is, assume something went wrong with the
           # recording. This prevents us from generating a veeeerrryyy looonnngggg silence maxing disk space.
-          if ((length_of_gap > 0) and (length_of_gap < 3600000))
-            paddings << create_gap_audio_event(length_of_gap, ar_prev.stop_event_timestamp.to_i + 1, ar_next.start_event_timestamp.to_i - 1)
+          if (length_of_gap < 3600000)
+            if (length_of_gap < 0)
+              trim_audio_file(ar_prev.file, length_of_gap.abs)
+            else
+              paddings << create_gap_audio_event(length_of_gap, ar_prev.stop_event_timestamp.to_i + 1, ar_next.start_event_timestamp.to_i - 1)
+            end
           else
             BigBlueButton.logger.error("Between padding #{i}: #{length_of_gap} [#{ar_next.start_event_timestamp.to_i} - #{ar_prev.stop_event_timestamp.to_i}].\n")
             raise Exception,  "Length of silence is too long #{length_of_gap}."
@@ -271,6 +329,7 @@ module BigBlueButton
     
     # Determine if the audio file exists
     def self.determine_if_recording_file_exist(recording_event)
+      BigBlueButton.logger.info("Task: Determining if recording file exist")
       if (recording_event.file == nil) 
           return false
       end

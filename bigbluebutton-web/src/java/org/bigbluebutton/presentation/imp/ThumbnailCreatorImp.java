@@ -28,9 +28,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.ThumbnailCreator;
+import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.mysql.jdbc.log.LogUtils;
 
 public class ThumbnailCreatorImp implements ThumbnailCreator {
 	private static Logger log = LoggerFactory.getLogger(ThumbnailCreatorImp.class);
@@ -42,9 +46,9 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 	
 	private static String TEMP_THUMB_NAME = "temp-thumb";
 	
-	public boolean createThumbnails(File presentationFile, int pageCount){
+	public boolean createThumbnails(UploadedPresentation pres){
 		boolean success = false;
-	 	File thumbsDir = determineThumbnailDirectory(presentationFile);
+	 	File thumbsDir = determineThumbnailDirectory(pres.getUploadedFile());
 	 	
 	 	if (! thumbsDir.exists())
 	 		thumbsDir.mkdir();
@@ -52,38 +56,41 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 	 	cleanDirectory(thumbsDir);
 	 	
 		try {
-			success = generateThumbnails(thumbsDir, presentationFile);
+			success = generateThumbnails(thumbsDir, pres);
 	    } catch (InterruptedException e) {
+	    	log.warn("Interrupted Exception while generating thumbnails.");
 	        success = false;
 	    }
 	    
-	    if (! success) createBlankThumbnails(thumbsDir, pageCount);
+	    // Create blank thumbnails for pages that failed to generate a thumbnail.
+	    createBlankThumbnails(thumbsDir, pres.getNumberOfPages());
 	    
 	    renameThumbnails(thumbsDir);
 	    
 	    return true;
 	}
 
-	private boolean generateThumbnails(File thumbsDir, File presentationFile) throws InterruptedException {
-	 	String source = presentationFile.getAbsolutePath();
-	 	String dest = thumbsDir.getAbsolutePath() + File.separator + TEMP_THUMB_NAME + ".png";
+	private boolean generateThumbnails(File thumbsDir, UploadedPresentation pres) throws InterruptedException {
+	 	String source = pres.getUploadedFile().getAbsolutePath();
+	 	String dest;
+	 	String COMMAND = "";
 	 	
-		String COMMAND = IMAGEMAGICK_DIR + "/convert -thumbnail 150x150 " + source + " " + dest;
-		
-		Process p;
-		try {
-			p = Runtime.getRuntime().exec(COMMAND);
-			int exitValue = p.waitFor();
-			if (exitValue != 0) {
-		    	log.warn("Exit Value != 0 while for " + COMMAND);
-		    } else {
-		    	return true;
-		    }
-		} catch (IOException e) {
-			log.error("IOException while processing " + COMMAND);
-		}       
-		
-		log.warn("Failed to create thumbnails: " + COMMAND);
+	 	if(SupportedFileTypes.isImageFile(pres.getFileType())){
+	 		dest = thumbsDir.getAbsolutePath() + File.separator + TEMP_THUMB_NAME + ".png";
+	 		COMMAND = IMAGEMAGICK_DIR + "/convert -thumbnail 150x150 " + source + " " + dest;
+	 	}else{
+	 		dest = thumbsDir.getAbsolutePath() + File.separator + "thumb-";
+	 		COMMAND = IMAGEMAGICK_DIR + "/gs -q -sDEVICE=pngalpha -dBATCH -dNOPAUSE -dNOPROMPT -dDOINTERPOLATE -dPDFFitPage -r16 -sOutputFile=" + dest +"%d.png " + source;
+	 	}
+	 	
+	 	boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
+	 	
+	 	if (done) {
+	 		return true;
+	 	} else {			
+			log.warn("Failed to create thumbnails: " + COMMAND);	 		
+	 	}
+
 		return false;		
 	}
 	
@@ -129,6 +136,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 			for (int i = 0; i < pageCount; i++) {
 				File thumb = new File(thumbsDir.getAbsolutePath() + File.separator + TEMP_THUMB_NAME + "-" + i + ".png");
 				if (! thumb.exists()) {
+					log.info("Copying blank thumbnail for slide " + i);
 					copyBlankThumbnail(thumb);
 				}
 			}

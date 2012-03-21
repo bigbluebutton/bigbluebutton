@@ -53,6 +53,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
     @Override
 	public void init() {		
     	System.out.println("Desktop Sharing Applet Initializing");
+    	
 		hostValue = getParameter("IP");
 		String port = getParameter("PORT");
 		if (port != null) portValue = Integer.parseInt(port);
@@ -69,6 +70,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 	@Override
 	public void start() {		 	
 		System.out.println("Desktop Sharing Applet Starting");
+		System.out.println("v0.8-beta4 mar 22, 2012");
 		super.start();
 		client = new DeskshareClient.NewBuilder().host(hostValue).port(portValue)
 					.room(roomValue).captureWidth(cWidthValue)
