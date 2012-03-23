@@ -114,8 +114,9 @@
 			refreshDelay="500"
 			responseTimeout="3000"
 			enablePlayback="false"
-			autoStart="false"
+			autoStart="true"
 			dependsOn="ViewersModule"
+			position="bottom-left"
 		/>
 		
 	</modules>
