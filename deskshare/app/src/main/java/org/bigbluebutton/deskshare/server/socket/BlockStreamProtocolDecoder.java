@@ -24,6 +24,8 @@ package org.bigbluebutton.deskshare.server.socket;
 import java.awt.Point;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
@@ -58,7 +60,12 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
         	
         	int start = in.position();    	
         	in.get(header, 0, HEADER.length);    	
-        	    	
+        	
+        	if (!Arrays.equals(header, HEADER)) {
+	    		log.info("Closing session. Invalid header.");
+	    		closeSession(session, out);          		
+        	}
+        	
         	int messageLength = in.getInt();    	
 
         	if (in.remaining() < messageLength) {
@@ -70,28 +77,34 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
         	
         	return true;    		
      	} catch (Exception e) {
-			throwAwayCorruptedPacket(in);
-	    	Integer numErrors = (Integer)session.getAttribute("NUM_ERRORS", 0);    	    	
-	    	session.setAttribute("NUM_ERRORS", numErrors++);
+//			throwAwayCorruptedPacket(in);
+//	    	Integer numErrors = (Integer)session.getAttribute("NUM_ERRORS", 0);    	    	
+//	    	session.setAttribute("NUM_ERRORS", numErrors++);
 	    	
-	    	if (numErrors > 50) {
+//	    	if (numErrors > 50) {
 	    		log.info("Closing session. Too many corrupt packets.");
-	    		int seqNum = 0;
-	    		String room = (String)session.getAttribute(ROOM, null);
-	    		if (room != null) {
-	    			log.info("Closing session [" + room + "]. Too many corrupt packets.");
-	    			CaptureEndBlockEvent ceb = new CaptureEndBlockEvent(room, seqNum);
-	    			out.write(ceb);
-	    		} else {
-	    			log.info("Cannot determine session. Too many corrupt packets.");
-	    		}
-	        	CloseFuture future = session.close(true);   			
-	    	} 
+	    		closeSession(session, out);  			
+//	    	} 
 	    	
 	    	return true;
 		}
 
     }
+    
+    private void closeSession(IoSession session, ProtocolDecoderOutput out) {
+		log.info("Closing session");
+		int seqNum = 0;
+		String room = (String)session.getAttribute(ROOM, null);
+		if (room != null) {
+			log.info("Closing session [" + room + "]. ");
+			CaptureEndBlockEvent ceb = new CaptureEndBlockEvent(room, seqNum);
+			out.write(ceb);
+		} else {
+			log.info("Cannot determine session to close.");
+		}
+    	CloseFuture future = session.close(true);   	    	
+    }
+    
     
     private void decodeMessage(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
     	byte event = in.get();
