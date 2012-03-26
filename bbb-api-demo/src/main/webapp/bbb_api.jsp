@@ -17,6 +17,7 @@
 
 	Author: Fred Dixon <ffdixon@bigbluebutton.org> 
 */%>
+<%@page import="java.text.SimpleDateFormat"%>
 <%@page import="javax.xml.transform.dom.DOMSource"%>
 <%@page import="javax.xml.transform.stream.StreamResult"%>
 <%@page import="javax.xml.transform.OutputKeys"%>
@@ -459,6 +460,13 @@ public String getRecordings(String meetingID) {
 				}
 				
 				String starttime = recording.getElementsByTagName("startTime").item(0).getTextContent();
+				try{
+					SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+					Date resultdate = new Date(Long.parseLong(starttime));
+					starttime = sdf.format(resultdate);
+				}catch(Exception e){
+					
+				}
 				String published = recording.getElementsByTagName("published").item(0).getTextContent();
 				String playback = "";
 				String length = "";
