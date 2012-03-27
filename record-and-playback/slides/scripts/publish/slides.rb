@@ -52,8 +52,8 @@ if (playback == "slides")
 		  b.state("available")
 		  b.published(true)
 		  # Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
-		  b.start_time(Time.at((BigBlueButton::Events.first_event_timestamp("#{process_dir}/events.xml").to_f/1000.0)).strftime("%a %b %d %H:%M:%S %Z %Y"))
-		  b.end_time(Time.at((BigBlueButton::Events.last_event_timestamp("#{process_dir}/events.xml").to_f/1000.0)).strftime("%a %b %d %H:%M:%S %Z %Y"))
+		  b.start_time(BigBlueButton::Events.first_event_timestamp("#{process_dir}/events.xml"))
+		  b.end_time(BigBlueButton::Events.last_event_timestamp("#{process_dir}/events.xml"))
 		  b.playback {
 		  	b.format("slides")
 		  	b.link("http://#{playback_host}/playback/slides/playback.html?meetingId=#{meeting_id}")
