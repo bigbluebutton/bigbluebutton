@@ -695,4 +695,51 @@ public static String urlEncode(String s) {
 	}
 	return "";
 }
+
+public String getMeetingsWithoutPasswords() {
+	try {
+        Document doc = parseXml( getURL( getMeetingsURL() ));
+		
+		// tags needed for parsing xml documents
+		final String startTag = "<meetings>";
+		final String endTag = "</meetings>";
+		final String startResponse = "<response>";
+		final String endResponse = "</response>";
+		
+		// if the request succeeded, then calculate the checksum of each meeting and insert it into the document
+		NodeList meetingsList = doc.getElementsByTagName("meeting");
+		
+		String newXMldocument = startTag;
+		for (int i = 0; i < meetingsList.getLength(); i++) {
+			Element meeting = (Element) meetingsList.item(i);
+			String meetingID = meeting.getElementsByTagName("meetingID").item(0).getTextContent();
+			String password = meeting.getElementsByTagName("moderatorPW").item(0).getTextContent();
+			
+			String data = getURL( getMeetingInfoURL(meetingID, password) );
+
+			if (data.indexOf("<response>") != -1) {
+				data = removeTag(data, "<attendeePW>", "</attendeePW>");
+				data = removeTag(data, "<moderatorPW>", "</moderatorPW>"); 
+				
+				int startIndex = data.indexOf(startResponse) + startResponse.length();
+				int endIndex = data.indexOf(endResponse);
+				newXMldocument +=  "<meeting>" + data.substring(startIndex, endIndex) + "</meeting>";
+			}
+		}
+		newXMldocument += endTag;
+
+		return newXMldocument;
+	} catch (Exception e) {
+		e.printStackTrace(System.out);
+		return null;
+	}
+}
+
+public static String removeTag(String data, String startTag, String endTag){
+	int startIndex = data.indexOf(startTag);
+	int endIndex = data.indexOf(endTag) + endTag.length();
+	String tagStr = data.substring(startIndex, endIndex);
+	return data.replace(tagStr,"");
+}
+
 %>
