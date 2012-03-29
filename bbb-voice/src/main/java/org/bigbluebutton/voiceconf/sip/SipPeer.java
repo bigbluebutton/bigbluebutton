@@ -109,8 +109,8 @@ public class SipPeer implements SipRegisterAgentListener {
     		 * (in case FS is offline) and the user will be kept wondering why the call
     		 * isn't going through.
     		 */
-    		log.warn("We are not registered to FreeSWITCH. We are not allowing {} to call {}.", callerName, destination);
-    		return;
+    		log.warn("We are not registered to FreeSWITCH. However, we will allow {} to call {}.", callerName, destination);
+//    		return;
     	}
     	
     	SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);    	
