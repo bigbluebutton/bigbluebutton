@@ -164,7 +164,7 @@ class BigBlueButton {
 		
 
 		$params = 'name='.urlencode($name).'&meetingID='.urlencode($meetingID).'&attendeePW='.urlencode($attendeePW).'&moderatorPW='.urlencode($moderatorPW).'&voiceBridge='.$voiceBridge.'&logoutURL='.urlencode($logoutURL);
-
+ 
 		if( trim( $welcome ) ) 
 			$params .= '&welcome='.urlencode($welcome);
 
