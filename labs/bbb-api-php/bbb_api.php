@@ -860,6 +860,7 @@ class BigBlueButton {
 			return "Publish input may only be true or false.";
 		}
 	}	
+<<<<<<< HEAD
 	
 	/**
 	*This method gets the URL to delete a recording
@@ -901,6 +902,49 @@ class BigBlueButton {
 	}	
 	
 	/**
+=======
+	
+	/**
+	*This method gets the URL to delete a recording
+	*
+	*@param recordID -- needs to be put in to delete the recording
+	*@param URL -- the url of the bigbluebutton server
+	*@param SALT -- the security salt of the bigbluebutton server
+	*
+	*@return the URL to delete recording
+	* 	
+	*/
+	public function deleteRecordingsURL( $recordID, $URL, $SALT ) {
+		$base_url = $URL."api/deleteRecordings?";
+		$params = 'recordID='.urlencode($recordID);
+		return ( $base_url.$params.'&checksum='.sha1("deleteRecordings".$params.$SALT) );
+	}	
+		/**
+	*This method publishes/unpublishes a meeting
+	*
+	*@param recordID -- needs to be put in to identify the recording
+	*@param publish -- needs to be put in to publish/unpublish the recording
+	*@param URL -- the url of the bigbluebutton server
+	*@param SALT -- the security salt of the bigbluebutton server
+	*
+	*@return 
+	* 	- If SUCCESS it returns a string of 'true'
+	* 	- If the FAILED or the server is unreachable returns a string of 'false'
+	*/
+	public function publishRecordings( $recordID, $publish='false', $URL, $SALT ) {
+		if (strtolower($publish) == "false" || strtolower($publish) == "true") {  
+			$xml = bbb_wrap_simplexml_load_file( BigBlueButton::publishRecordingsURL( $meetingID, $publish, $URL, $SALT ) );
+			if( $xml && $xml->returncode == 'SUCCESS') 
+				return 'true';
+			else
+				return 'false';	
+		} else { 
+			return 'false';
+		}
+	}	
+	
+	/**
+>>>>>>> 0d061a24c0fca038b814dcba16605a19f24aacab
 	*This method deletes a recording
 	*
 	*@param recordID -- needs to be put in to delete the recording
