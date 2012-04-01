@@ -24,6 +24,8 @@ Versions:
                     (email : seb DOT sschneider [ a t ] g m ail DOT com)
    1.2  --  Updated by Omar Shammas
                     (email : omar DOT shammas [a t ] g m ail DOT com)
+   1.3  --  Updated by Matthew Dumas
+					(email : matthew DOT dumas [a]t rip[ple] [compu]t ing DOT com
 */
 
 function bbb_wrap_simplexml_load_file($url){
@@ -103,13 +105,13 @@ class BigBlueButton {
 
 			$arg_list = func_get_args();
 			#debug output for the number of arguments
-			#    	for ($i = 0; $i < $numargs; $i++) {
-			#        	echo "Argument $i is: " . $arg_list[$i] . "<br />\n";
-			#    	}
+			    	// for ($i = 0; $i < $numargs; $i++) {
+			        	// echo "Argument $i is: " . $arg_list[$i] . "<br />\n";
+			    	// }
 				
-			//    $this->createMeeting( $this->userName, $this->meetingID, $this->welcomeString, $this->modPW, $this->attPW, $this->securitySalt, $this->URL );
-			 //   echo "Object created";
-			//	 echo '<br />';
+			    // $this->createMeeting( $this->userName, $this->meetingID, $this->welcomeString, $this->modPW, $this->attPW, $this->securitySalt, $this->URL );
+			   // echo "Object created";
+				 // echo '<br />';
 		}// end else if
 	}
 	
@@ -130,8 +132,6 @@ class BigBlueButton {
 		$params = 'meetingID='.urlencode($meetingID).'&fullName='.urlencode($userName).'&password='.urlencode($PW);
 		return ($url_join.$params.'&checksum='.sha1("join".$params.$SALT) );
 	}
-
-	
 	/**
 	*This method returns the url to join the specified meeting.
 	*
@@ -141,20 +141,47 @@ class BigBlueButton {
 	*@param moderatorPW -- the moderator of the meeting
 	*@param welcome -- the welcome message that gets displayed on the chat window
 	*@param logoutURL -- the URL that the bbb client will go to after users logouut
+	*@param dialNumber=NULL -- The dial access number that participants can call in using regular phone (Optional)
+	*@param voiceBridge=NULL -- The voice conference number that participants enter to join voice conference (optional) 
+	*@param webVoice=NULL -- The voice conference alphanumeric that participants enter to join the video conference (optional)
+	*@param logoutURL -- the URL that the bbb client will go to after users logout (optional)
+	*@param maxParticipants=-1 -- Max number of participants allowed in the call (optional, negative is unlimited)
+	*@param record=false -- Whether or not the conference is recorded. (optional)
+	*@param duration=0 -- Duration of the meeting. BBB Automatically ends the meeting at this point. (optional)
+	*@param meta=NULL -- A URL formatted set of extra parameters to define information about the meeting (optional)
+					  -- 
 	*@param SALT -- the security salt of the bigbluebutton server
 	*@param URL -- the url of the bigbluebutton server
 	*
 	*@return The url to join the meeting
 	*/
-	public function createMeetingURL($name, $meetingID, $attendeePW, $moderatorPW, $welcome, $logoutURL, $SALT, $URL ) {
+	public function createMeetingURL($name, $meetingID, $attendeePW, $moderatorPW, $welcome, $dialNumber=NULL, $voiceBridge=NULL, $webVoice=NULL, $logoutURL, $maxParticipants=-1, $record=false, $duration=0, $meta=NULL, $SALT, $URL ) {
 		$url_create = $URL."api/create?";
-		$voiceBridge = 70000 + rand(0, 9999);
+		
+		if ($voiceBridge === NULL) {
+				$voiceBridge = 70000 + rand(0, 9999);
+		}
+		
 
 		$params = 'name='.urlencode($name).'&meetingID='.urlencode($meetingID).'&attendeePW='.urlencode($attendeePW).'&moderatorPW='.urlencode($moderatorPW).'&voiceBridge='.$voiceBridge.'&logoutURL='.urlencode($logoutURL);
 
 		if( trim( $welcome ) ) 
 			$params .= '&welcome='.urlencode($welcome);
 
+		if( trim( $dialNumber ) ) 
+			$params .= '&dialNumber='.urlencode($dialNumber);
+		if( trim( $webVoice ) ) 
+			$params .= '&webVoice='.urlencode($webVoice);
+		if( trim( $maxParticipants ) ) 
+			$params .= '&maxParticipants='.urlencode($maxParticipants);
+		if( trim( $record ) && ($record == "true" || $record == "false")) 
+			$params .= '&record='.urlencode($record);
+		if( trim( $duration )) 
+			$params .= '&duration='.urlencode($duration);
+		if( trim( $meta )) 
+			$params .= '&'.$meta;
+					
+	
 		return ( $url_create.$params.'&checksum='.sha1("create".$params.$SALT) );
 	}
 	
@@ -222,25 +249,35 @@ class BigBlueButton {
 	
 	//-----------------------------------------------CREATE----------------------------------------------------
 	/**
-	*This method creates a meeting and returnS the join url for moderators.
+	*This method creates a meeting and returns the join url for moderators.
 	*
-	*@param username 
+	*@param username -- the name of the user for joining the meeting
+	*@param name -- a name for the meeting
 	*@param meetingID -- the unique meeting identifier used to store the meeting in the bigbluebutton server
-	*@param welcomeString -- the welcome message to be displayed when a user logs in to the meeting
-	*@param mPW -- the moderator password of the meeting
-	*@param aPW -- the attendee password of the meeting
+	*@param attendeePW -- the attendee of the meeting
+	*@param moderatorPW -- the moderator of the meeting
+	*@param welcome -- the welcome message that gets displayed on the chat window
+	*@param logoutURL -- the URL that the bbb client will go to after users logouut
+	*@param dialNumber=NULL -- The dial access number that participants can call in using regular phone (Optional)
+	*@param voiceBridge=NULL -- The voice conference number that participants enter to join voice conference (optional) 
+	*@param webVoice=NULL -- The voice conference alphanumeric that participants enter to join the video conference (optional)
+	*@param logoutURL -- the URL that the bbb client will go to after users logout (optional)
+	*@param maxParticipants=-1 -- Max number of participants allowed in the call (optional, negative is unlimited)
+	*@param record=false -- Whether or not the conference is recorded. (optional)
+	*@param duration=0 -- Duration of the meeting. BBB Automatically ends the meeting at this point. (optional)
+	*@param meta=NULL -- A URL formatted set of extra parameters to define information about the meeting (optional)
+	*
 	*@param SALT -- the security salt of the bigbluebutton server
 	*@param URL -- the url of the bigbluebutton server
-	*@param logoutURL -- the url the user should be redirected to when they logout of bigbluebutton
 	*
 	*@return The joinURL if successful or an error message if unsuccessful
 	*/
-	public function createMeetingAndGetJoinURL( $username, $meetingID, $welcomeString, $mPW, $aPW, $SALT, $URL, $logoutURL ) {
-
-		$xml = bbb_wrap_simplexml_load_file( BigBlueButton::createMeetingURL($username, $meetingID, $aPW, $mPW, $welcomeString, $logoutURL, $SALT, $URL ) );
+	public function createMeetingAndGetJoinURL( $username, $name, $meetingID, $attendeePW, $moderatorPW, $welcome, $dialNumber, $voiceBridge, $webVoice, $logoutURL, $maxParticipants, $record, $duration, $meta, $SALT, $URL ){
+			
+		$xml = bbb_wrap_simplexml_load_file( BigBlueButton::createMeetingURL($name, $meetingID, $attendeePW, $moderatorPW, $welcome, $dialNumber, $voiceBridge, $webVoice, $logoutURL, $maxParticipants, $record, $duration, $meta, $SALT, $URL ));
 		
 		if( $xml && $xml->returncode == 'SUCCESS' ) {
-			return ( BigBlueButton::joinURL( $meetingID, $username, $mPW, $SALT, $URL ) );
+			return ( BigBlueButton::joinURL( $meetingID, $username, $moderatorPW, $SALT, $URL ) );
 		}	
 		else if( $xml ) {
 			return ( $xml->messageKey.' : '.$xml->message );
@@ -249,27 +286,37 @@ class BigBlueButton {
 			return ('Unable to fetch URL '.$url_create.$params.'&checksum='.sha1("create".$params.$SALT) );
 		}
 	}
-
+	
 	/**
 	*This method creates a meeting and return an array of the xml packet
 	*
-	*@param username 
+	*@param username -- the name of the user for joining the meeting
+	*@param name -- a name fot the meeting
 	*@param meetingID -- the unique meeting identifier used to store the meeting in the bigbluebutton server
-	*@param welcomeString -- the welcome message to be displayed when a user logs in to the meeting
-	*@param mPW -- the moderator password of the meeting
-	*@param aPW -- the attendee password of the meeting
+	*@param attendeePW -- the attendee of the meeting
+	*@param moderatorPW -- the moderator of the meeting
+	*@param welcome -- the welcome message that gets displayed on the chat window
+	*@param logoutURL -- the URL that the bbb client will go to after users logouut
+	*@param dialNumber=NULL -- The dial access number that participants can call in using regular phone (Optional)
+	*@param voiceBridge=NULL -- The voice conference number that participants enter to join voice conference (optional) 
+	*@param webVoice=NULL -- The voice conference alphanumeric that participants enter to join the video conference (optional)
+	*@param logoutURL -- the URL that the bbb client will go to after users logout (optional)
+	*@param maxParticipants=-1 -- Max number of participants allowed in the call (optional, negative is unlimited)
+	*@param record=false -- Whether or not the conference is recorded. (optional)
+	*@param duration=0 -- Duration of the meeting. BBB Automatically ends the meeting at this point. (optional)
+	*@param meta=NULL -- A URL formatted set of extra parameters to define information about the meeting (optional)
+	*
 	*@param SALT -- the security salt of the bigbluebutton server
 	*@param URL -- the url of the bigbluebutton server
-	*@param logoutURL -- the url the user should be redirected to when they logout of bigbluebutton
 	*
 	*@return
 	*	- Null if unable to reach the bigbluebutton server
 	*	- If failed it returns an array containing a returncode, messageKey, message. 
 	*	- If success it returns an array containing a returncode, messageKey, message, meetingID, attendeePW, moderatorPW, hasBeenForciblyEnded.
 	*/
-	public function createMeetingArray( $username, $meetingID, $welcomeString, $mPW, $aPW, $SALT, $URL, $logoutURL ) {
+	public function createMeetingArray($username, $name, $meetingID, $attendeePW, $moderatorPW, $welcome, $dialNumber, $voiceBridge, $webVoice, $logoutURL, $maxParticipants, $record, $duration, $meta, $SALT, $URL ){// $username, $meetingID, $welcomeString, $mPW, $aPW, $SALT, $URL, $logoutURL ) {
 
-		$xml = bbb_wrap_simplexml_load_file( BigBlueButton::createMeetingURL($username, $meetingID, $aPW, $mPW, $welcomeString, $logoutURL, $SALT, $URL ) );
+		$xml = bbb_wrap_simplexml_load_file( BigBlueButton::createMeetingURL($username, $name, $meetingID, $attendeePW, $moderatorPW, $welcome, $dialNumber, $voiceBridge, $webVoice, $logoutURL, $maxParticipants, $record, $duration, $meta, $SALT, $URL  ) );
 
 		if( $xml ) {
 			if($xml->meetingID) return array('returncode' => $xml->returncode, 'message' => $xml->message, 'messageKey' => $xml->messageKey, 'meetingID' => $xml->meetingID, 'attendeePW' => $xml->attendeePW, 'moderatorPW' => $xml->moderatorPW, 'hasBeenForciblyEnded' => $xml->hasBeenForciblyEnded );
@@ -279,6 +326,7 @@ class BigBlueButton {
 			return null;
 		}
 	}	
+	
 	
 	//-------------------------------------------getMeetingInfo---------------------------------------------------
 	/**
@@ -532,10 +580,46 @@ class BigBlueButton {
 			return 'false';	
 	}
 
-	
+	/**
+	*This method returns the URL to get a list of recordings from BigBlueButton
+	*
+	*@param meetingID -- the unique meeting identifier used to store the meeting in the bigbluebutton server
+	*                 -- Note: if blank, this will return all recordings
+	*@param SALT -- the security salt of the bigbluebutton server
+	*@param URL -- the url of the bigbluebutton server
+	*
+	*@return the url to get the recordings
+	*/
 
+	public function getRecordingsURL($meetingID, $URL, $SALT) { 
+		$base_url = $URL."api/getRecordings?";
+		$params = "";
+		if ($meetingID != "") { 
+			$params = 'meetingID='.urlencode($meetingID).'&';
+		}
+		return ($base_url.$params.'checksum='.sha1("getRecordings".$params.$SALT) );
+	}
 	
+	/**
+	*This method calls getRecordings on the BigBlueButton server.
+	*
+	*@param meetingID -- the unique meeting identifier used to store the meeting in the bigbluebutton server
+	*                 -- Note: if blank, this will return all recordings
+	*@param SALT -- the security salt of the bigbluebutton server
+	*@param URL -- the url of the bigbluebutton server
+	*
+	*@return 
+	* 	- If SUCCESS it returns an xml packet
+	* 	- If the FAILED or the server is unreachable returns a string of 'false'
+	*/
+	public function getRecordings($meetingID, $URL, $SALT) { 
+		$xml = bbb_wrap_simplexml_load_file( BigBlueButton::getRecordingsURL( $meetingID, $URL, $SALT ) );
 
+		if( $xml && $xml->returncode == 'SUCCESS') 
+			return $xml->asXML(); 
+		else
+			return 'false';	
+	}
 	
 	
 	
@@ -576,7 +660,264 @@ class BigBlueButton {
 		
 	}
 	
+	/**
+	*This method gets a list of meetingIDs that have been recorded
+	*
+	*@param URL -- the url of the bigbluebutton server
+	*@param SALT -- the security salt of the bigbluebutton server
+	*
+	*@return 
+	* 	- If SUCCESS it returns an array of meeting IDs
+	* 	- If the FAILED or the server is unreachable returns a string of 'false'
+	*/
+	public function getRecordedMeetingIDs($url, $salt) {
+		$xml = BigBlueButton::getRecordings("", $url, $salt);
+		if (preg_match("/<meetingID>.*?<\/meetingID>/",$xml,$matches)) { 
+			$matches = array_values(array_unique($matches));
+			return $matches;
+		} else { 
+			return "false" ;
+		}
+	}
+	/**
+	*This method gets the following information for all recorded meetings: 
+	*                 			meta tags: 
+	*								Topic 
+	*								Presenter
+	*								Description
+	*								Keywords
+	*							URLs: 
+	*								Playback URL
+	*								Publish URL
+	*								Unpublish URL
+	*							Flags: 
+	*								Published
+	*								
+	*@param URL -- the url of the bigbluebutton server
+	*@param SALT -- the security salt of the bigbluebutton server
+	*
+	*@return 
+	* 	- If SUCCESS it returns an array of meeting information structured like so:
+	*          Array {
+	*                 ["Course name-session name"] {
+	*												[instance number] { 
+	*																	["topic"] => meta_topic
+	*																	["presenter"] => meta_presenter
+	*																	["description"] => meta_description
+	*																	["url"] => url
+	*																	["keywords"] => meta_keywords
+	*																	["published"] => published
+	*																	["pubURL"] => BigBlueButton::publishRecordingsURL( $record, 'true', $URL, $SALT )
+	*																	["unpubURL"] => BigBlueButton::publishRecordingsURL( $record, 'false', $URL, $SALT )
+	*																}
+	*												}
+	*				}
+	*
+	*
+	*       example:    Array { 
+	*						"Intro to Astronomy-SP 2012" { 
+	*															0 { 
+	*																"The topic of this course is ..." 
+	*																"John Doe"
+	*																"Astronomy Class 1" 
+	*																"http://YOURHOST/playback/slides/playback.html?meetingId=..."
+	*																"blah,blah,blah,blah,blah,blah"
+	*																"true"
+	*																"http://YOURHOST/bigbluebutton/publish?..."
+	*																"http://YOURHOST/bigbluebutton/publish?..."
+	*																}
+	*															1 { 
+	*																"The topic of this course is ..." 
+	*																"Jane Doe"
+	*																"Astronomy Class 2" 
+	*																"http://YOURHOST/playback/slides/playback.html?meetingId=..."
+	*																"blah,blah,blah,blah,blah,blah"
+	*																"true"
+	*																"http://YOURHOST/bigbluebutton/publish?..."
+	*																"http://YOURHOST/bigbluebutton/publish?..."
+	*															}
+	*														}
+	*						"Intro to Astronomy-FALL 2012" { 
+	*															0 { 
+	*																"The topic of this course is ..." 
+	*																"John Doe"
+	*																"Astronomy Class 1" 
+	*																"http://YOURHOST/playback/slides/playback.html?meetingId=..."
+	*																"blah,blah,blah,blah,blah,blah"
+	*																"true"
+	*																"http://YOURHOST/bigbluebutton/publish?..."
+	*																"http://YOURHOST/bigbluebutton/publish?..."
+	*																}
+	*														}
+	*						}
+	*
+	*
+	*
+	*
+	*
+	* 	- If the FAILED or the server is unreachable returns a string of 'false'
+	*/
+	public function getRecordingsArray($URL, $SALT) {
+		$xml = BigBlueButton::getRecordings("", $URL, $SALT);
+		$id = "unknown";
+		$topic = "unknown"; 
+		$presenter = "unknown"; 
+		$description = "unknown"; 
+		$playback = "unknown";
+		$keywords = "unknown";
+		$published = "false";
+		$n['unknown']=0; 
+		if (preg_match_all("/<recording>.*?<\/recording>/",$xml,$matches) > 0) {
+			foreach ($matches as $m) { 
+				foreach ($m as $match){
+					if (preg_match("/<meetingID>(.*?)<\/meetingID>/",$match,$names)) { 
+							$id = $names[1];
+							
+							if (in_array($id,$n)){
+								$n[$id] = $n[$id] + 1;
+							} else { 
+								$n[$id] = 0;
+							}
+					} 
+					if (preg_match("/<topic><!\[CDATA\[(.*?)\]\]><\/topic>/",$match,$topics)) { 
+							$topic = $topics[1]; 
+					} 
+					if (preg_match("/<presenter><!\[CDATA\[(.*?)\]\]><\/presenter>/",$match,$presenters)) { 
+							$presenter = $presenters[1]; 
+					}
+					if (preg_match("/<description><!\[CDATA\[(.*?)\]\]><\/description>/",$match,$descriptions)) { 
+							$description = $descriptions[1]; 
+					} 
+					if (preg_match("/<url>(.*?)<\/url>/",$match,$playbacks)) { 
+							$playback = $playbacks[1]; 
+					} 
+					if (preg_match("/<keywords><!\[CDATA\[(.*?)\]\]><\/keywords>/",$match,$allkeywords)) { 
+							$keywords = $allkeywords[1]; 
+					} 
+					if (preg_match("/<published>(.*?)<\/published>/",$match,$publisheds)) { 
+							$published = $publisheds[1]; 
+					} 
+					if (preg_match("/<recordID>(.*?)<\/recordID>/",$match,$records)) { 
+							$record = $records[1]; 
+					} 
+					$out[$id][$n[$id]]["topic"] = $topic;
+					$out[$id][$n[$id]]["presenter"] = $presenter;
+					$out[$id][$n[$id]]["description"] = $description;
+					$out[$id][$n[$id]]["url"] = $playback;
+					$out[$id][$n[$id]]["keywords"] = $keywords;
+					$out[$id][$n[$id]]["published"] = $published;
+					$out[$id][$n[$id]]["pubURL"] = BigBlueButton::publishRecordingsURL( $record, 'true', $URL, $SALT );
+					$out[$id][$n[$id]]["unpubURL"] = BigBlueButton::publishRecordingsURL( $record, 'false', $URL, $SALT );
+				}
+			}
+			return $out;
+		} else { 
+			return "false" ;
+		}
+	}
 	
+	/**
+	*This method gets a list of recordIDs that have been recorded for the specific meetingID
+	*
+	*@param meetingID -- needs to be put in to identify the meeting
+	*@param URL -- the url of the bigbluebutton server
+	*@param SALT -- the security salt of the bigbluebutton server
+	*
+	*@return 
+	* 	- If SUCCESS it returns an array of recordIDs
+	* 	- If the FAILED or the server is unreachable returns a string of 'false'
+	*/
+	public function getRecordedRecordID($meetingID, $url, $salt) {
+
+		$xml = BigBlueButton::getRecordings("", $url, $salt);
+		
+		if (preg_match("/<recordID>.*?<\/recordID>/",$xml,$matches)) { 
+			$vals = array_values(array_unique($matches));
+			$out[$meetingID]=$vals;
+			return $out;
+		} else { 
+			return "false" ;
+		}
+	}	
+	
+	/**
+	*This method gets the URL to publish/unpublish a meeting
+	*
+	*@param recordID -- needs to be put in to identify the recording
+	*@param publish -- needs to be put in to publish/unpublish the recording
+	*@param URL -- the url of the bigbluebutton server
+	*@param SALT -- the security salt of the bigbluebutton server
+	*
+	*@return the URL to publish/unpublish recording or error message if invalid inputs.
+	* 	
+	*/
+	public function publishRecordingsURL( $recordID, $publish='false', $URL, $SALT ) {
+		if (strtolower($publish) == "false" || strtolower($publish) == "true") {  
+			$base_url = $URL."api/publishRecordings?";
+			$params = 'recordID='.urlencode($recordID).'&publish='.urlencode($publish);
+			return ( $base_url.$params.'&checksum='.sha1("publishRecordings".$params.$SALT) );
+		} else { 
+			return "Publish input may only be true or false.";
+		}
+	}	
+	
+	/**
+	*This method gets the URL to delete a recording
+	*
+	*@param recordID -- needs to be put in to delete the recording
+	*@param URL -- the url of the bigbluebutton server
+	*@param SALT -- the security salt of the bigbluebutton server
+	*
+	*@return the URL to delete recording
+	* 	
+	*/
+	public function deleteRecordingsURL( $recordID, $URL, $SALT ) {
+		$base_url = $URL."api/deleteRecordings?";
+		$params = 'recordID='.urlencode($recordID);
+		return ( $base_url.$params.'&checksum='.sha1("deleteRecordings".$params.$SALT) );
+	}	
+		/**
+	*This method publishes/unpublishes a meeting
+	*
+	*@param recordID -- needs to be put in to identify the recording
+	*@param publish -- needs to be put in to publish/unpublish the recording
+	*@param URL -- the url of the bigbluebutton server
+	*@param SALT -- the security salt of the bigbluebutton server
+	*
+	*@return 
+	* 	- If SUCCESS it returns a string of 'true'
+	* 	- If the FAILED or the server is unreachable returns a string of 'false'
+	*/
+	public function publishRecordings( $recordID, $publish='false', $URL, $SALT ) {
+		if (strtolower($publish) == "false" || strtolower($publish) == "true") {  
+			$xml = bbb_wrap_simplexml_load_file( BigBlueButton::publishRecordingsURL( $meetingID, $publish, $URL, $SALT ) );
+			if( $xml && $xml->returncode == 'SUCCESS') 
+				return 'true';
+			else
+				return 'false';	
+		} else { 
+			return 'false';
+		}
+	}	
+	
+	/**
+	*This method deletes a recording
+	*
+	*@param recordID -- needs to be put in to delete the recording
+	*@param URL -- the url of the bigbluebutton server
+	*@param SALT -- the security salt of the bigbluebutton server
+	*
+	*@return 
+	* 	- If SUCCESS it returns a string of 'true'
+	* 	- If the FAILED or the server is unreachable returns a string of 'false'
+	*/
+	public function deleteRecordings( $recordID, $URL, $SALT ) {
+		$xml = bbb_wrap_simplexml_load_file( BigBlueButton::deleteRecordingsURL( $meetingID, $publish, $URL, $SALT ) );
+		if( $xml && $xml->returncode == 'SUCCESS') 
+			return 'true';
+		else
+			return 'false';	
+	}	
 	
 	function getServerIP() {
 		// get the server url
