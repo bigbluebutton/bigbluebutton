@@ -667,6 +667,7 @@ class ApiController {
                   moderatorPW(m.getModeratorPassword())
                   hasBeenForciblyEnded(m.isForciblyEnded() ? "true" : "false")
                   running(m.isRunning() ? "true" : "false")
+                  participantCount(m.getNumUsers())
                 }
               }
             }
