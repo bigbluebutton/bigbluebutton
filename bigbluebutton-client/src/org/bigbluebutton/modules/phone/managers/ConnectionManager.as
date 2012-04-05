@@ -17,8 +17,7 @@
 * 
 */
 
-package org.bigbluebutton.modules.phone.managers {
-	
+package org.bigbluebutton.modules.phone.managers {	
 	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.Event;

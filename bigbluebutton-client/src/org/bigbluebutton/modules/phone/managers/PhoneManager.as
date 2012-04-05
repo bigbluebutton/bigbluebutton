@@ -35,6 +35,13 @@ package org.bigbluebutton.modules.phone.managers {
 		private var onCall:Boolean = false;
 		private var attributes:Object;
 		private var phoneOptions:PhoneOptions;
+		// If we are joining with microphone or not
+		private var withMic:Boolean = false;
+		// If we are auto-rejoining the conference because we got disconnected.
+		private var rejoining:Boolean = false;
+		// User has requested to leave the voice conference.
+		private var userHangup:Boolean = false;
+		
 		
 		public function PhoneManager() {
 			connectionManager = new ConnectionManager();
@@ -71,7 +78,8 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		private function setupMic(useMic:Boolean):void {
-			if (useMic)
+			withMic = useMic;
+			if (withMic)
 				streamManager.initMicrophone();
 			else
 				streamManager.initWithNoMicrophone();
@@ -82,11 +90,21 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 				
 		public function joinVoice(autoJoin:Boolean):void {
+			userHangup = false;
 			setupMic(autoJoin);
 			var uid:String = String(Math.floor(new Date().getTime()));
 			var uname:String = encodeURIComponent(UserManager.getInstance().getConference().getMyUserId() + "-" + attributes.username);
 			connectionManager.connect(uid, attributes.externUserID, uname , attributes.room, attributes.uri);
 		}		
+		
+		public function rejoin():void {
+			if (!rejoining && !userHangup) {
+				// We got disconnected and it's not because the user requested it. Let's rejoin the conference.
+				LogUtil.debug("Rejoining the conference");
+				rejoining = true;
+				joinVoice(withMic);
+			}			
+		}
 				
 		public function dialConference():void {
 			connectionManager.doCall(attributes.webvoiceconf);
@@ -96,6 +114,15 @@ package org.bigbluebutton.modules.phone.managers {
 			setupConnection();
 			streamManager.callConnected(event.playStreamName, event.publishStreamName, event.codec);
 			onCall = true;
+			// We have joined the conference. Reset so that if and when we get disconnected, we
+			// can rejoin automatically.
+			rejoining = false;
+		}
+		
+		public function userRequestedHangup():void {
+			LogUtil.debug("User has requested to hangup and leave the conference");
+			userHangup = true;
+			hangup();
 		}
 		
 		public function hangup():void {

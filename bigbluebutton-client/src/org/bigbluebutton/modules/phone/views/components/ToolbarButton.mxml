@@ -20,16 +20,14 @@
   $Id: $
 -->
 
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:mate="http://mate.asfusion.com/"
 	icon="{phoneIcon}" click="startPhone()"
-	xmlns:mate="http://mate.asfusion.com/"
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
-	<mate:Listener type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="handleCallDisconnectedEvent"/>
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_CONFERENCE}" method="handleBBBJoinConferenceEvent"/>
 	<mate:Listener type="MIC_SETTINGS_CLOSED" method="handleMicSettingsClosedEvent"/>
-	
+
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -50,7 +48,11 @@
 			[Bindable] public var phoneIcon:Class = images.headset_icon;
 			
 			private function startPhone():void {
-				if (this.selected) {
+				// Disable the button right away to prevent the user from clicking
+				// multiple times.
+				this.enabled = false;
+				
+				if (this.selected) {					
 					var vxml:XML = BBB.getConfigForModule("PhoneModule");
 					var phoneOptions:PhoneOptions = new PhoneOptions();
 					if (vxml != null) {
@@ -58,10 +60,12 @@
 						phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
 						phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
 					}
-					this.enabled = false;
+					
 					if (phoneOptions.skipCheck || noMicrophone()) {
 						/*
 						 * If the user had no mic, let her join but she'll just be listening.	
+						 * We should indicate a warning that the user is joining without mic
+						 * so that he will know that others won't be able to hear him.
 						*/
 						var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
 						joinEvent.payload['useMicrophone'] = true;
@@ -70,27 +74,20 @@
 						dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
 					}
 				} else {
-					dispatcher.dispatchEvent(new BBBEvent("LEAVE_VOICE_CONFERENCE_EVENT"));
+					var leaveEvent:BBBEvent = new BBBEvent("LEAVE_VOICE_CONFERENCE_EVENT");
+					leaveEvent.payload["userRequested"] = true;
+					dispatcher.dispatchEvent(leaveEvent);
 				}
-				
-				
-				var t:Timer = new Timer(3000, 1);
-				t.addEventListener(TimerEvent.TIMER, onTimer);
-				t.start();
 			}
 			
 			private function noMicrophone():Boolean {
 				return ((Microphone.getMicrophone() == null) || (Microphone.names.length == 0) 
 					|| ((Microphone.names.length == 1) && (Microphone.names[0] == "Unknown Microphone")));
 			}
-			
-			private function onTimer(e:TimerEvent):void{
-				this.enabled = true;
-			}
-			
-			private function handleCallDisconnectedEvent(event:CallDisconnectedEvent):void {
-				this.selected = false;
-			}
+						
+//			private function handleCallDisconnectedEvent(event:CallDisconnectedEvent):void {
+//				this.selected = false;
+//			}
 			
 			private function handleMicSettingsClosedEvent(event:BBBEvent):void {
 				this.selected = false;
