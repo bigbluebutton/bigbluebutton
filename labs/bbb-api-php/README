@@ -1,0 +1,8 @@
+Library to integrate php web applications with BigBlueButton 0.8
+
+Contributed by: 
+	Peter Mentzer.
+Original version available at:
+	https://github.com/petermentzer/bbb-api-php
+
+Stick the entire /bbb-api-php directory somewhere that you can host php web files. Then browse to the index page for configuration and usage instructions.
