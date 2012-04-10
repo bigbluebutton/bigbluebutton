@@ -27,6 +27,8 @@ class PresentationController {
   PresentationService presentationService
   
   def index = {
+    log.debug "Presentation#index"
+
     println 'in PresentationController index'
     render(view:'upload-file') 
   }
@@ -69,13 +71,15 @@ class PresentationController {
 		if(file && !file.empty) {
 			flash.message = 'Your file has been uploaded'
 			// Replace any character other than a (A-Z, a-z, 0-9, _ or .) with a - (dash).
-			def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
-			log.debug "Uploaded presentation name : $params.presentation_name"
-			def presentationName = params.presentation_name.replaceAll(notValidCharsRegExp, '-')
+			//def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
+			//log.debug "Uploaded presentation name : $params.presentation_name"
+			//def presentationName = params.presentation_name.replaceAll(notValidCharsRegExp, '-')
+			//def presentationName = params.presentation_name;
+			def presentationName = file.getOriginalFilename();
 			log.debug "Uploaded presentation name : $presentationName"
 			File uploadDir = presentationService.uploadedPresentationDirectory(params.conference, params.room, presentationName)
 	
-			def newFilename = file.getOriginalFilename().replaceAll(notValidCharsRegExp, '-')
+			def newFilename = file.getOriginalFilename(); //.replaceAll(notValidCharsRegExp, '-')
 			def pres = new File( uploadDir.absolutePath + File.separatorChar + newFilename )
 			file.transferTo(pres)	
 	      
@@ -109,7 +113,9 @@ class PresentationController {
   }
   
   def showSlide = {
-    def presentationName = params.presentation_name
+    log.debug  "Presentaton#showSlide"
+    //def presentationName = params.presentation_name
+    def presentationName=URLDecoder.decode(request.getQueryString(), 'gbk');
     def conf = params.conference
     def rm = params.room
     def slide = params.id
@@ -132,8 +138,9 @@ class PresentationController {
   }
   
   def showThumbnail = {
-    
-    def presentationName = params.presentation_name
+    log.debug  "Presentaton#showThumbnail"
+    //def presentationName = params.presentation_name
+    def presentationName=URLDecoder.decode(request.getQueryString(), 'gbk');
     def conf = params.conference
     def rm = params.room
     def thumb = params.id
@@ -201,9 +208,12 @@ class PresentationController {
   }
 
   def numberOfSlides = {
-    def presentationName = params.presentation_name
+    log.debug  "Presentaton#numberOfSlides"
+
+    def presentationName=URLDecoder.decode(request.getQueryString(), 'gbk');
     def conf = params.conference
     def rm = params.room
+    log.debug  presentationName
     
     def numThumbs = presentationService.numberOfThumbnails(conf, rm, presentationName)
       response.addHeader("Cache-Control", "no-cache")
@@ -225,7 +235,9 @@ class PresentationController {
   }
     
   def numberOfThumbnails = {
-    def filename = params.presentation_name
+    log.debug  "Presentaton#numberOfThumbnails"
+    def filename=URLDecoder.decode(request.getQueryString(), 'gbk');
+    //def filename = params.presentation_name
     def f = confInfo()
     def numThumbs = presentationService.numberOfThumbnails(f.conference, f.room, filename)
       withFormat {				
