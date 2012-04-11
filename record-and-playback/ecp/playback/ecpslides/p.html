@@ -1,0 +1,174 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<!-- 
+		include flowplayer JavaScript file that does  
+		Flash embedding and provides the Flowplayer API.
+	-->
+	<script type="text/javascript" src="flowplayer/flowplayer-3.2.8.min.js"></script>
+	
+	<!-- some minimal styling, can be removed -->
+	<link rel="stylesheet" type="text/css" href="css/playback.css">
+	
+	<!-- page title -->
+	<title>Minimal Flowplayer setup</title>
+
+</head><body>
+<div id='warp'>
+	<div id='toolbar'>
+		<button onclick=setSlideShowMode('normal');>标准</button>
+		<button onclick=setSlideShowMode('large');>幻灯片大</button>
+		<button onclick=setSlideShowMode('small');>幻灯片小</button>
+	</div>
+
+	<div id="left">
+		<img id="slide" src="logo.png"></img>
+	</div>
+	
+
+	<div id="right" >
+		<!-- this A tag is where your Flowplayer will be placed. it can be anywhere -->
+		<a  id="video" ></a> 
+		<a  id="vvv" ></a> 
+	</div>
+</div>
+	
+<script>
+	var default_slide='logo.png';
+	var CuePoints=[];
+	var slides=[];
+	var params=(
+		function(){
+			var map = {};
+			var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+				map[key] = value;
+			});
+			return map; 
+		})();
+	var MEETING_ID = params['meetingID'];
+	var SLIDES_XML='/ecpslides/'+MEETING_ID+'/slides.xml';
+	var VIDEO='/ecpslides/'+MEETING_ID+'/video/webcam.mp4';
+
+	function winWidth() {
+ 		var h;
+		if( typeof( window.innerWidth ) == 'number' ) {
+			//Non-IE
+			h=window.innerWidth;
+		} else if( document.documentElement && document.documentElement.clientWidth) {
+			//IE 6+ in 'standards compliant mode'
+			h = document.documentElement.clientWidth;
+		} else if( document.body &&  document.body.clientWidth ) {
+			//IE 4 compatible
+			h= document.body.clientWidth;
+		}	
+
+		return h;
+
+	}
+
+	function setSlideShowMode(m) {
+		var w=winWidth()-20;
+		var left, right;
+		if (w>=800+640) {left=800;right=640;}
+		else {
+			switch(m) {
+				case 'normal':
+					left=(w/2-4); right=(w/2-4);
+					break;
+				case 'large':
+					left=800; right=w-800-8;
+					break;
+				case 'small':
+					left=w-640-8; right=640;
+					break;
+			}
+		}
+		document.getElementById("left").style.width=left;
+		document.getElementById("right").style.width=right;
+ 		setPlayerSize('video', right,(parseInt(right*480/640)));
+	}
+
+	function setPlayerSize(player,w,h) {
+		var swf=document.getElementById(player+"_api") || $f(player).getFlashParams();
+		/*if (swf == null) {
+			swf=$f(player).getFlashParams();
+		}*/
+		swf.width=w;
+		swf.height=h;
+	}
+
+	(function(){
+		function getXmlParser(){
+			var xmlDoc;
+			
+			try //Internet Explorer
+			{
+				  xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
+			} catch(e) {
+				try //Firefox, Mozilla, Opera, etc.
+				{
+					xmlDoc=document.implementation.createDocument("","",null);
+				}
+				catch(e) {alert(e.message)}
+  			}
+  			xmlDoc.async=false;
+			return xmlDoc;
+		}
+
+		function loadTimeLine() {
+			var timeLine=getXmlParser();
+			timeLine.load(SLIDES_XML);
+			var images=timeLine.getElementsByTagName('image');
+			for(i=0;i<images.length;i++) {
+				slides.push({in_time:images[i].getAttribute('in')*1000,out_time:images[i].getAttribute('out')*1000,src:images[i].getAttribute('src')});
+				CuePoints.push(images[i].getAttribute('in')*1000);
+				CuePoints.push(images[i].getAttribute('out')*1000);
+			}
+		}
+		
+		loadTimeLine();
+	})();
+		
+	function seekSlide(point) {
+		var src=default_slide;
+		var i=0;
+		for(i=0;i<slides.length;i++){
+			if (point>=slides[i].in_time && point<slides[i].out_time) {
+				src=slides[i].src;	
+				break;
+			}
+		}
+		document.getElementById("slide").src=src;
+	}
+
+	flowplayer("video", "flowplayer/flowplayer-3.2.8.swf", {
+	//flowplayer("video", {src:"flowplayer/flowplayer-3.2.8.swf",width:320, height:260}, {
+		 plugins:  {
+			// controlbar settings
+			controls:  {
+				//backgroundGradient: 'none',
+				backgroundColor: '#000000',
+			        all:false,
+			        scrubber:true,
+		        	mute: true,
+				fullscreen:true,
+				height:20
+			}
+	        },
+
+		clip: {
+		        url: VIDEO,
+		        onCuepoint: [CuePoints, function(clip, point) {
+				seekSlide(point);
+		        }],
+
+			onSeek: function(clip, time) {
+				seekSlide(time*1000);
+			}
+			
+		}
+	});
+
+	setSlideShowMode('normal');
+
+</script>
+</body></html>
