@@ -37,12 +37,12 @@ public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
 	
 	private ISessionManagerGateway sessionManager;
 	
-    @Override
-    public void exceptionCaught( IoSession session, Throwable cause ) throws Exception
-    {
-        log.warn(cause.toString() + " \n " + cause.getMessage());
-        cause.printStackTrace();
-    }
+//    @Override
+//    public void exceptionCaught( IoSession session, Throwable cause ) throws Exception
+ //   {
+//        log.warn(cause.toString() + " \n " + cause.getMessage());
+//        cause.printStackTrace();
+ //   }
 
     @Override
     public void messageReceived( IoSession session, Object message ) throws Exception
