@@ -81,7 +81,7 @@ class ApiController {
   def create = {
     String API_CALL = 'create'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
-  	
+
 	// BEGIN - backward compatibility
 	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
@@ -104,6 +104,7 @@ class ApiController {
 		return
 	}
 	// END - backward compatibility
+
 	
 	ApiErrors errors = new ApiErrors();
 	paramsProcessorUtil.processRequiredCreateParams(params, errors);
@@ -1090,6 +1091,7 @@ class ApiController {
   }
   def cleanFilename(filename) {
     String fname = URLDecoder.decode(filename).trim()
+	return fname;
     def notValidCharsRegExp = /[^0-9a-zA-Z_\.]/
     return fname.replaceAll(notValidCharsRegExp, '-')
   }
