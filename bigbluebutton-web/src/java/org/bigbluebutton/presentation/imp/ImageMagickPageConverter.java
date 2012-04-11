@@ -34,7 +34,7 @@ public class ImageMagickPageConverter implements PageConverter {
 
 	public boolean convert(File presentationFile, File output, int page){
 		
-        String COMMAND = IMAGEMAGICK_DIR + "/convert -depth 8 " + presentationFile.getAbsolutePath() + " " + output.getAbsolutePath();          
+        String COMMAND = IMAGEMAGICK_DIR + "/convert -depth 8 \"" + presentationFile.getAbsolutePath() + "\" \"" + output.getAbsolutePath() + "\"";          
 		
         boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);            
 						

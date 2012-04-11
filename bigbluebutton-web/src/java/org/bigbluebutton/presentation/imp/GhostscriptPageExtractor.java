@@ -39,11 +39,11 @@ public class GhostscriptPageExtractor implements PageExtractor {
 		String FIRST_PAGE = "-dFirstPage=" + page;
 		String LAST_PAGE = "-dLastPage=" + page;		
 		String DESTINATION = output.getAbsolutePath();
-		String OUTPUT_FILE = "-sOutputFile=" + DESTINATION;
+		String OUTPUT_FILE = "-sOutputFile=" + "\"" + DESTINATION + "\"";
 		
 		//extract that specific page and create a temp-pdf(only one page) with GhostScript
 		String COMMAND = GHOSTSCRIPT_EXEC + SPACE + OPTIONS + SPACE + FIRST_PAGE + SPACE + LAST_PAGE + SPACE 
-							+ OUTPUT_FILE + SPACE + noPdfMarkWorkaround + SPACE + presentationFile.getAbsolutePath();
+							+ OUTPUT_FILE + SPACE + noPdfMarkWorkaround + SPACE + "\"" + presentationFile.getAbsolutePath() + "\"";
 		
         log.debug(COMMAND);
         System.out.println(COMMAND);

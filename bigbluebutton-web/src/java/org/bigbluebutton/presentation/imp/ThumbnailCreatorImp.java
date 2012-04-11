@@ -77,10 +77,10 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 	 	
 	 	if(SupportedFileTypes.isImageFile(pres.getFileType())){
 	 		dest = thumbsDir.getAbsolutePath() + File.separator + TEMP_THUMB_NAME + ".png";
-	 		COMMAND = IMAGEMAGICK_DIR + "/convert -thumbnail 150x150 " + source + " " + dest;
+	 	    COMMAND = IMAGEMAGICK_DIR + "/convert -thumbnail 150x150 \"" + source + "\" \"" + dest + "\"";
 	 	}else{
 	 		dest = thumbsDir.getAbsolutePath() + File.separator + "thumb-";
-	 		COMMAND = IMAGEMAGICK_DIR + "/gs -q -sDEVICE=pngalpha -dBATCH -dNOPAUSE -dNOPROMPT -dDOINTERPOLATE -dPDFFitPage -r16 -sOutputFile=" + dest +"%d.png " + source;
+	 		COMMAND = IMAGEMAGICK_DIR + "/gs -q -sDEVICE=pngalpha -dBATCH -dNOPAUSE -dNOPROMPT -dDOINTERPOLATE -dPDFFitPage -r16 -sOutputFile=\"" + dest +"%d.png\" \"" + source+"\"";
 	 	}
 	 	
 	 	boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);

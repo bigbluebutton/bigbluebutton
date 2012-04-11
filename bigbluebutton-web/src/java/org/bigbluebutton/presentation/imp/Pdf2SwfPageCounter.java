@@ -45,7 +45,7 @@ public class Pdf2SwfPageCounter implements PageCounter {
 	public int countNumberOfPages(File presentationFile) {		
 		int numPages = 0; //total numbers of this pdf	
 
-		String COMMAND = SWFTOOLS_DIR + "/pdf2swf -I " + presentationFile.getAbsolutePath(); 
+		String COMMAND = SWFTOOLS_DIR + "/pdf2swf -I \"" + presentationFile.getAbsolutePath()+"\""; 
    	
         Timer timer = null;
         Process p = null;
