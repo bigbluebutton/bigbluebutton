@@ -27,7 +27,7 @@ import java.util.zip.Adler32;
 import org.bigbluebutton.deskshare.common.Dimension;
 
 public class BlockStreamProtocolEncoder {
-	private static final byte[] CRLF_DELIMITER = new byte[] {13, 10};
+	private static final byte[] END_FRAME = new byte[] {'D', 'S', '-', 'E', 'N', 'D'};
 	private static final byte[] HEADER = new byte[] {'B', 'B', 'B', '-', 'D', 'S'}; 
     private static final byte CAPTURE_START_EVENT = 0;
     private static final byte CAPTURE_UPDATE_EVENT = 1;
@@ -117,7 +117,7 @@ public class BlockStreamProtocolEncoder {
 	}
 	
 	public static void encodeDelimiter(ByteArrayOutputStream data) throws IOException {
-		data.write(CRLF_DELIMITER);
+		data.write(END_FRAME);
 	}
 	
 	public static byte[] encodeChecksum(byte[] data) {
