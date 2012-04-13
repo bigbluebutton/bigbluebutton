@@ -40,9 +40,13 @@
 			[Bindable] public var deskShareIcon:Class = images.deskShareIcon;
 
 			private function startDeskShare():void {
-				LogUtil.debug("desk share button clicked");
+				deskShareIcon = images.deskshareClose;
 				this.enabled = false;
 				dispatchEvent(new ShareEvent(ShareEvent.START_SHARING));
+			}
+			
+			public function stopDeskshare():void {
+				deskShareIcon = images.deskShareIcon;
 			}
 			
 			public function getAlignment():String{

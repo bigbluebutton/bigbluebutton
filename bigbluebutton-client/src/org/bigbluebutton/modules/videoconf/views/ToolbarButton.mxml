@@ -49,10 +49,12 @@
 			private function openPublishWindow():void{
 				dispatchEvent(new OpenPublishWindowEvent());
 				this.enabled = false;
+				camIcon = images.webcamClose;
 			}
 			
 			public function show():void{
 				this.enabled = true;
+				camIcon = images.webcam;
 			}
 			
 			public function getAlignment():String{
