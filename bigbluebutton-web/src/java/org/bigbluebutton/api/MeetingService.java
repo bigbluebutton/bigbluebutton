@@ -1,7 +1,5 @@
 package org.bigbluebutton.api;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -147,22 +145,7 @@ public class MeetingService {
 			duration = (int)Math.ceil((Long.parseLong(end) - Long.parseLong(start))/60000.0);
 		}catch(Exception e){
 			log.debug(e.getMessage());
-			log.debug("Checking if the recording has the old date format");
-			SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM d HH:mm:ss z yyyy");
-			try{
-				Calendar cal=Calendar.getInstance();
-
-				cal.setTime(sdf.parse(end));
-				long end_time=cal.getTimeInMillis();
-
-				cal.setTime(sdf.parse(start));
-				long start_time=cal.getTimeInMillis();
-
-				duration = (int)Math.ceil((end_time - start_time)/60000.0);
-			}catch(Exception e2){
-				log.debug(e2.getMessage());
-				duration = 0;
-			}
+			duration = 0;
 		}
 		
 		return duration;
