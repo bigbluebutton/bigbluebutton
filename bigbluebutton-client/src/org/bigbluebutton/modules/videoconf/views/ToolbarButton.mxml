@@ -49,7 +49,7 @@
 			private function openPublishWindow():void{
 				dispatchEvent(new OpenPublishWindowEvent());
 				this.enabled = false;
-				camIcon = images.webcamClose;
+				camIcon = images.webcam;
 			}
 			
 			public function show():void{
