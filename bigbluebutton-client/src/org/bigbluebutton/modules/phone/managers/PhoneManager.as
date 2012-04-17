@@ -107,6 +107,7 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 				
 		public function dialConference():void {
+			LogUtil.debug("*** Dialling conference ***");
 			connectionManager.doCall(attributes.webvoiceconf);
 		}
 		
