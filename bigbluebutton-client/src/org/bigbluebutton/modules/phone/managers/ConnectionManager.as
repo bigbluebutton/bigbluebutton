@@ -84,12 +84,14 @@ package org.bigbluebutton.modules.phone.managers {
 		private function netStatus (evt:NetStatusEvent ):void {		 
 			if (evt.info.code == "NetConnection.Connect.Success") {
 				var event:ConnectionStatusEvent = new ConnectionStatusEvent();
-				LogUtil.debug("Successfully connected to SIP application.");
+				LogUtil.debug("Successfully connected to voice application.");
 				event.status = ConnectionStatusEvent.SUCCESS;
 				LogUtil.debug("Dispatching " + event.status);
 				dispatcher.dispatchEvent(event); 				
+			} else if (evt.info.code == "NetConnection.Connect.NetworkChange") {
+				LogUtil.info("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
 			} else {
-				LogUtil.debug("Connection event info [" + evt.info.code + "]. Disconnecting.");
+				LogUtil.info("Connection event info [" + evt.info.code + "]. Disconnecting.");
 				disconnect();
 			}
 		} 
