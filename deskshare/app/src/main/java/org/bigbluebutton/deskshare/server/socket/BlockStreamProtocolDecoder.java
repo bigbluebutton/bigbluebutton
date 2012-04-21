@@ -55,7 +55,7 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
         
         // Now find the END FRAME delimeter in the buffer.
         int curpos = 0;
-        while (in.remaining() > END_FRAME.length) {
+        while (in.remaining() >= END_FRAME.length) {
         	curpos = in.position();
             in.get(endFrame);
 
