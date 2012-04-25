@@ -26,7 +26,7 @@
 	  var appVersion = navigator.appVersion;
 	  audio = document.getElementById("audioRecording");
 	  if(appName == "Microsoft Internet Explorer" ){
-		var message = "This playback requires modern browser, please use FF, Safari, Chrome, Opera";
+		var message = "Your browser does not support this playback. Please use other browser: Firefox, Safari, Chrome, Opera";
 		var line = document.createElement("p");
 		line.appendChild(document.createTextNode(message));
 		document.getElementById("chat").appendChild(line);
@@ -41,8 +41,6 @@
 	}, false);
   </script>
   <script src="lib/popcorn-complete.min.js"></script>
-  <script src="lib/popcorn.image.js"></script>
-  <script src="lib/popcorn.timeline.js"></script>
 </head>
 <body>
 	<div id="playbackArea">
