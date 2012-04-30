@@ -64,7 +64,7 @@ module BigBlueButton
       start_events = []
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("//event[@eventname='StartWebcamShareEvent']").each do |start_event|
-        start_events << {:start_timestamp => start_event['timestamp'].to_i, :stream => start_event.xpath('stream').text}
+        start_events << {:start_timestamp => start_event['timestamp'].to_i, :stream => start_event.xpath('stream').text, :type=>'video'}
       end
       start_events
     end
@@ -75,7 +75,7 @@ module BigBlueButton
       stop_events = []
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("//event[@eventname='StopWebcamShareEvent']").each do |stop_event|
-        stop_events << {:stop_timestamp => stop_event['timestamp'].to_i, :stream => stop_event.xpath('stream').text}
+        stop_events << {:stop_timestamp => stop_event['timestamp'].to_i, :stream => stop_event.xpath('stream').text, :type=>'video' }
       end
       stop_events
     end
@@ -99,7 +99,7 @@ module BigBlueButton
       combined_events = []
       start_events.each do |start|
         if not video_event_matched?(stop_events, start) 
-          stop_event = {:stop_timestamp => stop[:stop_timestamp], :stream => stop[:stream], :matched => false}
+          stop_event = {:stop_timestamp => stop[:stop_timestamp], :stream => stop[:stream], :matched => false, :type=>'deskshare'}
           combined_events << stop_event
         else
           stop_events = stop_events - [stop_event]
@@ -113,7 +113,7 @@ module BigBlueButton
       start_events = []
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("//event[@eventname='DeskshareStartedEvent']").each do |start_event|
-        s = {:start_timestamp => start_event['timestamp'].to_i, :stream => start_event.xpath('file').text.sub(/(.+)\//, "")}
+        s = {:start_timestamp => start_event['timestamp'].to_i, :stream => start_event.xpath('file').text.sub(/(.+)\//, ""),:type=>'deskshare'}
         start_events << s
       end
       start_events.sort {|a, b| a[:start_timestamp] <=> b[:start_timestamp]}
@@ -124,7 +124,7 @@ module BigBlueButton
       stop_events = []
       doc = Nokogiri::XML(File.open(events_xml))
       doc.xpath("//event[@eventname='DeskshareStoppedEvent']").each do |stop_event|
-        s = {:stop_timestamp => stop_event['timestamp'].to_i, :stream => stop_event.xpath('file').text.sub(/(.+)\//, "")}
+        s = {:stop_timestamp => stop_event['timestamp'].to_i, :stream => stop_event.xpath('file').text.sub(/(.+)\//, ""),:typ=>'deskshare'}
         stop_events << s
       end
       stop_events.sort {|a, b| a[:stop_timestamp] <=> b[:stop_timestamp]}
