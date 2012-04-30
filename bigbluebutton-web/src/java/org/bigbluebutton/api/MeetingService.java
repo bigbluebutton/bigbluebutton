@@ -1,7 +1,5 @@
 package org.bigbluebutton.api;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -149,6 +147,7 @@ public class MeetingService {
 			log.debug(e.getMessage());
 			duration = 0;
 		}
+		
 		return duration;
 	}
 	

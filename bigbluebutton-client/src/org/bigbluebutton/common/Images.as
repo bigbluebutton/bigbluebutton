@@ -21,6 +21,12 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
+		[Embed(source="assets/images/webcam_close.png")]
+		public var webcamClose:Class;
+		
+		[Embed(source="assets/images/deskshare_close.png")]
+		public var deskshareClose:Class;
+				
 		[Embed(source="assets/images/fit-to-page.png")]
 		public var fitToPage:Class;
 		

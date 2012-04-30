@@ -42,6 +42,7 @@
 #   2011-06-26 FFD  Updates for 0.8
 #   2012-01-14 FFD  Tsting the development environment for 0.8
 #   2012-02-22 FFD  Updates to development environment
+#   2012-04-27 FFD  Added sum of version numbers in --check
 
 ##set -x
 #set -e
@@ -1442,7 +1443,7 @@ if [ $CHECK ]; then
 	need_root
 	
 	echo 
-	echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE"
+        echo "BigBlueButton Server $BIGBLUEBUTTON_RELEASE ($(dpkg -l | grep bbb  | sed -n '/0.[0-9][0-9]ubuntu/{s/.*ubuntu//;s/;//;p}' | awk '{ sum+=$1} END {print sum}'))"
 	echo "                    Kernel version:" `uname -r`
 
 	if [ -e /etc/lsb-release ]; then

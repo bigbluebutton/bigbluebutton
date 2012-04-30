@@ -128,7 +128,7 @@
 			private var mouseDown:Boolean = false;
 			[Bindable] private var isPresenter:Boolean = false;
 			[Bindable] private var presentationLoaded:Boolean = false;
-			[Bindable] private var currentPresentation:String = ResourceUtil.getInstance().getString('bbb.presentation.title');
+			[Bindable] private var currentPresentation:String = "";
 			
 			private var externalButtons:ArrayCollection = new ArrayCollection();
 			

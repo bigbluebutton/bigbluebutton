@@ -82,34 +82,18 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		private function netStatus (evt:NetStatusEvent ):void {		 
-			var event:ConnectionStatusEvent = new ConnectionStatusEvent();
-			
-			switch(evt.info.code) {				
-				case "NetConnection.Connect.Success":
-					LogUtil.debug("Successfully connected to SIP application.");
-					event.status = ConnectionStatusEvent.SUCCESS;								
-					break;
-		
-				case "NetConnection.Connect.Failed":
-					LogUtil.debug("Failed to connect to SIP application.");
-					event.status = ConnectionStatusEvent.FAILED;
-					break;
-					
-				case "NetConnection.Connect.Closed":
-					LogUtil.debug("Connection to SIP application has closed.");
-					event.status = ConnectionStatusEvent.CLOSED;
-				break;
-		
-				case "NetConnection.Connect.Rejected":
-					LogUtil.debug("Connection to SIP application was rejected.");
-					event.status = ConnectionStatusEvent.REJECTED;
-					break;					
-				default:					
-			}			
-			
-			LogUtil.debug("Phone Module Connection Status: " + event.status);
-			LogUtil.debug("Dispatching " + event.status);
-			dispatcher.dispatchEvent(event); 
+			if (evt.info.code == "NetConnection.Connect.Success") {
+				var event:ConnectionStatusEvent = new ConnectionStatusEvent();
+				LogUtil.debug("Successfully connected to voice application.");
+				event.status = ConnectionStatusEvent.SUCCESS;
+				LogUtil.debug("Dispatching " + event.status);
+				dispatcher.dispatchEvent(event); 				
+			} else if (evt.info.code == "NetConnection.Connect.NetworkChange") {
+				LogUtil.info("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+			} else {
+				LogUtil.info("Connection event info [" + evt.info.code + "]. Disconnecting.");
+				disconnect();
+			}
 		} 
 		
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
@@ -121,7 +105,7 @@ package org.bigbluebutton.modules.phone.managers {
         }
         
      	public function call():void {
-     		LogUtil.debug("Calling " + room);
+     		LogUtil.debug("in call - Calling " + room);
 			doCall(room);
      	}
         
@@ -160,7 +144,7 @@ package org.bigbluebutton.modules.phone.managers {
 		//
 		//********************************************************************************************		
 		public function doCall(dialStr:String):void {
-			LogUtil.debug("Calling " + dialStr);
+			LogUtil.debug("in doCall - Calling " + dialStr);
 			netConnection.call("voiceconf.call", null, "default", username, dialStr);
 		}
 				
