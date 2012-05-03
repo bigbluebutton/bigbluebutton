@@ -1,3 +1,6 @@
+# Set encoding to utf-8
+# encoding: UTF-8
+
 require 'rubygems'
 require 'redis'
 require 'builder'
@@ -52,7 +55,7 @@ module BigBlueButton
     
     def store_events(meeting_id)
       xml = Builder::XmlMarkup.new( :indent => 2 )
-      result = xml.instruct! :xml, :version => "1.0"
+      result = xml.instruct! :xml, :version => "1.0", :encoding=>"UTF-8"
       
       meeting_metadata = @redis.metadata_for(meeting_id)
 

@@ -1,3 +1,6 @@
+# Set encoding to utf-8
+# encoding: UTF-8
+
 require 'fileutils'
 require 'rubygems'
 require 'nokogiri'
