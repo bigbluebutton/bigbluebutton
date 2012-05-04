@@ -141,10 +141,10 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/bullet_go.png")]
         public var bulletGo:Class;
 
-        [Embed(source="assets/images/page_white_get.png")]
+        [Embed(source="assets/images/upload.png")]
         public var upload:Class;
 		
-		[Embed(source="assets/images/whiteboard_icon.png")]
+		[Embed(source="assets/images/annotation.png")]
 		public var whiteboard:Class;
 		
 		[Embed(source="assets/images/whiteboard_thick.png")]
