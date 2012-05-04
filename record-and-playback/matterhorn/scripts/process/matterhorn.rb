@@ -61,6 +61,9 @@ if not FileTest.directory?(target_dir)
 	else
 		logger.error "Failed Matterhorn process for meeting  #{meeting_id}. Absence of media #{media_absence.to_s}"
 	end
-
+	
+	process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-matterhorn.done", "w")
+	process_done.write("Processed #{meeting_id}")
+	process_done.close
 end
 
