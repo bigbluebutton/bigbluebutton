@@ -19,12 +19,17 @@
 **/
 package org.bigbluebutton.deskshare.client.net;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import net.jcip.annotations.ThreadSafe;
-
 import org.bigbluebutton.deskshare.client.ExitCode;
 import org.bigbluebutton.deskshare.client.blocks.BlockManager;
 import org.bigbluebutton.deskshare.common.Dimension;
@@ -75,57 +80,65 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 		if (listener != null) listener.networkConnectionException(reason);
 	}
 	
-	public boolean connect() {	
-		socketSenders = new NetworkSocketStreamSender[numThreads];
-		int failedAttempts = 0;
-		for (int i = 0; i < numThreads; i++) {
-			try {
-				createSender(i);
-				numRunningThreads++;
-			} catch (ConnectionException e) {
-				failedAttempts++;
-			}
+	private boolean trySocketConnection(String host, int port) {
+		try {
+			Socket socket = new Socket();
+			InetSocketAddress endpoint = new InetSocketAddress(host, port);
+			socket.connect(endpoint, 5000);
+			socket.close();
+			return true;
+		} catch (UnknownHostException e) {
+			System.out.println("Unknown host [" + host + "]");
+		} catch (IOException e) {
+			System.out.println("Cannot connect to [" + host + ":" + port + "]");
 		}
 		
-		if ((failedAttempts == numThreads) && httpTunnel) {
-			System.out.println(NAME + "Trying http tunneling");
-			failedAttempts = 0;
-			numRunningThreads = 0;
-			if (tryHttpTunneling()) {
-				tunneling = true;
-				System.out.println(NAME + "Will use http tunneling");
-				httpSenders = new NetworkHttpStreamSender[numThreads];
-				for (int i = 0; i < numThreads; i++) {
-					try {
-						createHttpSender(i);
-						numRunningThreads++;
-					} catch (ConnectionException e) {
-						failedAttempts++;
-					}					
-				}
-				if (failedAttempts == numThreads) {
-					return false;
-				} else {
-					return true;
-				}
-			}
-		} else {
-			if (numRunningThreads != numThreads) {
-				try {
-					stop();
-				} catch (ConnectionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return false;
-			} else {
-				return true;
-			}
-		}
-		System.out.println(NAME + "Http tunneling failed.");
 		return false;
 	}
-	
+
+	public boolean connect() {	
+		if (trySocketConnection(host, port)) {
+			socketSenders = new NetworkSocketStreamSender[numThreads];
+			for (int i = 0; i < numThreads; i++) {
+				try {
+					createSender(i);
+					numRunningThreads++;
+				} catch (ConnectionException e) {
+					System.out.println("Failed to connect using socket.");
+				}
+			}			
+		} else {
+			if (httpTunnel) {
+				System.out.println(NAME + "Trying http tunneling");
+				numRunningThreads = 0;
+				if (tryHttpTunneling()) {
+					tunneling = true;
+					System.out.println(NAME + "Will use http tunneling");
+					httpSenders = new NetworkHttpStreamSender[numThreads];
+					for (int i = 0; i < numThreads; i++) {
+						try {
+							createHttpSender(i);
+							numRunningThreads++;
+						} catch (ConnectionException e) {
+							System.out.println("Failed to connect using http.");
+						}					
+					}
+				}
+			}			
+		}
+
+		if (numRunningThreads != numThreads) {
+			try {
+				stop();
+			} catch (ConnectionException e) {
+				System.out.println("Failed to stop deskshare applet.");
+			}
+			return false;
+		} 
+		
+		return true;
+	}
+		
 	private void createSender(int i) throws ConnectionException {
 		socketSenders[i] = new NetworkSocketStreamSender(i, this, room, screenDim, blockDim, seqNumGenerator);
 		socketSenders[i].addListener(this);

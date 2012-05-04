@@ -36,6 +36,7 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) exte
     private var lastFrameTime = 0L
     private var lastKeyFrameTime = 0L
     private val KEYFRAME_INTERVAL = 20000
+    private var blockToUpdate = 1;
     
 	def initialize(): Unit = {
 		println("Initialize BlockManager")
@@ -45,7 +46,7 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) exte
 			val dim: Dimension = block.getDimension();
 			var blankPixels = new Array[Int](dim.width * dim.height)
 			for (i: Int <- 0 until blankPixels.length) {
-				blankPixels(i) = 0xFFFF;
+				blankPixels(i) = 0xF;
 			}
 			val encodedPixels = ScreenVideoEncoder.encodePixels(blankPixels, dim.width, dim.height)
 			block.update(encodedPixels, true, 0)
@@ -72,12 +73,16 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) exte
     	for (position: Int <- 1 to numberOfBlocks)  {
     		var block: Block = blocksMap.get(position)
     		var encodedBlock: Array[Byte] = ScreenVideoEncoder.encodeBlockUnchanged()
-    		if (block.hasChanged || genKeyFrame) {    		
+    		if (block.hasChanged || (position == blockToUpdate)) {    		
     			encodedBlock = block.getEncodedBlock();
+//    			println("Encoded block length[" + position + "] = " + encodedBlock.length)
     		}
     		screenVideoFrame.write(encodedBlock, 0, encodedBlock.length)
     	}
-     
+
+		blockToUpdate += 1;
+		if (blockToUpdate > numberOfBlocks) blockToUpdate = 1;
+    			
     	return screenVideoFrame.toByteArray	
 	}
 }

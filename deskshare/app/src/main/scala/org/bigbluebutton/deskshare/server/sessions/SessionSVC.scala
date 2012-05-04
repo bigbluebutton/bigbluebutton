@@ -38,7 +38,7 @@ case object StopSession
 case object GenerateKeyFrame
 
 class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dimension, 
-                 blockDim: Dimension, streamManager: StreamManager, keyFrameInterval: Int) extends Actor {
+                 blockDim: Dimension, streamManager: StreamManager, keyFrameInterval: Int, interframeInterval: Int) extends Actor {
 	private val log = Logger.get
  
 	private var blockManager: BlockManager = new BlockManager(room, screenDim, blockDim)
@@ -64,7 +64,7 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 	def scheduleGenerateFrame() {
 		val mainActor = self
 		actor {
-			Thread.sleep(250)
+			Thread.sleep(interframeInterval)
 			mainActor ! "GenerateFrame"
 		}
 	}
