@@ -73,7 +73,7 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) exte
     	for (position: Int <- 1 to numberOfBlocks)  {
     		var block: Block = blocksMap.get(position)
     		var encodedBlock: Array[Byte] = ScreenVideoEncoder.encodeBlockUnchanged()
-    		if (block.hasChanged || (position == blockToUpdate)) {    		
+    		if (block.hasChanged || (position == blockToUpdate) || genKeyFrame) {    		
     			encodedBlock = block.getEncodedBlock();
 //    			println("Encoded block length[" + position + "] = " + encodedBlock.length)
     		}
@@ -82,7 +82,9 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) exte
 
 		blockToUpdate += 1;
 		if (blockToUpdate > numberOfBlocks) blockToUpdate = 1;
-    			
+    	
+//		println("Key=" + genKeyFrame + " frame length=" + screenVideoFrame.toByteArray.length)
+		
     	return screenVideoFrame.toByteArray	
 	}
 }
