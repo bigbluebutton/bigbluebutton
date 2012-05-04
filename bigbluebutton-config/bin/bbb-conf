@@ -1979,6 +1979,7 @@ if [ $CLEAN ]; then
 	rm -f /var/log/asterisk/messages* 
 	rm -f /var/log/asterisk/queue* 
 	rm -f /var/log/bigbluebutton/bbb-web.log*
+	rm -f /var/log/bigbluebutton/*.log
 
 	#
 	# Clean out the log files for record and playback
