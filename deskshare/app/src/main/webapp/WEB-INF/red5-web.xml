@@ -37,6 +37,7 @@
     <constructor-arg index="0" ref="streamManager"/>
     <constructor-arg index="1" value="${keyFrameInterval}"/>
     <constructor-arg index="2" value="${interframeInterval}"/>
+    <constructor-arg index="3" value="${waitForAllBlocks}"/>
   </bean>
   <bean id="streamManager" class="org.bigbluebutton.deskshare.server.stream.StreamManager">
     <constructor-arg index="0" value="false"/>

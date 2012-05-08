@@ -22,12 +22,11 @@
 package org.bigbluebutton.deskshare.server.svc1
 
 import java.io.ByteArrayOutputStream
-
 import java.util.concurrent.ConcurrentHashMap
 import org.bigbluebutton.deskshare.common.ScreenVideoEncoder
 import org.bigbluebutton.deskshare.server.session.ScreenVideoFrame
 
-class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) extends BlockFactory {
+class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension, waitForAllBlocks: Boolean) extends BlockFactory {
    
 	private var blocksMap = new ConcurrentHashMap[Integer, Block]
 	
@@ -38,18 +37,19 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) exte
     private val KEYFRAME_INTERVAL = 20000
     private var blockToUpdate = 1;
     
+	
 	def initialize(): Unit = {
 		println("Initialize BlockManager")
 		val numberOfBlocks: Int = numberOfRows * numberOfColumns
 		for (position: Int <- 1 to numberOfBlocks) {
 			var block: Block = createBlock(screenDim, blockDim, position)
 			val dim: Dimension = block.getDimension();
-			var blankPixels = new Array[Int](dim.width * dim.height)
-			for (i: Int <- 0 until blankPixels.length) {
-				blankPixels(i) = 0xCECECE;
-			}
-			val encodedPixels = ScreenVideoEncoder.encodePixels(blankPixels, dim.width, dim.height)
-			block.update(encodedPixels, true, 0)
+//			var blankPixels = new Array[Int](dim.width * dim.height)
+//			for (i: Int <- 0 until blankPixels.length) {
+//				blankPixels(i) = 0xCECECE;
+//			}
+//			val encodedPixels = ScreenVideoEncoder.encodePixels(blankPixels, dim.width, dim.height)
+//			block.update(encodedPixels, true, 0)
 			blocksMap.put(position, block)
 		}
 	}
@@ -59,9 +59,18 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) exte
 		block.update(videoData, keyFrame, seqNum)
 	}
 	
+	private def allBlocksReceived(numberOfBlocks: Int):Boolean = {
+		for (position: Int <- 1 to numberOfBlocks) {
+		  var block: Block = blocksMap.get(position)
+		  if (!block.firstBlockReceived) {
+		    return false;
+		  }
+		}
+		return true;
+	}
+	
 	def generateFrame(genKeyFrame: Boolean): Array[Byte] = {
 		var screenVideoFrame: ByteArrayOutputStream = new ByteArrayOutputStream()
-		
 		val encodedDim: Array[Byte] = ScreenVideoEncoder.encodeBlockAndScreenDimensions(blockDim.width, screenDim.width, blockDim.height, screenDim.height)
      	    	
     	val numberOfBlocks = numberOfRows * numberOfColumns 		
@@ -69,14 +78,22 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension) exte
     		    		
     	screenVideoFrame.write(videoDataHeader)
     	screenVideoFrame.write(encodedDim)
-    		
+    	
+    	val gotAllBlocks = allBlocksReceived(numberOfBlocks)
+		
     	for (position: Int <- 1 to numberOfBlocks)  {
     		var block: Block = blocksMap.get(position)
     		var encodedBlock: Array[Byte] = ScreenVideoEncoder.encodeBlockUnchanged()
-    		if (block.hasChanged || (position == blockToUpdate) || genKeyFrame) {    		
-    			encodedBlock = block.getEncodedBlock();
-//    			println("Encoded block length[" + position + "] = " + encodedBlock.length)
+    		if (waitForAllBlocks && !gotAllBlocks) {
+    		  // We need to wait for all the blocks. Just encode a blank block.
+    		  encodedBlock = block.getEncodedBlock(true);
+    		} else {
+	    		if (block.hasChanged || (position == blockToUpdate) || genKeyFrame) {    		
+	    			encodedBlock = block.getEncodedBlock(false);
+	//    			println("Encoded block length[" + position + "] = " + encodedBlock.length)
+	    		}    		  
     		}
+
     		screenVideoFrame.write(encodedBlock, 0, encodedBlock.length)
     	}
 
