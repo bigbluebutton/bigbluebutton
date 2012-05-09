@@ -46,9 +46,18 @@ package org.bigbluebutton.modules.chat.services
 			chatSOService.getChatTranscript();
 		}
 		
-		public function sendChatMessageEvent(event:SendPublicChatMessageEvent):void {
+			public function sendChatMessageEvent(event:SendPublicChatMessageEvent):void {
 			trace("Receive receivedSendPublicChatMessageEvent");
-			chatSOService.sendMessage(event.message,attributes.username,event.color,event.time,event.language,attributes.userid);
+			var newMessage:String;
+			newMessage =  event.message;
+			if(event.reverse){
+				var arStr:Array = event.message.split(" ");
+				for (var i:int = ( arStr.length - 1 ); i > -1; i--) 
+				{
+					newMessage+=" "+arStr[i];
+				}
+			}
+			chatSOService.sendMessage(newMessage,attributes.username,event.color,event.time,event.language,attributes.userid);
 		}
 	}
 }

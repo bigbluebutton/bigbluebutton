@@ -105,6 +105,7 @@
 			
 			[Bindable]
 			public var participants:ArrayCollection = new ArrayCollection();
+			private var rtlSelected:Boolean=false;
 			
 			private function onCreationComplete():void{
 				addParticipantToList(PUBLIC_CHAT_USERID, PUBLIC_CHAT_USERNAME, "public");
@@ -232,6 +233,7 @@
 				publicEvent.message = parseURLs(cleanup(message));
 				publicEvent.color = cmpColorPicker.selectedColor.toString();
 				publicEvent.time = currentTime();
+				publicEvent.reverse = rtlSelected;
 				publicEvent.language = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
 				globalDispatcher.dispatchEvent(publicEvent);
 			}
@@ -247,6 +249,7 @@
 				privateEvent.toUser = chatTabs.selectedChild.name;
 				privateEvent.color = cmpColorPicker.selectedColor.toString();
 				privateEvent.time = currentTime();
+				privateEvent.reverse = rtlSelected;
 				privateEvent.language = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
 				globalDispatcher.dispatchEvent(privateEvent);
 			}
@@ -442,6 +445,11 @@
 			{
 				this.autoTranslation = e.translateOn;
 			}
+			
+			private function changeRTL():void
+			{
+				this.rtlSelected = rtlBox.selected;
+			}
 						
 		]]>
 	</mx:Script>
@@ -450,6 +458,7 @@
 	
 	<mx:ApplicationControlBar id="chatCtrlBar" width="100%" height="10%">		
 		<mx:TextInput id="txtMsg" width="100%" enter="sendMessages()" color="{cmpColorPicker.selectedColor}"/>
+		<mx:CheckBox id="rtlBox" label="{ResourceUtil.getInstance().getString('bbb.quraanboard.arabic')}" click="changeRTL()"/>
 		<mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
 						selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="colorPickerStyle"/>
 		<mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn" 

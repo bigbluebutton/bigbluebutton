@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.chat.events
 		public var time:String; // should be changed to timestamp
 		public var color:String;
 		public var language:String;
+		public var reverse:Boolean;
 		
 		public function SendPublicChatMessageEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
