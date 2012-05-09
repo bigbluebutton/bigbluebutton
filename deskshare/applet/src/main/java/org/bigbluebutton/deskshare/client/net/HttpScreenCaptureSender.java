@@ -22,7 +22,6 @@ package org.bigbluebutton.deskshare.client.net;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -30,9 +29,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-
 import org.bigbluebutton.deskshare.common.CaptureEvents;
-
 import com.myjavatools.web.ClientHttpRequest;
 
 public class HttpScreenCaptureSender implements ScreenCaptureSender {
