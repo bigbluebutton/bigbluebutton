@@ -46,7 +46,7 @@ class Block(val dim: Dimension, val position: Int) {
 	for (i: Int <- 0 until blankPixels.length) {
 			blankPixels(i) = 0xCECECE;
 	}
-    val encodedBlankPixels = ScreenVideoEncoder.encodePixels(blankPixels, dim.width, dim.height)
+    val encodedBlankPixels = ScreenVideoEncoder.encodePixels(blankPixels, dim.width, dim.height, false)
     
     def update(videoData: Array[Byte], isKeyFrame: Boolean, seqNum: Int): Unit =  {	
       firstBlockReceived = true;

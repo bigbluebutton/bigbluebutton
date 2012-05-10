@@ -47,6 +47,7 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 	private var stop = true
 	private var mouseLoc:Point = new Point(100,100)
 	private var pendingGenKeyFrameRequest = false
+	private var timestamp = 0L;
 	
 	/*
 	 * Schedule to generate a key frame after 30seconds of a request.
@@ -135,7 +136,8 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 			sessionManager ! new RemoveSession(room)
 		} else {
 		  if (blockManager != null) {
-			  stream ! new UpdateStream(room, blockManager.generateFrame(keyframe))
+			  timestamp += 50;
+			  stream ! new UpdateStream(room, blockManager.generateFrame(keyframe), timestamp)
 			  stream ! new UpdateStreamMouseLocation(room, mouseLoc)
 		  }
 		}

@@ -27,7 +27,7 @@ import java.awt.Point
 
 object StopStream
 object StartStream 
-class UpdateStream(val room: String, val videoData: Array[Byte])
+class UpdateStream(val room: String, val videoData: Array[Byte], val timestamp: Long)
 class UpdateStreamMouseLocation(val room: String, val loc: Point)
 
 abstract class Stream extends Actor

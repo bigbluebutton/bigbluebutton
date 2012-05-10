@@ -28,6 +28,7 @@ import org.red5.server.api.{IContext, IScope}
 import org.red5.server.api.so.ISharedObject
 import org.red5.server.net.rtmp.event.VideoData;
 import org.red5.server.stream.{BroadcastScope, IBroadcastScope, IProviderService}
+import org.red5.server.net.rtmp.message.Constants;
 import org.apache.mina.core.buffer.IoBuffer
 import java.util.ArrayList
 import scala.actors.Actor
@@ -110,7 +111,14 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 		}	
 
 		val data: VideoData = new VideoData(buffer)
-		data.setTimestamp((System.currentTimeMillis() - startTimestamp).toInt)
+		data.setSourceType(Constants.SOURCE_TYPE_LIVE);
+	    /*
+	     * Use timestamp increments. This will force
+	     * Flash Player to playback at proper timestamp. If we calculate timestamp using
+	     * System.currentTimeMillis() - startTimestamp, the video has tendency to drift and
+	     * introduce delay. See how we do the voice. (ralam may 10, 2012)
+	     */
+        data.setTimestamp(us.timestamp.toInt);
 		broadcastStream.dispatchEvent(data)
 		data.release()
 		

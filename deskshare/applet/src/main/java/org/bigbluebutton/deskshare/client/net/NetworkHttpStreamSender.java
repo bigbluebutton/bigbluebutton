@@ -90,6 +90,7 @@ public class NetworkHttpStreamSender implements Runnable {
 		 * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4382944
 		 * 
 		 */				
+		long start = System.currentTimeMillis();
 		try {			
 			url = new URL("http://" + host + SCREEN_CAPTURE__URL);
 			conn = url.openConnection();
@@ -100,10 +101,13 @@ public class NetworkHttpStreamSender implements Runnable {
 			e.printStackTrace();
 			throw new ConnectionException("IOException while connecting to " + url.toString());
 		}
+		long end = System.currentTimeMillis();
+		System.out.println("Http[" + id + "] Open connection took [" + (end-start) + " ms]");
 	}
 	
 	public void sendStartStreamMessage() {
 		try {
+			System.out.println("Http[" + id + "] Open connection. In sendStartStreamMessage");
 			openConnection();
 			sendCaptureStartEvent(screenDim, blockDim);
 		} catch (ConnectionException e) {
@@ -116,17 +120,12 @@ public class NetworkHttpStreamSender implements Runnable {
 		ClientHttpRequest chr;
 		try {
 			chr = new ClientHttpRequest(conn);
-			chr.setParameter(ROOM, room);
-			
+			chr.setParameter(ROOM, room);			
 			chr.setParameter(SEQ_NUM, seqNumGenerator.getNext());
-			String screenInfo = Integer.toString(screen.getWidth())
-								+ "x" + Integer.toString(screen.getHeight());
-			chr.setParameter(SCREEN, screenInfo);
-			
-			String blockInfo = Integer.toString(block.getWidth())
-								+ "x" + Integer.toString(block.getHeight());
+			String screenInfo = Integer.toString(screen.getWidth()) + "x" + Integer.toString(screen.getHeight());
+			chr.setParameter(SCREEN, screenInfo);			
+			String blockInfo = Integer.toString(block.getWidth()) + "x" + Integer.toString(block.getHeight());
 			chr.setParameter(BLOCK, blockInfo);
-
 			chr.setParameter(EVENT, CaptureEvents.CAPTURE_START.getEvent());
 			chr.post();
 		} catch (IOException e) {
@@ -138,13 +137,13 @@ public class NetworkHttpStreamSender implements Runnable {
 	
 	public void disconnect() throws ConnectionException {
 		try {
+			System.out.println("Http[" + id + "] Open connection. In disconnect");
 			openConnection();
 			sendCaptureEndEvent();
 		} catch (ConnectionException e) {
 			e.printStackTrace();
 			notifyNetworkStreamListener(ExitCode.DESKSHARE_SERVICE_UNAVAILABLE);
-			throw e;
-			
+			throw e;			
 		} finally {
 			processBlocks = false;
 		}
@@ -168,8 +167,8 @@ public class NetworkHttpStreamSender implements Runnable {
 		if (message.getMessageType() == Message.MessageType.BLOCK) {	
 			long start = System.currentTimeMillis();
 			Integer[] changedBlocks = ((BlockMessage)message).getBlocks();
-			String blockSize = "Block length [";
-			String encodeTime = "Encode times [";
+			String blockSize = "Http[" + id + "] Block length [";
+			String encodeTime = "Http[" + id + "]Encode times [";
 			long encStart = 0;
 			long encEnd = 0;
 			int totalBytes = 0;
@@ -191,7 +190,7 @@ public class NetworkHttpStreamSender implements Runnable {
 				retriever.blockSent((Integer)changedBlocks[i]);
 			}
 			long end = System.currentTimeMillis();
-			System.out.println("[HTTP Thread " + id + "] Sending " + changedBlocks.length + " blocks took " + (end - start) + " millis");
+			System.out.println("[HTTP " + id + "] Sending " + changedBlocks.length + " blocks took " + (end - start) + " millis");
 		} else if (message.getMessageType() == Message.MessageType.CURSOR) {
 			CursorMessage msg = (CursorMessage)message;
 			sendCursor(msg.getMouseLocation(), msg.getRoom());
@@ -217,6 +216,7 @@ public class NetworkHttpStreamSender implements Runnable {
 	private void sendCursor(Point mouseLoc, String room) {
 		ClientHttpRequest chr;
 		try {
+			System.out.println("Http[" + id + "] Open connection. In sendCursor");
 			openConnection();
 			chr = new ClientHttpRequest(conn);
 			chr.setParameter(ROOM, room);
@@ -233,8 +233,10 @@ public class NetworkHttpStreamSender implements Runnable {
 	}
 	
 	private void sendBlockData(BlockVideoData blockData) {
+		long start = System.currentTimeMillis();
 	    ClientHttpRequest chr;
 		try {
+			System.out.println("Http[" + id + "] Open connection. In sendBlockData");
 			openConnection();
 			chr = new ClientHttpRequest(conn);
 		    chr.setParameter(ROOM, blockData.getRoom());
@@ -250,5 +252,7 @@ public class NetworkHttpStreamSender implements Runnable {
 		} catch (ConnectionException e) {
 			System.out.println("ERROR: Failed to send block data.");
 		}
+		long end = System.currentTimeMillis();
+		System.out.println("[HTTP " + id + "] Sending " + blockData.getVideoData().length + " bytes took " + (end - start) + " ms");
 	}		
 }
