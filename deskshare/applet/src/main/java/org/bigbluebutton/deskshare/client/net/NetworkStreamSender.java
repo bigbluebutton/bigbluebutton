@@ -65,7 +65,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 		this.blockDim = blockDim;
 		this.httpTunnel = httpTunnel;
 		
-		numThreads = Runtime.getRuntime().availableProcessors();
+		numThreads = Runtime.getRuntime().availableProcessors() * 2;
 		System.out.println(NAME + "Starting up " + numThreads + " sender threads.");
 		executor = Executors.newFixedThreadPool(numThreads);
 	}

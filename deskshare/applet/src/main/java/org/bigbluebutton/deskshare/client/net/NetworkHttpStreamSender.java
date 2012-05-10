@@ -168,16 +168,30 @@ public class NetworkHttpStreamSender implements Runnable {
 		if (message.getMessageType() == Message.MessageType.BLOCK) {	
 			long start = System.currentTimeMillis();
 			Integer[] changedBlocks = ((BlockMessage)message).getBlocks();
+			String blockSize = "Block length [";
+			String encodeTime = "Encode times [";
+			long encStart = 0;
+			long encEnd = 0;
+			int totalBytes = 0;
+			long totalMillis = 0;
 			for (int i = 0; i < changedBlocks.length; i++) {
+				encStart = System.currentTimeMillis();
 				EncodedBlockData block = retriever.getBlockToSend((Integer)changedBlocks[i]);
+				totalBytes += block.getVideoData().length;
+				blockSize += block.getVideoData().length + ",";
+				encEnd = System.currentTimeMillis();
+				totalMillis += (encEnd - encStart);
+				encodeTime += (encEnd - encStart) + ",";
 				BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false /* should remove later */);	
 				sendBlockData(bv);
 			}
+			System.out.println(blockSize + "] total=" + totalBytes + " bytes");
+			System.out.println(encodeTime + "] total=" + totalMillis + " ms");
 			for (int i = 0; i< changedBlocks.length; i++) {
 				retriever.blockSent((Integer)changedBlocks[i]);
 			}
 			long end = System.currentTimeMillis();
-			System.out.println("[HTTP tunnel] Sending " + changedBlocks.length + " blocks took " + (end - start) + " millis");
+			System.out.println("[HTTP Thread " + id + "] Sending " + changedBlocks.length + " blocks took " + (end - start) + " millis");
 		} else if (message.getMessageType() == Message.MessageType.CURSOR) {
 			CursorMessage msg = (CursorMessage)message;
 			sendCursor(msg.getMouseLocation(), msg.getRoom());

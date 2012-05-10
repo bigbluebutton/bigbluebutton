@@ -51,6 +51,7 @@ public class BlockManager {
         numColumns = factory.getColumnCount();
         numRows = factory.getRowCount();
         int numberOfBlocks = numColumns * numRows;
+        System.out.println("Sharing " + numberOfBlocks + " blocks [rows=" + numRows + ", cols=" + numColumns + "]");
         
         for (int position = 1; position <= numberOfBlocks; position++) {
         	Block block = factory.createBlock(position);
