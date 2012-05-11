@@ -82,6 +82,14 @@
 				}
 			}
 			
+			public function userJoinedConference(joined: Boolean):void {
+				if (joined) {
+					phoneIcon = images.headsetClose;
+				} else {
+					phoneIcon = images.headset_icon;
+				}
+			}
+			
 			private function noMicrophone():Boolean {
 				return ((Microphone.getMicrophone() == null) || (Microphone.names.length == 0) 
 					|| ((Microphone.names.length == 1) && (Microphone.names[0] == "Unknown Microphone")));
