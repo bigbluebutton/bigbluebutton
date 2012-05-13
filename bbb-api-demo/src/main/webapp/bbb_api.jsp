@@ -491,8 +491,8 @@ public String getRecordings(String meetingID) {
 				newXMLdoc += "<recording>";
 				
 				newXMLdoc += "<recordID>" + recordID + "</recordID>";
-				newXMLdoc += "<name>" + name + "</name>";
-				newXMLdoc += "<description>" + description + "</description>";
+				newXMLdoc += "<name><![CDATA[" + name + "]]></name>";
+				newXMLdoc += "<description><![CDATA[" + description + "]]></description>";
 				newXMLdoc += "<startTime>" + starttime + "</startTime>";
 				newXMLdoc += "<published>" + published + "</published>";
 				newXMLdoc += "<playback>" + playback + "</playback>";

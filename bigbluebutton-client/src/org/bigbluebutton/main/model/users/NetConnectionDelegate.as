@@ -188,6 +188,10 @@ package org.bigbluebutton.main.model.users
 					LogUtil.debug(NAME + ":Connection to the server rejected. Uri: " + _applicationURI + ". Check if the red5 specified in the uri exists and is running" );
 					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_REJECTED);		
 					break;
+				
+				case "NetConnection.Connect.NetworkChange":
+					LogUtil.info("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+					break;
 					
 				default :
 				   LogUtil.debug(NAME + ":Default status to the viewers application" );

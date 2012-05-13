@@ -20,7 +20,7 @@
   $Id: $
 -->
 
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{whiteboard_icon}" width="20" height="20" click="toggleWhiteboard()" visible="false"
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{whiteboard_icon}" width="25" height="25" click="toggleWhiteboard()" visible="false"
 	implements="org.bigbluebutton.modules.present.api.IPresentationButton" xmlns:mate="http://mate.asfusion.com/" toggle="true" >
 	
 	<mx:Script>
