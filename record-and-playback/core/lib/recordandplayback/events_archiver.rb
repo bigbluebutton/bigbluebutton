@@ -76,7 +76,7 @@ module BigBlueButton
 						}
 					elsif res[MODULE] == "CHAT" && res[EVENTNAME] == "PublicChatEvent" && key == "message"
 						xml.method_missing(key){
-							xml.cdata!(val)
+							xml.cdata!(val.tr("\u0000-\u001f\u007f\u2028",''))
 						}
 					else
 						xml.method_missing(key,  val)
