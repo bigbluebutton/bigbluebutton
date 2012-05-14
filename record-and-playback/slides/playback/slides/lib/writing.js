@@ -19,6 +19,8 @@ var y_offsets = [];
 var viewBoxes = [];
 var times = [];
 
+//hello
+
 var output = {};
 
 var svgobj = document.getElementById("svgobject");
