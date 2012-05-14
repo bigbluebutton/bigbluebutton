@@ -1,0 +1,22 @@
+html{
+	height:100%;
+}
+body {
+	font-family: Verdana;
+	height:100%;
+	padding:0px;
+	margin:0px;
+}
+
+#warp { margin: 0px auto; }
+h1 {
+	text-align:center
+}
+br{
+	display:none
+}
+
+#left {width:50%; float:left;border:2px solid #888;margin-right:2px;}
+#right {width:49%; float:left;border:2px solid #888;}
+#left img {width:100%}
+#right a {width:100%}

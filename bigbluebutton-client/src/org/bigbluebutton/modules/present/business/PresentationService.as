@@ -94,8 +94,8 @@ package org.bigbluebutton.modules.present.business
 			//LogUtil.debug("Slides list: " + list);
 			
 			for each(item in list){		
-				var sUri:String = slideUri + "/" + item.@name;
-				var thumbUri:String =  slideUri + "/" + item.@thumb;
+				var sUri:String = slideUri + "/" + item.@name+"?"+presentationName;
+				var thumbUri:String =  slideUri + "/" + item.@thumb+"?"+presentationName;
 				var slide:Slide = new Slide(item.@number, sUri, thumbUri);						
 				_slides.add(slide);
 				//LogUtil.debug("Available slide: " + sUri + " number = " + item.@number);
