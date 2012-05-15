@@ -3,7 +3,6 @@
 //coordinates to set
 var cursor_x_global;
 var cursor_y_global;
-var zoomRate = 1.001;
 
 //var canvas = document.getElementById("canv");
 //var ctx = canvas.getContext("2d");
@@ -12,14 +11,8 @@ var zoomRate = 1.001;
 var cursor_x = [0, 10, 20, 40, 50, 100];
 var cursor_y = [0, 10, 20, 30, 60, 60];
 var panAndZoomTimes = [];
-var h_ratios = [];
-var w_ratios = [];
-var x_offsets = [];
-var y_offsets = [];
 var viewBoxes = [];
 var times = [];
-
-//hello
 
 var output = {};
 
@@ -62,9 +55,7 @@ var array = shapeelements[0].getElementsByTagName("g"); //get all the lines from
 
 //fill the times array with the times of the svg images.
 for (var j=0;j<array.length-1;j++) {
-	//console.log(array[j].getAttribute("id")); 
 	times[j]=array[j].getAttribute("id").substr(4);
-	//console.log(parseFloat(array[j].getAttribute("id").substr(4)));
 }
 
 var times_length = times.length; //get the length of the times array.
@@ -76,19 +67,12 @@ xmlDoc=xmlhttp.responseXML;
 panelements=xmlDoc.getElementsByTagName("recording");
 var panZoomArray = panelements[0].getElementsByTagName("event");
 viewBoxes = xmlDoc.getElementsByTagName("viewBox");
-//h_ratios_unparsed = xmlDoc.getElementsByTagName("heightRatio");
-//w_ratios_unparsed = xmlDoc.getElementsByTagName("widthRatio");
-//x_offsets_unparsed = xmlDoc.getElementsByTagName("xOffset");
-//y_offsets_unparsed = xmlDoc.getElementsByTagName("yOffset");
+
 //fill the times array with the times of the svg images.
 for (var k=0;k<panZoomArray.length;k++) {
 	//console.log(array[j].getAttribute("id")); 
 	panAndZoomTimes[k]=panZoomArray[k].getAttribute("timestamp");
 	output[panZoomArray[k].getAttribute("timestamp")] = {viewBoxValue:viewBoxes[k].childNodes[0]}
-	//h_ratios[k] = h_ratios_unparsed[k].childNodes[0];
-	//w_ratios[k] = w_ratios_unparsed[k].childNodes[0];
-	//y_offsets[k] = y_offsets_unparsed[k].childNodes[0];
-	//x_offsets[k] = x_offsets_unparsed[k].childNodes[0];
 }
 
 // - - - END OF GLOBAL VARIABLES - - - //
@@ -113,34 +97,6 @@ function getNextY(t) {
         return cursor_y[y];
     }
 	else return -1;
-}
-
-function pan(direction, panRate)
-{
-	//svgfile = svgobj.contentDocument.getElementById("svgfile");
-	var viewBox = svgfile.getAttribute('viewBox');	// Grab the object representing the SVG element's viewBox attribute.
-	var viewBoxValues = viewBox.split(' ');			// Create an array and insert each individual view box attribute value (assume they're seperated by a single whitespace character).
-
-	viewBoxValues[0] = parseFloat(viewBoxValues[0]);		// Convert string "numeric" values to actual numeric values.
-	viewBoxValues[1] = parseFloat(viewBoxValues[1]);
-
-	switch (direction)
-	{
-	case "right":
-	  viewBoxValues[0] += panRate;	// Increase the x-coordinate value of the viewBox attribute to pan right.
-	  break;
-	case "left":
-	  viewBoxValues[0] -= panRate;	// Decrease the x-coordinate value of the viewBox attribute to pan left.
-	  break;
-	case "up":
-	  viewBoxValues[1] += panRate;	// Increase the y-coordinate value of the viewBox attribute to pan down.
-	  break;
-	case "down":
-	  viewBoxValues[1] -= panRate;	// Decrease the y-coordinate value of the viewBox attribute to pan up.      
-	  break;                         
-	} // switch
-
-	svgfile.setAttribute('viewBox', viewBoxValues.join(' '));	// Convert the viewBoxValues array into a string with a white space character between the given values.
 }
 
 // Draw the cursor at a specific point
@@ -170,34 +126,9 @@ window.onresize = function(event){
     svgobj.style.top = "8px";
 }
 
-function zoom(zoomType) {
-		//svgfile = svgobj.contentDocument.getElementById("svgfile");
-		var viewBox = svgfile.getAttribute('viewBox');	// Grab the object representing the SVG element's viewBox attribute.
-		var viewBoxValues = viewBox.split(' ');				// Create an array and insert each individual view box attribute value (assume they're seperated by a single whitespace character).
-
-		viewBoxValues[2] = parseFloat(viewBoxValues[2]);		// Convert string "numeric" values to actual numeric values.
-		viewBoxValues[3] = parseFloat(viewBoxValues[3]);
-
-		if (zoomType == 'zoomIn')
-		{
-		viewBoxValues[2] /= zoomRate;	// Decrease the width and height attributes of the viewBox attribute to zoom in.
-		viewBoxValues[3] /= zoomRate;	
-		}
-		else if (zoomType == 'zoomOut')
-		{
-		viewBoxValues[2] *= zoomRate;	// Increase the width and height attributes of the viewBox attribute to zoom out.
-		viewBoxValues[3] *= zoomRate;	
-		}
-		else
-		alert("function zoom(zoomType) given invalid zoomType parameter.");
-
-		svgfile.setAttribute('viewBox', viewBoxValues.join(' '));	// Convert the viewBoxValues array into a string with a white space character between the given values.
-}
-
 function setViewBox(val) {
 	svgfile = svgobj.contentDocument.getElementById("svgfile");
 	svgfile.setAttribute('viewBox', val);
-	
 }
 
 var p = Popcorn("#video")

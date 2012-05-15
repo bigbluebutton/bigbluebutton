@@ -143,14 +143,22 @@ if (playback == "slides")
 				shape_events.each do |shape|
 					# # Get variables
 					type = shape.xpath(".//type")[0].text()
-					if type.eql? "pencil"
-						timestamp = shape['timestamp'].to_f
-						thickness = shape.xpath(".//thickness")[0].text()
-						pageNumber = shape.xpath(".//pageNumber")[0].text()
-						dataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
-						# # puts "thickness: #{thickness} and pageNumber: #{pageNumber} and dataPoints: #{dataPoints}"
-						xml.g('id'=>"draw#{((timestamp-join_time)/1000).round(1)}", 'style'=>"stroke:rgb(255,0,0); stroke-width:#{thickness}; visibility:hidden") do
+					timestamp = shape['timestamp'].to_f
+					current_time = ((timestamp-join_time)/1000).round(1)
+					thickness = shape.xpath(".//thickness")[0].text()
+					pageNumber = shape.xpath(".//pageNumber")[0].text()
+					dataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
+					# # puts "thickness: #{thickness} and pageNumber: #{pageNumber} and dataPoints: #{dataPoints}"
+					xml.g('id'=>"draw#{current_time}", 'style'=>"stroke:rgb(255,0,0); stroke-width:#{thickness}; visibility:hidden") do
+						if type.eql? "pencil"
+							# get first and last points for now.
 							xml.line('x1' => "#{((dataPoints[0].to_f)/100)*vbox_width}", 'y1' => "#{((dataPoints[1].to_f)/100)*vbox_height}", 'x2' => "#{((dataPoints[(dataPoints.length)-2].to_f)/100)*vbox_width}", 'y2' => "#{((dataPoints[(dataPoints.length)-1].to_f)/100)*vbox_height}")
+						elsif type.eql? "rectangle"
+							originX = ((dataPoints[0].to_f)/100)*vbox_width
+							originY = ((dataPoints[1].to_f)/100)*vbox_height
+							rectWidth = ((dataPoints[2].to_f - dataPoints[0].to_f)/100)*vbox_width
+							rectHeight = ((dataPoints[3].to_f - dataPoints[1].to_f)/100)*vbox_height
+							xml.rect('x' => "#{originX}", 'y' => "#{originY}", 'width' => "#{rectWidth}", 'height' => "#{rectHeight}")
 						end
 					end
 				end
