@@ -36,7 +36,7 @@ var params = getUrlParameters();
 var MEETINGID = params['meetingId'];
 var HOST = window.location.hostname;
 var shapes_svg = "http://" + HOST + "/slides/" + MEETINGID + '/shapes.svg';
-var events_xml = "http://" + HOST + "/slides/" + MEETINGID + '/pans_and_zooms.xml';
+var events_xml = "http://" + HOST + "/slides/" + MEETINGID + '/panzooms.xml';
 
 //current time
 var t;
