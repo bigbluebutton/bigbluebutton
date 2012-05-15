@@ -9,6 +9,7 @@ require 'builder'
 
 vbox_width = 800
 vbox_height = 600
+magic_mystery_number = 2
 shapes_svg_filename = 'shapes.svg'
 panzooms_xml_filename = 'panzooms.xml'
 
@@ -93,9 +94,9 @@ if (playback == "slides")
 		slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
 		chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
 		shape_events = @doc.xpath("//event[@eventname='AddShapeEvent']") # for the creation of shapes
+		panzoom_events = @doc.xpath("//event[@eventname='ResizeAndMoveSlideEvent']") # for the action of panning and/or zooming
 		
 		join_time = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0]['timestamp'].to_f
-		
 		presentation_name = ""
 
 		# Create slides.xml and chat.
@@ -156,9 +157,40 @@ if (playback == "slides")
 			end
 		end
 		
+		#Create panzooms.xml
 		panzooms_xml = Nokogiri::XML::Builder.new do |xml|
-			xml.recording('id' => 'panzooms') do
-			# TODO: create pan and zooming xml file here.
+			xml.recording('id' => 'panzoom_events') do
+				h_ratio_prev = "NaN"
+				w_ratio_prev = "NaN"
+				x_prev = "NaN"
+				y_prev = "NaN"
+				timestamp_prev = 0.0
+				panzoom_events.each do |panZoomEvent|
+					# Get variables
+					timestamp_orig = panZoomEvent['timestamp'].to_f
+					timestamp = ((timestamp_orig-join_time)/1000).round(1)
+					h_ratio = panZoomEvent.xpath(".//heightRatio")[0].text()
+					w_ratio = panZoomEvent.xpath(".//widthRatio")[0].text()
+					x = panZoomEvent.xpath(".//xOffset")[0].text()
+					y = panZoomEvent.xpath(".//yOffset")[0].text()
+					
+					if(timestamp_prev == timestamp)
+						# do nothing because playback can't react that fast
+					else
+						if((!(h_ratio_prev.eql?("NaN"))) && (!(w_ratio_prev.eql?("NaN"))) && (!(x_prev.eql?("NaN"))) && (!(y_prev.eql?("NaN"))))
+							xml.event('timestamp' => "#{timestamp}", 'orig' => "#{timestamp_orig}") do
+								xml.viewBox "#{(vbox_width-((1-((x_prev.to_f.abs)*magic_mystery_number/100.0))*vbox_width))} #{(vbox_height-((1-((y_prev.to_f.abs)*magic_mystery_number/100.0))*vbox_height)).round(2)} #{((w_ratio_prev.to_f/100.0)*vbox_width).round(1)} #{((h_ratio_prev.to_f/100.0)*vbox_height).round(1)}"
+							end
+						else
+							# skip this event... it doesn't contain any data anyway
+						end
+					end
+					h_ratio_prev = h_ratio
+					w_ratio_prev = w_ratio
+					x_prev = x
+					y_prev = y
+					timestamp_prev = timestamp
+				end
 			end
 		end
 		
