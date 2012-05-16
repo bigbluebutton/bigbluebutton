@@ -4,21 +4,6 @@
 var cursor_x_global;
 var cursor_y_global;
 
-//var canvas = document.getElementById("canv");
-//var ctx = canvas.getContext("2d");
-
-//coordinates for x and y for each second
-var cursor_x = [0, 10, 20, 40, 50, 100];
-var cursor_y = [0, 10, 20, 30, 60, 60];
-var panAndZoomTimes = [];
-var viewBoxes = [];
-var times = [];
-
-var output = {};
-
-var svgobj = document.getElementById("svgobject");
-var svgfile = null;
-
 function getUrlParameters() {
         var map = {};
         var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) { map[key] = value; });
@@ -30,9 +15,26 @@ var MEETINGID = params['meetingId'];
 var HOST = window.location.hostname;
 var shapes_svg = "http://" + HOST + "/slides/" + MEETINGID + '/shapes.svg';
 var events_xml = "http://" + HOST + "/slides/" + MEETINGID + '/panzooms.xml';
-
+//immediately load the content
+var SHAPES = "http://" + HOST + "/slides/" + MEETINGID + '/shapes.svg';
+document.getElementById("svgobject").setAttribute('data', SHAPES);
 //current time
 var t;
+
+//var canvas = document.getElementById("canv");
+//var ctx = canvas.getContext("2d");
+
+//coordinates for x and y for each second
+var cursor_x = [0, 10, 20, 40, 50, 100];
+var cursor_y = [0, 10, 20, 30, 60, 60];
+var panAndZoomTimes = [];
+var viewBoxes = [];
+var times = [];
+var main_shapes_times = [];
+var output = {};
+
+var svgobj = document.getElementById("svgobject");
+var svgfile = svgobj.contentDocument.getElementById("svgfile");
 
 //making the object for requesting the read of the shapes.xml file.
 if (window.XMLHttpRequest){
@@ -54,7 +56,7 @@ shapeelements=xmlDoc.getElementsByTagName("svg");
 var array = shapeelements[0].getElementsByTagName("g"); //get all the lines from the svg file
 
 //fill the times array with the times of the svg images.
-for (var j=0;j<array.length-1;j++) {
+for (var j=0;j<array.length;j++) {
 	times[j]=array[j].getAttribute("id").substr(4);
 }
 
@@ -145,14 +147,26 @@ var p = Popcorn("#video")
 		cursor_y_global = 0;
 		svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
 		svgobj.style.top = "8px";
-		svgobj.style.visibility = "hidden"; //clear page
+		
     },
 	
 	onEnd: function(options) {
-		//make the canvas visible
-		svgobj.style.visibility = "visible";
-		showCursor(true);
-		svgfile = svgobj.contentDocument.getElementById("svgfile");
+		//showCursor(true);
+		var next_shape;
+		var next_shape_time = -1;
+		var shape;
+		//iterate through all the shapes and pick out the main ones
+		for (i = 0, len = times_length; i < len-1; i++) {
+			time = times[i];
+			shape = svgobj.contentDocument.getElementById("draw" + time).getAttribute("shape");
+			next_shape = svgobj.contentDocument.getElementById("draw" + times[i+1]).getAttribute("shape");
+			if(shape != next_shape) {
+				main_shapes_times[main_shapes_times.length] = time;
+			}
+		}
+		main_shapes_times[main_shapes_times.length] = times[times.length-1]; //put last value into this array always!
+		
+		console.log(main_shapes_times);
 	}
 })
 
@@ -168,19 +182,37 @@ var p = Popcorn("#video")
 			//p.mute(); //muting for testing
 			//showCursor(true);
 			svgfile = svgobj.contentDocument.getElementById("svgfile");
+			
+			
 			var t = p.currentTime().toFixed(1); //get the time and round to 1 decimal place
 			
 			cursor_x_global = getNextX(""+t); //get the next cursor position
 			cursor_y_global = getNextY(""+t); //get the next cursor position
 			
+			current_shape = svgobj.contentDocument.getElementById("draw" + t);
+			if(current_shape != undefined) {
+				current_shape = current_shape.getAttribute("shape"); //get actual shape tag for this specific time of playback
+				//console.log(current_shape);
+			}
 			//redraw everything (only way to make everything elegant)
 			for (i = 0, len = times_length; i < len; i++) {
 				time = times[i];
-				if (parseFloat(time) <= t) {
-					svgobj.contentDocument.getElementById("draw" + time).style.visibility = "visible";
+				time_f = parseFloat(time)
+				shape = svgobj.contentDocument.getElementById("draw" + time);
+				shape_i = shape.getAttribute("shape");
+				if (time_f < t) {
+					if(shape_i == current_shape) { //currently drawing the same shape so don't draw the older steps
+						shape.style.visibility = "hidden"; //hide older steps to shape
+					}
+					else if(main_shapes_times.indexOf(time) != -1) {
+						shape.style.visibility = "visible";
+					}
 				}
-				else { // then parseFloat(time) is > t
-					svgobj.contentDocument.getElementById("draw" + time).style.visibility = "hidden";
+				else if(time_f == t) {
+					shape.style.visibility = "visible";
+				}
+				else { // then time_f is > t
+					shape.style.visibility = "hidden";
 				}
 			}
 			if((cursor_x_global != -1) && (cursor_y_global != -1)) {

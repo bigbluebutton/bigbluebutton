@@ -13,6 +13,15 @@ magic_mystery_number = 2
 shapes_svg_filename = 'shapes.svg'
 panzooms_xml_filename = 'panzooms.xml'
 
+originX = "NaN"
+originY = "NaN"
+originalOriginX = "NaN"
+originalOriginY = "NaN"
+
+rectangle_count = 0
+line_count = 0
+prev_time = "NaN"
+
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
 end
@@ -148,17 +157,40 @@ if (playback == "slides")
 					thickness = shape.xpath(".//thickness")[0].text()
 					pageNumber = shape.xpath(".//pageNumber")[0].text()
 					dataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
-					# # puts "thickness: #{thickness} and pageNumber: #{pageNumber} and dataPoints: #{dataPoints}"
-					xml.g('id'=>"draw#{current_time}", 'style'=>"stroke:rgb(255,0,0); stroke-width:#{thickness}; visibility:hidden") do
-						if type.eql? "pencil"
+					if type.eql? "pencil"
+						line_count = line_count + 1
+						# # puts "thickness: #{thickness} and pageNumber: #{pageNumber} and dataPoints: #{dataPoints}"
+						xml.g('id'=>"draw#{current_time}", 'shape'=>"line#{line_count}", 'style'=>"stroke:rgb(255,0,0); stroke-width:#{thickness}; visibility:hidden") do
 							# get first and last points for now.
 							xml.line('x1' => "#{((dataPoints[0].to_f)/100)*vbox_width}", 'y1' => "#{((dataPoints[1].to_f)/100)*vbox_height}", 'x2' => "#{((dataPoints[(dataPoints.length)-2].to_f)/100)*vbox_width}", 'y2' => "#{((dataPoints[(dataPoints.length)-1].to_f)/100)*vbox_height}")
-						elsif type.eql? "rectangle"
-							originX = ((dataPoints[0].to_f)/100)*vbox_width
-							originY = ((dataPoints[1].to_f)/100)*vbox_height
-							rectWidth = ((dataPoints[2].to_f - dataPoints[0].to_f)/100)*vbox_width
-							rectHeight = ((dataPoints[3].to_f - dataPoints[1].to_f)/100)*vbox_height
-							xml.rect('x' => "#{originX}", 'y' => "#{originY}", 'width' => "#{rectWidth}", 'height' => "#{rectHeight}")
+						end
+					elsif type.eql? "rectangle"
+						if(current_time != prev_time)
+							if((originalOriginX == ((dataPoints[0].to_f)/100)*vbox_width) && (originalOriginY == ((dataPoints[1].to_f)/100)*vbox_height))
+								# do not update the rectangle count
+							else
+								rectangle_count = rectangle_count + 1
+							end
+							xml.g('id'=>"draw#{current_time}", 'shape'=>"rect#{rectangle_count}", 'style'=>"stroke:rgb(255,0,0); stroke-width:#{thickness}; visibility:hidden; fill:none") do
+								originX = ((dataPoints[0].to_f)/100)*vbox_width
+								originY = ((dataPoints[1].to_f)/100)*vbox_height
+								originalOriginX = originX 
+								originalOriginY = originY
+								rectWidth = ((dataPoints[2].to_f - dataPoints[0].to_f)/100)*vbox_width
+								rectHeight = ((dataPoints[3].to_f - dataPoints[1].to_f)/100)*vbox_height
+								
+								# Cannot have a negative height or width so we adjust 
+								if(rectHeight < 0)
+									originY = originY + rectHeight
+									rectHeight = rectHeight.abs
+								end
+								if(rectWidth < 0)
+									originX = originX + rectWidth
+									rectWidth = rectWidth.abs
+								end
+								xml.rect('x' => "#{originX}", 'y' => "#{originY}", 'width' => "#{rectWidth}", 'height' => "#{rectHeight}")
+								prev_time = current_time
+							end
 						end
 					end
 				end
