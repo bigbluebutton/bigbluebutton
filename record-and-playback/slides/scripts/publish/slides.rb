@@ -20,6 +20,8 @@ originalOriginY = "NaN"
 
 rectangle_count = 0
 line_count = 0
+ellipse_count = 0
+
 prev_time = "NaN"
 
 opts = Trollop::options do
@@ -158,10 +160,10 @@ if (playback == "slides")
 					pageNumber = shape.xpath(".//pageNumber")[0].text()
 					dataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
 					if type.eql? "pencil"
-						line_count = line_count + 1
+						line_count = line_count + 1 # always update the line count!
 						# # puts "thickness: #{thickness} and pageNumber: #{pageNumber} and dataPoints: #{dataPoints}"
 						xml.g('id'=>"draw#{current_time}", 'shape'=>"line#{line_count}", 'style'=>"stroke:rgb(255,0,0); stroke-width:#{thickness}; visibility:hidden") do
-							# get first and last points for now.
+							# get first and last points for now. here in the future we should put a loop to get all the data points and make sub lines within the group.
 							xml.line('x1' => "#{((dataPoints[0].to_f)/100)*vbox_width}", 'y1' => "#{((dataPoints[1].to_f)/100)*vbox_height}", 'x2' => "#{((dataPoints[(dataPoints.length)-2].to_f)/100)*vbox_width}", 'y2' => "#{((dataPoints[(dataPoints.length)-1].to_f)/100)*vbox_height}")
 						end
 					elsif type.eql? "rectangle"
@@ -192,6 +194,33 @@ if (playback == "slides")
 								prev_time = current_time
 							end
 						end
+					elsif type.eql? "ellipse"
+						if(current_time != prev_time)
+							if((originalOriginX == ((dataPoints[0].to_f)/100)*vbox_width) && (originalOriginY == ((dataPoints[1].to_f)/100)*vbox_height))
+								# do not update the rectangle count
+							else
+								ellipse_count = ellipse_count + 1
+							end # end ((originalOriginX == ((dataPoints[0].to_f)/100)*vbox_width) && (originalOriginY == ((dataPoints[1].to_f)/100)*vbox_height))
+							xml.g('id'=>"draw#{current_time}", 'shape'=>"ellipse#{ellipse_count}", 'style'=>"stroke:rgb(255,0,0); stroke-width:#{thickness}; visibility:hidden; fill:none") do
+								originX = ((dataPoints[0].to_f)/100)*vbox_width
+								originY = ((dataPoints[1].to_f)/100)*vbox_height
+								originalOriginX = originX 
+								originalOriginY = originY
+								ellipseWidth = ((dataPoints[2].to_f - dataPoints[0].to_f)/100)*vbox_width
+								ellipseHeight = ((dataPoints[3].to_f - dataPoints[1].to_f)/100)*vbox_height
+								if(ellipseHeight < 0)
+									originY = originY + ellipseHeight
+									ellipseHeight = ellipseHeight.abs
+								end
+								if(ellipseWidth < 0)
+									originX = originX + ellipseWidth
+									ellipseWidth = ellipseWidth.abs
+								end
+								xml.ellipse('cx' => "#{originX+(ellipseWidth/2)}", 'cy' => "#{originY+(ellipseHeight/2)}", 'rx' => "#{ellipseWidth/2}", 'ry' => "#{ellipseHeight/2}")
+								prev_time = current_time
+							end # end xml.g
+						end # end if(current_time != prev_time)
+						# put circle code here
 					end
 				end
 			end
