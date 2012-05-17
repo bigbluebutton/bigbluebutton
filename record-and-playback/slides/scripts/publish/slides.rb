@@ -21,6 +21,7 @@ originalOriginY = "NaN"
 rectangle_count = 0
 line_count = 0
 ellipse_count = 0
+global_slide_count = 0
 
 prev_time = "NaN"
 
@@ -100,7 +101,7 @@ if (playback == "slides")
 		if not first_presentation_start_node.empty?
 			first_presentation_start = first_presentation_start_node[0]['timestamp']
 		end
-		first_slide_start = (first_presentation_start.to_i - meeting_start.to_i) / 1000
+		first_slide_start = ((first_presentation_start.to_f - meeting_start.to_f) / 1000).round(1)
 		
 		slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
 		chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
@@ -113,6 +114,7 @@ if (playback == "slides")
 		# Create slides.xml and chat.
 		slides_doc = Nokogiri::XML::Builder.new do |xml|
 			xml.popcorn {
+=begin
 				xml.timeline {
 					xml.image(:in => 0, :out => first_slide_start, :src => "logo.png", :target => "slide", :width => 200, :width => 200 )
 					slides_events.each do |node|
@@ -121,20 +123,21 @@ if (playback == "slides")
 							presentation_name = node.xpath(".//presentationName")[0].text()
 						else
 							slide_timestamp =  node['timestamp']
-							slide_start = (slide_timestamp.to_i - meeting_start.to_i) / 1000
+							slide_start = ((slide_timestamp.to_f - meeting_start.to_f) / 1000).round(1)
 							slide_number = node.xpath(".//slide")[0].text()
 							slide_src = "#{presentation_url}/#{presentation_name}/slide-#{slide_number.to_i + 1}.png"
 							current_index = slides_events.index(node)
 							if(current_index + 1 < slides_events.length)
-								slide_end = ( slides_events[current_index + 1]['timestamp'].to_i - meeting_start.to_i ) / 1000
+								slide_end = (( slides_events[current_index + 1]['timestamp'].to_f - meeting_start.to_f ) / 1000).round(1)
 							else
-								slide_end = ( meeting_end.to_i - meeting_start.to_i ) / 1000
+								slide_end = (( meeting_end.to_f - meeting_start.to_f ) / 1000).round(1)
 							end
 							xml.image(:in => slide_start, :out => slide_end, :src => slide_src, :target => "slide", :width => 200, :width => 200 )
 							puts "#{slide_src} : #{slide_start} -> #{slide_end}"
 						end
 					end
 				}
+=end
 				# Process chat events.
 				chat_events.each do |node|
 					chat_timestamp =  node['timestamp']
@@ -150,7 +153,30 @@ if (playback == "slides")
 		shapes_svg = Nokogiri::XML::Builder.new do |xml|
 			xml.doc.create_internal_subset('svg', "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd")
 			xml.svg('id' => 'svgfile', 'style' => 'position:absolute; height:600px; width:800px;', 'xmlns' => 'http://www.w3.org/2000/svg', 'xmlns:xlink' => 'http://www.w3.org/1999/xlink', 'version' => '1.1', 'viewBox' => '0 0 800 600') do
-				xml.image('width'=>'800px', 'height'=>'600px', 'xlink:href'=>'presentation/default/slide-1.png')
+				
+				xml.image(:id => "image0", :in => 0, :out => first_slide_start, :src => "logo.png", :width => 800)
+				slides_events.each do |node|
+					eventname =  node['eventname']
+					if eventname == "SharePresentationEvent"
+						presentation_name = node.xpath(".//presentationName")[0].text()
+					else
+						slide_timestamp =  node['timestamp']
+						slide_start = (slide_timestamp.to_i - meeting_start.to_i) / 1000
+						slide_number = node.xpath(".//slide")[0].text()
+						global_slide_count = global_slide_count + 1
+						slide_src = "presentation/#{presentation_name}/slide-#{slide_number.to_i + 1}.png"
+						current_index = slides_events.index(node)
+						if(current_index + 1 < slides_events.length)
+							slide_end = ( slides_events[current_index + 1]['timestamp'].to_i - meeting_start.to_i ) / 1000
+						else
+							slide_end = ( meeting_end.to_i - meeting_start.to_i ) / 1000
+						end
+						xml.image(:id => "image#{global_slide_count.to_i}", :in => slide_start, :out => slide_end, 'xlink:href' => slide_src, :height => "600px", :width => 800, :visibility => "hidden")
+						puts "#{slide_src} : #{slide_start} -> #{slide_end}"
+					end
+				end
+				#xml.image('width'=>'800px', 'height'=>'600px', 'xlink:href'=>'presentation/default/slide-1.png')
+				
 				shape_events.each do |shape|
 					# # Get variables
 					type = shape.xpath(".//type")[0].text()

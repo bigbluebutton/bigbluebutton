@@ -31,12 +31,13 @@ var panAndZoomTimes = [];
 var viewBoxes = [];
 var times = [];
 var main_shapes_times = [];
-var output = {};
+var vboxValues = {};
+var imageAtTime = {};
 
 var svgobj = document.getElementById("svgobject");
 var svgfile = svgobj.contentDocument.getElementById("svgfile");
 
-//making the object for requesting the read of the shapes.xml file.
+//making the object for requesting the read of the XML files.
 if (window.XMLHttpRequest){
 	// code for IE7+, Firefox, Chrome, Opera, Safari
 	xmlhttp=new XMLHttpRequest();
@@ -45,7 +46,9 @@ else {
 	// code for IE6, IE5
 	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
 }
-//read the shapes file
+
+
+// PROCESS SHAPES.SVG (in XML format).
 xmlhttp.open("GET", shapes_svg, false);
 xmlhttp.send();
 xmlDoc=xmlhttp.responseXML;
@@ -54,27 +57,63 @@ shapeelements=xmlDoc.getElementsByTagName("svg");
 
 //get the array of values for the first shape (getDataPoints(0) is the first shape).
 var array = shapeelements[0].getElementsByTagName("g"); //get all the lines from the svg file
+var images = shapeelements[0].getElementsByTagName("image");
+
+//console.log(images);
 
 //fill the times array with the times of the svg images.
-for (var j=0;j<array.length;j++) {
-	times[j]=array[j].getAttribute("id").substr(4);
+for (var j = 0; j < array.length; j++) {
+	times[j] = array[j].getAttribute("id").substr(4);
 }
 
 var times_length = times.length; //get the length of the times array.
 
+function getImageAtTime(time) {
+	var prev_key = "NaN";
+	var key = "NaN"
+	for (key in imageAtTime) {
+		if((parseInt(key) > time) && (parseInt(prev_key) <= time)) {
+			return imageAtTime[prev_key];
+		}
+		prev_key = key;
+	}
+	if(time > parseInt(prev_key)) {
+		return imageAtTime[prev_key];
+	}
+	else return imageAtTime["0"];
+}
+
+for(var m = 0; m < images.length; m++) {
+	imageAtTime[""+images[m].getAttribute("in")] = images[m].getAttribute("id");
+}
+
+/*
+console.log("image at 4.2 is " + getImageAtTime("4.2"));
+console.log("image at 36.9 is " + getImageAtTime("36.9"));
+console.log("image at 18.0 is " + getImageAtTime("18.0"));
+console.log("image at 51.4 is " + getImageAtTime("51.4"));
+console.log("image at 51.5 is " + getImageAtTime("51.5"));
+console.log("image at 18 is " + getImageAtTime("18"));
+console.log("image at -1.0 is " + getImageAtTime("-1.0"));
+console.log("image at 0 is " + getImageAtTime("0"));
+console.log("image at 999 is " + getImageAtTime("9999"));
+*/
+
+// PROCESS PANZOOMS.XML
 xmlhttp.open("GET", events_xml, false);
 xmlhttp.send();
 xmlDoc=xmlhttp.responseXML;
 //getting all the event tags
 panelements=xmlDoc.getElementsByTagName("recording");
 var panZoomArray = panelements[0].getElementsByTagName("event");
+var imagesArray = panelements[0].getElement
 viewBoxes = xmlDoc.getElementsByTagName("viewBox");
 
 //fill the times array with the times of the svg images.
 for (var k=0;k<panZoomArray.length;k++) {
 	//console.log(array[j].getAttribute("id")); 
 	panAndZoomTimes[k]=panZoomArray[k].getAttribute("timestamp");
-	output[panZoomArray[k].getAttribute("timestamp")] = {viewBoxValue:viewBoxes[k].childNodes[0]}
+	vboxValues[panZoomArray[k].getAttribute("timestamp")] = {viewBoxValue:viewBoxes[k].childNodes[0]}
 }
 
 // - - - END OF GLOBAL VARIABLES - - - //
@@ -103,21 +142,23 @@ function getNextY(t) {
 
 // Draw the cursor at a specific point
 function draw(x, y) {
+	cursorStyle = document.getElementById("cursor").style;
     //console.log("drawing " + x + " and " + y);
     //move to the next place
-    document.getElementById("cursor").style.left = (parseInt(document.getElementById("slide").offsetLeft) + parseInt(x)) + "px";
-    document.getElementById("cursor").style.top = (parseInt(document.getElementById("slide").offsetTop) + parseInt(y)) + "px";
+    cursorStyle.left = (parseInt(document.getElementById("slide").offsetLeft) + parseInt(x)) + "px";
+    cursorStyle.top = (parseInt(document.getElementById("slide").offsetTop) + parseInt(y)) + "px";
 }
 
 // Shows or hides the cursor object depending on true/false parameter passed.
 function showCursor(boolVal) {
+	cursorStyle = document.getElementById("cursor").style;
     if(boolVal == false) {
-        document.getElementById("cursor").style.height = "0px";
-        document.getElementById("cursor").style.width = "0px";
+        cursorStyle.height = "0px";
+        cursorStyle.width = "0px";
     }
     else {
-        document.getElementById("cursor").style.height = "10px";
-        document.getElementById("cursor").style.width = "10px";
+        cursorStyle.height = "10px";
+        cursorStyle.width = "10px";
     }
 }
 
@@ -133,6 +174,9 @@ function setViewBox(val) {
 	svgfile.setAttribute('viewBox', val);
 }
 
+
+var current_image = "image0";
+var next_image;
 var p = Popcorn("#video")
 
 //required here for the start.
@@ -147,7 +191,6 @@ var p = Popcorn("#video")
 		cursor_y_global = 0;
 		svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
 		svgobj.style.top = "8px";
-		
     },
 	
 	onEnd: function(options) {
@@ -164,8 +207,9 @@ var p = Popcorn("#video")
 				main_shapes_times[main_shapes_times.length] = time;
 			}
 		}
-		main_shapes_times[main_shapes_times.length] = times[times.length-1]; //put last value into this array always!
-		
+		if(times.length != 0) {
+			main_shapes_times[main_shapes_times.length] = times[times.length-1]; //put last value into this array always!
+		}
 		console.log(main_shapes_times);
 	}
 })
@@ -182,8 +226,6 @@ var p = Popcorn("#video")
 			//p.mute(); //muting for testing
 			//showCursor(true);
 			svgfile = svgobj.contentDocument.getElementById("svgfile");
-			
-			
 			var t = p.currentTime().toFixed(1); //get the time and round to 1 decimal place
 			
 			cursor_x_global = getNextX(""+t); //get the next cursor position
@@ -218,9 +260,18 @@ var p = Popcorn("#video")
 			if((cursor_x_global != -1) && (cursor_y_global != -1)) {
 				draw(cursor_x_global, cursor_y_global); //draw the cursor
 			}
-			vboxVal = output[""+t];
+			vboxVal = vboxValues[""+t];
 			if(vboxVal != undefined) {
 				setViewBox(vboxVal.viewBoxValue.data);
+			}
+			next_image = getImageAtTime(t);
+			if(current_image != next_image) {
+				console.log("hiding " + current_image);
+				svgobj.contentDocument.getElementById(current_image).style.visibility = "hidden";
+				console.log("showing " + next_image);
+				svgobj.contentDocument.getElementById(next_image).style.visibility = "visible";
+				current_image = next_image;
+				
 			}
 		}
     }
