@@ -96,17 +96,26 @@
 						btnPenc.selected = true;
 						btnEllipse.selected = false;
 						btnRectangle.selected = false;
+                        btnText.selected = false;
 						break;
 					case DrawObject.ELLIPSE:
 						btnPenc.selected = false;
 						btnEllipse.selected = true;
 						btnRectangle.selected = false;
+                        btnText.selected = false;
 						break;
 					case DrawObject.RECTANGLE:
 						btnPenc.selected = false;
 						btnEllipse.selected = false;
 						btnRectangle.selected = true;
+                        btnText.selected = false;
 						break;
+                    case DrawObject.TEXT:
+                        btnPenc.selected = false;
+                        btnEllipse.selected = false;
+                        btnRectangle.selected = false;
+                        btnText.selected = true;
+                        break;
 				}
 			}
 			
@@ -186,6 +195,8 @@
 			
 		]]>
 	</mx:Script>
+    <mx:Button width="20" height="20" id="btnText" click="setShape(DrawObject.TEXT)" icon="{rectangle_icon}" 
+               toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
 	<mx:Button width="20" height="20" id="btnPenc" click="setShape(DrawObject.PENCIL)"  icon="{pencil_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.pencil')}" toggle="true" selected="true" />
 	<mx:Button width="20" height="20" id="btnRectangle" click="setShape(DrawObject.RECTANGLE)" icon="{rectangle_icon}" 

@@ -18,7 +18,7 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.Shape;
+	import flash.display.Sprite;
 
 	/**
 	 * The DrawObject class provides an interface for other geometric representations.
@@ -34,7 +34,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public static const PENCIL:String = "pencil";
 		public static const RECTANGLE:String = "rectangle";
 		public static const ELLIPSE:String = "ellipse";
-				
+        public static const TEXT:String = "text";
+        
 		protected var type:String;
 		protected var shape:Array;
 		protected var color:uint;
@@ -54,7 +55,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public static const DRAW_START:String = "DRAW_START";
 		public var status:String = DRAW_START;
 				
-		protected var _shape:Shape = new Shape();
+		protected var _shape:Sprite = new Sprite();
 		protected var _segment:Array;
 		
 		/**
@@ -69,7 +70,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.optimize();
 		}
 		
-		public function getShape():Shape {
+		public function getShape():Sprite {
 			return _shape;
 		}
 		

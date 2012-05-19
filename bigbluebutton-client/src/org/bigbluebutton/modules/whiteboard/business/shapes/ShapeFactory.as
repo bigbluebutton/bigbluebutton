@@ -56,7 +56,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				return makeRectangle(shape as Rectangle);
 			} else if (shape.getType() == DrawObject.ELLIPSE){
 				return makeEllipse(shape as Ellipse);
-			}
+			} else if (shape.getType() == DrawObject.TEXT){
+                return makeText(shape as Text);
+            }
 			return null;
 		}
 		
@@ -73,7 +75,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			for (var i:int = 0; i < segment.length; i += 2) {
 				normSegment[i] = normalize(segment[i] , _parentWidth);
 				normSegment[i+1] = normalize(segment[i+1], _parentHeight);
-			}
+			}            
 			return makeShape(drawFactory.makeDrawObject(type, normSegment, color, thickness));
 		}
 		
@@ -125,5 +127,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return e;
 		}
 
+        private function makeText(e:Text):DrawObject{
+            e.makeShape(_parentWidth, _parentHeight);
+            return e;
+        }
 	}
 }

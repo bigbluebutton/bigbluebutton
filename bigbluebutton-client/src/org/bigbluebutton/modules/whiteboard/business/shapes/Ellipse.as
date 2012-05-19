@@ -18,7 +18,7 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.Shape;
+	import flash.display.Sprite;
 
 	/**
 	 * The Ellipse class. Extends the DrawObject 
@@ -61,7 +61,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		override public function makeShape(parentWidth:Number, parentHeight:Number):void {
-			var newShape:Shape = new Shape();
+			var newShape:Sprite = new Sprite();
 			newShape.graphics.lineStyle(getThickness(), getColor());
 			var arrayEnd:Number = getShapeArray().length;
 			var x:Number = denormalize(getShapeArray()[0], parentWidth);

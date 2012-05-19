@@ -78,7 +78,7 @@ package org.bigbluebutton.modules.whiteboard
 					break;
 			}
 			
-			LogUtil.error("SEGMENT LENGTH = [" + segment.length + "] STATUS = [" + dobj.status + "]");
+//			LogUtil.error("SEGMENT LENGTH = [" + segment.length + "] STATUS = [" + dobj.status + "]");
 			
 			if (this.shapeStyle == DrawObject.PENCIL) {
 				dobj.status = DrawObject.DRAW_END;

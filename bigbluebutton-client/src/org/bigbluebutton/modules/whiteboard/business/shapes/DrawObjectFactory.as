@@ -53,7 +53,12 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				d = makeRectangle(shape, color, thickness);
 			} else if (type == DrawObject.ELLIPSE){
 				d = makeEllipse(shape, color, thickness);
-			}
+			} else if (type == DrawObject.TEXT){
+                d = makeText(shape, color, thickness);
+                d.getShapeArray().push(d.getShape().width);
+                d.getShapeArray().push(d.getShape().height);
+            }
+            
 			return d;
 		}
 		
@@ -69,6 +74,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 */		
 		public function makePencil(shape:Array, color:uint, thickness:uint):DrawObject{
 			return new Pencil(shape, color, thickness);
+            
 		}
 		
 		/**
@@ -82,7 +88,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		public function makeRectangle(shape:Array, color:uint, thickness:uint):DrawObject{
-			return new Rectangle(shape, color, thickness);
+			//return new Rectangle(shape, color, thickness);
+            return new Text(shape, color, thickness);
 		}
 		
 		/**
@@ -99,5 +106,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return new Ellipse(shape, color, thickness);
 		}
 
+        public function makeText(shape:Array, color:uint, thickness:uint):DrawObject{
+            return new Text(shape, color, thickness);
+        }
 	}
 }

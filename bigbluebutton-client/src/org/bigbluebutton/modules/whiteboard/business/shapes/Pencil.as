@@ -18,7 +18,7 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.Shape;
+	import flash.display.Sprite;
 
 	/**
 	 * The Pencil class. Extends a DrawObject 
@@ -40,7 +40,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		override public function makeShape(parentWidth:Number, parentHeight:Number):void {
-			var newShape:Shape = new Shape();
+			var newShape:Sprite = new Sprite();
 			newShape.graphics.lineStyle(getThickness(), getColor());
 			
 			var graphicsCommands:Vector.<int> = new Vector.<int>();
