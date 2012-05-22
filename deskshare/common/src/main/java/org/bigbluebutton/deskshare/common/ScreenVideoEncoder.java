@@ -172,7 +172,7 @@ public final class ScreenVideoEncoder {
 			byte red = (byte) ((pixels[i] >> 16) & 0xff);
 			byte green = (byte) ((pixels[i] >> 8) & 0xff);
 			byte blue = (byte) (pixels[i] & 0xff);
-
+/*
 			if (grayscale) {
 				byte brightness = convertToGrayScale(red, green, blue);
 				
@@ -185,7 +185,12 @@ public final class ScreenVideoEncoder {
 				rgbPixels[position++] = blue;
 				rgbPixels[position++] = green;
 				rgbPixels[position++] = red;				
-			}				
+			}	
+*/				
+			// Sequence should be BGR
+			rgbPixels[position++] = blue;
+			rgbPixels[position++] = green;
+			rgbPixels[position++] = red;
 		}
 		
 		long end = System.currentTimeMillis();
