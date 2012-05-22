@@ -68,10 +68,11 @@ package org.bigbluebutton.modules.deskshare.managers
 						
 		public function enableToolbarButton():void {
 			button.enabled = true;
+			button.stopDeskshare();
 		}
 		
 		public function disableToolbarButton():void {
-			button.enabled = false;
+			button.enabled = false;			
 		}
 	}
 }

@@ -21,17 +21,14 @@
 */
 package org.bigbluebutton.deskshare.server.red5
 
-
+import org.red5.server.api.{IContext, IScope, ScopeUtils, IConnection}
+import org.red5.server.so.SharedObjectService
+import org.red5.server.api.so.{ISharedObject, ISharedObjectService}
+import org.red5.server.stream.{BroadcastScope, IBroadcastScope, IProviderService}
 import org.bigbluebutton.deskshare.server.ScreenVideoBroadcastStream
 import org.bigbluebutton.deskshare.server.stream.StreamManager
 import org.bigbluebutton.deskshare.server.socket.DeskShareServer
 import org.bigbluebutton.deskshare.server.MultiThreadedAppAdapter
-import org.red5.server.api.ScopeUtils
-import org.red5.server.api.IConnection
-import org.red5.server.api.{IContext, IScope}
-import org.red5.server.so.SharedObjectService
-import org.red5.server.api.so.{ISharedObject, ISharedObjectService}
-import org.red5.server.stream.{BroadcastScope, IBroadcastScope, IProviderService}
 import scala.actors.Actor
 import scala.actors.Actor._
 

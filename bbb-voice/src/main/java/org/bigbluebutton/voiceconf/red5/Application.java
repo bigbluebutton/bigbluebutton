@@ -157,8 +157,7 @@ public class Application extends MultiThreadedApplicationAdapter {
     	log.debug("{} has stopped publishing stream [{}]", username + "[uid=" + userid + "][clientid=" + clientId + "]", stream.getPublishedName());
     	IConnection conn = Red5.getConnectionLocal();
     	String peerId = (String) conn.getAttribute("VOICE_CONF_PEER");
-        if (peerId != null) {
-        	super.streamPublishStart(stream);	    	
+        if (peerId != null) {	    	
 	    	sipPeerManager.stopTalkStream(peerId, clientId, stream, conn.getScope());
 	    	super.streamBroadcastClose(stream);
         }

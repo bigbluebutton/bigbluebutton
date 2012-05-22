@@ -32,7 +32,8 @@ public class ParamsProcessorUtil {
 	private int defaultNumDigitsForTelVoice;
 	private String defaultClientUrl;
 	private int defaultMeetingDuration;
-
+	private boolean disableRecordingDefault;
+	
 	private String substituteKeywords(String message, String dialNumber, String telVoice, String meetingName) {
 	    String welcomeMessage = message;
 	    
@@ -352,6 +353,12 @@ public class ParamsProcessorUtil {
 	}
 	
 	public boolean processRecordMeeting(String record) {
+		// The administrator has turned off recording for all meetings.
+		if (disableRecordingDefault) {
+			log.info("Recording is turned OFF by default.");
+			return false;
+		}
+		
 		boolean rec = false;			
 		if(! StringUtils.isEmpty(record)){
 			try {
@@ -482,6 +489,10 @@ public class ParamsProcessorUtil {
 
 	public void setDefaultMeetingDuration(int defaultMeetingDuration) {
 		this.defaultMeetingDuration = defaultMeetingDuration;
+	}
+
+	public void setDisableRecordingDefault(boolean disabled) {
+		this.disableRecordingDefault = disabled;
 	}
 	
 	public ArrayList<String> decodeIds(String encodeid){

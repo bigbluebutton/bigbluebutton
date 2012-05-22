@@ -1,3 +1,6 @@
+# Set encoding to utf-8
+# encoding: UTF-8
+
 require 'rubygems'
 require 'redis'
 require 'builder'
@@ -51,8 +54,9 @@ module BigBlueButton
     end
     
     def store_events(meeting_id)
+	Encoding.default_external="UTF-8"
       xml = Builder::XmlMarkup.new( :indent => 2 )
-      result = xml.instruct! :xml, :version => "1.0"
+      result = xml.instruct! :xml, :version => "1.0", :encoding=>"UTF-8"
       
       meeting_metadata = @redis.metadata_for(meeting_id)
 
@@ -72,7 +76,7 @@ module BigBlueButton
 						}
 					elsif res[MODULE] == "CHAT" && res[EVENTNAME] == "PublicChatEvent" && key == "message"
 						xml.method_missing(key){
-							xml.cdata!(val)
+							xml.cdata!(val.tr("\u0000-\u001f\u007f\u2028",''))
 						}
 					else
 						xml.method_missing(key,  val)

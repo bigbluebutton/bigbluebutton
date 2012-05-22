@@ -23,10 +23,12 @@ package org.bigbluebutton.deskshare.server.svc1
 
 import java.util.Random
 import net.lag.logging.Logger
+import org.bigbluebutton.deskshare.common.ScreenVideoEncoder
 
 class Block(val dim: Dimension, val position: Int) {
 	private val log = Logger.get
 
+	var firstBlockReceived = false;
     val nextForceUpdate = 10000
     val MIN_DURATION = 5000
     val MAX_DURATION = 10000
@@ -39,20 +41,32 @@ class Block(val dim: Dimension, val position: Int) {
     val random: Random = new Random();
     private var sequenceNumber = 0;
     
+    // Initialize a blank block.
+    private var blankPixels = new Array[Int](dim.width * dim.height)
+	for (i: Int <- 0 until blankPixels.length) {
+			blankPixels(i) = 0xCECECE;
+	}
+    val encodedBlankPixels = ScreenVideoEncoder.encodePixels(blankPixels, dim.width, dim.height, false)
+    
     def update(videoData: Array[Byte], isKeyFrame: Boolean, seqNum: Int): Unit =  {	
-    	if (seqNum >= sequenceNumber) {
-			sequenceNumber = seqNum				
-	    	this.isKeyFrame = isKeyFrame;
-	    	encodedBlock = videoData;
-	    	hasChanged = true;
-    	} else {
-			log.warning("Block[" + position + "[: Delayed sequence number [%s < %s]", seqNum, sequenceNumber)
-		}
+      firstBlockReceived = true;
+      if (seqNum >= sequenceNumber) {
+    	sequenceNumber = seqNum				
+    	this.isKeyFrame = isKeyFrame;
+	    encodedBlock = videoData;
+	    hasChanged = true;
+      } else {
+		log.warning("Block[" + position + "[: Delayed sequence number [%s < %s]", seqNum, sequenceNumber)
+      }
     }
  
-    def getEncodedBlock(): Array[Byte] = {
-    	hasChanged = false;
-    	return encodedBlock;
+    def getEncodedBlock(blankPixels: Boolean): Array[Byte] = {
+      // Return a blank block if the manager want's a blank block
+      // or if we haven't received a block from the applet yet.
+      if (blankPixels || !firstBlockReceived) return encodedBlankPixels;
+
+      hasChanged = false;
+      return encodedBlock;
     }
     
     def getDimension(): Dimension = {

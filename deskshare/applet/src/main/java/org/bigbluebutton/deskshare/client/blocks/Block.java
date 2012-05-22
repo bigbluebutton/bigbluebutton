@@ -25,6 +25,8 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.bigbluebutton.deskshare.client.net.EncodedBlockData;
 import org.bigbluebutton.deskshare.common.PixelExtractException;
 import org.bigbluebutton.deskshare.common.ScreenVideoEncoder;
@@ -40,6 +42,7 @@ public final class Block {
     private final Object pixelsLock = new Object();
     private AtomicBoolean dirtyBlock = new AtomicBoolean(false);
     private long lastSent = System.currentTimeMillis();
+    private AtomicLong sentCount = new AtomicLong();
     
     Block(Dimension dim, int position, Point location) {
         checksum = new BlockChecksum();
@@ -86,6 +89,7 @@ public final class Block {
     }
     
     public void sent() {
+    	sentCount.incrementAndGet();
     	dirtyBlock.set(false);
     }
     
@@ -96,7 +100,7 @@ public final class Block {
             System.arraycopy(capturedPixels, 0, pixelsCopy, 0, capturedPixels.length);
 		}
     	
-        byte[] encodedBlock = ScreenVideoEncoder.encodePixels(pixelsCopy, getWidth(), getHeight()); 	
+        byte[] encodedBlock = ScreenVideoEncoder.encodePixels(pixelsCopy, getWidth(), getHeight(), (sentCount.longValue() < 5) /* send grayscale image */); 	
         return new EncodedBlockData(position, encodedBlock);		
     }
     

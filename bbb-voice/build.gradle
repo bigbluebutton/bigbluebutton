@@ -81,7 +81,7 @@ dependencies {
 	providedCompile 'org.springframework:spring-core:3.0.6.RELEASE@jar'
 			
 	// Red5
-	providedCompile 'org/red5:red5:1.0r4297@jar'
+	providedCompile 'org/red5:red5:1.0r4316@jar'
 	
 	// Logging
 	providedCompile 'org.slf4j:com.springsource.slf4j.api:1.6.1@jar'
