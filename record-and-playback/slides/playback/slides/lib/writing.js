@@ -210,7 +210,8 @@ var p = Popcorn("#video")
 		if(times.length != 0) {
 			main_shapes_times[main_shapes_times.length] = times[times.length-1]; //put last value into this array always!
 		}
-		console.log(main_shapes_times);
+		
+		//console.log(svgobj.contentDocument.getElementById("image2").width);
 	}
 })
 
@@ -260,19 +261,39 @@ var p = Popcorn("#video")
 			if((cursor_x_global != -1) && (cursor_y_global != -1)) {
 				draw(cursor_x_global, cursor_y_global); //draw the cursor
 			}
+			
+			next_image = getImageAtTime(t);
+			if(current_image != next_image) {
+				//console.log("hiding " + current_image);
+				svgobj.contentDocument.getElementById(current_image).style.visibility = "hidden";
+				//console.log("showing " + next_image);
+				svgobj.contentDocument.getElementById(next_image).style.visibility = "visible";
+				current_image = next_image;
+			}
+			
 			vboxVal = vboxValues[""+t];
 			if(vboxVal != undefined) {
 				setViewBox(vboxVal.viewBoxValue.data);
+				//vboxArray = vboxVal.viewBoxValue.data.split(' ');
+				//currimg = svgobj.contentDocument.getElementById(current_image);
+				//staticHeight = currimg.height.baseVal.value;
+				//staticWidth = currimg.width.baseVal.value;
+				//detect if we should trim.
+				//if(((vboxArray[0] == 0) && (vboxArray[1] == 0)) && ((vboxArray[2] != staticWidth) || (vboxArray[3] != staticHeight))) {
+					//updatedX = 0; //always
+					//updatedH = vboxArray[3];
+					//updatedY = (staticHeight - updatedH)/2;
+					//updatedW = vboxArray[2];
+					//ééupdatedViewbox = (updatedX + " " + updatedY + " " + updatedW + " " + updatedH);
+					//updatedHeight = ((staticHeight-8) - ((((staticHeight-8) - vboxArray[3])/((staticHeight-8)/((staticHeight-8) - vboxArray[3]))/2)+8))+8 + "px"; //works except for first one.
+					//updatedHeight = (staticHeight - (((staticHeight - vboxArray[3])/(staticHeight/(staticHeight - vboxArray[3]))/2)))+8 + "px"; 
+					//svgobj.style.height = updatedHeight;
+					//setViewBox(""+updatedViewbox);
+					//console.log("must change vbox to " + updatedViewbox);
+				//} 
 			}
-			next_image = getImageAtTime(t);
-			if(current_image != next_image) {
-				console.log("hiding " + current_image);
-				svgobj.contentDocument.getElementById(current_image).style.visibility = "hidden";
-				console.log("showing " + next_image);
-				svgobj.contentDocument.getElementById(next_image).style.visibility = "visible";
-				current_image = next_image;
-				
-			}
+			//console.log(current_image);
+			//console.log(svgobj.contentDocument.getElementById(current_image));
 		}
     }
 })
