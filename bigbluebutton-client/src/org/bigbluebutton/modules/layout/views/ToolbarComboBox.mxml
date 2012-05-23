@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+  Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+  This program is free software; you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free Software
+  Foundation; either version 2.1 of the License, or (at your option) any later
+  version.
+
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License along
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+  Author: Felipe Cecagno <felipe@mconf.org>
+
+  $Id: $
+-->
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   creationComplete="init()" 
+		   toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.layout.toolTip')}" 
+		   xmlns:mate="http://mate.asfusion.com/"
+		   prompt="{ResourceUtil.getInstance().getString('bbb.layout.prompt')}"
+		   click="onLayoutClick(event)"
+		   change="onLayoutChanged(event)"
+		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
+	
+	<mate:Listener type="{LayoutsLoadedEvent.LAYOUTS_LOADED}" method="populateComboBox" />
+	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			import flash.events.Event;
+			
+			import mx.controls.Alert;
+			import mx.events.ResizeEvent;
+			
+			import flexlib.mdi.managers.MDIManager;
+			import flexlib.mdi.containers.MDICanvas;
+			import flexlib.mdi.containers.MDIWindow;
+			import flexlib.mdi.events.MDIManagerEvent;
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.main.views.MainToolbar;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
+			import org.bigbluebutton.modules.layout.events.DefineLayoutEvent;
+			import org.bigbluebutton.modules.layout.model.LayoutDefinition;
+			import org.bigbluebutton.modules.layout.model.WindowLayout;
+			
+			private var _dispatcher:Dispatcher = new Dispatcher();
+			private var _layouts:Dictionary;
+			private var _mdiCanvas:MDICanvas = null;
+			private var _currentLayout:LayoutDefinition = null;
+			private var _deactivated:Boolean = false;
+			private var _previousLayout:int = -1;
+			
+			private function init():void{
+				_mdiCanvas = getMdiCanvas(parent) as MDICanvas;
+				
+				_mdiCanvas.windowManager.container.addEventListener(ResizeEvent.RESIZE, resizeHandler);
+		        _mdiCanvas.windowManager.container.addEventListener(Event.ACTIVATE, activateHandler);
+		        _mdiCanvas.windowManager.container.addEventListener(Event.DEACTIVATE, deactivateHandler);
+
+				for each (var window:MDIWindow in _mdiCanvas.windowManager.windowList) {
+					setupWindowListener(window);
+				}
+				
+				// it only dispatches the activate event when the user starts to interact with the canvas
+				deactivateHandler();
+			}
+			
+			private function resizeHandler(e:ResizeEvent):void {
+//				LogUtil.debug("The main canvas has been resized");
+				_currentLayout.applyToCanvas(_mdiCanvas);
+			}
+			
+			private function activateHandler(e:Event):void {
+				_deactivated = false;
+			}
+
+			private function deactivateHandler(e:Event = null):void {
+				// here I will store the current layout
+				if (!_deactivated) {
+//					LogUtil.debug("Deactivating the main canvas, possibly because the user is resizing the window, saving the current layout");
+					if (selectedIndex == -1) {
+						// if the user selected a layout, then the _currentLayout is already set
+						_currentLayout = LayoutDefinition.getLayout(_mdiCanvas, "Custom layout");
+					}
+					_deactivated = true;
+				}
+			}
+			
+			private function populateComboBox(e:LayoutsLoadedEvent):void {
+				_layouts = e.layouts;
+				dataProvider.removeAll();
+				for each (var value:LayoutDefinition in _layouts) {
+					dataProvider.addItem({label:value.name});
+				}
+				dataProvider.addItem({label:ResourceUtil.getInstance().getString('bbb.layout.copy')});
+			}
+			
+			private function handleOpenWindowEvent(e:OpenWindowEvent):void {
+				setupWindowListener(e.window as MDIWindow);
+			}
+			
+			private function setupWindowListener(window:MDIWindow):void {
+				window.addEventListener(MDIWindowEvent.RESIZE_START, invalidateLayout);
+				window.addEventListener(MDIWindowEvent.DRAG_START, invalidateLayout);
+			}
+			
+			private function invalidateLayout(e:Event):void {
+				prompt = ResourceUtil.getInstance().getString('bbb.layout.custom');
+				selectedIndex = -1;
+			}
+			
+			private function onLayoutClick(e:Event):void {
+				_previousLayout = selectedIndex;
+			}
+			
+			private function onLayoutChanged(e:Event):void {
+				var key:String = e.currentTarget.selectedItem.label;
+
+				if (key == ResourceUtil.getInstance().getString('bbb.layout.copy')) {
+					var name:String;
+					if (_previousLayout != -1)
+						name = dataProvider.getItemAt(_previousLayout).label;
+					else
+						name = "Custom layout";
+					System.setClipboard(LayoutDefinition.getLayout(_mdiCanvas, name).toXml());
+	                Alert.show(ResourceUtil.getInstance().getString('bbb.layout.copied'), "", Alert.OK, this);
+					selectedIndex = _previousLayout;
+				} else {
+					_currentLayout = _layouts[key];
+					_currentLayout.applyToCanvas(_mdiCanvas);
+				}
+			}
+			
+			private function getMdiCanvas(p:DisplayObjectContainer):DisplayObject {
+				if (p == null)
+					return null;
+					
+				for (var i:int = 0; i < p.numChildren; ++i) {
+					//if (String(getQualifiedClassName(p.getChildAt(i))).match("MainCanvas"))
+					if (WindowLayout.getType(p.getChildAt(i)) == "MainCanvas") 
+						return p.getChildAt(i);
+					
+					var obj:DisplayObject = getMdiCanvas(p.parent);
+					if (obj != null)
+						return obj;
+				}
+				return null;
+			}
+			
+			public function show():void{
+				this.enabled = true;
+			}
+			
+			private function closeEventHandler(e:Event):void {
+				show();
+			}
+			
+			public function getAlignment():String{
+				return MainToolbar.ALIGN_RIGHT;
+			}
+		]]>
+	</mx:Script>
+</mx:ComboBox>

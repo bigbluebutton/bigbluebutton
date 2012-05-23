@@ -95,6 +95,10 @@
 			oneAlwaysBigger="false"
 		/>
 		
+		<module name="LayoutModule" url="LayoutModule.swf?v=VERSION"
+		    layoutConfig="conf/layout.xml"
+		/>
+
 		<!-- new module in development: 
 		<module name="DynamicInfoModule" url="DynamicInfoModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
