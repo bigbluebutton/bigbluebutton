@@ -15,7 +15,7 @@ class String
   end
 end
 
-vbox_width = 464
+vbox_width = 800
 vbox_height = 600
 magic_mystery_number = 2
 shapes_svg_filename = 'shapes.svg'
@@ -29,11 +29,14 @@ originalOriginY = "NaN"
 rectangle_count = 0
 line_count = 0
 ellipse_count = 0
-global_slide_count = 0
+global_slide_count = 1
+global_page_count = 0
 
 prev_time = "NaN"
 
 ss = {}
+clearPageTimes = {}
+slides_compiled = {}
 
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
@@ -117,6 +120,7 @@ if (playback == "slides")
 		chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
 		shape_events = @doc.xpath("//event[@eventname='AddShapeEvent']") # for the creation of shapes
 		panzoom_events = @doc.xpath("//event[@eventname='ResizeAndMoveSlideEvent']") # for the action of panning and/or zooming
+		clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
 		
 		join_time = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0]['timestamp'].to_f
 		presentation_name = ""
@@ -124,31 +128,6 @@ if (playback == "slides")
 		# Create slides.xml and chat.
 		slides_doc = Nokogiri::XML::Builder.new do |xml|
 			xml.popcorn {
-=begin
-this code here was the old code for processing the slides. they are now encorporated into the shapes.svg
-				xml.timeline {
-					xml.image(:in => 0, :out => first_slide_start, :src => "logo.png", :target => "slide", :width => 200, :width => 200 )
-					slides_events.each do |node|
-						eventname =  node['eventname']
-						if eventname == "SharePresentationEvent"
-							presentation_name = node.xpath(".//presentationName")[0].text()
-						else
-							slide_timestamp =  node['timestamp']
-							slide_start = ((slide_timestamp.to_f - meeting_start.to_f) / 1000).round(1)
-							slide_number = node.xpath(".//slide")[0].text()
-							slide_src = "#{presentation_url}/#{presentation_name}/slide-#{slide_number.to_i + 1}.png"
-							current_index = slides_events.index(node)
-							if(current_index + 1 < slides_events.length)
-								slide_end = (( slides_events[current_index + 1]['timestamp'].to_f - meeting_start.to_f ) / 1000).round(1)
-							else
-								slide_end = (( meeting_end.to_f - meeting_start.to_f ) / 1000).round(1)
-							end
-							xml.image(:in => slide_start, :out => slide_end, :src => slide_src, :target => "slide", :width => 200, :width => 200 )
-							puts "#{slide_src} : #{slide_start} -> #{slide_end}"
-						end
-					end
-				}
-=end
 				# Process chat events.
 				chat_events.each do |node|
 					chat_timestamp =  node['timestamp']
@@ -162,6 +141,13 @@ this code here was the old code for processing the slides. they are now encorpor
 		
 		# Create shapes.svg
 		shapes_svg = Nokogiri::XML::Builder.new do |xml|
+			# process all the cleared pages events.
+			clear_page_events.each do |clearEvent|
+				clearTime = (clearEvent['timestamp'].to_f - join_time)
+				pageCleared = node.xpath(".//pageNumber")[0].text()
+				clearPageTimes[clearTime] = pageCleared
+			end
+			
 			xml.doc.create_internal_subset('svg', "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd")
 			xml.svg('id' => 'svgfile', 'style' => 'position:absolute; height:600px; width:800px;', 'xmlns' => 'http://www.w3.org/2000/svg', 'xmlns:xlink' => 'http://www.w3.org/1999/xlink', 'version' => '1.1', 'viewBox' => '0 0 800 600') do
 				
@@ -174,15 +160,10 @@ this code here was the old code for processing the slides. they are now encorpor
 						slide_timestamp =  node['timestamp']
 						slide_start = ((slide_timestamp.to_f - meeting_start.to_f) / 1000).round(1)
 						slide_number = node.xpath(".//slide")[0].text()
-						global_slide_count = global_slide_count + 1
+						# global_slide_count = global_slide_count + 1
 						slide_src = "presentation/#{presentation_name}/slide-#{slide_number.to_i + 1}.png"
 						image_url = "#{process_dir}/#{slide_src}"
 						slide_size = FastImage.size(image_url)
-						
-						# Here we are going to want to do some funky calculations.
-						# Essentially if the size of the image is 800 x 600 then leave it.
-						# But the rest is unknown as of right now...
-						# If height/width is greater than 0.75 then multiply this ratio by 800 to get new height, new width is now 800.
 						
 						current_index = slides_events.index(node)
 						if(current_index + 1 < slides_events.length)
@@ -190,12 +171,26 @@ this code here was the old code for processing the slides. they are now encorpor
 						else
 							slide_end = (( meeting_end.to_f - meeting_start.to_f ) / 1000).round(1)
 						end
-						xml.image(:id => "image#{global_slide_count.to_i}", :in => slide_start, :out => slide_end, 'xlink:href' => slide_src, :height => slide_size[1], :width => slide_size[0], :visibility => "hidden")
+						
+						# Is this a new image or one previously viewed?
+						if(slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
+							# If it is, add it to the list with all the data.
+							slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start],[slide_end], global_slide_count]
+							global_slide_count = global_slide_count + 1
+						elsif
+							# If not, append new in and out times to the old entry
+							slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
+							slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
+						end
+						
 						ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
 						puts "#{slide_src} : #{slide_start} -> #{slide_end}"
 					end
 				end
-				#xml.image('width'=>'800px', 'height'=>'600px', 'xlink:href'=>'presentation/default/slide-1.png')
+				# Print out the gathered/detected images.
+				slides_compiled.each do |key, val|
+					xml.image(:id => "image#{val[2].to_i}", :in => val[0].join(' '), :out => val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => "hidden")
+				end
 				
 				shape_events.each do |shape|
 					# # Get variables
@@ -311,9 +306,9 @@ this code here was the old code for processing the slides. they are now encorpor
 						if((!(h_ratio_prev.eql?("NaN"))) && (!(w_ratio_prev.eql?("NaN"))) && (!(x_prev.eql?("NaN"))) && (!(y_prev.eql?("NaN"))))
 							xml.event('timestamp' => "#{timestamp_prev}", 'orig' => "#{timestamp_orig_prev}") do
 								ss.each do |key,val|
-									if key === timestamp_prev
-										vbox_width_pz = val[0]
-										vbox_height_pz = val[1]
+									if key === timestamp
+										vbox_width = val[0]
+										vbox_height = val[1]
 									end
 								end
 								xml.viewBox "#{(vbox_width-((1-((x_prev.to_f.abs)*magic_mystery_number/100.0))*vbox_width))} #{(vbox_height-((1-((y_prev.to_f.abs)*magic_mystery_number/100.0))*vbox_height)).round(2)} #{((w_ratio_prev.to_f/100.0)*vbox_width).round(1)} #{((h_ratio_prev.to_f/100.0)*vbox_height).round(1)}"

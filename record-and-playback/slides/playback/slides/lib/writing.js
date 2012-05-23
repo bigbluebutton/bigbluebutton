@@ -40,11 +40,11 @@ var svgfile = svgobj.contentDocument.getElementById("svgfile");
 //making the object for requesting the read of the XML files.
 if (window.XMLHttpRequest){
 	// code for IE7+, Firefox, Chrome, Opera, Safari
-	xmlhttp=new XMLHttpRequest();
+var	xmlhttp = new XMLHttpRequest();
 }
 else {
 	// code for IE6, IE5
-	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+var xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
 }
 
 
@@ -69,8 +69,8 @@ for (var j = 0; j < array.length; j++) {
 var times_length = times.length; //get the length of the times array.
 
 function getImageAtTime(time) {
-	var prev_key = "NaN";
-	var key = "NaN"
+	var prev_key;
+	var key;
 	for (key in imageAtTime) {
 		if((parseInt(key) > time) && (parseInt(prev_key) <= time)) {
 			return imageAtTime[prev_key];
@@ -83,21 +83,14 @@ function getImageAtTime(time) {
 	else return imageAtTime["0"];
 }
 
-for(var m = 0; m < images.length; m++) {
-	imageAtTime[""+images[m].getAttribute("in")] = images[m].getAttribute("id");
-}
 
-/*
-console.log("image at 4.2 is " + getImageAtTime("4.2"));
-console.log("image at 36.9 is " + getImageAtTime("36.9"));
-console.log("image at 18.0 is " + getImageAtTime("18.0"));
-console.log("image at 51.4 is " + getImageAtTime("51.4"));
-console.log("image at 51.5 is " + getImageAtTime("51.5"));
-console.log("image at 18 is " + getImageAtTime("18"));
-console.log("image at -1.0 is " + getImageAtTime("-1.0"));
-console.log("image at 0 is " + getImageAtTime("0"));
-console.log("image at 999 is " + getImageAtTime("9999"));
-*/
+for(var m = 0; m < images.length; m++) {
+	len = images[m].getAttribute("in").split(" ").length;
+	for(var n = 0; n < len; n++) {
+		imageAtTime[""+images[m].getAttribute("in").split(" ")[n]] = images[m].getAttribute("id");
+		console.log(""+images[m].getAttribute("in").split(" ")[n] + " is " + images[m].getAttribute("id"));
+	}
+}
 
 // PROCESS PANZOOMS.XML
 xmlhttp.open("GET", events_xml, false);
@@ -111,8 +104,6 @@ viewBoxes = xmlDoc.getElementsByTagName("viewBox");
 
 //fill the times array with the times of the svg images.
 for (var k=0;k<panZoomArray.length;k++) {
-	//console.log(array[j].getAttribute("id")); 
-	panAndZoomTimes[k]=panZoomArray[k].getAttribute("timestamp");
 	vboxValues[panZoomArray[k].getAttribute("timestamp")] = {viewBoxValue:viewBoxes[k].childNodes[0]}
 }
 
@@ -174,8 +165,8 @@ function setViewBox(val) {
 	svgfile.setAttribute('viewBox', val);
 }
 
-
 var current_image = "image0";
+var current_page = "page0";
 var next_image;
 var p = Popcorn("#video")
 
@@ -224,16 +215,18 @@ var p = Popcorn("#video")
 		if((p.paused() == true) && (p.seeking() == false)) {
 		}
 		else {
-			//p.mute(); //muting for testing
+			p.mute(); //muting for testing
 			//showCursor(true);
 			svgfile = svgobj.contentDocument.getElementById("svgfile");
 			var t = p.currentTime().toFixed(1); //get the time and round to 1 decimal place
 			
-			cursor_x_global = getNextX(""+t); //get the next cursor position
-			cursor_y_global = getNextY(""+t); //get the next cursor position
+			//cursor_x_global = getNextX(""+t); //get the next cursor position
+			//cursor_y_global = getNextY(""+t); //get the next cursor position
 			
 			current_shape = svgobj.contentDocument.getElementById("draw" + t);
+			//if there is actually a shape to be displayed
 			if(current_shape != undefined) {
+				//get the type of shape
 				current_shape = current_shape.getAttribute("shape"); //get actual shape tag for this specific time of playback
 				//console.log(current_shape);
 			}
@@ -243,30 +236,36 @@ var p = Popcorn("#video")
 				time_f = parseFloat(time)
 				shape = svgobj.contentDocument.getElementById("draw" + time);
 				shape_i = shape.getAttribute("shape");
+				//for the shapes with times that have passed
 				if (time_f < t) {
 					if(shape_i == current_shape) { //currently drawing the same shape so don't draw the older steps
 						shape.style.visibility = "hidden"; //hide older steps to shape
 					}
+					//as long as it is a main shape, it can be drawn... no intermediate steps.
 					else if(main_shapes_times.indexOf(time) != -1) {
 						shape.style.visibility = "visible";
 					}
 				}
+				//for the shape with the time specific to the current time
 				else if(time_f == t) {
 					shape.style.visibility = "visible";
 				}
+				//for shapes that shouldn't be drawn yet (larger time than current time), don't draw them.
 				else { // then time_f is > t
 					shape.style.visibility = "hidden";
 				}
 			}
-			if((cursor_x_global != -1) && (cursor_y_global != -1)) {
-				draw(cursor_x_global, cursor_y_global); //draw the cursor
-			}
 			
-			next_image = getImageAtTime(t);
+			//update the cursor
+			//if((cursor_x_global != -1) && (cursor_y_global != -1)) {
+			//	draw(cursor_x_global, cursor_y_global); //draw the cursor
+			//}
+			
+			next_image = getImageAtTime(t); //fetch the name of the image at this time.
+			
+			//changing slide image
 			if(current_image != next_image) {
-				//console.log("hiding " + current_image);
 				svgobj.contentDocument.getElementById(current_image).style.visibility = "hidden";
-				//console.log("showing " + next_image);
 				svgobj.contentDocument.getElementById(next_image).style.visibility = "visible";
 				current_image = next_image;
 			}
@@ -274,6 +273,7 @@ var p = Popcorn("#video")
 			vboxVal = vboxValues[""+t];
 			if(vboxVal != undefined) {
 				setViewBox(vboxVal.viewBoxValue.data);
+				console.log("moved to " +  vboxVal.viewBoxValue.data);
 				//vboxArray = vboxVal.viewBoxValue.data.split(' ');
 				//currimg = svgobj.contentDocument.getElementById(current_image);
 				//staticHeight = currimg.height.baseVal.value;
