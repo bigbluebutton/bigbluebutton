@@ -90,11 +90,16 @@ package org.bigbluebutton.modules.layout.model {
 		}
 		
 		public function applyToWindow(canvas:MDICanvas, window:MDIWindow):void {
-			if (this.minimized || this.maximized) {
-				this.minimized? window.minimize(): window.maximize();
-				return; 
-			} else
-				window.restore();
+			if (this.minimized) {
+				if (!window.minimized) window.minimize();
+				return;
+			} else if (this.maximized) {
+				if (!window.maximized) window.maximize();
+				return;
+			} else if (window.minimized && !this.minimized)
+				window.unMinimize();
+			else if (window.maximized && !this.maximized)
+				window.maximizeRestore();
 			
 			var newWidth:int = this.width * canvas.width;
 			var newHeight:int = this.height * canvas.height;

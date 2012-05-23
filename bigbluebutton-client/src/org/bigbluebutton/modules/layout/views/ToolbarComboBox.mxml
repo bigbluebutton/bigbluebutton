@@ -59,7 +59,7 @@
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			private var _layouts:Dictionary;
 			private var _mdiCanvas:MDICanvas = null;
-			private var _currentLayout:LayoutDefinition = null;
+			private var _savedLayout:LayoutDefinition = null;
 			private var _deactivated:Boolean = false;
 			private var _previousLayout:int = -1;
 			
@@ -80,7 +80,7 @@
 			
 			private function resizeHandler(e:ResizeEvent):void {
 //				LogUtil.debug("The main canvas has been resized");
-				_currentLayout.applyToCanvas(_mdiCanvas);
+				_savedLayout.applyToCanvas(_mdiCanvas);
 			}
 			
 			private function activateHandler(e:Event):void {
@@ -91,10 +91,10 @@
 				// here I will store the current layout
 				if (!_deactivated) {
 //					LogUtil.debug("Deactivating the main canvas, possibly because the user is resizing the window, saving the current layout");
-					if (selectedIndex == -1) {
+//					if (selectedIndex == -1) {
 						// if the user selected a layout, then the _currentLayout is already set
-						_currentLayout = LayoutDefinition.getLayout(_mdiCanvas, "Custom layout");
-					}
+						_savedLayout = LayoutDefinition.getLayout(_mdiCanvas, "Custom layout");
+//					}
 					_deactivated = true;
 				}
 			}
@@ -139,8 +139,7 @@
 	                Alert.show(ResourceUtil.getInstance().getString('bbb.layout.copied'), "", Alert.OK, this);
 					selectedIndex = _previousLayout;
 				} else {
-					_currentLayout = _layouts[key];
-					_currentLayout.applyToCanvas(_mdiCanvas);
+					_layouts[key].applyToCanvas(_mdiCanvas);
 				}
 			}
 			
@@ -160,13 +159,13 @@
 				return null;
 			}
 			
-			public function show():void{
+			/*public function show():void{
 				this.enabled = true;
 			}
 			
 			private function closeEventHandler(e:Event):void {
 				show();
-			}
+			}*/
 			
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_RIGHT;
