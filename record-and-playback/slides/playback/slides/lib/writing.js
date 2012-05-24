@@ -56,33 +56,25 @@ xmlDoc=xmlhttp.responseXML;
 shapeelements=xmlDoc.getElementsByTagName("svg");
 
 //get the array of values for the first shape (getDataPoints(0) is the first shape).
-var array = shapeelements[0].getElementsByTagName("g"); //get all the lines from the svg file
+var array = shapeelements[0].getElementsByClassName("shape"); //get all the lines from the svg file
 var images = shapeelements[0].getElementsByTagName("image");
 
 //console.log(images);
 
 //fill the times array with the times of the svg images.
 for (var j = 0; j < array.length; j++) {
-	times[j] = array[j].getAttribute("id").substr(4);
+		times[j] = array[j].getAttribute("id").substr(4);
 }
 
 var times_length = times.length; //get the length of the times array.
 
 function getImageAtTime(time) {
-	var prev_key;
-	var key;
-	for (key in imageAtTime) {
-		if((parseInt(key) > time) && (parseInt(prev_key) <= time)) {
-			return imageAtTime[prev_key];
-		}
-		prev_key = key;
-	}
-	if(time > parseInt(prev_key)) {
-		return imageAtTime[prev_key];
-	}
-	else return imageAtTime["0"];
+	return imageAtTime[time]; //will not adjust for scrolling but is a O(1) so very efficient.
 }
 
+function getCanvasAtTime(time) {
+	return "canvas";
+}
 
 for(var m = 0; m < images.length; m++) {
 	len = images[m].getAttribute("in").split(" ").length;
@@ -168,6 +160,9 @@ function setViewBox(val) {
 var current_image = "image0";
 var current_page = "page0";
 var next_image;
+
+var current_canvas = "canvas0";
+
 var p = Popcorn("#video")
 
 //required here for the start.
@@ -228,7 +223,6 @@ var p = Popcorn("#video")
 			if(current_shape != undefined) {
 				//get the type of shape
 				current_shape = current_shape.getAttribute("shape"); //get actual shape tag for this specific time of playback
-				//console.log(current_shape);
 			}
 			//redraw everything (only way to make everything elegant)
 			for (i = 0, len = times_length; i < len; i++) {
@@ -262,18 +256,33 @@ var p = Popcorn("#video")
 			//}
 			
 			next_image = getImageAtTime(t); //fetch the name of the image at this time.
+			//next_canvas = getCanvasAtTime(t);
 			
-			//changing slide image
-			if(current_image != next_image) {
+			//changing the canvas drawings (cleared or page turned)
+			//if(current_canvas != next_canvas) {
+				//svg.contentDocument.getElementById(current_canvas).style.visibility = "hidden";
+				//svgobj.contentDocument.getElementById(next_canvas).style.visibility = "visible";
+				//current_canvas = next_canvas;
+			//}
+				//changing slide image
+			if((current_image != next_image) && (next_image != null)){
 				svgobj.contentDocument.getElementById(current_image).style.visibility = "hidden";
 				svgobj.contentDocument.getElementById(next_image).style.visibility = "visible";
+				num_current = current_image.substr(5);
+				num_next = next_image.substr(5);
+				svgobj.contentDocument.getElementById("canvas" + num_current).setAttribute("display", "none");
+				svgobj.contentDocument.getElementById("canvas" + num_next).setAttribute("display", "");
+				console.log("changed from " + current_image + " to " + next_image);
+				
 				current_image = next_image;
+				//here we update the shapes canvas to .
 			}
+			
 			
 			vboxVal = vboxValues[""+t];
 			if(vboxVal != undefined) {
 				setViewBox(vboxVal.viewBoxValue.data);
-				console.log("moved to " +  vboxVal.viewBoxValue.data);
+				//console.log("moved to " +  vboxVal.viewBoxValue.data);
 				//vboxArray = vboxVal.viewBoxValue.data.split(' ');
 				//currimg = svgobj.contentDocument.getElementById(current_image);
 				//staticHeight = currimg.height.baseVal.value;
@@ -284,7 +293,7 @@ var p = Popcorn("#video")
 					//updatedH = vboxArray[3];
 					//updatedY = (staticHeight - updatedH)/2;
 					//updatedW = vboxArray[2];
-					//ééupdatedViewbox = (updatedX + " " + updatedY + " " + updatedW + " " + updatedH);
+					//updatedViewbox = (updatedX + " " + updatedY + " " + updatedW + " " + updatedH);
 					//updatedHeight = ((staticHeight-8) - ((((staticHeight-8) - vboxArray[3])/((staticHeight-8)/((staticHeight-8) - vboxArray[3]))/2)+8))+8 + "px"; //works except for first one.
 					//updatedHeight = (staticHeight - (((staticHeight - vboxArray[3])/(staticHeight/(staticHeight - vboxArray[3]))/2)))+8 + "px"; 
 					//svgobj.style.height = updatedHeight;

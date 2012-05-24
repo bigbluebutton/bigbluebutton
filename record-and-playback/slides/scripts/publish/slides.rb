@@ -31,6 +31,8 @@ line_count = 0
 ellipse_count = 0
 global_slide_count = 1
 global_page_count = 0
+canvas_number = 0
+prev_canvas_time_start = 0 # initial start is 0 seconds. (beginning of video)
 
 prev_time = "NaN"
 
@@ -125,6 +127,7 @@ if (playback == "slides")
 		join_time = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0]['timestamp'].to_f
 		presentation_name = ""
 
+		BigBlueButton.logger.info("Processing chat events")		
 		# Create slides.xml and chat.
 		slides_doc = Nokogiri::XML::Builder.new do |xml|
 			xml.popcorn {
@@ -139,19 +142,23 @@ if (playback == "slides")
 			}
 		end
 		
+		BigBlueButton.logger.info("Creating shapes.svg")		
 		# Create shapes.svg
 		shapes_svg = Nokogiri::XML::Builder.new do |xml|
+=begin	
 			# process all the cleared pages events.
 			clear_page_events.each do |clearEvent|
-				clearTime = (clearEvent['timestamp'].to_f - join_time)
-				pageCleared = node.xpath(".//pageNumber")[0].text()
-				clearPageTimes[clearTime] = pageCleared
+				clearTime = ((clearEvent['timestamp'].to_f - join_time)/1000).round(1)
+				pageCleared = clearEvent.xpath(".//pageNumber")[0].text()
+				clearPageTimes[clearTime] = [pageCleared, canvas_number]
+				canvas_number+=1
 			end
-			
+=end			
 			xml.doc.create_internal_subset('svg', "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd")
 			xml.svg('id' => 'svgfile', 'style' => 'position:absolute; height:600px; width:800px;', 'xmlns' => 'http://www.w3.org/2000/svg', 'xmlns:xlink' => 'http://www.w3.org/1999/xlink', 'version' => '1.1', 'viewBox' => '0 0 800 600') do
 				
 				xml.image(:id => "image0", :in => 0, :out => first_slide_start, :src => "logo.png", :width => 800)
+				xml.g(:class => "canvas", :id => "canvas0", :image => "image0", :display => "none")
 				slides_events.each do |node|
 					eventname =  node['eventname']
 					if eventname == "SharePresentationEvent"
@@ -172,6 +179,7 @@ if (playback == "slides")
 							slide_end = (( meeting_end.to_f - meeting_start.to_f ) / 1000).round(1)
 						end
 						
+						BigBlueButton.logger.info("Processing slide image")
 						# Is this a new image or one previously viewed?
 						if(slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
 							# If it is, add it to the list with all the data.
@@ -187,96 +195,114 @@ if (playback == "slides")
 						puts "#{slide_src} : #{slide_start} -> #{slide_end}"
 					end
 				end
+				
+				BigBlueButton.logger.info("Printing out the gathered images")
 				# Print out the gathered/detected images.
 				slides_compiled.each do |key, val|
 					xml.image(:id => "image#{val[2].to_i}", :in => val[0].join(' '), :out => val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => "hidden")
-				end
-				
-				shape_events.each do |shape|
-					# # Get variables
-					type = shape.xpath(".//type")[0].text()
-					timestamp = shape['timestamp'].to_f
-					current_time = ((timestamp-join_time)/1000).round(1)
-					thickness = shape.xpath(".//thickness")[0].text()
-					pageNumber = shape.xpath(".//pageNumber")[0].text()
-					dataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
-					colour = shape.xpath(".//color")[0].text()
-					colour_hex = colour.to_i.to_s(16) # convert from base 10 to base 16 (hex)
-					colour_hex='0'*(6-colour_hex.length) + colour_hex # pad the number with 0's to give it a length of 6
-					
-					# resolve the current image height and width
-					ss.each do |key,val|
-						if key === current_time
-							vbox_width = val[0]
-							vbox_height = val[1]
+					canvas_number+=1
+					xml.g(:class => "canvas", :id => "canvas#{canvas_number}", :image => "image#{val[2].to_i}", :display => "none") do
+					shape_events.each do |shape|
+						# # Get variables
+						type = shape.xpath(".//type")[0].text()
+						timestamp = shape['timestamp'].to_f
+						current_time = ((timestamp-join_time)/1000).round(1)
+						thickness = shape.xpath(".//thickness")[0].text()
+						pageNumber = shape.xpath(".//pageNumber")[0].text()
+						dataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
+						colour = shape.xpath(".//color")[0].text()
+						colour_hex = colour.to_i.to_s(16) # convert from base 10 to base 16 (hex)
+						colour_hex='0'*(6-colour_hex.length) + colour_hex # pad the number with 0's to give it a length of 6
+						in_this_image = false
+						index = 0
+						numOfTimes = val[0].length
+						
+						while((in_this_image == false) && (index < numOfTimes)) do
+							BigBlueButton.logger.info("#{current_time} compared to ( #{val[0][index]} to #{val[1][index]} )")
+							if(((val[0][index].to_f)..(val[1][index].to_f)) === current_time)
+								BigBlueButton.logger.info("#{current_time} is in the range of #{val[0][index]} to #{val[1][index]}")
+								in_this_image = true
+							end
+							index+=1
+						end
+						
+						if(in_this_image)
+							
+							# resolve the current image height and width
+							ss.each do |t,size|
+								if t === current_time
+									vbox_width = size[0]
+									vbox_height = size[1]
+								end
+							end
+						
+							# Process the pencil shapes.
+							if type.eql? "pencil"
+								line_count = line_count + 1 # always update the line count!
+								# # puts "thickness: #{thickness} and pageNumber: #{pageNumber} and dataPoints: #{dataPoints}"
+								xml.g(:class => 'shape', :id=>"draw#{current_time}", :shape =>"line#{line_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden") do
+									# get first and last points for now. here in the future we should put a loop to get all the data points and make sub lines within the group.
+									xml.line('x1' => "#{((dataPoints[0].to_f)/100)*vbox_width}", 'y1' => "#{((dataPoints[1].to_f)/100)*vbox_height}", 'x2' => "#{((dataPoints[(dataPoints.length)-2].to_f)/100)*vbox_width}", 'y2' => "#{((dataPoints[(dataPoints.length)-1].to_f)/100)*vbox_height}")
+								end
+							# Process the rectangle shapes
+							elsif type.eql? "rectangle"
+								if(current_time != prev_time)
+									if((originalOriginX == ((dataPoints[0].to_f)/100)*vbox_width) && (originalOriginY == ((dataPoints[1].to_f)/100)*vbox_height))
+										# do not update the rectangle count
+									else
+										rectangle_count = rectangle_count + 1
+									end
+									xml.g(:class => 'shape', 'id'=>"draw#{current_time}", 'shape'=>"rect#{rectangle_count}", 'style'=>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
+										originX = ((dataPoints[0].to_f)/100)*vbox_width
+										originY = ((dataPoints[1].to_f)/100)*vbox_height
+										originalOriginX = originX 
+										originalOriginY = originY
+										rectWidth = ((dataPoints[2].to_f - dataPoints[0].to_f)/100)*vbox_width
+										rectHeight = ((dataPoints[3].to_f - dataPoints[1].to_f)/100)*vbox_height
+										
+										# Cannot have a negative height or width so we adjust 
+										if(rectHeight < 0)
+											originY = originY + rectHeight
+											rectHeight = rectHeight.abs
+										end
+										if(rectWidth < 0)
+											originX = originX + rectWidth
+											rectWidth = rectWidth.abs
+										end
+										xml.rect('x' => "#{originX}", 'y' => "#{originY}", 'width' => "#{rectWidth}", 'height' => "#{rectHeight}")
+										prev_time = current_time
+									end
+								end
+							# Process the ellipse shapes
+							elsif type.eql? "ellipse"
+								if(current_time != prev_time)
+									if((originalOriginX == ((dataPoints[0].to_f)/100)*vbox_width) && (originalOriginY == ((dataPoints[1].to_f)/100)*vbox_height))
+										# do not update the rectangle count
+									else
+										ellipse_count = ellipse_count + 1
+									end # end ((originalOriginX == ((dataPoints[0].to_f)/100)*vbox_width) && (originalOriginY == ((dataPoints[1].to_f)/100)*vbox_height))
+									xml.g(:class => 'shape', 'id'=>"draw#{current_time}", 'shape'=>"ellipse#{ellipse_count}", 'style'=>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
+										originX = ((dataPoints[0].to_f)/100)*vbox_width
+										originY = ((dataPoints[1].to_f)/100)*vbox_height
+										originalOriginX = originX 
+										originalOriginY = originY
+										ellipseWidth = ((dataPoints[2].to_f - dataPoints[0].to_f)/100)*vbox_width
+										ellipseHeight = ((dataPoints[3].to_f - dataPoints[1].to_f)/100)*vbox_height
+										if(ellipseHeight < 0)
+											originY = originY + ellipseHeight
+											ellipseHeight = ellipseHeight.abs
+										end
+										if(ellipseWidth < 0)
+											originX = originX + ellipseWidth
+											ellipseWidth = ellipseWidth.abs
+										end
+										xml.ellipse('cx' => "#{originX+(ellipseWidth/2)}", 'cy' => "#{originY+(ellipseHeight/2)}", 'rx' => "#{ellipseWidth/2}", 'ry' => "#{ellipseHeight/2}")
+										prev_time = current_time
+									end # end xml.g
+								end # end if(current_time != prev_time)
+							end
 						end
 					end
-					
-					# Process the pencil shapes.
-					if type.eql? "pencil"
-						line_count = line_count + 1 # always update the line count!
-						# # puts "thickness: #{thickness} and pageNumber: #{pageNumber} and dataPoints: #{dataPoints}"
-						xml.g('id'=>"draw#{current_time}", 'shape'=>"line#{line_count}", 'style'=>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden") do
-							# get first and last points for now. here in the future we should put a loop to get all the data points and make sub lines within the group.
-							xml.line('x1' => "#{((dataPoints[0].to_f)/100)*vbox_width}", 'y1' => "#{((dataPoints[1].to_f)/100)*vbox_height}", 'x2' => "#{((dataPoints[(dataPoints.length)-2].to_f)/100)*vbox_width}", 'y2' => "#{((dataPoints[(dataPoints.length)-1].to_f)/100)*vbox_height}")
-						end
-					# Process the rectangle shapes
-					elsif type.eql? "rectangle"
-						if(current_time != prev_time)
-							if((originalOriginX == ((dataPoints[0].to_f)/100)*vbox_width) && (originalOriginY == ((dataPoints[1].to_f)/100)*vbox_height))
-								# do not update the rectangle count
-							else
-								rectangle_count = rectangle_count + 1
-							end
-							xml.g('id'=>"draw#{current_time}", 'shape'=>"rect#{rectangle_count}", 'style'=>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
-								originX = ((dataPoints[0].to_f)/100)*vbox_width
-								originY = ((dataPoints[1].to_f)/100)*vbox_height
-								originalOriginX = originX 
-								originalOriginY = originY
-								rectWidth = ((dataPoints[2].to_f - dataPoints[0].to_f)/100)*vbox_width
-								rectHeight = ((dataPoints[3].to_f - dataPoints[1].to_f)/100)*vbox_height
-								
-								# Cannot have a negative height or width so we adjust 
-								if(rectHeight < 0)
-									originY = originY + rectHeight
-									rectHeight = rectHeight.abs
-								end
-								if(rectWidth < 0)
-									originX = originX + rectWidth
-									rectWidth = rectWidth.abs
-								end
-								xml.rect('x' => "#{originX}", 'y' => "#{originY}", 'width' => "#{rectWidth}", 'height' => "#{rectHeight}")
-								prev_time = current_time
-							end
-						end
-					# Process the ellipse shapes
-					elsif type.eql? "ellipse"
-						if(current_time != prev_time)
-							if((originalOriginX == ((dataPoints[0].to_f)/100)*vbox_width) && (originalOriginY == ((dataPoints[1].to_f)/100)*vbox_height))
-								# do not update the rectangle count
-							else
-								ellipse_count = ellipse_count + 1
-							end # end ((originalOriginX == ((dataPoints[0].to_f)/100)*vbox_width) && (originalOriginY == ((dataPoints[1].to_f)/100)*vbox_height))
-							xml.g('id'=>"draw#{current_time}", 'shape'=>"ellipse#{ellipse_count}", 'style'=>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
-								originX = ((dataPoints[0].to_f)/100)*vbox_width
-								originY = ((dataPoints[1].to_f)/100)*vbox_height
-								originalOriginX = originX 
-								originalOriginY = originY
-								ellipseWidth = ((dataPoints[2].to_f - dataPoints[0].to_f)/100)*vbox_width
-								ellipseHeight = ((dataPoints[3].to_f - dataPoints[1].to_f)/100)*vbox_height
-								if(ellipseHeight < 0)
-									originY = originY + ellipseHeight
-									ellipseHeight = ellipseHeight.abs
-								end
-								if(ellipseWidth < 0)
-									originX = originX + ellipseWidth
-									ellipseWidth = ellipseWidth.abs
-								end
-								xml.ellipse('cx' => "#{originX+(ellipseWidth/2)}", 'cy' => "#{originY+(ellipseHeight/2)}", 'rx' => "#{ellipseWidth/2}", 'ry' => "#{ellipseHeight/2}")
-								prev_time = current_time
-							end # end xml.g
-						end # end if(current_time != prev_time)
-						# put circle code here
 					end
 				end
 			end
@@ -345,3 +371,11 @@ if (playback == "slides")
 	end
 	
 end
+		
+=begin
+					clearPageTimes.each do |time, pageNum|
+						xml.g(:canvas => pageNum[1], :in => prev_canvas_time_start, :out => time) do
+						prev_canvas_time_start = time
+						end
+					end
+=end
