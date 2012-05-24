@@ -113,7 +113,7 @@ function getNextX(t) {
 	else return -1;
 }
 
-// Retrieves the next Y point on the grid which the cursor is to go to. 
+// Retrieves the next Y point on the grid which the cursor is to go to.
 function getNextY(t) {
     var y = times.indexOf(t);
     if(y != -1) {
@@ -178,7 +178,7 @@ var p = Popcorn("#video")
 		svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
 		svgobj.style.top = "8px";
     },
-	
+
 	onEnd: function(options) {
 		//showCursor(true);
 		var next_shape;
@@ -196,7 +196,7 @@ var p = Popcorn("#video")
 		if(times.length != 0) {
 			main_shapes_times[main_shapes_times.length] = times[times.length-1]; //put last value into this array always!
 		}
-		
+
 		//console.log(svgobj.contentDocument.getElementById("image2").width);
 	}
 })
@@ -214,10 +214,10 @@ var p = Popcorn("#video")
 			//showCursor(true);
 			svgfile = svgobj.contentDocument.getElementById("svgfile");
 			var t = p.currentTime().toFixed(1); //get the time and round to 1 decimal place
-			
+
 			//cursor_x_global = getNextX(""+t); //get the next cursor position
 			//cursor_y_global = getNextY(""+t); //get the next cursor position
-			
+
 			current_shape = svgobj.contentDocument.getElementById("draw" + t);
 			//if there is actually a shape to be displayed
 			if(current_shape != undefined) {
@@ -249,15 +249,15 @@ var p = Popcorn("#video")
 					shape.style.visibility = "hidden";
 				}
 			}
-			
+
 			//update the cursor
 			//if((cursor_x_global != -1) && (cursor_y_global != -1)) {
 			//	draw(cursor_x_global, cursor_y_global); //draw the cursor
 			//}
-			
+
 			next_image = getImageAtTime(t); //fetch the name of the image at this time.
 			//next_canvas = getCanvasAtTime(t);
-			
+
 			//changing the canvas drawings (cleared or page turned)
 			//if(current_canvas != next_canvas) {
 				//svg.contentDocument.getElementById(current_canvas).style.visibility = "hidden";
@@ -273,12 +273,12 @@ var p = Popcorn("#video")
 				svgobj.contentDocument.getElementById("canvas" + num_current).setAttribute("display", "none");
 				svgobj.contentDocument.getElementById("canvas" + num_next).setAttribute("display", "");
 				console.log("changed from " + current_image + " to " + next_image);
-				
+
 				current_image = next_image;
 				//here we update the shapes canvas to .
 			}
-			
-			
+
+
 			vboxVal = vboxValues[""+t];
 			if(vboxVal != undefined) {
 				setViewBox(vboxVal.viewBoxValue.data);
@@ -295,16 +295,16 @@ var p = Popcorn("#video")
 					//updatedW = vboxArray[2];
 					//updatedViewbox = (updatedX + " " + updatedY + " " + updatedW + " " + updatedH);
 					//updatedHeight = ((staticHeight-8) - ((((staticHeight-8) - vboxArray[3])/((staticHeight-8)/((staticHeight-8) - vboxArray[3]))/2)+8))+8 + "px"; //works except for first one.
-					//updatedHeight = (staticHeight - (((staticHeight - vboxArray[3])/(staticHeight/(staticHeight - vboxArray[3]))/2)))+8 + "px"; 
+					//updatedHeight = (staticHeight - (((staticHeight - vboxArray[3])/(staticHeight/(staticHeight - vboxArray[3]))/2)))+8 + "px";
 					//svgobj.style.height = updatedHeight;
 					//setViewBox(""+updatedViewbox);
 					//console.log("must change vbox to " + updatedViewbox);
-				//} 
+				//}
 			}
 			//console.log(current_image);
 			//console.log(svgobj.contentDocument.getElementById(current_image));
 		}
     }
 })
-    
+
 ; //ends the codes -- keep it here and simply copy the frames above.

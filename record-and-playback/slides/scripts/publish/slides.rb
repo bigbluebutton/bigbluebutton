@@ -59,22 +59,22 @@ if (playback == "slides")
 	# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 	bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 	simple_props = YAML::load(File.open('slides.yml'))
-	
+
 	recording_dir = bbb_props['recording_dir']
 	process_dir = "#{recording_dir}/process/slides/#{meeting_id}"
 	publish_dir = simple_props['publish_dir']
 	playback_host = simple_props['playback_host']
-	
+
 	target_dir = "#{recording_dir}/publish/slides/#{meeting_id}"
 	if not FileTest.directory?(target_dir)
 		FileUtils.mkdir_p target_dir
-		
+
 		package_dir = "#{target_dir}/#{meeting_id}"
 		FileUtils.mkdir_p package_dir
-		
+
 		audio_dir = "#{package_dir}/audio"
 		FileUtils.mkdir_p audio_dir
-		
+
 		FileUtils.cp("#{process_dir}/audio.ogg", audio_dir)
 		FileUtils.cp("#{process_dir}/temp/#{meeting_id}/audio/recording.wav", audio_dir)
 		FileUtils.cp("#{process_dir}/events.xml", package_dir)
@@ -97,17 +97,17 @@ if (playback == "slides")
 			}
 			b.meta {
 				BigBlueButton::Events.get_meeting_metadata("#{process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
-			}			
+			}
 		}
 		metadata_xml = File.new("#{package_dir}/metadata.xml","w")
 		metadata_xml.write(metaxml)
 		metadata_xml.close
-		BigBlueButton.logger.info("Generating xml for slides and chat")		
+		BigBlueButton.logger.info("Generating xml for slides and chat")
 		#Create slides.xml
 		#presentation_url = "http://" + playback_host + "/slides/" + meeting_id + "/presentation"
 		presentation_url = "/slides/" + meeting_id + "/presentation"
 		@doc = Nokogiri::XML(File.open("#{process_dir}/events.xml"))
-		
+
 		meeting_start = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0]['timestamp']
 		meeting_end = @doc.xpath("//event[@eventname='EndAndKickAllEvent']").last()['timestamp']
 
@@ -117,17 +117,17 @@ if (playback == "slides")
 			first_presentation_start = first_presentation_start_node[0]['timestamp']
 		end
 		first_slide_start = ((first_presentation_start.to_f - meeting_start.to_f) / 1000).round(1)
-		
+
 		slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
 		chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
 		shape_events = @doc.xpath("//event[@eventname='AddShapeEvent']") # for the creation of shapes
 		panzoom_events = @doc.xpath("//event[@eventname='ResizeAndMoveSlideEvent']") # for the action of panning and/or zooming
 		clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
-		
+
 		join_time = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0]['timestamp'].to_f
 		presentation_name = ""
 
-		BigBlueButton.logger.info("Processing chat events")		
+		BigBlueButton.logger.info("Processing chat events")
 		# Create slides.xml and chat.
 		slides_doc = Nokogiri::XML::Builder.new do |xml|
 			xml.popcorn {
@@ -141,11 +141,11 @@ if (playback == "slides")
 				end
 			}
 		end
-		
-		BigBlueButton.logger.info("Creating shapes.svg")		
+
+		BigBlueButton.logger.info("Creating shapes.svg")
 		# Create shapes.svg
 		shapes_svg = Nokogiri::XML::Builder.new do |xml|
-=begin	
+=begin
 			# process all the cleared pages events.
 			clear_page_events.each do |clearEvent|
 				clearTime = ((clearEvent['timestamp'].to_f - join_time)/1000).round(1)
@@ -153,10 +153,10 @@ if (playback == "slides")
 				clearPageTimes[clearTime] = [pageCleared, canvas_number]
 				canvas_number+=1
 			end
-=end			
+=end
 			xml.doc.create_internal_subset('svg', "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd")
 			xml.svg('id' => 'svgfile', 'style' => 'position:absolute; height:600px; width:800px;', 'xmlns' => 'http://www.w3.org/2000/svg', 'xmlns:xlink' => 'http://www.w3.org/1999/xlink', 'version' => '1.1', 'viewBox' => '0 0 800 600') do
-				
+
 				xml.image(:id => "image0", :in => 0, :out => first_slide_start, :src => "logo.png", :width => 800)
 				xml.g(:class => "canvas", :id => "canvas0", :image => "image0", :display => "none")
 				slides_events.each do |node|
@@ -171,14 +171,14 @@ if (playback == "slides")
 						slide_src = "presentation/#{presentation_name}/slide-#{slide_number.to_i + 1}.png"
 						image_url = "#{process_dir}/#{slide_src}"
 						slide_size = FastImage.size(image_url)
-						
+
 						current_index = slides_events.index(node)
 						if(current_index + 1 < slides_events.length)
 							slide_end = (( slides_events[current_index + 1]['timestamp'].to_f - meeting_start.to_f ) / 1000).round(1)
 						else
 							slide_end = (( meeting_end.to_f - meeting_start.to_f ) / 1000).round(1)
 						end
-						
+
 						BigBlueButton.logger.info("Processing slide image")
 						# Is this a new image or one previously viewed?
 						if(slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
@@ -190,12 +190,12 @@ if (playback == "slides")
 							slides_compiled[[slide_src, slide_size[1], slide_size[0]]][0] << slide_start
 							slides_compiled[[slide_src, slide_size[1], slide_size[0]]][1] << slide_end
 						end
-						
+
 						ss[(slide_start..slide_end)] = slide_size # store the size of the slide at that range of time
 						puts "#{slide_src} : #{slide_start} -> #{slide_end}"
 					end
 				end
-				
+
 				BigBlueButton.logger.info("Printing out the gathered images")
 				# Print out the gathered/detected images.
 				slides_compiled.each do |key, val|
@@ -216,7 +216,7 @@ if (playback == "slides")
 						in_this_image = false
 						index = 0
 						numOfTimes = val[0].length
-						
+
 						while((in_this_image == false) && (index < numOfTimes)) do
 							BigBlueButton.logger.info("#{current_time} compared to ( #{val[0][index]} to #{val[1][index]} )")
 							if(((val[0][index].to_f)..(val[1][index].to_f)) === current_time)
@@ -225,9 +225,9 @@ if (playback == "slides")
 							end
 							index+=1
 						end
-						
+
 						if(in_this_image)
-							
+
 							# resolve the current image height and width
 							ss.each do |t,size|
 								if t === current_time
@@ -235,7 +235,7 @@ if (playback == "slides")
 									vbox_height = size[1]
 								end
 							end
-						
+
 							# Process the pencil shapes.
 							if type.eql? "pencil"
 								line_count = line_count + 1 # always update the line count!
@@ -255,12 +255,12 @@ if (playback == "slides")
 									xml.g(:class => 'shape', 'id'=>"draw#{current_time}", 'shape'=>"rect#{rectangle_count}", 'style'=>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
 										originX = ((dataPoints[0].to_f)/100)*vbox_width
 										originY = ((dataPoints[1].to_f)/100)*vbox_height
-										originalOriginX = originX 
+										originalOriginX = originX
 										originalOriginY = originY
 										rectWidth = ((dataPoints[2].to_f - dataPoints[0].to_f)/100)*vbox_width
 										rectHeight = ((dataPoints[3].to_f - dataPoints[1].to_f)/100)*vbox_height
-										
-										# Cannot have a negative height or width so we adjust 
+
+										# Cannot have a negative height or width so we adjust
 										if(rectHeight < 0)
 											originY = originY + rectHeight
 											rectHeight = rectHeight.abs
@@ -284,7 +284,7 @@ if (playback == "slides")
 									xml.g(:class => 'shape', 'id'=>"draw#{current_time}", 'shape'=>"ellipse#{ellipse_count}", 'style'=>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
 										originX = ((dataPoints[0].to_f)/100)*vbox_width
 										originY = ((dataPoints[1].to_f)/100)*vbox_height
-										originalOriginX = originX 
+										originalOriginX = originX
 										originalOriginY = originY
 										ellipseWidth = ((dataPoints[2].to_f - dataPoints[0].to_f)/100)*vbox_width
 										ellipseHeight = ((dataPoints[3].to_f - dataPoints[1].to_f)/100)*vbox_height
@@ -307,7 +307,7 @@ if (playback == "slides")
 				end
 			end
 		end
-		
+
 		#Create panzooms.xml
 		panzooms_xml = Nokogiri::XML::Builder.new do |xml|
 			xml.recording('id' => 'panzoom_events') do
@@ -320,7 +320,7 @@ if (playback == "slides")
 				panzoom_events.each do |panZoomEvent|
 					# Get variables
 					timestamp_orig = panZoomEvent['timestamp'].to_f
-					
+
 					timestamp = ((timestamp_orig-join_time)/1000).round(1)
 					h_ratio = panZoomEvent.xpath(".//heightRatio")[0].text()
 					w_ratio = panZoomEvent.xpath(".//widthRatio")[0].text()
@@ -352,16 +352,16 @@ if (playback == "slides")
 				end
 			end
 		end
-		
+
 		# Write slides.xml to file
 		File.open("#{package_dir}/slides.xml", 'w') { |f| f.puts slides_doc.to_xml }
-		
+
 		# Write shapes.svg to file
 		File.open("#{package_dir}/#{shapes_svg_filename}", 'w') { |f| f.puts shapes_svg.to_xml }
-		
+
 		# Write panzooms.xml to file
 		File.open("#{package_dir}/#{panzooms_xml_filename}", 'w') { |f| f.puts panzooms_xml.to_xml }
-		
+
         BigBlueButton.logger.info("Publishing slides")
 		# Now publish this recording files by copying them into the publish folder.
 		if not FileTest.directory?(publish_dir)
@@ -369,9 +369,9 @@ if (playback == "slides")
 		end
 		FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
 	end
-	
+
 end
-		
+
 =begin
 					clearPageTimes.each do |time, pageNum|
 						xml.g(:canvas => pageNum[1], :in => prev_canvas_time_start, :out => time) do
