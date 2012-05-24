@@ -40,13 +40,12 @@ var svgfile = svgobj.contentDocument.getElementById("svgfile");
 //making the object for requesting the read of the XML files.
 if (window.XMLHttpRequest){
 	// code for IE7+, Firefox, Chrome, Opera, Safari
-var	xmlhttp = new XMLHttpRequest();
+	var	xmlhttp = new XMLHttpRequest();
 }
 else {
 	// code for IE6, IE5
-var xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+	var xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
 }
-
 
 // PROCESS SHAPES.SVG (in XML format).
 xmlhttp.open("GET", shapes_svg, false);
@@ -63,24 +62,15 @@ var images = shapeelements[0].getElementsByTagName("image");
 
 //fill the times array with the times of the svg images.
 for (var j = 0; j < array.length; j++) {
-		times[j] = array[j].getAttribute("id").substr(4);
+	times[j] = array[j].getAttribute("id").substr(4);
 }
 
 var times_length = times.length; //get the length of the times array.
-
-function getImageAtTime(time) {
-	return imageAtTime[time]; //will not adjust for scrolling but is a O(1) so very efficient.
-}
-
-function getCanvasAtTime(time) {
-	return "canvas";
-}
 
 for(var m = 0; m < images.length; m++) {
 	len = images[m].getAttribute("in").split(" ").length;
 	for(var n = 0; n < len; n++) {
 		imageAtTime[""+images[m].getAttribute("in").split(" ")[n]] = images[m].getAttribute("id");
-		console.log(""+images[m].getAttribute("in").split(" ")[n] + " is " + images[m].getAttribute("id"));
 	}
 }
 
@@ -132,6 +122,8 @@ function draw(x, y) {
     cursorStyle.top = (parseInt(document.getElementById("slide").offsetTop) + parseInt(y)) + "px";
 }
 
+
+
 // Shows or hides the cursor object depending on true/false parameter passed.
 function showCursor(boolVal) {
 	cursorStyle = document.getElementById("cursor").style;
@@ -145,6 +137,12 @@ function showCursor(boolVal) {
     }
 }
 
+
+function setViewBox(val) {
+	svgfile = svgobj.contentDocument.getElementById("svgfile");
+	svgfile.setAttribute('viewBox', val);
+}
+
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
 
 window.onresize = function(event){
@@ -152,16 +150,9 @@ window.onresize = function(event){
     svgobj.style.top = "8px";
 }
 
-function setViewBox(val) {
-	svgfile = svgobj.contentDocument.getElementById("svgfile");
-	svgfile.setAttribute('viewBox', val);
-}
-
-var current_image = "image0";
-var current_page = "page0";
-var next_image;
-
 var current_canvas = "canvas0";
+var current_image = "image0";
+var next_image;
 
 var p = Popcorn("#video")
 
@@ -177,12 +168,12 @@ var p = Popcorn("#video")
 		cursor_y_global = 0;
 		svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
 		svgobj.style.top = "8px";
+		Popcorn("#video").mute();
     },
 
 	onEnd: function(options) {
 		//showCursor(true);
 		var next_shape;
-		var next_shape_time = -1;
 		var shape;
 		//iterate through all the shapes and pick out the main ones
 		for (i = 0, len = times_length; i < len-1; i++) {
@@ -196,8 +187,6 @@ var p = Popcorn("#video")
 		if(times.length != 0) {
 			main_shapes_times[main_shapes_times.length] = times[times.length-1]; //put last value into this array always!
 		}
-
-		//console.log(svgobj.contentDocument.getElementById("image2").width);
 	}
 })
 
@@ -210,7 +199,6 @@ var p = Popcorn("#video")
 		if((p.paused() == true) && (p.seeking() == false)) {
 		}
 		else {
-			p.mute(); //muting for testing
 			//showCursor(true);
 			svgfile = svgobj.contentDocument.getElementById("svgfile");
 			var t = p.currentTime().toFixed(1); //get the time and round to 1 decimal place
@@ -255,16 +243,8 @@ var p = Popcorn("#video")
 			//	draw(cursor_x_global, cursor_y_global); //draw the cursor
 			//}
 
-			next_image = getImageAtTime(t); //fetch the name of the image at this time.
-			//next_canvas = getCanvasAtTime(t);
-
-			//changing the canvas drawings (cleared or page turned)
-			//if(current_canvas != next_canvas) {
-				//svg.contentDocument.getElementById(current_canvas).style.visibility = "hidden";
-				//svgobj.contentDocument.getElementById(next_canvas).style.visibility = "visible";
-				//current_canvas = next_canvas;
-			//}
-				//changing slide image
+			next_image = imageAtTime[t]; //fetch the name of the image at this time.
+			//changing slide image
 			if((current_image != next_image) && (next_image != null)){
 				svgobj.contentDocument.getElementById(current_image).style.visibility = "hidden";
 				svgobj.contentDocument.getElementById(next_image).style.visibility = "visible";
@@ -272,37 +252,15 @@ var p = Popcorn("#video")
 				num_next = next_image.substr(5);
 				svgobj.contentDocument.getElementById("canvas" + num_current).setAttribute("display", "none");
 				svgobj.contentDocument.getElementById("canvas" + num_next).setAttribute("display", "");
-				console.log("changed from " + current_image + " to " + next_image);
-
+				//console.log("changed from " + current_image + " to " + next_image);
 				current_image = next_image;
-				//here we update the shapes canvas to .
 			}
 
 
 			vboxVal = vboxValues[""+t];
 			if(vboxVal != undefined) {
 				setViewBox(vboxVal.viewBoxValue.data);
-				//console.log("moved to " +  vboxVal.viewBoxValue.data);
-				//vboxArray = vboxVal.viewBoxValue.data.split(' ');
-				//currimg = svgobj.contentDocument.getElementById(current_image);
-				//staticHeight = currimg.height.baseVal.value;
-				//staticWidth = currimg.width.baseVal.value;
-				//detect if we should trim.
-				//if(((vboxArray[0] == 0) && (vboxArray[1] == 0)) && ((vboxArray[2] != staticWidth) || (vboxArray[3] != staticHeight))) {
-					//updatedX = 0; //always
-					//updatedH = vboxArray[3];
-					//updatedY = (staticHeight - updatedH)/2;
-					//updatedW = vboxArray[2];
-					//updatedViewbox = (updatedX + " " + updatedY + " " + updatedW + " " + updatedH);
-					//updatedHeight = ((staticHeight-8) - ((((staticHeight-8) - vboxArray[3])/((staticHeight-8)/((staticHeight-8) - vboxArray[3]))/2)+8))+8 + "px"; //works except for first one.
-					//updatedHeight = (staticHeight - (((staticHeight - vboxArray[3])/(staticHeight/(staticHeight - vboxArray[3]))/2)))+8 + "px";
-					//svgobj.style.height = updatedHeight;
-					//setViewBox(""+updatedViewbox);
-					//console.log("must change vbox to " + updatedViewbox);
-				//}
 			}
-			//console.log(current_image);
-			//console.log(svgobj.contentDocument.getElementById(current_image));
 		}
     }
 })
