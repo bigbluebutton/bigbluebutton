@@ -68,7 +68,7 @@
 			// the auto-publishing until after the Viewers's window has loaded
 			// to receive the publishing events. Otherwise, the user joining next
 			// won't be able to view the webcam.
-			private var autoPublishTimer:Timer;
+			private var autoPublishTimer:Timer = null;
 			
 			// Timer used to enable the start publishing button, only after get
 			// any activity on the camera. It avoids the problem of publishing
@@ -233,6 +233,9 @@
 						
 			private function startPublishing():void{
 				if (_camera == null) return;
+
+				if (autoPublishTimer != null)
+					autoPublishTimer.stop();
 
 				showWarning('bbb.video.publish.hint.publishing', true, "0xFFFF00");
 				
