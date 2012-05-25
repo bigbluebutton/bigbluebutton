@@ -668,6 +668,8 @@ class ApiController {
                   hasBeenForciblyEnded(m.isForciblyEnded() ? "true" : "false")
                   running(m.isRunning() ? "true" : "false")
                   participantCount(m.getNumUsers())
+                  listenerCount(m.getNumListeners())
+                  videoCount(m.getNumVideos())
                 }
               }
             }

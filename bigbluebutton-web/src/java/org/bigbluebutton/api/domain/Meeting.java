@@ -243,6 +243,15 @@ public class Meeting {
 		return listenerCount;
 	}
 
+	public int getNumVideos() {
+		int sum = 0;
+		for (String key : users.keySet()) {
+		    User u =  (User) users.get(key);
+		    if (u.hasStream()) sum++;
+		}
+		return sum;
+	}
+
 	
 	/***
 	 * Meeting Builder
