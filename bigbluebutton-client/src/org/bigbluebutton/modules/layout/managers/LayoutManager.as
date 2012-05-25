@@ -56,7 +56,7 @@ package org.bigbluebutton.modules.layout.managers
 				_layouts[layoutDefinition.name] = layoutDefinition;
 			}
 			var event:LayoutsLoadedEvent = new LayoutsLoadedEvent();
-			event.layouts = _layouts;
+			event.layouts = this;
 			_dispatcher.dispatchEvent(event);
 		}
 		
@@ -64,8 +64,20 @@ package org.bigbluebutton.modules.layout.managers
 			LogUtil.debug("IOError while loading the layout definition file");
 		}
 
-		public function get layouts():Dictionary {
+		public function get dict():Dictionary {
 			return _layouts;
-		}	
+		}
+		
+		public function getDefault():LayoutDefinition {
+			for each (var value:LayoutDefinition in _layouts) {
+				if (value.default_)
+					return value;
+			}
+			return null;
+		}
+		
+		public function getLayout(name:String):LayoutDefinition {
+			return _layouts[name];
+		}
 	}
 }

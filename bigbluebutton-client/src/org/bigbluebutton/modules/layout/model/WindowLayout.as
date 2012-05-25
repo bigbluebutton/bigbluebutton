@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.layout.model {
 
 		import mx.effects.Move;
 		import mx.effects.Resize;
+		import mx.effects.Parallel;
 
 		import flash.display.DisplayObject;
 		import flash.display.DisplayObjectContainer;
@@ -43,6 +44,7 @@ package org.bigbluebutton.modules.layout.model {
 
 		static private var resizers:Dictionary = new Dictionary();
 		static private var movers:Dictionary = new Dictionary();
+		static private var effects:Dictionary = new Dictionary();
 		
 		static private var EVENT_DURATION:int = 750;
 
@@ -101,34 +103,35 @@ package org.bigbluebutton.modules.layout.model {
 			else if (window.maximized && !this.maximized)
 				window.maximizeRestore();
 			
-			var newWidth:int = this.width * canvas.width;
-			var newHeight:int = this.height * canvas.height;
-			var newX:int = this.x * canvas.width;
-			var newY:int = this.y * canvas.height;
+			var resizer:Resize = getResizer(window);
+			resizer.widthTo = this.width * canvas.width;
+			resizer.heightTo = this.height * canvas.height;
+		
+			var mover:Move = getMover(window);
+			mover.xTo = this.x * canvas.width;
+			mover.yTo = this.y * canvas.height;
 			
-			if (window.width != newWidth || window.height != newHeight) {
-				var resizer:Resize = getResizer(window);
-				resizer.end();
-				resizer.widthTo = newWidth;
-				resizer.heightTo = newHeight;
-				resizer.play();
+			var effect:Parallel = getEffect(window);
+			effect.end();
+			effect.play();
+		}
+		
+		static private function getEffect(p:DisplayObjectContainer):Parallel {
+			var effect:Parallel = effects[p];
+			if (effect == null) {
+				effect = new Parallel();
+				effect.target = p;
+				effect.duration = EVENT_DURATION;
+				effects[p] = effect;
 			}
-			
-			if (window.x != newX || window.y != newY) {
-				var mover:Move = getMover(window);
-				mover.end();
-				mover.xTo = newX;
-				mover.yTo = newY;
-				mover.play();
-			}
+			return effect;
 		}
 		
 		static private function getResizer(p:DisplayObjectContainer):Resize {
 			var effect:Resize = resizers[p];
 			if (effect == null) {
 				effect = new Resize();
-				effect.target = p;
-				effect.duration = EVENT_DURATION;
+				getEffect(p).addChild(effect);
 				resizers[p] = effect;
 			}
 			return effect;
@@ -138,8 +141,7 @@ package org.bigbluebutton.modules.layout.model {
 			var effect:Move = movers[p];
 			if (effect == null) {
 				effect = new Move();
-				effect.target = p;
-				effect.duration = EVENT_DURATION;
+				getEffect(p).addChild(effect);
 				movers[p] = effect;
 			}
 			return effect;
@@ -153,6 +155,17 @@ package org.bigbluebutton.modules.layout.model {
 			} else { 
 				return String(Object).substr(String(Object).lastIndexOf(".") + 1).match(/[a-zA-Z]+/).join();
 			}
+		}
+		
+		public function toAbsoluteXml(canvas:MDICanvas):String {
+			return "<window name=\"" + name + "\"" +
+				(minimized? " minimized=\"true\"":
+				(maximized? " maximized=\"true\"":
+				" width=\"" + int(width * canvas.width) + "\"" +
+				" height=\"" + int(height * canvas.height) + "\"" +
+				" x=\"" + int(x * canvas.width) + "\"" +
+				" y=\"" + int(y * canvas.height) + "\"")) +
+				" />";
 		}
 		
 		public function toXml():String {

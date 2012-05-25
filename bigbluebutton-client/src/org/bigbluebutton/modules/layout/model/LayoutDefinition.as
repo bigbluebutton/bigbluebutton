@@ -26,12 +26,17 @@ package org.bigbluebutton.modules.layout.model {
 		import flexlib.mdi.containers.MDIWindow;
 		
 		[Bindable] public var name:String;
+		// default is a reserved word in actionscript
+		[Bindable] public var default_:Boolean = false;
 		[Bindable] private var windows:Dictionary = new Dictionary();
 
 		public function load(vxml:XML):void {
 			if (vxml != null) {
 				if (vxml.@name != undefined) {
 					name = vxml.@name.toString();
+				}
+				if (vxml.@default != undefined) {
+					default_ = (vxml.@default.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 				for each (var n:XML in vxml.window) {
 					var window:WindowLayout = new WindowLayout();
@@ -46,7 +51,9 @@ package org.bigbluebutton.modules.layout.model {
 		}
 		
 		public function toXml():String {
-			var r:String = "<layout name=\"" + name + "\">";
+			var r:String = "<layout name=\"" + name + 
+					(default_? " default=\"true\"": "") + 
+					" \">";
 			for each (var value:WindowLayout in windows) {
 				r += "\n\t" + value.toXml();
 			}
@@ -59,9 +66,13 @@ package org.bigbluebutton.modules.layout.model {
 				return;
 				
 			for each (var window:MDIWindow in canvas.windowManager.windowList) {
-				var type:String = WindowLayout.getType(window);
-				WindowLayout.setLayout(canvas, window, windows[type]);
+				applyToWindow(canvas, window);
 			}
+		}
+		
+		public function applyToWindow(canvas:MDICanvas, window:MDIWindow):void {
+			var type:String = WindowLayout.getType(window);
+			WindowLayout.setLayout(canvas, window, windows[type]);
 		}
 		
 		static public function getLayout(canvas:MDICanvas, name:String):LayoutDefinition {
@@ -69,6 +80,9 @@ package org.bigbluebutton.modules.layout.model {
 			layoutDefinition.name = name;
 			for each (var window:MDIWindow in canvas.windowManager.windowList) {
 				var layout:WindowLayout = WindowLayout.getLayout(canvas, window);
+				// for now we will just ignore the video windows
+				if (layout.name == "PublishWindow" || layout.name == "VideoWindow")
+					continue;
 				layoutDefinition.windows[layout.name] = layout;
 			}
 			return layoutDefinition;

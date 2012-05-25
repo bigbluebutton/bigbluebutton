@@ -20,12 +20,12 @@
 package org.bigbluebutton.modules.layout.events
 {
 	import flash.events.Event;
-	import flash.utils.Dictionary;
+	import org.bigbluebutton.modules.layout.managers.LayoutManager;
 	
 	public class LayoutsLoadedEvent extends Event
 	{
 		public static const LAYOUTS_LOADED:String = "LAYOUTS_LOADED";
-		public var layouts:Dictionary = null;
+		public var layouts:LayoutManager = null;
 		
 		public function LayoutsLoadedEvent(type:String = LAYOUTS_LOADED)
 		{

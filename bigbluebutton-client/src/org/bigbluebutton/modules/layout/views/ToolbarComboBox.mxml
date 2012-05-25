@@ -53,15 +53,18 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
 			import org.bigbluebutton.modules.layout.events.DefineLayoutEvent;
+			import org.bigbluebutton.modules.layout.managers.LayoutManager;
 			import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 			import org.bigbluebutton.modules.layout.model.WindowLayout;
 			
 			private var _dispatcher:Dispatcher = new Dispatcher();
-			private var _layouts:Dictionary;
+			private var _layouts:LayoutManager = null;
 			private var _mdiCanvas:MDICanvas = null;
-			private var _savedLayout:LayoutDefinition = null;
+			private var _currentLayout:LayoutDefinition = null;
 			private var _deactivated:Boolean = false;
 			private var _previousLayout:int = -1;
+			private var _defaultLayout:int = -1;
+			private var _defaultLayoutTimer:Timer = new Timer(500, 1);
 			
 			private function init():void{
 				_mdiCanvas = getMdiCanvas(parent) as MDICanvas;
@@ -74,13 +77,17 @@
 					setupWindowListener(window);
 				}
 				
+				// typically populateComboBox() is called before init()
+				_defaultLayoutTimer.addEventListener(TimerEvent.TIMER, applyDefaultLayout);
+				_defaultLayoutTimer.start();
+				
 				// it only dispatches the activate event when the user starts to interact with the canvas
 				deactivateHandler();
 			}
 			
 			private function resizeHandler(e:ResizeEvent):void {
 //				LogUtil.debug("The main canvas has been resized");
-				_savedLayout.applyToCanvas(_mdiCanvas);
+				_currentLayout.applyToCanvas(_mdiCanvas);
 			}
 			
 			private function activateHandler(e:Event):void {
@@ -91,10 +98,10 @@
 				// here I will store the current layout
 				if (!_deactivated) {
 //					LogUtil.debug("Deactivating the main canvas, possibly because the user is resizing the window, saving the current layout");
-//					if (selectedIndex == -1) {
+					if (selectedIndex == -1) {
 						// if the user selected a layout, then the _currentLayout is already set
-						_savedLayout = LayoutDefinition.getLayout(_mdiCanvas, "Custom layout");
-//					}
+						_currentLayout = LayoutDefinition.getLayout(_mdiCanvas, "Custom layout");
+					}
 					_deactivated = true;
 				}
 			}
@@ -102,14 +109,29 @@
 			private function populateComboBox(e:LayoutsLoadedEvent):void {
 				_layouts = e.layouts;
 				dataProvider.removeAll();
-				for each (var value:LayoutDefinition in _layouts) {
-					dataProvider.addItem({label:value.name});
+				for each (var value:LayoutDefinition in _layouts.dict) {
+					var item:Object = {label:value.name};
+					dataProvider.addItem(item);
+					if (value.default_)
+						_defaultLayout = dataProvider.getItemIndex(item);
 				}
 				dataProvider.addItem({label:ResourceUtil.getInstance().getString('bbb.layout.copy')});
+				applyDefaultLayout();
+			}
+			
+			private function applyDefaultLayout(event:TimerEvent = null):void {
+				if (_defaultLayout != -1 && _mdiCanvas != null && selectedIndex != _defaultLayout) {
+					selectedIndex = _defaultLayout;
+					changeLayout(dataProvider.getItemAt(_defaultLayout).label);
+				}
+				_defaultLayoutTimer.stop();
 			}
 			
 			private function handleOpenWindowEvent(e:OpenWindowEvent):void {
-				setupWindowListener(e.window as MDIWindow);
+				var window:MDIWindow = e.window as MDIWindow;
+				setupWindowListener(window);
+				if (_currentLayout != null)
+					_currentLayout.applyToWindow(_mdiCanvas, window);
 			}
 			
 			private function setupWindowListener(window:MDIWindow):void {
@@ -127,9 +149,11 @@
 			}
 			
 			private function onLayoutChanged(e:Event):void {
-				var key:String = e.currentTarget.selectedItem.label;
-
-				if (key == ResourceUtil.getInstance().getString('bbb.layout.copy')) {
+				changeLayout(e.currentTarget.selectedItem.label);
+			}
+			
+			private function changeLayout(label:String):void {
+				if (label == ResourceUtil.getInstance().getString('bbb.layout.copy')) {
 					var name:String;
 					if (_previousLayout != -1)
 						name = dataProvider.getItemAt(_previousLayout).label;
@@ -139,7 +163,8 @@
 	                Alert.show(ResourceUtil.getInstance().getString('bbb.layout.copied'), "", Alert.OK, this);
 					selectedIndex = _previousLayout;
 				} else {
-					_layouts[key].applyToCanvas(_mdiCanvas);
+					_currentLayout = _layouts.getLayout(label);
+					_currentLayout.applyToCanvas(_mdiCanvas);
 				}
 			}
 			
@@ -158,14 +183,6 @@
 				}
 				return null;
 			}
-			
-			/*public function show():void{
-				this.enabled = true;
-			}
-			
-			private function closeEventHandler(e:Event):void {
-				show();
-			}*/
 			
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_RIGHT;

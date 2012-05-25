@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <layouts>
-	<layout name="Default">
+	<layout name="Default" default="true">
 		<window name="ViewersWindow" width="0.1772793053545586" height="0.33643617021276595" x="0" y="0" />
 		<window name="ListenersWindow" width="0.1772793053545586" height="0.33643617021276595" x="0" y="0.34308510638297873" />
 		<window name="PresentationWindow" width="0.5137481910274964" height="0.9946808510638298" x="0.18017366136034732" y="0" />
