@@ -29,7 +29,9 @@ package org.bigbluebutton.modules.layout.model {
 		// default is a reserved word in actionscript
 		[Bindable] public var default_:Boolean = false;
 		[Bindable] private var windows:Dictionary = new Dictionary();
-
+		static private var _ignoredWindows:Array = new Array("PublishWindow", 
+				"VideoWindow", "DesktopPublishWindow"); 
+		
 		public function load(vxml:XML):void {
 			if (vxml != null) {
 				if (vxml.@name != undefined) {
@@ -81,7 +83,7 @@ package org.bigbluebutton.modules.layout.model {
 			for each (var window:MDIWindow in canvas.windowManager.windowList) {
 				var layout:WindowLayout = WindowLayout.getLayout(canvas, window);
 				// for now we will just ignore the video windows
-				if (layout.name == "PublishWindow" || layout.name == "VideoWindow")
+				if (layout.name in _ignoredWindows)
 					continue;
 				layoutDefinition.windows[layout.name] = layout;
 			}
