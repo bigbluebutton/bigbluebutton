@@ -30,6 +30,7 @@ var cursor_y = [0, 10, 20, 30, 60, 60];
 var panAndZoomTimes = [];
 var viewBoxes = [];
 var times = [];
+var clearTimes = [];
 var main_shapes_times = [];
 var vboxValues = {};
 var imageAtTime = {};
@@ -56,6 +57,7 @@ shapeelements=xmlDoc.getElementsByTagName("svg");
 
 //get the array of values for the first shape (getDataPoints(0) is the first shape).
 var array = shapeelements[0].getElementsByClassName("shape"); //get all the lines from the svg file
+var pages = shapeelements[0].getElementsByClassName("page");
 var images = shapeelements[0].getElementsByTagName("image");
 
 //console.log(images);
@@ -64,6 +66,10 @@ var images = shapeelements[0].getElementsByTagName("image");
 for (var j = 0; j < array.length; j++) {
 	times[j] = array[j].getAttribute("id").substr(4);
 }
+
+for (var k = 0; k < pages.length; k++) {
+	clearTimes[k] = [pages[k].getAttribute("in"), pages[k].getAttribute("out"), pages[k].getAttribute("image"), pages[k].getAttribute("id")];
+} 
 
 var times_length = times.length; //get the length of the times array.
 
@@ -122,7 +128,15 @@ function draw(x, y) {
     cursorStyle.top = (parseInt(document.getElementById("slide").offsetTop) + parseInt(y)) + "px";
 }
 
+var clearLength = clearTimes.length
 
+function getPageId(time, image) {
+	for(var c = 0; c < clearLength; c++) {
+		if ((clearTimes[c][0] <= time) && (clearTimes[c][1] > time) && (image == clearTimes[c][2])){
+			return clearTimes[c][3];
+		}
+	}
+}
 
 // Shows or hides the cursor object depending on true/false parameter passed.
 function showCursor(boolVal) {
@@ -153,6 +167,8 @@ window.onresize = function(event){
 var current_canvas = "canvas0";
 var current_image = "image0";
 var next_image;
+var next_pgid;
+var curr_pgid;
 
 var p = Popcorn("#video")
 
@@ -207,11 +223,12 @@ var p = Popcorn("#video")
 			//cursor_y_global = getNextY(""+t); //get the next cursor position
 
 			current_shape = svgobj.contentDocument.getElementById("draw" + t);
-			//if there is actually a shape to be displayed
+			//if there is actually a new shape to be displayed
 			if(current_shape != undefined) {
 				//get the type of shape
 				current_shape = current_shape.getAttribute("shape"); //get actual shape tag for this specific time of playback
 			}
+			
 			//redraw everything (only way to make everything elegant)
 			for (i = 0, len = times_length; i < len; i++) {
 				time = times[i];
@@ -248,14 +265,37 @@ var p = Popcorn("#video")
 			if((current_image != next_image) && (next_image != null)){
 				svgobj.contentDocument.getElementById(current_image).style.visibility = "hidden";
 				svgobj.contentDocument.getElementById(next_image).style.visibility = "visible";
+				
 				num_current = current_image.substr(5);
 				num_next = next_image.substr(5);
-				svgobj.contentDocument.getElementById("canvas" + num_current).setAttribute("display", "none");
-				svgobj.contentDocument.getElementById("canvas" + num_next).setAttribute("display", "");
+				currentcanvas = svgobj.contentDocument.getElementById("canvas" + num_current);
+				if(currentcanvas != null) {
+					currentcanvas.setAttribute("display", "none");
+					console.log("hide " + currentcanvas);
+				}
+				nextcanvas = svgobj.contentDocument.getElementById("canvas" + num_next);
+				if(nextcanvas != null) {
+					nextcanvas.setAttribute("display", "");
+					console.log("hide " + nextcanvas);
+				}
 				//console.log("changed from " + current_image + " to " + next_image);
 				current_image = next_image;
 			}
-
+			
+			next_pgid = getPageId(t, current_image);
+			if(next_pgid != curr_pgid) {
+				nextpage = svgobj.contentDocument.getElementById(next_pgid);
+				if(nextpage != null) {
+					nextpage.setAttribute("display", "");
+				}
+				console.log("display " + next_pgid);
+				if((curr_pgid != null) && (curr_pgid != undefined)) {
+					svgobj.contentDocument.getElementById(curr_pgid).setAttribute("display", "none");
+					console.log("hide " + curr_pgid);
+				}
+				curr_pgid = next_pgid;
+			}
+			
 
 			vboxVal = vboxValues[""+t];
 			if(vboxVal != undefined) {
