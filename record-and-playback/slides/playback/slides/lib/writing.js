@@ -132,7 +132,7 @@ var clearLength = clearTimes.length
 
 function getPageId(time, image) {
 	for(var c = 0; c < clearLength; c++) {
-		if ((clearTimes[c][0] <= time) && (clearTimes[c][1] > time) && (image == clearTimes[c][2])){
+		if ((parseFloat(clearTimes[c][0]) <= time) && (parseFloat(clearTimes[c][1]) >= time) && (image == clearTimes[c][2])){
 			return clearTimes[c][3];
 		}
 	}
@@ -264,38 +264,43 @@ var p = Popcorn("#video")
 			//changing slide image
 			if((current_image != next_image) && (next_image != null)){
 				svgobj.contentDocument.getElementById(current_image).style.visibility = "hidden";
+				console.log("hide " + current_image);
 				svgobj.contentDocument.getElementById(next_image).style.visibility = "visible";
+				console.log("display " + next_image);
 				
 				num_current = current_image.substr(5);
 				num_next = next_image.substr(5);
 				currentcanvas = svgobj.contentDocument.getElementById("canvas" + num_current);
 				if(currentcanvas != null) {
 					currentcanvas.setAttribute("display", "none");
-					console.log("hide " + currentcanvas);
+					console.log("hide " + currentcanvas.id);
 				}
 				nextcanvas = svgobj.contentDocument.getElementById("canvas" + num_next);
 				if(nextcanvas != null) {
 					nextcanvas.setAttribute("display", "");
-					console.log("hide " + nextcanvas);
+					console.log("display " + nextcanvas.id);
 				}
 				//console.log("changed from " + current_image + " to " + next_image);
 				current_image = next_image;
 			}
 			
 			next_pgid = getPageId(t, current_image);
+			console.log(next_pgid);
 			if(next_pgid != curr_pgid) {
 				nextpage = svgobj.contentDocument.getElementById(next_pgid);
-				if(nextpage != null) {
+				if(next_pgid != null) {
 					nextpage.setAttribute("display", "");
+					console.log("display " + next_pgid);
 				}
-				console.log("display " + next_pgid);
+				else {
+					console.log("next_pgid is null");
+				}
 				if((curr_pgid != null) && (curr_pgid != undefined)) {
 					svgobj.contentDocument.getElementById(curr_pgid).setAttribute("display", "none");
 					console.log("hide " + curr_pgid);
 				}
 				curr_pgid = next_pgid;
 			}
-			
 
 			vboxVal = vboxValues[""+t];
 			if(vboxVal != undefined) {
@@ -306,3 +311,7 @@ var p = Popcorn("#video")
 })
 
 ; //ends the codes -- keep it here and simply copy the frames above.
+
+function displayFrame(time) {
+	
+}

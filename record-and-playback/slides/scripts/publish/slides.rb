@@ -156,7 +156,8 @@ if (playback == "slides")
 			clear_page_events.each do |clearEvent|
 				clearTime = ((clearEvent['timestamp'].to_f - join_time)/1000).round(1)
 				pageCleared = clearEvent.xpath(".//pageNumber")[0].text()
-				clearPageTimes[(prev_clear_time..clearTime)] = [pageCleared, canvas_number]
+				slideFolder = clearEvent.xpath(".//presentation")[0].text()
+				clearPageTimes[(prev_clear_time..clearTime)] = [pageCleared, canvas_number, "presentation/#{slideFolder}/slide-#{pageCleared.to_i+1}.png", nil]
 				prev_clear_time = clearTime
 				canvas_number+=1
 			end
@@ -184,6 +185,7 @@ if (playback == "slides")
 						slide_number = node.xpath(".//slide")[0].text()
 						# global_slide_count = global_slide_count + 1
 						slide_src = "presentation/#{presentation_name}/slide-#{slide_number.to_i + 1}.png"
+						
 						image_url = "#{process_dir}/#{slide_src}"
 						slide_size = FastImage.size(image_url)
 
@@ -210,6 +212,16 @@ if (playback == "slides")
 						puts "#{slide_src} : #{slide_start} -> #{slide_end}"
 					end
 				end
+				
+				slides_compiled.each do |key, val|
+					clearPageTimes.each do |cpt, pgCanvasUrl|
+						# check if the src of the slide matches the url of the clear event
+						if key[0] == pgCanvasUrl[2] 
+							# put the image number into the clearPageTimes
+							pgCanvasUrl[3] = "image#{val[2].to_i}"
+						end
+					end
+				end
 
 				BigBlueButton.logger.info("Printing out the gathered images")
 				# Print out the gathered/detected images.
@@ -219,9 +231,15 @@ if (playback == "slides")
 					xml.g(:class => "canvas", :id => "canvas#{val[2].to_i}", :image => "image#{val[2].to_i}", :display => "none") do
 						# Split by the cleared pages.
 						clearPageTimes.each do |clearTimeInstance, pageAndCanvasNumbers|
+							
+							if pageAndCanvasNumbers[3] == "image#{val[2].to_i}"
+								out_time = clearTimeInstance.last.to_s
+							else
+								out_time = endPresentationTime
+							end
 							# Process the clears
 							page_number += 1
-							xml.g(:class => "page", :id => "page#{page_number}", :in => clearTimeInstance.first.to_s, :out => clearTimeInstance.last.to_s, :image => "image#{val[2].to_i}", :display => "none") do
+							xml.g(:class => "page", :image => "image#{val[2].to_i}", :id => "page#{page_number}",  :in => clearTimeInstance.first.to_s, :out => out_time, :display => "none") do
 								# Select and print the shapes within the current image
 								shape_events.each do |shape|
 								# Get variables
