@@ -256,7 +256,7 @@ p.code({
 					}
 				}
 				//for the shape with the time specific to the current time
-				else if(time_f === t) {
+				else if(time_s === t) {
 					console.log("showing" + shape.id);
 					shape.style.visibility = "visible";
 				}
