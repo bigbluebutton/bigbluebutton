@@ -244,7 +244,10 @@ p.code({
 					//as long as it is a main shape, it can be drawn... no intermediate steps.
 					else if(main_shapes_times.indexOf(time_s) !== -1) {
 						//As long as the undo event hasn't happened yet...
-						if(parseFloat(shape.getAttribute("undo")) > t) {
+						if(parseFloat(shape.getAttribute("undo")) === -1) {
+							shape.style.visibility = "visible";
+						}
+						else if (parseFloat(shape.getAttribute("undo")) > t) {
 							shape.style.visibility = "visible";
 						}
 						else {
@@ -254,6 +257,7 @@ p.code({
 				}
 				//for the shape with the time specific to the current time
 				else if(time_f === t) {
+					console.log("showing" + shape.id);
 					shape.style.visibility = "visible";
 				}
 				//for shapes that shouldn't be drawn yet (larger time than current time), don't draw them.

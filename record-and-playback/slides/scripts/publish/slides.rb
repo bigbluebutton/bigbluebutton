@@ -176,20 +176,45 @@ if (playback == "slides")
 							# It cannot be an undo for another shape already.
 							if !(undos.has_key? shape['timestamp'])
 								# Must be part of this presentation of course
-								if shape['presentation'] == undo['presentation']
+								if shape.xpath(".//pageNumber")[0].text() == undo.xpath(".//pageNumber")[0].text()
 									# Must be a shape in this page too.
-									if shape['pageNumber'] == undo['pageNumber']
-										closest_shape = shape
+									if shape.xpath(".//presentation")[0].text() == undo.xpath(".//presentation")[0].text()
+										if ((shape.xpath(".//type")[0].text() == "rectangle") || (shape.xpath(".//type")[0].text() == "ellipse"))
+											shape_already_processed = false
+											undos.each do |u, v|
+												if shape.xpath(".//dataPoints")[0].text().split(",")[0] == u.xpath(".//dataPoints")[0].text().split(",")[0]
+													if shape.xpath(".//dataPoints")[0].text().split(",")[1] == u.xpath(".//dataPoints")[0].text().split(",")[1]
+														shape_already_processed = true
+													end
+												end
+											end
+											if(undos.length == 0) 
+												shape_already_processed
+											end 
+											if !(shape_already_processed)
+												closest_shape = shape
+											end
+										else
+											closest_shape = shape
+										end
 									end
 								end
 							end
 						end
 					end
 				end
-				#BigBlueButton.logger.info("Now puting in undos")
-				undos[closest_shape['timestamp']] = undo['timestamp']
-				#BigBlueButton.logger.info("put in undos")
+				if(closest_shape != nil)
+					undos[closest_shape] = undo['timestamp']
+				end
 			end
+			
+			undos_temp = {}
+			undos.each do |un, val|
+				undos_temp[un['timestamp']] = val
+			end
+			undos = undos_temp
+			
+			
 			#BigBlueButton.logger.info("Made it through the looping")
 			BigBlueButton.logger.info("Undos: #{undos}")
 			
