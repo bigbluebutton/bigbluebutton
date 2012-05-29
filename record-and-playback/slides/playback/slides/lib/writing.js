@@ -243,7 +243,13 @@ p.code({
 					}
 					//as long as it is a main shape, it can be drawn... no intermediate steps.
 					else if(main_shapes_times.indexOf(time_s) !== -1) {
-						shape.style.visibility = "visible";
+						//As long as the undo event hasn't happened yet...
+						if(parseFloat(shape.getAttribute("undo")) > t) {
+							shape.style.visibility = "visible";
+						}
+						else {
+							shape.style.visibility = "hidden";
+						}
 					}
 				}
 				//for the shape with the time specific to the current time

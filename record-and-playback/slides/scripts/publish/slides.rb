@@ -43,6 +43,7 @@ prev_time = "NaN"
 ss = {}
 clearPageTimes = {}
 slides_compiled = {}
+undos = {}
 
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
@@ -127,6 +128,7 @@ if (playback == "slides")
 		shape_events = @doc.xpath("//event[@eventname='AddShapeEvent']") # for the creation of shapes
 		panzoom_events = @doc.xpath("//event[@eventname='ResizeAndMoveSlideEvent']") # for the action of panning and/or zooming
 		clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
+		undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
 
 		join_time = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0]['timestamp'].to_f
 		end_time = @doc.xpath("//event[@eventname='EndAndKickAllEvent']")[0]['timestamp'].to_f
@@ -146,7 +148,6 @@ if (playback == "slides")
 				end
 			}
 		end
-
 		
 		# Create shapes.svg file from the events.xml
 		BigBlueButton.logger.info("Creating shapes.svg")
@@ -161,6 +162,36 @@ if (playback == "slides")
 				prev_clear_time = clearTime
 				canvas_number+=1
 			end
+			
+			# Processing the undo events, creating/filling a hashmap called "undos".
+			BigBlueButton.logger.info("Process undo events.")
+			undo_events.each do |undo|
+				closest_shape = nil # Initialize as nil to prime the loop.
+				t = undo['timestamp'].to_f
+				shape_events.each do |shape|
+					# The undo cannot be for a shape that hasn't been drawn yet.
+					if shape['timestamp'].to_f < t
+						# It must be the closest shape drawn that hasn't already been undone.
+						if (closest_shape == nil) || (shape['timestamp'].to_f > closest_shape['timestamp'].to_f)
+							# It cannot be an undo for another shape already.
+							if !(undos.has_key? shape['timestamp'])
+								# Must be part of this presentation of course
+								if shape['presentation'] == undo['presentation']
+									# Must be a shape in this page too.
+									if shape['pageNumber'] == undo['pageNumber']
+										closest_shape = shape
+									end
+								end
+							end
+						end
+					end
+				end
+				#BigBlueButton.logger.info("Now puting in undos")
+				undos[closest_shape['timestamp']] = undo['timestamp']
+				#BigBlueButton.logger.info("put in undos")
+			end
+			#BigBlueButton.logger.info("Made it through the looping")
+			BigBlueButton.logger.info("Undos: #{undos}")
 			
 			# put in the last clear events numbers (previous clear to the end of the slideshow)
 			endPresentationTime = ((end_time - join_time)/1000).round(1)
@@ -250,6 +281,11 @@ if (playback == "slides")
 								pageNumber = shape.xpath(".//pageNumber")[0].text()
 								dataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
 								colour = shape.xpath(".//color")[0].text()
+								if(undos.has_key? shape['timestamp'])
+									undo_time = ((undos[shape['timestamp']].to_f - join_time)/1000).round(1)
+								elsif
+									undo_time = -1
+								end
 								
 								# Process colours
 								colour_hex = colour.to_i.to_s(16) # convert from base 10 to base 16 (hex)
@@ -290,7 +326,7 @@ if (playback == "slides")
 									if type.eql? "pencil"
 										line_count = line_count + 1 # always update the line count!
 										# # puts "thickness: #{thickness} and pageNumber: #{pageNumber} and dataPoints: #{dataPoints}"
-										xml.g(:class => 'shape', :id=>"draw#{current_time}", :shape =>"line#{line_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden") do
+										xml.g(:class => 'shape', :id=>"draw#{current_time}", :undo => "#{undo_time}", :shape =>"line#{line_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden") do
 											# get first and last points for now. here in the future we should put a loop to get all the data points and make sub lines within the group.
 											xml.line('x1' => "#{((dataPoints[0].to_f)/100)*vbox_width}", 'y1' => "#{((dataPoints[1].to_f)/100)*vbox_height}", 'x2' => "#{((dataPoints[(dataPoints.length)-2].to_f)/100)*vbox_width}", 'y2' => "#{((dataPoints[(dataPoints.length)-1].to_f)/100)*vbox_height}")
 										end
@@ -303,7 +339,7 @@ if (playback == "slides")
 											else
 												rectangle_count = rectangle_count + 1
 											end
-											xml.g(:class => 'shape', 'id'=>"draw#{current_time}", 'shape'=>"rect#{rectangle_count}", 'style'=>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
+											xml.g(:class => 'shape', 'id'=>"draw#{current_time}", :undo => "#{undo_time}", 'shape'=>"rect#{rectangle_count}", 'style'=>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
 												originX = ((dataPoints[0].to_f)/100)*vbox_width
 												originY = ((dataPoints[1].to_f)/100)*vbox_height
 												originalOriginX = originX
@@ -333,7 +369,7 @@ if (playback == "slides")
 											else
 												ellipse_count = ellipse_count + 1
 											end # end ((originalOriginX == ((dataPoints[0].to_f)/100)*vbox_width) && (originalOriginY == ((dataPoints[1].to_f)/100)*vbox_height))
-											xml.g(:class => 'shape', 'id'=>"draw#{current_time}", 'shape'=>"ellipse#{ellipse_count}", 'style'=>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
+											xml.g(:class => 'shape', 'id'=>"draw#{current_time}", :undo => "#{undo_time}", 'shape'=>"ellipse#{ellipse_count}", 'style'=>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
 												originX = ((dataPoints[0].to_f)/100)*vbox_width
 												originY = ((dataPoints[1].to_f)/100)*vbox_height
 												originalOriginX = originX
@@ -352,10 +388,10 @@ if (playback == "slides")
 												prev_time = current_time
 											end # end xml.g
 										end # end if(current_time != prev_time)
-									end
-								end
-							end
-						end
+									end # end if pencil (and other shapes)
+								end # end if((in_this_image) && (in_this_canvas))
+							end # end shape_events.each do |shape|
+						end # end g group for pages
 					end
 				end
 			end
