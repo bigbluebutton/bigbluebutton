@@ -257,7 +257,6 @@ p.code({
 				}
 				//for the shape with the time specific to the current time
 				else if(time_s === t) {
-					console.log("showing" + shape.id);
 					shape.style.visibility = "visible";
 				}
 				//for shapes that shouldn't be drawn yet (larger time than current time), don't draw them.

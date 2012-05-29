@@ -148,7 +148,7 @@ if (playback == "slides")
 				end
 			}
 		end
-		
+
 		# Create shapes.svg file from the events.xml
 		BigBlueButton.logger.info("Creating shapes.svg")
 		shapes_svg = Nokogiri::XML::Builder.new do |xml|
@@ -162,7 +162,7 @@ if (playback == "slides")
 				prev_clear_time = clearTime
 				canvas_number+=1
 			end
-			
+
 			# Processing the undo events, creating/filling a hashmap called "undos".
 			BigBlueButton.logger.info("Process undo events.")
 			undo_events.each do |undo|
@@ -188,9 +188,9 @@ if (playback == "slides")
 													end
 												end
 											end
-											if(undos.length == 0) 
+											if(undos.length == 0)
 												shape_already_processed
-											end 
+											end
 											if !(shape_already_processed)
 												closest_shape = shape
 											end
@@ -207,29 +207,29 @@ if (playback == "slides")
 					undos[closest_shape] = undo['timestamp']
 				end
 			end
-			
+
 			undos_temp = {}
 			undos.each do |un, val|
 				undos_temp[un['timestamp']] = val
 			end
 			undos = undos_temp
-			
-			
+
+
 			#BigBlueButton.logger.info("Made it through the looping")
 			BigBlueButton.logger.info("Undos: #{undos}")
-			
+
 			# put in the last clear events numbers (previous clear to the end of the slideshow)
 			endPresentationTime = ((end_time - join_time)/1000).round(1)
 			clearPageTimes[(prev_clear_time..endPresentationTime)] = [pageCleared, canvas_number]
-			
+
 			# Put the headers on the svg xml file.
 			xml.doc.create_internal_subset('svg', "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd")
 			xml.svg('id' => 'svgfile', 'style' => 'position:absolute; height:600px; width:800px;', 'xmlns' => 'http://www.w3.org/2000/svg', 'xmlns:xlink' => 'http://www.w3.org/1999/xlink', 'version' => '1.1', 'viewBox' => '0 0 800 600') do
-				
+
 				#This is for the first image. It is a placeholder for an image that doesn't exist.
 				xml.image(:id => "image0", :in => 0, :out => first_slide_start, :src => "logo.png", :width => 800)
 				xml.g(:class => "canvas", :id => "canvas0", :image => "image0", :display => "none")
-				
+
 				# For each slide (there is only one image per slide)
 				slides_events.each do |node|
 					eventname =  node['eventname']
@@ -241,7 +241,7 @@ if (playback == "slides")
 						slide_number = node.xpath(".//slide")[0].text()
 						# global_slide_count = global_slide_count + 1
 						slide_src = "presentation/#{presentation_name}/slide-#{slide_number.to_i + 1}.png"
-						
+
 						image_url = "#{process_dir}/#{slide_src}"
 						slide_size = FastImage.size(image_url)
 
@@ -268,11 +268,11 @@ if (playback == "slides")
 						puts "#{slide_src} : #{slide_start} -> #{slide_end}"
 					end
 				end
-				
+
 				slides_compiled.each do |key, val|
 					clearPageTimes.each do |cpt, pgCanvasUrl|
 						# check if the src of the slide matches the url of the clear event
-						if key[0] == pgCanvasUrl[2] 
+						if key[0] == pgCanvasUrl[2]
 							# put the image number into the clearPageTimes
 							pgCanvasUrl[3] = "image#{val[2].to_i}"
 						end
@@ -287,7 +287,7 @@ if (playback == "slides")
 					xml.g(:class => "canvas", :id => "canvas#{val[2].to_i}", :image => "image#{val[2].to_i}", :display => "none") do
 						# Split by the cleared pages.
 						clearPageTimes.each do |clearTimeInstance, pageAndCanvasNumbers|
-							
+
 							if pageAndCanvasNumbers[3] == "image#{val[2].to_i}"
 								out_time = clearTimeInstance.last.to_s
 							else
@@ -311,16 +311,16 @@ if (playback == "slides")
 								elsif
 									undo_time = -1
 								end
-								
+
 								# Process colours
 								colour_hex = colour.to_i.to_s(16) # convert from base 10 to base 16 (hex)
 								colour_hex='0'*(6-colour_hex.length) + colour_hex # pad the number with 0's to give it a length of 6
-								
+
 								in_this_image = false
 								in_this_canvas = false
 								index = 0
 								numOfTimes = val[0].length
-								
+
 								# Checks to see if the current shapes are to be drawn in this particular image
 								while((in_this_image == false) && (index < numOfTimes)) do
 									# BigBlueButton.logger.info("#{current_time} compared to ( #{val[0][index]} to #{val[1][index]} )")
@@ -330,7 +330,7 @@ if (playback == "slides")
 									end
 									index+=1
 								end
-								
+
 								# Checks to see if the current shapes are to be drawn in this particular canvas
 								if(clearTimeInstance === current_time)
 									# BigBlueButton.logger.info("#{current_time} is in the range of #{val[0][index]} to #{val[1][index]}")
@@ -355,7 +355,7 @@ if (playback == "slides")
 											# get first and last points for now. here in the future we should put a loop to get all the data points and make sub lines within the group.
 											xml.line('x1' => "#{((dataPoints[0].to_f)/100)*vbox_width}", 'y1' => "#{((dataPoints[1].to_f)/100)*vbox_height}", 'x2' => "#{((dataPoints[(dataPoints.length)-2].to_f)/100)*vbox_width}", 'y2' => "#{((dataPoints[(dataPoints.length)-1].to_f)/100)*vbox_height}")
 										end
-										
+
 									# Process the rectangle shapes
 									elsif type.eql? "rectangle"
 										if(current_time != prev_time)
@@ -385,7 +385,7 @@ if (playback == "slides")
 												prev_time = current_time
 											end
 										end
-										
+
 									# Process the ellipse shapes
 									elsif type.eql? "ellipse"
 										if(current_time != prev_time)
@@ -471,10 +471,10 @@ if (playback == "slides")
 
 		# Write shapes.svg to file
 		File.open("#{package_dir}/#{shapes_svg_filename}", 'w') { |f| f.puts shapes_svg.to_xml.gsub(%r"\s*\<g.*/\>", "") } #.gsub(%r"\s*\<g.*\>\s*\</g\>", "") }
-		
+
 		# Write panzooms.xml to file
 		File.open("#{package_dir}/#{panzooms_xml_filename}", 'w') { |f| f.puts panzooms_xml.to_xml }
-		
+
         BigBlueButton.logger.info("Publishing slides")
 		# Now publish this recording files by copying them into the publish folder.
 		if not FileTest.directory?(publish_dir)
