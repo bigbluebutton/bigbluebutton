@@ -353,9 +353,9 @@ if (playback == "slides")
 									if type.eql? "pencil"
 										line_count = line_count + 1 # always update the line count!
 										# # puts "thickness: #{thickness} and pageNumber: #{pageNumber} and dataPoints: #{dataPoints}"
-										xml.g(:class => :shape, :id=>"draw#{current_time}", :undo => "#{undo_time}", :shape =>"line#{line_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden") do
+										xml.g(:class => :shape, :id=>"draw#{current_time}", :undo => undo_time, :shape =>"line#{line_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden") do
 											for i in (0...(dataPoints.length/2)-1) do
-												xml.line(:x1 => "#{((dataPoints[i*2].to_f)/100)*vbox_width}", :y1 => "#{((dataPoints[(i*2)+1].to_f)/100)*vbox_height}", :x2 => "#{((dataPoints[(i*2)+2].to_f)/100)*vbox_width}", :y2 => "#{((dataPoints[(i*2)+3].to_f)/100)*vbox_height}")
+												xml.line(:x1 => ((dataPoints[i*2].to_f)/100)*vbox_width, :y1 => ((dataPoints[(i*2)+1].to_f)/100)*vbox_height, :x2 => ((dataPoints[(i*2)+2].to_f)/100)*vbox_width, :y2 => ((dataPoints[(i*2)+3].to_f)/100)*vbox_height)
 											end
 											# get first and last points for now. here in the future we should put a loop to get all the data points and make sub lines within the group.
 											#xml.line('x1' => "#{((dataPoints[0].to_f)/100)*vbox_width}", 'y1' => "#{((dataPoints[1].to_f)/100)*vbox_height}", 'x2' => "#{((dataPoints[(dataPoints.length)-2].to_f)/100)*vbox_width}", 'y2' => "#{((dataPoints[(dataPoints.length)-1].to_f)/100)*vbox_height}")
@@ -369,7 +369,7 @@ if (playback == "slides")
 											else
 												rectangle_count = rectangle_count + 1
 											end
-											xml.g(:class => :shape, :id => "draw#{current_time}", :undo => "#{undo_time}", :shape => "rect#{rectangle_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
+											xml.g(:class => :shape, :id => "draw#{current_time}", :undo => undo_time, :shape => "rect#{rectangle_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
 												originX = ((dataPoints[0].to_f)/100)*vbox_width
 												originY = ((dataPoints[1].to_f)/100)*vbox_height
 												originalOriginX = originX
@@ -386,7 +386,7 @@ if (playback == "slides")
 													originX = originX + rectWidth
 													rectWidth = rectWidth.abs
 												end
-												xml.rect(:x => "#{originX}", :y => "#{originY}", :width => "#{rectWidth}", :height => "#{rectHeight}")
+												xml.rect(:x => originX, :y => originY, :width => rectWidth, :height => rectHeight)
 												prev_time = current_time
 											end
 										end
@@ -399,7 +399,7 @@ if (playback == "slides")
 											else
 												ellipse_count = ellipse_count + 1
 											end # end ((originalOriginX == ((dataPoints[0].to_f)/100)*vbox_width) && (originalOriginY == ((dataPoints[1].to_f)/100)*vbox_height))
-											xml.g(:class => :shape, :id => "draw#{current_time}", :undo => "#{undo_time}", :shape => "ellipse#{ellipse_count}", :style =>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
+											xml.g(:class => :shape, :id => "draw#{current_time}", :undo => undo_time, :shape => "ellipse#{ellipse_count}", :style =>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
 												originX = ((dataPoints[0].to_f)/100)*vbox_width
 												originY = ((dataPoints[1].to_f)/100)*vbox_height
 												originalOriginX = originX
@@ -414,7 +414,7 @@ if (playback == "slides")
 													originX = originX + ellipseWidth
 													ellipseWidth = ellipseWidth.abs
 												end
-												xml.ellipse(:cx => "#{originX+(ellipseWidth/2)}", :cy => "#{originY+(ellipseHeight/2)}", :rx => "#{ellipseWidth/2}", :ry => "#{ellipseHeight/2}")
+												xml.ellipse(:cx => originX+(ellipseWidth/2), :cy => originY+(ellipseHeight/2), :rx => ellipseWidth/2, :ry => ellipseHeight/2)
 												prev_time = current_time
 											end # end xml.g
 										end # end if(current_time != prev_time)
@@ -431,11 +431,11 @@ if (playback == "slides")
 		#Create panzooms.xml
 		panzooms_xml = Nokogiri::XML::Builder.new do |xml|
 			xml.recording('id' => 'panzoom_events') do
-				h_ratio_prev = "NaN"
-				w_ratio_prev = "NaN"
-				x_prev = "NaN"
-				y_prev = "NaN"
-				timestamp_orig_prev = "NaN"
+				h_ratio_prev = nil
+				w_ratio_prev = nil
+				x_prev = nil
+				y_prev = nil
+				timestamp_orig_prev = nil
 				timestamp_prev = 0.0
 				panzoom_events.each do |panZoomEvent|
 					# Get variables
@@ -449,8 +449,8 @@ if (playback == "slides")
 					if(timestamp_prev == timestamp)
 						# do nothing because playback can't react that fast
 					else
-						if((!(h_ratio_prev.eql?("NaN"))) && (!(w_ratio_prev.eql?("NaN"))) && (!(x_prev.eql?("NaN"))) && (!(y_prev.eql?("NaN"))))
-							xml.event('timestamp' => "#{timestamp_prev}", 'orig' => "#{timestamp_orig_prev}") do
+						if(h_ratio_prev && w_ratio_prev && x_prev && y_prev)
+							xml.event(:timestamp => timestamp_prev, :orig => timestamp_orig_prev) do
 								ss.each do |key,val|
 									if key === timestamp
 										vbox_width = val[0]
