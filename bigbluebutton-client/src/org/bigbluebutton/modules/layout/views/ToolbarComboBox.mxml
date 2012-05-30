@@ -35,6 +35,8 @@
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			import flash.events.Event;
+			import flash.events.ProgressEvent;
+			import flash.events.IOErrorEvent;
 			
 			import mx.controls.Alert;
 			import mx.events.ResizeEvent;
@@ -57,6 +59,7 @@
 			import org.bigbluebutton.modules.layout.events.DefineLayoutEvent;
 			import org.bigbluebutton.modules.layout.managers.LayoutManager;
 			import org.bigbluebutton.modules.layout.model.LayoutDefinition;
+			import org.bigbluebutton.modules.layout.model.LayoutFileLoader;
 			import org.bigbluebutton.modules.layout.model.WindowLayout;
 			
 			private var _dispatcher:Dispatcher = new Dispatcher();
@@ -136,20 +139,6 @@
 				dataProvider.addItem({label:LOAD_LAYOUTS});
 				//dataProvider.addItem({label:ResourceUtil.getInstance().getString('bbb.layout.copy')});
 			}
-			
-			private function selectHandler(e:Event):void {
-				var file:FileReference = FileReference(e.target);
-				LogUtil.debug("==================================> loading");
-				file.load();
-			}
-			
-			private function completeHandler(e:Event):void {
-				LogUtil.debug("==================================> completeHandler");
-				var loader:Loader = new Loader();
-				loader.loadBytes(e.target.data);
-				addChild(loader);
-				_layouts.completeHandler(e);
-			}
 
 			private function applyDefaultLayout(event:TimerEvent = null):void {
 				if (_defaultLayout != -1 && _mdiCanvas != null && selectedIndex != _defaultLayout) {
@@ -169,8 +158,10 @@
 			private function setupWindowListener(window:MDIWindow):void {
 				window.addEventListener(MDIWindowEvent.RESIZE_START, invalidateLayout);
 				window.addEventListener(MDIWindowEvent.DRAG_START, invalidateLayout);
-				window.addEventListener(MDIWindowEvent.MINIMIZE, invalidateLayout);
-				window.addEventListener(MDIWindowEvent.MAXIMIZE, invalidateLayout);
+				// can't do it because it's not possible to differ between the user action and
+				// the minimize/maximize call when we apply a layout
+				//window.addEventListener(MDIWindowEvent.MINIMIZE, invalidateLayout);
+				//window.addEventListener(MDIWindowEvent.MAXIMIZE, invalidateLayout);
 			}
 			
 			private function invalidateLayout(e:Event):void {
@@ -187,22 +178,20 @@
 			}
 			
 			private function changeLayout(label:String):void {
-				var file:FileReference;
 				if (label == ADD_LAYOUT) {
-					_customLayoutNumber += 1;
-					_layouts.append(LayoutDefinition.getLayout(_mdiCanvas, "Custom layout " + _customLayoutNumber));
-					updateComboBox();
-					prompt = ResourceUtil.getInstance().getString('bbb.layout.prompt');
-					selectedIndex = -1;
+					if (_previousLayout == -1) {
+						_customLayoutNumber += 1;
+						_layouts.append(LayoutDefinition.getLayout(_mdiCanvas, "Custom layout " + _customLayoutNumber));
+						updateComboBox();
+						prompt = ResourceUtil.getInstance().getString('bbb.layout.prompt');
+					}
 				} else if (label == SAVE_LAYOUTS) {
-					file = new FileReference();
+					var file:FileReference = new FileReference();
 					file.save(_layouts.toXml().toXMLString(), "layouts.xml");
 					selectedIndex = _previousLayout;
 				} else if (label == LOAD_LAYOUTS) {
-					file = new FileReference();
-					file.addEventListener(Event.SELECT, selectHandler);
-					file.addEventListener(Event.COMPLETE, completeHandler);
-					file.browse();
+					var loader:LayoutFileLoader = new LayoutFileLoader(this);
+					loader.startLoading(_layouts);
 					selectedIndex = _previousLayout;
 				} else if (label == ResourceUtil.getInstance().getString('bbb.layout.copy')) {
 					var name:String;

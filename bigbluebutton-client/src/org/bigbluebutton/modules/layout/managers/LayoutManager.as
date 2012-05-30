@@ -49,7 +49,6 @@ package org.bigbluebutton.modules.layout.managers
 		}		
 		
 		public function completeHandler(e:Event):void {
-			LogUtil.debug("==================================> loaded");
 			var data:XML = new XML(e.target.data);
 			_layouts = new Dictionary();
 			for each (var n:XML in data.layout) {
