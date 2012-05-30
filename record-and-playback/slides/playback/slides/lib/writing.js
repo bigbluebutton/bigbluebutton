@@ -165,9 +165,11 @@ function getImageAtTime(time) {
 	var curr_t = parseFloat(time);
 	var key;
 	for (key in imageAtTime) {
-		var arry = key.split(",");
-		if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
-			return imageAtTime[key];
+		if(imageAtTime.hasOwnProperty(key)) {
+			var arry = key.split(",");
+			if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
+				return imageAtTime[key];
+			}
 		}
 	}
 }
@@ -176,9 +178,11 @@ function getViewboxAtTime(time) {
 	var curr_t = parseFloat(time);
 	var key;
 	for (key in vboxValues) {
-		var arry = key.split(",");
-		if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
-			return vboxValues[key];
+		if(vboxValues.hasOwnProperty(key)) {
+			var arry = key.split(",");
+			if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
+				return vboxValues[key];
+			}
 		}
 	}
 }
@@ -328,11 +332,10 @@ p.code({
 			if(vboxVal !== undefined) {
 				setViewBox(vboxVal);
 			}
-		var elapsed = new Date().getTime() - start;
-		if(elapsed != 0) {
-			//console.log("frame time: " + elapsed);
+			var elapsed = new Date().getTime() - start;
+			if(parseInt(elapsed, 10) !== 0) {
+				console.log("frame time: " + elapsed);
+			}
 		}
-		}
-		
     }
 }); //ends the codes -- keep it here and simply copy the frames above.
