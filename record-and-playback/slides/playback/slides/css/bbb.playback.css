@@ -21,10 +21,26 @@ br{
 	border-radius:10px; */
 }
 
+#slide{
+	width: 600px; 
+	height: 600px;
+}
+
+#svgobject{
+	width: 800px; 
+	height: 600px; 
+	position: absolute; 
+	visibility: visible;
+}
+
 #audioRecording{
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
+}
+
+#cursor{
+	position: absolute;
 }
 
 .chatcontainer{
