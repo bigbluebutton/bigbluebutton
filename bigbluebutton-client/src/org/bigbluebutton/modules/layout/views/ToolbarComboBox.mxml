@@ -39,6 +39,8 @@
 			import mx.controls.Alert;
 			import mx.events.ResizeEvent;
 			
+			import flash.net.FileReference;
+
 			import flexlib.mdi.managers.MDIManager;
 			import flexlib.mdi.containers.MDICanvas;
 			import flexlib.mdi.containers.MDIWindow;
@@ -65,6 +67,12 @@
 			private var _previousLayout:int = -1;
 			private var _defaultLayout:int = -1;
 			private var _defaultLayoutTimer:Timer = new Timer(500, 1);
+			private var _customLayoutNumber:int = 0;
+			private var _firstTime:Boolean = true;
+			
+			private var ADD_LAYOUT:String = "Add layout to list";
+			private var SAVE_LAYOUTS:String = "Save layouts to disk";
+			private var LOAD_LAYOUTS:String = "Load layouts from disk";
 			
 			private function init():void{
 				_mdiCanvas = getMdiCanvas(parent) as MDICanvas;
@@ -108,6 +116,13 @@
 			
 			private function populateComboBox(e:LayoutsLoadedEvent):void {
 				_layouts = e.layouts;
+				updateComboBox();
+				if (_firstTime)
+					applyDefaultLayout();
+				_firstTime = false;
+			}
+			
+			private function updateComboBox():void {
 				dataProvider.removeAll();
 				for each (var value:LayoutDefinition in _layouts.dict) {
 					var item:Object = {label:value.name};
@@ -115,10 +130,27 @@
 					if (value.default_)
 						_defaultLayout = dataProvider.getItemIndex(item);
 				}
-				dataProvider.addItem({label:ResourceUtil.getInstance().getString('bbb.layout.copy')});
-				applyDefaultLayout();
+				dataProvider.addItem(null);
+				dataProvider.addItem({label:ADD_LAYOUT});
+				dataProvider.addItem({label:SAVE_LAYOUTS});
+				dataProvider.addItem({label:LOAD_LAYOUTS});
+				//dataProvider.addItem({label:ResourceUtil.getInstance().getString('bbb.layout.copy')});
 			}
 			
+			private function selectHandler(e:Event):void {
+				var file:FileReference = FileReference(e.target);
+				LogUtil.debug("==================================> loading");
+				file.load();
+			}
+			
+			private function completeHandler(e:Event):void {
+				LogUtil.debug("==================================> completeHandler");
+				var loader:Loader = new Loader();
+				loader.loadBytes(e.target.data);
+				addChild(loader);
+				_layouts.completeHandler(e);
+			}
+
 			private function applyDefaultLayout(event:TimerEvent = null):void {
 				if (_defaultLayout != -1 && _mdiCanvas != null && selectedIndex != _defaultLayout) {
 					selectedIndex = _defaultLayout;
@@ -137,6 +169,8 @@
 			private function setupWindowListener(window:MDIWindow):void {
 				window.addEventListener(MDIWindowEvent.RESIZE_START, invalidateLayout);
 				window.addEventListener(MDIWindowEvent.DRAG_START, invalidateLayout);
+				window.addEventListener(MDIWindowEvent.MINIMIZE, invalidateLayout);
+				window.addEventListener(MDIWindowEvent.MAXIMIZE, invalidateLayout);
 			}
 			
 			private function invalidateLayout(e:Event):void {
@@ -153,15 +187,31 @@
 			}
 			
 			private function changeLayout(label:String):void {
-				if (label == ResourceUtil.getInstance().getString('bbb.layout.copy')) {
+				var file:FileReference;
+				if (label == ADD_LAYOUT) {
+					_customLayoutNumber += 1;
+					_layouts.append(LayoutDefinition.getLayout(_mdiCanvas, "Custom layout " + _customLayoutNumber));
+					updateComboBox();
+					prompt = ResourceUtil.getInstance().getString('bbb.layout.prompt');
+					selectedIndex = -1;
+				} else if (label == SAVE_LAYOUTS) {
+					file = new FileReference();
+					file.save(_layouts.toXml().toXMLString(), "layouts.xml");
+					selectedIndex = _previousLayout;
+				} else if (label == LOAD_LAYOUTS) {
+					file = new FileReference();
+					file.addEventListener(Event.SELECT, selectHandler);
+					file.addEventListener(Event.COMPLETE, completeHandler);
+					file.browse();
+					selectedIndex = _previousLayout;
+				} else if (label == ResourceUtil.getInstance().getString('bbb.layout.copy')) {
 					var name:String;
 					if (_previousLayout != -1)
 						name = dataProvider.getItemAt(_previousLayout).label;
 					else
 						name = "Custom layout";
-					System.setClipboard(LayoutDefinition.getLayout(_mdiCanvas, name).toXml());
+					System.setClipboard(LayoutDefinition.getLayout(_mdiCanvas, name).toXml().toXMLString());
 	                Alert.show(ResourceUtil.getInstance().getString('bbb.layout.copied'), "", Alert.OK, this);
-					selectedIndex = _previousLayout;
 				} else {
 					_currentLayout = _layouts.getLayout(label);
 					_currentLayout.applyToCanvas(_mdiCanvas);

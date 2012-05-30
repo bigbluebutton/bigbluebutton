@@ -33,12 +33,12 @@ package org.bigbluebutton.modules.layout.managers
 	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 	
 	public class LayoutManager extends EventDispatcher {
-		private var _layouts:Dictionary = new Dictionary();
+		private var _layouts:Dictionary;
 		private var _dispatcher:Dispatcher = new Dispatcher();
 		
 		public function loadLayout(layoutUrl:String):void {
 			var urlLoader:URLLoader = new URLLoader();
-			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
+			urlLoader.addEventListener(Event.COMPLETE, completeHandler);
 			urlLoader.addEventListener(IOErrorEvent.IO_ERROR, ioErrorHandler);
 			var date:Date = new Date();
 			try {
@@ -48,8 +48,10 @@ package org.bigbluebutton.modules.layout.managers
 			}
 		}		
 		
-		private function handleComplete(e:Event):void{
+		public function completeHandler(e:Event):void {
+			LogUtil.debug("==================================> loaded");
 			var data:XML = new XML(e.target.data);
+			_layouts = new Dictionary();
 			for each (var n:XML in data.layout) {
 				var layoutDefinition:LayoutDefinition = new LayoutDefinition();
 				layoutDefinition.load(n);
@@ -68,6 +70,10 @@ package org.bigbluebutton.modules.layout.managers
 			return _layouts;
 		}
 		
+		public function append(layoutDefinition:LayoutDefinition):void {
+			_layouts[layoutDefinition.name] = layoutDefinition;
+		}
+		
 		public function getDefault():LayoutDefinition {
 			for each (var value:LayoutDefinition in _layouts) {
 				if (value.default_)
@@ -78,6 +84,14 @@ package org.bigbluebutton.modules.layout.managers
 		
 		public function getLayout(name:String):LayoutDefinition {
 			return _layouts[name];
+		}
+		
+		public function toXml():XML {
+			var xml:XML = <layouts/>;
+			for each (var value:LayoutDefinition in _layouts) {
+				xml.appendChild(value.toXml());
+			}
+			return xml;
 		}
 	}
 }

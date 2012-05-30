@@ -52,15 +52,15 @@ package org.bigbluebutton.modules.layout.model {
 			return windows[name];
 		}
 		
-		public function toXml():String {
-			var r:String = "<layout name=\"" + name + 
-					(default_? " default=\"true\"": "") + 
-					" \">";
+		public function toXml():XML {
+			var xml:XML = <layout/>;
+			xml.@name = name;
+			if (default_)
+				xml.@default = true;
 			for each (var value:WindowLayout in windows) {
-				r += "\n\t" + value.toXml();
+				xml.appendChild(value.toXml());
 			}
-			r += "\n</layout>";
-			return r;
+			return xml;
 		}
 		
 		public function applyToCanvas(canvas:MDICanvas):void {

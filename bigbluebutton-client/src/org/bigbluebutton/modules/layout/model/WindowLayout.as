@@ -157,26 +157,36 @@ package org.bigbluebutton.modules.layout.model {
 			}
 		}
 		
-		public function toAbsoluteXml(canvas:MDICanvas):String {
-			return "<window name=\"" + name + "\"" +
-				(minimized? " minimized=\"true\"":
-				(maximized? " maximized=\"true\"":
-				" width=\"" + int(width * canvas.width) + "\"" +
-				" height=\"" + int(height * canvas.height) + "\"" +
-				" x=\"" + int(x * canvas.width) + "\"" +
-				" y=\"" + int(y * canvas.height) + "\"")) +
-				" />";
+		public function toAbsoluteXml(canvas:MDICanvas):XML {
+			var xml:XML = <window/>;
+			xml.@name = name;
+			if (minimized)
+				xml.@minimized = true;
+			else if (maximized)
+				xml.@maximized = true;
+			else {
+				xml.@width = int(width * canvas.width);
+				xml.@height = int(height * canvas.height);
+				xml.@x = int(x * canvas.width);
+				xml.@y = int(y * canvas.height);
+			}
+			return xml;			
 		}
 		
-		public function toXml():String {
-			return "<window name=\"" + name + "\"" +
-				(minimized? " minimized=\"true\"":
-				(maximized? " maximized=\"true\"":
-				" width=\"" + width + "\"" +
-				" height=\"" + height + "\"" +
-				" x=\"" + x + "\"" +
-				" y=\"" + y + "\"")) +
-				" />";
+		public function toXml():XML {
+			var xml:XML = <window/>;
+			xml.@name = name;
+			if (minimized)
+				xml.@minimized = true;
+			else if (maximized)
+				xml.@maximized = true;
+			else {
+				xml.@width = width;
+				xml.@height = height;
+				xml.@x = x;
+				xml.@y = y;
+			}
+			return xml;			
 		}  
 	}
 }
