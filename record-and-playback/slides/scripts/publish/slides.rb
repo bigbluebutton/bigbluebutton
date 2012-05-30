@@ -1,5 +1,6 @@
 # Set encoding to utf-8
 # encoding: UTF-8
+performance_start = Time.now
 
 require '../../core/lib/recordandplayback'
 require 'rubygems'
@@ -352,8 +353,11 @@ if (playback == "slides")
 										line_count = line_count + 1 # always update the line count!
 										# # puts "thickness: #{thickness} and pageNumber: #{pageNumber} and dataPoints: #{dataPoints}"
 										xml.g(:class => 'shape', :id=>"draw#{current_time}", :undo => "#{undo_time}", :shape =>"line#{line_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden") do
+											for i in (0...(dataPoints.length/2)-1) do
+												xml.line('x1' => "#{((dataPoints[i*2].to_f)/100)*vbox_width}", 'y1' => "#{((dataPoints[(i*2)+1].to_f)/100)*vbox_height}", 'x2' => "#{((dataPoints[(i*2)+2].to_f)/100)*vbox_width}", 'y2' => "#{((dataPoints[(i*2)+3].to_f)/100)*vbox_height}")
+											end
 											# get first and last points for now. here in the future we should put a loop to get all the data points and make sub lines within the group.
-											xml.line('x1' => "#{((dataPoints[0].to_f)/100)*vbox_width}", 'y1' => "#{((dataPoints[1].to_f)/100)*vbox_height}", 'x2' => "#{((dataPoints[(dataPoints.length)-2].to_f)/100)*vbox_width}", 'y2' => "#{((dataPoints[(dataPoints.length)-1].to_f)/100)*vbox_height}")
+											#xml.line('x1' => "#{((dataPoints[0].to_f)/100)*vbox_width}", 'y1' => "#{((dataPoints[1].to_f)/100)*vbox_height}", 'x2' => "#{((dataPoints[(dataPoints.length)-2].to_f)/100)*vbox_width}", 'y2' => "#{((dataPoints[(dataPoints.length)-1].to_f)/100)*vbox_height}")
 										end
 
 									# Process the rectangle shapes
@@ -482,5 +486,6 @@ if (playback == "slides")
 		end
 		FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
 	end
-
 end
+performance_end = Time.now
+

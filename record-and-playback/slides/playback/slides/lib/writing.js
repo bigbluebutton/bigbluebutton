@@ -77,7 +77,7 @@ var times_length = times.length; //get the length of the times array.
 for(var m = 0; m < images.length; m++) {
 	len = images[m].getAttribute("in").split(" ").length;
 	for(var n = 0; n < len; n++) {
-		imageAtTime[""+images[m].getAttribute("in").split(" ")[n]] = images[m].getAttribute("id");
+		imageAtTime[[images[m].getAttribute("in").split(" ")[n], images[m].getAttribute("out").split(" ")[n]]] = images[m].getAttribute("id");
 	}
 }
 
@@ -90,9 +90,10 @@ var panelements = xmlDoc.getElementsByTagName("recording");
 var panZoomArray = panelements[0].getElementsByTagName("event");
 viewBoxes = xmlDoc.getElementsByTagName("viewBox");
 
+var pzlen = panZoomArray.length;
 //fill the times array with the times of the svg images.
-for (var k = 0;k < panZoomArray.length; k++) {
-	vboxValues[panZoomArray[k].getAttribute("timestamp")] = { viewBoxValue:viewBoxes[k].childNodes[0] };
+for (var k = 0;k < pzlen; k++) {
+	vboxValues[panZoomArray[k].getAttribute("timestamp")] = viewBoxes[k].childNodes[0].data;
 }
 
 // - - - END OF GLOBAL VARIABLES - - - //
@@ -160,6 +161,16 @@ function setViewBox(val) {
 	svgfile.setAttribute('viewBox', val);
 }
 
+function getImageAtTime(time) {
+	var curr_t = parseFloat(time);
+	for (var key in imageAtTime) {
+		var arry = key.split(",");
+		if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
+			return imageAtTime[key];
+		}
+	}
+}
+
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
 
 window.onresize = function(event) {
@@ -215,9 +226,10 @@ p.code({
     //start time
     end: p.duration(),
     onFrame: function(options) {
+		var start = new Date().getTime();
 		if(!((p.paused() === true) && (p.seeking() === false))) {
 			//showCursor(true);
-			svgfile = svgobj.contentDocument.getElementById("svgfile");
+			//svgfile = svgobj.contentDocument.getElementById("svgfile");
 			var t = p.currentTime().toFixed(1); //get the time and round to 1 decimal place
 
 			//cursor_x_global = getNextX(""+t); //get the next cursor position
@@ -270,7 +282,7 @@ p.code({
 			//	draw(cursor_x_global, cursor_y_global); //draw the cursor
 			//}
 
-			var next_image = imageAtTime[t]; //fetch the name of the image at this time.
+			var next_image = getImageAtTime(t); //fetch the name of the image at this time.
 			//changing slide image
 			if((current_image !== next_image) && (next_image !== undefined)){
 				svgobj.contentDocument.getElementById(current_image).style.visibility = "hidden";
@@ -302,8 +314,13 @@ p.code({
 
 			var vboxVal = vboxValues[t];
 			if(vboxVal !== undefined) {
-				setViewBox(vboxVal.viewBoxValue.data);
+				setViewBox(vboxVal);
 			}
+		var elapsed = new Date().getTime() - start;
+		if(elapsed != 0) {
+			//console.log("frame time: " + elapsed);
 		}
+		}
+		
     }
 }); //ends the codes -- keep it here and simply copy the frames above.
