@@ -92,8 +92,8 @@ viewBoxes = xmlDoc.getElementsByTagName("viewBox");
 
 var pzlen = panZoomArray.length;
 //fill the times array with the times of the svg images.
-for (var k = 0;k < pzlen; k++) {
-	vboxValues[panZoomArray[k].getAttribute("timestamp")] = viewBoxes[k].childNodes[0].data;
+for (var k = 0;k < pzlen-1; k++) {
+	vboxValues[[panZoomArray[k].getAttribute("timestamp"), panZoomArray[k+1].getAttribute("timestamp")]] = viewBoxes[k].childNodes[0].data;
 }
 
 // - - - END OF GLOBAL VARIABLES - - - //
@@ -163,10 +163,22 @@ function setViewBox(val) {
 
 function getImageAtTime(time) {
 	var curr_t = parseFloat(time);
-	for (var key in imageAtTime) {
+	var key;
+	for (key in imageAtTime) {
 		var arry = key.split(",");
 		if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
 			return imageAtTime[key];
+		}
+	}
+}
+
+function getViewboxAtTime(time) {
+	var curr_t = parseFloat(time);
+	var key;
+	for (key in vboxValues) {
+		var arry = key.split(",");
+		if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
+			return vboxValues[key];
 		}
 	}
 }
@@ -312,7 +324,7 @@ p.code({
 				curr_pgid = next_pgid;
 			}
 
-			var vboxVal = vboxValues[t];
+			var vboxVal = getViewboxAtTime(t);
 			if(vboxVal !== undefined) {
 				setViewBox(vboxVal);
 			}
