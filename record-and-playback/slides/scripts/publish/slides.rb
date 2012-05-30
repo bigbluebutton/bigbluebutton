@@ -114,16 +114,17 @@ if (playback == "slides")
 		presentation_url = "/slides/" + meeting_id + "/presentation"
 		@doc = Nokogiri::XML(File.open("#{process_dir}/events.xml"))
 
-		meeting_start = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0]['timestamp']
-		meeting_end = @doc.xpath("//event[@eventname='EndAndKickAllEvent']").last()['timestamp']
+		meeting_start = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0][:timestamp]
+		meeting_end = @doc.xpath("//event[@eventname='EndAndKickAllEvent']").last()[:timestamp]
 
 		first_presentation_start_node = @doc.xpath("//event[@eventname='SharePresentationEvent']")
 		first_presentation_start = meeting_end
 		if not first_presentation_start_node.empty?
-			first_presentation_start = first_presentation_start_node[0]['timestamp']
+			first_presentation_start = first_presentation_start_node[0][:timestamp]
 		end
 		first_slide_start = ((first_presentation_start.to_f - meeting_start.to_f) / 1000).round(1)
-
+		
+		# Gathering all the events from the events.xml
 		slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
 		chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
 		shape_events = @doc.xpath("//event[@eventname='AddShapeEvent']") # for the creation of shapes
@@ -131,8 +132,8 @@ if (playback == "slides")
 		clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
 		undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
 
-		join_time = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0]['timestamp'].to_f
-		end_time = @doc.xpath("//event[@eventname='EndAndKickAllEvent']")[0]['timestamp'].to_f
+		join_time = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0][:timestamp].to_f
+		end_time = @doc.xpath("//event[@eventname='EndAndKickAllEvent']")[0][:timestamp].to_f
 		presentation_name = ""
 
 		BigBlueButton.logger.info("Processing chat events")
@@ -141,11 +142,11 @@ if (playback == "slides")
 			xml.popcorn {
 				# Process chat events.
 				chat_events.each do |node|
-					chat_timestamp =  node['timestamp']
+					chat_timestamp =  node[:timestamp]
 					chat_sender = node.xpath(".//sender")[0].text()
 					chat_message =  node.xpath(".//message")[0].text()
 					chat_start = (chat_timestamp.to_i - meeting_start.to_i) / 1000
-					xml.timeline(:in => chat_start, :direction => "down",  :innerHTML => "<span><strong>#{chat_sender}:</strong> #{chat_message}</span>", :target => "chat" )
+					xml.timeline(:in => chat_start, :direction => :down,  :innerHTML => "<span><strong>#{chat_sender}:</strong> #{chat_message}</span>", :target => :chat )
 				end
 			}
 		end
@@ -156,7 +157,7 @@ if (playback == "slides")
 
 			# process all the cleared pages events.
 			clear_page_events.each do |clearEvent|
-				clearTime = ((clearEvent['timestamp'].to_f - join_time)/1000).round(1)
+				clearTime = ((clearEvent[:timestamp].to_f - join_time)/1000).round(1)
 				pageCleared = clearEvent.xpath(".//pageNumber")[0].text()
 				slideFolder = clearEvent.xpath(".//presentation")[0].text()
 				clearPageTimes[(prev_clear_time..clearTime)] = [pageCleared, canvas_number, "presentation/#{slideFolder}/slide-#{pageCleared.to_i+1}.png", nil]
@@ -168,14 +169,14 @@ if (playback == "slides")
 			BigBlueButton.logger.info("Process undo events.")
 			undo_events.each do |undo|
 				closest_shape = nil # Initialize as nil to prime the loop.
-				t = undo['timestamp'].to_f
+				t = undo[:timestamp].to_f
 				shape_events.each do |shape|
 					# The undo cannot be for a shape that hasn't been drawn yet.
-					if shape['timestamp'].to_f < t
+					if shape[:timestamp].to_f < t
 						# It must be the closest shape drawn that hasn't already been undone.
-						if (closest_shape == nil) || (shape['timestamp'].to_f > closest_shape['timestamp'].to_f)
+						if (closest_shape == nil) || (shape[:timestamp].to_f > closest_shape[:timestamp].to_f)
 							# It cannot be an undo for another shape already.
-							if !(undos.has_key? shape['timestamp'])
+							if !(undos.has_key? shape[:timestamp])
 								# Must be part of this presentation of course
 								if shape.xpath(".//pageNumber")[0].text() == undo.xpath(".//pageNumber")[0].text()
 									# Must be a shape in this page too.
@@ -205,13 +206,13 @@ if (playback == "slides")
 					end
 				end
 				if(closest_shape != nil)
-					undos[closest_shape] = undo['timestamp']
+					undos[closest_shape] = undo[:timestamp]
 				end
 			end
 
 			undos_temp = {}
 			undos.each do |un, val|
-				undos_temp[un['timestamp']] = val
+				undos_temp[un[:timestamp]] = val
 			end
 			undos = undos_temp
 
@@ -225,11 +226,11 @@ if (playback == "slides")
 
 			# Put the headers on the svg xml file.
 			xml.doc.create_internal_subset('svg', "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd")
-			xml.svg('id' => 'svgfile', 'style' => 'position:absolute; height:600px; width:800px;', 'xmlns' => 'http://www.w3.org/2000/svg', 'xmlns:xlink' => 'http://www.w3.org/1999/xlink', 'version' => '1.1', 'viewBox' => '0 0 800 600') do
+			xml.svg(:id => :svgfile, :style => 'position:absolute; height:600px; width:800px;', :xmlns => 'http://www.w3.org/2000/svg', 'xmlns:xlink' => 'http://www.w3.org/1999/xlink', :version => '1.1', :viewBox => :'0 0 800 600') do
 
 				#This is for the first image. It is a placeholder for an image that doesn't exist.
-				xml.image(:id => "image0", :in => 0, :out => first_slide_start, :src => "logo.png", :width => 800)
-				xml.g(:class => "canvas", :id => "canvas0", :image => "image0", :display => "none")
+				xml.image(:id => :image0, :in => 0, :out => first_slide_start, :src => "logo.png", :width => 800)
+				xml.g(:class => :canvas, :id => :canvas0, :image => :image0, :display => :none)
 
 				# For each slide (there is only one image per slide)
 				slides_events.each do |node|
@@ -237,7 +238,7 @@ if (playback == "slides")
 					if eventname == "SharePresentationEvent"
 						presentation_name = node.xpath(".//presentationName")[0].text()
 					else
-						slide_timestamp =  node['timestamp']
+						slide_timestamp =  node[:timestamp]
 						slide_start = ((slide_timestamp.to_f - meeting_start.to_f) / 1000).round(1)
 						slide_number = node.xpath(".//slide")[0].text()
 						# global_slide_count = global_slide_count + 1
@@ -248,7 +249,7 @@ if (playback == "slides")
 
 						current_index = slides_events.index(node)
 						if(current_index + 1 < slides_events.length)
-							slide_end = (( slides_events[current_index + 1]['timestamp'].to_f - meeting_start.to_f ) / 1000).round(1)
+							slide_end = (( slides_events[current_index + 1][:timestamp].to_f - meeting_start.to_f ) / 1000).round(1)
 						else
 							slide_end = (( meeting_end.to_f - meeting_start.to_f ) / 1000).round(1)
 						end
@@ -283,9 +284,9 @@ if (playback == "slides")
 				BigBlueButton.logger.info("Printing out the gathered images")
 				# Print out the gathered/detected images.
 				slides_compiled.each do |key, val|
-					xml.image(:id => "image#{val[2].to_i}", :in => val[0].join(' '), :out => val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => "hidden")
+					xml.image(:id => "image#{val[2].to_i}", :in => val[0].join(' '), :out => val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => :hidden)
 					canvas_number+=1
-					xml.g(:class => "canvas", :id => "canvas#{val[2].to_i}", :image => "image#{val[2].to_i}", :display => "none") do
+					xml.g(:class => :canvas, :id => "canvas#{val[2].to_i}", :image => "image#{val[2].to_i}", :display => :none) do
 						# Split by the cleared pages.
 						clearPageTimes.each do |clearTimeInstance, pageAndCanvasNumbers|
 
@@ -296,19 +297,19 @@ if (playback == "slides")
 							end
 							# Process the clears
 							page_number += 1
-							xml.g(:class => "page", :image => "image#{val[2].to_i}", :id => "page#{page_number}",  :in => clearTimeInstance.first.to_s, :out => out_time, :display => "none") do
+							xml.g(:class => :page, :image => "image#{val[2].to_i}", :id => "page#{page_number}",  :in => clearTimeInstance.first.to_s, :out => out_time, :display => :none) do
 								# Select and print the shapes within the current image
 								shape_events.each do |shape|
 								# Get variables
 								type = shape.xpath(".//type")[0].text()
-								timestamp = shape['timestamp'].to_f
+								timestamp = shape[:timestamp].to_f
 								current_time = ((timestamp-join_time)/1000).round(1)
 								thickness = shape.xpath(".//thickness")[0].text()
 								pageNumber = shape.xpath(".//pageNumber")[0].text()
 								dataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
 								colour = shape.xpath(".//color")[0].text()
-								if(undos.has_key? shape['timestamp'])
-									undo_time = ((undos[shape['timestamp']].to_f - join_time)/1000).round(1)
+								if(undos.has_key? shape[:timestamp])
+									undo_time = ((undos[shape[:timestamp]].to_f - join_time)/1000).round(1)
 								elsif
 									undo_time = -1
 								end
@@ -352,9 +353,9 @@ if (playback == "slides")
 									if type.eql? "pencil"
 										line_count = line_count + 1 # always update the line count!
 										# # puts "thickness: #{thickness} and pageNumber: #{pageNumber} and dataPoints: #{dataPoints}"
-										xml.g(:class => 'shape', :id=>"draw#{current_time}", :undo => "#{undo_time}", :shape =>"line#{line_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden") do
+										xml.g(:class => :shape, :id=>"draw#{current_time}", :undo => "#{undo_time}", :shape =>"line#{line_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden") do
 											for i in (0...(dataPoints.length/2)-1) do
-												xml.line('x1' => "#{((dataPoints[i*2].to_f)/100)*vbox_width}", 'y1' => "#{((dataPoints[(i*2)+1].to_f)/100)*vbox_height}", 'x2' => "#{((dataPoints[(i*2)+2].to_f)/100)*vbox_width}", 'y2' => "#{((dataPoints[(i*2)+3].to_f)/100)*vbox_height}")
+												xml.line(:x1 => "#{((dataPoints[i*2].to_f)/100)*vbox_width}", :y1 => "#{((dataPoints[(i*2)+1].to_f)/100)*vbox_height}", :x2 => "#{((dataPoints[(i*2)+2].to_f)/100)*vbox_width}", :y2 => "#{((dataPoints[(i*2)+3].to_f)/100)*vbox_height}")
 											end
 											# get first and last points for now. here in the future we should put a loop to get all the data points and make sub lines within the group.
 											#xml.line('x1' => "#{((dataPoints[0].to_f)/100)*vbox_width}", 'y1' => "#{((dataPoints[1].to_f)/100)*vbox_height}", 'x2' => "#{((dataPoints[(dataPoints.length)-2].to_f)/100)*vbox_width}", 'y2' => "#{((dataPoints[(dataPoints.length)-1].to_f)/100)*vbox_height}")
@@ -368,7 +369,7 @@ if (playback == "slides")
 											else
 												rectangle_count = rectangle_count + 1
 											end
-											xml.g(:class => 'shape', 'id'=>"draw#{current_time}", :undo => "#{undo_time}", 'shape'=>"rect#{rectangle_count}", 'style'=>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
+											xml.g(:class => :shape, :id => "draw#{current_time}", :undo => "#{undo_time}", :shape => "rect#{rectangle_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
 												originX = ((dataPoints[0].to_f)/100)*vbox_width
 												originY = ((dataPoints[1].to_f)/100)*vbox_height
 												originalOriginX = originX
@@ -385,7 +386,7 @@ if (playback == "slides")
 													originX = originX + rectWidth
 													rectWidth = rectWidth.abs
 												end
-												xml.rect('x' => "#{originX}", 'y' => "#{originY}", 'width' => "#{rectWidth}", 'height' => "#{rectHeight}")
+												xml.rect(:x => "#{originX}", :y => "#{originY}", :width => "#{rectWidth}", :height => "#{rectHeight}")
 												prev_time = current_time
 											end
 										end
@@ -398,7 +399,7 @@ if (playback == "slides")
 											else
 												ellipse_count = ellipse_count + 1
 											end # end ((originalOriginX == ((dataPoints[0].to_f)/100)*vbox_width) && (originalOriginY == ((dataPoints[1].to_f)/100)*vbox_height))
-											xml.g(:class => 'shape', 'id'=>"draw#{current_time}", :undo => "#{undo_time}", 'shape'=>"ellipse#{ellipse_count}", 'style'=>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
+											xml.g(:class => :shape, :id => "draw#{current_time}", :undo => "#{undo_time}", :shape => "ellipse#{ellipse_count}", :style =>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
 												originX = ((dataPoints[0].to_f)/100)*vbox_width
 												originY = ((dataPoints[1].to_f)/100)*vbox_height
 												originalOriginX = originX
@@ -413,7 +414,7 @@ if (playback == "slides")
 													originX = originX + ellipseWidth
 													ellipseWidth = ellipseWidth.abs
 												end
-												xml.ellipse('cx' => "#{originX+(ellipseWidth/2)}", 'cy' => "#{originY+(ellipseHeight/2)}", 'rx' => "#{ellipseWidth/2}", 'ry' => "#{ellipseHeight/2}")
+												xml.ellipse(:cx => "#{originX+(ellipseWidth/2)}", :cy => "#{originY+(ellipseHeight/2)}", :rx => "#{ellipseWidth/2}", :ry => "#{ellipseHeight/2}")
 												prev_time = current_time
 											end # end xml.g
 										end # end if(current_time != prev_time)
@@ -438,7 +439,7 @@ if (playback == "slides")
 				timestamp_prev = 0.0
 				panzoom_events.each do |panZoomEvent|
 					# Get variables
-					timestamp_orig = panZoomEvent['timestamp'].to_f
+					timestamp_orig = panZoomEvent[:timestamp].to_f
 
 					timestamp = ((timestamp_orig-join_time)/1000).round(1)
 					h_ratio = panZoomEvent.xpath(".//heightRatio")[0].text()
