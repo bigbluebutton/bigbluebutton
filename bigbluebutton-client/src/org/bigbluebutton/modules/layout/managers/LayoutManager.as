@@ -24,7 +24,6 @@ package org.bigbluebutton.modules.layout.managers
 	import flash.events.*;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
-	import flash.utils.Dictionary;
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.EventBroadcaster;
@@ -33,7 +32,7 @@ package org.bigbluebutton.modules.layout.managers
 	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 	
 	public class LayoutManager extends EventDispatcher {
-		private var _layouts:Dictionary;
+		private var _layouts:Array;
 		private var _dispatcher:Dispatcher = new Dispatcher();
 		
 		public function loadLayout(layoutUrl:String):void {
@@ -50,11 +49,11 @@ package org.bigbluebutton.modules.layout.managers
 		
 		public function completeHandler(e:Event):void {
 			var data:XML = new XML(e.target.data);
-			_layouts = new Dictionary();
+			_layouts = new Array();
 			for each (var n:XML in data.layout) {
 				var layoutDefinition:LayoutDefinition = new LayoutDefinition();
 				layoutDefinition.load(n);
-				_layouts[layoutDefinition.name] = layoutDefinition;
+				_layouts.push(layoutDefinition);
 			}
 			var event:LayoutsLoadedEvent = new LayoutsLoadedEvent();
 			event.layouts = this;
@@ -65,12 +64,12 @@ package org.bigbluebutton.modules.layout.managers
 			LogUtil.debug("IOError while loading the layout definition file");
 		}
 
-		public function get dict():Dictionary {
+		public function get list():Array {
 			return _layouts;
 		}
 		
 		public function append(layoutDefinition:LayoutDefinition):void {
-			_layouts[layoutDefinition.name] = layoutDefinition;
+			_layouts.push(layoutDefinition);
 		}
 		
 		public function getDefault():LayoutDefinition {
@@ -81,9 +80,13 @@ package org.bigbluebutton.modules.layout.managers
 			return null;
 		}
 		
-		public function getLayout(name:String):LayoutDefinition {
-			return _layouts[name];
-		}
+		/*public function getLayout(name:String):LayoutDefinition {
+			for each (var value:LayoutDefinition in _layouts) {
+				if (value.name == name)
+					return value;
+			}
+			return null;
+		}*/
 		
 		public function toXml():XML {
 			var xml:XML = <layouts/>;
