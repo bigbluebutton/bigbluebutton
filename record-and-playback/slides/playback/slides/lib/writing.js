@@ -91,9 +91,14 @@ var panZoomArray = panelements[0].getElementsByTagName("event");
 viewBoxes = xmlDoc.getElementsByTagName("viewBox");
 
 var pzlen = panZoomArray.length;
+var second_val;
 //fill the times array with the times of the svg images.
-for (var k = 0;k < pzlen-1; k++) {
-	vboxValues[[panZoomArray[k].getAttribute("timestamp"), panZoomArray[k+1].getAttribute("timestamp")]] = viewBoxes[k].childNodes[0].data;
+for (var k = 0;k < pzlen; k++) {
+	if(panZoomArray[k+1] == undefined) {
+		second_val = "end";
+	}
+	else second_val = panZoomArray[k+1].getAttribute("timestamp");
+	vboxValues[[panZoomArray[k].getAttribute("timestamp"), second_val]] = viewBoxes[k].childNodes[0].data;
 }
 
 // - - - END OF GLOBAL VARIABLES - - - //
@@ -180,7 +185,10 @@ function getViewboxAtTime(time) {
 	for (key in vboxValues) {
 		if(vboxValues.hasOwnProperty(key)) {
 			var arry = key.split(",");
-			if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
+			if(arry[1] == "end") {
+				return vboxValues[key];
+			}
+			else if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
 				return vboxValues[key];
 			}
 		}
@@ -334,7 +342,7 @@ p.code({
 			}
 			var elapsed = new Date().getTime() - start;
 			if(parseInt(elapsed, 10) !== 0) {
-				console.log("frame time: " + elapsed);
+				//console.log("frame time: " + elapsed);
 			}
 		}
     }

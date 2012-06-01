@@ -176,22 +176,23 @@ if (playback == "slides")
 						# It must be the closest shape drawn that hasn't already been undone.
 						if (closest_shape == nil) || (shape[:timestamp].to_f > closest_shape[:timestamp].to_f)
 							# It cannot be an undo for another shape already.
-							if !(undos.has_key? shape[:timestamp])
+							if !(undos.has_key? shape)
 								# Must be part of this presentation of course
 								if shape.xpath(".//pageNumber")[0].text() == undo.xpath(".//pageNumber")[0].text()
 									# Must be a shape in this page too.
 									if shape.xpath(".//presentation")[0].text() == undo.xpath(".//presentation")[0].text()
 										if ((shape.xpath(".//type")[0].text() == "rectangle") || (shape.xpath(".//type")[0].text() == "ellipse"))
 											shape_already_processed = false
-											undos.each do |u, v|
-												if shape.xpath(".//dataPoints")[0].text().split(",")[0] == u.xpath(".//dataPoints")[0].text().split(",")[0]
-													if shape.xpath(".//dataPoints")[0].text().split(",")[1] == u.xpath(".//dataPoints")[0].text().split(",")[1]
-														shape_already_processed = true
+											if(undos.length == 0)
+												shape_already_processed = false
+											else
+												undos.each do |u, v|
+													if shape.xpath(".//dataPoints")[0].text().split(",")[0] == u.xpath(".//dataPoints")[0].text().split(",")[0]
+														if shape.xpath(".//dataPoints")[0].text().split(",")[1] == u.xpath(".//dataPoints")[0].text().split(",")[1]
+															shape_already_processed = true
+														end
 													end
 												end
-											end
-											if(undos.length == 0)
-												shape_already_processed
 											end
 											if !(shape_already_processed)
 												closest_shape = shape
