@@ -50,6 +50,7 @@
 			public function addToolbarButton():void{
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 				event.button = new ToolbarComboBox();
+				event.location = ToolbarButtonEvent.BOTTOM_TOOLBAR;
 				_globalDispatcher.dispatchEvent(event);
 			}
 			

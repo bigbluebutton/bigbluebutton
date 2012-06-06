@@ -48,16 +48,21 @@ package org.bigbluebutton.modules.layout.managers
 		}		
 		
 		public function completeHandler(e:Event):void {
-			var data:XML = new XML(e.target.data);
 			_layouts = new Array();
-			for each (var n:XML in data.layout) {
-				var layoutDefinition:LayoutDefinition = new LayoutDefinition();
-				layoutDefinition.load(n);
-				_layouts.push(layoutDefinition);
+			try {
+				var data:XML = new XML(e.target.data);
+				for each (var n:XML in data.layout) {
+					var layoutDefinition:LayoutDefinition = new LayoutDefinition();
+					layoutDefinition.load(n);
+					_layouts.push(layoutDefinition);
+				}
+				var event:LayoutsLoadedEvent = new LayoutsLoadedEvent();
+				event.layouts = this;
+				_dispatcher.dispatchEvent(event);
+			} catch (error:TypeError) {
+				LogUtil.debug("Failed to parse the XML: " + error.message);
+				throw error;
 			}
-			var event:LayoutsLoadedEvent = new LayoutsLoadedEvent();
-			event.layouts = this;
-			_dispatcher.dispatchEvent(event);
 		}
 		
 		private function ioErrorHandler(e:Event):void{
@@ -79,14 +84,6 @@ package org.bigbluebutton.modules.layout.managers
 			}
 			return null;
 		}
-		
-		/*public function getLayout(name:String):LayoutDefinition {
-			for each (var value:LayoutDefinition in _layouts) {
-				if (value.name == name)
-					return value;
-			}
-			return null;
-		}*/
 		
 		public function toXml():XML {
 			var xml:XML = <layouts/>;

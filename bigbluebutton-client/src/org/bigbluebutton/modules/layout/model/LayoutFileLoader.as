@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.layout.model
 
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.layout.managers.LayoutManager;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	public class LayoutFileLoader extends EventDispatcher {
 		private var _fileRef:FileReference;
@@ -62,9 +63,13 @@ package org.bigbluebutton.modules.layout.model
 			LogUtil.debug("Loaded " + evt.bytesLoaded + " of " + evt.bytesTotal + " bytes."); 
 		} 
 		
-		private function onComplete(evt:Event):void { 
-			_manager.completeHandler(evt);
-			showAlert("File was successfully loaded.");
+		private function onComplete(evt:Event):void {
+			try { 
+				_manager.completeHandler(evt);
+				showAlert(ResourceUtil.getInstance().getString('bbb.layout.load.complete'));
+			} catch (error:TypeError) {
+				showAlert(ResourceUtil.getInstance().getString('bbb.layout.load.failed') + ": " + error.message);
+			} 
 		} 
 		
 		private function onCancel(evt:Event):void { 
@@ -72,15 +77,15 @@ package org.bigbluebutton.modules.layout.model
 		} 
 		
 		private function unknownError():void {
-			showAlert("There was an unkwn error.");
+			showAlert(ResourceUtil.getInstance().getString('bbb.layout.load.unknownError'));
 		}
 		
 		private function onIOError(evt:IOErrorEvent):void { 
-			showAlert("There was an IO Error.");
+			showAlert(ResourceUtil.getInstance().getString('bbb.layout.load.ioError'));
 		} 
 
 		private function onSecurityError(evt:Event):void { 
-			showAlert("There was a security error.");
+			showAlert(ResourceUtil.getInstance().getString('bbb.layout.load.securityError'));
 		}
 		
 		private function showAlert(s:String):void {

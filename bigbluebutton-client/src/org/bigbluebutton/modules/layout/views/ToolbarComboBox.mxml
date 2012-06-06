@@ -64,15 +64,17 @@
 			private var _currentLayout:LayoutDefinition = null;
 			private var _deactivated:Boolean = false;
 			private var _defaultLayout:int = -1;
-			private var _defaultLayoutTimer:Timer = new Timer(500, 1);
+			private var _defaultLayoutTimer:Timer = new Timer(750, 1);
 			private var _customLayoutNumber:int = 0;
 			private var _firstTime:Boolean = true;
+			// used to differenciate the user action from the layout application
+			private var _disabledChangeDetection:Boolean = false;
 			
 			private var images:Images = new Images();
 			[Bindable] private var icon_save:Class = images.disk;
 			[Bindable] private var icon_load:Class = images.folder;
 			[Bindable] private var icon_add:Class = images.add;
-			[Bindable] private var buttonSize:int = 22;
+			[Bindable] private var buttonSize:int = 20;
 			
 			private function init():void{
 				_mdiCanvas = getMdiCanvas(parent) as MDICanvas;
@@ -94,8 +96,10 @@
 			}
 			
 			private function resizeHandler(e:ResizeEvent):void {
-//				LogUtil.debug("The main canvas has been resized");
+				// The main canvas has been resized
+				_disabledChangeDetection = true;
 				_currentLayout.applyToCanvas(_mdiCanvas);
+				_disabledChangeDetection = false;
 			}
 			
 			private function activateHandler(e:Event):void {
@@ -105,10 +109,10 @@
 			private function deactivateHandler(e:Event = null):void {
 				// here I will store the current layout
 				if (!_deactivated) {
-//					LogUtil.debug("Deactivating the main canvas, possibly because the user is resizing the window, saving the current layout");
+					// Deactivating the main canvas, possibly because the user is resizing the window, saving the current layout
 					if (comboBox.selectedIndex == -1) {
 						// if the user selected a layout, then the _currentLayout is already set
-						_currentLayout = LayoutDefinition.getLayout(_mdiCanvas, "Custom layout");
+						_currentLayout = LayoutDefinition.getLayout(_mdiCanvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName'));
 					}
 					_deactivated = true;
 				}
@@ -124,6 +128,8 @@
 			
 			private function updateComboBox():void {
 				comboBox.dataProvider.removeAll();
+				// reset the default layout
+				_defaultLayout = -1;
 				for each (var value:LayoutDefinition in _layouts.list) {
 					var item:Object = {label:value.name, layout:value};
 					comboBox.dataProvider.addItem(item);
@@ -143,22 +149,25 @@
 			private function handleOpenWindowEvent(e:OpenWindowEvent):void {
 				var window:MDIWindow = e.window as MDIWindow;
 				setupWindowListener(window);
-				if (_currentLayout != null)
+				if (_currentLayout != null) {
+					_disabledChangeDetection = true;
 					_currentLayout.applyToWindow(_mdiCanvas, window);
+					_disabledChangeDetection = false;
+				}
 			}
 			
 			private function setupWindowListener(window:MDIWindow):void {
 				window.addEventListener(MDIWindowEvent.RESIZE_START, invalidateLayout);
 				window.addEventListener(MDIWindowEvent.DRAG_START, invalidateLayout);
-				// can't do it because it's not possible to differ between the user action and
-				// the minimize/maximize call when we apply a layout
-				//window.addEventListener(MDIWindowEvent.MINIMIZE, invalidateLayout);
-				//window.addEventListener(MDIWindowEvent.MAXIMIZE, invalidateLayout);
+				window.addEventListener(MDIWindowEvent.MINIMIZE, invalidateLayout);
+				window.addEventListener(MDIWindowEvent.MAXIMIZE, invalidateLayout);
 			}
 			
 			private function invalidateLayout(e:Event):void {
-				comboBox.prompt = ResourceUtil.getInstance().getString('bbb.layout.custom');
-				comboBox.selectedIndex = -1;
+				if (!_disabledChangeDetection) {
+					comboBox.prompt = ResourceUtil.getInstance().getString('bbb.layout.combo.custom');
+					comboBox.selectedIndex = -1;
+				}
 			}
 			
 			private function onLayoutChanged(e:Event):void {
@@ -167,7 +176,9 @@
 			
 			private function changeLayout(layout:LayoutDefinition):void {
 				_currentLayout = layout;
+				_disabledChangeDetection = true;
 				_currentLayout.applyToCanvas(_mdiCanvas);
+				_disabledChangeDetection = false;
 			}
 			
 			private function getMdiCanvas(p:DisplayObjectContainer):DisplayObject {
@@ -193,7 +204,7 @@
 			private function onAddButtonClick(event:Event):void {
 				if (comboBox.selectedIndex == -1) {
 					_customLayoutNumber += 1;
-					var layout:LayoutDefinition = LayoutDefinition.getLayout(_mdiCanvas, "Custom layout " + _customLayoutNumber); 
+					var layout:LayoutDefinition = LayoutDefinition.getLayout(_mdiCanvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName') + " " + _customLayoutNumber); 
 					_layouts.append(layout);
 					var item:Object = {label:layout.name, layout:layout};
 					comboBox.dataProvider.addItem(item);
@@ -208,11 +219,11 @@
 			}
 
 			private function onSaveComplete(evt:Event):void { 
-				Alert.show("Layouts were successfully saved.", "", Alert.OK, saveBtn);
+				Alert.show(ResourceUtil.getInstance().getString('bbb.layout.save.complete'), "", Alert.OK, _mdiCanvas);
 			} 
 
 			private function onLoadButtonClick(event:Event):void {
-				var loader:LayoutFileLoader = new LayoutFileLoader(this);
+				var loader:LayoutFileLoader = new LayoutFileLoader(_mdiCanvas);
 				loader.startLoading(_layouts);
 				comboBox.selectedIndex = -1;
 				_defaultLayoutTimer.start();
@@ -225,7 +236,7 @@
 				else
 					name = "Custom layout";
 				System.setClipboard(LayoutDefinition.getLayout(_mdiCanvas, name).toXml().toXMLString());
-                Alert.show(ResourceUtil.getInstance().getString('bbb.layout.copied'), "", Alert.OK, this);
+				Alert.show(ResourceUtil.getInstance().getString('bbb.layout.copied'), "", Alert.OK, _mdiCanvas);
 			}
 
 		]]>
@@ -233,25 +244,25 @@
 
 	<mx:ComboBox id="comboBox"
 		height="{buttonSize}"
-		toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.layout.toolTip')}"
-		prompt="{ResourceUtil.getInstance().getString('bbb.layout.selectedIndex')}"
+		toolTip="{ResourceUtil.getInstance().getString('bbb.layout.combo.toolTip')}"
+		prompt="{ResourceUtil.getInstance().getString('bbb.layout.combo.prompt')}"
 		change="onLayoutChanged(event)"
 	/>
 	<mx:Button id="addBtn" 
 		width="{buttonSize}" height="{buttonSize}" 
-		toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" 
+		toolTip="{ResourceUtil.getInstance().getString('bbb.layout.addButton.toolTip')}" 
 		icon="{icon_add}"
 		click="onAddButtonClick(event)"
 	/>
 	<mx:Button id="saveBtn" 
 		width="{buttonSize}" height="{buttonSize}" 
-		toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" 
+		toolTip="{ResourceUtil.getInstance().getString('bbb.layout.saveButton.toolTip')}" 
 		icon="{icon_save}" 
 		click="onSaveButtonClick(event)"
 	/>
 	<mx:Button id="loadBtn" 
 		width="{buttonSize}" height="{buttonSize}" 
-		toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" 
+		toolTip="{ResourceUtil.getInstance().getString('bbb.layout.loadButton.toolTip')}" 
 		icon="{icon_load}" 
 		click="onLoadButtonClick(event)"
 	/>

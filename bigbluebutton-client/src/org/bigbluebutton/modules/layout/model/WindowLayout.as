@@ -32,6 +32,8 @@ package org.bigbluebutton.modules.layout.model {
 		import flash.display.DisplayObjectContainer;
 		import flash.utils.Dictionary;
 		import flash.utils.getQualifiedClassName;
+		import flash.utils.Timer;
+		import flash.events.TimerEvent;
 		import org.bigbluebutton.common.LogUtil;
 
 		[Bindable] public var name:String;
@@ -42,11 +44,7 @@ package org.bigbluebutton.modules.layout.model {
 		[Bindable] public var minimized:Boolean = false;
 		[Bindable] public var maximized:Boolean = false;
 
-		static private var resizers:Dictionary = new Dictionary();
-		static private var movers:Dictionary = new Dictionary();
-		static private var effects:Dictionary = new Dictionary();
-		
-		static private var EVENT_DURATION:int = 750;
+		static private var EVENT_DURATION:int = 500;
 
 		public function load(vxml:XML):void {
 			if (vxml != null) {
@@ -91,6 +89,21 @@ package org.bigbluebutton.modules.layout.model {
 			layout.applyToWindow(canvas, window);
 		}
 		
+		private var _delayedEffects:Array = new Array();
+				
+		private function delayEffect(canvas:MDICanvas, window:MDIWindow):void {
+			var obj:Object = {canvas:canvas, window:window};
+			_delayedEffects.push(obj);
+			var timer:Timer = new Timer(150,1);
+			timer.addEventListener(TimerEvent.TIMER, onTimerComplete);
+			timer.start();
+		}
+		
+		private function onTimerComplete(event:TimerEvent = null):void {
+			var obj:Object = _delayedEffects.pop();
+			applyToWindow(obj.canvas, obj.window);
+		}
+		
 		public function applyToWindow(canvas:MDICanvas, window:MDIWindow):void {
 			if (this.minimized) {
 				if (!window.minimized) window.minimize();
@@ -98,55 +111,42 @@ package org.bigbluebutton.modules.layout.model {
 			} else if (this.maximized) {
 				if (!window.maximized) window.maximize();
 				return;
-			} else if (window.minimized && !this.minimized)
+			} else if (window.minimized && !this.minimized) {
 				window.unMinimize();
-			else if (window.maximized && !this.maximized)
+				delayEffect(canvas, window);
+				return;
+			} else if (window.maximized && !this.maximized) {
 				window.maximizeRestore();
+				delayEffect(canvas, window);
+				return;
+			}
 			
-			var resizer:Resize = getResizer(window);
-			resizer.widthTo = this.width * canvas.width;
-			resizer.heightTo = this.height * canvas.height;
-		
-			var mover:Move = getMover(window);
-			mover.xTo = this.x * canvas.width;
-			mover.yTo = this.y * canvas.height;
+			var effect:Parallel = new Parallel();
+			effect.duration = EVENT_DURATION;
+			effect.target = window;
 			
-			var effect:Parallel = getEffect(window);
-			effect.end();
+			var newWidth:int = int(this.width * canvas.width);
+			var newHeight:int = int(this.height * canvas.height);
+			var newX:int = int(this.x * canvas.width);
+			var newY:int = int(this.y * canvas.height);
+			
+			if (newX != window.x || newY != window.y) {
+				var mover:Move = new Move();
+				mover.xTo = newX;
+				mover.yTo = newY;
+				effect.addChild(mover);
+			}
+			
+			if (newWidth != window.width || newHeight != window.height) {
+				var resizer:Resize = new Resize();
+				resizer.widthTo = newWidth;
+				resizer.heightTo = newHeight;
+				effect.addChild(resizer)
+			}
+			
 			effect.play();
 		}
 		
-		static private function getEffect(p:DisplayObjectContainer):Parallel {
-			var effect:Parallel = effects[p];
-			if (effect == null) {
-				effect = new Parallel();
-				effect.target = p;
-				effect.duration = EVENT_DURATION;
-				effects[p] = effect;
-			}
-			return effect;
-		}
-		
-		static private function getResizer(p:DisplayObjectContainer):Resize {
-			var effect:Resize = resizers[p];
-			if (effect == null) {
-				effect = new Resize();
-				getEffect(p).addChild(effect);
-				resizers[p] = effect;
-			}
-			return effect;
-		}
-		
-		static private function getMover(p:DisplayObjectContainer):Move {
-			var effect:Move = movers[p];
-			if (effect == null) {
-				effect = new Move();
-				getEffect(p).addChild(effect);
-				movers[p] = effect;
-			}
-			return effect;
-		}
-
 		static public function getType(obj:Object):String {
 			var qualifiedClass:String = String(getQualifiedClassName(obj));
 			var pattern:RegExp = /(\w+)::(\w+)/g;
