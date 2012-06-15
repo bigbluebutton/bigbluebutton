@@ -32,28 +32,22 @@
 
 			import flexlib.mdi.containers.MDICanvas;
 
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
 			import org.bigbluebutton.modules.layout.model.WindowLayout;
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
-			private var _enableEdit:Boolean;
+			[Bindable] private var _enableEdit:Boolean = false;
 			
 			private function init():void {
-				if (_enableEdit) {
-					addChild(new AddButton());
-					addChild(new SaveButton());
-					addChild(new LoadButton());
-				}
-				addChild(new LockButton());
-			
 				var evt:ViewInitializedEvent = new ViewInitializedEvent();
 				evt.canvas = getMdiCanvas(parent) as MDICanvas;
 				_dispatcher.dispatchEvent(evt);
 			}
 			
 			public function set enableEdit(arg:Boolean):void {
-				_enableEdit = arg;
+				_enableEdit = arg && UserManager.getInstance().getConference().amIModerator();
 			}
 			
 			private function getMdiCanvas(p:DisplayObjectContainer):DisplayObject {
@@ -80,4 +74,11 @@
 	</mx:Script>
 
 	<views:LayoutsCombo id="comboBox" />
+	<views:AddButton id="addButton" 
+		includeInLayout="{_enableEdit}" visible="{_enableEdit}" />
+	<views:SaveButton id="saveButton" 
+		includeInLayout="{_enableEdit}" visible="{_enableEdit}" />
+	<views:LoadButton id="loadButton" 
+		includeInLayout="{_enableEdit}" visible="{_enableEdit}" />
+	<views:LockButton id="lockButton" />
 </mx:HBox>
