@@ -20,16 +20,16 @@
 package org.bigbluebutton.modules.layout.events
 {
 	import flash.events.Event;
-	import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
 	
-	public class LayoutsLoadedEvent extends Event
+	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
+	
+	public class RedefineLayoutEvent extends Event
 	{
-		public static const LAYOUTS_LOADED_EVENT:String = "LAYOUTS_LOADED_EVENT";
-		public var layouts:LayoutDefinitionFile = null;
-		public var success:Boolean = false;
-		public var error:TypeError = null;
+		public static const REDEFINE_LAYOUT_EVENT:String = "REDEFINE_LAYOUT_EVENT";
+		public var layout:LayoutDefinition = null;
+		public var remote:Boolean = false;
 		
-		public function LayoutsLoadedEvent(type:String = LAYOUTS_LOADED_EVENT)
+		public function RedefineLayoutEvent(type:String = REDEFINE_LAYOUT_EVENT)
 		{
 			super(type, true, false);
 		}

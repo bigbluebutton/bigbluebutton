@@ -20,15 +20,15 @@
 package org.bigbluebutton.modules.layout.events
 {
 	import flash.events.Event;
+
+	import flexlib.mdi.containers.MDICanvas;
 	
-	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
-	
-	public class DefineLayoutEvent extends Event
+	public class ViewInitializedEvent extends Event
 	{
-		public static const DEFINE_LAYOUT:String = "DEFINE_LAYOUT";
-		public var layout:LayoutDefinition = null;
+		public static const VIEW_INITIALIZED_EVENT:String = "VIEW_INITIALIZED_EVENT";
+		public var canvas:MDICanvas = null;
 		
-		public function DefineLayoutEvent(type:String = DEFINE_LAYOUT)
+		public function ViewInitializedEvent(type:String = VIEW_INITIALIZED_EVENT)
 		{
 			super(type, true, false);
 		}

@@ -96,7 +96,8 @@
 		/>
 		
 		<module name="LayoutModule" url="LayoutModule.swf?v=VERSION"
-		    layoutConfig="conf/layout.xml"
+			uri="rtmp://HOST/bigbluebutton"
+			layoutConfig="conf/layout.xml"
 		/>
 
 		<!-- new module in development: 

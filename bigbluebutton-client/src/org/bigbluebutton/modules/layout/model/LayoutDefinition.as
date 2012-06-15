@@ -25,12 +25,14 @@ package org.bigbluebutton.modules.layout.model {
 		import flexlib.mdi.containers.MDICanvas;
 		import flexlib.mdi.containers.MDIWindow;
 		
+		import org.bigbluebutton.common.LogUtil;
+		
 		[Bindable] public var name:String;
 		// default is a reserved word in actionscript
-		[Bindable] public var default_:Boolean = false;
+		[Bindable] public var defaultLayout:Boolean = false;
 		[Bindable] private var windows:Dictionary = new Dictionary();
 		static private var _ignoredWindows:Array = new Array("PublishWindow", 
-				"VideoWindow", "DesktopPublishWindow"); 
+				"VideoWindow", "DesktopPublishWindow", "DesktopViewWindow"); 
 		
 		public function load(vxml:XML):void {
 			if (vxml != null) {
@@ -38,7 +40,7 @@ package org.bigbluebutton.modules.layout.model {
 					name = vxml.@name.toString();
 				}
 				if (vxml.@default != undefined) {
-					default_ = (vxml.@default.toString().toUpperCase() == "TRUE") ? true : false;
+					defaultLayout = (vxml.@default.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 				for each (var n:XML in vxml.window) {
 					var window:WindowLayout = new WindowLayout();
@@ -55,7 +57,7 @@ package org.bigbluebutton.modules.layout.model {
 		public function toXml():XML {
 			var xml:XML = <layout/>;
 			xml.@name = name;
-			if (default_)
+			if (defaultLayout)
 				xml.@default = true;
 			for each (var value:WindowLayout in windows) {
 				xml.appendChild(value.toXml());
@@ -74,7 +76,12 @@ package org.bigbluebutton.modules.layout.model {
 		
 		public function applyToWindow(canvas:MDICanvas, window:MDIWindow):void {
 			var type:String = WindowLayout.getType(window);
-			WindowLayout.setLayout(canvas, window, windows[type]);
+			if (!ignoreWindow(type))
+				WindowLayout.setLayout(canvas, window, windows[type]);
+		}
+		
+		static private function ignoreWindow(type:String):Boolean {
+			return (type in _ignoredWindows);
 		}
 		
 		static public function getLayout(canvas:MDICanvas, name:String):LayoutDefinition {
@@ -82,10 +89,8 @@ package org.bigbluebutton.modules.layout.model {
 			layoutDefinition.name = name;
 			for each (var window:MDIWindow in canvas.windowManager.windowList) {
 				var layout:WindowLayout = WindowLayout.getLayout(canvas, window);
-				// for now we will just ignore the video windows
-				if (layout.name in _ignoredWindows)
-					continue;
-				layoutDefinition.windows[layout.name] = layout;
+				if (!ignoreWindow(layout.name))
+					layoutDefinition.windows[layout.name] = layout;
 			}
 			return layoutDefinition;
 		}

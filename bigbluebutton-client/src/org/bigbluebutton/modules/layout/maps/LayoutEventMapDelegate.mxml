@@ -20,42 +20,32 @@
 
   $Id: $
 -->
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
-			xmlns:maps="org.bigbluebutton.modules.layout.maps.*" 
-			implements="org.bigbluebutton.common.IBigBlueButtonModule">
-	
-	<maps:LayoutEventMap id="layoutEventMap" />
-	
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.modules.layout.events.StartLayoutModuleEvent;
-			import org.bigbluebutton.modules.layout.events.LayoutEvent;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
+			import org.bigbluebutton.modules.layout.views.ToolbarComponent;
 			
-			private var _moduleName:String = "Layout Module";
+			private var _attributes:Object;
 			private var _globalDispatcher:Dispatcher = new Dispatcher();
 			
-			private function onCreationComplete():void {
-				LogUtil.debug(_moduleName + " initialized");	
+			public function stopModule():void {
 			}
 			
-			public function get moduleName():String {
-				return _moduleName;
-			}
-			
-			public function start(attributes:Object):void {
-				var event:StartLayoutModuleEvent = new StartLayoutModuleEvent();
-				event.attributes = attributes;
+			public function startModule(attributes:Object):void {
+				_attributes = attributes;
+				
+				var layoutComponent:ToolbarComponent = new ToolbarComponent();
+				layoutComponent.attributes = attributes;
+				
+				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
+				event.button = layoutComponent;
+				event.location = ToolbarButtonEvent.BOTTOM_TOOLBAR;
 				_globalDispatcher.dispatchEvent(event);
 			}
-			
-			public function stop():void {
-				var event:LayoutEvent = new LayoutEvent(LayoutEvent.STOP_LAYOUT_MODULE_EVENT);
-				_globalDispatcher.dispatchEvent(event);
-			}
-			
 		]]>
 	</mx:Script>
-</mx:Module>
+</EventMap>
