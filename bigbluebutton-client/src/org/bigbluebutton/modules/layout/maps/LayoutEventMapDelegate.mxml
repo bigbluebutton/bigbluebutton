@@ -39,7 +39,8 @@
 				_attributes = attributes;
 				
 				var layoutComponent:ToolbarComponent = new ToolbarComponent();
-				layoutComponent.attributes = attributes;
+				// using the negation will keep it enabled if the property is not there
+				layoutComponent.enableEdit = !(_attributes.enableEdit == "false");
 				
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 				event.button = layoutComponent;

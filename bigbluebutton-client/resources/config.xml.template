@@ -98,6 +98,7 @@
 		<module name="LayoutModule" url="LayoutModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton"
 			layoutConfig="conf/layout.xml"
+			enableEdit="true"
 		/>
 
 		<!-- new module in development: 

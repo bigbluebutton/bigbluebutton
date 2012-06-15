@@ -36,13 +36,15 @@
 			import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
 			import org.bigbluebutton.modules.layout.model.WindowLayout;
 
-			private var _attributes:Object = null;
 			private var _dispatcher:Dispatcher = new Dispatcher();
+			private var _enableEdit:Boolean;
 			
 			private function init():void {
-				addChild(new AddButton());
-				addChild(new SaveButton());
-				addChild(new LoadButton());
+				if (_enableEdit) {
+					addChild(new AddButton());
+					addChild(new SaveButton());
+					addChild(new LoadButton());
+				}
 				addChild(new LockButton());
 			
 				var evt:ViewInitializedEvent = new ViewInitializedEvent();
@@ -50,8 +52,8 @@
 				_dispatcher.dispatchEvent(evt);
 			}
 			
-			public function set attributes(attributes:Object):void {
-				_attributes = attributes;
+			public function set enableEdit(arg:Boolean):void {
+				_enableEdit = arg;
 			}
 			
 			private function getMdiCanvas(p:DisplayObjectContainer):DisplayObject {
