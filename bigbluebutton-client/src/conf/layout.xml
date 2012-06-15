@@ -10,8 +10,8 @@
 	<layout name="Meeting">
 		<window name="VideoDock" width="0.6570188133140377" height="0.9960106382978723" x="0" y="0" />
 		<window name="ChatWindow" width="0.3393632416787265" height="0.5305851063829787" x="0.658465991316932" y="0" />
-		<window name="ListenersWindow" minimized="true" />
-		<window name="ViewersWindow" minimized="true" />
+		<window name="ListenersWindow" hidden="true" />
+		<window name="ViewersWindow" hidden="true" />
 		<window name="PresentationWindow" width="0.34008683068017365" height="0.4601063829787234" x="0.658465991316932" y="0.535904255319149" />
 	</layout>
 	<layout name="Webinar">
