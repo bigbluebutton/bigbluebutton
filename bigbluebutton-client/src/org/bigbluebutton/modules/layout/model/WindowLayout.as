@@ -96,7 +96,6 @@ package org.bigbluebutton.modules.layout.model {
 		}
 		
 		private var _delayedEffects:Array = new Array();
-				
 		private function delayEffect(canvas:MDICanvas, window:MDIWindow):void {
 			var obj:Object = {canvas:canvas, window:window};
 			_delayedEffects.push(obj);
@@ -111,44 +110,42 @@ package org.bigbluebutton.modules.layout.model {
 		}
 		
 		public function applyToWindow(canvas:MDICanvas, window:MDIWindow):void {
-			if (this.minimized) {
-				if (!window.minimized) window.minimize();
-				return;
-			} else if (this.maximized) {
-				if (!window.maximized) window.maximize();
-				return;
-			} else if (window.minimized && !this.minimized) {
-				window.unMinimize();
-				delayEffect(canvas, window);
-				return;
-			} else if (window.maximized && !this.maximized) {
-				window.maximizeRestore();
-				delayEffect(canvas, window);
-				return;
-			}
-			
 			var effect:Parallel = new Parallel();
 			effect.duration = EVENT_DURATION;
 			effect.target = window;
 			
-			if (!this.hidden) {
-				var newWidth:int = int(this.width * canvas.width);
-				var newHeight:int = int(this.height * canvas.height);
-				var newX:int = int(this.x * canvas.width);
-				var newY:int = int(this.y * canvas.height);
-				
-				if (newX != window.x || newY != window.y) {
-					var mover:Move = new Move();
-					mover.xTo = newX;
-					mover.yTo = newY;
-					effect.addChild(mover);
-				}
-				
-				if (newWidth != window.width || newHeight != window.height) {
-					var resizer:Resize = new Resize();
-					resizer.widthTo = newWidth;
-					resizer.heightTo = newHeight;
-					effect.addChild(resizer)
+			if (this.minimized) {
+				if (!window.minimized) window.minimize();
+			} else if (this.maximized) {
+				if (!window.maximized) window.maximize();
+			} else if (window.minimized && !this.minimized && !this.hidden) {
+				window.unMinimize();
+				delayEffect(canvas, window);
+				return;
+			} else if (window.maximized && !this.maximized && !this.hidden) {
+				window.maximizeRestore();
+				delayEffect(canvas, window);
+				return;
+			} else {
+				if (!this.hidden) {
+					var newWidth:int = int(this.width * canvas.width);
+					var newHeight:int = int(this.height * canvas.height);
+					var newX:int = int(this.x * canvas.width);
+					var newY:int = int(this.y * canvas.height);
+					
+					if (newX != window.x || newY != window.y) {
+						var mover:Move = new Move();
+						mover.xTo = newX;
+						mover.yTo = newY;
+						effect.addChild(mover);
+					}
+					
+					if (newWidth != window.width || newHeight != window.height) {
+						var resizer:Resize = new Resize();
+						resizer.widthTo = newWidth;
+						resizer.heightTo = newHeight;
+						effect.addChild(resizer)
+					}
 				}
 			}
 			
@@ -170,7 +167,8 @@ package org.bigbluebutton.modules.layout.model {
 				effect.addChild(fader);
 			}
 			
-			effect.play();
+//			if (effect.children.lenght > 0)
+				effect.play();
 		}
 		
 		static public function getType(obj:Object):String {

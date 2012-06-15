@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.layout.managers
 	import flash.utils.Timer;
 	
 	import flexlib.mdi.containers.MDICanvas;
+	import flexlib.mdi.containers.MDIWindow;
 	import flexlib.mdi.events.MDIManagerEvent;
 
 	import mx.controls.Alert;
@@ -59,7 +60,6 @@ package org.bigbluebutton.modules.layout.managers
 		private var _sendCurrentLayoutUpdateTimer:Timer = new Timer(500,1);
 		private var _applyCurrentLayoutTimer:Timer = new Timer(150,1);
 		private var _customLayoutsCount:int = 0;
-		
 		/*
 		 * \TODO investigate why it doesn't work
 		 */
@@ -176,6 +176,7 @@ package org.bigbluebutton.modules.layout.managers
 			_canvas.windowManager.addEventListener(MDIManagerEvent.WINDOW_MAXIMIZE, onActionOverWindowFinished);
 			_canvas.windowManager.addEventListener(MDIManagerEvent.WINDOW_RESTORE, onActionOverWindowFinished);
 			_canvas.windowManager.addEventListener(MDIManagerEvent.WINDOW_ADD, function(e:MDIManagerEvent):void {
+				checkPermissionsOverWindow(e.window);
 				applyLayout(_currentLayout);
 			});
 		}
@@ -218,11 +219,29 @@ package org.bigbluebutton.modules.layout.managers
 		public function remoteLockLayout():void {
 			LogUtil.debug("LayoutManager: remote lock received");
 			_locked = true;
+			checkPermissionsOverWindow();
 		}
 		
 		public function remoteUnlockLayout():void {
 			LogUtil.debug("LayoutManager: remote unlock received");
 			_locked = false;
+			checkPermissionsOverWindow();
+		}
+		
+		private function checkPermissionsOverWindow(window:MDIWindow=null):void {
+			if (window != null) {
+				if (!UserManager.getInstance().getConference().amIModerator()
+						&& !LayoutDefinition.ignoreWindow(window)) {
+					window.draggable 
+							= window.resizable
+							= window.showControls
+							= !_locked;
+				}
+			} else {
+				for each (window in _canvas.windowManager.windowList) {
+					checkPermissionsOverWindow(window);
+				}
+			}
 		}
 		
 		private function onContainerResized(e:ResizeEvent):void {
@@ -245,6 +264,10 @@ package org.bigbluebutton.modules.layout.managers
 //		}
 		
 		private function onActionOverWindowFinished(e:MDIManagerEvent):void {
+			if (LayoutDefinition.ignoreWindow(e.window))
+				return;
+				
+			checkPermissionsOverWindow(e.window);
 			if (_detectContainerChange) {
 				_globalDispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.INVALIDATE_LAYOUT_EVENT));
 				/*

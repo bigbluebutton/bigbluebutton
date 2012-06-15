@@ -32,7 +32,8 @@ package org.bigbluebutton.modules.layout.model {
 		[Bindable] public var defaultLayout:Boolean = false;
 		[Bindable] private var windows:Dictionary = new Dictionary();
 		static private var _ignoredWindows:Array = new Array("PublishWindow", 
-				"VideoWindow", "DesktopPublishWindow", "DesktopViewWindow"); 
+				"VideoWindow", "DesktopPublishWindow", "DesktopViewWindow",
+				"LogWindow");
 		
 		public function load(vxml:XML):void {
 			if (vxml != null) {
@@ -76,12 +77,22 @@ package org.bigbluebutton.modules.layout.model {
 		
 		public function applyToWindow(canvas:MDICanvas, window:MDIWindow):void {
 			var type:String = WindowLayout.getType(window);
-			if (!ignoreWindow(type))
+			if (!ignoreWindowByType(type))
 				WindowLayout.setLayout(canvas, window, windows[type]);
 		}
 		
-		static private function ignoreWindow(type:String):Boolean {
-			return (type in _ignoredWindows);
+		static private function ignoreWindowByType(type:String):Boolean {
+			var ignored:Boolean;
+//			ignored = _ignoredWindows.some(function(element:*, index:int, array:Array):Boolean {
+//				return (element == type);
+//			});
+			ignored = (_ignoredWindows.indexOf(type) != -1);
+			return ignored;
+		}
+		
+		static public function ignoreWindow(window:MDIWindow):Boolean {
+			var type:String = WindowLayout.getType(window);
+			return ignoreWindowByType(type);
 		}
 		
 		static public function getLayout(canvas:MDICanvas, name:String):LayoutDefinition {
@@ -89,7 +100,7 @@ package org.bigbluebutton.modules.layout.model {
 			layoutDefinition.name = name;
 			for each (var window:MDIWindow in canvas.windowManager.windowList) {
 				var layout:WindowLayout = WindowLayout.getLayout(canvas, window);
-				if (!ignoreWindow(layout.name))
+				if (!ignoreWindowByType(layout.name))
 					layoutDefinition.windows[layout.name] = layout;
 			}
 			return layoutDefinition;
