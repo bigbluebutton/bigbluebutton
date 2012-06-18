@@ -87,6 +87,7 @@ package org.bigbluebutton.modules.layout.model {
 			layout.y = window.y / canvas.height;
 			layout.minimized = window.minimized;
 			layout.maximized = window.maximized;
+			layout.hidden = !window.visible;
 			return layout;
 		}
 		
