@@ -37,6 +37,7 @@ package org.bigbluebutton.modules.layout.model {
 		import flash.utils.Timer;
 		import flash.events.TimerEvent;
 		import org.bigbluebutton.common.LogUtil;
+		import org.bigbluebutton.modules.layout.managers.OrderManager;
 
 		[Bindable] public var name:String;
 		[Bindable] public var width:Number;
@@ -45,7 +46,9 @@ package org.bigbluebutton.modules.layout.model {
 		[Bindable] public var y:Number;
 		[Bindable] public var minimized:Boolean = false;
 		[Bindable] public var maximized:Boolean = false;
-		[Bindabla] public var hidden:Boolean = false;
+		[Bindable] public var hidden:Boolean = false;
+		[Bindable] public var order:int = -1;
+		
 
 		static private var EVENT_DURATION:int = 500;
 
@@ -75,6 +78,9 @@ package org.bigbluebutton.modules.layout.model {
 				if (vxml.@hidden != undefined) {
 					hidden = (vxml.@hidden.toString().toUpperCase() == "TRUE") ? true : false;
 				}
+//				if (vxml.@order != undefined) {
+//					order = int(vxml.@order);
+//				}
 			}
 		}
 		
@@ -88,6 +94,7 @@ package org.bigbluebutton.modules.layout.model {
 			layout.minimized = window.minimized;
 			layout.maximized = window.maximized;
 			layout.hidden = !window.visible;
+//			layout.order = OrderManager.getInstance().getOrderByRef(window);
 			return layout;
 		}
 		
@@ -168,7 +175,7 @@ package org.bigbluebutton.modules.layout.model {
 				effect.addChild(fader);
 			}
 			
-//			if (effect.children.lenght > 0)
+			if (effect.children.length > 0)
 				effect.play();
 		}
 		
@@ -197,7 +204,8 @@ package org.bigbluebutton.modules.layout.model {
 				xml.@x = int(x * canvas.width);
 				xml.@y = int(y * canvas.height);
 			}
-			return xml;			
+//			xml.@order = order;
+			return xml;
 		}
 		
 		public function toXml():XML {
@@ -215,6 +223,7 @@ package org.bigbluebutton.modules.layout.model {
 				xml.@x = x;
 				xml.@y = y;
 			}
+//			xml.@order = order;
 			return xml;			
 		}  
 	}

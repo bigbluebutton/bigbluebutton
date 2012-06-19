@@ -26,11 +26,12 @@ package org.bigbluebutton.modules.layout.model {
 		import flexlib.mdi.containers.MDIWindow;
 		
 		import org.bigbluebutton.common.LogUtil;
+		import org.bigbluebutton.modules.layout.managers.OrderManager;
 		
 		[Bindable] public var name:String;
 		// default is a reserved word in actionscript
 		[Bindable] public var defaultLayout:Boolean = false;
-		[Bindable] private var windows:Dictionary = new Dictionary();
+		[Bindable] private var _windows:Dictionary = new Dictionary();
 		static private var _ignoredWindows:Array = new Array("PublishWindow", 
 				"VideoWindow", "DesktopPublishWindow", "DesktopViewWindow",
 				"LogWindow");
@@ -46,13 +47,13 @@ package org.bigbluebutton.modules.layout.model {
 				for each (var n:XML in vxml.window) {
 					var window:WindowLayout = new WindowLayout();
 					window.load(n);
-					windows[window.name] = window;
+					_windows[window.name] = window;
 				}
 			}			
 		}
 		
 		public function windowLayout(name:String):WindowLayout {
-			return windows[name];
+			return _windows[name];
 		}
 		
 		public function toXml():XML {
@@ -60,34 +61,59 @@ package org.bigbluebutton.modules.layout.model {
 			xml.@name = name;
 			if (defaultLayout)
 				xml.@default = true;
-			for each (var value:WindowLayout in windows) {
+			for each (var value:WindowLayout in _windows) {
 				xml.appendChild(value.toXml());
 			}
 			return xml;
 		}
 		
+		private function adjustWindowsOrder(canvas:MDICanvas):void {
+			var orderList:Array = new Array();
+			var type:String;
+			var order:int;
+			for each (var window:MDIWindow in canvas.windowManager.windowList) {
+				type = WindowLayout.getType(window);
+				
+				if (ignoreWindowByType(type) || !_windows.hasOwnProperty(type))
+					continue;
+				
+				order = _windows[type].order;
+
+				// order == -1 means that there's no order defined for this window
+				if (order != -1)
+					orderList[order] = { window:window, order:order, type:type };
+			}
+			
+			// only bring the focused window to front
+			for each (var obj:Object in orderList) {
+				if (obj != null) {
+					obj.window.windowManager.bringToFront(obj.window);
+					break;
+				}
+			}
+		}
+		
 		public function applyToCanvas(canvas:MDICanvas):void {
 			if (canvas == null)
-				return;
-				
+				return;		
+
+//			adjustWindowsOrder(canvas);
+
 			for each (var window:MDIWindow in canvas.windowManager.windowList) {
 				applyToWindow(canvas, window);
 			}
 		}
 		
-		public function applyToWindow(canvas:MDICanvas, window:MDIWindow):void {
-			var type:String = WindowLayout.getType(window);
+		public function applyToWindow(canvas:MDICanvas, window:MDIWindow, type:String=null):void {
+			if (type == null)
+				type = WindowLayout.getType(window);
+
 			if (!ignoreWindowByType(type))
-				WindowLayout.setLayout(canvas, window, windows[type]);
+				WindowLayout.setLayout(canvas, window, _windows[type]);
 		}
 		
 		static private function ignoreWindowByType(type:String):Boolean {
-			var ignored:Boolean;
-//			ignored = _ignoredWindows.some(function(element:*, index:int, array:Array):Boolean {
-//				return (element == type);
-//			});
-			ignored = (_ignoredWindows.indexOf(type) != -1);
-			return ignored;
+			return (_ignoredWindows.indexOf(type) != -1);
 		}
 		
 		static public function ignoreWindow(window:MDIWindow):Boolean {
@@ -101,7 +127,7 @@ package org.bigbluebutton.modules.layout.model {
 			for each (var window:MDIWindow in canvas.windowManager.windowList) {
 				var layout:WindowLayout = WindowLayout.getLayout(canvas, window);
 				if (!ignoreWindowByType(layout.name))
-					layoutDefinition.windows[layout.name] = layout;
+					layoutDefinition._windows[layout.name] = layout;
 			}
 			return layoutDefinition;
 		}

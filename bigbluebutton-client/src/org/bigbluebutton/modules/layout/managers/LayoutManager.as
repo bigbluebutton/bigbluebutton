@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.layout.managers
 	import flash.net.FileReference;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.utils.Dictionary;
 	import flash.utils.Timer;
 	
 	import flexlib.mdi.containers.MDICanvas;
@@ -46,6 +47,7 @@ package org.bigbluebutton.modules.layout.managers
 	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 	import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
 	import org.bigbluebutton.modules.layout.model.LayoutLoader;
+	import org.bigbluebutton.modules.layout.model.WindowLayout;
 	import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
@@ -60,9 +62,6 @@ package org.bigbluebutton.modules.layout.managers
 		private var _sendCurrentLayoutUpdateTimer:Timer = new Timer(500,1);
 		private var _applyCurrentLayoutTimer:Timer = new Timer(150,1);
 		private var _customLayoutsCount:int = 0;
-		/*
-		 * \TODO investigate why it doesn't work
-		 */
 		private var _eventsToDelay:Array = new Array(MDIManagerEvent.WINDOW_RESTORE,
 				MDIManagerEvent.WINDOW_MINIMIZE,
 				MDIManagerEvent.WINDOW_MAXIMIZE);
@@ -179,8 +178,15 @@ package org.bigbluebutton.modules.layout.managers
 				checkPermissionsOverWindow(e.window);
 				applyLayout(_currentLayout);
 			});
+			
+//			_canvas.windowManager.addEventListener(MDIManagerEvent.WINDOW_FOCUS_START, function(e:MDIManagerEvent):void {
+//				OrderManager.getInstance().bringToFront(e.window);
+//			});
+//			for each (var window:MDIWindow in _canvas.windowManager.windowList.reverse()) {
+//				OrderManager.getInstance().bringToFront(window);
+//			}
 		}
-		
+
 		public function applyDefaultLayout():void {
 			applyLayout(_layouts.getDefault());
 			sendLayoutUpdate(_currentLayout);
@@ -274,9 +280,7 @@ package org.bigbluebutton.modules.layout.managers
 				 * 	some events related to animated actions must be delayed because if it's not the 
 				 * 	current layout doesn't get properly updated
 				 */
-				if (e.type == MDIManagerEvent.WINDOW_RESTORE
-						|| e.type == MDIManagerEvent.WINDOW_MAXIMIZE
-						|| e.type == MDIManagerEvent.WINDOW_MINIMIZE) {
+				if (_eventsToDelay.indexOf(e.type) != -1) {
 					LogUtil.debug("LayoutManager: waiting the end of the animation to update the current layout");
 					_sendCurrentLayoutUpdateTimer.reset();
 					_sendCurrentLayoutUpdateTimer.start();
