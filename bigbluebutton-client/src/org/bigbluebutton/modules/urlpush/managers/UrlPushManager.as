@@ -26,11 +26,7 @@ package org.bigbluebutton.modules.urlpush.managers
 	
 	import mx.managers.PopUpManager;
 	
-	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.main.events.MadePresenterEvent;
-	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.modules.urlpush.UrlPushWindow;
 	import org.bigbluebutton.modules.urlpush.events.UrlPushEvent;
 	import org.bigbluebutton.modules.urlpush.events.UrlPushWindowEvent;
@@ -70,16 +66,6 @@ package org.bigbluebutton.modules.urlpush.managers
 		public function handleCloseUrlPushWindow():void{
 			PopUpManager.removePopUp(urlPushWindow);
 			urlPushWindow = null;
-		}
-		
-		
-		
-		public function gotoUrl(e:UrlPushEvent):void{
-//			if (UserManager.getInstance().getConference().amIPresenter()) {
-//				return;
-//			}
-
-			navigateToURL(new URLRequest(e.url), "_blank");			
 		}
 	}
 }

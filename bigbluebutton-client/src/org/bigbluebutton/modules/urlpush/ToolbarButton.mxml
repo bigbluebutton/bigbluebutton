@@ -35,7 +35,10 @@
 			import mx.controls.Alert;
 			import mx.managers.PopUpManager;
 			
-			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.model.users.BBBUser;
+
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.urlpush.UrlPushWindow;
@@ -51,11 +54,16 @@
 			private var dispatcher:Dispatcher;
 			
 			private function openUrlPushWindow():void{
-				dispatcher = new Dispatcher();
 				
-				var urlPushEvent:UrlPushWindowEvent = new UrlPushWindowEvent(UrlPushWindowEvent.OPEN_URL_PUSH_WINDOW);
-				urlPushEvent.parentWindow = this.parent.parent.parent;
-				dispatcher.dispatchEvent(urlPushEvent);
+				// check if user is presenter
+				// see if we can switch this to an event listener and toggle button enable mode depending on presenter status
+				if (UserManager.getInstance().getConference().amIPresenter()) {
+					dispatcher = new Dispatcher();
+					
+					var urlPushEvent:UrlPushWindowEvent = new UrlPushWindowEvent(UrlPushWindowEvent.OPEN_URL_PUSH_WINDOW);
+					urlPushEvent.parentWindow = this.parent.parent.parent;
+					dispatcher.dispatchEvent(urlPushEvent);
+				}
 			}
 			
 			public function getAlignment():String{

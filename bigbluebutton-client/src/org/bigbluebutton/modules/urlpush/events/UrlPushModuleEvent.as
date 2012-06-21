@@ -22,8 +22,7 @@ package org.bigbluebutton.modules.urlpush.events
 	
 	public class UrlPushModuleEvent extends Event
 	{
-		public static const START_MODULE:String = "START_MODULE";
-		public static const STOP_MODULE:String = "STOP_MODULE";
+		public static const START_URL_PUSH_MODULE:String = "START_URL_PUSH_MODULE";
 		
 		public var data:Object;
 		
@@ -31,6 +30,5 @@ package org.bigbluebutton.modules.urlpush.events
 		{
 			super(type, true, false);
 		}
-
 	}
 }

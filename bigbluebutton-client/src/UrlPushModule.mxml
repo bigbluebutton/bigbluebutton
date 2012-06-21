@@ -90,7 +90,7 @@
 			public function start(attributes:Object):void {	
 				this._attributes = attributes;
 
-				var e:UrlPushModuleEvent = new UrlPushModuleEvent(UrlPushModuleEvent.START_MODULE);
+				var e:UrlPushModuleEvent = new UrlPushModuleEvent(UrlPushModuleEvent.START_URL_PUSH_MODULE);
 				e.data = attributes;
 				globalDispatcher.dispatchEvent(e);
 			}

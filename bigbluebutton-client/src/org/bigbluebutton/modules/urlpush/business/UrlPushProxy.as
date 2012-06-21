@@ -30,6 +30,9 @@ package org.bigbluebutton.modules.urlpush.business
 	import org.bigbluebutton.modules.urlpush.events.UrlPushModuleEvent;
 	import org.bigbluebutton.modules.urlpush.events.UrlPushEvent;
 	
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
+	import flash.net.navigateToURL;
 
 	public class UrlPushProxy
 	{
@@ -68,11 +71,7 @@ package org.bigbluebutton.modules.urlpush.business
 		}
 		
 		public function gotoUrl(url:String):void{
-			var dispatcher:Dispatcher = new Dispatcher();
-			
-			var e:UrlPushEvent = new UrlPushEvent(UrlPushEvent.GOTO_URL);
-			e.url = url;
-			dispatcher.dispatchEvent(e);
+			navigateToURL(new URLRequest(url), "_blank");			
 		}
 	}
 }

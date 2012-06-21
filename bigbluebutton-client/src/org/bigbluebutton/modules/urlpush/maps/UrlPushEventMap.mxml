@@ -38,7 +38,7 @@
 		<ObjectBuilder generator="{UrlPushProxy}" cache="global" />
 	</EventHandlers>
 
-	<EventHandlers type="{UrlPushModuleEvent.START_MODULE}" >
+	<EventHandlers type="{UrlPushModuleEvent.START_URL_PUSH_MODULE}" >
 		<MethodInvoker generator="{UrlPushProxy}" method="connect" arguments="{event}" />
 		<MethodInvoker generator="{UrlPushManager}" method="handleStartModule" arguments="{event}" />
 	</EventHandlers>
@@ -53,10 +53,6 @@
 
 	<EventHandlers type="{UrlPushEvent.URL_PUSH}">
 		<MethodInvoker generator="{UrlPushProxy}" method="urlPush" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{UrlPushEvent.GOTO_URL}">
-		<MethodInvoker generator="{UrlPushProxy}" method="gotoUrl" arguments="{event}" />
 	</EventHandlers>
 
 </EventMap>

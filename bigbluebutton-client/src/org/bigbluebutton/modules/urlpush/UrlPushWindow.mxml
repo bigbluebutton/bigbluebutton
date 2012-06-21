@@ -2,7 +2,7 @@
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
-    	title="Share a Link"
+    	title="{ResourceUtil.getInstance().getString('bbb.urlpush.window.title')}"
     	width="500" height="150">
     	
     <mate:Dispatcher id="globalDispatch" />
@@ -18,6 +18,9 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.urlpush.events.UrlPushEvent;
 			import org.bigbluebutton.modules.urlpush.events.UrlPushWindowEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			import mx.controls.Alert;
 
 			
 			private var images:Images = new Images();
@@ -25,29 +28,55 @@
 	        
 			private function shareUrl():void {
 				
-				var e:UrlPushEvent = new UrlPushEvent(UrlPushEvent.URL_PUSH);
-				e.url = txtLinkUrl.text;
-				globalDispatch.dispatchEvent(e);				
+				if (txtUrl.text.length == 0) {
+					return;
+				}
 				
-				globalDispatch.dispatchEvent(new UrlPushWindowEvent(UrlPushWindowEvent.CLOSE_URL_PUSH_WINDOW));				
+				if (txtUrl.text.indexOf("http://") == -1) {
+					txtUrl.text = "http://" + txtUrl.text;
+				}
+
+				var e:UrlPushEvent = new UrlPushEvent(UrlPushEvent.URL_PUSH);
+				e.url = txtUrl.text;
+				globalDispatch.dispatchEvent(e);
+				
+				globalDispatch.dispatchEvent(new UrlPushWindowEvent(UrlPushWindowEvent.CLOSE_URL_PUSH_WINDOW));
+				
+/*				
+				Keep it simple, don't really need this ... keep it around just in case someone wants it 
+				
+				var regexp:RegExp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+				if (regexp.test(txtUrl.text)) {
+					var e:UrlPushEvent = new UrlPushEvent(UrlPushEvent.URL_PUSH);
+					e.url = txtUrl.text;
+					globalDispatch.dispatchEvent(e);
+					
+					globalDispatch.dispatchEvent(new UrlPushWindowEvent(UrlPushWindowEvent.CLOSE_URL_PUSH_WINDOW));
+				}
+				else {
+					Alert.show("\"" + txtUrl.text + "\" is not a valid link!", "Alert Box", mx.controls.Alert.OK);
+				}
+*/				
+				
 			}
 			
 			private function cancelShare():void {
-				globalDispatch.dispatchEvent(new UrlPushWindowEvent(UrlPushWindowEvent.CLOSE_URL_PUSH_WINDOW));				
+				globalDispatch.dispatchEvent(new UrlPushWindowEvent(UrlPushWindowEvent.CLOSE_URL_PUSH_WINDOW));
 			}
 	]]>
 		
 	</mx:Script>
-    
-	<!-- {ResourceUtil.getInstance().getString('bbb.toolbar.urlpush.toolTip')} -->
-	<mx:Label id="lblLinkText" text="Paste a link to share:" />
+
+	
+		
+	<mx:Label id="lblLinkText" text="{ResourceUtil.getInstance().getString('bbb.urlpush.window.label')}" />
 	<mx:HBox>
-		<mx:TextInput id="txtLinkUrl" width="380" />
-		<mx:Button id="btnShare" label="Share" toolTip="Share Link" click="shareUrl()" icon="{addIcon}"  />
+		<mx:TextInput id="txtUrl" width="380"  enter="shareUrl()"/>
+		<mx:Button id="btnShare" label="{ResourceUtil.getInstance().getString('bbb.urlpush.window.sharebutton.text')}" click="shareUrl()" icon="{addIcon}"  />
 	</mx:HBox>
 	
 	<mx:ControlBar horizontalAlign="right" verticalAlign="middle">
-		<mx:Button id="btnCancel" label="Cancel" toolTip="Cancel" click="cancelShare()" />
+		<mx:Button id="btnCancel" label="{ResourceUtil.getInstance().getString('bbb.urlpush.window.cancelbutton.text')}" click="cancelShare()" />
 	</mx:ControlBar>	
 	
 </mx:TitleWindow> 
