@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:mate="http://mate.asfusion.com/"
+    	title="Share a Link"
+    	width="500" height="150">
+    	
+    <mate:Dispatcher id="globalDispatch" />
+    	    
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
+			import com.asfusion.mate.events.Dispatcher;			
+			import mx.collections.*;
+			import mx.events.FlexEvent;
+			import mx.events.ValidationResultEvent;
+			import mx.managers.PopUpManager;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.modules.urlpush.events.UrlPushEvent;
+			import org.bigbluebutton.modules.urlpush.events.UrlPushWindowEvent;
+
+			
+			private var images:Images = new Images();
+			[Bindable] private var addIcon : Class = images.add;
+	        
+			private function shareUrl():void {
+				
+				var e:UrlPushEvent = new UrlPushEvent(UrlPushEvent.URL_PUSH);
+				e.url = txtLinkUrl.text;
+				globalDispatch.dispatchEvent(e);				
+				
+				globalDispatch.dispatchEvent(new UrlPushWindowEvent(UrlPushWindowEvent.CLOSE_URL_PUSH_WINDOW));				
+			}
+			
+			private function cancelShare():void {
+				globalDispatch.dispatchEvent(new UrlPushWindowEvent(UrlPushWindowEvent.CLOSE_URL_PUSH_WINDOW));				
+			}
+	]]>
+		
+	</mx:Script>
+    
+	<!-- {ResourceUtil.getInstance().getString('bbb.toolbar.urlpush.toolTip')} -->
+	<mx:Label id="lblLinkText" text="Paste a link to share:" />
+	<mx:HBox>
+		<mx:TextInput id="txtLinkUrl" width="380" />
+		<mx:Button id="btnShare" label="Share" toolTip="Share Link" click="shareUrl()" icon="{addIcon}"  />
+	</mx:HBox>
+	
+	<mx:ControlBar horizontalAlign="right" verticalAlign="middle">
+		<mx:Button id="btnCancel" label="Cancel" toolTip="Cancel" click="cancelShare()" />
+	</mx:ControlBar>	
+	
+</mx:TitleWindow> 

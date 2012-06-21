@@ -31,6 +31,7 @@
 	<property name="CLASSROOM_AUDIO" value="ClassroomAudioModule" />
 	<property name="SETTINGS" value="SettingsModule" />
 	<property name="VIDEO_DOCK" value="VideodockModule" />
+	<property name="URL_PUSH" value="UrlPushModule" />
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
 	
@@ -230,7 +231,11 @@
 	<target name="build-dyn" description="Compile Dynamic Info Module">
 		<build-module src="${SRC_DIR}" target="${DYN_INFO}" />
 	</target>
-	
+
+	<target name="build-urlpush" description="Compile Url Push Module">
+		<build-module src="${SRC_DIR}" target="${URL_PUSH}" />
+	</target>
+
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-viewers-listeners-present" 
 			depends="build-bbb-main, build-bbb-main-test, build-chat, build-viewers, build-listeners, build-present, build-breakout"
