@@ -173,5 +173,9 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/shape_handles.png")]
 		public var shape_handles:Class;		
+		
+		// PLACE CUSTOM IMAGES BELOW
+		[Embed(source="assets/images/line.png")]
+		public var line_icon:Class;	
 	}
 }

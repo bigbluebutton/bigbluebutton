@@ -75,13 +75,21 @@
 			[Bindable] private var ellipse_icon:Class = images.circle_icon;
 			[Bindable] private var thick_icon:Class = images.whiteboard_thick;
 			[Bindable] private var thin_icon:Class = images.whiteboard_thin;
+			// PLACE CUSTOM
+			[Bindable] private var line_icon:Class = images.line_icon;
+			// END CUSTOM
+			
 			
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
 			
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', 
-                '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
+                '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF',
+				 //PUT CUSTOM COLORS BELOW
+				'0xC0C0C0'
+				// END CUSTOM
+				];
 			
 			/**
 			 * Sets the type of shape we're drawing (pencil, rectangle, etc...) 
@@ -96,16 +104,25 @@
 						btnPenc.selected = true;
 						btnEllipse.selected = false;
 						btnRectangle.selected = false;
+						btnLine.selected = false;
 						break;
 					case DrawObject.ELLIPSE:
 						btnPenc.selected = false;
 						btnEllipse.selected = true;
 						btnRectangle.selected = false;
+						btnLine.selected = false;
 						break;
 					case DrawObject.RECTANGLE:
 						btnPenc.selected = false;
 						btnEllipse.selected = false;
 						btnRectangle.selected = true;
+						btnLine.selected = false;
+						break;
+					case DrawObject.LINE:
+						btnPenc.selected = false;
+						btnEllipse.selected = false;
+						btnRectangle.selected = false;
+						btnLine.selected = true;
 						break;
 				}
 			}
@@ -193,11 +210,17 @@
 	<mx:Button width="20" height="20" id="btnEllipse" click="setShape(DrawObject.ELLIPSE)" icon="{ellipse_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" toggle="true" />
 	
+	<!-- PLACE CUSTOM-->
+	<mx:Button width="20" height="20" id="btnLine" click="setShape(DrawObject.LINE)" icon="{line_icon}" 
+			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.line')}" toggle="true" />
+	<!-- END CUSTOM -->
+	
 	<mx:Spacer height="5" />
 	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR_BOARD))" icon="{delete_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.clear')}" />
 	<mx:Button width="20" height="20" id="btnUndo"  click="sendUndoCommand()" icon="{undo_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo')}" />
+	
 	
 	<mx:Spacer height="5" />
 	<mx:ColorPicker change="changeColor(event)" id="cpik" swatchPanelStyleName="colorPickerStyle" dataProvider="{colorPickerColours}" selectedColor="0x000000" 

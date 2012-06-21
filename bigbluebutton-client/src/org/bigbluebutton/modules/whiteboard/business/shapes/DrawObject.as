@@ -34,7 +34,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public static const PENCIL:String = "pencil";
 		public static const RECTANGLE:String = "rectangle";
 		public static const ELLIPSE:String = "ellipse";
-				
+		public static const LINE:String = "line";	
+		
 		protected var type:String;
 		protected var shape:Array;
 		protected var color:uint;

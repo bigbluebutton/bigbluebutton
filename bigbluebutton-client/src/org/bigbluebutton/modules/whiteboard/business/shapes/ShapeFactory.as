@@ -56,6 +56,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				return makeRectangle(shape as Rectangle);
 			} else if (shape.getType() == DrawObject.ELLIPSE){
 				return makeEllipse(shape as Ellipse);
+			} else if (shape.getType() == DrawObject.LINE){
+				return makeLine(shape as Line);
 			}
 			return null;
 		}
@@ -124,6 +126,16 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			e.makeShape(_parentWidth, _parentHeight);
 			return e;
 		}
-
+		
+		/**
+		 * Creates a Flash Shape from an Line DrawObject 
+		 * @param e an Line DrawObject
+		 * @return a Shape
+		 * 
+		 */
+		private function makeLine(e:Line):DrawObject{
+			e.makeShape(_parentWidth, _parentHeight);
+			return e;
+		}
 	}
 }

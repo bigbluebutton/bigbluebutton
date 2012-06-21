@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <actionScriptProperties analytics="false" mainApplicationPath="BigBlueButton.mxml" projectUUID="2f78753b-2e4c-41b4-8cf4-eddb768eb4b3" version="10">
-  <compiler additionalCompilerArguments="-locale en_US" autoRSLOrdering="true" copyDependentFiles="true" flex3CompatMode="true" flexSDK="Flex 4.5 BigBlueButton Version" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="10.3.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
+  <compiler additionalCompilerArguments="-locale en_US" autoRSLOrdering="true" copyDependentFiles="true" flex3CompatMode="true" flexSDK="Flex 4.5" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="10.3.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
     <compilerSourcePath/>
-    <libraryPath defaultLinkType="0">
+    <libraryPath defaultLinkType="1">
       <libraryPathEntry kind="4" path="">
         <excludedEntries>
           <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/qtp.swc" useDefaultLinkType="false"/>
@@ -14,13 +14,13 @@
           </libraryPathEntry>
           <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation.swc" useDefaultLinkType="false"/>
           <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_dmv.swc" useDefaultLinkType="false"/>
+          <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_agent.swc" useDefaultLinkType="false"/>
           <libraryPathEntry applicationDomain="default" forceLoad="false" index="3" kind="3" linkType="4" path="${PROJECT_FRAMEWORKS}/libs/spark.swc" useDefaultLinkType="true">
             <crossDomainRsls>
               <crossDomainRslEntry autoExtract="true" policyFileUrl="http://fpdownload.adobe.com/pub/swz/crossdomain.xml" rslUrl="http://fpdownload.adobe.com/pub/swz/flex/4.5.0.20967/spark_4.5.0.20967.swz"/>
               <crossDomainRslEntry autoExtract="true" policyFileUrl="" rslUrl="spark_4.5.0.20967.swz"/>
             </crossDomainRsls>
           </libraryPathEntry>
-          <libraryPathEntry kind="3" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/automation_agent.swc" useDefaultLinkType="false"/>
         </excludedEntries>
       </libraryPathEntry>
       <libraryPathEntry kind="1" linkType="1" path="libs"/>
@@ -52,6 +52,7 @@
     <module application="src/BigBlueButton.mxml" destPath="ClassroomAudioModule.swf" optimize="true" sourcePath="src/ClassroomAudioModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="SettingsModule.swf" optimize="true" sourcePath="src/SettingsModule.mxml"/>
     <module application="src/BigBlueButton.mxml" destPath="BigBlueButtonTest.swf" optimize="true" sourcePath="src/BigBlueButtonTest.mxml"/>
+    <module application="src/BigBlueButton.mxml" destPath="VideodockModule.swf" optimize="true" sourcePath="src/VideodockModule.mxml"/>
   </modules>
   <buildCSSFiles>
     <buildCSSFileEntry destPath="bin" sourcePath="src/branding/css/logo_basic.css"/>

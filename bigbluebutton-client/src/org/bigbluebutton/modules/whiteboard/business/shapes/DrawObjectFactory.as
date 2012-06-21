@@ -53,6 +53,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				d = makeRectangle(shape, color, thickness);
 			} else if (type == DrawObject.ELLIPSE){
 				d = makeEllipse(shape, color, thickness);
+			}  else if (type == DrawObject.LINE){
+				d = makeLine(shape, color, thickness);
 			}
 			return d;
 		}
@@ -98,6 +100,20 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public function makeEllipse(shape:Array, color:uint, thickness:uint):DrawObject{
 			return new Ellipse(shape, color, thickness);
 		}
-
+		
+		/**
+		 * A helper method for the makeDrawObject method whitch creates an Line DrawObject
+		 * <p>
+		 * Even though it is a helper method it is made public for testing purposes
+		 * @param shape The array holding the different points needed to create the DrawObject
+		 * @param color The color of the DrawObject to be created
+		 * @param thickness The thickness of the DrawObject to be created
+		 * @return the Line DrawObject created from the parameters
+		 * 
+		 */
+		
+		public function makeLine(shape:Array, color:uint, thickness:uint):DrawObject{
+			return new Line(shape, color, thickness);
+		}
 	}
 }
