@@ -51,8 +51,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			//newShape.graphics.drawRect(x,y,width,height);
 			//if (getColor() == 0x000000 || getColor() == 0xFFFFFF) newShape.alpha = 1.0;
 			//else newShape.alpha = 0.6;
-			newShape.x = startX;
-			newShape.y = startY;
+			newShape.graphics.moveTo(startX, startY);
 			newShape.graphics.lineTo(endX-startX, endY-startY);
 			_shape = newShape;
 		}

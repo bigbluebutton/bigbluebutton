@@ -72,7 +72,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			newShape.graphics.drawEllipse(x, y, width, height);
 			if (getColor() == 0x000000 || getColor() == 0xFFFFFF) newShape.alpha = 1.0;
 			else newShape.alpha = 0.6;
-			
 			_shape = newShape;
 		}
 	}
