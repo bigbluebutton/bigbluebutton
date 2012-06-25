@@ -328,9 +328,11 @@ p.code({
 			next_pgid = getPageId(t, current_image);
 			if(next_pgid !== curr_pgid) {
 				if(next_pgid !== undefined) {
+					console.log("showing " + next_pgid); 
 					svgobj.contentDocument.getElementById(next_pgid).setAttribute("display", "");
 				}
 				if(curr_pgid !== undefined) {
+					console.log("hiding " + curr_pgid);
 					svgobj.contentDocument.getElementById(curr_pgid).setAttribute("display", "none");
 				}
 				curr_pgid = next_pgid;
