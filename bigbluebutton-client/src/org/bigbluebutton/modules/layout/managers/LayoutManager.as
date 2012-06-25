@@ -179,12 +179,12 @@ package org.bigbluebutton.modules.layout.managers
 				applyLayout(_currentLayout);
 			});
 			
-//			_canvas.windowManager.addEventListener(MDIManagerEvent.WINDOW_FOCUS_START, function(e:MDIManagerEvent):void {
-//				OrderManager.getInstance().bringToFront(e.window);
-//			});
-//			for each (var window:MDIWindow in _canvas.windowManager.windowList.reverse()) {
-//				OrderManager.getInstance().bringToFront(window);
-//			}
+			_canvas.windowManager.addEventListener(MDIManagerEvent.WINDOW_FOCUS_START, function(e:MDIManagerEvent):void {
+				OrderManager.getInstance().bringToFront(e.window);
+			});
+			for each (var window:MDIWindow in _canvas.windowManager.windowList.reverse()) {
+				OrderManager.getInstance().bringToFront(window);
+			}
 		}
 
 		public function applyDefaultLayout():void {

@@ -78,9 +78,9 @@ package org.bigbluebutton.modules.layout.model {
 				if (vxml.@hidden != undefined) {
 					hidden = (vxml.@hidden.toString().toUpperCase() == "TRUE") ? true : false;
 				}
-//				if (vxml.@order != undefined) {
-//					order = int(vxml.@order);
-//				}
+				if (vxml.@order != undefined) {
+					order = int(vxml.@order);
+				}
 			}
 		}
 		
@@ -94,7 +94,7 @@ package org.bigbluebutton.modules.layout.model {
 			layout.minimized = window.minimized;
 			layout.maximized = window.maximized;
 			layout.hidden = !window.visible;
-//			layout.order = OrderManager.getInstance().getOrderByRef(window);
+			layout.order = OrderManager.getInstance().getOrderByRef(window);
 			return layout;
 		}
 		
@@ -204,7 +204,7 @@ package org.bigbluebutton.modules.layout.model {
 				xml.@x = int(x * canvas.width);
 				xml.@y = int(y * canvas.height);
 			}
-//			xml.@order = order;
+			xml.@order = order;
 			return xml;
 		}
 		
@@ -223,7 +223,7 @@ package org.bigbluebutton.modules.layout.model {
 				xml.@x = x;
 				xml.@y = y;
 			}
-//			xml.@order = order;
+			xml.@order = order;
 			return xml;			
 		}  
 	}

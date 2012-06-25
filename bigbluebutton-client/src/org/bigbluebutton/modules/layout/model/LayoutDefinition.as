@@ -67,29 +67,54 @@ package org.bigbluebutton.modules.layout.model {
 			return xml;
 		}
 		
+		/*
+		 * 0 if there's no order
+		 * 1 if "a" should appears after "b"
+		 * -1 if "a" should appears before "b"
+		 */
+		private function sortWindows(a:Object, b:Object):int {
+			// ignored windows are positioned in front
+			if (a.ignored && b.ignored) return 0;
+			if (a.ignored) return 1;
+			if (b.ignored) return -1;
+			// then comes the windows that has no layout definition
+			if (!a.hasLayoutDefinition && !b.hasLayoutDefinition) return 0;
+			if (!a.hasLayoutDefinition) return 1;
+			if (!b.hasLayoutDefinition) return -1;
+			// then the focus order is used to sort
+			if (a.order == b.order) return 0;
+			if (a.order == -1) return 1;
+			if (b.order == -1) return -1;
+			return (a.order < b.order? 1: -1);
+		}
+		
 		private function adjustWindowsOrder(canvas:MDICanvas):void {
-			var orderList:Array = new Array();
+			var orderedList:Array = new Array();
 			var type:String;
 			var order:int;
+			var ignored:Boolean;
+			var hasLayoutDefinition:Boolean;
+			
+//			LogUtil.debug("=> Before sort");
 			for each (var window:MDIWindow in canvas.windowManager.windowList) {
 				type = WindowLayout.getType(window);
-				
-				if (ignoreWindowByType(type) || !_windows.hasOwnProperty(type))
-					continue;
-				
-				order = _windows[type].order;
-
-				// order == -1 means that there's no order defined for this window
-				if (order != -1)
-					orderList[order] = { window:window, order:order, type:type };
+				hasLayoutDefinition = _windows.hasOwnProperty(type);
+				if (hasLayoutDefinition)
+					order = _windows[type].order;
+				else
+					order = -1;
+				ignored = ignoreWindowByType(type);
+				var item:Object = { window:window, order:order, type:type, ignored:ignored, hasLayoutDefinition:hasLayoutDefinition };
+				orderedList.push(item);
+//				LogUtil.debug("===> type: " + item.type + " ignored? " + item.ignored + " hasLayoutDefinition? " + item.hasLayoutDefinition + " order? " + item.order);
 			}
-			
-			// only bring the focused window to front
-			for each (var obj:Object in orderList) {
-				if (obj != null) {
-					obj.window.windowManager.bringToFront(obj.window);
-					break;
-				}
+			orderedList.sort(this.sortWindows);
+//			LogUtil.debug("=> After sort");
+			for each (var obj:Object in orderedList) {
+//				LogUtil.debug("===> type: " + obj.type + " ignored? " + obj.ignored + " hasLayoutDefinition? " + obj.hasLayoutDefinition + " order? " + obj.order);
+				if (!obj.ignored)
+					OrderManager.getInstance().bringToFront(obj.window);
+				canvas.windowManager.bringToFront(obj.window);
 			}
 		}
 		
@@ -97,7 +122,7 @@ package org.bigbluebutton.modules.layout.model {
 			if (canvas == null)
 				return;		
 
-//			adjustWindowsOrder(canvas);
+			adjustWindowsOrder(canvas);
 
 			for each (var window:MDIWindow in canvas.windowManager.windowList) {
 				applyToWindow(canvas, window);
