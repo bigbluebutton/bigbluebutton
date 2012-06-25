@@ -294,5 +294,13 @@ package org.bigbluebutton.modules.layout.managers
 			_currentLayout = (layout != null? layout: LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName')));
 			return _currentLayout;
 		}
+		
+		/*
+		 * this is because a unique layout may have multiple definitions depending
+		 * on the role of the participant
+		 */ 
+		public function presenterChanged():void {
+			applyLayout(_currentLayout);
+		}
 	}
 }

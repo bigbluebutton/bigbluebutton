@@ -67,9 +67,7 @@ package org.bigbluebutton.modules.layout.model
 			try {
 				var data:XML = new XML(evt.target.data);
 				for each (var n:XML in data.layout) {
-					var layoutDefinition:LayoutDefinition = new LayoutDefinition();
-					layoutDefinition.load(n);
-					layouts.push(layoutDefinition);
+					layouts.pushXml(n);
 				}
 				event.layouts = layouts;
 				event.success = true;

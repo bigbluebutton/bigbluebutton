@@ -34,6 +34,27 @@ package org.bigbluebutton.modules.layout.model
 			return _layouts;
 		}
 		
+		public function pushXml(xml:XML):void {
+			if (xml.@name == undefined)
+				return;
+				
+			var layoutDefinition:LayoutDefinition = null;
+			for each (var layout:LayoutDefinition in _layouts) {
+				if (layout.name == xml.@name) {
+					layoutDefinition = layout;
+					break; 
+				}
+			}
+			
+			if (layoutDefinition == null) {
+				layoutDefinition = new LayoutDefinition();
+				layoutDefinition.load(xml);
+				_layouts.push(layoutDefinition);
+			} else {
+				layoutDefinition.load(xml);
+			}
+		}
+		
 		public function push(layoutDefinition:LayoutDefinition):void {
 			_layouts.push(layoutDefinition);
 		}
@@ -48,8 +69,10 @@ package org.bigbluebutton.modules.layout.model
 		
 		public function toXml():XML {
 			var xml:XML = <layouts/>;
-			for each (var value:LayoutDefinition in _layouts) {
-				xml.appendChild(value.toXml());
+			for each (var layoutDefinition:LayoutDefinition in _layouts) {
+				for each (var value:XML in layoutDefinition.toXml()) {
+					xml.appendChild(value);
+				}
 			}
 			return xml;
 		}

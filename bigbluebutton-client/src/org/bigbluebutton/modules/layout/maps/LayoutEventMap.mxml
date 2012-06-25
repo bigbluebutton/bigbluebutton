@@ -25,6 +25,7 @@
 		<![CDATA[
 			import mx.events.FlexEvent;
 
+			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.layout.events.ConnectionEvent;
 			import org.bigbluebutton.modules.layout.events.LayoutEvent;
 			import org.bigbluebutton.modules.layout.events.UpdateLayoutEvent;
@@ -101,6 +102,14 @@
    		<MethodInvoker generator="{LayoutManager}" method="remoteUnlockLayout" />
     </EventHandlers>
 	
+    <EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
+   		<MethodInvoker generator="{LayoutManager}" method="presenterChanged" />
+    </EventHandlers>
+
+    <EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
+   		<MethodInvoker generator="{LayoutManager}" method="presenterChanged" />
+    </EventHandlers>
+
     <!-- EventHandlers type="{FlexEvent.CREATION_COMPLETE}">        
    		<MethodInvoker generator="{LayoutManager}" method="printSomething" arguments="{FlexEvent.CREATION_COMPLETE}" />
     </EventHandlers>
