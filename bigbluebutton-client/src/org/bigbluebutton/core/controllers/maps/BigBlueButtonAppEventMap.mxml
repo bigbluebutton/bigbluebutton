@@ -54,8 +54,7 @@
     <EventHandlers type="{ConfigLoadEvent.CONFIG_LOADED_EVENT}">
         <MethodInvoker generator="{ConfigModel}" method="setConfig" arguments="{event.config}"/>
         <ObjectBuilder generator="{ModuleModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
-        <MethodInvoker generator="{ConfigToModuleDataParser}" method="parseConfig" arguments="{[event.config, lastReturn]}"/>
-            
+        <MethodInvoker generator="{ConfigToModuleDataParser}" method="parseConfig" arguments="{[event.config, lastReturn]}"/>  
     </EventHandlers>
     
     <EventHandlers type="{LocaleEvent.LOAD_PREFERRED_LOCALE_SUCCEEDED_EVENT}">

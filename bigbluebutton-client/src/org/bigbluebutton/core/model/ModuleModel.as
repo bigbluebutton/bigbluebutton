@@ -10,7 +10,7 @@ package org.bigbluebutton.core.model
     public class ModuleModel
     {
         private var dispatcher:IEventDispatcher;       
-        private var _modules:Dictionary;
+        private var _modules:Dictionary = new Dictionary();
         private var _sortedDependecies:ArrayCollection;
                 
         public function ModuleModel(dispatcher:IEventDispatcher)
@@ -21,7 +21,6 @@ package org.bigbluebutton.core.model
         public function setModulesAndDependencies(m:Dictionary, dependencies:ArrayCollection):void {
             _modules = m;	
             _sortedDependecies = dependencies;
-            LogUtil.debug("Got config and dependencies");
         }
                 
         public function get sortedDependencies():ArrayCollection {

@@ -21,11 +21,8 @@ package org.bigbluebutton.main.model.modules
 	import flash.events.Event;
 	import flash.events.ProgressEvent;
 	import flash.system.ApplicationDomain;
-	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
-	import mx.controls.Alert;
-	import mx.core.IFlexModuleFactory;
 	import mx.events.ModuleEvent;
 	import mx.modules.ModuleLoader;
 	import mx.utils.StringUtil;
@@ -45,7 +42,7 @@ package org.bigbluebutton.main.model.modules
 		private var callbackHandler:Function;
 		private var applicationDomain:ApplicationDomain;
 		
-		private var _unresolvedDependencies:ArrayCollection;
+		private var _unresolvedDependencies:ArrayCollection = new ArrayCollection();
 		public var resolved:Boolean = false;
 		
 		public function ModuleDescriptor(attributes:XML)

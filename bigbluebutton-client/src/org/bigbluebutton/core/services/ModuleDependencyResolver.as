@@ -4,7 +4,8 @@ package org.bigbluebutton.core.services
     
     import mx.collections.ArrayCollection;
     
-    import org.bigbluebutton.main.model.modules.ModuleDescriptor;
+    import org.bigbluebutton.common.LogUtil;
+    import org.bigbluebutton.core.model.ModuleDescriptor;
     
     public class ModuleDependencyResolver
     {
@@ -52,8 +53,9 @@ package org.bigbluebutton.core.services
             return sortedDependencies;
         }
         
-        private function getModulesWithNoDependencies(modules:Dictionary):ArrayCollection{
+        private function getModulesWithNoDependencies(modules:Dictionary):ArrayCollection {
             var returnArray:ArrayCollection = new ArrayCollection();
+            
             for (var key:Object in modules) {
                 var m:ModuleDescriptor = modules[key] as ModuleDescriptor;
                 if (m.unresolvedDependencies.length == 0) {
