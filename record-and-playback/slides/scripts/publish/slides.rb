@@ -31,7 +31,7 @@ def processPage
 		if($undos.has_key? shape[:timestamp])
 			undo_time = (($undos[shape[:timestamp]].to_f - $join_time)/1000).round(1)
 		elsif
-			undo_time = -1
+			undo_time = $clearTimeInstance.last
 		end
 
 		# Process colours
@@ -40,21 +40,21 @@ def processPage
 
 		in_this_image = false
 		in_this_canvas = false
+		image_not_cleared = false
 		index = 0
 		numOfTimes = $val[0].length
 
 		# Checks to see if the current shapes are to be drawn in this particular image
 		while((in_this_image == false) && (index < numOfTimes)) do
 			# BigBlueButton.logger.info("#{current_time} compared to ( #{$val[0][index]} to #{$val[1][index]} )")
-			if((($val[0][index].to_f)..($val[1][index].to_f)) === current_time)
-				BigBlueButton.logger.info("#{current_time} is in the range of #{$val[0][index]} to #{$val[1][index]}")
+			if((($val[0][index].to_f)..($val[1][index].to_f)) === current_time) # is the shape within the certain time of the image
 				in_this_image = true
 			end
 			index+=1
 		end
 	
 		# Checks to see if the current shapes are to be drawn in this particular canvas
-		if($clearTimeInstance === current_time) || ($pageAndCanvasNumbers[3] != "image#{$val[2].to_i}")
+		if($clearTimeInstance === current_time)
 			#BigBlueButton.logger.info("#{current_time} is in the range of CTI: #{$clearTimeInstance}")
 			in_this_canvas = true
 		end
@@ -73,11 +73,11 @@ def processPage
 			if type.eql? "pencil"
 				$line_count = $line_count + 1 # always update the line count!
 				$xml.g(:class => :shape, :id=>"draw#{current_time}", :undo => undo_time, :shape =>"line#{$line_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden") do
-					for i in (0...(dataPoints.length/2)-1) do
-						$xml.line(:x1 => ((dataPoints[i*2].to_f)/100)*$vbox_width, :y1 => ((dataPoints[(i*2)+1].to_f)/100)*$vbox_height, :x2 => ((dataPoints[(i*2)+2].to_f)/100)*$vbox_width, :y2 => ((dataPoints[(i*2)+3].to_f)/100)*$vbox_height)
-					end
+					#for i in (0...(dataPoints.length/2)-1) do
+						#$xml.line(:x1 => ((dataPoints[i*2].to_f)/100)*$vbox_width, :y1 => ((dataPoints[(i*2)+1].to_f)/100)*$vbox_height, :x2 => ((dataPoints[(i*2)+2].to_f)/100)*$vbox_width, :y2 => ((#dataPoints[(i*2)+3].to_f)/100)*$vbox_height)
+					#end
 					# get first and last points for now. here in the future we should put a loop to get all the data points and make sub lines within the group.
-					# $xml.line('x1' => "#{((dataPoints[0].to_f)/100)*$vbox_width}", 'y1' => "#{((dataPoints[1].to_f)/100)*$vbox_height}", 'x2' => "#{((dataPoints[(dataPoints.length)-2].to_f)/100)*$vbox_width}", 'y2' => "#{((dataPoints[(dataPoints.length)-1].to_f)/100)*$vbox_height}")
+					$xml.line('x1' => "#{((dataPoints[0].to_f)/100)*$vbox_width}", 'y1' => "#{((dataPoints[1].to_f)/100)*$vbox_height}", 'x2' => "#{((dataPoints[(dataPoints.length)-2].to_f)/100)*$vbox_width}", 'y2' => "#{((dataPoints[(dataPoints.length)-1].to_f)/100)*$vbox_height}")
 				end
 
 			# Process the rectangle shapes
@@ -384,7 +384,7 @@ if ($playback == "slides")
 						# Is this a new image or one previously viewed?
 						if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
 							# If it is, add it to the list with all the data.
-							$slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start],[slide_end], $global_slide_count]
+							$slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count]
 							$global_slide_count = $global_slide_count + 1
 						elsif
 							# If not, append new in and out times to the old entry
@@ -414,21 +414,22 @@ if ($playback == "slides")
 					$xml.image(:id => "image#{$val[2].to_i}", :in => $val[0].join(' '), :out => $val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => :hidden)
 					$canvas_number+=1
 					$xml.g(:class => :canvas, :id => "canvas#{$val[2].to_i}", :image => "image#{$val[2].to_i}", :display => :none) do
+						
 						# Split by the cleared pages.
 						$clearPageTimes.each do |clearTimeInstance, pageAndCanvasNumbers|
 							$clearTimeInstance = clearTimeInstance
 							$pageAndCanvasNumbers = pageAndCanvasNumbers
 							if $pageAndCanvasNumbers[3] == "image#{$val[2].to_i}"
-								out_time = $clearTimeInstance.last.to_s
+								$out_time = $clearTimeInstance.last.to_s
 							else
-								out_time = endPresentationTime
+								$out_time = endPresentationTime
 							end
 							
 							# Process the clears
-							$page_number += 1
-							$xml.g(:class => :page, :image => "image#{$val[2].to_i}", :id => "page#{$page_number}",  :in => $clearTimeInstance.first.to_s, :out => out_time, :display => :none) do
+							#$page_number += 1
+							#$xml.g(:class => :page, :image => "image#{$val[2].to_i}", :id => "page#{$page_number}",  :in => $clearTimeInstance.first.to_s, :out => $out_time, :display => :none) do
 								processPage()
-							end # end g group for pages
+							#end # end g group for pages
 						end
 					end
 				end
