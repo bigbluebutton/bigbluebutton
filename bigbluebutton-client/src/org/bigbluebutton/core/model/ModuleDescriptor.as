@@ -16,7 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.main.model.modules
+package org.bigbluebutton.core.model
 {
 	import flash.events.Event;
 	import flash.events.ProgressEvent;
@@ -33,6 +33,7 @@ package org.bigbluebutton.main.model.modules
 	import org.bigbluebutton.common.IBigBlueButtonModule;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.modules.BigBlueButtonModuleLoader;
 	
 	public class ModuleDescriptor
 	{
@@ -48,13 +49,11 @@ package org.bigbluebutton.main.model.modules
 		private var _unresolvedDependencies:ArrayCollection;
 		public var resolved:Boolean = false;
 		
-		public function ModuleDescriptor(attributes:XML)
+		public function ModuleDescriptor()
 		{
             _unresolvedDependencies = new ArrayCollection();
 			_attributes = new Object();
-			_loader = new BigBlueButtonModuleLoader();
-			
-			parseAttributes(attributes);			
+			_loader = new BigBlueButtonModuleLoader();			
 		}
 		
 		public function setApplicationDomain(appDomain:ApplicationDomain):void{
@@ -111,7 +110,7 @@ package org.bigbluebutton.main.model.modules
             }
         }
 		
-		private function parseAttributes(item:XML):void {
+		public function parseAttributes(item:XML):void {
 			var attNamesList:XMLList = item.@*;
 
 			for (var i:int = 0; i < attNamesList.length(); i++)
@@ -146,7 +145,7 @@ package org.bigbluebutton.main.model.modules
 			_module = modLoader.child as IBigBlueButtonModule;
 			if (_module != null) {
 				_loaded = true;
-				callbackHandler(ModuleManager.MODULE_LOAD_READY, _attributes.name);
+//				callbackHandler(ModuleManager.MODULE_LOAD_READY, _attributes.name);
 			} else {
 				LogUtil.error("Module loaded is null.");
 			}
@@ -154,8 +153,8 @@ package org.bigbluebutton.main.model.modules
 		}	
 
 		private function onLoadProgress(e:ProgressEvent):void {
-			callbackHandler(ModuleManager.MODULE_LOAD_PROGRESS, 
-					_attributes.name, Math.round((e.bytesLoaded/e.bytesTotal) * 100));
+//			callbackHandler(ModuleManager.MODULE_LOAD_PROGRESS, 
+//					_attributes.name, Math.round((e.bytesLoaded/e.bytesTotal) * 100));
 		}	
 		
 		private function onErrorLoading(e:ModuleEvent):void{
@@ -191,21 +190,5 @@ package org.bigbluebutton.main.model.modules
 			}
 		}
 		
-		public function loadConfigAttributes(conferenceParameters:ConferenceParameters, protocol:String):void{
-			addAttribute("conference", conferenceParameters.conference);
-			addAttribute("username", conferenceParameters.username);
-			addAttribute("userrole", conferenceParameters.role);
-			addAttribute("room", conferenceParameters.room);
-			addAttribute("userid", conferenceParameters.userid);
-			addAttribute("connection", conferenceParameters.connection);
-			addAttribute("voicebridge", conferenceParameters.voicebridge);
-			addAttribute("webvoiceconf", conferenceParameters.webvoiceconf);
-			addAttribute("welcome", conferenceParameters.welcome);
-			addAttribute("externUserID", conferenceParameters.externUserID);
-			addAttribute("internalUserID", conferenceParameters.internalUserID);
-			addAttribute("meetingID", conferenceParameters.meetingID);
-			addAttribute("protocol", protocol);
-			useProtocol(protocol);
-		}
 	}
 }

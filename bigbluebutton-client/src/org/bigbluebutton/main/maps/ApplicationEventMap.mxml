@@ -20,7 +20,8 @@
   $Id: $
 --> 
 
-<EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
+<EventMap xmlns="http://mate.asfusion.com/" 
+          xmlns:mx="http://www.adobe.com/2006/mxml">
 	<!--
 	This is the main event map for the application, think of it as the application controller.
 	-->

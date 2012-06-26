@@ -23,6 +23,7 @@
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:views="org.bigbluebutton.main.views.*"
 	xmlns:maps="org.bigbluebutton.main.maps.*"
+    xmlns:coremaps="org.bigbluebutton.core.controllers.maps.*"
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:m="library://melomel/2010"
 	pageTitle="BigBlueButton"
@@ -31,19 +32,22 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;		
-			import mx.managers.HistoryManager;
-			import org.bigbluebutton.core.EventBroadcaster;
-			import org.bigbluebutton.core.managers.ConfigManager2;			
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.views.MainApplicationShell;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+            import com.asfusion.mate.events.Dispatcher;
+            
+            import mx.managers.HistoryManager;
+            
+            import org.bigbluebutton.common.LogUtil;
+            import org.bigbluebutton.core.BBB;
+            import org.bigbluebutton.core.EventBroadcaster;
+            import org.bigbluebutton.core.controllers.events.StartAppEvent;
+            import org.bigbluebutton.core.managers.ConfigManager2;
+            import org.bigbluebutton.main.events.BBBEvent;
+            import org.bigbluebutton.main.views.MainApplicationShell;
+            import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-		private var langResources:ResourceUtil = ResourceUtil.getInstance();
+//		private var langResources:ResourceUtil = ResourceUtil.getInstance();
 		
-		public var myFoo:String = "bar";
+
 			
 		/**
 		 * Thse two lines are workaround for this. (ralam - Nov 8, 2008)
@@ -56,171 +60,20 @@
 		/** another workaround - for this issue: https://bugs.adobe.com/jira/browse/SDK-13121*/
 		private var hist:HistoryManager
 
-		private function handleChatEvent(e:Event):void {
-			trace('Got CHAT_EVENT');
-		}
-
-		public function setFoo(f:String):void {
-			myFoo = f;
-		}
-		
-			/******************************
-			 * Testing
-			 ******************************/
-			
-
-		
-			private var globalDispatcher:Dispatcher = new Dispatcher();
-			
-			// Login test
-			private static var isLoggedIn:Boolean = false;	// flag to indicate if we successfully logged in
-			
-			// Chat test
-			private static var chatMessageSent:String = "";
-			private static var chatTestSucceeded:Boolean = false;
-			
-			// Voice test
-			private static var didUserJoin:Boolean = false;
-			
-			// Presentation test
-			private static var didPresentationConvert:Boolean = false;
-			
-			// Video test
-			private static var didVideoStart:Boolean = false;
-			
-			
-			public  function handleLoginEvent(event:BBBEvent):void {
-				LogUtil.debug("******************* Received loggedin event");
-				isLoggedIn = true;
-				LogUtil.debug("******************* Received loggedin event " + isLoggedIn.toString());
-			}
-			
-			public function checkLogin():String {
-				LogUtil.debug("******************* " + isLoggedIn.toString());
-				return isLoggedIn.toString();
-				
-			}
-			
-			public function checkChat():String {
-				if (chatTestSucceeded)
-				{
-					chatTestSucceeded = false;
-					return "true";
-				}
-				else
-					return chatTestSucceeded.toString();
-			}
-			
-			public function handleReceivedPublicChatMessageEvent(event:BBBEvent):void {
-				if (event.message.search(chatMessageSent) != -1)
-					chatTestSucceeded = true;
-			}
-			
-			// Creates a random string and sends it as a chat message.
-			public function sendRandomChatMessage():void {
-				chatMessageSent = generateRandomString(15);
-				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT, chatMessageSent));
-			}
-			
-			
-			/**
-			 * Voice
-			 */ 
-			public function joinVoiceConference():void {
-				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_CONFERENCE));
-			}
-			
-			public function checkVoice():String {
-				return didUserJoin.toString();
-			}
-			
-			public function handleAddedListenerEvent(event:BBBEvent):void {
-//				if (event.message == _attributes.username) {
-					didUserJoin = true;
-//				}
-			}
-			
-			/**
-			 * Presentation
-			 */ 
-			
-			public function checkPresentation():String {
-				if (didPresentationConvert) {
-					didPresentationConvert = false;
-					return "true";
-				} else
-					return "false";
-			}
-			
-			public function handlePresentationConversion(event:Event):void {
-				didPresentationConvert = true;
-			}
-			
-			// Obtained from: http://www.zedia.net/2008/generate-random-strings-in-as2-or-as3/
-			private function generateRandomString(newLength:uint = 1, userAlphabet:String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"):String{
-				var alphabet:Array = userAlphabet.split("");
-				var alphabetLength:int = alphabet.length;
-				var randomLetters:String = "";
-				for (var i:uint = 0; i < newLength; i++){
-					randomLetters += alphabet[int(Math.floor(Math.random() * alphabetLength))];
-				}
-				return randomLetters;
-			}
-			
-			
-			/**
-			 * Video
-			 */
-			
-			public function startVideoConnection():String {
-				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.START_VIDEO_CONNECTION));
-				return "true";
-			}
-			
-			public function playVideo():String {
-				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.START_VIDEO_STREAM, "640x480avatar.flv"));
-				return "true";
-			}
-			
-			public function videoHasStarted(e:Event):void {
-				didVideoStart = true;
-			}
-			
-			public function checkVideo():String {
-				return didVideoStart.toString();
-			}
-			
-			/**
-			 * Desktop Sharing
-			 */
-			
-			public function startDeskshare():String {
-				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.START_DESKSHARE));
-				return "true";
-			}			
-
-			protected function init():void {	
-				EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
-				BBB.initConfigManager();
-			}
-			
-			private function configLoadedEventHandler(e:Event):void {
-				LogUtil.debug("***** Config Loaded ****");
-				mainShell.initOptions(null);
-			}
-
 		]]>
 	</mx:Script>	
-	
-	<m:Melomel/>
-	
-	<maps:ApplicationEventMap />	
+		
+    <coremaps:BigBlueButtonAppEventMap id="mainEventMap"/>
+
+
+		
 	<views:MainApplicationShell id="mainShell"/>	
-	
+<!--
+    <maps:ApplicationEventMap/>
 	<mate:Listener type="{BBBEvent.LOGIN_EVENT}" method="handleLoginEvent"/>
 	<mate:Listener type="{BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT}" method="handleReceivedPublicChatMessageEvent"/>
 	<mate:Listener type="{BBBEvent.ADDED_LISTENER}" method="handleAddedListenerEvent"/>
 	<mate:Listener type="{BBBEvent.PRESENTATION_CONVERTED}" method="handlePresentationConversion"/>
 	<mate:Listener type="{BBBEvent.VIDEO_STARTED}" method="videoHasStarted"/>
-	
+-->	
 </mx:Application>

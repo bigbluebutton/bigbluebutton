@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>bigbluebutton-client</name>
+	<name>u-source-bbb-client</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -15,11 +15,4 @@
 		<nature>com.adobe.flexbuilder.project.flexnature</nature>
 		<nature>com.adobe.flexbuilder.project.actionscriptnature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>bin-release</name>
-			<type>2</type>
-			<location>C:/Documents and Settings/TEMP.LABS.008/Desktop/release</location>
-		</link>
-	</linkedResources>
 </projectDescription>

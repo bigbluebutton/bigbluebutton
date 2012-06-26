@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+
+<EventMap xmlns="http://mate.asfusion.com/"
+	xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:Script>
+		<![CDATA[
+
+		]]>
+	</mx:Script>
+	
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<ObjectBuilder generator="{ChatEventMapDelegate}" constructorArguments="{scope.dispatcher}"/>
+		<ObjectBuilder generator="{PublicChatService}" />
+		<ObjectBuilder generator="{PrivateChatService}" />		
+	</EventHandlers>
+	
+	<EventHandlers type="{StartChatModuleEvent.START_CHAT_MODULE_EVENT}">        
+   		<MethodInvoker generator="{PublicChatService}" method="setModuleAttributes" arguments="{event.attributes}" />
+   		<MethodInvoker generator="{PublicChatService}" method="join"/>
+   		<MethodInvoker generator="{PrivateChatService}" method="setModuleAttributes" arguments="{event.attributes}" />
+   		<MethodInvoker generator="{PrivateChatService}" method="join"/>
+		<MethodInvoker generator="{ChatEventMapDelegate}" method="setTranslationOptions" arguments="{event}" />
+    </EventHandlers>
+    
+    <EventHandlers type="{StopChatModuleEvent.STOP_CHAT_MODULE_EVENT}">        
+   		<MethodInvoker generator="{PublicChatService}" method="leave"/>
+   		<MethodInvoker generator="{PrivateChatService}" method="leave"/>
+   		<MethodInvoker generator="{ChatEventMapDelegate}" method="closeChatWindow" />
+    </EventHandlers>
+        
+    <EventHandlers type="{ConnectionEvent.CONNECT_EVENT}">        
+ 		<MethodInvoker generator="{ChatEventMapDelegate}" method="openChatWindow"/>
+ 		<MethodInvoker generator="{PrivateChatService}" method="queryForParticipants"/>		
+    </EventHandlers>
+    
+    <EventHandlers type="{SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}">        
+ 		<MethodInvoker generator="{PublicChatService}" method="sendChatMessageEvent" arguments="{event}"/>		
+    </EventHandlers>
+    
+    <EventHandlers type="{SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT}">        
+ 		<MethodInvoker generator="{PrivateChatService}" method="sendChatMessageEvent" arguments="{event}"/>		
+    </EventHandlers>
+    
+    <EventHandlers type="{QueryParticipantsEvent.QUERY_PARTICIPANTS_EVENT}">        
+ 		<MethodInvoker generator="{PrivateChatService}" method="queryForParticipants"/>		
+    </EventHandlers>
+		
+	<EventHandlers type="{TranscriptEvent.LOAD_TRANSCRIPT}" >
+		<MethodInvoker generator="{PublicChatService}" method="loadTranscript" />
+	</EventHandlers>    
+</EventMap>

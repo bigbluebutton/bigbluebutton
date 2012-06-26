@@ -233,7 +233,7 @@
 				publicEvent.message = parseURLs(cleanup(message));
 				publicEvent.color = chatWindow.cmpColorPicker.selectedColor.toString();
 				publicEvent.time = currentTime();
-				publicEvent.language = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
+				publicEvent.language = "en"; //ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
 				globalDispatcher.dispatchEvent(publicEvent);
 			}
 			
@@ -248,7 +248,7 @@
 				privateEvent.toUser = chatTabs.selectedChild.name;
 				privateEvent.color = chatWindow.cmpColorPicker.selectedColor.toString();
 				privateEvent.time = currentTime();
-				privateEvent.language = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
+				privateEvent.language = "en"; //ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
 				globalDispatcher.dispatchEvent(privateEvent);
 			}
 			
@@ -399,7 +399,7 @@
 				}
 				
 				chatBox = getChatBoxForParticipant(sender);
-				chatBox.showNewMessage(chatobj, translate, ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0]);
+				chatBox.showNewMessage(chatobj, translate, "en" /* ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0]*/);
 				
 				if (! isChatBoxCurrentlySelected(sender)) {
 					notifyParticipantOfUnreadMessageFrom(sender);

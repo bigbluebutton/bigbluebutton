@@ -26,12 +26,14 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.chat.model.ChatOptions;
-			import com.adobe.utils.StringUtil;			
+			import com.adobe.utils.StringUtil;
+			
 			import mx.collections.ArrayCollection;
 			import mx.events.ListEvent;
-			import mx.utils.StringUtil;			
+			import mx.utils.StringUtil;
+			
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable] public var participants:ArrayCollection;
@@ -39,8 +41,8 @@
 			[Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
 			
 			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();			
-			[Bindable] private var langNames:Array = ResourceUtil.getInstance().localeNames;		
-			[Bindable] private var langCodes:Array = ResourceUtil.getInstance().localeCodes;
+			[Bindable] private var langNames:Array = new Array();		
+			[Bindable] private var langCodes:Array = new Array();
 			
 			private function init():void{
 				participants = new ArrayCollection();
@@ -60,7 +62,7 @@
 			}
 			
 			private function changeLanguage():void {
-				ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(this.langComboBox.selectedIndex));
+			//	ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(this.langComboBox.selectedIndex));
 			}
 			
 			private function toggleTranslation():void {
@@ -91,12 +93,12 @@
 			</mx:List>
 		</mx:VBox>
 		<mx:VBox id="optionsBox" height="100%" width="50%" >
-			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
+			<mx:Label id="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
 			<mx:HBox width="100%">
-				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
+				<mx:Label id="chatFountSizeLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
 				<mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" selectedIndex="1" />
 			</mx:HBox>
-			<mx:ComboBox id="langComboBox" dataProvider="{this.langNames}" selectedIndex="{ResourceUtil.getInstance().localeIndex}"  change="changeLanguage()" rowCount="15" />
+			<mx:ComboBox id="langComboBox" dataProvider="{this.langNames}" selectedIndex="0"  change="changeLanguage()" rowCount="15" />
 			<mx:CheckBox id="autoTransCheckBox" selected="false" label="AutoTranslate" toolTip="Auto detect language and translate" change="toggleTranslation()"/>
 		</mx:VBox>
 	</mx:HBox>

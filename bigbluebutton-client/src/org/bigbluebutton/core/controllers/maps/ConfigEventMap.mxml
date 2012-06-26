@@ -18,18 +18,23 @@
   with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  
   $Id: $
--->
+--> 
 
-<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="" 
-			 selectedIndex="0"
-			 change="changeLanguage()" rowCount="15" width="120">
+<EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
+	<!--
+	This is the main event map for the application, think of it as the application controller.
+	-->
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<!--
+		The FlexEvent.PREINITIALIZE event is a good place for creating and initializing managers.
+		-->
+		<ObjectBuilder generator="{ConfigModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
+	</EventHandlers>
+		
 	<mx:Script>
-		<![CDATA[
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
-			private function changeLanguage():void {
-		//		ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(selectedIndex));
-			}
-		]]>
+	<![CDATA[
+        import org.bigbluebutton.core.model.ConfigModel;
+		
+	]]>
 	</mx:Script>
-</mx:ComboBox>
+</EventMap>
