@@ -16,132 +16,6 @@ class String
   end
 end
 
-def processPage
-	# Select and print the shapes within the current image
-	$shape_events.each do |shape|
-		# Get variables
-		type = shape.xpath(".//type")[0].text()
-		timestamp = shape[:timestamp].to_f
-		current_time = ((timestamp-$join_time)/1000).round(1)
-		thickness = shape.xpath(".//thickness")[0].text()
-		pageNumber = shape.xpath(".//pageNumber")[0].text()
-		dataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
-		colour = shape.xpath(".//color")[0].text()
-	
-		if($undos.has_key? shape[:timestamp])
-			undo_time = (($undos[shape[:timestamp]].to_f - $join_time)/1000).round(1)
-		elsif
-			undo_time = $clearTimeInstance.last
-		end
-
-		# Process colours
-		colour_hex = colour.to_i.to_s(16) # convert from base 10 to base 16 (hex)
-		colour_hex='0'*(6-colour_hex.length) + colour_hex # pad the number with 0's to give it a length of 6
-
-		in_this_image = false
-		in_this_canvas = false
-		image_not_cleared = false
-		index = 0
-		numOfTimes = $val[0].length
-
-		# Checks to see if the current shapes are to be drawn in this particular image
-		while((in_this_image == false) && (index < numOfTimes)) do
-			# BigBlueButton.logger.info("#{current_time} compared to ( #{$val[0][index]} to #{$val[1][index]} )")
-			if((($val[0][index].to_f)..($val[1][index].to_f)) === current_time) # is the shape within the certain time of the image
-				in_this_image = true
-			end
-			index+=1
-		end
-	
-		# Checks to see if the current shapes are to be drawn in this particular canvas
-		if($clearTimeInstance === current_time)
-			#BigBlueButton.logger.info("#{current_time} is in the range of CTI: #{$clearTimeInstance}")
-			in_this_canvas = true
-		end
-
-		if((in_this_image) && (in_this_canvas))
-
-			# resolve the current image height and width
-			$ss.each do |t,size|
-				if t === current_time
-					$vbox_width = size[0]
-					$vbox_height = size[1]
-				end
-			end
-
-			# Process the pencil shapes.
-			if type.eql? "pencil"
-				$line_count = $line_count + 1 # always update the line count!
-				$xml.g(:class => :shape, :id=>"draw#{current_time}", :undo => undo_time, :shape =>"line#{$line_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden") do
-					#for i in (0...(dataPoints.length/2)-1) do
-						#$xml.line(:x1 => ((dataPoints[i*2].to_f)/100)*$vbox_width, :y1 => ((dataPoints[(i*2)+1].to_f)/100)*$vbox_height, :x2 => ((dataPoints[(i*2)+2].to_f)/100)*$vbox_width, :y2 => ((#dataPoints[(i*2)+3].to_f)/100)*$vbox_height)
-					#end
-					# get first and last points for now. here in the future we should put a loop to get all the data points and make sub lines within the group.
-					$xml.line('x1' => "#{((dataPoints[0].to_f)/100)*$vbox_width}", 'y1' => "#{((dataPoints[1].to_f)/100)*$vbox_height}", 'x2' => "#{((dataPoints[(dataPoints.length)-2].to_f)/100)*$vbox_width}", 'y2' => "#{((dataPoints[(dataPoints.length)-1].to_f)/100)*$vbox_height}")
-				end
-
-			# Process the rectangle shapes
-			elsif type.eql? "rectangle"
-				if(current_time != $prev_time)
-					if(($originalOriginX == ((dataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == ((dataPoints[1].to_f)/100)*$vbox_height))
-						# do not update the rectangle count
-					else
-						$rectangle_count = $rectangle_count + 1
-					end
-					$xml.g(:class => :shape, :id => "draw#{current_time}", :undo => undo_time, :shape => "rect#{$rectangle_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
-						$originX = ((dataPoints[0].to_f)/100)*$vbox_width
-						$originY = ((dataPoints[1].to_f)/100)*$vbox_height
-						$originalOriginX = $originX
-						$originalOriginY = $originY
-						rectWidth = ((dataPoints[2].to_f - dataPoints[0].to_f)/100)*$vbox_width
-						rectHeight = ((dataPoints[3].to_f - dataPoints[1].to_f)/100)*$vbox_height
-
-						# Cannot have a negative height or width so we adjust
-						if(rectHeight < 0)
-							$originY = $originY + rectHeight
-							rectHeight = rectHeight.abs
-						end
-						if(rectWidth < 0)
-							$originX = $originX + rectWidth
-							rectWidth = rectWidth.abs
-						end
-						$xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectHeight)
-						$prev_time = current_time
-					end
-				end
-
-			# Process the ellipse shapes
-			elsif type.eql? "ellipse"
-				if(current_time != $prev_time)
-					if(($originalOriginX == ((dataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == ((dataPoints[1].to_f)/100)*$vbox_height))
-						# do not update the rectangle count
-					else
-						$ellipse_count = $ellipse_count + 1
-					end # end (($originalOriginX == ((dataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == ((dataPoints[1].to_f)/100)*$vbox_height))
-					$xml.g(:class => :shape, :id => "draw#{current_time}", :undo => undo_time, :shape => "ellipse#{$ellipse_count}", :style =>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
-						$originX = ((dataPoints[0].to_f)/100)*$vbox_width
-						$originY = ((dataPoints[1].to_f)/100)*$vbox_height
-						$originalOriginX = $originX
-						$originalOriginY = $originY
-						ellipseWidth = ((dataPoints[2].to_f - dataPoints[0].to_f)/100)*$vbox_width
-						ellipseHeight = ((dataPoints[3].to_f - dataPoints[1].to_f)/100)*$vbox_height
-						if(ellipseHeight < 0)
-							$originY = $originY + ellipseHeight
-							ellipseHeight = ellipseHeight.abs
-						end
-						if(ellipseWidth < 0)
-							$originX = $originX + ellipseWidth
-							ellipseWidth = ellipseWidth.abs
-						end
-						$xml.ellipse(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseHeight/2), :rx => ellipseWidth/2, :ry => ellipseHeight/2)
-						$prev_time = current_time
-					end # end xml.g
-				end # end if(current_time != $prev_time)
-			end # end if pencil (and other shapes)
-		end # end if((in_this_image) && (in_this_canvas))
-	end # end shape_events.each do |shape|
-end
-
 $vbox_width = 800
 $vbox_height = 600
 $magic_mystery_number = 2
@@ -287,6 +161,7 @@ if ($playback == "slides")
 				clearTime = ((clearEvent[:timestamp].to_f - $join_time)/1000).round(1)
 				$pageCleared = clearEvent.xpath(".//pageNumber")[0].text()
 				slideFolder = clearEvent.xpath(".//presentation")[0].text()
+				#$clearPageTimes[clearTime] = [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i+1}.png", nil]
 				$clearPageTimes[($prev_clear_time..clearTime)] = [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i+1}.png", nil]
 				$prev_clear_time = clearTime
 				$canvas_number+=1
@@ -348,8 +223,10 @@ if ($playback == "slides")
 
 			# Put in the last clear events numbers (previous clear to the end of the slideshow)
 			endPresentationTime = ((end_time - $join_time)/1000).round(1)
-			$clearPageTimes[($prev_clear_time..endPresentationTime)] = [$pageCleared, $canvas_number]
-
+			$clearPageTimes[($prev_clear_time..endPresentationTime)] = [$pageCleared, $canvas_number, nil, nil]
+			BigBlueButton.logger.info("put end presentation")
+			#$clearPageTimes[endPresentationTime] = [$pageCleared, $canvas_number]
+			BigBlueButton.logger.info("putted end presentation")
 			# Put the headers on the svg xml file.
 			$xml.doc.create_internal_subset('svg', "-//W3C//DTD SVG 1.1//EN", "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd")
 			$xml.svg(:id => :svgfile, :style => 'position:absolute; height:600px; width:800px;', :xmlns => 'http://www.w3.org/2000/svg', 'xmlns:xlink' => 'http://www.w3.org/1999/xlink', :version => '1.1', :viewBox => :'0 0 800 600') do
@@ -357,7 +234,8 @@ if ($playback == "slides")
 				# This is for the first image. It is a placeholder for an image that doesn't exist.
 				$xml.image(:id => :image0, :in => 0, :out => first_slide_start, :src => "logo.png", :width => 800)
 				$xml.g(:class => :canvas, :id => :canvas0, :image => :image0, :display => :none)
-
+				
+				BigBlueButton.logger.info("Slide events processing")
 				# For each slide (there is only one image per slide)
 				slides_events.each do |node|
 					eventname =  node['eventname']
@@ -367,7 +245,6 @@ if ($playback == "slides")
 						slide_timestamp =  node[:timestamp]
 						slide_start = ((slide_timestamp.to_f - meeting_start.to_f) / 1000).round(1)
 						slide_number = node.xpath(".//slide")[0].text()
-						# $global_slide_count = $global_slide_count + 1
 						slide_src = "presentation/#{presentation_name}/slide-#{slide_number.to_i + 1}.png"
 
 						image_url = "#{process_dir}/#{slide_src}"
@@ -396,7 +273,7 @@ if ($playback == "slides")
 						puts "#{slide_src} : #{slide_start} -> #{slide_end}"
 					end
 				end
-
+				BigBlueButton.logger.info("Put image numbers in clearPageTimes")
 				$slides_compiled.each do |key, val|
 					$clearPageTimes.each do |cpt, pgCanvasUrl|
 						# check if the src of the slide matches the url of the clear event
@@ -408,29 +285,155 @@ if ($playback == "slides")
 				end
 
 				BigBlueButton.logger.info("Printing out the gathered images")
-				# Print out the gathered/detected images.
+				# Print out the gathered/detected images. 
 				$slides_compiled.each do |key, val|
 					$val = val
 					$xml.image(:id => "image#{$val[2].to_i}", :in => $val[0].join(' '), :out => $val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => :hidden)
 					$canvas_number+=1
 					$xml.g(:class => :canvas, :id => "canvas#{$val[2].to_i}", :image => "image#{$val[2].to_i}", :display => :none) do
-						
-						# Split by the cleared pages.
-						$clearPageTimes.each do |clearTimeInstance, pageAndCanvasNumbers|
-							$clearTimeInstance = clearTimeInstance
-							$pageAndCanvasNumbers = pageAndCanvasNumbers
-							if $pageAndCanvasNumbers[3] == "image#{$val[2].to_i}"
-								$out_time = $clearTimeInstance.last.to_s
-							else
-								$out_time = endPresentationTime
+						# Select and print the shapes within the current image
+						$shape_events.each do |shape|
+							timestamp = shape[:timestamp].to_f
+							current_time = ((timestamp-$join_time)/1000).round(1)
+							in_this_image = false
+							index = 0
+							numOfTimes = $val[0].length
+
+							# Checks to see if the current shapes are to be drawn in this particular image
+							while((in_this_image == false) && (index < numOfTimes)) do
+								if((($val[0][index].to_f)..($val[1][index].to_f)) === current_time) # is the shape within the certain time of the image
+									in_this_image = true
+								end
+								index+=1
 							end
 							
-							# Process the clears
-							#$page_number += 1
-							#$xml.g(:class => :page, :image => "image#{$val[2].to_i}", :id => "page#{$page_number}",  :in => $clearTimeInstance.first.to_s, :out => $out_time, :display => :none) do
-								processPage()
-							#end # end g group for pages
-						end
+							if(in_this_image)
+								# Get variables
+								type = shape.xpath(".//type")[0].text()
+								thickness = shape.xpath(".//thickness")[0].text()
+								pageNumber = shape.xpath(".//pageNumber")[0].text()
+								dataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
+								colour = shape.xpath(".//color")[0].text()
+							
+								# figure out undo time
+								if($undos.has_key? shape[:timestamp])
+									undo_time = (($undos[shape[:timestamp]].to_f - $join_time)/1000).round(1)
+								else						
+									undo_time = -1
+								end
+								
+								clear_time = -1
+								$clearPageTimes.each do |clearTimeInstance, pageAndCanvasNumbers|
+									$clearTimeInstance = clearTimeInstance
+									$pageAndCanvasNumbers = pageAndCanvasNumbers
+									if(($clearTimeInstance.last > current_time) && ($pageAndCanvasNumbers[3] == "image#{$val[2].to_i}"))
+										if((clear_time > $clearTimeInstance.last) || (clear_time == -1))
+											clear_time = $clearTimeInstance.last
+										end
+									end
+								end
+								
+								if(undo_time == -1)
+									if(clear_time == -1)
+										undo_time = -1 # nothing changes
+									elsif(clear_time != -1)
+										undo_time = clear_time
+									end
+								elsif(undo_time != -1)
+									if(clear_time == -1)
+										undo_time = undo_time #nothing changes
+									elsif (clear_time != -1)
+										if(clear_time < undo_time)
+											undo_time = clear_time
+										else
+											undo_time = undo_time # nothing changes
+										end
+									end
+								end
+
+								# Process colours
+								colour_hex = colour.to_i.to_s(16) # convert from base 10 to base 16 (hex)
+								colour_hex='0'*(6-colour_hex.length) + colour_hex # pad the number with 0's to give it a length of 6
+									
+								# resolve the current image height and width
+								$ss.each do |t,size|
+									if t === current_time
+										$vbox_width = size[0]
+										$vbox_height = size[1]
+									end
+								end
+
+								# Process the pencil shapes.
+								if type.eql? "pencil"
+									$line_count = $line_count + 1 # always update the line count!
+									$xml.g(:class => :shape, :id=>"draw#{current_time}", :undo => undo_time, :shape =>"line#{$line_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden") do
+										#for i in (0...(dataPoints.length/2)-1) do
+											#$xml.line(:x1 => ((dataPoints[i*2].to_f)/100)*$vbox_width, :y1 => ((dataPoints[(i*2)+1].to_f)/100)*$vbox_height, :x2 => ((dataPoints[(i*2)+2].to_f)/100)*$vbox_width, :y2 => ((#dataPoints[(i*2)+3].to_f)/100)*$vbox_height)
+										#end
+										# get first and last points for now. here in the future we should put a loop to get all the data points and make sub lines within the group.
+										$xml.line('x1' => "#{((dataPoints[0].to_f)/100)*$vbox_width}", 'y1' => "#{((dataPoints[1].to_f)/100)*$vbox_height}", 'x2' => "#{((dataPoints[(dataPoints.length)-2].to_f)/100)*$vbox_width}", 'y2' => "#{((dataPoints[(dataPoints.length)-1].to_f)/100)*$vbox_height}")
+									end
+
+								# Process the rectangle shapes
+								elsif type.eql? "rectangle"
+									if(current_time != $prev_time)
+										if(($originalOriginX == ((dataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == ((dataPoints[1].to_f)/100)*$vbox_height))
+											# do not update the rectangle count
+										else
+											$rectangle_count = $rectangle_count + 1
+										end
+										$xml.g(:class => :shape, :id => "draw#{current_time}", :undo => undo_time, :shape => "rect#{$rectangle_count}", :style => "stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
+											$originX = ((dataPoints[0].to_f)/100)*$vbox_width
+											$originY = ((dataPoints[1].to_f)/100)*$vbox_height
+											$originalOriginX = $originX
+											$originalOriginY = $originY
+											rectWidth = ((dataPoints[2].to_f - dataPoints[0].to_f)/100)*$vbox_width
+											rectHeight = ((dataPoints[3].to_f - dataPoints[1].to_f)/100)*$vbox_height
+
+											# Cannot have a negative height or width so we adjust
+											if(rectHeight < 0)
+												$originY = $originY + rectHeight
+												rectHeight = rectHeight.abs
+											end
+											if(rectWidth < 0)
+												$originX = $originX + rectWidth
+												rectWidth = rectWidth.abs
+											end
+											$xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectHeight)
+											$prev_time = current_time
+										end
+									end
+
+								# Process the ellipse shapes
+								elsif type.eql? "ellipse"
+									if(current_time != $prev_time)
+										if(($originalOriginX == ((dataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == ((dataPoints[1].to_f)/100)*$vbox_height))
+											# do not update the rectangle count
+										else
+											$ellipse_count = $ellipse_count + 1
+										end # end (($originalOriginX == ((dataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == ((dataPoints[1].to_f)/100)*$vbox_height))
+										$xml.g(:class => :shape, :id => "draw#{current_time}", :undo => undo_time, :shape => "ellipse#{$ellipse_count}", :style =>"stroke:\##{colour_hex}; stroke-width:#{thickness}; visibility:hidden; fill:none") do
+											$originX = ((dataPoints[0].to_f)/100)*$vbox_width
+											$originY = ((dataPoints[1].to_f)/100)*$vbox_height
+											$originalOriginX = $originX
+											$originalOriginY = $originY
+											ellipseWidth = ((dataPoints[2].to_f - dataPoints[0].to_f)/100)*$vbox_width
+											ellipseHeight = ((dataPoints[3].to_f - dataPoints[1].to_f)/100)*$vbox_height
+											if(ellipseHeight < 0)
+												$originY = $originY + ellipseHeight
+												ellipseHeight = ellipseHeight.abs
+											end
+											if(ellipseWidth < 0)
+												$originX = $originX + ellipseWidth
+												ellipseWidth = ellipseWidth.abs
+											end
+											$xml.ellipse(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseHeight/2), :rx => ellipseWidth/2, :ry => ellipseHeight/2)
+											$prev_time = current_time
+										end # end xml.g
+									end # end if(current_time != $prev_time)
+								end # end if pencil (and other shapes)
+							end # end if((in_this_image) && (in_this_canvas))
+						end # end shape_events.each do |shape|
 					end
 				end
 			end
