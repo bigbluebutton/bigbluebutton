@@ -9,6 +9,7 @@ package org.bigbluebutton.core.model
     import mx.resources.IResourceManager;
     import mx.resources.ResourceManager;
     
+    import org.bigbluebutton.common.LogUtil;
     import org.bigbluebutton.core.controllers.events.LocaleEvent;
     import org.bigbluebutton.core.vo.LocaleCode;
 
@@ -123,6 +124,16 @@ package org.bigbluebutton.core.model
 				localeTxt = resourceManager.getString(BBB_RESOURCE_BUNDLE, resourceName, parameters, MASTER_LOCALE);
 			}
 			return localeTxt;
+		}
+		
+		public function compareLocale(configLocaleVersion:String):void {
+			if (localeVersion == configLocaleVersion) {
+				LogUtil.debug("Locale version same event " + localeVersion);
+				dispatcher.dispatchEvent(new LocaleEvent(LocaleEvent.LOCALE_VERSION_SAME_EVENT));
+			} else {
+				LogUtil.debug("Locale version not same [" + localeVersion + "!=" + configLocaleVersion + "]");
+				dispatcher.dispatchEvent(new LocaleEvent(LocaleEvent.LOCALE_VERSION_NOT_SAME_EVENT));
+			}
 		}
     }
 }

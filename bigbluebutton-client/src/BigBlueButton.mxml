@@ -63,10 +63,7 @@
 		]]>
 	</mx:Script>	
 		
-    <coremaps:BigBlueButtonAppEventMap id="mainEventMap"/>
-
-
-		
+    <coremaps:BigBlueButtonAppEventMap id="mainEventMap"/>		
 	<views:MainApplicationShell id="mainShell"/>	
 <!--
     <maps:ApplicationEventMap/>

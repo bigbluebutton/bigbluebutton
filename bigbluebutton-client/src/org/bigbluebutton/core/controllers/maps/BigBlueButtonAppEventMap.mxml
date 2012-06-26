@@ -51,10 +51,17 @@
         <ObjectBuilder generator="{LocaleConfigLoader}" cache="global" constructorArguments="{[scope.dispatcher, lastReturn]}"/>
     </EventHandlers>
 
+    <EventHandlers type="{LocaleEvent.LOCALE_VERSION_SAME_EVENT}">
+        <ObjectBuilder generator="{LocaleModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
+        <ObjectBuilder generator="{LocaleConfigLoader}" cache="global" constructorArguments="{[scope.dispatcher, lastReturn]}"/>
+    </EventHandlers>
+    
     <EventHandlers type="{ConfigLoadEvent.CONFIG_LOADED_EVENT}">
         <MethodInvoker generator="{ConfigModel}" method="setConfig" arguments="{event.config}"/>
         <ObjectBuilder generator="{ModuleModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
         <MethodInvoker generator="{ConfigToModuleDataParser}" method="parseConfig" arguments="{[event.config, lastReturn]}"/>  
+    	<ObjectBuilder generator="{ConfigModel}"/>
+    	<MethodInvoker generator="{LocaleModel}" method="compareLocale" arguments="{lastReturn.localeVersion}"/>
     </EventHandlers>
     
     <EventHandlers type="{LocaleEvent.LOAD_PREFERRED_LOCALE_SUCCEEDED_EVENT}">

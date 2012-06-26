@@ -1,10 +1,8 @@
 package org.bigbluebutton.core.services
 {
-    import flash.utils.Dictionary;
-    
+    import flash.utils.Dictionary;   
     import mx.collections.ArrayCollection;
     import mx.utils.StringUtil;
-    
     import org.bigbluebutton.common.LogUtil;
     import org.bigbluebutton.core.model.ModuleDescriptor;
     import org.bigbluebutton.core.model.ModuleModel;
@@ -22,7 +20,6 @@ package org.bigbluebutton.core.services
                 mod.attributes = parseAttributes(item);
                 mod.unresolvedDependencies = parseDependencies(mod.attributes);
                 modules[item.@name] = mod;
-                LogUtil.debug("*** " + item.@name);
             }
              
             moduleModel.setModulesAndDependencies(modules, dependencyResolver.buildDependencyTree(modules));        
