@@ -65,10 +65,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			var y:Number = denormalize(getShapeArray()[1], parentHeight);
 			var width:Number = denormalize(getShapeArray()[arrayEnd-2], parentWidth) - x;
 			var height:Number = denormalize(getShapeArray()[arrayEnd-1], parentHeight) - y;
-			
+			newShape.graphics.beginFill(getColor(),1);
 			newShape.graphics.drawRect(x,y,width,height);
 			if (getColor() == 0x000000 || getColor() == 0xFFFFFF) newShape.alpha = 1.0;
-			else newShape.alpha = 0.6;
+			else newShape.alpha = 1;
 			
 			_shape = newShape;
 		}

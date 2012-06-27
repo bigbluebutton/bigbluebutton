@@ -3,23 +3,13 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.display.Shape;
 	
 	import mx.collections.ArrayCollection;
-	import mx.core.Application;
-	import mx.managers.CursorManager;
 	
 	import org.bigbluebutton.common.IBbbCanvas;
-	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
-	import org.bigbluebutton.modules.whiteboard.maps.WhiteboardEventMap;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	
 	public class WhiteboardCanvasModel {
@@ -38,6 +28,11 @@ package org.bigbluebutton.modules.whiteboard
 		private var shapeStyle:String = DrawObject.PENCIL;
 		private var drawColor:uint = 0x000000;
 		private var thickness:uint = 1;
+		
+		// represents the max number of 'points' enumerated in 'segment'
+		// before sending an update to server. Used to prevent 
+		// spamming red5 with unnecessary packets
+		private var sendShapeFrequency:uint = 30;
 				
 		private var drawStatus:String = DrawObject.DRAW_START;
 		private var width:Number;
@@ -103,7 +98,7 @@ package org.bigbluebutton.modules.whiteboard
 			if (isDrawing){
 				segment.push(mouseX);
 				segment.push(mouseY);
-				if (segment.length > 30) {
+				if (segment.length > sendShapeFrequency) {
 					sendShapeToServer(drawStatus);
 				}
 			}
@@ -133,7 +128,7 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		private function addNewShape(o:DrawObject):void {
-			LogUtil.error("Adding new shape");
+			LogUtil.debug("Adding new shape");
 			var dobj:DrawObject = shapeFactory.makeShape(o);
 			wbCanvas.addShape(dobj.getShape());
 			shapeList.push(dobj);
