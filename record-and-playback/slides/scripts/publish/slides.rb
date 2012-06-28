@@ -313,9 +313,9 @@ def processShapesAndClears
 							# figure out undo time
 							BigBlueButton.logger.info("Figuring out undo time")
 							if($undos.has_key? ((shape[:timestamp].to_f - $join_time)/1000).round(1))
-								undo_time = $undos[((shape[:timestamp].to_f - $join_time)/1000).round(1)]
+								$shapeUndoTime = $undos[((shape[:timestamp].to_f - $join_time)/1000).round(1)]
 							else						
-								undo_time = -1
+								$shapeUndoTime = -1
 							end
 							
 							clear_time = -1
