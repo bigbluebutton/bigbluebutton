@@ -4,7 +4,7 @@
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <porttest host="HOST" application="video"/>    
-    <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
+    <application server="HOST" app="bigbluebutton" forceTunnel="false" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
     <skinning enabled="false" url="branding/css/theme.css.swf" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" showToolbar="true" showHelpButton="true" showLogoutWindow="true"/>

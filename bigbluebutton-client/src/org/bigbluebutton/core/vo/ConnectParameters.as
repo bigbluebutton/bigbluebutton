@@ -27,7 +27,9 @@ package org.bigbluebutton.core.vo
 	 */	
 	public class ConnectParameters
 	{
-        public var uri:String;
+        public var server:String;
+        public var app:String;
+        public var forceTunnel:Boolean;
         
 		/**
 		 * The name of the conference

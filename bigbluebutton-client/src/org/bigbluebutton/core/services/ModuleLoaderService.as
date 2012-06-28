@@ -19,17 +19,17 @@ package org.bigbluebutton.core.services
     {
         private var _module:ModuleDescriptor;
         private var _dispatcher:IEventDispatcher;
+        private var _loader:ModuleLoader = new ModuleLoader();
         
         public function load(module:ModuleDescriptor, dispatcher:IEventDispatcher):void { 
             _module = module;
             _dispatcher = dispatcher;
             
-            var _loader:ModuleLoader = new ModuleLoader();
             _loader.applicationDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
             _loader.addEventListener("loading", onLoading);
-            _loader.addEventListener("progress", onLoadProgress);
-            _loader.addEventListener("ready", onReady);
-            _loader.addEventListener("error", onErrorLoading);
+            _loader.addEventListener(ModuleEvent.PROGRESS, onLoadProgress);
+            _loader.addEventListener(ModuleEvent.READY, onReady);
+            _loader.addEventListener(ModuleEvent.ERROR, onErrorLoading);
             _loader.url = module.attributes.url;
             LogUtil.debug("Loading " + _loader.url);
             _loader.loadModule();
@@ -66,7 +66,7 @@ package org.bigbluebutton.core.services
             var event:ModuleLoadProgressEvent = new ModuleLoadProgressEvent(ModuleLoadProgressEvent.MODULE_LOAD_PROGRESS_EVENT);
             event.moduleName = _module.name;
             event.percentLoaded = Math.round((e.bytesLoaded/e.bytesTotal) * 100);
-            LogUtil.debug("Module loading progress [" + _module.name + "] " + event.percentLoaded + "%" );
+//            LogUtil.debug("Module loading progress [" + _module.name + "] " + event.percentLoaded + "%" );
             _dispatcher.dispatchEvent(event);
         }	
         

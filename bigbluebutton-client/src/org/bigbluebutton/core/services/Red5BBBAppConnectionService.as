@@ -27,7 +27,7 @@ package org.bigbluebutton.core.services
         public var configModel:ConfigModel; 
         public var usersModel:UsersModel;
         
-        private var _netConnection:NetConnection;	        
+        private var _netConnection:NetConnection = new NetConnection();	        
         private var _connectParams:ConnectParameters;
         private var _connUri:String;
         
@@ -49,7 +49,9 @@ package org.bigbluebutton.core.services
         private function getConnectParams():ConnectParameters {
             var params:ConnectParameters = new ConnectParameters();
             params.conference = usersModel.loggedInUser.conference;
-            params.uri = configModel.applicationURI;
+            params.server = configModel.applicationServer;
+            params.app = configModel.applicationApp;
+            params.forceTunnel = configModel.applicationForceTunnel;
             params.externUserID = usersModel.loggedInUser.externUserID;
             params.internalUserID = usersModel.loggedInUser.internalUserID;
             params.room = usersModel.loggedInUser.room;
@@ -66,29 +68,47 @@ package org.bigbluebutton.core.services
         
         private function connectToRed5(rtmpt:Boolean=false):void
         {
-            var uri:String = _connectParams.uri + "/" + _connectParams.room;
-            
-            _netConnection = new NetConnection();
+            var uri:String = _connectParams.server + "/" + _connectParams.app + "/" + _connectParams.room;
+                       
             _netConnection.client = this;
             _netConnection.addEventListener(NetStatusEvent.NET_STATUS, connectionHandler);
             _netConnection.addEventListener(AsyncErrorEvent.ASYNC_ERROR, netASyncError);
             _netConnection.addEventListener(SecurityErrorEvent.SECURITY_ERROR, netSecurityError);
             _netConnection.addEventListener(IOErrorEvent.IO_ERROR, netIOError);
+            
+            if (_connectParams.forceTunnel) rtmpt = true;
+            
             _connUri = (rtmpt ? "rtmpt:" : "rtmp:") + "//" + uri
-            LogUtil.debug("Connect to " + uri);
-            _netConnection.connect(_connUri, _connectParams.username, _connectParams.role, _connectParams.conference, 
-                _connectParams.room, _connectParams.voicebridge, _connectParams.record, _connectParams.externUserID, _connectParams.internalUserID);
-            if (!rtmpt) {
-                rtmpTimer = new Timer(ConnectionTimeout, 1);
-                rtmpTimer.addEventListener(TimerEvent.TIMER_COMPLETE, rtmpTimeoutHandler);
-                rtmpTimer.start();
+
+            try {	
+                LogUtil.debug("Connecting to " + _connUri + " params[user=" + _connectParams.username + ",role=" + _connectParams.role + ",meetingid=" + 
+                                    _connectParams.conference + ",record=" + _connectParams.record + "]");	
+                _netConnection.connect(_connUri, _connectParams.username, _connectParams.role, _connectParams.conference, _connectParams.room, 
+                                    _connectParams.voicebridge, _connectParams.record, _connectParams.externUserID, _connectParams.internalUserID);		
+                
+                if (!rtmpt) {
+                    rtmpTimer = new Timer(ConnectionTimeout, 1);
+                    rtmpTimer.addEventListener(TimerEvent.TIMER_COMPLETE, rtmpTimeoutHandler);
+                    rtmpTimer.start();
+                }
+            } catch(e:ArgumentError) {
+                // Invalid parameters.
+                switch (e.errorID) {
+                    case 2004 :						
+                        LogUtil.debug("Error! Invalid server location: " + _connUri);											   
+                        break;						
+                    default :
+                        LogUtil.debug("UNKNOWN Error! Invalid server location: " + _connUri);
+                        break;
+                }
             }
         }
         
         private function rtmpTimeoutHandler(e:TimerEvent):void
         {
+            LogUtil.debug("RTMP connection attempt timedout. Trying RTMPT.");
             _netConnection.close();
-            _netConnection = null;
+            _netConnection = new NetConnection();;
             
             connectToRed5(true);
         }
@@ -138,35 +158,42 @@ package org.bigbluebutton.core.services
             {
                 case "NetConnection.Connect.Success":
              //       _dispatcher.dispatchEvent(new ConnectedToRed5Event()); 
-                    LogUtil.debug("Connected");
+                    LogUtil.debug("NetConnection.Connect.Success");
                     getMyUserID();
                     break;
                 
-                case "NetConnection.Connect.Failed":					
+                case "NetConnection.Connect.Failed":
+                    LogUtil.debug("NetConnection.Connect.Failed");
                     dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.CONNECTION_FAILED));								
                     break;
                 
-                case "NetConnection.Connect.Closed":				
+                case "NetConnection.Connect.Closed":	
+                    LogUtil.debug("NetConnection.Connect.Closed");
                     dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.CONNECTION_CLOSED));								
                     break;
                 
-                case "NetConnection.Connect.InvalidApp":			
+                case "NetConnection.Connect.InvalidApp":	
+                    LogUtil.debug("NetConnection.Connect.InvalidApp");
                     dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.INVALID_APP));				
                     break;
                 
                 case "NetConnection.Connect.AppShutDown":
+                    LogUtil.debug("NetConnection.Connect.AppShutDown");
                     dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.APP_SHUTDOWN));	
                     break;
                 
                 case "NetConnection.Connect.Rejected":
+                    LogUtil.debug("NetConnection.Connect.Rejected");
                     dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.CONNECTION_REJECTED));		
                     break;
                 
                 case "NetConnection.Connect.NetworkChange":
+                    LogUtil.debug("NetConnection.Connect.NetworkChange");
                     dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.CONNECTION_NETWORK_CHANGE_EVENT));
                     break;
                 
-                default:                
+                default:       
+                    LogUtil.debug(ConnectionEvent.UNKNOWN_REASON);
                     dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.UNKNOWN_REASON));
                     break;
             }

@@ -37,6 +37,8 @@ package org.bigbluebutton.core.model
                 var m:ModuleDescriptor = getNextModuleToLoad();
                 if (m != null) {
                     m.load();
+                } else {
+                    LogUtil.debug("Module is NULL.");
                 }
             } else {
                 LogUtil.debug("All modules have been loaded.");
@@ -47,7 +49,7 @@ package org.bigbluebutton.core.model
         private function getNextModuleToLoad():ModuleDescriptor {
             for (var i:int = 0; i < _sortedDependecies.length; i++){
                 var m:ModuleDescriptor = _sortedDependecies.getItemAt(i) as ModuleDescriptor;
-                if (!m.loaded){
+                if (! m.loaded){
                     return m;
                 } 
             }
@@ -55,12 +57,18 @@ package org.bigbluebutton.core.model
         }
         
         private function allModulesLoaded():Boolean {
+            var mlist:String = "[";
+            
             for (var i:int = 0; i < _sortedDependecies.length; i++){
                 var m:ModuleDescriptor = _sortedDependecies.getItemAt(i) as ModuleDescriptor;
-                if (!m.loaded){
+                if (!m.loaded) {
+                    LogUtil.debug(mlist + "]");
                     return false;
-                } 
+                } else {
+                    mlist += m.name + ",";
+                }
             }
+            LogUtil.debug(mlist + "]");
             return true;
         }
         

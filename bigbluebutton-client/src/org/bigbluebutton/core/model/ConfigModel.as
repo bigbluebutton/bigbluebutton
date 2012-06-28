@@ -30,8 +30,20 @@ package org.bigbluebutton.core.model
             return p;
         }
         
-        public function get applicationURI():String {
-            return _config.application.@uri;
+        public function get applicationServer():String {
+            return _config.application.@server;
+        }
+
+        public function get applicationApp():String {
+            return _config.application.@app;
+        }
+        
+        public function get applicationForceTunnel():Boolean {
+            if (_config.application.@forceTunnel != undefined) {
+                return (_config.application.@forceTunnel.toString().toUpperCase() == "TRUE") ? true : false;
+            }
+            
+            return false;
         }
         
         public function get enterApiURI():Object {

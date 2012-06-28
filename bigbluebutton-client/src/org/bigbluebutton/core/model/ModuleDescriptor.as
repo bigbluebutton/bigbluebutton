@@ -43,7 +43,7 @@ package org.bigbluebutton.core.model
         private var _dispatcher:IEventDispatcher;
         private var _attributes:Object = new Object();
         private var _unresolvedDependencies:ArrayCollection  = new ArrayCollection();
-        
+        private var _loader:ModuleLoaderService = new ModuleLoaderService();
         public var resolved:Boolean = false;
         public var loaded:Boolean = false;
         
@@ -87,8 +87,8 @@ package org.bigbluebutton.core.model
 		
         public function load():void {
             LogUtil.debug("Loading " + name);
-            var loader:ModuleLoaderService = new ModuleLoaderService();
-            loader.load(this, _dispatcher);
+            
+            _loader.load(this, _dispatcher);
         }
 		
 	}
