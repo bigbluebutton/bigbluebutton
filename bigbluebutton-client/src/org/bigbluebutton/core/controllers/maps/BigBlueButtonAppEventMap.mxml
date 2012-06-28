@@ -27,12 +27,16 @@
             import org.bigbluebutton.core.controllers.events.LocaleEvent;
             import org.bigbluebutton.core.controllers.events.ModuleLoadedEvent;
             import org.bigbluebutton.core.controllers.events.UserAuthenticatedEvent;
+            import org.bigbluebutton.core.controllers.events.UsersConnectionEvent;
+            import org.bigbluebutton.core.model.MeetingModel;
             import org.bigbluebutton.core.model.UsersModel;
             import org.bigbluebutton.core.services.ConfigLoaderService;
             import org.bigbluebutton.core.services.ConfigToModuleDataParser;
             import org.bigbluebutton.core.services.JoinAPIService;
             import org.bigbluebutton.core.services.LocaleConfigLoader;
             import org.bigbluebutton.core.services.LocaleLoaderService;
+            import org.bigbluebutton.core.services.Red5BBBAppConnectionService;
+            import org.bigbluebutton.core.services.UsersService;
         ]]>
     </mx:Script>
 	<!--
@@ -44,6 +48,7 @@
 		-->
         <ObjectBuilder generator="{ConfigLoaderService}" cache="global" constructorArguments="{scope.dispatcher}"/>
         <ObjectBuilder generator="{ConfigModel}" cache="global"/>
+        <ObjectBuilder generator="{MeetingModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
 		<ObjectBuilder generator="{LocaleModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
 		<ObjectBuilder generator="{ModuleModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
         <ObjectBuilder generator="{BigBlueButtonAppEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
@@ -71,9 +76,13 @@
     </EventHandlers>
 
     <EventHandlers type="{UserAuthenticatedEvent.USER_AUTHENTICATED_EVENT}">
-    <MethodInvoker generator="{ModuleModel}" method="startAllModules"/>
+    <MethodInvoker generator="{Red5BBBAppConnectionService}" method="connect"/>
     </EventHandlers>
-   
+
+    <EventHandlers type="{UsersConnectionEvent.CONNECTION_SUCCESS}">
+        <MethodInvoker generator="{UsersService}" method="getAllUsers"/>
+    </EventHandlers>
+    
     <EventHandlers type="{ConfigLoadEvent.CONFIG_LOADED_EVENT}">
         <MethodInvoker generator="{ConfigModel}" method="setConfig" arguments="{event.config}"/>
         <ObjectBuilder generator="{ModuleModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
@@ -97,6 +106,19 @@
     <EventHandlers type="{LocaleEvent.LIST_OF_AVAILABLE_LOCALES_LOADED_EVENT}">
         <MethodInvoker generator="{LocaleModel}" method="loadMasterLocale"/>
     </EventHandlers>
+       
+    <Injectors target="{Red5BBBAppConnectionService}">
+        <PropertyInjector targetKey="dispatcher" source="{this}" sourceKey="scope.dispatcher" />
+        <PropertyInjector targetKey="meetingModel" source="{MeetingModel}"/>
+        <PropertyInjector targetKey="configModel" source="{ConfigModel}"/>
+        <PropertyInjector targetKey="usersModel" source="{UsersModel}"/>
+    </Injectors>
+
+    <Injectors target="{UsersService}">
+        <PropertyInjector targetKey="dispatcher" source="{this}" sourceKey="scope.dispatcher" />
+        <PropertyInjector targetKey="meetingModel" source="{MeetingModel}"/>
+        <PropertyInjector targetKey="red5Conn" source="{Red5BBBAppConnectionService}"/>
+    </Injectors>
     
 	<mx:Script>
 	<![CDATA[

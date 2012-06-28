@@ -66,6 +66,7 @@ package org.bigbluebutton.core.services
             var event:ModuleLoadProgressEvent = new ModuleLoadProgressEvent(ModuleLoadProgressEvent.MODULE_LOAD_PROGRESS_EVENT);
             event.moduleName = _module.name;
             event.percentLoaded = Math.round((e.bytesLoaded/e.bytesTotal) * 100);
+            LogUtil.debug("Module loading progress [" + _module.name + "] " + event.percentLoaded + "%" );
             _dispatcher.dispatchEvent(event);
         }	
         

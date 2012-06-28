@@ -16,7 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.core.model.vo
+package org.bigbluebutton.core.vo
 {
 	import com.asfusion.mate.events.Dispatcher;	
 	import mx.collections.ArrayCollection;	
