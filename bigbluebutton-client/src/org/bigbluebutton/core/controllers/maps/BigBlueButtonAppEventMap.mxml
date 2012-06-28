@@ -25,8 +25,12 @@
         <![CDATA[
             import org.bigbluebutton.core.controllers.events.ConfigLoadEvent;
             import org.bigbluebutton.core.controllers.events.LocaleEvent;
+            import org.bigbluebutton.core.controllers.events.ModuleLoadedEvent;
+            import org.bigbluebutton.core.controllers.events.UserAuthenticatedEvent;
+            import org.bigbluebutton.core.model.UsersModel;
             import org.bigbluebutton.core.services.ConfigLoaderService;
             import org.bigbluebutton.core.services.ConfigToModuleDataParser;
+            import org.bigbluebutton.core.services.JoinAPIService;
             import org.bigbluebutton.core.services.LocaleConfigLoader;
             import org.bigbluebutton.core.services.LocaleLoaderService;
         ]]>
@@ -44,6 +48,8 @@
 		<ObjectBuilder generator="{ModuleModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
         <ObjectBuilder generator="{BigBlueButtonAppEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
         <ObjectBuilder generator="{ConfigToModuleDataParser}" cache="global"/>
+        <ObjectBuilder generator="{UsersModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
+        <ObjectBuilder generator="{JoinAPIService}" cache="global" constructorArguments="{[lastReturn, scope.dispatcher]}"/>
 	</EventHandlers>
     
     <EventHandlers type="{FlexEvent.APPLICATION_COMPLETE}">
@@ -52,10 +58,22 @@
     </EventHandlers>
 
     <EventHandlers type="{LocaleEvent.LOCALE_VERSION_SAME_EVENT}">
-        <ObjectBuilder generator="{LocaleModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
-        <ObjectBuilder generator="{LocaleConfigLoader}" cache="global" constructorArguments="{[scope.dispatcher, lastReturn]}"/>
+        <MethodInvoker generator="{ModuleModel}" method="loadAllModules"/>
     </EventHandlers>
-    
+
+    <EventHandlers type="{ModuleLoadedEvent.MODULE_LOADED_EVENT}">
+        <MethodInvoker generator="{ModuleModel}" method="loadAllModules"/>
+    </EventHandlers>
+
+    <EventHandlers type="{ModuleLoadedEvent.ALL_MODULES_LOADED_EVENT}">
+        <ObjectBuilder generator="{ConfigModel}"/>
+        <MethodInvoker generator="{JoinAPIService}" method="join" arguments="{lastReturn.enterApiURI}"/>
+    </EventHandlers>
+
+    <EventHandlers type="{UserAuthenticatedEvent.USER_AUTHENTICATED_EVENT}">
+    <MethodInvoker generator="{ModuleModel}" method="startAllModules"/>
+    </EventHandlers>
+   
     <EventHandlers type="{ConfigLoadEvent.CONFIG_LOADED_EVENT}">
         <MethodInvoker generator="{ConfigModel}" method="setConfig" arguments="{event.config}"/>
         <ObjectBuilder generator="{ModuleModel}" cache="global" constructorArguments="{scope.dispatcher}"/>

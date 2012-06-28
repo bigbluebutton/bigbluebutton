@@ -128,10 +128,10 @@ package org.bigbluebutton.core.model
 		
 		public function compareLocale(configLocaleVersion:String):void {
 			if (localeVersion == configLocaleVersion) {
-				LogUtil.debug("Locale version same event " + localeVersion);
+				LogUtil.debug("Locale version same [locale=" + localeVersion + ",config" + configLocaleVersion + "]");
 				dispatcher.dispatchEvent(new LocaleEvent(LocaleEvent.LOCALE_VERSION_SAME_EVENT));
 			} else {
-				LogUtil.debug("Locale version not same [" + localeVersion + "!=" + configLocaleVersion + "]");
+				LogUtil.debug("Locale version not same [locale=" + localeVersion + ",config" + configLocaleVersion + "]");
 				dispatcher.dispatchEvent(new LocaleEvent(LocaleEvent.LOCALE_VERSION_NOT_SAME_EVENT));
 			}
 		}
