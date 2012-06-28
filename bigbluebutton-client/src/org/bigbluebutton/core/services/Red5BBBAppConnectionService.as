@@ -30,6 +30,7 @@ package org.bigbluebutton.core.services
         private var _netConnection:NetConnection = new NetConnection();	        
         private var _connectParams:ConnectParameters;
         private var _connUri:String;
+        private var rtmpTimedOut:Boolean = false;
         
         public function Red5BBBAppConnectionService(dispatcher:IEventDispatcher) {
             _dispatcher = dispatcher;
@@ -110,6 +111,7 @@ package org.bigbluebutton.core.services
         
         private function rtmpTimeoutHandler(e:TimerEvent):void
         {
+            rtmpTimedOut = true;
             LogUtil.debug("RTMP connection attempt timedout. Trying RTMPT.");
             _netConnection.close();
             _netConnection = new NetConnection();;
@@ -161,7 +163,6 @@ package org.bigbluebutton.core.services
             switch (statusCode) 
             {
                 case "NetConnection.Connect.Success":
-             //       _dispatcher.dispatchEvent(new ConnectedToRed5Event()); 
                     LogUtil.debug("NetConnection.Connect.Success");
                     getMyUserID();
                     break;
@@ -173,7 +174,9 @@ package org.bigbluebutton.core.services
                 
                 case "NetConnection.Connect.Closed":	
                     LogUtil.debug("NetConnection.Connect.Closed");
-                    _dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.CONNECTION_CLOSED));								
+                    if (!rtmpTimedOut) {
+                        _dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.CONNECTION_CLOSED));	
+                    }                    							
                     break;
                 
                 case "NetConnection.Connect.InvalidApp":	
