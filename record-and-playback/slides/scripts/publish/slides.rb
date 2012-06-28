@@ -121,13 +121,13 @@ def processUndoEvents
 			end
 		end
 		if(closest_shape != nil)
-			$undos[closest_shape] = undo[:timestamp]
+			$undos[closest_shape] = ((undo[:timestamp].to_f - $join_time)/1000).round(1)
 		end
 	end
 
 	$undos_temp = {}
 	$undos.each do |un, val|
-		$undos_temp[un[:timestamp]] = val
+		$undos_temp[((un[:timestamp].to_f - $join_time)/1000).round(1)] = val
 	end
 	$undos = $undos_temp
 	BigBlueButton.logger.info("Undos: #{$undos}")
@@ -312,10 +312,10 @@ def processShapesAndClears
 						
 							# figure out undo time
 							BigBlueButton.logger.info("Figuring out undo time")
-							if($undos.has_key? shape[:timestamp])
-								$shapeUndoTime = (($undos[shape[:timestamp]].to_f - $join_time)/1000).round(1)
+							if($undos.has_key? ((shape[:timestamp].to_f - $join_time)/1000).round(1))
+								undo_time = $undos[((shape[:timestamp].to_f - $join_time)/1000).round(1)]
 							else						
-								$shapeUndoTime = -1
+								undo_time = -1
 							end
 							
 							clear_time = -1
