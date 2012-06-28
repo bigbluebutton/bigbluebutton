@@ -46,11 +46,15 @@ package org.bigbluebutton.core.model {
             _myUserid = userid;
         }
         
+        public function get myUserID():String {
+            return _myUserid;
+        }
+        
 		public function addAllUsers(u:ArrayCollection):void {
 			for (var i:int = 0; i < u.length; i++) {
 				addUser(User.copy(u.getItemAt(i) as User));
 			}
-            LogUtil.debug("Dispatching GlotAllUsersEvent");
+            LogUtil.debug("Dispatching GotAllUsersEvent");
             _dispatcher.dispatchEvent(new GotAllUsersEvent());
 		}
 		

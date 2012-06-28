@@ -22,7 +22,7 @@ package org.bigbluebutton.core.services
 
     public class Red5BBBAppConnectionService
     {
-        public var dispatcher:IEventDispatcher;
+        private var _dispatcher:IEventDispatcher;
         public var meetingModel:MeetingModel;   
         public var configModel:ConfigModel; 
         public var usersModel:UsersModel;
@@ -30,6 +30,10 @@ package org.bigbluebutton.core.services
         private var _netConnection:NetConnection = new NetConnection();	        
         private var _connectParams:ConnectParameters;
         private var _connUri:String;
+        
+        public function Red5BBBAppConnectionService(dispatcher:IEventDispatcher) {
+            _dispatcher = dispatcher;
+        }
         
         public function get connectionUri():String {
             return _connUri;
@@ -137,10 +141,10 @@ package org.bigbluebutton.core.services
                     function(result:Object):void { 
                         var useridString:String = result as String;
                         meetingModel.myUserID = useridString;
+                        LogUtil.debug("Got my userid [" + meetingModel.myUserID + "]");
                         var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
-                        e.connection = _netConnection;
                         e.userid = useridString;
-                        dispatcher.dispatchEvent(e);
+                        _dispatcher.dispatchEvent(e);
                     },	
                     // status - On error occurred
                     function(status:Object):void { 
@@ -164,56 +168,56 @@ package org.bigbluebutton.core.services
                 
                 case "NetConnection.Connect.Failed":
                     LogUtil.debug("NetConnection.Connect.Failed");
-                    dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.CONNECTION_FAILED));								
+                    _dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.CONNECTION_FAILED));								
                     break;
                 
                 case "NetConnection.Connect.Closed":	
                     LogUtil.debug("NetConnection.Connect.Closed");
-                    dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.CONNECTION_CLOSED));								
+                    _dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.CONNECTION_CLOSED));								
                     break;
                 
                 case "NetConnection.Connect.InvalidApp":	
                     LogUtil.debug("NetConnection.Connect.InvalidApp");
-                    dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.INVALID_APP));				
+                    _dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.INVALID_APP));				
                     break;
                 
                 case "NetConnection.Connect.AppShutDown":
                     LogUtil.debug("NetConnection.Connect.AppShutDown");
-                    dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.APP_SHUTDOWN));	
+                    _dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.APP_SHUTDOWN));	
                     break;
                 
                 case "NetConnection.Connect.Rejected":
                     LogUtil.debug("NetConnection.Connect.Rejected");
-                    dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.CONNECTION_REJECTED));		
+                    _dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.CONNECTION_REJECTED));		
                     break;
                 
                 case "NetConnection.Connect.NetworkChange":
                     LogUtil.debug("NetConnection.Connect.NetworkChange");
-                    dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.CONNECTION_NETWORK_CHANGE_EVENT));
+                    _dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.CONNECTION_NETWORK_CHANGE_EVENT));
                     break;
                 
                 default:       
                     LogUtil.debug(ConnectionEvent.UNKNOWN_REASON);
-                    dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.UNKNOWN_REASON));
+                    _dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.UNKNOWN_REASON));
                     break;
             }
         }
         
         protected function netSecurityError(event:SecurityErrorEvent):void 
         {
-            dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.UNKNOWN_REASON));
+            _dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.UNKNOWN_REASON));
         }
         
         protected function netIOError(event:IOErrorEvent):void 
         {
             LogUtil.debug("Input/output error - " + event.text);
-            dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.UNKNOWN_REASON));
+            _dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.UNKNOWN_REASON));
         }
         
         protected function netASyncError(event:AsyncErrorEvent):void 
         {
             LogUtil.debug("Asynchronous code error - " + event.error);
-            dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.UNKNOWN_REASON));
+            _dispatcher.dispatchEvent(new ConnectionEvent(ConnectionEvent.UNKNOWN_REASON));
         }	
         
         /**

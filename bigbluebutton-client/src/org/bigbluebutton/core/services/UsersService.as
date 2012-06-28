@@ -47,14 +47,18 @@ package org.bigbluebutton.core.services
 
         public var red5Conn:Red5BBBAppConnectionService;
         public var meetingModel:MeetingModel;
-        public var dispatcher:IEventDispatcher;
+        private var _dispatcher:IEventDispatcher;
         
 		private var _participantsSO:SharedObject;
 		private static const SO_NAME : String = "participantsSO";
 		private static const STATUS:String = "_STATUS";		
 		private var _room:String;
 		private var _applicationURI:String;
-		        
+		
+        public function UsersService(dispatcher:IEventDispatcher) {
+            _dispatcher = dispatcher;    
+        }
+        
 		public function disconnect(onUserAction:Boolean):void {
 			if (_participantsSO != null) _participantsSO.close();
 		}
@@ -70,6 +74,7 @@ package org.bigbluebutton.core.services
 		}
 		
 		public function getAllUsers():void {
+            LogUtil.debug("Getting all users.");
 			var nc:NetConnection = red5Conn.connection;
 			nc.call("participants.getParticipants",// Remote function name
 				new Responder(
@@ -255,7 +260,7 @@ package org.bigbluebutton.core.services
                     LogUtil.debug("Event change: " + event.changeList[i].code);
                 }                
             }
-            dispatcher.dispatchEvent(new ListeningForUserMessagesEvent());
+            _dispatcher.dispatchEvent(new ListeningForUserMessagesEvent());
         }
         
 		private function netStatusHandler(event:NetStatusEvent):void {
@@ -265,7 +270,7 @@ package org.bigbluebutton.core.services
 			switch (statusCode)  {
 				case "NetConnection.Connect.Success" :
                     LogUtil.debug("Listening for user messages ");		
-                    dispatcher.dispatchEvent(new ListeningForUserMessagesEvent());			
+                    _dispatcher.dispatchEvent(new ListeningForUserMessagesEvent());			
 					break;
 			
 				case "NetConnection.Connect.Failed" :			

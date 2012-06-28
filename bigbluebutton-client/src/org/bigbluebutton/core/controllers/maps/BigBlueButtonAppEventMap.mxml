@@ -55,6 +55,8 @@
         <ObjectBuilder generator="{ConfigToModuleDataParser}" cache="global"/>
         <ObjectBuilder generator="{UsersModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
         <ObjectBuilder generator="{JoinAPIService}" cache="global" constructorArguments="{[lastReturn, scope.dispatcher]}"/>
+        <ObjectBuilder generator="{Red5BBBAppConnectionService}" cache="global" constructorArguments="{scope.dispatcher}"/>
+        <ObjectBuilder generator="{UsersService}" cache="global" constructorArguments="{scope.dispatcher}"/>
 	</EventHandlers>
     
     <EventHandlers type="{FlexEvent.APPLICATION_COMPLETE}">
@@ -108,14 +110,12 @@
     </EventHandlers>
        
     <Injectors target="{Red5BBBAppConnectionService}">
-        <PropertyInjector targetKey="dispatcher" source="{this}" sourceKey="scope.dispatcher" />
         <PropertyInjector targetKey="meetingModel" source="{MeetingModel}"/>
         <PropertyInjector targetKey="configModel" source="{ConfigModel}"/>
         <PropertyInjector targetKey="usersModel" source="{UsersModel}"/>
     </Injectors>
 
     <Injectors target="{UsersService}">
-        <PropertyInjector targetKey="dispatcher" source="{this}" sourceKey="scope.dispatcher" />
         <PropertyInjector targetKey="meetingModel" source="{MeetingModel}"/>
         <PropertyInjector targetKey="red5Conn" source="{Red5BBBAppConnectionService}"/>
     </Injectors>
