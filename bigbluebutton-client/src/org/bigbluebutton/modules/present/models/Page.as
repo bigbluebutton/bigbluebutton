@@ -18,6 +18,11 @@ package org.bigbluebutton.modules.present.models
         private var _pageLoader:PageLoaderService;
         private var _thumbLoader:ThumbnailLoaderService;
         
+        public var xOffset:Number = 0;
+        public var yOffset:Number = 0;
+        public var widthRatio:Number = 100;
+        public var heightRatio:Number = 100;
+        
         public function Page(number:uint, pageURI:String, thumbURI:String, serviceURI:String):void {
             _number = number;
             _pageURI = pageURI;

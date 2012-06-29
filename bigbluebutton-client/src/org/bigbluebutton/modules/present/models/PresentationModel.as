@@ -7,6 +7,7 @@ package org.bigbluebutton.modules.present.models
     import org.bigbluebutton.common.LogUtil;
     import org.bigbluebutton.core.model.MeetingModel;
     import org.bigbluebutton.core.model.UsersModel;
+    import org.bigbluebutton.modules.present.controllers.events.PresentationEvent;
     import org.bigbluebutton.modules.present.vo.InitialPresentation;
 
     public class PresentationModel
@@ -35,6 +36,9 @@ package org.bigbluebutton.modules.present.models
              if (i >= 0) {
                  var p:Presentation = _presentations.getItemAt(i) as Presentation;
                  p.load();
+             } else {
+                 var event:PresentationEvent = new PresentationEvent(PresentationEvent.PRESENTATION_NOT_FOUND);
+                 _dispatcher.dispatchEvent(event);
              }
         }
         
