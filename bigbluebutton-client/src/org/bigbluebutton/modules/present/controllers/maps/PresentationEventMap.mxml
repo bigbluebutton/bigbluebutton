@@ -22,16 +22,18 @@
 	
 	<mx:Script>
 		<![CDATA[
-            import mx.events.FlexEvent;
-            
-            import org.bigbluebutton.core.model.ConfigModel;
-            import org.bigbluebutton.core.model.MeetingModel;
-            import org.bigbluebutton.core.model.UsersModel;
-            import org.bigbluebutton.core.services.Red5BBBAppConnectionService;
-            import org.bigbluebutton.modules.present.events.PresentModuleEvent;
-            import org.bigbluebutton.modules.present.models.PresentationConfigModel;
-            import org.bigbluebutton.modules.present.models.PresentationModel;
-            import org.bigbluebutton.modules.present.services.PresentationSOService;
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.core.model.ConfigModel;
+			import org.bigbluebutton.core.model.MeetingModel;
+			import org.bigbluebutton.core.model.UsersModel;
+			import org.bigbluebutton.core.services.Red5BBBAppConnectionService;
+			import org.bigbluebutton.modules.present.events.PresentModuleEvent;
+			import org.bigbluebutton.modules.present.models.PresentationConfigModel;
+			import org.bigbluebutton.modules.present.models.PresentationModel;
+			import org.bigbluebutton.modules.present.services.PresentationSOService;
+			import org.bigbluebutton.modules.present.services.PresentationService;
+			import org.bigbluebutton.modules.present.services.PresentationUploadService;
 		]]>
 	</mx:Script>
 	
@@ -41,8 +43,9 @@
  
     <EventHandlers type="{PresentModuleEvent.START_MODULE}">
         <ObjectBuilder generator="{PresentationConfigModel}" cache="global"/>
-        <ObjectBuilder generator="{PresentationEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
-        <ObjectBuilder generator="{PresentationModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
+        <ObjectBuilder generator="{PresentationUploadService}" cache="global" constructorArguments="{scope.dispatcher}"/>
+		<ObjectBuilder generator="{PresentationEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+		<ObjectBuilder generator="{PresentationModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
         <MethodInvoker generator="{PresentationEventMapDelegate}" method="start"/>
         <ObjectBuilder generator="{PresentationSOService}" cache="global" constructorArguments="{scope.dispatcher}"/>
         <MethodInvoker generator="{PresentationSOService}" method="connect"/>
@@ -57,14 +60,24 @@
         <PropertyInjector targetKey="meetingModel" source="{MeetingModel}"/>
         <PropertyInjector targetKey="presentationModel" source="{PresentationModel}"/>
     </Injectors>
-    
+
+	<Injectors target="{PresentationService}">
+		<PropertyInjector targetKey="uploadService" source="{PresentationUploadService}"/>
+		<PropertyInjector targetKey="soService" source="{PresentationSOService}"/>
+	</Injectors>
+	
     <Injectors target="{PresentationConfigModel}">
         <PropertyInjector targetKey="configModel" source="{ConfigModel}"/>
     </Injectors>
-    
-    <Injectors target="{PresentationModel}">
+
+	<Injectors target="{PresentationModel}">
+		<PropertyInjector targetKey="config" source="{PresentationConfigModel}"/>
+		<PropertyInjector targetKey="meeting" source="{MeetingModel}"/>
+		<PropertyInjector targetKey="users" source="{UsersModel}"/>
+	</Injectors>
+	
+    <Injectors target="{PresentationUploadService}">
         <PropertyInjector targetKey="config" source="{PresentationConfigModel}"/>
-        <PropertyInjector targetKey="meeting" source="{MeetingModel}"/>
         <PropertyInjector targetKey="users" source="{UsersModel}"/>
     </Injectors>
 </EventMap>
