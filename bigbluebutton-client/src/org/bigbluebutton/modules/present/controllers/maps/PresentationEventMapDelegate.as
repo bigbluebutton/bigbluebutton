@@ -19,7 +19,7 @@ package org.bigbluebutton.modules.present.controllers.maps
         
         public function start():void {
             LogUtil.debug("***FOOOOO!!!!***");
-            LogUtil.debug("OPTIONS " + configModel.showWindowControls); 
+            LogUtil.debug("OPTIONS [" + configModel.showWindowControls + ", " + configModel.presentationService + "]"); 
         }
     }
 }

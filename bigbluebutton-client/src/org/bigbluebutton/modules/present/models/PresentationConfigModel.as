@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.present.models
                     return vxml.@presentationService.toString();
                 }
             }
+            LogUtil.debug("*** No presentationService option.");
             return null;
         } 
         

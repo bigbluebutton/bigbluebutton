@@ -36,11 +36,13 @@
 	</mx:Script>
 	
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
-		
+        
 	</EventHandlers>	
  
     <EventHandlers type="{PresentModuleEvent.START_MODULE}">
+        <ObjectBuilder generator="{PresentationConfigModel}" cache="global"/>
         <ObjectBuilder generator="{PresentationEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+        <ObjectBuilder generator="{PresentationModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
         <MethodInvoker generator="{PresentationEventMapDelegate}" method="start"/>
         <ObjectBuilder generator="{PresentationSOService}" cache="global" constructorArguments="{scope.dispatcher}"/>
         <MethodInvoker generator="{PresentationSOService}" method="connect"/>
@@ -53,6 +55,7 @@
     <Injectors target="{PresentationSOService}">
         <PropertyInjector targetKey="red5Conn" source="{Red5BBBAppConnectionService}"/>
         <PropertyInjector targetKey="meetingModel" source="{MeetingModel}"/>
+        <PropertyInjector targetKey="presentationModel" source="{PresentationModel}"/>
     </Injectors>
     
     <Injectors target="{PresentationConfigModel}">
@@ -60,8 +63,8 @@
     </Injectors>
     
     <Injectors target="{PresentationModel}">
-        <PropertyInjector targetKey="configModel" source="{PresentationConfigModel}"/>
-        <PropertyInjector targetKey="meetingModel" source="{MeetingModel}"/>
-        <PropertyInjector targetKey="usersModel" source="{UsersModel}"/>
+        <PropertyInjector targetKey="config" source="{PresentationConfigModel}"/>
+        <PropertyInjector targetKey="meeting" source="{MeetingModel}"/>
+        <PropertyInjector targetKey="users" source="{UsersModel}"/>
     </Injectors>
 </EventMap>

@@ -21,9 +21,9 @@ package org.bigbluebutton.modules.present.services
                
         private var _presentation:Presentation;
         
-        public function PresentationLoaderService(_presentation:Presentation)
+        public function PresentationLoaderService(presentation:Presentation)
         {
-            _presentation = _presentation;
+            _presentation = presentation;
         }
         
         /**
@@ -59,9 +59,8 @@ package org.bigbluebutton.modules.present.services
             LogUtil.debug("PresentationService::parse()...  presentationName=" + presentationName);
                         
             for each (item in list){		
-                LogUtil.debug("Available slide: [number=" + item.@number + ", page=" + item.@name + ", thumb=" + item.@thumb);
+                LogUtil.debug("Available slide: [number=" + item.@number + ", page=" + item.@name + ", thumb=" + item.@thumb + "]");
                 _presentation.addPage(item.@number, item.@name, item.@thumb);						
-
             }		            
         }
         

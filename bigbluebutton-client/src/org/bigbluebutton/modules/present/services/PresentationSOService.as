@@ -18,6 +18,8 @@ package org.bigbluebutton.modules.present.services
     import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
     import org.bigbluebutton.modules.present.events.UploadEvent;
     import org.bigbluebutton.modules.present.events.ZoomEvent;
+    import org.bigbluebutton.modules.present.models.PresentationModel;
+    import org.bigbluebutton.modules.present.vo.InitialPresentation;
 
     public class PresentationSOService
     {        
@@ -29,6 +31,7 @@ package org.bigbluebutton.modules.present.services
                 
         public var red5Conn:Red5BBBAppConnectionService;
         public var meetingModel:MeetingModel;
+        public var presentationModel:PresentationModel;
         
         private var url:String;
         private var userid:Number;
@@ -55,40 +58,10 @@ package org.bigbluebutton.modules.present.services
         }
         
         public function disconnect():void {
-            leave();
-            notifyConnectionStatusListener(false, ["Disconnected from presentation application"]);
-        }
-        
-        private function connectionListener(connected:Boolean, errors:Array=null):void {
-            if (connected) {
-                join();
-                notifyConnectionStatusListener(true);
-            } else {
-                leave();
-                notifyConnectionStatusListener(false, errors);
-            }
-        }
-        
-        private function join() : void {
-       
-        }
-        
-        private function leave():void {
             if (_presentationSO != null) _presentationSO.close();
         }
         
-        public function addConnectionStatusListener(connectionListener:Function):void {
-            _connectionListener = connectionListener;
-        }
-        
-        public function addMessageSender(msgSender:Function):void {
-            _messageSender = msgSender;
-        }
-        
-        private function sendMessage(msg:String, body:Object=null):void {
-            if (_messageSender != null) _messageSender(msg, body);
-        }
-        
+       
         /**
          * Send an event to the server to resize the clients view of the slide in percentage increments
          * @param slideHeight
@@ -307,43 +280,33 @@ package org.bigbluebutton.modules.present.services
         }
         
         public function getPresentationInfo():void {
-            red5Conn.connection.call( "presentation.getPresentationInfo",// Remote function name
+            red5Conn.connection.call("presentation.getPresentationInfo",// Remote function name
                 new Responder(
-                    // participants - On successful result
                     function(result:Object):void { 	
-                        LogUtil.debug("Successfully querried for presentation information.");					 
-                        if (result.presenter.hasPresenter) {
-                            _dispatcher.dispatchEvent(new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE));						
-                        }	
+                        LogUtil.debug("Successfully querried for presentation information.");	
+                        var ip:InitialPresentation = new InitialPresentation();
+                        ip.hasPresenter = result.presenter.hasPresenter;
+                        ip.xOffset = Number(result.presentation.xOffset);
+                        ip.yOffset = Number(result.presentation.yOffset);
+                        ip.widthRatio = Number(result.presentation.widthRatio);
+                        ip.heightRatio = Number(result.presentation.heightRatio);
                         
-                        if (result.presentation.xOffset) {
-                            LogUtil.debug("Sending presenters slide settings");
-                            var e:MoveEvent = new MoveEvent(MoveEvent.CUR_SLIDE_SETTING);
-                            e.xOffset = Number(result.presentation.xOffset);
-                            e.yOffset = Number(result.presentation.yOffset);
-                            e.slideToCanvasWidthRatio = Number(result.presentation.widthRatio);
-                            e.slideToCanvasHeightRatio = Number(result.presentation.heightRatio);
-                            LogUtil.debug("****presenter settings [" + e.xOffset + "," + e.yOffset + "," + e.slideToCanvasWidthRatio + "," + e.slideToCanvasHeightRatio + "]");
-                            _dispatcher.dispatchEvent(e);
-                        }
                         if (result.presentations) {
                             for(var p:Object in result.presentations) {
                                 var u:Object = result.presentations[p]
                                 LogUtil.debug("Presentation name " + u as String);
-                                sendPresentationName(u as String);
+                                ip.presentations.addItem(u as String);
                             }
                         }
-                        
-                        // Force switching the presenter.
-                        triggerSwitchPresenter();
-                        
-                        if (result.presentation.sharing) {							
-                            currentSlide = Number(result.presentation.slide);
+                                              
+                        if (result.presentation.sharing) {	
+                            ip.sharing = result.presentation.sharing;
+                            ip.currentPage = Number(result.presentation.slide);
                             LogUtil.debug("The presenter has shared slides and showing slide " + currentSlide);
-                            var shareEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-                            shareEvent.presentationName = String(result.presentation.currentPresentation);
-                            _dispatcher.dispatchEvent(shareEvent);
+                            ip.presentationName = String(result.presentation.currentPresentation);
                         }
+                        
+                        presentationModel.setInitialPresentation(ip);
                     },	
                     // status - On error occurred
                     function(status:Object):void { 
@@ -356,37 +319,6 @@ package org.bigbluebutton.modules.present.services
             ); //_netConnection.call
         }
         
-        /***
-         * NOTE:
-         * This is a workaround to trigger the UI to switch to presenter or viewer.
-         * The reason is that when the user joins, the MadePresenterEvent in UserServiceSO
-         * doesn't get received by the modules as the modules hasn't started yet. 
-         * Need to redo the proper sequence of events but will take a lot of changes.
-         * (ralam dec 8, 2011).
-         */
-        public function triggerSwitchPresenter():void {
-            if (meetingModel.amIPresenter()) {		
-                LogUtil.debug("trigger Switch to Presenter mode ");
-//                var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
-//                e.userid = meetingModel.getMyUserId();
- //               e.presenterName = meetingModel.getMyName();
- //               e.assignerBy = meetingModel.getMyUserId();
-                
- //               _dispatcher.dispatchEvent(e);													
-            } else {				
-/*                
-                var p:BBBUser = meeting.getPresenter();
-                if (p != null) {
-                    LogUtil.debug("trigger Switch to Viewer mode ");
-                    var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
-                    viewerEvent.userid = p.userid;
-                    viewerEvent.presenterName = p.name;
-                    viewerEvent.assignerBy = p.userid;
-                    
-                    dispatcher.dispatchEvent(viewerEvent);					
-                }
-*/            }
-        }
         
         private function sendPresentationName(presentationName:String):void {
             var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
@@ -427,7 +359,7 @@ package org.bigbluebutton.modules.present.services
          * @param page
          * 
          */		
-        public function gotoSlideCallback(page : Number) : void {
+        public function gotoSlideCallback(page:Number) : void {
             var e:NavigationEvent = new NavigationEvent(NavigationEvent.GOTO_PAGE)
             e.pageNumber = page;
             _dispatcher.dispatchEvent(e);

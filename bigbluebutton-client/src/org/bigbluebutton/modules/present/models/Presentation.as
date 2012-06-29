@@ -27,13 +27,22 @@ package org.bigbluebutton.modules.present.models
            _loader = new PresentationLoaderService(this);
         }
         
+        public function get id():String {
+            return _id;
+        }
+        
         public function addPage(number:uint, page:String, thumb:String):void {
             var p:Page = new Page(number, page, thumb);
+            pages.addItem(p);
         }
         
         public function load():void {
             var fullURI:String = _presentationService + "/" + _meetingID + "/" + _meetingID + "/" + _id + "/slides";
             _loader.load(fullURI);
+        }
+        
+        public function toString():String {
+            return "[" + _id + "] " + _presentationService + "/" + _meetingID + "/" + _meetingID + "/" + _id + "/slides";
         }
     }
 }
