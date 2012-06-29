@@ -27,7 +27,7 @@ def processPanAndZooms
 			x_prev = nil
 			y_prev = nil
 			timestamp_orig_prev = nil
-			timestamp_prev = (($panzoom_events.first[:timestamp].to_f-$join_time)/1000).round(1)
+			timestamp_prev = nil
 			last_time = $panzoom_events.last[:timestamp].to_f
 			$panzoom_events.each do |panZoomEvent|
 				# Get variables
@@ -68,13 +68,13 @@ def processPanAndZooms
 							$xml.viewBox "#{($vbox_width-((1-((x_prev.to_f.abs)*$magic_mystery_number/100.0))*$vbox_width))} #{($vbox_height-((1-((y_prev.to_f.abs)*$magic_mystery_number/100.0))*$vbox_height)).round(2)} #{((w_ratio_prev.to_f/100.0)*$vbox_width).round(1)} #{((h_ratio_prev.to_f/100.0)*$vbox_height).round(1)}"
 						end
 					end
-					timestamp_prev = timestamp
-					timestamp_orig_prev = timestamp_orig
-					h_ratio_prev = h_ratio
-					w_ratio_prev = w_ratio
-					x_prev = x
-					y_prev = y
 				end
+				timestamp_prev = timestamp
+				timestamp_orig_prev = timestamp_orig
+				h_ratio_prev = h_ratio
+				w_ratio_prev = w_ratio
+				x_prev = x
+				y_prev = y
 			end
 		end
 	end
