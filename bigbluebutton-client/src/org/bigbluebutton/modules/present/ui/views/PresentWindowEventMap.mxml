@@ -118,8 +118,5 @@
 	
 	<EventHandlers type="{SlideEvent.LOAD_CURRENT_SLIDE}" >
 		<MethodInvoker generator="{PresentProxy}" method="loadCurrentSlideLocally" arguments="{event}" />
-	</EventHandlers>
-	
-	
-		
+	</EventHandlers>		
 </EventMap>
