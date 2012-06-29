@@ -22,9 +22,6 @@ document.getElementById("svgobject").setAttribute('data', SHAPES);
 var t;
 var len;
 
-//var canvas = document.getElementById("canv");
-//var ctx = canvas.getContext("2d");
-
 //coordinates for x and y for each second
 var cursor_x = [0, 10, 20, 40, 50, 100];
 var cursor_y = [0, 10, 20, 30, 60, 60];
@@ -58,7 +55,7 @@ var shapeelements = xmlDoc.getElementsByTagName("svg");
 
 //get the array of values for the first shape (getDataPoints(0) is the first shape).
 var array = shapeelements[0].getElementsByClassName("shape"); //get all the lines from the svg file
-var pages = shapeelements[0].getElementsByClassName("page");
+//var pages = shapeelements[0].getElementsByClassName("page");
 var images = shapeelements[0].getElementsByTagName("image");
 
 //console.log(images);
@@ -67,11 +64,11 @@ var images = shapeelements[0].getElementsByTagName("image");
 for (var j = 0; j < array.length; j++) {
 	times[j] = array[j].getAttribute("id").substr(4);
 }
-
+/*
 for (var k = 0; k < pages.length; k++) {
 	clearTimes[k] = [pages[k].getAttribute("in"), pages[k].getAttribute("out"), pages[k].getAttribute("image"), pages[k].getAttribute("id")];
 }
-
+*/
 var times_length = times.length; //get the length of the times array.
 
 for(var m = 0; m < images.length; m++) {
@@ -132,7 +129,6 @@ function getNextY(t) {
 // Draw the cursor at a specific point
 function draw(x, y) {
 	cursorStyle = document.getElementById("cursor").style;
-    //console.log("drawing " + x + " and " + y);
     //move to the next place
     cursorStyle.left = (parseInt(document.getElementById("slide").offsetLeft, 10) + parseInt(x, 10)) + "px";
     cursorStyle.top = (parseInt(document.getElementById("slide").offsetTop, 10) + parseInt(y, 10)) + "px";
@@ -334,5 +330,5 @@ p.code({
 				//console.log("frame time: " + elapsed);
 			}
 		}
-    }
+  }
 }); //ends the codes -- keep it here and simply copy the frames above.

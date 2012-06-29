@@ -27,7 +27,8 @@ def processPanAndZooms
 			x_prev = nil
 			y_prev = nil
 			timestamp_orig_prev = nil
-			timestamp_prev = 0.0
+			timestamp_prev = (($panzoom_events.first[:timestamp].to_f-$join_time)/1000).round(1)
+			last_time = $panzoom_events.last[:timestamp].to_f
 			$panzoom_events.each do |panZoomEvent|
 				# Get variables
 				timestamp_orig = panZoomEvent[:timestamp].to_f
@@ -37,14 +38,29 @@ def processPanAndZooms
 				w_ratio = panZoomEvent.xpath(".//widthRatio")[0].text()
 				x = panZoomEvent.xpath(".//xOffset")[0].text()
 				y = panZoomEvent.xpath(".//yOffset")[0].text()
+				
 				if(timestamp_prev == timestamp)
+					if(timestamp_orig == last_time)
+						if(h_ratio && w_ratio && x && y)
+							$xml.event(:timestamp => timestamp, :orig => timestamp_orig) do
+								$ss.each do |key,val|
+									$val = val
+									if key === timestamp
+										$vbox_width = $val[0]
+										$vbox_height = $val[1]
+									end
+								end
+								$xml.viewBox "#{($vbox_width-((1-((x.to_f.abs)*$magic_mystery_number/100.0))*$vbox_width))} #{($vbox_height-((1-((y.to_f.abs)*$magic_mystery_number/100.0))*$vbox_height)).round(2)} #{((w_ratio.to_f/100.0)*$vbox_width).round(1)} #{((h_ratio.to_f/100.0)*$vbox_height).round(1)}"
+							end
+						end
+					end
 					# do nothing because playback can't react that fast
 				else
 					if(h_ratio_prev && w_ratio_prev && x_prev && y_prev)
 						$xml.event(:timestamp => timestamp_prev, :orig => timestamp_orig_prev) do
 							$ss.each do |key,val|
 								$val = val
-								if key === timestamp
+								if key === timestamp_prev
 									$vbox_width = $val[0]
 									$vbox_height = $val[1]
 								end
@@ -52,13 +68,13 @@ def processPanAndZooms
 							$xml.viewBox "#{($vbox_width-((1-((x_prev.to_f.abs)*$magic_mystery_number/100.0))*$vbox_width))} #{($vbox_height-((1-((y_prev.to_f.abs)*$magic_mystery_number/100.0))*$vbox_height)).round(2)} #{((w_ratio_prev.to_f/100.0)*$vbox_width).round(1)} #{((h_ratio_prev.to_f/100.0)*$vbox_height).round(1)}"
 						end
 					end
+					timestamp_prev = timestamp
+					timestamp_orig_prev = timestamp_orig
+					h_ratio_prev = h_ratio
+					w_ratio_prev = w_ratio
+					x_prev = x
+					y_prev = y
 				end
-				h_ratio_prev = h_ratio
-				w_ratio_prev = w_ratio
-				x_prev = x
-				y_prev = y
-				timestamp_prev = timestamp
-				timestamp_orig_prev = timestamp_orig
 			end
 		end
 	end
@@ -213,6 +229,18 @@ def storeEllipseShape
 	end # end if($shapeCreationTime != $prev_time)
 end
 
+
+def storeTextShape
+	if($shapeCreationTime != $prev_time)
+		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "fill:\##{$colour_hex}; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize};") do
+			$xml.text_(:x => "#{(($shapeDataPoints[0].to_f)/100)*$vbox_width}", :y => "#{(($shapeDataPoints[1].to_f)/100)*$vbox_height}") do
+				$xml.text($textValue)
+			end
+			$prev_time = $shapeCreationTime
+		end # end xml.g
+	end # end if($shapeCreationTime != $prev_time)
+end
+
 def processSlideEvents
 	BigBlueButton.logger.info("Slide events processing")
 	# For each slide (there is only one image per slide)
@@ -285,6 +313,7 @@ def processShapesAndClears
 				$xml.image(:id => "image#{$val[2].to_i}", :in => $val[0].join(' '), :out => $val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => :hidden)
 				$canvas_number+=1
 				$xml.g(:class => :canvas, :id => "canvas#{$val[2].to_i}", :image => "image#{$val[2].to_i}", :display => :none) do
+					
 					BigBlueButton.logger.info("Processing shapes within the image")
 					# Select and print the shapes within the current image
 					$shape_events.each do |shape|
@@ -309,7 +338,13 @@ def processShapesAndClears
 							$pageNumber = shape.xpath(".//pageNumber")[0].text()
 							$shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
 							colour = shape.xpath(".//color")[0].text()
-						
+							
+							if($shapeType == "text")
+								$textValue = shape.xpath(".//text")[0].text()
+								$textFontType = shape.xpath(".//font")[0].text()
+								$textFontSize = shape.xpath(".//fontsize")[0].text()
+							end
+							
 							# figure out undo time
 							BigBlueButton.logger.info("Figuring out undo time")
 							if($undos.has_key? ((shape[:timestamp].to_f - $join_time)/1000).round(1))
@@ -370,6 +405,9 @@ def processShapesAndClears
 							# Process the ellipse shapes
 							elsif $shapeType.eql? "ellipse"
 								storeEllipseShape()
+								
+							elsif $shapeType.eql? "text"
+								storeTextShape()
 							end # end if pencil (and other shapes)
 						end # end if((in_this_image) && (in_this_canvas))
 					end # end shape_events.each do |shape|
@@ -412,6 +450,7 @@ $originalOriginY = "NaN"
 $rectangle_count = 0
 $line_count = 0
 $ellipse_count = 0
+$text_count = 0
 $global_slide_count = 1
 $global_page_count = 0
 $canvas_number = 0
@@ -512,7 +551,6 @@ if ($playback == "slides")
 		$panzoom_events = @doc.xpath("//event[@eventname='ResizeAndMoveSlideEvent']") # for the action of panning and/or zooming
 		$clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
 		$undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
-
 		$join_time = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0][:timestamp].to_f
 		$end_time = @doc.xpath("//event[@eventname='EndAndKickAllEvent']")[0][:timestamp].to_f
 		
