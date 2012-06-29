@@ -77,7 +77,7 @@
 		
 		<module name="PresentModule" url="PresentModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
-			host="http://HOST" 
+			presentationService="http://HOST/bigbluebutton/presentation"
 			showPresentWindow="true"
 			showWindowControls="true"
 			dependsOn="ViewersModule"

@@ -31,15 +31,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.managers.Slide;
 	import org.bigbluebutton.common.LogUtil;
-	        	
-	/**
-	 * This class directly communicates with an HTTP service in order to send and recives files (slides
-	 * in this case)
-	 * <p>
-	 * This class extends the Proxy class of the pureMVC framework
-	 * @author dev_team@bigbluebutton.org
-	 * 
-	 */	        	
+	        	      	
 	public class PresentationService implements IResponder
 	{  
 		private var service : HTTPService;

@@ -102,7 +102,11 @@
 				else return true;
 			}
 			
-			public function start(attributes:Object):void {	
+            public function start():void {	
+                LogUtil.debug("Staring Chat Module.");
+            }
+            
+			public function start1(attributes:Object):void {	
 				LogUtil.debug("chat attr: " + attributes.username);
 				_attributes = attributes;	
 				LogUtil.debug("Dispatching StartChatModuleEvent");

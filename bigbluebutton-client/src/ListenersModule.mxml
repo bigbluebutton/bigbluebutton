@@ -105,7 +105,12 @@
 				LogUtil.debug("LISTENER-ROLE:" + _attributes.userrole);
 				return _attributes.userrole == "MODERATOR";
 			}
-			public function start(attributes:Object):void {		
+            
+            public function start():void{
+                LogUtil.debug("Listeners module starting.");
+            }
+            
+			public function start1(attributes:Object):void {		
 				_attributes = attributes;	
 				
 				globalDispatcher = new Dispatcher();

@@ -99,7 +99,11 @@ $Id: $
 				else return false;
 			}
 			
-			public function start(attributes:Object):void {
+            public function start():void{
+                LogUtil.debug("Classroom module starting.");
+            }
+            
+			public function start1(attributes:Object):void {
 				_attributes = attributes;	
 				
 				var startEvent:StartClassAudioEvent = new StartClassAudioEvent();

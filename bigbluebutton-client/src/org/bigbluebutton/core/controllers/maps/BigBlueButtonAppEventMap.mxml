@@ -24,6 +24,7 @@
     <mx:Script>
         <![CDATA[
             import org.bigbluebutton.core.controllers.events.ConfigLoadEvent;
+            import org.bigbluebutton.core.controllers.events.GotAllUsersEvent;
             import org.bigbluebutton.core.controllers.events.LocaleEvent;
             import org.bigbluebutton.core.controllers.events.ModuleLoadedEvent;
             import org.bigbluebutton.core.controllers.events.UserAuthenticatedEvent;
@@ -37,6 +38,7 @@
             import org.bigbluebutton.core.services.LocaleLoaderService;
             import org.bigbluebutton.core.services.Red5BBBAppConnectionService;
             import org.bigbluebutton.core.services.UsersService;
+            import org.bigbluebutton.main.events.BBBEvent;
         ]]>
     </mx:Script>
 	<!--
@@ -78,11 +80,19 @@
     </EventHandlers>
 
     <EventHandlers type="{UserAuthenticatedEvent.USER_AUTHENTICATED_EVENT}">
-    <MethodInvoker generator="{Red5BBBAppConnectionService}" method="connect"/>
+        <MethodInvoker generator="{Red5BBBAppConnectionService}" method="connect"/>
     </EventHandlers>
 
+    <EventHandlers type="{GotAllUsersEvent.GOT_ALL_USERS_EVENT}">
+        <MethodInvoker generator="{ModuleModel}" method="startAllModules"/>
+    </EventHandlers>
+    
     <EventHandlers type="{UsersConnectionEvent.CONNECTION_SUCCESS}">
         <MethodInvoker generator="{UsersService}" method="getAllUsers"/>
+    </EventHandlers>
+
+    <EventHandlers type="{BBBEvent.PRESENTATION_CONVERTED}">
+        <MethodInvoker generator="{UsersService}" method="presentationConverted"/>
     </EventHandlers>
     
     <EventHandlers type="{ConfigLoadEvent.CONFIG_LOADED_EVENT}">

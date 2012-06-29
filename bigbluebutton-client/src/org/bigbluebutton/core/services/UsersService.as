@@ -63,6 +63,10 @@ package org.bigbluebutton.core.services
 			if (_participantsSO != null) _participantsSO.close();
 		}
 		
+        public function presentationConverted():void {
+            LogUtil.debug("***** BOOOOOOOO YAAAAHHHHHH ****");
+        }
+        
 	    public function listenForUserMessages():void {
             LogUtil.debug("invoking listen for user messages");
             _participantsSO = SharedObject.getRemote(SO_NAME, red5Conn.connectionUri, false);

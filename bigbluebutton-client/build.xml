@@ -232,16 +232,16 @@
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
-	<!-- build-bbb-main-test, , build-breakout -->
+	<!-- build-bbb-main-test, , build-breakout  build-chat,  build-listeners,-->
 	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main,  build-chat, build-viewers, build-listeners, build-present"
+			depends="build-bbb-main,  build-viewers, build-present"
 			description="Compile main, chat, viewers, listeners, present, breakout modules">
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
-	<!-- , build-dyn, build-classroom-audio, build-settings -->
+	<!-- , build-dyn, build-classroom-audio, build-settings build-phone, build-video, build-videodock,  build-deskshare,-->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
-			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard"
+			depends=" build-whiteboard"
 			description="Compile deskshare, phone, video, whiteboard, dynamic info modules">
 	</target>
 	

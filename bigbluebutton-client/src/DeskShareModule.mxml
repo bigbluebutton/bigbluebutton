@@ -81,7 +81,11 @@
 				return _attributes.userrole as String;
 			}
 			
-			public function start(attributes:Object):void{
+            public function start():void{
+                LogUtil.debug("Deskshare module starting.");
+            }
+            
+			public function start1(attributes:Object):void{
 				LogUtil.debug("desk share attr: " + attributes.username);
 				_attributes = attributes;
 				

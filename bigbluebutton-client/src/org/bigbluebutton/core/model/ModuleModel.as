@@ -5,6 +5,7 @@ package org.bigbluebutton.core.model
     
     import mx.collections.ArrayCollection;
     
+    import org.bigbluebutton.common.IBigBlueButtonModule;
     import org.bigbluebutton.common.LogUtil;
     import org.bigbluebutton.core.controllers.events.ModuleLoadedEvent;
 
@@ -77,6 +78,8 @@ package org.bigbluebutton.core.model
                 var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
                 if (m.module != null) {
                     LogUtil.debug('Starting module ' + m.name);
+                    var bbbm:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
+                    bbbm.start();
                 } else {
                     LogUtil.debug("No modules to start");
                 }

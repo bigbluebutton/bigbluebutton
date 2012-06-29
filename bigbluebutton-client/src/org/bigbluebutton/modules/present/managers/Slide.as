@@ -35,7 +35,6 @@ package org.bigbluebutton.modules.present.managers
 		private var _slideNum:Number;
 		private var _thumbUri:String;
 		
-
 				
 		public function Slide(slideNum:Number, slideUri:String, thumbUri:String)
 		{

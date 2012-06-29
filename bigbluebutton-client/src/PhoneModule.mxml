@@ -86,8 +86,12 @@
 			public function get voicebridge():String {
 				return _attributes.voicebridge;
 			}
-									
-			public function start(attributes:Object):void {	
+			
+            public function start():void{
+                LogUtil.debug("Phone module starting.");
+            }
+            
+			public function start1(attributes:Object):void {	
 				LogUtil.debug("phone attr: " + attributes.username);
 				_attributes = attributes;	
 

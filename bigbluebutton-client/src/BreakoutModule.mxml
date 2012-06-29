@@ -21,14 +21,15 @@
 -->
 
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute"
-		   implements="org.bigbluebutton.common.IBigBlueButtonModule" xmlns:maps="org.bigbluebutton.modules.breakout.maps.*"
+		   implements="org.bigbluebutton.common.IBigBlueButtonModule" 
+           xmlns:maps="org.bigbluebutton.modules.breakout.maps.*"
 		   >
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import org.bigbluebutton.modules.breakout.events.StartBreakoutModule;
+            import com.asfusion.mate.events.Dispatcher;           
+            import org.bigbluebutton.common.LogUtil;
+            import org.bigbluebutton.modules.breakout.events.StartBreakoutModule;
 			
 			private var globalDispatcher:Dispatcher;
 			
@@ -63,7 +64,11 @@
 				return _attributes.userrole as String;
 			}
 			
-			public function start(attributes:Object):void {	
+            public function start():void{
+                LogUtil.debug("Breakout module starting.");
+            }
+            
+			public function start1(attributes:Object):void {	
 				_attributes = attributes;
 				globalDispatcher = new Dispatcher();
 				

@@ -54,7 +54,7 @@ package org.bigbluebutton.core.model {
 			for (var i:int = 0; i < u.length; i++) {
 				addUser(User.copy(u.getItemAt(i) as User));
 			}
-            LogUtil.debug("Dispatching GotAllUsersEvent");
+            LogUtil.debug("Got current users in the meeting.");
             _dispatcher.dispatchEvent(new GotAllUsersEvent());
 		}
 		

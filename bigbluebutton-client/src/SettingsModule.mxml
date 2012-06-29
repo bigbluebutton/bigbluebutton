@@ -68,7 +68,11 @@ $Id: $
 				return _attributes.userrole as String;
 			}
 			
-			public function start(attributes:Object):void {	
+            public function start():void{
+                LogUtil.debug("Settings module starting.");
+            }
+            
+			public function start1(attributes:Object):void {	
 				_attributes = attributes;
 				globalDispatcher = new Dispatcher();
 				Requirements.setRequirements(attributes);

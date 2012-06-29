@@ -78,7 +78,11 @@
 				return _attributes.userrole as String;
 			}
 			
-			public function start(attributes:Object):void {	
+            public function start():void{
+                LogUtil.debug("Example module starting.");
+            }
+            
+			public function start1(attributes:Object):void {	
 				this._attributes = attributes;
 				var window:ExampleChatWindow = new ExampleChatWindow();
 				window.moduleAttributes = _attributes;

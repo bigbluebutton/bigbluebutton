@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.model
 {
+    import org.bigbluebutton.common.LogUtil;
 
     public class ConfigModel
     {
@@ -84,6 +85,7 @@ package org.bigbluebutton.core.model
             if (isModulePresent(moduleName)) {
                 return new XML(_config.modules.module.(@name.toUpperCase() == moduleName.toUpperCase()).toXMLString());
             }
+            LogUtil.debug("Cannot find module " + moduleName);
             return null;
         }
     }
