@@ -5,6 +5,7 @@ package org.bigbluebutton.modules.present.services
     import flash.net.URLLoaderDataFormat;
     import flash.net.URLRequest;
     
+    import org.bigbluebutton.common.LogUtil;
     import org.bigbluebutton.modules.present.models.Page;
 
     public class PageLoaderService
@@ -29,6 +30,7 @@ package org.bigbluebutton.modules.present.services
         private function handleComplete(e:Event):void{
             _loaded = true;	
             _page.page = _loader.data;
+            LogUtil.debug("Page loaded");
         }
     }
 }

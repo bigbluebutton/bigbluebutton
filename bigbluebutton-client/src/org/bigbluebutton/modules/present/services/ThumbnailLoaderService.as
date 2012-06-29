@@ -5,6 +5,7 @@ package org.bigbluebutton.modules.present.services
     import flash.net.URLLoaderDataFormat;
     import flash.net.URLRequest;
     
+    import org.bigbluebutton.common.LogUtil;
     import org.bigbluebutton.modules.present.models.Page;
 
     public class ThumbnailLoaderService
@@ -29,6 +30,7 @@ package org.bigbluebutton.modules.present.services
         private function handleComplete(e:Event):void{
             _loaded = true;	
             _page.thumbnail = _loader.data;
+            LogUtil.debug("Thumbnail loaded");
         }
     }
 }

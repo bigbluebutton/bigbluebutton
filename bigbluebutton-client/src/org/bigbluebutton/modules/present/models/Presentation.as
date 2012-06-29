@@ -32,8 +32,11 @@ package org.bigbluebutton.modules.present.models
         }
         
         public function addPage(number:uint, page:String, thumb:String):void {
-            var p:Page = new Page(number, page, thumb);
+            var pageURI:String = _presentationService + "/" + _meetingID + "/" + _meetingID + "/" + _id;
+            var p:Page = new Page(number, page, thumb, pageURI);
             pages.addItem(p);
+            p.loadPage();
+            p.loadThumbnail();
         }
         
         public function load():void {
