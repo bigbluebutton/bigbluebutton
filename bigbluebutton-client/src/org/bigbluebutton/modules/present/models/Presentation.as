@@ -38,6 +38,10 @@ package org.bigbluebutton.modules.present.models
             p.loadPage();
             p.loadThumbnail();
         }
+		
+		public function presentationLoaded():void {
+			
+		}
         
         public function load():void {
             var fullURI:String = _presentationService + "/" + _meetingID + "/" + _meetingID + "/" + _id + "/slides";

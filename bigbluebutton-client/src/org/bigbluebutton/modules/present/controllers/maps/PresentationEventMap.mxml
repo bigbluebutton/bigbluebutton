@@ -29,6 +29,10 @@
 			import org.bigbluebutton.core.model.UsersModel;
 			import org.bigbluebutton.core.services.Red5BBBAppConnectionService;
 			import org.bigbluebutton.modules.present.events.PresentModuleEvent;
+			import org.bigbluebutton.modules.present.events.PresenterCommands;
+			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+			import org.bigbluebutton.modules.present.events.SlideEvent;
+			import org.bigbluebutton.modules.present.events.UploadEvent;
 			import org.bigbluebutton.modules.present.models.PresentationConfigModel;
 			import org.bigbluebutton.modules.present.models.PresentationModel;
 			import org.bigbluebutton.modules.present.services.PresentationSOService;
@@ -80,4 +84,70 @@
         <PropertyInjector targetKey="config" source="{PresentationConfigModel}"/>
         <PropertyInjector targetKey="users" source="{UsersModel}"/>
     </Injectors>
+	
+	
+	<EventHandlers type="{PresentModuleEvent.STOP_MODULE}" >
+		<MethodInvoker generator="{PresentationService}" method="handleStopModuleEvent" />
+	</EventHandlers>
+	
+	<EventHandlers type="{UploadEvent.OPEN_UPLOAD_WINDOW}" >
+		<MethodInvoker generator="{PresentationService}" method="handleOpenUploadWindow" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{UploadEvent.CLOSE_UPLOAD_WINDOW}" >
+		<MethodInvoker generator="{PresentationService}" method="handleCloseUploadWindow" />
+	</EventHandlers>
+	
+	<EventHandlers type="{UploadEvent.START_UPLOAD}">
+		<MethodInvoker generator="{PresentationService}" method="startUpload" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresenterCommands.GOTO_SLIDE}" >
+		<MethodInvoker generator="{PresentationService}" method="gotoSlide" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresenterCommands.RESET_ZOOM}" >
+		<MethodInvoker generator="{PresentationService}" method="resetZoom" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresenterCommands.SHARE_PRESENTATION_COMMAND}">
+		<MethodInvoker generator="{PresentationService}" method="sharePresentation" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresenterCommands.MOVE}" >
+		<MethodInvoker generator="{PresentationService}" method="moveSlide" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresenterCommands.ZOOM}" >
+		<MethodInvoker generator="{PresentationService}" method="zoomSlide" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresenterCommands.SEND_CURSOR_UPDATE}" >
+		<MethodInvoker generator="{PresentationService}" method="sendCursorUpdate" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresenterCommands.RESIZE}" >
+		<MethodInvoker generator="{PresentationService}" method="resizeSlide" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{UploadEvent.PRESENTATION_READY}" >
+		<MethodInvoker generator="{PresentationService}" method="loadPresentation" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{RemovePresentationEvent.REMOVE_PRESENTATION_EVENT}">
+		<MethodInvoker generator="{PresentationService}" method="removePresentation" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{RemovePresentationEvent.PRESENTATION_REMOVED_EVENT}">
+		<MethodInvoker generator="{PresentationService}" method="removePresentation" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{UploadEvent.CONVERT_SUCCESS}">
+		<MethodInvoker generator="{PresentationService}" method="updatePresentationNames" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{SlideEvent.LOAD_CURRENT_SLIDE}" >
+		<MethodInvoker generator="{PresentationService}" method="loadCurrentSlideLocally" arguments="{event}" />
+	</EventHandlers>
+	
 </EventMap>
