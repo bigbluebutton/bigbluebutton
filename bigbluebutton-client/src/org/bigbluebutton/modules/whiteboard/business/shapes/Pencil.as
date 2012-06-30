@@ -32,11 +32,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @param segment the array representing the points needed to create this Pencil
 		 * @param color the Color of this Pencil
 		 * @param thickness the thickness of this Pencil
-		 * 
+		 * @param trans the transparency of this Pencil
 		 */		
-		public function Pencil(segment:Array, color:uint, thickness:uint)
+		public function Pencil(segment:Array, color:uint, thickness:uint, trans:Boolean)
 		{
-			super(DrawObject.PENCIL, segment, color, thickness);
+			super(DrawObject.PENCIL, segment, color, thickness, false, trans);
 		}
 		
 		override public function makeShape(parentWidth:Number, parentHeight:Number):void {
@@ -54,9 +54,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			}
 			
 			newShape.graphics.drawPath(graphicsCommands, coordinates);
-			
-			if (getColor() == 0x000000 || getColor() == 0xFFFFFF) newShape.alpha = 1;
-			else newShape.alpha = 0.6;
+			if(transparent) newShape.alpha = 0.6;
+			else newShape.alpha = 1;
+			//if (getColor() == 0x000000 || getColor() == 0xFFFFFF) newShape.alpha = 1;
+			//else newShape.alpha = 0.6;
 			
 			_shape = newShape;
 		}

@@ -23,4 +23,13 @@ public class AddShapeWhiteboardRecordEvent extends
 	public void setThickness(int thickness) {
 		eventMap.put("thickness", Integer.toString(thickness));
 	}
+
+        public void setFill(boolean fill) {
+                eventMap.put("fill", Boolean.toString(fill));
+        }
+	
+        public void setTransparent(boolean transparent) {
+                eventMap.put("transparent", Boolean.toString(transparent));
+        }
+
 }

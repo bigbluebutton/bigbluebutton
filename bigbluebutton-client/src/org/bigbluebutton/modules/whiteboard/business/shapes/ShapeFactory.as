@@ -70,13 +70,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return (val*100.0)/side;
 		}
 		
-		public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint):DrawObject {
+		public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint,
+										fill:Boolean, transparency:Boolean):DrawObject {
 			var normSegment:Array = new Array();
 			for (var i:int = 0; i < segment.length; i += 2) {
 				normSegment[i] = normalize(segment[i] , _parentWidth);
 				normSegment[i+1] = normalize(segment[i+1], _parentHeight);
 			}
-			return makeShape(drawFactory.makeDrawObject(type, normSegment, color, thickness));
+			return makeShape(drawFactory.makeDrawObject(type, normSegment, color, thickness, fill, transparency));
 		}
 		
 		/**
@@ -85,11 +86,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @param type
 		 * @param color
 		 * @param thickness
+		 * @param fill
+		 * @param trans
 		 * @return A Flash Shape object
 		 * 
 		 */		
-		public function makeFeedback(type:String, segment:Array, color:uint, thickness:uint):DrawObject{
-			return makeShape(drawFactory.makeDrawObject(type, segment, color, thickness));
+		public function makeFeedback(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, trans:Boolean):DrawObject{
+			return makeShape(drawFactory.makeDrawObject(type, segment, color, thickness, fill, trans));
 		}
 		
 

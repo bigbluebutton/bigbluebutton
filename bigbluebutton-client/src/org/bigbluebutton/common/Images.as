@@ -177,5 +177,11 @@ package org.bigbluebutton.common
 		// PLACE CUSTOM IMAGES BELOW
 		[Embed(source="assets/images/line.png")]
 		public var line_icon:Class;	
+		
+		[Embed(source="assets/images/fill_icon.png")]
+		public var fill_icon:Class;	
+		
+		[Embed(source="assets/images/transparency_icon.png")]
+		public var transparency_icon:Class;	
 	}
 }

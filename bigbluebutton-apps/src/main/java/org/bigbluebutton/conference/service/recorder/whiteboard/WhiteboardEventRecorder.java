@@ -36,7 +36,8 @@ public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 		event.setType(shape.getType());
 		event.setColor(shape.getColor());
 		event.setThickness(shape.getThickness());
-		
+	        event.setFill(shape.isFill());
+		event.setTransparent(shape.isTransparent());	
 		recorder.record(session, event);	
 	}
 

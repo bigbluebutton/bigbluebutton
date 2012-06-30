@@ -40,7 +40,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		protected var shape:Array;
 		protected var color:uint;
 		protected var thickness:uint;
-		
+		protected var fill:Boolean;
+		protected var transparent:Boolean;
 		/**
 		 * Id we can use to match the feedback shape in the presenter's view so we can
 		 * remove it.
@@ -62,11 +63,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * The default constructor for the DrawObject 
 		 * 
 		 */		
-		public function DrawObject(type:String, segment:Array, color:uint, thickness:uint) {
+		public function DrawObject(type:String, segment:Array, color:uint, thickness:uint,
+									fill:Boolean, trans:Boolean) {
 			this.type = type;
 			this.shape = segment;
 			this.color = color;
 			this.thickness = thickness;
+			this.fill = fill;
+			this.transparent = trans;
 			this.optimize();
 		}
 		
@@ -108,6 +112,25 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 */		
 		public function getThickness():uint{
 			return this.thickness;
+		}
+		
+		/**
+		 * Returns the fill of the DrawObject 
+		 * @return The thickness, represented as a Boolean
+		 * 
+		 */		
+		public function getFill():Boolean{
+			return this.fill;
+		}
+		
+		
+		/**
+		 * Returns the transparency of the DrawObject 
+		 * @return The transparency, represented as a Boolean
+		 * 
+		 */			
+		public function getTransparency():Boolean{
+			return this.transparent;
 		}
 		
 		protected function optimize():void{

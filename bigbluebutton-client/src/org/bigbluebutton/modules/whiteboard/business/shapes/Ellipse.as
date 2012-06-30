@@ -34,12 +34,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * unnecessary data
 		 * @param segment the array representing the points needed to create this Ellipse
 		 * @param color the Color of this Ellipse
+		 * @param fill the fill of this Ellipse
+		 * @param trans the transparency of this Ellipse 
 		 * @param thickness the thickness of this Ellipse
 		 * 
 		 */		
-		public function Ellipse(segment:Array, color:uint, thickness:uint)
+		public function Ellipse(segment:Array, color:uint, thickness:uint, fill:Boolean, trans:Boolean)
 		{
-			super(DrawObject.ELLIPSE, segment, color, thickness);
+			super(DrawObject.ELLIPSE, segment, color, thickness, fill, trans);
 		}
 		
 		/**
@@ -68,10 +70,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			var y:Number = denormalize(getShapeArray()[1], parentHeight);
 			var width:Number = denormalize(getShapeArray()[arrayEnd-2], parentWidth) - x;
 			var height:Number = denormalize(getShapeArray()[arrayEnd-1], parentHeight) - y;
-			
+			if(transparent) newShape.alpha = 0.6;
+			else newShape.alpha = 1;
+			if(fill) newShape.graphics.beginFill(getColor(), newShape.alpha);
 			newShape.graphics.drawEllipse(x, y, width, height);
-			if (getColor() == 0x000000 || getColor() == 0xFFFFFF) newShape.alpha = 1.0;
-			else newShape.alpha = 0.6;
+			//if (getColor() == 0x000000 || getColor() == 0xFFFFFF) newShape.alpha = 1.0;
+			//else newShape.alpha = 0.6;
+			
 			_shape = newShape;
 		}
 	}

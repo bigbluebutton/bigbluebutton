@@ -31,6 +31,8 @@ public class Shape {
 	private int color;
 	private String id;
 	private String status;
+	private boolean fill;
+	private boolean transparent;	
 	
 	private double[] shape;
 	
@@ -39,11 +41,13 @@ public class Shape {
 	public static final String ELLIPSE = "ellipse";
 	public static final String LINE = "line";
 	
-	public Shape(double[] shape, String type, int color, int thickness, String id, String status){
+	public Shape(double[] shape, String type, int color, int thickness, boolean fill, boolean transparent,					String id, String status){
 		this.shape = shape;
 		this.type = type;
 		this.color = color;
 		this.thickness = thickness;
+		this.fill = fill;
+		this.transparent = transparent;
 		this.id = id;
 		this.status = status;
 	}
@@ -54,6 +58,8 @@ public class Shape {
 		sendableList.add(type);
 		sendableList.add(color);
 		sendableList.add(thickness);
+		sendableList.add(fill);
+		sendableList.add(transparent);
 		sendableList.add(id);
 		sendableList.add(status);
 		return sendableList;
@@ -65,8 +71,10 @@ public class Shape {
 		objects[1] = type;
 		objects[2] = color;
 		objects[3] = thickness;
-		objects[4] = id;
-		objects[5] = status;
+		objects[4] = fill;
+		objects[5] = transparent;
+		objects[6] = id;
+		objects[7] = status;
 		return objects;
 	}
 		
@@ -89,5 +97,13 @@ public class Shape {
 	
 	public int getThickness(){
 		return thickness;
+	}
+
+	public boolean isTransparent() {
+		return transparent;
+	}
+
+	public boolean isFill() {
+		return fill;
 	}
 }

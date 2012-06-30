@@ -42,19 +42,22 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @param shape The array holding the different points needed to create the DrawObject
 		 * @param color The color of the DrawObject to be created
 		 * @param thickness The thickness of the DrawObject to be created
+		 * @param fill Whether or not the DrawObject should be filled or not. Doesn't apply for Pencil/Line tools.
+		 * @param trans Whether or not the DrawObject should be transparent.
 		 * @return the DrawObject created from the parameters
 		 * 
 		 */		
-		public function makeDrawObject(type:String, shape:Array, color:uint, thickness:uint):DrawObject{
+		public function makeDrawObject(type:String, shape:Array, color:uint, thickness:uint,
+										fill:Boolean, trans:Boolean):DrawObject{
 			var d:DrawObject = null;
 			if (type == DrawObject.PENCIL){
-				d = makePencil(shape, color, thickness);
+				d = makePencil(shape, color, thickness, trans);
 			} else if (type == DrawObject.RECTANGLE){
-				d = makeRectangle(shape, color, thickness);
+				d = makeRectangle(shape, color, thickness, fill, trans);
 			} else if (type == DrawObject.ELLIPSE){
-				d = makeEllipse(shape, color, thickness);
+				d = makeEllipse(shape, color, thickness, fill, trans);
 			}  else if (type == DrawObject.LINE){
-				d = makeLine(shape, color, thickness);
+				d = makeLine(shape, color, thickness, trans);
 			}
 			return d;
 		}
@@ -66,11 +69,12 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @param shape The array holding the different points needed to create the DrawObject
 		 * @param color The color of the DrawObject to be created
 		 * @param thickness The thickness of the DrawObject to be created
+		 * @param trans Whether or not the DrawObject should be transparent.
 		 * @return the Pencil DrawObject created from the parameters
 		 * 
 		 */		
-		public function makePencil(shape:Array, color:uint, thickness:uint):DrawObject{
-			return new Pencil(shape, color, thickness);
+		public function makePencil(shape:Array, color:uint, thickness:uint, trans:Boolean):DrawObject{
+			return new Pencil(shape, color, thickness, trans);
 		}
 		
 		/**
@@ -80,11 +84,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @param shape The array holding the different points needed to create the DrawObject
 		 * @param color The color of the DrawObject to be created
 		 * @param thickness The thickness of the DrawObject to be created
+		 * @param fill Whether or not the DrawObject should be filled or not.
+		 * @param trans Whether or not the DrawObject should be transparent.
 		 * @return the Rectangle DrawObject created from the parameters
 		 * 
 		 */		
-		public function makeRectangle(shape:Array, color:uint, thickness:uint):DrawObject{
-			return new Rectangle(shape, color, thickness);
+		public function makeRectangle(shape:Array, color:uint, thickness:uint, fill:Boolean, trans:Boolean):DrawObject{
+			return new Rectangle(shape, color, thickness, fill, trans);
 		}
 		
 		/**
@@ -94,11 +100,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @param shape The array holding the different points needed to create the DrawObject
 		 * @param color The color of the DrawObject to be created
 		 * @param thickness The thickness of the DrawObject to be created
+		 * @param fill Whether or not the DrawObject should be filled or not.
+		 * @param trans Whether or not the DrawObject should be transparent.
 		 * @return the Ellipse DrawObject created from the parameters
 		 * 
 		 */		
-		public function makeEllipse(shape:Array, color:uint, thickness:uint):DrawObject{
-			return new Ellipse(shape, color, thickness);
+		public function makeEllipse(shape:Array, color:uint, thickness:uint, fill:Boolean, trans:Boolean):DrawObject{
+			return new Ellipse(shape, color, thickness, fill, trans);
 		}
 		
 		/**
@@ -108,12 +116,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @param shape The array holding the different points needed to create the DrawObject
 		 * @param color The color of the DrawObject to be created
 		 * @param thickness The thickness of the DrawObject to be created
+		 * @param trans Whether or not the DrawObject should be transparent.
 		 * @return the Line DrawObject created from the parameters
 		 * 
 		 */
 		
-		public function makeLine(shape:Array, color:uint, thickness:uint):DrawObject{
-			return new Line(shape, color, thickness);
+		public function makeLine(shape:Array, color:uint, thickness:uint, trans:Boolean):DrawObject{
+			return new Line(shape, color, thickness, trans);
 		}
 	}
 }

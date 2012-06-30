@@ -30,6 +30,8 @@
 	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />
 	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
 	<mate:Listener type="{WhiteboardButtonEvent.CHANGE_TO_PENCIL}" method="setShapeToPencil" />
+	<mate:Listener type="{WhiteboardSettingChangedEvent.FILL_CHANGED}" method="setFill" />
+	<mate:Listener type="{WhiteboardSettingChangedEvent.TRANSPARENCY_CHANGED}" method="setTransparent" />
 	
 	<mx:Style>
 		.colorPickerStyle {
@@ -58,13 +60,14 @@
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingChangedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
@@ -75,20 +78,17 @@
 			[Bindable] private var ellipse_icon:Class = images.circle_icon;
 			[Bindable] private var thick_icon:Class = images.whiteboard_thick;
 			[Bindable] private var thin_icon:Class = images.whiteboard_thin;
-			// PLACE CUSTOM
 			[Bindable] private var line_icon:Class = images.line_icon;
-			// END CUSTOM
-			
-			
+			[Bindable] private var fill_icon:Class = images.fill_icon;
+			[Bindable] private var transparency_icon:Class = images.transparency_icon;
+				
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
 			
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', 
                 '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF',
-				 //PUT CUSTOM COLORS BELOW
 				'0xC0C0C0'
-				// END CUSTOM
 				];
 			
 			/**
@@ -149,6 +149,22 @@
 				canvas.changeThickness(e);
 			}
 			
+			protected function toggleFill():void{
+				canvas.toggleFill();
+			}
+			
+			protected function toggleTransparency():void{
+				canvas.toggleTransparency();
+			}
+			
+			protected function setFill(e:WhiteboardSettingChangedEvent):void{
+				canvas.setFill(e);
+			}
+			
+			protected function setTransparent(e:WhiteboardSettingChangedEvent):void{
+				canvas.setTransparent(e);
+			}
+			
 			private function presenterMode(e:MadePresenterEvent):void{
 				//this.visible = true;
 			}
@@ -201,6 +217,14 @@
 				parent.removeChild(this);
 			}
 			
+			private function buttonSettingToggle(buttonEvt:Event):void {
+				if(buttonEvt.target == btnToggleFill) {
+					toggleFill();
+				} else if(buttonEvt.target == btnToggleTransparency) {		
+					toggleTransparency();
+				} 
+			}
+			
 		]]>
 	</mx:Script>
 	<mx:Button width="20" height="20" id="btnPenc" click="setShape(DrawObject.PENCIL)"  icon="{pencil_icon}" 
@@ -209,18 +233,19 @@
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
 	<mx:Button width="20" height="20" id="btnEllipse" click="setShape(DrawObject.ELLIPSE)" icon="{ellipse_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" toggle="true" />
-	
-	<!-- PLACE CUSTOM-->
 	<mx:Button width="20" height="20" id="btnLine" click="setShape(DrawObject.LINE)" icon="{line_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.line')}" toggle="true" />
-	<!-- END CUSTOM -->
+	
+	<mx:Button width="20" height="20" id="btnToggleFill" click="buttonSettingToggle(event)" icon ="{fill_icon}"
+			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.toggleFill')}" toggle="true"/>
+	<mx:Button width="20" height="20" id="btnToggleTransparency" click="buttonSettingToggle(event)" icon ="{transparency_icon}"
+			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.toggleTransparency')}" toggle="true"/>
 	
 	<mx:Spacer height="5" />
 	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR_BOARD))" icon="{delete_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.clear')}" />
 	<mx:Button width="20" height="20" id="btnUndo"  click="sendUndoCommand()" icon="{undo_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo')}" />
-	
 	
 	<mx:Spacer height="5" />
 	<mx:ColorPicker change="changeColor(event)" id="cpik" swatchPanelStyleName="colorPickerStyle" dataProvider="{colorPickerColours}" selectedColor="0x000000" 

@@ -25,24 +25,17 @@
 	mouseOver="setCursor()" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[			
-			import mx.collections.ArrayCollection;
-			import mx.core.Application;
 			import mx.managers.CursorManager;
 			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
 			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
-			import org.bigbluebutton.modules.whiteboard.maps.WhiteboardEventMap;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingChangedEvent;
 			
 			public var model:WhiteboardCanvasModel;			
 			private var bbbCanvas:IBbbCanvas;
@@ -88,7 +81,24 @@
 			public function changeThickness(e:Event):void{
 				model.changeThickness(e.target.value);
 			}
-					
+			
+			public function toggleFill():void{
+				model.toggleFill();
+			}
+			
+			public function toggleTransparency():void{
+				model.toggleTransparency();
+			}
+			
+			public function setFill(e:WhiteboardSettingChangedEvent):void{
+				model.setFill(e.value);
+
+			}
+			
+			public function setTransparent(e:WhiteboardSettingChangedEvent):void{
+				model.setTransparent(e.value);
+			}
+			
 			public function get xPosition():int {
 				return _xPosition;
 			}

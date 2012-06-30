@@ -28,6 +28,8 @@ package org.bigbluebutton.modules.whiteboard
 		private var shapeStyle:String = DrawObject.PENCIL;
 		private var drawColor:uint = 0x000000;
 		private var thickness:uint = 1;
+		private var fillEnabled:Boolean = false;
+		private var transparencyEnabled:Boolean = false;
 		
 		// represents the max number of 'points' enumerated in 'segment'
 		// before sending an update to server. Used to prevent 
@@ -55,7 +57,8 @@ package org.bigbluebutton.modules.whiteboard
 		private function sendShapeToServer(status:String):void{
 			if (segment.length == 0) return;
 			
-			var dobj:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
+			var dobj:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness,
+																this.fillEnabled, this.transparencyEnabled);
 			
 			dobj.id = "" + objCount++;
 			
@@ -145,7 +148,23 @@ package org.bigbluebutton.modules.whiteboard
 		public function changeThickness(thickness:uint):void{
 			this.thickness = thickness;
 		}
-				
+			
+		public function toggleFill():void{
+			fillEnabled = !fillEnabled;
+		}
+		
+		public function toggleTransparency():void{
+			transparencyEnabled = !transparencyEnabled;
+		}
+		
+		public function setFill(fill:Boolean):void{
+			this.fillEnabled = fill;
+		}
+		
+		public function setTransparent(transp:Boolean):void{
+			this.transparencyEnabled = transp;
+		}
+		
 		private function removeLastShape():void {
 			var dobj:DrawObject = shapeList.pop() as DrawObject;
 			wbCanvas.removeShape(dobj.getShape());

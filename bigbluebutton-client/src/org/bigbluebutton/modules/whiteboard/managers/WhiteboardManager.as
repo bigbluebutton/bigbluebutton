@@ -59,7 +59,6 @@ package org.bigbluebutton.modules.whiteboard.managers
 			highlighterToolbar.canvas = highlighterCanvas;
 			if (whiteboardButton != null) return;
 			whiteboardButton = new WhiteboardButton();
-			
 			//Necessary now because of module loading race conditions
 			var t:Timer = new Timer(1000, 1);
 			t.addEventListener(TimerEvent.TIMER, addHighlighterCanvas);
