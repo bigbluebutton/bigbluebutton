@@ -178,6 +178,9 @@ package org.bigbluebutton.common
 		[Embed(source="assets/images/line.png")]
 		public var line_icon:Class;	
 		
+		[Embed(source="assets/images/text_icon.png")]
+		public var text_icon:Class;	
+		
 		[Embed(source="assets/images/fill_icon.png")]
 		public var fill_icon:Class;	
 		

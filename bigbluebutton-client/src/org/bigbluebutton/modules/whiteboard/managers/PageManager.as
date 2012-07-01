@@ -81,7 +81,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 			var event:PageEvent = new PageEvent(PageEvent.CHANGE_PAGE);
 			event.pageNum = pageNumber;
 			this.pageNum = pageNumber;
-			event.shapes = this.pages.getItemAt(pageNumber) as ArrayCollection;
+			event.graphicObjs = this.pages.getItemAt(pageNumber) as ArrayCollection;
 			dispatcher.dispatchEvent(event);
 		}
 		

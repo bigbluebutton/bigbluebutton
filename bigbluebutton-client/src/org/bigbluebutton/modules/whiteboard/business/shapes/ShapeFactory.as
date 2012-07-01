@@ -28,13 +28,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 * @author dzgonjan
 	 * 
 	 */	
-	public class ShapeFactory
+	public class ShapeFactory extends GraphicFactory
 	{
 		private var drawFactory:DrawObjectFactory;
 		private var _parentWidth:Number = 0;
 		private var _parentHeight:Number = 0;
 		
 		public function ShapeFactory() {
+			super(GraphicFactory.SHAPE_FACTORY);
 			drawFactory = new DrawObjectFactory();
 		}
 		
@@ -49,15 +50,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return 
 		 * 
 		 */		
-		public function makeShape(shape:DrawObject):DrawObject{
-			if (shape.getType() == DrawObject.PENCIL){
-				return makePencil(shape as Pencil);
-			} else if (shape.getType() == DrawObject.RECTANGLE){
-				return makeRectangle(shape as Rectangle);
-			} else if (shape.getType() == DrawObject.ELLIPSE){
-				return makeEllipse(shape as Ellipse);
-			} else if (shape.getType() == DrawObject.LINE){
-				return makeLine(shape as Line);
+		public function makeShape(graphic:DrawObject):DrawObject{
+			if (graphic.getType() == DrawObject.PENCIL){
+				return makePencil(graphic as Pencil);
+			} else if (graphic.getType() == DrawObject.RECTANGLE){
+				return makeRectangle(graphic as Rectangle);
+			} else if (graphic.getType() == DrawObject.ELLIPSE){
+				return makeEllipse(graphic as Ellipse);
+			} else if (graphic.getType() == DrawObject.LINE){
+				return makeLine(graphic as Line);
 			}
 			return null;
 		}

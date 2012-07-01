@@ -22,7 +22,7 @@
 
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:mate="http://mate.asfusion.com/"
 	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()" visible="false" 
-	mouseOver="setCursor()" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
+	mouseOver="setCursor()" mouseOut="removeCursor()" doubleClickEnabled="true" doubleClick="doMouseDoubleClick()"  implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[			
 			import mx.managers.CursorManager;
@@ -55,7 +55,11 @@
 			private function doMouseUp():void {
 				model.doMouseUp();
 			}
-
+			
+			private function doMouseDoubleClick():void{
+				model.doMouseDoubleClick(this.mouseX, this.mouseY);
+			}
+			
 			private function doMouseDown():void{
 				model.doMouseDown(this.mouseX, this.mouseY);
 			}
@@ -68,6 +72,10 @@
 				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
 				event.message = dobj;
 				dispatchEvent(event);					
+			}
+			
+			public function setGraphicType(type:String):void{
+				model.setGraphicType(type);
 			}
 			
 			public function setShape(s:String):void{
@@ -164,11 +172,21 @@
 				if (doesContain(child)) removeRawChild(child);
 			}
 			
+			public function removeText(child:DisplayObject):void {
+				if (bbbCanvas == null) return;
+				if (doesContain(child)) removeRawChild(child);
+			}
+			
 			public function addShape(child:DisplayObject):void {
 				if (bbbCanvas == null) return;
 				addRawChild(child);
 			}
-						
+					
+			public function addText(child:DisplayObject):void {
+				if (bbbCanvas == null) return;
+				addRawChild(child);
+			}
+			
 			public function zoomCanvas(width:Number, height:Number):void {
 				this.width = width;
 				this.height = height;	

@@ -92,8 +92,8 @@ package org.bigbluebutton.modules.whiteboard.managers
 			model.clearBoard();
 		}
 		
-		public function undoShape(event:WhiteboardUpdate):void{
-			model.undoShape();
+		public function undoGraphic(event:WhiteboardUpdate):void{
+			model.undoGraphic();
 		}
 		
 		public function changePage(e:PageEvent):void{

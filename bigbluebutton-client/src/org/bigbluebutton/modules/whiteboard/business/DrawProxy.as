@@ -156,8 +156,8 @@ package org.bigbluebutton.modules.whiteboard.business
 				new Responder(
 	        		// On successful result
 					function(result:Object):void { 
-						if ((result as int) != e.shapes.length) {
-							LogUtil.debug("Whiteboard: Need to retrieve shapes. Have " + e.shapes.length + " on client, "
+						if ((result as int) != e.graphicObjs.length) {
+							LogUtil.debug("Whiteboard: Need to retrieve shapes. Have " + e.graphicObjs.length + " on client, "
 										  + (result as int) + " on server");
 							LogUtil.debug("Whiteboard: Retrieving shapes on page" + e.pageNum);
 							getHistory(); 
@@ -259,17 +259,17 @@ package org.bigbluebutton.modules.whiteboard.business
 		}
 		
 		/**
-		 * Sends a call out to the red5 server to notify the clients to undo a shape
+		 * Sends a call out to the red5 server to notify the clients to undo a GraphicObject
 		 * 
 		 */		
-		public function undoShape():void{
+		public function undoGraphic():void{
 			var nc:NetConnection = connection;
 			nc.call(
 				"whiteboard.undo",// Remote function name
 				new Responder(
 	        		// On successful result
 					function(result:Object):void { 
-						LogUtil.debug("Whiteboard::undoShape()"); 
+						LogUtil.debug("Whiteboard::undoGraphic()"); 
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -290,7 +290,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * 
 		 */		
 		public function undo():void{
-			dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.SHAPE_UNDONE));
+			dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.GRAPHIC_UNDONE));
 		}
 		
 		public function modifyEnabled(e:WhiteboardPresenterEvent):void{
@@ -354,8 +354,8 @@ package org.bigbluebutton.modules.whiteboard.business
 				var type:String = shape[1] as String;
 				var color:uint = shape[2] as uint;
 				var thickness:uint = shape[3] as uint;
-				var fill:Boolean = shape[4] as uint;
-				var transparent:Boolean = shape[5] as uint;
+				var fill:Boolean = shape[4] as Boolean;
+				var transparent:Boolean = shape[5] as Boolean;
 				var id:String = shape[6] as String;
 				var status:String = shape[7] as String;
 				addSegment(shapeArray, type, color, thickness, fill, transparent, id, status);

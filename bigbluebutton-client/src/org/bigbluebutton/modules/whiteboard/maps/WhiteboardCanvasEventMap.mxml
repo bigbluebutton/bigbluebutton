@@ -80,15 +80,15 @@
 		<MethodInvoker generator="{DrawProxy}" method="sendShape" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{WhiteboardDrawEvent.UNDO_SHAPE}" >
-		<MethodInvoker generator="{DrawProxy}" method="undoShape" />
+	<EventHandlers type="{WhiteboardDrawEvent.UNDO_GRAPHIC}" >
+		<MethodInvoker generator="{DrawProxy}" method="undoGraphic" />
 	</EventHandlers>
 	
 	<EventHandlers type="{WhiteboardUpdate.BOARD_UPDATED}">
 		<MethodInvoker generator="{PageManager}" method="addShapeToPage" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{WhiteboardUpdate.SHAPE_UNDONE}" >
+	<EventHandlers type="{WhiteboardUpdate.GRAPHIC_UNDONE}" >
 		<MethodInvoker generator="{PageManager}" method="undoShapeFromPage" />
 	</EventHandlers>
 	

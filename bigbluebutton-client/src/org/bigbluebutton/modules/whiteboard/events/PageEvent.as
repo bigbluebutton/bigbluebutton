@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.whiteboard.events
 		public static const LOAD_PAGE:String = "LoadPage";
 		
 		public var pageNum:Number;
-		public var shapes:ArrayCollection;
+		public var graphicObjs:ArrayCollection;
 		
 		public function PageEvent(type:String)
 		{

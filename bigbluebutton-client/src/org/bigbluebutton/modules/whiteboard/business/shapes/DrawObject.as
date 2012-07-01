@@ -30,7 +30,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 * @author dzgonjan
 	 * 
 	 */	
-	public class DrawObject {
+	public class DrawObject extends GraphicObject {
 		public static const PENCIL:String = "pencil";
 		public static const RECTANGLE:String = "rectangle";
 		public static const ELLIPSE:String = "ellipse";
@@ -65,6 +65,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 */		
 		public function DrawObject(type:String, segment:Array, color:uint, thickness:uint,
 									fill:Boolean, trans:Boolean) {
+			super(GraphicObject.TYPE_SHAPE);
 			this.type = type;
 			this.shape = segment;
 			this.color = color;
@@ -143,14 +144,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 
 		public function makeShape(width:Number, height:Number):void {
 			
-		}
-		
-		protected function denormalize(val:Number, side:Number):Number {
-			return (val*side)/100.0;
-		}
-		
-		protected function normalize(val:Number, side:Number):Number {
-			return (val*100.0)/side;
 		}
 	}
 }
