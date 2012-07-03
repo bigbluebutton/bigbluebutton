@@ -2,5 +2,3 @@ see http://code.google.com/p/bigbluebutton
 
 Developing the client
 1. Copy src/conf/config.xml.dev to src/cong/config.xml
-
-Test
