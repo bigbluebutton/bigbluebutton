@@ -39,8 +39,16 @@ br{
 	margin-right: auto;
 }
 
-#cursor{
+.circle {
+	height: 15px;
+	width: 15px;
+	border-radius: 50%;
+}
+
+
+#cursor {
 	position: absolute;
+	background: red;
 }
 
 .chatcontainer{

@@ -1,8 +1,5 @@
 // - - - START OF GLOBAL VARIABLES - - - //
 "use strict";
-//coordinates to set
-var cursor_x_global;
-var cursor_y_global;
 
 function getUrlParameters() {
     var map = {};
@@ -13,24 +10,25 @@ function getUrlParameters() {
 var params = getUrlParameters();
 var MEETINGID = params.meetingId;
 var HOST = window.location.hostname;
-var shapes_svg = "http://" + HOST + "/slides/" + MEETINGID + '/shapes.svg';
-var events_xml = "http://" + HOST + "/slides/" + MEETINGID + '/panzooms.xml';
+var url = "http://" + HOST + "/slides/" + MEETINGID;
+var shapes_svg = url + '/shapes.svg';
+var events_xml = url + '/panzooms.xml';
+var cursor_xml = url + '/cursor.xml';
 //immediately load the content
-var SHAPES = "http://" + HOST + "/slides/" + MEETINGID + '/shapes.svg';
-document.getElementById("svgobject").setAttribute('data', SHAPES);
+document.getElementById("svgobject").setAttribute('data', shapes_svg);
 //current time
 var t;
 var len;
 
 //coordinates for x and y for each second
-var cursor_x = [0, 10, 20, 40, 50, 100];
-var cursor_y = [0, 10, 20, 30, 60, 60];
 var panAndZoomTimes = [];
 var viewBoxes = [];
+var coords = [];
 var times = [];
 var clearTimes = [];
 var main_shapes_times = [];
 var vboxValues = {};
+var cursorValues = {};
 var imageAtTime = {};
 var cursorStyle;
 
@@ -98,33 +96,29 @@ for (var k = 0;k < pzlen; k++) {
 	vboxValues[[panZoomArray[k].getAttribute("timestamp"), second_val]] = viewBoxes[k].childNodes[0].data;
 }
 
+
+// PROCESS CURSOR.XML
+xmlhttp.open("GET", cursor_xml, false);
+xmlhttp.send();
+xmlDoc = xmlhttp.responseXML;
+//getting all the event tags
+var curelements = xmlDoc.getElementsByTagName("recording");
+var cursorArray = curelements[0].getElementsByTagName("event");
+coords = xmlDoc.getElementsByTagName("cursor");
+
+var clen = cursorArray.length;
+//fill the times array with the times of the svg images.
+for (var m = 0; m < clen; m++) {
+	if(cursorArray[m+1] == undefined) {
+		second_val = "end";
+	}
+	else second_val = cursorArray[m+1].getAttribute("timestamp");
+	cursorValues[[cursorArray[m].getAttribute("timestamp"), second_val]] = coords[m].childNodes[0].data;
+}
+
 // - - - END OF GLOBAL VARIABLES - - - //
 
 // - - - START OF JAVASCRIPT FUNCTIONS - - - //
-
-// Retrieves the next X point on the grid which the cursor is to go to.
-function getNextX(t) {
-    var x = times.indexOf(t);
-    if(x !== -1) {
-		//console.log("returning " + cursor_x[x]);
-        return cursor_x[x];
-    }
-	else {
-		return -1;
-	}
-}
-
-// Retrieves the next Y point on the grid which the cursor is to go to.
-function getNextY(t) {
-    var y = times.indexOf(t);
-    if(y !== -1) {
-		//console.log("returning " + cursor_y[y]);
-        return cursor_y[y];
-    }
-	else {
-		return -1;
-	}
-}
 
 // Draw the cursor at a specific point
 function draw(x, y) {
@@ -132,16 +126,6 @@ function draw(x, y) {
     //move to the next place
     cursorStyle.left = (parseInt(document.getElementById("slide").offsetLeft, 10) + parseInt(x, 10)) + "px";
     cursorStyle.top = (parseInt(document.getElementById("slide").offsetTop, 10) + parseInt(y, 10)) + "px";
-}
-
-var clearLength = clearTimes.length;
-
-function getPageId(time, image) {
-	for(var c = 0; c < clearLength; c++) {
-		if ((parseFloat(clearTimes[c][0]) <= time) && (parseFloat(clearTimes[c][1]) >= time) && (image === clearTimes[c][2])){
-			return clearTimes[c][3];
-		}
-	}
 }
 
 // Shows or hides the cursor object depending on true/false parameter passed.
@@ -160,6 +144,10 @@ function showCursor(boolVal) {
 function setViewBox(val) {
 	svgfile = svgobj.contentDocument.getElementById("svgfile");
 	svgfile.setAttribute('viewBox', val);
+}
+
+function setCursor(val) {
+	draw(val[0], val[1]);
 }
 
 function getImageAtTime(time) {
@@ -191,6 +179,22 @@ function getViewboxAtTime(time) {
 	}
 }
 
+function getCursorAtTime(time) {
+	var curr_t = parseFloat(time);
+	var key;
+	for (key in cursorValues) {
+		if(cursorValues.hasOwnProperty(key)) {
+			var arry = key.split(",");
+			if(arry[1] == "end") {
+				return null;
+			}
+			else if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
+				return cursorValues[key].split(' ');
+			}
+		}
+	}
+}
+
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
 
 window.onresize = function(event) {
@@ -214,8 +218,6 @@ p.code({
     end: 1,
     //1 goes here. only for the first second intialize everything
     onStart: function(options) {
-		cursor_x_global = 0;
-		cursor_y_global = 0;
 		svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
 		svgobj.style.top = "8px";
 		p.mute();
@@ -325,6 +327,12 @@ p.code({
 			if(vboxVal !== undefined) {
 				setViewBox(vboxVal);
 			}
+			
+			var cursorVal = getCursorAtTime(t);
+			if(cursorVal != null) {
+				setCursor(cursorVal);
+			}
+			
 			var elapsed = new Date().getTime() - start;
 			if(parseInt(elapsed, 10) !== 0) {
 				//console.log("frame time: " + elapsed);

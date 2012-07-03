@@ -81,6 +81,48 @@ def processPanAndZooms
 	BigBlueButton.logger.info("Finished creating panzooms.xml")
 end
 
+def processCursorEvents
+	BigBlueButton.logger.info("Processing cursor events")
+	$cursor_xml = Nokogiri::XML::Builder.new do |xml|
+		$xml = xml
+		$xml.recording('id' => 'cursor_events') do
+			x_prev = nil
+			y_prev = nil
+			timestamp_orig_prev = nil
+			timestamp_prev = nil
+			last_time = $cursor_events.last[:timestamp].to_f
+			$cursor_events.each do |cursorEvent|
+				timestamp_orig = cursorEvent[:timestamp].to_f
+				timestamp = ((timestamp_orig-$join_time)/1000).round(1)
+				
+				x = cursorEvent.xpath(".//xPercent")[0].text()
+				y = cursorEvent.xpath(".//yPercent")[0].text()
+				if(timestamp_prev == timestamp)
+				
+				else
+					if(x_prev && y_prev)
+						$xml.event(:timestamp => timestamp_prev, :orig => timestamp_orig_prev) do
+							$ss.each do |key,val|
+								$val = val
+								if key === timestamp_prev
+									$vbox_width = $val[0]
+									$vbox_height = $val[1]
+								end
+							end
+							$xml.cursor "#{($vbox_width.to_f*(x.to_f/100)).round(1)} #{($vbox_height.to_f*(y.to_f/100)).round(1)}"
+						end
+					end
+				end
+				timestamp_prev = timestamp
+				timestamp_orig_prev = timestamp_orig
+				x_prev = x
+				y_prev = y
+			end
+		end
+	end
+	BigBlueButton.logger.info("Finished processing cursor events")
+end
+
 def processClearEvents
 	# process all the cleared pages events.
 	$clear_page_events.each do |clearEvent|
@@ -441,6 +483,7 @@ $magic_mystery_number = 2
 $shapesold_svg_filename = 'shapes_old.svg'
 $shapes_svg_filename = 'shapes.svg'
 $panzooms_xml_filename = 'panzooms.xml'
+$cursor_xml_filename = 'cursor.xml'
 
 $originX = "NaN"
 $originY = "NaN"
@@ -549,6 +592,7 @@ if ($playback == "slides")
 		$chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
 		$shape_events = @doc.xpath("//event[@eventname='AddShapeEvent']") # for the creation of shapes
 		$panzoom_events = @doc.xpath("//event[@eventname='ResizeAndMoveSlideEvent']") # for the action of panning and/or zooming
+		$cursor_events = @doc.xpath("//event[@eventname='CursorMoveEvent']")
 		$clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
 		$undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
 		$join_time = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0][:timestamp].to_f
@@ -557,6 +601,7 @@ if ($playback == "slides")
 		processChatMessages()
 		processShapesAndClears()
 		processPanAndZooms()
+		processCursorEvents()
 
 		# Write slides.xml to file
 		File.open("#{package_dir}/slides.xml", 'w') { |f| f.puts $slides_doc.to_xml }
@@ -566,6 +611,9 @@ if ($playback == "slides")
 
 		# Write panzooms.xml to file
 		File.open("#{package_dir}/#{$panzooms_xml_filename}", 'w') { |f| f.puts $panzooms_xml.to_xml }
+		
+		# Write panzooms.xml to file
+		File.open("#{package_dir}/#{$cursor_xml_filename}", 'w') { |f| f.puts $cursor_xml.to_xml }
 
         BigBlueButton.logger.info("Publishing slides")
 		# Now publish this recording files by copying them into the publish folder.
