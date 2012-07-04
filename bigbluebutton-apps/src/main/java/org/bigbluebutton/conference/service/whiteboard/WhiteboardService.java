@@ -38,11 +38,15 @@ public class WhiteboardService {
 		this.application = a;
 	}
 	
-	public void sendShape(double[] shape, String type, int color, int thickness, boolean fill, boolean transparency, 				String id, String status){
+	public void sendShape(double[] shape, String type, int color, int thickness, boolean fill, boolean transparency, String id, String status){
 		log.info("WhiteboardApplication - Sending share");
 		application.sendShape(shape, type, color, thickness, fill, transparency, id, status);
 	}
 	
+	public void sendText(String text, int textColor, int bgColor, boolean bgColorVisible, int x, int y, String id, String status){
+		log.info("WhiteboardApplication - Sending text");
+		application.sendText(text, textColor, bgColor, bgColorVisible, x, y, id, status);
+	}
 	/**
 	 * Sets the active page
 	 * @param pageNum - the number of the page to set to active
@@ -50,14 +54,13 @@ public class WhiteboardService {
 	 * it should retrieve the page history. This saves some bandwidth for the server.
 	 */
 	public int setActivePage(int pageNum){
-		log.info("WhiteboardApplication - Getting number of shapes for page: " + pageNum);
-		return application.getNumShapesOnPage(pageNum);
+		log.info("WhiteboardApplication - Getting number of graphics for page: " + pageNum);
+		return application.getNumGraphicsOnPage(pageNum);
 	}
 	
-	public List<Object[]> getShapes(){
-		log.info("WhiteboardApplication - Returning shapes");
-		List<Object[]> shapes = application.getShapes();
-		
+	public List<Object[]> getGraphicObjs(){
+		log.info("WhiteboardApplication - Returning graphics");
+		List<Object[]> graphicObjs = application.getGraphicObjects();
 		/*System.out.println("Number of shapes: " + shapes.size());
 		System.out.println("First shape. Num params: " + shapes.get(0).length);
 		System.out.println("double[] : " + (double[])shapes.get(0)[0]);
@@ -67,7 +70,7 @@ public class WhiteboardService {
 		System.out.println("parentWidth : " + shapes.get(0)[4]);
 		System.out.println("parentHeight : " + shapes.get(0)[5]);*/
 		
-		return shapes;
+		return graphicObjs;
 	}
 	
 	public void clear(){
@@ -76,7 +79,7 @@ public class WhiteboardService {
 	}
 	
 	public void undo(){
-		log.info("WhiteboardApplication - Deleting last shape");
+		log.info("WhiteboardApplication - Deleting last graphic");
 		application.undo();
 	}
 	

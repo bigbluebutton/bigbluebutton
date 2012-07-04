@@ -20,14 +20,14 @@
 package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
-	public class WhiteboardSettingChangedEvent extends Event
+	public class WhiteboardSettingEvent extends Event
 	{
 		public static const FILL_CHANGED:String = "FILL_CHANGED";
 		public static const TRANSPARENCY_CHANGED:String = "TRANSPARENCY_CHANGED";
 		
 		public var value:Boolean;
 		
-		public function WhiteboardSettingChangedEvent(type:String)
+		public function WhiteboardSettingEvent(type:String)
 		{
 			super(type,true,false);
 		}

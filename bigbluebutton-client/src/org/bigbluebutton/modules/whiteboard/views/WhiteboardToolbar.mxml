@@ -30,8 +30,8 @@
 	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />
 	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
 	<mate:Listener type="{WhiteboardButtonEvent.CHANGE_TO_PENCIL}" method="setShapeToPencil" />
-	<mate:Listener type="{WhiteboardSettingChangedEvent.FILL_CHANGED}" method="setFill" />
-	<mate:Listener type="{WhiteboardSettingChangedEvent.TRANSPARENCY_CHANGED}" method="setTransparent" />
+	<mate:Listener type="{WhiteboardSettingEvent.FILL_CHANGED}" method="setFill" />
+	<mate:Listener type="{WhiteboardSettingEvent.TRANSPARENCY_CHANGED}" method="setTransparent" />
 	
 	<mx:Style>
 		.colorPickerStyle {
@@ -68,7 +68,7 @@
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingChangedEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
@@ -98,15 +98,15 @@
 			 * @param s The type
 			 * 
 			 */		
-			protected function setTool(gType:String, sType:String):void{
+			protected function setTool(gType:String, toolType:String):void{
 				if(gType == GraphicObject.TYPE_SHAPE) {
 					canvas.setGraphicType(gType);
-					canvas.setShape(sType);
+					canvas.setTool(toolType);
 					if(!btnToggleTransparency.enabled)
 						btnToggleTransparency.enabled = true;
 					if(!btnToggleFill.enabled)
 						btnToggleFill.enabled = true;
-					switch(sType){
+					switch(toolType){
 						case DrawObject.PENCIL:
 							btnPenc.selected = true;
 							btnEllipse.selected = false;
@@ -146,18 +146,19 @@
 					btnToggleFill.enabled = false;
 					btnToggleTransparency.selected = false;
 					btnToggleTransparency.enabled = false;
-					var e:WhiteboardSettingChangedEvent = 
-						new WhiteboardSettingChangedEvent(
-							WhiteboardSettingChangedEvent.FILL_CHANGED);
+					var e:WhiteboardSettingEvent = 
+						new WhiteboardSettingEvent(
+							WhiteboardSettingEvent.FILL_CHANGED);
 					e.value = false;
 					dispatchEvent(e);
-					e = new WhiteboardSettingChangedEvent(
-							WhiteboardSettingChangedEvent.TRANSPARENCY_CHANGED);
+					e = new WhiteboardSettingEvent(
+							WhiteboardSettingEvent.TRANSPARENCY_CHANGED);
 					e.value = false;
 					dispatchEvent(e);
 					canvas.setGraphicType(gType);
+					canvas.setTool(toolType);
 				}
-				changeCursor(sType);
+				changeCursor(toolType);
 			}
 			
 			private function setShapeToPencil(e:WhiteboardButtonEvent):void{
@@ -204,21 +205,22 @@
 				canvas.toggleTransparency();
 			}
 			
-			protected function setFill(e:WhiteboardSettingChangedEvent):void{
+			protected function setFill(e:WhiteboardSettingEvent):void{
 				canvas.setFill(e);
 			}
 			
-			protected function setTransparent(e:WhiteboardSettingChangedEvent):void{
+			protected function setTransparent(e:WhiteboardSettingEvent):void{
 				canvas.setTransparent(e);
 			}
 			
 			private function presenterMode(e:MadePresenterEvent):void{
+				canvas.makeTextObjectsEditable(e);
 				//this.visible = true;
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void{
 				//this.visible = false;
-				
+				canvas.makeTextObjectsUneditable(e);
 				//disableWhiteboard();
 			}
 			

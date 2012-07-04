@@ -22,43 +22,83 @@
 package org.bigbluebutton.conference.service.whiteboard;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.red5.compatibility.flex.messaging.io.ArrayCollection;
+import org.bigbluebutton.conference.service.whiteboard.WBGraphic.Type;
 
 public class Page {
 	
-	private ArrayCollection<Shape> shapes;
+	private Map<String, WBGraphic> graphicObjs;
 	private int pageIndex;
 	
 	public Page(int pageIndex){
-		this.shapes = new ArrayCollection<Shape>();
+		this.graphicObjs = new LinkedHashMap<String, WBGraphic>();
 		this.setPageIndex(pageIndex);
 	}
 	
-	public void addShape(Shape shape){
-		shapes.add(shape);
+	public void addShapeGraphic(ShapeGraphic shape){
+		graphicObjs.put(shape.ID, shape);
 	}
 	
-	public List<Object[]> getShapes(){
-		List<Object[]> shapesCollection = new ArrayList<Object[]>();
-		for (int i = 0; i<shapes.size(); i++){
-			shapesCollection.add(shapes.get(i).toObjectArray());
+	public void addTextGraphic(TextGraphic text){
+		graphicObjs.put(text.ID, text);
+	}
+	
+	public List<Object[]> getWBGraphicObjects(){
+		List<Object[]> graphics = new ArrayList<Object[]>();
+		for (WBGraphic g: graphicObjs.values()){
+			graphics.add(g.toObjectArray());
 		}
-		return shapesCollection;
+		return graphics;
+	}
+	
+	public List<Object[]> getWBShapes(){
+		List<Object[]> shapes = new ArrayList<Object[]>();
+		for (WBGraphic g: graphicObjs.values()){
+			if(g.graphicType == Type.SHAPE)
+				shapes.add(g.toObjectArray());
+		}
+		return shapes;
+	}
+	
+	public List<Object[]> getWBTexts(){
+		List<Object[]> texts = new ArrayList<Object[]>();
+		for (WBGraphic g: graphicObjs.values()){
+			if(g.graphicType == Type.TEXT)
+				texts.add(g.toObjectArray());
+		}
+		return texts;
+	}
+	
+	public Map<String, WBGraphic> getWBGraphicMap(){
+		return graphicObjs;
 	}
 	
 	public void clear(){
-		shapes.clear();
+		graphicObjs.clear();
 	}
 	
 	public void undo(){
-		if(shapes.size() > 0)
-			shapes.remove(shapes.size()-1);
+		/*int mappingToRemove = -1;
+		
+		for(String s: graphicObjs.keySet()) {
+			mappingToRemove = Integer.parseInt(s);
+			if(!graphicObjs.containsKey(mappingToRemove+1))
+				break;
+		}
+		System.out.println("Object removed was a " + 
+				graphicObjs.get(mappingToRemove) + " "
+				+ "with ID of " + mappingToRemove);
+		if(graphicObjs.size() > 0)
+			graphicObjs.remove(mappingToRemove);*/
+		List<String> list = new ArrayList<String>(graphicObjs.keySet());
+		graphicObjs.remove(list.get(list.size()-1));
 	}
 	
-	public int getNumShapesOnPage(){
-		return this.shapes.size();
+	public int getNumGraphicsOnPage(){
+		return this.graphicObjs.size();
 	}
 
 	public void setPageIndex(int pageIndex) {

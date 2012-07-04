@@ -39,12 +39,14 @@ public class WhiteboardRoom {
 	private Presentation activePresentation;
 	private boolean whiteboardEnabled = false;
 	
+	private final UIDGenerator uidGen;
 	private final Map<String, IWhiteboardRoomListener> listeners;
 	
 	public WhiteboardRoom(IScope scope){
 		this.scope = scope;
 		this.presentations = new ArrayList<Presentation>();
 		listeners = new ConcurrentHashMap<String, IWhiteboardRoomListener>();
+		uidGen = new UIDGenerator();
 	}
 	
 	public IScope getScope(){
@@ -87,13 +89,18 @@ public class WhiteboardRoom {
 		return exists;
 	}
 	
-	public void addShape(Shape shape){
-		activePresentation.getActivePage().addShape(shape);
+	public void addShape(ShapeGraphic shape){
+		activePresentation.getActivePage().addShapeGraphic(shape);
 		notifyAddShape(activePresentation, shape);
 	}
 	
-	public List<Object[]> getShapes(){
-		return activePresentation.getActivePage().getShapes();
+	public void addText(TextGraphic text){
+		activePresentation.getActivePage().addTextGraphic(text);
+		notifyAddText(activePresentation, text);
+	}
+	
+	public List<Object[]> getGraphicObjects(){
+		return activePresentation.getActivePage().getWBGraphicObjects();
 	}
 	
 	public void clear(){
@@ -103,7 +110,7 @@ public class WhiteboardRoom {
 	
 	public void undo(){
 		activePresentation.getActivePage().undo();
-		notifyUndoShape(activePresentation);
+		notifyUndoWBGraphic(activePresentation);
 	}
 
 	public void setWhiteboardEnabled(boolean whiteboardEnabled) {
@@ -124,17 +131,24 @@ public class WhiteboardRoom {
 		listeners.remove(listener);		
 	}
 	
-	public void notifyAddShape(Presentation presentation, Shape shape){
+	public void notifyAddShape(Presentation presentation, ShapeGraphic shape){
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
 			listener.addShape(shape, presentation);
 		}
 	}
 	
-	public void notifyUndoShape(Presentation presentation){
+	public void notifyAddText(Presentation presentation, TextGraphic shape){
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
-			listener.undoShape(presentation);
+			listener.addText(shape, presentation);
+		}
+	}
+	
+	public void notifyUndoWBGraphic(Presentation presentation){
+		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
+			listener.undoWBGraphic(presentation);
 		}
 	}
 	
@@ -145,4 +159,12 @@ public class WhiteboardRoom {
 		}
 	}
 	
+	public Map<String, WBGraphic> getWBGraphicMap(){
+		return activePresentation.getActivePage().getWBGraphicMap();
+	}
+	
+	public int getUniqueWBGraphicIdentifier() {
+		return uidGen.generateUID();
+	}
+
 }

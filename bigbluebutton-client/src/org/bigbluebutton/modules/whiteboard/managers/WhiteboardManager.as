@@ -84,8 +84,8 @@ package org.bigbluebutton.modules.whiteboard.managers
 			highlighterToolbar.positionToolbar(e.window);
 		}
 
-		public function drawSegment(event:WhiteboardUpdate):void{
-			model.drawSegment(event);
+		public function drawGraphic(event:WhiteboardUpdate):void{
+			model.drawGraphic(event);
 		}
 		
 		public function clearBoard(event:WhiteboardUpdate = null):void{

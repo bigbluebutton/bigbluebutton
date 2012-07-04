@@ -63,14 +63,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return null;
 		}
 		
-		private function denormalize(val:Number, side:Number):Number {
-			return (val*side)/100.0;
-		}
-		
-		private function normalize(val:Number, side:Number):Number {
-			return (val*100.0)/side;
-		}
-		
 		public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint,
 										fill:Boolean, transparency:Boolean):DrawObject {
 			var normSegment:Array = new Array();
@@ -105,7 +97,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		private function makePencil(p:Pencil):DrawObject{
-			p.makeShape(_parentWidth, _parentHeight);	
+			p.makeGraphic(_parentWidth, _parentHeight);	
 	        return p;
 		}
 		
@@ -116,7 +108,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		private function makeRectangle(r:Rectangle):DrawObject{
-			r.makeShape(_parentWidth, _parentHeight);			
+			r.makeGraphic(_parentWidth, _parentHeight);			
 			return r;	
 		}
 		
@@ -127,7 +119,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		private function makeEllipse(e:Ellipse):DrawObject{
-			e.makeShape(_parentWidth, _parentHeight);
+			e.makeGraphic(_parentWidth, _parentHeight);
 			return e;
 		}
 		
@@ -138,7 +130,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */
 		private function makeLine(e:Line):DrawObject{
-			e.makeShape(_parentWidth, _parentHeight);
+			e.makeGraphic(_parentWidth, _parentHeight);
 			return e;
 		}
 	}

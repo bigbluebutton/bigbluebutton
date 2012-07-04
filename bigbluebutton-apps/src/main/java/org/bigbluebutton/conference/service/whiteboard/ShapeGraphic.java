@@ -24,12 +24,12 @@ package org.bigbluebutton.conference.service.whiteboard;
 
 import org.red5.compatibility.flex.messaging.io.ArrayCollection;
 
-public class Shape {
+public class ShapeGraphic extends WBGraphic {
 	
 	private String type;
 	private int thickness;
 	private int color;
-	private String id;
+	
 	private String status;
 	private boolean fill;
 	private boolean transparent;	
@@ -41,40 +41,45 @@ public class Shape {
 	public static final String ELLIPSE = "ellipse";
 	public static final String LINE = "line";
 	
-	public Shape(double[] shape, String type, int color, int thickness, boolean fill, boolean transparent,					String id, String status){
+	public ShapeGraphic(double[] shape, String type, int color, int thickness, boolean fill, boolean transparent,					String id, String status){
+		super(WBGraphic.Type.SHAPE);
 		this.shape = shape;
 		this.type = type;
 		this.color = color;
 		this.thickness = thickness;
 		this.fill = fill;
 		this.transparent = transparent;
-		this.id = id;
+		this.ID = id;
 		this.status = status;
 	}
 	
+	@Override
 	public ArrayCollection<Object> toList(){
 		ArrayCollection<Object> sendableList = new ArrayCollection<Object>();
+		sendableList.add(graphicType);
 		sendableList.add(shape);
 		sendableList.add(type);
 		sendableList.add(color);
 		sendableList.add(thickness);
 		sendableList.add(fill);
 		sendableList.add(transparent);
-		sendableList.add(id);
+		sendableList.add(ID);
 		sendableList.add(status);
 		return sendableList;
 	}
 	
+	@Override
 	public Object[] toObjectArray(){
 		Object[] objects = new Object[10];
-		objects[0] = shape;
-		objects[1] = type;
-		objects[2] = color;
-		objects[3] = thickness;
-		objects[4] = fill;
-		objects[5] = transparent;
-		objects[6] = id;
-		objects[7] = status;
+		objects[0] = graphicType;
+		objects[1] = shape;
+		objects[2] = type;
+		objects[3] = color;
+		objects[4] = thickness;
+		objects[5] = fill;
+		objects[6] = transparent;
+		objects[7] = ID;
+		objects[8] = status;
 		return objects;
 	}
 		

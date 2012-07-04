@@ -30,12 +30,14 @@
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
 			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingChangedEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingEvent;
 			
 			public var model:WhiteboardCanvasModel;			
 			private var bbbCanvas:IBbbCanvas;
@@ -68,9 +70,10 @@
 				model.doMouseMove(this.mouseX, this.mouseY);
 			}
 			
-			public function sendShapeToServer(dobj:DrawObject):void{
-				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
-				event.message = dobj;
+			public function sendGraphicToServer(gobj:GraphicObject, type:String):void{
+				var event:WhiteboardDrawEvent = 
+					new WhiteboardDrawEvent(type);
+				event.message = gobj;
 				dispatchEvent(event);					
 			}
 			
@@ -78,8 +81,8 @@
 				model.setGraphicType(type);
 			}
 			
-			public function setShape(s:String):void{
-				model.setShape(s);
+			public function setTool(s:String):void{
+				model.setTool(s);
 			}
 				
 			public function changeColor(e:Event):void{
@@ -98,12 +101,12 @@
 				model.toggleTransparency();
 			}
 			
-			public function setFill(e:WhiteboardSettingChangedEvent):void{
+			public function setFill(e:WhiteboardSettingEvent):void{
 				model.setFill(e.value);
 
 			}
 			
-			public function setTransparent(e:WhiteboardSettingChangedEvent):void{
+			public function setTransparent(e:WhiteboardSettingEvent):void{
 				model.setTransparent(e.value);
 			}
 			
@@ -122,7 +125,15 @@
 			public function set yPosition(y:int):void {
 				_yPosition = y;
 			}
-									
+				
+			public function makeTextObjectsEditable(e:MadePresenterEvent):void {
+				model.makeTextObjectsEditable(e);
+			}
+			
+			public function makeTextObjectsUneditable(e:MadePresenterEvent):void {
+				model.makeTextObjectsUneditable(e);
+			}
+			
 			private function setWhiteboardVisibility():void{
 				if (this.whiteboardEnabled && this.showWhiteboard) this.visible = true;
 				else this.visible = false;
@@ -167,22 +178,12 @@
 				return [this.mouseX, this.mouseY];
 			}
 			
-			public function removeShape(child:DisplayObject):void {
+			public function removeGraphic(child:DisplayObject):void {
 				if (bbbCanvas == null) return;
 				if (doesContain(child)) removeRawChild(child);
 			}
 			
-			public function removeText(child:DisplayObject):void {
-				if (bbbCanvas == null) return;
-				if (doesContain(child)) removeRawChild(child);
-			}
-			
-			public function addShape(child:DisplayObject):void {
-				if (bbbCanvas == null) return;
-				addRawChild(child);
-			}
-					
-			public function addText(child:DisplayObject):void {
+			public function addGraphic(child:DisplayObject):void {
 				if (bbbCanvas == null) return;
 				addRawChild(child);
 			}

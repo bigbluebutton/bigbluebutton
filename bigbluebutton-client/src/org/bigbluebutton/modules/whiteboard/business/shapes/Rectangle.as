@@ -58,7 +58,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.shape.push(y2);
 		}
 		
-		override public function makeShape(parentWidth:Number, parentHeight:Number):void {
+		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
 			var newShape:Shape = new Shape();
 			newShape.graphics.lineStyle(getThickness(), getColor());
 			var arrayEnd:Number = getShapeArray().length;

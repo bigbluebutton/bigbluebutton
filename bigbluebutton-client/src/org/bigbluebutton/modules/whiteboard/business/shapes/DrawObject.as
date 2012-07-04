@@ -18,6 +18,7 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+	import flash.display.DisplayObject;
 	import flash.display.Shape;
 
 	/**
@@ -42,11 +43,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		protected var thickness:uint;
 		protected var fill:Boolean;
 		protected var transparent:Boolean;
-		/**
-		 * Id we can use to match the feedback shape in the presenter's view so we can
-		 * remove it.
-		 */
-		public var id:String = null;
 		
 		/**
 		 * Status = [START, UPDATE, END]
@@ -75,7 +71,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.optimize();
 		}
 		
-		public function getShape():Shape {
+		override public function getGraphic():DisplayObject {
 			return _shape;
 		}
 		
@@ -142,8 +138,5 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return false;
 		}
 
-		public function makeShape(width:Number, height:Number):void {
-			
-		}
 	}
 }

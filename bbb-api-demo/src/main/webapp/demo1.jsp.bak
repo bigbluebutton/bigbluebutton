@@ -86,17 +86,7 @@ if (request.getParameterMap().isEmpty()) {
 	
 	String url = BigBlueButtonURL.replace("bigbluebutton/","demo/");
 	// String preUploadPDF = "<?xml version='1.0' encoding='UTF-8'?><modules><module name='presentation'><document url='"+url+"pdfs/sample.pdf'/></module></modules>";
-	java.util.Random testIDGen = new java.util.Random();
-	int userID = testIDGen.nextInt(99999);
-	
-	String username = request.getParameter("username");
-	
-	String joinURL = null;
-	
-	if(!username.startsWith("viewer")) 
-		joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null, null, null, "mp");
-	else
-		joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null, null, null, "ap");
+	String joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null, null, null);
 
 	if (joinURL.startsWith("http://")) { 
 %>

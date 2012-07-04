@@ -44,11 +44,11 @@ package org.bigbluebutton.modules.whiteboard.managers
 			dispatcher = new Dispatcher();
 		}
 		
-		public function addShapeToPage(e:WhiteboardUpdate):void{
+		public function addGraphicToPage(e:WhiteboardUpdate):void{
 			(pages.getItemAt(pageNum) as ArrayCollection).addItem(e.data);
 		}
 		
-		public function undoShapeFromPage():void{
+		public function undoGraphicFromPage():void{
 			var page:ArrayCollection = pages.getItemAt(pageNum) as ArrayCollection;
 			if (page.length > 0) page.removeItemAt(page.length - 1);
 		}

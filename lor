@@ -1,0 +1,119 @@
+bigbluebutton-config/bin/bbb-record:	if [ -f $RAW_DIR/events.xml ]; then
+bigbluebutton-config/bin/bbb-record:	if [ -f /var/bigbluebutton/recording/raw/$recording/events.xml ]; then
+bigbluebutton-config/bin/bbb-record:		echo -n $(head -n 5 /var/bigbluebutton/recording/raw/$recording/events.xml | grep description | sed s/.*description=\"//g | sed s/\".*//g) | sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g' -e 's/ \{1,\}/ /g' | tr -d '\n'
+bigbluebutton-config/bin/bbb-record:                          echo "  -- events.xml was not created. There is a problem with the character encoding "
+record-and-playback/core/lib/recordandplayback/generators/events.rb:    def self.get_meeting_metadata(events_xml)
+record-and-playback/core/lib/recordandplayback/generators/events.rb:      doc = Nokogiri::XML(File.open(events_xml))
+record-and-playback/core/lib/recordandplayback/generators/events.rb:    def self.first_event_timestamp(events_xml)
+record-and-playback/core/lib/recordandplayback/generators/events.rb:      doc = Nokogiri::XML(File.open(events_xml))
+record-and-playback/core/lib/recordandplayback/generators/events.rb:    def self.last_event_timestamp(events_xml)
+record-and-playback/core/lib/recordandplayback/generators/events.rb:      doc = Nokogiri::XML(File.open(events_xml))
+record-and-playback/core/lib/recordandplayback/generators/events.rb:    def self.get_start_video_events(events_xml)
+record-and-playback/core/lib/recordandplayback/generators/events.rb:      doc = Nokogiri::XML(File.open(events_xml))
+record-and-playback/core/lib/recordandplayback/generators/events.rb:    def self.get_stop_video_events(events_xml)
+record-and-playback/core/lib/recordandplayback/generators/events.rb:      doc = Nokogiri::XML(File.open(events_xml))
+record-and-playback/core/lib/recordandplayback/generators/events.rb:    def self.get_start_deskshare_events(events_xml)
+record-and-playback/core/lib/recordandplayback/generators/events.rb:      doc = Nokogiri::XML(File.open(events_xml))
+record-and-playback/core/lib/recordandplayback/generators/events.rb:    def self.get_stop_deskshare_events(events_xml)
+record-and-playback/core/lib/recordandplayback/generators/events.rb:      doc = Nokogiri::XML(File.open(events_xml))
+record-and-playback/core/lib/recordandplayback/generators/audio_processor.rb:    #   archive_dir - directory location of the raw archives. Assumes there is audio file and events.xml present.
+record-and-playback/core/lib/recordandplayback/generators/audio_processor.rb:      events_xml = "#{archive_dir}/events.xml"
+record-and-playback/core/lib/recordandplayback/generators/audio_processor.rb:      audio_events = BigBlueButton::AudioEvents.process_events(audio_dir, events_xml)
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:    def self.process_events(archive_dir, events_xml)
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:      audio_events = match_start_and_stop_events(start_audio_recording_events(archive_dir, events_xml),
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:                          stop_audio_recording_events(archive_dir, events_xml)).each do |audio_event|
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:        audio_paddings = generate_audio_paddings(unique_events, events_xml)
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:        first_event = BigBlueButton::Events.first_event_timestamp(events_xml).to_i
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:        last_event = BigBlueButton::Events.last_event_timestamp(events_xml).to_i
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:    def self.start_audio_recording_events(archive_dir, events_xml)
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:      doc = Nokogiri::XML(File.open(events_xml))
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:    def self.stop_audio_recording_events(archive_dir, events_xml)      
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:      doc = Nokogiri::XML(File.open(events_xml))
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:    # have an entry in events.xml
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:    def self.generate_audio_paddings(events, events_xml)
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:      length_of_gap = events[0].start_event_timestamp.to_i - BigBlueButton::Events.first_event_timestamp(events_xml).to_i
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:          paddings << create_gap_audio_event(length_of_gap, BigBlueButton::Events.first_event_timestamp(events_xml), events[0].start_event_timestamp.to_i - 1)
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:        BigBlueButton.logger.error("Front padding: #{length_of_gap} [#{events[0].start_event_timestamp.to_i} - #{BigBlueButton::Events.first_event_timestamp(events_xml).to_i}].\n")
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:#      length_of_gap = BigBlueButton::Events.last_event_timestamp(events_xml).to_i - events[-1].stop_event_timestamp.to_i
+record-and-playback/core/lib/recordandplayback/generators/audio.rb:#        paddings << create_gap_audio_event(length_of_gap, events[-1].stop_event_timestamp.to_i + 1, BigBlueButton::Events.last_event_timestamp(events_xml))
+record-and-playback/core/lib/recordandplayback/generators/video.rb:    events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
+record-and-playback/core/lib/recordandplayback/generators/video.rb:    first_timestamp = BigBlueButton::Events.first_event_timestamp(events_xml)
+record-and-playback/core/lib/recordandplayback/generators/video.rb:    last_timestamp = BigBlueButton::Events.last_event_timestamp(events_xml)        
+record-and-playback/core/lib/recordandplayback/generators/video.rb:    start_evt = BigBlueButton::Events.get_start_video_events(events_xml)
+record-and-playback/core/lib/recordandplayback/generators/video.rb:    stop_evt = BigBlueButton::Events.get_stop_video_events(events_xml)               
+record-and-playback/core/lib/recordandplayback/generators/video.rb:    events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
+record-and-playback/core/lib/recordandplayback/generators/video.rb:    first_timestamp = BigBlueButton::Events.first_event_timestamp(events_xml)
+record-and-playback/core/lib/recordandplayback/generators/video.rb:    last_timestamp = BigBlueButton::Events.last_event_timestamp(events_xml)
+record-and-playback/core/lib/recordandplayback/generators/video.rb:    start_evts = BigBlueButton::Events.get_start_deskshare_events(events_xml)
+record-and-playback/core/lib/recordandplayback/generators/video.rb:    stop_evts = BigBlueButton::Events.get_stop_deskshare_events(events_xml)
+record-and-playback/core/lib/recordandplayback/generators/presentation.rb:    def self.get_presentations(events_xml)
+record-and-playback/core/lib/recordandplayback/generators/presentation.rb:      doc = Nokogiri::XML(File.open(events_xml))
+record-and-playback/core/lib/recordandplayback/events_archiver.rb:      File.open("#{directory}/events.xml", 'w') do |f2|  
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        events_xml = "#{dir}/events.xml"
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        audio_events = BigBlueButton::AudioEvents.process_events(events_xml)
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        events_xml = 'resources/raw/good_audio_events.xml'
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        BigBlueButton::Events.first_event_timestamp(events_xml).should == 50
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        events_xml = 'resources/raw/good_audio_events.xml'
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        BigBlueButton::Events.last_event_timestamp(events_xml).should == 1000
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        events_xml = 'resources/raw/good_audio_events.xml'
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        start = BigBlueButton::AudioEvents.start_audio_recording_events events_xml
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        events_xml = 'resources/raw/good_audio_events.xml'
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        stop = BigBlueButton::AudioEvents.stop_audio_recording_events events_xml
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        events_xml = 'resources/raw/good_audio_events.xml'
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        se = BigBlueButton::AudioEvents.match_start_and_stop_events(BigBlueButton::AudioEvents.start_audio_recording_events(events_xml), 
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:                          BigBlueButton::AudioEvents.stop_audio_recording_events(events_xml))
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        events_xml = 'resources/raw/unmatched_audio_events.xml'
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        se = BigBlueButton::AudioEvents.match_start_and_stop_events(BigBlueButton::AudioEvents.start_audio_recording_events(events_xml), 
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:                        BigBlueButton::AudioEvents.stop_audio_recording_events(events_xml))
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        events_xml = 'resources/raw/good_audio_events.xml'
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        se = BigBlueButton::AudioEvents.match_start_and_stop_events(BigBlueButton::AudioEvents.start_audio_recording_events(events_xml), 
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:                    BigBlueButton::AudioEvents.stop_audio_recording_events(events_xml))
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        audio_paddings = BigBlueButton::AudioEvents.generate_audio_paddings(se, events_xml)
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        events_xml = 'resources/raw/good_audio_events.xml'
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        audio_events = BigBlueButton::AudioEvents.process_events(events_xml)
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        events_xml = 'resources/raw/unmatched_audio_events.xml'
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:        se = BigBlueButton::AudioEvents.match_start_and_stop_events(BigBlueButton::AudioEvents.start_audio_recording_events(events_xml), 
+record-and-playback/core/spec/recordandplayback/audio_processor_spec.rb:                    BigBlueButton::AudioEvents.stop_audio_recording_events(events_xml))
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        events_xml = "#{dir}/webcam-events.xml"
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        se = BigBlueButton::Events.get_start_video_events(events_xml)
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        events_xml = "#{dir}/webcam-events.xml"
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        se = BigBlueButton::Events.get_stop_video_events(events_xml)
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        events_xml = "#{dir}/webcam-events.xml"
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        start = BigBlueButton::Events.get_start_video_events(events_xml)
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        stop = BigBlueButton::Events.get_stop_video_events(events_xml)
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        events_xml = "#{dir}/events.xml"
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        BigBlueButton::Events.get_start_deskshare_events(events_xml).size.should == 2
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        events_xml = "#{dir}/events.xml"
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        BigBlueButton::Events.get_stop_deskshare_events(events_xml).size.should == 2
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        events_xml = "#{dir}/webcam-events.xml"
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        se = BigBlueButton::Events.get_start_video_events(events_xml)
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        events_xml = "#{dir}/webcam-events.xml"
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        se = BigBlueButton::Events.get_stop_video_events(events_xml)
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        events_xml = "#{dir}/events.xml"
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        BigBlueButton::Events.get_start_deskshare_events(events_xml).size.should == 1
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        events_xml = "#{dir}/events.xml"
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        BigBlueButton::Events.get_stop_deskshare_events(events_xml).size.should == 1
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        events_xml = "#{dir}/events.xml"
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        first_timestamp = BigBlueButton::Events.first_event_timestamp(events_xml)
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        last_timestamp = BigBlueButton::Events.last_event_timestamp(events_xml)
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        start_evt = BigBlueButton::Events.get_start_video_events(events_xml)
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        stop_evt = BigBlueButton::Events.get_stop_video_events(events_xml)
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        first_timestamp = BigBlueButton::Events.first_event_timestamp(events_xml)
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        last_timestamp = BigBlueButton::Events.last_event_timestamp(events_xml)
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        start_evt = BigBlueButton::Events.get_start_video_events(events_xml)
+record-and-playback/core/spec/recordandplayback/deskshare_generator_spec.rb:        stop_evt = BigBlueButton::Events.get_stop_video_events(events_xml)       
+record-and-playback/core/spec/recordandplayback/presentation_processor_spec.rb:        events_xml = "#{dir}/events.xml"
+record-and-playback/core/spec/recordandplayback/presentation_processor_spec.rb:        BigBlueButton::Presentation.get_presentations(events_xml).size.should equal(2)
+record-and-playback/core/spec/recordandplayback/presentation_processor_spec.rb:        events_xml = "#{dir}/events.xml"
+record-and-playback/core/spec/recordandplayback/events_spec.rb:        events_xml = "#{dir}/metadata.xml"
+record-and-playback/core/spec/recordandplayback/events_spec.rb:        metadata = BigBlueButton::Events.get_meeting_metadata(events_xml)
+record-and-playback/matterhorn/scripts/process/matterhorn.rb:		  metadata = BigBlueButton::Events.get_meeting_metadata("#{temp_dir}/#{meeting_id}/events.xml")
+record-and-playback/slides/scripts/publish/slides.rb:		FileUtils.cp("#{process_dir}/events.xml", package_dir)
+record-and-playback/slides/scripts/publish/slides.rb:		  b.start_time(BigBlueButton::Events.first_event_timestamp("#{process_dir}/events.xml"))
+record-and-playback/slides/scripts/publish/slides.rb:		  b.end_time(BigBlueButton::Events.last_event_timestamp("#{process_dir}/events.xml"))
+record-and-playback/slides/scripts/publish/slides.rb:		  	BigBlueButton::Events.get_meeting_metadata("#{process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
+record-and-playback/slides/scripts/publish/slides.rb:  	@doc = Nokogiri::XML(File.open("#{process_dir}/events.xml"))
+record-and-playback/slides/scripts/process/slides.rb:  events_xml = "#{temp_dir}/#{meeting_id}/events.xml"
+record-and-playback/slides/scripts/process/slides.rb:  FileUtils.cp(events_xml, target_dir)
+record-and-playback/slides/scripts/process/slides.rb:  presentations = BigBlueButton::Presentation.get_presentations(events_xml)

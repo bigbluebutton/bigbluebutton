@@ -80,16 +80,20 @@
 		<MethodInvoker generator="{DrawProxy}" method="sendShape" arguments="{event}" />
 	</EventHandlers>
 	
+	<EventHandlers type="{WhiteboardDrawEvent.SEND_TEXT}">
+		<MethodInvoker generator="{DrawProxy}" method="sendText" arguments="{event}" />
+	</EventHandlers>
+	
 	<EventHandlers type="{WhiteboardDrawEvent.UNDO_GRAPHIC}" >
 		<MethodInvoker generator="{DrawProxy}" method="undoGraphic" />
 	</EventHandlers>
 	
 	<EventHandlers type="{WhiteboardUpdate.BOARD_UPDATED}">
-		<MethodInvoker generator="{PageManager}" method="addShapeToPage" arguments="{event}" />
+		<MethodInvoker generator="{PageManager}" method="addGraphicToPage" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{WhiteboardUpdate.GRAPHIC_UNDONE}" >
-		<MethodInvoker generator="{PageManager}" method="undoShapeFromPage" />
+		<MethodInvoker generator="{PageManager}" method="undoGraphicFromPage" />
 	</EventHandlers>
 	
 	<EventHandlers type="{WhiteboardUpdate.BOARD_CLEARED}" >
@@ -132,10 +136,10 @@
 		<MethodInvoker generator="{WhiteboardManager}" method="clearBoard" arguments="{event}"/>
 	</EventHandlers>
 	<EventHandlers type="{WhiteboardUpdate.BOARD_UPDATED}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="drawSegment" arguments="{event}"/>
+		<MethodInvoker generator="{WhiteboardManager}" method="drawGraphic" arguments="{event}"/>
 	</EventHandlers>
 	<EventHandlers type="{WhiteboardUpdate.GRAPHIC_UNDONE}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="undoShape" arguments="{event}" />
+		<MethodInvoker generator="{WhiteboardManager}" method="undoGraphic" arguments="{event}" />
 	</EventHandlers>
 	<EventHandlers type="{PageEvent.CHANGE_PAGE}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="changePage" arguments="{event}" />

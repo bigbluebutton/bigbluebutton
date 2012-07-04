@@ -86,24 +86,38 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		return roomManager.getRoom(getLocalScope().getName()).isWhiteboardEnabled();
 	}
 	
-	public void sendShape(double[] shape, String type, int color, int thickness, boolean fill, boolean transparency, 				String id, String status){
-		Shape newShape = new Shape(shape, type, color, thickness, fill, transparency, id, status);	
+	public void sendShape(double[] shape, String type, int color, int thickness, boolean fill, boolean transparency, String id, String status){
+		ShapeGraphic newShape = new ShapeGraphic(shape, type, color, thickness, fill, transparency, id, status);	
+		//if(status.equals("DRAW_START"))
+			newShape.ID = Integer.toString(roomManager.getRoom(getLocalScope().getName()).getUniqueWBGraphicIdentifier());
 		roomManager.getRoom(getLocalScope().getName()).addShape(newShape);
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
 		List<Object> arguments = newShape.toList();
 		drawSO.sendMessage("addSegment", arguments);
 	}
 	
-	public int getNumShapesOnPage(int pageNum){
-		Presentation pres = roomManager.getRoom(getLocalScope().getName()).getActivePresentation();
-		pres.setActivePage(pageNum);
-		return pres.getActivePage().getNumShapesOnPage();
+	public void sendText(String text, int textColor, int bgColor, boolean bgColorVisible, int x, int y, String id, String status){
+		TextGraphic newText = new TextGraphic(text, textColor, bgColor, bgColorVisible, x, y, id, status);	
+		if(status.equals("textCreated"))
+			newText.ID = Integer.toString(roomManager.getRoom(getLocalScope().getName()).getUniqueWBGraphicIdentifier());
+		if(!roomManager.getRoom(getLocalScope().getName())
+				.getWBGraphicMap().containsKey(newText.ID))
+			roomManager.getRoom(getLocalScope().getName()).addText(newText);
+		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
+		List<Object> arguments = newText.toList();
+		drawSO.sendMessage("addText", arguments);
 	}
 	
-	public List<Object[]> getShapes(){
-		List<Object[]> shapesList = roomManager.getRoom(getLocalScope().getName()).getShapes();
+	public int getNumGraphicsOnPage(int pageNum){
+		Presentation pres = roomManager.getRoom(getLocalScope().getName()).getActivePresentation();
+		pres.setActivePage(pageNum);
+		return pres.getActivePage().getNumGraphicsOnPage();
+	}
+	
+	public List<Object[]> getGraphicObjects(){
+		List<Object[]> graphicsList = roomManager.getRoom(getLocalScope().getName()).getGraphicObjects();
 		
-		return shapesList;
+		return graphicsList;
 	}
 	
 	public void clear(){

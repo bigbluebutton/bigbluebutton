@@ -7,7 +7,8 @@ import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 import org.bigbluebutton.conference.service.whiteboard.IWhiteboardRoomListener;
 import org.bigbluebutton.conference.service.whiteboard.Presentation;
-import org.bigbluebutton.conference.service.whiteboard.Shape;
+import org.bigbluebutton.conference.service.whiteboard.ShapeGraphic;
+import org.bigbluebutton.conference.service.whiteboard.TextGraphic;
 
 public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 	private static Logger log = Red5LoggerFactory.getLogger( WhiteboardEventRecorder.class, "bigbluebutton" );
@@ -26,7 +27,7 @@ public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 	}
 
 	@Override
-	public void addShape(Shape shape, Presentation presentation) {
+	public void addShape(ShapeGraphic shape, Presentation presentation) {
 		AddShapeWhiteboardRecordEvent event = new AddShapeWhiteboardRecordEvent();
 		event.setMeetingId(session);
 		event.setTimestamp(System.currentTimeMillis());
@@ -36,8 +37,23 @@ public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 		event.setType(shape.getType());
 		event.setColor(shape.getColor());
 		event.setThickness(shape.getThickness());
-	        event.setFill(shape.isFill());
+	    event.setFill(shape.isFill());
 		event.setTransparent(shape.isTransparent());	
+		recorder.record(session, event);	
+	}
+	
+	@Override
+	public void addText(TextGraphic text, Presentation presentation) {
+		AddTextWhiteboardRecordEvent event = new AddTextWhiteboardRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());
+		event.setPresentation(presentation.getName());
+		event.setPageNumber(presentation.getActivePage().getPageIndex());
+		event.setText(text.getText());
+		event.setTextColor(text.getTextColor());
+		event.setBGColor(text.getBgColor());
+		event.setBGColorVisible(text.getBgColorVisible());
+		event.setDataPoints(text.getLocation());
 		recorder.record(session, event);	
 	}
 
@@ -53,7 +69,7 @@ public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 	}
 
 	@Override
-	public void undoShape(Presentation presentation) {
+	public void undoWBGraphic(Presentation presentation) {
 		UndoShapeWhiteboardRecordEvent event = new UndoShapeWhiteboardRecordEvent();
 		event.setMeetingId(session);
 		event.setTimestamp(System.currentTimeMillis());		
@@ -62,5 +78,7 @@ public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 		
 		recorder.record(session, event);			
 	}
+
+	
 
 }
