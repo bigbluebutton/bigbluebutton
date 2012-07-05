@@ -68,6 +68,7 @@
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.SelectObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
 			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
@@ -91,6 +92,7 @@
 			[Bindable] private var text_icon:Class = images.text_icon;
 			[Bindable] private var eraser_icon:Class = images.eraser_icon;
 			[Bindable] private var highlighter_icon:Class = images.highlighter_icon;
+			[Bindable] private var select_icon:Class = images.select_icon;
 			
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
@@ -116,6 +118,7 @@
 						btnToggleFill.enabled = true;
 					switch(toolType){
 						case DrawObject.PENCIL:
+							btnSelect.selected = false;
 							btnPenc.selected = true;
 							btnEllipse.selected = false;
 							btnRectangle.selected = false;
@@ -127,6 +130,7 @@
 							btnToggleTransparency.enabled = false;
 							break;
 						case DrawObject.HIGHLIGHTER:
+							btnSelect.selected = false;
 							btnPenc.selected = false;
 							btnEllipse.selected = false;
 							btnRectangle.selected = false;
@@ -138,6 +142,7 @@
 							btnToggleTransparency.enabled = false;
 							break;
 						case DrawObject.ELLIPSE:
+							btnSelect.selected = false;
 							btnPenc.selected = false;
 							btnEllipse.selected = true;
 							btnRectangle.selected = false;
@@ -147,6 +152,7 @@
 							btnEraser.selected = false;
 							break;
 						case DrawObject.RECTANGLE:
+							btnSelect.selected = false;
 							btnPenc.selected = false;
 							btnEllipse.selected = false;
 							btnRectangle.selected = true;
@@ -156,6 +162,7 @@
 							btnEraser.selected = false;
 							break;
 						case DrawObject.LINE:
+							btnSelect.selected = false;
 							btnPenc.selected = false;
 							btnEllipse.selected = false;
 							btnRectangle.selected = false;
@@ -166,6 +173,7 @@
 							btnToggleFill.enabled = false;
 							break;
 						case DrawObject.ERASER:
+							btnSelect.selected = false;
 							btnPenc.selected = false;
 							btnEllipse.selected = false;
 							btnRectangle.selected = false;
@@ -178,6 +186,7 @@
 							break;
 					}
 				} else if (gType == GraphicObject.TYPE_TEXT) {
+					btnSelect.selected = false;
 					btnPenc.selected = false;
 					btnEllipse.selected = false;
 					btnRectangle.selected = false;
@@ -189,7 +198,24 @@
 					btnToggleTransparency.enabled = false;
 					canvas.setGraphicType(gType);
 					canvas.setTool(toolType);
-				}
+				} else if (gType == GraphicObject.TYPE_SELECTION) {
+					switch(toolType) {
+						case SelectObject.SELECT_TOOL:
+							btnSelect.selected = true;
+							btnPenc.selected = false;
+							btnEllipse.selected = false;
+							btnRectangle.selected = false;
+							btnLine.selected = false;
+							btnText.selected = false;
+							btnHighl.selected = false;
+							btnEraser.selected = false;
+							btnToggleFill.enabled = false;
+							btnToggleTransparency.enabled = false;
+							break;
+					}
+					canvas.setGraphicType(gType);
+					canvas.setTool(toolType);
+				} 					
 			}
 			
 			private function setShapeToPencil(e:WhiteboardButtonEvent):void{
@@ -269,13 +295,13 @@
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
 				presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
 				this.x = presentationWindow.x + presentationWindow.width + 3;
-				this.y = presentationWindow.y + 30;
+				this.y = presentationWindow.y;
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
 			private function setPositionAndDepth(e:Event = null):void{
 				this.x = presentationWindow.x + presentationWindow.width + 3;
-				this.y = presentationWindow.y + 30;
+				this.y = presentationWindow.y;
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
@@ -318,6 +344,8 @@
 			}
 		]]>
 	</mx:Script>
+	<mx:Button width="20" height="20" id="btnSelect" click="setTool(GraphicObject.TYPE_SELECTION, SelectObject.SELECT_TOOL)"  icon="{select_icon}" 
+			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.select')}" toggle="true"/>
 	<mx:Button width="20" height="20" id="btnPenc" click="setTool(GraphicObject.TYPE_SHAPE, DrawObject.PENCIL)"  icon="{pencil_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.pencil')}" toggle="true" selected="true" />
 	<mx:Button width="20" height="20" id="btnHighl" click="setTool(GraphicObject.TYPE_SHAPE, DrawObject.HIGHLIGHTER)"  icon="{highlighter_icon}" 

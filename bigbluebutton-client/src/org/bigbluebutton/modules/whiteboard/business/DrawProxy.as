@@ -247,8 +247,8 @@ package org.bigbluebutton.modules.whiteboard.business
 		 */		
 		public function addSegment(graphicType:String, array:Array, type:String, color:uint, thickness:uint, 
 								   fill:Boolean, transparent:Boolean, id:String, status:String, recvdShapes:Boolean):void{
-			LogUtil.debug("Rx add segment **** with ID of " + id + " " + type
-			+ " and " + color + " " + thickness + " " + fill + " " + transparent);
+			//LogUtil.debug("Rx add segment **** with ID of " + id + " " + type
+			//+ " and " + color + " " + thickness + " " + fill + " " + transparent);
 			var d:DrawObject = drawFactory.makeDrawObject(type, array, color, thickness, fill, transparent);
 			
 			d.setGraphicID(id);

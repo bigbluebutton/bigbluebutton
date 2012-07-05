@@ -38,7 +38,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public static const RECTANGLE:String = "rectangle";
 		public static const ELLIPSE:String = "ellipse";
 		public static const LINE:String = "line";	
-		public static const DELETE:String = "deletor";	
 		
 		protected var type:String;
 		protected var shape:Array;

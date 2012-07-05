@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	{
 		public static const TYPE_SHAPE:String = "SHAPE";
 		public static const TYPE_TEXT:String = "TEXT";
+		public static const TYPE_SELECTION:String = "SELECTION";
 		public static const TYPE_INVALID:String = "INVALID";
 		
 		protected var graphic_type:String = TYPE_INVALID;

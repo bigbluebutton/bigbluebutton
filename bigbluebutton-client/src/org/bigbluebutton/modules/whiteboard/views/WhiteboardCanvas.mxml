@@ -34,6 +34,7 @@
 			import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.SelectObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
@@ -41,10 +42,11 @@
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingEvent;
 			
 			public var model:WhiteboardCanvasModel;			
-			private var bbbCanvas:IBbbCanvas;
+			public var bbbCanvas:IBbbCanvas;
 			private var _xPosition:int;
 			private var _yPosition:int;
 			private var images:Images = new Images();
+			[Bindable] private var select_icon:Class = images.select_icon;
 			[Bindable] private var pencil_icon:Class = images.pencil_icon;
 			[Bindable] private var rectangle_icon:Class = images.square_icon;
 			[Bindable] private var ellipse_icon:Class = images.circle_icon;
@@ -169,6 +171,8 @@
 					CursorManager.setCursor(eraser_icon);
 				} else if(toolType == TextObject.TEXT_TOOL) {
 					CursorManager.setCursor(text_icon);
+				} else if(toolType == SelectObject.SELECT_TOOL) {
+					CursorManager.setCursor(select_icon);
 				} 
 			}
 			

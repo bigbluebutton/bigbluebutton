@@ -1,10 +1,12 @@
 package org.bigbluebutton.modules.whiteboard
 {
+	import flash.display.DisplayObject;
 	import flash.display.Shape;
-	import flash.events.Event;
 	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.TextEvent;
+	import flash.geom.Point;
+	import flash.geom.Rectangle;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	
@@ -12,7 +14,6 @@ package org.bigbluebutton.modules.whiteboard
 	
 	import org.bigbluebutton.common.IBbbCanvas;
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
@@ -79,14 +80,15 @@ package org.bigbluebutton.modules.whiteboard
 						var height:Number = segment[segment.length-1]-y;
 						if(!(width <= 2 && height <=2))
 							sendShapeToServer(DrawObject.DRAW_END);
-					} else if (toolType == DrawObject.LINE) {
+					} else if (toolType == DrawObject.LINE ||
+								toolType == DrawObject.HIGHLIGHTER) {
 						if(segment.length > 4)
 							sendShapeToServer(DrawObject.DRAW_END);
 					} else {
 						sendShapeToServer(DrawObject.DRAW_END);
 					}
 				}
-			}
+			} 
 		}
 		
 		private var objCount:int = 0;
@@ -157,6 +159,41 @@ package org.bigbluebutton.modules.whiteboard
 				segment = new Array();
 				segment.push(mouseX);
 				segment.push(mouseY);
+			} else if(graphicType == GraphicObject.TYPE_SELECTION) {
+				var x:Number = 
+					textFactory.denormalize(
+					textFactory.normalize(mouseX,
+					textFactory.getParentWidth()), textFactory.getParentWidth());
+				
+				var y:Number = 
+					textFactory.denormalize(textFactory.normalize(mouseY,
+					textFactory.getParentHeight()), textFactory.getParentHeight());
+				
+				var point:Point = new Point(x,y);
+				point = wbCanvas.localToGlobal(point);
+				var objs:Array = wbCanvas.parentApplication.getObjectsUnderPoint(point);
+				var bounds:Rectangle = wbCanvas.getBounds(wbCanvas.stage);
+				
+				var graphics:Array = objs.filter(
+					function callback(item:*, index:int, array:Array):Boolean
+					{
+						return item is TextField;
+					}
+				);
+				var d:Shape = new Shape();
+				d.graphics.lineStyle(5, 0x00FF00);
+				d.graphics.drawRect(point.x, point.y, 1, 1);
+				
+				wbCanvas.stage.addChild(d);
+				
+				LogUtil.debug("There are " + graphics.length + " objects" +
+					"under your mouse. " + x + " " + y);
+
+				for(var i:int = 0; i <= graphics.length; i++) {
+					var currObj:DisplayObject = graphics[i];
+					var index:int = wbCanvas.stage.getChildIndex(currObj);
+					LogUtil.debug(index + " " + currObj.x + "," + currObj.y);
+				}
 			}
 		}
 		
@@ -234,7 +271,7 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		private function addNewShape(o:DrawObject):void {
-			LogUtil.debug("Adding new shape " + graphicList.length);
+			//LogUtil.debug("Adding new shape " + graphicList.length);
 			var dobj:DrawObject = shapeFactory.makeShape(o);
 			wbCanvas.addGraphic(dobj.getGraphic());
 			graphicList.push(dobj);
@@ -491,7 +528,7 @@ package org.bigbluebutton.modules.whiteboard
 			sendTextToServer(sendStatus, updatedObj);	
 		}
 		
-		public function textObjGainedFocus(event:Event):void {
+		public function textObjGainedFocus(event:FocusEvent):void {
 			var tf:TextField = event.target as TextField;
 			wbCanvas.stage.focus = tf;
 			tf.stage.focus = tf;
@@ -501,7 +538,7 @@ package org.bigbluebutton.modules.whiteboard
 			wbCanvas.dispatchEvent(e);
 		}
 		
-		public function textObjLostFocus(event:Event):void {
+		public function textObjLostFocus(event:FocusEvent):void {
 			var tf:TextField = event.target as TextField;	
 			var updatedObj:TextObject = textFactory.createTextObject(
 				tf.text,

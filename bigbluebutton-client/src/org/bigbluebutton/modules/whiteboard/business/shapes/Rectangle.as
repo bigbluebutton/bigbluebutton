@@ -60,7 +60,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
 			var newShape:Shape = new Shape();
-			newShape.graphics.lineStyle(getThickness(), getColor());
+			var lineTransparency:Number = transparent ? 0.6 : 1.0;
+			newShape.graphics.lineStyle(getThickness(), getColor(), lineTransparency);
 			var arrayEnd:Number = getShapeArray().length;
 			var x:Number = denormalize(getShapeArray()[0], parentWidth);
 			var y:Number = denormalize(getShapeArray()[1], parentHeight);

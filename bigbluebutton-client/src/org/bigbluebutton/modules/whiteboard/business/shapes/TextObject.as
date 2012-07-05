@@ -110,9 +110,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 										  textObjTextListener:Function,
 										  textObjDeleteListener:Function):void {
 											  
-			_textField.addEventListener(Event.ACTIVATE, textObjGainedFocus);
-			_textField.addEventListener(Event.ACTIVATE, textObjSelected);
-			_textField.addEventListener(Event.DEACTIVATE, textObjLostFocus);
+			_textField.addEventListener(FocusEvent.FOCUS_IN, textObjGainedFocus);
+			_textField.addEventListener(FocusEvent.FOCUS_IN, textObjSelected);
+			_textField.addEventListener(FocusEvent.FOCUS_OUT, textObjLostFocus);
 			_textField.addEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
 			_textField.addEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
 		}		
@@ -122,14 +122,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 											textObjTextListener:Function,
 											textObjDeleteListener:Function):void {
 			
-			_textField.removeEventListener(Event.ACTIVATE, textObjGainedFocus);
-			_textField.removeEventListener(Event.ACTIVATE, textObjSelected);
-			_textField.removeEventListener(Event.DEACTIVATE, textObjLostFocus);
+			_textField.removeEventListener(FocusEvent.FOCUS_IN, textObjGainedFocus);
+			_textField.removeEventListener(FocusEvent.FOCUS_IN, textObjSelected);
+			_textField.removeEventListener(FocusEvent.FOCUS_OUT, textObjLostFocus);
 			_textField.removeEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
 			_textField.removeEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
 		}
 		
-		public function textObjSelected(event:Event):void {
+		public function textObjSelected(event:FocusEvent):void {
 			WhiteboardCanvasModel.SELECTED_OBJECT = this;
 		}
 		

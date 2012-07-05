@@ -192,5 +192,8 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/highlighter_icon.png")]
 		public var highlighter_icon:Class;	
+		
+		[Embed(source="assets/images/pointer_icon_small.png")]
+		public var select_icon:Class;	
 	}
 }
