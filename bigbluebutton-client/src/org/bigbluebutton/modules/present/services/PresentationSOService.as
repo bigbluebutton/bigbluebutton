@@ -437,14 +437,14 @@ package org.bigbluebutton.modules.present.services
         public function conversionCompletedUpdateMessageCallback(conference:String, room:String, 
                                                                  code:String, presentationName:String, messageKey:String, slidesInfo:String) : void {
             LogUtil.debug("conversionCompletedUpdateMessageCallback:Received update message " + messageKey);
+            presentationModel.addPresentation(presentationName);
+            presentationModel.setCurrentPresentation(presentationName);
+            
             var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
             uploadEvent.data = messageKey;
             uploadEvent.presentationName = presentationName;
             _dispatcher.dispatchEvent(uploadEvent);
-            _dispatcher.dispatchEvent(new BBBEvent(BBBEvent.PRESENTATION_CONVERTED));
-            var readyEvent:UploadEvent = new UploadEvent(UploadEvent.PRESENTATION_READY);
-            readyEvent.presentationName = presentationName;
-            _dispatcher.dispatchEvent(readyEvent);
+
         }
         
         public function conversionUpdateMessageCallback(conference:String, room:String, 

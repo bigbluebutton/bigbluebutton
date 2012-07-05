@@ -44,6 +44,19 @@ package org.bigbluebutton.modules.present.models
             _presentations.addItem(p);
         }
         
+        public function setCurrentPresentation(id:String):void {
+            var index:int = getPresentationIndex(id);
+            if (index >= 0) {
+                _currentPresentation = _presentations.getItemAt(index) as Presentation;
+                LogUtil.debug("Dispatching sharing presentation event");
+                var event:PresentationEvent = new PresentationEvent(PresentationEvent.SHARING_PRESENTATION_EVENT);
+                event.presentationID = _currentPresentation.id;
+                _dispatcher.dispatchEvent(event);
+            } else {
+                LogUtil.error("Cannot find presentation [" + _initialPresentation.currentPage + "]");
+            }
+        }
+        
         public function loadCurrentPage():void {
             _currentPresentation.loadCurrentPage();    
         }
@@ -83,8 +96,7 @@ package org.bigbluebutton.modules.present.models
                 } else {
                     LogUtil.error("Cannot find presentation [" + _initialPresentation.currentPage + "]");
                 }
-            }
-            
+            }           
         }
         
         public function setCurrentPageNumber(number:uint):void {
