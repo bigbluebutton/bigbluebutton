@@ -11,8 +11,7 @@ package org.bigbluebutton.modules.present.models
     import org.bigbluebutton.modules.present.vo.InitialPresentation;
 
     public class PresentationModel
-    {
-        
+    {        
         public var config:PresentationConfigModel;
         public var meeting:MeetingModel;
         public var users:UsersModel;
@@ -20,6 +19,7 @@ package org.bigbluebutton.modules.present.models
         private var _presentations:ArrayCollection = new ArrayCollection();
         private var _initialPresentation:InitialPresentation;
         private var _dispatcher:IEventDispatcher;
+        private var _currentPresentation:Presentation;
         
         public function PresentationModel(dispatcher:IEventDispatcher)
         {
@@ -27,14 +27,20 @@ package org.bigbluebutton.modules.present.models
         }
         
         public function addPresentation(id:String):void {
-            var p:Presentation = new Presentation(id, config.presentationService, users.loggedInUser.meetingID);
+            var p:Presentation = new Presentation(id, config.presentationService, users.loggedInUser.meetingID, _dispatcher);
             _presentations.addItem(p);
         }
         
+        public function loadCurrentPage():void {
+            _currentPresentation.loadCurrentPage();    
+        }
+        
         public function loadPresentation(id:String):void {
+            LogUtil.debug("Request to load presentation [" + id + "]");
              var i:int = getPresentationIndex(id);
              if (i >= 0) {
                  var p:Presentation = _presentations.getItemAt(i) as Presentation;
+                 LogUtil.debug("Loading presentation [" + p.id + "]");
                  p.load();
              } else {
                  var event:PresentationEvent = new PresentationEvent(PresentationEvent.PRESENTATION_NOT_FOUND);
@@ -44,12 +50,28 @@ package org.bigbluebutton.modules.present.models
         
         public function setInitialPresentation(initPres:InitialPresentation):void {
             _initialPresentation = initPres;
+            LogUtil.debug("Initial Presentation = " + initPres.toString());
             for (var i:int = 0; i < _initialPresentation.presentations.length; i++) {
                 addPresentation(_initialPresentation.presentations.getItemAt(i) as String);
             }
             if (_initialPresentation.sharing) {
-                loadPresentation(_initialPresentation.presentationName);
+                var index:int = getPresentationIndex(_initialPresentation.presentationName);
+                if (index >= 0) {
+                    _currentPresentation = _presentations.getItemAt(index) as Presentation;
+                    _currentPresentation.currentPage =  _initialPresentation.currentPage;
+                    _currentPresentation.xOffset = _initialPresentation.xOffset;
+                    _currentPresentation.yOffset = _initialPresentation.yOffset;
+                    _currentPresentation.widthRatio = _initialPresentation.widthRatio;
+                    _currentPresentation.heightRatio = _initialPresentation.heightRatio;
+                    LogUtil.debug("Dispatching sharing presentation event");
+                    var event:PresentationEvent = new PresentationEvent(PresentationEvent.SHARING_PRESENTATION_EVENT);
+                    event.presentationID = _currentPresentation.id;
+                    _dispatcher.dispatchEvent(event);
+                } else {
+                    LogUtil.error("Cannot find presentation [" + _initialPresentation.currentPage + "]");
+                }
             }
+            
         }
         
         public function setCurrentPageNumber(number:uint):void {

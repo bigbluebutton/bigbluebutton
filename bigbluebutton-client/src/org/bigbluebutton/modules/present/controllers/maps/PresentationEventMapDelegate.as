@@ -22,6 +22,10 @@ package org.bigbluebutton.modules.present.controllers.maps
             _dispatcher = dispatcher;
         }
         
+        public function callme():void {
+            LogUtil.debug("CALLING ME!!!");
+        }
+        
         public function start():void {
             LogUtil.debug("***FOOOOO!!!!***");
             LogUtil.debug("OPTIONS [" + configModel.showWindowControls + ", " + configModel.presentationService + "]"); 

@@ -13,5 +13,9 @@ package org.bigbluebutton.modules.present.vo
         public var sharing:Boolean = false;
         public var currentPage:uint = 0;
         public var presentationName:String;
+        
+        public function toString():String {
+            return "hasPresenter=" + hasPresenter + ",presentationName=" + presentationName + ",sharing=" + sharing + "]";
+        }
     }
 }

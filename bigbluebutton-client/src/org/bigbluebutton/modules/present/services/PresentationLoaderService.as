@@ -61,7 +61,9 @@ package org.bigbluebutton.modules.present.services
             for each (item in list){		
                 LogUtil.debug("Available slide: [number=" + item.@number + ", page=" + item.@name + ", thumb=" + item.@thumb + "]");
                 _presentation.addPage(item.@number, item.@name, item.@thumb);						
-            }		            
+            }		 
+            
+            _presentation.presentationLoaded();
         }
         
         /**

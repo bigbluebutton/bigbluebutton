@@ -24,9 +24,11 @@ package org.bigbluebutton.modules.present.events
 	
 	public class PresentationEvent extends Event
 	{
+        public static const PRESENTATION_LOADED_EVENT:String = "presentation loaded event";
 		public static const PRESENTATION_LOADED:String = "Presentation Loaded";
 		public static const PRESENTATION_NOT_LOADED:String = "Presentation Not Loaded";
 		
+        public var id:String;
 		public var presentationName:String;
 		private var _slides:PresentationSlides;
 		public var numberOfSlides:int;

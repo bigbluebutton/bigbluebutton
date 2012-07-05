@@ -22,22 +22,23 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.events.FlexEvent;
-			
-			import org.bigbluebutton.core.model.ConfigModel;
-			import org.bigbluebutton.core.model.MeetingModel;
-			import org.bigbluebutton.core.model.UsersModel;
-			import org.bigbluebutton.core.services.Red5BBBAppConnectionService;
-			import org.bigbluebutton.modules.present.events.PresentModuleEvent;
-			import org.bigbluebutton.modules.present.events.PresenterCommands;
-			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-			import org.bigbluebutton.modules.present.events.SlideEvent;
-			import org.bigbluebutton.modules.present.events.UploadEvent;
-			import org.bigbluebutton.modules.present.models.PresentationConfigModel;
-			import org.bigbluebutton.modules.present.models.PresentationModel;
-			import org.bigbluebutton.modules.present.services.PresentationSOService;
-			import org.bigbluebutton.modules.present.services.PresentationService;
-			import org.bigbluebutton.modules.present.services.PresentationUploadService;
+            import mx.events.FlexEvent;
+            
+            import org.bigbluebutton.core.model.ConfigModel;
+            import org.bigbluebutton.core.model.MeetingModel;
+            import org.bigbluebutton.core.model.UsersModel;
+            import org.bigbluebutton.core.services.Red5BBBAppConnectionService;
+            import org.bigbluebutton.modules.present.controllers.events.PresentationEvent;
+            import org.bigbluebutton.modules.present.events.PresentModuleEvent;
+            import org.bigbluebutton.modules.present.events.PresenterCommands;
+            import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+            import org.bigbluebutton.modules.present.events.SlideEvent;
+            import org.bigbluebutton.modules.present.events.UploadEvent;
+            import org.bigbluebutton.modules.present.models.PresentationConfigModel;
+            import org.bigbluebutton.modules.present.models.PresentationModel;
+            import org.bigbluebutton.modules.present.services.PresentationSOService;
+            import org.bigbluebutton.modules.present.services.PresentationService;
+            import org.bigbluebutton.modules.present.services.PresentationUploadService;
 		]]>
 	</mx:Script>
 	
@@ -149,5 +150,13 @@
 	<EventHandlers type="{SlideEvent.LOAD_CURRENT_SLIDE}" >
 		<MethodInvoker generator="{PresentationService}" method="loadCurrentSlideLocally" arguments="{event}" />
 	</EventHandlers>
-	
+
+    <EventHandlers type="{PresentationEvent.PRESENTATION_LOADED_EVENT}" >
+        <MethodInvoker generator="{PresentationModel}" method="loadCurrentPage"/>
+    </EventHandlers>
+
+    <EventHandlers type="{PresentationEvent.SHARING_PRESENTATION_EVENT}" >
+        <MethodInvoker generator="{PresentationModel}" method="loadPresentation" arguments="{event.presentationID}" />
+        <MethodInvoker generator="{PresentationEventMapDelegate}" method="callme"/>
+    </EventHandlers>
 </EventMap>
