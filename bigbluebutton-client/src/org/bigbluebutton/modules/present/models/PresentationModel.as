@@ -26,6 +26,19 @@ package org.bigbluebutton.modules.present.models
             _dispatcher = dispatcher;
         }
         
+        public function get presentationNames():ArrayCollection {
+            var names:ArrayCollection = new ArrayCollection();
+            for (var i:int = 0; i < _presentations.length; i++) {
+                var p:Presentation = _presentations.getItemAt(i) as Presentation;
+                names.addItem(p.id);
+            } 
+            return names;
+        }
+        
+        public function get currentPresentation():Presentation {
+            return _currentPresentation;
+        }
+        
         public function addPresentation(id:String):void {
             var p:Presentation = new Presentation(id, config.presentationService, users.loggedInUser.meetingID, _dispatcher);
             _presentations.addItem(p);

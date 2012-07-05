@@ -186,7 +186,7 @@ package org.bigbluebutton.core.model {
 		}
 	
 		public function amIPresenter():Boolean {
-			return _me.presenter;
+            return _me.presenter;
 		}
 		
 		public function setMePresenter(presenter:Boolean):void {

@@ -18,18 +18,18 @@ package org.bigbluebutton.modules.present.services
 
     public class PresentationUploadService
     {       
-        public static const UPLOAD_PROGRESS:String = "UPLOAD_PROGRESS";
-        public static const UPLOAD_COMPLETED:String = "UPLOAD_COMPLETED";
-        public static const UPLOAD_IO_ERROR:String = "UPLOAD_IO_ERROR";
-        public static const UPLOAD_SECURITY_ERROR:String = "UPLOAD_SECURITY_ERROR";
+//        public static const UPLOAD_PROGRESS:String = "UPLOAD_PROGRESS";
+//        public static const UPLOAD_COMPLETED:String = "UPLOAD_COMPLETED";
+//        public static const UPLOAD_IO_ERROR:String = "UPLOAD_IO_ERROR";
+//        public static const UPLOAD_SECURITY_ERROR:String = "UPLOAD_SECURITY_ERROR";
         
         private var request:URLRequest = new URLRequest();
         private var sendVars:URLVariables = new URLVariables();
         
         private var _dispatcher:IEventDispatcher;
         
-        public var usersModel:UsersModel;
-        public var configModel:PresentationConfigModel;
+        public var users:UsersModel;
+        public var config:PresentationConfigModel;
         
         public function PresentationUploadService(dispatcher:IEventDispatcher):void {
             _dispatcher = dispatcher;
@@ -51,9 +51,9 @@ package org.bigbluebutton.modules.present.services
             fileToUpload.addEventListener(HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
             fileToUpload.addEventListener(Event.OPEN, openHandler);
             
-            sendVars.conference = usersModel.loggedInUser.conference;
-            sendVars.room = usersModel.loggedInUser.conference;
-            request.url = configModel.presentationService + "/upload";
+            sendVars.conference = users.loggedInUser.conference;
+            sendVars.room = users.loggedInUser.conference;
+            request.url = config.presentationService + "/upload";
             request.data = sendVars;
             request.method = URLRequestMethod.POST;
             

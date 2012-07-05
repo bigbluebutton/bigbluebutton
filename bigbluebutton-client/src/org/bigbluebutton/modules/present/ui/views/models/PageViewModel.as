@@ -3,7 +3,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 	import org.bigbluebutton.common.LogUtil;
 
 	
-	public class SlideViewModel
+	public class PageViewModel
 	{
 		public static const MAX_ZOOM_PERCENT:Number = 400;
 		public static const HUNDRED_PERCENT:Number = 100;

@@ -22,7 +22,8 @@
 
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
-    xmlns:maps="org.bigbluebutton.modules.present.controllers.maps.*">
+    xmlns:maps="org.bigbluebutton.modules.present.controllers.maps.*"
+    xmlns:viewmaps="org.bigbluebutton.modules.present.ui.views.*">
 	
 	<mx:Script>
 		<![CDATA[
@@ -57,4 +58,5 @@
 	</mx:Script>
 	
 	<maps:PresentationEventMap id="eventMap" />
+    <viewmaps:PresentWindowEventMap id="presentWindoeEventMap" />
 </mx:Module>

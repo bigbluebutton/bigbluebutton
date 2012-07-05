@@ -66,8 +66,8 @@
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
 			import org.bigbluebutton.modules.present.events.ZoomEvent;
 			import org.bigbluebutton.modules.present.managers.Slide;
+			import org.bigbluebutton.modules.present.ui.views.models.PageViewModel;
 			import org.bigbluebutton.modules.present.ui.views.models.SlideCalcUtil;
-			import org.bigbluebutton.modules.present.ui.views.models.SlideViewModel;
 			
 			[Bindable] public var zoomPercentage:Number = 100;
 			public static const ZOOM_STEP:int = 5;
@@ -96,7 +96,7 @@
 			private var dispatcher:Dispatcher = new Dispatcher();
 						
 			[Bindable]
-			private var slideModel:SlideViewModel = new SlideViewModel();
+			private var slideModel:PageViewModel = new PageViewModel();
 			
 			private function onCreationComplete():void {
 				slideLoader.width = this.width;
@@ -236,10 +236,10 @@
 			
 			private function zoomSlide(zoom:Number, mouseX:Number, mouseY:Number):void {
 				zoomPercentage = zoom;
-				if (zoomPercentage <= SlideViewModel.HUNDRED_PERCENT) {
-					zoomPercentage = SlideViewModel.HUNDRED_PERCENT;
-				} else if (zoomPercentage >= SlideViewModel.MAX_ZOOM_PERCENT) {
-					zoomPercentage = SlideViewModel.MAX_ZOOM_PERCENT
+				if (zoomPercentage <= PageViewModel.HUNDRED_PERCENT) {
+					zoomPercentage = PageViewModel.HUNDRED_PERCENT;
+				} else if (zoomPercentage >= PageViewModel.MAX_ZOOM_PERCENT) {
+					zoomPercentage = PageViewModel.MAX_ZOOM_PERCENT
 				}
 				
 				slideModel.onZoom(zoomPercentage, mouseX, mouseY);

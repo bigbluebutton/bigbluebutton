@@ -7,14 +7,14 @@ package org.bigbluebutton.modules.present.controllers.maps
     import org.bigbluebutton.common.events.OpenWindowEvent;
     import org.bigbluebutton.main.events.BBBEvent;
     import org.bigbluebutton.modules.present.models.PresentationConfigModel;
-    import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+    import org.bigbluebutton.modules.present.ui.views.PresentWindow;
 
     public class PresentationEventMapDelegate
     {
         public var configModel:PresentationConfigModel;
         
         private var _dispatcher:IEventDispatcher;
-		private var presentWindow:PresentationWindow;
+		private var presentWindow:PresentWindow;
 
 		
         public function PresentationEventMapDelegate(dispatcher:IEventDispatcher)
@@ -27,14 +27,14 @@ package org.bigbluebutton.modules.present.controllers.maps
         }
         
         public function start():void {
-            LogUtil.debug("***FOOOOO!!!!***");
-            LogUtil.debug("OPTIONS [" + configModel.showWindowControls + ", " + configModel.presentationService + "]"); 
+ //           LogUtil.debug("*** PresentationEventMapDelegate FOOOOO!!!!***");
+/*            LogUtil.debug("OPTIONS [" + configModel.showWindowControls + ", " + configModel.presentationService + "]"); 
 			if (presentWindow != null) return;
-			presentWindow = new PresentationWindow();
+			presentWindow = new PresentWindow();
 			presentWindow.visible = configModel.showPresentWindow;
 			presentWindow.showControls = configModel.showWindowControls;
 			openWindow(presentWindow);
-
+*/
         }
 
 		private function openWindow(window:IBbbModuleWindow):void{				

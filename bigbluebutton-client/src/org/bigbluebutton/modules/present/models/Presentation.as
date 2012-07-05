@@ -48,6 +48,7 @@ package org.bigbluebutton.modules.present.models
         public function addPage(number:uint, page:String, thumb:String):void {
             var pageURI:String = _presentationService + "/" + _meetingID + "/" + _meetingID + "/" + _id;
             var p:Page = new Page(number, page, thumb, pageURI);
+            p.dispatcher = _dispatcher;
             pages.addItem(p);
         }
 		

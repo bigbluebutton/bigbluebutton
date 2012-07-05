@@ -1,5 +1,6 @@
 package org.bigbluebutton.modules.present.models
 {
+    import flash.events.IEventDispatcher;
     import flash.utils.ByteArray;
     
     import org.bigbluebutton.modules.present.services.PageLoaderService;
@@ -23,6 +24,8 @@ package org.bigbluebutton.modules.present.models
         public var widthRatio:Number = 100;
         public var heightRatio:Number = 100;
         
+        public var dispatcher:IEventDispatcher;
+        
         public function Page(number:uint, pageURI:String, thumbURI:String, serviceURI:String):void {
             _number = number;
             _pageURI = pageURI;
@@ -34,6 +37,7 @@ package org.bigbluebutton.modules.present.models
         }
         
         public function loadPage():void {
+            _pageLoader.dispatcher = dispatcher;
             _pageLoader.load(_serviceURI + "/" + _pageURI);
         }
         

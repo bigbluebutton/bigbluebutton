@@ -328,7 +328,7 @@
 				pageDialog.totalSlides = slideView.slides.length;
 				pageDialog.x = this.x + this.width/2 - pageDialog.width/2;
 				pageDialog.y = this.y + this.height/2 - pageDialog.height/2;
-				pageDialog.window = this;
+	//			pageDialog.window = this;
 				PopUpManager.addPopUp(pageDialog, this, false);
 			}
 			

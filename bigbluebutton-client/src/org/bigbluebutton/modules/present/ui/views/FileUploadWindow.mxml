@@ -45,21 +45,26 @@
     	    
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
-			import com.asfusion.mate.events.Dispatcher;			
-			import mx.collections.*;
-			import mx.events.FlexEvent;
-			import mx.events.ValidationResultEvent;
-			import mx.managers.PopUpManager;
-		    import mx.utils.*;
-			import mx.validators.*;			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
-			import org.bigbluebutton.modules.present.events.UploadEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+            import com.asfusion.mate.events.Dispatcher;
+            
+            import mx.collections.*;
+            import mx.events.FlexEvent;
+            import mx.events.ValidationResultEvent;
+            import mx.managers.PopUpManager;
+            import mx.utils.*;
+            import mx.validators.*;
+            
+            import org.bigbluebutton.common.Images;
+            import org.bigbluebutton.common.LogUtil;
+            import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+            import org.bigbluebutton.modules.present.events.UploadEvent;
+            import org.bigbluebutton.modules.present.ui.views.models.FileUploadWindowModel;
+            import org.bigbluebutton.util.i18n.ResourceUtil;
 
+            [Bindable]
+            public var model:FileUploadWindowModel = new FileUploadWindowModel();
             	
-			[Bindable] public var presentationNames:Array = new Array();
+			[Bindable] public var presentationNames:ArrayCollection = new ArrayCollection();
 			[Bindable] public var presentationNamesAC:ArrayCollection;
 			
 			private var images:Images = new Images();
@@ -74,7 +79,7 @@
 	        private var fileToUpload:FileReference = new FileReference();
 
 	        private function initData():void {
-    	        presentationNamesAC = new ArrayCollection(presentationNames);
+    	        presentationNamesAC = presentationNames;
     	        if (presentationNames.length <= 0) {
 					deleteBtn.enabled = false;
 					showBtn.enabled = false;
@@ -310,7 +315,7 @@
     
     <!-- NOTE: Need to redo this layout to handle localization better -->       
 	<mx:Spacer height="100%" x="0" y="0"/>	
-	<mx:Label id="fileLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileLbl')}" x="30" y="11"/>
+	<mx:Label id="fileLbl" text="{model.fileuploadFileLbl}" x="30" y="11"/>
 	<mx:TextInput id="fileTxtInput" width="328" x="87" y="9" editable="false"/>
 	<mx:Button id="selectBtn" toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.toolTip')}" 
 		click="selectFile()" icon="{addIcon}" width="26" x="432" y="9"/>
