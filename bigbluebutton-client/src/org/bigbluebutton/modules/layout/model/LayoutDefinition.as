@@ -75,39 +75,26 @@ package org.bigbluebutton.modules.layout.model {
 					loadLayout(tmp);
 			}
 		}
-		
-		private function get presenterLayout():Dictionary {
-			if (_windows.hasOwnProperty(Role.PRESENTER))
-				return _windows[Role.PRESENTER];
-			else
-				return viewerLayout;
-		}
-		
-		private function get viewerLayout():Dictionary {
-			if (_windows.hasOwnProperty(Role.VIEWER))
-				return _windows[Role.VIEWER];
-			else if (_windows.hasOwnProperty(Role.MODERATOR))
-				return _windows[Role.MODERATOR];
-			else if (_windows.hasOwnProperty(Role.PRESENTER))
-				return _windows[Role.PRESENTER];
-			else
-				return null;	
-		}
-		
-		private function get moderatorLayout():Dictionary {
-			if (_windows.hasOwnProperty(Role.MODERATOR))
-				return _windows[Role.MODERATOR];
-			else
-				return viewerLayout;
-		}
-		
+
 		private function get myLayout():Dictionary {
-			if (UserManager.getInstance().getConference().amIPresenter())
-				return presenterLayout;
-			else if (UserManager.getInstance().getConference().amIModerator())
-				return moderatorLayout;
-			else
-				return viewerLayout;
+			var hasViewerLayout:Boolean = _windows.hasOwnProperty(Role.VIEWER);
+			var hasModeratorLayout:Boolean = _windows.hasOwnProperty(Role.MODERATOR);
+			var hasPresenterLayout:Boolean = _windows.hasOwnProperty(Role.PRESENTER);
+			
+			if (UserManager.getInstance().getConference().amIPresenter() && hasPresenterLayout)
+				return _windows[Role.PRESENTER];
+			else if (UserManager.getInstance().getConference().amIModerator() && hasModeratorLayout)
+				return _windows[Role.MODERATOR];
+			else if (hasViewerLayout) 
+				return _windows[Role.VIEWER];
+			else if (hasModeratorLayout)
+				return _windows[Role.MODERATOR];
+			else if (hasPresenterLayout)
+				return _windows[Role.PRESENTER];
+			else {
+				LogUtil.error("There's no layout that fits the participants profile");
+				return null;
+			}
 		}
 		
 		public function windowLayout(name:String):WindowLayout {
