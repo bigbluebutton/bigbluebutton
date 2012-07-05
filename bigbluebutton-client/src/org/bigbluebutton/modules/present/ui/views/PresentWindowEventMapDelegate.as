@@ -9,6 +9,7 @@ package org.bigbluebutton.modules.present.ui.views
     import org.bigbluebutton.common.events.OpenWindowEvent;
     import org.bigbluebutton.core.model.MeetingModel;
     import org.bigbluebutton.core.model.UsersModel;
+    import org.bigbluebutton.modules.present.events.PresenterCommands;
     import org.bigbluebutton.modules.present.models.PresentationConfigModel;
     import org.bigbluebutton.modules.present.models.PresentationModel;
     import org.bigbluebutton.modules.present.ui.views.models.PresentWindowModel;
@@ -60,9 +61,34 @@ package org.bigbluebutton.modules.present.ui.views
             mx.managers.PopUpManager.addPopUp(_uploadWindow, _presentWindow, false);
         }
         
-        public function handleCloseUploadWindow():void{
+        public function handleCloseUploadWindow():void {
             PopUpManager.removePopUp(_uploadWindow);
             _uploadWindow = null;
+        }
+        
+        public function handleGotoNextPageEvent():void {
+            LogUtil.debug("Handle go to next page event");
+            var curPage:int = presentModel.getCurrentPage();
+             
+            if ((curPage + 1) < presentModel.getCurrentPresentationNumberOfPages()) {
+                _model.forwardBtnEnabled = true;
+            } else {
+                _model.forwardBtnEnabled = false;
+            }
+            _dispatcher.dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, curPage + 1));
+        }
+
+        public function handleGotoPreviousPageEvent():void {
+            LogUtil.debug("Handle go to previous page event");
+            var curPage:int = presentModel.getCurrentPage();
+            
+            if ((curPage - 1) == 0) {
+                _model.backBtnEnabled = true;
+            } else {
+                _model.backBtnEnabled = false;
+            }
+            
+            _dispatcher.dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, curPage - 1));
         }
         
         private function handlePresentationLoadedEvent():void {	

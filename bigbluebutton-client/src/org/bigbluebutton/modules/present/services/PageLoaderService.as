@@ -37,6 +37,7 @@ package org.bigbluebutton.modules.present.services
             LogUtil.debug("Page loaded");
             var pageEvent:SlideEvent = new SlideEvent(SlideEvent.SLIDE_LOADED);
             pageEvent.slide = _page.page;
+            pageEvent.slideNumber = _page.number;
             dispatcher.dispatchEvent(pageEvent);
         }
     }

@@ -99,8 +99,17 @@ package org.bigbluebutton.modules.present.models
             }           
         }
         
-        public function setCurrentPageNumber(number:uint):void {
-            
+        public function getCurrentPresentationNumberOfPages():int {
+            return _currentPresentation.pages.length;
+        }
+        
+        public function getCurrentPage():int {
+            return _currentPresentation.currentPage;
+        }
+        
+        public function loadPage(num:int):void {
+            _currentPresentation.setCurrentPage(num); 
+            _currentPresentation.loadCurrentPage();
         }
         
         private function getPresentationIndex(id:String):int {

@@ -39,6 +39,13 @@ package org.bigbluebutton.modules.present.models
             return _id;
         }
         
+        public function setCurrentPage(num:int):void {
+            if (currentPage > 0 && currentPage <= pages.length) {
+                currentPage = num;
+            }
+            
+        }
+        
         public function loadCurrentPage():void {
             var p:Page = pages.getItemAt(currentPage) as Page;
             p.loadPage();

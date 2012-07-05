@@ -36,6 +36,9 @@ package org.bigbluebutton.modules.present.models
             _thumbLoader  = new ThumbnailLoaderService(this);
         }
         
+        public function get number():int {
+            return _number;
+        }
         public function loadPage():void {
             _pageLoader.dispatcher = dispatcher;
             _pageLoader.load(_serviceURI + "/" + _pageURI);

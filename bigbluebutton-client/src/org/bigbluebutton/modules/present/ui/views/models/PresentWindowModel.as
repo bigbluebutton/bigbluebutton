@@ -11,6 +11,13 @@ package org.bigbluebutton.modules.present.ui.views.models
         [Bindable] 
         public var presentationTitle:String = "";
         
+        [Bindable]
+        public var backBtnEnabled:Boolean = true;
+        
+        [Bindable]
+        public var forwardBtnEnabled:Boolean = true;        
+        
+        
         private var images:Images = new Images();
         [Bindable] public var uploadIcon:Class = images.upload;
         [Bindable] public var forwardIcon:Class = images.forward;

@@ -24,6 +24,8 @@
 		<![CDATA[
             import org.bigbluebutton.core.model.MeetingModel;
             import org.bigbluebutton.core.model.UsersModel;
+            import org.bigbluebutton.modules.present.controllers.events.GotoNextPageEvent;
+            import org.bigbluebutton.modules.present.controllers.events.GotoPreviousPageEvent;
             import org.bigbluebutton.modules.present.events.PresentModuleEvent;
             import org.bigbluebutton.modules.present.events.UploadEvent;
             import org.bigbluebutton.modules.present.models.PresentationConfigModel;
@@ -43,6 +45,14 @@
 
     <EventHandlers type="{UploadEvent.CLOSE_UPLOAD_WINDOW}" >
         <MethodInvoker generator="{PresentWindowEventMapDelegate}" method="handleCloseUploadWindow"/>
+    </EventHandlers>
+
+    <EventHandlers type="{GotoNextPageEvent.GOTO_NEXT_PAGE_EVENT}" >
+        <MethodInvoker generator="{PresentWindowEventMapDelegate}" method="handleGotoNextPageEvent"/>
+    </EventHandlers>
+
+    <EventHandlers type="{GotoPreviousPageEvent.GOTO_PREVIOUS_PAGE_EVENT}" >
+        <MethodInvoker generator="{PresentWindowEventMapDelegate}" method="handleGotoPreviousPageEvent"/>
     </EventHandlers>
     
     <Injectors target="{PresentWindowEventMapDelegate}">

@@ -78,6 +78,8 @@
             import org.bigbluebutton.main.events.MadePresenterEvent;
             import org.bigbluebutton.main.views.MainCanvas;
             import org.bigbluebutton.modules.present.api.IPresentationButton;
+            import org.bigbluebutton.modules.present.controllers.events.GotoNextPageEvent;
+            import org.bigbluebutton.modules.present.controllers.events.GotoPreviousPageEvent;
             import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
             import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
             import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
@@ -342,13 +344,17 @@
 			}
 			
 			private function gotoPreviousSlide():void {
-				if ((slideView.selectedSlide - 1) >= 0)
-					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide - 1));
+//				if ((slideView.selectedSlide - 1) >= 0)
+//					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide - 1));
+                var dispatcher:Dispatcher = new Dispatcher();
+                dispatcher.dispatchEvent(new GotoPreviousPageEvent());
 			}
 			
 			private function gotoNextSlide():void {
-				if ((slideView.selectedSlide + 1) < slideView.slides.length)
-					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide + 1));
+//				if ((slideView.selectedSlide + 1) < slideView.slides.length)
+//					dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, slideView.selectedSlide + 1));
+                var dispatcher:Dispatcher = new Dispatcher();
+                dispatcher.dispatchEvent(new GotoNextPageEvent());
 			}
 			
 			private function removeDecimalFromDataTip(val:String):String {			
@@ -426,9 +432,8 @@
 			}
             
             private function openFileUploadWindow():void {
-                LogUtil.debug("Dispatching open file upload window");
                 var dispatcher:Dispatcher = new Dispatcher();
-                dispatcher.dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))
+                dispatcher.dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW));
             }
 			          
 		]]>
@@ -444,11 +449,11 @@
     	   		toolTip="{model.uploadPresBtnToolTip}" 
     	   		click="openFileUploadWindow()"/>        	  
     	  <mx:Spacer width="50%" id="spacer1"/>
-    	  <mx:Button id="backButton" icon="{model.backwardIcon}" visible="{model.presenter}" width="30" height="20"
+    	  <mx:Button id="backButton" icon="{model.backwardIcon}" visible="{model.presenter}" enabled="{model.backBtnEnabled}" width="30" height="20"
     	   		toolTip="{model.backBtnToolTip}" click="gotoPreviousSlide()"/>
     	  <mx:Button id="btnSlideNum" visible="{model.presenter}" label="" click="showThumbnails()" doubleClick="showPageDialog()" 
 					 toolTip="{model.slideNumLblToolTip}"/>
-    	  <mx:Button id="forwardButton" icon="{model.forwardIcon}" visible="{model.presenter}" width="30" height="20"
+    	  <mx:Button id="forwardButton" icon="{model.forwardIcon}" visible="{model.presenter}" enabled="{model.forwardBtnEnabled}" width="30" height="20"
     	   		toolTip="{model.forwardBtnToolTip}" click="gotoNextSlide()"/>    				
 		<mx:Spacer width="10%" id="spacer2"/>
     	<mx:HSlider id="zoomSlider" visible="{model.presenter}" value="{slideView.zoomPercentage}"

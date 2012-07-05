@@ -55,7 +55,7 @@ package org.bigbluebutton.modules.present.services
 		 * Loads a presentation from the server. creates a new PresentationService class 
 		 * 
 		 */		
-		public function loadPresentation(e:UploadEvent) : void
+		public function loadPresentation(e:UploadEvent):void
 		{
 
 		}
