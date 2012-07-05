@@ -22,7 +22,7 @@
 
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:mate="http://mate.asfusion.com/"
 	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()" visible="false" 
-	mouseOver="setCursor()" mouseOut="removeCursor()" doubleClickEnabled="true" doubleClick="doMouseDoubleClick()"  implements="org.bigbluebutton.common.IBbbCanvas">
+	mouseOver="setCursor(toolType)" mouseOut="removeCursor()" doubleClickEnabled="true" doubleClick="doMouseDoubleClick()"  implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[			
 			import mx.managers.CursorManager;
@@ -34,6 +34,7 @@
 			import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
@@ -41,11 +42,17 @@
 			
 			public var model:WhiteboardCanvasModel;			
 			private var bbbCanvas:IBbbCanvas;
-
 			private var _xPosition:int;
 			private var _yPosition:int;
 			private var images:Images = new Images();
 			[Bindable] private var pencil_icon:Class = images.pencil_icon;
+			[Bindable] private var rectangle_icon:Class = images.square_icon;
+			[Bindable] private var ellipse_icon:Class = images.circle_icon;
+			[Bindable] private var line_icon:Class = images.line_icon;
+			[Bindable] private var text_icon:Class = images.text_icon;
+			[Bindable] private var eraser_icon:Class = images.eraser_icon;
+			[Bindable] private var highlighter_icon:Class = images.highlighter_icon;
+			private var toolType:String = DrawObject.PENCIL;
 			private var whiteboardEnabled:Boolean = false;
 			private var showWhiteboard:Boolean = true;
 
@@ -83,8 +90,9 @@
 			
 			public function setTool(s:String):void{
 				model.setTool(s);
+				toolType = s;
 			}
-				
+			
 			public function changeColor(e:Event):void{
 				model.changeColor(e.target.selectedColor);
 			}
@@ -139,8 +147,29 @@
 				else this.visible = false;
 			}
 			
-			private function setCursor():void{
+			/* added this functionality in WhiteboardToolbar.mxml
+			   instead to allow a variety of cursors */
+			
+			public function setCursorPencil():void{
 				CursorManager.setCursor(pencil_icon);
+			}
+			
+			public function setCursor(toolType:String):void{
+				if(toolType == DrawObject.ELLIPSE) {
+					CursorManager.setCursor(ellipse_icon);
+				} else if(toolType == DrawObject.RECTANGLE) {
+					CursorManager.setCursor(rectangle_icon);
+				} else if(toolType == DrawObject.PENCIL) {
+					CursorManager.setCursor(pencil_icon);
+				} else if(toolType == DrawObject.LINE) {
+					CursorManager.setCursor(line_icon);
+				} else if(toolType == DrawObject.HIGHLIGHTER) {
+					CursorManager.setCursor(highlighter_icon);
+				} else if(toolType == DrawObject.ERASER) {
+					CursorManager.setCursor(eraser_icon);
+				} else if(toolType == TextObject.TEXT_TOOL) {
+					CursorManager.setCursor(text_icon);
+				} 
 			}
 			
 			private function removeCursor():void{

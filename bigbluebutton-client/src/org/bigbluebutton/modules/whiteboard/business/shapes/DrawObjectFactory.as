@@ -58,6 +58,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				d = makeEllipse(shape, color, thickness, fill, trans);
 			}  else if (type == DrawObject.LINE){
 				d = makeLine(shape, color, thickness, trans);
+			} else if (type == DrawObject.HIGHLIGHTER){
+				d = makeHighlighter(shape, color, thickness, trans);
+			} else if (type == DrawObject.ERASER){
+				d = makeEraser(shape, color, thickness, trans);
 			}
 			return d;
 		}
@@ -110,7 +114,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		/**
-		 * A helper method for the makeDrawObject method whitch creates an Line DrawObject
+		 * A helper method for the makeDrawObject method whitch creates a Line DrawObject
 		 * <p>
 		 * Even though it is a helper method it is made public for testing purposes
 		 * @param shape The array holding the different points needed to create the DrawObject
@@ -124,5 +128,38 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public function makeLine(shape:Array, color:uint, thickness:uint, trans:Boolean):DrawObject{
 			return new Line(shape, color, thickness, trans);
 		}
+		
+		/**
+		 * A helper method for the makeDrawObject method whitch creates a Highlighter DrawObject
+		 * <p>
+		 * Even though it is a helper method it is made public for testing purposes
+		 * @param shape The array holding the different points needed to create the DrawObject
+		 * @param color The color of the DrawObject to be created
+		 * @param thickness The thickness of the DrawObject to be created
+		 * @param trans Whether or not the DrawObject should be transparent.
+		 * @return the Highlighter DrawObject created from the parameters
+		 * 
+		 */
+		
+		public function makeHighlighter(shape:Array, color:uint, thickness:uint, trans:Boolean):DrawObject{
+			return new Highlighter(shape, color, thickness, trans);
+		}
+
+		/**
+		 * A helper method for the makeDrawObject method whitch creates an Eraser DrawObject
+		 * <p>
+		 * Even though it is a helper method it is made public for testing purposes
+		 * @param shape The array holding the different points needed to create the DrawObject
+		 * @param color The color of the DrawObject to be created
+		 * @param thickness The thickness of the DrawObject to be created
+		 * @param trans Whether or not the DrawObject should be transparent.
+		 * @return the Eraser DrawObject created from the parameters
+		 * 
+		 */
+		
+		public function makeEraser(shape:Array, color:uint, thickness:uint, trans:Boolean):DrawObject{
+			return new Eraser(shape, color, thickness, trans);
+		}
+
 	}
 }

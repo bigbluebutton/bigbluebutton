@@ -19,10 +19,13 @@
  */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+	import com.asfusion.mate.core.GlobalDispatcher;
+	
 	import flash.display.DisplayObject;
 	import flash.display.Shape;
 	import flash.display.Stage;
 	import flash.events.Event;
+	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TextEvent;
@@ -36,6 +39,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	import mx.controls.Text;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
 
 	public class TextObject extends GraphicObject {
 		public static const TYPE_NOT_EDITABLE:String = "dynamic";
@@ -44,6 +48,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public static const TEXT_CREATED:String = "textCreated";
 		public static const TEXT_UPDATED:String = "textEdited";
 		public static const TEXT_PUBLISHED:String = "textPublished";
+		
+		public static const TEXT_TOOL:String = "textTool";
 		
 		public var status:String = TEXT_CREATED;
 		public var type:String = TYPE_NOT_EDITABLE;
@@ -54,6 +60,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public var bgColorVisible:Boolean;
 		public var x:Number;
 		public var y:Number;
+		
 		
 		private var _editable:Boolean;
 		private var _textField:TextField;
@@ -77,6 +84,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			_textField = new TextField();
 			_textField.x = startX;
 			_textField.y = startY;
+			x = startX;
+			y = startY;
 			if(bgColorVisible) {
 				_textField.background = true;
 				_textField.backgroundColor = bgColor;
@@ -96,33 +105,32 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this._editable = editable;
 		}
 		
-		public function registerForEditing(keyListener:Function):void {
-			if(_textField == null) return;
-			if(_editable) {
-				_textField.addEventListener(Event.ACTIVATE, gainFocus);
-				_textField.addEventListener(KeyboardEvent.KEY_UP, keyListener);
-				_textField.addEventListener(Event.DEACTIVATE, loseFocus);
-			}
+		public function registerListeners(textObjGainedFocus:Function,
+										  textObjLostFocus:Function,
+										  textObjTextListener:Function,
+										  textObjDeleteListener:Function):void {
+											  
+			_textField.addEventListener(Event.ACTIVATE, textObjGainedFocus);
+			_textField.addEventListener(Event.ACTIVATE, textObjSelected);
+			_textField.addEventListener(Event.DEACTIVATE, textObjLostFocus);
+			_textField.addEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
+			_textField.addEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
+		}		
+		
+		public function deregisterListeners(textObjGainedFocus:Function,
+											textObjLostFocus:Function,
+											textObjTextListener:Function,
+											textObjDeleteListener:Function):void {
+			
+			_textField.removeEventListener(Event.ACTIVATE, textObjGainedFocus);
+			_textField.removeEventListener(Event.ACTIVATE, textObjSelected);
+			_textField.removeEventListener(Event.DEACTIVATE, textObjLostFocus);
+			_textField.removeEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
+			_textField.removeEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
 		}
 		
-		public function deregisterForEditing(keyListener:Function):void {
-			if(_textField == null) return;
-			_textField.removeEventListener(Event.ACTIVATE, gainFocus, false);
-			_textField.removeEventListener(KeyboardEvent.KEY_UP, keyListener);
-			_textField.removeEventListener(Event.DEACTIVATE, loseFocus);
-		}
-		
-		public function gainFocus():void {
-			if(_textField == null) return;
-			//makeEditable(false);
-			_textField.stage.focus = _textField;
-		}
-		
-		public function loseFocus():void {
-			if(_textField == null) return;
-			//makeEditable(false);
-			_textField.stage.focus = null;
-			_textField.border = false;	
+		public function textObjSelected(event:Event):void {
+			WhiteboardCanvasModel.SELECTED_OBJECT = this;
 		}
 		
 	}

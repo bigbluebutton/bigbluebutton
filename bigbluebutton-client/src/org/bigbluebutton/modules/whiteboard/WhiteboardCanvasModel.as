@@ -1,6 +1,8 @@
 package org.bigbluebutton.modules.whiteboard
 {
 	import flash.display.Shape;
+	import flash.events.Event;
+	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.TextEvent;
 	import flash.text.TextField;
@@ -17,6 +19,7 @@ package org.bigbluebutton.modules.whiteboard
 	import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+	import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
@@ -24,6 +27,7 @@ package org.bigbluebutton.modules.whiteboard
 	
 	public class WhiteboardCanvasModel {
 		public var wbCanvas:WhiteboardCanvas;
+		public static var SELECTED_OBJECT:GraphicObject;
 		
 		private var isDrawing:Boolean; 
 		private var sending:Boolean = false;
@@ -47,13 +51,12 @@ package org.bigbluebutton.modules.whiteboard
 		// represents the max number of 'points' enumerated in 'segment'
 		// before sending an update to server. Used to prevent 
 		// spamming red5 with unnecessary packets
-		private var sendShapeFrequency:uint = 30;
-				
+		private var sendShapeFrequency:uint = 30;	
 		private var drawStatus:String = DrawObject.DRAW_START;
 		private var textStatus:String = TextObject.TEXT_CREATED;
 		private var width:Number;
 		private var height:Number;
-
+		
 		public function doMouseUp():void{
 			if(graphicType == GraphicObject.TYPE_SHAPE) {
 				if (isDrawing) {
@@ -63,7 +66,25 @@ package org.bigbluebutton.modules.whiteboard
 					 * shape to the viewers.
 					 */
 					isDrawing = false;
-					sendShapeToServer(DrawObject.DRAW_END);
+					
+					//check to make sure unnecessary data is not sent
+					// ex. a single click while the rectangle tool is selected
+					// is hardly classifiable as a rectangle, and should not 
+					// be sent to the server
+					if(toolType == DrawObject.RECTANGLE || 
+						toolType == DrawObject.ELLIPSE) {
+						var x:Number = segment[0];
+						var y:Number = segment[1];
+						var width:Number = segment[segment.length-2]-x;
+						var height:Number = segment[segment.length-1]-y;
+						if(!(width <= 2 && height <=2))
+							sendShapeToServer(DrawObject.DRAW_END);
+					} else if (toolType == DrawObject.LINE) {
+						if(segment.length > 4)
+							sendShapeToServer(DrawObject.DRAW_END);
+					} else {
+						sendShapeToServer(DrawObject.DRAW_END);
+					}
 				}
 			}
 		}
@@ -74,7 +95,7 @@ package org.bigbluebutton.modules.whiteboard
 			if (segment.length == 0) return;
 			
 			var dobj:DrawObject = shapeFactory.createDrawObject(this.toolType, segment, this.drawColor, this.thickness,
-																this.fillOn, this.transparencyOn);
+				this.fillOn, this.transparencyOn);
 			
 			//dobj.setGraphicID("" + objCount++);
 			dobj.setGraphicID("-1");
@@ -94,7 +115,8 @@ package org.bigbluebutton.modules.whiteboard
 			
 			LogUtil.error("SEGMENT LENGTH = [" + segment.length + "] STATUS = [" + dobj.status + "]");
 			
-			if (this.toolType == DrawObject.PENCIL) {
+			if (this.toolType == DrawObject.PENCIL ||
+				this.toolType == DrawObject.ERASER) {
 				dobj.status = DrawObject.DRAW_END;
 				drawStatus = DrawObject.DRAW_START;
 				segment = new Array();	
@@ -104,9 +126,9 @@ package org.bigbluebutton.modules.whiteboard
 			
 			wbCanvas.sendGraphicToServer(dobj, WhiteboardDrawEvent.SEND_SHAPE);			
 		}
-
+		
 		private function sendTextToServer(status:String, obj:TextObject):void {
-			var tobj:TextObject = obj;
+			var tobj:TextObject = textFactory.makeTextObject(obj);
 			//LogUtil.error("Step 1: " + tobj.x + "," + tobj.y);
 			//tobj.setGraphicID("" + objCount++);
 			tobj.setGraphicID("-1");
@@ -129,6 +151,7 @@ package org.bigbluebutton.modules.whiteboard
 		
 		public function doMouseDown(mouseX:Number, mouseY:Number):void{
 			if(graphicType == GraphicObject.TYPE_SHAPE) {
+				
 				isDrawing = true;
 				drawStatus = DrawObject.DRAW_START;
 				segment = new Array();
@@ -140,8 +163,8 @@ package org.bigbluebutton.modules.whiteboard
 		public function doMouseDoubleClick(mouseX:Number, mouseY:Number):void {
 			if(graphicType == GraphicObject.TYPE_TEXT) {
 				LogUtil.error("double click received at " + mouseX + "," + mouseY);
-				var tobj:TextObject = textFactory.createTextObject(
-				"TEST", 0x000000, 0x000000, false, mouseX, mouseY);
+				var tobj:TextObject = textFactory.cloneTextObject(
+					"TEST", 0x000000, 0x000000, false, mouseX, mouseY);
 				sendTextToServer(TextObject.TEXT_CREATED, tobj);
 			}
 		}
@@ -160,22 +183,25 @@ package org.bigbluebutton.modules.whiteboard
 		
 		public function drawGraphic(event:WhiteboardUpdate):void{
 			var o:GraphicObject = event.data;
-			
+			var recvdShapes:Boolean = event.recvdShapes;
 			if(o.getGraphicType() == GraphicObject.TYPE_SHAPE)
-				drawShape(o as DrawObject);
+				drawShape(o as DrawObject, recvdShapes);
 			else if(o.getGraphicType() == GraphicObject.TYPE_TEXT) 
-				drawText(o as TextObject);	
+				drawText(o as TextObject, recvdShapes);	
 		}
-				
-		private function drawShape(o:DrawObject):void{		
+		
+		private function drawShape(o:DrawObject, recvdShapes:Boolean):void{		
 			LogUtil.debug("Got shape [" + o.getType() + " " + o.status + "]");
 			switch (o.status) {
 				case DrawObject.DRAW_START:
-						addNewShape(o);														
+					addNewShape(o);														
 					break;
 				case DrawObject.DRAW_UPDATE:
 				case DrawObject.DRAW_END:
-					if (graphicList.length == 0 || o.getType() == DrawObject.PENCIL) {
+					if (graphicList.length == 0 || 
+						o.getType() == DrawObject.PENCIL ||
+						o.getType() == DrawObject.ERASER ||
+						recvdShapes) {
 						addNewShape(o);
 					} else {
 						removeLastGraphic();		
@@ -185,7 +211,7 @@ package org.bigbluebutton.modules.whiteboard
 			}        
 		}
 		
-		private function drawText(o:TextObject):void{		
+		private function drawText(o:TextObject, recvdShapes:Boolean):void{		
 			LogUtil.debug("Got text [" + o.text + " " + 
 				o.status + " " + o.x + " " + o.y + "]");
 			switch (o.status) {
@@ -194,7 +220,7 @@ package org.bigbluebutton.modules.whiteboard
 					break;
 				case TextObject.TEXT_UPDATED:
 				case TextObject.TEXT_PUBLISHED:
-					if (graphicList.length == 0) {
+					if (graphicList.length == 0 || recvdShapes) {
 						if(!isPresenter)
 							addNewText(o);
 					} else {
@@ -218,26 +244,33 @@ package org.bigbluebutton.modules.whiteboard
 			LogUtil.debug("Adding new text " + t.x + "," + t.y);
 			var tobj:TextObject = textFactory.makeTextObject(t);
 			LogUtil.debug("FINAL " + tobj.x + "," + tobj.y);
-
+			
 			if(isPresenter) {
 				if(t.status == TextObject.TEXT_CREATED) {
 					tobj.getTF().multiline = true;
 					tobj.getTF().wordWrap = true;
 					wbCanvas.addGraphic(tobj.getGraphic());
 					graphicList.push(tobj);
-					tobj.getTF().border = true;
 					tobj.getTF().autoSize = TextFieldAutoSize.LEFT;
 					tobj.makeEditable(true);
-					tobj.registerForEditing(textObjDeleteListener);
-					tobj.gainFocus();	
+					tobj.registerListeners(textObjGainedFocus,
+						textObjLostFocus,
+						textObjTextListener,
+						textObjDeleteListener);
+					wbCanvas.stage.focus = tobj.getTF();
+					tobj.getTF().stage.focus = tobj.getTF();
+					var e:GraphicObjectFocusEvent = 
+						new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
+					e.data = SELECTED_OBJECT;
+					wbCanvas.dispatchEvent(e);
 				}
 			} else {
 				tobj.getTF().multiline = true;
 				tobj.getTF().wordWrap = true;
 				tobj.getTF().autoSize = TextFieldAutoSize.LEFT;
+				tobj.makeEditable(false);
 				wbCanvas.addGraphic(tobj.getGraphic());
 				graphicList.push(tobj);
-				
 			}
 		}
 		
@@ -246,17 +279,21 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		public function setTool(s:String):void{
+			if(s == DrawObject.HIGHLIGHTER) {
+				if (drawColor == 0x000000 ||
+					drawColor == 0xFFFFFF) drawColor = 0xCCFF00;
+			}
 			this.toolType = s;
 		}
-				
+		
 		public function changeColor(color:uint):void{
 			drawColor = color;
 		}
-			
+		
 		public function changeThickness(thickness:uint):void{
 			this.thickness = thickness;
 		}
-			
+		
 		public function toggleFill():void{
 			fillOn = !fillOn;
 		}
@@ -277,7 +314,10 @@ package org.bigbluebutton.modules.whiteboard
 			var gobj:GraphicObject = graphicList.pop() as GraphicObject;
 			if(gobj.getGraphicType() == GraphicObject.TYPE_TEXT) {
 				(gobj as TextObject).makeEditable(false);
-				(gobj as TextObject).deregisterForEditing(textObjDeleteListener);
+				(gobj as TextObject).registerListeners(textObjGainedFocus,
+					textObjLostFocus,
+					textObjTextListener,
+					textObjDeleteListener);
 			}	
 			wbCanvas.removeGraphic(gobj.getGraphic());
 		}
@@ -367,11 +407,14 @@ package org.bigbluebutton.modules.whiteboard
 			
 			clearBoard();
 			for (var i:int = 0; i < graphicObjs.length; i++){
-				var o:DrawObject = graphicObjs.getItemAt(i) as DrawObject;
-				drawShape(o);
+				var o:GraphicObject = graphicObjs.getItemAt(i) as GraphicObject;
+				if(o.getGraphicType() == GraphicObject.TYPE_SHAPE)
+					drawShape(o as DrawObject, false);
+				else if(o.getGraphicType() == GraphicObject.TYPE_TEXT) 
+					drawText(o as TextObject, false);	
 			}
 		}
-								
+		
 		public function zoomCanvas(width:Number, height:Number):void{
 			shapeFactory.setParentDim(width, height);	
 			textFactory.setParentDim(width, height);
@@ -389,7 +432,11 @@ package org.bigbluebutton.modules.whiteboard
 			var texts:Array = getAllTexts();
 			for(var i:int = 0; i < texts.length; i++) {
 				(texts[i] as TextObject).makeEditable(true);
-				(texts[i] as TextObject).registerForEditing(textObjDeleteListener);
+				(texts[i] as TextObject).registerListeners(textObjGainedFocus,
+					textObjLostFocus,
+					textObjTextListener,
+					textObjDeleteListener);
+
 			}
 		}
 		
@@ -399,11 +446,39 @@ package org.bigbluebutton.modules.whiteboard
 			var texts:Array = getAllTexts();
 			for(var i:int = 0; i < texts.length; i++) {
 				(texts[i] as TextObject).makeEditable(false);
-				(texts[i] as TextObject).deregisterForEditing(textObjDeleteListener);
+				(texts[i] as TextObject).deregisterListeners(textObjGainedFocus,
+					textObjLostFocus,
+					textObjTextListener,
+					textObjDeleteListener);
+
 			}
 		}
-	
+		
 		public function textObjDeleteListener(event:KeyboardEvent):void {
+			// check for special conditions
+			if(event.charCode == 127 || // 'delete' key
+				event.charCode == 8 || // 'bkspace' key
+				event.charCode == 13) { // 'enter' key
+				var sendStatus:String = TextObject.TEXT_UPDATED;
+				var tf:TextField = event.target as TextField;	
+				var updatedObj:TextObject = textFactory.createTextObject(
+					tf.text,
+					tf.textColor,
+					tf.backgroundColor,
+					tf.background,
+					tf.x,
+					tf.y);
+				if(event.charCode == 13) {
+					sendStatus = TextObject.TEXT_PUBLISHED;
+					LogUtil.debug("Text published to: " +  tf.text);
+					wbCanvas.stage.focus = null;
+					tf.stage.focus = null;
+				}
+				sendTextToServer(sendStatus, updatedObj);	
+			} 	
+		}
+		
+		public function textObjTextListener(event:TextEvent):void {
 			var sendStatus:String = TextObject.TEXT_UPDATED;
 			var tf:TextField = event.target as TextField;	
 			var updatedObj:TextObject = textFactory.createTextObject(
@@ -413,20 +488,35 @@ package org.bigbluebutton.modules.whiteboard
 				tf.background,
 				tf.x,
 				tf.y);
-			
-			// check for special conditions
-			if(event.charCode == 127 || // 'delete' key
-				event.charCode == 8 || // 'bkspace' key
-				event.charCode == 13) { // 'enter' key
-				if(event.charCode == 13) {
-					sendStatus = TextObject.TEXT_PUBLISHED;
-					LogUtil.debug("Text published to: " +  tf.text);
-					wbCanvas.stage.focus = null;
-					tf.stage.focus = null;
-				}
-			} 
-			
 			sendTextToServer(sendStatus, updatedObj);	
+		}
+		
+		public function textObjGainedFocus(event:Event):void {
+			var tf:TextField = event.target as TextField;
+			wbCanvas.stage.focus = tf;
+			tf.stage.focus = tf;
+			var e:GraphicObjectFocusEvent = 
+				new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
+			e.data = SELECTED_OBJECT;
+			wbCanvas.dispatchEvent(e);
+		}
+		
+		public function textObjLostFocus(event:Event):void {
+			var tf:TextField = event.target as TextField;	
+			var updatedObj:TextObject = textFactory.createTextObject(
+				tf.text,
+				tf.textColor,
+				tf.backgroundColor,
+				tf.background,
+				tf.x,
+				tf.y);
+			sendTextToServer(TextObject.TEXT_PUBLISHED, updatedObj);	
+			LogUtil.debug("Text published to: " +  tf.text);
+			var e:GraphicObjectFocusEvent = 
+				new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
+			e.data = SELECTED_OBJECT;
+			wbCanvas.dispatchEvent(e);
+			SELECTED_OBJECT = null;
 		}
 		
 		private function redrawGraphic(gobj:GraphicObject):void {
@@ -440,7 +530,7 @@ package org.bigbluebutton.modules.whiteboard
 			}
 			wbCanvas.addGraphic(gobj.getGraphic());
 		}
-
+		
 		public function isPageEmpty():Boolean {
 			return graphicList.length == 0;
 		}

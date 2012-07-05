@@ -58,7 +58,7 @@ public class WhiteboardService {
 		return application.getNumGraphicsOnPage(pageNum);
 	}
 	
-	public List<Object[]> getGraphicObjs(){
+	public List<Object[]> getGraphicObjects(){
 		log.info("WhiteboardApplication - Returning graphics");
 		List<Object[]> graphicObjs = application.getGraphicObjects();
 		/*System.out.println("Number of shapes: " + shapes.size());

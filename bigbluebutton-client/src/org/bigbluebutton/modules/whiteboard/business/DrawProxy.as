@@ -246,15 +246,26 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * 
 		 */		
 		public function addSegment(graphicType:String, array:Array, type:String, color:uint, thickness:uint, 
-								   fill:Boolean, transparent:Boolean, id:String, status:String):void{
-			LogUtil.debug("Rx add segment **** with ID of " + id);
+								   fill:Boolean, transparent:Boolean, id:String, status:String, recvdShapes:Boolean):void{
+			LogUtil.debug("Rx add segment **** with ID of " + id + " " + type
+			+ " and " + color + " " + thickness + " " + fill + " " + transparent);
 			var d:DrawObject = drawFactory.makeDrawObject(type, array, color, thickness, fill, transparent);
+			
 			d.setGraphicID(id);
 			d.status = status;
 			
 			var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
 			e.data = d;
+			e.recvdShapes = recvdShapes;
 			dispatcher.dispatchEvent(e);
+		}
+		
+		//convenience method
+		public function addSegmentNormally(graphicType:String, array:Array, type:String, color:uint, thickness:uint, 
+								   fill:Boolean, transparent:Boolean, id:String, status:String):void {
+			
+			addSegment(graphicType, array, type, color, thickness, 
+				fill, transparent, id, status, false);
 		}
 		
 		/**
@@ -263,7 +274,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * 
 		 */		
 		public function addText(graphicType:String, text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean,
-								x:Number, y:Number, id:String, status:String):void {
+								x:Number, y:Number, id:String, status:String, recvdShapes:Boolean):void {
 			//LogUtil.error("Step 3(received): " + x + "," + y);
 			LogUtil.debug("Rx add text **** with ID of " + id + " " + x + "," + y);
 			var t:TextObject = textFactory.cloneTextObject(text, textColor, bgColor, bgColorVisible, x, y);
@@ -272,7 +283,16 @@ package org.bigbluebutton.modules.whiteboard.business
 			
 			var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
 			e.data = t;
+			e.recvdShapes = recvdShapes;
 			dispatcher.dispatchEvent(e);
+		}
+		
+		//convenience method
+		public function addTextNormally(graphicType:String, text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean,
+										x:Number, y:Number, id:String, status:String):void {
+			
+			addText(graphicType, text, textColor, bgColor, bgColorVisible, 
+						x, y, id, status, false);
 		}
 		
 		/**
@@ -375,7 +395,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		private function getHistory():void{
 			var nc:NetConnection = connection;
 			nc.call(
-				"whiteboard.getGraphicObjs",// Remote function name
+				"whiteboard.getGraphicObjects",// Remote function name
 				new Responder(
 	        		// On successful result
 					function(result:Object):void { 
@@ -398,7 +418,7 @@ package org.bigbluebutton.modules.whiteboard.business
 			if (result == null) return;
 			
 			var graphicObjs:Array = result as Array;
-			//LogUtil.debug("Whiteboard::recievedShapesHistory() : recieved " + shapes.length);
+			LogUtil.debug("Whiteboard::recievedShapesHistory() : recieved " + graphicObjs.length);
 			
 			for (var i:int=0; i < graphicObjs.length; i++) {
 				var graphic:Array = graphicObjs[i] as Array;
@@ -412,7 +432,7 @@ package org.bigbluebutton.modules.whiteboard.business
 					var transparent:Boolean = graphic[6] as Boolean;
 					var id:String = graphic[7] as String;
 					var status:String = graphic[8] as String;
-					addSegment(graphicType, shapeArray, type, color, thickness, fill, transparent, id, status);
+					addSegment(graphicType, shapeArray, type, color, thickness, fill, transparent, id, status, true);
 				} else if(graphicType == GraphicObject.TYPE_TEXT) {
 					var text:String = graphic[1] as String;
 					var textColor:uint = graphic[2] as uint;
@@ -422,7 +442,7 @@ package org.bigbluebutton.modules.whiteboard.business
 					var y:Number = graphic[6] as Number;
 					var id_other:String = graphic[7] as String;
 					var status_other:String = graphic[8] as String;
-					addText(graphicType, text, textColor, bgColor, bgColorVisible, x, y, id_other, status_other);
+					addText(graphicType, text, textColor, bgColor, bgColorVisible, x, y, id_other, status_other, true);
 				}
 			}
 		}	

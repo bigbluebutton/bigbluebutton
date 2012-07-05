@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 */		
 		public function Pencil(segment:Array, color:uint, thickness:uint, trans:Boolean)
 		{
-			super(DrawObject.PENCIL, segment, color, thickness, false, trans);
+			super(DrawObject.PENCIL, segment, color, thickness, false, false);
 		}
 		
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
@@ -54,8 +54,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			}
 			
 			newShape.graphics.drawPath(graphicsCommands, coordinates);
-			if(transparent) newShape.alpha = 0.6;
-			else newShape.alpha = 1;
+			newShape.alpha = 1;
+			//if(transparent) newShape.alpha = 0.6;
+			//else newShape.alpha = 1;
 			//if (getColor() == 0x000000 || getColor() == 0xFFFFFF) newShape.alpha = 1;
 			//else newShape.alpha = 0.6;
 			

@@ -88,24 +88,32 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	
 	public void sendShape(double[] shape, String type, int color, int thickness, boolean fill, boolean transparency, String id, String status){
 		ShapeGraphic newShape = new ShapeGraphic(shape, type, color, thickness, fill, transparency, id, status);	
-		//if(status.equals("DRAW_START"))
+		
+		/*  maintains unique-ness. ensures that only
+		 	one entry per shape is added. exception is DrawObject.PENCIL, 
+		    because it is a collection of "points". */
+		if(status.equals("DRAW_END")) {
 			newShape.ID = Integer.toString(roomManager.getRoom(getLocalScope().getName()).getUniqueWBGraphicIdentifier());
-		roomManager.getRoom(getLocalScope().getName()).addShape(newShape);
+			roomManager.getRoom(getLocalScope().getName()).addShape(newShape);
+		}
+		System.out.println(roomManager.getRoom(getLocalScope().getName()).getActivePresentation().getActivePage().getNumGraphicsOnPage());
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
 		List<Object> arguments = newShape.toList();
-		drawSO.sendMessage("addSegment", arguments);
+		drawSO.sendMessage("addSegmentNormally", arguments);
 	}
 	
 	public void sendText(String text, int textColor, int bgColor, boolean bgColorVisible, int x, int y, String id, String status){
 		TextGraphic newText = new TextGraphic(text, textColor, bgColor, bgColorVisible, x, y, id, status);	
-		if(status.equals("textCreated"))
+		
+		/*  maintains unique-ness. ensures that only
+		 	one entry per text is added. */
+		if(status.equals("textPublished")) {
 			newText.ID = Integer.toString(roomManager.getRoom(getLocalScope().getName()).getUniqueWBGraphicIdentifier());
-		if(!roomManager.getRoom(getLocalScope().getName())
-				.getWBGraphicMap().containsKey(newText.ID))
 			roomManager.getRoom(getLocalScope().getName()).addText(newText);
+		}	
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
 		List<Object> arguments = newText.toList();
-		drawSO.sendMessage("addText", arguments);
+		drawSO.sendMessage("addTextNormally", arguments);
 	}
 	
 	public int getNumGraphicsOnPage(int pageNum){

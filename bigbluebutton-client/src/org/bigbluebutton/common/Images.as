@@ -186,5 +186,11 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/transparency_icon.png")]
 		public var transparency_icon:Class;	
+		
+		[Embed(source="assets/images/eraser.png")]
+		public var eraser_icon:Class;	
+		
+		[Embed(source="assets/images/highlighter_icon.png")]
+		public var highlighter_icon:Class;	
 	}
 }

@@ -31,7 +31,9 @@ package org.bigbluebutton.modules.whiteboard.events
 		public static const BOARD_ENABLED:String = "boardEnabled";
 			
 		public var data:GraphicObject;
+		public var recvdShapes:Boolean;
 		public var boardEnabled:Boolean;
+		
 		
 		public function WhiteboardUpdate(type:String)
 		{

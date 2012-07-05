@@ -33,9 +33,12 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 */	
 	public class DrawObject extends GraphicObject {
 		public static const PENCIL:String = "pencil";
+		public static const HIGHLIGHTER:String = "highlighter";
+		public static const ERASER:String = "eraser";
 		public static const RECTANGLE:String = "rectangle";
 		public static const ELLIPSE:String = "ellipse";
 		public static const LINE:String = "line";	
+		public static const DELETE:String = "deletor";	
 		
 		protected var type:String;
 		protected var shape:Array;

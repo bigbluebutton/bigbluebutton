@@ -59,6 +59,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				return makeEllipse(graphic as Ellipse);
 			} else if (graphic.getType() == DrawObject.LINE){
 				return makeLine(graphic as Line);
+			} else if (graphic.getType() == DrawObject.HIGHLIGHTER){
+				return makeHighlighter(graphic as Highlighter);
+			} else if (graphic.getType() == DrawObject.ERASER){
+				return makeEraser(graphic as Eraser);
 			}
 			return null;
 		}
@@ -130,6 +134,28 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */
 		private function makeLine(e:Line):DrawObject{
+			e.makeGraphic(_parentWidth, _parentHeight);
+			return e;
+		}
+		
+		/**
+		 * Creates a Flash Shape from an Highlighter DrawObject 
+		 * @param e an Highlighter DrawObject
+		 * @return a Shape
+		 * 
+		 */
+		private function makeHighlighter(e:Highlighter):DrawObject{
+			e.makeGraphic(_parentWidth, _parentHeight);
+			return e;
+		}
+		
+		/**
+		 * Creates a Flash Shape from an Eraser DrawObject 
+		 * @param e an Eraser DrawObject
+		 * @return a Shape
+		 * 
+		 */
+		private function makeEraser(e:Eraser):DrawObject{
 			e.makeGraphic(_parentWidth, _parentHeight);
 			return e;
 		}

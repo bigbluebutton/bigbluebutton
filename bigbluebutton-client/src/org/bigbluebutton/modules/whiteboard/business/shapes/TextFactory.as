@@ -15,6 +15,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			_parentHeight = height;
 		}
 		
+		override public function denormalize(val:Number, side:Number):Number {
+			return (val*side)/100.0;
+		}
+		
+		override public function normalize(val:Number, side:Number):Number {
+			return (val*100.0)/side;
+		}
+		
 		public function cloneTextObject(txt:String, txtColor:uint,
 										 bgColor:uint, bgColorVisible:Boolean,
 										 x:Number, y:Number):TextObject {
