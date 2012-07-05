@@ -68,6 +68,7 @@
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObjectType;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.SelectObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
@@ -109,7 +110,7 @@
 			 * 
 			 */		
 			protected function setTool(gType:String, toolType:String):void{
-				if(gType == GraphicObject.TYPE_SHAPE) {
+				if(gType == GraphicObjectType.TYPE_SHAPE) {
 					canvas.setGraphicType(gType);
 					canvas.setTool(toolType);
 					if(!btnToggleTransparency.enabled)
@@ -185,7 +186,7 @@
 							btnToggleTransparency.enabled = false;
 							break;
 					}
-				} else if (gType == GraphicObject.TYPE_TEXT) {
+				} else if (gType == GraphicObjectType.TYPE_TEXT) {
 					btnSelect.selected = false;
 					btnPenc.selected = false;
 					btnEllipse.selected = false;
@@ -198,7 +199,7 @@
 					btnToggleTransparency.enabled = false;
 					canvas.setGraphicType(gType);
 					canvas.setTool(toolType);
-				} else if (gType == GraphicObject.TYPE_SELECTION) {
+				} else if (gType == GraphicObjectType.TYPE_SELECTION) {
 					switch(toolType) {
 						case SelectObject.SELECT_TOOL:
 							btnSelect.selected = true;
@@ -219,7 +220,7 @@
 			}
 			
 			private function setShapeToPencil(e:WhiteboardButtonEvent):void{
-				this.setTool(GraphicObject.TYPE_SHAPE, DrawObject.PENCIL);
+				this.setTool(GraphicObjectType.TYPE_SHAPE, DrawObject.PENCIL);
 			}
 			
 			/**
@@ -319,11 +320,11 @@
 			
 			private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
 				var gobj:GraphicObject = event.data;
-				if(gobj.getGraphicType() == GraphicObject.TYPE_SHAPE) {
+				if(gobj.getGraphicType() == GraphicObjectType.TYPE_SHAPE) {
 					var dobj:DrawObject = gobj as DrawObject;
 					LogUtil.debug("!!!!SELECTED:" + " " + dobj.getGraphicType()
 						+ " " + dobj.getType()+ " " + dobj.getColor());
-				} else if (gobj.getGraphicType() == GraphicObject.TYPE_TEXT) {
+				} else if (gobj.getGraphicType() == GraphicObjectType.TYPE_TEXT) {
 					var tobj:TextObject = gobj as TextObject;
 					LogUtil.debug("!!!!SELECTED:" + " " + tobj.getGraphicType()
 						+ " " + tobj.text + " " + tobj.textColor);
@@ -332,11 +333,11 @@
 			
 			private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
 				var gobj:GraphicObject = event.data;
-				if(gobj.getGraphicType() == GraphicObject.TYPE_SHAPE) {
+				if(gobj.getGraphicType() == GraphicObjectType.TYPE_SHAPE) {
 					var dobj:DrawObject = gobj as DrawObject;
 					LogUtil.debug("!!!!DESELECTED:" + " " + dobj.getGraphicType()
 						+ " " + dobj.getType()+ " " + dobj.getColor());
-				} else if (gobj.getGraphicType() == GraphicObject.TYPE_TEXT) {
+				} else if (gobj.getGraphicType() == GraphicObjectType.TYPE_TEXT) {
 					var tobj:TextObject = gobj as TextObject;
 					LogUtil.debug("!!!!DESELECTED:" + " " + tobj.getGraphicType()
 						+ " " + tobj.text + " " + tobj.textColor);
@@ -344,21 +345,21 @@
 			}
 		]]>
 	</mx:Script>
-	<mx:Button width="20" height="20" id="btnSelect" click="setTool(GraphicObject.TYPE_SELECTION, SelectObject.SELECT_TOOL)"  icon="{select_icon}" 
+	<mx:Button width="20" height="20" id="btnSelect" click="setTool(GraphicObjectType.TYPE_SELECTION, SelectObject.SELECT_TOOL)"  icon="{select_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.select')}" toggle="true"/>
-	<mx:Button width="20" height="20" id="btnPenc" click="setTool(GraphicObject.TYPE_SHAPE, DrawObject.PENCIL)"  icon="{pencil_icon}" 
+	<mx:Button width="20" height="20" id="btnPenc" click="setTool(GraphicObjectType.TYPE_SHAPE, DrawObject.PENCIL)"  icon="{pencil_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.pencil')}" toggle="true" selected="true" />
-	<mx:Button width="20" height="20" id="btnHighl" click="setTool(GraphicObject.TYPE_SHAPE, DrawObject.HIGHLIGHTER)"  icon="{highlighter_icon}" 
+	<mx:Button width="20" height="20" id="btnHighl" click="setTool(GraphicObjectType.TYPE_SHAPE, DrawObject.HIGHLIGHTER)"  icon="{highlighter_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.highlighter')}" toggle="true"/>
-	<mx:Button width="20" height="20" id="btnRectangle" click="setTool(GraphicObject.TYPE_SHAPE, DrawObject.RECTANGLE)" icon="{rectangle_icon}" 
+	<mx:Button width="20" height="20" id="btnRectangle" click="setTool(GraphicObjectType.TYPE_SHAPE, DrawObject.RECTANGLE)" icon="{rectangle_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
-	<mx:Button width="20" height="20" id="btnEllipse" click="setTool(GraphicObject.TYPE_SHAPE, DrawObject.ELLIPSE)" icon="{ellipse_icon}" 
+	<mx:Button width="20" height="20" id="btnEllipse" click="setTool(GraphicObjectType.TYPE_SHAPE, DrawObject.ELLIPSE)" icon="{ellipse_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" toggle="true" />
-	<mx:Button width="20" height="20" id="btnLine" click="setTool(GraphicObject.TYPE_SHAPE, DrawObject.LINE)" icon="{line_icon}" 
+	<mx:Button width="20" height="20" id="btnLine" click="setTool(GraphicObjectType.TYPE_SHAPE, DrawObject.LINE)" icon="{line_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.line')}" toggle="true" />
-	<mx:Button width="20" height="20" id="btnText" click="setTool(GraphicObject.TYPE_TEXT, TextObject.TEXT_TOOL)" icon="{text_icon}" 
+	<mx:Button width="20" height="20" id="btnText" click="setTool(GraphicObjectType.TYPE_TEXT, TextObject.TEXT_TOOL)" icon="{text_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.text')}" toggle="true" />
-	<mx:Button width="20" height="20" id="btnEraser" click="setTool(GraphicObject.TYPE_SHAPE, DrawObject.ERASER)" icon="{eraser_icon}" 
+	<mx:Button width="20" height="20" id="btnEraser" click="setTool(GraphicObjectType.TYPE_SHAPE, DrawObject.ERASER)" icon="{eraser_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.eraser')}" toggle="true" />
 	
 	<mx:Spacer height="5" />

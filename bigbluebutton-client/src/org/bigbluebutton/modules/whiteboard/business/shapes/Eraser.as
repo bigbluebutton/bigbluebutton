@@ -55,10 +55,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
-			var newShape:Shape = new Shape();
 			if(thickness < 5) thickness = 5;
 			
-			newShape.graphics.lineStyle(getThickness(), 0xFFFFFF);
+			this.graphics.lineStyle(getThickness(), 0xFFFFFF);
 			
 			var graphicsCommands:Vector.<int> = new Vector.<int>();
 			graphicsCommands.push(1);
@@ -70,15 +69,19 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				coordinates.push(denormalize(getShapeArray()[i], parentWidth), denormalize(getShapeArray()[i+1], parentHeight));
 			}
 			
-			newShape.graphics.drawPath(graphicsCommands, coordinates);
-			newShape.alpha = 1;
-			//if(transparent) newShape.alpha = 0.6;
-			//else newShape.alpha = 1;
-			//if (getColor() == 0x000000 || getColor() == 0xFFFFFF) newShape.alpha = 1;
-			//else newShape.alpha = 0.6;
-			
-			_shape = newShape;
+			this.graphics.drawPath(graphicsCommands, coordinates);
+			this.alpha = 1;
 		}
 		
+		override public function getProperties():Array {
+			var props:Array = new Array();
+			props.push(this.type);
+			props.push(this.shape);
+			props.push(0xFFFFFF);
+			props.push(this.thickness);
+			props.push(this.fill);
+			props.push(this.transparent);
+			return props;
+		}
 	}
 }

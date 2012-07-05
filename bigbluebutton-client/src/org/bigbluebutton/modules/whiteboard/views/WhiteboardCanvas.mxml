@@ -42,7 +42,7 @@
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingEvent;
 			
 			public var model:WhiteboardCanvasModel;			
-			public var bbbCanvas:IBbbCanvas;
+			private var bbbCanvas:IBbbCanvas;
 			private var _xPosition:int;
 			private var _yPosition:int;
 			private var images:Images = new Images();

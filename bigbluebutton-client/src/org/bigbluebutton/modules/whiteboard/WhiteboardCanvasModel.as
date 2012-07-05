@@ -16,7 +16,9 @@ package org.bigbluebutton.modules.whiteboard
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObjectType;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
@@ -41,7 +43,7 @@ package org.bigbluebutton.modules.whiteboard
 		private var textFactory:TextFactory = new TextFactory();
 		private var bbbCanvas:IBbbCanvas;
 		
-		private var graphicType:String = GraphicObject.TYPE_SHAPE;
+		private var graphicType:String = GraphicObjectType.TYPE_SHAPE;
 		private var toolType:String = DrawObject.PENCIL;
 		private var drawColor:uint = 0x000000;
 		private var thickness:uint = 1;
@@ -59,7 +61,7 @@ package org.bigbluebutton.modules.whiteboard
 		private var height:Number;
 		
 		public function doMouseUp():void{
-			if(graphicType == GraphicObject.TYPE_SHAPE) {
+			if(graphicType == GraphicObjectType.TYPE_SHAPE) {
 				if (isDrawing) {
 					/**
 					 * Check if we are drawing because when resizing the window, it generates
@@ -152,53 +154,35 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		public function doMouseDown(mouseX:Number, mouseY:Number):void{
-			if(graphicType == GraphicObject.TYPE_SHAPE) {
+			if(graphicType == GraphicObjectType.TYPE_SHAPE) {
 				
 				isDrawing = true;
 				drawStatus = DrawObject.DRAW_START;
 				segment = new Array();
 				segment.push(mouseX);
 				segment.push(mouseY);
-			} else if(graphicType == GraphicObject.TYPE_SELECTION) {
-				var x:Number = 
-					textFactory.denormalize(
-					textFactory.normalize(mouseX,
-					textFactory.getParentWidth()), textFactory.getParentWidth());
-				
-				var y:Number = 
-					textFactory.denormalize(textFactory.normalize(mouseY,
-					textFactory.getParentHeight()), textFactory.getParentHeight());
-				
-				var point:Point = new Point(x,y);
-				point = wbCanvas.localToGlobal(point);
-				var objs:Array = wbCanvas.parentApplication.getObjectsUnderPoint(point);
-				var bounds:Rectangle = wbCanvas.getBounds(wbCanvas.stage);
-				
-				var graphics:Array = objs.filter(
-					function callback(item:*, index:int, array:Array):Boolean
-					{
-						return item is TextField;
-					}
-				);
-				var d:Shape = new Shape();
-				d.graphics.lineStyle(5, 0x00FF00);
-				d.graphics.drawRect(point.x, point.y, 1, 1);
-				
-				wbCanvas.stage.addChild(d);
+			} else if(graphicType == GraphicObjectType.TYPE_SELECTION) {
+			
+				var objs:Array = 
+					getGraphicObjectsUnderPoint(mouseX, mouseY);		
+				var graphics:Array = filterGraphicObjects(objs);
 				
 				LogUtil.debug("There are " + graphics.length + " objects" +
-					"under your mouse. " + x + " " + y);
+					"under your mouse.");						
 
-				for(var i:int = 0; i <= graphics.length; i++) {
+				var topMostObject:GraphicObject = //getTopMostObject(graphics) as GraphicObject;
+									graphics[0] as GraphicObject;
+				LogUtil.debug("!!!TOP MOST OBJECT: " + topMostObject.getProperties());
+				/*for(var i:int = 0; i <= graphics.length; i++) {
 					var currObj:DisplayObject = graphics[i];
 					var index:int = wbCanvas.stage.getChildIndex(currObj);
 					LogUtil.debug(index + " " + currObj.x + "," + currObj.y);
-				}
+				}*/
 			}
 		}
 		
 		public function doMouseDoubleClick(mouseX:Number, mouseY:Number):void {
-			if(graphicType == GraphicObject.TYPE_TEXT) {
+			if(graphicType == GraphicObjectType.TYPE_TEXT) {
 				LogUtil.error("double click received at " + mouseX + "," + mouseY);
 				var tobj:TextObject = textFactory.cloneTextObject(
 					"TEST", 0x000000, 0x000000, false, mouseX, mouseY);
@@ -207,7 +191,7 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		public function doMouseMove(mouseX:Number, mouseY:Number):void{
-			if(graphicType == GraphicObject.TYPE_SHAPE) {
+			if(graphicType == GraphicObjectType.TYPE_SHAPE) {
 				if (isDrawing){
 					segment.push(mouseX);
 					segment.push(mouseY);
@@ -221,9 +205,9 @@ package org.bigbluebutton.modules.whiteboard
 		public function drawGraphic(event:WhiteboardUpdate):void{
 			var o:GraphicObject = event.data;
 			var recvdShapes:Boolean = event.recvdShapes;
-			if(o.getGraphicType() == GraphicObject.TYPE_SHAPE)
+			if(o.getGraphicType() == GraphicObjectType.TYPE_SHAPE)
 				drawShape(o as DrawObject, recvdShapes);
-			else if(o.getGraphicType() == GraphicObject.TYPE_TEXT) 
+			else if(o.getGraphicType() == GraphicObjectType.TYPE_TEXT) 
 				drawText(o as TextObject, recvdShapes);	
 		}
 		
@@ -273,7 +257,7 @@ package org.bigbluebutton.modules.whiteboard
 		private function addNewShape(o:DrawObject):void {
 			//LogUtil.debug("Adding new shape " + graphicList.length);
 			var dobj:DrawObject = shapeFactory.makeShape(o);
-			wbCanvas.addGraphic(dobj.getGraphic());
+			wbCanvas.addGraphic(dobj);
 			graphicList.push(dobj);
 		}
 		
@@ -284,29 +268,29 @@ package org.bigbluebutton.modules.whiteboard
 			
 			if(isPresenter) {
 				if(t.status == TextObject.TEXT_CREATED) {
-					tobj.getTF().multiline = true;
-					tobj.getTF().wordWrap = true;
-					wbCanvas.addGraphic(tobj.getGraphic());
+					tobj.multiline = true;
+					tobj.wordWrap = true;
+					wbCanvas.addGraphic(tobj);
 					graphicList.push(tobj);
-					tobj.getTF().autoSize = TextFieldAutoSize.LEFT;
+					tobj.autoSize = TextFieldAutoSize.LEFT;
 					tobj.makeEditable(true);
 					tobj.registerListeners(textObjGainedFocus,
 						textObjLostFocus,
 						textObjTextListener,
 						textObjDeleteListener);
-					wbCanvas.stage.focus = tobj.getTF();
-					tobj.getTF().stage.focus = tobj.getTF();
+					wbCanvas.stage.focus = tobj;
+					tobj.stage.focus = tobj;
 					var e:GraphicObjectFocusEvent = 
 						new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
 					e.data = SELECTED_OBJECT;
 					wbCanvas.dispatchEvent(e);
 				}
 			} else {
-				tobj.getTF().multiline = true;
-				tobj.getTF().wordWrap = true;
-				tobj.getTF().autoSize = TextFieldAutoSize.LEFT;
+				tobj.multiline = true;
+				tobj.wordWrap = true;
+				tobj.autoSize = TextFieldAutoSize.LEFT;
 				tobj.makeEditable(false);
-				wbCanvas.addGraphic(tobj.getGraphic());
+				wbCanvas.addGraphic(tobj);
 				graphicList.push(tobj);
 			}
 		}
@@ -349,22 +333,22 @@ package org.bigbluebutton.modules.whiteboard
 		
 		private function removeLastGraphic():void {
 			var gobj:GraphicObject = graphicList.pop() as GraphicObject;
-			if(gobj.getGraphicType() == GraphicObject.TYPE_TEXT) {
+			if(gobj.getGraphicType() == GraphicObjectType.TYPE_TEXT) {
 				(gobj as TextObject).makeEditable(false);
 				(gobj as TextObject).registerListeners(textObjGainedFocus,
 					textObjLostFocus,
 					textObjTextListener,
 					textObjDeleteListener);
 			}	
-			wbCanvas.removeGraphic(gobj.getGraphic());
+			wbCanvas.removeGraphic(gobj as DisplayObject);
 		}
 		
 		private function removeLastShape():void {
 			for(var i:int = graphicList.length-1; i >= 0; i--) {
 				var currGobj:GraphicObject = graphicList[i];
-				if(currGobj.getGraphicType() == GraphicObject.TYPE_SHAPE) {
+				if(currGobj.getGraphicType() == GraphicObjectType.TYPE_SHAPE) {
 					var dobj:DrawObject = currGobj as DrawObject;
-					wbCanvas.removeGraphic(dobj.getGraphic());
+					wbCanvas.removeGraphic(dobj);
 				}
 			}
 		}
@@ -372,9 +356,9 @@ package org.bigbluebutton.modules.whiteboard
 		private function removeLastText():void {
 			for(var i:int = graphicList.length-1; i >= 0; i--) {
 				var currGobj:GraphicObject = graphicList[i];
-				if(currGobj.getGraphicType() == GraphicObject.TYPE_TEXT) {
+				if(currGobj.getGraphicType() == GraphicObjectType.TYPE_TEXT) {
 					var tobj:TextObject = currGobj as TextObject;
-					wbCanvas.removeGraphic(tobj.getGraphic());	
+					wbCanvas.removeGraphic(tobj);	
 				}
 			}
 		}
@@ -384,7 +368,7 @@ package org.bigbluebutton.modules.whiteboard
 			var count:int = 0;
 			for(var i:int = graphicList.length-1; i >= 0; i--) {
 				var currGobj:GraphicObject = graphicList[i];
-				if(currGobj.getGraphicType() == GraphicObject.TYPE_SHAPE) {
+				if(currGobj.getGraphicType() == GraphicObjectType.TYPE_SHAPE) {
 					var dobj:DrawObject = currGobj as DrawObject;
 					shapes[count++] = dobj;
 				}
@@ -397,7 +381,7 @@ package org.bigbluebutton.modules.whiteboard
 			var count:int = 0;
 			for(var i:int = graphicList.length-1; i >= 0; i--) {
 				var currGobj:GraphicObject = graphicList[i];
-				if(currGobj.getGraphicType() == GraphicObject.TYPE_TEXT) {
+				if(currGobj.getGraphicType() == GraphicObjectType.TYPE_TEXT) {
 					var tobj:TextObject = currGobj as TextObject;
 					texts[count++] = tobj;
 				}
@@ -421,9 +405,9 @@ package org.bigbluebutton.modules.whiteboard
 		private function undoLastShape():void {
 			for(var i:int = graphicList.length-1; i >= 0; i--) {
 				var currGobj:GraphicObject = graphicList[i];
-				if(currGobj.getGraphicType() == GraphicObject.TYPE_SHAPE) {
+				if(currGobj.getGraphicType() == GraphicObjectType.TYPE_SHAPE) {
 					var dobj:DrawObject = currGobj as DrawObject;
-					wbCanvas.removeGraphic(dobj.getGraphic());
+					wbCanvas.removeGraphic(dobj);
 				}
 			}
 		}
@@ -431,9 +415,9 @@ package org.bigbluebutton.modules.whiteboard
 		private function undoLastText():void {
 			for(var i:int = graphicList.length-1; i >= 0; i--) {
 				var currGobj:GraphicObject = graphicList[i];
-				if(currGobj.getGraphicType() == GraphicObject.TYPE_TEXT) {
+				if(currGobj.getGraphicType() == GraphicObjectType.TYPE_TEXT) {
 					var tobj:TextObject = currGobj as TextObject;
-					wbCanvas.removeGraphic(tobj.getGraphic());
+					wbCanvas.removeGraphic(tobj);
 				}
 			}
 		}
@@ -445,9 +429,9 @@ package org.bigbluebutton.modules.whiteboard
 			clearBoard();
 			for (var i:int = 0; i < graphicObjs.length; i++){
 				var o:GraphicObject = graphicObjs.getItemAt(i) as GraphicObject;
-				if(o.getGraphicType() == GraphicObject.TYPE_SHAPE)
+				if(o.getGraphicType() == GraphicObjectType.TYPE_SHAPE)
 					drawShape(o as DrawObject, false);
-				else if(o.getGraphicType() == GraphicObject.TYPE_TEXT) 
+				else if(o.getGraphicType() == GraphicObjectType.TYPE_TEXT) 
 					drawText(o as TextObject, false);	
 			}
 		}
@@ -559,15 +543,59 @@ package org.bigbluebutton.modules.whiteboard
 		private function redrawGraphic(gobj:GraphicObject):void {
 			var newGobj:GraphicObject;
 			
-			wbCanvas.removeGraphic(gobj.getGraphic());
-			if(gobj.getGraphicType() == GraphicObject.TYPE_SHAPE) {
+			wbCanvas.removeGraphic(gobj as DisplayObject);
+			if(gobj.getGraphicType() == GraphicObjectType.TYPE_SHAPE) {
 				newGobj = shapeFactory.makeShape(gobj as DrawObject);
-			} else if(gobj.getGraphicType() == GraphicObject.TYPE_TEXT) {
+			} else if(gobj.getGraphicType() == GraphicObjectType.TYPE_TEXT) {
 				newGobj = textFactory.makeTextObject(gobj as TextObject);
 			}
-			wbCanvas.addGraphic(gobj.getGraphic());
+			wbCanvas.addGraphic(gobj as DisplayObject);
 		}
 		
+		private function getGraphicObjectsUnderPoint(x:Number, y:Number):Array {
+			var x:Number = 
+				GraphicFactory.denormalize(
+					GraphicFactory.normalize(x,
+						textFactory.getParentWidth()), textFactory.getParentWidth());
+			var y:Number = 
+				GraphicFactory.denormalize(
+					GraphicFactory.normalize(y,
+					textFactory.getParentHeight()), textFactory.getParentHeight());
+			var point:Point = new Point(x,y);
+			point = wbCanvas.localToGlobal(point);
+			
+			var d:Shape = new Shape();
+			d.graphics.lineStyle(5, 0x00FF00);
+			d.graphics.drawRect(point.x, point.y, 1, 1);
+			wbCanvas.stage.addChild(d);
+			
+			return wbCanvas.parentApplication.getObjectsUnderPoint(point);
+		}
+		
+		private function filterGraphicObjects(objs:Array):Array {
+			return objs.filter(
+				function callback(item:*, index:int, array:Array):Boolean
+				{
+					return item is GraphicObject;
+				}
+			);
+		}
+		
+		private function getTopMostObject(objs:Array):Object {
+			//var numChildren:int = wbCanvas.parentApplication.getChildren().length;
+			var topMostObj:Object;
+
+			for(var i:int = objs.length-2; i >= 0; i--) {
+				var firstIndex:int = 
+					wbCanvas.parentApplication.getChildIndex(objs[i]);
+				var secondIndex:int = 
+					wbCanvas.parentApplication.getChildIndex(objs[i+1]);
+				topMostObj = 
+					(firstIndex > secondIndex) ? firstIndex : secondIndex;
+			}
+			
+			return topMostObj;
+		}
 		public function isPageEmpty():Boolean {
 			return graphicList.length == 0;
 		}

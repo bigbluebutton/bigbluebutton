@@ -55,20 +55,28 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
-			var newShape:Shape = new Shape();
 			if(thickness < 10) thickness = 10;
-			newShape.graphics.lineStyle(getThickness(), getColor());
-			newShape.alpha = 0.6;
+			this.graphics.lineStyle(getThickness(), getColor());
+			this.alpha = 0.6;
 			var arrayEnd:Number = getShapeArray().length;
 			var startX:Number = denormalize(getShapeArray()[0], parentWidth);
 			var startY:Number = denormalize(getShapeArray()[1], parentHeight);
 			var endX:Number = denormalize(getShapeArray()[arrayEnd-2], parentWidth);
 			var endY:Number = denormalize(getShapeArray()[arrayEnd-1], parentHeight);
-			newShape.x = startX;
-			newShape.y = startY;
-			newShape.graphics.lineTo(endX-startX, endY-startY);
-			_shape = newShape;
+			this.x = startX;
+			this.y = startY;
+			this.graphics.lineTo(endX-startX, endY-startY);
 		}
 		
+		override public function getProperties():Array {
+			var props:Array = new Array();
+			props.push(this.type);
+			props.push(this.shape);
+			props.push(this.color);
+			props.push(this.thickness);
+			props.push(false);
+			props.push(true);
+			return props;
+		}
 	}
 }

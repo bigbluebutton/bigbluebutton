@@ -41,7 +41,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
 
-	public class TextObject extends GraphicObject {
+	public class TextObject extends TextField implements GraphicObject {
 		public static const TYPE_NOT_EDITABLE:String = "dynamic";
 		public static const TYPE_EDITABLE:String = "editable";
 		
@@ -52,55 +52,63 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public static const TEXT_TOOL:String = "textTool";
 		
 		public var status:String = TEXT_CREATED;
-		public var type:String = TYPE_NOT_EDITABLE;
-		
-		public var text:String;
-		public var textColor:uint;
-		public var bgColor:uint;
-		public var bgColorVisible:Boolean;
-		public var x:Number;
-		public var y:Number;
-		
-		
+
 		private var _editable:Boolean;
-		private var _textField:TextField;
+		
+		/**
+		 * ID we can use to match the feedback shape in the presenter's view so we can
+		 * remove it. Also a unique identifier of each GraphicObject
+		 */
+		private var ID:String;
 		
 		public function TextObject() {
-			super(GraphicObject.TYPE_TEXT);
-		}
-		
-		public function getTF():TextField {
-			return _textField;
-		}
-		
-		override public function getGraphic():DisplayObject {
-			return _textField;
-		}
-			
-		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
-			var startX:Number = denormalize(x, parentWidth);
-			var startY:Number = denormalize(y, parentHeight);
-			//LogUtil.error("denorms: " + startX + "," + startY);
-			_textField = new TextField();
-			_textField.x = startX;
-			_textField.y = startY;
-			x = startX;
-			y = startY;
-			if(bgColorVisible) {
-				_textField.background = true;
-				_textField.backgroundColor = bgColor;
-			}
-			_textField.text = text;
-			_textField.textColor = textColor;
+
 		}	
+		
+		public function getGraphicType():String {
+			return GraphicObjectType.TYPE_TEXT;
+		}
+		
+		public function getGraphicID():String {
+			return ID;
+		}
+		
+		public function setGraphicID(id:String):void {
+			this.ID = id;
+		}
+		
+		public function denormalize(val:Number, side:Number):Number {
+			return (val*side)/100.0;
+		}
+		
+		public function normalize(val:Number, side:Number):Number {
+			return (val*100.0)/side;
+		}
+		
+		public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
+			var startX:Number = denormalize(this.x, parentWidth);
+			var startY:Number = denormalize(this.y, parentHeight);
+			//LogUtil.error("denorms: " + startX + "," + startY);
+			this.x = startX;
+			this.y = startY;
+		}	
+		
+		public function getProperties():Array {
+			var props:Array = new Array();
+			props.push(this.text);
+			props.push(this.textColor);
+			props.push(this.backgroundColor);
+			props.push(this.background);
+			props.push(this.x);
+			props.push(this.y);
+			return props;
+		}
 		
 		public function makeEditable(editable:Boolean):void {
 			if(editable) {
-				this.type = TYPE_EDITABLE;
-				_textField.type = TextFieldType.INPUT;
+				this.type = TextFieldType.INPUT;
 			} else {
-				this.type = TYPE_NOT_EDITABLE;
-				_textField.type = TextFieldType.DYNAMIC;
+				this.type = TextFieldType.DYNAMIC;
 			}
 			this._editable = editable;
 		}
@@ -110,11 +118,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 										  textObjTextListener:Function,
 										  textObjDeleteListener:Function):void {
 											  
-			_textField.addEventListener(FocusEvent.FOCUS_IN, textObjGainedFocus);
-			_textField.addEventListener(FocusEvent.FOCUS_IN, textObjSelected);
-			_textField.addEventListener(FocusEvent.FOCUS_OUT, textObjLostFocus);
-			_textField.addEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
-			_textField.addEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
+			this.addEventListener(FocusEvent.FOCUS_IN, textObjGainedFocus);
+			this.addEventListener(FocusEvent.FOCUS_IN, textObjSelected);
+			this.addEventListener(FocusEvent.FOCUS_OUT, textObjLostFocus);
+			this.addEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
+			this.addEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
 		}		
 		
 		public function deregisterListeners(textObjGainedFocus:Function,
@@ -122,16 +130,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 											textObjTextListener:Function,
 											textObjDeleteListener:Function):void {
 			
-			_textField.removeEventListener(FocusEvent.FOCUS_IN, textObjGainedFocus);
-			_textField.removeEventListener(FocusEvent.FOCUS_IN, textObjSelected);
-			_textField.removeEventListener(FocusEvent.FOCUS_OUT, textObjLostFocus);
-			_textField.removeEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
-			_textField.removeEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
+			this.removeEventListener(FocusEvent.FOCUS_IN, textObjGainedFocus);
+			this.removeEventListener(FocusEvent.FOCUS_IN, textObjSelected);
+			this.removeEventListener(FocusEvent.FOCUS_OUT, textObjLostFocus);
+			this.removeEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
+			this.removeEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
 		}
 		
 		public function textObjSelected(event:FocusEvent):void {
 			WhiteboardCanvasModel.SELECTED_OBJECT = this;
 		}
-		
 	}
 }

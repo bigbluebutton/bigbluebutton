@@ -59,24 +59,28 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
-			var newShape:Shape = new Shape();
 			var lineTransparency:Number = transparent ? 0.6 : 1.0;
-			newShape.graphics.lineStyle(getThickness(), getColor(), lineTransparency);
+			this.graphics.lineStyle(getThickness(), getColor(), lineTransparency);
 			var arrayEnd:Number = getShapeArray().length;
 			var x:Number = denormalize(getShapeArray()[0], parentWidth);
 			var y:Number = denormalize(getShapeArray()[1], parentHeight);
 			var width:Number = denormalize(getShapeArray()[arrayEnd-2], parentWidth) - x;
 			var height:Number = denormalize(getShapeArray()[arrayEnd-1], parentHeight) - y;
-			//newShape.graphics.beginFill(getColor(),1);
-			if(transparent) newShape.alpha = 0.6;
-			else newShape.alpha = 1;
-			if(fill) newShape.graphics.beginFill(getColor(), newShape.alpha);
-			//if (getColor() == 0x000000 || getColor() == 0xFFFFFF) newShape.alpha = 1.0;
-			//else newShape.alpha = 1;
-			
-			newShape.graphics.drawRect(x,y,width,height);
-			_shape = newShape;
+			if(transparent) this.alpha = 0.6;
+			else this.alpha = 1;
+			if(fill) this.graphics.beginFill(getColor(), this.alpha);
+			this.graphics.drawRect(x,y,width,height);
 		}
 		
+		override public function getProperties():Array {
+			var props:Array = new Array();
+			props.push(this.type);
+			props.push(this.shape);
+			props.push(this.color);
+			props.push(this.thickness);
+			props.push(this.fill);
+			props.push(this.transparent);
+			return props;
+		}
 	}
 }

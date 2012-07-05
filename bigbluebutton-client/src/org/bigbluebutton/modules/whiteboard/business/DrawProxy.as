@@ -32,6 +32,7 @@ package org.bigbluebutton.modules.whiteboard.business
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObjectType;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
@@ -236,7 +237,7 @@ package org.bigbluebutton.modules.whiteboard.business
 						} 
 					}
 				),//new Responder
-				tobj.text, tobj.textColor, tobj.bgColor, tobj.bgColorVisible,
+				tobj.text, tobj.textColor, tobj.backgroundColor, tobj.background,
 				tobj.x, tobj.y, tobj.getGraphicID(), tobj.status
 			); //_netConnection.call
 		}
@@ -423,7 +424,7 @@ package org.bigbluebutton.modules.whiteboard.business
 			for (var i:int=0; i < graphicObjs.length; i++) {
 				var graphic:Array = graphicObjs[i] as Array;
 				var graphicType:String = graphic[0] as String;
-				if(graphicType == GraphicObject.TYPE_SHAPE) {
+				if(graphicType == GraphicObjectType.TYPE_SHAPE) {
 					var shapeArray:Array = graphic[1] as Array;
 					var type:String = graphic[2] as String;
 					var color:uint = graphic[3] as uint;
@@ -433,7 +434,7 @@ package org.bigbluebutton.modules.whiteboard.business
 					var id:String = graphic[7] as String;
 					var status:String = graphic[8] as String;
 					addSegment(graphicType, shapeArray, type, color, thickness, fill, transparent, id, status, true);
-				} else if(graphicType == GraphicObject.TYPE_TEXT) {
+				} else if(graphicType == GraphicObjectType.TYPE_TEXT) {
 					var text:String = graphic[1] as String;
 					var textColor:uint = graphic[2] as uint;
 					var bgColor:uint = graphic[3] as uint;

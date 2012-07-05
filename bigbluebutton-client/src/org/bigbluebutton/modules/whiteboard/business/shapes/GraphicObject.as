@@ -23,62 +23,20 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	
 	import org.bigbluebutton.common.LogUtil;
 
-	public class GraphicObject
-	{
-		public static const TYPE_SHAPE:String = "SHAPE";
-		public static const TYPE_TEXT:String = "TEXT";
-		public static const TYPE_SELECTION:String = "SELECTION";
-		public static const TYPE_INVALID:String = "INVALID";
+	public interface GraphicObject {
+			
+		function getGraphicType():String;
 		
-		protected var graphic_type:String = TYPE_INVALID;
-		/**
-		 * ID we can use to match the feedback shape in the presenter's view so we can
-		 * remove it. Also a unique identifier of each GraphicObject
-		 */
-		protected var ID:String;
-		//protected var isIDSet:Boolean = false;
+		function getGraphicID():String;
 		
-		public function GraphicObject(type:String) {
-			this.graphic_type = type;
-		}
+		function setGraphicID(id:String):void;
 		
-		public function getGraphicType():String {
-			return graphic_type;
-		}
+		function denormalize(val:Number, side:Number):Number;
 		
-		public function getGraphicID():String {
-			return ID;
-		}
+		function normalize(val:Number, side:Number):Number;
+				
+		function makeGraphic(parentWidth:Number, parentHeight:Number):void;
 		
-		public function setGraphicID(id:String):void {
-			//if(!isIDSet) {
-				this.ID = id;
-			//	isIDSet = true;	
-			//} else LogUtil.error("ERROR: ID is already set");
-		}
-		
-		/*public function isIDSet():Boolean {
-			return isIDSet;
-		}*/
-		
-		protected function denormalize(val:Number, side:Number):Number {
-			return (val*side)/100.0;
-		}
-		
-		protected function normalize(val:Number, side:Number):Number {
-			return (val*100.0)/side;
-		}
-		
-		public function getGraphic():DisplayObject {
-			if(graphic_type == TYPE_INVALID) {
-				LogUtil.debug("Callin getGraphic on invalid GraphicObject");
-			}
-			return null;
-		}
-		
-		public function makeGraphic(parentWidth:Number, 
-									   parentHeight:Number):void {
-			return;
-		}
+		function getProperties():Array;
 	}
 }

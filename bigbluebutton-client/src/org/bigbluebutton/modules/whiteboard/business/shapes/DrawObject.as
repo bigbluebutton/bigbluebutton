@@ -31,7 +31,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 * @author dzgonjan
 	 * 
 	 */	
-	public class DrawObject extends GraphicObject {
+	public class DrawObject extends Shape implements GraphicObject {
 		public static const PENCIL:String = "pencil";
 		public static const HIGHLIGHTER:String = "highlighter";
 		public static const ERASER:String = "eraser";
@@ -54,8 +54,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public static const DRAW_START:String = "DRAW_START";
 		public var status:String = DRAW_START;
 				
-		protected var _shape:Shape = new Shape();
 		protected var _segment:Array;
+		
+		/**
+		 * ID we can use to match the feedback shape in the presenter's view so we can
+		 * remove it. Also a unique identifier of each GraphicObject
+		 */
+		private var ID:String;
 		
 		/**
 		 * The default constructor for the DrawObject 
@@ -63,7 +68,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 */		
 		public function DrawObject(type:String, segment:Array, color:uint, thickness:uint,
 									fill:Boolean, trans:Boolean) {
-			super(GraphicObject.TYPE_SHAPE);
 			this.type = type;
 			this.shape = segment;
 			this.color = color;
@@ -73,8 +77,24 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.optimize();
 		}
 		
-		override public function getGraphic():DisplayObject {
-			return _shape;
+		public function getGraphicType():String {
+			return GraphicObjectType.TYPE_SHAPE;
+		}
+		
+		public function getGraphicID():String {
+			return ID;
+		}
+		
+		public function setGraphicID(id:String):void {
+			this.ID = id;
+		}
+		
+		public function denormalize(val:Number, side:Number):Number {
+			return (val*side)/100.0;
+		}
+		
+		public function normalize(val:Number, side:Number):Number {
+			return (val*100.0)/side;
 		}
 		
 		/**
@@ -139,6 +159,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		protected function readyToSend():Boolean {
 			return false;
 		}
-
+		
+		public function makeGraphic(pW:Number, pH:Number):void {
+			return;	
+		}
+		
+		public function getProperties():Array {
+			return null;
+		}
 	}
 }
