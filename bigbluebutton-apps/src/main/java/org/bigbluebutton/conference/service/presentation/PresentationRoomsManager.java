@@ -121,6 +121,16 @@ public class PresentationRoomsManager {
 		return null;
 	}
 	
+	public void sendCursorUpdate(String room, Double xPercent, Double yPercent) {
+		PresentationRoom r = getRoom(room);
+		if (r != null){
+			log.debug("Request to update cursor[" + xPercent + "," + yPercent + "]");
+			r.sendCursorUpdate(xPercent, yPercent);
+			return;
+		}
+		log.warn("resizeAndMoveSlide on a non-existant room " + room);
+	}
+	
 	public void resizeAndMoveSlide(String room, Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
 		PresentationRoom r = getRoom(room);
 		if (r != null){
@@ -186,4 +196,5 @@ public class PresentationRoomsManager {
         	log.warn("Removing presentation from a non-existing room " + room);
         }
     }
+
 }
