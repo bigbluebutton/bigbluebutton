@@ -16,30 +16,17 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.common.events
+package org.bigbluebutton.modules.layout.events
 {
 	import flash.events.Event;
-	
-	import org.bigbluebutton.common.IBbbToolbarComponent;
-	
-	/**
-	 * Allows you to add a button to the top toolbar of bbb-client. Dispatch an instance of ToolbarButtonEvent with the
-	 * reference to the button attached.
-	 * 
-	 */	
-	public class ToolbarButtonEvent extends Event
+
+	public class ConnectionEvent extends Event
 	{
-		public static const ADD:String = "Add Toolbar Button Event";
-		public static const REMOVE:String = "Remove Toolbar Button Event";
-		public static const TOP_TOOLBAR:String = "Top Toolbar";
-		public static const BOTTOM_TOOLBAR:String = "Bottom Toolbar";
-		/**
-		 * The ui component to add to the toolbar. 
-		 */		
-		public var button:IBbbToolbarComponent;
-		public var location:String = TOP_TOOLBAR;
+		public static const CONNECT_EVENT:String = 'CONNECT_EVENT';
+		public var success:Boolean = false;
+		public var errors:Array;
 		
-		public function ToolbarButtonEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function ConnectionEvent(type:String=CONNECT_EVENT, bubbles:Boolean=false, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
 		}

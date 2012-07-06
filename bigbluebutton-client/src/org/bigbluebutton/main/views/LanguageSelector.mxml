@@ -22,7 +22,7 @@
 
 <mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{ResourceUtil.getInstance().localeNames}" 
 			 selectedIndex="{ResourceUtil.getInstance().localeIndex}"
-			 change="changeLanguage()" rowCount="15" width="120">
+			 change="changeLanguage()" rowCount="15" width="120" height="22">
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.util.i18n.ResourceUtil;

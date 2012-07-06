@@ -31,6 +31,7 @@
 	<property name="CLASSROOM_AUDIO" value="ClassroomAudioModule" />
 	<property name="SETTINGS" value="SettingsModule" />
 	<property name="VIDEO_DOCK" value="VideodockModule" />
+	<property name="LAYOUT" value="LayoutModule" />
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
 	
@@ -231,9 +232,13 @@
 		<build-module src="${SRC_DIR}" target="${DYN_INFO}" />
 	</target>
 	
+	<target name="build-layout" description="Compile Layout Module">
+		<build-module src="${SRC_DIR}" target="${LAYOUT}" />
+	</target>
+	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main, build-bbb-main-test, build-chat, build-viewers, build-listeners, build-present, build-breakout"
+			depends="build-bbb-main, build-bbb-main-test, build-chat, build-viewers, build-listeners, build-present, build-breakout, build-layout"
 			description="Compile main, chat, viewers, listeners, present, breakout modules">
 	</target>
 	
@@ -378,18 +383,20 @@
 		<copy file="${PROD_RESOURCES_DIR}/expressInstall.swf" todir="${OUTPUT_DIR}" overwrite="true"/>	
 		<copy file="${PROD_RESOURCES_DIR}/example-info-data.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
 		<if>
-           	   <equals arg1="${BUILD_ENV}" arg2="DEV"/>
-           	      <then>
-              			<echo message="Copying config.xml for development environment"/>
+			<equals arg1="${BUILD_ENV}" arg2="DEV"/>
+			<then>
+				<echo message="Copying config.xml for development environment"/>
 				<copy file="${BASE_DIR}/src/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
-              			<echo message="Copying join-mock.xml for development environment"/>
+				<echo message="Copying join-mock.xml for development environment"/>
 				<copy file="${BASE_DIR}/src/conf/join-mock.xml" todir="${OUTPUT_DIR}/conf" /> 
-           		</then>
-           	<else>
-              		<echo message="Need to copy config.xml.template for production environment"/>
-			<copy file="${RESOURCES_DIR}/config.xml.template" todir="${OUTPUT_DIR}/conf" overwrite="true"/>		
-           	</else>
-        	</if>
+				<echo message="Copying layout.xml for development environment"/>
+				<copy file="${BASE_DIR}/src/conf/layout.xml" todir="${OUTPUT_DIR}/conf" /> 
+			</then>
+			<else>
+				<echo message="Need to copy config.xml.template for production environment"/>
+				<copy file="${RESOURCES_DIR}/config.xml.template" todir="${OUTPUT_DIR}/conf" overwrite="true"/>		
+			</else>
+		</if>
 	</target>
 	
 
