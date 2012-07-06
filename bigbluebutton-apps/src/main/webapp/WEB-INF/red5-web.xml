@@ -32,6 +32,7 @@
     		<set>
 				<ref bean="participantsHandler" />
 				<ref bean="chatHandler" />
+				<ref bean="layoutHandler" />
 				<ref bean="presentationHandler" />
 				<ref bean="voiceHandler" />
 				<ref bean="whiteboardApplication" />

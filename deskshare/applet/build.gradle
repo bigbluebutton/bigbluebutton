@@ -4,7 +4,7 @@ targetCompatibility=1.6
 
 ant.importBuild 'build.xml'
 
-version = '0.71'
+version = '0.8'
 archivesBaseName = 'bbb-deskshare-applet' 
 
 dependencies {	   
@@ -26,6 +26,6 @@ jar.doFirst {
 	* do not want to sign and manage 2 jar files.
 	**/'''
 
-   jar.merge('../common/build/libs/bbb-deskshare-common-0.71.jar')
+   jar.merge('../common/build/libs/bbb-deskshare-common-0.8.jar')
 }
 

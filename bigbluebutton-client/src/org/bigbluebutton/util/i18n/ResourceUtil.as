@@ -43,7 +43,7 @@ package org.bigbluebutton.util.i18n
 	public class ResourceUtil extends EventDispatcher {
 		private static var instance:ResourceUtil = null;
 		public static const LOCALES_FILE:String = "conf/locales.xml";
-		public static const VERSION:String = "0.8-PRE";
+		public static const VERSION:String = "0.8";
 		private var inited:Boolean = false;
 		
 		private static var BBB_RESOURCE_BUNDLE:String = 'bbbResources';
