@@ -35,7 +35,7 @@
 			
 			private function closeDialog():void{
 				var page:Number = parseInt(txtPageNum.text);
-				window.loadPage(page - 1);
+//				window.loadPage(page - 1);
 				PopUpManager.removePopUp(this);
 			}
 			

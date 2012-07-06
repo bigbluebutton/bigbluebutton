@@ -32,40 +32,6 @@ package org.bigbluebutton.modules.present.services
 			soService.gotoSlide(e.slideNumber);
 		}
 		
-		/**
-		 * Gets the current slide number from the server, then loads the page on the local client 
-		 * @param e
-		 * 
-		 */		
-		public function loadCurrentSlideLocally(e:SlideEvent):void{
-			soService.getCurrentSlideNumber();
-		}
-		
-		/**
-		 * Reset the zoom level of the current slide to the default value 
-		 * @param e
-		 * 
-		 */		
-		public function resetZoom(e:PresenterCommands):void{
-			if (soService == null) return;
-			soService.restore();
-		}
-		
-		/**
-		 * Loads a presentation from the server. creates a new PresentationService class 
-		 * 
-		 */		
-		public function loadPresentation(e:UploadEvent):void
-		{
-
-		}
-		
-		/**
-		 * It may take a few seconds for the process to complete on the server, so we allow for some time 
-		 * before notifying viewers the presentation has been loaded 
-		 * @param e
-		 * 
-		 */		
 		public function sharePresentation(e:PresenterCommands):void{
 			if (soService == null) return;
 			soService.sharePresentation(e.share, e.presentationName);
@@ -78,9 +44,7 @@ package org.bigbluebutton.modules.present.services
 		
 		private function sendViewerNotify(e:TimerEvent):void{
 			if (soService == null) return;
-			soService.gotoSlide(0);
-			
-			
+			soService.gotoSlide(0);			
 		}
 		
 		/**
@@ -91,16 +55,7 @@ package org.bigbluebutton.modules.present.services
 		public function moveSlide(e:PresenterCommands):void{
 			soService.move(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
 		}
-		
-		/**
-		 * Zoom the slide within the presentation window
-		 * @param e
-		 * 
-		 */		
-		public function zoomSlide(e:PresenterCommands):void{
-			soService.zoom(e.xOffset, e.yOffset, e.slideToCanvasWidthRatio, e.slideToCanvasHeightRatio);
-		}
-		
+				
 		/**
 		 * Update the presenter cursor within the presentation window 
 		 * @param e
@@ -109,9 +64,6 @@ package org.bigbluebutton.modules.present.services
 		public function sendCursorUpdate(e:PresenterCommands):void{
 			soService.sendCursorUpdate(e.xPercent, e.yPercent);
 		}
-		
-		public function resizeSlide(e:PresenterCommands):void{
-			soService.resizeSlide(e.newSizeInPercent);
-		}
+
 	}
 }

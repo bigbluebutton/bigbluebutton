@@ -41,9 +41,7 @@ package org.bigbluebutton.modules.present.services
         private var _connectionListener:Function;
         private var _messageSender:Function;
         private var _soErrors:Array;
-        
-        private var currentSlide:Number = -1;
-        
+                
         public function PresentationSOService(dispatcher:IEventDispatcher){
             _dispatcher = dispatcher;
         }
@@ -61,39 +59,14 @@ package org.bigbluebutton.modules.present.services
             if (_presentationSO != null) _presentationSO.close();
         }
         
-       
-        /**
-         * Send an event to the server to resize the clients view of the slide in percentage increments
-         * @param slideHeight
-         * @param slideWidth
-         * 
-         */		
-        public function zoom(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
-            move(xOffset, yOffset, widthRatio, heightRatio);
-        }
-        
-        /**
-         * A callback method for zooming in a slide. Called when preseter zooms the slide
-         * @param slideHeight
-         * @param slideWidth
-         * 
-         */		
-        public function zoomCallback(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
-            var e:ZoomEvent = new ZoomEvent(ZoomEvent.ZOOM);
-            e.xOffset = xOffset;
-            e.yOffset = yOffset;
-            e.slideToCanvasWidthRatio = widthRatio;
-            e.slideToCanvasHeightRatio = heightRatio;
-            _dispatcher.dispatchEvent(e);
-        }
-        
+              
         /**
          * Send an event to the server to update the presenter's cursor view on the client 
          * @param xPercent
          * @param yPercent
          * 
          */		
-        public function sendCursorUpdate(xPercent:Number, yPercent:Number):void{
+        public function sendCursorUpdate(xPercent:Number, yPercent:Number):void {
             _presentationSO.send("updateCursorCallback", xPercent, yPercent);
         }
         
@@ -103,28 +76,14 @@ package org.bigbluebutton.modules.present.services
          * @param yPercent
          * 
          */		
-        public function updateCursorCallback(xPercent:Number, yPercent:Number):void{
+        public function updateCursorCallback(xPercent:Number, yPercent:Number):void {
             var e:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR);
             e.xPercent = xPercent;
             e.yPercent = yPercent;
             _dispatcher.dispatchEvent(e);
         }
         
-        /**
-         * Send an event to the server to update the size of the slide shows, as a percentage of the default value 
-         * @param newSizeInPercent
-         * 
-         */		
-        public function resizeSlide(newSizeInPercent:Number):void{
-            _presentationSO.send("resizeSlideCallback", newSizeInPercent);
-        }
-        
-        public function resizeSlideCallback(newSizeInPercent:Number):void{
-            var e:ZoomEvent = new ZoomEvent(ZoomEvent.RESIZE);
-            e.zoomPercentage = newSizeInPercent;
-            _dispatcher.dispatchEvent(e);
-        }
-        
+       
         /**
          * Sends an event to the server to update the clients with the new slide position 
          * @param slideXPosition
@@ -132,17 +91,13 @@ package org.bigbluebutton.modules.present.services
          * 
          */		
         public function move(xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
-            //_presentationSO.send("moveCallback", xOffset, yOffset, widthRatio, heightRatio);
             red5Conn.connection.call("presentation.resizeAndMoveSlide",// Remote function name
                 new Responder(
-                    // participants - On successful result
-                    function(result:Boolean):void { 
-                        
+                    function(result:Boolean):void {                         
                         if (result) {
                             LogUtil.debug("Successfully sent resizeAndMoveSlide");							
                         }	
                     },	
-                    // status - On error occurred
                     function(status:Object):void { 
                         LogUtil.error("Error occurred:"); 
                         for (var x:Object in status) { 
@@ -155,11 +110,6 @@ package org.bigbluebutton.modules.present.services
                 widthRatio,
                 heightRatio
             ); //_netConnection.call
-            
-            presenterViewedRegionX = xOffset;
-            presenterViewedRegionY = yOffset;
-            presenterViewedRegionW = widthRatio;
-            presenterViewedRegionH = heightRatio;
         }
         
         /**
@@ -177,73 +127,7 @@ package org.bigbluebutton.modules.present.services
             _dispatcher.dispatchEvent(e);
         }
         
-        /***
-         * A hack for the viewer to sync with the presenter. Have the viewer query the presenter for it's x,y,width and height info.
-         */
-        private var presenterViewedRegionX:Number = 0;
-        private var presenterViewedRegionY:Number = 0;
-        private var presenterViewedRegionW:Number = 100;
-        private var presenterViewedRegionH:Number = 100;
-        
-        private function queryPresenterForSlideInfo():void {
-            LogUtil.debug("Query for slide info");
-            _presentationSO.send("whatIsTheSlideInfo", meetingModel.getMyUserId());
-        }
-        
-        public function whatIsTheSlideInfo(userid:Number):void {
-            LogUtil.debug("Rx Query for slide info");
-            if (meetingModel.amIPresenter()) {
-                LogUtil.debug("User Query for slide info");
-                _presentationSO.send("whatIsTheSlideInfoReply", userid, presenterViewedRegionX, presenterViewedRegionY, presenterViewedRegionW, presenterViewedRegionH);
-            }
-        }
-        
-        public function whatIsTheSlideInfoReply(userId:Number, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
-            LogUtil.debug("Rx whatIsTheSlideInfoReply");
-            if (meetingModel.amIThisUser(userId.toString())) {
-                LogUtil.debug("Got reply for Query for slide info");
-                var e:MoveEvent = new MoveEvent(MoveEvent.CUR_SLIDE_SETTING);
-                e.xOffset = xOffset;
-                e.yOffset = yOffset;
-                e.slideToCanvasWidthRatio = widthRatio;
-                e.slideToCanvasHeightRatio = heightRatio;
-                _dispatcher.dispatchEvent(e);				
-            }
-            
-        }
-        
-        
-        /**
-         * Sends an event out for the clients to maximize the presentation module 
-         * 
-         */		
-        public function maximize():void{
-            _presentationSO.send("maximizeCallback");
-        }
-        
-        /**
-         * A callback method from the server to maximize the presentation 
-         * 
-         */		
-        public function maximizeCallback():void{
-            _dispatcher.dispatchEvent(new ZoomEvent(ZoomEvent.MAXIMIZE));
-        }
-        
-        public function restore():void{
-            _presentationSO.send("restoreCallback");
-        }
-        
-        public function restoreCallback():void{
-            _dispatcher.dispatchEvent(new ZoomEvent(ZoomEvent.RESTORE));
-        }
-        
-        /**
-         * Send an event to the server to clear the presentation 
-         * 
-         */		
-        public function clearPresentation() : void {
-            _presentationSO.send("clearCallback");			
-        }
+
         
         public function removePresentation(name:String):void {
             red5Conn.connection.call("presentation.removePresentation",// Remote function name
@@ -264,21 +148,7 @@ package org.bigbluebutton.modules.present.services
                 name
             ); //_netConnection.call
         }
-        
-        /**
-         * A call-back method for the clear method. This method is called when the clear method has
-         * successfuly called the server.
-         * 
-         */		
-        public function clearCallback() : void {
-            _presentationSO.setProperty(SHARING, false);
-            _dispatcher.dispatchEvent(new UploadEvent(UploadEvent.CLEAR_PRESENTATION));
-        }
-        
-        public function setPresenterName(presenterName:String):void {
-            _presentationSO.setProperty(PRESENTER, presenterName);
-        }
-        
+               
         public function getPresentationInfo():void {
             red5Conn.connection.call("presentation.getPresentationInfo",// Remote function name
                 new Responder(
@@ -302,7 +172,7 @@ package org.bigbluebutton.modules.present.services
                         if (result.presentation.sharing) {	
                             ip.sharing = result.presentation.sharing;
                             ip.currentPage = Number(result.presentation.slide);
-                            LogUtil.debug("The presenter has shared slides and showing slide " + currentSlide);
+                            LogUtil.debug("The presenter has shared slides and showing slide " + ip.currentPage);
                             ip.presentationName = String(result.presentation.currentPresentation);
                         }
                         
@@ -319,12 +189,6 @@ package org.bigbluebutton.modules.present.services
             ); //_netConnection.call
         }
         
-        
-        private function sendPresentationName(presentationName:String):void {
-            var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.CONVERT_SUCCESS);
-            uploadEvent.presentationName = presentationName;
-            _dispatcher.dispatchEvent(uploadEvent)
-        }
         
         /**
          * Send an event out to the server to go to a new page in the SlidesDeck 
@@ -364,15 +228,7 @@ package org.bigbluebutton.modules.present.services
             e.pageNumber = page;
             _dispatcher.dispatchEvent(e);
         }
-        
-        public function getCurrentSlideNumber():void {
-            if (currentSlide >= 0) {
-                var e:NavigationEvent = new NavigationEvent(NavigationEvent.GOTO_PAGE)
-                e.pageNumber = currentSlide;
-                _dispatcher.dispatchEvent(e);
-            }
-        }
-        
+               
         public function sharePresentation(share:Boolean, presentationName:String):void {
             LogUtil.debug("PresentationSOService::sharePresentation()... presentationName=" + presentationName);
             red5Conn.connection.call("presentation.sharePresentation",// Remote function name
@@ -495,11 +351,8 @@ package org.bigbluebutton.modules.present.services
         }
         
         private function syncHandler(event:SyncEvent):void {
-            //		var statusCode:String = event.info.code;
-            LogUtil.debug("!!!!! Presentation sync handler - " + event.changeList.length );
             notifyConnectionStatusListener(true);		
             getPresentationInfo();	
-            queryPresenterForSlideInfo();
         }
         
         private function netStatusHandler (event:NetStatusEvent):void {

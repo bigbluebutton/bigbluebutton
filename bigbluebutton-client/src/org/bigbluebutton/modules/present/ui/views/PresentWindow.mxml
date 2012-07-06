@@ -42,11 +42,7 @@
 	
 	<mate:Dispatcher id="globalDispatcher" />
     
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="becomeViewer" />
 	<mate:Listener type="{PresentationEvent.PRESENTATION_LOADED}" method="handlePresentationLoadedEvent" />
-	<mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="gotoPage" />
-	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
 	<mate:Listener type="{SlideResizedEvent.SLIDE_RESIZED_EVENT}" method="handleSlideResizedEvent" />
 	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
 	<mate:Listener type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" method="addOverlayCanvas" />
@@ -230,31 +226,7 @@
 			private function handleSlideResizedEvent(e:SlideResizedEvent):void{
 				zoomSlider.value = e.percent;
 			}
-						
-			private function becomePresenter(e:MadePresenterEvent):void{
-				setupPresenter(true, e.presenterName);
-			}
-			
-			private function becomeViewer(e:MadePresenterEvent):void{
-				setupPresenter(false, e.presenterName);
-				dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW));
-				this.contextMenu = new ContextMenu();
-				this.contextMenu.hideBuiltInItems();
-				if (slideView.thumbnailView.visible)
-					showThumbnails();
-			}
-						
-			private function setupPresenter(isPresenter:Boolean, presentersName:String):void {
-				this.isPresenter = isPresenter;
-				uploadPres.visible = isPresenter;
-				
-				if (presentationLoaded) {
-	            	displaySlideNumber(slideView.selectedSlide + 1);	
-				}
-					
-				notifyComponentsOfPresenterChange(isPresenter, presentersName);
-			}
-					
+											
 			private function handlePresentationLoadedEvent(e:PresentationEvent):void {	
 				if (e.presentationName == currentPresentation) return;			
 				currentPresentation = e.presentationName;
@@ -292,56 +264,13 @@
 					dispatchEvent(shareEvent);
 			}
 			
-			private function gotoPage(e:NavigationEvent):void{
-				loadPage(e.pageNumber);
-			}
-			
-			public function loadPage(pageNumber:int):void{
-				slideView.selectedSlide = pageNumber;
-				
-				if (validPageNumber(pageNumber)) {
-					loadSlide(pageNumber);
-					disableSlideNavigationButtons(pageNumber);
-					displaySlideNumber(pageNumber + 1);
-				}	
-			}
-			
-			private function loadSlide(page:int):void {
-				slideManager.load(slideView.slides.getItemAt(page) as Slide);
-			}
-			
-			private function validPageNumber(pageNumber:int):Boolean {
-				return (pageNumber <= slideView.slides.length-1 && pageNumber >= 0)
-			}
-			
-			private function disableSlideNavigationButtons(pageNumber:int):void {
-				if (pageNumber == 0) {
-					backButton.enabled = false;
-				} else {
-					backButton.enabled = true;
-				}
-				
-				if (pageNumber < slideView.slides.length - 1) {
-					forwardButton.enabled = true;
-				} else {
-					forwardButton.enabled = false;
-				}
-			}
+
 			
 			private function displaySlideNumber(currentSlide:int):void {
 				btnSlideNum.label = "" + currentSlide + '/' + slideView.slides.length;
 			}
 			
-			private function clearPresentation(e:UploadEvent):void{
-				slideView.visible = false;		
-				slideView.slideLoader.source = null; 
-				slideView.selectedSlide = 0;
-				btnSlideNum.label = "";
-//				displaySlideNavigationControls(false);
 
-				// Change the title of the window.
-				currentPresentation = ResourceUtil.getInstance().getString('bbb.presentation.title');				
-			}
 			
 			private function gotoPreviousSlide():void {
 //				if ((slideView.selectedSlide - 1) >= 0)
@@ -442,31 +371,19 @@
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 
-	<views:PageView id="slideView" width="100%" height="100%" visible="true" mouseDown="mouseDown = true" backgroundColor="#efefef"
-			 mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />			    
+	<views:PageView id="slideView" width="100%" height="100%" visible="true" mouseDown="mouseDown = true" backgroundColor="#efefef" mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />			    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
-    	  <mx:Button id="uploadPres" icon="{model.uploadIcon}" visible="{model.presenter}" width="25" height="25"
-    	   		toolTip="{model.uploadPresBtnToolTip}" 
-    	   		click="openFileUploadWindow()"/>        	  
+    	  <mx:Button id="uploadPres" icon="{model.uploadIcon}" visible="{model.presenter}" width="25" height="25" toolTip="{model.uploadPresBtnToolTip}" click="openFileUploadWindow()"/>        	  
     	  <mx:Spacer width="50%" id="spacer1"/>
-    	  <mx:Button id="backButton" icon="{model.backwardIcon}" visible="{model.presenter}" enabled="{model.backBtnEnabled}" width="30" height="20"
-    	   		toolTip="{model.backBtnToolTip}" click="gotoPreviousSlide()"/>
-    	  <mx:Button id="btnSlideNum" visible="{model.presenter}" label="" click="showThumbnails()" doubleClick="showPageDialog()" 
-					 toolTip="{model.slideNumLblToolTip}"/>
-    	  <mx:Button id="forwardButton" icon="{model.forwardIcon}" visible="{model.presenter}" enabled="{model.forwardBtnEnabled}" width="30" height="20"
-    	   		toolTip="{model.forwardBtnToolTip}" click="gotoNextSlide()"/>    				
+    	  <mx:Button id="backButton" icon="{model.backwardIcon}" visible="{model.presenter}" enabled="{model.backBtnEnabled}" width="30" height="20" toolTip="{model.backBtnToolTip}" click="gotoPreviousSlide()"/>
+    	  <mx:Button id="btnSlideNum" visible="{model.presenter}" label="" click="showThumbnails()" doubleClick="showPageDialog()" toolTip="{model.slideNumLblToolTip}"/>
+    	  <mx:Button id="forwardButton" icon="{model.forwardIcon}" visible="{model.presenter}" enabled="{model.forwardBtnEnabled}" width="30" height="20" toolTip="{model.forwardBtnToolTip}" click="gotoNextSlide()"/>    				
 		<mx:Spacer width="10%" id="spacer2"/>
-    	<mx:HSlider id="zoomSlider" visible="{model.presenter}" value="{slideView.zoomPercentage}"
-    		minimum="100" maximum="400" dataTipPlacement="top" labels="['100%','400%']" 
-    		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
-    		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>
+    	<mx:HSlider id="zoomSlider" visible="{model.presenter}" value="{slideView.zoomPercentage}" minimum="100" maximum="400" dataTipPlacement="top" labels="['100%','400%']" 
+    		            useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>
     	<mx:Spacer width="50%" id="spacer3"/>
-    	<mx:Button id="btnFitToWidth" icon="{model.fitToWidthIcon}" visible="{model.presenter}" width="25" height="25" 
-				   toolTip="{model.fitToWidthToolTip}" 
-				   click="onFitToPage(false)"/>
-		<mx:Button id="btnFitToPage" icon="{model.fitToPageIcon}" visible="{model.presenter}" width="25" height="25" 
-				   toolTip="{model.fitToPageToolTip}" 
-				   click="onFitToPage(true)"/>
+    	<mx:Button id="btnFitToWidth" icon="{model.fitToWidthIcon}" visible="{model.presenter}" width="25" height="25" toolTip="{model.fitToWidthToolTip}" click="onFitToPage(false)"/>
+		<mx:Button id="btnFitToPage" icon="{model.fitToPageIcon}" visible="{model.presenter}" width="25" height="25" toolTip="{model.fitToPageToolTip}" click="onFitToPage(true)"/>
     	<mx:Spacer width="5" id="spacer4"/>
     </mx:ApplicationControlBar>
 </pres:MDIWindow>
