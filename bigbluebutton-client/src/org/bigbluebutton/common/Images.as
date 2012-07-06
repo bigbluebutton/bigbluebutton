@@ -101,6 +101,12 @@ package org.bigbluebutton.common
         
         [Embed(source="assets/images/arrow_undo.png")] 
         public var undo_icon:Class;  
+
+        [Embed(source="assets/images/scribble_icon.png")]
+        public var scribble_icon:Class; 
+
+        [Embed(source="assets/images/text_icon.png")]
+        public var text_icon:Class; 
         
         [Embed(source="assets/images/circle.png")]
         public var circle_icon:Class; 
