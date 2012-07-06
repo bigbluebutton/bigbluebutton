@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 			if (highlighterCanvas != null) return;
 			highlighterCanvas = new WhiteboardCanvas();
 			highlighterCanvas.model = model;
-			model.wbCanvas = highlighterCanvas;
+			 model.wbCanvas = highlighterCanvas;
 			if (highlighterToolbar != null) return;
 			highlighterToolbar = new WhiteboardToolbar();
 			highlighterToolbar.canvas = highlighterCanvas;

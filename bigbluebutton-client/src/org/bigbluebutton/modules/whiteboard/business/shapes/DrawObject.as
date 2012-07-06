@@ -20,6 +20,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	import flash.display.DisplayObject;
 	import flash.display.Shape;
+	import flash.display.Sprite;
 
 	/**
 	 * The DrawObject class provides an interface for other geometric representations.
@@ -31,7 +32,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 * @author dzgonjan
 	 * 
 	 */	
-	public class DrawObject extends Shape implements GraphicObject {
+	public class DrawObject extends Sprite implements GraphicObject {
 		public static const PENCIL:String = "pencil";
 		public static const HIGHLIGHTER:String = "highlighter";
 		public static const ERASER:String = "eraser";
@@ -57,10 +58,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		protected var _segment:Array;
 		
 		/**
-		 * ID we can use to match the feedback shape in the presenter's view so we can
-		 * remove it. Also a unique identifier of each GraphicObject
+		 * ID we can use to match the shape in the client's view
+		 * so we can use modify it; a unique identifier of each GraphicObject
 		 */
-		private var ID:String;
+		private var ID:String = WhiteboardConstants.ID_UNASSIGNED;
 		
 		/**
 		 * The default constructor for the DrawObject 
@@ -78,7 +79,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		public function getGraphicType():String {
-			return GraphicObjectType.TYPE_SHAPE;
+			return WhiteboardConstants.TYPE_SHAPE;
 		}
 		
 		public function getGraphicID():String {

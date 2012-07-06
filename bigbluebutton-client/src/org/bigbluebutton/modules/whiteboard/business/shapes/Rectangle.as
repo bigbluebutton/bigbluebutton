@@ -60,15 +60,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
 			var lineTransparency:Number = transparent ? 0.6 : 1.0;
+			this.alpha = lineTransparency;
 			this.graphics.lineStyle(getThickness(), getColor(), lineTransparency);
 			var arrayEnd:Number = getShapeArray().length;
 			var x:Number = denormalize(getShapeArray()[0], parentWidth);
 			var y:Number = denormalize(getShapeArray()[1], parentHeight);
 			var width:Number = denormalize(getShapeArray()[arrayEnd-2], parentWidth) - x;
 			var height:Number = denormalize(getShapeArray()[arrayEnd-1], parentHeight) - y;
-			if(transparent) this.alpha = 0.6;
-			else this.alpha = 1;
-			if(fill) this.graphics.beginFill(getColor(), this.alpha);
+			if(fill) this.graphics.beginFill(getColor(), lineTransparency);
 			this.graphics.drawRect(x,y,width,height);
 		}
 		
@@ -80,6 +79,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			props.push(this.thickness);
 			props.push(this.fill);
 			props.push(this.transparent);
+			props.push(this.width);
+			props.push(this.height);
 			return props;
 		}
 	}

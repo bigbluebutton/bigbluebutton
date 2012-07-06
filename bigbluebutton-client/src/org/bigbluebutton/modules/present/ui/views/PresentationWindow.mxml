@@ -494,7 +494,8 @@
     	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="gotoNextSlide()"/>    				
 		<mx:Spacer width="10%" id="spacer2"/>
-    	<mx:HSlider id="zoomSlider" visible="false" value="{slideView.zoomPercentage}"
+    	 
+		<mx:HSlider id="zoomSlider" visible="false" value="{slideView.zoomPercentage}"
     		minimum="100" maximum="400" dataTipPlacement="top" labels="['100%','400%']" 
     		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
     		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>

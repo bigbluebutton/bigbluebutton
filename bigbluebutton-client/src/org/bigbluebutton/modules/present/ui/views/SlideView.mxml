@@ -104,7 +104,7 @@
 				
 				cursor = new Shape();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
-				cursor.graphics.drawCircle(0,0,3);
+				cursor.graphics.drawCircle(0,0,2.5);
 				this.rawChildren.addChild(cursor);
 				cursor.visible = false;
 				
@@ -445,6 +445,7 @@
 				whiteboardCanvasHolder.height = height;
 				moveCanvas(slideLoader.x, slideLoader.y);
 				if (whiteboardCanvas != null) {
+					//LogUtil.debug("Zooming Canvas " + width + " " + height);
 					whiteboardCanvas.zoomCanvas(width, height);
 				}
 			}

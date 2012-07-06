@@ -79,8 +79,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			props.push(this.shape);
 			props.push(0xFFFFFF);
 			props.push(this.thickness);
-			props.push(this.fill);
-			props.push(this.transparent);
+			props.push(false);
+			props.push(false);
+			props.push(this.width);
+			props.push(this.height);
 			return props;
 		}
 	}

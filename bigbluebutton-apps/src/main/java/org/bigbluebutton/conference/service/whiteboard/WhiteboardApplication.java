@@ -99,7 +99,7 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		System.out.println(roomManager.getRoom(getLocalScope().getName()).getActivePresentation().getActivePage().getNumGraphicsOnPage());
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
 		List<Object> arguments = newShape.toList();
-		drawSO.sendMessage("addSegmentNormally", arguments);
+		drawSO.sendMessage("addSegment", arguments);
 	}
 	
 	public void sendText(String text, int textColor, int bgColor, boolean bgColorVisible, int x, int y, String id, String status){
@@ -113,7 +113,7 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		}	
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
 		List<Object> arguments = newText.toList();
-		drawSO.sendMessage("addTextNormally", arguments);
+		drawSO.sendMessage("addText", arguments);
 	}
 	
 	public int getNumGraphicsOnPage(int pageNum){

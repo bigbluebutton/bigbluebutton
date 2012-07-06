@@ -32,7 +32,7 @@ package org.bigbluebutton.modules.whiteboard.business
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObjectType;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
@@ -247,7 +247,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * 
 		 */		
 		public function addSegment(graphicType:String, array:Array, type:String, color:uint, thickness:uint, 
-								   fill:Boolean, transparent:Boolean, id:String, status:String, recvdShapes:Boolean):void{
+								   fill:Boolean, transparent:Boolean, id:String, status:String, recvdShapes:Boolean = false):void{
 			//LogUtil.debug("Rx add segment **** with ID of " + id + " " + type
 			//+ " and " + color + " " + thickness + " " + fill + " " + transparent);
 			var d:DrawObject = drawFactory.makeDrawObject(type, array, color, thickness, fill, transparent);
@@ -261,21 +261,13 @@ package org.bigbluebutton.modules.whiteboard.business
 			dispatcher.dispatchEvent(e);
 		}
 		
-		//convenience method
-		public function addSegmentNormally(graphicType:String, array:Array, type:String, color:uint, thickness:uint, 
-								   fill:Boolean, transparent:Boolean, id:String, status:String):void {
-			
-			addSegment(graphicType, array, type, color, thickness, 
-				fill, transparent, id, status, false);
-		}
-		
 		/**
 		 * Adds a new TextObject to the Whiteboard overlay
 		 * @param Params represent the data used to recreate the TextObject
 		 * 
 		 */		
 		public function addText(graphicType:String, text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean,
-								x:Number, y:Number, id:String, status:String, recvdShapes:Boolean):void {
+								x:Number, y:Number, id:String, status:String, recvdShapes:Boolean = false):void {
 			//LogUtil.error("Step 3(received): " + x + "," + y);
 			LogUtil.debug("Rx add text **** with ID of " + id + " " + x + "," + y);
 			var t:TextObject = textFactory.cloneTextObject(text, textColor, bgColor, bgColorVisible, x, y);
@@ -286,14 +278,6 @@ package org.bigbluebutton.modules.whiteboard.business
 			e.data = t;
 			e.recvdShapes = recvdShapes;
 			dispatcher.dispatchEvent(e);
-		}
-		
-		//convenience method
-		public function addTextNormally(graphicType:String, text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean,
-										x:Number, y:Number, id:String, status:String):void {
-			
-			addText(graphicType, text, textColor, bgColor, bgColorVisible, 
-						x, y, id, status, false);
 		}
 		
 		/**
@@ -424,7 +408,7 @@ package org.bigbluebutton.modules.whiteboard.business
 			for (var i:int=0; i < graphicObjs.length; i++) {
 				var graphic:Array = graphicObjs[i] as Array;
 				var graphicType:String = graphic[0] as String;
-				if(graphicType == GraphicObjectType.TYPE_SHAPE) {
+				if(graphicType == WhiteboardConstants.TYPE_SHAPE) {
 					var shapeArray:Array = graphic[1] as Array;
 					var type:String = graphic[2] as String;
 					var color:uint = graphic[3] as uint;
@@ -434,7 +418,7 @@ package org.bigbluebutton.modules.whiteboard.business
 					var id:String = graphic[7] as String;
 					var status:String = graphic[8] as String;
 					addSegment(graphicType, shapeArray, type, color, thickness, fill, transparent, id, status, true);
-				} else if(graphicType == GraphicObjectType.TYPE_TEXT) {
+				} else if(graphicType == WhiteboardConstants.TYPE_TEXT) {
 					var text:String = graphic[1] as String;
 					var textColor:uint = graphic[2] as uint;
 					var bgColor:uint = graphic[3] as uint;

@@ -51,22 +51,25 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		
 		public static const TEXT_TOOL:String = "textTool";
 		
+		/**
+		 * Status = [CREATED, UPDATED, PUBLISHED]
+		 */
 		public var status:String = TEXT_CREATED;
 
 		private var _editable:Boolean;
 		
 		/**
-		 * ID we can use to match the feedback shape in the presenter's view so we can
-		 * remove it. Also a unique identifier of each GraphicObject
+		 * ID we can use to match the shape in the client's view
+		 * so we can use modify it; a unique identifier of each GraphicObject
 		 */
-		private var ID:String;
+		private var ID:String = WhiteboardConstants.ID_UNASSIGNED;
 		
 		public function TextObject() {
 
 		}	
 		
 		public function getGraphicType():String {
-			return GraphicObjectType.TYPE_TEXT;
+			return WhiteboardConstants.TYPE_TEXT;
 		}
 		
 		public function getGraphicID():String {
@@ -119,7 +122,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 										  textObjDeleteListener:Function):void {
 											  
 			this.addEventListener(FocusEvent.FOCUS_IN, textObjGainedFocus);
-			this.addEventListener(FocusEvent.FOCUS_IN, textObjSelected);
 			this.addEventListener(FocusEvent.FOCUS_OUT, textObjLostFocus);
 			this.addEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
 			this.addEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
@@ -131,14 +133,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 											textObjDeleteListener:Function):void {
 			
 			this.removeEventListener(FocusEvent.FOCUS_IN, textObjGainedFocus);
-			this.removeEventListener(FocusEvent.FOCUS_IN, textObjSelected);
 			this.removeEventListener(FocusEvent.FOCUS_OUT, textObjLostFocus);
 			this.removeEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
 			this.removeEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
-		}
-		
-		public function textObjSelected(event:FocusEvent):void {
-			WhiteboardCanvasModel.SELECTED_OBJECT = this;
 		}
 	}
 }
