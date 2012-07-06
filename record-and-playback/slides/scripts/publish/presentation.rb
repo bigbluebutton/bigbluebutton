@@ -96,8 +96,8 @@ def processCursorEvents
 					timestamp_orig = cursorEvent[:timestamp].to_f
 					timestamp = ((timestamp_orig-$join_time)/1000).round(1)
 				
-					x = cursorEvent.xpath(".//xPercent")[0].text()
-					y = cursorEvent.xpath(".//yPercent")[0].text()
+					x = cursorEvent.xpath(".//xOffset")[0].text()
+					y = cursorEvent.xpath(".//yOffset")[0].text()
 					if(timestamp_prev == timestamp)
 				
 					else
@@ -106,11 +106,11 @@ def processCursorEvents
 								$ss.each do |key,val|
 									$val = val
 									if key === timestamp_prev
-										$vbox_width = $val[0]
-										$vbox_height = $val[1]
+										$vbox_width = $val[0]/2 # because the image size is twice as big as the viewbox
+										$vbox_height = $val[1]/2 # because the image size is twice as big as the viewbox
 									end
 								end
-								$xml.cursor "#{($vbox_width.to_f*(x.to_f/100)).round(1)} #{($vbox_height.to_f*(y.to_f/100)).round(1)}"
+								$xml.cursor "#{($vbox_width.to_f*x.to_f).round(1)} #{($vbox_height.to_f*y.to_f).round(1)}"
 							end
 						end
 					end
