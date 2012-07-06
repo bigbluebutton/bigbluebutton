@@ -18,11 +18,13 @@ props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 
-target_dir = "#{recording_dir}/process/slides/#{meeting_id}"
+
+
+target_dir = "#{recording_dir}/process/presentation/#{meeting_id}"
 if not FileTest.directory?(target_dir)
 	logger = Logger.new("/var/log/bigbluebutton/slides/process-#{meeting_id}.log", 'daily' )
 	BigBlueButton.logger = logger
-  
+  BigBlueButton.logger.info("Processing script presentation.rb")
 	FileUtils.mkdir_p target_dir
   
   # Create a copy of the raw archives
@@ -53,11 +55,16 @@ if not FileTest.directory?(target_dir)
          1.upto(num_pages) do |page|
            pdf_page = "#{pres_dir}/slide-#{page}.pdf"
            BigBlueButton::Presentation.extract_page_from_pdf(page, pres_pdf, pdf_page)
-           BigBlueButton::Presentation.convert_pdf_to_png(pdf_page, "#{target_pres_dir}/slide-#{page}.png")
+           #BigBlueButton::Presentation.convert_pdf_to_png(pdf_page, "#{target_pres_dir}/slide-#{page}.png")
+					 command = "convert -density 300x300 -resize 1600x1200 -quality 90 +dither -depth 8 -colors 256 #{pdf_page} #{target_pres_dir}/slide-#{page}.png"
+		       BigBlueButton.execute(command)
          end
     else
         ext = File.extname("#{images[0]}")
-	BigBlueButton::Presentation.convert_image_to_png(images[0],"#{target_pres_dir}/slide-1.png")
+				#BigBlueButton::Presentation.convert_image_to_png(images[0],"#{target_pres_dir}/slide-1.png")
+        command="convert -resize 1600x1200 #{images[0]} #{target_pres_dir}/slide-1.png"
+        BigBlueButton.execute(command)
+				
     end
   
   end
@@ -65,7 +72,6 @@ if not FileTest.directory?(target_dir)
 	process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "w")
   process_done.write("Processed #{meeting_id}")
   process_done.close
-	BigBlueButton.logger.info("Finished running presentation.rb processing script")
 #else
 #	BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been processed.")  
 end
