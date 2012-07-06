@@ -1,0 +1,5 @@
+### Change your BigBlueButton server IP address below! ###
+playback_host: 192.168.0.226
+### Change your BigBlueButton server IP address above! ###
+
+publish_dir: /var/bigbluebutton/published/presentation

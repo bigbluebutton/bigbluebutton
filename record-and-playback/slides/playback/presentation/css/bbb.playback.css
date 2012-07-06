@@ -14,27 +14,30 @@ br{
 
 #playbackArea{
 	width: 800px;
-	height: 700px;
-	margin-left: auto;
-	margin-right: auto;
+	height: 600px;
+	margin: 0px auto;
+	/* border:5px solid #a1a1a1;
+	border-radius:10px; */
 }
 
-#audioRecording{
+#slide{
+	width: 600px; 
+	height: 600px;
+}
+
+
+
+#video{
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
 }
 
-#slide{
-	background-image:url('../images/logo.png');
-}
-
-
 .chatcontainer{
 	width:420px;
 	height:600px;
 	margin-left: auto;
-    margin-right: auto;
+  margin-right: auto;
 	position: relative;
 	top:-650px;
 	left:610px;
@@ -56,10 +59,29 @@ br{
 #mid {display:none}
 
 #footer{
-        margin-left: auto;
-        margin-right: auto;
+	      margin-left: auto;
+	      margin-right: auto;
+	      padding-top: 25px;
         font-size:0.75em;
         color: #666;
-
         text-align: center;
+}        
+
+#svgobject {
+        	width: 800px; 
+        	height: 600px; 
+        	position: absolute; 
+        	visibility: visible;
+}
+
+.circle {
+	height: 15px;
+	width: 15px;
+	border-radius: 50%;
+}
+
+
+#cursor {
+	position: absolute;
+	background: red;
 }

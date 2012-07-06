@@ -90,33 +90,35 @@ def processCursorEvents
 			y_prev = nil
 			timestamp_orig_prev = nil
 			timestamp_prev = nil
-			last_time = $cursor_events.last[:timestamp].to_f
-			$cursor_events.each do |cursorEvent|
-				timestamp_orig = cursorEvent[:timestamp].to_f
-				timestamp = ((timestamp_orig-$join_time)/1000).round(1)
+			if(!$cursor_events.empty?)
+				last_time = $cursor_events.last[:timestamp].to_f
+				$cursor_events.each do |cursorEvent|
+					timestamp_orig = cursorEvent[:timestamp].to_f
+					timestamp = ((timestamp_orig-$join_time)/1000).round(1)
 				
-				x = cursorEvent.xpath(".//xPercent")[0].text()
-				y = cursorEvent.xpath(".//yPercent")[0].text()
-				if(timestamp_prev == timestamp)
+					x = cursorEvent.xpath(".//xPercent")[0].text()
+					y = cursorEvent.xpath(".//yPercent")[0].text()
+					if(timestamp_prev == timestamp)
 				
-				else
-					if(x_prev && y_prev)
-						$xml.event(:timestamp => timestamp_prev, :orig => timestamp_orig_prev) do
-							$ss.each do |key,val|
-								$val = val
-								if key === timestamp_prev
-									$vbox_width = $val[0]
-									$vbox_height = $val[1]
+					else
+						if(x_prev && y_prev)
+							$xml.event(:timestamp => timestamp_prev, :orig => timestamp_orig_prev) do
+								$ss.each do |key,val|
+									$val = val
+									if key === timestamp_prev
+										$vbox_width = $val[0]
+										$vbox_height = $val[1]
+									end
 								end
+								$xml.cursor "#{($vbox_width.to_f*(x.to_f/100)).round(1)} #{($vbox_height.to_f*(y.to_f/100)).round(1)}"
 							end
-							$xml.cursor "#{($vbox_width.to_f*(x.to_f/100)).round(1)} #{($vbox_height.to_f*(y.to_f/100)).round(1)}"
 						end
 					end
+					timestamp_prev = timestamp
+					timestamp_orig_prev = timestamp_orig
+					x_prev = x
+					y_prev = y
 				end
-				timestamp_prev = timestamp
-				timestamp_orig_prev = timestamp_orig
-				x_prev = x
-				y_prev = y
 			end
 		end
 	end
@@ -524,31 +526,41 @@ puts $playback
 if ($playback == "slides")
 	logger = Logger.new("/var/log/bigbluebutton/slides/publish-#{$meeting_id}.log", 'daily' )
 	BigBlueButton.logger = logger
-    BigBlueButton.logger.info("Publishing #{$meeting_id}")
+  BigBlueButton.logger.info("RUNNING SLIDES_NEW.RB - Publishing #{$meeting_id}")
 	# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 	bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
-	simple_props = YAML::load(File.open('slides.yml'))
-
+	simple_props = YAML::load(File.open('presentation.yml'))
+	BigBlueButton.logger.info("Setting recording dir")
 	recording_dir = bbb_props['recording_dir']
-	$process_dir = "#{recording_dir}/process/slides/#{$meeting_id}"
+	BigBlueButton.logger.info("Setting process dir")
+	$process_dir = "#{recording_dir}/process/presentation/#{$meeting_id}"
+	BigBlueButton.logger.info("setting publish dir")
 	publish_dir = simple_props['publish_dir']
+	BigBlueButton.logger.info("setting playback host")
 	playback_host = simple_props['playback_host']
-
-	target_dir = "#{recording_dir}/publish/slides/#{$meeting_id}"
+	BigBlueButton.logger.info("setting target dir")
+	target_dir = "#{recording_dir}/publish/presentation/#{$meeting_id}"
 	if not FileTest.directory?(target_dir)
+		BigBlueButton.logger.info("Making dir target_dir")
 		FileUtils.mkdir_p target_dir
 
 		package_dir = "#{target_dir}/#{$meeting_id}"
+		BigBlueButton.logger.info("Making dir package_dir")
 		FileUtils.mkdir_p package_dir
 
 		audio_dir = "#{package_dir}/audio"
+		BigBlueButton.logger.info("Making audio dir")
 		FileUtils.mkdir_p audio_dir
-
+		BigBlueButton.logger.info("Made audio dir - coping this -> #{$process_dir}/audio.ogg to -> #{audio_dir}")
 		FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
+		BigBlueButton.logger.info("copied file 1")
 		FileUtils.cp("#{$process_dir}/temp/#{$meeting_id}/audio/recording.wav", audio_dir)
+		BigBlueButton.logger.info("copied file 2")
 		FileUtils.cp("#{$process_dir}/events.xml", package_dir)
+		BigBlueButton.logger.info("copied file 3")
+		BigBlueButton.logger.info("Copying files to package dir")
 		FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
-
+	  BigBlueButton.logger.info("Copied files to package dir")
 		BigBlueButton.logger.info("Creating metadata.xml")
 		# Create metadata.xml
 		b = Builder::XmlMarkup.new(:indent => 2)
@@ -561,8 +573,8 @@ if ($playback == "slides")
 			b.start_time(BigBlueButton::Events.first_event_timestamp("#{$process_dir}/events.xml"))
 			b.end_time(BigBlueButton::Events.last_event_timestamp("#{$process_dir}/events.xml"))
 			b.playback {
-				b.format("slides")
-				b.link("http://#{playback_host}/playback/slides/playback.html?meetingId=#{$meeting_id}")
+				b.format("presentation")
+				b.link("http://#{playback_host}/playback/presentation/playback.html?meetingId=#{$meeting_id}")
 			}
 			b.meta {
 				BigBlueButton::Events.get_meeting_metadata("#{$process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
@@ -572,7 +584,7 @@ if ($playback == "slides")
 		metadata_xml.write(metaxml)
 		metadata_xml.close
 		BigBlueButton.logger.info("Generating xml for slides and chat")
-		
+	
 		#Create slides.xml
 		# presentation_url = "/slides/" + $meeting_id + "/presentation"
 		@doc = Nokogiri::XML(File.open("#{$process_dir}/events.xml"))
@@ -586,7 +598,7 @@ if ($playback == "slides")
 			first_presentation_start = first_presentation_start_node[0][:timestamp]
 		end
 		$first_slide_start = ((first_presentation_start.to_f - $meeting_start.to_f) / 1000).round(1)
-		
+	
 		# Gathering all the events from the events.xml
 		$slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
 		$chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
@@ -597,31 +609,42 @@ if ($playback == "slides")
 		$undo_events = @doc.xpath("//event[@eventname='UndoShapeEvent']") # for undoing shapes.
 		$join_time = @doc.xpath("//event[@eventname='ParticipantJoinEvent']")[0][:timestamp].to_f
 		$end_time = @doc.xpath("//event[@eventname='EndAndKickAllEvent']")[0][:timestamp].to_f
-		
+	
 		processChatMessages()
+		
 		processShapesAndClears()
+		
 		processPanAndZooms()
+		
+		BigBlueButton.logger.info("Cursor events empty: #{$cursor_events.empty?}")
 		processCursorEvents()
-
+		
+		
+		
+		BigBlueButton.logger.info("writing slides_new.xml")
 		# Write slides.xml to file
-		File.open("#{package_dir}/slides.xml", 'w') { |f| f.puts $slides_doc.to_xml }
+		File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }
+
+		BigBlueButton.logger.info("Wrote slides_new.xml")
 
 		# Write shapes.svg to file
 		File.open("#{package_dir}/#{$shapes_svg_filename}", 'w') { |f| f.puts $shapes_svg.to_xml.gsub(%r"\s*\<g.*/\>", "") } #.gsub(%r"\s*\<g.*\>\s*\</g\>", "") }
-
+		
 		# Write panzooms.xml to file
 		File.open("#{package_dir}/#{$panzooms_xml_filename}", 'w') { |f| f.puts $panzooms_xml.to_xml }
-		
+	
 		# Write panzooms.xml to file
 		File.open("#{package_dir}/#{$cursor_xml_filename}", 'w') { |f| f.puts $cursor_xml.to_xml }
 
-        BigBlueButton.logger.info("Publishing slides")
+	  BigBlueButton.logger.info("Publishing slides")
 		# Now publish this recording files by copying them into the publish folder.
 		if not FileTest.directory?(publish_dir)
 			FileUtils.mkdir_p publish_dir
 		end
 		FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
-		BigBlueButton.logger.info("Finished publishing script successfully.")
+		BigBlueButton.logger.info("Finished publishing script presentation.rb successfully.")
+	else
+		BigBlueButton.logger.info("#{target_dir} is already there")
 	end
 end
 

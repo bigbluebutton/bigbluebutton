@@ -10,7 +10,7 @@ function getUrlParameters() {
 var params = getUrlParameters();
 var MEETINGID = params.meetingId;
 var HOST = window.location.hostname;
-var url = "http://" + HOST + "/slides/" + MEETINGID;
+var url = "http://" + HOST + "/presentation/" + MEETINGID;
 var shapes_svg = url + '/shapes.svg';
 var events_xml = url + '/panzooms.xml';
 var cursor_xml = url + '/cursor.xml';
@@ -33,7 +33,9 @@ var imageAtTime = {};
 var cursorStyle;
 
 var svgobj = document.getElementById("svgobject");
-var svgfile = svgobj.contentDocument.getElementById("svgfile");
+var svgfile;
+if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
+else svgfile = svgobj.getSVGDocument('svgfile');
 
 //making the object for requesting the read of the XML files.
 if (window.XMLHttpRequest) {
@@ -108,6 +110,7 @@ coords = xmlDoc.getElementsByTagName("cursor");
 
 var clen = cursorArray.length;
 //fill the times array with the times of the svg images.
+if(cursorArray.length != 0) cursorValues[[0, cursorArray[0].getAttribute("timestamp")]] = "0 0";
 for (var m = 0; m < clen; m++) {
 	if(cursorArray[m+1] == undefined) {
 		second_val = "end";
@@ -185,10 +188,7 @@ function getCursorAtTime(time) {
 	for (key in cursorValues) {
 		if(cursorValues.hasOwnProperty(key)) {
 			var arry = key.split(",");
-			if(arry[1] == "end") {
-				return null;
-			}
-			else if ((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) {
+			if (((parseFloat(arry[0]) <= curr_t) && (parseFloat(arry[1]) >= curr_t)) || (arry[1] == "end")) {
 				return cursorValues[key].split(' ');
 			}
 		}
@@ -220,7 +220,7 @@ p.code({
     onStart: function(options) {
 		svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
 		svgobj.style.top = "8px";
-		p.mute();
+		//p.mute();
     },
 
 	onEnd: function(options) {
