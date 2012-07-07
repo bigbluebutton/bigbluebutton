@@ -57,6 +57,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				return makeRectangle(graphic as Rectangle);
 			} else if (graphic.getType() == DrawObject.ELLIPSE){
 				return makeEllipse(graphic as Ellipse);
+			} else if (graphic.getType() == DrawObject.TRIANGLE){
+				return makeTriangle(graphic as Triangle);
 			} else if (graphic.getType() == DrawObject.LINE){
 				return makeLine(graphic as Line);
 			} else if (graphic.getType() == DrawObject.HIGHLIGHTER){
@@ -68,13 +70,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint,
-										fill:Boolean, transparency:Boolean):DrawObject {
+										fill:Boolean, fillColor:uint, transparency:Boolean):DrawObject {
 			var normSegment:Array = new Array();
 			for (var i:int = 0; i < segment.length; i += 2) {
 				normSegment[i] = normalize(segment[i] , _parentWidth);
 				normSegment[i+1] = normalize(segment[i+1], _parentHeight);
 			}
-			return makeShape(drawFactory.makeDrawObject(type, normSegment, color, thickness, fill, transparency));
+			return makeShape(drawFactory.makeDrawObject(type, normSegment, color, thickness, fill, fillColor, transparency));
 		}
 		
 		/**
@@ -84,12 +86,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @param color
 		 * @param thickness
 		 * @param fill
+		 * @param fillColor
 		 * @param trans
 		 * @return A Flash Shape object
 		 * 
 		 */		
-		public function makeFeedback(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, trans:Boolean):DrawObject{
-			return makeShape(drawFactory.makeDrawObject(type, segment, color, thickness, fill, trans));
+		public function makeFeedback(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawObject{
+			return makeShape(drawFactory.makeDrawObject(type, segment, color, thickness, fill, fillColor, trans));
 		}
 		
 
@@ -156,6 +159,17 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */
 		private function makeEraser(e:Eraser):DrawObject{
+			e.makeGraphic(_parentWidth, _parentHeight);
+			return e;
+		}
+		
+		/**
+		 * Creates a Flash Shape from an Triangle DrawObject 
+		 * @param e an Triangle DrawObject
+		 * @return a Shape
+		 * 
+		 */
+		private function makeTriangle(e:Triangle):DrawObject{
 			e.makeGraphic(_parentWidth, _parentHeight);
 			return e;
 		}

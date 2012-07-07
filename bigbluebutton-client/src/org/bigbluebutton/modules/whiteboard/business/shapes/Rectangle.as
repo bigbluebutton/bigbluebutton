@@ -35,9 +35,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @param fill the fill of this Rectangle
 		 * @param trans the transparency of this Rectangle
 		 */		
-		public function Rectangle(segment:Array, color:uint, thickness:uint, fill:Boolean, trans:Boolean)
+		public function Rectangle(segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean)
 		{
-			super(DrawObject.RECTANGLE, segment, color, thickness, fill, trans);
+			super(DrawObject.RECTANGLE, segment, color, thickness, fill, fillColor, trans);
 		}
 		
 		/**
@@ -59,16 +59,16 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
-			var lineTransparency:Number = transparent ? 0.6 : 1.0;
-			this.alpha = lineTransparency;
-			this.graphics.lineStyle(getThickness(), getColor(), lineTransparency);
+			if(!fill)
+				this.graphics.lineStyle(getThickness(), getColor(), getTransparencyLevel());
+			else this.graphics.lineStyle(getThickness(), getColor());
 			var arrayEnd:Number = getShapeArray().length;
-			var x:Number = denormalize(getShapeArray()[0], parentWidth);
-			var y:Number = denormalize(getShapeArray()[1], parentHeight);
-			var width:Number = denormalize(getShapeArray()[arrayEnd-2], parentWidth) - x;
-			var height:Number = denormalize(getShapeArray()[arrayEnd-1], parentHeight) - y;
-			if(fill) this.graphics.beginFill(getColor(), lineTransparency);
-			this.graphics.drawRect(x,y,width,height);
+			var startX:Number = denormalize(getShapeArray()[0], parentWidth);
+			var startY:Number = denormalize(getShapeArray()[1], parentHeight);
+			var width:Number = denormalize(getShapeArray()[arrayEnd-2], parentWidth) - startX;
+			var height:Number = denormalize(getShapeArray()[arrayEnd-1], parentHeight) - startY;
+			if(fill) this.graphics.beginFill(getFillColor(), getTransparencyLevel());
+			this.graphics.drawRect(startX,startY,width,height);
 		}
 		
 		override public function getProperties():Array {
@@ -78,6 +78,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			props.push(this.color);
 			props.push(this.thickness);
 			props.push(this.fill);
+			props.push(this.fillColor);
 			props.push(this.transparent);
 			props.push(this.width);
 			props.push(this.height);

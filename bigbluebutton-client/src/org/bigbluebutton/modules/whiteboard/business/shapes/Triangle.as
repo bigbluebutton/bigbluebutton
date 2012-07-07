@@ -21,19 +21,21 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	import flash.display.Shape;
 	
-	public class Highlighter extends DrawObject
+	import org.bigbluebutton.common.LogUtil;
+	
+	public class Triangle extends DrawObject
 	{
 		/**
-		 * The dafault constructor. Creates a Highlighter DrawObject 
-		 * @param segment the array representing the points needed to create this Highlighter
-		 * @param color the Color of this Highlighter
-		 * @param thickness the thickness of this Highlighter
-		 * @param trans the transparency of this Highlighter
+		 * The dafault constructor. Creates a Triangle DrawObject 
+		 * @param segment the array representing the points needed to create this Triangle
+		 * @param color the Color of this Triangle
+		 * @param thickness the thickness of this Triangle
+		 * @param trans the transparency of this Triangle
 		 */	
 		
-		public function Highlighter(segment:Array, color:uint, thickness:uint, trans:Boolean)
+		public function Triangle(segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean)
 		{
-			super(DrawObject.HIGHLIGHTER, segment, color, thickness, false, 0x000000, true);
+			super(DrawObject.TRIANGLE, segment, color, thickness, fill, fillColor, trans);
 		}
 		
 		/**
@@ -55,16 +57,20 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
-			if(thickness < 10) thickness = 10;
-			this.graphics.lineStyle(getThickness(), getColor(), getTransparencyLevel());
+			if(!fill)
+				this.graphics.lineStyle(getThickness(), getColor(), getTransparencyLevel());
+			else this.graphics.lineStyle(getThickness(), getColor());
 			var arrayEnd:Number = getShapeArray().length;
 			var startX:Number = denormalize(getShapeArray()[0], parentWidth);
 			var startY:Number = denormalize(getShapeArray()[1], parentHeight);
-			var endX:Number = denormalize(getShapeArray()[arrayEnd-2], parentWidth);
-			var endY:Number = denormalize(getShapeArray()[arrayEnd-1], parentHeight);
-			this.x = startX;
-			this.y = startY;
-			this.graphics.lineTo(endX-startX, endY-startY);
+			var triangleWidth:Number = denormalize(getShapeArray()[arrayEnd-2], parentWidth) - startX;
+			var triangleHeight:Number = denormalize(getShapeArray()[arrayEnd-1], parentHeight) - startY;
+			LogUtil.debug(startX + " " + startY + " " + triangleWidth + " " + triangleHeight);
+			if(fill) this.graphics.beginFill(getFillColor(), getTransparencyLevel());
+			this.graphics.moveTo(startX+triangleWidth/2, startY); 
+			this.graphics.lineTo(startX+triangleWidth, startY+triangleHeight); 
+			this.graphics.lineTo(startX, triangleHeight+startY); 
+			this.graphics.lineTo(startX+triangleWidth/2, startY); 
 		}
 		
 		override public function getProperties():Array {
@@ -73,8 +79,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			props.push(this.shape);
 			props.push(this.color);
 			props.push(this.thickness);
-			props.push(false);
-			props.push(true);
+			props.push(this.fill);
+			props.push(this.fillColor);
+			props.push(this.transparent);
 			props.push(this.width);
 			props.push(this.height);
 			return props;

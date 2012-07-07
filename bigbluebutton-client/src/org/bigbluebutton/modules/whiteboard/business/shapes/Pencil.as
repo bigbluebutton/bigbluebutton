@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 */		
 		public function Pencil(segment:Array, color:uint, thickness:uint, trans:Boolean)
 		{
-			super(DrawObject.PENCIL, segment, color, thickness, false, false);
+			super(DrawObject.PENCIL, segment, color, thickness, false, 0x000000, false);
 		}
 		
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {

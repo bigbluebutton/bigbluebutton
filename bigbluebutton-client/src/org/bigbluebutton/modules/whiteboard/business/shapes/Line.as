@@ -33,7 +33,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 
 		public function Line(segment:Array, color:uint, thickness:uint, trans:Boolean)
 		{
-			super(DrawObject.LINE, segment, color, thickness, false, false);
+			super(DrawObject.LINE, segment, color, thickness, false, 0x000000, false);
 		}
 		
 		/**
@@ -61,13 +61,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			var startY:Number = denormalize(getShapeArray()[1], parentHeight);
 			var endX:Number = denormalize(getShapeArray()[arrayEnd-2], parentWidth);
 			var endY:Number = denormalize(getShapeArray()[arrayEnd-1], parentHeight);
-			//startX = getShapeArray()[0];
-			//startY = getShapeArray()[1];
-			//endX = getShapeArray()[arrayEnd-2];
-			//endY = getShapeArray()[arrayEnd-1];
-			//newShape.graphics.drawRect(x,y,width,height);
-			//if (getColor() == 0x000000 || getColor() == 0xFFFFFF) newShape.alpha = 1.0;
-			//else newShape.alpha = 0.6;
 			this.alpha = 1;
 			this.x = startX;
 			this.y = startY;

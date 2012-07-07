@@ -95,6 +95,15 @@ public class Page {
 			graphicObjs.remove(mappingToRemove);*/
 		List<String> list = new ArrayList<String>(graphicObjs.keySet());
 		graphicObjs.remove(list.get(list.size()-1));
+		for(int i = 0; i < graphicObjs.size(); i++) {
+			Object[] test = graphicObjs.get("" + i).toObjectArray();
+			System.out.println(test[2] + " ");
+			for(Object o: test) {
+				System.out.print(o + " ");
+			}
+			
+		}
+		System.out.println("UNDONE, NEW SIZE: " + graphicObjs.size());
 	}
 	
 	public int getNumGraphicsOnPage(){

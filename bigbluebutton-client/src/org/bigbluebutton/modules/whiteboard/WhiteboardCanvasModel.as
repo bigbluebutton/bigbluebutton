@@ -23,10 +23,10 @@ package org.bigbluebutton.modules.whiteboard
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 	import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
@@ -52,6 +52,7 @@ package org.bigbluebutton.modules.whiteboard
 		private var graphicType:String = WhiteboardConstants.TYPE_SHAPE;
 		private var toolType:String = DrawObject.PENCIL;
 		private var drawColor:uint = 0x000000;
+		private var fillColor:uint = 0x000000;
 		private var thickness:uint = 1;
 		private var fillOn:Boolean = false;
 		private var transparencyOn:Boolean = false;
@@ -61,6 +62,9 @@ package org.bigbluebutton.modules.whiteboard
 		// before sending an update to server. Used to prevent 
 		// spamming red5 with unnecessary packets
 		private var sendShapeFrequency:uint = 30;	
+		// same as above, except a faster interval may be desirable
+		// when erasing for aesthetics
+		private var sendEraserFrequency:uint = 20;	
 		private var drawStatus:String = DrawObject.DRAW_START;
 		private var textStatus:String = TextObject.TEXT_CREATED;
 		private var width:Number;
@@ -107,11 +111,11 @@ package org.bigbluebutton.modules.whiteboard
 			if (segment.length == 0) return;
 			
 			var dobj:DrawObject = shapeFactory.createDrawObject(this.toolType, segment, this.drawColor, this.thickness,
-				this.fillOn, this.transparencyOn);
+				this.fillOn, this.fillColor, this.transparencyOn);
 			//dobj.setGraphicID(shapeID);
 			
-			if(dobj.getGraphicID() == WhiteboardConstants.ID_UNASSIGNED)
-				dobj.setGraphicID("-1");
+			//if(dobj.getGraphicID() == WhiteboardConstants.ID_UNASSIGNED)
+			//	dobj.setGraphicID("-1");
 			
 			switch (status) {
 				case DrawObject.DRAW_START:
@@ -141,12 +145,11 @@ package org.bigbluebutton.modules.whiteboard
 			wbCanvas.sendGraphicToServer(dobj, WhiteboardDrawEvent.SEND_SHAPE);			
 		}
 		
-		private function sendTextToServer(status:String, obj:TextObject):void {
-			var tobj:TextObject = textFactory.makeTextObject(obj);
+		private function sendTextToServer(status:String, tobj:TextObject):void {
 			//LogUtil.error("Step 1: " + tobj.x + "," + tobj.y);
 			//tobj.setGraphicID("" + objCount++);
-			if(tobj.getGraphicID() == WhiteboardConstants.ID_UNASSIGNED)
-				tobj.setGraphicID("-1");
+			//if(tobj.getGraphicID() == WhiteboardConstants.ID_UNASSIGNED)
+			//	tobj.setGraphicID("-1");
 			
 			switch (status) {
 				case TextObject.TEXT_CREATED:
@@ -212,9 +215,15 @@ package org.bigbluebutton.modules.whiteboard
 				if (isDrawing){
 					segment.push(mouseX);
 					segment.push(mouseY);
-					if (segment.length > sendShapeFrequency) {
-						sendShapeToServer(drawStatus);
-					}
+					if(toolType != DrawObject.ERASER) {
+						if (segment.length > sendShapeFrequency) {
+							sendShapeToServer(drawStatus);
+						}
+					} else {
+						if (segment.length > sendEraserFrequency) {
+							sendShapeToServer(drawStatus);
+						}
+					}	
 				}
 			}
 		}
@@ -228,9 +237,9 @@ package org.bigbluebutton.modules.whiteboard
 				drawShape(dobj, recvdShapes);	
 				
 			} else if(o.getGraphicType() == WhiteboardConstants.TYPE_TEXT) { 
-				/*var tobj:TextObject = o as TextObject;
+				var tobj:TextObject = o as TextObject;
 				drawText(tobj, recvdShapes);	
-				if(tobj.status == TextObject.TEXT_PUBLISHED)
+				/*if(tobj.status == TextObject.TEXT_PUBLISHED)
 					ftm.registerSprite(tobj);*/
 			}
 		}
@@ -284,7 +293,8 @@ package org.bigbluebutton.modules.whiteboard
 			wbCanvas.addGraphic(dobj);
 			/*if(dobj.status == DrawObject.DRAW_END && 
 				(dobj.getType() == DrawObject.ELLIPSE ||
-				dobj.getType() == DrawObject.RECTANGLE)) {
+				dobj.getType() == DrawObject.RECTANGLE ||
+				toolType == DrawObject.TRIANGLE)) {
 				LogUtil.debug("ADDED TO FTM " + dobj.getProperties());
 					ftm.registerSprite(dobj, { minW:50, maxW:500 });
 			}*/
@@ -292,29 +302,26 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		private function addNewText(t:TextObject):void {
-			LogUtil.debug("Adding new text " + t.x + "," + t.y);
 			var tobj:TextObject = textFactory.makeTextObject(t);
+			tobj.setGraphicID(t.getGraphicID());
+			tobj.status = t.status;
 			LogUtil.debug("FINAL " + tobj.x + "," + tobj.y);
-			
 			if(isPresenter) {
-				if(t.status == TextObject.TEXT_CREATED) {
+				if(tobj.status == TextObject.TEXT_CREATED) {
 					tobj.multiline = true;
 					tobj.wordWrap = true;
-					wbCanvas.addGraphic(tobj);
-					graphicList.push(tobj);
 					tobj.autoSize = TextFieldAutoSize.LEFT;
 					tobj.makeEditable(true);
 					tobj.registerListeners(textObjGainedFocus,
 						textObjLostFocus,
 						textObjTextListener,
-						textObjDeleteListener);
+						textObjSpecialListener);
+					wbCanvas.addGraphic(tobj);
 					wbCanvas.stage.focus = tobj;
 					tobj.stage.focus = tobj;
-					//LogUtil.debug("ADDED TO FTM " + tobj.getProperties());
-					//ftm.registerSprite(tobj);	
+					graphicList.push(tobj);
 					
-				}else if(tobj.status == TextObject.TEXT_PUBLISHED) {
-						
+				} else if(tobj.status == TextObject.TEXT_PUBLISHED) {
 				}
 			} else {
 				tobj.multiline = true;
@@ -336,12 +343,18 @@ package org.bigbluebutton.modules.whiteboard
 					drawColor == 0xFFFFFF) drawColor = 0xCCFF00;	
 			}*/
 			this.toolType = s;
+			if(toolType == DrawObject.TRIANGLE) 
+				LogUtil.debug("SET TO TRIANGLE");
 		}
 		
 		public function changeColor(color:uint):void{
 			drawColor = color;
 		}
 		
+		public function changeFillColor(color:uint):void{
+			fillColor = color;
+		}
+			
 		public function changeThickness(thickness:uint):void{
 			this.thickness = thickness;
 		}
@@ -363,13 +376,13 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		private function removeLastGraphic():void {
-			var gobj:GraphicObject = graphicList.pop() as GraphicObject;
+			var gobj:GraphicObject = graphicList.pop();
 			if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
 				(gobj as TextObject).makeEditable(false);
-				(gobj as TextObject).registerListeners(textObjGainedFocus,
+				(gobj as TextObject).deregisterListeners(textObjGainedFocus,
 					textObjLostFocus,
 					textObjTextListener,
-					textObjDeleteListener);
+					textObjSpecialListener);
 			}	
 			wbCanvas.removeGraphic(gobj as DisplayObject);
 		}
@@ -487,7 +500,7 @@ package org.bigbluebutton.modules.whiteboard
 				(texts[i] as TextObject).registerListeners(textObjGainedFocus,
 					textObjLostFocus,
 					textObjTextListener,
-					textObjDeleteListener);
+					textObjSpecialListener);
 			}
 			//wbCanvas.stage.addChild(ftm);
 		}
@@ -501,73 +514,53 @@ package org.bigbluebutton.modules.whiteboard
 				(texts[i] as TextObject).deregisterListeners(textObjGainedFocus,
 					textObjLostFocus,
 					textObjTextListener,
-					textObjDeleteListener);
+					textObjSpecialListener);
 
 			}
 		}
 		
-		public function textObjDeleteListener(event:KeyboardEvent):void {
+		public function textObjSpecialListener(event:KeyboardEvent):void {
 			// check for special conditions
 			if(event.charCode == 127 || // 'delete' key
 				event.charCode == 8 || // 'bkspace' key
 				event.charCode == 13) { // 'enter' key
 				var sendStatus:String = TextObject.TEXT_UPDATED;
 				var tobj:TextObject = event.target as TextObject;	
-				var updatedObj:TextObject = textFactory.createTextObject(
-					tobj.text,
-					tobj.textColor,
-					tobj.backgroundColor,
-					tobj.background,
-					tobj.x,
-					tobj.y);
 				if(event.charCode == 13) {
-					sendStatus = TextObject.TEXT_PUBLISHED;
-					LogUtil.debug("Text published to: " +  tobj.text);
 					wbCanvas.stage.focus = null;
 					tobj.stage.focus = null;
+					return;
 				}
-				sendTextToServer(sendStatus, updatedObj);	
+				sendTextToServer(sendStatus, tobj);	
 			} 	
 		}
 		
 		public function textObjTextListener(event:TextEvent):void {
 			var sendStatus:String = TextObject.TEXT_UPDATED;
 			var tf:TextObject = event.target as TextObject;	
-			var updatedObj:TextObject = textFactory.createTextObject(
-				tf.text,
-				tf.textColor,
-				tf.backgroundColor,
-				tf.background,
-				tf.x,
-				tf.y);
-			sendTextToServer(sendStatus, updatedObj);	
+			LogUtil.debug("ID " + tf.getGraphicID() + " modified to "
+							+ tf.text);
+			sendTextToServer(sendStatus, tf);	
 		}
 		
 		public function textObjGainedFocus(event:FocusEvent):void {
 			var tf:TextObject = event.currentTarget as TextObject;
 			wbCanvas.stage.focus = tf;
 			tf.stage.focus = tf;
-			var e:GraphicObjectFocusEvent = 
+			/*var e:GraphicObjectFocusEvent = 
 				new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
 			e.data = tf;
-			wbCanvas.dispatchEvent(e);
+			wbCanvas.dispatchEvent(e);*/
 		}
 		
 		public function textObjLostFocus(event:FocusEvent):void {
 			var tf:TextObject = event.target as TextObject;	
-			var updatedObj:TextObject = textFactory.createTextObject(
-				tf.text,
-				tf.textColor,
-				tf.backgroundColor,
-				tf.background,
-				tf.x,
-				tf.y);
-			sendTextToServer(TextObject.TEXT_PUBLISHED, updatedObj);	
+			sendTextToServer(TextObject.TEXT_PUBLISHED, tf);	
 			LogUtil.debug("Text published to: " +  tf.text);
-			var e:GraphicObjectFocusEvent = 
+			/*var e:GraphicObjectFocusEvent = 
 				new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
 			e.data = tf;
-			wbCanvas.dispatchEvent(e);
+			wbCanvas.dispatchEvent(e);*/
 		}
 		
 		private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {
@@ -580,16 +573,24 @@ package org.bigbluebutton.modules.whiteboard
 				dobj.status = origDobj.status;
 				wbCanvas.addGraphic(dobj);
 				graphicList[objIndex] = dobj;
-				/*LogUtil.debug("index " + objIndex + " " + 
-					(graphicList[objIndex] as GraphicObject).getProperties() );*/
 			} else if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
 				var origTobj:TextObject = gobj as TextObject;
 				wbCanvas.removeGraphic(origTobj);
-				/*var tobj:TextObject = textFactory.makeTextObject(origTobj);
+				var tobj:TextObject = textFactory.makeTextObject(origTobj);
 				tobj.setGraphicID(origTobj.getGraphicID());
-				tobj.status = origTobj.status;*/
+				tobj.status = origTobj.status;
 				wbCanvas.addGraphic(origTobj);
 			}
+			// Rescaling of text becomes messy, simpler to keep as-is
+			
+			/*&else if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
+				var origTobj:TextObject = gobj as TextObject;
+				wbCanvas.removeGraphic(origTobj);
+				var tobj:TextObject = textFactory.makeTextObject(origTobj);
+				tobj.setGraphicID(origTobj.getGraphicID());
+				tobj.status = origTobj.status;
+				wbCanvas.addGraphic(origTobj);
+			} */
 			
 		}
 		

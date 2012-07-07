@@ -38,11 +38,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public static const ERASER:String = "eraser";
 		public static const RECTANGLE:String = "rectangle";
 		public static const ELLIPSE:String = "ellipse";
+		public static const TRIANGLE:String = "triangle";
 		public static const LINE:String = "line";	
 		
 		protected var type:String;
 		protected var shape:Array;
 		protected var color:uint;
+		protected var fillColor:uint;
 		protected var thickness:uint;
 		protected var fill:Boolean;
 		protected var transparent:Boolean;
@@ -68,12 +70,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		public function DrawObject(type:String, segment:Array, color:uint, thickness:uint,
-									fill:Boolean, trans:Boolean) {
+									fill:Boolean, fillColor:uint, trans:Boolean) {
 			this.type = type;
 			this.shape = segment;
 			this.color = color;
 			this.thickness = thickness;
 			this.fill = fill;
+			this.fillColor = fillColor;
 			this.transparent = trans;
 			this.optimize();
 		}
@@ -126,6 +129,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		/**
+		 * Returns the fillColor of the DrawObject
+		 * @return The fillColor, represented as a uint 
+		 * 
+		 */		
+		public function getFillColor():uint{
+			return this.fillColor;
+		}
+		
+		/**
 		 * Returns the thickness of the DrawObject 
 		 * @return The thickness, represented as a uint
 		 * 
@@ -153,6 +165,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return this.transparent;
 		}
 		
+		/**
+		 * Returns the alpha transparnecy of the DrawObject
+		 * @return The alpha transparency, represented as a Number
+		 * 
+		 */			
+		public function getTransparencyLevel():Number{
+			return transparent ? 0.6 : 1.0;
+		}
+			
 		protected function optimize():void{
 			// do nothing
 		}

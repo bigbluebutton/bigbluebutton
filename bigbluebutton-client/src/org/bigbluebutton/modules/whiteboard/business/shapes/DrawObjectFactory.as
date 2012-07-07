@@ -48,15 +48,17 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		public function makeDrawObject(type:String, shape:Array, color:uint, thickness:uint,
-										fill:Boolean, trans:Boolean):DrawObject{
+										fill:Boolean, fillColor:uint, trans:Boolean):DrawObject{
 			var d:DrawObject = null;
 			if (type == DrawObject.PENCIL){
 				d = makePencil(shape, color, thickness, trans);
 			} else if (type == DrawObject.RECTANGLE){
-				d = makeRectangle(shape, color, thickness, fill, trans);
+				d = makeRectangle(shape, color, thickness, fill, fillColor, trans);
 			} else if (type == DrawObject.ELLIPSE){
-				d = makeEllipse(shape, color, thickness, fill, trans);
-			}  else if (type == DrawObject.LINE){
+				d = makeEllipse(shape, color, thickness, fill, fillColor, trans);
+			}  else if (type == DrawObject.TRIANGLE){
+				d = makeTriangle(shape, color, thickness, fill, fillColor, trans);
+			} else if (type == DrawObject.LINE){
 				d = makeLine(shape, color, thickness, trans);
 			} else if (type == DrawObject.HIGHLIGHTER){
 				d = makeHighlighter(shape, color, thickness, trans);
@@ -89,12 +91,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @param color The color of the DrawObject to be created
 		 * @param thickness The thickness of the DrawObject to be created
 		 * @param fill Whether or not the DrawObject should be filled or not.
+		 * @param fillColor if fill is true, the color to fill the DrawObject
 		 * @param trans Whether or not the DrawObject should be transparent.
 		 * @return the Rectangle DrawObject created from the parameters
 		 * 
 		 */		
-		public function makeRectangle(shape:Array, color:uint, thickness:uint, fill:Boolean, trans:Boolean):DrawObject{
-			return new Rectangle(shape, color, thickness, fill, trans);
+		public function makeRectangle(shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawObject{
+			return new Rectangle(shape, color, thickness, fill, fillColor, trans);
 		}
 		
 		/**
@@ -105,12 +108,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @param color The color of the DrawObject to be created
 		 * @param thickness The thickness of the DrawObject to be created
 		 * @param fill Whether or not the DrawObject should be filled or not.
+		 * @param fillColor if fill is true, the color to fill the DrawObject
 		 * @param trans Whether or not the DrawObject should be transparent.
 		 * @return the Ellipse DrawObject created from the parameters
 		 * 
 		 */		
-		public function makeEllipse(shape:Array, color:uint, thickness:uint, fill:Boolean, trans:Boolean):DrawObject{
-			return new Ellipse(shape, color, thickness, fill, trans);
+		public function makeEllipse(shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint,trans:Boolean):DrawObject{
+			return new Ellipse(shape, color, thickness, fill, fillColor, trans);
 		}
 		
 		/**
@@ -159,6 +163,24 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		
 		public function makeEraser(shape:Array, color:uint, thickness:uint, trans:Boolean):DrawObject{
 			return new Eraser(shape, color, thickness, trans);
+		}
+		
+		/**
+		 * A helper method for the makeDrawObject method whitch creates a Triangle DrawObject
+		 * <p>
+		 * Even though it is a helper method it is made public for testing purposes
+		 * @param shape The array holding the different points needed to create the DrawObject
+		 * @param color The color of the DrawObject to be created
+		 * @param thickness The thickness of the DrawObject to be created
+		 * @param fill Whether or not the DrawObject should be filled or not.
+		 * @param fillColor if fill is true, the color to fill the DrawObject
+		 * @param trans Whether or not the DrawObject should be transparent.
+		 * @return the Triangle DrawObject created from the parameters
+		 * 
+		 */
+		
+		public function makeTriangle(shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawObject{
+			return new Triangle(shape, color, thickness, fill, fillColor, trans);
 		}
 
 	}

@@ -22,7 +22,9 @@
 package org.bigbluebutton.conference.service.whiteboard;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.Constants;
@@ -86,8 +88,8 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		return roomManager.getRoom(getLocalScope().getName()).isWhiteboardEnabled();
 	}
 	
-	public void sendShape(double[] shape, String type, int color, int thickness, boolean fill, boolean transparency, String id, String status){
-		ShapeGraphic newShape = new ShapeGraphic(shape, type, color, thickness, fill, transparency, id, status);	
+	public void sendShape(double[] shape, String type, int color, int thickness, boolean fill, int fillColor, boolean transparency, String id, String status){
+		ShapeGraphic newShape = new ShapeGraphic(shape, type, color, thickness, fill, fillColor, transparency, id, status);	
 		
 		/*  maintains unique-ness. ensures that only
 		 	one entry per shape is added. exception is DrawObject.PENCIL, 
@@ -96,7 +98,7 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 			newShape.ID = Integer.toString(roomManager.getRoom(getLocalScope().getName()).getUniqueWBGraphicIdentifier());
 			roomManager.getRoom(getLocalScope().getName()).addShape(newShape);
 		}
-		System.out.println(roomManager.getRoom(getLocalScope().getName()).getActivePresentation().getActivePage().getNumGraphicsOnPage());
+		//System.out.println(roomManager.getRoom(getLocalScope().getName()).getActivePresentation().getActivePage().getNumGraphicsOnPage());
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
 		List<Object> arguments = newShape.toList();
 		drawSO.sendMessage("addSegment", arguments);
@@ -105,12 +107,26 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	public void sendText(String text, int textColor, int bgColor, boolean bgColorVisible, int x, int y, String id, String status){
 		TextGraphic newText = new TextGraphic(text, textColor, bgColor, bgColorVisible, x, y, id, status);	
 		
+		// checks to make sure no "spam" text is entered
+		if(!(text.trim().length() > 0)) return;
+		
 		/*  maintains unique-ness. ensures that only
-		 	one entry per text is added. */
-		if(status.equals("textPublished")) {
+	 	one entry per text is added. */
+		if(status.equals("textCreated")) {
 			newText.ID = Integer.toString(roomManager.getRoom(getLocalScope().getName()).getUniqueWBGraphicIdentifier());
 			roomManager.getRoom(getLocalScope().getName()).addText(newText);
-		}	
+		} else {
+			/*LinkedHashMap<String, WBGraphic> map = 
+				(LinkedHashMap<String, WBGraphic>) roomManager.getRoom(getLocalScope().getName()).getWBGraphicMap();
+			if(map.containsKey(newText.ID)) {
+				List<String> keyList = new ArrayList<String>(map.keySet());
+				int textID = keyList.indexOf(newText.ID);
+				List<WBGraphic> dataList = 
+					new ArrayList<WBGraphic>(map.values());
+				dataList.remove(textID);
+				dataList.add(textID, newText);
+			}	*/
+		}
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
 		List<Object> arguments = newText.toList();
 		drawSO.sendMessage("addText", arguments);

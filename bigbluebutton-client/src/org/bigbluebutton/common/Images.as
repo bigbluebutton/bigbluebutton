@@ -195,5 +195,8 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/pointer_icon_small.png")]
 		public var select_icon:Class;	
+		
+		[Embed(source="assets/images/triangle_icon.png")]
+		public var triangle_icon:Class;	
 	}
 }

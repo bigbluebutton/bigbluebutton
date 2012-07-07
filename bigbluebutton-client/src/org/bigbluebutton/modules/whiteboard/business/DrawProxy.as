@@ -32,9 +32,9 @@ package org.bigbluebutton.modules.whiteboard.business
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
@@ -208,7 +208,7 @@ package org.bigbluebutton.modules.whiteboard.business
 					}
 				),//new Responder
 				shape.getShapeArray(), shape.getType(), shape.getColor(), shape.getThickness(), 
-				shape.getFill(), shape.getTransparency(), shape.getGraphicID(), shape.status
+				shape.getFill(), shape.getFillColor(), shape.getTransparency(), shape.getGraphicID(), shape.status
 			); //_netConnection.call
 		}
 		
@@ -247,10 +247,10 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * 
 		 */		
 		public function addSegment(graphicType:String, array:Array, type:String, color:uint, thickness:uint, 
-								   fill:Boolean, transparent:Boolean, id:String, status:String, recvdShapes:Boolean = false):void{
+								   fill:Boolean, fillColor:uint, transparent:Boolean, id:String, status:String, recvdShapes:Boolean = false):void{
 			//LogUtil.debug("Rx add segment **** with ID of " + id + " " + type
 			//+ " and " + color + " " + thickness + " " + fill + " " + transparent);
-			var d:DrawObject = drawFactory.makeDrawObject(type, array, color, thickness, fill, transparent);
+			var d:DrawObject = drawFactory.makeDrawObject(type, array, color, thickness, fill, fillColor, transparent);
 			
 			d.setGraphicID(id);
 			d.status = status;
@@ -414,10 +414,11 @@ package org.bigbluebutton.modules.whiteboard.business
 					var color:uint = graphic[3] as uint;
 					var thickness:uint = graphic[4] as uint;
 					var fill:Boolean = graphic[5] as Boolean;
-					var transparent:Boolean = graphic[6] as Boolean;
-					var id:String = graphic[7] as String;
-					var status:String = graphic[8] as String;
-					addSegment(graphicType, shapeArray, type, color, thickness, fill, transparent, id, status, true);
+					var fillColor:uint = graphic[6] as uint;
+					var transparent:Boolean = graphic[7] as Boolean;
+					var id:String = graphic[8] as String;
+					var status:String = graphic[9] as String;
+					addSegment(graphicType, shapeArray, type, color, thickness, fill, fillColor, transparent, id, status, true);
 				} else if(graphicType == WhiteboardConstants.TYPE_TEXT) {
 					var text:String = graphic[1] as String;
 					var textColor:uint = graphic[2] as uint;

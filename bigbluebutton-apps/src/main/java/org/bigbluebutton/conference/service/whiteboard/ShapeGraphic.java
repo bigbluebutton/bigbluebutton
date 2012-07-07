@@ -29,6 +29,7 @@ public class ShapeGraphic extends WBGraphic {
 	private String type;
 	private int thickness;
 	private int color;
+	private int fillColor;
 	
 	private String status;
 	private boolean fill;
@@ -39,15 +40,19 @@ public class ShapeGraphic extends WBGraphic {
 	public static final String PENCIL = "pencil";
 	public static final String RECTANGLE = "rectangle";
 	public static final String ELLIPSE = "ellipse";
+	public static final String TRIANGLE = "triangle";
+	public static final String HIGHLIGHTER = "highlighter";
+	public static final String ERASER = "eraser";
 	public static final String LINE = "line";
 	
-	public ShapeGraphic(double[] shape, String type, int color, int thickness, boolean fill, boolean transparent,					String id, String status){
+	public ShapeGraphic(double[] shape, String type, int color, int thickness, boolean fill, int fillColor, boolean transparent, String id, String status){
 		super(WBGraphic.Type.SHAPE);
 		this.shape = shape;
 		this.type = type;
 		this.color = color;
 		this.thickness = thickness;
 		this.fill = fill;
+		this.fillColor = fillColor;
 		this.transparent = transparent;
 		this.ID = id;
 		this.status = status;
@@ -62,6 +67,7 @@ public class ShapeGraphic extends WBGraphic {
 		sendableList.add(color);
 		sendableList.add(thickness);
 		sendableList.add(fill);
+		sendableList.add(fillColor);
 		sendableList.add(transparent);
 		sendableList.add(ID);
 		sendableList.add(status);
@@ -77,9 +83,10 @@ public class ShapeGraphic extends WBGraphic {
 		objects[3] = color;
 		objects[4] = thickness;
 		objects[5] = fill;
-		objects[6] = transparent;
-		objects[7] = ID;
-		objects[8] = status;
+		objects[6] = fillColor;
+		objects[7] = transparent;
+		objects[8] = ID;
+		objects[9] = status;
 		return objects;
 	}
 		
@@ -98,6 +105,10 @@ public class ShapeGraphic extends WBGraphic {
 	
 	public int getColor(){
 		return color;
+	}
+	
+	public int getFillColor(){
+		return fillColor;
 	}
 	
 	public int getThickness(){

@@ -49,6 +49,7 @@
 			[Bindable] private var select_icon:Class = images.select_icon;
 			[Bindable] private var pencil_icon:Class = images.pencil_icon;
 			[Bindable] private var rectangle_icon:Class = images.square_icon;
+			[Bindable] private var triangle_icon:Class = images.triangle_icon;
 			[Bindable] private var ellipse_icon:Class = images.circle_icon;
 			[Bindable] private var line_icon:Class = images.line_icon;
 			[Bindable] private var text_icon:Class = images.text_icon;
@@ -99,6 +100,10 @@
 				model.changeColor(e.target.selectedColor);
 			}
 	
+			public function changeFillColor(e:Event):void{
+				model.changeFillColor(e.target.selectedColor);
+			}
+			
 			public function changeThickness(e:Event):void{
 				model.changeThickness(e.target.value);
 			}
@@ -161,6 +166,8 @@
 					CursorManager.setCursor(ellipse_icon);
 				} else if(toolType == DrawObject.RECTANGLE) {
 					CursorManager.setCursor(rectangle_icon);
+				} else if(toolType == DrawObject.TRIANGLE) {
+					CursorManager.setCursor(triangle_icon);
 				} else if(toolType == DrawObject.PENCIL) {
 					CursorManager.setCursor(pencil_icon);
 				} else if(toolType == DrawObject.LINE) {

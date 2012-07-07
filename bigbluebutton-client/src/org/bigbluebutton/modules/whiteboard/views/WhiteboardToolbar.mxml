@@ -87,6 +87,7 @@
 			[Bindable] private var ellipse_icon:Class = images.circle_icon;
 			[Bindable] private var thick_icon:Class = images.whiteboard_thick;
 			[Bindable] private var thin_icon:Class = images.whiteboard_thin;
+			[Bindable] private var triangle_icon:Class = images.triangle_icon;
 			[Bindable] private var line_icon:Class = images.line_icon;
 			[Bindable] private var fill_icon:Class = images.fill_icon;
 			[Bindable] private var transparency_icon:Class = images.transparency_icon;
@@ -123,6 +124,7 @@
 							btnPenc.selected = true;
 							btnEllipse.selected = false;
 							btnRectangle.selected = false;
+							btnTriangle.selected = false;
 							btnLine.selected = false;
 							btnText.selected = false;
 							btnHighl.selected = false;
@@ -135,6 +137,7 @@
 							btnPenc.selected = false;
 							btnEllipse.selected = false;
 							btnRectangle.selected = false;
+							btnTriangle.selected = false;
 							btnLine.selected = false;
 							btnText.selected = false;
 							btnHighl.selected = true;
@@ -147,6 +150,7 @@
 							btnPenc.selected = false;
 							btnEllipse.selected = true;
 							btnRectangle.selected = false;
+							btnTriangle.selected = false;
 							btnLine.selected = false;
 							btnText.selected = false;
 							btnHighl.selected = false;
@@ -157,6 +161,18 @@
 							btnPenc.selected = false;
 							btnEllipse.selected = false;
 							btnRectangle.selected = true;
+							btnTriangle.selected = false;
+							btnLine.selected = false;
+							btnText.selected = false;
+							btnHighl.selected = false;
+							btnEraser.selected = false;
+							break;
+						case DrawObject.TRIANGLE:
+							btnSelect.selected = false;
+							btnPenc.selected = false;
+							btnEllipse.selected = false;
+							btnRectangle.selected = false;
+							btnTriangle.selected = true;
 							btnLine.selected = false;
 							btnText.selected = false;
 							btnHighl.selected = false;
@@ -167,6 +183,7 @@
 							btnPenc.selected = false;
 							btnEllipse.selected = false;
 							btnRectangle.selected = false;
+							btnTriangle.selected = false;
 							btnLine.selected = true;
 							btnText.selected = false;
 							btnHighl.selected = false;
@@ -178,6 +195,7 @@
 							btnPenc.selected = false;
 							btnEllipse.selected = false;
 							btnRectangle.selected = false;
+							btnTriangle.selected = false;
 							btnLine.selected = false;
 							btnText.selected = false;
 							btnHighl.selected = false;
@@ -191,6 +209,7 @@
 					btnPenc.selected = false;
 					btnEllipse.selected = false;
 					btnRectangle.selected = false;
+					btnTriangle.selected = false;
 					btnLine.selected = false;
 					btnText.selected = true;
 					btnHighl.selected = false;
@@ -230,6 +249,15 @@
 			 */		
 			protected function changeColor(e:Event):void{
 				canvas.changeColor(e);
+			}
+			
+			/**
+			 * Sets the fill color 
+			 * @param e event containing the color (e.target.selectedColor)
+			 * 
+			 */		
+			protected function changeFillColor(e:Event):void{
+				canvas.changeFillColor(e);
 			}
 			
 			/**
@@ -297,13 +325,13 @@
 				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
 				presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
-				this.x = presentationWindow.x + presentationWindow.width + 3;
+				this.x = presentationWindow.x - this.width - 3;
 				this.y = presentationWindow.y;
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
 			private function setPositionAndDepth(e:Event = null):void{
-				this.x = presentationWindow.x + presentationWindow.width + 3;
+				this.x = presentationWindow.x - this.width - 3;
 				this.y = presentationWindow.y;
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
@@ -341,6 +369,8 @@
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
 	<mx:Button width="20" height="20" id="btnEllipse" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.ELLIPSE)" icon="{ellipse_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" toggle="true" />
+	<mx:Button width="20" height="20" id="btnTriangle" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.TRIANGLE)" icon="{triangle_icon}" 
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.triangle')}" toggle="true" />
 	<mx:Button width="20" height="20" id="btnLine" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.LINE)" icon="{line_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.line')}" toggle="true" />
 	<mx:Button width="20" height="20" id="btnText" click="setTool(WhiteboardConstants.TYPE_TEXT, TextObject.TEXT_TOOL)" icon="{text_icon}" 
@@ -351,6 +381,8 @@
 	<mx:Spacer height="5" />
 	<mx:Button width="20" height="20" id="btnToggleFill" click="buttonSettingToggle(event)" icon ="{fill_icon}"
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.toggleFill')}" toggle="true"/>
+	<mx:ColorPicker change="changeFillColor(event)" id="cfillpik" selectedColor="0x000000" 
+					toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.fillColorPicker')}"/>
 	<mx:Button width="20" height="20" id="btnToggleTransparency" click="buttonSettingToggle(event)" icon ="{transparency_icon}"
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.toggleTransparency')}" toggle="true"/>
 	
@@ -361,7 +393,13 @@
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo')}" />
 	
 	<mx:Spacer height="5" />
-	<mx:ColorPicker change="changeColor(event)" id="cpik" swatchPanelStyleName="colorPickerStyle" dataProvider="{colorPickerColours}" selectedColor="0x000000" 
+	<!--
+	Properties that were removed from original color picker:
+	
+	swatchPanelStyleName="colorPickerStyle" 
+	dataProvider="{colorPickerColours}"
+	-->
+	<mx:ColorPicker change="changeColor(event)" id="cpik"  selectedColor="0x000000" 
 					toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
 	
 	<mx:Spacer height="3" />

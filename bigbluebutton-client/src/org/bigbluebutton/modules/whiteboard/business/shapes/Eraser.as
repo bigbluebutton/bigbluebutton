@@ -33,7 +33,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		
 		public function Eraser(segment:Array, color:uint, thickness:uint, trans:Boolean)
 		{
-			super(DrawObject.ERASER, segment, 0xFFFFFF, thickness, false, false);
+			super(DrawObject.ERASER, segment, 0xFFFFFF, thickness, false, 0x000000, false);
 		}
 		
 		/**
@@ -55,8 +55,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
-			if(thickness < 5) thickness = 5;
-			
 			this.graphics.lineStyle(getThickness(), 0xFFFFFF);
 			
 			var graphicsCommands:Vector.<int> = new Vector.<int>();
