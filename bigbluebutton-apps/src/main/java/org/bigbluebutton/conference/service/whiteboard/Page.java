@@ -22,7 +22,7 @@
 package org.bigbluebutton.conference.service.whiteboard;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,20 +30,35 @@ import org.bigbluebutton.conference.service.whiteboard.WBGraphic.Type;
 
 public class Page {
 	
-	private Map<String, WBGraphic> graphicObjs;
+	private HashMap<String, WBGraphic> graphicObjs;
+	private int lastGraphicIndex = -1;
 	private int pageIndex;
 	
 	public Page(int pageIndex){
-		this.graphicObjs = new LinkedHashMap<String, WBGraphic>();
+		this.graphicObjs = new HashMap<String, WBGraphic>();
 		this.setPageIndex(pageIndex);
 	}
 	
 	public void addShapeGraphic(ShapeGraphic shape){
 		graphicObjs.put(shape.ID, shape);
+		lastGraphicIndex++;
 	}
 	
 	public void addTextGraphic(TextGraphic text){
 		graphicObjs.put(text.ID, text);
+		lastGraphicIndex++;
+	}
+	
+	public void modifyShapeGraphic(String key, ShapeGraphic shape){
+		if(graphicObjs.containsKey(shape))
+			graphicObjs.put(key, shape);
+		else System.out.println("ERROR: MODIFYING NON-EXISTENT KEY");
+	}
+	
+	public void modifyTextGraphic(String key, TextGraphic text){
+		if(graphicObjs.containsKey(key))
+			graphicObjs.put(key, text);
+		else System.out.println("ERROR: MODIFYING NON-EXISTENT KEY");
 	}
 	
 	public List<Object[]> getWBGraphicObjects(){
@@ -93,17 +108,18 @@ public class Page {
 				+ "with ID of " + mappingToRemove);
 		if(graphicObjs.size() > 0)
 			graphicObjs.remove(mappingToRemove);*/
-		List<String> list = new ArrayList<String>(graphicObjs.keySet());
+		/*List<String> list = new ArrayList<String>(graphicObjs.keySet());
 		graphicObjs.remove(list.get(list.size()-1));
 		for(int i = 0; i < graphicObjs.size(); i++) {
 			Object[] test = graphicObjs.get("" + i).toObjectArray();
 			System.out.println(test[2] + " ");
 			for(Object o: test) {
 				System.out.print(o + " ");
-			}
-			
-		}
-		System.out.println("UNDONE, NEW SIZE: " + graphicObjs.size());
+			}	
+		}*/
+		graphicObjs.remove(Integer.toString(lastGraphicIndex));
+		lastGraphicIndex--;
+		//System.out.println("UNDONE, NEW SIZE: " + graphicObjs.size());
 	}
 	
 	public int getNumGraphicsOnPage(){

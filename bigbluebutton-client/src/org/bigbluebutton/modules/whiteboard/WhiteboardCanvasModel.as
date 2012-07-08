@@ -177,7 +177,7 @@ package org.bigbluebutton.modules.whiteboard
 				segment.push(mouseX);
 				segment.push(mouseY);
 			} else if(graphicType == WhiteboardConstants.TYPE_SELECTION) {
-			
+
 				var objs:Array = 
 					getGraphicObjectsUnderPoint(mouseX, mouseY);		
 				var graphics:Array = filterGraphicObjects(objs);
@@ -244,7 +244,7 @@ package org.bigbluebutton.modules.whiteboard
 			}
 		}
 		
-		private function drawShape(o:DrawObject, recvdShapes:Boolean):void{		
+		private function drawShape(o:DrawObject, recvdShapes:Boolean):void {		
 			LogUtil.debug("Got shape [" + o.getType() + " " + o.status + "]");
 			switch (o.status) {
 				case DrawObject.DRAW_START:
@@ -265,22 +265,29 @@ package org.bigbluebutton.modules.whiteboard
 			}        
 		}
 		
-		private function drawText(o:TextObject, recvdShapes:Boolean):void{		
+		private function drawText(o:TextObject, recvdShapes:Boolean):void {		
 			LogUtil.debug("Got text [" + o.text + " " + 
 				o.status + " " + o.x + " " + o.y + "]");
-			switch (o.status) {
+			var tobj:TextObject = textFactory.makeTextObject(o);
+			tobj.setGraphicID(o.getGraphicID());
+			tobj.status = o.status;
+			switch (tobj.status) {
 				case TextObject.TEXT_CREATED:
-					addNewText(o);														
+					if(isPresenter)
+						addPresenterText(tobj);
+					else
+						addNormalText(tobj);														
 					break;
 				case TextObject.TEXT_UPDATED:
 				case TextObject.TEXT_PUBLISHED:
 					if (graphicList.length == 0 || recvdShapes) {
-						if(!isPresenter)
-							addNewText(o);
+						if(isPresenter)
+							addPresenterText(tobj);
+						else
+							addNormalText(tobj);
 					} else {
 						if(!isPresenter) {
-							removeLastGraphic();
-							addNewText(o);
+							modifyText(tobj);
 						}
 					}					
 					break;
@@ -306,31 +313,45 @@ package org.bigbluebutton.modules.whiteboard
 			tobj.setGraphicID(t.getGraphicID());
 			tobj.status = t.status;
 			LogUtil.debug("FINAL " + tobj.x + "," + tobj.y);
-			if(isPresenter) {
-				if(tobj.status == TextObject.TEXT_CREATED) {
-					tobj.multiline = true;
-					tobj.wordWrap = true;
-					tobj.autoSize = TextFieldAutoSize.LEFT;
-					tobj.makeEditable(true);
-					tobj.registerListeners(textObjGainedFocus,
-						textObjLostFocus,
-						textObjTextListener,
-						textObjSpecialListener);
-					wbCanvas.addGraphic(tobj);
-					wbCanvas.stage.focus = tobj;
-					tobj.stage.focus = tobj;
-					graphicList.push(tobj);
-					
-				} else if(tobj.status == TextObject.TEXT_PUBLISHED) {
-				}
-			} else {
 				tobj.multiline = true;
 				tobj.wordWrap = true;
 				tobj.autoSize = TextFieldAutoSize.LEFT;
 				tobj.makeEditable(false);
 				wbCanvas.addGraphic(tobj);
 				graphicList.push(tobj);
-			}
+		}
+			
+		private function addPresenterText(tobj:TextObject):void {
+			if(!isPresenter) return;
+			tobj.multiline = true;
+			tobj.wordWrap = true;
+			tobj.autoSize = TextFieldAutoSize.LEFT;
+			tobj.makeEditable(true);
+			tobj.registerListeners(textObjGainedFocus,
+									textObjLostFocus,
+									textObjTextListener,
+									textObjSpecialListener);
+			wbCanvas.addGraphic(tobj);
+			wbCanvas.stage.focus = tobj;
+			tobj.stage.focus = tobj;
+			graphicList.push(tobj);
+		}
+		
+		private function addNormalText(tobj:TextObject):void {
+			if(isPresenter) return;
+			tobj.multiline = true;
+			tobj.wordWrap = true;
+			tobj.autoSize = TextFieldAutoSize.LEFT;
+			tobj.makeEditable(false);
+			wbCanvas.addGraphic(tobj);
+			graphicList.push(tobj);
+		}
+		
+		private function modifyText(tobj:TextObject):void {
+			LogUtil.debug("Modified text with id: " + tobj.getGraphicID());
+			var id:String = tobj.getGraphicID();
+			removeGraphic(id);
+			addNormalText(tobj);
 		}
 		
 		public function setGraphicType(type:String):void{
@@ -343,8 +364,6 @@ package org.bigbluebutton.modules.whiteboard
 					drawColor == 0xFFFFFF) drawColor = 0xCCFF00;	
 			}*/
 			this.toolType = s;
-			if(toolType == DrawObject.TRIANGLE) 
-				LogUtil.debug("SET TO TRIANGLE");
 		}
 		
 		public function changeColor(color:uint):void{
@@ -375,7 +394,29 @@ package org.bigbluebutton.modules.whiteboard
 			this.transparencyOn = transp;
 		}
 		
+		private function removeGraphic(id:String):void {
+			var gobjToRemove:GraphicObject = getGobjWithID(id);
+			graphicList.splice(gobjToRemove, 1);
+		}
+		
+		private function getGobjWithID(id:String):GraphicObject {
+			for(var i:int = 0; i < graphicList.length; i++) {
+				var currObj:GraphicObject = graphicList[i] as GraphicObject;
+				if(currObj.getGraphicID() == id) return currObj;
+			}
+			return null;
+		}
+		
+		private function getIndexOfGobj(gobj:GraphicObject):int {
+			for(var i:int = 0; i < graphicList.length; i++) {
+				var currObj:GraphicObject = graphicList[i] as GraphicObject;
+				if(currObj == gobj) return i;
+			}
+			return -1;
+		}
+		
 		private function removeLastGraphic():void {
+			LogUtil.debug("Orig size b4 undo: " + graphicList.length);
 			var gobj:GraphicObject = graphicList.pop();
 			if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
 				(gobj as TextObject).makeEditable(false);
@@ -451,7 +492,7 @@ package org.bigbluebutton.modules.whiteboard
 				var currGobj:GraphicObject = graphicList[i];
 				if(currGobj.getGraphicType() == WhiteboardConstants.TYPE_SHAPE) {
 					var dobj:DrawObject = currGobj as DrawObject;
-					wbCanvas.removeGraphic(dobj as DisplayObject);
+					wbCanvas.removeGraphic(dobj);
 				}
 			}
 		}
@@ -461,7 +502,7 @@ package org.bigbluebutton.modules.whiteboard
 				var currGobj:GraphicObject = graphicList[i];
 				if(currGobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
 					var tobj:TextObject = currGobj as TextObject;
-					wbCanvas.removeGraphic(tobj as DisplayObject);
+					wbCanvas.removeGraphic(tobj);
 				}
 			}
 		}
@@ -592,14 +633,6 @@ package org.bigbluebutton.modules.whiteboard
 				wbCanvas.addGraphic(origTobj);
 			} */
 			
-		}
-		
-		private function getIndexOfGobj(gobj:GraphicObject):int {
-			for(var i:int = 0; i < graphicList.length; i++) {
-				var currObj:GraphicObject = graphicList[i] as GraphicObject;
-				if(currObj == gobj) return i;
-			}
-			return -1;
 		}
 		
 		private function getGraphicObjectsUnderPoint(xf:Number, yf:Number):Array {

@@ -220,12 +220,7 @@
 			
 			public function removeGraphic(child:DisplayObject):void {
 				if (bbbCanvas == null) return;
-				if (doesContain(child)) {
-					LogUtil.debug("Child there.");
-					removeRawChild(child);
-				} else {
-					LogUtil.debug("Child not there.");
-				}
+				if (doesContain(child)) removeRawChild(child);
 			}
 			
 			public function addGraphic(child:DisplayObject):void {

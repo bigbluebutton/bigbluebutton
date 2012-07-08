@@ -98,7 +98,7 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 			newShape.ID = Integer.toString(roomManager.getRoom(getLocalScope().getName()).getUniqueWBGraphicIdentifier());
 			roomManager.getRoom(getLocalScope().getName()).addShape(newShape);
 		}
-		//System.out.println(roomManager.getRoom(getLocalScope().getName()).getActivePresentation().getActivePage().getNumGraphicsOnPage());
+	
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
 		List<Object> arguments = newShape.toList();
 		drawSO.sendMessage("addSegment", arguments);
@@ -116,16 +116,8 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 			newText.ID = Integer.toString(roomManager.getRoom(getLocalScope().getName()).getUniqueWBGraphicIdentifier());
 			roomManager.getRoom(getLocalScope().getName()).addText(newText);
 		} else {
-			/*LinkedHashMap<String, WBGraphic> map = 
-				(LinkedHashMap<String, WBGraphic>) roomManager.getRoom(getLocalScope().getName()).getWBGraphicMap();
-			if(map.containsKey(newText.ID)) {
-				List<String> keyList = new ArrayList<String>(map.keySet());
-				int textID = keyList.indexOf(newText.ID);
-				List<WBGraphic> dataList = 
-					new ArrayList<WBGraphic>(map.values());
-				dataList.remove(textID);
-				dataList.add(textID, newText);
-			}	*/
+			System.out.println("Modifying text with ID: " + newText.ID);
+			roomManager.getRoom(getLocalScope().getName()).modifyText(newText.ID, newText);
 		}
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
 		List<Object> arguments = newText.toList();

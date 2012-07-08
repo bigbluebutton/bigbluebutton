@@ -20,6 +20,10 @@ public class AddShapeWhiteboardRecordEvent extends
 		eventMap.put("color", Integer.toString(color));
 	}
 	
+	public void setFillColor(int fillColor) {
+		eventMap.put("fillColor", Integer.toString(fillColor));
+	}
+	
 	public void setThickness(int thickness) {
 		eventMap.put("thickness", Integer.toString(thickness));
 	}

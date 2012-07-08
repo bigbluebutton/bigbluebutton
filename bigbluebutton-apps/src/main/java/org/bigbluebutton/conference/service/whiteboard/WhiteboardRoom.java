@@ -99,6 +99,11 @@ public class WhiteboardRoom {
 		notifyAddText(activePresentation, text);
 	}
 	
+	public void modifyText(String key, TextGraphic text){
+		activePresentation.getActivePage().modifyTextGraphic(key, text);
+		notifyAddText(activePresentation, text);
+	}
+	
 	public List<Object[]> getGraphicObjects(){
 		return activePresentation.getActivePage().getWBGraphicObjects();
 	}

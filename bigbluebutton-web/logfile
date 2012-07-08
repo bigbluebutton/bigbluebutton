@@ -7,9 +7,529 @@ Running script /home/ajay/dev/tools/grails-1.1.1/scripts/RunApp.groovy
 Environment set to development
      [copy] Copying 1 file to /home/ajay/.grails/1.1.1/projects/bigbluebutton-web
 Running Grails application..
-[06.07.12 01:50:35.374] WARN  org.codehaus.groovy.grails.web.servlet.mvc.GrailsUrlHandlerMapping  - Neither 'urlMap' nor 'mappings' set on SimpleUrlHandlerMapping
-[06.07.12 01:50:35.740] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Starting redis pubsub...
-[06.07.12 01:50:35.806] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Subscribed to the pattern:bigbluebutton:meeting:*
-[06.07.12 01:50:37.536] WARN  org.codehaus.groovy.grails.plugins.DefaultGrailsPlugin  - No JSecurity realms configured - access control won't work!
-[06.07.12 01:50:37.555] DEBUG grails.app.bootstrap.BootStrap  - Bootstrapping bbb-web
+[07.07.12 12:49:43.329] WARN  org.codehaus.groovy.grails.web.servlet.mvc.GrailsUrlHandlerMapping  - Neither 'urlMap' nor 'mappings' set on SimpleUrlHandlerMapping
+[07.07.12 12:49:43.666] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Starting redis pubsub...
+[07.07.12 12:49:43.736] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Subscribed to the pattern:bigbluebutton:meeting:*
+[07.07.12 12:49:45.401] WARN  org.codehaus.groovy.grails.plugins.DefaultGrailsPlugin  - No JSecurity realms configured - access control won't work!
+[07.07.12 12:49:45.409] DEBUG grails.app.bootstrap.BootStrap  - Bootstrapping bbb-web
 Server running. Browse to http://localhost:8888/bigbluebutton
+[07.07.12 12:49:46.309] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - ApiController#create
+[07.07.12 12:49:46.314] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum: [4e4958057073314615d24491d95cec53b24c0d3e] ; query string: [name=Demo+Meeting&meetingID=Demo+Meeting&voiceBridge=77670&attendeePW=ap&moderatorPW=mp&record=false&checksum=4e4958057073314615d24491d95cec53b24c0d3e]
+[07.07.12 12:49:46.314] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - query string after checksum removed: [name=Demo+Meeting&meetingID=Demo+Meeting&voiceBridge=77670&attendeePW=ap&moderatorPW=mp&record=false]
+[07.07.12 12:49:46.319] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - our checksum: [4e4958057073314615d24491d95cec53b24c0d3e], client: [4e4958057073314615d24491d95cec53b24c0d3e]
+[07.07.12 12:49:46.319] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum ok: request passed the checksum security check
+[07.07.12 12:49:46.324] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum: [4e4958057073314615d24491d95cec53b24c0d3e] ; query string: [name=Demo+Meeting&meetingID=Demo+Meeting&voiceBridge=77670&attendeePW=ap&moderatorPW=mp&record=false&checksum=4e4958057073314615d24491d95cec53b24c0d3e]
+[07.07.12 12:49:46.325] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - query string after checksum removed: [name=Demo+Meeting&meetingID=Demo+Meeting&voiceBridge=77670&attendeePW=ap&moderatorPW=mp&record=false]
+[07.07.12 12:49:46.325] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - our checksum: [4e4958057073314615d24491d95cec53b24c0d3e], client: [4e4958057073314615d24491d95cec53b24c0d3e]
+[07.07.12 12:49:46.325] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum ok: request passed the checksum security check
+[07.07.12 12:49:46.332] DEBUG org.bigbluebutton.api.MeetingService  - Storing Meeting with internal id:183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330
+[07.07.12 12:49:46.337] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - ApiController#uploadDocuments(183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330)
+No pre-uploaded presentation. Downloading default presentation.
+[07.07.12 12:49:46.349] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - ApiController#downloadAndProcessDocument({http://50.116.13.217/default.pdf}, 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330)
+[07.07.12 12:49:46.353] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - Uploading presentation: default.pdf from http://50.116.13.217/default.pdf [starting download]
+Uploaded presentation default for conf 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330 and room 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330 to dir /var/bigbluebutton/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330/default
+[07.07.12 12:49:46.704] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - Rendering as xml
+[07.07.12 12:49:46.989] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - ApiController#join
+[07.07.12 12:49:46.990] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum: [43cdbcab63ee0c2083c6939089b0f01969bfacf0] ; query string: [meetingID=Demo+Meeting&fullName=ds&password=mp&checksum=43cdbcab63ee0c2083c6939089b0f01969bfacf0]
+[07.07.12 12:49:46.991] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - query string after checksum removed: [meetingID=Demo+Meeting&fullName=ds&password=mp]
+[07.07.12 12:49:46.991] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - our checksum: [43cdbcab63ee0c2083c6939089b0f01969bfacf0], client: [43cdbcab63ee0c2083c6939089b0f01969bfacf0]
+[07.07.12 12:49:46.991] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum ok: request passed the checksum security check
+[07.07.12 12:49:46.992] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum: [43cdbcab63ee0c2083c6939089b0f01969bfacf0] ; query string: [meetingID=Demo+Meeting&fullName=ds&password=mp&checksum=43cdbcab63ee0c2083c6939089b0f01969bfacf0]
+[07.07.12 12:49:46.992] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - query string after checksum removed: [meetingID=Demo+Meeting&fullName=ds&password=mp]
+[07.07.12 12:49:46.992] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - our checksum: [43cdbcab63ee0c2083c6939089b0f01969bfacf0], client: [43cdbcab63ee0c2083c6939089b0f01969bfacf0]
+[07.07.12 12:49:46.992] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum ok: request passed the checksum security check
+[07.07.12 12:49:46.993] INFO  grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - Retrieving meeting 183f0bf3a0982a127bdb8161e0c44eb696b3e75c
+[07.07.12 12:49:47.015] INFO  grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - Session user token for ds [183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330-z7nylstkh8gh]
+[07.07.12 12:49:47.016] INFO  grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - Successfully joined. Redirecting to http://50.116.13.217/client/BigBlueButton.html
+[07.07.12 12:49:47.995] DEBUG org.bigbluebutton.presentation.SupportedDocumentFilter  - sending: {"returnCode":"CONVERT","messageKey":"SUPPORTED_DOCUMENT","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330"}
+[07.07.12 12:49:47.997] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message Received in channel: bigbluebutton:meeting:presentation
+[07.07.12 12:49:47.997] INFO  org.bigbluebutton.presentation.SupportedDocumentFilter  - Received supported file /var/bigbluebutton/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330/default/default.pdf
+[07.07.12 12:49:47.997] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message: {"returnCode":"CONVERT","messageKey":"SUPPORTED_DOCUMENT","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330"}
+[07.07.12 12:49:47.997] DEBUG org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService  - Generating slides
+[07.07.12 12:49:47.997] DEBUG org.bigbluebutton.presentation.imp.PageCounterService  - Counting pages for pdf
+[07.07.12 12:49:48.092] DEBUG org.bigbluebutton.presentation.imp.PageCounterService  - There are 1
+[07.07.12 12:49:48.092] DEBUG org.bigbluebutton.presentation.imp.PageCounterService  - Counting pages for pdf 1
+[07.07.12 12:49:48.093] DEBUG org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService  - Determined number of pages 1
+[07.07.12 12:49:48.097] INFO  org.bigbluebutton.presentation.PdfToSwfSlide  - Creating slide /var/bigbluebutton/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330/default/slide-1.swf
+[07.07.12 12:49:48.098] DEBUG org.bigbluebutton.presentation.imp.Pdf2SwfPageConverter  - Executing: /bin/pdf2swf -T9 -F /usr/share/fonts -p 1 /var/bigbluebutton/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330/default/default.pdf -o /var/bigbluebutton/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330/default/slide-1.swf
+[07.07.12 12:49:48.184] DEBUG org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier  - SENDING: {"returnCode":"CONVERT","pagesCompleted":1,"numberOfPages":1,"messageKey":"GENERATED_SLIDE","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330"}
+[07.07.12 12:49:48.185] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message Received in channel: bigbluebutton:meeting:presentation
+[07.07.12 12:49:48.185] DEBUG org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier  - SENT: {"returnCode":"CONVERT","pagesCompleted":1,"numberOfPages":1,"messageKey":"GENERATED_SLIDE","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330"}
+[07.07.12 12:49:48.186] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message: {"returnCode":"CONVERT","pagesCompleted":1,"numberOfPages":1,"messageKey":"GENERATED_SLIDE","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330"}
+[07.07.12 12:49:48.186] DEBUG org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService  - Creating thumbnails.
+[07.07.12 12:49:48.187] DEBUG org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier  - SENDING: {"returnCode":"CONVERT","messageKey":"GENERATING_THUMBNAIL","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330"}
+[07.07.12 12:49:48.187] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message Received in channel: bigbluebutton:meeting:presentation
+[07.07.12 12:49:48.188] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message: {"returnCode":"CONVERT","messageKey":"GENERATING_THUMBNAIL","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330"}
+[07.07.12 12:49:48.187] DEBUG org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier  - SENT: {"returnCode":"CONVERT","messageKey":"GENERATING_THUMBNAIL","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330"}
+[07.07.12 12:49:48.594] DEBUG org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier  - SENDING: {"returnCode":"CONVERT","slidesInfo":"\u0026lt;uploadedpresentation\u0026gt;\n  \u0026lt;conference id\u003d\u0026apos;183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330\u0026apos; room\u003d\u0026apos;183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330\u0026apos;\u0026gt;\n    \u0026lt;presentation name\u003d\u0026apos;default\u0026apos;\u0026gt;\n      \u0026lt;slides count\u003d\u0026apos;1\u0026apos;\u0026gt;\n        \u0026lt;slide number\u003d\u0026apos;1\u0026apos; name\u003d\u0026apos;slide/1\u0026apos; thumb\u003d\u0026apos;thumbnail/1\u0026apos; /\u0026gt;\n      \u0026lt;/slides\u0026gt;\n    \u0026lt;/presentation\u0026gt;\n  \u0026lt;/conference\u0026gt;\n\u0026lt;/uploadedpresentation\u0026gt;","messageKey":"CONVERSION_COMPLETED","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330"}
+[07.07.12 12:49:48.595] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message Received in channel: bigbluebutton:meeting:presentation
+[07.07.12 12:49:48.596] DEBUG org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier  - SENT: {"returnCode":"CONVERT","slidesInfo":"\u0026lt;uploadedpresentation\u0026gt;\n  \u0026lt;conference id\u003d\u0026apos;183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330\u0026apos; room\u003d\u0026apos;183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330\u0026apos;\u0026gt;\n    \u0026lt;presentation name\u003d\u0026apos;default\u0026apos;\u0026gt;\n      \u0026lt;slides count\u003d\u0026apos;1\u0026apos;\u0026gt;\n        \u0026lt;slide number\u003d\u0026apos;1\u0026apos; name\u003d\u0026apos;slide/1\u0026apos; thumb\u003d\u0026apos;thumbnail/1\u0026apos; /\u0026gt;\n      \u0026lt;/slides\u0026gt;\n    \u0026lt;/presentation\u0026gt;\n  \u0026lt;/conference\u0026gt;\n\u0026lt;/uploadedpresentation\u0026gt;","messageKey":"CONVERSION_COMPLETED","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330"}
+[07.07.12 12:49:48.596] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message: {"returnCode":"CONVERT","slidesInfo":"\u0026lt;uploadedpresentation\u0026gt;\n  \u0026lt;conference id\u003d\u0026apos;183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330\u0026apos; room\u003d\u0026apos;183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330\u0026apos;\u0026gt;\n    \u0026lt;presentation name\u003d\u0026apos;default\u0026apos;\u0026gt;\n      \u0026lt;slides count\u003d\u0026apos;1\u0026apos;\u0026gt;\n        \u0026lt;slide number\u003d\u0026apos;1\u0026apos; name\u003d\u0026apos;slide/1\u0026apos; thumb\u003d\u0026apos;thumbnail/1\u0026apos; /\u0026gt;\n      \u0026lt;/slides\u0026gt;\n    \u0026lt;/presentation\u0026gt;\n  \u0026lt;/conference\u0026gt;\n\u0026lt;/uploadedpresentation\u0026gt;","messageKey":"CONVERSION_COMPLETED","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330"}
+[07.07.12 12:50:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+Expiry 1341679843666 endTime=0expiry=60000
+meeting-id=183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330 started=false ended=false notRunning=true expired=true
+[07.07.12 12:51:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+Expiry 1341679903664 endTime=0expiry=60000
+meeting-id=183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330 started=false ended=false notRunning=true expired=true
+[07.07.12 12:52:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+Expiry 1341679963664 endTime=0expiry=60000
+meeting-id=183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330 started=false ended=false notRunning=true expired=true
+[07.07.12 12:53:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+Expiry 1341680023665 endTime=0expiry=60000
+meeting-id=183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330 started=false ended=false notRunning=true expired=true
+[07.07.12 12:54:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+Expiry 1341680083664 endTime=0expiry=60000
+meeting-id=183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330 started=false ended=false notRunning=true expired=true
+[07.07.12 12:55:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+Expiry 1341680143665 endTime=0expiry=60000
+meeting-id=183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330 started=false ended=false notRunning=true expired=true
+[07.07.12 12:55:43.665] INFO  org.bigbluebutton.api.MeetingService  - Removing non-joined meeting [183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341679786330 - Demo Meeting]
+[07.07.12 12:56:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 12:57:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 12:58:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 12:59:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:00:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:01:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:02:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:03:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:04:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:05:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:06:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:07:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:08:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:09:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:10:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:11:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:12:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:13:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:14:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:15:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:16:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:17:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:18:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:19:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:20:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:21:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:22:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:23:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:24:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:25:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:26:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:27:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:28:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:29:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:30:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:31:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:32:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:33:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:34:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:35:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:36:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:37:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:38:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:39:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:40:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:41:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:42:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:43:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:44:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:45:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:46:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:47:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:48:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:49:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:50:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:51:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:52:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:53:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:54:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:55:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:56:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:57:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:58:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 13:59:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:00:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:01:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:02:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:03:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:04:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:05:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:06:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:07:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:08:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:09:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:10:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:11:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:12:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:13:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:14:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:15:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:16:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:17:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:18:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:19:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:20:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:21:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:22:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:23:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:24:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:25:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:26:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:27:15.404] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - ApiController#create
+[07.07.12 14:27:15.408] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum: [5f2b9fe1166a49831f33939822e218d61582d6fc] ; query string: [name=Demo+Meeting&meetingID=Demo+Meeting&voiceBridge=72965&attendeePW=ap&moderatorPW=mp&record=false&checksum=5f2b9fe1166a49831f33939822e218d61582d6fc]
+[07.07.12 14:27:15.408] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - query string after checksum removed: [name=Demo+Meeting&meetingID=Demo+Meeting&voiceBridge=72965&attendeePW=ap&moderatorPW=mp&record=false]
+[07.07.12 14:27:15.409] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - our checksum: [5f2b9fe1166a49831f33939822e218d61582d6fc], client: [5f2b9fe1166a49831f33939822e218d61582d6fc]
+[07.07.12 14:27:15.409] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum ok: request passed the checksum security check
+[07.07.12 14:27:15.411] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum: [5f2b9fe1166a49831f33939822e218d61582d6fc] ; query string: [name=Demo+Meeting&meetingID=Demo+Meeting&voiceBridge=72965&attendeePW=ap&moderatorPW=mp&record=false&checksum=5f2b9fe1166a49831f33939822e218d61582d6fc]
+[07.07.12 14:27:15.411] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - query string after checksum removed: [name=Demo+Meeting&meetingID=Demo+Meeting&voiceBridge=72965&attendeePW=ap&moderatorPW=mp&record=false]
+[07.07.12 14:27:15.411] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - our checksum: [5f2b9fe1166a49831f33939822e218d61582d6fc], client: [5f2b9fe1166a49831f33939822e218d61582d6fc]
+[07.07.12 14:27:15.411] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum ok: request passed the checksum security check
+[07.07.12 14:27:15.415] DEBUG org.bigbluebutton.api.MeetingService  - Storing Meeting with internal id:183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415
+[07.07.12 14:27:15.419] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - ApiController#uploadDocuments(183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415)
+No pre-uploaded presentation. Downloading default presentation.
+[07.07.12 14:27:15.426] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - ApiController#downloadAndProcessDocument({http://50.116.13.217/default.pdf}, 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415)
+[07.07.12 14:27:15.430] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - Uploading presentation: default.pdf from http://50.116.13.217/default.pdf [starting download]
+Uploaded presentation default for conf 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415 and room 183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415 to dir /var/bigbluebutton/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415/default
+[07.07.12 14:27:15.524] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - Rendering as xml
+[07.07.12 14:27:15.832] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - ApiController#join
+[07.07.12 14:27:15.833] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum: [262baa406bf5603a9d21919d33999ebfefdf00e4] ; query string: [meetingID=Demo+Meeting&fullName=neeraj&password=mp&checksum=262baa406bf5603a9d21919d33999ebfefdf00e4]
+[07.07.12 14:27:15.834] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - query string after checksum removed: [meetingID=Demo+Meeting&fullName=neeraj&password=mp]
+[07.07.12 14:27:15.834] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - our checksum: [262baa406bf5603a9d21919d33999ebfefdf00e4], client: [262baa406bf5603a9d21919d33999ebfefdf00e4]
+[07.07.12 14:27:15.834] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum ok: request passed the checksum security check
+[07.07.12 14:27:15.835] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum: [262baa406bf5603a9d21919d33999ebfefdf00e4] ; query string: [meetingID=Demo+Meeting&fullName=neeraj&password=mp&checksum=262baa406bf5603a9d21919d33999ebfefdf00e4]
+[07.07.12 14:27:15.835] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - query string after checksum removed: [meetingID=Demo+Meeting&fullName=neeraj&password=mp]
+[07.07.12 14:27:15.835] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - our checksum: [262baa406bf5603a9d21919d33999ebfefdf00e4], client: [262baa406bf5603a9d21919d33999ebfefdf00e4]
+[07.07.12 14:27:15.836] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum ok: request passed the checksum security check
+[07.07.12 14:27:15.836] INFO  grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - Retrieving meeting 183f0bf3a0982a127bdb8161e0c44eb696b3e75c
+[07.07.12 14:27:15.849] INFO  grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - Session user token for neeraj [183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415-7b05pjxko4n9]
+[07.07.12 14:27:15.849] INFO  grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - Successfully joined. Redirecting to http://50.116.13.217/client/BigBlueButton.html
+[07.07.12 14:27:16.467] DEBUG org.bigbluebutton.presentation.SupportedDocumentFilter  - sending: {"returnCode":"CONVERT","messageKey":"SUPPORTED_DOCUMENT","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415"}
+[07.07.12 14:27:16.467] INFO  org.bigbluebutton.presentation.SupportedDocumentFilter  - Received supported file /var/bigbluebutton/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415/default/default.pdf
+[07.07.12 14:27:16.467] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message Received in channel: bigbluebutton:meeting:presentation
+[07.07.12 14:27:16.468] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message: {"returnCode":"CONVERT","messageKey":"SUPPORTED_DOCUMENT","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415"}
+[07.07.12 14:27:16.467] DEBUG org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService  - Generating slides
+[07.07.12 14:27:16.468] DEBUG org.bigbluebutton.presentation.imp.PageCounterService  - Counting pages for pdf
+[07.07.12 14:27:16.549] DEBUG org.bigbluebutton.presentation.imp.PageCounterService  - There are 1
+[07.07.12 14:27:16.550] DEBUG org.bigbluebutton.presentation.imp.PageCounterService  - Counting pages for pdf 1
+[07.07.12 14:27:16.550] DEBUG org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService  - Determined number of pages 1
+[07.07.12 14:27:16.551] INFO  org.bigbluebutton.presentation.PdfToSwfSlide  - Creating slide /var/bigbluebutton/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415/default/slide-1.swf
+[07.07.12 14:27:16.551] DEBUG org.bigbluebutton.presentation.imp.Pdf2SwfPageConverter  - Executing: /bin/pdf2swf -T9 -F /usr/share/fonts -p 1 /var/bigbluebutton/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415/default/default.pdf -o /var/bigbluebutton/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415/default/slide-1.swf
+[07.07.12 14:27:16.632] DEBUG org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier  - SENDING: {"returnCode":"CONVERT","pagesCompleted":1,"numberOfPages":1,"messageKey":"GENERATED_SLIDE","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415"}
+[07.07.12 14:27:16.633] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message Received in channel: bigbluebutton:meeting:presentation
+[07.07.12 14:27:16.633] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message: {"returnCode":"CONVERT","pagesCompleted":1,"numberOfPages":1,"messageKey":"GENERATED_SLIDE","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415"}
+[07.07.12 14:27:16.643] DEBUG org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier  - SENT: {"returnCode":"CONVERT","pagesCompleted":1,"numberOfPages":1,"messageKey":"GENERATED_SLIDE","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415"}
+[07.07.12 14:27:16.644] DEBUG org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService  - Creating thumbnails.
+[07.07.12 14:27:16.644] DEBUG org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier  - SENDING: {"returnCode":"CONVERT","messageKey":"GENERATING_THUMBNAIL","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415"}
+[07.07.12 14:27:16.644] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message Received in channel: bigbluebutton:meeting:presentation
+[07.07.12 14:27:16.645] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message: {"returnCode":"CONVERT","messageKey":"GENERATING_THUMBNAIL","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415"}
+[07.07.12 14:27:16.652] DEBUG org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier  - SENT: {"returnCode":"CONVERT","messageKey":"GENERATING_THUMBNAIL","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415"}
+[07.07.12 14:27:16.855] DEBUG org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier  - SENDING: {"returnCode":"CONVERT","slidesInfo":"\u0026lt;uploadedpresentation\u0026gt;\n  \u0026lt;conference id\u003d\u0026apos;183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415\u0026apos; room\u003d\u0026apos;183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415\u0026apos;\u0026gt;\n    \u0026lt;presentation name\u003d\u0026apos;default\u0026apos;\u0026gt;\n      \u0026lt;slides count\u003d\u0026apos;1\u0026apos;\u0026gt;\n        \u0026lt;slide number\u003d\u0026apos;1\u0026apos; name\u003d\u0026apos;slide/1\u0026apos; thumb\u003d\u0026apos;thumbnail/1\u0026apos; /\u0026gt;\n      \u0026lt;/slides\u0026gt;\n    \u0026lt;/presentation\u0026gt;\n  \u0026lt;/conference\u0026gt;\n\u0026lt;/uploadedpresentation\u0026gt;","messageKey":"CONVERSION_COMPLETED","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415"}
+[07.07.12 14:27:16.856] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message Received in channel: bigbluebutton:meeting:presentation
+[07.07.12 14:27:16.857] DEBUG org.bigbluebutton.api.messaging.RedisMessagingService  - Message: {"returnCode":"CONVERT","slidesInfo":"\u0026lt;uploadedpresentation\u0026gt;\n  \u0026lt;conference id\u003d\u0026apos;183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415\u0026apos; room\u003d\u0026apos;183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415\u0026apos;\u0026gt;\n    \u0026lt;presentation name\u003d\u0026apos;default\u0026apos;\u0026gt;\n      \u0026lt;slides count\u003d\u0026apos;1\u0026apos;\u0026gt;\n        \u0026lt;slide number\u003d\u0026apos;1\u0026apos; name\u003d\u0026apos;slide/1\u0026apos; thumb\u003d\u0026apos;thumbnail/1\u0026apos; /\u0026gt;\n      \u0026lt;/slides\u0026gt;\n    \u0026lt;/presentation\u0026gt;\n  \u0026lt;/conference\u0026gt;\n\u0026lt;/uploadedpresentation\u0026gt;","messageKey":"CONVERSION_COMPLETED","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415"}
+[07.07.12 14:27:16.867] DEBUG org.bigbluebutton.presentation.imp.SwfSlidesGenerationProgressNotifier  - SENT: {"returnCode":"CONVERT","slidesInfo":"\u0026lt;uploadedpresentation\u0026gt;\n  \u0026lt;conference id\u003d\u0026apos;183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415\u0026apos; room\u003d\u0026apos;183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415\u0026apos;\u0026gt;\n    \u0026lt;presentation name\u003d\u0026apos;default\u0026apos;\u0026gt;\n      \u0026lt;slides count\u003d\u0026apos;1\u0026apos;\u0026gt;\n        \u0026lt;slide number\u003d\u0026apos;1\u0026apos; name\u003d\u0026apos;slide/1\u0026apos; thumb\u003d\u0026apos;thumbnail/1\u0026apos; /\u0026gt;\n      \u0026lt;/slides\u0026gt;\n    \u0026lt;/presentation\u0026gt;\n  \u0026lt;/conference\u0026gt;\n\u0026lt;/uploadedpresentation\u0026gt;","messageKey":"CONVERSION_COMPLETED","conference":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415","presentationName":"default","room":"183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415"}
+[07.07.12 14:27:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+Expiry 1341685663666 endTime=0expiry=60000
+meeting-id=183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415 started=false ended=false notRunning=true expired=true
+[07.07.12 14:28:36.137] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - ApiController#create
+[07.07.12 14:28:36.139] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum: [67250b04cd4192b5bc9b4e1785f0a7c9d8782134] ; query string: [name=Demo+Meeting&meetingID=Demo+Meeting&voiceBridge=78074&attendeePW=ap&moderatorPW=mp&record=false&checksum=67250b04cd4192b5bc9b4e1785f0a7c9d8782134]
+[07.07.12 14:28:36.139] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - query string after checksum removed: [name=Demo+Meeting&meetingID=Demo+Meeting&voiceBridge=78074&attendeePW=ap&moderatorPW=mp&record=false]
+[07.07.12 14:28:36.139] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - our checksum: [67250b04cd4192b5bc9b4e1785f0a7c9d8782134], client: [67250b04cd4192b5bc9b4e1785f0a7c9d8782134]
+[07.07.12 14:28:36.139] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum ok: request passed the checksum security check
+[07.07.12 14:28:36.140] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum: [67250b04cd4192b5bc9b4e1785f0a7c9d8782134] ; query string: [name=Demo+Meeting&meetingID=Demo+Meeting&voiceBridge=78074&attendeePW=ap&moderatorPW=mp&record=false&checksum=67250b04cd4192b5bc9b4e1785f0a7c9d8782134]
+[07.07.12 14:28:36.140] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - query string after checksum removed: [name=Demo+Meeting&meetingID=Demo+Meeting&voiceBridge=78074&attendeePW=ap&moderatorPW=mp&record=false]
+[07.07.12 14:28:36.140] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - our checksum: [67250b04cd4192b5bc9b4e1785f0a7c9d8782134], client: [67250b04cd4192b5bc9b4e1785f0a7c9d8782134]
+[07.07.12 14:28:36.140] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum ok: request passed the checksum security check
+[07.07.12 14:28:36.140] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - Existing conference found
+[07.07.12 14:28:36.146] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - Rendering as xml
+[07.07.12 14:28:36.421] DEBUG grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - ApiController#join
+[07.07.12 14:28:36.422] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum: [262baa406bf5603a9d21919d33999ebfefdf00e4] ; query string: [meetingID=Demo+Meeting&fullName=neeraj&password=mp&checksum=262baa406bf5603a9d21919d33999ebfefdf00e4]
+[07.07.12 14:28:36.422] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - query string after checksum removed: [meetingID=Demo+Meeting&fullName=neeraj&password=mp]
+[07.07.12 14:28:36.422] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - our checksum: [262baa406bf5603a9d21919d33999ebfefdf00e4], client: [262baa406bf5603a9d21919d33999ebfefdf00e4]
+[07.07.12 14:28:36.422] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum ok: request passed the checksum security check
+[07.07.12 14:28:36.422] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum: [262baa406bf5603a9d21919d33999ebfefdf00e4] ; query string: [meetingID=Demo+Meeting&fullName=neeraj&password=mp&checksum=262baa406bf5603a9d21919d33999ebfefdf00e4]
+[07.07.12 14:28:36.422] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - query string after checksum removed: [meetingID=Demo+Meeting&fullName=neeraj&password=mp]
+[07.07.12 14:28:36.423] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - our checksum: [262baa406bf5603a9d21919d33999ebfefdf00e4], client: [262baa406bf5603a9d21919d33999ebfefdf00e4]
+[07.07.12 14:28:36.423] DEBUG org.bigbluebutton.api.ParamsProcessorUtil  - checksum ok: request passed the checksum security check
+[07.07.12 14:28:36.423] INFO  grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - Retrieving meeting 183f0bf3a0982a127bdb8161e0c44eb696b3e75c
+[07.07.12 14:28:36.424] INFO  grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - Session user token for neeraj [183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415-lnhssulcwcuv]
+[07.07.12 14:28:36.424] INFO  grails.app.controller.org.bigbluebutton.web.controllers.ApiController  - Successfully joined. Redirecting to http://50.116.13.217/client/BigBlueButton.html
+[07.07.12 14:28:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+Expiry 1341685723664 endTime=0expiry=60000
+meeting-id=183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415 started=false ended=false notRunning=true expired=true
+[07.07.12 14:29:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+Expiry 1341685783665 endTime=0expiry=60000
+meeting-id=183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415 started=false ended=false notRunning=true expired=true
+[07.07.12 14:30:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+Expiry 1341685843664 endTime=0expiry=60000
+meeting-id=183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415 started=false ended=false notRunning=true expired=true
+[07.07.12 14:31:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+Expiry 1341685903665 endTime=0expiry=60000
+meeting-id=183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415 started=false ended=false notRunning=true expired=true
+[07.07.12 14:32:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+Expiry 1341685963664 endTime=0expiry=60000
+meeting-id=183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415 started=false ended=false notRunning=true expired=true
+[07.07.12 14:32:43.664] INFO  org.bigbluebutton.api.MeetingService  - Removing non-joined meeting [183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1341685635415 - Demo Meeting]
+[07.07.12 14:33:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:34:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:35:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:36:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:37:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:38:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:39:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:40:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:41:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:42:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:43:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:44:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:45:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:46:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:47:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:48:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:49:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:50:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:51:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:52:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:53:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:54:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:55:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:56:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:57:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:58:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 14:59:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:00:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:01:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:02:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:03:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:04:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:05:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:06:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:07:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:08:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:09:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:10:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:11:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:12:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:13:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:14:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:15:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:16:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:17:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:18:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:19:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:20:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:21:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:22:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:23:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:24:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:25:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:26:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:27:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:28:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:29:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:30:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:31:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:32:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:33:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:34:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:35:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:36:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:37:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:38:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:39:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:40:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:41:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:42:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:43:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:44:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:45:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:46:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:47:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:48:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:49:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:50:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:51:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:52:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:53:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:54:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:55:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:56:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:57:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:58:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 15:59:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:00:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:01:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:02:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:03:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:04:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:05:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:06:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:07:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:08:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:09:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:10:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:11:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:12:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:13:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:14:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:15:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:16:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:17:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:18:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:19:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:20:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:21:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:22:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:23:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:24:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:25:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:26:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:27:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:28:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:29:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:30:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:31:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:32:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:33:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:34:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:35:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:36:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:37:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:38:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:39:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:40:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:41:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:42:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:43:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:44:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:45:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:46:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:47:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:48:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:49:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:50:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:51:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:52:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:53:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:54:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:55:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:56:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:57:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:58:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 16:59:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:00:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:01:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:02:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:03:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:04:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:05:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:06:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:07:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:08:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:09:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:10:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:11:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:12:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:13:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:14:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:15:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:16:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:17:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:18:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:19:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:20:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:21:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:22:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:23:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:24:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:25:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:26:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:27:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:28:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:29:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:30:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:31:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:32:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:33:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:34:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:35:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:36:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:37:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:38:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:39:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:40:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:41:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:42:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:43:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:44:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:45:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:46:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:47:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:48:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:49:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:50:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:51:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:52:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:53:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:54:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:55:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:56:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:57:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:58:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 17:59:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:00:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:01:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:02:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:03:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:04:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:05:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:06:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:07:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:08:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:09:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:10:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:11:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:12:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:13:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:14:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:15:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:16:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:17:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:18:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:19:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:20:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:21:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:22:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:23:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:24:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:25:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:26:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:27:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:28:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:29:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:30:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:31:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:32:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:33:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:34:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:35:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:36:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:37:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:38:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:39:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:40:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:41:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:42:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:43:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:44:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:45:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:46:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:47:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:48:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:49:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:50:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:51:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:52:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:53:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:54:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:55:43.664] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
+[07.07.12 18:56:43.665] INFO  org.bigbluebutton.api.MeetingService  - Cleaning up expired meetings
