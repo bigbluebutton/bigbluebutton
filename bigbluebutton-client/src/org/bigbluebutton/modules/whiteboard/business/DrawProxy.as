@@ -270,7 +270,7 @@ package org.bigbluebutton.modules.whiteboard.business
 								x:Number, y:Number, id:String, status:String, recvdShapes:Boolean = false):void {
 			//LogUtil.error("Step 3(received): " + x + "," + y);
 			LogUtil.debug("Rx add text **** with ID of " + id + " " + x + "," + y);
-			var t:TextObject = textFactory.cloneTextObject(text, textColor, bgColor, bgColorVisible, x, y);
+			var t:TextObject = textFactory.cloneTextObject(text, textColor, bgColor, bgColorVisible, x, y);	
 			t.setGraphicID(id);
 			t.status = status;
 			

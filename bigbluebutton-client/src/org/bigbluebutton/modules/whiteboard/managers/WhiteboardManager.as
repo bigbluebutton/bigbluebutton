@@ -35,6 +35,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardButton;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+	import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
 	
 	public class WhiteboardManager
@@ -42,6 +43,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		private var globalDispatcher:Dispatcher;
 		private var highlighterCanvas:WhiteboardCanvas;
 		private var highlighterToolbar:WhiteboardToolbar;
+		private var textToolbar:WhiteboardTextToolbar;
 		private var whiteboardButton:WhiteboardButton;
 		private var model:WhiteboardCanvasModel = new WhiteboardCanvasModel();
 		
@@ -57,6 +59,11 @@ package org.bigbluebutton.modules.whiteboard.managers
 			if (highlighterToolbar != null) return;
 			highlighterToolbar = new WhiteboardToolbar();
 			highlighterToolbar.canvas = highlighterCanvas;
+			if (textToolbar != null) return;
+			textToolbar = new WhiteboardTextToolbar();
+			textToolbar.canvas = highlighterCanvas;
+			textToolbar.init();
+			highlighterCanvas.textToolbar = textToolbar;
 			if (whiteboardButton != null) return;
 			whiteboardButton = new WhiteboardButton();
 			//Necessary now because of module loading race conditions
@@ -74,14 +81,22 @@ package org.bigbluebutton.modules.whiteboard.managers
 			if (UserManager.getInstance().getConference().amIPresenter()) {
 				whiteboardButton.setVisible(true);
 			}
-			PresentationAPI.getInstance().addButtonToToolbar(whiteboardButton);
+			PresentationAPI.getInstance().addButtonToToolbar(whiteboardButton);	
+			//highlighterCanvas.addRawChild(textToolbar);
 		}
-		
+			
+
 		public function positionToolbar(e:WhiteboardButtonEvent):void{
 			var addUIEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
 			addUIEvent.component = highlighterToolbar;
 			globalDispatcher.dispatchEvent(addUIEvent);
 			highlighterToolbar.positionToolbar(e.window);
+			
+			// add text toolbar for allowing customization of text
+			var addTextToolbarEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
+			addTextToolbarEvent.component = textToolbar;
+			globalDispatcher.dispatchEvent(addTextToolbarEvent);
+			textToolbar.positionToolbar(e.window);	
 		}
 
 		public function drawGraphic(event:WhiteboardUpdate):void{

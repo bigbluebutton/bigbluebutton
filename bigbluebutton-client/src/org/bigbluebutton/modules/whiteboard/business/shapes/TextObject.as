@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	import flash.events.TextEvent;
 	import flash.text.TextField;
 	import flash.text.TextFieldType;
+	import flash.text.TextFormat;
 	
 	import flashx.textLayout.edit.SelectionManager;
 	
@@ -94,6 +95,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			//LogUtil.error("denorms: " + startX + "," + startY);
 			this.x = startX;
 			this.y = startY;
+			//var  format:TextFormat = new TextFormat();
+			//format.color = this.textColor;
+			//format.
 		}	
 		
 		public function getProperties():Array {

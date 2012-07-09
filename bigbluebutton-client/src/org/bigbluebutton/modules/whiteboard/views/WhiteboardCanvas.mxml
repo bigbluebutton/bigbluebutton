@@ -41,7 +41,8 @@
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingEvent;
 			
-			public var model:WhiteboardCanvasModel;			
+			public var model:WhiteboardCanvasModel;	
+			public var textToolbar:WhiteboardTextToolbar;		
 			private var bbbCanvas:IBbbCanvas;
 			private var _xPosition:int;
 			private var _yPosition:int;
@@ -108,15 +109,15 @@
 				model.changeThickness(e.target.value);
 			}
 			
-			public function toggleFill():void{
+			public function toggleFill():void {
 				model.toggleFill();
 			}
 			
-			public function toggleTransparency():void{
+			public function toggleTransparency():void {
 				model.toggleTransparency();
 			}
 			
-			public function setFill(e:WhiteboardSettingEvent):void{
+			public function setFill(e:WhiteboardSettingEvent):void {
 				model.setFill(e.value);
 
 			}
@@ -140,7 +141,11 @@
 			public function set yPosition(y:int):void {
 				_yPosition = y;
 			}
-				
+			
+			public function modifySelectedTextObject(fgColor:uint, bgColorVisible:Boolean, backgroundColor:uint):void {
+				model.modifySelectedTextObject(fgColor, bgColorVisible, backgroundColor);
+			}
+			
 			public function makeTextObjectsEditable(e:MadePresenterEvent):void {
 				model.makeTextObjectsEditable(e);
 			}
@@ -232,6 +237,7 @@
 				this.width = width;
 				this.height = height;	
 				model.zoomCanvas(width, height);
+				textToolbar.adjustForZoom(width, height);
 			}
 					
 			public function showCanvas(show:Boolean):void{
