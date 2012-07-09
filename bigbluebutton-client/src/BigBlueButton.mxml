@@ -27,7 +27,8 @@
 	xmlns:m="library://melomel/2010"
 	pageTitle="BigBlueButton"
 	layout="absolute" preinitialize="init()"
-	preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
+	preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader"
+	applicationComplete="hotkeyCapture()">
 	
 	<mx:Script>
 		<![CDATA[
@@ -209,6 +210,28 @@
 				mainShell.initOptions(null);
 			}
 
+			public function hotkeyCapture():void{
+				LogUtil.debug("Entering hotkeyCapture");
+				stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+				LogUtil.debug("Leaving hotkeyCapture");
+			}
+			
+			public function handleKeyDown(e:KeyboardEvent) :void
+			{
+				if (e.ctrlKey && e.shiftKey && e.keyCode == 67){
+					LogUtil.debug("You pressed CTRL-SHIFT-C");
+				}
+				/*
+				if (e.ctrlKey)
+					LogUtil.debug("You pressed CTRL");
+				else if (e.altKey && e.keyCode == 32)
+					LogUtil.debug("You pressed ALT+Space");
+				else if (e.shiftKey)
+					LogUtil.debug("You pressed SHIFT");
+				else
+					LogUtil.debug("Key was pressed: " + e.keyCode);
+				*/
+			}
 		]]>
 	</mx:Script>	
 	
