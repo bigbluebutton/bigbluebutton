@@ -36,7 +36,8 @@ package org.bigbluebutton.modules.whiteboard
 	public class WhiteboardCanvasModel {
 		public var wbCanvas:WhiteboardCanvas;
 		public var ftm:FreeTransformManager = new FreeTransformManager(true);
-		
+		public var isPresenter:Boolean;		
+
 		private var isDrawing:Boolean; 
 		private var sending:Boolean = false;
 		private var feedback:Shape = new Shape();
@@ -56,7 +57,6 @@ package org.bigbluebutton.modules.whiteboard
 		private var thickness:uint = 1;
 		private var fillOn:Boolean = false;
 		private var transparencyOn:Boolean = false;
-		private var isPresenter:Boolean;
 		
 		// represents the max number of 'points' enumerated in 'segment'
 		// before sending an update to server. Used to prevent 
@@ -85,7 +85,8 @@ package org.bigbluebutton.modules.whiteboard
 					// is hardly classifiable as a rectangle, and should not 
 					// be sent to the server
 					if(toolType == DrawObject.RECTANGLE || 
-						toolType == DrawObject.ELLIPSE) {
+						toolType == DrawObject.ELLIPSE ||
+						toolType == DrawObject.TRIANGLE) {
 						var x:Number = segment[0];
 						var y:Number = segment[1];
 						var width:Number = segment[segment.length-2]-x;
@@ -308,18 +309,6 @@ package org.bigbluebutton.modules.whiteboard
 			graphicList.push(dobj);
 		}
 		
-		private function addNewText(t:TextObject):void {
-			var tobj:TextObject = textFactory.makeTextObject(t);
-			tobj.setGraphicID(t.getGraphicID());
-			tobj.status = t.status;
-			LogUtil.debug("FINAL " + tobj.x + "," + tobj.y);
-				tobj.multiline = true;
-				tobj.wordWrap = true;
-				tobj.autoSize = TextFieldAutoSize.LEFT;
-				tobj.makeEditable(false);
-				wbCanvas.addGraphic(tobj);
-				graphicList.push(tobj);
-		}
 			
 		private function addPresenterText(tobj:TextObject):void {
 			if(!isPresenter) return;
@@ -348,9 +337,9 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		private function modifyText(tobj:TextObject):void {
-			LogUtil.debug("Modified text with id: " + tobj.getGraphicID());
 			var id:String = tobj.getGraphicID();
-			removeGraphic(id);
+			removeText(id);
+			LogUtil.debug("Text modified to " + tobj.text);
 			addNormalText(tobj);
 		}
 		
@@ -395,14 +384,41 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		private function removeGraphic(id:String):void {
-			var gobjToRemove:GraphicObject = getGobjWithID(id);
-			graphicList.splice(gobjToRemove, 1);
+			var gobjData:Array = getGobjInfoWithID(id);
+			var removeIndex:int = gobjData[0];
+			var gobjToRemove:GraphicObject = gobjData[1] as GraphicObject;
+			LogUtil.debug("Removing graphic with ID of " + id + " and type " + gobjToRemove.getGraphicType());
+			wbCanvas.removeGraphic(gobjToRemove as DisplayObject);
+			graphicList.splice(removeIndex, 1);
+		}	
+	
+		private function removeShape(id:String):void {
+			var dobjData:Array = getGobjInfoWithID(id);
+			var removeIndex:int = dobjData[0];
+			var dobjToRemove:DrawObject = dobjData[1] as DrawObject;
+			LogUtil.debug("Removing shape with id of " + id + " and type of " + dobjToRemove.getType());
+			wbCanvas.removeGraphic(dobjToRemove);
+			graphicList.splice(removeIndex, 1);
 		}
+	
+		private function removeText(id:String):void {
+			var tobjData:Array = getGobjInfoWithID(id);
+			var removeIndex:int = tobjData[0];
+			var tobjToRemove:TextObject = tobjData[1] as TextObject;
+			LogUtil.debug("Removing text with id of " + id + " and text of " +   tobjToRemove.text);
+			wbCanvas.removeGraphic(tobjToRemove);
+			graphicList.splice(removeIndex, 1);
+		}	
 		
-		private function getGobjWithID(id:String):GraphicObject {
+		private function getGobjInfoWithID(id:String):Array {	
+			var data:Array = new Array();
 			for(var i:int = 0; i < graphicList.length; i++) {
 				var currObj:GraphicObject = graphicList[i] as GraphicObject;
-				if(currObj.getGraphicID() == id) return currObj;
+				if(currObj.getGraphicID() == id) {
+					data.push(i);
+					data.push(currObj);
+					return data;
+				}
 			}
 			return null;
 		}
@@ -572,6 +588,7 @@ package org.bigbluebutton.modules.whiteboard
 					tobj.stage.focus = null;
 					return;
 				}
+				
 				sendTextToServer(sendStatus, tobj);	
 			} 	
 		}
@@ -615,12 +632,12 @@ package org.bigbluebutton.modules.whiteboard
 				wbCanvas.addGraphic(dobj);
 				graphicList[objIndex] = dobj;
 			} else if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
-				var origTobj:TextObject = gobj as TextObject;
+			/*	var origTobj:TextObject = gobj as TextObject;
 				wbCanvas.removeGraphic(origTobj);
 				var tobj:TextObject = textFactory.makeTextObject(origTobj);
 				tobj.setGraphicID(origTobj.getGraphicID());
 				tobj.status = origTobj.status;
-				wbCanvas.addGraphic(origTobj);
+				//wbCanvas.addGraphic(origTobj);*/
 			}
 			// Rescaling of text becomes messy, simpler to keep as-is
 			

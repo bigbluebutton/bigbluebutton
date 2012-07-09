@@ -107,9 +107,6 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	public void sendText(String text, int textColor, int bgColor, boolean bgColorVisible, int x, int y, String id, String status){
 		TextGraphic newText = new TextGraphic(text, textColor, bgColor, bgColorVisible, x, y, id, status);	
 		
-		// checks to make sure no "spam" text is entered
-		if(!(text.trim().length() > 0)) return;
-		
 		/*  maintains unique-ness. ensures that only
 	 	one entry per text is added. */
 		if(status.equals("textCreated")) {
