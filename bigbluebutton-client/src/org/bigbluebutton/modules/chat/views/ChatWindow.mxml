@@ -30,6 +30,8 @@
 		   xmlns:mate="http://mate.asfusion.com/" 
 		   xmlns:views="org.bigbluebutton.modules.chat.views.*">
 	
+	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
+	
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
@@ -41,6 +43,7 @@
 			import mx.resources.ResourceBundle;
 			import mx.resources.ResourceManager;			
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -95,6 +98,13 @@
                 txtMsg.enabled = false;
             }
 			
+			private function focusChatInput(e:ShortcutEvent):void{
+				if (txtMsg.enabled){
+					//cant get it to focus the whole window aswell
+					//focusManager.setFocus(this);
+					focusManager.setFocus(txtMsg);
+				}
+			}
 		]]>
 	</mx:Script>
 	

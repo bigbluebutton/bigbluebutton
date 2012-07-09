@@ -39,6 +39,7 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainApplicationShell;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -218,19 +219,23 @@
 			
 			public function handleKeyDown(e:KeyboardEvent) :void
 			{
-				if (e.ctrlKey && e.shiftKey && e.keyCode == 67){
-					LogUtil.debug("You pressed CTRL-SHIFT-C");
+				if (e.ctrlKey && e.shiftKey) {
+					
+					switch(e.keyCode)
+					{ 
+					case 67:
+						LogUtil.debug("You pressed CTRL-SHIFT-C");
+						globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CHAT_INPUT));
+						break;
+					case 77:
+						globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.MUTE_ME_EVENT));
+						LogUtil.debug("ShortcutEvent sent out");
+						break;
+					}	
 				}
-				/*
-				if (e.ctrlKey)
-					LogUtil.debug("You pressed CTRL");
-				else if (e.altKey && e.keyCode == 32)
-					LogUtil.debug("You pressed ALT+Space");
-				else if (e.shiftKey)
-					LogUtil.debug("You pressed SHIFT");
-				else
-					LogUtil.debug("Key was pressed: " + e.keyCode);
-				*/
+				
+				LogUtil.debug("Key was pressed: " + e.keyCode);
+				
 			}
 		]]>
 	</mx:Script>	
