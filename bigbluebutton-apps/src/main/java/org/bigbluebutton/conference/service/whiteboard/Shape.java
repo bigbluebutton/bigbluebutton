@@ -37,6 +37,7 @@ public class Shape {
 	public static final String PENCIL = "pencil";
 	public static final String RECTANGLE = "rectangle";
 	public static final String ELLIPSE = "ellipse";
+	public static final String TEXT = "text";
 	
 	public Shape(double[] shape, String type, int color, int thickness, String id, String status){
 		this.shape = shape;
