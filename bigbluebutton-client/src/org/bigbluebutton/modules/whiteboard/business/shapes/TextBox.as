@@ -7,7 +7,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
     
     public class TextBox extends TextField
     {
-        function TextBox(size:uint)
+        function TextBox(text:String, font:String, size:uint, color:Object)
         {
             super();
        //     defaultTextFormat = new TextFormat("_sans", size, 0xFFFFFF);
@@ -16,9 +16,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             multiline = false;
             autoSize = TextFieldAutoSize.LEFT;
             type = TextFieldType.INPUT;
-           htmlText = "Hello World! ";
+           	htmlText = text;
             selectable = true;
-            setTextFormat(new TextFormat("_sans", size, 0xFFFFFF));          
+            setTextFormat(new TextFormat(font, size, color));          
         }
     }
 }

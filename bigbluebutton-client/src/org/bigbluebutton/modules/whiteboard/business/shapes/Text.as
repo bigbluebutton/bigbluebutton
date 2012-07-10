@@ -13,6 +13,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 
     public class Text extends DrawObject
     {
+		public var text:String = "Hello World!";
+		public var fontStyle:String = "_sans";
+		public var fontSize:Number = 18;
+		public var textcolor:Object = 0xFF0000;
+		
         public function Text(segment:Array, color:uint, thickness:uint)
         {
             super(DrawObject.TEXT, segment, color, thickness);           
@@ -35,20 +40,22 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         private var tb:TextBox = null; 
         private var bitmapdata:BitmapData;
         private var scale:uint = 1;
-        private var fontSize:uint = 18;
+//        private var fontSize:uint = 18;
         
         override public function makeShape(parentWidth:Number, parentHeight:Number):void {
             var newShape:Sprite = new Sprite();
             newShape.x = denormalize(getShapeArray()[0], parentWidth);
             newShape.y = denormalize(getShapeArray()[1], parentHeight);
-                        
+            
+			var newFontSize:Number = fontSize;
+			
             if (oldParentHeight == 0 && oldParentWidth == 0) {
-                fontSize = 18;
+				newFontSize = fontSize;
                 oldParentHeight = parentHeight;
                 oldParentWidth = parentWidth;
                 
             } else {
-                fontSize = (parentHeight/oldParentHeight) * 18;
+				newFontSize = (parentHeight/oldParentHeight) * fontSize;
                // scale *= 1;
             }
    
@@ -58,15 +65,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
  //           newShape.height = 50;
   //         txtSize = (parentWidth/parentHeight) * 18;
   //          if (tb == null) {
-                tb = new TextBox(fontSize);
+                tb = new TextBox(text, fontStyle, newFontSize, textcolor);
     //            tb.width = 400 + resizeCount;
     //             tb.height = 20 + resizeCount;
     //            tb.htmlText = "Hello World! " + resizeCount;
-                var txt:mx.controls.Text = new mx.controls.Text();
-                txt.text = "Foo Bar!";
-                txt.width = 200;
-                bitmapdata = new BitmapData(tb.width, tb.height, false, 0x000000FF);
-                bitmapdata.draw(tb);
+   //             var txt:mx.controls.Text = new mx.controls.Text();
+   //             txt.text = "Foo Bar!";
+   //             txt.width = 200;
+    //            bitmapdata = new BitmapData(tb.width, tb.height, false, 0x000000FF);
+     //           bitmapdata.draw(tb);
    //         }
 //            tb.height = resizeCount * 2;
 //            tb.width = resizeCount * 2;

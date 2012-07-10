@@ -201,8 +201,7 @@ package org.bigbluebutton.modules.whiteboard.business
 						} 
 					}
 				),//new Responder
-				shape.getShapeArray(), shape.getType(), shape.getColor(), shape.getThickness(), 
-				shape.id, shape.status
+				shape.getShapeArray(), shape.getType(), shape.getColor(), shape.getThickness(), shape.id, shape.status
 			); //_netConnection.call
 		}
 		
