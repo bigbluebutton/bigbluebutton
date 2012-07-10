@@ -31,7 +31,6 @@ public class ShapeGraphic extends WBGraphic {
 	private int color;
 	private int fillColor;
 	
-	private String status;
 	private boolean fill;
 	private boolean transparent;	
 	

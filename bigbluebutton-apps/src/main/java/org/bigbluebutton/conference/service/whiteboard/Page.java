@@ -31,7 +31,7 @@ import org.bigbluebutton.conference.service.whiteboard.WBGraphic.Type;
 public class Page {
 	
 	private HashMap<String, WBGraphic> graphicObjs;
-	private int lastGraphicIndex = -1;
+	//private int lastGraphicIndex = -1;
 	private int pageIndex;
 	
 	public Page(int pageIndex){
@@ -41,12 +41,12 @@ public class Page {
 	
 	public void addShapeGraphic(ShapeGraphic shape){
 		graphicObjs.put(shape.ID, shape);
-		lastGraphicIndex++;
+		//lastGraphicIndex++;
 	}
 	
 	public void addTextGraphic(TextGraphic text){
 		graphicObjs.put(text.ID, text);
-		lastGraphicIndex++;
+		//lastGraphicIndex++;
 	}
 	
 	public void modifyShapeGraphic(String key, ShapeGraphic shape){
@@ -117,8 +117,8 @@ public class Page {
 				System.out.print(o + " ");
 			}	
 		}*/
-		graphicObjs.remove(Integer.toString(lastGraphicIndex));
-		lastGraphicIndex--;
+		graphicObjs.remove(Integer.toString(graphicObjs.size()-1));
+		//lastGraphicIndex--;
 		//System.out.println("UNDONE, NEW SIZE: " + graphicObjs.size());
 	}
 	

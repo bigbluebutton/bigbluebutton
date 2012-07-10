@@ -30,6 +30,7 @@ public abstract class WBGraphic {
 	
 	protected Type graphicType;
 	protected String ID;
+	protected String status;
 	
 	public WBGraphic(Type type) {
 		graphicType = type;

@@ -238,7 +238,7 @@ package org.bigbluebutton.modules.whiteboard.business
 					}
 				),//new Responder
 				tobj.text, tobj.textColor, tobj.backgroundColor, tobj.background,
-				tobj.x, tobj.y, tobj.getGraphicID(), tobj.status
+				tobj.x, tobj.y, tobj.textSize, tobj.getGraphicID(), tobj.status
 			); //_netConnection.call
 		}
 		/**
@@ -267,10 +267,10 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * 
 		 */		
 		public function addText(graphicType:String, text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean,
-								x:Number, y:Number, id:String, status:String, recvdShapes:Boolean = false):void {
+								x:Number, y:Number, textSize:Number, id:String, status:String, recvdShapes:Boolean = false):void {
 			//LogUtil.error("Step 3(received): " + x + "," + y);
 			LogUtil.debug("Rx add text **** with ID of " + id + " " + x + "," + y);
-			var t:TextObject = textFactory.cloneTextObject(text, textColor, bgColor, bgColorVisible, x, y);	
+			var t:TextObject = textFactory.cloneTextObject(text, textColor, bgColor, bgColorVisible, x, y, textSize);	
 			t.setGraphicID(id);
 			t.status = status;
 			
@@ -426,9 +426,10 @@ package org.bigbluebutton.modules.whiteboard.business
 					var bgColorVisible:Boolean = graphic[4] as Boolean;
 					var x:Number = graphic[5] as Number;
 					var y:Number = graphic[6] as Number;
-					var id_other:String = graphic[7] as String;
-					var status_other:String = graphic[8] as String;
-					addText(graphicType, text, textColor, bgColor, bgColorVisible, x, y, id_other, status_other, true);
+					var textSize:Number = graphic[7] as Number;
+					var id_other:String = graphic[8] as String;
+					var status_other:String = graphic[9] as String;
+					addText(graphicType, text, textColor, bgColor, bgColorVisible, x, y, textSize, id_other, status_other, true);
 				}
 			}
 		}	

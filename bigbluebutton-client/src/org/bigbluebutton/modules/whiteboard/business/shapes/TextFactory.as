@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		
 		public function cloneTextObject(txt:String, txtColor:uint,
 										 bgColor:uint, bgColorVisible:Boolean,
-										 x:Number, y:Number):TextObject {
+										 x:Number, y:Number, textSize:Number):TextObject {
 			var tobj:TextObject = new TextObject();
 			tobj.x = x;
 			tobj.y = y;
@@ -44,12 +44,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			tobj.textColor = txtColor;
 			tobj.backgroundColor = bgColor;
 			tobj.background = bgColorVisible;
+			tobj.textSize = textSize;
 			return tobj;
 		}
 		
 		public function createTextObject(txt:String, txtColor:uint,
 										 bgColor:uint, bgColorVisible:Boolean,
-										 x:Number, y:Number):TextObject {
+										 x:Number, y:Number, textSize:Number):TextObject {
 			var tobj:TextObject = new TextObject();
 			tobj.x = normalize(x,_parentWidth);
 			tobj.y = normalize(y,_parentHeight);
@@ -57,6 +58,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			tobj.textColor = txtColor;
 			tobj.backgroundColor = bgColor;
 			tobj.background = bgColorVisible;
+			tobj.textSize = textSize;
 			tobj.makeGraphic(_parentWidth,_parentHeight);
 			return tobj;
 		}
@@ -71,6 +73,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			tobj.background = t.background;
 			tobj.x = normalize(t.x,_parentWidth);
 			tobj.y = normalize(t.y,_parentHeight);
+			tobj.textSize = t.textSize;
 			tobj.makeGraphic(_parentWidth,_parentHeight);
 			return tobj;
 		}

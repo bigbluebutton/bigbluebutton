@@ -29,14 +29,15 @@ public class TextGraphic extends WBGraphic {
 	private boolean bgColorVisible;
 	private int x;
 	private int y;
-	private String status;
+	private int textSize;
+
 	
 	public TextGraphic() {
 		super(WBGraphic.Type.TEXT);
 	}
 
 	public TextGraphic(String text, int textColor, int bgColor,
-			boolean bgColorVisible, int x, int y, String id, String status) {
+			boolean bgColorVisible, int x, int y, int textSize, String id, String status) {
 		super(WBGraphic.Type.TEXT);
 		this.text = text;
 		this.textColor = textColor;
@@ -44,6 +45,7 @@ public class TextGraphic extends WBGraphic {
 		this.bgColorVisible = bgColorVisible;
 		this.x = x;
 		this.y = y;
+		this.textSize = textSize;
 		this.ID = id;
 		this.status = status;
 	}
@@ -58,6 +60,7 @@ public class TextGraphic extends WBGraphic {
 		sendableList.add(bgColorVisible);
 		sendableList.add(x);
 		sendableList.add(y);
+		sendableList.add(textSize);
 		sendableList.add(ID);
 		sendableList.add(status);
 		return sendableList;
@@ -73,8 +76,9 @@ public class TextGraphic extends WBGraphic {
 		objects[4] = bgColorVisible;
 		objects[5] = x;
 		objects[6] = y;
-		objects[7] = ID;
-		objects[8] = status;
+		objects[7] = textSize;
+		objects[8] = ID;
+		objects[9] = status;
 		return objects;
 	}
 
@@ -104,5 +108,13 @@ public class TextGraphic extends WBGraphic {
 	
 	public String getLocation() {
 		return x + "," + y;
+	}
+	
+	public int getTextSize() {
+		return textSize;
+	}
+
+	public void setTextSize(int textSize) {
+		this.textSize = textSize;
 	}
 }

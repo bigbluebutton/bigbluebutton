@@ -86,7 +86,7 @@ package org.bigbluebutton.modules.whiteboard
 					// ex. a single click when the rectangle tool is selected
 					// is hardly classifiable as a rectangle, and should not 
 					// be sent to the server
-					/*if(toolType == DrawObject.RECTANGLE || 
+					if(toolType == DrawObject.RECTANGLE || 
 						toolType == DrawObject.ELLIPSE ||
 						toolType == DrawObject.TRIANGLE) {
 						var x:Number = segment[0];
@@ -101,7 +101,8 @@ package org.bigbluebutton.modules.whiteboard
 							sendShapeToServer(DrawObject.DRAW_END);
 					} else {
 						sendShapeToServer(DrawObject.DRAW_END);
-					}*/
+					}
+					//sendShapeToServer(DrawObject.DRAW_END);
 				}
 			} else if (graphicType == WhiteboardConstants.TYPE_SELECTION) {
 				//(lastGraphicObjectSelected as Sprite).stopDrag();
@@ -208,7 +209,7 @@ package org.bigbluebutton.modules.whiteboard
 			if(graphicType == WhiteboardConstants.TYPE_TEXT) {
 				LogUtil.error("double click received at " + mouseX + "," + mouseY);
 				var tobj:TextObject = textFactory.cloneTextObject(
-					"TEST", 0x000000, 0x000000, false, mouseX, mouseY);
+					"TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
 				sendTextToServer(TextObject.TEXT_CREATED, tobj);
 			}
 		}
@@ -218,12 +219,12 @@ package org.bigbluebutton.modules.whiteboard
 				if (isDrawing){
 					segment.push(mouseX);
 					segment.push(mouseY);
-					if(toolType != DrawObject.ERASER) {
-						if (segment.length > sendShapeFrequency) {
+					if(toolType == DrawObject.ERASER) {
+						if (segment.length > sendEraserFrequency) {
 							sendShapeToServer(drawStatus);
 						}
 					} else {
-						if (segment.length > sendEraserFrequency) {
+						if (segment.length > sendShapeFrequency) {
 							sendShapeToServer(drawStatus);
 						}
 					}	
@@ -271,10 +272,13 @@ package org.bigbluebutton.modules.whiteboard
 		private function drawText(o:TextObject, recvdShapes:Boolean):void {		
 			LogUtil.debug("Got text [" + o.text + " " + 
 				o.status + " " + o.x + " " + o.y + "]");
-			var tobj:TextObject = textFactory.makeTextObject(o);
+			var tobj:TextObject = o;
+			if(!recvdShapes)
+				tobj = textFactory.makeTextObject(o);
 			LogUtil.debug("New value: " + tobj.x + " " + tobj.y + "]");		
 			tobj.setGraphicID(o.getGraphicID());
 			tobj.status = o.status;
+			tobj.applyTextFormat(tobj.textSize);
 			switch (tobj.status) {
 				case TextObject.TEXT_CREATED:
 					if(isPresenter)
@@ -286,7 +290,6 @@ package org.bigbluebutton.modules.whiteboard
 				case TextObject.TEXT_PUBLISHED:
 					if(!isPresenter) {
 						if(graphicList.length == 0 || recvdShapes) {
-							addNormalText(tobj);
 							addNormalText(tobj);
 						} else
 							modifyText(tobj);
@@ -344,11 +347,14 @@ package org.bigbluebutton.modules.whiteboard
 			addNormalText(tobj);
 		}
 		
-		public function modifySelectedTextObject(textColor:uint, bgColorVisible:Boolean, backgroundColor:uint):void {
+		public function modifySelectedTextObject(textColor:uint, bgColorVisible:Boolean, backgroundColor:uint, textSize:Number):void {
 			currentlySelectedTextObject.textColor = textColor;
 			currentlySelectedTextObject.background = bgColorVisible;
 			currentlySelectedTextObject.backgroundColor = backgroundColor;
+			currentlySelectedTextObject.textSize = textSize;
 			sendTextToServer(TextObject.TEXT_UPDATED, currentlySelectedTextObject);
+			if(isPresenter)
+				currentlySelectedTextObject.applyTextFormat(currentlySelectedTextObject.textSize);
 		}
 		
 		public function setGraphicType(type:String):void{
@@ -440,7 +446,7 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		private function removeLastGraphic():void {
-			LogUtil.debug("Orig size b4 undo: " + graphicList.length);
+			//LogUtil.debug("Orig size b4 undo: " + graphicList.length);
 			var gobj:GraphicObject = graphicList.pop();
 			if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
 				(gobj as TextObject).makeEditable(false);

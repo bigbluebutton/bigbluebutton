@@ -142,8 +142,8 @@
 				_yPosition = y;
 			}
 			
-			public function modifySelectedTextObject(fgColor:uint, bgColorVisible:Boolean, backgroundColor:uint):void {
-				model.modifySelectedTextObject(fgColor, bgColorVisible, backgroundColor);
+			public function modifySelectedTextObject(fgColor:uint, bgColorVisible:Boolean, backgroundColor:uint, textSize:Number):void {
+				model.modifySelectedTextObject(fgColor, bgColorVisible, backgroundColor, textSize);
 			}
 			
 			public function makeTextObjectsEditable(e:MadePresenterEvent):void {

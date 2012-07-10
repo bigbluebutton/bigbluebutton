@@ -43,9 +43,9 @@ public class WhiteboardService {
 		application.sendShape(shape, type, color, thickness, fill, fillColor, transparency, id, status);
 	}
 	
-	public void sendText(String text, int textColor, int bgColor, boolean bgColorVisible, int x, int y, String id, String status){
+	public void sendText(String text, int textColor, int bgColor, boolean bgColorVisible, int x, int y, int textSize, String id, String status){
 		log.info("WhiteboardApplication - Sending text");
-		application.sendText(text, textColor, bgColor, bgColorVisible, x, y, id, status);
+		application.sendText(text, textColor, bgColor, bgColorVisible, x, y, textSize, id, status);
 	}
 	/**
 	 * Sets the active page

@@ -104,8 +104,8 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		drawSO.sendMessage("addSegment", arguments);
 	}
 	
-	public void sendText(String text, int textColor, int bgColor, boolean bgColorVisible, int x, int y, String id, String status){
-		TextGraphic newText = new TextGraphic(text, textColor, bgColor, bgColorVisible, x, y, id, status);	
+	public void sendText(String text, int textColor, int bgColor, boolean bgColorVisible, int x, int y, int textSize, String id, String status){
+		TextGraphic newText = new TextGraphic(text, textColor, bgColor, bgColorVisible, x, y, textSize, id, status);	
 		
 		/*  maintains unique-ness. ensures that only
 	 	one entry per text is added. */
@@ -113,7 +113,6 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 			newText.ID = Integer.toString(roomManager.getRoom(getLocalScope().getName()).getUniqueWBGraphicIdentifier());
 			roomManager.getRoom(getLocalScope().getName()).addText(newText);
 		} else {
-			System.out.println("Modifying text with ID: " + newText.ID);
 			roomManager.getRoom(getLocalScope().getName()).modifyText(newText.ID, newText);
 		}
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
@@ -129,7 +128,12 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	
 	public List<Object[]> getGraphicObjects(){
 		List<Object[]> graphicsList = roomManager.getRoom(getLocalScope().getName()).getGraphicObjects();
-		
+		for(Object[] o: graphicsList) {
+			System.out.println();
+			for(int i = 0; i < o.length; i++) {
+				System.out.print(" " + i);
+			}
+		}
 		return graphicsList;
 	}
 	

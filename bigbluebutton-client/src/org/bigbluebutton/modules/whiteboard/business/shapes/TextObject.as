@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TextEvent;
+	import flash.text.AntiAliasType;
 	import flash.text.TextField;
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
@@ -64,6 +65,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * so we can use modify it; a unique identifier of each GraphicObject
 		 */
 		private var ID:String = WhiteboardConstants.ID_UNASSIGNED;
+		public var textSize:Number;
 		
 		public function TextObject() {
 
@@ -89,12 +91,21 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return (val*100.0)/side;
 		}
 		
+		public function applyTextFormat(size:Number):void {
+			this.textSize = size;
+			var tf:TextFormat = new TextFormat();
+			tf.size = size;
+			tf.font = "arial";
+			this.setTextFormat(tf);
+		}
+		
 		public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
 			var startX:Number = denormalize(this.x, parentWidth);
 			var startY:Number = denormalize(this.y, parentHeight);
 			//LogUtil.error("denorms: " + startX + "," + startY);
 			this.x = startX;
 			this.y = startY;
+			this.antiAliasType = AntiAliasType.ADVANCED;
 			//var  format:TextFormat = new TextFormat();
 			//format.color = this.textColor;
 			//format.

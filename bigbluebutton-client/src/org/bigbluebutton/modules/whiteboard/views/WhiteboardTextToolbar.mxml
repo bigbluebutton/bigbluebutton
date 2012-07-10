@@ -22,7 +22,8 @@
 
 <mx:HBox xmlns="flexlib.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/" visible="false" backgroundColor="0xCCCCCC" cornerRadius="5" borderStyle="solid" 
-	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" alpha="0">
+	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" alpha="0" xmlns:views="org.bigbluebutton.modules.whiteboard.views.*"
+	 xmlns:local="*">
 	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
@@ -53,53 +54,80 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import flashx.textLayout.operations.ModifyInlineGraphicOperation;
-			import mx.controls.Alert;
+			import mx.controls.Menu;
+			import mx.events.MenuEvent;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
-			import mx.managers.CursorManager;
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.SelectObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
+			import org.bigbluebutton.modules.whiteboard.events.HideTextToolbarEvent;
 			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingEvent;
-			import org.bigbluebutton.modules.whiteboard.events.HideTextToolbarEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.hamcrest.object.nullValue;
 			
 			public var canvas:WhiteboardCanvas;
 			public var textColor:uint;
 			public var bgColor:uint;
+			public var textSize:Number;
 			public var backgroundVisible:Boolean;
 			
 			private var images:Images = new Images();
 			[Bindable] private var toggle_text_background_icon:Class = images.toggle_text_background_icon;
-			private var currentlySelectedTextObject:TextObject = null;			
-
+			private var currentlySelectedTextObject:TextObject = null;	
+			private var presentationWindow:PresentationWindow;
+			private var normalAlpha:Number = 0.45;
+			private var focusedAlpha:Number = 0.1;
+			
 			public function init():void {
+				this.alpha = 0.45;
+				this.visible = true;
 				this.addEventListener(MouseEvent.MOUSE_OVER, adjustAlpha);
 				this.addEventListener(MouseEvent.MOUSE_OUT, adjustAlpha);
 			}
 			
 			public function adjustAlpha(event:MouseEvent):void {
 				if(event.type == MouseEvent.MOUSE_OVER) {
-					this.alpha = 1;
+					this.alpha = normalAlpha;
 				} else if(event.type == MouseEvent.MOUSE_OUT) {
-					this.alpha = 0.35;
+					this.alpha = focusedAlpha;
 				} 
 			}
-
+			
+			private function initTextSizeMenu(): void {
+				var m:Menu = new Menu();
+				m.variableRowHeight = true;
+				var textSizeMenuData:Object = [
+					{label: "12"}, 
+					{label: "14"}, 
+					{label: "16"},
+					{label: "18"}, 
+					{label: "22"}, 
+					{label: "24"}, 
+					{label: "32"}, 
+					{label: "36"}
+				];  
+				m.dataProvider = textSizeMenuData;
+				m.addEventListener(MenuEvent.CHANGE, textSizeMenuClick);
+				m.showRoot = false;
+				textSizeMenu.popUp = m;
+			}
+			
+			// Define the event listener for the Menu control's change event. 
+			private function textSizeMenuClick(event:MenuEvent):void {
+				textSizeMenu.displayPopUp();
+				var newTextSize:Number = Number(event.label);    
+				setTextSize(newTextSize);
+				//textSizeMenu.close();
+			}
+			
 			/**
 			 * Sets the text color of the selected text object
 			 * @param e The event
@@ -107,7 +135,7 @@
 			 */		
 			protected function setTextColor(e:Event):void{
 				this.textColor = e.target.selectedColor;
-				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor);
+				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
 			}
 			
 			/**
@@ -117,7 +145,7 @@
 			 */		
 			protected function changeTextBackgroundColor(e:Event):void{
 				this.bgColor = e.target.selectedColor;
-				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor);
+				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
 			}
 			
 			/**
@@ -127,9 +155,20 @@
 			 */			
 			protected function setBackgroundVisible(e:Event):void{
 				this.backgroundVisible = e.target.selected;
-				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor);
+				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
 			}
 			
+			/**
+			 * Sets the text size of the selected text object
+			 * @param size the size to set for the selected text object
+			 * 
+			 */			
+			protected function setTextSize(size:Number):void {
+				this.textSize = size;
+				LogUtil.debug("Text size set to: " + size);
+				textSizeMenu.label = String(this.textSize);
+				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
+			}
 			
 			private function presenterMode(e:MadePresenterEvent):void{
 				
@@ -139,32 +178,39 @@
 				disableTextToolbar();
 			}
 			
-			private function sendUndoCommand():void{
-				if (!canvas.isPageEmpty()) dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO_GRAPHIC));
-			}
-			
 			private function enableTextToolbar():void{
 				this.visible = true;
+				this.alpha = normalAlpha;
 			}
 			
 			private function disableTextToolbar():void{
+				LogUtil.debug("Disabling toolbar");
 				this.visible = false;
+				this.alpha = 0;
 			}
 			
 			public function syncPropsWith(tobj:TextObject):void{
 				currentlySelectedTextObject = tobj;
 				if(tobj == null) {
-					ctextpik.selectedColor = 0x000000;
-					cbackpik.selectedColor = 0x000000;
-					btnToggleBackground.selected = false;
+					this.textColor = ctextpik.selectedColor = 0x000000;
+					this.bgColor = cbackpik.selectedColor = 0x000000;
+					this.backgroundVisible = btnToggleBackground.selected = false;
+					this.textSizeMenu.label = "14";
+					this.textSize = Number(textSizeMenu.label);
 				} else {
 					this.textColor = ctextpik.selectedColor = tobj.textColor;
 					this.bgColor = cbackpik.selectedColor = tobj.backgroundColor;
 					this.backgroundVisible = btnToggleBackground.selected = tobj.background;
+					this.textSizeMenu.label = String(tobj.textSize);
+					this.textSize = tobj.textSize;
 				}
 			}
 			
 			public function positionToolbar(window:PresentationWindow):void{
+				this.presentationWindow = window;
+				presentationWindow.addEventListener(ResizeEvent.RESIZE, repositionToolbarByWindow);
+				presentationWindow.addEventListener(MouseEvent.CLICK, repositionToolbarByWindow);
+				presentationWindow.addEventListener(MoveEvent.MOVE, repositionToolbarByWindow);
 				// intial positioning of text toolbar
 				disableTextToolbar();
 				this.x = 0;
@@ -172,11 +218,17 @@
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
-			public function repositionToolbar(tobj:TextObject):void{
+			public function repositionToolbarByWindow(event:Event = null):void {
+				repositionToolbar();
+			}
+			
+			public function repositionToolbar(tobj:TextObject = null):void {
 				// translate textobject's coords to stage coords because texttoolbar is on stage
+				if(tobj == null) tobj = currentlySelectedTextObject;
+				textSizeMenu.close();
 				var loc:Point = canvas.localToGlobal(new Point(tobj.x, tobj.y));
 				this.x = loc.x;
-				this.y = loc.y - 5;
+				this.y = loc.y - this.height - 45;
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
@@ -201,6 +253,7 @@
 				var tobj:TextObject = event.data as TextObject;
 				syncPropsWith(null);
 				disableTextToolbar();
+				textSizeMenu.close();
 				LogUtil.debug("!!!!DESELECTED:" + " " + tobj.getProperties());
 			}
 
@@ -211,16 +264,30 @@
 	</mx:Script>
 	
 
-	<mx:ColorPicker width="18" height="18"  change="setTextColor(event)" id="ctextpik" selectedColor="0x000000"
+	<mx:ColorPicker width="20" height="20"  change="setTextColor(event)" id="ctextpik" selectedColor="0x000000"
 					toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textColorPicker')}"/>
 	
-	<mx:Spacer width="5" />
+	<mx:Spacer width="3" />
 	
-	<mx:Button width="18" height="18" id="btnToggleBackground" click="setBackgroundVisible(event)"  icon="{toggle_text_background_icon}" 
+	<mx:Button width="20" height="20" id="btnToggleBackground" click="setBackgroundVisible(event)"  icon="{toggle_text_background_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.backColorVisible')}" toggle="true"/>
 	
-	<mx:ColorPicker width="18" height="18" change="changeTextBackgroundColor(event)" id="cbackpik"  selectedColor="0x000000" 
+	<mx:ColorPicker width="20" height="20" change="changeTextBackgroundColor(event)" id="cbackpik"  selectedColor="0x000000" 
 					toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.backColorPicker')}"/>
 
+	<!--<mx:ComboBox id="textSizeMenu" change="setTextSize(event)" width="25"
+				 toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textSizeMenu')}"> 
+		<mx:ArrayCollection>
+			<mx:Object label="12" data="12"/>
+			<mx:Object label="14" data="14"/>
+			<mx:Object label="16" data="16"/>
+			<mx:Object label="18" data="18"/>
+			<mx:Object label="22" data="22"/>
+			<mx:Object label="24" data="24"/>
+			<mx:Object label="32" data="32"/>
+		</mx:ArrayCollection>
+	</mx:ComboBox>-->
 	
+	<views:PopUpCombo id="textSizeMenu" creationComplete="initTextSizeMenu()" 
+					   openAlways="true" specificOpenDirection="{PopUpCombo.OPEN_UP}"/>
 </mx:HBox>
