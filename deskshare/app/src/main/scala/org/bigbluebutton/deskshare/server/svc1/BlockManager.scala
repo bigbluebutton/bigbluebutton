@@ -30,7 +30,7 @@ import net.lag.logging.Logger
 class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension, waitForAllBlocks: Boolean) extends BlockFactory {
     private val log = Logger.get
     
-	private var blocksMap = new ConcurrentHashMap[Integer, Block]
+	private var blocksMap = new ConcurrentHashMap[Int, Block]
 	
 	private var numberOfRows = getNumberOfRows(screenDim, blockDim)
 	private var numberOfColumns = getNumberOfColumns(screenDim, blockDim)
