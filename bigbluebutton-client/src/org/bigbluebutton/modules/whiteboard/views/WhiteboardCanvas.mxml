@@ -63,29 +63,29 @@
 				model.doMouseUp();
 			}
 
-			private function doMouseDown():void{
+			private function doMouseDown():void {
 				model.doMouseDown(this.mouseX, this.mouseY);
 			}
 						
-			private function doMouseMove():void{
+			private function doMouseMove():void {
 				model.doMouseMove(this.mouseX, this.mouseY);
 			}
 			
-			public function sendShapeToServer(dobj:DrawObject):void{
+			public function sendShapeToServer(dobj:DrawObject):void {
 				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
 				event.message = dobj;
 				dispatchEvent(event);					
 			}
 			
-			public function setShape(s:String):void{
+			public function setShape(s:String):void {
 				model.setShape(s);
 			}
 				
-			public function changeColor(e:Event):void{
+			public function changeColor(e:Event):void {
 				model.changeColor(e.target.selectedColor);
 			}
 	
-			public function changeThickness(e:Event):void{
+			public function changeThickness(e:Event):void {
 				model.changeThickness(e.target.value);
 			}
 					

@@ -1,6 +1,8 @@
 package org.bigbluebutton.modules.whiteboard
 {
 	import flash.display.Shape;
+	import flash.display.Sprite;
+	import flash.events.MouseEvent;
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.Application;
@@ -14,6 +16,7 @@ package org.bigbluebutton.modules.whiteboard
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.TextBox;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
@@ -38,12 +41,23 @@ package org.bigbluebutton.modules.whiteboard
 		private var shapeStyle:String = DrawObject.PENCIL;
 		private var drawColor:uint = 0x000000;
 		private var thickness:uint = 1;
+		private var _fontStyle:String = "_sans";
+		private var _fontSize:Number = 18;
+		private var _textText:String = "Hello BBB!";
 				
 		private var drawStatus:String = DrawObject.DRAW_START;
 		private var width:Number;
 		private var height:Number;
 
-		public function doMouseUp():void{
+		public function changeFontStyle(font:String):void {
+			_fontStyle = font;	
+		}
+		
+		public function changeFontSize(size:Number):void {
+			_fontSize = size;
+		}
+		
+		public function doMouseUp():void {
 			if (isDrawing) {
 				/**
 				 * Check if we are drawing because when resizing the window, it generates
@@ -57,7 +71,7 @@ package org.bigbluebutton.modules.whiteboard
 		
 		private var objCount:int = 0;
 		
-		private function sendShapeToServer(status:String):void{
+		private function sendShapeToServer(status:String):void {
 			if (segment.length == 0) return;
 			
 			var dobj:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
@@ -91,15 +105,23 @@ package org.bigbluebutton.modules.whiteboard
 			wbCanvas.sendShapeToServer(dobj);			
 		}
 		
-		public function doMouseDown(mouseX:Number, mouseY:Number):void{
+		public function doMouseDown(mouseX:Number, mouseY:Number):void {
 			isDrawing = true;
 			drawStatus = DrawObject.DRAW_START;
 			segment = new Array();
 			segment.push(mouseX);
 			segment.push(mouseY);
+			
+			if (shapeStyle == DrawObject.TEXT) {
+				LogUtil.debug("TEXT SHAPE");
+				createWhiteboard();
+				enableUserInput();				
+			}
+
+			
 		}
 		
-		public function doMouseMove(mouseX:Number, mouseY:Number):void{
+		public function doMouseMove(mouseX:Number, mouseY:Number):void {
 			if (isDrawing){
 				segment.push(mouseX);
 				segment.push(mouseY);
@@ -109,7 +131,7 @@ package org.bigbluebutton.modules.whiteboard
 			}
 		}
 		
-		public function drawSegment(event:WhiteboardUpdate):void{
+		public function drawSegment(event:WhiteboardUpdate):void {
 			var o:DrawObject = event.data;
 			draw(o);
 		}
@@ -200,6 +222,64 @@ package org.bigbluebutton.modules.whiteboard
 		
 		public function isPageEmpty():Boolean {
 			return shapeList.length == 0;
+		}
+		
+		private var _textShape:Sprite;
+		private var _currentText:TextBox;
+		
+		private function createWhiteboard():void {
+			LogUtil.debug("Creating text shape.");
+			// create whiteboard sprite
+			_textShape = new Sprite();
+			_textShape.x = 100;
+			_textShape.y = 100;
+			// add to displaylist
+			wbCanvas.addShape(_textShape);
+			
+			// draw graphics
+			with(_textShape.graphics)
+			{
+				lineStyle(3, 0x666666, 1);
+				beginFill(0xFFFFFF, 1);
+				drawRect(0, 0, 100, 200);
+				endFill();
+			}
+		}
+		
+		private function enableUserInput():void {
+			_textShape.addEventListener(MouseEvent.CLICK, onUserInteract);
+		}
+		
+		private function onUserInteract(event:MouseEvent):void {
+			LogUtil.debug("onUserInteract");
+			// remove if empty
+			if(_currentText && _currentText.htmlText.length == 0)
+			{
+				// remove from displaylist
+				_textShape.removeChild(_currentText);
+			}
+			
+			// add new
+			if(event.target == _textShape)
+			{
+				_currentText = new TextBox(_textText, _fontStyle, _fontSize, drawColor);
+				_currentText.x = event.stageX;
+				_currentText.y = event.stageY;
+				
+				// add to displaylist
+				_textShape.addChild(_currentText);
+			}
+			else
+			{
+				// use clicked text
+				_currentText = event.target as TextBox;
+			}
+			
+			// set selection
+			_currentText.setSelection(0, _currentText.htmlText.length);
+			
+			// set focus
+			wbCanvas.stage.focus = _currentText;
 		}
 	}
 }

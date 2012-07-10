@@ -10,9 +10,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         function TextBox(text:String, font:String, size:uint, color:Object)
         {
             super();
-       //     defaultTextFormat = new TextFormat("_sans", size, 0xFFFFFF);
-     //       background = true;
-     //       backgroundColor = 0xFF88FF;
             multiline = false;
             autoSize = TextFieldAutoSize.LEFT;
             type = TextFieldType.INPUT;
