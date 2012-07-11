@@ -233,6 +233,14 @@
 						break;
 					}	
 				}
+				else if (e.ctrlKey){
+					switch(e.keyCode){
+						case 90:
+							LogUtil.debug("Ctrl-Z undo sequence");
+							globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.UNDO_WHITEBOARD));
+							break;
+					}
+				}
 				
 				LogUtil.debug("Key was pressed: " + e.keyCode);
 				

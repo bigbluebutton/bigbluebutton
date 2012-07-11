@@ -30,6 +30,7 @@
 	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />
 	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
 	<mate:Listener type="{WhiteboardButtonEvent.CHANGE_TO_PENCIL}" method="setShapeToPencil" />
+	<mate:Listener type="{ShortcutEvent.UNDO_WHITEBOARD}" method="undoShortcut" />
 	
 	<mx:Style>
 		.colorPickerStyle {
@@ -58,6 +59,7 @@
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
@@ -66,6 +68,7 @@
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.common.LogUtil;
 			
 			private var images:Images = new Images();
 			[Bindable] private var pencil_icon:Class = images.pencil_icon;
@@ -148,6 +151,11 @@
 			
 			private function sendUndoCommand():void{
 				if (!canvas.isPageEmpty()) dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO_SHAPE));
+			}
+			
+			private function undoShortcut(e:ShortcutEvent):void{
+				LogUtil.debug("Ctrl-Z got into undoShortcut");
+				sendUndoCommand();
 			}
 			
 			private function enableWhiteboard(event:WhiteboardButtonEvent = null):void{
