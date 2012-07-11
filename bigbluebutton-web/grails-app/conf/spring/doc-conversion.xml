@@ -10,6 +10,7 @@
 		<property name="officeToPdfConversionService" ref="officeToPdfConversionService"/>
 		<property name="pdfToSwfSlidesGenerationService" ref="pdfToSwfSlidesGenerationService"/>
 		<property name="imageToSwfSlidesGenerationService" ref="imageToSwfSlidesGenerationService"/>
+		<property name="pdfToTextFilesGenerationService" ref="pdfToTextFilesGenerationService"/>
 	</bean>
 	
 	<bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService"/>
@@ -67,6 +68,10 @@
 		<property name="maxConversionTime" value="${maxConversionTime}"/>
 		<property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
 	</bean>	
+		
+	<bean id="pdfToTextFilesGenerationService" class="org.bigbluebutton.presentation.imp.PdfToTextFilesGenerationService">
+		
+	</bean>
 	
 	<bean id="imageToSwfSlidesGenerationService" class="org.bigbluebutton.presentation.imp.ImageToSwfSlidesGenerationService">
 		<property name="pngPageConverter" ref="png2SwfConverter"/>
