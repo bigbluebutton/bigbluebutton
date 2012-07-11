@@ -3,6 +3,9 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.display.Shape;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
+	import flash.text.TextField;
+	import flash.text.TextFieldType;
+	import flash.text.TextFormat;
 	
 	import mx.collections.ArrayCollection;
 	import mx.core.Application;
@@ -114,8 +117,9 @@ package org.bigbluebutton.modules.whiteboard
 			
 			if (shapeStyle == DrawObject.TEXT) {
 				LogUtil.debug("TEXT SHAPE");
-				createWhiteboard();
-				enableUserInput();				
+			//	createWhiteboard();
+			//	enableUserInput();		
+				createTextBox();
 			}
 
 			
@@ -225,7 +229,30 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		private var _textShape:Sprite;
-		private var _currentText:TextBox;
+		private var _currentText:TextField;
+		
+		private function createTextBox():void {
+			_currentText = new TextField();
+			_currentText.type = TextFieldType.INPUT;
+			_currentText.x = segment[0];
+			_currentText.y = segment[1];
+			_currentText.width = 200;
+			_currentText.height = 20;
+			_currentText.background = true;
+			_currentText.border = true;
+			_currentText.htmlText = "FOO";
+			
+			var format:TextFormat = new TextFormat();
+			format.font = "Verdana";
+			format.color = 0xFF0000;
+			format.size = 18;
+			format.underline = true;
+			
+			_currentText.defaultTextFormat = format;
+			
+			// add to displaylist
+			wbCanvas.addShape(_currentText);
+		}
 		
 		private function createWhiteboard():void {
 			LogUtil.debug("Creating text shape.");
