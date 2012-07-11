@@ -16,10 +16,12 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.text.TextFieldAutoSize;
 	
 	import mx.collections.ArrayCollection;
+	import mx.containers.Grid;
 	
 	import org.bigbluebutton.common.IBbbCanvas;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawGrid;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
@@ -71,6 +73,9 @@ package org.bigbluebutton.modules.whiteboard
 		private var textStatus:String = TextObject.TEXT_CREATED;
 		private var width:Number;
 		private var height:Number;
+		
+		private var isGrid:Boolean = false;
+		private var drawGrid:DrawGrid;
 		
 		public function doMouseUp():void{
 			if(graphicType == WhiteboardConstants.TYPE_SHAPE) {
@@ -269,37 +274,29 @@ package org.bigbluebutton.modules.whiteboard
 			}        
 		}
 		
-		private function drawText(o:TextObject, recvdShapes:Boolean):void {		
+		private function drawText(o:TextObject, recvdShapes:Boolean, fromChangePage:Boolean = false):void {		
 			LogUtil.debug("Got text [" + o.text + " " + 
-				o.status + " " + o.x + " " + o.y + "]");
-			var tobj:TextObject = o;
-			if(!recvdShapes)
-				tobj = textFactory.makeTextObject(o);
-			LogUtil.debug("New value: " + tobj.x + " " + tobj.y + "]");		
-			tobj.setGraphicID(o.getGraphicID());
-			tobj.status = o.status;
-			tobj.applyTextFormat(tobj.textSize);
-			switch (tobj.status) {
+				o.status + " " + o.x + " " + o.y + "]");	
+			switch (o.status) {
 				case TextObject.TEXT_CREATED:
-					if(isPresenter)
-						addPresenterText(tobj);
+					if(isPresenter || fromChangePage)
+						addPresenterText(o);
 					else
-						addNormalText(tobj);														
+						addNormalText(o);														
 					break;
 				case TextObject.TEXT_UPDATED:
 				case TextObject.TEXT_PUBLISHED:
 					if(!isPresenter) {
 						if(graphicList.length == 0 || recvdShapes) {
-							addNormalText(tobj);
-						} else
-							modifyText(tobj);
+							addNormalText(o);
+						} else modifyText(o);
 					} 	
 					break;
 			}        
 		}
 		
 		private function addNewShape(o:DrawObject):void {
-			//LogUtil.debug("Adding new shape " + graphicList.length);
+			LogUtil.debug("Adding new shape " + wbCanvas.width +"," + wbCanvas.height);
 			var dobj:DrawObject = shapeFactory.makeShape(o);
 			wbCanvas.addGraphic(dobj);
 			/*if(dobj.status == DrawObject.DRAW_END && 
@@ -312,9 +309,17 @@ package org.bigbluebutton.modules.whiteboard
 			graphicList.push(dobj);
 		}
 		
+		private function calibrateNewTextWith(o:TextObject):TextObject {
+			var tobj:TextObject = textFactory.makeTextObject(o);
+			tobj.setGraphicID(o.getGraphicID());
+			tobj.status = o.status;
+			tobj.applyTextFormat(tobj.textSize);
+			return tobj;
+		}
 			
-		private function addPresenterText(tobj:TextObject):void {
+		private function addPresenterText(o:TextObject):void {
 			if(!isPresenter) return;
+			var tobj:TextObject = calibrateNewTextWith(o);
 			tobj.multiline = true;
 			tobj.wordWrap = true;
 			tobj.autoSize = TextFieldAutoSize.LEFT;
@@ -329,8 +334,9 @@ package org.bigbluebutton.modules.whiteboard
 			graphicList.push(tobj);
 		}
 		
-		private function addNormalText(tobj:TextObject):void {
+		private function addNormalText(o:TextObject):void {
 			if(isPresenter) return;
+			var tobj:TextObject = calibrateNewTextWith(o);
 			LogUtil.debug("TEXT ADDED: " + tobj.getGraphicID());
 			tobj.multiline = true;
 			tobj.wordWrap = true;
@@ -340,7 +346,8 @@ package org.bigbluebutton.modules.whiteboard
 			graphicList.push(tobj);
 		}
 		
-		private function modifyText(tobj:TextObject):void {
+		private function modifyText(o:TextObject):void {
+			var tobj:TextObject = calibrateNewTextWith(o);
 			var id:String = tobj.getGraphicID();
 			removeText(id);
 			LogUtil.debug("Text modified to " + tobj.text);
@@ -352,9 +359,8 @@ package org.bigbluebutton.modules.whiteboard
 			currentlySelectedTextObject.background = bgColorVisible;
 			currentlySelectedTextObject.backgroundColor = backgroundColor;
 			currentlySelectedTextObject.textSize = textSize;
-			sendTextToServer(TextObject.TEXT_UPDATED, currentlySelectedTextObject);
-			if(isPresenter)
-				currentlySelectedTextObject.applyTextFormat(currentlySelectedTextObject.textSize);
+			currentlySelectedTextObject.applyTextFormat(currentlySelectedTextObject.textSize);
+			sendTextToServer(TextObject.TEXT_PUBLISHED, currentlySelectedTextObject);
 		}
 		
 		public function setGraphicType(type:String):void{
@@ -362,10 +368,6 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		public function setTool(s:String):void{
-			/*if(s == DrawObject.HIGHLIGHTER) {
-				if (drawColor == 0x000000 ||
-					drawColor == 0xFFFFFF) drawColor = 0xCCFF00;	
-			}*/
 			this.toolType = s;
 		}
 		
@@ -396,7 +398,7 @@ package org.bigbluebutton.modules.whiteboard
 		public function setTransparent(transp:Boolean):void{
 			this.transparencyOn = transp;
 		}
-		
+
 		private function removeGraphic(id:String):void {
 			var gobjData:Array = getGobjInfoWithID(id);
 			var removeIndex:int = gobjData[0];
@@ -537,18 +539,39 @@ package org.bigbluebutton.modules.whiteboard
 			}
 		}
 		
+		public function toggleGrid(event:WhiteboardUpdate):void{
+			isGrid = !isGrid;
+			LogUtil.debug("Final gridToggle received " + isGrid + " " + wbCanvas.width + "," + wbCanvas.height);
+			addOrRemoveGrid(isGrid, wbCanvas.width, wbCanvas.height);
+		}
+			
+		public function addOrRemoveGrid(grid:Boolean, width:Number = 0, height:Number = 0):void {	
+			if(width == 0) width = wbCanvas.width;
+			if(height == 0) height = wbCanvas.height;
+			if(drawGrid == null)
+				drawGrid = new DrawGrid(width,height,10,10);
+			if(!wbCanvas.doesContain(drawGrid) && grid) wbCanvas.addGraphic(drawGrid);
+			LogUtil.debug("Grid added");
+			if(grid) {
+				drawGrid.setSize(width, height);
+			} else {
+				wbCanvas.removeGraphic(drawGrid);
+			}
+		}
+		
 		public function changePage(e:PageEvent):void{
 			var page:Number = e.pageNum;
 			var graphicObjs:ArrayCollection = e.graphicObjs;
-			
+			this.isGrid = e.isGrid;
 			clearBoard();
 			for (var i:int = 0; i < graphicObjs.length; i++){
 				var o:GraphicObject = graphicObjs.getItemAt(i) as GraphicObject;
 				if(o.getGraphicType() == WhiteboardConstants.TYPE_SHAPE)
 					drawShape(o as DrawObject, false);
 				else if(o.getGraphicType() == WhiteboardConstants.TYPE_TEXT) 
-					drawText(o as TextObject, false);	
+					drawText(o as TextObject, false, true);	
 			}
+			addOrRemoveGrid(this.isGrid);
 		}
 		
 		public function zoomCanvas(width:Number, height:Number):void{
@@ -560,6 +583,9 @@ package org.bigbluebutton.modules.whiteboard
 			for (var i:int = 0; i < this.graphicList.length; i++){
 				redrawGraphic(this.graphicList[i] as GraphicObject, i);
 			}				
+			if(isGrid) {
+				addOrRemoveGrid(true, width, height);
+			}
 		}
 		
 		public function makeTextObjectsEditable(e:MadePresenterEvent):void {

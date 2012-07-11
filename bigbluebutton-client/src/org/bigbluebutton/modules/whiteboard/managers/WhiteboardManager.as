@@ -37,6 +37,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class WhiteboardManager
 	{
@@ -109,6 +110,10 @@ package org.bigbluebutton.modules.whiteboard.managers
 		
 		public function undoGraphic(event:WhiteboardUpdate):void{
 			model.undoGraphic();
+		}
+		
+		public function toggleGrid(event:WhiteboardUpdate):void{
+			model.toggleGrid(event);
 		}
 		
 		public function changePage(e:PageEvent):void{

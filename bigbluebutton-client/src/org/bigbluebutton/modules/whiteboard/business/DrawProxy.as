@@ -350,6 +350,41 @@ package org.bigbluebutton.modules.whiteboard.business
 			dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.GRAPHIC_UNDONE));
 		}
 		
+		/**
+		 * Sends a call out to the red5 server to notify the clients to toggle grid mode
+		 * 
+		 */		
+		public function toggleGrid():void{
+			var nc:NetConnection = connection;
+			nc.call(
+				"whiteboard.toggleGrid",// Remote function name
+				new Responder(
+					// On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Whiteboard::toggleGrid()"); 
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+			); //_netConnection.call
+			
+			//drawSO.send("undo");
+		}
+		
+		/**
+		 * Triggers the toggle grid event
+		 * 
+		 */		
+		public function toggleGridCallback():void{
+			LogUtil.debug("TOGGLE CALLBACK RECEIVED"); 
+			dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.GRID_TOGGLED));
+		}
+		
 		public function modifyEnabled(e:WhiteboardPresenterEvent):void{
 			var nc:NetConnection = connection;
 			nc.call(
@@ -380,7 +415,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		private function getHistory():void{
 			var nc:NetConnection = connection;
 			nc.call(
-				"whiteboard.getGraphicObjects",// Remote function name
+				"whiteboard.getHistory",// Remote function name
 				new Responder(
 	        		// On successful result
 					function(result:Object):void { 
@@ -405,7 +440,8 @@ package org.bigbluebutton.modules.whiteboard.business
 			var graphicObjs:Array = result as Array;
 			LogUtil.debug("Whiteboard::recievedShapesHistory() : recieved " + graphicObjs.length);
 			
-			for (var i:int=0; i < graphicObjs.length; i++) {
+			
+			for (var i:int=0; i < graphicObjs.length-1; i++) {
 				var graphic:Array = graphicObjs[i] as Array;
 				var graphicType:String = graphic[0] as String;
 				if(graphicType == WhiteboardConstants.TYPE_SHAPE) {
@@ -431,6 +467,11 @@ package org.bigbluebutton.modules.whiteboard.business
 					var status_other:String = graphic[9] as String;
 					addText(graphicType, text, textColor, bgColor, bgColorVisible, x, y, textSize, id_other, status_other, true);
 				}
+			}
+			var isGrid:Boolean = graphicObjs[graphicObjs.length-1][0] as Boolean;
+			if(isGrid) {
+				LogUtil.debug("Contacted server and server says grid mode is on for the current page. :D");
+				toggleGridCallback();
 			}
 		}	
 	}

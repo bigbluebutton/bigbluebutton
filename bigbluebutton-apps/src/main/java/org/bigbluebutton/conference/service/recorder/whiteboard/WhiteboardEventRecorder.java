@@ -79,6 +79,17 @@ public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 		recorder.record(session, event);			
 	}
 
-	
+	@Override
+	public void toggleGrid(boolean enabled, Presentation presentation) {
+		ToggleGridWhiteboardRecordEvent event = new ToggleGridWhiteboardRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());		
+		event.setPresentation(presentation.getName());
+		event.setPageNumber(presentation.getActivePage().getPageIndex());
+		event.setGridEnabled(enabled);
+		
+		recorder.record(session, event);	
+		
+	}
 
 }

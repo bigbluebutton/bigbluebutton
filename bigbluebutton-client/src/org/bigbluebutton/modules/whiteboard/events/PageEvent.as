@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.whiteboard.events
 		
 		public var pageNum:Number;
 		public var graphicObjs:ArrayCollection;
+		public var isGrid:Boolean;
 		
 		public function PageEvent(type:String)
 		{

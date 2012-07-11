@@ -136,6 +136,7 @@
 			protected function setTextColor(e:Event):void{
 				this.textColor = e.target.selectedColor;
 				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
+				canvas.stage.focus = currentlySelectedTextObject;
 			}
 			
 			/**
@@ -146,6 +147,7 @@
 			protected function changeTextBackgroundColor(e:Event):void{
 				this.bgColor = e.target.selectedColor;
 				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
+				canvas.stage.focus = currentlySelectedTextObject;
 			}
 			
 			/**
@@ -156,6 +158,7 @@
 			protected function setBackgroundVisible(e:Event):void{
 				this.backgroundVisible = e.target.selected;
 				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
+				canvas.stage.focus = currentlySelectedTextObject;
 			}
 			
 			/**
@@ -289,5 +292,6 @@
 	</mx:ComboBox>-->
 	
 	<views:PopUpCombo id="textSizeMenu" creationComplete="initTextSizeMenu()" 
-					   openAlways="true" specificOpenDirection="{PopUpCombo.OPEN_UP}"/>
+					  toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textSizeMenu')}" 
+					   openAlways="true" specificOpenDirection="{PopUpCombo.OPEN_UP}" />
 </mx:HBox>

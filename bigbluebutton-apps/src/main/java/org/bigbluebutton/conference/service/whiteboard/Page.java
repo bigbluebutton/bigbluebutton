@@ -33,6 +33,7 @@ public class Page {
 	private HashMap<String, WBGraphic> graphicObjs;
 	//private int lastGraphicIndex = -1;
 	private int pageIndex;
+	private boolean isGrid = false;
 	
 	public Page(int pageIndex){
 		this.graphicObjs = new HashMap<String, WBGraphic>();
@@ -61,11 +62,14 @@ public class Page {
 		else System.out.println("ERROR: MODIFYING NON-EXISTENT KEY");
 	}
 	
-	public List<Object[]> getWBGraphicObjects(){
+	public List<Object[]> getHistory(){
 		List<Object[]> graphics = new ArrayList<Object[]>();
 		for (WBGraphic g: graphicObjs.values()){
 			graphics.add(g.toObjectArray());
 		}
+		Object[] isGridArray = new Object[1];
+		isGridArray[0] = isGrid;
+		graphics.add(isGridArray);
 		return graphics;
 	}
 	
@@ -122,6 +126,15 @@ public class Page {
 		//System.out.println("UNDONE, NEW SIZE: " + graphicObjs.size());
 	}
 	
+	public void toggleGrid() {
+		System.out.println("Toggling grid mode on page " + pageIndex);
+		isGrid = !isGrid;
+	}
+	
+	public boolean isGrid() {
+		return isGrid;
+	}
+	
 	public int getNumGraphicsOnPage(){
 		return this.graphicObjs.size();
 	}
@@ -133,4 +146,6 @@ public class Page {
 	public int getPageIndex() {
 		return pageIndex;
 	}
+
+
 }

@@ -96,6 +96,7 @@
 			[Bindable] private var eraser_icon:Class = images.eraser_icon;
 			[Bindable] private var highlighter_icon:Class = images.highlighter_icon;
 			[Bindable] private var select_icon:Class = images.select_icon;
+			[Bindable] private var grid_icon:Class = images.grid_icon;
 			
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
@@ -351,7 +352,7 @@
 					toggleFill();
 				} else if(buttonEvt.target == btnToggleTransparency) {		
 					toggleTransparency();
-				} 
+				}
 			}
 			
 			private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
@@ -383,6 +384,8 @@
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.text')}" toggle="true" />
 	<mx:Button width="20" height="20" id="btnEraser" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.ERASER)" icon="{eraser_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.eraser')}" toggle="true" />
+	<mx:Button width="20" height="20" id="btnToggleGrid" click="dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.TOGGLE_GRID));" icon="{grid_icon}" 
+			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.toggleGrid')}" toggle="true" />
 	
 	<mx:Spacer height="5" />
 	<mx:Button width="20" height="20" id="btnToggleFill" click="buttonSettingToggle(event)" icon ="{fill_icon}"

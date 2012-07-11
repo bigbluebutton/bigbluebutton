@@ -126,8 +126,8 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		return pres.getActivePage().getNumGraphicsOnPage();
 	}
 	
-	public List<Object[]> getGraphicObjects(){
-		List<Object[]> graphicsList = roomManager.getRoom(getLocalScope().getName()).getGraphicObjects();
+	public List<Object[]> getHistory(){
+		List<Object[]> graphicsList = roomManager.getRoom(getLocalScope().getName()).getHistory();
 		for(Object[] o: graphicsList) {
 			System.out.println();
 			for(int i = 0; i < o.length; i++) {
@@ -147,6 +147,13 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		roomManager.getRoom(getLocalScope().getName()).undo();
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
 		drawSO.sendMessage("undo", new ArrayList<Object>());
+	}
+	
+	public void toggleGrid(){
+		System.out.println("toggling grid mode ");
+		roomManager.getRoom(getLocalScope().getName()).toggleGrid();
+		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
+		drawSO.sendMessage("toggleGridCallback", new ArrayList<Object>());
 	}
 	
 	@Override

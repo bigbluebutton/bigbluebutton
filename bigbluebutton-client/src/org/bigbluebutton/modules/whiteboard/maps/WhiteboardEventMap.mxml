@@ -88,6 +88,10 @@
 		<MethodInvoker generator="{DrawProxy}" method="undoGraphic" />
 	</EventHandlers>
 	
+	<EventHandlers type="{WhiteboardDrawEvent.TOGGLE_GRID}" >
+		<MethodInvoker generator="{DrawProxy}" method="toggleGrid" />
+	</EventHandlers>
+	
 	<EventHandlers type="{WhiteboardUpdate.BOARD_UPDATED}">
 		<MethodInvoker generator="{PageManager}" method="addGraphicToPage" arguments="{event}" />
 	</EventHandlers>
@@ -100,6 +104,10 @@
 		<MethodInvoker generator="{PageManager}" method="clearPage" />
 	</EventHandlers>
 	
+	<EventHandlers type="{WhiteboardUpdate.GRID_TOGGLED}" >
+		<MethodInvoker generator="{PageManager}" method="toggleGrid" />
+	</EventHandlers>
+		
 	<EventHandlers type="{PageEvent.CHANGE_PAGE}" >
 		<MethodInvoker generator="{DrawProxy}" method="getPageHistory" arguments="{event}" />
 	</EventHandlers>
@@ -140,6 +148,9 @@
 	</EventHandlers>
 	<EventHandlers type="{WhiteboardUpdate.GRAPHIC_UNDONE}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="undoGraphic" arguments="{event}" />
+	</EventHandlers>
+	<EventHandlers type="{WhiteboardUpdate.GRID_TOGGLED}" >
+		<MethodInvoker generator="{WhiteboardManager}" method="toggleGrid"  arguments="{event}" />
 	</EventHandlers>
 	<EventHandlers type="{PageEvent.CHANGE_PAGE}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="changePage" arguments="{event}" />

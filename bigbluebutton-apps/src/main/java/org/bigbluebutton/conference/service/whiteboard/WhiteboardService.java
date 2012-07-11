@@ -58,9 +58,9 @@ public class WhiteboardService {
 		return application.getNumGraphicsOnPage(pageNum);
 	}
 	
-	public List<Object[]> getGraphicObjects(){
+	public List<Object[]> getHistory(){
 		log.info("WhiteboardApplication - Returning graphics");
-		List<Object[]> graphicObjs = application.getGraphicObjects();
+		List<Object[]> history = application.getHistory();
 		/*System.out.println("Number of shapes: " + shapes.size());
 		System.out.println("First shape. Num params: " + shapes.get(0).length);
 		System.out.println("double[] : " + (double[])shapes.get(0)[0]);
@@ -70,7 +70,7 @@ public class WhiteboardService {
 		System.out.println("parentWidth : " + shapes.get(0)[4]);
 		System.out.println("parentHeight : " + shapes.get(0)[5]);*/
 		
-		return graphicObjs;
+		return history;
 	}
 	
 	public void clear(){
@@ -81,6 +81,11 @@ public class WhiteboardService {
 	public void undo(){
 		log.info("WhiteboardApplication - Deleting last graphic");
 		application.undo();
+	}
+	
+	public void toggleGrid(){
+		log.info("WhiteboardApplication - Toggling grid mode");
+		application.toggleGrid();
 	}
 	
 	public void setActivePresentation(String name, int numPages){

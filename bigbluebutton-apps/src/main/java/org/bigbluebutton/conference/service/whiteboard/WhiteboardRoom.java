@@ -104,8 +104,8 @@ public class WhiteboardRoom {
 		notifyAddText(activePresentation, text);
 	}
 	
-	public List<Object[]> getGraphicObjects(){
-		return activePresentation.getActivePage().getWBGraphicObjects();
+	public List<Object[]> getHistory(){
+		return activePresentation.getActivePage().getHistory();
 	}
 	
 	public void clear(){
@@ -116,6 +116,11 @@ public class WhiteboardRoom {
 	public void undo(){
 		activePresentation.getActivePage().undo();
 		notifyUndoWBGraphic(activePresentation);
+	}
+	
+	public void toggleGrid(){
+		activePresentation.getActivePage().toggleGrid();
+		notifyToggleGrid(activePresentation.getActivePage().isGrid(), activePresentation);
 	}
 
 	public void setWhiteboardEnabled(boolean whiteboardEnabled) {
@@ -154,6 +159,13 @@ public class WhiteboardRoom {
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
 			listener.undoWBGraphic(presentation);
+		}
+	}
+	
+	public void notifyToggleGrid(boolean enabled, Presentation presentation){
+		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
+			listener.toggleGrid(enabled, presentation);
 		}
 	}
 	
