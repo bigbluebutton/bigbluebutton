@@ -20,23 +20,8 @@
  * 
  * @version $Id: $
  */
-package org.bigbluebutton.presentation.imp;
+package org.bigbluebutton.presentation;
 
-import org.bigbluebutton.presentation.UploadedPresentation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class PdfToTextFilesGenerationService {
-	private static Logger log = LoggerFactory.getLogger(PdfToTextFilesGenerationService.class);
-
-	public void generateFiles(UploadedPresentation pres) {
-		log.debug("Generating text files");		
-		/*determineNumberOfPages(pres);
-		log.debug("Determined number of pages " + pres.getNumberOfPages());
-		if (pres.getNumberOfPages() > 0) {
-			convertPdfToSwf(pres);
-			createThumbnails(pres);
-			notifier.sendConversionCompletedMessage(pres);
-		}*/		
-	}
+public interface TextFileCreator {
+	public boolean createTextFiles(UploadedPresentation pres);
 }

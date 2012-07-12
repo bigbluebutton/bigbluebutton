@@ -26,14 +26,12 @@ import org.bigbluebutton.api.messaging.MessagingService;
 import org.bigbluebutton.presentation.imp.ImageToSwfSlidesGenerationService;
 import org.bigbluebutton.presentation.imp.OfficeToPdfConversionService;
 import org.bigbluebutton.presentation.imp.PdfToSwfSlidesGenerationService;
-import org.bigbluebutton.presentation.imp.PdfToTextFilesGenerationService;
 
 public class DocumentConversionServiceImp implements DocumentConversionService {
 	private MessagingService messagingService;
 	private OfficeToPdfConversionService officeToPdfConversionService;
 	private PdfToSwfSlidesGenerationService pdfToSwfSlidesGenerationService;
 	private ImageToSwfSlidesGenerationService imageToSwfSlidesGenerationService;
-	private PdfToTextFilesGenerationService pdfToTextFilesGenerationService;
 	
 	public void processDocument(UploadedPresentation pres) {
 		SupportedDocumentFilter sdf = new SupportedDocumentFilter(messagingService);
@@ -50,8 +48,6 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 				}
 			} else if (SupportedFileTypes.isPdfFile(fileType)) {
 				pdfToSwfSlidesGenerationService.generateSlides(pres);
-				//accessibility
-				pdfToTextFilesGenerationService.generateFiles(pres);
 			} else if (SupportedFileTypes.isImageFile(fileType)) {
 				imageToSwfSlidesGenerationService.generateSlides(pres);
 			} else {
@@ -73,10 +69,6 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 	
 	public void setPdfToSwfSlidesGenerationService(PdfToSwfSlidesGenerationService s) {
 		pdfToSwfSlidesGenerationService = s; 
-	}
-	
-	public void setPdfToSwfSlidesGenerationService(PdfToTextFilesGenerationService s) {
-		pdfToTextFilesGenerationService = s; 
 	}
 	
 	public void setImageToSwfSlidesGenerationService(ImageToSwfSlidesGenerationService s) {
