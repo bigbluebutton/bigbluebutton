@@ -173,5 +173,11 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/shape_handles.png")]
 		public var shape_handles:Class;		
+
+		[Embed(source="assets/images/disk.png")]
+		public var disk:Class;		
+
+		[Embed(source="assets/images/folder.png")]
+		public var folder:Class;		
 	}
 }

@@ -100,7 +100,7 @@ public final class Block {
             System.arraycopy(capturedPixels, 0, pixelsCopy, 0, capturedPixels.length);
 		}
     	
-        byte[] encodedBlock = ScreenVideoEncoder.encodePixels(pixelsCopy, getWidth(), getHeight(), (sentCount.longValue() > 5) /* send grayscale image */); 	
+        byte[] encodedBlock = ScreenVideoEncoder.encodePixels(pixelsCopy, getWidth(), getHeight(), (sentCount.longValue() < 5) /* send grayscale image */); 	
         return new EncodedBlockData(position, encodedBlock);		
     }
     

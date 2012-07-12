@@ -1,0 +1,98 @@
+/*
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+*/
+
+html{
+	height:100%;
+}
+body {
+	font-family: Verdana;
+	height:100%;
+}
+h1 {
+	text-align:center
+}
+br{
+	display:none
+}
+
+#playbackArea{
+	width: 800px;
+	height: 600px;
+	margin: 0px auto;
+	/* border:5px solid #a1a1a1;
+	border-radius:10px; */
+}
+
+#slide{
+	width: 800px;
+	height: 600px;
+}
+
+#video{
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.chatcontainer{
+	width:420px;
+	height:600px;
+	margin-left: auto;
+  margin-right: auto;
+	position: relative;
+	top:-650px;
+	left:610px;
+}
+#chat{
+	margin-left: auto;
+	margin-right: auto;
+	position:relative;
+	top:5px;
+	padding-left:10px;
+	padding-right:10px;
+}
+#chat div p{
+	margin-bottom:-10px;
+	padding:0px;
+	font-size:13px
+}
+#big {display:none}
+#mid {display:none}
+
+#footer{
+	      margin-left: auto;
+	      margin-right: auto;
+	      padding-top: 25px;
+        font-size:0.75em;
+        color: #666;
+        text-align: center;
+}
+
+.circle {
+	height: 12px;
+	width: 12px;
+	border-radius: 50%;
+}
+
+
+#cursor {
+	position: absolute;
+	background: red;
+}

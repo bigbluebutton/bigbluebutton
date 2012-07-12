@@ -100,6 +100,12 @@ public class PresentationService {
 		presentationApplication.sharePresentation(scope.getName(), presentationName, share);
 	}
 	
+	public void sendCursorUpdate(Double xPercent,Double yPercent) {
+		log.debug("Request update cursor[" + xPercent + "," + yPercent + "]" );
+		IScope scope = Red5.getConnectionLocal().getScope();
+		presentationApplication.sendCursorUpdate(scope.getName(), xPercent, yPercent);
+	}
+	
 	public void resizeAndMoveSlide(Double xOffset,Double yOffset,Double widthRatio,Double heightRatio) {
 		log.debug("Request to resize and move slide[" + xOffset + "," + yOffset + "," + widthRatio + "," + heightRatio);
 		IScope scope = Red5.getConnectionLocal().getScope();

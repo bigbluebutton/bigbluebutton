@@ -41,6 +41,8 @@
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
 	<mate:Listener type="configLoadedEvent" method="initOptions"  />
 	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
+	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
+	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -55,6 +57,7 @@
 			import mx.containers.TitleWindow;
 			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
+			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
 			
@@ -64,6 +67,7 @@
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -133,10 +137,10 @@
 					receivedConfigLocaleVer = true;
 					appVersion = event.appVersion;
 					localeVersion = event.localeVersion;
-					LogUtil.debug("Received locale version fron config.xml");
+					LogUtil.debug("Received locale version from config.xml");
 				} else {
 					receivedResourceLocaleVer = true;
-					LogUtil.debug("Received locale version fron locale file.");
+					LogUtil.debug("Received locale version from locale file.");
 				}
 				
 				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
@@ -298,20 +302,33 @@
 				Alert.show(evt.status, evt.module);
 			}
 						
+			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
+				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
+					addedBtns.addChild(event.button as UIComponent);
+//					realignButtons();
+				}
+			}
+			
+			private function handleRemoveToolbarComponent(event:ToolbarButtonEvent):void {
+				if (addedBtns.contains(event.button as UIComponent))
+					addedBtns.removeChild(event.button as UIComponent);
+			}
+			
 		]]>
 	</mx:Script>
 			
-	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="{showToolbarOpt}" verticalAlign="middle" toolbarOptions="{layoutOptions}"/>
+	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="{showToolbarOpt}" verticalAlign="middle" toolbarOptions="{layoutOptions}" paddingTop="4"/>
 	<views:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off" effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" width="100%" height="100%">
 		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
 	
-	<mx:ControlBar width="100%" height="20" paddingTop="0">		
+	<mx:ControlBar width="100%" height="24" paddingTop="0">
 	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
 		<mx:Button width="20" height="20" visible="{layoutOptions.showLogButton}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
-		<mx:Button width="20" height="20" visible="{layoutOptions.showResetLayout}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
+		<!-- mx:Button width="20" height="20" visible="{layoutOptions.showResetLayout}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" /-->
+		<mx:HBox id="addedBtns" />
 	</mx:ControlBar>
 </mx:VBox>
