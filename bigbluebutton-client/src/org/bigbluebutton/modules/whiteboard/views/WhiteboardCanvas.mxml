@@ -21,10 +21,12 @@
 -->
 
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:mate="http://mate.asfusion.com/"
-	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()" visible="false" 
-	mouseOver="setCursor()" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
+	 creationComplete="init()" visible="false"
+	 implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[			
+            
+            // mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" mouseOver="setCursor()" mouseOut="removeCursor()"
 			import mx.collections.ArrayCollection;
 			import mx.core.Application;
 			import mx.managers.CursorManager;
@@ -55,19 +57,32 @@
 			private var showWhiteboard:Boolean = true;
 
 			
-			private function init():void{
+			private function init():void {
 				this.label = "Highlighter";
+                registerForMouseEvents();
 			}
 			
-			private function doMouseUp():void {
+            public function registerForMouseEvents():void {
+                addEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
+                addEventListener(MouseEvent.MOUSE_UP, doMouseUp);
+                addEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
+            }
+            
+            public function unregisterForMouseEvents():void {
+                removeEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
+                removeEventListener(MouseEvent.MOUSE_UP, doMouseUp);
+                removeEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
+            }
+            
+			private function doMouseUp(event:Event):void {
 				model.doMouseUp();
 			}
 
-			private function doMouseDown():void {
+			private function doMouseDown(event:Event):void {
 				model.doMouseDown(this.mouseX, this.mouseY);
 			}
 						
-			private function doMouseMove():void {
+			private function doMouseMove(event:Event):void {
 				model.doMouseMove(this.mouseX, this.mouseY);
 			}
 			
@@ -116,7 +131,7 @@
 			
 			private function removeCursor():void{
 				CursorManager.removeCursor(CursorManager.currentCursorID);
-				doMouseUp();
+				doMouseUp(null);
 			}
 			
 			/** Inherited from org.bigbluebutton.common.IBbbCanvas*/

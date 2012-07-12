@@ -2,13 +2,18 @@ package org.bigbluebutton.modules.whiteboard
 {
 	import flash.display.Shape;
 	import flash.display.Sprite;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
+	import flash.events.TextEvent;
 	import flash.text.TextField;
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
+	import flash.ui.Keyboard;
 	
 	import mx.collections.ArrayCollection;
+	import mx.controls.TextInput;
 	import mx.core.Application;
+	import mx.core.UIComponent;
 	import mx.managers.CursorManager;
 	
 	import org.bigbluebutton.common.IBbbCanvas;
@@ -117,13 +122,29 @@ package org.bigbluebutton.modules.whiteboard
 			
 			if (shapeStyle == DrawObject.TEXT) {
 				LogUtil.debug("TEXT SHAPE");
-			//	createWhiteboard();
-			//	enableUserInput();		
-				createTextBox();
+                wbCanvas.unregisterForMouseEvents();
+	//			createWhiteboard();
+	//			enableUserInput();		
+                
+		//		createTextBox();
+                
+                addTextFieldExample();
 			}
 
 			
 		}
+        
+        private var tfe:TextFieldExample;
+        
+        private function addTextFieldExample():void {
+            tfe = new TextFieldExample();
+            tfe.width = 200;
+            tfe.height = 100;
+            tfe.x = 30;
+            tfe.y = 50;
+
+            wbCanvas.addRawChild(tfe);
+        }
 		
 		public function doMouseMove(mouseX:Number, mouseY:Number):void {
 			if (isDrawing){
@@ -159,7 +180,8 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		private function addNewShape(o:DrawObject):void {
-			LogUtil.error("Adding new shape");
+			LogUtil.debug("Adding new shape");
+            if (o.getType() == DrawObject.TEXT) return;
 			var dobj:DrawObject = shapeFactory.makeShape(o);
 			wbCanvas.addShape(dobj.getShape());
 			shapeList.push(dobj);
@@ -228,85 +250,125 @@ package org.bigbluebutton.modules.whiteboard
 			return shapeList.length == 0;
 		}
 		
-		private var _textShape:Sprite;
-		private var _currentText:TextField;
-		
+		private var _textShape:UIComponent;
+	//	private var _currentText:TextInput;
+     //   private var _currentText:TextField = new TextField();
+        private var _currentText:TextBox; // = new TextBox();
+/*        
 		private function createTextBox():void {
-			_currentText = new TextField();
+	//		_currentText = new TextField();
 			_currentText.type = TextFieldType.INPUT;
 			_currentText.x = segment[0];
 			_currentText.y = segment[1];
 			_currentText.width = 200;
 			_currentText.height = 20;
-			_currentText.background = true;
+//			_currentText.background = true;
 			_currentText.border = true;
-			_currentText.htmlText = "FOO";
-			
+			_currentText.text = "FOO";
+//            _currentText.editable = true;
+            
 			var format:TextFormat = new TextFormat();
 			format.font = "Verdana";
 			format.color = 0xFF0000;
 			format.size = 18;
 			format.underline = true;
 			
+            // add to displaylist
+            wbCanvas.addRawChild(_currentText);
+            
 			_currentText.defaultTextFormat = format;
-			
-			// add to displaylist
-			wbCanvas.addShape(_currentText);
+            _currentText.addEventListener(TextEvent.TEXT_INPUT, textInputHandler);
+			_currentText.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+ //           wbCanvas.stage.focus = _currentText;
+            
 		}
-		
+        */		
+        
+        private function onKeyUp(event:KeyboardEvent):void {	
+            LogUtil.debug("onKeyUp");
+            switch (event.keyCode) {
+                case Keyboard.LEFT:
+                case Keyboard.UP:
+                case Keyboard.PAGE_UP:				
+                    LogUtil.debug("Capturing text: " + event.keyCode);		
+                    break;
+                case Keyboard.DOWN:
+                case Keyboard.RIGHT: 
+                case Keyboard.SPACE:
+                case Keyboard.PAGE_DOWN:
+                case Keyboard.ENTER:
+                    LogUtil.debug("Capturing text: " + event.keyCode);
+                    break; 
+                default:
+                    LogUtil.debug("Capturing text: " + event.keyCode);
+            }
+        }    
+            
+        public function textInputHandler(event:TextEvent):void
+        {
+            LogUtil.debug("TEXT EVENT = " + event.text);
+        }
+       
 		private function createWhiteboard():void {
 			LogUtil.debug("Creating text shape.");
 			// create whiteboard sprite
-			_textShape = new Sprite();
+			_textShape = new UIComponent();
 			_textShape.x = 100;
 			_textShape.y = 100;
 			// add to displaylist
-			wbCanvas.addShape(_textShape);
+			wbCanvas.addRawChild(_textShape);
 			
 			// draw graphics
 			with(_textShape.graphics)
 			{
 				lineStyle(3, 0x666666, 1);
 				beginFill(0xFFFFFF, 1);
-				drawRect(0, 0, 100, 200);
+				drawRect(0, 0, 200, 100);
 				endFill();
 			}
+            
+            _currentText = new TextBox(_textText, _fontStyle, _fontSize, drawColor);
+            _currentText.x = 0;
+            _currentText.y = 0;
+            _currentText.type = TextFieldType.INPUT;
+         //   _currentText.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+      //      _currentText.addEventListener(TextEvent.TEXT_INPUT, textInputHandler);
+            // add to displaylist
+            _textShape.addChild(_currentText);
 		}
 		
 		private function enableUserInput():void {
 			_textShape.addEventListener(MouseEvent.CLICK, onUserInteract);
+            
 		}
 		
 		private function onUserInteract(event:MouseEvent):void {
 			LogUtil.debug("onUserInteract");
 			// remove if empty
-			if(_currentText && _currentText.htmlText.length == 0)
-			{
+//			if(_currentText && _currentText.htmlText.length == 0)
+//			{
 				// remove from displaylist
-				_textShape.removeChild(_currentText);
-			}
-			
+//				_textShape.removeChild(_currentText);
+//			}
+            _currentText.addEventListener(TextEvent.TEXT_INPUT, textInputHandler);
+            _currentText.text += _currentText.text + " FOOOBAR";
 			// add new
-			if(event.target == _textShape)
-			{
-				_currentText = new TextBox(_textText, _fontStyle, _fontSize, drawColor);
-				_currentText.x = event.stageX;
-				_currentText.y = event.stageY;
+//			if(event.target == _textShape)
+//			{
 				
-				// add to displaylist
-				_textShape.addChild(_currentText);
-			}
-			else
-			{
+//			}
+//			else
+//			{
 				// use clicked text
-				_currentText = event.target as TextBox;
-			}
+//				_currentText = event.target as TextBox;
+//			}
 			
 			// set selection
-			_currentText.setSelection(0, _currentText.htmlText.length);
-			
+	//		_currentText.setSelection(0, _currentText.htmlText.length);
+    //       
 			// set focus
 			wbCanvas.stage.focus = _currentText;
 		}
+
 	}
 }
