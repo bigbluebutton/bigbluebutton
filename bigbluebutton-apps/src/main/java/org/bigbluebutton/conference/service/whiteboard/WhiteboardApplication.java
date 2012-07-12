@@ -22,9 +22,13 @@
 package org.bigbluebutton.conference.service.whiteboard;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.ClientMessage;
+import org.bigbluebutton.conference.ConnectionInvokerService;
 import org.bigbluebutton.conference.Constants;
 import org.red5.compatibility.flex.messaging.io.ArrayCollection;
 import org.red5.logging.Red5LoggerFactory;
@@ -48,6 +52,7 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	
 	private WhiteboardRoomManager roomManager;
 	private RecorderApplication recorderApplication;
+	private ConnectionInvokerService connInvokerService;
 	
 	@Override
 	public boolean appStart(IScope app){
@@ -85,13 +90,30 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	public boolean isWhiteboardEnabled(){
 		return roomManager.getRoom(getLocalScope().getName()).isWhiteboardEnabled();
 	}
+
+	public void sendAnnotationHistory(String userid) {
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("type", "pencil");
+		
+		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userid, "receiveAnnotationHistory", message);
+		connInvokerService.sendMessage(m);
+	}
 	
+	/*
 	public void sendShape(double[] shape, String type, int color, int thickness, String id, String status){
 		Shape newShape = new Shape(shape, type, color, thickness, id, status);
 		roomManager.getRoom(getLocalScope().getName()).addShape(newShape);
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
 		List<Object> arguments = newShape.toList();
 		drawSO.sendMessage("addSegment", arguments);
+	}
+*/	
+	public void sendAnnotation(Map<String, Object> annotation) {
+		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
+		roomManager.getRoom(getLocalScope().getName()).addAnnotation(annotation);
+		List<Object> arguments = new ArrayList<Object>();
+		arguments.add(annotation);
+		drawSO.sendMessage("receiveAnnotation", arguments);
 	}
 	
 	public int getNumShapesOnPage(int pageNum){
@@ -100,8 +122,8 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		return pres.getActivePage().getNumShapesOnPage();
 	}
 	
-	public List<Object[]> getShapes(){
-		List<Object[]> shapesList = roomManager.getRoom(getLocalScope().getName()).getShapes();
+	public List<Map<String, Object>> getShapes(){
+		List<Map<String, Object>> shapesList = roomManager.getRoom(getLocalScope().getName()).getShapes();
 		
 		return shapesList;
 	}
@@ -151,7 +173,7 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 
 	@Override
 	public void roomDisconnect(IConnection connection) {
-
+		
 	}
 
 	@Override
@@ -186,4 +208,7 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		recorderApplication = a;
 	}
 	
+	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
+		this.connInvokerService = connInvokerService;
+	}
 }

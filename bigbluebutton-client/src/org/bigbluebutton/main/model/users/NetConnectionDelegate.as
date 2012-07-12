@@ -200,6 +200,10 @@ package org.bigbluebutton.main.model.users
 			}
 		}
 		
+        public function receiveAnnotationHistory(result:Object):void {
+            LogUtil.debug("Got annotation history");    
+        }
+        
 		private function rtmptRetryTimerHandler(event:TimerEvent):void {
             LogUtil.debug(NAME + "rtmptRetryTimerHandler: " + event);
             connect(_conferenceParameters, true);

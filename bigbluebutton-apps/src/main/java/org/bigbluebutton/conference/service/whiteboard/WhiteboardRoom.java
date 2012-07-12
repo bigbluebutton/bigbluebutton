@@ -87,12 +87,17 @@ public class WhiteboardRoom {
 		return exists;
 	}
 	
-	public void addShape(Shape shape){
-		activePresentation.getActivePage().addShape(shape);
-		notifyAddShape(activePresentation, shape);
+//	public void addShape(Shape shape){
+//		activePresentation.getActivePage().addShape(shape);
+//		notifyAddShape(activePresentation, shape);
+//	}
+	
+	public void addAnnotation(Map<String, Object> annotation){
+		activePresentation.getActivePage().addAnnotation(annotation);
+		notifyAddShape(activePresentation, annotation);
 	}
 	
-	public List<Object[]> getShapes(){
+	public List<Map<String, Object>> getShapes(){
 		return activePresentation.getActivePage().getShapes();
 	}
 	
@@ -124,22 +129,22 @@ public class WhiteboardRoom {
 		listeners.remove(listener);		
 	}
 	
-	public void notifyAddShape(Presentation presentation, Shape shape){
-		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+	public void notifyAddShape(Presentation presentation, Map<String, Object> annotation){
+		for (Iterator<IWhiteboardRoomListener> iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
-			listener.addShape(shape, presentation);
+			listener.addAnnotation(annotation, presentation);
 		}
 	}
 	
 	public void notifyUndoShape(Presentation presentation){
-		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+		for (Iterator<IWhiteboardRoomListener> iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
 			listener.undoShape(presentation);
 		}
 	}
 	
 	public void notifyClearPage(Presentation presentation){
-		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+		for (Iterator<IWhiteboardRoomListener> iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
 			listener.clearPage(presentation);
 		}

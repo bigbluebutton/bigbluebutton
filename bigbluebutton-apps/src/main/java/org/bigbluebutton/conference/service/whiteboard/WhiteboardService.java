@@ -21,10 +21,13 @@
 */
 package org.bigbluebutton.conference.service.whiteboard;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.red5.compatibility.flex.messaging.io.ArrayCollection;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.Red5;
 import org.slf4j.Logger;
 
 public class WhiteboardService {
@@ -40,7 +43,34 @@ public class WhiteboardService {
 	
 	public void sendShape(double[] shape, String type, int color, int thickness, String id, String status){
 		log.info("WhiteboardApplication - Sending share");
-		application.sendShape(shape, type, color, thickness, id, status);
+//		application.sendShape(shape, type, color, thickness, id, status);
+	}
+	
+	public void sendAnnotation(Map<String, Object> annotation) {
+		for (Map.Entry<String, Object> entry : annotation.entrySet()) {
+		    String key = entry.getKey();
+		    Object value = entry.getValue();
+		    
+		    if (key.equals("points")) {
+		    	String points = "points=[";
+		    	ArrayList<Double> v = (ArrayList<Double>) value;
+		    	log.debug(points + pointsToString(v) + "]");
+		    } else {
+		    	log.debug(key + "=[" + value + "]");
+		    }
+		}
+		
+		application.sendAnnotation(annotation);
+	}
+	
+	private String pointsToString(ArrayList<Double> points){
+    	String datapoints = "";
+    	for (Double i : points) {
+    		datapoints += i + ",";
+    	}
+    	// Trim the trailing comma
+    	log.debug("Data Point = " + datapoints);
+    	return datapoints.substring(0, datapoints.length() - 1);
 	}
 	
 	/**
@@ -51,12 +81,15 @@ public class WhiteboardService {
 	 */
 	public int setActivePage(int pageNum){
 		log.info("WhiteboardApplication - Getting number of shapes for page: " + pageNum);
-		return application.getNumShapesOnPage(pageNum);
+		return 1; //application.getNumShapesOnPage(pageNum);
 	}
 	
-	public List<Object[]> getShapes(){
+	//public List<Map<String, Object>> getShapes(){
+	public void getShapes(){
 		log.info("WhiteboardApplication - Returning shapes");
-		List<Object[]> shapes = application.getShapes();
+		List<Map<String, Object>> shapes = application.getShapes();
+		
+		application.sendAnnotationHistory(Red5.getConnectionLocal().getClient().getId());
 		
 		/*System.out.println("Number of shapes: " + shapes.size());
 		System.out.println("First shape. Num params: " + shapes.get(0).length);
@@ -67,7 +100,7 @@ public class WhiteboardService {
 		System.out.println("parentWidth : " + shapes.get(0)[4]);
 		System.out.println("parentHeight : " + shapes.get(0)[5]);*/
 		
-		return shapes;
+		//return shapes;
 	}
 	
 	public void clear(){

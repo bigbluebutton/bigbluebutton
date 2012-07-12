@@ -203,6 +203,32 @@ package org.bigbluebutton.modules.whiteboard.business
 				),//new Responder
 				shape.getShapeArray(), shape.getType(), shape.getColor(), shape.getThickness(), shape.id, shape.status
 			); //_netConnection.call
+            
+            var a:Object = new Object();
+            a["type"] = shape.getType();
+            a["points"] = shape.getShapeArray();
+            a["color"] = shape.getColor();
+            a["thickness"] = shape.getThickness();
+            a["id"] = shape.id;
+            a["status"] = shape.status;
+            
+            nc.call(
+                "whiteboard.sendAnnotation",// Remote function name
+                new Responder(
+                    // On successful result
+                    function(result:Object):void { 
+                        //LogUtil.debug("Whiteboard::sendShape() "); 
+                    },	
+                    // status - On error occurred
+                    function(status:Object):void { 
+                        LogUtil.error("Error occurred:"); 
+                        for (var x:Object in status) { 
+                            LogUtil.error(x + " : " + status[x]); 
+                        } 
+                    }
+                ),//new Responder
+                a
+            ); //_netConnection.call
 		}
 		
 		/**
@@ -220,6 +246,14 @@ package org.bigbluebutton.modules.whiteboard.business
 			e.data = d;
 			dispatcher.dispatchEvent(e);
 		}
+        
+        public function receiveAnnotation(annotation:Object):void {
+            for(var id:String in annotation) {
+                var value:Object = annotation[id];
+                
+                LogUtil.debug(id + " = " + value);
+            }
+        }
 		
 		/**
 		 * Sends a call out to the red5 server to notify the clients that the board needs to be cleared 
@@ -326,7 +360,7 @@ package org.bigbluebutton.modules.whiteboard.business
 	        		// On successful result
 					function(result:Object):void { 
 						LogUtil.debug("Whiteboard::getHistory() : retrieving whiteboard history"); 
-						receivedShapesHistory(result);
+//						receivedShapesHistory(result);
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -340,6 +374,10 @@ package org.bigbluebutton.modules.whiteboard.business
 			); //_netConnection.call
 		}
 		
+        public function receiveAnnotationHistory(result:Object):void {
+            LogUtil.debug("Got annotation history");    
+        }
+        
 		private function receivedShapesHistory(result:Object):void{
 			if (result == null) return;
 			

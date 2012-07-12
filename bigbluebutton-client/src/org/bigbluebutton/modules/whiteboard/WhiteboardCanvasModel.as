@@ -123,15 +123,8 @@ package org.bigbluebutton.modules.whiteboard
 			if (shapeStyle == DrawObject.TEXT) {
 				LogUtil.debug("TEXT SHAPE");
                 wbCanvas.unregisterForMouseEvents();
-	//			createWhiteboard();
-	//			enableUserInput();		
-                
-		//		createTextBox();
-                
                 addTextFieldExample();
-			}
-
-			
+			}			
 		}
         
         private var tfe:TextFieldExample;
