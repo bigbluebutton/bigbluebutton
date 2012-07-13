@@ -26,9 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.bigbluebutton.conference.service.chat.IChatRoomListener;
-import org.red5.compatibility.flex.messaging.io.ArrayCollection;
 import org.red5.server.api.IScope;
 
 public class WhiteboardRoom {
@@ -50,6 +47,7 @@ public class WhiteboardRoom {
 	public IScope getScope(){
 		return this.scope;
 	}
+
 	
 	/**
 	 * Add a new presentation. Will also set the activePresentation
@@ -97,7 +95,7 @@ public class WhiteboardRoom {
 		notifyAddShape(activePresentation, annotation);
 	}
 	
-	public List<Map<String, Object>> getShapes(){
+	public List<Map<String, Object>> getAnnotations(){
 		return activePresentation.getActivePage().getShapes();
 	}
 	

@@ -1,15 +1,11 @@
 package org.bigbluebutton.conference.service.recorder.whiteboard;
 
-import java.util.HashMap;
 import java.util.Map;
-
-import org.bigbluebutton.conference.service.recorder.Recorder;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 import org.bigbluebutton.conference.service.whiteboard.IWhiteboardRoomListener;
 import org.bigbluebutton.conference.service.whiteboard.Presentation;
-import org.bigbluebutton.conference.service.whiteboard.Shape;
 
 public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 	private static Logger log = Red5LoggerFactory.getLogger( WhiteboardEventRecorder.class, "bigbluebutton" );

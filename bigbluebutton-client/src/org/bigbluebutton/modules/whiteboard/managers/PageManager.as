@@ -33,8 +33,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 	public class PageManager
 	{
 		private var pageNum:int;
-		private var pages:ArrayCollection;
-		
+		private var pages:ArrayCollection;	
 		private var dispatcher:Dispatcher;
 		
 		public function PageManager()
@@ -44,21 +43,21 @@ package org.bigbluebutton.modules.whiteboard.managers
 			dispatcher = new Dispatcher();
 		}
 		
-		public function addShapeToPage(e:WhiteboardUpdate):void{
+		public function addShapeToPage(e:WhiteboardUpdate):void {
 			(pages.getItemAt(pageNum) as ArrayCollection).addItem(e.data);
 		}
 		
-		public function undoShapeFromPage():void{
+		public function undoShapeFromPage():void {
 			var page:ArrayCollection = pages.getItemAt(pageNum) as ArrayCollection;
 			if (page.length > 0) page.removeItemAt(page.length - 1);
 		}
 		
-		public function clearPage():void{
+		public function clearPage():void {
 			var page:ArrayCollection = pages.getItemAt(pageNum) as ArrayCollection;
 			page.removeAll();
 		}
 		
-		public function loadPage(e:PageEvent):void{
+		public function loadPage(e:PageEvent):void {
 			if (pages.length ==0 ) return;
 			if ((pages.getItemAt(e.pageNum) as ArrayCollection).length == 0) return;
 			
@@ -67,15 +66,15 @@ package org.bigbluebutton.modules.whiteboard.managers
 			timer.start();
 		}
 		
-		private function defferedLoad(e:TimerEvent):void{
+		private function defferedLoad(e:TimerEvent):void {
 			gotoPage(this.pageNum);
 		}
 		
-		public function changePage(e:NavigationEvent):void{
+		public function changePage(e:NavigationEvent):void {
 			gotoPage(e.pageNumber);
 		}
 		
-		private function gotoPage(pageNumber:int):void{
+		private function gotoPage(pageNumber:int):void {
 			if (pages == null || pages.length < pageNumber) return;
 			
 			var event:PageEvent = new PageEvent(PageEvent.CHANGE_PAGE);
@@ -85,7 +84,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 			dispatcher.dispatchEvent(event);
 		}
 		
-		public function createPages(e:PresentationEvent):void{
+		public function createPages(e:PresentationEvent):void {
 			pages.removeAll();
 			for (var i:int = 0; i<e.numberOfSlides; i++){
 				pages.addItem(new ArrayCollection());

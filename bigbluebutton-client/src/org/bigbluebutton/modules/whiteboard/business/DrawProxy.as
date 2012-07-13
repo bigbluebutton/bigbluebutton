@@ -102,7 +102,49 @@ package org.bigbluebutton.modules.whiteboard.business
         
         public function onMessage(messageName:String, message:Object):void {
             LogUtil.debug("WB: received message " + messageName);
+            
+            switch (messageName) {
+                case "RequestAnnotationHistoryReply":
+                    handleRequestAnnotationHistoryReply(message);
+                    break;
+                case "IsWhiteboardEnabledReply":
+                    handleIsWhiteboardEnabledReply(message);
+                    break;
+                case "EnableWhiteboardCommand":
+                    handleEnableWhiteboardCommand(message);
+                    break;    
+                case "NewAnnotationCommand":
+                    handleNewAnnotationCommand(message);
+                    break;  
+                
+                default:
+                    LogUtil.warn("Cannot handle message [" + messageName + "]");
+            }
+            
         }
+
+        private function handleEnableWhiteboardCommand(message:Object):void {
+            //if (result as Boolean) modifyEnabledCallback(true);
+            LogUtil.debug("Handle Whiteboard Enabled Command " + message.enabled);
+        }
+
+        private function handleNewAnnotationCommand(message:Object):void {
+            LogUtil.debug("Handle new annotation[" + message.type + ", " + message.id + ", " + message.status + "]");
+        }
+        
+        private function handleIsWhiteboardEnabledReply(message:Object):void {
+            //if (result as Boolean) modifyEnabledCallback(true);
+            LogUtil.debug("Whiteboard Enabled? " + message.enabled);
+        }
+        
+        private function handleRequestAnnotationHistoryReply(message:Object):void {
+            if (message.count == 0) {
+                LogUtil.debug("No annotations.");
+            } else {
+                LogUtil.debug("Number of annotations in history = " + message.count);
+            }
+        }
+        
 		
 		/**
 		 * Once a shared object is created, it is synced accross all clients, and this method is invoked 
@@ -134,7 +176,7 @@ package org.bigbluebutton.modules.whiteboard.business
 			); //_netConnection.call
 		}
 		
-		public function checkIsWhiteboardOn():void{
+		public function checkIsWhiteboardOn():void {
 			var nc:NetConnection = connection;
 			nc.call(
 				"whiteboard.isWhiteboardEnabled",// Remote function name
@@ -142,7 +184,7 @@ package org.bigbluebutton.modules.whiteboard.business
 	        		// On successful result
 					function(result:Object):void { 
 						LogUtil.debug("Whiteboard::checkIsWhiteboardOn() : " + result as String); 
-						if (result as Boolean) modifyEnabledCallback(true);
+				//		if (result as Boolean) modifyEnabledCallback(true);
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -156,24 +198,21 @@ package org.bigbluebutton.modules.whiteboard.business
 			); //_netConnection.call
 		}
 		
-		public function getPageHistory(e:PageEvent):void{
+		public function getPageHistory(e:PageEvent):void {
 			var nc:NetConnection = connection;
-			nc.call(
-				"whiteboard.setActivePage",// Remote function name
-				new Responder(
-	        		// On successful result
-					function(result:Object):void { 
+			nc.call("whiteboard.setActivePage",
+				new Responder(	        		
+					function(result:Object):void { // On successful result
 						if ((result as int) != e.shapes.length) {
-							LogUtil.debug("Whiteboard: Need to retrieve shapes. Have " + e.shapes.length + " on client, "
-										  + (result as int) + " on server");
+							LogUtil.debug("Whiteboard: Need to retrieve shapes. Have " + e.shapes.length + " on client, " + (result as int) + " on server");
 							LogUtil.debug("Whiteboard: Retrieving shapes on page" + e.pageNum);
 							getHistory(); 
 						} else{
 							LogUtil.debug("Whiteboard: Shapes up to date, no need to update");
 						}
 					},	
-					// status - On error occurred
-					function(status:Object):void { 
+					
+					function(status:Object):void { // status - On error occurred
 						LogUtil.error("Error occurred: Whiteboard::DrawProxy::getPageHistory()"); 
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 
@@ -254,13 +293,7 @@ package org.bigbluebutton.modules.whiteboard.business
 			dispatcher.dispatchEvent(e);
 		}
         
-        public function receiveAnnotation(annotation:Object):void {
-            for(var id:String in annotation) {
-                var value:Object = annotation[id];
-                
-                LogUtil.debug(id + " = " + value);
-            }
-        }
+
 		
 		/**
 		 * Sends a call out to the red5 server to notify the clients that the board needs to be cleared 
@@ -362,7 +395,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		private function getHistory():void{
 			var nc:NetConnection = connection;
 			nc.call(
-				"whiteboard.getShapes",// Remote function name
+				"whiteboard.requestAnnotationHistory",// Remote function name
 				new Responder(
 	        		// On successful result
 					function(result:Object):void { 
@@ -381,10 +414,6 @@ package org.bigbluebutton.modules.whiteboard.business
 			); //_netConnection.call
 		}
 		
-        public function receiveAnnotationHistory(result:Object):void {
-            LogUtil.debug("Got annotation history");    
-        }
-        
 		private function receivedShapesHistory(result:Object):void{
 			if (result == null) return;
 			

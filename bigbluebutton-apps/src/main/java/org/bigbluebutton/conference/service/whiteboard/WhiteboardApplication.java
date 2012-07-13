@@ -25,12 +25,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.bigbluebutton.conference.BigBlueButtonSession;
 import org.bigbluebutton.conference.ClientMessage;
 import org.bigbluebutton.conference.ConnectionInvokerService;
 import org.bigbluebutton.conference.Constants;
-import org.red5.compatibility.flex.messaging.io.ArrayCollection;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.IApplication;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
@@ -55,22 +53,22 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	private ConnectionInvokerService connInvokerService;
 	
 	@Override
-	public boolean appStart(IScope app){
+	public boolean appStart(IScope app) {
 		log.info("Starting Whiteboard Application");
 		this.scope = app;
 		return true;
 	}
 	
-	public void setRoomManager(WhiteboardRoomManager manager){
+	public void setRoomManager(WhiteboardRoomManager manager) {
 		this.roomManager = manager;
 	}
 	
 	@Override
-	public void appStop(IScope scope){
+	public void appStop(IScope scope) {
 		roomManager.removeRoom(getLocalScope().getName());
 	}
 	
-	public void setActivePresentation(String name, int numPages){
+	public void setActivePresentation(String name, int numPages) {
 		WhiteboardRoom room = roomManager.getRoom(getLocalScope().getName());
 		if (room.presentationExists(name)) {
 			room.setActivePresentation(name);
@@ -79,62 +77,62 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		}
 	}
 	
-	public void enableWhiteboard(boolean enabled){
+	public void enableWhiteboard(boolean enabled) {
 		roomManager.getRoom(getLocalScope().getName()).setWhiteboardEnabled(enabled);
-		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
-		List<Boolean> arguments = new ArrayList<Boolean>();
-		arguments.add(enabled);
-		drawSO.sendMessage("modifyEnabledCallback", arguments);
-	}
-	
-	public boolean isWhiteboardEnabled(){
-		return roomManager.getRoom(getLocalScope().getName()).isWhiteboardEnabled();
-	}
+//		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
+//		List<Boolean> arguments = new ArrayList<Boolean>();
+//		arguments.add(enabled);
+//		drawSO.sendMessage("modifyEnabledCallback", arguments);
 
-	public void sendAnnotationHistory(String userid) {
 		Map<String, Object> message = new HashMap<String, Object>();
-		message.put("type", "pencil");
-		
-		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userid, "receiveAnnotationHistory", message);
+		message.put("enabled", roomManager.getRoom(getLocalScope().getName()).isWhiteboardEnabled());
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getLocalScope().getName(), "EnableWhiteboardCommand", message);
 		connInvokerService.sendMessage(m);
 	}
 	
-	/*
-	public void sendShape(double[] shape, String type, int color, int thickness, String id, String status){
-		Shape newShape = new Shape(shape, type, color, thickness, id, status);
-		roomManager.getRoom(getLocalScope().getName()).addShape(newShape);
-		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
-		List<Object> arguments = newShape.toList();
-		drawSO.sendMessage("addSegment", arguments);
+	public void isWhiteboardEnabled(String userid) {
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("enabled", roomManager.getRoom(getLocalScope().getName()).isWhiteboardEnabled());
+		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userid, "IsWhiteboardEnabledReply", message);
+		connInvokerService.sendMessage(m);
 	}
-*/	
-	public void sendAnnotation(Map<String, Object> annotation) {
-		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
-		roomManager.getRoom(getLocalScope().getName()).addAnnotation(annotation);
-		List<Object> arguments = new ArrayList<Object>();
-		arguments.add(annotation);
-		drawSO.sendMessage("receiveAnnotation", arguments);
+
+	public void sendAnnotationHistory(String userid) {
+		Map<String, Object> message = new HashMap<String, Object>();		
+		List<Map<String, Object>> annotations = roomManager.getRoom(getLocalScope().getName()).getAnnotations();
+		message.put("count", new Integer(annotations.size()));
+		message.put("annotations", annotations);
+		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userid, "RequestAnnotationHistoryReply", message);
+		connInvokerService.sendMessage(m);
 	}
 	
-	public int getNumShapesOnPage(int pageNum){
+	public void sendAnnotation(Map<String, Object> annotation) {
+//		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
+//		roomManager.getRoom(getLocalScope().getName()).addAnnotation(annotation);
+//		List<Object> arguments = new ArrayList<Object>();
+//		arguments.add(annotation);
+//		drawSO.sendMessage("receiveAnnotation", arguments);
+		
+		Map<String, Object> message = new HashMap<String, Object>();		
+		roomManager.getRoom(getLocalScope().getName()).addAnnotation(annotation);
+		message.put("annotation", annotation);
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getLocalScope().getName(), "NewAnnotationCommand", annotation);
+		connInvokerService.sendMessage(m);
+	}
+	
+	public int getNumShapesOnPage(int pageNum) {
 		Presentation pres = roomManager.getRoom(getLocalScope().getName()).getActivePresentation();
 		pres.setActivePage(pageNum);
 		return pres.getActivePage().getNumShapesOnPage();
 	}
-	
-	public List<Map<String, Object>> getShapes(){
-		List<Map<String, Object>> shapesList = roomManager.getRoom(getLocalScope().getName()).getShapes();
 		
-		return shapesList;
-	}
-	
-	public void clear(){
+	public void clear() {
 		roomManager.getRoom(getLocalScope().getName()).clear();
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
 		drawSO.sendMessage("clear", new ArrayList<Object>());
 	}
 	
-	public void undo(){
+	public void undo() {
 		roomManager.getRoom(getLocalScope().getName()).undo();
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
 		drawSO.sendMessage("undo", new ArrayList<Object>());

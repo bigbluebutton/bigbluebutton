@@ -71,6 +71,7 @@ public class ConnectionInvokerService {
 			IScope scope = scopes.get(message.getDest());
 			if (scope != null) {
 				List<Object> params = new ArrayList<Object>();
+				params.add(message.getMessageName());
 				params.add(message.getMessage());
 				ServiceUtils.invokeOnAllConnections(scope, "onMessageFromServer", params.toArray());				
 			}
