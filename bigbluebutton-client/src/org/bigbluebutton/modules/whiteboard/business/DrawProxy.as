@@ -28,6 +28,8 @@ package org.bigbluebutton.modules.whiteboard.business
 	import flash.net.SharedObject;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.main.model.users.IMessageListener;
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
@@ -43,7 +45,7 @@ package org.bigbluebutton.modules.whiteboard.business
 	 * @author dzgonjan
 	 * 
 	 */	
-	public class DrawProxy
+	public class DrawProxy implements IMessageListener
 	{	
 		private var url:String;
 		private var host:String;
@@ -70,6 +72,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		{
 			drawFactory = new DrawObjectFactory();
 			dispatcher = new Dispatcher();
+            BBB.initConnectionManager().addMessageListener(this);
 		}
 		
 		public function connect(e:StartWhiteboardModuleEvent):void{
@@ -96,6 +99,10 @@ package org.bigbluebutton.modules.whiteboard.business
 			connection = a.connection;
 			url = connection.uri;
 		}
+        
+        public function onMessage(messageName:String, message:Object):void {
+            LogUtil.debug("WB: received message " + messageName);
+        }
 		
 		/**
 		 * Once a shared object is created, it is synced accross all clients, and this method is invoked 

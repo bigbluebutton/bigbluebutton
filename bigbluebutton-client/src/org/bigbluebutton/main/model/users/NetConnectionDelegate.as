@@ -61,10 +61,11 @@ package org.bigbluebutton.main.model.users
 		private var backoff:Number = 2000;
 		
 		private var dispatcher:Dispatcher;
-				
-		public function NetConnectionDelegate(uri:String) : void
+		
+        private var _messageListeners:Array = new Array();
+        
+		public function NetConnectionDelegate():void
 		{
-			_applicationURI = uri;
 			dispatcher = new Dispatcher();
 			
 			_netConnection = new NetConnection();				
@@ -75,9 +76,47 @@ package org.bigbluebutton.main.model.users
 			_netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 		}
 		
+        public function setUri(uri:String):void {
+            _applicationURI = uri;
+        }
+        
 		public function get connection():NetConnection {
 			return _netConnection;
 		}
+        
+        public function addMessageListener(listener:IMessageListener):void
+        {
+            _messageListeners.push(listener);
+        }
+        
+        public function removeMessageListener(listener:IMessageListener):void
+        {
+            for (var ob:int=0; ob<_messageListeners.length; ob++)
+            {
+                if (_messageListeners[ob]==listener)                    
+                {
+                    _messageListeners.splice (ob,1);
+                    break;
+                }
+            }
+        }
+        
+        private function notifyListeners(messageName:String, message:Object):void
+        {
+            if (messageName != null && messageName != "") {
+                for (var notify:String in _messageListeners)
+                {
+                    _messageListeners[notify].onMessage(messageName, message);
+                }                
+            } else {
+                LogUtil.debug("Message name is undefined");
+            }
+        }   
+        
+        public function onMessageFromServer(messageName:String, result:Object):void {
+            LogUtil.debug("Got message from server [" + messageName + "]");    
+            notifyListeners(messageName, result);
+        }
 		
 		/**
 		 * Connect to the server.
@@ -200,9 +239,7 @@ package org.bigbluebutton.main.model.users
 			}
 		}
 		
-        public function receiveAnnotationHistory(result:Object):void {
-            LogUtil.debug("Got annotation history");    
-        }
+
         
 		private function rtmptRetryTimerHandler(event:TimerEvent):void {
             LogUtil.debug(NAME + "rtmptRetryTimerHandler: " + event);

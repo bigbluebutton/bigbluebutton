@@ -72,15 +72,16 @@ public class ConnectionInvokerService {
 			if (scope != null) {
 				List<Object> params = new ArrayList<Object>();
 				params.add(message.getMessage());
-				ServiceUtils.invokeOnAllConnections(scope, message.getMessageName(), params.toArray());				
+				ServiceUtils.invokeOnAllConnections(scope, "onMessageFromServer", params.toArray());				
 			}
 		} else if (message.getType().equals(ClientMessage.DIRECT)) {
 			IConnection conn = connections.get(message.getDest());
 			if (conn != null) {
 				if (conn.isConnected()) {
 					List<Object> params = new ArrayList<Object>();
+					params.add(message.getMessageName());
 					params.add(message.getMessage());
-					ServiceUtils.invokeOnConnection(conn, message.getMessageName(), params.toArray());
+					ServiceUtils.invokeOnConnection(conn, "onMessageFromServer", params.toArray());
 				}
 			}
 		}
