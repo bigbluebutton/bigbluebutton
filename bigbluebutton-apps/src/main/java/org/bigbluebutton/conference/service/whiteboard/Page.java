@@ -25,37 +25,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.red5.compatibility.flex.messaging.io.ArrayCollection;
 
 public class Page {
 	
-	private ArrayCollection<Shape> shapes;
-	private ArrayList<Map<String, Object>> annotations;
-	
+	private ArrayList<Map<String, Object>> annotations;	
 	private int pageIndex;
 	
 	public Page(int pageIndex){
 		annotations = new ArrayList<Map<String, Object>>();
-		this.shapes = new ArrayCollection<Shape>();
+
 		this.setPageIndex(pageIndex);
 	}
-	
-//	public void addShape(Shape shape){
-//		shapes.add(shape);
-//	}
-	
+		
 	public void addAnnotation(Map<String, Object> annotation) {
 		annotations.add(annotation);
 	}
 	
-	public List<Map<String, Object>> getShapes() {
-/*
-		List<Object[]> shapesCollection = new ArrayList<Object[]>();
-		for (int i = 0; i<shapes.size(); i++){
-			shapesCollection.add(shapes.get(i).toObjectArray());
-		}
-		return shapesCollection;
-*/
+	public List<Map<String, Object>> getAnnotations() {
 		List<Map<String, Object>> a = new ArrayList<Map<String, Object>>();
 		for (Map<String, Object> v : annotations) {
 			a.add(v);
@@ -64,24 +50,29 @@ public class Page {
 		return a;
 	}
 	
-	public void clear(){
-		shapes.clear();
-		
+	public void deleteAnnotation(String id) {
+		int foundIndex = -1;
+		for (int i=0; i < annotations.size(); i++) {
+			Map<String, Object> annotation = annotations.get(i);
+			if (annotation.get("id").equals(id)) {
+				foundIndex = i;
+				break;
+			}
+		}
+		if (foundIndex >= 0) annotations.remove(foundIndex);
+	}
+	
+	public void clear() {
 		annotations.clear();
 	}
 	
-	public void undo(){
-//		if(shapes.size() > 0)
-//			shapes.remove(shapes.size()-1);
-		
+	public void undo() {
 		if (annotations.isEmpty()) {
 			annotations.remove(annotations.size() - 1);
 		}
 	}
 	
-	public int getNumShapesOnPage(){
-		//return this.shapes.size();
-		
+	public int getNumShapesOnPage() {
 		return annotations.size();
 	}
 

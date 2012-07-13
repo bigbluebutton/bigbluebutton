@@ -50,7 +50,7 @@ public class WhiteboardRoom {
 	 * @param name
 	 * @param numPages
 	 */
-	public void addPresentation(String name, int numPages){
+	public void addPresentation(String name, int numPages) {
 		activePresentation = new Presentation(name, numPages);
 		presentations.add(activePresentation);
 	}
@@ -80,19 +80,14 @@ public class WhiteboardRoom {
 		}
 		return exists;
 	}
-	
-//	public void addShape(Shape shape){
-//		activePresentation.getActivePage().addShape(shape);
-//		notifyAddShape(activePresentation, shape);
-//	}
-	
+		
 	public void addAnnotation(Map<String, Object> annotation){
 		activePresentation.getActivePage().addAnnotation(annotation);
 		notifyAddShape(activePresentation, annotation);
 	}
 	
 	public List<Map<String, Object>> getAnnotations(){
-		return activePresentation.getActivePage().getShapes();
+		return activePresentation.getActivePage().getAnnotations();
 	}
 	
 	public void clear(){
