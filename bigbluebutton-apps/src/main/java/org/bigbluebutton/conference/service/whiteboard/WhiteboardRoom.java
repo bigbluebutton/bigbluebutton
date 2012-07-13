@@ -26,28 +26,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.red5.server.api.IScope;
 
 public class WhiteboardRoom {
-	
-	private IScope scope;
 	private ArrayList<Presentation> presentations;
-	
+	private final String id;
 	private Presentation activePresentation;
 	private boolean whiteboardEnabled = false;
 	
 	private final Map<String, IWhiteboardRoomListener> listeners;
 	
-	public WhiteboardRoom(IScope scope){
-		this.scope = scope;
+	public WhiteboardRoom(String id){
+		this.id = id;
 		this.presentations = new ArrayList<Presentation>();
 		listeners = new ConcurrentHashMap<String, IWhiteboardRoomListener>();
 	}
 	
-	public IScope getScope(){
-		return this.scope;
+	public String getId() {
+		return id;
 	}
-
 	
 	/**
 	 * Add a new presentation. Will also set the activePresentation

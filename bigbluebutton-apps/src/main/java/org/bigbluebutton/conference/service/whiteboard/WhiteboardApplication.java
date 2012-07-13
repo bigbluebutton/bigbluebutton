@@ -21,7 +21,6 @@
 */
 package org.bigbluebutton.conference.service.whiteboard;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,17 +35,12 @@ import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.IScope;
 import org.red5.server.api.Red5;
-import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.conference.service.recorder.whiteboard.WhiteboardEventRecorder;
 
-public class WhiteboardApplication extends MultiThreadedApplicationAdapter implements IApplication {
-	
+public class WhiteboardApplication extends MultiThreadedApplicationAdapter implements IApplication {	
 	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardApplication.class, "bigbluebutton");
-	private static final String APP = "WHITEBOARD";
-	public static final String WHITEBOARD_SHARED_OBJECT = "drawSO";
-	public static final String PRESENTATION_SHARED_OBJECT = "presentationSO";
 	
 	private WhiteboardRoomManager roomManager;
 	private RecorderApplication recorderApplication;
@@ -65,11 +59,11 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	
 	@Override
 	public void appStop(IScope scope) {
-		roomManager.removeRoom(getLocalScope().getName());
+		roomManager.removeRoom(getMeetingId());
 	}
 	
 	public void setActivePresentation(String name, int numPages) {
-		WhiteboardRoom room = roomManager.getRoom(getLocalScope().getName());
+		WhiteboardRoom room = roomManager.getRoom(getMeetingId());
 		if (room.presentationExists(name)) {
 			room.setActivePresentation(name);
 		} else {
@@ -78,77 +72,63 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	}
 	
 	public void enableWhiteboard(boolean enabled) {
-		roomManager.getRoom(getLocalScope().getName()).setWhiteboardEnabled(enabled);
-//		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
-//		List<Boolean> arguments = new ArrayList<Boolean>();
-//		arguments.add(enabled);
-//		drawSO.sendMessage("modifyEnabledCallback", arguments);
-
+		roomManager.getRoom(getMeetingId()).setWhiteboardEnabled(enabled);
+		
 		Map<String, Object> message = new HashMap<String, Object>();
-		message.put("enabled", roomManager.getRoom(getLocalScope().getName()).isWhiteboardEnabled());
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getLocalScope().getName(), "WhiteboardEnableWhiteboardCommand", message);
+		message.put("enabled", roomManager.getRoom(getMeetingId()).isWhiteboardEnabled());
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "WhiteboardEnableWhiteboardCommand", message);
 		connInvokerService.sendMessage(m);
 	}
 	
 	public void isWhiteboardEnabled(String userid) {
 		Map<String, Object> message = new HashMap<String, Object>();
-		message.put("enabled", roomManager.getRoom(getLocalScope().getName()).isWhiteboardEnabled());
+		message.put("enabled", roomManager.getRoom(getMeetingId()).isWhiteboardEnabled());
 		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userid, "WhiteboardIsWhiteboardEnabledReply", message);
 		connInvokerService.sendMessage(m);
 	}
 
 	public void sendAnnotationHistory(String userid) {
 		Map<String, Object> message = new HashMap<String, Object>();		
-		List<Map<String, Object>> annotations = roomManager.getRoom(getLocalScope().getName()).getAnnotations();
+		List<Map<String, Object>> annotations = roomManager.getRoom(getMeetingId()).getAnnotations();
 		message.put("count", new Integer(annotations.size()));
 		message.put("annotations", annotations);
 		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userid, "WhiteboardRequestAnnotationHistoryReply", message);
 		connInvokerService.sendMessage(m);
 	}
 	
-	public void sendAnnotation(Map<String, Object> annotation) {
-//		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
-//		roomManager.getRoom(getLocalScope().getName()).addAnnotation(annotation);
-//		List<Object> arguments = new ArrayList<Object>();
-//		arguments.add(annotation);
-//		drawSO.sendMessage("receiveAnnotation", arguments);
-		
+	public void sendAnnotation(Map<String, Object> annotation) {	
 		Map<String, Object> message = new HashMap<String, Object>();		
-		roomManager.getRoom(getLocalScope().getName()).addAnnotation(annotation);
+		roomManager.getRoom(getMeetingId()).addAnnotation(annotation);
 		message.put("annotation", annotation);
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getLocalScope().getName(), "WhiteboardNewAnnotationCommand", annotation);
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "WhiteboardNewAnnotationCommand", annotation);
 		connInvokerService.sendMessage(m);
 	}
 	
 	public void changePage(int pageNum) {
-		Presentation pres = roomManager.getRoom(getLocalScope().getName()).getActivePresentation();
+		Presentation pres = roomManager.getRoom(getMeetingId()).getActivePresentation();
 		pres.setActivePage(pageNum);
 				
 		Map<String, Object> message = new HashMap<String, Object>();		
 		message.put("pageNum", pageNum);
 		message.put("numAnnotations", pres.getActivePage().getNumShapesOnPage());
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getLocalScope().getName(), "WhiteboardChangePageCommand", message);
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "WhiteboardChangePageCommand", message);
 		connInvokerService.sendMessage(m);
 	}
 			
 	public void clear() {
-		roomManager.getRoom(getLocalScope().getName()).clear();
-//		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
-//		drawSO.sendMessage("clear", new ArrayList<Object>());
-		
+		roomManager.getRoom(getMeetingId()).clear();
+
 		Map<String, Object> message = new HashMap<String, Object>();		
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getLocalScope().getName(), "WhiteboardClearCommand", message);
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "WhiteboardClearCommand", message);
 		connInvokerService.sendMessage(m);
 		
 	}
 	
 	public void undo() {
-		roomManager.getRoom(getLocalScope().getName()).undo();
-//		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
-//		drawSO.sendMessage("undo", new ArrayList<Object>());
-		
+		roomManager.getRoom(getMeetingId()).undo();
+
 		Map<String, Object> message = new HashMap<String, Object>();		
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getLocalScope().getName(), "WhiteboardUndoCommand", message);
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "WhiteboardUndoCommand", message);
 		connInvokerService.sendMessage(m);
 	}
 	
@@ -176,9 +156,9 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		log.debug("WHITEBOARD - getting record parameters");
 		if (getBbbSession().getRecord()){
 			log.debug("WHITEBOARD - recording : true");
-			WhiteboardEventRecorder recorder = new WhiteboardEventRecorder(getLocalScope().getName(), recorderApplication);
-			roomManager.getRoom(getLocalScope().getName()).addRoomListener(recorder);
-			log.debug("event session is " + getLocalScope().getName());
+			WhiteboardEventRecorder recorder = new WhiteboardEventRecorder(getMeetingId(), recorderApplication);
+			roomManager.getRoom(getMeetingId()).addRoomListener(recorder);
+			log.debug("event session is " + getMeetingId());
 		}
     	return true;
 	}
@@ -199,7 +179,7 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 
 	@Override
 	public boolean roomStart(IScope scope) {
-		roomManager.addRoom(scope);
+		roomManager.addRoom(scope.getName());
     	return true;
 	}
 
@@ -208,8 +188,8 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		roomManager.removeRoom(scope.getName());
 	}
 	
-	private IScope getLocalScope(){
-		return Red5.getConnectionLocal().getScope();
+	private String getMeetingId(){
+		return Red5.getConnectionLocal().getScope().getName();
 	}
 	
 	private BigBlueButtonSession getBbbSession() {

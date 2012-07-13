@@ -54,7 +54,6 @@ package org.bigbluebutton.modules.whiteboard.business
 		private var userid:Number;
 		private var connection:NetConnection;
 		
-		private var drawSO:SharedObject;
 		private var manualDisconnect:Boolean = false;
 		private var dispatcher:Dispatcher;
 		private var drawFactory:DrawObjectFactory;
@@ -62,14 +61,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		private var initialLoading:Boolean = true;
 		private var initialPageEvent:PageEvent;
 		
-		/**
-		 * The default constructor. Initializes the Connection and the red5 NetConnection class, which
-		 * interacts with the red5 server.
-		 * @param drawVO The drawVO Value Object which holds the objects being drawn by the user on the Whiteboard
-		 * 
-		 */		
-		public function DrawProxy()
-		{
+		public function DrawProxy() {
 			drawFactory = new DrawObjectFactory();
 			dispatcher = new Dispatcher();
             BBB.initConnectionManager().addMessageListener(this);
@@ -77,18 +69,6 @@ package org.bigbluebutton.modules.whiteboard.business
 		
 		public function connect(e:StartWhiteboardModuleEvent):void{
 			extractAttributes(e.attributes);
-			
-			drawSO = SharedObject.getRemote("drawSO", url, false);
-            drawSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
-            drawSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusEventHandler);
-            drawSO.client = this;
-            drawSO.connect(connection);
-		}
-		
-		private function netStatusEventHandler(e:NetStatusEvent):void{
-			LogUtil.debug("Whiteboard Shared Object Net Status: " + e.info.code);
-			LogUtil.debug("whiteboard connection uri: " + connection.uri);
-			LogUtil.debug("whiteboard shared object uri: " + url + "/" + room);
 		}
 		
 		private function extractAttributes(a:Object):void{
@@ -250,8 +230,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		public function sendShape(e:WhiteboardDrawEvent):void{
 			var shape:DrawObject = e.message;
 			LogUtil.debug("*** Sending shape");
-			var nc:NetConnection = connection;
-            
+			
             var annotation:Object = new Object();
             annotation["type"] = shape.getType();
             annotation["points"] = shape.getShapeArray();
@@ -259,7 +238,7 @@ package org.bigbluebutton.modules.whiteboard.business
             annotation["thickness"] = shape.getThickness();
             annotation["id"] = shape.id;
             annotation["status"] = shape.status;
-            
+            var nc:NetConnection = connection;
             nc.call("whiteboard.sendAnnotation",
                 new Responder(                    
                     function(result:Object):void { // On successful result
