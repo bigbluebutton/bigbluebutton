@@ -88,8 +88,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		public function makeRectangle(shape:Array, color:uint, thickness:uint):DrawObject{
-			//return new Rectangle(shape, color, thickness);
-            return new Text(shape, color, thickness);
+			return new Rectangle(shape, color, thickness);
 		}
 		
 		/**

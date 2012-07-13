@@ -86,14 +86,14 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("enabled", roomManager.getRoom(getLocalScope().getName()).isWhiteboardEnabled());
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getLocalScope().getName(), "EnableWhiteboardCommand", message);
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getLocalScope().getName(), "WhiteboardEnableWhiteboardCommand", message);
 		connInvokerService.sendMessage(m);
 	}
 	
 	public void isWhiteboardEnabled(String userid) {
 		Map<String, Object> message = new HashMap<String, Object>();
 		message.put("enabled", roomManager.getRoom(getLocalScope().getName()).isWhiteboardEnabled());
-		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userid, "IsWhiteboardEnabledReply", message);
+		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userid, "WhiteboardIsWhiteboardEnabledReply", message);
 		connInvokerService.sendMessage(m);
 	}
 
@@ -102,7 +102,7 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		List<Map<String, Object>> annotations = roomManager.getRoom(getLocalScope().getName()).getAnnotations();
 		message.put("count", new Integer(annotations.size()));
 		message.put("annotations", annotations);
-		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userid, "RequestAnnotationHistoryReply", message);
+		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userid, "WhiteboardRequestAnnotationHistoryReply", message);
 		connInvokerService.sendMessage(m);
 	}
 	
@@ -116,26 +116,40 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		Map<String, Object> message = new HashMap<String, Object>();		
 		roomManager.getRoom(getLocalScope().getName()).addAnnotation(annotation);
 		message.put("annotation", annotation);
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getLocalScope().getName(), "NewAnnotationCommand", annotation);
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getLocalScope().getName(), "WhiteboardNewAnnotationCommand", annotation);
 		connInvokerService.sendMessage(m);
 	}
 	
-	public int getNumShapesOnPage(int pageNum) {
+	public void changePage(int pageNum) {
 		Presentation pres = roomManager.getRoom(getLocalScope().getName()).getActivePresentation();
 		pres.setActivePage(pageNum);
-		return pres.getActivePage().getNumShapesOnPage();
+				
+		Map<String, Object> message = new HashMap<String, Object>();		
+		message.put("pageNum", pageNum);
+		message.put("numAnnotations", pres.getActivePage().getNumShapesOnPage());
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getLocalScope().getName(), "WhiteboardChangePageCommand", message);
+		connInvokerService.sendMessage(m);
 	}
-		
+			
 	public void clear() {
 		roomManager.getRoom(getLocalScope().getName()).clear();
-		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
-		drawSO.sendMessage("clear", new ArrayList<Object>());
+//		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
+//		drawSO.sendMessage("clear", new ArrayList<Object>());
+		
+		Map<String, Object> message = new HashMap<String, Object>();		
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getLocalScope().getName(), "WhiteboardClearCommand", message);
+		connInvokerService.sendMessage(m);
+		
 	}
 	
 	public void undo() {
 		roomManager.getRoom(getLocalScope().getName()).undo();
-		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
-		drawSO.sendMessage("undo", new ArrayList<Object>());
+//		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
+//		drawSO.sendMessage("undo", new ArrayList<Object>());
+		
+		Map<String, Object> message = new HashMap<String, Object>();		
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getLocalScope().getName(), "WhiteboardUndoCommand", message);
+		connInvokerService.sendMessage(m);
 	}
 	
 	@Override

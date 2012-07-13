@@ -76,9 +76,9 @@ public class WhiteboardService {
 	 * @return - returns the number of shapes in the history of the requested page. This way the client can perform a simple check of whether
 	 * it should retrieve the page history. This saves some bandwidth for the server.
 	 */
-	public int setActivePage(int pageNum){
+	public void setActivePage(int pageNum){
 		log.info("WhiteboardApplication - Getting number of shapes for page: " + pageNum);
-		return 1; //application.getNumShapesOnPage(pageNum);
+		application.changePage(pageNum);
 	}
 	
 	public void requestAnnotationHistory() {
