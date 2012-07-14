@@ -38,6 +38,7 @@ package org.bigbluebutton.modules.whiteboard.business
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 	
 	/**
 	 * The DrawProxy class is a Delegate class for the Red5 Server. It communicates directly with the Red5
@@ -60,8 +61,10 @@ package org.bigbluebutton.modules.whiteboard.business
 		
 		private var initialLoading:Boolean = true;
 		private var initialPageEvent:PageEvent;
+		private var _whiteboardModel:WhiteboardModel;
 		
-		public function DrawProxy() {
+		public function DrawProxy(model:WhiteboardModel) {
+			_whiteboardModel = model;
 			drawFactory = new DrawObjectFactory();
 			dispatcher = new Dispatcher();
             BBB.initConnectionManager().addMessageListener(this);
