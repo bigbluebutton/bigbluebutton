@@ -21,9 +21,10 @@
 -->
 
 <mx:HBox xmlns="flexlib.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
-	xmlns:mate="http://mate.asfusion.com/" visible="false" backgroundColor="0xCCCCCC" cornerRadius="5" borderStyle="solid" 
-	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" alpha="0" xmlns:views="org.bigbluebutton.modules.whiteboard.views.*"
-	 xmlns:local="*">
+	xmlns:mate="http://mate.asfusion.com/" visible="false" backgroundColor="0xCCCCCC" 
+	cornerRadius="5" borderStyle="solid" 
+	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" alpha="0" 
+	xmlns:views="org.bigbluebutton.modules.whiteboard.views.*" xmlns:local="*">
 	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
@@ -187,9 +188,13 @@
 			}
 			
 			private function disableTextToolbar():void{
-				LogUtil.debug("Disabling toolbar");
 				this.visible = false;
 				this.alpha = 0;
+			}
+			
+			private function handleHideTextToolbarEvent(e:HideTextToolbarEvent):void{
+				LogUtil.debug("hiding toolbar by hidetexttoolbarevent");
+				this.disableTextToolbar();
 			}
 			
 			public function syncPropsWith(tobj:TextObject):void{
@@ -209,26 +214,32 @@
 				}
 			}
 			
+			// invoked by WhiteboardManager when the TextToolbar is first loaded
 			public function positionToolbar(window:PresentationWindow):void{
 				this.presentationWindow = window;
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, repositionToolbarByWindow);
 				presentationWindow.addEventListener(MouseEvent.CLICK, repositionToolbarByWindow);
 				presentationWindow.addEventListener(MoveEvent.MOVE, repositionToolbarByWindow);
-				// intial positioning of text toolbar
 				disableTextToolbar();
 				this.x = 0;
 				this.y = 0;
 				parent.setChildIndex(this, parent.numChildren-1);
+				canvas.model.doMouseDoubleClick(0,0);
+
 			}
 			
+			/* required for repositioning the TextToolbar when an event occurs
+			   on the presentation window
+			*/
 			public function repositionToolbarByWindow(event:Event = null):void {
 				repositionToolbar();
 			}
 			
 			public function repositionToolbar(tobj:TextObject = null):void {
-				// translate textobject's coords to stage coords because texttoolbar is on stage
-				if(tobj == null) tobj = currentlySelectedTextObject;
-				textSizeMenu.close();
+				// translate TextObject's coords to stage coords because TextToolbar is added to stage
+				if(tobj == null)  tobj = currentlySelectedTextObject;
+				if(textSizeMenu.isPopUp)
+					textSizeMenu.close();
 				var loc:Point = canvas.localToGlobal(new Point(tobj.x, tobj.y));
 				this.x = loc.x;
 				this.y = loc.y - this.height - 45;
@@ -260,6 +271,7 @@
 				LogUtil.debug("!!!!DESELECTED:" + " " + tobj.getProperties());
 			}
 
+			// repositions the toolbar when canvas is zoomed
 			public function adjustForZoom(x:Number, y:Number):void {
 				repositionToolbar(currentlySelectedTextObject);
 			}

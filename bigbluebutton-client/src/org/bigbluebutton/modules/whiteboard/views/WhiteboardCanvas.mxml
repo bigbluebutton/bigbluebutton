@@ -39,7 +39,7 @@
 			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
 			
 			public var model:WhiteboardCanvasModel;	
 			public var textToolbar:WhiteboardTextToolbar;		
@@ -115,15 +115,6 @@
 			
 			public function toggleTransparency():void {
 				model.toggleTransparency();
-			}
-			
-			public function setFill(e:WhiteboardSettingEvent):void {
-				model.setFill(e.value);
-
-			}
-			
-			public function setTransparent(e:WhiteboardSettingEvent):void{
-				model.setTransparent(e.value);
 			}
 			
 			public function get xPosition():int {

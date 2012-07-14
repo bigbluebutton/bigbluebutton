@@ -34,48 +34,24 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			_parentHeight = height;
 		}
 		
-		public function cloneTextObject(txt:String, txtColor:uint,
-										 bgColor:uint, bgColorVisible:Boolean,
-										 x:Number, y:Number, textSize:Number):TextObject {
-			var tobj:TextObject = new TextObject();
-			tobj.x = x;
-			tobj.y = y;
-			tobj.text = txt;
-			tobj.textColor = txtColor;
-			tobj.backgroundColor = bgColor;
-			tobj.background = bgColorVisible;
-			tobj.textSize = textSize;
-			return tobj;
-		}
-		
 		public function createTextObject(txt:String, txtColor:uint,
 										 bgColor:uint, bgColorVisible:Boolean,
 										 x:Number, y:Number, textSize:Number):TextObject {
-			var tobj:TextObject = new TextObject();
-			tobj.x = normalize(x,_parentWidth);
-			tobj.y = normalize(y,_parentHeight);
-			tobj.text = txt;
-			tobj.textColor = txtColor;
-			tobj.backgroundColor = bgColor;
-			tobj.background = bgColorVisible;
-			tobj.textSize = textSize;
+			
+			var newX:Number = normalize(x,_parentWidth);
+			var newY:Number = normalize(y,_parentHeight);
+			var tobj:TextObject = new TextObject(txt, txtColor, bgColor, bgColorVisible, 
+												newX, newY, textSize);
 			tobj.makeGraphic(_parentWidth,_parentHeight);
 			return tobj;
 		}
 		
+		/* convenience method for above method, takes a TextObject and returns one
+			with "normalized" coordinates
+		*/
 		public function makeTextObject(t:TextObject):TextObject {
-			// pretty much a dummy method until further subclasses
-			// of TextObject come into play
-			var tobj:TextObject = new TextObject();
-			tobj.text = t.text;
-			tobj.textColor = t.textColor;
-			tobj.backgroundColor = t.backgroundColor;
-			tobj.background = t.background;
-			tobj.x = normalize(t.x,_parentWidth);
-			tobj.y = normalize(t.y,_parentHeight);
-			tobj.textSize = t.textSize;
-			tobj.makeGraphic(_parentWidth,_parentHeight);
-			return tobj;
+			return createTextObject(t.text, t.textColor, t.backgroundColor, t.background,
+									t.x, t.y, t.textSize);
 		}
 
 		public function getParentWidth():Number {

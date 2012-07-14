@@ -67,8 +67,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		private var ID:String = WhiteboardConstants.ID_UNASSIGNED;
 		public var textSize:Number;
 		
-		public function TextObject() {
-
+		public function TextObject(text:String, textColor:uint, bgColor:uint, 
+								   bgColorVisible:Boolean, x:Number, y:Number, textSize:Number) {
+			this.text = text;
+			this.textColor = textColor;
+			this.backgroundColor = bgColor;
+			this.background = bgColorVisible;
+			this.x = x;
+			this.y = y;
+			this.textSize = textSize;
 		}	
 		
 		public function getGraphicType():String {

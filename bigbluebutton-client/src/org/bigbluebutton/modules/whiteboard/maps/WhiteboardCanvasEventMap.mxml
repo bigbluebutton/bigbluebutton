@@ -87,7 +87,11 @@
 	<EventHandlers type="{WhiteboardDrawEvent.UNDO_GRAPHIC}" >
 		<MethodInvoker generator="{DrawProxy}" method="undoGraphic" />
 	</EventHandlers>
-
+	
+	<EventHandlers type="{ToggleGridEvent.TOGGLE_GRID}" >
+		<MethodInvoker generator="{DrawProxy}" method="toggleGrid" />
+	</EventHandlers>
+	
 	<EventHandlers type="{WhiteboardUpdate.BOARD_UPDATED}">
 		<MethodInvoker generator="{PageManager}" method="addGraphicToPage" arguments="{event}" />
 	</EventHandlers>

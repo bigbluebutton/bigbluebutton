@@ -29,7 +29,6 @@ package org.bigbluebutton.modules.whiteboard.events
 		public static const BOARD_CLEARED:String = "boardClear";
 		public static const BOARD_ENABLED:String = "boardEnabled";
 		public static const GRAPHIC_UNDONE:String = "graphicUndone";
-		public static const GRID_TOGGLED:String = "gridToggled";
 			
 		public var data:GraphicObject;
 		public var recvdShapes:Boolean;

@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.Conference;
@@ -31,13 +32,13 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
+	import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardButton;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
-	import org.bigbluebutton.common.LogUtil;
 	
 	public class WhiteboardManager
 	{
@@ -56,7 +57,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 			if (highlighterCanvas != null) return;
 			highlighterCanvas = new WhiteboardCanvas();
 			highlighterCanvas.model = model;
-			 model.wbCanvas = highlighterCanvas;
+		    model.wbCanvas = highlighterCanvas;
 			if (highlighterToolbar != null) return;
 			highlighterToolbar = new WhiteboardToolbar();
 			highlighterToolbar.canvas = highlighterCanvas;
@@ -88,16 +89,18 @@ package org.bigbluebutton.modules.whiteboard.managers
 			
 
 		public function positionToolbar(e:WhiteboardButtonEvent):void{
+			// add text toolbar for allowing customization of text	
 			var addUIEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
 			addUIEvent.component = highlighterToolbar;
 			globalDispatcher.dispatchEvent(addUIEvent);
 			highlighterToolbar.positionToolbar(e.window);
+			highlighterToolbar.stage.focus = highlighterToolbar;
 			
-			// add text toolbar for allowing customization of text
 			var addTextToolbarEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
 			addTextToolbarEvent.component = textToolbar;
 			globalDispatcher.dispatchEvent(addTextToolbarEvent);
-			textToolbar.positionToolbar(e.window);	
+			textToolbar.positionToolbar(e.window);
+			e.window.stage.focus = e.window;
 		}
 
 		public function drawGraphic(event:WhiteboardUpdate):void{
@@ -112,7 +115,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 			model.undoGraphic();
 		}
 		
-		public function toggleGrid(event:WhiteboardUpdate):void{
+		public function toggleGrid(event:ToggleGridEvent):void{
 			model.toggleGrid(event);
 		}
 		

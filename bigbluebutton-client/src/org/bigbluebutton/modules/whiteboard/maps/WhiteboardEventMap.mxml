@@ -24,7 +24,8 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Alert;
-			import mx.events.FlexEvent;			
+			import mx.events.FlexEvent;
+			
 			import org.bigbluebutton.main.events.ModuleStartedEvent;
 			import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
@@ -34,6 +35,7 @@
 			import org.bigbluebutton.modules.whiteboard.business.DrawProxy;
 			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 			import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
+			import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
@@ -88,7 +90,7 @@
 		<MethodInvoker generator="{DrawProxy}" method="undoGraphic" />
 	</EventHandlers>
 	
-	<EventHandlers type="{WhiteboardDrawEvent.TOGGLE_GRID}" >
+	<EventHandlers type="{ToggleGridEvent.TOGGLE_GRID}" >
 		<MethodInvoker generator="{DrawProxy}" method="toggleGrid" />
 	</EventHandlers>
 	
@@ -104,7 +106,7 @@
 		<MethodInvoker generator="{PageManager}" method="clearPage" />
 	</EventHandlers>
 	
-	<EventHandlers type="{WhiteboardUpdate.GRID_TOGGLED}" >
+	<EventHandlers type="{ToggleGridEvent.GRID_TOGGLED}" >
 		<MethodInvoker generator="{PageManager}" method="toggleGrid" />
 	</EventHandlers>
 		
@@ -149,7 +151,7 @@
 	<EventHandlers type="{WhiteboardUpdate.GRAPHIC_UNDONE}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="undoGraphic" arguments="{event}" />
 	</EventHandlers>
-	<EventHandlers type="{WhiteboardUpdate.GRID_TOGGLED}" >
+	<EventHandlers type="{ToggleGridEvent.GRID_TOGGLED}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="toggleGrid"  arguments="{event}" />
 	</EventHandlers>
 	<EventHandlers type="{PageEvent.CHANGE_PAGE}" >

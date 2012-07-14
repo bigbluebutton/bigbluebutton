@@ -31,7 +31,6 @@ import org.bigbluebutton.conference.service.whiteboard.WBGraphic.Type;
 public class Page {
 	
 	private HashMap<String, WBGraphic> graphicObjs;
-	//private int lastGraphicIndex = -1;
 	private int pageIndex;
 	private boolean isGrid = false;
 	
@@ -42,12 +41,10 @@ public class Page {
 	
 	public void addShapeGraphic(ShapeGraphic shape){
 		graphicObjs.put(shape.ID, shape);
-		//lastGraphicIndex++;
 	}
 	
 	public void addTextGraphic(TextGraphic text){
 		graphicObjs.put(text.ID, text);
-		//lastGraphicIndex++;
 	}
 	
 	public void modifyShapeGraphic(String key, ShapeGraphic shape){
@@ -100,30 +97,7 @@ public class Page {
 	}
 	
 	public void undo(){
-		/*int mappingToRemove = -1;
-		
-		for(String s: graphicObjs.keySet()) {
-			mappingToRemove = Integer.parseInt(s);
-			if(!graphicObjs.containsKey(mappingToRemove+1))
-				break;
-		}
-		System.out.println("Object removed was a " + 
-				graphicObjs.get(mappingToRemove) + " "
-				+ "with ID of " + mappingToRemove);
-		if(graphicObjs.size() > 0)
-			graphicObjs.remove(mappingToRemove);*/
-		/*List<String> list = new ArrayList<String>(graphicObjs.keySet());
-		graphicObjs.remove(list.get(list.size()-1));
-		for(int i = 0; i < graphicObjs.size(); i++) {
-			Object[] test = graphicObjs.get("" + i).toObjectArray();
-			System.out.println(test[2] + " ");
-			for(Object o: test) {
-				System.out.print(o + " ");
-			}	
-		}*/
 		graphicObjs.remove(Integer.toString(graphicObjs.size()-1));
-		//lastGraphicIndex--;
-		//System.out.println("UNDONE, NEW SIZE: " + graphicObjs.size());
 	}
 	
 	public void toggleGrid() {

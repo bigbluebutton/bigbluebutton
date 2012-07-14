@@ -30,8 +30,9 @@
 	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />
 	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
 	<mate:Listener type="{WhiteboardButtonEvent.CHANGE_TO_PENCIL}" method="setShapeToPencil" />
-	<mate:Listener type="{WhiteboardSettingEvent.FILL_CHANGED}" method="setFill" />
-	<mate:Listener type="{WhiteboardSettingEvent.TRANSPARENCY_CHANGED}" method="setTransparent" />
+	<mate:Listener type="{WhiteboardSettingResetEvent.FILL_CHANGED}" method="resetFill" />
+	<mate:Listener type="{WhiteboardSettingResetEvent.TRANSPARENCY_CHANGED}" method="resetTransparent" />
+	<mate:Listener type="{WhiteboardSettingResetEvent.GRID_CHANGED}" method="resetGrid" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
 	
@@ -74,10 +75,11 @@
 			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
 			import org.bigbluebutton.modules.whiteboard.events.HideTextToolbarEvent;
 			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
+			import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
@@ -105,7 +107,7 @@
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', 
                 '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF',
 				'0xC0C0C0'
-				];
+			];
 			
 			/**
 			 * Sets the type of shape we're drawing (pencil, rectangle, etc...) 
@@ -284,24 +286,24 @@
 				canvas.toggleTransparency();
 			}
 			
-			protected function setFill(e:WhiteboardSettingEvent):void{
-				canvas.setFill(e);
+			protected function resetFill(e:WhiteboardSettingResetEvent):void{
+				btnToggleFill.enabled = e.value;
 			}
 			
-			protected function setTransparent(e:WhiteboardSettingEvent):void{
-				canvas.setTransparent(e);
+			protected function resetTransparent(e:WhiteboardSettingResetEvent):void{
+				btnToggleTransparency.enabled = e.value;
+			}
+			
+			protected function resetGrid(e:WhiteboardSettingResetEvent):void{
+				btnToggleGrid.enabled = e.value;
 			}
 			
 			private function presenterMode(e:MadePresenterEvent):void{
 				canvas.makeTextObjectsEditable(e);
-				//canvas.addChild(canvas.model.transTool);
-				//this.visible = true;
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void{
-				//this.visible = false;
 				canvas.makeTextObjectsUneditable(e);
-				//disableWhiteboard();
 			}
 			
 			private function showToolbar(e:PresentationEvent):void{
@@ -309,22 +311,16 @@
 			}
 			
 			private function sendUndoCommand():void{
-				if (!canvas.isPageEmpty()) dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO_GRAPHIC));
+				if (!canvas.isPageEmpty()) 
+					dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO_GRAPHIC));
 			}
 			
 			private function enableWhiteboard(event:WhiteboardButtonEvent = null):void{
 				this.visible = true;
-				
-				/*var e:HighlighterPresenterEvent = new HighlighterPresenterEvent(HighlighterPresenterEvent.MODIFY_ENABLED);
-				e.enabled = true;
-				dispatchEvent(e);*/
 			}
 			
 			private function disableWhiteboard(event:WhiteboardButtonEvent = null):void{
 				this.visible = false;
-				/*var e:HighlighterPresenterEvent = new HighlighterPresenterEvent(HighlighterPresenterEvent.MODIFY_ENABLED);
-				e.enabled = false;
-				dispatchEvent(e);*/
 			}
 			
 			public function positionToolbar(window:PresentationWindow):void{
@@ -366,6 +362,12 @@
 			}
 		]]>
 	</mx:Script>
+	
+	<!-- Now, every 'tool' has two types of identifiers, one is found in WhiteboardConstants
+	that identifies the "category" of the tool (ex. shape vs text), and the other specifies the 
+	tool itself (ex. line tool vs triangle tool, even though both are "shapes")
+	-->
+	
 	<mx:Button width="20" height="20" id="btnSelect" click="setTool(WhiteboardConstants.TYPE_SELECTION, SelectObject.SELECT_TOOL)"  icon="{select_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.select')}" toggle="true"/>
 	<mx:Button width="20" height="20" id="btnPenc" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.PENCIL)"  icon="{pencil_icon}" 
@@ -377,14 +379,14 @@
 	<mx:Button width="20" height="20" id="btnEllipse" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.ELLIPSE)" icon="{ellipse_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" toggle="true" />
 	<mx:Button width="20" height="20" id="btnTriangle" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.TRIANGLE)" icon="{triangle_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.triangle')}" toggle="true" />
+			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.triangle')}" toggle="true" />
 	<mx:Button width="20" height="20" id="btnLine" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.LINE)" icon="{line_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.line')}" toggle="true" />
 	<mx:Button width="20" height="20" id="btnText" click="setTool(WhiteboardConstants.TYPE_TEXT, TextObject.TEXT_TOOL)" icon="{text_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.text')}" toggle="true" />
 	<mx:Button width="20" height="20" id="btnEraser" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.ERASER)" icon="{eraser_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.eraser')}" toggle="true" />
-	<mx:Button width="20" height="20" id="btnToggleGrid" click="dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.TOGGLE_GRID));" icon="{grid_icon}" 
+	<mx:Button width="20" height="20" id="btnToggleGrid" click="dispatchEvent(new ToggleGridEvent(ToggleGridEvent.TOGGLE_GRID));" icon="{grid_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.toggleGrid')}" toggle="true" />
 	
 	<mx:Spacer height="5" />
@@ -402,11 +404,17 @@
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo')}" />
 	
 	<mx:Spacer height="5" />
+	
 	<!--
 	Properties that were removed from original color picker:
 	
 	swatchPanelStyleName="colorPickerStyle" 
 	dataProvider="{colorPickerColours}"
+	-->
+	
+	<!-- Layout is really bad right now, and is confusing. Basically, there are two 
+	of ColorPickers, one for the "line" color for the outlines of shapes, and the other for
+	the "fill" color that is used only if "fill" is enabled in WhiteboardCanvasModel
 	-->
 	<mx:ColorPicker change="changeColor(event)" id="cpik"  selectedColor="0x000000" 
 					toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>

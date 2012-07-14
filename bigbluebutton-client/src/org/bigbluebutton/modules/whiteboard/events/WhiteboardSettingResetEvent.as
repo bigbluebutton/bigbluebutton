@@ -20,12 +20,17 @@
 package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
-	
-	public class WhiteboardTextObjectEvent extends Event
+	public class WhiteboardSettingResetEvent extends Event
 	{
-		public function WhiteboardTextObjectEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
+		public static const FILL_CHANGED:String = "FILL_CHANGED";
+		public static const TRANSPARENCY_CHANGED:String = "TRANSPARENCY_CHANGED";
+		public static const GRID_CHANGED:String = "GRID_CHANGED";
+		
+		public var value:Boolean;
+		
+		public function WhiteboardSettingResetEvent(type:String)
 		{
-			super(type, bubbles, cancelable);
+			super(type,true,false);
 		}
 	}
 }

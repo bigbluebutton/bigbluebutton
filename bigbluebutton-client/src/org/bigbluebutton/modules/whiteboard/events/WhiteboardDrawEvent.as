@@ -29,7 +29,6 @@ package org.bigbluebutton.modules.whiteboard.events
 		public static const SEND_TEXT:String = "sendText";
 		public static const CLEAR_BOARD:String = "clearBoard";
 		public static const UNDO_GRAPHIC:String = "undoGraphic"
-		public static const TOGGLE_GRID:String = "toggleGrid";
 		
 		public var message:GraphicObject;
 		

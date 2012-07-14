@@ -37,6 +37,7 @@ package org.bigbluebutton.modules.whiteboard.business
 	import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
+	import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
@@ -270,7 +271,7 @@ package org.bigbluebutton.modules.whiteboard.business
 								x:Number, y:Number, textSize:Number, id:String, status:String, recvdShapes:Boolean = false):void {
 			//LogUtil.error("Step 3(received): " + x + "," + y);
 			LogUtil.debug("Rx add text **** with ID of " + id + " " + x + "," + y);
-			var t:TextObject = textFactory.cloneTextObject(text, textColor, bgColor, bgColorVisible, x, y, textSize);	
+			var t:TextObject = new TextObject(text, textColor, bgColor, bgColorVisible, x, y, textSize);
 			t.setGraphicID(id);
 			t.status = status;
 			
@@ -355,6 +356,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * 
 		 */		
 		public function toggleGrid():void{
+			LogUtil.debug("sending toggle grid");
 			var nc:NetConnection = connection;
 			nc.call(
 				"whiteboard.toggleGrid",// Remote function name
@@ -382,7 +384,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		 */		
 		public function toggleGridCallback():void{
 			LogUtil.debug("TOGGLE CALLBACK RECEIVED"); 
-			dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.GRID_TOGGLED));
+			dispatcher.dispatchEvent(new ToggleGridEvent(ToggleGridEvent.GRID_TOGGLED));
 		}
 		
 		public function modifyEnabled(e:WhiteboardPresenterEvent):void{
@@ -420,7 +422,7 @@ package org.bigbluebutton.modules.whiteboard.business
 	        		// On successful result
 					function(result:Object):void { 
 						LogUtil.debug("Whiteboard::getHistory() : retrieving whiteboard history"); 
-						receivedGraphicsHistory(result);
+						receivedHistory(result);
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -434,12 +436,18 @@ package org.bigbluebutton.modules.whiteboard.business
 			); //_netConnection.call
 		}
 		
-		private function receivedGraphicsHistory(result:Object):void{
+		/* receives the history ( the list of attributes for all the GraphicObjects for the current page)
+			and parses them accordingly, and adds them to the whiteboard according
+			to the type of GraphicObject it is. This might not be the most scalable
+			system so I plan to improve later on.
+		*/
+		private function receivedHistory(result:Object):void{
 			if (result == null) return;
 			
 			var graphicObjs:Array = result as Array;
 			LogUtil.debug("Whiteboard::recievedShapesHistory() : recieved " + graphicObjs.length);
 			
+			var receivedObjs:Array = new Array();
 			
 			for (var i:int=0; i < graphicObjs.length-1; i++) {
 				var graphic:Array = graphicObjs[i] as Array;
@@ -454,7 +462,12 @@ package org.bigbluebutton.modules.whiteboard.business
 					var transparent:Boolean = graphic[7] as Boolean;
 					var id:String = graphic[8] as String;
 					var status:String = graphic[9] as String;
-					addSegment(graphicType, shapeArray, type, color, thickness, fill, fillColor, transparent, id, status, true);
+					var dobj:DrawObject = 
+						new DrawObject(type, shapeArray, color, thickness, fill, fillColor, transparent);
+					dobj.setGraphicID(id);
+					dobj.status = status;
+					receivedObjs.push(dobj);
+					//addSegment(graphicType, shapeArray, type, color, thickness, fill, fillColor, transparent, id, status, true);
 				} else if(graphicType == WhiteboardConstants.TYPE_TEXT) {
 					var text:String = graphic[1] as String;
 					var textColor:uint = graphic[2] as uint;
@@ -465,14 +478,63 @@ package org.bigbluebutton.modules.whiteboard.business
 					var textSize:Number = graphic[7] as Number;
 					var id_other:String = graphic[8] as String;
 					var status_other:String = graphic[9] as String;
-					addText(graphicType, text, textColor, bgColor, bgColorVisible, x, y, textSize, id_other, status_other, true);
+					var tobj:DrawObject = 
+						new DrawObject(type, shapeArray, color, thickness, fill, fillColor, transparent);
+					tobj.setGraphicID(id);
+					tobj.status = status;
+					receivedObjs.push(dobj);
+					//addText(graphicType, text, textColor, bgColor, bgColorVisible, x, y, textSize, id_other, status_other, true);
 				}
 			}
+				/* the following loop is used to make sure that all the shapes are added
+					to the whiteboard in the order in which they were created. This ensures
+					that situations where transparency is a factor do not cause the shapes
+					to be layered differently than they originally were 
+				*/
+				LogUtil.debug("SIZE!!!!!!!!!! " + receivedObjs.length);
+				for(var j:int = 0; j < receivedObjs.length; j++) {
+					var nextGobj:GraphicObject = getGraphicObjectOfID(String(j), receivedObjs);
+					
+					switch(nextGobj.getGraphicType()) {
+						case WhiteboardConstants.TYPE_SHAPE:
+							var dobjToAdd:DrawObject = nextGobj as DrawObject;
+							addSegment(dobjToAdd.getGraphicType(), dobjToAdd.getShapeArray(),
+								dobjToAdd.getType(), dobjToAdd.getColor(), dobjToAdd.getThickness(),
+								dobjToAdd.getFill(), dobjToAdd.getFillColor(), dobjToAdd.getTransparency(), 
+								dobjToAdd.getGraphicID(), dobjToAdd.status, true);
+							break;
+						case WhiteboardConstants.TYPE_TEXT:
+							var tobjToAdd:TextObject = nextGobj as TextObject;
+							addText(tobjToAdd.getGraphicType(), tobjToAdd.text,
+								tobjToAdd.textColor, tobjToAdd.backgroundColor, 
+								tobjToAdd.background, 	tobjToAdd.x, 
+								tobjToAdd.y, tobjToAdd.textSize, 
+								tobjToAdd.getGraphicID(), tobjToAdd.status, true);
+							break;
+						default: 
+							LogUtil.debug("Should not be coming here");
+							break;
+					}
+				}
+			/* this part of the array will store the value for whetehr or not the
+				current page has grid mode turned on
+			*/
 			var isGrid:Boolean = graphicObjs[graphicObjs.length-1][0] as Boolean;
 			if(isGrid) {
 				LogUtil.debug("Contacted server and server says grid mode is on for the current page. :D");
+				// if grid mode is on for the current page, toggle it from false to true
 				toggleGridCallback();
 			}
-		}	
+		}
+		
+		public function getGraphicObjectOfID(id:String, gobjArray:Array):GraphicObject {
+			var currGobj:GraphicObject;
+			for(var i:int = 0; i < gobjArray.length; i++) {
+				currGobj = gobjArray[i] as GraphicObject;
+				if(currGobj.getGraphicID() == id) return currGobj;
+			}
+			return null;
+		}
+		
 	}
 }
