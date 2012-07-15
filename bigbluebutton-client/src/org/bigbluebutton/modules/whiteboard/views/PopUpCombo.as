@@ -20,7 +20,7 @@ package org.bigbluebutton.modules.whiteboard.views
 	
 	public class PopUpCombo extends PopUpButton
 	{
-		protected var _isOpen:Boolean = false;
+		public var isOpen:Boolean = false;
 		protected var _inTween:Boolean = false;
 		protected var _tween:Tween;
 		
@@ -64,7 +64,7 @@ package org.bigbluebutton.modules.whiteboard.views
 		
 		public function displayPopUp():void
 		{
-			var show:Boolean = !_isOpen;
+			var show:Boolean = !isOpen;
 			
 			var popUpGap:Number = getStyle("popUpGap");
 			var point:Point = new Point(0, unscaledHeight + popUpGap);
@@ -109,13 +109,13 @@ package org.bigbluebutton.modules.whiteboard.views
 					popUp.visible = true;
 				
 				endY = 0;
-				_isOpen = show;
+				isOpen = show;
 				duration = getStyle("openDuration");
 				easingFunction = getStyle("openEasingFunction") as Function;				
 			}
 			else
 			{
-				_isOpen = show;
+				isOpen = show;
 				
 				if (popUp.parent == null)
 					return;
@@ -173,7 +173,7 @@ package org.bigbluebutton.modules.whiteboard.views
 			_inTween = false;
 			UIComponent.resumeBackgroundProcessing();
 			
-			if (!_isOpen)
+			if (!isOpen)
 			{
 				popUp.visible = false;
 				popUp.scrollRect = null;

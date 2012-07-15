@@ -200,16 +200,12 @@
 			 */			
 			private function fitSlideToLoader():void {
 				if (noSlideContentLoaded()) return;
-				LogUtil.debug("STEP 8.25");
 				slideLoader.content.x = slideLoader.x;
 				slideLoader.content.y = slideLoader.y;
 				slideLoader.content.width = slideLoader.width;
 				slideLoader.content.height = slideLoader.height;
-				LogUtil.debug("STEP 8.5");
 				moveCanvas(slideLoader.x, slideLoader.y);
-				LogUtil.debug("STEP 8.75");
 				zoomCanvas(slideLoader.width, slideLoader.height);
-				LogUtil.debug("STEP 9");
 			}
 												
 			/**
@@ -241,34 +237,24 @@
 				} else if (zoomPercentage >= SlideViewModel.MAX_ZOOM_PERCENT) {
 					zoomPercentage = SlideViewModel.MAX_ZOOM_PERCENT
 				}
-				LogUtil.debug("STEP 5");
 				slideModel.onZoom(zoomPercentage, mouseX, mouseY);
-				LogUtil.debug("STEP 6");
 				slideModel.printViewedRegion();
-				LogUtil.debug("STEP 7");
 				slideModel.displayPresenterView();
-				LogUtil.debug("STEP 8");
 				LogUtil.debug(slideLoader.x + ": x");
 				LogUtil.debug(slideLoader.y + ": y");
 				LogUtil.debug(slideLoader.width + ": width");
 				LogUtil.debug(slideLoader.height + ": height");
 				fitSlideToLoader();	
-				LogUtil.debug("STEP 9");
 				notifyOthersOfZoomEvent();	
-				LogUtil.debug("STEP 12");
 			}
 									
 			private function notifyOthersOfZoomEvent():void {
-				//LogUtil.debug("notifying others of zoom event");
 				var presentEvent:PresenterCommands = new PresenterCommands(PresenterCommands.ZOOM);
 				presentEvent.xOffset = slideModel.viewedRegionX;
 				presentEvent.yOffset = slideModel.viewedRegionY;
 				presentEvent.slideToCanvasWidthRatio = slideModel.viewedRegionW;
 				presentEvent.slideToCanvasHeightRatio = slideModel.viewedRegionH;
-				LogUtil.debug("STEP 10");
 				dispatchEvent(presentEvent);
-				LogUtil.debug("STEP 11");
-				//LogUtil.debug("notifying others of zoom event22222222");
 			}
 			
 			private function presenterIsZoomingOut(delta:Number):Boolean {

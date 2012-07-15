@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.whiteboard.events
 		
 		public function HideTextToolbarEvent(type:String)
 		{
-			super(type);
+			super(type, true, false);
 		}
 	}
 }

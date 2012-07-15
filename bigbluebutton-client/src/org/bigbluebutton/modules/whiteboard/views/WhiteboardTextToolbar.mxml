@@ -84,7 +84,7 @@
 			[Bindable] private var toggle_text_background_icon:Class = images.toggle_text_background_icon;
 			private var currentlySelectedTextObject:TextObject = null;	
 			private var presentationWindow:PresentationWindow;
-			private var normalAlpha:Number = 0.6;
+			private var normalAlpha:Number = 0.55;
 			private var focusedAlpha:Number = 1.0;
 			
 			public function init():void {
@@ -92,31 +92,26 @@
 				this.visible = true;
 				this.addEventListener(MouseEvent.ROLL_OVER, makeFocused);
 				this.addEventListener(MouseEvent.ROLL_OUT, makeDim);
-				this.textColor = ctextpik.selectedColor = 0x000000;
+				
+				
+				/* WARNING: enabling the following code caused some nasty issues with  the whiteboard
+					It is kept here for reference
+				*/
+				/*this.textColor = ctextpik.selectedColor = 0x000000;
 				this.bgColor = cbackpik.selectedColor = 0x000000;
 				this.backgroundVisible = btnToggleBackground.selected = false;
 				this.textSizeMenu.label = "14";
-				this.textSize = Number(textSizeMenu.label);
+				this.textSize = Number(textSizeMenu.label);*/
 			}
 			
-			/* adjusts the alpha of the TextToolbar for aesthetics and to show that
-				it is not currently the 'focus' of the screen
-			*/
 			public function makeDim(event:MouseEvent):void {
 					this.alpha = normalAlpha;
 			}
 			
-			/* adjusts the alpha of the TextToolbar for aesthetics and to show that
-				it is currently the 'focus' of the screen
-			*/
 			public function makeFocused(event:MouseEvent):void {
 					this.alpha = focusedAlpha;
 			}
 			
-			/* used to indicate the various font size options
-				that are availible to the presenter. more can be
-				added if desired.
-			*/
 			private function initTextSizeMenu(): void {
 				var m:Menu = new Menu();
 				m.variableRowHeight = true;
@@ -141,7 +136,6 @@
 				textSizeMenu.displayPopUp();
 				var newTextSize:Number = Number(event.label);    
 				setTextSize(newTextSize);
-				//textSizeMenu.close();
 			}
 			
 			/**
@@ -205,13 +199,9 @@
 				this.visible = false;
 			}
 			
-			private function closeToolbar(e:StopWhiteboardModuleEvent):void{
-				parent.removeChild(this);
-			}
-			
 			private function handleHideTextToolbarEvent(e:HideTextToolbarEvent):void{
 				LogUtil.debug("hiding toolbar by hidetexttoolbarevent");
-				disableTextToolbar();
+				this.disableTextToolbar();
 			}
 			
 			public function syncPropsWith(tobj:TextObject):void{
@@ -246,36 +236,35 @@
 			public function repositionToolbar(tobj:TextObject = null):void {
 				// translate TextObject's coords to stage coords because TextToolbar is added to stage
 				if(tobj == null)  tobj = currentlySelectedTextObject;
-				if(textSizeMenu.isPopUp)
+				if(textSizeMenu.isOpen) {
+					LogUtil.debug("Text size menu is open...trying to close");
 					textSizeMenu.close();
+				}
 				var loc:Point = canvas.localToGlobal(new Point(tobj.x, tobj.y));
 				this.x = loc.x;
 				this.y = loc.y - this.height - 45;
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
-			/* called when a GraphicObject, specifically, a TextObject, is selected. Repositions the toolbar to the 
-				location of the new TextObject for convenience, and syncs the toolbar's properties with the 
-				selected text's properties
-			*/
+			private function closeToolbar(e:StopWhiteboardModuleEvent):void{
+				parent.removeChild(this);
+			}
+			
 			private function handleObjSelected(event:GraphicObjectFocusEvent):void  {
 				if(event.data.getGraphicType() != WhiteboardConstants.TYPE_TEXT) return;
 				var tobj:TextObject = event.data as TextObject;
 				repositionToolbar(tobj);
 				syncPropsWith(tobj);
-				enableTextToolbar();
-				if(textSizeMenu.isPopUp)
-					textSizeMenu.close();
+				/*if(!this.visible)
+					enableTextToolbar();
+				if(!this.enabled)
+					this.enabled = true;*/
 				LogUtil.debug("!!!!SELECTED:" + " " + tobj.getProperties());
 			}
 
-			/* called when a GraphicObject, specifically, a TextObject, is deselected. No current
-				use now, but may be added later.
-			*/
 			private function handleObjDeselected(event:GraphicObjectFocusEvent):void  {
 				if(event.data.getGraphicType() != WhiteboardConstants.TYPE_TEXT) return;
 				var tobj:TextObject = event.data as TextObject;
-				syncPropsWith(null);
 				disableTextToolbar();
 				textSizeMenu.close();
 				LogUtil.debug("!!!!DESELECTED:" + " " + tobj.getProperties());
@@ -283,6 +272,7 @@
 
 			// repositions the toolbar when canvas is zoomed
 			public function adjustForZoom(x:Number, y:Number):void {
+				if(currentlySelectedTextObject == null) return;
 				repositionToolbar(currentlySelectedTextObject);
 			}
 		]]>
@@ -299,19 +289,6 @@
 	
 	<mx:ColorPicker width="20" height="20" change="changeTextBackgroundColor(event)" id="cbackpik"  selectedColor="0x000000" 
 					toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.backColorPicker')}"/>
-
-	<!--<mx:ComboBox id="textSizeMenu" change="setTextSize(event)" width="25"
-				 toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textSizeMenu')}"> 
-		<mx:ArrayCollection>
-			<mx:Object label="12" data="12"/>
-			<mx:Object label="14" data="14"/>
-			<mx:Object label="16" data="16"/>
-			<mx:Object label="18" data="18"/>
-			<mx:Object label="22" data="22"/>
-			<mx:Object label="24" data="24"/>
-			<mx:Object label="32" data="32"/>
-		</mx:ArrayCollection>
-	</mx:ComboBox>-->
 	
 	<views:PopUpCombo id="textSizeMenu" creationComplete="initTextSizeMenu()" 
 					  toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textSizeMenu')}" 
