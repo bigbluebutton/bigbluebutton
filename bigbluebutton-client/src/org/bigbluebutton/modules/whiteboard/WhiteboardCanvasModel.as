@@ -83,7 +83,7 @@ package org.bigbluebutton.modules.whiteboard
 		private var height:Number;
 		
 		// isGrid represents the state of the current page (grid vs not grid)
-		private var isGrid:Boolean = false;
+		private var isGrid:Boolean = true;
 		// drawGrid is the sprite added to the page when isGrid is true
 		private var drawGrid:DrawGrid;
 		
@@ -255,8 +255,6 @@ package org.bigbluebutton.modules.whiteboard
 						o.getType() == DrawObject.PENCIL ||
 						o.getType() == DrawObject.ERASER ||
 						recvdShapes) {
-						// check to make sure duplicate shapes are not being added (esp. when changing pages/loading presentations)
-
 						addNewShape(o);
 					} else {
 						removeLastGraphic();		
@@ -615,24 +613,8 @@ package org.bigbluebutton.modules.whiteboard
 			to send text to the server.
 		*/
 		public function textObjSpecialListener(event:KeyboardEvent):void {
+			event.stopImmediatePropagation();
 			// check for special conditions
-			switch (event.keyCode) {
-				case Keyboard.D:
-				case Keyboard.W:
-				case Keyboard.LEFT:
-				case Keyboard.UP:
-				case Keyboard.PAGE_UP:				
-				case Keyboard.DOWN:
-				case Keyboard.RIGHT: 
-				case Keyboard.SPACE:
-				case Keyboard.PAGE_DOWN:
-				case Keyboard.ENTER:
-					LogUtil.debug("Capturing text: " + event.keyCode);
-					break; 
-				default:
-					LogUtil.debug("Capturing text: " + event.keyCode);
-			}
-			
 			if(event.charCode == 127 || // 'delete' key
 				event.charCode == 8 || // 'bkspace' key
 				event.charCode == 13) { // 'enter' key
@@ -648,6 +630,7 @@ package org.bigbluebutton.modules.whiteboard
 				}
 				sendTextToServer(sendStatus, tobj);	
 			} 	
+			
 		}
 		
 		public function textObjTextListener(event:TextEvent):void {

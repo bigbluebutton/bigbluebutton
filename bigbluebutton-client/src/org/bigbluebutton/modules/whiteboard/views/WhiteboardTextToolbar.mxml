@@ -87,6 +87,8 @@
 			private var presentationWindow:PresentationWindow;
 			private var normalAlpha:Number = 0.55;
 			private var focusedAlpha:Number = 1.0;
+			private var hasFocus:Boolean;
+			
 			public function init():void {
 				this.alpha = normalAlpha;
 				this.visible = true;
@@ -227,7 +229,7 @@
 			public function positionToolbar(window:PresentationWindow):void{
 				this.presentationWindow = window;
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, repositionToolbarByWindow);
-				presentationWindow.addEventListener(MouseEvent.CLICK, repositionToolbarByWindow);
+				//presentationWindow.addEventListener(MouseEvent.CLICK, repositionToolbarByWindow);
 				presentationWindow.addEventListener(MoveEvent.MOVE, repositionToolbarByWindow);
 				disableTextToolbar();
 				this.x = 0;
@@ -266,8 +268,7 @@
 				var tobj:TextObject = event.data as TextObject;
 				repositionToolbar(tobj);
 				syncPropsWith(tobj);
-				if(!this.visible)
-					enableTextToolbar();
+				enableTextToolbar();
 				LogUtil.debug("!!!!SELECTED:" + " " + tobj.getProperties());
 			}
 
@@ -298,10 +299,7 @@
 				}
 				
 				return false;
-			}
-
-			
-			
+			}		
 		]]>
 	</mx:Script>
 	

@@ -220,8 +220,6 @@ package org.bigbluebutton.modules.whiteboard.business
 		 */		
 		public function sendText(e:WhiteboardDrawEvent):void{
 			var tobj:TextObject = e.message as TextObject;
-			//LogUtil.error("Step 2: " + tobj.x + "," + tobj.y);
-			//LogUtil.debug("*** Sending text");
 			var nc:NetConnection = connection;
 			nc.call(
 				"whiteboard.sendText",// Remote function name
@@ -269,7 +267,6 @@ package org.bigbluebutton.modules.whiteboard.business
 		 */		
 		public function addText(graphicType:String, text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean,
 								x:Number, y:Number, textSize:Number, id:String, status:String, recvdShapes:Boolean = false):void {
-			//LogUtil.error("Step 3(received): " + x + "," + y);
 			LogUtil.debug("Rx add text **** with ID of " + id + " " + x + "," + y);
 			var t:TextObject = new TextObject(text, textColor, bgColor, bgColorVisible, x, y, textSize);	
 			t.setGraphicID(id);
