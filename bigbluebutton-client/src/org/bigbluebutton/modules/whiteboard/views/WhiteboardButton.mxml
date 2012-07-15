@@ -29,10 +29,11 @@
 			import mx.core.Application;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
@@ -97,6 +98,10 @@
 			public function presenterChanged(isPresenter:Boolean, presenterName:String):void{
 				setComponentEnabled(isPresenter);
 				this.isPresenter = isPresenter;
+				if(isPresenter) {
+					LogUtil.debug("MADE PRESENTER ENABLING WHITEBOARD");
+					sendEnableWhiteboardEvent();
+				}
 			}
 			
 		]]>

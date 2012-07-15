@@ -48,6 +48,10 @@ public abstract class WBGraphic {
 		return ID.hashCode();
 	}
 	
+	public String getID() {
+		return ID;
+	}
+	
 	public abstract ArrayCollection<Object> toList();
 	public abstract Object[] toObjectArray();
 }

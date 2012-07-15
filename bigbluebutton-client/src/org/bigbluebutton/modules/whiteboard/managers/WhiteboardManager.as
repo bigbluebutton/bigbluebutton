@@ -100,7 +100,6 @@ package org.bigbluebutton.modules.whiteboard.managers
 			addTextToolbarEvent.component = textToolbar;
 			globalDispatcher.dispatchEvent(addTextToolbarEvent);
 			textToolbar.positionToolbar(e.window);
-			e.window.stage.focus = e.window;
 		}
 
 		public function drawGraphic(event:WhiteboardUpdate):void{
@@ -115,8 +114,8 @@ package org.bigbluebutton.modules.whiteboard.managers
 			model.undoGraphic();
 		}
 		
-		public function toggleGrid(event:ToggleGridEvent):void{
-			model.toggleGrid(event);
+		public function toggleGrid(event:ToggleGridEvent = null):void{
+			model.toggleGrid();
 		}
 		
 		public function changePage(e:PageEvent):void{

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bigbluebutton.conference.service.whiteboard.WBGraphic.Type;
 
@@ -41,6 +42,7 @@ public class Page {
 	
 	public void addShapeGraphic(ShapeGraphic shape){
 		graphicObjs.put(shape.ID, shape);
+		System.out.println("Total shape count: " + graphicObjs.size());
 	}
 	
 	public void addTextGraphic(TextGraphic text){
@@ -67,6 +69,7 @@ public class Page {
 		Object[] isGridArray = new Object[1];
 		isGridArray[0] = isGrid;
 		graphics.add(isGridArray);
+		System.out.println("There are currently " + graphicObjs.size() + " graphical objects on the current page");
 		return graphics;
 	}
 	

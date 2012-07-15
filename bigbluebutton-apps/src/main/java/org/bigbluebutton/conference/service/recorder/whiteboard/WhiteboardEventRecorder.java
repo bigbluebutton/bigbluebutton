@@ -92,4 +92,20 @@ public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 		
 	}
 
+	@Override
+	public void modifyText(TextGraphic text, Presentation presentation) {
+		ModifyTextWhiteboardRecordEvent event = new ModifyTextWhiteboardRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());
+		event.setPresentation(presentation.getName());
+		event.setPageNumber(presentation.getActivePage().getPageIndex());
+		event.setText(text.getText());
+		event.setTextColor(text.getTextColor());
+		event.setBGColor(text.getBgColor());
+		event.setBGColorVisible(text.getBgColorVisible());
+		event.setDataPoints(text.getLocation());
+		event.setModifyingID(text.getID());
+		recorder.record(session, event);	
+	}
+
 }

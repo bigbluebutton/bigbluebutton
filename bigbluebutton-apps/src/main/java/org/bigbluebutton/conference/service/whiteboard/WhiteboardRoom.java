@@ -101,7 +101,7 @@ public class WhiteboardRoom {
 	
 	public void modifyText(String key, TextGraphic text){
 		activePresentation.getActivePage().modifyTextGraphic(key, text);
-		notifyAddText(activePresentation, text);
+		notifyModifyText(activePresentation, text);
 	}
 	
 	public List<Object[]> getHistory(){
@@ -148,10 +148,17 @@ public class WhiteboardRoom {
 		}
 	}
 	
-	public void notifyAddText(Presentation presentation, TextGraphic shape){
+	public void notifyAddText(Presentation presentation, TextGraphic text){
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
-			listener.addText(shape, presentation);
+			listener.addText(text, presentation);
+		}
+	}
+	
+	public void notifyModifyText(Presentation presentation, TextGraphic text){
+		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
+			listener.modifyText(text, presentation);
 		}
 	}
 	

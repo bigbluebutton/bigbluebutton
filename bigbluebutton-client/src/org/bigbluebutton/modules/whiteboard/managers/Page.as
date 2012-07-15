@@ -3,7 +3,10 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 	
 	public class Page extends ArrayCollection
 	{
@@ -23,9 +26,14 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 		
 		public function addToPage(gobj:GraphicObject):void {
+			/*if(gobj.getGraphicType() == WhiteboardConstants.TYPE_SHAPE) {
+				if ((gobj as DrawObject).status != DrawObject.DRAW_END) return
+			} else if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
+				if ((gobj as TextObject).status != TextObject.TEXT_PUBLISHED) return
+			}*/
 			if(!containsUniqueInPage(gobj.getGraphicID()))
 				this.addItem(gobj);
-			else LogUtil.error("Adding previously existing item to page: " + gobj.getGraphicID());
+			//else //LogUtil.error("Adding previously existing item to page: " + gobj.getGraphicID());
 		}
 		
 		public function removeFromPage(gobj:GraphicObject):void {

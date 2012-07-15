@@ -291,11 +291,11 @@
 			}
 			
 			protected function resetTransparent(e:WhiteboardSettingResetEvent):void{
-				btnToggleTransparency.enabled = e.value;
+				btnToggleTransparency.selected = e.value;
 			}
 			
 			protected function resetGrid(e:WhiteboardSettingResetEvent):void{
-				btnToggleGrid.enabled = e.value;
+				btnToggleGrid.selected = e.value;
 			}
 			
 			private function presenterMode(e:MadePresenterEvent):void{

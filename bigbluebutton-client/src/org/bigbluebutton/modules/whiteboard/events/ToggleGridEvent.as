@@ -7,9 +7,9 @@ package org.bigbluebutton.modules.whiteboard.events
 		public static const TOGGLE_GRID:String = "toggleGrid";
 		public static const GRID_TOGGLED:String = "gridToggled";
 		
-		public function ToggleGridEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
+		public function ToggleGridEvent(type:String)
 		{
-			super(type, bubbles, cancelable);
+			super(type, true, false);
 		}
 	}
 }

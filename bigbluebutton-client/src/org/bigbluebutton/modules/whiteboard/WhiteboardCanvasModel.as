@@ -55,6 +55,11 @@ package org.bigbluebutton.modules.whiteboard
 		private var fillOn:Boolean = false;
 		private var transparencyOn:Boolean = false;
 		
+		/* a hack to fix the problem of shapes being cleared on viewers' side when page is changed.
+			need to find a better way around later.
+		*/
+		private var clearOnce:Boolean = true;
+		
 		/* represents the currently selected TextObject, if any.
 		   'selected' in this context means it is currently being edited, or is the most recent
 			TextObject to be edited by the presenter
@@ -98,19 +103,19 @@ package org.bigbluebutton.modules.whiteboard
 					if(toolType == DrawObject.RECTANGLE || 
 						toolType == DrawObject.ELLIPSE ||
 						toolType == DrawObject.TRIANGLE) {
+						
 						var x:Number = segment[0];
 						var y:Number = segment[1];
 						var width:Number = segment[segment.length-2]-x;
 						var height:Number = segment[segment.length-1]-y;
-						if(!(width <= 2 && height <=2))
+						
+						if(!(Math.abs(width) <= 2 && Math.abs(height) <=2)) {
 							sendShapeToServer(DrawObject.DRAW_END);
-					} else if (toolType == DrawObject.LINE ||
-								toolType == DrawObject.HIGHLIGHTER) {
-						if(segment.length > 4)
-							sendShapeToServer(DrawObject.DRAW_END);
+						}
 					} else {
 						sendShapeToServer(DrawObject.DRAW_END);
 					}
+					
 				}
 			}
 		}
@@ -237,12 +242,8 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		// Draws a DrawObject when/if it is received from the server
-		private function drawShape(o:DrawObject, recvdShapes:Boolean):void {		
-			//LogUtil.debug("Got shape [" + o.getType() + " " + o.status + "]");
-			if(recvdShapes) {
-				LogUtil.debug("Got shape [" + o.getType() + " " + o.status + "]");
-				LogUtil.debug(String(o.getProperties()));
-			}
+		private function drawShape(o:DrawObject, recvdShapes:Boolean):void {
+			
 			switch (o.status) {
 				case DrawObject.DRAW_START:
 					addNewShape(o);														
@@ -253,6 +254,8 @@ package org.bigbluebutton.modules.whiteboard
 						o.getType() == DrawObject.PENCIL ||
 						o.getType() == DrawObject.ERASER ||
 						recvdShapes) {
+						// check to make sure duplicate shapes are not being added (esp. when changing pages/loading presentations)
+
 						addNewShape(o);
 					} else {
 						removeLastGraphic();		
@@ -414,7 +417,6 @@ package org.bigbluebutton.modules.whiteboard
 			var gobjData:Array = getGobjInfoWithID(id);
 			var removeIndex:int = gobjData[0];
 			var gobjToRemove:GraphicObject = gobjData[1] as GraphicObject;
-			LogUtil.debug("Removing graphic with ID of " + id + " and type " + gobjToRemove.getGraphicType());
 			wbCanvas.removeGraphic(gobjToRemove as DisplayObject);
 			graphicList.splice(removeIndex, 1);
 		}	
@@ -423,7 +425,6 @@ package org.bigbluebutton.modules.whiteboard
 			var dobjData:Array = getGobjInfoWithID(id);
 			var removeIndex:int = dobjData[0];
 			var dobjToRemove:DrawObject = dobjData[1] as DrawObject;
-			LogUtil.debug("Removing shape with id of " + id + " and type of " + dobjToRemove.getType());
 			wbCanvas.removeGraphic(dobjToRemove);
 			graphicList.splice(removeIndex, 1);
 		}
@@ -432,7 +433,6 @@ package org.bigbluebutton.modules.whiteboard
 			var tobjData:Array = getGobjInfoWithID(id);
 			var removeIndex:int = tobjData[0];
 			var tobjToRemove:TextObject = tobjData[1] as TextObject;
-			LogUtil.debug("Removing text with id of " + id + " and text of " +   tobjToRemove.text);
 			wbCanvas.removeGraphic(tobjToRemove);
 			graphicList.splice(removeIndex, 1);
 		}	
@@ -506,17 +506,23 @@ package org.bigbluebutton.modules.whiteboard
 			var page:Number = e.pageNum;
 			var graphicObjs:ArrayCollection = e.graphicObjs;
 			this.isGrid = e.isGrid;
-			graphicList.splice(0);
+			//graphicList.splice(0);
+			//LogUtil.debug("GRAPHICLIST SIZE: " + graphicList.length);
+			
+			LogUtil.debug("CHANGING PAGE");
 			clearBoard();
 			for (var i:int = 0; i < graphicObjs.length; i++){
 				var o:GraphicObject = graphicObjs.getItemAt(i) as GraphicObject;
 				if(o.getGraphicType() == WhiteboardConstants.TYPE_SHAPE)
-					drawShape(o as DrawObject, false);
+					drawShape(o as DrawObject, true);
 				else if(o.getGraphicType() == WhiteboardConstants.TYPE_TEXT) 
 					drawText(o as TextObject, false);	
 			}
+				
 			// if the new page has a grid, draw it
 			addOrRemoveGrid(this.isGrid);
+
+			LogUtil.debug("GRAPHIC LIST SIZE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + graphicList.length);
 		}
 		
 		public function zoomCanvas(width:Number, height:Number):void{
@@ -647,6 +653,7 @@ package org.bigbluebutton.modules.whiteboard
 			var e:HideTextToolbarEvent = 
 				new HideTextToolbarEvent(HideTextToolbarEvent.HIDE_TEXT_TOOLBAR);
 			wbCanvas.dispatchEvent(e);
+			LogUtil.debug("HIDING TEXT TOOLBAR: " +  tf.text);
 		}
 		
 		private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {

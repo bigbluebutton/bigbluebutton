@@ -84,24 +84,39 @@
 			[Bindable] private var toggle_text_background_icon:Class = images.toggle_text_background_icon;
 			private var currentlySelectedTextObject:TextObject = null;	
 			private var presentationWindow:PresentationWindow;
-			private var normalAlpha:Number = 0.45;
-			private var focusedAlpha:Number = 0.1;
+			private var normalAlpha:Number = 0.6;
+			private var focusedAlpha:Number = 1.0;
 			
 			public function init():void {
-				this.alpha = 0.45;
+				this.alpha = normalAlpha;
 				this.visible = true;
-				this.addEventListener(MouseEvent.MOUSE_OVER, adjustAlpha);
-				this.addEventListener(MouseEvent.MOUSE_OUT, adjustAlpha);
+				this.addEventListener(MouseEvent.ROLL_OVER, makeFocused);
+				this.addEventListener(MouseEvent.ROLL_OUT, makeDim);
+				this.textColor = ctextpik.selectedColor = 0x000000;
+				this.bgColor = cbackpik.selectedColor = 0x000000;
+				this.backgroundVisible = btnToggleBackground.selected = false;
+				this.textSizeMenu.label = "14";
+				this.textSize = Number(textSizeMenu.label);
 			}
 			
-			public function adjustAlpha(event:MouseEvent):void {
-				if(event.type == MouseEvent.MOUSE_OVER) {
+			/* adjusts the alpha of the TextToolbar for aesthetics and to show that
+				it is not currently the 'focus' of the screen
+			*/
+			public function makeDim(event:MouseEvent):void {
 					this.alpha = normalAlpha;
-				} else if(event.type == MouseEvent.MOUSE_OUT) {
-					this.alpha = focusedAlpha;
-				} 
 			}
 			
+			/* adjusts the alpha of the TextToolbar for aesthetics and to show that
+				it is currently the 'focus' of the screen
+			*/
+			public function makeFocused(event:MouseEvent):void {
+					this.alpha = focusedAlpha;
+			}
+			
+			/* used to indicate the various font size options
+				that are availible to the presenter. more can be
+				added if desired.
+			*/
 			private function initTextSizeMenu(): void {
 				var m:Menu = new Menu();
 				m.variableRowHeight = true;
@@ -184,34 +199,29 @@
 			
 			private function enableTextToolbar():void{
 				this.visible = true;
-				this.alpha = normalAlpha;
 			}
 			
 			private function disableTextToolbar():void{
 				this.visible = false;
-				this.alpha = 0;
+			}
+			
+			private function closeToolbar(e:StopWhiteboardModuleEvent):void{
+				parent.removeChild(this);
 			}
 			
 			private function handleHideTextToolbarEvent(e:HideTextToolbarEvent):void{
 				LogUtil.debug("hiding toolbar by hidetexttoolbarevent");
-				this.disableTextToolbar();
+				disableTextToolbar();
 			}
 			
 			public function syncPropsWith(tobj:TextObject):void{
+				if(tobj == null) return;
 				currentlySelectedTextObject = tobj;
-				if(tobj == null) {
-					this.textColor = ctextpik.selectedColor = 0x000000;
-					this.bgColor = cbackpik.selectedColor = 0x000000;
-					this.backgroundVisible = btnToggleBackground.selected = false;
-					this.textSizeMenu.label = "14";
-					this.textSize = Number(textSizeMenu.label);
-				} else {
-					this.textColor = ctextpik.selectedColor = tobj.textColor;
-					this.bgColor = cbackpik.selectedColor = tobj.backgroundColor;
-					this.backgroundVisible = btnToggleBackground.selected = tobj.background;
-					this.textSizeMenu.label = String(tobj.textSize);
-					this.textSize = tobj.textSize;
-				}
+				this.textColor = ctextpik.selectedColor = tobj.textColor;
+				this.bgColor = cbackpik.selectedColor = tobj.backgroundColor;
+				this.backgroundVisible = btnToggleBackground.selected = tobj.background;
+				this.textSizeMenu.label = String(tobj.textSize);
+				this.textSize = tobj.textSize;
 			}
 			
 			// invoked by WhiteboardManager when the TextToolbar is first loaded
@@ -224,8 +234,6 @@
 				this.x = 0;
 				this.y = 0;
 				parent.setChildIndex(this, parent.numChildren-1);
-				canvas.model.doMouseDoubleClick(0,0);
-
 			}
 			
 			/* required for repositioning the TextToolbar when an event occurs
@@ -246,22 +254,24 @@
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
-			private function closeToolbar(e:StopWhiteboardModuleEvent):void{
-				parent.removeChild(this);
-			}
-			
+			/* called when a GraphicObject, specifically, a TextObject, is selected. Repositions the toolbar to the 
+				location of the new TextObject for convenience, and syncs the toolbar's properties with the 
+				selected text's properties
+			*/
 			private function handleObjSelected(event:GraphicObjectFocusEvent):void  {
 				if(event.data.getGraphicType() != WhiteboardConstants.TYPE_TEXT) return;
 				var tobj:TextObject = event.data as TextObject;
 				repositionToolbar(tobj);
 				syncPropsWith(tobj);
-				if(!this.visible)
-					enableTextToolbar();
-				if(!this.enabled)
-					this.enabled = true;
+				enableTextToolbar();
+				if(textSizeMenu.isPopUp)
+					textSizeMenu.close();
 				LogUtil.debug("!!!!SELECTED:" + " " + tobj.getProperties());
 			}
 
+			/* called when a GraphicObject, specifically, a TextObject, is deselected. No current
+				use now, but may be added later.
+			*/
 			private function handleObjDeselected(event:GraphicObjectFocusEvent):void  {
 				if(event.data.getGraphicType() != WhiteboardConstants.TYPE_TEXT) return;
 				var tobj:TextObject = event.data as TextObject;

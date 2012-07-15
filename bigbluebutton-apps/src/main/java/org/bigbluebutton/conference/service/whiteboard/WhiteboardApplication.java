@@ -91,9 +91,12 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	public void sendShape(double[] shape, String type, int color, int thickness, boolean fill, int fillColor, boolean transparency, String id, String status){
 		ShapeGraphic newShape = new ShapeGraphic(shape, type, color, thickness, fill, fillColor, transparency, id, status);	
 		
-		/*  maintains unique-ness. ensures that only
+		 /*
+		    maintains unique-ness. ensures that only
 		 	one entry per shape is added. exception is DrawObject.PENCIL, 
-		    because it is a collection of "points". */
+		    because it is a collection of "points".
+		 */
+		
 		if(status.equals("DRAW_END")) {
 			newShape.ID = Integer.toString(roomManager.getRoom(getLocalScope().getName()).getUniqueWBGraphicIdentifier());
 			roomManager.getRoom(getLocalScope().getName()).addShape(newShape);
@@ -107,8 +110,11 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	public void sendText(String text, int textColor, int bgColor, boolean bgColorVisible, int x, int y, int textSize, String id, String status){
 		TextGraphic newText = new TextGraphic(text, textColor, bgColor, bgColorVisible, x, y, textSize, id, status);	
 		
-		/*  maintains unique-ness. ensures that only
-	 	one entry per text is added. */
+		/*  
+		 	maintains unique-ness. ensures that only
+	 		one entry per text is added. all other calls must involve the modification of text,
+	 		and so they are handled appropriately
+	 	*/
 		if(status.equals("textCreated")) {
 			newText.ID = Integer.toString(roomManager.getRoom(getLocalScope().getName()).getUniqueWBGraphicIdentifier());
 			roomManager.getRoom(getLocalScope().getName()).addText(newText);
