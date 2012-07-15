@@ -249,7 +249,7 @@
 				if(tobj == null)  tobj = currentlySelectedTextObject;
 				if(textSizeMenu.isOpen) {
 					LogUtil.debug("Text size menu is open...trying to close");
-					textSizeMenu.close();
+					textSizeMenu.displayPopUp();
 				}
 				var loc:Point = canvas.localToGlobal(new Point(tobj.x, tobj.y));
 				this.x = loc.x;
