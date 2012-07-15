@@ -24,7 +24,6 @@ package org.bigbluebutton.modules.whiteboard
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 	import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
-	import org.bigbluebutton.modules.whiteboard.events.HideTextToolbarEvent;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
@@ -507,8 +506,6 @@ package org.bigbluebutton.modules.whiteboard
 			var page:Number = e.pageNum;
 			var graphicObjs:ArrayCollection = e.graphicObjs;
 			this.isGrid = e.isGrid;
-			//graphicList.splice(0);
-			//LogUtil.debug("GRAPHICLIST SIZE: " + graphicList.length);
 			
 			LogUtil.debug("CHANGING PAGE");
 			clearBoard();
@@ -613,7 +610,6 @@ package org.bigbluebutton.modules.whiteboard
 			to send text to the server.
 		*/
 		public function textObjSpecialListener(event:KeyboardEvent):void {
-			event.stopImmediatePropagation();
 			// check for special conditions
 			if(event.charCode == 127 || // 'delete' key
 				event.charCode == 8 || // 'bkspace' key
@@ -662,10 +658,6 @@ package org.bigbluebutton.modules.whiteboard
 			wbCanvas.dispatchEvent(e);
 			/* hide text toolbar because we don't want to show it
 			   if there is no text selected */
-			//var e:HideTextToolbarEvent = 
-			//	new HideTextToolbarEvent(HideTextToolbarEvent.HIDE_TEXT_TOOLBAR);
-			//wbCanvas.dispatchEvent(e);
-			//LogUtil.debug("HIDING TEXT TOOLBAR: " +  tf.text);
 		}
 		
 		private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {

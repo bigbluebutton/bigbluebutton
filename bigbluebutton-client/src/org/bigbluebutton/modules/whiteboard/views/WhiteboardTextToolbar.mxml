@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  Author: Ajay Gopinath <ajgopi124@gmail.com>
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+BigBlueButton is free software; you can redistribute it and/or modify it under the 
+terms of the GNU Lesser General Public License as published by the Free Software 
+Foundation; either version 2.1 of the License, or (at your option) any later 
+version. 
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along 
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 -->
 
 <mx:HBox xmlns="flexlib.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
@@ -32,7 +32,6 @@
 	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="handleObjSelected" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="handleObjDeselected" />
-	<mate:Listener type="{HideTextToolbarEvent.HIDE_TEXT_TOOLBAR}" method="disableTextToolbar" />
 	
 	<!--<mx:Style>
 		.colorPickerStyle {
@@ -68,7 +67,6 @@
 			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
-			import org.bigbluebutton.modules.whiteboard.events.HideTextToolbarEvent;
 			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
@@ -106,6 +104,9 @@
 				this.textSize = Number(textSizeMenu.label);*/
 			}
 			
+			/* Following two methods are used for aesthetics when mouse hovers over TextToolbar
+				and when it hovers out of it
+			*/
 			public function makeDim(event:MouseEvent):void {
 					this.alpha = normalAlpha;
 			}
@@ -210,11 +211,6 @@
 				parent.removeChild(this);
 			}
 			
-			private function handleHideTextToolbarEvent(e:HideTextToolbarEvent):void{
-				LogUtil.debug("hiding toolbar by hidetexttoolbarevent");
-				this.disableTextToolbar();
-			}
-			
 			public function syncPropsWith(tobj:TextObject):void{
 				if(tobj == null) return;
 				currentlySelectedTextObject = tobj;
@@ -229,7 +225,7 @@
 			public function positionToolbar(window:PresentationWindow):void{
 				this.presentationWindow = window;
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, repositionToolbarByWindow);
-				//presentationWindow.addEventListener(MouseEvent.CLICK, repositionToolbarByWindow);
+				presentationWindow.addEventListener(MouseEvent.CLICK, repositionToolbarByWindow);
 				presentationWindow.addEventListener(MoveEvent.MOVE, repositionToolbarByWindow);
 				disableTextToolbar();
 				this.x = 0;

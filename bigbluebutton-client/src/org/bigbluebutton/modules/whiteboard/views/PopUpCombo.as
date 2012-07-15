@@ -1,3 +1,6 @@
+// taken from newtriks' GitHub Gist
+// at https://gist.github.com/505255
+
 package org.bigbluebutton.modules.whiteboard.views
 {
 	import flash.display.DisplayObject;
