@@ -59,6 +59,7 @@
 			import mx.events.MenuEvent;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
+			import mx.managers.FocusManager;
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -86,7 +87,6 @@
 			private var presentationWindow:PresentationWindow;
 			private var normalAlpha:Number = 0.55;
 			private var focusedAlpha:Number = 1.0;
-			
 			public function init():void {
 				this.alpha = normalAlpha;
 				this.visible = true;
@@ -133,6 +133,7 @@
 			
 			// Define the event listener for the Menu control's change event. 
 			private function textSizeMenuClick(event:MenuEvent):void {
+				enableTextToolbar();
 				textSizeMenu.displayPopUp();
 				var newTextSize:Number = Number(event.label);    
 				setTextSize(newTextSize);
@@ -144,6 +145,7 @@
 			 * 
 			 */		
 			protected function setTextColor(e:Event):void{
+				enableTextToolbar();
 				this.textColor = e.target.selectedColor;
 				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
 				canvas.stage.focus = currentlySelectedTextObject;
@@ -155,6 +157,7 @@
 			 * 
 			 */		
 			protected function changeTextBackgroundColor(e:Event):void{
+				enableTextToolbar();
 				this.bgColor = e.target.selectedColor;
 				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
 				canvas.stage.focus = currentlySelectedTextObject;
@@ -166,6 +169,7 @@
 			 * 
 			 */			
 			protected function setBackgroundVisible(e:Event):void{
+				enableTextToolbar();
 				this.backgroundVisible = e.target.selected;
 				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
 				canvas.stage.focus = currentlySelectedTextObject;
@@ -177,6 +181,7 @@
 			 * 
 			 */			
 			protected function setTextSize(size:Number):void {
+				enableTextToolbar();
 				this.textSize = size;
 				LogUtil.debug("Text size set to: " + size);
 				textSizeMenu.label = String(this.textSize);
@@ -197,6 +202,10 @@
 			
 			private function disableTextToolbar():void{
 				this.visible = false;
+			}
+			
+			private function closeToolbar(e:StopWhiteboardModuleEvent):void{
+				parent.removeChild(this);
 			}
 			
 			private function handleHideTextToolbarEvent(e:HideTextToolbarEvent):void{
@@ -246,35 +255,53 @@
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
-			private function closeToolbar(e:StopWhiteboardModuleEvent):void{
-				parent.removeChild(this);
+			// repositions the toolbar when canvas is zoomed			
+			public function adjustForZoom(x:Number, y:Number):void {
+				if(currentlySelectedTextObject == null) return;
+				repositionToolbar(currentlySelectedTextObject);
 			}
-			
+
 			private function handleObjSelected(event:GraphicObjectFocusEvent):void  {
 				if(event.data.getGraphicType() != WhiteboardConstants.TYPE_TEXT) return;
 				var tobj:TextObject = event.data as TextObject;
 				repositionToolbar(tobj);
 				syncPropsWith(tobj);
-				/*if(!this.visible)
+				if(!this.visible)
 					enableTextToolbar();
-				if(!this.enabled)
-					this.enabled = true;*/
 				LogUtil.debug("!!!!SELECTED:" + " " + tobj.getProperties());
 			}
 
 			private function handleObjDeselected(event:GraphicObjectFocusEvent):void  {
 				if(event.data.getGraphicType() != WhiteboardConstants.TYPE_TEXT) return;
 				var tobj:TextObject = event.data as TextObject;
-				disableTextToolbar();
-				textSizeMenu.close();
+				
+				/* checks if the new focus of the stage is not the TextToolbar, and if not,
+					hide the text toolbar. This is to prevent the TextToolbar from disappearing as
+					soon as the user changes focus.
+				*/
+				if(!containsFocus(this)) {
+					disableTextToolbar();
+					textSizeMenu.close();
+				} 
 				LogUtil.debug("!!!!DESELECTED:" + " " + tobj.getProperties());
 			}
-
-			// repositions the toolbar when canvas is zoomed
-			public function adjustForZoom(x:Number, y:Number):void {
-				if(currentlySelectedTextObject == null) return;
-				repositionToolbar(currentlySelectedTextObject);
+			
+			/* used to check whether or not the TextToolbar and its children have focus when
+				checking whether or not it should be made visible=false. see handleObjDeselected().
+			*/
+			private function containsFocus(obj:DisplayObjectContainer):Boolean {
+				if(obj.stage.focus == obj) return true;
+				
+				for (var i:int = 0; i < obj.numChildren; i++) {
+					var currObj:DisplayObject = obj.getChildAt(i);
+					if(obj.stage.focus == currObj) return true;
+				}
+				
+				return false;
 			}
+
+			
+			
 		]]>
 	</mx:Script>
 	

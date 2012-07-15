@@ -240,10 +240,6 @@
 				slideModel.onZoom(zoomPercentage, mouseX, mouseY);
 				slideModel.printViewedRegion();
 				slideModel.displayPresenterView();
-				LogUtil.debug(slideLoader.x + ": x");
-				LogUtil.debug(slideLoader.y + ": y");
-				LogUtil.debug(slideLoader.width + ": width");
-				LogUtil.debug(slideLoader.height + ": height");
 				fitSlideToLoader();	
 				notifyOthersOfZoomEvent();	
 			}

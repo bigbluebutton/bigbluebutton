@@ -115,11 +115,13 @@
 			 * 
 			 */		
 			protected function setTool(gType:String, toolType:String):void{
-				if(toolType != TextObject.TEXT_TOOL) {
-					var e:HideTextToolbarEvent = 
-						new HideTextToolbarEvent(HideTextToolbarEvent.HIDE_TEXT_TOOLBAR);
+				/*if(toolType != TextObject.TEXT_TOOL) {
+					
+					var e:GraphicObjectFocusEvent = 
+						new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
 					canvas.dispatchEvent(e);
-				}
+					LogUtil.debug("Should dispatch object deselected method");
+				}*/
 				if(gType == WhiteboardConstants.TYPE_SHAPE) {
 					canvas.setGraphicType(gType);
 					canvas.setTool(toolType);

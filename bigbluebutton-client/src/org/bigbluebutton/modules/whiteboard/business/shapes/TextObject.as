@@ -103,19 +103,19 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			var tf:TextFormat = new TextFormat();
 			tf.size = size;
 			tf.font = "arial";
+			this.defaultTextFormat = tf;
 			this.setTextFormat(tf);
 		}
 		
 		public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
 			var startX:Number = denormalize(this.x, parentWidth);
 			var startY:Number = denormalize(this.y, parentHeight);
-			//LogUtil.error("denorms: " + startX + "," + startY);
 			this.x = startX;
 			this.y = startY;
 			this.antiAliasType = AntiAliasType.ADVANCED;
-			//var  format:TextFormat = new TextFormat();
-			//format.color = this.textColor;
-			//format.
+			
+			// ensure typing doesn't go off of whiteboard
+			this.width = 250;
 		}	
 		
 		public function getProperties():Array {

@@ -8,6 +8,7 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.events.TextEvent;
 	import flash.geom.Point;
 	import flash.text.TextFieldAutoSize;
+	import flash.ui.Keyboard;
 	
 	import mx.collections.ArrayCollection;
 	
@@ -281,7 +282,9 @@ package org.bigbluebutton.modules.whiteboard
 					break;
 				case TextObject.TEXT_UPDATED:
 				case TextObject.TEXT_PUBLISHED:
-					if(!isPresenter) {
+					if(isPresenter) {
+						if(recvdShapes) addPresenterText(o);
+					} else {
 						if(graphicList.length == 0 || recvdShapes) {
 							addNormalText(o);
 						} else modifyText(o);
@@ -516,9 +519,15 @@ package org.bigbluebutton.modules.whiteboard
 				if(o.getGraphicType() == WhiteboardConstants.TYPE_SHAPE)
 					drawShape(o as DrawObject, true);
 				else if(o.getGraphicType() == WhiteboardConstants.TYPE_TEXT) 
-					drawText(o as TextObject, false);	
+					drawText(o as TextObject, true);	
 			}
-				
+			
+			if(isPresenter) {
+				var evt:GraphicObjectFocusEvent = 
+					new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
+				evt.data = null;
+				wbCanvas.dispatchEvent(evt);
+			}
 			// if the new page has a grid, draw it
 			addOrRemoveGrid(this.isGrid);
 
@@ -600,13 +609,30 @@ package org.bigbluebutton.modules.whiteboard
 
 			}
 		}
-		
+
 		/* the following four methods  are listeners that handle events that occur
 			on TextObjects, such as text being typed, which causes the textObjTextListener
 			to send text to the server.
 		*/
 		public function textObjSpecialListener(event:KeyboardEvent):void {
 			// check for special conditions
+			switch (event.keyCode) {
+				case Keyboard.D:
+				case Keyboard.W:
+				case Keyboard.LEFT:
+				case Keyboard.UP:
+				case Keyboard.PAGE_UP:				
+				case Keyboard.DOWN:
+				case Keyboard.RIGHT: 
+				case Keyboard.SPACE:
+				case Keyboard.PAGE_DOWN:
+				case Keyboard.ENTER:
+					LogUtil.debug("Capturing text: " + event.keyCode);
+					break; 
+				default:
+					LogUtil.debug("Capturing text: " + event.keyCode);
+			}
+			
 			if(event.charCode == 127 || // 'delete' key
 				event.charCode == 8 || // 'bkspace' key
 				event.charCode == 13) { // 'enter' key
@@ -647,13 +673,16 @@ package org.bigbluebutton.modules.whiteboard
 			var tf:TextObject = event.target as TextObject;	
 			sendTextToServer(TextObject.TEXT_PUBLISHED, tf);	
 			LogUtil.debug("Text published to: " +  tf.text);
-			
+			var e:GraphicObjectFocusEvent = 
+				new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
+			e.data = tf;
+			wbCanvas.dispatchEvent(e);
 			/* hide text toolbar because we don't want to show it
 			   if there is no text selected */
-			var e:HideTextToolbarEvent = 
-				new HideTextToolbarEvent(HideTextToolbarEvent.HIDE_TEXT_TOOLBAR);
-			wbCanvas.dispatchEvent(e);
-			LogUtil.debug("HIDING TEXT TOOLBAR: " +  tf.text);
+			//var e:HideTextToolbarEvent = 
+			//	new HideTextToolbarEvent(HideTextToolbarEvent.HIDE_TEXT_TOOLBAR);
+			//wbCanvas.dispatchEvent(e);
+			//LogUtil.debug("HIDING TEXT TOOLBAR: " +  tf.text);
 		}
 		
 		private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {
