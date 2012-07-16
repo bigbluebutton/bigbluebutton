@@ -89,12 +89,12 @@
 			}
 			
 			private function positionWindow(window:IBbbModuleWindow):void{
-				leftWindowHeight = this.height/3;
-				leftWindowWidth = 245;
+				leftWindowHeight = this.height/4;
+				leftWindowWidth = 350;
 				rightWindowHeight = this.height * 0.6;
 				rightWindowWidth = (this.width / 20) * 6;
 				centerWindowHeight = this.height - 10;
-				centerWindowWidth = this.width / 2;
+				centerWindowWidth = this.width - 400;
 				
 				var position:String = window.getPrefferedPosition();
 				var win:MDIWindow = window as MDIWindow;
@@ -129,9 +129,9 @@
 						break;
 					case BOTTOM_LEFT:
 						x = 1;
-						y = leftWindowHeight + 10;
+						y = leftWindowHeight + 20;
 						win.width = leftWindowWidth;
-						win.height = leftWindowHeight;
+						win.height = leftWindowHeight + 350;
 						break;
 					case MIDDLE:
 						x = leftWindowWidth + 10;

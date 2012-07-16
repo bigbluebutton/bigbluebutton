@@ -3,7 +3,7 @@ Application
    backgroundColors: #000000,#3f3f3f;
    backgroundImage: Embed(source="assets/img/bk3.jpg");
    backgroundSize: "100%";
-   backgroundGradientColors: #B4BFCF, #78829C;
+   backgroundGradientColors: #CEBCB3, #A35827;
    themeColor: #0094C7;
    backgroundGradientAlphas: 0.62, 0.26;
 }
@@ -20,7 +20,7 @@ Button
 {
    highlightAlphas: 1, 0.33;
    fillAlphas: 1, 0.16, 0.18, 1;
-   fillColors: #5f89b9, #697182, #ffffff, #eeeeee;
+   fillColors: #B7985F, #7F7767, #ffffff, #eeeeee;
 }
 
 
