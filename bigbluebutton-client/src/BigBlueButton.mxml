@@ -223,15 +223,16 @@
 					
 					switch(e.keyCode)
 					{ 
-					case 67:
-						LogUtil.debug("You pressed CTRL-SHIFT-C");
+					case 67: // C
 						globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CHAT_INPUT));
 						break;
-					case 77:
+					case 77: // M
 						globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.MUTE_ME_EVENT));
-						LogUtil.debug("ShortcutEvent sent out");
 						break;
-					}	
+					case 83: // S
+						globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_SLIDE));
+						break;
+					}
 				}
 				else if (e.ctrlKey){
 					switch(e.keyCode){
