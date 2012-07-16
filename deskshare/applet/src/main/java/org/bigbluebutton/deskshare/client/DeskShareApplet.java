@@ -45,6 +45,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
     Integer yValue = new Integer(0);
     Boolean tunnelValue = true;
     Boolean fullScreenValue = false;
+    Boolean useSVC2Value = false;
     DeskshareClient client;
     Image icon;
     
@@ -61,6 +62,9 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 
 		String captureFullScreen = getParameter("FULL_SCREEN");
 		if (captureFullScreen != null) fullScreenValue = Boolean.parseBoolean(captureFullScreen);
+		
+		String useSVC2 = getParameter("SVC2");
+		if (useSVC2 != null) useSVC2Value = Boolean.parseBoolean(useSVC2);
 
 		String tunnel = getParameter("HTTP_TUNNEL");
 		if (tunnel != null) tunnelValue = Boolean.parseBoolean(tunnel);
@@ -75,7 +79,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 					.room(roomValue).captureWidth(cWidthValue)
 					.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
 					.quality(qualityValue).aspectRatio(aspectRatioValue)
-					.x(xValue).y(yValue).fullScreen(fullScreenValue)
+					.x(xValue).y(yValue).fullScreen(fullScreenValue).useSVC2(useSVC2Value)
 					.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
 		client.addClientListener(this);
 		client.start();

@@ -44,6 +44,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
     private final int port;
     private final String room;
     private final boolean httpTunnel;
+    private final boolean useSVC2;
     private NetworkSocketStreamSender[] socketSenders;
     private NetworkHttpStreamSender[] httpSenders;
     private boolean tunneling = false;
@@ -56,7 +57,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	private final SequenceNumberGenerator seqNumGenerator = new SequenceNumberGenerator();
 	
 	public NetworkStreamSender(BlockManager blockManager, String host, int port,
-			String room, Dimension screenDim, Dimension blockDim, boolean httpTunnel) {
+			String room, Dimension screenDim, Dimension blockDim, boolean httpTunnel, boolean useSVC2) {
 		this.blockManager = blockManager;
 		this.host = host;
 		this.port = port;
@@ -64,6 +65,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 		this.screenDim = screenDim;
 		this.blockDim = blockDim;
 		this.httpTunnel = httpTunnel;
+		this.useSVC2 = useSVC2;
 		
 		numThreads = Runtime.getRuntime().availableProcessors() * 3;
 		System.out.println(NAME + "Starting up " + numThreads + " sender threads.");
@@ -138,13 +140,13 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	}
 		
 	private void createSender(int i) throws ConnectionException {
-		socketSenders[i] = new NetworkSocketStreamSender(i, this, room, screenDim, blockDim, seqNumGenerator);
+		socketSenders[i] = new NetworkSocketStreamSender(i, this, room, screenDim, blockDim, seqNumGenerator, useSVC2);
 		socketSenders[i].addListener(this);
 		socketSenders[i].connect(host, port);		
 	}
 	
 	private void createHttpSender(int i) throws ConnectionException {
-		httpSenders[i] = new NetworkHttpStreamSender(i, this, room, screenDim, blockDim, seqNumGenerator);
+		httpSenders[i] = new NetworkHttpStreamSender(i, this, room, screenDim, blockDim, seqNumGenerator, useSVC2);
 		httpSenders[i].addListener(this);
 		httpSenders[i].connect(host);
 	}
@@ -202,7 +204,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	}
 
 	private boolean tryHttpTunneling() {
-		NetworkHttpStreamSender httpSender = new NetworkHttpStreamSender(0, this, room, screenDim, blockDim, seqNumGenerator);
+		NetworkHttpStreamSender httpSender = new NetworkHttpStreamSender(0, this, room, screenDim, blockDim, seqNumGenerator, useSVC2);
 		try {
 			httpSender.connect(host);
 			return true;
