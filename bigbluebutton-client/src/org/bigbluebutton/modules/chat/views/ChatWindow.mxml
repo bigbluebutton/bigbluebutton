@@ -100,8 +100,8 @@
 			
 			private function focusChatInput(e:ShortcutEvent):void{
 				if (txtMsg.enabled){
-					//cant get it to focus the whole window aswell
-					//focusManager.setFocus(this);
+					//cant get it to focus the whole window as well
+					windowManager.bringToFront(this);
 					focusManager.setFocus(txtMsg);
 				}
 			}
