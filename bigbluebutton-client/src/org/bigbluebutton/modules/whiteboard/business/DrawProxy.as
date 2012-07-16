@@ -238,18 +238,21 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * @param shape The shape sent to the SharedObject
 		 * 
 		 */		
-		public function sendShape(e:WhiteboardDrawEvent):void{
-//			var shape:DrawObject = e.message;
-			LogUtil.debug("*** Sending shape");
-			
-            var annotation:Object = new Object();
-//            annotation["type"] = shape.getType();
-//            annotation["points"] = shape.getShapeArray();
-//            annotation["color"] = shape.getColor();
-//            annotation["thickness"] = shape.getThickness();
-//            annotation["id"] = shape.id;
-//            annotation["status"] = shape.status;
+		public function sendShape(e:WhiteboardDrawEvent):void {
             var nc:NetConnection = connection;
+            var shape:DrawObject = e.message as DrawObject;
+            
+            var annotation:Object = new Object();
+            annotation["type"] = shape.getType();
+            annotation["points"] = shape.getShapeArray();
+            annotation["color"] = shape.getColor();
+            annotation["thickness"] = shape.getThickness();
+            annotation["id"] = shape.getGraphicID();
+            annotation["status"] = shape.status;
+            annotation["fill"] = shape.getFill();
+            annotation["fillColor"] = shape.getFillColor();
+            annotation["transparency"] = shape.getTransparency();
+
             nc.call("whiteboard.sendAnnotation",
                 new Responder(                    
                     function(result:Object):void { // On successful result
@@ -262,7 +265,7 @@ package org.bigbluebutton.modules.whiteboard.business
                         } 
                     }
                 ),//new Responder
-                annotation
+                e.annotation
             );
 		}
 		
@@ -273,9 +276,22 @@ package org.bigbluebutton.modules.whiteboard.business
 		 */		
 		public function sendText(e:WhiteboardDrawEvent):void{
 			var tobj:TextObject = e.message as TextObject;
+            
+            var annotation:Object = new Object();
+            annotation["type"] = "text";
+            annotation["id"] = tobj.getGraphicID();
+            annotation["status"] = tobj.status;  
+            annotation["text"] = tobj.text;
+            annotation["fontColor"] = tobj.textColor;
+            annotation["backgroundColor"] = tobj.backgroundColor;
+            annotation["background"] = tobj.background;
+            annotation["x"] = tobj.x;
+            annotation["y"] = tobj.y;
+            annotation["fontSize"] = tobj.textSize;
+                       
 			var nc:NetConnection = connection;
 			nc.call(
-				"whiteboard.sendText",// Remote function name
+				"whiteboard.sendAnnotation",// Remote function name
 				new Responder(
 					// On successful result
 					function(result:Object):void { 
@@ -289,8 +305,7 @@ package org.bigbluebutton.modules.whiteboard.business
 						} 
 					}
 				),//new Responder
-				tobj.text, tobj.textColor, tobj.backgroundColor, tobj.background,
-				tobj.x, tobj.y, tobj.textSize, tobj.getGraphicID(), tobj.status
+                annotation
 			); //_netConnection.call
 		}
 		/**

@@ -39,11 +39,11 @@ public class WhiteboardService {
 		this.application = a;
 	}
 	
-	public void sendShape(double[] shape, String type, int color, int thickness, boolean fill, int fillColor, boolean transparency, String id, String status){
-		log.info("WhiteboardApplication - Sending share");
+//	public void sendShape(double[] shape, String type, int color, int thickness, boolean fill, int fillColor, boolean transparency, String id, String status){
+//		log.info("WhiteboardApplication - Sending share");
 
 //		application.sendShape(shape, type, color, thickness, id, status);
-	}
+//	}
 	
 	public void sendAnnotation(Map<String, Object> annotation) {
 //		for (Map.Entry<String, Object> entry : annotation.entrySet()) {
@@ -79,12 +79,6 @@ public class WhiteboardService {
 		log.info("WhiteboardApplication - Sending text");
 		application.sendText(text, textColor, bgColor, bgColorVisible, x, y, textSize, id, status);
 	}
-	/**
-	 * Sets the active page
-	 * @param pageNum - the number of the page to set to active
-	 * @return - returns the number of shapes in the history of the requested page. This way the client can perform a simple check of whether
-	 * it should retrieve the page history. This saves some bandwidth for the server.
-	 */
 
 	public void setActivePage(int pageNum){
 		log.info("WhiteboardApplication - Getting number of shapes for page: " + pageNum);
@@ -94,28 +88,8 @@ public class WhiteboardService {
 	public void requestAnnotationHistory() {
 		log.info("WhiteboardApplication - requestAnnotationHistory");
 		application.sendAnnotationHistory(Red5.getConnectionLocal().getClient().getId());
-
-//	public int setActivePage(int pageNum){
-//		log.info("WhiteboardApplication - Getting number of graphics for page: " + pageNum);
-//		return application.getNumGraphicsOnPage(pageNum);
 	}
-	
-	public List<Object[]> getHistory(){
-		log.info("WhiteboardApplication - Returning graphics");
-		List<Object[]> history = application.getHistory();
-		/*System.out.println("Number of shapes: " + shapes.size());
-		System.out.println("First shape. Num params: " + shapes.get(0).length);
-		System.out.println("double[] : " + (double[])shapes.get(0)[0]);
-		System.out.println("type : " + shapes.get(0)[1]);
-		System.out.println("color : " + shapes.get(0)[2]);
-		System.out.println("thickness : " + shapes.get(0)[3]);
-		System.out.println("parentWidth : " + shapes.get(0)[4]);
-		System.out.println("parentHeight : " + shapes.get(0)[5]);*/
 		
-		return history;
-
-	}
-	
 	public void clear(){
 		log.info("WhiteboardApplication - Clearing board");
 		application.clear();

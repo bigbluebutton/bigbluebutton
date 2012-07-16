@@ -171,16 +171,16 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		return pres.getActivePage().getNumGraphicsOnPage();
 	}
 	
-	public List<Object[]> getHistory(){
-		List<Object[]> graphicsList = roomManager.getRoom(getMeetingId()).getHistory();
-		for(Object[] o: graphicsList) {
-			System.out.println();
-			for(int i = 0; i < o.length; i++) {
-				System.out.print(" " + i);
-			}
-		}
-		return graphicsList;
-	}
+//	public List<Object[]> getHistory(){
+//		List<Object[]> graphicsList = roomManager.getRoom(getMeetingId()).getHistory();
+//		for(Object[] o: graphicsList) {
+//			System.out.println();
+//			for(int i = 0; i < o.length; i++) {
+//				System.out.print(" " + i);
+//			}
+//		}
+//		return graphicsList;
+//	}
 	
 //	public void clear(){
 //		roomManager.getRoom(getLocalScope().getName()).clear();

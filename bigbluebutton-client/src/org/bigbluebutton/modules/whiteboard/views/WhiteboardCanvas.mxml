@@ -20,8 +20,7 @@
   $Id: $
 -->
 
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:mate="http://mate.asfusion.com/"
-	 
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:mate="http://mate.asfusion.com/"	 
     creationComplete="init()" visible="false" 
 	mouseOver="setCursor(toolType)" mouseOut="removeCursor()" doubleClickEnabled="true" doubleClick="doMouseDoubleClick()"  implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
@@ -205,7 +204,7 @@
 				} 
 			}
 			
-			private function removeCursor():void{
+			private function removeCursor():void {
 				CursorManager.removeCursor(CursorManager.currentCursorID);
 				doMouseUp(null);
 			}

@@ -1,12 +1,18 @@
 package org.bigbluebutton.conference.service.whiteboard.shapes;
 
-public abstract class Annotation {
+import java.util.Map;
 
-	private String type;
-	private int thickness;
-	private int color;
-	private String id;
-	private String status;
+public class Annotation {
+
+	private Map<String, Object> annotation;
+	
+	public Annotation(Map<String, Object> annotation) {
+		this.annotation = annotation;
+	}
+	
+	public Map<String, Object> getAnnotation() {
+		return annotation;
+	}
 	
 	
 }
