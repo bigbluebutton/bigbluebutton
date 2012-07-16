@@ -58,23 +58,22 @@ package org.bigbluebutton.modules.whiteboard.business
 		private var conference:String;
 		private var room:String;
 		private var userid:Number;
-		private var connection:NetConnection;
-		
+		private var connection:NetConnection;		
 		private var manualDisconnect:Boolean = false;
 		private var dispatcher:Dispatcher;
 		private var drawFactory:DrawObjectFactory;
-		private var textFactory:TextFactory;
-		
+		private var textFactory:TextFactory;		
 		private var initialLoading:Boolean = true;
 		private var initialPageEvent:PageEvent;
 		private var _whiteboardModel:WhiteboardModel;
 		
-		public function DrawProxy(model:WhiteboardModel) {
-			_whiteboardModel = model;
+		public function DrawProxy(/*model:WhiteboardModel*/) {
+//			_whiteboardModel = model;
 			drawFactory = new DrawObjectFactory();
 			textFactory = new TextFactory();
 			dispatcher = new Dispatcher();
             BBB.initConnectionManager().addMessageListener(this);
+            LogUtil.debug("DRAW PROXY INIT !!!!");
 		}
 		
 		public function connect(e:StartWhiteboardModuleEvent):void{
@@ -157,16 +156,6 @@ package org.bigbluebutton.modules.whiteboard.business
             }
         }
         
-		
-		/**
-		 * Once a shared object is created, it is synced accross all clients, and this method is invoked 
-		 * @param e The sync event passed to the method
-		 * 
-		 */		
-		public function sharedObjectSyncHandler(e:SyncEvent):void{
-			
-		}
-		
 		public function setActivePresentation(e:PresentationEvent):void{
 			var nc:NetConnection = connection;
 			nc.call("whiteboard.setActivePresentation",
@@ -208,11 +197,11 @@ package org.bigbluebutton.modules.whiteboard.business
 		}
 		
 		public function getPageHistory(e:PageEvent):void {
-			var nc:NetConnection = connection;
-
-			nc.call("whiteboard.setActivePage",
-				new Responder(	        		
-					function(result:Object):void { // On successful result
+//			var nc:NetConnection = connection;
+//
+//			nc.call("whiteboard.setActivePage",
+//				new Responder(	        		
+//					function(result:Object):void { // On successful result
 //						if ((result as int) != e.shapes.length) {
 //							LogUtil.debug("Whiteboard: Need to retrieve shapes. Have " + e.shapes.length + " on client, " + (result as int) + " on server");
 //							LogUtil.debug("Whiteboard: Retrieving shapes on page" + e.pageNum);
@@ -220,17 +209,17 @@ package org.bigbluebutton.modules.whiteboard.business
 //						} else{
 //							LogUtil.debug("Whiteboard: Shapes up to date, no need to update");
 //						}
-					},	
-					
-					function(status:Object):void { // status - On error occurred
-						LogUtil.error("Error occurred: Whiteboard::DrawProxy::getPageHistory()"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				),//new Responder
-				e.pageNum
-			); //_netConnection.call
+//					},	
+//					
+//					function(status:Object):void { // status - On error occurred
+//						LogUtil.error("Error occurred: Whiteboard::DrawProxy::getPageHistory()"); 
+//						for (var x:Object in status) { 
+//							LogUtil.error(x + " : " + status[x]); 
+//						} 
+//					}
+//				),//new Responder
+//				e.pageNum
+//			); //_netConnection.call
 		}
 		
 		/**
@@ -239,6 +228,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * 
 		 */		
 		public function sendShape(e:WhiteboardDrawEvent):void {
+            LogUtil.debug("Sending SHAPE");
             var nc:NetConnection = connection;
             var shape:DrawObject = e.message as DrawObject;
             
@@ -265,7 +255,7 @@ package org.bigbluebutton.modules.whiteboard.business
                         } 
                     }
                 ),//new Responder
-                e.annotation
+                annotation
             );
 		}
 		
@@ -275,6 +265,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * 
 		 */		
 		public function sendText(e:WhiteboardDrawEvent):void{
+            LogUtil.debug("Sending TEXT");
 			var tobj:TextObject = e.message as TextObject;
             
             var annotation:Object = new Object();
@@ -290,8 +281,7 @@ package org.bigbluebutton.modules.whiteboard.business
             annotation["fontSize"] = tobj.textSize;
                        
 			var nc:NetConnection = connection;
-			nc.call(
-				"whiteboard.sendAnnotation",// Remote function name
+			nc.call("whiteboard.sendAnnotation",// Remote function name
 				new Responder(
 					// On successful result
 					function(result:Object):void { 

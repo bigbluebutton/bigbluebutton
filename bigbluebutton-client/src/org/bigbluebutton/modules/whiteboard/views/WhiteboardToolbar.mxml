@@ -23,7 +23,7 @@
 <mx:VBox xmlns="flexlib.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
 	xmlns:mate="http://mate.asfusion.com/" visible="false" backgroundColor="0xCCCCCC" cornerRadius="5" borderStyle="solid" 
 	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" >
-<!--	
+	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
 	<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableWhiteboard" />
@@ -35,7 +35,7 @@
 	<mate:Listener type="{WhiteboardSettingResetEvent.GRID_CHANGED}" method="resetGrid" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
--->	
+	
 	<mx:Style>
 		.colorPickerStyle {
 	      backgroundColor:#E5E6E7;
@@ -368,6 +368,24 @@
 			private function closeToolbar(e:StopWhiteboardModuleEvent):void{
 				parent.removeChild(this);
 			}
+            
+            private function buttonSettingToggle(buttonEvt:Event):void {
+                if(buttonEvt.target == btnToggleFill) {
+                    toggleFill();
+                } else if(buttonEvt.target == btnToggleTransparency) {		
+                    toggleTransparency();
+                }
+            }
+            
+            private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
+                var gobj:GraphicObject = event.data;
+                LogUtil.debug("!!!!SELECTED:" + " " + gobj.getProperties());
+            }
+            
+            private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
+                var gobj:GraphicObject = event.data;
+                LogUtil.debug("!!!!DESELECTED:" + " " + gobj.getProperties());
+            }
             
 		]]>
 	</mx:Script>

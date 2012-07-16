@@ -261,8 +261,7 @@ package org.bigbluebutton.modules.whiteboard
 			*/
 			if(graphicType == WhiteboardConstants.TYPE_TEXT) {
 				LogUtil.error("double click received at " + mouseX + "," + mouseY);
-				var tobj:TextObject = new TextObject(
-					"TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
+				var tobj:TextObject = new TextObject("TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
 				sendTextToServer(TextObject.TEXT_CREATED, tobj);
 			}
 		}

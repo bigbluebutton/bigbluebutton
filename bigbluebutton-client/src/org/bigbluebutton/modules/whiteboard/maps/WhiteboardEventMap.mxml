@@ -48,14 +48,16 @@
 			private function dummyMethod():void{
 				
 			}
+            
+            // constructorArguments="{WhiteboardModel}"  constructorArguments="{lastReturn}" constructorArguments="{scope.dispatcher}"
 		]]>
 	</mx:Script>
 	
-	<EventHandlers type="{FlexEvent.PREINITIALIZE}">		
+	<EventHandlers type="{FlexEvent.APPLICATION_COMPLETE}">		
 		<ObjectBuilder generator="{WhiteboardManager}" cache="global" />
-		<ObjectBuilder generator="{WhiteboardModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
-		<ObjectBuilder generator="{DrawProxy}" cache="global" constructorArguments="{lastReturn}"/>
-		<ObjectBuilder generator="{PageManager}" cache="global" />
+        <ObjectBuilder generator="{PageManager}" cache="global" />
+		<ObjectBuilder generator="{WhiteboardModel}" cache="global" />
+		<ObjectBuilder generator="{DrawProxy}" cache="global"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{WhiteboardPresenterEvent.MODIFY_ENABLED}" >

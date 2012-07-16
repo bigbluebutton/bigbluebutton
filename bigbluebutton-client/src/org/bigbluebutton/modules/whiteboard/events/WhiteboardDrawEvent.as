@@ -31,9 +31,7 @@ package org.bigbluebutton.modules.whiteboard.events
 		public static const UNDO_GRAPHIC:String = "undoGraphic"
 		
 		public var message:GraphicObject;
-		
-        public var annotation:Object;
-        
+		       
 		public function WhiteboardDrawEvent(type:String, bubbles:Boolean = true, cancelable:Boolean = false)
 		{
 			super(type, bubbles, cancelable);
