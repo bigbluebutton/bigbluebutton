@@ -55,15 +55,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			} else if (type == DrawObject.RECTANGLE){
 				d = makeRectangle(shape, color, thickness, fill, fillColor, trans);
 			} else if (type == DrawObject.ELLIPSE){
-<<<<<<< HEAD
-				d = makeEllipse(shape, color, thickness);
-			} else if (type == DrawObject.TEXT){
-                d = makeText(shape, color, thickness);
-                d.getShapeArray().push(d.getShape().width);
-                d.getShapeArray().push(d.getShape().height);
-            }
-            
-=======
 				d = makeEllipse(shape, color, thickness, fill, fillColor, trans);
 			}  else if (type == DrawObject.TRIANGLE){
 				d = makeTriangle(shape, color, thickness, fill, fillColor, trans);
@@ -73,8 +64,12 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				d = makeHighlighter(shape, color, thickness, trans);
 			} else if (type == DrawObject.ERASER){
 				d = makeEraser(shape, color, thickness, trans);
-			}
->>>>>>> ajay/bbb-whiteboard-additions
+			} else if (type == DrawObject.TEXT){
+   //             d = makeText(shape, color, thickness);
+    //            d.getShapeArray().push(d.getShape().width);
+    //            d.getShapeArray().push(d.getShape().height);
+            }
+
 			return d;
 		}
 		
@@ -89,14 +84,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return the Pencil DrawObject created from the parameters
 		 * 
 		 */		
-<<<<<<< HEAD
-		public function makePencil(shape:Array, color:uint, thickness:uint):DrawObject{
-			return new Pencil(shape, color, thickness);
-            
-=======
 		public function makePencil(shape:Array, color:uint, thickness:uint, trans:Boolean):DrawObject{
 			return new Pencil(shape, color, thickness, trans);
->>>>>>> ajay/bbb-whiteboard-additions
 		}
 		
 		/**
@@ -199,8 +188,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return new Triangle(shape, color, thickness, fill, fillColor, trans);
 		}
 
-        public function makeText(shape:Array, color:uint, thickness:uint):DrawObject{
-            return new Text(shape, color, thickness);
-        }
+ //       public function makeText(shape:Array, color:uint, thickness:uint):DrawObject{
+ //           return new Text(shape, color, thickness);
+ //       }
 	}
 }

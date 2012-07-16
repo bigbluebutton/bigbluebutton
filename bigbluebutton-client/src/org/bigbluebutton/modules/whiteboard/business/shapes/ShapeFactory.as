@@ -50,18 +50,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return 
 		 * 
 		 */		
-<<<<<<< HEAD
-		public function makeShape(shape:DrawObject):DrawObject{
-			if (shape.getType() == DrawObject.PENCIL){
-				return makePencil(shape as Pencil);
-			} else if (shape.getType() == DrawObject.RECTANGLE){
-				return makeRectangle(shape as Rectangle);
-			} else if (shape.getType() == DrawObject.ELLIPSE){
-				return makeEllipse(shape as Ellipse);
-			} else if (shape.getType() == DrawObject.TEXT){
-                return makeText(shape as Text);
-            }
-=======
 		public function makeShape(graphic:DrawObject):DrawObject{
 			if (graphic.getType() == DrawObject.PENCIL){
 				return makePencil(graphic as Pencil);
@@ -78,7 +66,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			} else if (graphic.getType() == DrawObject.ERASER){
 				return makeEraser(graphic as Eraser);
 			}
->>>>>>> ajay/bbb-whiteboard-additions
+
 			return null;
 		}
 		
@@ -88,13 +76,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			for (var i:int = 0; i < segment.length; i += 2) {
 				normSegment[i] = normalize(segment[i] , _parentWidth);
 				normSegment[i+1] = normalize(segment[i+1], _parentHeight);
-<<<<<<< HEAD
-			}            
-			return makeShape(drawFactory.makeDrawObject(type, normSegment, color, thickness));
-=======
 			}
 			return makeShape(drawFactory.makeDrawObject(type, normSegment, color, thickness, fill, fillColor, transparency));
->>>>>>> ajay/bbb-whiteboard-additions
 		}
 		
 		/**
@@ -191,13 +174,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			e.makeGraphic(_parentWidth, _parentHeight);
 			return e;
 		}
-<<<<<<< HEAD
 
         private function makeText(e:Text):DrawObject{
             e.makeShape(_parentWidth, _parentHeight);
             return e;
         }
-=======
->>>>>>> ajay/bbb-whiteboard-additions
+
 	}
 }

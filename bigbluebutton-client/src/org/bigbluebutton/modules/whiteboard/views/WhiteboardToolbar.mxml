@@ -23,7 +23,7 @@
 <mx:VBox xmlns="flexlib.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
 	xmlns:mate="http://mate.asfusion.com/" visible="false" backgroundColor="0xCCCCCC" cornerRadius="5" borderStyle="solid" 
 	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" >
-	
+<!--	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
 	<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableWhiteboard" />
@@ -35,7 +35,7 @@
 	<mate:Listener type="{WhiteboardSettingResetEvent.GRID_CHANGED}" method="resetGrid" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
-	
+-->	
 	<mx:Style>
 		.colorPickerStyle {
 	      backgroundColor:#E5E6E7;
@@ -57,23 +57,6 @@
 	
 	<mx:Script>
 		<![CDATA[
-<<<<<<< HEAD
-            import mx.collections.ArrayCollection;
-            import mx.controls.Alert;
-            import mx.events.MoveEvent;
-            import mx.events.ResizeEvent;
-            
-            import org.bigbluebutton.common.Images;
-            import org.bigbluebutton.main.events.MadePresenterEvent;
-            import org.bigbluebutton.modules.present.events.PresentationEvent;
-            import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
-            import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-            import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
-            import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-            import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-            import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-            import org.bigbluebutton.util.i18n.ResourceUtil;
-=======
 			import mx.controls.Alert;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
@@ -97,7 +80,6 @@
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
->>>>>>> ajay/bbb-whiteboard-additions
 			
 			private var images:Images = new Images();
             [Bindable] private var hand_icon:Class = images.hand_icon;
@@ -108,22 +90,17 @@
 			[Bindable] private var ellipse_icon:Class = images.circle_icon;
 			[Bindable] private var thick_icon:Class = images.whiteboard_thick;
 			[Bindable] private var thin_icon:Class = images.whiteboard_thin;
-<<<<<<< HEAD
             [Bindable] private var scribble_icon:Class = images.scribble_icon;
-            [Bindable] private var text_icon:Class = images.text_icon;
-            
-=======
+            [Bindable] private var text_icon:Class = images.text_icon;            
 			[Bindable] private var triangle_icon:Class = images.triangle_icon;
 			[Bindable] private var line_icon:Class = images.line_icon;
 			[Bindable] private var fill_icon:Class = images.fill_icon;
 			[Bindable] private var transparency_icon:Class = images.transparency_icon;
-			[Bindable] private var text_icon:Class = images.text_icon;
 			[Bindable] private var eraser_icon:Class = images.eraser_icon;
 			[Bindable] private var highlighter_icon:Class = images.highlighter_icon;
 			[Bindable] private var select_icon:Class = images.select_icon;
 			[Bindable] private var grid_icon:Class = images.grid_icon;
 			
->>>>>>> ajay/bbb-whiteboard-additions
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
 			
@@ -138,7 +115,6 @@
 			 * @param s The type
 			 * 
 			 */		
-<<<<<<< HEAD
 			protected function setShape(s:String):void{
 				canvas.setShape(s);
 				
@@ -168,7 +144,8 @@
                         btnText.selected = true;
                         break;
 				}
-=======
+            }
+            
 			protected function setTool(gType:String, toolType:String):void{
 				if(gType == WhiteboardConstants.TYPE_SHAPE) {
 					canvas.setGraphicType(gType);
@@ -295,7 +272,6 @@
 					canvas.setGraphicType(gType);
 					canvas.setTool(toolType);
 				} 					
->>>>>>> ajay/bbb-whiteboard-additions
 			}
 			
 			private function setShapeToPencil(e:WhiteboardButtonEvent):void{
@@ -393,83 +369,7 @@
 			private function closeToolbar(e:StopWhiteboardModuleEvent):void{
 				parent.removeChild(this);
 			}
-<<<<<<< HEAD
-            	
-            [Bindable]
-            public var cards:ArrayCollection = new ArrayCollection(
-                [ {label:"10", data:1}, 
-                    {label:"12", data:2}, 
-                    {label:"14", data:3} ]);
             
-            private function closeHandler(event:Event):void {
-//                myLabel.text = "You selected: " +  ComboBox(event.target).selectedItem.label;
-//                myData.text = "Data: " +  ComboBox(event.target).selectedItem.data;
-            }
-            
-		]]>
-	</mx:Script>
-    <mx:Button width="20" height="20" id="btnHand" click="setShape(DrawObject.TEXT)" icon="{hand_icon}" 
-               toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
-    <mx:Spacer height="10" />
-    <mx:HBox borderThickness="2">
-        <mx:Button width="20" height="20" id="btnText" click="setShape(DrawObject.TEXT)" icon="{text_icon}" 
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
-        <mx:Button width="20" height="20" id="btnPenc" click="setShape(DrawObject.PENCIL)"  icon="{scribble_icon}" 
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.pencil')}" toggle="true" selected="true" />        
-    </mx:HBox>
-    <mx:HBox borderThickness="2">
-        <mx:Button width="20" height="20" id="btnRectangle" click="setShape(DrawObject.RECTANGLE)" icon="{rectangle_icon}" 
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
-        <mx:Button width="20" height="20" id="btnEllipse" click="setShape(DrawObject.ELLIPSE)" icon="{ellipse_icon}" 
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" toggle="true" />        
-    </mx:HBox>
-	
-	<mx:Spacer height="10" />
-    <mx:HBox borderThickness="2">
-        <mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR_BOARD))" icon="{delete_icon}" 
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.clear')}" />
-        <mx:Button width="20" height="20" id="btnUndo"  click="sendUndoCommand()" icon="{undo_icon}" 
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo')}" />        
-    </mx:HBox>
-
-    <mx:Spacer height="10" />
-    <mx:ComboBox dataProvider="{cards}" width="55" height="20" color="0x000000" close="closeHandler(event);"/>
-    
-	<mx:Spacer height="10" />
-    <mx:HBox borderThickness="2">
-        <mx:ColorPicker change="changeColor(event)" id="cpik" swatchPanelStyleName="colorPickerStyle" dataProvider="{colorPickerColours}" selectedColor="0x000000" 
-                        toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
-        
-        <mx:VBox>
-            <mx:Image source="{thick_icon}" horizontalAlign="center" width="20"/>
-            <mx:VSlider height="50" id="sld" change="changeThickness(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness')}" minimum="2" maximum="20" 
-                        useHandCursor="true" value="2" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" />
-            <mx:Image source="{thin_icon}" horizontalAlign="center" width="20" />             
-        </mx:VBox>
-       
-    </mx:HBox>
-
-<!--    
-	<mx:ColorPicker change="changeColor(event)" id="cpik" swatchPanelStyleName="colorPickerStyle" dataProvider="{colorPickerColours}" selectedColor="0x000000" 
-=======
-			
-			private function buttonSettingToggle(buttonEvt:Event):void {
-				if(buttonEvt.target == btnToggleFill) {
-					toggleFill();
-				} else if(buttonEvt.target == btnToggleTransparency) {		
-					toggleTransparency();
-				}
-			}
-			
-			private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
-				var gobj:GraphicObject = event.data;
-				LogUtil.debug("!!!!SELECTED:" + " " + gobj.getProperties());
-			}
-			
-			private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
-				var gobj:GraphicObject = event.data;
-				LogUtil.debug("!!!!DESELECTED:" + " " + gobj.getProperties());
-			}
 		]]>
 	</mx:Script>
 	
@@ -500,11 +400,11 @@
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.toggleGrid')}" toggle="true" />
 	
 	<mx:Spacer height="5" />
-	<mx:Button width="20" height="20" id="btnToggleFill" click="buttonSettingToggle(event)" icon ="{fill_icon}"
+	<mx:Button width="20" height="20" id="btnToggleFill" click="/*buttonSettingToggle(event)*/" icon ="{fill_icon}"
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.toggleFill')}" toggle="true"/>
 	<mx:ColorPicker change="changeFillColor(event)" id="cfillpik" selectedColor="0x000000" 
 					toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.fillColorPicker')}"/>
-	<mx:Button width="20" height="20" id="btnToggleTransparency" click="buttonSettingToggle(event)" icon ="{transparency_icon}"
+	<mx:Button width="20" height="20" id="btnToggleTransparency" click="/*buttonSettingToggle(event)*/" icon ="{transparency_icon}"
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.toggleTransparency')}" toggle="true"/>
 	
 	<mx:Spacer height="5" />
@@ -527,7 +427,6 @@
 	the "fill" color that is used only if "fill" is enabled in WhiteboardCanvasModel
 	-->
 	<mx:ColorPicker change="changeColor(event)" id="cpik"  selectedColor="0x000000" 
->>>>>>> ajay/bbb-whiteboard-additions
 					toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
    
 	<mx:Spacer height="3" />
@@ -535,5 +434,5 @@
 	<mx:VSlider height="50" id="sld" change="changeThickness(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness')}" minimum="2" maximum="20" 
 				useHandCursor="true" value="2" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" />
 	<mx:Image source="{thin_icon}" horizontalAlign="center" width="20" />
--->	
+	
 </mx:VBox>

@@ -44,14 +44,10 @@ package org.bigbluebutton.modules.whiteboard.managers
 			dispatcher = new Dispatcher();
 		}
 		
-<<<<<<< HEAD
 		public function addShapeToPage(e:WhiteboardUpdate):void {
 			(pages.getItemAt(pageNum) as ArrayCollection).addItem(e.data);
 		}
 		
-		public function undoShapeFromPage():void {
-			var page:ArrayCollection = pages.getItemAt(pageNum) as ArrayCollection;
-=======
 		public function addGraphicToPage(e:WhiteboardUpdate):void {
 			var gobjToAdd:GraphicObject = e.data as GraphicObject;
 			var currPage:Page = pages.getItemAt(pageNum) as Page;
@@ -73,18 +69,11 @@ package org.bigbluebutton.modules.whiteboard.managers
 		
 		public function undoGraphicFromPage():void {
 			var page:Page = pages.getItemAt(pageNum) as Page;
->>>>>>> ajay/bbb-whiteboard-additions
 			if (page.length > 0) page.removeItemAt(page.length - 1);
 		}
 		
 		public function clearPage():void {
-<<<<<<< HEAD
 			var page:ArrayCollection = pages.getItemAt(pageNum) as ArrayCollection;
-			page.removeAll();
-		}
-		
-=======
-			var page:Page = pages.getItemAt(pageNum) as Page;
 			page.removeAll();
 		}
 		
@@ -98,7 +87,6 @@ package org.bigbluebutton.modules.whiteboard.managers
 			return page.isGridToggled();
 		}
 		
->>>>>>> ajay/bbb-whiteboard-additions
 		public function loadPage(e:PageEvent):void {
 			if (pages.length ==0 ) return;
 			if ((pages.getItemAt(e.pageNum) as Page).length == 0) return;

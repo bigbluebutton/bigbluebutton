@@ -39,14 +39,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			super(DrawObject.PENCIL, segment, color, thickness, false, 0x000000, false);
 		}
 		
-<<<<<<< HEAD
-		override public function makeShape(parentWidth:Number, parentHeight:Number):void {
-			var newShape:Sprite = new Sprite();
-			newShape.graphics.lineStyle(getThickness(), getColor());
-=======
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
 			this.graphics.lineStyle(getThickness(), getColor());
->>>>>>> ajay/bbb-whiteboard-additions
 			
 			var graphicsCommands:Vector.<int> = new Vector.<int>();
 			graphicsCommands.push(1);

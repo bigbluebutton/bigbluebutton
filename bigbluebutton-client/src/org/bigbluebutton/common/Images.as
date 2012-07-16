@@ -182,21 +182,19 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/shape_handles.png")]
 		public var shape_handles:Class;		
-<<<<<<< HEAD
 
 		[Embed(source="assets/images/disk.png")]
 		public var disk:Class;		
 
 		[Embed(source="assets/images/folder.png")]
 		public var folder:Class;		
-=======
-		
+	
 		// PLACE CUSTOM IMAGES BELOW
 		[Embed(source="assets/images/line.png")]
 		public var line_icon:Class;	
 		
-		[Embed(source="assets/images/text_icon.png")]
-		public var text_icon:Class;	
+//		[Embed(source="assets/images/text_icon.png")]
+//		public var text_icon:Class;	
 		
 		[Embed(source="assets/images/fill_icon.png")]
 		public var fill_icon:Class;	
@@ -221,6 +219,5 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/grid_icon.png")]
 		public var grid_icon:Class;	
->>>>>>> ajay/bbb-whiteboard-additions
 	}
 }

@@ -132,7 +132,7 @@ package org.bigbluebutton.modules.whiteboard.business
         
         private function handleUndoCommand(message:Object):void {
             LogUtil.debug("Handle Whiteboard Undo Command ");
-            dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.SHAPE_UNDONE));
+//            dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.SHAPE_UNDONE));
         }
         
         private function handleEnableWhiteboardCommand(message:Object):void {
@@ -209,7 +209,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		
 		public function getPageHistory(e:PageEvent):void {
 			var nc:NetConnection = connection;
-<<<<<<< HEAD
+
 			nc.call("whiteboard.setActivePage",
 				new Responder(	        		
 					function(result:Object):void { // On successful result
@@ -220,21 +220,6 @@ package org.bigbluebutton.modules.whiteboard.business
 //						} else{
 //							LogUtil.debug("Whiteboard: Shapes up to date, no need to update");
 //						}
-=======
-			nc.call(
-				"whiteboard.setActivePage",// Remote function name
-				new Responder(
-	        		// On successful result
-					function(result:Object):void { 
-						if ((result as int) != e.graphicObjs.length) {
-							LogUtil.debug("Whiteboard: Need to retrieve shapes. Have " + e.graphicObjs.length + " on client, "
-										  + (result as int) + " on server");
-							LogUtil.debug("Whiteboard: Retrieving shapes on page" + e.pageNum);
-							getHistory(); 
-						} else{
-							LogUtil.debug("Whiteboard: Shapes up to date, no need to update");
-						}
->>>>>>> ajay/bbb-whiteboard-additions
 					},	
 					
 					function(status:Object):void { // status - On error occurred
@@ -254,17 +239,16 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * 
 		 */		
 		public function sendShape(e:WhiteboardDrawEvent):void{
-<<<<<<< HEAD
-			var shape:DrawObject = e.message;
+//			var shape:DrawObject = e.message;
 			LogUtil.debug("*** Sending shape");
 			
             var annotation:Object = new Object();
-            annotation["type"] = shape.getType();
-            annotation["points"] = shape.getShapeArray();
-            annotation["color"] = shape.getColor();
-            annotation["thickness"] = shape.getThickness();
-            annotation["id"] = shape.id;
-            annotation["status"] = shape.status;
+//            annotation["type"] = shape.getType();
+//            annotation["points"] = shape.getShapeArray();
+//            annotation["color"] = shape.getColor();
+//            annotation["thickness"] = shape.getThickness();
+//            annotation["id"] = shape.id;
+//            annotation["status"] = shape.status;
             var nc:NetConnection = connection;
             nc.call("whiteboard.sendAnnotation",
                 new Responder(                    
@@ -280,29 +264,6 @@ package org.bigbluebutton.modules.whiteboard.business
                 ),//new Responder
                 annotation
             );
-=======
-			var shape:DrawObject = e.message as DrawObject;
-			//LogUtil.debug("*** Sending shape");
-			var nc:NetConnection = connection;
-			nc.call(
-				"whiteboard.sendShape",// Remote function name
-				new Responder(
-	        		// On successful result
-					function(result:Object):void { 
-						//LogUtil.debug("Whiteboard::sendShape() "); 
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				),//new Responder
-				shape.getShapeArray(), shape.getType(), shape.getColor(), shape.getThickness(), 
-				shape.getFill(), shape.getFillColor(), shape.getTransparency(), shape.getGraphicID(), shape.status
-			); //_netConnection.call
->>>>>>> ajay/bbb-whiteboard-additions
 		}
 		
 		/**
@@ -422,9 +383,6 @@ package org.bigbluebutton.modules.whiteboard.business
 			//drawSO.send("undo");
 		}
 		
-<<<<<<< HEAD
-
-=======
 		/**
 		 * Triggers the undo shape event on all clients 
 		 * 
@@ -468,8 +426,7 @@ package org.bigbluebutton.modules.whiteboard.business
 			LogUtil.debug("TOGGLE CALLBACK RECEIVED"); 
 			dispatcher.dispatchEvent(new ToggleGridEvent(ToggleGridEvent.GRID_TOGGLED));
 		}
->>>>>>> ajay/bbb-whiteboard-additions
-		
+	
 		public function modifyEnabled(e:WhiteboardPresenterEvent):void{
 			var nc:NetConnection = connection;
 			nc.call(
@@ -500,20 +457,12 @@ package org.bigbluebutton.modules.whiteboard.business
 		private function getHistory():void{
 			var nc:NetConnection = connection;
 			nc.call(
-<<<<<<< HEAD
 				"whiteboard.requestAnnotationHistory",// Remote function name
-=======
-				"whiteboard.getHistory",// Remote function name
->>>>>>> ajay/bbb-whiteboard-additions
 				new Responder(
 	        		// On successful result
 					function(result:Object):void { 
 						LogUtil.debug("Whiteboard::getHistory() : retrieving whiteboard history"); 
-<<<<<<< HEAD
 //						receivedShapesHistory(result);
-=======
-						receivedGraphicsHistory(result);
->>>>>>> ajay/bbb-whiteboard-additions
 					},	
 					// status - On error occurred
 					function(status:Object):void { 

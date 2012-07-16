@@ -29,7 +29,7 @@ package org.bigbluebutton.modules.whiteboard.models
 		
 		public function undo():void {
 			_currentPresentation.undo();
-			_dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO_SHAPE));
+	//		_dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO_SHAPE));
 		}
 		
 		public function clear():void {

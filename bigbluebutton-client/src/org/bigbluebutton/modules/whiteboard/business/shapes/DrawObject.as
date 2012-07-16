@@ -17,13 +17,9 @@
 * 
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
-<<<<<<< HEAD
-{
-=======
 {
 	import flash.display.DisplayObject;
 	import flash.display.Shape;
->>>>>>> ajay/bbb-whiteboard-additions
 	import flash.display.Sprite;
 
 	/**
@@ -42,14 +38,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public static const ERASER:String = "eraser";
 		public static const RECTANGLE:String = "rectangle";
 		public static const ELLIPSE:String = "ellipse";
-<<<<<<< HEAD
-        public static const TEXT:String = "text";
-        
-=======
+        public static const TEXT:String = "text";      
 		public static const TRIANGLE:String = "triangle";
 		public static const LINE:String = "line";	
 		
->>>>>>> ajay/bbb-whiteboard-additions
 		protected var type:String;
 		protected var shape:Array;
 		protected var color:uint;
@@ -66,10 +58,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public static const DRAW_START:String = "DRAW_START";
 		public var status:String = DRAW_START;
 				
-<<<<<<< HEAD
 		protected var _shape:Sprite = new Sprite();
-=======
->>>>>>> ajay/bbb-whiteboard-additions
 		protected var _segment:Array;
 		
 		/**
@@ -94,10 +83,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.optimize();
 		}
 		
-<<<<<<< HEAD
-		public function getShape():Sprite {
-			return _shape;
-=======
+
+//		public function getShape():Sprite {
+ //       }
+        
 		public function getGraphicType():String {
 			return WhiteboardConstants.TYPE_SHAPE;
 		}
@@ -116,7 +105,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		
 		public function normalize(val:Number, side:Number):Number {
 			return (val*100.0)/side;
->>>>>>> ajay/bbb-whiteboard-additions
 		}
 		
 		/**

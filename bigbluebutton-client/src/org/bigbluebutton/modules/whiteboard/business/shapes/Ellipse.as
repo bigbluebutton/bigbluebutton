@@ -62,16 +62,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.shape.push(y2);
 		}
 		
-<<<<<<< HEAD
-		override public function makeShape(parentWidth:Number, parentHeight:Number):void {
-			var newShape:Sprite = new Sprite();
-			newShape.graphics.lineStyle(getThickness(), getColor());
-=======
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
 			if(!fill)
 				this.graphics.lineStyle(getThickness(), getColor(), getTransparencyLevel());
 			else this.graphics.lineStyle(getThickness(), getColor());
->>>>>>> ajay/bbb-whiteboard-additions
+
 			var arrayEnd:Number = getShapeArray().length;
 			var startX:Number = denormalize(getShapeArray()[0], parentWidth);
 			var startY:Number = denormalize(getShapeArray()[1], parentHeight);

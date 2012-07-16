@@ -78,200 +78,6 @@
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
-<<<<<<< HEAD
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.util.logging.Logger;
-	
-			private var globalDispatcher:Dispatcher;			
-			private var dispState:String; //full-screen?
-			private var images:Images = new Images();
-			private var stoppedModules:ArrayCollection;			
-			private var logs:Logger = new Logger();
-			private var logWindow:LogWindow;			
-			private var logoutWindow:LoggedOutWindow;
-			private var connectionLostWindow:ConnectionLostWindow;
-			
-			// LIVE or PLAYBACK
-			private var _mode:String = 'LIVE';
-			[Bindable] public var appVersion:String = ' ';
-			private var localeVersion:String = 'old';
-			[Bindable] public var numberOfModules:int = 0;
-			
-			[Bindable] private var fullscreen_icon:Class = images.full_screen;
-			[Bindable] private var logs_icon:Class = images.table;
-			[Bindable] private var reset_layout_icon:Class = images.layout;
-
-			private var receivedConfigLocaleVer:Boolean = false;
-			private var receivedResourceLocaleVer:Boolean = false;
-			
-			public function get mode():String {
-				return _mode;
-			}
-			
-			[Bindable] private var layoutOptions:LayoutOptions;
-			
-			[Bindable] private var showToolbarOpt:Boolean = true;
-			
-			public function initOptions(e:Event):void {
-				LogUtil.debug("**** Init layout options ***");
-				layoutOptions = new LayoutOptions();
-				layoutOptions.parseOptions();
-				showToolbarOpt = layoutOptions.showToolbar;
-				LogUtil.debug("*** show toolbar = " + layoutOptions.showToolbar);
-				toolbar.displayToolbar();
-			}
-			
-			protected function initializeShell():void {	
-				globalDispatcher = new Dispatcher();	
-			}
-		
-			protected function initFullScreen():void {				
-				/* Set up full screen handler. */
-				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
-				dispState = stage.displayState;
-			}					
-			
-			private var sendStartModulesEvent:Boolean = true;
-			
-			private function handleApplicationVersionEvent(event:AppVersionEvent):void {
-				if (event.configLocaleVersion == true) {
-					receivedConfigLocaleVer = true;
-					appVersion = event.appVersion;
-					localeVersion = event.localeVersion;
-					LogUtil.debug("Received locale version from config.xml");
-				} else {
-					receivedResourceLocaleVer = true;
-					LogUtil.debug("Received locale version from locale file.");
-				}
-				
-				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
-					LogUtil.debug("Comparing locale versions.");
-					if (!event.suppressLocaleWarning) checkLocaleVersion(localeVersion);
-					if (sendStartModulesEvent) {
-						sendStartModulesEvent = false;
-						sendStartAllModulesEvent();
-					}				
-				}						
-			}
-			
-			public function sendStartAllModulesEvent():void{
-				LogUtil.debug("Sending start all modules event");
-				var dispatcher:Dispatcher = new Dispatcher();
-				dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.START_ALL_MODULES));	
-			}
-			
-			private function fullScreenHandler(evt:FullScreenEvent):void {
-				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
-				if (evt.fullScreen) {
-					LogUtil.debug("Switching to full screen");
-					/* Do something specific here if we switched to full screen mode. */
-				
-				} else {
-					LogUtil.debug("Switching to normal screen");
-					/* Do something specific here if we switched to normal mode. */
-				}
-			}			
-			
-			private function openLogWindow():void {
-				if (logWindow == null){
-					logWindow = new LogWindow();
-					logWindow.logs = logs;
-				}
-				mdiCanvas.windowManager.add(logWindow);
-				mdiCanvas.windowManager.absPos(logWindow, 50, 50);
-				logWindow.width = mdiCanvas.width - 100;
-				logWindow.height = mdiCanvas.height - 100;
-			}
-			
-			private function toggleFullScreen():void{
-	   			LogUtil.debug("Toggling fullscreen");
-	   			try {
-					switch (stage.displayState) {
-						case StageDisplayState.FULL_SCREEN:
-							LogUtil.debug("full screen mode");
-							// If already in full screen mode, switch to normal mode.
-							stage.displayState = StageDisplayState.NORMAL;
-							break;
-						default:
-							LogUtil.debug("Normal screen mode");
-							// If not in full screen mode, switch to full screen mode.
-							stage.displayState = StageDisplayState.FULL_SCREEN;
-							break;
-					}
-				} catch (err:SecurityError) {
-					// ignore
-				}
-	   		}	
-	   		
-	   		private function handleOpenWindowEvent(event:OpenWindowEvent):void {
-	   			
-	   			var window:IBbbModuleWindow = event.window;
-	   			mdiCanvas.addWindow(window);
-	   		}
-	   		
-	   		private function handleCloseWindowEvent(event:CloseWindowEvent):void {
-	   			var window:IBbbModuleWindow = event.window;
-				mdiCanvas.removeWindow(window);
-	   		}
-	   		
-	   		private function resetLayout():void{
-	   			mdiCanvas.resetWindowLayout();
-	   		}
-	   		
-	   		private function addComponentToCanvas(e:AddUIComponentToMainCanvas):void{
-	   			mdiCanvas.addChild(e.component);
-	   		}
-	   		
-	   		public function checkLocaleVersion(localeVersion:String):void {	   			
-	   			Alert.okLabel ="OK";
-				var version:String = "old-locales";
-				version = ResourceUtil.getInstance().getString('bbb.mainshell.locale.version');
-				LogUtil.debug("Locale from config=" + localeVersion + ", from locale file=" + version);
-
-				if ((version == "old-locales") || (version == "") || (version == null)) {
-					wrongLocaleVersion();
-				} else {
-					if (version != localeVersion) wrongLocaleVersion();
-				}	   			
-	   		}
-
-			private function showMicSettings(event:BBBEvent):void {
-				var micSettings:MicSettings = MicSettings(PopUpManager.createPopUp(mdiCanvas, MicSettings, true));				
-				var point1:Point = new Point();
-				// Calculate position of TitleWindow in Application's coordinates. 
-				point1.x = width/2;
-				point1.y = height/2;                
-				micSettings.x = point1.x - (micSettings.width/2);
-				micSettings.y = point1.y - (micSettings.height/2);	
-			}
-			
-	   		private function wrongLocaleVersion():void {
-				var localeWindow:OldLocaleWarnWindow = OldLocaleWarnWindow(PopUpManager.createPopUp(mdiCanvas, OldLocaleWarnWindow, false));
-
-				var point1:Point = new Point();
-	        	// Calculate position of TitleWindow in Application's coordinates. 
-				point1.x = width/2;
-				point1.y = height/2;              
-				localeWindow.x = point1.x - (localeWindow.width/2);
-				localeWindow.y = point1.y - (localeWindow.height/2);	
-            }
-			
-			private function handleLogout(e:ConnectionFailedEvent):void {
-				if (layoutOptions.showLogoutWindow) {
-					if (logoutWindow != null) return;
-					logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
-					
-					var point1:Point = new Point();
-					// Calculate position of TitleWindow in Application's coordinates. 
-					point1.x = width/2;
-					point1.y = height/2;                 
-					logoutWindow.x = point1.x - (logoutWindow.width/2);
-					logoutWindow.y = point1.y - (logoutWindow.height/2);
-					
-					if (e is ConnectionFailedEvent) logoutWindow.setReason((e as ConnectionFailedEvent).type);
-					else logoutWindow.setReason("You have logged out of the conference");	
-					
-=======
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
 	
@@ -464,7 +270,6 @@
 					if (e is ConnectionFailedEvent) logoutWindow.setReason((e as ConnectionFailedEvent).type);
 					else logoutWindow.setReason("You have logged out of the conference");	
 					
->>>>>>> ajay/bbb-whiteboard-additions
 					mdiCanvas.removeAllWindows(); 				
 				} else {
 					mdiCanvas.removeAllWindows();
@@ -518,13 +323,8 @@
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
 	
-<<<<<<< HEAD
-	<mx:ControlBar width="100%" height="24" paddingTop="0">
-	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
-=======
 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
 	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion]) + '-- The Learn To Be Foundation'}" id="copyrightLabel2"/>
->>>>>>> ajay/bbb-whiteboard-additions
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
 		<mx:Button width="20" height="20" visible="{layoutOptions.showLogButton}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />

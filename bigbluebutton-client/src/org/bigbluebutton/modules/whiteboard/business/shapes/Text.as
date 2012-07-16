@@ -18,9 +18,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public var fontSize:Number = 18;
 		public var textcolor:Object = 0xFF0000;
 		
-        public function Text(segment:Array, color:uint, thickness:uint)
+        public function Text(segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean)
         {
-            super(DrawObject.TEXT, segment, color, thickness);           
+            super(DrawObject.TEXT, segment, color, thickness, fill, fillColor, trans);
         }
         
         /**
@@ -42,7 +42,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         private var scale:uint = 1;
 //        private var fontSize:uint = 18;
         
-        override public function makeShape(parentWidth:Number, parentHeight:Number):void {
+  //      override 
+        public function makeShape(parentWidth:Number, parentHeight:Number):void {
             var newShape:Sprite = new Sprite();
             newShape.x = denormalize(getShapeArray()[0], parentWidth);
             newShape.y = denormalize(getShapeArray()[1], parentHeight);

@@ -21,21 +21,12 @@
 -->
 
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:mate="http://mate.asfusion.com/"
-<<<<<<< HEAD
-	 creationComplete="init()" visible="false"
-	 implements="org.bigbluebutton.common.IBbbCanvas">
-	<mx:Script>
-		<![CDATA[			
-            
-            // mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" mouseOver="setCursor()" mouseOut="removeCursor()"
-			import mx.collections.ArrayCollection;
-			import mx.core.Application;
-=======
-	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()" visible="false" 
+	 
+    creationComplete="init()" visible="false" 
 	mouseOver="setCursor(toolType)" mouseOut="removeCursor()" doubleClickEnabled="true" doubleClick="doMouseDoubleClick()"  implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
-		<![CDATA[			
->>>>>>> ajay/bbb-whiteboard-additions
+		<![CDATA[		
+            // mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()"
 			import mx.managers.CursorManager;
 			
 			import org.bigbluebutton.common.IBbbCanvas;
@@ -92,17 +83,12 @@
 			private function doMouseUp(event:Event):void {
 				model.doMouseUp();
 			}
-<<<<<<< HEAD
-
-			private function doMouseDown(event:Event):void {
-=======
 			
 			private function doMouseDoubleClick():void{
 				model.doMouseDoubleClick(this.mouseX, this.mouseY);
 			}
 			
 			private function doMouseDown():void{
->>>>>>> ajay/bbb-whiteboard-additions
 				model.doMouseDown(this.mouseX, this.mouseY);
 			}
 						
@@ -110,7 +96,6 @@
 				model.doMouseMove(this.mouseX, this.mouseY);
 			}
 			
-<<<<<<< HEAD
 			public function sendShapeToServer(dobj:DrawObject):void {
 				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
 				event.message = dobj;
@@ -118,15 +103,14 @@
 			}
 			
 			public function setShape(s:String):void {
-				model.setShape(s);
+		//		model.setShape(s);
 			}
 				
 			public function changeColor(e:Event):void {
 				model.changeColor(e.target.selectedColor);
 			}
 	
-			public function changeThickness(e:Event):void {
-=======
+
 			public function sendGraphicToServer(gobj:GraphicObject, type:String):void{
 				var event:WhiteboardDrawEvent = 
 					new WhiteboardDrawEvent(type);
@@ -143,16 +127,11 @@
 				toolType = s;
 			}
 			
-			public function changeColor(e:Event):void{
-				model.changeColor(e.target.selectedColor);
-			}
-	
 			public function changeFillColor(e:Event):void{
 				model.changeFillColor(e.target.selectedColor);
 			}
 			
 			public function changeThickness(e:Event):void{
->>>>>>> ajay/bbb-whiteboard-additions
 				model.changeThickness(e.target.value);
 			}
 			

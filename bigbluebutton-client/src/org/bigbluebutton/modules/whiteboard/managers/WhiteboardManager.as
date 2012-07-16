@@ -82,14 +82,10 @@ package org.bigbluebutton.modules.whiteboard.managers
 		private function addHighlighterToolbar(e:TimerEvent):void{
 //			if (UserManager.getInstance().getConference().amIPresenter()) {
 				whiteboardButton.setVisible(true);
-<<<<<<< HEAD
 //			}
 			PresentationAPI.getInstance().addButtonToToolbar(whiteboardButton);
-=======
-			}
-			PresentationAPI.getInstance().addButtonToToolbar(whiteboardButton);	
-			//highlighterCanvas.addRawChild(textToolbar);
->>>>>>> ajay/bbb-whiteboard-additions
+
+
 		}
 			
 

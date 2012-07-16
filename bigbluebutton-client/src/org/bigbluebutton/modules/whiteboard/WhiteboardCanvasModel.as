@@ -3,7 +3,6 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.display.DisplayObject;
 	import flash.display.Shape;
 	import flash.display.Sprite;
-<<<<<<< HEAD
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TextEvent;
@@ -16,7 +15,6 @@ package org.bigbluebutton.modules.whiteboard
 	import mx.core.Application;
 	import mx.core.UIComponent;
 	import mx.managers.CursorManager;	
-=======
 	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.TextEvent;
@@ -25,8 +23,6 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.ui.Keyboard;
 	
 	import mx.collections.ArrayCollection;
-	
->>>>>>> ajay/bbb-whiteboard-additions
 	import org.bigbluebutton.common.IBbbCanvas;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -35,14 +31,13 @@ package org.bigbluebutton.modules.whiteboard
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
-<<<<<<< HEAD
+
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextBox;
-=======
+
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 	import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
->>>>>>> ajay/bbb-whiteboard-additions
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
@@ -71,12 +66,12 @@ package org.bigbluebutton.modules.whiteboard
 		private var drawColor:uint = 0x000000;
 		private var fillColor:uint = 0x000000;
 		private var thickness:uint = 1;
-<<<<<<< HEAD
+
 		private var _fontStyle:String = "_sans";
 		private var _fontSize:Number = 18;
 		private var _textText:String = "Hello BBB!";
 				
-=======
+
 		private var fillOn:Boolean = false;
 		private var transparencyOn:Boolean = false;
 		
@@ -101,12 +96,12 @@ package org.bigbluebutton.modules.whiteboard
 		   when erasing, for aesthetics
 		*/
 		private var sendEraserFrequency:uint = 20;	
->>>>>>> ajay/bbb-whiteboard-additions
+
 		private var drawStatus:String = DrawObject.DRAW_START;
 		private var textStatus:String = TextObject.TEXT_CREATED;
 		private var width:Number;
 		private var height:Number;
-<<<<<<< HEAD
+
 
 		public function changeFontStyle(font:String):void {
 			_fontStyle = font;	
@@ -115,17 +110,6 @@ package org.bigbluebutton.modules.whiteboard
 		public function changeFontSize(size:Number):void {
 			_fontSize = size;
 		}
-		
-		public function doMouseUp():void {
-			if (isDrawing) {
-				/**
-				 * Check if we are drawing because when resizing the window, it generates
-				 * a mouseUp event at the end of resize. We don't want to dispatch another
-				 * shape to the viewers.
-				 */
-				isDrawing = false;
-				sendShapeToServer(DrawObject.DRAW_END);
-=======
 		
 		// isGrid represents the state of the current page (grid vs not grid)
 		private var isGrid:Boolean = true;
@@ -163,7 +147,6 @@ package org.bigbluebutton.modules.whiteboard
 					}
 					
 				}
->>>>>>> ajay/bbb-whiteboard-additions
 			}
 		}
 		
@@ -189,11 +172,9 @@ package org.bigbluebutton.modules.whiteboard
 					break;
 			}
 			
-<<<<<<< HEAD
+
 //			LogUtil.error("SEGMENT LENGTH = [" + segment.length + "] STATUS = [" + dobj.status + "]");
-=======
-			//LogUtil.error("SEGMENT LENGTH = [" + segment.length + "] STATUS = [" + dobj.status + "]");
->>>>>>> ajay/bbb-whiteboard-additions
+
 			
 			if (this.toolType == DrawObject.PENCIL ||
 				this.toolType == DrawObject.ERASER) {
@@ -207,7 +188,7 @@ package org.bigbluebutton.modules.whiteboard
 			wbCanvas.sendGraphicToServer(dobj, WhiteboardDrawEvent.SEND_SHAPE);			
 		}
 		
-<<<<<<< HEAD
+/*
 		public function doMouseDown(mouseX:Number, mouseY:Number):void {
 			isDrawing = true;
 			drawStatus = DrawObject.DRAW_START;
@@ -220,7 +201,8 @@ package org.bigbluebutton.modules.whiteboard
                 wbCanvas.unregisterForMouseEvents();
                 addTextFieldExample();
 			}			
-=======
+        }
+ */       
 		private function sendTextToServer(status:String, tobj:TextObject):void {
 			switch (status) {
 				case TextObject.TEXT_CREATED:
@@ -237,7 +219,6 @@ package org.bigbluebutton.modules.whiteboard
 			}	
 			
 			wbCanvas.sendGraphicToServer(tobj, WhiteboardDrawEvent.SEND_TEXT);			
->>>>>>> ajay/bbb-whiteboard-additions
 		}
         
         private var tfe:TextFieldExample;
@@ -252,16 +233,12 @@ package org.bigbluebutton.modules.whiteboard
             wbCanvas.addRawChild(tfe);
         }
 		
-<<<<<<< HEAD
-		public function doMouseMove(mouseX:Number, mouseY:Number):void {
-			if (isDrawing){
-=======
 		public function doMouseDown(mouseX:Number, mouseY:Number):void{
 			if(graphicType == WhiteboardConstants.TYPE_SHAPE) {
 				isDrawing = true;
 				drawStatus = DrawObject.DRAW_START;
 				segment = new Array();
->>>>>>> ajay/bbb-whiteboard-additions
+
 				segment.push(mouseX);
 				segment.push(mouseY);
 			} else if(graphicType == WhiteboardConstants.TYPE_SELECTION) {
@@ -310,11 +287,7 @@ package org.bigbluebutton.modules.whiteboard
 			}
 		}
 		
-<<<<<<< HEAD
-		public function drawSegment(event:WhiteboardUpdate):void {
-			var o:DrawObject = event.data;
-			draw(o);
-=======
+
 		public function drawGraphic(event:WhiteboardUpdate):void{
 			var o:GraphicObject = event.data;
 			var recvdShapes:Boolean = event.recvdShapes;
@@ -327,7 +300,6 @@ package org.bigbluebutton.modules.whiteboard
 				var tobj:TextObject = o as TextObject;
 				drawText(tobj, recvdShapes);	
 			}
->>>>>>> ajay/bbb-whiteboard-additions
 		}
 		
 		// Draws a DrawObject when/if it is received from the server
@@ -380,12 +352,11 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		private function addNewShape(o:DrawObject):void {
-<<<<<<< HEAD
 			LogUtil.debug("Adding new shape");
             if (o.getType() == DrawObject.TEXT) return;
-=======
+
 			//LogUtil.debug("Adding new shape ");
->>>>>>> ajay/bbb-whiteboard-additions
+
 			var dobj:DrawObject = shapeFactory.makeShape(o);
 			wbCanvas.addGraphic(dobj);
 			graphicList.push(dobj);
@@ -821,9 +792,8 @@ package org.bigbluebutton.modules.whiteboard
 			
 			return topMostObj;
 		}
-<<<<<<< HEAD
-		
-		private var _textShape:UIComponent;
+
+        private var _textShape:UIComponent;
 	//	private var _currentText:TextInput;
      //   private var _currentText:TextField = new TextField();
         private var _currentText:TextBox; // = new TextBox();
@@ -942,9 +912,7 @@ package org.bigbluebutton.modules.whiteboard
 			// set focus
 			wbCanvas.stage.focus = _currentText;
 		}
-=======
 
->>>>>>> ajay/bbb-whiteboard-additions
 
 	}
 }
