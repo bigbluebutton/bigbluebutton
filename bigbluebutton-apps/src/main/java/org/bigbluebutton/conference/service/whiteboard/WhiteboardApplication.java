@@ -21,7 +21,10 @@
 */
 package org.bigbluebutton.conference.service.whiteboard;
 
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.bigbluebutton.conference.BigBlueButtonSession;
@@ -124,12 +127,80 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		
 	}
 	
+	public void sendShape(double[] shape, String type, int color, int thickness, boolean fill, int fillColor, boolean transparency, String id, String status){
+		ShapeGraphic newShape = new ShapeGraphic(shape, type, color, thickness, fill, fillColor, transparency, id, status);	
+		
+		 /*
+		    maintains unique-ness. ensures that only
+		 	one entry per shape is added. exception is DrawObject.PENCIL, 
+		    because it is a collection of "points".
+		 */
+		
+//		if(status.equals("DRAW_END")) {
+//			newShape.ID = Integer.toString(roomManager.getRoom(getLocalScope().getName()).getUniqueWBGraphicIdentifier());
+//			roomManager.getRoom(getLocalScope().getName()).addShape(newShape);
+//		}
+	
+//		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
+//		List<Object> arguments = newShape.toList();
+//		drawSO.sendMessage("addSegment", arguments);
+	}
+	
+	public void sendText(String text, int textColor, int bgColor, boolean bgColorVisible, int x, int y, int textSize, String id, String status){
+		TextGraphic newText = new TextGraphic(text, textColor, bgColor, bgColorVisible, x, y, textSize, id, status);	
+		
+		/*  
+		 	maintains unique-ness. ensures that only
+	 		one entry per text is added. all other calls must involve the modification of text,
+	 		and so they are handled appropriately
+	 	*/
+		if(status.equals("textCreated")) {
+			newText.ID = Integer.toString(roomManager.getRoom(getMeetingId()).getUniqueWBGraphicIdentifier());
+//			roomManager.getRoom(getLocalScope().getName()).addText(newText);
+		} else {
+////			roomManager.getRoom(getLocalScope().getName()).modifyText(newText.ID, newText);
+		}
+//		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
+		List<Object> arguments = newText.toList();
+//		drawSO.sendMessage("addText", arguments);
+	}
+	
+	public int getNumGraphicsOnPage(int pageNum){
+		Presentation pres = roomManager.getRoom(getMeetingId()).getActivePresentation();
+		pres.setActivePage(pageNum);
+		return pres.getActivePage().getNumGraphicsOnPage();
+	}
+	
+	public List<Object[]> getHistory(){
+		List<Object[]> graphicsList = roomManager.getRoom(getMeetingId()).getHistory();
+		for(Object[] o: graphicsList) {
+			System.out.println();
+			for(int i = 0; i < o.length; i++) {
+				System.out.print(" " + i);
+			}
+		}
+		return graphicsList;
+	}
+	
+//	public void clear(){
+//		roomManager.getRoom(getLocalScope().getName()).clear();
+//		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
+//		drawSO.sendMessage("clear", new ArrayList<Object>());
+//	}
+	
 	public void undo() {
 		roomManager.getRoom(getMeetingId()).undo();
 
 		Map<String, Object> message = new HashMap<String, Object>();		
 		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "WhiteboardUndoCommand", message);
 		connInvokerService.sendMessage(m);
+	}
+	
+	public void toggleGrid(){
+//		System.out.println("toggling grid mode ");
+//		roomManager.getRoom(getLocalScope().getName()).toggleGrid();
+//		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
+//		drawSO.sendMessage("toggleGridCallback", new ArrayList<Object>());
 	}
 	
 	@Override

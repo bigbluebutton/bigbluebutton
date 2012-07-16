@@ -28,13 +28,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 * @author dzgonjan
 	 * 
 	 */	
-	public class ShapeFactory
+	public class ShapeFactory extends GraphicFactory
 	{
 		private var drawFactory:DrawObjectFactory;
 		private var _parentWidth:Number = 0;
 		private var _parentHeight:Number = 0;
 		
 		public function ShapeFactory() {
+			super(GraphicFactory.SHAPE_FACTORY);
 			drawFactory = new DrawObjectFactory();
 		}
 		
@@ -49,6 +50,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return 
 		 * 
 		 */		
+<<<<<<< HEAD
 		public function makeShape(shape:DrawObject):DrawObject{
 			if (shape.getType() == DrawObject.PENCIL){
 				return makePencil(shape as Pencil);
@@ -59,24 +61,40 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			} else if (shape.getType() == DrawObject.TEXT){
                 return makeText(shape as Text);
             }
+=======
+		public function makeShape(graphic:DrawObject):DrawObject{
+			if (graphic.getType() == DrawObject.PENCIL){
+				return makePencil(graphic as Pencil);
+			} else if (graphic.getType() == DrawObject.RECTANGLE){
+				return makeRectangle(graphic as Rectangle);
+			} else if (graphic.getType() == DrawObject.ELLIPSE){
+				return makeEllipse(graphic as Ellipse);
+			} else if (graphic.getType() == DrawObject.TRIANGLE){
+				return makeTriangle(graphic as Triangle);
+			} else if (graphic.getType() == DrawObject.LINE){
+				return makeLine(graphic as Line);
+			} else if (graphic.getType() == DrawObject.HIGHLIGHTER){
+				return makeHighlighter(graphic as Highlighter);
+			} else if (graphic.getType() == DrawObject.ERASER){
+				return makeEraser(graphic as Eraser);
+			}
+>>>>>>> ajay/bbb-whiteboard-additions
 			return null;
 		}
 		
-		private function denormalize(val:Number, side:Number):Number {
-			return (val*side)/100.0;
-		}
-		
-		private function normalize(val:Number, side:Number):Number {
-			return (val*100.0)/side;
-		}
-		
-		public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint):DrawObject {
+		public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint,
+										fill:Boolean, fillColor:uint, transparency:Boolean):DrawObject {
 			var normSegment:Array = new Array();
 			for (var i:int = 0; i < segment.length; i += 2) {
 				normSegment[i] = normalize(segment[i] , _parentWidth);
 				normSegment[i+1] = normalize(segment[i+1], _parentHeight);
+<<<<<<< HEAD
 			}            
 			return makeShape(drawFactory.makeDrawObject(type, normSegment, color, thickness));
+=======
+			}
+			return makeShape(drawFactory.makeDrawObject(type, normSegment, color, thickness, fill, fillColor, transparency));
+>>>>>>> ajay/bbb-whiteboard-additions
 		}
 		
 		/**
@@ -85,11 +103,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @param type
 		 * @param color
 		 * @param thickness
+		 * @param fill
+		 * @param fillColor
+		 * @param trans
 		 * @return A Flash Shape object
 		 * 
 		 */		
-		public function makeFeedback(type:String, segment:Array, color:uint, thickness:uint):DrawObject{
-			return makeShape(drawFactory.makeDrawObject(type, segment, color, thickness));
+		public function makeFeedback(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawObject{
+			return makeShape(drawFactory.makeDrawObject(type, segment, color, thickness, fill, fillColor, trans));
 		}
 		
 
@@ -101,7 +122,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		private function makePencil(p:Pencil):DrawObject{
-			p.makeShape(_parentWidth, _parentHeight);	
+			p.makeGraphic(_parentWidth, _parentHeight);	
 	        return p;
 		}
 		
@@ -112,7 +133,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		private function makeRectangle(r:Rectangle):DrawObject{
-			r.makeShape(_parentWidth, _parentHeight);			
+			r.makeGraphic(_parentWidth, _parentHeight);			
 			return r;	
 		}
 		
@@ -123,13 +144,60 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		private function makeEllipse(e:Ellipse):DrawObject{
-			e.makeShape(_parentWidth, _parentHeight);
+			e.makeGraphic(_parentWidth, _parentHeight);
 			return e;
 		}
+		
+		/**
+		 * Creates a Flash Shape from an Line DrawObject 
+		 * @param e an Line DrawObject
+		 * @return a Shape
+		 * 
+		 */
+		private function makeLine(e:Line):DrawObject{
+			e.makeGraphic(_parentWidth, _parentHeight);
+			return e;
+		}
+		
+		/**
+		 * Creates a Flash Shape from an Highlighter DrawObject 
+		 * @param e an Highlighter DrawObject
+		 * @return a Shape
+		 * 
+		 */
+		private function makeHighlighter(e:Highlighter):DrawObject{
+			e.makeGraphic(_parentWidth, _parentHeight);
+			return e;
+		}
+		
+		/**
+		 * Creates a Flash Shape from an Eraser DrawObject 
+		 * @param e an Eraser DrawObject
+		 * @return a Shape
+		 * 
+		 */
+		private function makeEraser(e:Eraser):DrawObject{
+			e.makeGraphic(_parentWidth, _parentHeight);
+			return e;
+		}
+		
+		/**
+		 * Creates a Flash Shape from an Triangle DrawObject 
+		 * @param e an Triangle DrawObject
+		 * @return a Shape
+		 * 
+		 */
+		private function makeTriangle(e:Triangle):DrawObject{
+			e.makeGraphic(_parentWidth, _parentHeight);
+			return e;
+		}
+<<<<<<< HEAD
 
         private function makeText(e:Text):DrawObject{
             e.makeShape(_parentWidth, _parentHeight);
             return e;
         }
+=======
+>>>>>>> ajay/bbb-whiteboard-additions
 	}
 }

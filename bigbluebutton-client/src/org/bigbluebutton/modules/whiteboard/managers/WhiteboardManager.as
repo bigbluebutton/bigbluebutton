@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.Conference;
@@ -31,10 +32,12 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
+	import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardButton;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+	import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
 	
 	public class WhiteboardManager
@@ -42,6 +45,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		private var globalDispatcher:Dispatcher;
 		private var highlighterCanvas:WhiteboardCanvas;
 		private var highlighterToolbar:WhiteboardToolbar;
+		private var textToolbar:WhiteboardTextToolbar;
 		private var whiteboardButton:WhiteboardButton;
 		private var model:WhiteboardCanvasModel = new WhiteboardCanvasModel();
 		
@@ -53,13 +57,17 @@ package org.bigbluebutton.modules.whiteboard.managers
 			if (highlighterCanvas != null) return;
 			highlighterCanvas = new WhiteboardCanvas();
 			highlighterCanvas.model = model;
-			model.wbCanvas = highlighterCanvas;
+		    model.wbCanvas = highlighterCanvas;
 			if (highlighterToolbar != null) return;
 			highlighterToolbar = new WhiteboardToolbar();
 			highlighterToolbar.canvas = highlighterCanvas;
+			if (textToolbar != null) return;
+			textToolbar = new WhiteboardTextToolbar();
+			textToolbar.canvas = highlighterCanvas;
+			textToolbar.init();
+			highlighterCanvas.textToolbar = textToolbar;
 			if (whiteboardButton != null) return;
 			whiteboardButton = new WhiteboardButton();
-			
 			//Necessary now because of module loading race conditions
 			var t:Timer = new Timer(1000, 1);
 			t.addEventListener(TimerEvent.TIMER, addHighlighterCanvas);
@@ -74,27 +82,45 @@ package org.bigbluebutton.modules.whiteboard.managers
 		private function addHighlighterToolbar(e:TimerEvent):void{
 //			if (UserManager.getInstance().getConference().amIPresenter()) {
 				whiteboardButton.setVisible(true);
+<<<<<<< HEAD
 //			}
 			PresentationAPI.getInstance().addButtonToToolbar(whiteboardButton);
+=======
+			}
+			PresentationAPI.getInstance().addButtonToToolbar(whiteboardButton);	
+			//highlighterCanvas.addRawChild(textToolbar);
+>>>>>>> ajay/bbb-whiteboard-additions
 		}
-		
+			
+
 		public function positionToolbar(e:WhiteboardButtonEvent):void{
+			// add text toolbar for allowing customization of text	
 			var addUIEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
 			addUIEvent.component = highlighterToolbar;
 			globalDispatcher.dispatchEvent(addUIEvent);
 			highlighterToolbar.positionToolbar(e.window);
+			highlighterToolbar.stage.focus = highlighterToolbar;
+			
+			var addTextToolbarEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
+			addTextToolbarEvent.component = textToolbar;
+			globalDispatcher.dispatchEvent(addTextToolbarEvent);
+			textToolbar.positionToolbar(e.window);
 		}
 
-		public function drawSegment(event:WhiteboardUpdate):void{
-			model.drawSegment(event);
+		public function drawGraphic(event:WhiteboardUpdate):void{
+			model.drawGraphic(event);
 		}
 		
 		public function clearBoard(event:WhiteboardUpdate = null):void{
 			model.clearBoard();
 		}
 		
-		public function undoShape(event:WhiteboardUpdate):void{
-			model.undoShape();
+		public function undoGraphic(event:WhiteboardUpdate):void{
+			model.undoGraphic();
+		}
+		
+		public function toggleGrid(event:ToggleGridEvent = null):void{
+			model.toggleGrid();
 		}
 		
 		public function changePage(e:PageEvent):void{

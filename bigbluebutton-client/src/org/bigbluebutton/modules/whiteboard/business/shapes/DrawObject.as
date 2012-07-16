@@ -17,7 +17,13 @@
 * 
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
+<<<<<<< HEAD
 {
+=======
+{
+	import flash.display.DisplayObject;
+	import flash.display.Shape;
+>>>>>>> ajay/bbb-whiteboard-additions
 	import flash.display.Sprite;
 
 	/**
@@ -30,22 +36,27 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 * @author dzgonjan
 	 * 
 	 */	
-	public class DrawObject {
+	public class DrawObject extends Sprite implements GraphicObject {
 		public static const PENCIL:String = "pencil";
+		public static const HIGHLIGHTER:String = "highlighter";
+		public static const ERASER:String = "eraser";
 		public static const RECTANGLE:String = "rectangle";
 		public static const ELLIPSE:String = "ellipse";
+<<<<<<< HEAD
         public static const TEXT:String = "text";
         
+=======
+		public static const TRIANGLE:String = "triangle";
+		public static const LINE:String = "line";	
+		
+>>>>>>> ajay/bbb-whiteboard-additions
 		protected var type:String;
 		protected var shape:Array;
 		protected var color:uint;
+		protected var fillColor:uint;
 		protected var thickness:uint;
-		
-		/**
-		 * Id we can use to match the feedback shape in the presenter's view so we can
-		 * remove it.
-		 */
-		public var id:String = null;
+		protected var fill:Boolean;
+		protected var transparent:Boolean;
 		
 		/**
 		 * Status = [START, UPDATE, END]
@@ -55,23 +66,57 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public static const DRAW_START:String = "DRAW_START";
 		public var status:String = DRAW_START;
 				
+<<<<<<< HEAD
 		protected var _shape:Sprite = new Sprite();
+=======
+>>>>>>> ajay/bbb-whiteboard-additions
 		protected var _segment:Array;
+		
+		/**
+		 * ID we can use to match the shape in the client's view
+		 * so we can use modify it; a unique identifier of each GraphicObject
+		 */
+		private var ID:String = WhiteboardConstants.ID_UNASSIGNED;
 		
 		/**
 		 * The default constructor for the DrawObject 
 		 * 
 		 */		
-		public function DrawObject(type:String, segment:Array, color:uint, thickness:uint) {
+		public function DrawObject(type:String, segment:Array, color:uint, thickness:uint,
+									fill:Boolean, fillColor:uint, trans:Boolean) {
 			this.type = type;
 			this.shape = segment;
 			this.color = color;
 			this.thickness = thickness;
+			this.fill = fill;
+			this.fillColor = fillColor;
+			this.transparent = trans;
 			this.optimize();
 		}
 		
+<<<<<<< HEAD
 		public function getShape():Sprite {
 			return _shape;
+=======
+		public function getGraphicType():String {
+			return WhiteboardConstants.TYPE_SHAPE;
+		}
+		
+		public function getGraphicID():String {
+			return ID;
+		}
+		
+		public function setGraphicID(id:String):void {
+			this.ID = id;
+		}
+		
+		public function denormalize(val:Number, side:Number):Number {
+			return (val*side)/100.0;
+		}
+		
+		public function normalize(val:Number, side:Number):Number {
+			return (val*100.0)/side;
+>>>>>>> ajay/bbb-whiteboard-additions
 		}
 		
 		/**
@@ -102,6 +147,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		/**
+		 * Returns the fillColor of the DrawObject
+		 * @return The fillColor, represented as a uint 
+		 * 
+		 */		
+		public function getFillColor():uint{
+			return this.fillColor;
+		}
+		
+		/**
 		 * Returns the thickness of the DrawObject 
 		 * @return The thickness, represented as a uint
 		 * 
@@ -110,6 +164,34 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return this.thickness;
 		}
 		
+		/**
+		 * Returns the fill of the DrawObject 
+		 * @return The thickness, represented as a Boolean
+		 * 
+		 */		
+		public function getFill():Boolean{
+			return this.fill;
+		}
+		
+		
+		/**
+		 * Returns the transparency of the DrawObject 
+		 * @return The transparency, represented as a Boolean
+		 * 
+		 */			
+		public function getTransparency():Boolean{
+			return this.transparent;
+		}
+		
+		/**
+		 * Returns the alpha transparnecy of the DrawObject
+		 * @return The alpha transparency, represented as a Number
+		 * 
+		 */			
+		public function getTransparencyLevel():Number{
+			return transparent ? 0.6 : 1.0;
+		}
+			
 		protected function optimize():void{
 			// do nothing
 		}
@@ -117,17 +199,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		protected function readyToSend():Boolean {
 			return false;
 		}
-
-		public function makeShape(width:Number, height:Number):void {
-			
+		
+		public function makeGraphic(pW:Number, pH:Number):void {
+			return;	
 		}
 		
-		protected function denormalize(val:Number, side:Number):Number {
-			return (val*side)/100.0;
-		}
-		
-		protected function normalize(val:Number, side:Number):Number {
-			return (val*100.0)/side;
+		public function getProperties():Array {
+			return null;
 		}
 	}
 }

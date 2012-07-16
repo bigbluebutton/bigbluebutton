@@ -33,12 +33,14 @@ public class WhiteboardRoom {
 	private Presentation activePresentation;
 	private boolean whiteboardEnabled = false;
 	
+	private final UIDGenerator uidGen;
 	private final Map<String, IWhiteboardRoomListener> listeners;
 	
 	public WhiteboardRoom(String id){
 		this.id = id;
 		this.presentations = new ArrayList<Presentation>();
 		listeners = new ConcurrentHashMap<String, IWhiteboardRoomListener>();
+		uidGen = new UIDGenerator();
 	}
 	
 	public String getId() {
@@ -90,6 +92,25 @@ public class WhiteboardRoom {
 		return activePresentation.getActivePage().getAnnotations();
 	}
 	
+	public void addShape(ShapeGraphic shape){
+		activePresentation.getActivePage().addShapeGraphic(shape);
+	//	notifyAddShape(activePresentation, shape);
+	}
+	
+	public void addText(TextGraphic text){
+		activePresentation.getActivePage().addTextGraphic(text);
+		notifyAddText(activePresentation, text);
+	}
+	
+	public void modifyText(String key, TextGraphic text){
+		activePresentation.getActivePage().modifyTextGraphic(key, text);
+		notifyModifyText(activePresentation, text);
+	}
+	
+	public List<Object[]> getHistory(){
+		return activePresentation.getActivePage().getHistory();
+	}
+	
 	public void clear(){
 		activePresentation.getActivePage().clear();
 		notifyClearPage(activePresentation);
@@ -97,7 +118,12 @@ public class WhiteboardRoom {
 	
 	public void undo(){
 		activePresentation.getActivePage().undo();
-		notifyUndoShape(activePresentation);
+		notifyUndoWBGraphic(activePresentation);
+	}
+	
+	public void toggleGrid(){
+		activePresentation.getActivePage().toggleGrid();
+		notifyToggleGrid(activePresentation.getActivePage().isGrid(), activePresentation);
 	}
 
 	public void setWhiteboardEnabled(boolean whiteboardEnabled) {
@@ -124,11 +150,37 @@ public class WhiteboardRoom {
 			listener.addAnnotation(annotation, presentation);
 		}
 	}
-	
+
 	public void notifyUndoShape(Presentation presentation){
 		for (Iterator<IWhiteboardRoomListener> iter = listeners.values().iterator(); iter.hasNext();) {
+		}
+}
+
+	public void notifyAddText(Presentation presentation, TextGraphic text){
+		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
-			listener.undoShape(presentation);
+			listener.addText(text, presentation);
+		}
+	}
+	
+	public void notifyModifyText(Presentation presentation, TextGraphic text){
+		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
+			listener.modifyText(text, presentation);
+		}
+	}
+	
+	public void notifyUndoWBGraphic(Presentation presentation){
+		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
+			listener.undoWBGraphic(presentation);
+		}
+	}
+	
+	public void notifyToggleGrid(boolean enabled, Presentation presentation){
+		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
+			listener.toggleGrid(enabled, presentation);
 		}
 	}
 	
@@ -139,4 +191,12 @@ public class WhiteboardRoom {
 		}
 	}
 	
+	public Map<String, WBGraphic> getWBGraphicMap(){
+		return activePresentation.getActivePage().getWBGraphicMap();
+	}
+	
+	public int getUniqueWBGraphicIdentifier() {
+		return uidGen.generateUID();
+	}
+
 }

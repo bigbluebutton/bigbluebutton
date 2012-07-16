@@ -33,8 +33,13 @@ package org.bigbluebutton.modules.whiteboard.business
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.TextFactory;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
+	import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
@@ -58,6 +63,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		private var manualDisconnect:Boolean = false;
 		private var dispatcher:Dispatcher;
 		private var drawFactory:DrawObjectFactory;
+		private var textFactory:TextFactory;
 		
 		private var initialLoading:Boolean = true;
 		private var initialPageEvent:PageEvent;
@@ -66,6 +72,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		public function DrawProxy(model:WhiteboardModel) {
 			_whiteboardModel = model;
 			drawFactory = new DrawObjectFactory();
+			textFactory = new TextFactory();
 			dispatcher = new Dispatcher();
             BBB.initConnectionManager().addMessageListener(this);
 		}
@@ -202,6 +209,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		
 		public function getPageHistory(e:PageEvent):void {
 			var nc:NetConnection = connection;
+<<<<<<< HEAD
 			nc.call("whiteboard.setActivePage",
 				new Responder(	        		
 					function(result:Object):void { // On successful result
@@ -212,6 +220,21 @@ package org.bigbluebutton.modules.whiteboard.business
 //						} else{
 //							LogUtil.debug("Whiteboard: Shapes up to date, no need to update");
 //						}
+=======
+			nc.call(
+				"whiteboard.setActivePage",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						if ((result as int) != e.graphicObjs.length) {
+							LogUtil.debug("Whiteboard: Need to retrieve shapes. Have " + e.graphicObjs.length + " on client, "
+										  + (result as int) + " on server");
+							LogUtil.debug("Whiteboard: Retrieving shapes on page" + e.pageNum);
+							getHistory(); 
+						} else{
+							LogUtil.debug("Whiteboard: Shapes up to date, no need to update");
+						}
+>>>>>>> ajay/bbb-whiteboard-additions
 					},	
 					
 					function(status:Object):void { // status - On error occurred
@@ -231,6 +254,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * 
 		 */		
 		public function sendShape(e:WhiteboardDrawEvent):void{
+<<<<<<< HEAD
 			var shape:DrawObject = e.message;
 			LogUtil.debug("*** Sending shape");
 			
@@ -256,21 +280,93 @@ package org.bigbluebutton.modules.whiteboard.business
                 ),//new Responder
                 annotation
             );
+=======
+			var shape:DrawObject = e.message as DrawObject;
+			//LogUtil.debug("*** Sending shape");
+			var nc:NetConnection = connection;
+			nc.call(
+				"whiteboard.sendShape",// Remote function name
+				new Responder(
+	        		// On successful result
+					function(result:Object):void { 
+						//LogUtil.debug("Whiteboard::sendShape() "); 
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				),//new Responder
+				shape.getShapeArray(), shape.getType(), shape.getColor(), shape.getThickness(), 
+				shape.getFill(), shape.getFillColor(), shape.getTransparency(), shape.getGraphicID(), shape.status
+			); //_netConnection.call
+>>>>>>> ajay/bbb-whiteboard-additions
 		}
 		
+		/**
+		 * Sends a TextObject to the Shared Object on the red5 server, and then triggers an update across all clients
+		 * @param shape The shape sent to the SharedObject
+		 * 
+		 */		
+		public function sendText(e:WhiteboardDrawEvent):void{
+			var tobj:TextObject = e.message as TextObject;
+			var nc:NetConnection = connection;
+			nc.call(
+				"whiteboard.sendText",// Remote function name
+				new Responder(
+					// On successful result
+					function(result:Object):void { 
+
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				),//new Responder
+				tobj.text, tobj.textColor, tobj.backgroundColor, tobj.background,
+				tobj.x, tobj.y, tobj.textSize, tobj.getGraphicID(), tobj.status
+			); //_netConnection.call
+		}
 		/**
 		 * Adds a shape to the ValueObject, then triggers an update event
 		 * @param array The array representation of a shape
 		 * 
 		 */		
-		public function addSegment(array:Array, type:String, color:uint, thickness:uint, id:String, status:String):void{
-			LogUtil.debug("Rx add segment ****");
-			var d:DrawObject = drawFactory.makeDrawObject(type, array, color, thickness);
-			d.id = id;
+		public function addSegment(graphicType:String, array:Array, type:String, color:uint, thickness:uint, 
+								   fill:Boolean, fillColor:uint, transparent:Boolean, id:String, status:String, recvdShapes:Boolean = false):void{
+			//LogUtil.debug("Rx add segment **** with ID of " + id + " " + type
+			//+ " and " + color + " " + thickness + " " + fill + " " + transparent);
+			var d:DrawObject = drawFactory.makeDrawObject(type, array, color, thickness, fill, fillColor, transparent);
+			
+			d.setGraphicID(id);
 			d.status = status;
 			
 			var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
 			e.data = d;
+			e.recvdShapes = recvdShapes;
+			dispatcher.dispatchEvent(e);
+		}
+		
+		/**
+		 * Adds a new TextObject to the Whiteboard overlay
+		 * @param Params represent the data used to recreate the TextObject
+		 * 
+		 */		
+		public function addText(graphicType:String, text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean,
+								x:Number, y:Number, textSize:Number, id:String, status:String, recvdShapes:Boolean = false):void {
+			LogUtil.debug("Rx add text **** with ID of " + id + " " + x + "," + y);
+			var t:TextObject = new TextObject(text, textColor, bgColor, bgColorVisible, x, y, textSize);	
+			t.setGraphicID(id);
+			t.status = status;
+			
+			var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
+			e.data = t;
+			e.recvdShapes = recvdShapes;
 			dispatcher.dispatchEvent(e);
 		}
         
@@ -300,17 +396,17 @@ package org.bigbluebutton.modules.whiteboard.business
 		
 		
 		/**
-		 * Sends a call out to the red5 server to notify the clients to undo a shape
+		 * Sends a call out to the red5 server to notify the clients to undo a GraphicObject
 		 * 
 		 */		
-		public function undoShape():void{
+		public function undoGraphic():void{
 			var nc:NetConnection = connection;
 			nc.call(
 				"whiteboard.undo",// Remote function name
 				new Responder(
 	        		// On successful result
 					function(result:Object):void { 
-						LogUtil.debug("Whiteboard::undoShape()"); 
+						LogUtil.debug("Whiteboard::undoGraphic()"); 
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -326,7 +422,53 @@ package org.bigbluebutton.modules.whiteboard.business
 			//drawSO.send("undo");
 		}
 		
+<<<<<<< HEAD
 
+=======
+		/**
+		 * Triggers the undo shape event on all clients 
+		 * 
+		 */		
+		public function undo():void{
+			dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.GRAPHIC_UNDONE));
+		}
+		
+		/**
+		 * Sends a call out to the red5 server to notify the clients to toggle grid mode
+		 * 
+		 */		
+		public function toggleGrid():void{
+			LogUtil.debug("TOGGLING GRID...");
+			var nc:NetConnection = connection;
+			nc.call(
+				"whiteboard.toggleGrid",// Remote function name
+				new Responder(
+					// On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Whiteboard::toggleGrid()"); 
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+			); //_netConnection.call
+			
+			//drawSO.send("undo");
+		}
+		
+		/**
+		 * Triggers the toggle grid event
+		 * 
+		 */		
+		public function toggleGridCallback():void{
+			LogUtil.debug("TOGGLE CALLBACK RECEIVED"); 
+			dispatcher.dispatchEvent(new ToggleGridEvent(ToggleGridEvent.GRID_TOGGLED));
+		}
+>>>>>>> ajay/bbb-whiteboard-additions
 		
 		public function modifyEnabled(e:WhiteboardPresenterEvent):void{
 			var nc:NetConnection = connection;
@@ -358,12 +500,20 @@ package org.bigbluebutton.modules.whiteboard.business
 		private function getHistory():void{
 			var nc:NetConnection = connection;
 			nc.call(
+<<<<<<< HEAD
 				"whiteboard.requestAnnotationHistory",// Remote function name
+=======
+				"whiteboard.getHistory",// Remote function name
+>>>>>>> ajay/bbb-whiteboard-additions
 				new Responder(
 	        		// On successful result
 					function(result:Object):void { 
 						LogUtil.debug("Whiteboard::getHistory() : retrieving whiteboard history"); 
+<<<<<<< HEAD
 //						receivedShapesHistory(result);
+=======
+						receivedGraphicsHistory(result);
+>>>>>>> ajay/bbb-whiteboard-additions
 					},	
 					// status - On error occurred
 					function(status:Object):void { 
@@ -377,22 +527,54 @@ package org.bigbluebutton.modules.whiteboard.business
 			); //_netConnection.call
 		}
 		
-		private function receivedShapesHistory(result:Object):void{
+		private function receivedGraphicsHistory(result:Object):void{
 			if (result == null) return;
 			
-			var shapes:Array = result as Array;
-			//LogUtil.debug("Whiteboard::recievedShapesHistory() : recieved " + shapes.length);
+			var graphicObjs:Array = result as Array;
+			LogUtil.debug("Whiteboard::recievedShapesHistory() : recieved " + graphicObjs.length);
 			
-			for (var i:int=0; i < shapes.length; i++){
-				var shape:Array = shapes[i] as Array;
-				var shapeArray:Array = shape[0] as Array;
-				var type:String = shape[1] as String;
-				var color:uint = shape[2] as uint;
-				var thickness:uint = shape[3] as uint;
-				var id:String = shape[4] as String;
-				var status:String = shape[5] as String;
-				addSegment(shapeArray, type, color, thickness, id, status);
+			var receivedShapes:Array = new Array();
+			for (var i:int=0; i < graphicObjs.length-1; i++) {
+				var graphic:Array = graphicObjs[i] as Array;
+				var graphicType:String = graphic[0] as String;
+				if(graphicType == WhiteboardConstants.TYPE_SHAPE) {
+					var shapeArray:Array = graphic[1] as Array;
+					var type:String = graphic[2] as String;
+					var color:uint = graphic[3] as uint;
+					var thickness:uint = graphic[4] as uint;
+					var fill:Boolean = graphic[5] as Boolean;
+					var fillColor:uint = graphic[6] as uint;
+					var transparent:Boolean = graphic[7] as Boolean;
+					var id:String = graphic[8] as String;
+					var status:String = graphic[9] as String;
+					var dobj:DrawObject = new DrawObject(type, shapeArray, color, thickness, fill, fillColor, transparent);
+					dobj.setGraphicID(id);
+					receivedShapes.push(dobj);
+					addSegment(graphicType, shapeArray, type, color, thickness, fill, fillColor, transparent, id, status, true);
+				} else if(graphicType == WhiteboardConstants.TYPE_TEXT) {
+					var text:String = (graphic[1] as String);
+					var textColor:uint = (graphic[2] as uint);
+					var bgColor:uint = (graphic[3] as uint);
+					var bgColorVisible:Boolean = (graphic[4] as Boolean);
+					var x:Number = (graphic[5] as Number);
+					var y:Number = (graphic[6] as Number);
+					var textSize:Number = (graphic[7] as Number);
+					var id_other:String = (graphic[8] as String);
+					var status_other:String = (graphic[9] as String);
+					var tobj:TextObject = new TextObject(text, textColor, bgColor, bgColorVisible,
+														x, y, textSize);
+					tobj.status = status_other
+					tobj.setGraphicID(id_other);
+					receivedShapes.push(tobj);
+					addText(graphicType, text, textColor, bgColor, bgColorVisible, x, y, textSize, id_other, status_other, true);
+				}
 			}
-		}
+			
+			var isGrid:Boolean = graphicObjs[graphicObjs.length-1][0] as Boolean;
+			if(isGrid) {
+				LogUtil.debug("Contacted server and server says grid mode is on for the current page. :D");
+				toggleGridCallback();
+			}
+		}	
 	}
 }

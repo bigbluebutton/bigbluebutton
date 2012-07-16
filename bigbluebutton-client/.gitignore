@@ -8,3 +8,6 @@ build/
 client
 bbbResources.properties.*
 asdoc/
+html-templateBackup/
+.actionScriptProperties.bak
+.flexProperties.bak

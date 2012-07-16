@@ -35,6 +35,7 @@
 			import org.bigbluebutton.modules.whiteboard.business.DrawProxy;
 			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 			import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
+			import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
@@ -83,22 +84,34 @@
 		<MethodInvoker generator="{DrawProxy}" method="sendShape" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{WhiteboardDrawEvent.UNDO_SHAPE}" >
-		<MethodInvoker generator="{DrawProxy}" method="undoShape" />
+	<EventHandlers type="{WhiteboardDrawEvent.SEND_TEXT}">
+		<MethodInvoker generator="{DrawProxy}" method="sendText" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{WhiteboardDrawEvent.UNDO_GRAPHIC}" >
+		<MethodInvoker generator="{DrawProxy}" method="undoGraphic" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ToggleGridEvent.TOGGLE_GRID}" >
+		<MethodInvoker generator="{DrawProxy}" method="toggleGrid" />
 	</EventHandlers>
 	
 	<EventHandlers type="{WhiteboardUpdate.BOARD_UPDATED}">
-		<MethodInvoker generator="{PageManager}" method="addShapeToPage" arguments="{event}" />
+		<MethodInvoker generator="{PageManager}" method="addGraphicToPage" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{WhiteboardUpdate.SHAPE_UNDONE}" >
-		<MethodInvoker generator="{PageManager}" method="undoShapeFromPage" />
+	<EventHandlers type="{WhiteboardUpdate.GRAPHIC_UNDONE}" >
+		<MethodInvoker generator="{PageManager}" method="undoGraphicFromPage" />
 	</EventHandlers>
 	
 	<EventHandlers type="{WhiteboardUpdate.BOARD_CLEARED}" >
 		<MethodInvoker generator="{PageManager}" method="clearPage" />
 	</EventHandlers>
 	
+	<EventHandlers type="{ToggleGridEvent.GRID_TOGGLED}" >
+		<MethodInvoker generator="{PageManager}" method="toggleGrid" />
+	</EventHandlers>
+		
 	<EventHandlers type="{PageEvent.CHANGE_PAGE}" >
 		<MethodInvoker generator="{DrawProxy}" method="getPageHistory" arguments="{event}" />
 	</EventHandlers>
@@ -135,10 +148,13 @@
 		<MethodInvoker generator="{WhiteboardManager}" method="clearBoard" arguments="{event}"/>
 	</EventHandlers>
 	<EventHandlers type="{WhiteboardUpdate.BOARD_UPDATED}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="drawSegment" arguments="{event}"/>
+		<MethodInvoker generator="{WhiteboardManager}" method="drawGraphic" arguments="{event}"/>
 	</EventHandlers>
-	<EventHandlers type="{WhiteboardUpdate.SHAPE_UNDONE}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="undoShape" arguments="{event}" />
+	<EventHandlers type="{WhiteboardUpdate.GRAPHIC_UNDONE}" >
+		<MethodInvoker generator="{WhiteboardManager}" method="undoGraphic" arguments="{event}" />
+	</EventHandlers>
+	<EventHandlers type="{ToggleGridEvent.GRID_TOGGLED}" >
+		<MethodInvoker generator="{WhiteboardManager}" method="toggleGrid"  arguments="{event}" />
 	</EventHandlers>
 	<EventHandlers type="{PageEvent.CHANGE_PAGE}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="changePage" arguments="{event}" />

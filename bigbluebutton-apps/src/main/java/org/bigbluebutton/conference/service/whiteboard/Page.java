@@ -22,18 +22,21 @@
 package org.bigbluebutton.conference.service.whiteboard;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bigbluebutton.conference.service.whiteboard.WBGraphic.Type;
 
 public class Page {
-	
 	private ArrayList<Map<String, Object>> annotations;	
+	private HashMap<String, WBGraphic> graphicObjs;
 	private int pageIndex;
+	private boolean isGrid = false;
 	
 	public Page(int pageIndex){
 		annotations = new ArrayList<Map<String, Object>>();
-
+		this.graphicObjs = new HashMap<String, WBGraphic>();
 		this.setPageIndex(pageIndex);
 	}
 		
@@ -75,6 +78,82 @@ public class Page {
 	public int getNumShapesOnPage() {
 		return annotations.size();
 	}
+	
+	public void addShapeGraphic(ShapeGraphic shape){
+		graphicObjs.put(shape.ID, shape);
+		System.out.println("Total shape count: " + graphicObjs.size());
+	}
+	
+	public void addTextGraphic(TextGraphic text){
+		graphicObjs.put(text.ID, text);
+	}
+	
+	public void modifyShapeGraphic(String key, ShapeGraphic shape){
+		if(graphicObjs.containsKey(shape))
+			graphicObjs.put(key, shape);
+		else System.out.println("ERROR: MODIFYING NON-EXISTENT KEY");
+	}
+	
+	public void modifyTextGraphic(String key, TextGraphic text){
+		if(graphicObjs.containsKey(key))
+			graphicObjs.put(key, text);
+		else System.out.println("ERROR: MODIFYING NON-EXISTENT KEY");
+	}
+	
+	public List<Object[]> getHistory(){
+		List<Object[]> graphics = new ArrayList<Object[]>();
+		for (WBGraphic g: graphicObjs.values()){
+			graphics.add(g.toObjectArray());
+		}
+		Object[] isGridArray = new Object[1];
+		isGridArray[0] = isGrid;
+		graphics.add(isGridArray);
+		System.out.println("There are currently " + graphicObjs.size() + " graphical objects on the current page");
+		return graphics;
+	}
+	
+	public List<Object[]> getWBShapes(){
+		List<Object[]> shapes = new ArrayList<Object[]>();
+		for (WBGraphic g: graphicObjs.values()){
+			if(g.graphicType == Type.SHAPE)
+				shapes.add(g.toObjectArray());
+		}
+		return shapes;
+	}
+	
+	public List<Object[]> getWBTexts(){
+		List<Object[]> texts = new ArrayList<Object[]>();
+		for (WBGraphic g: graphicObjs.values()){
+			if(g.graphicType == Type.TEXT)
+				texts.add(g.toObjectArray());
+		}
+		return texts;
+	}
+	
+	public Map<String, WBGraphic> getWBGraphicMap(){
+		return graphicObjs;
+	}
+	
+//	public void clear(){
+//		graphicObjs.clear();
+//	}
+	
+//	public void undo(){
+//		graphicObjs.remove(Integer.toString(graphicObjs.size()-1));
+//	}
+	
+	public void toggleGrid() {
+		System.out.println("Toggling grid mode on page " + pageIndex);
+		isGrid = !isGrid;
+	}
+	
+	public boolean isGrid() {
+		return isGrid;
+	}
+	
+	public int getNumGraphicsOnPage(){
+		return this.graphicObjs.size();
+	}
 
 	public void setPageIndex(int pageIndex) {
 		this.pageIndex = pageIndex;
@@ -83,4 +162,6 @@ public class Page {
 	public int getPageIndex() {
 		return pageIndex;
 	}
+
+
 }
