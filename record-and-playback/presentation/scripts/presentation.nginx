@@ -1,0 +1,9 @@
+        location /playback/presentation {
+                root    /var/bigbluebutton;
+                index  index.html index.htm;
+        }
+
+        location /presentation {
+                root    /var/bigbluebutton/published;
+                index  index.html index.htm;
+        }
