@@ -109,7 +109,7 @@
 	</EventHandlers>
 		
 	<EventHandlers type="{PageEvent.CHANGE_PAGE}" >
-		<MethodInvoker generator="{WhiteboardService}" method="getPageHistory" arguments="{event}" />
+		<MethodInvoker generator="{WhiteboardService}" method="changePage" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{PageEvent.LOAD_PAGE}" >

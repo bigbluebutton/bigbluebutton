@@ -1,6 +1,7 @@
 package org.bigbluebutton.modules.whiteboard.services
 {
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
+	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 
@@ -17,7 +18,10 @@ package org.bigbluebutton.modules.whiteboard.services
 			sender.modifyEnabled(e);
 		}
 		
-
+		public function changePage(e:PageEvent):void{
+			sender.changePage(e);	
+		}
+		
 		public function toggleGrid():void{
 			sender.toggleGrid();
 		}

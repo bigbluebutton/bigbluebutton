@@ -65,13 +65,19 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		roomManager.removeRoom(getMeetingId());
 	}
 	
-	public void setActivePresentation(String name, int numPages) {
+	public void setActivePresentation(String presentationID, int numPages) {
 		WhiteboardRoom room = roomManager.getRoom(getMeetingId());
-		if (room.presentationExists(name)) {
-			room.setActivePresentation(name);
+		if (room.presentationExists(presentationID)) {
+			room.setActivePresentation(presentationID);
 		} else {
-			room.addPresentation(name, numPages);
+			room.addPresentation(presentationID, numPages);
 		}
+		
+		Map<String, Object> message = new HashMap<String, Object>();
+		message.put("presentationID", presentationID);
+		message.put("numberOfPages", numPages);
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "WhiteboardChangePresentationCommand", message);
+		connInvokerService.sendMessage(m);
 	}
 	
 	public void enableWhiteboard(boolean enabled) {

@@ -9,11 +9,29 @@ package org.bigbluebutton.modules.whiteboard.services
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 
 	public class MessageSender
-	{		
+	{	
+		public function changePage(e:PageEvent):void{
+			LogUtil.debug("Sending [whiteboard.setActivePage] to server.");
+			var message:Object = new Object();
+			message["pageNum"] = e.pageNum;
+			
+			var _nc:ConnectionManager = BBB.initConnectionManager();
+			_nc.sendMessage("whiteboard.setActivePage", 
+				function(result:String):void { // On successful result
+					LogUtil.debug(result); 
+				},	                   
+				function(status:String):void { // status - On error occurred
+					LogUtil.error(status); 
+				},
+				message
+			);			
+		}
+		
 		public function modifyEnabled(e:WhiteboardPresenterEvent):void {
 			LogUtil.debug("Sending [whiteboard.enableWhiteboard] to server.");
 			var message:Object = new Object();
@@ -164,7 +182,7 @@ package org.bigbluebutton.modules.whiteboard.services
 			LogUtil.debug("Sending [whiteboard.isWhiteboardEnabled] to server.");
 			
 			var message:Object = new Object();
-			message["presentation"] = e.presentationName;
+			message["presentationID"] = e.presentationName;
 			message["numberOfSlides"] = e.numberOfSlides;
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();

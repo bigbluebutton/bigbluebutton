@@ -15,6 +15,7 @@ package org.bigbluebutton.modules.whiteboard.services
 
 		public function MessageReceiver()
 		{
+			LogUtil.debug("**** MessageReceiver INITED");
 			drawFactory = new DrawObjectFactory();
 			BBB.initConnectionManager().addMessageListener(this);
 		}
@@ -43,11 +44,19 @@ package org.bigbluebutton.modules.whiteboard.services
 					break;  
 				case "WhiteboardChangePageCommand":
 					handleChangePageCommand(message);
-					break;                
+					break; 
+				case "WhiteboardChangePresentationCommand":
+					handleChangePresentationCommand(message);
+					break; 				
 				default:
 					LogUtil.warn("Cannot handle message [" + messageName + "]");
 			}
 			
+		}
+
+		private function handleChangePresentationCommand(message:Object):void {
+			LogUtil.debug("Handle Whiteboard Change Presentation Command [ " + message.presentationID + ", " + message.numberOfSlides + "]");
+			whiteboardModel.changePresentation(message.presentationID, message.numberOfSlides);
 		}
 		
 		private function handleChangePageCommand(message:Object):void {

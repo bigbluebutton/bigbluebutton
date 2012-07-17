@@ -119,6 +119,7 @@ package org.bigbluebutton.main.model.users
         }
 		
 		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object=null):void {
+			LogUtil.debug("SENDING [" + service + "]");
 			var responder:Responder =	new Responder(                    
 					function(result:Object):void { // On successful result
 						onSuccess("Successfully sent [" + service + "]."); 

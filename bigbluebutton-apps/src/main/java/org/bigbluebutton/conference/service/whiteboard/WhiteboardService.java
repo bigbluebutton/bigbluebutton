@@ -39,12 +39,6 @@ public class WhiteboardService {
 		this.application = a;
 	}
 	
-//	public void sendShape(double[] shape, String type, int color, int thickness, boolean fill, int fillColor, boolean transparency, String id, String status){
-//		log.info("WhiteboardApplication - Sending share");
-
-//		application.sendShape(shape, type, color, thickness, id, status);
-//	}
-	
 	public void sendAnnotation(Map<String, Object> annotation) {
 //		for (Map.Entry<String, Object> entry : annotation.entrySet()) {
 //		    String key = entry.getKey();
@@ -75,14 +69,9 @@ public class WhiteboardService {
 
 	}
 	
-	public void sendText(String text, int textColor, int bgColor, boolean bgColorVisible, int x, int y, int textSize, String id, String status){
-		log.info("WhiteboardApplication - Sending text");
-		application.sendText(text, textColor, bgColor, bgColorVisible, x, y, textSize, id, status);
-	}
-
-	public void setActivePage(int pageNum){
-		log.info("WhiteboardApplication - Getting number of shapes for page: " + pageNum);
-		application.changePage(pageNum);
+	public void setActivePage(Map<String, Object> message){		
+		log.info("WhiteboardApplication - Getting number of shapes for page: " + (Integer) message.get("pageNum"));
+		application.changePage((Integer) message.get("pageNum"));
 	}
 	
 	public void requestAnnotationHistory() {
@@ -105,14 +94,14 @@ public class WhiteboardService {
 		application.toggleGrid();
 	}
 	
-	public void setActivePresentation(String name, int numPages){
-		log.info("WhiteboardApplication - Setting active presentation: " + name);
-		application.setActivePresentation(name, numPages);
+	public void setActivePresentation(Map<String, Object> message){		
+		log.info("WhiteboardApplication - Setting active presentation: " + (String)message.get("presentationID"));
+		application.setActivePresentation((String)message.get("presentationID"), (Integer) message.get("numberOfSlides"));
 	}
 	
-	public void enableWhiteboard(boolean enable){
-		log.info("WhiteboardApplication - Setting whiteboard enabled: " + enable);
-		application.enableWhiteboard(enable);
+	public void enableWhiteboard(Map<String, Object> message){
+		log.info("WhiteboardApplication - Setting whiteboard enabled: " + (Boolean)message.get("enabled"));
+		application.enableWhiteboard((Boolean)message.get("enabled"));
 	}
 	
 	public void isWhiteboardEnabled(){
