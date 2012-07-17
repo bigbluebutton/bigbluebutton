@@ -42,6 +42,7 @@
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 			import org.bigbluebutton.modules.whiteboard.managers.PageManager;
 			import org.bigbluebutton.modules.whiteboard.managers.WhiteboardManager;
+			import org.bigbluebutton.modules.whiteboard.models.FooBar;
 			import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 			
@@ -56,8 +57,9 @@
 	<EventHandlers type="{FlexEvent.APPLICATION_COMPLETE}">		
 		<ObjectBuilder generator="{WhiteboardManager}" cache="global" />
         <ObjectBuilder generator="{PageManager}" cache="global" />
-		<ObjectBuilder generator="{WhiteboardModel}" cache="global" />
-		<ObjectBuilder generator="{DrawProxy}" cache="global"/>
+		<!--ObjectBuilder generator="{WhiteboardModel}" cache="global" /-->
+		<ObjectBuilder generator="{FooBar}" cache="global"/>
+		<!--ObjectBuilder generator="{DrawProxy}" cache="global"/-->
 	</EventHandlers>
 	
 	<EventHandlers type="{WhiteboardPresenterEvent.MODIFY_ENABLED}" >
@@ -167,5 +169,11 @@
 	<EventHandlers type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="disableWhiteboard" arguments="{event}" />
 	</EventHandlers>
+	
+		
+	<Injectors target="{DrawProxy}">
+		<ObjectBuilder generator="{WhiteboardModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
+		<PropertyInjector targetKey="whiteboardModel" source="{WhiteboardModel}"/>
+	</Injectors>
 		
 </EventMap>

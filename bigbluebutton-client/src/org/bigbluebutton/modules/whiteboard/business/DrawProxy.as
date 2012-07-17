@@ -65,10 +65,9 @@ package org.bigbluebutton.modules.whiteboard.business
 		private var textFactory:TextFactory;		
 		private var initialLoading:Boolean = true;
 		private var initialPageEvent:PageEvent;
-		private var _whiteboardModel:WhiteboardModel;
+		public var whiteboardModel:WhiteboardModel;
 		
-		public function DrawProxy(/*model:WhiteboardModel*/) {
-//			_whiteboardModel = model;
+		public function DrawProxy() {
 			drawFactory = new DrawObjectFactory();
 			textFactory = new TextFactory();
 			dispatcher = new Dispatcher();
