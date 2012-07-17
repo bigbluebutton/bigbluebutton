@@ -31,17 +31,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	public class ShapeFactory extends GraphicFactory
 	{
 		private var drawFactory:DrawObjectFactory;
-		private var _parentWidth:Number = 0;
-		private var _parentHeight:Number = 0;
-		
+
 		public function ShapeFactory() {
 			super(GraphicFactory.SHAPE_FACTORY);
 			drawFactory = new DrawObjectFactory();
-		}
-		
-		public function setParentDim(width:Number, height:Number):void {
-			_parentWidth = width;
-			_parentHeight = height;
 		}
 		
 		/**

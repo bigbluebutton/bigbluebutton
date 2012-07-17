@@ -21,18 +21,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	public class TextFactory extends GraphicFactory
 	{
-		private var _parentWidth:Number = 0;
-		private var _parentHeight:Number = 0;
-		
+
 		public function TextFactory() {
 			super(GraphicFactory.TEXT_FACTORY);
 		}
 
-
-		public function setParentDim(width:Number, height:Number):void {
-			_parentWidth = width;
-			_parentHeight = height;
-		}
 		
 		public function createTextObject(txt:String, txtColor:uint,
 										 bgColor:uint, bgColorVisible:Boolean,
@@ -52,14 +45,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public function makeTextObject(t:TextObject):TextObject {
 			return createTextObject(t.text, t.textColor, t.backgroundColor, t.background,
 									t.x, t.y, t.textSize);
-		}
-
-		public function getParentWidth():Number {
-			return _parentWidth;
-		}
-		
-		public function getParentHeight():Number {
-			return _parentHeight;
 		}
 	}
 }

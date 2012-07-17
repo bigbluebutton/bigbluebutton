@@ -27,16 +27,23 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public static const TEXT_FACTORY:String = "TEXT_FACTORY";
 		
 		public var factory_type:String;
+		protected var _parentWidth:Number = 0;
+		protected var _parentHeight:Number = 0;	
 		
 		public function GraphicFactory(type:String) {
 			this.factory_type = type;
 		}
 		
-		public static function denormalize(val:Number, side:Number):Number {
+		public function setParentDim(width:Number, height:Number):void {
+			_parentWidth = width;
+			_parentHeight = height;
+		}
+		
+		protected function denormalize(val:Number, side:Number):Number {
 			return (val*side)/100.0;
 		}
 		
-		public static function normalize(val:Number, side:Number):Number {
+		protected function normalize(val:Number, side:Number):Number {
 			return (val*100.0)/side;
 		}
 	}
