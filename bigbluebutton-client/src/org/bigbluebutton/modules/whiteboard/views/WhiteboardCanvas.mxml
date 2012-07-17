@@ -89,7 +89,7 @@
 				model.doMouseDoubleClick(this.mouseX, this.mouseY);
 			}
 			
-			private function doMouseDown(event:Event):void{
+			private function doMouseDown(event:Event):void {
 				model.doMouseDown(this.mouseX, this.mouseY);
 			}
 						

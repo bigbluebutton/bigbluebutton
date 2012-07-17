@@ -20,8 +20,7 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.events.TextEvent;
 	import flash.geom.Point;
 	import flash.text.TextFieldAutoSize;
-	import flash.ui.Keyboard;
-	
+	import flash.ui.Keyboard;	
 	import mx.collections.ArrayCollection;
 	import org.bigbluebutton.common.IBbbCanvas;
 	import org.bigbluebutton.common.LogUtil;
@@ -31,9 +30,7 @@ package org.bigbluebutton.modules.whiteboard
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
-
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextBox;
-
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
@@ -249,8 +246,7 @@ package org.bigbluebutton.modules.whiteboard
 				var graphics:Array = filterGraphicObjects(objs)
 				var topMostObject:GraphicObject = getTopMostObject(graphics) as GraphicObject;
 				
-				LogUtil.debug("There are " + graphics.length + " objects" +
-					"under your mouse.");
+				LogUtil.debug("There are " + graphics.length + " objects" + "under your mouse.");
 				LogUtil.debug("!!!TOP MOST OBJECT: " + topMostObject.getProperties());
 			}
 		}
@@ -286,7 +282,6 @@ package org.bigbluebutton.modules.whiteboard
 			}
 		}
 		
-
 		public function drawGraphic(event:WhiteboardUpdate):void{
 			var o:GraphicObject = event.data;
 			var recvdShapes:Boolean = event.recvdShapes;
@@ -326,8 +321,7 @@ package org.bigbluebutton.modules.whiteboard
 		// Draws a TextObject when/if it is received from the server
 		private function drawText(o:TextObject, recvdShapes:Boolean):void {		
 			if(recvdShapes) {
-				LogUtil.debug("Got text [" + o.text + " " + 
-					o.status + " " + o.getGraphicID() + "]");	
+				LogUtil.debug("Got text [" + o.text + " " + o.status + " " + o.getGraphicID() + "]");	
 				LogUtil.debug(String(o.getProperties()));
 			}
 			switch (o.status) {

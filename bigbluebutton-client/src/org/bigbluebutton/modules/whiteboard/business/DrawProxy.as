@@ -140,7 +140,36 @@ package org.bigbluebutton.modules.whiteboard.business
 
         private function handleNewAnnotationCommand(message:Object):void {
             LogUtil.debug("Handle new annotation[" + message.type + ", " + message.id + ", " + message.status + "]");
+			switch (message.type) {
+				case "text":
+//					annotation["type"] = "text";
+//					annotation["id"] = tobj.getGraphicID();
+//					annotation["status"] = tobj.status;  
+//					annotation["text"] = tobj.text;
+//					annotation["fontColor"] = tobj.textColor;
+//					annotation["backgroundColor"] = tobj.backgroundColor;
+//					annotation["background"] = tobj.background;
+//					annotation["x"] = tobj.x;
+//					annotation["y"] = tobj.y;
+//					annotation["fontSize"] = tobj.textSize;
+//					addText(message.type, message.text, message.fontColor, message.backgroundColor, 
+					break;
+				
+			}
         }
+					
+		private function addText(graphicType:String, text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean,
+								x:Number, y:Number, textSize:Number, id:String, status:String, recvdShapes:Boolean = false):void {
+			LogUtil.debug("Rx add text **** with ID of " + id + " " + x + "," + y);
+			var t:TextObject = new TextObject(text, textColor, bgColor, bgColorVisible, x, y, textSize);	
+			t.setGraphicID(id);
+			t.status = status;
+			
+			//			var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
+			//			e.data = t;
+			//			e.recvdShapes = recvdShapes;
+			//			dispatcher.dispatchEvent(e);
+		}
         
         private function handleIsWhiteboardEnabledReply(message:Object):void {
             //if (result as Boolean) modifyEnabledCallback(true);
@@ -155,45 +184,9 @@ package org.bigbluebutton.modules.whiteboard.business
             }
         }
         
-		public function setActivePresentation(e:PresentationEvent):void{
-			var nc:NetConnection = connection;
-			nc.call("whiteboard.setActivePresentation",
-				new Responder(	        		
-					function(result:Object):void { // On successful result
-						LogUtil.debug("Whiteboard::setActivePresentation() : " + e.presentationName); 
-					},						
-					function(status:Object):void { // status - On error occurred
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				),//new Responder
-				e.presentationName, e.numberOfSlides
-			); //_netConnection.call
-		}
+
 		
-		public function checkIsWhiteboardOn():void {
-			var nc:NetConnection = connection;
-			nc.call(
-				"whiteboard.isWhiteboardEnabled",// Remote function name
-				new Responder(
-	        		// On successful result
-					function(result:Object):void { 
-						LogUtil.debug("Whiteboard::checkIsWhiteboardOn() : " + result as String); 
-				//		if (result as Boolean) modifyEnabledCallback(true);
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				)//new Responder
-				
-			); //_netConnection.call
-		}
+
 		
 		public function getPageHistory(e:PageEvent):void {
 //			var nc:NetConnection = connection;
@@ -221,82 +214,8 @@ package org.bigbluebutton.modules.whiteboard.business
 //			); //_netConnection.call
 		}
 		
-		/**
-		 * Sends a shape to the Shared Object on the red5 server, and then triggers an update across all clients
-		 * @param shape The shape sent to the SharedObject
-		 * 
-		 */		
-		public function sendShape(e:WhiteboardDrawEvent):void {
-            LogUtil.debug("Sending SHAPE");
-            var nc:NetConnection = connection;
-            var shape:DrawObject = e.message as DrawObject;
-            
-            var annotation:Object = new Object();
-            annotation["type"] = shape.getType();
-            annotation["points"] = shape.getShapeArray();
-            annotation["color"] = shape.getColor();
-            annotation["thickness"] = shape.getThickness();
-            annotation["id"] = shape.getGraphicID();
-            annotation["status"] = shape.status;
-            annotation["fill"] = shape.getFill();
-            annotation["fillColor"] = shape.getFillColor();
-            annotation["transparency"] = shape.getTransparency();
 
-            nc.call("whiteboard.sendAnnotation",
-                new Responder(                    
-                    function(result:Object):void { // On successful result
-                        //LogUtil.debug("Whiteboard::sendShape() "); 
-                    },	                   
-                    function(status:Object):void { // status - On error occurred
-                        LogUtil.error("Error occurred:"); 
-                        for (var x:Object in status) { 
-                            LogUtil.error(x + " : " + status[x]); 
-                        } 
-                    }
-                ),//new Responder
-                annotation
-            );
-		}
-		
-		/**
-		 * Sends a TextObject to the Shared Object on the red5 server, and then triggers an update across all clients
-		 * @param shape The shape sent to the SharedObject
-		 * 
-		 */		
-		public function sendText(e:WhiteboardDrawEvent):void{
-            LogUtil.debug("Sending TEXT");
-			var tobj:TextObject = e.message as TextObject;
-            
-            var annotation:Object = new Object();
-            annotation["type"] = "text";
-            annotation["id"] = tobj.getGraphicID();
-            annotation["status"] = tobj.status;  
-            annotation["text"] = tobj.text;
-            annotation["fontColor"] = tobj.textColor;
-            annotation["backgroundColor"] = tobj.backgroundColor;
-            annotation["background"] = tobj.background;
-            annotation["x"] = tobj.x;
-            annotation["y"] = tobj.y;
-            annotation["fontSize"] = tobj.textSize;
-                       
-			var nc:NetConnection = connection;
-			nc.call("whiteboard.sendAnnotation",// Remote function name
-				new Responder(
-					// On successful result
-					function(result:Object):void { 
 
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				),//new Responder
-                annotation
-			); //_netConnection.call
-		}
 		/**
 		 * Adds a shape to the ValueObject, then triggers an update event
 		 * @param array The array representation of a shape
@@ -317,75 +236,11 @@ package org.bigbluebutton.modules.whiteboard.business
 			dispatcher.dispatchEvent(e);
 		}
 		
-		/**
-		 * Adds a new TextObject to the Whiteboard overlay
-		 * @param Params represent the data used to recreate the TextObject
-		 * 
-		 */		
-		public function addText(graphicType:String, text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean,
-								x:Number, y:Number, textSize:Number, id:String, status:String, recvdShapes:Boolean = false):void {
-			LogUtil.debug("Rx add text **** with ID of " + id + " " + x + "," + y);
-			var t:TextObject = new TextObject(text, textColor, bgColor, bgColorVisible, x, y, textSize);	
-			t.setGraphicID(id);
-			t.status = status;
-			
-			var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
-			e.data = t;
-			e.recvdShapes = recvdShapes;
-			dispatcher.dispatchEvent(e);
-		}
+
         
 
 		
-		/**
-		 * Sends a call out to the red5 server to notify the clients that the board needs to be cleared 
-		 * 
-		 */		
-		public function clearBoard():void{
-			var nc:NetConnection = connection;
-			nc.call("whiteboard.clear",// Remote function name
-				new Responder(	        		
-					function(result:Object):void { // On successful result
-						LogUtil.debug("Whiteboard::clearBoard()"); 
-					},						
-					function(status:Object):void { // status - On error occurred
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				)//new Responder
-				
-			); //_netConnection.call
-		}
-		
-		
-		/**
-		 * Sends a call out to the red5 server to notify the clients to undo a GraphicObject
-		 * 
-		 */		
-		public function undoGraphic():void{
-			var nc:NetConnection = connection;
-			nc.call(
-				"whiteboard.undo",// Remote function name
-				new Responder(
-	        		// On successful result
-					function(result:Object):void { 
-						LogUtil.debug("Whiteboard::undoGraphic()"); 
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				)//new Responder
-				
-			); //_netConnection.call
-			
-			//drawSO.send("undo");
-		}
+
 		
 		/**
 		 * Triggers the undo shape event on all clients 
@@ -395,32 +250,7 @@ package org.bigbluebutton.modules.whiteboard.business
 			dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.GRAPHIC_UNDONE));
 		}
 		
-		/**
-		 * Sends a call out to the red5 server to notify the clients to toggle grid mode
-		 * 
-		 */		
-		public function toggleGrid():void{
-			LogUtil.debug("TOGGLING GRID...");
-			var nc:NetConnection = connection;
-			nc.call(
-				"whiteboard.toggleGrid",// Remote function name
-				new Responder(
-					// On successful result
-					function(result:Object):void { 
-						LogUtil.debug("Whiteboard::toggleGrid()"); 
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				)//new Responder
-			); //_netConnection.call
-			
-			//drawSO.send("undo");
-		}
+
 		
 		/**
 		 * Triggers the toggle grid event
@@ -431,55 +261,14 @@ package org.bigbluebutton.modules.whiteboard.business
 			dispatcher.dispatchEvent(new ToggleGridEvent(ToggleGridEvent.GRID_TOGGLED));
 		}
 	
-		public function modifyEnabled(e:WhiteboardPresenterEvent):void{
-			var nc:NetConnection = connection;
-			nc.call(
-				"whiteboard.enableWhiteboard",// Remote function name
-				new Responder(
-	        		// On successful result
-					function(result:Object):void { 
-						LogUtil.debug("Whiteboard::modifyEnabled() : " + e.enabled); 
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				),//new Responder
-				e.enabled
-			); //_netConnection.call
-		}
+
 		
 		public function modifyEnabledCallback(enabled:Boolean):void{
 			var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_ENABLED);
 			e.boardEnabled = enabled;
 			dispatcher.dispatchEvent(e);
 		}
-		
-		private function getHistory():void{
-			var nc:NetConnection = connection;
-			nc.call(
-				"whiteboard.requestAnnotationHistory",// Remote function name
-				new Responder(
-	        		// On successful result
-					function(result:Object):void { 
-						LogUtil.debug("Whiteboard::getHistory() : retrieving whiteboard history"); 
-//						receivedShapesHistory(result);
-					},	
-					// status - On error occurred
-					function(status:Object):void { 
-						LogUtil.error("Error occurred:"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				)//new Responder
 				
-			); //_netConnection.call
-		}
-		
 		private function receivedGraphicsHistory(result:Object):void{
 			if (result == null) return;
 			

@@ -28,7 +28,8 @@ package org.bigbluebutton.modules.whiteboard.events
 		public static const SEND_SHAPE:String = "sendShape";
 		public static const SEND_TEXT:String = "sendText";
 		public static const CLEAR_BOARD:String = "clearBoard";
-		public static const UNDO_GRAPHIC:String = "undoGraphic"
+		public static const UNDO_GRAPHIC:String = "undoGraphic";
+		public static const NEW_SHAPE:String = "NewShapeEvent";	
 		
 		public var message:GraphicObject;
 		       

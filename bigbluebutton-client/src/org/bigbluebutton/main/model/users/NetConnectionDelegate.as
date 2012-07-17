@@ -118,6 +118,27 @@ package org.bigbluebutton.main.model.users
             notifyListeners(messageName, result);
         }
 		
+		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object=null):void {
+			var responder:Responder =	new Responder(                    
+					function(result:Object):void { // On successful result
+						onSuccess("Successfully sent [" + service + "]."); 
+					},	                   
+					function(status:Object):void { // status - On error occurred
+						var errorReason:String = "Failed to send [" + service + "]:\n"; 
+						for (var x:Object in status) { 
+							errorReason += "\t" + x + " : " + status[x]; 
+						} 
+					}
+				);
+			
+			if (message == null) {
+				_netConnection.call(service, responder);			
+			} else {
+				_netConnection.call(service, responder, message);
+			}
+
+		}
+		
 		/**
 		 * Connect to the server.
 		 * uri: The uri to the conference application.

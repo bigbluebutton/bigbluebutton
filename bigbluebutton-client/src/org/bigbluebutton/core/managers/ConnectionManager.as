@@ -38,6 +38,10 @@ package org.bigbluebutton.core.managers
         public function removeMessageListener(listener:IMessageListener):void {
             connDelegate.removeMessageListener(listener);
         }
+		
+		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object=null):void {
+			connDelegate.sendMessage(service, onSuccess, onFailure, message);
+		}
             
 	}
 }
