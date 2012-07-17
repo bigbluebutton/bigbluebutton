@@ -41,11 +41,9 @@ br{
 }
 
 #slide{
-	width: 600px; 
+	width: 800px;
 	height: 600px;
 }
-
-
 
 #video{
 	display: block;
@@ -85,13 +83,6 @@ br{
         font-size:0.75em;
         color: #666;
         text-align: center;
-}        
-
-#svgobject {
-        	width: 800px; 
-        	height: 600px; 
-        	position: absolute; 
-        	visibility: visible;
 }
 
 .circle {

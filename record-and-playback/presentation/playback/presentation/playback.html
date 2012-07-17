@@ -17,7 +17,6 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 <html>
-<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
 <head>
   <title>BigBlueButton Playback</title>
   <link rel="stylesheet" href="css/bbb.playback.css">
@@ -57,10 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 </head>
 <body>
 	<div id="playbackArea">
-		<!-- the height and width here are the main size of the image view cut off. taken from top left corner. -->
-		<object type="image/svg+xml" id="svgobject"></object>
-		<script src='lib/writing.js'></script>
-		<div id="slide"></div> <!-- height and width here are for the video controls position on the screen. -->
+		<div id="slide"></div>
 		<audio id="video" controls > You must use an HTML5 capable browser to view this page.
 		This playback requires modern browser, please use FF, Safari, Chrome</audio>
 		<div class="circle" id="cursor" style="visibility:hidden;"></div>
@@ -69,5 +65,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</div>
 	</div>
 	<p id="footer">Recorded with <a href="http://bigbluebutton.org/">BigBlueButton</a>.</p>
+	<script src='lib/writing.js'></script>
 </body>
 </html>

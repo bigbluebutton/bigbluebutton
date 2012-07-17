@@ -98,12 +98,8 @@ function getCursorAtTime(time) {
 
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
 
-window.onresize = function(event) {
-	svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
-    svgobj.style.top = "8px";
-};
-
 function runPopcorn() {
+  console.log("SVG loaded");
   if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
   else svgfile = svgobj.getSVGDocument('svgfile');
 
@@ -332,7 +328,19 @@ var shapes_svg = url + '/shapes.svg';
 var events_xml = url + '/panzooms.xml';
 var cursor_xml = url + '/cursor.xml';
 
-var svgobj = document.getElementById("svgobject");
-svgobj.addEventListener('load', runPopcorn, false);
-//immediately load the content
+var svgobj = document.createElement('object');
+
 svgobj.setAttribute('data', shapes_svg);
+svgobj.setAttribute('height', '600px');
+svgobj.setAttribute('width', '800px');
+svgobj.addEventListener('load', runPopcorn, false);
+document.getElementById('slide').appendChild(svgobj);
+
+//immediately load the content
+
+
+window.onresize = function(event) {
+	svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
+    svgobj.style.top = "8px";
+};
+console.log("writing.js is loaded.");
