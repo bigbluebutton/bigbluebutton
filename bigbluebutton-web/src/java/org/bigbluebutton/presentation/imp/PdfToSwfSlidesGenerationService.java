@@ -102,8 +102,6 @@ public class PdfToSwfSlidesGenerationService {
 	
 	private void createTextFiles(UploadedPresentation pres) {
 		log.debug("Creating textfiles for accessibility.");
-		//notifier.sendCreatingThumbnailsUpdateMessage(pres);
-		//thumbnailCreator.createThumbnails(pres);
 		notifier.sendCreatingTextFilesUpdateMessage(pres);
 		textFileCreator.createTextFiles(pres);
 	}

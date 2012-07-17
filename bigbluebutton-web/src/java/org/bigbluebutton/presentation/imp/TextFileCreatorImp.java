@@ -22,7 +22,11 @@
  */
 package org.bigbluebutton.presentation.imp;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.TextFileCreator;
@@ -64,9 +68,26 @@ public class TextFileCreatorImp implements TextFileCreator {
 	 	String COMMAND = "";
 	 	
 	 	if(SupportedFileTypes.isImageFile(pres.getFileType())){
-	 		/*dest = thumbsDir.getAbsolutePath() + File.separator + TEMP_THUMB_NAME + ".png";
-	 		COMMAND = IMAGEMAGICK_DIR + "/convert -thumbnail 150x150 " + source + " " + dest;*/
-	 		log.info("Image not supported for convert to textfile");
+	 		dest = textfilesDir.getAbsolutePath() + File.separator + "slide-1.txt";
+	 		String text = "No text could be retrieved for the slide";
+	 		 
+            File file = new File(dest);
+            Writer writer = null;
+			try {
+				writer = new BufferedWriter(new FileWriter(file));
+				writer.write(text);
+			} catch (IOException e) {
+				log.error("Error: " + e.getMessage());
+				success = false;
+			} finally {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					log.error("Error: " + e.getMessage());
+					success = false;
+				}
+			}
+            
 	 	}else{
 	 		dest = textfilesDir.getAbsolutePath() + File.separator + "slide-";
 	 		// sudo apt-get install xpdf-utils
