@@ -38,5 +38,13 @@ package org.bigbluebutton.modules.whiteboard.models
 			_currentPresentation.clear();
 //			_dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR_BOARD));
 		}
+		
+		public function changePage(pageNum:int, numAnnotations:int):void {
+			
+		}
+		
+		public function enable(enabled:Boolean):void {
+			
+		}
 	}
 }
