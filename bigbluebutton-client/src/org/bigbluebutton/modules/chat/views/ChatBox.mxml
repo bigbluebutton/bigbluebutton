@@ -23,9 +23,11 @@
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
 	click="setMessageRead()" 
-	creationComplete="onCreationComplete()" >
+	creationComplete="onCreationComplete()"
+	>
 	
 	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
+	
 	
 	<mx:Script>
 		<![CDATA[
@@ -38,6 +40,7 @@
 			import org.bigbluebutton.modules.chat.model.ChatMessage;
 			import org.bigbluebutton.modules.chat.model.ChatObject;
 			import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
+			//import org.bigbluebutton.main.events.ShortcutEvent;
 			
 			public static const COPY_ALL_BUTTON:String = "Copy All Text";
 			
@@ -53,6 +56,7 @@
 			private var lastCount:Number = 0;			
 			private var scrollTimer:Timer;			
 			private var scrollBarWorkaround:Boolean = false;
+			private var currentMessage:int;
 			
 			private function onCreationComplete():void {
 				addContextMenuItems();
@@ -64,7 +68,14 @@
 				 * chat history.
 				 */
 				callLater(scrollToBottom);	
-				scrollTimer.start();			
+				scrollTimer.start();	
+				
+				// Initialize the indicator for the position in the message history, and add the listener for message history navigation
+				currentMessage = -1;
+				this.addEventListener(KeyboardEvent.KEY_DOWN, navigateMessages);		
+				// Initialize the chatMessagesList tooltip as the Welcome message
+				if (chatMessagesList.toolTip == null)
+					chatMessagesList.toolTip = messages[0].toString();
 			}
 
 			public function showNewMessage(chatobj:ChatObject, translate:Boolean, language:String = null):void {	
@@ -205,6 +216,23 @@
 					allText += "\n" + item.name + " - " + item.time + " : " + item.translatedText;
 				}
 				return allText;
+			}
+			
+			public function navigateMessages(e:KeyboardEvent) :void
+			{
+				if (e.keyCode == 32) {
+					if (!e.ctrlKey){
+						if (currentMessage < (messages.length-3))
+							currentMessage++;
+					} // if not CTRL key
+					else{
+						if (currentMessage > 0)
+							currentMessage--;
+					} // if CTRL key
+					chatMessagesList.toolTip = messages[currentMessage].toString();
+					//LogUtil.debug("MESSAGE: " + messages[currentMessage].toString());
+					//LogUtil.debug("TOOLTIP: " + chatMessagesList.toolTip);
+				} // if SPACE key
 			}
 			
 		]]>

@@ -74,5 +74,30 @@ package org.bigbluebutton.modules.chat.model {
 				translatedColor = 0xCF4C5C;
 			} 
 		}
+		
+		public function toString() : String {
+			var result:String;
+			// Remember to localize this later
+			result = "Chat message: " + name + " " + time + " " + stripTags(translatedText);  
+			return result;
+		}
+		
+		private function stripTags(str:String, tags:String=null):String
+    	{
+        	var pattern:RegExp = /<\/?[a-zA-Z0-9]+.*?>/gim; // strips all tags
+        
+	        if (tags != null)
+	        {
+	            // based upon //var stripPattern:String = "<(?!/?(b|img)(?=[^a-zA-Z0-9]))[^>]*/?>"; // errors
+	            // based upon //var stripPattern:String = "<(?!/?(b|img)(?=[^a-zA-Z0-9]))\/?[a-zA-Z0-9]+.*?/?>";
+	            var getChars:RegExp = /(<)([^>]*)(>)/gim;
+	            var stripPattern:String = tags.replace(getChars, "$2|");
+	            stripPattern = stripPattern.substr(0, -1);
+	            stripPattern = "<(?!/?("+stripPattern+")(?=[^a-zA-Z0-9]))\/?[a-zA-Z0-9]+.*?/?>";
+	            pattern = new RegExp( stripPattern, "gim");
+	        }
+	        
+	        return str.replace(pattern, "");
+	    }
 	}
 }
