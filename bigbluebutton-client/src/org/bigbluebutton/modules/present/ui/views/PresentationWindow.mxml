@@ -188,7 +188,8 @@
 			}
 			
 			private function onKeyUp(event:KeyboardEvent):void{	
-				switch (event.keyCode) {
+				// Disabling because these keys are taken by accessibility software
+				/* switch (event.keyCode) {
 				case Keyboard.LEFT:
 				case Keyboard.UP:
 				case Keyboard.PAGE_UP:				
@@ -202,6 +203,7 @@
 					gotoNextSlide();
 				break; 
 				}
+				*/
 			}
 			
 			public function getPrefferedPosition():String{
