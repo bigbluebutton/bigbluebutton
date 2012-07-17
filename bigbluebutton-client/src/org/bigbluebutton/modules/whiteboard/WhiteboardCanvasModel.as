@@ -690,7 +690,7 @@ package org.bigbluebutton.modules.whiteboard
 		private function getGraphicObjectsUnderPoint(xf:Number, yf:Number):Array {
 			// below is a nasty hack to get normalized/denormalized coordinates of 
 			// "normal" coordinates. will change later.
-			var x:Number = 
+			/*var x:Number = 
 				GraphicFactory.denormalize(
 					GraphicFactory.normalize(xf,
 						textFactory.getParentWidth()), textFactory.getParentWidth());
@@ -701,7 +701,8 @@ package org.bigbluebutton.modules.whiteboard
 			var point:Point = new Point(x,y);
 			point = wbCanvas.localToGlobal(point);
 			
-			return wbCanvas.parentApplication.getObjectsUnderPoint(point);
+			return wbCanvas.parentApplication.getObjectsUnderPoint(point);*/
+			return null;
 		}
 		
 		private function filterGraphicObjects(objs:Array):Array {

@@ -52,7 +52,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public static const TEXT_PUBLISHED:String = "textPublished";
 		
 		public static const TEXT_TOOL:String = "textTool";
-		
+		public static const DIST_FROM_WB_EDGE:Number = 25;
 		/**
 		 * Status = [CREATED, UPDATED, PUBLISHED]
 		 */
@@ -115,7 +115,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.antiAliasType = AntiAliasType.ADVANCED;
 			
 			// ensure typing doesn't go off of whiteboard
-			this.width = 250;
+			this.width = 225;
+			if(this.x + this.width > parentWidth - DIST_FROM_WB_EDGE)
+				this.width = parentWidth - DIST_FROM_WB_EDGE - this.x;
 		}	
 		
 		public function getProperties():Array {
