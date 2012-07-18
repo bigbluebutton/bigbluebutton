@@ -117,7 +117,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		
 		public function createPages(e:PresentationEvent):void {
 			pages.removeAll();
-			for (var i:int = 0; i<e.numberOfSlides; i++){
+			for (var i:int = 0; i<e.numberOfPages; i++){
 				pages.addItem(new Page());
 			}
 		}

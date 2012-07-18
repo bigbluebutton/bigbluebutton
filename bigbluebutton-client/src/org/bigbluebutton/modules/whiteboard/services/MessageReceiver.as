@@ -55,8 +55,8 @@ package org.bigbluebutton.modules.whiteboard.services
 		}
 
 		private function handleChangePresentationCommand(message:Object):void {
-			LogUtil.debug("Handle Whiteboard Change Presentation Command [ " + message.presentationID + ", " + message.numberOfSlides + "]");
-			whiteboardModel.changePresentation(message.presentationID, message.numberOfSlides);
+			LogUtil.debug("Handle Whiteboard Change Presentation Command [ " + message.presentationID + ", " + message.numberOfPages + "]");
+			whiteboardModel.changePresentation(message.presentationID, message.numberOfPages);
 		}
 		
 		private function handleChangePageCommand(message:Object):void {

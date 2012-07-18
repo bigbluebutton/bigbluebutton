@@ -31,16 +31,24 @@ package org.bigbluebutton.modules.whiteboard.models
 		
 		public function undo():void {
 			_currentPresentation.undo();
-//			_dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO_SHAPE));
+			_dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO));
 		}
 		
 		public function clear():void {
 			_currentPresentation.clear();
-//			_dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR_BOARD));
+			_dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
 		}
 
-		public function changePresentation(parenationID:String, numberOfSlide:int):void {
+		public function changePresentation(presentationID:String, numberOfPages:int):void {
 			
+		}
+		
+		public function findPresentation(presentationID:String):Presentation {
+			for (var i:int = 0; i < _presentations.length; i++) {
+				var p:Presentation = _presentations.getItemAt(i) as Presentation;
+				if (presentationID == p.id) return p;
+			}
+			return null;
 		}
 		
 		public function changePage(pageNum:int, numAnnotations:int):void {

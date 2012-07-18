@@ -183,7 +183,7 @@ package org.bigbluebutton.modules.whiteboard.services
 			
 			var message:Object = new Object();
 			message["presentationID"] = e.presentationName;
-			message["numberOfSlides"] = e.numberOfSlides;
+			message["numberOfSlides"] = e.numberOfPages;
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.setActivePresentation",               

@@ -338,7 +338,7 @@
 			
 			private function sendUndoCommand():void{
 				if (!canvas.isPageEmpty()) 
-					dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO_GRAPHIC));
+					dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO));
 			}
 			
 			private function enableWhiteboard(event:WhiteboardButtonEvent = null):void{
@@ -425,7 +425,7 @@
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.toggleTransparency')}" toggle="true"/>
 	
 	<mx:Spacer height="5" />
-	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR_BOARD))" icon="{delete_icon}" 
+	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR))" icon="{delete_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.clear')}" />
 	<mx:Button width="20" height="20" id="btnUndo"  click="sendUndoCommand()" icon="{undo_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo')}" />

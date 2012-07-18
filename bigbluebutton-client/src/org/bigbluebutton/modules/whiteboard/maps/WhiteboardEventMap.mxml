@@ -72,7 +72,7 @@
 		<MethodInvoker generator="{WhiteboardService}" method="connect" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{WhiteboardDrawEvent.CLEAR_BOARD}" >
+	<EventHandlers type="{WhiteboardDrawEvent.CLEAR}" >
 		<MethodInvoker generator="{WhiteboardService}" method="clearBoard" />
 	</EventHandlers>
 	
@@ -84,7 +84,7 @@
 		<MethodInvoker generator="{WhiteboardService}" method="sendText" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{WhiteboardDrawEvent.UNDO_GRAPHIC}" >
+	<EventHandlers type="{WhiteboardDrawEvent.UNDO}" >
 		<MethodInvoker generator="{WhiteboardService}" method="undoGraphic" />
 	</EventHandlers>
 	
