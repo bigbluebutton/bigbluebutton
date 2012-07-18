@@ -269,6 +269,7 @@ package org.bigbluebutton.modules.whiteboard.business
 								x:Number, y:Number, textSize:Number, id:String, status:String, recvdShapes:Boolean = false):void {
 			LogUtil.debug("Rx add text **** with ID of " + id + " " + x + "," + y);
 			var t:TextObject = new TextObject(text, textColor, bgColor, bgColorVisible, x, y, textSize);	
+			
 			t.setGraphicID(id);
 			t.status = status;
 			

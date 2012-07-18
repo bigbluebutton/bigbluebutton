@@ -20,7 +20,13 @@
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	import flash.display.DisplayObject;
-
+	
+	/**
+	 * The GraphicFactory class provides an abstraction of various methods that 
+	 * the 'factories' that are used to construct the various GraphicObjects
+	 * implement to create these GraphicObjects.
+	 * 
+	 */	
 	public class GraphicFactory
 	{
 		public static const SHAPE_FACTORY:String = "SHAPE_FACTORY";

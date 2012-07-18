@@ -66,7 +66,8 @@
 				e.window = buttonParent;
 				dispatchEvent(e);
 				
-				buttonParent.addEventListener(KeyboardEvent.KEY_UP, checkWhiteboardKeyCombo);
+				// remove keylistener for whitbeoard shortcuts as they interfere with text typing functionality.
+				//buttonParent.addEventListener(KeyboardEvent.KEY_UP, checkWhiteboardKeyCombo);
 			}
 			
 			private function checkWhiteboardKeyCombo(e:KeyboardEvent):void{
@@ -86,8 +87,6 @@
 			
 			public function setButtonVisibility(visibility:Boolean):void{
 				this.visible = visibility;
-				//if (visibility) sendEnableWhiteboardEvent();
-				//else if (!visibility) sendDisableWhiteboardEvent();
 			}
 			
 			public function setComponentEnabled(enabled:Boolean):void{

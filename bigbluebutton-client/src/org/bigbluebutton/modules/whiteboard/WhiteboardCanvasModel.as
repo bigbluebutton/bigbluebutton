@@ -77,7 +77,6 @@ package org.bigbluebutton.modules.whiteboard
 		*/
 		private var sendEraserFrequency:uint = 20;	
 		private var drawStatus:String = DrawObject.DRAW_START;
-		private var textStatus:String = TextObject.TEXT_CREATED;
 		private var width:Number;
 		private var height:Number;
 		
@@ -120,13 +119,10 @@ package org.bigbluebutton.modules.whiteboard
 			}
 		}
 		
-		private var objCount:int = 0;
-		
 		private function sendShapeToServer(status:String):void {
 			if (segment.length == 0) return;
 			
-			var dobj:DrawObject = shapeFactory.createDrawObject(this.toolType, segment, this.drawColor, this.thickness,
-				this.fillOn, this.fillColor, this.transparencyOn);
+			var dobj:DrawObject = shapeFactory.createDrawObject(this.toolType, segment, this.drawColor, this.thickness, this.fillOn, this.fillColor, this.transparencyOn);
 
 			switch (status) {
 				case DrawObject.DRAW_START:
@@ -142,8 +138,6 @@ package org.bigbluebutton.modules.whiteboard
 					break;
 			}
 			
-			//LogUtil.error("SEGMENT LENGTH = [" + segment.length + "] STATUS = [" + dobj.status + "]");
-			
 			if (this.toolType == DrawObject.PENCIL ||
 				this.toolType == DrawObject.ERASER) {
 				dobj.status = DrawObject.DRAW_END;
@@ -156,20 +150,10 @@ package org.bigbluebutton.modules.whiteboard
 			wbCanvas.sendGraphicToServer(dobj, WhiteboardDrawEvent.SEND_SHAPE);			
 		}
 		
-		private function sendTextToServer(status:String, tobj:TextObject):void {
-			switch (status) {
-				case TextObject.TEXT_CREATED:
-					tobj.status = TextObject.TEXT_CREATED;
-					textStatus = TextObject.TEXT_UPDATED;
-					break;
-				case TextObject.TEXT_UPDATED:
-					tobj.status = TextObject.TEXT_UPDATED;
-					break;
-				case TextObject.TEXT_PUBLISHED:
-					tobj.status = TextObject.TEXT_PUBLISHED;
-					textStatus = TextObject.TEXT_CREATED;
-					break;
-			}	
+		private function sendTextToServer(status:String, t:TextObject):void {
+			var tobj:TextObject = textFactory.createText(t.text, t.textColor, t.backgroundColor, t.background, t.x, t.y, t.textSize);
+			tobj.status = status;	
+			tobj.setGraphicID(t.getGraphicID());
 			
 			wbCanvas.sendGraphicToServer(tobj, WhiteboardDrawEvent.SEND_TEXT);			
 		}
@@ -201,8 +185,7 @@ package org.bigbluebutton.modules.whiteboard
 			*/
 			if(graphicType == WhiteboardConstants.TYPE_TEXT) {
 				LogUtil.error("double click received at " + mouseX + "," + mouseY);
-				var tobj:TextObject = new TextObject(
-					"TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
+				var tobj:TextObject = new TextObject("TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
 				sendTextToServer(TextObject.TEXT_CREATED, tobj);
 			}
 		}
@@ -242,8 +225,7 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		// Draws a DrawObject when/if it is received from the server
-		private function drawShape(o:DrawObject, recvdShapes:Boolean):void {
-			
+		private function drawShape(o:DrawObject, recvdShapes:Boolean):void {	
 			switch (o.status) {
 				case DrawObject.DRAW_START:
 					addNewShape(o);														
@@ -275,7 +257,7 @@ package org.bigbluebutton.modules.whiteboard
 					if(isPresenter)
 						addPresenterText(o);
 					else
-						addNormalText(o);														
+						addViewerText(o);														
 					break;
 				case TextObject.TEXT_UPDATED:
 				case TextObject.TEXT_PUBLISHED:
@@ -283,7 +265,7 @@ package org.bigbluebutton.modules.whiteboard
 						if(recvdShapes) addPresenterText(o);
 					} else {
 						if(graphicList.length == 0 || recvdShapes) {
-							addNormalText(o);
+							addViewerText(o);
 						} else modifyText(o);
 					} 	
 					break;
@@ -291,17 +273,17 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		private function addNewShape(o:DrawObject):void {
-			//LogUtil.debug("Adding new shape ");
 			var dobj:DrawObject = shapeFactory.makeShape(o);
 			wbCanvas.addGraphic(dobj);
 			graphicList.push(dobj);
 		}
 		
-		private function calibrateNewTextWith(o:TextObject):TextObject {
-			var tobj:TextObject = textFactory.makeTextObject(o);
+		private function calibrateTextWith(o:TextObject):TextObject {
+			var tobj:TextObject;
+			tobj = textFactory.makeText(o);
 			tobj.setGraphicID(o.getGraphicID());
 			tobj.status = o.status;
-			tobj.applyTextFormat(tobj.textSize);
+			tobj.applyFormatting();
 			return tobj;
 		}
 			
@@ -311,14 +293,12 @@ package org.bigbluebutton.modules.whiteboard
 		*/
 		private function addPresenterText(o:TextObject):void {
 			if(!isPresenter) return;
-			var tobj:TextObject = calibrateNewTextWith(o);
-			tobj.multiline = true;
-			tobj.wordWrap = true;
-			tobj.autoSize = TextFieldAutoSize.LEFT;
+			LogUtil.debug("Created text: " + o.getGraphicID());
+			var tobj:TextObject = calibrateTextWith(o);
 			tobj.makeEditable(true);
-			tobj.registerListeners(textObjGainedFocusListener,
-									textObjLostFocusListener,
-									textObjTextListener,
+			tobj.registerListeners(tobjGainFocusListener,
+									tobjLoseFocusListener,
+									tobjTextListener,
 									textObjSpecialListener);
 			wbCanvas.addGraphic(tobj);
 			wbCanvas.stage.focus = tobj;
@@ -329,13 +309,9 @@ package org.bigbluebutton.modules.whiteboard
 		   be made editable and no listeners need to be attached because the viewers
 		   should not be able to edit/modify the TextObject 
 		*/
-		private function addNormalText(o:TextObject):void {
+		private function addViewerText(o:TextObject):void {
 			if(isPresenter) return;
-			var tobj:TextObject = calibrateNewTextWith(o);
-			//LogUtil.debug("TEXT ADDED: " + tobj.getGraphicID());
-			tobj.multiline = true;
-			tobj.wordWrap = true;
-			tobj.autoSize = TextFieldAutoSize.LEFT;
+			var tobj:TextObject = calibrateTextWith(o);
 			tobj.makeEditable(false);
 			wbCanvas.addGraphic(tobj);
 			graphicList.push(tobj);
@@ -345,11 +321,11 @@ package org.bigbluebutton.modules.whiteboard
 			as opposed to adding a new TextObject to the whiteboard
 		*/
 		private function modifyText(o:TextObject):void {
-			var tobj:TextObject = calibrateNewTextWith(o);
+			var tobj:TextObject = calibrateTextWith(o);
 			var id:String = tobj.getGraphicID();
 			removeText(id);
 			LogUtil.debug("Text modified to " + tobj.text);
-			addNormalText(tobj);
+			addViewerText(tobj);
 		}
 		
 		/* invoked by the WhiteboardManager that is invoked by the TextToolbar, that 
@@ -363,7 +339,7 @@ package org.bigbluebutton.modules.whiteboard
 			currentlySelectedTextObject.background = bgColorVisible;
 			currentlySelectedTextObject.backgroundColor = backgroundColor;
 			currentlySelectedTextObject.textSize = textSize;
-			currentlySelectedTextObject.applyTextFormat(currentlySelectedTextObject.textSize);
+			currentlySelectedTextObject.applyFormatting();
 			sendTextToServer(TextObject.TEXT_PUBLISHED, currentlySelectedTextObject);
 		}
 		
@@ -457,9 +433,9 @@ package org.bigbluebutton.modules.whiteboard
 			var gobj:GraphicObject = graphicList.pop();
 			if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
 				(gobj as TextObject).makeEditable(false);
-				(gobj as TextObject).deregisterListeners(textObjGainedFocusListener,
-					textObjLostFocusListener,
-					textObjTextListener,
+				(gobj as TextObject).deregisterListeners(tobjGainFocusListener,
+					tobjLoseFocusListener,
+					tobjTextListener,
 					textObjSpecialListener);
 			}	
 			wbCanvas.removeGraphic(gobj as DisplayObject);
@@ -580,9 +556,9 @@ package org.bigbluebutton.modules.whiteboard
 			var texts:Array = getAllTexts();
 			for(var i:int = 0; i < texts.length; i++) {
 				(texts[i] as TextObject).makeEditable(true);
-				(texts[i] as TextObject).registerListeners(textObjGainedFocusListener,
-					textObjLostFocusListener,
-					textObjTextListener,
+				(texts[i] as TextObject).registerListeners(tobjGainFocusListener,
+					tobjLoseFocusListener,
+					tobjTextListener,
 					textObjSpecialListener);
 			}
 		}
@@ -597,9 +573,9 @@ package org.bigbluebutton.modules.whiteboard
 			var texts:Array = getAllTexts();
 			for(var i:int = 0; i < texts.length; i++) {
 				(texts[i] as TextObject).makeEditable(false);
-				(texts[i] as TextObject).deregisterListeners(textObjGainedFocusListener,
-					textObjLostFocusListener,
-					textObjTextListener,
+				(texts[i] as TextObject).deregisterListeners(tobjGainFocusListener,
+					tobjLoseFocusListener,
+					tobjTextListener,
 					textObjSpecialListener);
 
 			}
@@ -629,35 +605,34 @@ package org.bigbluebutton.modules.whiteboard
 			
 		}
 		
-		public function textObjTextListener(event:TextEvent):void {
+		public function tobjTextListener(event:TextEvent):void {
 			var sendStatus:String = TextObject.TEXT_UPDATED;
 			var tf:TextObject = event.target as TextObject;	
-			LogUtil.debug("ID " + tf.getGraphicID() + " modified to "
-							+ tf.text);
+			LogUtil.debug("ID " + tf.getGraphicID() + " modified to "+ tf.text);
 			sendTextToServer(sendStatus, tf);	
 		}
 		
-		public function textObjGainedFocusListener(event:FocusEvent):void {
+		public function tobjGainFocusListener(event:FocusEvent):void {
 			var tf:TextObject = event.currentTarget as TextObject;
 			wbCanvas.stage.focus = tf;
 			tf.stage.focus = tf;
 			currentlySelectedTextObject = tf;
-			var e:GraphicObjectFocusEvent = 
-				new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
+			var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
 			e.data = tf;
 			wbCanvas.dispatchEvent(e);
 		}
 		
-		public function textObjLostFocusListener(event:FocusEvent):void {
+		public function tobjLoseFocusListener(event:FocusEvent):void {
 			var tf:TextObject = event.target as TextObject;	
 			sendTextToServer(TextObject.TEXT_PUBLISHED, tf);	
 			LogUtil.debug("Text published to: " +  tf.text);
-			var e:GraphicObjectFocusEvent = 
-				new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
+			
+			/* hide text toolbar because we don't want to show it
+				if there is no text selected */
+			var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
 			e.data = tf;
 			wbCanvas.dispatchEvent(e);
-			/* hide text toolbar because we don't want to show it
-			   if there is no text selected */
+			
 		}
 		
 		private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {
@@ -669,7 +644,7 @@ package org.bigbluebutton.modules.whiteboard
 				dobj.setGraphicID(origDobj.getGraphicID());
 				dobj.status = origDobj.status;
 				wbCanvas.addGraphic(dobj);
-				graphicList[objIndex] = dobj;
+				graphicList[objIndex] = dobj;	
 			} else if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
 				// haven't thought of rescaling of the text, will do later
 			}

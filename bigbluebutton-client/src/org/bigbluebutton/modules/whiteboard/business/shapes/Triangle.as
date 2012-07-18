@@ -59,18 +59,21 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
 			if(!fill)
 				this.graphics.lineStyle(getThickness(), getColor(), getTransparencyLevel());
-			else this.graphics.lineStyle(getThickness(), getColor());
+			else {
+				this.graphics.lineStyle(getThickness(), getColor());
+				this.graphics.beginFill(getFillColor(), getTransparencyLevel());
+			}
 			var arrayEnd:Number = getShapeArray().length;
 			var startX:Number = denormalize(getShapeArray()[0], parentWidth);
 			var startY:Number = denormalize(getShapeArray()[1], parentHeight);
 			var triangleWidth:Number = denormalize(getShapeArray()[arrayEnd-2], parentWidth) - startX;
 			var triangleHeight:Number = denormalize(getShapeArray()[arrayEnd-1], parentHeight) - startY;
 			LogUtil.debug(startX + " " + startY + " " + triangleWidth + " " + triangleHeight);
-			if(fill) this.graphics.beginFill(getFillColor(), getTransparencyLevel());
 			this.graphics.moveTo(startX+triangleWidth/2, startY); 
 			this.graphics.lineTo(startX+triangleWidth, startY+triangleHeight); 
 			this.graphics.lineTo(startX, triangleHeight+startY); 
-			this.graphics.lineTo(startX+triangleWidth/2, startY); 
+			this.graphics.lineTo(startX+triangleWidth/2, startY);
+			this.graphics.endFill();
 		}
 		
 		override public function getProperties():Array {

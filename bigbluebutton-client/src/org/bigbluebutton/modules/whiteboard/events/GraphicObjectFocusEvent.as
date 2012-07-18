@@ -23,6 +23,12 @@ package org.bigbluebutton.modules.whiteboard.events
 	
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
 	
+	/** 
+	 * This class will be used for notifying all listeners of this event
+	 * that a GraphicObject has been selected. Currently (as of 7/17/12), it is used 
+	 * for syncing the TextToolbar with TextObject's that are being typed into/focused on
+	 * but may be used for tools such as the SelectObject later on
+	*/
 	public class GraphicObjectFocusEvent extends Event
 	{
 		public static const OBJECT_SELECTED:String = "objSelect";

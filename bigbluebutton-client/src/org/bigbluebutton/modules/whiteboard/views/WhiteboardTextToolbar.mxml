@@ -225,7 +225,6 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 			public function positionToolbar(window:PresentationWindow):void{
 				this.presentationWindow = window;
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, repositionToolbarByWindow);
-				presentationWindow.addEventListener(MouseEvent.CLICK, repositionToolbarByWindow);
 				presentationWindow.addEventListener(MoveEvent.MOVE, repositionToolbarByWindow);
 				disableTextToolbar();
 				this.x = 0;

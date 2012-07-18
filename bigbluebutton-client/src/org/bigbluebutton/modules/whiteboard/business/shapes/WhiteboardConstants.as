@@ -19,6 +19,9 @@
  */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+	/** This class provides a listing of some general constants
+	 * that are used in the whiteboard module
+	*/
 	public class WhiteboardConstants {
 		public static const TYPE_SHAPE:String = "SHAPE";
 		public static const TYPE_TEXT:String = "TEXT";

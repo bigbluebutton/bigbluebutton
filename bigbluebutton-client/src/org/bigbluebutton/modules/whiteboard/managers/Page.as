@@ -27,6 +27,11 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 	
+	/**
+	 * This class provides extended functionality in order to abstract out 
+	 * qualities that a single 'page' in a presentation have. Specifically,
+	 * it refers to all of the GraphicObjects that a certain page contains.
+	*/
 	public class Page extends ArrayCollection
 	{
 		private var isGrid:Boolean = false;;

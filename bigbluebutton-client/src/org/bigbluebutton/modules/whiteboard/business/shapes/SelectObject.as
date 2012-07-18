@@ -19,6 +19,12 @@
  */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+	/**
+	 * The SelectObject class is experimental (as of 7/17/12) and will be used
+	 * to allow functionality for 'selecting' the different GraphicObjects
+	 * that will be on the whiteboard canvas. This also includes functionality for
+	 * deleting these 'selected' GraphicObejcts
+	*/
 	public class SelectObject {
 		public static const SELECT_TOOL:String = "selector";
 		public static const DELETE_TOOL:String = "deletor";

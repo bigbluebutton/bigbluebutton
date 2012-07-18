@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	import flash.events.TextEvent;
 	import flash.text.AntiAliasType;
 	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
 	
@@ -57,8 +58,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * Status = [CREATED, UPDATED, PUBLISHED]
 		 */
 		public var status:String = TEXT_CREATED;
-
-		private var _editable:Boolean;
 		
 		/**
 		 * ID we can use to match the shape in the client's view
@@ -98,13 +97,16 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return (val*100.0)/side;
 		}
 		
-		public function applyTextFormat(size:Number):void {
-			this.textSize = size;
+		public function applyFormatting():void {
 			var tf:TextFormat = new TextFormat();
-			tf.size = size;
+			tf.size = this.textSize;
 			tf.font = "arial";
 			this.defaultTextFormat = tf;
 			this.setTextFormat(tf);
+			this.multiline = true;
+			this.wordWrap = true;
+			this.autoSize = TextFieldAutoSize.LEFT;
+			this.antiAliasType = AntiAliasType.ADVANCED;
 		}
 		
 		public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
@@ -112,7 +114,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			var startY:Number = denormalize(this.y, parentHeight);
 			this.x = startX;
 			this.y = startY;
-			this.antiAliasType = AntiAliasType.ADVANCED;
 			
 			// ensure typing doesn't go off of whiteboard
 			this.width = 225;
@@ -132,34 +133,29 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		public function makeEditable(editable:Boolean):void {
-			if(editable) {
-				this.type = TextFieldType.INPUT;
-			} else {
-				this.type = TextFieldType.DYNAMIC;
-			}
-			this._editable = editable;
+			this.type = editable ? TextFieldType.INPUT : TextFieldType.DYNAMIC;
 		}
 		
-		public function registerListeners(textObjGainedFocus:Function,
-										  textObjLostFocus:Function,
-										  textObjTextListener:Function,
-										  textObjDeleteListener:Function):void {
+		public function registerListeners(tobjGainedFocus:Function,
+										  tobjLostFocus:Function,
+										  tobjTextListener:Function,
+										  tobjSpecialListener:Function):void {
 											  
-			this.addEventListener(FocusEvent.FOCUS_IN, textObjGainedFocus);
-			this.addEventListener(FocusEvent.FOCUS_OUT, textObjLostFocus);
-			this.addEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
-			this.addEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
+			this.addEventListener(FocusEvent.FOCUS_IN, tobjGainedFocus);
+			this.addEventListener(FocusEvent.FOCUS_OUT, tobjLostFocus);
+			this.addEventListener(TextEvent.TEXT_INPUT, tobjTextListener);
+			this.addEventListener(KeyboardEvent.KEY_DOWN, tobjSpecialListener);
 		}		
 		
-		public function deregisterListeners(textObjGainedFocus:Function,
-											textObjLostFocus:Function,
-											textObjTextListener:Function,
-											textObjDeleteListener:Function):void {
-			
-			this.removeEventListener(FocusEvent.FOCUS_IN, textObjGainedFocus);
-			this.removeEventListener(FocusEvent.FOCUS_OUT, textObjLostFocus);
-			this.removeEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
-			this.removeEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
+		public function deregisterListeners(tobjGainedFocus:Function,
+											tobjLostFocus:Function,
+											tobjTextListener:Function,
+											tobjSpecialListener:Function):void {
+		
+			this.removeEventListener(FocusEvent.FOCUS_IN, tobjGainedFocus);
+			this.removeEventListener(FocusEvent.FOCUS_OUT, tobjLostFocus);
+			this.removeEventListener(TextEvent.TEXT_INPUT, tobjTextListener);
+			this.removeEventListener(KeyboardEvent.KEY_DOWN, tobjSpecialListener);
 		}
 	}
 }

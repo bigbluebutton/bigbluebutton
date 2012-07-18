@@ -99,8 +99,8 @@ public class WhiteboardRoom {
 		notifyAddText(activePresentation, text);
 	}
 	
-	public void modifyText(String key, TextGraphic text){
-		activePresentation.getActivePage().modifyTextGraphic(key, text);
+	public void modifyText(TextGraphic text){
+		activePresentation.getActivePage().modifyTextGraphic(text);
 		notifyModifyText(activePresentation, text);
 	}
 	

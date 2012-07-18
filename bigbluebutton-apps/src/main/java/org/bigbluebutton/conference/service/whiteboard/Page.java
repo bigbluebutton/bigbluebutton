@@ -49,16 +49,16 @@ public class Page {
 		graphicObjs.put(text.ID, text);
 	}
 	
-	public void modifyShapeGraphic(String key, ShapeGraphic shape){
-		if(graphicObjs.containsKey(shape))
-			graphicObjs.put(key, shape);
-		else System.out.println("ERROR: MODIFYING NON-EXISTENT KEY");
+	public void modifyShapeGraphic(ShapeGraphic shape){
+		if(graphicObjs.containsKey(shape.ID))
+			graphicObjs.put(shape.ID, shape);
+		else System.out.println("ERROR: MODIFYING NON-EXISTENT KEY: " + shape.ID);
 	}
 	
-	public void modifyTextGraphic(String key, TextGraphic text){
-		if(graphicObjs.containsKey(key))
-			graphicObjs.put(key, text);
-		else System.out.println("ERROR: MODIFYING NON-EXISTENT KEY");
+	public void modifyTextGraphic(TextGraphic text){
+		if(graphicObjs.containsKey(text.ID))
+			graphicObjs.put(text.ID, text);
+		else System.out.println("ERROR: MODIFYING NON-EXISTENT KEY: " + text.ID);
 	}
 	
 	public List<Object[]> getHistory(){

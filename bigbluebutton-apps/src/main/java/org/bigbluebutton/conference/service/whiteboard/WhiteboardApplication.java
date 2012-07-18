@@ -119,7 +119,7 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 			newText.ID = Integer.toString(roomManager.getRoom(getLocalScope().getName()).getUniqueWBGraphicIdentifier());
 			roomManager.getRoom(getLocalScope().getName()).addText(newText);
 		} else {
-			roomManager.getRoom(getLocalScope().getName()).modifyText(newText.ID, newText);
+			roomManager.getRoom(getLocalScope().getName()).modifyText(newText);
 		}
 		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
 		List<Object> arguments = newText.toList();
@@ -134,12 +134,6 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	
 	public List<Object[]> getHistory(){
 		List<Object[]> graphicsList = roomManager.getRoom(getLocalScope().getName()).getHistory();
-		for(Object[] o: graphicsList) {
-			System.out.println();
-			for(int i = 0; i < o.length; i++) {
-				System.out.print(" " + i);
-			}
-		}
 		return graphicsList;
 	}
 	

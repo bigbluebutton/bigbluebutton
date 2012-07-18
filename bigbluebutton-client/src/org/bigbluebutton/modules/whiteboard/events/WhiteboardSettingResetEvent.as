@@ -20,6 +20,14 @@
 package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
+	
+	/**
+	 * This class is used to notify listeners of this event that 
+	 * a 'toggle' setting of a certain property has been changed
+	 * to a certain value. It is used for example in changing between
+	 * pages so that the values in the WhiteboardToolbar are synced
+	 * with the properties of the current page. (ex. in grid mode)
+	*/
 	public class WhiteboardSettingResetEvent extends Event
 	{
 		public static const FILL_CHANGED:String = "FILL_CHANGED";

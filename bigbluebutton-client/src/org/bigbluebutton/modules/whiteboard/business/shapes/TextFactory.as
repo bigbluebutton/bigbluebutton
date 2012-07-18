@@ -19,15 +19,32 @@
  */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+	/** 
+	 * The TextFactory class provides functionality for constructing TextObejcts
+	 * so that they can be added to the WhiteboardCanvas
+	*/
 	public class TextFactory extends GraphicFactory
 	{
 
 		public function TextFactory() {
 			super(GraphicFactory.TEXT_FACTORY);
 		}
-
 		
-		public function createTextObject(txt:String, txtColor:uint,
+		public function normalizeText(tobj:TextObject):TextObject {
+			
+			var newX:Number = normalize(tobj.x,_parentWidth);
+			var newY:Number = normalize(tobj.y,_parentHeight);
+			tobj.x = newX;
+			tobj.y = newY;
+			return tobj;
+		}
+		
+		public function denormalizeText(tobj:TextObject):TextObject {
+			tobj.makeGraphic(_parentWidth,_parentHeight);
+			return tobj;
+		}
+		
+		public function createText(txt:String, txtColor:uint,
 										 bgColor:uint, bgColorVisible:Boolean,
 										 x:Number, y:Number, textSize:Number):TextObject {
 			
@@ -39,12 +56,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return tobj;
 		}
 		
-		/* convenience method for above method, takes a TextObject and returns one
-			with "normalized" coordinates
-		*/
-		public function makeTextObject(t:TextObject):TextObject {
-			return createTextObject(t.text, t.textColor, t.backgroundColor, t.background,
-									t.x, t.y, t.textSize);
+		public function makeText(tobj:TextObject):TextObject {
+			return createText(tobj.text, tobj.textColor, tobj.backgroundColor, tobj.background, tobj.x, tobj.y, tobj.textSize);
 		}
 	}
 }

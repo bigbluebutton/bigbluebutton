@@ -33,8 +33,6 @@
 	<mate:Listener type="{WhiteboardSettingResetEvent.FILL_CHANGED}" method="resetFill" />
 	<mate:Listener type="{WhiteboardSettingResetEvent.TRANSPARENCY_CHANGED}" method="resetTransparent" />
 	<mate:Listener type="{WhiteboardSettingResetEvent.GRID_CHANGED}" method="resetGrid" />
-	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
-	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
 	
 	<mx:Style>
 		.colorPickerStyle {
@@ -343,16 +341,6 @@
 				} else if(buttonEvt.target == btnToggleTransparency) {		
 					toggleTransparency();
 				}
-			}
-			
-			private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
-				var gobj:GraphicObject = event.data;
-				LogUtil.debug("!!!!SELECTED:" + " " + gobj.getProperties());
-			}
-			
-			private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
-				var gobj:GraphicObject = event.data;
-				LogUtil.debug("!!!!DESELECTED:" + " " + gobj.getProperties());
 			}
 		]]>
 	</mx:Script>

@@ -106,6 +106,14 @@ public class TextGraphic extends WBGraphic {
 		return y;
 	}
 	
+	public void setX(int newX) {
+		this.x = newX;
+	}
+
+	public void setY(int newY) {
+		this.y = newY;
+	}
+	
 	public String getLocation() {
 		return x + "," + y;
 	}

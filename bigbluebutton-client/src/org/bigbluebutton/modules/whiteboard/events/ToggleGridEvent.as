@@ -21,6 +21,10 @@ package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
 	
+	/** 
+	 * This class represents the types of events relating to the toggling
+	 * of grid mode
+	*/
 	public class ToggleGridEvent extends Event
 	{
 		public static const TOGGLE_GRID:String = "toggleGrid";
