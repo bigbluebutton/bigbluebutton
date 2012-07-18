@@ -78,7 +78,7 @@ package org.bigbluebutton.modules.chat.model {
 		public function toString() : String {
 			var result:String;
 			// Remember to localize this later
-			result = "Chat message: " + name + " " + time + " " + stripTags(translatedText);  
+			result = "Chat message " + name + " said " + stripTags(translatedText) + " at " + time;  
 			return result;
 		}
 		

@@ -57,6 +57,7 @@
 			private var scrollTimer:Timer;			
 			private var scrollBarWorkaround:Boolean = false;
 			private var currentMessage:int;
+			private var chatHistorySpacer:int;
 			
 			private function onCreationComplete():void {
 				addContextMenuItems();
@@ -72,10 +73,11 @@
 				
 				// Initialize the indicator for the position in the message history, and add the listener for message history navigation
 				currentMessage = -1;
+				chatHistorySpacer = 0;
 				this.addEventListener(KeyboardEvent.KEY_DOWN, navigateMessages);		
 				// Initialize the chatMessagesList tooltip as the Welcome message
-				if (chatMessagesList.toolTip == null)
-					chatMessagesList.toolTip = messages[0].toString();
+				if (chatMessagesList.accessibilityDescription == null)
+					chatMessagesList.accessibilityDescription = messages[0].toString();
 			}
 
 			public function showNewMessage(chatobj:ChatObject, translate:Boolean, language:String = null):void {	
@@ -220,19 +222,68 @@
 			
 			public function navigateMessages(e:KeyboardEvent) :void
 			{
+				var firstMessage:Boolean = false;
+				var latestMessage:Boolean = false;
+				
+				// Stop undoing, you're back to normal
 				if (e.keyCode == 32) {
-					if (!e.ctrlKey){
-						if (currentMessage < (messages.length-3))
+					if (!e.ctrlKey && !e.altKey && !e.shiftKey){ // SPACE key: Advance one message
+						if (currentMessage < (messages.length-3)){
 							currentMessage++;
-					} // if not CTRL key
-					else{
-						if (currentMessage > 0)
+							chatMessagesList.accessibilityDescription = messages[currentMessage].toString();
+						}
+						else{
+							latestMessage = true;
+							chatHistorySpacer++;
+							chatMessagesList.accessibilityDescription = "You have reached the latest message. " + messages[currentMessage].toString();
+							for (var i:int = 0; i <= chatHistorySpacer; i++)
+								chatMessagesList.accessibilityDescription += " ";
+						}
+					}
+					else if (e.ctrlKey && !e.altKey && !e.shiftKey){ // CTRL-SPACE: Go back one message
+						if (currentMessage > 0){
 							currentMessage--;
-					} // if CTRL key
-					chatMessagesList.toolTip = messages[currentMessage].toString();
-					//LogUtil.debug("MESSAGE: " + messages[currentMessage].toString());
-					//LogUtil.debug("TOOLTIP: " + chatMessagesList.toolTip);
-				} // if SPACE key
+							chatMessagesList.accessibilityDescription = messages[currentMessage].toString();
+						}
+						else{
+							firstMessage = true;
+							chatHistorySpacer++;
+							chatMessagesList.accessibilityDescription = "You have reached the first message. " + messages[currentMessage].toString();
+							for (var i:int = 0; i <= chatHistorySpacer; i++)
+								chatMessagesList.accessibilityDescription += " ";
+						}
+					}
+					else if (e.ctrlKey && e.altKey && !e.shiftKey){ // CTRL-ALT-SPACE: Repeat current message
+						chatHistorySpacer++;
+						chatMessagesList.accessibilityDescription = messages[currentMessage].toString();
+						for (var i:int = 0; i <= chatHistorySpacer; i++)
+							chatMessagesList.accessibilityDescription += " "; 						
+					}
+					else if (!e.ctrlKey && !e.altKey && e.shiftKey){ // SHIFT-SPACE: Go to latest message
+						currentMessage = messages.length-4;
+						chatMessagesList.accessibilityDescription = "You have navigated to the latest message. " + messages[currentMessage].toString();
+						for (var i:int = 0; i <= chatHistorySpacer; i++)
+							chatMessagesList.accessibilityDescription += " ";
+					}
+					else if (e.ctrlKey && !e.altKey && e.shiftKey){ // CTRL-SHIFT-SPACE: Go to first message
+						currentMessage = 0;
+						chatMessagesList.accessibilityDescription = "You have navigated to the first message. " + messages[currentMessage].toString();
+						for (var i:int = 0; i <= chatHistorySpacer; i++)
+							chatMessagesList.accessibilityDescription += " ";						
+					}
+					if (chatHistorySpacer == 1000)
+						chatHistorySpacer = 0; 
+					Accessibility.updateProperties();
+				}
+				/*
+				else if (e.ctrlKey && e.keyCode != 32){
+					if (e.keyCode == 46){ // PERIOD key
+						// Repeat current message
+						chatMessagesList.accessibilityDescription = messages[currentMessage].toString();
+						Accessibility.updateProperties();
+					}
+				}
+				 */
 			}
 			
 		]]>
