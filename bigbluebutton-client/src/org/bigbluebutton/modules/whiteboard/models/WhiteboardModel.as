@@ -52,7 +52,7 @@ package org.bigbluebutton.modules.whiteboard.models
 		}
 		
 		public function changePage(pageNum:int, numAnnotations:int):void {
-			
+			_current
 		}
 		
 		public function enable(enabled:Boolean):void {
