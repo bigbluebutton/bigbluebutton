@@ -88,7 +88,9 @@ package org.bigbluebutton.modules.whiteboard.services
 				case "text":
 					addText(message);
 					break;
-				
+                default:
+                    addSegment(message);
+                    break;
 			}
 		}
 		
@@ -108,13 +110,12 @@ package org.bigbluebutton.modules.whiteboard.services
 		private function addSegment(message:Object):void {
 			//graphicType:String, array:Array, type:String, color:uint, thickness:uint, 
 			//					   fill:Boolean, fillColor:uint, transparent:Boolean, id:String, status:String, recvdShapes:Boolean = false):void{
-			LogUtil.debug("Rx add segment **** with ID of " + message.id + " " + message.type
-							+ " and " + message.color + " " + message.thickness + " " + message.fill + " " + message.transparency);
+			LogUtil.debug("Rx add segment **** with ID of " + message.id + " " + message.type + " and " + message.color + " " + message.thickness + " " + message.fill + " " + message.transparency);
 			var d:DrawObject = drawFactory.makeDrawObject(message.type, message.points, message.color, message.thickness, message.fill, message.fillColor, message.transparency);
 			
 			d.setGraphicID(message.id);
 			d.status = message.status;
-			
+            whiteboardModel.addAnnotation(d);
 		}
 		
 		private function handleIsWhiteboardEnabledReply(message:Object):void {
