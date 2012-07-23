@@ -225,7 +225,7 @@
 				var firstMessage:Boolean = false;
 				var latestMessage:Boolean = false;
 				
-				// Stop undoing, you're back to normal
+				// Replace the constant adding of spaces with a conditional thing, comparing the new string to the old and only adding a space if necessary
 				if (e.keyCode == 32) {
 					if (!e.ctrlKey && !e.altKey && !e.shiftKey){ // SPACE key: Advance one message
 						if (currentMessage < (messages.length-3)){
@@ -275,15 +275,6 @@
 						chatHistorySpacer = 0; 
 					Accessibility.updateProperties();
 				}
-				/*
-				else if (e.ctrlKey && e.keyCode != 32){
-					if (e.keyCode == 46){ // PERIOD key
-						// Repeat current message
-						chatMessagesList.accessibilityDescription = messages[currentMessage].toString();
-						Accessibility.updateProperties();
-					}
-				}
-				 */
 			}
 			
 		]]>
