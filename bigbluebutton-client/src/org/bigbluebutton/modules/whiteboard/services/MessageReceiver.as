@@ -95,8 +95,9 @@ package org.bigbluebutton.modules.whiteboard.services
 		private function addText(message:Object):void {
 			LogUtil.debug("Rx add text **** with ID of " + message.id + " " + message.x + "," + message.y);
 			var t:TextObject = new TextObject(message.text, message.fontColor, message.backgroundColor, message.background, message.x, message.y, message.fontSize);	
-			t.setGraphicID(message.id);
-			t.status = message.status;
+//			t.setGraphicID(message.id);
+//			t.status = message.status;
+            whiteboardModel.addAnnotation(t);
 		}
 		
 		/**

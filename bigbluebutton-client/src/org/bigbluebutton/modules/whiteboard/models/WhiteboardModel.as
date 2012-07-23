@@ -7,6 +7,7 @@ package org.bigbluebutton.modules.whiteboard.models
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 
 	public class WhiteboardModel
 	{
@@ -16,13 +17,14 @@ package org.bigbluebutton.modules.whiteboard.models
         private var _dispatcher:IEventDispatcher;
         
         public function WhiteboardModel(dispatcher:IEventDispatcher) {
-            LogUtil.debug("****** WHITEBOARD MODEL INIT ******");
             _dispatcher = dispatcher;
         }		
 		
 		public function addAnnotation(annotation:GraphicObject):void {
 			_currentPresentation.addAnnotation(annotation);
-			_dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.NEW_SHAPE));
+//			_dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.NEW_SHAPE));
+            LogUtil.debug("*** Adding annotation ****");
+            _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED));
 		}
 		
 		public function removeAnnotation(id:String):void {
@@ -40,10 +42,17 @@ package org.bigbluebutton.modules.whiteboard.models
 		}
 
 		public function changePresentation(presentationID:String, numberOfPages:int):void {
-			
+            LogUtil.debug("*** Changing presentation to " + presentationID + " ****");
+			var pres:Presentation = findPresentation(presentationID);
+            if (pres == null) {
+                pres = new Presentation(presentationID, numberOfPages);
+                _presentations.addItem(pres);
+            } 
+            LogUtil.debug("*** Current presentation is [ " + presentationID + " ] ****");
+            _currentPresentation = pres;
 		}
 		
-		public function findPresentation(presentationID:String):Presentation {
+		private function findPresentation(presentationID:String):Presentation {
 			for (var i:int = 0; i < _presentations.length; i++) {
 				var p:Presentation = _presentations.getItemAt(i) as Presentation;
 				if (presentationID == p.id) return p;
@@ -52,7 +61,10 @@ package org.bigbluebutton.modules.whiteboard.models
 		}
 		
 		public function changePage(pageNum:int, numAnnotations:int):void {
-			_current
+            /* Need to increment the page by 1 as what is passed is zero-based while we store the pages as 1-based.*/
+            var curPage:int = pageNum + 1;
+            LogUtil.debug("*** Switching to page [ " + curPage + " ] ****");
+			_currentPresentation.setCurrentPage(curPage);
 		}
 		
 		public function enable(enabled:Boolean):void {

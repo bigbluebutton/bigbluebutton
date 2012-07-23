@@ -18,11 +18,11 @@ package org.bigbluebutton.modules.whiteboard.models
 		}
 		
 		public function undo():void {
-			// TODO
+			_annotations.removeItemAt(_annotations.length - 1);
 		}
 		
 		public function clear():void {
-			// TODO
+			_annotations.removeAll();
 		}
 		
 		public function get number():int {

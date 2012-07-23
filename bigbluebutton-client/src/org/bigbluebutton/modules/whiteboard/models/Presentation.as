@@ -1,7 +1,10 @@
 package org.bigbluebutton.modules.whiteboard.models
 {	
 	import mx.collections.ArrayCollection;
+	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+
 
 	public class Presentation
 	{
@@ -15,18 +18,35 @@ package org.bigbluebutton.modules.whiteboard.models
 		{
 			_id = id;
 			_numPages = numPages;
+            createPages(numPages);
 		}
 		
 		private function createPages(numPages:int):void {
+            LogUtil.debug("**** Creating presentation " + _id + " with pages [" + numPages + "]");
 			for (var i:int = 1; i <= numPages; i++) {
+                LogUtil.debug("**** Creating page [" + i + "]");
 				_pages.addItem(new Page(i));
 			}
 		}
 		
 		public function setCurrentPage(num:int):void {
-			for (var i:int = 1; i <= _numPages; i++) {
-				_pages.addItem(new Page(i));
+            LogUtil.debug("**** Setting current page to [" + num + "]. Num page = [" + _pages.length + "]");
+            var found:Boolean = false;
+            var idx:int = -1;
+			for (var i:int = 0; i < _numPages && !found; i++) {
+				var p:Page = _pages.getItemAt(i) as Page;
+                if (p.number == num) {
+                    idx = i;
+                    found = true;
+                }
 			}			
+            if (found) {
+                _currentPage = _pages.getItemAt(idx) as Page;
+                LogUtil.debug("**** Current page to [" + _currentPage.number + "]");                
+            } else {
+                LogUtil.error("Cannot find page [" + num + "] in presentation [" + _id + "]");
+            }
+
 		}
 		
 		public function addAnnotation(annotation:GraphicObject):void {

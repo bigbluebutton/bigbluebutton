@@ -141,8 +141,7 @@ package org.bigbluebutton.modules.whiteboard
 						}
 					} else {
 						sendShapeToServer(DrawObject.DRAW_END);
-					}
-					
+					}					
 				}
 			}
 		}
@@ -283,6 +282,7 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		public function drawGraphic(event:WhiteboardUpdate):void{
+            LogUtil.debug("**** Drawing graphic *****");
 			var o:GraphicObject = event.data;
 			var recvdShapes:Boolean = event.recvdShapes;
 			
