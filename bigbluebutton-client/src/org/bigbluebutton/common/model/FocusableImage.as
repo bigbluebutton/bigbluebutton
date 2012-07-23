@@ -10,6 +10,12 @@ package org.bigbluebutton.common.model
 		public function FocusableImage()
 		{
 			super();
+			
+			focusEnabled = true;
+			hasFocusableChildren = true;
+			mouseFocusEnabled = true;
+			tabFocusEnabled = true;
+			tabIndex = -1
 		}
 	}
 }
