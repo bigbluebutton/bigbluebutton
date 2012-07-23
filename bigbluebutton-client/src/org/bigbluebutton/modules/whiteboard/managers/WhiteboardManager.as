@@ -104,6 +104,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 
 		public function drawGraphic(event:WhiteboardUpdate):void{
+            LogUtil.debug("Received BOARD_UPDATED message");
 			model.drawGraphic(event);
 		}
 		

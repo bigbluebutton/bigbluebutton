@@ -282,10 +282,9 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		public function drawGraphic(event:WhiteboardUpdate):void{
-            LogUtil.debug("**** Drawing graphic *****");
 			var o:GraphicObject = event.data;
 			var recvdShapes:Boolean = event.recvdShapes;
-			
+            LogUtil.debug("**** Drawing graphic [" + o.getGraphicType() + "] *****");
 			if(o.getGraphicType() == WhiteboardConstants.TYPE_SHAPE) {
 				var dobj:DrawObject = o as DrawObject;
 				drawShape(dobj, recvdShapes);	
@@ -374,10 +373,7 @@ package org.bigbluebutton.modules.whiteboard
 			tobj.wordWrap = true;
 			tobj.autoSize = TextFieldAutoSize.LEFT;
 			tobj.makeEditable(true);
-			tobj.registerListeners(textObjGainedFocusListener,
-									textObjLostFocusListener,
-									textObjTextListener,
-									textObjSpecialListener);
+			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			wbCanvas.addGraphic(tobj);
 			wbCanvas.stage.focus = tobj;
 			graphicList.push(tobj);

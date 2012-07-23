@@ -24,7 +24,11 @@ package org.bigbluebutton.modules.whiteboard.models
 			_currentPresentation.addAnnotation(annotation);
 //			_dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.NEW_SHAPE));
             LogUtil.debug("*** Adding annotation ****");
-            _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED));
+            var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
+            event.data = annotation;
+            event.recvdShapes = true;
+            _dispatcher.dispatchEvent(event);
+            LogUtil.debug("*** Dispatched WhiteboardUpdate.BOARD_UPDATED Event ****");
 		}
 		
 		public function removeAnnotation(id:String):void {
