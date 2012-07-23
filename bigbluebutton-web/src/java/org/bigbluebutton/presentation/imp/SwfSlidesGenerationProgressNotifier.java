@@ -95,4 +95,10 @@ public class SwfSlidesGenerationProgressNotifier {
 	public void setGeneratedSlidesInfoHelper(GeneratedSlidesInfoHelper helper) {
 		generatedSlidesInfoHelper = helper;
 	}
+
+	public void sendCreatingTextFilesUpdateMessage(UploadedPresentation pres) {
+		MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
+		builder.messageKey(ConversionMessageConstants.GENERATING_TEXTFILES_KEY);
+		notifyProgressListener(builder.build().getMessage());	
+	}
 }

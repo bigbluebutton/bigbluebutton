@@ -22,12 +22,12 @@ public class NullMessagingService implements MessagingService {
 
 	}
 
-	@Override
+	/*@Override
 	public void recordMeetingMetadata(String meetingId,
 			Map<String, String> metadata) {
 		// TODO Auto-generated method stub
 
-	}
+	}*/
 
 	@Override
 	public void endMeeting(String meetingId) {
