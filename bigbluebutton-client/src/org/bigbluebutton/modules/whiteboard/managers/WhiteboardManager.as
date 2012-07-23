@@ -55,19 +55,26 @@ package org.bigbluebutton.modules.whiteboard.managers
 		
 		public function handleStartModuleEvent():void{	
 			if (highlighterCanvas != null) return;
+            
 			highlighterCanvas = new WhiteboardCanvas();
 			highlighterCanvas.model = model;
 		    model.wbCanvas = highlighterCanvas;
+            
 			if (highlighterToolbar != null) return;
+            
 			highlighterToolbar = new WhiteboardToolbar();
 			highlighterToolbar.canvas = highlighterCanvas;
+            
 			if (textToolbar != null) return;
+            
 			textToolbar = new WhiteboardTextToolbar();
 			textToolbar.canvas = highlighterCanvas;
 			textToolbar.init();
 			highlighterCanvas.textToolbar = textToolbar;
+            
 			if (whiteboardButton != null) return;
 			whiteboardButton = new WhiteboardButton();
+            
 			//Necessary now because of module loading race conditions
 			var t:Timer = new Timer(1000, 1);
 			t.addEventListener(TimerEvent.TIMER, addHighlighterCanvas);
@@ -84,8 +91,6 @@ package org.bigbluebutton.modules.whiteboard.managers
 				whiteboardButton.setVisible(true);
 //			}
 			PresentationAPI.getInstance().addButtonToToolbar(whiteboardButton);
-
-
 		}
 			
 

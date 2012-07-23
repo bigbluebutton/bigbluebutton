@@ -72,26 +72,20 @@ package org.bigbluebutton.modules.whiteboard
 		private var fillOn:Boolean = false;
 		private var transparencyOn:Boolean = false;
 		
-		/* a hack to fix the problem of shapes being cleared on viewers' side when page is changed.
-			need to find a better way around later.
-		*/
+		/* a hack to fix the problem of shapes being cleared on viewers' side when page is changed. need to find a better way around later. */
 		private var clearOnce:Boolean = true;
 		
-		/* represents the currently selected TextObject, if any.
-		   'selected' in this context means it is currently being edited, or is the most recent
+		/* represents the currently selected TextObject, if any. 'selected' in this context means it is currently being edited, or is the most recent
 			TextObject to be edited by the presenter
 		*/
 		private var currentlySelectedTextObject:TextObject;
 		
-		/* represents the max number of 'points' enumerated in 'segment'
-		   before sending an update to server. Used to prevent 
+		/* represents the max number of 'points' enumerated in 'segment' before sending an update to server. Used to prevent 
 		   spamming red5 with unnecessary packets
 		*/
 		private var sendShapeFrequency:uint = 30;	
 		
-		/* same as above, except a faster interval may be desirable
-		   when erasing, for aesthetics
-		*/
+		/* same as above, except a faster interval may be desirable when erasing, for aesthetics */
 		private var sendEraserFrequency:uint = 20;	
 
 		private var drawStatus:String = DrawObject.DRAW_START;
@@ -123,14 +117,9 @@ package org.bigbluebutton.modules.whiteboard
 					 */
 					isDrawing = false;
 					
-					//check to make sure unnecessary data is not sent
-					// ex. a single click when the rectangle tool is selected
-					// is hardly classifiable as a rectangle, and should not 
-					// be sent to the server
-					if(toolType == DrawObject.RECTANGLE || 
-						toolType == DrawObject.ELLIPSE ||
-						toolType == DrawObject.TRIANGLE) {
-						
+					//check to make sure unnecessary data is not sent ex. a single click when the rectangle tool is selected
+					// is hardly classifiable as a rectangle, and should not be sent to the server
+					if(toolType == DrawObject.RECTANGLE || toolType == DrawObject.ELLIPSE || toolType == DrawObject.TRIANGLE) {						
 						var x:Number = segment[0];
 						var y:Number = segment[1];
 						var width:Number = segment[segment.length-2]-x;
@@ -151,8 +140,7 @@ package org.bigbluebutton.modules.whiteboard
 		private function sendShapeToServer(status:String):void {
 			if (segment.length == 0) return;
 			
-			var dobj:DrawObject = shapeFactory.createDrawObject(this.toolType, segment, this.drawColor, this.thickness,
-				this.fillOn, this.fillColor, this.transparencyOn);
+			var dobj:DrawObject = shapeFactory.createDrawObject(this.toolType, segment, this.drawColor, this.thickness, this.fillOn, this.fillColor, this.transparencyOn);
 
 			switch (status) {
 				case DrawObject.DRAW_START:
@@ -172,8 +160,7 @@ package org.bigbluebutton.modules.whiteboard
 //			LogUtil.error("SEGMENT LENGTH = [" + segment.length + "] STATUS = [" + dobj.status + "]");
 
 			
-			if (this.toolType == DrawObject.PENCIL ||
-				this.toolType == DrawObject.ERASER) {
+			if (this.toolType == DrawObject.PENCIL || this.toolType == DrawObject.ERASER) {
 				dobj.status = DrawObject.DRAW_END;
 				drawStatus = DrawObject.DRAW_START;
 				segment = new Array();	
@@ -238,9 +225,7 @@ package org.bigbluebutton.modules.whiteboard
 				segment.push(mouseX);
 				segment.push(mouseY);
 			} else if(graphicType == WhiteboardConstants.TYPE_SELECTION) {
-				/* The following is some experimental stuff to test out the 
-					to-be selection tool.
-				*/
+				/* The following is some experimental stuff to test out the to-be selection tool. */
 				var objs:Array = getGraphicObjectsUnderPoint(mouseX, mouseY);		
 				var graphics:Array = filterGraphicObjects(objs)
 				var topMostObject:GraphicObject = getTopMostObject(graphics) as GraphicObject;
@@ -251,9 +236,7 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		public function doMouseDoubleClick(mouseX:Number, mouseY:Number):void {
-			/* creates a new TextObject and sends it to the server to notify all
-			   the clients about it
-			*/
+			/* creates a new TextObject and sends it to the server to notify all the clients about it */
 			if(graphicType == WhiteboardConstants.TYPE_TEXT) {
 				LogUtil.error("double click received at " + mouseX + "," + mouseY);
 				var tobj:TextObject = new TextObject("TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
@@ -287,8 +270,7 @@ package org.bigbluebutton.modules.whiteboard
             LogUtil.debug("**** Drawing graphic [" + o.getGraphicType() + "] *****");
 			if(o.getGraphicType() == WhiteboardConstants.TYPE_SHAPE) {
 				var dobj:DrawObject = o as DrawObject;
-				drawShape(dobj, recvdShapes);	
-				
+				drawShape(dobj, recvdShapes);					
 			} else if(o.getGraphicType() == WhiteboardConstants.TYPE_TEXT) { 
 				var tobj:TextObject = o as TextObject;
 				drawText(tobj, recvdShapes);	
@@ -296,8 +278,7 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		// Draws a DrawObject when/if it is received from the server
-		private function drawShape(o:DrawObject, recvdShapes:Boolean):void {
-			
+		private function drawShape(o:DrawObject, recvdShapes:Boolean):void {			
 			switch (o.status) {
 				case DrawObject.DRAW_START:
 					addNewShape(o);														
@@ -319,7 +300,7 @@ package org.bigbluebutton.modules.whiteboard
 		
 		// Draws a TextObject when/if it is received from the server
 		private function drawText(o:TextObject, recvdShapes:Boolean):void {		
-			if(recvdShapes) {
+			if (recvdShapes) {
 				LogUtil.debug("Got text [" + o.text + " " + o.status + " " + o.getGraphicID() + "]");	
 				LogUtil.debug(String(o.getProperties()));
 			}
@@ -635,9 +616,7 @@ package org.bigbluebutton.modules.whiteboard
 			for(var i:int = 0; i < texts.length; i++) {
 				(texts[i] as TextObject).makeEditable(true);
 				(texts[i] as TextObject).registerListeners(textObjGainedFocusListener,
-					textObjLostFocusListener,
-					textObjTextListener,
-					textObjSpecialListener);
+					textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			}
 		}
 		
@@ -651,11 +630,7 @@ package org.bigbluebutton.modules.whiteboard
 			var texts:Array = getAllTexts();
 			for(var i:int = 0; i < texts.length; i++) {
 				(texts[i] as TextObject).makeEditable(false);
-				(texts[i] as TextObject).deregisterListeners(textObjGainedFocusListener,
-					textObjLostFocusListener,
-					textObjTextListener,
-					textObjSpecialListener);
-
+				(texts[i] as TextObject).deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			}
 		}
 
@@ -686,8 +661,7 @@ package org.bigbluebutton.modules.whiteboard
 		public function textObjTextListener(event:TextEvent):void {
 			var sendStatus:String = TextObject.TEXT_UPDATED;
 			var tf:TextObject = event.target as TextObject;	
-			LogUtil.debug("ID " + tf.getGraphicID() + " modified to "
-							+ tf.text);
+			LogUtil.debug("ID " + tf.getGraphicID() + " modified to " + tf.text);
 			sendTextToServer(sendStatus, tf);	
 		}
 		
@@ -696,8 +670,7 @@ package org.bigbluebutton.modules.whiteboard
 			wbCanvas.stage.focus = tf;
 			tf.stage.focus = tf;
 			currentlySelectedTextObject = tf;
-			var e:GraphicObjectFocusEvent = 
-				new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
+			var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
 			e.data = tf;
 			wbCanvas.dispatchEvent(e);
 		}
@@ -706,12 +679,10 @@ package org.bigbluebutton.modules.whiteboard
 			var tf:TextObject = event.target as TextObject;	
 			sendTextToServer(TextObject.TEXT_PUBLISHED, tf);	
 			LogUtil.debug("Text published to: " +  tf.text);
-			var e:GraphicObjectFocusEvent = 
-				new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
+			var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
 			e.data = tf;
 			wbCanvas.dispatchEvent(e);
-			/* hide text toolbar because we don't want to show it
-			   if there is no text selected */
+			/* hide text toolbar because we don't want to show it if there is no text selected */
 		}
 		
 		private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {
@@ -744,14 +715,8 @@ package org.bigbluebutton.modules.whiteboard
 		private function getGraphicObjectsUnderPoint(xf:Number, yf:Number):Array {
 			// below is a nasty hack to get normalized/denormalized coordinates of 
 			// "normal" coordinates. will change later.
-			var x:Number = 
-				GraphicFactory.denormalize(
-					GraphicFactory.normalize(xf,
-						textFactory.getParentWidth()), textFactory.getParentWidth());
-			var y:Number = 
-				GraphicFactory.denormalize(
-					GraphicFactory.normalize(yf,
-					textFactory.getParentHeight()), textFactory.getParentHeight());
+			var x:Number = GraphicFactory.denormalize(GraphicFactory.normalize(xf, textFactory.getParentWidth()), textFactory.getParentWidth());
+			var y:Number = GraphicFactory.denormalize(GraphicFactory.normalize(yf, textFactory.getParentHeight()), textFactory.getParentHeight());
 			var point:Point = new Point(x,y);
 			point = wbCanvas.localToGlobal(point);
 			
@@ -771,12 +736,9 @@ package org.bigbluebutton.modules.whiteboard
 			var topMostObj:Object;
 
 			for(var i:int = objs.length-2; i >= 0; i--) {
-				var firstIndex:int = 
-					wbCanvas.parentApplication.getChildIndex(objs[i]);
-				var secondIndex:int = 
-					wbCanvas.parentApplication.getChildIndex(objs[i+1]);
-				topMostObj = 
-					(firstIndex > secondIndex) ? firstIndex : secondIndex;
+				var firstIndex:int = wbCanvas.parentApplication.getChildIndex(objs[i]);
+				var secondIndex:int = wbCanvas.parentApplication.getChildIndex(objs[i+1]);
+				topMostObj = (firstIndex > secondIndex) ? firstIndex : secondIndex;
 			}
 			
 			return topMostObj;

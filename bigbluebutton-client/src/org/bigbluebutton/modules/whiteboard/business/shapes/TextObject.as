@@ -19,8 +19,7 @@
  */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import com.asfusion.mate.core.GlobalDispatcher;
-	
+	import com.asfusion.mate.core.GlobalDispatcher;	
 	import flash.display.DisplayObject;
 	import flash.display.Shape;
 	import flash.display.Stage;
@@ -32,8 +31,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	import flash.text.AntiAliasType;
 	import flash.text.TextField;
 	import flash.text.TextFieldType;
-	import flash.text.TextFormat;
-	
+	import flash.text.TextFormat;	
 	import flashx.textLayout.edit.SelectionManager;
 	
 	import flexlib.scheduling.scheduleClasses.utils.Selection;
@@ -67,8 +65,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		private var ID:String = WhiteboardConstants.ID_UNASSIGNED;
 		public var textSize:Number;
 		
-		public function TextObject(text:String, textColor:uint, bgColor:uint, 
-								   bgColorVisible:Boolean, x:Number, y:Number, textSize:Number) {
+		public function TextObject(text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean, x:Number, y:Number, textSize:Number) {
 			this.text = text;
 			this.textColor = textColor;
 			this.backgroundColor = bgColor;
@@ -138,22 +135,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this._editable = editable;
 		}
 		
-		public function registerListeners(textObjGainedFocus:Function,
-										  textObjLostFocus:Function,
-										  textObjTextListener:Function,
-										  textObjDeleteListener:Function):void {
-											  
+		public function registerListeners(textObjGainedFocus:Function, textObjLostFocus:Function, textObjTextListener:Function, textObjDeleteListener:Function):void {											  
 			this.addEventListener(FocusEvent.FOCUS_IN, textObjGainedFocus);
 			this.addEventListener(FocusEvent.FOCUS_OUT, textObjLostFocus);
 			this.addEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
 			this.addEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
 		}		
 		
-		public function deregisterListeners(textObjGainedFocus:Function,
-											textObjLostFocus:Function,
-											textObjTextListener:Function,
-											textObjDeleteListener:Function):void {
-			
+		public function deregisterListeners(textObjGainedFocus:Function, textObjLostFocus:Function, textObjTextListener:Function, textObjDeleteListener:Function):void {			
 			this.removeEventListener(FocusEvent.FOCUS_IN, textObjGainedFocus);
 			this.removeEventListener(FocusEvent.FOCUS_OUT, textObjLostFocus);
 			this.removeEventListener(TextEvent.TEXT_INPUT, textObjTextListener);

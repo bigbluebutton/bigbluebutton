@@ -13,9 +13,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		public var whiteboardModel:WhiteboardModel;
 		private var drawFactory:DrawObjectFactory;
 
-		public function MessageReceiver()
-		{
-			LogUtil.debug("**** MessageReceiver INITED");
+		public function MessageReceiver() {
 			drawFactory = new DrawObjectFactory();
 			BBB.initConnectionManager().addMessageListener(this);
 		}

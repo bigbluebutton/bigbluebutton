@@ -70,8 +70,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return null;
 		}
 		
-		public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint,
-										fill:Boolean, fillColor:uint, transparency:Boolean):DrawObject {
+		public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, transparency:Boolean):DrawObject {
 			var normSegment:Array = new Array();
 			for (var i:int = 0; i < segment.length; i += 2) {
 				normSegment[i] = normalize(segment[i] , _parentWidth);

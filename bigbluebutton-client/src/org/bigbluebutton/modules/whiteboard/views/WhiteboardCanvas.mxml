@@ -21,14 +21,11 @@
 -->
 
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:mate="http://mate.asfusion.com/"	 
-    creationComplete="init()" visible="false"
-	mouseOver="setCursor(toolType)" mouseOut="removeCursor()" doubleClickEnabled="true" implements="org.bigbluebutton.common.IBbbCanvas">
+    creationComplete="init()" visible="false" mouseOver="setCursor(toolType)" mouseOut="removeCursor()" doubleClickEnabled="true" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[		
-            import com.asfusion.mate.events.Dispatcher;
-            
-            import mx.managers.CursorManager;
-            
+            import com.asfusion.mate.events.Dispatcher;           
+            import mx.managers.CursorManager;          
             import org.bigbluebutton.common.IBbbCanvas;
             import org.bigbluebutton.common.Images;
             import org.bigbluebutton.common.LogUtil;
@@ -180,9 +177,7 @@
 				else this.visible = false;
 			}
 			
-			/* added this functionality in WhiteboardToolbar.mxml
-			   instead to allow a variety of cursors */
-			
+			/* added this functionality in WhiteboardToolbar.mxml instead to allow a variety of cursors */			
 			public function setCursorPencil():void{
 				CursorManager.setCursor(pencil_icon);
 			}
@@ -266,8 +261,7 @@
 				setWhiteboardVisibility();
 			}
 			
-			/** End IBBBCanvas*/
-			
+			/** End IBBBCanvas*/		
 			public function isPageEmpty():Boolean {
 				return model.isPageEmpty();
 			}
