@@ -3,27 +3,26 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.display.DisplayObject;
 	import flash.display.Shape;
 	import flash.display.Sprite;
+	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TextEvent;
+	import flash.geom.Point;
 	import flash.text.TextField;
+	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
-	import flash.ui.Keyboard;	
+	import flash.ui.Keyboard;
+	
 	import mx.collections.ArrayCollection;
 	import mx.controls.TextInput;
 	import mx.core.Application;
 	import mx.core.UIComponent;
-	import mx.managers.CursorManager;	
-	import flash.events.FocusEvent;
-	import flash.events.KeyboardEvent;
-	import flash.events.TextEvent;
-	import flash.geom.Point;
-	import flash.text.TextFieldAutoSize;
-	import flash.ui.Keyboard;	
-	import mx.collections.ArrayCollection;
+	import mx.managers.CursorManager;
+	
 	import org.bigbluebutton.common.IBbbCanvas;
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawGrid;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
@@ -44,7 +43,7 @@ package org.bigbluebutton.modules.whiteboard
 	
 	public class WhiteboardCanvasModel {
 		public var wbCanvas:WhiteboardCanvas;
-		public var isPresenter:Boolean;		
+//		public var isPresenter:Boolean;		
 		
 		private var isDrawing:Boolean; 
 		private var sending:Boolean = false;
@@ -314,7 +313,7 @@ package org.bigbluebutton.modules.whiteboard
 				case TextObject.TEXT_UPDATED:
 				case TextObject.TEXT_PUBLISHED:
 					if(isPresenter) {
-						if(recvdShapes) addPresenterText(o);
+						if (recvdShapes) addPresenterText(o);
 					} else {
 						if(graphicList.length == 0 || recvdShapes) {
 							addNormalText(o);
@@ -492,10 +491,7 @@ package org.bigbluebutton.modules.whiteboard
 			var gobj:GraphicObject = graphicList.pop();
 			if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
 				(gobj as TextObject).makeEditable(false);
-				(gobj as TextObject).deregisterListeners(textObjGainedFocusListener,
-					textObjLostFocusListener,
-					textObjTextListener,
-					textObjSpecialListener);
+				(gobj as TextObject).deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			}	
 			wbCanvas.removeGraphic(gobj as DisplayObject);
 		}
@@ -553,8 +549,7 @@ package org.bigbluebutton.modules.whiteboard
 			}
 			
 			if(isPresenter) {
-				var evt:GraphicObjectFocusEvent = 
-					new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
+				var evt:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
 				evt.data = null;
 				wbCanvas.dispatchEvent(evt);
 			}
@@ -584,15 +579,12 @@ package org.bigbluebutton.modules.whiteboard
 			isGrid = !isGrid;
 			LogUtil.debug("Final gridToggle received " + isGrid + " " + wbCanvas.width + "," + wbCanvas.height);
 			addOrRemoveGrid(isGrid, wbCanvas.width, wbCanvas.height);
-			var gridChangedEvent:WhiteboardSettingResetEvent = 
-				new WhiteboardSettingResetEvent(WhiteboardSettingResetEvent.GRID_CHANGED);
+			var gridChangedEvent:WhiteboardSettingResetEvent = new WhiteboardSettingResetEvent(WhiteboardSettingResetEvent.GRID_CHANGED);
 			gridChangedEvent.value = isGrid;
 			wbCanvas.dispatchEvent(gridChangedEvent);
 		}
 		
-		/* adds or removes the grid based on the the different parameters passed.
-			Also used to redraw the grid when canvas is zoomed/moved
-		*/
+		/* adds or removes the grid based on the the different parameters passed. Also used to redraw the grid when canvas is zoomed/moved */
 		private function addOrRemoveGrid(grid:Boolean, width:Number = 0, height:Number = 0):void {	
 			if(width == 0) width = wbCanvas.width;
 			if(height == 0) height = wbCanvas.height;
@@ -611,12 +603,11 @@ package org.bigbluebutton.modules.whiteboard
 		   currently on the page editable, so that they can edit it.
 		*/
 		public function makeTextObjectsEditable(e:MadePresenterEvent):void {
-			isPresenter = true;
+//			isPresenter = true;
 			var texts:Array = getAllTexts();
 			for(var i:int = 0; i < texts.length; i++) {
 				(texts[i] as TextObject).makeEditable(true);
-				(texts[i] as TextObject).registerListeners(textObjGainedFocusListener,
-					textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
+				(texts[i] as TextObject).registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			}
 		}
 		
@@ -626,7 +617,7 @@ package org.bigbluebutton.modules.whiteboard
 		*/
 		public function makeTextObjectsUneditable(e:MadePresenterEvent):void {
 			LogUtil.debug("MADE PRESENTER IS PRESENTER FALSE");
-			isPresenter = false;
+//			isPresenter = false;
 			var texts:Array = getAllTexts();
 			for(var i:int = 0; i < texts.length; i++) {
 				(texts[i] as TextObject).makeEditable(false);
@@ -654,8 +645,7 @@ package org.bigbluebutton.modules.whiteboard
 					return;
 				}
 				sendTextToServer(sendStatus, tobj);	
-			} 	
-			
+			} 				
 		}
 		
 		public function textObjTextListener(event:TextEvent):void {
@@ -864,6 +854,8 @@ package org.bigbluebutton.modules.whiteboard
 			wbCanvas.stage.focus = _currentText;
 		}
 
-
+        private function get isPresenter():Boolean {
+            return UserManager.getInstance().getConference().amIPresenter();
+        }
 	}
 }

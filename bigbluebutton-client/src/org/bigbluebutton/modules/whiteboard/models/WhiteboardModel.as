@@ -22,11 +22,10 @@ package org.bigbluebutton.modules.whiteboard.models
 		
 		public function addAnnotation(annotation:GraphicObject):void {
 			_currentPresentation.addAnnotation(annotation);
-//			_dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.NEW_SHAPE));
             LogUtil.debug("*** Adding annotation ****");
             var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
             event.data = annotation;
-            event.recvdShapes = true;
+            event.recvdShapes = false;
             _dispatcher.dispatchEvent(event);
             LogUtil.debug("*** Dispatched WhiteboardUpdate.BOARD_UPDATED Event ****");
 		}
