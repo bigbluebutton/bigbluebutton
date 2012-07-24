@@ -34,14 +34,15 @@ package org.bigbluebutton.modules.present.managers
 		private var _slideHandler:Function;
 		private var _slideNum:Number;
 		private var _thumbUri:String;
-		
+		private var _txtUri:String;
 
 				
-		public function Slide(slideNum:Number, slideUri:String, thumbUri:String)
+		public function Slide(slideNum:Number, slideUri:String, thumbUri:String,txtUri:String)
 		{
 			_slideNum = slideNum;
 			_slideUri = slideUri;
 			_thumbUri = thumbUri;
+			_txtUri = txtUri;
 			_loader = new URLLoader();
 			_loader.addEventListener(Event.COMPLETE, handleComplete);	
 			_loader.dataFormat = URLLoaderDataFormat.BINARY;		

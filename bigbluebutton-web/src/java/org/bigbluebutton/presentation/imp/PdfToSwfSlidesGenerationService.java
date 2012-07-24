@@ -39,6 +39,7 @@ import org.bigbluebutton.presentation.ConversionMessageConstants;
 import org.bigbluebutton.presentation.ConversionUpdateMessage;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.PdfToSwfSlide;
+import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.bigbluebutton.presentation.ConversionUpdateMessage.MessageBuilder;
@@ -53,6 +54,7 @@ public class PdfToSwfSlidesGenerationService {
 	private PageConverter pdfToSwfConverter;
 	private PdfPageToImageConversionService imageConvertService;
 	private ThumbnailCreator thumbnailCreator;
+	private TextFileCreator textFileCreator;
 	private long MAX_CONVERSION_TIME = 5*60*1000;
 	private String BLANK_SLIDE;
 		
@@ -62,6 +64,8 @@ public class PdfToSwfSlidesGenerationService {
 		log.debug("Determined number of pages " + pres.getNumberOfPages());
 		if (pres.getNumberOfPages() > 0) {
 			convertPdfToSwf(pres);
+			/* adding accessibility */
+			createTextFiles(pres);
 			createThumbnails(pres);
 			notifier.sendConversionCompletedMessage(pres);
 		}		
@@ -94,6 +98,12 @@ public class PdfToSwfSlidesGenerationService {
 		log.debug("Creating thumbnails.");
 		notifier.sendCreatingThumbnailsUpdateMessage(pres);
 		thumbnailCreator.createThumbnails(pres);
+	}
+	
+	private void createTextFiles(UploadedPresentation pres) {
+		log.debug("Creating textfiles for accessibility.");
+		notifier.sendCreatingTextFilesUpdateMessage(pres);
+		textFileCreator.createTextFiles(pres);
 	}
 	
 	private void convertPdfToSwf(UploadedPresentation pres) {
@@ -188,6 +198,9 @@ public class PdfToSwfSlidesGenerationService {
 	
 	public void setThumbnailCreator(ThumbnailCreator thumbnailCreator) {
 		this.thumbnailCreator = thumbnailCreator;
+	}
+	public void setTextFileCreator(TextFileCreator textFileCreator) {
+		this.textFileCreator = textFileCreator;
 	}
 	
 	public void setMaxConversionTime(int minutes) {
