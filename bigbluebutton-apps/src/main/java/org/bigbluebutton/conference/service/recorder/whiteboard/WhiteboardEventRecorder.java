@@ -8,6 +8,7 @@ import org.bigbluebutton.conference.service.whiteboard.IWhiteboardRoomListener;
 import org.bigbluebutton.conference.service.whiteboard.Presentation;
 import org.bigbluebutton.conference.service.whiteboard.ShapeGraphic;
 import org.bigbluebutton.conference.service.whiteboard.TextGraphic;
+import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
 
 public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 	private static Logger log = Red5LoggerFactory.getLogger( WhiteboardEventRecorder.class, "bigbluebutton" );
@@ -27,13 +28,13 @@ public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 
 
 	@Override
-	public void addAnnotation(Map<String, Object> annotation, Presentation presentation) {
+	public void addAnnotation(Annotation annotation, Presentation presentation) {
 		AddShapeWhiteboardRecordEvent event = new AddShapeWhiteboardRecordEvent();
 		event.setMeetingId(session);
 		event.setTimestamp(System.currentTimeMillis());
 		event.setPresentation(presentation.getName());
 		event.setPageNumber(presentation.getActivePage().getPageIndex());
-		event.addAnnotation(annotation);
+		event.addAnnotation(annotation.getAnnotation());
 		
 //		event.setDataPoints(shape.getShape());
 //		event.setType(shape.getType());
@@ -45,17 +46,17 @@ public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 	}
 	
 	@Override
-	public void addText(TextGraphic text, Presentation presentation) {
+	public void addText(Annotation text, Presentation presentation) {
 		AddTextWhiteboardRecordEvent event = new AddTextWhiteboardRecordEvent();
 		event.setMeetingId(session);
 		event.setTimestamp(System.currentTimeMillis());
 		event.setPresentation(presentation.getName());
 		event.setPageNumber(presentation.getActivePage().getPageIndex());
-		event.setText(text.getText());
-		event.setTextColor(text.getTextColor());
-		event.setBGColor(text.getBgColor());
-		event.setBGColorVisible(text.getBgColorVisible());
-		event.setDataPoints(text.getLocation());
+//		event.setText(text.getText());
+//		event.setTextColor(text.getTextColor());
+//		event.setBGColor(text.getBgColor());
+//		event.setBGColorVisible(text.getBgColorVisible());
+//		event.setDataPoints(text.getLocation());
 		recorder.record(session, event);	
 	}
 	
@@ -95,18 +96,18 @@ public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 	}
 
 	@Override
-	public void modifyText(TextGraphic text, Presentation presentation) {
+	public void modifyText(Annotation text, Presentation presentation) {
 		ModifyTextWhiteboardRecordEvent event = new ModifyTextWhiteboardRecordEvent();
 		event.setMeetingId(session);
 		event.setTimestamp(System.currentTimeMillis());
 		event.setPresentation(presentation.getName());
 		event.setPageNumber(presentation.getActivePage().getPageIndex());
-		event.setText(text.getText());
-		event.setTextColor(text.getTextColor());
-		event.setBGColor(text.getBgColor());
-		event.setBGColorVisible(text.getBgColorVisible());
-		event.setDataPoints(text.getLocation());
-		event.setModifyingID(text.getID());
+//		event.setText(text.getText());
+//		event.setTextColor(text.getTextColor());
+//		event.setBGColor(text.getBgColor());
+//		event.setBGColorVisible(text.getBgColorVisible());
+//		event.setDataPoints(text.getLocation());
+//		event.setModifyingID(text.getID());
 		recorder.record(session, event);	
 	}
 
@@ -116,10 +117,10 @@ public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 		
 	}
 
-	@Override
-	public void addShape(ShapeGraphic shape, Presentation presentation) {
+//	@Override
+//	public void addShape(ShapeGraphic shape, Presentation presentation) {
 		// TODO Auto-generated method stub
-		
-	}
+//		
+//	}
 
 }

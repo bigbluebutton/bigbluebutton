@@ -14,5 +14,19 @@ public class Annotation {
 		return annotation;
 	}
 	
+	public String getID() {
+		return (String) annotation.get("id");
+	}
 	
+	public void setID(String id) {
+		annotation.put("id", id);
+	}
+	
+	public String getType() {
+		return (String) annotation.get("type");
+	}
+	
+	public String getStatus() {
+		return (String) annotation.get("status");
+	}
 }

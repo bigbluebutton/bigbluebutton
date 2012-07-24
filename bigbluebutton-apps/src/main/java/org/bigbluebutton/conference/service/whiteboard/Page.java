@@ -22,31 +22,28 @@
 package org.bigbluebutton.conference.service.whiteboard;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bigbluebutton.conference.service.whiteboard.WBGraphic.Type;
+import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
 
 public class Page {
-	private ArrayList<Map<String, Object>> annotations;	
-	private HashMap<String, WBGraphic> graphicObjs;
+	private ArrayList<Annotation> annotations;	
 	private int pageIndex;
 	private boolean isGrid = false;
 	
 	public Page(int pageIndex){
-		annotations = new ArrayList<Map<String, Object>>();
-		this.graphicObjs = new HashMap<String, WBGraphic>();
+		annotations = new ArrayList<Annotation>();
 		this.setPageIndex(pageIndex);
 	}
 		
-	public void addAnnotation(Map<String, Object> annotation) {
+	public void addAnnotation(Annotation annotation) {
 		annotations.add(annotation);
 	}
 	
-	public List<Map<String, Object>> getAnnotations() {
-		List<Map<String, Object>> a = new ArrayList<Map<String, Object>>();
-		for (Map<String, Object> v : annotations) {
+	public List<Annotation> getAnnotations() {
+		List<Annotation> a = new ArrayList<Annotation>();
+		for (Annotation v : annotations) {
 			a.add(v);
 		}
 		
@@ -54,14 +51,7 @@ public class Page {
 	}
 	
 	public void deleteAnnotation(String id) {
-		int foundIndex = -1;
-		for (int i=0; i < annotations.size(); i++) {
-			Map<String, Object> annotation = annotations.get(i);
-			if (annotation.get("id").equals(id)) {
-				foundIndex = i;
-				break;
-			}
-		}
+		int foundIndex = findAnnotation(id);
 		if (foundIndex >= 0) annotations.remove(foundIndex);
 	}
 	
@@ -78,69 +68,28 @@ public class Page {
 	public int getNumShapesOnPage() {
 		return annotations.size();
 	}
-	
-	public void addShapeGraphic(ShapeGraphic shape){
-		graphicObjs.put(shape.ID, shape);
-		System.out.println("Total shape count: " + graphicObjs.size());
-	}
-	
-	public void addTextGraphic(TextGraphic text){
-		graphicObjs.put(text.ID, text);
-	}
-	
-	public void modifyShapeGraphic(String key, ShapeGraphic shape){
-		if(graphicObjs.containsKey(shape))
-			graphicObjs.put(key, shape);
-		else System.out.println("ERROR: MODIFYING NON-EXISTENT KEY");
-	}
-	
-	public void modifyTextGraphic(String key, TextGraphic text){
-		if(graphicObjs.containsKey(key))
-			graphicObjs.put(key, text);
-		else System.out.println("ERROR: MODIFYING NON-EXISTENT KEY");
-	}
-	
-	public List<Object[]> getHistory(){
-		List<Object[]> graphics = new ArrayList<Object[]>();
-		for (WBGraphic g: graphicObjs.values()){
-			graphics.add(g.toObjectArray());
+		
+	public void modifyText(String id, String text){
+		int foundIndex = findAnnotation(id);
+		if (foundIndex >= 0) {
+			Annotation a = annotations.get(foundIndex);
+			Map<String, Object> m = a.getAnnotation();
+			m.put("text", text);
 		}
-		Object[] isGridArray = new Object[1];
-		isGridArray[0] = isGrid;
-		graphics.add(isGridArray);
-		System.out.println("There are currently " + graphicObjs.size() + " graphical objects on the current page");
-		return graphics;
 	}
-	
-	public List<Object[]> getWBShapes(){
-		List<Object[]> shapes = new ArrayList<Object[]>();
-		for (WBGraphic g: graphicObjs.values()){
-			if(g.graphicType == Type.SHAPE)
-				shapes.add(g.toObjectArray());
+
+	private int findAnnotation(String id) {
+		int foundIndex = -1;
+		for (int i=0; i < annotations.size(); i++) {
+			Annotation annotation = annotations.get(i);
+			if (annotation.getID().equals(id)) {
+				foundIndex = i;
+				break;
+			}
 		}
-		return shapes;
+		return foundIndex;
+		
 	}
-	
-	public List<Object[]> getWBTexts(){
-		List<Object[]> texts = new ArrayList<Object[]>();
-		for (WBGraphic g: graphicObjs.values()){
-			if(g.graphicType == Type.TEXT)
-				texts.add(g.toObjectArray());
-		}
-		return texts;
-	}
-	
-	public Map<String, WBGraphic> getWBGraphicMap(){
-		return graphicObjs;
-	}
-	
-//	public void clear(){
-//		graphicObjs.clear();
-//	}
-	
-//	public void undo(){
-//		graphicObjs.remove(Integer.toString(graphicObjs.size()-1));
-//	}
 	
 	public void toggleGrid() {
 		System.out.println("Toggling grid mode on page " + pageIndex);
@@ -151,10 +100,6 @@ public class Page {
 		return isGrid;
 	}
 	
-	public int getNumGraphicsOnPage(){
-		return this.graphicObjs.size();
-	}
-
 	public void setPageIndex(int pageIndex) {
 		this.pageIndex = pageIndex;
 	}

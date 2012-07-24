@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
+
 public class WhiteboardRoom {
 	private ArrayList<Presentation> presentations;
 	private final String id;
@@ -57,71 +59,57 @@ public class WhiteboardRoom {
 		presentations.add(activePresentation);
 	}
 	
-	public Presentation getPresentation(String name){
+	public Presentation getPresentation(String name) {
 		if (name.equals(activePresentation.getName())) return activePresentation;
 		
-		for (int i=0; i<presentations.size(); i++){
+		for (int  i= 0; i < presentations.size(); i++){
 			Presentation pres = presentations.get(i);
 			if (pres.getName().equals(name)) activePresentation = pres;
 		}
 		return activePresentation;
 	}
 	
-	public Presentation getActivePresentation(){
+	public Presentation getActivePresentation() {
 		return activePresentation;
 	}
 	
-	public void setActivePresentation(String name){
+	public void setActivePresentation(String name) {
 		this.activePresentation = getPresentation(name);
 	}
 	
-	public boolean presentationExists(String name){
+	public boolean presentationExists(String name) {
 		boolean exists = false;
-		for (int i=0; i<presentations.size(); i++){
+		for (int i=0; i<presentations.size(); i++) {
 			if (presentations.get(i).getName().equals(name)) exists = true;
 		}
 		return exists;
 	}
 		
-	public void addAnnotation(Map<String, Object> annotation){
+	public void addAnnotation(Annotation annotation) {
 		activePresentation.getActivePage().addAnnotation(annotation);
 		notifyAddShape(activePresentation, annotation);
 	}
 	
-	public List<Map<String, Object>> getAnnotations(){
+	public List<Annotation> getAnnotations() {
 		return activePresentation.getActivePage().getAnnotations();
 	}
 	
-	public void addShape(ShapeGraphic shape){
-		activePresentation.getActivePage().addShapeGraphic(shape);
-	//	notifyAddShape(activePresentation, shape);
+	public void modifyText(Annotation annotation) {
+		activePresentation.getActivePage().modifyText(annotation.getID(), (String)annotation.getAnnotation().get("text"));
+		notifyModifyText(activePresentation, annotation);
 	}
-	
-	public void addText(TextGraphic text){
-		activePresentation.getActivePage().addTextGraphic(text);
-		notifyAddText(activePresentation, text);
-	}
-	
-	public void modifyText(String key, TextGraphic text){
-		activePresentation.getActivePage().modifyTextGraphic(key, text);
-		notifyModifyText(activePresentation, text);
-	}
-	
-	public List<Object[]> getHistory(){
-		return activePresentation.getActivePage().getHistory();
-	}
-	
-	public void clear(){
+		
+	public void clear() {
 		activePresentation.getActivePage().clear();
 		notifyClearPage(activePresentation);
 	}
 	
-	public void undo(){
+	public void undo() {
 		activePresentation.getActivePage().undo();
 		notifyUndoWBGraphic(activePresentation);
 	}
 	
-	public void toggleGrid(){
+	public void toggleGrid() {
 		activePresentation.getActivePage().toggleGrid();
 		notifyToggleGrid(activePresentation.getActivePage().isGrid(), activePresentation);
 	}
@@ -144,7 +132,7 @@ public class WhiteboardRoom {
 		listeners.remove(listener);		
 	}
 	
-	public void notifyAddShape(Presentation presentation, Map<String, Object> annotation){
+	public void notifyAddShape(Presentation presentation, Annotation annotation){
 		for (Iterator<IWhiteboardRoomListener> iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
 			listener.addAnnotation(annotation, presentation);
@@ -156,14 +144,14 @@ public class WhiteboardRoom {
 		}
 }
 
-	public void notifyAddText(Presentation presentation, TextGraphic text){
+	public void notifyAddText(Presentation presentation, Annotation text){
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
 			listener.addText(text, presentation);
 		}
 	}
 	
-	public void notifyModifyText(Presentation presentation, TextGraphic text){
+	public void notifyModifyText(Presentation presentation, Annotation text){
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
 			listener.modifyText(text, presentation);
@@ -191,9 +179,9 @@ public class WhiteboardRoom {
 		}
 	}
 	
-	public Map<String, WBGraphic> getWBGraphicMap(){
-		return activePresentation.getActivePage().getWBGraphicMap();
-	}
+//	public Map<String, WBGraphic> getWBGraphicMap(){
+//		return activePresentation.getActivePage().getWBGraphicMap();
+//	}
 	
 	public int getUniqueWBGraphicIdentifier() {
 		return uidGen.generateUID();

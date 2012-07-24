@@ -24,6 +24,8 @@ package org.bigbluebutton.conference.service.whiteboard;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.slf4j.Logger;
@@ -53,7 +55,9 @@ public class WhiteboardService {
 //		    }
 //		}
 		
-		application.sendAnnotation(annotation);
+		Annotation a = new Annotation(annotation);
+		
+		application.sendAnnotation(a);
 	}
 	
 	private String pointsToString(ArrayList<Double> points){
@@ -79,32 +83,32 @@ public class WhiteboardService {
 		application.sendAnnotationHistory(Red5.getConnectionLocal().getClient().getId());
 	}
 		
-	public void clear(){
+	public void clear() {
 		log.info("WhiteboardApplication - Clearing board");
 		application.clear();
 	}
 	
-	public void undo(){
+	public void undo() {
 		log.info("WhiteboardApplication - Deleting last graphic");
 		application.undo();
 	}
 	
-	public void toggleGrid(){
+	public void toggleGrid() {
 		log.info("WhiteboardApplication - Toggling grid mode");
 		application.toggleGrid();
 	}
 	
-	public void setActivePresentation(Map<String, Object> message){		
+	public void setActivePresentation(Map<String, Object> message) {		
 		log.info("WhiteboardApplication - Setting active presentation: " + (String)message.get("presentationID"));
 		application.setActivePresentation((String)message.get("presentationID"), (Integer) message.get("numberOfSlides"));
 	}
 	
-	public void enableWhiteboard(Map<String, Object> message){
+	public void enableWhiteboard(Map<String, Object> message) {
 		log.info("WhiteboardApplication - Setting whiteboard enabled: " + (Boolean)message.get("enabled"));
 		application.enableWhiteboard((Boolean)message.get("enabled"));
 	}
 	
-	public void isWhiteboardEnabled(){
+	public void isWhiteboardEnabled() {
 		application.isWhiteboardEnabled(Red5.getConnectionLocal().getClient().getId());
 	}
 	

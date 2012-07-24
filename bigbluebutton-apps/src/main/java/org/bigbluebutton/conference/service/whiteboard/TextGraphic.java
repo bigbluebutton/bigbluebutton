@@ -36,8 +36,7 @@ public class TextGraphic extends WBGraphic {
 		super(WBGraphic.Type.TEXT);
 	}
 
-	public TextGraphic(String text, int textColor, int bgColor,
-			boolean bgColorVisible, int x, int y, int textSize, String id, String status) {
+	public TextGraphic(String text, int textColor, int bgColor, boolean bgColorVisible, int x, int y, int textSize, String id, String status) {
 		super(WBGraphic.Type.TEXT);
 		this.text = text;
 		this.textColor = textColor;

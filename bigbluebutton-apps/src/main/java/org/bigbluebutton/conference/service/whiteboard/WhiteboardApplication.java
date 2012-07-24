@@ -21,10 +21,8 @@
 */
 package org.bigbluebutton.conference.service.whiteboard;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.bigbluebutton.conference.BigBlueButtonSession;
@@ -41,6 +39,7 @@ import org.red5.server.api.Red5;
 import org.slf4j.Logger;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.conference.service.recorder.whiteboard.WhiteboardEventRecorder;
+import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
 
 public class WhiteboardApplication extends MultiThreadedApplicationAdapter implements IApplication {	
 	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardApplication.class, "bigbluebutton");
@@ -98,18 +97,33 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 
 	public void sendAnnotationHistory(String userid) {
 		Map<String, Object> message = new HashMap<String, Object>();		
-		List<Map<String, Object>> annotations = roomManager.getRoom(getMeetingId()).getAnnotations();
+		List<Annotation> annotations = roomManager.getRoom(getMeetingId()).getAnnotations();
 		message.put("count", new Integer(annotations.size()));
-		message.put("annotations", annotations);
+		
+		/** extract annotation into a Map */
+		List<Map<String, Object>> a = new ArrayList<Map<String, Object>>();
+		for (Annotation v : annotations) {
+			a.add(v.getAnnotation());
+		}
+		
+		message.put("annotations", a);
 		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userid, "WhiteboardRequestAnnotationHistoryReply", message);
 		connInvokerService.sendMessage(m);
 	}
 	
-	public void sendAnnotation(Map<String, Object> annotation) {	
-		Map<String, Object> message = new HashMap<String, Object>();		
-		roomManager.getRoom(getMeetingId()).addAnnotation(annotation);
-		message.put("annotation", annotation);
-		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "WhiteboardNewAnnotationCommand", annotation);
+	public void sendAnnotation(Annotation annotation) {	
+		String status = annotation.getStatus();
+		
+		if("textCreated".equals(status) || "DRAW_END".equals(status)) {
+			annotation.setID(Integer.toString(roomManager.getRoom(getMeetingId()).getUniqueWBGraphicIdentifier()));
+			roomManager.getRoom(getMeetingId()).addAnnotation(annotation);
+		} else {
+			if ("text".equals(annotation.getType())) {
+				roomManager.getRoom(getMeetingId()).modifyText(annotation);				
+			}
+		}
+			
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "WhiteboardNewAnnotationCommand", annotation.getAnnotation());
 		connInvokerService.sendMessage(m);
 	}
 	
@@ -129,71 +143,9 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 
 		Map<String, Object> message = new HashMap<String, Object>();		
 		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "WhiteboardClearCommand", message);
-		connInvokerService.sendMessage(m);
-		
+		connInvokerService.sendMessage(m);		
 	}
-	
-	public void sendShape(double[] shape, String type, int color, int thickness, boolean fill, int fillColor, boolean transparency, String id, String status){
-		ShapeGraphic newShape = new ShapeGraphic(shape, type, color, thickness, fill, fillColor, transparency, id, status);	
-		
-		 /*
-		    maintains unique-ness. ensures that only
-		 	one entry per shape is added. exception is DrawObject.PENCIL, 
-		    because it is a collection of "points".
-		 */
-		
-//		if(status.equals("DRAW_END")) {
-//			newShape.ID = Integer.toString(roomManager.getRoom(getLocalScope().getName()).getUniqueWBGraphicIdentifier());
-//			roomManager.getRoom(getLocalScope().getName()).addShape(newShape);
-//		}
-	
-//		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
-//		List<Object> arguments = newShape.toList();
-//		drawSO.sendMessage("addSegment", arguments);
-	}
-	
-	public void sendText(String text, int textColor, int bgColor, boolean bgColorVisible, int x, int y, int textSize, String id, String status){
-		TextGraphic newText = new TextGraphic(text, textColor, bgColor, bgColorVisible, x, y, textSize, id, status);	
-		
-		/*  
-		 	maintains unique-ness. ensures that only
-	 		one entry per text is added. all other calls must involve the modification of text,
-	 		and so they are handled appropriately
-	 	*/
-		if(status.equals("textCreated")) {
-			newText.ID = Integer.toString(roomManager.getRoom(getMeetingId()).getUniqueWBGraphicIdentifier());
-//			roomManager.getRoom(getLocalScope().getName()).addText(newText);
-		} else {
-////			roomManager.getRoom(getLocalScope().getName()).modifyText(newText.ID, newText);
-		}
-//		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
-		List<Object> arguments = newText.toList();
-//		drawSO.sendMessage("addText", arguments);
-	}
-	
-	public int getNumGraphicsOnPage(int pageNum){
-		Presentation pres = roomManager.getRoom(getMeetingId()).getActivePresentation();
-		pres.setActivePage(pageNum);
-		return pres.getActivePage().getNumGraphicsOnPage();
-	}
-	
-//	public List<Object[]> getHistory(){
-//		List<Object[]> graphicsList = roomManager.getRoom(getMeetingId()).getHistory();
-//		for(Object[] o: graphicsList) {
-//			System.out.println();
-//			for(int i = 0; i < o.length; i++) {
-//				System.out.print(" " + i);
-//			}
-//		}
-//		return graphicsList;
-//	}
-	
-//	public void clear(){
-//		roomManager.getRoom(getLocalScope().getName()).clear();
-//		ISharedObject drawSO = getSharedObject(getLocalScope(), WHITEBOARD_SHARED_OBJECT);
-//		drawSO.sendMessage("clear", new ArrayList<Object>());
-//	}
-	
+			
 	public void undo() {
 		roomManager.getRoom(getMeetingId()).undo();
 

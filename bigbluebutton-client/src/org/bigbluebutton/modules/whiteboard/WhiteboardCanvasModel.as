@@ -248,8 +248,7 @@ package org.bigbluebutton.modules.whiteboard
 				if (isDrawing){
 					segment.push(mouseX);
 					segment.push(mouseY);
-					// added different "send" rates for normal shapes and the eraser
-					// in case one is preferable to the other
+					// added different "send" rates for normal shapes and the eraser in case one is preferable to the other
 					if(toolType == DrawObject.ERASER) {
 						if (segment.length > sendEraserFrequency) {
 							sendShapeToServer(drawStatus);
@@ -284,10 +283,8 @@ package org.bigbluebutton.modules.whiteboard
 					break;
 				case DrawObject.DRAW_UPDATE:
 				case DrawObject.DRAW_END:
-					if (graphicList.length == 0 || 
-						o.getType() == DrawObject.PENCIL ||
-						o.getType() == DrawObject.ERASER ||
-						recvdShapes) {
+					if (graphicList.length == 0 || o.getType() == DrawObject.PENCIL ||
+						o.getType() == DrawObject.ERASER || recvdShapes) {
 						addNewShape(o);
 					} else {
 						removeLastGraphic();		
@@ -305,14 +302,14 @@ package org.bigbluebutton.modules.whiteboard
 			}
 			switch (o.status) {
 				case TextObject.TEXT_CREATED:
-					if(isPresenter)
+					if (isPresenter)
 						addPresenterText(o);
 					else
 						addNormalText(o);														
 					break;
 				case TextObject.TEXT_UPDATED:
 				case TextObject.TEXT_PUBLISHED:
-					if(isPresenter) {
+					if (isPresenter) {
 						if (recvdShapes) addPresenterText(o);
 					} else {
 						if(graphicList.length == 0 || recvdShapes) {
@@ -364,7 +361,7 @@ package org.bigbluebutton.modules.whiteboard
 		   should not be able to edit/modify the TextObject 
 		*/
 		private function addNormalText(o:TextObject):void {
-			if(isPresenter) return;
+			if (isPresenter) return;
 			var tobj:TextObject = calibrateNewTextWith(o);
 			//LogUtil.debug("TEXT ADDED: " + tobj.getGraphicID());
 			tobj.multiline = true;
@@ -375,9 +372,7 @@ package org.bigbluebutton.modules.whiteboard
 			graphicList.push(tobj);
 		}
 		
-		/* method to modify a TextObject that is already present on the whiteboard,
-			as opposed to adding a new TextObject to the whiteboard
-		*/
+		/* method to modify a TextObject that is already present on the whiteboard, as opposed to adding a new TextObject to the whiteboard */
 		private function modifyText(o:TextObject):void {
 			var tobj:TextObject = calibrateNewTextWith(o);
 			var id:String = tobj.getGraphicID();
