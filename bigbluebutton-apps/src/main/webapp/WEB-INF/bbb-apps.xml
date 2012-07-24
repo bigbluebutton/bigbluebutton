@@ -27,6 +27,23 @@
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 	</bean>
 	
+	
+	<!-- BEGIN LAYOUT -->	
+	<bean id="layoutRoomsManager" class="org.bigbluebutton.conference.service.layout.LayoutRoomsManager"/>
+	
+	<bean id="layoutHandler" class="org.bigbluebutton.conference.service.layout.LayoutHandler">
+	    <property name="layoutApplication"><ref local="layoutApplication"/></property>
+	</bean>
+
+	<bean id="layoutApplication" class="org.bigbluebutton.conference.service.layout.LayoutApplication">
+		<property name="roomsManager"><ref local="layoutRoomsManager"/></property>
+	</bean>
+	
+	<bean id="layout.service" class="org.bigbluebutton.conference.service.layout.LayoutService">
+	    <property name="layoutApplication"><ref local="layoutApplication"/></property>
+   	</bean>	
+	<!-- END LAYOUT -->	
+		
 	<!-- BEGIN PRESENTATION -->	
 	<bean id="presentationRoomsManager" class="org.bigbluebutton.conference.service.presentation.PresentationRoomsManager"/>
 			

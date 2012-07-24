@@ -31,11 +31,13 @@ package org.bigbluebutton.common.events
 	{
 		public static const ADD:String = "Add Toolbar Button Event";
 		public static const REMOVE:String = "Remove Toolbar Button Event";
-		
+		public static const TOP_TOOLBAR:String = "Top Toolbar";
+		public static const BOTTOM_TOOLBAR:String = "Bottom Toolbar";
 		/**
 		 * The ui component to add to the toolbar. 
 		 */		
 		public var button:IBbbToolbarComponent;
+		public var location:String = TOP_TOOLBAR;
 		
 		public function ToolbarButtonEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

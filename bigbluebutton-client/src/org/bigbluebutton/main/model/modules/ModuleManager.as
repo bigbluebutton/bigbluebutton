@@ -103,7 +103,7 @@ package org.bigbluebutton.main.model.modules
 			if (m != null) {
 				LogUtil.debug('Stopping ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
-				if(bbb == null) { //Still has null object refrence on logout sometimes.
+				if(bbb == null) { //Still has null object reference on logout sometimes.
 					LogUtil.debug('Module ' + name + ' was null skipping');
 					return;
 				}

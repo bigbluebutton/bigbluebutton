@@ -113,4 +113,17 @@ public class PresentationEventRecorder implements IPresentationRoomListener {
 		recorder.record(session, event);
 	}
 
+	@Override
+	public void sendCursorUpdate(Double xPercent, Double yPercent) {
+		log.debug("RECORD module:presentation event:CursorMoveEvent");
+
+		CursorUpdateRecordEvent event = new CursorUpdateRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());
+		event.setXPercent(xPercent.doubleValue());
+		event.setYPercent(yPercent.doubleValue());
+		
+		recorder.record(session, event);
+	}
+
 }
