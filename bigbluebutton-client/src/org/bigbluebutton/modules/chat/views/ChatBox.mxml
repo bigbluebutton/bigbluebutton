@@ -40,7 +40,6 @@
 			import org.bigbluebutton.modules.chat.model.ChatMessage;
 			import org.bigbluebutton.modules.chat.model.ChatObject;
 			import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
-			//import org.bigbluebutton.main.events.ShortcutEvent;
 			
 			public static const COPY_ALL_BUTTON:String = "Copy All Text";
 			
@@ -57,7 +56,12 @@
 			private var scrollTimer:Timer;			
 			private var scrollBarWorkaround:Boolean = false;
 			private var currentMessage:int;
-			private var chatHistorySpacer:int;
+			private var chatHistorySpacer:Boolean = false;
+			
+			private var reachedLatest:String = "You have reached the latest message. ";
+			private var reachedFirst:String = "You have reached the first message. ";
+			private var navLatestString:String = "You have navigated to the latest message. ";
+			private var navFirstString:String = "You have navigated to the first message. ";
 			
 			private function onCreationComplete():void {
 				addContextMenuItems();
@@ -72,12 +76,11 @@
 				scrollTimer.start();	
 				
 				// Initialize the indicator for the position in the message history, and add the listener for message history navigation
-				currentMessage = -1;
-				chatHistorySpacer = 0;
+				currentMessage = 0;
 				this.addEventListener(KeyboardEvent.KEY_DOWN, navigateMessages);		
 				// Initialize the chatMessagesList tooltip as the Welcome message
-				if (chatMessagesList.accessibilityDescription == null)
-					chatMessagesList.accessibilityDescription = messages[0].toString();
+				chatMessagesList.accessibilityProperties.description = messages[0].toString();
+				Accessibility.updateProperties();
 			}
 
 			public function showNewMessage(chatobj:ChatObject, translate:Boolean, language:String = null):void {	
@@ -220,60 +223,84 @@
 				return allText;
 			}
 			
+			// Determines for navigateMessages() whether the message to be spoken by the screen-reader needs an extra space added to the end or not
+			private function setDescription():void{
+				LogUtil.debug("Existing description: <" + chatMessagesList.accessibilityProperties.description + "/>");
+				LogUtil.debug("Incoming message: <" + messages[currentMessage].toString() + "/>");
+				if (chatMessagesList.accessibilityProperties.description == messages[currentMessage].toString()){
+					chatHistorySpacer = true;
+					return void;
+				}
+				chatMessagesList.accessibilityProperties.description = messages[currentMessage].toString();
+			}
+			
 			public function navigateMessages(e:KeyboardEvent) :void
 			{
-				var firstMessage:Boolean = false;
-				var latestMessage:Boolean = false;
+				var navToFirst:Boolean = false;
+				var navToLatest:Boolean = false;
 				
-				// Replace the constant adding of spaces with a conditional thing, comparing the new string to the old and only adding a space if necessary
+				// Changed accessibilityProperties.description to accessibilityProperties.description
+				
 				if (e.keyCode == 32) {
 					if (!e.ctrlKey && !e.altKey && !e.shiftKey){ // SPACE key: Advance one message
 						if (currentMessage < (messages.length-3)){
 							currentMessage++;
-							chatMessagesList.accessibilityDescription = messages[currentMessage].toString();
+							setDescription()
 						}
 						else{
-							latestMessage = true;
-							chatHistorySpacer++;
-							chatMessagesList.accessibilityDescription = "You have reached the latest message. " + messages[currentMessage].toString();
-							for (var i:int = 0; i <= chatHistorySpacer; i++)
-								chatMessagesList.accessibilityDescription += " ";
+							setDescription();
+							chatMessagesList.accessibilityProperties.description += " ";
 						}
 					}
 					else if (e.ctrlKey && !e.altKey && !e.shiftKey){ // CTRL-SPACE: Go back one message
 						if (currentMessage > 0){
 							currentMessage--;
-							chatMessagesList.accessibilityDescription = messages[currentMessage].toString();
+							setDescription();
 						}
 						else{
-							firstMessage = true;
-							chatHistorySpacer++;
-							chatMessagesList.accessibilityDescription = "You have reached the first message. " + messages[currentMessage].toString();
-							for (var i:int = 0; i <= chatHistorySpacer; i++)
-								chatMessagesList.accessibilityDescription += " ";
+							setDescription();
+							chatMessagesList.accessibilityProperties.description += " ";
 						}
 					}
 					else if (e.ctrlKey && e.altKey && !e.shiftKey){ // CTRL-ALT-SPACE: Repeat current message
-						chatHistorySpacer++;
-						chatMessagesList.accessibilityDescription = messages[currentMessage].toString();
-						for (var i:int = 0; i <= chatHistorySpacer; i++)
-							chatMessagesList.accessibilityDescription += " "; 						
+						setDescription();
+						chatMessagesList.accessibilityProperties.description += " ";		
 					}
 					else if (!e.ctrlKey && !e.altKey && e.shiftKey){ // SHIFT-SPACE: Go to latest message
-						currentMessage = messages.length-4;
-						chatMessagesList.accessibilityDescription = "You have navigated to the latest message. " + messages[currentMessage].toString();
-						for (var i:int = 0; i <= chatHistorySpacer; i++)
-							chatMessagesList.accessibilityDescription += " ";
+						currentMessage = messages.length-3;
+						navToLatest = true;
+						setDescription();
 					}
 					else if (e.ctrlKey && !e.altKey && e.shiftKey){ // CTRL-SHIFT-SPACE: Go to first message
 						currentMessage = 0;
-						chatMessagesList.accessibilityDescription = "You have navigated to the first message. " + messages[currentMessage].toString();
-						for (var i:int = 0; i <= chatHistorySpacer; i++)
-							chatMessagesList.accessibilityDescription += " ";						
+						navToFirst = true;
+						setDescription();						
 					}
-					if (chatHistorySpacer == 1000)
-						chatHistorySpacer = 0; 
-					Accessibility.updateProperties();
+					
+					// Make it clear to the user that they have either navigated to or reached one end of the message history or the other.
+					if (currentMessage == 0){
+						if (navToFirst)
+							chatMessagesList.accessibilityProperties.description = navFirstString + chatMessagesList.accessibilityProperties.description;
+						else
+							chatMessagesList.accessibilityProperties.description = reachedFirst + chatMessagesList.accessibilityProperties.description;
+					}
+					else if (currentMessage == messages.length-3){
+						if (navToLatest)
+							chatMessagesList.accessibilityProperties.description = navLatestString + chatMessagesList.accessibilityProperties.description;
+						else{
+							chatMessagesList.accessibilityProperties.description = reachedLatest + chatMessagesList.accessibilityProperties.description;
+						}
+					}
+					
+					// Add a single space to the end of the accessibilityProperties.description if necessary to ensure that it reflects the current message after being updated.
+					if (chatHistorySpacer){
+						chatHistorySpacer = false;
+						chatMessagesList.accessibilityProperties.description += " ";
+						LogUtil.debug("Adding a space to force audio update");
+					}
+					
+					LogUtil.debug("Chat Module audio: " + chatMessagesList.accessibilityProperties.description);
+					Accessibility.updateProperties(); // Look at Accessibility class for more specific events
 				}
 			}
 			
