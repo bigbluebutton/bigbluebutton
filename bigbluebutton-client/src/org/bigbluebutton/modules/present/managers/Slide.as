@@ -35,6 +35,8 @@ package org.bigbluebutton.modules.present.managers
 		private var _slideNum:Number;
 		private var _thumbUri:String;
 		private var _txtUri:String;
+		private var _txtLoader:URLLoader;
+		private var _txtLoaded:Boolean = false;
 
 				
 		public function Slide(slideNum:Number, slideUri:String, thumbUri:String,txtUri:String)
@@ -45,22 +47,34 @@ package org.bigbluebutton.modules.present.managers
 			_txtUri = txtUri;
 			_loader = new URLLoader();
 			_loader.addEventListener(Event.COMPLETE, handleComplete);	
-			_loader.dataFormat = URLLoaderDataFormat.BINARY;		
+			_loader.dataFormat = URLLoaderDataFormat.BINARY;
+			
+			_txtLoader = new URLLoader();
+			_txtLoader.addEventListener(Event.COMPLETE, handleTextComplete);	
+			_txtLoader.dataFormat = URLLoaderDataFormat.TEXT;	
 		}
 
 		public function load(slideLoadedHandler:Function):void {
-			if (_loaded) {
-				slideLoadedHandler(_slideNum, _loader.data);
+			if (_loaded && _txtLoaded) {
+				slideLoadedHandler(_slideNum, _loader.data, _txtLoader.data);
 			} else {
 				_slideHandler = slideLoadedHandler;
 				_loader.load(new URLRequest(_slideUri));
+				_txtLoader.load(new URLRequest(_txtUri));
 			}
 		}
 		
 		private function handleComplete(e:Event):void{
 			_loaded = true;
-			if (_slideHandler != null) {
-				_slideHandler(_slideNum, _loader.data);
+			if (_slideHandler != null && _txtLoaded) {
+				_slideHandler(_slideNum, _loader.data, _txtLoader.data);
+			}		
+		}
+		
+		private function handleTextComplete(e:Event):void{
+			_txtLoaded = true;
+			if (_slideHandler != null && _loaded) {
+				_slideHandler(_slideNum, _loader.data, _txtLoader.data);
 			}		
 		}
 		

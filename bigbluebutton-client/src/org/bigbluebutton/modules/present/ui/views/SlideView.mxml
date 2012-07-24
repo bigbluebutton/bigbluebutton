@@ -309,6 +309,7 @@
 			 */						
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
 				slideLoader.source = e.slide;
+				slideLoader.toolTip = e.slideText;
 			}
 			
 			/**
