@@ -28,13 +28,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 */	
 	public class DrawObjectFactory
 	{
-		/**
-		 * The default constructor 
-		 * 
-		 */		
-		public function DrawObjectFactory()
-		{
-		}
 		
 		/**
 		 * Creates a DrawObject by calling the appropriate helper method 
@@ -47,8 +40,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return the DrawObject created from the parameters
 		 * 
 		 */		
-		public function makeDrawObject(type:String, shape:Array, color:uint, thickness:uint,
-										fill:Boolean, fillColor:uint, trans:Boolean):DrawObject{
+		public function makeDrawObject(type:String, shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawObject{
 			var d:DrawObject = null;
 			if (type == DrawObject.PENCIL){
 				d = makePencil(shape, color, thickness, trans);

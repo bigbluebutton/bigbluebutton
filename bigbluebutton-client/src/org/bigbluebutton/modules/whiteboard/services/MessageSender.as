@@ -130,8 +130,8 @@ package org.bigbluebutton.modules.whiteboard.services
 			annotation["fontColor"] = tobj.textColor;
 			annotation["backgroundColor"] = tobj.backgroundColor;
 			annotation["background"] = tobj.background;
-			annotation["x"] = tobj.x;
-			annotation["y"] = tobj.y;
+			annotation["x"] = tobj.getOrigX();
+			annotation["y"] = tobj.getOrigY();
 			annotation["fontSize"] = tobj.textSize;
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();

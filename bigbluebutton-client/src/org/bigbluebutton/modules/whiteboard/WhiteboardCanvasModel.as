@@ -238,7 +238,9 @@ package org.bigbluebutton.modules.whiteboard
 			/* creates a new TextObject and sends it to the server to notify all the clients about it */
 			if(graphicType == WhiteboardConstants.TYPE_TEXT) {
 				LogUtil.error("double click received at " + mouseX + "," + mouseY);
-				var tobj:TextObject = new TextObject("TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
+//				var tobj:TextObject = new TextObject("TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
+                var tobj:TextObject = textFactory.createTextObject("TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
+                LogUtil.error("double click received at [" + mouseX + "," + mouseY + "] norm=[" + tobj.getOrigX() + "," + tobj.getOrigY() + "]");
 				sendTextToServer(TextObject.TEXT_CREATED, tobj);
 			}
 		}

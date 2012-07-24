@@ -19,7 +19,8 @@
  */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import com.asfusion.mate.core.GlobalDispatcher;	
+	import com.asfusion.mate.core.GlobalDispatcher;
+	
 	import flash.display.DisplayObject;
 	import flash.display.Shape;
 	import flash.display.Stage;
@@ -31,7 +32,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	import flash.text.AntiAliasType;
 	import flash.text.TextField;
 	import flash.text.TextFieldType;
-	import flash.text.TextFormat;	
+	import flash.text.TextFormat;
+	
 	import flashx.textLayout.edit.SelectionManager;
 	
 	import flexlib.scheduling.scheduleClasses.utils.Selection;
@@ -69,7 +71,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         private var origY:Number;
         private var oldParentWidth:Number = 0;
         private var oldParentHeight:Number = 0;
-        public var fontStyle:String = "_sans";
+        public var fontStyle:String = "arial";
         
 		public function TextObject(text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean, x:Number, y:Number, textSize:Number) {
 			this.text = text;
@@ -81,6 +83,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.textSize = textSize;
 		}	
 		
+        public function getOrigX():Number {
+            return origX;
+        }
+        
+        public function getOrigY():Number {
+            return origY;
+        }
+        
 		public function getGraphicType():String {
 			return WhiteboardConstants.TYPE_TEXT;
 		}
@@ -129,7 +139,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
                 
             } else {
                 newFontSize = (parentHeight/oldParentHeight) * textSize;
-                // scale *= 1;
             }            
 			this.antiAliasType = AntiAliasType.ADVANCED;
             setTextFormat(new TextFormat(fontStyle, newFontSize, textColor));

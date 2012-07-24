@@ -71,8 +71,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * The default constructor for the DrawObject 
 		 * 
 		 */		
-		public function DrawObject(type:String, segment:Array, color:uint, thickness:uint,
-									fill:Boolean, fillColor:uint, trans:Boolean) {
+		public function DrawObject(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean) {
 			this.type = type;
 			this.shape = segment;
 			this.color = color;
