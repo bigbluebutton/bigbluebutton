@@ -22,9 +22,7 @@
 package org.bigbluebutton.conference.service.whiteboard;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-
 import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;

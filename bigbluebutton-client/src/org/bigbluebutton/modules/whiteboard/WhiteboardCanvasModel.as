@@ -199,7 +199,7 @@ package org.bigbluebutton.modules.whiteboard
 					textStatus = TextObject.TEXT_CREATED;
 					break;
 			}	
-			
+			LogUtil.debug("SENDING TEXT: [" + tobj.text + "]");
 			wbCanvas.sendGraphicToServer(tobj, WhiteboardDrawEvent.SEND_TEXT);			
 		}
         
@@ -297,7 +297,7 @@ package org.bigbluebutton.modules.whiteboard
 		// Draws a TextObject when/if it is received from the server
 		private function drawText(o:TextObject, recvdShapes:Boolean):void {		
 			if (recvdShapes) {
-				LogUtil.debug("Got text [" + o.text + " " + o.status + " " + o.getGraphicID() + "]");	
+				LogUtil.debug("RX: Got text [" + o.text + " " + o.status + " " + o.getGraphicID() + "]");	
 				LogUtil.debug(String(o.getProperties()));
 			}
 			switch (o.status) {
@@ -335,7 +335,7 @@ package org.bigbluebutton.modules.whiteboard
 			var tobj:TextObject = textFactory.makeTextObject(o);
 			tobj.setGraphicID(o.getGraphicID());
 			tobj.status = o.status;
-			tobj.applyTextFormat(tobj.textSize);
+//			tobj.applyTextFormat(tobj.textSize);
 			return tobj;
 		}
 			
@@ -849,6 +849,7 @@ package org.bigbluebutton.modules.whiteboard
 			wbCanvas.stage.focus = _currentText;
 		}
 
+        /** Helper method to test whether this user is the presenter */
         private function get isPresenter():Boolean {
             return UserManager.getInstance().getConference().amIPresenter();
         }

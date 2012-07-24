@@ -235,13 +235,7 @@ package org.bigbluebutton.modules.whiteboard.business
 			e.recvdShapes = recvdShapes;
 			dispatcher.dispatchEvent(e);
 		}
-		
-
-        
-
-		
-
-		
+				
 		/**
 		 * Triggers the undo shape event on all clients 
 		 * 
@@ -249,9 +243,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		public function undo():void{
 			dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.GRAPHIC_UNDONE));
 		}
-		
-
-		
+				
 		/**
 		 * Triggers the toggle grid event
 		 * 
@@ -260,9 +252,7 @@ package org.bigbluebutton.modules.whiteboard.business
 			LogUtil.debug("TOGGLE CALLBACK RECEIVED"); 
 			dispatcher.dispatchEvent(new ToggleGridEvent(ToggleGridEvent.GRID_TOGGLED));
 		}
-	
-
-		
+			
 		public function modifyEnabledCallback(enabled:Boolean):void{
 			var e:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_ENABLED);
 			e.boardEnabled = enabled;

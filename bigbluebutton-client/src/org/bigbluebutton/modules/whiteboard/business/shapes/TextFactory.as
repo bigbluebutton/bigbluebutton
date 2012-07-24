@@ -34,24 +34,17 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			_parentHeight = height;
 		}
 		
-		public function createTextObject(txt:String, txtColor:uint,
-										 bgColor:uint, bgColorVisible:Boolean,
-										 x:Number, y:Number, textSize:Number):TextObject {
-			
+		public function createTextObject(txt:String, txtColor:uint, bgColor:uint, bgColorVisible:Boolean, x:Number, y:Number, textSize:Number):TextObject {			
 			var newX:Number = normalize(x,_parentWidth);
 			var newY:Number = normalize(y,_parentHeight);
-			var tobj:TextObject = new TextObject(txt, txtColor, bgColor, bgColorVisible, 
-												newX, newY, textSize);
+			var tobj:TextObject = new TextObject(txt, txtColor, bgColor, bgColorVisible, newX, newY, textSize);
 			tobj.makeGraphic(_parentWidth,_parentHeight);
 			return tobj;
 		}
 		
-		/* convenience method for above method, takes a TextObject and returns one
-			with "normalized" coordinates
-		*/
+		/* convenience method for above method, takes a TextObject and returns one with "normalized" coordinates */
 		public function makeTextObject(t:TextObject):TextObject {
-			return createTextObject(t.text, t.textColor, t.backgroundColor, t.background,
-									t.x, t.y, t.textSize);
+			return createTextObject(t.text, t.textColor, t.backgroundColor, t.background, t.x, t.y, t.textSize);
 		}
 
 		public function getParentWidth():Number {

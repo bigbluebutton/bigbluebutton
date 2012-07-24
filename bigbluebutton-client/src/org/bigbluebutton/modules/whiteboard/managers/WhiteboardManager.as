@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 			globalDispatcher = new Dispatcher();
 		}
 		
-		public function handleStartModuleEvent():void{	
+		public function handleStartModuleEvent():void {	
 			if (highlighterCanvas != null) return;
             
 			highlighterCanvas = new WhiteboardCanvas();
@@ -82,11 +82,11 @@ package org.bigbluebutton.modules.whiteboard.managers
 			t.start();
 		}
 		
-		private function addHighlighterCanvas(e:TimerEvent):void{
+		private function addHighlighterCanvas(e:TimerEvent):void {
 			PresentationAPI.getInstance().addOverlayCanvas(highlighterCanvas);
 		}
 		
-		private function addHighlighterToolbar(e:TimerEvent):void{
+		private function addHighlighterToolbar(e:TimerEvent):void {
 //			if (UserManager.getInstance().getConference().amIPresenter()) {
 				whiteboardButton.setVisible(true);
 //			}
@@ -94,7 +94,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 			
 
-		public function positionToolbar(e:WhiteboardButtonEvent):void{
+		public function positionToolbar(e:WhiteboardButtonEvent):void {
 			// add text toolbar for allowing customization of text	
 			var addUIEvent:AddUIComponentToMainCanvas = new AddUIComponentToMainCanvas(AddUIComponentToMainCanvas.ADD_COMPONENT);
 			addUIEvent.component = highlighterToolbar;
@@ -108,32 +108,32 @@ package org.bigbluebutton.modules.whiteboard.managers
 			textToolbar.positionToolbar(e.window);
 		}
 
-		public function drawGraphic(event:WhiteboardUpdate):void{
+		public function drawGraphic(event:WhiteboardUpdate):void {
             LogUtil.debug("Received BOARD_UPDATED message");
 			model.drawGraphic(event);
 		}
 		
-		public function clearBoard(event:WhiteboardUpdate = null):void{
+		public function clearBoard(event:WhiteboardUpdate = null):void {
 			model.clearBoard();
 		}
 		
-		public function undoGraphic(event:WhiteboardUpdate):void{
+		public function undoGraphic(event:WhiteboardUpdate):void {
 			model.undoGraphic();
 		}
 		
-		public function toggleGrid(event:ToggleGridEvent = null):void{
+		public function toggleGrid(event:ToggleGridEvent = null):void {
 			model.toggleGrid();
 		}
 		
-		public function changePage(e:PageEvent):void{
+		public function changePage(e:PageEvent):void {
 			model.changePage(e);
 		}
 		
-		public function enableWhiteboard(e:WhiteboardButtonEvent):void{
+		public function enableWhiteboard(e:WhiteboardButtonEvent):void {
 			highlighterCanvas.enableWhiteboard(e);
 		}
 		
-		public function disableWhiteboard(e:WhiteboardButtonEvent):void{
+		public function disableWhiteboard(e:WhiteboardButtonEvent):void {
 			highlighterCanvas.disableWhiteboard(e);
 		}
 	}

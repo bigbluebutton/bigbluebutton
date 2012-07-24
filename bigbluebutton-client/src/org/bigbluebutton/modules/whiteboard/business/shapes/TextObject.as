@@ -65,13 +65,19 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		private var ID:String = WhiteboardConstants.ID_UNASSIGNED;
 		public var textSize:Number;
 		
+        private var origX:Number;
+        private var origY:Number;
+        private var oldParentWidth:Number = 0;
+        private var oldParentHeight:Number = 0;
+        public var fontStyle:String = "_sans";
+        
 		public function TextObject(text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean, x:Number, y:Number, textSize:Number) {
 			this.text = text;
 			this.textColor = textColor;
 			this.backgroundColor = bgColor;
 			this.background = bgColorVisible;
-			this.x = x;
-			this.y = y;
+            origX = x;
+            origY = y;
 			this.textSize = textSize;
 		}	
 		
@@ -105,12 +111,29 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
+/*            
 			var startX:Number = denormalize(this.x, parentWidth);
 			var startY:Number = denormalize(this.y, parentHeight);
 			this.x = startX;
 			this.y = startY;
+*/
+            this.x = denormalize(origX, parentWidth);
+            this.y = denormalize(origY, parentHeight);
+            
+            var newFontSize:Number = textSize;
+            
+            if (oldParentHeight == 0 && oldParentWidth == 0) {
+                newFontSize = textSize;
+                oldParentHeight = parentHeight;
+                oldParentWidth = parentWidth;
+                
+            } else {
+                newFontSize = (parentHeight/oldParentHeight) * textSize;
+                // scale *= 1;
+            }            
 			this.antiAliasType = AntiAliasType.ADVANCED;
-			
+            setTextFormat(new TextFormat(fontStyle, newFontSize, textColor));
+            
 			// ensure typing doesn't go off of whiteboard
 			this.width = 250;
 		}	

@@ -18,13 +18,10 @@
 */
 package org.bigbluebutton.modules.whiteboard.managers
 {	
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.TimerEvent;
-	import flash.utils.Timer;
-	
-	import mx.collections.ArrayCollection;
-	
+	import flash.utils.Timer;	
+	import mx.collections.ArrayCollection;	
 	import org.bigbluebutton.modules.present.events.NavigationEvent;
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
@@ -88,7 +85,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 		
 		public function loadPage(e:PageEvent):void {
-			if (pages.length ==0 ) return;
+			if (pages.length == 0) return;
 			if ((pages.getItemAt(e.pageNum) as Page).length == 0) return;
 			
 			var timer:Timer = new Timer(300, 1);
