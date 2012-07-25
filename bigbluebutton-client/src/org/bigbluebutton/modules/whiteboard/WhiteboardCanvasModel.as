@@ -129,9 +129,7 @@ package org.bigbluebutton.modules.whiteboard
 				}
 			}
 		}
-		
-		private var objCount:int = 0;
-		
+				
 		private function sendShapeToServer(status:String):void {
 			if (segment.length == 0) return;
 			
@@ -181,19 +179,7 @@ package org.bigbluebutton.modules.whiteboard
 			LogUtil.debug("SENDING TEXT: [" + tobj.text + "]");
 			wbCanvas.sendGraphicToServer(tobj, WhiteboardDrawEvent.SEND_TEXT);			
 		}
-        
-        private var tfe:TextFieldExample;
-        
-        private function addTextFieldExample():void {
-            tfe = new TextFieldExample();
-            tfe.width = 200;
-            tfe.height = 100;
-            tfe.x = 30;
-            tfe.y = 50;
-
-            wbCanvas.addRawChild(tfe);
-        }
-		
+        		
 		public function doMouseDown(mouseX:Number, mouseY:Number):void{
 			if(graphicType == WhiteboardConstants.TYPE_SHAPE) {
 				isDrawing = true;
@@ -202,14 +188,19 @@ package org.bigbluebutton.modules.whiteboard
 
 				segment.push(mouseX);
 				segment.push(mouseY);
-			}
+			} 	else if(graphicType == WhiteboardConstants.TYPE_TEXT) {
+                LogUtil.error("double click received at " + mouseX + "," + mouseY);
+                //				var tobj:TextObject = new TextObject("TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
+                var tobj:TextObject = textFactory.createTextObject("TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
+                LogUtil.error("double click received at [" + mouseX + "," + mouseY + "] norm=[" + tobj.getOrigX() + "," + tobj.getOrigY() + "]");
+                sendTextToServer(TextObject.TEXT_CREATED, tobj);
+            }
 		}
 		
 		public function doMouseDoubleClick(mouseX:Number, mouseY:Number):void {
 			/* creates a new TextObject and sends it to the server to notify all the clients about it */
 			if(graphicType == WhiteboardConstants.TYPE_TEXT) {
 				LogUtil.error("double click received at " + mouseX + "," + mouseY);
-//				var tobj:TextObject = new TextObject("TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
                 var tobj:TextObject = textFactory.createTextObject("TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
                 LogUtil.error("double click received at [" + mouseX + "," + mouseY + "] norm=[" + tobj.getOrigX() + "," + tobj.getOrigY() + "]");
 				sendTextToServer(TextObject.TEXT_CREATED, tobj);
@@ -323,12 +314,8 @@ package org.bigbluebutton.modules.whiteboard
 			tobj.wordWrap = true;
 			tobj.autoSize = TextFieldAutoSize.LEFT;
 			tobj.makeEditable(true);
-            tobj.border = true;
-            tobj.borderColor = 0xff0000;
             LogUtil.debug("Putting text object [" + tobj.getGraphicID() + "] in [" + tobj.x + "," + tobj.y + "]");
-//            tobj.x = 100;
-//            tobj.y = 400;
-//			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
+			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			wbCanvas.addGraphic(tobj);
 			wbCanvas.stage.focus = tobj;
 			graphicList.push(tobj);
@@ -370,7 +357,7 @@ package org.bigbluebutton.modules.whiteboard
 			currentlySelectedTextObject.background = bgColorVisible;
 			currentlySelectedTextObject.backgroundColor = backgroundColor;
 			currentlySelectedTextObject.textSize = textSize;
-			currentlySelectedTextObject.applyTextFormat(currentlySelectedTextObject.textSize);
+//			currentlySelectedTextObject.applyTextFormat(currentlySelectedTextObject.textSize);
 			sendTextToServer(TextObject.TEXT_PUBLISHED, currentlySelectedTextObject);
 		}
 		
@@ -592,7 +579,14 @@ package org.bigbluebutton.modules.whiteboard
 				wbCanvas.addGraphic(dobj);
 				graphicList[objIndex] = dobj;
 			} else if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
-				// haven't thought of rescaling of the text, will do later
+                var origTobj:TextObject = gobj as TextObject;
+                wbCanvas.removeGraphic(origTobj);
+//                origTobj.graphics.clear();
+                var tobj:TextObject =  textFactory.makeTextObject(origTobj);
+                tobj.setGraphicID(origTobj.getGraphicID());
+                tobj.status = origTobj.status;
+                wbCanvas.addGraphic(tobj);
+                graphicList[objIndex] = tobj;
 			}
 		}
 		

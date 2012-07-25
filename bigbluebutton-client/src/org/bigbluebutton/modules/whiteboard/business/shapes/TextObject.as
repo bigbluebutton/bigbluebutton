@@ -113,7 +113,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return (val*100.0)/side;
 		}
 		
-		public function applyTextFormat(size:Number):void {
+		private function applyTextFormat(size:Number):void {
 			this.textSize = size;
 			var tf:TextFormat = new TextFormat();
 			tf.size = size;
@@ -123,12 +123,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
-/*            
-			var startX:Number = denormalize(this.x, parentWidth);
-			var startY:Number = denormalize(this.y, parentHeight);
-			this.x = startX;
-			this.y = startY;
-*/
             this.x = denormalize(origX, parentWidth);
             this.y = denormalize(origY, parentHeight);
             
@@ -137,13 +131,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             if (oldParentHeight == 0 && oldParentWidth == 0) {
                 newFontSize = textSize;
                 oldParentHeight = parentHeight;
-                oldParentWidth = parentWidth;
-                
+                oldParentWidth = parentWidth;               
             } else {
                 newFontSize = (parentHeight/oldParentHeight) * textSize;
             }            
 			this.antiAliasType = AntiAliasType.ADVANCED;
-            setTextFormat(new TextFormat(fontStyle, newFontSize, textColor));
+            applyTextFormat(newFontSize);
+//            setTextFormat(new TextFormat(fontStyle, newFontSize, textColor));
             
 			// ensure typing doesn't go off of whiteboard
 			this.width = 250;
