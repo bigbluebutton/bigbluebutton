@@ -24,12 +24,15 @@
     creationComplete="init()" visible="false" mouseOver="setCursor(toolType)" mouseOut="removeCursor()" doubleClickEnabled="true" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[		
-            import com.asfusion.mate.events.Dispatcher;           
-            import mx.managers.CursorManager;          
+            import com.asfusion.mate.events.Dispatcher;
+            
+            import mx.managers.CursorManager;
+            
             import org.bigbluebutton.common.IBbbCanvas;
             import org.bigbluebutton.common.Images;
             import org.bigbluebutton.common.LogUtil;
             import org.bigbluebutton.main.events.MadePresenterEvent;
+            import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
             import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
             import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
             import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
@@ -41,6 +44,8 @@
             import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
 			
 			public var model:WhiteboardCanvasModel;	
+            public var displayModel:WhiteboardCanvasDisplayModel;
+            
 			public var textToolbar:WhiteboardTextToolbar;		
 			private var bbbCanvas:IBbbCanvas;
 			private var _xPosition:int;
@@ -96,7 +101,7 @@
 			
 			public function sendShapeToServer(dobj:DrawObject):void {
 				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
-				event.message = dobj;
+//				event.annotation = dobj;
                 var dispatcher:Dispatcher = new Dispatcher();
                 dispatcher.dispatchEvent(event);					
 			}
@@ -114,7 +119,7 @@
 			public function sendGraphicToServer(gobj:GraphicObject, type:String):void{
                 LogUtil.debug("DISPATCHING SEND sendGraphicToServer [" + type + "]");
 				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(type);
-				event.message = gobj;
+//				event.annotation = gobj;
                 var dispatcher:Dispatcher = new Dispatcher();
                 dispatcher.dispatchEvent(event);					
 			}
@@ -161,15 +166,15 @@
 			}
 			
 			public function modifySelectedTextObject(fgColor:uint, bgColorVisible:Boolean, backgroundColor:uint, textSize:Number):void {
-				model.modifySelectedTextObject(fgColor, bgColorVisible, backgroundColor, textSize);
+//				displayModel.modifySelectedTextObject(fgColor, bgColorVisible, backgroundColor, textSize);
 			}
 			
 			public function makeTextObjectsEditable(e:MadePresenterEvent):void {
-				model.makeTextObjectsEditable(e);
+//				model.makeTextObjectsEditable(e);
 			}
 			
 			public function makeTextObjectsUneditable(e:MadePresenterEvent):void {
-				model.makeTextObjectsUneditable(e);
+//				model.makeTextObjectsUneditable(e);
 			}
 			
 			private function setWhiteboardVisibility():void{
@@ -252,7 +257,7 @@
 			public function zoomCanvas(width:Number, height:Number):void {
 				this.width = width;
 				this.height = height;	
-				model.zoomCanvas(width, height);
+				displayModel.zoomCanvas(width, height);
 				textToolbar.adjustForZoom(width, height);
 			}
 					
@@ -263,7 +268,7 @@
 			
 			/** End IBBBCanvas*/		
 			public function isPageEmpty():Boolean {
-				return model.isPageEmpty();
+				return displayModel.isPageEmpty();
 			}
 			
 			public function enableWhiteboard(e:WhiteboardButtonEvent):void{

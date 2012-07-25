@@ -39,6 +39,9 @@ package org.bigbluebutton.modules.whiteboard
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	
+    /**
+    * Class responsible for handling actions from presenter and sending annotations to the server.
+    */
 	public class WhiteboardCanvasModel {
 		public var wbCanvas:WhiteboardCanvas;	
 		private var isDrawing:Boolean; 
@@ -46,8 +49,7 @@ package org.bigbluebutton.modules.whiteboard
 		private var feedback:Shape = new Shape();
 		private var latentFeedbacks:Array = new Array();
 		private var segment:Array = new Array();
-		private var graphicList:Array = new Array();
-		
+
 		private var shapeFactory:ShapeFactory = new ShapeFactory();
 		private var textFactory:TextFactory = new TextFactory();
 		private var bbbCanvas:IBbbCanvas;
@@ -67,13 +69,6 @@ package org.bigbluebutton.modules.whiteboard
 		private var fillOn:Boolean = false;
 		private var transparencyOn:Boolean = false;
 		
-		/* a hack to fix the problem of shapes being cleared on viewers' side when page is changed. need to find a better way around later. */
-		private var clearOnce:Boolean = true;
-		
-		/* represents the currently selected TextObject, if any. 'selected' in this context means it is currently being edited, or is the most recent
-			TextObject to be edited by the presenter
-		*/
-		private var currentlySelectedTextObject:TextObject;
 		
 		/* represents the max number of 'points' enumerated in 'segment' before sending an update to server. Used to prevent 
 		   spamming red5 with unnecessary packets
@@ -196,17 +191,7 @@ package org.bigbluebutton.modules.whiteboard
                 sendTextToServer(TextObject.TEXT_CREATED, tobj);
             }
 		}
-		
-		public function doMouseDoubleClick(mouseX:Number, mouseY:Number):void {
-			/* creates a new TextObject and sends it to the server to notify all the clients about it */
-			if(graphicType == WhiteboardConstants.TYPE_TEXT) {
-				LogUtil.error("double click received at " + mouseX + "," + mouseY);
-                var tobj:TextObject = textFactory.createTextObject("TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
-                LogUtil.error("double click received at [" + mouseX + "," + mouseY + "] norm=[" + tobj.getOrigX() + "," + tobj.getOrigY() + "]");
-				sendTextToServer(TextObject.TEXT_CREATED, tobj);
-			}
-		}
-		
+				
 		public function doMouseMove(mouseX:Number, mouseY:Number):void{
 			if(graphicType == WhiteboardConstants.TYPE_SHAPE) {
 				if (isDrawing){
@@ -225,142 +210,7 @@ package org.bigbluebutton.modules.whiteboard
 				}
 			}
 		}
-		
-		public function drawGraphic(event:WhiteboardUpdate):void{
-			var o:GraphicObject = event.data;
-			var recvdShapes:Boolean = event.recvdShapes;
-            LogUtil.debug("**** Drawing graphic [" + o.getGraphicType() + "] *****");
-			if(o.getGraphicType() == WhiteboardConstants.TYPE_SHAPE) {
-				var dobj:DrawObject = o as DrawObject;
-				drawShape(dobj, recvdShapes);					
-			} else if(o.getGraphicType() == WhiteboardConstants.TYPE_TEXT) { 
-				var tobj:TextObject = o as TextObject;
-				drawText(tobj, recvdShapes);	
-			}
-		}
-		
-		// Draws a DrawObject when/if it is received from the server
-		private function drawShape(o:DrawObject, recvdShapes:Boolean):void {			
-			switch (o.status) {
-				case DrawObject.DRAW_START:
-					addNewShape(o);														
-					break;
-				case DrawObject.DRAW_UPDATE:
-				case DrawObject.DRAW_END:
-					if (graphicList.length == 0 || o.getType() == DrawObject.PENCIL ||
-						o.getType() == DrawObject.ERASER || recvdShapes) {
-						addNewShape(o);
-					} else {
-						removeLastGraphic();		
-						addNewShape(o);
-					}					
-					break;
-			}        
-		}
-		
-		// Draws a TextObject when/if it is received from the server
-		private function drawText(o:TextObject, recvdShapes:Boolean):void {		
-			if (recvdShapes) {
-				LogUtil.debug("RX: Got text [" + o.text + " " + o.status + " " + o.getGraphicID() + "]");	
-				LogUtil.debug(String(o.getProperties()));
-			}
-			switch (o.status) {
-				case TextObject.TEXT_CREATED:
-					if (isPresenter)
-						addPresenterText(o);
-					else
-						addNormalText(o);														
-					break;
-				case TextObject.TEXT_UPDATED:
-				case TextObject.TEXT_PUBLISHED:
-					if (isPresenter) {
-						if (recvdShapes) addPresenterText(o);
-					} else {
-						if(graphicList.length == 0 || recvdShapes) {
-							addNormalText(o);
-						} else modifyText(o);
-					} 	
-					break;
-			}        
-		}
-		
-		private function addNewShape(o:DrawObject):void {
-			LogUtil.debug("Adding new shape");
-            if (o.getType() == DrawObject.TEXT) return;
-
-			//LogUtil.debug("Adding new shape ");
-
-			var dobj:DrawObject = shapeFactory.makeShape(o);
-			wbCanvas.addGraphic(dobj);
-			graphicList.push(dobj);
-		}
-		
-		private function calibrateNewTextWith(o:TextObject):TextObject {
-			var tobj:TextObject = textFactory.makeTextObject(o);
-			tobj.setGraphicID(o.getGraphicID());
-			tobj.status = o.status;
-//			tobj.applyTextFormat(tobj.textSize);
-			return tobj;
-		}
-			
-		/* adds a new TextObject that is suited for a presenter. For example, it will
-		   be made editable and the appropriate listeners will be registered so that
-		   the required events will be dispatched 
-		*/
-		private function addPresenterText(o:TextObject):void {
-			if(!isPresenter) return;
-			var tobj:TextObject = calibrateNewTextWith(o);
-			tobj.multiline = true;
-			tobj.wordWrap = true;
-			tobj.autoSize = TextFieldAutoSize.LEFT;
-			tobj.makeEditable(true);
-            LogUtil.debug("Putting text object [" + tobj.getGraphicID() + "] in [" + tobj.x + "," + tobj.y + "]");
-			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
-			wbCanvas.addGraphic(tobj);
-			wbCanvas.stage.focus = tobj;
-			graphicList.push(tobj);
-		}
-		
-		/* adds a new TextObject that is suited for a viewer. For example, it will not
-		   be made editable and no listeners need to be attached because the viewers
-		   should not be able to edit/modify the TextObject 
-		*/
-		private function addNormalText(o:TextObject):void {
-			if (isPresenter) return;
-			var tobj:TextObject = calibrateNewTextWith(o);
-			//LogUtil.debug("TEXT ADDED: " + tobj.getGraphicID());
-			tobj.multiline = true;
-			tobj.wordWrap = true;
-			tobj.autoSize = TextFieldAutoSize.LEFT;
-			tobj.makeEditable(false);
-			wbCanvas.addGraphic(tobj);
-			graphicList.push(tobj);
-		}
-		
-		/* method to modify a TextObject that is already present on the whiteboard, as opposed to adding a new TextObject to the whiteboard */
-		private function modifyText(o:TextObject):void {
-			var tobj:TextObject = calibrateNewTextWith(o);
-			var id:String = tobj.getGraphicID();
-			removeText(id);
-			LogUtil.debug("Text modified to " + tobj.text);
-			addNormalText(tobj);
-		}
-		
-		/* invoked by the WhiteboardManager that is invoked by the TextToolbar, that 
-		   specifies the currently selected TextObject to change its attributes. For example,
-		   when a 'text color' ColorPicker is changed in the TextToolbar, the invocation
-		   eventually reaches this method that causes the currently selected TextObject
-		   to be re-sent to the red5 server with the modified attributes.
-		*/
-		public function modifySelectedTextObject(textColor:uint, bgColorVisible:Boolean, backgroundColor:uint, textSize:Number):void {
-			currentlySelectedTextObject.textColor = textColor;
-			currentlySelectedTextObject.background = bgColorVisible;
-			currentlySelectedTextObject.backgroundColor = backgroundColor;
-			currentlySelectedTextObject.textSize = textSize;
-//			currentlySelectedTextObject.applyTextFormat(currentlySelectedTextObject.textSize);
-			sendTextToServer(TextObject.TEXT_PUBLISHED, currentlySelectedTextObject);
-		}
-		
+				
 		public function setGraphicType(type:String):void{
 			this.graphicType = type;
 		}
@@ -378,222 +228,6 @@ package org.bigbluebutton.modules.whiteboard
 			this.thickness = thickness;
 		}
 
-		/* the following three methods are used to remove any GraphicObjects (and its subclasses) if the id of the object to remove is specified. The latter
-			two are convenience methods, the main one is the first of the three.
-		*/
-		private function removeGraphic(id:String):void {
-			var gobjData:Array = getGobjInfoWithID(id);
-			var removeIndex:int = gobjData[0];
-			var gobjToRemove:GraphicObject = gobjData[1] as GraphicObject;
-			wbCanvas.removeGraphic(gobjToRemove as DisplayObject);
-			graphicList.splice(removeIndex, 1);
-		}	
-	
-		private function removeShape(id:String):void {
-			var dobjData:Array = getGobjInfoWithID(id);
-			var removeIndex:int = dobjData[0];
-			var dobjToRemove:DrawObject = dobjData[1] as DrawObject;
-			wbCanvas.removeGraphic(dobjToRemove);
-			graphicList.splice(removeIndex, 1);
-		}
-	
-		private function removeText(id:String):void {
-			var tobjData:Array = getGobjInfoWithID(id);
-			var removeIndex:int = tobjData[0];
-			var tobjToRemove:TextObject = tobjData[1] as TextObject;
-			wbCanvas.removeGraphic(tobjToRemove);
-			graphicList.splice(removeIndex, 1);
-		}	
-		
-		/* returns an array of the GraphicObject that has the specified id,
-		 and the index of that GraphicObject (if it exists, of course) 
-		*/
-		private function getGobjInfoWithID(id:String):Array {	
-			var data:Array = new Array();
-			for(var i:int = 0; i < graphicList.length; i++) {
-				var currObj:GraphicObject = graphicList[i] as GraphicObject;
-				if(currObj.getGraphicID() == id) {
-					data.push(i);
-					data.push(currObj);
-					return data;
-				}
-			}
-			return null;
-		}
-
-		private function removeLastGraphic():void {
-			var gobj:GraphicObject = graphicList.pop();
-			if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
-				(gobj as TextObject).makeEditable(false);
-				(gobj as TextObject).deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
-			}	
-			wbCanvas.removeGraphic(gobj as DisplayObject);
-		}
-
-		// returns all DrawObjects in graphicList
-		private function getAllShapes():Array {
-			var shapes:Array = new Array();
-			for(var i:int = 0; i < graphicList.length; i++) {
-				var currGobj:GraphicObject = graphicList[i];
-				if(currGobj.getGraphicType() == WhiteboardConstants.TYPE_SHAPE) {
-					shapes.push(currGobj as DrawObject);
-				}
-			}
-			return shapes;
-		}
-		
-		// returns all TextObjects in graphicList
-		private function getAllTexts():Array {
-			var texts:Array = new Array();
-			for(var i:int = 0; i < graphicList.length; i++) {
-				var currGobj:GraphicObject = graphicList[i];
-				if(currGobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
-					texts.push(currGobj as TextObject)
-				}
-			}
-			return texts;
-		}
-		
-		public function clearBoard(event:WhiteboardUpdate = null):void {
-			var numGraphics:int = this.graphicList.length;
-			for (var i:Number = 0; i < numGraphics; i++){
-				removeLastGraphic();
-			}
-		}
-		
-		public function undoGraphic():void{
-			if (this.graphicList.length > 0) {
-				removeLastGraphic();
-			}
-		}
-
-		public function changePage(e:PageEvent):void{
-			var page:Number = e.pageNum;
-			var graphicObjs:ArrayCollection = e.graphicObjs;
-			this.isGrid = e.isGrid;
-			
-			LogUtil.debug("CHANGING PAGE");
-			clearBoard();
-			for (var i:int = 0; i < graphicObjs.length; i++){
-				var o:GraphicObject = graphicObjs.getItemAt(i) as GraphicObject;
-				if(o.getGraphicType() == WhiteboardConstants.TYPE_SHAPE)
-					drawShape(o as DrawObject, true);
-				else if(o.getGraphicType() == WhiteboardConstants.TYPE_TEXT) 
-					drawText(o as TextObject, true);	
-			}
-			
-			if(isPresenter) {
-				var evt:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
-				evt.data = null;
-				wbCanvas.dispatchEvent(evt);
-			}
-		}
-		
-		public function zoomCanvas(width:Number, height:Number):void{
-			shapeFactory.setParentDim(width, height);	
-			textFactory.setParentDim(width, height);
-			this.width = width;
-			this.height = height;
-
-			for (var i:int = 0; i < this.graphicList.length; i++){
-				redrawGraphic(this.graphicList[i] as GraphicObject, i);
-			}		
-		}
-				
-		/* called when a user is made presenter, automatically make all the textfields currently on the page editable, so that they can edit it. */
-		public function makeTextObjectsEditable(e:MadePresenterEvent):void {
-			var texts:Array = getAllTexts();
-			for(var i:int = 0; i < texts.length; i++) {
-				(texts[i] as TextObject).makeEditable(true);
-				(texts[i] as TextObject).registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
-			}
-		}
-		
-		/* when a user is made viewer, automatically make all the textfields currently on the page uneditable, so that they cannot edit it any
-		   further and so that only the presenter can edit it.
-		*/
-		public function makeTextObjectsUneditable(e:MadePresenterEvent):void {
-			LogUtil.debug("MADE PRESENTER IS PRESENTER FALSE");
-			var texts:Array = getAllTexts();
-			for(var i:int = 0; i < texts.length; i++) {
-				(texts[i] as TextObject).makeEditable(false);
-				(texts[i] as TextObject).deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
-			}
-		}
-
-		/* the following four methods  are listeners that handle events that occur on TextObjects, such as text being typed, which causes the textObjTextListener
-			to send text to the server. */
-		public function textObjSpecialListener(event:KeyboardEvent):void {
-			// check for special conditions
-			if(event.charCode == 127 || // 'delete' key
-				event.charCode == 8 || // 'bkspace' key
-				event.charCode == 13) { // 'enter' key
-				var sendStatus:String = TextObject.TEXT_UPDATED;
-				var tobj:TextObject = event.target as TextObject;	
-				
-				// if the enter key is pressed, remove focus from the TextObject so that it is sent to the server.
-				if(event.charCode == 13) {
-					wbCanvas.stage.focus = null;
-					tobj.stage.focus = null;
-					return;
-				}
-				sendTextToServer(sendStatus, tobj);	
-			} 				
-		}
-		
-		public function textObjTextListener(event:TextEvent):void {
-			var sendStatus:String = TextObject.TEXT_UPDATED;
-			var tf:TextObject = event.target as TextObject;	
-			LogUtil.debug("ID " + tf.getGraphicID() + " modified to " + tf.text);
-			sendTextToServer(sendStatus, tf);	
-		}
-		
-		public function textObjGainedFocusListener(event:FocusEvent):void {
-			var tf:TextObject = event.currentTarget as TextObject;
-			wbCanvas.stage.focus = tf;
-			tf.stage.focus = tf;
-			currentlySelectedTextObject = tf;
-			var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
-			e.data = tf;
-			wbCanvas.dispatchEvent(e);
-		}
-		
-		public function textObjLostFocusListener(event:FocusEvent):void {
-			var tf:TextObject = event.target as TextObject;	
-			sendTextToServer(TextObject.TEXT_PUBLISHED, tf);	
-			LogUtil.debug("Text published to: " +  tf.text);
-			var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
-			e.data = tf;
-			wbCanvas.dispatchEvent(e);
-			/* hide text toolbar because we don't want to show it if there is no text selected */
-		}
-		
-		private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {
-			if(gobj.getGraphicType() == WhiteboardConstants.TYPE_SHAPE) {
-				var origDobj:DrawObject = gobj as DrawObject;
-				wbCanvas.removeGraphic(origDobj);
-				origDobj.graphics.clear();
-				var dobj:DrawObject =  shapeFactory.makeShape(origDobj);
-				dobj.setGraphicID(origDobj.getGraphicID());
-				dobj.status = origDobj.status;
-				wbCanvas.addGraphic(dobj);
-				graphicList[objIndex] = dobj;
-			} else if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
-                var origTobj:TextObject = gobj as TextObject;
-                wbCanvas.removeGraphic(origTobj);
-//                origTobj.graphics.clear();
-                var tobj:TextObject =  textFactory.makeTextObject(origTobj);
-                tobj.setGraphicID(origTobj.getGraphicID());
-                tobj.status = origTobj.status;
-                wbCanvas.addGraphic(tobj);
-                graphicList[objIndex] = tobj;
-			}
-		}
-		
-		public function isPageEmpty():Boolean {
-			return graphicList.length == 0;
-		}
-		
         /** Helper method to test whether this user is the presenter */
         private function get isPresenter():Boolean {
             return UserManager.getInstance().getConference().amIPresenter();

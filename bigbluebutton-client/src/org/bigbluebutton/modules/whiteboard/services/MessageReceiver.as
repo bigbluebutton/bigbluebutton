@@ -6,6 +6,7 @@ package org.bigbluebutton.modules.whiteboard.services
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
 	public class MessageReceiver implements IMessageListener
@@ -82,38 +83,15 @@ package org.bigbluebutton.modules.whiteboard.services
 		
 		private function handleNewAnnotationCommand(message:Object):void {
 			LogUtil.debug("Handle new annotation[" + message.type + ", " + message.id + ", " + message.status + "]");
-			switch (message.type) {
-				case "text":
-					addText(message);
-					break;
-                default:
-                    addSegment(message);
-                    break;
-			}
+            if (message.type == undefined || message.type == null || message.type == "") return;
+            if (message.id == undefined || message.id == null || message.id == "") return;
+            if (message.status == undefined || message.status == null || message.status == "") return;
+            
+            var annotation:Annotation = new Annotation(message.id, message.type, message);
+            annotation.status = message.status;
+            whiteboardModel.addAnnotation(annotation);
 		}
-		
-		private function addText(message:Object):void {
-			LogUtil.debug("Rx add text **** with ID of " + message.id + " " + message.x + "," + message.y);
-			var t:TextObject = new TextObject(message.text, message.fontColor, message.backgroundColor, message.background, message.x, message.y, message.fontSize);	
-			t.setGraphicID(message.id);
-			t.status = message.status;
-            whiteboardModel.addAnnotation(t);
-		}
-		
-		/**
-		 * Adds a shape to the ValueObject, then triggers an update event
-		 * @param array The array representation of a shape
-		 * 
-		 */		
-		private function addSegment(message:Object):void {
-			LogUtil.debug("Rx add segment **** with ID of " + message.id + " " + message.type + " and " + message.color + " " + message.thickness + " " + message.fill + " " + message.transparency);
-			var d:DrawObject = drawFactory.makeDrawObject(message.type, message.points, message.color, message.thickness, message.fill, message.fillColor, message.transparency);
-			
-			d.setGraphicID(message.id);
-			d.status = message.status;
-            whiteboardModel.addAnnotation(d);
-		}
-		
+				
 		private function handleIsWhiteboardEnabledReply(message:Object):void {
 			//if (result as Boolean) modifyEnabledCallback(true);
 			LogUtil.debug("Whiteboard Enabled? " + message.enabled);

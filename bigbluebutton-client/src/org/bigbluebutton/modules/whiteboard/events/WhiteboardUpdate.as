@@ -19,9 +19,7 @@
 package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
-	
-	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	
 	public class WhiteboardUpdate extends Event
 	{
@@ -30,7 +28,7 @@ package org.bigbluebutton.modules.whiteboard.events
 		public static const BOARD_ENABLED:String = "boardEnabled";
 		public static const GRAPHIC_UNDONE:String = "graphicUndone";
 			
-		public var data:GraphicObject;
+		public var annotation:Annotation;
 		public var recvdShapes:Boolean;
 		public var boardEnabled:Boolean;
 		

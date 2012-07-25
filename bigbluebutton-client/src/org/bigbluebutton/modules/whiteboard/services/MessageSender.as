@@ -120,7 +120,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		 */		
 		public function sendText(e:WhiteboardDrawEvent):void{
 			LogUtil.debug("Sending [whiteboard.sendAnnotation] (TEXT) to server.");
-			var tobj:TextObject = e.message as TextObject;
+/*			var tobj:TextObject = e.message as TextObject;
 			
 			var annotation:Object = new Object();
 			annotation["type"] = "text";
@@ -144,7 +144,7 @@ package org.bigbluebutton.modules.whiteboard.services
 				},
 				annotation
 			);
-		}		
+*/		}		
 
 		/**
 		 * Sends a shape to the Shared Object on the red5 server, and then triggers an update across all clients
@@ -153,7 +153,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		 */		
 		public function sendShape(e:WhiteboardDrawEvent):void {
 			LogUtil.debug("Sending [whiteboard.sendAnnotation] (SHAPE) to server.");
-			var shape:DrawObject = e.message as DrawObject;
+/*			var shape:DrawObject = e.message as DrawObject;
 			
 			var annotation:Object = new Object();
 			annotation["type"] = shape.getType();
@@ -176,7 +176,7 @@ package org.bigbluebutton.modules.whiteboard.services
 					},
 					annotation
 			);
-		}
+*/		}
 		
 		public function checkIsWhiteboardOn():void {
 			LogUtil.debug("Sending [whiteboard.isWhiteboardEnabled] to server.");

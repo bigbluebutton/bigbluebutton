@@ -1,10 +1,7 @@
 package org.bigbluebutton.modules.whiteboard.models
 {	
-	import mx.collections.ArrayCollection;
-	
+	import mx.collections.ArrayCollection;	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-
 
 	public class Presentation
 	{
@@ -49,7 +46,7 @@ package org.bigbluebutton.modules.whiteboard.models
 
 		}
 		
-		public function addAnnotation(annotation:GraphicObject):void {
+		public function addAnnotation(annotation:Annotation):void {
 			_currentPage.addAnnotation(annotation);
 		}
 		

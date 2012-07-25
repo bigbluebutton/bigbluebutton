@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.whiteboard.events
 	
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	
 	public class WhiteboardDrawEvent extends Event
 	{
@@ -31,7 +32,7 @@ package org.bigbluebutton.modules.whiteboard.events
 		public static const UNDO:String = "WhiteboardUndoCommand";
 		public static const NEW_SHAPE:String = "NewShapeEvent";	
 		
-		public var message:GraphicObject;
+		public var annotation:Annotation;
 		       
 		public function WhiteboardDrawEvent(type:String, bubbles:Boolean = true, cancelable:Boolean = false)
 		{

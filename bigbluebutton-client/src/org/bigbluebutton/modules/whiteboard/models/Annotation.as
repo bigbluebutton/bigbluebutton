@@ -18,101 +18,30 @@
 */
 package org.bigbluebutton.modules.whiteboard.models
 {
-	import flash.display.Sprite;
+	public class Annotation {		
+		private var _id:String = "undefined";		
+		private var _status:String = AnnotationStatus.DRAW_START;
+        private var _type:String = "undefined";
+        
+		public function Annotation(id:String, type:String, annotation:Object) {
+            _id = id;
+			_type = type;
+		}
+					
+		public function get type():String{
+			return _type;
+		}
+        
+        public function get id():String {
+            return _id;
+        }
+        
+        public function get status():String {
+            return _status;
+        }
 
-	/**
-	 * The DrawObject class provides an interface for other geometric representations.
-	 * This is a simple implementation of the Template design pattern. Other classes extend the
-	 * DrawObject class and inherit it's methods.
-	 * <p>
-	 * The use of the Template pattern allows other classes to create and call methods on the DrawObject
-	 * without having to know anything about the different implementations of those method
-	 * @author dzgonjan
-	 * 
-	 */	
-	public class Annotation {       
-		protected var type:String;
-		protected var shape:Array;
-		protected var color:uint;
-		protected var thickness:uint;
-		
-		/**
-		 * Id we can use to match the feedback shape in the presenter's view so we can remove it.
-		 */
-		public var id:String = null;
-		
-		public var status:String = AnnotationStatus.DRAW_START;
-				
-		protected var _shape:Sprite = new Sprite();
-		protected var _segment:Array;
-		
-
-		public function Annotation(type:String, segment:Array, color:uint, thickness:uint) {
-			this.type = type;
-			this.shape = segment;
-			this.color = color;
-			this.thickness = thickness;
-			this.optimize();
-		}
-		
-		public function getShape():Sprite {
-			return _shape;
-		}
-		
-		/**
-		 * Returns the type of DrawObject this class is 
-		 * @return a string representing the type
-		 * 
-		 */		
-		public function getType():String{
-			return this.type;
-		}
-		
-		/**
-		 * Returns the array of integers holding the different points needed to build this particular DrawObject 
-		 * @return 
-		 * 
-		 */		
-		public function getShapeArray():Array{
-			return this.shape;
-		}
-		
-		/**
-		 * Returns the Color of the DrawObject
-		 * @return The color, represented as a uint 
-		 * 
-		 */		
-		public function getColor():uint{
-			return this.color;
-		}
-		
-		/**
-		 * Returns the thickness of the DrawObject 
-		 * @return The thickness, represented as a uint
-		 * 
-		 */		
-		public function getThickness():uint{
-			return this.thickness;
-		}
-		
-		protected function optimize():void{
-			// do nothing
-		}
-			
-		protected function readyToSend():Boolean {
-			return false;
-		}
-
-		public function makeShape(width:Number, height:Number):void {
-			
-		}
-		
-		protected function denormalize(val:Number, side:Number):Number {
-			return (val*side)/100.0;
-		}
-		
-		protected function normalize(val:Number, side:Number):Number {
-			return (val*100.0)/side;
-		}
+		public function set status(s:String):void {
+            _status = s;
+        }
 	}
 }

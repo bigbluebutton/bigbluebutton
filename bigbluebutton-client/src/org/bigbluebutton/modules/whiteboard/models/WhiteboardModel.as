@@ -2,10 +2,8 @@ package org.bigbluebutton.modules.whiteboard.models
 {
 	import flash.events.IEventDispatcher;
 	
-	import mx.collections.ArrayCollection;
-	
+	import mx.collections.ArrayCollection;	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 
@@ -20,11 +18,11 @@ package org.bigbluebutton.modules.whiteboard.models
             _dispatcher = dispatcher;
         }		
 		
-		public function addAnnotation(annotation:GraphicObject):void {
+		public function addAnnotation(annotation:Annotation):void {
 			_currentPresentation.addAnnotation(annotation);
             LogUtil.debug("*** Adding annotation ****");
             var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
-            event.data = annotation;
+            event.annotation = annotation;
             event.recvdShapes = false;
             _dispatcher.dispatchEvent(event);
             LogUtil.debug("*** Dispatched WhiteboardUpdate.BOARD_UPDATED Event ****");

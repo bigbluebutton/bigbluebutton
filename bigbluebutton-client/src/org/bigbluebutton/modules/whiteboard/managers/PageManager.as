@@ -42,11 +42,11 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 		
 		public function addShapeToPage(e:WhiteboardUpdate):void {
-			(pages.getItemAt(pageNum) as ArrayCollection).addItem(e.data);
+			(pages.getItemAt(pageNum) as ArrayCollection).addItem(e.annotation);
 		}
 		
 		public function addGraphicToPage(e:WhiteboardUpdate):void {
-			var gobjToAdd:GraphicObject = e.data as GraphicObject;
+/*			var gobjToAdd:GraphicObject = e.annotation as GraphicObject;
 			var currPage:Page = pages.getItemAt(pageNum) as Page;
 			if(gobjToAdd.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
 				if(checkIfModifiedText(currPage, gobjToAdd)) {
@@ -57,7 +57,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 				return;
 			}
 			currPage.addToPage(gobjToAdd);
-		}
+*/		}
 		
 		public function checkIfModifiedText(pageToCheck:Page, gobj:GraphicObject):Boolean {
 			if(pageToCheck.containsUniqueInPage(gobj.getGraphicID())) return true;

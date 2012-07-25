@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.modules.present.api.PresentationAPI;
 	import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
+	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
@@ -48,7 +49,8 @@ package org.bigbluebutton.modules.whiteboard.managers
 		private var textToolbar:WhiteboardTextToolbar;
 		private var whiteboardButton:WhiteboardButton;
 		private var model:WhiteboardCanvasModel = new WhiteboardCanvasModel();
-		
+		private var displayModel:WhiteboardCanvasDisplayModel = new WhiteboardCanvasDisplayModel();
+        
 		public function WhiteboardManager() {
 			globalDispatcher = new Dispatcher();
 		}
@@ -58,7 +60,10 @@ package org.bigbluebutton.modules.whiteboard.managers
             
 			highlighterCanvas = new WhiteboardCanvas();
 			highlighterCanvas.model = model;
+            highlighterCanvas.displayModel = displayModel;
+            
 		    model.wbCanvas = highlighterCanvas;
+            displayModel.wbCanvas = highlighterCanvas;
             
 			if (highlighterToolbar != null) return;
             
@@ -110,15 +115,15 @@ package org.bigbluebutton.modules.whiteboard.managers
 
 		public function drawGraphic(event:WhiteboardUpdate):void {
             LogUtil.debug("Received BOARD_UPDATED message");
-			model.drawGraphic(event);
+			displayModel.drawGraphic(event);
 		}
 		
 		public function clearBoard(event:WhiteboardUpdate = null):void {
-			model.clearBoard();
+            displayModel.clearBoard();
 		}
 		
 		public function undoGraphic(event:WhiteboardUpdate):void {
-			model.undoGraphic();
+            displayModel.undoGraphic();
 		}
 		
 		public function toggleGrid(event:ToggleGridEvent = null):void {
@@ -126,7 +131,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 		
 		public function changePage(e:PageEvent):void {
-			model.changePage(e);
+            displayModel.changePage(e);
 		}
 		
 		public function enableWhiteboard(e:WhiteboardButtonEvent):void {
