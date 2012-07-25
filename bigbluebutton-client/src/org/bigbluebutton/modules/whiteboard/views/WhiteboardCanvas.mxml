@@ -129,7 +129,7 @@
 			}
 			
 			public function changeFillColor(e:Event):void{
-				model.changeFillColor(e.target.selectedColor);
+//				model.changeFillColor(e.target.selectedColor);
 			}
 			
 			public function changeThickness(e:Event):void{
@@ -137,11 +137,11 @@
 			}
 			
 			public function toggleFill():void {
-				model.toggleFill();
+//				model.toggleFill();
 			}
 			
 			public function toggleTransparency():void {
-				model.toggleTransparency();
+//				model.toggleTransparency();
 			}
 			
 			public function get xPosition():int {

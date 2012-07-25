@@ -19,6 +19,8 @@
  */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+    import org.bigbluebutton.common.LogUtil;
+
 	public class TextFactory extends GraphicFactory
 	{
 		private var _parentWidth:Number = 0;
@@ -41,9 +43,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		
 		/* convenience method for above method, takes a TextObject and returns one with "normalized" coordinates */
 		public function makeTextObject(t:TextObject):TextObject {
-//			return createTextObject(t.text, t.textColor, t.backgroundColor, t.background, t.x, t.y, t.textSize);
+            LogUtil.debug("***Making textObject [" + t.text + ", [" + t.x + "," + t.y + "]");
             var tobj:TextObject = new TextObject(t.text, t.textColor, t.backgroundColor, t.background, t.x, t.y, t.textSize);
             tobj.makeGraphic(_parentWidth,_parentHeight);
+            LogUtil.debug("***Made textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "]");
             return tobj;
 		}
 

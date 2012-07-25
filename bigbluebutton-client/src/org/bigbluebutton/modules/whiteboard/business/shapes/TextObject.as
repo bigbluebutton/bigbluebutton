@@ -80,6 +80,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.background = bgColorVisible;
             origX = x;
             origY = y;
+            this.x = x;
+            this.y = y;
 			this.textSize = textSize;
 		}	
 		

@@ -151,9 +151,7 @@ package org.bigbluebutton.modules.whiteboard
 					break;
 			}
 			
-
 //			LogUtil.error("SEGMENT LENGTH = [" + segment.length + "] STATUS = [" + dobj.status + "]");
-
 			
 			if (this.toolType == DrawObject.PENCIL || this.toolType == DrawObject.ERASER) {
 				dobj.status = DrawObject.DRAW_END;
@@ -165,22 +163,7 @@ package org.bigbluebutton.modules.whiteboard
 			
 			wbCanvas.sendGraphicToServer(dobj, WhiteboardDrawEvent.SEND_SHAPE);			
 		}
-		
-/*
-		public function doMouseDown(mouseX:Number, mouseY:Number):void {
-			isDrawing = true;
-			drawStatus = DrawObject.DRAW_START;
-			segment = new Array();
-			segment.push(mouseX);
-			segment.push(mouseY);
-			
-			if (shapeStyle == DrawObject.TEXT) {
-				LogUtil.debug("TEXT SHAPE");
-                wbCanvas.unregisterForMouseEvents();
-                addTextFieldExample();
-			}			
-        }
- */       
+		       
 		private function sendTextToServer(status:String, tobj:TextObject):void {
 			switch (status) {
 				case TextObject.TEXT_CREATED:
@@ -219,14 +202,6 @@ package org.bigbluebutton.modules.whiteboard
 
 				segment.push(mouseX);
 				segment.push(mouseY);
-			} else if(graphicType == WhiteboardConstants.TYPE_SELECTION) {
-				/* The following is some experimental stuff to test out the to-be selection tool. */
-				var objs:Array = getGraphicObjectsUnderPoint(mouseX, mouseY);		
-				var graphics:Array = filterGraphicObjects(objs)
-				var topMostObject:GraphicObject = getTopMostObject(graphics) as GraphicObject;
-				
-				LogUtil.debug("There are " + graphics.length + " objects" + "under your mouse.");
-				LogUtil.debug("!!!TOP MOST OBJECT: " + topMostObject.getProperties());
 			}
 		}
 		
@@ -348,7 +323,12 @@ package org.bigbluebutton.modules.whiteboard
 			tobj.wordWrap = true;
 			tobj.autoSize = TextFieldAutoSize.LEFT;
 			tobj.makeEditable(true);
-			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
+            tobj.border = true;
+            tobj.borderColor = 0xff0000;
+            LogUtil.debug("Putting text object [" + tobj.getGraphicID() + "] in [" + tobj.x + "," + tobj.y + "]");
+//            tobj.x = 100;
+//            tobj.y = 400;
+//			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			wbCanvas.addGraphic(tobj);
 			wbCanvas.stage.focus = tobj;
 			graphicList.push(tobj);
@@ -406,38 +386,12 @@ package org.bigbluebutton.modules.whiteboard
 			drawColor = color;
 		}
 		
-		public function changeFillColor(color:uint):void{
-			fillColor = color;
-		}
 			
 		public function changeThickness(thickness:uint):void{
 			this.thickness = thickness;
 		}
-		
-		public function toggleFill():void{
-			fillOn = !fillOn;
-		}
-		
-		public function toggleTransparency():void{
-			transparencyOn = !transparencyOn;
-		}
-		
-		/* sets the fill mode boolean to the specified value
-		Used when one wants to set it to a specific value. 
-		*/
-		public function setFill(fill:Boolean):void{
-			this.fillOn = fill;
-		}
-		
-		/* sets the transparent mode boolean to the specified value
-			Used when one wants to set it to a specific value. 
-		*/
-		public function setTransparent(transp:Boolean):void{
-			this.transparencyOn = transp;
-		}
 
-		/* the following three methods are used to remove any GraphicObjects (and its
-			subclasses) if the id of the object to remove is specified. The latter
+		/* the following three methods are used to remove any GraphicObjects (and its subclasses) if the id of the object to remove is specified. The latter
 			two are convenience methods, the main one is the first of the three.
 		*/
 		private function removeGraphic(id:String):void {
@@ -546,10 +500,6 @@ package org.bigbluebutton.modules.whiteboard
 				evt.data = null;
 				wbCanvas.dispatchEvent(evt);
 			}
-			// if the new page has a grid, draw it
-			addOrRemoveGrid(this.isGrid);
-
-			LogUtil.debug("GRAPHIC LIST SIZE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + graphicList.length);
 		}
 		
 		public function zoomCanvas(width:Number, height:Number):void{
@@ -561,42 +511,10 @@ package org.bigbluebutton.modules.whiteboard
 			for (var i:int = 0; i < this.graphicList.length; i++){
 				redrawGraphic(this.graphicList[i] as GraphicObject, i);
 			}		
-			// if the grid was drawn, redraw it with the new width and height
-			if(isGrid) {
-				addOrRemoveGrid(true, width, height);
-			}
 		}
-		
-		// toggles the gridmode on or off
-		public function toggleGrid(event:ToggleGridEvent = null):void{
-			isGrid = !isGrid;
-			LogUtil.debug("Final gridToggle received " + isGrid + " " + wbCanvas.width + "," + wbCanvas.height);
-			addOrRemoveGrid(isGrid, wbCanvas.width, wbCanvas.height);
-			var gridChangedEvent:WhiteboardSettingResetEvent = new WhiteboardSettingResetEvent(WhiteboardSettingResetEvent.GRID_CHANGED);
-			gridChangedEvent.value = isGrid;
-			wbCanvas.dispatchEvent(gridChangedEvent);
-		}
-		
-		/* adds or removes the grid based on the the different parameters passed. Also used to redraw the grid when canvas is zoomed/moved */
-		private function addOrRemoveGrid(grid:Boolean, width:Number = 0, height:Number = 0):void {	
-			if(width == 0) width = wbCanvas.width;
-			if(height == 0) height = wbCanvas.height;
-			if(drawGrid == null)
-				drawGrid = new DrawGrid(width,height,10,10);
-			if(!wbCanvas.doesContain(drawGrid) && grid) wbCanvas.addGraphic(drawGrid);
-			LogUtil.debug("Grid added");
-			if(grid) {
-				drawGrid.setSize(width, height);
-			} else {
-				wbCanvas.removeGraphic(drawGrid);
-			}
-		}
-		
-		/* called when a user is made presenter, automatically make all the textfields
-		   currently on the page editable, so that they can edit it.
-		*/
+				
+		/* called when a user is made presenter, automatically make all the textfields currently on the page editable, so that they can edit it. */
 		public function makeTextObjectsEditable(e:MadePresenterEvent):void {
-//			isPresenter = true;
 			var texts:Array = getAllTexts();
 			for(var i:int = 0; i < texts.length; i++) {
 				(texts[i] as TextObject).makeEditable(true);
@@ -604,13 +522,11 @@ package org.bigbluebutton.modules.whiteboard
 			}
 		}
 		
-		/* when a user is made viewer, automatically make all the textfields
-		   currently on the page uneditable, so that they cannot edit it any
+		/* when a user is made viewer, automatically make all the textfields currently on the page uneditable, so that they cannot edit it any
 		   further and so that only the presenter can edit it.
 		*/
 		public function makeTextObjectsUneditable(e:MadePresenterEvent):void {
 			LogUtil.debug("MADE PRESENTER IS PRESENTER FALSE");
-//			isPresenter = false;
 			var texts:Array = getAllTexts();
 			for(var i:int = 0; i < texts.length; i++) {
 				(texts[i] as TextObject).makeEditable(false);
@@ -618,10 +534,8 @@ package org.bigbluebutton.modules.whiteboard
 			}
 		}
 
-		/* the following four methods  are listeners that handle events that occur
-			on TextObjects, such as text being typed, which causes the textObjTextListener
-			to send text to the server.
-		*/
+		/* the following four methods  are listeners that handle events that occur on TextObjects, such as text being typed, which causes the textObjTextListener
+			to send text to the server. */
 		public function textObjSpecialListener(event:KeyboardEvent):void {
 			// check for special conditions
 			if(event.charCode == 127 || // 'delete' key
@@ -630,8 +544,7 @@ package org.bigbluebutton.modules.whiteboard
 				var sendStatus:String = TextObject.TEXT_UPDATED;
 				var tobj:TextObject = event.target as TextObject;	
 				
-				// if the enter key is pressed, remove focus from the 
-				// TextObject so that it is sent to the server.
+				// if the enter key is pressed, remove focus from the TextObject so that it is sent to the server.
 				if(event.charCode == 13) {
 					wbCanvas.stage.focus = null;
 					tobj.stage.focus = null;
@@ -687,166 +600,6 @@ package org.bigbluebutton.modules.whiteboard
 			return graphicList.length == 0;
 		}
 		
-		/* The next three methods are used for the "selection tool" that I haven't finished implementing yet.
-		   The idea of the selection tool is to be able to figure out what is the top most object and distinguish
-			the object from those that may be beneath it. The idea is to allow for the user to select individual
-			GraphicObjects (maybe a shape or even a text box), and allow for modification of individual elements
-			For example, a user could click on a rectangle shape that would then appear to become "selected", so that the user
-			could take actions on the shape such as rotate, delete, resize, etc. These are just the plans, and have not been 
-			implemented yet, so the selection tool does not really have a purpose currently.
-		*/
-		private function getGraphicObjectsUnderPoint(xf:Number, yf:Number):Array {
-			// below is a nasty hack to get normalized/denormalized coordinates of 
-			// "normal" coordinates. will change later.
-			var x:Number = GraphicFactory.denormalize(GraphicFactory.normalize(xf, textFactory.getParentWidth()), textFactory.getParentWidth());
-			var y:Number = GraphicFactory.denormalize(GraphicFactory.normalize(yf, textFactory.getParentHeight()), textFactory.getParentHeight());
-			var point:Point = new Point(x,y);
-			point = wbCanvas.localToGlobal(point);
-			
-			return wbCanvas.parentApplication.getObjectsUnderPoint(point);
-		}
-		
-		private function filterGraphicObjects(objs:Array):Array {
-			return objs.filter(
-				function callback(item:*, index:int, array:Array):Boolean
-				{
-					return item is GraphicObject;
-				}
-			);
-		}
-		
-		private function getTopMostObject(objs:Array):Object {
-			var topMostObj:Object;
-
-			for(var i:int = objs.length-2; i >= 0; i--) {
-				var firstIndex:int = wbCanvas.parentApplication.getChildIndex(objs[i]);
-				var secondIndex:int = wbCanvas.parentApplication.getChildIndex(objs[i+1]);
-				topMostObj = (firstIndex > secondIndex) ? firstIndex : secondIndex;
-			}
-			
-			return topMostObj;
-		}
-
-        private var _textShape:UIComponent;
-	//	private var _currentText:TextInput;
-     //   private var _currentText:TextField = new TextField();
-        private var _currentText:TextBox; // = new TextBox();
-/*        
-		private function createTextBox():void {
-	//		_currentText = new TextField();
-			_currentText.type = TextFieldType.INPUT;
-			_currentText.x = segment[0];
-			_currentText.y = segment[1];
-			_currentText.width = 200;
-			_currentText.height = 20;
-//			_currentText.background = true;
-			_currentText.border = true;
-			_currentText.text = "FOO";
-//            _currentText.editable = true;
-            
-			var format:TextFormat = new TextFormat();
-			format.font = "Verdana";
-			format.color = 0xFF0000;
-			format.size = 18;
-			format.underline = true;
-			
-            // add to displaylist
-            wbCanvas.addRawChild(_currentText);
-            
-			_currentText.defaultTextFormat = format;
-            _currentText.addEventListener(TextEvent.TEXT_INPUT, textInputHandler);
-			_currentText.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
- //           wbCanvas.stage.focus = _currentText;
-            
-		}
-        */		
-        
-        private function onKeyUp(event:KeyboardEvent):void {	
-            LogUtil.debug("onKeyUp");
-            switch (event.keyCode) {
-                case Keyboard.LEFT:
-                case Keyboard.UP:
-                case Keyboard.PAGE_UP:				
-                    LogUtil.debug("Capturing text: " + event.keyCode);		
-                    break;
-                case Keyboard.DOWN:
-                case Keyboard.RIGHT: 
-                case Keyboard.SPACE:
-                case Keyboard.PAGE_DOWN:
-                case Keyboard.ENTER:
-                    LogUtil.debug("Capturing text: " + event.keyCode);
-                    break; 
-                default:
-                    LogUtil.debug("Capturing text: " + event.keyCode);
-            }
-        }    
-            
-        public function textInputHandler(event:TextEvent):void
-        {
-            LogUtil.debug("TEXT EVENT = " + event.text);
-        }
-       
-		private function createWhiteboard():void {
-			LogUtil.debug("Creating text shape.");
-			// create whiteboard sprite
-			_textShape = new UIComponent();
-			_textShape.x = 100;
-			_textShape.y = 100;
-			// add to displaylist
-			wbCanvas.addRawChild(_textShape);
-			
-			// draw graphics
-			with(_textShape.graphics)
-			{
-				lineStyle(3, 0x666666, 1);
-				beginFill(0xFFFFFF, 1);
-				drawRect(0, 0, 200, 100);
-				endFill();
-			}
-            
-            _currentText = new TextBox(_textText, _fontStyle, _fontSize, drawColor);
-            _currentText.x = 0;
-            _currentText.y = 0;
-            _currentText.type = TextFieldType.INPUT;
-         //   _currentText.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-      //      _currentText.addEventListener(TextEvent.TEXT_INPUT, textInputHandler);
-            // add to displaylist
-            _textShape.addChild(_currentText);
-		}
-		
-		private function enableUserInput():void {
-			_textShape.addEventListener(MouseEvent.CLICK, onUserInteract);
-            
-		}
-		
-		private function onUserInteract(event:MouseEvent):void {
-			LogUtil.debug("onUserInteract");
-			// remove if empty
-//			if(_currentText && _currentText.htmlText.length == 0)
-//			{
-				// remove from displaylist
-//				_textShape.removeChild(_currentText);
-//			}
-            _currentText.addEventListener(TextEvent.TEXT_INPUT, textInputHandler);
-            _currentText.text += _currentText.text + " FOOOBAR";
-			// add new
-//			if(event.target == _textShape)
-//			{
-				
-//			}
-//			else
-//			{
-				// use clicked text
-//				_currentText = event.target as TextBox;
-//			}
-			
-			// set selection
-	//		_currentText.setSelection(0, _currentText.htmlText.length);
-    //       
-			// set focus
-			wbCanvas.stage.focus = _currentText;
-		}
-
         /** Helper method to test whether this user is the presenter */
         private function get isPresenter():Boolean {
             return UserManager.getInstance().getConference().amIPresenter();

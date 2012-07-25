@@ -122,7 +122,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		}
 		
 		public function toggleGrid(event:ToggleGridEvent = null):void {
-			model.toggleGrid();
+	//		model.toggleGrid();
 		}
 		
 		public function changePage(e:PageEvent):void {
