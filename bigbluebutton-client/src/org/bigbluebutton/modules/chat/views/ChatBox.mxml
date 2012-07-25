@@ -56,7 +56,7 @@
 			private var scrollTimer:Timer;			
 			private var scrollBarWorkaround:Boolean = false;
 			private var currentMessage:int;
-			private var chatHistorySpacer:Boolean = false;
+			//private var chatHistorySpacer:Boolean = false;
 			
 			private var reachedLatest:String = "You have reached the latest message. ";
 			private var reachedFirst:String = "You have reached the first message. ";
@@ -224,87 +224,94 @@
 			}
 			
 			// Determines for navigateMessages() whether the message to be spoken by the screen-reader needs an extra space added to the end or not
-			private function setDescription():void{
-				LogUtil.debug("Existing description: <" + chatMessagesList.accessibilityProperties.description + "/>");
-				LogUtil.debug("Incoming message: <" + messages[currentMessage].toString() + "/>");
-				if (chatMessagesList.accessibilityProperties.description == messages[currentMessage].toString()){
+			private function setDescription():Boolean{
+				var chatHistorySpacer:Boolean = false;
+				if (chatMessagesList.accessibilityProperties.description == messages[currentMessage].toString())
 					chatHistorySpacer = true;
-					return void;
-				}
-				chatMessagesList.accessibilityProperties.description = messages[currentMessage].toString();
+				return chatHistorySpacer;
 			}
 			
-			public function navigateMessages(e:KeyboardEvent) :void
-			{
+			public function navigateMessages(e:KeyboardEvent) :void{			
 				var navToFirst:Boolean = false;
 				var navToLatest:Boolean = false;
-				
-				// Changed accessibilityProperties.description to accessibilityProperties.description
+				var spacerNeeded:Boolean = false;
+				var indicatorNeeded:Boolean = false;
+				var repeat:Boolean = false;
 				
 				if (e.keyCode == 32) {
 					if (!e.ctrlKey && !e.altKey && !e.shiftKey){ // SPACE key: Advance one message
 						if (currentMessage < (messages.length-3)){
 							currentMessage++;
-							setDescription()
 						}
 						else{
-							setDescription();
 							chatMessagesList.accessibilityProperties.description += " ";
 						}
 					}
 					else if (e.ctrlKey && !e.altKey && !e.shiftKey){ // CTRL-SPACE: Go back one message
 						if (currentMessage > 0){
 							currentMessage--;
-							setDescription();
 						}
 						else{
-							setDescription();
 							chatMessagesList.accessibilityProperties.description += " ";
 						}
 					}
 					else if (e.ctrlKey && e.altKey && !e.shiftKey){ // CTRL-ALT-SPACE: Repeat current message
-						setDescription();
-						chatMessagesList.accessibilityProperties.description += " ";		
+						chatMessagesList.accessibilityProperties.description += " ";	
+						repeat = true;	
 					}
 					else if (!e.ctrlKey && !e.altKey && e.shiftKey){ // SHIFT-SPACE: Go to latest message
 						currentMessage = messages.length-3;
 						navToLatest = true;
-						setDescription();
+						spacerNeeded = setDescription();
+						
+						indicatorNeeded = true;
+						chatMessagesList.accessibilityProperties.description = navLatestString;
+						Accessibility.updateProperties();
 					}
 					else if (e.ctrlKey && !e.altKey && e.shiftKey){ // CTRL-SHIFT-SPACE: Go to first message
 						currentMessage = 0;
 						navToFirst = true;
-						setDescription();						
+						spacerNeeded = setDescription();
+						
+						indicatorNeeded = true;
+						chatMessagesList.accessibilityProperties.description = navFirstString;
+						Accessibility.updateProperties();						
 					}
 					
+					if (!repeat){
 					// Make it clear to the user that they have either navigated to or reached one end of the message history or the other.
-					if (currentMessage == 0){
-						if (navToFirst)
-							chatMessagesList.accessibilityProperties.description = navFirstString + chatMessagesList.accessibilityProperties.description;
-						else
-							chatMessagesList.accessibilityProperties.description = reachedFirst + chatMessagesList.accessibilityProperties.description;
-					}
-					else if (currentMessage == messages.length-3){
-						if (navToLatest)
-							chatMessagesList.accessibilityProperties.description = navLatestString + chatMessagesList.accessibilityProperties.description;
-						else{
-							chatMessagesList.accessibilityProperties.description = reachedLatest + chatMessagesList.accessibilityProperties.description;
+						if (currentMessage == 0){
+							if (!navToFirst){
+								indicatorNeeded = true;
+								chatMessagesList.accessibilityProperties.description = reachedFirst;
+								Accessibility.updateProperties();
+							}
+						}
+						else if (currentMessage == messages.length-3){
+							if (!navToLatest){
+								indicatorNeeded = true;
+								chatMessagesList.accessibilityProperties.description = reachedLatest;
+								Accessibility.updateProperties();			
+							}
+						}
+						
+						// Actually, finally, set the accessibility description to the indicated message
+						chatMessagesList.accessibilityProperties.description = messages[currentMessage].toString();
+						
+						// Add a single space to the end of the accessibilityProperties.description if necessary to ensure that it reflects the current message after being updated.
+						if (spacerNeeded || setDescription()){
+							chatMessagesList.accessibilityProperties.description += " ";
+							LogUtil.debug("Adding a space to force audio update");
 						}
 					}
 					
-					// Add a single space to the end of the accessibilityProperties.description if necessary to ensure that it reflects the current message after being updated.
-					if (chatHistorySpacer){
-						chatHistorySpacer = false;
-						chatMessagesList.accessibilityProperties.description += " ";
-						LogUtil.debug("Adding a space to force audio update");
-					}
-					
 					LogUtil.debug("Chat Module audio: " + chatMessagesList.accessibilityProperties.description);
-					Accessibility.updateProperties(); // Look at Accessibility class for more specific events
+					Accessibility.updateProperties();
 				}
 			}
 			
 		]]>
+		
 	</mx:Script>
 	
 	<mx:List width="100%" height="100%" id="chatMessagesList" selectable="false" variableRowHeight="true"
