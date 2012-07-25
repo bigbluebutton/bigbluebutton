@@ -11,5 +11,7 @@
 
 <a href="create.jsp">Create</a> &nbsp;&nbsp;&nbsp;
 
-<a href="demo4.jsp">Activity Monitor</a> 
+<a href="demo4.jsp">Activity Monitor</a> &nbsp;&nbsp;&nbsp;
+
+<a href="demo_mozilla_persona.jsp">Login with Persona</a> 
  
