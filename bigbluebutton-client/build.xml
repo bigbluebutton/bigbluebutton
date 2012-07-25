@@ -382,6 +382,7 @@
 		<copy file="${PROD_RESOURCES_DIR}/locales.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>	
 		<copy file="${PROD_RESOURCES_DIR}/expressInstall.swf" todir="${OUTPUT_DIR}" overwrite="true"/>	
 		<copy file="${PROD_RESOURCES_DIR}/example-info-data.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
+		<copy file="${BASE_DIR}/src/conf/layout.xml" todir="${OUTPUT_DIR}/conf" overwrite="true"/>
 		<if>
 			<equals arg1="${BUILD_ENV}" arg2="DEV"/>
 			<then>
@@ -389,8 +390,8 @@
 				<copy file="${BASE_DIR}/src/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
 				<echo message="Copying join-mock.xml for development environment"/>
 				<copy file="${BASE_DIR}/src/conf/join-mock.xml" todir="${OUTPUT_DIR}/conf" /> 
-				<echo message="Copying layout.xml for development environment"/>
-				<copy file="${BASE_DIR}/src/conf/layout.xml" todir="${OUTPUT_DIR}/conf" /> 
+				<!-- echo message="Copying layout.xml for development environment"/>
+				<copy file="${BASE_DIR}/src/conf/layout.xml" todir="${OUTPUT_DIR}/conf" /--> 
 			</then>
 			<else>
 				<echo message="Need to copy config.xml.template for production environment"/>
