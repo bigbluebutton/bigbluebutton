@@ -12,14 +12,12 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
-	import flash.ui.Keyboard;
-	
+	import flash.ui.Keyboard;	
 	import mx.collections.ArrayCollection;
 	import mx.controls.TextInput;
 	import mx.core.Application;
 	import mx.core.UIComponent;
-	import mx.managers.CursorManager;
-	
+	import mx.managers.CursorManager;	
 	import org.bigbluebutton.common.IBbbCanvas;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -42,9 +40,7 @@ package org.bigbluebutton.modules.whiteboard
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	
 	public class WhiteboardCanvasModel {
-		public var wbCanvas:WhiteboardCanvas;
-//		public var isPresenter:Boolean;		
-		
+		public var wbCanvas:WhiteboardCanvas;	
 		private var isDrawing:Boolean; 
 		private var sending:Boolean = false;
 		private var feedback:Shape = new Shape();

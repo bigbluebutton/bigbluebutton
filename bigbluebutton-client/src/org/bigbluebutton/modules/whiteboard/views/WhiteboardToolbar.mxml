@@ -30,9 +30,6 @@
 	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />
 	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
 	<mate:Listener type="{WhiteboardButtonEvent.CHANGE_TO_PENCIL}" method="setShapeToPencil" />
-	<mate:Listener type="{WhiteboardSettingResetEvent.FILL_CHANGED}" method="resetFill" />
-	<mate:Listener type="{WhiteboardSettingResetEvent.TRANSPARENCY_CHANGED}" method="resetTransparent" />
-	<mate:Listener type="{WhiteboardSettingResetEvent.GRID_CHANGED}" method="resetGrid" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
 	
@@ -149,123 +146,82 @@
 				if(gType == WhiteboardConstants.TYPE_SHAPE) {
 					canvas.setGraphicType(gType);
 					canvas.setTool(toolType);
-					if(!btnToggleTransparency.enabled)
-						btnToggleTransparency.enabled = true;
-					if(!btnToggleFill.enabled)
-						btnToggleFill.enabled = true;
+
 					switch(toolType){
 						case DrawObject.PENCIL:
-							btnSelect.selected = false;
 							btnPenc.selected = true;
 							btnEllipse.selected = false;
 							btnRectangle.selected = false;
 							btnTriangle.selected = false;
 							btnLine.selected = false;
 							btnText.selected = false;
-							btnHighl.selected = false;
-							btnEraser.selected = false;
-							btnToggleFill.enabled = false;
-							btnToggleTransparency.enabled = false;
 							break;
 						case DrawObject.HIGHLIGHTER:
-							btnSelect.selected = false;
 							btnPenc.selected = false;
 							btnEllipse.selected = false;
 							btnRectangle.selected = false;
 							btnTriangle.selected = false;
 							btnLine.selected = false;
 							btnText.selected = false;
-							btnHighl.selected = true;
-							btnEraser.selected = false;
-							btnToggleFill.enabled = false;
-							btnToggleTransparency.enabled = false;
 							break;
 						case DrawObject.ELLIPSE:
-							btnSelect.selected = false;
 							btnPenc.selected = false;
 							btnEllipse.selected = true;
 							btnRectangle.selected = false;
 							btnTriangle.selected = false;
 							btnLine.selected = false;
 							btnText.selected = false;
-							btnHighl.selected = false;
-							btnEraser.selected = false;
 							break;
 						case DrawObject.RECTANGLE:
-							btnSelect.selected = false;
 							btnPenc.selected = false;
 							btnEllipse.selected = false;
 							btnRectangle.selected = true;
 							btnTriangle.selected = false;
 							btnLine.selected = false;
 							btnText.selected = false;
-							btnHighl.selected = false;
-							btnEraser.selected = false;
 							break;
 						case DrawObject.TRIANGLE:
-							btnSelect.selected = false;
 							btnPenc.selected = false;
 							btnEllipse.selected = false;
 							btnRectangle.selected = false;
 							btnTriangle.selected = true;
 							btnLine.selected = false;
 							btnText.selected = false;
-							btnHighl.selected = false;
-							btnEraser.selected = false;
 							break;
 						case DrawObject.LINE:
-							btnSelect.selected = false;
 							btnPenc.selected = false;
 							btnEllipse.selected = false;
 							btnRectangle.selected = false;
 							btnTriangle.selected = false;
 							btnLine.selected = true;
 							btnText.selected = false;
-							btnHighl.selected = false;
-							btnEraser.selected = false;
-							btnToggleFill.enabled = false;
 							break;
 						case DrawObject.ERASER:
-							btnSelect.selected = false;
 							btnPenc.selected = false;
 							btnEllipse.selected = false;
 							btnRectangle.selected = false;
 							btnTriangle.selected = false;
 							btnLine.selected = false;
 							btnText.selected = false;
-							btnHighl.selected = false;
-							btnEraser.selected = true;
-							btnToggleFill.enabled = false;
-							btnToggleTransparency.enabled = false;
 							break;
 					}
 				} else if (gType == WhiteboardConstants.TYPE_TEXT) {
-					btnSelect.selected = false;
 					btnPenc.selected = false;
 					btnEllipse.selected = false;
 					btnRectangle.selected = false;
 					btnTriangle.selected = false;
 					btnLine.selected = false;
 					btnText.selected = true;
-					btnHighl.selected = false;
-					btnEraser.selected = false;
-					btnToggleFill.enabled = false;
-					btnToggleTransparency.enabled = false;
 					canvas.setGraphicType(gType);
 					canvas.setTool(toolType);
 				} else if (gType == WhiteboardConstants.TYPE_SELECTION) {
 					switch(toolType) {
 						case SelectObject.SELECT_TOOL:
-							btnSelect.selected = true;
 							btnPenc.selected = false;
 							btnEllipse.selected = false;
 							btnRectangle.selected = false;
 							btnLine.selected = false;
 							btnText.selected = false;
-							btnHighl.selected = false;
-							btnEraser.selected = false;
-							btnToggleFill.enabled = false;
-							btnToggleTransparency.enabled = false;
 							break;
 					}
 					canvas.setGraphicType(gType);
@@ -312,17 +268,7 @@
 				canvas.toggleTransparency();
 			}
 			
-			protected function resetFill(e:WhiteboardSettingResetEvent):void{
-				btnToggleFill.enabled = e.value;
-			}
-			
-			protected function resetTransparent(e:WhiteboardSettingResetEvent):void{
-				btnToggleTransparency.selected = e.value;
-			}
-			
-			protected function resetGrid(e:WhiteboardSettingResetEvent):void{
-				btnToggleGrid.selected = e.value;
-			}
+
 			
 			private function presenterMode(e:MadePresenterEvent):void{
 				canvas.makeTextObjectsEditable(e);
@@ -369,14 +315,7 @@
 				parent.removeChild(this);
 			}
             
-            private function buttonSettingToggle(buttonEvt:Event):void {
-                if(buttonEvt.target == btnToggleFill) {
-                    toggleFill();
-                } else if(buttonEvt.target == btnToggleTransparency) {		
-                    toggleTransparency();
-                }
-            }
-            
+           
             private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
                 var gobj:GraphicObject = event.data;
                 LogUtil.debug("!!!!SELECTED:" + " " + gobj.getProperties());
@@ -395,34 +334,15 @@
 	tool itself (ex. line tool vs triangle tool, even though both are "shapes")
 	-->
 	
-	<mx:Button width="20" height="20" id="btnSelect" click="setTool(WhiteboardConstants.TYPE_SELECTION, SelectObject.SELECT_TOOL)"  icon="{select_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.select')}" toggle="true"/>
-	<mx:Button width="20" height="20" id="btnPenc" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.PENCIL)"  icon="{pencil_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.pencil')}" toggle="true" selected="true" />
-	<mx:Button width="20" height="20" id="btnHighl" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.HIGHLIGHTER)"  icon="{highlighter_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.highlighter')}" toggle="true"/>
-	<mx:Button width="20" height="20" id="btnRectangle" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.RECTANGLE)" icon="{rectangle_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
-	<mx:Button width="20" height="20" id="btnEllipse" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.ELLIPSE)" icon="{ellipse_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" toggle="true" />
-	<mx:Button width="20" height="20" id="btnTriangle" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.TRIANGLE)" icon="{triangle_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.triangle')}" toggle="true" />
+	<mx:Button width="20" height="20" id="btnPenc" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.PENCIL)"  icon="{pencil_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.pencil')}" toggle="true" selected="true" />
+	<mx:Button width="20" height="20" id="btnRectangle" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.RECTANGLE)" icon="{rectangle_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
+	<mx:Button width="20" height="20" id="btnEllipse" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.ELLIPSE)" icon="{ellipse_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" toggle="true" />
+	<mx:Button width="20" height="20" id="btnTriangle" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.TRIANGLE)" icon="{triangle_icon}" toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.triangle')}" toggle="true" />
 	<mx:Button width="20" height="20" id="btnLine" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.LINE)" icon="{line_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.line')}" toggle="true" />
 	<mx:Button width="20" height="20" id="btnText" click="setTool(WhiteboardConstants.TYPE_TEXT, TextObject.TEXT_TOOL)" icon="{text_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.text')}" toggle="true" />
-	<mx:Button width="20" height="20" id="btnEraser" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.ERASER)" icon="{eraser_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.eraser')}" toggle="true" />
-	<mx:Button width="20" height="20" id="btnToggleGrid" click="dispatchEvent(new ToggleGridEvent(ToggleGridEvent.TOGGLE_GRID));" icon="{grid_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.toggleGrid')}" toggle="true" />
-	
-	<mx:Spacer height="5" />
-	<mx:Button width="20" height="20" id="btnToggleFill" click="/*buttonSettingToggle(event)*/" icon ="{fill_icon}"
-			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.toggleFill')}" toggle="true"/>
-	<mx:ColorPicker change="changeFillColor(event)" id="cfillpik" selectedColor="0x000000" toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.fillColorPicker')}"/>
-	<mx:Button width="20" height="20" id="btnToggleTransparency" click="/*buttonSettingToggle(event)*/" icon ="{transparency_icon}"
-			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.toggleTransparency')}" toggle="true"/>
-	
+		
 	<mx:Spacer height="5" />
 	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR))" icon="{delete_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.clear')}" />

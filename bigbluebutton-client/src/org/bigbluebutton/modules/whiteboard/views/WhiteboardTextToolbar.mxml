@@ -26,32 +26,12 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" alpha="0" 
 	xmlns:views="org.bigbluebutton.modules.whiteboard.views.*" xmlns:local="*">
 	
-	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
 	<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableTextToolbar" />
 	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="handleObjSelected" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="handleObjDeselected" />
-	
-	<!--<mx:Style>
-		.colorPickerStyle {
-	      backgroundColor:#E5E6E7;
-	      columnCount:12;
-	      horizontalGap:0;
-	      previewHeight:22;
-	      previewWidth:45;
-	      swatchGridBackgroundColor:#000000;
-	      swatchGridBorderSize:0;
-	      swatchHeight:60;
-	      swatchHighlightColor:#FFFFFF;
-	      swatchHighlightSize:1;
-	      swatchWidth:12;
-	      textFieldWidth:72;
-	      verticalGap:0;
-	   }
-
-	</mx:Style>-->
-	
+		
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Menu;
@@ -104,9 +84,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 				this.textSize = Number(textSizeMenu.label);*/
 			}
 			
-			/* Following two methods are used for aesthetics when mouse hovers over TextToolbar
-				and when it hovers out of it
-			*/
+			/* Following two methods are used for aesthetics when mouse hovers over TextToolbar and when it hovers out of it */
 			public function makeDim(event:MouseEvent):void {
 					this.alpha = normalAlpha;
 			}
@@ -118,16 +96,8 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 			private function initTextSizeMenu(): void {
 				var m:Menu = new Menu();
 				m.variableRowHeight = true;
-				var textSizeMenuData:Object = [
-					{label: "12"}, 
-					{label: "14"}, 
-					{label: "16"},
-					{label: "18"}, 
-					{label: "22"}, 
-					{label: "24"}, 
-					{label: "32"}, 
-					{label: "36"}
-				];  
+				var textSizeMenuData:Object = [{label: "12"}, {label: "14"}, {label: "16"},
+					{label: "18"}, {label: "22"}, {label: "24"}, {label: "32"}, {label: "36"}];  
 				m.dataProvider = textSizeMenuData;
 				m.addEventListener(MenuEvent.CHANGE, textSizeMenuClick);
 				m.showRoot = false;
@@ -190,11 +160,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 				textSizeMenu.label = String(this.textSize);
 				canvas.modifySelectedTextObject(textColor, backgroundVisible, bgColor, textSize);
 			}
-			
-			private function presenterMode(e:MadePresenterEvent):void{
-				
-			}
-			
+						
 			private function viewerMode(e:MadePresenterEvent):void{
 				disableTextToolbar();
 			}
@@ -233,9 +199,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
-			/* required for repositioning the TextToolbar when an event occurs
-			   on the presentation window
-			*/
+			/* required for repositioning the TextToolbar when an event occurs on the presentation window */
 			public function repositionToolbarByWindow(event:Event = null):void {
 				repositionToolbar();
 			}
