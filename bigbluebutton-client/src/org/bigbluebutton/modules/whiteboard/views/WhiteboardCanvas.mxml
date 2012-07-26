@@ -42,6 +42,7 @@
             import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
             import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
             import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
+            import org.bigbluebutton.modules.whiteboard.models.Annotation;
 			
 			public var model:WhiteboardCanvasModel;	
             public var displayModel:WhiteboardCanvasDisplayModel;
@@ -99,12 +100,12 @@
 				model.doMouseMove(this.mouseX, this.mouseY);
 			}
 			
-			public function sendShapeToServer(dobj:DrawObject):void {
-				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
+//			public function sendShapeToServer(dobj:DrawObject):void {
+//				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
 //				event.annotation = dobj;
-                var dispatcher:Dispatcher = new Dispatcher();
-                dispatcher.dispatchEvent(event);					
-			}
+ //               var dispatcher:Dispatcher = new Dispatcher();
+ //               dispatcher.dispatchEvent(event);					
+//			}
 			
 			public function setShape(s:String):void {
                 LogUtil.debug("SET SHAPE [" + s + "]");
@@ -116,10 +117,10 @@
 			}
 	
 
-			public function sendGraphicToServer(gobj:GraphicObject, type:String):void{
+			public function sendGraphicToServer(gobj:Annotation, type:String):void{
                 LogUtil.debug("DISPATCHING SEND sendGraphicToServer [" + type + "]");
 				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(type);
-//				event.annotation = gobj;
+				event.annotation = gobj;
                 var dispatcher:Dispatcher = new Dispatcher();
                 dispatcher.dispatchEvent(event);					
 			}

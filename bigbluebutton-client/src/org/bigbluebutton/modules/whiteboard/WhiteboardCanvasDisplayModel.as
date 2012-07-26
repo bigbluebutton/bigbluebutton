@@ -12,18 +12,21 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
-	import flash.ui.Keyboard;	
+	import flash.ui.Keyboard;
+	
 	import mx.collections.ArrayCollection;
 	import mx.controls.TextInput;
 	import mx.core.Application;
 	import mx.core.UIComponent;
-	import mx.managers.CursorManager;	
+	import mx.managers.CursorManager;
+	
 	import org.bigbluebutton.common.IBbbCanvas;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawGrid;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
@@ -37,6 +40,7 @@ package org.bigbluebutton.modules.whiteboard
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	
     /**
@@ -55,18 +59,28 @@ package org.bigbluebutton.modules.whiteboard
 
 		
 		public function drawGraphic(event:WhiteboardUpdate):void{
-/*			var o:GraphicObject = event.data;
+			var o:Annotation = event.annotation;
 			var recvdShapes:Boolean = event.recvdShapes;
-            LogUtil.debug("**** Drawing graphic [" + o.getGraphicType() + "] *****");
-			if(o.getGraphicType() == WhiteboardConstants.TYPE_SHAPE) {
-				var dobj:DrawObject = o as DrawObject;
+            LogUtil.debug("**** Drawing graphic [" + o.type + "] *****");
+//			if(o.getGraphicType() == WhiteboardConstants.TYPE_SHAPE) {
+				var dobj:DrawObject = drawObjectFactory(o.annotation);
 				drawShape(dobj, recvdShapes);					
-			} else if(o.getGraphicType() == WhiteboardConstants.TYPE_TEXT) { 
-				var tobj:TextObject = o as TextObject;
-				drawText(tobj, recvdShapes);	
-			}
-*/		}
+//			} else if(o.getGraphicType() == WhiteboardConstants.TYPE_TEXT) { 
+//				var tobj:TextObject = o as TextObject;
+//				drawText(tobj, recvdShapes);	
+//			}
+		}
 		
+        
+        private function drawObjectFactory(a:Object):DrawObject {
+            var drawFactory:DrawObjectFactory = new DrawObjectFactory();
+            var d:DrawObject = drawFactory.makeDrawObject(a.type, a.points, a.color, a.thickness, a.fill, a.fillColor, a.transparency);
+            
+            d.setGraphicID(a.id);
+            d.status = a.status;
+            return d;
+        }
+        
 		// Draws a DrawObject when/if it is received from the server
 		private function drawShape(o:DrawObject, recvdShapes:Boolean):void {			
 			switch (o.status) {
@@ -75,8 +89,7 @@ package org.bigbluebutton.modules.whiteboard
 					break;
 				case DrawObject.DRAW_UPDATE:
 				case DrawObject.DRAW_END:
-					if (graphicList.length == 0 || o.getType() == DrawObject.PENCIL ||
-						o.getType() == DrawObject.ERASER || recvdShapes) {
+					if (graphicList.length == 0 || o.getType() == DrawObject.PENCIL || o.getType() == DrawObject.ERASER || recvdShapes) {
 						addNewShape(o);
 					} else {
 						removeLastGraphic();		
@@ -113,13 +126,15 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		private function addNewShape(o:DrawObject):void {
-			LogUtil.debug("Adding new shape");
+			LogUtil.debug("Adding new shape [" + o.getType() + "," + o.getGraphicID() + "," + o.status + "]");
             if (o.getType() == DrawObject.TEXT) return;
 
 			//LogUtil.debug("Adding new shape ");
 
 			var dobj:DrawObject = shapeFactory.makeShape(o);
+            LogUtil.debug("Adding new shape 1 [" + dobj.getType() + "," + dobj.getGraphicID() + "," + dobj.status + "]");
 			wbCanvas.addGraphic(dobj);
+            LogUtil.debug("Adding new shape 2 [" + dobj.getGraphicID() + ", [" + dobj.x + "," + dobj.y + "]");
 			graphicList.push(dobj);
 		}
 		
@@ -174,8 +189,6 @@ package org.bigbluebutton.modules.whiteboard
 			addNormalText(tobj);
 		}
 		
-
-
 		/* the following three methods are used to remove any GraphicObjects (and its subclasses) if the id of the object to remove is specified. The latter
 			two are convenience methods, the main one is the first of the three.
 		*/

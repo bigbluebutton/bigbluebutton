@@ -153,19 +153,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		 */		
 		public function sendShape(e:WhiteboardDrawEvent):void {
 			LogUtil.debug("Sending [whiteboard.sendAnnotation] (SHAPE) to server.");
-/*			var shape:DrawObject = e.message as DrawObject;
-			
-			var annotation:Object = new Object();
-			annotation["type"] = shape.getType();
-			annotation["points"] = shape.getShapeArray();
-			annotation["color"] = shape.getColor();
-			annotation["thickness"] = shape.getThickness();
-			annotation["id"] = shape.getGraphicID();
-			annotation["status"] = shape.status;
-			annotation["fill"] = shape.getFill();
-			annotation["fillColor"] = shape.getFillColor();
-			annotation["transparency"] = shape.getTransparency();
-			
+            			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.sendAnnotation",               
 					function(result:String):void { // On successful result
@@ -174,9 +162,9 @@ package org.bigbluebutton.modules.whiteboard.services
 					function(status:String):void { // status - On error occurred
 						LogUtil.error(status); 
 					},
-					annotation
+					e.annotation.annotation
 			);
-*/		}
+		}
 		
 		public function checkIsWhiteboardOn():void {
 			LogUtil.debug("Sending [whiteboard.isWhiteboardEnabled] to server.");
