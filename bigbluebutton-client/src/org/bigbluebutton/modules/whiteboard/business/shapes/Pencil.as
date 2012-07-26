@@ -68,5 +68,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			props.push(this.height);
 			return props;
 		}
+        
+        override public function toString():String {
+            var points:String = "";
+            for (var p:int = 0; p < _segment.length; p++) {
+                points += _segment[p] + ",";
+            }
+            return "{type=" + type + ",points=" + points + "]}";
+        }
 	}
 }

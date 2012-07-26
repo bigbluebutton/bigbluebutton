@@ -194,5 +194,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public function getProperties():Array {
 			return null;
 		}
+        
+ //       public function toString():String {
+//            return "[DrawObject] You should override this."
+//        }
 	}
 }

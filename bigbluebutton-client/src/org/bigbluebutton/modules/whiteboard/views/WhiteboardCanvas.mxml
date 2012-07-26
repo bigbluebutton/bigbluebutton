@@ -259,6 +259,7 @@
 				this.width = width;
 				this.height = height;	
 				displayModel.zoomCanvas(width, height);
+ //               model.
 				textToolbar.adjustForZoom(width, height);
 			}
 					

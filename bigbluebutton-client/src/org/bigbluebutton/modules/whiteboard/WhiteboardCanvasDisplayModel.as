@@ -12,14 +12,12 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
-	import flash.ui.Keyboard;
-	
+	import flash.ui.Keyboard;	
 	import mx.collections.ArrayCollection;
 	import mx.controls.TextInput;
 	import mx.core.Application;
 	import mx.core.UIComponent;
-	import mx.managers.CursorManager;
-	
+	import mx.managers.CursorManager;	
 	import org.bigbluebutton.common.IBbbCanvas;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -29,6 +27,7 @@ package org.bigbluebutton.modules.whiteboard
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.Pencil;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextBox;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextFactory;
@@ -129,12 +128,20 @@ package org.bigbluebutton.modules.whiteboard
 			LogUtil.debug("Adding new shape [" + o.getType() + "," + o.getGraphicID() + "," + o.status + "]");
             if (o.getType() == DrawObject.TEXT) return;
 
-			//LogUtil.debug("Adding new shape ");
-
 			var dobj:DrawObject = shapeFactory.makeShape(o);
             LogUtil.debug("Adding new shape 1 [" + dobj.getType() + "," + dobj.getGraphicID() + "," + dobj.status + "]");
 			wbCanvas.addGraphic(dobj);
             LogUtil.debug("Adding new shape 2 [" + dobj.getGraphicID() + ", [" + dobj.x + "," + dobj.y + "]");
+            
+            var points:String = "{type=" + dobj.getType() + ",points=";
+            for (var p:int = 0; p < dobj.getShapeArray().length; p++) {
+                points += dobj.getShapeArray()[p] + ",";
+            }
+            points +=  "]}";
+            
+            LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 2 [" + points + "]");
+            
+            LogUtil.debug("Adding new shape 3 [" + points + "]");
 			graphicList.push(dobj);
 		}
 		

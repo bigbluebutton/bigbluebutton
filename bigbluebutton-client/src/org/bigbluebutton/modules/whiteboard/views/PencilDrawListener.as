@@ -2,6 +2,7 @@ package org.bigbluebutton.modules.whiteboard.views
 {
     import org.bigbluebutton.common.LogUtil;
     import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+    import org.bigbluebutton.modules.whiteboard.business.shapes.Pencil;
     import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
     import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
     import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
@@ -25,9 +26,9 @@ package org.bigbluebutton.modules.whiteboard.views
         
         public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
         {
-            LogUtil.debug("PencilDrawListener onMouseDown");
+ //           LogUtil.debug("PencilDrawListener onMouseDown [" + mouseX + "," + mouseY + "]");
             if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
-                LogUtil.debug("PencilDrawListener onMouseDown [" + tool.graphicType + "]");
+                LogUtil.debug("PencilDrawListener onMouseDown [" + tool.graphicType +"," + mouseX + "," + mouseY + "]");
                 _isDrawing = true;
                 _drawStatus = DrawObject.DRAW_START;
                 _segment = new Array();               
@@ -42,7 +43,8 @@ package org.bigbluebutton.modules.whiteboard.views
                 if (_isDrawing){
                     _segment.push(mouseX);
                     _segment.push(mouseY);
-                    if (_segment.length > _sendFrequency) {
+                    LogUtil.debug("PencilDrawListener onMouseMove [" + tool.graphicType +"," + mouseX + "," + mouseY + "]");
+                    if (_segment.length > _sendFrequency) {                       
                         sendShapeToServer(_drawStatus, tool);
                     }	
                 }                
@@ -85,6 +87,13 @@ package org.bigbluebutton.modules.whiteboard.views
             LogUtil.debug("PencilDrawListener sendShapeToServer - segment Length= [" + _segment.length + "]");
             if (_segment.length == 0) return;
             
+            var s:String = "{type=" + tool.toolType + ",points=";
+            for (var pq:int = 0; pq < _segment.length; pq++) {
+                s += _segment[pq] + ",";
+            }
+            s += "]}";
+            LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 2 [" + s + "]");
+            
             LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 0");
             
             var dobj:DrawObject = shapeFactory.createDrawObject(tool.toolType, _segment, tool.drawColor, tool.thickness, tool.fillOn, tool.fillColor, tool.transparencyOn);
@@ -103,6 +112,14 @@ package org.bigbluebutton.modules.whiteboard.views
                     break;
             }
             
+            var points:String = "{type=" + dobj.getType() + ",points=";
+            for (var p:int = 0; p < dobj.getShapeArray().length; p++) {
+                points += dobj.getShapeArray()[p] + ",";
+            }
+            points += "]}";
+            LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 2 [" + points + "]");
+            
+            
             LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1 - type [" + tool.toolType + "]");
             
             if (tool.toolType == DrawObject.PENCIL) {
@@ -118,9 +135,15 @@ package org.bigbluebutton.modules.whiteboard.views
                 _segment.push(xy[0], xy[1]);
                 LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.6 - type [" + tool.toolType + "]");
             }
+/*            
+            var points:String = "{type=" + dobj.getType() + ",points=";
+            for (var p:int = 0; p < dobj.getShapeArray().length; p++) {
+                points += dobj.getShapeArray()[p] + ",";
+            }
+            points += "]}";
             
-            LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 2");
-            
+            LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 2 [" + points + "]");
+*/            
             var annotation:Object = new Object();
             annotation["type"] = dobj.getType();
             annotation["points"] = dobj.getShapeArray();
