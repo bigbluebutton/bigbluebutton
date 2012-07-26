@@ -362,23 +362,40 @@
 				return tabBox;
 			}
 			
+			// Receive public chat messages
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
 				LogUtil.debug("Got PublicChatMessageEvent from userid [ " + event.chatobj.userid + " ]");
 				showMessage(PUBLIC_CHAT_USERID, event.chatobj, autoTranslation);
-				if ((!this.focus) && 
-					(! UserManager.getInstance().getConference().amIThisUser(new Number(event.chatobj.userid))) &&
-					(event.chatobj.userid != "")) {
-					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting2'));
+				if ((! UserManager.getInstance().getConference().amIThisUser(new Number(event.chatobj.userid))) && (event.chatobj.userid != "")){
+					publicNotification();
+					if (!this.focus){
+						ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting2'));
+					}
 				}
 				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT, event.chatobj.message));
 			}
 			
+			// Receive private chat messages
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
 				LogUtil.debug("Got PrivateChatMessageEvent");
-				if ((!this.focus) && (! UserManager.getInstance().getConference().amIThisUser(new Number(event.message.sender)))) {
-					ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));					
+
+				if ((! UserManager.getInstance().getConference().amIThisUser(new Number(event.message.chatobj.userid)))) {
+					privateNotification();
+					if (!this.focus){
+						ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
+					}					
 				}
 				showMessage(event.message.sender, event.message.chatobj, autoTranslation);
+			}
+			
+			// Activates an audio alert for screen-reader users on public message reception
+			private function publicNotification():void{
+				LogUtil.debug("Public message received! Activating notification.");
+			}
+			
+			// Activates an audio alert for screen-reader users on private message reception
+			private function privateNotification():void{
+				LogUtil.debug("Private message received! Activating notification.");
 			}
 			
 			private function participantHasChatBox(id:String):Boolean {

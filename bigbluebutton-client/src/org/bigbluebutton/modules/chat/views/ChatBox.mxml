@@ -56,6 +56,7 @@
 			private var scrollTimer:Timer;			
 			private var scrollBarWorkaround:Boolean = false;
 			private var currentMessage:int;
+			private var latestMessage:int; 
 			//private var chatHistorySpacer:Boolean = false;
 			
 			private var reachedLatest:String = "You have reached the latest message. ";
@@ -77,6 +78,7 @@
 				
 				// Initialize the indicator for the position in the message history, and add the listener for message history navigation
 				currentMessage = 0;
+				latestMessage = 0;
 				this.addEventListener(KeyboardEvent.KEY_DOWN, navigateMessages);		
 				// Initialize the chatMessagesList tooltip as the Welcome message
 				chatMessagesList.accessibilityProperties.description = messages[0].toString();
@@ -231,6 +233,14 @@
 				return chatHistorySpacer;
 			}
 			
+			public function getLatestMessage():int{
+				return latestMessage;
+			}
+			
+			public function getCurrentMessage():int{
+				return currentMessage;
+			}
+			
 			public function navigateMessages(e:KeyboardEvent) :void{			
 				var navToFirst:Boolean = false;
 				var navToLatest:Boolean = false;
@@ -277,6 +287,12 @@
 						chatMessagesList.accessibilityProperties.description = navFirstString;
 						Accessibility.updateProperties();						
 					}
+					
+					// Update the latestMessage counter for new message notifications
+					if (currentMessage > latestMessage)
+						latestMessage = currentMessage;
+					LogUtil.debug("Current place in message history: " + currentMessage);
+					LogUtil.debug("-------------Latest message read: " + latestMessage);
 					
 					if (!repeat){
 					// Make it clear to the user that they have either navigated to or reached one end of the message history or the other.
