@@ -114,7 +114,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		private function applyTextFormat(size:Number):void {
-			this.textSize = size;
 			var tf:TextFormat = new TextFormat();
 			tf.size = size;
 			tf.font = "arial";

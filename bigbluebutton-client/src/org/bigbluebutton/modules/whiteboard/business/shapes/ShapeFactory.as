@@ -20,6 +20,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	import flash.display.Shape;
 	
+	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.modules.whiteboard.models.Annotation;
+	
 	/**
 	 * The ShapeFactory receives DrawObjects and converts them to Flash Shapes which can then be displayed
 	 * <p>
@@ -95,7 +98,21 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return makeShape(drawFactory.makeDrawObject(type, segment, color, thickness, fill, fillColor, trans));
 		}
 		
-
+        public function createTextObject(txt:String, txtColor:uint, bgColor:uint, bgColorVisible:Boolean, x:Number, y:Number, textSize:Number):TextObject {		           
+            var tobj:TextObject = new TextObject(txt, txtColor, bgColor, bgColorVisible, normalize(x , _parentWidth), normalize(y, _parentHeight), textSize);
+            return tobj;
+        }
+          
+        
+        /* convenience method for above method, takes a TextObject and returns one with "normalized" coordinates */
+        public function makeTextObject(t:Annotation):TextObject {
+            LogUtil.debug("***Making textObject [" + t.type + ", [" + t.annotation.x + "," + t.annotation.y + "]");
+            var tobj:TextObject = new TextObject(t.annotation.text, t.annotation.fontColor, t.annotation.backgroundColor, t.annotation.background, t.annotation.x, t.annotation.y, t.annotation.fontSize);
+            tobj.makeGraphic(_parentWidth,_parentHeight);
+            LogUtil.debug("***Made textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "]");
+            return tobj;
+        }
+        
 		
 		/**
 		 * Creates a Flash Shape from a Pencil DrawObject 

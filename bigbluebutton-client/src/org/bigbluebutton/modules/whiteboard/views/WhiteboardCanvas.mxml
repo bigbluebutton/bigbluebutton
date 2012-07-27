@@ -74,7 +74,6 @@
 			}
 			
             public function registerForMouseEvents():void {
-                addEventListener(MouseEvent.DOUBLE_CLICK, doMouseDoubleClick); 
                 addEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
                 addEventListener(MouseEvent.MOUSE_UP, doMouseUp);
                 addEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
@@ -89,11 +88,7 @@
 			private function doMouseUp(event:Event):void {
 				model.doMouseUp();
 			}
-			
-			private function doMouseDoubleClick(event:Event):void{
-//				model.doMouseDoubleClick(this.mouseX, this.mouseY);
-			}
-			
+						
 			private function doMouseDown(event:Event):void {
 				model.doMouseDown(this.mouseX, this.mouseY);
 			}
@@ -102,15 +97,9 @@
 				model.doMouseMove(this.mouseX, this.mouseY);
 			}
 			
-//			public function sendShapeToServer(dobj:DrawObject):void {
-//				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
-//				event.annotation = dobj;
- //               var dispatcher:Dispatcher = new Dispatcher();
- //               dispatcher.dispatchEvent(event);					
-//			}
 			
 			public function setShape(s:String):void {
-                LogUtil.debug("SET SHAPE [" + s + "]");
+//                LogUtil.debug("SET SHAPE [" + s + "]");
 //				model.setShape(s);
 			}
 				

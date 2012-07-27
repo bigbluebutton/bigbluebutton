@@ -120,31 +120,17 @@ package org.bigbluebutton.modules.whiteboard.services
 		 */		
 		public function sendText(e:WhiteboardDrawEvent):void{
 			LogUtil.debug("Sending [whiteboard.sendAnnotation] (TEXT) to server.");
-/*			var tobj:TextObject = e.message as TextObject;
-			
-			var annotation:Object = new Object();
-			annotation["type"] = "text";
-			annotation["id"] = tobj.getGraphicID();
-			annotation["status"] = tobj.status;  
-			annotation["text"] = tobj.text;
-			annotation["fontColor"] = tobj.textColor;
-			annotation["backgroundColor"] = tobj.backgroundColor;
-			annotation["background"] = tobj.background;
-			annotation["x"] = tobj.getOrigX();
-			annotation["y"] = tobj.getOrigY();
-			annotation["fontSize"] = tobj.textSize;
-			
-			var _nc:ConnectionManager = BBB.initConnectionManager();
-			_nc.sendMessage("whiteboard.sendAnnotation", 
-				function(result:String):void { // On successful result
-					LogUtil.debug(result); 
-				},	                   
-				function(status:String):void { // status - On error occurred
-					LogUtil.error(status); 
-				},
-				annotation
-			);
-*/		}		
+            var _nc:ConnectionManager = BBB.initConnectionManager();
+            _nc.sendMessage("whiteboard.sendAnnotation",               
+                function(result:String):void { // On successful result
+                    LogUtil.debug(result); 
+                },	                   
+                function(status:String):void { // status - On error occurred
+                    LogUtil.error(status); 
+                },
+                e.annotation.annotation
+            );
+        }		
 
 		/**
 		 * Sends a shape to the Shared Object on the red5 server, and then triggers an update across all clients

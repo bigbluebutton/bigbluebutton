@@ -18,7 +18,7 @@ package org.bigbluebutton.modules.whiteboard.views
         private var _sendFrequency:int;
         private var _shapeFactory:ShapeFactory;
         
-        public function PencilDrawListener(wbCanvas:WhiteboardCanvas, sendShapeFrequency:int, shapeFactory:ShapeFactory )
+        public function PencilDrawListener(wbCanvas:WhiteboardCanvas, sendShapeFrequency:int, shapeFactory:ShapeFactory)
         {
             _wbCanvas = wbCanvas;
             _sendFrequency = sendShapeFrequency;

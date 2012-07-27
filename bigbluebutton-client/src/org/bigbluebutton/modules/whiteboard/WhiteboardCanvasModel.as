@@ -54,8 +54,7 @@ package org.bigbluebutton.modules.whiteboard
         private var shapeFactory:ShapeFactory = new ShapeFactory();
         
 		
-		/* represents the max number of 'points' enumerated in 'segment' before sending an update to server. Used to prevent 
-		   spamming red5 with unnecessary packets */
+		/* represents the max number of 'points' enumerated in 'segment' before sending an update to server. Used to prevent spamming red5 with unnecessary packets */
 		private var sendShapeFrequency:uint = 30;	
 		
 		/* same as above, except a faster interval may be desirable when erasing, for aesthetics */
@@ -63,15 +62,11 @@ package org.bigbluebutton.modules.whiteboard
 
 		private var width:Number;
 		private var height:Number;
-
-        public function WhiteboardCanvasModel() {
-            
-            drawListeners.push(new TextDrawListener());
-        }
         
         public function set wbCanvas(canvas:WhiteboardCanvas):void {
             _wbCanvas = canvas;
             drawListeners.push(new PencilDrawListener(_wbCanvas, sendShapeFrequency, shapeFactory));
+            drawListeners.push(new TextDrawListener(_wbCanvas, sendShapeFrequency, shapeFactory));
         }
         
         public function zoomCanvas(width:Number, height:Number):void{
@@ -103,7 +98,6 @@ package org.bigbluebutton.modules.whiteboard
 		}
 				
 		public function doMouseMove(mouseX:Number, mouseY:Number):void{
-//            LogUtil.debug("CanvasModel doMouseMove***");
             for (var ob:int = 0; ob < drawListeners.length; ob++) {
                 (drawListeners[ob] as IDrawListener).onMouseMove(mouseX, mouseY, wbTool);
             }
