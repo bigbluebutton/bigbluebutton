@@ -42,6 +42,10 @@ package org.bigbluebutton.modules.whiteboard.models
             return _annotation;
         }
         
+        public function set annotation(a:Object):void {
+            _annotation = a;
+        }
+        
         public function get status():String {
             return _status;
         }

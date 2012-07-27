@@ -118,23 +118,23 @@ package org.bigbluebutton.modules.whiteboard.views
                 points += dobj.getShapeArray()[p] + ",";
             }
             points += "]}";
-            LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 2 [" + points + "]");
+ //           LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 2 [" + points + "]");
             
             
-            LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1 - type [" + tool.toolType + "]");
+ //           LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1 - type [" + tool.toolType + "]");
             
             if (tool.toolType == DrawObject.PENCIL) {
-                LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.1 - type [" + tool.toolType + "]");
-                dobj.status = DrawObject.DRAW_END;
-                LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.2 - type [" + tool.toolType + "]");
+ //               LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.1 - type [" + tool.toolType + "]");
+                dobj.status = DrawObject.DRAW_START;
+//                LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.2 - type [" + tool.toolType + "]");
                 _drawStatus = DrawObject.DRAW_START;
-                LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.3 - type [" + tool.toolType + "]");
+//                LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.3 - type [" + tool.toolType + "]");
                 _segment = new Array();	
-                LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.4 - type [" + tool.toolType + "]");
+//                LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.4 - type [" + tool.toolType + "]");
                 var xy:Array = _wbCanvas.getMouseXY();
-                LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.5 - type [" + tool.toolType + "]");
+ //               LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.5 - type [" + tool.toolType + "]");
                 _segment.push(xy[0], xy[1]);
-                LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.6 - type [" + tool.toolType + "]");
+//                LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.6 - type [" + tool.toolType + "]");
             }
 /*            
             var points:String = "{type=" + dobj.getType() + ",points=";

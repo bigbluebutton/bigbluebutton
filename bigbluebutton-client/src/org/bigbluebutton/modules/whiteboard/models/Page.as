@@ -16,6 +16,13 @@ package org.bigbluebutton.modules.whiteboard.models
 			_annotations.addItem(annotation);
 		}
 		
+        public function updateAnnotation(annotation:Annotation):void {
+            var a:Annotation = getAnnotation(annotation.id);
+            if (a != null) {
+                a.annotation = annotation.annotation;
+            }
+        }
+        
 		public function undo():void {
 			_annotations.removeItemAt(_annotations.length - 1);
 		}
@@ -34,6 +41,16 @@ package org.bigbluebutton.modules.whiteboard.models
                 a.push(_annotations.getItemAt(i) as Annotation);
             }
             return a;
+        }
+        
+        public function getAnnotation(id:String):Annotation {
+            for (var i:int = 0; i < _annotations.length; i++) {
+                if ((_annotations.getItemAt(i) as Annotation).id == id) {
+                    return _annotations.getItemAt(i) as Annotation;
+                }
+            }
+            
+            return null;
         }
 	}
 }

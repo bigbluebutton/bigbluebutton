@@ -22,6 +22,10 @@ package org.bigbluebutton.modules.whiteboard.models
             return _currentPage.getAnnotations();
         }
         
+        public function getAnnotation(id:String):Annotation {
+            return _currentPage.getAnnotation(id);
+        }
+        
 		private function createPages(numPages:int):void {
             LogUtil.debug("**** Creating presentation " + _id + " with pages [" + numPages + "]");
 			for (var i:int = 1; i <= numPages; i++) {
@@ -54,6 +58,10 @@ package org.bigbluebutton.modules.whiteboard.models
 			_currentPage.addAnnotation(annotation);
 		}
 		
+        public function updateAnnotation(annotation:Annotation):void {
+            _currentPage.updateAnnotation(annotation);
+        }
+        
 		public function undo():void {
 			_currentPage.undo();
 		}

@@ -114,7 +114,7 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	public void sendAnnotation(Annotation annotation) {	
 		String status = annotation.getStatus();
 		
-		if("textCreated".equals(status) || "DRAW_END".equals(status)) {
+		if("textCreated".equals(status) || "DRAW_START".equals(status)) {
 			annotation.setID(Integer.toString(roomManager.getRoom(getMeetingId()).getUniqueWBGraphicIdentifier()));
 			roomManager.getRoom(getMeetingId()).addAnnotation(annotation);
 		} else {

@@ -5,14 +5,15 @@ package org.bigbluebutton.modules.whiteboard.models
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 
 	public class WhiteboardModel
 	{
 		private var _presentations:ArrayCollection = new ArrayCollection();
-		private var _currentPresentation:Presentation;
-		
+		private var _currentPresentation:Presentation;		
         private var _dispatcher:IEventDispatcher;
         
         public function WhiteboardModel(dispatcher:IEventDispatcher) {
@@ -20,8 +21,13 @@ package org.bigbluebutton.modules.whiteboard.models
         }		
 		
 		public function addAnnotation(annotation:Annotation):void {
-			_currentPresentation.addAnnotation(annotation);
-            LogUtil.debug("*** Adding annotation ****");
+            LogUtil.debug("*** Adding annotation [" + annotation.id + "," + annotation.type + "," + annotation.status + "] ****");
+            if (annotation.status == DrawObject.DRAW_START || annotation.status == TextObject.TEXT_CREATED) {
+                _currentPresentation.addAnnotation(annotation);
+            } else {
+                _currentPresentation.updateAnnotation(annotation);
+            }
+			            
             var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
             event.annotation = annotation;
             event.recvdShapes = false;
@@ -33,6 +39,10 @@ package org.bigbluebutton.modules.whiteboard.models
 			
 		}
 		
+        public function getAnnotation(id:String):Annotation {
+            return _currentPresentation.getAnnotation(id);
+        }
+        
         public function getAnnotations():Array {
             return _currentPresentation.getAnnotations();
         }

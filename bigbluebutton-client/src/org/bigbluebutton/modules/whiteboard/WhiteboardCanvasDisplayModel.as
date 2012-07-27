@@ -12,14 +12,12 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
-	import flash.ui.Keyboard;
-	
+	import flash.ui.Keyboard;	
 	import mx.collections.ArrayCollection;
 	import mx.controls.TextInput;
 	import mx.core.Application;
 	import mx.core.UIComponent;
-	import mx.managers.CursorManager;
-	
+	import mx.managers.CursorManager;	
 	import org.bigbluebutton.common.IBbbCanvas;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -351,8 +349,14 @@ package org.bigbluebutton.modules.whiteboard
 				wbCanvas.addGraphic(dobj);
 				graphicList[objIndex] = dobj;
 			} else if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
-//                var origTobj:TextObject = gobj as TextObject;
-//                wbCanvas.removeGraphic(origTobj);
+                var origTobj:TextObject = gobj as TextObject;
+                wbCanvas.removeGraphic(origTobj);
+                var an:Annotation = whiteboardModel.getAnnotation(origTobj.getGraphicID());
+                if (an != null) {
+                    LogUtil.error("!!!! Text with id [" + origTobj.getGraphicID() + "] is missing.!!!!");
+                } else {
+                    addNormalText(an);
+                }
 //                origTobj.graphics.clear();
      //           var tobj:TextObject =  shapeFactory.makeTextObject(origTobj);
 //                tobj.setGraphicID(origTobj.getGraphicID());
@@ -378,7 +382,7 @@ package org.bigbluebutton.modules.whiteboard
                     tobj.stage.focus = null;
                     return;
                 }
-//                sendTextToServer(sendStatus, tobj);	
+                sendTextToServer(sendStatus, tobj);	
             } 				
         }
         
@@ -386,7 +390,7 @@ package org.bigbluebutton.modules.whiteboard
             var sendStatus:String = TextObject.TEXT_UPDATED;
             var tf:TextObject = event.target as TextObject;	
             LogUtil.debug("ID " + tf.getGraphicID() + " modified to " + tf.text);
-//            sendTextToServer(sendStatus, tf);	
+            sendTextToServer(sendStatus, tf);	
         }
         
         public function textObjGainedFocusListener(event:FocusEvent):void {
@@ -401,12 +405,41 @@ package org.bigbluebutton.modules.whiteboard
         
         public function textObjLostFocusListener(event:FocusEvent):void {
             var tf:TextObject = event.target as TextObject;	
-//            sendTextToServer(TextObject.TEXT_PUBLISHED, tf);	
+            sendTextToServer(TextObject.TEXT_PUBLISHED, tf);	
             LogUtil.debug("Text published to: " +  tf.text);
             var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
             e.data = tf;
             wbCanvas.dispatchEvent(e);
             /* hide text toolbar because we don't want to show it if there is no text selected */
+        }
+        
+        private function sendTextToServer(status:String, tobj:TextObject):void {
+            switch (status) {
+                case TextObject.TEXT_CREATED:
+                    tobj.status = TextObject.TEXT_CREATED;
+                    break;
+                case TextObject.TEXT_UPDATED:
+                    tobj.status = TextObject.TEXT_UPDATED;
+                    break;
+                case TextObject.TEXT_PUBLISHED:
+                    tobj.status = TextObject.TEXT_PUBLISHED;
+                    break;
+            }	
+            LogUtil.debug("SENDING TEXT: [" + tobj.text + "]");
+            
+            var annotation:Object = new Object();
+            annotation["type"] = "text";
+            annotation["id"] = tobj.getGraphicID();
+            annotation["status"] = tobj.status;  
+            annotation["text"] = tobj.text;
+            annotation["fontColor"] = tobj.textColor;
+            annotation["backgroundColor"] = tobj.backgroundColor;
+            annotation["background"] = tobj.background;
+            annotation["x"] = tobj.getOrigX();
+            annotation["y"] = tobj.getOrigY();
+            annotation["fontSize"] = tobj.textSize;
+            var msg:Annotation = new Annotation(tobj.getGraphicID(), "text", annotation);
+            wbCanvas.sendGraphicToServer(msg, WhiteboardDrawEvent.SEND_TEXT);			
         }
 		
 		public function isPageEmpty():Boolean {
