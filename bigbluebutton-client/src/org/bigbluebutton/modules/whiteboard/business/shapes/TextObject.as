@@ -69,8 +69,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		
         private var origX:Number;
         private var origY:Number;
-        private var oldParentWidth:Number = 0;
-        private var oldParentHeight:Number = 0;
+        private var _oldParentWidth:Number = 0;
+        private var _oldParentHeight:Number = 0;
         public var fontStyle:String = "arial";
         
 		public function TextObject(text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean, x:Number, y:Number, textSize:Number) {
@@ -114,6 +114,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		private function applyTextFormat(size:Number):void {
+            LogUtil.debug(" *** Font text size [" + textSize + "," + size + "]");
 			var tf:TextFormat = new TextFormat();
 			tf.size = size;
 			tf.font = "arial";
@@ -127,12 +128,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             
             var newFontSize:Number = textSize;
             
-            if (oldParentHeight == 0 && oldParentWidth == 0) {
+            if (_oldParentHeight == 0 && _oldParentWidth == 0) {
+                LogUtil.debug("Old parent dim [" + _oldParentWidth + "," + _oldParentHeight + "]");
                 newFontSize = textSize;
-                oldParentHeight = parentHeight;
-                oldParentWidth = parentWidth;               
+                _oldParentHeight = parentHeight;
+                _oldParentWidth = parentWidth;               
             } else {
-                newFontSize = (parentHeight/oldParentHeight) * textSize;
+                newFontSize = (parentHeight/_oldParentHeight) * textSize;
+                LogUtil.debug("2 Old parent dim [" + _oldParentWidth + "," + _oldParentHeight + "] newFontSize=" + newFontSize);
             }            
 			this.antiAliasType = AntiAliasType.ADVANCED;
             applyTextFormat(newFontSize);
@@ -141,7 +144,35 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			// ensure typing doesn't go off of whiteboard
 			this.width = 250;
 		}	
-		
+
+        public function get oldParentWidth():Number {
+            return _oldParentWidth;
+        }
+        
+        public function get oldParentHeight():Number {
+            return _oldParentHeight;
+        }
+        
+        public function redrawText(oldParentWidth:Number, oldParentHeight:Number, parentWidth:Number, parentHeight:Number):void {
+            this.x = denormalize(origX, parentWidth);
+            this.y = denormalize(origY, parentHeight);
+            
+            var newFontSize:Number = textSize;
+            newFontSize = (parentHeight/oldParentHeight) * textSize;
+//            _oldParentHeight = parentHeight;
+//            _oldParentWidth = parentWidth;               
+
+                
+            LogUtil.debug("Redraw 2 Old parent dim [" + oldParentWidth + "," + oldParentHeight + "] newFontSize=" + newFontSize);
+     
+            this.antiAliasType = AntiAliasType.ADVANCED;
+            applyTextFormat(newFontSize);
+            //            setTextFormat(new TextFormat(fontStyle, newFontSize, textColor));
+            
+            // ensure typing doesn't go off of whiteboard
+            this.width = 250;
+        }
+        
 		public function getProperties():Array {
 			var props:Array = new Array();
 			props.push(this.text);

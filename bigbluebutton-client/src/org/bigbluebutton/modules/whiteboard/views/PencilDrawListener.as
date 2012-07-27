@@ -27,9 +27,7 @@ package org.bigbluebutton.modules.whiteboard.views
         
         public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
         {
- //           LogUtil.debug("PencilDrawListener onMouseDown [" + mouseX + "," + mouseY + "]");
             if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
-                LogUtil.debug("PencilDrawListener onMouseDown [" + tool.graphicType +"," + mouseX + "," + mouseY + "]");
                 _isDrawing = true;
                 _drawStatus = DrawObject.DRAW_START;
                 _segment = new Array();               
@@ -44,7 +42,6 @@ package org.bigbluebutton.modules.whiteboard.views
                 if (_isDrawing){
                     _segment.push(mouseX);
                     _segment.push(mouseY);
-                    LogUtil.debug("PencilDrawListener onMouseMove [" + tool.graphicType +"," + mouseX + "," + mouseY + "]");
                     if (_segment.length > _sendFrequency) {                       
                         sendShapeToServer(_drawStatus, tool);
                     }	
@@ -54,11 +51,8 @@ package org.bigbluebutton.modules.whiteboard.views
         
         public function onMouseUp(tool:WhiteboardTool):void
         {
-            LogUtil.debug("PencilDrawListener onMouseUp");
             if(tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
-                LogUtil.debug("PencilDrawListener onMouseUp [" + tool.graphicType + "]");
                 if (_isDrawing) {
-                    LogUtil.debug("PencilDrawListener onMouseUp - drawing = [" + _isDrawing + "]");
                     /**
                      * Check if we are drawing because when resizing the window, it generates
                      * a mouseUp event at the end of resize. We don't want to dispatch another
@@ -85,18 +79,8 @@ package org.bigbluebutton.modules.whiteboard.views
         }
     
         private function sendShapeToServer(status:String, tool:WhiteboardTool):void {
-            LogUtil.debug("PencilDrawListener sendShapeToServer - segment Length= [" + _segment.length + "]");
             if (_segment.length == 0) return;
-            
-            var s:String = "{type=" + tool.toolType + ",points=";
-            for (var pq:int = 0; pq < _segment.length; pq++) {
-                s += _segment[pq] + ",";
-            }
-            s += "]}";
-            LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 2 [" + s + "]");
-            
-            LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 0");
-            
+                       
             var dobj:DrawObject = _shapeFactory.createDrawObject(tool.toolType, _segment, tool.drawColor, tool.thickness, tool.fillOn, tool.fillColor, tool.transparencyOn);
             
             switch (status) {
@@ -113,38 +97,15 @@ package org.bigbluebutton.modules.whiteboard.views
                     break;
             }
             
-            var points:String = "{type=" + dobj.getType() + ",points=";
-            for (var p:int = 0; p < dobj.getShapeArray().length; p++) {
-                points += dobj.getShapeArray()[p] + ",";
-            }
-            points += "]}";
- //           LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 2 [" + points + "]");
-            
-            
- //           LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1 - type [" + tool.toolType + "]");
-            
+            /** PENCIL is a special case as each segment is a separate shape **/
             if (tool.toolType == DrawObject.PENCIL) {
- //               LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.1 - type [" + tool.toolType + "]");
                 dobj.status = DrawObject.DRAW_START;
-//                LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.2 - type [" + tool.toolType + "]");
                 _drawStatus = DrawObject.DRAW_START;
-//                LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.3 - type [" + tool.toolType + "]");
                 _segment = new Array();	
-//                LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.4 - type [" + tool.toolType + "]");
                 var xy:Array = _wbCanvas.getMouseXY();
- //               LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.5 - type [" + tool.toolType + "]");
                 _segment.push(xy[0], xy[1]);
-//                LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 1.6 - type [" + tool.toolType + "]");
             }
-/*            
-            var points:String = "{type=" + dobj.getType() + ",points=";
-            for (var p:int = 0; p < dobj.getShapeArray().length; p++) {
-                points += dobj.getShapeArray()[p] + ",";
-            }
-            points += "]}";
-            
-            LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 2 [" + points + "]");
-*/            
+           
             var annotation:Object = new Object();
             annotation["type"] = dobj.getType();
             annotation["points"] = dobj.getShapeArray();
@@ -156,7 +117,6 @@ package org.bigbluebutton.modules.whiteboard.views
             annotation["fillColor"] = dobj.getFillColor();
             annotation["transparency"] = dobj.getTransparency();
             
-            LogUtil.debug("PencilDrawListener sendGraphicToServer");
             var msg:Annotation = new Annotation(dobj.getGraphicID(), dobj.getType(), annotation);
             _wbCanvas.sendGraphicToServer(msg, WhiteboardDrawEvent.SEND_SHAPE);			
         }

@@ -133,7 +133,7 @@ package org.bigbluebutton.modules.whiteboard
             LogUtil.debug("Adding new shape 1 [" + dobj.getType() + "," + dobj.getGraphicID() + "," + dobj.status + "]");
 			wbCanvas.addGraphic(dobj);
             LogUtil.debug("Adding new shape 2 [" + dobj.getGraphicID() + ", [" + dobj.x + "," + dobj.y + "]");
-            
+/*            
             var points:String = "{type=" + dobj.getType() + ",points=";
             for (var p:int = 0; p < dobj.getShapeArray().length; p++) {
                 points += dobj.getShapeArray()[p] + ",";
@@ -143,7 +143,7 @@ package org.bigbluebutton.modules.whiteboard
             LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 2 [" + points + "]");
             
             LogUtil.debug("Adding new shape 3 [" + points + "]");
-			graphicList.push(dobj);
+*/			graphicList.push(dobj);
 		}
 		
 		private function calibrateNewTextWith(o:Annotation):TextObject {
@@ -349,20 +349,18 @@ package org.bigbluebutton.modules.whiteboard
 				wbCanvas.addGraphic(dobj);
 				graphicList[objIndex] = dobj;
 			} else if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
-                var origTobj:TextObject = gobj as TextObject;
-                wbCanvas.removeGraphic(origTobj);
+                var origTobj:TextObject = gobj as TextObject;                
                 var an:Annotation = whiteboardModel.getAnnotation(origTobj.getGraphicID());
-                if (an != null) {
+                if (an == null) {
                     LogUtil.error("!!!! Text with id [" + origTobj.getGraphicID() + "] is missing.!!!!");
                 } else {
-                    addNormalText(an);
-                }
-//                origTobj.graphics.clear();
-     //           var tobj:TextObject =  shapeFactory.makeTextObject(origTobj);
-//                tobj.setGraphicID(origTobj.getGraphicID());
-//                tobj.status = origTobj.status;
-//                wbCanvas.addGraphic(tobj);
-//                graphicList[objIndex] = tobj;
+                    wbCanvas.removeGraphic(origTobj);
+                    var tobj:TextObject = shapeFactory.redrawTextObject(an, origTobj);
+                    tobj.setGraphicID(origTobj.getGraphicID());
+                    tobj.status = origTobj.status;
+                    wbCanvas.addGraphic(tobj);
+                    graphicList[objIndex] = tobj;
+                }            
 			}
 		}
         
