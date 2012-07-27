@@ -51,6 +51,7 @@ package org.bigbluebutton.modules.whiteboard
 		private var _wbCanvas:WhiteboardCanvas;	      
         private var drawListeners:Array = new Array();
         private var wbTool:WhiteboardTool = new WhiteboardTool();
+        private var shapeFactory:ShapeFactory = new ShapeFactory();
         
 		
 		/* represents the max number of 'points' enumerated in 'segment' before sending an update to server. Used to prevent 
@@ -70,7 +71,13 @@ package org.bigbluebutton.modules.whiteboard
         
         public function set wbCanvas(canvas:WhiteboardCanvas):void {
             _wbCanvas = canvas;
-            drawListeners.push(new PencilDrawListener(_wbCanvas, sendShapeFrequency));
+            drawListeners.push(new PencilDrawListener(_wbCanvas, sendShapeFrequency, shapeFactory));
+        }
+        
+        public function zoomCanvas(width:Number, height:Number):void{
+            shapeFactory.setParentDim(width, height);	
+            this.width = width;
+            this.height = height;	
         }
         
 		public function changeFontStyle(font:String):void {

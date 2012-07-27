@@ -16,12 +16,13 @@ package org.bigbluebutton.modules.whiteboard.views
         private var _segment:Array = new Array();
         private var _wbCanvas:WhiteboardCanvas;
         private var _sendFrequency:int;
-        private var shapeFactory:ShapeFactory = new ShapeFactory();
+        private var _shapeFactory:ShapeFactory;
         
-        public function PencilDrawListener(wbCanvas:WhiteboardCanvas, sendShapeFrequency:int )
+        public function PencilDrawListener(wbCanvas:WhiteboardCanvas, sendShapeFrequency:int, shapeFactory:ShapeFactory )
         {
             _wbCanvas = wbCanvas;
             _sendFrequency = sendShapeFrequency;
+            _shapeFactory = shapeFactory;
         }
         
         public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
@@ -96,7 +97,7 @@ package org.bigbluebutton.modules.whiteboard.views
             
             LogUtil.debug("PencilDrawListener sendShapeToServer - Got here 0");
             
-            var dobj:DrawObject = shapeFactory.createDrawObject(tool.toolType, _segment, tool.drawColor, tool.thickness, tool.fillOn, tool.fillColor, tool.transparencyOn);
+            var dobj:DrawObject = _shapeFactory.createDrawObject(tool.toolType, _segment, tool.drawColor, tool.thickness, tool.fillOn, tool.fillColor, tool.transparencyOn);
             
             switch (status) {
                 case DrawObject.DRAW_START:

@@ -37,6 +37,7 @@
             import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
             import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
             import org.bigbluebutton.modules.whiteboard.business.shapes.SelectObject;
+            import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
             import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
             import org.bigbluebutton.modules.whiteboard.events.PageEvent;
             import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
@@ -65,7 +66,8 @@
 			private var whiteboardEnabled:Boolean = false;
 			private var showWhiteboard:Boolean = true;
 
-			
+
+            
 			private function init():void {
 				this.label = "Highlighter";
                 registerForMouseEvents();
@@ -259,7 +261,7 @@
 				this.width = width;
 				this.height = height;	
 				displayModel.zoomCanvas(width, height);
- //               model.
+                model.zoomCanvas(width, height);
 				textToolbar.adjustForZoom(width, height);
 			}
 					
