@@ -11,8 +11,10 @@ package org.bigbluebutton.modules.whiteboard.services
 
 	public class MessageReceiver implements IMessageListener
 	{
+        /* Injected by Mate */
 		public var whiteboardModel:WhiteboardModel;
-		private var drawFactory:DrawObjectFactory;
+		
+        private var drawFactory:DrawObjectFactory;
 
 		public function MessageReceiver() {
 			drawFactory = new DrawObjectFactory();

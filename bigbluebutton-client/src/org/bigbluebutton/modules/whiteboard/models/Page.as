@@ -27,5 +27,13 @@ package org.bigbluebutton.modules.whiteboard.models
 		public function get number():int {
 			return _num;
 		}
+        
+        public function getAnnotations():Array {
+            var a:Array = new Array();
+            for (var i:int = 0; i < _annotations.length; i++) {
+                a.push(_annotations.getItemAt(i) as Annotation);
+            }
+            return a;
+        }
 	}
 }

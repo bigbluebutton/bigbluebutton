@@ -36,6 +36,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardButton;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
@@ -43,6 +44,9 @@ package org.bigbluebutton.modules.whiteboard.managers
 	
 	public class WhiteboardManager
 	{
+        /* Injected by Mate */
+        public var whiteboardModel:WhiteboardModel;
+        
 		private var globalDispatcher:Dispatcher;
 		private var highlighterCanvas:WhiteboardCanvas;
 		private var highlighterToolbar:WhiteboardToolbar;
@@ -61,6 +65,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 			highlighterCanvas = new WhiteboardCanvas();
 			highlighterCanvas.model = model;
             highlighterCanvas.displayModel = displayModel;
+            displayModel.whiteboardModel = whiteboardModel;
             
 		    model.wbCanvas = highlighterCanvas;
             displayModel.wbCanvas = highlighterCanvas;

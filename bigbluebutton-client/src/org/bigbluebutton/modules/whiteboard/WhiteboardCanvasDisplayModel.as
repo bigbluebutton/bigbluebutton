@@ -12,12 +12,14 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
-	import flash.ui.Keyboard;	
+	import flash.ui.Keyboard;
+	
 	import mx.collections.ArrayCollection;
 	import mx.controls.TextInput;
 	import mx.core.Application;
 	import mx.core.UIComponent;
-	import mx.managers.CursorManager;	
+	import mx.managers.CursorManager;
+	
 	import org.bigbluebutton.common.IBbbCanvas;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -40,12 +42,14 @@ package org.bigbluebutton.modules.whiteboard
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
+	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	
     /**
     * Class to handle displaying of received annotations from the server.
     */
 	public class WhiteboardCanvasDisplayModel {
+        public var whiteboardModel:WhiteboardModel;
 		public var wbCanvas:WhiteboardCanvas;	
 		private var graphicList:Array = new Array();
 		
@@ -54,8 +58,6 @@ package org.bigbluebutton.modules.whiteboard
 		private var bbbCanvas:IBbbCanvas;
 		private var width:Number;
 		private var height:Number;
-
-
 		
 		public function drawGraphic(event:WhiteboardUpdate):void{
 			var o:Annotation = event.annotation;
@@ -67,6 +69,9 @@ package org.bigbluebutton.modules.whiteboard
 			} else { 
 				drawText(o, recvdShapes);	
 			}
+            
+            var a2:Array = whiteboardModel.getAnnotations();
+            LogUtil.debug("**** Number of annotations [" + a2.length + "]");
 		}
 		
         
@@ -151,10 +156,8 @@ package org.bigbluebutton.modules.whiteboard
 			return tobj;
 		}
 			
-		/* adds a new TextObject that is suited for a presenter. For example, it will
-		   be made editable and the appropriate listeners will be registered so that
-		   the required events will be dispatched 
-		*/
+		/* adds a new TextObject that is suited for a presenter. For example, it will be made editable and the appropriate listeners will be registered so that
+		   the required events will be dispatched  */
 		private function addPresenterText(o:Annotation):void {
 			if(!isPresenter) return;
 			var tobj:TextObject = calibrateNewTextWith(o);
@@ -163,7 +166,7 @@ package org.bigbluebutton.modules.whiteboard
 			tobj.autoSize = TextFieldAutoSize.LEFT;
 			tobj.makeEditable(true);
             LogUtil.debug("Putting text object [" + tobj.getGraphicID() + "] in [" + tobj.x + "," + tobj.y + "]");
-//			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
+			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			wbCanvas.addGraphic(tobj);
 			wbCanvas.stage.focus = tobj;
 			graphicList.push(tobj);
@@ -241,7 +244,7 @@ package org.bigbluebutton.modules.whiteboard
 			var gobj:GraphicObject = graphicList.pop();
 			if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
 				(gobj as TextObject).makeEditable(false);
-//				(gobj as TextObject).deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
+				(gobj as TextObject).deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			}	
 			wbCanvas.removeGraphic(gobj as DisplayObject);
 		}
@@ -308,6 +311,7 @@ package org.bigbluebutton.modules.whiteboard
 			this.width = width;
 			this.height = height;
 
+ //           var an:Array = 
 			for (var i:int = 0; i < this.graphicList.length; i++){
 				redrawGraphic(this.graphicList[i] as GraphicObject, i);
 			}		
@@ -347,16 +351,63 @@ package org.bigbluebutton.modules.whiteboard
 				wbCanvas.addGraphic(dobj);
 				graphicList[objIndex] = dobj;
 			} else if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
-                var origTobj:TextObject = gobj as TextObject;
+//                var origTobj:TextObject = gobj as TextObject;
 //                wbCanvas.removeGraphic(origTobj);
 //                origTobj.graphics.clear();
-//                var tobj:TextObject =  shapeFactory.makeTextObject(origTobj);
- //               tobj.setGraphicID(origTobj.getGraphicID());
- //               tobj.status = origTobj.status;
- //               wbCanvas.addGraphic(tobj);
- //               graphicList[objIndex] = tobj;
+     //           var tobj:TextObject =  shapeFactory.makeTextObject(origTobj);
+//                tobj.setGraphicID(origTobj.getGraphicID());
+//                tobj.status = origTobj.status;
+//                wbCanvas.addGraphic(tobj);
+//                graphicList[objIndex] = tobj;
 			}
 		}
+        
+        /* the following four methods  are listeners that handle events that occur on TextObjects, such as text being typed, which causes the textObjTextListener
+        to send text to the server. */
+        public function textObjSpecialListener(event:KeyboardEvent):void {
+            // check for special conditions
+            if(event.charCode == 127 || // 'delete' key
+                event.charCode == 8 || // 'bkspace' key
+                event.charCode == 13) { // 'enter' key
+                var sendStatus:String = TextObject.TEXT_UPDATED;
+                var tobj:TextObject = event.target as TextObject;	
+                
+                // if the enter key is pressed, remove focus from the TextObject so that it is sent to the server.
+                if(event.charCode == 13) {
+                    wbCanvas.stage.focus = null;
+                    tobj.stage.focus = null;
+                    return;
+                }
+//                sendTextToServer(sendStatus, tobj);	
+            } 				
+        }
+        
+        public function textObjTextListener(event:TextEvent):void {
+            var sendStatus:String = TextObject.TEXT_UPDATED;
+            var tf:TextObject = event.target as TextObject;	
+            LogUtil.debug("ID " + tf.getGraphicID() + " modified to " + tf.text);
+//            sendTextToServer(sendStatus, tf);	
+        }
+        
+        public function textObjGainedFocusListener(event:FocusEvent):void {
+            var tf:TextObject = event.currentTarget as TextObject;
+            wbCanvas.stage.focus = tf;
+            tf.stage.focus = tf;
+//            currentlySelectedTextObject = tf;
+            var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
+            e.data = tf;
+            wbCanvas.dispatchEvent(e);
+        }
+        
+        public function textObjLostFocusListener(event:FocusEvent):void {
+            var tf:TextObject = event.target as TextObject;	
+//            sendTextToServer(TextObject.TEXT_PUBLISHED, tf);	
+            LogUtil.debug("Text published to: " +  tf.text);
+            var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
+            e.data = tf;
+            wbCanvas.dispatchEvent(e);
+            /* hide text toolbar because we don't want to show it if there is no text selected */
+        }
 		
 		public function isPageEmpty():Boolean {
 			return graphicList.length == 0;

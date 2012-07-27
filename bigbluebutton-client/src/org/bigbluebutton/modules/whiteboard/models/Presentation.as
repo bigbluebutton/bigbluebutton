@@ -18,6 +18,10 @@ package org.bigbluebutton.modules.whiteboard.models
             createPages(numPages);
 		}
 		
+        public function getAnnotations():Array {
+            return _currentPage.getAnnotations();
+        }
+        
 		private function createPages(numPages:int):void {
             LogUtil.debug("**** Creating presentation " + _id + " with pages [" + numPages + "]");
 			for (var i:int = 1; i <= numPages; i++) {

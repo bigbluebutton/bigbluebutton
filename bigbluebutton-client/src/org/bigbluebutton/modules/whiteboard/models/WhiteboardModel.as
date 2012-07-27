@@ -2,7 +2,8 @@ package org.bigbluebutton.modules.whiteboard.models
 {
 	import flash.events.IEventDispatcher;
 	
-	import mx.collections.ArrayCollection;	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
@@ -32,6 +33,10 @@ package org.bigbluebutton.modules.whiteboard.models
 			
 		}
 		
+        public function getAnnotations():Array {
+            return _currentPresentation.getAnnotations();
+        }
+        
 		public function undo():void {
 			_currentPresentation.undo();
 			_dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO));

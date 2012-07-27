@@ -161,7 +161,11 @@
 	<EventHandlers type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="disableWhiteboard" arguments="{event}" />
 	</EventHandlers>
-	
+
+    <Injectors target="{WhiteboardManager}">
+        <ObjectBuilder generator="{WhiteboardModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
+        <PropertyInjector targetKey="whiteboardModel" source="{WhiteboardModel}"/>
+    </Injectors>	
 		
 	<Injectors target="{WhiteboardService}">
 		<PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
