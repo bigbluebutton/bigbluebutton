@@ -14,12 +14,5 @@ package org.bigbluebutton.modules.chat.model
 		public var time:String;
 		public var language:String; 
 		public var userid:String;
-
-		/*public function toString() : String {
-			var result:String;
-			// Remember to localize this later
-			result = "User " + username + " said " + message + " at " + time;  
-			return result;
-		}*/
 	}
 }

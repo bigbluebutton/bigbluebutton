@@ -87,6 +87,7 @@
             import org.bigbluebutton.modules.chat.model.MessageVO;
             import org.bigbluebutton.modules.chat.model.business.UserVO;
             import org.bigbluebutton.util.i18n.ResourceUtil;
+			import flash.utils.Timer;
 			
 			[Bindable] public var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
 				'0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
@@ -104,8 +105,16 @@
 			public var participants:ArrayCollection = new ArrayCollection();
 			
             public var chatWindow:ChatWindow;
-            
+			private var publicWaiting:Boolean = false;
+			private var privateWaiting:ArrayCollection = new ArrayCollection();
+			private var timerInterval:int = 10; // How many seconds you want the timer to wait between chat notifications
+            private var notificationTimer:Timer = new Timer(timerInterval * 1000);
+			
 			private function onCreationComplete():void{
+				// Start the timer for screen-reader-friendly chat notifications
+				notificationTimer.addEventListener(TimerEvent.TIMER, checkNotifications);
+				notificationTimer.start();
+				
 				addParticipantToList(PUBLIC_CHAT_USERID, PUBLIC_CHAT_USERNAME, "public");
 				openChatBoxFor(PUBLIC_CHAT_USERID);
 				createAddTabBox();
@@ -380,7 +389,7 @@
 				LogUtil.debug("Got PrivateChatMessageEvent");
 
 				if ((! UserManager.getInstance().getConference().amIThisUser(new Number(event.message.chatobj.userid)))) {
-					privateNotification();
+					privateNotification(event);
 					if (!this.focus){
 						ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
 					}					
@@ -390,12 +399,45 @@
 			
 			// Activates an audio alert for screen-reader users on public message reception
 			private function publicNotification():void{
-				LogUtil.debug("Public message received! Activating notification.");
+				//LogUtil.debug("Public message received! Activating notification.");
+				publicWaiting = true;
 			}
 			
 			// Activates an audio alert for screen-reader users on private message reception
-			private function privateNotification():void{
-				LogUtil.debug("Private message received! Activating notification.");
+			private function privateNotification(event:PrivateChatMessageEvent):void{
+				//LogUtil.debug("Private message received! Activating notification.");
+				var newItem:Boolean = true;
+				// Check if there is already a notification of private messages from that user
+				if (privateWaiting.length){
+					for (var i:int = 0; i < privateWaiting.length; i++){
+						// Compare userID of incoming message to userIDs of unsent notifications
+						if (event.message.chatobj.userid == privateWaiting.getItemAt(i).message.chatobj.userid){
+							newItem = false;
+						}
+					}
+				}
+				if (newItem)
+					privateWaiting.addItem(event);
+			}
+			
+			// Listens to the notification timer, and checks if there are messages waiting
+			private function checkNotifications(event:TimerEvent):void{
+				var debugDate:Date = new Date();
+				if (publicWaiting){
+					LogUtil.debug("The time is " + debugDate.getHours() + ":" + debugDate.getMinutes() + ":" + debugDate.getSeconds() + " and there are new public messages.");
+					// Clear public notification
+					publicWaiting = false;
+				}
+				
+				if (privateWaiting.length){
+					LogUtil.debug("The time is " + debugDate.getHours() + ":" + debugDate.getMinutes() + ":" + debugDate.getSeconds() + " and there are new private messages from: ");
+					for (var i:int = 0; i < privateWaiting.length; i++){
+						LogUtil.debug(privateWaiting.getItemAt(i).message.chatobj.username);
+					}
+					// Clear all private notifications
+					privateWaiting.removeAll();
+				}
+				// NOTE: Please re-work this so that they are only cleared when the user visits the relevant chatbox
 			}
 			
 			private function participantHasChatBox(id:String):Boolean {
