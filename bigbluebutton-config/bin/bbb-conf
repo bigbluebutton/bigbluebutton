@@ -1432,6 +1432,28 @@ check_state() {
 		echo 
 	fi
 
+	BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
+	DEFAULT_PDF=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^beans.presentationService.defaultUploadedPresentation/{s/.*=//;p}')
+	if echo $DEFAULT_PDF | grep -q "bigbluebutton.web.serverURL"; then
+        	if ! echo "$BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')" | xargs wget -q -O /dev/null; then
+			echo "# Error: Unable to reach default URL for presentation:"
+			echo "#"
+			echo "#    $BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')"
+			echo "#"
+                	echo "# Check value for beans.presentationService.defaultUploadedPresentation in"
+                	echo "#   ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
+        	fi
+	else
+        	if ! echo "$DEFAULT_PDF" | xargs wget -q -O /dev/null; then
+			echo "# Error: Unable to reach default URL for presentation"
+			echo "#"
+			echo "#    $DEFAULT_PDF"
+			echo "#"
+                	echo "# Check value for beans.presentationService.defaultUploadedPresentation in"
+                	echo "#   ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
+        	fi
+	fi
+
 	exit 0
 }
 
