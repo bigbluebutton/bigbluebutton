@@ -20,7 +20,7 @@
   $Id: $
 -->
 
-<mx:VBox xmlns="flexlib.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:VBox xmlns="flexlib.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
 	xmlns:mate="http://mate.asfusion.com/" visible="false" backgroundColor="0xCCCCCC" cornerRadius="5" borderStyle="solid" 
 	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" >
 	
@@ -30,6 +30,8 @@
 	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />
 	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
 	<mate:Listener type="{WhiteboardButtonEvent.CHANGE_TO_PENCIL}" method="setShapeToPencil" />
+	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
+	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
 	
 	<mx:Style>
 		.colorPickerStyle {
@@ -55,19 +57,29 @@
 			import mx.controls.Alert;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
+			import mx.managers.CursorManager;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.SelectObject;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
+			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
+			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
+			import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
+            [Bindable] private var hand_icon:Class = images.hand_icon;
 			[Bindable] private var pencil_icon:Class = images.pencil_icon;
 			[Bindable] private var undo_icon:Class = images.undo_icon;
 			[Bindable] private var delete_icon:Class = images.delete_icon;
@@ -75,13 +87,24 @@
 			[Bindable] private var ellipse_icon:Class = images.circle_icon;
 			[Bindable] private var thick_icon:Class = images.whiteboard_thick;
 			[Bindable] private var thin_icon:Class = images.whiteboard_thin;
+            [Bindable] private var scribble_icon:Class = images.scribble_icon;
+            [Bindable] private var text_icon:Class = images.text_icon;            
+			[Bindable] private var triangle_icon:Class = images.triangle_icon;
+			[Bindable] private var line_icon:Class = images.line_icon;
+			[Bindable] private var fill_icon:Class = images.fill_icon;
+			[Bindable] private var transparency_icon:Class = images.transparency_icon;
+			[Bindable] private var eraser_icon:Class = images.eraser_icon;
+			[Bindable] private var highlighter_icon:Class = images.highlighter_icon;
+			[Bindable] private var select_icon:Class = images.select_icon;
+			[Bindable] private var grid_icon:Class = images.grid_icon;
 			
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
 			
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
-                '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', 
-                '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
+                '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF',
+				'0xC0C0C0'
+			];
 			
 			/**
 			 * Sets the type of shape we're drawing (pencil, rectangle, etc...) 
@@ -96,22 +119,118 @@
 						btnPenc.selected = true;
 						btnEllipse.selected = false;
 						btnRectangle.selected = false;
+                        btnText.selected = false;
 						break;
 					case DrawObject.ELLIPSE:
 						btnPenc.selected = false;
 						btnEllipse.selected = true;
 						btnRectangle.selected = false;
+                        btnText.selected = false;
 						break;
 					case DrawObject.RECTANGLE:
 						btnPenc.selected = false;
 						btnEllipse.selected = false;
 						btnRectangle.selected = true;
+                        btnText.selected = false;
 						break;
+                    case DrawObject.TEXT:
+                        btnPenc.selected = false;
+                        btnEllipse.selected = false;
+                        btnRectangle.selected = false;
+                        btnText.selected = true;
+                        break;
 				}
+            }
+            
+			protected function setTool(gType:String, toolType:String):void{
+				if(gType == WhiteboardConstants.TYPE_SHAPE) {
+					canvas.setGraphicType(gType);
+					canvas.setTool(toolType);
+
+					switch(toolType){
+						case DrawObject.PENCIL:
+							btnPenc.selected = true;
+							btnEllipse.selected = false;
+							btnRectangle.selected = false;
+							btnTriangle.selected = false;
+							btnLine.selected = false;
+							btnText.selected = false;
+							break;
+						case DrawObject.HIGHLIGHTER:
+							btnPenc.selected = false;
+							btnEllipse.selected = false;
+							btnRectangle.selected = false;
+							btnTriangle.selected = false;
+							btnLine.selected = false;
+							btnText.selected = false;
+							break;
+						case DrawObject.ELLIPSE:
+							btnPenc.selected = false;
+							btnEllipse.selected = true;
+							btnRectangle.selected = false;
+							btnTriangle.selected = false;
+							btnLine.selected = false;
+							btnText.selected = false;
+							break;
+						case DrawObject.RECTANGLE:
+							btnPenc.selected = false;
+							btnEllipse.selected = false;
+							btnRectangle.selected = true;
+							btnTriangle.selected = false;
+							btnLine.selected = false;
+							btnText.selected = false;
+							break;
+						case DrawObject.TRIANGLE:
+							btnPenc.selected = false;
+							btnEllipse.selected = false;
+							btnRectangle.selected = false;
+							btnTriangle.selected = true;
+							btnLine.selected = false;
+							btnText.selected = false;
+							break;
+						case DrawObject.LINE:
+							btnPenc.selected = false;
+							btnEllipse.selected = false;
+							btnRectangle.selected = false;
+							btnTriangle.selected = false;
+							btnLine.selected = true;
+							btnText.selected = false;
+							break;
+						case DrawObject.ERASER:
+							btnPenc.selected = false;
+							btnEllipse.selected = false;
+							btnRectangle.selected = false;
+							btnTriangle.selected = false;
+							btnLine.selected = false;
+							btnText.selected = false;
+							break;
+					}
+				} else if (gType == WhiteboardConstants.TYPE_TEXT) {
+					btnPenc.selected = false;
+					btnEllipse.selected = false;
+					btnRectangle.selected = false;
+					btnTriangle.selected = false;
+					btnLine.selected = false;
+					btnText.selected = true;
+					canvas.setGraphicType(gType);
+					canvas.setTool(toolType);
+				} else if (gType == WhiteboardConstants.TYPE_SELECTION) {
+					switch(toolType) {
+						case SelectObject.SELECT_TOOL:
+							btnPenc.selected = false;
+							btnEllipse.selected = false;
+							btnRectangle.selected = false;
+							btnLine.selected = false;
+							btnText.selected = false;
+							break;
+					}
+					canvas.setGraphicType(gType);
+					canvas.setTool(toolType);
+				} 					
 			}
 			
 			private function setShapeToPencil(e:WhiteboardButtonEvent):void{
-				this.setShape(DrawObject.PENCIL);
+				this.setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.PENCIL);
 			}
 			
 			/**
@@ -124,6 +243,15 @@
 			}
 			
 			/**
+			 * Sets the fill color 
+			 * @param e event containing the color (e.target.selectedColor)
+			 * 
+			 */		
+			protected function changeFillColor(e:Event):void{
+				canvas.changeFillColor(e);
+			}
+			
+			/**
 			 * Sets the thickness 
 			 * @param e event containing the thickness (e.target.value)
 			 * 
@@ -132,14 +260,22 @@
 				canvas.changeThickness(e);
 			}
 			
+			protected function toggleFill():void{
+				canvas.toggleFill();
+			}
+			
+			protected function toggleTransparency():void{
+				canvas.toggleTransparency();
+			}
+			
+
+			
 			private function presenterMode(e:MadePresenterEvent):void{
-				//this.visible = true;
+				canvas.makeTextObjectsEditable(e);
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void{
-				//this.visible = false;
-				
-				//disableWhiteboard();
+				canvas.makeTextObjectsUneditable(e);
 			}
 			
 			private function showToolbar(e:PresentationEvent):void{
@@ -147,21 +283,16 @@
 			}
 			
 			private function sendUndoCommand():void{
-				if (!canvas.isPageEmpty()) dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO_SHAPE));
+				if (!canvas.isPageEmpty()) 
+					dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO));
 			}
 			
 			private function enableWhiteboard(event:WhiteboardButtonEvent = null):void{
 				this.visible = true;
-				/*var e:HighlighterPresenterEvent = new HighlighterPresenterEvent(HighlighterPresenterEvent.MODIFY_ENABLED);
-				e.enabled = true;
-				dispatchEvent(e);*/
 			}
 			
 			private function disableWhiteboard(event:WhiteboardButtonEvent = null):void{
 				this.visible = false;
-				/*var e:HighlighterPresenterEvent = new HighlighterPresenterEvent(HighlighterPresenterEvent.MODIFY_ENABLED);
-				e.enabled = false;
-				dispatchEvent(e);*/
 			}
 			
 			public function positionToolbar(window:PresentationWindow):void{
@@ -169,40 +300,69 @@
 				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
 				presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
-				this.x = presentationWindow.x + presentationWindow.width + 3;
-				this.y = presentationWindow.y + 30;
+				this.x = presentationWindow.x - this.width - 3;
+				this.y = presentationWindow.y;
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
 			private function setPositionAndDepth(e:Event = null):void{
-				this.x = presentationWindow.x + presentationWindow.width + 3;
-				this.y = presentationWindow.y + 30;
+				this.x = presentationWindow.x - this.width - 3;
+				this.y = presentationWindow.y;
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
 			private function closeToolbar(e:StopWhiteboardModuleEvent):void{
 				parent.removeChild(this);
 			}
-			
+            
+           
+            private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
+                var gobj:GraphicObject = event.data;
+                LogUtil.debug("!!!!SELECTED:" + " " + gobj.getProperties());
+            }
+            
+            private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
+                var gobj:GraphicObject = event.data;
+                LogUtil.debug("!!!!DESELECTED:" + " " + gobj.getProperties());
+            }
+            
 		]]>
 	</mx:Script>
-	<mx:Button width="20" height="20" id="btnPenc" click="setShape(DrawObject.PENCIL)"  icon="{pencil_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.pencil')}" toggle="true" selected="true" />
-	<mx:Button width="20" height="20" id="btnRectangle" click="setShape(DrawObject.RECTANGLE)" icon="{rectangle_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
-	<mx:Button width="20" height="20" id="btnEllipse" click="setShape(DrawObject.ELLIPSE)" icon="{ellipse_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" toggle="true" />
 	
+	<!-- Now, every 'tool' has two types of identifiers, one is found in WhiteboardConstants
+	that identifies the "category" of the tool (ex. shape vs text), and the other specifies the 
+	tool itself (ex. line tool vs triangle tool, even though both are "shapes")
+	-->
+	
+	<mx:Button width="20" height="20" id="btnPenc" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.PENCIL)"  icon="{pencil_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.pencil')}" toggle="true" selected="true" />
+	<mx:Button width="20" height="20" id="btnRectangle" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.RECTANGLE)" icon="{rectangle_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
+	<mx:Button width="20" height="20" id="btnEllipse" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.ELLIPSE)" icon="{ellipse_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" toggle="true" />
+	<mx:Button width="20" height="20" id="btnTriangle" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.TRIANGLE)" icon="{triangle_icon}" toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.triangle')}" toggle="true" />
+	<mx:Button width="20" height="20" id="btnLine" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.LINE)" icon="{line_icon}" 
+			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.line')}" toggle="true" />
+	<mx:Button width="20" height="20" id="btnText" click="setTool(WhiteboardConstants.TYPE_TEXT, TextObject.TEXT_TOOL)" icon="{text_icon}" 
+			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.text')}" toggle="true" />
+		
 	<mx:Spacer height="5" />
-	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR_BOARD))" icon="{delete_icon}" 
+	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR))" icon="{delete_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.clear')}" />
-	<mx:Button width="20" height="20" id="btnUndo"  click="sendUndoCommand()" icon="{undo_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo')}" />
+	<mx:Button width="20" height="20" id="btnUndo"  click="sendUndoCommand()" icon="{undo_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo')}" />
 	
 	<mx:Spacer height="5" />
-	<mx:ColorPicker change="changeColor(event)" id="cpik" swatchPanelStyleName="colorPickerStyle" dataProvider="{colorPickerColours}" selectedColor="0x000000" 
-					toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
 	
+	<!--
+	Properties that were removed from original color picker:
+	
+	swatchPanelStyleName="colorPickerStyle" 
+	dataProvider="{colorPickerColours}"
+	-->
+	
+	<!-- Layout is really bad right now, and is confusing. Basically, there are two 
+	of ColorPickers, one for the "line" color for the outlines of shapes, and the other for
+	the "fill" color that is used only if "fill" is enabled in WhiteboardCanvasModel
+	-->
+	<mx:ColorPicker change="changeColor(event)" id="cpik"  selectedColor="0x000000" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
+   
 	<mx:Spacer height="3" />
 	<mx:Image source="{thick_icon}" horizontalAlign="center" width="20"/>
 	<mx:VSlider height="50" id="sld" change="changeThickness(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness')}" minimum="2" maximum="20" 

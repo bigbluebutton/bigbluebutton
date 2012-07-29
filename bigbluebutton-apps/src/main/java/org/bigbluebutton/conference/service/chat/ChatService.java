@@ -32,7 +32,9 @@ public class ChatService {
 
 	public List<ChatObject> getChatMessages() {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		return application.getChatMessages(roomName);
+		List<ChatObject> m = application.getChatMessages(roomName);
+		log.debug("NUM CHAT MSGS = " + m.size());
+		return m;
 	}
 	
 	//public void sendMessage(String message, String username, String color, String time, String language, String userid) {

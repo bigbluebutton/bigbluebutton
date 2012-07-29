@@ -24,48 +24,69 @@ package org.bigbluebutton.conference.service.whiteboard;
 
 import org.red5.compatibility.flex.messaging.io.ArrayCollection;
 
-public class Shape {
+public class ShapeGraphic extends WBGraphic {
 	
 	private String type;
 	private int thickness;
 	private int color;
-	private String id;
-	private String status;
+	private int fillColor;
+	
+	private boolean fill;
+	private boolean transparent;	
 	
 	private double[] shape;
 	
 	public static final String PENCIL = "pencil";
 	public static final String RECTANGLE = "rectangle";
 	public static final String ELLIPSE = "ellipse";
+	public static final String TEXT = "text";
+	public static final String TRIANGLE = "triangle";
+	public static final String HIGHLIGHTER = "highlighter";
+	public static final String ERASER = "eraser";
+	public static final String LINE = "line";
 	
-	public Shape(double[] shape, String type, int color, int thickness, String id, String status){
+	public ShapeGraphic(double[] shape, String type, int color, int thickness, boolean fill, int fillColor, boolean transparent, String id, String status){
+		super(WBGraphic.Type.SHAPE);
 		this.shape = shape;
 		this.type = type;
 		this.color = color;
 		this.thickness = thickness;
-		this.id = id;
+		this.fill = fill;
+		this.fillColor = fillColor;
+		this.transparent = transparent;
+		this.ID = id;
 		this.status = status;
 	}
 	
+	@Override
 	public ArrayCollection<Object> toList(){
 		ArrayCollection<Object> sendableList = new ArrayCollection<Object>();
+		sendableList.add(graphicType);
 		sendableList.add(shape);
 		sendableList.add(type);
 		sendableList.add(color);
 		sendableList.add(thickness);
-		sendableList.add(id);
+		sendableList.add(fill);
+		sendableList.add(fillColor);
+		sendableList.add(transparent);
+		sendableList.add(ID);
 		sendableList.add(status);
 		return sendableList;
 	}
 	
+	@Override
 	public Object[] toObjectArray(){
 		Object[] objects = new Object[10];
-		objects[0] = shape;
-		objects[1] = type;
-		objects[2] = color;
-		objects[3] = thickness;
-		objects[4] = id;
-		objects[5] = status;
+		objects[0] = graphicType;
+		objects[1] = shape;
+		objects[2] = type;
+		objects[3] = color;
+		objects[4] = thickness;
+		objects[5] = fill;
+		objects[6] = fillColor;
+		objects[7] = transparent;
+		objects[8] = ID;
+		objects[9] = status;
 		return objects;
 	}
 		
@@ -86,7 +107,19 @@ public class Shape {
 		return color;
 	}
 	
+	public int getFillColor(){
+		return fillColor;
+	}
+	
 	public int getThickness(){
 		return thickness;
+	}
+
+	public boolean isTransparent() {
+		return transparent;
+	}
+
+	public boolean isFill() {
+		return fill;
 	}
 }

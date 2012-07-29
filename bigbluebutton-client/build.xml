@@ -236,15 +236,15 @@
 		<build-module src="${SRC_DIR}" target="${LAYOUT}" />
 	</target>
 	
-	<!-- just a grouping of modules to compile -->
+	<!-- just a grouping of modules to compile , build-breakout-->
 	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main, build-bbb-main-test, build-chat, build-viewers, build-listeners, build-present, build-breakout, build-layout"
+			depends="build-bbb-main, build-bbb-main-test, build-chat, build-viewers, build-listeners, build-present, build-layout"
 			description="Compile main, chat, viewers, listeners, present, breakout modules">
 	</target>
 	
-	<!-- just a grouping of modules to compile -->
+	<!-- just a grouping of modules to compile , build-dyn, build-classroom-audio, build-settings-->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
-			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard, build-dyn, build-classroom-audio, build-settings"
+			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard"
 			description="Compile deskshare, phone, video, whiteboard, dynamic info modules">
 	</target>
 	

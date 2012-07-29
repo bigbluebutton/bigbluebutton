@@ -104,7 +104,7 @@
 				
 				cursor = new Shape();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
-				cursor.graphics.drawCircle(0,0,3);
+				cursor.graphics.drawCircle(0,0,2.5);
 				this.rawChildren.addChild(cursor);
 				cursor.visible = false;
 				
@@ -138,7 +138,8 @@
 			/**
 			 * Triggered when the presenter clicks on the slides with the intent of moving it.
 			 */		
-			private function onMouseDown(e:MouseEvent):void {						
+			private function onMouseDown(e:MouseEvent):void {				
+                LogUtil.debug("!!!!! SlideView onMouseDown !!!");
 				prevMouseX = this.mouseX;
 				prevMouseY = this.mouseY;			
 				addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
@@ -148,6 +149,7 @@
 			 * Triggered when the mouse had been clicked and dragged to move the slide.
 			 */ 
 			private function onMouseMove(e:MouseEvent):void {	
+                LogUtil.debug("!!!!! SlideView onMouseMove !!!");
 				// Compute the change in mouse position from where the mouse was clicked.
 				var deltaCanvasMouseX:Number = this.mouseX - prevMouseX;
 				var deltaCanvasMouseY:Number = this.mouseY - prevMouseY;
@@ -200,12 +202,10 @@
 			 */			
 			private function fitSlideToLoader():void {
 				if (noSlideContentLoaded()) return;
-				
 				slideLoader.content.x = slideLoader.x;
 				slideLoader.content.y = slideLoader.y;
 				slideLoader.content.width = slideLoader.width;
 				slideLoader.content.height = slideLoader.height;
-	
 				moveCanvas(slideLoader.x, slideLoader.y);
 				zoomCanvas(slideLoader.width, slideLoader.height);
 			}
@@ -214,14 +214,13 @@
 			 * Triggered when the presenter uses the mouse wheel to zoom in/out of the slide.
 			 */
 			private function onMouseWheelZoomEvent(e:MouseEvent):void {
+                LogUtil.debug(" **** ON MOUSE WHEEL ZOOM EVENT ***");
 				if (presenterIsZoomingOut(e.delta)) {
 					zoomPercentage -= ZOOM_STEP;
 				} else {
 					zoomPercentage += ZOOM_STEP;
 				}
-				
-				zoomSlide(zoomPercentage, this.mouseX, this.mouseY);
-						
+				zoomSlide(zoomPercentage, this.mouseX, this.mouseY);		
 			}
 			
 			public function switchToFitToPage(ftp:Boolean):void {
@@ -241,12 +240,10 @@
 				} else if (zoomPercentage >= SlideViewModel.MAX_ZOOM_PERCENT) {
 					zoomPercentage = SlideViewModel.MAX_ZOOM_PERCENT
 				}
-				
 				slideModel.onZoom(zoomPercentage, mouseX, mouseY);
 				slideModel.printViewedRegion();
 				slideModel.displayPresenterView();
 				fitSlideToLoader();	
-				
 				notifyOthersOfZoomEvent();	
 			}
 									
@@ -311,6 +308,7 @@
 			 * Handle the event where this presenter becomes a viewer because another attendee became presenter.
 			 */			
 			private function handleSwitchToViewerEvent(e:MadePresenterEvent):void{
+                LogUtil.debug(" **** handleSwitchToViewerEvent -- Removing MOUSE_WHEEL  EVENT ***");
 				removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
 				slideLoader.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 				slideLoader.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
@@ -321,7 +319,7 @@
 			/**
 			 * Makes the attendee the presenter.
 			 */
-			private function handleSwitchToPresenterEvent(e:MadePresenterEvent):void{
+			private function handleSwitchToPresenterEvent(e:MadePresenterEvent):void {
 				addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
 				slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 				slideLoader.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
@@ -445,6 +443,7 @@
 				whiteboardCanvasHolder.height = height;
 				moveCanvas(slideLoader.x, slideLoader.y);
 				if (whiteboardCanvas != null) {
+					//LogUtil.debug("Zooming Canvas " + width + " " + height);
 					whiteboardCanvas.zoomCanvas(width, height);
 				}
 			}
