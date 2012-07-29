@@ -75,8 +75,7 @@ package org.bigbluebutton.modules.whiteboard
         
         private function drawObjectFactory(a:Object):DrawObject {
             var drawFactory:DrawObjectFactory = new DrawObjectFactory();
-            var d:DrawObject = drawFactory.makeDrawObject(a.type, a.points, a.color, a.thickness, a.fill, a.fillColor, a.transparency);
-            
+            var d:DrawObject = drawFactory.makeDrawObject(a.type, a.points, a.color, a.thickness, a.fill, a.fillColor, a.transparency);            
             d.setGraphicID(a.id);
             d.status = a.status;
             return d;
@@ -278,7 +277,7 @@ package org.bigbluebutton.modules.whiteboard
 			}
 		}
 		
-		public function undoGraphic():void{
+		public function undoGraphic():void {
 			if (this.graphicList.length > 0) {
 				removeLastGraphic();
 			}

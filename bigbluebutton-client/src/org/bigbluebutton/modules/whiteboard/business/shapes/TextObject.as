@@ -159,9 +159,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             
             var newFontSize:Number = textSize;
             newFontSize = (parentHeight/oldParentHeight) * textSize;
-//            _oldParentHeight = parentHeight;
-//            _oldParentWidth = parentWidth;               
-
+            _oldParentHeight = oldParentHeight;
+            _oldParentWidth = oldParentWidth;               
                 
             LogUtil.debug("Redraw 2 Old parent dim [" + oldParentWidth + "," + oldParentHeight + "] newFontSize=" + newFontSize);
      
