@@ -24,10 +24,8 @@
     creationComplete="init()" visible="false" mouseOver="setCursor(toolType)" mouseOut="removeCursor()" doubleClickEnabled="true" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[		
-            import com.asfusion.mate.events.Dispatcher;
-            
+            import com.asfusion.mate.events.Dispatcher;           
             import mx.managers.CursorManager;
-            
             import org.bigbluebutton.common.IBbbCanvas;
             import org.bigbluebutton.common.Images;
             import org.bigbluebutton.common.LogUtil;
@@ -65,9 +63,7 @@
 			private var toolType:String = DrawObject.PENCIL;
 			private var whiteboardEnabled:Boolean = false;
 			private var showWhiteboard:Boolean = true;
-
-
-            
+          
 			private function init():void {
 				this.label = "Highlighter";
                 registerForMouseEvents();
@@ -108,28 +104,28 @@
 			}
 	
 
-			public function sendGraphicToServer(gobj:Annotation, type:String):void{
-                LogUtil.debug("DISPATCHING SEND sendGraphicToServer [" + type + "]");
+			public function sendGraphicToServer(gobj:Annotation, type:String):void {
+ //               LogUtil.debug("DISPATCHING SEND sendGraphicToServer [" + type + "]");
 				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(type);
 				event.annotation = gobj;
                 var dispatcher:Dispatcher = new Dispatcher();
                 dispatcher.dispatchEvent(event);					
 			}
 			
-			public function setGraphicType(type:String):void{
+			public function setGraphicType(type:String):void {
 				model.setGraphicType(type);
 			}
 			
-			public function setTool(s:String):void{
+			public function setTool(s:String):void {
 				model.setTool(s);
 				toolType = s;
 			}
 			
-			public function changeFillColor(e:Event):void{
+			public function changeFillColor(e:Event):void {
 //				model.changeFillColor(e.target.selectedColor);
 			}
 			
-			public function changeThickness(e:Event):void{
+			public function changeThickness(e:Event):void {
 				model.changeThickness(e.target.value);
 			}
 			
@@ -169,17 +165,17 @@
 //				model.makeTextObjectsUneditable(e);
 			}
 			
-			private function setWhiteboardVisibility():void{
+			private function setWhiteboardVisibility():void {
 				if (this.whiteboardEnabled && this.showWhiteboard) this.visible = true;
 				else this.visible = false;
 			}
 			
 			/* added this functionality in WhiteboardToolbar.mxml instead to allow a variety of cursors */			
-			public function setCursorPencil():void{
+			public function setCursorPencil():void {
 				CursorManager.setCursor(pencil_icon);
 			}
 			
-			public function setCursor(toolType:String):void{
+			public function setCursor(toolType:String):void {
 				if(toolType == DrawObject.ELLIPSE) {
 					CursorManager.setCursor(ellipse_icon);
 				} else if(toolType == DrawObject.RECTANGLE) {
@@ -207,21 +203,21 @@
 			}
 			
 			/** Inherited from org.bigbluebutton.common.IBbbCanvas*/
-			public function addRawChild(child:DisplayObject):void{
+			public function addRawChild(child:DisplayObject):void {
 				this.bbbCanvas.addRawChild(child);
 			}
 			
-			public function removeRawChild(child:DisplayObject):void{
+			public function removeRawChild(child:DisplayObject):void {
 				this.bbbCanvas.removeRawChild(child);
 			}
 			
-			public function doesContain(child:DisplayObject):Boolean{
+			public function doesContain(child:DisplayObject):Boolean {
 				return bbbCanvas.doesContain(child);
 			}
 			
-			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
-				LogUtil.debug("WhiteboardCanvas::acceptOverlayCanvas()");
-				LogUtil.debug("OVERLAYING PRESENTATION CANVAS");
+			public function acceptOverlayCanvas(overlay:IBbbCanvas):void {
+//				LogUtil.debug("WhiteboardCanvas::acceptOverlayCanvas()");
+//				LogUtil.debug("OVERLAYING PRESENTATION CANVAS");
 				this.bbbCanvas = overlay;
 				//Load existing shapes onto the canvas.
 				dispatchEvent(new PageEvent(PageEvent.LOAD_PAGE));

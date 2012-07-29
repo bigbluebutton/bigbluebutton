@@ -57,8 +57,7 @@
 			import mx.controls.Alert;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
-			import mx.managers.CursorManager;
-			
+			import mx.managers.CursorManager;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -111,10 +110,10 @@
 			 * @param s The type
 			 * 
 			 */		
-			protected function setShape(s:String):void{
+			protected function setShape(s:String):void {
 				canvas.setShape(s);
 				
-				switch(s){
+				switch(s) {
 					case DrawObject.PENCIL:
 						btnPenc.selected = true;
 						btnEllipse.selected = false;
@@ -142,12 +141,12 @@
 				}
             }
             
-			protected function setTool(gType:String, toolType:String):void{
+			protected function setTool(gType:String, toolType:String):void {
 				if(gType == WhiteboardConstants.TYPE_SHAPE) {
 					canvas.setGraphicType(gType);
 					canvas.setTool(toolType);
 
-					switch(toolType){
+					switch (toolType) {
 						case DrawObject.PENCIL:
 							btnPenc.selected = true;
 							btnEllipse.selected = false;
@@ -229,7 +228,7 @@
 				} 					
 			}
 			
-			private function setShapeToPencil(e:WhiteboardButtonEvent):void{
+			private function setShapeToPencil(e:WhiteboardButtonEvent):void {
 				this.setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.PENCIL);
 			}
 			
@@ -238,7 +237,7 @@
 			 * @param e event containing the color (e.target.selectedColor)
 			 * 
 			 */		
-			protected function changeColor(e:Event):void{
+			protected function changeColor(e:Event):void {
 				canvas.changeColor(e);
 			}
 			
@@ -247,7 +246,7 @@
 			 * @param e event containing the color (e.target.selectedColor)
 			 * 
 			 */		
-			protected function changeFillColor(e:Event):void{
+			protected function changeFillColor(e:Event):void {
 				canvas.changeFillColor(e);
 			}
 			
@@ -256,46 +255,46 @@
 			 * @param e event containing the thickness (e.target.value)
 			 * 
 			 */		
-			protected function changeThickness(e:Event):void{
+			protected function changeThickness(e:Event):void {
 				canvas.changeThickness(e);
 			}
 			
-			protected function toggleFill():void{
+			protected function toggleFill():void {
 				canvas.toggleFill();
 			}
 			
-			protected function toggleTransparency():void{
+			protected function toggleTransparency():void {
 				canvas.toggleTransparency();
 			}
 			
 
 			
-			private function presenterMode(e:MadePresenterEvent):void{
+			private function presenterMode(e:MadePresenterEvent):void {
 				canvas.makeTextObjectsEditable(e);
 			}
 			
-			private function viewerMode(e:MadePresenterEvent):void{
+			private function viewerMode(e:MadePresenterEvent):void {
 				canvas.makeTextObjectsUneditable(e);
 			}
 			
-			private function showToolbar(e:PresentationEvent):void{
+			private function showToolbar(e:PresentationEvent):void {
 				this.visible = true;
 			}
 			
-			private function sendUndoCommand():void{
+			private function sendUndoCommand():void {
 				if (!canvas.isPageEmpty()) 
 					dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO));
 			}
 			
-			private function enableWhiteboard(event:WhiteboardButtonEvent = null):void{
+			private function enableWhiteboard(event:WhiteboardButtonEvent = null):void {
 				this.visible = true;
 			}
 			
-			private function disableWhiteboard(event:WhiteboardButtonEvent = null):void{
+			private function disableWhiteboard(event:WhiteboardButtonEvent = null):void {
 				this.visible = false;
 			}
 			
-			public function positionToolbar(window:PresentationWindow):void{
+			public function positionToolbar(window:PresentationWindow):void {
 				presentationWindow = window;
 				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
@@ -305,13 +304,13 @@
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
-			private function setPositionAndDepth(e:Event = null):void{
+			private function setPositionAndDepth(e:Event = null):void {
 				this.x = presentationWindow.x - this.width - 3;
 				this.y = presentationWindow.y;
 				parent.setChildIndex(this, parent.numChildren-1);
 			}
 			
-			private function closeToolbar(e:StopWhiteboardModuleEvent):void{
+			private function closeToolbar(e:StopWhiteboardModuleEvent):void {
 				parent.removeChild(this);
 			}
             

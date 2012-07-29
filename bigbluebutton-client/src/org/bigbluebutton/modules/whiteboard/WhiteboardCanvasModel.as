@@ -52,7 +52,8 @@ package org.bigbluebutton.modules.whiteboard
         private var shapeFactory:ShapeFactory = new ShapeFactory();
         
 		
-		/* represents the max number of 'points' enumerated in 'segment' before sending an update to server. Used to prevent spamming red5 with unnecessary packets */
+		/* represents the max number of 'points' enumerated in 'segment' before 
+		sending an update to server. Used to prevent spamming red5 with unnecessary packets */
 		private var sendShapeFrequency:uint = 30;	
 		
 		/* same as above, except a faster interval may be desirable when erasing, for aesthetics */
@@ -67,7 +68,7 @@ package org.bigbluebutton.modules.whiteboard
             drawListeners.push(new TextDrawListener(_wbCanvas, sendShapeFrequency, shapeFactory));
         }
         
-        public function zoomCanvas(width:Number, height:Number):void{
+        public function zoomCanvas(width:Number, height:Number):void {
             shapeFactory.setParentDim(width, height);	
             this.width = width;
             this.height = height;	
@@ -81,42 +82,41 @@ package org.bigbluebutton.modules.whiteboard
 			wbTool._fontSize = size;
 		}
 				
-		public function doMouseUp():void{
-            LogUtil.debug("CanvasModel doMouseUp ***");
+		public function doMouseUp():void {
+//            LogUtil.debug("CanvasModel doMouseUp ***");
             for (var ob:int = 0; ob < drawListeners.length; ob++) {
                 (drawListeners[ob] as IDrawListener).onMouseUp(wbTool);
             }
 		}
 				       		
-		public function doMouseDown(mouseX:Number, mouseY:Number):void{
-            LogUtil.debug("*** CanvasModel doMouseDown");
+		public function doMouseDown(mouseX:Number, mouseY:Number):void {
+//            LogUtil.debug("*** CanvasModel doMouseDown");
             for (var ob:int = 0; ob < drawListeners.length; ob++) {
                 (drawListeners[ob] as IDrawListener).onMouseDown(mouseX, mouseY, wbTool);
             }
 		}
 				
-		public function doMouseMove(mouseX:Number, mouseY:Number):void{
+		public function doMouseMove(mouseX:Number, mouseY:Number):void {
             for (var ob:int = 0; ob < drawListeners.length; ob++) {
                 (drawListeners[ob] as IDrawListener).onMouseMove(mouseX, mouseY, wbTool);
             }
 		}
 				
-		public function setGraphicType(type:String):void{
-            LogUtil.debug("!!! Set graphic type = " + type);
+		public function setGraphicType(type:String):void {
+//            LogUtil.debug("!!! Set graphic type = " + type);
 			wbTool.graphicType = type;
 		}
 		
-		public function setTool(s:String):void{
-            LogUtil.debug("!!!! Set graphic tool = " + s);
+		public function setTool(s:String):void {
+//            LogUtil.debug("!!!! Set graphic tool = " + s);
 			wbTool.toolType = s;
 		}
 		
-		public function changeColor(color:uint):void{
+		public function changeColor(color:uint):void {
             wbTool.drawColor = color;
 		}
-		
-			
-		public function changeThickness(thickness:uint):void{
+					
+		public function changeThickness(thickness:uint):void {
             wbTool.thickness = thickness;
 		}
 

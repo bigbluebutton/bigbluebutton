@@ -25,19 +25,21 @@ package org.bigbluebutton.modules.whiteboard.views
         public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
         {
             if(tool.graphicType == WhiteboardConstants.TYPE_TEXT) {
-                LogUtil.error("double click received at " + mouseX + "," + mouseY);
+//                LogUtil.error("double click received at " + mouseX + "," + mouseY);
                 var tobj:TextObject = _shapeFactory.createTextObject("TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
-                LogUtil.error("Creating text at [" + mouseX + "," + mouseY + "] norm=[" + tobj.getOrigX() + "," + tobj.getOrigY() + "]");
+//                LogUtil.error("Creating text at [" + mouseX + "," + mouseY + "] norm=[" + tobj.getOrigX() + "," + tobj.getOrigY() + "]");
                 sendTextToServer(TextObject.TEXT_CREATED, tobj);
             }
         }
         
         public function onMouseMove(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
         {
+			// do nothing
         }
         
         public function onMouseUp(tool:WhiteboardTool):void
         {
+			// do nothing
         }
         
         private function sendTextToServer(status:String, tobj:TextObject):void {
@@ -54,7 +56,8 @@ package org.bigbluebutton.modules.whiteboard.views
                     _textStatus = TextObject.TEXT_CREATED;
                     break;
             }	
-            LogUtil.debug("SENDING TEXT: [" + tobj.text + "]");
+			
+//            LogUtil.debug("SENDING TEXT: [" + tobj.text + "]");
             
             var annotation:Object = new Object();
             annotation["type"] = "text";

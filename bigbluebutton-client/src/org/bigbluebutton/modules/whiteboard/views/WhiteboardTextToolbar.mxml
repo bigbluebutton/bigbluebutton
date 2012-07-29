@@ -206,8 +206,8 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 			
 			public function repositionToolbar(tobj:TextObject = null):void {
 				// translate TextObject's coords to stage coords because TextToolbar is added to stage
-				if(tobj == null)  tobj = currentlySelectedTextObject;
-				if(textSizeMenu.isOpen) {
+				if (tobj == null)  tobj = currentlySelectedTextObject;
+				if (textSizeMenu.isOpen) {
 					LogUtil.debug("Text size menu is open...trying to close");
 					textSizeMenu.displayPopUp();
 				}
@@ -229,7 +229,6 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 				repositionToolbar(tobj);
 				syncPropsWith(tobj);
 				enableTextToolbar();
-				LogUtil.debug("!!!!SELECTED:" + " " + tobj.getProperties());
 			}
 
 			private function handleObjDeselected(event:GraphicObjectFocusEvent):void  {
@@ -244,7 +243,6 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 					disableTextToolbar();
 					textSizeMenu.close();
 				} 
-				LogUtil.debug("!!!!DESELECTED:" + " " + tobj.getProperties());
 			}
 			
 			/* used to check whether or not the TextToolbar and its children have focus when
