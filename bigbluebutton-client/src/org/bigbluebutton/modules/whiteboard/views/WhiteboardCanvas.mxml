@@ -24,8 +24,10 @@
     creationComplete="init()" visible="false" mouseOver="setCursor(toolType)" mouseOut="removeCursor()" doubleClickEnabled="true" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[		
-            import com.asfusion.mate.events.Dispatcher;           
+            import com.asfusion.mate.events.Dispatcher;
+            
             import mx.managers.CursorManager;
+            
             import org.bigbluebutton.common.IBbbCanvas;
             import org.bigbluebutton.common.Images;
             import org.bigbluebutton.common.LogUtil;
@@ -67,7 +69,13 @@
 			private function init():void {
 				this.label = "Highlighter";
                 registerForMouseEvents();
+                queryForAnnotationHistory();
 			}
+            
+            private function queryForAnnotationHistory():void {
+                var dispatcher:Dispatcher = new Dispatcher();
+                dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.GET_ANNOTATION_HISTORY));
+            }
 			
             public function registerForMouseEvents():void {
                 addEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);

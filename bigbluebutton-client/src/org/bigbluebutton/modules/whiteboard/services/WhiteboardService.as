@@ -10,7 +10,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		public var sender:MessageSender;
 		public var receiver:MessageReceiver;
 		
-		public function connect():void
+		public function getAnnotationHistory():void
 		{
             sender.requestAnnotationHistory();
 		}

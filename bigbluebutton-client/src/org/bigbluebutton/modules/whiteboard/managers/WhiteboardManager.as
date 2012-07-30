@@ -125,6 +125,10 @@ package org.bigbluebutton.modules.whiteboard.managers
 		public function clearAnnotations():void {
             displayModel.clearBoard();
 		}
+        
+        public function receivedAnnotationsHistory():void {
+            displayModel.receivedAnnotationsHistory();
+        }
 		
 		public function undoAnnotation(event:WhiteboardUpdate):void {
             displayModel.undoAnnotation(event.annotationID);

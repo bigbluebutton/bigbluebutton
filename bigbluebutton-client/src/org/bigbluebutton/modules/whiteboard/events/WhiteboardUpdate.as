@@ -33,7 +33,8 @@ package org.bigbluebutton.modules.whiteboard.events
         // Event to notify display of presenter's request.
         public static const UNDO_ANNOTATION:String = "WhiteboardUndoAnnotationEvent";
         public static const CLEAR_ANNOTATIONS:String = "WhiteboardClearAnnotationEvent";
-			
+		public static const RECEIVED_ANNOTATION_HISTORY:String = "WhiteboardReceivedAnnotationHistoryEvent";
+        
 		public var annotation:Annotation;
 		public var recvdShapes:Boolean;
 		public var boardEnabled:Boolean;

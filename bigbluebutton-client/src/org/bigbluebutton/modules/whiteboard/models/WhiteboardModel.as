@@ -35,6 +35,14 @@ package org.bigbluebutton.modules.whiteboard.models
             LogUtil.debug("*** Dispatched WhiteboardUpdate.BOARD_UPDATED Event ****");
 		}
 		
+        public function addAnnotationFromHistory(annotation:Array):void {           
+            for (var i:int = 0; i < annotation.length; i++) {
+                LogUtil.debug("addAnnotationFromHistory: annotation id=" + (annotation[i] as Annotation).id);
+                _currentPresentation.addAnnotation(annotation[i] as Annotation);
+            } 
+            _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.RECEIVED_ANNOTATION_HISTORY));
+        }
+        
 		public function removeAnnotation(id:String):void {
 			
 		}

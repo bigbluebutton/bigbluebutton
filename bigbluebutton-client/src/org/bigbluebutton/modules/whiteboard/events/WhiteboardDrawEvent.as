@@ -31,6 +31,8 @@ package org.bigbluebutton.modules.whiteboard.events
 		public static const CLEAR:String = "WhiteboardClearCommand";
 		public static const UNDO:String = "WhiteboardUndoCommand";
 		public static const NEW_SHAPE:String = "NewShapeEvent";	
+        
+        public static const GET_ANNOTATION_HISTORY:String = "WhiteboardGetAnnotationHistory";
 		
 		public var annotation:Annotation;
 		       

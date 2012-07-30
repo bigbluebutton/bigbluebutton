@@ -70,8 +70,8 @@ package org.bigbluebutton.modules.whiteboard
 				drawText(o, recvdShapes);	
 			}
             
-            var a2:Array = whiteboardModel.getAnnotations();
-            LogUtil.debug("**** Number of annotations [" + a2.length + "]");
+//            var a2:Array = whiteboardModel.getAnnotations();
+//            LogUtil.debug("**** Number of annotations [" + a2.length + "]");
 		}
 		
         
@@ -285,6 +285,22 @@ package org.bigbluebutton.modules.whiteboard
 				removeLastGraphic();
 			}
 		}
+        
+        public function receivedAnnotationsHistory():void {
+            LogUtil.debug("**** CanvasDisplay receivedAnnotationsHistory *****");
+            var annotations:Array = whiteboardModel.getAnnotations();
+            LogUtil.debug("**** CanvasDisplay receivedAnnotationsHistory [" + annotations.length + "] *****");
+            for (var i:int = 0; i < annotations.length; i++) {
+                var an:Annotation = annotations[i] as Annotation;
+                LogUtil.debug("**** Drawing graphic from history [" + an.type + "] *****");
+                if(an.type != "text") {
+                    var dobj:DrawObject = drawObjectFactory(an.annotation);
+                    drawShape(dobj, true);					
+                } else { 
+                    drawText(an, true);	
+                }                
+            }
+        }
 
 		public function changePage(e:PageEvent):void{
 /*			var page:Number = e.pageNum;
@@ -311,7 +327,6 @@ package org.bigbluebutton.modules.whiteboard
 			this.width = width;
 			this.height = height;
 
- //           var an:Array = 
 			for (var i:int = 0; i < this.graphicList.length; i++){
 				redrawGraphic(this.graphicList[i] as GraphicObject, i);
 			}		

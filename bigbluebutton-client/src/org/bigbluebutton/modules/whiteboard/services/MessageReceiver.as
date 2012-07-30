@@ -51,8 +51,7 @@ package org.bigbluebutton.modules.whiteboard.services
 					break; 				
 				default:
 					LogUtil.warn("Cannot handle message [" + messageName + "]");
-			}
-			
+			}			
 		}
 
 		private function handleChangePresentationCommand(message:Object):void {
@@ -104,6 +103,26 @@ package org.bigbluebutton.modules.whiteboard.services
 				LogUtil.debug("handleRequestAnnotationHistoryReply: No annotations.");
 			} else {
 				LogUtil.debug("handleRequestAnnotationHistoryReply: Number of annotations in history = " + message.count);
+                var annotations:Array = message.annotations as Array;
+                var tempAnnotations:Array = new Array();
+                
+                for (var i:int = 0; i < message.count; i++) {
+                    var an:Object = annotations[i] as Object;
+                    
+                    if (an.type == undefined || an.type == null || an.type == "") return;
+                    if (an.id == undefined || an.id == null || an.id == "") return;
+                    if (an.status == undefined || an.status == null || an.status == "") return;
+                    
+                    LogUtil.debug("handleRequestAnnotationHistoryReply: annotation id=" + an.id);
+                    
+                    var annotation:Annotation = new Annotation(an.id, an.type, an);
+                    annotation.status = an.status;
+                    tempAnnotations.push(annotation);
+                }   
+                
+                if (tempAnnotations.length > 1) {
+                    whiteboardModel.addAnnotationFromHistory(tempAnnotations);
+                }
 			}
 		}
 	}

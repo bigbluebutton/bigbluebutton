@@ -69,9 +69,12 @@
 	
 	<EventHandlers type="{StartWhiteboardModuleEvent.START_HIGHLIGHTER_MODULE_EVENT}">
 		<MethodInvoker generator="{WhiteboardManager}" method="handleStartModuleEvent" />
-		<MethodInvoker generator="{WhiteboardService}" method="connect"/>
 	</EventHandlers>
-	
+
+    <EventHandlers type="{WhiteboardDrawEvent.GET_ANNOTATION_HISTORY}">
+        <MethodInvoker generator="{WhiteboardService}" method="getAnnotationHistory"/>
+    </EventHandlers>
+    
 	<EventHandlers type="{WhiteboardDrawEvent.CLEAR}" >
 		<MethodInvoker generator="{WhiteboardService}" method="clearBoard" />
 	</EventHandlers>
@@ -140,6 +143,9 @@
 		<InlineInvoker method="dummyMethod" />
 	</EventHandlers>
 
+    <EventHandlers type="{WhiteboardUpdate.RECEIVED_ANNOTATION_HISTORY}" >
+        <MethodInvoker generator="{WhiteboardManager}" method="receivedAnnotationsHistory"/>
+    </EventHandlers>
 	<EventHandlers type="{WhiteboardUpdate.CLEAR_ANNOTATIONS}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="clearAnnotations"/>
 	</EventHandlers>
