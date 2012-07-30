@@ -389,19 +389,17 @@
 			// Receive private chat messages
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
 				LogUtil.debug("Got PrivateChatMessageEvent");
-				LogUtil.debug("Message is from " + event.message.chatobj.username + ", user ID " + event.message.chatobj.userid);
+				//LogUtil.debug("Message is from " + event.message.chatobj.username + ", user ID " + event.message.chatobj.userid);
 				if ((! UserManager.getInstance().getConference().amIThisUser(new Number(event.message.chatobj.userid)))) {
-					/*LogUtil.debug("WATERFALL: About to add privateNotification");
-					privateNotification(event);*/
 					if (!this.focus){
-						LogUtil.debug("WATERFALL: About to make ExternalInterface Call");
+						//LogUtil.debug("WATERFALL: About to make ExternalInterface Call");
 						ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
 					}					
 				}
-				LogUtil.debug("WATERFALL: Handling private message, about to showMessage");
+				//LogUtil.debug("WATERFALL: Handling private message, about to showMessage");
 				showMessage(event.message.sender, event.message.chatobj, autoTranslation);
 				
-				LogUtil.debug("WATERFALL: About to add privateNotification");
+				//LogUtil.debug("WATERFALL: About to add privateNotification");
 				privateNotification(event);
 				
 				/*// Trying to find the tab names
@@ -421,15 +419,15 @@
 			}
 			
 			public function publicChatFocus(event:FocusEvent):void{
-				LogUtil.debug("WATERFALL: publicChatFocus active, removing publicWaiting");
+				//LogUtil.debug("WATERFALL: publicChatFocus active, removing publicWaiting");
 				publicWaiting = false;
 			}
 			
 			// Activates an audio alert for screen-reader users on private message reception
 			private function privateNotification(event:PrivateChatMessageEvent):void{
-				LogUtil.debug("WATERFALL: entering privateNotification");
+				//LogUtil.debug("WATERFALL: entering privateNotification");
 				if ((! UserManager.getInstance().getConference().amIThisUser(new Number(event.message.chatobj.userid)))) {
-					LogUtil.debug("Message was sent by another user, accessing logic");
+					//LogUtil.debug("Message was sent by another user, accessing logic");
 					var newItem:Boolean = true;
 					// Check if there is already a notification of private messages from that user
 					if (privateWaiting.length){
@@ -440,21 +438,28 @@
 							}
 						}
 					}
-					LogUtil.debug("WATERFALL: NewItem is " + newItem);
+					//LogUtil.debug("WATERFALL: NewItem is " + newItem);
 					if (newItem){
-						LogUtil.debug("WATERFALL: Adding new item");
+						//LogUtil.debug("WATERFALL: Adding new item");
 						privateWaiting.addItem(event);
-						LogUtil.debug("WATERFALL: Adding focus listener");
-						// For some reason, it breaks down right here the first time you receive a private message.
-						// I think it's not referencing the ChatBox by the correct name. This only happens when newItem is true.
+						//ogUtil.debug("WATERFALL: Adding focus listener");
 						chatTabs.getChildByName(event.message.chatobj.userid).addEventListener(FocusEvent.FOCUS_IN, privateChatFocus);
 					}
 				}
-				LogUtil.debug("WATERFALL: Leaving privatenotification");
+				//LogUtil.debug("WATERFALL: Leaving privatenotification");
 			}
 			
 			public function privateChatFocus(event:FocusEvent):void{
-				LogUtil.debug("WATERFALL: Event target is " + event.target);
+				//LogUtil.debug("WATERFALL: Event target is " + event.target);
+				//LogUtil.debug("WATERFALL: Event target name is " + event.target.name);
+				if (event.target.name == "chatMessagesList"){
+					var messageCounter:int = -1;
+					do{
+						messageCounter++;
+						//LogUtil.debug("WATERFALL: messageCounter is " + messageCounter);
+						//LogUtil.debug("WATERFALL: Trying to remove user " + event.target.parent.exposeSenderID(messageCounter));
+					}while (!removePrivateSender(event.target.parent.exposeSenderID(messageCounter)))
+				}
 			}
 			
 			// Listens to the notification timer, and checks if there are messages waiting
@@ -487,14 +492,14 @@
 			
 			private function removePrivateSender(senderID:String):Boolean{
 				var success:Boolean = false;
-				LogUtil.debug("WATERFALL: Trying to remove sender " + senderID);
+				//LogUtil.debug("WATERFALL: Trying to remove sender " + senderID);
 				if (privateWaiting.length){
 					for (var i:int = 0; i < privateWaiting.length; i++){
 						if (senderID == privateWaiting.getItemAt(i).message.chatobj.userid){
 							privateWaiting.removeItemAt(i);
 							success = true;
 							i = privateWaiting.length;
-							LogUtil.debug("WATERFALL: Removed sender " + senderID);
+							//LogUtil.debug("WATERFALL: Removed sender " + senderID);
 						}
 					}
 				}

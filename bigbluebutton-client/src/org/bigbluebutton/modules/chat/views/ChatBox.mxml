@@ -84,6 +84,11 @@
 				chatMessagesList.accessibilityProperties.description = messages[0].toString();
 				Accessibility.updateProperties();
 			}
+			
+			// Exposes senderID for a given message to accessibilty methods in ChatView.mxml
+			public function exposeSenderID(index:int):String{
+				return messages.getItemAt(index).senderId;
+			}
 
 			public function showNewMessage(chatobj:ChatObject, translate:Boolean, language:String = null):void {	
 				var timeString:String = getHours() + ":" + getMinutes();
