@@ -21,13 +21,11 @@
 -->
 
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:mate="http://mate.asfusion.com/"	 
-    creationComplete="init()" visible="false" mouseOver="setCursor(toolType)" mouseOut="removeCursor()" doubleClickEnabled="true" implements="org.bigbluebutton.common.IBbbCanvas">
+    creationComplete="init()" visible="false" mouseOver="setCursor(toolType)" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[		
-            import com.asfusion.mate.events.Dispatcher;
-            
+            import com.asfusion.mate.events.Dispatcher;            
             import mx.managers.CursorManager;
-            
             import org.bigbluebutton.common.IBbbCanvas;
             import org.bigbluebutton.common.Images;
             import org.bigbluebutton.common.LogUtil;
