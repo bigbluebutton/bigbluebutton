@@ -111,6 +111,24 @@
 				_video.height = originalHeight = Number(res[1]);
 				setAspectRatio(Number(res[0]), Number(res[1])); 
 				_video.attachNetStream(ns);
+
+
+				if (videoOptions.smoothVideo) {
+					LogUtil.debug("Smoothing video.")
+					_video.smoothing = true;
+				} 
+				
+				if (videoOptions.applyConvolutionFilter) {
+					var filter = new flash.filters.ConvolutionFilter();
+					filter.matrixX = 3;
+					filter.matrixY = 3;
+					LogUtil.debug("Applying convolution filter =[" + videoOptions.convolutionFilter + "]");					
+					filter.matrix = videoOptions.convolutionFilter;
+					filter.bias =  videoOptions.filterBias;
+					filter.divisor = videoOptions.filterDivisor;
+					_video.filters = [filter];					
+				}
+						
 				ns.play(stream);
 				this.streamName = stream;
 				
