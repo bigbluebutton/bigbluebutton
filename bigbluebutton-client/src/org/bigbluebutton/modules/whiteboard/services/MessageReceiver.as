@@ -101,9 +101,9 @@ package org.bigbluebutton.modules.whiteboard.services
 		
 		private function handleRequestAnnotationHistoryReply(message:Object):void {
 			if (message.count == 0) {
-				LogUtil.debug("No annotations.");
+				LogUtil.debug("handleRequestAnnotationHistoryReply: No annotations.");
 			} else {
-				LogUtil.debug("Number of annotations in history = " + message.count);
+				LogUtil.debug("handleRequestAnnotationHistoryReply: Number of annotations in history = " + message.count);
 			}
 		}
 	}

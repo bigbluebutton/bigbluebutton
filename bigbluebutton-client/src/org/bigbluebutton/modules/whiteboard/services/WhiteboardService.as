@@ -10,8 +10,9 @@ package org.bigbluebutton.modules.whiteboard.services
 		public var sender:MessageSender;
 		public var receiver:MessageReceiver;
 		
-		public function WhiteboardService()
+		public function connect():void
 		{
+            sender.requestAnnotationHistory();
 		}
 		
 		public function modifyEnabled(e:WhiteboardPresenterEvent):void {

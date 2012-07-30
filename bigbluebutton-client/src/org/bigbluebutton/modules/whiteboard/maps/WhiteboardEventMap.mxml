@@ -69,7 +69,7 @@
 	
 	<EventHandlers type="{StartWhiteboardModuleEvent.START_HIGHLIGHTER_MODULE_EVENT}">
 		<MethodInvoker generator="{WhiteboardManager}" method="handleStartModuleEvent" />
-		<MethodInvoker generator="{WhiteboardService}" method="connect" arguments="{event}" />
+		<MethodInvoker generator="{WhiteboardService}" method="connect"/>
 	</EventHandlers>
 	
 	<EventHandlers type="{WhiteboardDrawEvent.CLEAR}" >

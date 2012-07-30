@@ -280,7 +280,6 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		public function undoAnnotation(id:String):void {
-            LogUtil.debug("UNDOING LAST ANNOTATION!");
             /** We'll just remove the last annotation for now **/
 			if (this.graphicList.length > 0) {
 				removeLastGraphic();
