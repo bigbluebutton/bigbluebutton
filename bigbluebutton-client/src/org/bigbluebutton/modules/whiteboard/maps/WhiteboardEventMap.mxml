@@ -158,8 +158,8 @@
 	<EventHandlers type="{ToggleGridEvent.GRID_TOGGLED}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="toggleGrid"  arguments="{event}" />
 	</EventHandlers>
-	<EventHandlers type="{PageEvent.CHANGE_PAGE}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="changePage" arguments="{event}" />
+	<EventHandlers type="{WhiteboardUpdate.CHANGE_PAGE}" >
+		<MethodInvoker generator="{WhiteboardManager}" method="changePage"/>
 	</EventHandlers>
 	<EventHandlers type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="enableWhiteboard" arguments="{event}" />

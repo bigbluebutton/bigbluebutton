@@ -302,25 +302,22 @@ package org.bigbluebutton.modules.whiteboard
             }
         }
 
-		public function changePage(e:PageEvent):void{
-/*			var page:Number = e.pageNum;
-			var graphicObjs:ArrayCollection = e.graphicObjs;
-
-			clearBoard();
-			for (var i:int = 0; i < graphicObjs.length; i++){
-				var o:GraphicObject = graphicObjs.getItemAt(i) as GraphicObject;
-				if(o.getGraphicType() == WhiteboardConstants.TYPE_SHAPE)
-					drawShape(o as DrawObject, true);
-				else if(o.getGraphicType() == WhiteboardConstants.TYPE_TEXT) 
-					drawText(o as TextObject, true);	
-			}
-			
-			if(isPresenter) {
-				var evt:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
-				evt.data = null;
-				wbCanvas.dispatchEvent(evt);
-			}
-*/		}
+		public function changePage():void{
+            LogUtil.debug("**** CanvasDisplay changePage. Cearing page *****");
+            clearBoard();
+            var annotations:Array = whiteboardModel.getAnnotations();
+            LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");
+            for (var i:int = 0; i < annotations.length; i++) {
+                var an:Annotation = annotations[i] as Annotation;
+                LogUtil.debug("**** Drawing graphic from changePage [" + an.type + "] *****");
+                if(an.type != "text") {
+                    var dobj:DrawObject = drawObjectFactory(an.annotation);
+                    drawShape(dobj, true);					
+                } else { 
+                    drawText(an, true);	
+                }                
+            }
+        }
 		
 		public function zoomCanvas(width:Number, height:Number):void{
 			shapeFactory.setParentDim(width, height);	

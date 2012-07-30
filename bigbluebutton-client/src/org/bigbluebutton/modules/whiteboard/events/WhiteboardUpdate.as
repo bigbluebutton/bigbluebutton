@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.whiteboard.events
         public static const UNDO_ANNOTATION:String = "WhiteboardUndoAnnotationEvent";
         public static const CLEAR_ANNOTATIONS:String = "WhiteboardClearAnnotationEvent";
 		public static const RECEIVED_ANNOTATION_HISTORY:String = "WhiteboardReceivedAnnotationHistoryEvent";
+        public static const CHANGE_PAGE:String = "WhiteboardChangePageEvent";
         
 		public var annotation:Annotation;
 		public var recvdShapes:Boolean;

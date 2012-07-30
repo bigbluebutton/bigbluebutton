@@ -89,6 +89,7 @@ package org.bigbluebutton.modules.whiteboard.models
             var curPage:int = pageNum + 1;
             LogUtil.debug("*** Switching to page [ " + curPage + " ] ****");
 			_currentPresentation.setCurrentPage(curPage);
+            _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CHANGE_PAGE));
 		}
 		
 		public function enable(enabled:Boolean):void {

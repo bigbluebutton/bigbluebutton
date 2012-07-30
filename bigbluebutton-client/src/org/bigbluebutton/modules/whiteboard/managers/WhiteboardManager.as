@@ -138,8 +138,8 @@ package org.bigbluebutton.modules.whiteboard.managers
 	//		model.toggleGrid();
 		}
 		
-		public function changePage(e:PageEvent):void {
-            displayModel.changePage(e);
+		public function changePage():void {
+            displayModel.changePage();
 		}
 		
 		public function enableWhiteboard(e:WhiteboardButtonEvent):void {
