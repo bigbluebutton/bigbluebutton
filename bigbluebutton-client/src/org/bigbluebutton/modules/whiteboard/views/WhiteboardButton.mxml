@@ -61,12 +61,12 @@
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.highlighter.button.toolTipShow');
 			}
 			
-			public function buttonAdded(buttonParent:PresentationWindow):void{
+			public function buttonAdded(buttonParent:PresentationWindow):void {
 				var e:WhiteboardButtonEvent = new WhiteboardButtonEvent(WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION);
 				e.window = buttonParent;
 				dispatchEvent(e);
 				
-				buttonParent.addEventListener(KeyboardEvent.KEY_UP, checkWhiteboardKeyCombo);
+//				buttonParent.addEventListener(KeyboardEvent.KEY_UP, checkWhiteboardKeyCombo);
 			}
 			
 			private function checkWhiteboardKeyCombo(e:KeyboardEvent):void{
