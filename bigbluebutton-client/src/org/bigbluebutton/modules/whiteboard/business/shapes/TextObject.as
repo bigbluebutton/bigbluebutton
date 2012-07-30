@@ -142,7 +142,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 //            setTextFormat(new TextFormat(fontStyle, newFontSize, textColor));
             
 			// ensure typing doesn't go off of whiteboard
-//			this.width = 250;
+			this.width = 500;
 		}	
 
         public function get oldParentWidth():Number {
@@ -173,7 +173,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             //            setTextFormat(new TextFormat(fontStyle, newFontSize, textColor));
             
             // ensure typing doesn't go off of whiteboard
-//            this.width = 250;
+            this.width = 500;
+            
+            LogUtil.debug("Redraw 2 Old parent dim [" + this.width + "," + this.height + "] newFontSize=" + newFontSize);
         }
         
 		public function getProperties():Array {

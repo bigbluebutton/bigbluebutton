@@ -66,7 +66,6 @@ package org.bigbluebutton.modules.whiteboard.services
 		
 		private function handleClearCommand(message:Object):void {
 			LogUtil.debug("Handle Whiteboard Clear Command ");
-//			dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.BOARD_CLEARED));
 			whiteboardModel.clear();
 		}
 		
@@ -113,7 +112,7 @@ package org.bigbluebutton.modules.whiteboard.services
                     if (an.id == undefined || an.id == null || an.id == "") return;
                     if (an.status == undefined || an.status == null || an.status == "") return;
                     
-                    LogUtil.debug("handleRequestAnnotationHistoryReply: annotation id=" + an.id);
+//                    LogUtil.debug("handleRequestAnnotationHistoryReply: annotation id=" + an.id);
                     
                     var annotation:Annotation = new Annotation(an.id, an.type, an);
                     annotation.status = an.status;
