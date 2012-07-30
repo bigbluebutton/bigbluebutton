@@ -309,7 +309,8 @@
 			 */						
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
 				slideLoader.source = e.slide;
-				slideLoader.toolTip = e.slideText;
+				slideLoader.accessibilityProperties.description = e.slideText;
+				Accessibility.updateProperties()
 			}
 			
 			/**
@@ -464,12 +465,13 @@
 			
 			private function focusSlide(e:ShortcutEvent):void{
 				focusManager.setFocus(slideLoader);
+				slideLoader.drawFocus(true);
 			}
 			
 		]]>
 	</mx:Script>
 	<fimage:FocusableImage id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" x="{slideModel.loaderX}" y="{slideModel.loaderY}"
-		creationComplete="listenForSlideLoadedCompleteEvent()" scaleContent="false" showBusyCursor="true" completeEffect="Fade" toolTip="This is here AAHHAAAHAHAHHA" />
+		creationComplete="listenForSlideLoadedCompleteEvent()" scaleContent="false" showBusyCursor="true" completeEffect="Fade" />
 	
    		
     <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.ui.views.Thumbnail" itemRollOver="changeIndex(event)" 

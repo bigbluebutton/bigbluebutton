@@ -153,6 +153,7 @@ package org.bigbluebutton.modules.layout.managers
 		
 		public function setCanvas(canvas:MDICanvas):void {
 			_canvas = canvas;
+			//LogUtil.debug("CHAD: Canvas initialized");
 			/*
 			 * it should be dispatched when the layouts get loaded, but
 			 * the view is not ready at that point to receive the layouts
@@ -300,7 +301,8 @@ package org.bigbluebutton.modules.layout.managers
 		 * on the role of the participant
 		 */ 
 		public function presenterChanged():void {
-			applyLayout(_currentLayout);
+			if (_canvas != null)
+				applyLayout(_currentLayout);
 		}
 	}
 }
