@@ -120,7 +120,7 @@ package org.bigbluebutton.modules.whiteboard.services
                     tempAnnotations.push(annotation);
                 }   
                 
-                if (tempAnnotations.length > 1) {
+                if (tempAnnotations.length > 0) {
                     whiteboardModel.addAnnotationFromHistory(tempAnnotations);
                 }
 			}
