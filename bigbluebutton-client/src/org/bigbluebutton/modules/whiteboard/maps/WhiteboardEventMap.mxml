@@ -140,14 +140,14 @@
 		<InlineInvoker method="dummyMethod" />
 	</EventHandlers>
 
-	<EventHandlers type="{WhiteboardUpdate.BOARD_CLEARED}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="clearBoard" arguments="{event}"/>
+	<EventHandlers type="{WhiteboardUpdate.CLEAR_ANNOTATIONS}" >
+		<MethodInvoker generator="{WhiteboardManager}" method="clearAnnotations"/>
 	</EventHandlers>
 	<EventHandlers type="{WhiteboardUpdate.BOARD_UPDATED}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="drawGraphic" arguments="{event}"/>
 	</EventHandlers>
-	<EventHandlers type="{WhiteboardUpdate.GRAPHIC_UNDONE}" >
-		<MethodInvoker generator="{WhiteboardManager}" method="undoGraphic" arguments="{event}" />
+	<EventHandlers type="{WhiteboardUpdate.UNDO_ANNOTATION}" >
+		<MethodInvoker generator="{WhiteboardManager}" method="undoAnnotation" arguments="{event}" />
 	</EventHandlers>
 	<EventHandlers type="{ToggleGridEvent.GRID_TOGGLED}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="toggleGrid"  arguments="{event}" />

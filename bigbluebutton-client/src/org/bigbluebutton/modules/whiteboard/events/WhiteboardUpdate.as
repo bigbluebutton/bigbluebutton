@@ -19,6 +19,7 @@
 package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
+	
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	
 	public class WhiteboardUpdate extends Event
@@ -27,11 +28,16 @@ package org.bigbluebutton.modules.whiteboard.events
 		public static const BOARD_CLEARED:String = "boardClear";
 		public static const BOARD_ENABLED:String = "boardEnabled";
 		public static const GRAPHIC_UNDONE:String = "graphicUndone";
+        
+        
+        // Event to notify display of presenter's request.
+        public static const UNDO_ANNOTATION:String = "WhiteboardUndoAnnotationEvent";
+        public static const CLEAR_ANNOTATIONS:String = "WhiteboardClearAnnotationEvent";
 			
 		public var annotation:Annotation;
 		public var recvdShapes:Boolean;
 		public var boardEnabled:Boolean;
-		
+		public var annotationID:String;
 		
 		public function WhiteboardUpdate(type:String)
 		{

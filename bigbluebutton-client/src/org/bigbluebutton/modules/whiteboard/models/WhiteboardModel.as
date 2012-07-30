@@ -49,12 +49,12 @@ package org.bigbluebutton.modules.whiteboard.models
         
 		public function undo():void {
 			_currentPresentation.undo();
-			_dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO));
+			_dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.UNDO_ANNOTATION));
 		}
 		
 		public function clear():void {
 			_currentPresentation.clear();
-			_dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
+			_dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CLEAR_ANNOTATIONS));
 		}
 
 		public function changePresentation(presentationID:String, numberOfPages:int):void {

@@ -123,12 +123,12 @@ package org.bigbluebutton.modules.whiteboard.managers
 			displayModel.drawGraphic(event);
 		}
 		
-		public function clearBoard(event:WhiteboardUpdate = null):void {
+		public function clearAnnotations():void {
             displayModel.clearBoard();
 		}
 		
-		public function undoGraphic(event:WhiteboardUpdate):void {
-            displayModel.undoGraphic();
+		public function undoAnnotation(event:WhiteboardUpdate):void {
+            displayModel.undoAnnotation(event.annotationID);
 		}
 		
 		public function toggleGrid(event:ToggleGridEvent = null):void {

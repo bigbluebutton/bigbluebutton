@@ -12,12 +12,14 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
-	import flash.ui.Keyboard;	
+	import flash.ui.Keyboard;
+	
 	import mx.collections.ArrayCollection;
 	import mx.controls.TextInput;
 	import mx.core.Application;
 	import mx.core.UIComponent;
-	import mx.managers.CursorManager;	
+	import mx.managers.CursorManager;
+	
 	import org.bigbluebutton.common.IBbbCanvas;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -277,7 +279,9 @@ package org.bigbluebutton.modules.whiteboard
 			}
 		}
 		
-		public function undoGraphic():void {
+		public function undoAnnotation(id:String):void {
+            LogUtil.debug("UNDOING LAST ANNOTATION!");
+            /** We'll just remove the last annotation for now **/
 			if (this.graphicList.length > 0) {
 				removeLastGraphic();
 			}

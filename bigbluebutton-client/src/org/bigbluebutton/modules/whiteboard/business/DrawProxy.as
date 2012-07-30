@@ -184,9 +184,6 @@ package org.bigbluebutton.modules.whiteboard.business
             }
         }
         
-
-		
-
 		
 		public function getPageHistory(e:PageEvent):void {
 //			var nc:NetConnection = connection;
@@ -221,7 +218,7 @@ package org.bigbluebutton.modules.whiteboard.business
 		 * @param array The array representation of a shape
 		 * 
 		 */		
-		public function addSegment(graphicType:String, array:Array, type:String, color:uint, thickness:uint, 
+/*		public function addSegment(graphicType:String, array:Array, type:String, color:uint, thickness:uint, 
 								   fill:Boolean, fillColor:uint, transparent:Boolean, id:String, status:String, recvdShapes:Boolean = false):void{
 			//LogUtil.debug("Rx add segment **** with ID of " + id + " " + type
 			//+ " and " + color + " " + thickness + " " + fill + " " + transparent);
@@ -235,7 +232,7 @@ package org.bigbluebutton.modules.whiteboard.business
 			e.recvdShapes = recvdShapes;
 			dispatcher.dispatchEvent(e);
 		}
-				
+*/				
 		/**
 		 * Triggers the undo shape event on all clients 
 		 * 
