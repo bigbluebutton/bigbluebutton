@@ -60,7 +60,7 @@ public class Page {
 	}
 	
 	public void undo() {
-		if (annotations.isEmpty()) {
+		if (!annotations.isEmpty()) {
 			annotations.remove(annotations.size() - 1);
 		}
 	}
