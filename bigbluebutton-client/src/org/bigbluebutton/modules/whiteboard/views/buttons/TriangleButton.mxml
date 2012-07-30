@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
+		   width="20" height="20" click="onClick()" icon="{triangle_icon}" 
+		   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.triangle')}" 
+		   toggle="true">
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private var images:Images = new Images();
+			[Bindable] private var triangle_icon:Class = images.triangle_icon;
+			
+			private function onClick():void {
+				
+			}	
+		]]>
+	</mx:Script>
+</mx:Button>

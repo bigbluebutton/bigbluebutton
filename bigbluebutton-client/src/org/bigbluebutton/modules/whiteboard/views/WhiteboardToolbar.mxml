@@ -20,8 +20,12 @@
   $Id: $
 -->
 
-<mx:VBox xmlns="flexlib.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
-	xmlns:mate="http://mate.asfusion.com/" visible="false" backgroundColor="0xCCCCCC" cornerRadius="5" borderStyle="solid" 
+<mx:VBox xmlns="flexlib.containers.*" 
+		xmlns:mx="http://www.adobe.com/2006/mxml" 
+		xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
+		xmlns:wbBtns="org.bigbluebutton.modules.whiteboard.views.buttons.*"
+		xmlns:mate="http://mate.asfusion.com/" 
+		visible="false" backgroundColor="0xCCCCCC" cornerRadius="5" borderStyle="solid" 
 	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" >
 	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
@@ -113,28 +117,28 @@
 				
 				switch(s) {
 					case DrawObject.PENCIL:
-						btnPenc.selected = true;
-						btnEllipse.selected = false;
-						btnRectangle.selected = false;
-                        btnText.selected = false;
+//						btnPenc.selected = true;
+//						btnEllipse.selected = false;
+//						btnRectangle.selected = false;
+//                        btnText.selected = false;
 						break;
 					case DrawObject.ELLIPSE:
-						btnPenc.selected = false;
-						btnEllipse.selected = true;
-						btnRectangle.selected = false;
-                        btnText.selected = false;
+//						btnPenc.selected = false;
+//						btnEllipse.selected = true;
+//						btnRectangle.selected = false;
+//                        btnText.selected = false;
 						break;
 					case DrawObject.RECTANGLE:
-						btnPenc.selected = false;
-						btnEllipse.selected = false;
-						btnRectangle.selected = true;
-                        btnText.selected = false;
+//						btnPenc.selected = false;
+//						btnEllipse.selected = false;
+//						btnRectangle.selected = true;
+//                        btnText.selected = false;
 						break;
                     case DrawObject.TEXT:
-                        btnPenc.selected = false;
-                        btnEllipse.selected = false;
-                        btnRectangle.selected = false;
-                        btnText.selected = true;
+//                       btnPenc.selected = false;
+//                        btnEllipse.selected = false;
+//                        btnRectangle.selected = false;
+//                        btnText.selected = true;
                         break;
 				}
             }
@@ -146,79 +150,79 @@
 
 					switch (toolType) {
 						case DrawObject.PENCIL:
-							btnPenc.selected = true;
-							btnEllipse.selected = false;
-							btnRectangle.selected = false;
-							btnTriangle.selected = false;
-							btnLine.selected = false;
-							btnText.selected = false;
+//							btnPenc.selected = true;
+//							btnEllipse.selected = false;
+//							btnRectangle.selected = false;
+//							btnTriangle.selected = false;
+//							btnLine.selected = false;
+//							btnText.selected = false;
 							break;
 						case DrawObject.HIGHLIGHTER:
-							btnPenc.selected = false;
-							btnEllipse.selected = false;
-							btnRectangle.selected = false;
-							btnTriangle.selected = false;
-							btnLine.selected = false;
-							btnText.selected = false;
+//							btnPenc.selected = false;
+//							btnEllipse.selected = false;
+//							btnRectangle.selected = false;
+//							btnTriangle.selected = false;
+//							btnLine.selected = false;
+//							btnText.selected = false;
 							break;
 						case DrawObject.ELLIPSE:
-							btnPenc.selected = false;
-							btnEllipse.selected = true;
-							btnRectangle.selected = false;
-							btnTriangle.selected = false;
-							btnLine.selected = false;
-							btnText.selected = false;
+//							btnPenc.selected = false;
+//							btnEllipse.selected = true;
+//							btnRectangle.selected = false;
+//							btnTriangle.selected = false;
+//							btnLine.selected = false;
+//							btnText.selected = false;
 							break;
 						case DrawObject.RECTANGLE:
-							btnPenc.selected = false;
-							btnEllipse.selected = false;
-							btnRectangle.selected = true;
-							btnTriangle.selected = false;
-							btnLine.selected = false;
-							btnText.selected = false;
+//							btnPenc.selected = false;
+//							btnEllipse.selected = false;
+//							btnRectangle.selected = true;
+//							btnTriangle.selected = false;
+//							btnLine.selected = false;
+//							btnText.selected = false;
 							break;
 						case DrawObject.TRIANGLE:
-							btnPenc.selected = false;
-							btnEllipse.selected = false;
-							btnRectangle.selected = false;
-							btnTriangle.selected = true;
-							btnLine.selected = false;
-							btnText.selected = false;
+//							btnPenc.selected = false;
+//							btnEllipse.selected = false;
+//							btnRectangle.selected = false;
+//							btnTriangle.selected = true;
+//							btnLine.selected = false;
+//							btnText.selected = false;
 							break;
 						case DrawObject.LINE:
-							btnPenc.selected = false;
-							btnEllipse.selected = false;
-							btnRectangle.selected = false;
-							btnTriangle.selected = false;
-							btnLine.selected = true;
-							btnText.selected = false;
+//							btnPenc.selected = false;
+//							btnEllipse.selected = false;
+//							btnRectangle.selected = false;
+//							btnTriangle.selected = false;
+//							btnLine.selected = true;
+//							btnText.selected = false;
 							break;
 						case DrawObject.ERASER:
-							btnPenc.selected = false;
-							btnEllipse.selected = false;
-							btnRectangle.selected = false;
-							btnTriangle.selected = false;
-							btnLine.selected = false;
-							btnText.selected = false;
+//							btnPenc.selected = false;
+//							btnEllipse.selected = false;
+//							btnRectangle.selected = false;
+//							btnTriangle.selected = false;
+//							btnLine.selected = false;
+//							btnText.selected = false;
 							break;
 					}
 				} else if (gType == WhiteboardConstants.TYPE_TEXT) {
-					btnPenc.selected = false;
-					btnEllipse.selected = false;
-					btnRectangle.selected = false;
-					btnTriangle.selected = false;
-					btnLine.selected = false;
-					btnText.selected = true;
+//					btnPenc.selected = false;
+//					btnEllipse.selected = false;
+//					btnRectangle.selected = false;
+//					btnTriangle.selected = false;
+//					btnLine.selected = false;
+//					btnText.selected = true;
 					canvas.setGraphicType(gType);
 					canvas.setTool(toolType);
 				} else if (gType == WhiteboardConstants.TYPE_SELECTION) {
 					switch(toolType) {
 						case SelectObject.SELECT_TOOL:
-							btnPenc.selected = false;
-							btnEllipse.selected = false;
-							btnRectangle.selected = false;
-							btnLine.selected = false;
-							btnText.selected = false;
+//							btnPenc.selected = false;
+//							btnEllipse.selected = false;
+//							btnRectangle.selected = false;
+//							btnLine.selected = false;
+//							btnText.selected = false;
 							break;
 					}
 					canvas.setGraphicType(gType);
@@ -264,9 +268,7 @@
 			protected function toggleTransparency():void {
 				canvas.toggleTransparency();
 			}
-			
-
-			
+						
 			private function presenterMode(e:MadePresenterEvent):void {
 				canvas.makeTextObjectsEditable(e);
 			}
@@ -322,6 +324,10 @@
                 var gobj:GraphicObject = event.data;
                 LogUtil.debug("!!!!DESELECTED:" + " " + gobj.getProperties());
             }
+			
+			private function enabledWhiteboard():void {
+				dispatchEvent(new WhiteboardButtonEvent(WhiteboardButtonEvent.ENABLE_WHITEBOARD));
+			}
             
 		]]>
 	</mx:Script>
@@ -330,24 +336,20 @@
 	that identifies the "category" of the tool (ex. shape vs text), and the other specifies the 
 	tool itself (ex. line tool vs triangle tool, even though both are "shapes")
 	-->
-    <mx:Button width="20" height="20" id="btnHand" click="setShape(DrawObject.TEXT)" icon="{hand_icon}" 
-               toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
-    <mx:Spacer height="10" />
-	<mx:Button width="20" height="20" id="btnPenc" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.PENCIL)"  icon="{pencil_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.pencil')}" toggle="true" selected="true" />
-	<mx:Button width="20" height="20" id="btnRectangle" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.RECTANGLE)" icon="{rectangle_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
-	<mx:Button width="20" height="20" id="btnEllipse" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.ELLIPSE)" icon="{ellipse_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" toggle="true" />
-	<mx:Button width="20" height="20" id="btnTriangle" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.TRIANGLE)" icon="{triangle_icon}" toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.triangle')}" toggle="true" />
-	<mx:Button width="20" height="20" id="btnLine" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.LINE)" icon="{line_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.line')}" toggle="true" />
-	<mx:Button width="20" height="20" id="btnText" click="setTool(WhiteboardConstants.TYPE_TEXT, TextObject.TEXT_TOOL)" icon="{text_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.text')}" toggle="true" />
+    <wbBtns:PanZoomButton/>
+    <mx:Spacer height="10"/>
+	<wbBtns:ScribbleButton/>
+	<wbBtns:RectangleButton/>
+	<wbBtns:CircleButton/>
+	<wbBtns:TriangleButton/>
+	<wbBtns:LineButton/>
+	<wbBtns:TextButton/>
 		
-	<mx:Spacer height="5" />
-	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR))" icon="{delete_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.clear')}" />
-	<mx:Button width="20" height="20" id="btnUndo"  click="sendUndoCommand()" icon="{undo_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo')}" />
+	<mx:Spacer height="5"/>
+	<wbBtns:ClearButton/>
+	<wbBtns:UndoButton/>
 	
-	<mx:Spacer height="5" />
+	<mx:Spacer height="5"/>
 	
 	<!--
 	Properties that were removed from original color picker:
@@ -360,11 +362,14 @@
 	of ColorPickers, one for the "line" color for the outlines of shapes, and the other for
 	the "fill" color that is used only if "fill" is enabled in WhiteboardCanvasModel
 	-->
-	<mx:ColorPicker change="changeColor(event)" id="cpik"  selectedColor="0x000000" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
+	<mx:ColorPicker change="changeColor(event)" id="cpik"  selectedColor="0x000000" 
+					toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
    
 	<mx:Spacer height="3" />
 	<mx:Image source="{thick_icon}" horizontalAlign="center" width="20"/>
-	<mx:VSlider height="50" id="sld" change="changeThickness(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness')}" minimum="2" maximum="20" 
+	<mx:VSlider height="50" id="sld" change="changeThickness(event)" 
+				toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness')}" 
+				minimum="2" maximum="20" 
 				useHandCursor="true" value="2" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" />
 	<mx:Image source="{thin_icon}" horizontalAlign="center" width="20" />
 	
