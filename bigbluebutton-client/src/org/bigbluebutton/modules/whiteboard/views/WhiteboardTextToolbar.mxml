@@ -224,6 +224,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 			}
 
 			private function handleObjSelected(event:GraphicObjectFocusEvent):void  {
+                LogUtil.debug("###### handleObjSelected");
 				if(event.data.getGraphicType() != WhiteboardConstants.TYPE_TEXT) return;
 				var tobj:TextObject = event.data as TextObject;
 				repositionToolbar(tobj);
@@ -232,6 +233,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 			}
 
 			private function handleObjDeselected(event:GraphicObjectFocusEvent):void  {
+                LogUtil.debug("##### handleObjDeselected");
 				if(event.data.getGraphicType() != WhiteboardConstants.TYPE_TEXT) return;
 				var tobj:TextObject = event.data as TextObject;
 				

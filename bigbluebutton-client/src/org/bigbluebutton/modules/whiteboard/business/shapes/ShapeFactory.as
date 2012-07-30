@@ -106,18 +106,18 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         
         /* convenience method for above method, takes a TextObject and returns one with "normalized" coordinates */
         public function makeTextObject(t:Annotation):TextObject {
-            LogUtil.debug("***Making textObject [" + t.type + ", [" + t.annotation.x + "," + t.annotation.y + "]");
+//            LogUtil.debug("***Making textObject [" + t.type + ", [" + t.annotation.x + "," + t.annotation.y + "]");
             var tobj:TextObject = new TextObject(t.annotation.text, t.annotation.fontColor, t.annotation.backgroundColor, t.annotation.background, t.annotation.x, t.annotation.y, t.annotation.fontSize);
             tobj.makeGraphic(_parentWidth,_parentHeight);
-            LogUtil.debug("***Made textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
+//            LogUtil.debug("***Made textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
             return tobj;
         }
         
         public function redrawTextObject(a:Annotation, t:TextObject):TextObject {
-            LogUtil.debug("***Redraw textObject [" + a.type + ", [" + a.annotation.x + "," + a.annotation.y + "]");
+ //           LogUtil.debug("***Redraw textObject [" + a.type + ", [" + a.annotation.x + "," + a.annotation.y + "]");
             var tobj:TextObject = new TextObject(a.annotation.text, a.annotation.fontColor, a.annotation.backgroundColor, a.annotation.background, a.annotation.x, a.annotation.y, a.annotation.fontSize);
             tobj.redrawText(t.oldParentWidth, t.oldParentHeight, _parentWidth,_parentHeight);
-            LogUtil.debug("***Redraw textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
+ //           LogUtil.debug("***Redraw textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
             return tobj;
         }        
         

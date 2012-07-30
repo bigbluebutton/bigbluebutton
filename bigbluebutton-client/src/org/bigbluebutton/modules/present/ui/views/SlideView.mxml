@@ -139,7 +139,6 @@
 			 * Triggered when the presenter clicks on the slides with the intent of moving it.
 			 */		
 			private function onMouseDown(e:MouseEvent):void {				
-                LogUtil.debug("!!!!! SlideView onMouseDown !!!");
 				prevMouseX = this.mouseX;
 				prevMouseY = this.mouseY;			
 				addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
@@ -149,7 +148,6 @@
 			 * Triggered when the mouse had been clicked and dragged to move the slide.
 			 */ 
 			private function onMouseMove(e:MouseEvent):void {	
-                LogUtil.debug("!!!!! SlideView onMouseMove !!!");
 				// Compute the change in mouse position from where the mouse was clicked.
 				var deltaCanvasMouseX:Number = this.mouseX - prevMouseX;
 				var deltaCanvasMouseY:Number = this.mouseY - prevMouseY;
@@ -214,7 +212,6 @@
 			 * Triggered when the presenter uses the mouse wheel to zoom in/out of the slide.
 			 */
 			private function onMouseWheelZoomEvent(e:MouseEvent):void {
-                LogUtil.debug(" **** ON MOUSE WHEEL ZOOM EVENT ***");
 				if (presenterIsZoomingOut(e.delta)) {
 					zoomPercentage -= ZOOM_STEP;
 				} else {
@@ -308,7 +305,6 @@
 			 * Handle the event where this presenter becomes a viewer because another attendee became presenter.
 			 */			
 			private function handleSwitchToViewerEvent(e:MadePresenterEvent):void{
-                LogUtil.debug(" **** handleSwitchToViewerEvent -- Removing MOUSE_WHEEL  EVENT ***");
 				removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheelZoomEvent);
 				slideLoader.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 				slideLoader.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);

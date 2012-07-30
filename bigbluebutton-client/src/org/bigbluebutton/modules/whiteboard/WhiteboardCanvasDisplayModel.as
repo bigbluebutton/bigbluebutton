@@ -12,14 +12,12 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
-	import flash.ui.Keyboard;
-	
+	import flash.ui.Keyboard;	
 	import mx.collections.ArrayCollection;
 	import mx.controls.TextInput;
 	import mx.core.Application;
 	import mx.core.UIComponent;
 	import mx.managers.CursorManager;
-	
 	import org.bigbluebutton.common.IBbbCanvas;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -55,6 +53,8 @@ package org.bigbluebutton.modules.whiteboard
 		
 		private var shapeFactory:ShapeFactory = new ShapeFactory();
 
+        private var currentlySelectedTextObject:TextObject;
+        
 		private var bbbCanvas:IBbbCanvas;
 		private var width:Number;
 		private var height:Number;
@@ -160,8 +160,8 @@ package org.bigbluebutton.modules.whiteboard
 		private function addPresenterText(o:Annotation):void {
 			if(!isPresenter) return;
 			var tobj:TextObject = calibrateNewTextWith(o);
-			tobj.multiline = true;
-			tobj.wordWrap = true;
+			tobj.multiline = false;
+			tobj.wordWrap = false;
 			tobj.autoSize = TextFieldAutoSize.LEFT;
 			tobj.makeEditable(true);
             LogUtil.debug("Putting text object [" + tobj.getGraphicID() + "] in [" + tobj.x + "," + tobj.y + "]");
@@ -179,8 +179,8 @@ package org.bigbluebutton.modules.whiteboard
 			if (isPresenter) return;
 			var tobj:TextObject = calibrateNewTextWith(o);
 			//LogUtil.debug("TEXT ADDED: " + tobj.getGraphicID());
-			tobj.multiline = true;
-			tobj.wordWrap = true;
+			tobj.multiline = false;
+			tobj.wordWrap = false;
 			tobj.autoSize = TextFieldAutoSize.LEFT;
 			tobj.makeEditable(false);
 			wbCanvas.addGraphic(tobj);
@@ -287,12 +287,12 @@ package org.bigbluebutton.modules.whiteboard
 		}
         
         public function receivedAnnotationsHistory():void {
-            LogUtil.debug("**** CanvasDisplay receivedAnnotationsHistory *****");
+//            LogUtil.debug("**** CanvasDisplay receivedAnnotationsHistory *****");
             var annotations:Array = whiteboardModel.getAnnotations();
-            LogUtil.debug("**** CanvasDisplay receivedAnnotationsHistory [" + annotations.length + "] *****");
+//            LogUtil.debug("**** CanvasDisplay receivedAnnotationsHistory [" + annotations.length + "] *****");
             for (var i:int = 0; i < annotations.length; i++) {
                 var an:Annotation = annotations[i] as Annotation;
-                LogUtil.debug("**** Drawing graphic from history [" + an.type + "] *****");
+//                LogUtil.debug("**** Drawing graphic from history [" + an.type + "] *****");
                 if(an.type != "text") {
                     var dobj:DrawObject = drawObjectFactory(an.annotation);
                     drawShape(dobj, true);					
@@ -303,13 +303,13 @@ package org.bigbluebutton.modules.whiteboard
         }
 
 		public function changePage():void{
-            LogUtil.debug("**** CanvasDisplay changePage. Cearing page *****");
+//            LogUtil.debug("**** CanvasDisplay changePage. Cearing page *****");
             clearBoard();
             var annotations:Array = whiteboardModel.getAnnotations();
-            LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");
+ //           LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");
             for (var i:int = 0; i < annotations.length; i++) {
                 var an:Annotation = annotations[i] as Annotation;
-                LogUtil.debug("**** Drawing graphic from changePage [" + an.type + "] *****");
+ //               LogUtil.debug("**** Drawing graphic from changePage [" + an.type + "] *****");
                 if(an.type != "text") {
                     var dobj:DrawObject = drawObjectFactory(an.annotation);
                     drawShape(dobj, true);					
@@ -349,9 +349,7 @@ package org.bigbluebutton.modules.whiteboard
 //				(texts[i] as TextObject).deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 //			}
 		}
-
-
-		
+	
 		private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {
 			if(gobj.getGraphicType() == WhiteboardConstants.TYPE_SHAPE) {
 				var origDobj:DrawObject = gobj as DrawObject;
@@ -366,12 +364,20 @@ package org.bigbluebutton.modules.whiteboard
                 var origTobj:TextObject = gobj as TextObject;                
                 var an:Annotation = whiteboardModel.getAnnotation(origTobj.getGraphicID());
                 if (an == null) {
-                    LogUtil.error("!!!! Text with id [" + origTobj.getGraphicID() + "] is missing.!!!!");
+                    LogUtil.error("Text with id [" + origTobj.getGraphicID() + "] is missing.");
                 } else {
                     wbCanvas.removeGraphic(origTobj);
                     var tobj:TextObject = shapeFactory.redrawTextObject(an, origTobj);
                     tobj.setGraphicID(origTobj.getGraphicID());
                     tobj.status = origTobj.status;
+                    
+                    if (currentlySelectedTextObject != null) {
+                        currentlySelectedTextObject = tobj;
+                        var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
+                        e.data = tobj;
+                        wbCanvas.dispatchEvent(e);                        
+                    }
+                    
                     wbCanvas.addGraphic(tobj);
                     graphicList[objIndex] = tobj;
                 }            
@@ -406,19 +412,22 @@ package org.bigbluebutton.modules.whiteboard
         }
         
         public function textObjGainedFocusListener(event:FocusEvent):void {
+            LogUtil.debug("### GAINED FOCUS ");
             var tf:TextObject = event.currentTarget as TextObject;
             wbCanvas.stage.focus = tf;
             tf.stage.focus = tf;
-//            currentlySelectedTextObject = tf;
+            currentlySelectedTextObject = tf;
             var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
             e.data = tf;
             wbCanvas.dispatchEvent(e);
         }
         
         public function textObjLostFocusListener(event:FocusEvent):void {
+            LogUtil.debug("### LOST FOCUS ");
             var tf:TextObject = event.target as TextObject;	
             sendTextToServer(TextObject.TEXT_PUBLISHED, tf);	
             LogUtil.debug("Text published to: " +  tf.text);
+            currentlySelectedTextObject = null;
             var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
             e.data = tf;
             wbCanvas.dispatchEvent(e);
@@ -437,6 +446,7 @@ package org.bigbluebutton.modules.whiteboard
                     tobj.status = TextObject.TEXT_PUBLISHED;
                     break;
             }	
+            
             LogUtil.debug("SENDING TEXT: [" + tobj.text + "]");
             
             var annotation:Object = new Object();

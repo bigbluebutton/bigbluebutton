@@ -114,7 +114,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		private function applyTextFormat(size:Number):void {
-            LogUtil.debug(" *** Font text size [" + textSize + "," + size + "]");
+//            LogUtil.debug(" *** Font text size [" + textSize + "," + size + "]");
 			var tf:TextFormat = new TextFormat();
 			tf.size = size;
 			tf.font = "arial";
@@ -129,13 +129,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             var newFontSize:Number = textSize;
             
             if (_origParentHeight == 0 && _origParentWidth == 0) {
-                LogUtil.debug("Old parent dim [" + _origParentWidth + "," + _origParentHeight + "]");
+//                LogUtil.debug("Old parent dim [" + _origParentWidth + "," + _origParentHeight + "]");
                 newFontSize = textSize;
                 _origParentHeight = parentHeight;
                 _origParentWidth = parentWidth;               
             } else {
                 newFontSize = (parentHeight/_origParentHeight) * textSize;
-                LogUtil.debug("2 Old parent dim [" + _origParentWidth + "," + _origParentHeight + "] newFontSize=" + newFontSize);
+//                LogUtil.debug("2 Old parent dim [" + _origParentWidth + "," + _origParentHeight + "] newFontSize=" + newFontSize);
             }            
 			this.antiAliasType = AntiAliasType.ADVANCED;
             applyTextFormat(newFontSize);
@@ -166,7 +166,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             _origParentHeight = origParentHeight;
             _origParentWidth = origParentWidth;               
                 
-            LogUtil.debug("Redraw 2 Old parent dim [" + origParentWidth + "," + origParentHeight + "] newFontSize=" + newFontSize);
+//            LogUtil.debug("Redraw 2 Old parent dim [" + origParentWidth + "," + origParentHeight + "] newFontSize=" + newFontSize);
      
             this.antiAliasType = AntiAliasType.ADVANCED;
             applyTextFormat(newFontSize);

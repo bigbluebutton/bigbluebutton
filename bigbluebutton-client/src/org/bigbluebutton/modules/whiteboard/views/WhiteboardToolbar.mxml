@@ -101,9 +101,7 @@
 			private var presentationWindow:PresentationWindow;
 			
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
-                '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF',
-				'0xC0C0C0'
-			];
+                '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
 			
 			/**
 			 * Sets the type of shape we're drawing (pencil, rectangle, etc...) 
@@ -332,7 +330,9 @@
 	that identifies the "category" of the tool (ex. shape vs text), and the other specifies the 
 	tool itself (ex. line tool vs triangle tool, even though both are "shapes")
 	-->
-	
+    <mx:Button width="20" height="20" id="btnHand" click="setShape(DrawObject.TEXT)" icon="{hand_icon}" 
+               toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
+    <mx:Spacer height="10" />
 	<mx:Button width="20" height="20" id="btnPenc" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.PENCIL)"  icon="{pencil_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.pencil')}" toggle="true" selected="true" />
 	<mx:Button width="20" height="20" id="btnRectangle" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.RECTANGLE)" icon="{rectangle_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
 	<mx:Button width="20" height="20" id="btnEllipse" click="setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.ELLIPSE)" icon="{ellipse_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" toggle="true" />
