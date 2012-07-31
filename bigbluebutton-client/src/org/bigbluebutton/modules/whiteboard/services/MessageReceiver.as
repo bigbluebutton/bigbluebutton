@@ -22,7 +22,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		}
 		
 		public function onMessage(messageName:String, message:Object):void {
-			LogUtil.debug("WB: received message " + messageName);
+//			LogUtil.debug("WB: received message " + messageName);
 			
 			switch (messageName) {
 				case "WhiteboardRequestAnnotationHistoryReply":
@@ -55,34 +55,34 @@ package org.bigbluebutton.modules.whiteboard.services
 		}
 
 		private function handleChangePresentationCommand(message:Object):void {
-			LogUtil.debug("Handle Whiteboard Change Presentation Command [ " + message.presentationID + ", " + message.numberOfPages + "]");
+//			LogUtil.debug("Handle Whiteboard Change Presentation Command [ " + message.presentationID + ", " + message.numberOfPages + "]");
 			whiteboardModel.changePresentation(message.presentationID, message.numberOfPages);
 		}
 		
 		private function handleChangePageCommand(message:Object):void {
-			LogUtil.debug("Handle Whiteboard Change Page Command [ " + message.pageNum + ", " + message.numAnnotations + "]");
+//			LogUtil.debug("Handle Whiteboard Change Page Command [ " + message.pageNum + ", " + message.numAnnotations + "]");
 			whiteboardModel.changePage(message.pageNum, message.numAnnotations);
 		}
 		
 		private function handleClearCommand(message:Object):void {
-			LogUtil.debug("Handle Whiteboard Clear Command ");
+//			LogUtil.debug("Handle Whiteboard Clear Command ");
 			whiteboardModel.clear();
 		}
 		
 		private function handleUndoCommand(message:Object):void {
-			LogUtil.debug("Handle Whiteboard Undo Command ");
+//			LogUtil.debug("Handle Whiteboard Undo Command ");
 			whiteboardModel.undo();
 			//            dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.SHAPE_UNDONE));
 		}
 		
 		private function handleEnableWhiteboardCommand(message:Object):void {
 			//if (result as Boolean) modifyEnabledCallback(true);
-			LogUtil.debug("Handle Whiteboard Enabled Command " + message.enabled);
+//			LogUtil.debug("Handle Whiteboard Enabled Command " + message.enabled);
 			whiteboardModel.enable(message.enabled);
 		}
 		
 		private function handleNewAnnotationCommand(message:Object):void {
-			LogUtil.debug("Handle new annotation[" + message.type + ", " + message.id + ", " + message.status + "]");
+//			LogUtil.debug("Handle new annotation[" + message.type + ", " + message.id + ", " + message.status + "]");
             if (message.type == undefined || message.type == null || message.type == "") return;
             if (message.id == undefined || message.id == null || message.id == "") return;
             if (message.status == undefined || message.status == null || message.status == "") return;
@@ -101,7 +101,7 @@ package org.bigbluebutton.modules.whiteboard.services
 			if (message.count == 0) {
 				LogUtil.debug("handleRequestAnnotationHistoryReply: No annotations.");
 			} else {
-				LogUtil.debug("handleRequestAnnotationHistoryReply: Number of annotations in history = " + message.count);
+//				LogUtil.debug("handleRequestAnnotationHistoryReply: Number of annotations in history = " + message.count);
                 var annotations:Array = message.annotations as Array;
                 var tempAnnotations:Array = new Array();
                 

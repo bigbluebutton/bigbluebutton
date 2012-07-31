@@ -1,8 +1,7 @@
 package org.bigbluebutton.modules.whiteboard.services
 {
 	import flash.net.NetConnection;
-	import flash.net.Responder;
-	
+	import flash.net.Responder;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.ConnectionManager;
@@ -16,7 +15,7 @@ package org.bigbluebutton.modules.whiteboard.services
 	public class MessageSender
 	{	
 		public function changePage(e:PageEvent):void{
-			LogUtil.debug("Sending [whiteboard.setActivePage] to server.");
+//			LogUtil.debug("Sending [whiteboard.setActivePage] to server.");
 			var message:Object = new Object();
 			message["pageNum"] = e.pageNum;
 			
@@ -33,7 +32,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		}
 		
 		public function modifyEnabled(e:WhiteboardPresenterEvent):void {
-			LogUtil.debug("Sending [whiteboard.enableWhiteboard] to server.");
+//			LogUtil.debug("Sending [whiteboard.enableWhiteboard] to server.");
 			var message:Object = new Object();
 			message["enabled"] = e.enabled;
 			
@@ -54,7 +53,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function toggleGrid():void{
-			LogUtil.debug("Sending [whiteboard.toggleGrid] to server.");
+//			LogUtil.debug("Sending [whiteboard.toggleGrid] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.toggleGrid", 
 				function(result:String):void { // On successful result
@@ -71,7 +70,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function undoGraphic():void{
-			LogUtil.debug("Sending [whiteboard.undo] to server.");
+//			LogUtil.debug("Sending [whiteboard.undo] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.undo", 
 				function(result:String):void { // On successful result
@@ -88,7 +87,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function clearBoard():void{
-			LogUtil.debug("Sending [whiteboard.clear] to server.");
+//			LogUtil.debug("Sending [whiteboard.clear] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.clear", 
 				function(result:String):void { // On successful result
@@ -101,7 +100,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		}
 
         public function requestAnnotationHistory():void{
-            LogUtil.debug("Sending [whiteboard.requestAnnotationHistory] to server.");
+//            LogUtil.debug("Sending [whiteboard.requestAnnotationHistory] to server.");
             var _nc:ConnectionManager = BBB.initConnectionManager();
             _nc.sendMessage("whiteboard.requestAnnotationHistory", 
                 function(result:String):void { // On successful result
@@ -119,7 +118,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function sendText(e:WhiteboardDrawEvent):void{
-			LogUtil.debug("Sending [whiteboard.sendAnnotation] (TEXT) to server.");
+//			LogUtil.debug("Sending [whiteboard.sendAnnotation] (TEXT) to server.");
             var _nc:ConnectionManager = BBB.initConnectionManager();
             _nc.sendMessage("whiteboard.sendAnnotation",               
                 function(result:String):void { // On successful result
@@ -138,7 +137,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		 * 
 		 */		
 		public function sendShape(e:WhiteboardDrawEvent):void {
-			LogUtil.debug("Sending [whiteboard.sendAnnotation] (SHAPE) to server.");
+//			LogUtil.debug("Sending [whiteboard.sendAnnotation] (SHAPE) to server.");
             			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.sendAnnotation",               
@@ -153,7 +152,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		}
 		
 		public function checkIsWhiteboardOn():void {
-			LogUtil.debug("Sending [whiteboard.isWhiteboardEnabled] to server.");
+//			LogUtil.debug("Sending [whiteboard.isWhiteboardEnabled] to server.");
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.isWhiteboardEnabled", 
 				function(result:String):void { // On successful result
@@ -166,7 +165,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		}
 		
 		public function setActivePresentation(e:PresentationEvent):void{
-			LogUtil.debug("Sending [whiteboard.isWhiteboardEnabled] to server.");
+//			LogUtil.debug("Sending [whiteboard.isWhiteboardEnabled] to server.");
 			
 			var message:Object = new Object();
 			message["presentationID"] = e.presentationName;

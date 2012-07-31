@@ -127,13 +127,13 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		private function addNewShape(o:DrawObject):void {
-			LogUtil.debug("Adding new shape [" + o.getType() + "," + o.getGraphicID() + "," + o.status + "]");
+//			LogUtil.debug("Adding new shape [" + o.getType() + "," + o.getGraphicID() + "," + o.status + "]");
             if (o.getType() == DrawObject.TEXT) return;
 
 			var dobj:DrawObject = shapeFactory.makeShape(o);
-            LogUtil.debug("Adding new shape 1 [" + dobj.getType() + "," + dobj.getGraphicID() + "," + dobj.status + "]");
+//            LogUtil.debug("Adding new shape 1 [" + dobj.getType() + "," + dobj.getGraphicID() + "," + dobj.status + "]");
 			wbCanvas.addGraphic(dobj);
-            LogUtil.debug("Adding new shape 2 [" + dobj.getGraphicID() + ", [" + dobj.x + "," + dobj.y + "]");
+//            LogUtil.debug("Adding new shape 2 [" + dobj.getGraphicID() + ", [" + dobj.x + "," + dobj.y + "]");
 /*            
             var points:String = "{type=" + dobj.getType() + ",points=";
             for (var p:int = 0; p < dobj.getShapeArray().length; p++) {
@@ -151,7 +151,7 @@ package org.bigbluebutton.modules.whiteboard
 			var tobj:TextObject = shapeFactory.makeTextObject(o);
 			tobj.setGraphicID(o.id);
 			tobj.status = o.status;
-            LogUtil.debug("Created text object [" + tobj.getGraphicID() + "] in [" + tobj.text + "," + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
+//            LogUtil.debug("Created text object [" + tobj.getGraphicID() + "] in [" + tobj.text + "," + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
 			return tobj;
 		}
 			
@@ -164,7 +164,7 @@ package org.bigbluebutton.modules.whiteboard
 			tobj.wordWrap = false;
 			tobj.autoSize = TextFieldAutoSize.LEFT;
 			tobj.makeEditable(true);
-            LogUtil.debug("Putting text object [" + tobj.getGraphicID() + "] in [" + tobj.x + "," + tobj.y + "]");
+//            LogUtil.debug("Putting text object [" + tobj.getGraphicID() + "] in [" + tobj.x + "," + tobj.y + "]");
 			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			wbCanvas.addGraphic(tobj);
 			wbCanvas.stage.focus = tobj;
@@ -192,7 +192,7 @@ package org.bigbluebutton.modules.whiteboard
 			var tobj:TextObject = calibrateNewTextWith(o);
 			var id:String = tobj.getGraphicID();
 			removeText(id);
-			LogUtil.debug("Text modified to " + tobj.text);
+//			LogUtil.debug("Text modified to " + tobj.text);
 			addNormalText(o);
 		}
 		
@@ -416,7 +416,7 @@ package org.bigbluebutton.modules.whiteboard
         }
         
         public function textObjGainedFocusListener(event:FocusEvent):void {
-            LogUtil.debug("### GAINED FOCUS ");
+//            LogUtil.debug("### GAINED FOCUS ");
             var tf:TextObject = event.currentTarget as TextObject;
             wbCanvas.stage.focus = tf;
             tf.stage.focus = tf;
@@ -427,10 +427,10 @@ package org.bigbluebutton.modules.whiteboard
         }
         
         public function textObjLostFocusListener(event:FocusEvent):void {
-            LogUtil.debug("### LOST FOCUS ");
+//            LogUtil.debug("### LOST FOCUS ");
             var tf:TextObject = event.target as TextObject;	
             sendTextToServer(TextObject.TEXT_PUBLISHED, tf);	
-            LogUtil.debug("Text published to: " +  tf.text);
+//            LogUtil.debug("Text published to: " +  tf.text);
             currentlySelectedTextObject = null;
             var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
             e.data = tf;
@@ -451,7 +451,7 @@ package org.bigbluebutton.modules.whiteboard
                     break;
             }	
             
-            LogUtil.debug("SENDING TEXT: [" + tobj.text + "]");
+//            LogUtil.debug("SENDING TEXT: [" + tobj.text + "]");
             
             var annotation:Object = new Object();
             annotation["type"] = "text";

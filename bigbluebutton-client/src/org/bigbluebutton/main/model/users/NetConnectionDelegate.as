@@ -114,12 +114,12 @@ package org.bigbluebutton.main.model.users
         }   
         
         public function onMessageFromServer(messageName:String, result:Object):void {
-            LogUtil.debug("Got message from server [" + messageName + "]");    
+//            LogUtil.debug("Got message from server [" + messageName + "]");    
             notifyListeners(messageName, result);
         }
 		
 		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object=null):void {
-			LogUtil.debug("SENDING [" + service + "]");
+//			LogUtil.debug("SENDING [" + service + "]");
 			var responder:Responder =	new Responder(                    
 					function(result:Object):void { // On successful result
 						onSuccess("Successfully sent [" + service + "]."); 
