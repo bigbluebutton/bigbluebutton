@@ -24,14 +24,12 @@
 		xmlns:mx="http://www.adobe.com/2006/mxml" 
 		xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
 		xmlns:wbBtns="org.bigbluebutton.modules.whiteboard.views.buttons.*"
-		xmlns:mate="http://mate.asfusion.com/" 
-		visible="false" backgroundColor="0xCCCCCC" cornerRadius="5" borderStyle="solid" 
-	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" >
+		xmlns:mate="http://mate.asfusion.com/" creationComplete="onCreationComplete()"
+		visible="true" backgroundColor="0xCCCCCC" cornerRadius="5" borderStyle="solid" 
+	    paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" >
 	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
-	<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableWhiteboard" />
-	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />
 	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
@@ -107,24 +105,32 @@
 			
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
-			                
+			
+            private function onCreationComplete():void {
+                setToolType(WhiteboardConstants.TYPE_ZOOM, null);
+            }
+            
 			private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
-				LogUtil.debug("Handle whiteboard button pressed event");
-                canvas.setGraphicType(e.graphicType);
-                canvas.setTool(e.toolType);
+                setToolType(e.graphicType, e.toolType);
+            }
+            
+            private function setToolType(graphicType:String, toolType:String):void {
+                canvas.setGraphicType(graphicType);
+                canvas.setTool(toolType);
                 
-                scribbleBtn.setTool(e.graphicType, e.toolType);
-                rectangleBtn.setTool(e.graphicType, e.toolType);
-                circleBtn.setTool(e.graphicType, e.toolType);
-                triangleBtn.setTool(e.graphicType, e.toolType);
-                lineBtn.setTool(e.graphicType, e.toolType);
-                textBtn.setTool(e.graphicType, e.toolType);
+                panzoomBtn.setTool(graphicType, toolType);
+                scribbleBtn.setTool(graphicType, toolType);
+                rectangleBtn.setTool(graphicType, toolType);
+                circleBtn.setTool(graphicType, toolType);
+                triangleBtn.setTool(graphicType, toolType);
+                lineBtn.setTool(graphicType, toolType);
+                textBtn.setTool(graphicType, toolType);
                 
-                if(e.graphicType == WhiteboardConstants.TYPE_CLEAR) {
+                if(graphicType == WhiteboardConstants.TYPE_CLEAR) {
                     dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
                 }
                 
-                if(e.graphicType == WhiteboardConstants.TYPE_UNDO) {
+                if(graphicType == WhiteboardConstants.TYPE_UNDO) {
                     sendUndoCommand();
                 }
 			}
@@ -166,11 +172,14 @@
 						
 			private function presenterMode(e:MadePresenterEvent):void {
 				canvas.makeTextObjectsEditable(e);
+                this.visible = true;
+                setToolType(WhiteboardConstants.TYPE_ZOOM, null);
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void {
 				canvas.makeTextObjectsUneditable(e);
-			}
+			    this.visible = false;
+            }
 			
 			private function showToolbar(e:PresentationEvent):void {
 				this.visible = true;
@@ -180,29 +189,21 @@
 				if (!canvas.isPageEmpty()) 
 					dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO));
 			}
-			
-			private function enableWhiteboard(event:WhiteboardButtonEvent = null):void {
-				this.visible = true;
-			}
-			
-			private function disableWhiteboard(event:WhiteboardButtonEvent = null):void {
-				this.visible = false;
-			}
-			
+						
 			public function positionToolbar(window:PresentationWindow):void {
 				presentationWindow = window;
 				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
 				presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
-				this.x = presentationWindow.x - this.width - 3;
-				this.y = presentationWindow.y;
-				parent.setChildIndex(this, parent.numChildren-1);
+				this.x = presentationWindow.x + presentationWindow.width + 3;
+				this.y = presentationWindow.y + 30;
+				parent.setChildIndex(this, parent.numChildren - 1);
 			}
 			
 			private function setPositionAndDepth(e:Event = null):void {
-				this.x = presentationWindow.x - this.width - 3;
-				this.y = presentationWindow.y;
-				parent.setChildIndex(this, parent.numChildren-1);
+				this.x = presentationWindow.x + presentationWindow.width + 3;
+				this.y = presentationWindow.y + 30;
+				parent.setChildIndex(this, parent.numChildren - 1);
 			}
 			
 			private function closeToolbar(e:StopWhiteboardModuleEvent):void {
@@ -219,11 +220,7 @@
                 var gobj:GraphicObject = event.data;
                 LogUtil.debug("!!!!DESELECTED:" + " " + gobj.getProperties());
             }
-			
-			private function enabledWhiteboard():void {
-				dispatchEvent(new WhiteboardButtonEvent(WhiteboardButtonEvent.ENABLE_WHITEBOARD));
-			}
-            
+			           
 		]]>
 	</mx:Script>
 	

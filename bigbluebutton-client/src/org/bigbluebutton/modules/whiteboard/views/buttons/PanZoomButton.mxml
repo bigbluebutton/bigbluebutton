@@ -23,8 +23,10 @@
             public function setTool(gType:String, toolType:String):void {
                 if(gType == WhiteboardConstants.TYPE_ZOOM) {
                     this.selected = true;
+                    dispatchEvent(new WhiteboardButtonEvent(WhiteboardButtonEvent.DISABLE_WHITEBOARD));
                 } else {
-                    this.selected = false;
+                    this.selected = false;                   
+                    dispatchEvent(new WhiteboardButtonEvent(WhiteboardButtonEvent.ENABLE_WHITEBOARD));
                 } 					
             }
 		]]>

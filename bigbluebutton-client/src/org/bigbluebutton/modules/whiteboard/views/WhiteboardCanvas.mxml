@@ -258,6 +258,7 @@
 					
 			public function showCanvas(show:Boolean):void{
 				this.showWhiteboard = show;
+                
 				setWhiteboardVisibility();
 			}
 			
@@ -269,11 +270,13 @@
 			public function enableWhiteboard(e:WhiteboardButtonEvent):void{
 				this.whiteboardEnabled = true;
 				setWhiteboardVisibility();
+                useHandCursor = false;
 			}
 			
 			public function disableWhiteboard(e:WhiteboardButtonEvent):void{
 				this.whiteboardEnabled = false;
 				setWhiteboardVisibility();
+                useHandCursor = true;
 			}
 			
 		]]>

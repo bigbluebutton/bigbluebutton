@@ -25,7 +25,6 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
 			import mx.core.Application;
 			
 			import org.bigbluebutton.common.Images;
@@ -85,7 +84,7 @@
 			}
 			
 			public function setButtonVisibility(visibility:Boolean):void{
-				this.visible = visibility;
+//				this.visible = visibility;
 				//if (visibility) sendEnableWhiteboardEvent();
 				//else if (!visibility) sendDisableWhiteboardEvent();
 			}
