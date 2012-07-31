@@ -25,6 +25,9 @@ package org.bigbluebutton.main.events {
 		public static const FOCUS_CHAT_INPUT:String = 'FOCUS_CHAT_INPUT';
 		public static const UNDO_WHITEBOARD:String = 'UNDO_WHITEBOARD';
 		public static const FOCUS_SLIDE:String = 'FOCUS_SLIDE_VIEW';
+		public static const FOCUS_CHAT_TABS:String = 'FOCUS_CHAT_TABS';
+		public static const FOCUS_NEXT_CHAT_TAB:String = 'FOCUS_NEXT_CHAT_TAB';
+		public static const FOCUS_PREV_CHAT_TAB:String = 'FOCUS_PREV_CHAT_TAB';
 		
 		public function ShortcutEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false) {
 			super(type, bubbles, cancelable);

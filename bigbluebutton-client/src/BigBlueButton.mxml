@@ -219,19 +219,24 @@
 			
 			public function handleKeyDown(e:KeyboardEvent) :void
 			{
+				LogUtil.debug("Key has been pressed: " + e.keyCode);
+				// ASCII table: http://www.asciitable.com/
 				if (e.ctrlKey && e.shiftKey) {
 					
 					switch(e.keyCode)
-					{ 
-					case 67: // C
-						globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CHAT_INPUT));
-						break;
-					case 77: // M
-						globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.MUTE_ME_EVENT));
-						break;
-					case 83: // S
-						globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_SLIDE));
-						break;
+					{
+						case 53: // 5 
+							globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CHAT_TABS));
+							break;
+						case 67: // C
+							globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CHAT_INPUT));
+							break;
+						case 77: // M
+							globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.MUTE_ME_EVENT));
+							break;
+						case 83: // S
+							globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_SLIDE));
+							break;
 					}
 				}
 				else if (e.ctrlKey){
@@ -241,10 +246,7 @@
 							globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.UNDO_WHITEBOARD));
 							break;
 					}
-				}
-				
-				//LogUtil.debug("Key was pressed: " + e.keyCode);
-				
+				}				
 			}
 		]]>
 	</mx:Script>	

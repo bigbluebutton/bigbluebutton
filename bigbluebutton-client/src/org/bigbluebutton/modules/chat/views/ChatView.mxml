@@ -34,6 +34,10 @@
 	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
 	<mate:Listener type="{ChatOptionsEvent.TOGGLE_TRANSLATE}" method="toggleTranslation" />
 	
+	<mate:Listener type="{ShortcutEvent.FOCUS_PREV_CHAT_TAB}" method="focusPreviousChatTab" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_NEXT_CHAT_TAB}" method="focusNextChatTab" />
+	
+	
 	<mx:Style>
 		.chatColorPickerStyle {
 			backgroundColor:#E5E6E7;
@@ -89,6 +93,7 @@
             import org.bigbluebutton.util.i18n.ResourceUtil;
 			import flash.utils.Timer;
 			import flash.events.FocusEvent;  
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			
 			[Bindable] public var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
 				'0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
@@ -106,6 +111,13 @@
 			public var participants:ArrayCollection = new ArrayCollection();
 			
             public var chatWindow:ChatWindow;
+			
+			// Descriptions for accessibilty properties
+			private static const PUBLIC_TAB:String = "PUBLIC CHAT";
+			private static const PUBLIC_TAB_NEW:String = "NEW MESSAGE IN PUBLIC CHAT";
+			private static const PRIVATE_TAB:String = "PRIVATE CHAT WITH ";
+			private static const PRIVATE_TAB_NEW:String = "NEW MESSAGE IN PRIVATE CHAT WITH ";
+			private static const PLUS_TAB:String = "CHAT OPTIONS TAB";
             
 			private var publicWaiting:Boolean = false;
 			private var privateWaiting:ArrayCollection = new ArrayCollection();
@@ -125,6 +137,15 @@
 				systemManager.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeave);
 				systemManager.stage.addEventListener(Event.ACTIVATE, activate);
 				systemManager.stage.addEventListener(Event.DEACTIVATE, deactivate);
+				
+				/*
+				chatTabs.getChildAt(0).accessibilityProperties.description = PUBLIC_TAB;
+				chatTabs.getChildAt(1).accessibilityProperties.description = PLUS_TAB;
+				Accessibility.updateProperties();
+				LogUtil.debug("chatTabs.getChildAt(0).accessibilityProperties.description = " + chatTabs.getChildAt(0).accessibilityProperties.description);
+				LogUtil.debug("chatTabs.getChildAt(0).accessibilityProperties.name = " + chatTabs.getChildAt(0).accessibilityProperties.name);
+				LogUtil.debug("chatTabs.getChildAt(0).accessibilityProperties.label = " + chatTabs.getChildAt(0));
+				*/
 				
 				UserManager.getInstance().registerListener(this);
 				
@@ -339,6 +360,7 @@
 				return "unknown user";
 			}
 			
+			// Add accessibility description for private chats here
 			public function openChatBoxFor(userid:String):void {
 				LogUtil.debug("Opening chat box " + userid);
 				var chatBox:ChatBox;
@@ -353,11 +375,33 @@
 			private function createChatBoxFor(userid:String):ChatBox {				
 				var chatBox:ChatBox = new ChatBox();
 				chatBox.id = getParticipantName(userid);
+				LogUtil.debug("WATERFALL: chatBox.id = " + chatBox.id);
 				chatBox.label = getParticipantName(userid);
+				LogUtil.debug("WATERFALL: chatBox.label = " + chatBox.label);
 				chatBox.name = userid;
-				if (chatTabs.numChildren >= 2) chatTabs.addChildAt(chatBox, chatTabs.numChildren - 1);
-				else chatTabs.addChild(chatBox);
+				LogUtil.debug("WATERFALL: chatBox.name = " + chatBox.name);
 				
+				if (chatTabs.numChildren >= 2){ 
+					chatTabs.addChildAt(chatBox, chatTabs.numChildren - 1);
+				}
+				else{
+					chatTabs.addChild(chatBox);
+				}
+				//*
+				var childIndex:int;
+				childIndex = chatTabs.getChildIndex(chatBox);
+				LogUtil.debug("WATERFALL: ChatBox is at index " + childIndex);
+				if (childIndex == 0){
+					//chatTabs.getChildAt(childIndex).parent.accessibilityProperties.name = PUBLIC_TAB + "NAME";
+					chatTabs.getChildAt(childIndex).parent.accessibilityProperties.description = PUBLIC_TAB + "DESCRIPTION";
+				}
+				else if (childIndex == chatTabs.numChildren-1){
+					chatTabs.getChildAt(childIndex).accessibilityProperties.description = PLUS_TAB;
+				}
+				else{}
+				
+				Accessibility.updateProperties();
+				//*/
 				return chatBox;
 			}
 			
@@ -425,9 +469,7 @@
 			
 			// Activates an audio alert for screen-reader users on private message reception
 			private function privateNotification(event:PrivateChatMessageEvent):void{
-				//LogUtil.debug("WATERFALL: entering privateNotification");
 				if ((! UserManager.getInstance().getConference().amIThisUser(new Number(event.message.chatobj.userid)))) {
-					//LogUtil.debug("Message was sent by another user, accessing logic");
 					var newItem:Boolean = true;
 					// Check if there is already a notification of private messages from that user
 					if (privateWaiting.length){
@@ -438,15 +480,11 @@
 							}
 						}
 					}
-					//LogUtil.debug("WATERFALL: NewItem is " + newItem);
 					if (newItem){
-						//LogUtil.debug("WATERFALL: Adding new item");
 						privateWaiting.addItem(event);
-						//ogUtil.debug("WATERFALL: Adding focus listener");
 						chatTabs.getChildByName(event.message.chatobj.userid).addEventListener(FocusEvent.FOCUS_IN, privateChatFocus);
 					}
 				}
-				//LogUtil.debug("WATERFALL: Leaving privatenotification");
 			}
 			
 			public function privateChatFocus(event:FocusEvent):void{
@@ -568,6 +606,28 @@
 			private function toggleTranslation(e:ChatOptionsEvent):void
 			{
 				this.autoTranslation = e.translateOn;
+			}
+			
+			private function focusPreviousChatTab(e:ShortcutEvent):void{
+				LogUtil.debug("chatTabs.selectedIndex is " + chatTabs.selectedIndex);
+				if (chatTabs.selectedIndex > 0){
+					chatTabs.selectedIndex--;
+				}
+				else{
+					chatTabs.selectedIndex = chatTabs.numChildren - 1;
+				}
+				LogUtil.debug("chatTabs.selectedIndex is changed to " + chatTabs.selectedIndex);
+			}
+			
+			private function focusNextChatTab(e:ShortcutEvent):void{
+				LogUtil.debug("chatTabs.selectedIndex is " + chatTabs.selectedIndex);
+				if (chatTabs.selectedIndex < chatTabs.numChildren - 1){
+					chatTabs.selectedIndex++;
+				}
+				else{
+					chatTabs.selectedIndex = 0;
+				}
+				LogUtil.debug("chatTabs.selectedIndex is changed to " + chatTabs.selectedIndex);
 			}
 						
 		]]>

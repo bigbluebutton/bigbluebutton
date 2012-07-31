@@ -31,6 +31,7 @@
 		   xmlns:views="org.bigbluebutton.modules.chat.views.*">
 	
 	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_TABS}" method="focusChatTabs" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -51,6 +52,7 @@
 			private var _xPosition:int;
 			private var _yPosition:int;
 			
+			private var disp:Dispatcher;
 			private var dispState:String;
 			[Bindable] public var chatOptions:ChatOptions;
 			
@@ -63,9 +65,11 @@
 				FlexGlobals.topLevelApplication.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
 				dispState = FlexGlobals.topLevelApplication.stage.displayState;
 				
-				var disp:Dispatcher = new Dispatcher();
+				// var disp:Dispatcher = new Dispatcher();
+				disp  = new Dispatcher();
 				disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
 				
+				stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);				
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
@@ -103,6 +107,28 @@
 					//cant get it to focus the whole window as well
 					windowManager.bringToFront(this);
 					focusManager.setFocus(txtMsg);
+				}
+			}
+			
+			private function focusChatTabs(e:ShortcutEvent):void{
+				windowManager.bringToFront(this);
+				focusManager.setFocus(chatView.chatTabs);
+			}
+			
+			// public static const FOCUS_NEXT_CHAT_TAB:String = 'FOCUS_NEXT_CHAT_TAB';
+			// public static const FOCUS_PREV_CHAT_TAB:String = 'FOCUS_PREV_CHAT_TAB';
+			
+			private function handleKeyDown(e:KeyboardEvent):void{
+				if (e.ctrlKey && e.shiftKey) {
+					switch(e.keyCode)
+					{
+						case 52: // 4 
+							disp.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_PREV_CHAT_TAB));
+							break;
+						case 54: // 6
+							disp.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_NEXT_CHAT_TAB));
+							break;
+					}
 				}
 			}
 		]]>
