@@ -307,14 +307,18 @@ package org.bigbluebutton.modules.whiteboard
             clearBoard();
             var annotations:Array = whiteboardModel.getAnnotations();
  //           LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");
-            for (var i:int = 0; i < annotations.length; i++) {
-                var an:Annotation = annotations[i] as Annotation;
- //               LogUtil.debug("**** Drawing graphic from changePage [" + an.type + "] *****");
-                if(an.type != "text") {
-                    var dobj:DrawObject = drawObjectFactory(an.annotation);
-                    drawShape(dobj, true);					
-                } else { 
-                    drawText(an, true);	
+            if (annotations.length == 0) {
+                wbCanvas.queryForAnnotationHistory();
+            } else {
+                for (var i:int = 0; i < annotations.length; i++) {
+                    var an:Annotation = annotations[i] as Annotation;
+                    //               LogUtil.debug("**** Drawing graphic from changePage [" + an.type + "] *****");
+                    if(an.type != "text") {
+                        var dobj:DrawObject = drawObjectFactory(an.annotation);
+                        drawShape(dobj, true);					
+                    } else { 
+                        drawText(an, true);	
+                    }                
                 }                
             }
         }

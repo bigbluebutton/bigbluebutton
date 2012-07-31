@@ -70,7 +70,7 @@
                 queryForAnnotationHistory();
 			}
             
-            private function queryForAnnotationHistory():void {
+            public function queryForAnnotationHistory():void {
                 var dispatcher:Dispatcher = new Dispatcher();
                 dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.GET_ANNOTATION_HISTORY));
             }
