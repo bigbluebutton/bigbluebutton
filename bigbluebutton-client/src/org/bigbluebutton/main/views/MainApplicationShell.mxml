@@ -137,10 +137,10 @@
 					receivedConfigLocaleVer = true;
 					appVersion = event.appVersion;
 					localeVersion = event.localeVersion;
-					LogUtil.debug("Received locale version from config.xml");
+					LogUtil.debug("Received locale version fron config.xml");
 				} else {
 					receivedResourceLocaleVer = true;
-					LogUtil.debug("Received locale version from locale file.");
+					LogUtil.debug("Received locale version fron locale file.");
 				}
 				
 				if (receivedConfigLocaleVer && receivedResourceLocaleVer) {
@@ -323,8 +323,8 @@
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
 	
-	<mx:ControlBar width="100%" height="24" paddingTop="0">
-	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
+	<mx:ControlBar width="100%" height="20" paddingTop="0">		
+	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion]) + '-- The Learn To Be Foundation'}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
 		<mx:Button width="20" height="20" visible="{layoutOptions.showLogButton}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />

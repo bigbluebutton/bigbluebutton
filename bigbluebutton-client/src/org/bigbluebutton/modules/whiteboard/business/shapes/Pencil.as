@@ -18,7 +18,7 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.Shape;
+	import flash.display.Sprite;
 
 	/**
 	 * The Pencil class. Extends a DrawObject 
@@ -32,16 +32,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @param segment the array representing the points needed to create this Pencil
 		 * @param color the Color of this Pencil
 		 * @param thickness the thickness of this Pencil
-		 * 
+		 * @param trans the transparency of this Pencil
 		 */		
-		public function Pencil(segment:Array, color:uint, thickness:uint)
+		public function Pencil(segment:Array, color:uint, thickness:uint, trans:Boolean)
 		{
-			super(DrawObject.PENCIL, segment, color, thickness);
+			super(DrawObject.PENCIL, segment, color, thickness, false, 0x000000, false);
 		}
 		
-		override public function makeShape(parentWidth:Number, parentHeight:Number):void {
-			var newShape:Shape = new Shape();
-			newShape.graphics.lineStyle(getThickness(), getColor());
+		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
+			this.graphics.lineStyle(getThickness(), getColor());
 			
 			var graphicsCommands:Vector.<int> = new Vector.<int>();
 			graphicsCommands.push(1);
@@ -53,12 +52,29 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				coordinates.push(denormalize(getShapeArray()[i], parentWidth), denormalize(getShapeArray()[i+1], parentHeight));
 			}
 			
-			newShape.graphics.drawPath(graphicsCommands, coordinates);
-			
-			if (getColor() == 0x000000 || getColor() == 0xFFFFFF) newShape.alpha = 1;
-			else newShape.alpha = 0.6;
-			
-			_shape = newShape;
+			this.graphics.drawPath(graphicsCommands, coordinates);
+			this.alpha = 1;
 		}
+		
+		override public function getProperties():Array {
+			var props:Array = new Array();
+			props.push(this.type);
+			props.push(this.shape);
+			props.push(this.color);
+			props.push(this.thickness);
+			props.push(false);
+			props.push(false);
+			props.push(this.width);
+			props.push(this.height);
+			return props;
+		}
+        
+        override public function toString():String {
+            var points:String = "";
+            for (var p:int = 0; p < _segment.length; p++) {
+                points += _segment[p] + ",";
+            }
+            return "{type=" + type + ",points=" + points + "]}";
+        }
 	}
 }

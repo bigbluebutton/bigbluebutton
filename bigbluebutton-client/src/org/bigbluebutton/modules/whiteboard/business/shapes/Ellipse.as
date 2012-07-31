@@ -18,7 +18,7 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.Shape;
+	import flash.display.Sprite;
 
 	/**
 	 * The Ellipse class. Extends the DrawObject 
@@ -34,12 +34,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * unnecessary data
 		 * @param segment the array representing the points needed to create this Ellipse
 		 * @param color the Color of this Ellipse
+		 * @param fill the fill of this Ellipse
+		 * @param trans the transparency of this Ellipse 
 		 * @param thickness the thickness of this Ellipse
 		 * 
 		 */		
-		public function Ellipse(segment:Array, color:uint, thickness:uint)
+		public function Ellipse(segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean)
 		{
-			super(DrawObject.ELLIPSE, segment, color, thickness);
+			super(DrawObject.ELLIPSE, segment, color, thickness, fill, fillColor, trans);
 		}
 		
 		/**
@@ -60,20 +62,32 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.shape.push(y2);
 		}
 		
-		override public function makeShape(parentWidth:Number, parentHeight:Number):void {
-			var newShape:Shape = new Shape();
-			newShape.graphics.lineStyle(getThickness(), getColor());
+		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
+			if(!fill)
+				this.graphics.lineStyle(getThickness(), getColor(), getTransparencyLevel());
+			else this.graphics.lineStyle(getThickness(), getColor());
+
 			var arrayEnd:Number = getShapeArray().length;
-			var x:Number = denormalize(getShapeArray()[0], parentWidth);
-			var y:Number = denormalize(getShapeArray()[1], parentHeight);
-			var width:Number = denormalize(getShapeArray()[arrayEnd-2], parentWidth) - x;
-			var height:Number = denormalize(getShapeArray()[arrayEnd-1], parentHeight) - y;
-			
-			newShape.graphics.drawEllipse(x, y, width, height);
-			if (getColor() == 0x000000 || getColor() == 0xFFFFFF) newShape.alpha = 1.0;
-			else newShape.alpha = 0.6;
-			
-			_shape = newShape;
+			var startX:Number = denormalize(getShapeArray()[0], parentWidth);
+			var startY:Number = denormalize(getShapeArray()[1], parentHeight);
+			var width:Number = denormalize(getShapeArray()[arrayEnd-2], parentWidth) - startX;
+			var height:Number = denormalize(getShapeArray()[arrayEnd-1], parentHeight) - startY;
+			if(fill) this.graphics.beginFill(getFillColor(), getTransparencyLevel());
+			this.graphics.drawEllipse(startX, startY, width, height);
+		}
+		
+		override public function getProperties():Array {
+			var props:Array = new Array();
+			props.push(this.type);
+			props.push(this.shape);
+			props.push(this.color);
+			props.push(this.thickness);
+			props.push(this.fill);
+			props.push(this.fillColor);
+			props.push(this.transparent);
+			props.push(this.width);
+			props.push(this.height);
+			return props;
 		}
 	}
 }
