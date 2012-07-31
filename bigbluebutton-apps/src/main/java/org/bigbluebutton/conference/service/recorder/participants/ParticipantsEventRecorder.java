@@ -32,6 +32,7 @@ public class ParticipantsEventRecorder implements IRoomListener {
 		ParticipantJoinRecordEvent ev = new ParticipantJoinRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());
 		ev.setUserId(p.getInternalUserID().toString());
+		ev.setName(p.getName());
 		ev.setMeetingId(session);
 		ev.setStatus(p.getStatus().toString());
 		ev.setRole(p.getRole());
