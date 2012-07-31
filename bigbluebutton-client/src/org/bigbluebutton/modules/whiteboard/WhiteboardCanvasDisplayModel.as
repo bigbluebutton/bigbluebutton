@@ -69,12 +69,8 @@ package org.bigbluebutton.modules.whiteboard
 			} else { 
 				drawText(o, recvdShapes);	
 			}
-            
-//            var a2:Array = whiteboardModel.getAnnotations();
-//            LogUtil.debug("**** Number of annotations [" + a2.length + "]");
 		}
-		
-        
+		       
         private function drawObjectFactory(a:Object):DrawObject {
             var drawFactory:DrawObjectFactory = new DrawObjectFactory();
             var d:DrawObject = drawFactory.makeDrawObject(a.type, a.points, a.color, a.thickness, a.fill, a.fillColor, a.transparency);            
@@ -191,9 +187,9 @@ package org.bigbluebutton.modules.whiteboard
 		
 		/* method to modify a TextObject that is already present on the whiteboard, as opposed to adding a new TextObject to the whiteboard */
 		private function modifyText(o:Annotation):void {
-			var tobj:TextObject = calibrateNewTextWith(o);
-			var id:String = tobj.getGraphicID();
-			removeText(id);
+//			var tobj:TextObject = calibrateNewTextWith(o);
+//			var id:String = tobj.getGraphicID();
+			removeText(o.id);
 //			LogUtil.debug("Text modified to " + tobj.text);
 			addNormalText(o);
 		}
