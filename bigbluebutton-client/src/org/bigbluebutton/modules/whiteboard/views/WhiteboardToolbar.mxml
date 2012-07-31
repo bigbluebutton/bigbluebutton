@@ -33,7 +33,6 @@
 	<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableWhiteboard" />
 	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />
 	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
-	<mate:Listener type="{WhiteboardButtonEvent.CHANGE_TO_PENCIL}" method="setShapeToPencil" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
 	<mate:Listener type="{WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED}" method="handleWhiteboardButtonPressed"/>
@@ -108,138 +107,28 @@
 			
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
-			
-			/**
-			 * Sets the type of shape we're drawing (pencil, rectangle, etc...) 
-			 * @param s The type
-			 * 
-			 */		
-			protected function setShape(s:String):void {
-				canvas.setShape(s);
-				
-				switch(s) {
-					case DrawObject.PENCIL:
-//						btnPenc.selected = true;
-//						btnEllipse.selected = false;
-//						btnRectangle.selected = false;
-//                        btnText.selected = false;
-						break;
-					case DrawObject.ELLIPSE:
-//						btnPenc.selected = false;
-//						btnEllipse.selected = true;
-//						btnRectangle.selected = false;
-//                        btnText.selected = false;
-						break;
-					case DrawObject.RECTANGLE:
-//						btnPenc.selected = false;
-//						btnEllipse.selected = false;
-//						btnRectangle.selected = true;
-//                        btnText.selected = false;
-						break;
-                    case DrawObject.TEXT:
-//                       btnPenc.selected = false;
-//                        btnEllipse.selected = false;
-//                        btnRectangle.selected = false;
-//                        btnText.selected = true;
-                        break;
-				}
-            }
-            
-			protected function setTool(gType:String, toolType:String):void {
-				if(gType == WhiteboardConstants.TYPE_SHAPE) {
-					canvas.setGraphicType(gType);
-					canvas.setTool(toolType);
-
-					switch (toolType) {
-						case DrawObject.PENCIL:
-//							btnPenc.selected = true;
-//							btnEllipse.selected = false;
-//							btnRectangle.selected = false;
-//							btnTriangle.selected = false;
-//							btnLine.selected = false;
-//							btnText.selected = false;
-							break;
-						case DrawObject.HIGHLIGHTER:
-//							btnPenc.selected = false;
-//							btnEllipse.selected = false;
-//							btnRectangle.selected = false;
-//							btnTriangle.selected = false;
-//							btnLine.selected = false;
-//							btnText.selected = false;
-							break;
-						case DrawObject.ELLIPSE:
-//							btnPenc.selected = false;
-//							btnEllipse.selected = true;
-//							btnRectangle.selected = false;
-//							btnTriangle.selected = false;
-//							btnLine.selected = false;
-//							btnText.selected = false;
-							break;
-						case DrawObject.RECTANGLE:
-//							btnPenc.selected = false;
-//							btnEllipse.selected = false;
-//							btnRectangle.selected = true;
-//							btnTriangle.selected = false;
-//							btnLine.selected = false;
-//							btnText.selected = false;
-							break;
-						case DrawObject.TRIANGLE:
-//							btnPenc.selected = false;
-//							btnEllipse.selected = false;
-//							btnRectangle.selected = false;
-//							btnTriangle.selected = true;
-//							btnLine.selected = false;
-//							btnText.selected = false;
-							break;
-						case DrawObject.LINE:
-//							btnPenc.selected = false;
-//							btnEllipse.selected = false;
-//							btnRectangle.selected = false;
-//							btnTriangle.selected = false;
-//							btnLine.selected = true;
-//							btnText.selected = false;
-							break;
-						case DrawObject.ERASER:
-//							btnPenc.selected = false;
-//							btnEllipse.selected = false;
-//							btnRectangle.selected = false;
-//							btnTriangle.selected = false;
-//							btnLine.selected = false;
-//							btnText.selected = false;
-							break;
-					}
-				} else if (gType == WhiteboardConstants.TYPE_TEXT) {
-//					btnPenc.selected = false;
-//					btnEllipse.selected = false;
-//					btnRectangle.selected = false;
-//					btnTriangle.selected = false;
-//					btnLine.selected = false;
-//					btnText.selected = true;
-					canvas.setGraphicType(gType);
-					canvas.setTool(toolType);
-				} else if (gType == WhiteboardConstants.TYPE_SELECTION) {
-					switch(toolType) {
-						case SelectObject.SELECT_TOOL:
-//							btnPenc.selected = false;
-//							btnEllipse.selected = false;
-//							btnRectangle.selected = false;
-//							btnLine.selected = false;
-//							btnText.selected = false;
-							break;
-					}
-					canvas.setGraphicType(gType);
-					canvas.setTool(toolType);
-				} 					
-			}
-			
+			                
 			private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
 				LogUtil.debug("Handle whiteboard button pressed event");
+                canvas.setGraphicType(e.graphicType);
+                canvas.setTool(e.toolType);
+                
+                scribbleBtn.setTool(e.graphicType, e.toolType);
+                rectangleBtn.setTool(e.graphicType, e.toolType);
+                circleBtn.setTool(e.graphicType, e.toolType);
+                triangleBtn.setTool(e.graphicType, e.toolType);
+                lineBtn.setTool(e.graphicType, e.toolType);
+                textBtn.setTool(e.graphicType, e.toolType);
+                
+                if(e.graphicType == WhiteboardConstants.TYPE_CLEAR) {
+                    dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
+                }
+                
+                if(e.graphicType == WhiteboardConstants.TYPE_UNDO) {
+                    sendUndoCommand();
+                }
 			}
-			
-			private function setShapeToPencil(e:WhiteboardButtonEvent):void {
-				this.setTool(WhiteboardConstants.TYPE_SHAPE, DrawObject.PENCIL);
-			}
-			
+						
 			/**
 			 * Sets the color 
 			 * @param e event containing the color (e.target.selectedColor)
@@ -368,8 +257,7 @@
 	of ColorPickers, one for the "line" color for the outlines of shapes, and the other for
 	the "fill" color that is used only if "fill" is enabled in WhiteboardCanvasModel
 	-->
-	<mx:ColorPicker change="changeColor(event)" id="cpik"  selectedColor="0x000000" 
-					toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
+	<mx:ColorPicker change="changeColor(event)" id="cpik"  selectedColor="0x000000" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
    
 	<mx:Spacer height="3" />
 	<mx:Image source="{thick_icon}" horizontalAlign="center" width="20"/>

@@ -23,7 +23,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public static const TYPE_SHAPE:String = "SHAPE";
 		public static const TYPE_TEXT:String = "TEXT";
 		public static const TYPE_SELECTION:String = "SELECTION";
-		
+        public static const TYPE_CLEAR:String = "WhiteboardClearButton";
+        public static const TYPE_ZOOM:String = "WhiteboardPanZoomButton";
+        public static const TYPE_UNDO:String = "WhiteboardUndoButton";
+        
 		public static const ID_UNASSIGNED:String = "unassigned";
 	}
 }

@@ -24,6 +24,13 @@
 				dispatchEvent(event);
 			}
 			
+            public function setTool(gType:String, toolType:String):void {
+                if(gType == WhiteboardConstants.TYPE_SHAPE && toolType == DrawObject.ELLIPSE) {
+                    this.selected = true;
+                } else {
+                    this.selected = false;
+                } 					
+            }
 		]]>
 	</mx:Script>
 </mx:Button>
