@@ -91,12 +91,7 @@ if (request.getParameterMap().isEmpty()) {
 	
 	String username = request.getParameter("username");
 	
-	String joinURL = null;
-	
-	if(!username.startsWith("viewer")) 
-		joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null, null, null, "mp");
-	else
-		joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null, null, null, "ap");
+	String joinURL = getJoinURL(request.getParameter("username"), "Demo Meeting", "false", null, null, null);
 
 	if (joinURL.startsWith("http://")) { 
 %>

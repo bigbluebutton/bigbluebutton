@@ -150,7 +150,7 @@ public String getJoinMeetingURL(String username, String meetingID, String passwo
 //
 //  Note this meeting will use username for meetingID
 
-public String getJoinURL(String username, String meetingID, String record, String welcome, Map<String, String> metadata, String xml, String pw) {
+public String getJoinURL(String username, String meetingID, String record, String welcome, Map<String, String> metadata, String xml) {
 	String base_url_create = BigBlueButtonURL + "api/create?";
 	String base_url_join = BigBlueButtonURL + "api/join?";
 
@@ -260,7 +260,7 @@ public String getJoinURLXML(String username, String meetingID, String welcome, S
 			.trim().equals("SUCCESS")) {
 
 		String join_parameters = "meetingID=" + urlEncode(meetingID)
-			+ "&fullName=" + urlEncode(username) + "&password=" + pw;
+			+ "&fullName=" + urlEncode(username) + "&password=mp";
 
 		return base_url_join + join_parameters + "&checksum="
 			+ checksum("join" + join_parameters + salt);
