@@ -82,10 +82,10 @@ package org.bigbluebutton.modules.whiteboard
 			wbTool._fontSize = size;
 		}
 				
-		public function doMouseUp():void {
+		public function doMouseUp(mouseX:Number, mouseY:Number):void {
 //            LogUtil.debug("CanvasModel doMouseUp ***");
             for (var ob:int = 0; ob < drawListeners.length; ob++) {
-                (drawListeners[ob] as IDrawListener).onMouseUp(wbTool);
+                (drawListeners[ob] as IDrawListener).onMouseUp(mouseX, mouseY, wbTool);
             }
 		}
 				       		

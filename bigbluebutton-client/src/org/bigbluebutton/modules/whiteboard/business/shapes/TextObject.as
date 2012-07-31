@@ -67,13 +67,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		private var ID:String = WhiteboardConstants.ID_UNASSIGNED;
 		public var textSize:Number;
 		
+        private var _textBoxWidth:Number = 0;
+        private var _textBoxHeight:Number = 0;
         private var origX:Number;
         private var origY:Number;
         private var _origParentWidth:Number = 0;
         private var _origParentHeight:Number = 0;
         public var fontStyle:String = "arial";
         
-		public function TextObject(text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean, x:Number, y:Number, textSize:Number) {
+		public function TextObject(text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean, x:Number, y:Number, boxWidth:Number, boxHeight:Number, textSize:Number) {
 			this.text = text;
 			this.textColor = textColor;
 			this.backgroundColor = bgColor;
@@ -82,6 +84,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             origY = y;
             this.x = x;
             this.y = y;
+            _textBoxWidth = boxWidth;
+            _textBoxHeight = boxHeight;
 			this.textSize = textSize;
 		}	
 		
@@ -125,6 +129,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
             this.x = denormalize(origX, parentWidth);
             this.y = denormalize(origY, parentHeight);
+
             
             var newFontSize:Number = textSize;
             
@@ -140,11 +145,21 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.antiAliasType = AntiAliasType.ADVANCED;
             applyTextFormat(newFontSize);
 //            setTextFormat(new TextFormat(fontStyle, newFontSize, textColor));
+ 
+            this.width = denormalize(_textBoxWidth, parentWidth);
+//            this.height = denormalize(_textBoxHeight, parentHeight);
             
-			// ensure typing doesn't go off of whiteboard
-			this.width = 500;
+            LogUtil.debug("2 Old parent dim [" + _origParentWidth + "," + _origParentHeight + "][" + width + "," + height + "] newFontSize=" + newFontSize);
 		}	
 
+        public function get textBoxWidth():Number {
+            return _textBoxWidth;
+        }
+        
+        public function get textBoxHeight():Number {
+            return _textBoxHeight;
+        }
+        
         public function get oldParentWidth():Number {
             return _origParentWidth;
         }
@@ -156,6 +171,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         public function redrawText(origParentWidth:Number, origParentHeight:Number, parentWidth:Number, parentHeight:Number):void {
             this.x = denormalize(origX, parentWidth);
             this.y = denormalize(origY, parentHeight);
+
             
             var newFontSize:Number = textSize;
             newFontSize = (parentHeight/origParentHeight) * textSize;
@@ -171,11 +187,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             this.antiAliasType = AntiAliasType.ADVANCED;
             applyTextFormat(newFontSize);
             //            setTextFormat(new TextFormat(fontStyle, newFontSize, textColor));
+
+            this.width = denormalize(_textBoxWidth, parentWidth);
+            this.height = denormalize(_textBoxHeight, parentHeight);
             
-            // ensure typing doesn't go off of whiteboard
-            this.width = 500;
+            LogUtil.debug("Redraw dim [" + _origParentWidth + "," + _origParentHeight + "][" + width + "," + height + "] newFontSize=" + newFontSize);
             
-            LogUtil.debug("Redraw 2 Old parent dim [" + this.width + "," + this.height + "] newFontSize=" + newFontSize);
+ //           LogUtil.debug("Redraw 2 Old parent dim [" + this.width + "," + this.height + "] newFontSize=" + newFontSize);
         }
         
 		public function getProperties():Array {

@@ -160,10 +160,11 @@ package org.bigbluebutton.modules.whiteboard
 		private function addPresenterText(o:Annotation):void {
 			if(!isPresenter) return;
 			var tobj:TextObject = calibrateNewTextWith(o);
-			tobj.multiline = false;
-			tobj.wordWrap = false;
+			tobj.multiline = true;
+			tobj.wordWrap = true;
 			tobj.autoSize = TextFieldAutoSize.LEFT;
 			tobj.makeEditable(true);
+            tobj.border = true;
 //            LogUtil.debug("Putting text object [" + tobj.getGraphicID() + "] in [" + tobj.x + "," + tobj.y + "]");
 			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			wbCanvas.addGraphic(tobj);
@@ -179,10 +180,11 @@ package org.bigbluebutton.modules.whiteboard
 			if (isPresenter) return;
 			var tobj:TextObject = calibrateNewTextWith(o);
 			//LogUtil.debug("TEXT ADDED: " + tobj.getGraphicID());
-			tobj.multiline = false;
-			tobj.wordWrap = false;
+			tobj.multiline = true;
+			tobj.wordWrap = true;
 			tobj.autoSize = TextFieldAutoSize.LEFT;
 			tobj.makeEditable(false);
+            tobj.border = true;
 			wbCanvas.addGraphic(tobj);
 			graphicList.push(tobj);
 		}
@@ -432,6 +434,10 @@ package org.bigbluebutton.modules.whiteboard
             sendTextToServer(TextObject.TEXT_PUBLISHED, tf);	
 //            LogUtil.debug("Text published to: " +  tf.text);
             currentlySelectedTextObject = null;
+            
+           
+            tf.border = false;
+            
             var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
             e.data = tf;
             wbCanvas.dispatchEvent(e);

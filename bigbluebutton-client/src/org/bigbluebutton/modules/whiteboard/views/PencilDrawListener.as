@@ -49,7 +49,7 @@ package org.bigbluebutton.modules.whiteboard.views
             }
         }
         
-        public function onMouseUp(tool:WhiteboardTool):void
+        public function onMouseUp(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
         {
             if(tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
                 if (_isDrawing) {

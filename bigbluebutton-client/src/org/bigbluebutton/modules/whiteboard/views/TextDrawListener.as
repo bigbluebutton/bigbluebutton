@@ -14,6 +14,8 @@ package org.bigbluebutton.modules.whiteboard.views
         private var _sendFrequency:int;
         private var _shapeFactory:ShapeFactory;
         private var _textStatus:String = TextObject.TEXT_CREATED;
+        private var _mouseXDown:Number = 0;
+        private var _mouseYDown:Number = 0;
         
         public function TextDrawListener(wbCanvas:WhiteboardCanvas, sendShapeFrequency:int, shapeFactory:ShapeFactory)
         {
@@ -25,10 +27,8 @@ package org.bigbluebutton.modules.whiteboard.views
         public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
         {
             if(tool.graphicType == WhiteboardConstants.TYPE_TEXT) {
-//                LogUtil.error("double click received at " + mouseX + "," + mouseY);
-                var tobj:TextObject = _shapeFactory.createTextObject("TEST", 0x000000, 0x000000, false, mouseX, mouseY, 18);
-//                LogUtil.error("Creating text at [" + mouseX + "," + mouseY + "] norm=[" + tobj.getOrigX() + "," + tobj.getOrigY() + "]");
-                sendTextToServer(TextObject.TEXT_CREATED, tobj);
+                _mouseXDown = mouseX;
+                _mouseYDown = mouseY;
             }
         }
         
@@ -37,9 +37,18 @@ package org.bigbluebutton.modules.whiteboard.views
 			// do nothing
         }
         
-        public function onMouseUp(tool:WhiteboardTool):void
+        public function onMouseUp(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
         {
-			// do nothing
+            if(tool.graphicType == WhiteboardConstants.TYPE_TEXT) {
+                var tbWidth:Number = mouseX - _mouseXDown;
+                var tbHeight:Number = mouseY - _mouseYDown;
+                
+                if (tbHeight < 15 || tbWidth < 50) return;
+                
+                var tobj:TextObject = _shapeFactory.createTextObject("Type your message here.", 0x000000, 0x000000, false, _mouseXDown, _mouseYDown, tbWidth, tbHeight, 18);
+                LogUtil.error("Creating text at [" + mouseX + "," + mouseY + "] norm=[" + tobj.getOrigX() + "," + tobj.getOrigY() + "][" + tobj.textBoxWidth + "," + tobj.textBoxHeight + "]");
+                sendTextToServer(TextObject.TEXT_CREATED, tobj);                    
+            }        
         }
         
         private function sendTextToServer(status:String, tobj:TextObject):void {
@@ -70,6 +79,9 @@ package org.bigbluebutton.modules.whiteboard.views
             annotation["x"] = tobj.getOrigX();
             annotation["y"] = tobj.getOrigY();
             annotation["fontSize"] = tobj.textSize;
+            annotation["textBoxWidth"] = tobj.textBoxWidth;
+            annotation["textBoxHeight"] = tobj.textBoxHeight;
+            
             var msg:Annotation = new Annotation(tobj.getGraphicID(), "text", annotation);
             _wbCanvas.sendGraphicToServer(msg, WhiteboardDrawEvent.SEND_TEXT);			
         }

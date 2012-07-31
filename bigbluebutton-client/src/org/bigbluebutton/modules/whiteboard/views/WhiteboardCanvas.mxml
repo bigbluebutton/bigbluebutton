@@ -88,7 +88,7 @@
             }
             
 			private function doMouseUp(event:Event):void {
-				model.doMouseUp();
+				model.doMouseUp(this.mouseX, this.mouseY);
 			}
 						
 			private function doMouseDown(event:Event):void {
