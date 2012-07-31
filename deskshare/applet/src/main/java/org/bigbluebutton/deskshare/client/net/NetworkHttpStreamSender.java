@@ -44,6 +44,7 @@ public class NetworkHttpStreamSender implements Runnable {
 	private static final String BLOCKDATA = "blockdata";
 	private static final String MOUSEX = "mousex";
 	private static final String MOUSEY = "mousey";
+	private static final String USE_SVC2 = "svc2";
 	
 	private String host = "localhost";
 	private static final String SCREEN_CAPTURE__URL = "/deskshare/tunnel/screenCapture";
@@ -52,6 +53,7 @@ public class NetworkHttpStreamSender implements Runnable {
 	private String room;
 	private Dimension screenDim;
 	private Dimension blockDim;
+	private boolean useSVC2;
 	private final NextBlockRetriever retriever;
 	private volatile boolean processBlocks = false;
 	private final int id;
@@ -59,13 +61,14 @@ public class NetworkHttpStreamSender implements Runnable {
 	private final SequenceNumberGenerator seqNumGenerator;
 	
 	public NetworkHttpStreamSender(int id, NextBlockRetriever retriever, String room, 
-									Dimension screenDim, Dimension blockDim, SequenceNumberGenerator seqNumGenerator) {
+									Dimension screenDim, Dimension blockDim, SequenceNumberGenerator seqNumGenerator, boolean useSVC2) {
 		this.id = id;
 		this.retriever = retriever;
 		this.room = room;
 		this.screenDim = screenDim;
 		this.blockDim = blockDim;
 		this.seqNumGenerator = seqNumGenerator;
+		this.useSVC2 = useSVC2;
 	}
 	
 	public void addListener(NetworkStreamListener listener) {
@@ -127,6 +130,7 @@ public class NetworkHttpStreamSender implements Runnable {
 			String blockInfo = Integer.toString(block.getWidth()) + "x" + Integer.toString(block.getHeight());
 			chr.setParameter(BLOCK, blockInfo);
 			chr.setParameter(EVENT, CaptureEvents.CAPTURE_START.getEvent());
+			chr.setParameter(USE_SVC2, Boolean.toString(useSVC2));
 			chr.post();
 		} catch (IOException e) {
 			e.printStackTrace();

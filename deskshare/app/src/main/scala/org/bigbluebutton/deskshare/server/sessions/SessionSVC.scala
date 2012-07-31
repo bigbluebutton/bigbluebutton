@@ -38,10 +38,10 @@ case object StopSession
 case object GenerateKeyFrame
 
 class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dimension, 
-                 blockDim: Dimension, streamManager: StreamManager, keyFrameInterval: Int, interframeInterval: Int, waitForAllBlocks: Boolean) extends Actor {
+                 blockDim: Dimension, streamManager: StreamManager, keyFrameInterval: Int, interframeInterval: Int, waitForAllBlocks: Boolean, useSVC2: Boolean) extends Actor {
 	private val log = Logger.get
  
-	private var blockManager: BlockManager = new BlockManager(room, screenDim, blockDim, waitForAllBlocks)
+	private var blockManager: BlockManager = new BlockManager(room, screenDim, blockDim, waitForAllBlocks, useSVC2)
 	private var stream:Stream = null
 	private var lastUpdate:Long = System.currentTimeMillis()
 	private var stop = true
