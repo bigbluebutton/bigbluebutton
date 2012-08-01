@@ -119,7 +119,7 @@
 				} 
 				
 				if (videoOptions.applyConvolutionFilter) {
-					var filter = new flash.filters.ConvolutionFilter();
+					var filter:ConvolutionFilter = new flash.filters.ConvolutionFilter();
 					filter.matrixX = 3;
 					filter.matrixY = 3;
 					LogUtil.debug("Applying convolution filter =[" + videoOptions.convolutionFilter + "]");					
