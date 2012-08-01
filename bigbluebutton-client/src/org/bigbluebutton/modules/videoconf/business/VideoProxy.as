@@ -138,8 +138,8 @@ package org.bigbluebutton.modules.videoconf.business
 			ns.attachCamera(e.camera);
 //		Uncomment if you want to build support for H264. But you need at least FP 11. (ralam july 23, 2011)	
 //			if (Capabilities.version.search("11,0") != -1) {
-//			if ((BBB.getFlashPlayerVersion() >= 11) && videoOptions.enableH264) {
-			if (BBB.getFlashPlayerVersion() >= 11) {
+			if ((BBB.getFlashPlayerVersion() >= 11) && videoOptions.enableH264) {
+//			if (BBB.getFlashPlayerVersion() >= 11) {
 				LogUtil.info("Using H264 codec for video.");
 				var h264:H264VideoStreamSettings = new H264VideoStreamSettings();
 				var h264profile:String = H264Profile.MAIN;
