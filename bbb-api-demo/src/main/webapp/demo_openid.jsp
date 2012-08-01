@@ -71,6 +71,9 @@ Author: Jesus Federico <jesus@123it.ca>
 <%@ include file="bbb_jopenid.jsp"%>
 
 <% 
+String urlPath = request.getRequestURI();
+String urlHost = new URL(BigBlueButtonURL).getProtocol() + "://" + new URL(BigBlueButtonURL).getAuthority();
+    
 if (request.getParameterMap().isEmpty()) {
 	//
 	// Assume we want to create a meeting
@@ -114,9 +117,9 @@ if (request.getParameterMap().isEmpty()) {
 </FORM>
 
 <%
-} else if (request.getParameter("connect")!=null ) { 
-    manager.setRealm("http://demo.bigbluebutton.org");
-    manager.setReturnTo("http://demo.bigbluebutton.org/demo/demo_openid.jsp");
+} else if (request.getParameter("connect")!=null ) {
+    manager.setRealm(urlHost);
+    manager.setReturnTo(urlHost + urlPath);
     Endpoint endpoint = null;
     
     if (request.getParameter("connect").equals("google")) {
