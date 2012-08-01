@@ -661,14 +661,24 @@ if [ $SETUPDEV ]; then
 		fi
 
 
-		if [ ! -f $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3/playerglobal.swc ]; then
-			mkdir -p $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
-			cd $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
-			if [ ! -f playerglobal10_3.swc ]; then
-				wget http://fpdownload.macromedia.com/pub/flashplayer/updaters/10/playerglobal10_3.swc
+		if [ ! -f $BASE/flex-4.5.0.20967/frameworks/libs/player/11.2/playerglobal.swc ]; then
+			mkdir -p $BASE/flex-4.5.0.20967/frameworks/libs/player/11.2
+			cd $BASE/flex-4.5.0.20967/frameworks/libs/player/11.2
+			if [ ! -f playerglobal11_2.swc ]; then
+				wget http://download.macromedia.com/get/flashplayer/updaters/11/playerglobal11_2.swc
 			fi
-			mv -f playerglobal10_3.swc playerglobal.swc
+			mv -f playerglobal11_2.swc playerglobal.swc
 		fi
+
+
+#		if [ ! -f $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3/playerglobal.swc ]; then
+#			mkdir -p $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
+#			cd $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
+#			if [ ! -f playerglobal10_3.swc ]; then
+#				wget http://fpdownload.macromedia.com/pub/flashplayer/updaters/10/playerglobal10_3.swc
+#			fi
+#			mv -f playerglobal10_3.swc playerglobal.swc
+#		fi
 
 		if ! grep -q GROOVY_HOME ~/.profile; then
 			echo "

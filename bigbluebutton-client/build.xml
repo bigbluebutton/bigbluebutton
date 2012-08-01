@@ -129,7 +129,7 @@
 			<!-- Invoke MXMLC -->
 			<mxmlc output="${OUTPUT_DIR}/locale/@{locale}_resources.swf">
 				<locale>@{locale}</locale>
-				<target-player>10.3.0</target-player>
+				<target-player>11</target-player>
 				<source-path path-element="locale/{locale}"/>
 				
 				<!--
@@ -236,15 +236,15 @@
 		<build-module src="${SRC_DIR}" target="${LAYOUT}" />
 	</target>
 	
-	<!-- just a grouping of modules to compile , build-breakout-->
+	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main, build-bbb-main-test, build-chat, build-viewers, build-listeners, build-present, build-layout"
+			depends="build-bbb-main, build-bbb-main-test, build-chat, build-viewers, build-listeners, build-present, build-breakout, build-layout"
 			description="Compile main, chat, viewers, listeners, present, breakout modules">
 	</target>
 	
-	<!-- just a grouping of modules to compile , build-dyn, build-classroom-audio, build-settings-->
+	<!-- just a grouping of modules to compile -->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
-			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard"
+			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard, build-dyn, build-classroom-audio, build-settings"
 			description="Compile deskshare, phone, video, whiteboard, dynamic info modules">
 	</target>
 	
@@ -255,7 +255,7 @@
 			<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 			<sequential>
 				<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true" link-report="linker-report.xml">
-					<target-player>10.3.0</target-player>
+					<target-player>11</target-player>
 					<load-config filename="@{flex}/frameworks/flex-config.xml" />
 					<source-path path-element="@{flex}/frameworks" />
 					
@@ -294,7 +294,7 @@
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
 			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="13">
-				<target-player>10.3.0</target-player>
+				<target-player>11</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
@@ -321,7 +321,7 @@
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
 			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true" load-externs="linker-report.xml">
-				<target-player>10.3.0</target-player>
+				<target-player>11</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
 				<static-link-runtime-shared-libraries>${STATIC_RSL}</static-link-runtime-shared-libraries>
