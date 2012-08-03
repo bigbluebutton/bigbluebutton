@@ -97,6 +97,7 @@
 			import flash.media.Sound;
     		import flash.media.SoundChannel;
 			
+			
 			[Bindable] public var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
 				'0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
 			
@@ -124,6 +125,8 @@
             
 			private var publicWaiting:Boolean = false;
 			private var privateWaiting:ArrayCollection = new ArrayCollection();
+			private var publicFocus:Boolean = false;
+			private var privateFocus:Boolean = false;
 			private var timerInterval:int = 10; // How many seconds you want the timer to wait between chat notifications
             private var notificationTimer:Timer = new Timer(timerInterval * 1000);
 			
@@ -435,28 +438,17 @@
 			// Receive private chat messages
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
 				LogUtil.debug("Got PrivateChatMessageEvent");
-				//LogUtil.debug("Message is from " + event.message.chatobj.username + ", user ID " + event.message.chatobj.userid);
 				if ((! UserManager.getInstance().getConference().amIThisUser(new Number(event.message.chatobj.userid)))) {
 					if (!this.focus){
-						//LogUtil.debug("WATERFALL: About to make ExternalInterface Call");
 						ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
 					}					
 				}
-				//LogUtil.debug("WATERFALL: Handling private message, about to showMessage");
+
 				showMessage(event.message.sender, event.message.chatobj, autoTranslation);
 				
-				//LogUtil.debug("WATERFALL: About to add privateNotification");
 				if (Accessibility.active){
 					privateNotification(event);
 				}
-				
-				/*// Trying to find the tab names
-				var tabKids:Array = chatTabs.getChildren();
-				LogUtil.debug("chatTabs has " + tabKids.length + "children.");
-				for (var d:int = 0; d < tabKids.length; d++){
-					LogUtil.debug("Name " + d + ": " + tabKids[d].name);
-				}
-				 */
 			}
 			
 			// Activates an audio alert for screen-reader users on public message reception
@@ -464,18 +456,12 @@
 				LogUtil.debug("Accessibility detected! Enabling public notifications.");
 				publicWaiting = true;
 				chatTabs.getChildByName("0").addEventListener(FocusEvent.FOCUS_IN, publicChatFocus);
-			}
-			
-			public function publicChatFocus(event:FocusEvent):void{
-				//LogUtil.debug("WATERFALL: publicChatFocus active, removing publicWaiting");
-				if (publicWaiting)
-					ExternalInterface.call("clearblink");
-				publicWaiting = false;
+				chatTabs.getChildByName("0").addEventListener(FocusEvent.FOCUS_OUT, publicChatUnfocus);
 			}
 			
 			// Activates an audio alert for screen-reader users on private message reception
 			private function privateNotification(event:PrivateChatMessageEvent):void{
-				if ((! UserManager.getInstance().getConference().amIThisUser(new Number(event.message.chatobj.userid)))) {
+				if (! UserManager.getInstance().getConference().amIThisUser(new Number(event.message.chatobj.userid))) {
 					var newItem:Boolean = true;
 					// Check if there is already a notification of private messages from that user
 					if (privateWaiting.length){
@@ -487,55 +473,74 @@
 						}
 					}
 					if (newItem){
+						// Add a private chat event (with all associated information) to the privateWaiting array,
+						// and a PrivateFocusTracker to the privateFocus array to track whether to play the sound
 						privateWaiting.addItem(event);
 						chatTabs.getChildByName(event.message.chatobj.userid).addEventListener(FocusEvent.FOCUS_IN, privateChatFocus);
+						chatTabs.getChildByName(event.message.chatobj.userid).addEventListener(FocusEvent.FOCUS_OUT, privateChatUnfocus);
 					}
 				}
+			}
+			
+			public function publicChatFocus(event:FocusEvent):void{
+				//LogUtil.debug("WATERFALL: publicChatFocus active, removing publicWaiting");
+				publicFocus = true;
+				if (publicWaiting)
+					ExternalInterface.call("clearblink");
+				publicWaiting = false;
 			}
 			
 			public function privateChatFocus(event:FocusEvent):void{
 				//LogUtil.debug("WATERFALL: Event target is " + event.target);
 				//LogUtil.debug("WATERFALL: Event target name is " + event.target.name);
 				if (event.target.name == "chatMessagesList"){
-					var messageCounter:int = -1;
 					var removed:Boolean = false;
-					do{
-						messageCounter++;
+					
+					for (var messageCounter = 0; messageCounter < event.target.parent.exposeNumMessages(); messageCounter ++){
 						removed = removePrivateSender(event.target.parent.exposeSenderID(messageCounter));
-						//LogUtil.debug("WATERFALL: messageCounter is " + messageCounter);
-						//LogUtil.debug("WATERFALL: Trying to remove user " + event.target.parent.exposeSenderID(messageCounter));
-					}while (!removed || messageCounter < event.target.parent.exposeNumMessages())
-					if (removed){
-						ExternalInterface.call("clearblink");
+						if (removed){
+							ExternalInterface.call("clearblink");
+							messageCounter = event.target.parent.exposeNumMessages() + 1;
+						}
+					}
+					
+					if (privateWaiting.length == 1){
+						privateFocus = true;
+					}
+					else {
+						privateFocus == false;
 					}
 				}
 			}
 			
+			public function publicChatUnfocus(event:FocusEvent):void{
+				publicFocus = false;
+			}
+			
+			public function privateChatUnfocus(event:FocusEvent):void{
+				// If you unfocus from private chat into public or options, privateFocus will be false
+				// Even if you focus to a different private chat, you cannot focus all of them.
+				privateFocus = false;
+			}
+			
 			// Listens to the notification timer, and checks if there are messages waiting
+			// The notifications kept repeating as I was still focused from the last message, and after I hit space. Try comparing latestMessage to currentMessage; maybe store a Boolean?
 			private function checkNotifications(event:TimerEvent):void{
 				var debugDate:Date = new Date();
-				if (publicWaiting){
+				if (publicWaiting && !publicFocus){
 					LogUtil.debug("The time is " + debugDate.getHours() + ":" + debugDate.getMinutes() + ":" + debugDate.getSeconds() + " and there are new public messages.");
             		publicSound.play();
 				}
 				
 				// Clearing public notes works, but for some reason private chat tabs are not appearing
 				// The tab appears on the second message you send
-				if (privateWaiting.length){
+				if (privateWaiting.length && !privateFocus){
 					privateSound.play();
 					/*LogUtil.debug("The time is " + debugDate.getHours() + ":" + debugDate.getMinutes() + ":" + debugDate.getSeconds() + " and there are new private messages from: ");
 					for (var i:int = 0; i < privateWaiting.length; i++){
 						LogUtil.debug(privateWaiting.getItemAt(i).message.chatobj.username);
 					}*/
 				}
-			}
-			
-			private function playPublicSound():void{
-				
-			}
-			
-			private function playPrivateSound():void{
-				
 			}
 			
 			// Returns an array of userIDs. The userIDs refer to users who have sent this user private messages which have not been read.
@@ -549,6 +554,7 @@
 				return privateSenders;
 			}
 			
+			// This is slightly mis-named; it removes the notification of this sender sending a private message for notification purposes
 			private function removePrivateSender(senderID:String):Boolean{
 				var success:Boolean = false;
 				//LogUtil.debug("WATERFALL: Trying to remove sender " + senderID);

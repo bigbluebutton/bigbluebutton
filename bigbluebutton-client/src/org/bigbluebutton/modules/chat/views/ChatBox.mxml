@@ -64,6 +64,8 @@
 			private var navLatestString:String = "You have navigated to the latest message. ";
 			private var navFirstString:String = "You have navigated to the first message. ";
 			
+			public var focus:Boolean = false;
+			
 			private function onCreationComplete():void {
 				addContextMenuItems();
 				scrollTimer = new Timer(750, 2);
