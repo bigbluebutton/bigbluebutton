@@ -19,11 +19,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 */
 
 html{
-	height:100%;
 }
 body {
 	font-family: Verdana;
-	height:100%;
+	background: #eee;
+	padding-top: 30px;
 }
 h1 {
 	text-align:center
@@ -32,57 +32,138 @@ br{
 	display:none
 }
 
-#playbackArea{
-	width: 800px;
-	height: 600px;
-	margin: 0px auto;
-	/* border:5px solid #a1a1a1;
-	border-radius:10px; */
+/*
+ * clearfix
+ * see: http://css-tricks.com/snippets/css/clear-fix/
+ */
+.clearfix:after {
+	visibility: hidden;
+	display: block;
+	font-size: 0;
+	content: " ";
+	clear: both;
+	height: 0;
+}
+* html .clearfix             { zoom: 1; } /* IE6 */
+*:first-child+html .clearfix { zoom: 1; } /* IE7 */
+
+#playbackArea {
+	width: 1360px; /* #slide.width + #chat.width + #audioRecording.width */
+	margin: 0 auto;
 }
 
-#slide{
-	width: 800px;
-	height: 600px;
-}
-
-#video{
+#audioRecording{
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
+	width: 100%;
 }
 
-.chatcontainer{
-	width:420px;
-	height:600px;
-	margin-left: auto;
-  margin-right: auto;
+#videoRecording{
+  width: 402px;
+}
+
+/* To remove the white space on top of the audio tag in Firefox
+ * See: http://stackoverflow.com/questions/9527453/firefox-and-html5-audio-element-dont-play-well-together
+ */
+@-moz-document url-prefix() {
+	#audioRecordingWrapper{
+		position: relative;
+		height: 28px;
+	}
+	#audioRecording {
+		position: absolute;
+		bottom: 0;
+	}
+}
+
+#presentation {
+	float: left;
 	position: relative;
-	top:-650px;
-	left:610px;
+}
+
+#slide {
+	background-image: url('../logo.png');
+	text-align: center;
+	border: 1px solid #ccc;
+	width: 800px;
+	height: 600px; /* same as slide images */
+}
+
+
+.chatcontainer{
+	float: right;
+	background: white;
+	height: 300px; 
 }
 #chat{
-	margin-left: auto;
-	margin-right: auto;
-	position:relative;
-	top:5px;
-	padding-left:10px;
-	padding-right:10px;
+	margin: 0 auto;
+	padding: 0 10px;
+	border: 1px solid #ccc;
+	height: 300px;
 }
 #chat div p{
 	margin-bottom:-10px;
 	padding:0px;
-	font-size:13px
+	font-size:13px;
 }
 #big {display:none}
 #mid {display:none}
 
+#thumbnails {
+	float: left;
+	width: 130px;
+	height: 600px; /* same as #slide */
+	background: #fff;
+	border: 1px solid #bbb;
+	margin-right: 10px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+#thumbnails img.thumbnail {
+	width: 100px;
+	height: auto;
+	border: 1px solid #eee;
+	margin: 5px;
+	cursor: pointer;
+	vertical-align: bottom;
+}
+
+#thumbnails .thumbnail-wrapper {
+	position: relative;
+	margin: 0;
+	padding: 0;
+}
+
+#thumbnails .thumbnail-wrapper.active {
+	background-color: #D9EDF7;
+}
+
+#thumbnails .thumbnail-wrapper.active img.thumbnail {
+	border-color: #3A87AD;
+}
+
+#thumbnails .thumbnail-label {
+	color: #fff;
+	background: #3A87AD;
+	font-weight: bold;
+	font-size: 12px;
+	position: absolute;
+	bottom: 5px;
+	left: 5px;
+	max-width: 90px;
+	text-align: center;
+	display: none;
+	padding: 2px 5px;
+}
+
 #footer{
-	      margin-left: auto;
-	      margin-right: auto;
-	      padding-top: 25px;
+        margin: 20px auto;
         font-size:0.75em;
         color: #666;
         text-align: center;
+        clear: both;
 }
 
 .circle {

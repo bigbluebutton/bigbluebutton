@@ -20,48 +20,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <head>
   <title>BigBlueButton Playback</title>
   <link rel="stylesheet" href="css/bbb.playback.css">
-  <script type="text/javascript">
-    document.addEventListener( "DOMContentLoaded", function() {
-		function getUrlParameters() {
-			var map = {};
-			var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) { map[key] = value; });
-			return map; 
-		}
-		var audio;
-		var slides;
-		var params = getUrlParameters();
-		var MEETINGID = params['meetingId'];
-		var HOST = window.location.hostname;
-		var RECORDINGS = "http://" + HOST + "/presentation/" + MEETINGID;
-		var SLIDES_XML = "http://" + HOST + "/presentation/" + MEETINGID + '/slides_new.xml';
-		var appName = navigator.appName;
-		var appVersion = navigator.appVersion;
-		audio = document.getElementById("video");
-		if(appName == "Microsoft Internet Explorer"){
-		var message = "Your browser does not support this playback. Please use other browser: Firefox, Safari, Chrome, Opera";
-		var line = document.createElement("p");
-		line.appendChild(document.createTextNode(message));
-		document.getElementById("chat").appendChild(line);
-		}else if (appVersion.match("Safari") != null && appVersion.match("Chrome") == null){
-		audio.setAttribute('src', RECORDINGS + '/audio/recording.wav');
-		audio.setAttribute('type','audio/x-wav');
-		}else{
-		audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
-		audio.setAttribute('type','audio/ogg');
-		}	
-		audio.setAttribute('data-timeline-sources', SLIDES_XML)
-	}, false);
-	</script>
-	<script src="lib/popcorn-complete.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script type="text/javascript" src="playback.js"></script>
+  <script src="lib/popcorn-complete.min.js"></script>
 </head>
 <body>
-	<div id="playbackArea">
-		<div id="slide"></div>
-		<audio id="video" controls > You must use an HTML5 capable browser to view this page.
-		This playback requires modern browser, please use FF, Safari, Chrome</audio>
+	<div id="playbackArea" class="clearfix">
+		<div id="thumbnails"></div>
+		<div id="presentation">
+			<div id="slide"></div>
+		</div>
 		<div class="circle" id="cursor" style="visibility:hidden;"></div>
 		<div class="chatcontainer">
 			<div id="chat"></div>
+			<div id="videoRecordingWrapper">
+			  <video id="videoRecording" controls>You must use an HTML5 capable browser to view this page.
+			  This playback requires modern browser, please use FF, Safari, Chrome</video>
+		  </div>
 		</div>
 	</div>
 	<p id="footer">Recorded with <a href="http://bigbluebutton.org/">BigBlueButton</a>.</p>
