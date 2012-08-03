@@ -1,0 +1,1 @@
+This is a test for applet calling JNI methods.
