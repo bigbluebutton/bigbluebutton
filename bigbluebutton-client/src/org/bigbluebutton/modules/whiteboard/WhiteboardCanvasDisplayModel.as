@@ -161,6 +161,8 @@ package org.bigbluebutton.modules.whiteboard
 //			tobj.autoSize = TextFieldAutoSize.LEFT;
 			tobj.makeEditable(true);
             tobj.border = true;
+			tobj.background = true;
+			tobj.backgroundColor = 0xFFFFFF;
 //            LogUtil.debug("Putting text object [" + tobj.getGraphicID() + "] in [" + tobj.x + "," + tobj.y + "]");
 			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			wbCanvas.addGraphic(tobj);

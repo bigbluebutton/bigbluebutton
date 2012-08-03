@@ -55,7 +55,7 @@ package org.bigbluebutton.modules.whiteboard.views
                 
                 if (tbHeight < 15 || tbWidth < 50) return;
                 
-                var tobj:TextObject = _shapeFactory.createTextObject("Type your message here.", 0x000000, 0x000000, false, _mouseXDown, _mouseYDown, tbWidth, tbHeight, 18);
+                var tobj:TextObject = _shapeFactory.createTextObject("", 0x000000, 0x000000, false, _mouseXDown, _mouseYDown, tbWidth, tbHeight, 18);
                 LogUtil.error("Creating text at [" + mouseX + "," + mouseY + "] norm=[" + tobj.getOrigX() + "," + tobj.getOrigY() + "][" + tobj.textBoxWidth + "," + tobj.textBoxHeight + "]");
                 sendTextToServer(TextObject.TEXT_CREATED, tobj);                    
             }        
