@@ -24,7 +24,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	import org.bigbluebutton.common.LogUtil;
 
 	public interface GraphicObject {
-					
+		function get type():String;
+		
+		function get id():String;
+				
 		function denormalize(val:Number, side:Number):Number;
 		
 		function normalize(val:Number, side:Number):Number;

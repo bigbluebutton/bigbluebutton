@@ -89,6 +89,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.textSize = textSize;
 		}	
 		
+		public function get id():String {
+			return ID;
+		}
+		
+		override public function get type():String {
+			return WhiteboardConstants.TYPE_TEXT;
+		}
+		
         public function getOrigX():Number {
             return origX;
         }
@@ -97,14 +105,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             return origY;
         }
         
-		public function getGraphicType():String {
-			return WhiteboardConstants.TYPE_TEXT;
-		}
-		
-		public function getGraphicID():String {
-			return ID;
-		}
-		
 		public function setGraphicID(id:String):void {
 			this.ID = id;
 		}
