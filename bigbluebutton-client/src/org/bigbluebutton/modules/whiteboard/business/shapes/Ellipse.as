@@ -51,9 +51,12 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             var height:Number = denormalize((ao.points as Array)[arrayEnd-1], parentHeight) - startY;
             
             if (ao.fill) this.graphics.beginFill(ao.fillColor, ao.transparency ? 0.6 : 1.0);
-            this.graphics.drawEllipse(startX, startY, width, width);
-            LogUtil.debug("Drawing Circle **************************************");
-            //           this.graphics.drawCircle(startX, startY, width/2);
+			if (ao.circle) {
+				this.graphics.drawEllipse(startX, startY, width, width);
+			} else {
+				this.graphics.drawEllipse(startX, startY, width, height);
+			}
+            
         }
         
         override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number):void {

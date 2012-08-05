@@ -82,6 +82,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
                 return new PencilDrawAnnotation(shape, color, thickness, trans);
             } else if (type == DrawObject.RECTANGLE){
 				return new RectangleAnnotation(shape, color, thickness, trans);
+			} else if (type == DrawObject.ELLIPSE){
+				return new EllipseAnnotation(shape, color, thickness, trans);
 			}
             
             return null;
