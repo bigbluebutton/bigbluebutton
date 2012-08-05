@@ -4,6 +4,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 
     public interface IDrawAnnotation
     {
-        function createAnnotation():Annotation;
+        function createAnnotation(ctrlKeyPressed:Boolean=false):Annotation;
     }
 }

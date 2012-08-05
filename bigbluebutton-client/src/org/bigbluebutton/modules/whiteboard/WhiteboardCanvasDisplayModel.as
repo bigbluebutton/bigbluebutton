@@ -430,7 +430,7 @@ package org.bigbluebutton.modules.whiteboard
 						var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
 						e.data = tobj;
 						wbCanvas.dispatchEvent(e);                        
-					}
+					} 
 					
 					wbCanvas.addGraphic(tobj);
 					graphicList[objIndex] = tobj;

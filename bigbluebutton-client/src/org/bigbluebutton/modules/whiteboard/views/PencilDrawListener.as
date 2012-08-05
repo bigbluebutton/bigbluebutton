@@ -19,9 +19,12 @@ package org.bigbluebutton.modules.whiteboard.views
         private var _sendFrequency:int;
         private var _shapeFactory:ShapeFactory;
         private var _ctrlKeyDown:Boolean = false;
-        
-        public function PencilDrawListener(wbCanvas:WhiteboardCanvas, sendShapeFrequency:int, shapeFactory:ShapeFactory)
+		private var _idGenerator:AnnotationIDGenerator;
+		private var _curID:String;
+		
+        public function PencilDrawListener(idGenerator:AnnotationIDGenerator, wbCanvas:WhiteboardCanvas, sendShapeFrequency:int, shapeFactory:ShapeFactory)
         {
+			_idGenerator = idGenerator;
             _wbCanvas = wbCanvas;
             _sendFrequency = sendShapeFrequency;
             _shapeFactory = shapeFactory;
@@ -93,13 +96,17 @@ package org.bigbluebutton.modules.whiteboard.views
             switch (status) {
                 case DrawObject.DRAW_START:
                     dobj.status = DrawObject.DRAW_START;
+					_curID = _idGenerator.generateID();
+					dobj.id = _curID;
                     _drawStatus = DrawObject.DRAW_UPDATE;
                     break;
                 case DrawObject.DRAW_UPDATE:
-                    dobj.status = DrawObject.DRAW_UPDATE;								
+                    dobj.status = DrawObject.DRAW_UPDATE;
+					dobj.id = _curID;
                     break;
                 case DrawObject.DRAW_END:
                     dobj.status = DrawObject.DRAW_END;
+					dobj.id = _curID;
                     _drawStatus = DrawObject.DRAW_START;
                     break;
             }
@@ -113,7 +120,7 @@ package org.bigbluebutton.modules.whiteboard.views
                 _segment.push(xy[0], xy[1]);
             }
            
-            _wbCanvas.sendGraphicToServer(dobj.createAnnotation(), WhiteboardDrawEvent.SEND_SHAPE);			
+            _wbCanvas.sendGraphicToServer(dobj.createAnnotation(_ctrlKeyDown), WhiteboardDrawEvent.SEND_SHAPE);			
         }
     }
 }

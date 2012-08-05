@@ -80,7 +80,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         private function createAnnotation(type:String, shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawAnnotation{
             if (type == DrawObject.PENCIL){
                 return new PencilDrawAnnotation(shape, color, thickness, trans);
-            } 
+            } else if (type == DrawObject.RECTANGLE){
+				return new RectangleAnnotation(shape, color, thickness, trans);
+			}
             
             return null;
 //            else if (type == DrawObject.RECTANGLE){

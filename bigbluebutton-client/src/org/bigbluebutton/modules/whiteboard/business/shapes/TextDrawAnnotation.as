@@ -27,7 +27,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             _fontSize = fontSize;
         }
         
-        override public function createAnnotation():Annotation {
+        override public function createAnnotation(ctrlKeyPressed:Boolean=false):Annotation {
             var ao:Object = new Object();
             ao["type"] = DrawObject.TEXT;
             ao["id"] = _id;

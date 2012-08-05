@@ -15,6 +15,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             _status = s;
         }
         
-        public function createAnnotation():Annotation {return null}
+        public function createAnnotation(ctrlKeyPressed:Boolean=false):Annotation {return null}
     }
 }

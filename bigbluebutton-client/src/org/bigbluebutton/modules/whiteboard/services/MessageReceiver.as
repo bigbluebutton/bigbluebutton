@@ -82,7 +82,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		}
 		
 		private function handleNewAnnotationCommand(message:Object):void {
-//			LogUtil.debug("Handle new annotation[" + message.type + ", " + message.id + ", " + message.status + "]");
+			LogUtil.debug("Handle new annotation[" + message.type + ", " + message.id + ", " + message.status + "]");
             if (message.type == undefined || message.type == null || message.type == "") return;
             if (message.id == undefined || message.id == null || message.id == "") return;
             if (message.status == undefined || message.status == null || message.status == "") return;
