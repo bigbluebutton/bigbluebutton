@@ -84,6 +84,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				return new RectangleAnnotation(shape, color, thickness, trans);
 			} else if (type == DrawObject.ELLIPSE){
 				return new EllipseAnnotation(shape, color, thickness, trans);
+			} else if (type == DrawObject.LINE){
+				return new LineAnnotation(shape, color, thickness, trans);
+			} else if (type == DrawObject.TRIANGLE){
+				return new TriangleAnnotation(shape, color, thickness, trans);
 			}
             
             return null;

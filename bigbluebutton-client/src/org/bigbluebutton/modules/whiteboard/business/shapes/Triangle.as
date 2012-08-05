@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	import flash.display.Shape;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	
 	public class Triangle extends DrawObject
 	{
@@ -30,6 +31,34 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		{
             super(id, type, status);
 		}
+		
+		override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+			LogUtil.debug("Drawing LINE");
+			var ao:Object = a.annotation;
+			
+			if (!ao.fill)
+				this.graphics.lineStyle(ao.thickness, ao.color, ao.transparency ? 0.6 : 1.0);
+			else this.graphics.lineStyle(ao.thickness, ao.color);
+			
+			var arrayEnd:Number = (ao.points as Array).length;
+			var startX:Number = denormalize((ao.points as Array)[0], parentWidth);
+			var startY:Number = denormalize((ao.points as Array)[1], parentHeight);
+			var triangleWidth:Number = denormalize((ao.points as Array)[arrayEnd-2], parentWidth) - startX;
+			var triangleHeight:Number = denormalize((ao.points as Array)[arrayEnd-1], parentHeight) - startY;
+			
+			LogUtil.debug(startX + " " + startY + " " + triangleWidth + " " + triangleHeight);
+			
+			if (ao.fill) this.graphics.beginFill(ao.fillColor, ao.transparency ? 0.6 : 1.0);
+			
+			this.graphics.moveTo(startX+triangleWidth/2, startY); 
+			this.graphics.lineTo(startX+triangleWidth, startY+triangleHeight); 
+			this.graphics.lineTo(startX, triangleHeight+startY); 
+			this.graphics.lineTo(startX+triangleWidth/2, startY);
+		}
+		
+		override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+			draw(a, parentWidth, parentHeight);
+		}			
 		
 		/**
 		 * Gets rid of the unnecessary data in the segment array, so that the object can be more easily passed to

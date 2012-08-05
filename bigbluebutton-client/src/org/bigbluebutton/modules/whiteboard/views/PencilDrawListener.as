@@ -120,7 +120,11 @@ package org.bigbluebutton.modules.whiteboard.views
                 _segment.push(xy[0], xy[1]);
             }
            
-            _wbCanvas.sendGraphicToServer(dobj.createAnnotation(_ctrlKeyDown), WhiteboardDrawEvent.SEND_SHAPE);			
+			var an:Annotation = dobj.createAnnotation(_ctrlKeyDown);
+			if (an != null) {
+				_wbCanvas.sendGraphicToServer(an, WhiteboardDrawEvent.SEND_SHAPE);
+			}
+            			
         }
     }
 }

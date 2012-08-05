@@ -54,10 +54,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             } else if (a.type == DrawObject.ELLIPSE) {
                 LogUtil.debug("Creating ELLIPSE Annotation");
                 return new Ellipse(a.id, a.type, a.status);
-//            } else if (a.type == DrawObject.TEXT) {
-//                LogUtil.debug("Creating TEXT Annotation");	
- //               return new TextObject(a.id, a.type, a.status);
-            }
+            }  else if (a.type == DrawObject.LINE) {
+				LogUtil.debug("Creating LINE Annotation");
+				return new Line(a.id, a.type, a.status);
+			}  else if (a.type == DrawObject.TRIANGLE) {
+				LogUtil.debug("Creating TRIANGLE Annotation");
+				return new Triangle(a.id, a.type, a.status);
+			}
             
             return null;
 		}
