@@ -57,8 +57,5 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             draw(a, parentWidth, parentHeight);
         }
         
-        /***** Temporary for sending ****/
-        
-        
 	}
 }

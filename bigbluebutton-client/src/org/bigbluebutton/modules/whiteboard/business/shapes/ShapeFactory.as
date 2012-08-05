@@ -55,28 +55,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             return _parentHeight;
         }
         
-		/**
-		 * Creates a Flash Shape, given a DrawObject representation of it 
-		 * @param shape
-		 * @return 
-		 * 
-		 */		
-		public function makeShape(graphic:DrawObject):DrawObject{
-/*			if (graphic.type == DrawObject.PENCIL){
-				return makePencil(graphic as Pencil);
-			} else if (graphic.type == DrawObject.RECTANGLE){
-				return makeRectangle(graphic as Rectangle);
-			} else if (graphic.type == DrawObject.ELLIPSE){
-				return makeEllipse(graphic as Ellipse);
-			} else if (graphic.type == DrawObject.TRIANGLE){
-				return makeTriangle(graphic as Triangle);
-			} else if (graphic.type == DrawObject.LINE){
-				return makeLine(graphic as Line);
-			}
-*/
-			return null;
-		}
-
         private function createAnnotation(type:String, shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawAnnotation{
             if (type == DrawObject.PENCIL){
                 return new PencilDrawAnnotation(shape, color, thickness, trans);
@@ -91,15 +69,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			}
             
             return null;
-//            else if (type == DrawObject.RECTANGLE){
-//                d = makeRectangle(shape, color, thickness, fill, fillColor, trans);
-//            } else if (type == DrawObject.ELLIPSE){
-//                d = makeEllipse(shape, color, thickness, fill, fillColor, trans);
-//            }  else if (type == DrawObject.TRIANGLE){
-//               d = makeTriangle(shape, color, thickness, fill, fillColor, trans);
-//            } else if (type == DrawObject.LINE){
-//                d = makeLine(shape, color, thickness, trans);
-//            } 
         }
             
 		public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, transparency:Boolean):DrawAnnotation {
@@ -136,83 +105,5 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             LogUtil.debug("***Redraw textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
             return tobj;
         }        
-        
-		
-		/**
-		 * Creates a Flash Shape from a Pencil DrawObject 
-		 * @param p a Pencil DrawObject
-		 * @return a Shape
-		 * 
-		 */		
-		private function makePencil(p:Pencil):DrawObject{
-			p.makeGraphic(_parentWidth, _parentHeight);	
-	        return p;
-		}
-		
-		/**
-		 * Creates a Flash Shape from a Rectangle DrawObject 
-		 * @param r a Rectangle DrawObject
-		 * @return a Shape
-		 * 
-		 */		
-		private function makeRectangle(r:Rectangle):DrawObject{
-			r.makeGraphic(_parentWidth, _parentHeight);			
-			return r;	
-		}
-		
-		/**
-		 * Creates a Flash Shape from an Ellipse DrawObject 
-		 * @param e an Ellipse DrawObject
-		 * @return a Shape
-		 * 
-		 */		
-		private function makeEllipse(e:Ellipse):DrawObject{
-			e.makeGraphic(_parentWidth, _parentHeight);
-			return e;
-		}
-		
-		/**
-		 * Creates a Flash Shape from an Line DrawObject 
-		 * @param e an Line DrawObject
-		 * @return a Shape
-		 * 
-		 */
-		private function makeLine(e:Line):DrawObject{
-			e.makeGraphic(_parentWidth, _parentHeight);
-			return e;
-		}
-		
-		/**
-		 * Creates a Flash Shape from an Highlighter DrawObject 
-		 * @param e an Highlighter DrawObject
-		 * @return a Shape
-		 * 
-		 */
-//		private function makeHighlighter(e:Highlighter):DrawObject{
-//			e.makeGraphic(_parentWidth, _parentHeight);
-////			return e;
-//		}
-		
-		/**
-		 * Creates a Flash Shape from an Eraser DrawObject 
-		 * @param e an Eraser DrawObject
-		 * @return a Shape
-		 * 
-		 */
-//		private function makeEraser(e:Eraser):DrawObject{
-//			e.makeGraphic(_parentWidth, _parentHeight);
-//			return e;
-//		}
-		
-		/**
-		 * Creates a Flash Shape from an Triangle DrawObject 
-		 * @param e an Triangle DrawObject
-		 * @return a Shape
-		 * 
-		 */
-		private function makeTriangle(e:Triangle):DrawObject{
-//			e.makeGraphic(_parentWidth, _parentHeight);
-			return e;
-		}
 	}
 }

@@ -85,14 +85,12 @@ package org.bigbluebutton.modules.whiteboard
 		}
         
         public function onKeyDown(event:KeyboardEvent):void {
-            LogUtil.debug("CTRL-Key DOWN");
             for (var ob:int = 0; ob < drawListeners.length; ob++) {
                 (drawListeners[ob] as IDrawListener).ctrlKeyDown(event.ctrlKey);
             }
         }        
 
         public function onKeyUp(event:KeyboardEvent):void {
-            LogUtil.debug("CTRL-Key UP");
             for (var ob:int = 0; ob < drawListeners.length; ob++) {
                 (drawListeners[ob] as IDrawListener).ctrlKeyDown(event.ctrlKey);
             }
