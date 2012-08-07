@@ -9,3 +9,6 @@ client
 bbbResources.properties.*
 asdoc/
 hs_err_pid*
+html-templateBackup/
+.actionScriptProperties.bak
+.flexProperties.bak

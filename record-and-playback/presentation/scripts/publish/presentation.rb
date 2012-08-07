@@ -490,7 +490,7 @@ def processChatMessages
 			$chat_events.each do |node|
 				chat_timestamp =  node[:timestamp]
 				chat_sender = node.xpath(".//sender")[0].text()
-				chat_message =  node.xpath(".//message")[0].text()
+				chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
 				chat_start = (chat_timestamp.to_i - $meeting_start.to_i) / 1000
 				$xml.timeline(:in => chat_start, :direction => :down,  :innerHTML => "<span><strong>#{chat_sender}:</strong> #{chat_message}</span>", :target => :chat )
 			end
@@ -570,16 +570,24 @@ if ($playback == "slides")
 		audio_dir = "#{package_dir}/audio"
 		BigBlueButton.logger.info("Making audio dir")
 		FileUtils.mkdir_p audio_dir
-		BigBlueButton.logger.info("Made audio dir - coping this -> #{$process_dir}/audio.ogg to -> #{audio_dir}")
+		BigBlueButton.logger.info("Made audio dir - copying: #{$process_dir}/audio.ogg to -> #{audio_dir}")
 		FileUtils.cp("#{$process_dir}/audio.ogg", audio_dir)
-		BigBlueButton.logger.info("copied file 1")
+		BigBlueButton.logger.info("Copied .ogg file - copying: #{$process_dir}/temp/#{$meeting_id}/audio/recording.wav to -> #{audio_dir}")
 		FileUtils.cp("#{$process_dir}/temp/#{$meeting_id}/audio/recording.wav", audio_dir)
-		BigBlueButton.logger.info("copied file 2")
+		BigBlueButton.logger.info("Copied .wav file - copying #{$process_dir}/events.xml to -> #{package_dir}")
 		FileUtils.cp("#{$process_dir}/events.xml", package_dir)
-		BigBlueButton.logger.info("copied file 3")
+		BigBlueButton.logger.info("Copied events.xml file")
+
+		BigBlueButton.logger.info("Making video dir")
+		video_dir = "#{package_dir}/video"
+		FileUtils.mkdir_p video_dir
+		BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.mp4 to -> #{video_dir}")
+		FileUtils.cp("#{$process_dir}/webcams.mp4", video_dir)
+		BigBlueButton.logger.info("Copied .mp4 file")
+
 		BigBlueButton.logger.info("Copying files to package dir")
 		FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
-	  BigBlueButton.logger.info("Copied files to package dir")
+		BigBlueButton.logger.info("Copied files to package dir")
 		BigBlueButton.logger.info("Creating metadata.xml")
 		# Create metadata.xml
 		b = Builder::XmlMarkup.new(:indent => 2)

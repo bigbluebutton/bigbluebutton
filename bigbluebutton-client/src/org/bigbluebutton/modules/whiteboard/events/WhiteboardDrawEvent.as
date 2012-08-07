@@ -21,15 +21,21 @@ package org.bigbluebutton.modules.whiteboard.events
 	import flash.events.Event;
 	
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	
 	public class WhiteboardDrawEvent extends Event
 	{
 		public static const SEND_SHAPE:String = "sendShape";
-		public static const CLEAR_BOARD:String = "clearBoard";
-		public static const UNDO_SHAPE:String = "undoShape"
+		public static const SEND_TEXT:String = "sendText";
+		public static const CLEAR:String = "WhiteboardClearCommand";
+		public static const UNDO:String = "WhiteboardUndoCommand";
+		public static const NEW_SHAPE:String = "NewShapeEvent";	
+        
+        public static const GET_ANNOTATION_HISTORY:String = "WhiteboardGetAnnotationHistory";
 		
-		public var message:DrawObject;
-		
+		public var annotation:Annotation;
+		       
 		public function WhiteboardDrawEvent(type:String, bubbles:Boolean = true, cancelable:Boolean = false)
 		{
 			super(type, bubbles, cancelable);

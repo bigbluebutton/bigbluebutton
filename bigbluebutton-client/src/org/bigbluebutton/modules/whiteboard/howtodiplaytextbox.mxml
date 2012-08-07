@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   minWidth="1024" minHeight="768">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.controls.Label;
+			import mx.core.UIComponent;
+			
+			public var tb:TextField = new TextField();
+			
+			public function clickHandler(clickEvent:Event):void
+			{
+				//				Alert.show("Event Type:" + clickEvent.type + " came from:" + clickEvent.currentTarget.id);
+				
+				Me.visible = false;
+				
+				var tbw:UIComponent = new UIComponent();
+				// drawing a white rectangle
+				//				tbw.graphics.beginFill(0xFFFFFF); // white
+				//				tbw.graphics.drawRect(0,0,300,20); // x, y, width, height
+				//				tbw.graphics.endFill();
+				
+				// drawing a black border
+				//				tbw.graphics.lineStyle(2, 0x000000, 100);  // line thickness, line color (black), line alpha or opacity
+				//				tbw.graphics.drawRect(0,0,300,20); // x, y, width, height
+				
+				//				var textfield:TextField = new TextField()
+				//				textfield.text = "Hi there!"
+				tbw.width = 600;
+				tbw.height = 300;
+				tbw.x = 50;
+				tbw.y = 50;
+				tbw.addChild(tb);
+				
+				//			tb.autoSize = TextFieldAutoSize.LEFT;
+				tb.wordWrap = true;
+				tb.width = 600;
+				tb.height = 300;
+				tb.x = 0;
+				tb.y = 0;
+				tb.border = true;
+				//	tb.background = true;
+				//	tb.backgroundColor = 0xFF0000;
+				tb.text = "Hello asbcdefsdfsd sdfsdfsdf ";
+				
+				var format:TextFormat = new TextFormat();
+				format.font = "Verdana";
+				format.color = 0xFF0000;
+				format.size = 24;
+				//		format.underline = true;
+				
+				tb.defaultTextFormat = format;
+				tb.setTextFormat(format);
+				dc.addChild(tbw);
+				
+				//				var lb:Label = new Label();
+				//				lb.text = "BigBlueButton";
+				//				vb.addChildAt(lb, 1);
+				//				
+				//				var mbox:MessageBox = new MessageBox();
+				//				dc.addChild(mbox);
+			}
+		]]>
+	</fx:Script>
+	<mx:VBox id="vb" width="100%" height="100%">
+		<s:Button id="Me" label="Handle Click" click="clickHandler(event)"/>
+		<mx:Canvas id="dc" width="100%" height="100%" backgroundColor="blue">		
+			<mx:Text text="Foo bar" x="400" y="300"/>
+			<!--mx:TextArea text="This is a text area" borderColor="black" x="100" y="100" height="500" width="400"/-->
+		</mx:Canvas>
+	</mx:VBox>	
+	
+</s:Application>

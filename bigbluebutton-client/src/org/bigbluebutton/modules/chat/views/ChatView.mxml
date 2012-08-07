@@ -249,7 +249,9 @@
 			private function parseURLs(message:String):String{
 				var indexOfHTTP:Number = message.indexOf("http://");
 				var indexOfWWW:Number = message.indexOf("www.");
-				if (indexOfHTTP == -1 && indexOfWWW == -1) return message;
+				var indexOfHTTPS:Number = message.indexOf("https://");
+					
+				if (indexOfHTTP == -1 && indexOfWWW == -1 && indexOfHTTPS == -1) return message;
 				
 				var words:Array = message.split(" ");
 				var parsedString:String = "";
@@ -258,6 +260,7 @@
 					var word:String = words[n] as String;
 					if (word.indexOf("http://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
 					else if (word.indexOf("www.") != -1) parsedString += '<a href="event:http://' + word + '"> <u>' + word + '</u></a> ';
+					else if (word.indexOf("https://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
 					else parsedString += word + ' ';
 				}
 				return parsedString;
@@ -265,7 +268,8 @@
 			
 			private function sendPublicChatMessage(message:String):void {
 				var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
-				publicEvent.message = parseURLs(cleanup(message));
+				//publicEvent.message = parseURLs(cleanup(message));
+				publicEvent.message = cleanup(message);
 				publicEvent.color = chatWindow.cmpColorPicker.selectedColor.toString();
 				publicEvent.time = currentTime();
 				publicEvent.language = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
@@ -279,7 +283,8 @@
 			
 			private function sendPrivateChatMessage():void {
 				var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
-				privateEvent.message = parseURLs(cleanup(chatWindow.txtMsg.text));
+				//privateEvent.message = parseURLs(cleanup(chatWindow.txtMsg.text));
+				privateEvent.message = cleanup(chatWindow.txtMsg.text);
 				privateEvent.toUser = chatTabs.selectedChild.name;
 				privateEvent.color = chatWindow.cmpColorPicker.selectedColor.toString();
 				privateEvent.time = currentTime();
@@ -423,6 +428,9 @@
 			// Receive public chat messages
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
 				LogUtil.debug("Got PublicChatMessageEvent from userid [ " + event.chatobj.userid + " ]");
+				if(event.chatobj.userid != "")
+					event.chatobj.message = parseURLs(event.chatobj.message);
+				
 				showMessage(PUBLIC_CHAT_USERID, event.chatobj, autoTranslation);
 				if ((! UserManager.getInstance().getConference().amIThisUser(new Number(event.chatobj.userid))) && (event.chatobj.userid != "")){
 					if (Accessibility.active){
@@ -443,6 +451,9 @@
 						ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
 					}					
 				}
+
+				if(event.message.chatobj.userid != "")
+					event.message.chatobj.message = parseURLs(event.message.chatobj.message);
 
 				showMessage(event.message.sender, event.message.chatobj, autoTranslation);
 				

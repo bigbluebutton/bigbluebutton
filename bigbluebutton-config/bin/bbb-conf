@@ -661,14 +661,24 @@ if [ $SETUPDEV ]; then
 		fi
 
 
-		if [ ! -f $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3/playerglobal.swc ]; then
-			mkdir -p $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
-			cd $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
-			if [ ! -f playerglobal10_3.swc ]; then
-				wget http://fpdownload.macromedia.com/pub/flashplayer/updaters/10/playerglobal10_3.swc
+		if [ ! -f $BASE/flex-4.5.0.20967/frameworks/libs/player/11.2/playerglobal.swc ]; then
+			mkdir -p $BASE/flex-4.5.0.20967/frameworks/libs/player/11.2
+			cd $BASE/flex-4.5.0.20967/frameworks/libs/player/11.2
+			if [ ! -f playerglobal11_2.swc ]; then
+				wget http://download.macromedia.com/get/flashplayer/updaters/11/playerglobal11_2.swc
 			fi
-			mv -f playerglobal10_3.swc playerglobal.swc
+			mv -f playerglobal11_2.swc playerglobal.swc
 		fi
+
+
+#		if [ ! -f $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3/playerglobal.swc ]; then
+#			mkdir -p $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
+#			cd $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
+#			if [ ! -f playerglobal10_3.swc ]; then
+#				wget http://fpdownload.macromedia.com/pub/flashplayer/updaters/10/playerglobal10_3.swc
+#			fi
+#			mv -f playerglobal10_3.swc playerglobal.swc
+#		fi
 
 		if ! grep -q GROOVY_HOME ~/.profile; then
 			echo "
@@ -1432,6 +1442,28 @@ check_state() {
 		echo 
 	fi
 
+	BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}')
+	DEFAULT_PDF=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^beans.presentationService.defaultUploadedPresentation/{s/.*=//;p}')
+	if echo $DEFAULT_PDF | grep -q "bigbluebutton.web.serverURL"; then
+        	if ! echo "$BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')" | xargs wget -q -O /dev/null; then
+			echo "# Error: Unable to reach default URL for presentation:"
+			echo "#"
+			echo "#    $BBB_WEB$(echo $DEFAULT_PDF | sed 's/${bigbluebutton.web.serverURL}//g')"
+			echo "#"
+                	echo "# Check value for beans.presentationService.defaultUploadedPresentation in"
+                	echo "#   ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
+        	fi
+	else
+        	if ! echo "$DEFAULT_PDF" | xargs wget -q -O /dev/null; then
+			echo "# Error: Unable to reach default URL for presentation"
+			echo "#"
+			echo "#    $DEFAULT_PDF"
+			echo "#"
+                	echo "# Check value for beans.presentationService.defaultUploadedPresentation in"
+                	echo "#   ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties"
+        	fi
+	fi
+
 	exit 0
 }
 
@@ -1776,6 +1808,11 @@ if [ -n "$HOST" ]; then
 	if [ -f /usr/local/bigbluebutton/core/scripts/slides.yml ]; then
 		echo "Assigning $HOST for record and playback in /usr/local/bigbluebutton/core/scripts/slides.yml"
 		change_yml_value /usr/local/bigbluebutton/core/scripts/slides.yml $redis_host playback_host $HOST
+	fi
+	
+	if [ -f /usr/local/bigbluebutton/core/scripts/presentation.yml ]; then
+		echo "Assigning $HOST for record and playback in /usr/local/bigbluebutton/core/scripts/presentation.yml"
+		change_yml_value /usr/local/bigbluebutton/core/scripts/presentation.yml $redis_host playback_host $HOST
 	fi
 	
 

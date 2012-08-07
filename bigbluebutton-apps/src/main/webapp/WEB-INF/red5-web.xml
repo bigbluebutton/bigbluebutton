@@ -39,8 +39,11 @@
     		</set>
   		</property>	  
   		<property name="recorderApplication"> <ref bean="recorderApplication"/></property>	
+  		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>
   		<property name="version" value="${version}"/>		
 	</bean>
+	
+	<bean id="connInvokerService" class="org.bigbluebutton.conference.ConnectionInvokerService"/>
 	
 	<import resource="bbb-apps.xml" />
 	<import resource="bbb-voice-app.xml" />

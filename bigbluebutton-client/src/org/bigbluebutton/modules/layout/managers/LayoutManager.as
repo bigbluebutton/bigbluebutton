@@ -305,4 +305,4 @@ package org.bigbluebutton.modules.layout.managers
 				applyLayout(_currentLayout);
 		}
 	}
-}
+}

@@ -21,18 +21,18 @@
 -->
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{whiteboard_icon}" width="25" height="25" click="toggleWhiteboard()" visible="false"
-	implements="org.bigbluebutton.modules.present.api.IPresentationButton" xmlns:mate="http://mate.asfusion.com/" toggle="true" >
+	implements="org.bigbluebutton.modules.present.api.IPresentationButton" xmlns:mate="http://mate.asfusion.com/" toggle="true" creationComplete="toggleWhiteboard()">
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
 			import mx.core.Application;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
@@ -60,12 +60,12 @@
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.highlighter.button.toolTipShow');
 			}
 			
-			public function buttonAdded(buttonParent:PresentationWindow):void{
+			public function buttonAdded(buttonParent:PresentationWindow):void {
 				var e:WhiteboardButtonEvent = new WhiteboardButtonEvent(WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION);
 				e.window = buttonParent;
 				dispatchEvent(e);
 				
-				buttonParent.addEventListener(KeyboardEvent.KEY_UP, checkWhiteboardKeyCombo);
+//				buttonParent.addEventListener(KeyboardEvent.KEY_UP, checkWhiteboardKeyCombo);
 			}
 			
 			private function checkWhiteboardKeyCombo(e:KeyboardEvent):void{
@@ -84,7 +84,7 @@
 			}
 			
 			public function setButtonVisibility(visibility:Boolean):void{
-				this.visible = visibility;
+//				this.visible = visibility;
 				//if (visibility) sendEnableWhiteboardEvent();
 				//else if (!visibility) sendDisableWhiteboardEvent();
 			}
@@ -97,6 +97,10 @@
 			public function presenterChanged(isPresenter:Boolean, presenterName:String):void{
 				setComponentEnabled(isPresenter);
 				this.isPresenter = isPresenter;
+				if(isPresenter) {
+					LogUtil.debug("MADE PRESENTER ENABLING WHITEBOARD");
+					sendEnableWhiteboardEvent();
+				}
 			}
 			
 		]]>
