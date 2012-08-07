@@ -194,7 +194,6 @@ package org.bigbluebutton.modules.whiteboard
 			tobj.multiline = true;
 			tobj.wordWrap = true;
             tobj.background = false;
-//            tobj.backgroundColor = 0x0000FF;
 			tobj.makeEditable(false);
 			wbCanvas.addGraphic(tobj);
 			graphicList.push(tobj);
@@ -434,7 +433,7 @@ package org.bigbluebutton.modules.whiteboard
         }
         
         public function textObjGainedFocusListener(event:FocusEvent):void {
-//            LogUtil.debug("### GAINED FOCUS ");
+            LogUtil.debug("### GAINED FOCUS ");
             var tf:TextObject = event.currentTarget as TextObject;
             wbCanvas.stage.focus = tf;
             tf.stage.focus = tf;
@@ -445,11 +444,11 @@ package org.bigbluebutton.modules.whiteboard
         }
         
         public function textObjLostFocusListener(event:FocusEvent):void {
-//            LogUtil.debug("### LOST FOCUS ");
+            LogUtil.debug("### LOST FOCUS ");
             var tf:TextObject = event.target as TextObject;	
             sendTextToServer(TextObject.TEXT_PUBLISHED, tf);	
 //            LogUtil.debug("Text published to: " +  tf.text);
-            currentlySelectedTextObject = null;
+//            currentlySelectedTextObject = null;
                       
             tf.border = false;
             
@@ -457,6 +456,24 @@ package org.bigbluebutton.modules.whiteboard
             e.data = tf;
             wbCanvas.dispatchEvent(e);
             /* hide text toolbar because we don't want to show it if there is no text selected */
+        }
+        
+        
+        /* invoked by the WhiteboardManager that is invoked by the TextToolbar, that 
+        specifies the currently selected TextObject to change its attributes. For example,
+        when a 'text color' ColorPicker is changed in the TextToolbar, the invocation
+        eventually reaches this method that causes the currently selected TextObject
+        to be re-sent to the red5 server with the modified attributes.
+        */
+        public function modifySelectedTextObject(textColor:uint, bgColorVisible:Boolean, backgroundColor:uint, textSize:Number):void {
+            LogUtil.debug("modifySelectedTextObject = " + textSize);
+            currentlySelectedTextObject.textColor = textColor;
+            currentlySelectedTextObject.background = bgColorVisible;
+            currentlySelectedTextObject.backgroundColor = backgroundColor;
+            currentlySelectedTextObject.textSize = textSize;
+            LogUtil.debug("modifySelectedTextObject = " + currentlySelectedTextObject.textSize);
+            currentlySelectedTextObject.applyFormatting();
+            sendTextToServer(TextObject.TEXT_PUBLISHED, currentlySelectedTextObject);
         }
         
         private function sendTextToServer(status:String, tobj:TextObject):void {
@@ -472,7 +489,7 @@ package org.bigbluebutton.modules.whiteboard
                     break;
             }	
             
-//            LogUtil.debug("SENDING TEXT: [" + tobj.text + "]");
+            LogUtil.debug("SENDING TEXT: [" + tobj.textSize + "]");
             
             var annotation:Object = new Object();
             annotation["type"] = "text";

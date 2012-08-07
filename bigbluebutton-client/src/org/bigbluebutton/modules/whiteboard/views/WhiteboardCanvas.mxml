@@ -24,8 +24,10 @@
     creationComplete="init()" visible="false" mouseOver="setCursor(toolType)" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
 		<![CDATA[		
-            import com.asfusion.mate.events.Dispatcher;            
+            import com.asfusion.mate.events.Dispatcher;
+            
             import mx.managers.CursorManager;
+            
             import org.bigbluebutton.common.IBbbCanvas;
             import org.bigbluebutton.common.Images;
             import org.bigbluebutton.common.LogUtil;
@@ -160,7 +162,8 @@
 			}
 			
 			public function modifySelectedTextObject(fgColor:uint, bgColorVisible:Boolean, backgroundColor:uint, textSize:Number):void {
-//				displayModel.modifySelectedTextObject(fgColor, bgColorVisible, backgroundColor, textSize);
+                LogUtil.debug("modifying text size = " + textSize);
+				displayModel.modifySelectedTextObject(fgColor, bgColorVisible, backgroundColor, textSize);
 			}
 			
 			public function makeTextObjectsEditable(e:MadePresenterEvent):void {

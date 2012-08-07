@@ -181,8 +181,8 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 				if(tobj == null) return;
 				currentlySelectedTextObject = tobj;
 				this.textColor = ctextpik.selectedColor = tobj.textColor;
-				this.bgColor = cbackpik.selectedColor = tobj.backgroundColor;
-				this.backgroundVisible = btnToggleBackground.selected = tobj.background;
+//				this.bgColor = cbackpik.selectedColor = tobj.backgroundColor;
+//				this.backgroundVisible = btnToggleBackground.selected = tobj.background;
 				this.textSizeMenu.label = String(tobj.textSize);
 				this.textSize = tobj.textSize;
 			}
@@ -266,15 +266,16 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 
 	<mx:ColorPicker width="20" height="20"  change="setTextColor(event)" id="ctextpik" selectedColor="0x000000"
 					toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textColorPicker')}"/>
-	
+    
+<!--		
 	<mx:Spacer width="3" />
-	
+
 	<mx:Button width="20" height="20" id="btnToggleBackground" click="setBackgroundVisible(event)"  icon="{toggle_text_background_icon}" 
 			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.backColorVisible')}" toggle="true"/>
 	
 	<mx:ColorPicker width="20" height="20" change="changeTextBackgroundColor(event)" id="cbackpik"  selectedColor="0x000000" 
 					toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.backColorPicker')}"/>
-	
+-->	
 	<views:PopUpCombo id="textSizeMenu" creationComplete="initTextSizeMenu()" 
 					  toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textSizeMenu')}" 
 					   openAlways="true" specificOpenDirection="{PopUpCombo.OPEN_UP}" />
