@@ -581,9 +581,9 @@ if ($playback == "slides")
 		BigBlueButton.logger.info("Making video dir")
 		video_dir = "#{package_dir}/video"
 		FileUtils.mkdir_p video_dir
-		BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.mp4 to -> #{video_dir}")
-		FileUtils.cp("#{$process_dir}/webcams.mp4", video_dir)
-		BigBlueButton.logger.info("Copied .mp4 file")
+		BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.webm to -> #{video_dir}")
+		FileUtils.cp("#{$process_dir}/webcams.webm", video_dir)
+		BigBlueButton.logger.info("Copied .webm file")
 
 		BigBlueButton.logger.info("Copying files to package dir")
 		FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
