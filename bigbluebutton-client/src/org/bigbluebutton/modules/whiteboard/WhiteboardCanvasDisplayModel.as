@@ -158,9 +158,11 @@ package org.bigbluebutton.modules.whiteboard
 			var tobj:TextObject = calibrateNewTextWith(o);
 			tobj.multiline = true;
 			tobj.wordWrap = true;
-			tobj.autoSize = TextFieldAutoSize.LEFT;
+//			tobj.autoSize = TextFieldAutoSize.LEFT;
 			tobj.makeEditable(true);
             tobj.border = true;
+			tobj.background = true;
+			tobj.backgroundColor = 0xFFFFFF;
 //            LogUtil.debug("Putting text object [" + tobj.getGraphicID() + "] in [" + tobj.x + "," + tobj.y + "]");
 			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			wbCanvas.addGraphic(tobj);
@@ -178,7 +180,7 @@ package org.bigbluebutton.modules.whiteboard
 			//LogUtil.debug("TEXT ADDED: " + tobj.getGraphicID());
 			tobj.multiline = true;
 			tobj.wordWrap = true;
-			tobj.autoSize = TextFieldAutoSize.LEFT;
+//			tobj.autoSize = TextFieldAutoSize.LEFT;
 			tobj.makeEditable(false);
             tobj.border = true;
 			wbCanvas.addGraphic(tobj);

@@ -17,6 +17,8 @@ package org.bigbluebutton.modules.whiteboard.views
         private var _mouseXDown:Number = 0;
         private var _mouseYDown:Number = 0;
         
+		private var _mousedDown:Boolean = false;
+		
         public function TextDrawListener(wbCanvas:WhiteboardCanvas, sendShapeFrequency:int, shapeFactory:ShapeFactory)
         {
             _wbCanvas = wbCanvas;
@@ -29,6 +31,11 @@ package org.bigbluebutton.modules.whiteboard.views
             if(tool.graphicType == WhiteboardConstants.TYPE_TEXT) {
                 _mouseXDown = mouseX;
                 _mouseYDown = mouseY;
+				
+				// We have to keep track if the user has pressed the mouse. A mouseup event is
+				// dispatched when the mouse goes out of the canvas, theu we end up sending a new text
+				// even if the user has mousedDown yet.
+				_mousedDown = true;
             }
         }
         
@@ -39,13 +46,16 @@ package org.bigbluebutton.modules.whiteboard.views
         
         public function onMouseUp(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
         {
-            if(tool.graphicType == WhiteboardConstants.TYPE_TEXT) {
+            if(tool.graphicType == WhiteboardConstants.TYPE_TEXT && _mousedDown) {
+				
+				_mousedDown = false;
+				
                 var tbWidth:Number = mouseX - _mouseXDown;
                 var tbHeight:Number = mouseY - _mouseYDown;
                 
                 if (tbHeight < 15 || tbWidth < 50) return;
                 
-                var tobj:TextObject = _shapeFactory.createTextObject("Type your message here.", 0x000000, 0x000000, false, _mouseXDown, _mouseYDown, tbWidth, tbHeight, 18);
+                var tobj:TextObject = _shapeFactory.createTextObject("", 0x000000, 0x000000, false, _mouseXDown, _mouseYDown, tbWidth, tbHeight, 18);
                 LogUtil.error("Creating text at [" + mouseX + "," + mouseY + "] norm=[" + tobj.getOrigX() + "," + tobj.getOrigY() + "][" + tobj.textBoxWidth + "," + tobj.textBoxHeight + "]");
                 sendTextToServer(TextObject.TEXT_CREATED, tobj);                    
             }        
