@@ -194,7 +194,7 @@ function runPopcorn() {
   	main_shapes_times[main_shapes_times.length] = times[times.length-1]; //put last value into this array always!
   }
   
-  var p = new Popcorn("#videoRecording");
+  var p = new Popcorn("#video");
   //update 60x / second the position of the next value.
   p.code({
       start: 1, // start time

@@ -1,5 +1,5 @@
 goToSlide = function(time) {
-  var pop = Popcorn("#videoRecording");
+  var pop = Popcorn("#video");
   pop.currentTime(time);
 }
 
@@ -57,7 +57,7 @@ setEventsOnThumbnail = function($thumb) {
   // Popcorn event to mark a thumbnail when its slide is being shown
   var timeIn = $thumb.attr("data-in");
   var timeOut = $thumb.attr("data-out");
-  var pop = Popcorn("#videoRecording");
+  var pop = Popcorn("#video");
   pop.code({
     start: timeIn,
     end: timeOut,
@@ -168,7 +168,7 @@ generateThumbnails = function() {
 document.addEventListener( "DOMContentLoaded", function() {
   var appName = navigator.appName;
   var appVersion = navigator.appVersion;
-  var video = document.getElementById("videoRecording");
+  var video = document.getElementById("video");
   if (appName == "Microsoft Internet Explorer") {
     if (navigator.userAgent.match("chromeframe")) {
       video.setAttribute('src', RECORDINGS + '/video/webcams.mp4');
