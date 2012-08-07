@@ -12,12 +12,14 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
-	import flash.ui.Keyboard;	
+	import flash.ui.Keyboard;
+	
 	import mx.collections.ArrayCollection;
 	import mx.controls.TextInput;
 	import mx.core.Application;
 	import mx.core.UIComponent;
 	import mx.managers.CursorManager;
+	
 	import org.bigbluebutton.common.IBbbCanvas;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -63,7 +65,7 @@ package org.bigbluebutton.modules.whiteboard
 			var o:Annotation = event.annotation;
 			var recvdShapes:Boolean = event.recvdShapes;
             LogUtil.debug("**** Drawing graphic [" + o.type + "] *****");
-			if(o.type != "text") {
+			if(o.type != DrawObject.TEXT) {
 				var dobj:DrawObject = drawObjectFactory(o.annotation);
 				drawShape(dobj, recvdShapes);					
 			} else { 
@@ -97,31 +99,6 @@ package org.bigbluebutton.modules.whiteboard
 			}        
 		}
 		
-		// Draws a TextObject when/if it is received from the server
-		private function drawText(o:Annotation, recvdShapes:Boolean):void {		
-			if (recvdShapes) {
-				LogUtil.debug("RX: Got text [" + o.type + " " + o.status + " " + o.id + "]");	
-			}
-			switch (o.status) {
-				case TextObject.TEXT_CREATED:
-					if (isPresenter)
-						addPresenterText(o);
-					else
-						addNormalText(o);														
-					break;
-				case TextObject.TEXT_UPDATED:
-				case TextObject.TEXT_PUBLISHED:
-					if (isPresenter) {
-						if (recvdShapes) addPresenterText(o);
-					} else {
-						if(graphicList.length == 0 || recvdShapes) {
-							addNormalText(o);
-						} else modifyText(o);
-					} 	
-					break;
-			}        
-		}
-		
 		private function addNewShape(o:DrawObject):void {
 //			LogUtil.debug("Adding new shape [" + o.getType() + "," + o.getGraphicID() + "," + o.status + "]");
             if (o.getType() == DrawObject.TEXT) return;
@@ -142,7 +119,41 @@ package org.bigbluebutton.modules.whiteboard
             LogUtil.debug("Adding new shape 3 [" + points + "]");
 */			graphicList.push(dobj);
 		}
-		
+
+        
+        // Draws a TextObject when/if it is received from the server
+        private function drawText(o:Annotation, recvdShapes:Boolean):void {		
+            if (recvdShapes) {
+                LogUtil.debug("RX: Got text [" + o.type + " " + o.status + " " + o.id + "]");	
+            }
+            switch (o.status) {
+                case TextObject.TEXT_CREATED:
+                    if (isPresenter)
+                        addPresenterText(o, true);
+                    else
+                        addNormalText(o);														
+                    break;
+                case TextObject.TEXT_UPDATED:
+                    if (isPresenter) {
+                        if (recvdShapes) addPresenterText(o, true);
+                    } else {
+                        if(graphicList.length == 0 || recvdShapes) {
+                            addNormalText(o);
+                        } else modifyText(o);
+                    } 	
+                    break;
+                case TextObject.TEXT_PUBLISHED:
+                    if (isPresenter) {
+                        if (recvdShapes) addPresenterText(o);
+                    } else {
+                        if(graphicList.length == 0 || recvdShapes) {
+                            addNormalText(o);
+                        } else modifyText(o);
+                    } 	
+                    break;
+            }        
+        }
+        
 		private function calibrateNewTextWith(o:Annotation):TextObject {
 			var tobj:TextObject = shapeFactory.makeTextObject(o);
 			tobj.setGraphicID(o.id);
@@ -153,16 +164,18 @@ package org.bigbluebutton.modules.whiteboard
 			
 		/* adds a new TextObject that is suited for a presenter. For example, it will be made editable and the appropriate listeners will be registered so that
 		   the required events will be dispatched  */
-		private function addPresenterText(o:Annotation):void {
+		private function addPresenterText(o:Annotation, background:Boolean=false):void {
 			if(!isPresenter) return;
 			var tobj:TextObject = calibrateNewTextWith(o);
 			tobj.multiline = true;
 			tobj.wordWrap = true;
-//			tobj.autoSize = TextFieldAutoSize.LEFT;
 			tobj.makeEditable(true);
             tobj.border = true;
-			tobj.background = true;
-			tobj.backgroundColor = 0xFFFFFF;
+            if (!background) {
+                tobj.background = false;
+                tobj.backgroundColor = 0x00FF00;                
+            }
+
 //            LogUtil.debug("Putting text object [" + tobj.getGraphicID() + "] in [" + tobj.x + "," + tobj.y + "]");
 			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			wbCanvas.addGraphic(tobj);
@@ -180,12 +193,20 @@ package org.bigbluebutton.modules.whiteboard
 			//LogUtil.debug("TEXT ADDED: " + tobj.getGraphicID());
 			tobj.multiline = true;
 			tobj.wordWrap = true;
-//			tobj.autoSize = TextFieldAutoSize.LEFT;
+            tobj.background = false;
+//            tobj.backgroundColor = 0x0000FF;
 			tobj.makeEditable(false);
-            tobj.border = true;
 			wbCanvas.addGraphic(tobj);
 			graphicList.push(tobj);
 		}
+                
+        private function removeText(id:String):void {
+            var tobjData:Array = getGobjInfoWithID(id);
+            var removeIndex:int = tobjData[0];
+            var tobjToRemove:TextObject = tobjData[1] as TextObject;
+            wbCanvas.removeGraphic(tobjToRemove);
+            graphicList.splice(removeIndex, 1);
+        }	
 		
 		/* method to modify a TextObject that is already present on the whiteboard, as opposed to adding a new TextObject to the whiteboard */
 		private function modifyText(o:Annotation):void {
@@ -214,14 +235,6 @@ package org.bigbluebutton.modules.whiteboard
 			wbCanvas.removeGraphic(dobjToRemove);
 			graphicList.splice(removeIndex, 1);
 		}
-	
-		private function removeText(id:String):void {
-			var tobjData:Array = getGobjInfoWithID(id);
-			var removeIndex:int = tobjData[0];
-			var tobjToRemove:TextObject = tobjData[1] as TextObject;
-			wbCanvas.removeGraphic(tobjToRemove);
-			graphicList.splice(removeIndex, 1);
-		}	
 		
 		/* returns an array of the GraphicObject that has the specified id,
 		 and the index of that GraphicObject (if it exists, of course) 
@@ -293,7 +306,7 @@ package org.bigbluebutton.modules.whiteboard
             for (var i:int = 0; i < annotations.length; i++) {
                 var an:Annotation = annotations[i] as Annotation;
 //                LogUtil.debug("**** Drawing graphic from history [" + an.type + "] *****");
-                if(an.type != "text") {
+                if(an.type != DrawObject.TEXT) {
                     var dobj:DrawObject = drawObjectFactory(an.annotation);
                     drawShape(dobj, true);					
                 } else { 
@@ -374,7 +387,12 @@ package org.bigbluebutton.modules.whiteboard
                     var tobj:TextObject = shapeFactory.redrawTextObject(an, origTobj);
                     tobj.setGraphicID(origTobj.getGraphicID());
                     tobj.status = origTobj.status;
-                    
+                    tobj.multiline = true;
+                    tobj.wordWrap = true;
+                    tobj.background = false;
+//                    tobj.backgroundColor = 0xFF0000;
+                    tobj.makeEditable(false);
+                    tobj.background = false;
                     if (currentlySelectedTextObject != null) {
                         currentlySelectedTextObject = tobj;
                         var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
@@ -432,8 +450,7 @@ package org.bigbluebutton.modules.whiteboard
             sendTextToServer(TextObject.TEXT_PUBLISHED, tf);	
 //            LogUtil.debug("Text published to: " +  tf.text);
             currentlySelectedTextObject = null;
-            
-           
+                      
             tf.border = false;
             
             var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
@@ -468,6 +485,9 @@ package org.bigbluebutton.modules.whiteboard
             annotation["x"] = tobj.getOrigX();
             annotation["y"] = tobj.getOrigY();
             annotation["fontSize"] = tobj.textSize;
+            annotation["textBoxWidth"] = tobj.textBoxWidth;
+            annotation["textBoxHeight"] = tobj.textBoxHeight;
+            
             var msg:Annotation = new Annotation(tobj.getGraphicID(), "text", annotation);
             wbCanvas.sendGraphicToServer(msg, WhiteboardDrawEvent.SEND_TEXT);			
         }

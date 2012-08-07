@@ -78,8 +78,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public function TextObject(text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean, x:Number, y:Number, boxWidth:Number, boxHeight:Number, textSize:Number) {
 			this.text = text;
 			this.textColor = textColor;
-			this.backgroundColor = bgColor;
-			this.background = bgColorVisible;
+//			this.backgroundColor = bgColor;
+//			this.background = bgColorVisible;
             origX = x;
             origY = y;
             this.x = x;
@@ -129,7 +129,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
             this.x = denormalize(origX, parentWidth);
             this.y = denormalize(origY, parentHeight);
-
             
             var newFontSize:Number = textSize;
             
