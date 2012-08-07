@@ -170,8 +170,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         public function redrawText(origParentWidth:Number, origParentHeight:Number, parentWidth:Number, parentHeight:Number):void {
             this.x = denormalize(origX, parentWidth);
             this.y = denormalize(origY, parentHeight);
-
-            
+           
             var newFontSize:Number = textSize;
             newFontSize = (parentHeight/origParentHeight) * textSize;
 			
@@ -215,6 +214,18 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this._editable = editable;
 		}
 		
+        public function applyFormatting():void {
+            var tf:TextFormat = new TextFormat();
+            tf.size = this.textSize;
+            tf.font = "arial";
+            this.defaultTextFormat = tf;
+            this.setTextFormat(tf);
+            this.multiline = true;
+            this.wordWrap = true;
+//            this.autoSize = TextFieldAutoSize.LEFT;
+            this.antiAliasType = AntiAliasType.ADVANCED;
+        }
+        
 		public function registerListeners(textObjGainedFocus:Function, textObjLostFocus:Function, textObjTextListener:Function, textObjDeleteListener:Function):void {											  
 			this.addEventListener(FocusEvent.FOCUS_IN, textObjGainedFocus);
 			this.addEventListener(FocusEvent.FOCUS_OUT, textObjLostFocus);
