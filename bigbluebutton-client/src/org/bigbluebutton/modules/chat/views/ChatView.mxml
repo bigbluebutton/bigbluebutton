@@ -117,7 +117,7 @@
 			
 			// Descriptions for accessibilty properties
 			// private static const PUBLIC_TAB:String = "PUBLIC CHAT";
-			private static const PUBLIC_TAB_NEW:String = "NEW MESSAGE IN PUBLIC CHAT";
+			private static const PUBLIC_TAB_NEW:String = "NEW MESSAGE IN PUBLIC CHAT ";
 			// private static const PRIVATE_TAB:String = "PRIVATE CHAT WITH ";
 			private static const PRIVATE_TAB_NEW:String = "NEW MESSAGE IN PRIVATE CHAT WITH";
 			//private static const PLUS_TAB:String = "CHAT OPTIONS TAB";
@@ -512,30 +512,35 @@
 			private function checkNotifications(event:TimerEvent):void{
 				var debugDate:Date = new Date();
 				var browserName:String;
+				var message:String = "";
 				if (publicWaiting && !publicFocus){
 					LogUtil.debug("The time is " + debugDate.getHours() + ":" + debugDate.getMinutes() + ":" + debugDate.getSeconds() + " and there are new public messages.");
             		//browserName = ExternalInterface.call("determineBrowser", PUBLIC_TAB_NEW);
 					//if (browserName == "Microsoft Internet Explorer")
             		//	publicSound.play();
-					//else
-            			ExternalInterface.call("addAlert", PUBLIC_TAB_NEW);
+					//else{
+            			//ExternalInterface.call("addAlert", PUBLIC_TAB_NEW);
+            			message += PUBLIC_TAB_NEW; 
+					//}
 				}
 				
 				if (privateWaiting.length && !privateFocus){
 					browserName = ExternalInterface.call("determineBrowser", PUBLIC_TAB_NEW);
-					if (browserName == "Microsoft Internet Explorer"){
-						privateSound.play();
-					}
-					else {
+					//if (browserName == "Microsoft Internet Explorer"){
+					//	privateSound.play();
+					//}
+					//else {
 						var names:String = "";
 						for (var i:int = 0; i < privateWaiting.length; i++){
 							names += " " + privateWaiting.getItemAt(i).message.chatobj.username;
 							if (i < privateWaiting.length - 1)
 								names += ",";
 						}
-						ExternalInterface.call("addAlert", PRIVATE_TAB_NEW + names);
-					}
+						//ExternalInterface.call("addAlert", PRIVATE_TAB_NEW + names);
+						message += PRIVATE_TAB_NEW + names;
+					//}
 				}
+				ExternalInterface.call("addAlert", message);				
 			}
 			
 			// Returns an array of userIDs. The userIDs refer to users who have sent this user private messages which have not been read.

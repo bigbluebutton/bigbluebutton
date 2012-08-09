@@ -33,12 +33,15 @@ function addAlert(message){
     contentDiv = document.createElement( "div" );	
 	contentDiv.id = "alertDiv" + i;
 	i++;
-	contentDiv.innerHTML = "<p>" + message + "</p>";
+	//contentDiv.innerHTML = "<p>" + message + "</p>";
+	contentDiv.innerHTML = message;
 	contentDiv.style.display = "block";
 	target.appendChild( contentDiv );
 	target.hide();
+	target.setAttribute("role","alert");
 	target.show();
 	contentDiv.hide();
+	contentDiv.setAttribute("role","alert");
 	contentDiv.show();
 }
 
