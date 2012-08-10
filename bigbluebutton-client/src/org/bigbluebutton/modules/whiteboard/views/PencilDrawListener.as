@@ -1,6 +1,7 @@
 package org.bigbluebutton.modules.whiteboard.views
 {
     import org.bigbluebutton.common.LogUtil;
+    import org.bigbluebutton.modules.whiteboard.business.shapes.DrawAnnotation;
     import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
     import org.bigbluebutton.modules.whiteboard.business.shapes.Pencil;
     import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
@@ -87,7 +88,7 @@ package org.bigbluebutton.modules.whiteboard.views
         private function sendShapeToServer(status:String, tool:WhiteboardTool):void {
             if (_segment.length == 0) return;
                        
-            var dobj:DrawObject = _shapeFactory.createDrawObject(tool.toolType, _segment, tool.drawColor, tool.thickness, tool.fillOn, tool.fillColor, tool.transparencyOn);
+            var dobj:DrawAnnotation = _shapeFactory.createDrawObject(tool.toolType, _segment, tool.drawColor, tool.thickness, tool.fillOn, tool.fillColor, tool.transparencyOn);
             
             switch (status) {
                 case DrawObject.DRAW_START:
@@ -112,27 +113,7 @@ package org.bigbluebutton.modules.whiteboard.views
                 _segment.push(xy[0], xy[1]);
             }
            
-            var annotation:Object = new Object();
-            annotation["type"] = dobj.getType();
-            annotation["points"] = dobj.getShapeArray();
-            annotation["color"] = dobj.getColor();
-            annotation["thickness"] = dobj.getThickness();
-            annotation["id"] = dobj.getGraphicID();
-            annotation["status"] = dobj.status;
-            annotation["fill"] = dobj.getFill();
-            annotation["fillColor"] = dobj.getFillColor();
-            annotation["transparency"] = dobj.getTransparency();
-            
-            if (tool.toolType == DrawObject.RECTANGLE && _ctrlKeyDown) {
-                annotation["square"] = true;
-            }
-
-            if (tool.toolType == DrawObject.ELLIPSE && _ctrlKeyDown) {
-                annotation["circle"] = true;
-            }
-            
-            var msg:Annotation = new Annotation(dobj.getGraphicID(), dobj.getType(), annotation);
-            _wbCanvas.sendGraphicToServer(msg, WhiteboardDrawEvent.SEND_SHAPE);			
+            _wbCanvas.sendGraphicToServer(dobj.createAnnotation(), WhiteboardDrawEvent.SEND_SHAPE);			
         }
     }
 }

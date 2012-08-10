@@ -36,7 +36,6 @@
             import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
             import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
             import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-            import org.bigbluebutton.modules.whiteboard.business.shapes.SelectObject;
             import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
             import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
             import org.bigbluebutton.modules.whiteboard.events.PageEvent;
@@ -218,8 +217,8 @@
 					CursorManager.setCursor(eraser_icon);
 				} else if(toolType == TextObject.TEXT_TOOL) {
 					CursorManager.setCursor(text_icon);
-				} else if(toolType == SelectObject.SELECT_TOOL) {
-					CursorManager.setCursor(select_icon);
+//				} else if(toolType == SelectObject.SELECT_TOOL) {
+//					CursorManager.setCursor(select_icon);
 				} 
 			}
 			

@@ -31,9 +31,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @param trans the transparency of this Line
 		 */	
 
-		public function Line(segment:Array, color:uint, thickness:uint, trans:Boolean)
+		public function Line(id:String, type:String, status:String)
 		{
-			super(DrawObject.LINE, segment, color, thickness, false, 0x000000, false);
+			super(id, type, status);
 		}
 		
 		/**
@@ -41,8 +41,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * the server 
 		 * 
 		 */		
-		override protected function optimize():void{
-			var x1:Number = this.shape[0];
+		protected function optimize():void{
+/*			var x1:Number = this.shape[0];
 			var y1:Number = this.shape[1];
 			var x2:Number = this.shape[this.shape.length - 2];
 			var y2:Number = this.shape[this.shape.length - 1];
@@ -52,10 +52,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.shape.push(y1);
 			this.shape.push(x2);
 			this.shape.push(y2);
-		}
+*/		}
 			
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
-			this.graphics.lineStyle(getThickness(), getColor());
+/*			this.graphics.lineStyle(getThickness(), getColor());
 			var arrayEnd:Number = getShapeArray().length;
 			var startX:Number = denormalize(getShapeArray()[0], parentWidth);
 			var startY:Number = denormalize(getShapeArray()[1], parentHeight);
@@ -65,19 +65,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.x = startX;
 			this.y = startY;
 			this.graphics.lineTo(endX-startX, endY-startY);
-		}
+*/		}
 		
-		override public function getProperties():Array {
-			var props:Array = new Array();
-			props.push(this.type);
-			props.push(this.shape);
-			props.push(this.color);
-			props.push(this.thickness);
-			props.push(false);
-			props.push(false);
-			props.push(this.width);
-			props.push(this.height);
-			return props;
-		}
 	}
 }

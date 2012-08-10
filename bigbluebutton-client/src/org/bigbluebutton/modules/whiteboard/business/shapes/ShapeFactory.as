@@ -54,50 +54,47 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */		
 		public function makeShape(graphic:DrawObject):DrawObject{
-			if (graphic.getType() == DrawObject.PENCIL){
+/*			if (graphic.type == DrawObject.PENCIL){
 				return makePencil(graphic as Pencil);
-			} else if (graphic.getType() == DrawObject.RECTANGLE){
+			} else if (graphic.type == DrawObject.RECTANGLE){
 				return makeRectangle(graphic as Rectangle);
-			} else if (graphic.getType() == DrawObject.ELLIPSE){
+			} else if (graphic.type == DrawObject.ELLIPSE){
 				return makeEllipse(graphic as Ellipse);
-			} else if (graphic.getType() == DrawObject.TRIANGLE){
+			} else if (graphic.type == DrawObject.TRIANGLE){
 				return makeTriangle(graphic as Triangle);
-			} else if (graphic.getType() == DrawObject.LINE){
+			} else if (graphic.type == DrawObject.LINE){
 				return makeLine(graphic as Line);
-			} else if (graphic.getType() == DrawObject.HIGHLIGHTER){
-				return makeHighlighter(graphic as Highlighter);
-			} else if (graphic.getType() == DrawObject.ERASER){
-				return makeEraser(graphic as Eraser);
 			}
-
+*/
 			return null;
 		}
-		
-		public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, transparency:Boolean):DrawObject {
+
+        private function createAnnotation(type:String, shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawAnnotation{
+            if (type == DrawObject.PENCIL){
+                return new PencilDrawAnnotation(shape, color, thickness, trans);
+            } 
+            
+            return null;
+//            else if (type == DrawObject.RECTANGLE){
+//                d = makeRectangle(shape, color, thickness, fill, fillColor, trans);
+//            } else if (type == DrawObject.ELLIPSE){
+//                d = makeEllipse(shape, color, thickness, fill, fillColor, trans);
+//            }  else if (type == DrawObject.TRIANGLE){
+//               d = makeTriangle(shape, color, thickness, fill, fillColor, trans);
+//            } else if (type == DrawObject.LINE){
+//                d = makeLine(shape, color, thickness, trans);
+//            } 
+        }
+            
+		public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, transparency:Boolean):DrawAnnotation {
 			var normSegment:Array = new Array();
 			for (var i:int = 0; i < segment.length; i += 2) {
 				normSegment[i] = normalize(segment[i] , _parentWidth);
 				normSegment[i+1] = normalize(segment[i+1], _parentHeight);
 			}
-			return makeShape(drawFactory.makeDrawObject(type, normSegment, color, thickness, fill, fillColor, transparency));
+			return createAnnotation(type, normSegment, color, thickness, fill, fillColor, transparency);
 		}
-		
-		/**
-		 * Creates a shape from the specified parameters 
-		 * @param segment
-		 * @param type
-		 * @param color
-		 * @param thickness
-		 * @param fill
-		 * @param fillColor
-		 * @param trans
-		 * @return A Flash Shape object
-		 * 
-		 */		
-		public function makeFeedback(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawObject{
-			return makeShape(drawFactory.makeDrawObject(type, segment, color, thickness, fill, fillColor, trans));
-		}
-		
+				
         public function createTextObject(txt:String, txtColor:uint, bgColor:uint, bgColorVisible:Boolean, x:Number, y:Number, tbWidth:Number, tbHeight:Number, textSize:Number):TextObject {		           
             var tobj:TextObject = new TextObject(txt, txtColor, bgColor, bgColorVisible, normalize(x , _parentWidth), normalize(y, _parentHeight), 
                             normalize(tbWidth , _parentWidth), normalize(tbHeight , _parentWidth), textSize);
@@ -175,10 +172,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return a Shape
 		 * 
 		 */
-		private function makeHighlighter(e:Highlighter):DrawObject{
-			e.makeGraphic(_parentWidth, _parentHeight);
-			return e;
-		}
+//		private function makeHighlighter(e:Highlighter):DrawObject{
+//			e.makeGraphic(_parentWidth, _parentHeight);
+////			return e;
+//		}
 		
 		/**
 		 * Creates a Flash Shape from an Eraser DrawObject 
@@ -186,10 +183,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return a Shape
 		 * 
 		 */
-		private function makeEraser(e:Eraser):DrawObject{
-			e.makeGraphic(_parentWidth, _parentHeight);
-			return e;
-		}
+//		private function makeEraser(e:Eraser):DrawObject{
+//			e.makeGraphic(_parentWidth, _parentHeight);
+//			return e;
+//		}
 		
 		/**
 		 * Creates a Flash Shape from an Triangle DrawObject 
@@ -198,14 +195,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */
 		private function makeTriangle(e:Triangle):DrawObject{
-			e.makeGraphic(_parentWidth, _parentHeight);
+//			e.makeGraphic(_parentWidth, _parentHeight);
 			return e;
 		}
-
-        private function makeText(e:Text):DrawObject{
-            e.makeShape(_parentWidth, _parentHeight);
-            return e;
-        }
-
 	}
 }

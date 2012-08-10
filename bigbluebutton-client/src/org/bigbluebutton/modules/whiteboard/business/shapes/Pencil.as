@@ -19,6 +19,8 @@
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	import flash.display.Sprite;
+	
+	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 
 	/**
 	 * The Pencil class. Extends a DrawObject 
@@ -27,54 +29,36 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 */	
 	public class Pencil extends DrawObject
 	{
-		/**
-		 * the default constructor. Creates a Pencil DrawObject. 
-		 * @param segment the array representing the points needed to create this Pencil
-		 * @param color the Color of this Pencil
-		 * @param thickness the thickness of this Pencil
-		 * @param trans the transparency of this Pencil
-		 */		
-		public function Pencil(segment:Array, color:uint, thickness:uint, trans:Boolean)
+		public function Pencil(id:String, type:String, status:String)
 		{
-			super(DrawObject.PENCIL, segment, color, thickness, false, 0x000000, false);
+			super(id, type, status);
 		}
 		
-		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
-			this.graphics.lineStyle(getThickness(), getColor());
-			
-			var graphicsCommands:Vector.<int> = new Vector.<int>();
-			graphicsCommands.push(1);
-			var coordinates:Vector.<Number> = new Vector.<Number>();
-			coordinates.push(denormalize(getShapeArray()[0], parentWidth), denormalize(getShapeArray()[1], parentHeight));
-			
-			for (var i:int = 2; i < getShapeArray().length; i += 2){
-				graphicsCommands.push(2);
-				coordinates.push(denormalize(getShapeArray()[i], parentWidth), denormalize(getShapeArray()[i+1], parentHeight));
-			}
-			
-			this.graphics.drawPath(graphicsCommands, coordinates);
-			this.alpha = 1;
-		}
-		
-		override public function getProperties():Array {
-			var props:Array = new Array();
-			props.push(this.type);
-			props.push(this.shape);
-			props.push(this.color);
-			props.push(this.thickness);
-			props.push(false);
-			props.push(false);
-			props.push(this.width);
-			props.push(this.height);
-			return props;
-		}
-        
-        override public function toString():String {
-            var points:String = "";
-            for (var p:int = 0; p < _segment.length; p++) {
-                points += _segment[p] + ",";
+        override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+            var ao:Object = a.annotation;
+            
+            this.graphics.lineStyle(ao.thickness, ao.color);
+            
+            var graphicsCommands:Vector.<int> = new Vector.<int>();
+            graphicsCommands.push(1);
+            var coordinates:Vector.<Number> = new Vector.<Number>();
+            coordinates.push(denormalize((ao.points as Array)[0], parentWidth), denormalize((ao.points as Array)[1], parentHeight));
+            
+            for (var i:int = 2; i < (ao.points as Array).length; i += 2){
+                graphicsCommands.push(2);
+                coordinates.push(denormalize((ao.points as Array)[i], parentWidth), denormalize((ao.points as Array)[i+1], parentHeight));
             }
-            return "{type=" + type + ",points=" + points + "]}";
+            
+            this.graphics.drawPath(graphicsCommands, coordinates);
+            this.alpha = 1;
         }
+        
+        override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+            draw(a, parentWidth, parentHeight);
+        }
+        
+        /***** Temporary for sending ****/
+        
+        
 	}
 }

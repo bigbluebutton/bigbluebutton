@@ -19,8 +19,8 @@ package org.bigbluebutton.modules.whiteboard.services
 			sender.modifyEnabled(e);
 		}
 		
-		public function changePage(e:PageEvent):void{
-			sender.changePage(e);	
+		public function changePage(pageNum:Number):void{
+			sender.changePage(pageNum);	
 		}
 		
 		public function toggleGrid():void{

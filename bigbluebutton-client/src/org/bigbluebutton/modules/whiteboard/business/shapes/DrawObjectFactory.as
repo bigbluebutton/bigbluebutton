@@ -18,6 +18,9 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+    import org.bigbluebutton.common.LogUtil;
+    import org.bigbluebutton.modules.whiteboard.models.Annotation;
+
 	/**
 	 * The DrawObjectFactory class receives a series of parameters and constructs an appropriate 
 	 * concrete DrawObject given those parameters.
@@ -40,31 +43,51 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return the DrawObject created from the parameters
 		 * 
 		 */		
-		public function makeDrawObject(type:String, shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawObject{
-			var d:DrawObject = null;
-			if (type == DrawObject.PENCIL){
-				d = makePencil(shape, color, thickness, trans);
-			} else if (type == DrawObject.RECTANGLE){
-				d = makeRectangle(shape, color, thickness, fill, fillColor, trans);
-			} else if (type == DrawObject.ELLIPSE){
-				d = makeEllipse(shape, color, thickness, fill, fillColor, trans);
-			}  else if (type == DrawObject.TRIANGLE){
-				d = makeTriangle(shape, color, thickness, fill, fillColor, trans);
-			} else if (type == DrawObject.LINE){
-				d = makeLine(shape, color, thickness, trans);
-			} else if (type == DrawObject.HIGHLIGHTER){
-				d = makeHighlighter(shape, color, thickness, trans);
-			} else if (type == DrawObject.ERASER){
-				d = makeEraser(shape, color, thickness, trans);
-			} else if (type == DrawObject.TEXT){
-   //             d = makeText(shape, color, thickness);
-    //            d.getShapeArray().push(d.getShape().width);
-    //            d.getShapeArray().push(d.getShape().height);
+		public function makeDrawObject(a:Annotation):DrawObject{
+            if (a.type == DrawObject.PENCIL) {
+                LogUtil.debug("Creating SCRIBBLE Annotation");
+                return new Pencil(a.id, a.type, a.status);
+            } else if (a.type == DrawObject.RECTANGLE) {
+                LogUtil.debug("Creating RECTANGLE Annotation");
+                return new Rectangle(a.id, a.type, a.status);
+            } else if (a.type == DrawObject.ELLIPSE) {
+                LogUtil.debug("Creating ELLIPSE Annotation");
+                return new Ellipse(a.id, a.type, a.status);
+            } else if (a.type == DrawObject.TEXT) {
+                LogUtil.debug("Creating TEXT Annotation");	
+//                return new TextObject(a.id, a.type, a.status, whiteboardModel);
             }
-
-			return d;
+            
+            return null;
 		}
-		
+
+        public function createAnnotation(type:String, shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawObject{
+            var d:DrawObject = null;
+            if (type == DrawObject.PENCIL){
+   //             d = makePencil(shape, color, thickness, trans);
+            } else if (type == DrawObject.RECTANGLE){
+  //              d = makeRectangle(shape, color, thickness, fill, fillColor, trans);
+            } else if (type == DrawObject.ELLIPSE){
+  //              d = makeEllipse(shape, color, thickness, fill, fillColor, trans);
+            }  else if (type == DrawObject.TRIANGLE){
+   //             d = makeTriangle(shape, color, thickness, fill, fillColor, trans);
+            } else if (type == DrawObject.LINE){
+  //              d = makeLine(shape, color, thickness, trans);
+            } 
+            
+//            else if (type == DrawObject.HIGHLIGHTER){
+//                d = makeHighlighter(shape, color, thickness, trans);
+//            } else if (type == DrawObject.ERASER){
+//                d = makeEraser(shape, color, thickness, trans);
+//            } else if (type == DrawObject.TEXT){
+//                //             d = makeText(shape, color, thickness);
+//                //            d.getShapeArray().push(d.getShape().width);
+                //            d.getShapeArray().push(d.getShape().height);
+//            }
+            
+            return d;
+        }
+        
 		/**
 		 * A helper method for the makeDrawObject method which creates a Pencil DrawObject 
 		 * <p>
@@ -76,9 +99,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return the Pencil DrawObject created from the parameters
 		 * 
 		 */		
-		public function makePencil(shape:Array, color:uint, thickness:uint, trans:Boolean):DrawObject{
-			return new Pencil(shape, color, thickness, trans);
-		}
+//		public function makePencil(shape:Array, color:uint, thickness:uint, trans:Boolean):DrawObject{
+//			return new Pencil(shape, color, thickness, trans);
+//		}
 		
 		/**
 		 * A helper method for the makeDrawObject method which creates a Rectangle DrawObject
@@ -93,9 +116,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return the Rectangle DrawObject created from the parameters
 		 * 
 		 */		
-		public function makeRectangle(shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawObject{
-			return new Rectangle(shape, color, thickness, fill, fillColor, trans);
-		}
+//		public function makeRectangle(shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawObject{
+//			return new Rectangle(shape, color, thickness, fill, fillColor, trans);
+//		}
 		
 		/**
 		 * A helper method for the makeDrawObject method whitch creates an Ellipse DrawObject
@@ -110,9 +133,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return the Ellipse DrawObject created from the parameters
 		 * 
 		 */		
-		public function makeEllipse(shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint,trans:Boolean):DrawObject{
-			return new Ellipse(shape, color, thickness, fill, fillColor, trans);
-		}
+//		public function makeEllipse(shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint,trans:Boolean):DrawObject{
+///			return new Ellipse(shape, color, thickness, fill, fillColor, trans);
+//		}
 		
 		/**
 		 * A helper method for the makeDrawObject method whitch creates a Line DrawObject
@@ -126,9 +149,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */
 		
-		public function makeLine(shape:Array, color:uint, thickness:uint, trans:Boolean):DrawObject{
-			return new Line(shape, color, thickness, trans);
-		}
+//		public function makeLine(shape:Array, color:uint, thickness:uint, trans:Boolean):DrawObject{
+//			return new Line(shape, color, thickness, trans);
+//		}
 		
 		/**
 		 * A helper method for the makeDrawObject method whitch creates a Highlighter DrawObject
@@ -142,9 +165,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */
 		
-		public function makeHighlighter(shape:Array, color:uint, thickness:uint, trans:Boolean):DrawObject{
-			return new Highlighter(shape, color, thickness, trans);
-		}
+//		public function makeHighlighter(shape:Array, color:uint, thickness:uint, trans:Boolean):DrawObject{
+//			return new Highlighter(shape, color, thickness, trans);
+//		}
 
 		/**
 		 * A helper method for the makeDrawObject method whitch creates an Eraser DrawObject
@@ -158,9 +181,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */
 		
-		public function makeEraser(shape:Array, color:uint, thickness:uint, trans:Boolean):DrawObject{
-			return new Eraser(shape, color, thickness, trans);
-		}
+//		public function makeEraser(shape:Array, color:uint, thickness:uint, trans:Boolean):DrawObject{
+//			return new Eraser(shape, color, thickness, trans);
+//		}
 		
 		/**
 		 * A helper method for the makeDrawObject method whitch creates a Triangle DrawObject
@@ -176,9 +199,9 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * 
 		 */
 		
-		public function makeTriangle(shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawObject{
-			return new Triangle(shape, color, thickness, fill, fillColor, trans);
-		}
+//		public function makeTriangle(shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawObject{
+//			return new Triangle(shape, color, thickness, fill, fillColor, trans);
+//		}
 
  //       public function makeText(shape:Array, color:uint, thickness:uint):DrawObject{
  //           return new Text(shape, color, thickness);

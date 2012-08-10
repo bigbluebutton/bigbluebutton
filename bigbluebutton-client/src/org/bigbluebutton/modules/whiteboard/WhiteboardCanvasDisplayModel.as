@@ -31,7 +31,6 @@ package org.bigbluebutton.modules.whiteboard
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.Pencil;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.TextBox;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
@@ -66,18 +65,16 @@ package org.bigbluebutton.modules.whiteboard
 			var recvdShapes:Boolean = event.recvdShapes;
             LogUtil.debug("**** Drawing graphic [" + o.type + "] *****");
 			if(o.type != DrawObject.TEXT) {
-				var dobj:DrawObject = drawObjectFactory(o.annotation);
+				var dobj:DrawObject = drawObjectFactory(o);
 				drawShape(dobj, recvdShapes);					
 			} else { 
 				drawText(o, recvdShapes);	
 			}
 		}
 		       
-        private function drawObjectFactory(a:Object):DrawObject {
+        private function drawObjectFactory(a:Annotation):DrawObject {
             var drawFactory:DrawObjectFactory = new DrawObjectFactory();
-            var d:DrawObject = drawFactory.makeDrawObject(a.type, a.points, a.color, a.thickness, a.fill, a.fillColor, a.transparency);            
-            d.setGraphicID(a.id);
-            d.status = a.status;
+            var d:DrawObject = drawFactory.makeDrawObject(a);            
             return d;
         }
         
@@ -89,7 +86,7 @@ package org.bigbluebutton.modules.whiteboard
 					break;
 				case DrawObject.DRAW_UPDATE:
 				case DrawObject.DRAW_END:
-					if (graphicList.length == 0 || o.getType() == DrawObject.PENCIL || o.getType() == DrawObject.ERASER || recvdShapes) {
+					if (graphicList.length == 0 || o.type == DrawObject.PENCIL || o.type == DrawObject.ERASER || recvdShapes) {
 						addNewShape(o);
 					} else {
 						removeLastGraphic();		
@@ -101,7 +98,7 @@ package org.bigbluebutton.modules.whiteboard
 		
 		private function addNewShape(o:DrawObject):void {
 //			LogUtil.debug("Adding new shape [" + o.getType() + "," + o.getGraphicID() + "," + o.status + "]");
-            if (o.getType() == DrawObject.TEXT) return;
+            if (o.type == DrawObject.TEXT) return;
 
 			var dobj:DrawObject = shapeFactory.makeShape(o);
 //            LogUtil.debug("Adding new shape 1 [" + dobj.getType() + "," + dobj.getGraphicID() + "," + dobj.status + "]");
@@ -241,8 +238,8 @@ package org.bigbluebutton.modules.whiteboard
 		private function getGobjInfoWithID(id:String):Array {	
 			var data:Array = new Array();
 			for(var i:int = 0; i < graphicList.length; i++) {
-				var currObj:GraphicObject = graphicList[i] as GraphicObject;
-				if(currObj.getGraphicID() == id) {
+				var currObj:DrawObject = graphicList[i] as DrawObject;
+				if(currObj.id == id) {
 					data.push(i);
 					data.push(currObj);
 					return data;
@@ -252,8 +249,8 @@ package org.bigbluebutton.modules.whiteboard
 		}
 
 		private function removeLastGraphic():void {
-			var gobj:GraphicObject = graphicList.pop();
-			if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
+			var gobj:DrawObject = graphicList.pop();
+			if(gobj.type == WhiteboardConstants.TYPE_TEXT) {
 				(gobj as TextObject).makeEditable(false);
 				(gobj as TextObject).deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			}	
@@ -264,8 +261,8 @@ package org.bigbluebutton.modules.whiteboard
 		private function getAllShapes():Array {
 			var shapes:Array = new Array();
 			for(var i:int = 0; i < graphicList.length; i++) {
-				var currGobj:GraphicObject = graphicList[i];
-				if(currGobj.getGraphicType() == WhiteboardConstants.TYPE_SHAPE) {
+				var currGobj:DrawObject = graphicList[i];
+				if(currGobj.type == WhiteboardConstants.TYPE_SHAPE) {
 					shapes.push(currGobj as DrawObject);
 				}
 			}
@@ -276,8 +273,8 @@ package org.bigbluebutton.modules.whiteboard
 		private function getAllTexts():Array {
 			var texts:Array = new Array();
 			for(var i:int = 0; i < graphicList.length; i++) {
-				var currGobj:GraphicObject = graphicList[i];
-				if(currGobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
+				var currGobj:DrawObject = graphicList[i];
+				if(currGobj.type == WhiteboardConstants.TYPE_TEXT) {
 					texts.push(currGobj as TextObject)
 				}
 			}
@@ -306,7 +303,7 @@ package org.bigbluebutton.modules.whiteboard
                 var an:Annotation = annotations[i] as Annotation;
 //                LogUtil.debug("**** Drawing graphic from history [" + an.type + "] *****");
                 if(an.type != DrawObject.TEXT) {
-                    var dobj:DrawObject = drawObjectFactory(an.annotation);
+                    var dobj:DrawObject = drawObjectFactory(an);
                     drawShape(dobj, true);					
                 } else { 
                     drawText(an, true);	
@@ -326,7 +323,7 @@ package org.bigbluebutton.modules.whiteboard
                     var an:Annotation = annotations[i] as Annotation;
                     //               LogUtil.debug("**** Drawing graphic from changePage [" + an.type + "] *****");
                     if(an.type != "text") {
-                        var dobj:DrawObject = drawObjectFactory(an.annotation);
+                        var dobj:DrawObject = drawObjectFactory(an);
                         drawShape(dobj, true);					
                     } else { 
                         drawText(an, true);	
@@ -341,7 +338,7 @@ package org.bigbluebutton.modules.whiteboard
 			this.height = height;
 
 			for (var i:int = 0; i < this.graphicList.length; i++){
-				redrawGraphic(this.graphicList[i] as GraphicObject, i);
+				redrawGraphic(this.graphicList[i] as DrawObject, i);
 			}		
 		}
 				
@@ -366,17 +363,17 @@ package org.bigbluebutton.modules.whiteboard
 //			}
 		}
 	
-		private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {
-			if(gobj.getGraphicType() == WhiteboardConstants.TYPE_SHAPE) {
+		private function redrawGraphic(gobj:DrawObject, objIndex:int):void {
+			if(gobj.type == WhiteboardConstants.TYPE_SHAPE) {
 				var origDobj:DrawObject = gobj as DrawObject;
 				wbCanvas.removeGraphic(origDobj);
 				origDobj.graphics.clear();
 				var dobj:DrawObject =  shapeFactory.makeShape(origDobj);
-				dobj.setGraphicID(origDobj.getGraphicID());
-				dobj.status = origDobj.status;
+//				dobj.setGraphicID(origDobj.getGraphicID());
+//				dobj.status = origDobj.status;
 				wbCanvas.addGraphic(dobj);
 				graphicList[objIndex] = dobj;
-			} else if(gobj.getGraphicType() == WhiteboardConstants.TYPE_TEXT) {
+			} else if(gobj.type == WhiteboardConstants.TYPE_TEXT) {
                 var origTobj:TextObject = gobj as TextObject;                
                 var an:Annotation = whiteboardModel.getAnnotation(origTobj.getGraphicID());
                 if (an == null) {
@@ -389,7 +386,6 @@ package org.bigbluebutton.modules.whiteboard
                     tobj.multiline = true;
                     tobj.wordWrap = true;
                     tobj.background = false;
-//                    tobj.backgroundColor = 0xFF0000;
                     tobj.makeEditable(false);
                     tobj.background = false;
                     if (currentlySelectedTextObject != null) {

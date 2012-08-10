@@ -1,7 +1,8 @@
 package org.bigbluebutton.modules.whiteboard.services
 {
 	import flash.net.NetConnection;
-	import flash.net.Responder;	
+	import flash.net.Responder;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.ConnectionManager;
@@ -14,10 +15,10 @@ package org.bigbluebutton.modules.whiteboard.services
 
 	public class MessageSender
 	{	
-		public function changePage(e:PageEvent):void{
+		public function changePage(pageNum:Number):void{
 //			LogUtil.debug("Sending [whiteboard.setActivePage] to server.");
 			var message:Object = new Object();
-			message["pageNum"] = e.pageNum;
+			message["pageNum"] = pageNum;
 			
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.setActivePage", 

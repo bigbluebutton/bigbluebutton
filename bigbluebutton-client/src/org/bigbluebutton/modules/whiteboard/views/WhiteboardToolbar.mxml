@@ -68,7 +68,6 @@
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.SelectObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
@@ -213,12 +212,12 @@
            
             private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
                 var gobj:GraphicObject = event.data;
-                LogUtil.debug("!!!!SELECTED:" + " " + gobj.getProperties());
+                LogUtil.debug("!!!!SELECTED:" );
             }
             
             private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
                 var gobj:GraphicObject = event.data;
-                LogUtil.debug("!!!!DESELECTED:" + " " + gobj.getProperties());
+                LogUtil.debug("!!!!DESELECTED:" + " " );
             }
 			           
 		]]>

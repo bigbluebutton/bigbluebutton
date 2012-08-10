@@ -25,17 +25,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	
 	public class Triangle extends DrawObject
 	{
-		/**
-		 * The dafault constructor. Creates a Triangle DrawObject 
-		 * @param segment the array representing the points needed to create this Triangle
-		 * @param color the Color of this Triangle
-		 * @param thickness the thickness of this Triangle
-		 * @param trans the transparency of this Triangle
-		 */	
 		
-		public function Triangle(segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean)
+		public function Triangle(id:String, type:String, status:String)
 		{
-			super(DrawObject.TRIANGLE, segment, color, thickness, fill, fillColor, trans);
+            super(id, type, status);
 		}
 		
 		/**
@@ -43,8 +36,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * the server 
 		 * 
 		 */		
-		override protected function optimize():void{
-			var x1:Number = this.shape[0];
+		private function optimize():void{
+/*			var x1:Number = this.shape[0];
 			var y1:Number = this.shape[1];
 			var x2:Number = this.shape[this.shape.length - 2];
 			var y2:Number = this.shape[this.shape.length - 1];
@@ -54,10 +47,10 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.shape.push(y1);
 			this.shape.push(x2);
 			this.shape.push(y2);
-		}
+*/		}
 		
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
-			if(!fill)
+/*			if(!fill)
 				this.graphics.lineStyle(getThickness(), getColor(), getTransparencyLevel());
 			else this.graphics.lineStyle(getThickness(), getColor());
 			var arrayEnd:Number = getShapeArray().length;
@@ -71,20 +64,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.graphics.lineTo(startX+triangleWidth, startY+triangleHeight); 
 			this.graphics.lineTo(startX, triangleHeight+startY); 
 			this.graphics.lineTo(startX+triangleWidth/2, startY); 
-		}
+*/		}
 		
-		override public function getProperties():Array {
-			var props:Array = new Array();
-			props.push(this.type);
-			props.push(this.shape);
-			props.push(this.color);
-			props.push(this.thickness);
-			props.push(this.fill);
-			props.push(this.fillColor);
-			props.push(this.transparent);
-			props.push(this.width);
-			props.push(this.height);
-			return props;
-		}
 	}
 }
