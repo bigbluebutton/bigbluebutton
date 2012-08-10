@@ -572,8 +572,8 @@ module BigBlueButton
       BigBlueButton.concatenate_videos(webcams, concat_vid)
     end
 
-    # create mp4 video and mux audio
-    command = "ffmpeg -i #{target_dir}/audio.ogg -i #{concat_vid} -loglevel fatal -v -10 -vcodec libx264 -profile high -preset slow -b 1000k -threads 0  -map 1:0 -map 0:0 -ar 22050 #{target_dir}/webcams.mp4"
+    # create webm video and mux audio
+    command = "ffmpeg -i #{target_dir}/audio.ogg -i #{concat_vid} -loglevel fatal -v -10 -vcodec libvpx -profile high -preset slow -b 1000k -threads 0  -map 1:0 -map 0:0 -ar 22050 #{target_dir}/webcams.webm"
     BigBlueButton.execute(command)
   end
 
