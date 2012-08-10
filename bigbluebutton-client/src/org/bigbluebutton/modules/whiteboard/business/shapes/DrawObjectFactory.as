@@ -20,6 +20,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 {
     import org.bigbluebutton.common.LogUtil;
     import org.bigbluebutton.modules.whiteboard.models.Annotation;
+    import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
 	/**
 	 * The DrawObjectFactory class receives a series of parameters and constructs an appropriate 
@@ -43,7 +44,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		 * @return the DrawObject created from the parameters
 		 * 
 		 */		
-		public function makeDrawObject(a:Annotation):DrawObject{
+		public function makeDrawObject(a:Annotation, whiteboardModel:WhiteboardModel):DrawObject{
             if (a.type == DrawObject.PENCIL) {
                 LogUtil.debug("Creating SCRIBBLE Annotation");
                 return new Pencil(a.id, a.type, a.status);

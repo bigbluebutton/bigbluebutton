@@ -47,6 +47,14 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			_parentHeight = height;
 		}
 		
+        public function get parentWidth():Number {
+            return _parentWidth;
+        }
+        
+        public function get parentHeight():Number {
+            return _parentHeight;
+        }
+        
 		/**
 		 * Creates a Flash Shape, given a DrawObject representation of it 
 		 * @param shape
