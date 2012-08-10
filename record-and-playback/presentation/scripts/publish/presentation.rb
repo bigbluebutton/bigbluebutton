@@ -316,7 +316,7 @@ def processSlideEvents
 			slide_start = ((slide_timestamp.to_f - $meeting_start.to_f) / 1000).round(1)
 			slide_number = node.xpath(".//slide")[0].text()
 			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i + 1}.png"
-
+                        slide_text = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i + 1}.txt"
 			image_url = "#{$process_dir}/#{slide_src}"
 			slide_size = FastImage.size(image_url)
 			current_index = $slides_events.index(node)
@@ -330,7 +330,7 @@ def processSlideEvents
 			# Is this a new image or one previously viewed?
 			if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
 				# If it is, add it to the list with all the data.
-				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count]
+				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text]
 				$global_slide_count = $global_slide_count + 1
 			elsif
 				# If not, append new in and out times to the old entry
@@ -373,7 +373,7 @@ def processShapesAndClears
 			# Print out the gathered/detected images. 
 			$slides_compiled.each do |key, val|
 				$val = val
-				$xml.image(:id => "image#{$val[2].to_i}", :in => $val[0].join(' '), :out => $val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => :hidden)
+				$xml.image(:id => "image#{$val[2].to_i}", :in => $val[0].join(' '), :out => $val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => :hidden, :text => $val[3])
 				$canvas_number+=1
 				$xml.g(:class => :canvas, :id => "canvas#{$val[2].to_i}", :image => "image#{$val[2].to_i}", :display => :none) do
 					
@@ -492,7 +492,7 @@ def processChatMessages
 				chat_sender = node.xpath(".//sender")[0].text()
 				chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
 				chat_start = (chat_timestamp.to_i - $meeting_start.to_i) / 1000
-				$xml.timeline(:in => chat_start, :direction => :down,  :innerHTML => "<span><strong>#{chat_sender}:</strong> #{chat_message}</span>", :target => :chat )
+				$xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
 			end
 		}
 	end

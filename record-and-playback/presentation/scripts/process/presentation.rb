@@ -67,7 +67,8 @@ if not FileTest.directory?(target_dir)
     
     target_pres_dir = "#{processed_pres_dir}/#{pres}"
     FileUtils.mkdir_p target_pres_dir
-
+    FileUtils.mkdir_p "#{target_pres_dir}/textfiles"
+    
     images=Dir.glob("#{pres_dir}/#{pres}.{jpg,png,gif}")
     if images.empty?
          1.upto(num_pages) do |page|
@@ -76,6 +77,7 @@ if not FileTest.directory?(target_dir)
            #BigBlueButton::Presentation.convert_pdf_to_png(pdf_page, "#{target_pres_dir}/slide-#{page}.png")
            command = "convert -density 300x300 -resize 1600x1200 -quality 90 +dither -depth 8 -colors 256 #{pdf_page} #{target_pres_dir}/slide-#{page}.png"
            BigBlueButton.execute(command)
+           FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
          end
     else
         ext = File.extname("#{images[0]}")

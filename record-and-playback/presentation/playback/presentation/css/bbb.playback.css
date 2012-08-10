@@ -90,6 +90,19 @@ br{
 	height: 600px; /* same as slide images */
 }
 
+/* Visually hides text
+ * see: yaccessibilityblog.com/library/css-clip-hidden-content.html
+ */
+.visually-hidden {
+	position: absolute !important;
+	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+	clip: rect(1px, 1px, 1px, 1px);
+	padding: 0 !important;
+	border: 0 !important;
+	height: 1px !important;
+	width: 1px !important;
+	overflow: hidden;
+}
 
 .chatcontainer{
 	float: right;
@@ -102,8 +115,7 @@ br{
 	border: 1px solid #ccc;
 	height: 300px;
 }
-#chat div p{
-	margin-bottom:-10px;
+#chat div{
 	padding:0px;
 	font-size:13px;
 }
@@ -156,6 +168,7 @@ br{
 	text-align: center;
 	display: none;
 	padding: 2px 5px;
+	cursor: pointer;
 }
 
 #footer{
