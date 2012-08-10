@@ -186,7 +186,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		protected function readyToSend():Boolean {
 			return false;
 		}
-		
+        
 		public function makeGraphic(pW:Number, pH:Number):void {
 			return;	
 		}
@@ -194,9 +194,5 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public function getProperties():Array {
 			return null;
 		}
-        
- //       public function toString():String {
-//            return "[DrawObject] You should override this."
-//        }
 	}
 }

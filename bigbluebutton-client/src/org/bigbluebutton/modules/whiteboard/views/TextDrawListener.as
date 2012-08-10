@@ -26,6 +26,10 @@ package org.bigbluebutton.modules.whiteboard.views
             _shapeFactory = shapeFactory;
         }
         
+        public function ctrlKeyDown(down:Boolean):void {
+            // Ignore
+        }
+        
         public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
         {
             if(tool.graphicType == WhiteboardConstants.TYPE_TEXT) {

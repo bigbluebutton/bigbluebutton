@@ -81,7 +81,21 @@ package org.bigbluebutton.modules.whiteboard
 		public function changeFontSize(size:Number):void {
 			wbTool._fontSize = size;
 		}
-				
+        
+        public function onKeyDown(event:KeyboardEvent):void {
+            LogUtil.debug("CTRL-Key DOWN");
+            for (var ob:int = 0; ob < drawListeners.length; ob++) {
+                (drawListeners[ob] as IDrawListener).ctrlKeyDown(event.ctrlKey);
+            }
+        }        
+
+        public function onKeyUp(event:KeyboardEvent):void {
+            LogUtil.debug("CTRL-Key UP");
+            for (var ob:int = 0; ob < drawListeners.length; ob++) {
+                (drawListeners[ob] as IDrawListener).ctrlKeyDown(event.ctrlKey);
+            }
+        }
+        
 		public function doMouseUp(mouseX:Number, mouseY:Number):void {
 //            LogUtil.debug("CanvasModel doMouseUp ***");
             for (var ob:int = 0; ob < drawListeners.length; ob++) {

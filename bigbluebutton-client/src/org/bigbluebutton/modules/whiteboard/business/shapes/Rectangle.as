@@ -57,7 +57,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			this.shape.push(x2);
 			this.shape.push(y2);
 		}
-		
+        		
 		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
 			if(!fill)
 				this.graphics.lineStyle(getThickness(), getColor(), getTransparencyLevel());

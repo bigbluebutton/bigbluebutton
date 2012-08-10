@@ -17,6 +17,7 @@ package org.bigbluebutton.modules.whiteboard.views
         private var _wbCanvas:WhiteboardCanvas;
         private var _sendFrequency:int;
         private var _shapeFactory:ShapeFactory;
+        private var _ctrlKeyDown:Boolean = false;
         
         public function PencilDrawListener(wbCanvas:WhiteboardCanvas, sendShapeFrequency:int, shapeFactory:ShapeFactory)
         {
@@ -35,6 +36,11 @@ package org.bigbluebutton.modules.whiteboard.views
                 _segment.push(mouseY);
             } 
         }
+        
+        public function ctrlKeyDown(down:Boolean):void {
+            _ctrlKeyDown = down;
+        }
+        
         
         public function onMouseMove(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
         {
@@ -116,6 +122,14 @@ package org.bigbluebutton.modules.whiteboard.views
             annotation["fill"] = dobj.getFill();
             annotation["fillColor"] = dobj.getFillColor();
             annotation["transparency"] = dobj.getTransparency();
+            
+            if (tool.toolType == DrawObject.RECTANGLE && _ctrlKeyDown) {
+                annotation["square"] = true;
+            }
+
+            if (tool.toolType == DrawObject.ELLIPSE && _ctrlKeyDown) {
+                annotation["circle"] = true;
+            }
             
             var msg:Annotation = new Annotation(dobj.getGraphicID(), dobj.getType(), annotation);
             _wbCanvas.sendGraphicToServer(msg, WhiteboardDrawEvent.SEND_SHAPE);			
