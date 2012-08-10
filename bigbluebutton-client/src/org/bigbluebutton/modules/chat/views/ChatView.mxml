@@ -117,11 +117,10 @@
 			
 			// Descriptions for accessibilty properties
 			// private static const PUBLIC_TAB:String = "PUBLIC CHAT";
-			private static const PUBLIC_TAB:String = "JAWS is cumbersome";
-			private static const PUBLIC_TAB_NEW:String = "NEW MESSAGE IN PUBLIC CHAT";
-			private static const PRIVATE_TAB:String = "PRIVATE CHAT WITH ";
-			private static const PRIVATE_TAB_NEW:String = "NEW MESSAGE IN PRIVATE CHAT WITH ";
-			private static const PLUS_TAB:String = "CHAT OPTIONS TAB";
+			private static const PUBLIC_TAB_NEW:String = "NEW MESSAGE IN PUBLIC CHAT ";
+			// private static const PRIVATE_TAB:String = "PRIVATE CHAT WITH ";
+			private static const PRIVATE_TAB_NEW:String = "NEW MESSAGE IN PRIVATE CHAT WITH";
+			//private static const PLUS_TAB:String = "CHAT OPTIONS TAB";
             
 			private var publicWaiting:Boolean = false;
 			private var privateWaiting:ArrayCollection = new ArrayCollection();
@@ -246,25 +245,22 @@
 				return parsedString;
 			}
 			
-			private function parseURLs(message:String):String{
-				var indexOfHTTP:Number = message.indexOf("http://");
-				var indexOfWWW:Number = message.indexOf("www.");
-				var indexOfHTTPS:Number = message.indexOf("https://");
-					
-				if (indexOfHTTP == -1 && indexOfWWW == -1 && indexOfHTTPS == -1) return message;
-				
-				var words:Array = message.split(" ");
-				var parsedString:String = "";
-				
-				for (var n:Number = 0; n<words.length; n++){
-					var word:String = words[n] as String;
+				private function parseURLs(message:String):String{
+					var indexOfHTTP:Number = message.indexOf("http://");
+					var indexOfWWW:Number = message.indexOf("www.");
+					var indexOfHTTPS:Number = message.indexOf("https://");
+					if (indexOfHTTP == -1 && indexOfWWW == -1 && indexOfHTTPS == -1) return message;
+					var words:Array = message.split(" ");
+					var parsedString:String = "";
+					for (var n:Number = 0; n<words.length; n++){
+						var word:String = words[n] as String;
 					if (word.indexOf("http://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
-					else if (word.indexOf("www.") != -1) parsedString += '<a href="event:http://' + word + '"> <u>' + word + '</u></a> ';
-					else if (word.indexOf("https://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
-					else parsedString += word + ' ';
+						else if (word.indexOf("www.") != -1) parsedString += '<a href="event:http://' + word + '"> <u>' + word + '</u></a> ';
+						else if (word.indexOf("https://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
+						else parsedString += word + ' ';
+					}
+					return parsedString;
 				}
-				return parsedString;
-			}
 			
 			private function sendPublicChatMessage(message:String):void {
 				var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
@@ -383,11 +379,8 @@
 			private function createChatBoxFor(userid:String):ChatBox {				
 				var chatBox:ChatBox = new ChatBox();
 				chatBox.id = getParticipantName(userid);
-				LogUtil.debug("WATERFALL: chatBox.id = " + chatBox.id);
 				chatBox.label = getParticipantName(userid);
-				LogUtil.debug("WATERFALL: chatBox.label = " + chatBox.label);
 				chatBox.name = userid;
-				LogUtil.debug("WATERFALL: chatBox.name = " + chatBox.name);
 				
 				if (chatTabs.numChildren >= 2){ 
 					chatTabs.addChildAt(chatBox, chatTabs.numChildren - 1);
@@ -395,21 +388,6 @@
 				else{
 					chatTabs.addChild(chatBox);
 				}
-				//*
-				var childIndex:int;
-				childIndex = chatTabs.getChildIndex(chatBox);
-				LogUtil.debug("WATERFALL: ChatBox is at index " + childIndex);
-				if (childIndex == 0){
-					//chatTabs.getChildAt(childIndex).parent.accessibilityProperties.name = PUBLIC_TAB + "NAME";
-					this.accessibilityProperties.description = PUBLIC_TAB + "DESCRIPTION";
-				}
-				else if (childIndex == chatTabs.numChildren-1){
-					this.accessibilityProperties.description = PLUS_TAB;
-				}
-				else{}
-				
-				Accessibility.updateProperties();
-				//*/
 				return chatBox;
 			}
 			
@@ -427,10 +405,9 @@
 			
 			// Receive public chat messages
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-				LogUtil.debug("Got PublicChatMessageEvent from userid [ " + event.chatobj.userid + " ]");
+				//LogUtil.debug("Got PublicChatMessageEvent from userid [ " + event.chatobj.userid + " ]");
 				if(event.chatobj.userid != "")
 					event.chatobj.message = parseURLs(event.chatobj.message);
-				
 				showMessage(PUBLIC_CHAT_USERID, event.chatobj, autoTranslation);
 				if ((! UserManager.getInstance().getConference().amIThisUser(new Number(event.chatobj.userid))) && (event.chatobj.userid != "")){
 					if (Accessibility.active){
@@ -440,6 +417,7 @@
 						ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting2'));
 					}
 				}
+								
 				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT, event.chatobj.message));
 			}
 			
@@ -484,8 +462,7 @@
 						}
 					}
 					if (newItem){
-						// Add a private chat event (with all associated information) to the privateWaiting array,
-						// and a PrivateFocusTracker to the privateFocus array to track whether to play the sound
+						// Add a private chat event (with all associated information) to the privateWaiting array
 						privateWaiting.addItem(event);
 						chatTabs.getChildByName(event.message.chatobj.userid).addEventListener(FocusEvent.FOCUS_IN, privateChatFocus);
 						chatTabs.getChildByName(event.message.chatobj.userid).addEventListener(FocusEvent.FOCUS_OUT, privateChatUnfocus);
@@ -494,7 +471,6 @@
 			}
 			
 			public function publicChatFocus(event:FocusEvent):void{
-				//LogUtil.debug("WATERFALL: publicChatFocus active, removing publicWaiting");
 				publicFocus = true;
 				if (publicWaiting)
 					ExternalInterface.call("clearblink");
@@ -502,8 +478,6 @@
 			}
 			
 			public function privateChatFocus(event:FocusEvent):void{
-				//LogUtil.debug("WATERFALL: Event target is " + event.target);
-				//LogUtil.debug("WATERFALL: Event target name is " + event.target.name);
 				if (event.target.name == "chatMessagesList"){
 					var removed:Boolean = false;
 					
@@ -535,23 +509,38 @@
 			}
 			
 			// Listens to the notification timer, and checks if there are messages waiting
-			// The notifications kept repeating as I was still focused from the last message, and after I hit space. Try comparing latestMessage to currentMessage; maybe store a Boolean?
 			private function checkNotifications(event:TimerEvent):void{
 				var debugDate:Date = new Date();
+				var browserName:String;
+				var message:String = "";
 				if (publicWaiting && !publicFocus){
 					LogUtil.debug("The time is " + debugDate.getHours() + ":" + debugDate.getMinutes() + ":" + debugDate.getSeconds() + " and there are new public messages.");
-            		publicSound.play();
+            		//browserName = ExternalInterface.call("determineBrowser", PUBLIC_TAB_NEW);
+					//if (browserName == "Microsoft Internet Explorer")
+            		//	publicSound.play();
+					//else{
+            			//ExternalInterface.call("addAlert", PUBLIC_TAB_NEW);
+            			message += PUBLIC_TAB_NEW; 
+					//}
 				}
 				
-				// Clearing public notes works, but for some reason private chat tabs are not appearing
-				// The tab appears on the second message you send
 				if (privateWaiting.length && !privateFocus){
-					privateSound.play();
-					/*LogUtil.debug("The time is " + debugDate.getHours() + ":" + debugDate.getMinutes() + ":" + debugDate.getSeconds() + " and there are new private messages from: ");
-					for (var i:int = 0; i < privateWaiting.length; i++){
-						LogUtil.debug(privateWaiting.getItemAt(i).message.chatobj.username);
-					}*/
+					browserName = ExternalInterface.call("determineBrowser", PUBLIC_TAB_NEW);
+					//if (browserName == "Microsoft Internet Explorer"){
+					//	privateSound.play();
+					//}
+					//else {
+						var names:String = "";
+						for (var i:int = 0; i < privateWaiting.length; i++){
+							names += " " + privateWaiting.getItemAt(i).message.chatobj.username;
+							if (i < privateWaiting.length - 1)
+								names += ",";
+						}
+						//ExternalInterface.call("addAlert", PRIVATE_TAB_NEW + names);
+						message += PRIVATE_TAB_NEW + names;
+					//}
 				}
+				ExternalInterface.call("addAlert", message);				
 			}
 			
 			// Returns an array of userIDs. The userIDs refer to users who have sent this user private messages which have not been read.
@@ -568,86 +557,25 @@
 			// This is slightly mis-named; it removes the notification of this sender sending a private message for notification purposes
 			private function removePrivateSender(senderID:String):Boolean{
 				var success:Boolean = false;
-				//LogUtil.debug("WATERFALL: Trying to remove sender " + senderID);
 				if (privateWaiting.length){
 					for (var i:int = 0; i < privateWaiting.length; i++){
 						if (senderID == privateWaiting.getItemAt(i).message.chatobj.userid){
 							privateWaiting.removeItemAt(i);
 							success = true;
 							i = privateWaiting.length;
-							//LogUtil.debug("WATERFALL: Removed sender " + senderID);
 						}
 					}
 				}
 				return success;
 			}
-			
-			/*
-				// Descriptions for accessibilty properties
-					private static const PUBLIC_TAB:String = "PUBLIC CHAT";
-					private static const PUBLIC_TAB_NEW:String = "NEW MESSAGE IN PUBLIC CHAT";
-					private static const PRIVATE_TAB:String = "PRIVATE CHAT WITH ";
-					private static const PRIVATE_TAB_NEW:String = "NEW MESSAGE IN PRIVATE CHAT WITH ";
-					private static const PLUS_TAB:String = "CHAT OPTIONS TAB";
-			*/
-			
-			
-			// All uses of updateTabNames temporarily disabled, as it is not working for mysterious reasons
-			// It's intended use is to let a screen reader tell the user if there are new messages in the currently focused tab or not
-			private function updateTabNames():void{
-				LogUtil.debug("Entering updateTabNames");
-				if (chatTabs.selectedIndex == 0){ // Public Chat tab
-					LogUtil.debug("Entering public tab logic");
-					if (publicWaiting){
-						LogUtil.debug("Entering public waiting logic");
-						this.accessibilityProperties.description = PUBLIC_TAB_NEW; 
-					}
-					else{
-						LogUtil.debug("Entering public no-waiting logic");
-						this.accessibilityProperties.description = PUBLIC_TAB;
-					}
-					LogUtil.debug("Leaving public logic");
-				}
-				else if (chatTabs.selectedIndex == chatTabs.numChildren - 1){ // Options tab
-					LogUtil.debug("Entering options logic");
-					this.accessibilityProperties.description = PLUS_TAB;
-					LogUtil.debug("Leaving options logic");
-				}
-				else{ // Any Private Chat tab
-					LogUtil.debug("Entering private logic");
-					var otherUserID:String = chatTabs.getChildAt(chatTabs.selectedIndex).name;
-					var otherUserName:String = UserManager.getInstance().getConference().getParticipant(int(otherUserID)).name;
-					LogUtil.debug("WATERFALL: Just to be sure, user ID " + otherUserID + " has the name " + otherUserName);
-					if (getPrivateSenders().contains(otherUserID)){ // New messages
-						LogUtil.debug("Entering private new-message logic");
-						this.accessibilityProperties.description = PRIVATE_TAB_NEW + otherUserName;
-						LogUtil.debug("Leaving private new-message logic");
-					}
-					else{ // No new messages
-						LogUtil.debug("Entering private no-new-message logic");
-						this.accessibilityProperties.description = PRIVATE_TAB + otherUserName;
-						LogUtil.debug("Leaving private no-new-message logic");
-					}
-					LogUtil.debug("Leaving private logic");
-				}
-				Accessibility.updateProperties();
-				//focusManager.setFocus(this);
-				LogUtil.debug("WATERFALL: Description is now: "+ this.accessibilityProperties.description);
-				LogUtil.debug("Leaving updateTableNames");
-			}
-			
-			// About to change description again
-			// From (chatTabs.selectedIndex).accessibilityProperties.description
-			// To this.accessibilityProperties.description
-			
+						
 			private function focusPreviousChatTab(e:ShortcutEvent):void{
 				if (chatTabs.selectedIndex > 0){
 					chatTabs.selectedIndex--;
 				}
 				else{
 					chatTabs.selectedIndex = chatTabs.numChildren - 1;
-				}
-				//updateTabNames();				
+				}				
 			}
 			
 			private function focusNextChatTab(e:ShortcutEvent):void{
@@ -657,7 +585,6 @@
 				else{
 					chatTabs.selectedIndex = 0;
 				}
-				//updateTabNames();
 			}
 			
 			private function participantHasChatBox(id:String):Boolean {
@@ -670,7 +597,6 @@
 				return chatTabs.getChildByName(id) as ChatBox;
 			}
             
-			/* it should receive the ChatObject */
 			private function showMessage(sender:String, chatobj:ChatObject, translate:Boolean):void{
 				var chatBox:ChatBox;
 				if (! participantHasChatBox(sender)) {

@@ -19,7 +19,6 @@
  
   $Id: $
 -->
-
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:views="org.bigbluebutton.main.views.*"
 	xmlns:maps="org.bigbluebutton.main.maps.*"

@@ -27,3 +27,25 @@ var clearblink = function()
         document.title = 'BigBlueButton';
 }
 
+var i = 1;
+function addAlert(message){
+	var target = document.getElementById( 'notifications' ),
+    contentDiv = document.createElement( "div" );	
+	contentDiv.id = "alertDiv" + i;
+	i++;
+	//contentDiv.innerHTML = "<p>" + message + "</p>";
+	contentDiv.innerHTML = message;
+	contentDiv.style.display = "block";
+	target.appendChild( contentDiv );
+	target.hide();
+	target.setAttribute("role","alert");
+	target.show();
+	contentDiv.hide();
+	contentDiv.setAttribute("role","alert");
+	contentDiv.show();
+}
+
+function determineBrowser()
+{
+    return navigator.appName;
+}
