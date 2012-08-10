@@ -510,37 +510,49 @@
 			
 			// Listens to the notification timer, and checks if there are messages waiting
 			private function checkNotifications(event:TimerEvent):void{
-				var debugDate:Date = new Date();
-				var browserName:String;
-				var message:String = "";
-				if (publicWaiting && !publicFocus){
-					LogUtil.debug("The time is " + debugDate.getHours() + ":" + debugDate.getMinutes() + ":" + debugDate.getSeconds() + " and there are new public messages.");
-            		//browserName = ExternalInterface.call("determineBrowser", PUBLIC_TAB_NEW);
-					//if (browserName == "Microsoft Internet Explorer")
-            		//	publicSound.play();
-					//else{
-            			//ExternalInterface.call("addAlert", PUBLIC_TAB_NEW);
-            			message += PUBLIC_TAB_NEW; 
-					//}
-				}
-				
-				if (privateWaiting.length && !privateFocus){
-					browserName = ExternalInterface.call("determineBrowser", PUBLIC_TAB_NEW);
-					//if (browserName == "Microsoft Internet Explorer"){
-					//	privateSound.play();
-					//}
-					//else {
-						var names:String = "";
-						for (var i:int = 0; i < privateWaiting.length; i++){
-							names += " " + privateWaiting.getItemAt(i).message.chatobj.username;
-							if (i < privateWaiting.length - 1)
-								names += ",";
+				if (Accessibility.active){
+					var debugDate:Date = new Date();
+					var message:String = "";
+					var playSoundClip:Boolean = useSoundClip();
+					if (publicWaiting && !publicFocus){
+						LogUtil.debug("The time is " + debugDate.getHours() + ":" + debugDate.getMinutes() + ":" + debugDate.getSeconds() + " and there are new public messages.");
+						if (playSoundClip)
+	            			publicSound.play();
+						else{
+	            			message += PUBLIC_TAB_NEW; 
 						}
-						//ExternalInterface.call("addAlert", PRIVATE_TAB_NEW + names);
-						message += PRIVATE_TAB_NEW + names;
-					//}
+					}
+					
+					if (privateWaiting.length && !privateFocus){
+						if (playSoundClip){
+							privateSound.play();
+						}
+						else {
+							var names:String = "";
+							for (var i:int = 0; i < privateWaiting.length; i++){
+								names += " " + privateWaiting.getItemAt(i).message.chatobj.username;
+								if (i < privateWaiting.length - 1)
+									names += ",";
+							}
+							message += PRIVATE_TAB_NEW + names;
+						}
+					}
+					if (playSoundClip == false){
+						ExternalInterface.call("addAlert", message);
+					}				
 				}
-				ExternalInterface.call("addAlert", message);				
+			}
+			
+			// Determine whether audio chat message notificiations are to be handled by the screen reader or by an audio sound clip
+			private function useSoundClip():Boolean{
+				var rvalue:Boolean = false;
+				var browserName:String = ExternalInterface.call("determineBrowser");
+				if (browserName == "Chrome" || browserName == "Opera"){
+					// If the user is in a non-compliant browser, the ARIA alerts will not be picked up by the screen reader, and thus we need to use the sound clip
+					rvalue = true;
+				}		
+				LogUtil.debug("Browser name is " + browserName + " and we will return " + rvalue);
+				return rvalue;
 			}
 			
 			// Returns an array of userIDs. The userIDs refer to users who have sent this user private messages which have not been read.

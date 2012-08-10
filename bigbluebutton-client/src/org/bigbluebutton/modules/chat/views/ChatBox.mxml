@@ -62,6 +62,7 @@
 			private var reachedLatest:String = "You have reached the latest message. ";
 			private var reachedFirst:String = "You have reached the first message. ";
 			private var navLatestString:String = "You have navigated to the latest message. ";
+			private var navRecentString:String = "You have navigated to the most recent message you have read. ";
 			private var navFirstString:String = "You have navigated to the first message. ";
 			
 			public var focus:Boolean = false;
@@ -334,6 +335,18 @@
 					}
 					
 					LogUtil.debug("Chat Module audio: " + chatMessagesList.accessibilityProperties.description);
+					Accessibility.updateProperties();
+				}
+				else if (e.ctrlKey && e.shiftKey && e.keyCode == 114){ // Ctrl-Shift-R: Go to latest read message
+					chatMessagesList.accessibilityProperties.description = navRecentString;
+					if (currentMessage == latestMessage){
+						// You were already at latestMessage, so just repeat it
+						chatMessagesList.accessibilityProperties.description += " ";
+					}
+					else{
+						currentMessage = latestMessage;
+						chatMessagesList.accessibilityProperties.description += messages[currentMessage].toString();
+					}
 					Accessibility.updateProperties();
 				}
 			}
