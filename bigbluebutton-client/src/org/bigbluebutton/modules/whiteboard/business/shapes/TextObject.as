@@ -75,7 +75,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         private var _origParentHeight:Number = 0;
         public var fontStyle:String = "arial";
         
-		public function TextObject(text:String, textColor:uint, bgColor:uint, bgColorVisible:Boolean, x:Number, y:Number, boxWidth:Number, boxHeight:Number, textSize:Number) {
+		public function TextObject(text:String, textColor:uint, x:Number, y:Number, boxWidth:Number, boxHeight:Number, textSize:Number) {
 			this.text = text;
 			this.textColor = textColor;
 //			this.backgroundColor = bgColor;
