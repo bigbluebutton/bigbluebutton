@@ -24,7 +24,8 @@
 	       xmlns:mx="http://www.adobe.com/2006/mxml" 
 	       showCloseButton="true"
 	       creationComplete="onCreationComplete()"
-		   xmlns:mate="http://mate.asfusion.com/" >
+		   xmlns:mate="http://mate.asfusion.com/" 
+		   title="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.title')}">
 		   
 	<mx:Script>
 		<![CDATA[
@@ -44,18 +45,19 @@
 			private var disp:Dispatcher;
 			
 			private function onCreationComplete():void {
-				LogUtil.debug("WATERFALL: Shortcut window has been opened");				
+				LogUtil.debug("WATERFALL: Shortcut window has been opened");			
+				
 			}
 		]]>
 	</mx:Script>
 	
 	<mx:ComboBox labelField="Please select an area for which to view shortcut keys: " editable="false">
 		<mx:ArrayCollection>
-        	<mx:String>All shortcuts</mx:String>
-        	<mx:String>General shortcuts</mx:String>
-         	<mx:String>Presentation shortcuts</mx:String>
-         	<mx:String>Chat shortcuts</mx:String>
-         	<mx:String>Audio shortcuts</mx:String>
+        	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.all")}</mx:String>
+        	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general")}</mx:String>
+         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.presentation")}</mx:String>
+         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.chat")}</mx:String>
+         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.audio")}</mx:String>
       	</mx:ArrayCollection>
 	</mx:ComboBox>
 	
