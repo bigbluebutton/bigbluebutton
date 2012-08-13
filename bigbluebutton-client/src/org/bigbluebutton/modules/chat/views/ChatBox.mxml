@@ -40,6 +40,7 @@
 			import org.bigbluebutton.modules.chat.model.ChatMessage;
 			import org.bigbluebutton.modules.chat.model.ChatObject;
 			import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			public static const COPY_ALL_BUTTON:String = "Copy All Text";
 			

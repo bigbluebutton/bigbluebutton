@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+	       xmlns:mx="http://www.adobe.com/2006/mxml" 
+	       showCloseButton="true"
+	       creationComplete="onCreationComplete()"
+		   xmlns:mate="http://mate.asfusion.com/" >
+		   
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;			
+			import flexlib.mdi.events.MDIWindowEvent;			
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.core.FlexGlobals;
+			import mx.resources.ResourceBundle;
+			import mx.resources.ResourceManager;			
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.common.LogUtil;
+			
+			private var disp:Dispatcher;
+			
+			private function onCreationComplete():void {
+				LogUtil.debug("WATERFALL: Shortcut window has been opened");				
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:ComboBox labelField="Please select an area for which to view shortcut keys: " editable="false">
+		<mx:ArrayCollection>
+        	<mx:String>All shortcuts</mx:String>
+        	<mx:String>General shortcuts</mx:String>
+         	<mx:String>Presentation shortcuts</mx:String>
+         	<mx:String>Chat shortcuts</mx:String>
+         	<mx:String>Audio shortcuts</mx:String>
+      	</mx:ArrayCollection>
+	</mx:ComboBox>
+	
+</MDIWindow>
