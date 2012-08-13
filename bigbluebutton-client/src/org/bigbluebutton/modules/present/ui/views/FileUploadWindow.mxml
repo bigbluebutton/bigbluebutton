@@ -166,7 +166,7 @@
 					// Get the first match which should be the filename without the extension.
 					presentationName = presentationName.replace(filenamePattern, "$1")
 					// Replace any character other than a word character (A-Z, a-z, 0-9, or _).
-					presentationName = presentationName.replace(/[^0-9a-zA-Z_\.]/g, "-");
+					// presentationName = presentationName.replace(/[^0-9a-zA-Z_\.]/g, "-");
 					LogUtil.debug("Uploadling presentation name: " + presentationName);
 					
 					var uploadEvent:UploadEvent = new UploadEvent(UploadEvent.START_UPLOAD);
