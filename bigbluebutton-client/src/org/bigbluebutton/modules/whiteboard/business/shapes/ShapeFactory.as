@@ -18,10 +18,10 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.Shape;
-	
+	import flash.display.Shape;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
+	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 	
 	/**
 	 * The ShapeFactory receives DrawObjects and converts them to Flash Shapes which can then be displayed
@@ -33,13 +33,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 */	
 	public class ShapeFactory extends GraphicFactory
 	{
-		private var drawFactory:DrawObjectFactory;
 		private var _parentWidth:Number = 0;
 		private var _parentHeight:Number = 0;
 		
 		public function ShapeFactory() {
 			super(GraphicFactory.SHAPE_FACTORY);
-			drawFactory = new DrawObjectFactory();
 		}
 		
 		public function setParentDim(width:Number, height:Number):void {
@@ -53,6 +51,27 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         
         public function get parentHeight():Number {
             return _parentHeight;
+        }
+        
+        public function makeDrawObject(a:Annotation, whiteboardModel:WhiteboardModel):DrawObject{
+            if (a.type == DrawObject.PENCIL) {
+                LogUtil.debug("Creating SCRIBBLE Annotation");
+                return new Pencil(a.id, a.type, a.status);
+            } else if (a.type == DrawObject.RECTANGLE) {
+                LogUtil.debug("Creating RECTANGLE Annotation");
+                return new Rectangle(a.id, a.type, a.status);
+            } else if (a.type == DrawObject.ELLIPSE) {
+                LogUtil.debug("Creating ELLIPSE Annotation");
+                return new Ellipse(a.id, a.type, a.status);
+            }  else if (a.type == DrawObject.LINE) {
+                LogUtil.debug("Creating LINE Annotation");
+                return new Line(a.id, a.type, a.status);
+            }  else if (a.type == DrawObject.TRIANGLE) {
+                LogUtil.debug("Creating TRIANGLE Annotation");
+                return new Triangle(a.id, a.type, a.status);
+            }
+            
+            return null;
         }
         
         private function createAnnotation(type:String, shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawAnnotation{
@@ -89,20 +108,20 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         
         /* convenience method for above method, takes a TextObject and returns one with "normalized" coordinates */
         public function makeTextObject(t:Annotation):TextObject {
-            LogUtil.debug("***Making textObject [" + t.type + ", [" + t.annotation.x + "," + t.annotation.y + "]");
+//            LogUtil.debug("***Making textObject [" + t.type + ", [" + t.annotation.x + "," + t.annotation.y + "]");
             var tobj:TextObject = new TextObject(t.annotation.text, t.annotation.fontColor, 
                                         t.annotation.x, t.annotation.y, t.annotation.textBoxWidth, t.annotation.textBoxHeight, t.annotation.fontSize);
             tobj.makeGraphic(_parentWidth,_parentHeight);
-            LogUtil.debug("***Made textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
+//            LogUtil.debug("***Made textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
            return tobj;
         }
         
         public function redrawTextObject(a:Annotation, t:TextObject):TextObject {
-            LogUtil.debug("***Redraw textObject [" + a.type + ", [" + a.annotation.x + "," + a.annotation.y + "]");
+//            LogUtil.debug("***Redraw textObject [" + a.type + ", [" + a.annotation.x + "," + a.annotation.y + "]");
             var tobj:TextObject = new TextObject(a.annotation.text, a.annotation.fontColor, 
                         a.annotation.x, a.annotation.y, a.annotation.textBoxWidth, a.annotation.textBoxHeight, a.annotation.fontSize);
             tobj.redrawText(t.oldParentWidth, t.oldParentHeight, _parentWidth,_parentHeight);
-            LogUtil.debug("***Redraw textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
+//            LogUtil.debug("***Redraw textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
             return tobj;
         }        
 	}

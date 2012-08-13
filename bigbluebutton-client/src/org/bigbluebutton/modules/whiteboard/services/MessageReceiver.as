@@ -4,7 +4,6 @@ package org.bigbluebutton.modules.whiteboard.services
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.main.model.users.IMessageListener;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
@@ -14,10 +13,7 @@ package org.bigbluebutton.modules.whiteboard.services
         /* Injected by Mate */
 		public var whiteboardModel:WhiteboardModel;
 		
-        private var drawFactory:DrawObjectFactory;
-
 		public function MessageReceiver() {
-			drawFactory = new DrawObjectFactory();
 			BBB.initConnectionManager().addMessageListener(this);
 		}
 		

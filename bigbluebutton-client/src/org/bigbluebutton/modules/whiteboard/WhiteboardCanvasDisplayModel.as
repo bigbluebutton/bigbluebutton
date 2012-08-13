@@ -24,14 +24,12 @@ package org.bigbluebutton.modules.whiteboard
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawGrid;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.Pencil;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextDrawAnnotation;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextDrawObject;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.TextFactory;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 	import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
@@ -52,7 +50,6 @@ package org.bigbluebutton.modules.whiteboard
 		public var wbCanvas:WhiteboardCanvas;	
         private var _annotationsList:Array = new Array();
 		private var shapeFactory:ShapeFactory = new ShapeFactory();
-        private var drawFactory:DrawObjectFactory = new DrawObjectFactory();
         private var currentlySelectedTextObject:TextObject;
         
 		private var bbbCanvas:IBbbCanvas;
@@ -66,7 +63,7 @@ package org.bigbluebutton.modules.whiteboard
                 var dobj:DrawObject;
                 switch (o.status) {
                     case DrawObject.DRAW_START:
-                        dobj = drawFactory.makeDrawObject(o, whiteboardModel);	
+                        dobj = shapeFactory.makeDrawObject(o, whiteboardModel);	
                         if (dobj != null) {
                             dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
                             wbCanvas.addGraphic(dobj);
@@ -77,7 +74,7 @@ package org.bigbluebutton.modules.whiteboard
                     case DrawObject.DRAW_END:
                         var gobj:DrawObject = _annotationsList.pop();	
                         wbCanvas.removeGraphic(gobj as DisplayObject);			
-                        dobj = drawFactory.makeDrawObject(o, whiteboardModel);	
+                        dobj = shapeFactory.makeDrawObject(o, whiteboardModel);	
                         if (dobj != null) {
                             dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
                             wbCanvas.addGraphic(dobj);
@@ -95,7 +92,7 @@ package org.bigbluebutton.modules.whiteboard
             var dobj:TextDrawObject;
             switch (o.status) {
                 case TextObject.TEXT_CREATED:
-                    dobj = drawFactory.makeDrawObject(o, whiteboardModel) as TextDrawObject;	
+                    dobj = shapeFactory.makeDrawObject(o, whiteboardModel) as TextDrawObject;	
                     if (dobj != null) {
                         dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
                         if (isPresenter) {
@@ -112,7 +109,7 @@ package org.bigbluebutton.modules.whiteboard
                 case TextObject.TEXT_UPDATED:
                     var gobj1:DrawObject = _annotationsList.pop();	
                     wbCanvas.removeGraphic(gobj1 as DisplayObject);
-                    dobj = drawFactory.makeDrawObject(o, whiteboardModel) as TextDrawObject;	
+                    dobj = shapeFactory.makeDrawObject(o, whiteboardModel) as TextDrawObject;	
                     if (dobj != null) {
                         dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
                         if (isPresenter) {
@@ -128,7 +125,7 @@ package org.bigbluebutton.modules.whiteboard
                 case TextObject.TEXT_PUBLISHED:
                     var gobj:DrawObject = _annotationsList.pop();	
                     wbCanvas.removeGraphic(gobj as DisplayObject);			
-                    dobj = drawFactory.makeDrawObject(o, whiteboardModel) as TextDrawObject;	
+                    dobj = shapeFactory.makeDrawObject(o, whiteboardModel) as TextDrawObject;	
                     if (dobj != null) {
                         dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
                         dobj.displayNormally();
@@ -307,7 +304,7 @@ package org.bigbluebutton.modules.whiteboard
                 var an:Annotation = annotations[i] as Annotation;
 //                LogUtil.debug("**** Drawing graphic from history [" + an.type + "] *****");
                 if(an.type != DrawObject.TEXT) {
-                    var dobj:DrawObject = drawFactory.makeDrawObject(an, whiteboardModel);	
+                    var dobj:DrawObject = shapeFactory.makeDrawObject(an, whiteboardModel);	
                     if (dobj != null) {
                         dobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight);
                         wbCanvas.addGraphic(dobj);
@@ -332,7 +329,7 @@ package org.bigbluebutton.modules.whiteboard
                     var an:Annotation = annotations[i] as Annotation;
                     // LogUtil.debug("**** Drawing graphic from changePage [" + an.type + "] *****");
                     if(an.type != DrawObject.TEXT) {
-                        var dobj:DrawObject = drawFactory.makeDrawObject(an, whiteboardModel);	
+                        var dobj:DrawObject = shapeFactory.makeDrawObject(an, whiteboardModel);	
                         if (dobj != null) {
                             dobj.draw(an, shapeFactory.parentWidth, shapeFactory.parentHeight);
                             wbCanvas.addGraphic(dobj);
@@ -383,7 +380,7 @@ package org.bigbluebutton.modules.whiteboard
                 o = whiteboardModel.getAnnotation(gobj.id);
                 
                 if (o != null) {
-                    var dobj:DrawObject = drawFactory.makeDrawObject(o, whiteboardModel);	
+                    var dobj:DrawObject = shapeFactory.makeDrawObject(o, whiteboardModel);	
                     if (dobj != null) {
                         dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
                         wbCanvas.addGraphic(dobj);
@@ -404,14 +401,7 @@ package org.bigbluebutton.modules.whiteboard
 					tobj.wordWrap = true;
 					tobj.background = false;
 					tobj.makeEditable(false);
-					tobj.background = false;
-//					if (currentlySelectedTextObject != null) {
-//						currentlySelectedTextObject = tobj;
-//						var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
-//						e.data = tobj;
-//						wbCanvas.dispatchEvent(e);                        
-//					} 
-					
+					tobj.background = false;					
 					wbCanvas.addGraphic(tobj);
                     _annotationsList[objIndex] = tobj;
                 }            
@@ -478,12 +468,12 @@ package org.bigbluebutton.modules.whiteboard
 		to be re-sent to the red5 server with the modified attributes.
 		*/
 		public function modifySelectedTextObject(textColor:uint, bgColorVisible:Boolean, backgroundColor:uint, textSize:Number):void {
-			LogUtil.debug("modifySelectedTextObject = " + textSize);
+//			LogUtil.debug("modifySelectedTextObject = " + textSize);
 			currentlySelectedTextObject.textColor = textColor;
 			currentlySelectedTextObject.background = bgColorVisible;
 			currentlySelectedTextObject.backgroundColor = backgroundColor;
 			currentlySelectedTextObject.textSize = textSize;
-			LogUtil.debug("modifySelectedTextObject = " + currentlySelectedTextObject.textSize);
+//			LogUtil.debug("modifySelectedTextObject = " + currentlySelectedTextObject.textSize);
 			currentlySelectedTextObject.applyFormatting();
 			sendTextToServer(TextObject.TEXT_PUBLISHED, currentlySelectedTextObject);
 		}
@@ -501,7 +491,7 @@ package org.bigbluebutton.modules.whiteboard
 					break;
 			}	
 			
-			LogUtil.debug("SENDING TEXT: [" + tobj.textSize + "]");
+//			LogUtil.debug("SENDING TEXT: [" + tobj.textSize + "]");
 			
 			var annotation:Object = new Object();
 			annotation["type"] = "text";
