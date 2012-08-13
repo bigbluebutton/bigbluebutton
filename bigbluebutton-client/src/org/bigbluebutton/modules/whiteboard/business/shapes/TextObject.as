@@ -148,7 +148,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             this.width = denormalize(_textBoxWidth, parentWidth);
 //            this.height = denormalize(_textBoxHeight, parentHeight);
             
-            LogUtil.debug("2 Old parent dim [" + _origParentWidth + "," + _origParentHeight + "][" + width + "," + height + "] newFontSize=" + newFontSize);
+//            LogUtil.debug("2 Old parent dim [" + _origParentWidth + "," + _origParentHeight + "][" + width + "," + height + "] newFontSize=" + newFontSize);
 		}	
 
         public function get textBoxWidth():Number {
@@ -189,7 +189,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             this.width = denormalize(_textBoxWidth, parentWidth);
             this.height = denormalize(_textBoxHeight, parentHeight);
             
-            LogUtil.debug("Redraw dim [" + _origParentWidth + "," + _origParentHeight + "][" + width + "," + height + "] newFontSize=" + newFontSize);
+//            LogUtil.debug("Redraw dim [" + _origParentWidth + "," + _origParentHeight + "][" + width + "," + height + "] newFontSize=" + newFontSize);
             
  //           LogUtil.debug("Redraw 2 Old parent dim [" + this.width + "," + this.height + "] newFontSize=" + newFontSize);
         }

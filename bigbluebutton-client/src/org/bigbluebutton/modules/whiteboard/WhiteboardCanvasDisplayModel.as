@@ -61,7 +61,6 @@ package org.bigbluebutton.modules.whiteboard
 		
 		public function drawGraphic(event:WhiteboardUpdate):void{
 			var o:Annotation = event.annotation;
-			var recvdShapes:Boolean = event.recvdShapes;
             LogUtil.debug("**** Drawing graphic [" + o.type + "] *****");
             if(o.type != DrawObject.TEXT) {		
                 var dobj:DrawObject;
@@ -87,7 +86,7 @@ package org.bigbluebutton.modules.whiteboard
                         break;
                 } 									
             } else { 
-                drawText(o, recvdShapes);	
+                drawText(o);	
             }
 		}
 		               
@@ -141,10 +140,7 @@ package org.bigbluebutton.modules.whiteboard
         }
 
 		// Draws a TextObject when/if it is received from the server
-		private function drawText(o:Annotation, recvdShapes:Boolean):void {		
-			if (recvdShapes) {
-				LogUtil.debug("RX: Got text [" + o.type + " " + o.status + " " + o.id + "]");	
-			}
+		private function drawText(o:Annotation):void {		
 			switch (o.status) {
 				case TextObject.TEXT_CREATED:
 					if (isPresenter)
@@ -153,22 +149,12 @@ package org.bigbluebutton.modules.whiteboard
 						addNormalText(o);														
 					break;
 				case TextObject.TEXT_UPDATED:
-					if (isPresenter) {
-						if (recvdShapes) addPresenterText(o, true);
-					} else {
-						if(_annotationsList.length == 0 || recvdShapes) {
-							addNormalText(o);
-						} else modifyText(o);
+					if (!isPresenter) {
+                        modifyText(o);
 					} 	
 					break;
 				case TextObject.TEXT_PUBLISHED:
-					if (isPresenter) {
-						if (recvdShapes) addPresenterText(o);
-					} else {
-						if(_annotationsList.length == 0 || recvdShapes) {
-							addNormalText(o);
-						} else modifyText(o);
-					} 	
+                    modifyText(o);
 					break;
 			}        
 		}
@@ -184,15 +170,16 @@ package org.bigbluebutton.modules.whiteboard
 		/* adds a new TextObject that is suited for a presenter. For example, it will be made editable and the appropriate listeners will be registered so that
 		the required events will be dispatched  */
 		private function addPresenterText(o:Annotation, background:Boolean=false):void {
-			if(!isPresenter) return;
+			if (!isPresenter) return;
 			var tobj:TextObject = calibrateNewTextWith(o);
 			tobj.multiline = true;
 			tobj.wordWrap = true;
-			tobj.makeEditable(true);
-			tobj.border = true;
-			if (!background) {
-				tobj.background = false;
-				tobj.backgroundColor = 0x00FF00;                
+						
+			if (background) {
+                tobj.makeEditable(true);
+                tobj.border = true;
+				tobj.background = true;
+				tobj.backgroundColor = 0xFFFFFF;                
 			}
 			
 			//            LogUtil.debug("Putting text object [" + tobj.getGraphicID() + "] in [" + tobj.x + "," + tobj.y + "]");
@@ -207,9 +194,7 @@ package org.bigbluebutton.modules.whiteboard
 		should not be able to edit/modify the TextObject 
 		*/
 		private function addNormalText(o:Annotation):void {
-			if (isPresenter) return;
 			var tobj:TextObject = calibrateNewTextWith(o);
-			//LogUtil.debug("TEXT ADDED: " + tobj.getGraphicID());
 			tobj.multiline = true;
 			tobj.wordWrap = true;
 			tobj.background = false;
@@ -228,10 +213,7 @@ package org.bigbluebutton.modules.whiteboard
 		
 		/* method to modify a TextObject that is already present on the whiteboard, as opposed to adding a new TextObject to the whiteboard */
 		private function modifyText(o:Annotation):void {
-			//			var tobj:TextObject = calibrateNewTextWith(o);
-			//			var id:String = tobj.getGraphicID();
 			removeText(o.id);
-			//			LogUtil.debug("Text modified to " + tobj.text);
 			addNormalText(o);
 		}
 		
@@ -332,7 +314,7 @@ package org.bigbluebutton.modules.whiteboard
                         _annotationsList.push(dobj);							
                     }				
                 } else { 
-                    drawText(an, true);	
+                    drawText(an);	
                 }             
             }
         }
@@ -357,7 +339,7 @@ package org.bigbluebutton.modules.whiteboard
                             _annotationsList.push(dobj);							
                         }			
                     } else { 
-                        drawText(an, true);	
+                        drawText(an);	
                     }                
                 }                
             }
@@ -421,15 +403,14 @@ package org.bigbluebutton.modules.whiteboard
 					tobj.multiline = true;
 					tobj.wordWrap = true;
 					tobj.background = false;
-					//                    tobj.backgroundColor = 0xFF0000;
 					tobj.makeEditable(false);
 					tobj.background = false;
-					if (currentlySelectedTextObject != null) {
-						currentlySelectedTextObject = tobj;
-						var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
-						e.data = tobj;
-						wbCanvas.dispatchEvent(e);                        
-					} 
+//					if (currentlySelectedTextObject != null) {
+//						currentlySelectedTextObject = tobj;
+//						var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
+//						e.data = tobj;
+//						wbCanvas.dispatchEvent(e);                        
+//					} 
 					
 					wbCanvas.addGraphic(tobj);
                     _annotationsList[objIndex] = tobj;
@@ -481,9 +462,8 @@ package org.bigbluebutton.modules.whiteboard
 			sendTextToServer(TextObject.TEXT_PUBLISHED, tf);	
 			//            LogUtil.debug("Text published to: " +  tf.text);
 			//            currentlySelectedTextObject = null;
-			
+			//currentlySelectedTextObject.deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			tf.border = false;
-			
 			var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
 			e.data = tf;
 			wbCanvas.dispatchEvent(e);

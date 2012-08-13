@@ -55,22 +55,22 @@ package org.bigbluebutton.modules.whiteboard.services
 		}
 
 		private function handleChangePresentationCommand(message:Object):void {
-			LogUtil.debug("Handle Whiteboard Change Presentation Command [ " + message.presentationID + ", " + message.numberOfPages + "]");
+//			LogUtil.debug("Handle Whiteboard Change Presentation Command [ " + message.presentationID + ", " + message.numberOfPages + "]");
 			whiteboardModel.changePresentation(message.presentationID, message.numberOfPages);
 		}
 		
 		private function handleChangePageCommand(message:Object):void {
-			LogUtil.debug("Handle Whiteboard Change Page Command [ " + message.pageNum + ", " + message.numAnnotations + "]");
+//			LogUtil.debug("Handle Whiteboard Change Page Command [ " + message.pageNum + ", " + message.numAnnotations + "]");
 			whiteboardModel.changePage(message.pageNum, message.numAnnotations);
 		}
 		
 		private function handleClearCommand(message:Object):void {
-			LogUtil.debug("Handle Whiteboard Clear Command ");
+//			LogUtil.debug("Handle Whiteboard Clear Command ");
 			whiteboardModel.clear();
 		}
 		
 		private function handleUndoCommand(message:Object):void {
-			LogUtil.debug("Handle Whiteboard Undo Command ");
+//			LogUtil.debug("Handle Whiteboard Undo Command ");
 			whiteboardModel.undo();
 			//            dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.SHAPE_UNDONE));
 		}
@@ -82,7 +82,7 @@ package org.bigbluebutton.modules.whiteboard.services
 		}
 		
 		private function handleNewAnnotationCommand(message:Object):void {
-			LogUtil.debug("Handle new annotation[" + message.type + ", " + message.id + ", " + message.status + "]");
+//			LogUtil.debug("Handle new annotation[" + message.type + ", " + message.id + ", " + message.status + "]");
             if (message.type == undefined || message.type == null || message.type == "") return;
             if (message.id == undefined || message.id == null || message.id == "") return;
             if (message.status == undefined || message.status == null || message.status == "") return;
