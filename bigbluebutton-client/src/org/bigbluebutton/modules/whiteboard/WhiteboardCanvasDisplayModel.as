@@ -369,7 +369,7 @@ package org.bigbluebutton.modules.whiteboard
 			this.height = height;
 
             for (var i:int = 0; i < this._annotationsList.length; i++){
-                redrawGraphic(this._annotationsList[i] as DrawObject, i);
+                redrawGraphic(this._annotationsList[i] as GraphicObject, i);
             }			
 		}
 				
@@ -394,10 +394,10 @@ package org.bigbluebutton.modules.whiteboard
 //			}
 		}
 	
-		private function redrawGraphic(gobj:DrawObject, objIndex:int):void {
+		private function redrawGraphic(gobj:GraphicObject, objIndex:int):void {
             var o:Annotation;
             if (gobj.type != DrawObject.TEXT) {
-                wbCanvas.removeGraphic(gobj);
+                wbCanvas.removeGraphic(gobj as DisplayObject);
                 o = whiteboardModel.getAnnotation(gobj.id);
                 
                 if (o != null) {
@@ -414,7 +414,7 @@ package org.bigbluebutton.modules.whiteboard
                 if (an == null) {
                     LogUtil.error("Text with id [" + origTobj.id + "] is missing.");
                 } else {
-					wbCanvas.removeGraphic(origTobj);
+					wbCanvas.removeGraphic(origTobj as DisplayObject);
 					var tobj:TextObject = shapeFactory.redrawTextObject(an, origTobj);
 					tobj.setGraphicID(origTobj.id);
 					tobj.status = origTobj.status;
