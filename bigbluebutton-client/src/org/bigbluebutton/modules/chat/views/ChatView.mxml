@@ -95,8 +95,7 @@
 			import flash.events.FocusEvent;  
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import flash.media.Sound;
-    		import flash.media.SoundChannel;
-			
+    		import flash.media.SoundChannel;			
 			
 			[Bindable] public var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
 				'0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
@@ -115,12 +114,7 @@
 			
             public var chatWindow:ChatWindow;
 			
-			// Descriptions for accessibilty properties
-			// private static const PUBLIC_TAB:String = "PUBLIC CHAT";
-			private static const PUBLIC_TAB_NEW:String = "NEW MESSAGE IN PUBLIC CHAT ";
-			// private static const PRIVATE_TAB:String = "PRIVATE CHAT WITH ";
-			private static const PRIVATE_TAB_NEW:String = "NEW MESSAGE IN PRIVATE CHAT WITH";
-			//private static const PLUS_TAB:String = "CHAT OPTIONS TAB";
+			private static const PUBLIC_TAB_NEW:String = ResourceUtil.getInstance().getString("bbb.accessibility.chat.chatView.publicTabNew");
             
 			private var publicWaiting:Boolean = false;
 			private var privateWaiting:ArrayCollection = new ArrayCollection();
@@ -245,22 +239,22 @@
 				return parsedString;
 			}
 			
-				private function parseURLs(message:String):String{
-					var indexOfHTTP:Number = message.indexOf("http://");
-					var indexOfWWW:Number = message.indexOf("www.");
-					var indexOfHTTPS:Number = message.indexOf("https://");
-					if (indexOfHTTP == -1 && indexOfWWW == -1 && indexOfHTTPS == -1) return message;
-					var words:Array = message.split(" ");
-					var parsedString:String = "";
-					for (var n:Number = 0; n<words.length; n++){
-						var word:String = words[n] as String;
-					if (word.indexOf("http://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
-						else if (word.indexOf("www.") != -1) parsedString += '<a href="event:http://' + word + '"> <u>' + word + '</u></a> ';
-						else if (word.indexOf("https://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
-						else parsedString += word + ' ';
-					}
-					return parsedString;
+			private function parseURLs(message:String):String{
+				var indexOfHTTP:Number = message.indexOf("http://");
+				var indexOfWWW:Number = message.indexOf("www.");
+				var indexOfHTTPS:Number = message.indexOf("https://");
+				if (indexOfHTTP == -1 && indexOfWWW == -1 && indexOfHTTPS == -1) return message;
+				var words:Array = message.split(" ");
+				var parsedString:String = "";
+				for (var n:Number = 0; n<words.length; n++){
+					var word:String = words[n] as String;
+				if (word.indexOf("http://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
+					else if (word.indexOf("www.") != -1) parsedString += '<a href="event:http://' + word + '"> <u>' + word + '</u></a> ';
+					else if (word.indexOf("https://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
+					else parsedString += word + ' ';
 				}
+				return parsedString;
+			}
 			
 			private function sendPublicChatMessage(message:String):void {
 				var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
@@ -366,7 +360,6 @@
 			
 			
 			public function openChatBoxFor(userid:String):void {
-				LogUtil.debug("Opening chat box " + userid);
 				var chatBox:ChatBox;
 				
 				if (participantHasChatBox(userid)) {
@@ -405,7 +398,6 @@
 			
 			// Receive public chat messages
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-				//LogUtil.debug("Got PublicChatMessageEvent from userid [ " + event.chatobj.userid + " ]");
 				if(event.chatobj.userid != "")
 					event.chatobj.message = parseURLs(event.chatobj.message);
 				showMessage(PUBLIC_CHAT_USERID, event.chatobj, autoTranslation);
@@ -423,7 +415,6 @@
 			
 			// Receive private chat messages
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
-				LogUtil.debug("Got PrivateChatMessageEvent");
 				if ((! UserManager.getInstance().getConference().amIThisUser(new Number(event.message.chatobj.userid)))) {
 					if (!this.focus){
 						ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
@@ -442,7 +433,6 @@
 			
 			// Activates an audio alert for screen-reader users on public message reception
 			private function publicNotification():void{
-				LogUtil.debug("Accessibility detected! Enabling public notifications.");
 				publicWaiting = true;
 				chatTabs.getChildByName("0").addEventListener(FocusEvent.FOCUS_IN, publicChatFocus);
 				chatTabs.getChildByName("0").addEventListener(FocusEvent.FOCUS_OUT, publicChatUnfocus);
@@ -515,7 +505,6 @@
 					var message:String = "";
 					var playSoundClip:Boolean = useSoundClip();
 					if (publicWaiting && !publicFocus){
-						LogUtil.debug("The time is " + debugDate.getHours() + ":" + debugDate.getMinutes() + ":" + debugDate.getSeconds() + " and there are new public messages.");
 						if (playSoundClip)
 	            			publicSound.play();
 						else{
@@ -534,7 +523,7 @@
 								if (i < privateWaiting.length - 1)
 									names += ",";
 							}
-							message += PRIVATE_TAB_NEW + names;
+							message += ResourceUtil.getInstance().getString("bbb.accessibility.chat.chatView.privateTabNew", [names]);
 						}
 					}
 					if (playSoundClip == false){
@@ -551,7 +540,6 @@
 					// If the user is in a non-compliant browser, the ARIA alerts will not be picked up by the screen reader, and thus we need to use the sound clip
 					rvalue = true;
 				}		
-				LogUtil.debug("Browser name is " + browserName + " and we will return " + rvalue);
 				return rvalue;
 			}
 			

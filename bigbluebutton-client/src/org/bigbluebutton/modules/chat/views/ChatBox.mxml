@@ -58,13 +58,12 @@
 			private var scrollBarWorkaround:Boolean = false;
 			private var currentMessage:int;
 			private var latestMessage:int; 
-			//private var chatHistorySpacer:Boolean = false;
 			
-			private var reachedLatest:String = "You have reached the latest message. ";
-			private var reachedFirst:String = "You have reached the first message. ";
-			private var navLatestString:String = "You have navigated to the latest message. ";
-			private var navRecentString:String = "You have navigated to the most recent message you have read. ";
-			private var navFirstString:String = "You have navigated to the first message. ";
+			private var reachedLatest:String = ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatBox.reachedLatest');
+			private var reachedFirst:String = ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatBox.reachedFirst');
+			private var navLatestString:String = ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatBox.navigatedLatest');
+			private var navRecentString:String = ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatBox.navigatedLatestRead');
+			private var navFirstString:String = ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatBox.navigatedFirst');
 			
 			public var focus:Boolean = false;
 			
@@ -305,8 +304,6 @@
 					// Update the latestMessage counter for new message notifications
 					if (currentMessage > latestMessage)
 						latestMessage = currentMessage;
-					LogUtil.debug("Current place in message history: " + currentMessage);
-					LogUtil.debug("-------------Latest message read: " + latestMessage);
 					
 					if (!repeat){
 					// Make it clear to the user that they have either navigated to or reached one end of the message history or the other.
@@ -331,11 +328,9 @@
 						// Add a single space to the end of the accessibilityProperties.description if necessary to ensure that it reflects the current message after being updated.
 						if (spacerNeeded || setDescription()){
 							chatMessagesList.accessibilityProperties.description += " ";
-							LogUtil.debug("Adding a space to force audio update");
 						}
 					}
 					
-					LogUtil.debug("Chat Module audio: " + chatMessagesList.accessibilityProperties.description);
 					Accessibility.updateProperties();
 				}
 				else if (e.ctrlKey && e.shiftKey && e.keyCode == 114){ // Ctrl-Shift-R: Go to latest read message
