@@ -24,6 +24,7 @@
 #   2011-11-20 FFD  Added more checks for processing of recording
 #   2012-01-04 GUG  Add option to check for errors
 #   2012-02-27 GUG  Add option to delete one meeting and recording
+#   2012-08-13 GUG  Republish recording
 
 set -e
 #set -x
@@ -77,6 +78,24 @@ mark_for_rebuild() {
 	done
 }
 
+mark_for_republish() { 
+	MEETING_ID=$1
+	#set -x
+	for type in $TYPES; do                
+                if [ -d $BASE/publish/$type/$MEETING_ID ]; then
+						rm -rf $BASE/publish/$type/$MEETING_ID
+				fi
+              
+                if [ -d /var/bigbluebutton/published/$type/$MEETING_ID ]; then
+                        rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
+                fi
+
+                if [ -d /var/bigbluebutton/unpublished/$type/$MEETING_ID ]; then
+                        rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
+                fi
+	done
+}
+
 BIGBLUEBUTTON_RELEASE=0.8-beta-4
 
 need_root() {
@@ -105,6 +124,7 @@ usage() {
         echo "Monitoring:"
         echo "   --watch                          Watch processing of recordings"
         echo "   --rebuild [meetingID]            rebuild the output for meetingID"
+        echo "   --republish [meetingID]            republish the recording for meetingID"
 	echo "   --delete [meetingID]             delete one meeting and recording"
         echo "   --deletall                       delete all meetings and recordings"
         echo "   --debug                          check for recording errors"
@@ -145,8 +165,19 @@ while [ $# -gt 0 ]; do
 		shift
                 continue
         fi
+
+	if [ "$1" = "-republish" -o "$1" = "--republish" ]; then
+		need_root
+		if [ ! -z "${2}" ]; then
+                	MEETING_ID="${2}"
+			shift
+		fi
+                REPUBLISH=1
+		shift
+                continue
+        fi
 		
-		if [ "$1" = "-delete" -o "$1" = "--delete" ]; then
+	if [ "$1" = "-delete" -o "$1" = "--delete" ]; then
                 need_root
                 if [ ! -z "${2}" ]; then
                         MEETING_ID="${2}"
@@ -193,6 +224,21 @@ if [ $REBUILD ]; then
     else
 	echo "Marking for rebuild: $MEETING_ID"
 	mark_for_rebuild $MEETING_ID
+    fi
+fi 
+
+if [ $REPUBLISH ]; then
+    if [ -z "$MEETING_ID" ]; then
+	#
+	# Republish all meetings
+	#
+	for recording in $(dir $BASE/raw); do
+		echo "Marking for republish: $recording"
+		mark_for_republish $recording
+	done
+    else
+	echo "Marking for republish: $MEETING_ID"
+	mark_for_republish $MEETING_ID
     fi
 fi 
 
