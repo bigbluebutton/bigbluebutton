@@ -50,7 +50,6 @@ package org.bigbluebutton.modules.whiteboard
 	public class WhiteboardCanvasDisplayModel {
         public var whiteboardModel:WhiteboardModel;
 		public var wbCanvas:WhiteboardCanvas;	
-		private var graphicList:Array = new Array();
         private var _annotationsList:Array = new Array();
 		private var shapeFactory:ShapeFactory = new ShapeFactory();
         private var drawFactory:DrawObjectFactory = new DrawObjectFactory();
@@ -157,7 +156,7 @@ package org.bigbluebutton.modules.whiteboard
 					if (isPresenter) {
 						if (recvdShapes) addPresenterText(o, true);
 					} else {
-						if(graphicList.length == 0 || recvdShapes) {
+						if(_annotationsList.length == 0 || recvdShapes) {
 							addNormalText(o);
 						} else modifyText(o);
 					} 	
@@ -166,7 +165,7 @@ package org.bigbluebutton.modules.whiteboard
 					if (isPresenter) {
 						if (recvdShapes) addPresenterText(o);
 					} else {
-						if(graphicList.length == 0 || recvdShapes) {
+						if(_annotationsList.length == 0 || recvdShapes) {
 							addNormalText(o);
 						} else modifyText(o);
 					} 	
@@ -200,7 +199,7 @@ package org.bigbluebutton.modules.whiteboard
 			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
 			wbCanvas.addGraphic(tobj);
 			wbCanvas.stage.focus = tobj;
-			graphicList.push(tobj);
+            _annotationsList.push(tobj);
 		}
 		
 		/* adds a new TextObject that is suited for a viewer. For example, it will not
@@ -216,7 +215,7 @@ package org.bigbluebutton.modules.whiteboard
 			tobj.background = false;
 			tobj.makeEditable(false);
 			wbCanvas.addGraphic(tobj);
-			graphicList.push(tobj);
+            _annotationsList.push(tobj);
 		}
 		
 		private function removeText(id:String):void {
@@ -224,7 +223,7 @@ package org.bigbluebutton.modules.whiteboard
 			var removeIndex:int = tobjData[0];
 			var tobjToRemove:TextObject = tobjData[1] as TextObject;
 			wbCanvas.removeGraphic(tobjToRemove);
-			graphicList.splice(removeIndex, 1);
+            _annotationsList.splice(removeIndex, 1);
 		}	
 		
 		/* method to modify a TextObject that is already present on the whiteboard, as opposed to adding a new TextObject to the whiteboard */
@@ -244,7 +243,7 @@ package org.bigbluebutton.modules.whiteboard
 			var removeIndex:int = gobjData[0];
 			var gobjToRemove:GraphicObject = gobjData[1] as GraphicObject;
 			wbCanvas.removeGraphic(gobjToRemove as DisplayObject);
-			graphicList.splice(removeIndex, 1);
+            _annotationsList.splice(removeIndex, 1);
 		}	
 		
 		private function removeShape(id:String):void {
@@ -252,7 +251,7 @@ package org.bigbluebutton.modules.whiteboard
 			var removeIndex:int = dobjData[0];
 			var dobjToRemove:DrawObject = dobjData[1] as DrawObject;
 			wbCanvas.removeGraphic(dobjToRemove);
-			graphicList.splice(removeIndex, 1);
+            _annotationsList.splice(removeIndex, 1);
 		}
 		
 		/* returns an array of the GraphicObject that has the specified id,
@@ -260,8 +259,8 @@ package org.bigbluebutton.modules.whiteboard
 		*/
 		private function getGobjInfoWithID(id:String):Array {	
 			var data:Array = new Array();
-			for(var i:int = 0; i < graphicList.length; i++) {
-				var currObj:GraphicObject = graphicList[i] as GraphicObject;
+			for(var i:int = 0; i < _annotationsList.length; i++) {
+				var currObj:GraphicObject = _annotationsList[i] as GraphicObject;
 				if(currObj.id == id) {
 					data.push(i);
 					data.push(currObj);
@@ -272,7 +271,7 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		private function removeLastGraphic():void {
-			var gobj:GraphicObject = graphicList.pop();
+			var gobj:GraphicObject = _annotationsList.pop();
 			if(gobj.type == WhiteboardConstants.TYPE_TEXT) {
 				(gobj as TextObject).makeEditable(false);
 				(gobj as TextObject).deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
@@ -283,8 +282,8 @@ package org.bigbluebutton.modules.whiteboard
 		// returns all DrawObjects in graphicList
 		private function getAllShapes():Array {
 			var shapes:Array = new Array();
-			for(var i:int = 0; i < graphicList.length; i++) {
-				var currGobj:GraphicObject = graphicList[i];
+			for(var i:int = 0; i < _annotationsList.length; i++) {
+				var currGobj:GraphicObject = _annotationsList[i];
 				if(currGobj.type == WhiteboardConstants.TYPE_SHAPE) {
 					shapes.push(currGobj as DrawObject);
 				}
@@ -295,8 +294,8 @@ package org.bigbluebutton.modules.whiteboard
 		// returns all TextObjects in graphicList
 		private function getAllTexts():Array {
 			var texts:Array = new Array();
-			for(var i:int = 0; i < graphicList.length; i++) {
-				var currGobj:GraphicObject = graphicList[i];
+			for(var i:int = 0; i < _annotationsList.length; i++) {
+				var currGobj:GraphicObject = _annotationsList[i];
 				if(currGobj.type == WhiteboardConstants.TYPE_TEXT) {
 					texts.push(currGobj as TextObject)
 				}
@@ -305,7 +304,7 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		public function clearBoard(event:WhiteboardUpdate = null):void {
-			var numGraphics:int = this.graphicList.length;
+			var numGraphics:int = this._annotationsList.length;
 			for (var i:Number = 0; i < numGraphics; i++){
 				removeLastGraphic();
 			}
@@ -313,7 +312,7 @@ package org.bigbluebutton.modules.whiteboard
 		
 		public function undoAnnotation(id:String):void {
             /** We'll just remove the last annotation for now **/
-			if (this.graphicList.length > 0) {
+			if (this._annotationsList.length > 0) {
 				removeLastGraphic();
 			}
 		}
@@ -433,7 +432,7 @@ package org.bigbluebutton.modules.whiteboard
 					} 
 					
 					wbCanvas.addGraphic(tobj);
-					graphicList[objIndex] = tobj;
+                    _annotationsList[objIndex] = tobj;
                 }            
 			}
 		}
@@ -543,7 +542,7 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		public function isPageEmpty():Boolean {
-			return graphicList.length == 0;
+			return _annotationsList.length == 0;
 		}
 		
         /** Helper method to test whether this user is the presenter */
