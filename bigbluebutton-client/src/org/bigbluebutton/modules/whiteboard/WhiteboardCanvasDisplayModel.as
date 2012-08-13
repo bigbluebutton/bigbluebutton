@@ -61,7 +61,7 @@ package org.bigbluebutton.modules.whiteboard
 		
 		public function drawGraphic(event:WhiteboardUpdate):void{
 			var o:Annotation = event.annotation;
-            LogUtil.debug("**** Drawing graphic [" + o.type + "] *****");
+//            LogUtil.debug("**** Drawing graphic [" + o.type + "] *****");
             if(o.type != DrawObject.TEXT) {		
                 var dobj:DrawObject;
                 switch (o.status) {
@@ -101,7 +101,7 @@ package org.bigbluebutton.modules.whiteboard
                         if (isPresenter) {
                             dobj.displayForPresenter();
                             wbCanvas.stage.focus = dobj.textField;
-                            dobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
+                            dobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextChangeListener, textObjSpecialListener);
                         } else {
                             dobj.displayNormally();
                         }
@@ -176,7 +176,6 @@ package org.bigbluebutton.modules.whiteboard
 				tobj.backgroundColor = 0xFFFFFF;                
 			}
 			
-			//            LogUtil.debug("Putting text object [" + tobj.getGraphicID() + "] in [" + tobj.x + "," + tobj.y + "]");
 			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextChangeListener, textObjSpecialListener);
 			wbCanvas.addGraphic(tobj);
 			wbCanvas.stage.focus = tobj;
@@ -407,8 +406,15 @@ package org.bigbluebutton.modules.whiteboard
 			}
 		}
         
-		/* the following four methods  are listeners that handle events that occur on TextObjects, such as text being typed, which causes the textObjTextListener
-		to send text to the server. */
+		/**************************************************************************************************************************************
+        * The following methods handles the presenter typing text into the textbox. The challenge here is how to maintain focus
+        * on the textbox while the presenter changes the size of the font and color.
+        * 
+        * The text annotation will have 3 states (CREATED, EDITED, PUBLISHED). When the presenter creates a textbox, the other
+        * users are notified and the text annotation is in the CREATED state. The presenter can then type text, change size, font and 
+        * the other users are updated. This is the EDITED state. When the presented hits the ENTER/RETURN key, the text is committed/published.
+        * 
+        */
 		public function textObjSpecialListener(event:KeyboardEvent):void {
 			// check for special conditions
 			if (event.charCode == 127 || // 'delete' key
@@ -421,6 +427,8 @@ package org.bigbluebutton.modules.whiteboard
 				if (event.charCode == 13) {
 					wbCanvas.stage.focus = null;
 					tobj.stage.focus = null;
+                    
+                    // The ENTER/RETURN key has been pressed. Publish the text.                   
                     sendStatus = TextObject.TEXT_PUBLISHED;
                     var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
                     e.data = tobj;
@@ -431,26 +439,22 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
         public function textObjTextChangeListener(event:Event):void {
+            // The text is being edited. Notify others to update the text.
             var sendStatus:String = TextObject.TEXT_UPDATED;
             var tf:TextObject = event.target as TextObject;	
-            LogUtil.debug("ID " + tf.id + " modified to " + tf.text);
             sendTextToServer(sendStatus, tf);	
         }
-        
-		public function textObjTextListener(event:TextEvent):void {
-			var sendStatus:String = TextObject.TEXT_UPDATED;
-			var tf:TextObject = event.target as TextObject;	
-			LogUtil.debug("ID " + tf.id + " modified to " + tf.text);
-			sendTextToServer(sendStatus, tf);	
-		}
-		
+        		
 		public function textObjGainedFocusListener(event:FocusEvent):void {
-			LogUtil.debug("### GAINED FOCUS ");
+			//LogUtil.debug("### GAINED FOCUS ");
+            // The presenter is ready to type in the text. Maintain focus to this textbox until the presenter hits the ENTER/RETURN key.
             maintainFocusToTextBox(event);
 		}
 		
 		public function textObjLostFocusListener(event:FocusEvent):void {
-			LogUtil.debug("### LOST FOCUS ");
+			//LogUtil.debug("### LOST FOCUS ");
+            // The presenter is moving the mouse away from the textbox. Perhaps to change the size and color of the text.
+            // Maintain focus to this textbox until the presenter hits the ENTER/RETURN key.
             maintainFocusToTextBox(event);
 		}
 		
@@ -465,12 +469,15 @@ package org.bigbluebutton.modules.whiteboard
         }
         
 		public function modifySelectedTextObject(textColor:uint, bgColorVisible:Boolean, backgroundColor:uint, textSize:Number):void {
+            // The presenter has changed the color or size of the text. Notify others of these change.
 			currentlySelectedTextObject.textColor = textColor;
 			currentlySelectedTextObject.textSize = textSize;
 			currentlySelectedTextObject.applyFormatting();
 			sendTextToServer(TextObject.TEXT_UPDATED, currentlySelectedTextObject);
 		}
-		
+	
+        /***************************************************************************************************************************************/
+           
 		private function sendTextToServer(status:String, tobj:TextObject):void {
 			switch (status) {
 				case TextObject.TEXT_CREATED:

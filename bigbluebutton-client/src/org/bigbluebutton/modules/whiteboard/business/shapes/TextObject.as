@@ -78,8 +78,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public function TextObject(text:String, textColor:uint, x:Number, y:Number, boxWidth:Number, boxHeight:Number, textSize:Number) {
 			this.text = text;
 			this.textColor = textColor;
-//			this.backgroundColor = bgColor;
-//			this.background = bgColorVisible;
             origX = x;
             origY = y;
             this.x = x;
@@ -118,7 +116,6 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		private function applyTextFormat(size:Number):void {
-//            LogUtil.debug(" *** Font text size [" + textSize + "," + size + "]");
 			var tf:TextFormat = new TextFormat();
 			tf.size = size;
 			tf.font = "arial";
@@ -133,22 +130,16 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             var newFontSize:Number = textSize;
             
             if (_origParentHeight == 0 && _origParentWidth == 0) {
-//                LogUtil.debug("Old parent dim [" + _origParentWidth + "," + _origParentHeight + "]");
                 newFontSize = textSize;
                 _origParentHeight = parentHeight;
                 _origParentWidth = parentWidth;               
             } else {
                 newFontSize = (parentHeight/_origParentHeight) * textSize;
-//                LogUtil.debug("2 Old parent dim [" + _origParentWidth + "," + _origParentHeight + "] newFontSize=" + newFontSize);
             }            
 			this.antiAliasType = AntiAliasType.ADVANCED;
             applyTextFormat(newFontSize);
-//            setTextFormat(new TextFormat(fontStyle, newFontSize, textColor));
  
             this.width = denormalize(_textBoxWidth, parentWidth);
-//            this.height = denormalize(_textBoxHeight, parentHeight);
-            
-//            LogUtil.debug("2 Old parent dim [" + _origParentWidth + "," + _origParentHeight + "][" + width + "," + height + "] newFontSize=" + newFontSize);
 		}	
 
         public function get textBoxWidth():Number {
@@ -180,18 +171,11 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             _origParentHeight = origParentHeight;
             _origParentWidth = origParentWidth;               
                 
-//            LogUtil.debug("Redraw 2 Old parent dim [" + origParentWidth + "," + origParentHeight + "] newFontSize=" + newFontSize);
-     
             this.antiAliasType = AntiAliasType.ADVANCED;
             applyTextFormat(newFontSize);
-            //            setTextFormat(new TextFormat(fontStyle, newFontSize, textColor));
 
             this.width = denormalize(_textBoxWidth, parentWidth);
             this.height = denormalize(_textBoxHeight, parentHeight);
-            
-//            LogUtil.debug("Redraw dim [" + _origParentWidth + "," + _origParentHeight + "][" + width + "," + height + "] newFontSize=" + newFontSize);
-            
- //           LogUtil.debug("Redraw 2 Old parent dim [" + this.width + "," + this.height + "] newFontSize=" + newFontSize);
         }
         
 		public function getProperties():Array {
@@ -222,14 +206,12 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             this.setTextFormat(tf);
             this.multiline = true;
             this.wordWrap = true;
-//            this.autoSize = TextFieldAutoSize.LEFT;
             this.antiAliasType = AntiAliasType.ADVANCED;
         }
         
 		public function registerListeners(textObjGainedFocus:Function, textObjLostFocus:Function, textObjTextListener:Function, textObjDeleteListener:Function):void {											  
 			this.addEventListener(FocusEvent.FOCUS_IN, textObjGainedFocus);
 			this.addEventListener(FocusEvent.FOCUS_OUT, textObjLostFocus);
-//			this.addEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
             this.addEventListener(Event.CHANGE, textObjTextListener);
 			this.addEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
 		}		
