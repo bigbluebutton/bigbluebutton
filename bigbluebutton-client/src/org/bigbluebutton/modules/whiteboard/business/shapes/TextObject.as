@@ -229,7 +229,8 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		public function registerListeners(textObjGainedFocus:Function, textObjLostFocus:Function, textObjTextListener:Function, textObjDeleteListener:Function):void {											  
 			this.addEventListener(FocusEvent.FOCUS_IN, textObjGainedFocus);
 			this.addEventListener(FocusEvent.FOCUS_OUT, textObjLostFocus);
-			this.addEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
+//			this.addEventListener(TextEvent.TEXT_INPUT, textObjTextListener);
+            this.addEventListener(Event.CHANGE, textObjTextListener);
 			this.addEventListener(KeyboardEvent.KEY_DOWN, textObjDeleteListener);
 		}		
 		

@@ -55,20 +55,17 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         
         public function makeDrawObject(a:Annotation, whiteboardModel:WhiteboardModel):DrawObject{
             if (a.type == DrawObject.PENCIL) {
-                LogUtil.debug("Creating SCRIBBLE Annotation");
                 return new Pencil(a.id, a.type, a.status);
             } else if (a.type == DrawObject.RECTANGLE) {
-                LogUtil.debug("Creating RECTANGLE Annotation");
                 return new Rectangle(a.id, a.type, a.status);
             } else if (a.type == DrawObject.ELLIPSE) {
-                LogUtil.debug("Creating ELLIPSE Annotation");
                 return new Ellipse(a.id, a.type, a.status);
             }  else if (a.type == DrawObject.LINE) {
-                LogUtil.debug("Creating LINE Annotation");
                 return new Line(a.id, a.type, a.status);
             }  else if (a.type == DrawObject.TRIANGLE) {
-                LogUtil.debug("Creating TRIANGLE Annotation");
                 return new Triangle(a.id, a.type, a.status);
+            } else if (a.type == DrawObject.TEXT) {
+                return new TextDrawObject(a.id, a.type, a.status);
             }
             
             return null;
@@ -101,7 +98,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 				
         public function createTextObject(txt:String, txtColor:uint, x:Number, y:Number, tbWidth:Number, tbHeight:Number, textSize:Number):TextDrawAnnotation {		           
             var tobj:TextDrawAnnotation = new TextDrawAnnotation(txt, txtColor, normalize(x , _parentWidth), normalize(y, _parentHeight), 
-                            normalize(tbWidth , _parentWidth), normalize(tbHeight , _parentWidth), textSize);
+                                                            normalize(tbWidth , _parentWidth), normalize(tbHeight , _parentWidth), textSize);
             return tobj;
         }
           
@@ -110,7 +107,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         public function makeTextObject(t:Annotation):TextObject {
 //            LogUtil.debug("***Making textObject [" + t.type + ", [" + t.annotation.x + "," + t.annotation.y + "]");
             var tobj:TextObject = new TextObject(t.annotation.text, t.annotation.fontColor, 
-                                        t.annotation.x, t.annotation.y, t.annotation.textBoxWidth, t.annotation.textBoxHeight, t.annotation.fontSize);
+                                                t.annotation.x, t.annotation.y, t.annotation.textBoxWidth, t.annotation.textBoxHeight, t.annotation.fontSize);
             tobj.makeGraphic(_parentWidth,_parentHeight);
 //            LogUtil.debug("***Made textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
            return tobj;

@@ -3,6 +3,7 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.display.DisplayObject;
 	import flash.display.Shape;
 	import flash.display.Sprite;
+	import flash.events.Event;
 	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
@@ -12,12 +13,14 @@ package org.bigbluebutton.modules.whiteboard
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
-	import flash.ui.Keyboard;	
+	import flash.ui.Keyboard;
+	
 	import mx.collections.ArrayCollection;
 	import mx.controls.TextInput;
 	import mx.core.Application;
 	import mx.core.UIComponent;
-	import mx.managers.CursorManager;	
+	import mx.managers.CursorManager;
+	
 	import org.bigbluebutton.common.IBbbCanvas;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -88,7 +91,7 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		               
         // Draws a TextObject when/if it is received from the server
-        private function drawText3(o:Annotation, recvdShapes:Boolean):void {					
+        private function drawText3(o:Annotation):void {					
             var dobj:TextDrawObject;
             switch (o.status) {
                 case TextObject.TEXT_CREATED:
@@ -155,20 +158,14 @@ package org.bigbluebutton.modules.whiteboard
 					break;
 			}        
 		}
-		
-		private function calibrateNewTextWith(o:Annotation):TextObject {
-			var tobj:TextObject = shapeFactory.makeTextObject(o);
-			tobj.setGraphicID(o.id);
-			tobj.status = o.status;
-			//            LogUtil.debug("Created text object [" + tobj.getGraphicID() + "] in [" + tobj.text + "," + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
-			return tobj;
-		}
-		
+				
 		/* adds a new TextObject that is suited for a presenter. For example, it will be made editable and the appropriate listeners will be registered so that
 		the required events will be dispatched  */
 		private function addPresenterText(o:Annotation, background:Boolean=false):void {
 			if (!isPresenter) return;
-			var tobj:TextObject = calibrateNewTextWith(o);
+			var tobj:TextObject = shapeFactory.makeTextObject(o);
+            tobj.setGraphicID(o.id);
+            tobj.status = o.status;
 			tobj.multiline = true;
 			tobj.wordWrap = true;
 						
@@ -180,7 +177,7 @@ package org.bigbluebutton.modules.whiteboard
 			}
 			
 			//            LogUtil.debug("Putting text object [" + tobj.getGraphicID() + "] in [" + tobj.x + "," + tobj.y + "]");
-			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
+			tobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextChangeListener, textObjSpecialListener);
 			wbCanvas.addGraphic(tobj);
 			wbCanvas.stage.focus = tobj;
             _annotationsList.push(tobj);
@@ -191,7 +188,9 @@ package org.bigbluebutton.modules.whiteboard
 		should not be able to edit/modify the TextObject 
 		*/
 		private function addNormalText(o:Annotation):void {
-			var tobj:TextObject = calibrateNewTextWith(o);
+            var tobj:TextObject = shapeFactory.makeTextObject(o);
+            tobj.setGraphicID(o.id);
+            tobj.status = o.status;
 			tobj.multiline = true;
 			tobj.wordWrap = true;
 			tobj.background = false;
@@ -253,7 +252,7 @@ package org.bigbluebutton.modules.whiteboard
 			var gobj:GraphicObject = _annotationsList.pop();
 			if(gobj.type == WhiteboardConstants.TYPE_TEXT) {
 				(gobj as TextObject).makeEditable(false);
-				(gobj as TextObject).deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
+				(gobj as TextObject).deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextChangeListener, textObjSpecialListener);
 			}	
 			wbCanvas.removeGraphic(gobj as DisplayObject);
 		}
@@ -412,22 +411,32 @@ package org.bigbluebutton.modules.whiteboard
 		to send text to the server. */
 		public function textObjSpecialListener(event:KeyboardEvent):void {
 			// check for special conditions
-			if(event.charCode == 127 || // 'delete' key
+			if (event.charCode == 127 || // 'delete' key
 				event.charCode == 8 || // 'bkspace' key
 				event.charCode == 13) { // 'enter' key
 				var sendStatus:String = TextObject.TEXT_UPDATED;
 				var tobj:TextObject = event.target as TextObject;	
 				
-				// if the enter key is pressed, remove focus from the TextObject so that it is sent to the server.
-				if(event.charCode == 13) {
+				// if the enter key is pressed, commit the text
+				if (event.charCode == 13) {
 					wbCanvas.stage.focus = null;
 					tobj.stage.focus = null;
-					return;
+                    sendStatus = TextObject.TEXT_PUBLISHED;
+                    var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
+                    e.data = tobj;
+                    wbCanvas.dispatchEvent(e);
 				}
 				sendTextToServer(sendStatus, tobj);	
 			} 				
 		}
 		
+        public function textObjTextChangeListener(event:Event):void {
+            var sendStatus:String = TextObject.TEXT_UPDATED;
+            var tf:TextObject = event.target as TextObject;	
+            LogUtil.debug("ID " + tf.id + " modified to " + tf.text);
+            sendTextToServer(sendStatus, tf);	
+        }
+        
 		public function textObjTextListener(event:TextEvent):void {
 			var sendStatus:String = TextObject.TEXT_UPDATED;
 			var tf:TextObject = event.target as TextObject;	
@@ -437,45 +446,29 @@ package org.bigbluebutton.modules.whiteboard
 		
 		public function textObjGainedFocusListener(event:FocusEvent):void {
 			LogUtil.debug("### GAINED FOCUS ");
-			var tf:TextObject = event.currentTarget as TextObject;
-			wbCanvas.stage.focus = tf;
-			tf.stage.focus = tf;
-			currentlySelectedTextObject = tf;
-			var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
-			e.data = tf;
-			wbCanvas.dispatchEvent(e);
+            maintainFocusToTextBox(event);
 		}
 		
 		public function textObjLostFocusListener(event:FocusEvent):void {
 			LogUtil.debug("### LOST FOCUS ");
-			var tf:TextObject = event.target as TextObject;	
-			sendTextToServer(TextObject.TEXT_PUBLISHED, tf);	
-			//            LogUtil.debug("Text published to: " +  tf.text);
-			//            currentlySelectedTextObject = null;
-			//currentlySelectedTextObject.deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextListener, textObjSpecialListener);
-			tf.border = false;
-			var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
-			e.data = tf;
-			wbCanvas.dispatchEvent(e);
-			/* hide text toolbar because we don't want to show it if there is no text selected */
+            maintainFocusToTextBox(event);
 		}
 		
-		
-		/* invoked by the WhiteboardManager that is invoked by the TextToolbar, that 
-		specifies the currently selected TextObject to change its attributes. For example,
-		when a 'text color' ColorPicker is changed in the TextToolbar, the invocation
-		eventually reaches this method that causes the currently selected TextObject
-		to be re-sent to the red5 server with the modified attributes.
-		*/
+        private function maintainFocusToTextBox(event:FocusEvent):void {
+            var tf:TextObject = event.currentTarget as TextObject;
+            wbCanvas.stage.focus = tf;
+            tf.stage.focus = tf;
+            currentlySelectedTextObject = tf;
+            var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_SELECTED);
+            e.data = tf;
+            wbCanvas.dispatchEvent(e);            
+        }
+        
 		public function modifySelectedTextObject(textColor:uint, bgColorVisible:Boolean, backgroundColor:uint, textSize:Number):void {
-//			LogUtil.debug("modifySelectedTextObject = " + textSize);
 			currentlySelectedTextObject.textColor = textColor;
-			currentlySelectedTextObject.background = bgColorVisible;
-			currentlySelectedTextObject.backgroundColor = backgroundColor;
 			currentlySelectedTextObject.textSize = textSize;
-//			LogUtil.debug("modifySelectedTextObject = " + currentlySelectedTextObject.textSize);
 			currentlySelectedTextObject.applyFormatting();
-			sendTextToServer(TextObject.TEXT_PUBLISHED, currentlySelectedTextObject);
+			sendTextToServer(TextObject.TEXT_UPDATED, currentlySelectedTextObject);
 		}
 		
 		private function sendTextToServer(status:String, tobj:TextObject):void {
