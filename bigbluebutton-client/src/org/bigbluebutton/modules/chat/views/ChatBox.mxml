@@ -99,7 +99,8 @@
 				// Initialize the indicator for the position in the message history, and add the listener for message history navigation
 				currentMessage = 0;
 				latestMessage = 0;
-				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);		
+				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);	
+				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing	
 				// Initialize the chatMessagesList tooltip as the Welcome message
 				chatMessagesList.accessibilityProperties.description = messages[0].toString();
 				Accessibility.updateProperties();
