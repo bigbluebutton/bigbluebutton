@@ -31,9 +31,9 @@ package org.bigbluebutton.main.events {
 		public static const REPEAT_MESSAGE:String = 'REPEAT_MESSAGE';
 		public static const GOLATEST_MESSAGE:String = 'GOLATEST_MESSAGE';
 		public static const GOFIRST_MESSAGE:String = 'GOFIRST_MESSAGE';
+		public static const GOREAD_MESSAGE:String = 'GOREAD_MESSAGE';
 		public static const OPEN_SHORTCUT_WIN:String = 'OPEN_SHORTCUT_WIN';
 		
-		//public var targetObject:Object;
 		public var otherUserID:String;
 		
 		public function ShortcutEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false) {

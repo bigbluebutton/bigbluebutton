@@ -32,6 +32,7 @@
 	<mate:Listener type="{ShortcutEvent.REPEAT_MESSAGE}" method="repeatMessage" />
 	<mate:Listener type="{ShortcutEvent.GOLATEST_MESSAGE}" method="goToLatestMessage" />
 	<mate:Listener type="{ShortcutEvent.GOFIRST_MESSAGE}" method="goToFirstMessage" />
+	<mate:Listener type="{ShortcutEvent.GOREAD_MESSAGE}" method="goToLatestReadMessage" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -282,6 +283,7 @@
 				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.repeat') as String)] = ShortcutEvent.REPEAT_MESSAGE;
 				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.golatest') as String)] = ShortcutEvent.GOLATEST_MESSAGE;
 				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.gofirst') as String)] = ShortcutEvent.GOFIRST_MESSAGE;
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.goread') as String)] = ShortcutEvent.GOREAD_MESSAGE;
 			}
 			
 			public function handleKeyDown(e:KeyboardEvent) :void {
@@ -352,6 +354,15 @@
 					
 					indicatorNeeded = true;
 					chatMessagesList.accessibilityProperties.description = navFirstString;
+					Accessibility.updateProperties();
+					navigationMaintenance();
+				}
+			}
+			
+			private function goToLatestReadMessage(e:ShortcutEvent):void{
+				if (e.otherUserID == otherUserID){
+					currentMessage = latestMessage;
+					chatMessagesList.accessibilityProperties.description = navRecentString;
 					Accessibility.updateProperties();
 					navigationMaintenance();
 				}
