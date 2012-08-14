@@ -190,10 +190,10 @@
 					scWindow = new ShortcutHelpWindow();
 				}
 				mdiCanvas.windowManager.add(scWindow);
-				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 100, mdiCanvas.height/2 - 100);
-				scWindow.width = 200;
-				scWindow.height = 200;
-				mdiCanvas.windowManager.bringToFront(scWindow);
+				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 150, mdiCanvas.height/2 - 150);
+				scWindow.width = 300;
+				scWindow.height = 300;
+				scWindow.focusCategories();
 			}
 			
 			private function toggleFullScreen():void{

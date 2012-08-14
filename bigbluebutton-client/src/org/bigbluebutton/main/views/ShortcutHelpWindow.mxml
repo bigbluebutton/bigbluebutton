@@ -29,29 +29,99 @@
 		   
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
-			import flexlib.mdi.events.MDIWindowEvent;			
-			import mx.controls.Alert;
-			import mx.core.Application;
-			import mx.core.FlexGlobals;
-			import mx.resources.ResourceBundle;
-			import mx.resources.ResourceManager;			
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import flash.events.Event;
+			import mx.collections.ArrayList;
+			import mx.collections.ArrayCollection;
 			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.common.LogUtil;
 			
-			private var disp:Dispatcher;
+			private var genKeys:ArrayList;
+			private var presKeys:ArrayList;
+			private var chatKeys:ArrayList;
+			private var audKeys:ArrayList;
+			
+			[Bindable]
+			private var shownKeys:ArrayCollection;
 			
 			private function onCreationComplete():void {
-				LogUtil.debug("WATERFALL: Shortcut window has been opened");			
+				LogUtil.debug("WATERFALL: Shortcut window has been opened");
+				reloadKeys();
+			}
+			
+			private function reloadKeys():void {
+				loadGenKeys();
+				loadPresKeys();
+				loadChatKeys();
+				loadAudKeys();
 				
+				shownKeys = new ArrayCollection();
+				switch(categories.selectedIndex) {
+				case 0: //All
+					shownKeys.addAll(genKeys);
+					shownKeys.addAll(presKeys);
+					shownKeys.addAll(chatKeys);
+					shownKeys.addAll(audKeys);
+					break;
+				case 1: //General
+					shownKeys.addAll(genKeys);
+					break;
+				case 2: //Presentation
+					shownKeys.addAll(presKeys);
+					break;
+				case 3: //Chat
+					shownKeys.addAll(chatKeys);
+					break;
+				case 4: //Audio
+					shownKeys.addAll(audKeys);
+					break;
+				}
+			}
+			
+			private function loadGenKeys():void {
+				genKeys = new ArrayList();
+			}
+			
+			private function loadPresKeys():void {
+				presKeys = new ArrayList();
+				presKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide')), 
+								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide.function'))});
+				presKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo')), 
+								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo.function'))});
+			}
+			
+			private function loadChatKeys():void {
+				chatKeys = new ArrayList();
+				chatKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput')), 
+								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput.function'))});
+				chatKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chattabs')), 
+								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chattabs.function'))});
+				chatKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.advance')), 
+								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.advance.function'))});
+				chatKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.goback')), 
+								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.goback.function'))});
+				chatKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.repeat')), 
+								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.repeat.function'))});
+				chatKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.golatest')), 
+								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.golatest.function'))});
+				chatKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.gofirst')), 
+								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.gofirst.function'))});
+			}
+			
+			private function loadAudKeys():void {
+				audKeys = new ArrayList();
+				audKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.listeners.muteme')), 
+								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.listeners.muteme.function'))});
+			}
+			
+			public function focusCategories():void {
+				focusManager.setFocus(categories);
+				focusManager.drawFocus(categories);
 			}
 		]]>
 	</mx:Script>
 	
-	<mx:ComboBox labelField="Please select an area for which to view shortcut keys: " editable="false">
+	<mx:ComboBox id="categories" labelField="Please select an area for which to view shortcut keys: " editable="false" change="reloadKeys()">
 		<mx:ArrayCollection>
         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.all")}</mx:String>
         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general")}</mx:String>
@@ -60,5 +130,10 @@
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.audio")}</mx:String>
       	</mx:ArrayCollection>
 	</mx:ComboBox>
-	
+	<mx:DataGrid id="keyList" draggableColumns="false" dataProvider="{shownKeys}" width="100%" height="100%">
+		<mx:columns>
+			<mx:DataGridColumn dataField="Shortcut" />
+			<mx:DataGridColumn dataField="Function" />
+		</mx:columns>
+	</mx:DataGrid>
 </MDIWindow>
