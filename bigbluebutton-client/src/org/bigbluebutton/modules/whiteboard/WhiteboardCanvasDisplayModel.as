@@ -417,14 +417,12 @@ package org.bigbluebutton.modules.whiteboard
         */
 		public function textObjSpecialListener(event:KeyboardEvent):void {
 			// check for special conditions
-			if (event.charCode == 127 || // 'delete' key
-				event.charCode == 8 || // 'bkspace' key
-				event.charCode == 13) { // 'enter' key
+			if (event.keyCode  == Keyboard.DELETE || event.keyCode  == Keyboard.BACKSPACE || event.keyCode  == Keyboard.ENTER) { 
 				var sendStatus:String = TextObject.TEXT_UPDATED;
 				var tobj:TextObject = event.target as TextObject;	
 				
 				// if the enter key is pressed, commit the text
-				if (event.charCode == 13) {
+				if (event.keyCode  == Keyboard.ENTER) {
 					wbCanvas.stage.focus = null;
 					tobj.stage.focus = null;
                     
