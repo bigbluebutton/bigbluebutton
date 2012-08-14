@@ -115,20 +115,6 @@
 				windowManager.bringToFront(this);
 				focusManager.setFocus(chatView.chatTabs);
 			}
-			
-			private function handleKeyDown(e:KeyboardEvent):void{
-				if (e.ctrlKey && e.shiftKey) {
-					switch(e.keyCode)
-					{
-						case 52: // 4 
-							disp.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_PREV_CHAT_TAB));
-							break;
-						case 54: // 6
-							disp.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_NEXT_CHAT_TAB));
-							break;
-					}
-				}
-			}
 		]]>
 	</mx:Script>
 	

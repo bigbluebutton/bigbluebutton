@@ -27,7 +27,11 @@
 	>
 	
 	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
-	
+	<mate:Listener type="{ShortcutEvent.ADVANCE_MESSAGE}" method="advanceMessage" />
+	<mate:Listener type="{ShortcutEvent.GOBACK_MESSAGE}" method="goBackOneMessage" />
+	<mate:Listener type="{ShortcutEvent.REPEAT_MESSAGE}" method="repeatMessage" />
+	<mate:Listener type="{ShortcutEvent.GOLATEST_MESSAGE}" method="goToLatestMessage" />
+	<mate:Listener type="{ShortcutEvent.GOFIRST_MESSAGE}" method="goToFirstMessage" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -82,7 +86,7 @@
 				// Initialize the indicator for the position in the message history, and add the listener for message history navigation
 				currentMessage = 0;
 				latestMessage = 0;
-				this.addEventListener(KeyboardEvent.KEY_DOWN, navigateMessages);		
+				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);		
 				// Initialize the chatMessagesList tooltip as the Welcome message
 				chatMessagesList.accessibilityProperties.description = messages[0].toString();
 				Accessibility.updateProperties();
@@ -254,51 +258,103 @@
 				return currentMessage;
 			}
 			
+			private function localeChanged(e:Event):void {
+				loadKeyCombos();
+			}
+
+			private function loadKeyCombos():void {
+				keyCombos = new Object(); // always start with a fresh array
+				// keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.listeners.muteme') as String)] = ShortcutEvent.MUTE_ME_EVENT;
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.advance') as String)] = ShortcutEvent.ADVANCE_MESSAGE;
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.goback') as String)] = ShortcutEvent.GOBACK_MESSAGE;
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.repeat') as String)] = ShortcutEvent.REPEAT_MESSAGE;
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.golatest') as String)] = ShortcutEvent.GOLATEST_MESSAGE;
+			}
+			
+			var navToFirst:Boolean = false;
+			var navToLatest:Boolean = false;
+			var spacerNeeded:Boolean = false;
+			var indicatorNeeded:Boolean = false
+			var repeat:Boolean = false;
+			public function handleKeyDown(e:KeyboardEvent) :void {
+				var keyPress:String = (e.ctrlKey  ? "control+" : "") + 
+							(e.shiftKey ? "shift+"   : "") +
+							(e.altKey   ? "alt+"     : "") +
+							e.keyCode;
+							
+				if (keyCombos[keyPress]) {
+					LogUtil.debug("WATERFALL keypress: " + keyPress);
+					globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+				}
+			}
+			
+			private function advanceMessage(e:ShortcutEvent):void{
+				if (currentMessage < (messages.length-3)){
+					currentMessage++;
+				}
+				else{
+					chatMessagesList.accessibilityProperties.description += " ";
+				}
+			}
+			
+			private function goBackOneMessage(e:ShortcutEvent):void{
+				if (currentMessage > 0){
+					currentMessage--;
+				}
+				else{
+					chatMessagesList.accessibilityProperties.description += " ";
+				}
+			}
+			
+			private function repeatMessage(e:ShortcutEvent):void{
+				chatMessagesList.accessibilityProperties.description += " ";	
+				repeat = true;
+			}
+			
+			private function goToLatestMessage(e:ShortcutEvent):void{
+				currentMessage = messages.length-3;
+				navToLatest = true;
+				spacerNeeded = setDescription();
+				
+				indicatorNeeded = true;
+				chatMessagesList.accessibilityProperties.description = navLatestString;
+				Accessibility.updateProperties();
+			}
+			
+			private function goToFirstMessage(e:ShortcutEvent):void{
+				currentMessage = 0;
+				navToFirst = true;
+				spacerNeeded = setDescription();
+				
+				indicatorNeeded = true;
+				chatMessagesList.accessibilityProperties.description = navFirstString;
+				Accessibility.updateProperties();
+			}
+			
 			public function navigateMessages(e:KeyboardEvent) :void{			
-				var navToFirst:Boolean = false;
-				var navToLatest:Boolean = false;
-				var spacerNeeded:Boolean = false;
-				var indicatorNeeded:Boolean = false;
-				var repeat:Boolean = false;
+				//var navToFirst:Boolean = false;
+				//var navToLatest:Boolean = false;
+				//var spacerNeeded:Boolean = false;
+				//var indicatorNeeded:Boolean = false;
+				//var repeat:Boolean = false;
 				
 				if (e.keyCode == 32) {
-					if (!e.ctrlKey && !e.altKey && !e.shiftKey){ // SPACE key: Advance one message
-						if (currentMessage < (messages.length-3)){
-							currentMessage++;
-						}
-						else{
-							chatMessagesList.accessibilityProperties.description += " ";
-						}
+					if (!e.ctrlKey && !e.altKey && !e.shiftKey){ // SPACE key: Advance one message//if (currentMessage < (messages.length-3)){//	currentMessage++;//}//else{//	chatMessagesList.accessibilityProperties.description += " ";//}	
 					}
-					else if (e.ctrlKey && !e.altKey && !e.shiftKey){ // CTRL-SPACE: Go back one message
-						if (currentMessage > 0){
-							currentMessage--;
-						}
-						else{
-							chatMessagesList.accessibilityProperties.description += " ";
-						}
+					else if (e.ctrlKey && !e.altKey && !e.shiftKey){ // CTRL-SPACE: Go back one message	//if (currentMessage > 0){ currentMessage--; }//else{ chatMessagesList.accessibilityProperties.description += " "; }
 					}
-					else if (e.ctrlKey && e.altKey && !e.shiftKey){ // CTRL-ALT-SPACE: Repeat current message
-						chatMessagesList.accessibilityProperties.description += " ";	
-						repeat = true;	
+					else if (e.ctrlKey && e.altKey && !e.shiftKey){ // CTRL-ALT-SPACE: Repeat current message //chatMessagesList.accessibilityProperties.description += " ";	//repeat = true;	
 					}
-					else if (!e.ctrlKey && !e.altKey && e.shiftKey){ // SHIFT-SPACE: Go to latest message
-						currentMessage = messages.length-3;
-						navToLatest = true;
-						spacerNeeded = setDescription();
-						
-						indicatorNeeded = true;
-						chatMessagesList.accessibilityProperties.description = navLatestString;
-						Accessibility.updateProperties();
+					else if (!e.ctrlKey && !e.altKey && e.shiftKey){ // SHIFT-SPACE: Go to latest message//currentMessage = messages.length-3;//navToLatest = true;//spacerNeeded = setDescription();//indicatorNeeded = true;//chatMessagesList.accessibilityProperties.description = navLatestString;//Accessibility.updateProperties();
 					}
 					else if (e.ctrlKey && !e.altKey && e.shiftKey){ // CTRL-SHIFT-SPACE: Go to first message
-						currentMessage = 0;
-						navToFirst = true;
-						spacerNeeded = setDescription();
+						//currentMessage = 0;
+						//navToFirst = true;
+						//spacerNeeded = setDescription();
 						
-						indicatorNeeded = true;
-						chatMessagesList.accessibilityProperties.description = navFirstString;
-						Accessibility.updateProperties();						
+						//indicatorNeeded = true;
+						//chatMessagesList.accessibilityProperties.description = navFirstString;
+						//Accessibility.updateProperties();						
 					}
 					
 					// Update the latestMessage counter for new message notifications
