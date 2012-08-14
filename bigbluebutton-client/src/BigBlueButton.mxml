@@ -31,6 +31,8 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import flash.events.Event;
+
 			import com.asfusion.mate.events.Dispatcher;		
 			import mx.managers.HistoryManager;
 			import org.bigbluebutton.core.EventBroadcaster;
@@ -212,10 +214,30 @@
 				mainShell.initOptions(null);
 			}
 
+			/**
+			 * Shortcut Keys
+			 */
+			
+			private function localeChanged(e:Event):void{
+				loadKeyCombos();
+			}
+			
+			private var keyCombos:Object;
+			
+			private function loadKeyCombos():void {
+				keyCombos = new Object(); // always start with a fresh array
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.listeners.muteme') as String)] = ShortcutEvent.MUTE_ME_EVENT;
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput') as String)] = ShortcutEvent.FOCUS_CHAT_INPUT;
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chattabs') as String)] = ShortcutEvent.FOCUS_CHAT_TABS;
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide') as String)] = ShortcutEvent.FOCUS_SLIDE;
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo') as String)] = ShortcutEvent.UNDO_WHITEBOARD;
+			}
+
 			public function hotkeyCapture():void{
 				LogUtil.debug("Entering hotkeyCapture");
 				openShortcutHelpWindow();
 				stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
 				LogUtil.debug("Leaving hotkeyCapture");
 			}
 			
@@ -232,34 +254,17 @@
 			
 			public function handleKeyDown(e:KeyboardEvent) :void
 			{
-				LogUtil.debug("Key has been pressed: " + e.keyCode);
-				// ASCII table: http://www.asciitable.com/
-				if (e.ctrlKey && e.shiftKey) {
-					
-					switch(e.keyCode)
-					{
-						case 53: // 5 
-							globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CHAT_TABS));
-							break;
-						case 67: // C
-							globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_CHAT_INPUT));
-							break;
-						case 77: // M
-							globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.MUTE_ME_EVENT));
-							break;
-						case 83: // S
-							globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.FOCUS_SLIDE));
-							break;
-					}
+				var keyPress:String = (e.ctrlKey  ? "control+" : "") +
+									  (e.shiftKey ? "shift+"   : "") +
+									  (e.altKey   ? "alt+"     : "") +
+									  e.keyCode;
+				//LogUtil.debug("Chad keypress " + keyPress);
+				
+				if (keyCombos[keyPress])
+				{
+					LogUtil.debug("Chad keypress " + keyPress);
+					globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
 				}
-				else if (e.ctrlKey){
-					switch(e.keyCode){
-						case 90:
-							LogUtil.debug("Ctrl-Z undo sequence");
-							globalDispatcher.dispatchEvent(new ShortcutEvent(ShortcutEvent.UNDO_WHITEBOARD));
-							break;
-					}
-				}				
 			}
 		]]>
 	</mx:Script>	
