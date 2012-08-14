@@ -82,6 +82,7 @@
 			private var repeat:Boolean = false;
 			
 			private function onCreationComplete():void {
+				loadKeyCombos()
 				addContextMenuItems();
 				scrollTimer = new Timer(750, 2);
 				scrollTimer.addEventListener(TimerEvent.TIMER, onScrollTimer);
@@ -283,18 +284,24 @@
 			}
 			
 			public function handleKeyDown(e:KeyboardEvent) :void {
+				LogUtil.debug("WATERFALL: Entering handleKeyDown");
 				var keyPress:String = (e.ctrlKey  ? "control+" : "") + 
 							(e.shiftKey ? "shift+"   : "") +
 							(e.altKey   ? "alt+"     : "") +
 							e.keyCode;
-							
+				LogUtil.debug("WATERFALL keypress: " + keyPress);		
 				if (keyCombos[keyPress]) {
-					LogUtil.debug("WATERFALL keypress: " + keyPress);
-					globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+					LogUtil.debug("WATERFALL keypress matched something in keyCombos: " + keyCombos[keyPress]);
+					var event:ShortcutEvent = new ShortcutEvent(keyCombos[keyPress]);
+					event.targetObject = this; 
+					globalDispatcher.dispatchEvent(event);
 				}
 			}
 			
 			private function advanceMessage(e:ShortcutEvent):void{
+				LogUtil.debug("WATERFALL Event.target is: " + e.target);
+				LogUtil.debug("WATERFALL Event.targetObject is: " + e.targetObject);
+				LogUtil.debug("Starting at message " + currentMessage);
 				if (currentMessage < (messages.length-3)){
 					currentMessage++;
 				}
@@ -302,6 +309,7 @@
 					chatMessagesList.accessibilityProperties.description += " ";
 				}
 				navigationMaintenance();
+				LogUtil.debug("Finishing at message " + currentMessage);
 			}
 			
 			private function goBackOneMessage(e:ShortcutEvent):void{
