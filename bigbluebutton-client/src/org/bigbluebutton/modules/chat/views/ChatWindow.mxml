@@ -68,9 +68,7 @@
 				
 				// var disp:Dispatcher = new Dispatcher();
 				disp  = new Dispatcher();
-				disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
-				
-				stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);				
+				disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));				
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {

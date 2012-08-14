@@ -32,11 +32,7 @@
 	<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
 	<mate:Listener type="{BBBEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}" method="sendMessageReceivedFromBBBEvent"/> 
 	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
-	<mate:Listener type="{ChatOptionsEvent.TOGGLE_TRANSLATE}" method="toggleTranslation" />
-	
-	<mate:Listener type="{ShortcutEvent.FOCUS_PREV_CHAT_TAB}" method="focusPreviousChatTab" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_NEXT_CHAT_TAB}" method="focusNextChatTab" />
-	
+	<mate:Listener type="{ChatOptionsEvent.TOGGLE_TRANSLATE}" method="toggleTranslation" />	
 	
 	<mx:Style>
 		.chatColorPickerStyle {
@@ -471,7 +467,7 @@
 				if (event.target.name == "chatMessagesList"){
 					var removed:Boolean = false;
 					
-					for (var messageCounter = 0; messageCounter < event.target.parent.exposeNumMessages(); messageCounter ++){
+					for (var messageCounter:int = 0; messageCounter < event.target.parent.exposeNumMessages(); messageCounter ++){
 						removed = removePrivateSender(event.target.parent.exposeSenderID(messageCounter));
 						if (removed){
 							ExternalInterface.call("clearblink");
