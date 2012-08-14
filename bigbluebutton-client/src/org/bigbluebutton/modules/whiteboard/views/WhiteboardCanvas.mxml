@@ -105,6 +105,7 @@
 			}
 						
 			private function doMouseDown(event:Event):void {
+                displayModel.doMouseDown(this.mouseX, this.mouseY);
 				model.doMouseDown(this.mouseX, this.mouseY);
 			}
 						

@@ -53,12 +53,23 @@ package org.bigbluebutton.modules.whiteboard
 		public var wbCanvas:WhiteboardCanvas;	
         private var _annotationsList:Array = new Array();
 		private var shapeFactory:ShapeFactory = new ShapeFactory();
-        private var currentlySelectedTextObject:TextObject;
+        private var currentlySelectedTextObject:TextObject =  null;
         
 		private var bbbCanvas:IBbbCanvas;
 		private var width:Number;
 		private var height:Number;
 		
+        
+        public function doMouseDown(mouseX:Number, mouseY:Number):void {
+            /**
+             * Check if the presenter is starting a new text annotation without committing the last one.
+             * If so, publish the last text annotation. 
+             */
+            if (currentlySelectedTextObject != null && currentlySelectedTextObject.status != TextObject.TEXT_PUBLISHED) {
+                sendTextToServer(TextObject.TEXT_PUBLISHED, currentlySelectedTextObject);
+            }
+        }
+        
 		public function drawGraphic(event:WhiteboardUpdate):void{
 			var o:Annotation = event.annotation;
 //            LogUtil.debug("**** Drawing graphic [" + o.type + "] *****");
@@ -115,10 +126,7 @@ package org.bigbluebutton.modules.whiteboard
                     dobj = shapeFactory.makeDrawObject(o, whiteboardModel) as TextDrawObject;	
                     if (dobj != null) {
                         dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
-                        if (isPresenter) {
-          //                  dobj.displayForPresenter();
-           //                 wbCanvas.stage.focus = dobj.setFocus();
-                        } else {
+                        if (!isPresenter) {
                             dobj.displayNormally();
                             wbCanvas.addGraphic(dobj);
                             _annotationsList.push(dobj);
@@ -127,14 +135,27 @@ package org.bigbluebutton.modules.whiteboard
                     break;
                 case TextObject.TEXT_PUBLISHED:
                     var gobj:DrawObject = _annotationsList.pop();	
-                    wbCanvas.removeGraphic(gobj as DisplayObject);			
-                    dobj = shapeFactory.makeDrawObject(o, whiteboardModel) as TextDrawObject;	
-                    if (dobj != null) {
-                        dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
-                        dobj.displayNormally();
-                        wbCanvas.addGraphic(dobj);
-                        _annotationsList.push(dobj);							
+                    wbCanvas.removeGraphic(gobj as DisplayObject);	
+                    
+                    /**
+                    * Check if the text is empty. The presenter might have started a new text annotation without
+                    * entering text on the previous text annoation.
+                    */
+                    if (o.annotation.text != "") {
+                        dobj = shapeFactory.makeDrawObject(o, whiteboardModel) as TextDrawObject;	
+                        if (dobj != null) {
+                            dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
+                            dobj.displayNormally();
+                            wbCanvas.addGraphic(dobj);
+                            _annotationsList.push(dobj);							
+                        }                        
+                    } else {
+                        /**
+                        * Published an empty text annotation. Do nothing. The above remove graphic will remove the empty
+                        * annotation from the display.
+                        */
                     }
+                    
                     break;
             }        
         }
@@ -428,9 +449,6 @@ package org.bigbluebutton.modules.whiteboard
                     
                     // The ENTER/RETURN key has been pressed. Publish the text.                   
                     sendStatus = TextObject.TEXT_PUBLISHED;
-                    var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
-                    e.data = tobj;
-                    wbCanvas.dispatchEvent(e);
 				}
 				sendTextToServer(sendStatus, tobj);	
 			} 				
@@ -488,6 +506,13 @@ package org.bigbluebutton.modules.whiteboard
 					tobj.status = TextObject.TEXT_PUBLISHED;
 					break;
 			}	
+            
+            if (status == TextObject.TEXT_PUBLISHED) {
+                var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
+                e.data = tobj;
+                wbCanvas.dispatchEvent(e);                
+            }
+
 			
 //			LogUtil.debug("SENDING TEXT: [" + tobj.textSize + "]");
 			
