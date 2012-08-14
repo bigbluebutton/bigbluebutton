@@ -20,7 +20,8 @@ package org.bigbluebutton.modules.whiteboard.views
 		private var _idGenerator:AnnotationIDGenerator;
 		private var _mousedDown:Boolean = false;
 		private var _curID:String;
-		
+		private var feedback:RectangleFeedbackTextBox = new RectangleFeedbackTextBox();
+        
         public function TextDrawListener(idGenerator:AnnotationIDGenerator, wbCanvas:WhiteboardCanvas, sendShapeFrequency:int, shapeFactory:ShapeFactory)
         {
 			_idGenerator = idGenerator;
@@ -35,7 +36,7 @@ package org.bigbluebutton.modules.whiteboard.views
         
         public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
         {
-            if(tool.graphicType == WhiteboardConstants.TYPE_TEXT) {
+            if (tool.graphicType == WhiteboardConstants.TYPE_TEXT) {
                 _mouseXDown = mouseX;
                 _mouseYDown = mouseY;
 				
@@ -48,13 +49,25 @@ package org.bigbluebutton.modules.whiteboard.views
         
         public function onMouseMove(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
         {
-			// do nothing
+            if (tool.graphicType == WhiteboardConstants.TYPE_TEXT && _mousedDown) {
+                if (_wbCanvas.contains(feedback)) {
+                    _wbCanvas.removeRawChild(feedback);
+                }
+                
+                feedback.draw(_mouseXDown, _mouseYDown, mouseX - _mouseXDown, mouseY - _mouseYDown);
+                _wbCanvas.addRawChild(feedback);                
+            }
+
         }
         
         public function onMouseUp(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
         {
-            if(tool.graphicType == WhiteboardConstants.TYPE_TEXT && _mousedDown) {
-				
+            if (tool.graphicType == WhiteboardConstants.TYPE_TEXT && _mousedDown) {
+                feedback.clear();
+                if (_wbCanvas.contains(feedback)) {
+                    _wbCanvas.removeRawChild(feedback);
+                }
+                
 				_mousedDown = false;
 				
                 var tbWidth:Number = mouseX - _mouseXDown;

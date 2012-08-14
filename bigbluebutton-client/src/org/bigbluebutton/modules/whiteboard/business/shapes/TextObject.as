@@ -140,6 +140,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             applyTextFormat(newFontSize);
  
             this.width = denormalize(_textBoxWidth, parentWidth);
+            this.height = denormalize(_textBoxHeight, parentHeight);
 		}	
 
         public function get textBoxWidth():Number {
