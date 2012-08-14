@@ -33,7 +33,8 @@ package org.bigbluebutton.main.events {
 		public static const GOFIRST_MESSAGE:String = 'GOFIRST_MESSAGE';
 		public static const OPEN_SHORTCUT_WIN:String = 'OPEN_SHORTCUT_WIN';
 		
-		public var targetObject:Object;
+		//public var targetObject:Object;
+		public var otherUserID:String;
 		
 		public function ShortcutEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false) {
 			super(type, bubbles, cancelable);

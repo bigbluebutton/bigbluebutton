@@ -52,6 +52,7 @@
 			
 			public var read:Boolean = true;
 			public var participantLoggedOut:Boolean = false;
+			public var otherUserID:String;
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 			
 			[Bindable]
@@ -293,61 +294,67 @@
 				if (keyCombos[keyPress]) {
 					LogUtil.debug("WATERFALL keypress matched something in keyCombos: " + keyCombos[keyPress]);
 					var event:ShortcutEvent = new ShortcutEvent(keyCombos[keyPress]);
-					event.targetObject = this; 
+					event.otherUserID = otherUserID; 
 					globalDispatcher.dispatchEvent(event);
 				}
 			}
 			
 			private function advanceMessage(e:ShortcutEvent):void{
-				LogUtil.debug("WATERFALL Event.target is: " + e.target);
-				LogUtil.debug("WATERFALL Event.targetObject is: " + e.targetObject);
-				LogUtil.debug("Starting at message " + currentMessage);
-				if (currentMessage < (messages.length-3)){
-					currentMessage++;
+				if (e.otherUserID == otherUserID){
+					if (currentMessage < (messages.length-3)){
+						currentMessage++;
+					}
+					else{
+						chatMessagesList.accessibilityProperties.description += " ";
+					}
+					navigationMaintenance();
 				}
-				else{
-					chatMessagesList.accessibilityProperties.description += " ";
-				}
-				navigationMaintenance();
-				LogUtil.debug("Finishing at message " + currentMessage);
 			}
 			
 			private function goBackOneMessage(e:ShortcutEvent):void{
-				if (currentMessage > 0){
-					currentMessage--;
+				if (e.otherUserID == otherUserID){
+					if (currentMessage > 0){
+						currentMessage--;
+					}
+					else{
+						chatMessagesList.accessibilityProperties.description += " ";
+					}
+					navigationMaintenance();
 				}
-				else{
-					chatMessagesList.accessibilityProperties.description += " ";
-				}
-				navigationMaintenance();
 			}
 			
 			private function repeatMessage(e:ShortcutEvent):void{
-				chatMessagesList.accessibilityProperties.description += " ";	
-				repeat = true;
-				navigationMaintenance();
+				if (e.otherUserID == otherUserID){
+					chatMessagesList.accessibilityProperties.description += " ";	
+					repeat = true;
+					navigationMaintenance();
+				}
 			}
 			
 			private function goToLatestMessage(e:ShortcutEvent):void{
-				currentMessage = messages.length-3;
-				navToLatest = true;
-				spacerNeeded = setDescription();
-				
-				indicatorNeeded = true;
-				chatMessagesList.accessibilityProperties.description = navLatestString;
-				Accessibility.updateProperties();
-				navigationMaintenance();
+				if (e.otherUserID == otherUserID){
+					currentMessage = messages.length-3;
+					navToLatest = true;
+					spacerNeeded = setDescription();
+					
+					indicatorNeeded = true;
+					chatMessagesList.accessibilityProperties.description = navLatestString;
+					Accessibility.updateProperties();
+					navigationMaintenance();
+				}
 			}
 			
 			private function goToFirstMessage(e:ShortcutEvent):void{
-				currentMessage = 0;
-				navToFirst = true;
-				spacerNeeded = setDescription();
-				
-				indicatorNeeded = true;
-				chatMessagesList.accessibilityProperties.description = navFirstString;
-				Accessibility.updateProperties();
-				navigationMaintenance();
+				if (e.otherUserID == otherUserID){
+					currentMessage = 0;
+					navToFirst = true;
+					spacerNeeded = setDescription();
+					
+					indicatorNeeded = true;
+					chatMessagesList.accessibilityProperties.description = navFirstString;
+					Accessibility.updateProperties();
+					navigationMaintenance();
+				}
 			}
 			
 			private function navigationMaintenance():void{

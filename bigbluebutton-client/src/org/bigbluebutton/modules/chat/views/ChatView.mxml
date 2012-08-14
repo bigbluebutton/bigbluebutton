@@ -362,6 +362,7 @@
 					chatBox = getChatBoxForParticipant(userid);
 				} else {
 					chatBox = createChatBoxFor(userid);
+					chatBox.otherUserID = userid;
 				}				
 			}
 			
