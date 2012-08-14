@@ -68,7 +68,6 @@
 			private function init():void {
 				this.label = "Highlighter";
                 registerForMouseEvents();
-                queryForAnnotationHistory();
 			}
             
             public function queryForAnnotationHistory():void {
