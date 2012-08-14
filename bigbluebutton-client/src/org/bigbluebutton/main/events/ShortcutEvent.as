@@ -32,6 +32,8 @@ package org.bigbluebutton.main.events {
 		public static const GOLATEST_MESSAGE:String = 'GOLATEST_MESSAGE';
 		public static const GOFIRST_MESSAGE:String = 'GOFIRST_MESSAGE';
 		
+		public static const OPEN_SHORTCUT_WIN:String = 'OPEN_SHORTCUT_WIN';
+		
 		public function ShortcutEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false) {
 			super(type, bubbles, cancelable);
 		}		

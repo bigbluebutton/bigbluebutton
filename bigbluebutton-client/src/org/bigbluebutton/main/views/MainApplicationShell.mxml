@@ -43,6 +43,7 @@
 	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
+	<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -75,6 +76,7 @@
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
 			import org.bigbluebutton.main.events.RecordStatusEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -86,7 +88,8 @@
 			private var images:Images = new Images();
 			private var stoppedModules:ArrayCollection;			
 			private var logs:Logger = new Logger();
-			private var logWindow:LogWindow;			
+			private var logWindow:LogWindow;
+			private var scWindow:ShortcutHelpWindow;
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
 			
@@ -180,6 +183,17 @@
 				mdiCanvas.windowManager.absPos(logWindow, 50, 50);
 				logWindow.width = mdiCanvas.width - 100;
 				logWindow.height = mdiCanvas.height - 100;
+			}
+			
+			public function openShortcutHelpWindow(e:Event = null):void{
+				if (scWindow == null) {
+					scWindow = new ShortcutHelpWindow();
+				}
+				mdiCanvas.windowManager.add(scWindow);
+				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 100, mdiCanvas.height/2 - 100);
+				scWindow.width = 200;
+				scWindow.height = 200;
+				mdiCanvas.windowManager.bringToFront(scWindow);
 			}
 			
 			private function toggleFullScreen():void{
