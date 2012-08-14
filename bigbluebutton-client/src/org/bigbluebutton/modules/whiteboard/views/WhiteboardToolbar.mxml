@@ -56,11 +56,10 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
+            import flash.ui.Keyboard;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
-			import mx.managers.CursorManager;
-			
+			import mx.managers.CursorManager;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -107,6 +106,13 @@
 			
             private function onCreationComplete():void {
                 setToolType(WhiteboardConstants.TYPE_ZOOM, null);
+                stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+            }
+            
+            private function onKeyUp(event:KeyboardEvent):void {
+                if (event.ctrlKey && event.keyCode == Keyboard.Z) {
+                    sendUndoCommand();
+                }
             }
             
 			private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
