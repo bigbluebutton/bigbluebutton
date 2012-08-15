@@ -100,65 +100,6 @@ package org.bigbluebutton.modules.whiteboard
             }
 		}
 		               
-        // Draws a TextObject when/if it is received from the server
-        private function drawText3(o:Annotation):void {					
-            var dobj:TextDrawObject;
-            switch (o.status) {
-                case TextObject.TEXT_CREATED:
-                    dobj = shapeFactory.makeDrawObject(o, whiteboardModel) as TextDrawObject;	
-                    if (dobj != null) {
-                        dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
-                        if (isPresenter) {
-                            dobj.displayForPresenter();
-                            wbCanvas.stage.focus = dobj.textField;
-                            dobj.registerListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextChangeListener, textObjSpecialListener);
-                        } else {
-                            dobj.displayNormally();
-                        }
-                        wbCanvas.addGraphic(dobj);
-                        _annotationsList.push(dobj);							
-                    }													
-                    break;
-                case TextObject.TEXT_UPDATED:
-                    var gobj1:DrawObject = _annotationsList.pop();	
-                    wbCanvas.removeGraphic(gobj1 as DisplayObject);
-                    dobj = shapeFactory.makeDrawObject(o, whiteboardModel) as TextDrawObject;	
-                    if (dobj != null) {
-                        dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
-                        if (!isPresenter) {
-                            dobj.displayNormally();
-                            wbCanvas.addGraphic(dobj);
-                            _annotationsList.push(dobj);
-                        }                       							
-                    }					
-                    break;
-                case TextObject.TEXT_PUBLISHED:
-                    var gobj:DrawObject = _annotationsList.pop();	
-                    wbCanvas.removeGraphic(gobj as DisplayObject);	
-                    
-                    /**
-                    * Check if the text is empty. The presenter might have started a new text annotation without
-                    * entering text on the previous text annoation.
-                    */
-                    if (o.annotation.text != "") {
-                        dobj = shapeFactory.makeDrawObject(o, whiteboardModel) as TextDrawObject;	
-                        if (dobj != null) {
-                            dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
-                            dobj.displayNormally();
-                            wbCanvas.addGraphic(dobj);
-                            _annotationsList.push(dobj);							
-                        }                        
-                    } else {
-                        /**
-                        * Published an empty text annotation. Do nothing. The above remove graphic will remove the empty
-                        * annotation from the display.
-                        */
-                    }
-                    
-                    break;
-            }        
-        }
-
 		// Draws a TextObject when/if it is received from the server
 		private function drawText(o:Annotation):void {		
 			switch (o.status) {
@@ -309,21 +250,18 @@ package org.bigbluebutton.modules.whiteboard
 		
 		public function undoAnnotation(id:String):void {
             /** We'll just remove the last annotation for now **/
-            LogUtil.debug("**** Undoing annotation from display *****");
 			if (this._annotationsList.length > 0) {
-                LogUtil.debug("**** Removing from display. num annotations = [" + this._annotationsList.length + "] *****");
 				removeLastGraphic();
-                LogUtil.debug("**** Removed from display. num annotations = [" + this._annotationsList.length + "] *****");
 			}
 		}
         
         public function receivedAnnotationsHistory():void {
 //            LogUtil.debug("**** CanvasDisplay receivedAnnotationsHistory *****");
             var annotations:Array = whiteboardModel.getAnnotations();
-            LogUtil.debug("**** CanvasDisplay receivedAnnotationsHistory [" + annotations.length + "] *****");
+//            LogUtil.debug("**** CanvasDisplay receivedAnnotationsHistory [" + annotations.length + "] *****");
             for (var i:int = 0; i < annotations.length; i++) {
                 var an:Annotation = annotations[i] as Annotation;
-                LogUtil.debug("**** Drawing graphic from history [" + an.type + "] *****");
+//                LogUtil.debug("**** Drawing graphic from history [" + an.type + "] *****");
                 if(an.type != DrawObject.TEXT) {
                     var dobj:DrawObject = shapeFactory.makeDrawObject(an, whiteboardModel);	
                     if (dobj != null) {
@@ -368,11 +306,11 @@ package org.bigbluebutton.modules.whiteboard
         /**********************************************************/
         
 		public function changePage():void{
-            LogUtil.debug("**** CanvasDisplay changePage. Clearing page *****");
+//            LogUtil.debug("**** CanvasDisplay changePage. Clearing page *****");
             clearBoard();
             
             var annotations:Array = whiteboardModel.getAnnotations();
-            LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");
+//            LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");
             if (annotations.length == 0) {
                 /***
                 * Check if the whiteboard canvas has already been overlayed into the presentation canvas.

@@ -57,7 +57,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 
         
         override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
-            LogUtil.debug("Drawing RECTANGLE");
+//            LogUtil.debug("Drawing RECTANGLE");
             var ao:Object = a.annotation;
             if (!ao.fill)
                 this.graphics.lineStyle(ao.thickness, ao.color, ao.transparency ? 0.6 : 1.0);
