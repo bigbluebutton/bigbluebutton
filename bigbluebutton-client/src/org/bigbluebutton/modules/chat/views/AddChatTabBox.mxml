@@ -33,6 +33,7 @@
 			import mx.utils.StringUtil;			
 			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.common.LogUtil;
 			
 			[Bindable] public var participants:ArrayCollection;
 			[Bindable] public var chatView:ChatView;
@@ -47,7 +48,9 @@
 			}
 
 			protected function openPrivateChat(event:ListEvent):void{
+				LogUtil.debug("WATERFALL Click detected, entering openPrivateChat with participantsList.selectedIndex: " + participantsList.selectedIndex);
 				if (participantsList.selectedIndex == -1) return;
+				LogUtil.debug("WATERFALL Return bypassed, continuing");
 				var id:String = participantsList.selectedItem.userid;
 				participantsList.selectedIndex = -1;
 				chatView.openChatBoxFor(id);
@@ -87,14 +90,15 @@
 	<mx:HBox width="100%" height="100%" >
 		<mx:VBox height="100%" width="50%" visible="{chatOptions.privateEnabled}">
 			<mx:Label id="lblSelect" text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" />
-			<mx:List id="participantsList" height="100%" width="100%" dataProvider="{chatView.participants}" change="openPrivateChat(event)">
+			<mx:List id="participantsList" height="100%" width="100%" dataProvider="{chatView.participants}" click="openPrivateChat(event)">
 			</mx:List>
 		</mx:VBox>
 		<mx:VBox id="optionsBox" height="100%" width="50%" >
 			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
 			<mx:HBox width="100%">
 				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
-				<mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" selectedIndex="1" />
+				<mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" 
+							 selectedIndex="1" toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.plustab.fontsize')}"/>
 			</mx:HBox>
 			<mx:ComboBox id="langComboBox" dataProvider="{this.langNames}" selectedIndex="{ResourceUtil.getInstance().localeIndex}"  change="changeLanguage()" rowCount="15" />
 			<mx:CheckBox id="autoTransCheckBox" selected="false" label="AutoTranslate" toolTip="Auto detect language and translate" change="toggleTranslation()"/>
