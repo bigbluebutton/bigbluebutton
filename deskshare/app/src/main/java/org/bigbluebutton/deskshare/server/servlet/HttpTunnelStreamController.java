@@ -21,6 +21,8 @@
 */
 package org.bigbluebutton.deskshare.server.servlet;
 
+import java.util.*;
+
 import java.awt.Point;
 
 import javax.servlet.ServletContext;
@@ -94,7 +96,42 @@ public class HttpTunnelStreamController extends MultiActionController {
 	}	
 	
 	private void handleCaptureUpdateRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
 		MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+
+
+      String room = request.getParameterValues("room")[0];
+      String keyframe = "false";  // This data is never a keyframe
+
+      //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      // Get the list of multipart files that are in this POST request.
+      // Get the block info from each embedded file and send it to the
+      // session manager to update the viewers.
+      //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      Iterator uploadedFilenames = multipartRequest.getFileNames();
+      while(uploadedFilenames.hasNext())
+      { // process each embedded upload-file (block)
+
+         String uploadedFilename = (String)uploadedFilenames.next();
+         MultipartFile multipartFile = multipartRequest.getFile(uploadedFilename);
+
+         // Parse the block info out of the upload file name
+         // The file name is of format "blockgroup_<seqnum>_<position>".
+         String[] uploadedFileInfo = uploadedFilename.split("[_]");
+         
+         String seqNum = uploadedFileInfo[1];
+         String position = uploadedFileInfo[2];
+
+         // Update the viewers with the uploaded block data.
+         sessionManager.updateBlock(room,
+                                    Integer.valueOf(position),
+                                    multipartFile.getBytes(),
+                                    false, // This data is never a keyframe
+                                    Integer.parseInt(seqNum));
+
+      } // process each embedded upload-file (block)
+
+ /*
 		// MultipartFile is a copy of file in memory, not in file system
 		MultipartFile multipartFile = multipartRequest.getFile("blockdata");
 	
@@ -112,6 +149,8 @@ public class HttpTunnelStreamController extends MultiActionController {
 		}
 			
 		sessionManager.updateBlock(room, Integer.valueOf(position), blockData, Boolean.parseBoolean(keyframe), Integer.parseInt(seqNum));
+*/
+
 	}
 	
 	private void handleCaptureEndRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {	
