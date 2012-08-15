@@ -45,7 +45,7 @@
 			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', 'bbb.shortcutkey.whiteboard.undo'];
 			private var chatResource:Array = ['bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.chat.chattabs', 'bbb.shortcutkey.chat.chatbox.advance', 
 											  'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.repeat', 'bbb.shortcutkey.chat.chatbox.golatest', 
-											  'bbb.shortcutkey.chat.chatbox.gofirst'];
+											  'bbb.shortcutkey.chat.chatbox.gofirst', 'bbb.shortcutkey.chat.chatbox.goread'];
 			private var audResource:Array = ['bbb.shortcutkey.listeners.muteme'];
 			[Bindable]
 			private var shownKeys:ArrayCollection;
@@ -104,8 +104,14 @@
 					LogUtil.debug("CHAD inside" + resource.length);
 					keyCombo = ResourceUtil.getInstance().getString(resource[i]);
 					indx = keyCombo.lastIndexOf("+") + 1;
-					
-					keyList.addItem({Shortcut:keyCombo.substring(0, indx) + String.fromCharCode(int(keyCombo.substring(indx))), 
+					var key:int = int(keyCombo.substring(indx));
+					var convKey:String;
+					if (key == 32) { //special case
+						convKey = "Space";
+					} else {
+						convKey = String.fromCharCode(key);
+					}
+					keyList.addItem({Shortcut:keyCombo.substring(0, indx) + convKey, 
 								Function:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
 				}
 				LogUtil.debug("CHAD after " + resource.length);
