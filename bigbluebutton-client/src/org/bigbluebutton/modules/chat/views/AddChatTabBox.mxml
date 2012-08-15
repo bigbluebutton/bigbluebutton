@@ -47,7 +47,8 @@
 				participants = new ArrayCollection();
 			}
 
-			protected function openPrivateChat(event:ListEvent):void{
+			//protected function openPrivateChat(event:ListEvent):void{
+			protected function openPrivateChat(event:Event):void{
 				LogUtil.debug("WATERFALL Click detected, entering openPrivateChat with participantsList.selectedIndex: " + participantsList.selectedIndex);
 				if (participantsList.selectedIndex == -1) return;
 				LogUtil.debug("WATERFALL Return bypassed, continuing");
@@ -90,7 +91,7 @@
 	<mx:HBox width="100%" height="100%" >
 		<mx:VBox height="100%" width="50%" visible="{chatOptions.privateEnabled}">
 			<mx:Label id="lblSelect" text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" />
-			<mx:List id="participantsList" height="100%" width="100%" dataProvider="{chatView.participants}" click="openPrivateChat(event)">
+			<mx:List id="participantsList" height="100%" width="100%" dataProvider="{chatView.participants}" itemClick="openPrivateChat(event)">
 			</mx:List>
 		</mx:VBox>
 		<mx:VBox id="optionsBox" height="100%" width="50%" >
