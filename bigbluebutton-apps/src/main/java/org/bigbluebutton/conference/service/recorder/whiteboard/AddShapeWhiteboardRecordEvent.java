@@ -1,7 +1,6 @@
 package org.bigbluebutton.conference.service.recorder.whiteboard;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
@@ -16,7 +15,7 @@ public class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent
 		    String key = entry.getKey();
 		    		    
 		    if (key.equals("points")) {
-		    	ArrayList<Double> value = (ArrayList<Double>) entry.getValue();
+		    	ArrayList<Double> value = (ArrayList<Double>)entry.getValue();
 		    	eventMap.put("dataPoints", pointsToString(value));
 		    } else {
 		    	Object value = entry.getValue();

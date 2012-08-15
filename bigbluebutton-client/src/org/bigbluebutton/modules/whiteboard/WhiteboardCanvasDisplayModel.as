@@ -58,8 +58,7 @@ package org.bigbluebutton.modules.whiteboard
 		private var bbbCanvas:IBbbCanvas;
 		private var width:Number;
 		private var height:Number;
-		
-        
+		        
         public function doMouseDown(mouseX:Number, mouseY:Number):void {
             /**
              * Check if the presenter is starting a new text annotation without committing the last one.
@@ -270,7 +269,7 @@ package org.bigbluebutton.modules.whiteboard
 		
 		private function removeLastGraphic():void {
 			var gobj:GraphicObject = _annotationsList.pop();
-			if(gobj.type == WhiteboardConstants.TYPE_TEXT) {
+			if (gobj.type == WhiteboardConstants.TYPE_TEXT) {
 				(gobj as TextObject).makeEditable(false);
 				(gobj as TextObject).deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextChangeListener, textObjSpecialListener);
 			}	
@@ -310,18 +309,21 @@ package org.bigbluebutton.modules.whiteboard
 		
 		public function undoAnnotation(id:String):void {
             /** We'll just remove the last annotation for now **/
+            LogUtil.debug("**** Undoing annotation from display *****");
 			if (this._annotationsList.length > 0) {
+                LogUtil.debug("**** Removing from display. num annotations = [" + this._annotationsList.length + "] *****");
 				removeLastGraphic();
+                LogUtil.debug("**** Removed from display. num annotations = [" + this._annotationsList.length + "] *****");
 			}
 		}
         
         public function receivedAnnotationsHistory():void {
 //            LogUtil.debug("**** CanvasDisplay receivedAnnotationsHistory *****");
             var annotations:Array = whiteboardModel.getAnnotations();
-//            LogUtil.debug("**** CanvasDisplay receivedAnnotationsHistory [" + annotations.length + "] *****");
+            LogUtil.debug("**** CanvasDisplay receivedAnnotationsHistory [" + annotations.length + "] *****");
             for (var i:int = 0; i < annotations.length; i++) {
                 var an:Annotation = annotations[i] as Annotation;
-//                LogUtil.debug("**** Drawing graphic from history [" + an.type + "] *****");
+                LogUtil.debug("**** Drawing graphic from history [" + an.type + "] *****");
                 if(an.type != DrawObject.TEXT) {
                     var dobj:DrawObject = shapeFactory.makeDrawObject(an, whiteboardModel);	
                     if (dobj != null) {
@@ -330,19 +332,54 @@ package org.bigbluebutton.modules.whiteboard
                         _annotationsList.push(dobj);							
                     }				
                 } else { 
-                    drawText(an);	
+                    if (an.annotation.text != "") {
+                        addNormalText(an);     
+                    }
                 }             
+            }
+            
+            if (_annotationsList.length > 0) {
+                for (var ij:int = 0; ij < this._annotationsList.length; ij++){
+                    redrawGraphic(this._annotationsList[ij] as GraphicObject, ij);
+                }                
             }
         }
 
+        /*********************************************************
+        * HACK! HACK! HACK! HACK! HACK! HACK! HACK! HACK! HACK! 
+        * To tell us that the Whiteboard Canvas has been overlayed into the Presentation Canvas.
+        * The problem was that latecomers query for annotations history before the Whiteboard Canvas has
+        * been overlayed on top of the presentation canvas. When we receive the history and try to
+        * display the TEXT annotation, the text will be very small because when we calculate the font size,
+        * the value for the canvas width and height is still zero.
+        * 
+        * We need to setup the sequence of whiteboard startup properly to handle latecomers but this will
+        * do for now.
+        */
+        private var wbCanvasInitialized:Boolean = false;
+        public function parentCanvasInitialized():void {
+            wbCanvasInitialized = true;
+        }
+        
+        public function get canvasInited():Boolean {
+            return wbCanvasInitialized;
+        }
+        
+        /**********************************************************/
+        
 		public function changePage():void{
-//            LogUtil.debug("**** CanvasDisplay changePage. Cearing page *****");
+            LogUtil.debug("**** CanvasDisplay changePage. Clearing page *****");
             clearBoard();
             
             var annotations:Array = whiteboardModel.getAnnotations();
- //           LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");
+            LogUtil.debug("**** CanvasDisplay changePage [" + annotations.length + "] *****");
             if (annotations.length == 0) {
-                wbCanvas.queryForAnnotationHistory();
+                /***
+                * Check if the whiteboard canvas has already been overlayed into the presentation canvas.
+                * If not, don't query for history. The overlay canvas event will trigger the querying of
+                * the history.
+                */
+                if (wbCanvasInitialized) wbCanvas.queryForAnnotationHistory();
             } else {
                 for (var i:int = 0; i < annotations.length; i++) {
                     var an:Annotation = annotations[i] as Annotation;
@@ -355,9 +392,13 @@ package org.bigbluebutton.modules.whiteboard
                             _annotationsList.push(dobj);							
                         }			
                     } else { 
-                        drawText(an);	
-                    }                
-                }                
+                        addNormalText(an);				
+                    }              
+                }  
+                
+                for (var ij:int = 0; ij < this._annotationsList.length; ij++){
+                    redrawGraphic(this._annotationsList[ij] as GraphicObject, ij);
+                }
             }
         }
 		
@@ -462,13 +503,13 @@ package org.bigbluebutton.modules.whiteboard
         }
         		
 		public function textObjGainedFocusListener(event:FocusEvent):void {
-			//LogUtil.debug("### GAINED FOCUS ");
+			LogUtil.debug("### GAINED FOCUS ");
             // The presenter is ready to type in the text. Maintain focus to this textbox until the presenter hits the ENTER/RETURN key.
             maintainFocusToTextBox(event);
 		}
 		
 		public function textObjLostFocusListener(event:FocusEvent):void {
-			//LogUtil.debug("### LOST FOCUS ");
+			LogUtil.debug("### LOST FOCUS ");
             // The presenter is moving the mouse away from the textbox. Perhaps to change the size and color of the text.
             // Maintain focus to this textbox until the presenter hits the ENTER/RETURN key.
             maintainFocusToTextBox(event);
@@ -513,7 +554,6 @@ package org.bigbluebutton.modules.whiteboard
                 wbCanvas.dispatchEvent(e);                
             }
 
-			
 //			LogUtil.debug("SENDING TEXT: [" + tobj.textSize + "]");
 			
 			var annotation:Object = new Object();
