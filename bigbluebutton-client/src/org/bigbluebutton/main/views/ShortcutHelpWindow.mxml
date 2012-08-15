@@ -41,20 +41,36 @@
 			private var chatKeys:ArrayList;
 			private var audKeys:ArrayList;
 			
+			private var genResource:Array = [];
+			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', 'bbb.shortcutkey.whiteboard.undo'];
+			private var chatResource:Array = ['bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.chat.chattabs', 'bbb.shortcutkey.chat.chatbox.advance', 
+											  'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.repeat', 'bbb.shortcutkey.chat.chatbox.golatest', 
+											  'bbb.shortcutkey.chat.chatbox.gofirst'];
+			private var audResource:Array = ['bbb.shortcutkey.listeners.muteme'];
 			[Bindable]
 			private var shownKeys:ArrayCollection;
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("WATERFALL: Shortcut window has been opened");
 				reloadKeys();
+				ResourceUtil.getInstance().addEventListener(Event.CHANGE, reloadKeys); // Listen for locale changing
 			}
 			
-			private function reloadKeys():void {
-				loadGenKeys();
-				loadPresKeys();
-				loadChatKeys();
-				loadAudKeys();
+			private function reloadKeys(e:Event = null):void {
+				LogUtil.debug("Chad start of function");
+				genKeys = loadKeys(genResource);
+				LogUtil.debug("CHAD loaded" + genKeys);
+				presKeys = loadKeys(presResource);
+				LogUtil.debug("CHAD loaded" + presKeys.length);
+				chatKeys = loadKeys(chatResource);
+				LogUtil.debug("CHAD loaded" + chatKeys.length);
+				audKeys = loadKeys(audResource);
+				LogUtil.debug("CHAD loaded" + audKeys.length);
 				
+				changeArray();
+			}
+			
+			private function changeArray():void {
 				shownKeys = new ArrayCollection();
 				switch(categories.selectedIndex) {
 				case 0: //All
@@ -78,50 +94,32 @@
 				}
 			}
 			
-			private function loadGenKeys():void {
-				genKeys = new ArrayList();
-			}
-			
-			private function loadPresKeys():void {
-				presKeys = new ArrayList();
-				presKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide')), 
-								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide.function'))});
-				presKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo')), 
-								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo.function'))});
-			}
-			
-			private function loadChatKeys():void {
-				chatKeys = new ArrayList();
-				chatKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput')), 
-								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput.function'))});
-				chatKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chattabs')), 
-								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chattabs.function'))});
-				chatKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.advance')), 
-								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.advance.function'))});
-				chatKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.goback')), 
-								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.goback.function'))});
-				chatKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.repeat')), 
-								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.repeat.function'))});
-				chatKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.golatest')), 
-								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.golatest.function'))});
-				chatKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.gofirst')), 
-								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.gofirst.function'))});
-			}
-			
-			private function loadAudKeys():void {
-				audKeys = new ArrayList();
-				audKeys.addItem({Shortcut:(ResourceUtil.getInstance().getString('bbb.shortcutkey.listeners.muteme')), 
-								 Function:(ResourceUtil.getInstance().getString('bbb.shortcutkey.listeners.muteme.function'))});
+			private function loadKeys(resource:Array):ArrayList {
+				var keyList = new ArrayList();
+				LogUtil.debug("CHAD " + resource.length);
+				var keyCombo:String;
+				var indx:int = 255;
+				LogUtil.debug("CHAD " + resource.length);
+				for (var i:int = 0; i < resource.length; i++) {
+					LogUtil.debug("CHAD inside" + resource.length);
+					keyCombo = ResourceUtil.getInstance().getString(resource[i]);
+					indx = keyCombo.lastIndexOf("+") + 1;
+					
+					keyList.addItem({Shortcut:keyCombo.substring(0, indx) + String.fromCharCode(int(keyCombo.substring(indx))), 
+								Function:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
+				}
+				LogUtil.debug("CHAD after " + resource.length);
+				return keyList;
 			}
 			
 			public function focusCategories():void {
 				focusManager.setFocus(categories);
-				focusManager.drawFocus(categories);
+				categories.drawFocus(true);
 			}
 		]]>
 	</mx:Script>
 	
-	<mx:ComboBox id="categories" labelField="Please select an area for which to view shortcut keys: " editable="false" change="reloadKeys()">
+	<mx:ComboBox id="categories" labelField="Please select an area for which to view shortcut keys: " editable="false" change="changeArray()">
 		<mx:ArrayCollection>
         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.all")}</mx:String>
         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general")}</mx:String>
