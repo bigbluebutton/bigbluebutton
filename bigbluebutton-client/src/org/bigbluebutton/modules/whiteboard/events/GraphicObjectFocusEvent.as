@@ -20,15 +20,14 @@
 package org.bigbluebutton.modules.whiteboard.events
 {
 	import flash.events.Event;
-	
-	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-	
+	import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+
 	public class GraphicObjectFocusEvent extends Event
 	{
 		public static const OBJECT_SELECTED:String = "objSelect";
 		public static const OBJECT_DESELECTED:String = "objDeselect";
 
-		public var data:GraphicObject;
+		public var data:TextObject;
 		
 		public function GraphicObjectFocusEvent(type:String) {
 			super(type, true, false);

@@ -21,63 +21,35 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	import flash.display.Shape;
 	
+	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.modules.whiteboard.models.Annotation;
+	
 	public class Line extends DrawObject
 	{
-		/**
-		 * The dafault constructor. Creates a Line DrawObject 
-		 * @param segment the array representing the points needed to create this Line
-		 * @param color the Color of this Line
-		 * @param thickness the thickness of this Line
-		 * @param trans the transparency of this Line
-		 */	
-
-		public function Line(segment:Array, color:uint, thickness:uint, trans:Boolean)
+		public function Line(id:String, type:String, status:String)
 		{
-			super(DrawObject.LINE, segment, color, thickness, false, 0x000000, false);
+			super(id, type, status);
 		}
-		
-		/**
-		 * Gets rid of the unnecessary data in the segment array, so that the object can be more easily passed to
-		 * the server 
-		 * 
-		 */		
-		override protected function optimize():void{
-			var x1:Number = this.shape[0];
-			var y1:Number = this.shape[1];
-			var x2:Number = this.shape[this.shape.length - 2];
-			var y2:Number = this.shape[this.shape.length - 1];
+				
+		override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+			LogUtil.debug("Drawing LINE");
+			var ao:Object = a.annotation;
 			
-			this.shape = new Array();
-			this.shape.push(x1);
-			this.shape.push(y1);
-			this.shape.push(x2);
-			this.shape.push(y2);
-		}
-			
-		override public function makeGraphic(parentWidth:Number, parentHeight:Number):void {
-			this.graphics.lineStyle(getThickness(), getColor());
-			var arrayEnd:Number = getShapeArray().length;
-			var startX:Number = denormalize(getShapeArray()[0], parentWidth);
-			var startY:Number = denormalize(getShapeArray()[1], parentHeight);
-			var endX:Number = denormalize(getShapeArray()[arrayEnd-2], parentWidth);
-			var endY:Number = denormalize(getShapeArray()[arrayEnd-1], parentHeight);
+			this.graphics.lineStyle(ao.thickness, ao.color);
+			var arrayEnd:Number = (ao.points as Array).length;
+			var startX:Number = denormalize((ao.points as Array)[0], parentWidth);
+			var startY:Number = denormalize((ao.points as Array)[1], parentHeight);
+			var endX:Number = denormalize((ao.points as Array)[arrayEnd-2], parentWidth);
+			var endY:Number = denormalize((ao.points as Array)[arrayEnd-1], parentHeight);
 			this.alpha = 1;
 			this.x = startX;
 			this.y = startY;
-			this.graphics.lineTo(endX-startX, endY-startY);
+			this.graphics.lineTo(endX-startX, endY-startY);			
 		}
 		
-		override public function getProperties():Array {
-			var props:Array = new Array();
-			props.push(this.type);
-			props.push(this.shape);
-			props.push(this.color);
-			props.push(this.thickness);
-			props.push(false);
-			props.push(false);
-			props.push(this.width);
-			props.push(this.height);
-			return props;
+		override public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+			draw(a, parentWidth, parentHeight);
 		}
+		
 	}
 }

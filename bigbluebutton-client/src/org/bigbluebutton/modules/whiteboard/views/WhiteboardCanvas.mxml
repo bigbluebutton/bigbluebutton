@@ -36,7 +36,6 @@
             import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
             import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
             import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-            import org.bigbluebutton.modules.whiteboard.business.shapes.SelectObject;
             import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
             import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
             import org.bigbluebutton.modules.whiteboard.events.PageEvent;
@@ -81,12 +80,24 @@
                 addEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
                 addEventListener(MouseEvent.MOUSE_UP, doMouseUp);
                 addEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
+                stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+                stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);               
             }
             
             public function unregisterForMouseEvents():void {
                 removeEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
                 removeEventListener(MouseEvent.MOUSE_UP, doMouseUp);
                 removeEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
+                stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+                stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+            }
+            
+            private function onKeyDown(event:KeyboardEvent):void {
+                model.onKeyDown(event); 
+            }
+            
+            private function onKeyUp(event:KeyboardEvent):void {
+                model.onKeyUp(event);
             }
             
 			private function doMouseUp(event:Event):void {
@@ -94,6 +105,7 @@
 			}
 						
 			private function doMouseDown(event:Event):void {
+                displayModel.doMouseDown(this.mouseX, this.mouseY);
 				model.doMouseDown(this.mouseX, this.mouseY);
 			}
 						
@@ -175,8 +187,13 @@
 			}
 			
 			private function setWhiteboardVisibility():void {
-				if (this.whiteboardEnabled && this.showWhiteboard) this.visible = true;
-				else this.visible = false;
+                if (this.whiteboardEnabled && this.showWhiteboard) {
+                    this.visible = true;
+                    registerForMouseEvents();
+                } else {
+                    this.visible = false;
+                    unregisterForMouseEvents();
+                }
 			}
 			
 			/* added this functionality in WhiteboardToolbar.mxml instead to allow a variety of cursors */			
@@ -201,8 +218,8 @@
 					CursorManager.setCursor(eraser_icon);
 				} else if(toolType == TextObject.TEXT_TOOL) {
 					CursorManager.setCursor(text_icon);
-				} else if(toolType == SelectObject.SELECT_TOOL) {
-					CursorManager.setCursor(select_icon);
+//				} else if(toolType == SelectObject.SELECT_TOOL) {
+//					CursorManager.setCursor(select_icon);
 				} 
 			}
 			

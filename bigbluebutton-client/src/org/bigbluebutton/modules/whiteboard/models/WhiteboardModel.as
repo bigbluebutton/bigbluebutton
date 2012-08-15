@@ -30,7 +30,6 @@ package org.bigbluebutton.modules.whiteboard.models
 			            
             var event:WhiteboardUpdate = new WhiteboardUpdate(WhiteboardUpdate.BOARD_UPDATED);
             event.annotation = annotation;
-            event.recvdShapes = false;
             _dispatcher.dispatchEvent(event);
             LogUtil.debug("*** Dispatched WhiteboardUpdate.BOARD_UPDATED Event ****");
 		}

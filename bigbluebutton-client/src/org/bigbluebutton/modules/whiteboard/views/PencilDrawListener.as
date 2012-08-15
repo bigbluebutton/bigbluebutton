@@ -1,6 +1,7 @@
 package org.bigbluebutton.modules.whiteboard.views
 {
     import org.bigbluebutton.common.LogUtil;
+    import org.bigbluebutton.modules.whiteboard.business.shapes.DrawAnnotation;
     import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
     import org.bigbluebutton.modules.whiteboard.business.shapes.Pencil;
     import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
@@ -17,9 +18,13 @@ package org.bigbluebutton.modules.whiteboard.views
         private var _wbCanvas:WhiteboardCanvas;
         private var _sendFrequency:int;
         private var _shapeFactory:ShapeFactory;
-        
-        public function PencilDrawListener(wbCanvas:WhiteboardCanvas, sendShapeFrequency:int, shapeFactory:ShapeFactory)
+        private var _ctrlKeyDown:Boolean = false;
+		private var _idGenerator:AnnotationIDGenerator;
+		private var _curID:String;
+		
+        public function PencilDrawListener(idGenerator:AnnotationIDGenerator, wbCanvas:WhiteboardCanvas, sendShapeFrequency:int, shapeFactory:ShapeFactory)
         {
+			_idGenerator = idGenerator;
             _wbCanvas = wbCanvas;
             _sendFrequency = sendShapeFrequency;
             _shapeFactory = shapeFactory;
@@ -35,6 +40,11 @@ package org.bigbluebutton.modules.whiteboard.views
                 _segment.push(mouseY);
             } 
         }
+        
+        public function ctrlKeyDown(down:Boolean):void {
+            _ctrlKeyDown = down;
+        }
+        
         
         public function onMouseMove(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
         {
@@ -81,18 +91,22 @@ package org.bigbluebutton.modules.whiteboard.views
         private function sendShapeToServer(status:String, tool:WhiteboardTool):void {
             if (_segment.length == 0) return;
                        
-            var dobj:DrawObject = _shapeFactory.createDrawObject(tool.toolType, _segment, tool.drawColor, tool.thickness, tool.fillOn, tool.fillColor, tool.transparencyOn);
+            var dobj:DrawAnnotation = _shapeFactory.createDrawObject(tool.toolType, _segment, tool.drawColor, tool.thickness, tool.fillOn, tool.fillColor, tool.transparencyOn);
             
             switch (status) {
                 case DrawObject.DRAW_START:
                     dobj.status = DrawObject.DRAW_START;
+					_curID = _idGenerator.generateID();
+					dobj.id = _curID;
                     _drawStatus = DrawObject.DRAW_UPDATE;
                     break;
                 case DrawObject.DRAW_UPDATE:
-                    dobj.status = DrawObject.DRAW_UPDATE;								
+                    dobj.status = DrawObject.DRAW_UPDATE;
+					dobj.id = _curID;
                     break;
                 case DrawObject.DRAW_END:
                     dobj.status = DrawObject.DRAW_END;
+					dobj.id = _curID;
                     _drawStatus = DrawObject.DRAW_START;
                     break;
             }
@@ -106,19 +120,11 @@ package org.bigbluebutton.modules.whiteboard.views
                 _segment.push(xy[0], xy[1]);
             }
            
-            var annotation:Object = new Object();
-            annotation["type"] = dobj.getType();
-            annotation["points"] = dobj.getShapeArray();
-            annotation["color"] = dobj.getColor();
-            annotation["thickness"] = dobj.getThickness();
-            annotation["id"] = dobj.getGraphicID();
-            annotation["status"] = dobj.status;
-            annotation["fill"] = dobj.getFill();
-            annotation["fillColor"] = dobj.getFillColor();
-            annotation["transparency"] = dobj.getTransparency();
-            
-            var msg:Annotation = new Annotation(dobj.getGraphicID(), dobj.getType(), annotation);
-            _wbCanvas.sendGraphicToServer(msg, WhiteboardDrawEvent.SEND_SHAPE);			
+			var an:Annotation = dobj.createAnnotation(_ctrlKeyDown);
+			if (an != null) {
+				_wbCanvas.sendGraphicToServer(an, WhiteboardDrawEvent.SEND_SHAPE);
+			}
+            			
         }
     }
 }

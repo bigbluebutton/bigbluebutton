@@ -37,7 +37,6 @@ package org.bigbluebutton.modules.whiteboard.events
         public static const CHANGE_PAGE:String = "WhiteboardChangePageEvent";
         
 		public var annotation:Annotation;
-		public var recvdShapes:Boolean;
 		public var boardEnabled:Boolean;
 		public var annotationID:String;
 		

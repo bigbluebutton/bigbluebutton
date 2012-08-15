@@ -225,7 +225,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 
 			private function handleObjSelected(event:GraphicObjectFocusEvent):void  {
                 LogUtil.debug("###### handleObjSelected");
-				if(event.data.getGraphicType() != WhiteboardConstants.TYPE_TEXT) return;
+//				if(event.data.id != WhiteboardConstants.TYPE_TEXT) return;
 				var tobj:TextObject = event.data as TextObject;
 				repositionToolbar(tobj);
 				syncPropsWith(tobj);
@@ -234,7 +234,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 
 			private function handleObjDeselected(event:GraphicObjectFocusEvent):void  {
                 LogUtil.debug("##### handleObjDeselected");
-				if(event.data.getGraphicType() != WhiteboardConstants.TYPE_TEXT) return;
+//				if(event.data.id != WhiteboardConstants.TYPE_TEXT) return;
 				var tobj:TextObject = event.data as TextObject;
 				
 				/* checks if the new focus of the stage is not the TextToolbar, and if not,
@@ -266,16 +266,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 
 	<mx:ColorPicker width="20" height="20"  change="setTextColor(event)" id="ctextpik" selectedColor="0x000000"
 					toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textColorPicker')}"/>
-    
-<!--		
-	<mx:Spacer width="3" />
 
-	<mx:Button width="20" height="20" id="btnToggleBackground" click="setBackgroundVisible(event)"  icon="{toggle_text_background_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.backColorVisible')}" toggle="true"/>
-	
-	<mx:ColorPicker width="20" height="20" change="changeTextBackgroundColor(event)" id="cbackpik"  selectedColor="0x000000" 
-					toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.backColorPicker')}"/>
--->	
 	<views:PopUpCombo id="textSizeMenu" creationComplete="initTextSizeMenu()" 
 					  toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textSizeMenu')}" 
 					   openAlways="true" specificOpenDirection="{PopUpCombo.OPEN_UP}" />

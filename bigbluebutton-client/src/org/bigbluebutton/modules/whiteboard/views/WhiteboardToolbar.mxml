@@ -57,11 +57,10 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
+            import flash.ui.Keyboard;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
-			import mx.managers.CursorManager;
-			
+			import mx.managers.CursorManager;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -70,7 +69,6 @@
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.SelectObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
@@ -111,6 +109,13 @@
 			
             private function onCreationComplete():void {
                 setToolType(WhiteboardConstants.TYPE_ZOOM, null);
+                stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+            }
+            
+            private function onKeyUp(event:KeyboardEvent):void {
+                if (event.ctrlKey && event.keyCode == Keyboard.Z) {
+                    sendUndoCommand();
+                }
             }
             
 			private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
@@ -221,12 +226,12 @@
            
             private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
                 var gobj:GraphicObject = event.data;
-                LogUtil.debug("!!!!SELECTED:" + " " + gobj.getProperties());
+                LogUtil.debug("!!!!SELECTED:" );
             }
             
             private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
                 var gobj:GraphicObject = event.data;
-                LogUtil.debug("!!!!DESELECTED:" + " " + gobj.getProperties());
+                LogUtil.debug("!!!!DESELECTED:" + " " );
             }
 			           
 		]]>
