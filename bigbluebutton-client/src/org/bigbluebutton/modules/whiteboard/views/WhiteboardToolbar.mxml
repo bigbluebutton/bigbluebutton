@@ -31,6 +31,7 @@
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
 	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
+	<mate:Listener type="{ShortcutEvent.UNDO_WHITEBOARD}" method="undoShortcut" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
 	<mate:Listener type="{WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED}" method="handleWhiteboardButtonPressed"/>
@@ -63,6 +64,7 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
@@ -77,6 +79,7 @@
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.common.LogUtil;
 			
 			private var images:Images = new Images();
             [Bindable] private var hand_icon:Class = images.hand_icon;
@@ -185,6 +188,11 @@
 				canvas.makeTextObjectsUneditable(e);
 			    this.visible = false;
             }
+			
+			private function undoShortcut(e:ShortcutEvent):void{
+				LogUtil.debug("Ctrl-Z got into undoShortcut");
+				sendUndoCommand();
+			}
 			
 			private function showToolbar(e:PresentationEvent):void {
 				this.visible = true;

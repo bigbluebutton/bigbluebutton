@@ -47,9 +47,10 @@ package org.bigbluebutton.modules.present.managers
 			slides = new Object();
 		}
 		
-		private function slideLoadListener(slideNum:Number, slide:ByteArray):void {
+		private function slideLoadListener(slideNum:Number, slide:ByteArray, slideText:String):void {
 			var e:SlideEvent = new SlideEvent(SlideEvent.SLIDE_LOADED);
 			e.slide = slide;
+			e.slideText = slideText;
 			e.slideNumber = slideNum;
 			e.page = slides[slideNum];
 			dispatcher.dispatchEvent(e);

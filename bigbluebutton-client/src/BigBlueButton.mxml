@@ -19,7 +19,6 @@
  
   $Id: $
 -->
-
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:views="org.bigbluebutton.main.views.*"
 	xmlns:maps="org.bigbluebutton.main.maps.*"
@@ -27,10 +26,13 @@
 	xmlns:m="library://melomel/2010"
 	pageTitle="BigBlueButton"
 	layout="absolute" preinitialize="init()"
-	preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
+	preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader"
+	applicationComplete="hotkeyCapture()">
 	
 	<mx:Script>
 		<![CDATA[
+			import flash.events.Event;
+
 			import com.asfusion.mate.events.Dispatcher;		
 			import mx.managers.HistoryManager;
 			import org.bigbluebutton.core.EventBroadcaster;
@@ -38,8 +40,10 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainApplicationShell;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			
 		private var langResources:ResourceUtil = ResourceUtil.getInstance();
 		
@@ -209,6 +213,46 @@
 				mainShell.initOptions(null);
 			}
 
+			/**
+			 * Shortcut Keys
+			 */
+			
+			private function localeChanged(e:Event):void{
+				loadKeyCombos();
+			}
+			
+			private var keyCombos:Object;
+			
+			private function loadKeyCombos():void {
+				keyCombos = new Object(); // always start with a fresh array
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.listeners.muteme') as String)] = ShortcutEvent.MUTE_ME_EVENT;
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput') as String)] = ShortcutEvent.FOCUS_CHAT_INPUT;
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chattabs') as String)] = ShortcutEvent.FOCUS_CHAT_TABS;
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide') as String)] = ShortcutEvent.FOCUS_SLIDE;
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo') as String)] = ShortcutEvent.UNDO_WHITEBOARD;
+			}
+
+			public function hotkeyCapture():void{
+				LogUtil.debug("Entering hotkeyCapture");
+				stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+				LogUtil.debug("Leaving hotkeyCapture");
+			}
+			
+			public function handleKeyDown(e:KeyboardEvent) :void
+			{
+				var keyPress:String = (e.ctrlKey  ? "control+" : "") +
+									  (e.shiftKey ? "shift+"   : "") +
+									  (e.altKey   ? "alt+"     : "") +
+									  e.keyCode;
+				//LogUtil.debug("Chad keypress " + keyPress);
+				
+				if (keyCombos[keyPress])
+				{
+					LogUtil.debug("Chad keypress " + keyPress);
+					globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+				}
+			}
 		]]>
 	</mx:Script>	
 	

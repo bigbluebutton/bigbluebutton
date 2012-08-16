@@ -23,17 +23,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
   <script type="text/javascript" src="playback.js"></script>
   <script src="lib/popcorn-complete.min.js"></script>
+  <script src="lib/popcorn.chattimeline.js"></script>
 </head>
 <body>
-	<div id="playbackArea" class="clearfix">
-		<div id="thumbnails"></div>
+	<div id="playbackArea" class="clearfix" role="main">
+		<div id="thumbnails" role="region" aria-label="Slide thumbnails"></div>
 		<div id="presentation">
-			<div id="slide"></div>
+			<div id="slide" role="region" aria-label="Slide"></div>
+                        <div id="slideText" class="visually-hidden" role="region" aria-live="polite" aria-label="polite"></div>
 		</div>
 		<div class="circle" id="cursor" style="visibility:hidden;"></div>
 		<div class="chatcontainer">
-			<div id="chat"></div>
-			<div id="videoRecordingWrapper">
+			<div id="chat" aria-live="polite" role="region" aria-label="Chat messages"></div>
+			<div id="videoRecordingWrapper" role="region" aria-label="Video">
 			  <video id="video" controls>You must use an HTML5 capable browser to view this page.
 			  This playback requires modern browser, please use FF, Safari, Chrome</video>
 		  </div>

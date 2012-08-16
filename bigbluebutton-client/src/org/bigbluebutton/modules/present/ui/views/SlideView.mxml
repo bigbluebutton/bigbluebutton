@@ -23,6 +23,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:local="*"
+	xmlns:fimage="org.bigbluebutton.common.model.*"
     width="{slideModel.viewportW}" height="{slideModel.viewportH}" 
 	x="{slideModel.viewportX}" y="{slideModel.viewportY}"
     creationComplete="onCreationComplete()" 
@@ -38,6 +39,7 @@
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleSwitchToPresenterEvent" />
     <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="handleSwitchToViewerEvent" />
     <mate:Listener type="{CursorEvent.UPDATE_CURSOR}" method="handleUpdateCursorEvent" />
+    <mate:Listener type="{ShortcutEvent.FOCUS_SLIDE}" method="focusSlide" />
     
 	<mx:Script>
 		<![CDATA[
@@ -54,8 +56,10 @@
 			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.model.FocusableImage;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.modules.present.events.CursorEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.MoveEvent;
@@ -299,6 +303,8 @@
 			 */						
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
 				slideLoader.source = e.slide;
+				slideLoader.accessibilityProperties.description = e.slideText;
+				Accessibility.updateProperties()
 			}
 			
 			/**
@@ -452,10 +458,15 @@
 				
 			}
 			
+			private function focusSlide(e:ShortcutEvent):void{
+				focusManager.setFocus(slideLoader);
+				slideLoader.drawFocus(true);
+			}
+			
 		]]>
 	</mx:Script>
-	<mx:SWFLoader id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" x="{slideModel.loaderX}" y="{slideModel.loaderY}" 
-		creationComplete="listenForSlideLoadedCompleteEvent()" scaleContent="false" showBusyCursor="true" completeEffect="Fade"/>			
+	<fimage:FocusableImage id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" x="{slideModel.loaderX}" y="{slideModel.loaderY}"
+		creationComplete="listenForSlideLoadedCompleteEvent()" scaleContent="false" showBusyCursor="true" completeEffect="Fade" />
 	
    		
     <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.ui.views.Thumbnail" itemRollOver="changeIndex(event)" 

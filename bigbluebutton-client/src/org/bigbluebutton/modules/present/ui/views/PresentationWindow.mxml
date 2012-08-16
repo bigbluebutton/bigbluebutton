@@ -37,7 +37,7 @@
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
-	title="{currentPresentation}" focusStart="bindKeyboardEvents()" focusEnd="unbindKeyboardEvents()"
+	title="{currentPresentation}"
 	xmlns:views="org.bigbluebutton.modules.present.ui.views.*">
 	
 	<mate:Dispatcher id="globalDispatcher" />
@@ -190,7 +190,6 @@
 				fitSlideToWindowMaintainingAspectRatio();			
 			}
 			
-            
             private function bindToKeyboardEvents(event:NavigationEvent):void {
                 if (event.bindToKeyboard) {
                     LogUtil.debug("******************************************** Binding to keyboard events ********************");

@@ -27,6 +27,25 @@ secondsToHHMMSS = function(secs) {
   return time;
 }
 
+/*
+ * Full word version of the above function for screen readers
+ */
+secondsToHHMMSSText = function(secs) {
+  var hours   = Math.floor(secs / 3600);
+  var minutes = Math.floor((secs - (hours * 3600)) / 60);
+  var seconds = secs - (hours * 3600) - (minutes * 60);
+
+  var time = "";
+  if (hours   > 1) {time += hours   + " hours ";}
+  else if (hours   == 1) {time += hours   + " hour ";}
+  if (minutes > 1) {time += minutes + " minutes ";}
+  else if (minutes == 1) {time += minutes + " minute ";}
+  if (seconds > 1) {time += seconds + " seconds ";}
+  else if (seconds == 1) {time += seconds + " second ";}
+
+  return time;
+}
+
 var params = getUrlParameters();
 var MEETINGID = params['meetingId'];
 var RECORDINGS = "/presentation/" + MEETINGID;
@@ -74,7 +93,7 @@ setEventsOnThumbnail = function($thumb) {
   });
 
   // Click on thumbnail changes the slide in popcorn
-  $thumb.on("click", function() {
+  $thumb.parent().on("click", function() {
     goToSlide($thumb.attr("data-in"));
   });
 
@@ -115,6 +134,7 @@ generateThumbnails = function() {
   var imagesList = new Array();
   
   xmlList = xmlDoc.getElementsByTagName("image");
+  var slideCount = 0;
   
   for (var i = 0; i < xmlList.length; i++) {
     var element = xmlList[i];
@@ -136,23 +156,34 @@ generateThumbnails = function() {
         img.attr("data-in", timeIn);
         img.attr("data-out", timeOut);
         img.addClass("thumbnail");
+        img.attr("alt", " ");
+        img.attr("aria-hidden", "true"); //doesn't need to be focusable for blind users
 
         // a label with the time the slide starts
         var label = $(document.createElement('span'));
         label.addClass("thumbnail-label");
+        label.attr("aria-hidden", "true"); //doesn't need to be focusable for blind users
         label.html(secondsToHHMMSS(timeIn));
+
+        var hiddenDesc = $(document.createElement('span'));
+        hiddenDesc.attr("id", img.attr("id") + "description");
+        hiddenDesc.attr("class", "visually-hidden");
+        hiddenDesc.html("Slide " + ++slideCount + " " + secondsToHHMMSSText(timeIn));
+        
 
         // a wrapper around the img and label
         var div = $(document.createElement('div'));
         div.addClass("thumbnail-wrapper");
-
+        div.attr("role", "link"); //tells accessibility software it can be clicked
+	div.attr("aria-describedby", img.attr("id") + "description");
         div.append(img);
         div.append(label);
+        div.append(hiddenDesc);
 
 //        $("#thumbnails").append(div);
         imagesList.push(timeIn);
         elementsMap[timeIn] = div;
-
+	
         setEventsOnThumbnail(img);
         setTitleOnThumbnail(img);
       }
