@@ -32,7 +32,6 @@
 	<mx:Script>
 		<![CDATA[
 			import flash.events.Event;
-
 			import com.asfusion.mate.events.Dispatcher;		
 			import mx.managers.HistoryManager;
 			import org.bigbluebutton.core.EventBroadcaster;

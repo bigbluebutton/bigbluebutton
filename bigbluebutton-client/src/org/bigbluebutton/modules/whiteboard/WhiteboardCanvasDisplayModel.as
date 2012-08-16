@@ -151,8 +151,7 @@ package org.bigbluebutton.modules.whiteboard
 			wbCanvas.addGraphic(tobj);
 			wbCanvas.stage.focus = tobj;
             _annotationsList.push(tobj);
-            
-            
+                       
 		}
 		
 		/* adds a new TextObject that is suited for a viewer. For example, it will not
@@ -509,9 +508,7 @@ package org.bigbluebutton.modules.whiteboard
 					break;
 			}	
             
-            if (status == TextObject.TEXT_PUBLISHED) {
-
-                
+            if (status == TextObject.TEXT_PUBLISHED) {               
                 var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
                 e.data = tobj;
                 wbCanvas.dispatchEvent(e);   

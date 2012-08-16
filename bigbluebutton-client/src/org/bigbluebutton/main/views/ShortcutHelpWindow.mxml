@@ -95,7 +95,7 @@
 			}
 			
 			private function loadKeys(resource:Array):ArrayList {
-				var keyList = new ArrayList();
+				var keyList:ArrayList = new ArrayList();
 				LogUtil.debug("CHAD " + resource.length);
 				var keyCombo:String;
 				var indx:int = 255;

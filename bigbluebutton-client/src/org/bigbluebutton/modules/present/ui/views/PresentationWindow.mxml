@@ -209,7 +209,7 @@
             }
             
 			private function onKeyUp(event:KeyboardEvent):void {	
-                if (event.shiftKey) {
+                if (event.shiftKey && event.ctrlKey) {
                     switch (event.keyCode) {
                         case Keyboard.LEFT:
                         case Keyboard.UP:
