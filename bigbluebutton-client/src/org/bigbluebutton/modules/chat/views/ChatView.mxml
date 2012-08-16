@@ -330,6 +330,7 @@
 				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
 				
 				if (chatTabs.selectedIndex == chatTabs.numChildren-1) {
+					
 					openAddChatTabBox();
 					return;
 				}
@@ -388,6 +389,9 @@
 				tabBox.label = TAB_BOX_ID;
 				tabBox.name = TAB_BOX_ID;
 				tabBox.chatOptions = chatOptions;
+				
+				tabBox.addEventListener(KeyboardEvent.KEY_DOWN, tabBox.accessibleClick);
+				
 				chatTabs.addChild(tabBox);
 				
 				return tabBox;
