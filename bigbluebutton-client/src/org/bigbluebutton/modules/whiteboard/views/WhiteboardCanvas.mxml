@@ -173,7 +173,7 @@
 			}
 			
 			public function modifySelectedTextObject(fgColor:uint, bgColorVisible:Boolean, backgroundColor:uint, textSize:Number):void {
-                LogUtil.debug("modifying text size = " + textSize);
+//                LogUtil.debug("modifying text size = " + textSize);
 				displayModel.modifySelectedTextObject(fgColor, bgColorVisible, backgroundColor, textSize);
 			}
 			

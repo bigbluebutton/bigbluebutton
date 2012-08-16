@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.whiteboard
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
+	import org.bigbluebutton.modules.present.events.NavigationEvent;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawGrid;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicFactory;
@@ -116,6 +117,8 @@ package org.bigbluebutton.modules.whiteboard
 					break;
 				case TextObject.TEXT_PUBLISHED:
                     modifyText(o);
+                    // Inform others that we are done with listening for events and that they should re-listen for keyboard events. 
+                    if (isPresenter) bindToKeyboardEvents(true);
 					break;
 			}        
 		}
@@ -124,7 +127,14 @@ package org.bigbluebutton.modules.whiteboard
 		the required events will be dispatched  */
 		private function addPresenterText(o:Annotation, background:Boolean=false):void {
 			if (!isPresenter) return;
-			var tobj:TextObject = shapeFactory.makeTextObject(o);
+            
+            /**
+            * We will not be listening for keyboard events to input texts. Tell others to not listen for these events. For example, the presentation module
+            * listens for Keyboard.ENTER, Keyboard.SPACE to advance the slides. We don't want that while the presenter is typing texts.
+            */
+            bindToKeyboardEvents(false);
+			
+            var tobj:TextObject = shapeFactory.makeTextObject(o);
             tobj.setGraphicID(o.id);
             tobj.status = o.status;
 			tobj.multiline = true;
@@ -141,6 +151,8 @@ package org.bigbluebutton.modules.whiteboard
 			wbCanvas.addGraphic(tobj);
 			wbCanvas.stage.focus = tobj;
             _annotationsList.push(tobj);
+            
+            
 		}
 		
 		/* adds a new TextObject that is suited for a viewer. For example, it will not
@@ -441,13 +453,13 @@ package org.bigbluebutton.modules.whiteboard
         }
         		
 		public function textObjGainedFocusListener(event:FocusEvent):void {
-			LogUtil.debug("### GAINED FOCUS ");
+//			LogUtil.debug("### GAINED FOCUS ");
             // The presenter is ready to type in the text. Maintain focus to this textbox until the presenter hits the ENTER/RETURN key.
             maintainFocusToTextBox(event);
 		}
 		
 		public function textObjLostFocusListener(event:FocusEvent):void {
-			LogUtil.debug("### LOST FOCUS ");
+//			LogUtil.debug("### LOST FOCUS ");
             // The presenter is moving the mouse away from the textbox. Perhaps to change the size and color of the text.
             // Maintain focus to this textbox until the presenter hits the ENTER/RETURN key.
             maintainFocusToTextBox(event);
@@ -472,7 +484,18 @@ package org.bigbluebutton.modules.whiteboard
 		}
 	
         /***************************************************************************************************************************************/
-           
+        
+        /***
+        * Tell others that it's ok for them to rebind to keyboard events as we are done with listening for keyboard events as
+        * input to the text annotation.
+        */
+        private function bindToKeyboardEvents(bindToEvents:Boolean):void {
+            LogUtil.debug("**************************** Tell others to bind to keyboard events [" + bindToEvents + "]***************************");
+            var navEvent:NavigationEvent = new NavigationEvent(NavigationEvent.BIND_KEYBOARD_EVENT);
+            navEvent.bindToKeyboard = bindToEvents;
+            wbCanvas.dispatchEvent(navEvent);            
+        }
+        
 		private function sendTextToServer(status:String, tobj:TextObject):void {
 			switch (status) {
 				case TextObject.TEXT_CREATED:
@@ -487,9 +510,12 @@ package org.bigbluebutton.modules.whiteboard
 			}	
             
             if (status == TextObject.TEXT_PUBLISHED) {
+
+                
                 var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
                 e.data = tobj;
-                wbCanvas.dispatchEvent(e);                
+                wbCanvas.dispatchEvent(e);   
+                             
             }
 
 //			LogUtil.debug("SENDING TEXT: [" + tobj.textSize + "]");
