@@ -28,6 +28,24 @@ def archive_recorded_meeting(recording_dir)
   
 end
 
+def sanity_archived_meeting(recording_dir)
+  archived_done_files = Dir.glob("#{recording_dir}/status/archived/*.done")
+  #sanity_dirs = Dir.entries("#{recording_dir}/raw/") - ['.','..']
+
+  archived_done_files.each do |df|
+        match = /(.*).done/.match df.sub(/.+\//, "")
+        meeting_id = match[1]
+
+        #is_archived = archived_dirs.any? { |s| s.include?(meeting_id)  }
+
+        #if(!is_archived)
+        #        command = "ruby archive/archive.rb -m #{meeting_id}"
+        #    BigBlueButton.execute(command)
+        #end
+  end
+
+end
+
 def process_archived_meeting(recording_dir)
   archived_done_files = Dir.glob("#{recording_dir}/status/archived/*.done")
   
