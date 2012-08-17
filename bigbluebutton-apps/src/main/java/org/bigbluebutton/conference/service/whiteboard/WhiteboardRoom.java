@@ -91,6 +91,7 @@ public class WhiteboardRoom {
 	}
 	
 	public List<Annotation> getAnnotations() {
+		if (activePresentation == null) return new ArrayList<Annotation>();
 		return activePresentation.getActivePage().getAnnotations();
 	}
 	
