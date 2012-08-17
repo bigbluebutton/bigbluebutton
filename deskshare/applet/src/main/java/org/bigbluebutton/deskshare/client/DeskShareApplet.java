@@ -24,7 +24,7 @@ package org.bigbluebutton.deskshare.client;
 import javax.swing.JApplet;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-
+import java.security.*;
 import java.awt.Image;
 
 public class DeskShareApplet extends JApplet implements ClientListener {
@@ -49,6 +49,14 @@ public class DeskShareApplet extends JApplet implements ClientListener {
     Image icon;
     
     public boolean isSharing = false;
+
+    private class DestroyJob implements PrivilegedExceptionAction {
+       public Object run() throws Exception {
+		System.out.println("Desktop Sharing Applet Destroy");
+		client.stop();
+               	return null;
+       }
+    }
     
     @Override
 	public void init() {		
@@ -83,8 +91,21 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 			
 	@Override
 	public void destroy() {
-		System.out.println("Desktop Sharing Applet Destroy");
-		client.stop();
+		/* We make this a privileged job.
+		* The privileges of the javascript code  are 'anded' with the 
+                * java privs. Sometimes (depending on jre version, browser, etc.)
+                * javascript will not have the privs to do some of the operations 
+                * required for destroy, particularly network related activities,
+		* but java does. So we make sure here that we run only considering
+                * java privs, not javascript's. This should be 'security safe', since
+                * we are only shutting things down.
+		*/ 
+                try {
+ 			AccessController.doPrivileged( this.new DestroyJob() );
+                } catch ( PrivilegedActionException e) {
+			System.out.println("Exception during Desktop Sharing Applet Stopping"+e.toString());
+			UncheckedExceptions.spit((Exception) e.getException());
+		}
 		super.destroy();
 	}
 
