@@ -22,6 +22,7 @@ package org.bigbluebutton.core.managers {
 	import org.bigbluebutton.common.IUserListener;
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.main.model.users.Conference;
+	import org.bigbluebutton.main.model.users.BBBUser;
 
 	/**
 	 * The UserManager allows you to interact with the user data of those currently logged in to the conference.
@@ -99,6 +100,14 @@ package org.bigbluebutton.core.managers {
 			for (var k:int = 0; k<listeners.length; k++){
 				(listeners.getItemAt(k) as IUserListener).presenterChanged(user);
 			}
+		}
+		
+		public function getUser(userId:int):BBBUser{
+			for (var i:int = 0; i < users.length; i++){
+				if (users.getItemAt(i) == userId)
+					return users.getItemAt(i) as BBBUser;
+			}
+			return null;
 		}
 	}
 }
