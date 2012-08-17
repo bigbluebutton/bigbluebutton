@@ -24,6 +24,7 @@ package org.bigbluebutton.deskshare.server.stream
 import org.bigbluebutton.deskshare.server.recorder.Recorder
 import org.bigbluebutton.deskshare.server.red5.DeskshareApplication
 import org.bigbluebutton.deskshare.server.ScreenVideoBroadcastStream
+import org.bigbluebutton.deskshare.server.RtmpClientAdapter
 import org.red5.server.api.{IContext, IScope}
 import org.red5.server.api.so.ISharedObject
 import org.red5.server.net.rtmp.event.VideoData;
@@ -62,7 +63,7 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 	     		broadcastStream = bs; 
 		       	app.createDeskshareClient(name) match {
 				     case None => return false
-				     case Some(dsc) => {
+				     case Some(dsc:RtmpClientAdapter) => {
 				     		dsClient = dsc; 
 				     		recorder.addListener(dsClient)
 				     		return true

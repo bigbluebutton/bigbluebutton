@@ -32,6 +32,7 @@ public class ScreenVideo implements IVideoStreamCodec {
 	static final String CODEC_NAME = "ScreenVideo";
 	static final byte FLV_FRAME_KEY = 0x10;
 	static final byte FLV_CODEC_SCREEN = 0x03;
+	static final byte FLV_CODEC_SCREEN_V2 = 0x06;
 	private IoBuffer data;
 	
     public ScreenVideo() {
@@ -47,8 +48,8 @@ public class ScreenVideo implements IVideoStreamCodec {
 	}
 
     public boolean canHandleData(IoBuffer data) {
-		byte first = data.get();
-		boolean result = ((first & 0x0f) == FLV_CODEC_SCREEN);
+		int first = data.get() & 0x0f;
+		boolean result = (first == FLV_CODEC_SCREEN || first == FLV_CODEC_SCREEN_V2);
 		data.rewind();
 		return result;
 	}

@@ -39,4 +39,5 @@ public class ScreenShareInfo {
    	public boolean fullScreen;
    	public Image sysTrayIcon;
    	public boolean enableTrayActions;
+   	public boolean useSVC2;
 }

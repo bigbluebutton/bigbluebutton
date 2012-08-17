@@ -80,6 +80,7 @@ public class HttpTunnelStreamController extends MultiActionController {
 		String seqNum = request.getParameterValues("sequenceNumber")[0];
 		String screenInfo = request.getParameterValues("screenInfo")[0];
 		String blockInfo = request.getParameterValues("blockInfo")[0];
+		String svc2Info = request.getParameterValues("svc2")[0];
 		
 		String[] screen = screenInfo.split("x");
 		String[] block = blockInfo.split("x");
@@ -88,11 +89,13 @@ public class HttpTunnelStreamController extends MultiActionController {
 		screenDim = new Dimension(Integer.parseInt(screen[0]), Integer.parseInt(screen[1]));
 		blockDim = new Dimension(Integer.parseInt(block[0]), Integer.parseInt(block[1]));
 		
+		boolean useSVC2 = Boolean.parseBoolean(svc2Info);
+		
 		if (! hasSessionManager) {
 			sessionManager = getSessionManager();
 			hasSessionManager = true;
 		}
-		sessionManager.createSession(room, screenDim, blockDim, Integer.parseInt(seqNum));		
+		sessionManager.createSession(room, screenDim, blockDim, Integer.parseInt(seqNum), useSVC2);		
 	}	
 	
 	private void handleCaptureUpdateRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {

@@ -43,18 +43,20 @@ public final class Block {
     private AtomicBoolean dirtyBlock = new AtomicBoolean(false);
     private long lastSent = System.currentTimeMillis();
     private AtomicLong sentCount = new AtomicLong();
+    private boolean useSVC2;
     
-    Block(Dimension dim, int position, Point location) {
+    Block(Dimension dim, int position, Point location, boolean useSVC2) {
         checksum = new BlockChecksum();
         this.dim = dim;
         this.position = position;
         this.location = location;
+        this.useSVC2 = useSVC2;
     }
     
     public boolean hasChanged(BufferedImage capturedScreen) {	 
     	synchronized(pixelsLock) {
             try {
-            	capturedPixels = ScreenVideoEncoder.getPixels(capturedScreen, getX(), getY(), getWidth(), getHeight());
+            	capturedPixels = ScreenVideoEncoder.getPixels(capturedScreen, getX(), getY(), getWidth(), getHeight(), useSVC2);
             } catch (PixelExtractException e) {
             	System.out.println(e.toString());
         	}  
@@ -99,8 +101,10 @@ public final class Block {
     	synchronized (pixelsLock) {     		
             System.arraycopy(capturedPixels, 0, pixelsCopy, 0, capturedPixels.length);
 		}
-    	
-        byte[] encodedBlock = ScreenVideoEncoder.encodePixels(pixelsCopy, getWidth(), getHeight(), (sentCount.longValue() < 5) /* send grayscale image */); 	
+
+    	byte[] encodedBlock = useSVC2 ?
+    			ScreenVideoEncoder.encodePixelsSVC2(pixelsCopy, getWidth(), getHeight()) :
+    			ScreenVideoEncoder.encodePixels(pixelsCopy, getWidth(), getHeight(), (sentCount.longValue() < 5) /* send grayscale image */); 	
         return new EncodedBlockData(position, encodedBlock);		
     }
     
