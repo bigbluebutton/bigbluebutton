@@ -52,11 +52,7 @@ public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 		event.setTimestamp(System.currentTimeMillis());
 		event.setPresentation(presentation.getName());
 		event.setPageNumber(presentation.getActivePage().getPageIndex());
-//		event.setText(text.getText());
-//		event.setTextColor(text.getTextColor());
-//		event.setBGColor(text.getBgColor());
-//		event.setBGColorVisible(text.getBgColorVisible());
-//		event.setDataPoints(text.getLocation());
+		event.addAnnotation(text.getAnnotation());
 		recorder.record(session, event);	
 	}
 	
@@ -102,25 +98,15 @@ public class WhiteboardEventRecorder implements IWhiteboardRoomListener{
 		event.setTimestamp(System.currentTimeMillis());
 		event.setPresentation(presentation.getName());
 		event.setPageNumber(presentation.getActivePage().getPageIndex());
-//		event.setText(text.getText());
-//		event.setTextColor(text.getTextColor());
-//		event.setBGColor(text.getBgColor());
-//		event.setBGColorVisible(text.getBgColorVisible());
-//		event.setDataPoints(text.getLocation());
-//		event.setModifyingID(text.getID());
+		event.addAnnotation(text.getAnnotation());
 		recorder.record(session, event);	
 	}
 
 	@Override
 	public void undoShape(Presentation presentation) {
-		// TODO Auto-generated method stub
-		
+		UndoShapeWhiteboardRecordEvent event = new UndoShapeWhiteboardRecordEvent();
+		event.setMeetingId(session);
+		event.setTimestamp(System.currentTimeMillis());
+		recorder.record(session, event);
 	}
-
-//	@Override
-//	public void addShape(ShapeGraphic shape, Presentation presentation) {
-		// TODO Auto-generated method stub
-//		
-//	}
-
 }
