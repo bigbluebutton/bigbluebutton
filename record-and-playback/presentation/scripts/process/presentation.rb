@@ -40,7 +40,7 @@ raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 
 target_dir = "#{recording_dir}/process/presentation/#{meeting_id}"
 if not FileTest.directory?(target_dir)
-	logger = Logger.new("/var/log/bigbluebutton/slides/process-#{meeting_id}.log", 'daily' )
+	logger = Logger.new("/var/log/bigbluebutton/presentation/process-#{meeting_id}.log", 'daily' )
 	BigBlueButton.logger = logger
   BigBlueButton.logger.info("Processing script presentation.rb")
 	FileUtils.mkdir_p target_dir
