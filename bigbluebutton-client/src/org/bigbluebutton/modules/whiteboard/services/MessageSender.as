@@ -123,7 +123,7 @@ package org.bigbluebutton.modules.whiteboard.services
             var _nc:ConnectionManager = BBB.initConnectionManager();
             _nc.sendMessage("whiteboard.sendAnnotation",               
                 function(result:String):void { // On successful result
-                    LogUtil.debug(result); 
+//                    LogUtil.debug(result); 
                 },	                   
                 function(status:String):void { // status - On error occurred
                     LogUtil.error(status); 
@@ -143,7 +143,7 @@ package org.bigbluebutton.modules.whiteboard.services
 			var _nc:ConnectionManager = BBB.initConnectionManager();
 			_nc.sendMessage("whiteboard.sendAnnotation",               
 					function(result:String):void { // On successful result
-						LogUtil.debug(result); 
+//						LogUtil.debug(result); 
 					},	                   
 					function(status:String):void { // status - On error occurred
 						LogUtil.error(status); 
