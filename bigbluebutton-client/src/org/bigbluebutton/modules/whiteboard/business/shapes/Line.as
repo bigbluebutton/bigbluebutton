@@ -32,7 +32,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 				
 		override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
-			LogUtil.debug("Drawing LINE");
+//			LogUtil.debug("Drawing LINE");
 			var ao:Object = a.annotation;
 			
 			this.graphics.lineStyle(ao.thickness, ao.color);

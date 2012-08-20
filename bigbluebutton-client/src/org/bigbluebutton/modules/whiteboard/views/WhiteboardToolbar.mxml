@@ -109,15 +109,8 @@
 			
             private function onCreationComplete():void {
                 setToolType(WhiteboardConstants.TYPE_ZOOM, null);
-                stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
             }
-            
-            private function onKeyUp(event:KeyboardEvent):void {
-                if (event.ctrlKey && event.keyCode == Keyboard.Z) {
-                    sendUndoCommand();
-                }
-            }
-            
+                       
 			private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
                 setToolType(e.graphicType, e.toolType);
             }
@@ -138,7 +131,7 @@
                     dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
                 }
                 
-                if(graphicType == WhiteboardConstants.TYPE_UNDO) {
+                if (graphicType == WhiteboardConstants.TYPE_UNDO) {
                     sendUndoCommand();
                 }
 			}

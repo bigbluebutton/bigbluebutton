@@ -124,6 +124,7 @@
 	<Injectors target="{WhiteboardService}">
 		<PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
 		<PropertyInjector targetKey="sender" source="{MessageSender}"/>
+        <PropertyInjector targetKey="whiteboardModel" source="{WhiteboardModel}"/>
 	</Injectors>
 	
 	<Injectors target="{MessageReceiver}">

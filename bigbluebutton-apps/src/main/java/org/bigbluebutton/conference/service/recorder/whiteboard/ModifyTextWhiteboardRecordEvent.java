@@ -19,35 +19,37 @@
  */
 package org.bigbluebutton.conference.service.recorder.whiteboard;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 public class ModifyTextWhiteboardRecordEvent  extends
 				AbstractWhiteboardRecordEvent {
 
 		public ModifyTextWhiteboardRecordEvent() {
 			super();
-			setEvent("ModifyT=TextEvent");
+			setEvent("ModifyTextEvent");
 		}
 		
-		public void setDataPoints(String points) {
-			eventMap.put("dataPoints", points);
+		public void addAnnotation(Map<String, Object> annotation) {
+			for (Map.Entry<String, Object> entry : annotation.entrySet()) {
+			    String key = entry.getKey();
+			    		    
+			    if (key.equals("points")) {
+			    	ArrayList<Double> value = (ArrayList<Double>)entry.getValue();
+			    	eventMap.put("dataPoints", pointsToString(value));
+			    } else {
+			    	Object value = entry.getValue();
+			    	eventMap.put(key, value.toString());
+			    }
+			}
 		}
 		
-		public void setText(String text) {
-			eventMap.put("text", text);
-		}
-		
-		public void setTextColor(int textColor) {
-			eventMap.put("textColor", Integer.toString(textColor));
-		}
-		
-		public void setBGColor(int bgColor) {
-			eventMap.put("bgColor", Integer.toString(bgColor));
-		}
-		
-		public void setBGColorVisible(boolean bgColorVis) {
-			eventMap.put("bgColorVisible", Boolean.toString(bgColorVis));
-		}
-		
-		public void setModifyingID(String id) {
-			eventMap.put("modifiedID", id);
+		private String pointsToString(ArrayList<Double> points){
+	    	String datapoints = "";
+	    	for (Double i : points) {
+	    		datapoints += i + ",";
+	    	}
+	    	// Trim the trailing comma
+	    	return datapoints.substring(0, datapoints.length() - 1);
 		}
 }

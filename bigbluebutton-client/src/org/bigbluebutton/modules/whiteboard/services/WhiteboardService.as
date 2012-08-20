@@ -1,15 +1,19 @@
 package org.bigbluebutton.modules.whiteboard.services
 {
+	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
+	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
 	public class WhiteboardService
 	{
 		public var sender:MessageSender;
 		public var receiver:MessageReceiver;
-		
+        public var whiteboardModel:WhiteboardModel;
+        
 		public function getAnnotationHistory():void
 		{
             sender.requestAnnotationHistory();
@@ -19,26 +23,32 @@ package org.bigbluebutton.modules.whiteboard.services
 			sender.modifyEnabled(e);
 		}
 		
-		public function changePage(pageNum:Number):void{
-			sender.changePage(pageNum);	
+		public function changePage(pageNum:Number):void {
+            if (isPresenter) {
+//                LogUtil.debug("PRESENTER Switch to page [" + pageNum + "]");
+                sender.changePage(pageNum);	
+            } else {
+//                LogUtil.debug("Switch to page [" + pageNum + "]"); 
+                whiteboardModel.changePage(pageNum, 0);
+            }
 		}
 		
-		public function toggleGrid():void{
+		public function toggleGrid():void {
 			sender.toggleGrid();
 		}
 		
 
-		public function undoGraphic():void{
+		public function undoGraphic():void {
 			sender.undoGraphic()
 		}
 		
 	
-		public function clearBoard():void{
+		public function clearBoard():void {
 			sender.clearBoard();
 		}
 		
 	
-		public function sendText(e:WhiteboardDrawEvent):void{
+		public function sendText(e:WhiteboardDrawEvent):void {
 			sender.sendText(e);
 		}		
 		
@@ -51,10 +61,19 @@ package org.bigbluebutton.modules.whiteboard.services
 			sender.checkIsWhiteboardOn();
 		}
 		
-		public function setActivePresentation(e:PresentationEvent):void{
-			sender.setActivePresentation(e);
+		public function setActivePresentation(e:PresentationEvent):void {
+            if (isPresenter) {
+ //               LogUtil.debug("PRESENTER Switch to presentation [" + e.presentationName + "," + e.numberOfPages + "]");
+                sender.setActivePresentation(e);
+            } else {
+ //               LogUtil.debug("Switch to presentation [" + e.presentationName + "," + e.numberOfPages + "]");
+                whiteboardModel.changePresentation(e.presentationName, e.numberOfPages);
+            }			
 		}
 		
-		
+        /** Helper method to test whether this user is the presenter */
+        private function get isPresenter():Boolean {
+            return UserManager.getInstance().getConference().amIPresenter();
+        }
 	}
 }

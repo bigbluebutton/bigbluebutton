@@ -33,7 +33,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 		}
 		
 		override public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
-			LogUtil.debug("Drawing TRIANGLE");
+//			LogUtil.debug("Drawing TRIANGLE");
 			var ao:Object = a.annotation;
 			
 			if (!ao.fill)

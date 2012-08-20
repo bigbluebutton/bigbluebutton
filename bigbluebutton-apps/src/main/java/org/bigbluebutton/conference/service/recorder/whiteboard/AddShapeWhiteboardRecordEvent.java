@@ -13,11 +13,12 @@ public class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent
 	public void addAnnotation(Map<String, Object> annotation) {
 		for (Map.Entry<String, Object> entry : annotation.entrySet()) {
 		    String key = entry.getKey();
-		    Object value = entry.getValue();
-		    
+		    		    
 		    if (key.equals("points")) {
-		    	eventMap.put("dataPoints", pointsToString((ArrayList<Double>) value));
+		    	ArrayList<Double> value = (ArrayList<Double>)entry.getValue();
+		    	eventMap.put("dataPoints", pointsToString(value));
 		    } else {
+		    	Object value = entry.getValue();
 		    	eventMap.put(key, value.toString());
 		    }
 		}
@@ -25,8 +26,8 @@ public class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent
 	
 	private String pointsToString(ArrayList<Double> points){
     	String datapoints = "";
-    	for (Double i : points) {
-    		datapoints += i + ",";
+    	for (int i = 0; i < points.size(); i++) {
+    		datapoints += (points.get(i)).toString() + ",";
     	}
     	// Trim the trailing comma
     	return datapoints.substring(0, datapoints.length() - 1);

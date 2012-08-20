@@ -661,24 +661,14 @@ if [ $SETUPDEV ]; then
 		fi
 
 
-		if [ ! -f $BASE/flex-4.5.0.20967/frameworks/libs/player/11.2/playerglobal.swc ]; then
-			mkdir -p $BASE/flex-4.5.0.20967/frameworks/libs/player/11.2
-			cd $BASE/flex-4.5.0.20967/frameworks/libs/player/11.2
-			if [ ! -f playerglobal11_2.swc ]; then
-				wget http://download.macromedia.com/get/flashplayer/updaters/11/playerglobal11_2.swc
+		if [ ! -f $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3/playerglobal.swc ]; then
+			mkdir -p $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
+			cd $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
+			if [ ! -f playerglobal10_3.swc ]; then
+				wget http://fpdownload.macromedia.com/pub/flashplayer/updaters/10/playerglobal10_3.swc
 			fi
-			mv -f playerglobal11_2.swc playerglobal.swc
+			mv -f playerglobal10_3.swc playerglobal.swc
 		fi
-
-
-#		if [ ! -f $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3/playerglobal.swc ]; then
-#			mkdir -p $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
-#			cd $BASE/flex-4.5.0.20967/frameworks/libs/player/10.3
-#			if [ ! -f playerglobal10_3.swc ]; then
-#				wget http://fpdownload.macromedia.com/pub/flashplayer/updaters/10/playerglobal10_3.swc
-#			fi
-#			mv -f playerglobal10_3.swc playerglobal.swc
-#		fi
 
 		if ! grep -q GROOVY_HOME ~/.profile; then
 			echo "
@@ -1810,11 +1800,6 @@ if [ -n "$HOST" ]; then
 		change_yml_value /usr/local/bigbluebutton/core/scripts/slides.yml $redis_host playback_host $HOST
 	fi
 	
-	if [ -f /usr/local/bigbluebutton/core/scripts/presentation.yml ]; then
-		echo "Assigning $HOST for record and playback in /usr/local/bigbluebutton/core/scripts/presentation.yml"
-		change_yml_value /usr/local/bigbluebutton/core/scripts/presentation.yml $redis_host playback_host $HOST
-	fi
-	
 
 	echo "Restarting the bigbluebutton server ..."
 	stop_bigbluebutton
@@ -2002,7 +1987,7 @@ if [ $CLEAN ]; then
 	need_root
 	check_configuration
 	
-	echo "Doing a clean restart of BigBlueButton ..."
+	echo "Doing a restart of BigBlueButton and cleaning out all log files..."
 
 	stop_bigbluebutton
 

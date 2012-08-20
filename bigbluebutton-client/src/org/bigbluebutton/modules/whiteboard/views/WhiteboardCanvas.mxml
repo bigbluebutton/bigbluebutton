@@ -68,7 +68,6 @@
 			private function init():void {
 				this.label = "Highlighter";
                 registerForMouseEvents();
-                queryForAnnotationHistory();
 			}
             
             public function queryForAnnotationHistory():void {
@@ -174,7 +173,7 @@
 			}
 			
 			public function modifySelectedTextObject(fgColor:uint, bgColorVisible:Boolean, backgroundColor:uint, textSize:Number):void {
-                LogUtil.debug("modifying text size = " + textSize);
+//                LogUtil.debug("modifying text size = " + textSize);
 				displayModel.modifySelectedTextObject(fgColor, bgColorVisible, backgroundColor, textSize);
 			}
 			
@@ -244,9 +243,20 @@
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void {
 //				LogUtil.debug("WhiteboardCanvas::acceptOverlayCanvas()");
 //				LogUtil.debug("OVERLAYING PRESENTATION CANVAS");
+                
 				this.bbbCanvas = overlay;
 				//Load existing shapes onto the canvas.
 				dispatchEvent(new PageEvent(PageEvent.LOAD_PAGE));
+                
+                /**
+                * Check if this is the first time we overlayed the whiteboard canvas into the
+                * presentation canvas. If so, query for annotations history.
+                */
+                if (! displayModel.canvasInited) {
+                    displayModel.parentCanvasInitialized();
+                    queryForAnnotationHistory();
+                }
+                    
 			}
 			
 			public function moveCanvas(x:Number, y:Number):void {

@@ -1,4 +1,4 @@
-function startApplet(IP, roomNumber, fullScreen)
+function startApplet(IP, roomNumber, fullScreen, useSVC2)
 {
         var iframe = document.createElement("iframe");
         iframe.id = "iframe";
@@ -9,7 +9,8 @@ function startApplet(IP, roomNumber, fullScreen)
                 "<param name=\"ROOM\" value=\"" + roomNumber  + "\"/>" +
                 "<param name=\"IP\" value=\"" + IP + "\"/>" +
                 "<param name=\"PORT\" value=\"9123\"/>" +
-                "<param name=\"FULL_SCREEN\" value=\"" + fullScreen + "\"/>" +          
+                "<param name=\"FULL_SCREEN\" value=\"" + fullScreen + "\"/>" +
+                "<param name=\"SVC2\" value=\"" + useSVC2 + "\"/>" +
         "</applet>"
      );
 }
