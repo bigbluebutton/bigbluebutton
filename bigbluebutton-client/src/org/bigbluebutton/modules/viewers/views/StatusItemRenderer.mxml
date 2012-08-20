@@ -64,10 +64,6 @@
 				
 				this.addEventListener(ListEvent.ITEM_ROLL_OVER, onRollOver);
 				this.addEventListener(ListEvent.ITEM_ROLL_OUT, onRollOut);
-				
-				//var foo:Object = UserManager.getInstance().getConference().isUserPresenter(data.userid);
-				//LogUtil.debug("WATERFALL Info for user " + data.userid + ": name is " + UserManager.getConference().getParticipantIndex(data.userid));
-				LogUtil.debug("WATERFALL Info for user " + data.userid + ": are they presenter? " + UserManager.getInstance().getConference().isUserPresenter(data.userid));
 			}
 			
 			public function onRollOver(e:ViewersRollEvent):void{

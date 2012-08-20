@@ -101,6 +101,7 @@
 
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
+			private var glossaryOpen:Boolean = false;
 			
 			public function get mode():String {
 				return _mode;
@@ -185,11 +186,16 @@
 				if (scWindow == null) {
 					scWindow = new ShortcutHelpWindow();
 				}
-				mdiCanvas.windowManager.add(scWindow);
-				mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 150, mdiCanvas.height/2 - 150);
-				scWindow.width = 300;
-				scWindow.height = 300;
-				scWindow.focusCategories();
+				if (!glossaryOpen){
+					mdiCanvas.windowManager.add(scWindow);
+					mdiCanvas.windowManager.absPos(scWindow, mdiCanvas.width/2 - 150, mdiCanvas.height/2 - 150);
+					scWindow.width = 300;
+					scWindow.height = 300;
+					scWindow.focusCategories();
+				}
+				else
+					mdiCanvas.windowManager.remove(scWindow);
+				glossaryOpen = !glossaryOpen;
 			}
 			
 			private function toggleFullScreen():void{
