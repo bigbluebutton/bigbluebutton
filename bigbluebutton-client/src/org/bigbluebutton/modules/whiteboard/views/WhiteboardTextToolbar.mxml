@@ -169,7 +169,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 				this.visible = true;
 			}
 			
-			private function disableTextToolbar():void{
+			private function disableTextToolbar(evt:Event=null):void{
 				this.visible = false;
 			}
 			
@@ -206,11 +206,18 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 			
 			public function repositionToolbar(tobj:TextObject = null):void {
 				// translate TextObject's coords to stage coords because TextToolbar is added to stage
-				if (tobj == null)  tobj = currentlySelectedTextObject;
+               
+				if (tobj == null && currentlySelectedTextObject == null)  {
+                    return;
+                }
+                
+                tobj = currentlySelectedTextObject;
+                            
 				if (textSizeMenu.isOpen) {
 					LogUtil.debug("Text size menu is open...trying to close");
 					textSizeMenu.displayPopUp();
 				}
+                              
 				var loc:Point = canvas.localToGlobal(new Point(tobj.x, tobj.y));
 				this.x = loc.x;
 				this.y = loc.y - this.height - 45;
