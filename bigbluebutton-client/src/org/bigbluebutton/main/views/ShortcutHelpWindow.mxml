@@ -117,9 +117,9 @@
 				return keyList;
 			}
 			
-			public function focusCategories():void {
-				focusManager.setFocus(categories);
-				categories.drawFocus(true);
+			public function focusCategories():void { //actually focuses the datagrid instead
+				focusManager.setFocus(keyList);
+				keyList.drawFocus(true);
 			}
 		]]>
 	</mx:Script>
