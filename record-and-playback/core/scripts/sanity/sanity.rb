@@ -1,3 +1,7 @@
+require '../lib/recordandplayback'
+require 'logger'
+require 'trollop'
+require 'yaml'
 require "nokogiri"
 require "redis"
 require "fileutils"
@@ -5,7 +9,7 @@ require "fileutils"
 def check_events_xml(raw_dir,meeting_id)
 	filepath = "#{raw_dir}/#{meeting_id}/events.xml"
 	raise Exception,  "Events file doesn't exists." if not File.exists?(filepath)
-	bad_doc = Nokogiri::XML(filepath) { |config| config.options = Nokogiri::XML::ParseOptions::STRICT }
+	bad_doc = Nokogiri::XML(File.open(filepath)) { |config| config.options = Nokogiri::XML::ParseOptions::STRICT }
 end
 
 def check_audio_files(raw_dir,meeting_id)
@@ -38,11 +42,16 @@ props = YAML::load(File.open('bigbluebutton.yml'))
 audio_dir = props['raw_audio_src']
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw"
+redis_host = props['redis_host']
+redis_port = props['redis_port']
 
 begin
+	BigBlueButton.logger.info("checking events.xml")
 	check_events_xml(raw_archive_dir,meeting_id)
+	BigBlueButton.logger.info("checking audio")
 	check_audio_files(raw_archive_dir,meeting_id)
 	#delete keys
+	BigBlueButton.logger.info("deleting keys")
 	redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
 	events_archiver = BigBlueButton::RedisEventsArchiver.new redis    
         events_archiver.delete_events(meeting_id)
@@ -53,6 +62,7 @@ begin
 	#}
 	
 	#create done files for sanity
+	BigBlueButton.logger.info("creating sanity done files")
 	sanity_done = File.new("#{recording_dir}/status/sanity/#{meeting_id}.done", "w")
 	sanity_done.write("sanity check #{meeting_id}")
 	sanity_done.close

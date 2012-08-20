@@ -30,26 +30,26 @@ end
 
 def sanity_archived_meeting(recording_dir)
   archived_done_files = Dir.glob("#{recording_dir}/status/archived/*.done")
-  #sanity_dirs = Dir.entries("#{recording_dir}/raw/") - ['.','..']
+  sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
 
   archived_done_files.each do |df|
         match = /(.*).done/.match df.sub(/.+\//, "")
         meeting_id = match[1]
 
-        #is_archived = archived_dirs.any? { |s| s.include?(meeting_id)  }
+        is_sanity_check_completed = sanity_done_files.any? { |s| s.include?(meeting_id)  }
 
-        #if(!is_archived)
-        #        command = "ruby archive/archive.rb -m #{meeting_id}"
-        #    BigBlueButton.execute(command)
-        #end
+        if(!is_sanity_check_completed)
+                command = "ruby sanity/sanity.rb -m #{meeting_id}"
+            BigBlueButton.execute(command)
+        end
   end
 
 end
 
 def process_archived_meeting(recording_dir)
-  archived_done_files = Dir.glob("#{recording_dir}/status/archived/*.done")
+  sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
   
-  archived_done_files.each do |df|
+  sanity_done_files.each do |df|
     match = /(.*).done/.match df.sub(/.+\//, "")
     meeting_id = match[1]
     
@@ -119,6 +119,7 @@ end
 props = YAML::load(File.open('bigbluebutton.yml'))
 recording_dir = props['recording_dir']
 archive_recorded_meeting(recording_dir)
+sanity_archived_meeting(recording_dir)
 process_archived_meeting(recording_dir)
 publish_processed_meeting(recording_dir)
 
