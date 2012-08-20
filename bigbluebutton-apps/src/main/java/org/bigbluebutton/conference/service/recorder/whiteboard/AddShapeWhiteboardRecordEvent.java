@@ -26,8 +26,8 @@ public class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent
 	
 	private String pointsToString(ArrayList<Double> points){
     	String datapoints = "";
-    	for (Double i : points) {
-    		datapoints += i + ",";
+    	for (int i = 0; i < points.size(); i++) {
+    		datapoints += (points.get(i)).toString() + ",";
     	}
     	// Trim the trailing comma
     	return datapoints.substring(0, datapoints.length() - 1);
