@@ -137,7 +137,7 @@
 				LogUtil.debug("Calling shareScreen");
 				btnFSPublish.enabled = false;
 				btnRegionPublish.enabled = false;
-				useSVC2Check.enabled = false;
+//				useSVC2Check.enabled = false;
 				startSharing(connection, uri, room, fullScreen);
 			}
 			
@@ -146,7 +146,7 @@
 				var captureY:Number = 0;				
 				sharingFullScreen = fullScreen;
 				LogUtil.debug("Calling startApplet");
-				ExternalInterface.call("startApplet", uri, room, fullScreen, useSVC2Check.selected);
+				ExternalInterface.call("startApplet", uri, room, fullScreen, true /*useSVC2Check.selected*/);
 			}
 			
 			public function stopSharing():void{
@@ -303,7 +303,7 @@
 					<mx:Spacer width="100%"/>
 					<mx:Button id="btnRegionPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" visible="true" click="shareScreen(false)" />
 					<mx:Spacer width="100%"/>
-					<mx:CheckBox id="useSVC2Check" label="SVC2" selected="true" />
+					<!--mx:CheckBox id="useSVC2Check" label="SVC2" selected="true" /-->
 				</mx:ControlBar>
             </mx:AddChild>
         </mx:State>	
