@@ -80,7 +80,7 @@ public class WhiteboardRoom {
 	
 	public boolean presentationExists(String name) {
 		boolean exists = false;
-		for (int i=0; i<presentations.size(); i++) {
+		for (int i = 0; i < presentations.size(); i++) {
 			if (presentations.get(i).getName().equals(name)) exists = true;
 		}
 		return exists;
@@ -92,14 +92,17 @@ public class WhiteboardRoom {
 	}
 	
 	public List<Annotation> getAnnotations(String presentationID, Integer pageNumber) {
+		System.out.println("Getting annotations history for " + presentationID + " page " + pageNumber);
 		Presentation p = getPresentation(presentationID);
 		if (p != null) {
+			System.out.println("Presentation " + presentationID + " found.");
 			Page pg = p.getPage(pageNumber.intValue());
 			if (pg != null) {
+				System.out.println("Page found with " + pg.getAnnotations().size() + " annotations.");
 				return pg.getAnnotations();
 			}
 		}
-		
+		System.out.println("No annotations");
 		return new ArrayList<Annotation>();
 	}
 	

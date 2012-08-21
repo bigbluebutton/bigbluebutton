@@ -91,9 +91,9 @@ package org.bigbluebutton.modules.whiteboard.models
 		
 		public function changePage(pageNum:int, numAnnotations:int):void {
             /* Need to increment the page by 1 as what is passed is zero-based while we store the pages as 1-based.*/
-            var curPage:int = pageNum + 1;
+//            var curPage:int = pageNum;
 //            LogUtil.debug("*** Switching to page [ " + curPage + " ] ****");
-			_currentPresentation.setCurrentPage(curPage);
+			_currentPresentation.setCurrentPage(pageNum);
             _dispatcher.dispatchEvent(new WhiteboardUpdate(WhiteboardUpdate.CHANGE_PAGE));
 		}
 		

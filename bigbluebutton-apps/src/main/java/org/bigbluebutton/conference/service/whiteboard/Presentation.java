@@ -35,7 +35,7 @@ public class Presentation {
 		for (int i = 1; i <= numPages; i++){
 			pages.add(new Page(i));
 		}
-		this.activePage = pages.get(0);
+		this.activePage = getPage(1);
 	}
 	
 	public String getName() {
@@ -49,7 +49,7 @@ public class Presentation {
 	public void setActivePage(int index){
 		if ((index > pages.size()) || (index == activePage.getPageIndex())) return;
 		
-		activePage = pages.get(index);
+		activePage = getPage(index);
 	}
 	
 	public Page getPage(int pageNumber) {

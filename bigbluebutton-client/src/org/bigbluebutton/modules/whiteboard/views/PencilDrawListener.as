@@ -76,7 +76,7 @@ package org.bigbluebutton.modules.whiteboard.views
             */
           _isDrawing = false;
 
-          //check to make sure unnecessary data is not sent ex. a single click when the rectangle tool is selected
+          // check to make sure unnecessary data is not sent ex. a single click when the rectangle tool is selected
           // is hardly classifiable as a rectangle, and should not be sent to the server
           if (tool.toolType == DrawObject.RECTANGLE || 
               tool.toolType == DrawObject.ELLIPSE || 
@@ -97,43 +97,50 @@ package org.bigbluebutton.modules.whiteboard.views
       }
     }
     
-        private function sendShapeToServer(status:String, tool:WhiteboardTool):void {
-            if (_segment.length == 0) return;
+    private function sendShapeToServer(status:String, tool:WhiteboardTool):void {
+      if (_segment.length == 0) return;
                        
-            var dobj:DrawAnnotation = _shapeFactory.createDrawObject(tool.toolType, _segment, tool.drawColor, tool.thickness, tool.fillOn, tool.fillColor, tool.transparencyOn);
+      var dobj:DrawAnnotation = _shapeFactory.createDrawObject(tool.toolType, _segment, tool.drawColor, tool.thickness, 
+                                                  tool.fillOn, tool.fillColor, tool.transparencyOn);
             
-            switch (status) {
-                case DrawObject.DRAW_START:
-                    dobj.status = DrawObject.DRAW_START;
-					_curID = _idGenerator.generateID();
-					dobj.id = _curID;
-                    _drawStatus = DrawObject.DRAW_UPDATE;
-                    break;
-                case DrawObject.DRAW_UPDATE:
-                    dobj.status = DrawObject.DRAW_UPDATE;
-					dobj.id = _curID;
-                    break;
-                case DrawObject.DRAW_END:
-                    dobj.status = DrawObject.DRAW_END;
-					dobj.id = _curID;
-                    _drawStatus = DrawObject.DRAW_START;
-                    break;
-            }
+      /** PENCIL is a special case as each segment is a separate shape 
+      *   Force the status to always DRAW_START to generate unique ids.
+      * **/
+      if (tool.toolType == DrawObject.PENCIL) {
+          status = DrawObject.DRAW_START;
+      }
+      
+      switch (status) {
+        case DrawObject.DRAW_START:
+          dobj.status = DrawObject.DRAW_START;
+          _curID = _idGenerator.generateID();
+          dobj.id = _curID;
+          _drawStatus = DrawObject.DRAW_UPDATE;
+          break;
+        case DrawObject.DRAW_UPDATE:
+          dobj.status = DrawObject.DRAW_UPDATE;
+          dobj.id = _curID;
+          break;
+        case DrawObject.DRAW_END:
+          dobj.status = DrawObject.DRAW_END;
+          dobj.id = _curID;
+          _drawStatus = DrawObject.DRAW_START;
+          break;
+      }
             
-            /** PENCIL is a special case as each segment is a separate shape **/
-            if (tool.toolType == DrawObject.PENCIL) {
-                dobj.status = DrawObject.DRAW_START;
-                _drawStatus = DrawObject.DRAW_START;
-                _segment = new Array();	
-                var xy:Array = _wbCanvas.getMouseXY();
-                _segment.push(xy[0], xy[1]);
-            }
+      /** PENCIL is a special case as each segment is a separate shape **/
+      if (tool.toolType == DrawObject.PENCIL) {
+        _drawStatus = DrawObject.DRAW_START;
+        _segment = new Array();	
+        var xy:Array = _wbCanvas.getMouseXY();
+        _segment.push(xy[0], xy[1]);
+      }
            
-			var an:Annotation = dobj.createAnnotation(_wbModel, _ctrlKeyDown);
-			if (an != null) {
-				_wbCanvas.sendGraphicToServer(an, WhiteboardDrawEvent.SEND_SHAPE);
-			}
+      var an:Annotation = dobj.createAnnotation(_wbModel, _ctrlKeyDown);
+      if (an != null) {
+        _wbCanvas.sendGraphicToServer(an, WhiteboardDrawEvent.SEND_SHAPE);
+      }
             			
-        }
     }
+  }
 }
