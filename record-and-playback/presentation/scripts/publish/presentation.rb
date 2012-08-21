@@ -543,7 +543,7 @@ $playback = match[2]
 puts $meeting_id
 puts $playback
 if ($playback == "slides")
-	logger = Logger.new("/var/log/bigbluebutton/presenetation/publish-#{$meeting_id}.log", 'daily' )
+	logger = Logger.new("/var/log/bigbluebutton/presentation/publish-#{$meeting_id}.log", 'daily' )
 	BigBlueButton.logger = logger
   BigBlueButton.logger.info("RUNNING SLIDES_NEW.RB - Publishing #{$meeting_id}")
 	# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
