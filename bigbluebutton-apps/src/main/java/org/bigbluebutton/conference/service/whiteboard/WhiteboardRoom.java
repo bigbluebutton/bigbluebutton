@@ -92,17 +92,14 @@ public class WhiteboardRoom {
 	}
 	
 	public List<Annotation> getAnnotations(String presentationID, Integer pageNumber) {
-		System.out.println("Getting annotations history for " + presentationID + " page " + pageNumber);
 		Presentation p = getPresentation(presentationID);
 		if (p != null) {
-			System.out.println("Presentation " + presentationID + " found.");
 			Page pg = p.getPage(pageNumber.intValue());
 			if (pg != null) {
-				System.out.println("Page found with " + pg.getAnnotations().size() + " annotations.");
 				return pg.getAnnotations();
 			}
 		}
-		System.out.println("No annotations");
+
 		return new ArrayList<Annotation>();
 	}
 	
