@@ -16,7 +16,11 @@ package org.bigbluebutton.modules.whiteboard.services
         
 		public function getAnnotationHistory():void
 		{
-            sender.requestAnnotationHistory();
+            var cp:Object = whiteboardModel.getCurrentPresentationAndPage();
+            if (cp != null) {
+                sender.requestAnnotationHistory(cp.presentationID, cp.currentPageNumber);
+            }
+            
 		}
 		
 		public function modifyEnabled(e:WhiteboardPresenterEvent):void {

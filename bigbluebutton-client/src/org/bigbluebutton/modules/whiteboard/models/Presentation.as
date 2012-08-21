@@ -54,6 +54,11 @@ package org.bigbluebutton.modules.whiteboard.models
 
 		}
 		
+        public function getCurrentPageNumber():int {
+            if (_currentPage == null) return 0;
+            return _currentPage.number;
+        }
+        
 		public function addAnnotation(annotation:Annotation):void {
 			_currentPage.addAnnotation(annotation);
 		}

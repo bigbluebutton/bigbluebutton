@@ -34,7 +34,13 @@ package org.bigbluebutton.modules.whiteboard.models
 //            LogUtil.debug("*** Dispatched WhiteboardUpdate.BOARD_UPDATED Event ****");
 		}
 		
-        public function addAnnotationFromHistory(annotation:Array):void {           
+        public function addAnnotationFromHistory(presentationID:String, pageNumber:Number, annotation:Array):void {
+          if (_currentPresentation.id != presentationID || _currentPresentation.getCurrentPageNumber() != pageNumber) {
+            LogUtil.debug("Wrong annotation history [curPresID=" + _currentPresentation.id + ",rxPresID=" + presentationID + 
+                          "][curPage=" + _currentPresentation.getCurrentPageNumber() + ",rxPageNum=" + pageNumber + "]");
+            return;
+          }
+          
             for (var i:int = 0; i < annotation.length; i++) {
 //                LogUtil.debug("addAnnotationFromHistory: annotation id=" + (annotation[i] as Annotation).id);
                 _currentPresentation.addAnnotation(annotation[i] as Annotation);
@@ -94,5 +100,18 @@ package org.bigbluebutton.modules.whiteboard.models
 		public function enable(enabled:Boolean):void {
 			
 		}
+        
+        public function getCurrentPresentationAndPage():Object {
+            if (_currentPresentation == null) return null;
+            var pageNum:int = _currentPresentation.getCurrentPageNumber();
+            if (pageNum == 0) return null;
+            
+            var cp:Object = new Object();
+            cp.presentationID = _currentPresentation.id;
+            cp.currentPageNumber = pageNum;
+            
+            return cp;
+        }
+        
 	}
 }

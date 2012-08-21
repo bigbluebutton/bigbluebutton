@@ -59,14 +59,12 @@ public class WhiteboardRoom {
 		presentations.add(activePresentation);
 	}
 	
-	public Presentation getPresentation(String name) {
-		if (name.equals(activePresentation.getName())) return activePresentation;
-		
-		for (int  i= 0; i < presentations.size(); i++){
+	private Presentation getPresentation(String name) {
+		for (int  i = 0; i < presentations.size(); i++){
 			Presentation pres = presentations.get(i);
-			if (pres.getName().equals(name)) activePresentation = pres;
+			if (pres.getName().equals(name)) return pres;
 		}
-		return activePresentation;
+		return null;
 	}
 	
 	public Presentation getActivePresentation() {
@@ -74,7 +72,10 @@ public class WhiteboardRoom {
 	}
 	
 	public void setActivePresentation(String name) {
-		this.activePresentation = getPresentation(name);
+		Presentation p = getPresentation(name);
+		if (p != null) {
+			this.activePresentation = p;
+		}		
 	}
 	
 	public boolean presentationExists(String name) {
@@ -90,9 +91,16 @@ public class WhiteboardRoom {
 		notifyAddShape(activePresentation, annotation);
 	}
 	
-	public List<Annotation> getAnnotations() {
-		if (activePresentation == null) return new ArrayList<Annotation>();
-		return activePresentation.getActivePage().getAnnotations();
+	public List<Annotation> getAnnotations(String presentationID, Integer pageNumber) {
+		Presentation p = getPresentation(presentationID);
+		if (p != null) {
+			Page pg = p.getPage(pageNumber.intValue());
+			if (pg != null) {
+				return pg.getAnnotations();
+			}
+		}
+		
+		return new ArrayList<Annotation>();
 	}
 	
 	public void modifyText(Annotation annotation) {

@@ -94,10 +94,12 @@ package org.bigbluebutton.modules.whiteboard.services
 		}
 		
 		private function handleRequestAnnotationHistoryReply(message:Object):void {
+            LogUtil.debug("handleRequestAnnotationHistoryReply: Annotation history for [" + message.presentationID + "," + message.pageNumber + "]");
+            
 			if (message.count == 0) {
 				LogUtil.debug("handleRequestAnnotationHistoryReply: No annotations.");
 			} else {
-//				LogUtil.debug("handleRequestAnnotationHistoryReply: Number of annotations in history = " + message.count);
+				LogUtil.debug("handleRequestAnnotationHistoryReply: Number of annotations in history = " + message.count);
                 var annotations:Array = message.annotations as Array;
                 var tempAnnotations:Array = new Array();
                 
@@ -108,7 +110,7 @@ package org.bigbluebutton.modules.whiteboard.services
                     if (an.id == undefined || an.id == null || an.id == "") return;
                     if (an.status == undefined || an.status == null || an.status == "") return;
                     
-//                    LogUtil.debug("handleRequestAnnotationHistoryReply: annotation id=" + an.id);
+                    LogUtil.debug("handleRequestAnnotationHistoryReply: annotation id=" + an.id);
                     
                     var annotation:Annotation = new Annotation(an.id, an.type, an);
                     annotation.status = an.status;
@@ -116,7 +118,7 @@ package org.bigbluebutton.modules.whiteboard.services
                 }   
                 
                 if (tempAnnotations.length > 0) {
-                    whiteboardModel.addAnnotationFromHistory(tempAnnotations);
+                    whiteboardModel.addAnnotationFromHistory(message.presentationID, message.pageNumber, tempAnnotations);
                 }
 			}
 		}

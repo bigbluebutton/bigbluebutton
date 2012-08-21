@@ -76,9 +76,10 @@ public class WhiteboardService {
 		application.changePage((Integer) message.get("pageNum"));
 	}
 	
-	public void requestAnnotationHistory() {
+	public void requestAnnotationHistory(Map<String, Object> message) {
 		log.info("WhiteboardApplication - requestAnnotationHistory");
-		application.sendAnnotationHistory(Red5.getConnectionLocal().getClient().getId());
+		application.sendAnnotationHistory(Red5.getConnectionLocal().getClient().getId(), 
+				(String) message.get("presentationID"), (Integer) message.get("pageNumber"));
 	}
 		
 	public void clear() {

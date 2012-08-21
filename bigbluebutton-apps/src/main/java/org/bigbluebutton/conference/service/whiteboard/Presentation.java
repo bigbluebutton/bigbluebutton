@@ -32,13 +32,13 @@ public class Presentation {
 	public Presentation(String name, int numPages){
 		this.name = name;
 		this.pages = new ArrayList<Page>(numPages);
-		for (int i = 0; i < numPages; i++){
+		for (int i = 1; i <= numPages; i++){
 			pages.add(new Page(i));
 		}
 		this.activePage = pages.get(0);
 	}
 	
-	public String getName(){
+	public String getName() {
 		return name;
 	}
 	
@@ -52,4 +52,12 @@ public class Presentation {
 		activePage = pages.get(index);
 	}
 	
+	public Page getPage(int pageNumber) {
+		for (int i = 0; i < pages.size(); i++){
+			Page p = pages.get(i);
+			if (p.getPageIndex() == pageNumber) return p;
+		}		
+		
+		return null;
+	}
 }

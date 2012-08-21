@@ -100,8 +100,12 @@ package org.bigbluebutton.modules.whiteboard.services
 			);
 		}
 
-        public function requestAnnotationHistory():void{
+        public function requestAnnotationHistory(presentationID:String, pageNumber:int):void{
 //            LogUtil.debug("Sending [whiteboard.requestAnnotationHistory] to server.");
+            var msg:Object = new Object();
+            msg["presentationID"] = presentationID;
+            msg["pageNumber"] = pageNumber;
+            
             var _nc:ConnectionManager = BBB.initConnectionManager();
             _nc.sendMessage("whiteboard.requestAnnotationHistory", 
                 function(result:String):void { // On successful result
@@ -109,7 +113,8 @@ package org.bigbluebutton.modules.whiteboard.services
                 },	                   
                 function(status:String):void { // status - On error occurred
                     LogUtil.error(status); 
-                }
+                },
+                msg
             );
         }
         

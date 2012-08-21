@@ -1,6 +1,7 @@
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
     import org.bigbluebutton.modules.whiteboard.models.Annotation;
+    import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
     public class TextDrawAnnotation extends DrawAnnotation
     {
@@ -27,7 +28,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             _fontSize = fontSize;
         }
         
-        override public function createAnnotation(ctrlKeyPressed:Boolean=false):Annotation {
+        override public function createAnnotation(wbModel:WhiteboardModel, ctrlKeyPressed:Boolean=false):Annotation {
             var ao:Object = new Object();
             ao["type"] = DrawObject.TEXT;
             ao["id"] = _id;
@@ -39,6 +40,12 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             ao["fontSize"] = _fontSize;
             ao["textBoxWidth"] = _textBoxWidth;
             ao["textBoxHeight"] = _textBoxHeight;
+            
+            var pn:Object = wbModel.getCurrentPresentationAndPage();
+            if (pn != null) {
+              ao["presentationID"] = pn.presentationID;
+              ao["pageNumber"] = pn.currentPageNumber;
+            }
             
             return new Annotation(_id, DrawObject.TEXT, ao);
         }

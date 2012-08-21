@@ -95,9 +95,9 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		connInvokerService.sendMessage(m);
 	}
 
-	public void sendAnnotationHistory(String userid) {
+	public void sendAnnotationHistory(String userid, String presentationID, Integer pageNumber) {
 		Map<String, Object> message = new HashMap<String, Object>();		
-		List<Annotation> annotations = roomManager.getRoom(getMeetingId()).getAnnotations();
+		List<Annotation> annotations = roomManager.getRoom(getMeetingId()).getAnnotations(presentationID, pageNumber);
 		message.put("count", new Integer(annotations.size()));
 		
 		/** extract annotation into a Map */
@@ -106,6 +106,8 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 			a.add(v.getAnnotation());
 		}
 		
+		message.put("presentationID", presentationID);
+		message.put("pageNumber", pageNumber);
 		message.put("annotations", a);
 		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userid, "WhiteboardRequestAnnotationHistoryReply", message);
 		connInvokerService.sendMessage(m);
