@@ -68,6 +68,9 @@ begin
 	sanity_done.close
 rescue Exception => e
 	BigBlueButton.logger.error("error in sanity check: " + e.message)
+	sanity_done = File.new("#{recording_dir}/status/sanity/#{meeting_id}.fail", "w")
+        sanity_done.write("error: " + e.message)
+        sanity_done.close
 end
 
 

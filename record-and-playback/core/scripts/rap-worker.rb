@@ -31,13 +31,19 @@ end
 def sanity_archived_meeting(recording_dir)
   archived_done_files = Dir.glob("#{recording_dir}/status/archived/*.done")
   sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
+  sanity_failed_files = Dir.glob("#{recording_dir}/status/sanity/*.fail")
 
   archived_done_files.each do |df|
         match = /(.*).done/.match df.sub(/.+\//, "")
         meeting_id = match[1]
 
-        is_sanity_check_completed = sanity_done_files.any? { |s| s.include?(meeting_id)  }
+	has_failed = sanity_failed_files.any? { |s| s.include?(meeting_id)  }
+	if(has_failed)
+		BigBlueButton.logger.info("it has failed sanity check... skipping meeting: #{meeting_id}")
+		next
+	end
 
+        is_sanity_check_completed = sanity_done_files.any? { |s| s.include?(meeting_id)  }
         if(!is_sanity_check_completed)
                 command = "ruby sanity/sanity.rb -m #{meeting_id}"
             BigBlueButton.execute(command)
