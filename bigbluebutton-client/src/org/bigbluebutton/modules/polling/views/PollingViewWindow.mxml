@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+
+<MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="410" height="150" 
+	xmlns:mate="http://mate.asfusion.com/" 
+	implements="org.bigbluebutton.common.IBbbModuleWindow" 
+	creationComplete="onCreationComplete()"
+	label="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"  
+	title="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
+	layout="absolute">
+
+	<mx:Script>
+		<![CDATA[
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import org.bigbluebutton.main.views.MainCanvas;
+			import mx.controls.Alert;
+			import org.bigbluebutton.common.LogUtil;	 
+			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
+			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
+			import org.bigbluebutton.modules.polling.managers.PollingManager;
+			import org.bigbluebutton.modules.polling.events.VoteEvent;
+			
+			import org.bigbluebutton.main.model.users.Conference;
+			
+			import mx.validators.Validator;	
+			import mx.utils.ObjectUtil;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.IUIComponent;
+			import mx.controls.CheckBox;
+			import mx.controls.RadioButton;
+			import mx.controls.Text;
+		    import mx.containers.*;
+		    import mx.controls.*;
+			
+		   	public static const LOGNAME:String = "[PollingViewWindow] ";
+			public var isMultiple:Boolean;
+			[Bindable] public var question:String;
+			[Bindable] public var answers:Array;
+			public var votes:Array;
+			public var time:String;
+			public var moduleAttributes:Object;
+			private var _userid:Number; 
+			private var window:PollingViewWindow;	
+			private var submissionAllowed:Boolean=false;		
+			public var cbSelected:Array = new Array(); // variable that receives either CheckBox or RadioButton info and sends it to VoteEvent
+			
+			public function getPrefferedPosition():String{
+				return MainCanvas.POPUP;
+			}	
+									
+			private function closeWindow():void{
+				dispatchEvent(new PollingViewWindowEvent(PollingViewWindowEvent.CLOSE));
+			}
+ 			 
+			private function onCreationComplete():void{
+				if (isMultiple)
+					errorMessage.text = ResourceUtil.getInstance().getString('bbb.polling.vote.error.check');
+				else
+					errorMessage.text = ResourceUtil.getInstance().getString('bbb.polling.vote.error.radio');
+				checkInstructions.visible = isMultiple;
+				createButtons(answers.length,answers);
+				invalidateDisplayList();
+				validateNow(); 
+				var lines:int = (question.length / 28) + 1;
+				for(var s:String in answers){
+					lines = lines + ((s.length / 28) + 1);	
+				}				 	            	
+				height = height + (lines * 50);
+			}
+						
+			// This function will receive information and generate radiobuttons on fly
+			// function receives Array.length and ArrayCollection
+			private function createButtons(amount:uint, content:Array):void{
+				var _cb:CheckBox;
+				var _rb:RadioButton;
+				var _tx: Text;
+				var _hb: HBox; 
+				var  _rb_group:RadioButtonGroup = new RadioButtonGroup();
+				// creating buttons one by one
+			    for (var i:int = 0; i < amount; i++) {
+					_tx = new Text();
+					_hb = new HBox();
+					_tx.name = "option" +i;
+					_tx.width = 200;
+					// assigning array element to text field
+					_tx.text =content[i].toString(); 
+				 	answerBox.addChild(_hb);
+					 
+					// if global var isMultiple is true it means user wants checkboxes, 
+					//otherwise radiobutton (if multiple choices are allowed)
+					if(isMultiple){
+				 		_cb= new CheckBox();
+				    	_cb.id = "answers"+i;
+				    	_cb.addEventListener(MouseEvent.CLICK, checkBoxClick);
+				    	// gap between the buttons
+ 				    	_cb.y=i*20;
+ 				    	// adding buttons to the Horizontal Box
+ 				      	_hb.addChild(_cb);
+ 				 	}else{
+				 		_rb = new RadioButton();
+				 		_rb.groupName = "answersGroup";
+				 		_rb.name = content[i].toString(); // giving button a name of array elelment to process it easier later
+				 		_rb.id = "answers"+i;
+						_rb.addEventListener(MouseEvent.CLICK, radioClick);
+				 		_hb.addChild(_rb);
+			 		}    
+			 		_hb.addChild(_tx); // adding text near button			 
+				} // end of loop
+				answerBox.validateNow();	
+			} // end of function createButtons
+						
+			private function Vote():void{
+				if (submissionAllowed){
+					var voteEvent: VoteEvent = new VoteEvent(VoteEvent.START);
+					if (isMultiple){
+						// Checkboxes
+						voteEvent.answerID = cbSelected;
+					}else{
+						// Radio Buttons
+						cbSelected[0]= answersGroup.selection.toString().substr(-1,1); // answergroup... is answerID index
+						// [0] index because RadioButtons could have only one element 
+						voteEvent.answerID = cbSelected;
+					}
+					voteEvent.title = title;
+					dispatchEvent(voteEvent);				
+					closeWindow();
+				}
+				else
+					errorMessage.visible = true;
+			} // _vote
+						
+			// As the user clicks CheckBoxes, this function keeps a running tally of which boxes are and are not selected
+			private function checkBoxClick(e:Event):void{
+				var boxID:String = e.currentTarget.toString();
+				var match:Boolean = false;
+				var target:int;
+				// Goes through each element of the array, looks for a match to boxID
+				for (var i:int = 0; i < cbSelected.length; i++){
+					if (cbSelected[i] == boxID.charAt(boxID.length-1)){
+						match = true;
+						target = i;
+					}
+				}
+				// If a match is found, delete that element. If no match is found, add boxID to the array
+				if (match){
+					cbSelected.splice(target, 1);
+				}else{
+					cbSelected.push(boxID.charAt(boxID.length-1));
+				}
+				submissionAllowed = (cbSelected.length > 0);
+			}
+
+			public function radioClick(e:Event):void{
+				submissionAllowed = true;
+			}
+		]]>
+	</mx:Script>
+
+	<mx:RadioButtonGroup id="answersGroup"/>
+ 	<!-- Prototype of Polling Module Design -->
+    <mx:VBox width="100%" 
+    		 height="75%" 
+    		 horizontalAlign="center" 
+    		 paddingLeft="10" 
+    		 paddingRight="10">
+    	<mx:Text width="200" 
+        		 paddingTop="30" 
+        		 paddingBottom="10" 
+        		 fontWeight="bold" 
+        		 textAlign="center"
+       			 text="{question}"/>
+       	<mx:Text id="checkInstructions" 
+       			 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll')}"/>
+     	<mx:Box id="answerBox"  
+     			width="90%" 
+     			height="90%" />
+		<mx:Text id="errorMessage"
+				 color="red"
+				 visible="false"/>
+	</mx:VBox>
+    <mx:ControlBar width="100%" 
+    			   horizontalAlign="center">
+    	<mx:Button id="btnAcceptPoll" 
+    			   label="{ResourceUtil.getInstance().getString('bbb.polling.pollView.vote')}" 
+    			   click="Vote()"  
+    			   width="100" 
+    			   height="30"/>
+    </mx:ControlBar> 	 
+</MDIWindow>

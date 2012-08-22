@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+
+
+
+-->
+
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:mate="http://mate.asfusion.com/"	
+	toolTip="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
+	implements="org.bigbluebutton.common.IBbbToolbarComponent"
+	initialize="init();" 
+	click="createAndShow();"
+	rollOver="updateMenu();"
+	icon="{pollIcon}"
+	>
+	<mx:Script>
+		<![CDATA[
+		    import com.asfusion.mate.events.Dispatcher;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.main.views.MainToolbar;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+	       	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
+			import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
+			import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
+			import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
+			import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
+			
+			import org.bigbluebutton.modules.polling.model.ValueObject;
+			import org.bigbluebutton.modules.polling.model.PollObject;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Menu;
+			import mx.events.MenuEvent;
+			
+			import org.bigbluebutton.modules.polling.model.PollObject;
+			
+			private var images:Images = new Images();
+			
+			[Bindable] private var myMenuData:ArrayCollection;
+			
+			[Bindable] 
+			[Embed(source="../../../common/assets/images/poll_icon.png")]  
+			public var pollIcon:Class;			
+						
+			public static const LOGNAME:String = "[Polling (views) : ToolbarButton] ";
+			
+			[Bindable] public var roomID:String;
+			[Bindable] public var titleList:Array;
+			[Bindable] public var pollList:ArrayCollection;
+			
+			// #################################################################
+			public function init():void {	
+				LogUtil.debug("Initializing Polling toolbar button.");
+				myMenuData = new ArrayCollection();
+				pollList = new ArrayCollection();			
+				listInitialize();
+				renderMenu();
+            }
+			
+			private function createAndShow():void{
+				renderMenu();
+				var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
+				myMenu.iconField="icon";
+				myMenu.show(this.x + 10, this.y + this.height + 10);
+            	myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClick);
+			}
+			// #################################################################
+
+			public function listInitialize():void{
+				titleList = new Array();
+				myMenuData.removeAll();
+				pollList.removeAll();
+				var pevent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.INIT);
+				try{
+					dispatchEvent(pevent);
+				}
+				catch (e:*){
+					LogUtil.debug("Bleh.");
+				}
+			}
+						
+			private function renderMenu():void{
+				myMenuData.removeAll();
+				myMenuData.addItem(new ValueObject("create", ResourceUtil.getInstance().getString('bbb.polling.createPoll')));
+				for (var i:int = 0; i < pollList.length; i++){
+					if (pollList[i] != null){
+						var keyString:String = pollList[i].room +"-"+ pollList[i].title;
+						var menuEntry:ValueObject = new ValueObject(keyString, pollList[i].title);
+						menuEntry.poll = pollList[i];
+						if (!pollList[i].status){
+							menuEntry.label = "X-" + menuEntry.label;
+						}else{
+							menuEntry.icon = "pollIcon";
+						}
+						myMenuData.addItem(menuEntry);
+					}
+				}
+			}
+			
+			private function updateMenu():void{
+				listInitialize();
+			}
+			
+        	private function menuClick(event:MenuEvent):void {            	
+            	if(event.index == 0){
+            	  	openPollingInstructions();
+            	}else{
+            		var poll:PollObject = myMenuData.getItemAt(event.index).poll;
+            		if (poll.status){
+            			// Poll has not been used yet, open instructions window
+            			var openPollEvent:OpenSavedPollEvent = new OpenSavedPollEvent(OpenSavedPollEvent.OPEN);
+            			openPollEvent.poll = poll;
+            			dispatchEvent(openPollEvent);
+            		}else{
+            			// Poll has been closed, show results
+            			var reviewEvent:ReviewResultsEvent = new ReviewResultsEvent(ReviewResultsEvent.REVIEW);
+            			reviewEvent.poll = poll;
+            			dispatchEvent(reviewEvent);
+            		}
+            	}
+        	}
+						
+								
+			public function getAlignment():String{
+				return MainToolbar.ALIGN_RIGHT;
+			}
+			
+			
+			private function openPollingInstructions():void {
+				dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.OPEN));
+				this.enabled=false;
+			}
+		]]>
+	</mx:Script>  
+</mx:Button>  

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
+	implements="org.bigbluebutton.common.IBigBlueButtonModule" 
+	xmlns:polling="org.bigbluebutton.modules.polling.*"
+	 xmlns:maps="org.bigbluebutton.modules.polling.maps.*"
+	  creationComplete="onCreationComplete()">
+	  
+	  <maps:PollingEventMap id="eventMap"/>
+	  
+	<mx:Script>
+		<![CDATA[
+		
+		  
+		    import mx.controls.Alert;
+			import com.asfusion.mate.events.Dispatcher;
+			import org.bigbluebutton.common.LogUtil;
+			
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+	
+		    import org.bigbluebutton.modules.polling.events.ModuleEvent;
+		    
+			import org.bigbluebutton.modules.polling.views.PollingViewWindow;			
+			import org.bigbluebutton.modules.polling.managers.PollingManager;
+			import org.bigbluebutton.modules.polling.maps.PollingEventMap;
+		
+			
+			
+			
+						
+			private var _moduleName:String = "Polling";			
+			private var _attributes:Object;
+			
+			public var globalDispatcher:Dispatcher = new Dispatcher();
+			public static const LOGNAME:String = "[PollingModule] ";
+			
+				
+			private function onCreationComplete():void {
+				LogUtil.debug(LOGNAME + "initialized");	
+			}
+			
+			public function get moduleName():String {
+				return _moduleName;
+			}
+			
+			public function get uri():String{
+				if (_attributes.mode == "PLAYBACK")
+					return _attributes.uri + "/" + _attributes.playbackRoom;
+				return _attributes.uri + "/" + _attributes.room;
+			}
+			
+			public function get username():String {
+				return _attributes.username;
+			}
+			
+			
+		
+			public function get connection():NetConnection {
+				return _attributes.connection;
+			}
+			
+		public function getRoom():String{
+				return _attributes.room;
+			}
+			
+			
+			public function get userid():Number {
+				return _attributes.userid as Number;
+			}
+			
+			public function get role():String {
+				return _attributes.userrole as String;
+			}
+			
+			public function start(attributes:Object):void {	
+				
+				LogUtil.debug(LOGNAME +" started [Username: " + attributes.username + " Role: " +attributes.userrole + " Room:" +attributes.room+ "]" );
+				
+				_attributes = attributes;
+				//eventMap.module = this;
+				LogUtil.debug(LOGNAME + "inside start() dispatching ModuleEvent");
+				var startEvent:ModuleEvent = new ModuleEvent(ModuleEvent.START);
+				startEvent.module = this;
+				globalDispatcher.dispatchEvent(startEvent);
+				
+			}
+			
+			
+			
+			public function stop():void {
+				LogUtil.debug(LOGNAME + "STOPPING Polling MODULE");	
+			}
+			
+			public function getMeetingInfo():String{
+				return getMeetingInfo();
+			}
+			
+		]]>
+	</mx:Script>
+	
+	
+	
+</mx:Module>
