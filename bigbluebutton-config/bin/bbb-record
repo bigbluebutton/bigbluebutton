@@ -532,7 +532,7 @@ if [ $DEBUG ]; then
                         LOC=$LOG_DIR/$type/$stage
                         if ls -A $LOC-* &> /dev/null; then
                                 rm -rf /tmp/t
-                                grep -B 3 "ERROR -- : Error:" $LOC-* | egrep -w 'Task:| Error:' > /tmp/t
+                                grep -B 3 "ERROR -- : Error:" $LOC-* | egrep -w 'Error:' | grep -v "ffmpeg version" > /tmp/t
                                 if [ -s /tmp/t ]; then
                                         echo "  -- ERRORS found while processing slides $LOC-* -- "
                                         cat /tmp/t
