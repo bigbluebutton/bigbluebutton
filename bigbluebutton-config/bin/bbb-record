@@ -123,8 +123,10 @@ usage() {
 	echo
         echo "Monitoring:"
         echo "   --watch                          Watch processing of recordings"
+	echo
+        echo "Administration:"
         echo "   --rebuild [meetingID]            rebuild the output for meetingID"
-        echo "   --republish [meetingID]            republish the recording for meetingID"
+        echo "   --republish [meetingID]          republish the recording for meetingID"
 	echo "   --delete [meetingID]             delete one meeting and recording"
         echo "   --deletall                       delete all meetings and recordings"
         echo "   --debug                          check for recording errors"
@@ -208,6 +210,13 @@ while [ $# -gt 0 ]; do
                 continue
         fi
 
+        if [ "$1" = "-clean" -o "$1" = "--clean" ]; then
+		need_root
+                CLEAN=1
+		shift
+                continue
+        fi
+
 	usage
 	exit 1
 done
@@ -241,6 +250,15 @@ if [ $REPUBLISH ]; then
 	mark_for_republish $MEETING_ID
     fi
 fi 
+
+if [ $CLEAN ]; then
+	sudo /etc/init.d/bbb-record-core stop
+	for type in $TYPES; do
+		echo " clearning logs in /var/log/bigbluebutton/$type"
+		find /var/log/bigbluebutton/$type -name "*.log" -exec sudo rm '{}' \;
+	done
+	sudo /etc/init.d/bbb-record-core start
+fi
 
 if [ $DELETE ]; then
   if [ ! -z "$MEETING_ID" ]; then
