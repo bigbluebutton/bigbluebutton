@@ -24,25 +24,29 @@
   xmlns:maps="org.bigbluebutton.main.maps.*"
   xmlns:mate="http://mate.asfusion.com/"
   xmlns:m="library://melomel/2010"
-  pageTitle="BigBlueButton"
+  pageTitle="BigBlueButton" creationComplete="setupAPI()"
   layout="absolute" preinitialize="init()"
   preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader"
   applicationComplete="hotkeyCapture()">
   
   <mx:Script>
     <![CDATA[
+      import com.asfusion.mate.events.Dispatcher;
+      
       import flash.events.Event;
-      import com.asfusion.mate.events.Dispatcher;		
+      
       import mx.managers.HistoryManager;
-      import org.bigbluebutton.core.EventBroadcaster;
-      import org.bigbluebutton.core.managers.ConfigManager2;			
+      
       import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
       import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.EventBroadcaster;
+      import org.bigbluebutton.core.managers.ConfigManager2;
+      import org.bigbluebutton.main.api.Api;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.views.MainApplicationShell;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-      import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
       
       private var langResources:ResourceUtil = ResourceUtil.getInstance();
 
@@ -211,6 +215,13 @@
 				LogUtil.debug("***** Config Loaded ****");
 				mainShell.initOptions(null);
 			}
+      
+      private var api:Api;
+      
+      private function setupAPI():void {
+        Security.allowDomain("*");
+        api = new Api();
+      }
 
 			/**
 			 * Shortcut Keys
