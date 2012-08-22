@@ -36,74 +36,76 @@ import org.bigbluebutton.presentation.imp.ExternalProcessExecutor.InterruptTimer
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.lang.StringUtils;
+
 public class Pdf2SwfPageCounter implements PageCounter {
 	private static Logger log = LoggerFactory.getLogger(Pdf2SwfPageCounter.class);
-	
+
 	private static final Pattern PAGE_NUMBER_PATTERN = Pattern.compile("page=([0-9]+)(?: .+)");	
 	private String SWFTOOLS_DIR;
 
 	public int countNumberOfPages(File presentationFile) {		
 		int numPages = 0; //total numbers of this pdf	
 
-		String COMMAND = SWFTOOLS_DIR + "/pdf2swf -I \"" + presentationFile.getAbsolutePath()+"\""; 
-   	
-        Timer timer = null;
-        Process p = null;
-        try {
-            timer = new Timer(true);
-            InterruptTimerTask interrupter = new InterruptTimerTask(Thread.currentThread());
-            timer.schedule(interrupter, 60000);
-            
-            p = Runtime.getRuntime().exec(COMMAND); 
-            BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		//String COMMAND = SWFTOOLS_DIR + "/pdf2swf -I " + presentationFile.getAbsolutePath(); 
+                String[] cmdarray = new String[]{SWFTOOLS_DIR+File.separator+"pdf2swf", "-I", presentationFile.getAbsolutePath()};
+		Timer timer = null;
+		Process p = null;
+		try {
+			timer = new Timer(true);
+			InterruptTimerTask interrupter = new InterruptTimerTask(Thread.currentThread());
+			timer.schedule(interrupter, 60000);
+                        log.debug("new way"+StringUtils.join(cmdarray," "));
+			p = Runtime.getRuntime().exec(cmdarray); 
+			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String info;
 			Matcher matcher;
 			while ((info = stdInput.readLine()) != null) {
 				//The output would be something like this 'page=21 width=718.00 height=538.00'.
-	    		//We need to extract the page number (i.e. 21) from it.
+				//We need to extract the page number (i.e. 21) from it.
+				log.debug("readline: "+info);
 				matcher = PAGE_NUMBER_PATTERN.matcher(info);
-	    		if (matcher.matches()) {
-	    			numPages = Integer.valueOf(matcher.group(1).trim()).intValue();
-	    		}
+				if (matcher.matches()) {
+					numPages = Integer.valueOf(matcher.group(1).trim()).intValue();
+				}
 			}
 			while ((info = stdError.readLine()) != null) {
 				log.error(info);
 			}
 			stdInput.close();
 			stdError.close();
-            p.waitFor();
-        } catch(Exception e) {
-        	log.info("TIMEDOUT excuting : " + COMMAND);
-            p.destroy();
-        } finally {
-            timer.cancel();     // If the process returns within the timeout period, we have to stop the interrupter
-                                // so that it does not unexpectedly interrupt some other code later.
+			p.waitFor();
+		} catch(Exception e) {
+			p.destroy();
+		} finally {
+			timer.cancel();     // If the process returns within the timeout period, we have to stop the interrupter
+			// so that it does not unexpectedly interrupt some other code later.
 
-            Thread.interrupted();   // We need to clear the interrupt flag on the current thread just in case
-                                    // interrupter executed after waitFor had already returned but before timer.cancel
-                                    // took effect.
-                                    //
-                                    // Oh, and there's also Sun bug 6420270 to worry about here.
-        }  
+			Thread.interrupted();   // We need to clear the interrupt flag on the current thread just in case
+			// interrupter executed after waitFor had already returned but before timer.cancel
+			// took effect.
+			//
+			// Oh, and there's also Sun bug 6420270 to worry about here.
+		}  
 
 		return numPages;
 	}
-		
+
 	public void setSwfToolsDir(String dir) {
 		SWFTOOLS_DIR = dir;
 	}
-	
+
 	class InterruptTimerTask extends TimerTask {
-	    private Thread thread;
+		private Thread thread;
 
-	    public InterruptTimerTask(Thread t) {
-	        this.thread = t;
-	    }
+		public InterruptTimerTask(Thread t) {
+			this.thread = t;
+		}
 
-	    public void run() {
-	        thread.interrupt();
-	    }
+		public void run() {
+			thread.interrupt();
+		}
 
 	}
 }

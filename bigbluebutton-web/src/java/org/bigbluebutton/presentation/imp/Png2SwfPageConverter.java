@@ -33,9 +33,9 @@ public class Png2SwfPageConverter implements PageConverter {
 	private String SWFTOOLS_DIR;
 	
 	public boolean convert(File presentationFile, File output, int page){		
-		String COMMAND = SWFTOOLS_DIR + "/png2swf -o \"" + output.getAbsolutePath() + "\" \"" + presentationFile.getAbsolutePath() + "\"";	
-		
-		boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000); 	            
+		//String COMMAND = SWFTOOLS_DIR + "/png2swf -o " + output.getAbsolutePath() + " " + presentationFile.getAbsolutePath();	
+		String[] cmdarray = new String[]{SWFTOOLS_DIR+File.separator+"png2swf", "-o", output.getAbsolutePath(), presentationFile.getAbsolutePath()}; 
+		boolean done = new ExternalProcessExecutor().exec(cmdarray, 60000); 	            
 		   
 		if (done && output.exists()) {
 			return true;		
