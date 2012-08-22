@@ -528,21 +528,19 @@ if [ $DEBUG ]; then
 	#
 	STAGES="process publish"
         for type in $TYPES; do
-        	for stage in $STAGES; do
-			if ls -A $LOG_DIR/$type/$stage-* &> /dev/null; then
-				rm -rf /tmp/t
-				grep -B 3 "ERROR -- : Error:" $LOG_DIR/$type/$stag-* | egrep -w 'Task:| Error:' > /tmp/t
-				if [ -s /tmp/t ]; then
-					echo "  -- ERRORS found while processing slides $LOG_DIR/$type/$stag-* -- "
-					cat /tmp/t
-					echo
-				fi
-			fi
-		done
-	done
-
-
-
+                for stage in $STAGES; do
+                        LOC=$LOG_DIR/$type/$stage
+                        if ls -A $LOC-* &> /dev/null; then
+                                rm -rf /tmp/t
+                                grep -B 3 "ERROR -- : Error:" $LOC-* | egrep -w 'Task:| Error:' > /tmp/t
+                                if [ -s /tmp/t ]; then
+                                        echo "  -- ERRORS found while processing slides $LOC-* -- "
+                                        cat /tmp/t
+                                        echo
+                                fi
+                        fi
+                done
+        done
 
 
 	#
