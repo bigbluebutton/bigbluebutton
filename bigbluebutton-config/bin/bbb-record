@@ -26,7 +26,7 @@
 #   2012-02-27 GUG  Add option to delete one meeting and recording
 #   2012-08-13 GUG  Republish recording
 
-set -e
+#set -e
 #set -x
 
 BASE=/var/bigbluebutton/recording
