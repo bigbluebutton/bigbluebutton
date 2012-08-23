@@ -72,33 +72,33 @@ package org.bigbluebutton.modules.whiteboard
         
     public function drawGraphic(event:WhiteboardUpdate):void{
       var o:Annotation = event.annotation;
-//            LogUtil.debug("**** Drawing graphic [" + o.type + "] *****");
-            if(o.type != DrawObject.TEXT) {    
-                var dobj:DrawObject;
-                switch (o.status) {
-                    case DrawObject.DRAW_START:
-                        dobj = shapeFactory.makeDrawObject(o, whiteboardModel);  
-                        if (dobj != null) {
-                            dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
-                            wbCanvas.addGraphic(dobj);
-                            _annotationsList.push(dobj);              
-                        }
-                        break;
-                    case DrawObject.DRAW_UPDATE:
-                    case DrawObject.DRAW_END:
-                        var gobj:DrawObject = _annotationsList.pop();  
-                        wbCanvas.removeGraphic(gobj as DisplayObject);      
-                        dobj = shapeFactory.makeDrawObject(o, whiteboardModel);  
-                        if (dobj != null) {
-                            dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
-                            wbCanvas.addGraphic(dobj);
-                            _annotationsList.push(dobj);              
-                        }
-                        break;
-                }                   
-            } else { 
-                drawText(o);  
+      //  LogUtil.debug("**** Drawing graphic [" + o.type + "] *****");
+      if (o.type != DrawObject.TEXT) {    
+        var dobj:DrawObject;
+        switch (o.status) {
+          case DrawObject.DRAW_START:
+            dobj = shapeFactory.makeDrawObject(o, whiteboardModel);  
+            if (dobj != null) {
+              dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
+              wbCanvas.addGraphic(dobj);
+              _annotationsList.push(dobj);              
             }
+            break;
+          case DrawObject.DRAW_UPDATE:
+          case DrawObject.DRAW_END:
+            var gobj:DrawObject = _annotationsList.pop();  
+            wbCanvas.removeGraphic(gobj as DisplayObject);      
+            dobj = shapeFactory.makeDrawObject(o, whiteboardModel);  
+            if (dobj != null) {
+              dobj.draw(o, shapeFactory.parentWidth, shapeFactory.parentHeight);
+              wbCanvas.addGraphic(dobj);
+              _annotationsList.push(dobj);              
+            }
+            break;
+        }                   
+      } else { 
+        drawText(o);  
+      }
     }
                    
     // Draws a TextObject when/if it is received from the server
@@ -116,13 +116,13 @@ package org.bigbluebutton.modules.whiteboard
           }   
           break;
         case TextObject.TEXT_PUBLISHED:
-                    modifyText(o);
-                    // Inform others that we are done with listening for events and that they should re-listen for keyboard events. 
-                    if (isPresenter) {
-                      bindToKeyboardEvents(true);
-                      wbCanvas.stage.focus = null;
-                      currentlySelectedTextObject = null;
-                    }
+          modifyText(o);
+          // Inform others that we are done with listening for events and that they should re-listen for keyboard events. 
+          if (isPresenter) {
+            bindToKeyboardEvents(true);
+            wbCanvas.stage.focus = null;
+            currentlySelectedTextObject = null;
+          }
           break;
       }        
     }
