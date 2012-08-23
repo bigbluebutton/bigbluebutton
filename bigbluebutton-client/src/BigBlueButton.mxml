@@ -32,11 +32,8 @@
   <mx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;
-      
       import flash.events.Event;
-      
       import mx.managers.HistoryManager;
-      
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
       import org.bigbluebutton.core.BBB;
@@ -47,7 +44,6 @@
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.views.MainApplicationShell;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-      
       private var langResources:ResourceUtil = ResourceUtil.getInstance();
 
       public var myFoo:String = "bar";
@@ -64,215 +60,210 @@
     private var hist:HistoryManager
 
     private function handleChatEvent(e:Event):void {
-			trace('Got CHAT_EVENT');
-		}
+      trace('Got CHAT_EVENT');
+    }
 
-		public function setFoo(f:String):void {
-			myFoo = f;
-		}
-		
-			/******************************
-			 * Testing
-			 ******************************/
-			
+    public function setFoo(f:String):void {
+      myFoo = f;
+    }
 
-		
-			private var globalDispatcher:Dispatcher = new Dispatcher();
-			
-			// Login test
-			private static var isLoggedIn:Boolean = false;	// flag to indicate if we successfully logged in
-			
-			// Chat test
-			private static var chatMessageSent:String = "";
-			private static var chatTestSucceeded:Boolean = false;
-			
-			// Voice test
-			private static var didUserJoin:Boolean = false;
-			
-			// Presentation test
-			private static var didPresentationConvert:Boolean = false;
-			
-			// Video test
-			private static var didVideoStart:Boolean = false;
-			
-			
-			public  function handleLoginEvent(event:BBBEvent):void {
-				LogUtil.debug("******************* Received loggedin event");
-				isLoggedIn = true;
-				LogUtil.debug("******************* Received loggedin event " + isLoggedIn.toString());
-			}
-			
-			public function checkLogin():String {
-				LogUtil.debug("******************* " + isLoggedIn.toString());
-				return isLoggedIn.toString();
-				
-			}
-			
-			public function checkChat():String {
-				if (chatTestSucceeded)
-				{
-					chatTestSucceeded = false;
-					return "true";
-				}
-				else
-					return chatTestSucceeded.toString();
-			}
-			
-			public function handleReceivedPublicChatMessageEvent(event:BBBEvent):void {
-				if (event.message.search(chatMessageSent) != -1)
-					chatTestSucceeded = true;
-			}
-			
-			// Creates a random string and sends it as a chat message.
-			public function sendRandomChatMessage():void {
-				chatMessageSent = generateRandomString(15);
-				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT, chatMessageSent));
-			}
-			
-			
-			/**
-			 * Voice
-			 */ 
-			public function joinVoiceConference():void {
-				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_CONFERENCE));
-			}
-			
-			public function checkVoice():String {
-				return didUserJoin.toString();
-			}
-			
-			public function handleAddedListenerEvent(event:BBBEvent):void {
-//				if (event.message == _attributes.username) {
-					didUserJoin = true;
-//				}
-			}
-			
-			/**
-			 * Presentation
-			 */ 
-			
-			public function checkPresentation():String {
-				if (didPresentationConvert) {
-					didPresentationConvert = false;
-					return "true";
-				} else
-					return "false";
-			}
-			
-			public function handlePresentationConversion(event:Event):void {
-				didPresentationConvert = true;
-			}
-			
-			// Obtained from: http://www.zedia.net/2008/generate-random-strings-in-as2-or-as3/
-			private function generateRandomString(newLength:uint = 1, userAlphabet:String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"):String{
-				var alphabet:Array = userAlphabet.split("");
-				var alphabetLength:int = alphabet.length;
-				var randomLetters:String = "";
-				for (var i:uint = 0; i < newLength; i++){
-					randomLetters += alphabet[int(Math.floor(Math.random() * alphabetLength))];
-				}
-				return randomLetters;
-			}
-			
-			
-			/**
-			 * Video
-			 */
-			
-			public function startVideoConnection():String {
-				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.START_VIDEO_CONNECTION));
-				return "true";
-			}
-			
-			public function playVideo():String {
-				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.START_VIDEO_STREAM, "640x480avatar.flv"));
-				return "true";
-			}
-			
-			public function videoHasStarted(e:Event):void {
-				didVideoStart = true;
-			}
-			
-			public function checkVideo():String {
-				return didVideoStart.toString();
-			}
-			
-			/**
-			 * Desktop Sharing
-			 */
-			
-			public function startDeskshare():String {
-				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.START_DESKSHARE));
-				return "true";
-			}			
+    /******************************
+     * Testing
+     ******************************/
 
-			protected function init():void {	
-				EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
-				BBB.initConfigManager();
-			}
-			
-			private function configLoadedEventHandler(e:Event):void {
-				LogUtil.debug("***** Config Loaded ****");
-				mainShell.initOptions(null);
-			}
-      
-      private var api:Api;
-      
-      private function setupAPI():void {
-        Security.allowDomain("*");
-        api = new Api();
+    private var globalDispatcher:Dispatcher = new Dispatcher();
+
+    // Login test
+    private static var isLoggedIn:Boolean = false;	// flag to indicate if we successfully logged in
+    
+    // Chat test
+    private static var chatMessageSent:String = "";
+    private static var chatTestSucceeded:Boolean = false;
+  
+    // Voice test
+    private static var didUserJoin:Boolean = false;
+    
+    // Presentation test
+    private static var didPresentationConvert:Boolean = false;
+
+    // Video test
+    private static var didVideoStart:Boolean = false;
+
+
+    public  function handleLoginEvent(event:BBBEvent):void {
+      LogUtil.debug("******************* Received loggedin event");
+      isLoggedIn = true;
+      LogUtil.debug("******************* Received loggedin event " + isLoggedIn.toString());
+    }
+
+    public function checkLogin():String {
+      LogUtil.debug("******************* " + isLoggedIn.toString());
+      return isLoggedIn.toString();
+    }
+
+    public function checkChat():String {
+      if (chatTestSucceeded)
+      {
+          chatTestSucceeded = false;
+          return "true";
+      } else {
+        return chatTestSucceeded.toString();
       }
+    }
 
-			/**
-			 * Shortcut Keys
-			 */
-			
-			private function localeChanged(e:Event):void{
-				loadKeyCombos();
-			}
-			
-			private var keyCombos:Object;
-			
-			private function loadKeyCombos():void {
-				keyCombos = new Object(); // always start with a fresh array
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.listeners.muteme') as String)] = ShortcutEvent.MUTE_ME_EVENT;
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput') as String)] = ShortcutEvent.FOCUS_CHAT_INPUT;
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chattabs') as String)] = ShortcutEvent.FOCUS_CHAT_TABS;
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide') as String)] = ShortcutEvent.FOCUS_SLIDE;
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo') as String)] = ShortcutEvent.UNDO_WHITEBOARD;
-			}
+    public function handleReceivedPublicChatMessageEvent(event:BBBEvent):void {
+      if (event.message.search(chatMessageSent) != -1) {
+        chatTestSucceeded = true;
+      }
+    }
 
-			public function hotkeyCapture():void{
-				LogUtil.debug("Entering hotkeyCapture");
-				stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
-				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
-				LogUtil.debug("Leaving hotkeyCapture");
-			}
-			
-			public function handleKeyDown(e:KeyboardEvent) :void
-			{
-				var keyPress:String = (e.ctrlKey  ? "control+" : "") +
-									  (e.shiftKey ? "shift+"   : "") +
-									  (e.altKey   ? "alt+"     : "") +
-									  e.keyCode;
-				//LogUtil.debug("Chad keypress " + keyPress);
-				
-				if (keyCombos[keyPress])
-				{
-					LogUtil.debug("Chad keypress " + keyPress);
-					globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
-				}
-			}
-		]]>
-	</mx:Script>	
-	
-	<maps:ApplicationEventMap />	
-	<views:MainApplicationShell id="mainShell"/>	
-	
-	<mate:Listener type="{BBBEvent.LOGIN_EVENT}" method="handleLoginEvent"/>
-	<mate:Listener type="{BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT}" method="handleReceivedPublicChatMessageEvent"/>
-	<mate:Listener type="{BBBEvent.ADDED_LISTENER}" method="handleAddedListenerEvent"/>
-	<mate:Listener type="{BBBEvent.PRESENTATION_CONVERTED}" method="handlePresentationConversion"/>
-	<mate:Listener type="{BBBEvent.VIDEO_STARTED}" method="videoHasStarted"/>
-	
+    // Creates a random string and sends it as a chat message.
+    public function sendRandomChatMessage():void {
+      chatMessageSent = generateRandomString(15);
+      globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT, chatMessageSent));
+    }
+
+    /**
+     * Voice
+     */ 
+    public function joinVoiceConference():void {
+      globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_CONFERENCE));
+    }
+
+    public function checkVoice():String {
+      return didUserJoin.toString();
+    }
+
+    public function handleAddedListenerEvent(event:BBBEvent):void {
+      // if (event.message == _attributes.username) {
+      didUserJoin = true;
+      // }
+    }
+  
+    /**
+     * Presentation
+     */ 
+
+    public function checkPresentation():String {
+      if (didPresentationConvert) {
+        didPresentationConvert = false;
+        return "true";
+      } else {
+        return "false";
+      }
+    }
+      
+    public function handlePresentationConversion(event:Event):void {
+      didPresentationConvert = true;
+    }
+
+    // Obtained from: http://www.zedia.net/2008/generate-random-strings-in-as2-or-as3/
+    private function generateRandomString(newLength:uint = 1, userAlphabet:String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"):String{
+      var alphabet:Array = userAlphabet.split("");
+      var alphabetLength:int = alphabet.length;
+      var randomLetters:String = "";
+      for (var i:uint = 0; i < newLength; i++){
+        randomLetters += alphabet[int(Math.floor(Math.random() * alphabetLength))];
+      }
+      return randomLetters;
+    }
+
+
+    /**
+      * Video
+      */
+
+    public function startVideoConnection():String {
+      globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.START_VIDEO_CONNECTION));
+      return "true";
+    }
+
+    public function playVideo():String {
+      globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.START_VIDEO_STREAM, "640x480avatar.flv"));
+      return "true";
+    }
+
+    public function videoHasStarted(e:Event):void {
+      didVideoStart = true;
+    }
+  
+    public function checkVideo():String {
+      return didVideoStart.toString();
+    }
+
+    /**
+     * Desktop Sharing
+     */
+
+    public function startDeskshare():String {
+      globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.START_DESKSHARE));
+      return "true";
+    }
+
+    protected function init():void {	
+      EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
+      BBB.initConfigManager();
+    }
+
+    private function configLoadedEventHandler(e:Event):void {
+      LogUtil.debug("***** Config Loaded ****");
+      mainShell.initOptions(null);
+    }
+      
+    private var api:Api;
+      
+    private function setupAPI():void {
+      Security.allowDomain("*");
+      api = new Api();
+    }
+
+    /**
+     * Shortcut Keys
+     */
+
+    private function localeChanged(e:Event):void{
+      loadKeyCombos();
+    }
+
+    private var keyCombos:Object;
+
+    private function loadKeyCombos():void {
+      keyCombos = new Object(); // always start with a fresh array
+      keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.listeners.muteme') as String)] = ShortcutEvent.MUTE_ME_EVENT;
+      keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput') as String)] = ShortcutEvent.FOCUS_CHAT_INPUT;
+      keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chattabs') as String)] = ShortcutEvent.FOCUS_CHAT_TABS;
+      keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide') as String)] = ShortcutEvent.FOCUS_SLIDE;
+      keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo') as String)] = ShortcutEvent.UNDO_WHITEBOARD;
+    }
+
+    public function hotkeyCapture():void{
+      LogUtil.debug("Entering hotkeyCapture");
+      stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+      ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+      LogUtil.debug("Leaving hotkeyCapture");
+    }
+
+    public function handleKeyDown(e:KeyboardEvent) :void
+    {
+      var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
+                            (e.altKey   ? "alt+"     : "") + e.keyCode;
+      //LogUtil.debug("Chad keypress " + keyPress);
+
+      if (keyCombos[keyPress])
+      {
+        LogUtil.debug("Chad keypress " + keyPress);
+        globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+      }
+    }
+    ]]>
+  </mx:Script>
+  
+  <maps:ApplicationEventMap />	
+  <views:MainApplicationShell id="mainShell"/>	
+  
+  <mate:Listener type="{BBBEvent.LOGIN_EVENT}" method="handleLoginEvent"/>
+  <mate:Listener type="{BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT}" method="handleReceivedPublicChatMessageEvent"/>
+  <mate:Listener type="{BBBEvent.ADDED_LISTENER}" method="handleAddedListenerEvent"/>
+  <mate:Listener type="{BBBEvent.PRESENTATION_CONVERTED}" method="handlePresentationConversion"/>
+  <mate:Listener type="{BBBEvent.VIDEO_STARTED}" method="videoHasStarted"/>
 </mx:Application>
