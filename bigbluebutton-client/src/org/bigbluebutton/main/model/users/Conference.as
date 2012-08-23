@@ -24,17 +24,20 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.core.BBB;
 
 	public class Conference {		
-		private var _myUserid:Number;		
+//		private var _myUserid:Number;		
 		[Bindable] private var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;			
 				
 		public function Conference():void {
+      LogUtil.debug("******************************************************************************* Initializing Conference");
 			me = new BBBUser();
 			users = new ArrayCollection();
 		}
 
-		public function addUser(newuser:BBBUser):void {				
-			if (! hasParticipant(newuser.userid)) {				
+		public function addUser(newuser:BBBUser):void {
+      LogUtil.debug("Adding new user [" + newuser.userid + "]");
+			if (! hasParticipant(newuser.userid)) {
+        LogUtil.debug("Am I this new user [" + newuser.userid + ", " + me.userid + "]");
 				if (newuser.userid == me.userid) {
 					newuser.me = true;
 				}						
@@ -216,8 +219,10 @@ package org.bigbluebutton.main.model.users {
 		public function getMyUserId():Number {
 			return me.userid;
 		}
-		public function setMyUserid(userid:int):void {
+    
+		public function setMyUserid(userid:Number):void {
 			me.userid = userid;
+      LogUtil.debug("Setting my userid to [" + me.userid + "]");
 		}
 		
 		public function setMyName(name:String):void {
