@@ -152,7 +152,7 @@ package org.bigbluebutton.main.model.users {
 			me.presenter = presenter;
 		}
 				
-		public function amIThisUser(userid:int):Boolean {
+		public function amIThisUser(userid:Number):Boolean {
 			return me.userid == userid;
 		}
 				
