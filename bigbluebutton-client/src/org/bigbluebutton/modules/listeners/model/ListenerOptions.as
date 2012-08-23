@@ -23,7 +23,7 @@ package org.bigbluebutton.modules.listeners.model
 				position = vxml.@position.toString();
 			}
 			if (vxml.@pushToTalk != undefined) {
-				pushToTalk = (vxml.@position.toString().toUpperCase() == "TRUE") ? true : false;
+				pushToTalk = (vxml.@pushToTalk.toString().toUpperCase() == "TRUE") ? true : false;
 			}
 		}
 

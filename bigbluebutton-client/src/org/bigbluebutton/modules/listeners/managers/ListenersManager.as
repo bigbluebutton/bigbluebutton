@@ -44,7 +44,6 @@ package org.bigbluebutton.modules.listeners.managers
 				listenerOptions = new ListenerOptions();
 				listenersWindow = new ListenersWindow();
 				listenersWindow.listenerOptions = listenerOptions;
-				listenersWindow.initOptions();
 				
 				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				e.window = listenersWindow;
