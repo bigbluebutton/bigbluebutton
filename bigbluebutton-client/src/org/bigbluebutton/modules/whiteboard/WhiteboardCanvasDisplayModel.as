@@ -118,7 +118,11 @@ package org.bigbluebutton.modules.whiteboard
         case TextObject.TEXT_PUBLISHED:
                     modifyText(o);
                     // Inform others that we are done with listening for events and that they should re-listen for keyboard events. 
-                    if (isPresenter) bindToKeyboardEvents(true);
+                    if (isPresenter) {
+                      bindToKeyboardEvents(true);
+                      wbCanvas.stage.focus = null;
+                      currentlySelectedTextObject = null;
+                    }
           break;
       }        
     }
@@ -403,6 +407,7 @@ package org.bigbluebutton.modules.whiteboard
                     LogUtil.error("Text with id [" + origTobj.id + "] is missing.");
                 } else {
           wbCanvas.removeGraphic(origTobj as DisplayObject);
+//          addNormalText(an);
           var tobj:TextObject = shapeFactory.redrawTextObject(an, origTobj);
           tobj.setGraphicID(origTobj.id);
           tobj.status = origTobj.status;
@@ -508,7 +513,8 @@ package org.bigbluebutton.modules.whiteboard
           break;
       }  
             
-            if (status == TextObject.TEXT_PUBLISHED) {               
+            if (status == TextObject.TEXT_PUBLISHED) {
+              tobj.deregisterListeners(textObjGainedFocusListener, textObjLostFocusListener, textObjTextChangeListener, textObjSpecialListener);
                 var e:GraphicObjectFocusEvent = new GraphicObjectFocusEvent(GraphicObjectFocusEvent.OBJECT_DESELECTED);
                 e.data = tobj;
                 wbCanvas.dispatchEvent(e);   
@@ -528,11 +534,27 @@ package org.bigbluebutton.modules.whiteboard
       annotation["x"] = tobj.getOrigX();
       annotation["y"] = tobj.getOrigY();
       annotation["fontSize"] = tobj.textSize;
+      annotation["calcedFontSize"] = GraphicFactory.normalize(tobj.textSize, shapeFactory.parentHeight);
       annotation["textBoxWidth"] = tobj.textBoxWidth;
       annotation["textBoxHeight"] = tobj.textBoxHeight;
       
+      var pn:Object = whiteboardModel.getCurrentPresentationAndPage();
+      if (pn != null) {
+        annotation["presentationID"] = pn.presentationID;
+        annotation["pageNumber"] = pn.currentPageNumber;
+      }
+      
       var msg:Annotation = new Annotation(tobj.id, "text", annotation);
-      wbCanvas.sendGraphicToServer(msg, WhiteboardDrawEvent.SEND_TEXT);      
+      wbCanvas.sendGraphicToServer(msg, WhiteboardDrawEvent.SEND_TEXT);
+      
+/*      
+      var tan:TextDrawAnnotation = shapeFactory.createTextObject(tobj.text, tobj.textColor, 
+        tobj.getOrigX(), tobj.getOrigY(), tobj.textBoxWidth, tobj.textBoxHeight, tobj.textSize);
+      tan.id = tobj.id;
+      tan.status = tobj.status; 
+      wbCanvas.sendGraphicToServer(tan.createAnnotation(whiteboardModel), WhiteboardDrawEvent.SEND_TEXT);
+*/      
+      
     }
     
     public function isPageEmpty():Boolean {

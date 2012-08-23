@@ -178,6 +178,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
       _origParentWidth = origParentWidth;               
       
       newFontSize = denormalize(_calcedFontSize, parentHeight);
+      
       this.antiAliasType = AntiAliasType.ADVANCED;
       applyTextFormat(newFontSize);
 
