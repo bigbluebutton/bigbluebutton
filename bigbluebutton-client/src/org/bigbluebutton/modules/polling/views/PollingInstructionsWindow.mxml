@@ -52,6 +52,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 		import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
 		
+		import mx.managers.FocusManager;
+		
 		import org.bigbluebutton.modules.polling.model.PollObject;
 		
 		import org.bigbluebutton.core.managers.UserManager;
@@ -99,9 +101,14 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		}
 		
 		private function onCreationComplete():void{
-			
-			LogUtil.debug(LOGNAME + "Instructions Window is Created");
+			var pollFocusManager:FocusManager = new FocusManager(this);
 			published = false;
+			// this.focusManager = focusManager;
+			// This works
+			pollFocusManager.setFocus(pollTitle);
+			
+			
+			
 			if (incomingPoll != null){
 				LogUtil.debug("EDITING POLL");
 				pollTitle.text = incomingPoll.title;
@@ -123,7 +130,6 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			userName = moduleAttributes.username;
 			
 			this.module = module;
-			
 		}
 		
 		// Overwritting close to use custom function
@@ -417,18 +423,19 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		}
 		]]>
 	</mx:Script>
-
+	
     <mx:ViewStack id="mainArea" width="100%">
     <!-- ################### MAIN AREA ##############-->
     <!-- Instructions Window with Form-->
-	    <mx:Canvas id="instrMain" width="90%" height="90%">
-        	<mx:VBox width="90%" height="90%" >
-           		<mx:Form width="100%" id="instructionsForm" paddingTop="30" paddingBottom="10" paddingLeft="30">
+	    <mx:Canvas id="instrMain" width="90%" height="90%" focusEnabled="true">
+        	<mx:VBox width="90%" height="90%" focusEnabled="true">
+           		<mx:Form width="100%" id="instructionsForm" paddingTop="30" paddingBottom="10" paddingLeft="30" focusEnabled="true">
 					<mx:FormItem fontWeight="bold" 
 								 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}" 
 								 paddingLeft="35" 
-								 id="titleFormItem">
-						<mx:TextInput id="pollTitle" />
+								 id="titleFormItem"
+								 focusEnabled="true">
+						<mx:TextInput id="pollTitle" focusEnabled="true"/>
 						<mx:Label id="titleErrMsg" 
 								  text="" 
 								  visible="false" 

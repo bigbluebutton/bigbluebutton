@@ -122,7 +122,10 @@
 			}
 			
         	private function menuClick(event:MenuEvent):void {            	
-            	if(event.index == 0){
+            	//focusManager.setFocus()
+            	LogUtil.debug("WATERFALL Parent of toolbarbutton is: " + this.parent.toString());
+				LogUtil.debug("WATERFALL Parent of parent of toolbarbutton is: " + this.parent.parent.toString());
+				if(event.index == 0){
             	  	openPollingInstructions();
             	}else{
             		var poll:PollObject = myMenuData.getItemAt(event.index).poll;
