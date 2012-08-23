@@ -32,7 +32,7 @@ package org.bigbluebutton.main.model.users
 		public static const PRESENTER:String = "PRESENTER";
 		
 		[Bindable] public var me:Boolean = false;
-		[Bindable] public var userid:Number;
+		[Bindable] public var userid:Number = 1935;
 		[Bindable] public var name:String;
 		[Bindable] public var hasStream:Boolean = false;
 		[Bindable] public var streamName:String = "";

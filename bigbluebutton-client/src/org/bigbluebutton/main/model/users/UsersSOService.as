@@ -78,8 +78,10 @@ package org.bigbluebutton.main.model.users {
 			_participantsSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			_participantsSO.client = this;
 			_participantsSO.connect(_connectionManager.connection);
+      LogUtil.debug("In UserSOService:join - Setting my userid to [" + userid + "]");
+      UserManager.getInstance().getConference().setMyUserid(userid);
 			queryForParticipants();					
-			UserManager.getInstance().getConference().setMyUserid(userid);
+			
 		}
 		
 		private function queryForParticipants():void {
@@ -110,17 +112,24 @@ package org.bigbluebutton.main.model.users {
 		}
 		
 		private function becomePresenterIfLoneModerator():void {
+      LogUtil.debug("Checking if I need to become presenter.");
 			var participants:Conference = UserManager.getInstance().getConference();
 			if (participants.hasOnlyOneModerator()) {
+        LogUtil.debug("There is only one moderator in the meeting. Is it me? ");
 				var user:BBBUser = participants.getTheOnlyModerator();
 				if (user.me) {
+          LogUtil.debug("Setting me as presenter because I'm the only moderator. My userid is [" + user.userid + "]");
 					var presenterEvent:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
 					presenterEvent.userid = user.userid;
 					presenterEvent.username = user.name;
 					var dispatcher:Dispatcher = new Dispatcher();
 					dispatcher.dispatchEvent(presenterEvent);
-				} 
-			} 
+				} else {
+          LogUtil.debug("No. It is not me. It is [" + user.userid + ", " + user.name + "]");
+        }
+			} else {
+        LogUtil.debug("No. There are more than one moderator.");
+      }
 		}
 		
 		public function assignPresenter(userid:Number, name:String, assignedBy:Number):void {
