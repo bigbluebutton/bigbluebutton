@@ -1,0 +1,59 @@
+    </script>
+    <script src="http://192.168.0.249/client/lib/jquery-1.5.1.min.js" language="javascript"></script>
+    <script src="http://192.168.0.249/client/lib/bigbluebutton.js" language="javascript"></script>
+    <script src="http://192.168.0.249/client/lib/bbb_localization.js" language="javascript"></script>
+    <script src="http://192.168.0.249/client/lib/bbb_blinker.js" language="javascript"></script>
+    <script src="http://192.168.0.249/client/lib/bbb_deskshare.js" language="javascript"></script>
+    <script type="text/javascript">
+         function thisMovie(movieName) {
+           if (navigator.appName.indexOf("Microsoft") != -1) {
+               return window[movieName];
+           } else {
+               return document[movieName];
+           }
+          }
+
+           function sendToActionScript() {
+              console.log("Calling the swf file");
+              // https://code.google.com/p/swfobject/wiki/api
+              var obj = swfobject.getObjectById("BigBlueButton");
+              if (obj) {
+                obj.joinVoice(); // e.g. an external interface call
+              }
+           }
+
+           function newUserJoined() {
+            console.log("User has joined voice conference.");
+           }
+    </script>
+  </head>
+  <body>
+    <div id="controls">
+      <button type="button" onclick="sendToActionScript()">Click Me!</button>
+    </div>
+    <div id="content">
+      <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="80%" height="80%" id="BigBlueButton" name="BigBlueButton" align="middle">
+        <param name="movie" value="http://192.168.0.249/client/BigBlueButton.swf?v=VERSION" />
+        <param name="quality" value="high" />
+        <param name="allowfullscreen" value="true" />
+        <param name="bgcolor" value="#869ca7" />
+        <param name="wmode" value="window" />
+        <param name="allowScriptAccess" value="always" />
+        <!--[if !IE]>-->
+          <object type="application/x-shockwave-flash" data="http://192.168.0.249/client/BigBlueButton.swf?v=VERSION" width="80%" height="80%" align="middle">
+            <param name="quality" value="high" />
+            <param name="bgcolor" value="#869ca7" />
+                <param name="allowScriptAccess" value="always" />
+        <!--<![endif]-->
+            <a href="http://www.adobe.com/go/getflashplayer">
+              <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+            </a>
+        <!--[if !IE]>-->
+          </object>
+        <!--<![endif]-->
+      </object>
+    </div>
+    <div id="update-display"/>
+    <div id="notifications" aria-live="polite" role="region" aria-label="Chat Notifications"></div>
+  </body>
+</html>
