@@ -22,12 +22,14 @@
  */
 package org.bigbluebutton.presentation.imp;
 
-import java.io.File;
+import java.io.*;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.mozilla.universalchardet.UniversalDetector;
+import static org.bigbluebutton.presentation.FileTypeConstants.*;
 
 public class OfficeToPdfConversionService {
 	private static Logger log = LoggerFactory.getLogger(OfficeToPdfConversionService.class);	
@@ -40,6 +42,9 @@ public class OfficeToPdfConversionService {
 	public UploadedPresentation convertOfficeToPdf(UploadedPresentation pres) {
 		initialize(pres);
 		if (SupportedFileTypes.isOfficeFile(pres.getFileType())) {
+		    if( pres.getFileType().toLowerCase().equals(TXT) ){
+			    convertTxtToUtf8(pres);
+			}
 			File pdfOutput = setupOutputPdfFile(pres);				
 			if (convertOfficeDocToPdf(pres, pdfOutput)) {
 				log.info("Successfully converted office file to pdf.");
@@ -49,6 +54,83 @@ public class OfficeToPdfConversionService {
 			}
 		}
 		return pres;
+	}
+	
+	public String GuessTxtEncoding(File fileName){
+        byte[] buf = new byte[4096];
+        
+        UniversalDetector detector = new UniversalDetector(null);
+
+		try{
+			java.io.FileInputStream fis = new java.io.FileInputStream(fileName);
+			int nread;
+			while ((nread = fis.read(buf)) > 0 && !detector.isDone()) {
+				detector.handleData(buf, 0, nread);
+			}
+            fis.close();			
+		}catch(IOException e){
+		    e.printStackTrace();
+		}    
+		
+        detector.dataEnd();
+
+        String encoding = detector.getDetectedCharset();
+        if (encoding != null) {
+            log.info("Detected encoding = " + encoding);
+        } else {
+		    encoding = "ASCII";
+            log.info("No encoding detected. Use ASCII");
+        }
+		
+        detector.reset();  
+		
+        return encoding;		
+	}
+	
+	public void convertTxtToUtf8(UploadedPresentation pres) {	
+		try{
+		    log.info("convertTxtToUtf8");
+		    File presentationFile = pres.getUploadedFile();
+		    String encoding = GuessTxtEncoding(presentationFile);
+			
+		    FileInputStream fis = new FileInputStream(presentationFile);
+		    InputStreamReader isr = new InputStreamReader(fis, encoding);
+			Reader in = new BufferedReader(isr);
+			
+			File dir = presentationFile.getParentFile();
+			File tmpfile = File.createTempFile("utf8",null,dir);
+			log.info("create tempfile: " + tmpfile);
+		    FileOutputStream fos = new FileOutputStream(tmpfile);
+			Writer out = new OutputStreamWriter(fos, "UTF8");
+			
+			int ch;
+			while ((ch = in.read()) > -1) {
+                out.write((char)ch);
+			}
+			in.close();
+			out.close();			
+			fis.close();
+			fos.close();
+									
+			boolean bSucc = presentationFile.delete();
+			log.info("delete presentationFile: " + presentationFile);
+			if( bSucc ){
+			    log.info("delete orign file success");
+			}else{
+			    log.info("delete orign file failed");
+			}
+			
+			bSucc = tmpfile.renameTo(presentationFile);
+			log.info("rename " + tmpfile + " to " + presentationFile);
+			if( bSucc ){
+			    log.info("rename tmp success");
+			}else{
+			    log.info("rename tmp failed");
+			}
+			
+		}catch(IOException e){
+		    e.printStackTrace();
+		}    
 	}
 	
 	public void initialize(UploadedPresentation pres) {

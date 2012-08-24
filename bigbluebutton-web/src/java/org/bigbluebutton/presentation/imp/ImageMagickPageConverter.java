@@ -29,22 +29,22 @@ import org.slf4j.LoggerFactory;
 
 public class ImageMagickPageConverter implements PageConverter {
 	private static Logger log = LoggerFactory.getLogger(ImageMagickPageConverter.class);
-	
+
 	private String IMAGEMAGICK_DIR;
 
 	public boolean convert(File presentationFile, File output, int page){
-		
-        String COMMAND = IMAGEMAGICK_DIR + "/convert -depth 8 " + presentationFile.getAbsolutePath() + " " + output.getAbsolutePath();          
-		
-        boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);            
-						
+
+		//String COMMAND = IMAGEMAGICK_DIR + "/convert -depth 8 " + presentationFile.getAbsolutePath() + " " + output.getAbsolutePath();          
+		String[] cmdarray = new String[]{IMAGEMAGICK_DIR+File.separator+"convert", "-depth", "8", presentationFile.getAbsolutePath(), output.getAbsolutePath()};		
+		boolean done = new ExternalProcessExecutor().exec(cmdarray, 60000);            
+
 		if (done && output.exists()) {
 			return true;		
 		} else {
 			log.warn("Failed to convert: " + output.getAbsolutePath() + " does not exist.");
 			return false;
 		}
-		
+
 	}
 
 	public void setImageMagickDir(String dir) {

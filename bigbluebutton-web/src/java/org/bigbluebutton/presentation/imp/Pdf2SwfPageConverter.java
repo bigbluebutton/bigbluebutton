@@ -29,20 +29,20 @@ import org.slf4j.LoggerFactory;
 
 public class Pdf2SwfPageConverter implements PageConverter {
 	private static Logger log = LoggerFactory.getLogger(Pdf2SwfPageConverter.class);
-	
+
 	private String SWFTOOLS_DIR;
 	private String fontsDir;
-	
+
 	public boolean convert(File presentation, File output, int page) {
-	    String source = presentation.getAbsolutePath();
-	    String dest = output.getAbsolutePath();
-	    String AVM2SWF = "-T9";
-	    
-	    String COMMAND = SWFTOOLS_DIR + File.separator + "pdf2swf " + AVM2SWF + " -F " + fontsDir + " -p " + page + " " + source + " -o " + dest;    
-	    log.debug("Executing: " + COMMAND);
-	    
-	    boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);      
-		
+		String source = presentation.getAbsolutePath();
+		String dest = output.getAbsolutePath();
+		String AVM2SWF = "-T9";
+
+		//String COMMAND = SWFTOOLS_DIR + File.separator + "pdf2swf " + AVM2SWF + " -F " + fontsDir + " -p " + page + " " + source + " -o " + dest;    
+		//log.debug("Executing: " + COMMAND);
+		String[] cmdarray = new String[]{SWFTOOLS_DIR + File.separator + "pdf2swf",AVM2SWF, "-F", fontsDir, "-p "+page, source, "-o", dest};
+		boolean done = new ExternalProcessExecutor().exec(cmdarray, 60000);      
+
 		File destFile = new File(dest);
 		if (done && destFile.exists()) {
 			return true;		
@@ -50,13 +50,13 @@ public class Pdf2SwfPageConverter implements PageConverter {
 			log.warn("Failed to convert: " + dest + " does not exist.");
 			return false;
 		}
-		
+
 	}
 
 	public void setSwfToolsDir(String dir) {
 		SWFTOOLS_DIR = dir;
 	}
-	
+
 	public void setFontsDir(String dir) {
 		fontsDir = dir;
 	}

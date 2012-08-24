@@ -29,24 +29,24 @@ import org.slf4j.LoggerFactory;
 
 public class Jpeg2SwfPageConverter implements PageConverter {
 	private static Logger log = LoggerFactory.getLogger(Jpeg2SwfPageConverter.class);
-	
+
 	private String SWFTOOLS_DIR;
-	
+
 	public boolean convert(File presentationFile, File output, int page){
-		
-        String COMMAND = SWFTOOLS_DIR + "/jpeg2swf -o " + output.getAbsolutePath() + " " + presentationFile.getAbsolutePath();
-        
-        boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);          
-		
+
+		//String COMMAND = SWFTOOLS_DIR + "/jpeg2swf -o " + output.getAbsolutePath() + " " + presentationFile.getAbsolutePath(); 
+                String[] cmdarray = new String[] {SWFTOOLS_DIR+File.separator+"jpeg2swf", "-o", output.getAbsolutePath(), presentationFile.getAbsolutePath()};
+		boolean done = new ExternalProcessExecutor().exec(cmdarray, 60000);          
+
 		if (done && output.exists()) {
 			return true;		
 		} else {
 			log.warn("Failed to convert: " + output.getAbsolutePath() + " does not exist.");
 			return false;
 		}
-		
+
 	}
-	
+
 	public void setSwfToolsDir(String dir) {
 		SWFTOOLS_DIR = dir;
 	}
