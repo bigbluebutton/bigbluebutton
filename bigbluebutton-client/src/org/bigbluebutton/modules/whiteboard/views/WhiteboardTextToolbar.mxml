@@ -246,7 +246,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 					hide the text toolbar. This is to prevent the TextToolbar from disappearing as
 					soon as the user changes focus.
 				*/
-				if(!containsFocus(this)) {
+				if (!containsFocus(this)) {
 					disableTextToolbar();
 					textSizeMenu.close();
 				} 

@@ -104,7 +104,7 @@ public class WhiteboardRoom {
 	}
 	
 	public void modifyText(Annotation annotation) {
-		activePresentation.getActivePage().modifyText(annotation.getID(), (String)annotation.getAnnotation().get("text"));
+		activePresentation.getActivePage().modifyText(annotation.getID(), annotation);
 		notifyModifyText(activePresentation, annotation);
 	}
 		

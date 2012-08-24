@@ -109,7 +109,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		log.debug("record value - [" + record + "]"); 
 
     	String externalUserID = ((String) params[6]).toString();
-    	String internalUserID = ((String) params[6]).toString();
+    	String internalUserID = ((String) params[7]).toString();
     	
     	
     	
@@ -127,7 +127,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		participantsApplication.createRoom(room);
         super.roomConnect(connection, params);
         
-        connInvokerService.addConnection(Red5.getConnectionLocal().getClient().getId(), connection);
+        connInvokerService.addConnection(bbbSession.getInternalUserID(), connection);
     	return true;
 	}
 
@@ -138,7 +138,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         String clientId = Red5.getConnectionLocal().getClient().getId();
     	log.info("[clientid=" + clientId + "] disconnnected from " + remoteHost + ":" + remotePort + ".");
     	
-    	connInvokerService.removeConnection(Red5.getConnectionLocal().getClient().getId());
+    	connInvokerService.removeConnection(getBbbSession().getInternalUserID());
     	
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 		log.info("User [" + bbbSession.getUsername() + "] disconnected from room [" + bbbSession.getRoom() +"]");
@@ -148,7 +148,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	public String getMyUserId() {
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 		assert bbbSession != null;
-		return Long.toString(bbbSession.getClientID());
+		//return Long.toString(bbbSession.getClientID());
+		return bbbSession.getInternalUserID();
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {
