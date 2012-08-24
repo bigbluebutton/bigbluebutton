@@ -202,6 +202,7 @@
     }
 
     protected function init():void {	
+      Security.allowDomain("192.168.0.235");
       EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
       BBB.initConfigManager();
     }
@@ -214,7 +215,6 @@
     private var api:Api;
       
     private function setupAPI():void {
-      Security.allowDomain("*");
       api = new Api();
     }
 

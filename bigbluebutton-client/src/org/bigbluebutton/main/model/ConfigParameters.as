@@ -27,7 +27,7 @@ package org.bigbluebutton.main.model
 	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
 
 	public class ConfigParameters {
-		public static const FILE_PATH:String = "conf/config.xml";
+		public static const FILE_PATH:String = "http://192.168.0.249/client/conf/config.xml";
 		
 		private var _urlLoader:URLLoader;
 		
@@ -58,6 +58,7 @@ package org.bigbluebutton.main.model
 			_urlLoader = new URLLoader();
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			var date:Date = new Date();
+      
 			_urlLoader.load(new URLRequest(file + "?a=" + date.time));
 		}
 		

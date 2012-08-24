@@ -18,7 +18,7 @@ package org.bigbluebutton.core.managers
 			var urlLoader:URLLoader = new URLLoader();
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			var date:Date = new Date();
-			urlLoader.load(new URLRequest("conf/config.xml" + "?a=" + date.time));			
+			urlLoader.load(new URLRequest("http://192.168.0.249/client/conf/config.xml" + "?a=" + date.time));			
 		}		
 		
 		private function handleComplete(e:Event):void{
