@@ -34,6 +34,10 @@
                 obj.joinVoice(); // e.g. an external interface call
               }
            }
+           
+           function newUserJoined() {
+            console.log("User has joined voice conference.");
+           }
     </script>
   </head>
   <body>
@@ -61,6 +65,7 @@
         <!--<![endif]-->
       </object>
     </div>
+    <div id="update-display"/>
     <div id="notifications" aria-live="polite" role="region" aria-label="Chat Notifications"></div>
   </body>
 </html>

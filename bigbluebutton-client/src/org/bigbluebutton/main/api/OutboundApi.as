@@ -1,6 +1,8 @@
 package org.bigbluebutton.main.api
 {
   import flash.external.ExternalInterface;
+  
+  import org.bigbluebutton.common.LogUtil;
 
   public class OutboundApi
   {
@@ -8,8 +10,9 @@ package org.bigbluebutton.main.api
     {
     }
     
-    public function userJoined(user:Object):void {
-      ExternalInterface.call("newUserJoined", user);
+    public function userJoined():void {
+      LogUtil.debug("User has joined voice conference.");
+      ExternalInterface.call("newUserJoined");
     }
   }
 }

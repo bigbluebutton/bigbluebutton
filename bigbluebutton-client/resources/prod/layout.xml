@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <layouts>
-  <layout name="Video Chat" default="true">
+  <layout name="Video Chat" >
     <window name="ViewersWindow" minimized="true" order="3"/>
     <window name="VideoDock" width="1" height="1" x="0" y="0" order="0"/>
     <window name="ChatWindow" width="0.303125" height="0.9955703211517165" x="0.3229166666666667" y="0.9656699889258029" order="4"/>
     <window name="PresentationWindow" minimized="true" order="1"/>
     <window name="ListenersWindow" minimized="true" order="2"/>
   </layout>
-  <layout name="Default">
+  <layout name="Default" default="true">
     <window name="ViewersWindow" width="0.1772793053545586" height="0.33643617021276595" x="0" y="0" />
     <window name="ListenersWindow" width="0.1772793053545586" height="0.33643617021276595" x="0" y="0.34308510638297873" />
     <window name="PresentationWindow" width="0.5137481910274964" height="0.9946808510638298" x="0.18017366136034732" y="0" />

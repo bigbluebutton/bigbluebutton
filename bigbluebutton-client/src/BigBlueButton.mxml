@@ -22,6 +22,7 @@
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
   xmlns:views="org.bigbluebutton.main.views.*"
   xmlns:maps="org.bigbluebutton.main.maps.*"
+  xmlns:apimap="org.bigbluebutton.main.api.maps.*"
   xmlns:mate="http://mate.asfusion.com/"
   xmlns:m="library://melomel/2010"
   pageTitle="BigBlueButton" creationComplete="setupAPI()"
@@ -258,6 +259,7 @@
     ]]>
   </mx:Script>
   
+  <apimap:ClientEventMap/>
   <maps:ApplicationEventMap />	
   <views:MainApplicationShell id="mainShell"/>	
   
