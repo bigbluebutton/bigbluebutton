@@ -56,7 +56,9 @@ if not FileTest.directory?(target_dir)
            pdf_page = "#{pres_dir}/slide-#{page}.pdf"
            BigBlueButton::Presentation.extract_page_from_pdf(page, pres_pdf, pdf_page)
            BigBlueButton::Presentation.convert_pdf_to_png(pdf_page, "#{target_pres_dir}/slide-#{page}.png")
-           FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
+           if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
+             FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
+           end
          end
     else
         ext = File.extname("#{images[0]}")
