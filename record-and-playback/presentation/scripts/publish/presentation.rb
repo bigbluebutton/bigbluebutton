@@ -498,8 +498,8 @@ def processChatMessages
 	end
 end
 
-$vbox_width = 800
-$vbox_height = 600
+$vbox_width = 1600
+$vbox_height = 1200
 $magic_mystery_number = 2
 $shapesold_svg_filename = 'shapes_old.svg'
 $shapes_svg_filename = 'shapes.svg'
@@ -643,17 +643,10 @@ if ($playback == "slides")
 		
 		processPanAndZooms()
 		
-		BigBlueButton.logger.info("Cursor events empty: #{$cursor_events.empty?}")
 		processCursorEvents()
 		
-		
-		
-		BigBlueButton.logger.info("writing slides_new.xml")
 		# Write slides.xml to file
 		File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }
-
-		BigBlueButton.logger.info("Wrote slides_new.xml")
-
 		# Write shapes.svg to file
 		File.open("#{package_dir}/#{$shapes_svg_filename}", 'w') { |f| f.puts $shapes_svg.to_xml.gsub(%r"\s*\<g.*/\>", "") } #.gsub(%r"\s*\<g.*\>\s*\</g\>", "") }
 		
