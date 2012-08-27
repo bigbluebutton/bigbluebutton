@@ -202,7 +202,7 @@ package org.bigbluebutton.main.model.users
 							new Responder(
 	        					// result - On successful result
 								function(result:Object):void { 
-									LogUtil.debug("Successful result: " + result); 
+									LogUtil.debug("Userid [" + result + "]"); 
 									sendConnectionSuccessEvent(result);
 								},	
 								// status - On error occurred
@@ -301,7 +301,7 @@ package org.bigbluebutton.main.model.users
 		
 		private function sendConnectionSuccessEvent(userid:Object):void{
 			var useridString:String = userid as String;
-			var n:int = parseInt(useridString);
+			var n:Number = parseInt(useridString);
 			
 			var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
 			e.connection = _netConnection;

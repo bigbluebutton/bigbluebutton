@@ -66,10 +66,6 @@ public class BigBlueButtonSession {
 		return internalUserID;
 	}
 	
-	public long getClientID() {
-		return clientID;
-	}
-
 	public String getSessionName() {
 		return sessionName;
 	}

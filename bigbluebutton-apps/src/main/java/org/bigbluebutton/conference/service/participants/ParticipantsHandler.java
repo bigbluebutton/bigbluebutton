@@ -109,7 +109,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		if (bbbSession == null) {
 			log.debug("roomLeave - session is null"); 
 		} else {
-			participantsApplication.participantLeft(bbbSession.getSessionName(), bbbSession.getClientID());
+			participantsApplication.participantLeft(bbbSession.getSessionName(), new Long(bbbSession.getInternalUserID()));
 		}		
 	}
 	
@@ -138,7 +138,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		log.debug(APP + ":participantJoin - getting userid");
 		BigBlueButtonSession bbbSession = getBbbSession();
 		if (bbbSession != null) {
-			Long userid = bbbSession.getClientID();
+			Long userid = new Long(bbbSession.getInternalUserID());
 			String username = bbbSession.getUsername();
 			String role = bbbSession.getRole();
 			String room = bbbSession.getRoom();
