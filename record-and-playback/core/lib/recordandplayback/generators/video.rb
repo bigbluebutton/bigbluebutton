@@ -580,7 +580,7 @@ module BigBlueButton
           # sometimes the duration is too small that ffmpeg cannot create a valid video file for it
           # in this cases we will create a blank valid video instead
           # \TODO investigate why it's occurring
-          if BigBlueButton.get_video_duration(trimmed_video) == nil
+          if BigBlueButton.get_video_duration(trimmed_video).nil? || BigBlueButton.get_video_duration(trimmed_video) == 0.0
             BigBlueButton.create_blank_video_ms(event_duration, 1000, blank_canvas, trimmed_video)
           end
           frame_size = BigBlueButton.fit_to(BigBlueButton.get_video_width(trimmed_video), BigBlueButton.get_video_height(trimmed_video), slot_width, slot_height)
