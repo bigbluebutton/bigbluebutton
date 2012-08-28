@@ -395,18 +395,21 @@ def processShapesAndClears
 						end
 						
 						if(in_this_image)
-							# Get variables
-							$shapeType = shape.xpath(".//type")[0].text()
-							$shapeThickness = shape.xpath(".//thickness")[0].text()
-							$pageNumber = shape.xpath(".//pageNumber")[0].text()
-							$shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
-							colour = shape.xpath(".//color")[0].text()
-							
-							if($shapeType == "text")
-								$textValue = shape.xpath(".//text")[0].text()
-								$textFontType = shape.xpath(".//font")[0].text()
-								$textFontSize = shape.xpath(".//fontsize")[0].text()
-							end
+                                                        # Get variables
+                                                        BigBlueButton.logger.info shape
+                                                        $shapeType = shape.xpath(".//type")[0].text()
+                                                        $pageNumber = shape.xpath(".//pageNumber")[0].text()
+
+                                                        if($shapeType == "text")
+                                                                $textValue = shape.xpath(".//text")[0].text()
+                                                                #$textFontType = shape.xpath(".//font")[0].text()
+                                                                $textFontType = "Arial"
+                                                                $textFontSize = shape.xpath(".//fontSize")[0].text()
+                                                        else
+                                                                $shapeThickness = shape.xpath(".//thickness")[0].text()
+                                                                $shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
+                                                                colour = shape.xpath(".//color")[0].text()
+                                                        end
 							
 							# figure out undo time
 							BigBlueButton.logger.info("Figuring out undo time")
