@@ -399,6 +399,7 @@ def processShapesAndClears
                                                         BigBlueButton.logger.info shape
                                                         $shapeType = shape.xpath(".//type")[0].text()
                                                         $pageNumber = shape.xpath(".//pageNumber")[0].text()
+                                                        $shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
 
                                                         if($shapeType == "text")
                                                                 $textValue = shape.xpath(".//text")[0].text()
@@ -407,7 +408,6 @@ def processShapesAndClears
                                                                 $textFontSize = shape.xpath(".//fontSize")[0].text()
                                                         else
                                                                 $shapeThickness = shape.xpath(".//thickness")[0].text()
-                                                                $shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
                                                                 colour = shape.xpath(".//color")[0].text()
                                                         end
 							
