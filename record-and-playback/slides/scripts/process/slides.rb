@@ -20,6 +20,7 @@ raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 
 target_dir = "#{recording_dir}/process/slides/#{meeting_id}"
 if not FileTest.directory?(target_dir)
+  FileUtils.mkdir_p "/var/log/bigbluebutton/slides"
 	logger = Logger.new("/var/log/bigbluebutton/slides/process-#{meeting_id}.log", 'daily' )
 	BigBlueButton.logger = logger
   
@@ -47,13 +48,17 @@ if not FileTest.directory?(target_dir)
     
     target_pres_dir = "#{processed_pres_dir}/#{pres}"
     FileUtils.mkdir_p target_pres_dir
-
+    FileUtils.mkdir_p "#{target_pres_dir}/textfiles"
+    
     images=Dir.glob("#{pres_dir}/#{pres}.{jpg,png,gif}")
     if images.empty?
          1.upto(num_pages) do |page|
            pdf_page = "#{pres_dir}/slide-#{page}.pdf"
            BigBlueButton::Presentation.extract_page_from_pdf(page, pres_pdf, pdf_page)
            BigBlueButton::Presentation.convert_pdf_to_png(pdf_page, "#{target_pres_dir}/slide-#{page}.png")
+           if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
+             FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
+           end
          end
     else
         ext = File.extname("#{images[0]}")

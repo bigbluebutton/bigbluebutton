@@ -29,7 +29,6 @@
 			import org.bigbluebutton.modules.present.events.NavigationEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-			import org.bigbluebutton.modules.whiteboard.business.DrawProxy;
 			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
 			import org.bigbluebutton.modules.whiteboard.events.StartWhiteboardModuleEvent;
 			import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
@@ -37,7 +36,6 @@
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
-			import org.bigbluebutton.modules.whiteboard.managers.PageManager;
 			import org.bigbluebutton.modules.whiteboard.managers.WhiteboardManager;
 			import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 			import org.bigbluebutton.modules.whiteboard.services.MessageReceiver;
@@ -45,11 +43,6 @@
 			import org.bigbluebutton.modules.whiteboard.services.WhiteboardService;
 			import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 			
-			private function dummyMethod():void{
-				
-			}
-            
-            // constructorArguments="{WhiteboardModel}"  constructorArguments="{lastReturn}" constructorArguments="{scope.dispatcher}"
 		]]>
 	</mx:Script>
 	
@@ -57,13 +50,8 @@
 	<EventHandlers type="{WhiteboardPresenterEvent.MODIFY_ENABLED}" >
 		<MethodInvoker generator="{WhiteboardService}" method="modifyEnabled" arguments="{event}" />
 	</EventHandlers>
-	
-	<EventHandlers type="{NavigationEvent.GOTO_PAGE}" >
-		<MethodInvoker generator="{PageManager}" method="changePage" arguments="{event}" />
-	</EventHandlers>
-	
+		
 	<EventHandlers type="{PresentationEvent.PRESENTATION_LOADED}" >
-		<MethodInvoker generator="{PageManager}" method="createPages" arguments="{event}" />
 		<MethodInvoker generator="{WhiteboardService}" method="setActivePresentation" arguments="{event}" />
 	</EventHandlers>
 	
@@ -94,55 +82,15 @@
 	<EventHandlers type="{ToggleGridEvent.TOGGLE_GRID}" >
 		<MethodInvoker generator="{WhiteboardService}" method="toggleGrid" />
 	</EventHandlers>
-	
-	<EventHandlers type="{WhiteboardUpdate.BOARD_UPDATED}">
-		<MethodInvoker generator="{PageManager}" method="addGraphicToPage" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{WhiteboardUpdate.GRAPHIC_UNDONE}" >
-		<MethodInvoker generator="{PageManager}" method="undoGraphicFromPage" />
-	</EventHandlers>
-	
-	<EventHandlers type="{WhiteboardUpdate.BOARD_CLEARED}" >
-		<MethodInvoker generator="{PageManager}" method="clearPage" />
-	</EventHandlers>
-	
-	<EventHandlers type="{ToggleGridEvent.GRID_TOGGLED}" >
-		<MethodInvoker generator="{PageManager}" method="toggleGrid" />
+			
+	<EventHandlers type="{NavigationEvent.GOTO_PAGE}" >
+		<MethodInvoker generator="{WhiteboardService}" method="changePage" arguments="{event.pageNumber}" />
 	</EventHandlers>
 		
-	<EventHandlers type="{PageEvent.CHANGE_PAGE}" >
-		<MethodInvoker generator="{WhiteboardService}" method="changePage" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{PageEvent.LOAD_PAGE}" >
-		<MethodInvoker generator="{PageManager}" method="loadPage" arguments="{event}" />
-	</EventHandlers>
-	
 	<EventHandlers type="{WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION}" >
 		<MethodInvoker generator="{WhiteboardManager}" method="positionToolbar" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" >
-		<InlineInvoker method="dummyMethod" />
-	</EventHandlers>
-	
-	<EventHandlers type="{WindowResizedEvent.PRESENTATION_WINDOW_RESIZED_EVENT}">
-		<InlineInvoker method="dummyMethod" />
-	</EventHandlers>
-	
-	<EventHandlers type="{AddButtonToPresentationEvent.ADD_BUTTON}">
-		<InlineInvoker method="dummyMethod" />
-	</EventHandlers>
-	
-	<EventHandlers type="{NavigationEvent.GOTO_PAGE}">
-		<InlineInvoker method="dummyMethod" />
-	</EventHandlers>
-	
-	<EventHandlers type="{PresentationEvent.PRESENTATION_LOADED}">
-		<InlineInvoker method="dummyMethod" />
-	</EventHandlers>
-
     <EventHandlers type="{WhiteboardUpdate.RECEIVED_ANNOTATION_HISTORY}" >
         <MethodInvoker generator="{WhiteboardManager}" method="receivedAnnotationsHistory"/>
     </EventHandlers>
@@ -176,6 +124,7 @@
 	<Injectors target="{WhiteboardService}">
 		<PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
 		<PropertyInjector targetKey="sender" source="{MessageSender}"/>
+        <PropertyInjector targetKey="whiteboardModel" source="{WhiteboardModel}"/>
 	</Injectors>
 	
 	<Injectors target="{MessageReceiver}">

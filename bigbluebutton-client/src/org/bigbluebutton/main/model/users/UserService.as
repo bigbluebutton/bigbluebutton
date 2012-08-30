@@ -24,6 +24,7 @@ package org.bigbluebutton.main.model.users
 	
 	import mx.collections.ArrayCollection;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -105,6 +106,7 @@ package org.bigbluebutton.main.model.users
 		}
 		
 		public function userLoggedIn(e:UsersConnectionEvent):void{
+      LogUtil.debug("In UserService:userLoggedIn - Setting my userid to [" + e.userid + "]");
 			UserManager.getInstance().getConference().setMyUserid(e.userid);
 			_conferenceParameters.connection = e.connection;
 			_conferenceParameters.userid = e.userid;

@@ -24,19 +24,15 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	import org.bigbluebutton.common.LogUtil;
 
 	public interface GraphicObject {
-			
-		function getGraphicType():String;
+		function get type():String;
 		
-		function getGraphicID():String;
-		
-		function setGraphicID(id:String):void;
-		
+		function get id():String;
+				
 		function denormalize(val:Number, side:Number):Number;
 		
 		function normalize(val:Number, side:Number):Number;
 				
 		function makeGraphic(parentWidth:Number, parentHeight:Number):void;
 		
-		function getProperties():Array;
 	}
 }

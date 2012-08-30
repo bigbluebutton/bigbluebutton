@@ -38,8 +38,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 			import mx.events.MenuEvent;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
-			import mx.managers.FocusManager;
-			
+			import mx.managers.FocusManager;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -169,7 +168,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 				this.visible = true;
 			}
 			
-			private function disableTextToolbar():void{
+			private function disableTextToolbar(evt:Event=null):void{
 				this.visible = false;
 			}
 			
@@ -181,8 +180,8 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 				if(tobj == null) return;
 				currentlySelectedTextObject = tobj;
 				this.textColor = ctextpik.selectedColor = tobj.textColor;
-				this.bgColor = cbackpik.selectedColor = tobj.backgroundColor;
-				this.backgroundVisible = btnToggleBackground.selected = tobj.background;
+//				this.bgColor = cbackpik.selectedColor = tobj.backgroundColor;
+//				this.backgroundVisible = btnToggleBackground.selected = tobj.background;
 				this.textSizeMenu.label = String(tobj.textSize);
 				this.textSize = tobj.textSize;
 			}
@@ -201,16 +200,22 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 			
 			/* required for repositioning the TextToolbar when an event occurs on the presentation window */
 			public function repositionToolbarByWindow(event:Event = null):void {
+                if (currentlySelectedTextObject == null)  {
+                    return;
+                }
 				repositionToolbar();
 			}
 			
 			public function repositionToolbar(tobj:TextObject = null):void {
 				// translate TextObject's coords to stage coords because TextToolbar is added to stage
-				if (tobj == null)  tobj = currentlySelectedTextObject;
+              
+                if (tobj == null)  tobj = currentlySelectedTextObject;
+                            
 				if (textSizeMenu.isOpen) {
 					LogUtil.debug("Text size menu is open...trying to close");
 					textSizeMenu.displayPopUp();
 				}
+                              
 				var loc:Point = canvas.localToGlobal(new Point(tobj.x, tobj.y));
 				this.x = loc.x;
 				this.y = loc.y - this.height - 45;
@@ -224,24 +229,24 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 			}
 
 			private function handleObjSelected(event:GraphicObjectFocusEvent):void  {
-                LogUtil.debug("###### handleObjSelected");
-				if(event.data.getGraphicType() != WhiteboardConstants.TYPE_TEXT) return;
+//                LogUtil.debug("###### handleObjSelected");
+//				if(event.data.id != WhiteboardConstants.TYPE_TEXT) return;
 				var tobj:TextObject = event.data as TextObject;
+                syncPropsWith(tobj);
 				repositionToolbar(tobj);
-				syncPropsWith(tobj);
 				enableTextToolbar();
 			}
 
 			private function handleObjDeselected(event:GraphicObjectFocusEvent):void  {
-                LogUtil.debug("##### handleObjDeselected");
-				if(event.data.getGraphicType() != WhiteboardConstants.TYPE_TEXT) return;
+//                LogUtil.debug("##### handleObjDeselected");
+//				if(event.data.id != WhiteboardConstants.TYPE_TEXT) return;
 				var tobj:TextObject = event.data as TextObject;
 				
 				/* checks if the new focus of the stage is not the TextToolbar, and if not,
 					hide the text toolbar. This is to prevent the TextToolbar from disappearing as
 					soon as the user changes focus.
 				*/
-				if(!containsFocus(this)) {
+				if (!containsFocus(this)) {
 					disableTextToolbar();
 					textSizeMenu.close();
 				} 
@@ -266,15 +271,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 
 	<mx:ColorPicker width="20" height="20"  change="setTextColor(event)" id="ctextpik" selectedColor="0x000000"
 					toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textColorPicker')}"/>
-	
-	<mx:Spacer width="3" />
-	
-	<mx:Button width="20" height="20" id="btnToggleBackground" click="setBackgroundVisible(event)"  icon="{toggle_text_background_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.backColorVisible')}" toggle="true"/>
-	
-	<mx:ColorPicker width="20" height="20" change="changeTextBackgroundColor(event)" id="cbackpik"  selectedColor="0x000000" 
-					toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.backColorPicker')}"/>
-	
+
 	<views:PopUpCombo id="textSizeMenu" creationComplete="initTextSizeMenu()" 
 					  toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.texttoolbar.textSizeMenu')}" 
 					   openAlways="true" specificOpenDirection="{PopUpCombo.OPEN_UP}" />

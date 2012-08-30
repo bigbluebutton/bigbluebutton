@@ -44,6 +44,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
     private final int port;
     private final String room;
     private final boolean httpTunnel;
+    private final boolean useSVC2;
     private NetworkSocketStreamSender[] socketSenders;
     private NetworkHttpStreamSender[] httpSenders;
     private boolean tunneling = false;
@@ -56,7 +57,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	private final SequenceNumberGenerator seqNumGenerator = new SequenceNumberGenerator();
 	
 	public NetworkStreamSender(BlockManager blockManager, String host, int port,
-			String room, Dimension screenDim, Dimension blockDim, boolean httpTunnel) {
+			String room, Dimension screenDim, Dimension blockDim, boolean httpTunnel, boolean useSVC2) {
 		this.blockManager = blockManager;
 		this.host = host;
 		this.port = port;
@@ -64,8 +65,15 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 		this.screenDim = screenDim;
 		this.blockDim = blockDim;
 		this.httpTunnel = httpTunnel;
+		this.useSVC2 = useSVC2;
 		
-		numThreads = Runtime.getRuntime().availableProcessors() * 3;
+		//numThreads = Runtime.getRuntime().availableProcessors() * 3;
+
+      //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      // Use one thread per row of tiles
+      //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      numThreads = screenDim.getHeight() / blockDim.getHeight();
+      
 		System.out.println(NAME + "Starting up " + numThreads + " sender threads.");
 		executor = Executors.newFixedThreadPool(numThreads);
 	}
@@ -94,8 +102,13 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 		return false;
 	}
 
-	public boolean connect() {	
-		if (trySocketConnection(host, port)) {
+	public boolean connect() {
+
+      //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      // If the requested server port is nonzero, then try to connect to the
+      // requested port.  Otherwise, tunnel the connection to the web server.
+      //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		if ((port != 0) && trySocketConnection(host, port)) {
 			socketSenders = new NetworkSocketStreamSender[numThreads];
 			for (int i = 0; i < numThreads; i++) {
 				try {
@@ -138,26 +151,30 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	}
 		
 	private void createSender(int i) throws ConnectionException {
-		socketSenders[i] = new NetworkSocketStreamSender(i, this, room, screenDim, blockDim, seqNumGenerator);
+		socketSenders[i] = new NetworkSocketStreamSender(i, this, room, screenDim, blockDim, seqNumGenerator, useSVC2);
 		socketSenders[i].addListener(this);
 		socketSenders[i].connect(host, port);		
 	}
 	
 	private void createHttpSender(int i) throws ConnectionException {
-		httpSenders[i] = new NetworkHttpStreamSender(i, this, room, screenDim, blockDim, seqNumGenerator);
+		httpSenders[i] = new NetworkHttpStreamSender(i, this, room, screenDim, blockDim, seqNumGenerator, useSVC2);
 		httpSenders[i].addListener(this);
 		httpSenders[i].connect(host);
 	}
 	
 	public void send(Message message) {
-		blockDataQ.offer(message);
+             boolean added = blockDataQ.offer(message);
+             System.out.println("Offered to queue: res="+added+" size="+blockDataQ.size()+" remaining_capacity="+blockDataQ.remainingCapacity());
 	}
 	
 	public void start() {
 		System.out.println(NAME + "Starting network sender.");		
 		if (tunneling) {
+
+         // NEW
+         httpSenders[0].sendStartStreamMessage();
+
 			for (int i = 0; i < numRunningThreads; i++) {
-				httpSenders[i].sendStartStreamMessage();
 				executor.execute(httpSenders[i]);
 			}
 		} else {			
@@ -180,18 +197,38 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	public void stop() throws ConnectionException {
 		stopped = true;
 		System.out.println(NAME + "Stopping network sender");
+
+      // NEW
+      		if (tunneling) {
+               		if (httpSenders == null) 
+                   		return;
+                	if (httpSenders[0] != null)
+				httpSenders[0].disconnect();
+		}
+
+		if (socketSenders == null)
+			return;
+
 		for (int i = 0; i < numRunningThreads; i++) {
+		   try {
 			if (tunneling) {
-				httpSenders[i].disconnect();
+                                if (httpSenders[i] != null)
+					httpSenders[i].stopProcessingBlocks();
 			} else {
-			//	socketSenders[i].disconnect();
+				//socketSenders[i].disconnect();
 				if (clearQ) {
 					clearQ = false;
 					blockDataQ.clear();
-					
 				}
 				send(new PoisonMessage());
-			}				
+                                // LRP changed 06-06-2012
+				Thread.yield();
+                                //Thread.sleep(1000);
+				socketSenders[i].disconnect();
+			}
+                   } catch (Exception e) {
+			e.printStackTrace();
+		   }				
 		}
 		System.out.println("Shutting down executor");
 		executor.shutdownNow();
@@ -202,7 +239,7 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
 	}
 
 	private boolean tryHttpTunneling() {
-		NetworkHttpStreamSender httpSender = new NetworkHttpStreamSender(0, this, room, screenDim, blockDim, seqNumGenerator);
+		NetworkHttpStreamSender httpSender = new NetworkHttpStreamSender(0, this, room, screenDim, blockDim, seqNumGenerator, useSVC2);
 		try {
 			httpSender.connect(host);
 			return true;

@@ -18,89 +18,88 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
-	import flash.display.Shape;
-	
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.modules.whiteboard.models.Annotation;
-	
-	/**
-	 * The ShapeFactory receives DrawObjects and converts them to Flash Shapes which can then be displayed
-	 * <p>
-	 * This approach is necessary because Red5 does not allow Graphical Objects to be stored 
-	 * in remote shared objects 
-	 * @author dzgonjan
-	 * 
-	 */	
-	public class ShapeFactory extends GraphicFactory
-	{
-		private var drawFactory:DrawObjectFactory;
-		private var _parentWidth:Number = 0;
-		private var _parentHeight:Number = 0;
-		
-		public function ShapeFactory() {
-			super(GraphicFactory.SHAPE_FACTORY);
-			drawFactory = new DrawObjectFactory();
-		}
-		
-		public function setParentDim(width:Number, height:Number):void {
-			_parentWidth = width;
-			_parentHeight = height;
-		}
-		
-		/**
-		 * Creates a Flash Shape, given a DrawObject representation of it 
-		 * @param shape
-		 * @return 
-		 * 
-		 */		
-		public function makeShape(graphic:DrawObject):DrawObject{
-			if (graphic.getType() == DrawObject.PENCIL){
-				return makePencil(graphic as Pencil);
-			} else if (graphic.getType() == DrawObject.RECTANGLE){
-				return makeRectangle(graphic as Rectangle);
-			} else if (graphic.getType() == DrawObject.ELLIPSE){
-				return makeEllipse(graphic as Ellipse);
-			} else if (graphic.getType() == DrawObject.TRIANGLE){
-				return makeTriangle(graphic as Triangle);
-			} else if (graphic.getType() == DrawObject.LINE){
-				return makeLine(graphic as Line);
-			} else if (graphic.getType() == DrawObject.HIGHLIGHTER){
-				return makeHighlighter(graphic as Highlighter);
-			} else if (graphic.getType() == DrawObject.ERASER){
-				return makeEraser(graphic as Eraser);
-			}
-
-			return null;
-		}
-		
-		public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, transparency:Boolean):DrawObject {
-			var normSegment:Array = new Array();
-			for (var i:int = 0; i < segment.length; i += 2) {
-				normSegment[i] = normalize(segment[i] , _parentWidth);
-				normSegment[i+1] = normalize(segment[i+1], _parentHeight);
-			}
-			return makeShape(drawFactory.makeDrawObject(type, normSegment, color, thickness, fill, fillColor, transparency));
-		}
-		
-		/**
-		 * Creates a shape from the specified parameters 
-		 * @param segment
-		 * @param type
-		 * @param color
-		 * @param thickness
-		 * @param fill
-		 * @param fillColor
-		 * @param trans
-		 * @return A Flash Shape object
-		 * 
-		 */		
-		public function makeFeedback(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawObject{
-			return makeShape(drawFactory.makeDrawObject(type, segment, color, thickness, fill, fillColor, trans));
-		}
-		
-        public function createTextObject(txt:String, txtColor:uint, bgColor:uint, bgColorVisible:Boolean, x:Number, y:Number, tbWidth:Number, tbHeight:Number, textSize:Number):TextObject {		           
-            var tobj:TextObject = new TextObject(txt, txtColor, bgColor, bgColorVisible, normalize(x , _parentWidth), normalize(y, _parentHeight), 
-                            normalize(tbWidth , _parentWidth), normalize(tbHeight , _parentWidth), textSize);
+  import flash.display.Shape;  
+  import org.bigbluebutton.common.LogUtil;
+  import org.bigbluebutton.modules.whiteboard.models.Annotation;
+  import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
+  
+  /**
+   * The ShapeFactory receives DrawObjects and converts them to Flash Shapes which can then be displayed
+   * <p>
+   * This approach is necessary because Red5 does not allow Graphical Objects to be stored 
+   * in remote shared objects 
+   * @author dzgonjan
+   * 
+   */  
+  public class ShapeFactory extends GraphicFactory
+  {
+    private var _parentWidth:Number = 0;
+    private var _parentHeight:Number = 0;
+    
+    public function ShapeFactory() {
+      super(GraphicFactory.SHAPE_FACTORY);
+    }
+    
+    public function setParentDim(width:Number, height:Number):void {
+      _parentWidth = width;
+      _parentHeight = height;
+    }
+    
+        public function get parentWidth():Number {
+            return _parentWidth;
+        }
+        
+        public function get parentHeight():Number {
+            return _parentHeight;
+        }
+        
+        public function makeDrawObject(a:Annotation, whiteboardModel:WhiteboardModel):DrawObject{
+            if (a.type == DrawObject.PENCIL) {
+                return new Pencil(a.id, a.type, a.status);
+            } else if (a.type == DrawObject.RECTANGLE) {
+                return new Rectangle(a.id, a.type, a.status);
+            } else if (a.type == DrawObject.ELLIPSE) {
+                return new Ellipse(a.id, a.type, a.status);
+            }  else if (a.type == DrawObject.LINE) {
+                return new Line(a.id, a.type, a.status);
+            }  else if (a.type == DrawObject.TRIANGLE) {
+                return new Triangle(a.id, a.type, a.status);
+            } else if (a.type == DrawObject.TEXT) {
+                return new TextDrawObject(a.id, a.type, a.status);
+            }
+            
+            return null;
+        }
+        
+        private function createAnnotation(type:String, shape:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, trans:Boolean):DrawAnnotation{
+            if (type == DrawObject.PENCIL){
+                return new PencilDrawAnnotation(shape, color, thickness, trans);
+            } else if (type == DrawObject.RECTANGLE){
+        return new RectangleAnnotation(shape, color, thickness, trans);
+      } else if (type == DrawObject.ELLIPSE){
+        return new EllipseAnnotation(shape, color, thickness, trans);
+      } else if (type == DrawObject.LINE){
+        return new LineAnnotation(shape, color, thickness, trans);
+      } else if (type == DrawObject.TRIANGLE){
+        return new TriangleAnnotation(shape, color, thickness, trans);
+      }
+            
+            return null;
+        }
+            
+    public function createDrawObject(type:String, segment:Array, color:uint, thickness:uint, fill:Boolean, fillColor:uint, transparency:Boolean):DrawAnnotation {
+      var normSegment:Array = new Array();
+      for (var i:int = 0; i < segment.length; i += 2) {
+        normSegment[i] = normalize(segment[i] , _parentWidth);
+        normSegment[i+1] = normalize(segment[i+1], _parentHeight);
+      }
+      return createAnnotation(type, normSegment, color, thickness, fill, fillColor, transparency);
+    }
+        
+    public function createTextObject(txt:String, txtColor:uint, x:Number, y:Number, tbWidth:Number, tbHeight:Number, textSize:Number):TextDrawAnnotation {               
+      var tobj:TextDrawAnnotation = new TextDrawAnnotation(txt, txtColor, normalize(x , _parentWidth), normalize(y, _parentHeight), 
+                                                      normalize(tbWidth , _parentWidth), normalize(tbHeight , _parentHeight), 
+                                                      textSize, normalize(textSize, _parentHeight));
             return tobj;
         }
           
@@ -108,104 +107,22 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
         /* convenience method for above method, takes a TextObject and returns one with "normalized" coordinates */
         public function makeTextObject(t:Annotation):TextObject {
 //            LogUtil.debug("***Making textObject [" + t.type + ", [" + t.annotation.x + "," + t.annotation.y + "]");
-            var tobj:TextObject = new TextObject(t.annotation.text, t.annotation.fontColor, t.annotation.backgroundColor, t.annotation.background, 
-                                        t.annotation.x, t.annotation.y, t.annotation.textBoxWidth, t.annotation.textBoxHeight, t.annotation.fontSize);
+            var tobj:TextObject = new TextObject(t.annotation.text, t.annotation.fontColor, 
+                                                t.annotation.x, t.annotation.y, t.annotation.textBoxWidth, 
+                                                t.annotation.textBoxHeight, t.annotation.fontSize, t.annotation.calcedFontSize);
             tobj.makeGraphic(_parentWidth,_parentHeight);
 //            LogUtil.debug("***Made textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
-            return tobj;
+           return tobj;
         }
         
         public function redrawTextObject(a:Annotation, t:TextObject):TextObject {
- //           LogUtil.debug("***Redraw textObject [" + a.type + ", [" + a.annotation.x + "," + a.annotation.y + "]");
-            var tobj:TextObject = new TextObject(a.annotation.text, a.annotation.fontColor, a.annotation.backgroundColor, a.annotation.background, 
-                        a.annotation.x, a.annotation.y, a.annotation.textBoxWidth, a.annotation.textBoxHeight, a.annotation.fontSize);
+//            LogUtil.debug("***Redraw textObject [" + a.type + ", [" + a.annotation.x + "," + a.annotation.y + "]");
+            var tobj:TextObject = new TextObject(a.annotation.text, a.annotation.fontColor, 
+                        a.annotation.x, a.annotation.y, a.annotation.textBoxWidth, a.annotation.textBoxHeight, 
+                        a.annotation.fontSize, a.annotation.calcedFontSize);
             tobj.redrawText(t.oldParentWidth, t.oldParentHeight, _parentWidth,_parentHeight);
- //           LogUtil.debug("***Redraw textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
+//            LogUtil.debug("***Redraw textObject [" + tobj.text + ", [" + tobj.x + "," + tobj.y + "," + tobj.textSize + "]");
             return tobj;
         }        
-        
-		
-		/**
-		 * Creates a Flash Shape from a Pencil DrawObject 
-		 * @param p a Pencil DrawObject
-		 * @return a Shape
-		 * 
-		 */		
-		private function makePencil(p:Pencil):DrawObject{
-			p.makeGraphic(_parentWidth, _parentHeight);	
-	        return p;
-		}
-		
-		/**
-		 * Creates a Flash Shape from a Rectangle DrawObject 
-		 * @param r a Rectangle DrawObject
-		 * @return a Shape
-		 * 
-		 */		
-		private function makeRectangle(r:Rectangle):DrawObject{
-			r.makeGraphic(_parentWidth, _parentHeight);			
-			return r;	
-		}
-		
-		/**
-		 * Creates a Flash Shape from an Ellipse DrawObject 
-		 * @param e an Ellipse DrawObject
-		 * @return a Shape
-		 * 
-		 */		
-		private function makeEllipse(e:Ellipse):DrawObject{
-			e.makeGraphic(_parentWidth, _parentHeight);
-			return e;
-		}
-		
-		/**
-		 * Creates a Flash Shape from an Line DrawObject 
-		 * @param e an Line DrawObject
-		 * @return a Shape
-		 * 
-		 */
-		private function makeLine(e:Line):DrawObject{
-			e.makeGraphic(_parentWidth, _parentHeight);
-			return e;
-		}
-		
-		/**
-		 * Creates a Flash Shape from an Highlighter DrawObject 
-		 * @param e an Highlighter DrawObject
-		 * @return a Shape
-		 * 
-		 */
-		private function makeHighlighter(e:Highlighter):DrawObject{
-			e.makeGraphic(_parentWidth, _parentHeight);
-			return e;
-		}
-		
-		/**
-		 * Creates a Flash Shape from an Eraser DrawObject 
-		 * @param e an Eraser DrawObject
-		 * @return a Shape
-		 * 
-		 */
-		private function makeEraser(e:Eraser):DrawObject{
-			e.makeGraphic(_parentWidth, _parentHeight);
-			return e;
-		}
-		
-		/**
-		 * Creates a Flash Shape from an Triangle DrawObject 
-		 * @param e an Triangle DrawObject
-		 * @return a Shape
-		 * 
-		 */
-		private function makeTriangle(e:Triangle):DrawObject{
-			e.makeGraphic(_parentWidth, _parentHeight);
-			return e;
-		}
-
-        private function makeText(e:Text):DrawObject{
-            e.makeShape(_parentWidth, _parentHeight);
-            return e;
-        }
-
-	}
+  }
 }

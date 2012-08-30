@@ -32,6 +32,7 @@ meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
+presentation_props = YAML::load(File.open('presentation.yml'))
 
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
@@ -40,7 +41,8 @@ raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 
 target_dir = "#{recording_dir}/process/presentation/#{meeting_id}"
 if not FileTest.directory?(target_dir)
-	logger = Logger.new("/var/log/bigbluebutton/slides/process-#{meeting_id}.log", 'daily' )
+  FileUtils.mkdir_p "/var/log/bigbluebutton/presentation"
+	logger = Logger.new("/var/log/bigbluebutton/presentation/process-#{meeting_id}.log", 'daily' )
 	BigBlueButton.logger = logger
   BigBlueButton.logger.info("Processing script presentation.rb")
 	FileUtils.mkdir_p target_dir
@@ -67,7 +69,8 @@ if not FileTest.directory?(target_dir)
     
     target_pres_dir = "#{processed_pres_dir}/#{pres}"
     FileUtils.mkdir_p target_pres_dir
-
+    FileUtils.mkdir_p "#{target_pres_dir}/textfiles"
+    
     images=Dir.glob("#{pres_dir}/#{pres}.{jpg,png,gif}")
     if images.empty?
          1.upto(num_pages) do |page|
@@ -76,6 +79,9 @@ if not FileTest.directory?(target_dir)
            #BigBlueButton::Presentation.convert_pdf_to_png(pdf_page, "#{target_pres_dir}/slide-#{page}.png")
            command = "convert -density 300x300 -resize 1600x1200 -quality 90 +dither -depth 8 -colors 256 #{pdf_page} #{target_pres_dir}/slide-#{page}.png"
            BigBlueButton.execute(command)
+           if File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt") then
+             FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
+           end
          end
     else
         ext = File.extname("#{images[0]}")
@@ -86,7 +92,7 @@ if not FileTest.directory?(target_dir)
   
   end
   
-  BigBlueButton.process_videos(target_dir, temp_dir, meeting_id)
+  BigBlueButton.process_multiple_videos(target_dir, temp_dir, meeting_id, presentation_props['video_output_width'], presentation_props['video_output_height'])
 
   process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "w")
   process_done.write("Processed #{meeting_id}")

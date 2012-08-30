@@ -96,10 +96,13 @@ function getCursorAtTime(time) {
 	if(coords) return coords.split(' ');
 }
 
+function cleanseSlideText(text) {
+  
+}
+
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
 
 function runPopcorn() {
-  console.log("SVG loaded");
   if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
   else svgfile = svgobj.getSVGDocument('svgfile');
 
@@ -121,10 +124,7 @@ function runPopcorn() {
 
   //get the array of values for the first shape (getDataPoints(0) is the first shape).
   var array = shapeelements[0].getElementsByClassName("shape"); //get all the lines from the svg file
-  //var pages = shapeelements[0].getElementsByClassName("page");
   var images = shapeelements[0].getElementsByTagName("image");
-
-  //console.log(images);
 
   //fill the times array with the times of the svg images.
   for (var j = 0; j < array.length; j++) {
@@ -138,6 +138,29 @@ function runPopcorn() {
   	for(var n = 0; n < len; n++) {
   		imageAtTime[[images[m].getAttribute("in").split(" ")[n], images[m].getAttribute("out").split(" ")[n]]] = images[m].getAttribute("id");
   	}
+        
+        // the logo at the start has no text attribute
+        if (images[m].getAttribute("text")) {
+          var txtFile = false;
+          if (window.XMLHttpRequest) {
+  	    // code for IE7+, Firefox, Chrome, Opera, Safari
+  	    txtFile = new XMLHttpRequest();
+          } else {
+  	    // code for IE6, IE5
+  	    txtFile = new ActiveXObject("Microsoft.XMLHTTP");
+          }
+          var imgid = images[m].getAttribute("id"); //have to save the value because images array might go out of scope
+          txtFile.open("GET", url + "/" + images[m].getAttribute("text"), false);
+          txtFile.onreadystatechange = function() {
+              if (txtFile.readyState === 4) {
+                if (txtFile.status === 200) {
+                  slidePlainText[imgid] = $('<div/>').text(txtFile.responseText).html();
+                  console.log("Text file read " + imgid);
+                }
+              }
+          };
+          txtFile.send(null);
+        }
   }
 
   // PROCESS PANZOOMS.XML
@@ -194,106 +217,115 @@ function runPopcorn() {
   	main_shapes_times[main_shapes_times.length] = times[times.length-1]; //put last value into this array always!
   }
   
-  var p = new Popcorn("#videoRecording");
+  var p = new Popcorn("#video");
   //update 60x / second the position of the next value.
   p.code({
       start: 1, // start time
       end: p.duration(),
       onFrame: function(options) {
-  		if(!((p.paused() === true) && (p.seeking() === false))) {
-  			var t = p.currentTime().toFixed(1); //get the time and round to 1 decimal place
+        if(!((p.paused() === true) && (p.seeking() === false))) {
+          var t = p.currentTime().toFixed(1); //get the time and round to 1 decimal place
+          
+          if(svgobj.contentDocument) current_shape = svgobj.contentDocument.getElementById("draw" + t);
+          else current_shape = svgobj.getSVGDocument('svgfile').getElementById("draw" + t);
 
-        if(svgobj.contentDocument) current_shape = svgobj.contentDocument.getElementById("draw" + t);
-        else current_shape = svgobj.getSVGDocument('svgfile').getElementById("draw" + t);
-  			if(current_shape !== null) { //if there is actually a new shape to be displayed
-  				current_shape = current_shape.getAttribute("shape"); //get actual shape tag for this specific time of playback
-  			}
-  			//redraw everything (only way to make everything elegant)
-  			for (var i = 0, len = times_length; i < len; i++) {
-  				var time_s = times[i];
-  				var time_f = parseFloat(time_s);
-  				if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById("draw" + time_s);
-  				else shape = svgobj.getSVGDocument('svgfile').getElementById("draw" + time_s);
-  				var shape_i = shape.getAttribute("shape");
-
-  				if (time_f < t) {
-  					if(shape_i === current_shape) { //currently drawing the same shape so don't draw the older steps
-  						shape.style.visibility = "hidden"; //hide older steps to shape
-  					}
-  					else if(main_shapes_times.indexOf(time_s) !== -1) { //as long as it is a main shape, it can be drawn... no intermediate steps.
-  						if(parseFloat(shape.getAttribute("undo")) === -1) { //As long as the undo event hasn't happened yet...
-  							shape.style.visibility = "visible";
-  						}
-  						else if (parseFloat(shape.getAttribute("undo")) > t) {
-  							shape.style.visibility = "visible";
-  						}
-  						else {
-  							shape.style.visibility = "hidden";
-  						}
-  					}
-  				}
-  				else if(time_s === t) { //for the shape with the time specific to the current time
-  					shape.style.visibility = "visible";
-  				}
-  				else { //for shapes that shouldn't be drawn yet (larger time than current time), don't draw them.
-  					shape.style.visibility = "hidden";
-  				}
-  			}
-
-  			var next_image = getImageAtTime(t); //fetch the name of the image at this time.
-  			var imageXOffset = 0;
-  			var imageYOffset = 0;
-  			if((current_image !== next_image) && (next_image !== undefined)){	//changing slide image
-  			  if(svgobj.contentDocument) {
-  			    svgobj.contentDocument.getElementById(current_image).style.visibility = "hidden";
-  			    var ni = svgobj.contentDocument.getElementById(next_image);
-  			  }
-  			  else {
-  			    svgobj.getSVGDocument('svgfile').getElementById(current_image).style.visibility = "hidden";
-  			    var ni = svgobj.getSVGDocument('svgfile').getElementById(next_image);
-  			  }
-  			  ni.style.visibility = "visible";
-
-  				var num_current = current_image.substr(5);
-  				var num_next = next_image.substr(5);
-  				if(svgobj.contentDocument) currentcanvas = svgobj.contentDocument.getElementById("canvas" + num_current);
-  				else currentcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_current);
-  				if(currentcanvas !== null) {
-  					currentcanvas.setAttribute("display", "none");
-  				}
-  				if(svgobj.contentDocument) nextcanvas = svgobj.contentDocument.getElementById("canvas" + num_next);
-  				else nextcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_next);
-  				if((nextcanvas !== undefined) && (nextcanvas != null)) {
-  					nextcanvas.setAttribute("display", "");
-  				}
-  				current_image = next_image;
-  			}
-
-  			if(svgobj.contentDocument) var thisimg = svgobj.contentDocument.getElementById(current_image);
-  			else var thisimg = svgobj.getSVGDocument('svgfile').getElementById(current_image);
-  			var offsets = thisimg.getBoundingClientRect();
-  			imageXOffset = (1600 - parseInt(thisimg.getAttribute("width"), 10))/2;
-  			imageYOffset = (1200 - parseInt(thisimg.getAttribute("height"), 10))/2;
-
-  			var vboxVal = getViewboxAtTime(t);
-  			if(vboxVal !== undefined) {
-  				setViewBox(vboxVal);
-  			}
-
-  			var cursorVal = getCursorAtTime(t);
-  			var cursor_on = false;
-  			if(cursorVal != null) {
-  			  if(!cursor_on) {
-  			    document.getElementById("cursor").style.visibility = 'visible';
-  			    cursor_on = true;
-			    }
-  				setCursor([parseFloat(cursorVal[0]) + imageXOffset - 6, parseFloat(cursorVal[1]) + imageYOffset - 6]); //-6 is for radius of cursor offset
-  			}
-  		}
+          if(current_shape !== null) { //if there is actually a new shape to be displayed
+            current_shape = current_shape.getAttribute("shape"); //get actual shape tag for this specific time of playback
+          }
+          //redraw everything (only way to make everything elegant)
+          for (var i = 0, len = times_length; i < len; i++) {
+            var time_s = times[i];
+            var time_f = parseFloat(time_s);
+            
+            if(svgobj.contentDocument) shape = svgobj.contentDocument.getElementById("draw" + time_s);
+            else shape = svgobj.getSVGDocument('svgfile').getElementById("draw" + time_s);
+            
+            var shape_i = shape.getAttribute("shape");
+            if (time_f < t) {
+              if(shape_i === current_shape) { //currently drawing the same shape so don't draw the older steps
+                shape.style.visibility = "hidden"; //hide older steps to shape
+  	      }
+              else if(main_shapes_times.indexOf(time_s) !== -1) { //as long as it is a main shape, it can be drawn... no intermediate steps.
+                if(parseFloat(shape.getAttribute("undo")) === -1) { //As long as the undo event hasn't happened yet...
+                  shape.style.visibility = "visible";
+                }
+                else if (parseFloat(shape.getAttribute("undo")) > t) {
+                  shape.style.visibility = "visible";
+                }
+                else {
+                  shape.style.visibility = "hidden";
+                }
+              }
+            }
+            else if(time_s === t) { //for the shape with the time specific to the current time
+              shape.style.visibility = "visible";
+            }
+            else { //for shapes that shouldn't be drawn yet (larger time than current time), don't draw them.
+              shape.style.visibility = "hidden";
+            }
+          }
+          
+          var next_image = getImageAtTime(t); //fetch the name of the image at this time.
+          var imageXOffset = 0;
+          var imageYOffset = 0;
+          if((current_image !== next_image) && (next_image !== undefined)){	//changing slide image
+            if(svgobj.contentDocument) {
+              svgobj.contentDocument.getElementById(current_image).style.visibility = "hidden";
+              var ni = svgobj.contentDocument.getElementById(next_image);
+            }
+            else {
+              svgobj.getSVGDocument('svgfile').getElementById(current_image).style.visibility = "hidden";
+              var ni = svgobj.getSVGDocument('svgfile').getElementById(next_image);
+            }
+            document.getElementById("slideText").innerHTML = ""; //destroy old plain text
+            
+            ni.style.visibility = "visible";
+            document.getElementById("slideText").innerHTML = slidePlainText[next_image] + next_image; //set new plain text
+            
+            var num_current = current_image.substr(5);
+            var num_next = next_image.substr(5);
+            
+            if(svgobj.contentDocument) currentcanvas = svgobj.contentDocument.getElementById("canvas" + num_current);
+            else currentcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_current);
+            
+            if(currentcanvas !== null) {
+              currentcanvas.setAttribute("display", "none");
+            }
+            
+            if(svgobj.contentDocument) nextcanvas = svgobj.contentDocument.getElementById("canvas" + num_next);
+            else nextcanvas = svgobj.getSVGDocument('svgfile').getElementById("canvas" + num_next);
+            
+            if((nextcanvas !== undefined) && (nextcanvas != null)) {
+              nextcanvas.setAttribute("display", "");
+            }
+            current_image = next_image;
+          }
+          
+          if(svgobj.contentDocument) var thisimg = svgobj.contentDocument.getElementById(current_image);
+          else var thisimg = svgobj.getSVGDocument('svgfile').getElementById(current_image);
+  
+          var offsets = thisimg.getBoundingClientRect();
+          imageXOffset = (1600 - parseInt(thisimg.getAttribute("width"), 10))/2;
+          imageYOffset = (1200 - parseInt(thisimg.getAttribute("height"), 10))/2;
+          
+          var vboxVal = getViewboxAtTime(t);
+          if(vboxVal !== undefined) {
+            setViewBox(vboxVal);
+          }
+          
+          var cursorVal = getCursorAtTime(t);
+          var cursor_on = false;
+          if(cursorVal != null) {
+            if(!cursor_on) {
+              document.getElementById("cursor").style.visibility = 'visible'; //make visible
+              cursor_on = true;
+            }
+            setCursor([parseFloat(cursorVal[0]) + imageXOffset - 6, parseFloat(cursorVal[1]) + imageYOffset - 6]); //-6 is for radius of cursor offset
+          }
+       }
     }
   });
 };
-
 
 var current_canvas = "canvas0";
 var current_image = "image0";
@@ -318,6 +350,7 @@ var main_shapes_times = [];
 var vboxValues = {};
 var cursorValues = {};
 var imageAtTime = {};
+var slidePlainText = {}; //holds slide plain text for retrieval
 var cursorStyle;
 
 var params = getUrlParameters();
@@ -343,4 +376,3 @@ window.onresize = function(event) {
 	svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
     svgobj.style.top = "8px";
 };
-console.log("writing.js is loaded.");

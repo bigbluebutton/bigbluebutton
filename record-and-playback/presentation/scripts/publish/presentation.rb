@@ -316,7 +316,7 @@ def processSlideEvents
 			slide_start = ((slide_timestamp.to_f - $meeting_start.to_f) / 1000).round(1)
 			slide_number = node.xpath(".//slide")[0].text()
 			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i + 1}.png"
-
+                        slide_text = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i + 1}.txt"
 			image_url = "#{$process_dir}/#{slide_src}"
 			slide_size = FastImage.size(image_url)
 			current_index = $slides_events.index(node)
@@ -330,7 +330,7 @@ def processSlideEvents
 			# Is this a new image or one previously viewed?
 			if($slides_compiled[[slide_src, slide_size[1], slide_size[0]]] == nil)
 				# If it is, add it to the list with all the data.
-				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count]
+				$slides_compiled[[slide_src, slide_size[1], slide_size[0]]] = [[slide_start], [slide_end], $global_slide_count, slide_text]
 				$global_slide_count = $global_slide_count + 1
 			elsif
 				# If not, append new in and out times to the old entry
@@ -373,7 +373,7 @@ def processShapesAndClears
 			# Print out the gathered/detected images. 
 			$slides_compiled.each do |key, val|
 				$val = val
-				$xml.image(:id => "image#{$val[2].to_i}", :in => $val[0].join(' '), :out => $val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => :hidden)
+				$xml.image(:id => "image#{$val[2].to_i}", :in => $val[0].join(' '), :out => $val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => :hidden, :text => $val[3])
 				$canvas_number+=1
 				$xml.g(:class => :canvas, :id => "canvas#{$val[2].to_i}", :image => "image#{$val[2].to_i}", :display => :none) do
 					
@@ -395,18 +395,21 @@ def processShapesAndClears
 						end
 						
 						if(in_this_image)
-							# Get variables
-							$shapeType = shape.xpath(".//type")[0].text()
-							$shapeThickness = shape.xpath(".//thickness")[0].text()
-							$pageNumber = shape.xpath(".//pageNumber")[0].text()
-							$shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
-							colour = shape.xpath(".//color")[0].text()
-							
-							if($shapeType == "text")
-								$textValue = shape.xpath(".//text")[0].text()
-								$textFontType = shape.xpath(".//font")[0].text()
-								$textFontSize = shape.xpath(".//fontsize")[0].text()
-							end
+                                                        # Get variables
+                                                        BigBlueButton.logger.info shape
+                                                        $shapeType = shape.xpath(".//type")[0].text()
+                                                        $pageNumber = shape.xpath(".//pageNumber")[0].text()
+                                                        $shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
+
+                                                        if($shapeType == "text")
+                                                                $textValue = shape.xpath(".//text")[0].text()
+                                                                #$textFontType = shape.xpath(".//font")[0].text()
+                                                                $textFontType = "Arial"
+                                                                $textFontSize = shape.xpath(".//fontSize")[0].text()
+                                                        else
+                                                                $shapeThickness = shape.xpath(".//thickness")[0].text()
+                                                                colour = shape.xpath(".//color")[0].text()
+                                                        end
 							
 							# figure out undo time
 							BigBlueButton.logger.info("Figuring out undo time")
@@ -492,14 +495,14 @@ def processChatMessages
 				chat_sender = node.xpath(".//sender")[0].text()
 				chat_message =  BigBlueButton::Events.linkify(node.xpath(".//message")[0].text())
 				chat_start = (chat_timestamp.to_i - $meeting_start.to_i) / 1000
-				$xml.timeline(:in => chat_start, :direction => :down,  :innerHTML => "<span><strong>#{chat_sender}:</strong> #{chat_message}</span>", :target => :chat )
+				$xml.chattimeline(:in => chat_start, :direction => :down,  :name => chat_sender, :message => chat_message, :target => :chat )
 			end
 		}
 	end
 end
 
-$vbox_width = 800
-$vbox_height = 600
+$vbox_width = 1600
+$vbox_height = 1200
 $magic_mystery_number = 2
 $shapesold_svg_filename = 'shapes_old.svg'
 $shapes_svg_filename = 'shapes.svg'
@@ -543,7 +546,7 @@ $playback = match[2]
 puts $meeting_id
 puts $playback
 if ($playback == "slides")
-	logger = Logger.new("/var/log/bigbluebutton/slides/publish-#{$meeting_id}.log", 'daily' )
+	logger = Logger.new("/var/log/bigbluebutton/presentation/publish-#{$meeting_id}.log", 'daily' )
 	BigBlueButton.logger = logger
   BigBlueButton.logger.info("RUNNING SLIDES_NEW.RB - Publishing #{$meeting_id}")
 	# This script lives in scripts/archive/steps while properties.yaml lives in scripts/
@@ -581,9 +584,9 @@ if ($playback == "slides")
 		BigBlueButton.logger.info("Making video dir")
 		video_dir = "#{package_dir}/video"
 		FileUtils.mkdir_p video_dir
-		BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.mp4 to -> #{video_dir}")
-		FileUtils.cp("#{$process_dir}/webcams.mp4", video_dir)
-		BigBlueButton.logger.info("Copied .mp4 file")
+		BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.webm to -> #{video_dir}")
+		FileUtils.cp("#{$process_dir}/webcams.webm", video_dir)
+		BigBlueButton.logger.info("Copied .webm file")
 
 		BigBlueButton.logger.info("Copying files to package dir")
 		FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
@@ -643,17 +646,10 @@ if ($playback == "slides")
 		
 		processPanAndZooms()
 		
-		BigBlueButton.logger.info("Cursor events empty: #{$cursor_events.empty?}")
 		processCursorEvents()
 		
-		
-		
-		BigBlueButton.logger.info("writing slides_new.xml")
 		# Write slides.xml to file
 		File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }
-
-		BigBlueButton.logger.info("Wrote slides_new.xml")
-
 		# Write shapes.svg to file
 		File.open("#{package_dir}/#{$shapes_svg_filename}", 'w') { |f| f.puts $shapes_svg.to_xml.gsub(%r"\s*\<g.*/\>", "") } #.gsub(%r"\s*\<g.*\>\s*\</g\>", "") }
 		

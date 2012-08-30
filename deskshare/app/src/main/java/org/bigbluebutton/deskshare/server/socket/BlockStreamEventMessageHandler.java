@@ -62,7 +62,7 @@ public class BlockStreamEventMessageHandler extends IoHandlerAdapter {
     	if (message instanceof CaptureStartBlockEvent) {
     		System.out.println("Got CaptureStartBlockEvent");
     		CaptureStartBlockEvent event = (CaptureStartBlockEvent) message;
-    		sessionManager.createSession(event.getRoom(), event.getScreenDimension(), event.getBlockDimension(), event.getSequenceNum());
+    		sessionManager.createSession(event.getRoom(), event.getScreenDimension(), event.getBlockDimension(), event.getSequenceNum(), event.isUseSVC2());
     	} else if (message instanceof CaptureUpdateBlockEvent) {
 //    		System.out.println("Got CaptureUpdateBlockEvent");
     		CaptureUpdateBlockEvent event = (CaptureUpdateBlockEvent) message;

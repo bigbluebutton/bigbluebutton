@@ -31,6 +31,7 @@
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
 	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
+	<mate:Listener type="{ShortcutEvent.UNDO_WHITEBOARD}" method="undoShortcut" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
 	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
 	<mate:Listener type="{WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED}" method="handleWhiteboardButtonPressed"/>
@@ -56,19 +57,18 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
+            import flash.ui.Keyboard;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
-			import mx.managers.CursorManager;
-			
+			import mx.managers.CursorManager;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.SelectObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
@@ -79,6 +79,7 @@
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.common.LogUtil;
 			
 			private var images:Images = new Images();
             [Bindable] private var hand_icon:Class = images.hand_icon;
@@ -109,28 +110,48 @@
             private function onCreationComplete():void {
                 setToolType(WhiteboardConstants.TYPE_ZOOM, null);
             }
-            
+                       
 			private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
                 setToolType(e.graphicType, e.toolType);
             }
             
-            private function setToolType(graphicType:String, toolType:String):void {
+            private function setToolType(graphicType:String, toolType:String):void {                
                 canvas.setGraphicType(graphicType);
                 canvas.setTool(toolType);
                 
-                panzoomBtn.setTool(graphicType, toolType);
-                scribbleBtn.setTool(graphicType, toolType);
-                rectangleBtn.setTool(graphicType, toolType);
-                circleBtn.setTool(graphicType, toolType);
-                triangleBtn.setTool(graphicType, toolType);
-                lineBtn.setTool(graphicType, toolType);
-                textBtn.setTool(graphicType, toolType);
+                if (panzoomBtn != null) {
+                    panzoomBtn.setTool(graphicType, toolType);
+                }
                 
+                if (scribbleBtn != null) {
+                    scribbleBtn.setTool(graphicType, toolType); 
+                }
+                                
+                if (rectangleBtn != null) {
+                    rectangleBtn.setTool(graphicType, toolType); 
+                }
+                
+                if (circleBtn != null) {
+                    circleBtn.setTool(graphicType, toolType);
+                }
+                
+                if (triangleBtn != null) {
+                    triangleBtn.setTool(graphicType, toolType);
+                }
+                                
+                if (lineBtn != null) {
+                    lineBtn.setTool(graphicType, toolType);
+                }
+                
+                if (textBtn != null) {
+                    textBtn.setTool(graphicType, toolType);
+                }
+                                
                 if(graphicType == WhiteboardConstants.TYPE_CLEAR) {
                     dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
                 }
                 
-                if(graphicType == WhiteboardConstants.TYPE_UNDO) {
+                if (graphicType == WhiteboardConstants.TYPE_UNDO) {
                     sendUndoCommand();
                 }
 			}
@@ -171,6 +192,7 @@
 			}
 						
 			private function presenterMode(e:MadePresenterEvent):void {
+                if (canvas == null) return;
 				canvas.makeTextObjectsEditable(e);
                 this.visible = true;
                 setToolType(WhiteboardConstants.TYPE_ZOOM, null);
@@ -180,6 +202,11 @@
 				canvas.makeTextObjectsUneditable(e);
 			    this.visible = false;
             }
+			
+			private function undoShortcut(e:ShortcutEvent):void{
+				LogUtil.debug("Ctrl-Z got into undoShortcut");
+				sendUndoCommand();
+			}
 			
 			private function showToolbar(e:PresentationEvent):void {
 				this.visible = true;
@@ -213,12 +240,12 @@
            
             private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
                 var gobj:GraphicObject = event.data;
-                LogUtil.debug("!!!!SELECTED:" + " " + gobj.getProperties());
+//                LogUtil.debug("!!!!SELECTED:" );
             }
             
             private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
                 var gobj:GraphicObject = event.data;
-                LogUtil.debug("!!!!DESELECTED:" + " " + gobj.getProperties());
+ //               LogUtil.debug("!!!!DESELECTED:" + " " );
             }
 			           
 		]]>

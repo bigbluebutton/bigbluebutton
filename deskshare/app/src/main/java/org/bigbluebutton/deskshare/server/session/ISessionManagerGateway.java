@@ -31,7 +31,7 @@ import org.bigbluebutton.deskshare.common.Dimension;
  *
  */
 public interface ISessionManagerGateway {
-	public void createSession(String room, Dimension screenDim, Dimension blockDim, int seqNum);
+	public void createSession(String room, Dimension screenDim, Dimension blockDim, int seqNum, boolean useSVC2);
 
 	public void removeSession(String room, int seqNum);
 

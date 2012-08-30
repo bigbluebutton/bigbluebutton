@@ -24,8 +24,9 @@
 #   2011-11-20 FFD  Added more checks for processing of recording
 #   2012-01-04 GUG  Add option to check for errors
 #   2012-02-27 GUG  Add option to delete one meeting and recording
+#   2012-08-13 GUG  Republish recording
 
-set -e
+#set -e
 #set -x
 
 BASE=/var/bigbluebutton/recording
@@ -77,6 +78,24 @@ mark_for_rebuild() {
 	done
 }
 
+mark_for_republish() { 
+	MEETING_ID=$1
+	#set -x
+	for type in $TYPES; do                
+                if [ -d $BASE/publish/$type/$MEETING_ID ]; then
+						rm -rf $BASE/publish/$type/$MEETING_ID
+				fi
+              
+                if [ -d /var/bigbluebutton/published/$type/$MEETING_ID ]; then
+                        rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
+                fi
+
+                if [ -d /var/bigbluebutton/unpublished/$type/$MEETING_ID ]; then
+                        rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID
+                fi
+	done
+}
+
 BIGBLUEBUTTON_RELEASE=0.8-beta-4
 
 need_root() {
@@ -104,7 +123,10 @@ usage() {
 	echo
         echo "Monitoring:"
         echo "   --watch                          Watch processing of recordings"
+	echo
+        echo "Administration:"
         echo "   --rebuild [meetingID]            rebuild the output for meetingID"
+        echo "   --republish [meetingID]          republish the recording for meetingID"
 	echo "   --delete [meetingID]             delete one meeting and recording"
         echo "   --deletall                       delete all meetings and recordings"
         echo "   --debug                          check for recording errors"
@@ -145,8 +167,19 @@ while [ $# -gt 0 ]; do
 		shift
                 continue
         fi
+
+	if [ "$1" = "-republish" -o "$1" = "--republish" ]; then
+		need_root
+		if [ ! -z "${2}" ]; then
+                	MEETING_ID="${2}"
+			shift
+		fi
+                REPUBLISH=1
+		shift
+                continue
+        fi
 		
-		if [ "$1" = "-delete" -o "$1" = "--delete" ]; then
+	if [ "$1" = "-delete" -o "$1" = "--delete" ]; then
                 need_root
                 if [ ! -z "${2}" ]; then
                         MEETING_ID="${2}"
@@ -177,6 +210,13 @@ while [ $# -gt 0 ]; do
                 continue
         fi
 
+        if [ "$1" = "-clean" -o "$1" = "--clean" ]; then
+		need_root
+                CLEAN=1
+		shift
+                continue
+        fi
+
 	usage
 	exit 1
 done
@@ -195,6 +235,30 @@ if [ $REBUILD ]; then
 	mark_for_rebuild $MEETING_ID
     fi
 fi 
+
+if [ $REPUBLISH ]; then
+    if [ -z "$MEETING_ID" ]; then
+	#
+	# Republish all meetings
+	#
+	for recording in $(dir $BASE/raw); do
+		echo "Marking for republish: $recording"
+		mark_for_republish $recording
+	done
+    else
+	echo "Marking for republish: $MEETING_ID"
+	mark_for_republish $MEETING_ID
+    fi
+fi 
+
+if [ $CLEAN ]; then
+	sudo /etc/init.d/bbb-record-core stop
+	for type in $TYPES; do
+		echo " clearning logs in /var/log/bigbluebutton/$type"
+		find /var/log/bigbluebutton/$type -name "*.log" -exec sudo rm '{}' \;
+	done
+	sudo /etc/init.d/bbb-record-core start
+fi
 
 if [ $DELETE ]; then
   if [ ! -z "$MEETING_ID" ]; then
@@ -482,21 +546,19 @@ if [ $DEBUG ]; then
 	#
 	STAGES="process publish"
         for type in $TYPES; do
-        	for stage in $STAGES; do
-			if ls -A $LOG_DIR/$type/$stage-* &> /dev/null; then
-				rm -rf /tmp/t
-				grep -B 3 "ERROR -- : Error:" $LOG_DIR/$type/$stag-* | egrep -w 'Task:| Error:' > /tmp/t
-				if [ -s /tmp/t ]; then
-					echo "  -- ERRORS found while processing slides $LOG_DIR/$type/$stag-* -- "
-					cat /tmp/t
-					echo
-				fi
-			fi
-		done
-	done
-
-
-
+                for stage in $STAGES; do
+                        LOC=$LOG_DIR/$type/$stage
+                        if ls -A $LOC-* &> /dev/null; then
+                                rm -rf /tmp/t
+                                grep -B 3 "ERROR -- : Error:" $LOC-* | egrep -w 'Error:' | grep -v "ffmpeg version" > /tmp/t
+                                if [ -s /tmp/t ]; then
+                                        echo "  -- ERRORS found while processing slides $LOC-* -- "
+                                        cat /tmp/t
+                                        echo
+                                fi
+                        fi
+                done
+        done
 
 
 	#

@@ -14,6 +14,5 @@ package org.bigbluebutton.modules.chat.model
 		public var time:String;
 		public var language:String; 
 		public var userid:String;
-
 	}
 }

@@ -57,9 +57,9 @@ public class ScreenSharerRunner {
 		Dimension screenDim = new Dimension(ssi.scaleWidth, ssi.scaleHeight);
 		Dimension tileDim = new Dimension(blockWidth, blockHeight);
 		blockManager = new BlockManager();		
-		blockManager.initialize(screenDim, tileDim);
+		blockManager.initialize(screenDim, tileDim, ssi.useSVC2);
 		
-		sender = new NetworkStreamSender(blockManager, ssi.host, ssi.port, ssi.room, screenDim, tileDim, ssi.httpTunnel);
+		sender = new NetworkStreamSender(blockManager, ssi.host, ssi.port, ssi.room, screenDim, tileDim, ssi.httpTunnel, ssi.useSVC2);
 	}
 	
 	public void startSharing() {	

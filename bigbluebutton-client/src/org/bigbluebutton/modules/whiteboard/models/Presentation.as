@@ -27,15 +27,15 @@ package org.bigbluebutton.modules.whiteboard.models
         }
         
 		private function createPages(numPages:int):void {
-            LogUtil.debug("**** Creating presentation " + _id + " with pages [" + numPages + "]");
+//            LogUtil.debug("**** Creating presentation " + _id + " with pages [" + numPages + "]");
 			for (var i:int = 1; i <= numPages; i++) {
-                LogUtil.debug("**** Creating page [" + i + "]");
+//                LogUtil.debug("**** Creating page [" + i + "]");
 				_pages.addItem(new Page(i));
 			}
 		}
 		
 		public function setCurrentPage(num:int):void {
-            LogUtil.debug("**** Setting current page to [" + num + "]. Num page = [" + _pages.length + "]");
+//            LogUtil.debug("**** Setting current page to [" + num + "]. Num page = [" + _pages.length + "]");
             var found:Boolean = false;
             var idx:int = -1;
 			for (var i:int = 0; i < _numPages && !found; i++) {
@@ -47,13 +47,18 @@ package org.bigbluebutton.modules.whiteboard.models
 			}			
             if (found) {
                 _currentPage = _pages.getItemAt(idx) as Page;
-                LogUtil.debug("**** Current page to [" + _currentPage.number + "]");                
+//                LogUtil.debug("**** Current page to [" + _currentPage.number + "]");                
             } else {
-                LogUtil.error("Cannot find page [" + num + "] in presentation [" + _id + "]");
+//                LogUtil.error("Cannot find page [" + num + "] in presentation [" + _id + "]");
             }
 
 		}
 		
+        public function getCurrentPageNumber():int {
+            if (_currentPage == null) return 0;
+            return _currentPage.number;
+        }
+        
 		public function addAnnotation(annotation:Annotation):void {
 			_currentPage.addAnnotation(annotation);
 		}
