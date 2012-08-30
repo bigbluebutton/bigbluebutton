@@ -403,7 +403,6 @@ def processShapesAndClears
 
                                                         if($shapeType == "text")
                                                                 $textValue = shape.xpath(".//text")[0].text()
-                                                                #$textFontType = shape.xpath(".//font")[0].text()
                                                                 $textFontType = "Arial"
                                                                 $textFontSize = shape.xpath(".//fontSize")[0].text()
                                                         else
@@ -632,7 +631,7 @@ if ($playback == "slides")
 		# Gathering all the events from the events.xml
 		$slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
 		$chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
-		$shape_events = @doc.xpath("//event[@eventname='AddShapeEvent']") # for the creation of shapes
+		$shape_events = @doc.xpath("//event[@eventname='AddShapeEvent' or @eventname='ModifyTextEvent']") # for the creation of shapes
 		$panzoom_events = @doc.xpath("//event[@eventname='ResizeAndMoveSlideEvent']") # for the action of panning and/or zooming
 		$cursor_events = @doc.xpath("//event[@eventname='CursorMoveEvent']")
 		$clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
