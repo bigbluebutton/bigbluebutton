@@ -658,13 +658,19 @@ if ($playback == "slides")
 		# Write panzooms.xml to file
 		File.open("#{package_dir}/#{$cursor_xml_filename}", 'w') { |f| f.puts $cursor_xml.to_xml }
 
-	  BigBlueButton.logger.info("Publishing slides")
+	        BigBlueButton.logger.info("Publishing slides")
 		# Now publish this recording files by copying them into the publish folder.
 		if not FileTest.directory?(publish_dir)
 			FileUtils.mkdir_p publish_dir
 		end
 		FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
 		BigBlueButton.logger.info("Finished publishing script presentation.rb successfully.")
+
+                BigBlueButton.logger.info("Removing processed files.")
+		FileUtils.rm_r(Dir.glob("#{$process_dir}/*"))
+
+		BigBlueButton.logger.info("Removing published files.")
+		FileUtils.rm_r(Dir.glob("#{target_dir}/*"))
 	else
 		BigBlueButton.logger.info("#{target_dir} is already there")
 	end
