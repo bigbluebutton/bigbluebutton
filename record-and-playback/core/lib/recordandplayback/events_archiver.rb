@@ -40,6 +40,18 @@ module BigBlueButton
     
     def event_info_for(meeting_id, event)
       @redis.hgetall("recording:#{meeting_id}:#{event}")
+    end
+
+    def delete_event_info_for(meeting_id,event)
+      @redis.del("recording:#{meeting_id}:#{event}")
+    end
+
+    def delete_events_for(meeting_id)
+      @redis.del("meeting:#{meeting_id}:recordings")
+    end
+
+    def delete_metadata_for(meeting_id)
+      @redis.del("meeting:info:#{meeting_id}")
     end    
   end
 
@@ -88,6 +100,18 @@ module BigBlueButton
           }
       end  
       xml.target!
+    end
+
+    def delete_events(meeting_id)
+      meeting_metadata = @redis.metadata_for(meeting_id)
+      if (meeting_metadata != nil)
+        msgs = @redis.events_for(meeting_id)                      
+        msgs.each do |msg|
+          @redis.delete_event_info_for(meeting_id, msg) 
+        end
+        @redis.delete_events_for(meeting_id)
+      end
+      @redis.delete_metadata_for(meeting_id) 
     end
     
     def save_events_to_file(directory, result)
