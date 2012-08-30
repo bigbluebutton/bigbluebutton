@@ -292,15 +292,17 @@ def storeEllipseShape
 	end # end if($shapeCreationTime != $prev_time)
 end
 
-
-def storeTextShape
+def storeTextShape	
 	if($shapeCreationTime != $prev_time)
-		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "fill:\##{$colour_hex}; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize};") do
-			$xml.text_(:x => "#{(($shapeDataPoints[0].to_f)/100)*$vbox_width}", :y => "#{(($shapeDataPoints[1].to_f)/100)*$vbox_height}") do
-				$xml.text($textValue)
+		font_size_factor = 2
+		y_gap = 45		
+		$textFontSize_pixels = $textFontSize.to_f * font_size_factor				
+		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "fill:\##{$colour_hex}; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels};") do
+			$xml.text_( "font-size" => "#{$textFontSize_pixels}", :x => "#{(($shapeDataPoints[0].to_f)/100)*$vbox_width}", :y => "#{((($shapeDataPoints[1].to_f)/100) *$vbox_height )  + y_gap.to_f }") do
+				$xml.text($textValue)				
 			end
 			$prev_time = $shapeCreationTime
-		end # end xml.g
+		end # end xml.g		
 	end # end if($shapeCreationTime != $prev_time)
 end
 
