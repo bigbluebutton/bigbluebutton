@@ -25,7 +25,7 @@ import org.bigbluebutton.voiceconf.red5.media.transcoder.FlashToSipTranscoder;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.TranscodedAudioDataListener;
 import org.bigbluebutton.voiceconf.sip.SipConnectInfo;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.IScope;
+import org.red5.server.api.scope.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IStreamListener;
 import org.red5.server.api.stream.IStreamPacket;

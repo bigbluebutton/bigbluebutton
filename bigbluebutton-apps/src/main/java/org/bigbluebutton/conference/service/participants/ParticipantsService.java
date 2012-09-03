@@ -22,9 +22,8 @@ package org.bigbluebutton.conference.service.participants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.red5.logging.Red5LoggerFactory;
-
-import org.red5.server.api.IScope;
 import org.red5.server.api.Red5;
+import org.red5.server.api.scope.IScope;
 
 import java.util.ArrayList;
 import java.util.Collection;

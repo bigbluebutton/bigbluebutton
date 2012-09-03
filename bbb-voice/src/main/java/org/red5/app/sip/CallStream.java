@@ -17,7 +17,7 @@ import org.red5.app.sip.trancoders.SpeexToSpeexTranscoder;
 import org.red5.app.sip.trancoders.Transcoder;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.IScope;
+import org.red5.server.api.scope.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 
 public class CallStream implements RtpStreamReceiverListener {

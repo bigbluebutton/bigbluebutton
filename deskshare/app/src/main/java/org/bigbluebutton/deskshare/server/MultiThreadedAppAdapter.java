@@ -23,10 +23,12 @@ package org.bigbluebutton.deskshare.server;
 
 import static org.red5.server.api.ScopeUtils.getScopeService;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
-import org.red5.server.api.IScope;
+import org.red5.server.api.scope.IScope;
 import org.red5.server.api.so.ISharedObject;
 import org.red5.server.api.so.ISharedObjectService;
 import org.red5.server.so.SharedObjectService;
+import org.red5.server.util.ScopeUtils;
+
 
 public class MultiThreadedAppAdapter extends MultiThreadedApplicationAdapter {
 
@@ -42,7 +44,7 @@ public class MultiThreadedAppAdapter extends MultiThreadedApplicationAdapter {
 	@Override
 	public ISharedObject getSharedObject(IScope scope, String name) throws NullPointerException {
 		
-		ISharedObjectService service = (ISharedObjectService) getScopeService(scope, 
+		ISharedObjectService service = (ISharedObjectService) ScopeUtils.getScopeService(scope, 
 				ISharedObjectService.class, SharedObjectService.class, false);
 		
 		if (service == null) throw new NullPointerException();

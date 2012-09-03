@@ -3,17 +3,17 @@ package org.red5.server.webapp.sip;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.red5.app.sip.SipUserManager;
 import org.red5.app.sip.SipUser;
 import org.red5.logging.Red5LoggerFactory;
-
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
-import org.red5.server.api.IScope;
 import org.red5.server.api.Red5;
+import org.red5.server.api.scope.IScope;
 import org.red5.server.api.service.IServiceCapableConnection;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IPlayItem;
@@ -114,7 +114,7 @@ public class SipPhoneApplication extends MultiThreadedApplicationAdapter impleme
         loginfo( "Red5SIP Stream subscribe start: " + stream.getName() );
     }
 
-    public List< String > getStreams() {
+    public Set< String > getStreams() {
         IConnection conn = Red5.getConnectionLocal();
         return getBroadcastStreamNames( conn.getScope() );
     }

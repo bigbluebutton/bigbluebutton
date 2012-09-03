@@ -22,7 +22,7 @@ package org.bigbluebutton.voiceconf.red5;
 import org.bigbluebutton.voiceconf.red5.media.CallStream;
 import org.bigbluebutton.voiceconf.sip.SipConnectInfo;
 import org.red5.app.sip.codecs.Codec;
-import org.red5.server.api.IScope;
+import org.red5.server.api.scope.IScope;
 
 public class CallStreamFactory {
 	private IScope scope;

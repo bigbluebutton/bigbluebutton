@@ -4,8 +4,9 @@ import org.red5.app.sip.AudioStream;
 import org.red5.app.sip.trancoders.TranscodedAudioDataListener;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IContext;
-import org.red5.server.api.IScope;
+import org.red5.server.api.scope.IScope;
 import org.red5.server.net.rtmp.event.AudioData;
+import org.red5.server.scope.Scope;
 import org.red5.server.stream.BroadcastScope;
 import org.red5.server.stream.IBroadcastScope;
 import org.red5.server.stream.IProviderService;
@@ -21,7 +22,7 @@ public class ListenStream implements TranscodedAudioDataListener {
 	public ListenStream(IScope scope) {
 		this.scope = scope;
 		listenStreamName = "speaker_" + System.currentTimeMillis();
-		scope.setName(listenStreamName);	
+		((Scope)scope).setName(listenStreamName);	
 	}
 	
 	public String getStreamName() {
@@ -73,7 +74,7 @@ public class ListenStream implements TranscodedAudioDataListener {
 		if (providerService.registerBroadcastStream(aScope, listenStreamName, broadcastStream)){
 			IBroadcastScope bScope = (BroadcastScope) providerService.getLiveProviderInput(aScope, listenStreamName, true);
 			
-			bScope.setAttribute(IBroadcastScope.STREAM_ATTRIBUTE, broadcastStream);
+			((BroadcastScope)bScope).setAttribute(IBroadcastScope.STREAM_ATTRIBUTE, broadcastStream);
 		} else{
 			log.error("could not register broadcast stream");
 			throw new RuntimeException("could not register broadcast stream");

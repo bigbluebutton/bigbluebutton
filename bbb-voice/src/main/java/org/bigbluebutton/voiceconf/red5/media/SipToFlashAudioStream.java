@@ -25,14 +25,16 @@ import org.bigbluebutton.voiceconf.red5.media.transcoder.SipToFlashTranscoder;
 import org.bigbluebutton.voiceconf.red5.media.transcoder.TranscodedAudioDataListener;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IContext;
-import org.red5.server.api.IScope;
+import org.red5.server.api.scope.IScope;
 import org.red5.server.net.rtmp.event.AudioData;
 import org.red5.server.net.rtmp.event.Notify;
 import org.red5.server.net.rtmp.message.Constants;
+import org.red5.server.scope.Scope;
 import org.red5.server.stream.BroadcastScope;
 import org.red5.server.stream.IBroadcastScope;
 import org.red5.server.stream.IProviderService;
 import org.slf4j.Logger;
+
 public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpStreamReceiverListener {
 	private static final Logger log = Red5LoggerFactory.getLogger(SipToFlashAudioStream.class, "sip");
 	
@@ -64,7 +66,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		rtpStreamReceiver = new RtpStreamReceiver(socket, transcoder.getIncomingEncodedFrameSize());
 		rtpStreamReceiver.setRtpStreamReceiverListener(this);
 		listenStreamName = "speaker_" + System.currentTimeMillis();		
-		scope.setName(listenStreamName);	
+		((Scope)scope).setName(listenStreamName);	
 		mBuffer = IoBuffer.allocate(1024);
 		mBuffer = mBuffer.setAutoExpand(true);
         audioData = new AudioData();
@@ -105,7 +107,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		IProviderService providerService = (IProviderService) context.getBean(IProviderService.BEAN_NAME);
 		if (providerService.registerBroadcastStream(scope, listenStreamName, audioBroadcastStream)){
 			IBroadcastScope bScope = (BroadcastScope) providerService.getLiveProviderInput(scope, listenStreamName, true);			
-			bScope.setAttribute(IBroadcastScope.STREAM_ATTRIBUTE, audioBroadcastStream);
+			((BroadcastScope)bScope).setAttribute(IBroadcastScope.STREAM_ATTRIBUTE, audioBroadcastStream);
 		} else{
 			log.error("could not register broadcast stream");
 			throw new RuntimeException("could not register broadcast stream");

@@ -9,7 +9,7 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.red5.app.sip.RtmpAudioData;
 import org.red5.app.sip.trancoders.Transcoder;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.IScope;
+import org.red5.server.api.scope.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IStreamListener;
 import org.red5.server.api.stream.IStreamPacket;

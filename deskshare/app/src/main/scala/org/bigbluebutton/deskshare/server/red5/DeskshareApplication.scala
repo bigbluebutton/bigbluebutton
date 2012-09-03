@@ -21,7 +21,7 @@
 */
 package org.bigbluebutton.deskshare.server.red5
 
-import org.red5.server.api.{IContext, IScope, ScopeUtils, IConnection}
+import org.red5.server.api.{IContext, IConnection}
 import org.red5.server.so.SharedObjectService
 import org.red5.server.api.so.{ISharedObject, ISharedObjectService}
 import org.red5.server.stream.{BroadcastScope, IBroadcastScope, IProviderService}
@@ -32,11 +32,12 @@ import org.bigbluebutton.deskshare.server.socket.DeskShareServer
 import org.bigbluebutton.deskshare.server.MultiThreadedAppAdapter
 import scala.actors.Actor
 import scala.actors.Actor._
-
 import net.lag.configgy.Configgy
 import net.lag.logging.Logger
 import java.io.File
 import java.util.concurrent.CountDownLatch
+import org.red5.server.api.scope.IScope
+import org.red5.server.util.ScopeUtils
 
 class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskShareServer) extends MultiThreadedAppAdapter {
 	private val deathSwitch = new CountDownLatch(1)
