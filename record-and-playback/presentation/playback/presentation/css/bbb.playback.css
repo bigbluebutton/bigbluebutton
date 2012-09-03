@@ -189,6 +189,6 @@ br{
 
 
 #cursor {
-	position: absolute;
+	position: relative;
 	background: red;
 }

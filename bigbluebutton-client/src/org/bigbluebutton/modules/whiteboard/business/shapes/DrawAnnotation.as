@@ -1,6 +1,7 @@
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
     import org.bigbluebutton.modules.whiteboard.models.Annotation;
+    import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
     public class DrawAnnotation implements IDrawAnnotation
     {
@@ -15,6 +16,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
             _status = s;
         }
         
-        public function createAnnotation(ctrlKeyPressed:Boolean=false):Annotation {return null}
+        public function createAnnotation(wbModel:WhiteboardModel, 
+                                         ctrlKeyPressed:Boolean=false):Annotation {return null}
     }
 }
