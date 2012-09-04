@@ -22,7 +22,7 @@
 package org.bigbluebutton.deskshare.server.stream
 
 import org.bigbluebutton.deskshare.server.red5.DeskshareApplication
-import org.red5.server.api.IScope
+import org.red5.server.api.scope.IScope
 import org.red5.server.api.so.ISharedObject
 
 import java.util.ArrayList
@@ -76,13 +76,17 @@ class StreamManager(record:Boolean, recordingService:RecordingService) extends A
 	}
  
 	def createStream(room: String, width: Int, height: Int): Option[DeskshareStream] = {	  	  
-	  try {                                                                       
+	  try {                  
+	    log.debug("StreamManager: Creating stream for [ %s ]", room)
 		val stream = new DeskshareStream(app, room, width, height, record, recordingService.getRecorderFor(room))
+	    log.debug("StreamManager: Initializing stream for [ %s ]", room)
 		if (stream.initializeStream) {
+		  log.debug("StreamManager: Starting stream for [ %s ]", room)
 		  stream.start
 		  this ! new AddStream(room, stream)
 		  return Some(stream)
 		} else {
+		  log.debug("StreamManager: Failed to initialize stream for [ %s ]", room)
 		  return None
 		}  		
 	  } catch {
@@ -90,7 +94,7 @@ class StreamManager(record:Boolean, recordingService:RecordingService) extends A
 			  	log.error("StreamManager: %s", nl.toString())
 			  	nl.printStackTrace
 			  	return None			  	
-			case _ => log.error("StreamManager:Exception while creating stream"); return None
+			case _ => log.error("StreamManager:Exception while creating stream for [ %s ]", room); return None
 	  }
 	}
  

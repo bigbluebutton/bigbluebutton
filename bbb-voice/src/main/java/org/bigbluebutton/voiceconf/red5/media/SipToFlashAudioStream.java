@@ -30,8 +30,6 @@ import org.red5.server.net.rtmp.event.AudioData;
 import org.red5.server.net.rtmp.event.Notify;
 import org.red5.server.net.rtmp.message.Constants;
 import org.red5.server.scope.Scope;
-import org.red5.server.stream.BroadcastScope;
-import org.red5.server.stream.IBroadcastScope;
 import org.red5.server.stream.IProviderService;
 import org.slf4j.Logger;
 
@@ -106,8 +104,7 @@ public class SipToFlashAudioStream implements TranscodedAudioDataListener, RtpSt
 		
 		IProviderService providerService = (IProviderService) context.getBean(IProviderService.BEAN_NAME);
 		if (providerService.registerBroadcastStream(scope, listenStreamName, audioBroadcastStream)){
-			IBroadcastScope bScope = (BroadcastScope) providerService.getLiveProviderInput(scope, listenStreamName, true);			
-			((BroadcastScope)bScope).setAttribute(IBroadcastScope.STREAM_ATTRIBUTE, audioBroadcastStream);
+			// Do nothing. Successfully registered a live broadcast stream. (ralam Sept. 4, 2012)
 		} else{
 			log.error("could not register broadcast stream");
 			throw new RuntimeException("could not register broadcast stream");
