@@ -20,14 +20,14 @@
         </head>
         <body>
                 <div id="content" name="BigBlueButton main div">
-                        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="100%" height="100%" id="BigBlueButton" name="BigBlueButton" align="middle">
+                        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="100%" height="100%" id="BigBlueButton outer object" name="BigBlueButton" align="middle">
                                 <param name="movie" value="BigBlueButton.swf?v=VERSION" />
                                 <param name="quality" value="high" />
                                 <param name="allowfullscreen" value="true" />
                                 <param name="bgcolor" value="#869ca7" />
 				<param name="wmode" value="window" />
                                 <!--[if !IE]>-->
-                                <object type="application/x-shockwave-flash" data="BigBlueButton.swf?v=VERSION" name="BigBlueButton" width="100%" height="100%" align="middle">
+                                <object type="application/x-shockwave-flash" data="BigBlueButton.swf?v=VERSION" name="BigBlueButton inner object" width="100%" height="100%" align="middle">
                                         <param name="quality" value="high" />
                                         <param name="bgcolor" value="#869ca7" />
                                 <!--<![endif]-->
@@ -41,4 +41,26 @@
                 </div>
                 <div id="notifications" aria-live="polite" role="region" aria-label="Chat Notifications"></div>
         </body>
+<script type="text/javascript">
+// Work around pixel alignment bug with Chrome 21 on Mac.
+// See: http://code.google.com/p/bigbluebutton/issues/detail?id=1294
+var objs = $('object');
+objs.each(function(i, o) {
+        var o = $(o);
+        var top = o.offset().top;
+        var left = o.offset().left;
+        var roundtop = Math.round(top);
+        var roundleft = Math.round(left);
+        o.css("position", "relative");
+        if (roundtop === top) {
+        } else {
+                o.css("top", roundtop - top);
+        }
+        if (roundleft === left) {
+        } else {
+                o.css("left", roundleft - left);
+        }
+});
+</script>
+
 </html>

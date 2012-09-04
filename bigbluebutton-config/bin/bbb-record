@@ -26,7 +26,7 @@
 #   2012-02-27 GUG  Add option to delete one meeting and recording
 #   2012-08-13 GUG  Republish recording
 
-set -e
+#set -e
 #set -x
 
 BASE=/var/bigbluebutton/recording
@@ -123,8 +123,10 @@ usage() {
 	echo
         echo "Monitoring:"
         echo "   --watch                          Watch processing of recordings"
+	echo
+        echo "Administration:"
         echo "   --rebuild [meetingID]            rebuild the output for meetingID"
-        echo "   --republish [meetingID]            republish the recording for meetingID"
+        echo "   --republish [meetingID]          republish the recording for meetingID"
 	echo "   --delete [meetingID]             delete one meeting and recording"
         echo "   --deletall                       delete all meetings and recordings"
         echo "   --debug                          check for recording errors"
@@ -208,6 +210,13 @@ while [ $# -gt 0 ]; do
                 continue
         fi
 
+        if [ "$1" = "-clean" -o "$1" = "--clean" ]; then
+		need_root
+                CLEAN=1
+		shift
+                continue
+        fi
+
 	usage
 	exit 1
 done
@@ -241,6 +250,15 @@ if [ $REPUBLISH ]; then
 	mark_for_republish $MEETING_ID
     fi
 fi 
+
+if [ $CLEAN ]; then
+	sudo /etc/init.d/bbb-record-core stop
+	for type in $TYPES; do
+		echo " clearning logs in /var/log/bigbluebutton/$type"
+		find /var/log/bigbluebutton/$type -name "*.log" -exec sudo rm '{}' \;
+	done
+	sudo /etc/init.d/bbb-record-core start
+fi
 
 if [ $DELETE ]; then
   if [ ! -z "$MEETING_ID" ]; then
@@ -318,8 +336,8 @@ if [ $LIST ]; then
 # 	A -- Archiving
 #
 
-echo "MeetingID                                               Time                         APVD APVDE RA Slides Processed            Published             Description"
-echo "------------------------------------------------------  ---------------------------- ---- ----- -- ------ -------------------- --------------------  -----------------------------"
+echo "MeetingID                                               Time                         APVD APVDE RAS Slides Processed            Published             Description"
+echo "------------------------------------------------------  ---------------------------- ---- ----- --- ------ -------------------- --------------------  -----------------------------"
 
 if [ -z $HEAD ]; then
 	# If we're not called with --list20, show all recordings
@@ -412,7 +430,7 @@ for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD)
 	#
 	echo -n " "
 	STATUS_DIR=$RAW_PRESENTATION_SRC/recording/status
-	DIRS="recorded archived"
+	DIRS="recorded archived sanity"
 	for dir in $DIRS; do
 		if [ -f $STATUS_DIR/$dir/$meeting.done ]; then
 			echo -n "X"
@@ -528,21 +546,19 @@ if [ $DEBUG ]; then
 	#
 	STAGES="process publish"
         for type in $TYPES; do
-        	for stage in $STAGES; do
-			if ls -A $LOG_DIR/$type/$stage-* &> /dev/null; then
-				rm -rf /tmp/t
-				grep -B 3 "ERROR -- : Error:" $LOG_DIR/$type/$stag-* | egrep -w 'Task:| Error:' > /tmp/t
-				if [ -s /tmp/t ]; then
-					echo "  -- ERRORS found while processing slides $LOG_DIR/$type/$stag-* -- "
-					cat /tmp/t
-					echo
-				fi
-			fi
-		done
-	done
-
-
-
+                for stage in $STAGES; do
+                        LOC=$LOG_DIR/$type/$stage
+                        if ls -A $LOC-* &> /dev/null; then
+                                rm -rf /tmp/t
+                                grep -B 3 "ERROR -- : Error:" $LOC-* | egrep -w 'Error:' | grep -v "ffmpeg version" > /tmp/t
+                                if [ -s /tmp/t ]; then
+                                        echo "  -- ERRORS found while processing slides $LOC-* -- "
+                                        cat /tmp/t
+                                        echo
+                                fi
+                        fi
+                done
+        done
 
 
 	#

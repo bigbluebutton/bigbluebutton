@@ -256,8 +256,6 @@
 		]]>
 	</mx:Script>	
 	
-	<m:Melomel/>
-	
 	<maps:ApplicationEventMap />	
 	<views:MainApplicationShell id="mainShell"/>	
 	

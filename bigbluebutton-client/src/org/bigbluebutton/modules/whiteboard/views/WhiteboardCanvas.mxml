@@ -132,10 +132,12 @@
 			}
 			
 			public function setGraphicType(type:String):void {
+                if (model == null) return;
 				model.setGraphicType(type);
 			}
 			
 			public function setTool(s:String):void {
+                if (model == null) return;
 				model.setTool(s);
 				toolType = s;
 			}

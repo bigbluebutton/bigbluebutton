@@ -1,6 +1,7 @@
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
 	import org.bigbluebutton.modules.whiteboard.models.Annotation;
+	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
 
 	public class EllipseAnnotation extends DrawAnnotation
 	{
@@ -35,7 +36,7 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			return shape;
 		}
 		
-		override public function createAnnotation(ctrlKeyPressed:Boolean=false):Annotation {
+		override public function createAnnotation(wbModel:WhiteboardModel, ctrlKeyPressed:Boolean=false):Annotation {
 			var ao:Object = new Object();
 			ao["type"] = _type;
 			ao["points"] = optimize(_shape);
@@ -50,7 +51,13 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 			} else {
 				ao["circle"] = false;
 			}
-			
+
+      var pn:Object = wbModel.getCurrentPresentationAndPage();
+      if (pn != null) {
+        ao["presentationID"] = pn.presentationID;
+        ao["pageNumber"] = pn.currentPageNumber;
+      }
+      
 			return new Annotation(_id, _type, ao);
 		}
 	}

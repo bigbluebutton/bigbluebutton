@@ -38,6 +38,7 @@ package org.bigbluebutton.main.model
 		public var suppressLocaleWarning:Boolean = false;
 		public var portTestHost:String;
 		public var portTestApplication:String;
+		public var portTestTimeout:Number;
 		public var helpURL:String;
 		public var application:String;
 		public var host:String;
@@ -71,6 +72,10 @@ package org.bigbluebutton.main.model
 			
 			portTestHost = xml.porttest.@host;
 			portTestApplication = xml.porttest.@application;
+			
+			portTestTimeout = parseInt(xml.porttest.@timeout);
+			if(isNaN(portTestTimeout) || portTestTimeout < 500) portTestTimeout = 10000;
+			
 			application = xml.application.@uri;
 			host = xml.application.@host;
 			helpURL = xml.help.@url;
