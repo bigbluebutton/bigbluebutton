@@ -41,6 +41,10 @@ done_files.each do |df|
       Open3.popen3(command) do | stdin, stdout, stderr|
         BigBlueButton.logger.info("scp result=#{$?.exitstatus}")
       end
+
+      BigBlueButton.logger.info("Removing processed files.")
+      FileUtils.rm_r(Dir.glob("#{$process_dir}/*"))
+
     end
   end
 end
