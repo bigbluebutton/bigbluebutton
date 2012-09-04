@@ -264,6 +264,45 @@ def storeRectShape
 	end
 end
 
+def storeTriangleShape
+        if($shapeCreationTime != $prev_time)
+                if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
+                        # do not update the triangle count
+                else
+                        $triangle_count = $triangle_count + 1
+                end
+                $xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "triangle#{$triangle_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
+
+                        $originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
+                        $originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
+
+                        #3 points (p0, p1 and p2) to draw a triangle
+
+                        base = (($shapeDataPoints[2].to_f - $shapeDataPoints[0].to_f)/100)*$vbox_width
+
+                        x0 = $originX + (base.to_f / 2.0)
+                        x1 = $originX
+                        x2 = $originX + base.to_f
+
+                        height = (($shapeDataPoints[3].to_f - $shapeDataPoints[1].to_f)/100)*$vbox_height
+
+                        y0 = $originY
+                        y1 = $originY + height
+                        y2 = y1
+
+                        p0 = "#{x0},#{y0}"
+                        p1 = "#{x1},#{y1}"
+                        p2 = "#{x2},#{y2}"
+
+                        $originalOriginX = $originX
+                        $originalOriginY = $originY
+
+                        $xml.polyline(:points => "#{p0} #{p1} #{p2} #{p0}")
+                        $prev_time = $shapeCreationTime
+                end
+        end
+end
+
 def storeEllipseShape
 	if($shapeCreationTime != $prev_time)
 		if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
@@ -469,6 +508,10 @@ def processShapesAndClears
 							elsif $shapeType.eql? "rectangle"
 								storeRectShape()
 
+							# Process the triangle shapes
+							elsif $shapeType.eql? "triangle"
+								storeTriangleShape()
+
 							# Process the ellipse shapes
 							elsif $shapeType.eql? "ellipse"
 								storeEllipseShape()
@@ -516,6 +559,7 @@ $originalOriginX = "NaN"
 $originalOriginY = "NaN"
 
 $rectangle_count = 0
+$triangle_count = 0
 $line_count = 0
 $ellipse_count = 0
 $text_count = 0
