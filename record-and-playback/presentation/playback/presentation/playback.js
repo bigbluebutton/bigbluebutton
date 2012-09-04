@@ -1,3 +1,23 @@
+/*
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 goToSlide = function(time) {
   var pop = Popcorn("#video");
   pop.currentTime(time);
@@ -175,7 +195,7 @@ generateThumbnails = function() {
         var div = $(document.createElement('div'));
         div.addClass("thumbnail-wrapper");
         div.attr("role", "link"); //tells accessibility software it can be clicked
-	div.attr("aria-describedby", img.attr("id") + "description");
+	      div.attr("aria-describedby", img.attr("id") + "description");
         div.append(img);
         div.append(label);
         div.append(hiddenDesc);
@@ -196,33 +216,55 @@ generateThumbnails = function() {
   }
 }
 
+google_frame_warning = function(){
+  var message = "To support this playback please install 'Google Chrome Frame', or use other browser: Firefox, Safari, Chrome, Opera";
+  var line = document.createElement("p");
+  var link = document.createElement("a");
+  line.appendChild(document.createTextNode(message));
+  link.setAttribute("href", "http://www.google.com/chromeframe")
+  link.setAttribute("target", "_blank")
+  link.appendChild(document.createTextNode("Install Google Chrome Frame"));
+  document.getElementById("chat").appendChild(line);
+  document.getElementById("chat").appendChild(link);
+}
+  
+load_video = function(video){
+   video.setAttribute('src', RECORDINGS + '/video/webcams.webm');
+   video.setAttribute('type','video/webm');
+   video.setAttribute('data-timeline-sources', SLIDES_XML);  
+}  
+
+load_audio = function() {      
+   audio = document.createElement("audio")
+   audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
+   audio.setAttribute('type','audio/ogg');
+   audio.setAttribute('id','video');
+   audio.setAttribute('controls','');
+   audio.setAttribute('autoplay','autoplay');
+   audio.setAttribute('data-timeline-sources', SLIDES_XML);  
+   document.getElementById("audioRecordingWrapper").appendChild(audio)
+}  
+
+
 document.addEventListener( "DOMContentLoaded", function() {
   var appName = navigator.appName;
   var appVersion = navigator.appVersion;
   var video = document.getElementById("video");
-  if (appName == "Microsoft Internet Explorer") {
-    if (navigator.userAgent.match("chromeframe")) {
-      video.setAttribute('src', RECORDINGS + '/video/webcams.webm');
-      video.setAttribute('type','video/webm');
-    } else {
-      var message = "To support this playback please install 'Google Chrome Frame', or use other browser: Firefox, Safari, Chrome, Opera";
-      var line = document.createElement("p");
-      var link = document.createElement("a");
-      line.appendChild(document.createTextNode(message));
-      link.setAttribute("href", "http://www.google.com/chromeframe")
-      link.setAttribute("target", "_blank")
-      link.appendChild(document.createTextNode("Install Google Chrome Frame"));
-      document.getElementById("chat").appendChild(line);
-      document.getElementById("chat").appendChild(link);
-    }
-  } else if (appVersion.match("Safari") != null && appVersion.match("Chrome") == null) {
-    video.setAttribute('src', RECORDINGS + '/video/webcams.webm');
-    video.setAttribute('type','video/webm');
-  } else {
-    video.setAttribute('src', RECORDINGS + '/video/webcams.webm');
-    video.setAttribute('type','video/webm');
+
+  if (appName == "Microsoft Internet Explorer" && navigator.userAgent.match("chromeframe") == false ) {
+    google_frame_warning
   }
-  video.setAttribute('data-timeline-sources', SLIDES_XML);
+
+  video.addEventListener("error",function(ev){        
+    if (ev.currentTarget.networkState == ev.currentTarget.NETWORK_NO_SOURCE){          
+      videoContainer = document.getElementById("videoRecordingWrapper")      
+      videoContainer.parentNode.removeChild(videoContainer)      
+      load_audio()
+    }
+  },true);
+  load_video(video)      
   
   generateThumbnails();
+
 }, false);
+
