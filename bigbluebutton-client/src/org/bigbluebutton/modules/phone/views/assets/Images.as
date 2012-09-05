@@ -22,7 +22,7 @@ package org.bigbluebutton.modules.phone.views.assets
 	[Bindable]
 		public class Images
 	{             
-        [Embed(source="images/headset.png")]
+        [Embed(source="images/headset_open.png")]
         public var headset_icon:Class;  
 		
 		[Embed(source="images/headset_close.png")]

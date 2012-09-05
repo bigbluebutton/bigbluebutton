@@ -22,7 +22,7 @@
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:mate="http://mate.asfusion.com/"
 	icon="{phoneIcon}" click="startPhone()"
-	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip')}"
+	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_CONFERENCE}" method="handleBBBJoinConferenceEvent"/>
@@ -60,7 +60,6 @@
 						phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
 						phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
 					}
-					phoneIcon = images.headsetClose;
 					if (phoneOptions.skipCheck || noMicrophone()) {
 						
 						/*
@@ -75,7 +74,6 @@
 						dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
 					}
 				} else {
-					phoneIcon = images.headset_icon;
 					var leaveEvent:BBBEvent = new BBBEvent("LEAVE_VOICE_CONFERENCE_EVENT");
 					leaveEvent.payload["userRequested"] = true;
 					dispatcher.dispatchEvent(leaveEvent);
@@ -84,9 +82,12 @@
 			
 			public function userJoinedConference(joined: Boolean):void {
 				if (joined) {
-					phoneIcon = images.headsetClose;
-				} else {
 					phoneIcon = images.headset_icon;
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');
+				} else {
+					
+					phoneIcon = images.headsetClose;
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
 				}
 			}
 			
@@ -102,11 +103,12 @@
 			private function handleMicSettingsClosedEvent(event:BBBEvent):void {
 				this.selected = false;
 				this.enabled = true;
-				phoneIcon = images.headset_icon;
+				//phoneIcon = images.headset_icon;
+				userJoinedConference(false);
 			}
 			
 			private function handleBBBJoinConferenceEvent(event:BBBEvent):void {
-				phoneIcon = images.headsetClose;
+				//phoneIcon = images.headsetClose;
 				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
 				joinEvent.payload['useMicrophone'] = false;
 				dispatcher.dispatchEvent(joinEvent);
@@ -114,7 +116,7 @@
 			
 			//For whatever reason the tooltip does not update when localization is changed dynamically. Overrideing it here
 			override protected function resourcesChanged():void{
-				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip');
+				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
 			}
 			
 			public function getAlignment():String{
