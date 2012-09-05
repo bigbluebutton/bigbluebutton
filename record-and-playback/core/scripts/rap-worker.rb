@@ -1,6 +1,24 @@
 # Set encoding to utf-8
 # encoding: UTF-8
 
+#
+# BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+#
+# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+#
+# This program is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License as published by the Free Software
+# Foundation; either version 3.0 of the License, or (at your option) any later
+# version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+#
+
 require '../lib/recordandplayback'
 require 'rubygems'
 require 'yaml'
@@ -28,10 +46,34 @@ def archive_recorded_meeting(recording_dir)
   
 end
 
-def process_archived_meeting(recording_dir)
+def sanity_archived_meeting(recording_dir)
   archived_done_files = Dir.glob("#{recording_dir}/status/archived/*.done")
-  
+  sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
+  sanity_failed_files = Dir.glob("#{recording_dir}/status/sanity/*.fail")
+
   archived_done_files.each do |df|
+        match = /(.*).done/.match df.sub(/.+\//, "")
+        meeting_id = match[1]
+
+	has_failed = sanity_failed_files.any? { |s| s.include?(meeting_id)  }
+	if(has_failed)
+		BigBlueButton.logger.info("it has failed sanity check... skipping meeting: #{meeting_id}")
+		next
+	end
+
+        is_sanity_check_completed = sanity_done_files.any? { |s| s.include?(meeting_id)  }
+        if(!is_sanity_check_completed)
+                command = "ruby sanity/sanity.rb -m #{meeting_id}"
+            BigBlueButton.execute(command)
+        end
+  end
+
+end
+
+def process_archived_meeting(recording_dir)
+  sanity_done_files = Dir.glob("#{recording_dir}/status/sanity/*.done")
+  
+  sanity_done_files.each do |df|
     match = /(.*).done/.match df.sub(/.+\//, "")
     meeting_id = match[1]
     
@@ -101,6 +143,7 @@ end
 props = YAML::load(File.open('bigbluebutton.yml'))
 recording_dir = props['recording_dir']
 archive_recorded_meeting(recording_dir)
+sanity_archived_meeting(recording_dir)
 process_archived_meeting(recording_dir)
 publish_processed_meeting(recording_dir)
 

@@ -1802,7 +1802,11 @@ if [ -n "$HOST" ]; then
 		echo "Assigning $HOST for record and playback in /usr/local/bigbluebutton/core/scripts/slides.yml"
 		change_yml_value /usr/local/bigbluebutton/core/scripts/slides.yml $redis_host playback_host $HOST
 	fi
-	
+
+        if [ -f /usr/local/bigbluebutton/core/scripts/presentation.yml ]; then
+                echo "Assigning $HOST for record and playback in /usr/local/bigbluebutton/core/scripts/presentation.yml"
+                change_yml_value /usr/local/bigbluebutton/core/scripts/presentation.yml $redis_host playback_host $HOST
+        fi
 
 	echo "Restarting the bigbluebutton server ..."
 	stop_bigbluebutton

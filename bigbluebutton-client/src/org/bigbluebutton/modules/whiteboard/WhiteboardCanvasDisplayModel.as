@@ -533,6 +533,7 @@ package org.bigbluebutton.modules.whiteboard
       annotation["background"] = tobj.background;
       annotation["x"] = tobj.getOrigX();
       annotation["y"] = tobj.getOrigY();
+	  annotation["dataPoints"] = tobj.getOrigX() + "," +tobj.getOrigY();
       annotation["fontSize"] = tobj.textSize;
       annotation["calcedFontSize"] = GraphicFactory.normalize(tobj.textSize, shapeFactory.parentHeight);
       annotation["textBoxWidth"] = tobj.textBoxWidth;

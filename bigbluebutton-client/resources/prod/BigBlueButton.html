@@ -41,4 +41,26 @@
                 </div>
                 <div id="notifications" aria-live="polite" role="region" aria-label="Chat Notifications"></div>
         </body>
+<script type="text/javascript">
+// Work around pixel alignment bug with Chrome 21 on Mac.
+// See: http://code.google.com/p/bigbluebutton/issues/detail?id=1294
+var objs = $('object');
+objs.each(function(i, o) {
+        var o = $(o);
+        var top = o.offset().top;
+        var left = o.offset().left;
+        var roundtop = Math.round(top);
+        var roundleft = Math.round(left);
+        o.css("position", "relative");
+        if (roundtop === top) {
+        } else {
+                o.css("top", roundtop - top);
+        }
+        if (roundleft === left) {
+        } else {
+                o.css("left", roundleft - left);
+        }
+});
+</script>
+
 </html>

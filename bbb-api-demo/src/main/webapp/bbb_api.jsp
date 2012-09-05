@@ -481,7 +481,7 @@ public String getRecordings(String meetingID) {
 					if (j != 0){
 						playback +=", ";
 					} 
-					playback += StringEscapeUtils.escapeXml("<a href='" + urlP + "'>" + typeP + "</a>");
+					playback += StringEscapeUtils.escapeXml("<a href='" + urlP + "' target='_blank'>" + typeP + "</a>");
 					
 					if(typeP.equalsIgnoreCase("slides")){
 						length = lengthP;

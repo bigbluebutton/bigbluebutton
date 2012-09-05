@@ -19,6 +19,7 @@ server {
           proxy_read_timeout         90;
 
           proxy_buffering            off;
+          keepalive_requests         1000000000;
       }
 
 	 # Handle desktop sharing tunneling.  Forwards

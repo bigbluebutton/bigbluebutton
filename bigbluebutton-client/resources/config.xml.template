@@ -70,7 +70,7 @@
 			convolutionFilter="-1, 0, -1, 0, 6, 0, -1, 0, -1"
 			filterBias="0"
 			filterDivisor="4"
-			enableH264 = "true"
+			enableH264 = "false"
 			h264Level = "2.1"
 			h264Profile = "main"			
 		/>
