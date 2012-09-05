@@ -36,6 +36,7 @@
 			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
 			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
+			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
@@ -112,6 +113,13 @@
 				globalDispatcher.dispatchEvent(windowEvent);
 			}
 			
+
+
+			private function closePublishWindow():void{
+				publishWindow.close();
+			}
+
+
 			private function startPublishing(e:StartBroadcastEvent):void{
 			    LogUtil.debug("Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
 				proxy.startPublishing(e);
@@ -170,6 +178,10 @@
 	
 	<EventHandlers type="{OpenPublishWindowEvent.OPEN_PUBLISH_WINDOW}">
 		<InlineInvoker method="openPublishWindow" />
+	</EventHandlers>
+
+	<EventHandlers type="{ClosePublishWindowEvent.CLOSE_PUBLISH_WINDOW}">
+		<InlineInvoker method="closePublishWindow" />
 	</EventHandlers>
 	
 	<EventHandlers type="{StartBroadcastEvent.START_BROADCAST}" >

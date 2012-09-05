@@ -23,7 +23,7 @@
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{camIcon}" 
 		   xmlns:mate="http://mate.asfusion.com/"
 		   click="openPublishWindow()" creationComplete="init()" 
-		   toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip')}"
+		   toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start')}"
 		   visible="{isPresenter}"
 		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
@@ -34,6 +34,7 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
+			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable] public var isPresenter:Boolean;
@@ -45,14 +46,28 @@
 			
 			private function init():void{
 				dispatcher = new Dispatcher();
+				this.selected = false;
 			}
 			
 			private function openPublishWindow():void{
-				dispatchEvent(new OpenPublishWindowEvent());
+				if(this.selected == true) {
+					this.selected = false;
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
+					dispatchEvent(new ClosePublishWindowEvent());
+					
+				}
+				else {
+					this.selected = true;
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop');
+					dispatchEvent(new OpenPublishWindowEvent());
+				}			
+				
 			}
 			
 			public function show():void{
 				this.enabled = true;
+				this.selected = false;
+				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
 				camIcon = images.webcam;
 			}
 			
@@ -62,5 +77,5 @@
 		]]>
 	</mx:Script>
 	
-	<mate:Listener type="{OpenPublishWindowEvent.OPEN_PUBLISH_WINDOW}" receive="enabled=false" />
+	
 </mx:Button>
