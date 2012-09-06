@@ -356,6 +356,13 @@ end
 
 def storeTextShape	
 	if($shapeCreationTime != $prev_time)
+		$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
+		$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
+		if(($originalOriginX == $originX) && ($originalOriginY == $originY))
+			# do not update the text count
+		else
+			$text_count = $text_count + 1
+		end
 		font_size_factor = 2
 		y_gap = 45		
 		$textFontSize_pixels = $textFontSize.to_f * font_size_factor				
@@ -365,6 +372,8 @@ def storeTextShape
 			end
 			$prev_time = $shapeCreationTime
 		end # end xml.g		
+		$originalOriginX = $originX
+        $originalOriginY = $originY
 	end # end if($shapeCreationTime != $prev_time)
 end
 
