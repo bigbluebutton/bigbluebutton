@@ -625,13 +625,15 @@ if ($playback == "slides")
 		BigBlueButton.logger.info("Copied .wav file - copying #{$process_dir}/events.xml to -> #{package_dir}")
 		FileUtils.cp("#{$process_dir}/events.xml", package_dir)
 		BigBlueButton.logger.info("Copied events.xml file")
-
-		BigBlueButton.logger.info("Making video dir")
-		video_dir = "#{package_dir}/video"
-		FileUtils.mkdir_p video_dir
-		BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.webm to -> #{video_dir}")
-		FileUtils.cp("#{$process_dir}/webcams.webm", video_dir)
-		BigBlueButton.logger.info("Copied .webm file")
+		
+		if File.exist?("#{$process_dir}/webcams.webm")
+  		  BigBlueButton.logger.info("Making video dir")
+  		  video_dir = "#{package_dir}/video"
+		  FileUtils.mkdir_p video_dir
+		  BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.webm to -> #{video_dir}")
+		  FileUtils.cp("#{$process_dir}/webcams.webm", video_dir)
+		  BigBlueButton.logger.info("Copied .webm file")
+		end
 
 		BigBlueButton.logger.info("Copying files to package dir")
 		FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
