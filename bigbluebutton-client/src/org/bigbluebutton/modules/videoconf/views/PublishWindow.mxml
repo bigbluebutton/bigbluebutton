@@ -34,23 +34,23 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import flexlib.mdi.events.MDIWindowEvent;
-			
-			import mx.core.UIComponent;
-			import mx.events.ResizeEvent;
-			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
-			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
-			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import flexlib.mdi.events.MDIWindowEvent;
+      
+      import mx.core.UIComponent;
+      import mx.events.ResizeEvent;
+      
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+      import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
+      import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
+      import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+      import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable] public var camIcon:Class = images.control_play;
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
@@ -307,8 +307,9 @@
          		 * Add timestamp to create a unique stream name. This way we can record	 	
          		 * stream without overwriting previously recorded streams.	 	
          		 */	 	
-				var curTime:Number = new Date().getTime();	 	
-        		this.streamName = cmbResolution.selectedLabel.concat(this.userId) + "-" + curTime;
+				var curTime:Number = new Date().getTime();	
+        var uid:Number = UserManager.getInstance().getConference().getMyUserId();
+        this.streamName = cmbResolution.selectedLabel.concat("-" + uid) + "-" + curTime;
 			}
 			
 			public function set userrole(role:String):void{
