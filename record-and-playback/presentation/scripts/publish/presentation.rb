@@ -226,12 +226,35 @@ def processClearImages
 end
 
 def storePencilShape
-	$line_count = $line_count + 1 # always update the line count!
-	$xml.g(:class => :shape, :id=>"draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape =>"line#{$line_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; stroke-linecap: round; ") do
+	$pencil_count = $pencil_count + 1 # always update the line count!
+	$xml.g(:class => :shape, :id=>"draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape =>"line#{$pencil_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; stroke-linecap: round; ") do
 		for i in (0...($shapeDataPoints.length/2)-1) do
 			$xml.line(:x1 => (($shapeDataPoints[i*2].to_f)/100)*$vbox_width, :y1 => (($shapeDataPoints[(i*2)+1].to_f)/100)*$vbox_height, :x2 => (($shapeDataPoints[(i*2)+2].to_f)/100)*$vbox_width, :y2 => (($shapeDataPoints[(i*2)+3].to_f)/100)*$vbox_height)
 		end
 	end
+end
+
+def storeLineShape
+        if($shapeCreationTime != $prev_time)
+                if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
+                        # do not update the line count
+                else
+                        $line_count = $line_count + 1
+                end
+                $xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "line#{$line_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
+
+                        $originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
+                        $originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
+                        endPointX = (($shapeDataPoints[2].to_f)/100)*$vbox_width
+                        endPointY = (($shapeDataPoints[3].to_f)/100)*$vbox_height
+
+                        $originalOriginX = $originX
+                        $originalOriginY = $originY
+
+                        $xml.line(:x1 => $originX, :y1 => $originY, :x2 => endPointY, :y2 => endPointY )
+                        $prev_time = $shapeCreationTime
+                end
+        end
 end
 
 def storeRectShape
@@ -504,6 +527,10 @@ def processShapesAndClears
 							if $shapeType.eql? "pencil"
 								storePencilShape()
 
+							# Process the line shapes.
+							elsif $shapeType.eql? "line"
+								storeLineShape()
+
 							# Process the rectangle shapes
 							elsif $shapeType.eql? "rectangle"
 								storeRectShape()
@@ -560,6 +587,7 @@ $originalOriginY = "NaN"
 
 $rectangle_count = 0
 $triangle_count = 0
+$pencil_count = 0
 $line_count = 0
 $ellipse_count = 0
 $text_count = 0
@@ -725,4 +753,5 @@ if ($playback == "slides")
 end
 
 performance_end = Time.now
+
 
