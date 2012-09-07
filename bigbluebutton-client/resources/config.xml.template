@@ -32,6 +32,7 @@
 			recordingHost="http://HOST"
 			windowVisible="true"
 			position="bottom-left"
+			pushToTalk="true"
 		/>
 		
 		<module name="DeskShareModule" 

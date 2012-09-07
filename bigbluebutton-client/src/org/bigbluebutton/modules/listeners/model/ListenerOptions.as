@@ -10,6 +10,9 @@ package org.bigbluebutton.modules.listeners.model
 		[Bindable]
 		public var position:String = "bottom-left";
 		
+		[Bindable]
+		public var pushToTalk:Boolean = false;
+		
 		public function ListenerOptions()
 		{
 			var vxml:XML = BBB.getConfigForModule("ListenersModule");
@@ -18,6 +21,9 @@ package org.bigbluebutton.modules.listeners.model
 			}
 			if (vxml.@position != undefined) {
 				position = vxml.@position.toString();
+			}
+			if (vxml.@pushToTalk != undefined) {
+				pushToTalk = (vxml.@pushToTalk.toString().toUpperCase() == "TRUE") ? true : false;
 			}
 		}
 

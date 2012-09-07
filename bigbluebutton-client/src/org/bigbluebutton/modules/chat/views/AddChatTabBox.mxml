@@ -46,12 +46,16 @@
 			private function init():void{
 				participants = new ArrayCollection();
 			}
+			
+			public function accessibleClick(event:KeyboardEvent):void{
+				if (event.keyCode == 32){
+					openPrivateChat(event);
+				}
+			}
 
-			//protected function openPrivateChat(event:ListEvent):void{
+			//protected function openPrivateChat(event:ListEvent):void{ AddChatTabBox
 			protected function openPrivateChat(event:Event):void{
-				LogUtil.debug("WATERFALL Click detected, entering openPrivateChat with participantsList.selectedIndex: " + participantsList.selectedIndex);
 				if (participantsList.selectedIndex == -1) return;
-				LogUtil.debug("WATERFALL Return bypassed, continuing");
 				var id:String = participantsList.selectedItem.userid;
 				participantsList.selectedIndex = -1;
 				chatView.openChatBoxFor(id);

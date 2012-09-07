@@ -229,6 +229,7 @@
 				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chattabs') as String)] = ShortcutEvent.FOCUS_CHAT_TABS;
 				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide') as String)] = ShortcutEvent.FOCUS_SLIDE;
 				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo') as String)] = ShortcutEvent.UNDO_WHITEBOARD;
+				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.glossary.open') as String)] = ShortcutEvent.OPEN_SHORTCUT_WIN;
 			}
 
 			public function hotkeyCapture():void{
