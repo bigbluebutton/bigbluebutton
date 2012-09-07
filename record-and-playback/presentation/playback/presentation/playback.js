@@ -236,6 +236,7 @@ load_video = function(video){
 
 load_audio = function() {      
    audio = document.createElement("audio")
+   chat = document.getElementById("chat")
    audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
    audio.setAttribute('type','audio/ogg');
    audio.setAttribute('id','video');
@@ -243,8 +244,17 @@ load_audio = function() {
    audio.setAttribute('autoplay','autoplay');
    audio.setAttribute('data-timeline-sources', SLIDES_XML);  
    document.getElementById("audioRecordingWrapper").appendChild(audio)
-}  
+   document.getElementById("video").style.height = "40px";
+   chat.style.height = "560px";
+   chat.style.backgroundColor = "white";   
+}
 
+load_script = function(file){
+  script = document.createElement('script');
+  script.src = file;
+  script.type = 'text/javascript';
+  document.getElementsByTagName('body').item(0).appendChild(script);
+}
 
 document.addEventListener( "DOMContentLoaded", function() {
   var appName = navigator.appName;
@@ -263,7 +273,7 @@ document.addEventListener( "DOMContentLoaded", function() {
     }
   },true);
   load_video(video)      
-  
+  load_script("lib/writing.js");  
   generateThumbnails();
 
 }, false);
