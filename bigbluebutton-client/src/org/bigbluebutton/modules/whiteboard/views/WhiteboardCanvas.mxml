@@ -208,11 +208,11 @@
 				} else if(toolType == DrawObject.RECTANGLE) {
 					CursorManager.setCursor(rectangle_icon);
 				} else if(toolType == DrawObject.TRIANGLE) {
-					CursorManager.setCursor(triangle_icon);
+					CursorManager.setCursor(triangle_icon, 2, -7, 0);
 				} else if(toolType == DrawObject.PENCIL) {
 					CursorManager.setCursor(pencil_icon, 2, 0, -16);
 				} else if(toolType == DrawObject.LINE) {
-					CursorManager.setCursor(line_icon);
+					CursorManager.setCursor(line_icon, 2, 0, -14);
 				} else if(toolType == DrawObject.HIGHLIGHTER) {
 					CursorManager.setCursor(highlighter_icon);
 				} else if(toolType == DrawObject.ERASER) {
