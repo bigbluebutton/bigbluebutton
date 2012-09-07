@@ -1378,15 +1378,17 @@ check_state() {
 		fi
 	fi
 
-        PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/slides.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
-        if [ $PLAYBACK_IP != $IP ]; then
+	if [ -f /usr/local/bigbluebutton/core/scripts/slides.yml ]; then
+            PLAYBACK_IP=$(cat /usr/local/bigbluebutton/core/scripts/slides.yml  | sed -n '/playback_host/{s/.*:[ ]*//;s/;//;p}')
+            if [ $PLAYBACK_IP != $IP ]; then
                         echo "# Warning: The value ($PLAYBACK_IP) for playback_host in"
 			echo "#"
                         echo "#    /usr/local/bigbluebutton/core/scripts/slides.yml"
 			echo "#"
                         echo "# does not match the local IP address ($IP)."
                         echo
-        fi
+            fi
+	fi
 
 	if [ -d ${SERVLET_DIR}/demo ]; then
 		if test ${SERVLET_DIR}/demo.war -nt ${SERVLET_DIR}/demo; then 
