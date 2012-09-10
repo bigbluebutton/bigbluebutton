@@ -641,7 +641,7 @@ if ($playback == "slides")
 	BigBlueButton.logger.info("setting publish dir")
 	publish_dir = simple_props['publish_dir']
 	BigBlueButton.logger.info("setting playback host")
-	playback_host = simple_props['playback_host']
+	playback_host = bbb_props['playback_host']
 	BigBlueButton.logger.info("setting target dir")
 	target_dir = "#{recording_dir}/publish/presentation/#{$meeting_id}"
 	if not FileTest.directory?(target_dir)
