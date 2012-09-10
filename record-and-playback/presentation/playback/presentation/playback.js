@@ -228,28 +228,40 @@ google_frame_warning = function(){
   document.getElementById("chat").appendChild(link);
 }
   
-load_video = function(video){
+function checkUrl(url)
+{
+    console.log("Checking Url")
+    var http = new XMLHttpRequest();
+    http.open('HEAD', url, false);
+    http.send();
+    return http.status!=404;
+}
+
+load_video = function(){
+   console.log("Loading video")
+   var video = document.getElementById("webcam")   
    video.setAttribute('src', RECORDINGS + '/video/webcams.webm');
    video.setAttribute('type','video/webm');
-   video.setAttribute('data-timeline-sources', SLIDES_XML);  
+   video.setAttribute('id','webcam');  
+   var time_manager = Popcorn("#video");
+   var pc_webcam = Popcorn("#webcam");
+   time_manager.on( "timeupdate", function() {
+    pc_webcam.currentTime( this.currentTime() );
+   });
 }  
 
-load_audio = function() {      
-   audio = document.createElement("audio")
-   chat = document.getElementById("chat")
+load_audio = function() { 
+   console.log("Loading audio")        
+   var audio = document.getElementById("video") ;    
    audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
    audio.setAttribute('type','audio/ogg');
-   audio.setAttribute('id','video');
+   audio.setAttribute('data-timeline-sources', SLIDES_XML);    
    audio.setAttribute('controls','');
-   audio.setAttribute('autoplay','autoplay');
-   audio.setAttribute('data-timeline-sources', SLIDES_XML);  
-   document.getElementById("audioRecordingWrapper").appendChild(audio)
-   document.getElementById("video").style.height = "40px";
-   chat.style.height = "560px";
-   chat.style.backgroundColor = "white";   
+   audio.setAttribute('autoplay','autoplay');   
 }
 
 load_script = function(file){
+  console.log("Loading script "+ file)
   script = document.createElement('script');
   script.src = file;
   script.type = 'text/javascript';
@@ -259,22 +271,25 @@ load_script = function(file){
 document.addEventListener( "DOMContentLoaded", function() {
   var appName = navigator.appName;
   var appVersion = navigator.appVersion;
-  var video = document.getElementById("video");
+  var video = document.getElementById("webcam");
 
   if (appName == "Microsoft Internet Explorer" && navigator.userAgent.match("chromeframe") == false ) {
     google_frame_warning
   }
 
-  video.addEventListener("error",function(ev){        
-    if (ev.currentTarget.networkState == ev.currentTarget.NETWORK_NO_SOURCE){          
-      videoContainer = document.getElementById("videoRecordingWrapper")      
-      videoContainer.parentNode.removeChild(videoContainer)      
-      load_audio()
-    }
-  },true);
-  load_video(video)      
-  load_script("lib/writing.js");  
+  if (checkUrl(RECORDINGS + '/video/webcams.webm') == true){
+    load_video();
+  }else{
+      videoContainer = document.getElementById("videoRecordingWrapper").style.display = "none"        
+      chat = document.getElementById("chat")
+      chat.style.height = "560px";
+      chat.style.backgroundColor = "white";      
+  }
+  
+  load_audio();
+  load_script("lib/writing.js")
   generateThumbnails();
 
 }, false);
+
 
