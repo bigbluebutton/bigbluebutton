@@ -52,10 +52,22 @@ package org.bigbluebutton.modules.whiteboard.views
       _ctrlKeyDown = down;
     }
 
+    // Store the mouse's last x and y position
+    private var _lastMouseX:Number = 0;
+    private var _lastMouseY:Number = 0;
+    
     public function onMouseMove(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
     {
       if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
         if (_isDrawing){
+
+          // Throttle the mouse position to prevent us from overloading the server
+          if ( (Math.abs(mouseX - _lastMouseX) < 3) && (Math.abs(mouseY - _lastMouseY) < 3) ) {
+            return;
+          }
+          _lastMouseX = mouseX;
+          _lastMouseY = mouseY;
+          
           _segment.push(mouseX);
           _segment.push(mouseY);
           if (_segment.length > _sendFrequency) {
