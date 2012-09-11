@@ -31,10 +31,13 @@ package org.bigbluebutton.util.i18n
 	import flash.utils.Dictionary;
 	
 	import mx.controls.Alert;
+	import mx.core.FlexGlobals;
 	import mx.events.ResourceEvent;
+	import mx.managers.BrowserManager;
 	import mx.resources.IResourceManager;
 	import mx.resources.ResourceManager;
 	import mx.utils.StringUtil;
+	import mx.utils.URLUtil;
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.LocaleChangeEvent;
@@ -42,7 +45,7 @@ package org.bigbluebutton.util.i18n
 
 	public class ResourceUtil extends EventDispatcher {
 		private static var instance:ResourceUtil = null;
-		public static const LOCALES_FILE:String = "conf/locales.xml";
+		public static const LOCALES_FILE:String = "client/conf/locales.xml";
 		public static const VERSION:String = "0.8";
     public static const SERVER_HOST:String = "http://192.168.0.249/client";
     
@@ -75,12 +78,22 @@ package org.bigbluebutton.util.i18n
 			resourceManager = ResourceManager.getInstance();
 			// Add a random string on the query so that we always get an up-to-date config.xml
 			var date:Date = new Date();
-			LogUtil.debug("Loading " + LOCALES_FILE);
-			var _urlLoader:URLLoader = new URLLoader();
+			
+			var _urlLoader:URLLoader = new URLLoader();     
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);
-			_urlLoader.load(new URLRequest(SERVER_HOST + "/" + LOCALES_FILE + "?a=" + date.time));
+      
+      var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
+      LogUtil.debug("Loading " + localeReqURL);
+			_urlLoader.load(new URLRequest(localeReqURL));
 		}
-				
+		
+    private function buildRequestURL():String {
+      var swfURL:String = FlexGlobals.topLevelApplication.url;
+      var protocol:String = URLUtil.getProtocol(swfURL);
+      var serverName:String = URLUtil.getServerNameWithPort(swfURL);        
+      return protocol + "://" + serverName + "/" + LOCALES_FILE;
+    }
+    
 		private function handleComplete(e:Event):void{
 			parse(new XML(e.target.data));		
 									
