@@ -102,6 +102,11 @@
 			[Bindable]
 			private var slideModel:SlideViewModel = new SlideViewModel();
 			
+      // Send update of mouse location to other users.
+      private var _sendCurrentMouseLocTimer:Timer = new Timer(250);
+      private var _lastMouseXPosition:Number = 0;
+      private var _lastMouseYPosition:Number = 0;
+      
 			private function onCreationComplete():void {
 				slideLoader.width = this.width;
 				slideLoader.height = this.height;
@@ -315,7 +320,8 @@
 				slideLoader.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 				slideLoader.removeEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 				slideLoader.removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-				removeEventListener(MouseEvent.MOUSE_MOVE, mouseCursorUpdateListener);
+        _sendCurrentMouseLocTimer.stop();
+        _sendCurrentMouseLocTimer.removeEventListener(TimerEvent.TIMER, mouseCursorUpdateTimerListener);
 			}
 			
 			/**
@@ -326,23 +332,30 @@
 				slideLoader.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 				slideLoader.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
 				slideLoader.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
-				addEventListener(MouseEvent.MOUSE_MOVE, mouseCursorUpdateListener);
+        _sendCurrentMouseLocTimer.addEventListener(TimerEvent.TIMER, mouseCursorUpdateTimerListener);
+        _sendCurrentMouseLocTimer.start();
 				notifyOthersOfZoomEvent();
 			}
 			
 			
-			/**
-			 * Listen for mouse events to track the cursor.
-			 */			
-			public function mouseCursorUpdateListener(e:MouseEvent):void{
-				if (noSlideContentLoaded()) return;				
-				notifyOthersOfPresentersCursorPosition(this.mouseX, this.mouseY);
-			}
+      public function mouseCursorUpdateTimerListener(e:TimerEvent):void{
+        if (noSlideContentLoaded()) return;				
+        notifyOthersOfPresentersCursorPosition(this.mouseX, this.mouseY);
+      }
 			
 			/**
 			 * Broadcast to other participants the location fo the mouse cursor.
 			 */
 			private function notifyOthersOfPresentersCursorPosition(cursorXPosition:int, cursorYPosition:int):void {
+        // Only update the other users if the mouse moved a certain delta
+        if ( (Math.abs(cursorXPosition - _lastMouseXPosition) < 0.1) 
+          && (Math.abs(cursorYPosition - _lastMouseYPosition) < 0.1) ) {
+          return;
+        }
+        
+        _lastMouseXPosition = cursorXPosition;
+        _lastMouseYPosition = cursorYPosition;
+        
 				var command:PresenterCommands = new PresenterCommands(PresenterCommands.SEND_CURSOR_UPDATE);				
 				command.xPercent = cursorXPosition / this.width;
 				command.yPercent = cursorYPosition / this.height;				
