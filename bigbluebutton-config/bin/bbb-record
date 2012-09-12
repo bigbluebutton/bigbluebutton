@@ -305,6 +305,7 @@ if [ $DELETEALL ]; then
 	rm -f /var/bigbluebutton/recording/status/recorded/*
 	rm -f /var/bigbluebutton/recording/status/archived/*
 	rm -f /var/bigbluebutton/recording/status/processed/*
+	rm -f /var/bigbluebutton/recording/status/sanity/*
 
 	rm -f /usr/share/red5/webapps/video/streams/*.flv
 	rm -f /var/bigbluebutton/deskshare/*.flv
