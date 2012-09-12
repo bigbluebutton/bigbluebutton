@@ -353,6 +353,12 @@
           return;
         }
         
+        if (cursorXPosition > this.width || cursorXPosition < 1 
+              || cursorYPosition > this.height || cursorYPosition < 1) {
+          LogUtil.debug("Cursor outside the window...not sending [" + cursorXPosition + "," + cursorYPosition + "]");
+          return;
+        }
+          
         _lastMouseXPosition = cursorXPosition;
         _lastMouseYPosition = cursorYPosition;
         
@@ -409,7 +415,9 @@
 			}
 						
 			private function isCursorOutsideWindow(e:CursorEvent):Boolean {
-				return (e.xPercent > 1 && e.yPercent > 1) || (cursor.x > this.width || cursor.y > this.height);
+				return (e.xPercent > 1 && e.yPercent > 1) 
+                || (cursor.x > this.width || cursor.x < 1
+                || cursor.y > this.height || cursor.y < 1);
 			}
 			
 			private function showCursor():void {
