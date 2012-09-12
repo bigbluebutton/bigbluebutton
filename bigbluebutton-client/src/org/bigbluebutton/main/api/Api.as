@@ -32,7 +32,6 @@ package org.bigbluebutton.main.api
     
     private function joinVoiceConference():void {
       LogUtil.debug("Joining voice conference");
-      Alert.show("**** Got joine voice command ****");
       var globalDispatcher:Dispatcher = new Dispatcher();
       globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_CONFERENCE));
     }

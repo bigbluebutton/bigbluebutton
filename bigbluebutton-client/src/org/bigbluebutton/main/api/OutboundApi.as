@@ -12,7 +12,7 @@ package org.bigbluebutton.main.api
     
     public function userJoined():void {
       LogUtil.debug("User has joined voice conference.");
-      ExternalInterface.call("newUserJoined");
+      ExternalInterface.call("userHasJoinedVoiceConference");
     }
   }
 }

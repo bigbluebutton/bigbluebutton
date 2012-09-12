@@ -18,26 +18,9 @@
     <script src="lib/bbb_localization.js" language="javascript"></script>
     <script src="lib/bbb_blinker.js" language="javascript"></script>
     <script src="lib/bbb_deskshare.js" language="javascript"></script>
-    <script type="text/javascript">
-      function sendToActionScript() {
-        console.log("Calling the swf file");
-        // https://code.google.com/p/swfobject/wiki/api
-        var obj = swfobject.getObjectById("BigBlueButton");
-        if (obj) {
-          obj.joinVoice(); // e.g. an external interface call
-        }
-      }
-           
-      function newUserJoined() {
-        console.log("User has joined voice conference.");
-      }
-    </script>
+    <script src="lib/bbb_api_bridge.js" language="javascript"></script>
   </head>
-  <body>
-    <div id="controls">
-      <button type="button" onclick="sendToActionScript()">Click Me!</button>
-    </div>
-  
+  <body>  
     <div id="content">
       <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="100%" height="90%" id="BigBlueButton" name="BigBlueButton" align="middle">
         <param name="movie" value="BigBlueButton.swf?v=VERSION" />
