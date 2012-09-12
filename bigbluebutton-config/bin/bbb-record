@@ -33,6 +33,9 @@ BASE=/var/bigbluebutton/recording
 STATUS=$BASE/status
 source /etc/bigbluebutton/bigbluebutton-release
 
+SERVLET_DIR=/var/lib/tomcat6/webapps
+BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+
 RECORDING_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(recording_dir\)/{s/.*recording_dir:[ ]*//;s/;//;p}')
 PUBLISHED_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(published_dir\)/{s/.*published_dir:[ ]*//;s/;//;p}')
 RAW_AUDIO_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_audio_src\)/{s/.*raw_audio_src:[ ]*//;s/;//;p}')
@@ -515,6 +518,25 @@ if [ $CHECK ]; then
 		echo
 	    fi
 	fi
+
+	#
+	# Check that the playback of slides have the proper URL
+	#
+	#set -x
+        for type in $TYPES; do
+		for recording in $(find $BASE/publish/$type -name metadata.xml); do
+			url_playback=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
+			if [ "$BBB_WEB" != "$url_playback" ]; then
+                                echo
+                                echo "# The hostname in <link> .. </link> ($url_playback)"
+                                echo "#     $recording"
+                                echo "# do not match the hostname for bigbluebutton.web.serverURL ($BBB_WEB)"
+                                echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
+                                echo
+			fi
+		done
+	done
+
 fi
 
 if [ $DEBUG ]; then
