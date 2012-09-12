@@ -47,7 +47,6 @@ package org.bigbluebutton.util.i18n
 		private static var instance:ResourceUtil = null;
 		public static const LOCALES_FILE:String = "client/conf/locales.xml";
 		public static const VERSION:String = "0.8";
-    public static const SERVER_HOST:String = "http://192.168.0.249/client";
     
 		private var inited:Boolean = false;
 		
@@ -82,7 +81,7 @@ package org.bigbluebutton.util.i18n
 			var _urlLoader:URLLoader = new URLLoader();     
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);
       
-      var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
+      var localeReqURL:String = buildRequestURL() + LOCALES_FILE + "?a=" + date.time;
       LogUtil.debug("Loading " + localeReqURL);
 			_urlLoader.load(new URLRequest(localeReqURL));
 		}
@@ -91,7 +90,7 @@ package org.bigbluebutton.util.i18n
       var swfURL:String = FlexGlobals.topLevelApplication.url;
       var protocol:String = URLUtil.getProtocol(swfURL);
       var serverName:String = URLUtil.getServerNameWithPort(swfURL);        
-      return protocol + "://" + serverName + "/" + LOCALES_FILE;
+      return protocol + "://" + serverName + "/";
     }
     
 		private function handleComplete(e:Event):void{
@@ -162,9 +161,9 @@ package org.bigbluebutton.util.i18n
 			// Add a random string on the query so that we don't get a cached version.
 			
 			var date:Date = new Date();
-			var localeURI:String = 'locale/' + language + '_resources.swf?a=' + date.time;
+			var localeURI:String = buildRequestURL() + 'client/locale/' + language + '_resources.swf?a=' + date.time;
 			LogUtil.debug("Loading locale at [ " + localeURI + " ]");
-			return resourceManager.loadResourceModule(SERVER_HOST + "/" + localeURI, false);
+			return resourceManager.loadResourceModule( localeURI, false);
 		}		
 		
 		public static function getInstance():ResourceUtil {
