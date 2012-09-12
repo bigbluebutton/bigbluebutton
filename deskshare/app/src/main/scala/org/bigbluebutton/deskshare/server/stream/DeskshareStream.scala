@@ -29,7 +29,6 @@ import org.red5.server.api.IContext
 import org.red5.server.api.scope.{IScope, IBroadcastScope}
 import org.red5.server.api.so.ISharedObject
 import org.red5.server.net.rtmp.event.VideoData;
-import org.red5.server.stream.BroadcastScope
 import org.red5.server.stream.IProviderService
 import org.red5.server.net.rtmp.message.Constants;
 import org.apache.mina.core.buffer.IoBuffer

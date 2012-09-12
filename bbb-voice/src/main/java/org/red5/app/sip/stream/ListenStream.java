@@ -7,8 +7,6 @@ import org.red5.server.api.IContext;
 import org.red5.server.api.scope.IScope;
 import org.red5.server.net.rtmp.event.AudioData;
 import org.red5.server.scope.Scope;
-import org.red5.server.stream.BroadcastScope;
-import org.red5.server.stream.IBroadcastScope;
 import org.red5.server.stream.IProviderService;
 import org.slf4j.Logger;
 
@@ -72,9 +70,7 @@ public class ListenStream implements TranscodedAudioDataListener {
 		
 		IProviderService providerService = (IProviderService) context.getBean(IProviderService.BEAN_NAME);
 		if (providerService.registerBroadcastStream(aScope, listenStreamName, broadcastStream)){
-			IBroadcastScope bScope = (BroadcastScope) providerService.getLiveProviderInput(aScope, listenStreamName, true);
-			
-			((BroadcastScope)bScope).setAttribute(IBroadcastScope.STREAM_ATTRIBUTE, broadcastStream);
+			// Do nothing.
 		} else{
 			log.error("could not register broadcast stream");
 			throw new RuntimeException("could not register broadcast stream");
