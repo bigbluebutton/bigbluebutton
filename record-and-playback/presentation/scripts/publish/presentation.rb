@@ -226,12 +226,35 @@ def processClearImages
 end
 
 def storePencilShape
-	$line_count = $line_count + 1 # always update the line count!
-	$xml.g(:class => :shape, :id=>"draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape =>"line#{$line_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; stroke-linecap: round; ") do
+	$pencil_count = $pencil_count + 1 # always update the line count!
+	$xml.g(:class => :shape, :id=>"draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape =>"line#{$pencil_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; stroke-linecap: round; ") do
 		for i in (0...($shapeDataPoints.length/2)-1) do
 			$xml.line(:x1 => (($shapeDataPoints[i*2].to_f)/100)*$vbox_width, :y1 => (($shapeDataPoints[(i*2)+1].to_f)/100)*$vbox_height, :x2 => (($shapeDataPoints[(i*2)+2].to_f)/100)*$vbox_width, :y2 => (($shapeDataPoints[(i*2)+3].to_f)/100)*$vbox_height)
 		end
 	end
+end
+
+def storeLineShape
+        if($shapeCreationTime != $prev_time)
+                if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
+                        # do not update the line count
+                else
+                        $line_count = $line_count + 1
+                end
+                $xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "line#{$line_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
+
+                        $originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
+                        $originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
+                        endPointX = (($shapeDataPoints[2].to_f)/100)*$vbox_width
+                        endPointY = (($shapeDataPoints[3].to_f)/100)*$vbox_height
+
+                        $originalOriginX = $originX
+                        $originalOriginY = $originY
+
+                        $xml.line(:x1 => $originX, :y1 => $originY, :x2 => endPointY, :y2 => endPointY )
+                        $prev_time = $shapeCreationTime
+                end
+        end
 end
 
 def storeRectShape
@@ -264,6 +287,45 @@ def storeRectShape
 	end
 end
 
+def storeTriangleShape
+        if($shapeCreationTime != $prev_time)
+                if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
+                        # do not update the triangle count
+                else
+                        $triangle_count = $triangle_count + 1
+                end
+                $xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "triangle#{$triangle_count}", :style => "stroke:\##{$colour_hex}; stroke-width:#{$shapeThickness}; visibility:hidden; fill:none") do
+
+                        $originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
+                        $originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
+
+                        #3 points (p0, p1 and p2) to draw a triangle
+
+                        base = (($shapeDataPoints[2].to_f - $shapeDataPoints[0].to_f)/100)*$vbox_width
+
+                        x0 = $originX + (base.to_f / 2.0)
+                        x1 = $originX
+                        x2 = $originX + base.to_f
+
+                        height = (($shapeDataPoints[3].to_f - $shapeDataPoints[1].to_f)/100)*$vbox_height
+
+                        y0 = $originY
+                        y1 = $originY + height
+                        y2 = y1
+
+                        p0 = "#{x0},#{y0}"
+                        p1 = "#{x1},#{y1}"
+                        p2 = "#{x2},#{y2}"
+
+                        $originalOriginX = $originX
+                        $originalOriginY = $originY
+
+                        $xml.polyline(:points => "#{p0} #{p1} #{p2} #{p0}")
+                        $prev_time = $shapeCreationTime
+                end
+        end
+end
+
 def storeEllipseShape
 	if($shapeCreationTime != $prev_time)
 		if(($originalOriginX == (($shapeDataPoints[0].to_f)/100)*$vbox_width) && ($originalOriginY == (($shapeDataPoints[1].to_f)/100)*$vbox_height))
@@ -292,15 +354,26 @@ def storeEllipseShape
 	end # end if($shapeCreationTime != $prev_time)
 end
 
-
-def storeTextShape
+def storeTextShape	
 	if($shapeCreationTime != $prev_time)
-		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "fill:\##{$colour_hex}; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize};") do
-			$xml.text_(:x => "#{(($shapeDataPoints[0].to_f)/100)*$vbox_width}", :y => "#{(($shapeDataPoints[1].to_f)/100)*$vbox_height}") do
-				$xml.text($textValue)
+		$originX = (($shapeDataPoints[0].to_f)/100)*$vbox_width
+		$originY = (($shapeDataPoints[1].to_f)/100)*$vbox_height
+		if(($originalOriginX == $originX) && ($originalOriginY == $originY))
+			# do not update the text count
+		else
+			$text_count = $text_count + 1
+		end
+		font_size_factor = 2
+		y_gap = 45		
+		$textFontSize_pixels = $textFontSize.to_f * font_size_factor				
+		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "fill:\##{$colour_hex}; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels};") do
+			$xml.text_( "font-size" => "#{$textFontSize_pixels}", :x => "#{(($shapeDataPoints[0].to_f)/100)*$vbox_width}", :y => "#{((($shapeDataPoints[1].to_f)/100) *$vbox_height )  + y_gap.to_f }") do
+				$xml.text($textValue)				
 			end
 			$prev_time = $shapeCreationTime
-		end # end xml.g
+		end # end xml.g		
+		$originalOriginX = $originX
+        $originalOriginY = $originY
 	end # end if($shapeCreationTime != $prev_time)
 end
 
@@ -395,18 +468,20 @@ def processShapesAndClears
 						end
 						
 						if(in_this_image)
-							# Get variables
-							$shapeType = shape.xpath(".//type")[0].text()
-							$shapeThickness = shape.xpath(".//thickness")[0].text()
-							$pageNumber = shape.xpath(".//pageNumber")[0].text()
-							$shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
-							colour = shape.xpath(".//color")[0].text()
-							
-							if($shapeType == "text")
-								$textValue = shape.xpath(".//text")[0].text()
-								$textFontType = shape.xpath(".//font")[0].text()
-								$textFontSize = shape.xpath(".//fontsize")[0].text()
-							end
+                                                        # Get variables
+                                                        BigBlueButton.logger.info shape
+                                                        $shapeType = shape.xpath(".//type")[0].text()
+                                                        $pageNumber = shape.xpath(".//pageNumber")[0].text()
+                                                        $shapeDataPoints = shape.xpath(".//dataPoints")[0].text().split(",")
+
+                                                        if($shapeType == "text")
+                                                                $textValue = shape.xpath(".//text")[0].text()
+                                                                $textFontType = "Arial"
+                                                                $textFontSize = shape.xpath(".//fontSize")[0].text()
+                                                        else
+                                                                $shapeThickness = shape.xpath(".//thickness")[0].text()
+                                                                colour = shape.xpath(".//color")[0].text()
+                                                        end
 							
 							# figure out undo time
 							BigBlueButton.logger.info("Figuring out undo time")
@@ -461,9 +536,17 @@ def processShapesAndClears
 							if $shapeType.eql? "pencil"
 								storePencilShape()
 
+							# Process the line shapes.
+							elsif $shapeType.eql? "line"
+								storeLineShape()
+
 							# Process the rectangle shapes
 							elsif $shapeType.eql? "rectangle"
 								storeRectShape()
+
+							# Process the triangle shapes
+							elsif $shapeType.eql? "triangle"
+								storeTriangleShape()
 
 							# Process the ellipse shapes
 							elsif $shapeType.eql? "ellipse"
@@ -498,8 +581,8 @@ def processChatMessages
 	end
 end
 
-$vbox_width = 800
-$vbox_height = 600
+$vbox_width = 1600
+$vbox_height = 1200
 $magic_mystery_number = 2
 $shapesold_svg_filename = 'shapes_old.svg'
 $shapes_svg_filename = 'shapes.svg'
@@ -512,6 +595,8 @@ $originalOriginX = "NaN"
 $originalOriginY = "NaN"
 
 $rectangle_count = 0
+$triangle_count = 0
+$pencil_count = 0
 $line_count = 0
 $ellipse_count = 0
 $text_count = 0
@@ -556,7 +641,7 @@ if ($playback == "slides")
 	BigBlueButton.logger.info("setting publish dir")
 	publish_dir = simple_props['publish_dir']
 	BigBlueButton.logger.info("setting playback host")
-	playback_host = simple_props['playback_host']
+	playback_host = bbb_props['playback_host']
 	BigBlueButton.logger.info("setting target dir")
 	target_dir = "#{recording_dir}/publish/presentation/#{$meeting_id}"
 	if not FileTest.directory?(target_dir)
@@ -577,13 +662,15 @@ if ($playback == "slides")
 		BigBlueButton.logger.info("Copied .wav file - copying #{$process_dir}/events.xml to -> #{package_dir}")
 		FileUtils.cp("#{$process_dir}/events.xml", package_dir)
 		BigBlueButton.logger.info("Copied events.xml file")
-
-		BigBlueButton.logger.info("Making video dir")
-		video_dir = "#{package_dir}/video"
-		FileUtils.mkdir_p video_dir
-		BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.webm to -> #{video_dir}")
-		FileUtils.cp("#{$process_dir}/webcams.webm", video_dir)
-		BigBlueButton.logger.info("Copied .webm file")
+		
+		if File.exist?("#{$process_dir}/webcams.webm")
+  		  BigBlueButton.logger.info("Making video dir")
+  		  video_dir = "#{package_dir}/video"
+		  FileUtils.mkdir_p video_dir
+		  BigBlueButton.logger.info("Made video dir - copying: #{$process_dir}/webcams.webm to -> #{video_dir}")
+		  FileUtils.cp("#{$process_dir}/webcams.webm", video_dir)
+		  BigBlueButton.logger.info("Copied .webm file")
+		end
 
 		BigBlueButton.logger.info("Copying files to package dir")
 		FileUtils.cp_r("#{$process_dir}/presentation", package_dir)
@@ -629,7 +716,7 @@ if ($playback == "slides")
 		# Gathering all the events from the events.xml
 		$slides_events = @doc.xpath("//event[@eventname='GotoSlideEvent' or @eventname='SharePresentationEvent']")
 		$chat_events = @doc.xpath("//event[@eventname='PublicChatEvent']")
-		$shape_events = @doc.xpath("//event[@eventname='AddShapeEvent']") # for the creation of shapes
+		$shape_events = @doc.xpath("//event[@eventname='AddShapeEvent' or @eventname='ModifyTextEvent']") # for the creation of shapes
 		$panzoom_events = @doc.xpath("//event[@eventname='ResizeAndMoveSlideEvent']") # for the action of panning and/or zooming
 		$cursor_events = @doc.xpath("//event[@eventname='CursorMoveEvent']")
 		$clear_page_events = @doc.xpath("//event[@eventname='ClearPageEvent']") # for clearing the svg image
@@ -643,17 +730,10 @@ if ($playback == "slides")
 		
 		processPanAndZooms()
 		
-		BigBlueButton.logger.info("Cursor events empty: #{$cursor_events.empty?}")
 		processCursorEvents()
 		
-		
-		
-		BigBlueButton.logger.info("writing slides_new.xml")
 		# Write slides.xml to file
 		File.open("#{package_dir}/slides_new.xml", 'w') { |f| f.puts $slides_doc.to_xml }
-
-		BigBlueButton.logger.info("Wrote slides_new.xml")
-
 		# Write shapes.svg to file
 		File.open("#{package_dir}/#{$shapes_svg_filename}", 'w') { |f| f.puts $shapes_svg.to_xml.gsub(%r"\s*\<g.*/\>", "") } #.gsub(%r"\s*\<g.*\>\s*\</g\>", "") }
 		
@@ -663,17 +743,24 @@ if ($playback == "slides")
 		# Write panzooms.xml to file
 		File.open("#{package_dir}/#{$cursor_xml_filename}", 'w') { |f| f.puts $cursor_xml.to_xml }
 
-	  BigBlueButton.logger.info("Publishing slides")
+	        BigBlueButton.logger.info("Publishing slides")
 		# Now publish this recording files by copying them into the publish folder.
 		if not FileTest.directory?(publish_dir)
 			FileUtils.mkdir_p publish_dir
 		end
 		FileUtils.cp_r(package_dir, publish_dir) # Copy all the files.
 		BigBlueButton.logger.info("Finished publishing script presentation.rb successfully.")
+
+                BigBlueButton.logger.info("Removing processed files.")
+		FileUtils.rm_r(Dir.glob("#{$process_dir}/*"))
+
+		BigBlueButton.logger.info("Removing published files.")
+		FileUtils.rm_r(Dir.glob("#{target_dir}/*"))
 	else
 		BigBlueButton.logger.info("#{target_dir} is already there")
 	end
 end
 
 performance_end = Time.now
+
 

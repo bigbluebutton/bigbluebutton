@@ -336,8 +336,8 @@ if [ $LIST ]; then
 # 	A -- Archiving
 #
 
-echo "MeetingID                                               Time                         APVD APVDE RA Slides Processed            Published             Description"
-echo "------------------------------------------------------  ---------------------------- ---- ----- -- ------ -------------------- --------------------  -----------------------------"
+echo "MeetingID                                               Time                         APVD APVDE RAS Slides Processed            Published             Description"
+echo "------------------------------------------------------  ---------------------------- ---- ----- --- ------ -------------------- --------------------  -----------------------------"
 
 if [ -z $HEAD ]; then
 	# If we're not called with --list20, show all recordings
@@ -430,7 +430,7 @@ for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD)
 	#
 	echo -n " "
 	STATUS_DIR=$RAW_PRESENTATION_SRC/recording/status
-	DIRS="recorded archived"
+	DIRS="recorded archived sanity"
 	for dir in $DIRS; do
 		if [ -f $STATUS_DIR/$dir/$meeting.done ]; then
 			echo -n "X"

@@ -59,6 +59,10 @@ br{
 	width: 100%;
 }
 
+#webcam{
+  width: 402px;
+}
+
 #video{
   width: 402px;
 }
@@ -187,6 +191,6 @@ br{
 
 
 #cursor {
-	position: absolute;
+	position: relative;
 	background: red;
 }
