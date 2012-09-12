@@ -130,6 +130,8 @@ package org.bigbluebutton.main.model.users
 				var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
 				loadCommand.conferenceParameters = _conferenceParameters;
 			        dispatcher.dispatchEvent(loadCommand);
+
+				_userSOService.askForGuestWaiting(e.userid);
 			}
 			
 				

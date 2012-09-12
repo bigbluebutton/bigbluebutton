@@ -186,8 +186,18 @@ public class RoomsManager {
 			return;
 		}		
 		log.warn("Participant asking to enter on a non-existing room " + roomName);
-	}	
+	}
 	
+	public void askForGuestWaiting(String roomName, Long userid) {
+		log.debug("User " + userid + " asking for guests waiting in room " + roomName);
+		Room r = getRoom(roomName);
+		if (r != null) {
+			r.GuestWaiting(userid);
+			return;
+		}		
+		log.warn("Participant asking guests on a non-existing room " + roomName);
+	}
+
 	public void responseToGuest(String roomName, Long userid, Boolean resp) {
 		Room r = getRoom(roomName);
 		if (r != null) {

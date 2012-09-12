@@ -37,6 +37,10 @@
 		<MethodInvoker generator="{ModulesProxy}" method="testRTMP" />
 	</EventHandlers>
 
+
+	
+
+
 	<EventHandlers type="{PortTestEvent.PORT_TEST_SUCCESS}" >
 		<MethodInvoker generator="{ModulesProxy}" method="portTestSuccess" arguments="{event.protocol}" />
 	</EventHandlers>

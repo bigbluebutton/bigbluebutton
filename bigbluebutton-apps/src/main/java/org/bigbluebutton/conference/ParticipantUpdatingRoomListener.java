@@ -77,6 +77,22 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 		
 	}
 
+	public void guestWaitingForModerator(Long userid, String userId_userName) {
+		if (messagingService != null) {
+			HashMap<String,String> map= new HashMap<String, String>();
+			map.put("meetingId", this.room.getName());
+			map.put("messageId", MessagingConstants.GUEST_ASK_TO_ENTER_EVENT);
+			map.put("internalUserId", userid.toString());
+			map.put("userID_userName", userId_userName);
+			Gson gson= new Gson();
+			messagingService.send(MessagingConstants.GUESTS_WAITING_EVENT, gson.toJson(map));
+			
+		}
+
+	}
+
+
+
 	public void guestResponse(Participant p, Boolean resp) {
 		if (messagingService != null) {
 			HashMap<String,String> map= new HashMap<String, String>();

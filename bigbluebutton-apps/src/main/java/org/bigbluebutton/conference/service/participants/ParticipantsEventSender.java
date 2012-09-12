@@ -109,6 +109,15 @@ public class ParticipantsEventSender implements IRoomListener {
 	}
 
 
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public void guestWaitingForModerator(Long userid, String userId_userName) {
+		ArrayList list = new ArrayList();
+		list.add(userid);
+		list.add(userId_userName);
+		so.sendMessage("guestWaitingForModerator", list);
+	}
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub

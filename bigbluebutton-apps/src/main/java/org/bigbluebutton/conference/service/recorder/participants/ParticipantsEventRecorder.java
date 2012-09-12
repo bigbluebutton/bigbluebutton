@@ -93,6 +93,15 @@ public class ParticipantsEventRecorder implements IRoomListener {
 		
 		recorder.record(session, event);
 	}
+
+	@Override
+	public void guestWaitingForModerator(Long userid, String userId_userName) {
+		WaitingForModeratorEvent ev = new WaitingForModeratorEvent();
+		ev.setTimestamp(System.currentTimeMillis());
+		ev.setUserId(userid.toString());
+		ev.setArg(userId_userName);
+		recorder.record(session, ev);		
+	}
 	
 	@Override
 	public String getName() {

@@ -18,4 +18,5 @@ public class MessagingConstants {
 	public static final String USER_STATUS_CHANGE_EVENT = "UserStatusChangeEvent";
 	public static final String GUEST_ASK_TO_ENTER_EVENT = "guestAskToEnter";
 	public static final String MODERATOR_RESPONSE_EVENT = "responseToGuest";
+	public static final String GUESTS_WAITING_EVENT = "guestsWaitingEvent";
 }

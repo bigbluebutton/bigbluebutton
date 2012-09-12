@@ -76,7 +76,10 @@ public class ParticipantsApplication {
 	public void askingToEnter(String roomName, Long userid) {
 		roomsManager.askToEnter(roomName, userid);	
 	}
-
+	
+	public void askingForGuestWaiting(String roomName, Long userid) {
+		roomsManager.askForGuestWaiting(roomName, userid);	
+	}
 	public void responseToGuest(String roomName, Long userid, Boolean resp) {
 		roomsManager.responseToGuest(roomName, userid, resp);
 	}

@@ -40,8 +40,7 @@
 						
 			[Bindable] private var message:String = "The user ";
 			private var urlLoader:URLLoader;
-			private var acc:Boolean;
-		
+			
 			
 			private function init():void {
 				message = message + _name + " wants to enter in this meeting.";
@@ -49,16 +48,9 @@
 
 	    
 			
-			private function accept():void { 
-				acc = true;
-			}
-			    
-			public function reject():void {
-				acc = false;
-				sendToServer();
-			}
+			
 
-			public function sendToServer():void {
+			public function sendToServer(acc:Boolean):void {
 				var respCommand:ResponseModeratorEvent = new ResponseModeratorEvent(ResponseModeratorEvent.RESPONSE);
 				respCommand.userid = userid;
 				respCommand.resp = acc;
@@ -77,8 +69,8 @@
 	</mx:Script>
 	<mx:Label text="{message}"/>
 	<mx:HBox>
-		<mx:Button id="acceptBtn" label="Accept" click="accept()" /> 	
-		<mx:Button id="rejectBtn" label="Reject" click="reject()" />
+		<mx:Button id="acceptBtn" label="Accept" click="sendToServer(true)" /> 	
+		<mx:Button id="rejectBtn" label="Reject" click="sendToServer(false)" />
 	</mx:HBox>
 
 	

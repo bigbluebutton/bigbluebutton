@@ -54,6 +54,14 @@ public class RoomListener implements IRoomListener{
 	}
 
 	@SuppressWarnings("unchecked")
+	public void guestWaitingForModerator(Long userid, String userId_userName) {
+		List list = new ArrayList();
+		list.add(userid);
+		list.add(userId_userName);
+		so.sendMessage("guestWaitingForModerator", list);
+	}
+
+	@SuppressWarnings("unchecked")
 	public void participantJoined(Participant p) {
 		List args = new ArrayList();
 		args.add(p.toMap());

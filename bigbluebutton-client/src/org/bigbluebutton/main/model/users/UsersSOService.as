@@ -34,6 +34,7 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
 	import org.bigbluebutton.main.events.NewGuestEvent;
 	import org.bigbluebutton.main.events.RemoveGuestRequestEvent;
+	import org.bigbluebutton.main.events.ModeratorRespEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -268,16 +269,19 @@ package org.bigbluebutton.main.model.users {
 		}
 		
 		public function guestResponse(userid:Number, resp:Boolean):void {
-			if(UserManager.getInstance().getConference().getMyUserId()) {
+			if(UserManager.getInstance().getConference().getMyUserId() == userid) {
 				if(UserManager.getInstance().getConference().amIWaitForModerator()) {
 					UserManager.getInstance().getConference().setWaitForModerator(false);
 					if(resp == false)
 						kickUser(userid);
 					else {
-					
+						var allowCommand:ModeratorRespEvent = new ModeratorRespEvent(ModeratorRespEvent.GUEST_ALLOWED);
+						var dispatcherCommand:Dispatcher = new Dispatcher();
+						dispatcherCommand.dispatchEvent(allowCommand);
 					}
 				}
 			}
+
 			if(UserManager.getInstance().getConference().amIModerator()) {
 				var e:RemoveGuestRequestEvent = new RemoveGuestRequestEvent(RemoveGuestRequestEvent.GUEST_EVENT);
 				e.userid = userid;
@@ -295,6 +299,34 @@ package org.bigbluebutton.main.model.users {
 				"raiseHand",
 				raise
 			); //_netConnection.call
+		}
+
+		public function askForGuestWaiting(userid:Number):void {
+			var nc:NetConnection = netConnectionDelegate.connection;			
+			nc.call(
+				"participants.askingForGuestWaiting",// Remote function name
+				responder,
+				userid
+			); //_netConnection.call
+		}
+
+		public function guestWaitingForModerator(userid:Number, userId_userName:String):void {
+			if(UserManager.getInstance().getConference().getMyUserId() == userid) {
+				if(userId_userName != "") {
+					var i:int = 0;
+					var users:Array =  userId_userName.split("!1");
+					for(i = 0; i < users.length; i++) {
+						if(users[i] != "") {
+							var pairSplited:Array = users[i].split("!2");
+							var newGuestEvent:NewGuestEvent = new NewGuestEvent(NewGuestEvent.NEW_GUEST_EVENT);
+							newGuestEvent.userid = new Number(pairSplited[0]);
+							newGuestEvent.name = pairSplited[1];
+							var dispatcher:Dispatcher = new Dispatcher();
+							dispatcher.dispatchEvent(newGuestEvent);
+						}
+					}
+				}	
+			}		
 		}
 
 		public function askToEnter(userid:Number):void {

@@ -23,41 +23,42 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
     title="Logged Out" showCloseButton="false" creationComplete="init()"
     x="168" y="86" layout="vertical" width="400" height="100" horizontalAlign="center">
+
+	
+
 	<mx:Script>
 		<![CDATA[
 			import mx.core.FlexGlobals;
 			import mx.managers.PopUpManager;
 			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.core.BBB;
+			
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
-			import org.bigbluebutton.main.events.ModuleLoadEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+
+			
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.main.model.users.UsersSOService;
 			import org.bigbluebutton.main.model.ConferenceParameters;
+			
 
 			public var conferenceParameters:ConferenceParameters;
-			public var _userSOService:UsersSOService;
-			public var userid:Number;
-						
+			
 			[Bindable] private var message:String = "Waiting for Moderator.";
 			private var urlLoader:URLLoader;
 			
 			private function init():void {
-				message = message + UserManager.getInstance().getConference().getMyName() + " " + UserManager.getInstance().getConference().getMyRole();
+				message = message + UserManager.getInstance().getConference().getMyName();
 			}
 
-	    
-			
-            private function redirect():void { 
-		//_userSOService.join(userid, conferenceParameters.room);
-		var dispatcher:Dispatcher = new Dispatcher();
-		var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
-		loadCommand.conferenceParameters = conferenceParameters;
-		dispatcher.dispatchEvent(loadCommand);
-		PopUpManager.removePopUp(this);
-            }
+	    public function guestAllowed():void {
+	   		var dispatcher:Dispatcher = new Dispatcher();
+			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
+			loadCommand.conferenceParameters = conferenceParameters;
+			dispatcher.dispatchEvent(loadCommand);
+			PopUpManager.removePopUp(this);
+	    }
+
+		
             
 	    public function removeWindow():void {
 		PopUpManager.removePopUp(this);
@@ -68,7 +69,5 @@
 			
 		]]>
 	</mx:Script>
-
-	<mx:Button id="okBtn" label="OK" click="redirect()"/>
 	<mx:Label text="{message}"/>
 </mx:TitleWindow> 

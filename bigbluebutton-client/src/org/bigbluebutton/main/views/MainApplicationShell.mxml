@@ -44,7 +44,7 @@
 	<mate:Listener type="{RemoveGuestRequestEvent.GUEST_EVENT}" method="removeGuestWindow" />
 	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
 	<mate:Listener type="{NewGuestEvent.NEW_GUEST_EVENT}" method="newGuestWindow" />
-	
+	<mate:Listener type="{ModeratorRespEvent.GUEST_ALLOWED}" method="guestAllowed" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -80,6 +80,7 @@
 			import org.bigbluebutton.main.events.WaitModeratorEvent;
 			import org.bigbluebutton.main.events.NewGuestEvent;
 			import org.bigbluebutton.main.events.RemoveGuestRequestEvent;
+			import org.bigbluebutton.main.events.ModeratorRespEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -92,7 +93,7 @@
 			private var stoppedModules:ArrayCollection;			
 			private var logs:Logger = new Logger();
 			private var logWindow:LogWindow;
-			private var waitWindow:WaitingWindow;	
+			private var waitWindow:WaitingWindow = null;	
 			private var guestWindowMap:Object = new Object();		
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
@@ -164,7 +165,9 @@
 
 			
 
-			
+			public function guestAllowed(evt:ModeratorRespEvent):void {
+				waitWindow.guestAllowed();
+			}
 			public function sendStartAllModulesEvent():void{
 				LogUtil.debug("Sending start all modules event");
 				var dispatcher:Dispatcher = new Dispatcher();
@@ -197,9 +200,9 @@
 
 			private function openWaitWindow(evt:WaitModeratorEvent):void {
 				 waitWindow = PopUpManager.createPopUp( mdiCanvas, WaitingWindow, false) as WaitingWindow;
-				 waitWindow._userSOService = evt._userSOService;
+				 
 				 waitWindow.conferenceParameters = evt.conferenceParameters;
-				 waitWindow.userid = evt.userid;
+				 
 				 var point1:Point = new Point();
 				 // Calculate position of TitleWindow in Application's coordinates. 
 				 point1.x = width/2;
@@ -293,7 +296,16 @@
             }
 			
 			private function handleLogout(e:ConnectionFailedEvent):void {
-				waitWindow.removeWindow();
+				if(waitWindow != null)				
+					waitWindow.removeWindow();
+				
+				for (var key:String in guestWindowMap)
+				{
+				    guestWindowMap[key].remove();
+				
+				}
+
+				
 				if (layoutOptions.showLogoutWindow) {
 					
 					if (logoutWindow != null) return;
@@ -346,10 +358,10 @@
 			
 	<views:MainToolbar id="toolbar" dock="true" width="100%" height="30" visible="{showToolbarOpt}" verticalAlign="middle" toolbarOptions="{layoutOptions}"/>
 	<views:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off" effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" width="100%" height="100%">
-		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
+		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" visible="false" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
-	
+		
 	<mx:ControlBar width="100%" height="20" paddingTop="0">		
 	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
