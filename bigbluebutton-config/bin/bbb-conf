@@ -1811,7 +1811,13 @@ if [ -n "$HOST" ]; then
         for type in $TYPES; do
                 for metadata in $(find $BASE/publish/$type -name metadata.xml); do
 			echo -n "."
-			sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/playback\/slides\([^<]\)/http:\/\/$HOST\/playback\/slides\2/g}" $metadata
+			sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/http:\/\/$HOST\/playback\/$type\2/g}" $metadata
+                done
+        done
+        for type in $TYPES; do
+                for metadata in $(find /var/bigbluebutton/published/$type -name metadata.xml); do
+			echo -n "."
+			sed -i "/<link>/{s/http:\/\/\([^\"\/]*\)\/playback\/$type\([^<]\)/http:\/\/$HOST\/playback\/$type\2/g}" $metadata
                 done
         done
 	echo 

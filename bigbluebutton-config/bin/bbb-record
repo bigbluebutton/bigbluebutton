@@ -535,6 +535,17 @@ if [ $CHECK ]; then
                                 echo
 			fi
 		done
+		for recording in $(find /var/bigbluebutton/published/$type -name metadata.xml); do
+			url_playback=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
+			if [ "$BBB_WEB" != "$url_playback" ]; then
+                                echo
+                                echo "# The hostname in <link> .. </link> ($url_playback)"
+                                echo "#     $recording"
+                                echo "# do not match the hostname for bigbluebutton.web.serverURL ($BBB_WEB)"
+                                echo "#     /usr/share/red5/webapps/bigbluebutton/WEB-INF/bigbluebutton.properties"
+                                echo
+			fi
+		done
 	done
 
 fi
