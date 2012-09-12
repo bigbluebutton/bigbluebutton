@@ -40,7 +40,11 @@
 	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
 	<mate:Listener type="configLoadedEvent" method="initOptions"  />
+	<mate:Listener type="{WaitModeratorEvent.USER_LOGGED_IN}" method="openWaitWindow" />
+	<mate:Listener type="{RemoveGuestRequestEvent.GUEST_EVENT}" method="removeGuestWindow" />
 	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
+	<mate:Listener type="{NewGuestEvent.NEW_GUEST_EVENT}" method="newGuestWindow" />
+	
 	
 	<mx:Script>
 		<![CDATA[
@@ -57,13 +61,15 @@
 			import mx.core.FlexGlobals;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
-			
+			import mx.core.IFlexDisplayObject;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.events.AppVersionEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -71,18 +77,23 @@
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
 			import org.bigbluebutton.main.events.RecordStatusEvent;
-			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+			import org.bigbluebutton.main.events.WaitModeratorEvent;
+			import org.bigbluebutton.main.events.NewGuestEvent;
+			import org.bigbluebutton.main.events.RemoveGuestRequestEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
+			
 	
 			private var globalDispatcher:Dispatcher;			
 			private var dispState:String; //full-screen?
 			private var images:Images = new Images();
 			private var stoppedModules:ArrayCollection;			
 			private var logs:Logger = new Logger();
-			private var logWindow:LogWindow;			
+			private var logWindow:LogWindow;
+			private var waitWindow:WaitingWindow;	
+			private var guestWindowMap:Object = new Object();		
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
 			
@@ -114,6 +125,7 @@
 				showToolbarOpt = layoutOptions.showToolbar;
 				LogUtil.debug("*** show toolbar = " + layoutOptions.showToolbar);
 				toolbar.displayToolbar();
+				
 			}
 			
 			protected function initializeShell():void {	
@@ -145,9 +157,13 @@
 					if (sendStartModulesEvent) {
 						sendStartModulesEvent = false;
 						sendStartAllModulesEvent();
+						
 					}				
 				}						
 			}
+
+			
+
 			
 			public function sendStartAllModulesEvent():void{
 				LogUtil.debug("Sending start all modules event");
@@ -165,6 +181,31 @@
 					LogUtil.debug("Switching to normal screen");
 					/* Do something specific here if we switched to normal mode. */
 				}
+			}
+				
+			private function newGuestWindow(evt:NewGuestEvent):void {
+				guestWindowMap[evt.userid] = PopUpManager.createPopUp( mdiCanvas, GuestWindow, false) as GuestWindow;
+				guestWindowMap[evt.userid]._name = evt.name;
+				guestWindowMap[evt.userid].userid = evt.userid;
+				guestWindowMap[evt.userid].x = width - 400;
+				guestWindowMap[evt.userid].y = 20;
+			}
+			public function removeGuestWindow(evt:RemoveGuestRequestEvent):void {
+				guestWindowMap[evt.userid].remove();
+				delete guestWindowMap[evt.userid];
+			}
+
+			private function openWaitWindow(evt:WaitModeratorEvent):void {
+				 waitWindow = PopUpManager.createPopUp( mdiCanvas, WaitingWindow, false) as WaitingWindow;
+				 waitWindow._userSOService = evt._userSOService;
+				 waitWindow.conferenceParameters = evt.conferenceParameters;
+				 waitWindow.userid = evt.userid;
+				 var point1:Point = new Point();
+				 // Calculate position of TitleWindow in Application's coordinates. 
+				 point1.x = width/2;
+				 point1.y = height/2;                 
+				 waitWindow.x = point1.x - (waitWindow.width/2);
+				 waitWindow.y = point1.y - (waitWindow.height/2);
 			}			
 			
 			private function openLogWindow():void {
@@ -252,7 +293,9 @@
             }
 			
 			private function handleLogout(e:ConnectionFailedEvent):void {
+				waitWindow.removeWindow();
 				if (layoutOptions.showLogoutWindow) {
+					
 					if (logoutWindow != null) return;
 					logoutWindow = LoggedOutWindow(PopUpManager.createPopUp( mdiCanvas, LoggedOutWindow, false));
 					

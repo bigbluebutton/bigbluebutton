@@ -50,6 +50,26 @@ public class ParticipantsEventRecorder implements IRoomListener {
 	}
 
 	@Override
+	public void guestEntrance(Participant p) {
+		GuestAskToEnterRecordEvent ev = new GuestAskToEnterRecordEvent();
+		ev.setTimestamp(System.currentTimeMillis());
+		ev.setUserId(p.getInternalUserID().toString());
+		ev.setName(p.getName());
+		recorder.record(session, ev);
+	
+
+	}
+
+	@Override
+	public void guestResponse(Participant p, Boolean resp) {
+		ModeratorResponseEvent ev = new ModeratorResponseEvent();
+		ev.setTimestamp(System.currentTimeMillis());
+		ev.setUserId(p.getInternalUserID().toString());
+		ev.setResp(resp);
+		recorder.record(session, ev);
+	}
+
+	@Override
 	public void participantStatusChange(Participant p, String status, Object value) {
 		ParticipantStatusChangeRecordEvent ev = new ParticipantStatusChangeRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());

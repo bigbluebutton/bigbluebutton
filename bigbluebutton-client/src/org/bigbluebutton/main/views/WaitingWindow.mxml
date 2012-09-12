@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+    title="Logged Out" showCloseButton="false" creationComplete="init()"
+    x="168" y="86" layout="vertical" width="400" height="100" horizontalAlign="center">
+	<mx:Script>
+		<![CDATA[
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
+			import com.asfusion.mate.events.Dispatcher;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+			import org.bigbluebutton.main.events.ModuleLoadEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.main.model.users.UsersSOService;
+			import org.bigbluebutton.main.model.ConferenceParameters;
+
+			public var conferenceParameters:ConferenceParameters;
+			public var _userSOService:UsersSOService;
+			public var userid:Number;
+						
+			[Bindable] private var message:String = "Waiting for Moderator.";
+			private var urlLoader:URLLoader;
+			
+			private function init():void {
+				message = message + UserManager.getInstance().getConference().getMyName() + " " + UserManager.getInstance().getConference().getMyRole();
+			}
+
+	    
+			
+            private function redirect():void { 
+		//_userSOService.join(userid, conferenceParameters.room);
+		var dispatcher:Dispatcher = new Dispatcher();
+		var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
+		loadCommand.conferenceParameters = conferenceParameters;
+		dispatcher.dispatchEvent(loadCommand);
+		PopUpManager.removePopUp(this);
+            }
+            
+	    public function removeWindow():void {
+		PopUpManager.removePopUp(this);
+	    }
+			
+	
+			
+			
+		]]>
+	</mx:Script>
+
+	<mx:Button id="okBtn" label="OK" click="redirect()"/>
+	<mx:Label text="{message}"/>
+</mx:TitleWindow> 

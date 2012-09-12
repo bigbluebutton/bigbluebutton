@@ -16,18 +16,25 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
+package org.bigbluebutton.main.events
+{
+	import flash.events.Event;
+	
 
-package org.bigbluebutton.conference;
+	import org.bigbluebutton.main.model.users.BBBUser;
+	
 
-import java.util.ArrayList;
+	public class NewGuestEvent extends Event
+	{
+		public static const NEW_GUEST_EVENT:String = "NewGuestEvent";
+		
 
-public interface IRoomListener {
-	public String getName();
-	public void participantStatusChange(Participant p, String status, Object value);
-	public void participantJoined(Participant participant);
-	public void participantLeft(Participant participant);
-	public void assignPresenter(ArrayList<String> presenter);
-	public void guestEntrance(Participant p);
-	public void endAndKickAll();
-	public void guestResponse(Participant p, Boolean resp);
+		public var userid:Number;
+		public var name:String;	
+		
+		public function NewGuestEvent(type:String)
+		{
+			super(type, true, false);
+		}
+	}
 }

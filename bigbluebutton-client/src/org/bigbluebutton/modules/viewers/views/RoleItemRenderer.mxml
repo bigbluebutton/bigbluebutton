@@ -33,9 +33,12 @@
 			
 			[Bindable] private var adminIcon : Object = images.admin;
    			[Bindable] private var viewerIcon : Object = images.participant;
+
+
+		 
   			   			   			
 		]]>
 	</mx:Script>	
-	<mx:Image id="roleImage" source="{data.role == Role.MODERATOR ? adminIcon : ''}" 
-			toolTip="{data.role == Role.MODERATOR ? 'moderator' : 'viewer'}"/>
+	<mx:Image id="roleImage" source="{data.role == Role.MODERATOR ? adminIcon : viewerIcon}" 
+			toolTip="{ data.role }"/>
 </mx:HBox>

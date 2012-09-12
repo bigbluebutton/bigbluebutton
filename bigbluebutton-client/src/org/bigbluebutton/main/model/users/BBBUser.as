@@ -30,7 +30,8 @@ package org.bigbluebutton.main.model.users
 		public static const MODERATOR:String = "MODERATOR";
 		public static const VIEWER:String = "VIEWER";
 		public static const PRESENTER:String = "PRESENTER";
-		
+		public static const GUEST:String = "GUEST";
+
 		[Bindable] public var me:Boolean = false;
 		[Bindable] public var userid:Number;
 		[Bindable] public var name:String;
@@ -46,9 +47,12 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var voiceMuted:Boolean = false;
 		[Bindable] public var voiceJoined:Boolean = false;
 		[Bindable] public var voiceLocked:Boolean = false;
-		
+		[Bindable] public var acceptedJoin:Boolean = false;
+		[Bindable] public var waitingForMod:Boolean = false;
 		private var _status:StatusCollection = new StatusCollection();
-				
+		
+			
+	
 		public function get status():ArrayCollection {
 			return _status.getAll();
 		}
@@ -94,6 +98,8 @@ package org.bigbluebutton.main.model.users
 					break;
 			}
 		}
+
+		
 		
 		public function removeStatus(name:String):void {
 			_status.removeStatus(name);

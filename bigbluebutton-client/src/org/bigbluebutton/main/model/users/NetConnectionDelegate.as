@@ -31,6 +31,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+	import org.bigbluebutton.core.managers.UserManager;
 		
 	public class NetConnectionDelegate
 	{
@@ -239,13 +240,12 @@ package org.bigbluebutton.main.model.users
 		private function sendConnectionSuccessEvent(userid:Object):void{
 			var useridString:String = userid as String;
 			var n:int = parseInt(useridString);
-			
 			var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
 			e.connection = _netConnection;
 			e.userid = n;
 			dispatcher.dispatchEvent(e);
-			
 			backoff = 2000;
+			
 		}
 		
 		private function sendConnectionFailedEvent(reason:String):void{

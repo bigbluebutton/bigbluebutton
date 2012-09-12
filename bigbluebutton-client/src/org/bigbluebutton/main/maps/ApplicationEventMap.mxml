@@ -66,6 +66,14 @@
 		<MethodInvoker generator="{ModulesProxy}" method="loadAllModules" arguments="{event.conferenceParameters}" />
 	</EventHandlers>
 	
+	<EventHandlers type="{WaitModeratorEvent.USER_LOGGED_IN}" >
+		<MethodInvoker generator="{UserService}" method="askToEnter" arguments="{event}" />
+	</EventHandlers>
+
+	<EventHandlers type="{ResponseModeratorEvent.RESPONSE}" >
+		<MethodInvoker generator="{UserService}" method="responseToGuest" arguments="{event}" />
+	</EventHandlers>
+
 	<!-- Viewers Stuff -->
 	<EventHandlers type="{RaiseHandEvent.RAISE_HAND}" >
 		<MethodInvoker generator="{UserService}" method="raiseHand" arguments="{event}" />
@@ -123,7 +131,9 @@
 		import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 		import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 		import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-		import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;		
+		import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;	
+		import org.bigbluebutton.main.events.WaitModeratorEvent;	
+		import org.bigbluebutton.main.events.ResponseModeratorEvent;
 	]]>
 	</mx:Script>
 	

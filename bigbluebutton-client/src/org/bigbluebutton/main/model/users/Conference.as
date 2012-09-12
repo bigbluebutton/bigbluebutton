@@ -101,6 +101,16 @@ package org.bigbluebutton.main.model.users {
 			return null;				
 		}
 
+		public function amIWaitForModerator():Boolean {
+			return me.waitingForMod;		
+		}
+		
+		public function setWaitForModerator(state:Boolean):void {
+			me.waitingForMod = state;
+		}
+
+		
+
 		public function isUserPresenter(userid:Number):Boolean {
 			var user:Object = getParticipantIndex(userid);
 			if (user == null) {
@@ -169,6 +179,8 @@ package org.bigbluebutton.main.model.users {
 		public function set voiceMuted(m:Boolean):void {
 			me.voiceMuted = m;
 		}
+
+		
 		
 		public function get voiceMuted():Boolean {
 			return me.voiceMuted;
@@ -231,6 +243,11 @@ package org.bigbluebutton.main.model.users {
 		public function setMyRole(role:String):void {
 			me.role = role;
 		}
+		
+		public function getMyRole():String {
+			return me.role;
+		}
+		
 		
 		public function setMyRoom(room:String):void {
 			me.room = room;

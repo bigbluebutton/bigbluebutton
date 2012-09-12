@@ -24,7 +24,8 @@ import java.util.Hashtable;
 import java.util.Map;
 import org.bigbluebutton.conference.service.recorder.Recorder;
 import org.bigbluebutton.conference.IRoomListener;
-import org.bigbluebutton.conference.BigBlueButtonUtils;import org.red5.server.api.so.ISharedObject;
+import org.bigbluebutton.conference.BigBlueButtonUtils;
+import org.red5.server.api.so.ISharedObject;
 import org.bigbluebutton.conference.Participant;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
@@ -88,6 +89,25 @@ public class ParticipantsEventSender implements IRoomListener {
 		args.add(value);
 		so.sendMessage("participantStatusChange", args);
 	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public void guestEntrance(Participant p) {
+		log.debug("guest entrance enviando.");
+		ArrayList list = new ArrayList();
+		list.add(p.getInternalUserID());
+		list.add(p.getName());
+		so.sendMessage("guestEntrance", list);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public void guestResponse(Participant p, Boolean resp) {
+		ArrayList list = new ArrayList();
+		list.add(p.getInternalUserID());
+		list.add(resp);
+		so.sendMessage("guestResponse", list);
+	}
+
 
 	@Override
 	public String getName() {

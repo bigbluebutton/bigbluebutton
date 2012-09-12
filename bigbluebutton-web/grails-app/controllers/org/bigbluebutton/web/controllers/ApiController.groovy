@@ -51,6 +51,7 @@ class ApiController {
   private static final String RESP_CODE_FAILED = 'FAILED'
   private static final String ROLE_MODERATOR = "MODERATOR";
   private static final String ROLE_ATTENDEE = "VIEWER";
+  private static final String ROLE_GUEST = "GUEST";
   private static final String SECURITY_SALT = '639259d4-9dd8-4b25-bf01-95f9567eaf4b'
   private static final String API_VERSION = '0.8'
     
@@ -127,7 +128,7 @@ class ApiController {
     if (existing != null) {
       log.debug "Existing conference found"
       Map<String, Object> updateParams = paramsProcessorUtil.processUpdateCreateParams(params);
-      if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW"))) {
+      if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW")) && existing.getGuestPassword().equals(params.get("guestPW"))) {
         paramsProcessorUtil.updateMeeting(updateParams, existing);
         // trying to create a conference a second time, return success, but give extra info
         // Ignore pre-uploaded presentations. We only allow uploading of presentation once.
@@ -195,6 +196,8 @@ class ApiController {
       errors.missingParamError("checksum");
     }
 
+    
+
     // Do we have a name for the user joining? If none, complain.
     String fullName = params.fullName
     if (StringUtils.isEmpty(fullName)) {
@@ -213,6 +216,10 @@ class ApiController {
       errors.missingParamError("password");
     }
     
+
+
+    
+
     if (errors.hasErrors()) {
     	respondWithErrors(errors)
     	return
@@ -239,6 +246,13 @@ class ApiController {
 	   errors.invalidMeetingIdError();
 	   respondWithErrors(errors)
 	   return;
+    }
+
+    // Ask moderators to allow guest to enter
+    if (attPW.equals("guest123")) {
+        //errors.accessDenied();
+	//respondWithErrors(errors)
+    	//return
     }
 
 	// the createTime mismatch with meeting's createTime, complain
@@ -276,11 +290,13 @@ class ApiController {
       role = ROLE_MODERATOR;
     } else if (meeting.getViewerPassword().equals(attPW)) {
       role = ROLE_ATTENDEE;
+    } else if (meeting.getGuestPassword().equals(attPW)) {
+      role = ROLE_GUEST;
     }
     
     if (role == null) {
 		// BEGIN - backward compatibility
-		invalid("invalidPassword","You either did not supply a password or the password supplied is neither the attendee or moderator password for this conference.");
+		invalid("invalidPassword","You either did not supply a password or the password supplied is neither the attendee or moderator or guest password for this conference.");
 		return
 		// END - backward compatibility
 		
@@ -339,6 +355,8 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
 	// BEGIN - backward compatibility
+	
+
 	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return

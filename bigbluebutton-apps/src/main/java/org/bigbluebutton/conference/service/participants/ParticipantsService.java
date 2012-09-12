@@ -30,7 +30,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;import org.bigbluebutton.conference.Participant;
+import java.util.Map;
+import org.bigbluebutton.conference.Participant;
 
 public class ParticipantsService {
 
@@ -100,5 +101,15 @@ public class ParticipantsService {
 	public void setParticipantsApplication(ParticipantsApplication a) {
 		log.debug("Setting Participants Applications");
 		application = a;
+	}
+
+	public void askingToEnter(Long userid) {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.askingToEnter(roomName, userid);
+	}
+
+	public void responseToGuest(Long userid, Boolean resp) {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.responseToGuest(roomName, userid, resp);
 	}
 }

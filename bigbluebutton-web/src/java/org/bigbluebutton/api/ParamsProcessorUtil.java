@@ -171,6 +171,11 @@ public class ParamsProcessorUtil {
 	    if (! StringUtils.isEmpty(modPass) ) {
 	    	newParams.put("moderatorPW", modPass);
 	    }
+
+	    String guePass = params.get("guestPW"); 
+	    if (! StringUtils.isEmpty(modPass) ) {
+	    	newParams.put("guestPW", modPass);
+	    }
 	    
 	    String telVoice = params.get("voiceBridge");
 	    if (! StringUtils.isEmpty(telVoice) ) {
@@ -235,7 +240,7 @@ public class ParamsProcessorUtil {
 	    String externalMeetingId = params.get("meetingID");
 	    String viewerPass = processPassword(params.get("attendeePW"));
 	    String modPass = processPassword(params.get("moderatorPW")); 
-	    
+	    String guePass = processPassword(params.get("guestPW"));
 	    // Get the digits for voice conference for users joining through the phone.
 	    // If none is provided, generate one.
 	    String telVoice = processTelVoice(params.get("voiceBridge"));
@@ -284,7 +289,7 @@ public class ParamsProcessorUtil {
 	    // Create the meeting with all passed in parameters.
 	    Meeting meeting = new Meeting.Builder(externalMeetingId, internalMeetingId, createTime)
 	        .withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
-	        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
+	        .withViewerPass(viewerPass).withGuestPass(guePass).withRecording(record).withDuration(meetingDuration)
 	        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
 	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build();
 	    

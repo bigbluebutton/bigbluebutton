@@ -44,4 +44,8 @@ public class ApiErrors {
 	public ArrayList<String[]> getErrors() {
 		return errors;
 	}
+
+	public void accessDenied() {
+		errors.add(new String[] {"accessDenied", "The moderator didn't allow you to enter in this meeting."});
+	}
 }

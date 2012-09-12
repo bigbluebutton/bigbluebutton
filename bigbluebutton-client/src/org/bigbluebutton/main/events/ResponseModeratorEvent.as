@@ -16,18 +16,26 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
+package org.bigbluebutton.main.events
+{
+	import flash.events.Event;
+	
+	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.users.BBBUser;
+	import org.bigbluebutton.main.model.users.UsersSOService;
+	import org.bigbluebutton.main.model.ConferenceParameters;
 
-package org.bigbluebutton.conference;
-
-import java.util.ArrayList;
-
-public interface IRoomListener {
-	public String getName();
-	public void participantStatusChange(Participant p, String status, Object value);
-	public void participantJoined(Participant participant);
-	public void participantLeft(Participant participant);
-	public void assignPresenter(ArrayList<String> presenter);
-	public void guestEntrance(Participant p);
-	public void endAndKickAll();
-	public void guestResponse(Participant p, Boolean resp);
+	public class ResponseModeratorEvent extends Event
+	{
+		public static const RESPONSE:String = "Response";
+		
+		
+		public var userid:Number;
+		public var resp:Boolean;
+		
+		public function ResponseModeratorEvent(type:String)
+		{
+			super(type, true, false);
+		}
+	}
 }

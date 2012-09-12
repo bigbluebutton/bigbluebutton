@@ -69,6 +69,8 @@ $Id: $
 			}
 			
 			public function start(attributes:Object):void {	
+
+			
 				_attributes = attributes;
 				globalDispatcher = new Dispatcher();
 				Requirements.setRequirements(attributes);

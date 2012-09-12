@@ -20,9 +20,13 @@ package org.bigbluebutton.conference.service.participants;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import java.util.ArrayList;
-import java.util.Map;import org.bigbluebutton.conference.RoomsManager;
-import org.bigbluebutton.conference.Room;import org.bigbluebutton.conference.Participant;import org.bigbluebutton.conference.IRoomListener;
+
+import java.util.ArrayList;
+import java.util.Map;
+import org.bigbluebutton.conference.RoomsManager;
+import org.bigbluebutton.conference.Room;
+import org.bigbluebutton.conference.Participant;
+import org.bigbluebutton.conference.IRoomListener;
 
 public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
@@ -67,6 +71,14 @@ public class ParticipantsApplication {
 	
 	public void setParticipantStatus(String room, Long userid, String status, Object value) {
 		roomsManager.changeParticipantStatus(room, userid, status, value);
+	}
+
+	public void askingToEnter(String roomName, Long userid) {
+		roomsManager.askToEnter(roomName, userid);	
+	}
+
+	public void responseToGuest(String roomName, Long userid, Boolean resp) {
+		roomsManager.responseToGuest(roomName, userid, resp);
 	}
 	
 	public Map getParticipants(String roomName) {

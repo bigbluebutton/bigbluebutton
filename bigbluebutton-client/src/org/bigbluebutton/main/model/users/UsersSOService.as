@@ -32,6 +32,8 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
+	import org.bigbluebutton.main.events.NewGuestEvent;
+	import org.bigbluebutton.main.events.RemoveGuestRequestEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -203,6 +205,9 @@ package org.bigbluebutton.main.model.users {
 			user.userid = Number(joinedUser.userid);
 			user.name = joinedUser.name;
 			user.role = joinedUser.role;
+			if(user.role != "GUEST")
+				user.acceptedJoin = true;
+	
 
 			LogUtil.debug("User status: " + joinedUser.status.hasStream);
 
@@ -251,7 +256,36 @@ package org.bigbluebutton.main.model.users {
 				dispatcher.dispatchEvent(e);
 			}		
 		}
+		//Callback from server	
+		public function guestEntrance(userid:Number, name:String):void {
+			if(UserManager.getInstance().getConference().amIModerator()) {
+				var e:NewGuestEvent = new NewGuestEvent(NewGuestEvent.NEW_GUEST_EVENT);
+				e.userid = userid;
+				e.name = name;				
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(e);
+			}
+		}
+		
+		public function guestResponse(userid:Number, resp:Boolean):void {
+			if(UserManager.getInstance().getConference().getMyUserId()) {
+				if(UserManager.getInstance().getConference().amIWaitForModerator()) {
+					UserManager.getInstance().getConference().setWaitForModerator(false);
+					if(resp == false)
+						kickUser(userid);
+					else {
 					
+					}
+				}
+			}
+			if(UserManager.getInstance().getConference().amIModerator()) {
+				var e:RemoveGuestRequestEvent = new RemoveGuestRequestEvent(RemoveGuestRequestEvent.GUEST_EVENT);
+				e.userid = userid;
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(e);				
+			}
+		}
+
 		public function raiseHand(userid:Number, raise:Boolean):void {
 			var nc:NetConnection = netConnectionDelegate.connection;			
 			nc.call(
@@ -260,6 +294,25 @@ package org.bigbluebutton.main.model.users {
 				userid,
 				"raiseHand",
 				raise
+			); //_netConnection.call
+		}
+
+		public function askToEnter(userid:Number):void {
+			var nc:NetConnection = netConnectionDelegate.connection;			
+			nc.call(
+				"participants.askingToEnter",// Remote function name
+				responder,
+				userid
+			); //_netConnection.call
+		}
+
+		public function responseToGuest(userid:Number, resp:Boolean):void {
+			var nc:NetConnection = netConnectionDelegate.connection;			
+			nc.call(
+				"participants.responseToGuest",// Remote function name
+				 responder,
+				 userid,
+				 resp
 			); //_netConnection.call
 		}
 		
