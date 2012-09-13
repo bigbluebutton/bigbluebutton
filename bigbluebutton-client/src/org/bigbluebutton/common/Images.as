@@ -93,6 +93,9 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/webcam.png")]
         public var webcam:Class;                            
         
+	[Embed(source="assets/images/webcam_on.png")]
+        public var webcamOn:Class; 
+
         [Embed(source="assets/images/pencil.png")]
         public var pencil_icon:Class;  
         
@@ -114,6 +117,9 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/deskshare_icon.png")]
         public var deskShareIcon:Class;  
         
+	[Embed(source="assets/images/deskshare_on.png")]
+        public var deskShareIconOn:Class;  
+
         [Embed(source="assets/images/control_play_blue.png")]
         public var control_play:Class;  
 

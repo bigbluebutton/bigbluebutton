@@ -129,6 +129,8 @@
 				globalDispatcher.dispatchEvent(broadcastEvent);
 				publishWindow.title = module.username + " (you)";
 				_publishing = true;
+				button.publishingStatus(button.START_PUBLISHING);
+
 			}
 			
 			private function stopPublishing(e:StopBroadcastEvent):void{
@@ -143,7 +145,9 @@
 				}
 				
 				//Make toolbar button enabled again
-				button.show();
+
+				button.publishingStatus(button.STOP_PUBLISHING);
+				//button.show();
 			}
 			
 			public function stopModule():void {
