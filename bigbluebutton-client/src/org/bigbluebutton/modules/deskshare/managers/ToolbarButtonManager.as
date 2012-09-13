@@ -65,14 +65,22 @@ package org.bigbluebutton.modules.deskshare.managers
 				buttonShownOnToolbar = false;			
 			}
 		}
-						
+		//OLD - CAN BE DELETED				
 		public function enableToolbarButton():void {
 			button.enabled = true;
 			button.stopDeskshare();
 		}
-		
+		//OLD - CAN BE DELETED
 		public function disableToolbarButton():void {
 			button.enabled = false;			
+		}
+
+		public function startedSharing():void {
+			button.deskshareStatus(button.START_SHARING);
+		}
+
+		public function stopedSharing():void {
+			button.deskshareStatus(button.STOP_SHARING);
 		}
 	}
 }
