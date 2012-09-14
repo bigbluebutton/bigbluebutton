@@ -38,6 +38,7 @@ package org.bigbluebutton.core.managers
 		private var _netmon:NetMonitor;
 		private var _heartbeat:Timer = new Timer( 2000 );
 		private var _globalDispatcher:Dispatcher = new Dispatcher();
+		private var _totalByteCount:Dictionary = new Dictionary();
 		
 		/**
 		 * This class is a singleton. Please initialize it using the getInstance() method.
@@ -121,6 +122,10 @@ package org.bigbluebutton.core.managers
 			log("Stream info: " + event.currentTarget);
 		}
 		
+		private function isRemoteStream(stream:NetStream):Boolean {
+			return (stream != null && stream.info != null && stream.info.resourceName != null);
+		}
+		
 		//On heartbeat timer 
 		private function onHeartbeat(event:TimerEvent):void { 
 			var streams:Vector.<NetStream> = _netmon.listStreams();
@@ -129,10 +134,20 @@ package org.bigbluebutton.core.managers
 			var upload:Dictionary = new Dictionary();
 			 
 			for (var i:int = 0; i < streams.length; i++) {
-				var remote:Boolean = (streams[i].info.resourceName != null);
-//				log("***** This is a " + (remote? "remote": "local") + " stream *****");
+				if (streams[i] == null || streams[i].info == null) {
+					log("Stream info is null, returning");
+					continue;
+				}
+				
+//				log("Heartbeat on " + streams[i].info);
+
+				var remote:Boolean = isRemoteStream(streams[i]);
 				var ref:Dictionary = (remote? download: upload);
 
+				if (streams[i].info.uri == null) {
+					log("Stream URI is null, returning");
+					continue;
+				}
 				var uri:String = streams[i].info.uri.toLowerCase();
 				var pattern1:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)\/(?P<meeting>.+)/;
 				var pattern2:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
@@ -166,23 +181,32 @@ package org.bigbluebutton.core.managers
 						ref[property] = num;
 					}
 				}
-				var streamsName:String = app + "/" + (remote? streams[i].info.resourceName: "local");
-				if (ref.hasOwnProperty("streams"))
-					streamsName = ref["streams"] + ";" + streamsName;
+				var streamName:String = app + "/" + (remote? streams[i].info.resourceName: "local");
+				var streamsName:String = (ref.hasOwnProperty("streams")? ref["streams"] + ";":"") + streamName;
 				ref["streams"] = streamsName;
 				
-//				log("Heartbeat on " + streams[i].info/*.uri*/ + " at " + streams[i].time); 
-//				log("Heartbeat: " + streams[i].info);
-				//handle heartbeat event 
-				
+				var totalReg:Object = new Object;
+				totalReg.streamName = streamName;
+				totalReg.remote = remote;
+				totalReg.byteCount = streams[i].info["byteCount"];
+				if (_totalByteCount.hasOwnProperty(streamName) && _totalByteCount[streamName].byteCount > totalReg.byteCount) {
+					var curTime:Number = new Date().getTime();
+					var newStreamName:String = streamName + "_" + curTime;
+					_totalByteCount[streamName].streamName = newStreamName;
+					_totalByteCount[newStreamName] = _totalByteCount[streamName];
+					delete _totalByteCount[streamName];
+				}
+				_totalByteCount[streamName] = totalReg;
 			}
-			/*
-			log("Download: " + (download["currentBytesPerSecond"] * 8)/1000 + "Kb/s");
-			log("Download total: " + (download["byteCount"] * 8)/1000000 + "MB");
-			log("Upload: " + (upload["currentBytesPerSecond"] * 8)/1000 + "Kb/s");
-			log("Upload total: " + (upload["byteCount"] * 8)/1000000 + "MB");
-			*/
-			
+
+			for each (var value:Object in _totalByteCount) {
+				if (value.remote)
+					download["byteCount"] = value.byteCount;
+				else
+					upload["byteCount"] = value.byteCount;
+				log(value.streamName + ": " + value.byteCount);
+			}
+
 			var netstatsEvent:NetworkStatsEvent = new NetworkStatsEvent();
 			netstatsEvent.downloadStats = download;
 			netstatsEvent.uploadStats = upload;
