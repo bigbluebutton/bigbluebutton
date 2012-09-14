@@ -23,7 +23,7 @@
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:mate="http://mate.asfusion.com/"
 	icon="{deskShareIcon}" 
-	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip')}"
+	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.start')}"
 	click="startDeskShare()"
 	mouseOver = "mouseOverHandler(event)"
 	mouseOut = "mouseOutHandler(event)"
