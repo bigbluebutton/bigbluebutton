@@ -51,6 +51,7 @@ public class Application extends MultiThreadedApplicationAdapter {
     @Override
     public boolean appStart(IScope scope) {
     	log.debug("VoiceConferenceApplication appStart[" + scope.getName() + "]");
+    	super.setScope(scope);
     	callStreamFactory = new CallStreamFactory();
     	callStreamFactory.setScope(scope);
     	sipPeerManager.setCallStreamFactory(callStreamFactory);
@@ -62,13 +63,14 @@ public class Application extends MultiThreadedApplicationAdapter {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        return true;
+        return super.appStart(scope);
     }
 
     @Override
     public void appStop(IScope scope) {
         log.debug("VoiceConferenceApplication appStop[" + scope.getName() + "]");
         sipPeerManager.destroyAllSessions();
+        super.appStop(scope);
     }
 
     @Override
@@ -88,7 +90,7 @@ public class Application extends MultiThreadedApplicationAdapter {
         log.info("[clientid={}] connected from {}.", clientId, remoteHost + ":" + remotePort);
         
         clientConnManager.createClient(clientId, userid, username, (IServiceCapableConnection) Red5.getConnectionLocal());
-        return true;
+        return super.appConnect(conn, params);
     }
 
     @Override
@@ -114,6 +116,7 @@ public class Application extends MultiThreadedApplicationAdapter {
 				e.printStackTrace();
 			}
         }
+        super.appDisconnect(conn);
     }
     
     @Override
