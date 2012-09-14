@@ -12,7 +12,8 @@ exports.publishUsernames = function(meetingID, sessionID, callback) {
         usernames.push({ 'name' : users[i].username, 'id' : users[i].pubID });
       };
       var receivers = sessionID != undefined ? sessionID : meetingID;
-      pub.publish(receivers, JSON.stringify(['user list change', usernames]));
+      //pub.publish(receivers, JSON.stringify(['user list change', usernames]));
+      pub.publish("bigbluebutton:bridge", JSON.stringify([receivers,'user list change', usernames]));
       if(callback) callback(true);
   });
   store.scard(redisAction.getUsersString(meetingID), function(err, cardinality) {

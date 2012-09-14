@@ -16,6 +16,11 @@
 	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
+		<property name="participantsBridge"> <ref local="participantsBridge"/></property>
+	</bean>
+	
+	<bean id="participantsBridge" class="org.bigbluebutton.conference.service.participants.ParticipantsBridge">
+		<property name="messagingService" ref="messagingService"></property>
 	</bean>
 	
 	<bean id="participantsApplication" 
@@ -124,6 +129,7 @@
     </bean>
 	
     <bean id="messagingService" class="org.bigbluebutton.conference.service.messaging.RedisMessagingService">
+    	<property name="participantsApplication"> <ref local="participantsApplication"/></property>
     	<property name="redisPool" ref="redisPool"/>
   	</bean>
     

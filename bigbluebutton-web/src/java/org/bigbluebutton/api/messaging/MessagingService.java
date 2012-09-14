@@ -10,4 +10,6 @@ public interface MessagingService {
 	public void send(String channel, String message);
 	public void addListener(MessageListener listener);
 	public void removeListener(MessageListener listener);
+	public void recordMeeting(String meetingID, String externalID, String name);
+	public void removeMeeting(String meetingId);
 }

@@ -40,7 +40,8 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 
 	private ParticipantsApplication participantsApplication;
 	private RecorderApplication recorderApplication;
-	
+	private ParticipantsBridge participantsBridge;
+
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
 		log.debug(APP + ":appConnect");
@@ -109,6 +110,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		if (bbbSession == null) {
 			log.debug("roomLeave - session is null"); 
 		} else {
+			participantsBridge.participantLeft(bbbSession.getSessionName(), new Long(bbbSession.getInternalUserID()));
 			participantsApplication.participantLeft(bbbSession.getSessionName(), new Long(bbbSession.getInternalUserID()));
 		}		
 	}
@@ -148,6 +150,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 			status.put("raiseHand", false);
 			status.put("presenter", false);
 			status.put("hasStream", false);	
+			participantsBridge.participantJoined(room, userid, username);
 			return participantsApplication.participantJoin(room, userid, username, role, bbbSession.getExternUserID(), status);
 		}
 		log.warn("Can't send user join as session is null.");
@@ -164,5 +167,13 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 	
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
+	}
+	
+	public ParticipantsBridge getParticipantsBridge() {
+		return participantsBridge;
+	}
+
+	public void setParticipantsBridge(ParticipantsBridge participantsBridge) {
+		this.participantsBridge = participantsBridge;
 	}
 }

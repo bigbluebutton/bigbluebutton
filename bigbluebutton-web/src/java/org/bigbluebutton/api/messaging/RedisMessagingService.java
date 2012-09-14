@@ -186,4 +186,32 @@ public class RedisMessagingService implements MessagingService {
 		}		
 	}
 
+	@Override
+	public void recordMeeting(String meetingID, String externalID, String name) {
+		Jedis jedis = redisPool.getResource();
+		try {
+			HashMap<String,String> map = new HashMap<String, String>();
+			map.put("meetingID", meetingID);
+			map.put("externalID", externalID);
+			map.put("name", name);
+			
+			jedis.hmset("meeting-" + meetingID, map);
+			jedis.sadd("meetings", meetingID);
+
+		} finally {
+			redisPool.returnResource(jedis);
+		}
+	}
+	public void removeMeeting(String meetingId){
+		Jedis jedis = redisPool.getResource();
+		try {
+			jedis.del("meeting-" + meetingId);
+			//jedis.hmset("meeting"+ COLON +"info" + COLON + meetingId, metadata);
+			jedis.srem("meetings", meetingId);
+
+		} finally {
+			redisPool.returnResource(jedis);
+		}
+	}
+
 }

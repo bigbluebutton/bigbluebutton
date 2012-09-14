@@ -7,10 +7,15 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.bigbluebutton.conference.Participant;
+import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 
 import redis.clients.jedis.Jedis;
@@ -26,6 +31,8 @@ public class RedisMessagingService implements MessagingService{
 	private Runnable pubsubListener;
 	
 	private final Set<MessageListener> listeners = new HashSet<MessageListener>();
+	
+	private ParticipantsApplication participantsApplication;
 
 	public RedisMessagingService(){
 		
@@ -81,6 +88,16 @@ public class RedisMessagingService implements MessagingService{
 	public void setRedisPool(JedisPool redisPool){
 		this.redisPool=redisPool;
 	}
+	
+	public Jedis createRedisClient(){
+		return redisPool.getResource();
+	}
+	public void dropRedisClient(Jedis jedis){
+		redisPool.returnResource(jedis);
+	}
+	public void setParticipantsApplication(ParticipantsApplication pa){
+		this.participantsApplication = pa;
+	}
 
 	private class PubSubListener extends JedisPubSub {
 		
@@ -97,9 +114,9 @@ public class RedisMessagingService implements MessagingService{
 		public void onPMessage(String pattern, String channel, String message) {
 			log.debug("Message Received in channel: " + channel);
 			Gson gson = new Gson();
-			HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 			
 			if(channel.equalsIgnoreCase(MessagingConstants.SYSTEM_CHANNEL)){
+				HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
 				String meetingId = map.get("meetingId");
 				String messageId = map.get("messageId");
 				if(messageId != null){
@@ -111,9 +128,55 @@ public class RedisMessagingService implements MessagingService{
 				}
 			}
 			else if(channel.equalsIgnoreCase(MessagingConstants.PRESENTATION_CHANNEL)){
+				HashMap<String,String> map = gson.fromJson(message, new TypeToken<Map<String, String>>() {}.getType());
+				
 				for (MessageListener listener : listeners) {
 					listener.presentationUpdates(map);
 				}
+			}
+			else if(channel.equalsIgnoreCase(MessagingConstants.BIGBLUEBUTTON_BRIDGE)){
+				/*JsonParser parser = new JsonParser();
+			    //JsonObject array = parser.parse(message).getAsJsonObject();
+				JsonArray array = parser.parse(message).getAsJsonArray();
+			    String meetingId = gson.fromJson(array.get(0), String.class);
+			    String messageName = gson.fromJson(array.get(1), String.class);
+
+			    //JsonObject params = array.getAsJsonObject("params");
+
+				if(messageName.equalsIgnoreCase("user list change")){
+					//usernames.push({ 'name' : users[i].username, 'id' : users[i].pubID });
+					JsonArray nPartipants = array.get(2).getAsJsonArray();
+					
+					//obtener la lista de participantes
+					Map<String,Participant> map = participantsApplication.getParticipants(meetingId);
+					
+					//checkear q participante esta o no esta
+					for(int i=0;i<nPartipants.size();i++){
+						JsonObject obj = nPartipants.get(i).getAsJsonObject();
+						String nUserId = gson.fromJson(obj.get("id"),String.class);
+						
+						if(!map.containsKey(nUserId)){
+							String username = gson.fromJson(obj.get("name"),String.class);
+							String externalUserID = 
+							Participant p = new Participant(Long.parseLong(nUserId), username, "VIEWER", externalUserID, status);
+						}
+					}
+					
+					
+					long internalUserID = Long.parseLong(gson.fromJson(params.get("internalUserID"), String.class));
+					String username = gson.fromJson(params.get("username"), String.class);
+					String role = gson.fromJson(params.get("role"), String.class);
+					String externalUserID = gson.fromJson(params.get("externalUserID"), String.class);
+
+					Map<String, Boolean> status = new HashMap<String, Boolean>();
+					status.put("raiseHand", false);
+					status.put("presenter", false);
+					status.put("hasStream", false);
+
+					participantsApplication.participantJoin(meetingId, internalUserID, username, role, externalUserID, status);
+
+				}*/
+
 			}
 			
 		}

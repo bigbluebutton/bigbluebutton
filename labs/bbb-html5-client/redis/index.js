@@ -1084,3 +1084,32 @@ exports.updateUserProperties = function(meetingID, userID, properties, callback)
   });
   store.hmset.apply(store, properties);
 };
+
+exports.getMeetings = function(callback){
+  store.smembers("meetings",function (err,meetingids){
+    if(meetingids){
+      var index = 0;
+      var resp = [];
+      var f = function (err,properties){
+        if(index == meetingids.length)
+          callback(resp);
+        else{
+          var r = {};
+          r.meetingID = meetingids[index];
+          r.externalID = properties["externalID"];
+          r.meetingName = properties["name"];
+          resp.push(r);
+          index += 1;
+          store.hgetall("meeting-" + meetingids[index], f);
+        }
+
+      }
+
+      store.hgetall("meeting-" + meetingids[index],f);  
+      
+    }else{
+      console.log(err);
+      callback([]);
+    }
+  });
+};

@@ -21,7 +21,9 @@ exports.presentationImageFolder = function(presentationID) {
 exports.get_index = function(req, res) {
   redisAction.isValidSession(req.cookies.meetingid, req.cookies.sessionid, function (reply) {
     if(!reply) {
-     res.render('index', { title: 'BigBlueButton HTML5 Client', max_u: max_username_length, max_mid: max_meetingid_length });
+      redisAction.getMeetings(function (meetings){
+        res.render('index', { title: 'BigBlueButton HTML5 Client', max_u: max_username_length, meetings: meetings });
+      });
     }
     else {
       res.redirect('/chat');
@@ -40,7 +42,7 @@ exports.get_index = function(req, res) {
  * @return {undefined}          callback is used to send the status back to the caller of this function
  */
 function makeMeeting(meetingID, sessionID, username, callback) {
-  if((username) && (meetingID) && (username.length <= max_username_length) && (meetingID.length <= max_meetingid_length) && (meetingID.split(' ').length == 1)) {
+  if((username) && (meetingID) && (username.length <= max_username_length) && (meetingID.split(' ').length == 1)) {
     var publicID = rack();
     redisAction.isMeetingRunning(meetingID, function(isRunning) {
       if(!isRunning) {

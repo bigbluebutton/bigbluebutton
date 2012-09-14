@@ -6,5 +6,8 @@ script(src='/js/index/index.js') //all index javascript
 // Login form
 form(method='post', name='login')
   input(type="text", maxlength="#{max_u}", name="user[name]", placeholder='Enter a username')
-  input(type="text", maxlength="#{max_mid}", name="meeting[id]", placeholder="Enter a meeting ID")
+  select(name="meeting[id]")
+    - for(var i=0; i<meetings.length; i++){
+      option(value="#{meetings[i].meetingID}") #{meetings[i].meetingName}
+    - }
   input(type="submit", value='Sign in')
