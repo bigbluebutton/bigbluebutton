@@ -139,6 +139,15 @@ public class PresentationEventSender implements IPresentationRoomListener {
 		list.add(share);
 		so.sendMessage("sharePresentationCallback", list);
 	}
+	
+	@Override
+	public void sendCursorUpdate(Double xPercent, Double yPercent) {
+		log.debug("calling updateCursorCallback[" + xPercent + "," + yPercent + "]");
+		ArrayList list=new ArrayList();
+		list.add(xPercent);
+		list.add(yPercent);
+		so.sendMessage("updateCursorCallback", list);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -151,4 +160,6 @@ public class PresentationEventSender implements IPresentationRoomListener {
 		list.add(heightRatio);
 		so.sendMessage("moveCallback", list);
 	}
+
+	
 }

@@ -63,7 +63,7 @@ class BlockFactory {
     	return (screenDim.getHeight() % tileDim.getHeight()) != 0;
     }
   
-    Block createBlock(int position) {
+    Block createBlock(int position, boolean useSVC2) {
     	int col = computeColumn(position);
     	int row = computeRow(position);
 		int w = computeTileWidth(col);
@@ -72,7 +72,7 @@ class BlockFactory {
 		int y = computeTileYLocation(row);
 		int pos = computeTilePosition(row, col);
 		
-		Block t = new Block(new Dimension(w, h), pos, new Point(x,y));
+		Block t = new Block(new Dimension(w, h), pos, new Point(x,y), useSVC2);
 
 		return t;
     }

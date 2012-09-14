@@ -18,7 +18,11 @@
 */
 package org.bigbluebutton.modules.whiteboard.business.shapes
 {
+	import flash.display.DisplayObject;
 	import flash.display.Shape;
+	import flash.display.Sprite;
+	
+	import org.bigbluebutton.modules.whiteboard.models.Annotation;
 
 	/**
 	 * The DrawObject class provides an interface for other geometric representations.
@@ -30,103 +34,76 @@ package org.bigbluebutton.modules.whiteboard.business.shapes
 	 * @author dzgonjan
 	 * 
 	 */	
-	public class DrawObject {
+	public class DrawObject extends Sprite implements GraphicObject {
 		public static const PENCIL:String = "pencil";
+		public static const HIGHLIGHTER:String = "highlighter";
+		public static const ERASER:String = "eraser";
 		public static const RECTANGLE:String = "rectangle";
 		public static const ELLIPSE:String = "ellipse";
+        public static const TEXT:String = "text";      
+		public static const TRIANGLE:String = "triangle";
+		public static const LINE:String = "line";	
 				
-		protected var type:String;
-		protected var shape:Array;
-		protected var color:uint;
-		protected var thickness:uint;
-		
-		/**
-		 * Id we can use to match the feedback shape in the presenter's view so we can
-		 * remove it.
-		 */
-		public var id:String = null;
-		
 		/**
 		 * Status = [START, UPDATE, END]
 		 */ 
 		public static const DRAW_UPDATE:String = "DRAW_UPDATE";
 		public static const DRAW_END:String = "DRAW_END";
 		public static const DRAW_START:String = "DRAW_START";
-		public var status:String = DRAW_START;
 				
-		protected var _shape:Shape = new Shape();
-		protected var _segment:Array;
+        private var _id:String;
+        private var _type:String;
+        
+        private var _status:String;
+		
+		/**
+		 * ID we can use to match the shape in the client's view
+		 * so we can use modify it; a unique identifier of each GraphicObject
+		 */
+		private var ID:String = WhiteboardConstants.ID_UNASSIGNED;
 		
 		/**
 		 * The default constructor for the DrawObject 
 		 * 
 		 */		
-		public function DrawObject(type:String, segment:Array, color:uint, thickness:uint) {
-			this.type = type;
-			this.shape = segment;
-			this.color = color;
-			this.thickness = thickness;
-			this.optimize();
+		public function DrawObject(id:String, type:String, status:String) {
+            _id = id;
+            _type = type;
+            _status = status;
 		}
 		
-		public function getShape():Shape {
-			return _shape;
-		}
+        public function get id():String {
+            return _id;
+        }
+        
+        public function get type():String {
+            return _type;
+        }
+        
+        public function get status():String {
+            return _status;
+        }
+        
+        public function set status(s:String):void {
+            _status = s;
+        }
 		
-		/**
-		 * Returns the type of DrawObject this class is 
-		 * @return a string representing the type
-		 * 
-		 */		
-		public function getType():String{
-			return this.type;
-		}
-		
-		/**
-		 * Returns the array of integers holding the different points needed to build this particular DrawObject 
-		 * @return 
-		 * 
-		 */		
-		public function getShapeArray():Array{
-			return this.shape;
-		}
-		
-		/**
-		 * Returns the Color of the DrawObject
-		 * @return The color, represented as a uint 
-		 * 
-		 */		
-		public function getColor():uint{
-			return this.color;
-		}
-		
-		/**
-		 * Returns the thickness of the DrawObject 
-		 * @return The thickness, represented as a uint
-		 * 
-		 */		
-		public function getThickness():uint{
-			return this.thickness;
-		}
-		
-		protected function optimize():void{
-			// do nothing
-		}
-			
-		protected function readyToSend():Boolean {
-			return false;
-		}
-
-		public function makeShape(width:Number, height:Number):void {
-			
-		}
-		
-		protected function denormalize(val:Number, side:Number):Number {
+		public function denormalize(val:Number, side:Number):Number {
 			return (val*side)/100.0;
 		}
 		
-		protected function normalize(val:Number, side:Number):Number {
+		public function normalize(val:Number, side:Number):Number {
 			return (val*100.0)/side;
 		}
+        
+        public function makeGraphic(parentWidth:Number, parentHeight:Number):void {}
+		
+        public function draw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+            
+        }
+        
+        public function redraw(a:Annotation, parentWidth:Number, parentHeight:Number):void {
+            
+        }
 	}
 }

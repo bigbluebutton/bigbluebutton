@@ -11,6 +11,10 @@ public class ParticipantJoinRecordEvent extends AbstractParticipantRecordEvent {
 		eventMap.put("userId", userId);
 	}
 	
+	public void setName(String name){
+		eventMap.put("name",name);
+	}
+	
 	/**
 	 * Sets the role of the user as MODERATOR or VIEWER
 	 * @param role

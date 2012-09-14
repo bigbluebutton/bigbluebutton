@@ -26,6 +26,8 @@ package org.bigbluebutton.main.model.users {
 	import flash.net.SharedObject;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
@@ -45,7 +47,9 @@ package org.bigbluebutton.main.model.users {
 		private static const SO_NAME : String = "participantsSO";
 		private static const STATUS:String = "_STATUS";
 		
-		private var netConnectionDelegate: NetConnectionDelegate;		
+//		private var netConnectionDelegate: NetConnectionDelegate;	
+        private var _connectionManager:ConnectionManager;
+        
 		private var _room:String;
 		private var _applicationURI:String;
 		
@@ -53,18 +57,19 @@ package org.bigbluebutton.main.model.users {
 				
 		public function UsersSOService(uri:String) {			
 			_applicationURI = uri;
-			netConnectionDelegate = new NetConnectionDelegate(uri);
+            _connectionManager = BBB.initConnectionManager();
+            _connectionManager.setUri(uri);
 			dispatcher = new Dispatcher();
 		}
 		
 		public function connect(params:ConferenceParameters):void {
 			_room = params.room;
-			netConnectionDelegate.connect(params);
+            _connectionManager.connect(params);
 		}
 			
 		public function disconnect(onUserAction:Boolean):void {
 			if (_participantsSO != null) _participantsSO.close();
-			netConnectionDelegate.disconnect(onUserAction);
+            _connectionManager.disconnect(onUserAction);
 		}
 		
 	    public function join(userid:Number, room:String):void {
@@ -72,13 +77,15 @@ package org.bigbluebutton.main.model.users {
 			_participantsSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 			_participantsSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			_participantsSO.client = this;
-			_participantsSO.connect(netConnectionDelegate.connection);
+			_participantsSO.connect(_connectionManager.connection);
+      LogUtil.debug("In UserSOService:join - Setting my userid to [" + userid + "]");
+      UserManager.getInstance().getConference().setMyUserid(userid);
 			queryForParticipants();					
-			UserManager.getInstance().getConference().setMyUserid(userid);
+			
 		}
 		
 		private function queryForParticipants():void {
-			var nc:NetConnection = netConnectionDelegate.connection;
+			var nc:NetConnection = _connectionManager.connection;
 			nc.call(
 				"participants.getParticipants",// Remote function name
 				new Responder(
@@ -105,21 +112,28 @@ package org.bigbluebutton.main.model.users {
 		}
 		
 		private function becomePresenterIfLoneModerator():void {
+      LogUtil.debug("Checking if I need to become presenter.");
 			var participants:Conference = UserManager.getInstance().getConference();
 			if (participants.hasOnlyOneModerator()) {
+        LogUtil.debug("There is only one moderator in the meeting. Is it me? ");
 				var user:BBBUser = participants.getTheOnlyModerator();
 				if (user.me) {
+          LogUtil.debug("Setting me as presenter because I'm the only moderator. My userid is [" + user.userid + "]");
 					var presenterEvent:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
 					presenterEvent.userid = user.userid;
 					presenterEvent.username = user.name;
 					var dispatcher:Dispatcher = new Dispatcher();
 					dispatcher.dispatchEvent(presenterEvent);
-				} 
-			} 
+				} else {
+          LogUtil.debug("No. It is not me. It is [" + user.userid + ", " + user.name + "]");
+        }
+			} else {
+        LogUtil.debug("No. There are more than one moderator.");
+      }
 		}
 		
 		public function assignPresenter(userid:Number, name:String, assignedBy:Number):void {
-			var nc:NetConnection = netConnectionDelegate.connection;
+			var nc:NetConnection = _connectionManager.connection;
 			nc.call("participants.assignPresenter",// Remote function name
 				new Responder(
 					// On successful result
@@ -253,7 +267,7 @@ package org.bigbluebutton.main.model.users {
 		}
 					
 		public function raiseHand(userid:Number, raise:Boolean):void {
-			var nc:NetConnection = netConnectionDelegate.connection;			
+			var nc:NetConnection = _connectionManager.connection;			
 			nc.call(
 				"participants.setParticipantStatus",// Remote function name
 				responder,
@@ -264,7 +278,7 @@ package org.bigbluebutton.main.model.users {
 		}
 		
 		public function addStream(userid:Number, streamName:String):void {
-			var nc:NetConnection = netConnectionDelegate.connection;	
+			var nc:NetConnection = _connectionManager.connection;	
 			nc.call(
 				"participants.setParticipantStatus",// Remote function name
 				responder,
@@ -275,7 +289,7 @@ package org.bigbluebutton.main.model.users {
 		}
 		
 		public function removeStream(userid:Number, streamName:String):void {
-			var nc:NetConnection = netConnectionDelegate.connection;			
+			var nc:NetConnection = _connectionManager.connection;			
 			nc.call(
 				"participants.setParticipantStatus",// Remote function name
 				responder,
@@ -334,7 +348,7 @@ package org.bigbluebutton.main.model.users {
 		
 		public function get connection():NetConnection
 		{
-			return netConnectionDelegate.connection;
+			return _connectionManager.connection;
 		}
 		
 		private function sendConnectionFailedEvent(reason:String):void{

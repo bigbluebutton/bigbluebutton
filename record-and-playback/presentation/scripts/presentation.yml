@@ -1,0 +1,5 @@
+
+publish_dir: /var/bigbluebutton/published/presentation
+video_output_width: 640
+video_output_height: 480
+

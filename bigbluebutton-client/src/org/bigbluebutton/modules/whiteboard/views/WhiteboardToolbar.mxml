@@ -20,16 +20,21 @@
   $Id: $
 -->
 
-<mx:VBox xmlns="flexlib.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
-	xmlns:mate="http://mate.asfusion.com/" visible="false" backgroundColor="0xCCCCCC" cornerRadius="5" borderStyle="solid" 
-	paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" >
+<mx:VBox xmlns="flexlib.containers.*" 
+		xmlns:mx="http://www.adobe.com/2006/mxml" 
+		xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
+		xmlns:wbBtns="org.bigbluebutton.modules.whiteboard.views.buttons.*"
+		xmlns:mate="http://mate.asfusion.com/" creationComplete="onCreationComplete()"
+		visible="true" backgroundColor="0xCCCCCC" cornerRadius="5" borderStyle="solid" 
+	    paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" >
 	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
-	<mate:Listener type="{WhiteboardButtonEvent.DISABLE_WHITEBOARD}" method="disableWhiteboard" />
-	<mate:Listener type="{WhiteboardButtonEvent.ENABLE_WHITEBOARD}" method="enableWhiteboard" />
 	<mate:Listener type="{StopWhiteboardModuleEvent.STOP_HIGHLIGHTER_MODULE_EVENT}" method="closeToolbar" />
-	<mate:Listener type="{WhiteboardButtonEvent.CHANGE_TO_PENCIL}" method="setShapeToPencil" />
+	<mate:Listener type="{ShortcutEvent.UNDO_WHITEBOARD}" method="undoShortcut" />
+	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_SELECTED}" method="graphicObjSelected" />
+	<mate:Listener type="{GraphicObjectFocusEvent.OBJECT_DESELECTED}" method="graphicObjDeselected" />
+	<mate:Listener type="{WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED}" method="handleWhiteboardButtonPressed"/>
 	
 	<mx:Style>
 		.colorPickerStyle {
@@ -52,22 +57,32 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Alert;
+            import flash.ui.Keyboard;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
-			
+			import mx.managers.CursorManager;			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+			import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
+			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
+			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
+			import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.common.LogUtil;
 			
 			private var images:Images = new Images();
+            [Bindable] private var hand_icon:Class = images.hand_icon;
 			[Bindable] private var pencil_icon:Class = images.pencil_icon;
 			[Bindable] private var undo_icon:Class = images.undo_icon;
 			[Bindable] private var delete_icon:Class = images.delete_icon;
@@ -75,52 +90,88 @@
 			[Bindable] private var ellipse_icon:Class = images.circle_icon;
 			[Bindable] private var thick_icon:Class = images.whiteboard_thick;
 			[Bindable] private var thin_icon:Class = images.whiteboard_thin;
+            [Bindable] private var scribble_icon:Class = images.scribble_icon;
+            [Bindable] private var text_icon:Class = images.text_icon;            
+			[Bindable] private var triangle_icon:Class = images.triangle_icon;
+			[Bindable] private var line_icon:Class = images.line_icon;
+			[Bindable] private var fill_icon:Class = images.fill_icon;
+			[Bindable] private var transparency_icon:Class = images.transparency_icon;
+			[Bindable] private var eraser_icon:Class = images.eraser_icon;
+			[Bindable] private var highlighter_icon:Class = images.highlighter_icon;
+			[Bindable] private var select_icon:Class = images.select_icon;
+			[Bindable] private var grid_icon:Class = images.grid_icon;
 			
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
 			
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
-                '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', 
-                '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
+                '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
 			
-			/**
-			 * Sets the type of shape we're drawing (pencil, rectangle, etc...) 
-			 * @param s The type
-			 * 
-			 */		
-			protected function setShape(s:String):void{
-				canvas.setShape(s);
-				
-				switch(s){
-					case DrawObject.PENCIL:
-						btnPenc.selected = true;
-						btnEllipse.selected = false;
-						btnRectangle.selected = false;
-						break;
-					case DrawObject.ELLIPSE:
-						btnPenc.selected = false;
-						btnEllipse.selected = true;
-						btnRectangle.selected = false;
-						break;
-					case DrawObject.RECTANGLE:
-						btnPenc.selected = false;
-						btnEllipse.selected = false;
-						btnRectangle.selected = true;
-						break;
-				}
+            private function onCreationComplete():void {
+                setToolType(WhiteboardConstants.TYPE_ZOOM, null);
+            }
+                       
+			private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
+                setToolType(e.graphicType, e.toolType);
+            }
+            
+            private function setToolType(graphicType:String, toolType:String):void {                
+                canvas.setGraphicType(graphicType);
+                canvas.setTool(toolType);
+                
+                if (panzoomBtn != null) {
+                    panzoomBtn.setTool(graphicType, toolType);
+                }
+                
+                if (scribbleBtn != null) {
+                    scribbleBtn.setTool(graphicType, toolType); 
+                }
+                                
+                if (rectangleBtn != null) {
+                    rectangleBtn.setTool(graphicType, toolType); 
+                }
+                
+                if (circleBtn != null) {
+                    circleBtn.setTool(graphicType, toolType);
+                }
+                
+                if (triangleBtn != null) {
+                    triangleBtn.setTool(graphicType, toolType);
+                }
+                                
+                if (lineBtn != null) {
+                    lineBtn.setTool(graphicType, toolType);
+                }
+                
+                if (textBtn != null) {
+                    textBtn.setTool(graphicType, toolType);
+                }
+                                
+                if(graphicType == WhiteboardConstants.TYPE_CLEAR) {
+                    dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
+                }
+                
+                if (graphicType == WhiteboardConstants.TYPE_UNDO) {
+                    sendUndoCommand();
+                }
 			}
-			
-			private function setShapeToPencil(e:WhiteboardButtonEvent):void{
-				this.setShape(DrawObject.PENCIL);
-			}
-			
+						
 			/**
 			 * Sets the color 
 			 * @param e event containing the color (e.target.selectedColor)
 			 * 
 			 */		
-			protected function changeColor(e:Event):void{
+			protected function changeColor(e:Event):void {
 				canvas.changeColor(e);
+			}
+			
+			/**
+			 * Sets the fill color 
+			 * @param e event containing the color (e.target.selectedColor)
+			 * 
+			 */		
+			protected function changeFillColor(e:Event):void {
+				canvas.changeFillColor(e);
 			}
 			
 			/**
@@ -128,84 +179,115 @@
 			 * @param e event containing the thickness (e.target.value)
 			 * 
 			 */		
-			protected function changeThickness(e:Event):void{
+			protected function changeThickness(e:Event):void {
 				canvas.changeThickness(e);
 			}
 			
-			private function presenterMode(e:MadePresenterEvent):void{
-				//this.visible = true;
+			protected function toggleFill():void {
+				canvas.toggleFill();
 			}
 			
-			private function viewerMode(e:MadePresenterEvent):void{
-				//this.visible = false;
-				
-				//disableWhiteboard();
+			protected function toggleTransparency():void {
+				canvas.toggleTransparency();
+			}
+						
+			private function presenterMode(e:MadePresenterEvent):void {
+                if (canvas == null) return;
+				canvas.makeTextObjectsEditable(e);
+                this.visible = true;
+                setToolType(WhiteboardConstants.TYPE_ZOOM, null);
 			}
 			
-			private function showToolbar(e:PresentationEvent):void{
+			private function viewerMode(e:MadePresenterEvent):void {
+				canvas.makeTextObjectsUneditable(e);
+			    this.visible = false;
+            }
+			
+			private function undoShortcut(e:ShortcutEvent):void{
+				LogUtil.debug("Ctrl-Z got into undoShortcut");
+				sendUndoCommand();
+			}
+			
+			private function showToolbar(e:PresentationEvent):void {
 				this.visible = true;
 			}
 			
-			private function sendUndoCommand():void{
-				if (!canvas.isPageEmpty()) dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO_SHAPE));
+			private function sendUndoCommand():void {
+				if (!canvas.isPageEmpty()) 
+					dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO));
 			}
-			
-			private function enableWhiteboard(event:WhiteboardButtonEvent = null):void{
-				this.visible = true;
-				/*var e:HighlighterPresenterEvent = new HighlighterPresenterEvent(HighlighterPresenterEvent.MODIFY_ENABLED);
-				e.enabled = true;
-				dispatchEvent(e);*/
-			}
-			
-			private function disableWhiteboard(event:WhiteboardButtonEvent = null):void{
-				this.visible = false;
-				/*var e:HighlighterPresenterEvent = new HighlighterPresenterEvent(HighlighterPresenterEvent.MODIFY_ENABLED);
-				e.enabled = false;
-				dispatchEvent(e);*/
-			}
-			
-			public function positionToolbar(window:PresentationWindow):void{
+						
+			public function positionToolbar(window:PresentationWindow):void {
 				presentationWindow = window;
 				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
 				presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
 				this.x = presentationWindow.x + presentationWindow.width + 3;
 				this.y = presentationWindow.y + 30;
-				parent.setChildIndex(this, parent.numChildren-1);
+				parent.setChildIndex(this, parent.numChildren - 1);
 			}
 			
-			private function setPositionAndDepth(e:Event = null):void{
+			private function setPositionAndDepth(e:Event = null):void {
 				this.x = presentationWindow.x + presentationWindow.width + 3;
 				this.y = presentationWindow.y + 30;
-				parent.setChildIndex(this, parent.numChildren-1);
+				parent.setChildIndex(this, parent.numChildren - 1);
 			}
 			
-			private function closeToolbar(e:StopWhiteboardModuleEvent):void{
+			private function closeToolbar(e:StopWhiteboardModuleEvent):void {
 				parent.removeChild(this);
 			}
-			
+            
+           
+            private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
+                var gobj:GraphicObject = event.data;
+//                LogUtil.debug("!!!!SELECTED:" );
+            }
+            
+            private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
+                var gobj:GraphicObject = event.data;
+ //               LogUtil.debug("!!!!DESELECTED:" + " " );
+            }
+			           
 		]]>
 	</mx:Script>
-	<mx:Button width="20" height="20" id="btnPenc" click="setShape(DrawObject.PENCIL)"  icon="{pencil_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.pencil')}" toggle="true" selected="true" />
-	<mx:Button width="20" height="20" id="btnRectangle" click="setShape(DrawObject.RECTANGLE)" icon="{rectangle_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" />
-	<mx:Button width="20" height="20" id="btnEllipse" click="setShape(DrawObject.ELLIPSE)" icon="{ellipse_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" toggle="true" />
 	
-	<mx:Spacer height="5" />
-	<mx:Button width="20" height="20" id="btnClear" click="dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR_BOARD))" icon="{delete_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.clear')}" />
-	<mx:Button width="20" height="20" id="btnUndo"  click="sendUndoCommand()" icon="{undo_icon}" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo')}" />
+	<!-- Now, every 'tool' has two types of identifiers, one is found in WhiteboardConstants
+	that identifies the "category" of the tool (ex. shape vs text), and the other specifies the 
+	tool itself (ex. line tool vs triangle tool, even though both are "shapes")
+	-->
+    <wbBtns:PanZoomButton id="panzoomBtn"/>
+    <mx:Spacer height="10"/>
+	<wbBtns:ScribbleButton id="scribbleBtn"/>
+	<wbBtns:RectangleButton id="rectangleBtn"/>
+	<wbBtns:CircleButton id="circleBtn"/>
+	<wbBtns:TriangleButton id="triangleBtn"/>
+	<wbBtns:LineButton id="lineBtn"/>
+	<wbBtns:TextButton id="textBtn"/>
+		
+	<mx:Spacer height="5"/>
+	<wbBtns:ClearButton id="clearBtn"/>
+	<wbBtns:UndoButton id="undoBtn"/>
 	
-	<mx:Spacer height="5" />
-	<mx:ColorPicker change="changeColor(event)" id="cpik" swatchPanelStyleName="colorPickerStyle" dataProvider="{colorPickerColours}" selectedColor="0x000000" 
-					toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
+	<mx:Spacer height="5"/>
 	
+	<!--
+	Properties that were removed from original color picker:
+	
+	swatchPanelStyleName="colorPickerStyle" 
+	dataProvider="{colorPickerColours}"
+	-->
+	
+	<!-- Layout is really bad right now, and is confusing. Basically, there are two 
+	of ColorPickers, one for the "line" color for the outlines of shapes, and the other for
+	the "fill" color that is used only if "fill" is enabled in WhiteboardCanvasModel
+	-->
+	<mx:ColorPicker change="changeColor(event)" id="cpik"  selectedColor="0x000000" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
+   
 	<mx:Spacer height="3" />
 	<mx:Image source="{thick_icon}" horizontalAlign="center" width="20"/>
-	<mx:VSlider height="50" id="sld" change="changeThickness(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness')}" minimum="2" maximum="20" 
+	<mx:VSlider height="50" id="sld" change="changeThickness(event)" 
+				toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness')}" 
+				minimum="2" maximum="20" 
 				useHandCursor="true" value="2" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" />
 	<mx:Image source="{thin_icon}" horizontalAlign="center" width="20" />
 	

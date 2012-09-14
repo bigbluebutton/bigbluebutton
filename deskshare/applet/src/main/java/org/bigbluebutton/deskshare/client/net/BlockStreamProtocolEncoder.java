@@ -36,7 +36,7 @@ public class BlockStreamProtocolEncoder {
     private static final byte CORRUPT_PACKET_EVENT = 7;
     
 	public static void encodeStartStreamMessage(String room, Dimension screen, Dimension block,
-						ByteArrayOutputStream data, int seqNum) throws IOException {	
+						ByteArrayOutputStream data, int seqNum, boolean useSVC2) throws IOException {	
 		
 		data.write(CAPTURE_START_EVENT);
 		encodeRoom(data, room);
@@ -46,6 +46,7 @@ public class BlockStreamProtocolEncoder {
 		data.write(intToBytes(block.getHeight()));
 		data.write(intToBytes(screen.getWidth()));
 		data.write(intToBytes(screen.getHeight()));
+		data.write(useSVC2 ? 1 : 0);
 	}
 	
 	public static void encodeBlock(BlockVideoData block, ByteArrayOutputStream data, int seqNum) throws IOException {

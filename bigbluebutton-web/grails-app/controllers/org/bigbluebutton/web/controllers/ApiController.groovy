@@ -299,7 +299,7 @@ class ApiController {
     }
     
 	UserSession us = new UserSession();
-	us.internalUserId = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+	us.internalUserId = System.currentTimeMillis(); //RandomStringUtils.randomAlphanumeric(12).toLowerCase()
     us.conferencename = meeting.getName()
     us.meetingID = meeting.getInternalId()
     us.externUserID = externUserID

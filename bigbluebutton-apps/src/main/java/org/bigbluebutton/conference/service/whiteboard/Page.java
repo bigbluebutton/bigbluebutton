@@ -23,44 +23,81 @@ package org.bigbluebutton.conference.service.whiteboard;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import org.red5.compatibility.flex.messaging.io.ArrayCollection;
+import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
 
 public class Page {
-	
-	private ArrayCollection<Shape> shapes;
+	private ArrayList<Annotation> annotations;	
 	private int pageIndex;
+	private boolean isGrid = false;
 	
 	public Page(int pageIndex){
-		this.shapes = new ArrayCollection<Shape>();
+		annotations = new ArrayList<Annotation>();
 		this.setPageIndex(pageIndex);
 	}
-	
-	public void addShape(Shape shape){
-		shapes.add(shape);
+		
+	public void addAnnotation(Annotation annotation) {
+		annotations.add(annotation);
 	}
 	
-	public List<Object[]> getShapes(){
-		List<Object[]> shapesCollection = new ArrayList<Object[]>();
-		for (int i = 0; i<shapes.size(); i++){
-			shapesCollection.add(shapes.get(i).toObjectArray());
+	public List<Annotation> getAnnotations() {
+		List<Annotation> a = new ArrayList<Annotation>();
+		for (Annotation v : annotations) {
+			a.add(v);
 		}
-		return shapesCollection;
+		
+		return a;
 	}
 	
-	public void clear(){
-		shapes.clear();
+	public void deleteAnnotation(String id) {
+		int foundIndex = findAnnotation(id);
+		if (foundIndex >= 0) annotations.remove(foundIndex);
 	}
 	
-	public void undo(){
-		if(shapes.size() > 0)
-			shapes.remove(shapes.size()-1);
+	public void clear() {
+		annotations.clear();
 	}
 	
-	public int getNumShapesOnPage(){
-		return this.shapes.size();
+	public void undo() {
+		if (!annotations.isEmpty()) {
+			annotations.remove(annotations.size() - 1);
+		}
+	}
+	
+	public int getNumShapesOnPage() {
+		return annotations.size();
+	}
+		
+	public void modifyText(String id, Annotation annotation){
+		int foundIndex = findAnnotation(id);
+		if (foundIndex >= 0) {			
+			annotations.set(foundIndex, annotation);
+		}
 	}
 
+	private int findAnnotation(String id) {
+		int foundIndex = -1;
+		for (int i=0; i < annotations.size(); i++) {
+			Annotation annotation = annotations.get(i);
+			if (annotation.getID().equals(id)) {
+				foundIndex = i;
+				break;
+			}
+		}
+		return foundIndex;
+		
+	}
+	
+	public void toggleGrid() {
+		System.out.println("Toggling grid mode on page " + pageIndex);
+		isGrid = !isGrid;
+	}
+	
+	public boolean isGrid() {
+		return isGrid;
+	}
+	
 	public void setPageIndex(int pageIndex) {
 		this.pageIndex = pageIndex;
 	}
@@ -68,4 +105,6 @@ public class Page {
 	public int getPageIndex() {
 		return pageIndex;
 	}
+
+
 }

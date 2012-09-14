@@ -2,7 +2,7 @@ package org.red5.app.sip;
 
 import org.red5.app.sip.registration.SipRegisterAgentListener;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.IScope;
+import org.red5.server.api.scope.IScope;
 import org.red5.server.api.service.IServiceCapableConnection;
 import org.slf4j.Logger;
 

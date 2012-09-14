@@ -34,6 +34,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.ImageToSwfSlide;
+import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
@@ -49,6 +50,7 @@ public class ImageToSwfSlidesGenerationService {
 	private PageConverter jpgToSwfConverter;
 	private PageConverter pngToSwfConverter;
 	private ThumbnailCreator thumbnailCreator;
+	private TextFileCreator textFileCreator;
 	private long MAX_CONVERSION_TIME = 5*60*1000;
 	private String BLANK_SLIDE;
 	
@@ -67,7 +69,8 @@ public class ImageToSwfSlidesGenerationService {
 			convertImageToSwf(pres, pageConverter);
 		}
 		
-		
+		/* adding accessibility */
+		createTextFiles(pres);
 		createThumbnails(pres);
 		
 		notifier.sendConversionCompletedMessage(pres);
@@ -80,6 +83,12 @@ public class ImageToSwfSlidesGenerationService {
 		}
 		
 		return pngToSwfConverter;
+	}
+	
+	private void createTextFiles(UploadedPresentation pres) {
+		log.debug("Creating textfiles for accessibility.");
+		notifier.sendCreatingTextFilesUpdateMessage(pres);
+		textFileCreator.createTextFiles(pres);
 	}
 	
 	private void createThumbnails(UploadedPresentation pres) {
@@ -166,6 +175,9 @@ public class ImageToSwfSlidesGenerationService {
 	
 	public void setThumbnailCreator(ThumbnailCreator thumbnailCreator) {
 		this.thumbnailCreator = thumbnailCreator;
+	}
+	public void setTextFileCreator(TextFileCreator textFileCreator) {
+		this.textFileCreator = textFileCreator;
 	}
 	
 	public void setMaxConversionTime(int minutes) {

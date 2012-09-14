@@ -30,7 +30,7 @@ import org.bigbluebutton.deskshare.server.svc1.Dimension
 import org.bigbluebutton.deskshare.server.stream.StreamManager
 import java.awt.Point
 
-case class CreateSession(room: String, screenDim: Dimension, blockDim: Dimension, seqNum: Int)
+case class CreateSession(room: String, screenDim: Dimension, blockDim: Dimension, seqNum: Int, useSVC2: Boolean)
 case class RemoveSession(room: String)
 case class SendKeyFrame(room: String)
 case class UpdateBlock(room: String, position: Int, blockData: Array[Byte], keyframe: Boolean, seqNum: Int)
@@ -71,7 +71,7 @@ class SessionManagerSVC(streamManager: StreamManager, keyFrameInterval: Int, int
 		sessions.get(c.room) match {
 		  case None => {
 			  log.debug("SessionManager: Created session " + c.room)
-			  val session: SessionSVC = new SessionSVC(this, c.room, c.screenDim, c.blockDim, streamManager, keyFrameInterval, interframeInterval, waitForAllBlocks) 
+			  val session: SessionSVC = new SessionSVC(this, c.room, c.screenDim, c.blockDim, streamManager, keyFrameInterval, interframeInterval, waitForAllBlocks, c.useSVC2) 
 			  if (session.initMe()) {
 				  val old:Int = sessions.size
 				  sessions += c.room -> session

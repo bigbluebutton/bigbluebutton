@@ -155,7 +155,28 @@ package org.bigbluebutton.modules.present.business {
 		 * 
 		 */		
 		public function sendCursorUpdate(xPercent:Number, yPercent:Number):void{
-			_presentationSO.send("updateCursorCallback", xPercent, yPercent);
+			//_presentationSO.send("updateCursorCallback", xPercent, yPercent);
+			nc.call("presentation.sendCursorUpdate",// Remote function name
+				new Responder(
+					// On successful result
+					function(result:Boolean):void { 
+						
+						if (result) {
+							LogUtil.debug("Successfully sent sendCursorUpdate");							
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				), //new Responder
+				xPercent,
+				yPercent
+			); //_netConnection.call
+			
 		}
 		
 		/**

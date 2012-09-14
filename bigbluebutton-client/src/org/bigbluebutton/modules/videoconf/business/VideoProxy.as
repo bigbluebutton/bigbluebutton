@@ -32,17 +32,18 @@ package org.bigbluebutton.modules.videoconf.business
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
-/** Uncomment if you want to build support for H264. But you need at least FP 11. (ralam july 23, 2011)		
+// Uncomment if you want to build support for H264. But you need at least FP 11. (ralam july 23, 2011)		
 	 
  	 import flash.media.H264VideoStreamSettings;
 	 import flash.media.H264Profile;
 	 import flash.media.H264Level;
-**/
+
 	
 	public class VideoProxy
 	{		
@@ -135,8 +136,11 @@ package org.bigbluebutton.modules.videoconf.business
 			ns.addEventListener( AsyncErrorEvent.ASYNC_ERROR, onAsyncError );
 			ns.client = this;
 			ns.attachCamera(e.camera);
-/*		Uncomment if you want to build support for H264. But you need at least FP 11. (ralam july 23, 2011)	
-			if (Capabilities.version.search("11,0") != -1) {
+//		Uncomment if you want to build support for H264. But you need at least FP 11. (ralam july 23, 2011)	
+//			if (Capabilities.version.search("11,0") != -1) {
+			if ((BBB.getFlashPlayerVersion() >= 11) && videoOptions.enableH264) {
+//			if (BBB.getFlashPlayerVersion() >= 11) {
+				LogUtil.info("Using H264 codec for video.");
 				var h264:H264VideoStreamSettings = new H264VideoStreamSettings();
 				var h264profile:String = H264Profile.MAIN;
 				if (videoOptions.h264Profile != "main") {
@@ -180,7 +184,7 @@ package org.bigbluebutton.modules.videoconf.business
 				h264.setProfileLevel(h264profile, h264Level);
 				ns.videoStreamSettings = h264;
 			}
-	*/		
+			
 			ns.publish(e.stream);
 		}
 		

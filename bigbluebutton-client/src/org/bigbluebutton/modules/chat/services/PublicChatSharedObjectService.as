@@ -135,13 +135,14 @@ package org.bigbluebutton.modules.chat.services
 		}
 		
 		public function getChatTranscript():void {
+            LogUtil.debug("Get transcript message: ");
 			var nc:NetConnection = connection;
 			nc.call(
 				"chat.getChatMessages",// Remote function name
 				new Responder(
 	        		// On successful result
 					function(result:Object):void { 
-						LogUtil.debug("Successfully sent message: "); 
+						LogUtil.debug("Successfully sent get transcript message: "); 
 						if (result != null) {
 							receivedChatHistory(result);
 						}

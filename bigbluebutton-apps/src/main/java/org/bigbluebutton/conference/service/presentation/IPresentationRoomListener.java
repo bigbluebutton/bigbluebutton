@@ -32,4 +32,5 @@ public interface IPresentationRoomListener {
 	public void resizeAndMoveSlide(Double xOffset, Double yOffset, Double widthRatio, Double heightRatio);
 	public void removePresentation(String name);
 	public void sharePresentation(String presentationName, Boolean share);
+	public void sendCursorUpdate(Double xPercent, Double yPercent);
 }

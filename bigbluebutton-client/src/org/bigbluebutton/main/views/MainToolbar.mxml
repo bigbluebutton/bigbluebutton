@@ -45,6 +45,7 @@
 			import org.bigbluebutton.main.events.ConfigEvent;
 			import org.bigbluebutton.main.events.LogoutEvent;
 			import org.bigbluebutton.main.events.SettingsEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -111,12 +112,15 @@
 			}
 			
 			private function handleAddToolbarButtonEvent(event:ToolbarButtonEvent):void {
-				addedBtns.addChild(event.button as UIComponent);
-				realignButtons();
+				if (event.location == ToolbarButtonEvent.TOP_TOOLBAR) {
+					addedBtns.addChild(event.button as UIComponent);
+					realignButtons();
+				}
 			}
 			
 			private function handleRemoveToolbarButtonEvent(event:ToolbarButtonEvent):void {
-				addedBtns.removeChild(event.button as UIComponent);
+				if (addedBtns.contains(event.button as UIComponent))
+					addedBtns.removeChild(event.button as UIComponent);
 			}
 			
 			private function realignButtons():void{
@@ -151,13 +155,18 @@
 				d.dispatchEvent(new SettingsEvent(SettingsEvent.OPEN_SETTINGS_PANEL));
 			}
 			
+			private function onShortcutButtonClick(e:Event = null):void {
+				var d:Dispatcher = new Dispatcher();
+				d.dispatchEvent(new ShortcutEvent(ShortcutEvent.OPEN_SHORTCUT_WIN));
+			}
+			
 		]]>
 	</mx:Script>	
-	<mx:HBox id="addedBtns">
-	</mx:HBox>		
+	<mx:HBox id="addedBtns"/>
 	<mx:Spacer width="100%"/>
 	<views:LanguageSelector id="langSelector" visible="false" />
-	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" visible="{showHelpBtn}" click="onHelpButtonClicked()"/>
+	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" click="onShortcutButtonClick()" height="22" toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" />
+	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" visible="{showHelpBtn}" click="onHelpButtonClicked()" height="22"/>
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()" height="22"/>
 </mx:ApplicationControlBar>

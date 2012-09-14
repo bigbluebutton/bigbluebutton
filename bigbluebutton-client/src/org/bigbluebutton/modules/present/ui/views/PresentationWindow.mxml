@@ -37,7 +37,7 @@
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
-	title="{currentPresentation}" keyUp="onKeyUp(event)"
+	title="{currentPresentation}"
 	xmlns:views="org.bigbluebutton.modules.present.ui.views.*">
 	
 	<mate:Dispatcher id="globalDispatcher" />
@@ -45,6 +45,7 @@
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="becomeViewer" />
 	<mate:Listener type="{PresentationEvent.PRESENTATION_LOADED}" method="handlePresentationLoadedEvent" />
 	<mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="gotoPage" />
+    <mate:Listener type="{NavigationEvent.BIND_KEYBOARD_EVENT}" method="bindToKeyboardEvents" />
 	<mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
 	<mate:Listener type="{SlideResizedEvent.SLIDE_RESIZED_EVENT}" method="handleSlideResizedEvent" />
 	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
@@ -54,19 +55,21 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import flash.geom.Point;			
+			import flash.geom.Point;
+			
 			import flexlib.containers.DockableToolBar;
-			import flexlib.mdi.events.MDIWindowEvent;			
+			import flexlib.mdi.events.MDIWindowEvent;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.containers.TitleWindow;
-			import mx.controls.Alert;
 			import mx.core.Application;
 			import mx.effects.Move;
 			import mx.events.ListEvent;
 			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
-			import mx.rpc.events.*;			
+			import mx.rpc.events.*;
+			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -142,7 +145,7 @@
 					
 			private function onCreationComplete():void{
 				thumbY = this.height - 160;
-			
+                bindKeyboardEvents();
 				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
 			}
@@ -187,21 +190,41 @@
 				fitSlideToWindowMaintainingAspectRatio();			
 			}
 			
-			private function onKeyUp(event:KeyboardEvent):void{	
-				switch (event.keyCode) {
-				case Keyboard.LEFT:
-				case Keyboard.UP:
-				case Keyboard.PAGE_UP:				
-					gotoPreviousSlide();		
-				break;
-				case Keyboard.DOWN:
-				case Keyboard.RIGHT: 
-				case Keyboard.SPACE:
-				case Keyboard.PAGE_DOWN:
-				case Keyboard.ENTER:
-					gotoNextSlide();
-				break; 
-				}
+            private function bindToKeyboardEvents(event:NavigationEvent):void {
+                if (event.bindToKeyboard) {
+                    LogUtil.debug("******************************************** Binding to keyboard events ********************");
+                    bindKeyboardEvents();
+                } else {
+                    LogUtil.debug("********************************************* Unbinding to keyboard events *****************");
+                    unbindKeyboardEvents();
+                }
+            }
+            
+            private function unbindKeyboardEvents():void {
+                stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+            }
+
+            private function bindKeyboardEvents():void {
+                stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+            }
+            
+			private function onKeyUp(event:KeyboardEvent):void {	
+                if (event.shiftKey && event.ctrlKey) {
+                    switch (event.keyCode) {
+                        case Keyboard.LEFT:
+                        case Keyboard.UP:
+                        case Keyboard.PAGE_UP:			
+                            gotoPreviousSlide();		
+                            break;
+                        case Keyboard.DOWN:
+                        case Keyboard.RIGHT: 
+                        case Keyboard.SPACE:
+                        case Keyboard.PAGE_DOWN:
+                        case Keyboard.ENTER:
+                            gotoNextSlide();
+                            break; 
+                    }                    
+                }
 			}
 			
 			public function getPrefferedPosition():String{
@@ -494,7 +517,8 @@
     	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="gotoNextSlide()"/>    				
 		<mx:Spacer width="10%" id="spacer2"/>
-    	<mx:HSlider id="zoomSlider" visible="false" value="{slideView.zoomPercentage}"
+    	 
+		<mx:HSlider id="zoomSlider" visible="false" value="{slideView.zoomPercentage}"
     		minimum="100" maximum="400" dataTipPlacement="top" labels="['100%','400%']" 
     		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
     		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>

@@ -25,10 +25,9 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.IScope;
 import org.red5.server.api.event.IEvent;
+import org.red5.server.api.scope.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.api.stream.IStreamCodecInfo;
 import org.red5.server.api.stream.IStreamListener;

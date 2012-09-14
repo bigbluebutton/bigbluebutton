@@ -9,7 +9,7 @@
     </property>
   </bean>
   <bean id="web.context" class="org.red5.server.Context" autowire="byType"/>
-  <bean id="web.scope" class="org.red5.server.WebScope" init-method="register">
+  <bean id="web.scope" class="org.red5.server.scope.WebScope" init-method="register">
     <property name="server" ref="red5.server"/>
     <property name="parent" ref="global.scope"/>
     <property name="context" ref="web.context"/>

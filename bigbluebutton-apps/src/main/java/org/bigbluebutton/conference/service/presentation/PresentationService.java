@@ -23,11 +23,9 @@ package org.bigbluebutton.conference.service.presentation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.Red5;
-import org.red5.server.api.IScope;import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
+import org.red5.logging.Red5LoggerFactory;import org.red5.server.api.Red5;import org.red5.server.api.scope.IScope;
+import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 
 public class PresentationService {	
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationService.class, "bigbluebutton" );
@@ -98,6 +96,12 @@ public class PresentationService {
 		log.debug("Request to go to sharePresentation " + presentationName + " " + share);
 		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.sharePresentation(scope.getName(), presentationName, share);
+	}
+	
+	public void sendCursorUpdate(Double xPercent,Double yPercent) {
+		log.debug("Request update cursor[" + xPercent + "," + yPercent + "]" );
+		IScope scope = Red5.getConnectionLocal().getScope();
+		presentationApplication.sendCursorUpdate(scope.getName(), xPercent, yPercent);
 	}
 	
 	public void resizeAndMoveSlide(Double xOffset,Double yOffset,Double widthRatio,Double heightRatio) {

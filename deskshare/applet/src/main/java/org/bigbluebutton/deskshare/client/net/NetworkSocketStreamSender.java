@@ -37,6 +37,7 @@ public class NetworkSocketStreamSender implements Runnable {
 	private String room;
 	private Dimension screenDim;
 	private Dimension blockDim;
+	private boolean useSVC2;
 	private final NextBlockRetriever retriever;
 	private volatile boolean processMessages = false;
 	private final int id;
@@ -44,13 +45,14 @@ public class NetworkSocketStreamSender implements Runnable {
 	private final SequenceNumberGenerator seqNumGenerator;
 	
 	public NetworkSocketStreamSender(int id, NextBlockRetriever retriever, String room, 
-			Dimension screenDim, Dimension blockDim, SequenceNumberGenerator seqNumGenerator) {
+			Dimension screenDim, Dimension blockDim, SequenceNumberGenerator seqNumGenerator, boolean useSVC2) {
 		this.id = id;
 		this.retriever = retriever;
 		this.room = room;
 		this.screenDim = screenDim;
 		this.blockDim = blockDim;	
 		this.seqNumGenerator = seqNumGenerator;
+		this.useSVC2 = useSVC2;
 	}
 	
 	public void addListener(NetworkStreamListener listener) {
@@ -79,7 +81,7 @@ public class NetworkSocketStreamSender implements Runnable {
 		try {
 			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 			dataToSend.reset();
-			BlockStreamProtocolEncoder.encodeStartStreamMessage(room, screenDim, blockDim, dataToSend, seqNumGenerator.getNext());
+			BlockStreamProtocolEncoder.encodeStartStreamMessage(room, screenDim, blockDim, dataToSend, seqNumGenerator.getNext(), useSVC2);
 			BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 			sendToStream(dataToSend);

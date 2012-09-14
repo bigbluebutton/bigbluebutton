@@ -24,7 +24,7 @@ package org.bigbluebutton.deskshare.client;
 import javax.swing.JApplet;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-
+import java.security.*;
 import java.awt.Image;
 
 public class DeskShareApplet extends JApplet implements ClientListener {
@@ -45,10 +45,19 @@ public class DeskShareApplet extends JApplet implements ClientListener {
     Integer yValue = new Integer(0);
     Boolean tunnelValue = true;
     Boolean fullScreenValue = false;
+    Boolean useSVC2Value = false;
     DeskshareClient client;
     Image icon;
     
     public boolean isSharing = false;
+
+    private class DestroyJob implements PrivilegedExceptionAction {
+       public Object run() throws Exception {
+		System.out.println("Desktop Sharing Applet Destroy");
+		client.stop();
+               	return null;
+       }
+    }
     
     @Override
 	public void init() {		
@@ -61,6 +70,9 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 
 		String captureFullScreen = getParameter("FULL_SCREEN");
 		if (captureFullScreen != null) fullScreenValue = Boolean.parseBoolean(captureFullScreen);
+		
+		String useSVC2 = getParameter("SVC2");
+		if (useSVC2 != null) useSVC2Value = Boolean.parseBoolean(useSVC2);
 
 		String tunnel = getParameter("HTTP_TUNNEL");
 		if (tunnel != null) tunnelValue = Boolean.parseBoolean(tunnel);
@@ -75,7 +87,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 					.room(roomValue).captureWidth(cWidthValue)
 					.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
 					.quality(qualityValue).aspectRatio(aspectRatioValue)
-					.x(xValue).y(yValue).fullScreen(fullScreenValue)
+					.x(xValue).y(yValue).fullScreen(fullScreenValue).useSVC2(useSVC2Value)
 					.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
 		client.addClientListener(this);
 		client.start();
@@ -83,8 +95,21 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 			
 	@Override
 	public void destroy() {
-		System.out.println("Desktop Sharing Applet Destroy");
-		client.stop();
+		/* We make this a privileged job.
+		* The privileges of the javascript code  are 'anded' with the 
+                * java privs. Sometimes (depending on jre version, browser, etc.)
+                * javascript will not have the privs to do some of the operations 
+                * required for destroy, particularly network related activities,
+		* but java does. So we make sure here that we run only considering
+                * java privs, not javascript's. This should be 'security safe', since
+                * we are only shutting things down.
+		*/ 
+                try {
+ 			AccessController.doPrivileged( this.new DestroyJob() );
+                } catch ( PrivilegedActionException e) {
+			System.out.println("Exception during Desktop Sharing Applet Stopping"+e.toString());
+			UncheckedExceptions.spit((Exception) e.getException());
+		}
 		super.destroy();
 	}
 

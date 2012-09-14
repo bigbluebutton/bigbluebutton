@@ -24,7 +24,6 @@ package org.bigbluebutton.deskshare.client;
 import jargs.gnu.CmdLineParser;
 import jargs.gnu.CmdLineParser.Option;
 
-import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.util.ArrayList;
@@ -37,7 +36,6 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
 	private final BlockingQueue<ExitCode> exitReasonQ = new LinkedBlockingQueue<ExitCode>(5);
 	
 	private List<String> optionHelpStrings = new ArrayList<String>();
-	private static DeskshareMain dsMain;
 	private static LifeLine lifeline;
 	private static DeskshareClient client;
 	
@@ -72,6 +70,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
     	CmdLineParser.Option icon = dsMain.addHelp(parser.addStringOption('i', "icon"),"Path to system tray icon file");
     	CmdLineParser.Option help = dsMain.addHelp(parser.addBooleanOption('h', "help"),"Show this help message");
     	CmdLineParser.Option fullScreen = dsMain.addHelp(parser.addBooleanOption('f', "full-screen"),"Capture the full screen.");
+    	CmdLineParser.Option useSVC2 = dsMain.addHelp(parser.addBooleanOption('2', "useSVC2"),"Use Screen Video V2.");
         
         try {
             parser.parse(args);
@@ -110,6 +109,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         Boolean tunnelValue = (Boolean)parser.getOptionValue(tryHttpTunnel, new Boolean(false));
         String iconValue = (String)parser.getOptionValue(icon, "bbb.gif");
         Boolean fullScreenValue = (Boolean)parser.getOptionValue(fullScreen, new Boolean(false));
+        Boolean useSVC2Value = (Boolean)parser.getOptionValue(useSVC2, new Boolean(false));
         
         Image image = Toolkit.getDefaultToolkit().getImage(iconValue);
         
@@ -120,7 +120,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         						.room(roomValue).captureWidth(cWidthValue)
         						.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
         						.quality(qualityValue).aspectRatio(aspectValue)
-        						.x(xValue).y(yValue).fullScreen(fullScreenValue)
+        						.x(xValue).y(yValue).fullScreen(fullScreenValue).useSVC2(useSVC2Value)
         						.httpTunnel(tunnelValue).trayIcon(image).enableTrayIconActions(true).build();
         
         client.addClientListener(dsMain);

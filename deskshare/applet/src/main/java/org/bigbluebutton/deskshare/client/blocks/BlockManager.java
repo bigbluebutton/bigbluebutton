@@ -22,12 +22,13 @@
 package org.bigbluebutton.deskshare.client.blocks;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
-
 import org.bigbluebutton.deskshare.client.net.BlockMessage;
 import org.bigbluebutton.deskshare.common.Dimension;
+
 
 public class BlockManager {
     private final Map<Integer, Block> blocksMap;
@@ -38,11 +39,13 @@ public class BlockManager {
     private ChangedBlocksListener listeners;
     private Dimension screenDim, blockDim;
     
+    private boolean useSVC2;
+    
     public BlockManager() {
     	blocksMap = new HashMap<Integer, Block>();
     }
     
-    public void initialize(Dimension screen, Dimension tile) {
+    public void initialize(Dimension screen, Dimension tile, boolean useSVC2) {
     	screenDim = screen;
     	blockDim = tile;
     	
@@ -53,15 +56,17 @@ public class BlockManager {
         int numberOfBlocks = numColumns * numRows;
         System.out.println("Sharing " + numberOfBlocks + " blocks [rows=" + numRows + ", cols=" + numColumns + "]");
         
+        this.useSVC2 = useSVC2;
+        
         for (int position = 1; position <= numberOfBlocks; position++) {
-        	Block block = factory.createBlock(position);
+        	Block block = factory.createBlock(position, useSVC2);
         	blocksMap.put(new Integer(position), block);
         }  
     }
     
     public void processCapturedScreen(BufferedImage capturedScreen) {    	
     	long start = System.currentTimeMillis();
-
+    	
     	Vector<Integer> changedBlocks = new Vector<Integer>();
 /*		
 		int numberOfBlocks = numColumns * numRows;

@@ -118,6 +118,15 @@ public class PresentationApplication {
 		return null;
 	}
 	
+	public void sendCursorUpdate(String room, Double xPercent, Double yPercent) {
+		if (roomsManager.hasRoom(room)){
+			log.debug("Request to update cursor[" + xPercent + "," + yPercent + "]");
+			roomsManager.sendCursorUpdate(room, xPercent, yPercent);
+			return;
+		}
+		log.warn("resizeAndMoveSlide on a non-existant room " + room);
+	}
+	
 	public void resizeAndMoveSlide(String room, Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
 		if (roomsManager.hasRoom(room)){
 			log.debug("Request to resize and move slide[" + xOffset + "," + yOffset + "," + widthRatio + "," + heightRatio + "]");
@@ -150,4 +159,6 @@ public class PresentationApplication {
 		roomsManager = r;
 		log.debug("Done setting room manager");
 	}
+
+	
 }

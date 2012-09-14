@@ -1,5 +1,22 @@
 # Set encoding to utf-8
 # encoding: UTF-8
+#
+# BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+#
+# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+#
+# This program is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License as published by the Free Software
+# Foundation; either version 3.0 of the License, or (at your option) any later
+# version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+#
 
 require '../../core/lib/recordandplayback'
 require 'rubygems'
@@ -41,6 +58,10 @@ done_files.each do |df|
       Open3.popen3(command) do | stdin, stdout, stderr|
         BigBlueButton.logger.info("scp result=#{$?.exitstatus}")
       end
+
+      BigBlueButton.logger.info("Removing processed files.")
+      FileUtils.rm_r(Dir.glob("#{$process_dir}/*"))
+
     end
   end
 end

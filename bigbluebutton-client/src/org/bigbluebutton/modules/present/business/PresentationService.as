@@ -96,10 +96,13 @@ package org.bigbluebutton.modules.present.business
 			for each(item in list){		
 				var sUri:String = slideUri + "/" + item.@name;
 				var thumbUri:String =  slideUri + "/" + item.@thumb;
-				var slide:Slide = new Slide(item.@number, sUri, thumbUri);						
+				var txtUri:String = slideUri + "/" + item.@textfile;
+				
+				var slide:Slide = new Slide(item.@number, sUri, thumbUri,txtUri);						
 				_slides.add(slide);
 				//LogUtil.debug("Available slide: " + sUri + " number = " + item.@number);
 				//LogUtil.debug("Available thumb: " + thumbUri);
+				LogUtil.debug("Available textfile: " + txtUri);
 			}		
 			
 			//LogUtil.debug("number of slide=" + _slides.size());

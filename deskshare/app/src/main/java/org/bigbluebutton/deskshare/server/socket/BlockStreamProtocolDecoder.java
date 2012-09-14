@@ -187,12 +187,14 @@ public class BlockStreamProtocolDecoder extends CumulativeProtocolDecoder {
         	
     	Dimension blockDim = decodeDimension(in);
     	Dimension screenDim = decodeDimension(in);    	
-    		
+    	
+    	boolean useSVC2 = (in.get() == 1);
+    	
         /** Swallow end frame **/
         in.get(new byte[END_FRAME.length]);
         			
         log.info("CaptureStartEvent for " + room);
-        CaptureStartBlockEvent event = new CaptureStartBlockEvent(room, screenDim, blockDim, seqNum);	
+        CaptureStartBlockEvent event = new CaptureStartBlockEvent(room, screenDim, blockDim, seqNum, useSVC2);	
         out.write(event);    		
     }
     

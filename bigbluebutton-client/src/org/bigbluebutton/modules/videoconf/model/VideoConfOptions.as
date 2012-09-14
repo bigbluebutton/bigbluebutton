@@ -32,7 +32,25 @@ package org.bigbluebutton.modules.videoconf.model
 		public var camQualityBandwidth:Number = 0;
 
 		[Bindable]
-		public var h264Level:String = "4.1";	
+		public var smoothVideo:Boolean = false;
+
+		[Bindable]
+		public var applyConvolutionFilter:Boolean = false;
+
+		[Bindable]
+		public var convolutionFilter:Array = [-1, 0, -1, 0, 6, 0, -1, 0, -1];
+
+		[Bindable]
+		public var filterBias:Number = 0;
+
+		[Bindable]
+		public var filterDivisor:Number = 4;
+
+		[Bindable]
+		public var enableH264:Boolean = false;
+
+		[Bindable]
+		public var h264Level:String = "2.1";	
 		
 		[Bindable]
 		public var h264Profile:String = "main";	
@@ -76,6 +94,28 @@ package org.bigbluebutton.modules.videoconf.model
 				if (vxml.@camQualityPicture != undefined) {
 					camQualityPicture = Number(vxml.@camQualityPicture.toString());
 				}
+				if (vxml.@smoothVideo != undefined) {
+					smoothVideo = (vxml.@smoothVideo.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@applyConvolutionFilter != undefined) {
+					applyConvolutionFilter = (vxml.@applyConvolutionFilter.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@convolutionFilter != undefined) {
+					var f:Array = vxml.@convolutionFilter.split(",");
+					var fint:Array = new Array();
+					for (var i:int=0; i < f.length; i++) {
+						convolutionFilter[i] = Number(f[i]);
+					}
+				}
+				if (vxml.@filterBias != undefined) {
+					filterBias = Number(vxml.@filterBias.toString());
+				}	
+				if (vxml.@filterDivisor != undefined) {
+					filterDivisor = Number(vxml.@filterDivisor.toString());
+				}	
+				if (vxml.@enableH264 != undefined) {
+					enableH264 = (vxml.@enableH264.toString().toUpperCase() == "TRUE") ? true : false;
+				}	
 				if (vxml.@h264Level != undefined) {
 					h264Level = vxml.@h264Level.toString();
 				}
