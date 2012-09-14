@@ -30,7 +30,6 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.main.views.MainCanvas;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
-	
 	import mx.core.UIComponent;
 	import mx.controls.Button;	
 	
@@ -215,6 +214,7 @@ package org.bigbluebutton.modules.videoconf.business
 			var e:CloseWindowEvent = new CloseWindowEvent();
 			e.window = this;
 			dispatchEvent(e);
+			
 			super.close(event);
 		}
 		
