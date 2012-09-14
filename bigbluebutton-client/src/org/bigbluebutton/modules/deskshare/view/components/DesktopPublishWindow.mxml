@@ -38,6 +38,7 @@
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="closePublishWindow" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
 	
 	
 	<mx:Script>
@@ -57,6 +58,7 @@
 			import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.deskshare.events.StreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+			import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			public static const SCALE:Number = 5;
@@ -147,6 +149,18 @@
 			}
 			
 			public function stopSharing():void{
+				if (streaming) {
+					stopStream();
+					var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
+					dispatchEvent(streamEvent);					
+				}
+				sharingFullScreen = false;
+				streaming = false;
+									
+				closeWindow();
+			}
+
+			public function stopSharingEvent(evt:StopSharingButtonEvent):void{
 				if (streaming) {
 					stopStream();
 					var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
