@@ -40,6 +40,7 @@
 			import org.bigbluebutton.common.IBbbToolbarComponent;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.ConfigEvent;
@@ -151,6 +152,13 @@
 				d.dispatchEvent(new SettingsEvent(SettingsEvent.OPEN_SETTINGS_PANEL));
 			}
 			
+			private function openNetworkStatsWindow(e:Event = null):void{
+				var d:Dispatcher = new Dispatcher();
+				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				windowEvent.window = new NetworkStatsWindow();
+				d.dispatchEvent(windowEvent);
+			}
+			
 		]]>
 	</mx:Script>	
 	<mx:HBox id="addedBtns">
@@ -160,4 +168,6 @@
 	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" visible="{showHelpBtn}" click="onHelpButtonClicked()"/>
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()"/>
+	<mx:Button id="btnNetwork" 
+			   width="22" height="22" click="openNetworkStatsWindow()"/>
 </mx:ApplicationControlBar>
