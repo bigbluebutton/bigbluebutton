@@ -42,6 +42,7 @@ public class ChatService {
 	public void sendMessage(ChatObject chatobj) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		//application.sendMessage(roomName, chatobj);
+		chatBridge.storeMsg(roomName,chatobj);
 		chatBridge.sendMsg(roomName, chatobj);
 	}
 	public void setChatApplication(ChatApplication a) {

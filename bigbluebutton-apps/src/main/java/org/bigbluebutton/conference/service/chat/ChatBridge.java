@@ -7,6 +7,8 @@ import org.bigbluebutton.conference.Participant;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.MessagingService;
 
+import redis.clients.jedis.Jedis;
+
 import com.google.gson.Gson;
 
 public class ChatBridge {
@@ -30,6 +32,17 @@ public class ChatBridge {
 
 	public void setMessagingService(MessagingService messagingService) {
 		this.messagingService = messagingService;
+	}
+
+	public void storeMsg(String meetingID, ChatObject chatobj) {
+		/*Jedis jedis = messagingService.createRedisClient();
+		
+		HashMap<String,String> map = new HashMap<String, String>();
+		map.put("name", chatobj.username);
+		map.put("message", chatobj.message);
+		jedis.hmset("meeting-"+meetingID+"-messages", map);
+		
+		messagingService.dropRedisClient(jedis);*/
 	}
 
 }

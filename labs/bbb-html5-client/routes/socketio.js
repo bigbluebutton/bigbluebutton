@@ -160,7 +160,7 @@ exports.SocketOnConnection = function(socket) {
         }
         else {
           var username = handshake.username;
-          pub.publish(meetingID, JSON.stringify(['msg', username, msg]));
+          pub.publish("bigbluebutton:bridge", JSON.stringify([meetingID,'msg', username, msg]));
           var messageID = rack(); //get a randomly generated id for the message
          
           //try later taking these nulls out and see if the function still works
