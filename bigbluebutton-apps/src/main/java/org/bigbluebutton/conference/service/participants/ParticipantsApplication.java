@@ -125,4 +125,13 @@ public class ParticipantsApplication {
 		log.debug("Setting room manager");
 		roomsManager = r;
 	}
+
+	public boolean addParticipantsBridge(String room, ParticipantsBridge participantsBridge) {
+		if (roomsManager.hasRoom(room)){
+			roomsManager.addParticipantsBridge(room, participantsBridge);
+			return true;
+		}
+		log.warn("Adding listener to a non-existant room " + room);
+		return false;
+	}
 }

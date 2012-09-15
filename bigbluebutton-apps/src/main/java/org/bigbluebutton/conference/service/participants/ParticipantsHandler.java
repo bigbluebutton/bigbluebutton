@@ -86,6 +86,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		log.debug("Adding room listener " + connection.getScope().getName());
 		participantsApplication.addRoomListener(connection.getScope().getName(), recorder);
 		participantsApplication.addRoomListener(connection.getScope().getName(), sender);
+		participantsApplication.addParticipantsBridge(connection.getScope().getName(),this.participantsBridge);
 		log.debug("Done setting up recorder and listener");
 		
 		return true;

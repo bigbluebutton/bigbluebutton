@@ -1,8 +1,16 @@
 package org.bigbluebutton.conference.service.participants;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
+import org.bigbluebutton.conference.Participant;
+import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.MessagingService;
+
+import com.google.gson.Gson;
 
 import redis.clients.jedis.Jedis;
 
@@ -15,21 +23,6 @@ public class ParticipantsBridge {
 	}
 
 	public void participantJoined(String meetingID, long internalUserID, String username) {
-		/*HashMap<String, Object> map = new HashMap<String, Object>();
-		map.put("meetingID", meetingID);
-		map.put("messageName", ParticipantsBridgeSender.USER_JOIN);
-
-		HashMap<String,String> user = new HashMap<String, String>();
-		user.put("internalUserID", Long.toString(internalUserID));
-		user.put("username", username);
-		user.put("role", role);
-		user.put("externalUserID", externalUserID);
-
-		map.put("params",user);
-
-		Gson gson = new Gson();
-
-		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(map));*/
 
 		//temporary solution for integrate with the html5 client
 		Jedis jedis = messagingService.createRedisClient();
@@ -48,24 +41,32 @@ public class ParticipantsBridge {
 	}
 	
 	public void participantLeft(String meetingID, long internalUserID) {
-		/*HashMap<String, Object> map = new HashMap<String, Object>();
-		map.put("meetingID", meetingID);
-		map.put("messageName", ParticipantsBridgeSender.USER_LEFT);
 
-		HashMap<String,String> user = new HashMap<String, String>();
-		user.put("internalUserID", Long.toString(internalUserID));
-
-		map.put("params",user);
-
-		Gson gson = new Gson();
-
-		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(map));*/
-
-		//TODO: temp solution
 		Jedis jedis = messagingService.createRedisClient();
 		jedis.srem("meeting-"+meetingID+"-users", Long.toString(internalUserID));
 		jedis.del("meeting-"+meetingID+"-user:"+internalUserID);
 		messagingService.dropRedisClient(jedis);
+	}
+	
+	public void sendParticipantsUpdateList(String meetingID, Map<Long,Participant> participants){
+		ArrayList<Object> updates = new ArrayList<Object>();
+		updates.add(meetingID);
+		updates.add("user list change");
+		
+		ArrayList<Participant> arr= new ArrayList<Participant>(participants.values());
+		ArrayList<Object> all_participants = new ArrayList<Object>();
+		for(int i=0; i<arr.size(); i++){
+			Participant p = arr.get(i);
+			HashMap<String,String> id_name = new HashMap<String, String>();
+			id_name.put("name", p.getName());
+			id_name.put("id", p.getInternalUserID().toString());
+			all_participants.add(id_name);
+		}
+		updates.add(all_participants);
+
+		Gson gson = new Gson();
+
+		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
 	}
 	
 	public MessagingService getMessagingService() {
@@ -74,6 +75,32 @@ public class ParticipantsBridge {
 
 	public void setMessagingService(MessagingService messagingService) {
 		this.messagingService = messagingService;
+	}
+
+	public Map<Long,Participant> loadParticipants(
+			String meetingID) {
+		HashMap<Long,Participant> map = new HashMap<Long, Participant>();
+		
+		Jedis jedis = messagingService.createRedisClient();
+		Set<String> userids = jedis.smembers("meeting-"+meetingID+"-users");
+		
+		for(String userid:userids){
+			Map<String,String> users = jedis.hgetAll("meeting-"+meetingID+"-user-"+userid);
+			
+			long internalUserID = Long.parseLong(userid);
+			String externalUserID = UUID.randomUUID().toString();
+			Map<String, Object> status = new HashMap<String, Object>();
+			status.put("raiseHand", false);
+			status.put("presenter", false);
+			status.put("hasStream", false);
+			
+			Participant p = new Participant(internalUserID, users.get("username"), "VIEWER", externalUserID, status);
+			map.put(internalUserID, p);
+		}
+		
+		messagingService.dropRedisClient(jedis);
+		
+		return map;
 	}
 	
 }

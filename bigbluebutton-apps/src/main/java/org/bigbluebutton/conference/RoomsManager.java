@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.bigbluebutton.conference.service.messaging.MessageListener;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.MessagingService;
+import org.bigbluebutton.conference.service.participants.ParticipantsBridge;
 import org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener;
 import org.bigbluebutton.conference.service.presentation.PresentationRoom;
 import org.red5.logging.Red5LoggerFactory;
@@ -234,6 +235,16 @@ public class RoomsManager {
 			conversionUpdatesMessageListener.handleReceivedMessage(map);
 		}
 		
+	}
+
+	public void addParticipantsBridge(String roomName,
+			ParticipantsBridge participantsBridge) {
+		Room r = getRoom(roomName);
+		if (r != null) {
+			r.addParticipantsBridge(participantsBridge);
+			return;
+		}
+		log.warn("Adding listener to a non-existing room " + roomName);
 	}
 	
 }

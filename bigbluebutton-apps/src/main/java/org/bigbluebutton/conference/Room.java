@@ -20,6 +20,7 @@
 package org.bigbluebutton.conference;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.conference.service.participants.ParticipantsBridge;
 import org.red5.logging.Red5LoggerFactory;
 import net.jcip.annotations.ThreadSafe;
 import java.io.Serializable;
@@ -38,6 +39,8 @@ public class Room implements Serializable {
 	ArrayList<String> currentPresenter = null;
 	private String name;
 	private Map <Long, Participant> participants;
+	
+	private ParticipantsBridge participantsBridge;
 
 	// these should stay transient so they're not serialized in ActiveMQ messages:	
 	//private transient Map <Long, Participant> unmodifiableMap;
@@ -48,6 +51,7 @@ public class Room implements Serializable {
 		participants = new ConcurrentHashMap<Long, Participant>();
 		//unmodifiableMap = Collections.unmodifiableMap(participants);
 		listeners   = new ConcurrentHashMap<String, IRoomListener>();
+		participants.putAll(participantsBridge.loadParticipants(name));
 	}
 
 	public String getName() {
@@ -59,6 +63,9 @@ public class Room implements Serializable {
 			log.debug("adding room listener");
 			listeners.put(listener.getName(), listener);			
 		}
+	}
+	public void addParticipantsBridge(ParticipantsBridge pb){
+		this.participantsBridge = pb;
 	}
 
 	public void removeRoomListener(IRoomListener listener) {
@@ -78,6 +85,8 @@ public class Room implements Serializable {
 			log.debug("calling participantJoined on listener " + listener.getName());
 			listener.participantJoined(participant);
 		}
+		log.debug("sending update with participants bridge");
+		participantsBridge.sendParticipantsUpdateList(name, participants);
 	}
 
 	public void removeParticipant(Long userid) {
