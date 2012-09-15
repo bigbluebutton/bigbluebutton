@@ -157,12 +157,11 @@ public class RedisMessagingService implements MessagingService{
 					
 					//obtener la lista de participantes
 					Map<String,Participant> localParticipants = new HashMap<String, Participant>();
-					if(participantsApplication == null){
-						log.error("participants null");
+					Map<String,Participant> loadedParticipants = participantsApplication.getParticipants(meetingId);
+					if(loadedParticipants != null){
+						localParticipants.putAll(loadedParticipants);
 					}
-					else{
-						localParticipants.putAll(participantsApplication.getParticipants(meetingId));
-					}
+					
 					//checkear q participante esta
 					for(int i=0;i<remoteParticipants.size();i++){
 						JsonObject obj = remoteParticipants.get(i).getAsJsonObject();
