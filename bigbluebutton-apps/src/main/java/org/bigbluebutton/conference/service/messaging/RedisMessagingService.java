@@ -150,19 +150,21 @@ public class RedisMessagingService implements MessagingService{
 					JsonArray remoteParticipants = array.get(2).getAsJsonArray();
 					
 					//obtener la lista de participantes
-					Map<String,Participant> localParticipants = participantsApplication.getParticipants(meetingId);
-					Set<String> keys = localParticipants.keySet();
+					Map<String,Participant> localParticipants = new HashMap<String, Participant>();
+					localParticipants.putAll(participantsApplication.getParticipants(meetingId));
 					
 					//checkear q participante esta
+					log.debug("size:"+localParticipants.size());
 					for(int i=0;i<remoteParticipants.size();i++){
 						JsonObject obj = remoteParticipants.get(i).getAsJsonObject();
 						String nUserId = gson.fromJson(obj.get("id"),String.class);
 						boolean found = false;
 						
-						for(String key:keys){
+						for(Map.Entry entry: localParticipants.entrySet()){
+							String key = entry.getKey().toString();
 							if(key.equalsIgnoreCase(nUserId)){
 								found = true;
-								keys.remove(key);
+								localParticipants.remove(entry.getKey());
 								break;
 							}
 						}
@@ -180,8 +182,8 @@ public class RedisMessagingService implements MessagingService{
 						}
 						
 					}
-					for(String key:keys){
-						participantsApplication.participantLeft(meetingId, Long.parseLong(key));
+					for(Map.Entry entry: localParticipants.entrySet()){
+						participantsApplication.participantLeft(meetingId, Long.parseLong(entry.getKey().toString()));
 					}
 					
 					

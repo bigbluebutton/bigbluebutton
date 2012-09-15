@@ -43,7 +43,7 @@ exports.get_index = function(req, res) {
  */
 function makeMeeting(meetingID, sessionID, username, callback) {
   if((username) && (meetingID) && (username.length <= max_username_length) && (meetingID.split(' ').length == 1)) {
-    var publicID = rack();
+    var publicID = (new Date()).getTime();
     redisAction.isMeetingRunning(meetingID, function(isRunning) {
       if(!isRunning) {
         redisAction.createMeeting(meetingID, function() {
