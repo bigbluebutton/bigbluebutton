@@ -87,7 +87,7 @@ public class ParticipantsBridge {
 		for(String userid:userids){
 			Map<String,String> users = jedis.hgetAll("meeting-"+meetingID+"-user-"+userid);
 			
-			long internalUserID = Long.parseLong(userid);
+			long internalUserID = Long.parseLong(users.get("pubID"));
 			String externalUserID = UUID.randomUUID().toString();
 			Map<String, Object> status = new HashMap<String, Object>();
 			status.put("raiseHand", false);
