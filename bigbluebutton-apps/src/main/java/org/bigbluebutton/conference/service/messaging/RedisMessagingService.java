@@ -47,7 +47,8 @@ public class RedisMessagingService implements MessagingService{
 		try {
 			pubsubListener = new Runnable() {
 			    public void run() {
-			    	jedis.psubscribe(new PubSubListener(), MessagingConstants.BIGBLUEBUTTON_PATTERN);       			
+			    	//jedis.psubscribe(new PubSubListener(), MessagingConstants.BIGBLUEBUTTON_PATTERN);
+			    	jedis.psubscribe(new PubSubListener(), "*");
 			    }
 			};
 			exec.execute(pubsubListener);
@@ -144,37 +145,39 @@ public class RedisMessagingService implements MessagingService{
 			    String messageName = gson.fromJson(array.get(1), String.class);
 
 			    //JsonObject params = array.getAsJsonObject("params");
-
 				if(messageName.equalsIgnoreCase("user list change")){
 					//usernames.push({ 'name' : users[i].username, 'id' : users[i].pubID });
 					JsonArray nPartipants = array.get(2).getAsJsonArray();
 					
 					//obtener la lista de participantes
 					Map<String,Participant> map = participantsApplication.getParticipants(meetingId);
+					Set<String> keys = map.keySet();
 					
 					//checkear q participante esta
 					for(int i=0;i<nPartipants.size();i++){
 						JsonObject obj = nPartipants.get(i).getAsJsonObject();
 						String nUserId = gson.fromJson(obj.get("id"),String.class);
 						
-						if(!map.containsKey(nUserId)){
-							String username = gson.fromJson(obj.get("name"),String.class);
-							String externalUserID = UUID.randomUUID().toString();
-							
-							Map<String, Object> status = new HashMap<String, Object>();
-							status.put("raiseHand", false);
-							status.put("presenter", false);
-							status.put("hasStream", false);
-							
-							participantsApplication.participantJoin(meetingId, Long.parseLong(nUserId), username, "VIEWER", externalUserID, status);
+						for(String key:keys){
+							if(!key.equalsIgnoreCase(nUserId)){
+								String username = gson.fromJson(obj.get("name"),String.class);
+								String externalUserID = UUID.randomUUID().toString();
+								
+								Map<String, Object> status = new HashMap<String, Object>();
+								status.put("raiseHand", false);
+								status.put("presenter", false);
+								status.put("hasStream", false);
+								
+								participantsApplication.participantJoin(meetingId, Long.parseLong(nUserId), username, "VIEWER", externalUserID, status);
+							}
+							else{
+								keys.remove(key);
+							}
 						}
-						else{
-							map.remove(nUserId);
-						}
+						
 					}
-					Set<String> set = map.keySet();
-					for(String id:set){
-						participantsApplication.participantLeft(meetingId, Long.parseLong(id));
+					for(String key:keys){
+						participantsApplication.participantLeft(meetingId, Long.parseLong(key));
 					}
 					
 					
