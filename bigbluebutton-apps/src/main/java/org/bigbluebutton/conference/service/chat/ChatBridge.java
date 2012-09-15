@@ -35,14 +35,17 @@ public class ChatBridge {
 	}
 
 	public void storeMsg(String meetingID, ChatObject chatobj) {
-		/*Jedis jedis = messagingService.createRedisClient();
+		Jedis jedis = messagingService.createRedisClient();
 		
 		HashMap<String,String> map = new HashMap<String, String>();
-		map.put("name", chatobj.username);
-		map.put("message", chatobj.message);
-		jedis.hmset("meeting-"+meetingID+"-messages", map);
+		long messageid = System.currentTimeMillis();
 		
-		messagingService.dropRedisClient(jedis);*/
+		map.put("message", chatobj.message);
+		map.put("username", chatobj.username);
+		jedis.hmset("meeting-"+meetingID+"-message-"+messageid, map);
+		jedis.rpush("meeting-"+meetingID+"-messages", Long.toString(messageid));
+		
+		messagingService.dropRedisClient(jedis);
 	}
 
 }
