@@ -1,5 +1,6 @@
 package org.bigbluebutton.conference.service.messaging;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -151,7 +152,7 @@ public class RedisMessagingService implements MessagingService{
 					//obtener la lista de participantes
 					Map<String,Participant> map = participantsApplication.getParticipants(meetingId);
 					
-					//checkear q participante esta o no esta
+					//checkear q participante esta
 					for(int i=0;i<nPartipants.size();i++){
 						JsonObject obj = nPartipants.get(i).getAsJsonObject();
 						String nUserId = gson.fromJson(obj.get("id"),String.class);
@@ -167,7 +168,15 @@ public class RedisMessagingService implements MessagingService{
 							
 							participantsApplication.participantJoin(meetingId, Long.parseLong(nUserId), username, "VIEWER", externalUserID, status);
 						}
+						else{
+							map.remove(nUserId);
+						}
 					}
+					Set<String> set = map.keySet();
+					for(String id:set){
+						participantsApplication.participantLeft(meetingId, Long.parseLong(id));
+					}
+					
 					
 					
 				}

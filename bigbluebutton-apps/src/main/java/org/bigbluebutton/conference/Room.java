@@ -51,7 +51,6 @@ public class Room implements Serializable {
 		participants = new ConcurrentHashMap<Long, Participant>();
 		//unmodifiableMap = Collections.unmodifiableMap(participants);
 		listeners   = new ConcurrentHashMap<String, IRoomListener>();
-		participants.putAll(participantsBridge.loadParticipants(name));
 	}
 
 	public String getName() {
@@ -66,6 +65,7 @@ public class Room implements Serializable {
 	}
 	public void addParticipantsBridge(ParticipantsBridge pb){
 		this.participantsBridge = pb;
+		participants.putAll(participantsBridge.loadParticipants(name));
 	}
 
 	public void removeRoomListener(IRoomListener listener) {
@@ -106,6 +106,7 @@ public class Room implements Serializable {
 				listener.participantLeft(p);
 			}
 		}
+		participantsBridge.sendParticipantsUpdateList(name, participants);
 	}
 
 	public void changeParticipantStatus(Long userid, String status, Object value) {
