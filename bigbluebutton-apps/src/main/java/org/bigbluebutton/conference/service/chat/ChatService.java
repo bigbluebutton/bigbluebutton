@@ -29,6 +29,7 @@ public class ChatService {
 	private static Logger log = Red5LoggerFactory.getLogger( ChatService.class, "bigbluebutton" );
 	
 	private ChatApplication application;
+	private ChatBridge chatBridge;
 
 	public List<ChatObject> getChatMessages() {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
@@ -40,11 +41,15 @@ public class ChatService {
 	//public void sendMessage(String message, String username, String color, String time, String language, String userid) {
 	public void sendMessage(ChatObject chatobj) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.sendMessage(roomName, chatobj);
+		//application.sendMessage(roomName, chatobj);
+		chatBridge.sendMsg(roomName, chatobj);
 	}
 	public void setChatApplication(ChatApplication a) {
 		log.debug("Setting Chat Applications");
 		application = a;
+	}
+	public void setChatBridge(ChatBridge cb){
+		this.chatBridge = cb;
 	}
 	
 	public void privateMessage(ChatObject chatobj, String sender, String receiver){

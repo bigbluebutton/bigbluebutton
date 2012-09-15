@@ -10,6 +10,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.bigbluebutton.conference.Participant;
+import org.bigbluebutton.conference.service.chat.ChatApplication;
+import org.bigbluebutton.conference.service.chat.ChatObject;
 import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
@@ -35,6 +37,7 @@ public class RedisMessagingService implements MessagingService{
 	private final Set<MessageListener> listeners = new HashSet<MessageListener>();
 	
 	private ParticipantsApplication participantsApplication;
+	private ChatApplication chatApplication;
 
 	public RedisMessagingService(){
 		
@@ -100,6 +103,9 @@ public class RedisMessagingService implements MessagingService{
 	}
 	public void setParticipantsApplication(ParticipantsApplication pa){
 		this.participantsApplication = pa;
+	}
+	public void setChatApplication(ChatApplication ca){
+		this.chatApplication = ca;
 	}
 
 	private class PubSubListener extends JedisPubSub {
@@ -186,8 +192,13 @@ public class RedisMessagingService implements MessagingService{
 						participantsApplication.participantLeft(meetingId, Long.parseLong(entry.getKey().toString()));
 					}
 					
+				}else if(messageName.equalsIgnoreCase("msg")){
+					String username = gson.fromJson(array.get(2), String.class);
+					String chat_message = gson.fromJson(array.get(3), String.class);
 					
+					ChatObject chatobj = new ChatObject(chat_message, username, "0", "00:00", "en", "0");
 					
+					chatApplication.sendMessage(meetingId, chatobj);
 				}
 
 			}

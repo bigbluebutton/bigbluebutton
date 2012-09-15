@@ -23,6 +23,10 @@
 		<property name="messagingService" ref="messagingService"></property>
 	</bean>
 	
+	<bean id="chatBridge" class="org.bigbluebutton.conference.service.chat.ChatBridge">
+		<property name="messagingService" ref="messagingService"></property>
+	</bean>
+	
 	<bean id="participantsApplication" 
 	    class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">
 		<property name="roomsManager"> <ref local="roomsManager"/></property>
@@ -98,6 +102,7 @@
 	
 	<bean id="chat.service" class="org.bigbluebutton.conference.service.chat.ChatService">
 		<property name="chatApplication"> <ref local="chatApplication"/></property>
+		<property name="chatBridge"> <ref local="chatBridge"/></property>
 	</bean>
 	
 	<bean id="chatRoomsManager" class="org.bigbluebutton.conference.service.chat.ChatRoomsManager"/>
@@ -130,6 +135,7 @@
 	
     <bean id="messagingService" class="org.bigbluebutton.conference.service.messaging.RedisMessagingService">
     	<property name="participantsApplication"> <ref local="participantsApplication"/></property>
+    	<property name="chatApplication"> <ref local="chatApplication"/></property>
     	<property name="redisPool" ref="redisPool"/>
   	</bean>
     
