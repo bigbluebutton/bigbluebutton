@@ -147,32 +147,36 @@ public class RedisMessagingService implements MessagingService{
 			    //JsonObject params = array.getAsJsonObject("params");
 				if(messageName.equalsIgnoreCase("user list change")){
 					//usernames.push({ 'name' : users[i].username, 'id' : users[i].pubID });
-					JsonArray nPartipants = array.get(2).getAsJsonArray();
+					JsonArray remoteParticipants = array.get(2).getAsJsonArray();
 					
 					//obtener la lista de participantes
-					Map<String,Participant> map = participantsApplication.getParticipants(meetingId);
-					Set<String> keys = map.keySet();
+					Map<String,Participant> localParticipants = participantsApplication.getParticipants(meetingId);
+					Set<String> keys = localParticipants.keySet();
 					
 					//checkear q participante esta
-					for(int i=0;i<nPartipants.size();i++){
-						JsonObject obj = nPartipants.get(i).getAsJsonObject();
+					for(int i=0;i<remoteParticipants.size();i++){
+						JsonObject obj = remoteParticipants.get(i).getAsJsonObject();
 						String nUserId = gson.fromJson(obj.get("id"),String.class);
+						boolean found = false;
 						
 						for(String key:keys){
-							if(!key.equalsIgnoreCase(nUserId)){
-								String username = gson.fromJson(obj.get("name"),String.class);
-								String externalUserID = UUID.randomUUID().toString();
-								
-								Map<String, Object> status = new HashMap<String, Object>();
-								status.put("raiseHand", false);
-								status.put("presenter", false);
-								status.put("hasStream", false);
-								
-								participantsApplication.participantJoin(meetingId, Long.parseLong(nUserId), username, "VIEWER", externalUserID, status);
-							}
-							else{
+							if(key.equalsIgnoreCase(nUserId)){
+								found = true;
 								keys.remove(key);
+								break;
 							}
+						}
+						
+						if(!found){
+							String username = gson.fromJson(obj.get("name"),String.class);
+							String externalUserID = UUID.randomUUID().toString();
+							
+							Map<String, Object> status = new HashMap<String, Object>();
+							status.put("raiseHand", false);
+							status.put("presenter", false);
+							status.put("hasStream", false);
+							
+							participantsApplication.participantJoin(meetingId, Long.parseLong(nUserId), username, "VIEWER", externalUserID, status);
 						}
 						
 					}
