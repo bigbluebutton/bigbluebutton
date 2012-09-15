@@ -246,5 +246,14 @@ public class RoomsManager {
 		}
 		log.warn("Adding listener to a non-existing room " + roomName);
 	}
+
+	public Participant getParticipantByUsername(String roomName, String username) {
+		Room r = getRoom(roomName);
+		if (r != null) {
+			return r.getParticipantByUsername(username);
+		}
+		log.warn("Getting participant from a non-existing room " + roomName);
+		return null;
+	}
 	
 }

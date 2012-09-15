@@ -198,7 +198,13 @@ public class RedisMessagingService implements MessagingService{
 					String username = gson.fromJson(array.get(2), String.class);
 					String chat_message = gson.fromJson(array.get(3), String.class);
 					
-					ChatObject chatobj = new ChatObject(chat_message, username, "0", "00:00", "en", "0");
+					Participant p = participantsApplication.getParticipantByUsername(meetingId, username);
+					String userid = "0";
+					if(p != null){
+						userid = p.getInternalUserID().toString();
+					}
+					
+					ChatObject chatobj = new ChatObject(chat_message, username, "0", "00:00", "en", userid);
 					
 					chatApplication.sendMessage(meetingId, chatobj);
 				}

@@ -177,4 +177,15 @@ public class Room implements Serializable {
 			listener.assignPresenter(presenter);
 		}	
 	}
+
+	public Participant getParticipantByUsername(String username) {
+		ArrayList<Participant> parts = new ArrayList<Participant>(participants.values());
+		for(int i=0; i<parts.size();i++){
+			Participant p = parts.get(i);
+			if(username.equalsIgnoreCase(p.getName())){
+				return p;
+			}
+		}
+		return null;
+	}
 }

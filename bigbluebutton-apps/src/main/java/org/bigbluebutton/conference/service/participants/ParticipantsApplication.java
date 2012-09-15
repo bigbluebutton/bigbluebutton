@@ -79,6 +79,16 @@ public class ParticipantsApplication {
 		return roomsManager.getParticipants(roomName);
 	}
 	
+	public Participant getParticipantByUsername(String roomName, String username){
+		log.debug("getParticipantByUsername - " + roomName);
+		if (! roomsManager.hasRoom(roomName)) {
+			log.warn("Could not find room " + roomName + ". Total rooms " + roomsManager.numberOfRooms());
+			return null;
+		}
+
+		return roomsManager.getParticipantByUsername(roomName,username);
+	}
+	
 	public boolean participantLeft(String roomName, Long userid) {
 		log.debug("Participant " + userid + " leaving room " + roomName);
 		if (roomsManager.hasRoom(roomName)) {
