@@ -631,7 +631,7 @@ $playback = match[2]
 
 puts $meeting_id
 puts $playback
-if ($playback == "slides")
+if ($playback == "presentation")
 	logger = Logger.new("/var/log/bigbluebutton/presentation/publish-#{$meeting_id}.log", 'daily' )
 	BigBlueButton.logger = logger
   BigBlueButton.logger.info("RUNNING SLIDES_NEW.RB - Publishing #{$meeting_id}")
