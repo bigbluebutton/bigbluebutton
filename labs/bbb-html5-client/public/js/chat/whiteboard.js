@@ -895,13 +895,13 @@ var tctx = tc.getContext('2d');
 
 s_left = slide_obj.offsetLeft; //the offset from the left of the page to the whiteboard frame border
 s_top = slide_obj.offsetTop; // the offset from the top of the page to the whiteboard frame border
-vw = slide_obj.clientWidth; 
+vw = slide_obj.clientWidth;
 vh = slide_obj.clientHeight;
 
 drawThicknessView(default_thickness, default_colour);
 drawColourView(default_colour);
 
-cp = Raphael.colorwheel(625, 450, 75, default_colour); //create colour picker
+cp = Raphael.colorwheel(-75, -75, 75, default_colour); //create colour picker
 cp.raphael.forEach(function(item) { item.hide(); }); //hide it
 var cpVisible = false;
 
@@ -941,6 +941,16 @@ document.onkeydown = function(event) {
   }
 };
 
+function windowResized(div) {
+  s_top = slide_obj.offsetTop;
+  s_left = slide_obj.offsetLeft;
+
+  if(div) {
+    s_left += $('#presentation')[0].offsetLeft;
+  }
+  console.log('window resized');
+}
+
 //when releasing any key at any time
 document.onkeyup = function(event) {
   var keyCode;
@@ -976,6 +986,10 @@ $('#uploadForm').submit(function() {
 $('#uploadFile').change(function() {
   $("#uploadForm").submit();
 });
+
+window.onresize = function () {
+  windowResized();
+}
 
 /**
  * Scales a path string to fit within a width and height of the new paper size
