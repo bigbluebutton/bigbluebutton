@@ -52,6 +52,13 @@ package org.bigbluebutton.main.model.users
 		private var _status:StatusCollection = new StatusCollection();
 		
 			
+
+		public function amIGuest():Boolean {
+			if(role == GUEST)
+				return true;
+			else
+				return false;
+		}
 	
 		public function get status():ArrayCollection {
 			return _status.getAll();

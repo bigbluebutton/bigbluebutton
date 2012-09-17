@@ -86,6 +86,13 @@ public class Room implements Serializable {
 		boolean present = false;
 		Participant p = null;
 		synchronized (this) {
+			p = participants.get(userid);
+			if(p.getRole().equals("GUEST")) {
+				if(guestsWaiting.containsKey(p.getInternalUserID())) {
+					guestsWaiting.remove(p.getInternalUserID());
+				}
+			}
+
 			present = participants.containsKey(userid);
 			if (present) {
 				log.debug("removing participant");

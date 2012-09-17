@@ -185,6 +185,16 @@ package org.bigbluebutton.main.model.users {
 		public function participantLeft(user:Object):void { 			
 			var participant:BBBUser = UserManager.getInstance().getConference().getParticipant(Number(user));
 			
+			var dispatcher:Dispatcher = new Dispatcher();
+
+			if(participant.amIGuest()) {
+				var e:RemoveGuestRequestEvent = new RemoveGuestRequestEvent(RemoveGuestRequestEvent.GUEST_EVENT);
+				e.userid = participant.userid;
+				dispatcher.dispatchEvent(e);
+			}
+
+
+
 			var p:User = new User();
 			p.userid = String(participant.userid);
 			p.name = participant.name;
@@ -192,11 +202,12 @@ package org.bigbluebutton.main.model.users {
 			UserManager.getInstance().participantLeft(p);
 			UserManager.getInstance().getConference().removeParticipant(Number(user));	
 			
-			var dispatcher:Dispatcher = new Dispatcher();
+			
 			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
 			joinEvent.participant = p;
 			joinEvent.join = false;
 			dispatcher.dispatchEvent(joinEvent);	
+			
 			
 
 		}

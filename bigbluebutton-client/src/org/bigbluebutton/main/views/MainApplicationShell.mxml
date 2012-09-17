@@ -45,6 +45,7 @@
 	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
 	<mate:Listener type="{NewGuestEvent.NEW_GUEST_EVENT}" method="newGuestWindow" />
 	<mate:Listener type="{ModeratorRespEvent.GUEST_ALLOWED}" method="guestAllowed" />
+
 	
 	<mx:Script>
 		<![CDATA[
@@ -194,8 +195,10 @@
 				guestWindowMap[evt.userid].y = 20;
 			}
 			public function removeGuestWindow(evt:RemoveGuestRequestEvent):void {
-				guestWindowMap[evt.userid].remove();
-				delete guestWindowMap[evt.userid];
+				if(evt.userid in guestWindowMap) {
+					guestWindowMap[evt.userid].remove();
+					delete guestWindowMap[evt.userid];
+				}
 			}
 
 			private function openWaitWindow(evt:WaitModeratorEvent):void {
