@@ -96,8 +96,9 @@ function getCursorAtTime(time) {
 	if(coords) return coords.split(' ');
 }
 
-function cleanseSlideText(text) {
-  
+function removeSlideChangeAttribute() {
+	$('#video').removeAttr('slide-change');
+	Popcorn('#video').unlisten(Popcorn.play, 'removeSlideChangeAttribute');
 }
 
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
@@ -282,6 +283,13 @@ function runPopcorn() {
             ni.style.visibility = "visible";
             document.getElementById("slideText").innerHTML = slidePlainText[next_image] + next_image; //set new plain text
             
+            if ($("#accEnabled").is(':checked')) {
+              //pause the playback on slide change
+              p.pause();
+              $('#video').attr('slide-change', 'slide-change');
+              p.listen(Popcorn.play, removeSlideChangeAttribute);
+            }
+
             var num_current = current_image.substr(5);
             var num_next = next_image.substr(5);
             
