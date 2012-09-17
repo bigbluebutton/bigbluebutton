@@ -29,7 +29,8 @@
 		   creationComplete="onCreationComplete()"
 		   label="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
 		   title="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
-		   layout="absolute">
+		   layout="absolute"
+		   >
 
 	<mx:Script>
 		<![CDATA[
@@ -81,18 +82,35 @@
 		private var POLL_URL_COLOUR:String = "35071";
 		private var webClosed:Boolean;
 		private var notified:Boolean;
-
-		private function init():void{
+		
+		private function init():void{			
 			conference = UserManager.getInstance().getConference();
 			webPollText.visible = (conference.amIPresenter() && (!reviewing && trackingPoll.publishToWeb));
 			btnClosePoll.visible = conference.amIPresenter();
-			webPollBox.visible = webPollText.visible; 
-			if (webPollText.visible){
+			webPollBox.visible = webPollText.visible;
+			
+			
+			if (webPollText.visible){				
 				webClosed = false;
 				var generate: GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.GENERATE);
 				generate.poll = trackingPoll;
 				dispatchEvent(generate);
+				
+				webPollURLBox.editable = true;
+				focusManager.setFocus(webPollURLBox);
+				webPollURLBox.editable = false;
 			}
+			else{
+				/*
+				 * The "flex losing focus" issue is fixed, but the "focus not being drawn on Refresh button" isn't
+				 */
+				
+				focusManager.setFocus(btnRefreshResults);
+				//focusManager.setFocus(btnClosePoll);
+				//focusManager.setFocus(spoofButton);
+				focusManager.showFocus();
+			}
+			
 			notified = false;
 		}
 
@@ -310,16 +328,22 @@
 			<mx:Text id="webPollText"
 					 text="{ResourceUtil.getInstance().getString('bbb.polling.stats.webPollURL')}" 
 					 width="140"/>
+			<mx:Button id="spoofButton" 
+	       			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')}" 
+	       			   click="refreshPoll()" 
+	       			   width="100" 
+	       			   height="30"
+	       			   visible = "true"
+	       			   />
 		</mx:HBox>
 		<mx:HBox id="webPollBox" 
 				 width="90%" >
 			<mx:TextArea id="webPollURLBox" 
 						 editable="false" 
 						 text="" 
-						 horizontalScrollPolicy="off" 
-						 verticalScrollPolicy="off" 
 						 height="25"
-						 width="95%"/>          
+						 width="95%"
+						 />          
 		</mx:HBox>
         <mx:Text width="200" 
         		 paddingTop="15" paddingBottom="10" 
@@ -329,19 +353,21 @@
         		width="90%" 
         		height="90%" />
 	</mx:VBox>
-    <mx:ControlBar width="100%" 
-    			   horizontalAlign="center">
-    	<mx:Button id="btnRefreshResults" 
-       			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')}" 
-       			   click="refreshPoll()" 
-       			   width="100" 
-       			   height="30"
-       			   visible = "true"/>
-       	<mx:Button id="btnClosePoll" 
-       			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')}" 
-       			   click="stopPoll()" 
-       			   width="100" 
-       			   height="30"
-       			   visible = "true"/>
-	</mx:ControlBar> 	 
+
+    	<mx:HBox paddingLeft="20" paddingRight="10" paddingTop="10" paddingBottom="10">
+	    	<mx:Button id="btnRefreshResults" 
+	       			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')}" 
+	       			   click="refreshPoll()" 
+	       			   width="100" 
+	       			   height="30"
+	       			   visible = "true"
+	       			   />
+	       	<mx:Button id="btnClosePoll" 
+	       			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')}" 
+	       			   click="stopPoll()" 
+	       			   width="100" 
+	       			   height="30"
+	       			   visible = "true"/>
+		</mx:HBox>
+ 	 
 </MDIWindow>

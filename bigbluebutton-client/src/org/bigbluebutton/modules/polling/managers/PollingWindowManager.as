@@ -70,6 +70,11 @@ package org.bigbluebutton.modules.polling.managers
 			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
 			globalDispatcher.dispatchEvent(getTitlesEvent);
 			openWindow(instructionsWindow);
+			
+			//instructionsWindow.focusManager.setFocus(instructionsWindow.pollTitle);
+			instructionsWindow.pollTitle.drawFocus(true); // Drawfocus works, setfocus doesn't
+			instructionsWindow.pollTitle.setFocus();
+			// focusManager.setFocus(instructionsWindow.pollTitle);
 		}
 		
 		public function handleOpenPollingInstructionsWindowWithExistingPoll(e:OpenSavedPollEvent):void{

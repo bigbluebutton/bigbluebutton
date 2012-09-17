@@ -52,8 +52,6 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 		import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
 		
-		import mx.managers.FocusManager;
-		
 		import org.bigbluebutton.modules.polling.model.PollObject;
 		
 		import org.bigbluebutton.core.managers.UserManager;
@@ -101,13 +99,12 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		}
 		
 		private function onCreationComplete():void{
-			var pollFocusManager:FocusManager = new FocusManager(this);
 			published = false;
-			// this.focusManager = focusManager;
-			// This works
-			pollFocusManager.setFocus(pollTitle);
 			
-			
+			/*pollTitle.editable = false;
+			focusManager.setFocus(pollTitle);
+			pollTitle.editable = true;
+			focusManager.setFocus(pollTitle);*/
 			
 			if (incomingPoll != null){
 				LogUtil.debug("EDITING POLL");
