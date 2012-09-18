@@ -40,23 +40,57 @@
 						
 			[Bindable] private var message:String = "The user ";
 			private var urlLoader:URLLoader;
+			private var guestWindowMap:Object = new Object();
+
 			
 			
 			private function init():void {
 				message = message + _name + " wants to enter in this meeting.";
+				
 			}
 
-	    
+	    		public function addGuest(userid:Number, username:String):void {
+				guestWindowMap[userid] = name;
+				var box:HBox = new HBox();
+				var label:Label = new Label();
+				label.text = username;
+				box.addChild(label);
+				var acceptBtn:Button = new Button();
+				acceptBtn.id = userid.toString();
+				acceptBtn.label = "A";
+				acceptBtn.addEventListener(event.currentTarget, handleClick);
+				var rejectBtn:Button = new Button();
+				rejectBtn.label = "R";
+				rejectBtn.addEventListener(event, handleClick);	
+				box.addChild(acceptBtn);
+				box.addChild(rejectBtn);
+				this.addChild(box);
+			}
+
+			private function handleClick(evt:Event) {
+				if(event.currentTarget.label == A) {
+					sendToServer(true, Number(event.currentTarget.id));				
+				}
+				else
+					sendToServer(false, Number(event.currentTarget.id));
+				
+				guestWindowMap
+
+		if(evt.userid in guestWindowMap) {
+					guestWindowMap[evt.userid].remove();
+					delete guestWindowMap[evt.userid];
+				}	
+				
+			}
 			
 			
 
-			public function sendToServer(acc:Boolean):void {
+			public function sendToServer(acc:Boolean, userid:Number):void {
 				var respCommand:ResponseModeratorEvent = new ResponseModeratorEvent(ResponseModeratorEvent.RESPONSE);
 				respCommand.userid = userid;
 				respCommand.resp = acc;
 				var dispatcher:Dispatcher = new Dispatcher();
 			        dispatcher.dispatchEvent(respCommand);
-				PopUpManager.removePopUp(this);
 			}
 			public function remove():void {
 				PopUpManager.removePopUp(this);

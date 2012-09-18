@@ -95,7 +95,9 @@
 			private var logs:Logger = new Logger();
 			private var logWindow:LogWindow;
 			private var waitWindow:WaitingWindow = null;	
-			private var guestWindowMap:Object = new Object();		
+			private var guestWindowMap:Object = new Object();	
+			private var guestWindow:GuestWindow = null;
+	
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
 			
@@ -188,16 +190,20 @@
 			}
 				
 			private function newGuestWindow(evt:NewGuestEvent):void {
-				guestWindowMap[evt.userid] = PopUpManager.createPopUp( mdiCanvas, GuestWindow, false) as GuestWindow;
-				guestWindowMap[evt.userid]._name = evt.name;
-				guestWindowMap[evt.userid].userid = evt.userid;
-				guestWindowMap[evt.userid].x = width - 400;
-				guestWindowMap[evt.userid].y = 20;
+				if(guestWindow == null) {
+					guestWindow = PopUpManager.createPopUp( mdiCanvas, GuestWindow, false) as GuestWindow;
+					guestWindow.x = width - 400;
+					guestWindow.y = 20;
+				}
+				
+				guestWindow.addGuest(evt.userid, evt.name);
+				
 			}
 			public function removeGuestWindow(evt:RemoveGuestRequestEvent):void {
-				if(evt.userid in guestWindowMap) {
-					guestWindowMap[evt.userid].remove();
-					delete guestWindowMap[evt.userid];
+				guestWindow.remove(evt.userid);
+				if(guestWindow.hasGuest() == false) {
+					guestWindow.remove();
+					guestWindow = null;
 				}
 			}
 
