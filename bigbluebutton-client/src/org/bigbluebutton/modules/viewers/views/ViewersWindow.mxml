@@ -111,10 +111,7 @@
 				if (viewersGrid.selectedItem.presenter) presentBtn.enabled = false;
 				else presentBtn.enabled = true; 
 
-				if (viewersGrid.selectedItem.acceptedJoin)
- 						acceptedBtn.enabled = false;
-				else acceptedBtn.enabled = true;
-
+				
 
         	}           
         	
@@ -199,11 +196,7 @@
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.raiseHandBtn.toolTip')}" 
     	   			click="raiseHand()"/>  	
 
-   		 <mx:Button id="acceptedBtn" label="Accept User" visible="{isModerator}"
-
-    	   			width="130" height="20"
-    	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
-    	   			click="assignPresenterClicked()"/>
+   		
 		
     </mx:ControlBar>  
     

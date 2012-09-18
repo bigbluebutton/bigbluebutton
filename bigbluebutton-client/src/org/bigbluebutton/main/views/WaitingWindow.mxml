@@ -21,8 +21,8 @@
 -->
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-    title="Logged Out" showCloseButton="false" creationComplete="init()"
-    x="168" y="86" layout="vertical" width="400" height="100" horizontalAlign="center">
+    title="Waiting" showCloseButton="false" 
+    x="168" y="86" layout="vertical" width="400" height="80" horizontalAlign="center">
 
 	
 
@@ -46,11 +46,9 @@
 			[Bindable] private var message:String = "Waiting for Moderator.";
 			private var urlLoader:URLLoader;
 			
-			private function init():void {
-				message = message + UserManager.getInstance().getConference().getMyName();
-			}
+			
 
-	    public function guestAllowed():void {
+	     public function guestAllowed():void {
 	   		var dispatcher:Dispatcher = new Dispatcher();
 			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
 			loadCommand.conferenceParameters = conferenceParameters;
@@ -69,5 +67,5 @@
 			
 		]]>
 	</mx:Script>
-	<mx:Label text="{message}"/>
+	<mx:Label text="{message}" width="100%" textAlign="center"/>
 </mx:TitleWindow> 
