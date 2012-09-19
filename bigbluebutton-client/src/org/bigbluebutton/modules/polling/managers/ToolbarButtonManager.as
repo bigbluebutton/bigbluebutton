@@ -26,7 +26,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.polling.views.ToolbarButton;
 
-	
+	import mx.managers.IFocusManager;
 	
 	import flash.display.DisplayObjectContainer;
 		
@@ -34,6 +34,8 @@ package org.bigbluebutton.modules.polling.managers
 		public var button:ToolbarButton;
 		private var globalDispatcher:Dispatcher;
 		private var buttonShownOnToolbar:Boolean = false;
+		
+		public var appFM:IFocusManager;
 		
 		public static const LOGNAME:String = "[Polling :: ToolBarButtonManager] ";	
 		
@@ -52,6 +54,7 @@ package org.bigbluebutton.modules.polling.managers
 				globalDispatcher.dispatchEvent(event);	
 				buttonShownOnToolbar = true;	
 				button.enabled = true;	
+				appFM = button.focusManager;
 			}
 		}
 		
@@ -69,6 +72,7 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		
 		public function disableToolbarButton():void {
+			appFM.setFocus(button.focusManager.getNextFocusManagerComponent());
 			button.enabled = false;
 		}
 		// _Button

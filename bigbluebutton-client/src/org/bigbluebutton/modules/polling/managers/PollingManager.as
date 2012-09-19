@@ -83,10 +83,13 @@ package org.bigbluebutton.modules.polling.managers
 		   viewWindowManager.handleClosePollingInstructionsWindow(e);
 		   toolbarButtonManager.enableToolbarButton();
 	   }		
-		 //Opening Instructions Window    
-	  public function handleOpenPollingInstructionsWindowEvent(e:PollingInstructionsWindowEvent):void {
-		      viewWindowManager.handleOpenPollingInstructionsWindow(e);
-	}
+		//Opening Instructions Window    
+	  	public function handleOpenPollingInstructionsWindowEvent(e:PollingInstructionsWindowEvent):void {
+			if (toolbarButtonManager.appFM == null)
+				LogUtil.debug("WATERFALL In Polling Manager, TBM's appFM is null");
+			viewWindowManager.appFM = toolbarButtonManager.appFM;
+		    viewWindowManager.handleOpenPollingInstructionsWindow(e);
+		}
 				
 	  // Checking the polling status to prevent a presenter from publishing two polls at a time
 	  public function handleCheckStatusEvent(e:PollingStatusCheckEvent):void{

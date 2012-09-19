@@ -122,9 +122,10 @@
 			}
 			
         	private function menuClick(event:MenuEvent):void {            	
-            	//focusManager.setFocus()
-            	LogUtil.debug("WATERFALL Parent of toolbarbutton is: " + this.parent.toString());
-				LogUtil.debug("WATERFALL Parent of parent of toolbarbutton is: " + this.parent.parent.toString());
+            	/*LogUtil.debug("WATERFALL At the start of menuclick, focus is set to: " + focusManager.getFocus());
+				focusManager.setFocus(this);
+				focusManager.setFocus(focusManager.getNextFocusManagerComponent());
+				LogUtil.debug("WATERFALL focus is now set to: " + focusManager.getFocus());*/
 				if(event.index == 0){
             	  	openPollingInstructions();
             	}else{

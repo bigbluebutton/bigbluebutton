@@ -44,6 +44,11 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
 	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
 	
+	import mx.managers.IFocusManager;
+	import flash.utils.Timer;
+	import flash.events.FocusEvent;
+	import flash.events.TimerEvent;
+	
 	import org.bigbluebutton.modules.polling.model.PollObject;
 			
 	public class PollingWindowManager {	
@@ -54,6 +59,11 @@ package org.bigbluebutton.modules.polling.managers
 		private var service:PollingService;
 		private var isViewing:Boolean = false;
 		private var globalDispatcher:Dispatcher;
+		
+		public var appFM:IFocusManager;
+		
+		private var focusTimer:Timer = new Timer(250);
+		
 		public static const LOGNAME:String = "[Polling::PollingWindowManager] ";
 		
 		public function PollingWindowManager(service:PollingService) {
@@ -62,7 +72,7 @@ package org.bigbluebutton.modules.polling.managers
 		  globalDispatcher = new Dispatcher();
 		}
 				
-		//PollingInstructionsWindow.mxml Window Event Handlers
+		//PollingInstructionsWindow.mxml Window Event Handlerscx 
 		//##########################################################################
 		public function handleOpenPollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
 			instructionsWindow = new PollingInstructionsWindow();
@@ -71,10 +81,30 @@ package org.bigbluebutton.modules.polling.managers
 			globalDispatcher.dispatchEvent(getTitlesEvent);
 			openWindow(instructionsWindow);
 			
-			//instructionsWindow.focusManager.setFocus(instructionsWindow.pollTitle);
-			instructionsWindow.pollTitle.drawFocus(true); // Drawfocus works, setfocus doesn't
-			instructionsWindow.pollTitle.setFocus();
-			// focusManager.setFocus(instructionsWindow.pollTitle);
+			focusTimer.addEventListener(TimerEvent.TIMER, moveFocus);
+			focusTimer.start();
+			
+			/*if (appFM == null)
+				LogUtil.debug("AppFM is null");
+			else if (appFM.getFocus() == null)
+				LogUtil.debug("AppFM.getFocus is null");
+			LogUtil.debug("WATERFALL Before title focus, focus is at " + appFM.getFocus());
+			appFM.setFocus(instructionsWindow.pollTitle);*/
+			
+			//instructionsWindow.pollTitle.setFocus();
+			//LogUtil.debug("WATERFALL After opening instructions, focus is now set to: " + appFM.getFocus());
+			
+			// DO NOT DO THIS
+			// INFINITE LOOP 
+			// while (appFM.getFocus() != "pollTitle"){
+			// 	appFM.setFocus(appFM.getNextFocusManagerComponent());
+			// }
+			// SERIOUSLY
+		}
+		
+		private function moveFocus(event:TimerEvent):void{
+			appFM.setFocus(instructionsWindow.pollTitle);
+			focusTimer.stop();
 		}
 		
 		public function handleOpenPollingInstructionsWindowWithExistingPoll(e:OpenSavedPollEvent):void{
@@ -88,6 +118,7 @@ package org.bigbluebutton.modules.polling.managers
 				instructionsWindow.editing = true;
 			}		
 			openWindow(instructionsWindow);
+			
 		}
 		
 		public function handleClosePollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
