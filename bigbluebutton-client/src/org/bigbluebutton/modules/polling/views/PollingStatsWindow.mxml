@@ -108,7 +108,7 @@
 				focusManager.setFocus(btnRefreshResults);
 				//focusManager.setFocus(btnClosePoll);
 				//focusManager.setFocus(spoofButton);
-				focusManager.showFocus();
+				//focusManager.showFocus();
 			}
 			
 			notified = false;
@@ -328,13 +328,6 @@
 			<mx:Text id="webPollText"
 					 text="{ResourceUtil.getInstance().getString('bbb.polling.stats.webPollURL')}" 
 					 width="140"/>
-			<mx:Button id="spoofButton" 
-	       			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')}" 
-	       			   click="refreshPoll()" 
-	       			   width="100" 
-	       			   height="30"
-	       			   visible = "true"
-	       			   />
 		</mx:HBox>
 		<mx:HBox id="webPollBox" 
 				 width="90%" >
@@ -353,21 +346,21 @@
         		width="90%" 
         		height="90%" />
 	</mx:VBox>
-
-    	<mx:HBox paddingLeft="20" paddingRight="10" paddingTop="10" paddingBottom="10">
-	    	<mx:Button id="btnRefreshResults" 
-	       			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')}" 
-	       			   click="refreshPoll()" 
-	       			   width="100" 
-	       			   height="30"
-	       			   visible = "true"
-	       			   />
-	       	<mx:Button id="btnClosePoll" 
-	       			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')}" 
-	       			   click="stopPoll()" 
-	       			   width="100" 
-	       			   height="30"
-	       			   visible = "true"/>
-		</mx:HBox>
- 	 
+	<mx:ControlBar width="100%" height="10%">
+		<mx:Spacer width="100%"/>
+		<mx:Button id="btnRefreshResults" 
+       			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')}" 
+       			   click="refreshPoll()" 
+       			   width="100" 
+       			   height="30"
+       			   visible = "true"
+       			   />
+       	<mx:Button id="btnClosePoll" 
+       			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')}" 
+       			   click="stopPoll()" 
+       			   width="100" 
+       			   height="30"
+       			   visible = "true"/>
+		<mx:Spacer width="100%"/>
+ 	 </mx:ControlBar>
 </MDIWindow>
