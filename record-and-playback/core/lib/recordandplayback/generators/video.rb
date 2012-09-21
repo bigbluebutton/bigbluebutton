@@ -57,7 +57,7 @@ module BigBlueButton
   #   create_blank_video(15, 1000, canvas.jpg, blank-video.flv)
   def self.create_blank_deskshare_video(length, rate, blank_canvas, video_out)
     BigBlueButton.logger.info("Task: Creating blank deskshare video")      
-    command = "ffmpeg -loop_input -t #{length} -i #{blank_canvas} -loglevel fatal -v -10 -r #{rate} -vcodec flashsv #{video_out}"
+    command = "ffmpeg -loop 1 -t #{length} -i #{blank_canvas} -loglevel fatal -v -10 -r #{rate} -vcodec flashsv #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check for result, raise exception when there is an error
   end
@@ -71,7 +71,7 @@ module BigBlueButton
   #   create_blank_video(15, 1000, canvas.jpg, blank-video.flv)
   def self.create_blank_video(length, rate, blank_canvas, video_out)
     BigBlueButton.logger.info("Task: Creating blank video")      
-    command = "ffmpeg -y -loop_input -t #{length} -i #{blank_canvas} -loglevel fatal -v -10 -r #{rate} #{video_out}"
+    command = "ffmpeg -y -loop 1 -t #{length} -i #{blank_canvas} -loglevel fatal -v -10 -r #{rate} #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check for result, raise exception when there is an error
   end
