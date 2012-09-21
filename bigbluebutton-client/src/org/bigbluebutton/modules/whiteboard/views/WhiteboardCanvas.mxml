@@ -226,7 +226,7 @@
 			
 			private function removeCursor():void {
 				CursorManager.removeCursor(CursorManager.currentCursorID);
-				doMouseUp(null);
+//				doMouseUp(null);
 			}
 			
 			/** Inherited from org.bigbluebutton.common.IBbbCanvas*/
