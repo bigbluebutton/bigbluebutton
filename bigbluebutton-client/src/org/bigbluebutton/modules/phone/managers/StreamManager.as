@@ -184,7 +184,7 @@ package org.bigbluebutton.modules.phone.managers {
 			LogUtil.debug("Stopping Stream(s)");
 			if(incomingStream != null) {
 				LogUtil.debug("--Stopping Incoming Stream");
-				incomingStream.play(false); 
+        incomingStream.close(); 
 			} else {
 				LogUtil.debug("--Incoming Stream Null");
 			}

@@ -20,14 +20,16 @@
 package org.bigbluebutton.voiceconf.red5;
 
 import java.util.List;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.bigbluebutton.voiceconf.sip.PeerNotFoundException;
 import org.bigbluebutton.voiceconf.sip.SipPeerManager;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
-import org.red5.server.api.IScope;
 import org.red5.server.api.Red5;
+import org.red5.server.api.scope.IScope;
 import org.red5.server.api.service.IServiceCapableConnection;
 import org.red5.server.api.stream.IBroadcastStream;
 import org.red5.server.stream.ClientBroadcastStream;
@@ -49,6 +51,7 @@ public class Application extends MultiThreadedApplicationAdapter {
     @Override
     public boolean appStart(IScope scope) {
     	log.debug("VoiceConferenceApplication appStart[" + scope.getName() + "]");
+    	super.setScope(scope);
     	callStreamFactory = new CallStreamFactory();
     	callStreamFactory.setScope(scope);
     	sipPeerManager.setCallStreamFactory(callStreamFactory);
@@ -60,13 +63,14 @@ public class Application extends MultiThreadedApplicationAdapter {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        return true;
+        return super.appStart(scope);
     }
 
     @Override
     public void appStop(IScope scope) {
         log.debug("VoiceConferenceApplication appStop[" + scope.getName() + "]");
         sipPeerManager.destroyAllSessions();
+        super.appStop(scope);
     }
 
     @Override
@@ -86,7 +90,7 @@ public class Application extends MultiThreadedApplicationAdapter {
         log.info("[clientid={}] connected from {}.", clientId, remoteHost + ":" + remotePort);
         
         clientConnManager.createClient(clientId, userid, username, (IServiceCapableConnection) Red5.getConnectionLocal());
-        return true;
+        return super.appConnect(conn, params);
     }
 
     @Override
@@ -112,6 +116,7 @@ public class Application extends MultiThreadedApplicationAdapter {
 				e.printStackTrace();
 			}
         }
+        super.appDisconnect(conn);
     }
     
     @Override
@@ -163,7 +168,7 @@ public class Application extends MultiThreadedApplicationAdapter {
         }
     }
     
-    public List<String> getStreams() {
+    public Set<String> getStreams() {
         IConnection conn = Red5.getConnectionLocal();
         return getBroadcastStreamNames( conn.getScope() );
     }

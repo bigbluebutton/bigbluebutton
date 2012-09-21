@@ -59,6 +59,10 @@ br{
 	width: 100%;
 }
 
+#webcam{
+  width: 402px;
+}
+
 #video{
   width: 402px;
 }
@@ -107,8 +111,8 @@ br{
 .chatcontainer{
 	float: right;
 	background: white;
-	height: 300px;
-	width: 402px;
+	height: 300px; 
+	width: 400px;
 }
 #chat{
 	margin: 0 auto;

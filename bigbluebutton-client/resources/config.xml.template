@@ -11,7 +11,7 @@
     
 	<modules>
 		
-		<module name="ChatModule" url="ChatModule.swf?v=VERSION" 
+		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="ViewersModule"	
 			translationOn="false"
@@ -20,14 +20,14 @@
 			position="top-right"
 		/>
 		
-		<module name="ViewersModule" url="ViewersModule.swf?v=VERSION" 
+		<module name="ViewersModule" url="http://HOST/client/ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
 			allowKickUser="false"
 			windowVisible="true"
 		/>
 			
-		<module name="ListenersModule" url="ListenersModule.swf?v=VERSION" 
+		<module name="ListenersModule" url="http://HOST/client/ListenersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
 			windowVisible="true"
@@ -35,12 +35,12 @@
 		/>
 		
 		<module name="DeskShareModule" 
-			url="DeskShareModule.swf?v=VERSION" 
+			url="http://HOST/client/DeskShareModule.swf?v=VERSION" 
 			uri="rtmp://HOST/deskShare"
 			autoStart="false"
 		/>
 		
-		<module name="PhoneModule" url="PhoneModule.swf?v=VERSION" 
+		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
 			autoJoin="true"
 			skipCheck="false"
@@ -49,7 +49,7 @@
 			dependsOn="ViewersModule"
 		/>
 
-		<module name="VideoconfModule" url="VideoconfModule.swf?v=VERSION" 
+		<module name="VideoconfModule" url="http://HOST/client/VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"
 			dependson = "ViewersModule"
 			videoQuality = "100"
@@ -75,12 +75,12 @@
 			h264Profile = "main"			
 		/>
 		
-		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=VERSION" 
+		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="PresentModule"
 		/>
 		
-		<module name="PresentModule" url="PresentModule.swf?v=VERSION" 
+		<module name="PresentModule" url="http://HOST/client/PresentModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 
 			showPresentWindow="true"
@@ -88,7 +88,7 @@
 			dependsOn="ViewersModule"
 		/>
 
-		<module name="VideodockModule" url="VideodockModule.swf?v=VERSION"
+		<module name="VideodockModule" url="http://HOST/client/VideodockModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="VideoconfModule, ViewersModule"
 			autoDock="true"
@@ -100,26 +100,26 @@
 			oneAlwaysBigger="false"
 		/>
 		
-		<module name="LayoutModule" url="LayoutModule.swf?v=VERSION"
+		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton"
 			layoutConfig="conf/layout.xml"
 			enableEdit="true"
 		/>
 
 		<!-- new module in development: 
-		<module name="DynamicInfoModule" url="DynamicInfoModule.swf?v=VERSION" 
+		<module name="DynamicInfoModule" url="http://HOST/client/DynamicInfoModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 
 			infoURL="http://HOST/client/conf/example-info-data.xml?user={userID}&role={role}&meetingID={meetingID}"
 		/>
 		-->
 		
-		<!--<module name="ExampleChatModule" url="ExampleChatModule.swf?v=56" 
+		<!--<module name="ExampleChatModule" url="http://HOST/client/ExampleChatModule.swf?v=56" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST"
 		/>-->
 		
-		<!--<module name="SharedNotesModule" url="SharedNotesModule.swf?v=VERSION" 
+		<!--<module name="SharedNotesModule" url="http://HOST/client/SharedNotesModule.swf?v=VERSION" 
 			uri="http://192.168.0.225/bigbluebutton" 
 			dependsOn="ViewersModule"
 		/>-->

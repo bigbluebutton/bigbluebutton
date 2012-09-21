@@ -120,16 +120,20 @@ def processCursorEvents
 					if(timestamp_prev == timestamp)
 				
 					else
-						if(x_prev && y_prev)
-							$xml.event(:timestamp => timestamp_prev, :orig => timestamp_orig_prev) do
-								$ss.each do |key,val|
-									$val = val
-									if key === timestamp_prev
-										$vbox_width = $val[0]/2 # because the image size is twice as big as the viewbox
-										$vbox_height = $val[1]/2 # because the image size is twice as big as the viewbox
-									end
+						if(x_prev && y_prev)							
+							$ss.each do |key,val|
+								$val = val
+								if key === timestamp_prev
+									$vbox_width = $val[0]/2 # because the image size is twice as big as the viewbox
+									$vbox_height = $val[1]/2 # because the image size is twice as big as the viewbox
 								end
-								$xml.cursor "#{($vbox_width.to_f*x.to_f).round(1)} #{($vbox_height.to_f*y.to_f).round(1)}"
+							end
+							xPoint = ($vbox_width.to_f*x.to_f).round(1)
+							yPoint = ($vbox_height.to_f*y.to_f).round(1)								
+							if xPoint < 800 and yPoint < 600 and xPoint > 0 and yPoint > 0
+								$xml.event(:timestamp => timestamp_prev, :orig => timestamp_orig_prev) do
+									$xml.cursor "#{xPoint} #{yPoint}"
+								end
 							end
 						end
 					end
@@ -627,7 +631,7 @@ $playback = match[2]
 
 puts $meeting_id
 puts $playback
-if ($playback == "slides")
+if ($playback == "presentation")
 	logger = Logger.new("/var/log/bigbluebutton/presentation/publish-#{$meeting_id}.log", 'daily' )
 	BigBlueButton.logger = logger
   BigBlueButton.logger.info("RUNNING SLIDES_NEW.RB - Publishing #{$meeting_id}")
@@ -641,7 +645,7 @@ if ($playback == "slides")
 	BigBlueButton.logger.info("setting publish dir")
 	publish_dir = simple_props['publish_dir']
 	BigBlueButton.logger.info("setting playback host")
-	playback_host = simple_props['playback_host']
+	playback_host = bbb_props['playback_host']
 	BigBlueButton.logger.info("setting target dir")
 	target_dir = "#{recording_dir}/publish/presentation/#{$meeting_id}"
 	if not FileTest.directory?(target_dir)

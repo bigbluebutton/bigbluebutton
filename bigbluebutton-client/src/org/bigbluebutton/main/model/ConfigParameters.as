@@ -23,11 +23,19 @@ package org.bigbluebutton.main.model
 	import flash.events.Event;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+	import flash.system.ApplicationDomain;
 	import flash.utils.Dictionary;
+	
+	import mx.core.Application;
+	import mx.core.FlexGlobals;
+	import mx.managers.BrowserManager;
+	import mx.utils.URLUtil;
+	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
 
 	public class ConfigParameters {
-		public static const FILE_PATH:String = "conf/config.xml";
+    public static const CONFIG_XML:String = "client/conf/config.xml";
 		
 		private var _urlLoader:URLLoader;
 		
@@ -52,15 +60,23 @@ package org.bigbluebutton.main.model
 		
 		private var _modules:Dictionary;
 		
-		public function ConfigParameters(loadedListener:Function, file:String = FILE_PATH) {			
+		public function ConfigParameters(loadedListener:Function, file:String = CONFIG_XML) {			
 			this.numModules = 0;
 			this.loadedListener = loadedListener;
 			_urlLoader = new URLLoader();
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			var date:Date = new Date();
-			_urlLoader.load(new URLRequest(file + "?a=" + date.time));
+      var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
+      _urlLoader.load(new URLRequest(localeReqURL));
 		}
 		
+    private function buildRequestURL():String {
+      var swfURL:String = FlexGlobals.topLevelApplication.url;
+      var protocol:String = URLUtil.getProtocol(swfURL);
+      var serverName:String = URLUtil.getServerNameWithPort(swfURL);        
+      return protocol + "://" + serverName + "/" + CONFIG_XML;
+    }
+    
 		private function handleComplete(e:Event):void{
 			parse(new XML(e.target.data));	
 			buildModuleDescriptors();

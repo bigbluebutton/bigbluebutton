@@ -19,62 +19,57 @@
  */
 package org.bigbluebutton.modules.layout.managers
 {
-	import com.asfusion.mate.events.Dispatcher;
+  import com.asfusion.mate.events.Dispatcher;
+  import flash.events.Event;
+  import flash.events.EventDispatcher;
+  import flash.events.TimerEvent;
+  import flash.net.FileReference;
+  import flash.net.URLLoader;
+  import flash.net.URLRequest;
+  import flash.utils.Dictionary;
+  import flash.utils.Timer;
+  import flexlib.mdi.containers.MDICanvas;
+  import flexlib.mdi.containers.MDIWindow;
+  import flexlib.mdi.events.MDIManagerEvent;
+  import mx.controls.Alert;
+  import mx.events.ResizeEvent;
+  import org.bigbluebutton.common.LogUtil;
+  import org.bigbluebutton.core.EventBroadcaster;
+  import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.core.model.Config;
+  import org.bigbluebutton.modules.layout.events.LayoutEvent;
+  import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
+  import org.bigbluebutton.modules.layout.events.UpdateLayoutEvent;
+  import org.bigbluebutton.modules.layout.model.LayoutDefinition;
+  import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
+  import org.bigbluebutton.modules.layout.model.LayoutLoader;
+  import org.bigbluebutton.modules.layout.model.WindowLayout;
+  import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
+  import org.bigbluebutton.util.i18n.ResourceUtil;
 
-	import flash.events.Event;
-	import flash.events.EventDispatcher;
-	import flash.events.TimerEvent;
-	import flash.net.FileReference;
-	import flash.net.URLLoader;
-	import flash.net.URLRequest;
-	import flash.utils.Dictionary;
-	import flash.utils.Timer;
-	
-	import flexlib.mdi.containers.MDICanvas;
-	import flexlib.mdi.containers.MDIWindow;
-	import flexlib.mdi.events.MDIManagerEvent;
+  public class LayoutManager extends EventDispatcher {
+    private var _layouts:LayoutDefinitionFile = null;
+    private var _canvas:MDICanvas = null;
+    private var _globalDispatcher:Dispatcher = new Dispatcher();
+    private var _locked:Boolean = false;
+    private var _currentLayout:LayoutDefinition = null;
+    private var _detectContainerChange:Boolean = true;
+    private var _containerDeactivated:Boolean = false;
+    private var _sendCurrentLayoutUpdateTimer:Timer = new Timer(500,1);
+    private var _applyCurrentLayoutTimer:Timer = new Timer(150,1);
+    private var _customLayoutsCount:int = 0;
+    private var _eventsToDelay:Array = new Array(MDIManagerEvent.WINDOW_RESTORE,
+                                                  MDIManagerEvent.WINDOW_MINIMIZE,
+                                                  MDIManagerEvent.WINDOW_MAXIMIZE);
 
-	import mx.controls.Alert;
-	import mx.events.ResizeEvent;
-
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.core.EventBroadcaster;
-	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.core.model.Config;
-	import org.bigbluebutton.modules.layout.events.LayoutEvent;
-	import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
-	import org.bigbluebutton.modules.layout.events.UpdateLayoutEvent;
-	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
-	import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
-	import org.bigbluebutton.modules.layout.model.LayoutLoader;
-	import org.bigbluebutton.modules.layout.model.WindowLayout;
-	import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
-	import org.bigbluebutton.util.i18n.ResourceUtil;
-	
-	public class LayoutManager extends EventDispatcher {
-		private var _layouts:LayoutDefinitionFile = null;
-		private var _canvas:MDICanvas = null;
-		private var _globalDispatcher:Dispatcher = new Dispatcher();
-		private var _locked:Boolean = false;
-		private var _currentLayout:LayoutDefinition = null;
-		private var _detectContainerChange:Boolean = true;
-		private var _containerDeactivated:Boolean = false;
-		private var _sendCurrentLayoutUpdateTimer:Timer = new Timer(500,1);
-		private var _applyCurrentLayoutTimer:Timer = new Timer(150,1);
-		private var _customLayoutsCount:int = 0;
-		private var _eventsToDelay:Array = new Array(MDIManagerEvent.WINDOW_RESTORE,
-				MDIManagerEvent.WINDOW_MINIMIZE,
-				MDIManagerEvent.WINDOW_MAXIMIZE);
-		
-		
-		public function LayoutManager() {
-			_applyCurrentLayoutTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
-				applyLayout(_currentLayout);
-			});
-			_sendCurrentLayoutUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
-				sendLayoutUpdate(updateCurrentLayout());
-			});
-		}
+    public function LayoutManager() {
+      _applyCurrentLayoutTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
+                  applyLayout(_currentLayout);
+              });
+      _sendCurrentLayoutUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
+                  sendLayoutUpdate(updateCurrentLayout());
+              });
+    }
 		
 		public function loadServerLayouts(layoutUrl:String):void {
 			LogUtil.debug("LayoutManager: loading server layouts from " + layoutUrl);
