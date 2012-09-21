@@ -327,8 +327,41 @@ class ApiController {
 	
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
     
-    log.info("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}"); 		
-    redirect(url: paramsProcessorUtil.getDefaultClientUrl())
+	//check if exists the param redirect
+	boolean redirectClient = true;
+	String clientURL = paramsProcessorUtil.getDefaultClientUrl();
+	
+	if(!StringUtils.isEmpty(params.redirect))
+	{
+		try{
+			redirectClient = Boolean.parseBoolean(params.redirect);
+		}catch(Exception e){
+			redirectClient = true;
+		}
+	}
+	if(!StringUtils.isEmpty(params.clientURL)){
+		clientURL = params.clientURL;
+	}
+	
+	if(redirectClient){
+		log.info("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}"); 		
+		redirect(url: clientURL);
+	}
+	else{
+		log.info("Successfully joined. Sending XML response.");
+		response.addHeader("Cache-Control", "no-cache")
+		withFormat {
+		  xml {
+			render(contentType:"text/xml") {
+			  response() {
+				returncode(RESP_CODE_SUCCESS)
+				messageKey("successfullyJoined")
+				message("You have joined successfully.")
+			  }
+			}
+		  }
+		}
+	}
   }
 
   /*******************************************
