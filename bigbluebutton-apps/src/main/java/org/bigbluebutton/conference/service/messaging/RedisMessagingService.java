@@ -14,6 +14,8 @@ import org.bigbluebutton.conference.service.chat.ChatApplication;
 import org.bigbluebutton.conference.service.chat.ChatObject;
 import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.Red5;
+import org.red5.server.api.scope.IScope;
 import org.slf4j.Logger;
 
 import com.google.gson.Gson;
@@ -207,6 +209,51 @@ public class RedisMessagingService implements MessagingService{
 					ChatObject chatobj = new ChatObject(chat_message, username, "0", "00:00", "en", userid);
 					
 					chatApplication.sendMessage(meetingId, chatobj);
+				}else if(messageName.equalsIgnoreCase("setPresenter")){
+					String pubID = gson.fromJson(array.get(2), String.class);
+					Participant p = participantsApplication.getParticipantByUserID(meetingId,Long.parseLong(pubID));
+
+					ArrayList<String> newPresenter = new ArrayList<String>();
+					
+					newPresenter.add(pubID);
+					newPresenter.add(p.getName());
+					newPresenter.add(pubID);
+					
+					//Update participant status of the new presenter
+					participantsApplication.setParticipantStatus(meetingId, p.getInternalUserID(), "presenter", true);
+					
+					ArrayList<String> curPresenter = participantsApplication.getCurrentPresenter(meetingId);
+					if(curPresenter != null){
+						String curUserID = curPresenter.get(0);
+						if(!curUserID.equalsIgnoreCase(pubID)){
+							participantsApplication.setParticipantStatus(meetingId, , status, value)
+						}
+					}
+					
+					/*
+					 IScope scope = Red5.getConnectionLocal().getScope();
+		ArrayList<String> presenter = new ArrayList<String>();
+		presenter.add(userid.toString());
+		presenter.add(name);
+		presenter.add(assignedBy.toString());
+		
+		application.setParticipantStatus(scope.getName(), userid, "presenter", true);
+		
+		if (curPresenter != null){ 
+			String curUserid = (String) curPresenter.get(0);
+			if (! curUserid.equals(userid.toString())){
+				log.info("Changing the current presenter [" + curPresenter.get(0) + "] to viewer.");
+				application.setParticipantStatus(scope.getName(), new Long(curPresenter.get(0)), "presenter", false);
+			}
+		} else {
+			log.info("No current presenter. So do nothing.");
+		}
+					 * */
+					
+					
+
+					
+					participantsApplication.assignPresenter(meetingId, newPresenter);
 				}
 
 			}

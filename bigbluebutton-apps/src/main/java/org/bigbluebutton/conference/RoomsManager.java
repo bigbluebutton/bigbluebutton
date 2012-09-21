@@ -255,5 +255,14 @@ public class RoomsManager {
 		log.warn("Getting participant from a non-existing room " + roomName);
 		return null;
 	}
+
+	public Participant getParticipantByUserID(String roomName, long userid) {
+		Room r = getRoom(roomName);
+		if (r != null) {
+			return r.getParticipantByUserID(userid);
+		}
+		log.warn("Getting participant from a non-existing room " + roomName);
+		return null;
+	}
 	
 }

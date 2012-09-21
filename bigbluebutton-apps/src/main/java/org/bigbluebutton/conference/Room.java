@@ -188,4 +188,8 @@ public class Room implements Serializable {
 		}
 		return null;
 	}
+
+	public Participant getParticipantByUserID(long userid) {
+		return participants.get(userid);
+	}
 }

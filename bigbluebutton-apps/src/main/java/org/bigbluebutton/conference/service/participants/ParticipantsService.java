@@ -35,6 +35,7 @@ public class ParticipantsService {
 
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsService.class, "bigbluebutton" );	
 	private ParticipantsApplication application;
+	private ParticipantsBridge participantsBridge;
 
 	@SuppressWarnings("unchecked")
 	public void assignPresenter(Long userid, String name, Long assignedBy) {

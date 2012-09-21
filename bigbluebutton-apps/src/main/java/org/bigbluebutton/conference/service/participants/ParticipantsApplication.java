@@ -89,6 +89,16 @@ public class ParticipantsApplication {
 		return roomsManager.getParticipantByUsername(roomName,username);
 	}
 	
+	public Participant getParticipantByUserID(String roomName, long userid) {
+		log.debug("getParticipantByUserID - " + roomName);
+		if (! roomsManager.hasRoom(roomName)) {
+			log.warn("Could not find room " + roomName + ". Total rooms " + roomsManager.numberOfRooms());
+			return null;
+		}
+
+		return roomsManager.getParticipantByUserID(roomName,userid);
+	}
+	
 	public boolean participantLeft(String roomName, Long userid) {
 		log.debug("Participant " + userid + " leaving room " + roomName);
 		if (roomsManager.hasRoom(roomName)) {
@@ -144,4 +154,5 @@ public class ParticipantsApplication {
 		log.warn("Adding listener to a non-existant room " + room);
 		return false;
 	}
+
 }
