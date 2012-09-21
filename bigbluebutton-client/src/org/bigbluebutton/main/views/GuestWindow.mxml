@@ -21,69 +21,98 @@
 -->
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-    title="New User" showCloseButton="false" creationComplete="init()"
-    x="0" y="0" layout="vertical" width="400" height="100" horizontalAlign="center">
+    title="Guests" showCloseButton="false" creationComplete="init()"
+    x="0" y="0" layout="vertical" width="300" height="180" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
 			import mx.core.FlexGlobals;
 			import mx.managers.PopUpManager;
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.ResponseModeratorEvent;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import mx.containers.HBox;
+			import mx.controls.Button;
+			
+
+			
 
 			public var _name:String;
 			public var userid:Number;
-						
-			[Bindable] private var message:String = "The user ";
+			
+			
+			[Bindable] private var message:String = "Users want to enter in this meeting";
+			private var baseString:String = " User(s) want to enter in this meeting";
 			private var urlLoader:URLLoader;
 			private var guestWindowMap:Object = new Object();
+			private var guestButtons:Object = new Object();
+			private var images:Images = new Images();
+			private var numberOfGuests:Number = 0;
+			
+			[Bindable] public var acceptUserIcon:Class = images.accept_user;
+			[Bindable] public var rejectUserIcon:Class = images.cancel_user;
 
 			
-			
-			private function init():void {
-				message = message + _name + " wants to enter in this meeting.";
-				
+
+			public function init():void {
+				//Uncomment this line to make titlewindow undraggable			
+				//this.isPopUp = false;
 			}
 
+			public function createAcceptButton(userid:Number):Button {
+				var acceptBtn:Button = new Button();
+				acceptBtn.addEventListener("click", function():void {handleClick(userid, true);},false);	
+				acceptBtn.setStyle("icon", acceptUserIcon);
+				return acceptBtn;
+			}
+
+			public function createRejectButton(userid:Number):Button {
+				var rejectBtn:Button = new Button();
+				rejectBtn.addEventListener("click", function():void {handleClick(userid, false);},false);
+				rejectBtn.setStyle("icon", rejectUserIcon);
+				return rejectBtn;
+			}
+
+			
+
 	    		public function addGuest(userid:Number, username:String):void {
+				
+				
+				numberOfGuests++;
 				guestWindowMap[userid] = name;
 				var box:HBox = new HBox();
 				var label:Label = new Label();
+				label.setStyle("horizontalAlign", "left");
+				label.width = 100;
 				label.text = username;
 				box.addChild(label);
-				var acceptBtn:Button = new Button();
-				acceptBtn.id = userid.toString();
-				acceptBtn.label = "A";
-				acceptBtn.addEventListener(event.currentTarget, handleClick);
-				var rejectBtn:Button = new Button();
-				rejectBtn.label = "R";
-				rejectBtn.addEventListener(event, handleClick);	
+				message = numberOfGuests + baseString;
+			
+				var acceptBtn:Button = createAcceptButton(userid);	
+				var rejectBtn:Button = createRejectButton(userid);
+	
 				box.addChild(acceptBtn);
 				box.addChild(rejectBtn);
+				
 				this.addChild(box);
-			}
-
-			private function handleClick(evt:Event) {
-				if(event.currentTarget.label == A) {
-					sendToServer(true, Number(event.currentTarget.id));				
-				}
-				else
-					sendToServer(false, Number(event.currentTarget.id));
+				guestButtons[userid] = box;
+				this.visible = true;
+				if(numberOfGuests > 1 && numberOfGuests < 11)				
+					this.height+=28;
 				
-				guestWindowMap
 
-		if(evt.userid in guestWindowMap) {
-					guestWindowMap[evt.userid].remove();
-					delete guestWindowMap[evt.userid];
-				}	
 				
 			}
-			
-			
+
+			private function handleClick(userid:Number, resp:Boolean):void {
+				sendToServer(resp, userid);
+				remove(userid);	
+				
+			}
 
 			public function sendToServer(acc:Boolean, userid:Number):void {
 				var respCommand:ResponseModeratorEvent = new ResponseModeratorEvent(ResponseModeratorEvent.RESPONSE);
@@ -92,20 +121,48 @@
 				var dispatcher:Dispatcher = new Dispatcher();
 			        dispatcher.dispatchEvent(respCommand);
 			}
-			public function remove():void {
-				PopUpManager.removePopUp(this);
+
+			public function remove(userid:Number):void {
+
+				
+				if(numberOfGuests > 1 && numberOfGuests < 11)				
+					this.height-=28;
+				numberOfGuests--;
+				
+				delete guestWindowMap[userid];
+				this.removeChild(guestButtons[userid]);
+				delete guestButtons[userid];
+				if(this.hasGuest() == false) {
+					this.visible = false;
+				}
+
+				message = numberOfGuests + baseString;
 			}
 			
+
+			public function hasGuest():Boolean {
+				if(numberOfGuests > 0)
+					return true;
+				else
+					return false;			
+			}
+
+			public function removeAll():void {
+				PopUpManager.removePopUp(this);
+				
+			}
 	
 			
 			
 		]]>
 	</mx:Script>
 	<mx:Label text="{message}"/>
-	<mx:HBox>
-		<mx:Button id="acceptBtn" label="Accept" click="sendToServer(true)" /> 	
-		<mx:Button id="rejectBtn" label="Reject" click="sendToServer(false)" />
-	</mx:HBox>
+	<mx:HRule width = "100%"/>
+	<mx:Button label = "Allow Everyone" width = "70%" />
+	<mx:Button label = "Deny Everyone" width = "70%" />
+	<mx:HRule width = "100%"/>		
+
+	
 
 	
 </mx:TitleWindow> 

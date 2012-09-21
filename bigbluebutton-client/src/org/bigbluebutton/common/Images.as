@@ -87,6 +87,10 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/cancel.png")]
         public var cancel_user:Class;    
 
+	[Embed(source="assets/images/accept.png")]
+        public var accept_user:Class;    
+
+
         [Embed(source="assets/images/user_go.png")]
         public var eject_user:Class;  
 

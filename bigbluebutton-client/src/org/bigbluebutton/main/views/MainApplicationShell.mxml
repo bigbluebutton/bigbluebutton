@@ -95,7 +95,6 @@
 			private var logs:Logger = new Logger();
 			private var logWindow:LogWindow;
 			private var waitWindow:WaitingWindow = null;	
-			private var guestWindowMap:Object = new Object();	
 			private var guestWindow:GuestWindow = null;
 	
 			private var logoutWindow:LoggedOutWindow;
@@ -201,10 +200,6 @@
 			}
 			public function removeGuestWindow(evt:RemoveGuestRequestEvent):void {
 				guestWindow.remove(evt.userid);
-				if(guestWindow.hasGuest() == false) {
-					guestWindow.remove();
-					guestWindow = null;
-				}
 			}
 
 			private function openWaitWindow(evt:WaitModeratorEvent):void {
@@ -308,11 +303,8 @@
 				if(waitWindow != null)				
 					waitWindow.removeWindow();
 				
-				for (var key:String in guestWindowMap)
-				{
-				    guestWindowMap[key].remove();
-				
-				}
+				guestWindow.removeAll();
+				guestWindow = null;
 
 				
 				if (layoutOptions.showLogoutWindow) {
