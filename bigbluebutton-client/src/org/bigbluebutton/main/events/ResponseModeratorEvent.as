@@ -28,6 +28,7 @@ package org.bigbluebutton.main.events
 	public class ResponseModeratorEvent extends Event
 	{
 		public static const RESPONSE:String = "Response";
+		public static const RESPONSE_ALL:String	= "RESPONSE_ALL";
 		
 		
 		public var userid:Number;

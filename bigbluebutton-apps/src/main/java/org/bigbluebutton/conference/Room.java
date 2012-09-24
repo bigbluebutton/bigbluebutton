@@ -173,6 +173,23 @@ public class Room implements Serializable {
 			}
 	}
 
+	public void responseToAllGuests(Boolean resp) {
+		synchronized (this) {
+			Participant p = null;
+			for (Long userid : guestsWaiting.keySet()) {
+				if(participants.containsKey(userid)) {
+				    p = participants.get(userid);
+				    for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+					IRoomListener listener = (IRoomListener) it.next();
+					log.debug("calling guestEntrance on listener " + listener.getName());
+					listener.guestResponse(p, resp);
+				    }
+				}
+			}
+			guestsWaiting.clear();
+		}
+	}
+
 
 	public void changeParticipantStatus(Long userid, String status, Object value) {
 		boolean present = false;

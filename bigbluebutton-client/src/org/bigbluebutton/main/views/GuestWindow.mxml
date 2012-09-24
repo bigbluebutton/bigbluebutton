@@ -52,7 +52,7 @@
 			private var guestButtons:Object = new Object();
 			private var images:Images = new Images();
 			private var numberOfGuests:Number = 0;
-			
+			private var dispatcher:Dispatcher = new Dispatcher();
 			[Bindable] public var acceptUserIcon:Class = images.accept_user;
 			[Bindable] public var rejectUserIcon:Class = images.cancel_user;
 
@@ -118,25 +118,53 @@
 				var respCommand:ResponseModeratorEvent = new ResponseModeratorEvent(ResponseModeratorEvent.RESPONSE);
 				respCommand.userid = userid;
 				respCommand.resp = acc;
-				var dispatcher:Dispatcher = new Dispatcher();
-			        dispatcher.dispatchEvent(respCommand);
+				dispatcher.dispatchEvent(respCommand);
 			}
 
+			public function sendResponseToAllGuests(resp:Boolean):void {
+				var respCommand:ResponseModeratorEvent = new ResponseModeratorEvent(ResponseModeratorEvent.RESPONSE_ALL);
+				respCommand.userid = userid;
+				respCommand.resp = resp;
+				dispatcher.dispatchEvent(respCommand);
+				removeAllGuests();
+			}
+	
+			public function removeAllGuests():void {
+				
+				if(numberOfGuests < 11 && numberOfGuests > 0) {
+					this.height-=(28*(numberOfGuests-1))
+				}
+				numberOfGuests = 0;
+
+				for (var key:String in guestWindowMap)
+				{
+				    var userid:Number = new Number(key);
+				    this.removeChild(guestButtons[userid]);
+				    delete guestButtons[userid];
+				    guestWindowMap[userid] = null;
+
+				}
+				guestWindowMap = new Object();
+				this.visible = false;
+				message = numberOfGuests + baseString;
+			}
+		
 			public function remove(userid:Number):void {
 
+				if(guestWindowMap[userid] != null) {
+					if(numberOfGuests > 1 && numberOfGuests < 11)				
+						this.height-=28;
+					numberOfGuests--;
 				
-				if(numberOfGuests > 1 && numberOfGuests < 11)				
-					this.height-=28;
-				numberOfGuests--;
-				
-				delete guestWindowMap[userid];
-				this.removeChild(guestButtons[userid]);
-				delete guestButtons[userid];
-				if(this.hasGuest() == false) {
-					this.visible = false;
-				}
+					delete guestWindowMap[userid];
+					this.removeChild(guestButtons[userid]);
+					delete guestButtons[userid];
+					if(this.hasGuest() == false) {
+						this.visible = false;
+					}
 
-				message = numberOfGuests + baseString;
+					message = numberOfGuests + baseString;
+				}
 			}
 			
 
@@ -158,8 +186,8 @@
 	</mx:Script>
 	<mx:Label text="{message}"/>
 	<mx:HRule width = "100%"/>
-	<mx:Button label = "Allow Everyone" width = "70%" />
-	<mx:Button label = "Deny Everyone" width = "70%" />
+	<mx:Button label = "Allow Everyone" width = "70%" click="sendResponseToAllGuests(true)"/>
+	<mx:Button label = "Deny Everyone" width = "70%"  click="sendResponseToAllGuests(false)"/>
 	<mx:HRule width = "100%"/>		
 
 	

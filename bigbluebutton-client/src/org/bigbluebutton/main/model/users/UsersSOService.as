@@ -312,6 +312,17 @@ package org.bigbluebutton.main.model.users {
 			); //_netConnection.call
 		}
 
+
+		public function responseToAllGuests(resp:Boolean):void {
+			var nc:NetConnection = netConnectionDelegate.connection;			
+			nc.call(
+				"participants.responseToAllGuests",// Remote function name
+				responder,
+				resp
+			); //_netConnection.call
+		}
+
+
 		public function askForGuestWaiting(userid:Number):void {
 			var nc:NetConnection = netConnectionDelegate.connection;			
 			nc.call(

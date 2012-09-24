@@ -83,6 +83,10 @@ public class ParticipantsApplication {
 	public void responseToGuest(String roomName, Long userid, Boolean resp) {
 		roomsManager.responseToGuest(roomName, userid, resp);
 	}
+
+	public void responseToAllGuests(String roomName, Boolean resp) {
+		roomsManager.responseToAllGuests(roomName, resp);
+	}
 	
 	public Map getParticipants(String roomName) {
 		log.debug("getParticipants - " + roomName);

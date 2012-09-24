@@ -303,8 +303,9 @@
 				if(waitWindow != null)				
 					waitWindow.removeWindow();
 				
-				guestWindow.removeAll();
-				guestWindow = null;
+				if(guestWindow != null)
+					guestWindow.removeAll();
+			
 
 				
 				if (layoutOptions.showLogoutWindow) {

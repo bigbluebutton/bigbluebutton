@@ -113,6 +113,11 @@ public class ParticipantsService {
 		application.askingForGuestWaiting(roomName, userid);
 	}
 
+	public void responseToAllGuests(Boolean resp) {
+		String roomName = Red5.getConnectionLocal().getScope().getName();
+		application.responseToAllGuests(roomName, resp);
+	}
+
 	public void responseToGuest(Long userid, Boolean resp) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		application.responseToGuest(roomName, userid, resp);

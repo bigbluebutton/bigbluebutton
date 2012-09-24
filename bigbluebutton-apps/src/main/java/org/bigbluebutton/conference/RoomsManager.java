@@ -206,6 +206,13 @@ public class RoomsManager {
 		}		
 		
 	}
+	public void responseToAllGuests(String roomName, Boolean resp) {
+		Room r = getRoom(roomName);
+		if (r != null) {
+			r.responseToAllGuests(resp);
+			return;
+		}
+	}
 
 
 	public void changeParticipantStatus(String roomName, Long userid, String status, Object value) {

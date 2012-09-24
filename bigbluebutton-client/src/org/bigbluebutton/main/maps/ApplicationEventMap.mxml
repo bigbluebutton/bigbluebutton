@@ -78,6 +78,14 @@
 		<MethodInvoker generator="{UserService}" method="responseToGuest" arguments="{event}" />
 	</EventHandlers>
 
+
+	<EventHandlers type="{ResponseModeratorEvent.RESPONSE_ALL}" >
+		<MethodInvoker generator="{UserService}" method="responseToAllGuests" arguments="{event}" />
+	</EventHandlers>
+
+	
+
+
 	<!-- Viewers Stuff -->
 	<EventHandlers type="{RaiseHandEvent.RAISE_HAND}" >
 		<MethodInvoker generator="{UserService}" method="raiseHand" arguments="{event}" />
@@ -138,6 +146,7 @@
 		import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;	
 		import org.bigbluebutton.main.events.WaitModeratorEvent;	
 		import org.bigbluebutton.main.events.ResponseModeratorEvent;
+
 	]]>
 	</mx:Script>
 	

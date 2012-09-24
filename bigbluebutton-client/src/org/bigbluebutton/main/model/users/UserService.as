@@ -173,6 +173,10 @@ package org.bigbluebutton.main.model.users
 			_userSOService.responseToGuest(e.userid, e.resp);
 		}
 
+		public function responseToAllGuests(e:ResponseModeratorEvent):void {
+			_userSOService.responseToAllGuests(e.resp);
+		}
+
 		public function lowerHand(e:LowerHandEvent):void {
 			if (this.isModerator()) _userSOService.raiseHand(e.userid, false);
 		}
