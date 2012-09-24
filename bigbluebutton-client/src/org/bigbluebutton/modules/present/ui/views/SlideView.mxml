@@ -103,7 +103,7 @@
 			private var slideModel:SlideViewModel = new SlideViewModel();
 			
       // Send update of mouse location to other users.
-      private var _sendCurrentMouseLocTimer:Timer = new Timer(250);
+      private var _sendCurrentMouseLocTimer:Timer = new Timer(1000);
       private var _lastMouseXPosition:Number = 0;
       private var _lastMouseYPosition:Number = 0;
       
@@ -353,6 +353,12 @@
           return;
         }
         
+        if (cursorXPosition > this.width || cursorXPosition < 1 
+              || cursorYPosition > this.height || cursorYPosition < 1) {
+          LogUtil.debug("Cursor outside the window...not sending [" + cursorXPosition + "," + cursorYPosition + "]");
+          return;
+        }
+          
         _lastMouseXPosition = cursorXPosition;
         _lastMouseYPosition = cursorYPosition;
         
@@ -409,7 +415,9 @@
 			}
 						
 			private function isCursorOutsideWindow(e:CursorEvent):Boolean {
-				return (e.xPercent > 1 && e.yPercent > 1) || (cursor.x > this.width || cursor.y > this.height);
+				return (e.xPercent > 1 && e.yPercent > 1) 
+                || (cursor.x > this.width || cursor.x < 1
+                || cursor.y > this.height || cursor.y < 1);
 			}
 			
 			private function showCursor():void {

@@ -33,11 +33,21 @@ function getUrlParameters() {
 
 // Draw the cursor at a specific point
 function draw(x, y) {
-	cursorStyle = document.getElementById("cursor").style;
+    cursorStyle = document.getElementById("cursor").style;
     //move to the next place
-    cursorStyle.left = (parseInt(document.getElementById("slide").offsetLeft, 10) + parseInt(x, 10)) + "px";
-    cursorStyle.top = (parseInt(document.getElementById("slide").offsetTop, 10) + parseInt(y, 10)) + "px";
+    var leftValue = parseInt(document.getElementById("slide").offsetLeft, 10) + parseInt(x, 10)
+    var topValue = parseInt(document.getElementById("slide").offsetTop, 10) + parseInt(y, 10)
+    if (leftValue < 0){
+        leftValue = 0
+    }
+    if (topValue < 0){
+        topValue = 0
+    }
+    cursorStyle.left = leftValue + "px";
+    cursorStyle.top = topValue + "px";
+
 }
+
 
 // Shows or hides the cursor object depending on true/false parameter passed.
 function showCursor(boolVal) {

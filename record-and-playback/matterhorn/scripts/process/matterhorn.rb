@@ -67,7 +67,7 @@ if not FileTest.directory?(target_dir)
 		  
 		  metadata = BigBlueButton::Events.get_meeting_metadata("#{temp_dir}/#{meeting_id}/events.xml")
 		  
-		  dublincore_data = { 	:title => metadata[:title.to_s], 
+		  dublincore_data = {   :title => metadata[:title.to_s].nil? ? meeting_id : metadata[:title.to_s],
 					:subject => metadata[:subject.to_s],
 					:description => metadata[:description.to_s],
 					:creator => metadata[:creator.to_s],
