@@ -69,12 +69,10 @@ public class Page {
 		return annotations.size();
 	}
 		
-	public void modifyText(String id, String text){
+	public void modifyText(String id, Annotation annotation){
 		int foundIndex = findAnnotation(id);
-		if (foundIndex >= 0) {
-			Annotation a = annotations.get(foundIndex);
-			Map<String, Object> m = a.getAnnotation();
-			m.put("text", text);
+		if (foundIndex >= 0) {			
+			annotations.set(foundIndex, annotation);
 		}
 	}
 

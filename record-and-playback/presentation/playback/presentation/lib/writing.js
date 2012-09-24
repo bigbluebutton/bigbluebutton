@@ -33,11 +33,21 @@ function getUrlParameters() {
 
 // Draw the cursor at a specific point
 function draw(x, y) {
-	cursorStyle = document.getElementById("cursor").style;
+    cursorStyle = document.getElementById("cursor").style;
     //move to the next place
-    cursorStyle.left = (parseInt(document.getElementById("slide").offsetLeft, 10) + parseInt(x, 10)) + "px";
-    cursorStyle.top = (parseInt(document.getElementById("slide").offsetTop, 10) + parseInt(y, 10)) + "px";
+    var leftValue = parseInt(document.getElementById("slide").offsetLeft, 10) + parseInt(x, 10)
+    var topValue = parseInt(document.getElementById("slide").offsetTop, 10) + parseInt(y, 10)
+    if (leftValue < 0){
+        leftValue = 0
+    }
+    if (topValue < 0){
+        topValue = 0
+    }
+    cursorStyle.left = leftValue + "px";
+    cursorStyle.top = topValue + "px";
+
 }
+
 
 // Shows or hides the cursor object depending on true/false parameter passed.
 function showCursor(boolVal) {
@@ -96,14 +106,14 @@ function getCursorAtTime(time) {
 	if(coords) return coords.split(' ');
 }
 
-function cleanseSlideText(text) {
-  
+function removeSlideChangeAttribute() {
+	$('#video').removeAttr('slide-change');
+	Popcorn('#video').unlisten(Popcorn.play, 'removeSlideChangeAttribute');
 }
 
 // - - - END OF JAVASCRIPT FUNCTIONS - - - //
 
 function runPopcorn() {
-  console.log("SVG loaded");
   if(svgobj.contentDocument) svgfile = svgobj.contentDocument.getElementById("svgfile");
   else svgfile = svgobj.getSVGDocument('svgfile');
 
@@ -125,10 +135,7 @@ function runPopcorn() {
 
   //get the array of values for the first shape (getDataPoints(0) is the first shape).
   var array = shapeelements[0].getElementsByClassName("shape"); //get all the lines from the svg file
-  //var pages = shapeelements[0].getElementsByClassName("page");
   var images = shapeelements[0].getElementsByTagName("image");
-
-  //console.log(images);
 
   //fill the times array with the times of the svg images.
   for (var j = 0; j < array.length; j++) {
@@ -286,6 +293,13 @@ function runPopcorn() {
             ni.style.visibility = "visible";
             document.getElementById("slideText").innerHTML = slidePlainText[next_image] + next_image; //set new plain text
             
+            if ($("#accEnabled").is(':checked')) {
+              //pause the playback on slide change
+              p.pause();
+              $('#video').attr('slide-change', 'slide-change');
+              p.listen(Popcorn.play, removeSlideChangeAttribute);
+            }
+
             var num_current = current_image.substr(5);
             var num_next = next_image.substr(5);
             
@@ -321,7 +335,7 @@ function runPopcorn() {
           var cursor_on = false;
           if(cursorVal != null) {
             if(!cursor_on) {
-              document.getElementById("cursor").style.visibility = 'visible';
+              document.getElementById("cursor").style.visibility = 'visible'; //make visible
               cursor_on = true;
             }
             setCursor([parseFloat(cursorVal[0]) + imageXOffset - 6, parseFloat(cursorVal[1]) + imageYOffset - 6]); //-6 is for radius of cursor offset
@@ -330,7 +344,6 @@ function runPopcorn() {
     }
   });
 };
-
 
 var current_canvas = "canvas0";
 var current_image = "image0";
@@ -381,4 +394,3 @@ window.onresize = function(event) {
 	svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
     svgobj.style.top = "8px";
 };
-console.log("writing.js is loaded.");

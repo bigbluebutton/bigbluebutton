@@ -23,6 +23,9 @@ package org.bigbluebutton.conference.service.whiteboard;
 
 import java.util.ArrayList;
 import java.util.Map;
+
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
 import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
@@ -76,9 +79,10 @@ public class WhiteboardService {
 		application.changePage((Integer) message.get("pageNum"));
 	}
 	
-	public void requestAnnotationHistory() {
+	public void requestAnnotationHistory(Map<String, Object> message) {
 		log.info("WhiteboardApplication - requestAnnotationHistory");
-		application.sendAnnotationHistory(Red5.getConnectionLocal().getClient().getId());
+		application.sendAnnotationHistory(getBbbSession().getInternalUserID(), 
+				(String) message.get("presentationID"), (Integer) message.get("pageNumber"));
 	}
 		
 	public void clear() {
@@ -107,7 +111,11 @@ public class WhiteboardService {
 	}
 	
 	public void isWhiteboardEnabled() {
-		application.isWhiteboardEnabled(Red5.getConnectionLocal().getClient().getId());
+		application.isWhiteboardEnabled(getBbbSession().getInternalUserID());
+	}
+	
+	private BigBlueButtonSession getBbbSession() {
+		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
 	
 }

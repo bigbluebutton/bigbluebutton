@@ -59,7 +59,7 @@
 				if (userid == module.userid) return;
 				
 				var window:VideoWindow = new VideoWindow();
-				window.userId = userid;
+//				window.userId = userid;
 				window.videoOptions = proxy.videoOptions;
 				
 				window.resolutions = module.resolutions.split(",");
@@ -102,7 +102,6 @@
 			private function openPublishWindow():void{
 				publishWindow = new PublishWindow();
 				publishWindow.videoOptions = proxy.videoOptions;
-				publishWindow.userId = module.userid;
 				publishWindow.userrole = module.role;
 				publishWindow.quality = module.quality;
 				publishWindow.resolutions = module.resolutions.split(",");

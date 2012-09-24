@@ -66,7 +66,8 @@ package org.bigbluebutton.modules.whiteboard.managers
 			highlighterCanvas.model = model;
             highlighterCanvas.displayModel = displayModel;
             displayModel.whiteboardModel = whiteboardModel;
-            
+            model.whiteboardModel = whiteboardModel
+                
 		    model.wbCanvas = highlighterCanvas;
             displayModel.wbCanvas = highlighterCanvas;
             

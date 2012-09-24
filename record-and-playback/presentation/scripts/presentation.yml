@@ -1,3 +1,5 @@
 
-playback_host: 192.168.0.183
 publish_dir: /var/bigbluebutton/published/presentation
+video_output_width: 640
+video_output_height: 480
+

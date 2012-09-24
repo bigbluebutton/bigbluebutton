@@ -15,8 +15,7 @@ public class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent
 		    String key = entry.getKey();
 		    		    
 		    if (key.equals("points")) {
-		    	ArrayList<Double> value = (ArrayList<Double>)entry.getValue();
-		    	eventMap.put("dataPoints", pointsToString(value));
+		    	eventMap.put("dataPoints", pointsToString((ArrayList<Object>)entry.getValue()));
 		    } else {
 		    	Object value = entry.getValue();
 		    	eventMap.put(key, value.toString());
@@ -24,7 +23,7 @@ public class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent
 		}
 	}
 	
-	private String pointsToString(ArrayList<Double> points){
+	private String pointsToString(ArrayList<Object> points){
     	String datapoints = "";
     	for (int i = 0; i < points.size(); i++) {
     		datapoints += (points.get(i)).toString() + ",";

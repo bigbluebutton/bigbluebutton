@@ -38,8 +38,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 			import mx.events.MenuEvent;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
-			import mx.managers.FocusManager;
-			
+			import mx.managers.FocusManager;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -169,7 +168,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 				this.visible = true;
 			}
 			
-			private function disableTextToolbar():void{
+			private function disableTextToolbar(evt:Event=null):void{
 				this.visible = false;
 			}
 			
@@ -201,16 +200,22 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 			
 			/* required for repositioning the TextToolbar when an event occurs on the presentation window */
 			public function repositionToolbarByWindow(event:Event = null):void {
+                if (currentlySelectedTextObject == null)  {
+                    return;
+                }
 				repositionToolbar();
 			}
 			
 			public function repositionToolbar(tobj:TextObject = null):void {
 				// translate TextObject's coords to stage coords because TextToolbar is added to stage
-				if (tobj == null)  tobj = currentlySelectedTextObject;
+              
+                if (tobj == null)  tobj = currentlySelectedTextObject;
+                            
 				if (textSizeMenu.isOpen) {
 					LogUtil.debug("Text size menu is open...trying to close");
 					textSizeMenu.displayPopUp();
 				}
+                              
 				var loc:Point = canvas.localToGlobal(new Point(tobj.x, tobj.y));
 				this.x = loc.x;
 				this.y = loc.y - this.height - 45;
@@ -227,8 +232,8 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 //                LogUtil.debug("###### handleObjSelected");
 //				if(event.data.id != WhiteboardConstants.TYPE_TEXT) return;
 				var tobj:TextObject = event.data as TextObject;
+                syncPropsWith(tobj);
 				repositionToolbar(tobj);
-				syncPropsWith(tobj);
 				enableTextToolbar();
 			}
 
@@ -241,7 +246,7 @@ Author: Ajay Gopinath <ajgopi124(at)gmail(dot)com>
 					hide the text toolbar. This is to prevent the TextToolbar from disappearing as
 					soon as the user changes focus.
 				*/
-				if(!containsFocus(this)) {
+				if (!containsFocus(this)) {
 					disableTextToolbar();
 					textSizeMenu.close();
 				} 

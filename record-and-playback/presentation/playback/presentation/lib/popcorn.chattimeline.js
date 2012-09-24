@@ -71,6 +71,9 @@
         if( options.direction === "down" ) {
           target.scrollTop = target.scrollHeight;
         }
+	
+        if ($("#accEnabled").is(':checked'))
+          addTime(7);
       },
 
       end: function( event, options ) {

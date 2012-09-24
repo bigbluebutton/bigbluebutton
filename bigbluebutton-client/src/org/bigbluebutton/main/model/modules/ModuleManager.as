@@ -83,6 +83,10 @@ package org.bigbluebutton.main.model.modules
 			return configParameters.portTestApplication;
 		}
 		
+		public function get portTestTimeout():Number {
+			return configParameters.portTestTimeout;
+		}
+		
 		private function getModule(name:String):ModuleDescriptor {
 			return configParameters.getModule(name);	
 		}
