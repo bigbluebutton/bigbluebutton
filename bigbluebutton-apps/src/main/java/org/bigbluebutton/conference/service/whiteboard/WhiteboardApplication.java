@@ -113,17 +113,32 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 		connInvokerService.sendMessage(m);
 	}
 	
+	private static final String TEXT_CREATED = "textCreated";
+	private static final String TEXT_TYPE = "text";
+	private static final String PENCIL_TYPE = "pencil";
+	private static final String RECTANGLE_TYPE = "rectangle";
+	private static final String ELLIPSE_TYPE = "ellipse";
+	private static final String TRIANGLE_TYPE = "triangle";
+	private static final String LINE_TYPE = "line";
+	
 	public void sendAnnotation(Annotation annotation) {	
 		String status = annotation.getStatus();
-		
-		if("textCreated".equals(status) || "DRAW_START".equals(status) || "DRAW_UPDATE".equals(status) || "DRAW_END".equals(status) ) {
+
+		if ("textCreated".equals(status)) {
+			roomManager.getRoom(getMeetingId()).addAnnotation(annotation);
+		} else if (PENCIL_TYPE.equals(annotation.getType()) && "DRAW_START".equals(status)) {
+			roomManager.getRoom(getMeetingId()).addAnnotation(annotation);
+		} else if ("DRAW_END".equals(status) && (RECTANGLE_TYPE.equals(annotation.getType()) 
+													|| ELLIPSE_TYPE.equals(annotation.getType())
+													|| TRIANGLE_TYPE.equals(annotation.getType())
+													|| LINE_TYPE.equals(annotation.getType()))) {				
 			roomManager.getRoom(getMeetingId()).addAnnotation(annotation);
 		} else {
 			if ("text".equals(annotation.getType())) {
 				roomManager.getRoom(getMeetingId()).modifyText(annotation);				
 			}
 		}
-			
+		
 		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "WhiteboardNewAnnotationCommand", annotation.getAnnotation());
 		connInvokerService.sendMessage(m);
 	}
