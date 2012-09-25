@@ -211,7 +211,9 @@ public class RedisMessagingService implements MessagingService{
 					chatApplication.sendMessage(meetingId, chatobj);
 				}else if(messageName.equalsIgnoreCase("setPresenter")){
 					String pubID = gson.fromJson(array.get(2), String.class);
+					
 					Participant p = participantsApplication.getParticipantByUserID(meetingId,Long.parseLong(pubID));
+					log.debug("new presenter: " + p.getInternalUserID() + " "+p.getName());
 
 					ArrayList<String> newPresenter = new ArrayList<String>();
 					
@@ -225,35 +227,14 @@ public class RedisMessagingService implements MessagingService{
 					ArrayList<String> curPresenter = participantsApplication.getCurrentPresenter(meetingId);
 					if(curPresenter != null){
 						String curUserID = curPresenter.get(0);
+						log.debug("previous presenter: " + curUserID + " "+ curPresenter.get(1));
 						if(!curUserID.equalsIgnoreCase(pubID)){
-							participantsApplication.setParticipantStatus(meetingId, , status, value)
+							participantsApplication.setParticipantStatus(meetingId, Long.parseLong(curUserID), "presenter", false);
 						}
 					}
 					
-					/*
-					 IScope scope = Red5.getConnectionLocal().getScope();
-		ArrayList<String> presenter = new ArrayList<String>();
-		presenter.add(userid.toString());
-		presenter.add(name);
-		presenter.add(assignedBy.toString());
-		
-		application.setParticipantStatus(scope.getName(), userid, "presenter", true);
-		
-		if (curPresenter != null){ 
-			String curUserid = (String) curPresenter.get(0);
-			if (! curUserid.equals(userid.toString())){
-				log.info("Changing the current presenter [" + curPresenter.get(0) + "] to viewer.");
-				application.setParticipantStatus(scope.getName(), new Long(curPresenter.get(0)), "presenter", false);
-			}
-		} else {
-			log.info("No current presenter. So do nothing.");
-		}
-					 * */
-					
-					
-
-					
 					participantsApplication.assignPresenter(meetingId, newPresenter);
+
 				}
 
 			}

@@ -41,7 +41,7 @@ public class ParticipantsService {
 	public void assignPresenter(Long userid, String name, Long assignedBy) {
 		log.info("Receive assignPresenter request from client [" + userid + "," + name + "," + assignedBy + "]");
 		IScope scope = Red5.getConnectionLocal().getScope();
-		ArrayList<String> presenter = new ArrayList<String>();
+		/*ArrayList<String> presenter = new ArrayList<String>();
 		presenter.add(userid.toString());
 		presenter.add(name);
 		presenter.add(assignedBy.toString());
@@ -56,8 +56,20 @@ public class ParticipantsService {
 			}
 		} else {
 			log.info("No current presenter. So do nothing.");
+		}*/
+		//application.assignPresenter(scope.getName(), presenter);
+		
+		ArrayList<String> curPresenter = application.getCurrentPresenter(scope.getName());
+		long previousPresenter = -1;
+		if (curPresenter != null){ 
+			String curUserid = (String) curPresenter.get(0);
+			if (! curUserid.equals(userid.toString())){
+				previousPresenter = Long.parseLong(curUserid);
+			}
+		} else {
+			log.info("No current presenter. So do nothing.");
 		}
-		application.assignPresenter(scope.getName(), presenter);
+		participantsBridge.assignPresenter(scope.getName(), userid, previousPresenter);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -100,5 +112,9 @@ public class ParticipantsService {
 	public void setParticipantsApplication(ParticipantsApplication a) {
 		log.debug("Setting Participants Applications");
 		application = a;
+	}
+	
+	public void setParticipantsBridge(ParticipantsBridge pb){
+		this.participantsBridge = pb;
 	}
 }

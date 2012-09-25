@@ -406,7 +406,7 @@ exports.SocketOnConnection = function(socket) {
     var meetingID = socket.handshake.meetingID;
     redisAction.setPresenterFromPublicID(meetingID, publicID, function(success) {
       if(success) {
-        pub.publish(meetingID, JSON.stringify(['setPresenter', publicID]));
+        pub.publish("bigbluebutton:bridge", JSON.stringify([meetingID,'setPresenter', publicID]));
       }
     });
   });

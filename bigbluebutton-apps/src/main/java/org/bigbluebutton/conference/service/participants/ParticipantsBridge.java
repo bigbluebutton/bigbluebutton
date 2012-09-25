@@ -37,6 +37,15 @@ public class ParticipantsBridge {
 		temp_user.put("pubID", Long.toString(internalUserID));
 		
 		jedis.hmset("meeting-"+meetingID+"-user-"+internalUserID, temp_user);
+		
+		/* Storing status properties */
+		HashMap<String,String> status = new HashMap<String, String>();
+		status.put("raiseHand", "false");
+		status.put("presenter", "false");
+		status.put("hasStream", "false");
+		
+		jedis.hmset("meeting-"+meetingID+"-user-"+internalUserID +"-status", status);
+		
 		messagingService.dropRedisClient(jedis);
 	}
 	
@@ -44,7 +53,7 @@ public class ParticipantsBridge {
 
 		Jedis jedis = messagingService.createRedisClient();
 		jedis.srem("meeting-"+meetingID+"-users", Long.toString(internalUserID));
-		jedis.del("meeting-"+meetingID+"-user:"+internalUserID);
+		jedis.del("meeting-"+meetingID+"-user-"+internalUserID);
 		messagingService.dropRedisClient(jedis);
 	}
 	
@@ -89,10 +98,13 @@ public class ParticipantsBridge {
 			
 			long internalUserID = Long.parseLong(users.get("pubID"));
 			String externalUserID = UUID.randomUUID().toString();
+			
+			Map<String,String> status_from_db = jedis.hgetAll("meeting-"+meetingID+"-user-"+userid+"-status");
+			
 			Map<String, Object> status = new HashMap<String, Object>();
-			status.put("raiseHand", false);
-			status.put("presenter", false);
-			status.put("hasStream", false);
+			status.put("raiseHand", Boolean.parseBoolean(status_from_db.get("raiseHand")));
+			status.put("presenter", Boolean.parseBoolean(status_from_db.get("presenter")));
+			status.put("hasStream", Boolean.parseBoolean(status_from_db.get("hasStream")));
 			
 			Participant p = new Participant(internalUserID, users.get("username"), "VIEWER", externalUserID, status);
 			map.put(internalUserID, p);
@@ -101,6 +113,28 @@ public class ParticipantsBridge {
 		messagingService.dropRedisClient(jedis);
 		
 		return map;
+	}
+	
+	public void assignPresenter(String meetingID, Long userid, Long previousPresenter) {
+		
+		Jedis jedis = messagingService.createRedisClient();
+		jedis.hset("meeting-"+meetingID+"-user-"+userid+"-status", "presenter", "true");
+		if(previousPresenter != -1)
+			jedis.hset("meeting-"+meetingID+"-user-"+previousPresenter+"-status", "presenter", "false");
+		
+		HashMap<String,String> params = new HashMap<String, String>();
+		params.put("sessionID", "0");
+		params.put("publicID",Long.toString(userid));
+		jedis.hmset("meeting-"+meetingID+"-presenter",params);
+		
+		messagingService.dropRedisClient(jedis);
+		
+		ArrayList<Object> updates = new ArrayList<Object>();
+		updates.add(meetingID);
+		updates.add("setPresenter");
+		updates.add(userid);
+		Gson gson = new Gson();
+		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
 	}
 	
 }
