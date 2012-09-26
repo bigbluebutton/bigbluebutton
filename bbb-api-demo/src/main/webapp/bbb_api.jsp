@@ -195,7 +195,7 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 
 	String create_parameters = "name=" + urlEncode(meetingID)
 		+ "&meetingID=" + urlEncode(meetingID) + welcome_param + voiceBridge_param
-		+ "&attendeePW=ap&moderatorPW=mp&guestPW=gp"
+		+ "&attendeePW=ap&moderatorPW=mp"
 		+ "&record=" + record + getMetaData( metadata );
 
 
@@ -254,7 +254,7 @@ public String getJoinURLXML(String username, String meetingID, String welcome, S
 
 	String create_parameters = "name=" + urlEncode(meetingID)
 		+ "&meetingID=" + urlEncode(meetingID) + welcome_param
-		+ "&attendeePW=ap&moderatorPW=mp&guestPW=gp&voiceBridge=" + voiceBridge;
+		+ "&attendeePW=ap&moderatorPW=mp&voiceBridge=" + voiceBridge;
 
 	Document doc = null;
 
@@ -746,7 +746,6 @@ public String getMeetingsWithoutPasswords() {
 			if (data.indexOf("<response>") != -1) {
 				data = removeTag(data, "<attendeePW>", "</attendeePW>");
 				data = removeTag(data, "<moderatorPW>", "</moderatorPW>"); 
-				data = removeTag(data, "<guestPW>", "</guestPW>"); 
 				int startIndex = data.indexOf(startResponse) + startResponse.length();
 				int endIndex = data.indexOf(endResponse);
 				newXMldocument +=  "<meeting>" + data.substring(startIndex, endIndex) + "</meeting>";
