@@ -217,13 +217,19 @@ package org.bigbluebutton.main.model.users {
 			user.userid = Number(joinedUser.userid);
 			user.name = joinedUser.name;
 			user.role = joinedUser.role;
-			if(user.role != "GUEST")
+			if(joinedUser.isguest == "true")
+				user.isGuest = true;
+			else
+				user.isGuest = false;
+
+			if(user.isGuest == false)
 				user.acceptedJoin = true;
-	
+
+			
 
 			LogUtil.debug("User status: " + joinedUser.status.hasStream);
 
-			LogUtil.info("Joined as [" + user.userid + "," + user.name + "," + user.role + "]");
+			LogUtil.info("Joined as [" + user.userid + "," + user.name + "," + user.role + "," + user.isGuest + "]");
 			UserManager.getInstance().getConference().addUser(user);
 			participantStatusChange(user.userid, "hasStream", joinedUser.status.hasStream);
 			participantStatusChange(user.userid, "presenter", joinedUser.status.presenter);
@@ -234,6 +240,8 @@ package org.bigbluebutton.main.model.users {
 			participant.name = user.name;
 			participant.isPresenter = joinedUser.status.presenter;
 			participant.role = user.role;
+			participant.isGuest = user.isGuest;
+			//participant.isGuest = user.isguest;
 			UserManager.getInstance().participantJoined(participant);
 			
 			var dispatcher:Dispatcher = new Dispatcher();
@@ -270,7 +278,7 @@ package org.bigbluebutton.main.model.users {
 		}
 		//Callback from server	
 		public function guestEntrance(userid:Number, name:String):void {
-			if(UserManager.getInstance().getConference().amIModerator()) {
+			if(UserManager.getInstance().getConference().amIModerator() && UserManager.getInstance().getConference().amIWaitForModerator() == false) {
 				var e:NewGuestEvent = new NewGuestEvent(NewGuestEvent.NEW_GUEST_EVENT);
 				e.userid = userid;
 				e.name = name;				
@@ -333,7 +341,7 @@ package org.bigbluebutton.main.model.users {
 		}
 
 		public function guestWaitingForModerator(userid:Number, userId_userName:String):void {
-			if(UserManager.getInstance().getConference().getMyUserId() == userid) {
+			if(UserManager.getInstance().getConference().getMyUserId() == userid && UserManager.getInstance().getConference().amIModerator()) {
 				if(userId_userName != "") {
 					var i:int = 0;
 					var users:Array =  userId_userName.split("!1");

@@ -35,11 +35,13 @@ public class Participant implements Serializable {
 	private String name;
 	private String role = "VIEWER";
 	private String externalUserID;
+	private String isguest;
 	
 	private final Map status;
 	private Map<String, Object> unmodifiableStatus;
 	
-	public Participant(Long internalUserID, String name, String role, String externalUserID, Map<String, Object> status) {
+	public Participant(Long internalUserID, String name, String role, String externalUserID, Map<String, Object> status, String isguest) {
+		this.isguest = isguest;
 		this.internalUserID = internalUserID;
 		this.name = name;
 		this.role = role;
@@ -68,6 +70,10 @@ public class Participant implements Serializable {
 	   return externalUserID;
 	}
 	
+	public String isGuest() {
+	   return isguest;
+	}
+
 	/**
 	 * Returns that status for this participant. However, the status cannot
 	 * be modified. To do that, setStatus(...) must be used.
@@ -107,6 +113,7 @@ public class Participant implements Serializable {
 		m.put("userid", internalUserID);
 		m.put("name", name);
 		m.put("role", role);
+		m.put("isguest", isguest);
 		/**
 		 * Create a copy of the status instead of returning the
 		 * unmodifiableMap. This way callers can still manipulate it

@@ -27,6 +27,7 @@ package org.bigbluebutton.main.model.users.events
 		
 		public var connection:NetConnection;
 		public var userid:Number;
+		public var isGuest:Boolean;
 		
 		public function UsersConnectionEvent(type:String)
 		{

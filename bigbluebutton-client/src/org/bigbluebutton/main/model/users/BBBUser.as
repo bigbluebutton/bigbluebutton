@@ -30,7 +30,7 @@ package org.bigbluebutton.main.model.users
 		public static const MODERATOR:String = "MODERATOR";
 		public static const VIEWER:String = "VIEWER";
 		public static const PRESENTER:String = "PRESENTER";
-		public static const GUEST:String = "GUEST";
+		
 
 		[Bindable] public var me:Boolean = false;
 		[Bindable] public var userid:Number;
@@ -49,15 +49,13 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var voiceLocked:Boolean = false;
 		[Bindable] public var acceptedJoin:Boolean = false;
 		[Bindable] public var waitingForMod:Boolean = false;
+		[Bindable] public var isGuest:Boolean;
 		private var _status:StatusCollection = new StatusCollection();
 		
 			
 
 		public function amIGuest():Boolean {
-			if(role == GUEST)
-				return true;
-			else
-				return false;
+			return isGuest;
 		}
 	
 		public function get status():ArrayCollection {
@@ -128,7 +126,7 @@ package org.bigbluebutton.main.model.users
 			n.raiseHand = user.raiseHand;
 			n.role = user.role;	
 			n.room = user.room;
-			
+			n.isGuest = user.isGuest;
 			return n;		
 		}
 		

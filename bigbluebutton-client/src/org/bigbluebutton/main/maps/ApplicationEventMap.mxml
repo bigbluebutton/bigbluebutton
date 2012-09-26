@@ -68,6 +68,7 @@
 	
 	<EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >
 		<MethodInvoker generator="{ModulesProxy}" method="loadAllModules" arguments="{event.conferenceParameters}" />
+		<MethodInvoker generator="{UserService}" method="getAllGuests" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{WaitModeratorEvent.USER_LOGGED_IN}" >

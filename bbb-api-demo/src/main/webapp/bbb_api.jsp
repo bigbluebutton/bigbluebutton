@@ -50,7 +50,7 @@
 //    - metadata
 //    - xml (for pre-upload of slides)
 //
-public String createMeeting(String meetingID, String welcome, String moderatorPassword, String viewerPassword, String guestPassword, Integer voiceBridge, String logoutURL) {
+public String createMeeting(String meetingID, String welcome, String moderatorPassword, String viewerPassword, Integer voiceBridge, String logoutURL) {
 	String base_url_create = BigBlueButtonURL + "api/create?";
 
 	String welcome_param = "";
@@ -58,7 +58,6 @@ public String createMeeting(String meetingID, String welcome, String moderatorPa
 
 	String attendee_password_param = "&attendeePW=ap";
 	String moderator_password_param = "&moderatorPW=mp";
-	String guest_password_param = "&guestPW=mp";
 	String voice_bridge_param = "";
 	String logoutURL_param = "";
 
@@ -74,10 +73,7 @@ public String createMeeting(String meetingID, String welcome, String moderatorPa
 		attendee_password_param = "&attendeePW=" + urlEncode(viewerPassword);
 	}
 
-	if ((guestPassword != null) && !guestPassword.equals("")) {
-		guest_password_param = "&guestPW=" + urlEncode(guestPassword);
-	}
-
+	
 	if ((voiceBridge != null) && voiceBridge > 0) {
 		voice_bridge_param = "&voiceBridge=" + urlEncode(voiceBridge.toString());
 	} else {
@@ -97,7 +93,7 @@ public String createMeeting(String meetingID, String welcome, String moderatorPa
 
 	String create_parameters = "name=" + urlEncode(meetingID)
 		+ "&meetingID=" + urlEncode(meetingID) + welcome_param
-		+ attendee_password_param + moderator_password_param + guest_password_param
+		+ attendee_password_param + moderator_password_param
 		+ voice_bridge_param + logoutURL_param;
 
 	Document doc = null;
@@ -126,6 +122,19 @@ public String createMeeting(String meetingID, String welcome, String moderatorPa
 //
 // getJoinMeetingURL() -- get join meeting URL for both viewer and moderator
 //
+public String getJoinMeetingURL(String username, String meetingID, String password, Boolean isGuest) {
+	String base_url_join = BigBlueButtonURL + "api/join?";
+	String join_parameters = "meetingID=" + urlEncode(meetingID)
+		+ "&fullName=" + urlEncode(username) + "&password="
+		+ urlEncode(password) + "&isGuest=" + urlEncode(isGuest.toString());
+
+	return base_url_join + join_parameters + "&checksum="
+		+ checksum("join" + join_parameters + salt);
+} 
+
+//
+// getJoinMeetingURL() -- get join meeting URL for both viewer and moderator
+//
 public String getJoinMeetingURL(String username, String meetingID, String password) {
 	String base_url_join = BigBlueButtonURL + "api/join?";
 	String join_parameters = "meetingID=" + urlEncode(meetingID)
@@ -135,8 +144,6 @@ public String getJoinMeetingURL(String username, String meetingID, String passwo
 	return base_url_join + join_parameters + "&checksum="
 		+ checksum("join" + join_parameters + salt);
 } 
-
-
 
 	
 // 

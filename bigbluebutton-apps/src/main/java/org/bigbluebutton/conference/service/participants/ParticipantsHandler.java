@@ -29,7 +29,10 @@ import org.red5.server.api.so.ISharedObject;
 import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.api.Red5;
 import java.util.HashMap;
-import java.util.Map;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.bigbluebutton.conference.service.recorder.RecorderApplication;
+import java.util.Map;
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
+import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.conference.service.recorder.participants.ParticipantsEventRecorder;
 
 public class ParticipantsHandler extends ApplicationAdapter implements IApplication{
@@ -142,13 +145,14 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 			String username = bbbSession.getUsername();
 			String role = bbbSession.getRole();
 			String room = bbbSession.getRoom();
+			String isguest = bbbSession.getGuest();
 			log.debug(APP + ":participantJoin - [" + room + "] [" + userid + ", " + username + ", " + role + "]");
 			
 			Map<String, Boolean> status = new HashMap<String, Boolean>();
 			status.put("raiseHand", false);
 			status.put("presenter", false);
 			status.put("hasStream", false);	
-			return participantsApplication.participantJoin(room, userid, username, role, bbbSession.getExternUserID(), status);
+			return participantsApplication.participantJoin(room, userid, username, role, bbbSession.getExternUserID(), status, isguest);
 		}
 		log.warn("Can't send user join as session is null.");
 		return false;

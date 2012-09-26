@@ -41,7 +41,6 @@ public class Meeting {
 	private String webVoice;
 	private String moderatorPass;
 	private String viewerPass;
-	private String guestPass;
 	private String welcomeMsg;
 	private String logoutUrl;
 	private int maxUsers;
@@ -57,7 +56,6 @@ public class Meeting {
 		intMeetingId = builder.internalId;
 		viewerPass = builder.viewerPass;
 		moderatorPass = builder.moderatorPass;
-		guestPass = builder.guestPass;
 		maxUsers = builder.maxUsers;
 		logoutUrl = builder.logoutUrl;
 		record = builder.record;
@@ -151,9 +149,7 @@ public class Meeting {
 		return viewerPass;
 	}
 
-	public String getGuestPassword() {
-		return guestPass;
- 	}
+	
 
 	public String getWelcomeMessage() {
 		return welcomeMsg;
@@ -249,7 +245,6 @@ public class Meeting {
     	private boolean record;
     	private String moderatorPass;
     	private String viewerPass;
-	private String guestPass;
     	private int duration;
     	private String webVoice;
     	private String telVoice;
@@ -279,10 +274,7 @@ public class Meeting {
     		maxUsers = n;
     		return this;
     	}
-	public Builder withGuestPass(String guePass) {
-		guestPass = guePass;
-		return this;
- 	}
+	
     	
     	public Builder withRecording(boolean record) {
     		this.record = record;

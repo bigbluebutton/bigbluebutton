@@ -199,7 +199,8 @@
 				
 			}
 			public function removeGuestWindow(evt:RemoveGuestRequestEvent):void {
-				guestWindow.remove(evt.userid);
+				if(guestWindow != null)
+					guestWindow.remove(evt.userid);
 			}
 
 			private function openWaitWindow(evt:WaitModeratorEvent):void {

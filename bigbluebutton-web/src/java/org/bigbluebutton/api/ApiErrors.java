@@ -8,6 +8,10 @@ public class ApiErrors {
 	public void missingParamError(String param) {
 		errors.add(new String[] {"MissingParam", "You did not pass a " + param + " parameter."});
 	}
+
+	public void invalidParamError(String param) {
+		errors.add(new String[] {"InvalidParam", "You did not pass a valid " + param + " parameter."});
+	}
 	
 	public void checksumError() {
 		errors.add( new String[] {"checksumError", "You did not pass the checksum security check"});

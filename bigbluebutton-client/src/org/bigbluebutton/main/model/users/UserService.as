@@ -41,6 +41,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
+	import org.bigbluebutton.common.LogUtil;
 
 
 	public class UserService {
@@ -72,10 +73,16 @@ package org.bigbluebutton.main.model.users
 				UserManager.getInstance().getConference().setMyRole(result.role);
 				UserManager.getInstance().getConference().setMyRoom(result.room);
 				UserManager.getInstance().getConference().setMyAuthToken(result.authToken);
+				if(result.isguest == "true")
+					UserManager.getInstance().getConference().setIsGuest(true);
+				else
+					UserManager.getInstance().getConference().setIsGuest(false);
+
 				
 				_conferenceParameters = new ConferenceParameters();
 				_conferenceParameters.conference = result.conference;
 				_conferenceParameters.username = result.username;
+				_conferenceParameters.isguest = result.isguest;
 				_conferenceParameters.role = result.role;
 				_conferenceParameters.room = result.room;
 				_conferenceParameters.webvoiceconf = result.webvoiceconf;
@@ -112,29 +119,32 @@ package org.bigbluebutton.main.model.users
 
 		public function userLoggedIn(e:UsersConnectionEvent):void{
 			UserManager.getInstance().getConference().setMyUserid(e.userid);
-			
 			_conferenceParameters.connection = e.connection;
 			_conferenceParameters.userid = e.userid;
 			
 			_userSOService.join(e.userid, _conferenceParameters.room);
 			
-			if(UserManager.getInstance().getConference().getMyRole() == Role.GUEST) {
+			
+			if(UserManager.getInstance().getConference().isGuest()) {
 				UserManager.getInstance().getConference().setWaitForModerator(true);
 				var guestCommand:WaitModeratorEvent = new WaitModeratorEvent(WaitModeratorEvent.USER_LOGGED_IN);
 				guestCommand.conferenceParameters = _conferenceParameters;
-				guestCommand._userSOService = _userSOService;
-				guestCommand.userid = e.userid;
 				dispatcher.dispatchEvent(guestCommand);  
 			}
 			else {
 				var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
 				loadCommand.conferenceParameters = _conferenceParameters;
-			        dispatcher.dispatchEvent(loadCommand);
-
-				_userSOService.askForGuestWaiting(e.userid);
+				dispatcher.dispatchEvent(loadCommand);
 			}
 			
 				
+		}
+
+		public function getAllGuests(e:SuccessfulLoginEvent):void {
+			if(UserManager.getInstance().getConference().amIModerator()) {
+				var numberId:Number = UserManager.getInstance().getConference().getMyUserId();
+				_userSOService.askForGuestWaiting(numberId);
+			}
 		}
 		
 		public function logoutUser():void {

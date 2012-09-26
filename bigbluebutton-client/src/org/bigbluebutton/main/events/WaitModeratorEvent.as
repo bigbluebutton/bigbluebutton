@@ -21,18 +21,12 @@ package org.bigbluebutton.main.events
 	import flash.events.Event;
 	
 	import org.bigbluebutton.main.model.ConferenceParameters;
-	import org.bigbluebutton.main.model.users.BBBUser;
-	import org.bigbluebutton.main.model.users.UsersSOService;
-	import org.bigbluebutton.main.model.ConferenceParameters;
 
 	public class WaitModeratorEvent extends Event
 	{
 		public static const USER_LOGGED_IN:String = "UserLoggedIn";
 		
 		public var conferenceParameters:ConferenceParameters;
-		public var _userSOService:UsersSOService;
-		public var userid:Number;
-		
 		
 		public function WaitModeratorEvent(type:String)
 		{

@@ -111,10 +111,10 @@ public class ParticipantsApplication {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public boolean participantJoin(String roomName, Long userid, String username, String role, String externUserID, Map status) {
+	public boolean participantJoin(String roomName, Long userid, String username, String role, String externUserID, Map status, String isguest) {
 		log.debug("participant joining room " + roomName);
 		if (roomsManager.hasRoom(roomName)) {
-			Participant p = new Participant(userid, username, role, externUserID, status);			
+			Participant p = new Participant(userid, username, role, externUserID, status, isguest);			
 			Room room = roomsManager.getRoom(roomName);
 			room.addParticipant(p);
 			log.debug("participant joined room " + roomName);
