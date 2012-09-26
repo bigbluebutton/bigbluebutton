@@ -24,7 +24,7 @@
 	xmlns:viewer="flexlib.mdi.containers.*" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	xmlns:mate="http://mate.asfusion.com/"
-	title="{windowTitle}"
+	title="{windowTitle}" visible="false"
 	creationComplete="onCreationComplete()"
 	showCloseButton="false">
 

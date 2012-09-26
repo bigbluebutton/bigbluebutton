@@ -20,6 +20,7 @@
 package org.bigbluebutton.modules.layout.managers
 {
   import com.asfusion.mate.events.Dispatcher;
+  
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.events.TimerEvent;
@@ -28,23 +29,27 @@ package org.bigbluebutton.modules.layout.managers
   import flash.net.URLRequest;
   import flash.utils.Dictionary;
   import flash.utils.Timer;
+  
   import flexlib.mdi.containers.MDICanvas;
   import flexlib.mdi.containers.MDIWindow;
   import flexlib.mdi.events.MDIManagerEvent;
+  
   import mx.controls.Alert;
   import mx.events.ResizeEvent;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventBroadcaster;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.Config;
+  import org.bigbluebutton.main.events.ModuleLoadEvent;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
+  import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
   import org.bigbluebutton.modules.layout.events.UpdateLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
   import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
   import org.bigbluebutton.modules.layout.model.WindowLayout;
-  import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class LayoutManager extends EventDispatcher {
@@ -78,6 +83,8 @@ package org.bigbluebutton.modules.layout.managers
 				if (e.success) {
 					_layouts = e.layouts;
 					LogUtil.debug("LayoutManager: layouts loaded successfully");
+          
+          
 				} else {
 					LogUtil.error("LayoutManager: layouts not loaded (" + e.error.message + ")");
 				}

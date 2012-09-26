@@ -35,6 +35,7 @@ package org.bigbluebutton.modules.layout.services
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.events.ModuleLoadEvent;
 	import org.bigbluebutton.modules.layout.events.ConnectionEvent;
 	import org.bigbluebutton.modules.layout.events.LayoutEvent;
 	import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
@@ -125,6 +126,8 @@ package org.bigbluebutton.modules.layout.services
 				remoteUpdateLayout(locked, userId, layout);
 			else
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
+      
+      _dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.LAYOUT_MODULE_STARTED));
 		}
 		
 		public function lockLayout(layout:LayoutDefinition):void {

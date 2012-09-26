@@ -26,7 +26,7 @@ $Id: $
 		   implements="org.bigbluebutton.common.IBbbModuleWindow"
 		   title="{ResourceUtil.getInstance().getString('bbb.videodock.title')}"
 		   xmlns:mate="http://mate.asfusion.com/"
-		   layout="absolute"
+		   layout="absolute" visible="false"
 		   horizontalAlign="center"
 		   verticalAlign="middle"
 		   resize="onChildAdd()">
