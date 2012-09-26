@@ -327,6 +327,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			_title = upperFirstLetter(_title);
 			_question = upperFirstLetter(_question);
 			createButtons(_answers.length,_answers);
+			focusManager.setFocus(back);
 		}
 		
 		private function upperFirstLetter(str:String) : String {

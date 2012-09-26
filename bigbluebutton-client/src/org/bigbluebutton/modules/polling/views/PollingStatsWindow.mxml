@@ -67,6 +67,9 @@
 		import mx.controls.TextArea;
 		import mx.containers.*;
 		import mx.controls.*;
+		
+		import flash.utils.Timer;
+		import flash.events.TimerEvent;
 
 	   	public static const LOGNAME:String = "[PollingStatsWindow] ";
 		[Bindable] public var question:String;
@@ -82,36 +85,43 @@
 		private var POLL_URL_COLOUR:String = "35071";
 		private var webClosed:Boolean;
 		private var notified:Boolean;
+		private var focusTimer:Timer = new Timer(250);
+		private var refreshTimer:Timer = new Timer(1000);
 		
 		private function init():void{			
 			conference = UserManager.getInstance().getConference();
 			webPollText.visible = (conference.amIPresenter() && (!reviewing && trackingPoll.publishToWeb));
 			btnClosePoll.visible = conference.amIPresenter();
 			webPollBox.visible = webPollText.visible;
-			
-			
+						
 			if (webPollText.visible){				
 				webClosed = false;
 				var generate: GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.GENERATE);
 				generate.poll = trackingPoll;
 				dispatchEvent(generate);
-				
-				webPollURLBox.editable = true;
-				focusManager.setFocus(webPollURLBox);
-				webPollURLBox.editable = false;
+				focusTimer.addEventListener(TimerEvent.TIMER, focusWebPoll);
 			}
 			else{
-				/*
-				 * The "flex losing focus" issue is fixed, but the "focus not being drawn on Refresh button" isn't
-				 */
-				
-				focusManager.setFocus(btnRefreshResults);
-				//focusManager.setFocus(btnClosePoll);
-				//focusManager.setFocus(spoofButton);
-				//focusManager.showFocus();
+				focusTimer.addEventListener(TimerEvent.TIMER, focusRefresh);
 			}
-			
+			refreshTimer.addEventListener(TimerEvent.TIMER, autoRefresh);
+			refreshTimer.start();
+			focusTimer.start();
 			notified = false;
+		}
+
+		private function autoRefresh(event:TimerEvent):void{
+			refreshPoll();
+		}
+
+		private function focusWebPoll(event:TimerEvent):void{
+			focusManager.setFocus(webPollURLBox);
+			focusTimer.stop();
+		}
+		
+		private function focusRefresh(event:TimerEvent):void{
+			focusManager.setFocus(btnRefreshResults);
+			focusTimer.stop();
 		}
 
 		private function onCreationComplete():void{
@@ -192,10 +202,12 @@
  		
  		private function stopPoll():void{
  			refreshPoll();
+			refreshTimer.stop();
  			btnRefreshResults.visible = conference.amIPresenter();
  			btnRefreshResults.label = ResourceUtil.getInstance().getString('bbb.polling.stats.repost');
 			btnRefreshResults.removeEventListener(MouseEvent.CLICK, refreshWindow);
 			btnRefreshResults.addEventListener(MouseEvent.CLICK, publishPollAgain);
+			
 			
 			btnClosePoll.label = ResourceUtil.getInstance().getString('bbb.polling.stats.close');
 			btnClosePoll.removeEventListener(MouseEvent.CLICK, closeWindow);

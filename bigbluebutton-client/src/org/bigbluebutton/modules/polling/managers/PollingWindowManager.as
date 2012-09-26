@@ -46,8 +46,8 @@ package org.bigbluebutton.modules.polling.managers
 	
 	import mx.managers.IFocusManager;
 	import flash.utils.Timer;
-	import flash.events.FocusEvent;
 	import flash.events.TimerEvent;
+	import flash.events.FocusEvent;
 	
 	import org.bigbluebutton.modules.polling.model.PollObject;
 			
@@ -83,23 +83,6 @@ package org.bigbluebutton.modules.polling.managers
 			
 			focusTimer.addEventListener(TimerEvent.TIMER, moveFocus);
 			focusTimer.start();
-			
-			/*if (appFM == null)
-				LogUtil.debug("AppFM is null");
-			else if (appFM.getFocus() == null)
-				LogUtil.debug("AppFM.getFocus is null");
-			LogUtil.debug("WATERFALL Before title focus, focus is at " + appFM.getFocus());
-			appFM.setFocus(instructionsWindow.pollTitle);*/
-			
-			//instructionsWindow.pollTitle.setFocus();
-			//LogUtil.debug("WATERFALL After opening instructions, focus is now set to: " + appFM.getFocus());
-			
-			// DO NOT DO THIS
-			// INFINITE LOOP 
-			// while (appFM.getFocus() != "pollTitle"){
-			// 	appFM.setFocus(appFM.getNextFocusManagerComponent());
-			// }
-			// SERIOUSLY
 		}
 		
 		private function moveFocus(event:TimerEvent):void{
@@ -119,6 +102,8 @@ package org.bigbluebutton.modules.polling.managers
 			}		
 			openWindow(instructionsWindow);
 			
+			focusTimer.addEventListener(TimerEvent.TIMER, moveFocus);
+			focusTimer.start();
 		}
 		
 		public function handleClosePollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
@@ -141,7 +126,6 @@ package org.bigbluebutton.modules.polling.managers
 		  	  LogUtil.debug("Returning poll URL to Statistics window: " + transferURL);			  
 			  statsWindow.webPollUrl = transferURL;
 
-			  //LogUtil.debug("Returning poll URL to Statistics window: " + statsWindow.webPollUrl);
 			  statsWindow.setUrlBoxText();
 
 			  if (!e.repost){
