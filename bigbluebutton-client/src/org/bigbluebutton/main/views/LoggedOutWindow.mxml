@@ -63,6 +63,8 @@
             }
 			
 			public function setReason(reason:String):void{
+
+				
 				switch(reason){
 					case ConnectionFailedEvent.APP_SHUTDOWN:
 						message = ResourceUtil.getInstance().getString('bbb.logout.appshutdown');
@@ -87,6 +89,9 @@
 						break;
 					case ConnectionFailedEvent.USER_LOGGED_OUT:
 						message = ResourceUtil.getInstance().getString('bbb.logout.usercommand');
+						break;
+					case ConnectionFailedEvent.GUEST_KICKED_OUT:
+						message = ResourceUtil.getInstance().getString('bbb.logout.guestkickedout');
 						break;
 				}
 			}

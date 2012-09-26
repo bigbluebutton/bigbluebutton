@@ -21,7 +21,7 @@
 -->
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-    title="Waiting" showCloseButton="false" 
+    title="{ResourceUtil.getInstance().getString('bbb.waitWindow.waitMessage.title')}" showCloseButton="false" 
     x="168" y="86" layout="vertical" width="400" height="80" horizontalAlign="center">
 
 	
@@ -43,7 +43,7 @@
 
 			public var conferenceParameters:ConferenceParameters;
 			
-			[Bindable] private var message:String = "Waiting for Moderator.";
+			[Bindable] private var message:String = ResourceUtil.getInstance().getString('bbb.waitWindow.waitMessage.message');
 			private var urlLoader:URLLoader;
 			
 			

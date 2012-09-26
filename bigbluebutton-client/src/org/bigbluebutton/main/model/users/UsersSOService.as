@@ -69,6 +69,13 @@ package org.bigbluebutton.main.model.users {
 			if (_participantsSO != null) _participantsSO.close();
 			netConnectionDelegate.disconnect(onUserAction);
 		}
+
+
+		public function guestDisconnect():void {
+			if (_participantsSO != null) _participantsSO.close();
+			netConnectionDelegate.guestDisconnect();
+		}
+		
 		
 	    public function join(userid:Number, room:String):void {
 			_participantsSO = SharedObject.getRemote(SO_NAME, _applicationURI + "/" + room, false);
@@ -175,10 +182,20 @@ package org.bigbluebutton.main.model.users {
 		public function kickUser(userid:Number):void{
 			_participantsSO.send("kickUserCallback", userid);
 		}
-		
+
+		public function kickGuest(userid:Number):void {
+			_participantsSO.send("kickGuestCallback", userid);
+		}
+
 		public function kickUserCallback(userid:Number):void{
 			if (UserManager.getInstance().getConference().amIThisUser(userid)){
 				dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
+			}
+		}
+
+		public function kickGuestCallback(userid:Number):void{
+			if (UserManager.getInstance().getConference().amIThisUser(userid)){
+				dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.GUEST_KICKED_OUT));
 			}
 		}
 		
@@ -292,7 +309,7 @@ package org.bigbluebutton.main.model.users {
 				if(UserManager.getInstance().getConference().amIWaitForModerator()) {
 					UserManager.getInstance().getConference().setWaitForModerator(false);
 					if(resp == false)
-						kickUser(userid);
+						kickGuest(userid);
 					else {
 						var allowCommand:ModeratorRespEvent = new ModeratorRespEvent(ModeratorRespEvent.GUEST_ALLOWED);
 						var dispatcherCommand:Dispatcher = new Dispatcher();

@@ -53,6 +53,11 @@
 		<MethodInvoker generator="{UserService}" method="logoutUser" />
 		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
 	</EventHandlers>
+
+	<EventHandlers type="{LogoutEvent.GUEST_KICKED_OUT}" >
+		<MethodInvoker generator="{UserService}" method="guestDisconnect" />
+		<MethodInvoker generator="{ModulesProxy}" method="handleLogout" />
+	</EventHandlers>
 	
 	<EventHandlers type="{LogoutEvent.DISCONNECT_TEST}" >
 		<MethodInvoker generator="{UserService}" method="disconnectTest" />

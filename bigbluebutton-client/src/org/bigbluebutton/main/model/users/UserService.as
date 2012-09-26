@@ -146,6 +146,10 @@ package org.bigbluebutton.main.model.users
 				_userSOService.askForGuestWaiting(numberId);
 			}
 		}
+
+		public function guestDisconnect():void {
+			_userSOService.guestDisconnect();
+		}
 		
 		public function logoutUser():void {
 			_userSOService.disconnect(true);
