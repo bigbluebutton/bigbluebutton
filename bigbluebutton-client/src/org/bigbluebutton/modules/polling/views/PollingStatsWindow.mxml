@@ -85,7 +85,6 @@
 		private var POLL_URL_COLOUR:String = "35071";
 		private var webClosed:Boolean;
 		private var notified:Boolean;
-		private var focusTimer:Timer = new Timer(250);
 		private var refreshTimer:Timer = new Timer(1000);
 		
 		private function init():void{			
@@ -99,30 +98,17 @@
 				var generate: GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.GENERATE);
 				generate.poll = trackingPoll;
 				dispatchEvent(generate);
-				focusTimer.addEventListener(TimerEvent.TIMER, focusWebPoll);
-			}
-			else{
-				focusTimer.addEventListener(TimerEvent.TIMER, focusRefresh);
 			}
 			refreshTimer.addEventListener(TimerEvent.TIMER, autoRefresh);
 			refreshTimer.start();
-			focusTimer.start();
 			notified = false;
 		}
 
 		private function autoRefresh(event:TimerEvent):void{
 			refreshPoll();
 		}
-
-		private function focusWebPoll(event:TimerEvent):void{
-			focusManager.setFocus(webPollURLBox);
-			focusTimer.stop();
-		}
 		
-		private function focusRefresh(event:TimerEvent):void{
-			focusManager.setFocus(btnRefreshResults);
-			focusTimer.stop();
-		}
+		
 
 		private function onCreationComplete():void{
 			

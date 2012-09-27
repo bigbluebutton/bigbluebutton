@@ -29,7 +29,6 @@
 	implements="org.bigbluebutton.common.IBbbToolbarComponent"
 	initialize="init();" 
 	click="createAndShow();"
-	rollOver="updateMenu();"
 	icon="{pollIcon}"
 	>
 	<mx:Script>
@@ -51,6 +50,7 @@
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
+			import flash.events.FocusEvent;
 			
 			import org.bigbluebutton.modules.polling.model.PollObject;
 			
@@ -75,6 +75,8 @@
 				pollList = new ArrayCollection();			
 				listInitialize();
 				renderMenu();
+				
+				this.addEventListener(FocusEvent.FOCUS_IN, updateMenuByEvent);
             }
 			
 			private function createAndShow():void{
@@ -115,6 +117,10 @@
 						myMenuData.addItem(menuEntry);
 					}
 				}
+			}
+			
+			private function updateMenuByEvent(e:FocusEvent):void{
+				updateMenu();
 			}
 			
 			private function updateMenu():void{
