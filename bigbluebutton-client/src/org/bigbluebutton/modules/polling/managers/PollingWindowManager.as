@@ -60,6 +60,8 @@ package org.bigbluebutton.modules.polling.managers
 		private var isViewing:Boolean = false;
 		private var globalDispatcher:Dispatcher;
 		
+		private var votingOpen:Boolean = false;
+		
 		public var appFM:IFocusManager;
 		
 		private var instructionsFocusTimer:Timer = new Timer(250);
@@ -156,16 +158,19 @@ package org.bigbluebutton.modules.polling.managers
 		// PollingViewWindow.mxml Window Handlers 
 		//#########################################################################
 		public function handleOpenPollingViewWindow(e:PollingViewWindowEvent):void{
-			LogUtil.debug("WATERFALL: Voting window opened");
-			pollingWindow = new PollingViewWindow();
-			pollingWindow.title = e.poll.title;
-			pollingWindow.question = e.poll.question;
-			pollingWindow.isMultiple = e.poll.isMultiple;
-			pollingWindow.answers = e.poll.answers;
-			openWindow(pollingWindow);
+			if (!votingOpen){
+				votingOpen = true;
+				pollingWindow = new PollingViewWindow();
+				pollingWindow.title = e.poll.title;
+				pollingWindow.question = e.poll.question;
+				pollingWindow.isMultiple = e.poll.isMultiple;
+				pollingWindow.answers = e.poll.answers;
+				openWindow(pollingWindow);
+			}
 		}
 		
 		public function handleClosePollingViewWindow(e:PollingViewWindowEvent):void{
+			votingOpen = false;
 			closeWindow(pollingWindow);
 		}
 		

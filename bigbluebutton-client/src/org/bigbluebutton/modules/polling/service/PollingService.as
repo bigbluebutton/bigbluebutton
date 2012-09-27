@@ -107,18 +107,19 @@ package org.bigbluebutton.modules.polling.service
         }
                   
         public function openPollingWindow(serverPoll:Array):void{
-        	var username:String = module.username;
-        	var poll:PollObject = extractPoll(serverPoll, serverPoll[1]+"-"+serverPoll[0]);
-        	if (!UserManager.getInstance().getConference().amIModerator()){
-        		var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
-	       		e.poll = poll;
-         		dispatcher.dispatchEvent(e);
-         	}else{
-         		var stats:PollingStatsWindowEvent = new PollingStatsWindowEvent(PollingStatsWindowEvent.OPEN);
-         		stats.poll = poll;
-         		stats.poll.status = false;
-         		dispatcher.dispatchEvent(stats);
-         	}
+			var username:String = module.username;
+	        var poll:PollObject = extractPoll(serverPoll, serverPoll[1]+"-"+serverPoll[0]);
+	        if (!UserManager.getInstance().getConference().amIModerator()){
+				var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
+			    e.poll = poll;
+		        dispatcher.dispatchEvent(e);
+			}
+			else{
+	        	var stats:PollingStatsWindowEvent = new PollingStatsWindowEvent(PollingStatsWindowEvent.OPEN);
+	         	stats.poll = poll;
+	         	stats.poll.status = false;
+	         	dispatcher.dispatchEvent(stats);
+	        }
         }
 
 		public function closeAllPollingWindows():void{

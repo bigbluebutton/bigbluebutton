@@ -100,6 +100,7 @@ package org.bigbluebutton.modules.polling.managers
 	  // Opening PollingViewWindow
 	  public function handleOpenPollingViewWindow(e:PollingViewWindowEvent):void{
 		   if(isPolling) return; 	
+		   LogUtil.debug("WATERFALL: PollingManager sending voting signal");
 	       viewWindowManager.handleOpenPollingViewWindow(e);
 	       toolbarButtonManager.disableToolbarButton();
 		}  	
