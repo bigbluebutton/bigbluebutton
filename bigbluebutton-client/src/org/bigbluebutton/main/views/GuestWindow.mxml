@@ -28,7 +28,6 @@
 			import mx.core.FlexGlobals;
 			import mx.managers.PopUpManager;
 			import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.core.managers.UserManager;
@@ -41,8 +40,7 @@
 
 			
 
-			public var _name:String;
-			public var userid:Number;
+			
 			
 			
 			[Bindable] private var message:String = "Users want to enter in this meeting";
@@ -122,11 +120,11 @@
 			}
 
 			public function sendResponseToAllGuests(resp:Boolean):void {
+				removeAllGuests();
 				var respCommand:ResponseModeratorEvent = new ResponseModeratorEvent(ResponseModeratorEvent.RESPONSE_ALL);
-				respCommand.userid = userid;
 				respCommand.resp = resp;
 				dispatcher.dispatchEvent(respCommand);
-				removeAllGuests();
+				
 			}
 	
 			public function removeAllGuests():void {
@@ -140,11 +138,11 @@
 				{
 				    var userid:Number = new Number(key);
 				    this.removeChild(guestButtons[userid]);
-				    delete guestButtons[userid];
-				    guestWindowMap[userid] = null;
+				    
 
 				}
 				guestWindowMap = new Object();
+				guestButtons = new Object();
 				this.visible = false;
 				message = numberOfGuests + baseString;
 			}
@@ -162,7 +160,6 @@
 					if(this.hasGuest() == false) {
 						this.visible = false;
 					}
-
 					message = numberOfGuests + baseString;
 				}
 			}

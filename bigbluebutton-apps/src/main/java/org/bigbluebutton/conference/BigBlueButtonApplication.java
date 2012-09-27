@@ -117,9 +117,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 			recorderApplication.createRecordSession(sessionName);
 		}
 
-	for(int i = 0; i < params.length; i++) {
-		System.out.println(i+": "+params[i]);
-	}
+	
 
 	
 			
