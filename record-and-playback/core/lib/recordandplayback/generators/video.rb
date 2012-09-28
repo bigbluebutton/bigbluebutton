@@ -135,7 +135,7 @@ module BigBlueButton
 
   #Converts flv to mpg
   def self.convert_flv_to_mpg(flv_video, mpg_video_out)
-        command = "ffmpeg -i #{flv_video} -loglevel fatal -v -10 -sameq -f mpegts #{mpg_video_out}"
+        command = "ffmpeg -i #{flv_video} -loglevel fatal -v -10 -sameq -f mpegts -r 29.97 #{mpg_video_out}"
         BigBlueButton.logger.info("Task: Converting .flv to .mpg")    
         BigBlueButton.execute(command)
   end
