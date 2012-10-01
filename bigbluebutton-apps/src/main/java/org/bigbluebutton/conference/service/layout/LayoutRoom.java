@@ -39,7 +39,7 @@ public class LayoutRoom {
 	private final String name;
 	private final Map<String, ILayoutRoomListener> listeners;
 	private boolean locked = false;
-	private int modifierId = -1;
+	private String modifierId = "-1";
 	private String currentLayout = "";
 	
 	public LayoutRoom(String name) {
@@ -72,7 +72,7 @@ public class LayoutRoom {
 		}
 	}
 		
-	public void lockLayout(int userId, String layout) {
+	public void lockLayout(String userId, String layout) {
 		locked = true;
 		modifierId = userId;
 		currentLayout = layout;
@@ -81,7 +81,7 @@ public class LayoutRoom {
 
 	public void unlockLayout() {
 		locked = false;
-		modifierId = -1;
+		modifierId = "-1";
 		currentLayout = "";
 		updateLayout();
 	}

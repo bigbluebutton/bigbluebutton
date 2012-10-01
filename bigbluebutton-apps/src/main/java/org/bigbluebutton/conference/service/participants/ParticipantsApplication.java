@@ -65,7 +65,7 @@ public class ParticipantsApplication {
 		return false;
 	}
 	
-	public void setParticipantStatus(String room, Long userid, String status, Object value) {
+	public void setParticipantStatus(String room, String userid, String status, Object value) {
 		roomsManager.changeParticipantStatus(room, userid, status, value);
 	}
 	
@@ -79,7 +79,7 @@ public class ParticipantsApplication {
 		return roomsManager.getParticipants(roomName);
 	}
 	
-	public boolean participantLeft(String roomName, Long userid) {
+	public boolean participantLeft(String roomName, String userid) {
 		log.debug("Participant " + userid + " leaving room " + roomName);
 		if (roomsManager.hasRoom(roomName)) {
 			Room room = roomsManager.getRoom(roomName);
@@ -92,7 +92,7 @@ public class ParticipantsApplication {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public boolean participantJoin(String roomName, Long userid, String username, String role, String externUserID, Map status) {
+	public boolean participantJoin(String roomName, String userid, String username, String role, String externUserID, Map status) {
 		log.debug("participant joining room " + roomName);
 		if (roomsManager.hasRoom(roomName)) {
 			Participant p = new Participant(userid, username, role, externUserID, status);			
