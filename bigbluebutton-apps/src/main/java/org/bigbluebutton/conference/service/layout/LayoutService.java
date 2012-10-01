@@ -36,7 +36,7 @@ public class LayoutService {
 		return application.currentLayout(roomName);
 	}
 	
-	public void lock(int userId, String layout) {
+	public void lock(String userId, String layout) {
 		log.debug("Layout locked");
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		application.lockLayout(roomName, userId, layout);
