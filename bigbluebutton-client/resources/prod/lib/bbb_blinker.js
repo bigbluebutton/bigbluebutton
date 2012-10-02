@@ -24,6 +24,6 @@ var clearblink = function()
         {
                 window.clearTimeout(blinkTimer);
         }
-        document.title = 'BigBlueButton';
+        document.title = 'MconfLive';
 }
 
