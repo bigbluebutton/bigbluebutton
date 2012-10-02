@@ -61,7 +61,7 @@ public class LayoutApplication {
 		roomsManager = r;
 	}
 
-	public void lockLayout(String room, int userId, String layout) {
+	public void lockLayout(String room, String userId, String layout) {
 		roomsManager.lockLayout(room, userId, layout);
 	}
 

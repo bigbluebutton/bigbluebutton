@@ -83,7 +83,7 @@ public class LayoutRoomsManager {
 		log.warn("Removing listener to a non-existing room " + roomName);
 	}
 	
-	public void lockLayout(String room, int userId, String layout) {
+	public void lockLayout(String room, String userId, String layout) {
 		LayoutRoom r = getRoom(room);
 		if (r != null) {
 			r.lockLayout(userId, layout);

@@ -60,9 +60,8 @@
 	</bean>
 	
 	<bean id="presentationApplication" class="org.bigbluebutton.conference.service.presentation.PresentationApplication">
-		<property name="roomsManager"> 
-			<ref local="presentationRoomsManager"/>
-		</property>
+		<property name="roomsManager"> <ref local="presentationRoomsManager"/></property>
+		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>
 	</bean>
 	
 	<bean id="presentation.service" class="org.bigbluebutton.conference.service.presentation.PresentationService">

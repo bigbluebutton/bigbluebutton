@@ -186,10 +186,10 @@ package org.bigbluebutton.modules.present.business {
 		 * 
 		 */		
 		public function updateCursorCallback(xPercent:Number, yPercent:Number):void{
-			var e:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR);
-			e.xPercent = xPercent;
-			e.yPercent = yPercent;
-			dispatcher.dispatchEvent(e);
+//			var e:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR);
+//			e.xPercent = xPercent;
+//			e.yPercent = yPercent;
+//			dispatcher.dispatchEvent(e);
 		}
 		
 		/**

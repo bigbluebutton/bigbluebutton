@@ -37,7 +37,7 @@ public class Room implements Serializable {
 	private static Logger log = Red5LoggerFactory.getLogger( Room.class, "bigbluebutton" );	
 	ArrayList<String> currentPresenter = null;
 	private String name;
-	private Map <Long, Participant> participants;
+	private Map <String, Participant> participants;
 
 	// these should stay transient so they're not serialized in ActiveMQ messages:	
 	//private transient Map <Long, Participant> unmodifiableMap;
@@ -45,7 +45,7 @@ public class Room implements Serializable {
 
 	public Room(String name) {
 		this.name = name;
-		participants = new ConcurrentHashMap<Long, Participant>();
+		participants = new ConcurrentHashMap<String, Participant>();
 		//unmodifiableMap = Collections.unmodifiableMap(participants);
 		listeners   = new ConcurrentHashMap<String, IRoomListener>();
 	}
@@ -80,7 +80,7 @@ public class Room implements Serializable {
 		}
 	}
 
-	public void removeParticipant(Long userid) {
+	public void removeParticipant(String userid) {
 		boolean present = false;
 		Participant p = null;
 		synchronized (this) {
@@ -99,7 +99,7 @@ public class Room implements Serializable {
 		}
 	}
 
-	public void changeParticipantStatus(Long userid, String status, Object value) {
+	public void changeParticipantStatus(String userid, String status, Object value) {
 		boolean present = false;
 		Participant p = null;
 		synchronized (this) {

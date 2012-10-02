@@ -164,7 +164,7 @@ public class RoomsManager {
 		log.warn("Adding participant to a non-existing room " + roomName);
 	}
 	
-	public void removeParticipant(String roomName, Long userid) {
+	public void removeParticipant(String roomName, String userid) {
 		log.debug("Remove participant " + userid + " from " + roomName);
 		Room r = getRoom(roomName);
 		if (r != null) {
@@ -179,7 +179,7 @@ public class RoomsManager {
 		log.warn("Removing listener from a non-existing room " + roomName);
 	}
 	
-	public void changeParticipantStatus(String roomName, Long userid, String status, Object value) {
+	public void changeParticipantStatus(String roomName, String userid, String status, Object value) {
 		log.debug("Change participant status " + userid + " - " + status + " [" + value + "]");
 		Room r = getRoom(roomName);
 		if (r != null) {
