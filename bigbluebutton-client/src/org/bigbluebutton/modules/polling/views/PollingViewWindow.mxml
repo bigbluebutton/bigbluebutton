@@ -89,6 +89,7 @@
 					lines = lines + ((s.length / 28) + 1);	
 				}				 	            	
 				height = height + (lines * 50);
+				//questionBox.
 			}
 						
 			// This function will receive information and generate radiobuttons on fly
@@ -181,17 +182,22 @@
 
 	<mx:RadioButtonGroup id="answersGroup"/>
  	<!-- Prototype of Polling Module Design -->
-    <mx:VBox width="100%" 
+    <mx:VBox accessibilityDescription="The question will go into the V BOX" 
+    		 width="100%" 
     		 height="75%" 
     		 horizontalAlign="center" 
     		 paddingLeft="10" 
-    		 paddingRight="10">
+    		 paddingRight="10"
+    		 focusEnabled="true">
+    	<mx:HBox accessibilityDescription="The question will go into the H BOX"/>
     	<mx:Text width="200" 
         		 paddingTop="30" 
         		 paddingBottom="10" 
         		 fontWeight="bold" 
         		 textAlign="center"
-       			 text="{question}"/>
+       			 text="{question}"
+       			 accessibilityDescription="The question will go into the m x TEXT"
+       			 />
        	<mx:Text id="checkInstructions" 
        			 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll')}"/>
      	<mx:Box id="answerBox"  
