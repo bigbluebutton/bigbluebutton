@@ -31,7 +31,7 @@ import java.lang.Long;
  */
 @ThreadSafe
 public class Participant implements Serializable {
-	private Long internalUserID;
+	private String internalUserID;
 	private String name;
 	private String role = "VIEWER";
 	private String externalUserID;
@@ -39,7 +39,7 @@ public class Participant implements Serializable {
 	private final Map status;
 	private Map<String, Object> unmodifiableStatus;
 	
-	public Participant(Long internalUserID, String name, String role, String externalUserID, Map<String, Object> status) {
+	public Participant(String internalUserID, String name, String role, String externalUserID, Map<String, Object> status) {
 		this.internalUserID = internalUserID;
 		this.name = name;
 		this.role = role;
@@ -56,7 +56,7 @@ public class Participant implements Serializable {
 		return name;
 	}
 	
-	public Long getInternalUserID() {
+	public String getInternalUserID() {
 		return internalUserID;
 	}
 	
