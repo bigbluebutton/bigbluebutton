@@ -218,11 +218,10 @@ package org.bigbluebutton.modules.videoconf.business
 		public function openAvailableVideos():void{
 			var dispatcher:Dispatcher = new Dispatcher();
 			var users:ArrayCollection = UserManager.getInstance().getConference().users;
-			for (var i:int=0; i<users.length; i++){
+			for (var i:int=0; i < users.length; i++){
 				var user:BBBUser = (users.getItemAt(i) as BBBUser);
-				if (user.hasStream) dispatcher.dispatchEvent(new StreamStartedEvent(user.userid, user.name, user.streamName));
+				if (user.hasStream) dispatcher.dispatchEvent(new StreamStartedEvent(user.userID, user.name, user.streamName));
 			}
 		}
-
 	}
 }

@@ -150,7 +150,7 @@
 				var item:IListItemRenderer = event.itemRenderer;
 				var user:BBBUser = item.data as BBBUser;
 				var rollEvent:ViewersRollEvent = new ViewersRollEvent(ViewersRollEvent.VIEWERS_ROLL_OVER);
-				rollEvent.userID = user.userid;
+				rollEvent.userID = user.userID;
 				dispatcher.dispatchEvent(rollEvent);
 			}
 			
@@ -158,7 +158,7 @@
 				var item:IListItemRenderer = event.itemRenderer;
 				var user:BBBUser = item.data as BBBUser;
 				var rollEvent:ViewersRollEvent = new ViewersRollEvent(ViewersRollEvent.VIEWERS_ROLL_OUT);
-				rollEvent.userID = user.userid;
+				rollEvent.userID = user.userID;
 				dispatcher.dispatchEvent(rollEvent);
 			}
 

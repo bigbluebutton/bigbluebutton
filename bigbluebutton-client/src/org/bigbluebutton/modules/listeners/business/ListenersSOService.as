@@ -122,7 +122,7 @@ package org.bigbluebutton.modules.listeners.business
 				/**
 				 * Let's store the voice userid so we can do push to talk.
 				 */
-				var pattern:RegExp = /(\d*)-(.*)$/;
+				var pattern:RegExp = /(.*)-(.*)$/;
 				var result:Object = pattern.exec(n.callerName);
 				if (result != null) {
 					/**

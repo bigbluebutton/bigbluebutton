@@ -116,14 +116,14 @@ package org.bigbluebutton.main.model.users {
         LogUtil.debug("There is only one moderator in the meeting. Is it me? ");
 				var user:BBBUser = participants.getTheOnlyModerator();
 				if (user.me) {
-          LogUtil.debug("Setting me as presenter because I'm the only moderator. My userid is [" + user.userid + "]");
+          LogUtil.debug("Setting me as presenter because I'm the only moderator. My userid is [" + user.userID + "]");
 					var presenterEvent:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-					presenterEvent.userid = user.userid;
+					presenterEvent.userid = user.userID;
 					presenterEvent.username = user.name;
 					var dispatcher:Dispatcher = new Dispatcher();
 					dispatcher.dispatchEvent(presenterEvent);
 				} else {
-          LogUtil.debug("No. It is not me. It is [" + user.userid + ", " + user.name + "]");
+          LogUtil.debug("No. It is not me. It is [" + user.userID + ", " + user.name + "]");
         }
 			} else {
         LogUtil.debug("No. There are more than one moderator.");
@@ -195,7 +195,7 @@ package org.bigbluebutton.main.model.users {
 			var participant:BBBUser = UserManager.getInstance().getConference().getParticipant(user);
 			
 			var p:User = new User();
-			p.userid = participant.userid;
+			p.userid = participant.userID;
 			p.name = participant.name;
 			
 			UserManager.getInstance().participantLeft(p);
@@ -212,20 +212,20 @@ package org.bigbluebutton.main.model.users {
 		
 		public function participantJoined(joinedUser:Object):void { 
 			var user:BBBUser = new BBBUser();
-			user.userid = joinedUser.userid;
+			user.userID = joinedUser.userid;
 			user.name = joinedUser.name;
 			user.role = joinedUser.role;
 
 			LogUtil.debug("User status: " + joinedUser.status.hasStream);
 
-			LogUtil.info("Joined as [" + user.userid + "," + user.name + "," + user.role + "]");
+			LogUtil.info("Joined as [" + user.userID + "," + user.name + "," + user.role + "]");
 			UserManager.getInstance().getConference().addUser(user);
-			participantStatusChange(user.userid, "hasStream", joinedUser.status.hasStream);
-			participantStatusChange(user.userid, "presenter", joinedUser.status.presenter);
-			participantStatusChange(user.userid, "raiseHand", joinedUser.status.raiseHand);
+			participantStatusChange(user.userID, "hasStream", joinedUser.status.hasStream);
+			participantStatusChange(user.userID, "presenter", joinedUser.status.presenter);
+			participantStatusChange(user.userID, "raiseHand", joinedUser.status.raiseHand);
 
 			var participant:User = new User();
-			participant.userid = user.userid;
+			participant.userid = user.userID;
 			participant.name = user.name;
 			participant.isPresenter = joinedUser.status.presenter;
 			participant.role = user.role;

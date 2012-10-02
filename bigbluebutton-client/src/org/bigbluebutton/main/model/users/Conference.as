@@ -35,10 +35,10 @@ package org.bigbluebutton.main.model.users {
 		}
 
 		public function addUser(newuser:BBBUser):void {
-      LogUtil.debug("Adding new user [" + newuser.userid + "]");
-			if (! hasParticipant(newuser.userid)) {
-        LogUtil.debug("Am I this new user [" + newuser.userid + ", " + me.userid + "]");
-				if (newuser.userid == me.userid) {
+      LogUtil.debug("Adding new user [" + newuser.userID + "]");
+			if (! hasParticipant(newuser.userID)) {
+        LogUtil.debug("Am I this new user [" + newuser.userID + ", " + me.userID + "]");
+				if (newuser.userID == me.userID) {
 					newuser.me = true;
 				}						
 				
@@ -87,7 +87,7 @@ package org.bigbluebutton.main.model.users {
 			var p:BBBUser;
 			for (var i:int = 0; i < users.length; i++) {
 				p = users.getItemAt(i) as BBBUser;	
-				if (isUserPresenter(p.userid)) {
+				if (isUserPresenter(p.userID)) {
 					return BBBUser.copy(p);
 				}
 			}		
@@ -117,7 +117,7 @@ package org.bigbluebutton.main.model.users {
 		public function removeParticipant(userID:String):void {
 			var p:Object = getParticipantIndex(userID);
 			if (p != null) {
-				LogUtil.debug("removing user[" + p.participant.name + "," + p.participant.userid + "]");				
+				LogUtil.debug("removing user[" + p.participant.name + "," + p.participant.userID + "]");				
 				users.removeItemAt(p.index);
 				sort();
 			}							
@@ -135,7 +135,7 @@ package org.bigbluebutton.main.model.users {
 			for (var i:int = 0; i < users.length; i++) {
 				aUser = users.getItemAt(i) as BBBUser;
 				
-				if (aUser.userid == userID) {
+				if (aUser.userID == userID) {
 					return {index:i, participant:aUser};
 				}
 			}				
@@ -153,7 +153,7 @@ package org.bigbluebutton.main.model.users {
 		}
 				
 		public function amIThisUser(userID:String):Boolean {
-			return me.userid == userID;
+			return me.userID == userID;
 		}
 				
 		public function amIModerator():Boolean {
@@ -217,12 +217,12 @@ package org.bigbluebutton.main.model.users {
 		}
 		
 		public function getMyUserId():String {
-			return me.userid;
+			return me.userID;
 		}
     
 		public function setMyUserid(userID:String):void {
-			me.userid = userID;
-      LogUtil.debug("Setting my userid to [" + me.userid + "]");
+			me.userID = userID;
+      LogUtil.debug("Setting my userid to [" + me.userID + "]");
 		}
 		
 		public function setMyName(name:String):void {
