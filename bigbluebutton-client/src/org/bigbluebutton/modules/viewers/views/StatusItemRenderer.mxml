@@ -63,18 +63,18 @@
 			}
 			
 			public function onRollOver(e:ViewersRollEvent):void{
-				if (kickButtonEnabled && (e.userID == data.userid)) kickUserBtn.visible = true;
+				if (kickButtonEnabled && (e.userID == data.userID)) kickUserBtn.visible = true;
 			}
 			
 			public function onRollOut(e:ViewersRollEvent):void{
-				if (kickButtonEnabled && (e.userID == data.userid)) kickUserBtn.visible = false;
+				if (kickButtonEnabled && (e.userID == data.userID)) kickUserBtn.visible = false;
 			}
 			
 			private function viewCamera():void {
    				LogUtil.debug("ViewersModule - sending camera view request for stream" + data.streamName);
    				streamIcon.enabled = false;
    				//streamName = data.streamName;
-				dispatchEvent(new ViewCameraEvent(data.userid, data.streamName, data.name));
+				dispatchEvent(new ViewCameraEvent(data.userID, data.streamName, data.name));
    			}
    			
    			private function onViewVideoCloseEvent(event:BBBEvent):void {
@@ -85,12 +85,12 @@
    			}
    			
    			private function lowerHand():void {
-				dispatchEvent(new LowerHandEvent(data.userid));
+				dispatchEvent(new LowerHandEvent(data.userID));
    			}			
 			
 			private function kickUser():void{
 				if (isModerator){
-					dispatchEvent(new KickUserEvent(data.userid));
+					dispatchEvent(new KickUserEvent(data.userID));
 				}
 			}
 		

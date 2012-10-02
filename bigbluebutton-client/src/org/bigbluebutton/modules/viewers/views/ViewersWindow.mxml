@@ -115,7 +115,7 @@
         		if (viewersGrid.selectedItem == null || viewersGrid.selectedItem.presenter) return;
         		
 				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-				e.userid = viewersGrid.selectedItem.userid;
+				e.userid = viewersGrid.selectedItem.userID;
 				e.username = viewersGrid.selectedItem.name;
 				dispatchEvent(e);
 				
