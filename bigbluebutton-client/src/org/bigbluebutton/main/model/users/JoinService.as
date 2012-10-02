@@ -23,8 +23,7 @@ package org.bigbluebutton.main.model.users
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
-	import flash.net.navigateToURL;
-	
+	import flash.net.navigateToURL;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	        	

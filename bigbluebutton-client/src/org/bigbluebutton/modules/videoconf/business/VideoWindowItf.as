@@ -66,7 +66,7 @@ package org.bigbluebutton.modules.videoconf.business
 			var pattern:RegExp = new RegExp("(\\d+x\\d+)-\\d+-\\d+", "");
 			if (pattern.test(stream)) {
 				LogUtil.debug("The stream name is well formatted [" + stream + "]");
-        var uid:Number = UserManager.getInstance().getConference().getMyUserId();
+        var uid:String = UserManager.getInstance().getConference().getMyUserId();
 				//return stream.substr(0, stream.split("-")[0].length - String(uid).length).split("x");
         LogUtil.debug("Stream resolution is [" + pattern.exec(stream)[1] + "]");
         return pattern.exec(stream)[1].split("x");

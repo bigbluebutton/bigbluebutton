@@ -301,7 +301,7 @@ package org.bigbluebutton.main.model.users
 		
 		private function sendConnectionSuccessEvent(userid:Object):void{
 			var useridString:String = userid as String;
-			var n:Number = parseInt(useridString);
+			var n:String = useridString;
 			
 			var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
 			e.connection = _netConnection;

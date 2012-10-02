@@ -55,7 +55,7 @@
 			// publishing
 			private var _publishing:Boolean = false;		
 			
-			private function viewCamera(userid:Number, stream:String, name:String, mock:Boolean = false):void{
+			private function viewCamera(userid:String, stream:String, name:String, mock:Boolean = false):void{
 				if (userid == module.userid) return;
 				
 				var window:VideoWindow = new VideoWindow();
@@ -82,7 +82,7 @@
 			}
 
 			private function viewVideoFile(e:BBBEvent):void {
-				viewCamera(1, e.message, e.message, true);
+				viewCamera("1", e.message, e.message, true);
 			}
 			
 			private function mockConnect():void {

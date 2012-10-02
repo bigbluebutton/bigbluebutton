@@ -19,8 +19,7 @@
  */
 package org.bigbluebutton.modules.layout.services
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IEventDispatcher;
 	import flash.events.NetStatusEvent;
@@ -29,10 +28,8 @@ package org.bigbluebutton.modules.layout.services
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
-	import flash.utils.Timer;
-	
-	import mx.controls.Alert;
-	
+	import flash.utils.Timer;	
+	import mx.controls.Alert;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.ModuleLoadEvent;
@@ -120,10 +117,10 @@ package org.bigbluebutton.modules.layout.services
 		private function onReceivedFirstLayout(result:Object):void {
 			LogUtil.debug("LayoutService: handling the first layout"); 
 			var locked:Boolean = result[0];
-			var userId:int = result[1];
+			var userID:String = result[1];
 			var layout:String = result[2];
 			if (locked)
-				remoteUpdateLayout(locked, userId, layout);
+				remoteUpdateLayout(locked, userID, layout);
 			else
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
       
@@ -166,8 +163,8 @@ package org.bigbluebutton.modules.layout.services
 			);
 		}
 
-		public function remoteUpdateLayout(locked:Boolean, userId:int, layout:String):void {
-			var dispatchedByMe:Boolean = UserManager.getInstance().getConference().amIThisUser(userId);
+		public function remoteUpdateLayout(locked:Boolean, userID:String, layout:String):void {
+			var dispatchedByMe:Boolean = UserManager.getInstance().getConference().amIThisUser(userID);
 
 			LogUtil.debug("LayoutService: received a remote update" + (locked? " from " + (dispatchedByMe? "myself": "a remote user"): ""));
 			LogUtil.debug("Locked? " + (locked? "yes": "no"));

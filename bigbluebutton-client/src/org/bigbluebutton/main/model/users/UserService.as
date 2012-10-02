@@ -18,12 +18,9 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
-	import flash.net.NetConnection;
-	
-	import mx.collections.ArrayCollection;
-	
+	import com.asfusion.mate.events.Dispatcher;	
+	import flash.net.NetConnection;	
+	import mx.collections.ArrayCollection;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserConfigManager;
@@ -53,7 +50,7 @@ package org.bigbluebutton.main.model.users
 			dispatcher = new Dispatcher();
 		}
 		
-		public function startService(e:UserServicesEvent):void{
+		public function startService(e:UserServicesEvent):void {
 			applicationURI = e.applicationURI;
 			hostURI = e.hostURI;
 			
@@ -62,7 +59,7 @@ package org.bigbluebutton.main.model.users
 			joinService.load(e.hostURI);
 		}
 		
-		private function joinListener(success:Boolean, result:Object):void{
+		private function joinListener(success:Boolean, result:Object):void {
 			if (success) {
 				UserManager.getInstance().getConference().setMyName(result.username);
 				UserManager.getInstance().getConference().setMyRole(result.role);
@@ -83,7 +80,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.logoutUrl = result.logoutUrl;
 				_conferenceParameters.record = true;
 				
-				if(result.record == "false") {
+				if (result.record == "false") {
 					_conferenceParameters.record = false;
 				}
 				
@@ -160,7 +157,7 @@ package org.bigbluebutton.main.model.users
 		 * 
 		 */		
 		public function assignPresenter(e:RoleChangeEvent):void{
-			var assignTo:Number = e.userid;
+			var assignTo:String = e.userid;
 			var name:String = e.username;
 			_userSOService.assignPresenter(assignTo, name, 1);
 		}

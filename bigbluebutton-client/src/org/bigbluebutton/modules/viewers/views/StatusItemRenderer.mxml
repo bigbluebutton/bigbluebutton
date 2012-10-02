@@ -31,11 +31,9 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
+			import com.asfusion.mate.events.Dispatcher;			
 			import mx.controls.Alert;
-			import mx.events.ListEvent;
-			
+			import mx.events.ListEvent;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Role;
@@ -65,11 +63,11 @@
 			}
 			
 			public function onRollOver(e:ViewersRollEvent):void{
-				if (kickButtonEnabled && (e.userid == data.userid)) kickUserBtn.visible = true;
+				if (kickButtonEnabled && (e.userID == data.userid)) kickUserBtn.visible = true;
 			}
 			
 			public function onRollOut(e:ViewersRollEvent):void{
-				if (kickButtonEnabled && (e.userid == data.userid)) kickUserBtn.visible = false;
+				if (kickButtonEnabled && (e.userID == data.userid)) kickUserBtn.visible = false;
 			}
 			
 			private function viewCamera():void {

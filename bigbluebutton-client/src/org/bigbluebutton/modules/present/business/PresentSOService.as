@@ -280,9 +280,9 @@ package org.bigbluebutton.modules.present.business {
 			}
 		}
 		
-		public function whatIsTheSlideInfoReply(userId:Number, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
+		public function whatIsTheSlideInfoReply(userID:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
 			LogUtil.debug("Rx whatIsTheSlideInfoReply");
-			if (UserManager.getInstance().getConference().amIThisUser(userId)) {
+			if (UserManager.getInstance().getConference().amIThisUser(userID)) {
 				LogUtil.debug("Got reply for Query for slide info");
 				var e:MoveEvent = new MoveEvent(MoveEvent.CUR_SLIDE_SETTING);
 				e.xOffset = xOffset;

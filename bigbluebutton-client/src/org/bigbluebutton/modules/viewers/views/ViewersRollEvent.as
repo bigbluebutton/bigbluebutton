@@ -25,7 +25,7 @@ package org.bigbluebutton.modules.viewers.views
 		public static const VIEWERS_ROLL_OVER:String = "ViewersRollOver";
 		public static const VIEWERS_ROLL_OUT:String = "ViewersRollOut";
 		
-		public var userid:Number;
+		public var userID:String;
 		
 		public function ViewersRollEvent(type:String)
 		{
