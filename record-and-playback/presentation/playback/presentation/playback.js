@@ -239,15 +239,21 @@ function checkUrl(url)
 
 load_video = function(){
    console.log("Loading video")
+   document.getElementById("video").style.visibility = "hidden"  
    var video = document.getElementById("webcam")   
    video.setAttribute('src', RECORDINGS + '/video/webcams.webm');
    video.setAttribute('type','video/webm');
-   video.setAttribute('id','webcam');  
-   var time_manager = Popcorn("#video");
+   video.setAttribute('class','webcam');  
+   video.setAttribute('id','video');  
+   /*var time_manager = Popcorn("#video");
    var pc_webcam = Popcorn("#webcam");
    time_manager.on( "timeupdate", function() {
     pc_webcam.currentTime( this.currentTime() );
-   });
+   });*/
+
+  video.setAttribute('data-timeline-sources', SLIDES_XML);    
+  video.setAttribute('controls','');
+  video.setAttribute('autoplay','autoplay');   
 }  
 
 load_audio = function() { 
@@ -284,12 +290,14 @@ document.addEventListener( "DOMContentLoaded", function() {
       chat = document.getElementById("chat")
       chat.style.height = "560px";
       chat.style.backgroundColor = "white";      
+      load_audio();
   }
   
-  load_audio();
+  //load_audio();
   load_script("lib/writing.js")
   generateThumbnails();
 
 }, false);
+
 
 
