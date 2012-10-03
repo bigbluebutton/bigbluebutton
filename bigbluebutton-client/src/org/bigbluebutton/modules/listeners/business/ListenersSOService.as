@@ -18,14 +18,12 @@
 */
 package org.bigbluebutton.modules.listeners.business
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;
-	
+	import flash.net.SharedObject;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
@@ -35,11 +33,9 @@ package org.bigbluebutton.modules.listeners.business
 
 	public class ListenersSOService
 	{
-		private static const LOGNAME:String = "[ListenersSOService]";
-		
+		private static const LOGNAME:String = "[ListenersSOService]";		
 		private var _listenersSO : SharedObject;
-		private static const SHARED_OBJECT:String = "meetMeUsersSO";
-		
+		private static const SHARED_OBJECT:String = "meetMeUsersSO";		
 		private var _listeners:Listeners;
 		private var netConnectionDelegate: NetConnectionDelegate;
 		private var _msgListener:Function;

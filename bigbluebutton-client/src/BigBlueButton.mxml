@@ -45,7 +45,7 @@
       import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.core.EventBroadcaster;
       import org.bigbluebutton.core.managers.ConfigManager2;
-      import org.bigbluebutton.main.api.Api;
+      import org.bigbluebutton.main.api.ExternalApiCallbacks;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.views.MainApplicationShell;
@@ -218,11 +218,11 @@
       mainShell.initOptions(null);
     }
       
-    private var api:Api;
+    private var api:ExternalApiCallbacks;
       
     private function setupAPI():void {
       langResources = ResourceUtil.getInstance();
-      api = new Api();
+      api = new ExternalApiCallbacks();
       Security.allowDomain(determineHTMLURL());
       LogUtil.debug("Security.allowDomain(" + determineHTMLURL() + ");");
     }

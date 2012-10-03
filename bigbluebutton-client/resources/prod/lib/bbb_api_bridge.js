@@ -3,13 +3,13 @@
 
 **/
 
+// https://code.google.com/p/swfobject/wiki/api
+var bbbSwfObj = swfobject.getObjectById("BigBlueButton");
+  
 function joinVoiceConference() {
   console.log("Calling the swf file");
-  
-  // https://code.google.com/p/swfobject/wiki/api
-  var obj = swfobject.getObjectById("BigBlueButton");
-  if (obj) {
-    obj.joinVoice(); 
+  if (bbbSwfObj) {
+    bbbSwfObj.joinVoice(); 
   }
 }
 
@@ -20,10 +20,7 @@ function userHasJoinedVoiceConference() {
 
 function shareVideoCamera() {
   console.log("Calling the swf file");
-  
-  // https://code.google.com/p/swfobject/wiki/api
-  var obj = swfobject.getObjectById("BigBlueButton");
-  if (obj) {
+  if (bbbSwfObj) {
     obj.shareVideoCamera(); 
   }
 }
