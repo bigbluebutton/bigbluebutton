@@ -26,6 +26,7 @@
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.main.api.ExternalApiCalls;
       import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.ParticipantJoinEvent;
     ]]>
   </mx:Script>
   <!--
@@ -38,4 +39,9 @@
   <EventHandlers type="{EventConstants.GET_MY_ROLE_RESP}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleGetMyRoleResponse" arguments="{event}"/>
   </EventHandlers>
+  
+  <EventHandlers type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleParticipantJoinEvent" arguments="{event}"/>
+  </EventHandlers>
+  
 </EventMap>

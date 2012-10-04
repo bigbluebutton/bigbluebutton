@@ -5,6 +5,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.events.CoreEvent;
+  import org.bigbluebutton.main.events.ParticipantJoinEvent;
 
   public class ExternalApiCalls
   {   
@@ -29,6 +30,21 @@ package org.bigbluebutton.main.api
       payload.layoutID = layoutID;
       broadcastEvent(payload);
     }
+    
+    public function handleParticipantJoinEvent(event:ParticipantJoinEvent):void {
+      var payload:Object = new Object();
+      
+      if (event.join) {
+        payload.eventName = EventConstants.USER_JOINED_EVENT;
+        payload.userID = event.participant.userid;
+        payload.userName = event.participant.name;        
+      } else {
+        payload.eventName = EventConstants.USER_LEFT_EVENT;
+        payload.userID = event.participant.userid;
+      }
+      
+      broadcastEvent(payload);        
+    }    
     
     private function broadcastEvent(message:Object):void {
       if (ExternalInterface.available) {
