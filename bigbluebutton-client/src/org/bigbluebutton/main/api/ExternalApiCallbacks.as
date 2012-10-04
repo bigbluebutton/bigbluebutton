@@ -7,6 +7,8 @@ package org.bigbluebutton.main.api
   import mx.controls.Alert;
   
   import org.bigbluebutton.common.LogUtil;
+  import org.bigbluebutton.core.EventConstants;
+  import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
@@ -25,7 +27,8 @@ package org.bigbluebutton.main.api
     private function init():void {
       if (ExternalInterface.available) {
         ExternalInterface.addCallback("joinVoiceRequest", handleJoinVoiceRequest);
-        ExternalInterface.addCallback("getMyRoleRequest", handleGetMyRoleRequest);
+        ExternalInterface.addCallback("getMyRoleRequestSync", handleGetMyRoleRequestSync);
+        ExternalInterface.addCallback("getMyRoleRequestAsync", handleGetMyRoleRequestAsynch);
         ExternalInterface.addCallback("muteUser", placeHolder);
         ExternalInterface.addCallback("unmuteUser", placeHolder);
         ExternalInterface.addCallback("shareVideoCamera", onShareVideoCamera);
@@ -37,8 +40,13 @@ package org.bigbluebutton.main.api
       LogUtil.debug("Placeholder");
     }
     
-    private function handleGetMyRoleRequest():String {
+    private function handleGetMyRoleRequestSync():String {
       return UserManager.getInstance().getConference().whatsMyRole();
+    }
+    
+    private function handleGetMyRoleRequestAsynch():void {
+      LogUtil.debug("handleGetMyRoleRequestAsynch");
+      _dispatcher.dispatchEvent(new CoreEvent(EventConstants.GET_MY_ROLE_REQ));
     }
     
     private function handleJoinVoiceRequest():void {

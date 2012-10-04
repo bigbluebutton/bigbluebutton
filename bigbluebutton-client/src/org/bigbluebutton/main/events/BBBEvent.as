@@ -20,7 +20,8 @@
 package org.bigbluebutton.main.events {
 	import flash.events.Event;
 
-	public class BBBEvent extends Event {
+	public class BBBEvent extends Event {    
+    
 		public static const END_MEETING_EVENT:String = 'END_MEETING_EVENT';
 		public static const LOGIN_EVENT:String = 'loginEvent';
 		public static const RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT:String = 'RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT';

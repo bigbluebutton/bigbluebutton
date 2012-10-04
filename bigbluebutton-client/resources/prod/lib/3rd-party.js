@@ -5,7 +5,17 @@ var joinVoiceConference2 = function () {
   BBB.joinVoiceConference();
 }
 
-var getMyRole = function() {
-  var myRole = BBB.getMyRole();
-  console.log("My role = " + myRole);
+var getMyRoleAsynch = function() {
+  BBB.listen("GetMyRoleResponse", function(bbbEvent) {
+    console.log("Received GetMyRoleResponse event");
+  });
+
+  BBB.getMyRole();
 }
+
+var getMyRoleSynch = function() {
+  BBB.getMyRole(function(myRole) {
+    console.log("My role = " + myRole);
+  });
+}
+

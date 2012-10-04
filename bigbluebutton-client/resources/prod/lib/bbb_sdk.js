@@ -1,5 +1,4 @@
 (function(window, undefined) {
-    console.log("initing BBB");
 
     var BBB = {};
 
@@ -14,26 +13,40 @@
       return swfobject.getObjectById("BigBlueButton");
     }
 
-    BBB.getMyRole = function() {
+    /**
+     * Query the Flash client for the user's role.
+     * Params:
+     *    callback - function if you want a callback as response. Otherwise, you need to listen
+     *               for the response as an event.
+     */
+    BBB.getMyRole = function(callback) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        return swfObj.getMyRoleRequest();
-      }   
-      
-      return 'unknown';   
+        if (arguments.length == 0) {
+          swfObj.getMyRoleRequestAsync();
+        } else {
+          if (typeof callback === 'function') {
+            callback(swfObj.getMyRoleRequestSync());
+          }
+        }
+      }
     }
-      
+
+    /**
+     * Join the voice conference.
+     */  
     BBB.joinVoiceConference = function() {
-      console.log("Calling the swf file");
       var swfObj = getSwfObj();
       if (swfObj) {
         console.log("Joining voice");
         swfObj.joinVoiceRequest();
       }
     }
-        
+    
+    /**
+     * Share user's webcam.
+     */    
     BBB.shareVideoCamera = function() {
-      console.log("Sharing webcam");
       var swfObj = getSwfObj();
       if (swfObj) {
         swfObj.shareVideoCamera(); 
