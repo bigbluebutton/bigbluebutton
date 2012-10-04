@@ -144,6 +144,10 @@ package org.bigbluebutton.main.model.users {
 			return null;
 		}
 	
+    public function whatsMyRole():String {
+      return me.role;
+    }
+    
 		public function amIPresenter():Boolean {
 			return me.presenter;
 		}

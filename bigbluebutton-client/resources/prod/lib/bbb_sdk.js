@@ -14,13 +14,21 @@
       return swfobject.getObjectById("BigBlueButton");
     }
 
+    BBB.getMyRole = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        return swfObj.getMyRoleRequest();
+      }   
+      
+      return 'unknown';   
+    }
       
     BBB.joinVoiceConference = function() {
       console.log("Calling the swf file");
       var swfObj = getSwfObj();
       if (swfObj) {
         console.log("Joining voice");
-        swfObj.joinVoice();
+        swfObj.joinVoiceRequest();
       }
     }
         
@@ -93,6 +101,18 @@
     BBB.init =  function(callback) {
       callback;
     }
+    
+    /************************************************
+     * EVENT NAME CONSTANTS
+     ************************************************/
+    var GET_MY_ROLE_REQ             = 'GetMyRoleRequest';
+    var SWITCH_LAYOUT_REQ           = 'SwitchLayoutRequest';
+    var JOIN_VOICE_REQ              = 'JoinVoiceRequest';
+    var MUTE_ALL_REQ                = 'MuteAllRequest';
+    var MUTE_ME_REQ                 = 'MuteMeRequest';
+    var SHARE_CAM_REQ               = 'ShareCameraRequest';
+    
+    
     
     window.BBB = BBB;
 })(this);
