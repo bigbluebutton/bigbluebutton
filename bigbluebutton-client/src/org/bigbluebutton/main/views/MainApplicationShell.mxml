@@ -39,6 +39,7 @@
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_CLOSED}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.UNKNOWN_REASON}" method="attemptReconnect"  />
 	<mate:Listener type="{ConnectionFailedEvent.CONNECTION_REJECTED}" method="attemptReconnect"  />
+	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="gotConfigParameters" />
 	<mate:Listener type="configLoadedEvent" method="initOptions"  />
 	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
 	
@@ -106,6 +107,8 @@
 			[Bindable] private var layoutOptions:LayoutOptions;
 			
 			[Bindable] private var showToolbarOpt:Boolean = true;
+
+			private var DEFAULT_HELP_URL:String = null;
 			
 			public function initOptions(e:Event):void {
 				LogUtil.debug("**** Init layout options ***");
@@ -124,7 +127,11 @@
 				/* Set up full screen handler. */
 				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
 				dispState = stage.displayState;
-			}					
+			}	
+
+			private function gotConfigParameters(e:ConfigEvent):void{
+				DEFAULT_HELP_URL = e.config.helpURL;
+			}				
 			
 			private var sendStartModulesEvent:Boolean = true;
 			
@@ -232,6 +239,8 @@
 
 			private function showMicSettings(event:BBBEvent):void {
 				var micSettings:MicSettings = MicSettings(PopUpManager.createPopUp(mdiCanvas, MicSettings, true));				
+				if(DEFAULT_HELP_URL != "")
+					micSettings.setHelpUrl(DEFAULT_HELP_URL);
 				var point1:Point = new Point();
 				// Calculate position of TitleWindow in Application's coordinates. 
 				point1.x = width/2;
