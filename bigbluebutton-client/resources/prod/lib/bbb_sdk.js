@@ -69,11 +69,14 @@
      * 3rd-parties.
      */
     function broadcast(bbbEvent) {
-        if (!listeners[bbbEvent.eventName])
+        if (!listeners[bbbEvent.eventName]) {
+            console.log("No listeners for [" + bbbEvent.eventName + "]");        
             return;
-
+        }
+        
         for (var i = 0; i < listeners[bbbEvent.eventName].length; i++) {
-            listeners[eventName][i](bbbEvent);
+            console.log("Notifying listeners for [" + bbbEvent.eventName + "]"); 
+            listeners[bbbEvent.eventName][i](bbbEvent);
         }
     };
 
@@ -93,8 +96,4 @@
     
     window.BBB = BBB;
 })(this);
-
-
-if (typeof window.BBB_Ready === 'function')
-	window.BBB_Ready();
 
