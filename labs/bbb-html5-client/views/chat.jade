@@ -26,10 +26,16 @@ div(id="layout")
       button(onclick="sendMessage();return false;") Post
   div(id="navbar")
     div(class="navbar-btngroup")
+      button(id="prev-slide-btn" class="navbar-btn") <i class="icon-arrow-left"></i> Previous
+      button(id="next-slide-btn" class="navbar-btn") <i class="icon-arrow-right"></i> Next
+      button(id="tool-pan-btn" class="navbar-btn") <i class="icon-move"></i> Pan/Zoom
+      button(id="tool-line-btn" class="navbar-btn") <i class="icon-pencil"></i> Line
+      button(id="tool-rect-btn" class="navbar-btn") Rectangle
+      button(id="tool-ellipse-btn" class="navbar-btn") Ellipse
+    div(class="navbar-btngroup pull-right")
       button(id="users-btn", class="navbar-btn") <i class="icon-group"></i> Users
       button(id="video-btn", class="navbar-btn") <i class="icon-facetime-video"></i> Video
-      button(id="chat-btn", class="navbar-btn") <i class="icon-comments"></i> Chat <div id="chat-notifications" class="notification">10</div>
-    div(class="navbar-btngroup pull-right")
+      button(id="chat-btn", class="navbar-btn") <i class="icon-comments"></i> Chat <div id="chat-notifications" class="notification">12</div>
       button(id="logout-btn", class="navbar-btn") <i class="icon-signout"></i> Logout
 canvas(id="colourView", width="12", height="12", onclick='toggleColourPicker()')
 input(id='colourText', maxlength='7', type='text')
