@@ -127,7 +127,7 @@
 		<property name="whiteboardBridge"> <ref local="whiteboardBridge"/></property>
 	</bean>
 	<bean id="whiteboardBridge" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardBridge">
-		
+		<property name="messagingService"> <ref local="messagingService"/></property>
 	</bean>
 	
 	<bean id="whiteboardRoomManager" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardRoomManager"/>

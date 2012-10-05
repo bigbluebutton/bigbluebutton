@@ -25,18 +25,34 @@ public class WhiteboardBridge {
 	public void sendAnnotation(String meetingID, Annotation an) {
 		
 		if(an.getType().equalsIgnoreCase(WhiteboardBridge.PENCIL_TYPE)){
-			ArrayList<Object> updates = new ArrayList<Object>();
+			Map map = an.getAnnotation();
+			ArrayList points = (ArrayList) map.get("points");
+			for(int i=0;i<points.size();i++){
+				Double pA = (Double) points.get(i*2);
+				Double pB = (Double) points.get(i*2+1);
+				
+				ArrayList<Object> updates = new ArrayList<Object>();
+				updates.add(meetingID);
+				
+				//log.debug("checking ecpencil:"+an.getAnnotation());
+				ArrayList<Object> data = new ArrayList<Object>();
+				data.add(pA/100);
+				data.add(pB/100);
+				if(i == 0 ){
+					updates.add("makeShape");
+					data.add(map.get("color"));
+					data.add(map.get("thickness"));	
+				}else{
+					updates.add("updShape");
+					data.add(true);
+				}
+				updates.add("line");
+				
+				updates.add(data);
+				Gson gson = new Gson();
+				messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
+			}
 			
-			updates.add(meetingID);
-			updates.add("makeShape");
-			updates.add("line");
-			//log.debug("checking ecpencil:"+an.getAnnotation());
-			//cx2, cy2, current_colour, current_thickness
-			/*ArrayList<Object> data = new ArrayList<Object>();
-			data.add(e)
-			updates.add(yPercent);
-			Gson gson = new Gson();
-			messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));*/
 		}
 		
 		
