@@ -75,9 +75,14 @@
 		</property>
 	</bean>
 	
+	<bean id="presentationBridge" class="org.bigbluebutton.conference.service.presentation.PresentationBridge">
+		<property name="messagingService" ref="messagingService"></property>
+	</bean>
+	
 	<bean id="presentation.service" class="org.bigbluebutton.conference.service.presentation.PresentationService">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
+		<property name="presentationBridge" ref="presentationBridge"></property>
 	</bean>
 
 	<bean id="conversionUpdatesProcessor" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesProcessor">
@@ -119,6 +124,10 @@
 	
 	<bean id="whiteboard.service" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardService">
 		<property name="whiteboardApplication"> <ref local="whiteboardApplication"/></property>
+		<property name="whiteboardBridge"> <ref local="whiteboardBridge"/></property>
+	</bean>
+	<bean id="whiteboardBridge" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardBridge">
+		
 	</bean>
 	
 	<bean id="whiteboardRoomManager" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardRoomManager"/>
@@ -137,6 +146,7 @@
     <bean id="messagingService" class="org.bigbluebutton.conference.service.messaging.RedisMessagingService">
     	<property name="participantsApplication"> <ref local="participantsApplication"/></property>
     	<property name="chatApplication"> <ref local="chatApplication"/></property>
+    	<property name="presentationApplication"> <ref local="presentationApplication"/></property>
     	<property name="redisPool" ref="redisPool"/>
   	</bean>
     

@@ -13,6 +13,7 @@ import org.bigbluebutton.conference.Participant;
 import org.bigbluebutton.conference.service.chat.ChatApplication;
 import org.bigbluebutton.conference.service.chat.ChatObject;
 import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
+import org.bigbluebutton.conference.service.presentation.PresentationApplication;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
@@ -40,6 +41,7 @@ public class RedisMessagingService implements MessagingService{
 	
 	private ParticipantsApplication participantsApplication;
 	private ChatApplication chatApplication;
+	private PresentationApplication presentationApplication;
 
 	public RedisMessagingService(){
 		
@@ -108,6 +110,9 @@ public class RedisMessagingService implements MessagingService{
 	}
 	public void setChatApplication(ChatApplication ca){
 		this.chatApplication = ca;
+	}
+	public void setPresentationApplication(PresentationApplication pa){
+		this.presentationApplication = pa;
 	}
 
 	private class PubSubListener extends JedisPubSub {
@@ -235,6 +240,11 @@ public class RedisMessagingService implements MessagingService{
 					
 					participantsApplication.assignPresenter(meetingId, newPresenter);
 
+				}else if(messageName.equalsIgnoreCase("mvCur")){
+					Double xPercent = gson.fromJson(array.get(2), Double.class);
+					Double yPercent = gson.fromJson(array.get(3), Double.class);
+					
+					presentationApplication.sendCursorUpdate(meetingId, xPercent, yPercent);
 				}
 
 			}

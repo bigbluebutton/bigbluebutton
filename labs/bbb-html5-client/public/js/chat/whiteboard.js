@@ -68,6 +68,7 @@ function toggleColourPicker() {
  */
 function turnOn(tool) {
   current_tool = tool;
+  console.log("it's here the tool:"+tool);
   switch(tool) {
     case 'line':
       cur.undrag();

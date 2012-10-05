@@ -1,0 +1,60 @@
+package org.bigbluebutton.conference.service.presentation;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.bigbluebutton.conference.service.messaging.MessagingConstants;
+import org.bigbluebutton.conference.service.messaging.MessagingService;
+
+import com.google.gson.Gson;
+
+import redis.clients.jedis.Jedis;
+
+public class PresentationBridge {
+	private MessagingService messagingService;
+	
+	public PresentationBridge(){
+		
+	}
+	
+	public void sendUpdateMessage(Map message) {
+		/*//temporary solution for integrate with the html5 client
+		Jedis jedis = messagingService.createRedisClient();
+		jedis.sadd("meeting-"+meetingID+"-users", Long.toString(internalUserID));
+		//"username", username,        "meetingID", meetingID, "refreshing", false, "dupSess", false, "sockets", 0, 'pubID', publicID
+		HashMap<String,String> temp_user = new HashMap<String, String>();
+		temp_user.put("username", username);
+		temp_user.put("meetingID", meetingID);
+		temp_user.put("refreshing", "false");
+		temp_user.put("dupSess", "false");
+		temp_user.put("sockets", "0");
+		temp_user.put("pubID", Long.toString(internalUserID));
+		
+		jedis.hmset("meeting-"+meetingID+"-user-"+internalUserID, temp_user);
+		
+		HashMap<String,String> status = new HashMap<String, String>();
+		status.put("raiseHand", "false");
+		status.put("presenter", "false");
+		status.put("hasStream", "false");
+		
+		jedis.hmset("meeting-"+meetingID+"-user-"+internalUserID +"-status", status);
+		
+		messagingService.dropRedisClient(jedis);*/
+	}
+	
+	public void setMessagingService(MessagingService ms){
+		this.messagingService = ms;
+	}
+
+	public void sendCursorUpdate(String meetingID, Double xPercent, Double yPercent) {
+		ArrayList<Object> updates = new ArrayList<Object>();
+		updates.add(meetingID);
+		updates.add("mvCur");
+		updates.add(xPercent);
+		updates.add(yPercent);
+		Gson gson = new Gson();
+		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
+	}
+	
+}

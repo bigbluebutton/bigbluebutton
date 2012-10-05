@@ -32,6 +32,7 @@ public class PresentationService {
 	
 	private ParticipantsApplication participantsApplication;
 	private PresentationApplication presentationApplication;
+	private PresentationBridge bridge;
 
 	public void removePresentation(String name) {
 		log.debug("removePresentation " + name);
@@ -101,7 +102,8 @@ public class PresentationService {
 	public void sendCursorUpdate(Double xPercent,Double yPercent) {
 		log.debug("Request update cursor[" + xPercent + "," + yPercent + "]" );
 		IScope scope = Red5.getConnectionLocal().getScope();
-		presentationApplication.sendCursorUpdate(scope.getName(), xPercent, yPercent);
+		//presentationApplication.sendCursorUpdate(scope.getName(), xPercent, yPercent);
+		bridge.sendCursorUpdate(scope.getName(),xPercent,yPercent);
 	}
 	
 	public void resizeAndMoveSlide(Double xOffset,Double yOffset,Double widthRatio,Double heightRatio) {
@@ -118,5 +120,10 @@ public class PresentationService {
 	public void setPresentationApplication(PresentationApplication a) {
 		log.debug("Setting Presentation Applications");
 		presentationApplication = a;
+	}
+	
+	public void setPresentationBridge(PresentationBridge pb) {
+		log.debug("Setting Presentation Bridge");
+		bridge = pb;
 	}
 }

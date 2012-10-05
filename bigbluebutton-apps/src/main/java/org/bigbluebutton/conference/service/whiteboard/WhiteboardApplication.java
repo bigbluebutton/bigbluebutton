@@ -232,8 +232,8 @@ public class WhiteboardApplication extends MultiThreadedApplicationAdapter imple
 	public void roomStop(IScope scope) {
 		roomManager.removeRoom(scope.getName());
 	}
-	
-	private String getMeetingId(){
+	//TODO: changed to public for html5 integration
+	public String getMeetingId(){
 		return Red5.getConnectionLocal().getScope().getName();
 	}
 	

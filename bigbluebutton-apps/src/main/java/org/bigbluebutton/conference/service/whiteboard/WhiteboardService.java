@@ -36,6 +36,7 @@ public class WhiteboardService {
 	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardService.class, "bigbluebutton");
 	
 	private WhiteboardApplication application;
+	private WhiteboardBridge whiteboardBridge;
 	
 	public void setWhiteboardApplication(WhiteboardApplication a){
 		log.debug("Setting whiteboard application instance");
@@ -59,6 +60,7 @@ public class WhiteboardService {
 		Annotation a = new Annotation(annotation);
 		
 		application.sendAnnotation(a);
+		whiteboardBridge.sendAnnotation(application.getMeetingId(), a);
 	}
 	
 	private String pointsToString(ArrayList<Double> points){
@@ -118,4 +120,7 @@ public class WhiteboardService {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
 	
+	public void setWhiteboardBridge(WhiteboardBridge br){
+		this.whiteboardBridge = br;
+	}
 }

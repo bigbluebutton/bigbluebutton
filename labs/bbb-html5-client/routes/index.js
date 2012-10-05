@@ -6,6 +6,7 @@
  */
 exports.presentationImageFolder = function(presentationID) {
   return 'public/images/presentation' + presentationID;
+  //return 'public/images/presentations/'+presentationID;
 };
 
 /**

@@ -369,7 +369,7 @@ exports.SocketOnConnection = function(socket) {
     var meetingID = socket.handshake.meetingID;
     redisAction.getPresenterSessionID(meetingID, function(presenterID) {
       if(presenterID == socket.handshake.sessionID) {
-        pub.publish(meetingID, JSON.stringify(['mvCur', x, y]));
+        pub.publish("bigbluebutton:bridge", JSON.stringify([meetingID,'mvCur', x, y]));
       }
     });
   });
