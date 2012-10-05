@@ -35,7 +35,6 @@
 			import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
@@ -44,6 +43,7 @@
 			import org.bigbluebutton.modules.videoconf.views.VideoWindow;
 			import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;
 			import org.flexunit.runner.manipulation.filters.IncludeAllFilter;
+      import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			
 			public var module:VideoconfModule;
 			private var button:ToolbarButton;
@@ -167,7 +167,7 @@
 		]]>
 	</mx:Script>
 	
-	<EventHandlers type="{OpenPublishWindowEvent.OPEN_PUBLISH_WINDOW}">
+	<EventHandlers type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}">
 		<InlineInvoker method="openPublishWindow" />
 	</EventHandlers>
 	

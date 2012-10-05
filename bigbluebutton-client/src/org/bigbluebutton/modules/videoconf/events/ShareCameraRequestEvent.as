@@ -20,11 +20,11 @@ package org.bigbluebutton.modules.videoconf.events
 {
 	import flash.events.Event;
 	
-	public class OpenPublishWindowEvent extends Event
+	public class ShareCameraRequestEvent extends Event
 	{
-		public static const OPEN_PUBLISH_WINDOW:String = "OPEN_PUBLISH_WINDOW";
+		public static const SHARE_CAMERA_REQUEST:String = "ShareCameraRequestEvent";
 		
-		public function OpenPublishWindowEvent(type:String = OPEN_PUBLISH_WINDOW)
+		public function ShareCameraRequestEvent(type:String = SHARE_CAMERA_REQUEST)
 		{
 			super(type, true, false);
 		}

@@ -11,7 +11,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.BBBEvent;
-  import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
+  import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 
   public class ExternalApiCallbacks
   {
@@ -56,7 +56,7 @@ package org.bigbluebutton.main.api
     
     private function onShareVideoCamera():void {
       LogUtil.debug("Sharing webcam");
-      _dispatcher.dispatchEvent(new OpenPublishWindowEvent());
+      _dispatcher.dispatchEvent(new ShareCameraRequestEvent());
     }
     
   }

@@ -33,7 +33,7 @@
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.main.views.MainToolbar;
-			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
+			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable] public var isPresenter:Boolean;
@@ -48,7 +48,7 @@
 			}
 			
 			private function openPublishWindow():void{
-				dispatchEvent(new OpenPublishWindowEvent());
+				dispatchEvent(new ShareCameraRequestEvent());
 			}
 			
 			public function show():void{
@@ -62,5 +62,5 @@
 		]]>
 	</mx:Script>
 	
-	<mate:Listener type="{OpenPublishWindowEvent.OPEN_PUBLISH_WINDOW}" receive="enabled=false" />
+	<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" receive="enabled=false" />
 </mx:Button>

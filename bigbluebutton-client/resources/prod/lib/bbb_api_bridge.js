@@ -2,7 +2,6 @@
 
     var BBB = {};
 
-
     /**
      * Internal function to get the BBB embed object. Seems like we have to do this
      * each time and can't create a var for it.
