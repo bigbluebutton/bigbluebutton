@@ -19,3 +19,10 @@ var getMyRoleSynch = function() {
   });
 }
 
+var muteMe = function() {
+  BBB.muteMe();
+}
+
+var unmuteMe = function() {
+  BBB.unmuteMe();
+}
