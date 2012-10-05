@@ -19,15 +19,22 @@
     <script src="http://192.168.0.249/client/lib/bbb_deskshare.js" language="javascript"></script>
     <script type="text/javascript" src="http://192.168.0.249/client/lib/bbb_sdk.js"></script>
     <script type="text/javascript" src="http://192.168.0.235/3rd-party.js"></script>
+    <script>
+      window.displayBBBClient = function() {
+        var bbbc = document.getElementById("content");
+        bbbc.style.display = "block";
+      }
+    </script>
   </head>
   <body>
     <div id="controls">
+      <button type="button" onclick="displayBBBClient()">Show Client</button>
       <button type="button" onclick="BBB.shareVideoCamera()">Webcam</button>
       <button type="button" onclick="joinVoiceConference2()">Join Voice</button>
       <button type="button" onclick="getMyRoleAsynch()">Get My Role Asynch</button>
       <button type="button" onclick="getMyRoleSynch()">Get My Role Synch</button>
     </div>
-    <div id="content">
+    <div id="content" style="display: none">
       <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="80%" height="80%" id="BigBlueButton" name="BigBlueButton" align="middle">
         <param name="movie" value="http://192.168.0.249/client/BigBlueButton.swf?v=VERSION" />
         <param name="quality" value="high" />
