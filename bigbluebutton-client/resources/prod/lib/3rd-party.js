@@ -26,3 +26,11 @@ var muteMe = function() {
 var unmuteMe = function() {
   BBB.unmuteMe();
 }
+
+var muteAll = function() {
+  BBB.muteAll();
+}
+
+var unmuteAll = function() {
+  BBB.unmuteAll();
+} 

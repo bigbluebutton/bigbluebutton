@@ -66,6 +66,21 @@
       }
     }
     
+    BBB.muteAll = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.muteAllUsersRequest(); 
+      }
+    }
+    
+    BBB.unmuteAll = function() {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.unmuteAllUsersRequest(); 
+      }
+    }
+    
+    
     /* ***********************************************************************************
      *       Broadcasting of events to 3rd-party apps.
      *************************************************************************************/

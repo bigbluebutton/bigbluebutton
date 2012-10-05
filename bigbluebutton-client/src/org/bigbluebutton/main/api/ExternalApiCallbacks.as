@@ -11,6 +11,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.modules.listeners.events.ListenersCommand;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 
   public class ExternalApiCallbacks
@@ -29,8 +30,10 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("joinVoiceRequest", handleJoinVoiceRequest);
         ExternalInterface.addCallback("getMyRoleRequestSync", handleGetMyRoleRequestSync);
         ExternalInterface.addCallback("getMyRoleRequestAsync", handleGetMyRoleRequestAsynch);
-        ExternalInterface.addCallback("muteUser", placeHolder);
-        ExternalInterface.addCallback("unmuteUser", placeHolder);
+        ExternalInterface.addCallback("muteMeRequest", handleMuteMeRequest);
+        ExternalInterface.addCallback("unmuteMeRequest", handleUnmuteMeRequest);
+        ExternalInterface.addCallback("muteAllUsersRequest", handleMuteAllUsersRequest);
+        ExternalInterface.addCallback("unmuteAllUsersRequest", handleUnmuteAllUsersRequest);
         ExternalInterface.addCallback("shareVideoCamera", onShareVideoCamera);
         ExternalInterface.addCallback("unshareVideo", placeHolder);        
       }
@@ -38,6 +41,28 @@ package org.bigbluebutton.main.api
     
     private function placeHolder():void {
       LogUtil.debug("Placeholder");
+    }
+
+    private function handleMuteAllUsersRequest():void {
+      _dispatcher.dispatchEvent(new ListenersCommand(ListenersCommand.MUTE_ALL));
+    }
+    
+    private function handleUnmuteAllUsersRequest():void {
+      _dispatcher.dispatchEvent(new ListenersCommand(ListenersCommand.UNMUTE_ALL));
+    }
+    
+    private function handleMuteMeRequest():void {
+      var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);
+      e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
+      e.mute = true;
+      _dispatcher.dispatchEvent(e);
+    }
+
+    private function handleUnmuteMeRequest():void {
+      var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);
+      e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
+      e.mute = false;
+      _dispatcher.dispatchEvent(e);
     }
     
     private function handleGetMyRoleRequestSync():String {
