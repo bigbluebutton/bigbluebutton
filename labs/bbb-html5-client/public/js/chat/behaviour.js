@@ -27,3 +27,10 @@ users.click(function() {
 });
 
 logoutBtn.click(function() { logout() });
+
+$("#prev-slide-btn").click(function() { prevImg(); });
+$("#next-slide-btn").click(function() { nextImg(); });
+$("#tool-pan-btn").click(function() { changeTool('panzoom'); });
+$("#tool-line-btn").click(function() { changeTool('line'); });
+$("#tool-rect-btn").click(function() { changeTool('rect'); });
+$("#tool-ellipse-btn").click(function() { changeTool('ellipse'); });
