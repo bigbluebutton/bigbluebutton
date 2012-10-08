@@ -17,14 +17,19 @@
 * 
 */
 package org.bigbluebutton.main.model.users {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;	
+	import flash.net.SharedObject;
+	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.EventConstants;
+	import org.bigbluebutton.core.events.CoreEvent;
 	import org.bigbluebutton.core.managers.ConnectionManager;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
@@ -169,7 +174,12 @@ package org.bigbluebutton.main.model.users {
 				e.presenterName = name;
 				e.assignerBy = assignedBy;
 				
-				dispatcher.dispatchEvent(e);													
+				dispatcher.dispatchEvent(e);		
+        
+        var roleEvent:CoreEvent = new CoreEvent(EventConstants.NEW_ROLE);
+        roleEvent.message.role = Role.PRESENTER;
+        dispatcher.dispatchEvent(roleEvent);
+        
 			} else {				
 				meeting.setMePresenter(false);
 				var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
@@ -178,6 +188,10 @@ package org.bigbluebutton.main.model.users {
 				viewerEvent.assignerBy = assignedBy;
 
 				dispatcher.dispatchEvent(viewerEvent);
+        
+        var roleEvent:CoreEvent = new CoreEvent(EventConstants.NEW_ROLE);
+        roleEvent.message.role = Role.VIEWER;
+        dispatcher.dispatchEvent(roleEvent);
 			}
 		}
 		

@@ -11,11 +11,8 @@ package org.bigbluebutton.core.controllers
     public var dispatcher:IEventDispatcher;
     
     public function handleGetMyRoleReq():void {
-      var message:Object = new Object();
-      message.role = UserManager.getInstance().getConference().whatsMyRole();
-      
       var event:CoreEvent = new CoreEvent(EventConstants.GET_MY_ROLE_RESP);
-      event.message = message;
+      event.message.role = UserManager.getInstance().getConference().whatsMyRole();
       
       dispatcher.dispatchEvent(event);
     }

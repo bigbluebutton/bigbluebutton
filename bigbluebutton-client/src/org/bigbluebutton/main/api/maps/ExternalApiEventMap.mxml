@@ -23,10 +23,11 @@
 <EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
   <mx:Script>
     <![CDATA[
-      import org.bigbluebutton.core.EventConstants;
-      import org.bigbluebutton.main.api.ExternalApiCalls;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.ParticipantJoinEvent;
+    import org.bigbluebutton.core.EventConstants;
+    import org.bigbluebutton.main.api.ExternalApiCalls;
+    import org.bigbluebutton.main.events.BBBEvent;
+    import org.bigbluebutton.main.events.ParticipantJoinEvent;
+    import org.bigbluebutton.main.events.MadePresenterEvent;
     ]]>
   </mx:Script>
   <!--
@@ -42,6 +43,10 @@
   
   <EventHandlers type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleParticipantJoinEvent" arguments="{event}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{EventConstants.NEW_ROLE}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleSwitchToNewRoleEvent" arguments="{event}"/>
   </EventHandlers>
   
 </EventMap>

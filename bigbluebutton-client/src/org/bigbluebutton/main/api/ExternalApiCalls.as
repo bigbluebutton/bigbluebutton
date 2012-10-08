@@ -9,7 +9,14 @@ package org.bigbluebutton.main.api
 
   public class ExternalApiCalls
   {   
-    
+    public function handleSwitchToNewRoleEvent(event:CoreEvent):void {
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.NEW_ROLE;
+      payload.role = event.message.role;
+      LogUtil.debug("Switch to new role [" + payload.role + "]");
+      broadcastEvent(payload);        
+    }
+        
     public function handleGetMyRoleResponse(event:CoreEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.GET_MY_ROLE_RESP;
@@ -35,11 +42,11 @@ package org.bigbluebutton.main.api
       var payload:Object = new Object();
       
       if (event.join) {
-        payload.eventName = EventConstants.USER_JOINED_EVENT;
+        payload.eventName = EventConstants.USER_JOINED;
         payload.userID = event.participant.userid;
         payload.userName = event.participant.name;        
       } else {
-        payload.eventName = EventConstants.USER_LEFT_EVENT;
+        payload.eventName = EventConstants.USER_LEFT;
         payload.userID = event.participant.userid;
       }
       

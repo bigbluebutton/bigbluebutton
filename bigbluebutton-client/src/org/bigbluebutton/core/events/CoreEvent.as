@@ -4,7 +4,7 @@ package org.bigbluebutton.core.events
   
   public class CoreEvent extends Event
   {
-    public var message:Object;
+    public var message:Object = new Object();
     
     public function CoreEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
     {

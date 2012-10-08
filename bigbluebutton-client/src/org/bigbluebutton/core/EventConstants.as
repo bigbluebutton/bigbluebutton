@@ -15,7 +15,8 @@ package org.bigbluebutton.core
     /** Events to External JS **/
     public static const GET_MY_ROLE_RESP:String           = 'GetMyRoleResponse';
  
-    public static const USER_JOINED_EVENT:String          = 'UserJoinedEvent';
-    public static const USER_LEFT_EVENT:String            = 'UserLeftEvent';
+    public static const USER_JOINED:String          = 'UserJoinedEvent';
+    public static const USER_LEFT:String            = 'UserLeftEvent';
+    public static const NEW_ROLE:String             = 'NewRoleEvent';
   }
 }
