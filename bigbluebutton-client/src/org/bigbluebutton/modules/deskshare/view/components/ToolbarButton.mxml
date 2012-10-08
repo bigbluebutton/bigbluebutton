@@ -23,31 +23,99 @@
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:mate="http://mate.asfusion.com/"
 	icon="{deskShareIcon}" 
-	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip')}"
+	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.start')}"
 	click="startDeskShare()"
+	mouseOver = "mouseOverHandler(event)"
+	mouseOut = "mouseOutHandler(event)"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	<mx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.deskshare.events.ShareEvent;
+			import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
+			import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
 			
 			[Bindable] public var deskShareIcon:Class = images.deskShareIcon;
 
-			private function startDeskShare():void {
-				deskShareIcon = images.deskShareIcon;
-				this.enabled = false;
-				dispatchEvent(new ShareEvent(ShareEvent.START_SHARING));
-			}
+
+
+			public const OFF_STATE:Number = 0;
+			public const ON_STATE:Number = 1;
 			
+			public const STOP_SHARING:Number = 0;
+			public const START_SHARING:Number = 1;
+			
+			
+			private var _currentState:Number = OFF_STATE;
+		
+			private var dispatcher:Dispatcher = new Dispatcher();
+			
+
+			public function deskshareStatus(status:Number):void {
+				if(status == START_SHARING) {
+					_currentState = ON_STATE;
+					this.selected = true;
+					this.enabled = true;
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.stop');
+					deskShareIcon = images.deskShareIconOn;
+				}
+				else {
+					_currentState = OFF_STATE;
+					this.selected = false;
+					this.enabled = true;
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.start');
+					deskShareIcon = images.deskShareIcon;
+				}
+
+			}
+
+
+			private function startDeskShare():void {
+				if(_currentState == OFF_STATE) {
+					this.selected = true;
+					this.enabled = true;
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.stop');
+					deskShareIcon = images.deskShareIconOn;
+					_currentState = ON_STATE;
+					dispatchEvent(new ShareEvent(ShareEvent.START_SHARING));
+				}
+				else {
+					this.selected = false;
+					this.enabled = true;
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.deskshare.toolTip.start');
+					deskShareIcon = images.deskShareIcon;
+					_currentState = ON_STATE;
+					var stopSharingButtonEvent:StopSharingButtonEvent = new StopSharingButtonEvent(StopSharingButtonEvent.STOP_SHARING);
+					dispatcher.dispatchEvent(stopSharingButtonEvent);
+				}
+			}
+			//OLD - CAN BE DELETED
 			public function stopDeskshare():void {
 				deskShareIcon = images.deskShareIcon;
 			}
+
+			private function mouseOverHandler(event:MouseEvent):void {
+				if(_currentState == ON_STATE)
+					deskShareIcon = images.deskshareClose;
+				else
+					deskShareIcon = images.deskShareIconOn;			
+			}
+
+			private function mouseOutHandler(event:MouseEvent):void {
+				if(_currentState == ON_STATE)
+					deskShareIcon = images.deskShareIconOn;
+				else
+					deskShareIcon = images.deskShareIcon;			
+			}
+
+
 			
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_LEFT;

@@ -35,6 +35,7 @@
 			import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
 			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
 			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
@@ -111,6 +112,13 @@
 				globalDispatcher.dispatchEvent(windowEvent);
 			}
 			
+
+
+			private function closePublishWindow():void{
+				publishWindow.close();
+			}
+
+
 			private function startPublishing(e:StartBroadcastEvent):void{
 			    LogUtil.debug("Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
 				proxy.startPublishing(e);
@@ -120,6 +128,8 @@
 				globalDispatcher.dispatchEvent(broadcastEvent);
 				publishWindow.title = module.username + " (you)";
 				_publishing = true;
+				button.publishingStatus(button.START_PUBLISHING);
+
 			}
 			
 			private function stopPublishing(e:StopBroadcastEvent):void{
@@ -134,7 +144,9 @@
 				}
 				
 				//Make toolbar button enabled again
-				button.show();
+
+				button.publishingStatus(button.STOP_PUBLISHING);
+				//button.show();
 			}
 			
 			public function stopModule():void {
@@ -169,6 +181,10 @@
 	
 	<EventHandlers type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}">
 		<InlineInvoker method="openPublishWindow" />
+	</EventHandlers>
+
+	<EventHandlers type="{ClosePublishWindowEvent.CLOSE_PUBLISH_WINDOW}">
+		<InlineInvoker method="closePublishWindow" />
 	</EventHandlers>
 	
 	<EventHandlers type="{StartBroadcastEvent.START_BROADCAST}" >

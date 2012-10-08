@@ -189,9 +189,9 @@ package org.bigbluebutton.main.model.users {
 
 				dispatcher.dispatchEvent(viewerEvent);
         
-        var roleEvent:CoreEvent = new CoreEvent(EventConstants.NEW_ROLE);
-        roleEvent.message.role = Role.VIEWER;
-        dispatcher.dispatchEvent(roleEvent);
+        var newRoleEvent:CoreEvent = new CoreEvent(EventConstants.NEW_ROLE);
+        newRoleEvent.message.role = Role.VIEWER;
+        dispatcher.dispatchEvent(newRoleEvent);
 			}
 		}
 		
