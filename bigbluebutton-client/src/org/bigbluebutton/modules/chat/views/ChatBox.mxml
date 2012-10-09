@@ -22,9 +22,8 @@
 
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
-	click="setMessageRead()" 
-	creationComplete="onCreationComplete()"
-	>
+	click="setMessageRead()" verticalScrollPolicy="off"
+	creationComplete="onCreationComplete()">
 	
 	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
 	<mate:Listener type="{ShortcutEvent.ADVANCE_MESSAGE}" method="advanceMessage" />
