@@ -22,7 +22,9 @@
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:mate="http://mate.asfusion.com/"
 	icon="{phoneIcon}" click="startPhone()"
-	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip')}"
+	mouseOver = "mouseOverHandler(event)"
+	mouseOut = "mouseOutHandler(event)"
+	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_CONFERENCE}" method="handleBBBJoinConferenceEvent"/>
@@ -44,15 +46,20 @@
 			
 			private var images:Images = new Images();
 			private var dispatcher:Dispatcher = new Dispatcher();
-			 
-			[Bindable] public var phoneIcon:Class = images.headset_icon;
+
+			
+			public const DEFAULT_STATE:Number = 0;
+			public const ACTIVE_STATE:Number = 1;
+			private var _currentState:Number = DEFAULT_STATE;
+			
+			[Bindable] public var phoneIcon:Class = images.headsetDefaultIcon;
 			
 			private function startPhone():void {
 				// Disable the button right away to prevent the user from clicking
 				// multiple times.
 				this.enabled = false;
-				
-				if (this.selected) {					
+			
+				if (this.selected) {	
 					var vxml:XML = BBB.getConfigForModule("PhoneModule");
 					var phoneOptions:PhoneOptions = new PhoneOptions();
 					if (vxml != null) {
@@ -60,7 +67,6 @@
 						phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
 						phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
 					}
-					phoneIcon = images.headsetClose;
 					if (phoneOptions.skipCheck || noMicrophone()) {
 						
 						/*
@@ -71,23 +77,50 @@
 						var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
 						joinEvent.payload['useMicrophone'] = true;
 						dispatcher.dispatchEvent(joinEvent);
+						
 					} else {
 						dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
 					}
 				} else {
-					phoneIcon = images.headset_icon;
 					var leaveEvent:BBBEvent = new BBBEvent("LEAVE_VOICE_CONFERENCE_EVENT");
 					leaveEvent.payload["userRequested"] = true;
 					dispatcher.dispatchEvent(leaveEvent);
+					userJoinedConference(false);
 				}
 			}
 			
+			private function mouseOverHandler(event:MouseEvent):void {
+				if(_currentState == ACTIVE_STATE)
+					phoneIcon = images.headsetInactiveIcon;
+				else
+					phoneIcon = images.headsetActiveIcon;			
+			}
+
+			private function mouseOutHandler(event:MouseEvent):void {
+				if(_currentState == ACTIVE_STATE)
+					phoneIcon = images.headsetActiveIcon;
+				else
+					phoneIcon = images.headsetDefaultIcon;			
+			}
+
 			public function userJoinedConference(joined: Boolean):void {
+				
+
 				if (joined) {
-					phoneIcon = images.headsetClose;
+					this.selected = true;
+					this.enabled = true;
+					_currentState = ACTIVE_STATE;
+					phoneIcon = images.headsetActiveIcon;
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');
 				} else {
-					phoneIcon = images.headset_icon;
+					this.selected = false;
+					this.enabled = true;
+					_currentState = DEFAULT_STATE;
+					phoneIcon = images.headsetDefaultIcon;
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
 				}
+
+				
 			}
 			
 			private function noMicrophone():Boolean {
@@ -95,18 +128,19 @@
 					|| ((Microphone.names.length == 1) && (Microphone.names[0] == "Unknown Microphone")));
 			}
 						
-//			private function handleCallDisconnectedEvent(event:CallDisconnectedEvent):void {
-//				this.selected = false;
-//			}
-			
-			private function handleMicSettingsClosedEvent(event:BBBEvent):void {
+			private function handleCallDisconnectedEvent(event:CallDisconnectedEvent):void {
 				this.selected = false;
 				this.enabled = true;
-				phoneIcon = images.headset_icon;
+				_currentState = DEFAULT_STATE;
+				phoneIcon = images.headsetDefaultIcon;
+				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
+			}
+			
+			private function handleMicSettingsClosedEvent(event:BBBEvent):void {
+				userJoinedConference(false);
 			}
 			
 			private function handleBBBJoinConferenceEvent(event:BBBEvent):void {
-				phoneIcon = images.headsetClose;
 				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
 				joinEvent.payload['useMicrophone'] = false;
 				dispatcher.dispatchEvent(joinEvent);
@@ -114,7 +148,7 @@
 			
 			//For whatever reason the tooltip does not update when localization is changed dynamically. Overrideing it here
 			override protected function resourcesChanged():void{
-				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip');
+				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
 			}
 			
 			public function getAlignment():String{
