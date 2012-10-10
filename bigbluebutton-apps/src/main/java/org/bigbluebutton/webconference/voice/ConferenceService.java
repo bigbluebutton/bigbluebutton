@@ -66,6 +66,10 @@ public class ConferenceService implements ConferenceEventListener {
 		confProvider.record(room, meetingid);
 	}
 	
+	public void broadcastSession(String room, String meetingid) {
+		confProvider.broadcast(room, meetingid);
+	}
+	
 	public void mute(Integer participant, String room, Boolean mute) {
 		if (roomMgr.hasParticipant(room, participant))
 			muteParticipant(participant, room, mute);

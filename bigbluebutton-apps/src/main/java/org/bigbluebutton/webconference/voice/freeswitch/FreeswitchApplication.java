@@ -170,12 +170,15 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
         	// Let's see if we can recover the connection.
         	startHeartbeatMonitor();
         }
-        
+    }
+
+    @Override
+    public void broadcast(String room, String meetingid) {        
         if (icecastBroadcast) {
         	broadcastToIcecast(room, meetingid);
         }
     }
-
+    
     private void broadcastToIcecast(String room, String meetingid) {
     	String shoutPath = "shout://" + icecastUsername + ":" + icecastPassword + "@" + icecastHost + ":" + icecastPort 
     			+ File.separatorChar + meetingid + ".mp3";       

@@ -42,6 +42,11 @@ public class FreeswitchServiceProvider implements ConferenceServiceProvider {
     public void record(String room, String meetingid){
     	appDelegate.record(room,meetingid);
     }
+
+	@Override
+    public void broadcast(String room, String meetingid){
+    	appDelegate.broadcast(room,meetingid);
+    }
 	
 	@Override
 	public void eject(String room, Integer participant) {
