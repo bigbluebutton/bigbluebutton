@@ -30,5 +30,6 @@ public interface ConferenceServiceProvider {
 	public void mute(String room, Integer participant, Boolean mute);	
 	public void eject(String room, Integer participant);
 	public void record(String room, String meetingid);
+	public void broadcast(String room, String meetingid);
 	public void setConferenceEventListener(ConferenceEventListener l);
 }
