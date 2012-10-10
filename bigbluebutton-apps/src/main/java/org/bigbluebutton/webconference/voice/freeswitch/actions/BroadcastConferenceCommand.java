@@ -16,16 +16,16 @@ import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 import org.xml.sax.SAXException;
 
-public class RecordConferenceCommand extends FreeswitchCommand {
+public class BroadcastConferenceCommand extends FreeswitchCommand {
 
-	private static Logger log = Red5LoggerFactory.getLogger(RecordConferenceCommand.class, "bigbluebutton");
+	private static Logger log = Red5LoggerFactory.getLogger(BroadcastConferenceCommand.class, "bigbluebutton");
 	private boolean record;
-	private String recordPath;
+	private String icecastPath;
 	
-	public RecordConferenceCommand(String room, Integer requesterId, boolean record, String recordPath){
+	public BroadcastConferenceCommand(String room, Integer requesterId, boolean record, String icecastPath){
 		super(room, requesterId);
 		this.record = record;
-		this.recordPath = recordPath;
+		this.icecastPath = icecastPath;
 	}
 	
 
@@ -35,7 +35,7 @@ public class RecordConferenceCommand extends FreeswitchCommand {
 		if (record)
 			action = "record";
 		
-		return SPACE + getRoom() + SPACE + action + SPACE + recordPath;
+		return SPACE + getRoom() + SPACE + action + SPACE + icecastPath;
 	}
 
 	public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
