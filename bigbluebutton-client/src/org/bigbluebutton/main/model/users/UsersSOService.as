@@ -229,7 +229,8 @@ package org.bigbluebutton.main.model.users {
 			user.userID = joinedUser.userid;
 			user.name = joinedUser.name;
 			user.role = joinedUser.role;
-
+      user.externUserID = joinedUser.externUserID;
+      
 			LogUtil.debug("User status: " + joinedUser.status.hasStream);
 
 			LogUtil.info("Joined as [" + user.userID + "," + user.name + "," + user.role + "]");
@@ -240,6 +241,7 @@ package org.bigbluebutton.main.model.users {
 
 			var participant:User = new User();
 			participant.userid = user.userID;
+      participant.externUserID = user.externUserID;
 			participant.name = user.name;
 			participant.isPresenter = joinedUser.status.presenter;
 			participant.role = user.role;
