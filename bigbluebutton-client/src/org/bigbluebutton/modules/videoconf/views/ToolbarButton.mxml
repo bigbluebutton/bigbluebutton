@@ -86,7 +86,6 @@
 
 
 			private function openPublishWindow():void{
-				dispatchEvent(new ShareCameraRequestEvent());
 				if(_currentState == ON_STATE) {
 					_currentState = OFF_STATE;
 					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
