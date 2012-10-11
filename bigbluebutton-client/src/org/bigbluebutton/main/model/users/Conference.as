@@ -29,7 +29,6 @@ package org.bigbluebutton.main.model.users {
 		[Bindable] public var users:ArrayCollection = null;			
 				
 		public function Conference():void {
-      LogUtil.debug("******************************************************************************* Initializing Conference");
 			me = new BBBUser();
 			users = new ArrayCollection();
 		}
@@ -95,7 +94,7 @@ package org.bigbluebutton.main.model.users {
 			return null;
 		}
 		
-		public function getParticipant(userID:String):BBBUser {
+		public function getUser(userID:String):BBBUser {
 			var p:Object = getParticipantIndex(userID);
 			if (p != null) {
 				return p.participant as BBBUser;
@@ -254,7 +253,7 @@ package org.bigbluebutton.main.model.users {
 		}		
 	
 		public function newUserStatus(userID:String, status:String, value:Object):void {
-			var aUser:BBBUser = getParticipant(userID);			
+			var aUser:BBBUser = getUser(userID);			
 			if (aUser != null) {
 				var s:Status = new Status(status, value);
 				aUser.changeStatus(s);

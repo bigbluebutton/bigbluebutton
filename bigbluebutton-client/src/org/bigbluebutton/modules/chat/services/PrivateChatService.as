@@ -65,9 +65,5 @@ package org.bigbluebutton.modules.chat.services
 			
 			chatSOService.sendMessage(messageVO);
 		}
-		
-		public function queryForParticipants():void {
-			chatSOService.queryForParticipants();
-		}
 	}
 }

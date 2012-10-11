@@ -5,7 +5,9 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.events.CoreEvent;
+  import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.ParticipantJoinEvent;
+  import org.bigbluebutton.main.model.users.BBBUser;
 
   public class ExternalApiCalls
   {   
@@ -40,14 +42,20 @@ package org.bigbluebutton.main.api
     
     public function handleParticipantJoinEvent(event:ParticipantJoinEvent):void {
       var payload:Object = new Object();
+      var user:BBBUser = UserManager.getInstance().getConference().getUser(event.userID);
+      
+      if (user == null) {
+        LogUtil.warn("[ExternalApiCall:handleParticipantJoinEvent] Cannot find user with ID [" + event.userID + "]");
+        return;
+      }
       
       if (event.join) {
         payload.eventName = EventConstants.USER_JOINED;
-        payload.userID = event.participant.userid;
-        payload.userName = event.participant.name;        
+        payload.userID = user.userID;
+        payload.userName = user.name;        
       } else {
         payload.eventName = EventConstants.USER_LEFT;
-        payload.userID = event.participant.userid;
+        payload.userID = user.userID;
       }
       
       broadcastEvent(payload);        
