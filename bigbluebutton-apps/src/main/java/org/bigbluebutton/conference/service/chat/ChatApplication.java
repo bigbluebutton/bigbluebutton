@@ -19,11 +19,16 @@
 
 package org.bigbluebutton.conference.service.chat;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import org.bigbluebutton.conference.service.chat.ChatRoomsManager;
+import org.red5.server.api.Red5;
+import org.bigbluebutton.conference.ClientMessage;
+import org.bigbluebutton.conference.ConnectionInvokerService;
+import org.bigbluebutton.conference.service.chat.ChatRoomsManager;
 import org.bigbluebutton.conference.service.chat.ChatRoom;import org.bigbluebutton.conference.service.chat.IChatRoomListener;
 
 public class ChatApplication {
@@ -33,6 +38,7 @@ public class ChatApplication {
 	private static final String APP = "CHAT";
 	private ChatRoomsManager roomsManager;
 	public ChatHandler handler;
+	private ConnectionInvokerService connInvokerService;
 	
 	public boolean createRoom(String name) {
 		roomsManager.addRoom(new ChatRoom(name));
@@ -65,10 +71,21 @@ public class ChatApplication {
 	
 	public void sendMessage(String room, ChatObject chatobj) {
 		roomsManager.sendMessage(room, chatobj);
+		
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "ChatReceivePublicMessageCommand", chatobj.toMap());
+		connInvokerService.sendMessage(m);
 	}
 	
 	public void setRoomsManager(ChatRoomsManager r) {
 		log.debug("Setting room manager");
 		roomsManager = r;
+	}
+	
+	private String getMeetingId(){
+		return Red5.getConnectionLocal().getScope().getName();
+	}
+	
+	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
+		this.connInvokerService = connInvokerService;
 	}
 }

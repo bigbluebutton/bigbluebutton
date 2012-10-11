@@ -85,15 +85,15 @@ package org.bigbluebutton.modules.chat.services
 		}
 		
 		public function sendMessage(message:String,username:String,color:String,time:String,language:String,userid:String):void
-		{
-			
-			var chatobj:ChatObject = new ChatObject();
-			chatobj.message = message;
-			chatobj.username = username;
-			chatobj.color = color;
-			chatobj.time = time;
-			chatobj.language = language;
-			chatobj.userid = userid;
+		{   
+      var msg:Object = new Object();
+      msg.message = message;
+      msg.type = "PUBLIC";
+      msg.username = username;
+      msg.color = color;
+      msg.time = time;
+      msg.language = language;
+      msg.userid = userid;      
 			
 			var nc:NetConnection = connection;
 			nc.call(
@@ -111,7 +111,7 @@ package org.bigbluebutton.modules.chat.services
 						} 
 					}
 				),//new Responder
-				chatobj
+        msg
 			); //_netConnection.call
 		}
 		

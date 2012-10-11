@@ -27,13 +27,15 @@ package org.bigbluebutton.modules.chat.services
 		private var attributes:Object;
 		
 		private var chatSOService:PublicChatSharedObjectService;
-		
+    private var _messageReceiver:MessageReceiver;
 
 		public function setModuleAttributes(attributes:Object):void {
 			this.attributes = attributes;
 		}
 		
 		public function join():void {
+      _messageReceiver = new MessageReceiver();
+      
 			chatSOService = new PublicChatSharedObjectService(attributes.connection);
 			chatSOService.join(attributes.uri + "/" + attributes.room);
 		}
@@ -43,7 +45,7 @@ package org.bigbluebutton.modules.chat.services
 		}
 		
 		public function loadTranscript():void{
-			chatSOService.getChatTranscript();
+//			chatSOService.getChatTranscript();
 		}
 		
 		public function sendChatMessageEvent(event:SendPublicChatMessageEvent):void {

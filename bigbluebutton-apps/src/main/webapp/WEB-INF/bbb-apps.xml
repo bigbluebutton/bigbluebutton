@@ -85,9 +85,9 @@
 		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
 	</bean>
 	
-	<bean id="chatApplication" 
-	    class="org.bigbluebutton.conference.service.chat.ChatApplication">
+	<bean id="chatApplication" class="org.bigbluebutton.conference.service.chat.ChatApplication">
 		<property name="roomsManager"> <ref local="chatRoomsManager"/></property>
+		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>
 	</bean>
 	
 	<bean id="chat.service" class="org.bigbluebutton.conference.service.chat.ChatService">

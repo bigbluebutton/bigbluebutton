@@ -129,7 +129,7 @@ package org.bigbluebutton.main.model.users {
 		 * 
 		 */		
 		private function getParticipantIndex(userID:String):Object {
-			var aUser : BBBUser;
+			var aUser:BBBUser;
 			
 			for (var i:int = 0; i < users.length; i++) {
 				aUser = users.getItemAt(i) as BBBUser;

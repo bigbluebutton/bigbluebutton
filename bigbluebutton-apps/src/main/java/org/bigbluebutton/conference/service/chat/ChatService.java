@@ -19,6 +19,7 @@
 package org.bigbluebutton.conference.service.chat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
@@ -37,11 +38,13 @@ public class ChatService {
 		return m;
 	}
 	
-	//public void sendMessage(String message, String username, String color, String time, String language, String userid) {
-	public void sendMessage(ChatObject chatobj) {
+	public void sendMessage(Map<String, Object> msg) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.sendMessage(roomName, chatobj);
+		ChatObject chatObj = new ChatObject(msg.get("message").toString(), msg.get("username").toString(), msg.get("color").toString(), 
+				msg.get("time").toString(), msg.get("language").toString(), msg.get("userid").toString(), msg.get("type").toString());
+		application.sendMessage(roomName, chatObj);
 	}
+	
 	public void setChatApplication(ChatApplication a) {
 		log.debug("Setting Chat Applications");
 		application = a;
