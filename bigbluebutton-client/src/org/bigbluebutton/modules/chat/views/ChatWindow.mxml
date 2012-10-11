@@ -119,7 +119,7 @@
 	<views:ChatView id="chatView" chatOptions="{chatOptions}" chatWindow="{this}"/>
     
     <mx:ControlBar id="chatCtrlBar" width="100%" height="10%" styleName="chatControlBarStyle">		
-        <mx:TextInput id="txtMsg" width="100%" enter="chatView.sendMessages()" color="{cmpColorPicker.selectedColor}" 
+        <mx:TextArea id="txtMsg" width="100%"  color="{cmpColorPicker.selectedColor}" 
         			  styleName="chatControlBarTextMsgStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"/>
         <mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
                         selectedColor="0x000000" dataProvider="{chatView.colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>
