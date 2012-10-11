@@ -27,18 +27,19 @@ package org.bigbluebutton.modules.chat.model
     }
     
     private function getLastSender(chatMessages:ArrayCollection):String {
-      var msg:ChatMessage = chatMessages.getItemAt(chatMessages.length - 1);
+      var msg:ChatMessage = chatMessages.getItemAt(chatMessages.length - 1) as ChatMessage;
       return msg.senderId;
     }
     
-    public function newPublicChatMessage(msg:Object):void {
-/*      
-      var msg:ChatMessage = new ChatMessage();
-      msg.lastSenderId = lastSenderId;
-      lastSenderId = chatobj.userid;
-      msg.senderId = chatobj.userid;
+    public function newChatMessage(msg:Object):void {
+/*      var msg:ChatMessage = new ChatMessage();
+      if (_messages.length == 0) {
+        msg.lastSenderId = msg.userID;
+      }
       
-      msg.senderLanguage = chatobj.language;
+      msg.senderId = msg.userID;
+      
+      msg.senderLanguage = msg.lang;
       msg.receiverLanguage = language.toString();
       msg.translate = translate;
       
@@ -52,7 +53,6 @@ package org.bigbluebutton.modules.chat.model
       msg.time = timeString;
       msg.lastTime = lastTime;
       lastTime = timeString;
-*/
-    }
+*/    }
   }
 }
