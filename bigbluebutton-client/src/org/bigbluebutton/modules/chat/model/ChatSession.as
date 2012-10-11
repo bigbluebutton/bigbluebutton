@@ -32,7 +32,7 @@ package org.bigbluebutton.modules.chat.model
     }
     
     public function newChatMessage(msg:Object):void {
-/*      var msg:ChatMessage = new ChatMessage();
+      var msg:ChatMessage = new ChatMessage();
       if (_messages.length == 0) {
         msg.lastSenderId = msg.userID;
       }
@@ -53,6 +53,6 @@ package org.bigbluebutton.modules.chat.model
       msg.time = timeString;
       msg.lastTime = lastTime;
       lastTime = timeString;
-*/    }
+    }
   }
 }
