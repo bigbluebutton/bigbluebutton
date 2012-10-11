@@ -365,7 +365,7 @@ var cursorStyle;
 
 var params = getUrlParameters();
 var MEETINGID = params.meetingId;
-var HOST = window.location.hostname;
+var HOST = window.location.host;
 var url = "http://" + HOST + "/presentation/" + MEETINGID;
 var shapes_svg = url + '/shapes.svg';
 var events_xml = url + '/panzooms.xml';

@@ -17,10 +17,12 @@
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 #
-sudo cp -r core/lib/recordandplayback/* /usr/local/bigbluebutton/core/lib/recordandplayback/
+sudo cp -r core/lib/* /usr/local/bigbluebutton/core/lib/
+sudo cp -r core/scripts/* /usr/local/bigbluebutton/core/scripts/
 
 PLAYBACK_LIST="slides presentation"
 
+sudo mkdir -p /var/bigbluebutton/playback/
 for PLAYBACK in $PLAYBACK_LIST
 do
   sudo cp -r $PLAYBACK/playback/* /var/bigbluebutton/playback/
