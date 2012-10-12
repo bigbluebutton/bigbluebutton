@@ -185,13 +185,13 @@
 					component.setFocus();
 					component.drawFocus(true);
 				} else {
-          chatWindow..txtMsg.setFocus();
-          chatWindow..txtMsg.drawFocus(true);
+//          chatWindow..txtMsg.setFocus();
+//          chatWindow..txtMsg.drawFocus(true);
 				}
 			}
 			
 			public function setFocusOff():void {
-        chatWindow..txtMsg.drawFocus(false);
+//        chatWindow..txtMsg.drawFocus(false);
 			}
 			
 			private function currentTime() : String {
