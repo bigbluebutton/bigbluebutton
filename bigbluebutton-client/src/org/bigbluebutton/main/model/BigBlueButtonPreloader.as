@@ -19,6 +19,7 @@
 package org.bigbluebutton.main.model
 {
 	import flash.display.Sprite;
+	import flash.geom.Rectangle;
 	
 	import mx.events.RSLEvent;
 	import mx.preloaders.DownloadProgressBar;
@@ -27,10 +28,12 @@ package org.bigbluebutton.main.model
 	
 	public class BigBlueButtonPreloader extends DownloadProgressBar
 	{
+		private var _labelRect:Rectangle = null; 
+		
 		public function BigBlueButtonPreloader()
 		{
 			super();
-			downloadingLabel = "Downloading BigBlueButton main...";
+			downloadingLabel = "Downloading BigBlueButton...";
 			initializingLabel = "BigBlueButton starting...";
 			MINIMUM_DISPLAY_TIME = 0;
 		}
@@ -39,6 +42,18 @@ package org.bigbluebutton.main.model
 			super.preloader = value;
 			value.addEventListener(RSLEvent.RSL_ERROR, sharedLibraryLoadingFailed);
 //			ResourceUtil.getInstance();
+		}
+		
+		override protected function get labelRect():Rectangle{
+			// this is used to change the label width from 100 to 154, to better fit the label text
+			if (_labelRect == null) {
+				_labelRect = new Rectangle(
+					super.labelRect.x,
+					super.labelRect.y,
+					super.barRect.width,
+					super.labelRect.height);
+			}
+			return _labelRect;
 		}
 		
 		private function sharedLibraryLoadingFailed(e:RSLEvent):void{

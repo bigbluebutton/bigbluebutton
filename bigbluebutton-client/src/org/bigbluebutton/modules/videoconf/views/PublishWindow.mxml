@@ -308,7 +308,7 @@
          		 * stream without overwriting previously recorded streams.	 	
          		 */	 	
 				var curTime:Number = new Date().getTime();	
-        var uid:Number = UserManager.getInstance().getConference().getMyUserId();
+        var uid:String = UserManager.getInstance().getConference().getMyUserId();
         this.streamName = cmbResolution.selectedLabel.concat("-" + uid) + "-" + curTime;
 			}
 			

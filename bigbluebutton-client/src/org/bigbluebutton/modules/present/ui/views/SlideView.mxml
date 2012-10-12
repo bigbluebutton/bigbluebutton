@@ -355,7 +355,7 @@
         
         if (cursorXPosition > this.width || cursorXPosition < 1 
               || cursorYPosition > this.height || cursorYPosition < 1) {
-          LogUtil.debug("Cursor outside the window...not sending [" + cursorXPosition + "," + cursorYPosition + "]");
+//          LogUtil.debug("Cursor outside the window...not sending [" + cursorXPosition + "," + cursorYPosition + "]");
           return;
         }
           

@@ -14,12 +14,17 @@
 	<beans:bean id="freeswitchApplication" class="org.bigbluebutton.webconference.voice.freeswitch.FreeswitchApplication">
 		<beans:property name="managerConnection" ref="eslConnection"/>
     <beans:property name="DebugNullConferenceAction" value="true"/>
+    <beans:property name="icecastHost" value="${icecast.host}"/>
+    <beans:property name="icecastPort" value="${icecast.port}"/>
+    <beans:property name="icecastUsername" value="${icecast.username}"/>
+    <beans:property name="icecastPassword" value="${icecast.password}"/>
+    <beans:property name="icecastBroadcast" value="${icecast.broadcast}"/>
 	</beans:bean>
 
 	<beans:bean id="eslConnection" class="org.freeswitch.esl.client.manager.DefaultManagerConnection">
 		<beans:property name="hostname" value="${esl.host}"/>
 		<beans:property name="port" value="${esl.port}"/>
-		<beans:property name="password" value="${esl.password}"/>
+		<beans:property name="password" value="${esl.password}"/>		
 	</beans:bean>
                        
 </beans:beans>

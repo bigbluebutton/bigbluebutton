@@ -46,7 +46,7 @@ package org.bigbluebutton.modules.whiteboard.services
           handleChangePresentationCommand(message);
           break; 				
         default:
-          LogUtil.warn("Cannot handle message [" + messageName + "]");
+//          LogUtil.warn("Cannot handle message [" + messageName + "]");
       }
     }
 

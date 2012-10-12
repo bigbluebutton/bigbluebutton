@@ -24,7 +24,7 @@
 	xmlns:viewer="flexlib.mdi.containers.*" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	xmlns:mate="http://mate.asfusion.com/"
-	title="{windowTitle}"
+	title="{windowTitle}" visible="false"
 	creationComplete="onCreationComplete()"
 	showCloseButton="false">
 
@@ -118,7 +118,7 @@
         		if (viewersGrid.selectedItem == null || viewersGrid.selectedItem.presenter) return;
         		
 				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-				e.userid = viewersGrid.selectedItem.userid;
+				e.userid = viewersGrid.selectedItem.userID;
 				e.username = viewersGrid.selectedItem.name;
 				dispatchEvent(e);
 				
@@ -153,7 +153,7 @@
 				var item:IListItemRenderer = event.itemRenderer;
 				var user:BBBUser = item.data as BBBUser;
 				var rollEvent:ViewersRollEvent = new ViewersRollEvent(ViewersRollEvent.VIEWERS_ROLL_OVER);
-				rollEvent.userid = user.userid;
+				rollEvent.userID = user.userID;
 				dispatcher.dispatchEvent(rollEvent);
 			}
 			
@@ -161,7 +161,7 @@
 				var item:IListItemRenderer = event.itemRenderer;
 				var user:BBBUser = item.data as BBBUser;
 				var rollEvent:ViewersRollEvent = new ViewersRollEvent(ViewersRollEvent.VIEWERS_ROLL_OUT);
-				rollEvent.userid = user.userid;
+				rollEvent.userID = user.userID;
 				dispatcher.dispatchEvent(rollEvent);
 			}
 

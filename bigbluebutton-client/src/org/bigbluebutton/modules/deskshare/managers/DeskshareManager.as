@@ -87,15 +87,17 @@ package org.bigbluebutton.modules.deskshare.managers
 		
 		public function handleStartSharingEvent(autoStart:Boolean):void {
 			LogUtil.debug("DeskshareManager::handleStartSharingEvent");
-			toolbarButtonManager.disableToolbarButton();
+			//toolbarButtonManager.disableToolbarButton();
+			toolbarButtonManager.startedSharing();
 			publishWindowManager.startSharing(module.getCaptureServerUri(), module.getRoom(), autoStart);
 			sharing = true;
 		}
 		
 		public function handleShareWindowCloseEvent():void {
-			toolbarButtonManager.enableToolbarButton();
+			//toolbarButtonManager.enableToolbarButton();
 			publishWindowManager.handleShareWindowCloseEvent();
 			sharing = false;
+			toolbarButtonManager.stopedSharing();
 		}
 					
 		public function handleViewWindowCloseEvent():void {

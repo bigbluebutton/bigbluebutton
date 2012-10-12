@@ -402,7 +402,7 @@
 				if(event.chatobj.userid != "")
 					event.chatobj.message = parseURLs(event.chatobj.message);
 				showMessage(PUBLIC_CHAT_USERID, event.chatobj, autoTranslation);
-				if ((! UserManager.getInstance().getConference().amIThisUser(new Number(event.chatobj.userid))) && (event.chatobj.userid != "")){
+				if ((! UserManager.getInstance().getConference().amIThisUser(event.chatobj.userid)) && (event.chatobj.userid != "")){
 					if (Accessibility.active){
 						publicNotification();
 					}
@@ -416,7 +416,7 @@
 			
 			// Receive private chat messages
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
-				if ((! UserManager.getInstance().getConference().amIThisUser(new Number(event.message.chatobj.userid)))) {
+				if ((! UserManager.getInstance().getConference().amIThisUser(event.message.chatobj.userid))) {
 					if (!this.focus){
 						ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
 					}					
@@ -441,7 +441,7 @@
 			
 			// Activates an audio alert for screen-reader users on private message reception
 			private function privateNotification(event:PrivateChatMessageEvent):void{
-				if (! UserManager.getInstance().getConference().amIThisUser(new Number(event.message.chatobj.userid))) {
+				if (! UserManager.getInstance().getConference().amIThisUser(event.message.chatobj.userid)) {
 					var newItem:Boolean = true;
 					// Check if there is already a notification of private messages from that user
 					if (privateWaiting.length){
