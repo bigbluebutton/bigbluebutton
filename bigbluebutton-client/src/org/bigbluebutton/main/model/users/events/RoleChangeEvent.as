@@ -24,7 +24,7 @@ package org.bigbluebutton.main.model.users.events
 	{
 		public static const ASSIGN_PRESENTER:String = "assignPresenter";
 		
-		public var userid:Number;
+		public var userid:String;
 		public var username:String;
 		
 		public function RoleChangeEvent(type:String)

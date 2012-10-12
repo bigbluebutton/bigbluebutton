@@ -31,8 +31,8 @@
 			
 			private var images:Images = new Images();
 			
-			[Bindable] private var adminIcon : Object = images.admin;
-   			[Bindable] private var viewerIcon : Object = images.participant;
+			[Bindable] private var adminIcon:Object = images.admin;
+   			[Bindable] private var viewerIcon:Object = images.participant;
   			   			   			
 		]]>
 	</mx:Script>	

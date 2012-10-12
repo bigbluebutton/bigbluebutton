@@ -153,17 +153,24 @@ public class RoomManager {
 		
 		rm.add(p);
 		
-		if ((rm.numParticipants() == 1) && rm.record() && !rm.isRecording()) {
-			/**
-			 * Start recording when the first user joins the voice conference.
-			 * WARNING: Works only with FreeSWITCH for now. We need to come up with a generic way to
-			 * trigger recording for both Asterisk and FreeSWITCH.
-			 */
-			rm.recording(true);
-			log.debug("Starting recording of voice conference");
-			log.warn(" ** WARNING: Prototyping only. Works only with FreeSWITCH for now. We need to come up with a generic way to trigger recording for both Asterisk and FreeSWITCH.");
-			confService.recordSession(event.getRoom(), rm.getMeeting());
+		if (rm.numParticipants() == 1) {
+			if (rm.record() && !rm.isRecording()) {
+				/**
+				 * Start recording when the first user joins the voice conference.
+				 * WARNING: Works only with FreeSWITCH for now. We need to come up with a generic way to
+				 * trigger recording for both Asterisk and FreeSWITCH.
+				 */
+				rm.recording(true);
+				log.debug("Starting recording of voice conference");
+				log.warn(" ** WARNING: Prototyping only. Works only with FreeSWITCH for now. We need to come up with a generic way to trigger recording for both Asterisk and FreeSWITCH.");
+				confService.recordSession(event.getRoom(), rm.getMeeting());
+			}
+			
+			// Broadcast the audio
+			confService.broadcastSession(event.getRoom(), rm.getMeeting());
 		}
+		
+		
 		
 		if (rm.isMuted() && !p.isMuted()) {
 			confService.mute(p.getId(), event.getRoom(), true);

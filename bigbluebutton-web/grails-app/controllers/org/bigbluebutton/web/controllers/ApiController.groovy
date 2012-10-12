@@ -293,13 +293,15 @@ class ApiController {
 
     boolean redirectImm = parseBoolean(params.redirectImmediately)
     
+	String internalUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+	
     String externUserID = params.userID
     if (StringUtils.isEmpty(externUserID)) {
-      externUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+      externUserID = internalUserID
     }
     
 	UserSession us = new UserSession();
-	us.internalUserId = System.currentTimeMillis().toString(); //RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+	us.internalUserId = internalUserID
     us.conferencename = meeting.getName()
     us.meetingID = meeting.getInternalId()
     us.externUserID = externUserID

@@ -3,7 +3,7 @@
 	xmlns:maps="org.bigbluebutton.modules.videoconf.maps.*" implements="org.bigbluebutton.common.IBigBlueButtonModule">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
+			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.controls.Alert;
@@ -57,8 +57,8 @@
 				return _attributes.mode;
 			}
 						
-			public function get userid():Number {
-				return _attributes.userid as Number;
+			public function get userid():String {
+				return _attributes.userid as String;
 			}
 			
 			public function get role():String {
@@ -89,7 +89,7 @@
 				
 				if (proxy.videoOptions.autoStart) {
 					var dispatcher:Dispatcher = new Dispatcher();        
-					dispatcher.dispatchEvent(new OpenPublishWindowEvent());					
+					dispatcher.dispatchEvent(new ShareCameraRequestEvent());					
 				}
 			}
 		

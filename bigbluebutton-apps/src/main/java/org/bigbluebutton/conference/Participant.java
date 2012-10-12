@@ -105,6 +105,7 @@ public class Participant implements Serializable {
 	public Map toMap() {
 		Map m = new HashMap();
 		m.put("userid", internalUserID);
+		m.put("externUserID", externalUserID);
 		m.put("name", name);
 		m.put("role", role);
 		/**
