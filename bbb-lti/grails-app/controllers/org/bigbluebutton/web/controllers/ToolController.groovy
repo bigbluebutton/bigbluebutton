@@ -5,10 +5,13 @@ import java.util.List
 import java.util.Map
 import java.util.Properties
 
+import org.apache.commons.codec.digest.DigestUtils
+
 import net.oauth.OAuthMessage
 import net.oauth.signature.OAuthSignatureMethod;
 import net.oauth.signature.HMAC_SHA1;
 
+import org.bigbluebutton.web.services.BigbluebuttonService
 import org.bigbluebutton.web.services.LtiService
 
 class ToolController {
@@ -24,11 +27,16 @@ class ToolController {
     public static final String USER_ID = 'lis_person_sourcedid'
     public static final String USER_FIRSTNAME = 'lis_person_name_given'
     public static final String COURSE_ID = 'context_id'
-    
+    public static final String RESOURCE_LINK_ID = 'resource_link_id'
+    public static final String RESOURCE_LINK_TITLE = 'resource_link_title'
+    public static final String RESOURCE_LINK_DESCRIPTION = 'resource_link_description'
+    public static final String ROLES = 'roles'
+
     public static final String CUSTOM_USER_ID = 'custom_lis_person_sourcedid'
     
     LtiService ltiService
-
+    BigbluebuttonService bigbluebuttonService
+    
     def index = { 
         log.debug CONTROLLER_NAME + "#index"
 
@@ -46,8 +54,27 @@ class ToolController {
                 log.debug "Found customer " + customer.get("customerId") + " with secretKey " + customer.get("secretKey")
                 if (checkValidSignature(request.getMethod().toUpperCase(), retrieveBasicLtiEndpoint(), customer.get("secretKey"), sanitizedParams, params.get(OAUTH_SIGNATURE))) {
                     if (hasValidStudentId(params, customer)) {
-                        // We have a valid signature. Mark this as successful.
-                        success = true
+                        // We have a valid signature.
+                        
+                        log.debug params.get(RESOURCE_LINK_TITLE)
+                        log.debug params.get(RESOURCE_LINK_ID)
+                        log.debug DigestUtils.shaHex("ap" + params.get(RESOURCE_LINK_ID))
+                        log.debug DigestUtils.shaHex("mp"+params.get(RESOURCE_LINK_ID))
+                        log.debug params.get(USER_FULL_NAME)
+                        log.debug params.get(ROLES)
+                        String destinationURL = bigbluebuttonService.getJoinURL(params.get(RESOURCE_LINK_TITLE), params.get(RESOURCE_LINK_ID), DigestUtils.shaHex("ap" + params.get(RESOURCE_LINK_ID)), DigestUtils.shaHex("mp"+params.get(RESOURCE_LINK_ID)), params.get(USER_FULL_NAME), params.get(ROLES))
+                        
+                        //String destinationURL = "http://bigbluebutton.org"
+                        log.debug "redirecting to " + destinationURL
+                        if( destinationURL != null ) {
+                            success = true
+                            redirect(url:destinationURL)
+                        } else {
+                            resultMessageKey = 'BigBlueButtonServerError'
+                            resultMessage = "The join could not be completed"
+                            log.debug resultMessage
+                        }
+            
                         
                     } else {
                         resultMessageKey = 'InvalidStudentId'
@@ -77,28 +104,8 @@ class ToolController {
         }
 
 
-        if (success == true) {
-            //def returnUrl
-            //if (customer.ePortfolioUrl.endsWith("/")) {
-            //    returnUrl = "${customer.ePortfolioUrl}${epcServerService.signOnUri}"
-            //} else {
-            //    returnUrl = "${customer.ePortfolioUrl}/${epcServerService.signOnUri}"
-            //}
-
-            String finalURL = "http://www.google.com"
-            //String finalURL = returnUrl + "?act=single_signon&studentId=" +
-            //        URLEncoder.encode(accessLog.studentId, "UTF-8") + "&tocSecId="  +
-            //        URLEncoder.encode(accessLog.tocSectionId, "UTF-8") + "&courseId=" +
-            //        URLEncoder.encode(params.get(COURSE_ID), "UTF-8") + "&cus=" +
-            //        URLEncoder.encode( params.get(CUSTOMER_ID), "UTF-8") + "&studentField=LoginName" +
-            //        "&token=" + authToken
-                    
-            log.debug "redirecting to " + finalURL
-            redirect(url:finalURL)
-
-        } else {
+        if (!success) {
             log.debug "Error"
-            
             response.addHeader("Cache-Control", "no-cache")
             withFormat {
                 xml {
@@ -111,8 +118,9 @@ class ToolController {
                     }
                 }
             }
-                
-        }
+
+        } 
+        
 
     }
     
