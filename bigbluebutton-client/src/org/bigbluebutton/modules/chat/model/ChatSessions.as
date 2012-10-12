@@ -1,6 +1,10 @@
 package org.bigbluebutton.modules.chat.model
 {
+  import com.asfusion.mate.events.Dispatcher;
+  
   import mx.collections.ArrayCollection;
+  
+  import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 
   public class ChatSessions
   {
@@ -18,6 +22,9 @@ package org.bigbluebutton.modules.chat.model
     
     public function newPublicChatMessage(msg:Object):void {
       publicChat.newChatMessage(msg);
+      var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
+      var globalDispatcher:Dispatcher = new Dispatcher();
+      globalDispatcher.dispatchEvent(event);	   			
     }
     
     public function newPrivateChatMessage(msg:Object):void {

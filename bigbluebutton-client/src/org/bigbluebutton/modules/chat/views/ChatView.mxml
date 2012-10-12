@@ -21,18 +21,18 @@
 -->
 
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
-		 xmlns:mate="http://mate.asfusion.com/"
-		 creationComplete="onCreationComplete()"
-		 xmlns:flexlib="http://code.google.com/p/flexlib/"
-		 width="100%" height="100%" xmlns:containers="flexlib.containers.*"
-		 verticalScrollPolicy="off">
-	
-	<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
-	<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
-	<mate:Listener type="{BBBEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}" method="sendMessageReceivedFromBBBEvent"/> 
-	<mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
-	<mate:Listener type="{ChatOptionsEvent.TOGGLE_TRANSLATE}" method="toggleTranslation" />	
-	
+    xmlns:mate="http://mate.asfusion.com/"
+    creationComplete="onCreationComplete()"
+    xmlns:flexlib="http://code.google.com/p/flexlib/"
+    width="100%" height="100%" xmlns:containers="flexlib.containers.*"
+    verticalScrollPolicy="off">
+
+  <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
+  <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
+  <mate:Listener type="{BBBEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}" method="sendMessageReceivedFromBBBEvent"/> 
+  <mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
+  <mate:Listener type="{ChatOptionsEvent.TOGGLE_TRANSLATE}" method="toggleTranslation" />	
+  
 	<mx:Style>
 		.chatColorPickerStyle {
 			backgroundColor:#E5E6E7;
@@ -55,28 +55,23 @@
 	<mx:Script>
 		<![CDATA[
       import be.boulevart.google.ajaxapi.translation.GoogleTranslation;
-      import be.boulevart.google.events.GoogleApiEvent;
-      
-      import com.asfusion.mate.events.Dispatcher;
-      
+      import be.boulevart.google.events.GoogleApiEvent;      
+      import com.asfusion.mate.events.Dispatcher;      
       import flash.events.FocusEvent;
       import flash.external.ExternalInterface;
       import flash.media.Sound;
       import flash.media.SoundChannel;
-      import flash.utils.Timer;
-      
+      import flash.utils.Timer;      
       import flexlib.controls.tabBarClasses.SuperTab;
       import flexlib.controls.textClasses.StringBoundaries;
       import flexlib.events.SuperTabEvent;
-      import flexlib.mdi.containers.MDIWindow;
-      
+      import flexlib.mdi.containers.MDIWindow;      
       import mx.collections.ArrayCollection;
       import mx.containers.ControlBar;
       import mx.controls.Button;
       import mx.core.Container;
       import mx.core.UIComponent;
-      import mx.events.IndexChangedEvent;
-      
+      import mx.events.IndexChangedEvent;      
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.core.managers.UserManager;
@@ -84,6 +79,7 @@
       import org.bigbluebutton.main.events.ParticipantJoinEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.model.users.BBBUser;
+      import org.bigbluebutton.modules.chat.ChatUtil;
       import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
       import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
@@ -100,7 +96,7 @@
 				'0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
 			
 			private static const PUBLIC_CHAT_USERID:String = '0';
-			private static const PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");			
+			private static const PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
 			private static const TAB_BOX_ID:String = '+';
 			private var tabBox:AddChatTabBox;			
 			private var focus:Boolean = true;			
@@ -146,12 +142,12 @@
 			}
 			
 			private function setChatMessage(message:String):void{
-                chatWindow.txtMsg.text += message;
+//        chatWindow.txtMsg.text += message;
 			}
 			
 			private function setColor():void{
 				var r:int = Math.round(Math.random() * 12);
-                chatWindow.cmpColorPicker.selectedIndex = r;
+ //       chatWindow.cmpColorPicker.selectedIndex = r;
 			}
 			
 			private function mouseLeave(event:Event):void{
@@ -168,8 +164,8 @@
 			}
 			
 			private function sendMessageReceivedFromBBBEvent(event:BBBEvent):void {
-        chatWindow.txtMsg.text = event.message;
-				sendMessages();
+ //       chatWindow.txtMsg.text = event.message;
+//				sendMessages();
 			}
 			
 			private function makePublicChatUncloseable():void {
@@ -180,8 +176,7 @@
 			private function calledOnTheNextScreenRefresh():void {
 				var chatBox:ChatBox = getChatBoxForParticipant(PUBLIC_CHAT_USERID);
 				var chatIndex:int = getTabIndexFor(chatBox);
-				chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);
-				
+				chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);				
 				chatTabs.setClosePolicyForTab(chatTabs.getChildIndex(tabBox), SuperTab.CLOSE_NEVER);
 			}
 			
@@ -189,71 +184,25 @@
 				if (component.id == "txtMsg") {
 					component.setFocus();
 					component.drawFocus(true);
-				}
-				else {
-                    chatWindow..txtMsg.setFocus();
-                    chatWindow..txtMsg.drawFocus(true);
+				} else {
+          chatWindow..txtMsg.setFocus();
+          chatWindow..txtMsg.drawFocus(true);
 				}
 			}
 			
 			public function setFocusOff():void {
-                chatWindow..txtMsg.drawFocus(false);
+        chatWindow..txtMsg.drawFocus(false);
 			}
 			
 			private function currentTime() : String {
 				return ChatBox.getHours() + ":" + ChatBox.getMinutes();
 			}
-			
-			public function sendMessages():void {
-				if (hasMessageToSend()){				
-					if (isChatBoxCurrentlySelected(PUBLIC_CHAT_USERID)) {						
-						sendPublicChatMessage(chatWindow.txtMsg.text);
-					} else{						
-						sendPrivateChatMessage();
-					}
-					clearMessageEntryTextBox();
-				}
-			}			
-			
-			private function hasMessageToSend():Boolean {
-				return chatWindow.txtMsg.text != "";
-                
-                return false;
-			}
-			
-			private function clearMessageEntryTextBox():void {
-                chatWindow.txtMsg.text = "";
-			}
-			
-			private function cleanup(message:String):String{
-				var parsedString:String = message.replace('<', '&#60;')
-				parsedString = parsedString.replace('>', '&#62;')
-				
-				return parsedString;
-			}
-			
-			private function parseURLs(message:String):String{
-				var indexOfHTTP:Number = message.indexOf("http://");
-				var indexOfWWW:Number = message.indexOf("www.");
-				var indexOfHTTPS:Number = message.indexOf("https://");
-				if (indexOfHTTP == -1 && indexOfWWW == -1 && indexOfHTTPS == -1) return message;
-				var words:Array = message.split(" ");
-				var parsedString:String = "";
-				for (var n:Number = 0; n<words.length; n++){
-					var word:String = words[n] as String;
-				if (word.indexOf("http://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
-					else if (word.indexOf("www.") != -1) parsedString += '<a href="event:http://' + word + '"> <u>' + word + '</u></a> ';
-					else if (word.indexOf("https://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
-					else parsedString += word + ' ';
-				}
-				return parsedString;
-			}
-			
+								
 			private function sendPublicChatMessage(message:String):void {
 				var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
 				//publicEvent.message = parseURLs(cleanup(message));
-				publicEvent.message = cleanup(message);
-				publicEvent.color = chatWindow.cmpColorPicker.selectedColor.toString();
+				publicEvent.message = ChatUtil.cleanup(message);
+//				publicEvent.color = chatWindow.cmpColorPicker.selectedColor.toString();
 				publicEvent.time = currentTime();
 				publicEvent.language = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
 				globalDispatcher.dispatchEvent(publicEvent);
@@ -267,9 +216,9 @@
 			private function sendPrivateChatMessage():void {
 				var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
 				//privateEvent.message = parseURLs(cleanup(chatWindow.txtMsg.text));
-				privateEvent.message = cleanup(chatWindow.txtMsg.text);
+//				privateEvent.message = ChatUtil.cleanup(chatWindow.txtMsg.text);
 				privateEvent.toUser = chatTabs.selectedChild.name;
-				privateEvent.color = chatWindow.cmpColorPicker.selectedColor.toString();
+//				privateEvent.color = chatWindow.cmpColorPicker.selectedColor.toString();
 				privateEvent.time = currentTime();
 				privateEvent.language = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
 				globalDispatcher.dispatchEvent(privateEvent);
@@ -323,7 +272,7 @@
 					return;
 				}
 				
-                chatWindow.txtMsg.enabled = true;
+//        chatWindow.txtMsg.enabled = true;
 				var chatBox:ChatBox = chatTabs.getChildAt(chatTabs.selectedIndex) as ChatBox;
 				if (chatBox.participantLoggedOut) {
 					disableMessageEntryTextBox();
@@ -333,7 +282,7 @@
 			}
 			
 			private function openAddChatTabBox():void{
-                chatWindow.txtMsg.enabled = false;
+//                chatWindow.txtMsg.enabled = false;
 			}
 			
 			private function getUserName(userID:String):String{
@@ -391,7 +340,7 @@
 			// Receive public chat messages
 			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
 				if(event.chatobj.userid != "")
-					event.chatobj.message = parseURLs(event.chatobj.message);
+					event.chatobj.message = ChatUtil.parseURLs(event.chatobj.message);
 				showMessage(PUBLIC_CHAT_USERID, event.chatobj, autoTranslation);
 				if ((! UserManager.getInstance().getConference().amIThisUser(event.chatobj.userid)) && (event.chatobj.userid != "")){
 					if (Accessibility.active){
@@ -414,7 +363,7 @@
 				}
 
 				if(event.message.chatobj.userid != "")
-					event.message.chatobj.message = parseURLs(event.message.chatobj.message);
+					event.message.chatobj.message = ChatUtil.parseURLs(event.message.chatobj.message);
 
 				showMessage(event.message.sender, event.message.chatobj, autoTranslation);
 				
@@ -604,7 +553,7 @@
 			}
 			
 			public function changeFontSize(e:ChatOptionsEvent):void{
-                chatWindow.txtMsg.setStyle("fontSize", e.fontSize);
+//                chatWindow.txtMsg.setStyle("fontSize", e.fontSize);
 			}
 			
 			private function onTabClose(e:SuperTabEvent):void{
@@ -616,11 +565,11 @@
 			}
 			
 			private function enableMessageEntryTextBox():void {
-                chatWindow.txtMsg.enabled = true;
+//                chatWindow.txtMsg.enabled = true;
 			}
 			
 			private function disableMessageEntryTextBox():void {
-                chatWindow.txtMsg.enabled = false;
+//                chatWindow.txtMsg.enabled = false;
 			}
 						
 			private function toggleTranslation(e:ChatOptionsEvent):void
