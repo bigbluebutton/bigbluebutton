@@ -43,7 +43,7 @@
       import org.bigbluebutton.modules.chat.events.StartChatModuleEvent;
       import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
       import org.bigbluebutton.modules.chat.events.TranscriptEvent;
-      import org.bigbluebutton.modules.chat.model.ChatObject;
+      import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
       import org.bigbluebutton.modules.chat.views.ChatBox;
 		
 			private var _moduleName:String = "Chat Module";			
@@ -130,17 +130,17 @@
 				LogUtil.debug("Handling TranscriptLoadedEvent");
 				var welcome:String = _attributes.welcome as String;
 				if (welcome != ""){
-					var welcomeEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-					var chatobj:ChatObject = new ChatObject();
-					chatobj.message = welcome;
-					chatobj.username = " ";
-					chatobj.color = "0";
-					chatobj.time = ChatUtil.getCurrentTime();
-					chatobj.language = "en";
-					chatobj.userid = "";
+//					var welcomeEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
+//					var chatobj:ChatMessageVO = new ChatMessageVO();
+//					chatobj.message = welcome;
+//					chatobj.username = " ";
+//					chatobj.color = "0";
+//					chatobj.time = ChatUtil.getCurrentTime();
+//					chatobj.language = "en";
+//					chatobj.userid = "";
 					
 		//			welcomeEvent.chatobj = chatobj;
-					var globalDispatcher:Dispatcher = new Dispatcher();
+//					var globalDispatcher:Dispatcher = new Dispatcher();
 		//			globalDispatcher.dispatchEvent(welcomeEvent);
 				}	
 			}

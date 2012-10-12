@@ -28,7 +28,7 @@ package org.bigbluebutton.modules.chat.services
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
-	import org.bigbluebutton.modules.chat.model.ChatObject;
+	import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 	import org.bigbluebutton.modules.chat.model.MessageVO;
 
 	public class PrivateChatSharedObjectService
@@ -83,7 +83,7 @@ package org.bigbluebutton.modules.chat.services
 			messageReceived(message.recepient, message.chatobj);
 		}
 		
-		public function messageReceived(from:String, chatobj:ChatObject):void {
+		public function messageReceived(from:String, chatobj:ChatMessageVO):void {
 			var event:PrivateChatMessageEvent = new PrivateChatMessageEvent(PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT);
 			
 			event.message = new MessageVO(chatobj, from, this.userid);

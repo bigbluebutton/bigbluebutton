@@ -70,7 +70,7 @@
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.model.ChatMessage;
-      import org.bigbluebutton.modules.chat.model.ChatObject;
+      import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
       import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -157,7 +157,7 @@
 				return messages.length;
 			}
 
-			private function showNewMessage(chatobj:ChatObject, translate:Boolean, language:String = null):void {	
+			private function showNewMessage(chatobj:ChatMessageVO, translate:Boolean, language:String = null):void {	
 
 				
 				/*********************************

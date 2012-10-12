@@ -22,7 +22,7 @@ package org.bigbluebutton.modules.chat.services
 	
 	import org.bigbluebutton.main.views.LanguageSelector;
 	import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-	import org.bigbluebutton.modules.chat.model.ChatObject;
+	import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 	import org.bigbluebutton.modules.chat.model.MessageVO;
 	
 
@@ -53,7 +53,7 @@ package org.bigbluebutton.modules.chat.services
 			trace("Receive receivedSendPrivateChatMessageEvent");
 			/*newMessage = "<font color=\"#" + event.color + "\"><b>[" + 
 						attributes.username +" - "+ event.time + "]</b> " + event.message + "</font><br/>";*/
-			var chatobj:ChatObject = new ChatObject();
+			var chatobj:ChatMessageVO = new ChatMessageVO();
 			chatobj.message = event.message;
 			chatobj.username = attributes.username;
 			chatobj.color = event.color;

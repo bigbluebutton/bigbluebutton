@@ -18,13 +18,15 @@
 */
 package org.bigbluebutton.modules.chat.model
 {
+  import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
+
 	public class MessageVO
 	{
-		public var chatobj:ChatObject;
+		public var chatobj:ChatMessageVO;
 		public var recepient:String;
 		public var sender:String;
 		
-		public function MessageVO(chatobj:ChatObject, sender:String, recepient:String)
+		public function MessageVO(chatobj:ChatMessageVO, sender:String, recepient:String)
 		{
 			this.chatobj = chatobj;
 			this.recepient = recepient;

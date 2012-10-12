@@ -20,7 +20,7 @@ package org.bigbluebutton.modules.chat.events
 {
 	import flash.events.Event;
 	
-	import org.bigbluebutton.modules.chat.model.ChatObject;
+	import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 	import org.bigbluebutton.modules.chat.model.MessageVO;
 
 	public class PrivateChatMessageEvent extends Event

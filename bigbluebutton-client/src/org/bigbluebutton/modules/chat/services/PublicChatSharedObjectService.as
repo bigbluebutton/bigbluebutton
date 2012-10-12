@@ -31,7 +31,7 @@ package org.bigbluebutton.modules.chat.services
 	import org.bigbluebutton.modules.chat.events.ConnectionEvent;
 	import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
 	import org.bigbluebutton.modules.chat.events.TranscriptEvent;
-	import org.bigbluebutton.modules.chat.model.ChatObject;
+	import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 
 	public class PublicChatSharedObjectService
 	{
@@ -148,7 +148,7 @@ package org.bigbluebutton.modules.chat.services
 			
 			var messages:Array = result as Array;
 			for (var i:int = 0; i < messages.length; i++){
-				var chatobj:ChatObject = messages[i] as ChatObject;
+				var chatobj:ChatMessageVO = messages[i] as ChatMessageVO;
 //				newChatMessage(chatobj);
 			}
 			

@@ -21,7 +21,7 @@ package org.bigbluebutton.modules.chat.events
 	import flash.events.Event;
 	
 	import org.bigbluebutton.modules.chat.model.ChatMessage;
-	import org.bigbluebutton.modules.chat.model.ChatObject;
+	import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 
 	public class PublicChatMessageEvent extends Event
 	{
