@@ -8,6 +8,11 @@ package org.bigbluebutton.modules.chat
       return ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
     }
     
+    public static function getCurrentTime():String {
+      var time:Date = new Date();
+      return ChatUtil.getHours(time) + ":" + ChatUtil.getMinutes(time);
+    }
+    
     public static function getMinutes(time:Date):String {
       var minutes:String;
       if (time.minutes < 10) minutes = "0" + time.minutes;

@@ -1,7 +1,11 @@
 package org.bigbluebutton.modules.chat.model
 {
-  import mx.collections.ArrayCollection; 
+  import com.asfusion.mate.events.Dispatcher;
+  
+  import mx.collections.ArrayCollection;
+  
   import org.bigbluebutton.modules.chat.ChatUtil;
+  import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class ChatSession
@@ -55,7 +59,18 @@ package org.bigbluebutton.modules.chat.model
       cm.name = msg.username;
       cm.senderColor = uint(msg.color);
       cm.translatedColor = msg.senderColor;
-      cm.senderTime = msg.time;			
+      cm.senderTime = msg.time;		
+      
+      _messages.addItem(cm);
+      
+      if (_chatType == "PUBLIC") {
+        var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
+        event.chatobj = cm;
+        var globalDispatcher:Dispatcher = new Dispatcher();
+        globalDispatcher.dispatchEvent(event);	        
+      }
+ 
+      
     }
     
     private function getLastSender():String {

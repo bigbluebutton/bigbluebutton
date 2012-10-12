@@ -27,30 +27,10 @@
     width="100%" height="100%" xmlns:containers="flexlib.containers.*"
     verticalScrollPolicy="off">
 
-  <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
-  <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
   <mate:Listener type="{BBBEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}" method="sendMessageReceivedFromBBBEvent"/> 
   <mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
   <mate:Listener type="{ChatOptionsEvent.TOGGLE_TRANSLATE}" method="toggleTranslation" />	
   
-	<mx:Style>
-		.chatColorPickerStyle {
-			backgroundColor:#E5E6E7;
-			columnCount:12;
-			horizontalGap:0;
-			previewHeight:22;
-			previewWidth:45;
-			swatchGridBackgroundColor:#000000;
-			swatchGridBorderSize:0;
-			swatchHeight:60;
-			swatchHighlightColor:#FFFFFF;
-			swatchHighlightSize:1;
-			swatchWidth:12;
-			textFieldWidth:72;
-			verticalGap:0;
-		}
-		
-	</mx:Style>
 	
 	<mx:Script>
 		<![CDATA[
@@ -93,7 +73,8 @@
       import org.bigbluebutton.util.i18n.ResourceUtil;			
 			
 			[Bindable] public var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
-				'0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
+				                                                '0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', 
+                                                        '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
 			
 			private static const PUBLIC_CHAT_USERID:String = '0';
 			private static const PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
@@ -113,7 +94,7 @@
 			private var publicFocus:Boolean = false;
 			private var privateFocus:Boolean = false;
 			private var timerInterval:int = 10; // How many seconds you want the timer to wait between chat notifications
-            private var notificationTimer:Timer = new Timer(timerInterval * 1000);
+      private var notificationTimer:Timer = new Timer(timerInterval * 1000);
 			
 			[Embed(source="../sounds/publicSound.mp3")] private var publicSoundClass:Class;
 			[Embed(source="../sounds/privateSound.mp3")] private var privateSoundClass:Class;
@@ -130,6 +111,7 @@
 				createAddTabBox();
 				makePublicChatUncloseable();
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
+        
 				systemManager.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeave);
 				systemManager.stage.addEventListener(Event.ACTIVATE, activate);
 				systemManager.stage.addEventListener(Event.DEACTIVATE, deactivate);
@@ -193,37 +175,7 @@
 			public function setFocusOff():void {
 //        chatWindow..txtMsg.drawFocus(false);
 			}
-			
-			private function currentTime() : String {
-				return ChatBox.getHours() + ":" + ChatBox.getMinutes();
-			}
 								
-			private function sendPublicChatMessage(message:String):void {
-				var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
-				//publicEvent.message = parseURLs(cleanup(message));
-				publicEvent.message = ChatUtil.cleanup(message);
-//				publicEvent.color = chatWindow.cmpColorPicker.selectedColor.toString();
-				publicEvent.time = currentTime();
-				publicEvent.language = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
-				globalDispatcher.dispatchEvent(publicEvent);
-			}
-			
-			private function queryForParticipants():void {
-				var event:QueryParticipantsEvent = new QueryParticipantsEvent(QueryParticipantsEvent.QUERY_PARTICIPANTS_EVENT);
-				globalDispatcher.dispatchEvent(event);
-			}
-			
-			private function sendPrivateChatMessage():void {
-				var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
-				//privateEvent.message = parseURLs(cleanup(chatWindow.txtMsg.text));
-//				privateEvent.message = ChatUtil.cleanup(chatWindow.txtMsg.text);
-				privateEvent.toUser = chatTabs.selectedChild.name;
-//				privateEvent.color = chatWindow.cmpColorPicker.selectedColor.toString();
-				privateEvent.time = currentTime();
-				privateEvent.language = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
-				globalDispatcher.dispatchEvent(privateEvent);
-			}
-			
 			private function isChatBoxCurrentlySelected(id:String):Boolean {
 				if (chatTabs.getChildByName(id) == chatTabs.selectedChild){
 					return true;
@@ -231,26 +183,7 @@
 				return false;
 			}
 						
-			private function removeParticipantFromList(userid:String):void {
-//				for (var i:Number = 0; i < participants.length; i++){
-//					if (participants.getItemAt(i).userid == userid) {
-//						participants.removeItemAt(i);
-//						updateChatBoxThatParticipantHasLeft(userid);
-//					}
-//				}
-			}
-			
-			private function updateChatBoxThatParticipantHasLeft(userid:String):void {
-				if (participantHasChatBox(userid)) {
-					var chatBox:ChatBox = getChatBoxForParticipant(userid);
-					chatBox.participantLoggedOut = true;
-					
-					if (isChatBoxCurrentlySelected(userid)) {
-						disableMessageEntryTextBox();
-					}
-				}
-			}
-			
+		
 			private function notifyParticipantOfUnreadMessageFrom(userid:String):void {
 				var chatBox:ChatBox = getChatBoxForParticipant(userid);
 				var tabIndex:int = getTabIndexFor(chatBox);
@@ -270,15 +203,7 @@
 				if (chatTabs.selectedIndex == chatTabs.numChildren-1) {
 					openAddChatTabBox();
 					return;
-				}
-				
-//        chatWindow.txtMsg.enabled = true;
-				var chatBox:ChatBox = chatTabs.getChildAt(chatTabs.selectedIndex) as ChatBox;
-				if (chatBox.participantLoggedOut) {
-					disableMessageEntryTextBox();
-				} else {
-					enableMessageEntryTextBox();
-				}		
+				}	
 			}
 			
 			private function openAddChatTabBox():void{
@@ -294,27 +219,29 @@
 			}
 			
 			
-			public function openChatBoxFor(userid:String, allUsers:Boolean=false):void {
+			public function openChatBoxFor(userID:String, publicChat:Boolean=false):void {
 				var chatBox:ChatBox;
 				
-				if (participantHasChatBox(userid)) {
-					chatBox = getChatBoxForParticipant(userid);
+				if (participantHasChatBox(userID)) {
+					chatBox = getChatBoxForParticipant(userID);
 				} else {
-					chatBox = createChatBoxFor(userid, allUsers);
-					chatBox.otherUserID = userid;
+					chatBox = createChatBoxFor(userID, publicChat);
+					chatBox.chatWithUserID = userID;
 				}				
 			}
 			
-			private function createChatBoxFor(userid:String, allUsers:Boolean=false):ChatBox {				
+			private function createChatBoxFor(userID:String, publicChat:Boolean=false):ChatBox {				
 				var chatBox:ChatBox = new ChatBox();
-				chatBox.id = getUserName(userid);
-        if (allUsers) {
+				chatBox.id = userID
+        if (publicChat) {
           chatBox.label = PUBLIC_CHAT_USERNAME
+            chatBox.publicChat = true;
         } else {
-          chatBox.label = getUserName(userid);
+          chatBox.publicChat = false;
+          chatBox.label = getUserName(userID);
         }
 				
-				chatBox.name = userid;
+				chatBox.name = getUserName(userID);
 				
 				if (chatTabs.numChildren >= 2){ 
 					chatTabs.addChildAt(chatBox, chatTabs.numChildren - 1);
@@ -337,36 +264,9 @@
 				return tabBox;
 			}
 			
-			// Receive public chat messages
-			private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-				if(event.chatobj.userid != "")
-					event.chatobj.message = ChatUtil.parseURLs(event.chatobj.message);
-				showMessage(PUBLIC_CHAT_USERID, event.chatobj, autoTranslation);
-				if ((! UserManager.getInstance().getConference().amIThisUser(event.chatobj.userid)) && (event.chatobj.userid != "")){
-					if (Accessibility.active){
-						publicNotification();
-					}
-					if (!this.focus){
-						ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.publicMsgAwaiting2'));
-					}
-				}
-								
-				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT, event.chatobj.message));
-			}
 			
 			// Receive private chat messages
 			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
-				if ((! UserManager.getInstance().getConference().amIThisUser(event.message.chatobj.userid))) {
-					if (!this.focus){
-						ExternalInterface.call("startblink", ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting'), ResourceUtil.getInstance().getString('bbb.chat.privateMsgAwaiting2'));
-					}					
-				}
-
-				if(event.message.chatobj.userid != "")
-					event.message.chatobj.message = ChatUtil.parseURLs(event.message.chatobj.message);
-
-				showMessage(event.message.sender, event.message.chatobj, autoTranslation);
-				
 				if (Accessibility.active){
 					privateNotification(event);
 				}
@@ -537,21 +437,7 @@
 			private function getChatBoxForParticipant(id:String):ChatBox {
 				return chatTabs.getChildByName(id) as ChatBox;
 			}
-            
-			private function showMessage(sender:String, chatobj:ChatObject, translate:Boolean):void{
-				var chatBox:ChatBox;
-				if (! participantHasChatBox(sender)) {
-					chatBox = createChatBoxFor(sender);
-				}
-				
-				chatBox = getChatBoxForParticipant(sender);
-				chatBox.showNewMessage(chatobj, translate, ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0]);
-				
-				if (! isChatBoxCurrentlySelected(sender)) {
-					notifyParticipantOfUnreadMessageFrom(sender);
-				}				
-			}
-			
+            		
 			public function changeFontSize(e:ChatOptionsEvent):void{
 //                chatWindow.txtMsg.setStyle("fontSize", e.fontSize);
 			}

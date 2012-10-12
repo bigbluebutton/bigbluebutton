@@ -21,10 +21,7 @@ package org.bigbluebutton.modules.chat.model
     }
     
     public function newPublicChatMessage(msg:Object):void {
-      publicChat.newChatMessage(msg);
-      var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-      var globalDispatcher:Dispatcher = new Dispatcher();
-      globalDispatcher.dispatchEvent(event);	   			
+      publicChat.newChatMessage(msg);  			
     }
     
     public function newPrivateChatMessage(msg:Object):void {

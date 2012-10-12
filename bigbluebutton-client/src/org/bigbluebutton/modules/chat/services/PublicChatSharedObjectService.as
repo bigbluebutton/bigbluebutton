@@ -112,18 +112,6 @@ package org.bigbluebutton.modules.chat.services
 			); //_netConnection.call
 		}
 		
-		/**
-		 * Called by the server to deliver a new chat message.
-		 */	
-		public function newChatMessage(chatobj:ChatObject):void{
-			var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-			
-			event.chatobj = chatobj;
-			
-			var globalDispatcher:Dispatcher = new Dispatcher();
-			globalDispatcher.dispatchEvent(event);	   			
-		}
-
 		private function sendTranscriptLoadedEvent():void {
 			LogUtil.debug("Sending transcript loaded Event");
 			var event:TranscriptEvent = new TranscriptEvent(TranscriptEvent.TRANSCRIPT_EVENT);
@@ -161,7 +149,7 @@ package org.bigbluebutton.modules.chat.services
 			var messages:Array = result as Array;
 			for (var i:int = 0; i < messages.length; i++){
 				var chatobj:ChatObject = messages[i] as ChatObject;
-				newChatMessage(chatobj);
+//				newChatMessage(chatobj);
 			}
 			
 			sendTranscriptLoadedEvent();

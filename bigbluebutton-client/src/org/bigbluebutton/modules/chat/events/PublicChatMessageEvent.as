@@ -20,6 +20,7 @@ package org.bigbluebutton.modules.chat.events
 {
 	import flash.events.Event;
 	
+	import org.bigbluebutton.modules.chat.model.ChatMessage;
 	import org.bigbluebutton.modules.chat.model.ChatObject;
 
 	public class PublicChatMessageEvent extends Event
@@ -32,7 +33,7 @@ package org.bigbluebutton.modules.chat.events
 		public var time:String;
 		public var language:String;
 		public var userid:String;*/
-		public var chatobj:ChatObject;
+		public var chatobj:ChatMessage;
 		
 		public function PublicChatMessageEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
