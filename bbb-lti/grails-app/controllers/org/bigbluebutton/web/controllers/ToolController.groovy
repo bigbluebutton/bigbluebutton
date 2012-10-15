@@ -80,14 +80,8 @@ class ToolController {
                 if (checkValidSignature(request.getMethod().toUpperCase(), retrieveBasicLtiEndpoint(), consumer.get("secret"), sanitizedParams, params.get(OAUTH_SIGNATURE))) {
                     if (hasValidStudentId(params, consumer)) {
                         // We have a valid signature.
-                        
-                        //log.debug params.get(RESOURCE_LINK_TITLE)
-                        //log.debug params.get(RESOURCE_LINK_ID)
-                        //log.debug DigestUtils.shaHex("ap" + params.get(RESOURCE_LINK_ID))
-                        //log.debug DigestUtils.shaHex("mp"+params.get(RESOURCE_LINK_ID))
-                        //log.debug params.get(USER_FULL_NAME)
-                        log.debug params.get(ROLES)
-                        String welcome = "Welcome to " + params.get(RESOURCE_LINK_TITLE) //message(code: "bigbluebutton.welcome", args: [params.get(RESOURCE_LINK_TITLE), params.get(COURSE_TITLE)])
+                        session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(params.get(LAUNCH_LOCALE))
+                        String welcome = message(code: "bigbluebutton.welcome", args: [params.get(RESOURCE_LINK_TITLE), params.get(COURSE_TITLE)])
                         log.debug welcome
                         String destinationURL = bigbluebuttonService.getJoinURL(params.get(RESOURCE_LINK_TITLE), 
                             params.get(RESOURCE_LINK_ID), 
