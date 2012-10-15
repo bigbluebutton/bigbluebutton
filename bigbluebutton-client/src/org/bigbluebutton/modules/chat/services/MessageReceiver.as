@@ -8,6 +8,7 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
+  import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
   import org.bigbluebutton.modules.chat.model.CHAT;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   
@@ -36,7 +37,24 @@ package org.bigbluebutton.modules.chat.services
     
     private function handleChatReceivePublicMessageCommand(message:Object):void {
       LogUtil.debug("Handling public chat message");
-//      CHAT.getSessions().newPublicChatMessage(message);
+      var msg:ChatMessageVO = new ChatMessageVO();
+      msg.chatType = message.chatType;
+      msg.fromUserID = message.fromUserID;
+      msg.fromUsername = message.fromUsername;
+      msg.fromColor = message.fromColor;
+      msg.fromLang = message.fromLang;
+      msg.fromTime = message.fromTime;
+      msg.toUserID = message.toUserID;
+      msg.toUsername = message.toUsername;
+      msg.message = message.message;
+      
+      var pcEvent:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
+      pcEvent.message = msg;
+      dispatcher.dispatchEvent(pcEvent);
+      
+      var pcCoreEvent:CoreEvent = new CoreEvent(EventConstants.NEW_PUBLIC_CHAT);
+      pcCoreEvent.message = message;
+      dispatcher.dispatchEvent(pcCoreEvent);
     }
     
     private function handleChatReceivePrivateMessageCommand(message:Object):void {

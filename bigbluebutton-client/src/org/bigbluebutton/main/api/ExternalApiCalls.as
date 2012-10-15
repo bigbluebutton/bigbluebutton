@@ -40,6 +40,24 @@ package org.bigbluebutton.main.api
       payload.layoutID = layoutID;
       broadcastEvent(payload);
     }
+        
+    public function handleNewPublicChatEvent(event:CoreEvent):void {
+      LogUtil.debug("handleNewPublicChatEvent");
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.NEW_PUBLIC_CHAT;
+      payload.chatType = event.message.chatType;      
+      payload.fromUsername = event.message.fromUsername;
+      payload.fromColor = event.message.fromColor;
+      payload.fromLang = event.message.fromLang;
+      payload.fromTime = event.message.fromTime;      
+      payload.message = event.message.message;
+      
+      // Need to convert the internal user id to external user id in case the 3rd-party app passed 
+      // an external user id for it's own use.
+      payload.fromUserID = UsersUtil.internalUserIDToExternalUserID(event.message.fromUserID);
+      
+      broadcastEvent(payload);
+    }
     
     public function handleNewPrivateChatEvent(event:CoreEvent):void {
       LogUtil.debug("handleNewPrivateChatEvent");
