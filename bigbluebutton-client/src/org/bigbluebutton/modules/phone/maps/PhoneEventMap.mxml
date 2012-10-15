@@ -33,14 +33,7 @@
 			import org.bigbluebutton.modules.phone.managers.StreamManager;
 			import org.bigbluebutton.modules.phone.managers.ConnectionManager;
 			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
-			import org.bigbluebutton.modules.chat.events.StopChatModuleEvent;
-			import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
-			import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
-			import org.bigbluebutton.modules.chat.views.ChatView;
-			import org.bigbluebutton.modules.chat.services.PrivateChatService;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.modules.chat.events.ConnectionEvent;
-			import org.bigbluebutton.modules.chat.services.PublicChatService;
 			import mx.events.FlexEvent;
 		]]>
 	</mx:Script>

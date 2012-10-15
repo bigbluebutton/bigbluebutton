@@ -18,6 +18,9 @@ package org.bigbluebutton.modules.chat.services
         case "ChatReceivePublicMessageCommand":
           handleChatReceivePublicMessageCommand(message);
           break;			
+        case "ChatReceivePrivateMessageCommand":
+          handleChatReceivePrivateMessageCommand(message);
+          break;	
         default:
           //   LogUtil.warn("Cannot handle message [" + messageName + "]");
       }
@@ -25,7 +28,12 @@ package org.bigbluebutton.modules.chat.services
     
     private function handleChatReceivePublicMessageCommand(message:Object):void {
       LogUtil.debug("Handling public chat message");
-      CHAT.getSessions().newPublicChatMessage(message);
+//      CHAT.getSessions().newPublicChatMessage(message);
+    }
+    
+    private function handleChatReceivePrivateMessageCommand(message:Object):void {
+      LogUtil.debug("Handling private chat message");
+//      CHAT.getSessions().newPublicChatMessage(message);
     }
   }
 }

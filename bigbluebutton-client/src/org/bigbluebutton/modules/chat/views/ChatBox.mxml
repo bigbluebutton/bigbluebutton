@@ -57,12 +57,14 @@
   
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;      
+      import com.asfusion.mate.events.Dispatcher;     
       import mx.collections.ArrayCollection;
       import mx.controls.Button;
-      import mx.core.ScrollPolicy;      
+      import mx.core.ScrollPolicy;     
       import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.modules.chat.ChatConstants;
       import org.bigbluebutton.modules.chat.ChatUtil;
       import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
       import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
@@ -70,14 +72,16 @@
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.model.ChatMessage;
-      import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
       import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
+      import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			public static const COPY_ALL_BUTTON:String = "Copy All Text";
 			
       public var publicChat:Boolean = false;
       public var chatWithUserID:String;
+      public var chatWithUsername:String
+      
 			public var read:Boolean = true;
 			public var userHasLeft:Boolean = false;
 			
@@ -158,8 +162,6 @@
 			}
 
 			private function showNewMessage(chatobj:ChatMessageVO, translate:Boolean, language:String = null):void {	
-
-				
 				/*********************************
 				 * We put a blank message at the end to force the scrollbar to display the
 				 * REAL last message.
@@ -318,7 +320,7 @@
 				}
 			}
 			
-			private function goBackOneMessage(e:ShortcutEvent):void{
+			private function goBackOneMessage(e:ShortcutEvent):void {
 				if (e.otherUserID == chatWithUserID){
 					if (currentMessage > 0){
 						currentMessage--;
@@ -330,7 +332,7 @@
 				}
 			}
 			
-			private function repeatMessage(e:ShortcutEvent):void{
+			private function repeatMessage(e:ShortcutEvent):void {
 				if (e.otherUserID == chatWithUserID){
 					chatMessagesList.accessibilityProperties.description += " ";	
 					repeat = true;
@@ -338,7 +340,7 @@
 				}
 			}
 			
-			private function goToLatestMessage(e:ShortcutEvent):void{
+			private function goToLatestMessage(e:ShortcutEvent):void {
 				if (e.otherUserID == chatWithUserID){
 					currentMessage = messages.length-3;
 					navToLatest = true;
@@ -351,7 +353,7 @@
 				}
 			}
 			
-			private function goToFirstMessage(e:ShortcutEvent):void{
+			private function goToFirstMessage(e:ShortcutEvent):void {
 				if (e.otherUserID == chatWithUserID){
 					currentMessage = 0;
 					navToFirst = true;
@@ -364,7 +366,7 @@
 				}
 			}
 			
-			private function goToLatestReadMessage(e:ShortcutEvent):void{
+			private function goToLatestReadMessage(e:ShortcutEvent):void {
 				if (e.otherUserID == chatWithUserID){
 					currentMessage = latestMessage;
 					chatMessagesList.accessibilityProperties.description = navRecentString;
@@ -373,7 +375,7 @@
 				}
 			}
 			
-			private function navigationMaintenance():void{
+			private function navigationMaintenance():void {
 				// Update the latestMessage counter for new message notifications
 				if (currentMessage > latestMessage)
 					latestMessage = currentMessage;
@@ -411,22 +413,36 @@
 				indicatorNeeded = false
 				repeat = false;
 			}
-
+     
       private function sendPublicChatMessage(message:String):void {
         var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
-        publicEvent.message = ChatUtil.cleanup(message);
-        publicEvent.color = cmpColorPicker.selectedColor.toString();
-        publicEvent.time = ChatUtil.getCurrentTime();
-        publicEvent.language = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
+        var cm:ChatMessageVO = new ChatMessageVO();
+        cm.chatType = ChatConstants.PUBLIC_CHAT;
+        cm.fromUserID = UsersUtil.getMyUserID();
+        cm.fromUsername = UsersUtil.getMyUsername();
+        cm.fromColor = cmpColorPicker.selectedColor.toString();
+        cm.fromLang = ChatUtil.getUserLang();
+        cm.fromTime = ChatUtil.getCurrentTime();
+        cm.message = ChatUtil.cleanup(message);
+        
+        publicEvent.chatMessage = cm;
         globalDispatcher.dispatchEvent(publicEvent);
       }
       
-      private function sendPrivateChatMessage():void {
+      private function sendPrivateChatMessage(message:String):void {
         var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
-        privateEvent.toUser = name;
-        privateEvent.color = cmpColorPicker.selectedColor.toString();
-        privateEvent.time = ChatUtil.getCurrentTime();
-        privateEvent.language = ChatUtil.getUserLang();
+        var cm:ChatMessageVO = new ChatMessageVO();
+        cm.chatType = ChatConstants.PRIVATE_CHAT;
+        cm.fromUserID = UsersUtil.getMyUserID();
+        cm.fromUsername = UsersUtil.getMyUsername();
+        cm.fromColor = cmpColorPicker.selectedColor.toString();
+        cm.fromLang = ChatUtil.getUserLang();
+        cm.fromTime = ChatUtil.getCurrentTime();
+        cm.message = ChatUtil.cleanup(message);
+        cm.toUserID = chatWithUserID;
+        cm.toUsername = chatWithUsername;
+        
+        privateEvent.chatMessage = cm;
         globalDispatcher.dispatchEvent(privateEvent);
       }
       
@@ -435,7 +451,7 @@
           if (publicChat) {						
             sendPublicChatMessage(txtMsg.text);
           } else{						
-            sendPrivateChatMessage();
+            sendPrivateChatMessage(txtMsg.text);
           }
           clearMessageEntryTextBox();
         }

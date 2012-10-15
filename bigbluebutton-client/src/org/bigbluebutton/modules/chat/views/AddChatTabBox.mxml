@@ -53,9 +53,9 @@
 			protected function openPrivateChat(event:Event):void{
 				if (participantsList.selectedIndex == -1) return;
 
-				var id:String = participantsList.selectedItem.userID;
+				var chatWithUserID:String = participantsList.selectedItem.userID;
 				participantsList.selectedIndex = -1;
-				chatView.openChatBoxFor(id);
+				chatView.openChatBoxFor(chatWithUserID);
 			}
 			
 			private function changeFontSize():void {

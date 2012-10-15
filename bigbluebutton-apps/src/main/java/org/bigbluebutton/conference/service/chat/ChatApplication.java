@@ -65,14 +65,20 @@ public class ChatApplication {
 		return false;
 	}
 	
-	public List<ChatObject> getChatMessages(String room) {
+	public List<ChatMessageVO> getChatMessages(String room) {
 		return roomsManager.getChatMessages(room);
 	}
 	
-	public void sendMessage(String room, ChatObject chatobj) {
+	public void sendPublicMessage(String room, ChatMessageVO chatobj) {
 		roomsManager.sendMessage(room, chatobj);
 		
 		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "ChatReceivePublicMessageCommand", chatobj.toMap());
+		connInvokerService.sendMessage(m);
+	}
+
+	public void sendPrivateMessage(ChatMessageVO chatobj) {
+		System.out.println("Sending private chat message to [" + chatobj.toUserID + "]");
+		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, chatobj.toUserID, "ChatReceivePrivateMessageCommand", chatobj.toMap());
 		connInvokerService.sendMessage(m);
 	}
 	

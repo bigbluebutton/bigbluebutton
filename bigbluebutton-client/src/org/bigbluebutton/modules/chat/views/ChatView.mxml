@@ -219,29 +219,30 @@
 			}
 			
 			
-			public function openChatBoxFor(userID:String, publicChat:Boolean=false):void {
+			public function openChatBoxFor(chatWithUserID:String, publicChat:Boolean=false):void {
 				var chatBox:ChatBox;
 				
-				if (participantHasChatBox(userID)) {
-					chatBox = getChatBoxForParticipant(userID);
+				if (participantHasChatBox(chatWithUserID)) {
+					chatBox = getChatBoxForParticipant(chatWithUserID);
 				} else {
-					chatBox = createChatBoxFor(userID, publicChat);
-					chatBox.chatWithUserID = userID;
+					chatBox = createChatBoxFor(chatWithUserID, publicChat);
+					chatBox.chatWithUserID = chatWithUserID;
 				}				
 			}
 			
-			private function createChatBoxFor(userID:String, publicChat:Boolean=false):ChatBox {				
+			private function createChatBoxFor(chatWithUserID:String, publicChat:Boolean=false):ChatBox {				
 				var chatBox:ChatBox = new ChatBox();
-				chatBox.id = userID
+				chatBox.id = chatWithUserID
+          
         if (publicChat) {
           chatBox.label = PUBLIC_CHAT_USERNAME
-            chatBox.publicChat = true;
+          chatBox.publicChat = true;
         } else {
           chatBox.publicChat = false;
-          chatBox.label = getUserName(userID);
+          chatBox.label = getUserName(chatWithUserID);
         }
 				
-				chatBox.name = getUserName(userID);
+				chatBox.chatWithUsername = getUserName(chatWithUserID);
 				
 				if (chatTabs.numChildren >= 2){ 
 					chatTabs.addChildAt(chatBox, chatTabs.numChildren - 1);
@@ -281,13 +282,13 @@
 			
 			// Activates an audio alert for screen-reader users on private message reception
 			private function privateNotification(event:PrivateChatMessageEvent):void{
-				if (! UserManager.getInstance().getConference().amIThisUser(event.message.chatobj.userid)) {
+				if (! UserManager.getInstance().getConference().amIThisUser(event.message.chatobj.fromUserID)) {
 					var newItem:Boolean = true;
 					// Check if there is already a notification of private messages from that user
 					if (privateWaiting.length){
 						for (var i:int = 0; i < privateWaiting.length; i++){
 							// Compare userID of incoming message to userIDs of unsent notifications
-							if (event.message.chatobj.userid == privateWaiting.getItemAt(i).message.chatobj.userid){
+							if (event.message.chatobj.fromUserID == privateWaiting.getItemAt(i).message.chatobj.fromUserID){
 								newItem = false;
 							}
 						}
@@ -295,8 +296,8 @@
 					if (newItem){
 						// Add a private chat event (with all associated information) to the privateWaiting array
 						privateWaiting.addItem(event);
-						chatTabs.getChildByName(event.message.chatobj.userid).addEventListener(FocusEvent.FOCUS_IN, privateChatFocus);
-						chatTabs.getChildByName(event.message.chatobj.userid).addEventListener(FocusEvent.FOCUS_OUT, privateChatUnfocus);
+						chatTabs.getChildByName(event.message.chatobj.fromUserID).addEventListener(FocusEvent.FOCUS_IN, privateChatFocus);
+						chatTabs.getChildByName(event.message.chatobj.fromUserID).addEventListener(FocusEvent.FOCUS_OUT, privateChatUnfocus);
 					}
 				}
 			}

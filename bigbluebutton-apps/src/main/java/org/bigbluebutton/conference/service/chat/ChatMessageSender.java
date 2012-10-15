@@ -40,7 +40,7 @@ private static Logger log = Red5LoggerFactory.getLogger( ChatMessageSender.class
 	}
 
 	@Override
-	public void newChatMessage(ChatObject chatobj) {
+	public void newChatMessage(ChatMessageVO chatobj) {
 /*		List<ChatObject> list = new ArrayList<ChatObject>();
 		list.add(chatobj);
 		

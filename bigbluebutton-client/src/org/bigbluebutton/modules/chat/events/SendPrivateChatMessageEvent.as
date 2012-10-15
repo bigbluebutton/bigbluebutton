@@ -19,15 +19,14 @@
 package org.bigbluebutton.modules.chat.events
 {
 	import flash.events.Event;
+	
+	import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 
 	public class SendPrivateChatMessageEvent extends Event
 	{
 		public static const SEND_PRIVATE_CHAT_MESSAGE_EVENT:String = 'SEND_PRIVATE_CHAT_MESSAGE_EVENT';
-		public var message:String;
-		public var toUser:String;
-		public var time:String;
-		public var color:String;
-		public var language:String;
+		
+    public var chatMessage:ChatMessageVO;
 				
 		public function SendPrivateChatMessageEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
 		{

@@ -63,7 +63,7 @@ public class ChatRoomsManager {
 		return rooms.get(name);
 	}
 	
-	public List<ChatObject> getChatMessages(String room) {
+	public List<ChatMessageVO> getChatMessages(String room) {
 		ChatRoom r = getRoom(room);
 		if (r != null) {
 			return r.getChatMessages();
@@ -72,7 +72,7 @@ public class ChatRoomsManager {
 		return null;
 	}
 	
-	public void sendMessage(String room, ChatObject chatobj) {
+	public void sendMessage(String room, ChatMessageVO chatobj) {
 		ChatRoom r = getRoom(room);
 		if (r != null) {
 			r.sendMessage(chatobj);
