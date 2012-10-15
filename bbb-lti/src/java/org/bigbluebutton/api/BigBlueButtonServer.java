@@ -58,13 +58,6 @@ public class BigBlueButtonServer {
         this.salt = salt;
     }
     
-    public String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW ) {
-        Integer voiceBridge = 70000 + new Random(System.currentTimeMillis()).nextInt(10000);
-
-        String url = getCreateURL(name, meetingID, attendeePW, moderatorPW, "", "", voiceBridge.toString(), "", "", "", "", "", "" );
-        return url;
-    }
-
     public String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, String dialNumber, String voiceBridge, String webVoice, String logoutURL, String maxParticipants, String record, String duration, String meta ) {
 
         String url = "";
@@ -73,7 +66,7 @@ public class BigBlueButtonServer {
             url += "&meetingID=" + meetingID;
             url += "&moderatorPW=" + moderatorPW;
             url += "&attendeePW=" + attendeePW;
-            url += "&welcome=" + welcome;
+            url += "&welcome=" + URLEncoder.encode(welcome, PARAMETERENCODING);
             url += "&logoutURL=" + URLEncoder.encode(logoutURL, PARAMETERENCODING);
             url += "&maxParticipants=" + maxParticipants;
             url += "&voiceBridge=" + voiceBridge;

@@ -46,6 +46,7 @@ class ToolController {
     public static final String USER_ID = 'lis_person_sourcedid'
     public static final String USER_FIRSTNAME = 'lis_person_name_given'
     public static final String COURSE_ID = 'context_id'
+    public static final String COURSE_TITLE = 'context_title'
     public static final String RESOURCE_LINK_ID = 'resource_link_id'
     public static final String RESOURCE_LINK_TITLE = 'resource_link_title'
     public static final String RESOURCE_LINK_DESCRIPTION = 'resource_link_description'
@@ -86,10 +87,13 @@ class ToolController {
                         //log.debug DigestUtils.shaHex("mp"+params.get(RESOURCE_LINK_ID))
                         //log.debug params.get(USER_FULL_NAME)
                         log.debug params.get(ROLES)
+                        String welcome = "Welcome to " + params.get(RESOURCE_LINK_TITLE) //message(code: "bigbluebutton.welcome", args: [params.get(RESOURCE_LINK_TITLE), params.get(COURSE_TITLE)])
+                        log.debug welcome
                         String destinationURL = bigbluebuttonService.getJoinURL(params.get(RESOURCE_LINK_TITLE), 
                             params.get(RESOURCE_LINK_ID), 
                             DigestUtils.shaHex("ap" + params.get(RESOURCE_LINK_ID)), 
                             DigestUtils.shaHex("mp"+params.get(RESOURCE_LINK_ID)),
+                            welcome,
                             params.get(LAUNCH_RETURN_URL), 
                             params.get(USER_FULL_NAME), params.get(ROLES))
                         

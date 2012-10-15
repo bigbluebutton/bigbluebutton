@@ -69,8 +69,8 @@ class BigbluebuttonService {
     
     }
     
-    public String getJoinURL(String meetingName, String meetingID, String attendeePW, String moderatorPW, String logoutURL, String userFullName, String roles) {
-        String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, logoutURL )
+    public String getJoinURL(String meetingName, String meetingID, String attendeePW, String moderatorPW, String welcome, String logoutURL, String userFullName, String roles) {
+        String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcome, logoutURL )
         log.debug "signed createURL: " + createURL
         Map<String, Object> createResponse = doAPICall(createURL)
         log.debug "createResponse: " + createResponse
@@ -90,10 +90,10 @@ class BigbluebuttonService {
 
     }
     
-    private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String logoutURL ) {
+    private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, String logoutURL ) {
         Integer voiceBridge = 70000 + new Random(System.currentTimeMillis()).nextInt(10000);
 
-        String url = bbbServer.getCreateURL(name, meetingID, attendeePW, moderatorPW, "", "", voiceBridge.toString(), "", logoutURL, "", "", "", "" );
+        String url = bbbServer.getCreateURL(name, meetingID, attendeePW, moderatorPW, welcome, "", voiceBridge.toString(), "", logoutURL, "", "", "", "" );
         return url;
     }
     
