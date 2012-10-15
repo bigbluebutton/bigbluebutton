@@ -283,7 +283,7 @@ load_script = function(file){
 document.addEventListener( "DOMContentLoaded", function() {
   var appName = navigator.appName;
   var appVersion = navigator.appVersion;
-  var video = document.getElementById("webcam");
+  //var video = document.getElementById("webcam");
 
   if (appName == "Microsoft Internet Explorer" && navigator.userAgent.match("chromeframe") == false ) {
     google_frame_warning
@@ -295,7 +295,7 @@ document.addEventListener( "DOMContentLoaded", function() {
   }else{
       videoContainer = document.getElementById("videoRecordingWrapper").style.display = "none";       
       chat = document.getElementById("chat");
-      chat.style.height = "560px";
+      chat.style.height = "600px";
       chat.style.backgroundColor = "white";      
       load_audio();
   }
@@ -305,7 +305,7 @@ document.addEventListener( "DOMContentLoaded", function() {
   generateThumbnails();
 
   //load up the acorn controls
-  jQuery('video').acornMediaPlayer();
+  jQuery('#video').acornMediaPlayer();
   $('.acorn-controls').width('500');
   $('.acorn-controls').position({
     "my": "center top",
