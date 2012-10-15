@@ -169,11 +169,8 @@ public class BigBlueButtonServer {
         
         return this.url + API_SERVERPATH + APICALL_PUBLISHRECORDINGS + "?" + url;
     }
-
-    // -----------------------------------------------------------------------
-    // --- BBB Other utility methods -----------------------------------------
-    // -----------------------------------------------------------------------
-    /** Creates the checksum to be included as part of the url */
+    
+    /** Creates the checksum parameter to be included as part of the url */
     private String getCheckSumParameterForQuery(String apiCall, String queryString) {
         if (this.salt != null)
             return "&checksum=" + DigestUtils.shaHex(apiCall + queryString + this.salt);

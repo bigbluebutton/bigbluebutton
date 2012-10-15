@@ -1,3 +1,22 @@
+/* 
+    BigBlueButton - http://www.bigbluebutton.org
+
+    Copyright (c) 2008-2012 by respective authors (see below). All rights reserved.
+
+    BigBlueButton is free software; you can redistribute it and/or modify it under the 
+    terms of the GNU Lesser General Public License as published by the Free Software 
+    Foundation; either version 2 of the License, or (at your option) any later 
+    version.  
+
+    BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+    PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License along 
+    with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jesus Federico <jesus@blindsidenetworks.com>
+*/    
 package org.bigbluebutton.web.services
 
 import java.io.BufferedReader;
@@ -10,6 +29,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,6 +44,7 @@ import org.xml.sax.SAXException;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import org.bigbluebutton.api.BigBlueButtonServer;
+import org.bigbluebutton.lti.Role;
 
 class BigbluebuttonService {
 
@@ -47,8 +69,8 @@ class BigbluebuttonService {
     
     }
     
-    public String getJoinURL(String meetingName, String meetingID, String attendeePW, String moderatorPW, String userFullName, String roles) {
-        String createURL = bbbServer.getCreateURL( meetingName, meetingID, attendeePW, moderatorPW )
+    public String getJoinURL(String meetingName, String meetingID, String attendeePW, String moderatorPW, String logoutURL, String userFullName, String roles) {
+        String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, logoutURL )
         log.debug "signed createURL: " + createURL
         Map<String, Object> createResponse = doAPICall(createURL)
         log.debug "createResponse: " + createResponse
@@ -60,14 +82,21 @@ class BigbluebuttonService {
             String messageKey = (String) createResponse.get("messageKey")
             if ( BigBlueButtonServer.APIRESPONSE_SUCCESS.equals(returnCode) || 
                 (BigBlueButtonServer.APIRESPONSE_FAILED.equals(returnCode) &&  (BigBlueButtonServer.MESSAGEKEY_IDNOTUNIQUE.equals(messageKey) || BigBlueButtonServer.MESSAGEKEY_DUPLICATEWARNING.equals(messageKey)) ) ){
-                response = bbbServer.getJoinMeetingURL( userFullName, meetingID, moderatorPW )
+                response = bbbServer.getJoinMeetingURL( userFullName, meetingID, Role.isModerator(roles)? moderatorPW: attendeePW);
             }
         }
         
         return response
 
     }
-        
+    
+    private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String logoutURL ) {
+        Integer voiceBridge = 70000 + new Random(System.currentTimeMillis()).nextInt(10000);
+
+        String url = bbbServer.getCreateURL(name, meetingID, attendeePW, moderatorPW, "", "", voiceBridge.toString(), "", logoutURL, "", "", "", "" );
+        return url;
+    }
+    
     /** Make an API call */
     private Map<String, Object> doAPICall(String query) {
         StringBuilder urlStr = new StringBuilder(query);

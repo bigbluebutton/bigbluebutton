@@ -1,3 +1,22 @@
+/* 
+    BigBlueButton - http://www.bigbluebutton.org
+
+    Copyright (c) 2008-2012 by respective authors (see below). All rights reserved.
+
+    BigBlueButton is free software; you can redistribute it and/or modify it under the 
+    terms of the GNU Lesser General Public License as published by the Free Software 
+    Foundation; either version 2 of the License, or (at your option) any later 
+    version.  
+
+    BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+    PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License along 
+    with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
+
+    Author: Jesus Federico <jesus@blindsidenetworks.com>
+*/    
 package org.bigbluebutton.web.controllers
 import java.util.ArrayList
 import java.util.HashMap
@@ -31,7 +50,12 @@ class ToolController {
     public static final String RESOURCE_LINK_TITLE = 'resource_link_title'
     public static final String RESOURCE_LINK_DESCRIPTION = 'resource_link_description'
     public static final String ROLES = 'roles'
-
+    
+    public static final String LAUNCH_LOCALE = "launch_presentation_locale"
+    public static final String LAUNCH_DOCUMENT_TARGET = "launch_presentation_document_target"
+    public static final String LAUNCH_CSS_URL = "launch_presentation_css_url"
+    public static final String LAUNCH_RETURN_URL = "launch_presentation_return_url"
+    
     public static final String CUSTOM_USER_ID = 'custom_lis_person_sourcedid'
     
     LtiService ltiService
@@ -43,28 +67,32 @@ class ToolController {
         def resultMessageKey = "init"
         def resultMessage = "init"
         def success = false
-        def customer
+        def consumer
         ArrayList<String> missingParams = new ArrayList<String>()
         log.debug "Checking for required parameters"
         if (hasAllRequiredParams(params, missingParams)) {
             def sanitizedParams = sanitizePrametersForBaseString(params)
 
-            customer = getCustomer(params)
-            if (customer != null) {
-                log.debug "Found customer " + customer.get("customerId") + " with secretKey " + customer.get("secretKey")
-                if (checkValidSignature(request.getMethod().toUpperCase(), retrieveBasicLtiEndpoint(), customer.get("secretKey"), sanitizedParams, params.get(OAUTH_SIGNATURE))) {
-                    if (hasValidStudentId(params, customer)) {
+            consumer = getConsumer(params)
+            if (consumer != null) {
+                log.debug "Found consumer with key " + consumer.get("key") + " with secret " + consumer.get("secret")
+                if (checkValidSignature(request.getMethod().toUpperCase(), retrieveBasicLtiEndpoint(), consumer.get("secret"), sanitizedParams, params.get(OAUTH_SIGNATURE))) {
+                    if (hasValidStudentId(params, consumer)) {
                         // We have a valid signature.
                         
-                        log.debug params.get(RESOURCE_LINK_TITLE)
-                        log.debug params.get(RESOURCE_LINK_ID)
-                        log.debug DigestUtils.shaHex("ap" + params.get(RESOURCE_LINK_ID))
-                        log.debug DigestUtils.shaHex("mp"+params.get(RESOURCE_LINK_ID))
-                        log.debug params.get(USER_FULL_NAME)
+                        //log.debug params.get(RESOURCE_LINK_TITLE)
+                        //log.debug params.get(RESOURCE_LINK_ID)
+                        //log.debug DigestUtils.shaHex("ap" + params.get(RESOURCE_LINK_ID))
+                        //log.debug DigestUtils.shaHex("mp"+params.get(RESOURCE_LINK_ID))
+                        //log.debug params.get(USER_FULL_NAME)
                         log.debug params.get(ROLES)
-                        String destinationURL = bigbluebuttonService.getJoinURL(params.get(RESOURCE_LINK_TITLE), params.get(RESOURCE_LINK_ID), DigestUtils.shaHex("ap" + params.get(RESOURCE_LINK_ID)), DigestUtils.shaHex("mp"+params.get(RESOURCE_LINK_ID)), params.get(USER_FULL_NAME), params.get(ROLES))
+                        String destinationURL = bigbluebuttonService.getJoinURL(params.get(RESOURCE_LINK_TITLE), 
+                            params.get(RESOURCE_LINK_ID), 
+                            DigestUtils.shaHex("ap" + params.get(RESOURCE_LINK_ID)), 
+                            DigestUtils.shaHex("mp"+params.get(RESOURCE_LINK_ID)),
+                            params.get(LAUNCH_RETURN_URL), 
+                            params.get(USER_FULL_NAME), params.get(ROLES))
                         
-                        //String destinationURL = "http://bigbluebutton.org"
                         log.debug "redirecting to " + destinationURL
                         if( destinationURL != null ) {
                             success = true
@@ -205,13 +233,13 @@ class ToolController {
         return hasAllParams
     }
 
-    private boolean hasValidStudentId(params, customer) {
+    private boolean hasValidStudentId(params, consumer) {
         if (((Map<String, String>)params).containsKey(USER_ID) || ((Map<String, String>)params).containsKey(CUSTOM_USER_ID)) {
             return true;
         }
 
         if (((Map<String, String>)params).containsKey(USER_EMAIL)) {
-            ((Map<String, String>)params).put(USER_ID, ((Map<String, String>)customer).get(USER_EMAIL))
+            ((Map<String, String>)params).put(USER_ID, ((Map<String, String>)consumer).get(USER_EMAIL))
             return true
         }
 
@@ -232,23 +260,22 @@ class ToolController {
         HMAC_SHA1 hmac = new HMAC_SHA1();
         hmac.setConsumerSecret(conSecret);
 
-        log.debug("Base Message String = [ " + hmac.getBaseString(oam) + " ]\n");
+        //log.debug("Base Message String = [ " + hmac.getBaseString(oam) + " ]\n");
         String calculatedSignature = hmac.getSignature(hmac.getBaseString(oam))
-        log.debug("Calculated: " + calculatedSignature + " Received: " + signature);
+        //log.debug("Calculated: " + calculatedSignature + " Received: " + signature);
         return calculatedSignature.equals(signature)
     }
 
-    private Map<String, String> getCustomer(params) {
-        Map<String, String> customer = new HashMap<String, String>()
+    private Map<String, String> getConsumer(params) {
+        Map<String, String> consumer = new HashMap<String, String>()
         
-        customer.put("customerId", "187");
-        customer.put("secretKey", "Huzzah!!")
+        consumer.put("key", "demo");
+        consumer.put("secret", "welcome")
         
-        return customer
+        return consumer
     }
 
     def retrieveBasicLtiEndpoint() {
-        //String basicLtiEndPoint = grailsApplication.config.grails.serverURL + "/bigbluebutton/blti/tool.xml"
         String basicLtiEndPoint = "http://192.168.0.153/lti/tool.xml"
         log.debug "basicLtiEndPoint [" + basicLtiEndPoint + "]"
         return basicLtiEndPoint

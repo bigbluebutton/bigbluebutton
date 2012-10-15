@@ -5,7 +5,7 @@ import org.apache.commons.codec.binary.Base64
 
 class LtiService {
 
-    boolean transactional = true
+    boolean transactional = false
 
     public String sign(String sharedSecret, String data) throws Exception
     {
