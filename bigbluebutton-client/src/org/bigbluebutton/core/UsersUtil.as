@@ -1,6 +1,7 @@
 package org.bigbluebutton.core
 {
   import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.main.model.users.BBBUser;
 
   public class UsersUtil
   {
@@ -13,7 +14,19 @@ package org.bigbluebutton.core
     }
     
     public static function internalUserIDToExternalUserID(userID:String):String {
-      return "";
+      var user:BBBUser = UserManager.getInstance().getConference().getUser(userID);
+      if (user != null) {
+        return user.externUserID;
+      }
+      return null;
     }
+    
+    public static function externalUserIDToInternalUserID(externUserID:String):String {
+      var user:BBBUser = UserManager.getInstance().getConference().getUserWithExternUserID(externUserID);
+      if (user != null) {
+        return user.userID;
+      }
+      return null;
+    }    
   }
 }

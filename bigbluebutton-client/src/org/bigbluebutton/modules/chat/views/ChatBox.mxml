@@ -143,12 +143,18 @@
 			}
 			
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-        LogUtil.debug("*** Received PUBLIC Chat Message ****");
+        if (publicChat) {
+          LogUtil.debug("*** Received PUBLIC Chat Message ****");
+        }
+        
    //     showNewMessage(event.
       }
       
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
-        LogUtil.debug("*** Received PRIVATE Chat Message ****");
+        if (!publicChat) {
+          LogUtil.debug("*** Received PRIVATE Chat Message ****");
+        }
+        
       }
       
 			// Exposes senderID for a given message to accessibilty methods in ChatView.mxml

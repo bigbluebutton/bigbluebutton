@@ -27,7 +27,6 @@ package org.bigbluebutton.core.managers {
 	public class UserManager {
 		private static var instance:UserManager = null;
 		private var listeners:ArrayCollection;
-		private var users:ArrayCollection;
 		private var conference:Conference = new Conference();
 		
 		/**

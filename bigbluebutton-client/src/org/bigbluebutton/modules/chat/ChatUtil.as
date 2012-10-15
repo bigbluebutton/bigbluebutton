@@ -41,7 +41,7 @@ package org.bigbluebutton.modules.chat
       if (indexOfHTTP == -1 && indexOfWWW == -1 && indexOfHTTPS == -1) return message;
       var words:Array = message.split(" ");
       var parsedString:String = "";
-      for (var n:Number = 0; n<words.length; n++){
+      for (var n:Number = 0; n < words.length; n++){
         var word:String = words[n] as String;
         if (word.indexOf("http://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
         else if (word.indexOf("www.") != -1) parsedString += '<a href="event:http://' + word + '"> <u>' + word + '</u></a> ';

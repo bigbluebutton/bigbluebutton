@@ -207,7 +207,7 @@ package org.bigbluebutton.main.model.users {
 		public function participantLeft(userID:String):void { 			
 			var user:BBBUser = UserManager.getInstance().getConference().getUser(userID);
 			
-			UserManager.getInstance().getConference().removeParticipant(userID);	
+			UserManager.getInstance().getConference().removeUser(userID);	
 			
 			var dispatcher:Dispatcher = new Dispatcher();
 			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);

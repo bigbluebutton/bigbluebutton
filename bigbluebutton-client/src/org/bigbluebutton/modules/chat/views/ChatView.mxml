@@ -282,13 +282,13 @@
 			
 			// Activates an audio alert for screen-reader users on private message reception
 			private function privateNotification(event:PrivateChatMessageEvent):void{
-				if (! UserManager.getInstance().getConference().amIThisUser(event.message.chatobj.fromUserID)) {
+				if (! UserManager.getInstance().getConference().amIThisUser(event.message.fromUserID)) {
 					var newItem:Boolean = true;
 					// Check if there is already a notification of private messages from that user
 					if (privateWaiting.length){
 						for (var i:int = 0; i < privateWaiting.length; i++){
 							// Compare userID of incoming message to userIDs of unsent notifications
-							if (event.message.chatobj.fromUserID == privateWaiting.getItemAt(i).message.chatobj.fromUserID){
+							if (event.message.fromUserID == privateWaiting.getItemAt(i).message.fromUserID){
 								newItem = false;
 							}
 						}
@@ -296,8 +296,8 @@
 					if (newItem){
 						// Add a private chat event (with all associated information) to the privateWaiting array
 						privateWaiting.addItem(event);
-						chatTabs.getChildByName(event.message.chatobj.fromUserID).addEventListener(FocusEvent.FOCUS_IN, privateChatFocus);
-						chatTabs.getChildByName(event.message.chatobj.fromUserID).addEventListener(FocusEvent.FOCUS_OUT, privateChatUnfocus);
+						chatTabs.getChildByName(event.message.fromUserID).addEventListener(FocusEvent.FOCUS_IN, privateChatFocus);
+						chatTabs.getChildByName(event.message.fromUserID).addEventListener(FocusEvent.FOCUS_OUT, privateChatUnfocus);
 					}
 				}
 			}
