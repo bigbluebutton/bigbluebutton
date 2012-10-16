@@ -305,7 +305,10 @@ document.addEventListener( "DOMContentLoaded", function() {
   generateThumbnails();
 
   //load up the acorn controls
-  jQuery('#video').acornMediaPlayer();
+  jQuery('#video').acornMediaPlayer({
+    theme: 'darkglass',
+    volumeSlider: 'vertical'
+  });
   $('.acorn-controls').width('500');
   $('.acorn-controls').position({
     "my": "center top",
