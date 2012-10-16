@@ -51,7 +51,7 @@
         if (UsersUtil.isMe(chatWithUserID)) return;
         
 				usersList.selectedIndex = -1;
-				chatView.openChatBoxFor(chatWithUserID);
+				chatView.startPrivateChatWith(chatWithUserID);
 			}
 						
 		]]>

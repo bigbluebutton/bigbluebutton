@@ -77,9 +77,11 @@ public class ChatApplication {
 	}
 
 	public void sendPrivateMessage(ChatMessageVO chatobj) {
-		System.out.println("Sending private chat message to [" + chatobj.toUserID + "]");
 		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, chatobj.toUserID, "ChatReceivePrivateMessageCommand", chatobj.toMap());
 		connInvokerService.sendMessage(m);
+		
+		ClientMessage m2 = new ClientMessage(ClientMessage.DIRECT, chatobj.fromUserID, "ChatReceivePrivateMessageCommand", chatobj.toMap());
+		connInvokerService.sendMessage(m2);
 	}
 	
 	public void setRoomsManager(ChatRoomsManager r) {

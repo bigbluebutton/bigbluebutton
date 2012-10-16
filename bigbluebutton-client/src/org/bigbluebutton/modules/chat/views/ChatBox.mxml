@@ -160,7 +160,7 @@
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
         var message:ChatMessageVO = event.message;
         
-        if (!publicChat && message.fromUserID == chatWithUserID) {
+        if (!publicChat && (message.fromUserID == chatWithUserID || UsersUtil.isMe(message.fromUserID))) {
           LogUtil.debug("*** Received PRIVATE Chat Message ****");
           chatMessages.newChatMessage(event.message);
           scrollToEndOfMessage();

@@ -1,5 +1,7 @@
 package org.bigbluebutton.modules.chat.services
 {
+  import flash.events.IEventDispatcher;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.managers.ConnectionManager;
@@ -7,6 +9,8 @@ package org.bigbluebutton.modules.chat.services
 
   public class MessageSender
   {
+    public var dispatcher:IEventDispatcher;
+    
     public function getPublicMessages():void
     {  
       LogUtil.debug("Sending [chat.getPublicMessages] to server.");
@@ -50,6 +54,10 @@ package org.bigbluebutton.modules.chat.services
         },
         message.toObj()
       );
+    }
+    
+    private function sendMessageToSelf(message:ChatMessageVO):void {
+      
     }
   }
 }

@@ -45,8 +45,7 @@ package org.bigbluebutton.modules.chat.model
       cm.translatedColor = uint(msg.fromColor);
       cm.senderTime = msg.fromTime;		
       
-      messages.addItem(cm);
-      LogUtil.debug("Added chat message. [" + cm.translatedText + "][" + cm.senderText + "]");      
+      messages.addItem(cm); 
     }
     
     public function getAllMessageAsString():String{
