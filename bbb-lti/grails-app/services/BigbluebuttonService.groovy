@@ -43,7 +43,7 @@ import org.xml.sax.SAXException;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import org.bigbluebutton.api.BigBlueButtonServer;
+import org.bigbluebutton.api.Proxy;
 import org.bigbluebutton.lti.Role;
 
 class BigbluebuttonService {
@@ -53,7 +53,7 @@ class BigbluebuttonService {
     def url = "http://test-install.blindsidenetworks.com/bigbluebutton"
     def salt = "8cd8ef52e8e101574e400365b55e11a6"
 
-    BigBlueButtonServer bbbServer
+    Proxy bbbProxy
     DocumentBuilderFactory docBuilderFactory;
     DocumentBuilder docBuilder;
 
@@ -64,19 +64,19 @@ class BigbluebuttonService {
         try {
             docBuilder = docBuilderFactory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
-            logger.error("Failed to initialise BaseBBBAPI", e);
+            logger.error("Failed to initialise BaseProxy", e);
         }
         
-        //Instantiate bbbServer and initialize it with default url and salt
-        bbbServer = new BigBlueButtonServer(url, salt)
+        //Instantiate bbbProxy and initialize it with default url and salt
+        bbbProxy = new Proxy(url, salt)
     
     }
     
     public String getJoinURL(String meetingName, String meetingID, String attendeePW, String moderatorPW, String welcome, String logoutURL, String userFullName, String roles) {
 
         //Set the injected values
-        if( !url.equals(bbbServer.url) && !url.equals("") ) bbbServer.setUrl(url)
-        if( !salt.equals(bbbServer.salt) && !salt.equals("") ) bbbServer.setSalt(salt)
+        if( !url.equals(bbbProxy.url) && !url.equals("") ) bbbProxy.setUrl(url)
+        if( !salt.equals(bbbProxy.salt) && !salt.equals("") ) bbbProxy.setSalt(salt)
         
         String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcome, logoutURL )
         log.debug "signed createURL: " + createURL
@@ -88,9 +88,9 @@ class BigbluebuttonService {
         if( createResponse != null){
             String returnCode = (String) createResponse.get("returncode")
             String messageKey = (String) createResponse.get("messageKey")
-            if ( BigBlueButtonServer.APIRESPONSE_SUCCESS.equals(returnCode) || 
-                (BigBlueButtonServer.APIRESPONSE_FAILED.equals(returnCode) &&  (BigBlueButtonServer.MESSAGEKEY_IDNOTUNIQUE.equals(messageKey) || BigBlueButtonServer.MESSAGEKEY_DUPLICATEWARNING.equals(messageKey)) ) ){
-                response = bbbServer.getJoinMeetingURL( userFullName, meetingID, Role.isModerator(roles)? moderatorPW: attendeePW);
+            if ( Proxy.APIRESPONSE_SUCCESS.equals(returnCode) || 
+                (Proxy.APIRESPONSE_FAILED.equals(returnCode) &&  (Proxy.MESSAGEKEY_IDNOTUNIQUE.equals(messageKey) || Proxy.MESSAGEKEY_DUPLICATEWARNING.equals(messageKey)) ) ){
+                response = bbbProxy.getJoinMeetingURL( userFullName, meetingID, Role.isModerator(roles)? moderatorPW: attendeePW);
             }
         }
         
@@ -101,7 +101,7 @@ class BigbluebuttonService {
     private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, String logoutURL ) {
         Integer voiceBridge = 70000 + new Random(System.currentTimeMillis()).nextInt(10000);
 
-        String url = bbbServer.getCreateURL(name, meetingID, attendeePW, moderatorPW, welcome, "", voiceBridge.toString(), "", logoutURL, "", "", "", "" );
+        String url = bbbProxy.getCreateURL(name, meetingID, attendeePW, moderatorPW, welcome, "", voiceBridge.toString(), "", logoutURL, "", "", "", "" );
         return url;
     }
     
@@ -156,7 +156,7 @@ class BigbluebuttonService {
                 log.debug("doAPICall.responseMap: " + response);
                 
                 String returnCode = (String) response.get("returncode");
-                if (BigBlueButtonServer.APIRESPONSE_FAILED.equals(returnCode)) {
+                if (Proxy.APIRESPONSE_FAILED.equals(returnCode)) {
                     log.debug("doAPICall." + (String) response.get("messageKey") + ": Message=" + (String) response.get("message"));
                 }
 

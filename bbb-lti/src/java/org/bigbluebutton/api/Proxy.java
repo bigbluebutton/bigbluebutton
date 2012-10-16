@@ -24,7 +24,7 @@ import java.util.Random;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-public class BigBlueButtonServer {
+public class Proxy {
     
     // API Server Path
     protected final static String API_SERVERPATH = "/api/";
@@ -53,7 +53,7 @@ public class BigBlueButtonServer {
     String url;
     String salt;
     
-    BigBlueButtonServer(String url, String salt) {
+    Proxy(String url, String salt) {
         this.url = url;
         this.salt = salt;
     }
