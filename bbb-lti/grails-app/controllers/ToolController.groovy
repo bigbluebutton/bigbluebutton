@@ -17,7 +17,7 @@
 
     Author: Jesus Federico <jesus@blindsidenetworks.com>
 */    
-package org.bigbluebutton.web.controllers
+
 import java.util.ArrayList
 import java.util.HashMap
 import java.util.List
@@ -30,8 +30,8 @@ import net.oauth.OAuthMessage
 import net.oauth.signature.OAuthSignatureMethod;
 import net.oauth.signature.HMAC_SHA1;
 
-import org.bigbluebutton.web.services.BigbluebuttonService
-import org.bigbluebutton.web.services.LtiService
+import BigbluebuttonService
+import LtiService
 
 class ToolController {
     private static final String CONTROLLER_NAME = 'ToolController'

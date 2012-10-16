@@ -1,4 +1,4 @@
-package org.bigbluebutton.web.services
+
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.Mac
 import org.apache.commons.codec.binary.Base64

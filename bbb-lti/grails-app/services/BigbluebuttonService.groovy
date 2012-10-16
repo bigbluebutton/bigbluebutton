@@ -17,7 +17,7 @@
 
     Author: Jesus Federico <jesus@blindsidenetworks.com>
 */    
-package org.bigbluebutton.web.services
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -50,10 +50,10 @@ class BigbluebuttonService {
 
     boolean transactional = false
     
-    def url = "http://192.168.0.153/bigbluebutton"
-    def salt = "e1f2f284119d5754cef6c80ba1e2f393"
+    def url = "http://test-install.blindsidenetworks.com/bigbluebutton"
+    def salt = "8cd8ef52e8e101574e400365b55e11a6"
 
-    BigBlueButtonServer bbbServer = new BigBlueButtonServer(url, salt)
+    BigBlueButtonServer bbbServer
     DocumentBuilderFactory docBuilderFactory;
     DocumentBuilder docBuilder;
 
@@ -66,10 +66,18 @@ class BigbluebuttonService {
         } catch (ParserConfigurationException e) {
             logger.error("Failed to initialise BaseBBBAPI", e);
         }
+        
+        //Instantiate bbbServer and initialize it with default url and salt
+        bbbServer = new BigBlueButtonServer(url, salt)
     
     }
     
     public String getJoinURL(String meetingName, String meetingID, String attendeePW, String moderatorPW, String welcome, String logoutURL, String userFullName, String roles) {
+
+        //Set the injected values
+        if( !url.equals(bbbServer.url) && !url.equals("") ) bbbServer.setUrl(url)
+        if( !salt.equals(bbbServer.salt) && !salt.equals("") ) bbbServer.setSalt(salt)
+        
         String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcome, logoutURL )
         log.debug "signed createURL: " + createURL
         Map<String, Object> createResponse = doAPICall(createURL)

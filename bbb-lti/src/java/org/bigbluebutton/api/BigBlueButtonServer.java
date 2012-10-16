@@ -58,6 +58,14 @@ public class BigBlueButtonServer {
         this.salt = salt;
     }
     
+    public void setUrl(String url){
+        this.url = url;
+    }
+    
+    public void setSalt(String salt){
+        this.salt = salt;
+    }
+    
     public String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, String dialNumber, String voiceBridge, String webVoice, String logoutURL, String maxParticipants, String record, String duration, String meta ) {
 
         String url = "";
