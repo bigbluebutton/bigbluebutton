@@ -27,8 +27,9 @@ import java.util.Properties
 import org.apache.commons.codec.digest.DigestUtils
 
 import net.oauth.OAuthMessage
-import net.oauth.signature.OAuthSignatureMethod;
-import net.oauth.signature.HMAC_SHA1;
+import net.oauth.signature.OAuthSignatureMethod
+import net.oauth.signature.HMAC_SHA1
+import org.bigbluebutton.lti.Parameter
 
 import BigbluebuttonService
 import LtiService
@@ -38,34 +39,14 @@ class ToolController {
     private static final String RESP_CODE_SUCCESS = 'SUCCESS'
     private static final String RESP_CODE_FAILED = 'FAILED'
     
-    public static final String OAUTH_SIGNATURE = 'oauth_signature'
-    public static final String CONSUMER_ID = 'oauth_consumer_key'
-    public static final String USER_FULL_NAME = 'lis_person_name_full'
-    public static final String USER_LASTNAME = 'lis_person_name_family'
-    public static final String USER_EMAIL = 'lis_person_contact_email_primary'
-    public static final String USER_ID = 'lis_person_sourcedid'
-    public static final String USER_FIRSTNAME = 'lis_person_name_given'
-    public static final String COURSE_ID = 'context_id'
-    public static final String COURSE_TITLE = 'context_title'
-    public static final String RESOURCE_LINK_ID = 'resource_link_id'
-    public static final String RESOURCE_LINK_TITLE = 'resource_link_title'
-    public static final String RESOURCE_LINK_DESCRIPTION = 'resource_link_description'
-    public static final String ROLES = 'roles'
-    
-    public static final String LAUNCH_LOCALE = "launch_presentation_locale"
-    public static final String LAUNCH_DOCUMENT_TARGET = "launch_presentation_document_target"
-    public static final String LAUNCH_CSS_URL = "launch_presentation_css_url"
-    public static final String LAUNCH_RETURN_URL = "launch_presentation_return_url"
-    
-    public static final String CUSTOM_USER_ID = 'custom_lis_person_sourcedid'
-    
     LtiService ltiService
     BigbluebuttonService bigbluebuttonService
     
     def index = { 
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
         log.debug CONTROLLER_NAME + "#index" + ltiService.consumerMap
-
+        log.debug params
+        
         def resultMessageKey = "init"
         def resultMessage = "init"
         def success = false
@@ -75,24 +56,23 @@ class ToolController {
         if (hasAllRequiredParams(params, missingParams)) {
             def sanitizedParams = sanitizePrametersForBaseString(params)
 
-            consumer = ltiService.getConsumer(params.get(CONSUMER_ID))
+            consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
             if (consumer != null) {
-                log.debug "Found consumer with key " + consumer.get("key")
-                if (checkValidSignature(request.getMethod().toUpperCase(), retrieveLtiEndpoint(), consumer.get("secret"), sanitizedParams, params.get(OAUTH_SIGNATURE))) {
+                log.debug "Found consumer with key " + consumer.get("key") + " and sharedSecret " + consumer.get("secret")
+                if (checkValidSignature(request.getMethod().toUpperCase(), retrieveLtiEndpoint(), consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
                     if (hasValidStudentId(params, consumer)) {
                         log.debug  "The message has a valid signature."
-                        //Localize the default welcome message
-                        session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(params.get(LAUNCH_LOCALE))
-                        String welcome = message(code: "bigbluebutton.welcome", args: [params.get(RESOURCE_LINK_TITLE), params.get(COURSE_TITLE)])
-                        log.debug "Localized default welcome message: " + welcome
                         
-                        String destinationURL = bigbluebuttonService.getJoinURL(params.get(RESOURCE_LINK_TITLE), 
-                            params.get(RESOURCE_LINK_ID), 
-                            DigestUtils.shaHex("ap" + params.get(RESOURCE_LINK_ID)), 
-                            DigestUtils.shaHex("mp"+params.get(RESOURCE_LINK_ID)),
-                            welcome,
-                            params.get(LAUNCH_RETURN_URL), 
-                            params.get(USER_FULL_NAME), params.get(ROLES))
+                        String localeCode = params.get(Parameter.LAUNCH_LOCALE)
+                        log.debug "Locale code =" + localeCode
+                        //Localize the default welcome message
+                        session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCode)
+                        log.debug "Locale has been set to " + localeCode
+                        String welcome = message(code: "bigbluebutton.welcome", args: ["\"{0}\"", "\"{1}\""])
+                        log.debug "Localized default welcome message: [" + welcome + "]"
+                
+                        //String destinationURL = "http://www.bigbluebutton.org/"
+                        String destinationURL = bigbluebuttonService.getJoinURL(params, welcome)
                         
                         log.debug "redirecting to " + destinationURL
                         if( destinationURL != null ) {
@@ -111,13 +91,13 @@ class ToolController {
 
                 } else {
                     resultMessageKey = 'InvalidSignature'
-                    resultMessage = "Invalid signature (" + params.get(OAUTH_SIGNATURE) + ")."
+                    resultMessage = "Invalid signature (" + params.get(Parameter.OAUTH_SIGNATURE) + ")."
                     log.debug resultMessage
                 }
                 
             } else {
                 resultMessageKey = 'CustomerNotFound'
-                resultMessage = "Customer with id = " + params.get(CONSUMER_ID) + " was not found."
+                resultMessage = "Customer with id = " + params.get(Parameter.CONSUMER_ID) + " was not found."
                 log.debug resultMessage
             }
 
@@ -205,18 +185,20 @@ class ToolController {
      */
     private boolean hasAllRequiredParams(Object params, Object missingParams) {
         boolean hasAllParams = true
-        if (! ((Map<String, String>)params).containsKey(CONSUMER_ID)) {
-            ((ArrayList<String>)missingParams).add(CONSUMER_ID);
+        log.debug "One"
+        if (! ((Map<String, String>)params).containsKey(Parameter.CONSUMER_ID)) {
+            ((ArrayList<String>)missingParams).add(Parameter.CONSUMER_ID);
             hasAllParams = false;
         }
 
-        if (! ((Map<String, String>)params).containsKey(USER_ID) && ! ((Map<String, String>)params).containsKey(CUSTOM_USER_ID)) {
-            if (! ((Map<String, String>)params).containsKey(USER_EMAIL)) {
-                ((ArrayList<String>)missingParams).add(USER_EMAIL);
-                if (! ((Map<String, String>)params).containsKey(USER_ID)) { 
-                    ((ArrayList<String>)missingParams).add(USER_ID);
+        log.debug "Two"
+        if (! ((Map<String, String>)params).containsKey(Parameter.USER_ID) && ! ((Map<String, String>)params).containsKey(Parameter.CUSTOM_USER_ID)) {
+            if (! ((Map<String, String>)params).containsKey(Parameter.USER_EMAIL)) {
+                ((ArrayList<String>)missingParams).add(Parameter.USER_EMAIL);
+                if (! ((Map<String, String>)params).containsKey(Parameter.USER_ID)) { 
+                    ((ArrayList<String>)missingParams).add(Parameter.USER_ID);
                 } else {  
-                    ((ArrayList<String>)missingParams).add(CUSTOM_USER_ID);
+                    ((ArrayList<String>)missingParams).add(Parameter.CUSTOM_USER_ID);
                 }
 
                 hasAllParams = false;
@@ -224,13 +206,15 @@ class ToolController {
 
         }
 
-        if (! ((Map<String, String>)params).containsKey(COURSE_ID)) {
-            ((ArrayList<String>)missingParams).add(COURSE_ID);
+        log.debug "Three"
+        if (! ((Map<String, String>)params).containsKey(Parameter.COURSE_ID)) {
+            ((ArrayList<String>)missingParams).add(Parameter.COURSE_ID);
             hasAllParams = false;
         }
 
-        if (! ((Map<String, String>)params).containsKey(OAUTH_SIGNATURE)) {
-            ((ArrayList<String>)missingParams).add(OAUTH_SIGNATURE);
+        log.debug "Four"
+        if (! ((Map<String, String>)params).containsKey(Parameter.OAUTH_SIGNATURE)) {
+            ((ArrayList<String>)missingParams).add(Parameter.OAUTH_SIGNATURE);
             hasAllParams = false;
         }
 
@@ -238,12 +222,12 @@ class ToolController {
     }
 
     private boolean hasValidStudentId(params, consumer) {
-        if (((Map<String, String>)params).containsKey(USER_ID) || ((Map<String, String>)params).containsKey(CUSTOM_USER_ID)) {
+        if (((Map<String, String>)params).containsKey(Parameter.USER_ID) || ((Map<String, String>)params).containsKey(Parameter.CUSTOM_USER_ID)) {
             return true;
         }
 
-        if (((Map<String, String>)params).containsKey(USER_EMAIL)) {
-            ((Map<String, String>)params).put(USER_ID, ((Map<String, String>)consumer).get(USER_EMAIL))
+        if (((Map<String, String>)params).containsKey(Parameter.USER_EMAIL)) {
+            ((Map<String, String>)params).put(Parameter.USER_ID, ((Map<String, String>)consumer).get(Parameter.USER_EMAIL))
             return true
         }
 
@@ -264,9 +248,9 @@ class ToolController {
         HMAC_SHA1 hmac = new HMAC_SHA1();
         hmac.setConsumerSecret(conSecret);
 
-        //log.debug("Base Message String = [ " + hmac.getBaseString(oam) + " ]\n");
+        log.debug("Base Message String = [ " + hmac.getBaseString(oam) + " ]\n");
         String calculatedSignature = hmac.getSignature(hmac.getBaseString(oam))
-        //log.debug("Calculated: " + calculatedSignature + " Received: " + signature);
+        log.debug("Calculated: " + calculatedSignature + " Received: " + signature);
         return calculatedSignature.equals(signature)
     }
 

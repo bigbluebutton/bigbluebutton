@@ -31,7 +31,6 @@ class LtiService {
     def consumers = "demo:welcome"
     Map<String, String> consumerMap
     
-    
     private Map<String, String> getConsumer(consumerId) {
         Map<String, String> consumer = null
         
@@ -55,7 +54,6 @@ class LtiService {
         }
         
     }
-
     
     public String sign(String sharedSecret, String data) throws Exception
     {

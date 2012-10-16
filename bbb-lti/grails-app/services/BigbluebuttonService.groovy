@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,8 +44,9 @@ import org.xml.sax.SAXException;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import org.bigbluebutton.api.Proxy;
-import org.bigbluebutton.lti.Role;
+import org.bigbluebutton.api.Proxy
+import org.bigbluebutton.lti.Role
+import org.bigbluebutton.lti.Parameter
 
 class BigbluebuttonService {
 
@@ -54,17 +56,16 @@ class BigbluebuttonService {
     def salt = "8cd8ef52e8e101574e400365b55e11a6"
 
     Proxy bbbProxy
-    DocumentBuilderFactory docBuilderFactory;
-    DocumentBuilder docBuilder;
+    DocumentBuilderFactory docBuilderFactory
+    DocumentBuilder docBuilder
 
     BigbluebuttonService(){
-        
         // Initialize XML libraries
-        docBuilderFactory = DocumentBuilderFactory.newInstance();
+        docBuilderFactory = DocumentBuilderFactory.newInstance()
         try {
-            docBuilder = docBuilderFactory.newDocumentBuilder();
+            docBuilder = docBuilderFactory.newDocumentBuilder()
         } catch (ParserConfigurationException e) {
-            logger.error("Failed to initialise BaseProxy", e);
+            logger.error("Failed to initialise BaseProxy", e)
         }
         
         //Instantiate bbbProxy and initialize it with default url and salt
@@ -72,30 +73,54 @@ class BigbluebuttonService {
     
     }
     
-    public String getJoinURL(String meetingName, String meetingID, String attendeePW, String moderatorPW, String welcome, String logoutURL, String userFullName, String roles) {
-
+    
+    public String getJoinURL(params, welcome){
+        log.debug params
         //Set the injected values
         if( !url.equals(bbbProxy.url) && !url.equals("") ) bbbProxy.setUrl(url)
         if( !salt.equals(bbbProxy.salt) && !salt.equals("") ) bbbProxy.setSalt(salt)
+
+        String joinURL = null
         
-        String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcome, logoutURL )
-        //log.debug "createURL: " + createURL
+        String meetingName = getValidatedMeetingName(params.get(Parameter.RESOURCE_LINK_TITLE))
+        log.debug "Validated meetingName=" + meetingName
+        String meetingID = getValidatedMeetingId(params.get(Parameter.RESOURCE_LINK_ID), params.get(Parameter.COURSE_ID), params.get(Parameter.CONSUMER_ID))
+        log.debug "Validated meetingID=" + meetingID
+        String attendeePW = DigestUtils.shaHex("ap" + params.get(Parameter.RESOURCE_LINK_ID))
+        log.debug "Validated attendeePW=" + attendeePW
+        String moderatorPW = DigestUtils.shaHex("mp" + params.get(Parameter.RESOURCE_LINK_ID))
+        log.debug "Validated moderatorPW=" + moderatorPW
+        String logoutURL = getValidatedLogoutURL(params.get(Parameter.LAUNCH_RETURN_URL))
+        log.debug "Validated logoutURL=" + logoutURL
+        boolean isModerator = Role.isModerator(params.get(Parameter.ROLES))
+        log.debug "Validated isModerator=" + isModerator
+        String userFullName = getValidatedUserFullName(params.get(Parameter.USER_FULL_NAME), isModerator)
+        log.debug "Validated userFullName=" + userFullName
+        String courseTitle = getValidatedCourseTitle(params.get(Parameter.COURSE_TITLE))
+        log.debug "Validated courseTitle=" + courseTitle
+        
+        
+        String[] values = [meetingName, courseTitle]
+        //values[0] = meetingName
+        //values[1] = courseTitle
+        String welcomeMsg = MessageFormat.format(welcome, values);
+        
+        String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcomeMsg, logoutURL )
+        log.debug "createURL: " + createURL
         Map<String, Object> createResponse = doAPICall(createURL)
-        //log.debug "createResponse: " + createResponse
-        
-        String response = null
-        
+        log.debug "createResponse: " + createResponse
+
         if( createResponse != null){
             String returnCode = (String) createResponse.get("returncode")
             String messageKey = (String) createResponse.get("messageKey")
-            if ( Proxy.APIRESPONSE_SUCCESS.equals(returnCode) || 
+            if ( Proxy.APIRESPONSE_SUCCESS.equals(returnCode) ||
                 (Proxy.APIRESPONSE_FAILED.equals(returnCode) &&  (Proxy.MESSAGEKEY_IDNOTUNIQUE.equals(messageKey) || Proxy.MESSAGEKEY_DUPLICATEWARNING.equals(messageKey)) ) ){
-                response = bbbProxy.getJoinMeetingURL( userFullName, meetingID, Role.isModerator(roles)? moderatorPW: attendeePW);
+                joinURL = bbbProxy.getJoinMeetingURL( userFullName, meetingID, isModerator? moderatorPW: attendeePW);
             }
         }
-        
-        return response
 
+        return joinURL
+        
     }
     
     private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, String logoutURL ) {
@@ -105,13 +130,33 @@ class BigbluebuttonService {
         return url;
     }
     
+    private String getValidatedMeetingName(String meetingName){
+        return (meetingName == null || meetingName == "")? "Meeting": meetingName
+    }
+    
+    private String getValidatedMeetingId(String meetingId, String courseId, String consumerId){
+        return DigestUtils.shaHex(meetingId + courseId + consumerId)
+    }
+
+    private String getValidatedLogoutURL(String logoutURL){
+        return (logoutURL == null)? "": logoutURL
+    }
+    
+    private String getValidatedUserFullName(String userFullName, boolean isModerator){
+        return (userFullName == null || userFullName == "")? (isModerator? "Moderator" : "Attendee"): userFullName
+    }
+
+    private String getValidatedCourseTitle(String courseTitle){
+        return (courseTitle == null || courseTitle == "")? "Course": courseTitle
+    }
+
     /** Make an API call */
     private Map<String, Object> doAPICall(String query) {
         StringBuilder urlStr = new StringBuilder(query);
 
         try {
             // open connection
-            //log.debug("doAPICall.call: " + query );
+            log.debug("doAPICall.call: " + query );
             
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
@@ -144,7 +189,7 @@ class BigbluebuttonService {
                 httpConnection.disconnect();
 
                 // parse response
-                //log.debug("doAPICall.responseXml: " + xml);
+                log.debug("doAPICall.responseXml: " + xml);
                 //Patch to fix the NaN error
                 String stringXml = xml.toString();
                 stringXml = stringXml.replaceAll(">.\\s+?<", "><");
@@ -153,7 +198,7 @@ class BigbluebuttonService {
                 dom = docBuilder.parse(new InputSource( new StringReader(stringXml)));
                 
                 Map<String, Object> response = getNodesAsMap(dom, "response");
-                //log.debug("doAPICall.responseMap: " + response);
+                log.debug("doAPICall.responseMap: " + response);
                 
                 String returnCode = (String) response.get("returncode");
                 if (Proxy.APIRESPONSE_FAILED.equals(returnCode)) {
