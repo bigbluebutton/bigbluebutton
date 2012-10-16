@@ -196,6 +196,8 @@
 			private function onTabNavChange():void{
 				var tab:Button = chatTabs.getTabAt(chatTabs.selectedIndex);
 				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
+        var chatBox:IChatTab = chatTabs.getChildAt(chatTabs.selectedIndex) as IChatTab;
+        chatBox.focusToTextMessageArea();
 			}
 								
       private function userHasChatBox(userID:String):Boolean {
@@ -246,9 +248,10 @@
 				} else {
 					chatTabs.addChild(chatBox);
 				}
+         
 				return chatBox;
 			}
-			
+			     
 			private function createAddTabBox():AddChatTabBox {
 				tabBox = new AddChatTabBox();
 				tabBox.chatView = this;

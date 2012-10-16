@@ -23,6 +23,7 @@
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
   xmlns:chat="org.bigbluebutton.modules.chat.views.*"
+  implements="org.bigbluebutton.modules.chat.views.IChatTab"
 	click="setMessageRead()" verticalScrollPolicy="off"
 	creationComplete="onCreationComplete()">
 
@@ -145,13 +146,23 @@
         }
 				
         txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
+        this.addEventListener(FocusEvent.FOCUS_IN, handleFocusInEvent);
         
 				Accessibility.updateProperties();
+        focusToTextMessageArea();
 			}
+      
+      private function handleFocusInEvent(event:FocusEvent):void {
+        focusToTextMessageArea();
+      }
+      
+      public function focusToTextMessageArea():void {
+        txtMsgArea.setFocus();
+        txtMsgArea.drawFocus(true);
+      }
 			
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
         if (publicChat) {
-          LogUtil.debug("*** Received PUBLIC Chat Message ****");
           chatMessages.newChatMessage(event.message);
           scrollToEndOfMessage();
         }
@@ -161,7 +172,6 @@
         var message:ChatMessageVO = event.message;
         
         if (!publicChat && (message.fromUserID == chatWithUserID || UsersUtil.isMe(message.fromUserID))) {
-          LogUtil.debug("*** Received PRIVATE Chat Message ****");
           chatMessages.newChatMessage(event.message);
           scrollToEndOfMessage();
         }        
@@ -476,7 +486,7 @@
 			 itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" dataProvider="{chatMessages.messages}" />
   
   <mx:ControlBar id="chatCtrlBar" width="100%" height="10%" styleName="chatControlBarStyle">		
-    <mx:TextArea id="txtMsgArea" width="100%"  color="{cmpColorPicker.selectedColor}"
+    <mx:TextArea id="txtMsgArea" width="100%"  color="{cmpColorPicker.selectedColor}" 
                  styleName="chatControlBarTextMsgStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"/>
     <mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
                     selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>

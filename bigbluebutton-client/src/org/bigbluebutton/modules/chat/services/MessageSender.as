@@ -55,9 +55,5 @@ package org.bigbluebutton.modules.chat.services
         message.toObj()
       );
     }
-    
-    private function sendMessageToSelf(message:ChatMessageVO):void {
-      
-    }
   }
 }

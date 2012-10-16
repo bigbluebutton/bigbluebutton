@@ -22,6 +22,7 @@
 
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
          xmlns:mate="http://mate.asfusion.com/"
+         implements="org.bigbluebutton.modules.chat.views.IChatTab"
          creationComplete="init()">
 	
 	<mx:Script>
@@ -54,6 +55,9 @@
 				chatView.startPrivateChatWith(chatWithUserID);
 			}
 						
+      public function focusToTextMessageArea():void {
+        // Do nothing. This is only handle by the chat boxes.
+      }
 		]]>
 	</mx:Script>
 	
