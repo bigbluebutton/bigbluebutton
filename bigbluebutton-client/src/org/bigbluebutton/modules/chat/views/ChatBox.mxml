@@ -144,6 +144,8 @@
           chatMessagesList.accessibilityProperties.description = chatMessages.messages[0].toString();
         }
 				
+        txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
+        
 				Accessibility.updateProperties();
 			}
 			
@@ -151,6 +153,7 @@
         if (publicChat) {
           LogUtil.debug("*** Received PUBLIC Chat Message ****");
           chatMessages.newChatMessage(event.message);
+          scrollToEndOfMessage();
         }
       }
       
@@ -160,11 +163,19 @@
         if (!publicChat && message.fromUserID == chatWithUserID) {
           LogUtil.debug("*** Received PRIVATE Chat Message ****");
           chatMessages.newChatMessage(event.message);
+          scrollToEndOfMessage();
         }        
       }
       
       public function handleFirstPrivateMessage(event:PrivateChatMessageEvent):void {
         handlePrivateChatMessageEvent(event);
+      }
+      
+      public function scrollToEndOfMessage():void {
+        /**
+         * Trigger to force the scrollbar to show the last message.
+         */	
+        if (scrollTimer != null) scrollTimer.start();
       }
       
 			private function showNewMessage(chatobj:ChatMessageVO, translate:Boolean, language:String = null):void {	
@@ -293,10 +304,7 @@
 			
 			public function handleKeyDown(e:KeyboardEvent) :void {
 				LogUtil.debug("WATERFALL: Entering handleKeyDown");
-				var keyPress:String = (e.ctrlKey  ? "control+" : "") + 
-							(e.shiftKey ? "shift+"   : "") +
-							(e.altKey   ? "alt+"     : "") +
-							e.keyCode;
+				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
 				LogUtil.debug("WATERFALL keypress: " + keyPress);		
 				if (keyCombos[keyPress]) {
 					LogUtil.debug("WATERFALL keypress matched something in keyCombos: " + keyCombos[keyPress]);
@@ -306,12 +314,17 @@
 				}
 			}
 			
+      private function handleTextAreaKeyUpEvent(e:KeyboardEvent):void {
+        if (e.keyCode  == Keyboard.ENTER) {
+          sendMessages();
+        }        
+      }
+      
 			private function advanceMessage(e:ShortcutEvent):void{
 				if (e.otherUserID == chatWithUserID){
 					if (currentMessage < (chatMessages.numMessages() - 3)){
 						currentMessage++;
-					}
-					else{
+					} else {
 						chatMessagesList.accessibilityProperties.description += " ";
 					}
 					navigationMaintenance();
@@ -444,26 +457,17 @@
         globalDispatcher.dispatchEvent(privateEvent);
       }
       
-      public function sendMessages():void {
-        if (hasMessageToSend()){				
+      private function sendMessages():void {
+        if (txtMsgArea.text != ""){				
           if (publicChat) {						
-            sendPublicChatMessage(txtMsg.text);
+            sendPublicChatMessage(txtMsgArea.text);
           } else{						
-            sendPrivateChatMessage(txtMsg.text);
+            sendPrivateChatMessage(txtMsgArea.text);
           }
-          clearMessageEntryTextBox();
         }
-      }	
-      
-      private function hasMessageToSend():Boolean {
-        return txtMsg.text != "";
         
-        return false;
-      }
-      
-      private function clearMessageEntryTextBox():void {
-        txtMsg.text = "";
-      }
+        txtMsgArea.text = "";
+      }	
 		]]>
 		
 	</mx:Script>
@@ -472,7 +476,7 @@
 			 itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" dataProvider="{chatMessages.messages}" />
   
   <mx:ControlBar id="chatCtrlBar" width="100%" height="10%" styleName="chatControlBarStyle">		
-    <mx:TextArea id="txtMsg" width="100%"  color="{cmpColorPicker.selectedColor}" 
+    <mx:TextArea id="txtMsgArea" width="100%"  color="{cmpColorPicker.selectedColor}"
                  styleName="chatControlBarTextMsgStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"/>
     <mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
                     selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>

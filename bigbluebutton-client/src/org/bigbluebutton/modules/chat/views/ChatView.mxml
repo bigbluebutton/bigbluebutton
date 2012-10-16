@@ -299,8 +299,10 @@
 			
 			public function publicChatFocus(event:FocusEvent):void{
 				publicFocus = true;
-				if (publicWaiting)
-					ExternalInterface.call("clearblink");
+				if (publicWaiting) {
+          ExternalInterface.call("clearblink");
+        }
+					
 				publicWaiting = false;
 			}
 			
@@ -310,7 +312,7 @@
 					
 					for (var messageCounter:int = 0; messageCounter < event.target.parent.exposeNumMessages(); messageCounter ++){
 						removed = removePrivateSender(event.target.parent.exposeSenderID(messageCounter));
-						if (removed){
+						if (removed) {
 							ExternalInterface.call("clearblink");
 							messageCounter = event.target.parent.exposeNumMessages() + 1;
 						}
@@ -318,8 +320,7 @@
 					
 					if (privateWaiting.length == 1){
 						privateFocus = true;
-					}
-					else {
+					} else {
 						privateFocus == false;
 					}
 				}
