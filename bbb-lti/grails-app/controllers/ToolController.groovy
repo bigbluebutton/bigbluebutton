@@ -39,7 +39,7 @@ class ToolController {
     private static final String RESP_CODE_FAILED = 'FAILED'
     
     public static final String OAUTH_SIGNATURE = 'oauth_signature'
-    public static final String CUSTOMER_ID = 'oauth_consumer_key'
+    public static final String CONSUMER_ID = 'oauth_consumer_key'
     public static final String USER_FULL_NAME = 'lis_person_name_full'
     public static final String USER_LASTNAME = 'lis_person_name_family'
     public static final String USER_EMAIL = 'lis_person_contact_email_primary'
@@ -76,13 +76,15 @@ class ToolController {
 
             consumer = getConsumer(params)
             if (consumer != null) {
-                log.debug "Found consumer with key " + consumer.get("key") + " with secret " + consumer.get("secret")
-                if (checkValidSignature(request.getMethod().toUpperCase(), retrieveBasicLtiEndpoint(), consumer.get("secret"), sanitizedParams, params.get(OAUTH_SIGNATURE))) {
+                log.debug "Found consumer with key " + consumer.get("key")
+                if (checkValidSignature(request.getMethod().toUpperCase(), retrieveLtiEndpoint(), consumer.get("secret"), sanitizedParams, params.get(OAUTH_SIGNATURE))) {
                     if (hasValidStudentId(params, consumer)) {
-                        // We have a valid signature.
+                        log.debug  "The message has a valid signature."
+                        //Localize the default welcome message
                         session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(params.get(LAUNCH_LOCALE))
                         String welcome = message(code: "bigbluebutton.welcome", args: [params.get(RESOURCE_LINK_TITLE), params.get(COURSE_TITLE)])
-                        log.debug welcome
+                        log.debug "Localized default welcome message: " + welcome
+                        
                         String destinationURL = bigbluebuttonService.getJoinURL(params.get(RESOURCE_LINK_TITLE), 
                             params.get(RESOURCE_LINK_ID), 
                             DigestUtils.shaHex("ap" + params.get(RESOURCE_LINK_ID)), 
@@ -115,7 +117,7 @@ class ToolController {
                 
             } else {
                 resultMessageKey = 'CustomerNotFound'
-                resultMessage = "Customer with id = " + params.get(CUSTOMER_ID) + " was not found."
+                resultMessage = "Customer with id = " + params.get(CONSUMER_ID) + " was not found."
                 log.debug resultMessage
             }
 
@@ -173,7 +175,7 @@ class ToolController {
      * @param the HTTP request parameters
      * @return the key:val pairs needed for Basic LTI
      */
-    public Properties sanitizePrametersForBaseString(Object params) {
+    private Properties sanitizePrametersForBaseString(Object params) {
         
         Properties reqProp = new Properties();
         for (String key : ((Map<String, String>)params).keySet()) {
@@ -197,10 +199,10 @@ class ToolController {
      * @param missingParams - a list of missing parameters
      * @return - true if all required parameters have been passed in
      */
-    public boolean hasAllRequiredParams(Object params, Object missingParams) {
+    private boolean hasAllRequiredParams(Object params, Object missingParams) {
         boolean hasAllParams = true
-        if (! ((Map<String, String>)params).containsKey(CUSTOMER_ID)) {
-            ((ArrayList<String>)missingParams).add(CUSTOMER_ID);
+        if (! ((Map<String, String>)params).containsKey(CONSUMER_ID)) {
+            ((ArrayList<String>)missingParams).add(CONSUMER_ID);
             hasAllParams = false;
         }
 
@@ -253,7 +255,7 @@ class ToolController {
      * @param signature - the passed in signature calculated from the client
      * @return - TRUE if the signatures matches the calculated signature
      */
-    public boolean checkValidSignature(String method, String URL, String conSecret, Object postProp, String signature) {
+    private boolean checkValidSignature(String method, String URL, String conSecret, Object postProp, String signature) {
         OAuthMessage oam = new OAuthMessage(method, URL, ((Properties)postProp).entrySet());
         HMAC_SHA1 hmac = new HMAC_SHA1();
         hmac.setConsumerSecret(conSecret);
@@ -273,10 +275,10 @@ class ToolController {
         return consumer
     }
 
-    def retrieveBasicLtiEndpoint() {
-        String basicLtiEndPoint = "http://192.168.0.153/lti/tool.xml"
-        log.debug "basicLtiEndPoint [" + basicLtiEndPoint + "]"
-        return basicLtiEndPoint
+    def retrieveLtiEndpoint() {
+        String ltiEndPoint = ltiService.ltiEndPoint
+        log.debug "basicLtiEndPoint [" + ltiEndPoint + "]"
+        return ltiEndPoint
     }
 
 }

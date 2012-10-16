@@ -79,9 +79,9 @@ class BigbluebuttonService {
         if( !salt.equals(bbbProxy.salt) && !salt.equals("") ) bbbProxy.setSalt(salt)
         
         String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcome, logoutURL )
-        log.debug "signed createURL: " + createURL
+        //log.debug "createURL: " + createURL
         Map<String, Object> createResponse = doAPICall(createURL)
-        log.debug "createResponse: " + createResponse
+        //log.debug "createResponse: " + createResponse
         
         String response = null
         
@@ -111,7 +111,7 @@ class BigbluebuttonService {
 
         try {
             // open connection
-            log.debug("doAPICall.call: " + query );
+            //log.debug("doAPICall.call: " + query );
             
             URL url = new URL(urlStr.toString());
             HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
@@ -144,7 +144,7 @@ class BigbluebuttonService {
                 httpConnection.disconnect();
 
                 // parse response
-                log.debug("doAPICall.responseXml: " + xml);
+                //log.debug("doAPICall.responseXml: " + xml);
                 //Patch to fix the NaN error
                 String stringXml = xml.toString();
                 stringXml = stringXml.replaceAll(">.\\s+?<", "><");
@@ -153,7 +153,7 @@ class BigbluebuttonService {
                 dom = docBuilder.parse(new InputSource( new StringReader(stringXml)));
                 
                 Map<String, Object> response = getNodesAsMap(dom, "response");
-                log.debug("doAPICall.responseMap: " + response);
+                //log.debug("doAPICall.responseMap: " + response);
                 
                 String returnCode = (String) response.get("returncode");
                 if (Proxy.APIRESPONSE_FAILED.equals(returnCode)) {

@@ -6,6 +6,8 @@ import org.apache.commons.codec.binary.Base64
 class LtiService {
 
     boolean transactional = false
+    
+    def ltiEndPoint = "http://192.168.0.153/lti/tool.xml"
 
     public String sign(String sharedSecret, String data) throws Exception
     {
