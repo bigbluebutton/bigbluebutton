@@ -5,6 +5,11 @@ package org.bigbluebutton.core
 
   public class UsersUtil
   {
+    
+    public static function isMe(userID:String):Boolean {
+      return UserManager.getInstance().getConference().amIThisUser(userID);
+    }
+    
     public static function getMyUserID():String {
       return UserManager.getInstance().getConference().getMyUserId();
     }
@@ -28,5 +33,14 @@ package org.bigbluebutton.core
       }
       return null;
     }    
+    
+    public static function getUserName(userID:String):String {
+      var user:BBBUser = UserManager.getInstance().getConference().getUser(userID);
+      if (user != null) {
+        return user.name;
+      }
+      return null;
+    }
+    
   }
 }

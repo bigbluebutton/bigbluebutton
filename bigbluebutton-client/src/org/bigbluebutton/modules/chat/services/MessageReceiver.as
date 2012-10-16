@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.chat.services
     }
     
     private function handleChatReceivePublicMessageCommand(message:Object):void {
-      LogUtil.debug("Handling public chat message");
+      LogUtil.debug("Handling public chat message [" + message.message + "]");
       var msg:ChatMessageVO = new ChatMessageVO();
       msg.chatType = message.chatType;
       msg.fromUserID = message.fromUserID;

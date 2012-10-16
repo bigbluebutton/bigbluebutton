@@ -116,5 +116,5 @@
 		]]>
 	</mx:Script>
 	
-	<views:ChatView id="chatView" chatOptions="{chatOptions}" chatWindow="{this}"/>
+	<views:ChatView id="chatView" chatOptions="{chatOptions}"/>
 </MDIWindow>

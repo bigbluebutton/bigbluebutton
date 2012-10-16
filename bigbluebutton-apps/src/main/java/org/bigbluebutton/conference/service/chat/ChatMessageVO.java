@@ -15,8 +15,8 @@ public class ChatMessageVO {
     public String fromLang; 
     
     // The receiver. For PUBLIC chat this is empty
-    public String toUserID;
-    public String toUsername;
+    public String toUserID = "";
+    public String toUsername = "";
     
 	public String message;
 
@@ -30,6 +30,9 @@ public class ChatMessageVO {
 		msg.put("fromLang", fromLang);
 		msg.put("fromTime", fromTime);
 		msg.put("chatType", chatType);
+		msg.put("message", message);
+		msg.put("toUserID", toUserID);
+		msg.put("toUsername", toUsername);
 		
 		return msg;
 	}

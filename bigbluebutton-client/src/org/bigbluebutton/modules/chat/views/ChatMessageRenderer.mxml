@@ -26,9 +26,10 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.chat.model.ChatMessage;
-			import org.bigbluebutton.common.LogUtil;		
 			import mx.binding.utils.ChangeWatcher;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.modules.chat.model.ChatMessage;
 
 			[Bindable] private var rolledOver:Boolean = false;					
 			[Bindable] private var chatMsg:ChatMessage;
@@ -40,6 +41,7 @@
 			}
 			
 			private function onCreationComplete():void{
+        LogUtil.debug("Displaying hat message.");
 				/** Register a change handler as the renderer get recycled. If we don't
 				 * do this, we'll get a stale data which will display the chat 
 				 * message repeatedly. (ralam Nov 1, 2010)

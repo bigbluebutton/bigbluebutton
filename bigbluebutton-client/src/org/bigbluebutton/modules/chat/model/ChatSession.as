@@ -62,15 +62,7 @@ package org.bigbluebutton.modules.chat.model
       cm.senderTime = msg.time;		
       
       _messages.addItem(cm);
-      
-      if (_chatType == "PUBLIC") {
-        var event:PublicChatMessageEvent = new PublicChatMessageEvent(PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT);
-        event.chatobj = cm;
-        var globalDispatcher:Dispatcher = new Dispatcher();
-        globalDispatcher.dispatchEvent(event);	        
-      }
- 
-      
+            
     }
     
     private function getLastSender():String {
@@ -82,8 +74,6 @@ package org.bigbluebutton.modules.chat.model
       var msg:ChatMessage = _messages.getItemAt(_messages.length - 1) as ChatMessage;
       return msg.lastTime;
     }
-    
-
-    
+        
   }
 }

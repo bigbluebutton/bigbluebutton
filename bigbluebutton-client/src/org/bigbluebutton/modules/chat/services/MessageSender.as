@@ -23,7 +23,7 @@ package org.bigbluebutton.modules.chat.services
     
     public function sendPublicMessage(message:ChatMessageVO):void
     {  
-      LogUtil.debug("Sending [chat.sendPublicMessage] to server.");
+      LogUtil.debug("Sending [chat.sendPublicMessage] to server. [" + message.message + "]");
       var _nc:ConnectionManager = BBB.initConnectionManager();
       _nc.sendMessage("chat.sendPublicMessage", 
         function(result:String):void { // On successful result
