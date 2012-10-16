@@ -103,7 +103,6 @@ class ToolController {
                             resultMessage = "The join could not be completed"
                             log.debug resultMessage
                         }
-            
                         
                     } else {
                         resultMessageKey = 'InvalidStudentId'
@@ -132,7 +131,6 @@ class ToolController {
             log.debug resultMessage
         }
 
-
         if (!success) {
             log.debug "Error"
             response.addHeader("Cache-Control", "no-cache")
@@ -154,9 +152,8 @@ class ToolController {
     }
     
     def retrieveLtiEndpoint() {
-        String ltiEndPoint = ltiService.ltiEndPoint
-        log.debug "basicLtiEndPoint [" + ltiEndPoint + "]"
-        return ltiEndPoint
+        String endPoint = ltiService.endPoint
+        return endPoint
     }
 
     def test = {
