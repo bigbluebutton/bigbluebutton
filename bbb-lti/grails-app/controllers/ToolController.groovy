@@ -63,7 +63,8 @@ class ToolController {
     BigbluebuttonService bigbluebuttonService
     
     def index = { 
-        log.debug CONTROLLER_NAME + "#index"
+        if( ltiService.consumerMap == null) ltiService.initConsumerMap()
+        log.debug CONTROLLER_NAME + "#index" + ltiService.consumerMap
 
         def resultMessageKey = "init"
         def resultMessage = "init"
@@ -74,7 +75,7 @@ class ToolController {
         if (hasAllRequiredParams(params, missingParams)) {
             def sanitizedParams = sanitizePrametersForBaseString(params)
 
-            consumer = getConsumer(params)
+            consumer = ltiService.getConsumer(params.get(CONSUMER_ID))
             if (consumer != null) {
                 log.debug "Found consumer with key " + consumer.get("key")
                 if (checkValidSignature(request.getMethod().toUpperCase(), retrieveLtiEndpoint(), consumer.get("secret"), sanitizedParams, params.get(OAUTH_SIGNATURE))) {
@@ -152,6 +153,12 @@ class ToolController {
 
     }
     
+    def retrieveLtiEndpoint() {
+        String ltiEndPoint = ltiService.ltiEndPoint
+        log.debug "basicLtiEndPoint [" + ltiEndPoint + "]"
+        return ltiEndPoint
+    }
+
     def test = {
         log.debug CONTROLLER_NAME + "#index"
         
@@ -264,21 +271,6 @@ class ToolController {
         String calculatedSignature = hmac.getSignature(hmac.getBaseString(oam))
         //log.debug("Calculated: " + calculatedSignature + " Received: " + signature);
         return calculatedSignature.equals(signature)
-    }
-
-    private Map<String, String> getConsumer(params) {
-        Map<String, String> consumer = new HashMap<String, String>()
-        
-        consumer.put("key", "demo");
-        consumer.put("secret", "welcome")
-        
-        return consumer
-    }
-
-    def retrieveLtiEndpoint() {
-        String ltiEndPoint = ltiService.ltiEndPoint
-        log.debug "basicLtiEndPoint [" + ltiEndPoint + "]"
-        return ltiEndPoint
     }
 
 }
