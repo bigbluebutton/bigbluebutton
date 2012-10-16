@@ -49,6 +49,15 @@ package org.bigbluebutton.modules.chat.model
       LogUtil.debug("Added chat message. [" + cm.translatedText + "][" + cm.senderText + "]");      
     }
     
+    public function getAllMessageAsString():String{
+      var allText:String = "";
+      for (var i:int = 0; i < messages.length; i++){
+        var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
+        allText += "\n" + item.name + " - " + item.time + " : " + item.translatedText;
+      }
+      return allText;
+    }
+    
     private function getLastSender():String {
       var msg:ChatMessage = messages.getItemAt(messages.length - 1) as ChatMessage;
       return msg.senderId;

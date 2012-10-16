@@ -43,7 +43,9 @@ public class ChatService {
 		chatObj.fromUsername = msg.get("fromUsername").toString();
 		chatObj.fromColor = msg.get("fromColor").toString();
 		chatObj.fromTime = msg.get("fromTime").toString();    
-		chatObj.fromLang = msg.get("fromLang").toString(); 	    	    
+		chatObj.fromLang = msg.get("fromLang").toString(); 	 
+		chatObj.toUserID = msg.get("toUserID").toString();
+		chatObj.toUsername = msg.get("toUsername").toString();
 		chatObj.message = msg.get("message").toString();
 	
 		application.sendPublicMessage(meetingID, chatObj);

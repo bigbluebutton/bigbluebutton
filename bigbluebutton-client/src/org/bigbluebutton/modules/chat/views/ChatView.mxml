@@ -30,7 +30,7 @@
   <mate:Listener type="{BBBEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT}" method="sendMessageReceivedFromBBBEvent"/> 
   <mate:Listener type="{ChatOptionsEvent.CHANGE_FONT_SIZE}" method="changeFontSize" />
   <mate:Listener type="{ChatOptionsEvent.TOGGLE_TRANSLATE}" method="toggleTranslation" />	
-  
+  <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -41,11 +41,11 @@
       import flash.external.ExternalInterface;
       import flash.media.Sound;
       import flash.media.SoundChannel;
-      import flash.utils.Timer;     
+      import flash.utils.Timer;      
       import flexlib.controls.tabBarClasses.SuperTab;
       import flexlib.controls.textClasses.StringBoundaries;
       import flexlib.events.SuperTabEvent;
-      import flexlib.mdi.containers.MDIWindow;     
+      import flexlib.mdi.containers.MDIWindow;      
       import mx.collections.ArrayCollection;
       import mx.containers.ControlBar;
       import mx.controls.Button;
@@ -68,15 +68,10 @@
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.model.ChatOptions;
-      import org.bigbluebutton.modules.chat.model.MessageVO;
       import org.bigbluebutton.modules.chat.model.business.UserVO;
       import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
       import org.bigbluebutton.util.i18n.ResourceUtil;			
-			
-			[Bindable] public var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
-				                                                '0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', 
-                                                        '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
-			
+					
 			private static const PUBLIC_CHAT_USERID:String = '0';
 			private static const PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
 			private static const TAB_BOX_ID:String = '+';
@@ -84,10 +79,10 @@
 			private var focus:Boolean = true;			
 			private var globalDispatcher:Dispatcher = new Dispatcher();			
 			private var autoTranslation:Boolean=false;
-			[Bindable] public var chatOptions:ChatOptions;
-						
-//      public var chatWindow:ChatWindow;
 			
+      [Bindable] 
+      public var chatOptions:ChatOptions;
+									
 			private static const PUBLIC_TAB_NEW:String = ResourceUtil.getInstance().getString("bbb.accessibility.chat.chatView.publicTabNew");
             
 			private var publicWaiting:Boolean = false;
@@ -97,9 +92,13 @@
 			private var timerInterval:int = 10; // How many seconds you want the timer to wait between chat notifications
       private var notificationTimer:Timer = new Timer(timerInterval * 1000);
 			
-			[Embed(source="../sounds/publicSound.mp3")] private var publicSoundClass:Class;
-			[Embed(source="../sounds/privateSound.mp3")] private var privateSoundClass:Class;
-			private var publicSound:Sound = new publicSoundClass() as Sound;
+			[Embed(source="../sounds/publicSound.mp3")] 
+      private var publicSoundClass:Class;
+      
+			[Embed(source="../sounds/privateSound.mp3")] 
+      private var privateSoundClass:Class;
+			
+      private var publicSound:Sound = new publicSoundClass() as Sound;
 			private var privateSound:Sound = new privateSoundClass() as Sound;		
 			
 			private function onCreationComplete():void{
@@ -124,15 +123,19 @@
 				ExternalInterface.addCallback('sendChatMessage', setChatMessage);
 			}
 			
+      private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
+        if (userHasChatBox(event.message.fromUserID)) return;
+        
+        // Open a private chat tab.
+        openChatBoxFor(event.message.fromUserID, false);
+        // Forward the message to the private chat
+        getChatBoxForUser(event.message.fromUserID).handleFirstPrivateMessage(event);       
+      }
+      
 			private function setChatMessage(message:String):void{
 //        chatWindow.txtMsg.text += message;
 			}
-			
-			private function setColor():void{
-				var r:int = Math.round(Math.random() * 12);
- //       chatWindow.cmpColorPicker.selectedIndex = r;
-			}
-			
+		
 			private function mouseLeave(event:Event):void{
 				this.focus = false;
 			}
@@ -183,8 +186,7 @@
 				}
 				return false;
 			}
-						
-		
+								
 			private function notifyParticipantOfUnreadMessageFrom(userid:String):void {
 				var chatBox:ChatBox = getChatBoxForUser(userid);
 				var tabIndex:int = getTabIndexFor(chatBox);
@@ -200,25 +202,16 @@
 			private function onTabNavChange():void{
 				var tab:Button = chatTabs.getTabAt(chatTabs.selectedIndex);
 				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
-				
-				if (chatTabs.selectedIndex == chatTabs.numChildren-1) {
-					openAddChatTabBox();
-					return;
-				}	
 			}
-			
-			private function openAddChatTabBox():void{
-//                chatWindow.txtMsg.enabled = false;
-			}
-						
-      private function userHasChatBox(id:String):Boolean {
-        var chatBox:ChatBox = chatTabs.getChildByName(id) as ChatBox;
+								
+      private function userHasChatBox(userID:String):Boolean {
+        var chatBox:ChatBox = chatTabs.getChildByName(userID) as ChatBox;
         if (chatBox != null) return true;
         return false;
       }
       
-      private function getChatBoxForUser(id:String):ChatBox {
-        return chatTabs.getChildByName(id) as ChatBox;
+      private function getChatBoxForUser(userID:String):ChatBox {
+        return chatTabs.getChildByName(userID) as ChatBox;
       }
       
 			public function openChatBoxFor(chatWithUserID:String, publicChat:Boolean=false):void {
@@ -269,11 +262,11 @@
 			
 			
 			// Receive private chat messages
-			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
-				if (Accessibility.active){
-					privateNotification(event);
-				}
-			}
+//			private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
+//				if (Accessibility.active){
+//					privateNotification(event);
+//				}
+//			}
 			
 			// Activates an audio alert for screen-reader users on public message reception
 			private function publicNotification():void {

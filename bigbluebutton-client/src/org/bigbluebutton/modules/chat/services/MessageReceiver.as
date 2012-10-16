@@ -9,7 +9,6 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.main.model.users.IMessageListener;
   import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
   import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-  import org.bigbluebutton.modules.chat.model.CHAT;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   
   public class MessageReceiver implements IMessageListener
@@ -76,8 +75,7 @@ package org.bigbluebutton.modules.chat.services
       
       var pcCoreEvent:CoreEvent = new CoreEvent(EventConstants.NEW_PRIVATE_CHAT);
       pcCoreEvent.message = message;
-      dispatcher.dispatchEvent(pcCoreEvent);
-      
+      dispatcher.dispatchEvent(pcCoreEvent);      
     }
   }
 }

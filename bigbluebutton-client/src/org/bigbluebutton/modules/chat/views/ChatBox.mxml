@@ -141,7 +141,7 @@
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing	
 				// Initialize the chatMessagesList tooltip as the Welcome message
         if (chatMessages.numMessages() > 0) {
-          chatMessagesList.accessibilityProperties.description = chatMessages[0].toString();
+          chatMessagesList.accessibilityProperties.description = chatMessages.messages[0].toString();
         }
 				
 				Accessibility.updateProperties();
@@ -155,22 +155,18 @@
       }
       
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
-        if (!publicChat) {
-          LogUtil.debug("*** Received PRIVATE Chat Message ****");
-        }
+        var message:ChatMessageVO = event.message;
         
+        if (!publicChat && message.fromUserID == chatWithUserID) {
+          LogUtil.debug("*** Received PRIVATE Chat Message ****");
+          chatMessages.newChatMessage(event.message);
+        }        
       }
       
-			// Exposes senderID for a given message to accessibilty methods in ChatView.mxml
-			public function exposeSenderID(index:int):String{
-				return "foo"; //messages.getItemAt(index).senderId;
-			}
-			
-			// Exposes messages.length for a given message to accessibilty methods in ChatView.mxml
-			public function exposeNumMessages():int{
-				return chatMessages.numMessages();
-			}
-
+      public function handleFirstPrivateMessage(event:PrivateChatMessageEvent):void {
+        handlePrivateChatMessageEvent(event);
+      }
+      
 			private function showNewMessage(chatobj:ChatMessageVO, translate:Boolean, language:String = null):void {	
 				/*********************************
 				 * We put a blank message at the end to force the scrollbar to display the
@@ -259,18 +255,10 @@
 			
 			private function menuItemHandler(e:ContextMenuEvent):void{
 				if (e.target.caption == COPY_ALL_BUTTON){
-					System.setClipboard(getAllAsString());
+					System.setClipboard(chatMessages.getAllMessageAsString());
 				}
 			}
 			
-			private function getAllAsString():String{
-				var allText:String = "";
-//				for (var i:int = 0; i < messages.length; i++){
-//					var item:ChatMessage = messages.getItemAt(i) as ChatMessage;
-//					allText += "\n" + item.name + " - " + item.time + " : " + item.translatedText;
-//				}
-				return allText;
-			}
 			
 			// Determines for navigateMessages() whether the message to be spoken by the screen-reader needs an extra space added to the end or not
 			private function setDescription():Boolean{

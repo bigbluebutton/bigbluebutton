@@ -11,13 +11,12 @@ package org.bigbluebutton.modules.chat.vo
     public var fromTime:String;    
     public var fromLang:String; 
     
-    // The receiver. For PUBLIC chat this is empty
-    public var toUserID:String = "";
-    public var toUsername:String = "";
+    // The receiver. 
+    public var toUserID:String = "public_chat_userid";
+    public var toUsername:String = "public_chat_username";
     
 		public var message:String;
 		
-
     public function toObj():Object {
       var m:Object = new Object();
       m.chatType = chatType;
