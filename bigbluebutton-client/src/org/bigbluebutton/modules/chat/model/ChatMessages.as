@@ -43,7 +43,13 @@ package org.bigbluebutton.modules.chat.model
       cm.name = msg.fromUsername;
       cm.senderColor = uint(msg.fromColor);
       cm.translatedColor = uint(msg.fromColor);
-      cm.senderTime = msg.fromTime;		
+      
+      cm.fromTime = msg.fromTime;		
+      cm.fromTimezoneOffset = msg.fromTimezoneOffset;
+      
+      var sentTime:Date = new Date();
+      sentTime.setTime(cm.fromTime);
+      cm.senderTime = ChatUtil.getHours(sentTime) + ":" + ChatUtil.getMinutes(sentTime);
       
       messages.addItem(cm); 
     }

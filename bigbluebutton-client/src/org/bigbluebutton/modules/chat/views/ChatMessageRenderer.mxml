@@ -40,7 +40,6 @@
 			}
 			
 			private function onCreationComplete():void{
-        LogUtil.debug("Displaying hat message.");
 				/** Register a change handler as the renderer get recycled. If we don't
 				 * do this, we'll get a stale data which will display the chat 
 				 * message repeatedly. (ralam Nov 1, 2010)

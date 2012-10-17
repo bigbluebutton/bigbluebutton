@@ -8,7 +8,13 @@ package org.bigbluebutton.modules.chat.vo
     public var fromUserID:String;    
     public var fromUsername:String;
     public var fromColor:String;
-    public var fromTime:String;    
+    
+    // Store the UTC time when the message was sent.
+    public var fromTime:Number;    
+    // Stores the timezone offset (in minutes) when the message was
+    // sent. This is used by the receiver to convert to locale time.
+    public var fromTimezoneOffset:Number;
+       
     public var fromLang:String; 
     
     // The receiver. 
@@ -24,6 +30,7 @@ package org.bigbluebutton.modules.chat.vo
       m.fromUsername = fromUsername;
       m.fromColor = fromColor;
       m.fromTime = fromTime;
+      m.fromTimezoneOffset = fromTimezoneOffset;
       m.fromLang = fromLang;
       m.message = message;
       m.toUserID = toUserID;

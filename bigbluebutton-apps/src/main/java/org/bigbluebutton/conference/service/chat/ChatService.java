@@ -40,7 +40,8 @@ public class ChatService {
 		chatObj.chatType = msg.get("chatType").toString();   
 		chatObj.fromUsername = msg.get("fromUsername").toString();
 		chatObj.fromColor = msg.get("fromColor").toString();
-		chatObj.fromTime = msg.get("fromTime").toString();    
+		chatObj.fromTime = Double.valueOf(msg.get("fromTime").toString());   
+		chatObj.fromTimezoneOffset = Long.valueOf(msg.get("fromTimezoneOffset").toString());
 		chatObj.fromLang = msg.get("fromLang").toString(); 	 
 		chatObj.toUserID = msg.get("toUserID").toString();
 		chatObj.toUsername = msg.get("toUsername").toString();
@@ -60,7 +61,8 @@ public class ChatService {
 		chatObj.fromUserID = msg.get("fromUserID").toString();
 		chatObj.fromUsername = msg.get("fromUsername").toString();
 		chatObj.fromColor = msg.get("fromColor").toString();
-		chatObj.fromTime = msg.get("fromTime").toString();    
+		chatObj.fromTime = Double.valueOf(msg.get("fromTime").toString());   
+		chatObj.fromTimezoneOffset = Long.valueOf(msg.get("fromTimezoneOffset").toString()); 
 		chatObj.fromLang = msg.get("fromLang").toString(); 	  
 		chatObj.toUserID = msg.get("toUserID").toString();
 		chatObj.toUsername = msg.get("toUsername").toString();

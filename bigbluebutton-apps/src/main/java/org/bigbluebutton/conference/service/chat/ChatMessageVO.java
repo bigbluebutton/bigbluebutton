@@ -11,7 +11,13 @@ public class ChatMessageVO {
     public String fromUserID;    
     public String fromUsername;
     public String fromColor;
-    public String fromTime;    
+    
+    // Stores the UTC time (milliseconds) when the message was sent.
+    public Double fromTime;   
+    // Stores the timezone offset (minutes) when the message was sent.
+    // This will be used by receiver to convert to locale time.
+    public Long fromTimezoneOffset;
+    
     public String fromLang; 
     
     // The receiver. For PUBLIC chat this is empty
@@ -29,6 +35,7 @@ public class ChatMessageVO {
 		msg.put("fromTime", fromTime);
 		msg.put("fromLang", fromLang);
 		msg.put("fromTime", fromTime);
+		msg.put("fromTimezoneOffset", fromTimezoneOffset);
 		msg.put("chatType", chatType);
 		msg.put("message", message);
 		msg.put("toUserID", toUserID);
