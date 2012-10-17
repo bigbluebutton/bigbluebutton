@@ -20,7 +20,7 @@
 package org.bigbluebutton.modules.layout.model
 {
 	import flash.events.EventDispatcher;
-
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.EventBroadcaster;
 	import org.bigbluebutton.core.model.Config;
@@ -76,5 +76,15 @@ package org.bigbluebutton.modules.layout.model
 			}
 			return xml;
 		}
+    
+    public function getLayout(name:String):LayoutDefinition {
+      for each (var layout:LayoutDefinition in _layouts) {
+        if (layout.name == name) {
+          return layout; 
+        }
+      }      
+      
+      return null;
+    }
 	}
 }

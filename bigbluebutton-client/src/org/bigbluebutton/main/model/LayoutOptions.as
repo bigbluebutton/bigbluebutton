@@ -12,6 +12,8 @@ package org.bigbluebutton.main.model
 		[Bindable] public var showHelpButton:Boolean = true;
 		[Bindable] public var showLogoutWindow:Boolean = true;
 		
+    public var defaultLayout:String = "Default";
+    
 		public function parseOptions():void {
 			var vxml:XML = BBB.initConfigManager().config.layout;
 			if (vxml != null) {
@@ -42,6 +44,10 @@ package org.bigbluebutton.main.model
 				if (vxml.@showLogoutWindow != undefined) {
 					showLogoutWindow = (vxml.@showLogoutWindow.toString().toUpperCase() == "TRUE") ? true : false;
 				}
+        
+        if (vxml.@defaultLayout != undefined) {
+          defaultLayout = vxml.@defaultLayout.toString();
+        }
 			}
 		}
 		
