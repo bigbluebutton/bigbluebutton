@@ -23,28 +23,30 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-			import mx.collections.ArrayCollection;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.events.ToolbarButtonEvent;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
-			import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
-			import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
-			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
-			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
-			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
-			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
-			import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
-			import org.bigbluebutton.modules.videoconf.views.PublishWindow;
-			import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
-			import org.bigbluebutton.modules.videoconf.views.VideoWindow;
-			import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;
-			import org.flexunit.runner.manipulation.filters.IncludeAllFilter;
+      import mx.collections.ArrayCollection;
+      
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.OpenWindowEvent;
+      import org.bigbluebutton.common.events.ToolbarButtonEvent;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.model.users.BBBUser;
+      import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
+      import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+      import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+      import org.bigbluebutton.modules.videoconf.business.VideoProxy;
+      import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+      import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
+      import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
       import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+      import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
+      import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+      import org.bigbluebutton.modules.videoconf.views.PublishWindow;
+      import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
+      import org.bigbluebutton.modules.videoconf.views.VideoWindow;
+      import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;
+      import org.flexunit.runner.manipulation.filters.IncludeAllFilter;
 			
 			public var module:VideoconfModule;
 			private var button:ToolbarButton;
@@ -56,8 +58,9 @@
 			// publishing
 			private var _publishing:Boolean = false;		
 			
-			private function viewCamera(userid:String, stream:String, name:String, mock:Boolean = false):void{
-				if (userid == module.userid) return;
+			private function viewCamera(userid:String, stream:String, name:String, mock:Boolean = false):void {
+        LogUtil.debug("Viewing [" + userid + " stream [" + stream + "]");
+				if (UserManager.getInstance().getConference().amIThisUser(userid)) return;
 				
 				var window:VideoWindow = new VideoWindow();
 //				window.userId = userid;
@@ -204,7 +207,7 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{StreamStartedEvent.STREAM_STARTED}">
-		<InlineInvoker method="viewCamera" arguments="{[event.userid, event.stream, event.user]}" />
+		<InlineInvoker method="viewCamera" arguments="{[event.userID, event.stream, event.user]}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{ViewCameraEvent.VIEW_CAMERA_EVENT}">

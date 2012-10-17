@@ -231,7 +231,7 @@
           try
           {
             var htmlURL:String = String(ExternalInterface.call("window.location.href.toString"));
-            serverName = URLUtil.getServerNameWithPort(htmlURL);
+            serverName = URLUtil.getServerName(htmlURL);
 //            Alert.show("HTML URL [" + htmlURL + "]");
           }
           catch(s:Error)
