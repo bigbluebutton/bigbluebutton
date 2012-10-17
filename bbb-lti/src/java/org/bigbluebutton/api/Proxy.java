@@ -68,45 +68,41 @@ public class Proxy {
     
     public String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, String dialNumber, String voiceBridge, String webVoice, String logoutURL, String maxParticipants, String record, String duration, String meta ) {
 
-        String url = "";
-        try {
-            url = "name=" + URLEncoder.encode(name, PARAMETERENCODING);
-            url += "&meetingID=" + meetingID;
-            url += "&moderatorPW=" + moderatorPW;
-            url += "&attendeePW=" + attendeePW;
-            url += "&welcome=" + URLEncoder.encode(welcome, PARAMETERENCODING);
-            url += "&logoutURL=" + URLEncoder.encode(logoutURL, PARAMETERENCODING);
-            url += "&maxParticipants=" + maxParticipants;
-            url += "&voiceBridge=" + voiceBridge;
-            url += "&dialNumber=" + dialNumber;
-            url += "&webVoice=" + webVoice;
-            url += "&record=" + record;
-            url += "&duration=" + duration;
-            url += meta;
-        } catch(Exception e){}
+        String url;
+        url = "name=" + getStringEncoded(name);
+        url += "&meetingID=" + meetingID;
+        url += "&moderatorPW=" + moderatorPW;
+        url += "&attendeePW=" + attendeePW;
+        url += "&welcome=" + getStringEncoded(welcome);
+        url += "&logoutURL=" + getStringEncoded(logoutURL);
+        url += "&maxParticipants=" + maxParticipants;
+        url += "&voiceBridge=" + voiceBridge;
+        url += "&dialNumber=" + dialNumber;
+        url += "&webVoice=" + webVoice;
+        url += "&record=" + record;
+        url += "&duration=" + duration;
+        url += "&" + meta;
 
         url += getCheckSumParameterForQuery(APICALL_CREATE, url);
         
         return this.url + API_SERVERPATH + APICALL_CREATE + "?" + url;
     }
     
-    public String getJoinMeetingURL(String fullName, String meetingID, String password) {
-        String url = getJoinMeetingURL(fullName, meetingID, password, "", "", "" );
+    public String getJoinMeetingURL(String fullName, String meetingID, String password, String createTime, String userID) {
+        String url = getJoinMeetingURL(fullName, meetingID, password, createTime, userID, "" );
         return url;
         
     }
 
     public String getJoinMeetingURL(String fullName, String meetingID, String password, String createTime, String userID, String webVoiceConf ) {
 
-        String url = "";
-        try {
-            url = "fullName=" + URLEncoder.encode(fullName, PARAMETERENCODING);
-            url += "&meetingID=" + meetingID;
-            url += "&password=" + password;
-            url += "".equals(createTime)? "": "&createTime=" + createTime;
-            url += "&userID=" + userID;
-            url += "&webVoiceConf=" + webVoiceConf;
-        } catch(Exception e){}
+        String url;
+        url = "fullName=" + getStringEncoded(fullName);
+        url += "&meetingID=" + meetingID;
+        url += "&password=" + password;
+        url += "".equals(createTime)? "": "&createTime=" + createTime;
+        url += "&userID=" + userID;
+        url += "&webVoiceConf=" + webVoiceConf;
 
         url += getCheckSumParameterForQuery(APICALL_JOIN, url);
         
@@ -169,6 +165,16 @@ public class Proxy {
         url += getCheckSumParameterForQuery(APICALL_PUBLISHRECORDINGS, url);
         
         return this.url + API_SERVERPATH + APICALL_PUBLISHRECORDINGS + "?" + url;
+    }
+    
+    public String getStringEncoded(String string){
+        String stringEncoded = "";
+        
+        try {
+            stringEncoded = URLEncoder.encode(string, PARAMETERENCODING); 
+        } catch(Exception e){}
+        
+        return stringEncoded;
     }
     
     /** Creates the checksum parameter to be included as part of the url */

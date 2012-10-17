@@ -89,11 +89,14 @@ class BigbluebuttonService {
         boolean isModerator = Role.isModerator(params.get(Parameter.ROLES))
         String userFullName = getValidatedUserFullName(params.get(Parameter.USER_FULL_NAME), isModerator)
         String courseTitle = getValidatedCourseTitle(params.get(Parameter.COURSE_TITLE))
+        String userID = getValidatedUserId(params.get(Parameter.USER_ID))
         
         String[] values = [meetingName, courseTitle]
-        String welcomeMsg = MessageFormat.format(welcome, values);
+        String welcomeMsg = MessageFormat.format(welcome, values)
         
-        String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcomeMsg, logoutURL )
+        String meta = getMonitoringMetaData(params)
+        
+        String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcomeMsg, logoutURL, meta )
         //log.debug "createURL: " + createURL
         Map<String, Object> createResponse = doAPICall(createURL)
         //log.debug "createResponse: " + createResponse
@@ -103,7 +106,7 @@ class BigbluebuttonService {
             String messageKey = (String) createResponse.get("messageKey")
             if ( Proxy.APIRESPONSE_SUCCESS.equals(returnCode) ||
                 (Proxy.APIRESPONSE_FAILED.equals(returnCode) &&  (Proxy.MESSAGEKEY_IDNOTUNIQUE.equals(messageKey) || Proxy.MESSAGEKEY_DUPLICATEWARNING.equals(messageKey)) ) ){
-                joinURL = bbbProxy.getJoinMeetingURL( userFullName, meetingID, isModerator? moderatorPW: attendeePW);
+                joinURL = bbbProxy.getJoinMeetingURL( userFullName, meetingID, isModerator? moderatorPW: attendeePW, (String) createResponse.get("createTime"), userID);
             }
         }
 
@@ -111,10 +114,10 @@ class BigbluebuttonService {
         
     }
     
-    private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, String logoutURL ) {
+    private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, String logoutURL, String meta ) {
         Integer voiceBridge = 70000 + new Random(System.currentTimeMillis()).nextInt(10000);
 
-        String url = bbbProxy.getCreateURL(name, meetingID, attendeePW, moderatorPW, welcome, "", voiceBridge.toString(), "", logoutURL, "", "", "", "" );
+        String url = bbbProxy.getCreateURL(name, meetingID, attendeePW, moderatorPW, welcome, "", voiceBridge.toString(), "", logoutURL, "", "", "", meta );
         return url;
     }
     
@@ -138,6 +141,25 @@ class BigbluebuttonService {
         return (courseTitle == null || courseTitle == "")? "Course": courseTitle
     }
 
+    private String getValidatedUserId(String userId){
+        return (userId == null)? "": userId
+    }
+    
+    private String getMonitoringMetaData(params){
+        String meta
+
+        meta = "meta_origin=" + bbbProxy.getStringEncoded(params.get(Parameter.TOOL_CONSUMER_CODE) == null? "": params.get(Parameter.TOOL_CONSUMER_CODE))
+        meta += "&meta_originVersion=" + bbbProxy.getStringEncoded(params.get(Parameter.TOOL_CONSUMER_VERSION) == null? "": params.get(Parameter.TOOL_CONSUMER_VERSION))
+        meta += "&meta_originServerCommonName=" + bbbProxy.getStringEncoded(params.get(Parameter.TOOL_CONSUMER_INSTANCE_DESCRIPTION) == null? "": params.get(Parameter.TOOL_CONSUMER_INSTANCE_DESCRIPTION))
+        meta += "&meta_originServerUrl=" + bbbProxy.getStringEncoded(params.get(Parameter.TOOL_CONSUMER_INSTANCE_URL) == null? "": params.get(Parameter.TOOL_CONSUMER_INSTANCE_URL))
+        meta += "&meta_context=" + bbbProxy.getStringEncoded(params.get(Parameter.COURSE_TITLE) == null? "": params.get(Parameter.COURSE_TITLE))
+        meta += "&meta_contextId=" + bbbProxy.getStringEncoded(params.get(Parameter.COURSE_ID) == null? "": params.get(Parameter.COURSE_ID))
+        meta += "&meta_contextActivity=" + bbbProxy.getStringEncoded(params.get(Parameter.RESOURCE_LINK_TITLE) == null? "": params.get(Parameter.RESOURCE_LINK_TITLE))
+        meta += "&meta_contextActivityDescription=" + bbbProxy.getStringEncoded(params.get(Parameter.RESOURCE_LINK_DESCRIPTION) == null? "": params.get(Parameter.RESOURCE_LINK_DESCRIPTION))
+        
+        return meta
+    }
+    
     /** Make an API call */
     private Map<String, Object> doAPICall(String query) {
         StringBuilder urlStr = new StringBuilder(query);
