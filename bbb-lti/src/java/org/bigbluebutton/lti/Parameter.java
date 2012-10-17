@@ -4,10 +4,11 @@ public class Parameter {
     
     public static final String OAUTH_SIGNATURE = "oauth_signature";
     public static final String CONSUMER_ID = "oauth_consumer_key";
+    public static final String USER_ID = "user_id";
     public static final String USER_FULL_NAME = "lis_person_name_full";
     public static final String USER_LASTNAME = "lis_person_name_family";
     public static final String USER_EMAIL = "lis_person_contact_email_primary";
-    public static final String USER_ID = "lis_person_sourcedid";
+    public static final String USER_SOURCEDID = "lis_person_sourcedid";
     public static final String USER_FIRSTNAME = "lis_person_name_given";
     public static final String COURSE_ID = "context_id";
     public static final String COURSE_TITLE = "context_title";
@@ -20,6 +21,12 @@ public class Parameter {
     public static final String LAUNCH_DOCUMENT_TARGET = "launch_presentation_document_target";
     public static final String LAUNCH_CSS_URL = "launch_presentation_css_url";
     public static final String LAUNCH_RETURN_URL = "launch_presentation_return_url";
+    
+    public static final String TOOL_CONSUMER_CODE = "tool_consumer_info_product_family_code";
+    public static final String TOOL_CONSUMER_VERSION = "tool_consumer_info_version";
+    public static final String TOOL_CONSUMER_INSTANCE_NAME = "tool_consumer_instance_name";
+    public static final String TOOL_CONSUMER_INSTANCE_DESCRIPTION = "tool_consumer_instance_description";
+    public static final String TOOL_CONSUMER_INSTANCE_URL = "tool_consumer_instance_url";
     
     public static final String CUSTOM_USER_ID = "custom_lis_person_sourcedid";
 
