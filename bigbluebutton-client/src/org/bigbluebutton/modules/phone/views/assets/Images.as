@@ -20,13 +20,16 @@
 package org.bigbluebutton.modules.phone.views.assets
 {
 	[Bindable]
-		public class Images
+	public class Images
 	{             
         [Embed(source="images/headset.png")]
-        public var headset_icon:Class;  
-		
-		[Embed(source="images/headset_close.png")]
-		public var headsetClose:Class;  
-        
+        public var headsetDefaultIcon:Class;  
+
+	[Embed(source="images/headset_close.png")]
+	public var headsetInactiveIcon:Class;  
+
+	[Embed(source="images/headset_open.png")]
+	public var headsetActiveIcon:Class;  
+       
 	}
 }

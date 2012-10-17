@@ -22,7 +22,7 @@
 
 <MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 			xmlns="flexlib.mdi.containers.*"
-			xmlns:flc="flexlib.controls.*"
+			xmlns:flc="flexlib.controls.*" visible="false"
 			implements="org.bigbluebutton.common.IBbbModuleWindow"
 			title="{windowTitle}"
 			creationComplete="onCreationComplete()" xmlns:mate="http://mate.asfusion.com/" xmlns:controls="flexlib.controls.*">

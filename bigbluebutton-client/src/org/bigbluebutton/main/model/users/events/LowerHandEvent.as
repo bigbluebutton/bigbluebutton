@@ -24,9 +24,9 @@ package org.bigbluebutton.main.model.users.events
 	{
 		public static const LOWER_HAND_EVENT:String = "LOWER_HAND_EVENT";
 		
-		public var userid:Number;
+		public var userid:String;
 
-		public function LowerHandEvent(userid:Number)
+		public function LowerHandEvent(userid:String)
 		{
 			super(LOWER_HAND_EVENT,true);
 			this.userid = userid;

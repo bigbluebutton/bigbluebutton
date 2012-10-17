@@ -121,7 +121,15 @@ package org.bigbluebutton.modules.layout.model {
 			var effect:Parallel = new Parallel();
 			effect.duration = EVENT_DURATION;
 			effect.target = window;
-			
+
+      if (window.visible && this.hidden) {
+        window.visible = false;
+      }
+      
+      if (!this.hidden) {
+        window.visible = true;
+      }
+      
 			if (this.minimized) {
 				if (!window.minimized) window.minimize();
 			} else if (this.maximized) {
@@ -156,7 +164,10 @@ package org.bigbluebutton.modules.layout.model {
 					}
 				}
 			}
-			
+      
+
+
+      /*
 			var layoutHidden:Boolean = this.hidden;
 //			var windowVisible:Boolean = (window.alpha == 1);
 			var windowVisible:Boolean = window.visible;
@@ -174,7 +185,7 @@ package org.bigbluebutton.modules.layout.model {
 				});
 				effect.addChild(fader);
 			}
-			
+*/			
 			if (effect.children.length > 0)
 				effect.play();
 		}

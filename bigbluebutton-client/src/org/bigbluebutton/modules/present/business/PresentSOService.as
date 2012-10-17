@@ -280,9 +280,9 @@ package org.bigbluebutton.modules.present.business {
 			}
 		}
 		
-		public function whatIsTheSlideInfoReply(userId:Number, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
+		public function whatIsTheSlideInfoReply(userID:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
 			LogUtil.debug("Rx whatIsTheSlideInfoReply");
-			if (UserManager.getInstance().getConference().amIThisUser(userId)) {
+			if (UserManager.getInstance().getConference().amIThisUser(userID)) {
 				LogUtil.debug("Got reply for Query for slide info");
 				var e:MoveEvent = new MoveEvent(MoveEvent.CUR_SLIDE_SETTING);
 				e.xOffset = xOffset;
@@ -437,9 +437,9 @@ package org.bigbluebutton.modules.present.business {
 				if (p != null) {
 					LogUtil.debug("trigger Switch to Viewer mode ");
 					var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
-					viewerEvent.userid = p.userid;
+					viewerEvent.userid = p.userID;
 					viewerEvent.presenterName = p.name;
-					viewerEvent.assignerBy = p.userid;
+					viewerEvent.assignerBy = p.userID;
 					
 					dispatcher.dispatchEvent(viewerEvent);					
 				}

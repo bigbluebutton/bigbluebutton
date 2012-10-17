@@ -25,7 +25,7 @@ package org.bigbluebutton.main.model.users.events
 		public static const BROADCAST_STOPPED:String = "BROADCAST_STOPPED";
 		
 		public var stream:String;
-		public var userid:Number;
+		public var userid:String;
 		
 		public function BroadcastStoppedEvent(type:String = BROADCAST_STOPPED)
 		{
