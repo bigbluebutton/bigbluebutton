@@ -80,6 +80,7 @@ public class NetworkSocketStreamSender implements Runnable {
 			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 			dataToSend.reset();
 			BlockStreamProtocolEncoder.encodeStartStreamMessage(room, screenDim, blockDim, dataToSend, seqNumGenerator.getNext());
+			BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 			sendToStream(dataToSend);
 		} catch (IOException e) {
@@ -92,6 +93,7 @@ public class NetworkSocketStreamSender implements Runnable {
 		ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 		dataToSend.reset();
 		BlockStreamProtocolEncoder.encodeMouseLocation(mouseLoc, room, dataToSend, seqNumGenerator.getNext());
+		BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 		sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 		sendToStream(dataToSend);
 	}
@@ -115,35 +117,46 @@ public class NetworkSocketStreamSender implements Runnable {
 	public void disconnect() throws ConnectionException {
 		System.out.println("Disconnecting socket stream");
 		if (!processMessages) return;
-
-
 	}
 	
 	private void processNextMessageToSend(Message message) throws IOException {
 		if (message.getMessageType() == Message.MessageType.BLOCK) {
+			long start = System.currentTimeMillis();
 			ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 			dataToSend.reset();
-			BlockStreamProtocolEncoder.encodeRoomAndSequenceNumber(room, seqNumGenerator.getNext(), dataToSend);
-			
+			BlockStreamProtocolEncoder.encodeRoomAndSequenceNumber(room, seqNumGenerator.getNext(), dataToSend);			
 			Integer[] changedBlocks = ((BlockMessage)message).getBlocks();
-
 			BlockStreamProtocolEncoder.numBlocksChanged(changedBlocks.length, dataToSend);
-//			System.out.println("Number of blocks changed: " + changedBlocks.length);
-			String blocksStr = "Encoding ";
+			
+			String blockSize = "Block length [";
+			String encodeTime = "Encode times [";
+			long encStart = 0;
+			long encEnd = 0;
+			int totalBytes = 0;
+			long totalMillis = 0;
 			for (int i = 0; i < changedBlocks.length; i++) {
-				blocksStr += " " + (Integer)changedBlocks[i];
+				encStart = System.currentTimeMillis();
 				EncodedBlockData block = retriever.getBlockToSend((Integer)changedBlocks[i]);
+				totalBytes += block.getVideoData().length;
+				blockSize += block.getVideoData().length + ",";
+				encEnd = System.currentTimeMillis();
+				totalMillis += (encEnd - encStart);
+				encodeTime += (encEnd - encStart) + ",";
 				BlockVideoData	bv = new BlockVideoData(room, block.getPosition(), block.getVideoData(), false /* should remove later */);	
 				BlockStreamProtocolEncoder.encodeBlock(bv, dataToSend);
 			}
 			
-//			System.out.println(blocksStr);
-			
+			System.out.println(blockSize + "] total=" + totalBytes + " bytes");
+			System.out.println(encodeTime + "] total=" + totalMillis + " ms");
+
+			BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 			sendToStream(dataToSend);
 			for (int i = 0; i< changedBlocks.length; i++) {
 				retriever.blockSent((Integer)changedBlocks[i]);
 			}
+			long end = System.currentTimeMillis();
+			System.out.println("[Socket Thread " + id + "] Sending " + changedBlocks.length + " blocks took " + (end - start) + " millis");
 		} else if (message.getMessageType() == Message.MessageType.CURSOR) {
 			CursorMessage msg = (CursorMessage)message;
 			sendCursor(msg.getMouseLocation(), msg.getRoom());
@@ -153,6 +166,7 @@ public class NetworkSocketStreamSender implements Runnable {
 				ByteArrayOutputStream dataToSend = new ByteArrayOutputStream();
 				dataToSend.reset();
 				BlockStreamProtocolEncoder.encodeEndStreamMessage(room, dataToSend, seqNumGenerator.getNext());
+				BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 				sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
 				sendToStream(dataToSend);
 			} catch (IOException e) {

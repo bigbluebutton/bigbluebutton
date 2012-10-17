@@ -158,12 +158,12 @@ public class ScreenSharerRunner {
 		System.out.println("-----------------------------------------------------------------------");
 		System.out.println(LICENSE_HEADER);
 		System.out.println("-----------------------------------------------------------------------\n\n");
-		System.out.println("Desktop Sharing v0.71");
+		System.out.println("Desktop Sharing v0.8");
 		System.out.println("Start");
 		System.out.println("Connecting to " + ssi.host + ":" + ssi.port + " room " + ssi.room);
 		System.out.println("Sharing " + ssi.captureWidth + "x" + ssi.captureHeight + " at " + ssi.x + "," + ssi.y);
 		System.out.println("Scale to " + ssi.scaleWidth + "x" + ssi.scaleHeight + " with quality = " + ssi.quality);
-		System.out.println("Http Tunnel: " + ssi.httpTunnel);
+//		System.out.println("Http Tunnel: " + ssi.httpTunnel);
 	}
 	
 	private static final String LICENSE_HEADER = "This program is free software: you can redistribute it and/or modify\n" +

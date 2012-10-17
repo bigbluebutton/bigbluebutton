@@ -33,36 +33,19 @@
 <%@ include file="mobile_api.jsp"%>
 
 <%
+    String result = error(E_INVALID_URL);
     if (request.getParameterMap().isEmpty()) {
+    	result = success("mobileSupported", "This server supports mobile devices.");
+    } else if (request.getParameter("action") == null) {
+        // return the default result
     } else if (request.getParameter("action").equals("getTimestamp")) {
-    	String message = "<response><returncode>FAILED</returncode></response>";
-    	
-    	if (isRequestValid(request))
-    		message = "<response><returncode>SUCCESS</returncode><timestamp>" + getTimestamp() + "</timestamp></response>";
-%>
-<%=message%>
-<%
+    	result = getTimestamp(request);
     } else if (request.getParameter("action").equals("getMeetings")) {
-    	String meetings = "<meetings><meeting><returncode>FAILED</returncode></meeting></meetings>";
-    	
-    	if (isRequestValid(request))
-    		meetings = getMeetings();
-%>
-<%=meetings%>
-<%
+    	result = mobileGetMeetings(request);
     } else if (request.getParameter("action").equals("join")) {
-        String result = mobileJoinMeeting(request);
-%>
-<%=result%>
-<%
+    	result = mobileJoinMeeting(request);
     } else if (request.getParameter("action").equals("create")) {
-        String meetingID = request.getParameter("meetingID");
-        String result = "<response><returncode>FAILED</returncode></response>";
-        
-        if (isRequestValid(request))
-        	result = createMeeting(meetingID, "", "", "", 0, BigBlueButtonURL);
+    	result = mobileCreate(request);
+	}
 %>
 <%=result%>
-<%
-    }
-%>

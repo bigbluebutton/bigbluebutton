@@ -205,8 +205,8 @@
 	
 	<mx:Spacer height="3" />
 	<mx:Image source="{thick_icon}" horizontalAlign="center" width="20"/>
-	<mx:VSlider height="50" id="sld" change="changeThickness(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness')}" minimum="1" maximum="20" 
-				useHandCursor="true" value="1" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" />
+	<mx:VSlider height="50" id="sld" change="changeThickness(event)" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness')}" minimum="2" maximum="20" 
+				useHandCursor="true" value="2" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" />
 	<mx:Image source="{thin_icon}" horizontalAlign="center" width="20" />
 	
 </mx:VBox>

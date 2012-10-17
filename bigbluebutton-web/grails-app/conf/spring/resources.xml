@@ -82,6 +82,7 @@
     <property name="defaultNumDigitsForTelVoice" value="${defaultNumDigitsForTelVoice}"/>
     <property name="defaultClientUrl" value="${defaultClientUrl}"/>
     <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
+    <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
   </bean>
         
 	<import resource="doc-conversion.xml" />

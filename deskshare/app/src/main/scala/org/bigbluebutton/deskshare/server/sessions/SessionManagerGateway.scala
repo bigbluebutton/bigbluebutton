@@ -28,12 +28,12 @@ import org.bigbluebutton.deskshare.server.session.ISessionManagerGateway
 import java.awt.Point
 import net.lag.logging.Logger
 
-class SessionManagerGateway(streamManager: StreamManager, keyFrameInterval: Int) extends ISessionManagerGateway {  
+class SessionManagerGateway(streamManager: StreamManager, keyFrameInterval: Int, interframeInterval: Int, waitForAllBlocks: Boolean) extends ISessionManagerGateway {  
 	
 	private val log = Logger.get 
 
 	streamManager.start
-	val sessionManager: SessionManagerSVC = new SessionManagerSVC(streamManager, keyFrameInterval)
+	val sessionManager: SessionManagerSVC = new SessionManagerSVC(streamManager, keyFrameInterval, interframeInterval, waitForAllBlocks)
     sessionManager.start 
   
 	def createSession(room: String, screenDim: common.Dimension, blockDim: common.Dimension, seqNum: Int): Unit = {

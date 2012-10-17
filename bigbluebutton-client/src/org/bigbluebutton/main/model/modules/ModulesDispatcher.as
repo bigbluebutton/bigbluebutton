@@ -20,6 +20,10 @@ package org.bigbluebutton.main.model.modules
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.vo.Config;
 	import org.bigbluebutton.core.vo.ConfigBuilder;
 	import org.bigbluebutton.main.events.BBBEvent;
@@ -32,6 +36,9 @@ package org.bigbluebutton.main.model.modules
 	public class ModulesDispatcher
 	{
 		private var dispatcher:Dispatcher;
+		private var delay:uint = 5000;
+		private var repeat:uint = 30;
+		private var connectTimer:Timer = null;
 		
 		public function ModulesDispatcher()
 		{
@@ -68,28 +75,54 @@ package org.bigbluebutton.main.model.modules
 		public function sendPortTestEvent():void{
 			var e:PortTestEvent = new PortTestEvent(PortTestEvent.TEST_RTMP);
 			dispatcher.dispatchEvent(e);
+			connectTimer = new Timer(delay, repeat);
+			connectTimer.addEventListener(TimerEvent.TIMER, timerHandler);
+			connectTimer.addEventListener(TimerEvent.TIMER_COMPLETE, completeHandler);
+			connectTimer.start(); 			
+
+		}
+		
+		private function timerHandler(e:TimerEvent):void{
+			var evt:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_UPDATE);
+			dispatcher.dispatchEvent(evt);
+		}
+		
+		private function stopTimers():void {
+			if (connectTimer) {
+				connectTimer.stop();
+				connectTimer = null;
+			}
+		}
+		
+		private function completeHandler(e:TimerEvent):void {
+			stopTimers();
 		}
 		
 		public function sendTunnelingFailedEvent():void{
 			dispatcher.dispatchEvent(new PortTestEvent(PortTestEvent.TUNNELING_FAILED));
+			stopTimers();
 		}
 		
 		public function sendPortTestSuccessEvent(port:String, host:String, protocol:String, app:String):void{
+			stopTimers();
 			var portEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_SUCCESS);
 			portEvent.port = port;
 			portEvent.hostname = host;
 			portEvent.protocol = protocol;
 			portEvent.app = app;
 			dispatcher.dispatchEvent(portEvent);
+			
 		}
 		
 		public function sendPortTestFailedEvent(port:String, host:String, protocol:String, app:String):void{
+			stopTimers();
 			var portFailEvent:PortTestEvent = new PortTestEvent(PortTestEvent.PORT_TEST_FAILED);
 			portFailEvent.port = port;
 			portFailEvent.hostname = host;
 			portFailEvent.protocol = protocol;
 			portFailEvent.app = app;
 			dispatcher.dispatchEvent(portFailEvent);
+			
 		}
 		
 		public function sendModuleLoadingStartedEvent(modules:XMLList):void{

@@ -24,6 +24,9 @@ package org.bigbluebutton.modules.phone.views.assets
 	{             
         [Embed(source="images/headset.png")]
         public var headset_icon:Class;  
+		
+		[Embed(source="images/headset_close.png")]
+		public var headsetClose:Class;  
         
 	}
 }

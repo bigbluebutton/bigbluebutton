@@ -73,7 +73,7 @@ dependencies {
 
 	
 	// Red5
-	compile 'org/red5:red5:1.0r4297@jar'
+	compile 'org/red5:red5:1.0r4316@jar'
 	
 	// Logging
 	compile 'org.slf4j:com.springsource.slf4j.api:1.6.1@jar'

@@ -223,7 +223,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 				{name:'id',index:'id', width:50, hidden:true, xmlmap: "recordID"},
 				{name:'course',index:'course', width:150, xmlmap: "name", sortable:true},
 				{name:'description',index:'description', width:300, xmlmap: "description",sortable: true},
-				{name:'daterecorded',index:'daterecorded', width:200, xmlmap: "startTime", sortable: true},
+				{name:'daterecorded',index:'daterecorded', width:200, xmlmap: "startTime", sortable: true, sorttype: "datetime", datefmt: "d-m-y h:i:s"},
 				{name:'published',index:'published', width:80, xmlmap: "published", sortable:true },
 				{name:'playback',index:'playback', width:150, xmlmap:"playback", sortable:false},
 				{name:'length',index:'length', width:80, xmlmap:"length", sortable:true}

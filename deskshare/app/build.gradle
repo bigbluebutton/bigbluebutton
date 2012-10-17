@@ -21,7 +21,7 @@ dependencies {
 	providedCompile 'org.springframework:spring-core:3.0.6.RELEASE@jar'
 	compile 'org.springframework:spring-webmvc:3.0.6.RELEASE@jar'
 		
-	providedCompile 'org/red5:red5:1.0r4297@jar'
+	providedCompile 'org/red5:red5:1.0r4316@jar'
 	
 
 	// Logging

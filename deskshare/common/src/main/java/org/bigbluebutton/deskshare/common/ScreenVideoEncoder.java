@@ -82,11 +82,11 @@ public final class ScreenVideoEncoder {
 		return pixels;	
 	}
 	
-	public static byte[] encodePixels(int pixels[], int width, int height) {
+	public static byte[] encodePixels(int pixels[], int width, int height, boolean grayscale) {
 		
 		changePixelScanFromBottomLeftToTopRight(pixels, width, height);
 		
-		byte[] bgrPixels = convertFromRGBtoBGR(pixels);
+		byte[] bgrPixels = convertFromRGBtoBGR(pixels, grayscale);
 		
 		byte[] compressedPixels = compressUsingZlib(bgrPixels);  
 		
@@ -163,8 +163,8 @@ public final class ScreenVideoEncoder {
 	 * @param pixels
 	 * @return pixels in BGR order
 	 */
-	private static byte[] convertFromRGBtoBGR(int[] pixels) {	
-		long start = System.currentTimeMillis();
+	private static byte[] convertFromRGBtoBGR(int[] pixels, boolean grayscale) {	
+//		long start = System.currentTimeMillis();
 		byte[] rgbPixels = new byte[pixels.length * 3];
 		int position = 0;
 		
@@ -172,20 +172,26 @@ public final class ScreenVideoEncoder {
 			byte red = (byte) ((pixels[i] >> 16) & 0xff);
 			byte green = (byte) ((pixels[i] >> 8) & 0xff);
 			byte blue = (byte) (pixels[i] & 0xff);
-
+/*
+			if (grayscale) {
+				byte brightness = convertToGrayScale(red, green, blue);
+				
+				// Sequence should be BGR
+				rgbPixels[position++] = brightness;
+				rgbPixels[position++] = brightness;
+				rgbPixels[position++] = brightness;	
+			} else {
+				// Sequence should be BGR
+				rgbPixels[position++] = blue;
+				rgbPixels[position++] = green;
+				rgbPixels[position++] = red;				
+			}	
+*/				
 			// Sequence should be BGR
 			rgbPixels[position++] = blue;
 			rgbPixels[position++] = green;
 			rgbPixels[position++] = red;
-/*
- * If we want to send grayscale images.			
-			byte brightness = convertToGrayScale(red, green, blue);
-			
-			// Sequence should be BGR
-			rgbPixels[position++] = brightness;
-			rgbPixels[position++] = brightness;
-			rgbPixels[position++] = brightness;				
-*/		}
+		}
 		
 		long end = System.currentTimeMillis();
 //		System.out.println("Extracting pixels[" + pixels.length + "] took " + (end-start) + " ms.");				

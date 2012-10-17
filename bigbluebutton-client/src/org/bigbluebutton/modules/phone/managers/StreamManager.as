@@ -18,18 +18,18 @@
 */
 
 package org.bigbluebutton.modules.phone.managers {
-        import com.asfusion.mate.events.Dispatcher;
-        import flash.events.ActivityEvent;
-        import flash.events.AsyncErrorEvent;
-        import flash.events.IEventDispatcher;
-        import flash.events.NetStatusEvent;
-        import flash.events.StatusEvent;
-        import flash.media.Microphone;
-        import flash.media.MicrophoneEnhancedMode;
-        import flash.media.MicrophoneEnhancedOptions;
-        import flash.media.SoundCodec;
-        import flash.net.NetConnection;
-        import flash.net.NetStream;
+	import com.asfusion.mate.events.Dispatcher;
+	import flash.events.ActivityEvent;
+	import flash.events.AsyncErrorEvent;
+	import flash.events.IEventDispatcher;
+	import flash.events.NetStatusEvent;
+	import flash.events.StatusEvent;
+	import flash.media.Microphone;
+	import flash.media.MicrophoneEnhancedMode;
+	import flash.media.MicrophoneEnhancedOptions;
+	import flash.media.SoundCodec;
+	import flash.net.NetConnection;
+	import flash.net.NetStream;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.main.events.BBBEvent;

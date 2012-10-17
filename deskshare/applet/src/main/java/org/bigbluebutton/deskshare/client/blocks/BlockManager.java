@@ -51,6 +51,7 @@ public class BlockManager {
         numColumns = factory.getColumnCount();
         numRows = factory.getRowCount();
         int numberOfBlocks = numColumns * numRows;
+        System.out.println("Sharing " + numberOfBlocks + " blocks [rows=" + numRows + ", cols=" + numColumns + "]");
         
         for (int position = 1; position <= numberOfBlocks; position++) {
         	Block block = factory.createBlock(position);
@@ -94,6 +95,8 @@ public class BlockManager {
     		}
 		}
 
+		long end = System.currentTimeMillis();
+		System.out.println("Processing blocks took " + (end - start) + " millis");
     }
         
     private void notifyChangedBlockListener(BlockMessage position) {

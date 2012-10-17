@@ -14,6 +14,9 @@
 # STATUS: SUCCEEDED
 #
 
+# Set encoding to utf-8
+# encoding: UTF-8
+
 require "rubygems"
 require "curb"
 require "nokogiri"

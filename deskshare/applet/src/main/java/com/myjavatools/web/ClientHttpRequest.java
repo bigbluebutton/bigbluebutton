@@ -1,4 +1,3 @@
-
 package com.myjavatools.web;
 
 import java.net.URLConnection;

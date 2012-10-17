@@ -21,6 +21,7 @@
 --> 
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{camIcon}" 
+		   xmlns:mate="http://mate.asfusion.com/"
 		   click="openPublishWindow()" creationComplete="init()" 
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip')}"
 		   visible="{isPresenter}"
@@ -48,11 +49,11 @@
 			
 			private function openPublishWindow():void{
 				dispatchEvent(new OpenPublishWindowEvent());
-				this.enabled = false;
 			}
 			
 			public function show():void{
 				this.enabled = true;
+				camIcon = images.webcam;
 			}
 			
 			public function getAlignment():String{
@@ -60,4 +61,6 @@
 			}
 		]]>
 	</mx:Script>
+	
+	<mate:Listener type="{OpenPublishWindowEvent.OPEN_PUBLISH_WINDOW}" receive="enabled=false" />
 </mx:Button>

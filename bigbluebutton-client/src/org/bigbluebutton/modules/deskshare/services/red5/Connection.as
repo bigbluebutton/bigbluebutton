@@ -26,7 +26,7 @@ package org.bigbluebutton.modules.deskshare.services.red5
 	import flash.net.ObjectEncoding;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
-	import mx.controls.Alert;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class Connection extends EventDispatcher
 	{
@@ -62,11 +62,11 @@ package org.bigbluebutton.modules.deskshare.services.red5
 		{
 			if(getURI().length == 0)
 			{
-				Alert.show("please provide a valid URI connection string", "URI Connection String missing");
+				LogUtil.error("please provide a valid URI connection string. URI Connection String missing");
 				return;
 			}else if(nc.connected)
 			{
-				Alert.show("You are already connected to " + getURI(), "Already connected");
+				LogUtil.error("You are already connected to " + getURI());
 				return;
 			}
 			nc.connect(getURI());
@@ -144,14 +144,17 @@ package org.bigbluebutton.modules.deskshare.services.red5
 					e = new ConnectionEvent(Connection.APPSHUTDOWN, false, false, event.info.code);
 					dispatchEvent(e);
 				break;
-			}
-			
-			if(event.info.code != "NetConnection.Connect.Success")
-			{
-				// I dispatch DISCONNECTED incase someone just simply wants to know if we're not connected'
-				// rather than having to subscribe to the events individually
-				e = new ConnectionEvent(Connection.DISCONNECTED, false, false, event.info.code);
-				dispatchEvent(e);
+				
+				case "NetConnection.Connect.NetworkChange":
+					LogUtil.info("Detected network change. User might be on a wireless and temporarily dropped connection. Doing nothing. Just making a note.");
+					break;
+					
+				default :
+					// I dispatch DISCONNECTED incase someone just simply wants to know if we're not connected'
+					// rather than having to subscribe to the events individually
+					e = new ConnectionEvent(Connection.DISCONNECTED, false, false, event.info.code);
+					dispatchEvent(e);
+					break;
 			}
 		}
 		

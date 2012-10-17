@@ -52,7 +52,6 @@
 			[Bindable] public var chatOptions:ChatOptions;
 			
 			public function getPrefferedPosition():String{
-				//return MainCanvas.TOP_RIGHT;
 				return chatOptions.position;
 			} 
 			
@@ -69,13 +68,13 @@
 			private function fullScreenHandler(evt:FullScreenEvent):void {
 				dispState = FlexGlobals.topLevelApplication.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
-					chatView.txtMsg.text = "Chat not enabled in full screen mode";
-					chatView.txtMsg.enabled = false;
-					chatView.sendBtn.enabled = false;
+					txtMsg.text = "Chat not enabled in full screen mode";
+					txtMsg.enabled = false;
+					sendBtn.enabled = false;
 				} else {
-					chatView.txtMsg.text = "";
-					chatView.txtMsg.enabled = true;
-					chatView.sendBtn.enabled = true;
+					txtMsg.text = "";
+					txtMsg.enabled = true;
+					sendBtn.enabled = true;
 				}
 			}		
 			
@@ -87,10 +86,25 @@
 			private function localeChanged(e:LocaleChangeEvent):void{
 				resourcesChanged();
 			}
+            
+            private function enableMessageEntryTextBox():void {
+                txtMsg.enabled = true;
+            }
+            
+            private function disableMessageEntryTextBox():void {
+                txtMsg.enabled = false;
+            }
 			
 		]]>
 	</mx:Script>
 	
-	<views:ChatView id="chatView" chatOptions="{chatOptions}"/>
-
+	<views:ChatView id="chatView" chatOptions="{chatOptions}" chatWindow="{this}"/>
+    
+    <mx:ControlBar id="chatCtrlBar" width="100%" height="10%" styleName="chatControlBarStyle">		
+        <mx:TextInput id="txtMsg" width="100%" enter="chatView.sendMessages()" color="{cmpColorPicker.selectedColor}" styleName="chatControlBarTextMsgStyle"/>
+        <mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
+                        selectedColor="0x000000" dataProvider="{chatView.colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>
+        <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn" styleName="chatControlBarSendButtonStyle"
+                   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" click="chatView.sendMessages()"/> 
+    </mx:ControlBar>	
 </MDIWindow>

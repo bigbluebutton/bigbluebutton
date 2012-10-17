@@ -31,7 +31,7 @@
 	width="320" height="240"
 	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
 	resizable="false">
-		
+	
 	<mate:Listener type="{AppletStartedEvent.APPLET_STARTED}" method="onAppletStart" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="onChangedPresenter" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="onChangedPresenter" />	
@@ -282,6 +282,7 @@
 			
 			private function closePublishWindow(event:ViewStreamEvent):void{
 				stopStream();
+				closeWindow();
 			}
 			
 		]]>

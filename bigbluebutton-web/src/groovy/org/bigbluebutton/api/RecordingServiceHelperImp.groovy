@@ -16,8 +16,8 @@ public class RecordingServiceHelperImp implements RecordingServiceHelper {
 		<id>Demo Meeting-3243244</id>
 		<state>available</state>
 		<published>true</published>
-		<start_time>Thu Mar 04 14:05:56 UTC 2010</start_time>
-		<end_time>Thu Mar 04 15:01:01 UTC 2010</end_time>
+		<start_time>3553545445</start_time>
+		<end_time>5674545234</end_time>
 		<playback>
 			<format>simple</format>
 			<link>http://server.com/simple/playback?recordingID=Demo Meeting-3243244</link>

@@ -26,6 +26,7 @@
 	<mate:Listener type="{ModuleLoadEvent.MODULE_LOAD_PROGRESS}" method="moduleLoadProgress" />
 	<mate:Listener type="{ModuleLoadEvent.ALL_MODULES_LOADED}" method="allModulesLoaded" />
 	<mate:Listener type="{PortTestEvent.TEST_RTMP}" method="testRTMP" />
+	<mate:Listener type="{PortTestEvent.PORT_TEST_UPDATE}" method="testRTMPupdate" />
 	<mate:Listener type="{PortTestEvent.TUNNELING_FAILED}" method="tunnelingFailed" />
 		
 	<mx:Script>
@@ -39,7 +40,7 @@
 			
 			private var modules:Dictionary = new Dictionary();
 			private var numModules:int = 0;
-			
+			private var portUpdateStr:String = 'Connecting to the server';
 			private function moduleLoadingStarted(e:ModuleLoadEvent):void{
 				var list:XMLList = e.modules;
 				var item:XML;
@@ -71,7 +72,14 @@
 			
 			private function testRTMP(e:PortTestEvent):void{
 				//- Cannot get locale string this early in loading process
-				this.label = 'Connecting to the server'; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
+				portUpdateStr += "."
+				this.label = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
+			}
+			
+			private function testRTMPupdate(e:PortTestEvent):void{
+				//- Cannot get locale string this early in loading process
+				portUpdateStr += "...";
+				this.label = portUpdateStr; //ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.connecting');
 			}
 			
 			private function tunnelingFailed(e:PortTestEvent):void{

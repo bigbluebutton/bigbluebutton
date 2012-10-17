@@ -58,22 +58,12 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     private boolean debug = false;
 
     private final Integer USER = 0; /* not used for now */
-
-    private static final Map<String, Integer> ESL_EVENT_ACTIONS_MAP = createMap();
-    private static final int ESL_ACTION_START_TALKING = 1;
-    private static final int ESL_ACTION_STOP_TALKING = 2;
-    private static final int ESL_ACTION_START_RECORDING = 3;
-    private static final int ESL_ACTION_STOP_RECORDING = 4;
-    
-    private static Map<String, Integer> createMap() {
-        Map<String,Integer> result = new HashMap<String,Integer>();
-        result.put("start-talking", ESL_ACTION_START_TALKING);
-        result.put("stop-talking", ESL_ACTION_STOP_TALKING);
-        result.put("start-recording", ESL_ACTION_START_RECORDING);
-        result.put("stop-recording", ESL_ACTION_STOP_RECORDING);
-        return Collections.unmodifiableMap(result);
-    }
-    
+  
+    private static final String START_TALKING_EVENT = "start-talking";
+    private static final String STOP_TALKING_EVENT = "stop-talking";
+    private static final String START_RECORDING_EVENT = "start-recording";
+    private static final String STOP_RECORDING_EVENT = "stop-recording";
+        
     @Override
     public boolean startup() {    	
         Client c = manager.getESLClient();
@@ -242,21 +232,14 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
             return;
         }
 
-        try {
-            switch(ESL_EVENT_ACTIONS_MAP.get(action)) {
-                case ESL_ACTION_START_TALKING:
-                    pt = new ParticipantTalkingEvent(memberId, confName, true);
-                    conferenceEventListener.handleConferenceEvent(pt);
-                    break;
-                case ESL_ACTION_STOP_TALKING:
-                    pt = new ParticipantTalkingEvent(memberId, confName, false);
-                    conferenceEventListener.handleConferenceEvent(pt);
-                    break;
-                default:
-                    log.debug("Unknown conference Action [{}]", action);
-            }
-        }catch(NullPointerException npe) {
-            log.debug("Unknown NPE conference Action [{}]", action);
+        if (action.equals(START_TALKING_EVENT)) {
+            pt = new ParticipantTalkingEvent(memberId, confName, true);
+            conferenceEventListener.handleConferenceEvent(pt);        	
+        } else if (action.equals(STOP_TALKING_EVENT)) {
+            pt = new ParticipantTalkingEvent(memberId, confName, false);
+            conferenceEventListener.handleConferenceEvent(pt);        	
+        } else {
+        	log.debug("Unknown conference Action [{}]", action);
         }
     }
 
@@ -293,35 +276,28 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     	if (log.isDebugEnabled())
     		log.debug("Handling conferenceEventRecord " + action);
     	
-        try {
-            switch(ESL_EVENT_ACTIONS_MAP.get(action)) {
-                case ESL_ACTION_START_RECORDING:                	
-                    StartRecordingEvent sre = new StartRecordingEvent(123, confName, true);
-                    sre.setRecordingFilename(getRecordFilenameFromEvent(event));
-                    sre.setTimestamp(getRecordTimestampFromEvent(event));
-                    
-                    if (log.isDebugEnabled())
-                    	log.debug("Processing conference event - action: {} time: {} file: {}", new Object[] {action,  sre.getTimestamp(), sre.getRecordingFilename()});
-                    
-                    conferenceEventListener.handleConferenceEvent(sre);
-                    break;
-                case ESL_ACTION_STOP_RECORDING:
-                	StartRecordingEvent srev = new StartRecordingEvent(123, confName, false);
-                    srev.setRecordingFilename(getRecordFilenameFromEvent(event));
-                    srev.setTimestamp(getRecordTimestampFromEvent(event));
-                    
-                    if (log.isDebugEnabled())
-                    	log.debug("Processing conference event - action: {} time: {} file: {}", new Object[] {action,  srev.getTimestamp(), srev.getRecordingFilename()});
-                    
-                    conferenceEventListener.handleConferenceEvent(srev);
-                    break;
-                default:
-                	if (log.isDebugEnabled())
-                		log.warn("Processing UNKNOWN conference Action {}", action);
-            }
-        }catch(NullPointerException npe) {
-            log.warn("Unknown NPE conference Action [{}]", action);
-        }
+    	if (action.equals(START_RECORDING_EVENT)) {
+            StartRecordingEvent sre = new StartRecordingEvent(123, confName, true);
+            sre.setRecordingFilename(getRecordFilenameFromEvent(event));
+            sre.setTimestamp(getRecordTimestampFromEvent(event));
+            
+            if (log.isDebugEnabled())
+            	log.debug("Processing conference event - action: {} time: {} file: {}", new Object[] {action,  sre.getTimestamp(), sre.getRecordingFilename()});
+            
+            conferenceEventListener.handleConferenceEvent(sre);    		
+    	} else if (action.equals(STOP_RECORDING_EVENT)) {
+        	StartRecordingEvent srev = new StartRecordingEvent(123, confName, false);
+            srev.setRecordingFilename(getRecordFilenameFromEvent(event));
+            srev.setTimestamp(getRecordTimestampFromEvent(event));
+            
+            if (log.isDebugEnabled())
+            	log.debug("Processing conference event - action: {} time: {} file: {}", new Object[] {action,  srev.getTimestamp(), srev.getRecordingFilename()});
+            
+            conferenceEventListener.handleConferenceEvent(srev);    		
+    	} else {
+        	if (log.isDebugEnabled())
+        		log.warn("Processing UNKNOWN conference Action {}", action);
+    	}
     }
 
     @Override

@@ -92,7 +92,7 @@ public class FreeswitchServiceProvider implements ConferenceServiceProvider {
         } catch ( InboundConnectionFailure e ) {
 			log.error( "Connect to FreeSwitch ESL socket failed", e );
 		} 
-		return false;
+		return true;
 	}
 	
 	public void setManagerConnection(ManagerConnection c) {

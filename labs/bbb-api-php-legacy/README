@@ -1,3 +1,5 @@
+Legacy library to integrate php web applications with BigBlueButton 0.71a
+
 ***Getting Started***	
 
 You must modify the url and salt in bbb_api_conf.php to that of your bigbluebutton server.

@@ -3,6 +3,7 @@
 <head>
 
   <title>BigBlueButton Slides Playback</title>
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
   <link rel="stylesheet" href="css/bbb.playback.css">
   <script type="text/javascript">
 
@@ -26,23 +27,31 @@
 	  var appVersion = navigator.appVersion;
 	  audio = document.getElementById("audioRecording");
 	  if(appName == "Microsoft Internet Explorer" ){
-		var message = "This playback requires modern browser, please use FF, Safari, Chrome, Opera";
-		var line = document.createElement("p");
-		line.appendChild(document.createTextNode(message));
-		document.getElementById("chat").appendChild(line);
+		if( navigator.userAgent.match("chromeframe")){
+	  	  audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
+        	  audio.setAttribute('type','audio/ogg');
+		}else{
+		  var message = "To support this playback please install 'Google Chrome Frame', or use other browser: Firefox, Safari, Chrome, Opera";
+  		  var line = document.createElement("p");
+		  var link = document.createElement("a");
+		  line.appendChild(document.createTextNode(message));
+                  link.setAttribute("href", "http://www.google.com/chromeframe")
+                  link.setAttribute("target", "_blank")
+                  link.appendChild(document.createTextNode("Install Google Chrome Frame"));
+		  document.getElementById("chat").appendChild(line);
+		  document.getElementById("chat").appendChild(link);
+		}
 	  }else if (appVersion.match("Safari") != null && appVersion.match("Chrome") == null){
 	  	audio.setAttribute('src', RECORDINGS + '/audio/recording.wav');
-        audio.setAttribute('type','audio/x-wav');
+	        audio.setAttribute('type','audio/x-wav');
 	  }else {
 		audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
-        audio.setAttribute('type','audio/ogg');
+        	audio.setAttribute('type','audio/ogg');
 	  }	
 	  audio.setAttribute('data-timeline-sources', SLIDES_XML) 
 	}, false);
   </script>
   <script src="lib/popcorn-complete.min.js"></script>
-  <script src="lib/popcorn.image.js"></script>
-  <script src="lib/popcorn.timeline.js"></script>
 </head>
 <body>
 	<div id="playbackArea">
@@ -56,3 +65,4 @@
 	<p id="footer">Recorded with <a href="http://bigbluebutton.org/">BigBlueButton</a>.</p>
 </body>
 </html>
+

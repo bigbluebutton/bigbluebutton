@@ -36,7 +36,7 @@ case class SendKeyFrame(room: String)
 case class UpdateBlock(room: String, position: Int, blockData: Array[Byte], keyframe: Boolean, seqNum: Int)
 case class UpdateMouseLocation(room: String, mouseLoc:Point, seqNum: Int)
 
-class SessionManagerSVC(streamManager: StreamManager, keyFrameInterval: Int) extends Actor {
+class SessionManagerSVC(streamManager: StreamManager, keyFrameInterval: Int, interframeInterval: Int, waitForAllBlocks: Boolean) extends Actor {
 	private val log = Logger.get 
  
  	private val sessions = new HashMap[String, SessionSVC]
@@ -71,7 +71,7 @@ class SessionManagerSVC(streamManager: StreamManager, keyFrameInterval: Int) ext
 		sessions.get(c.room) match {
 		  case None => {
 			  log.debug("SessionManager: Created session " + c.room)
-			  val session: SessionSVC = new SessionSVC(this, c.room, c.screenDim, c.blockDim, streamManager, keyFrameInterval) 
+			  val session: SessionSVC = new SessionSVC(this, c.room, c.screenDim, c.blockDim, streamManager, keyFrameInterval, interframeInterval, waitForAllBlocks) 
 			  if (session.initMe()) {
 				  val old:Int = sessions.size
 				  sessions += c.room -> session

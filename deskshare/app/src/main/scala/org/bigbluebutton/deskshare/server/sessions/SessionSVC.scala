@@ -38,15 +38,16 @@ case object StopSession
 case object GenerateKeyFrame
 
 class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dimension, 
-                 blockDim: Dimension, streamManager: StreamManager, keyFrameInterval: Int) extends Actor {
+                 blockDim: Dimension, streamManager: StreamManager, keyFrameInterval: Int, interframeInterval: Int, waitForAllBlocks: Boolean) extends Actor {
 	private val log = Logger.get
  
-	private var blockManager: BlockManager = new BlockManager(room, screenDim, blockDim)
+	private var blockManager: BlockManager = new BlockManager(room, screenDim, blockDim, waitForAllBlocks)
 	private var stream:Stream = null
 	private var lastUpdate:Long = System.currentTimeMillis()
 	private var stop = true
 	private var mouseLoc:Point = new Point(100,100)
 	private var pendingGenKeyFrameRequest = false
+	private var timestamp = 0L;
 	
 	/*
 	 * Schedule to generate a key frame after 30seconds of a request.
@@ -64,7 +65,7 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 	def scheduleGenerateFrame() {
 		val mainActor = self
 		actor {
-			Thread.sleep(250)
+			Thread.sleep(interframeInterval)
 			mainActor ! "GenerateFrame"
 		}
 	}
@@ -135,7 +136,8 @@ class SessionSVC(sessionManager:SessionManagerSVC, room: String, screenDim: Dime
 			sessionManager ! new RemoveSession(room)
 		} else {
 		  if (blockManager != null) {
-			  stream ! new UpdateStream(room, blockManager.generateFrame(keyframe))
+			  timestamp += 50;
+			  stream ! new UpdateStream(room, blockManager.generateFrame(keyframe), timestamp)
 			  stream ! new UpdateStreamMouseLocation(room, mouseLoc)
 		  }
 		}
