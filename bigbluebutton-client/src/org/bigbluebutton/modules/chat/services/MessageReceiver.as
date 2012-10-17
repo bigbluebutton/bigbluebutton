@@ -7,8 +7,10 @@ package org.bigbluebutton.modules.chat.services
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.main.model.users.IMessageListener;
+  import org.bigbluebutton.modules.chat.ChatConstants;
   import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
   import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
+  import org.bigbluebutton.modules.chat.events.TranscriptEvent;
   import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
   
   public class MessageReceiver implements IMessageListener
@@ -42,8 +44,11 @@ package org.bigbluebutton.modules.chat.services
       for (var i:int = 0; i < msgCount; i++) {
         handleChatReceivePublicMessageCommand(message.messages[i]);
       }
+           
+      var pcEvent:TranscriptEvent = new TranscriptEvent(TranscriptEvent.TRANSCRIPT_EVENT);
+      dispatcher.dispatchEvent(pcEvent);
     }
-    
+        
     private function handleChatReceivePublicMessageCommand(message:Object):void {
       LogUtil.debug("Handling public chat message [" + message.message + "]");
       var msg:ChatMessageVO = new ChatMessageVO();

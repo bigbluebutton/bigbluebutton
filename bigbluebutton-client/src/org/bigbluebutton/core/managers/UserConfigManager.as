@@ -13,5 +13,9 @@ package org.bigbluebutton.core.managers
 		public function getLogoutUrl():String {
 			return conferenceParameters.logoutUrl;
 		}
+    
+    public function getWelcomeMessage():String {
+      return conferenceParameters.welcome;
+    }
 	}
 }

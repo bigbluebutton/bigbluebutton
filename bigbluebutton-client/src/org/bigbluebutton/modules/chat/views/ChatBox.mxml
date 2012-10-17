@@ -323,13 +323,7 @@
 					globalDispatcher.dispatchEvent(event);
 				}
 			}
-			
-      private function handleTextAreaKeyUpEvent(e:KeyboardEvent):void {
-        if (e.keyCode  == Keyboard.ENTER) {
-          sendMessages();
-        }        
-      }
-      
+			      
 			private function advanceMessage(e:ShortcutEvent):void{
 				if (e.otherUserID == chatWithUserID){
 					if (currentMessage < (chatMessages.numMessages() - 3)){
@@ -478,9 +472,15 @@
         privateEvent.chatMessage = cm;
         globalDispatcher.dispatchEvent(privateEvent);
       }
+
+      private function handleTextAreaKeyUpEvent(e:KeyboardEvent):void {
+        if (e.keyCode == Keyboard.ENTER) {
+          sendMessages();
+        }        
+      }
       
       private function sendMessages():void {
-        if (txtMsgArea.text != ""){				
+        if (txtMsgArea.text != "" || txtMsgArea.text == null){				
           if (publicChat) {						
             sendPublicChatMessage(txtMsgArea.text);
           } else{						

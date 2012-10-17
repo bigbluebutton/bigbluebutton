@@ -72,7 +72,12 @@
     <MethodInvoker generator="{ChatMessageService}" method="getPublicChatMessages"/>
 	</EventHandlers>    
   
+  <EventHandlers type="{TranscriptEvent.TRANSCRIPT_EVENT}" >
+    <MethodInvoker generator="{ChatMessageService}" method="sendWelcomeMessage"/>
+  </EventHandlers>      
+  
   <Injectors target="{ChatMessageService}">
+    <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
     <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
     <PropertyInjector targetKey="sender" source="{MessageSender}"/>
   </Injectors>
