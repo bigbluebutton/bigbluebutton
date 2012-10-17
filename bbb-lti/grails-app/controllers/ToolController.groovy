@@ -58,16 +58,21 @@ class ToolController {
 
             consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
             if (consumer != null) {
-                log.debug "Found consumer with key " + consumer.get("key") + " and sharedSecret " + consumer.get("secret")
+                log.debug "Found consumer with key " + consumer.get("key") //+ " and sharedSecret " + consumer.get("secret")
                 if (checkValidSignature(request.getMethod().toUpperCase(), retrieveLtiEndpoint(), consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
                     if (hasValidStudentId(params, consumer)) {
                         log.debug  "The message has a valid signature."
                         
-                        String localeCode = params.get(Parameter.LAUNCH_LOCALE)
-                        log.debug "Locale code =" + localeCode
+                        String locale = params.get(Parameter.LAUNCH_LOCALE)
+                        log.debug "Locale code =" + locale
+                        String[] localeCodes = locale.split("_")
                         //Localize the default welcome message
-                        session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCode)
-                        log.debug "Locale has been set to " + localeCode
+                        if( localeCodes.length > 1 )
+                            session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0], localeCodes[1])
+                        else
+                            session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
+                        
+                        log.debug "Locale has been set to " + locale
                         String welcome = message(code: "bigbluebutton.welcome", args: ["\"{0}\"", "\"{1}\""])
                         log.debug "Localized default welcome message: [" + welcome + "]"
                 
@@ -185,13 +190,11 @@ class ToolController {
      */
     private boolean hasAllRequiredParams(Object params, Object missingParams) {
         boolean hasAllParams = true
-        log.debug "One"
         if (! ((Map<String, String>)params).containsKey(Parameter.CONSUMER_ID)) {
             ((ArrayList<String>)missingParams).add(Parameter.CONSUMER_ID);
             hasAllParams = false;
         }
 
-        log.debug "Two"
         if (! ((Map<String, String>)params).containsKey(Parameter.USER_ID) && ! ((Map<String, String>)params).containsKey(Parameter.CUSTOM_USER_ID)) {
             if (! ((Map<String, String>)params).containsKey(Parameter.USER_EMAIL)) {
                 ((ArrayList<String>)missingParams).add(Parameter.USER_EMAIL);
@@ -206,13 +209,11 @@ class ToolController {
 
         }
 
-        log.debug "Three"
         if (! ((Map<String, String>)params).containsKey(Parameter.COURSE_ID)) {
             ((ArrayList<String>)missingParams).add(Parameter.COURSE_ID);
             hasAllParams = false;
         }
 
-        log.debug "Four"
         if (! ((Map<String, String>)params).containsKey(Parameter.OAUTH_SIGNATURE)) {
             ((ArrayList<String>)missingParams).add(Parameter.OAUTH_SIGNATURE);
             hasAllParams = false;
