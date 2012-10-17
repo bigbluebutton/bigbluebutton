@@ -29,8 +29,18 @@ package org.bigbluebutton.modules.chat.services
         case "ChatReceivePrivateMessageCommand":
           handleChatReceivePrivateMessageCommand(message);
           break;	
+        case "ChatRequestMessageHistoryReply":
+          handleChatRequestMessageHistoryReply(message);
+          break;	
         default:
           //   LogUtil.warn("Cannot handle message [" + messageName + "]");
+      }
+    }
+    
+    private function handleChatRequestMessageHistoryReply(message:Object):void {
+      var msgCount:Number = message.count as Number;
+      for (var i:int = 0; i < msgCount; i++) {
+        handleChatReceivePublicMessageCommand(message.messages[i]);
       }
     }
     

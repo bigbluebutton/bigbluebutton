@@ -11,11 +11,11 @@ package org.bigbluebutton.modules.chat.services
   {
     public var dispatcher:IEventDispatcher;
     
-    public function getPublicMessages():void
+    public function getPublicChatMessages():void
     {  
       LogUtil.debug("Sending [chat.getPublicMessages] to server.");
       var _nc:ConnectionManager = BBB.initConnectionManager();
-      _nc.sendMessage("chat.getChatMessages", 
+      _nc.sendMessage("chat.sendPublicChatHistory", 
         function(result:String):void { // On successful result
           LogUtil.debug(result); 
         },	                   

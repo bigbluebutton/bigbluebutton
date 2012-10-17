@@ -17,9 +17,9 @@ package org.bigbluebutton.modules.chat.services
       sender.sendPrivateMessage(message);
     }
     
-    public function getPublicMessages():void
+    public function getPublicChatMessages():void
     {
-      sender.getPublicMessages();
+      sender.getPublicChatMessages();
     }
   }
 }

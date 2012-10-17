@@ -18,7 +18,6 @@
 */
 package org.bigbluebutton.conference.service.chat;
 
-import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;import org.red5.server.api.Red5;
@@ -29,10 +28,9 @@ public class ChatService {
 	
 	private ChatApplication application;
 
-	public void getChatMessages() {
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		List<ChatMessageVO> m = application.getChatMessages(roomName);
-		log.debug("NUM CHAT MSGS = " + m.size());
+	public void sendPublicChatHistory() {
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		application.sendPublicChatHistory(meetingID);
 	}
 	
 	public void sendPublicMessage(Map<String, Object> msg) {

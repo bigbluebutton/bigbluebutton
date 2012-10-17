@@ -19,17 +19,19 @@
 
 package org.bigbluebutton.conference.service.chat;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.Red5;
-import org.bigbluebutton.conference.ClientMessage;
+import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.ClientMessage;
 import org.bigbluebutton.conference.ConnectionInvokerService;
+import org.bigbluebutton.conference.Constants;
 import org.bigbluebutton.conference.service.chat.ChatRoomsManager;
 import org.bigbluebutton.conference.service.chat.ChatRoom;import org.bigbluebutton.conference.service.chat.IChatRoomListener;
+
 
 public class ChatApplication {
 
@@ -65,8 +67,20 @@ public class ChatApplication {
 		return false;
 	}
 	
-	public List<ChatMessageVO> getChatMessages(String room) {
-		return roomsManager.getChatMessages(room);
+	public void sendPublicChatHistory(String meetingID) {
+		List<ChatMessageVO> messages = roomsManager.getChatMessages(meetingID);
+		
+		List<Map<String, Object>> msgs = new ArrayList<Map<String, Object>>();
+		for (ChatMessageVO v : messages) {
+			msgs.add(v.toMap());
+		}
+		
+		Map<String, Object> messageToSend = new HashMap<String, Object>();
+		messageToSend.put("count", new Integer(msgs.size()));
+		messageToSend.put("messages", msgs);
+		
+		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, getBbbSession().getInternalUserID(), "ChatRequestMessageHistoryReply", messageToSend);
+		connInvokerService.sendMessage(m);
 	}
 	
 	public void sendPublicMessage(String room, ChatMessageVO chatobj) {
@@ -91,6 +105,10 @@ public class ChatApplication {
 	
 	private String getMeetingId(){
 		return Red5.getConnectionLocal().getScope().getName();
+	}
+	
+	private BigBlueButtonSession getBbbSession() {
+		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
 	
 	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {

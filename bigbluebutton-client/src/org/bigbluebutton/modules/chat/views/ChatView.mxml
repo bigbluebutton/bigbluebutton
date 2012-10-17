@@ -67,7 +67,6 @@
       import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
       import org.bigbluebutton.modules.chat.events.PrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
-      import org.bigbluebutton.modules.chat.events.QueryParticipantsEvent;
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.model.ChatOptions;
@@ -281,7 +280,7 @@
 			
 			// Activates an audio alert for screen-reader users on private message reception
 			private function privateNotification(event:PrivateChatMessageEvent):void{
-				if (! UserManager.getInstance().getConference().amIThisUser(event.message.fromUserID)) {
+				if (! UsersUtil.isMe(event.message.fromUserID)) {
 					var newItem:Boolean = true;
 					// Check if there is already a notification of private messages from that user
 					if (privateWaiting.length){
