@@ -39,8 +39,8 @@ package org.bigbluebutton.modules.chat.services
         msg.fromUsername = SPACE;
         msg.fromColor = "0";
         msg.fromLang = "en";
-        msg.fromTime = 0;
-        msg.fromTimezoneOffset = 0;
+        msg.fromTime = new Date().getTime();
+        msg.fromTimezoneOffset = new Date().getTimezoneOffset();
         msg.toUserID = SPACE;
         msg.toUsername = SPACE;
         msg.message = welcome;

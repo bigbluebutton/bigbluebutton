@@ -74,11 +74,13 @@
       import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPrivateChatMessageEvent;
       import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+      import org.bigbluebutton.modules.chat.events.TranscriptEvent;
       import org.bigbluebutton.modules.chat.model.ChatMessage;
       import org.bigbluebutton.modules.chat.model.ChatMessages;
       import org.bigbluebutton.modules.chat.views.ChatMessageRenderer;
       import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
       import org.bigbluebutton.util.i18n.ResourceUtil;
+
 			
 			public static const COPY_ALL_BUTTON:String = "Copy All Text";
 			
@@ -150,7 +152,20 @@
         
 				Accessibility.updateProperties();
         focusToTextMessageArea();
+        
+        historyTimer = new Timer(2000, 1);
+        historyTimer.addEventListener(TimerEvent.TIMER, loadChatHistory);
+        historyTimer.start();
 			}
+      
+      private var historyTimer:Timer;
+      
+      private function loadChatHistory(event:TimerEvent):void {
+        if (publicChat) {
+          var disp:Dispatcher  = new Dispatcher();
+          disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));	
+        }
+      }
       
       private function handleFocusInEvent(event:FocusEvent):void {
         focusToTextMessageArea();
@@ -254,16 +269,16 @@
 				backgroundColor = 0x000000;
 			}
 			
-			private function onLinkClick(e:TextEvent):void{
+			private function onLinkClick(e:TextEvent):void {
 				var url:URLRequest = new URLRequest(e.text);
 				navigateToURL(url, '_blank');
 			}
 			
-			private function changeFontSize(e:ChatOptionsEvent):void{
+			private function changeFontSize(e:ChatOptionsEvent):void {
 				this.setStyle("fontSize", e.fontSize);
 			}
 			
-			private function addContextMenuItems():void{
+			private function addContextMenuItems():void {
 				var contextMenu:ContextMenu = new ContextMenu();
 				contextMenu.hideBuiltInItems();
 				
@@ -480,7 +495,7 @@
       }
       
       private function sendMessages():void {
-        if (txtMsgArea.text != "" || txtMsgArea.text == null){				
+        if (txtMsgArea.text != ""){				
           if (publicChat) {						
             sendPublicChatMessage(txtMsgArea.text);
           } else{						
