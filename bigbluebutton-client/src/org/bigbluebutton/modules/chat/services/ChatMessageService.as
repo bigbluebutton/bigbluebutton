@@ -2,6 +2,7 @@ package org.bigbluebutton.modules.chat.services
 {
   import flash.events.IEventDispatcher;
   
+  import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.modules.chat.ChatConstants;
   import org.bigbluebutton.modules.chat.events.PublicChatMessageEvent;
@@ -12,6 +13,43 @@ package org.bigbluebutton.modules.chat.services
     public var sender:MessageSender;
     public var receiver:MessageReceiver;
     public var dispatcher:IEventDispatcher;
+    
+    public function sendPublicMessageFromApi(message:Object):void
+    {
+      LogUtil.debug("sendPublicMessageFromApi");
+      var msgVO:ChatMessageVO = new ChatMessageVO();
+      msgVO.chatType = ChatConstants.PUBLIC_CHAT;
+      msgVO.fromUserID = message.fromUserID;
+      msgVO.fromUsername = message.fromUsername;
+      msgVO.fromColor = message.fromColor;
+      msgVO.fromLang = message.fromLang;
+      msgVO.fromTime = message.fromTime;
+      msgVO.fromTimezoneOffset = message.fromTimezoneOffset;
+
+      msgVO.message = message.message;
+      
+      sendPublicMessage(msgVO);
+    }    
+    
+    public function sendPrivateMessageFromApi(message:Object):void
+    {
+      var msgVO:ChatMessageVO = new ChatMessageVO();
+      msgVO.chatType = ChatConstants.PUBLIC_CHAT;
+      msgVO.fromUserID = message.fromUserID;
+      msgVO.fromUsername = message.fromUsername;
+      msgVO.fromColor = message.fromColor;
+      msgVO.fromLang = message.fromLang;
+      msgVO.fromTime = message.fromTime;
+      msgVO.fromTimezoneOffset = message.fromTimezoneOffset;
+      
+      msgVO.toUserID = message.toUserID;
+      msgVO.toUsername = message.toUsername;
+      
+      msgVO.message = message.message;
+      
+      sendPrivateMessage(msgVO);
+
+    }
     
     public function sendPublicMessage(message:ChatMessageVO):void
     {

@@ -1,5 +1,6 @@
 package org.bigbluebutton.core
 {
+  import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.model.users.BBBUser;
 
@@ -21,16 +22,20 @@ package org.bigbluebutton.core
     public static function internalUserIDToExternalUserID(userID:String):String {
       var user:BBBUser = UserManager.getInstance().getConference().getUser(userID);
       if (user != null) {
+        LogUtil.debug("Found externUserID [" + user.externUserID + "] for userID [" + userID + "]");
         return user.externUserID;
       }
+      LogUtil.warn("Could not find externUserID for userID [" + userID + "]");
       return null;
     }
     
     public static function externalUserIDToInternalUserID(externUserID:String):String {
       var user:BBBUser = UserManager.getInstance().getConference().getUserWithExternUserID(externUserID);
       if (user != null) {
+        LogUtil.debug("Found userID [" + user.userID + "] for externUserID [" + externUserID + "]");
         return user.userID;
       }
+      LogUtil.warn("Could not find userID for externUserID [" + externUserID + "]");
       return null;
     }    
     

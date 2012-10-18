@@ -37,7 +37,8 @@ public class ChatService {
 		String meetingID = Red5.getConnectionLocal().getScope().getName();
 		
 		ChatMessageVO chatObj = new ChatMessageVO();
-		chatObj.chatType = msg.get("chatType").toString();   
+		chatObj.chatType = msg.get("chatType").toString(); 
+		chatObj.fromUserID = msg.get("fromUserID").toString();
 		chatObj.fromUsername = msg.get("fromUsername").toString();
 		chatObj.fromColor = msg.get("fromColor").toString();
 		chatObj.fromTime = Double.valueOf(msg.get("fromTime").toString());   

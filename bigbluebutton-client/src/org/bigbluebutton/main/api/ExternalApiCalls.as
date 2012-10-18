@@ -50,10 +50,12 @@ package org.bigbluebutton.main.api
       payload.fromColor = event.message.fromColor;
       payload.fromLang = event.message.fromLang;
       payload.fromTime = event.message.fromTime;      
+      payload.fromTimezoneOffset = event.message.fromTimezoneOffset;
       payload.message = event.message.message;
       
       // Need to convert the internal user id to external user id in case the 3rd-party app passed 
       // an external user id for it's own use.
+      LogUtil.debug("Looking externUserID for userID [" + event.message.fromUserID + "]");
       payload.fromUserID = UsersUtil.internalUserIDToExternalUserID(event.message.fromUserID);
       
       broadcastEvent(payload);
@@ -67,7 +69,8 @@ package org.bigbluebutton.main.api
       payload.fromUsername = event.message.fromUsername;
       payload.fromColor = event.message.fromColor;
       payload.fromLang = event.message.fromLang;
-      payload.fromTime = event.message.fromTime;      
+      payload.fromTime = event.message.fromTime;    
+      payload.fromTimezoneOffset = event.message.fromTimezoneOffset;
       payload.toUsername = event.message.toUsername;
       payload.message = event.message.message;
       
@@ -78,8 +81,7 @@ package org.bigbluebutton.main.api
       
       broadcastEvent(payload);
     }
-    
-    
+        
     public function handleParticipantJoinEvent(event:ParticipantJoinEvent):void {
       var payload:Object = new Object();
       var user:BBBUser = UserManager.getInstance().getConference().getUser(event.userID);
