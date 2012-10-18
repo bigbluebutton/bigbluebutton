@@ -46,3 +46,11 @@ var echoPublicChat = function () {
     BBB.sendPublicChatMessage(bbbEvent.fromUserID, bbbEvent.fromColor, bbbEvent.fromLang, message);
   });
 }
+
+var echoPrivateChat = function () {
+  BBB.listen("NewPrivateChatEvent", function(bbbEvent) {
+    console.log("Received NewPrivateChatEvent event");
+    var message = "ECHO: " + bbbEvent.message;
+    BBB.sendPrivateChatMessage(bbbEvent.toUserID, bbbEvent.fromColor, bbbEvent.fromLang, message,  bbbEvent.fromUserID);
+  });
+}
