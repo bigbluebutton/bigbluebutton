@@ -55,17 +55,21 @@
 	<mate:Listener type="{ShortcutEvent.GOREAD_MESSAGE}" method="goToLatestReadMessage" />
   <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
   <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
+  <mate:Listener type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}" method="handleParticipantJoinEvent"/>
   
 	<mx:Script>
 		<![CDATA[
+      import com.adobe.utils.StringUtil;
       import com.asfusion.mate.events.Dispatcher;
       
+      import mx.binding.utils.BindingUtils;
       import mx.collections.ArrayCollection;
       import mx.controls.Button;
       import mx.core.ScrollPolicy;
       
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.main.events.ParticipantJoinEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.modules.chat.ChatConstants;
       import org.bigbluebutton.modules.chat.ChatUtil;
@@ -124,7 +128,12 @@
 			private var indicatorNeeded:Boolean = false
 			private var repeat:Boolean = false;
 			
+      [Bindable]
+      private var chatListHeight:Number = 100;
+      
 			private function onCreationComplete():void {
+        BindingUtils.bindSetter(handleChangeHeight, this, "height");
+        
 				loadKeyCombos()
 				addContextMenuItems();
 				scrollTimer = new Timer(750, 2);
@@ -147,16 +156,30 @@
           chatMessagesList.accessibilityProperties.description = chatMessages.messages[0].toString();
         }
 				
+        // Listen for the ENTER key to send the message.
         txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
+        
+        // Put the cursor on the txt message area when this chat box is in focus
         this.addEventListener(FocusEvent.FOCUS_IN, handleFocusInEvent);
         
 				Accessibility.updateProperties();
         focusToTextMessageArea();
         
-        historyTimer = new Timer(2000, 1);
-        historyTimer.addEventListener(TimerEvent.TIMER, loadChatHistory);
-        historyTimer.start();
+        queryForChatHistory();
 			}
+      
+      private function handleChangeHeight(newHeight:Number):void {
+        chatListHeight = newHeight - (chatCtrlBar.height + 10);
+      }
+      
+      private function queryForChatHistory():void {
+        // Setup timer to trigger querying for public chat history.
+        // We have to do this to get the UI settled down. Otherwise, the text area won't show up.
+        // (ralam Oct 17, 2012)
+        historyTimer = new Timer(5000, 1);
+        historyTimer.addEventListener(TimerEvent.TIMER, loadChatHistory);
+        historyTimer.start();        
+      }
       
       private var historyTimer:Timer;
       
@@ -165,6 +188,32 @@
           var disp:Dispatcher  = new Dispatcher();
           disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));	
         }
+      }
+      
+      private function handleParticipantJoinEvent(event:ParticipantJoinEvent):void {
+        // Handle user leaving so that the user won't be talking to someone not there.
+        if (!publicChat && !event.join && event.userID == chatWithUserID) {
+          displayUserHasLeftMessage();
+          txtMsgArea.enabled = false;
+          scrollToEndOfMessage();
+        }
+      }
+      
+      private var SPACE:String = " ";
+      private function displayUserHasLeftMessage():void {
+        var msg:ChatMessageVO = new ChatMessageVO();
+        msg.chatType = ChatConstants.PUBLIC_CHAT;
+        msg.fromUserID = SPACE;
+        msg.fromUsername = SPACE;
+        msg.fromColor = "0";
+        msg.fromLang = "en";
+        msg.fromTime = new Date().getTime();
+        msg.fromTimezoneOffset = new Date().getTimezoneOffset();
+        msg.toUserID = SPACE;
+        msg.toUsername = SPACE;
+        msg.message = ResourceUtil.getInstance().getString('bbb.chat.private.userLeft');
+        
+        chatMessages.newChatMessage(msg);
       }
       
       private function handleFocusInEvent(event:FocusEvent):void {
@@ -250,7 +299,7 @@
 			private function scrollToBottom():void {
 				chatMessagesList.invalidateSize();
 				chatMessagesList.invalidateDisplayList();
-				chatMessagesList.scrollToIndex(chatMessages.numMessages());		
+				chatMessagesList.scrollToIndex(chatMessages.numMessages() + 2);		
 				chatMessagesList.validateDisplayList();
 				chatMessagesList.validateNow();		
 			}
@@ -328,11 +377,11 @@
 			}
 			
 			public function handleKeyDown(e:KeyboardEvent) :void {
-				LogUtil.debug("WATERFALL: Entering handleKeyDown");
+//				LogUtil.debug("WATERFALL: Entering handleKeyDown");
 				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
-				LogUtil.debug("WATERFALL keypress: " + keyPress);		
+//				LogUtil.debug("WATERFALL keypress: " + keyPress);		
 				if (keyCombos[keyPress]) {
-					LogUtil.debug("WATERFALL keypress matched something in keyCombos: " + keyCombos[keyPress]);
+//					LogUtil.debug("WATERFALL keypress matched something in keyCombos: " + keyCombos[keyPress]);
 					var event:ShortcutEvent = new ShortcutEvent(keyCombos[keyPress]);
 					event.otherUserID = chatWithUserID; 
 					globalDispatcher.dispatchEvent(event);
@@ -495,11 +544,15 @@
       }
       
       private function sendMessages():void {
-        if (txtMsgArea.text != ""){				
+        // Trim the message. This will trim the '/n' char so we don't send a message when the
+        // user just hits the enter key
+        var msgToSend:String = StringUtil.trim(txtMsgArea.text);
+        
+        if (msgToSend != ""){				
           if (publicChat) {						
-            sendPublicChatMessage(txtMsgArea.text);
+            sendPublicChatMessage(msgToSend);
           } else{						
-            sendPrivateChatMessage(txtMsgArea.text);
+            sendPrivateChatMessage(msgToSend);
           }
         }
         
@@ -508,16 +561,43 @@
 		]]>
 		
 	</mx:Script>
-	
-	<mx:List width="100%" height="100%" id="chatMessagesList" selectable="false" variableRowHeight="true"
-			 itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" dataProvider="{chatMessages.messages}" />
+
+  <mx:HBox width="100%" height="{chatListHeight}">
+    <mx:List width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true"
+             itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" 
+             dataProvider="{chatMessages.messages}" />    
+  </mx:HBox>
   
-  <mx:ControlBar id="chatCtrlBar" width="100%" height="10%" styleName="chatControlBarStyle">		
+  <mx:HBox id="chatCtrlBar" width="100%" height="50" styleName="chatControlBarStyle" paddingLeft="5" paddingRight="5">		
+    <mx:TextArea id="txtMsgArea" width="100%"  color="{cmpColorPicker.selectedColor}" 
+                 styleName="chatControlBarTextMsgStyle" 
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"/>
+    <mx:VBox>
+      <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn" 
+                 styleName="chatControlBarSendButtonStyle"
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" 
+                 click="sendMessages()"/>  
+      <mx:ColorPicker id="cmpColorPicker" showTextField="false" 
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
+                 selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>
+    </mx:VBox>
+  </mx:HBox>	
+  
+
+<!--  
+  <mx:HBox id="chatCtrlBar" width="100%" height="10%" styleName="chatControlBarStyle" paddingLeft="5" paddingRight="5">		
     <mx:TextArea id="txtMsgArea" width="100%"  color="{cmpColorPicker.selectedColor}" 
                  styleName="chatControlBarTextMsgStyle" toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"/>
-    <mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
-                    selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>
-    <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn" styleName="chatControlBarSendButtonStyle"
-               toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" click="sendMessages()"/> 
-  </mx:ControlBar>	
+    <mx:VBox>
+      <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn" styleName="chatControlBarSendButtonStyle"
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" click="sendMessages()"/>  
+      <mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
+                      selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>
+    </mx:VBox>
+  </mx:HBox>	
+  <mx:HBox width="100%" height="90%">
+    <mx:List width="100%" height="100%" id="chatMessagesList" selectable="false" variableRowHeight="true"
+             itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" dataProvider="{chatMessages.messages}" />    
+  </mx:HBox>
+-->  
 </mx:VBox>

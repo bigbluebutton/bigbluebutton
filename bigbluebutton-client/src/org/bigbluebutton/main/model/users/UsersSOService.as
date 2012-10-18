@@ -214,8 +214,6 @@ package org.bigbluebutton.main.model.users {
 			joinEvent.userID = user.userID;
 			joinEvent.join = false;
 			dispatcher.dispatchEvent(joinEvent);	
-			
-
 		}
 		
 		public function participantJoined(joinedUser:Object):void { 
