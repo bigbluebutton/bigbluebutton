@@ -31,6 +31,7 @@ package org.bigbluebutton.main.model.users
 		
 		[Bindable] public var me:Boolean = false;
 		[Bindable] public var userID:String = "UNKNOWN USER";
+    [Bindable] public var externUserID:String = "UNKNOWN USER";
 		[Bindable] public var name:String;
 		[Bindable] public var hasStream:Boolean = false;
 		[Bindable] public var streamName:String = "";
@@ -106,6 +107,7 @@ package org.bigbluebutton.main.model.users
 			n.authToken = user.authToken;
 			n.me = user.me;
 			n.userID = user.userID;
+      n.externUserID = user.externUserID;
 			n.name = user.name;
 			n.hasStream = user.hasStream;
 			n.streamName = user.streamName;

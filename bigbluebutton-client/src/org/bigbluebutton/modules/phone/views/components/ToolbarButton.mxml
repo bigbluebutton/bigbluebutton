@@ -24,7 +24,7 @@
 	icon="{phoneIcon}" click="startPhone()"
 	mouseOver = "mouseOverHandler(event)"
 	mouseOut = "mouseOutHandler(event)"
-	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop')}"
+	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
 	<mate:Listener type="{BBBEvent.JOIN_VOICE_CONFERENCE}" method="handleBBBJoinConferenceEvent"/>

@@ -61,17 +61,14 @@ package org.bigbluebutton.modules.videoconf.business
 		[Bindable] public var resolutions:Array;
 		
 		protected function getVideoResolution(stream:String):Array {
-			// streamname: <width>x<height><userId>-<timestamp>
-			// example: 320x2405-1329334829687
-			var pattern:RegExp = new RegExp("(\\d+x\\d+)-\\d+-\\d+", "");
+			var pattern:RegExp = new RegExp("(\\d+x\\d+)-[A-Za-z0-9]+-\\d+", "");
 			if (pattern.test(stream)) {
 				LogUtil.debug("The stream name is well formatted [" + stream + "]");
         var uid:String = UserManager.getInstance().getConference().getMyUserId();
-				//return stream.substr(0, stream.split("-")[0].length - String(uid).length).split("x");
         LogUtil.debug("Stream resolution is [" + pattern.exec(stream)[1] + "]");
         return pattern.exec(stream)[1].split("x");
 			} else {
-				LogUtil.error("The stream name doesn't follow the pattern <width>x<height><userId>-<timestamp>. However, the video resolution will be set to the lowest defined resolution in the config.xml: " + resolutions[0]);
+				LogUtil.error("The stream name doesn't follow the pattern <width>x<height>-<userId>-<timestamp>. However, the video resolution will be set to the lowest defined resolution in the config.xml: " + resolutions[0]);
 				return resolutions[0].split("x");
 			}
 		}
