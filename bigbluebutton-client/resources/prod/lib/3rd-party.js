@@ -34,3 +34,8 @@ var muteAll = function() {
 var unmuteAll = function() {
   BBB.unmuteAll();
 } 
+
+var switchLayout = function(newLayout) {
+  BBB.switchLayout(newLayout);
+}
+

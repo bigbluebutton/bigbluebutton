@@ -35,6 +35,7 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("muteAllUsersRequest", handleMuteAllUsersRequest);
         ExternalInterface.addCallback("unmuteAllUsersRequest", handleUnmuteAllUsersRequest);
         ExternalInterface.addCallback("shareVideoCamera", onShareVideoCamera);
+        ExternalInterface.addCallback("switchLayout", handleSwitchLayoutRequest);
         ExternalInterface.addCallback("unshareVideo", placeHolder);        
       }
     }
@@ -43,6 +44,12 @@ package org.bigbluebutton.main.api
       LogUtil.debug("Placeholder");
     }
 
+    private function handleSwitchLayoutRequest(newLayout:String):void {
+      var layoutEvent:CoreEvent = new CoreEvent(EventConstants.SWITCH_LAYOUT_REQ);
+      layoutEvent.message.layoutName = newLayout;
+      _dispatcher.dispatchEvent(layoutEvent);
+    }
+    
     private function handleMuteAllUsersRequest():void {
       _dispatcher.dispatchEvent(new ListenersCommand(ListenersCommand.MUTE_ALL));
     }

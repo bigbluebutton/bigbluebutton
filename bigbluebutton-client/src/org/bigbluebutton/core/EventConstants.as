@@ -11,6 +11,7 @@ package org.bigbluebutton.core
     public static const MUTE_USER_REQ:String              = 'MuteUserRequest';
     public static const LOGOUT_REQ:String                 = 'LogoutRequest';
     
+    public static const SWITCH_LAYOUT_REQ:String              = 'SwitchLayoutRequest';
     
     /** Events to External JS **/
     public static const GET_MY_ROLE_RESP:String           = 'GetMyRoleResponse';

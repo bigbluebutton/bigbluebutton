@@ -80,6 +80,13 @@
       }
     }
     
+    BBB.switchLayout = function(newLayout) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.switchLayout(newLayout);
+      }
+    }
+    
     
     /* ***********************************************************************************
      *       Broadcasting of events to 3rd-party apps.

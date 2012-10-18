@@ -191,8 +191,16 @@ package org.bigbluebutton.modules.layout.managers
 			}
 		}
 
-		public function applyDefaultLayout():void {
-      
+    public function switchToLayout(name:String):void {
+      var newLayout:LayoutDefinition = _layouts.getLayout(name);
+      if (newLayout == null) return;
+
+      LogUtil.debug("************** USING [" + newLayout.name + "] LAYOUT ***************************");
+      applyLayout(newLayout);
+      sendLayoutUpdate(_currentLayout);      
+    }
+    
+		public function applyDefaultLayout():void {      
       var layoutOptions:LayoutOptions = new LayoutOptions();
       layoutOptions.parseOptions();
       var defaultLayout:LayoutDefinition = _layouts.getLayout(layoutOptions.defaultLayout);
