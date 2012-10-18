@@ -131,8 +131,8 @@
       [Bindable]
       private var chatListHeight:Number = 100;
       
-			private function onCreationComplete():void {
-        BindingUtils.bindSetter(handleChangeHeight, this, "height");
+			private function onCreationComplete():void {    
+        bindToHeightToDetermineHeightOfMessageList();
         
 				loadKeyCombos()
 				addContextMenuItems();
@@ -168,7 +168,15 @@
         queryForChatHistory();
 			}
       
+      private function bindToHeightToDetermineHeightOfMessageList():void {
+        // Need to bind to the height for this container to be able to calculate the height
+        // of the chat message list and text area containers. If we do just percentages,
+        // the text area won't get displayed especially when switching layouts (ralam Oct 18, 2012)
+        BindingUtils.bindSetter(handleChangeHeight, this, "height");
+      }
+      
       private function handleChangeHeight(newHeight:Number):void {
+        // The height for this chat box has changed. Calculate the height of the components accordingly.
         chatListHeight = newHeight - (chatCtrlBar.height + 10);
       }
       
@@ -252,56 +260,18 @@
         if (scrollTimer != null) scrollTimer.start();
       }
       
-			private function showNewMessage(chatobj:ChatMessageVO, translate:Boolean, language:String = null):void {	
-				/*********************************
-				 * We put a blank message at the end to force the scrollbar to display the
-				 * REAL last message.
-				 */
-				if (!scrollBarWorkaround) {
-					scrollBarWorkaround = true;
-					var blankStr:String = "                 ";
-					var shimMsg:ChatMessage = new ChatMessage();
-					shimMsg.lastSenderId = blankStr;
-					shimMsg.senderId = blankStr;					
-					shimMsg.senderLanguage = blankStr;
-					shimMsg.receiverLanguage = blankStr;
-					shimMsg.translate = false;	
-					shimMsg.translatedText = blankStr;
-					shimMsg.senderText = blankStr;					
-					shimMsg.name = blankStr;
-//					shimMsg.senderColor = msg.senderColor;
-					shimMsg.translatedColor = 0xCECECE;
-					shimMsg.senderTime = blankStr;			
-					shimMsg.time = blankStr;
-					shimMsg.lastTime = blankStr + "\n";
-
-					// Add to blank lines to force the last message to be displayed.
-//					messages.addItem(shimMsg);
-//					messages.addItem(shimMsg);
-				}
-				
-				/**
-				 * Add the REAL message before the shim message above. 
-				 */				 
-//				messages.addItemAt(msg, messages.length - 2);
-					
-				/**
-				 * Trigger to force the scrollbar to show the last message.
-				 */	
-				 if (scrollTimer != null) scrollTimer.start();
-			}
-			
+		
 			/**
 			 * Magic sauce to force scrollbar to the bottom message. This took a lot
 			 * of trial and error. If you change this, make sure you know what you are
 			 * doing as I don't know why it works, but it does. (ralam Nov 3, 2010)
 			 */
 			private function scrollToBottom():void {
-				chatMessagesList.invalidateSize();
-				chatMessagesList.invalidateDisplayList();
-				chatMessagesList.scrollToIndex(chatMessages.numMessages() + 2);		
-				chatMessagesList.validateDisplayList();
-				chatMessagesList.validateNow();		
+//				chatMessagesList.invalidateSize();
+//				chatMessagesList.invalidateDisplayList();
+				chatMessagesList.scrollToIndex(chatMessages.numMessages());
+//				chatMessagesList.validateDisplayList();
+//				chatMessagesList.validateNow();		
 			}
 			
 			private function onScrollTimer(event:TimerEvent):void {
@@ -348,8 +318,10 @@
 			// Determines for navigateMessages() whether the message to be spoken by the screen-reader needs an extra space added to the end or not
 			private function setDescription():Boolean{
 				var chatHistorySpacer:Boolean = false;
-				if (chatMessagesList.accessibilityProperties.description == chatMessages[currentMessage].toString())
-					chatHistorySpacer = true;
+				if (chatMessagesList.accessibilityProperties.description == chatMessages[currentMessage].toString()) {
+          chatHistorySpacer = true;
+        }
+					
 				return chatHistorySpacer;
 			}
 			
@@ -564,7 +536,7 @@
 
   <mx:HBox width="100%" height="{chatListHeight}">
     <mx:List width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true"
-             itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" 
+             itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer"
              dataProvider="{chatMessages.messages}" />    
   </mx:HBox>
   
