@@ -889,22 +889,27 @@
 				
 				if(!options.nativeSliders) initSeek();
 				
-				// once the metadata has loaded
-				acorn.$self.bind('loadedmetadata', function() {					
-					/* I use an interval to make sure the video has the right readyState
-					 * to bypass a known webkit bug that causes loadedmetadata to be triggered
-					 * before the duration is available
-					 */
-					var t = window.setInterval(function() {
-								if (acorn.$self[0].readyState > 0) {									
-									updateSeek();
+				// check first to see if the media has already loaded
+				if (acorn.$self[0].readyState > 0) {
+					updateSeek();
+				} else {
+					// once the metadata has loaded
+					acorn.$self.bind('loadedmetadata', function() {
+						/* I use an interval to make sure the video has the right readyState
+						 * to bypass a known webkit bug that causes loadedmetadata to be triggered
+						 * before the duration is available
+						 */
+						var t = window.setInterval(function() {
+									if (acorn.$self[0].readyState > 0) {
+										updateSeek();
 									
-									clearInterval(t);
-								}
-							}, 500);
+										clearInterval(t);
+									}
+								}, 500);
 					
-					initCaption();					
-				});				
+						initCaption();					
+					});
+				}				
 								
 				// remove the native controls
 				acorn.$self.removeAttr('controls');
