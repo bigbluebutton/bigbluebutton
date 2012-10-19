@@ -29,19 +29,21 @@
 #set -e
 #set -x
 
-BASE=/var/bigbluebutton/recording
-STATUS=$BASE/status
 source /etc/bigbluebutton/bigbluebutton-release
 
 SERVLET_DIR=/var/lib/tomcat6/webapps
 BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+BBB_BASE_DIR=/var/bigbluebutton
+BBB_CONF_YML=/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml
 
-RECORDING_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(recording_dir\)/{s/.*recording_dir:[ ]*//;s/;//;p}')
-PUBLISHED_DIR=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(published_dir\)/{s/.*published_dir:[ ]*//;s/;//;p}')
-RAW_AUDIO_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_audio_src\)/{s/.*raw_audio_src:[ ]*//;s/;//;p}')
-RAW_VIDEO_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_video_src\)/{s/.*raw_video_src:[ ]*//;s/;//;p}')
-RAW_DESKSHARE_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_deskshare_src\)/{s/.*raw_deskshare_src:[ ]*//;s/;//;p}')
-RAW_PRESENTATION_SRC=$(cat /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml | sed -n '/\(raw_presentation_src\)/{s/.*raw_presentation_src:[ ]*//;s/;//;p}')
+RECORDING_DIR=$(cat $BBB_CONF_YML | sed -n '/\(recording_dir\)/{s/.*recording_dir:[ ]*//;s/;//;p}')
+PUBLISHED_DIR=$(cat $BBB_CONF_YML | sed -n '/\(published_dir\)/{s/.*published_dir:[ ]*//;s/;//;p}')
+RAW_AUDIO_SRC=$(cat $BBB_CONF_YML | sed -n '/\(raw_audio_src\)/{s/.*raw_audio_src:[ ]*//;s/;//;p}')
+RAW_VIDEO_SRC=$(cat $BBB_CONF_YML | sed -n '/\(raw_video_src\)/{s/.*raw_video_src:[ ]*//;s/;//;p}')
+RAW_DESKSHARE_SRC=$(cat $BBB_CONF_YML | sed -n '/\(raw_deskshare_src\)/{s/.*raw_deskshare_src:[ ]*//;s/;//;p}')
+RAW_PRESENTATION_SRC=$(cat $BBB_CONF_YML | sed -n '/\(raw_presentation_src\)/{s/.*raw_presentation_src:[ ]*//;s/;//;p}')
+
+STATUS=$RECORDING_DIR/status
 
 TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
 
@@ -49,10 +51,10 @@ mark_for_rebuild() {
 	MEETING_ID=$1
 	#set -x
 	for type in $TYPES; do
-                if [ -d $BASE/process/$type/$MEETING_ID ]; then
-                        rm -rf $BASE/process/$type/$MEETING_ID
+                if [ -d $RECORDING_DIR/process/$type/$MEETING_ID ]; then
+                        rm -rf $RECORDING_DIR/process/$type/$MEETING_ID
 #                else
-#                        echo "Warn: Didn't find $BASE/process/$type/$MEETING_ID"
+#                        echo "Warn: Didn't find $RECORDING_DIR/process/$type/$MEETING_ID"
 #                        exit 1
                 fi
 
@@ -63,16 +65,16 @@ mark_for_rebuild() {
 #                        exit 1
                 fi
 
-                if [ -d $BASE/publish/$type/$MEETING_ID ]; then
-			rm -rf $BASE/publish/$type/$MEETING_ID
+                if [ -d $RECORDING_DIR/publish/$type/$MEETING_ID ]; then
+			rm -rf $RECORDING_DIR/publish/$type/$MEETING_ID
 		fi
 
                 if [ -d /var/bigbluebutton/processed/$type/$MEETING_ID ]; then
-                        rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
+                        rm -rf /var/bigbluebutton/processed/$type/$MEETING_ID
                 fi
 
-                if [ -d /var/bigbluebutton/published/$type/$MEETING_ID ]; then
-                        rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
+                if [ -d $PUBLISHED_DIR/$type/$MEETING_ID ]; then
+                        rm -rf $PUBLISHED_DIR/$type/$MEETING_ID
                 fi
 
                 if [ -d /var/bigbluebutton/unpublished/$type/$MEETING_ID ]; then
@@ -85,12 +87,12 @@ mark_for_republish() {
 	MEETING_ID=$1
 	#set -x
 	for type in $TYPES; do                
-                if [ -d $BASE/publish/$type/$MEETING_ID ]; then
-						rm -rf $BASE/publish/$type/$MEETING_ID
+                if [ -d $RECORDING_DIR/publish/$type/$MEETING_ID ]; then
+						rm -rf $RECORDING_DIR/publish/$type/$MEETING_ID
 				fi
               
-                if [ -d /var/bigbluebutton/published/$type/$MEETING_ID ]; then
-                        rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
+                if [ -d $PUBLISHED_DIR/$type/$MEETING_ID ]; then
+                        rm -rf $PUBLISHED_DIR/$type/$MEETING_ID
                 fi
 
                 if [ -d /var/bigbluebutton/unpublished/$type/$MEETING_ID ]; then
@@ -229,7 +231,7 @@ if [ $REBUILD ]; then
 	#
 	# Regenerate all meetings
 	#
-	for recording in $(dir $BASE/raw); do
+	for recording in $(dir $RECORDING_DIR/raw); do
 		echo "Marking for rebuild: $MEETING_ID"
 		mark_for_rebuild $MEETING_ID
 	done
@@ -244,7 +246,7 @@ if [ $REPUBLISH ]; then
 	#
 	# Republish all meetings
 	#
-	for recording in $(dir $BASE/raw); do
+	for recording in $(dir $RECORDING_DIR/raw); do
 		echo "Marking for republish: $recording"
 		mark_for_republish $recording
 	done
@@ -266,25 +268,25 @@ fi
 if [ $DELETE ]; then
   if [ ! -z "$MEETING_ID" ]; then
         for type in $TYPES; do
-                rm -rf /var/bigbluebutton/published/$type/$MEETING_ID*
+                rm -rf $PUBLISHED_DIR/$type/$MEETING_ID*
                 rm -rf /var/bigbluebutton/unpublished/$type/$MEETING_ID*
 
-                rm -rf /var/bigbluebutton/recording/process/$type/$MEETING_ID*
-                rm -rf /var/bigbluebutton/recording/publish/$type/$MEETING_ID*
+                rm -rf $RECORDING_DIR/process/$type/$MEETING_ID*
+                rm -rf $RECORDING_DIR/publish/$type/$MEETING_ID*
 
-                rm -rf /var/bigbluebutton/recording/raw/$MEETING_ID*
+                rm -rf $RECORDING_DIR/raw/$MEETING_ID*
 
                 rm -rf /var/log/bigbluebutton/$type/*$MEETING_ID*
         done
 
-        rm -f /var/bigbluebutton/recording/status/recorded/$MEETING_ID*
-        rm -f /var/bigbluebutton/recording/status/archived/$MEETING_ID*
-        rm -f /var/bigbluebutton/recording/status/processed/$MEETING_ID*
+        rm -f $RECORDING_DIR/status/recorded/$MEETING_ID*
+        rm -f $RECORDING_DIR/status/archived/$MEETING_ID*
+        rm -f $RECORDING_DIR/status/processed/$MEETING_ID*
 
-        rm -rf /usr/share/red5/webapps/video/streams/$MEETING_ID
-        rm -f /var/bigbluebutton/deskshare/$MEETING_ID*.flv
-        rm -f /var/freeswitch/meetings/$MEETING_ID*.wav
-		rm -rf /var/bigbluebutton/$MEETING_ID
+        rm -rf $RAW_VIDEO_SRC/$MEETING_ID
+        rm -f $RAW_DESKSHARE_SRC/$MEETING_ID*.flv
+        rm -f $RAW_AUDIO_SRC/$MEETING_ID*.wav
+		rm -rf $RAW_PRESENTATION_SRC/$MEETING_ID
 
         echo "deleting: $MEETING_ID"
   else
@@ -294,29 +296,29 @@ fi
 
 if [ $DELETEALL ]; then
 	for type in $TYPES; do
-		rm -rf /var/bigbluebutton/published/$type/*
+		rm -rf $PUBLISHED_DIR/$type/*
 		rm -rf /var/bigbluebutton/unpublished/$type/*
 
-		rm -rf /var/bigbluebutton/recording/process/$type/*
-		rm -rf /var/bigbluebutton/recording/publish/$type/*
+		rm -rf $RECORDING_DIR/process/$type/*
+		rm -rf $RECORDING_DIR/publish/$type/*
 	
-		rm -rf /var/bigbluebutton/recording/raw/*
+		rm -rf $RECORDING_DIR/raw/*
 
 		rm -rf /var/log/bigbluebutton/$type/*
 	done
 
-	rm -f /var/bigbluebutton/recording/status/recorded/*
-	rm -f /var/bigbluebutton/recording/status/archived/*
-	rm -f /var/bigbluebutton/recording/status/processed/*
-	rm -f /var/bigbluebutton/recording/status/sanity/*
+	rm -f $RECORDING_DIR/status/recorded/*
+	rm -f $RECORDING_DIR/status/archived/*
+	rm -f $RECORDING_DIR/status/processed/*
+	rm -f $RECORDING_DIR/status/sanity/*
 
-	rm -f /usr/share/red5/webapps/video/streams/*.flv
-	rm -f /var/bigbluebutton/deskshare/*.flv
-	rm -f /var/freeswitch/meetings/*.wav
+	rm -f $RAW_VIDEO_SRC/*.flv
+	rm -f $RAW_DESKSHARE_SRC/*.flv
+	rm -f $RAW_AUDIO_SRC/*.wav
 
-	for meeting in $(ls /var/bigbluebutton | grep "[0-9]\{13\}$"); do
+	for meeting in $(ls $RAW_PRESENTATION_SRC | grep "[0-9]\{13\}$"); do
 		echo "deleting: $meeting"
-		rm -rf /var/bigbluebutton/$meeting
+		rm -rf $RAW_PRESENTATION_SRC/$meeting
 	done
 fi
 
@@ -348,7 +350,8 @@ if [ -z $HEAD ]; then
 	HEAD=99999
 fi
                                                               
-for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD); do
+#for meeting in $(ls -t $RAW_PRESENTATION_SRC | grep "[0-9]\{13\}$" | head -n $HEAD); do
+for meeting in $(ls -t $RECORDING_DIR/raw | grep "[0-9]\{13\}$" | head -n $HEAD); do
 	echo -n "$meeting"
 	timestamp=$(echo $meeting | sed s/.*-//g)
 	epoc=$(($timestamp/1000))
@@ -371,7 +374,7 @@ for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD)
 	#
 	# Check if there area uploaded presentations 
 	if [ -d $RAW_PRESENTATION_SRC/$meeting/$meeting ]; then
-		if [ "$(ls -A $RAW_PRESENTATION_SRC/$meeting/$meeting)" ]; then 
+		if [ "$(ls -A $RAW_PRESENTATION_SRC/$meeting/$meeting)" ]; then
 			echo -n "X"
 		else
 			echo -n " "
@@ -405,11 +408,11 @@ for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD)
 	#
 	# Monitor the archived files
 	#
-	RAW_DIR=$RAW_PRESENTATION_SRC/recording/raw/$meeting
+	RAW_DIR=$RECORDING_DIR/raw/$meeting
 	echo -n " "
 
 	# Check if there area uploaded presentations 
-	#echo "$RAW/audio"
+	#echo "$RAW_DIR/audio"
 	DIRS="audio presentation video deskshare"
 	for dir in $DIRS; do
 		if [ -d $RAW_DIR/$dir ]; then
@@ -433,7 +436,7 @@ for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD)
 	# Check the status files
 	#
 	echo -n " "
-	STATUS_DIR=$RAW_PRESENTATION_SRC/recording/status
+	STATUS_DIR=$RECORDING_DIR/status
 	DIRS="recorded archived sanity"
 	for dir in $DIRS; do
 		if [ -f $STATUS_DIR/$dir/$meeting.done ]; then
@@ -445,12 +448,12 @@ for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD)
 
 	#
 	# Numbe rof slides
-	printf "%7s" $(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
+	printf "%7s" $(find $RECORDING_DIR/raw/$meeting/presentation -name "*.swf" | wc -l)
 
 
 	echo -n " "
-	#echo $BASE/raw/$meeting 
-	if [ -d $BASE/raw/$meeting ]; then
+	#echo $RECORDING_DIR/raw/$meeting 
+	if [ -d $RECORDING_DIR/raw/$meeting ]; then
 		recording=$meeting
 
 	#
@@ -470,7 +473,7 @@ for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD)
 	# Check archived
 	published=""
 	for type in $TYPES; do
-		if [ -f /var/bigbluebutton/published/$type/$recording/metadata.xml ]; then
+		if [ -f $PUBLISHED_DIR/$type/$recording/metadata.xml ]; then
 			if [ ! -z "$published" ]; then
 				published="$published,"
 			fi
@@ -480,9 +483,9 @@ for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD)
         printf "%-17s" $published
 
 
-	if [ -f /var/bigbluebutton/recording/raw/$recording/events.xml ]; then
+	if [ -f $RECORDING_DIR/raw/$recording/events.xml ]; then
 		echo -n "     "
-		echo -n $(head -n 5 /var/bigbluebutton/recording/raw/$recording/events.xml | grep description | sed s/.*description=\"//g | sed s/\".*//g) | sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g' -e 's/ \{1,\}/ /g' | tr -d '\n'
+		echo -n $(head -n 5 $RECORDING_DIR/raw/$recording/events.xml | grep description | sed s/.*description=\"//g | sed s/\".*//g) | sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g' -e 's/ \{1,\}/ /g' | tr -d '\n'
 	fi
 
 fi
@@ -507,12 +510,12 @@ if [ $WATCH ]; then
 fi
 
 if [ $CHECK ]; then
-	if [ -f /var/bigbluebutton/recording/process/slides ]; then 
-	    if [ ! -w  /var/bigbluebutton/recording/process/slides ]; then
+	if [ -f $RECORDING_DIR/process/slides ]; then 
+	    if [ ! -w  $RECORDING_DIR/process/slides ]; then
 		print_header
 		echo "# Error: The output director for slides"
 		echo "#"
-		echo "# /var/bigbluebutton/recording/process/slides"
+		echo "# $RECORDING_DIR/process/slides"
 		echo "#"
 		echo "# is not writeable."
 		echo
@@ -524,7 +527,7 @@ if [ $CHECK ]; then
 	#
 	#set -x
         for type in $TYPES; do
-		for recording in $(find $BASE/publish/$type -name metadata.xml); do
+		for recording in $(find $RECORDING_DIR/publish/$type -name metadata.xml); do
 			url_playback=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
 			if [ "$BBB_WEB" != "$url_playback" ]; then
                                 echo
@@ -535,7 +538,7 @@ if [ $CHECK ]; then
                                 echo
 			fi
 		done
-		for recording in $(find /var/bigbluebutton/published/$type -name metadata.xml); do
+		for recording in $(find $PUBLISHED_DIR/$type -name metadata.xml); do
 			url_playback=$(cat $recording | grep "<link>" | sed 's/[ ]*<link>http:\/\/\([^\"\/]*\)[^>]*>/\1/g')
 			if [ "$BBB_WEB" != "$url_playback" ]; then
                                 echo
@@ -635,8 +638,8 @@ if [ $DEBUG ]; then
 
 
 	rm -rf /tmp/t
-	if ls /var/bigbluebutton/recording/status/recorded/*.done > /dev/null 2>1; then
-		for file in /var/bigbluebutton/recording/status/recorded/*.done; do 
+	if ls $RECORDING_DIR/status/recorded/*.done > /dev/null 2>1; then
+		for file in $RECORDING_DIR/status/recorded/*.done; do 
 		  if [ ! -f $(echo $file | sed 's/recorded/archived/g') ]; then 
 			echo "  $file" >> /tmp/t
                   fi 

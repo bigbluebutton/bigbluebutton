@@ -28,23 +28,33 @@ test -x /var/bigbluebutton || exit 0
 #
 exit 0
 
+BBB_CONFIG_YML="/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml"
+
+RECORDING_DIR=$(cat $BBB_CONFIG_YML | sed -n '/\(recording_dir\)/{s/.*recording_dir:[ ]*//;s/;//;p}')
+PUBLISHED_DIR=$(cat $BBB_CONFIG_YML | sed -n '/\(published_dir\)/{s/.*published_dir:[ ]*//;s/;//;p}')
+RAW_AUDIO_SRC=$(cat $BBB_CONFIG_YML | sed -n '/\(raw_audio_src\)/{s/.*raw_audio_src:[ ]*//;s/;//;p}')
+RAW_VIDEO_SRC=$(cat $BBB_CONFIG_YML | sed -n '/\(raw_video_src\)/{s/.*raw_video_src:[ ]*//;s/;//;p}')
+RAW_DESKSHARE_SRC=$(cat $BBB_CONFIG_YML | sed -n '/\(raw_deskshare_src\)/{s/.*raw_deskshare_src:[ ]*//;s/;//;p}')
+RAW_PRESENTATION_SRC=$(cat $BBB_CONFIG_YML | sed -n '/\(raw_presentation_src\)/{s/.*raw_presentation_src:
+
+
 #
 # Delete presentations older than a day
 #
-find /var/bigbluebutton -maxdepth 1 -type d -name "*-*" -mtime +11 -exec rm -r '{}' \;
+find $RAW_PRESENTATION_SRC -maxdepth 1 -type d -name "*-*" -mtime +11 -exec rm -r '{}' \;
 
 #
 # Delete webcam streams in red5 older than one day
 #
-find /usr/share/red5/webapps/video/streams -name "*.flv" -mtime +1 -exec rm '{}' \;
+find $RAW_VIDEO_SRC -name "*.flv" -mtime +1 -exec rm '{}' \;
 
 #
 # Delete desktop sharing streams in red5 older than one day
 #
-find /var/bigbluebutton/deskshare -name "*.flv" -mtime +1 -exec rm '{}' \;
+find $RAW_DESKSHARE_SRC -name "*.flv" -mtime +1 -exec rm '{}' \;
 
 #
 # Delete FreeSWITCH wav recordings older than one day
 #
-find /var/freeswitch/meetings -name "*.wav" -mtime +1 -exec rm '{}' \;
+find $RAW_AUDIO_SRC -name "*.wav" -mtime +1 -exec rm '{}' \;
 
