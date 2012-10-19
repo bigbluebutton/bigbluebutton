@@ -373,9 +373,9 @@ def storeTextShape
 		height = ( ($textBoxHeight.to_f + extra_percent) / 100.0) * $vbox_height
 		y_gap = 45		
 		$textFontSize_pixels = $textFontSize.to_f * font_size_factor				
-		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "fill:\##{$colour_hex}; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels}px;") do
+		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => " visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels}px;") do
 			$xml.switch do 
-				$xml.foreignObject( :width => width, :height => height, :x => "#{(($shapeDataPoints[0].to_f)/100)*$vbox_width}", :y => "#{((($shapeDataPoints[1].to_f)/100) *$vbox_height )  + y_gap.to_f }") do
+				$xml.foreignObject(  :color => "##{$colour_hex}", :width => width, :height => height, :x => "#{(($shapeDataPoints[0].to_f)/100)*$vbox_width}", :y => "#{((($shapeDataPoints[1].to_f)/100) *$vbox_height )  + y_gap.to_f }") do
 					$xml.p( :xmlns => "http://www.w3.org/1999/xhtml" ) do
 						$xml.text($textValue)
 					end
@@ -489,6 +489,7 @@ def processShapesAndClears
                                                                 $textValue = shape.xpath(".//text")[0].text()
                                                                 $textFontType = "Arial"
                                                                 $textFontSize = shape.xpath(".//fontSize")[0].text()
+                                                                colour = shape.xpath(".//fontColor")[0].text()
                                                         else
                                                                 $shapeThickness = shape.xpath(".//thickness")[0].text()
                                                                 colour = shape.xpath(".//color")[0].text()
