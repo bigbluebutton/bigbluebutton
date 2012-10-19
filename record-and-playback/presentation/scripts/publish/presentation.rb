@@ -255,7 +255,7 @@ def storeLineShape
                         $originalOriginX = $originX
                         $originalOriginY = $originY
 
-                        $xml.line(:x1 => $originX, :y1 => $originY, :x2 => endPointY, :y2 => endPointY )
+                        $xml.line(:x1 => $originX, :y1 => $originY, :x2 => endPointX, :y2 => endPointY )
                         $prev_time = $shapeCreationTime
                 end
         end
