@@ -368,11 +368,18 @@ def storeTextShape
 			$text_count = $text_count + 1
 		end
 		font_size_factor = 2
+		extra_percent = 5.0
+		width = ( ($textBoxWidth.to_f + extra_percent) / 100.0) * $vbox_width
+		height = ( ($textBoxHeight.to_f + extra_percent) / 100.0) * $vbox_height
 		y_gap = 45		
 		$textFontSize_pixels = $textFontSize.to_f * font_size_factor				
-		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "fill:\##{$colour_hex}; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels};") do
-			$xml.text_( "font-size" => "#{$textFontSize_pixels}", :x => "#{(($shapeDataPoints[0].to_f)/100)*$vbox_width}", :y => "#{((($shapeDataPoints[1].to_f)/100) *$vbox_height )  + y_gap.to_f }") do
-				$xml.text($textValue)				
+		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "fill:\##{$colour_hex}; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels}px;") do
+			$xml.switch do 
+				$xml.foreignObject( :width => width, :height => height, :x => "#{(($shapeDataPoints[0].to_f)/100)*$vbox_width}", :y => "#{((($shapeDataPoints[1].to_f)/100) *$vbox_height )  + y_gap.to_f }") do
+					$xml.p( :xmlns => "http://www.w3.org/1999/xhtml" ) do
+						$xml.text($textValue)
+					end
+				end
 			end
 			$prev_time = $shapeCreationTime
 		end # end xml.g		
@@ -557,6 +564,8 @@ def processShapesAndClears
 								storeEllipseShape()
 								
 							elsif $shapeType.eql? "text"
+								$textBoxWidth = shape.xpath(".//textBoxWidth")[0].text()
+								$textBoxHeight = shape.xpath(".//textBoxHeight")[0].text()
 								storeTextShape()
 							end # end if pencil (and other shapes)
 						end # end if((in_this_image) && (in_this_canvas))
