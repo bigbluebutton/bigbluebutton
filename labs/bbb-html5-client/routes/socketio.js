@@ -75,7 +75,9 @@ exports.publishSlides = function(meetingID, sessionID, callback) {
      for(var i = 0; i < numOfSlides; i++) {
        redisAction.getPageImage(meetingID, presentationID, pageIDs[i], function(pageID, filename) {
          redisAction.getImageSize(meetingID, presentationID, pageID, function(width, height) {
-           slides.push(['images/presentation' +presentationID+'/'+filename, width, height]);
+           //slides.push(['images/presentation' +presentationID+'/'+filename, width, height]);
+           slides.push(['bigbluebutton/presentation/'+meetingID +"/" + meetingID + "/" + presentationID + "/png/" + filename, width, height]);
+           
             if(slides.length == numOfSlides) {
                var receivers = sessionID != undefined ? sessionID : meetingID;
                pub.publish(receivers, JSON.stringify(['all_slides', slides]));
@@ -296,7 +298,8 @@ exports.SocketOnConnection = function(socket) {
         redisAction.getCurrentPresentationID(meetingID, function(presentationID) {
           redisAction.changeToPrevPage(meetingID, presentationID, function(pageID){
             redisAction.getPageImage(meetingID, presentationID, pageID, function(pageID, filename)  {
-              pub.publish(meetingID, JSON.stringify(['changeslide', 'images/presentation' + presentationID + '/'+filename]));
+              //pub.publish(meetingID, JSON.stringify(['changeslide', 'images/presentation/' + presentationID + '/'+filename]));
+              pub.publish(meetingID, JSON.stringify(['changeslide', 'bigbluebutton/presentation/'+meetingID +"/" + meetingID + "/" + presentationID + "/png/" + filename]));
               pub.publish(meetingID, JSON.stringify(['clrPaper']));
              socketAction.publishShapes(meetingID);
             });
@@ -319,7 +322,9 @@ exports.SocketOnConnection = function(socket) {
         redisAction.getCurrentPresentationID(meetingID, function(presentationID) {
           redisAction.changeToNextPage(meetingID, presentationID, function(pageID){
             redisAction.getPageImage(meetingID, presentationID, pageID, function(pageID, filename) {
-              pub.publish(meetingID, JSON.stringify(['changeslide', 'images/presentation' + presentationID + '/'+filename]));
+              //pub.publish(meetingID, JSON.stringify(['changeslide', 'images/presentation/' + presentationID + '/'+filename]));
+              //http:://192.168.1.218/bigbluebutton/presentation/$conference/$room/$presentation_name/png/$id
+              pub.publish(meetingID, JSON.stringify(['changeslide', 'bigbluebutton/presentation/'+meetingID +"/" + meetingID + "/" + presentationID + "/png/" + filename]));
               pub.publish(meetingID, JSON.stringify(['clrPaper']));
              socketAction.publishShapes(meetingID);
             });

@@ -303,7 +303,11 @@ socket.on('connect', function () {
     for (var i = 0; i < numOfSlides; i++) {
       var array = urls[i];
       var img = addImageToPaper(array[0], array[1], array[2]);
-      $('#slide').append('<img id="preload'+img.id+'"src="'+img.attr('src')+'" style="display:none;" alt=""/>'); //preload images
+      //TODO: temporary solution for remove :3000
+      var custom_src = img.attr('src');
+      custom_src = custom_src.replace(':3000', ""); 
+      console.log(custom_src);
+      $('#slide').append('<img id="preload'+img.id+'"src="'+custom_src+'" style="display:none;" alt=""/>'); //preload images
     };
   });
 });

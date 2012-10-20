@@ -5,7 +5,12 @@ link(rel="stylesheet", href="css/layout.css")
 //-  form(id="logout")
 //-    input(type="submit", value="Logout", onclick="logout();return false;")
 //-p Welcome to BigBlueButton, #{user}!
-
+div(id="uploadcontrols")
+  p Upload custom slides
+  form(method="post", enctype="multipart/form-data", id="uploadForm")
+    input(type="file", name="image", id="uploadFile")
+  span(id="uploadStatus")
+    input(type="submit", value="Upload")
 div(id="layout")
   div(id="presentation")
     div(id="slideAndControls")
@@ -39,6 +44,7 @@ div(id="layout")
       button(id="logout-btn", class="navbar-btn") <i class="icon-signout"></i> Logout
 canvas(id="colourView", width="12", height="12", onclick='toggleColourPicker()')
 input(id='colourText', maxlength='7', type='text')
+
 canvas(id="thicknessView", width="20", height="20")
 //-
   // The chat box and its controls

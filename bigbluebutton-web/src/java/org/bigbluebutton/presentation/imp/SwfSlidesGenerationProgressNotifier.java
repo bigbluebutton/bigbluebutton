@@ -85,7 +85,12 @@ public class SwfSlidesGenerationProgressNotifier {
 		MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
 		builder.messageKey(ConversionMessageConstants.CONVERSION_COMPLETED_KEY);
 		builder.slidesInfo(escape_xml);
-		notifyProgressListener(builder.build().getMessage());	
+		
+		//Storing presentation details in Redis for the html5 client
+		//TODO: Currently the keys are according to Ryan's specs
+		messagingService.recordPresentation(pres.getRoom(),pres.getName(),pres.getNumberOfPages());
+		
+		notifyProgressListener(builder.build().getMessage());
 	}
 	
 	public void setMessagingService(MessagingService m) {
@@ -100,5 +105,11 @@ public class SwfSlidesGenerationProgressNotifier {
 		MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
 		builder.messageKey(ConversionMessageConstants.GENERATING_TEXTFILES_KEY);
 		notifyProgressListener(builder.build().getMessage());	
+	}
+
+	public void sendCreatingPngImagesUpdateMessage(UploadedPresentation pres) {
+		MessageBuilder builder = new ConversionUpdateMessage.MessageBuilder(pres);
+		builder.messageKey(ConversionMessageConstants.GENERATING_PNGIMAGES_KEY);
+		notifyProgressListener(builder.build().getMessage());
 	}
 }

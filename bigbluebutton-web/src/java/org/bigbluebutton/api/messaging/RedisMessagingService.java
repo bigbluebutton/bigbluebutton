@@ -214,4 +214,23 @@ public class RedisMessagingService implements MessagingService {
 		}
 	}
 
+	@Override
+	public void recordPresentation(String meetingID, String presentationName, int numberOfPages) {
+		Jedis jedis = redisPool.getResource();
+		try {
+			
+			jedis.sadd("meeting-" + meetingID + "-presentations", presentationName);
+			for(int i=1;i<=numberOfPages;i++){
+				jedis.rpush("meeting-"+meetingID+"-presentation-"+presentationName+"-pages", Integer.toString(i));
+				jedis.set("meeting-"+meetingID+"-presentation-"+presentationName+"-page-"+i+"-image", "slide"+i+".png");
+				//temporary values
+				jedis.set("meeting-"+meetingID+"-presentation-"+presentationName+"-page-"+i+"-width", "1200");
+				jedis.set("meeting-"+meetingID+"-presentation-"+presentationName+"-page-"+i+"-height", "800");
+			}
+			jedis.set("meeting-" + meetingID + "-currentpresentation", presentationName);
+		} finally {
+			redisPool.returnResource(jedis);
+		}
+	}
+
 }

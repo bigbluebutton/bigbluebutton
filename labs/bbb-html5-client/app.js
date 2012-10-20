@@ -177,6 +177,17 @@ sub.on("pmessage", function(pattern, channel, message) {
     //apply the parameters to the socket event, and emit it on the channels
     channel_viewers.emit.apply(channel_viewers, attributes);
   }
+  else if(channel == "bigbluebutton:meeting:presentation"){
+    var attributes = JSON.parse(message);
+    if(attributes.messageKey == "CONVERSION_COMPLETED"){
+      var meetingID = attributes.room; 
+      pub.publish(meetingID, JSON.stringify(['clrPaper']));
+      socketAction.publishSlides(meetingID, null, function() {
+        socketAction.publishViewBox(meetingID);
+        pub.publish(meetingID, JSON.stringify(['uploadStatus', "Upload succeeded", true]));
+      });
+    }
+  }
   else{
     //value of pub channel is used as the name of the SocketIO room to send to.
     var channel_viewers = io.sockets.in(channel);

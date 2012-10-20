@@ -35,6 +35,10 @@ class UrlMappings {
       "/presentation/$conference/$room/$presentation_name/slide/$id"(controller:"presentation") {
       		action = [GET:'showSlide']
       }
+	  
+	  "/presentation/$conference/$room/$presentation_name/png/$id"(controller:"presentation") {
+		  action = [GET:'showPngImage']
+	  }
       
       "/presentation/$conference/$room/$presentation_name/thumbnails"(controller:"presentation") {
       		action = [GET:'numberOfThumbnails']

@@ -4,9 +4,12 @@
  * @param  {string} presentationID the presentationID being looked up for a folder
  * @return {string}                the relative URL for where the images will be stored
  */
-exports.presentationImageFolder = function(presentationID) {
-  return 'public/images/presentation' + presentationID;
+//exports.presentationImageFolder = function(presentationID) {
+  //return 'public/images/presentation' + presentationID;
   //return 'public/images/presentations/'+presentationID;
+//};
+exports.presentationImageFolder = function(meetingID,presentationID) {
+  return '/var/bigbluebutton/' + meetingID + "/" + meetingID + "/" + presentationID + "/pngs";
 };
 
 /**
@@ -59,7 +62,7 @@ function makeMeeting(meetingID, sessionID, username, callback) {
         redisAction.createPresentation(meetingID, true, function (presentationID) {
           redisAction.createPage(meetingID, presentationID, 'default.png', true, function (pageID) {
             redisAction.setViewBox(meetingID, JSON.stringify([0, 0, 1, 1]));
-            var folder = routes.presentationImageFolder(presentationID);
+            var folder = routes.presentationImageFolder(meetingID,presentationID);
             fs.mkdir(folder, 0777 , function (reply) {
               newFile = fs.createWriteStream(folder + '/default.png');
               oldFile = fs.createReadStream('images/default.png');
@@ -189,7 +192,7 @@ exports.post_chat = function(req, res) {
         redisAction.getCurrentPageID(meetingID, prevPresID, function(prevPageID) {
           redisAction.createPresentation(meetingID, false, function (presentationID) {
             redisAction.setViewBox(meetingID, JSON.stringify([0, 0, 1, 1]));
-            var folder = routes.presentationImageFolder(presentationID);
+            var folder = routes.presentationImageFolder(meetingID,presentationID);
             //make the directory the presentation files will go into.
             fs.mkdir(folder, 0777 , function (reply) {
               // ImageMagick call to convert file to PNG images named slide0.png, slide1.png, slide2.png, etc...

@@ -182,6 +182,7 @@ function setFitToPage(fit) {
  * @return {Raphael.image} the image object added to the whiteboard
  */
 function addImageToPaper(url, w, h) {
+  console.log("addIMageToPaper show me url:" + url);
   var img;
   if(fitToPage) {
     //solve for the ratio of what length is going to fit more than the other
@@ -189,7 +190,10 @@ function addImageToPaper(url, w, h) {
     var yr = h/vh;
     var max = Math.max(xr, yr);
     //fit it all in appropriately
+    //temporary solution
+    url = "http://192.168.1.218/" + url;
     img = paper.image(url, cx = 0, cy = 0, gw = w/max, gh = h/max);
+    console.log(img);
     //update the global variables we will need to use
     sw = w/max;
     sh = h/max;
@@ -317,6 +321,7 @@ function showImageFromPaper(url) {
  * @return {Raphael.image}     return the image or null if not found
  */
 function getImageFromPaper(url) {
+  console.log("show me url:" + url);
   if(slides[url]) {
     var id = slides[url].id;
     if(id) {

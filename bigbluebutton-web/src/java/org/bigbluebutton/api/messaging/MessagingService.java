@@ -12,4 +12,5 @@ public interface MessagingService {
 	public void removeListener(MessageListener listener);
 	public void recordMeeting(String meetingID, String externalID, String name);
 	public void removeMeeting(String meetingId);
+	public void recordPresentation(String room, String name, int numberOfPages);
 }
