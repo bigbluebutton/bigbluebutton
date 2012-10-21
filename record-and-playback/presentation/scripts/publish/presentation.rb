@@ -255,7 +255,7 @@ def storeLineShape
                         $originalOriginX = $originX
                         $originalOriginY = $originY
 
-                        $xml.line(:x1 => $originX, :y1 => $originY, :x2 => endPointY, :y2 => endPointY )
+                        $xml.line(:x1 => $originX, :y1 => $originY, :x2 => endPointX, :y2 => endPointY )
                         $prev_time = $shapeCreationTime
                 end
         end
@@ -367,12 +367,20 @@ def storeTextShape
 		else
 			$text_count = $text_count + 1
 		end
-		font_size_factor = 2
-		y_gap = 45		
+		font_size_factor = 1.7
+		extra_percent = -0.7
+		width = ( ($textBoxWidth.to_f + extra_percent) / 100.0) * $vbox_width
+		height = ( ($textBoxHeight.to_f + extra_percent) / 100.0) * $vbox_height
+		y_gap = -30.0 		
+		x_gap = 5.0
 		$textFontSize_pixels = $textFontSize.to_f * font_size_factor				
-		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "fill:\##{$colour_hex}; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels};") do
-			$xml.text_( "font-size" => "#{$textFontSize_pixels}", :x => "#{(($shapeDataPoints[0].to_f)/100)*$vbox_width}", :y => "#{((($shapeDataPoints[1].to_f)/100) *$vbox_height )  + y_gap.to_f }") do
-				$xml.text($textValue)				
+		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "word-wrap: break-word; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels}px;") do
+			$xml.switch do 
+				$xml.foreignObject(  :color => "##{$colour_hex}", :width => width, :height => height, :x => "#{((($shapeDataPoints[0].to_f)/100)*$vbox_width) + x_gap}", :y => "#{((($shapeDataPoints[1].to_f)/100) *$vbox_height )  + y_gap.to_f }") do
+					$xml.p( :xmlns => "http://www.w3.org/1999/xhtml" ) do
+						$xml.text($textValue)
+					end
+				end
 			end
 			$prev_time = $shapeCreationTime
 		end # end xml.g		
@@ -482,6 +490,7 @@ def processShapesAndClears
                                                                 $textValue = shape.xpath(".//text")[0].text()
                                                                 $textFontType = "Arial"
                                                                 $textFontSize = shape.xpath(".//fontSize")[0].text()
+                                                                colour = shape.xpath(".//fontColor")[0].text()
                                                         else
                                                                 $shapeThickness = shape.xpath(".//thickness")[0].text()
                                                                 colour = shape.xpath(".//color")[0].text()
@@ -557,6 +566,8 @@ def processShapesAndClears
 								storeEllipseShape()
 								
 							elsif $shapeType.eql? "text"
+								$textBoxWidth = shape.xpath(".//textBoxWidth")[0].text()
+								$textBoxHeight = shape.xpath(".//textBoxHeight")[0].text()
 								storeTextShape()
 							end # end if pencil (and other shapes)
 						end # end if((in_this_image) && (in_this_canvas))
