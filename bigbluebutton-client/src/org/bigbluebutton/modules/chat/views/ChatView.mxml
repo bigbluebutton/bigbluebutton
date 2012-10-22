@@ -109,9 +109,14 @@
 				notificationTimer.start();
 				
 				openChatBoxFor(PUBLIC_CHAT_USERID, true);
+        makePublicChatUncloseable();
         
-				createAddTabBox();
-				makePublicChatUncloseable();
+        if (chatOptions.privateEnabled) {
+          createAddTabBox();
+          makeAddPrivateChatUncloseable();
+        }
+				
+				
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
         
 				systemManager.stage.addEventListener(Event.MOUSE_LEAVE, mouseLeave);
@@ -163,14 +168,22 @@
 					
 			private function makePublicChatUncloseable():void {
 				// See definition of callLater on Adobe Flash doc.
-				callLater(calledOnTheNextScreenRefresh);
+				callLater(calledOnTheNextScreenRefreshToMakePublicChatUncloseable);
 			}
 			
-			private function calledOnTheNextScreenRefresh():void {
+      private function makeAddPrivateChatUncloseable():void {
+        // See definition of callLater on Adobe Flash doc.
+        callLater(calledOnTheNextScreenRefreshToMakeTabUncloseable);        
+      }      
+      
+      private function calledOnTheNextScreenRefreshToMakeTabUncloseable():void {
+        chatTabs.setClosePolicyForTab(chatTabs.getChildIndex(tabBox), SuperTab.CLOSE_NEVER);
+      }
+      
+			private function calledOnTheNextScreenRefreshToMakePublicChatUncloseable():void {
 				var chatBox:ChatBox = getChatBoxForUser(PUBLIC_CHAT_USERID);
 				var chatIndex:int = getTabIndexFor(chatBox);
-				chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);				
-				chatTabs.setClosePolicyForTab(chatTabs.getChildIndex(tabBox), SuperTab.CLOSE_NEVER);
+				chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);								
 			}
 											
 			private function isChatBoxCurrentlySelected(id:String):Boolean {
