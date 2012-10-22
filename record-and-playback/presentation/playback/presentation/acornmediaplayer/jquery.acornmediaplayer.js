@@ -1,5 +1,5 @@
 /*
- * Acorn Media Player - jQuery plugin 1.5
+ * Acorn Media Player - jQuery plugin 1.6
  *
  * Copyright (C) 2012 Ionut Cristian Colceriu
  *
@@ -44,6 +44,10 @@
 				return false;
 			}
 		}
+		
+		/* Detect Touch support
+		 */
+		var is_touch_device = 'ontouchstart' in document.documentElement;
 		
 		/*
 		 * Get the volume value from localStorage
@@ -141,8 +145,21 @@
 			/*
 			 * Append the HTML markup
 			 */
-			acorn.$self.wrap($wrapper).after(template).after('<div class="loading-media"></div>');
-		
+			
+			// append the wrapper
+			acorn.$self.after($wrapper);
+			
+			// For iOS support, I have to clone the node, remove the original, and get a reference to the new one.
+			// This is because iOS doesn't want to play videos that have just been `moved around`.
+			// More details on the issue: http://bugs.jquery.com/ticket/8015
+			$wrapper[0].appendChild( acorn.$self[0].cloneNode(true) );
+			
+			acorn.$self.remove();
+			acorn.$self = $wrapper.find('video, audio');
+			
+			// append the controls and loading mask
+			acorn.$self.after(template).after('<div class="loading-media"></div>');
+			
 			/*
 			 * Define the newly created DOM nodes
 			 */
@@ -198,7 +215,8 @@
 				if(!acorn.$self.prop('paused')) {
 					acorn.$self.trigger('pause');
 				} else {
-					acorn.$self.trigger('play');
+					//acorn.$self.trigger('play');
+					acorn.$self[0].play();
 				}
 			};
 			
@@ -593,10 +611,20 @@
 				} else {						
 					if(acorn.$self[0].webkitSupportsFullscreen) {
 						acorn.$self[0].webkitEnterFullScreen();
+					} else if (acorn.$self[0].mozRequestFullScreen) {
+						acorn.$self[0].mozRequestFullScreen();
+						acorn.$self.attr('controls', 'controls');
+						document.addEventListener('mozfullscreenchange', function() {
+							console.log('screenchange event found');
+							if (!document.mozFullScreenElement) {
+								acorn.$self.removeAttr('controls');
+								//document.removeEventListener('mozfullscreenchange');
+							}
+						});
 					} else {
-						$('body').css('overflow', 'hidden');							
+						$('body').css('overflow', 'hidden');
 					
-						acorn.$self.addClass('fullscreen-video').attr({							
+						acorn.$self.addClass('fullscreen-video').attr({
 							width: $(window).width(),
 							height: $(window).height()
 						});
@@ -867,10 +895,10 @@
 			 * Runs other initialization functions, attaches events, removes native controls
 			 */
 			var init = function() {
-				// attach playback handlers				
-				acorn.$playBtn.click(playMedia);
-				acorn.$self.click(playMedia);
-				
+				// attach playback handlers
+				acorn.$playBtn.bind( (is_touch_device) ? 'touchstart' : 'click', playMedia);
+				acorn.$self.bind( (is_touch_device) ? 'touchstart' : 'click' , playMedia);
+
 				acorn.$self.bind('play', startPlayback);
 				acorn.$self.bind('pause', stopPlayback);
 				acorn.$self.bind('ended', stopPlayback);
@@ -889,28 +917,27 @@
 				
 				if(!options.nativeSliders) initSeek();
 				
-				// check first to see if the media has already loaded
-				if (acorn.$self[0].readyState > 0) {
-					updateSeek();
-				} else {
-					// once the metadata has loaded
-					acorn.$self.bind('loadedmetadata', function() {
-						/* I use an interval to make sure the video has the right readyState
-						 * to bypass a known webkit bug that causes loadedmetadata to be triggered
-						 * before the duration is available
-						 */
-						var t = window.setInterval(function() {
-									if (acorn.$self[0].readyState > 0) {
-										updateSeek();
+				// once the metadata has loaded
+				acorn.$self.bind('loadedmetadata', function() {
+					/* I use an interval to make sure the video has the right readyState
+					 * to bypass a known webkit bug that causes loadedmetadata to be triggered
+					 * before the duration is available
+					 */
+					 
+					var t = window.setInterval(function() {
+								if (acorn.$self[0].readyState > 0) {									
+									updateSeek();
 									
-										clearInterval(t);
-									}
-								}, 500);
+									clearInterval(t);
+								}
+							}, 500);
 					
-						initCaption();					
-					});
-				}				
-								
+					initCaption();					
+				});
+			
+				// trigger update seek manualy for the first time, for iOS support
+				updateSeek();
+				
 				// remove the native controls
 				acorn.$self.removeAttr('controls');
 				
@@ -922,6 +949,7 @@
 					 */
 					acorn.$container.addClass('audio-player');
 				}
+				
 			}();
 		
 		};
