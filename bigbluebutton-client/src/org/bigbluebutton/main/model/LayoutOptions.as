@@ -9,6 +9,7 @@ package org.bigbluebutton.main.model
 		[Bindable] public var showVideoLayout:Boolean = true;
 		[Bindable] public var showResetLayout:Boolean = true;
 		[Bindable] public var showToolbar:Boolean = true;
+    [Bindable] public var showFooter:Boolean = true;
 		[Bindable] public var showHelpButton:Boolean = true;
 		[Bindable] public var showLogoutWindow:Boolean = true;
 		
@@ -36,7 +37,11 @@ package org.bigbluebutton.main.model
 				if (vxml.@showToolbar != undefined) {
 					showToolbar = (vxml.@showToolbar.toString().toUpperCase() == "TRUE") ? true : false;
 				}
-				
+
+        if (vxml.@showFooter != undefined) {
+          showFooter = (vxml.@showFooter.toString().toUpperCase() == "TRUE") ? true : false;
+        }
+        
 				if (vxml.@showHelpButton != undefined) {
 					showHelpButton = (vxml.@showHelpButton.toString().toUpperCase() == "TRUE") ? true : false;
 				}
