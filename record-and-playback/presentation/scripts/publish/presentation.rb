@@ -352,7 +352,12 @@ def storeEllipseShape
 				$originX = $originX + ellipseWidth
 				ellipseWidth = ellipseWidth.abs
 			end
-			$xml.ellipse(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseHeight/2), :rx => ellipseWidth/2, :ry => ellipseHeight/2)
+                        if $is_circle == "true"
+                                #Use width as reference
+                                $xml.circle(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseWidth/2), :r => ellipseWidth/2)
+                        else
+                                $xml.ellipse(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseHeight/2), :rx => ellipseWidth/2, :ry => ellipseHeight/2)
+                        end
 			$prev_time = $shapeCreationTime
 		end # end xml.g
 	end # end if($shapeCreationTime != $prev_time)
@@ -563,8 +568,9 @@ def processShapesAndClears
 
 							# Process the ellipse shapes
 							elsif $shapeType.eql? "ellipse"
+                                                                $is_circle = shape.xpath(".//circle")[0].text()
 								storeEllipseShape()
-								
+							
 							elsif $shapeType.eql? "text"
 								$textBoxWidth = shape.xpath(".//textBoxWidth")[0].text()
 								$textBoxHeight = shape.xpath(".//textBoxHeight")[0].text()
