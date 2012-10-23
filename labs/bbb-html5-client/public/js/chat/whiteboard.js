@@ -1,3 +1,5 @@
+var PRESENTATION_SERVER = "http://192.168.1.218/";
+
 //object references
 slide_obj = document.getElementById("slide");
 textbox = document.getElementById('area');
@@ -191,7 +193,7 @@ function addImageToPaper(url, w, h) {
     var max = Math.max(xr, yr);
     //fit it all in appropriately
     //temporary solution
-    url = "http://192.168.1.218/" + url;
+    url = PRESENTATION_SERVER + url;
     img = paper.image(url, cx = 0, cy = 0, gw = w/max, gh = h/max);
     console.log(img);
     //update the global variables we will need to use
@@ -300,6 +302,9 @@ function rebuildPaper() {
  */
 function showImageFromPaper(url) {
   if(current_url != url) {
+    //temporary solution
+    url = PRESENTATION_SERVER + url;
+
     hideImageFromPaper(current_url);
     var next = getImageFromPaper(url);
     if(next) {

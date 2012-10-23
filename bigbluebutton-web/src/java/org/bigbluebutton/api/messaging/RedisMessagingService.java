@@ -1,11 +1,18 @@
 package org.bigbluebutton.api.messaging;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import javax.imageio.ImageIO;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
@@ -223,11 +230,31 @@ public class RedisMessagingService implements MessagingService {
 			for(int i=1;i<=numberOfPages;i++){
 				jedis.rpush("meeting-"+meetingID+"-presentation-"+presentationName+"-pages", Integer.toString(i));
 				jedis.set("meeting-"+meetingID+"-presentation-"+presentationName+"-page-"+i+"-image", "slide"+i+".png");
-				//temporary values
-				jedis.set("meeting-"+meetingID+"-presentation-"+presentationName+"-page-"+i+"-width", "1200");
-				jedis.set("meeting-"+meetingID+"-presentation-"+presentationName+"-page-"+i+"-height", "800");
+				
+				//TODO: Temporary solution. This should be implemented on Pdf2SwfSlidesGenerationService.
+				int width = 800;
+				int height = 600;
+				/*try {
+					BufferedImage bimg = ImageIO.read(new File("/var/bigbluebutton/"+meetingID+"/"+meetingID+"/"+presentationName+"/pngs/slide"+i+".png"));
+					width = bimg.getWidth();
+					height = bimg.getHeight();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}*/
+				
+				jedis.set("meeting-"+meetingID+"-presentation-"+presentationName+"-page-"+i+"-width", Integer.toString(width));
+				jedis.set("meeting-"+meetingID+"-presentation-"+presentationName+"-page-"+i+"-height", Integer.toString(height));
 			}
 			jedis.set("meeting-" + meetingID + "-currentpresentation", presentationName);
+			//VIEWBOX
+			ArrayList viewbox = new ArrayList();
+			viewbox.add(0);
+			viewbox.add(0);
+			viewbox.add(1);
+			viewbox.add(1);
+			Gson gson = new Gson();
+			jedis.set("meeting-" + meetingID + "-viewbox", gson.toJson(viewbox));
 		} finally {
 			redisPool.returnResource(jedis);
 		}

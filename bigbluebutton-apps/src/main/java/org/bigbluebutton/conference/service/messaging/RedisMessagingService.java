@@ -244,6 +244,12 @@ public class RedisMessagingService implements MessagingService{
 					Double xPercent = gson.fromJson(array.get(2), Double.class);
 					Double yPercent = gson.fromJson(array.get(3), Double.class);
 					
+					if(xPercent == null || yPercent == null)
+					{
+						xPercent = 0.0;
+						yPercent = 0.0;
+					}
+					
 					presentationApplication.sendCursorUpdate(meetingId, xPercent, yPercent);
 				}
 

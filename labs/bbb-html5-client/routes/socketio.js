@@ -323,7 +323,6 @@ exports.SocketOnConnection = function(socket) {
           redisAction.changeToNextPage(meetingID, presentationID, function(pageID){
             redisAction.getPageImage(meetingID, presentationID, pageID, function(pageID, filename) {
               //pub.publish(meetingID, JSON.stringify(['changeslide', 'images/presentation/' + presentationID + '/'+filename]));
-              //http:://192.168.1.218/bigbluebutton/presentation/$conference/$room/$presentation_name/png/$id
               pub.publish(meetingID, JSON.stringify(['changeslide', 'bigbluebutton/presentation/'+meetingID +"/" + meetingID + "/" + presentationID + "/png/" + filename]));
               pub.publish(meetingID, JSON.stringify(['clrPaper']));
              socketAction.publishShapes(meetingID);

@@ -57,4 +57,24 @@ public class PresentationBridge {
 		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
 	}
 	
+	public void changeSlide(String meetingID, String presentationName, int slideNum){
+		Gson gson = new Gson();
+		
+		//TODO: Find a better way to share the presentation... Should we send a url or just the slide number?
+		//TODO: SlideNum start from 0 while in the conversion process and store in disk is from 1?
+		slideNum = slideNum + 1;
+		String url = "bigbluebutton/presentation/" + meetingID + "/" + meetingID + "/" + presentationName + "/png/" + "slide" + slideNum + ".png";
+		ArrayList<Object> updates = new ArrayList<Object>();
+		updates.add(meetingID);
+		updates.add("changeslide");
+		updates.add(url);
+		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
+		
+
+		ArrayList<Object> clr = new ArrayList<Object>();
+		clr.add(meetingID);
+		clr.add("clrPaper");
+		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(clr));
+	}
+	
 }

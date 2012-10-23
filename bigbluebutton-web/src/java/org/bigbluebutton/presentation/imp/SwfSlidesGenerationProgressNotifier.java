@@ -88,6 +88,7 @@ public class SwfSlidesGenerationProgressNotifier {
 		
 		//Storing presentation details in Redis for the html5 client
 		//TODO: Currently the keys are according to Ryan's specs
+		
 		messagingService.recordPresentation(pres.getRoom(),pres.getName(),pres.getNumberOfPages());
 		
 		notifyProgressListener(builder.build().getMessage());

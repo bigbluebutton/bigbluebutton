@@ -91,6 +91,7 @@ public class PresentationService {
 		log.debug("Request to go to slide " + slideNum);
 		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.gotoSlide(scope.getName(), slideNum);
+		bridge.changeSlide(scope.getName(), presentationApplication.getCurrentPresentation(scope.getName()) ,slideNum);
 	}
 	
 	public void sharePresentation(String presentationName, Boolean share) {

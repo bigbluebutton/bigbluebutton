@@ -36,6 +36,8 @@ public class WhiteboardBridge {
 				
 				//log.debug("checking ecpencil:"+an.getAnnotation());
 				ArrayList<Object> data = new ArrayList<Object>();
+				//TODO: temporary solution for correct the display of the points
+				pB = pB+2;
 				data.add(pA/100);
 				data.add(pB/100);
 				if(i == 0 ){
