@@ -14,7 +14,10 @@ package org.bigbluebutton.core.managers
 		{
             connDelegate = new NetConnectionDelegate();
 		}
-        
+   
+    public function get isTunnelling():Boolean {
+      return connDelegate.tunneling;
+    }
         public function setUri(uri:String):void {
             connDelegate.setUri(uri);
         }

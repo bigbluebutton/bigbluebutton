@@ -18,15 +18,11 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.*;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.utils.Timer;
-	
-	import mx.controls.Alert;
-	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -79,6 +75,11 @@ package org.bigbluebutton.main.model.users
         public function setUri(uri:String):void {
             _applicationURI = uri;
         }
+       
+    public function get tunneling():Boolean {
+      return tried_tunneling;
+    }
+        
         
 		public function get connection():NetConnection {
 			return _netConnection;
