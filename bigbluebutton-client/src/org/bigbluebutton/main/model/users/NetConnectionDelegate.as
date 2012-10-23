@@ -176,7 +176,12 @@ package org.bigbluebutton.main.model.users
 			this.logoutOnUserCommand = logoutOnUserCommand;
 			_netConnection.close();
 		}
-					
+		
+    
+    public function forceClose():void {
+      _netConnection.close();
+    }
+    
 		protected function netStatus( event : NetStatusEvent ) : void 
 		{
 			handleResult( event );
