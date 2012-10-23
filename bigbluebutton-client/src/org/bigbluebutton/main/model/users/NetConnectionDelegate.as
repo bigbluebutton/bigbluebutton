@@ -25,6 +25,8 @@ package org.bigbluebutton.main.model.users
 	import flash.net.Responder;
 	import flash.utils.Timer;
 	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -263,6 +265,7 @@ package org.bigbluebutton.main.model.users
 		
     private function autoReconnectTimerHandler(event:TimerEvent):void {
       LogUtil.debug(NAME + "autoReconnectTimerHandler: " + event);
+      Alert.show("Attempting to reconnect");
       connect(_conferenceParameters, tried_tunneling);
     }
         
