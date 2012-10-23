@@ -18,11 +18,13 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.*;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.utils.Timer;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
@@ -57,7 +59,7 @@ package org.bigbluebutton.main.model.users
 		private var backoff:Number = 2000;
 		
 		private var dispatcher:Dispatcher;
-		
+		    
         private var _messageListeners:Array = new Array();
         
 		public function NetConnectionDelegate():void
@@ -76,10 +78,6 @@ package org.bigbluebutton.main.model.users
             _applicationURI = uri;
         }
        
-    public function get tunneling():Boolean {
-      return tried_tunneling;
-    }
-        
         
 		public function get connection():NetConnection {
 			return _netConnection;
@@ -155,7 +153,7 @@ package org.bigbluebutton.main.model.users
 			_conferenceParameters = params;
 			
 			tried_tunneling = tunnel;	
-			
+            
 			try {	
 				var uri:String = _applicationURI + "/" + _conferenceParameters.room;
 				
@@ -198,6 +196,7 @@ package org.bigbluebutton.main.model.users
 			{
 				case CONNECT_SUCCESS :
 					LogUtil.debug(NAME + ":Connection to viewers application succeeded.");
+
 					_netConnection.call(
 							"getMyUserId",// Remote function name
 							new Responder(

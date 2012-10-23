@@ -9,7 +9,8 @@ package org.bigbluebutton.main.events
 		
 		public var applicationURI:String;
 		public var hostURI:String;
-		
+		public var isTunnelling:Boolean = false;
+    
 		public var user:Object;
 		
 		public function UserServicesEvent(type:String)

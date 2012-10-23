@@ -65,10 +65,11 @@ package org.bigbluebutton.main.model.modules
 			dispatcher.dispatchEvent(loginEvent);	
 		}
 		
-		public function sendStartUserServicesEvent(application:String, host:String):void{
+		public function sendStartUserServicesEvent(application:String, host:String, isTunnelling:Boolean):void{
 			var e:UserServicesEvent = new UserServicesEvent(UserServicesEvent.START_USER_SERVICES);
 			e.applicationURI = application;
 			e.hostURI = host;
+      e.isTunnelling = isTunnelling;
 			dispatcher.dispatchEvent(e);
 		}
 		

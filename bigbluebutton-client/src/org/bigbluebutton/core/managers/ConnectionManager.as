@@ -10,14 +10,15 @@ package org.bigbluebutton.core.managers
 	{
         private var connDelegate:NetConnectionDelegate;
         
+        [Bindable]
+        public var isTunnelling:Boolean = false;
+        
 		public function ConnectionManager()
 		{
             connDelegate = new NetConnectionDelegate();
 		}
    
-    public function get isTunnelling():Boolean {
-      return connDelegate.tunneling;
-    }
+       
         public function setUri(uri:String):void {
             connDelegate.setUri(uri);
         }
