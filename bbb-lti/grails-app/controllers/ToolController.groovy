@@ -1,22 +1,20 @@
 /* 
-    BigBlueButton - http://www.bigbluebutton.org
+    BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
-    Copyright (c) 2008-2012 by respective authors (see below). All rights reserved.
+    Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 
-    BigBlueButton is free software; you can redistribute it and/or modify it under the 
-    terms of the GNU Lesser General Public License as published by the Free Software 
-    Foundation; either version 2 of the License, or (at your option) any later 
-    version.  
+    This program is free software; you can redistribute it and/or modify it under the
+    terms of the GNU Lesser General Public License as published by the Free Software
+    Foundation; either version 3.0 of the License, or (at your option) any later
+    version.
 
-    BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+    BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
     PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public License along 
-    with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jesus Federico <jesus@blindsidenetworks.com>
-*/    
+    You should have received a copy of the GNU Lesser General Public License along
+    with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*/
 
 import java.util.ArrayList
 import java.util.HashMap
@@ -60,38 +58,33 @@ class ToolController {
             if (consumer != null) {
                 log.debug "Found consumer with key " + consumer.get("key") //+ " and sharedSecret " + consumer.get("secret")
                 if (checkValidSignature(request.getMethod().toUpperCase(), retrieveLtiEndpoint(), consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
-                    if (hasValidStudentId(params, consumer)) {
-                        log.debug  "The message has a valid signature."
-                        
-                        String locale = params.get(Parameter.LAUNCH_LOCALE)
-                        log.debug "Locale code =" + locale
-                        String[] localeCodes = locale.split("_")
-                        //Localize the default welcome message
-                        if( localeCodes.length > 1 )
-                            session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0], localeCodes[1])
-                        else
-                            session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
-                        
-                        log.debug "Locale has been set to " + locale
-                        String welcome = message(code: "bigbluebutton.welcome", args: ["\"{0}\"", "\"{1}\""])
-                        log.debug "Localized default welcome message: [" + welcome + "]"
-                
-                        //String destinationURL = "http://www.bigbluebutton.org/"
-                        String destinationURL = bigbluebuttonService.getJoinURL(params, welcome)
-                        
-                        log.debug "redirecting to " + destinationURL
-                        if( destinationURL != null ) {
-                            success = true
-                            redirect(url:destinationURL)
-                        } else {
-                            resultMessageKey = 'BigBlueButtonServerError'
-                            resultMessage = "The join could not be completed"
-                            log.debug resultMessage
-                        }
-                        
+                    log.debug  "The message has a valid signature."
+                    
+                    String locale = params.get(Parameter.LAUNCH_LOCALE)
+                    locale = (locale == null || locale.equals("")?"en":locale)
+                    log.debug "Locale code =" + locale
+                    String[] localeCodes = locale.split("_")
+                    //Localize the default welcome message
+                    if( localeCodes.length > 1 )
+                        session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0], localeCodes[1])
+                    else
+                        session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
+                    
+                    log.debug "Locale has been set to " + locale
+                    String welcome = message(code: "bigbluebutton.welcome", args: ["\"{0}\"", "\"{1}\""])
+                    log.debug "Localized default welcome message: [" + welcome + "]"
+            
+                    //String destinationURL = "http://www.bigbluebutton.org/"
+                    String destinationURL = bigbluebuttonService.getJoinURL(params, welcome)
+                    
+                    log.debug "redirecting to " + destinationURL
+                    if( destinationURL != null ) {
+                        success = true
+                        redirect(url:destinationURL)
                     } else {
-                        resultMessageKey = 'InvalidStudentId'
-                        resultMessage = "Can not determine user because of missing student id or email."
+                        resultMessageKey = 'BigBlueButtonServerError'
+                        resultMessage = "The join could not be completed"
+                        log.debug resultMessage
                     }
 
                 } else {
@@ -136,11 +129,6 @@ class ToolController {
 
     }
     
-    def retrieveLtiEndpoint() {
-        String endPoint = ltiService.endPoint
-        return endPoint
-    }
-
     def test = {
         log.debug CONTROLLER_NAME + "#index"
         
@@ -157,6 +145,11 @@ class ToolController {
             }
         }
 
+    }
+
+    private String retrieveLtiEndpoint() {
+        String endPoint = ltiService.endPoint
+        return endPoint
     }
 
     /**
@@ -195,44 +188,12 @@ class ToolController {
             hasAllParams = false;
         }
 
-        if (! ((Map<String, String>)params).containsKey(Parameter.USER_ID) && ! ((Map<String, String>)params).containsKey(Parameter.CUSTOM_USER_ID)) {
-            if (! ((Map<String, String>)params).containsKey(Parameter.USER_EMAIL)) {
-                ((ArrayList<String>)missingParams).add(Parameter.USER_EMAIL);
-                if (! ((Map<String, String>)params).containsKey(Parameter.USER_ID)) { 
-                    ((ArrayList<String>)missingParams).add(Parameter.USER_ID);
-                } else {  
-                    ((ArrayList<String>)missingParams).add(Parameter.CUSTOM_USER_ID);
-                }
-
-                hasAllParams = false;
-            }
-
-        }
-
-        if (! ((Map<String, String>)params).containsKey(Parameter.COURSE_ID)) {
-            ((ArrayList<String>)missingParams).add(Parameter.COURSE_ID);
-            hasAllParams = false;
-        }
-
         if (! ((Map<String, String>)params).containsKey(Parameter.OAUTH_SIGNATURE)) {
             ((ArrayList<String>)missingParams).add(Parameter.OAUTH_SIGNATURE);
             hasAllParams = false;
         }
 
         return hasAllParams
-    }
-
-    private boolean hasValidStudentId(params, consumer) {
-        if (((Map<String, String>)params).containsKey(Parameter.USER_ID) || ((Map<String, String>)params).containsKey(Parameter.CUSTOM_USER_ID)) {
-            return true;
-        }
-
-        if (((Map<String, String>)params).containsKey(Parameter.USER_EMAIL)) {
-            ((Map<String, String>)params).put(Parameter.USER_ID, ((Map<String, String>)consumer).get(Parameter.USER_EMAIL))
-            return true
-        }
-
-        return false
     }
 
     /**
