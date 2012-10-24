@@ -86,7 +86,7 @@ public class MeetingService {
 		log.debug("Storing Meeting with internal id:" + m.getInternalId());
 		meetings.put(m.getInternalId(), m);
 		if (m.isRecord()) {
-			Map<String,String> metadata=new HashMap<String,String>();
+			Map<String,String> metadata=new LinkedHashMap<String,String>();
 			metadata.putAll(m.getMetadata());
 			//TODO: Need a better way to store these values for recordings
 			metadata.put("meetingId", m.getExternalId());
