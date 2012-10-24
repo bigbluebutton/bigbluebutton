@@ -50,7 +50,7 @@ package org.bigbluebutton.main.api
     *  message    - the message to send
     * 
     */
-    private function handleSendPublicChatRequest(fromUserID:String, fontColor:String, localeLang:String, message:String):void {
+    private function handleSendPublicChatRequest(fontColor:String, localeLang:String, message:String):void {
       LogUtil.debug("handleSendPublicChatRequest");
       var chatEvent:CoreEvent = new CoreEvent(EventConstants.SEND_PUBLIC_CHAT_REQ);      
       var payload:Object = new Object();      
@@ -65,7 +65,7 @@ package org.bigbluebutton.main.api
       
       // Need to convert the internal user id to external user id in case the 3rd-party app passed 
       // an external user id for it's own use.
-      payload.fromUserID = UsersUtil.externalUserIDToInternalUserID(fromUserID);
+      payload.fromUserID = UsersUtil.getMyUserID();
       payload.fromUsername = UsersUtil.getUserName(payload.fromUserID);
       
       chatEvent.message = payload;
@@ -81,7 +81,7 @@ package org.bigbluebutton.main.api
      *  message    - the message to send
      *  toUserID   - the external user id of the receiver
      */
-    private function handleSendPrivateChatRequest(fromUserID:String, fontColor:String, localeLang:String, message:String, toUserID:String):void {
+    private function handleSendPrivateChatRequest(fontColor:String, localeLang:String, message:String, toUserID:String):void {
       var chatEvent:CoreEvent = new CoreEvent(EventConstants.SEND_PRIVATE_CHAT_REQ);      
       var payload:Object = new Object();      
       payload.fromColor = fontColor;
@@ -95,7 +95,7 @@ package org.bigbluebutton.main.api
       
       // Need to convert the internal user id to external user id in case the 3rd-party app passed 
       // an external user id for it's own use.
-      payload.fromUserID = UsersUtil.externalUserIDToInternalUserID(fromUserID);
+      payload.fromUserID = UsersUtil.getMyUserID();
       // Now get the user's name using the internal user id 
       payload.fromUsername = UsersUtil.getUserName(payload.fromUserID);
 

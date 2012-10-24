@@ -94,10 +94,10 @@
     *  localeLang - the 2-char locale code (e.g. en) for the sender
     *  message    - the message to send
     */    
-    BBB.sendPublicChatMessage = function(fromUserID, fontColor, localeLang, message) {
+    BBB.sendPublicChatMessage = function(fontColor, localeLang, message) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.sendPublicChatRequest(fromUserID, fontColor, localeLang, message);
+        swfObj.sendPublicChatRequest(fontColor, localeLang, message);
       }    
     }
     
@@ -109,10 +109,10 @@
     *  message    - the message to send
     *  toUserID   - the external user id of the receiver
     */    
-    BBB.sendPrivateChatMessage = function(fromUserID, fontColor, localeLang, message, toUserID) {
+    BBB.sendPrivateChatMessage = function(fontColor, localeLang, message, toUserID) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.sendPrivateChatRequest(fromUserID, fontColor, localeLang, message, toUserID);
+        swfObj.sendPrivateChatRequest(fontColor, localeLang, message, toUserID);
       }    
     }
         
