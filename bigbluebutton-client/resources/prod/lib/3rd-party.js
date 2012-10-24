@@ -1,3 +1,4 @@
+
 var registerListeners = function() {
   BBB.listen("UserLeftEvent", function(bbbEvent) {
     console.log("User [" + bbbEvent.userID + "] has left.");
@@ -5,7 +6,7 @@ var registerListeners = function() {
   BBB.listen("UserJoinedEvent", function(bbbEvent) {
     console.log("User [" + bbbEvent.userID + ", [" + bbbEvent.userName + "] has joined.");
   });
-  BBB.listen("userHasJoinedVoiceConference", function(bbbEvent) {
+  BBB.listen("UserJoinedVoiceEvent", function(bbbEvent) {
     console.log("Received userHasJoinedVoiceConference event");
   });
   BBB.listen("NewPublicChatEvent", function(bbbEvent) {
