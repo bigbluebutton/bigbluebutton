@@ -1,7 +1,22 @@
-var joinVoiceConference2 = function () {
+var registerListeners = function() {
+  BBB.listen("UserLeftEvent", function(bbbEvent) {
+    console.log("User [" + bbbEvent.userID + "] has left.");
+  });
+  BBB.listen("UserJoinedEvent", function(bbbEvent) {
+    console.log("User [" + bbbEvent.userID + ", [" + bbbEvent.userName + "] has joined.");
+  });
   BBB.listen("userHasJoinedVoiceConference", function(bbbEvent) {
     console.log("Received userHasJoinedVoiceConference event");
   });
+  BBB.listen("NewPublicChatEvent", function(bbbEvent) {
+    console.log("Received NewPublicChatEvent [" + bbbEvent.message + "]");
+  });
+  BBB.listen("NewPrivateChatEvent", function(bbbEvent) {
+    console.log("Received NewPrivateChatEvent event");
+  });
+}
+
+var joinVoiceConference2 = function () {
   BBB.joinVoiceConference();
 }
 
@@ -39,18 +54,12 @@ var switchLayout = function(newLayout) {
   BBB.switchLayout(newLayout);
 }
 
-var echoPublicChat = function () {
-  BBB.listen("NewPublicChatEvent", function(bbbEvent) {
-    console.log("Received NewPublicChatEvent event");
-    var message = "ECHO: " + bbbEvent.message;
-    BBB.sendPublicChatMessage(bbbEvent.fromUserID, bbbEvent.fromColor, bbbEvent.fromLang, message);
-  });
+var sendPublicChat = function () {
+  var message = "Hello from the Javascript API";
+  BBB.sendPublicChatMessage('0x7A7A7A', "en", message);
 }
 
-var echoPrivateChat = function () {
-  BBB.listen("NewPrivateChatEvent", function(bbbEvent) {
-    console.log("Received NewPrivateChatEvent event");
-    var message = "ECHO: " + bbbEvent.message;
-    BBB.sendPrivateChatMessage(bbbEvent.toUserID, bbbEvent.fromColor, bbbEvent.fromLang, message,  bbbEvent.fromUserID);
-  });
+var sendPrivateChat = function () {
+  var message = "ECHO: " + bbbEvent.message;
+  BBB.sendPrivateChatMessage(bbbEvent.fromColor, bbbEvent.fromLang, message,  bbbEvent.fromUserID);
 }
