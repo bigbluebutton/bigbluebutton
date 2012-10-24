@@ -34,14 +34,22 @@ package org.bigbluebutton.modules.chat.model {
 		[Bindable] public var translatedLocaleTooltip:String = "";
 			 
 		[Bindable] public var name:String;
-		[Bindable] public var senderTime:String;
+
 		[Bindable] public var time:String;
 		[Bindable] public var lastTime:String;
 		[Bindable] public var senderText:String;
 		[Bindable] public var translatedText:String;
 		[Bindable] public var translated:Boolean = false;
 		[Bindable] public var translatedColor:uint;
-		
+
+    // Stores the time (millis) when the sender sent the message.
+    public var fromTime:Number;
+    // Stores the timezone offset (minutes) of the sender.
+    public var fromTimezoneOffset:Number;
+    
+    // Stores what we display to the user. The converted fromTime and fromTimezoneOffset to local time.
+    [Bindable] public var senderTime:String;
+    
 		private var g:GoogleTranslation;	 
 			 
 		public function ChatMessage() {

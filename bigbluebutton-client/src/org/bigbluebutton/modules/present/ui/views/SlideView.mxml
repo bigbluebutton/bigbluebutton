@@ -103,7 +103,7 @@
 			private var slideModel:SlideViewModel = new SlideViewModel();
 			
       // Send update of mouse location to other users.
-      private var _sendCurrentMouseLocTimer:Timer = new Timer(1000);
+      private var _sendCurrentMouseLocTimer:Timer = new Timer(100);
       private var _lastMouseXPosition:Number = 0;
       private var _lastMouseYPosition:Number = 0;
       
@@ -486,7 +486,7 @@
 			
 		]]>
 	</mx:Script>
-	<fimage:FocusableImage id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" x="{slideModel.loaderX}" y="{slideModel.loaderY}"
+	<fimage:FocusableImage id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" x="{slideModel.loaderX}" y="{slideModel.loaderY}" useHandCursor="true" buttonMode="true"
 		creationComplete="listenForSlideLoadedCompleteEvent()" scaleContent="false" showBusyCursor="true" completeEffect="Fade" />
 	
    		

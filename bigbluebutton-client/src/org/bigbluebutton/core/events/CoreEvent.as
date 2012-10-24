@@ -6,7 +6,7 @@ package org.bigbluebutton.core.events
   {
     public var message:Object = new Object();
     
-    public function CoreEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
+    public function CoreEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
     {
       super(type, bubbles, cancelable);
     }

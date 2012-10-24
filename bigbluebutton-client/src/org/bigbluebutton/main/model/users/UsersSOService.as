@@ -38,7 +38,6 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
-	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 
@@ -205,23 +204,16 @@ package org.bigbluebutton.main.model.users {
 			}
 		}
 		
-		public function participantLeft(user:String):void { 			
-			var participant:BBBUser = UserManager.getInstance().getConference().getParticipant(user);
+		public function participantLeft(userID:String):void { 			
+			var user:BBBUser = UserManager.getInstance().getConference().getUser(userID);
 			
-			var p:User = new User();
-			p.userid = participant.userID;
-			p.name = participant.name;
-			
-			UserManager.getInstance().participantLeft(p);
-			UserManager.getInstance().getConference().removeParticipant(user);	
+			UserManager.getInstance().getConference().removeUser(userID);	
 			
 			var dispatcher:Dispatcher = new Dispatcher();
 			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
-			joinEvent.participant = p;
+			joinEvent.userID = user.userID;
 			joinEvent.join = false;
 			dispatcher.dispatchEvent(joinEvent);	
-			
-
 		}
 		
 		public function participantJoined(joinedUser:Object):void { 
@@ -238,18 +230,10 @@ package org.bigbluebutton.main.model.users {
 			participantStatusChange(user.userID, "hasStream", joinedUser.status.hasStream);
 			participantStatusChange(user.userID, "presenter", joinedUser.status.presenter);
 			participantStatusChange(user.userID, "raiseHand", joinedUser.status.raiseHand);
-
-			var participant:User = new User();
-			participant.userid = user.userID;
-      participant.externUserID = user.externUserID;
-			participant.name = user.name;
-			participant.isPresenter = joinedUser.status.presenter;
-			participant.role = user.role;
-			UserManager.getInstance().participantJoined(participant);
 			
 			var dispatcher:Dispatcher = new Dispatcher();
 			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
-			joinEvent.participant = participant;
+			joinEvent.userID = user.userID;
 			joinEvent.join = true;
 			dispatcher.dispatchEvent(joinEvent);	
 			

@@ -172,7 +172,7 @@ package org.bigbluebutton.modules.breakout.business
 		private function newRoomHasModerator(list:Array):Boolean{
 			var conference:Conference = UserManager.getInstance().getConference();
 			for (var i:int = 0; i<list.length; i++){
-				var user:BBBUser = conference.getParticipant(String(list[i]));
+				var user:BBBUser = conference.getUser(String(list[i]));
 				if (user.role == BBBUser.MODERATOR) return true;
 			}
 			return false;

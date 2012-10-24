@@ -48,5 +48,13 @@
   <EventHandlers type="{EventConstants.NEW_ROLE}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleSwitchToNewRoleEvent" arguments="{event}"/>
   </EventHandlers>
+
+  <EventHandlers type="{EventConstants.NEW_PRIVATE_CHAT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleNewPrivateChatEvent" arguments="{event}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{EventConstants.NEW_PUBLIC_CHAT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleNewPublicChatEvent" arguments="{event}"/>
+  </EventHandlers>
   
 </EventMap>

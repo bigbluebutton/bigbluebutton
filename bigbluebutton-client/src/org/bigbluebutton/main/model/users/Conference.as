@@ -29,14 +29,13 @@ package org.bigbluebutton.main.model.users {
 		[Bindable] public var users:ArrayCollection = null;			
 				
 		public function Conference():void {
-      LogUtil.debug("******************************************************************************* Initializing Conference");
 			me = new BBBUser();
 			users = new ArrayCollection();
 		}
 
 		public function addUser(newuser:BBBUser):void {
       LogUtil.debug("Adding new user [" + newuser.userID + "]");
-			if (! hasParticipant(newuser.userID)) {
+			if (! hasUser(newuser.userID)) {
         LogUtil.debug("Am I this new user [" + newuser.userID + ", " + me.userID + "]");
 				if (newuser.userID == me.userID) {
 					newuser.me = true;
@@ -47,8 +46,8 @@ package org.bigbluebutton.main.model.users {
 			}					
 		}
 
-		public function hasParticipant(userID:String):Boolean {
-			var p:Object = getParticipantIndex(userID);
+		public function hasUser(userID:String):Boolean {
+			var p:Object = getUserIndex(userID);
 			if (p != null) {
 				return true;
 			}
@@ -95,17 +94,29 @@ package org.bigbluebutton.main.model.users {
 			return null;
 		}
 		
-		public function getParticipant(userID:String):BBBUser {
-			var p:Object = getParticipantIndex(userID);
+		public function getUser(userID:String):BBBUser {
+			var p:Object = getUserIndex(userID);
 			if (p != null) {
 				return p.participant as BBBUser;
 			}
 						
 			return null;				
 		}
+    
+    public function getUserWithExternUserID(userID:String):BBBUser {
+      var p:BBBUser;
+      for (var i:int = 0; i < users.length; i++) {
+        p = users.getItemAt(i) as BBBUser;	
+        if (p.externUserID == userID) {
+          return BBBUser.copy(p);
+        }
+      }	
+      
+      return null;
+    }
 
 		public function isUserPresenter(userID:String):Boolean {
-			var user:Object = getParticipantIndex(userID);
+			var user:Object = getUserIndex(userID);
 			if (user == null) {
 				LogUtil.warn("User not found with id=" + userID);
 				return false;
@@ -114,8 +125,8 @@ package org.bigbluebutton.main.model.users {
 			return a.presenter;
 		}
 			
-		public function removeParticipant(userID:String):void {
-			var p:Object = getParticipantIndex(userID);
+		public function removeUser(userID:String):void {
+			var p:Object = getUserIndex(userID);
 			if (p != null) {
 				LogUtil.debug("removing user[" + p.participant.name + "," + p.participant.userID + "]");				
 				users.removeItemAt(p.index);
@@ -129,8 +140,8 @@ package org.bigbluebutton.main.model.users {
 		 * @return -1 if participant not found
 		 * 
 		 */		
-		private function getParticipantIndex(userID:String):Object {
-			var aUser : BBBUser;
+		private function getUserIndex(userID:String):Object {
+			var aUser:BBBUser;
 			
 			for (var i:int = 0; i < users.length; i++) {
 				aUser = users.getItemAt(i) as BBBUser;
@@ -226,7 +237,6 @@ package org.bigbluebutton.main.model.users {
     
 		public function setMyUserid(userID:String):void {
 			me.userID = userID;
-      LogUtil.debug("Setting my userid to [" + me.userID + "]");
 		}
 		
 		public function setMyName(name:String):void {
@@ -254,7 +264,7 @@ package org.bigbluebutton.main.model.users {
 		}		
 	
 		public function newUserStatus(userID:String, status:String, value:Object):void {
-			var aUser:BBBUser = getParticipant(userID);			
+			var aUser:BBBUser = getUser(userID);			
 			if (aUser != null) {
 				var s:Status = new Status(status, value);
 				aUser.changeStatus(s);

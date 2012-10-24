@@ -239,8 +239,8 @@ function checkUrl(url)
 
 load_video = function(){
    console.log("Loading video")
-   document.getElementById("video").style.visibility = "hidden"  
-   var video = document.getElementById("webcam")   
+   //document.getElementById("video").style.visibility = "hidden"  
+   var video = document.createElement("video")   
    video.setAttribute('src', RECORDINGS + '/video/webcams.webm');
    video.setAttribute('type','video/webm');
    video.setAttribute('class','webcam');  
@@ -251,19 +251,25 @@ load_video = function(){
     pc_webcam.currentTime( this.currentTime() );
    });*/
 
-  video.setAttribute('data-timeline-sources', SLIDES_XML);    
-  video.setAttribute('controls','');
-  video.setAttribute('autoplay','autoplay');   
+   video.setAttribute('data-timeline-sources', SLIDES_XML);    
+   //video.setAttribute('controls','');
+   video.setAttribute('autoplay','autoplay');
+
+   document.getElementById("videoRecordingWrapper").appendChild(video);
 }  
 
 load_audio = function() { 
    console.log("Loading audio")        
-   var audio = document.getElementById("video") ;    
+   var audio = document.createElement("audio") ;    
    audio.setAttribute('src', RECORDINGS + '/audio/audio.ogg');
    audio.setAttribute('type','audio/ogg');
+   audio.setAttribute('id', 'video');
+
    audio.setAttribute('data-timeline-sources', SLIDES_XML);    
-   audio.setAttribute('controls','');
-   audio.setAttribute('autoplay','autoplay');   
+   //audio.setAttribute('controls','');
+   audio.setAttribute('autoplay','autoplay');
+
+   document.getElementById("audioRecordingWrapper").appendChild(audio);
 }
 
 load_script = function(file){
@@ -277,18 +283,19 @@ load_script = function(file){
 document.addEventListener( "DOMContentLoaded", function() {
   var appName = navigator.appName;
   var appVersion = navigator.appVersion;
-  var video = document.getElementById("webcam");
+  //var video = document.getElementById("webcam");
 
   if (appName == "Microsoft Internet Explorer" && navigator.userAgent.match("chromeframe") == false ) {
     google_frame_warning
   }
 
   if (checkUrl(RECORDINGS + '/video/webcams.webm') == true){
-    load_video();
+      videoContainer = document.getElementById("audioRecordingWrapper").style.display = "none";
+      load_video();
   }else{
-      videoContainer = document.getElementById("videoRecordingWrapper").style.display = "none"        
-      chat = document.getElementById("chat")
-      chat.style.height = "560px";
+      videoContainer = document.getElementById("videoRecordingWrapper").style.display = "none";       
+      chat = document.getElementById("chat");
+      chat.style.height = "600px";
       chat.style.backgroundColor = "white";      
       load_audio();
   }
@@ -297,6 +304,17 @@ document.addEventListener( "DOMContentLoaded", function() {
   load_script("lib/writing.js")
   generateThumbnails();
 
+  //load up the acorn controls
+  jQuery('#video').acornMediaPlayer({
+    theme: 'darkglass',
+    volumeSlider: 'vertical'
+  });
+  $('.acorn-controls').width('500');
+  $('.acorn-controls').position({
+    "my": "center top",
+    "at": "center bottom",
+    "of": '#playbackArea'
+  });
 }, false);
 
 

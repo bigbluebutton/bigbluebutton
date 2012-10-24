@@ -21,14 +21,14 @@
 -->
 
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" height="{txtMessage.height + 3}" 
-		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()" 
+		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()"
 		 creationComplete="onCreationComplete()">
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.binding.utils.ChangeWatcher;			
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.chat.model.ChatMessage;
-			import org.bigbluebutton.common.LogUtil;		
-			import mx.binding.utils.ChangeWatcher;
 
 			[Bindable] private var rolledOver:Boolean = false;					
 			[Bindable] private var chatMsg:ChatMessage;

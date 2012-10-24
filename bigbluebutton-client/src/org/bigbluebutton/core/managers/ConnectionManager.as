@@ -10,11 +10,15 @@ package org.bigbluebutton.core.managers
 	{
         private var connDelegate:NetConnectionDelegate;
         
+        [Bindable]
+        public var isTunnelling:Boolean = false;
+        
 		public function ConnectionManager()
 		{
             connDelegate = new NetConnectionDelegate();
 		}
-        
+   
+       
         public function setUri(uri:String):void {
             connDelegate.setUri(uri);
         }
@@ -42,6 +46,10 @@ package org.bigbluebutton.core.managers
 		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object=null):void {
 			connDelegate.sendMessage(service, onSuccess, onFailure, message);
 		}
+    
+    public function forceClose():void {
+      connDelegate.forceClose(); 
+    }
             
 	}
 }
