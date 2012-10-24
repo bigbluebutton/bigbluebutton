@@ -194,7 +194,8 @@ function addImageToPaper(url, w, h) {
     //fit it all in appropriately
     //temporary solution
     url = PRESENTATION_SERVER + url;
-    img = paper.image(url, cx = 0, cy = 0, gw = w/max, gh = h/max);
+    //img = paper.image(url, cx = 0, cy = 0, gw = w/max, gh = h/max);
+    img = paper.image(url, cx = 0, cy = 0, gw = w, gh = h);
     console.log(img);
     //update the global variables we will need to use
     sw = w/max;
