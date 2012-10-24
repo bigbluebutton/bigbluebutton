@@ -24,6 +24,9 @@
         var bbbc = document.getElementById("content");
         bbbc.style.display = "block";
       }
+      window.onload = function() {
+         registerListeners();
+      }
     </script>
   </head>
   <body>
@@ -39,11 +42,11 @@
       <button type="button" onclick="unmuteAll()">Unmute All</button>
       <button type="button" onclick="switchLayout('Video Chat')">Switch Video Layout</button>
       <button type="button" onclick="switchLayout('Default')">Switch Default Layout</button>
-      <button type="button" onclick="echoPublicChat()">Echo Public Chat</button>
-      <button type="button" onclick="echoPrivateChat()">Echo Private Chat</button>
+      <button type="button" onclick="sendPublicChat()">Send Public Chat</button>
+      <button type="button" onclick="sendPrivateChat()">Send Private Chat</button>
     </div>
     <div id="content" style="display: none">
-      <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="80%" height="80%" id="BigBlueButton" name="BigBlueButton" align="middle">
+      <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="100%" height="90%" id="BigBlueButton" name="BigBlueButton" align="middle">
         <param name="movie" value="http://192.168.0.249/client/BigBlueButton.swf?v=VERSION" />
         <param name="quality" value="high" />
         <param name="allowfullscreen" value="true" />
@@ -51,7 +54,7 @@
         <param name="wmode" value="window" />
         <param name="allowScriptAccess" value="always" />
         <!--[if !IE]>-->
-          <object type="application/x-shockwave-flash" data="http://192.168.0.249/client/BigBlueButton.swf?v=VERSION" width="80%" height="80%" align="middle">
+          <object type="application/x-shockwave-flash" data="http://192.168.0.249/client/BigBlueButton.swf?v=VERSION" width="100%" height="90%" align="middle">
             <param name="quality" value="high" />
             <param name="bgcolor" value="#869ca7" />
                 <param name="allowScriptAccess" value="always" />
