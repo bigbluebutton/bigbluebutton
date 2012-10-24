@@ -16,7 +16,6 @@ package org.bigbluebutton.main.api
       var payload:Object = new Object();
       payload.eventName = EventConstants.NEW_ROLE;
       payload.role = event.message.role;
-      LogUtil.debug("Switch to new role [" + payload.role + "]");
       broadcastEvent(payload);        
     }
         
@@ -28,21 +27,19 @@ package org.bigbluebutton.main.api
     }
     
     public function handleUserJoinedVoiceEvent():void {
-      LogUtil.debug("User has joined voice conference.");
       var payload:Object = new Object();
-      payload.eventName = "userHasJoinedVoiceConference";
+      payload.eventName = EventConstants.USER_JOINED_VOICE;
       broadcastEvent(payload);
     }
     
     public function handleSwitchedLayoutEvent(layoutID:String):void {
       var payload:Object = new Object();
-      payload.eventName = "switchedLayoutEvent";
+      payload.eventName = EventConstants.SWITCHED_LAYOUT;
       payload.layoutID = layoutID;
       broadcastEvent(payload);
     }
         
     public function handleNewPublicChatEvent(event:CoreEvent):void {
-      LogUtil.debug("handleNewPublicChatEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.NEW_PUBLIC_CHAT;
       payload.chatType = event.message.chatType;      
@@ -55,14 +52,12 @@ package org.bigbluebutton.main.api
       
       // Need to convert the internal user id to external user id in case the 3rd-party app passed 
       // an external user id for it's own use.
-      LogUtil.debug("Looking externUserID for userID [" + event.message.fromUserID + "]");
       payload.fromUserID = UsersUtil.internalUserIDToExternalUserID(event.message.fromUserID);
       
       broadcastEvent(payload);
     }
     
     public function handleNewPrivateChatEvent(event:CoreEvent):void {
-      LogUtil.debug("handleNewPrivateChatEvent");
       var payload:Object = new Object();
       payload.eventName = EventConstants.NEW_PRIVATE_CHAT;
       payload.chatType = event.message.chatType;      
