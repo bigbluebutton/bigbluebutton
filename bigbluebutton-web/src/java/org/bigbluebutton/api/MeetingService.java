@@ -266,10 +266,10 @@ public class MeetingService {
 		}
 
 		@Override
-		public void userJoined(String meetingId, String internalUserId, String externalUserId, String name, String role, String isGuest) {
+		public void userJoined(String meetingId, String internalUserId, String externalUserId, String name, String role, String guest) {
 			Meeting m = getMeeting(meetingId);
 			if (m != null) {
-				User user = new User(internalUserId, externalUserId, name, role, isGuest);
+				User user = new User(internalUserId, externalUserId, name, role, Boolean.valueOf(guest));
 				m.userJoined(user);
 				log.debug("New user in meeting " + meetingId + ":" + user.getFullname());
 				return;

@@ -20,13 +20,9 @@ package org.bigbluebutton.conference.service.participants;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Map;
-import org.bigbluebutton.conference.RoomsManager;
-import org.bigbluebutton.conference.Room;
-import org.bigbluebutton.conference.Participant;
-import org.bigbluebutton.conference.IRoomListener;
+import java.util.ArrayList;
+import java.util.Map;import org.bigbluebutton.conference.RoomsManager;
+import org.bigbluebutton.conference.Room;import org.bigbluebutton.conference.Participant;import org.bigbluebutton.conference.IRoomListener;
 
 public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
@@ -111,10 +107,10 @@ public class ParticipantsApplication {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public boolean participantJoin(String roomName, Long userid, String username, String role, String externUserID, Map status, String isguest) {
+	public boolean participantJoin(String roomName, Long userid, String username, String role, String externUserID, Map status, Boolean guest) {
 		log.debug("participant joining room " + roomName);
 		if (roomsManager.hasRoom(roomName)) {
-			Participant p = new Participant(userid, username, role, externUserID, status, isguest);			
+			Participant p = new Participant(userid, username, role, externUserID, status, guest);			
 			Room room = roomsManager.getRoom(roomName);
 			room.addParticipant(p);
 			log.debug("participant joined room " + roomName);

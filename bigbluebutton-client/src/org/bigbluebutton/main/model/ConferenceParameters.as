@@ -57,8 +57,7 @@ package org.bigbluebutton.main.model
 		 */		
 		public var voicebridge:String;
 
-
-		public var isguest:String;
+		public var guest:Boolean;
 		
 		/**
 		 *  The welcome string, as passed in through the API /create call.

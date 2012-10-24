@@ -66,7 +66,6 @@ public class Meeting {
     	dialNumber = builder.dialNumber;
     	metadata = builder.metadata;
     	createdTime = builder.createdTime;
-	
 		users = new ConcurrentHashMap<String, User>();
 	}
 
@@ -148,8 +147,6 @@ public class Meeting {
 	public String getViewerPassword() {
 		return viewerPass;
 	}
-
-	
 
 	public String getWelcomeMessage() {
 		return welcomeMsg;
@@ -274,7 +271,6 @@ public class Meeting {
     		maxUsers = n;
     		return this;
     	}
-	
     	
     	public Builder withRecording(boolean record) {
     		this.record = record;

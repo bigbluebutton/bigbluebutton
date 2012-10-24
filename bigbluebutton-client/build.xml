@@ -173,8 +173,6 @@
 	<target name="build-viewers" description="Compile Viewers Module">
 		<build-module src="${SRC_DIR}" target="${VIEWERS}" />
 	</target>
-
-
 	
 	<target name="build-listeners" description="Compile Listeners Module">
 		<build-module src="${SRC_DIR}" target="${LISTENERS}" />

@@ -100,8 +100,6 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
          */
         long clientID = Long.parseLong(Red5.getConnectionLocal().getClient().getId());
         String sessionName = connection.getScope().getName();
-
-
         log.info("[clientid=" + clientID + "] connected from " + remoteHost + ":" + remotePort + ".");
         
         String voiceBridge = ((String) params[4]).toString();
@@ -112,17 +110,15 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
     	String externalUserID = ((String) params[6]).toString();
     	String internalUserID = ((String) params[6]).toString();
-    	String isGuest = ((String) params[8]).toString();
+    	boolean guest = (Boolean)params[8];
+    	log.debug("guest value - [" + guest + "]"); 
+    	
 		if (record == true) {
 			recorderApplication.createRecordSession(sessionName);
 		}
-
-	
-
-	
 			
     	BigBlueButtonSession bbbSession = new BigBlueButtonSession(sessionName, clientID, internalUserID,  username, role, 
-    			conference, room, voiceBridge, record, externalUserID, isGuest);
+    			conference, room, voiceBridge, record, externalUserID, guest);
         connection.setAttribute(Constants.SESSION, bbbSession);        
         
         String debugInfo = "internalUserID=" + internalUserID + ",username=" + username + ",role=" +  role + ",conference=" + conference + "," + 

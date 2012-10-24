@@ -145,14 +145,14 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 			String username = bbbSession.getUsername();
 			String role = bbbSession.getRole();
 			String room = bbbSession.getRoom();
-			String isguest = bbbSession.getGuest();
+			Boolean guest = bbbSession.isGuest();
 			log.debug(APP + ":participantJoin - [" + room + "] [" + userid + ", " + username + ", " + role + "]");
 			
 			Map<String, Boolean> status = new HashMap<String, Boolean>();
 			status.put("raiseHand", false);
 			status.put("presenter", false);
 			status.put("hasStream", false);	
-			return participantsApplication.participantJoin(room, userid, username, role, bbbSession.getExternUserID(), status, isguest);
+			return participantsApplication.participantJoin(room, userid, username, role, bbbSession.getExternUserID(), status, guest);
 		}
 		log.warn("Can't send user join as session is null.");
 		return false;

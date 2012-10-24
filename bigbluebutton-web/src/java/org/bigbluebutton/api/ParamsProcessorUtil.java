@@ -171,8 +171,6 @@ public class ParamsProcessorUtil {
 	    if (! StringUtils.isEmpty(modPass) ) {
 	    	newParams.put("moderatorPW", modPass);
 	    }
-
-	    
 	    
 	    String telVoice = params.get("voiceBridge");
 	    if (! StringUtils.isEmpty(telVoice) ) {
@@ -237,6 +235,7 @@ public class ParamsProcessorUtil {
 	    String externalMeetingId = params.get("meetingID");
 	    String viewerPass = processPassword(params.get("attendeePW"));
 	    String modPass = processPassword(params.get("moderatorPW")); 
+	    
 	    // Get the digits for voice conference for users joining through the phone.
 	    // If none is provided, generate one.
 	    String telVoice = processTelVoice(params.get("voiceBridge"));

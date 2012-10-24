@@ -143,9 +143,9 @@ public class RedisMessagingService implements MessagingService {
 					String externalUserId = map.get("externalUserId");
 					String fullname = map.get("fullname");
 					String role = map.get("role");
-					String isguest = map.get("isguest");
+					String guest = map.get("guest");
 					for (MessageListener listener : listeners) {
-						listener.userJoined(meetingId, internalUserId, externalUserId, fullname, role, isguest);
+						listener.userJoined(meetingId, internalUserId, externalUserId, fullname, role, guest);
 					}
 				} else if(MessagingConstants.USER_STATUS_CHANGE_EVENT.equalsIgnoreCase(messageId)){
 					String internalUserId = map.get("internalUserId");

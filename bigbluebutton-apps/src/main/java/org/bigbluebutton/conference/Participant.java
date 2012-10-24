@@ -35,19 +35,19 @@ public class Participant implements Serializable {
 	private String name;
 	private String role = "VIEWER";
 	private String externalUserID;
-	private String isguest;
+	private Boolean guest;
 	
 	private final Map status;
 	private Map<String, Object> unmodifiableStatus;
 	
-	public Participant(Long internalUserID, String name, String role, String externalUserID, Map<String, Object> status, String isguest) {
-		this.isguest = isguest;
+	public Participant(Long internalUserID, String name, String role, String externalUserID, Map<String, Object> status, Boolean guest) {
 		this.internalUserID = internalUserID;
 		this.name = name;
 		this.role = role;
 		this.externalUserID = externalUserID;
 		this.status = new ConcurrentHashMap<String, Object>(status);
 		unmodifiableStatus = Collections.unmodifiableMap(status);
+		this.guest = guest;
 	}
 	
 	public boolean isModerator() {
@@ -70,8 +70,8 @@ public class Participant implements Serializable {
 	   return externalUserID;
 	}
 	
-	public String isGuest() {
-	   return isguest;
+	public Boolean isGuest() {
+	   return guest;
 	}
 
 	/**
@@ -113,7 +113,7 @@ public class Participant implements Serializable {
 		m.put("userid", internalUserID);
 		m.put("name", name);
 		m.put("role", role);
-		m.put("isguest", isguest);
+		m.put("guest", guest);
 		/**
 		 * Create a copy of the status instead of returning the
 		 * unmodifiableMap. This way callers can still manipulate it

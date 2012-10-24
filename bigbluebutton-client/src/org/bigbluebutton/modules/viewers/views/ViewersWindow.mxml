@@ -104,15 +104,10 @@
 				if (isModerator) {
 					presentBtn.enabled = true;
 					presentBtn.toolTip = "Make selected web participant the presenter.";
-					
-					
 				}
 				
 				if (viewersGrid.selectedItem.presenter) presentBtn.enabled = false;
 				else presentBtn.enabled = true; 
-
-				
-
         	}           
         	
         	private function assignPresenterClicked():void {
@@ -181,7 +176,6 @@
     			itemRenderer="org.bigbluebutton.modules.viewers.views.NameItemRenderer"/>
     		<mx:DataGridColumn dataField="status" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer')}" sortable="false"
     			itemRenderer="org.bigbluebutton.modules.viewers.views.StatusItemRenderer"/>
-
     	</mx:columns>
     </mx:DataGrid>
     
@@ -194,10 +188,7 @@
     	 <mx:Button id="raiseHandImage" icon="{handIcon}" toggle="true" 
     	   			width="20" height="20"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.raiseHandBtn.toolTip')}" 
-    	   			click="raiseHand()"/>  	
-
-   		
-		
+    	   			click="raiseHand()"/>  			
     </mx:ControlBar>  
     
 </viewer:MDIWindow>

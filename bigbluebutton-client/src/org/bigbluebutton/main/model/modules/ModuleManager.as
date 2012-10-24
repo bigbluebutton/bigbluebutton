@@ -181,8 +181,6 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		public function startAllModules():void{
-
-			
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
 				startModule(m.getName());

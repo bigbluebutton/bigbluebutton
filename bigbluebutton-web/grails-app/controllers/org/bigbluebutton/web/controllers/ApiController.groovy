@@ -127,7 +127,7 @@ class ApiController {
     if (existing != null) {
       log.debug "Existing conference found"
       Map<String, Object> updateParams = paramsProcessorUtil.processUpdateCreateParams(params);
-      if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW")) ) {
+      if (existing.getViewerPassword().equals(params.get("attendeePW")) && existing.getModeratorPassword().equals(params.get("moderatorPW"))) {
         paramsProcessorUtil.updateMeeting(updateParams, existing);
         // trying to create a conference a second time, return success, but give extra info
         // Ignore pre-uploaded presentations. We only allow uploading of presentation once.
@@ -195,17 +195,11 @@ class ApiController {
       errors.missingParamError("checksum");
     }
 
-    String isGuest = "false";
-
-    if(StringUtils.isEmpty(params.isGuest) == false) {
-	if(params.isGuest.equalsIgnoreCase("true"))
-    		isGuest = "true";
-	else if(params.isGuest.equalsIgnoreCase("false"))
-		isGuest = "false";
-	     else
-		errors.invalidParamError("isGuest");	
-    }
-    
+    String guest;
+    if (!StringUtils.isEmpty(params.guest) && params.guest.equalsIgnoreCase("true"))
+      guest = "true";
+    else
+      guest = "false";
 
     // Do we have a name for the user joining? If none, complain.
     String fullName = params.fullName
@@ -225,10 +219,6 @@ class ApiController {
       errors.missingParamError("password");
     }
     
-
-
-    
-
     if (errors.hasErrors()) {
     	respondWithErrors(errors)
     	return
@@ -256,8 +246,6 @@ class ApiController {
 	   respondWithErrors(errors)
 	   return;
     }
-
-    
 
 	// the createTime mismatch with meeting's createTime, complain
 	// In the future, the createTime param will be required
@@ -294,7 +282,7 @@ class ApiController {
       role = ROLE_MODERATOR;
     } else if (meeting.getViewerPassword().equals(attPW)) {
       role = ROLE_ATTENDEE;
-    } 
+    }
     
     if (role == null) {
 		// BEGIN - backward compatibility
@@ -318,19 +306,19 @@ class ApiController {
     
 	UserSession us = new UserSession();
 	us.internalUserId = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
-	us.conferencename = meeting.getName()
-	us.meetingID = meeting.getInternalId()
-	us.externUserID = externUserID
-	us.fullname = fullName
-	us.role = role
-	us.conference = meeting.getInternalId()
-	us.room = meeting.getInternalId()
-	us.voicebridge = meeting.getTelVoice()
-	us.webvoiceconf = meeting.getWebVoice()
-	us.mode = "LIVE"
-	us.isGuest = isGuest
-	us.record = meeting.isRecord()
-	us.welcome = meeting.getWelcomeMessage()
+    us.conferencename = meeting.getName()
+    us.meetingID = meeting.getInternalId()
+    us.externUserID = externUserID
+    us.fullname = fullName 
+    us.role = role
+    us.conference = meeting.getInternalId()
+    us.room = meeting.getInternalId()
+    us.voicebridge = meeting.getTelVoice()
+    us.webvoiceconf = meeting.getWebVoice()
+    us.mode = "LIVE"
+    us.record = meeting.isRecord()
+    us.welcome = meeting.getWelcomeMessage()
+    us.guest = guest
 	us.logoutUrl = meeting.getLogoutUrl();
     
 	// Store the following into a session so we can handle
@@ -358,8 +346,6 @@ class ApiController {
     log.debug CONTROLLER_NAME + "#${API_CALL}"
 
 	// BEGIN - backward compatibility
-	
-
 	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
@@ -752,7 +738,7 @@ class ApiController {
               externUserID(us.externUserID)
 			  internalUserID(us.internalUserId)
               role(us.role)
-	      isguest(us.isGuest)
+              guest(us.guest)
               conference(us.conference)
               room(us.room)
               voicebridge(us.voicebridge)

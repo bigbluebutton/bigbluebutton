@@ -231,8 +231,8 @@ package org.bigbluebutton.main.model.users {
 		public function setMyUserid(userid:int):void {
 			me.userid = userid;
 		}
-		public function setIsGuest(isguest:Boolean):void {
-			me.isGuest = isguest;
+		public function setGuest(guest:Boolean):void {
+			me.guest = guest;
 		}
 		
 		public function setMyName(name:String):void {
@@ -252,9 +252,8 @@ package org.bigbluebutton.main.model.users {
 		}
 
 		public function isGuest():Boolean {
-			return me.isGuest;		
+			return me.guest;		
 		}
-		
 		
 		public function setMyRoom(room:String):void {
 			me.room = room;

@@ -49,13 +49,13 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var voiceLocked:Boolean = false;
 		[Bindable] public var acceptedJoin:Boolean = false;
 		[Bindable] public var waitingForMod:Boolean = false;
-		[Bindable] public var isGuest:Boolean;
+		[Bindable] public var guest:Boolean;
 		private var _status:StatusCollection = new StatusCollection();
 		
 			
 
 		public function amIGuest():Boolean {
-			return isGuest;
+			return guest;
 		}
 	
 		public function get status():ArrayCollection {
@@ -126,7 +126,7 @@ package org.bigbluebutton.main.model.users
 			n.raiseHand = user.raiseHand;
 			n.role = user.role;	
 			n.room = user.room;
-			n.isGuest = user.isGuest;
+			n.guest = user.guest;
 			return n;		
 		}
 		

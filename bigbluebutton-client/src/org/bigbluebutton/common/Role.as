@@ -23,7 +23,6 @@ package org.bigbluebutton.common
 		public static const VIEWER:String = "VIEWER";
 		public static const PRESENTER:String = "PRESENTER";
 		public static const MODERATOR:String = "MODERATOR";	
-
 		
 		private static var userrole:String;
 		
@@ -43,7 +42,7 @@ package org.bigbluebutton.common
 			} else if (role == PRESENTER){
 				Role.userrole = PRESENTER;
 				Role.isPresenter = true;
-			} 
+			}
 			else LogUtil.error("TRYING TO SET INVALID USER ROLE:" + role);
 		}
 		

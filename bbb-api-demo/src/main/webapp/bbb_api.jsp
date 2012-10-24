@@ -73,7 +73,6 @@ public String createMeeting(String meetingID, String welcome, String moderatorPa
 		attendee_password_param = "&attendeePW=" + urlEncode(viewerPassword);
 	}
 
-	
 	if ((voiceBridge != null) && voiceBridge > 0) {
 		voice_bridge_param = "&voiceBridge=" + urlEncode(voiceBridge.toString());
 	} else {
@@ -120,13 +119,13 @@ public String createMeeting(String meetingID, String welcome, String moderatorPa
 }
 
 //
-// getJoinMeetingURL() -- get join meeting URL for both viewer and moderator
+// getJoinMeetingURL() -- get join meeting URL for both viewer and moderator as guest
 //
-public String getJoinMeetingURL(String username, String meetingID, String password, Boolean isGuest) {
+public String getJoinMeetingURL(String username, String meetingID, String password, Boolean guest) {
 	String base_url_join = BigBlueButtonURL + "api/join?";
 	String join_parameters = "meetingID=" + urlEncode(meetingID)
 		+ "&fullName=" + urlEncode(username) + "&password="
-		+ urlEncode(password) + "&isGuest=" + urlEncode(isGuest.toString());
+		+ urlEncode(password) + "&guest=" + urlEncode(guest.toString());
 
 	return base_url_join + join_parameters + "&checksum="
 		+ checksum("join" + join_parameters + salt);
@@ -144,6 +143,8 @@ public String getJoinMeetingURL(String username, String meetingID, String passwo
 	return base_url_join + join_parameters + "&checksum="
 		+ checksum("join" + join_parameters + salt);
 } 
+
+
 
 	
 // 
@@ -296,20 +297,6 @@ public String getJoinURLViewer(String username, String meetingID) {
 	return base_url_join + join_parameters + "&checksum="
 		+ checksum("join" + join_parameters + salt);
 }
-
-
-//
-// getJoinURLGuest() -- Get the URL to join a meeting as guest
-//
-public String getJoinURLGuest(String username, String meetingID) {
-	String base_url_join = BigBlueButtonURL + "api/join?";
-	String join_parameters = "meetingID=" + urlEncode(meetingID)
-		+ "&fullName=" + urlEncode(username) + "&password=gp";
-
-	return base_url_join + join_parameters + "&checksum="
-		+ checksum("join" + join_parameters + salt);
-}
-
 
 
 //
@@ -746,6 +733,7 @@ public String getMeetingsWithoutPasswords() {
 			if (data.indexOf("<response>") != -1) {
 				data = removeTag(data, "<attendeePW>", "</attendeePW>");
 				data = removeTag(data, "<moderatorPW>", "</moderatorPW>"); 
+				
 				int startIndex = data.indexOf(startResponse) + startResponse.length();
 				int endIndex = data.indexOf(endResponse);
 				newXMldocument +=  "<meeting>" + data.substring(startIndex, endIndex) + "</meeting>";

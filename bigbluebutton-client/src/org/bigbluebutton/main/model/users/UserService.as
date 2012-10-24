@@ -73,16 +73,12 @@ package org.bigbluebutton.main.model.users
 				UserManager.getInstance().getConference().setMyRole(result.role);
 				UserManager.getInstance().getConference().setMyRoom(result.room);
 				UserManager.getInstance().getConference().setMyAuthToken(result.authToken);
-				if(result.isguest == "true")
-					UserManager.getInstance().getConference().setIsGuest(true);
-				else
-					UserManager.getInstance().getConference().setIsGuest(false);
-
+				UserManager.getInstance().getConference().setGuest(result.guest == "true");
 				
 				_conferenceParameters = new ConferenceParameters();
 				_conferenceParameters.conference = result.conference;
 				_conferenceParameters.username = result.username;
-				_conferenceParameters.isguest = result.isguest;
+				_conferenceParameters.guest = result.guest;
 				_conferenceParameters.role = result.role;
 				_conferenceParameters.room = result.room;
 				_conferenceParameters.webvoiceconf = result.webvoiceconf;
@@ -115,7 +111,6 @@ package org.bigbluebutton.main.model.users
 			_userSOService = new UsersSOService(applicationURI);
 			_userSOService.connect(_conferenceParameters);	
 		}
-
 
 		public function userLoggedIn(e:UsersConnectionEvent):void{
 			UserManager.getInstance().getConference().setMyUserid(e.userid);

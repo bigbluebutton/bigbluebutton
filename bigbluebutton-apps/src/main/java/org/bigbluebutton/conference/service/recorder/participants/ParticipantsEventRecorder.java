@@ -56,8 +56,6 @@ public class ParticipantsEventRecorder implements IRoomListener {
 		ev.setUserId(p.getInternalUserID().toString());
 		ev.setName(p.getName());
 		recorder.record(session, ev);
-	
-
 	}
 
 	@Override

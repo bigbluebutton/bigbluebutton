@@ -87,7 +87,7 @@ public class Room implements Serializable {
 		Participant p = null;
 		synchronized (this) {
 			p = participants.get(userid);
-			if(p.getRole().equals("GUEST")) {
+			if(p.isGuest()) {
 				if(guestsWaiting.containsKey(p.getInternalUserID())) {
 					guestsWaiting.remove(p.getInternalUserID());
 				}
@@ -112,65 +112,58 @@ public class Room implements Serializable {
 		boolean present = false;
 		Participant p = null;
 		present = participants.containsKey(userid);
-			if (present) {
+		if (present) {
 			log.debug("asking moderators");
 			p = participants.get(userid);
 			synchronized (this) {
 				guestsWaiting.put(userid, p.getName());
 			}
 				
-				for (Iterator it = listeners.values().iterator(); it.hasNext();) {
-					IRoomListener listener = (IRoomListener) it.next();
-					log.debug("calling guestEntrance on listener " + listener.getName());
-					listener.guestEntrance(p);
-				}
+			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+				IRoomListener listener = (IRoomListener) it.next();
+				log.debug("calling guestEntrance on listener " + listener.getName());
+				listener.guestEntrance(p);
 			}
+		}
 	}
 
-	public void GuestWaiting(Long userid) {
-			
-			synchronized (this) {
-				Iterator entries = guestsWaiting.entrySet().iterator();
-				String userId_userName = "";
-				while (entries.hasNext()) {
-					 
-					Map.Entry pairs = (Map.Entry) entries.next();
-					userId_userName = userId_userName + "!1" + pairs.getKey().toString() + "!2" + pairs.getValue();
-					
-				}
-				for (Iterator it = listeners.values().iterator(); it.hasNext();) {
-					IRoomListener listener = (IRoomListener) it.next();
-					log.debug("calling guestEntrance on listener " + listener.getName());
-					listener.guestWaitingForModerator(userid, userId_userName);
-				}
-
+	public void guestWaiting(Long userid) {
+		synchronized (this) {
+			Iterator entries = guestsWaiting.entrySet().iterator();
+			String userId_userName = "";
+			while (entries.hasNext()) {
+				Map.Entry pairs = (Map.Entry) entries.next();
+				userId_userName = userId_userName + "!1" + pairs.getKey().toString() + "!2" + pairs.getValue();
 			}
-				
-				
-			
+			for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+				IRoomListener listener = (IRoomListener) it.next();
+				log.debug("calling guestEntrance on listener " + listener.getName());
+				listener.guestWaitingForModerator(userid, userId_userName);
+			}
+		}
 	}
 	
 	public void responseToGuest(Long userid, Boolean resp) {
 		boolean present = false;
 		Participant p = null;
 		present = participants.containsKey(userid);
-			if (present) {
-				Boolean send = false;
-				synchronized (this) {
-					if(guestsWaiting.containsKey(userid)) {
-						guestsWaiting.remove(userid);
-						send = true;
-					}
-				}
-				if(send) {
-					p = participants.get(userid);
-					for (Iterator it = listeners.values().iterator(); it.hasNext();) {
-						IRoomListener listener = (IRoomListener) it.next();
-						log.debug("calling guestEntrance on listener " + listener.getName());
-						listener.guestResponse(p, resp);
-					}
+		if (present) {
+			Boolean send = false;
+			synchronized (this) {
+				if(guestsWaiting.containsKey(userid)) {
+					guestsWaiting.remove(userid);
+					send = true;
 				}
 			}
+			if(send) {
+				p = participants.get(userid);
+				for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+					IRoomListener listener = (IRoomListener) it.next();
+					log.debug("calling guestEntrance on listener " + listener.getName());
+					listener.guestResponse(p, resp);
+				}
+			}
+		}
 	}
 
 	public void responseToAllGuests(Boolean resp) {
@@ -178,12 +171,12 @@ public class Room implements Serializable {
 			Participant p = null;
 			for (Long userid : guestsWaiting.keySet()) {
 				if(participants.containsKey(userid)) {
-				    p = participants.get(userid);
-				    for (Iterator it = listeners.values().iterator(); it.hasNext();) {
-					IRoomListener listener = (IRoomListener) it.next();
-					log.debug("calling guestEntrance on listener " + listener.getName());
-					listener.guestResponse(p, resp);
-				    }
+			    p = participants.get(userid);
+			    for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+						IRoomListener listener = (IRoomListener) it.next();
+						log.debug("calling guestEntrance on listener " + listener.getName());
+						listener.guestResponse(p, resp);
+			    }
 				}
 			}
 			guestsWaiting.clear();
@@ -260,3 +253,4 @@ public class Room implements Serializable {
 		}	
 	}
 }
+

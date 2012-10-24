@@ -21,7 +21,7 @@
 -->
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-    title="Guests" showCloseButton="false" creationComplete="init()"
+    title="{ResourceUtil.getInstance().getString('bbb.guests.title')}" showCloseButton="false" creationComplete="init()"
     x="0" y="0" layout="vertical" width="300" height="180" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
@@ -37,24 +37,14 @@
 			import mx.containers.HBox;
 			import mx.controls.Button;
 			
-
-			
-
-			
-			
-			
-			[Bindable] private var message:String = "Users want to enter in this meeting";
-			private var baseString:String = " User(s) want to enter in this meeting";
 			private var urlLoader:URLLoader;
 			private var guestWindowMap:Object = new Object();
 			private var guestButtons:Object = new Object();
 			private var images:Images = new Images();
-			private var numberOfGuests:Number = 0;
+			[Bindable] private var numberOfGuests:Number = 0;
 			private var dispatcher:Dispatcher = new Dispatcher();
 			[Bindable] public var acceptUserIcon:Class = images.accept_user;
 			[Bindable] public var rejectUserIcon:Class = images.cancel_user;
-
-			
 
 			public function init():void {
 				//Uncomment this line to make titlewindow undraggable			
@@ -65,6 +55,7 @@
 				var acceptBtn:Button = new Button();
 				acceptBtn.addEventListener("click", function():void {handleClick(userid, true);},false);	
 				acceptBtn.setStyle("icon", acceptUserIcon);
+				acceptBtn.toolTip = ResourceUtil.getInstance().getString('bbb.guests.allowBtn.toolTip');
 				return acceptBtn;
 			}
 
@@ -72,23 +63,20 @@
 				var rejectBtn:Button = new Button();
 				rejectBtn.addEventListener("click", function():void {handleClick(userid, false);},false);
 				rejectBtn.setStyle("icon", rejectUserIcon);
+				rejectBtn.toolTip = ResourceUtil.getInstance().getString('bbb.guests.denyBtn.toolTip');
 				return rejectBtn;
 			}
 
-			
-
-	    		public function addGuest(userid:Number, username:String):void {
-				
-				
+  		public function addGuest(userid:Number, username:String):void {
 				numberOfGuests++;
 				guestWindowMap[userid] = name;
 				var box:HBox = new HBox();
+				box.setStyle("verticalAlign", "middle");
 				var label:Label = new Label();
 				label.setStyle("horizontalAlign", "left");
 				label.width = 100;
 				label.text = username;
 				box.addChild(label);
-				message = numberOfGuests + baseString;
 			
 				var acceptBtn:Button = createAcceptButton(userid);	
 				var rejectBtn:Button = createRejectButton(userid);
@@ -101,15 +89,11 @@
 				this.visible = true;
 				if(numberOfGuests > 1 && numberOfGuests < 11)				
 					this.height+=28;
-				
-
-				
 			}
 
 			private function handleClick(userid:Number, resp:Boolean):void {
 				sendToServer(resp, userid);
 				remove(userid);	
-				
 			}
 
 			public function sendToServer(acc:Boolean, userid:Number):void {
@@ -128,28 +112,23 @@
 			}
 	
 			public function removeAllGuests():void {
-				
-				if(numberOfGuests < 11 && numberOfGuests > 0) {
+				if (numberOfGuests < 11 && numberOfGuests > 0) {
 					this.height-=(28*(numberOfGuests-1))
 				}
 				numberOfGuests = 0;
 
-				for (var key:String in guestWindowMap)
-				{
+				for (var key:String in guestWindowMap) {
 				    var userid:Number = new Number(key);
 				    this.removeChild(guestButtons[userid]);
-				    
-
 				}
 				guestWindowMap = new Object();
 				guestButtons = new Object();
 				this.visible = false;
-				message = numberOfGuests + baseString;
 			}
 		
 			public function remove(userid:Number):void {
 
-				if(guestWindowMap[userid] != null) {
+				if (guestWindowMap[userid] != null) {
 					if(numberOfGuests > 1 && numberOfGuests < 11)				
 						this.height-=28;
 					numberOfGuests--;
@@ -160,10 +139,8 @@
 					if(this.hasGuest() == false) {
 						this.visible = false;
 					}
-					message = numberOfGuests + baseString;
 				}
 			}
-			
 
 			public function hasGuest():Boolean {
 				if(numberOfGuests > 0)
@@ -176,18 +153,13 @@
 				PopUpManager.removePopUp(this);
 				
 			}
-	
-			
 			
 		]]>
 	</mx:Script>
-	<mx:Label text="{message}"/>
-	<mx:HRule width = "100%"/>
-	<mx:Button label = "Allow Everyone" width = "70%" click="sendResponseToAllGuests(true)"/>
-	<mx:Button label = "Deny Everyone" width = "70%"  click="sendResponseToAllGuests(false)"/>
-	<mx:HRule width = "100%"/>		
-
-	
-
+	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.guests.message', [String(numberOfGuests)])}"/>
+	<mx:HRule width="100%"/>
+	<mx:Button id="allowEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.allowEveryoneBtn.text')}" width="70%" click="sendResponseToAllGuests(true)" toolTip="{allowEveryoneBtn.label}"/>
+	<mx:Button id="denyEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.denyEveryoneBtn.text')}" width="70%" click="sendResponseToAllGuests(false)" toolTip="{denyEveryoneBtn.label}"/>
+	<mx:HRule width="100%"/>		
 	
 </mx:TitleWindow> 

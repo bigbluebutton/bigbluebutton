@@ -107,8 +107,6 @@ public class ParticipantsEventSender implements IRoomListener {
 		list.add(resp);
 		so.sendMessage("guestResponse", list);
 	}
-
-
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override

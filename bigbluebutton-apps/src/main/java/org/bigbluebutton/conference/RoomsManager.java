@@ -178,6 +178,7 @@ public class RoomsManager {
 		}
 		log.warn("Removing listener from a non-existing room " + roomName);
 	}
+	
 	public void askToEnter(String roomName, Long userid) {
 		log.debug("User " + userid + " asking to enter in room " + roomName);
 		Room r = getRoom(roomName);
@@ -192,7 +193,7 @@ public class RoomsManager {
 		log.debug("User " + userid + " asking for guests waiting in room " + roomName);
 		Room r = getRoom(roomName);
 		if (r != null) {
-			r.GuestWaiting(userid);
+			r.guestWaiting(userid);
 			return;
 		}		
 		log.warn("Participant asking guests on a non-existing room " + roomName);
@@ -203,9 +204,9 @@ public class RoomsManager {
 		if (r != null) {
 			r.responseToGuest(userid, resp);
 			return;
-		}		
-		
+		}
 	}
+	
 	public void responseToAllGuests(String roomName, Boolean resp) {
 		Room r = getRoom(roomName);
 		if (r != null) {
@@ -213,7 +214,6 @@ public class RoomsManager {
 			return;
 		}
 	}
-
 
 	public void changeParticipantStatus(String roomName, Long userid, String status, Object value) {
 		log.debug("Change participant status " + userid + " - " + status + " [" + value + "]");

@@ -234,19 +234,12 @@ package org.bigbluebutton.main.model.users {
 			user.userid = Number(joinedUser.userid);
 			user.name = joinedUser.name;
 			user.role = joinedUser.role;
-			if(joinedUser.isguest == "true")
-				user.isGuest = true;
-			else
-				user.isGuest = false;
-
-			if(user.isGuest == false)
-				user.acceptedJoin = true;
-
-			
+			user.guest = joinedUser.guest;
+			user.acceptedJoin = !user.guest;
 
 			LogUtil.debug("User status: " + joinedUser.status.hasStream);
 
-			LogUtil.info("Joined as [" + user.userid + "," + user.name + "," + user.role + "," + user.isGuest + "]");
+			LogUtil.info("Joined as [" + user.userid + "," + user.name + "," + user.role + "," + user.guest + "]");
 			UserManager.getInstance().getConference().addUser(user);
 			participantStatusChange(user.userid, "hasStream", joinedUser.status.hasStream);
 			participantStatusChange(user.userid, "presenter", joinedUser.status.presenter);
@@ -257,8 +250,7 @@ package org.bigbluebutton.main.model.users {
 			participant.name = user.name;
 			participant.isPresenter = joinedUser.status.presenter;
 			participant.role = user.role;
-			participant.isGuest = user.isGuest;
-			//participant.isGuest = user.isguest;
+			participant.guest = user.guest;
 			UserManager.getInstance().participantJoined(participant);
 			
 			var dispatcher:Dispatcher = new Dispatcher();

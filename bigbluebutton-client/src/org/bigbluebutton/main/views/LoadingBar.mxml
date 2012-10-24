@@ -28,7 +28,6 @@
 	<mate:Listener type="{PortTestEvent.TEST_RTMP}" method="testRTMP" />
 	<mate:Listener type="{PortTestEvent.PORT_TEST_UPDATE}" method="testRTMPupdate" />
 	<mate:Listener type="{PortTestEvent.TUNNELING_FAILED}" method="tunnelingFailed" />
-
 		
 	<mx:Script>
 		<![CDATA[
@@ -37,11 +36,8 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.ModuleLoadEvent;
 			import org.bigbluebutton.main.events.PortTestEvent;
-
-
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-
 			private var modules:Dictionary = new Dictionary();
 			private var numModules:int = 0;
 			private var portUpdateStr:String = 'Connecting to the server';
@@ -55,8 +51,6 @@
 				this.label = ResourceUtil.getInstance().getString('bbb.mainshell.statusProgress.loading', [numModules]);
 				this.visible = true;
 			}
-			
-			
 			
 			private function moduleLoadProgress(e:ModuleLoadEvent):void{
 				modules[e.moduleName] = e.progress;

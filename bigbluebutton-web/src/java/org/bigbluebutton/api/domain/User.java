@@ -9,14 +9,14 @@ public class User {
 	private String fullname;
 	private String role;
 	private Map<String,String> status;
-	private String isguest;
+	private Boolean guest;
 	
-	public User(String internalUserId, String externalUserId, String fullname, String role, String guest) {
+	public User(String internalUserId, String externalUserId, String fullname, String role, Boolean guest) {
 		this.internalUserId = internalUserId;
 		this.externalUserId = externalUserId;
 		this.fullname = fullname;
 		this.role = role;
-		this.isguest = guest;
+		this.guest = guest;
 		this.status = new ConcurrentHashMap<String, String>();
 	}
 	
@@ -36,11 +36,11 @@ public class User {
 	}
 
 	public void setGuest(Boolean guest) {
-		this.isguest = guest;
+		this.guest = guest;
 	}
 
 	public Boolean isGuest() {
-		return this.isguest;
+		return this.guest;
 	}
 	
 	public String getFullname() {

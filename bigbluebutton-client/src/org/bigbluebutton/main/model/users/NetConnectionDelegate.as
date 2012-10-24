@@ -105,7 +105,7 @@ package org.bigbluebutton.main.model.users
 											_conferenceParameters.room, _conferenceParameters.voicebridge, 
 											_conferenceParameters.record, _conferenceParameters.externUserID,
 											_conferenceParameters.internalUserID,
-_conferenceParameters.isguest );			
+											_conferenceParameters.guest );			
 			} catch( e : ArgumentError ) {
 				// Invalid parameters.
 				switch ( e.errorID ) 

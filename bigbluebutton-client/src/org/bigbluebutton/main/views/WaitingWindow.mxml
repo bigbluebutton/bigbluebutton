@@ -21,10 +21,8 @@
 -->
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-    title="Wait" showCloseButton="false" 
+    title="{ResourceUtil.getInstance().getString('bbb.waitWindow.waitMessage.title')}" showCloseButton="false" 
     x="168" y="86" layout="vertical" width="400" height="80" horizontalAlign="center">
-
-	
 
 	<mx:Script>
 		<![CDATA[
@@ -42,30 +40,21 @@
 			
 
 			public var conferenceParameters:ConferenceParameters;
-			
-
 			private var urlLoader:URLLoader;
-			
-			
 
-	     public function guestAllowed():void {
-	   		var dispatcher:Dispatcher = new Dispatcher();
-			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
-			loadCommand.conferenceParameters = conferenceParameters;
-			dispatcher.dispatchEvent(loadCommand);
-			PopUpManager.removePopUp(this);
+			public function guestAllowed():void {
+				var dispatcher:Dispatcher = new Dispatcher();
+				var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
+				loadCommand.conferenceParameters = conferenceParameters;
+				dispatcher.dispatchEvent(loadCommand);
+				PopUpManager.removePopUp(this);
 	    }
 
-		
-            
 	    public function removeWindow():void {
-		PopUpManager.removePopUp(this);
+				PopUpManager.removePopUp(this);
 	    }
-			
-	
-			
 			
 		]]>
 	</mx:Script>
-	<mx:Label text="You are a guest. Please wait moderator approval." width="100%" textAlign="center"/>
+	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.waitWindow.waitMessage.message')}" width="100%" textAlign="center"/>
 </mx:TitleWindow> 
