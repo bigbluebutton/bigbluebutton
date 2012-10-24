@@ -233,12 +233,12 @@ package org.bigbluebutton.main.model.users
 					
 				case "NetConnection.Connect.Closed":	
 					LogUtil.debug(NAME + ":Connection to viewers application closed");		
-          if (logoutOnUserCommand) {
+//          if (logoutOnUserCommand) {
             sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);		
-          } else {
-            autoReconnectTimer.addEventListener("timer", autoReconnectTimerHandler);
-            autoReconnectTimer.start();		
-          }
+//          } else {
+//            autoReconnectTimer.addEventListener("timer", autoReconnectTimerHandler);
+//            autoReconnectTimer.start();		
+//          }
 											
 					break;
 					
