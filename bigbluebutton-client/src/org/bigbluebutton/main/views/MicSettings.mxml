@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
 		width="600" height="300" creationComplete="initDefaultMic()" showCloseButton="true" close="onCancelClicked()">
+
+
+
 	<mx:Script>
 		<![CDATA[
 			import mx.events.ItemClickEvent;
@@ -21,7 +24,8 @@
 			private var playingAudio:Boolean = false;
 			private var images:Images = new Images();
 			[Bindable] private var cancelIcon:Class = images.delete_icon;
-			
+			private var DEFAULT_HELP_URL:String = "http://mconf.org/m/about";
+
 			private function initDefaultMic():void {
 				mic = Microphone.getMicrophone(-1);
 				mic.setLoopBack(true);
@@ -93,10 +97,17 @@
 				if (playingAudio) soundChannel.stop();				
 			}
 			
-			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
+			
 			private function onHelpButtonClicked():void {
 				navigateToURL(new URLRequest(DEFAULT_HELP_URL));
 			}
+
+
+			public function setHelpUrl(helpURL:String):void{
+
+				DEFAULT_HELP_URL = helpURL;
+			}
+
 		]]>
 	</mx:Script>
 	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">

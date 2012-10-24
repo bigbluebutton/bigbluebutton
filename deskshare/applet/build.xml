@@ -64,7 +64,7 @@
 	</target>
 	
 	<target name="sign-jar" depends="get-password">
-		<signjar jar="build/libs/bbb-deskshare-applet-0.71.jar"
+		<signjar jar="build/libs/bbb-deskshare-applet-0.8.jar"
 			alias="${keystore.alias}"
 			keystore="${keystore}"
 			storepass="${keystore.password}" />

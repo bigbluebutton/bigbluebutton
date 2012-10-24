@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <config>
-    <localeversion suppressWarning="false">0.8-beta4</localeversion>
+    <localeversion suppressWarning="false">0.8</localeversion>
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
     <porttest host="HOST" application="video"/>    

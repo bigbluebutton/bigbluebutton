@@ -25,7 +25,7 @@
 	xmlns:maps="org.bigbluebutton.main.maps.*"
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:m="library://melomel/2010"
-	pageTitle="BigBlueButton"
+	pageTitle="Mconf-Live"
 	layout="absolute" preinitialize="init()"
 	preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
 	

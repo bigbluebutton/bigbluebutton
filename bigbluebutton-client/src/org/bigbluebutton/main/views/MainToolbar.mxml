@@ -50,7 +50,7 @@
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
-			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
+			private var DEFAULT_HELP_URL:String = "http://mconf.org/m/about";
 			
 			public static const ALIGN_RIGHT:String ="ALIGN_RIGHT";
 			public static const ALIGN_LEFT:String = "ALIGN_LEFT";
@@ -129,7 +129,8 @@
 						
 			private function gotConfigParameters(e:ConfigEvent):void{
 				langSelector.visible = e.config.languageEnabled;
-				DEFAULT_HELP_URL = e.config.helpURL;
+				if(e.config.helpURL != "")
+					DEFAULT_HELP_URL = e.config.helpURL;
 			}
 			
 			private function onDisconnectTest():void{
