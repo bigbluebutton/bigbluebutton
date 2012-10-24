@@ -1,23 +1,20 @@
 /* 
-    BigBlueButton - http://www.bigbluebutton.org
+    BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 
-    Copyright (c) 2008-2012 by respective authors (see below). All rights reserved.
+    Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 
-    BigBlueButton is free software; you can redistribute it and/or modify it under the 
-    terms of the GNU Lesser General Public License as published by the Free Software 
-    Foundation; either version 2 of the License, or (at your option) any later 
-    version.  
+    This program is free software; you can redistribute it and/or modify it under the
+    terms of the GNU Lesser General Public License as published by the Free Software
+    Foundation; either version 3.0 of the License, or (at your option) any later
+    version.
 
-    BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+    BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
     PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public License along 
-    with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
-
-    Author: Jesus Federico <jesus@blindsidenetworks.com>
-*/    
-
+    You should have received a copy of the GNU Lesser General Public License along
+    with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*/
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -73,7 +70,6 @@ class BigbluebuttonService {
     
     }
     
-    
     public String getJoinURL(params, welcome){
         //Set the injected values
         if( !url.equals(bbbProxy.url) && !url.equals("") ) bbbProxy.setUrl(url)
@@ -82,12 +78,12 @@ class BigbluebuttonService {
         String joinURL = null
         
         String meetingName = getValidatedMeetingName(params.get(Parameter.RESOURCE_LINK_TITLE))
-        String meetingID = getValidatedMeetingId(params.get(Parameter.RESOURCE_LINK_ID), params.get(Parameter.COURSE_ID), params.get(Parameter.CONSUMER_ID))
-        String attendeePW = DigestUtils.shaHex("ap" + params.get(Parameter.RESOURCE_LINK_ID))
-        String moderatorPW = DigestUtils.shaHex("mp" + params.get(Parameter.RESOURCE_LINK_ID))
+        String meetingID = getValidatedMeetingId(params.get(Parameter.RESOURCE_LINK_ID), params.get(Parameter.CONSUMER_ID))
+        String attendeePW = DigestUtils.shaHex("ap" + params.get(Parameter.RESOURCE_LINK_ID) + params.get(Parameter.CONSUMER_ID))
+        String moderatorPW = DigestUtils.shaHex("mp" + params.get(Parameter.RESOURCE_LINK_ID) + params.get(Parameter.CONSUMER_ID))
         String logoutURL = getValidatedLogoutURL(params.get(Parameter.LAUNCH_RETURN_URL))
-        boolean isModerator = Role.isModerator(params.get(Parameter.ROLES))
-        String userFullName = getValidatedUserFullName(params.get(Parameter.USER_FULL_NAME), isModerator)
+        boolean isModerator = params.get(Parameter.ROLES) != null? Role.isModerator(params.get(Parameter.ROLES)): true
+        String userFullName = getValidatedUserFullName(params, isModerator)
         String courseTitle = getValidatedCourseTitle(params.get(Parameter.COURSE_TITLE))
         String userID = getValidatedUserId(params.get(Parameter.USER_ID))
         
@@ -125,16 +121,32 @@ class BigbluebuttonService {
         return (meetingName == null || meetingName == "")? "Meeting": meetingName
     }
     
-    private String getValidatedMeetingId(String meetingId, String courseId, String consumerId){
-        return DigestUtils.shaHex(meetingId + courseId + consumerId)
+    private String getValidatedMeetingId(String meetingId, String consumerId){
+        return DigestUtils.shaHex(meetingId + consumerId)
     }
 
     private String getValidatedLogoutURL(String logoutURL){
         return (logoutURL == null)? "": logoutURL
     }
     
-    private String getValidatedUserFullName(String userFullName, boolean isModerator){
-        return (userFullName == null || userFullName == "")? (isModerator? "Moderator" : "Attendee"): userFullName
+    private String getValidatedUserFullName(params, boolean isModerator){
+        String userFullName = params.get(Parameter.USER_FULL_NAME)
+        String userFirstName = params.get(Parameter.USER_FIRSTNAME)
+        String userLastName = params.get(Parameter.USER_LASTNAME)
+        if( userFullName == null || userFullName == "" ){
+            if( userFirstName != null && userFirstName != "" ){
+                userFullName = userFirstName
+            }
+            if( userLastName != null && userLastName != "" ){
+                userFullName = userFullName.length() > 0? " ": ""
+                userFullName += userLastName
+            }
+            if( userFullName == null || userFullName == "" ){
+                userFullName = isModerator? "Moderator" : "Attendee"
+            }
+        }
+        
+        return userFullName
     }
 
     private String getValidatedCourseTitle(String courseTitle){
@@ -231,7 +243,6 @@ class BigbluebuttonService {
             log.debug("doAPICall.Exception: Message=" + e.getMessage());
         }
     }
-
     
     /** Get all nodes under the specified element tag name as a Java map */
     private Map<String, Object> getNodesAsMap(Document dom, String elementTagName) {
@@ -240,37 +251,38 @@ class BigbluebuttonService {
     }
 
     private Map<String, Object> processNode(Node _node) {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new LinkedHashMap<String, Object>();
         NodeList responseNodes = _node.getChildNodes();
         for (int i = 0; i < responseNodes.getLength(); i++) {
             Node node = responseNodes.item(i);
             String nodeName = node.getNodeName().trim();
-            if (node.getChildNodes().getLength() == 1
-                    && ( node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.TEXT_NODE || node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.CDATA_SECTION_NODE) ) {
+            if (node.getChildNodes().getLength() == 1 && node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.TEXT_NODE) {
                 String nodeValue = node.getTextContent();
                 map.put(nodeName, nodeValue != null ? nodeValue.trim() : null);
-            
-            } else if (node.getChildNodes().getLength() == 0
-                    && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE
-                    && node.getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE) {
+            } else if (node.getChildNodes().getLength() == 0 && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE) {
                 map.put(nodeName, "");
-            
-            } else if ( node.getChildNodes().getLength() >= 1
-                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.TEXT_NODE
-                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE ) {
-
-                List<Object> list = new ArrayList<Object>();
-                for (int c = 0; c < node.getChildNodes().getLength(); c++) {
-                    Node n = node.getChildNodes().item(c);
-                    list.add(processNode(n));
-                }
-                map.put(nodeName, list);
-            
             } else {
-                map.put(nodeName, processNode(node));
+                if( !map.containsKey(nodeName) ) {
+                    map.put(nodeName, processNode(node));
+
+                } else {
+                    Object curObject = map.get(nodeName);
+                    List<Object> list;
+                    
+                    if( curObject.getClass().equals(LinkedHashMap.class) ){
+                        list = new LinkedList<Object>();
+                        list.add(curObject);
+                        list.add(processNode(node));
+                        map.remove(nodeName);
+                        map.put(nodeName, list);
+                    } else {
+                        list = (List<Object>)curObject;
+                        list.add(processNode(node));
+                    }
+                }
             }
         }
         return map;
     }
-    
+
 }
