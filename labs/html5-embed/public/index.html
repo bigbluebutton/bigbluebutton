@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BigBlueButton</title>
+  <link rel="stylesheet" type="text/css" href="css/reset.css">
+  <link rel="stylesheet" type="text/css" href="css/font-awesome.css">
+  <link rel="stylesheet" type="text/css" href="css/layout.css">
+  <script src="js/lib/jquery-1.7.2.min.js">
+  </script>
+</head>
+<body>
+  <div id="layout">
+    <div id="presentation">
+      <object data="FreshFlower.jpg"></object>
+    </div>
+    <div id="users">
+      <h3>Users</h3>
+    </div>
+    <div id="chat">
+      <h3>Chat</h3>
+      <div id="chat-text">
+        <p>Chat messages go here</p>
+      </div>
+      <div id="chat-entry">
+        <textarea placeholder="Enter a chat message."></textarea><button>Post</button>
+      </div>
+    </div>
+    <div id="navbar">
+      <div class="navbar-btngroup">
+        <button id="prev-slide-btn" class="navbar-btn"><i class="icon-arrow-left"></i>Prev</button>
+        <button id="next-slide-btn" class="navbar-btn"><i class="icon-arrow-right"></i>Next</button>
+        <button id="tool-pan-btn" class="navbar-btn"><i class="icon-move"></i>Pan</button>
+        <button id="tool-draw-btn" class="navbar-btn"><i class="icon-pencil"></i>Draw</button>
+      </div>
+      <div class="navbar-btngroup pull-right">
+        <button id="users-btn" class="navbar-btn"><i class="icon-group"></i>Users</button>
+        <button id="video-btn" class="navbar-btn"><i class="icon-facetime-video"></i>Video</button>
+        <button id="chat-btn" class="navbar-btn"><i class="icon-comments"></i>Chat<div id="chat-notifications" class="notification">12</div></button>
+	<button id="logout-btn" class="navbar-btn"><i class="icon-signout"></i>Logout</button>
+      </div>
+    </div>
+    </ul>
+  </div>
+  <script src="js/chat/behaviour.js"></script>
+</body>
+</html>

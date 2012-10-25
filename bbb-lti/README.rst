@@ -1,3 +1,21 @@
+#
+# BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+#
+# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+#
+# This program is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License as published by the Free Software
+# Foundation; either version 3.0 of the License, or (at your option) any later
+# version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+#
+
 BigBlueButton LTI Integration
 =============================
 BigBlueButton is an open source web conferencing system that enables universities and colleges to deliver a high-quality learning experience to remote students.  
@@ -10,37 +28,39 @@ With this plugin you can
 
 Development
 =============
-    The plugin is a grails project that can be compiled using the bbb-web components installed in any BigBlueButton development environment.
+bbb-lti is a grails project that can be compiled using the bbb-web components installed in any BigBlueButton development environment.
     
-    To generate the war file
-        grails clean
-        grails war
+To generate the war file
+    grails clean
+    grails war
 
 Deployment
 =============
-    Place the war file into the tomcat webapps directory and restart tomcat
+Place the war file into the tomcat webapps directory and restart tomcat
         
-        sudo cp lti-0.1.war /var/lib/tomcat6/webapps/lti.war
+    sudo cp lti-0.1.war /var/lib/tomcat6/webapps/lti.war
+       
+Configure the properties
         
-    Configure the properties
-        
-        sudo vi /var/lib/tomcat6/webapps/lti/WEB-INF/classes/lti.properties
+    sudo vi /var/lib/tomcat6/webapps/lti/WEB-INF/classes/lti.properties
 
-    Edit the URL and Salt of the BigBlueButton server you are going to connect to
+Edit the URL and Salt of the BigBlueButton server you are going to connect to
     
-        bigbluebuttonURL=http://yourbigbluebuttonserver.com/bigbluebutton
-        bigbluebuttonSalt=yoursalt
-        
-    Edit the LTI basic information
+    bigbluebuttonURL=http://yourbigbluebuttonserver.com/bigbluebutton
     
-        ltiEndPoint=http://yourbigbluebuttonserver.com/lti/tool.xml
-        ltiConsumers=demo:welcome,consumer1:secret1
+    bigbluebuttonSalt=yoursalt
+        
+Edit the LTI basic information
     
-    Restart tomcat
+    ltiEndPoint=http://yourbigbluebuttonserver.com/lti/tool.xml
         
-        sudo service tomcat6 restart
+    ltiConsumers=demo:welcome,consumer1:secret1
+    
+Restart tomcat
         
-    When running on the BigBlueButton server, create the map to this new application on nginx
+    sudo service tomcat6 restart
+        
+When running on the BigBlueButton server, create the map to this new application on nginx
     
     
 
@@ -61,36 +81,34 @@ Add a new external tool
     
 The BigBlueButton roles are assigned according to the roles in the LMS.
 
-    MODERATOR
-        Faculty
-        urn:lti:instrole:ims/lis/Faculty
-        Instructor
-        urn:lti:instrole:ims/lis/Instructor
-        Mentor
-        urn:lti:instrole:ims/lis/Mentor
-        Administrator
-        urn:lti:instrole:ims/lis/Administrator
+MODERATOR
+    -Faculty
+    -urn:lti:instrole:ims/lis/Faculty
+    -Instructor
+    -urn:lti:instrole:ims/lis/Instructor
+    -Mentor
+    -urn:lti:instrole:ims/lis/Mentor
+    -Administrator
+    -urn:lti:instrole:ims/lis/Administrator
     
-    ATTENDEE
-        Student    
-        urn:lti:instrole:ims/lis/Student
-        Member
-        urn:lti:instrole:ims/lis/Member
-        Learner
-        urn:lti:instrole:ims/lis/Learner
-        Staff
-        urn:lti:instrole:ims/lis/Staff
-        Alumni
-        urn:lti:instrole:ims/lis/Alumni
-        ProspectiveStudent
-        urn:lti:instrole:ims/lis/ProspectiveStudent
-        Guest
-        urn:lti:instrole:ims/lis/Guest
-        Other
-        urn:lti:instrole:ims/lis/Other
-        Observer
-        urn:lti:instrole:ims/lis/Observer
-        None
-        urn:lti:instrole:ims/lis/None    
-
-
+ATTENDEE
+    -Student    
+    -urn:lti:instrole:ims/lis/Student
+    -Member
+    -urn:lti:instrole:ims/lis/Member
+    -Learner
+    -urn:lti:instrole:ims/lis/Learner
+    -Staff
+    -urn:lti:instrole:ims/lis/Staff
+    -Alumni
+    -urn:lti:instrole:ims/lis/Alumni
+    -ProspectiveStudent
+    -urn:lti:instrole:ims/lis/ProspectiveStudent
+    -Guest
+    -urn:lti:instrole:ims/lis/Guest
+    -Other
+    -urn:lti:instrole:ims/lis/Other
+    -Observer
+    -urn:lti:instrole:ims/lis/Observer
+    -None
+    -urn:lti:instrole:ims/lis/None    
