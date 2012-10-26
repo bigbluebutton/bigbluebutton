@@ -7,10 +7,18 @@ define([
   var UserCollection = Backbone.Collection.extend({
     model: UserModel,
     initialize: function(){
-
+	  var self = this;
+	  BBB.listen("UserLeftEvent", function(bbbEvent) {
+		console.log("User [" + bbbEvent.userID + "] has left.");		
+	  });
+	  BBB.listen("UserJoinedEvent", function(bbbEvent) {
+		console.log("User [" + bbbEvent.userID + ", " + bbbEvent.userName + "] has joined.");
+		self.add({ userid: bbbEvent.userID, username: bbbEvent.userName});
+	  });
     }
-
   });
- 
-  return UserCollection;
+  
+  var userCollection = new UserCollection();
+  
+  return userCollection;
 });

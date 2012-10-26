@@ -6,25 +6,33 @@ define([
   'collections/users', 
   'text!templates/users/list.html'
 ], function($, _, Backbone, UserCollection, userListTemplate){
-  var UserListView = Backbone.View.extend({
+
+  
+  
+  var UsersView = Backbone.View.extend({	
     el: $("#users"),
-    initialize: function(){
-	  this.collection = new UserCollection();
-     // this.collection.bind("add", this.exampleBind);
-      this.collection = this.collection.add({ userid: "u1", username: "Richard"});
-      this.collection = this.collection.add({ userid: "u2", username: "Jesus"});
-      this.collection = this.collection.add({ userid: "u3", username: "Fred"});
+    initialize: function(){	       
+ //     UserCollection.add({ userid: "u1", username: "Richard"});
+  //    UserCollection.add({ userid: "u2", username: "Jesus"});
+  //    UserCollection.add({ userid: "u3", username: "Fred"});	  
     },
 	exampleBind: function( model ){
-      console.log("Example Bind [" + model.username + "]");
+      console.log("Example Bind [" + model.get("userid") + ", " + model.get("username") + "]");
+	  this.render();
     },
     render: function(){
+		console.log("*** Rendering Users View [" + UserCollection.length + "]");
       var data = {
-        users: this.collection.models
+        users: UserCollection.models
       };
       var compiledTemplate = _.template( userListTemplate, data );
       this.$el.html( compiledTemplate ); 
     }
   });
-  return UserListView;
+  
+  var usersView = new UsersView();
+  
+  UserCollection.on("add", usersView.render);
+  
+  return usersView;
 });
