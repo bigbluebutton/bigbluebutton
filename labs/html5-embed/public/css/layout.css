@@ -10,7 +10,7 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
   height: 100%;
 }
 
-#presentation {
+#content {
   position: absolute;
   background: #aaa;
   top: 0;
@@ -44,14 +44,14 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
   z-index: 0;
 }
 
-.chat-enabled > #presentation {
+.chat-enabled > #content {
   right: 300px;
 }
-.users-enabled > #presentation {
+.users-enabled > #content {
   left: 200px;
 }
 
-#presentation object {
+#content object {
   display: block;
   position: absolute;
   max-width: 100%;
