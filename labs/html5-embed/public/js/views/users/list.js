@@ -4,11 +4,12 @@ define([
   'underscore',
   'backbone',
   'collections/users', 
-  'views/users/user'
-], function($, _, Backbone, UserCollection, UserView){
+  'views/users/user',
+  'text!templates/users/users.html'
+], function($, _, Backbone, UserCollection, UserView, usersTemplate){
  
   var UsersView = Backbone.View.extend({
-	el: $("#users-list"),
+	el: 'ul',
     initialize: function(){	       
       UserCollection.on('add', this.addUser, this);	  
     },
@@ -21,10 +22,13 @@ define([
 //      this.$el.html( compiledTemplate ); 
     },
 	addUser: function(user) {
+		var compiledTemplate = _.template( usersTemplate);
+//      this.$el.html( compiledTemplate );
 		console.log("Adding user [" + user.get("username") + "]");
 		var view = new UserView({model: user});
-		console.log("Rendering [" + view.render().el.html() + "]");
-		this.$el.append('<li>Hello</li>');
+		
+		this.$el.append(view.render().el);
+		console.log("Rendering [" + this.$el.html() + "]");
 	}
   });
   

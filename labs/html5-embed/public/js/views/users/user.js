@@ -17,8 +17,8 @@ define([
 	  console.log("Render me! [" + this.model.get("username") + "]");
 	  var compiledTemplate = _.template(userTemplate, this.model);
 	  console.log("user is " + compiledTemplate);
-      this.$el.append(compiledTemplate);
-	  console.log(this.$el.append(compiledTemplate));
+      this.$el.html(compiledTemplate);
+	//  console.log(this.$el.append(compiledTemplate));
       return this;
 	 //return compiledTemplate;
     }
