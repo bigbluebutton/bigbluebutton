@@ -13,11 +13,11 @@ define([
   var initialize = function(){
     var app_router = new AppRouter;
     app_router.on('route:defaultAction', function (actions) {
-      require(['views/home/main'], function(MainHomeView) {
+      require(['views/users/list'], function(UserListView) {
 		console.log("Opening main view");
       // We have no matching route, lets display the home page 
-        var mainHomeView = new MainHomeView();
-        mainHomeView.render();
+        var usersView = new UserListView();
+        usersView.render();
       });
     });
     Backbone.history.start();

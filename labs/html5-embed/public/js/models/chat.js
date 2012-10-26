@@ -4,7 +4,8 @@ define([
 ], function(_, Backbone) {
   var ChatMessageModel = Backbone.Model.extend({
     defaults: {
-      score: 10
+      userid: 'nouserid'
+	  username: 'Unknown'
     },
     initialize: function(){
     }

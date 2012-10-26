@@ -5,7 +5,6 @@ define([
   'backbone',
   'collections/chat',
   'text!templates/chat/list.html'
-
 ], function($, _, Backbone, ChatMessagesCollection, chatMessageListTemplate){
   var chatListView = Backbone.View.extend({
     el: $("#page"),
