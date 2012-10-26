@@ -4,12 +4,14 @@ define([
   'underscore',
   'backbone'
 ], function($, _, Backbone ){
+  
   var AppRouter = Backbone.Router.extend({
     routes: {      
       // Default. We only have one route.
       '*actions': 'defaultAction'
     }
   });
+  
   var initialize = function(){
     var app_router = new AppRouter;
     app_router.on('route:defaultAction', function (actions) {
@@ -27,7 +29,9 @@ define([
     });
     Backbone.history.start();
   };
+  
   return { 
     initialize: initialize
   };
+
 });

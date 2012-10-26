@@ -13,7 +13,7 @@ define([
 	  });
 	  BBB.listen("UserJoinedEvent", function(bbbEvent) {
 		console.log("User [" + bbbEvent.userID + ", " + bbbEvent.userName + "] has joined.");
-		self.add({ userid: bbbEvent.userID, username: bbbEvent.userName});
+		self.add(new UserModel({ userid: bbbEvent.userID, username: bbbEvent.userName}));
 	  });
     }
   });
