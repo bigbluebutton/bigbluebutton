@@ -153,7 +153,24 @@ package org.bigbluebutton.modules.listeners.business
 				 * Let's store the voice userid so we can do push to talk.
 				 */
 				if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
-					UserManager.getInstance().getConference().muteMyVoice(l.muted);
+				     UserManager.getInstance().getConference().muteMyVoice(l.muted);
+				     if(l.muted == false && UserManager.getInstance().getConference().getFirstTimeUnMute()) {
+					   UserManager.getInstance().getConference().setFirstTimeUnMute(false);
+					   dispatcher.dispatchEvent(new BBBEvent("MUTE_AUDIO_CONFIG"));
+				           dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
+					   LogUtil.debug("Chamei");
+					   //dispatcher.dispatchEvent(new BBBEvent("VOICE_CONFERENCE_EVENT_BEGIN_PUBLISH"));
+
+	
+				     }
+				     else {
+					  if(UserManager.getInstance().getConference().getFirstTimeUnMute() == false) {
+					  	  
+					  }
+					 	   
+				     }
+				     
+					
 				}					
 			}					
 		}

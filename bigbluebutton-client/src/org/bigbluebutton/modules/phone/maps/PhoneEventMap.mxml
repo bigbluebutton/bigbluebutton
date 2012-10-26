@@ -73,6 +73,19 @@
 	<EventHandlers type="JOIN_VOICE_CONFERENCE_EVENT">        
 		<MethodInvoker generator="{PhoneManager}" method="joinVoice" arguments="{event.payload.useMicrophone}"/>
 	</EventHandlers>
+
+	<EventHandlers type="VOICE_CONFERENCE_EVENT_BEGIN_PUBLISH">        
+		<MethodInvoker generator="{PhoneManager}" method="beginPublish"/>
+	</EventHandlers>
+
+	<EventHandlers type="MUTE_AUDIO_CONFIG">        
+		<MethodInvoker generator="{PhoneManager}" method="muteAudio"/>
+	</EventHandlers>
+
+	<EventHandlers type="UNMUTE_AUDIO_CONFIG">        
+		<MethodInvoker generator="{PhoneManager}" method="unMuteAudio"/>
+	</EventHandlers>
+
 	
 	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">     
 		<MethodInvoker generator="{PhoneEventMapDelegate}" method="disableToolbarButton"/>

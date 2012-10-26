@@ -23,6 +23,8 @@
 			[Bindable] private var cancelIcon:Class = images.delete_icon;
 			
 			private function initDefaultMic():void {
+
+				
 				mic = Microphone.getMicrophone(-1);
 				mic.setLoopBack(true);
 				if (mic != null) {
@@ -33,6 +35,8 @@
 				timer = new Timer(100);
 				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
 				timer.start();	
+				
+
 			}
 			
 			private function micStatusEventHandler(event:StatusEvent):void {					
@@ -72,9 +76,10 @@
 			
 			private function onJoinClicked():void {
 				cleanUp();
-				var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-				joinEvent.payload['useMicrophone'] = true;
-				dispatchEvent(joinEvent);
+				dispatchEvent(new BBBEvent("VOICE_CONFERENCE_EVENT_BEGIN_PUBLISH"));
+				//var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+				//joinEvent.payload['useMicrophone'] = true;
+				//dispatchEvent(joinEvent);
 				PopUpManager.removePopUp(this);
 			}	
 
@@ -83,6 +88,9 @@
 				var event:BBBEvent = new BBBEvent("MIC_SETTINGS_CLOSED");
 				event.payload['clicked'] = "cancel";
 				dispatchEvent(event);
+		
+				dispatchEvent(new BBBEvent("UNMUTE_VOICE_CONFIG"));
+
 				PopUpManager.removePopUp(this);
 			}
 

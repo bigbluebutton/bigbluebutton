@@ -47,7 +47,7 @@ package org.bigbluebutton.modules.phone.managers {
 			connectionManager = new ConnectionManager();
 			streamManager = new StreamManager();
 		}
-
+		
 		public function setModuleAttributes(attributes:Object):void {
 			this.attributes = attributes;
 			var vxml:XML = BBB.getConfigForModule("PhoneModule");
@@ -57,18 +57,23 @@ package org.bigbluebutton.modules.phone.managers {
 				phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
 				phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
 			}
-			
 			if (phoneOptions.autoJoin) {
+					
+							
 				if (phoneOptions.skipCheck || noMicrophone()) {
+					/*					
 					if (noMicrophone()) {
 						joinVoice(false);
 					} else {
 						joinVoice(true);						
 					}
+					*/
+					joinVoice(false);
 				} else {
 					var dispatcher:Dispatcher = new Dispatcher();
 					dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
 				}
+			
 			}
 		}
 
@@ -84,7 +89,16 @@ package org.bigbluebutton.modules.phone.managers {
 			else
 				streamManager.initWithNoMicrophone();
 		}
+
+		public function muteAudio():void {
+			streamManager.muteAudio();
+		}
 		
+
+		public function unMuteAudio():void {
+			streamManager.unMuteAudio();
+		}
+
 		private function setupConnection():void {
 			streamManager.setConnection(connectionManager.getConnection());
 		}
@@ -109,6 +123,11 @@ package org.bigbluebutton.modules.phone.managers {
 		public function dialConference():void {
 			LogUtil.debug("*** Dialling conference ***");
 			connectionManager.doCall(attributes.webvoiceconf);
+		}
+
+		public function beginPublish():void {
+			LogUtil.debug("Chamei 2");
+			streamManager.beginPublishing();
 		}
 		
 		public function callConnected(event:CallConnectedEvent):void {

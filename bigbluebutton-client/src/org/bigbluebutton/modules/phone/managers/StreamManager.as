@@ -36,6 +36,9 @@ package org.bigbluebutton.modules.phone.managers {
 	import org.bigbluebutton.modules.phone.PhoneOptions;
 	import org.bigbluebutton.modules.phone.events.MicrophoneUnavailEvent;
 	import org.bigbluebutton.modules.phone.events.PlayStreamStatusEvent;
+	import org.bigbluebutton.core.managers.UserManager;
+	
+	import org.bigbluebutton.modules.listeners.events.ListenersCommand;
 	
 	public class StreamManager {
 		public  var connection:NetConnection = null;
@@ -47,7 +50,8 @@ package org.bigbluebutton.modules.phone.managers {
 		private var muted:Boolean			    = false;
 		private var audioCodec:String = "SPEEX";
 		private var dispatcher:Dispatcher;
-					
+		private var onlyListening:Boolean = true;
+		private var _custom_obj:Object = null;
 		public function StreamManager() {			
 			dispatcher = new Dispatcher();
 		}
@@ -60,12 +64,20 @@ package org.bigbluebutton.modules.phone.managers {
 			mic = Microphone.getMicrophone(-1);
 			if(mic == null){
 				initWithNoMicrophone();
+				onlyListening = true;
 			} else {
 				setupMicrophone();
 				mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
+				onlyListening = false;
 			}
 		}	
-		
+		public function muteAudio():void {
+			incomingStream.receiveAudio(false);
+		} 
+
+		public function unMuteAudio():void {
+			incomingStream.receiveAudio(true);
+		}
 		private function setupMicrophone():void {
 			var vxml:XML = BBB.getConfigForModule("PhoneModule");
 			var phoneOptions:PhoneOptions = new PhoneOptions();
@@ -104,8 +116,17 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		public function initWithNoMicrophone(): void {
-			var event:MicrophoneUnavailEvent = new MicrophoneUnavailEvent();
-			dispatcher.dispatchEvent(event);
+			mic = Microphone.getMicrophone(-1);
+			if(mic == null){
+				var event:MicrophoneUnavailEvent = new MicrophoneUnavailEvent();
+				dispatcher.dispatchEvent(event);
+			} else {
+				setupMicrophone();
+				mic.addEventListener(StatusEvent.STATUS, micStatusHandler);
+				mic = null;
+				
+			}
+			onlyListening = true;
 		}
 							
 		private function micStatusHandler(event:StatusEvent):void {					
@@ -120,19 +141,45 @@ package org.bigbluebutton.modules.phone.managers {
 					LogUtil.debug("unknown micStatusHandler event: " + event);
 			}
 		}
+
+		public function beginPublishing():void {
+			unMuteAudio();
+			if(mic == null) {
+				setupMicrophone();			
+			}
+			if(mic != null) {
+				onlyListening = false;
+				setupOutgoingStream();	
+				outgoingStream.client = _custom_obj;
+				publish(publishName);
+			}
+			
+						
+		}
 										
 		public function callConnected(playStreamName:String, publishStreamName:String, codec:String):void {
 			isCallConnected = true;
 			audioCodec = codec;
+			publishName = publishStreamName;
 			setupIncomingStream();
 
 			if (mic != null) {
+				onlyListening = true;			
 				setupOutgoingStream();
+			}
+			else {
+				var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);
+				e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
+				e.mute = true;
+				dispatcher.dispatchEvent(e);			
 			}
 
 			setupPlayStatusHandler();
 			play(playStreamName);
 			publish(publishStreamName);
+
+			
+
 		}
 		
 		private function play(playStreamName:String):void {		
@@ -176,6 +223,7 @@ package org.bigbluebutton.modules.phone.managers {
 			custom_obj.onPlayStatus = playStatus;
 			custom_obj.onMetadata = onMetadata;
 			incomingStream.client = custom_obj;
+			_custom_obj = custom_obj;
 			if (mic != null)
 				outgoingStream.client = custom_obj;			
 		}
