@@ -285,7 +285,12 @@ def storeRectShape
 				$originX = $originX + rectWidth
 				rectWidth = rectWidth.abs
 			end
-			$xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectHeight)
+                        if $is_square == "true"
+				#width of the square as reference
+                                $xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectWidth)
+                        else
+                                $xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectHeight)
+                        end
 			$prev_time = $shapeCreationTime
 		end
 	end
@@ -560,6 +565,7 @@ def processShapesAndClears
 
 							# Process the rectangle shapes
 							elsif $shapeType.eql? "rectangle"
+                                                                $is_square = shape.xpath(".//square")[0].text()
 								storeRectShape()
 
 							# Process the triangle shapes
