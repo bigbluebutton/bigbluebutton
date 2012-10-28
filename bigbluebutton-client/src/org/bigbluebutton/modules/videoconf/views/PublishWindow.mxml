@@ -32,6 +32,8 @@
 	verticalScrollPolicy="off"
 	layout="absolute">
 	
+  <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
+  
 	<mx:Script>
 		<![CDATA[
       import flexlib.mdi.events.MDIWindowEvent;
@@ -43,6 +45,7 @@
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.CloseWindowEvent;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;

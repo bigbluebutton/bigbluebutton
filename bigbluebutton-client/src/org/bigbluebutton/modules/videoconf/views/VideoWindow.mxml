@@ -28,18 +28,24 @@
 	resize="onResize()"
 	layout="absolute">
 	
+  <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
+  
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
-			import flexlib.mdi.events.MDIWindowEvent;			
-			import mx.controls.Alert;
-			import mx.core.UIComponent;			
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flexlib.mdi.events.MDIWindowEvent;
+      
+      import mx.controls.Alert;
+      import mx.core.UIComponent;
+      
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+      import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 					
 			private var ns:NetStream;			
 			private var globalDispatcher:Dispatcher;

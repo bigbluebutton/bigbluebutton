@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import flexlib.mdi.containers.MDIWindow;
 	import flexlib.mdi.events.MDIWindowEvent;
 	
+	import mx.containers.Panel;
 	import mx.controls.Button;
 	import mx.core.UIComponent;
 	
@@ -37,9 +38,12 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.DragWindowEvent;
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.events.CoreEvent;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.views.MainCanvas;
+	import org.bigbluebutton.modules.listeners.events.ListenersCommand;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class VideoWindowItf extends MDIWindow implements IBbbModuleWindow
@@ -81,6 +85,12 @@ package org.bigbluebutton.modules.videoconf.business
 			}
 		}
 		
+    protected function handleUserTalkingEvent(event:CoreEvent):void {
+      if (event.message.userID ==  _sharerUserID) {
+        this._video.visible = event.message.talking;
+      }
+    }
+    
 		protected function get paddingVertical():Number {
 			return this.borderMetrics.top + this.borderMetrics.bottom;
 		}
@@ -320,7 +330,14 @@ package org.bigbluebutton.modules.videoconf.business
     }
     
     protected function onMuteUnmuteClicked(event:MouseEvent = null):void {
-      
+      var bu:BBBUser = UsersUtil.getUser(_sharerUserID);
+      if (bu != null) {
+        var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);        
+        e.userid = bu.voiceUserid;
+        e.mute = ! bu.voiceMuted; 
+        var gd:Dispatcher = new Dispatcher();
+        gd.dispatchEvent(e);          
+      }
     }
     
 		protected function onFitVideoClick(event:MouseEvent = null):void {

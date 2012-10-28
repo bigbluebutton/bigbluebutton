@@ -154,6 +154,15 @@ package org.bigbluebutton.main.model.users {
 			// Participant not found.
 			return null;
 		}
+    
+    public function getVoiceUser(voiceUserID:Number):BBBUser {     
+      for (var i:int = 0; i < users.length; i++) {
+        var aUser:BBBUser = users.getItemAt(i) as BBBUser;
+        if (aUser.voiceUserid == voiceUserID) return aUser;
+      }
+      
+      return null;
+    }
 	
     public function whatsMyRole():String {
       return me.role;
