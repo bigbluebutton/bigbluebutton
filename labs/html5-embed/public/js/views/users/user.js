@@ -15,12 +15,10 @@ define([
 
     render: function() {
 	  console.log("Render me! [" + this.model.get("username") + "]");
-	  var compiledTemplate = _.template(userTemplate, this.model);
+	  var compiledTemplate = _.template(userTemplate, this.model.toJSON());
 	  console.log("user is " + compiledTemplate);
       this.$el.html(compiledTemplate);
-	//  console.log(this.$el.append(compiledTemplate));
       return this;
-	 //return compiledTemplate;
     }
 	
   });

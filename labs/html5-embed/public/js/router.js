@@ -15,11 +15,11 @@ define([
   var initialize = function(){
     var app_router = new AppRouter;
     app_router.on('route:defaultAction', function (actions) {
-      require(['views/users/list'], function(UsersView) {
+      require(['views/users/users'], function(UsersView) {
 		console.log("Opening users view");
       // We have no matching route, lets display the home page 
        // var usersView = UsersView;
-      //  UsersView.render();
+        UsersView.render();
       });
 //	  require(['views/flash/client'], function(FlashClientView) {
 //		console.log("Opening main view");
