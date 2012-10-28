@@ -178,6 +178,7 @@ usage() {
         echo "   --debug                          Scan the log files for error messages"
         echo "   --watch                          Scan the log files for error messages every 2 seconds"
         echo "   --salt                           View the URL and salt (shared secret) for the server"
+        echo "   --lti                            View the URL and secret for LTI (if installed)"
         echo
         echo "Administration:"
         echo "   --restart                        Restart BigBueButton"
@@ -522,6 +523,26 @@ while [ $# -gt 0 ]; do
 		shift; shift
 		continue
 	fi
+
+	if [ "$1" = "--lti" -o "$1" = "-lti" ]; then
+		if [ -z "$SALT" ]; then
+			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
+				LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')
+				CUSTOMER=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
+				SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
+				echo
+				echo "       URL: $LTI_URL"
+				echo "  Customer: $CUSTOMER"
+				echo "    Secret: $SECRET"
+				echo
+				exit 0
+			fi
+		fi
+		shift; shift
+		continue
+	fi
+
+
 
 	usage 
 	exit 1
@@ -1387,6 +1408,16 @@ check_state() {
                         echo "# does not match the local IP address ($IP)."
                         echo
             fi
+	fi
+
+	if [ -d ${SERVLET_DIR}/lti]; then
+		if test ${SERVLET_DIR}/lti.war -nt ${SERVLET_DIR}/lti; then 
+			echo "# Error: The updated lti.war did not deploy.  To manually deploy:"
+			echo "#"
+                        echo "#    sudo touch ${SERVLET_DIR}/lti.war"
+			echo "#"
+                        echo
+		fi
 	fi
 
 	if [ -d ${SERVLET_DIR}/demo ]; then
