@@ -19,6 +19,8 @@
 
 package org.bigbluebutton.modules.videoconf.business
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import flash.media.Video;
@@ -34,7 +36,9 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.DragWindowEvent;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.views.MainCanvas;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
@@ -58,14 +62,18 @@ package org.bigbluebutton.modules.videoconf.business
 		
 		public var streamName:String;
 
+    private var _sharerUserID:String = null;
+    
 		[Bindable] public var resolutions:Array;
 		
 		protected function getVideoResolution(stream:String):Array {
-			var pattern:RegExp = new RegExp("(\\d+x\\d+)-[A-Za-z0-9]+-\\d+", "");
+			var pattern:RegExp = new RegExp("(\\d+x\\d+)-([A-Za-z0-9]+)-\\d+", "");
 			if (pattern.test(stream)) {
 				LogUtil.debug("The stream name is well formatted [" + stream + "]");
         var uid:String = UserManager.getInstance().getConference().getMyUserId();
         LogUtil.debug("Stream resolution is [" + pattern.exec(stream)[1] + "]");
+        LogUtil.debug("Userid [" + pattern.exec(stream)[2] + "]");
+        _sharerUserID = pattern.exec(stream)[2];
         return pattern.exec(stream)[1].split("x");
 			} else {
 				LogUtil.error("The stream name doesn't follow the pattern <width>x<height>-<userId>-<timestamp>. However, the video resolution will be set to the lowest defined resolution in the config.xml: " + resolutions[0]);
@@ -235,7 +243,7 @@ package org.bigbluebutton.modules.videoconf.business
 				_buttons = new ButtonsOverlay;
 				_buttons.add("originalSizeBtn", img_original_size, ResourceUtil.getInstance().getString('bbb.video.originalSizeBtn.tooltip'), onOriginalSizeClick);
         _buttons.add("muteUnmuteBtn", img_mute_icon, "mute / unmute", onMuteUnmuteClicked);
-        _buttons.add("switchPresenter", adminIcon, "switch presenter", onMuteUnmuteClicked);
+        _buttons.add("switchPresenter", adminIcon, "switch presenter", onSwitchPresenterClicked);
         _buttons.add("ejectUserBtn", ejectIcon, "eject user", onMuteUnmuteClicked);
         
 				// hiding the other buttons
@@ -302,6 +310,15 @@ package org.bigbluebutton.modules.videoconf.business
 			onFitVideoClick();
 		}		
 		
+    protected function onSwitchPresenterClicked(event:MouseEvent = null):void {
+      LogUtil.debug("**** SWITCH PRESENTER CLICKED *****");
+      var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
+      e.userid = _sharerUserID;
+      e.username = UsersUtil.getUserName(_sharerUserID);
+      var gd:Dispatcher = new Dispatcher();
+      gd.dispatchEvent(e);     
+    }
+    
     protected function onMuteUnmuteClicked(event:MouseEvent = null):void {
       
     }

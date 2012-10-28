@@ -197,7 +197,7 @@ $Id: $
 				window.minimizeBtn.visible = false;
 				window.maximizeRestoreBtn.visible = false;
 				window.resizable = false;
-				window.buttonsEnabled = false;
+//				window.buttonsEnabled = false;
 
 				window.addEventListener(MouseEvent.CLICK, onWindowClick);
 
@@ -215,7 +215,7 @@ $Id: $
 				window.minimizeBtn.visible = true;
 				window.maximizeRestoreBtn.visible = true;
 				window.resizable = true;
-				window.buttonsEnabled = true;
+//				window.buttonsEnabled = true;
 				
 				window.removeEventListener(MouseEvent.CLICK, onWindowClick);
 	
