@@ -285,7 +285,12 @@ def storeRectShape
 				$originX = $originX + rectWidth
 				rectWidth = rectWidth.abs
 			end
-			$xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectHeight)
+                        if $is_square == "true"
+				#width of the square as reference
+                                $xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectWidth)
+                        else
+                                $xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectHeight)
+                        end
 			$prev_time = $shapeCreationTime
 		end
 	end
@@ -373,9 +378,10 @@ def storeTextShape
 			$text_count = $text_count + 1
 		end
 		font_size_factor = 1.7
-		extra_percent = -0.7
-		width = ( ($textBoxWidth.to_f + extra_percent) / 100.0) * $vbox_width
-		height = ( ($textBoxHeight.to_f + extra_percent) / 100.0) * $vbox_height
+                width_extra_percent = -0.7
+                height_extra_percent = 1
+                width = ( ($textBoxWidth.to_f + width_extra_percent) / 100.0) * $vbox_width
+                height = ( ($textBoxHeight.to_f + height_extra_percent ) / 100.0) * $vbox_height
 		y_gap = -30.0 		
 		x_gap = 5.0
 		$textFontSize_pixels = $textFontSize.to_f * font_size_factor				
@@ -560,6 +566,7 @@ def processShapesAndClears
 
 							# Process the rectangle shapes
 							elsif $shapeType.eql? "rectangle"
+                                                                $is_square = shape.xpath(".//square")[0].text()
 								storeRectShape()
 
 							# Process the triangle shapes

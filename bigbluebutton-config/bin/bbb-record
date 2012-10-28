@@ -350,8 +350,6 @@ if [ -z $HEAD ]; then
 	HEAD=99999
 fi
 
-/var/bigbluebutton/recording/raw$ cat /tmp/t | sort -t - -k 2 -r| uniq
-
 tmp_file=$(mktemp)
 ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD > $tmp_file
 ls -t /var/bigbluebutton/recording/raw | grep "[0-9]\{13\}$" | head -n $HEAD >> $tmp_file
