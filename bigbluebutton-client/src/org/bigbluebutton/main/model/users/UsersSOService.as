@@ -49,8 +49,7 @@ package org.bigbluebutton.main.model.users {
 		private static const SO_NAME : String = "participantsSO";
 		private static const STATUS:String = "_STATUS";
 		
-//		private var netConnectionDelegate: NetConnectionDelegate;	
-        private var _connectionManager:ConnectionManager;
+    private var _connectionManager:ConnectionManager;
         
 		private var _room:String;
 		private var _applicationURI:String;
@@ -59,19 +58,21 @@ package org.bigbluebutton.main.model.users {
 				
 		public function UsersSOService(uri:String) {			
 			_applicationURI = uri;
-            _connectionManager = BBB.initConnectionManager();
-            _connectionManager.setUri(uri);
+      _connectionManager = BBB.initConnectionManager();
+      _connectionManager.setUri(uri);
 			dispatcher = new Dispatcher();
 		}
 		
 		public function connect(params:ConferenceParameters):void {
 			_room = params.room;
-            _connectionManager.connect(params);
+      _connectionManager.connect(params);
 		}
 			
 		public function disconnect(onUserAction:Boolean):void {
-			if (_participantsSO != null) _participantsSO.close();
-            _connectionManager.disconnect(onUserAction);
+			if (_participantsSO != null) {
+        _participantsSO.close();
+      }
+      _connectionManager.disconnect(onUserAction);
 		}
 		
 	    public function join(userid:String, room:String):void {
@@ -338,14 +339,12 @@ package org.bigbluebutton.main.model.users {
 			}
 		}
 			
-		private function asyncErrorHandler(event:AsyncErrorEvent):void
-		{
+		private function asyncErrorHandler(event:AsyncErrorEvent):void {
 			LogUtil.debug(LOGNAME + "participantsSO asyncErrorHandler " + event.error);
 			sendConnectionFailedEvent(ConnectionFailedEvent.ASYNC_ERROR);
 		}
 		
-		public function get connection():NetConnection
-		{
+		public function get connection():NetConnection {
 			return _connectionManager.connection;
 		}
 		
