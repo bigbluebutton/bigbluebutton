@@ -44,7 +44,7 @@
 #   2012-02-22 FFD  Updates to development environment
 #   2012-04-27 FFD  Added sum of version numbers in --check
 
-##set -x
+#set -x
 #set -e
 
 PATH=$PATH:/sbin
@@ -1410,7 +1410,7 @@ check_state() {
             fi
 	fi
 
-	if [ -d ${SERVLET_DIR}/lti]; then
+	if [ -d ${SERVLET_DIR}/lti ]; then
 		if test ${SERVLET_DIR}/lti.war -nt ${SERVLET_DIR}/lti; then 
 			echo "# Error: The updated lti.war did not deploy.  To manually deploy:"
 			echo "#"
@@ -1452,7 +1452,7 @@ check_state() {
 	fi
 
 	
-	if [ -f /var/lib/tomcat6/webapps/demo/demo1.jsp ]; then
+	if [ -f ${SERVLET_DIR}/demo/demo1.jsp ]; then
 		BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 		echo "# Warning: The API demos are installed and accessible from:"
 		echo "#"
@@ -1461,6 +1461,18 @@ check_state() {
 		echo "# Use the API demos test your BigBlueButton setup. To remove"
 		echo "#"
 		echo "#    sudo apt-get purge bbb-demo"
+		echo 
+	fi
+
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
+		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')
+		echo "# Warning: The IMS Learning Tools Integration (LTI) is accessible from:"
+		echo "#"
+		echo "#    $LTI_URL"
+		echo "#"
+		echo "# To get the access parameters for LTI, run the command"
+		echo "#"
+		echo "#    bbb-conf --lti"
 		echo 
 	fi
 
