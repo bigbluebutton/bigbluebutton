@@ -2,6 +2,7 @@ package org.bigbluebutton.modules.polling.model
 {
 	import mx.collections.ArrayCollection;
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.modules.polling.model.PollStatLineObject;
 	
 	/*
 	 *  This class has been setted his attributes to public, for serialize with the model of the bigbluebutton-apps, in order
@@ -57,6 +58,36 @@ package org.bigbluebutton.modules.polling.model
 			}else{
 				LogUtil.error(LOGNAME + "This PollObject is NULL.");
 			}
+		}
+		
+		public function generateStats():ArrayCollection{
+			var returnCollection:ArrayCollection = new ArrayCollection;
+			for (var i:int = 0; i < answers.length; i++){
+				var pso:PollStatLineObject = new PollStatLineObject;
+				pso.answer = answers[i].toString();
+				pso.votes = votes[i].toString();
+				//pso.percentage =
+				if (totalVotes == 0){
+					pso.percentage = "";
+				}
+				else{
+					pso.percentage = Math.round(100*(votes[i]/totalVotes)) + "%";
+				}
+				returnCollection.addItem(pso);
+			}
+			return returnCollection;
+		}
+		
+		public function generateTestStats():ArrayCollection{
+			var returnCollection:ArrayCollection = new ArrayCollection;
+			for (var i:int = 0; i < 6; i++){
+				var pso:PollStatLineObject = new PollStatLineObject;
+				pso.answer = "Test answer " + i;
+				pso.votes = "Test votes " + i;
+				pso.percentage = "Test percent " + i;
+				returnCollection.addItem(pso);
+			}
+			return returnCollection;
 		}
 	}
 }
