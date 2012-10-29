@@ -20,7 +20,6 @@ package org.bigbluebutton.conference;
 
 import java.util.Iterator;
 import java.util.Set;
-
 import org.red5.server.api.Red5;import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.red5.logging.Red5LoggerFactory;
@@ -161,11 +160,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	}
 	
 	public void setApplicationListeners(Set<IApplication> listeners) {
-		int count = 0;
 		Iterator<IApplication> iter = listeners.iterator();
 		while (iter.hasNext()) {
 			super.addListener((IApplication) iter.next());
-			count++;
 		}
 	}
 	
