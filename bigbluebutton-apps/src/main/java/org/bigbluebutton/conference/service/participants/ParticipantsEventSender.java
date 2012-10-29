@@ -25,7 +25,7 @@ import java.util.Map;
 import org.bigbluebutton.conference.service.recorder.Recorder;
 import org.bigbluebutton.conference.IRoomListener;
 import org.bigbluebutton.conference.BigBlueButtonUtils;import org.red5.server.api.so.ISharedObject;
-import org.bigbluebutton.conference.Participant;
+import org.bigbluebutton.conference.User;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
@@ -62,7 +62,7 @@ public class ParticipantsEventSender implements IRoomListener {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void participantJoined(Participant p) {
+	public void participantJoined(User p) {
 		log.debug("A participant has joined " + p.getInternalUserID());
 		ArrayList args = new ArrayList();
 		args.add(p.toMap());
@@ -72,7 +72,7 @@ public class ParticipantsEventSender implements IRoomListener {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void participantLeft(Participant p) {
+	public void participantLeft(User p) {
 		ArrayList args = new ArrayList();
 		args.add(p.getInternalUserID());
 		so.sendMessage("participantLeft", args);
@@ -80,7 +80,7 @@ public class ParticipantsEventSender implements IRoomListener {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void participantStatusChange(Participant p, String status, Object value) {
+	public void participantStatusChange(User p, String status, Object value) {
 		log.debug("A participant's status has changed " + p.getInternalUserID() + " " + status + " " + value);
 		ArrayList args = new ArrayList();
 		args.add(p.getInternalUserID());

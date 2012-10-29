@@ -98,7 +98,7 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 	public boolean roomStart(IScope scope) {
 		log.debug("roomStart " + scope.getName());
 		chatApplication.createRoom(scope.getName());
-    	return super.roomStart(scope);
+    	return true;
 	}
 
 	@Override

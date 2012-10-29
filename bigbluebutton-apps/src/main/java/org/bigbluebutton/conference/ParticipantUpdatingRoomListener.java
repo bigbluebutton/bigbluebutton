@@ -46,7 +46,7 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 		return "PARTICIPANT:UPDATE:ROOM";
 	}
 	
-	public void participantStatusChange(Participant p, String status, Object value){
+	public void participantStatusChange(User p, String status, Object value){
 		if (messagingService != null) {
 			HashMap<String,String> map= new HashMap<String, String>();
 			map.put("meetingId", this.room.getName());
@@ -62,7 +62,7 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 		}
 	}
 	
-	public void participantJoined(Participant p) {
+	public void participantJoined(User p) {
 		if (messagingService != null) {
 			HashMap<String,String> map= new HashMap<String, String>();
 			map.put("meetingId", this.room.getName());
@@ -78,7 +78,7 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 		}
 	}
 	
-	public void participantLeft(Participant p) {		
+	public void participantLeft(User p) {		
 		if (messagingService != null) {
 			HashMap<String,String> map= new HashMap<String, String>();
 			map.put("meetingId", this.room.getName());

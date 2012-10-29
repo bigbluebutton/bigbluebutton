@@ -22,7 +22,6 @@
 
 package org.bigbluebutton.conference.service.presentation;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 public interface IPresentationRoomListener {

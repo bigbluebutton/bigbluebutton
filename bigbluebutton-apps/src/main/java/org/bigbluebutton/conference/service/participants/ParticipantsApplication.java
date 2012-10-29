@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import java.util.ArrayList;
 import java.util.Map;import org.bigbluebutton.conference.RoomsManager;
-import org.bigbluebutton.conference.Room;import org.bigbluebutton.conference.Participant;import org.bigbluebutton.conference.IRoomListener;
+import org.bigbluebutton.conference.Room;import org.bigbluebutton.conference.User;import org.bigbluebutton.conference.IRoomListener;
 
 public class ParticipantsApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsApplication.class, "bigbluebutton" );	
@@ -95,7 +95,7 @@ public class ParticipantsApplication {
 	public boolean participantJoin(String roomName, String userid, String username, String role, String externUserID, Map status) {
 		log.debug("participant joining room " + roomName);
 		if (roomsManager.hasRoom(roomName)) {
-			Participant p = new Participant(userid, username, role, externUserID, status);			
+			User p = new User(userid, username, role, externUserID, status);			
 			Room room = roomsManager.getRoom(roomName);
 			room.addParticipant(p);
 			log.debug("participant joined room " + roomName);
