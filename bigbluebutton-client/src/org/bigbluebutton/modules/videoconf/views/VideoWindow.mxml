@@ -45,11 +45,15 @@
       import org.bigbluebutton.core.events.CoreEvent;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
       import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 					
 			private var ns:NetStream;			
 			private var globalDispatcher:Dispatcher;
+      
+      [Bindable] private var talkIcon:Class = images.sound;
+      private var _talkButton:TalkingButtonOverlay = new TalkingButtonOverlay();
 
 			[Bindable]
 			public var videoOptions:VideoConfOptions;
@@ -103,8 +107,12 @@
 			
       private function handleUserTalkingEvent(event:CoreEvent):void {
         if (event.message.userID ==  _sharerUserID) {
-          this._video.visible = event.message.talking;
+          _talkButton.visible = event.message.talking;
         }
+      }
+      
+      protected function onTalkingClicked(event:MouseEvent = null):void {
+        // do nothing
       }
       
 			public function startVideo(connection:NetConnection, stream:String):void{
@@ -147,6 +155,10 @@
 				
 				this.width = _video.width + paddingHorizontal;
 				this.height = _video.height + paddingVertical;	
+        
+        _talkButton.add("talkBtn", talkIcon, "Talking", onTalkingClicked);
+        _talkButton.visible = false;
+        this.addChild(_talkButton);
 			}
 						
 			private function onAsyncError(e:AsyncErrorEvent):void{
