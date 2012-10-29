@@ -41,6 +41,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.core.events.CoreEvent;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.BBBUser;
+	import org.bigbluebutton.main.model.users.events.KickUserEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.views.MainCanvas;
 	import org.bigbluebutton.modules.listeners.events.ListenersCommand;
@@ -202,7 +203,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function getPrefferedPosition():String{
-			if (_buttonsEnabled)
+			if (_controlButtonsEnabled)
 				return MainCanvas.POPUP;
 			else
 				// the window is docked, so it should not be moved on reset layout
@@ -237,8 +238,8 @@ package org.bigbluebutton.modules.videoconf.business
 			super.close(event);
 		}
 		
-		private var _buttons:ButtonsOverlay = null;
-		private var _buttonsEnabled:Boolean = true;
+		private var _controlButtons:ButtonsOverlay = null;
+		private var _controlButtonsEnabled:Boolean = true;
 		
 		private var img_unlock_keep_aspect:Class = images.lock_open;
 		private var img_lock_keep_aspect:Class = images.lock_close;
@@ -248,23 +249,23 @@ package org.bigbluebutton.modules.videoconf.business
     private var ejectIcon:Class = images.delete_icon;
     private var adminIcon:Class = images.admin;
     
-		protected function get buttons():ButtonsOverlay {
-			if (_buttons == null) {
-				_buttons = new ButtonsOverlay;
-				_buttons.add("originalSizeBtn", img_original_size, ResourceUtil.getInstance().getString('bbb.video.originalSizeBtn.tooltip'), onOriginalSizeClick);
-        _buttons.add("muteUnmuteBtn", img_mute_icon, "mute / unmute", onMuteUnmuteClicked);
-        _buttons.add("switchPresenter", adminIcon, "switch presenter", onSwitchPresenterClicked);
-        _buttons.add("ejectUserBtn", ejectIcon, "eject user", onMuteUnmuteClicked);
+		protected function get controlButtons():ButtonsOverlay {
+			if (_controlButtons == null) {
+				_controlButtons = new ButtonsOverlay;
+				_controlButtons.add("originalSizeBtn", img_original_size, ResourceUtil.getInstance().getString('bbb.video.originalSizeBtn.tooltip'), onOriginalSizeClick);
+        _controlButtons.add("muteUnmuteBtn", img_mute_icon, "mute / unmute", onMuteUnmuteClicked);
+        _controlButtons.add("switchPresenter", adminIcon, "switch presenter", onSwitchPresenterClicked);
+        _controlButtons.add("ejectUserBtn", ejectIcon, "eject user", onKickUserClicked);
         
 				// hiding the other buttons
 				//_buttons.add("keepAspectBtn", img_lock_keep_aspect, ResourceUtil.getInstance().getString('bbb.video.keepAspectBtn.tooltip'), onKeepAspectClick);
 				//_buttons.add("fitVideoBtn", img_fit_video, ResourceUtil.getInstance().getString('bbb.video.fitVideoBtn.tooltip'), onFitVideoClick);
 				
-				_buttons.visible = false;
+				_controlButtons.visible = false;
 				
-				this.addChild(_buttons);
+				this.addChild(_controlButtons);
 			} 
-			return _buttons;
+			return _controlButtons;
 		}
 		
 		protected function createButtons():void {
@@ -273,24 +274,24 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		protected function updateButtonsPosition():void {
-			if (buttons.visible == false) {
-				buttons.y = buttons.x = 0;
+			if (controlButtons.visible == false) {
+				controlButtons.y = controlButtons.x = 0;
 			} else {
-				buttons.y = _video.y + _video.height - buttons.height - buttons.padding;
-				buttons.x = _video.x + _video.width - buttons.width - buttons.padding;
+				controlButtons.y = _video.y + _video.height - controlButtons.height - controlButtons.padding;
+				controlButtons.x = _video.x + _video.width - controlButtons.width - controlButtons.padding;
 			}
 		}
 		
 		protected function showButtons(event:MouseEvent = null):void {
-			if (_buttonsEnabled && buttons.visible == false) {
-				buttons.visible = true;
+			if (_controlButtonsEnabled && controlButtons.visible == false) {
+				controlButtons.visible = true;
 				updateButtonsPosition();
 			}
 		}
 		
 		protected function hideButtons(event:MouseEvent = null):void {
-			if (_buttonsEnabled && buttons.visible == true) {
-				buttons.visible = false;
+			if (_controlButtonsEnabled && controlButtons.visible == true) {
+				controlButtons.visible = false;
 				updateButtonsPosition();
 			}
 		}
@@ -311,7 +312,7 @@ package org.bigbluebutton.modules.videoconf.business
 		public function set buttonsEnabled(enabled:Boolean):void {
 			if (!enabled) 
 				hideButtons();
-			_buttonsEnabled = enabled;
+			_controlButtonsEnabled = enabled;
 		}
 		
 		protected function onOriginalSizeClick(event:MouseEvent = null):void {
@@ -320,6 +321,11 @@ package org.bigbluebutton.modules.videoconf.business
 			onFitVideoClick();
 		}		
 		
+    protected function onKickUserClicked(event:MouseEvent = null):void {
+      var gd:Dispatcher = new Dispatcher();
+      gd.dispatchEvent(new KickUserEvent(_sharerUserID)); 
+    }
+       
     protected function onSwitchPresenterClicked(event:MouseEvent = null):void {
       LogUtil.debug("**** SWITCH PRESENTER CLICKED *****");
       var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
@@ -354,13 +360,13 @@ package org.bigbluebutton.modules.videoconf.business
 		protected function onKeepAspectClick(event:MouseEvent = null):void {
 			keepAspect = !keepAspect;
 			
-			var keepAspectBtn:Button = buttons.get("keepAspectBtn");
+			var keepAspectBtn:Button = controlButtons.get("keepAspectBtn");
 			if (keepAspectBtn != null) { 
 				keepAspectBtn.selected = keepAspect;
 				keepAspectBtn.setStyle("icon", (keepAspect? img_lock_keep_aspect: img_unlock_keep_aspect));
 			}
 			
-			var fitVideoBtn:Button = buttons.get("fitVideoBtn");
+			var fitVideoBtn:Button = controlButtons.get("fitVideoBtn");
 			if (fitVideoBtn != null) {
 				fitVideoBtn.enabled = !keepAspect;
 			}		
