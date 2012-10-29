@@ -57,6 +57,7 @@
 				window.connection = _attributes.connection;
 				window.uri = _attributes.uri;
 				window.host = _attributes.host;
+				this.visible = this.includeInLayout = _attributes.showButton.toString().toUpperCase() == "TRUE";
 
 				this.addEventListener(SharedNotesWindow.SHARED_NOTES_CLOSED, closeEventHandler);
 				

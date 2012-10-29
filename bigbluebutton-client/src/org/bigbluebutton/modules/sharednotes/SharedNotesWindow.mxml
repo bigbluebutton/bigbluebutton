@@ -27,7 +27,8 @@
 	title="Notes" 
 	creationComplete="init()" 
 	xmlns:components="org.bigbluebutton.modules.sharednotes.components.*"
-	resize="onResize()">
+	resize="onResize()"
+	showCloseButton="false">
 	
 	<mx:Script>
 		<![CDATA[

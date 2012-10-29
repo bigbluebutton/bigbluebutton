@@ -115,6 +115,7 @@
 			responseTimeout="3000"
 			enablePlayback="false"
 			autoStart="true"
+			showButton="false"
 			dependsOn="ViewersModule"
 			position="bottom-left"
 		/>
