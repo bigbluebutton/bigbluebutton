@@ -24,8 +24,7 @@ package org.bigbluebutton.main.model.users
 	{			
 		private var _status:ArrayCollection;	
 					
-		public function StatusCollection()
-		{
+		public function StatusCollection() {
 			_status = new ArrayCollection();
 		}
 	
@@ -33,15 +32,13 @@ package org.bigbluebutton.main.model.users
 			_status = s;
 		}
 		
-		public function addStatus(status:Status):void
-		{				
+		public function addStatus(status:Status):void {				
 			if (! hasStatus(status.name)) {						
 				_status.addItem(status);
 			}					
 		}
 	
-		public function hasStatus(name:String):Boolean
-		{
+		public function hasStatus(name:String):Boolean {
 			var index:int = getStatusIndex(name);
 			
 			if (index > -1) {
@@ -57,8 +54,7 @@ package org.bigbluebutton.main.model.users
 			}	
 		}
 		
-		public function getStatus(name:String):Status
-		{
+		public function getStatus(name:String):Status {
 			var index:int = getStatusIndex(name);
 			
 			if (index > -1) {
@@ -68,8 +64,7 @@ package org.bigbluebutton.main.model.users
 			return null;				
 		}
 			
-		public function removeStatus(name:String):void
-		{
+		public function removeStatus(name:String):void {
 			var index : int = getStatusIndex(name);
 
 			if (index > -1) {
@@ -77,10 +72,8 @@ package org.bigbluebutton.main.model.users
 			}							
 		}
 			
-		private function getStatusIndex(name:String):int
-		{			
-			for (var i:int=0;i<_status.length;i++)
-			{
+		private function getStatusIndex(name:String):int {			
+			for (var i:int=0;i<_status.length;i++) {
 				var s:Status = _status.getItemAt(i) as Status;
 				
 				if (s.name == name) {
@@ -92,13 +85,11 @@ package org.bigbluebutton.main.model.users
 			return -1;
 		}
 	
-		public function removeAll():void
-		{
+		public function removeAll():void {
 			_status.removeAll();
 		}		
 		
-		public function getAll():ArrayCollection
-		{
+		public function getAll():ArrayCollection {
 			return _status;
 		}			
 	}

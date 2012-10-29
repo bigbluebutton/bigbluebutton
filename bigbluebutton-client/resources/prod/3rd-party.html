@@ -4,7 +4,7 @@
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
     <style type="text/css" media="screen">
-      html, body, #content                    { height:100%; }
+      html, body, #flashclient                { height:100%; }
       body                                    { margin:0; padding:0; overflow:hidden; }
       #altContent                             { /* style alt content */ }
     </style>
@@ -21,8 +21,11 @@
     <script type="text/javascript" src="http://192.168.0.235/3rd-party.js"></script>
     <script>
       window.displayBBBClient = function() {
-        var bbbc = document.getElementById("content");
+        var bbbc = document.getElementById("flashclient");
         bbbc.style.display = "block";
+      }
+      window.onload = function() {
+         registerListeners();
       }
     </script>
   </head>
@@ -37,30 +40,35 @@
       <button type="button" onclick="unmuteMe()">Unmute Me</button>
       <button type="button" onclick="muteAll()">Mute All</button>
       <button type="button" onclick="unmuteAll()">Unmute All</button>
-      
+      <button type="button" onclick="switchLayout('Video Chat')">Switch Video Layout</button>
+      <button type="button" onclick="switchLayout('Default')">Switch Default Layout</button>
+      <button type="button" onclick="sendPublicChat()">Send Public Chat</button>
+      <button type="button" onclick="sendPrivateChat()">Send Private Chat</button>
     </div>
-    <div id="content" style="display: none">
-      <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="80%" height="80%" id="BigBlueButton" name="BigBlueButton" align="middle">
-        <param name="movie" value="http://192.168.0.249/client/BigBlueButton.swf?v=VERSION" />
-        <param name="quality" value="high" />
-        <param name="allowfullscreen" value="true" />
-        <param name="bgcolor" value="#869ca7" />
-        <param name="wmode" value="window" />
-        <param name="allowScriptAccess" value="always" />
-        <!--[if !IE]>-->
-          <object type="application/x-shockwave-flash" data="http://192.168.0.249/client/BigBlueButton.swf?v=VERSION" width="80%" height="80%" align="middle">
-            <param name="quality" value="high" />
-            <param name="bgcolor" value="#869ca7" />
-                <param name="allowScriptAccess" value="always" />
+    <div id="users">Users: </div>
+    <div id="chat">Chat: </div>
+      <div id="flashclient" style="display: none">
+        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="100%" height="90%" id="BigBlueButton" name="BigBlueButton" align="middle">
+          <param name="movie" value="http://192.168.0.249/client/BigBlueButton.swf?v=VERSION" />
+          <param name="quality" value="high" />
+          <param name="allowfullscreen" value="true" />
+          <param name="bgcolor" value="#869ca7" />
+          <param name="wmode" value="window" />
+          <param name="allowScriptAccess" value="always" />
+          <!--[if !IE]>-->
+            <object type="application/x-shockwave-flash" data="http://192.168.0.249/client/BigBlueButton.swf?v=VERSION" width="100%" height="90%" align="middle">
+              <param name="quality" value="high" />
+              <param name="bgcolor" value="#869ca7" />
+              <param name="allowScriptAccess" value="always" />
+              <!--<![endif]-->
+                <a href="http://www.adobe.com/go/getflashplayer">
+                  <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+                </a>
+              <!--[if !IE]>-->
+           </object>
         <!--<![endif]-->
-            <a href="http://www.adobe.com/go/getflashplayer">
-              <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
-            </a>
-        <!--[if !IE]>-->
-          </object>
-        <!--<![endif]-->
-      </object>
-    </div>
+        </object>
+      </div>
     <div id="update-display"/>
     <div id="notifications" aria-live="polite" role="region" aria-label="Chat Notifications"></div>
   </body>

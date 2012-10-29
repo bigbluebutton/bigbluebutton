@@ -126,10 +126,10 @@ module BigBlueButton
 	target_dir = File.dirname("#{video_out}")
 
 	#Concatenate mpg files
-	BigBlueButton.concatenate_mpg_files(mpgs,"#{target_dir}/webcam.mpg")
+	BigBlueButton.concatenate_mpg_files(mpgs,"#{target_dir}/concatenated.mpg")
     
 	#Convert mpg to flv
-	BigBlueButton.convert_mpg_to_flv("#{target_dir}/webcam.mpg", video_out)
+	BigBlueButton.convert_mpg_to_flv("#{target_dir}/concatenated.mpg", video_out)
 
   end
 
@@ -641,6 +641,17 @@ module BigBlueButton
     command = "ffmpeg -i #{target_dir}/audio.ogg -i #{concat_vid} -loglevel fatal -v -10 -vcodec libvpx -b 1000k -threads 0  -map 1:0 -map 0:0 -ar 22050 #{target_dir}/webcams.webm"
     BigBlueButton.execute(command)
   end
+
+
+ # Muxes audio with deskshare video
+ # audio_file     : Audio of the recording
+ # deskshare_file : Video of shared desktop of the recording
+
+ def self.mux_audio_deskshare(target_dir, audio_file, deskshare_file)
+  command = "ffmpeg -i #{audio_file} -i #{deskshare_file} -loglevel fatal -v -10 -vcodec flv -b 1000k -threads 0  -map 1:0 -map 0:0 -ar 22050 #{target_dir}/muxed_audio_deskshare.flv"
+  BigBlueButton.execute(command)
+  FileUtils.mv("#{target_dir}/muxed_audio_deskshare.flv","#{target_dir}/deskshare.flv")
+ end
 
 end
 

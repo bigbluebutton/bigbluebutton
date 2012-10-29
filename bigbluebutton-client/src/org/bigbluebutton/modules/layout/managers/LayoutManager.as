@@ -42,6 +42,7 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.Config;
   import org.bigbluebutton.main.events.ModuleLoadEvent;
+  import org.bigbluebutton.main.model.LayoutOptions;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
   import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
@@ -190,8 +191,24 @@ package org.bigbluebutton.modules.layout.managers
 			}
 		}
 
-		public function applyDefaultLayout():void {
-			applyLayout(_layouts.getDefault());
+    public function switchToLayout(name:String):void {
+      var newLayout:LayoutDefinition = _layouts.getLayout(name);
+      if (newLayout == null) return;
+
+      LogUtil.debug("************** USING [" + newLayout.name + "] LAYOUT ***************************");
+      applyLayout(newLayout);
+      sendLayoutUpdate(_currentLayout);      
+    }
+    
+		public function applyDefaultLayout():void {      
+      var layoutOptions:LayoutOptions = new LayoutOptions();
+      layoutOptions.parseOptions();
+      var defaultLayout:LayoutDefinition = _layouts.getLayout(layoutOptions.defaultLayout);
+      if (defaultLayout == null) {
+        defaultLayout = _layouts.getDefault();
+      }
+      LogUtil.debug("************** USING [" + defaultLayout.name + "] LAYOUT ***************************");
+			applyLayout(defaultLayout);
 			sendLayoutUpdate(_currentLayout);
 		}
 		

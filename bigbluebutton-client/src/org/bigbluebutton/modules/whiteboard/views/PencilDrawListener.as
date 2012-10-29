@@ -36,12 +36,22 @@ package org.bigbluebutton.modules.whiteboard.views
       _shapeFactory = shapeFactory;
       _wbModel = wbModel;
     }
-        
+    
+    private var objCount:Number = 0;
+    
     public function onMouseDown(mouseX:Number, mouseY:Number, tool:WhiteboardTool):void
     {
       if (tool.graphicType == WhiteboardConstants.TYPE_SHAPE) {
         _isDrawing = true;
         _drawStatus = DrawObject.DRAW_START;
+        
+        // Generate a shape id so we can match the mouse down and up events. Then we can
+        // remove the specific shape when a mouse up occurs.
+        _curID = _idGenerator.generateID();
+        
+//        LogUtil.debug("* START count = [" + objCount + "] id=[" + _curID + "]"); 
+        
+        
         _segment = new Array();               
         _segment.push(mouseX);
         _segment.push(mouseY);
@@ -62,9 +72,9 @@ package org.bigbluebutton.modules.whiteboard.views
         if (_isDrawing){
 
           // Throttle the mouse position to prevent us from overloading the server
-          if ( (Math.abs(mouseX - _lastMouseX) < 3) && (Math.abs(mouseY - _lastMouseY) < 3) ) {
-            return;
-          }
+//          if ( (Math.abs(mouseX - _lastMouseX) < 3) && (Math.abs(mouseY - _lastMouseY) < 3) ) {
+//            return;
+//          }
           _lastMouseX = mouseX;
           _lastMouseY = mouseY;
           
@@ -101,7 +111,7 @@ package org.bigbluebutton.modules.whiteboard.views
 
             if (!(Math.abs(width) <= 2 && Math.abs(height) <=2)) {
               sendShapeToServer(DrawObject.DRAW_END, tool);
-            }
+           }
           } else {
             sendShapeToServer(DrawObject.DRAW_END, tool);
           } /* (tool.toolType */					
@@ -110,7 +120,10 @@ package org.bigbluebutton.modules.whiteboard.views
     }
     
     private function sendShapeToServer(status:String, tool:WhiteboardTool):void {
-      if (_segment.length == 0) return;
+      if (_segment.length == 0) {
+//        LogUtil.debug("SEGMENT LENGTH = 0");
+        return;
+      }
                        
       var dobj:DrawAnnotation = _shapeFactory.createDrawObject(tool.toolType, _segment, tool.drawColor, tool.thickness, 
                                                   tool.fillOn, tool.fillColor, tool.transparencyOn);
@@ -125,18 +138,23 @@ package org.bigbluebutton.modules.whiteboard.views
       switch (status) {
         case DrawObject.DRAW_START:
           dobj.status = DrawObject.DRAW_START;
-          _curID = _idGenerator.generateID();
           dobj.id = _curID;
+//          LogUtil.debug("START count = [" + objCount + "] id=[" + _curID + "]");
           _drawStatus = DrawObject.DRAW_UPDATE;
           break;
         case DrawObject.DRAW_UPDATE:
           dobj.status = DrawObject.DRAW_UPDATE;
           dobj.id = _curID;
+//          LogUtil.debug("UPDATE count = [" + objCount + "] id=[" + _curID + "]");
           break;
         case DrawObject.DRAW_END:
           dobj.status = DrawObject.DRAW_END;
           dobj.id = _curID;
           _drawStatus = DrawObject.DRAW_START;
+          
+//          LogUtil.debug("END count = [" + objCount + "] id=[" + _curID + "]"); 
+//          objCount++;
+          
           break;
       }
             

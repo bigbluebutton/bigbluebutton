@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
@@ -21,30 +21,27 @@
 test -x /var/bigbluebutton || exit 0
 
 #
-# Disable this cron job for now (the administrator can manually enable it).
+# How far back to delete old files
 #
-# We disable it for now to ensure if rap-worker.rb didn't archive a recording
-# we can try and archive it again without having the source files deleted.
-#
-exit 0
+history=5
 
 #
-# Delete presentations older than a day
+# Delete presentations older than 10 days
 #
-find /var/bigbluebutton -maxdepth 1 -type d -name "*-*" -mtime +11 -exec rm -r '{}' \;
+find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec rm -r '{}' \;
 
 #
 # Delete webcam streams in red5 older than one day
 #
-find /usr/share/red5/webapps/video/streams -name "*.flv" -mtime +1 -exec rm '{}' \;
+find /usr/share/red5/webapps/video/streams/ -name "*.flv" -mtime +$history -exec rm '{}' \;
 
 #
 # Delete desktop sharing streams in red5 older than one day
 #
-find /var/bigbluebutton/deskshare -name "*.flv" -mtime +1 -exec rm '{}' \;
+find /var/bigbluebutton/deskshare/ -name "*.flv" -mtime +$history -exec rm '{}' \;
 
 #
 # Delete FreeSWITCH wav recordings older than one day
 #
-find /var/freeswitch/meetings -name "*.wav" -mtime +1 -exec rm '{}' \;
+find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -exec rm '{}' \;
 

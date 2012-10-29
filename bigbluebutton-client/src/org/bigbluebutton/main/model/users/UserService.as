@@ -53,7 +53,8 @@ package org.bigbluebutton.main.model.users
 		public function startService(e:UserServicesEvent):void {
 			applicationURI = e.applicationURI;
 			hostURI = e.hostURI;
-			
+			BBB.initConnectionManager().isTunnelling = e.isTunnelling;
+      
 			joinService = new JoinService();
 			joinService.addJoinResultListener(joinListener);
 			joinService.load(e.hostURI);

@@ -31,12 +31,8 @@ package org.bigbluebutton.modules.classyaudio.managers
 	import flash.media.SoundCodec;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
-	
-	import mx.controls.Alert;
-	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.modules.classyaudio.events.MicMutedEvent;
 	import org.bigbluebutton.modules.classyaudio.events.PlayStreamStatusEvent;
 	

@@ -19,21 +19,14 @@
 package org.bigbluebutton.modules.chat.events
 {
 	import flash.events.Event;
-	
-	import org.bigbluebutton.modules.chat.model.ChatObject;
+	import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
 
 	public class PublicChatMessageEvent extends Event
 	{
 		public static const PUBLIC_CHAT_MESSAGE_EVENT:String = 'PUBLIC_CHAT_MESSAGE_EVENT';
 		
-		/*public var message:String;
-		public var username:String;
-		public var color:String;
-		public var time:String;
-		public var language:String;
-		public var userid:String;*/
-		public var chatobj:ChatObject;
-		
+    public var message:ChatMessageVO;
+    
 		public function PublicChatMessageEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);

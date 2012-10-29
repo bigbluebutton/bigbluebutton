@@ -7,8 +7,9 @@
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
     <skinning enabled="false" url="branding/css/theme.css.swf" />
-    <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" showToolbar="true" showHelpButton="true" showLogoutWindow="true"/>
-    
+    <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
+            showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true"/>
+            
 	<modules>
 		
 		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION" 
@@ -70,7 +71,7 @@
 			convolutionFilter="-1, 0, -1, 0, 6, 0, -1, 0, -1"
 			filterBias="0"
 			filterDivisor="4"
-			enableH264 = "false"
+			enableH264 = "true"
 			h264Level = "2.1"
 			h264Profile = "main"			
 		/>

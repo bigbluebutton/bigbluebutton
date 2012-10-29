@@ -122,7 +122,7 @@ br{
 	padding: 0 10px;
 	border: 1px solid #ccc;
 	height: 300px;
-
+	overflow: auto;
 }
 #chat div{
 	padding:0px;
@@ -194,7 +194,11 @@ br{
         color: #666;
         text-align: center;
         clear: both;
+<<<<<<< HEAD
 	padding-top: 25px;
+=======
+	padding-top: 35px;
+>>>>>>> origin/master
 }
 
 .circle {

@@ -8,6 +8,7 @@ package org.bigbluebutton.main.api
   
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventConstants;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.BBBEvent;
@@ -35,14 +36,86 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("muteAllUsersRequest", handleMuteAllUsersRequest);
         ExternalInterface.addCallback("unmuteAllUsersRequest", handleUnmuteAllUsersRequest);
         ExternalInterface.addCallback("shareVideoCamera", onShareVideoCamera);
-        ExternalInterface.addCallback("unshareVideo", placeHolder);        
+        ExternalInterface.addCallback("switchLayout", handleSwitchLayoutRequest);
+        ExternalInterface.addCallback("sendPublicChatRequest", handleSendPublicChatRequest);  
+        ExternalInterface.addCallback("sendPrivateChatRequest", handleSendPrivateChatRequest); 
       }
     }
-    
-    private function placeHolder():void {
-      LogUtil.debug("Placeholder");
-    }
 
+    /**
+    * Request to send a public chat
+    *  fromUserID - the external user id for the sender
+    *  fontColor  - the color of the font to display the message
+    *  localeLang - the 2-char locale code (e.g. en) for the sender
+    *  message    - the message to send
+    * 
+    */
+    private function handleSendPublicChatRequest(fontColor:String, localeLang:String, message:String):void {
+      LogUtil.debug("handleSendPublicChatRequest");
+      var chatEvent:CoreEvent = new CoreEvent(EventConstants.SEND_PUBLIC_CHAT_REQ);      
+      var payload:Object = new Object();      
+      payload.fromColor = fontColor;
+      payload.fromLang = localeLang;
+      
+      var now:Date = new Date();
+      payload.fromTime = now.getTime();
+      payload.fromTimezoneOffset = now.getTimezoneOffset();
+      
+      payload.message = message;
+      
+      // Need to convert the internal user id to external user id in case the 3rd-party app passed 
+      // an external user id for it's own use.
+      payload.fromUserID = UsersUtil.getMyUserID();
+      payload.fromUsername = UsersUtil.getUserName(payload.fromUserID);
+      
+      chatEvent.message = payload;
+      
+      _dispatcher.dispatchEvent(chatEvent);
+    }
+    
+    /**
+     * Request to send a private chat
+     *  fromUserID - the external user id for the sender
+     *  fontColor  - the color of the font to display the message
+     *  localeLang - the 2-char locale code (e.g. en) for the sender
+     *  message    - the message to send
+     *  toUserID   - the external user id of the receiver
+     */
+    private function handleSendPrivateChatRequest(fontColor:String, localeLang:String, message:String, toUserID:String):void {
+      var chatEvent:CoreEvent = new CoreEvent(EventConstants.SEND_PRIVATE_CHAT_REQ);      
+      var payload:Object = new Object();      
+      payload.fromColor = fontColor;
+      payload.fromLang = localeLang;
+      
+      var now:Date = new Date();
+      payload.fromTime = now.getTime();
+      payload.fromTimezoneOffset = now.getTimezoneOffset();
+      
+      payload.message = message;
+      
+      // Need to convert the internal user id to external user id in case the 3rd-party app passed 
+      // an external user id for it's own use.
+      payload.fromUserID = UsersUtil.getMyUserID();
+      // Now get the user's name using the internal user id 
+      payload.fromUsername = UsersUtil.getUserName(payload.fromUserID);
+
+      // Need to convert the internal user id to external user id in case the 3rd-party app passed 
+      // an external user id for it's own use.
+      payload.toUserID = UsersUtil.externalUserIDToInternalUserID(toUserID);
+      // Now get the user's name using the internal user id 
+      payload.toUsername = UsersUtil.getUserName(payload.toUserID);
+      
+      chatEvent.message = payload;
+      
+      _dispatcher.dispatchEvent(chatEvent);
+    }      
+
+    private function handleSwitchLayoutRequest(newLayout:String):void {
+      var layoutEvent:CoreEvent = new CoreEvent(EventConstants.SWITCH_LAYOUT_REQ);
+      layoutEvent.message.layoutName = newLayout;
+      _dispatcher.dispatchEvent(layoutEvent);
+    }
+    
     private function handleMuteAllUsersRequest():void {
       _dispatcher.dispatchEvent(new ListenersCommand(ListenersCommand.MUTE_ALL));
     }

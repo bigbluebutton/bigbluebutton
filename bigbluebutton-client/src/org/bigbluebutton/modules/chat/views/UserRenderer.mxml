@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+         verticalScrollPolicy="off" horizontalScrollPolicy="off">
+  <mx:Script>
+    <![CDATA[
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+    ]]>
+  </mx:Script>
+  <mx:Label id="nameLabel" textAlign="left" text="{data.name} {data.me ? '(you)' : ''}" 
+            fontWeight="{data.me ? 'bold' : 'normal'}"
+            color="{data.me ? 0x003399 : 0x000000}"/>
+</mx:HBox>

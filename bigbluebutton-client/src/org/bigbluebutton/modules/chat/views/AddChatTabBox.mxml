@@ -20,31 +20,27 @@
   $Id: $
 -->
 
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" creationComplete="init()" xmlns:mate="http://mate.asfusion.com/">
-	
-	<mate:Listener type="{ChatOptionsEvent.TRANSLATION_OPTION_ENABLED}" method="toggleTranslateEnabled" />
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+         xmlns:mate="http://mate.asfusion.com/"
+         implements="org.bigbluebutton.modules.chat.views.IChatTab"
+         creationComplete="init()">
 	
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.chat.model.ChatOptions;
-			import com.adobe.utils.StringUtil;			
-			import mx.collections.ArrayCollection;
-			import mx.events.ListEvent;
-			import mx.utils.StringUtil;			
-			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.common.LogUtil;
+      import mx.collections.ArrayCollection;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.modules.chat.model.ChatOptions;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			[Bindable] public var participants:ArrayCollection;
+			[Bindable] public var users:ArrayCollection;
 			[Bindable] public var chatView:ChatView;
-			[Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
-			
+
 			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();			
-			[Bindable] private var langNames:Array = ResourceUtil.getInstance().localeNames;		
-			[Bindable] private var langCodes:Array = ResourceUtil.getInstance().localeCodes;
+
 			
 			private function init():void{
-				participants = new ArrayCollection();
+				users = UserManager.getInstance().getConference().users;
 			}
 			
 			public function accessibleClick(event:KeyboardEvent):void{
@@ -53,62 +49,30 @@
 				}
 			}
 
-			//protected function openPrivateChat(event:ListEvent):void{ AddChatTabBox
 			protected function openPrivateChat(event:Event):void{
-				if (participantsList.selectedIndex == -1) return;
-				var id:String = participantsList.selectedItem.userid;
-				participantsList.selectedIndex = -1;
-				chatView.openChatBoxFor(id);
-			}
-			
-			private function changeFontSize():void {
-				var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.CHANGE_FONT_SIZE);
-				e.fontSize = int(cmbFontSize.selectedItem);
-				dispatchEvent(e);
-			}
-			
-			private function changeLanguage():void {
-				ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(this.langComboBox.selectedIndex));
-			}
-			
-			private function toggleTranslation():void {
-				var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.TOGGLE_TRANSLATE);	
-				e.translateOn = autoTransCheckBox.selected;
-				dispatchEvent(e);
-			}
-			
-			private function toggleTranslateEnabled(e:ChatOptionsEvent):void{
-				if (e.translationEnabled){
-					langComboBox.visible = true;
-					autoTransCheckBox.visible = true;
-				} else {
-					langComboBox.visible = false;
-					autoTransCheckBox.visible = false;
-				}
-				autoTransCheckBox.selected = e.translateOn;
-				toggleTranslation();
+				if (usersList.selectedIndex == -1) return;
+
+				var chatWithUserID:String = usersList.selectedItem.userID;
+        
+        // Don't want to be chatting with ourself.
+        if (UsersUtil.isMe(chatWithUserID)) return;
+        
+				usersList.selectedIndex = -1;
+				chatView.startPrivateChatWith(chatWithUserID);
 			}
 						
+      public function focusToTextMessageArea():void {
+        // Do nothing. This is only handle by the chat boxes.
+      }
 		]]>
 	</mx:Script>
 	
 	<mx:HBox width="100%" height="100%" >
 		<mx:VBox height="100%" width="50%" visible="{chatOptions.privateEnabled}">
 			<mx:Label id="lblSelect" text="{ResourceUtil.getInstance().getString('bbb.chat.privateChatSelect')}" />
-			<mx:List id="participantsList" height="100%" width="100%" dataProvider="{chatView.participants}" itemClick="openPrivateChat(event)">
-			</mx:List>
+			<mx:List id="usersList" height="100%" width="100%" dataProvider="{users}" dragEnabled="false"
+               itemRenderer="org.bigbluebutton.modules.chat.views.UserRenderer"
+               itemClick="openPrivateChat(event)"/>
 		</mx:VBox>
-		<mx:VBox id="optionsBox" height="100%" width="50%" >
-			<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
-			<mx:HBox width="100%">
-				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
-				<mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" 
-							 selectedIndex="1" toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.plustab.fontsize')}"/>
-			</mx:HBox>
-			<mx:ComboBox id="langComboBox" dataProvider="{this.langNames}" selectedIndex="{ResourceUtil.getInstance().localeIndex}"  change="changeLanguage()" rowCount="15" />
-			<mx:CheckBox id="autoTransCheckBox" selected="false" label="AutoTranslate" toolTip="Auto detect language and translate" change="toggleTranslation()"/>
-		</mx:VBox>
-	</mx:HBox>
-	
-	
+	</mx:HBox>	
 </mx:VBox>

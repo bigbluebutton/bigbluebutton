@@ -226,12 +226,18 @@ package org.bigbluebutton.modules.videoconf.business
 		private var img_lock_keep_aspect:Class = images.lock_close;
 		private var img_fit_video:Class = images.arrow_in;
 		private var img_original_size:Class = images.shape_handles;
-		
+		private var img_mute_icon:Class = images.sound_mute;
+    private var ejectIcon:Class = images.delete_icon;
+    private var adminIcon:Class = images.admin;
+    
 		protected function get buttons():ButtonsOverlay {
 			if (_buttons == null) {
 				_buttons = new ButtonsOverlay;
 				_buttons.add("originalSizeBtn", img_original_size, ResourceUtil.getInstance().getString('bbb.video.originalSizeBtn.tooltip'), onOriginalSizeClick);
-				
+        _buttons.add("muteUnmuteBtn", img_mute_icon, "mute / unmute", onMuteUnmuteClicked);
+        _buttons.add("switchPresenter", adminIcon, "switch presenter", onMuteUnmuteClicked);
+        _buttons.add("ejectUserBtn", ejectIcon, "eject user", onMuteUnmuteClicked);
+        
 				// hiding the other buttons
 				//_buttons.add("keepAspectBtn", img_lock_keep_aspect, ResourceUtil.getInstance().getString('bbb.video.keepAspectBtn.tooltip'), onKeepAspectClick);
 				//_buttons.add("fitVideoBtn", img_fit_video, ResourceUtil.getInstance().getString('bbb.video.fitVideoBtn.tooltip'), onFitVideoClick);
@@ -296,6 +302,10 @@ package org.bigbluebutton.modules.videoconf.business
 			onFitVideoClick();
 		}		
 		
+    protected function onMuteUnmuteClicked(event:MouseEvent = null):void {
+      
+    }
+    
 		protected function onFitVideoClick(event:MouseEvent = null):void {
 			var newWidth:int = _video.width + paddingHorizontal;
 			var newHeight:int = _video.height + paddingVertical;

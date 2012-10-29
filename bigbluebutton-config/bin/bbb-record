@@ -25,6 +25,8 @@
 #   2012-01-04 GUG  Add option to check for errors
 #   2012-02-27 GUG  Add option to delete one meeting and recording
 #   2012-08-13 GUG  Republish recording
+#   2012-10-22 FFD  Use combination of /var/bigbluebutton and /var/bigbluebutton/recording/raw
+#                   to get the list of recent recordings for bbb-record --watch
 
 #set -e
 #set -x
@@ -347,8 +349,13 @@ if [ -z $HEAD ]; then
 	# If we're not called with --list20, show all recordings
 	HEAD=99999
 fi
+
+tmp_file=$(mktemp)
+ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD > $tmp_file
+ls -t /var/bigbluebutton/recording/raw | grep "[0-9]\{13\}$" | head -n $HEAD >> $tmp_file
                                                               
-for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD); do
+#for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD); do
+for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
 	echo -n "$meeting"
 	timestamp=$(echo $meeting | sed s/.*-//g)
 	epoc=$(($timestamp/1000))

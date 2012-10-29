@@ -1,17 +1,10 @@
 package org.bigbluebutton.conference.service.recorder.chat;
 
-import java.util.Hashtable;
-
-import org.bigbluebutton.conference.BigBlueButtonUtils;
-import org.bigbluebutton.conference.service.chat.ChatObject;
+import org.bigbluebutton.conference.service.chat.ChatMessageVO;
 import org.bigbluebutton.conference.service.chat.IChatRoomListener;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
-import org.red5.logging.Red5LoggerFactory;
-import org.slf4j.Logger;
 
-public class ChatEventRecorder implements IChatRoomListener {
-	private static Logger log = Red5LoggerFactory.getLogger( ChatEventRecorder.class, "bigbluebutton" );
-	
+public class ChatEventRecorder implements IChatRoomListener {	
 	private final RecorderApplication recorder;
 	private final String session;
 	
@@ -27,18 +20,18 @@ public class ChatEventRecorder implements IChatRoomListener {
 	}
 
 	@Override
-	public void newChatMessage(ChatObject chatobj) {
+	public void newChatMessage(ChatMessageVO chatobj) {
 		recorder.record(session, buildEvent(chatobj));		
 	}
 	
-	private PublicChatRecordEvent buildEvent(ChatObject chatobj) {
+	private PublicChatRecordEvent buildEvent(ChatMessageVO chatobj) {
 		PublicChatRecordEvent ev = new PublicChatRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());
 		ev.setMeetingId(session);
-		ev.setSender(chatobj.username);
+		ev.setSender(chatobj.fromUsername);
 		ev.setMessage(chatobj.message);
-		ev.setLocale(chatobj.language);
-		ev.setColor(chatobj.color);
+		ev.setLocale(chatobj.fromLang);
+		ev.setColor(chatobj.fromColor);
 		return ev;
 	}
 }

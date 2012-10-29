@@ -80,7 +80,42 @@
       }
     }
     
+    BBB.switchLayout = function(newLayout) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.switchLayout(newLayout);
+      }
+    }
+
+    /**
+    * Request to send a public chat
+    *  fromUserID - the external user id for the sender
+    *  fontColor  - the color of the font to display the message
+    *  localeLang - the 2-char locale code (e.g. en) for the sender
+    *  message    - the message to send
+    */    
+    BBB.sendPublicChatMessage = function(fontColor, localeLang, message) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.sendPublicChatRequest(fontColor, localeLang, message);
+      }    
+    }
     
+    /**
+    * Request to send a private chat
+    *  fromUserID - the external user id for the sender
+    *  fontColor  - the color of the font to display the message
+    *  localeLang - the 2-char locale code (e.g. en) for the sender
+    *  message    - the message to send
+    *  toUserID   - the external user id of the receiver
+    */    
+    BBB.sendPrivateChatMessage = function(fontColor, localeLang, message, toUserID) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.sendPrivateChatRequest(fontColor, localeLang, message, toUserID);
+      }    
+    }
+        
     /* ***********************************************************************************
      *       Broadcasting of events to 3rd-party apps.
      *************************************************************************************/
