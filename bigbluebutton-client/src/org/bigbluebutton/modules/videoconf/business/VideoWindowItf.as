@@ -19,19 +19,15 @@
 
 package org.bigbluebutton.modules.videoconf.business
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-	import flash.media.Video;
-	
+	import flash.media.Video;	
 	import flexlib.mdi.containers.MDIWindow;
-	import flexlib.mdi.events.MDIWindowEvent;
-	
+	import flexlib.mdi.events.MDIWindowEvent;	
 	import mx.containers.Panel;
 	import mx.controls.Button;
-	import mx.core.UIComponent;
-	
+	import mx.core.UIComponent;	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.common.LogUtil;
@@ -85,13 +81,7 @@ package org.bigbluebutton.modules.videoconf.business
 				return resolutions[0].split("x");
 			}
 		}
-		
-    protected function handleUserTalkingEvent(event:CoreEvent):void {
-      if (event.message.userID ==  _sharerUserID) {
-        this._video.visible = event.message.talking;
-      }
-    }
-    
+		    
 		protected function get paddingVertical():Number {
 			return this.borderMetrics.top + this.borderMetrics.bottom;
 		}
@@ -238,7 +228,7 @@ package org.bigbluebutton.modules.videoconf.business
 			super.close(event);
 		}
 		
-		private var _controlButtons:ButtonsOverlay = null;
+		private var _controlButtons:ControlButtonsOverlay = null;
 		private var _controlButtonsEnabled:Boolean = true;
 		
 		private var img_unlock_keep_aspect:Class = images.lock_open;
@@ -249,9 +239,9 @@ package org.bigbluebutton.modules.videoconf.business
     private var ejectIcon:Class = images.delete_icon;
     private var adminIcon:Class = images.admin;
     
-		protected function get controlButtons():ButtonsOverlay {
+		protected function get controlButtons():ControlButtonsOverlay {
 			if (_controlButtons == null) {
-				_controlButtons = new ButtonsOverlay;
+				_controlButtons = new ControlButtonsOverlay;
 				_controlButtons.add("originalSizeBtn", img_original_size, ResourceUtil.getInstance().getString('bbb.video.originalSizeBtn.tooltip'), onOriginalSizeClick);
         _controlButtons.add("muteUnmuteBtn", img_mute_icon, "mute / unmute", onMuteUnmuteClicked);
         _controlButtons.add("switchPresenter", adminIcon, "switch presenter", onSwitchPresenterClicked);

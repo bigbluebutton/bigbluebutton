@@ -47,8 +47,10 @@
       import org.bigbluebutton.common.events.LocaleChangeEvent;
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.CoreEvent;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
       import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
       import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
       import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
@@ -62,6 +64,10 @@
 			[Bindable] private var defaultWidth:Number = 320;
 			[Bindable] private var defaultHeight:Number = 240;
 			
+      [Bindable] private var talkIcon:Class = images.sound;
+      private var _talkButton:TalkingButtonOverlay = new TalkingButtonOverlay();
+      
+      
 			private var camWidth:Number = 320;
 			private var camHeight:Number = 240;
 			private var _userrole:String;
@@ -124,6 +130,12 @@
 				autoPublishTimer.stop();
 			}
 						
+      private function handleUserTalkingEvent(event:CoreEvent):void {
+        if (event.message.userID ==  _sharerUserID) {
+          _talkButton.visible = event.message.talking;
+        }
+      }
+      
 			private function loadPrefs():void{
 				var sharedObject:SharedObject = SharedObject.getLocal("bbbUserProperties", "/");
 				var webcam:String = sharedObject.data["webcam"] as String;
@@ -193,8 +205,16 @@
 				}				
 
 				_videoHolder.addChild(_video);
-   			}
-   			
+        
+        _talkButton.add("talkBtn", talkIcon, "Talking", onTalkingClicked);
+        _talkButton.visible = false;
+        this.addChild(_talkButton);
+   		}
+   		
+      protected function onTalkingClicked(event:MouseEvent = null):void {
+        // do nothing
+      }
+      
 			private function onActivityEvent(e:ActivityEvent):void {
 			    if (_waitingForActivation && e.activating) {
 			        _activationTimer.stop();

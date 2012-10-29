@@ -42,6 +42,7 @@
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.CloseWindowEvent;
       import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.core.events.CoreEvent;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
@@ -100,6 +101,12 @@
 				dispatchEvent(bbbEvt);
 			}
 			
+      private function handleUserTalkingEvent(event:CoreEvent):void {
+        if (event.message.userID ==  _sharerUserID) {
+          this._video.visible = event.message.talking;
+        }
+      }
+      
 			public function startVideo(connection:NetConnection, stream:String):void{
 				ns = new NetStream(connection);
 				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
