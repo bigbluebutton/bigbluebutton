@@ -46,6 +46,7 @@
       import org.bigbluebutton.common.events.CloseWindowEvent;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
       import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
@@ -267,6 +268,10 @@
 				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
 				
 				createButtons();
+        
+        // Store the userid for the publisher. This allows us to control
+        // the user's status from the video window
+        _sharerUserID = UsersUtil.getMyUserID();
 				
 				// this event will dock the window, if it's enabled
 				var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();

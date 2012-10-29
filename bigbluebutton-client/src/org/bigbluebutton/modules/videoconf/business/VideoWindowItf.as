@@ -66,7 +66,7 @@ package org.bigbluebutton.modules.videoconf.business
 		
 		public var streamName:String;
 
-    private var _sharerUserID:String = null;
+    protected var _sharerUserID:String = null;
     
 		[Bindable] public var resolutions:Array;
 		
