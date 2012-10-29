@@ -70,7 +70,7 @@ package org.bigbluebutton.modules.layout.model
 		public function toXml():XML {
 			var xml:XML = <layouts/>;
 			for each (var layoutDefinition:LayoutDefinition in _layouts) {
-				for each (var value:XML in layoutDefinition.toXml()) {
+				for each (var value:XML in layoutDefinition.toXml().children()) {
 					xml.appendChild(value);
 				}
 			}
