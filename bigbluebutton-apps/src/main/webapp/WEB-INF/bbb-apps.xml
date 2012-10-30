@@ -18,9 +18,9 @@
 		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
 	</bean>
 	
-	<bean id="participantsApplication" 
-	    class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">
+	<bean id="participantsApplication" class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">
 		<property name="roomsManager"> <ref local="roomsManager"/></property>
+		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>
 	</bean>
 	
 	<bean id="participants.service" class="org.bigbluebutton.conference.service.participants.ParticipantsService">
