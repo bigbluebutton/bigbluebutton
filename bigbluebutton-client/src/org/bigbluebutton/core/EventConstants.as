@@ -28,5 +28,6 @@ package org.bigbluebutton.core
     public static const USER_JOINED_VOICE:String          = 'UserJoinedVoiceEvent';
     public static const USER_LEFT_VOICE:String            = 'UserLeftVoiceEvent';
     public static const USER_TALKING:String               = 'UserTalkingEvent';
+    public static const START_PRIVATE_CHAT:String         = "StartPrivateChatEvent";
   }
 }

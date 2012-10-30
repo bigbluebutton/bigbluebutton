@@ -19,20 +19,25 @@
 
 package org.bigbluebutton.modules.videoconf.business
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-	import flash.media.Video;	
+	import flash.media.Video;
+	
 	import flexlib.mdi.containers.MDIWindow;
-	import flexlib.mdi.events.MDIWindowEvent;	
+	import flexlib.mdi.events.MDIWindowEvent;
+	
 	import mx.containers.Panel;
 	import mx.controls.Button;
-	import mx.core.UIComponent;	
+	import mx.core.UIComponent;
+	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.DragWindowEvent;
+	import org.bigbluebutton.core.EventConstants;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.events.CoreEvent;
 	import org.bigbluebutton.core.managers.UserManager;
@@ -238,6 +243,7 @@ package org.bigbluebutton.modules.videoconf.business
 		private var img_mute_icon:Class = images.sound_mute;
     private var ejectIcon:Class = images.delete_icon;
     private var adminIcon:Class = images.admin;
+    private var talkIcon:Class = images.sound;
     
 		protected function get controlButtons():ControlButtonsOverlay {
 			if (_controlButtons == null) {
@@ -246,6 +252,7 @@ package org.bigbluebutton.modules.videoconf.business
         _controlButtons.add("muteUnmuteBtn", img_mute_icon, "mute / unmute", onMuteUnmuteClicked);
         _controlButtons.add("switchPresenter", adminIcon, "switch presenter", onSwitchPresenterClicked);
         _controlButtons.add("ejectUserBtn", ejectIcon, "eject user", onKickUserClicked);
+        _controlButtons.add("privateChatBtn", talkIcon, "Start private chat", onPrivateChatClicked);
         
 				// hiding the other buttons
 				//_buttons.add("keepAspectBtn", img_lock_keep_aspect, ResourceUtil.getInstance().getString('bbb.video.keepAspectBtn.tooltip'), onKeepAspectClick);
@@ -315,9 +322,15 @@ package org.bigbluebutton.modules.videoconf.business
       var gd:Dispatcher = new Dispatcher();
       gd.dispatchEvent(new KickUserEvent(_sharerUserID)); 
     }
+    
+    protected function onPrivateChatClicked(event:MouseEvent = null):void {
+      var e:CoreEvent = new CoreEvent(EventConstants.START_PRIVATE_CHAT);
+      e.message.chatWith = _sharerUserID;
+      var gd:Dispatcher = new Dispatcher();
+      gd.dispatchEvent(e);
+    }
        
     protected function onSwitchPresenterClicked(event:MouseEvent = null):void {
-      LogUtil.debug("**** SWITCH PRESENTER CLICKED *****");
       var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
       e.userid = _sharerUserID;
       e.username = UsersUtil.getUserName(_sharerUserID);

@@ -66,8 +66,7 @@
 			
       [Bindable] private var talkIcon:Class = images.sound;
       private var _talkButton:TalkingButtonOverlay = new TalkingButtonOverlay();
-      
-      
+            
 			private var camWidth:Number = 320;
 			private var camHeight:Number = 240;
 			private var _userrole:String;
