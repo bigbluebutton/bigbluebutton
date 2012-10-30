@@ -109,9 +109,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
     	String externalUserID = ((String) params[6]).toString();
     	String internalUserID = ((String) params[7]).toString();
-    	
-    	
-    	
+    	    	
 		if (record == true) {
 			recorderApplication.createRecordSession(sessionName);
 		}

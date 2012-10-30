@@ -22,9 +22,7 @@
 package org.bigbluebutton.conference.service.presentation;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.red5.logging.Red5LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
