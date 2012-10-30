@@ -22,7 +22,7 @@
 
 <VideoWindowItf xmlns="org.bigbluebutton.modules.videoconf.business.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	creationComplete="init()" 
+	creationComplete="init()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()"
@@ -107,7 +107,13 @@
 			
       private function handleUserTalkingEvent(event:CoreEvent):void {
         if (event.message.userID ==  _sharerUserID) {
-          _talkButton.visible = event.message.talking;
+          if (event.message.talking) {
+            notTalkingEffect.end();
+            talkingEffect.play([_videoHolder]);            
+          } else {
+            talkingEffect.end();
+            notTalkingEffect.play([_videoHolder]);
+          }
         }
       }
       
@@ -209,6 +215,17 @@
 												
 		]]>
 	</mx:Script>
+  
+  <mx:Glow id="talkingEffect" duration="500"
+           alphaFrom="1.0" alphaTo="0.3"
+           blurXFrom="0.0" blurXTo="10.0"
+           blurYFrom="0.0" blurYTo="10.0"
+           color="0xFF0000"/>
+  <mx:Glow id="notTalkingEffect" duration="500"
+           alphaFrom="0.3" alphaTo="1.0"
+           blurXFrom="10.0" blurXTo="0.0"
+           blurYFrom="10.0" blurYTo="0.0"
+           color="0xFF0000"/>
 	
-	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
+  <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
 </VideoWindowItf>
