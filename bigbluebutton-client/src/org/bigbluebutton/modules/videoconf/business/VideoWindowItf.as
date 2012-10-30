@@ -243,7 +243,7 @@ package org.bigbluebutton.modules.videoconf.business
 		private var img_mute_icon:Class = images.sound_mute;
     private var ejectIcon:Class = images.delete_icon;
     private var adminIcon:Class = images.admin;
-    private var talkIcon:Class = images.sound;
+    private var chatIcon:Class = images.chatIcon;
     
 		protected function get controlButtons():ControlButtonsOverlay {
 			if (_controlButtons == null) {
@@ -252,7 +252,7 @@ package org.bigbluebutton.modules.videoconf.business
         _controlButtons.add("muteUnmuteBtn", img_mute_icon, "mute / unmute", onMuteUnmuteClicked);
         _controlButtons.add("switchPresenter", adminIcon, "switch presenter", onSwitchPresenterClicked);
         _controlButtons.add("ejectUserBtn", ejectIcon, "eject user", onKickUserClicked);
-        _controlButtons.add("privateChatBtn", talkIcon, "Start private chat", onPrivateChatClicked);
+        _controlButtons.add("privateChatBtn", chatIcon, "Start private chat", onPrivateChatClicked);
         
 				// hiding the other buttons
 				//_buttons.add("keepAspectBtn", img_lock_keep_aspect, ResourceUtil.getInstance().getString('bbb.video.keepAspectBtn.tooltip'), onKeepAspectClick);

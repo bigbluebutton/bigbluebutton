@@ -21,6 +21,9 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
+    [Embed(source="assets/images/chat.png")]
+    public var chatIcon:Class;
+    
 		[Embed(source="assets/images/webcam_close.png")]
 		public var webcamClose:Class;
 		
