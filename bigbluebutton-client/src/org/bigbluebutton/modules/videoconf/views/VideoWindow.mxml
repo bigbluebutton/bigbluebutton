@@ -20,7 +20,8 @@
   $Id: $
 -->
 
-<VideoWindowItf xmlns="org.bigbluebutton.modules.videoconf.business.*" 
+<viewVid:VideoWindowItf  
+  xmlns:viewVid="org.bigbluebutton.modules.videoconf.business.*"
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	creationComplete="init()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
@@ -29,16 +30,14 @@
 	layout="absolute">
 	
   <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
+  <mate:Listener type="{EventConstants.NEW_ROLE}" method="handleNewRoleEvent" />
   
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import flexlib.mdi.events.MDIWindowEvent;
-      
+      import com.asfusion.mate.events.Dispatcher;      
+      import flexlib.mdi.events.MDIWindowEvent;      
       import mx.controls.Alert;
-      import mx.core.UIComponent;
-      
+      import mx.core.UIComponent;      
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.CloseWindowEvent;
       import org.bigbluebutton.core.EventConstants;
@@ -48,13 +47,11 @@
       import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
       import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-					
+      import org.bigbluebutton.common.Role;
+      
 			private var ns:NetStream;			
 			private var globalDispatcher:Dispatcher;
       
-      [Bindable] private var talkIcon:Class = images.sound;
-      private var _talkButton:TalkingButtonOverlay = new TalkingButtonOverlay();
-
 			[Bindable]
 			public var videoOptions:VideoConfOptions;
 			
@@ -75,7 +72,8 @@
 				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
 				
 				createButtons();
-				
+        addControlButtons();
+        
 				globalDispatcher = new Dispatcher();
 
 				this.minWidth = _minWidth;
@@ -98,6 +96,10 @@
 				this.showCloseButton = videoOptions.showCloseButton;
 			}
 			
+      private function handleNewRoleEvent(event:CoreEvent):void {
+        switchRole(event.message.role == Role.PRESENTER)
+      }
+      
 			private function onCloseEvent(event:MDIWindowEvent = null):void {
 				LogUtil.debug("ViewWindow closing " + streamName);
 				var bbbEvt:BBBEvent = new BBBEvent("ViewVideoCloseEvent");
@@ -161,10 +163,6 @@
 				
 				this.width = _video.width + paddingHorizontal;
 				this.height = _video.height + paddingVertical;	
-        
-        _talkButton.add("talkBtn", talkIcon, "Talking", onTalkingClicked);
-        _talkButton.visible = false;
-        this.addChild(_talkButton);
 			}
 						
 			private function onAsyncError(e:AsyncErrorEvent):void{
@@ -216,16 +214,10 @@
 		]]>
 	</mx:Script>
   
-  <mx:Glow id="talkingEffect" duration="500"
-           alphaFrom="1.0" alphaTo="0.3"
-           blurXFrom="0.0" blurXTo="10.0"
-           blurYFrom="0.0" blurYTo="10.0"
-           color="0xFF0000"/>
-  <mx:Glow id="notTalkingEffect" duration="500"
-           alphaFrom="0.3" alphaTo="1.0"
-           blurXFrom="10.0" blurXTo="0.0"
-           blurYFrom="10.0" blurYTo="0.0"
-           color="0xFF0000"/>
+  <mx:Glow id="talkingEffect" duration="500" alphaFrom="1.0" alphaTo="0.3"
+           blurXFrom="0.0" blurXTo="10.0" blurYFrom="0.0" blurYTo="10.0" color="0xFF0000"/>
+  <mx:Glow id="notTalkingEffect" duration="500" alphaFrom="0.3" alphaTo="1.0"
+           blurXFrom="10.0" blurXTo="0.0" blurYFrom="10.0" blurYTo="0.0" color="0xFF0000"/>
 	
   <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
-</VideoWindowItf>
+</viewVid:VideoWindowItf>

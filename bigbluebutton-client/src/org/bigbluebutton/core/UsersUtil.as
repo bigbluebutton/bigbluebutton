@@ -6,6 +6,10 @@ package org.bigbluebutton.core
 
   public class UsersUtil
   {
+    public static function amIPresenter():Boolean {
+      return UserManager.getInstance().getConference().amIPresenter();
+    }
+    
     public static function getVoiceUser(voiceUserID:Number):BBBUser {
       return UserManager.getInstance().getConference().getVoiceUser(voiceUserID);
     }

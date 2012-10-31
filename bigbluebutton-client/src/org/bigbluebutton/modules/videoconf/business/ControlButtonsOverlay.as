@@ -43,7 +43,6 @@ package org.bigbluebutton.modules.videoconf.business
 		
 		public function get(name:String):Button {
 			var tmp:Object = buttons[name];
-			//return (flash.utils.getQualifiedClassName(tmp) == "mx.controls::Button"? (tmp as Button): null);
 			return (tmp as Button);
 		}
 		

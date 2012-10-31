@@ -20,7 +20,7 @@
   $Id: $
 --> 
 
-<pubVid:VideoWindowItf xmlns="org.bigbluebutton.modules.videoconf.business.*"
+<pubVid:VideoWindowItf
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:pubVid="org.bigbluebutton.modules.videoconf.business.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
@@ -33,14 +33,13 @@
 	layout="absolute">
 	
   <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
+  <mate:Listener type="{EventConstants.NEW_ROLE}" method="handleNewRoleEvent" />
   
 	<mx:Script>
 		<![CDATA[
-      import flexlib.mdi.events.MDIWindowEvent;
-      
+      import flexlib.mdi.events.MDIWindowEvent;    
       import mx.core.UIComponent;
-      import mx.events.ResizeEvent;
-      
+      import mx.events.ResizeEvent;     
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.CloseWindowEvent;
@@ -57,16 +56,14 @@
       import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-			
+      import org.bigbluebutton.common.Role;
+      
 			[Bindable] public var camIcon:Class = images.control_play;
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
 
 			[Bindable] private var defaultWidth:Number = 320;
 			[Bindable] private var defaultHeight:Number = 240;
-			
-      [Bindable] private var talkIcon:Class = images.sound;
-      private var _talkButton:TalkingButtonOverlay = new TalkingButtonOverlay();
-            
+			         
 			private var camWidth:Number = 320;
 			private var camHeight:Number = 240;
 			private var _userrole:String;
@@ -128,7 +125,11 @@
 				startPublishing();
 				autoPublishTimer.stop();
 			}
-						
+			
+      private function handleNewRoleEvent(event:CoreEvent):void {
+        switchRole(event.message.role == Role.PRESENTER)
+      }
+      
       private function handleUserTalkingEvent(event:CoreEvent):void {
         if (event.message.userID ==  _sharerUserID) {
           if (event.message.talking) {
@@ -212,11 +213,7 @@
 				_videoHolder.addChild(_video);
         
    		}
-   		
-      protected function onTalkingClicked(event:MouseEvent = null):void {
-        // do nothing
-      }
-      
+   		      
 			private function onActivityEvent(e:ActivityEvent):void {
 			    if (_waitingForActivation && e.activating) {
 			        _activationTimer.stop();
@@ -289,12 +286,13 @@
 				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
 				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
 				
-				createButtons();
-        
         // Store the userid for the publisher. This allows us to control
         // the user's status from the video window
         _sharerUserID = UsersUtil.getMyUserID();
 				
+        createButtons();
+        addControlButtons();
+        
 				// this event will dock the window, if it's enabled
 				var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();
 				openVideoEvent.window = this;
@@ -423,16 +421,10 @@
 		]]>
 	</mx:Script>
 
-  <mx:Glow id="talkingEffect" duration="500"
-           alphaFrom="1.0" alphaTo="0.3"
-           blurXFrom="0.0" blurXTo="10.0"
-           blurYFrom="0.0" blurYTo="10.0"
-           color="0xFF0000"/>
-  <mx:Glow id="notTalkingEffect" duration="500"
-           alphaFrom="0.3" alphaTo="1.0"
-           blurXFrom="10.0" blurXTo="0.0"
-           blurYFrom="10.0" blurYTo="0.0"
-           color="0xFF0000"/>
+  <mx:Glow id="talkingEffect" duration="500" alphaFrom="1.0" alphaTo="0.3"
+           blurXFrom="0.0" blurXTo="30.0" blurYFrom="0.0" blurYTo="30.0" color="0xFF0000"/>
+  <mx:Glow id="notTalkingEffect" duration="500" alphaFrom="0.3" alphaTo="1.0"
+           blurXFrom="30.0" blurXTo="0.0" blurYFrom="30.0" blurYTo="0.0" color="0xFF0000"/>
   
 	<mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
 	<mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
