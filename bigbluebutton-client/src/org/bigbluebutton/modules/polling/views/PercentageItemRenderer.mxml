@@ -25,7 +25,8 @@
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			// {data.percentage}
 		]]>
 	</mx:Script>
-	<mx:Label id="percentLabel" textAlign="left" text="{data.percentage}"/>
+	<mx:Label id="percentRenderLabel" textAlign="left" text="PERCENT"/>
 </mx:HBox>

@@ -159,14 +159,14 @@
 		}
 
 		private function messageForRecording(message:String):void{
-			if (!viewingClosedPoll){
+			/*if (!viewingClosedPoll){
 				var chatMessage:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);							
 				chatMessage.message = message;
 				chatMessage.time = "";
 				chatMessage.color = POLL_URL_COLOUR.toString();
 				chatMessage.language = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
 				dispatchEvent(chatMessage);
-			}
+			}*/
 		}
 
 		public function getPrefferedPosition():String{
@@ -311,6 +311,7 @@
 				var pso:PollStatLineObject = ac.getItemAt(i) as PollStatLineObject;
 				LogUtil.debug("PSO: " + pso.answer + " " + pso.votes + " " + pso.percentage);
 			}*/
+			/*
 			answersAC = trackingPoll.generateStats();
 			
 			var totalVotes:int = 0;
@@ -338,6 +339,8 @@
 			didNotVote();
 			resultsGrid.invalidateDisplayList();
 			//resultBox.validateNow();	
+			 *
+			 */
 		} // end of function createResultsTable 
 			
 		private function didNotVote():void{
@@ -368,6 +371,23 @@
 			
 			_hb.focusEnabled="true";
 			_hb.accessibilityDescription='bbb.polling.stats.didNotVote' + _votes.text + " votes.";
+			  
+			  
+			 <!--mx:DataGridColumn dataField="votes" 
+    						   	   headerText="Total Votes" 
+    						  	   editable="false" 
+    						       width="90" 
+    						       sortable="false"
+    						       itemRenderer="org.bigbluebutton.modules.polling.views.VotesItemRenderer"
+    						       /-->
+    			<!--mx:DataGridColumn dataField="percentage" 
+    						   	   headerText="Percentage" 
+    						  	   editable="false" 
+    						       width="90" 
+    						       sortable="false"
+    						       itemRenderer="org.bigbluebutton.modules.polling.views.PercentageItemRenderer"
+    						       /--> 
+			 
 		}*/	
 	]]>
 	</mx:Script>
@@ -402,7 +422,18 @@
                	 fontWeight="bold" textAlign="center"
                  text="{question}"/>       
         
-        <mx:DataGrid id="resultsGrid" editable="false" dataProvider="{trackingPoll.generateTestStats()}" width="100%">
+        <mx:DataGrid id="testGrid" editable="false" dataProvider="{trackingPoll.generateOneLine()}" width="90%" dragEnabled="false">
+        	<mx:columns>
+        		<mx:DataGridColumn dataField="answer"/>
+    			<mx:DataGridColumn dataField="votes"/>
+    			<mx:DataGridColumn dataField="percentage"/> 
+        	</mx:columns>
+        </mx:DataGrid>
+
+Hey Justin. You left off here, trying to get the DataGrids to work. TestGrid and ResultsGrid both seem okay; when you come back, try each of them with trackingPoll.generateTestStats(). If that works, we'll figure out what to do next.        
+
+        <mx:Label text="^ TestGrid   V ResultsGrid"/>
+        <mx:DataGrid id="resultsGrid" editable="false" dataProvider="{trackingPoll.generateOneLine()}" width="90%" dragEnabled="false">
         	<mx:columns>
         		<mx:DataGridColumn dataField="answer" 
     						   	   headerText="Answers" 
@@ -411,15 +442,15 @@
     						       sortable="false"
     						       itemRenderer="org.bigbluebutton.modules.polling.views.AnswerItemRenderer"
     						       />
-    			<mx:DataGridColumn dataField="votes" 
-    						   	   headerText="Total Votes" 
+				<mx:DataGridColumn dataField="votes" 
+    						   	   headerText="Answers" 
     						  	   editable="false" 
     						       width="90" 
     						       sortable="false"
     						       itemRenderer="org.bigbluebutton.modules.polling.views.VotesItemRenderer"
     						       />
-    			<mx:DataGridColumn dataField="percentage" 
-    						   	   headerText="Percentage" 
+				<mx:DataGridColumn dataField="percentage" 
+    						   	   headerText="Answers" 
     						  	   editable="false" 
     						       width="90" 
     						       sortable="false"
@@ -427,6 +458,32 @@
     						       />
         	</mx:columns>
         </mx:DataGrid>
+        
+        <mx:DataGrid id="viewersGrid" dataProvider="{UserManager.getInstance().getConference().users}" editable="false"
+    	dragEnabled="false"  width="90%" height="100%"	accessibilityName="Users list.">
+    	<mx:columns>
+    		<mx:DataGridColumn dataField="role" 
+    						   headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.roleItemRenderer')}" 
+    						   dataTipField="Role" 
+    						   editable="false" 
+    						   width="35"
+    						   itemRenderer="org.bigbluebutton.modules.viewers.views.RoleItemRenderer" 
+    						   sortable="false" 
+    						   id="roleField"/>
+    		<mx:DataGridColumn dataField="name" 
+    						   headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.nameItemRenderer')}" 
+    						   editable="true" 
+    						   width="100" 
+    						   sortable="false"
+    						   itemRenderer="org.bigbluebutton.modules.viewers.views.NameItemRenderer"/>
+    		<mx:DataGridColumn dataField="status"
+    						   headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer')}"
+    						   dataTipField="Status"
+    						   id="statusField" 
+    						   sortable="false" 
+    						   itemRenderer="org.bigbluebutton.modules.viewers.views.StatusItemRenderer"/>
+    	</mx:columns>
+    </mx:DataGrid>
        
 	</mx:VBox>
 	<mx:ControlBar width="100%" height="10%">

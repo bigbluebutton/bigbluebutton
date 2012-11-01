@@ -79,6 +79,7 @@ package org.bigbluebutton.modules.polling.model
 		}
 		
 		public function generateTestStats():ArrayCollection{
+			var ds:String = "TEST STATS: ";
 			var returnCollection:ArrayCollection = new ArrayCollection;
 			for (var i:int = 0; i < 6; i++){
 				var pso:PollStatLineObject = new PollStatLineObject;
@@ -86,7 +87,22 @@ package org.bigbluebutton.modules.polling.model
 				pso.votes = "Test votes " + i;
 				pso.percentage = "Test percent " + i;
 				returnCollection.addItem(pso);
+				LogUtil.debug(ds + pso.debug());
 			}
+			return returnCollection;
+		}
+		
+		public function generateOneLine():ArrayCollection{
+			var ds:String = "TEST LINE: ";
+			var returnCollection:ArrayCollection = new ArrayCollection;
+			
+				var pso:PollStatLineObject = new PollStatLineObject;
+				pso.answer = "ANSWER CELL";
+				pso.votes = "VOTEs CELL";
+				pso.percentage = "PERCENTAGE CELL";
+				returnCollection.addItem(pso);
+				LogUtil.debug(ds + pso.debug());
+			
 			return returnCollection;
 		}
 	}
