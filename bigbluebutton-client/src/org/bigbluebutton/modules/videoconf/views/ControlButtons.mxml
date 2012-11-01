@@ -92,30 +92,24 @@
           } else {
             muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = false;
           }
+          muteUnmuteBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.muteButton.toolTip', [UsersUtil.getUserName(sharerUserID)]);
+          switchPresenter.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.switchPresenter.toolTip', [UsersUtil.getUserName(sharerUserID)]);
+          ejectUserBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.ejectUserBtn.toolTip', [UsersUtil.getUserName(sharerUserID)]);
       }
       
       private function showPrivateChatButton():void {
         var chatOptions:ChatOptions = new ChatOptions();
-        if (chatOptions.privateEnabled) {
+        if (chatOptions.privateEnabled && ! UsersUtil.isMe(sharerUserID)) {
+          privateChatBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.privateChatBtn.toolTip', [UsersUtil.getUserName(sharerUserID)]);
           privateChatBtn.visible = true;
+        } else {
+          privateChatBtn.visible = false;
         }
       }
     ]]>
   </mx:Script>
-  <mx:Button id="muteUnmuteBtn" visible="{showButton}" click="onMuteUnmuteClicked()" 
-             icon="{img_mute_icon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"
-             toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip'), 
-             [new Date()]}"/>
-  <mx:Button id="switchPresenter" visible="{showButton}" click="onSwitchPresenterClicked()" 
-             icon="{adminIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"
-             toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip'), 
-             [new Date()]}"/>
-  <mx:Button id="ejectUserBtn" visible="{showButton}" click="onKickUserClicked()" 
-             icon="{signOutIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"
-             toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip'), 
-             [new Date()]}"/>
-  <mx:Button id="privateChatBtn" click="onPrivateChatClicked()" 
-             icon="{chatIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"
-             toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip'), 
-             [new Date()]}"/>
+  <mx:Button id="muteUnmuteBtn" visible="false" click="onMuteUnmuteClicked()" icon="{img_mute_icon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
+  <mx:Button id="switchPresenter" visible="false" click="onSwitchPresenterClicked()" icon="{adminIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
+  <mx:Button id="ejectUserBtn" visible="false" click="onKickUserClicked()" icon="{signOutIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
+  <mx:Button id="privateChatBtn" click="onPrivateChatClicked()" icon="{chatIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
 </mx:HBox>
