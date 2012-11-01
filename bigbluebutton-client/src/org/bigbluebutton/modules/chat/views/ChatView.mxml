@@ -29,6 +29,7 @@
 
   <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
   <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
+  <mate:Listener type="{EventConstants.START_PRIVATE_CHAT}" method="handleStartPrivateChatMessageEvent"/>
   
 	<mx:Script>
 		<![CDATA[
@@ -57,7 +58,9 @@
       
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.CoreEvent;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.ParticipantJoinEvent;
@@ -222,7 +225,8 @@
         return chatTabs.getChildByName(userID) as ChatBox;
       }
       
-      public function startPrivateChatWith(userID:String):void {
+      private function handleStartPrivateChatMessageEvent(event:CoreEvent):void {
+        var userID:String = event.message.chatWith;
         openChatBoxFor(userID);
         var chatBox:ChatBox = getChatBoxForUser(userID);
         var tabIndex:int = getTabIndexFor(chatBox);

@@ -22,21 +22,17 @@
 
 package org.bigbluebutton.conference.service.presentation;
 
-
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.bigbluebutton.conference.ClientMessage;
 import org.bigbluebutton.conference.ConnectionInvokerService;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.Red5;
-import java.util.ArrayList;
+import org.red5.server.api.Red5;import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-public class PresentationApplication {
 
+public class PresentationApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationApplication.class, "bigbluebutton" );	
 		
-	private static final String APP = "PRESENTATION";
 	private PresentationRoomsManager roomsManager;
 	private ConnectionInvokerService connInvokerService;
 	

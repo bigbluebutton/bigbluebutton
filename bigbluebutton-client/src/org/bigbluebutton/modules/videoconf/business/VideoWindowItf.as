@@ -19,6 +19,8 @@
 
 package org.bigbluebutton.modules.videoconf.business
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import flash.media.Video;
@@ -26,6 +28,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import flexlib.mdi.containers.MDIWindow;
 	import flexlib.mdi.events.MDIWindowEvent;
 	
+	import mx.containers.Panel;
 	import mx.controls.Button;
 	import mx.core.UIComponent;
 	
@@ -34,8 +37,16 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.DragWindowEvent;
+	import org.bigbluebutton.core.EventConstants;
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.events.CoreEvent;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.model.users.BBBUser;
+	import org.bigbluebutton.main.model.users.events.KickUserEvent;
+	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.views.MainCanvas;
+	import org.bigbluebutton.modules.listeners.events.ListenersCommand;
+	import org.bigbluebutton.modules.videoconf.views.ControlButtons;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class VideoWindowItf extends MDIWindow implements IBbbModuleWindow
@@ -58,21 +69,32 @@ package org.bigbluebutton.modules.videoconf.business
 		
 		public var streamName:String;
 
-		[Bindable] public var resolutions:Array;
+    protected var _sharerUserID:String = null;
+
+    protected var _controlButtons:ControlButtons = new ControlButtons();
 		
+    [Bindable] public var resolutions:Array;
+		
+    protected function switchRole(presenter:Boolean):void {
+      _controlButtons.handleNewRoleEvent(presenter);
+    }
+    
 		protected function getVideoResolution(stream:String):Array {
-			var pattern:RegExp = new RegExp("(\\d+x\\d+)-[A-Za-z0-9]+-\\d+", "");
+			var pattern:RegExp = new RegExp("(\\d+x\\d+)-([A-Za-z0-9]+)-\\d+", "");
 			if (pattern.test(stream)) {
 				LogUtil.debug("The stream name is well formatted [" + stream + "]");
         var uid:String = UserManager.getInstance().getConference().getMyUserId();
         LogUtil.debug("Stream resolution is [" + pattern.exec(stream)[1] + "]");
+        LogUtil.debug("Userid [" + pattern.exec(stream)[2] + "]");
+        _sharerUserID = pattern.exec(stream)[2];
+        addControlButtons();
         return pattern.exec(stream)[1].split("x");
 			} else {
 				LogUtil.error("The stream name doesn't follow the pattern <width>x<height>-<userId>-<timestamp>. However, the video resolution will be set to the lowest defined resolution in the config.xml: " + resolutions[0]);
 				return resolutions[0].split("x");
 			}
 		}
-		
+		    
 		protected function get paddingVertical():Number {
 			return this.borderMetrics.top + this.borderMetrics.bottom;
 		}
@@ -184,7 +206,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		public function getPrefferedPosition():String{
-			if (_buttonsEnabled)
+			if (_controlButtonsEnabled)
 				return MainCanvas.POPUP;
 			else
 				// the window is docked, so it should not be moved on reset layout
@@ -219,60 +241,69 @@ package org.bigbluebutton.modules.videoconf.business
 			super.close(event);
 		}
 		
-		private var _buttons:ButtonsOverlay = null;
-		private var _buttonsEnabled:Boolean = true;
+//		private var _controlButtons:ControlButtonsOverlay = null;
+    
+		private var _controlButtonsEnabled:Boolean = true;
 		
 		private var img_unlock_keep_aspect:Class = images.lock_open;
 		private var img_lock_keep_aspect:Class = images.lock_close;
 		private var img_fit_video:Class = images.arrow_in;
 		private var img_original_size:Class = images.shape_handles;
 		private var img_mute_icon:Class = images.sound_mute;
-    private var ejectIcon:Class = images.delete_icon;
+    private var signOutIcon:Class = images.signOutIcon;
     private var adminIcon:Class = images.admin;
+    private var chatIcon:Class = images.chatIcon;
     
-		protected function get buttons():ButtonsOverlay {
-			if (_buttons == null) {
-				_buttons = new ButtonsOverlay;
-				_buttons.add("originalSizeBtn", img_original_size, ResourceUtil.getInstance().getString('bbb.video.originalSizeBtn.tooltip'), onOriginalSizeClick);
-        _buttons.add("muteUnmuteBtn", img_mute_icon, "mute / unmute", onMuteUnmuteClicked);
-        _buttons.add("switchPresenter", adminIcon, "switch presenter", onMuteUnmuteClicked);
-        _buttons.add("ejectUserBtn", ejectIcon, "eject user", onMuteUnmuteClicked);
+    protected function addControlButtons():void {
+      _controlButtons.sharerUserID = _sharerUserID;
+      _controlButtons.visible = true;
+      this.addChild(_controlButtons);
+    }
+    
+		protected function get controlButtons():ControlButtons {
+			if (_controlButtons == null) {
+				
         
+//				_controlButtons.add("originalSizeBtn", img_original_size, ResourceUtil.getInstance().getString('bbb.video.originalSizeBtn.tooltip'), onOriginalSizeClick);
+//        _controlButtons.add("muteUnmuteBtn", img_mute_icon, "mute / unmute", onMuteUnmuteClicked);
+//        _controlButtons.add("switchPresenter", adminIcon, "switch presenter", onSwitchPresenterClicked);
+//        _controlButtons.add("ejectUserBtn", signOutIcon, "eject user", onKickUserClicked);
+//        _controlButtons.add("privateChatBtn", chatIcon, "Start private chat", onPrivateChatClicked);
+//        
 				// hiding the other buttons
 				//_buttons.add("keepAspectBtn", img_lock_keep_aspect, ResourceUtil.getInstance().getString('bbb.video.keepAspectBtn.tooltip'), onKeepAspectClick);
 				//_buttons.add("fitVideoBtn", img_fit_video, ResourceUtil.getInstance().getString('bbb.video.fitVideoBtn.tooltip'), onFitVideoClick);
 				
-				_buttons.visible = false;
-				
-				this.addChild(_buttons);
+				_controlButtons.visible = false;
+								
 			} 
-			return _buttons;
+			return _controlButtons;
 		}
 		
-		protected function createButtons():void {
+		protected function createButtons():void {      
 			// creates the window keeping the aspect ratio 
 			onKeepAspectClick();
 		}
 		
 		protected function updateButtonsPosition():void {
-			if (buttons.visible == false) {
-				buttons.y = buttons.x = 0;
+			if (controlButtons.visible == false) {
+				controlButtons.y = controlButtons.x = 0;
 			} else {
-				buttons.y = _video.y + _video.height - buttons.height - buttons.padding;
-				buttons.x = _video.x + _video.width - buttons.width - buttons.padding;
+				controlButtons.y = _video.y + _video.height - controlButtons.height - controlButtons.padding;
+				controlButtons.x = _video.x + _video.width - controlButtons.width - controlButtons.padding;
 			}
 		}
 		
 		protected function showButtons(event:MouseEvent = null):void {
-			if (_buttonsEnabled && buttons.visible == false) {
-				buttons.visible = true;
+			if (_controlButtonsEnabled && controlButtons.visible == false) {
+				controlButtons.visible = true;
 				updateButtonsPosition();
 			}
 		}
 		
 		protected function hideButtons(event:MouseEvent = null):void {
-			if (_buttonsEnabled && buttons.visible == true) {
-				buttons.visible = false;
+			if (_controlButtonsEnabled && controlButtons.visible == true) {
+				controlButtons.visible = false;
 				updateButtonsPosition();
 			}
 		}
@@ -293,7 +324,7 @@ package org.bigbluebutton.modules.videoconf.business
 		public function set buttonsEnabled(enabled:Boolean):void {
 			if (!enabled) 
 				hideButtons();
-			_buttonsEnabled = enabled;
+			_controlButtonsEnabled = enabled;
 		}
 		
 		protected function onOriginalSizeClick(event:MouseEvent = null):void {
@@ -301,11 +332,38 @@ package org.bigbluebutton.modules.videoconf.business
 			_video.height = _videoHolder.height = originalHeight;
 			onFitVideoClick();
 		}		
-		
-    protected function onMuteUnmuteClicked(event:MouseEvent = null):void {
-      
+/*		
+    protected function onKickUserClicked(event:MouseEvent = null):void {
+      var gd:Dispatcher = new Dispatcher();
+      gd.dispatchEvent(new KickUserEvent(_sharerUserID)); 
     }
     
+    protected function onPrivateChatClicked(event:MouseEvent = null):void {
+      var e:CoreEvent = new CoreEvent(EventConstants.START_PRIVATE_CHAT);
+      e.message.chatWith = _sharerUserID;
+      var gd:Dispatcher = new Dispatcher();
+      gd.dispatchEvent(e);
+    }
+       
+    protected function onSwitchPresenterClicked(event:MouseEvent = null):void {
+      var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
+      e.userid = _sharerUserID;
+      e.username = UsersUtil.getUserName(_sharerUserID);
+      var gd:Dispatcher = new Dispatcher();
+      gd.dispatchEvent(e);     
+    }
+    
+    protected function onMuteUnmuteClicked(event:MouseEvent = null):void {
+      var bu:BBBUser = UsersUtil.getUser(_sharerUserID);
+      if (bu != null) {
+        var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);        
+        e.userid = bu.voiceUserid;
+        e.mute = ! bu.voiceMuted; 
+        var gd:Dispatcher = new Dispatcher();
+        gd.dispatchEvent(e);          
+      }
+    }
+*/    
 		protected function onFitVideoClick(event:MouseEvent = null):void {
 			var newWidth:int = _video.width + paddingHorizontal;
 			var newHeight:int = _video.height + paddingVertical;
@@ -320,16 +378,16 @@ package org.bigbluebutton.modules.videoconf.business
 		protected function onKeepAspectClick(event:MouseEvent = null):void {
 			keepAspect = !keepAspect;
 			
-			var keepAspectBtn:Button = buttons.get("keepAspectBtn");
-			if (keepAspectBtn != null) { 
-				keepAspectBtn.selected = keepAspect;
-				keepAspectBtn.setStyle("icon", (keepAspect? img_lock_keep_aspect: img_unlock_keep_aspect));
-			}
+//			var keepAspectBtn:Button = controlButtons.get("keepAspectBtn");
+//			if (keepAspectBtn != null) { 
+//				keepAspectBtn.selected = keepAspect;
+//				keepAspectBtn.setStyle("icon", (keepAspect? img_lock_keep_aspect: img_unlock_keep_aspect));
+//			}
 			
-			var fitVideoBtn:Button = buttons.get("fitVideoBtn");
-			if (fitVideoBtn != null) {
-				fitVideoBtn.enabled = !keepAspect;
-			}		
+//			var fitVideoBtn:Button = controlButtons.get("fitVideoBtn");
+//			if (fitVideoBtn != null) {
+//				fitVideoBtn.enabled = !keepAspect;
+//			}		
 			
 			onFitVideoClick();
 		}

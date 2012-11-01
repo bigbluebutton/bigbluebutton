@@ -22,9 +22,7 @@
 package org.bigbluebutton.conference.service.presentation;
 
 import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;import java.util.concurrent.BlockingQueue;import java.util.concurrent.Executors;import java.util.concurrent.ExecutorService;import java.util.concurrent.RejectedExecutionException;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.red5.logging.Red5LoggerFactory;
 public class ConversionUpdatesProcessor {
 	private static Logger log = Red5LoggerFactory.getLogger(ConversionUpdatesProcessor.class, "bigbluebutton");

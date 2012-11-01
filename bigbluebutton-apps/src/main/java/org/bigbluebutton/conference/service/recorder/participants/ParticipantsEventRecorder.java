@@ -2,7 +2,7 @@ package org.bigbluebutton.conference.service.recorder.participants;
 
 import java.util.ArrayList;
 import org.bigbluebutton.conference.IRoomListener;
-import org.bigbluebutton.conference.Participant;
+import org.bigbluebutton.conference.User;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class ParticipantsEventRecorder implements IRoomListener {
 	}
 
 	@Override
-	public void participantJoined(Participant p) {
+	public void participantJoined(User p) {
 		ParticipantJoinRecordEvent ev = new ParticipantJoinRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());
 		ev.setUserId(p.getInternalUserID());
@@ -41,7 +41,7 @@ public class ParticipantsEventRecorder implements IRoomListener {
 	}
 
 	@Override
-	public void participantLeft(Participant p) {
+	public void participantLeft(User p) {
 		ParticipantLeftRecordEvent ev = new ParticipantLeftRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());
 		ev.setUserId(p.getInternalUserID());
@@ -51,7 +51,7 @@ public class ParticipantsEventRecorder implements IRoomListener {
 	}
 
 	@Override
-	public void participantStatusChange(Participant p, String status, Object value) {
+	public void participantStatusChange(User p, String status, Object value) {
 		ParticipantStatusChangeRecordEvent ev = new ParticipantStatusChangeRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());
 		ev.setUserId(p.getInternalUserID());

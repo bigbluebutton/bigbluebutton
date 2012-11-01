@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;import org.bigbluebutton.conference.Participant;
+import java.util.Map;import org.bigbluebutton.conference.User;
 
 public class ParticipantsService {
 
@@ -81,7 +81,7 @@ public class ParticipantsService {
 				Collection pc = p.values();
 	    		Map pm = new HashMap();
 	    		for (Iterator it = pc.iterator(); it.hasNext();) {
-	    			Participant ap = (Participant) it.next();
+	    			User ap = (User) it.next();
 	    			pm.put(ap.getInternalUserID(), ap.toMap()); 
 	    		}  
 				participants.put("participants", pm);

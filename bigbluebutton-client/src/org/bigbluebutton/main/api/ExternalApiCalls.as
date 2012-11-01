@@ -18,7 +18,14 @@ package org.bigbluebutton.main.api
       payload.role = event.message.role;
       broadcastEvent(payload);        
     }
-        
+
+    public function handleStartPrivateChatEvent(event:CoreEvent):void {
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.START_PRIVATE_CHAT;
+      payload.chatWith = UsersUtil.internalUserIDToExternalUserID(event.message.chatWith);
+      broadcastEvent(payload);        
+    }
+    
     public function handleGetMyRoleResponse(event:CoreEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.GET_MY_ROLE_RESP;

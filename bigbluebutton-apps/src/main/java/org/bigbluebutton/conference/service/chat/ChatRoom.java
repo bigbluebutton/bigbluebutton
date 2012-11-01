@@ -21,7 +21,6 @@ package org.bigbluebutton.conference.service.chat;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-
 import net.jcip.annotations.ThreadSafe;import java.util.concurrent.ConcurrentHashMap;import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
