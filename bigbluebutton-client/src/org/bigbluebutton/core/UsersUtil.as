@@ -6,6 +6,10 @@ package org.bigbluebutton.core
 
   public class UsersUtil
   {
+    public static function amIModerator():Boolean {
+      return UserManager.getInstance().getConference().amIModerator();
+    }
+    
     public static function amIPresenter():Boolean {
       return UserManager.getInstance().getConference().amIPresenter();
     }

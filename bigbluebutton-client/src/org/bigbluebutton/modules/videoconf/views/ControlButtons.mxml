@@ -15,7 +15,9 @@
       import org.bigbluebutton.main.model.users.BBBUser;
       import org.bigbluebutton.main.model.users.events.KickUserEvent;
       import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+      import org.bigbluebutton.modules.chat.model.ChatOptions;
       import org.bigbluebutton.modules.listeners.events.ListenersCommand;
+      import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
       public var sharerUserID:String;
@@ -38,7 +40,8 @@
       private var showButton:Boolean;
       
       private function onCreationComplete():void {
-        showButton = UsersUtil.amIPresenter();
+        showControlButtons(UsersUtil.amIPresenter());
+        showPrivateChatButton();
       }
       
       public function get padding():int {
@@ -46,7 +49,7 @@
       }
       
       public function handleNewRoleEvent(presenter:Boolean):void {
-        muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = presenter;
+        showControlButtons(presenter);
       }
       
       private function onKickUserClicked():void {
@@ -79,6 +82,24 @@
           gd.dispatchEvent(e);          
         }
       }
+      
+      private function showControlButtons(presenter:Boolean):void {
+          var vidOptions:VideoConfOptions = new VideoConfOptions();
+          if (UsersUtil.amIModerator()) {
+            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = true;
+          } else if (vidOptions.controlsForPresenter) {
+            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = presenter;
+          } else {
+            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = false;
+          }
+      }
+      
+      private function showPrivateChatButton():void {
+        var chatOptions:ChatOptions = new ChatOptions();
+        if (chatOptions.privateEnabled) {
+          privateChatBtn.visible = true;
+        }
+      }
     ]]>
   </mx:Script>
   <mx:Button id="muteUnmuteBtn" visible="{showButton}" click="onMuteUnmuteClicked()" 
@@ -93,7 +114,7 @@
              icon="{signOutIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"
              toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip'), 
              [new Date()]}"/>
-  <mx:Button id="privateChatBtn" visible="{true}" click="onPrivateChatClicked()" 
+  <mx:Button id="privateChatBtn" click="onPrivateChatClicked()" 
              icon="{chatIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"
              toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip'), 
              [new Date()]}"/>

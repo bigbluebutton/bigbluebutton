@@ -275,8 +275,7 @@ package org.bigbluebutton.modules.videoconf.business
 				//_buttons.add("fitVideoBtn", img_fit_video, ResourceUtil.getInstance().getString('bbb.video.fitVideoBtn.tooltip'), onFitVideoClick);
 				
 				_controlButtons.visible = false;
-				
-				
+								
 			} 
 			return _controlButtons;
 		}
