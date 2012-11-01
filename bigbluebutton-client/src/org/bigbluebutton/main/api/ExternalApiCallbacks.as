@@ -39,9 +39,23 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("switchLayout", handleSwitchLayoutRequest);
         ExternalInterface.addCallback("sendPublicChatRequest", handleSendPublicChatRequest);  
         ExternalInterface.addCallback("sendPrivateChatRequest", handleSendPrivateChatRequest); 
+        ExternalInterface.addCallback("lockLayout", handleSendLockLayoutRequest);
       }
     }
 
+    private function handleSendLockLayoutRequest(lock:Boolean):void {
+      if (lock) {
+        var lockEvent:CoreEvent = new CoreEvent(EventConstants.LOCK_LAYOUT_REQ);
+        lockEvent.message.lock = lock;
+        _dispatcher.dispatchEvent(lockEvent);        
+      } else {
+        var unlockEvent:CoreEvent = new CoreEvent(EventConstants.UNLOCK_LAYOUT_REQ);
+        unlockEvent.message.lock = lock;
+        _dispatcher.dispatchEvent(unlockEvent);        
+      }
+
+    }
+    
     /**
     * Request to send a public chat
     *  fromUserID - the external user id for the sender

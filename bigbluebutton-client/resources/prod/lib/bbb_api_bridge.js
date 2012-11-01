@@ -86,6 +86,13 @@
         swfObj.switchLayout(newLayout);
       }
     }
+    
+    BBB.lockLayout = function(lock) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.lockLayout(lock);
+      }
+    }
 
     /**
     * Request to send a public chat
