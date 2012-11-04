@@ -300,7 +300,8 @@ package org.bigbluebutton.modules.layout.managers
 		 * on the role of the participant
 		 */ 
 		public function presenterChanged():void {
-			applyLayout(_currentLayout);
+			if (_canvas != null)
+				applyLayout(_currentLayout);
 		}
 	}
 }
