@@ -165,7 +165,9 @@ package org.bigbluebutton.modules.layout.model {
 				}
 			}
       
-
+      if (window.visible && this.hidden) {
+        window.visible = false;
+      }
 
       /*
 			var layoutHidden:Boolean = this.hidden;
