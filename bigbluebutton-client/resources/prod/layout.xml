@@ -56,4 +56,18 @@
     <window name="PresentationWindow" width="0.3104166666666667" height="0.5537190082644629" x="0.6895833333333333" y="0" />
     <window name="VideoDock" width="0.30972222222222223" height="0.4256198347107438" x="0.6902777777777778" y="0.568870523415978" />
   </layout>	
+    <layout name="S2SPresentation">
+    <window name="ChatWindow" hidden="true"/>
+    <window name="ListenersWindow" hidden="true" />
+    <window name="ViewersWindow" hidden="true"/>
+    <window name="PresentationWindow" width="1" height="1" x="0" y="0" />
+    <window name="VideoDock" hidden="true"/>
+  </layout>
+    <layout name="S2SVideoChat">
+    <window name="ViewersWindow" hidden="true" />
+    <window name="VideoDock" width="1" height="1" x="0" y="0"/>
+    <window name="ChatWindow" hidden="true" />
+    <window name="PresentationWindow" hidden="true" />
+    <window name="ListenersWindow" hidden="true"/>
+  </layout>
 </layouts>
