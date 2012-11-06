@@ -23,6 +23,7 @@
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
     xmlns:mate="http://mate.asfusion.com/"
     creationComplete="onCreationComplete()"
+    initialize="init()"
     xmlns:flexlib="http://code.google.com/p/flexlib/"
     width="100%" height="100%" xmlns:containers="flexlib.containers.*"
     verticalScrollPolicy="off">
@@ -74,24 +75,25 @@
       import org.bigbluebutton.modules.chat.vo.ChatMessageVO;
       import org.bigbluebutton.util.i18n.ResourceUtil;			
 					
-			private static const PUBLIC_CHAT_USERID:String = 'public_chat_userid';
-			private static const PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
-			private static const TAB_BOX_ID:String = '+';
-			private var tabBox:AddChatTabBox;			
-			private var focus:Boolean = true;			
-			private var globalDispatcher:Dispatcher = new Dispatcher();			
-			private var autoTranslation:Boolean=false;
+	private static const PUBLIC_CHAT_USERID:String = 'public_chat_userid';
+	private static const PUBLIC_CHAT_USERNAME:String = ResourceUtil.getInstance().getString("bbb.chat.publicChatUsername");
+	private static const TAB_BOX_ID:String = '+';
+	private var tabBox:AddChatTabBox;			
+	private var focus:Boolean = true;			
+	private var globalDispatcher:Dispatcher = new Dispatcher();			
+	private var autoTranslation:Boolean=false;
 			
       [Bindable] 
       public var chatOptions:ChatOptions;
-									
-			private static const PUBLIC_TAB_NEW:String = ResourceUtil.getInstance().getString("bbb.accessibility.chat.chatView.publicTabNew");
-            
-			private var publicWaiting:Boolean = false;
-			private var privateWaiting:ArrayCollection = new ArrayCollection();
-			private var publicFocus:Boolean = false;
-			private var privateFocus:Boolean = false;
-			private var timerInterval:int = 10; // How many seconds you want the timer to wait between chat notifications
+	  
+	  [Bindable]
+	  private var baseIndex:int;
+	  private static const PUBLIC_TAB_NEW:String = ResourceUtil.getInstance().getString("bbb.accessibility.chat.chatView.publicTabNew");
+      private var publicWaiting:Boolean = false;
+		private var privateWaiting:ArrayCollection = new ArrayCollection();
+		private var publicFocus:Boolean = false;
+		private var privateFocus:Boolean = false;
+		private var timerInterval:int = 10; // How many seconds you want the timer to wait between chat notifications
       private var notificationTimer:Timer = new Timer(timerInterval * 1000);
 			
 			[Embed(source="../sounds/publicSound.mp3")] 
@@ -103,18 +105,28 @@
       private var publicSound:Sound = new publicSoundClass() as Sound;
 			private var privateSound:Sound = new privateSoundClass() as Sound;		
 			
+			// Initialization
+			private function init():void{
+				chatOptions = new ChatOptions();
+				LogUtil.debug("WATERFALL-INIT-1 In chat.init, about to try and set baseIndex");
+				LogUtil.debug("WATERFALL-INIT-2 chatOptions.baseIndex is " + chatOptions.getBaseIndex());
+				baseIndex = chatOptions.getBaseIndex();
+				LogUtil.debug("WATERFALL-INIT-3 Leaving init, baseIndex is " + baseIndex);
+			}
+			
 			private function onCreationComplete():void{
+				LogUtil.debug("WATERFALL In OCC, baseIndex is " + baseIndex);
 				// Start the timer for screen-reader-friendly chat notifications
 				notificationTimer.addEventListener(TimerEvent.TIMER, checkNotifications);
 				notificationTimer.start();
 				
 				openChatBoxFor(PUBLIC_CHAT_USERID, true);
-        makePublicChatUncloseable();
-        
-        if (chatOptions.privateEnabled) {
-          createAddTabBox();
-          makeAddPrivateChatUncloseable();
-        }
+		        makePublicChatUncloseable();
+		        
+		        if (chatOptions.privateEnabled) {
+		          createAddTabBox();
+		          makeAddPrivateChatUncloseable();
+		        }
 				
 				
 				addEventListener(SuperTabEvent.TAB_CLOSE, onUserClosedTab);
@@ -208,8 +220,8 @@
 			private function onTabNavChange():void{
 				var tab:Button = chatTabs.getTabAt(chatTabs.selectedIndex);
 				tab.setStyle("fillColors", new Array(0xFFFFFF, 0xCCCCCC));
-        var chatBox:IChatTab = chatTabs.getChildAt(chatTabs.selectedIndex) as IChatTab;
-        chatBox.focusToTextMessageArea();
+		        var chatBox:IChatTab = chatTabs.getChildAt(chatTabs.selectedIndex) as IChatTab;
+		        chatBox.focusToTextMessageArea();
 			}
 								
       private function userHasChatBox(userID:String):Boolean {
@@ -243,15 +255,16 @@
 			private function createChatBoxFor(chatWithUserID:String, publicChat:Boolean=false):ChatBox {				
 				var chatBox:ChatBox = new ChatBox();
 				chatBox.id = chatWithUserID;
-        chatBox.name = chatWithUserID;
-        
-        if (publicChat) {
-          chatBox.label = PUBLIC_CHAT_USERNAME
-          chatBox.publicChat = true;
-        } else {
-          chatBox.publicChat = false;
-          chatBox.label = UsersUtil.getUserName(chatWithUserID);
-        }
+		        chatBox.name = chatWithUserID;
+				chatBox.baseIndex = baseIndex;
+		        
+		        if (publicChat) {
+		          chatBox.label = PUBLIC_CHAT_USERNAME
+		          chatBox.publicChat = true;
+		        } else {
+		          chatBox.publicChat = false;
+		          chatBox.label = UsersUtil.getUserName(chatWithUserID);
+		        }
 				
 				chatBox.chatWithUsername = UsersUtil.getUserName(chatWithUserID);
 				
@@ -265,6 +278,7 @@
 			}
 			     
 			private function createAddTabBox():AddChatTabBox {
+				LogUtil.debug("WATERFALL-ADD Adding chat tab box");
 				tabBox = new AddChatTabBox();
 				tabBox.chatView = this;
 				tabBox.id = TAB_BOX_ID;
@@ -452,5 +466,5 @@
 		]]>
 	</mx:Script>
 	<containers:SuperTabNavigator id="chatTabs" width="100%" height="100%" change="onTabNavChange()" tabClose="onTabClose(event)" minTabWidth="20"
-								  dragEnabled="false" popUpButtonPolicy="off"/>
+								  dragEnabled="false" popUpButtonPolicy="off" tabIndex="{baseIndex}"/>
 </mx:VBox>

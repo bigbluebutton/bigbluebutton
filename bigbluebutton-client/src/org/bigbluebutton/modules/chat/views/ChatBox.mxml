@@ -128,12 +128,17 @@
 			private var indicatorNeeded:Boolean = false
 			private var repeat:Boolean = false;
 			
-      [Bindable]
-      private var chatListHeight:Number = 100;
+			[Bindable]
+			public var baseIndex:int;
+			
+		      [Bindable]
+		      private var chatListHeight:Number = 100;
       
 			private function onCreationComplete():void {    
-        bindToHeightToDetermineHeightOfMessageList();
-        
+        		bindToHeightToDetermineHeightOfMessageList();
+        		
+				LogUtil.debug("WATERFALL-BOX BaseIndex is " + baseIndex);
+				
 				loadKeyCombos()
 				addContextMenuItems();
 				scrollTimer = new Timer(750, 2);
@@ -157,7 +162,8 @@
         }
 				
         // Listen for the ENTER key to send the message.
-        txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
+         txtMsgArea.addEventListener(KeyboardEvent.KEY_DOWN, handleTextAreaKeyUpEvent);
+		// txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
         
         // Put the cursor on the txt message area when this chat box is in focus
         this.addEventListener(FocusEvent.FOCUS_IN, handleFocusInEvent);
@@ -510,10 +516,27 @@
       }
 
       private function handleTextAreaKeyUpEvent(e:KeyboardEvent):void {
-        if (e.keyCode == Keyboard.ENTER) {
-          sendMessages();
-        }        
-      }
+		if (e.keyCode == Keyboard.ENTER) {
+			sendMessages();
+		}
+	  	else if (e.keyCode == Keyboard.TAB){
+			if (!e.shiftKey){
+	  			LogUtil.debug("WATERFALL TAB PRESSED IN CHAT ENTRY");
+				sendBtn.setFocus();
+			}
+			else{
+				LogUtil.debug("WATERFALL SHIFT-TAB PRESSED IN CHAT ENTRY");
+				chatMessagesList.setFocus();
+			}
+			if (focusManager.getNextFocusManagerComponent(e.shiftKey) != null){
+				LogUtil.debug("Next item exists: " + focusManager.getNextFocusManagerComponent(e.shiftKey));
+			}
+			else{
+				LogUtil.debug("Next item is NULL ");
+			}
+			//focusManager.getNextFocusManagerComponent(e.shiftKey).setFocus();
+	  	}        
+	  }
       
       private function sendMessages():void {
         // Trim the message. This will trim the '/n' char so we don't send a message when the
@@ -537,21 +560,26 @@
   <mx:HBox width="100%" height="{chatListHeight}">
     <mx:List width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true"
              itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer"
-             dataProvider="{chatMessages.messages}" />    
+             dataProvider="{chatMessages.messages}" tabIndex="{baseIndex+5}"/>    
   </mx:HBox>
   
   <mx:HBox id="chatCtrlBar" width="100%" height="50" styleName="chatControlBarStyle" paddingLeft="5" paddingRight="5">		
-    <mx:TextArea id="txtMsgArea" width="100%"  color="{cmpColorPicker.selectedColor}" 
+    <mx:TextInput id="txtMsgArea" width="100%"  color="{cmpColorPicker.selectedColor}" 
                  styleName="chatControlBarTextMsgStyle" 
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"/>
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
+                 tabIndex="{baseIndex+10}"/>
     <mx:VBox>
-      <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn" 
+      <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" 
+      			 id="sendBtn" 
+      			 focusEnabled="true"
                  styleName="chatControlBarSendButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" 
-                 click="sendMessages()"/>  
+                 click="sendMessages()"
+                 tabIndex="{baseIndex+15}"/>  
       <mx:ColorPicker id="cmpColorPicker" showTextField="false" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
-                 selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>
+                 selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"
+                 tabIndex="{baseIndex+20}"/>
     </mx:VBox>
   </mx:HBox>	
 </mx:VBox>

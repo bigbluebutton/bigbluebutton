@@ -180,10 +180,12 @@
     </mx:DataGrid>
     
    <mx:ControlBar width="100%"> 
+   		 <!-- Switch Presenter Button -->
    		 <mx:Button id="presentBtn" label="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.label')}" visible="{isModerator}"
     	   			width="130" height="20"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
-    	   			click="assignPresenterClicked()"/>
+    	   			click="assignPresenterClicked()"
+    	   			tabIndex="10"/>
      	 <mx:Spacer width="100%"/>
     	 <mx:Button id="raiseHandImage" icon="{handIcon}" toggle="true" 
     	   			width="20" height="20"

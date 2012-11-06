@@ -169,8 +169,17 @@
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
 -->
-	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" click="onShortcutButtonClick()" height="22" toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" />
+	<!-- Shortcut Glossary Button -->
+	<mx:Button  label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" 
+				click="onShortcutButtonClick()" 
+				height="22" 
+				toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" 
+				tabIndex="1"/>
+	<mx:Button label="."/>
+	<!-- Help Button -->
 	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" visible="{showHelpBtn}" click="onHelpButtonClicked()" height="22"/>
+	
+	<!-- Logout Button -->
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()" height="22"/>
 </mx:ApplicationControlBar>

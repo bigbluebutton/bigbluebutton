@@ -25,7 +25,8 @@
 	       showCloseButton="true"
 	       creationComplete="onCreationComplete()"
 		   xmlns:mate="http://mate.asfusion.com/" 
-		   title="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.title')}">
+		   title="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.title')}"
+		   initialize="testInit()">
 		   
 	<mx:Script>
 		<![CDATA[
@@ -50,22 +51,26 @@
 			[Bindable]
 			private var shownKeys:ArrayCollection;
 			
+			private function testInit():void {
+				//LogUtil.debug("WATERFALL: Initializing Shortcut window");
+			}
+			
 			private function onCreationComplete():void {
-				LogUtil.debug("WATERFALL: Shortcut window has been opened");
+				//LogUtil.debug("WATERFALL: Creation Complete - Shortcut window");
 				reloadKeys();
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, reloadKeys); // Listen for locale changing
 			}
 			
 			private function reloadKeys(e:Event = null):void {
-				LogUtil.debug("Chad start of function");
+				//LogUtil.debug("Chad start of function");
 				genKeys = loadKeys(genResource);
-				LogUtil.debug("CHAD loaded" + genKeys);
+				//LogUtil.debug("CHAD loaded" + genKeys);
 				presKeys = loadKeys(presResource);
-				LogUtil.debug("CHAD loaded" + presKeys.length);
+				//LogUtil.debug("CHAD loaded" + presKeys.length);
 				chatKeys = loadKeys(chatResource);
-				LogUtil.debug("CHAD loaded" + chatKeys.length);
+				//LogUtil.debug("CHAD loaded" + chatKeys.length);
 				audKeys = loadKeys(audResource);
-				LogUtil.debug("CHAD loaded" + audKeys.length);
+				//LogUtil.debug("CHAD loaded" + audKeys.length);
 				
 				changeArray();
 			}
@@ -96,12 +101,12 @@
 			
 			private function loadKeys(resource:Array):ArrayList {
 				var keyList:ArrayList = new ArrayList();
-				LogUtil.debug("CHAD " + resource.length);
+				//LogUtil.debug("CHAD " + resource.length);
 				var keyCombo:String;
 				var indx:int = 255;
-				LogUtil.debug("CHAD " + resource.length);
+				//LogUtil.debug("CHAD " + resource.length);
 				for (var i:int = 0; i < resource.length; i++) {
-					LogUtil.debug("CHAD inside" + resource.length);
+					//LogUtil.debug("CHAD inside" + resource.length);
 					keyCombo = ResourceUtil.getInstance().getString(resource[i]);
 					indx = keyCombo.lastIndexOf("+") + 1;
 					var key:int = int(keyCombo.substring(indx));
@@ -114,7 +119,7 @@
 					keyList.addItem({Shortcut:keyCombo.substring(0, indx) + convKey, 
 								Function:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
 				}
-				LogUtil.debug("CHAD after " + resource.length);
+				//LogUtil.debug("CHAD after " + resource.length);
 				return keyList;
 			}
 			
@@ -125,7 +130,10 @@
 		]]>
 	</mx:Script>
 	
-	<mx:ComboBox id="categories" labelField="Please select an area for which to view shortcut keys: " editable="false" change="changeArray()">
+	<mx:ComboBox id="categories" labelField="Please select an area for which to view shortcut keys: " 
+				 editable="false" 
+				 change="changeArray()"
+				 tabIndex="5">
 		<mx:ArrayCollection>
         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.all")}</mx:String>
         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general")}</mx:String>
