@@ -47,6 +47,7 @@ public class SipPeer implements SipRegisterAgentListener {
     private CallManager callManager = new CallManager();
     
     private SipProvider sipProvider;
+    private String clientRtpIp;
     private SipRegisterAgent registerAgent;
     private final String id;
     private final AudioConferenceProvider audioconfProvider;
@@ -54,8 +55,9 @@ public class SipPeer implements SipRegisterAgentListener {
     private boolean registered = false;
     private SipPeerProfile registeredProfile;
     
-    public SipPeer(String id, String host, int sipPort, int startAudioPort, int stopAudioPort) {
+    public SipPeer(String id, String sipClientRtpIp, String host, int sipPort, int startAudioPort, int stopAudioPort) {
         this.id = id;
+        this.clientRtpIp = sipClientRtpIp;
         audioconfProvider = new AudioConferenceProvider(host, sipPort, startAudioPort, stopAudioPort);
         initSipProvider(host, sipPort);
     }
@@ -114,7 +116,7 @@ public class SipPeer implements SipRegisterAgentListener {
     	}
     	
     	SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);    	
-    	CallAgent ca = new CallAgent(sipProvider, callerProfile, audioconfProvider, clientId);
+    	CallAgent ca = new CallAgent(this.clientRtpIp, sipProvider, callerProfile, audioconfProvider, clientId);
     	ca.setClientConnectionManager(clientConnManager);
     	ca.setCallStreamFactory(callStreamFactory);
     	callManager.add(ca);

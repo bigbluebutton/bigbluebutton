@@ -29,6 +29,7 @@
 	</bean>
 
 	<bean id="web.handler" class="org.bigbluebutton.voiceconf.red5.Application">
+		<property name="sipClientRtpIp" value="${sip.client.rtp-ip}" />
 		<property name="sipServerHost" value="${sip.server.host}" />
 		<property name="sipPort" value="${sip.server.port}" />
 		<property name="username" value="${sip.server.username}" />

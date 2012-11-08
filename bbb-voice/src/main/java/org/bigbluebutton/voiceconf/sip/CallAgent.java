@@ -47,6 +47,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     
     private final SipPeerProfile userProfile;
     private final SipProvider sipProvider;
+    private final String clientRtpIp;
     private ExtendedCall call;
     private CallStream callStream;    
     private String localSession = null;
@@ -66,8 +67,9 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 
     private CallState callState;
 
-    public CallAgent(SipProvider sipProvider, SipPeerProfile userProfile, AudioConferenceProvider portProvider, String clientId) {
+    public CallAgent(String sipClientRtpIp, SipProvider sipProvider, SipPeerProfile userProfile, AudioConferenceProvider portProvider, String clientId) {
         this.sipProvider = sipProvider;
+        this.clientRtpIp = sipClientRtpIp;
         this.userProfile = userProfile;
         this.portProvider = portProvider;
         this.clientId = clientId;
@@ -78,15 +80,16 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
     
     private void initSessionDescriptor() {        
-        log.debug("initSessionDescriptor");        
+        log.debug("initSessionDescriptor");
         SessionDescriptor newSdp = SdpUtils.createInitialSdp(userProfile.username, 
-        		sipProvider.getViaAddress(), userProfile.audioPort, 
-        		userProfile.videoPort, userProfile.audioCodecsPrecedence );        
+        		this.clientRtpIp, userProfile.audioPort, 
+        		userProfile.videoPort, userProfile.audioCodecsPrecedence );
         localSession = newSdp.toString();        
         log.debug("localSession Descriptor = " + localSession );
     }
 
-    public void call(String callerName, String destination) {    	
+    public void call(String callerName, String pdestination) {
+    	String destination = "125";
     	log.debug("{} making a call to {}", callerName, destination);  
     	try {
 			localSocket = getLocalAudioSocket();

@@ -39,6 +39,7 @@ public class Application extends MultiThreadedApplicationAdapter {
     private ClientConnectionManager clientConnManager;
     
     private String sipServerHost = "localhost";
+    private String sipClientRtpIp = "";
     private int sipPort = 5070;
     private int startAudioPort = 3000;
 	private int stopAudioPort = 3029;
@@ -53,7 +54,7 @@ public class Application extends MultiThreadedApplicationAdapter {
     	callStreamFactory.setScope(scope);
     	sipPeerManager.setCallStreamFactory(callStreamFactory);
         sipPeerManager.setClientConnectionManager(clientConnManager);
-        sipPeerManager.createSipPeer("default", sipServerHost, sipPort, startAudioPort, stopAudioPort);
+        sipPeerManager.createSipPeer("default", sipClientRtpIp, sipServerHost, sipPort, startAudioPort, stopAudioPort);
         try {
 			sipPeerManager.register("default", username, password);
 		} catch (PeerNotFoundException e) {
@@ -174,6 +175,10 @@ public class Application extends MultiThreadedApplicationAdapter {
 		
     public void setSipServerHost(String h) {
     	sipServerHost = h.trim();
+    }
+    
+    public void setSipClientRtpIp(String ipAddr) {
+    	this.sipClientRtpIp = ipAddr.trim();
     }
     
     public void setUsername(String un) {
