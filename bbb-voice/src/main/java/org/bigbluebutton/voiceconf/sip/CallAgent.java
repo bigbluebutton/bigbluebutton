@@ -55,7 +55,11 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     private ClientConnectionManager clientConnManager; 
     private final String clientId;
     private final AudioConferenceProvider portProvider;
-    private DatagramSocket localSocket;
+    private DatagramSocket localSocket; 
+    public String _callerName;
+    private String _destination;
+    private CallAgent caToInit = null;
+    private Boolean talking = false;
     
     private enum CallState {
     	UA_IDLE(0), UA_INCOMING_CALL(1), UA_OUTGOING_CALL(2), UA_ONCALL(3);    	
@@ -86,8 +90,11 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         log.debug("localSession Descriptor = " + localSession );
     }
 
-    public void call(String callerName, String destination) {    	
-    	log.debug("{} making a call to {}", callerName, destination);  
+    public void callGlobal(String callerName, String destination, CallAgent ca) {
+	caToInit = ca;
+	_callerName = callerName;
+	_destination = destination;
+	log.debug("{} making a call to {}", callerName, destination);  
     	try {
 			localSocket = getLocalAudioSocket();
 			userProfile.audioPort = localSocket.getLocalPort();	    	
@@ -97,7 +104,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 			return;
 		}    	
     	
-		setupCallerDisplayName(callerName, destination);	
+	setupCallerDisplayName(callerName, destination);	
     	userProfile.initContactAddress(sipProvider);        
         initSessionDescriptor();
         
@@ -110,12 +117,57 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         // In case of incomplete url (e.g. only 'user' is present), 
         // try to complete it.       
         destination = sipProvider.completeNameAddress(destination).toString();
-        log.debug("call {}", destination);  
+
+
+	log.debug("call {}", destination);  
         if (userProfile.noOffer) {
             call.call(destination);
         } else {
             call.call(destination, localSession);
         }
+
+	
+	
+    }
+
+    public void call(String callerName, String destination) {   
+	_callerName = callerName;
+	log.debug("{} making a call to {}", callerName, destination);  
+    	try {
+			localSocket = getLocalAudioSocket();
+			userProfile.audioPort = localSocket.getLocalPort();	    	
+		} catch (Exception e) {
+			log.debug("{} failed to allocate local port for call to {}. Notifying client that call failed.", callerName, destination); 
+			notifyListenersOnOutgoingCallFailed();
+			return;
+		}    	
+    	
+	setupCallerDisplayName(callerName, destination);	
+    	userProfile.initContactAddress(sipProvider);        
+        initSessionDescriptor();
+        
+    	callState = CallState.UA_OUTGOING_CALL;
+    	
+        call = new ExtendedCall(sipProvider, userProfile.fromUrl, 
+                userProfile.contactUrl, userProfile.username,
+                userProfile.realm, userProfile.passwd, this);  
+        
+        // In case of incomplete url (e.g. only 'user' is present), 
+        // try to complete it.       
+        destination = sipProvider.completeNameAddress(destination).toString();
+
+
+	log.debug("call {}", destination);  
+        if (userProfile.noOffer) {
+            call.call(destination);
+        } else {
+            call.call(destination, localSession);
+        }
+
+	
+
+	
+
     }
 
     private void setupCallerDisplayName(String callerName, String destination) {
@@ -186,7 +238,16 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 						callStream = callStreamFactory.createCallStream(sipCodec, connInfo);
 						callStream.addCallStreamObserver(this);
 						callStream.start();
-						notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
+						if(_callerName.contains("GLOBAL_AUDIO") == true) {
+							//String room = _callerName.subSequence(13, _callerName.length()).toString();
+							GlobalCall.addGlobalAudioStream(_destination, callStream.getListenStreamName());
+							caToInit.returnGlobalStreamName(caToInit.getCallId(), _destination); 
+							talking = false;
+						}
+						else {
+							talking = true;
+							notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
+						}
 					} catch (Exception e) {
 						log.error("Failed to create Call Stream.");
 						System.out.println(StackTraceUtil.getStackTrace(e));
@@ -213,6 +274,12 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     		callStream.stopTalkStream(broadcastStream, scope);   	
     	}
     }
+
+    public void returnGlobalStreamName(String clientId, String destination) {
+	talking = false;
+	clientConnManager.joinConferenceSuccessNew(clientId, GlobalCall.getGlobalAudioStream(destination));
+
+   }
     
     private void closeVoiceStreams() {        
     	log.debug("Shutting down the voice streams.");         
@@ -311,6 +378,8 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         callState = CallState.UA_IDLE;
         notifyListenersOfOnIncomingCallCancelled();
     }
+
+    
 
     private void notifyListenersOnCallConnected(String talkStream, String listenStream) {
     	log.debug("notifyListenersOnCallConnected for {}", clientId);

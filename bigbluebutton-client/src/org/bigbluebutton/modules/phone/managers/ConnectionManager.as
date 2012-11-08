@@ -145,9 +145,10 @@ package org.bigbluebutton.modules.phone.managers {
 		//********************************************************************************************		
 		public function doCall(dialStr:String):void {
 			LogUtil.debug("in doCall - Calling " + dialStr);
-			netConnection.call("voiceconf.call", null, "default", username, dialStr);
+			//netConnection.call("voiceconf.call", null, "default", username, dialStr);
+			netConnection.call("voiceconf.call", null, "default", username, dialStr, "true");
 		}
-				
+
 		public function doHangUp():void {			
 			if (isConnected) {
 				netConnection.call("voiceconf.hangup", null, "default");

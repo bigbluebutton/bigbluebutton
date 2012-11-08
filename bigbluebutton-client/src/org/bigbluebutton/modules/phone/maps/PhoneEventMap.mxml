@@ -86,7 +86,15 @@
 		<MethodInvoker generator="{PhoneManager}" method="unMuteAudio"/>
 	</EventHandlers>
 
-	
+	<EventHandlers type="STOP_O2">        
+		<MethodInvoker generator="{PhoneManager}" method="stopOutStream2"/>
+	</EventHandlers>
+
+	<EventHandlers type="STOP_OUT_STREAM">        
+		<MethodInvoker generator="{PhoneManager}" method="stopOutStream"/>
+	</EventHandlers>
+
+
 	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">     
 		<MethodInvoker generator="{PhoneEventMapDelegate}" method="disableToolbarButton"/>
 		<MethodInvoker generator="{PhoneManager}" method="callConnected" arguments="{event}"/>

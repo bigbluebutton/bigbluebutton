@@ -99,6 +99,10 @@ package org.bigbluebutton.modules.phone.managers {
 			streamManager.unMuteAudio();
 		}
 
+		public function stopOutStream():void {
+			streamManager.stopOutStream();
+		}
+
 		private function setupConnection():void {
 			streamManager.setConnection(connectionManager.getConnection());
 		}
@@ -125,8 +129,8 @@ package org.bigbluebutton.modules.phone.managers {
 			connectionManager.doCall(attributes.webvoiceconf);
 		}
 
+		
 		public function beginPublish():void {
-			LogUtil.debug("Chamei 2");
 			streamManager.beginPublishing();
 		}
 		

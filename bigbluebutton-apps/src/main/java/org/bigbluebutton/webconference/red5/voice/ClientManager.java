@@ -63,14 +63,17 @@ public class ClientManager implements ClientNotifier {
 		RoomInfo soi = voiceRooms.get(room);
 		if (soi != null) {
 			List<Object> list = new ArrayList<Object>();
+			
 			list.add(participant);
 			list.add(name);
 			list.add(name);
 			list.add(muted);
 			list.add(talking);
 			list.add(locked);
-			log.debug("Sending join to client " + name);
-			soi.getSharedObject().sendMessage("userJoin", list);
+			log.debug("Sending join to client " + name);	
+			System.out.println("O NOME EH " + name);
+			if(name.contains("GLOBAL_AUDIO") == false)
+				soi.getSharedObject().sendMessage("userJoin", list);
 		}				
 	}
 	

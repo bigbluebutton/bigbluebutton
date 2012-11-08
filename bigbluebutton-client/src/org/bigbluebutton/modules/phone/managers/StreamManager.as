@@ -159,7 +159,7 @@ package org.bigbluebutton.modules.phone.managers {
 										
 		public function callConnected(playStreamName:String, publishStreamName:String, codec:String):void {
 			isCallConnected = true;
-			audioCodec = codec;
+			//audioCodec = codec;
 			publishName = publishStreamName;
 			setupIncomingStream();
 
@@ -167,11 +167,8 @@ package org.bigbluebutton.modules.phone.managers {
 				onlyListening = true;			
 				setupOutgoingStream();
 			}
-			else {
-				var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);
-				e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
-				e.mute = true;
-				dispatcher.dispatchEvent(e);			
+			if(onlyListening) {
+				dispatcher.dispatchEvent(new BBBEvent("ONLY_LISTENING_USER"));			
 			}
 
 			setupPlayStatusHandler();
@@ -211,11 +208,15 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		private function setupOutgoingStream():void {
-			outgoingStream = new NetStream(connection);
+			
+			if(outgoingStream == null) {
+				outgoingStream = new NetStream(connection);
+			}
 			outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 			outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
 			setupMicrophone();
 			outgoingStream.attachAudio(mic);
+				
 		}
 		
 		private function setupPlayStatusHandler():void {
@@ -226,6 +227,15 @@ package org.bigbluebutton.modules.phone.managers {
 			_custom_obj = custom_obj;
 			if (mic != null)
 				outgoingStream.client = custom_obj;			
+		}
+
+		public function stopOutStream():void {
+			
+			outgoingStream.attachAudio(null);
+			//outgoingStream.close();
+			mic = null;
+			//outgoingStream = null;
+			
 		}
 			
 		public function stopStreams():void {
