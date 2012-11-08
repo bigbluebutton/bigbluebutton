@@ -104,8 +104,8 @@
 			private var lastSenderId:String = "";
 			private var lastTime:String = "";
 			
-      [Bindable]
-      private var chatMessages:ChatMessages = new ChatMessages();
+	        [Bindable]
+	        private var chatMessages:ChatMessages = new ChatMessages();
       
 			private var lastCount:Number = 0;			
 			private var scrollTimer:Timer;			
@@ -157,21 +157,16 @@
 				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);	
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing	
 				// Initialize the chatMessagesList tooltip as the Welcome message
-        if (chatMessages.numMessages() > 0) {
-          chatMessagesList.accessibilityProperties.description = chatMessages.messages[0].toString();
-        }
-				
-        // Listen for the ENTER key to send the message.
-         txtMsgArea.addEventListener(KeyboardEvent.KEY_DOWN, handleTextAreaKeyUpEvent);
-		// txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
-        
-        // Put the cursor on the txt message area when this chat box is in focus
-        this.addEventListener(FocusEvent.FOCUS_IN, handleFocusInEvent);
-        
+		        if (chatMessages.numMessages() > 0) {
+		          chatMessagesList.accessibilityProperties.description = chatMessages.messages[0].toString();
+		        }
+						
+		        // Listen for the ENTER key to send the message.
+				txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
+		        
 				Accessibility.updateProperties();
-        focusToTextMessageArea();
-        
-        queryForChatHistory();
+		        
+		        queryForChatHistory();
 			}
       
       private function bindToHeightToDetermineHeightOfMessageList():void {
@@ -355,11 +350,11 @@
 			}
 			
 			public function handleKeyDown(e:KeyboardEvent) :void {
-//				LogUtil.debug("WATERFALL: Entering handleKeyDown");
+				LogUtil.debug("WATERFALL: Entering handleKeyDown");
 				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
-//				LogUtil.debug("WATERFALL keypress: " + keyPress);		
+				LogUtil.debug("WATERFALL keypress: " + keyPress);		
 				if (keyCombos[keyPress]) {
-//					LogUtil.debug("WATERFALL keypress matched something in keyCombos: " + keyCombos[keyPress]);
+					LogUtil.debug("WATERFALL keypress matched something in keyCombos: " + keyCombos[keyPress]);
 					var event:ShortcutEvent = new ShortcutEvent(keyCombos[keyPress]);
 					event.otherUserID = chatWithUserID; 
 					globalDispatcher.dispatchEvent(event);
@@ -518,24 +513,7 @@
       private function handleTextAreaKeyUpEvent(e:KeyboardEvent):void {
 		if (e.keyCode == Keyboard.ENTER) {
 			sendMessages();
-		}
-	  	else if (e.keyCode == Keyboard.TAB){
-			if (!e.shiftKey){
-	  			LogUtil.debug("WATERFALL TAB PRESSED IN CHAT ENTRY");
-				sendBtn.setFocus();
-			}
-			else{
-				LogUtil.debug("WATERFALL SHIFT-TAB PRESSED IN CHAT ENTRY");
-				chatMessagesList.setFocus();
-			}
-			if (focusManager.getNextFocusManagerComponent(e.shiftKey) != null){
-				LogUtil.debug("Next item exists: " + focusManager.getNextFocusManagerComponent(e.shiftKey));
-			}
-			else{
-				LogUtil.debug("Next item is NULL ");
-			}
-			//focusManager.getNextFocusManagerComponent(e.shiftKey).setFocus();
-	  	}        
+		}     
 	  }
       
       private function sendMessages():void {
@@ -550,7 +528,6 @@
             sendPrivateChatMessage(msgToSend);
           }
         }
-        
         txtMsgArea.text = "";
       }	
 		]]>
