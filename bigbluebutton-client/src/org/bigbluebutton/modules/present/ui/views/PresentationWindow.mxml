@@ -148,6 +148,8 @@
                 bindKeyboardEvents();
 				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
+				
+				resourcesChanged();
 			}
 			
 			private function onItemRollOver(e:ListEvent):void{
@@ -485,6 +487,19 @@
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				if ((slideView != null) && (!slideView.visible)) this.title = ResourceUtil.getInstance().getString('bbb.presentation.title');
+				
+				if (windowControls != null) {
+					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
+					minimizeBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.minimizeBtn.accessibilityDesc");
+
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
+					maximizeRestoreBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.maximizeRestoreBtn.accessibilityDesc");
+
+					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
+					closeBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.presentation.closeBtn.accessibilityDesc");
+				}
+				
+				Accessibility.updateProperties();
 			}
 			
 			private function localeChanged(e:LocaleChangeEvent):void{

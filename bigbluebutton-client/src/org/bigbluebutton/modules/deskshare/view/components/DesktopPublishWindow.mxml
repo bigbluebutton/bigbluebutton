@@ -93,15 +93,14 @@
 			
 			private function onCreationComplete():void {
 				windowControls.maximizeRestoreBtn.enabled = false;
-				windowControls.maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.maximizeRestoreBtn.toolTip');
-				windowControls.closeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.closeBtn.toolTip');
-				windowControls.minimizeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.minimizeBtn.toolTip');
 				
 				cursor = new Sprite();
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);		
 					
-				setCurrentState("dispFullRegionControlBar");			
+				setCurrentState("dispFullRegionControlBar");
+				
+				resourcesChanged();
 			}
 			
 			public function get defaultWidth():int{
@@ -293,6 +292,17 @@
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
+				
+				if (windowControls != null) {
+					minimizeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.minimizeBtn.toolTip');
+					minimizeBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.desktopPublish.minimizeBtn.accessibilityDesc");
+
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.maximizeRestoreBtn.toolTip');
+					maximizeRestoreBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.desktopPublish.maximizeRestoreBtn.accessibilityDesc");
+
+					closeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.closeBtn.toolTip');
+					closeBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.desktopPublish.closeBtn.accessibilityDesc");
+				}
 			}
 			
 			private function localeChanged(e:LocaleChangeEvent):void{

@@ -486,7 +486,7 @@
 			
 		]]>
 	</mx:Script>
-	<fimage:FocusableImage id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" x="{slideModel.loaderX}" y="{slideModel.loaderY}" useHandCursor="true" buttonMode="true"
+	<fimage:FocusableImage id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" x="{slideModel.loaderX}" y="{slideModel.loaderY}" useHandCursor="true" buttonMode="false"
 		creationComplete="listenForSlideLoadedCompleteEvent()" scaleContent="false" showBusyCursor="true" completeEffect="Fade" />
 	
    		

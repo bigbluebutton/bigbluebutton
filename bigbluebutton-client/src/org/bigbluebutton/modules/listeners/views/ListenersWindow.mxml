@@ -77,6 +77,8 @@
 				BindingUtils.bindSetter(updateShowPushToTalkBtn, UserManager.getInstance().getConference(), "voiceLocked");
 				BindingUtils.bindSetter(updateShowPushToTalkBtn, UserManager.getInstance().getConference(), "voiceJoined");
 				this.visible = listenerOptions.windowVisible;		
+				
+				resourcesChanged();
 			}
 			
 			private function updateShowPushToTalkBtn(show:Boolean):void {
@@ -196,6 +198,17 @@
 					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', [":", listeners.length]);
 				else 
 					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', ["",""]);
+					
+				if (windowControls != null) {
+					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
+					minimizeBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.listeners.minimizeBtn.accessibilityDesc");
+
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
+					maximizeRestoreBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.listeners.maximizeRestoreBtn.accessibilityDesc");
+
+					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
+					closeBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.listeners.closeBtn.accessibilityDesc");
+				}
 			}
 			
 			private function localeChanged(e:LocaleChangeEvent):void{

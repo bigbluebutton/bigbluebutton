@@ -68,7 +68,9 @@
 				
 				// var disp:Dispatcher = new Dispatcher();
 				disp  = new Dispatcher();
-//				disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));				
+//				disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
+
+				resourcesChanged(); // update the window controls once they've been created
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
@@ -87,6 +89,17 @@
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString("bbb.chat.title");
+				
+				if (windowControls != null) {
+					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
+					minimizeBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.chat.minimizeBtn.accessibilityDesc");
+
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
+					maximizeRestoreBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.chat.maximizeRestoreBtn.accessibilityDesc");
+
+					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
+					closeBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.chat.closeBtn.accessibilityDesc");
+				}
 			}
 			
 			private function localeChanged(e:LocaleChangeEvent):void{

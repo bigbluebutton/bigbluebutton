@@ -79,8 +79,6 @@
 			private var isMaximized:Boolean = false;
 									
 			private function onCreationComplete():void{
-				windowControls.maximizeRestoreBtn.toolTip = "Maximize this window";
-				windowControls.minimizeBtn.toolTip = "Minimize this window";				
 				videoHolder.addChild(video);				
 				this.addChild(videoHolder);
 				videoHolder.percentWidth = 100;
@@ -94,6 +92,8 @@
 				videoHolder.addChild(cursorImg);
 				cursor.visible = false;
 				maximize();
+				
+				resourcesChanged();
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -257,6 +257,17 @@
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString('bbb.desktopView.title');
+				
+				if (windowControls != null) {
+					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
+					minimizeBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.desktopView.minimizeBtn.accessibilityDesc");
+
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
+					maximizeRestoreBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.desktopView.maximizeRestoreBtn.accessibilityDesc");
+
+					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
+					closeBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.desktopView.closeBtn.accessibilityDesc");
+				}
 			}
 			
 			private function localeChanged(e:LocaleChangeEvent):void{

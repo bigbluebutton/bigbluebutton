@@ -83,6 +83,8 @@
 				dispatcher = new Dispatcher();
 				
 				this.visible = viewerOptions.windowVisible;
+				
+				resourcesChanged();
 			}
 			
 			private function updateNumberOfViewers(numViewers:int):void {
@@ -140,6 +142,17 @@
 					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', [":", participants.length]);
 				else 
 					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', ["", ""]);
+					
+				if (windowControls != null) {
+					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
+					minimizeBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.viewers.minimizeBtn.accessibilityDesc");
+
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
+					maximizeRestoreBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.viewers.maximizeRestoreBtn.accessibilityDesc");
+
+					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
+					closeBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.viewers.closeBtn.accessibilityDesc");
+				}
 			}
 			
 			private function localeChanged(e:LocaleChangeEvent):void{
