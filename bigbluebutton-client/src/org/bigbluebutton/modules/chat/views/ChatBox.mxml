@@ -56,7 +56,7 @@
   <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
   <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
   <mate:Listener type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}" method="handleParticipantJoinEvent"/>
-  
+  	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
 	<mx:Script>
 		<![CDATA[
       import com.adobe.utils.StringUtil;
@@ -154,7 +154,9 @@
 				// Initialize the indicator for the position in the message history, and add the listener for message history navigation
 				currentMessage = 0;
 				latestMessage = 0;
+				
 				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);	
+				
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing	
 				// Initialize the chatMessagesList tooltip as the Welcome message
 		        if (chatMessages.numMessages() > 0) {
@@ -511,6 +513,8 @@
       }
 
       private function handleTextAreaKeyUpEvent(e:KeyboardEvent):void {
+		LogUtil.debug("Entering handle key UP with keycode " + e.keyCode);
+		// Chad keypress
 		if (e.keyCode == Keyboard.ENTER) {
 			sendMessages();
 		}     
@@ -530,6 +534,11 @@
         }
         txtMsgArea.text = "";
       }	
+	  
+		private function focusChatInput(e:ShortcutEvent):void{
+			LogUtil.debug("WATERFALL focusChatInput");
+			txtMsgArea.setFocus();
+		}
 		]]>
 		
 	</mx:Script>
@@ -541,7 +550,7 @@
   </mx:HBox>
   
   <mx:HBox id="chatCtrlBar" width="100%" height="50" styleName="chatControlBarStyle" paddingLeft="5" paddingRight="5">		
-    <mx:TextInput id="txtMsgArea" width="100%"  color="{cmpColorPicker.selectedColor}" 
+    <mx:TextArea id="txtMsgArea" width="100%"  color="{cmpColorPicker.selectedColor}" 
                  styleName="chatControlBarTextMsgStyle" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
                  tabIndex="{baseIndex+10}"/>

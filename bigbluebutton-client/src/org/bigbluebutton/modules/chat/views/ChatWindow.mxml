@@ -30,7 +30,7 @@
 		   xmlns:mate="http://mate.asfusion.com/" 
 		   xmlns:views="org.bigbluebutton.modules.chat.views.*">
 	
-	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
+	
 	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_TABS}" method="focusChatTabs" />
 	
 	<mx:Script>
@@ -114,13 +114,14 @@
 //        txtMsg.enabled = false;
       }
 			
-			private function focusChatInput(e:ShortcutEvent):void{
+			/*private function focusChatInput(e:ShortcutEvent):void{
+				LogUtil.debug("WATERFALL focusChatInput");
 //				if (txtMsg.enabled){
 					//cant get it to focus the whole window as well
 //					windowManager.bringToFront(this);
 //					focusManager.setFocus(txtMsg);
 //				}
-			}
+			}*/
 			
 			private function focusChatTabs(e:ShortcutEvent):void{
 //				windowManager.bringToFront(this);

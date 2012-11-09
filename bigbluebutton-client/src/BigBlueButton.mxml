@@ -278,6 +278,8 @@
       if (keyCombos[keyPress])
       {
         LogUtil.debug("Chad keypress " + keyPress);
+		LogUtil.debug("Chad keypress " + keyCombos[keyPress]);
+		// FOCUS_CHAT_INPUT
         globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
       }
     }
