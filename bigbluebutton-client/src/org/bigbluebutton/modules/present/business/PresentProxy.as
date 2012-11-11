@@ -118,7 +118,9 @@ package org.bigbluebutton.modules.present.business
 			var presentationName:String = e.presentationName;
 			LogUtil.debug("PresentProxy::loadPresentation: presentationName=" + presentationName);
 			var fullUri : String = host + "/bigbluebutton/presentation/" + conference + "/" + room + "/" + presentationName+"/slides";	
+			fullUri = encodeURI(fullUri);
 			var slideUri:String = host + "/bigbluebutton/presentation/" + conference + "/" + room + "/" + presentationName;
+			slideUri = encodeURI(slideUri);
 			
 			LogUtil.debug("PresentationApplication::loadPresentation()... " + fullUri);
 			var service:PresentationService = new PresentationService();
