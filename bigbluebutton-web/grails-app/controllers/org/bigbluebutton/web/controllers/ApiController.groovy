@@ -315,6 +315,11 @@ class ApiController {
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
 	us.logoutUrl = meeting.getLogoutUrl();
+	
+	if (! StringUtils.isEmpty(params.defaulLayout)) {
+		us.defaultLayout = params.defaulLayout;
+	}
+	  
     
 	// Store the following into a session so we can handle
 	// logout, restarts properly.
@@ -774,6 +779,7 @@ class ApiController {
               record(us.record)
               welcome(us.welcome)
 			  logoutUrl(us.logoutUrl)
+			  defaultLayout(us.defaultLayout)
             }
           }
         }

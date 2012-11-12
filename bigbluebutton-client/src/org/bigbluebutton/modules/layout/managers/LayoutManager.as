@@ -195,19 +195,32 @@ package org.bigbluebutton.modules.layout.managers
       var newLayout:LayoutDefinition = _layouts.getLayout(name);
       if (newLayout == null) return;
 
-      LogUtil.debug("************** USING [" + newLayout.name + "] LAYOUT ***************************");
+      LogUtil.debug("************** USING [" + newLayout.name + "] as new LAYOUT ***************************");
       applyLayout(newLayout);
       sendLayoutUpdate(_currentLayout);      
     }
     
-		public function applyDefaultLayout():void {      
+		public function applyDefaultLayout():void {   
+      
       var layoutOptions:LayoutOptions = new LayoutOptions();
       layoutOptions.parseOptions();
       var defaultLayout:LayoutDefinition = _layouts.getLayout(layoutOptions.defaultLayout);
+           
+      var sessionDefaulLayout:String = UserManager.getInstance().getConference().getDefaultLayout();
+      
+      
+      if (sessionDefaulLayout != "NOLAYOUT") {
+        var sesLayout:LayoutDefinition = _layouts.getLayout(sessionDefaulLayout);
+        if (sesLayout != null) {
+          defaultLayout = sesLayout;
+        }
+      }
+      
       if (defaultLayout == null) {
         defaultLayout = _layouts.getDefault();
       }
-      LogUtil.debug("************** USING [" + defaultLayout.name + "] LAYOUT ***************************");
+      
+      LogUtil.debug("************** USING [" + defaultLayout.name + "] as default LAYOUT ***************************");
 			applyLayout(defaultLayout);
 			sendLayoutUpdate(_currentLayout);
 		}

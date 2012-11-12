@@ -15,4 +15,5 @@ public class UserSession {
     String record = null;
     String welcome = null;
     String logoutUrl = null;
+    String defaultLayout = "NOLAYOUT";
 }

@@ -27,7 +27,9 @@ package org.bigbluebutton.main.model.users {
 //		private var _myUserid:Number;		
 		[Bindable] private var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;			
-				
+	
+    private var defaultLayout:String;
+    
 		public function Conference():void {
 			me = new BBBUser();
 			users = new ArrayCollection();
@@ -46,6 +48,14 @@ package org.bigbluebutton.main.model.users {
 			}					
 		}
 
+    public function setDefaultLayout(defaultLayout:String):void {
+      this.defaultLayout = defaultLayout;  
+    }
+    
+    public function getDefaultLayout():String {
+      return defaultLayout;
+    }
+    
 		public function hasUser(userID:String):Boolean {
 			var p:Object = getUserIndex(userID);
 			if (p != null) {

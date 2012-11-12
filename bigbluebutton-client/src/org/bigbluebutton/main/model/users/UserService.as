@@ -66,7 +66,8 @@ package org.bigbluebutton.main.model.users
 				UserManager.getInstance().getConference().setMyRole(result.role);
 				UserManager.getInstance().getConference().setMyRoom(result.room);
 				UserManager.getInstance().getConference().setMyAuthToken(result.authToken);
-				
+        UserManager.getInstance().getConference().setDefaultLayout(result.defaultLayout);
+        
 				_conferenceParameters = new ConferenceParameters();
 				_conferenceParameters.conference = result.conference;
 				_conferenceParameters.username = result.username;
