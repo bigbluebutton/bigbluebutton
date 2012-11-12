@@ -79,11 +79,18 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
+		System.out.println("\n\nVOISMART: roomConnect in VoiceHandler\n\n");
+		
+		for (int i = 0; i < params.length; i++) {
+			System.out.println("Parameter " + i + ": " + params[i]);
+		}
+		
 		log.debug(APP + ":roomConnect");
 		log.debug("In live mode");
 		ISharedObject so = getSharedObject(connection.getScope(), VOICE_SO);
 		    		
-		String voiceBridge = getBbbSession().getVoiceBridge();
+		String voiceBridge = getBbbSession().getSessionName();
+		System.out.println("\n\nVOISMART: roomConnect voiceBridge (sessionName): " + voiceBridge);
 		String meetingid = getBbbSession().getConference(); 
 		Boolean record = getBbbSession().getRecord();
 		

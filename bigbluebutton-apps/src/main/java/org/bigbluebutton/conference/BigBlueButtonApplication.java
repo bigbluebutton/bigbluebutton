@@ -87,6 +87,10 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
+		System.out.println("\n\nVOISMART: ROOM CONNECT\n\n");
+		for (int i = 0; i < params.length; i++) {
+			System.out.println("VOISMART: Parameter " + (i+1) + ": " + params[i]);
+		}
         String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
         int remotePort = Red5.getConnectionLocal().getRemotePort();
         String username = ((String) params[0]).toString();
@@ -98,7 +102,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
          * equivalent (i.e. zero (0) becomes 48) if we don't.
          */
         long clientID = Long.parseLong(Red5.getConnectionLocal().getClient().getId());
-        String sessionName = connection.getScope().getName();
+        //VOISMART
+        //String sessionName = connection.getScope().getName();
+        String sessionName = ((String)params[3]).toString();
         log.info("[clientid=" + clientID + "] connected from " + remoteHost + ":" + remotePort + ".");
         
         String voiceBridge = ((String) params[4]).toString();
