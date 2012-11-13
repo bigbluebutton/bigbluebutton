@@ -21,6 +21,9 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
+    [Embed(source="assets/images/avatar.png")]
+    public var avatar:Class;
+    
     [Embed(source="assets/images/sign-out.png")]
     public var signOutIcon:Class;
     
