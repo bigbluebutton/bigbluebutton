@@ -64,9 +64,6 @@
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
 				addEventListener(MDIWindowEvent.CLOSE, onCloseEvent);
 
-				addEventListener(MDIWindowEvent.DRAG_START, onDragStart);
-				addEventListener(MDIWindowEvent.DRAG, onDrag);
-				addEventListener(MDIWindowEvent.DRAG_END, onDragEnd);
 				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
 				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
 				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
@@ -119,10 +116,7 @@
         }
       }
       
-      protected function onTalkingClicked(event:MouseEvent = null):void {
-        // do nothing
-      }
-      
+    
 			public function startVideo(connection:NetConnection, stream:String):void{
 				ns = new NetStream(connection);
 				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );

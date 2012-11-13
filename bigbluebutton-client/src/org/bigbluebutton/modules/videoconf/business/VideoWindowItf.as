@@ -19,19 +19,15 @@
 
 package org.bigbluebutton.modules.videoconf.business
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-	import flash.media.Video;
-	
+	import flash.media.Video;	
 	import flexlib.mdi.containers.MDIWindow;
-	import flexlib.mdi.events.MDIWindowEvent;
-	
+	import flexlib.mdi.events.MDIWindowEvent;	
 	import mx.containers.Panel;
 	import mx.controls.Button;
-	import mx.core.UIComponent;
-	
+	import mx.core.UIComponent;	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.common.LogUtil;
@@ -212,27 +208,7 @@ package org.bigbluebutton.modules.videoconf.business
 				// the window is docked, so it should not be moved on reset layout
 				return MainCanvas.ABSOLUTE;
 		}
-		
-		public function onDrag(event:MDIWindowEvent = null):void {
-			var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG);
-			e.mouseGlobal = this.localToGlobal(new Point(mouseX, mouseY));
-			e.window = this;
-			dispatchEvent(e);
-		}
-		
-		public function onDragStart(event:MDIWindowEvent = null):void {
-			var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG_START);
-			e.window = this;
-			dispatchEvent(e);
-		}
-		
-		public function onDragEnd(event:MDIWindowEvent = null):void {
-			var e:DragWindowEvent = new DragWindowEvent(DragWindowEvent.DRAG_END);
-			e.mouseGlobal = this.localToGlobal(new Point(mouseX, mouseY));
-			e.window = this;
-			dispatchEvent(e);
-		}
-		
+			
 		override public function close(event:MouseEvent = null):void{
 			var e:CloseWindowEvent = new CloseWindowEvent();
 			e.window = this;
@@ -240,9 +216,7 @@ package org.bigbluebutton.modules.videoconf.business
 			
 			super.close(event);
 		}
-		
-//		private var _controlButtons:ControlButtonsOverlay = null;
-    
+		   
 		private var _controlButtonsEnabled:Boolean = true;
 		
 		private var img_unlock_keep_aspect:Class = images.lock_open;
@@ -261,21 +235,8 @@ package org.bigbluebutton.modules.videoconf.business
     }
     
 		protected function get controlButtons():ControlButtons {
-			if (_controlButtons == null) {
-				
-        
-//				_controlButtons.add("originalSizeBtn", img_original_size, ResourceUtil.getInstance().getString('bbb.video.originalSizeBtn.tooltip'), onOriginalSizeClick);
-//        _controlButtons.add("muteUnmuteBtn", img_mute_icon, "mute / unmute", onMuteUnmuteClicked);
-//        _controlButtons.add("switchPresenter", adminIcon, "switch presenter", onSwitchPresenterClicked);
-//        _controlButtons.add("ejectUserBtn", signOutIcon, "eject user", onKickUserClicked);
-//        _controlButtons.add("privateChatBtn", chatIcon, "Start private chat", onPrivateChatClicked);
-//        
-				// hiding the other buttons
-				//_buttons.add("keepAspectBtn", img_lock_keep_aspect, ResourceUtil.getInstance().getString('bbb.video.keepAspectBtn.tooltip'), onKeepAspectClick);
-				//_buttons.add("fitVideoBtn", img_fit_video, ResourceUtil.getInstance().getString('bbb.video.fitVideoBtn.tooltip'), onFitVideoClick);
-				
-				_controlButtons.visible = false;
-								
+			if (_controlButtons == null) {				
+				_controlButtons.visible = false;							
 			} 
 			return _controlButtons;
 		}
@@ -332,38 +293,7 @@ package org.bigbluebutton.modules.videoconf.business
 			_video.height = _videoHolder.height = originalHeight;
 			onFitVideoClick();
 		}		
-/*		
-    protected function onKickUserClicked(event:MouseEvent = null):void {
-      var gd:Dispatcher = new Dispatcher();
-      gd.dispatchEvent(new KickUserEvent(_sharerUserID)); 
-    }
     
-    protected function onPrivateChatClicked(event:MouseEvent = null):void {
-      var e:CoreEvent = new CoreEvent(EventConstants.START_PRIVATE_CHAT);
-      e.message.chatWith = _sharerUserID;
-      var gd:Dispatcher = new Dispatcher();
-      gd.dispatchEvent(e);
-    }
-       
-    protected function onSwitchPresenterClicked(event:MouseEvent = null):void {
-      var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-      e.userid = _sharerUserID;
-      e.username = UsersUtil.getUserName(_sharerUserID);
-      var gd:Dispatcher = new Dispatcher();
-      gd.dispatchEvent(e);     
-    }
-    
-    protected function onMuteUnmuteClicked(event:MouseEvent = null):void {
-      var bu:BBBUser = UsersUtil.getUser(_sharerUserID);
-      if (bu != null) {
-        var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);        
-        e.userid = bu.voiceUserid;
-        e.mute = ! bu.voiceMuted; 
-        var gd:Dispatcher = new Dispatcher();
-        gd.dispatchEvent(e);          
-      }
-    }
-*/    
 		protected function onFitVideoClick(event:MouseEvent = null):void {
 			var newWidth:int = _video.width + paddingHorizontal;
 			var newHeight:int = _video.height + paddingVertical;
@@ -377,18 +307,7 @@ package org.bigbluebutton.modules.videoconf.business
 		
 		protected function onKeepAspectClick(event:MouseEvent = null):void {
 			keepAspect = !keepAspect;
-			
-//			var keepAspectBtn:Button = controlButtons.get("keepAspectBtn");
-//			if (keepAspectBtn != null) { 
-//				keepAspectBtn.selected = keepAspect;
-//				keepAspectBtn.setStyle("icon", (keepAspect? img_lock_keep_aspect: img_unlock_keep_aspect));
-//			}
-			
-//			var fitVideoBtn:Button = controlButtons.get("fitVideoBtn");
-//			if (fitVideoBtn != null) {
-//				fitVideoBtn.enabled = !keepAspect;
-//			}		
-			
+					
 			onFitVideoClick();
 		}
 		

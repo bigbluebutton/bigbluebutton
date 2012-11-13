@@ -279,9 +279,6 @@
 				
 				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
-				addEventListener(MDIWindowEvent.DRAG_START, onDragStart);
-				addEventListener(MDIWindowEvent.DRAG, onDrag);
-				addEventListener(MDIWindowEvent.DRAG_END, onDragEnd);
 				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
 				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
 				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
