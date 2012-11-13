@@ -145,13 +145,13 @@
 					
 				if (windowControls != null) {
 					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
-					minimizeBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.viewers.minimizeBtn.accessibilityDesc");
+					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.viewers.minimizeBtn.accessibilityName");
 
 					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
-					maximizeRestoreBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.viewers.maximizeRestoreBtn.accessibilityDesc");
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.viewers.maximizeRestoreBtn.accessibilityName");
 
 					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
-					closeBtn.accessibilityDescription = ResourceUtil.getInstance().getString("bbb.viewers.closeBtn.accessibilityDesc");
+					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.viewers.closeBtn.accessibilityName");
 				}
 			}
 			
