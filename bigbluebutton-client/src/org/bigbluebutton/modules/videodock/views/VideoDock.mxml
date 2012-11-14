@@ -22,7 +22,8 @@ $Id: $
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 		   xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   creationComplete="init()" 
+		   initialize="init()"
+		   creationComplete="onCreationComplete()" 
 		   implements="org.bigbluebutton.common.IBbbModuleWindow"
 		   title="{ResourceUtil.getInstance().getString('bbb.videodock.title')}"
 		   xmlns:mate="http://mate.asfusion.com/"
@@ -58,8 +59,13 @@ $Id: $
 			private var priorityWindowWeight:Number = 2/3;
 			
 			private var options:DockOptions = new DockOptions();
+			[Bindable] private var baseIndex:int;
 			
-			private function init():void {				
+			private function init():void{
+				baseIndex = dockOptions.baseTabIndex;
+			}
+			
+			private function onCreationComplete():void{				
 				this.showCloseButton = false;		
 				
 				this.minWidth = options.width;

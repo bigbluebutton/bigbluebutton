@@ -25,6 +25,7 @@
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	xmlns:mate="http://mate.asfusion.com/"
 	title="{windowTitle}" visible="false"
+	initialize="init()"
 	creationComplete="onCreationComplete()"
 	showCloseButton="false">
 
@@ -71,9 +72,14 @@
             [Bindable] public var presenterIcon : Class = images.presenter;
    			[Bindable] public var handIcon:Class = images.raisehand;
    			
-   			[Bindable] public var viewerOptions:ViewerOptions;
-   			
 			private var dispatcher:Dispatcher;
+			
+			[Bindable] public var viewerOptions:ViewerOptions;
+			[Bindable] private var baseIndex:int;
+			
+			private function init():void {
+				baseIndex = viewerOptions.baseTabIndex;
+			}
 			
 			private function onCreationComplete():void {
 				conference = UserManager.getInstance().getConference();
@@ -181,7 +187,8 @@
     <mx:DataGrid id="viewersGrid" dataProvider="{participants}" editable="false"
     	dragEnabled="false" itemClick="viewerSelectEvent(event);" width="100%" height="100%"
 		itemRollOver="onItemRollOver(event)"
-		itemRollOut="onItemRollOut(event)">
+		itemRollOut="onItemRollOut(event)"
+		tabIndex="{baseIndex}">
     	<mx:columns>
     		<mx:DataGridColumn dataField="role" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.roleItemRenderer')}" dataTipField="Role" editable="false" width="35"
     			itemRenderer="org.bigbluebutton.modules.viewers.views.RoleItemRenderer" sortable="false" id="roleField"/>
@@ -198,12 +205,14 @@
     	   			width="130" height="20"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
     	   			click="assignPresenterClicked()"
+    	   			tabIndex="{baseIndex+1}"
     	   			/>
      	 <mx:Spacer width="100%"/>
     	 <mx:Button id="raiseHandImage" icon="{handIcon}" toggle="true" 
     	   			width="20" height="20"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.raiseHandBtn.toolTip')}" 
-    	   			click="raiseHand()"/>  			
+    	   			click="raiseHand()"
+    	   			tabIndex="{baseIndex+2}"/>  			
     </mx:ControlBar>  
     
 </viewer:MDIWindow>

@@ -137,7 +137,7 @@
 			private function onCreationComplete():void {    
         		bindToHeightToDetermineHeightOfMessageList();
         		
-				LogUtil.debug("WATERFALL-BOX BaseIndex is " + baseIndex);
+				//LogUtil.debug("WATERFALL-BOX BaseIndex is " + baseIndex);
 				
 				loadKeyCombos()
 				addContextMenuItems();
@@ -352,11 +352,11 @@
 			}
 			
 			public function handleKeyDown(e:KeyboardEvent) :void {
-				LogUtil.debug("WATERFALL: Entering handleKeyDown");
+				//LogUtil.debug("WATERFALL: Entering handleKeyDown");
 				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
-				LogUtil.debug("WATERFALL keypress: " + keyPress);		
+				//LogUtil.debug("WATERFALL keypress: " + keyPress);		
 				if (keyCombos[keyPress]) {
-					LogUtil.debug("WATERFALL keypress matched something in keyCombos: " + keyCombos[keyPress]);
+					//LogUtil.debug("WATERFALL keypress matched something in keyCombos: " + keyCombos[keyPress]);
 					var event:ShortcutEvent = new ShortcutEvent(keyCombos[keyPress]);
 					event.otherUserID = chatWithUserID; 
 					globalDispatcher.dispatchEvent(event);
@@ -513,7 +513,7 @@
       }
 
       private function handleTextAreaKeyUpEvent(e:KeyboardEvent):void {
-		LogUtil.debug("Entering handle key UP with keycode " + e.keyCode);
+		//LogUtil.debug("Entering handle key UP with keycode " + e.keyCode);
 		// Chad keypress
 		if (e.keyCode == Keyboard.ENTER) {
 			sendMessages();
@@ -536,7 +536,7 @@
       }	
 	  
 		private function focusChatInput(e:ShortcutEvent):void{
-			LogUtil.debug("WATERFALL focusChatInput");
+			//LogUtil.debug("WATERFALL focusChatInput");
 			txtMsgArea.setFocus();
 		}
 		]]>

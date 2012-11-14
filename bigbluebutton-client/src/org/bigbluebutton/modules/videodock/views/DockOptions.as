@@ -28,6 +28,8 @@ package org.bigbluebutton.modules.videodock.views
 		[Bindable]
 		public var oneAlwaysBigger:Boolean = false;
 		
+		[Bindable] public var baseTabIndex:int;
+		
 		public function DockOptions()
 		{
 			var vxml:XML = BBB.getConfigForModule("VideodockModule");
@@ -54,6 +56,9 @@ package org.bigbluebutton.modules.videodock.views
 				}
 				if (vxml.@oneAlwaysBigger != undefined) {
 					oneAlwaysBigger = (vxml.@oneAlwaysBigger.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@baseTabIndex != undefined) {
+					baseTabIndex = vxml.@baseTabIndex;
 				}
 			}
 		}

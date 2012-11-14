@@ -25,7 +25,10 @@
 			xmlns:flc="flexlib.controls.*" visible="false"
 			implements="org.bigbluebutton.common.IBbbModuleWindow"
 			title="{windowTitle}"
-			creationComplete="onCreationComplete()" xmlns:mate="http://mate.asfusion.com/" xmlns:controls="flexlib.controls.*">
+			initialize="init()"
+			creationComplete="onCreationComplete()" 
+			xmlns:mate="http://mate.asfusion.com/" 
+			xmlns:controls="flexlib.controls.*">
 	
 	<mate:Listener type="{ListenersEvent.ROOM_MUTE_STATE}" method="roomMuteStateChange" />
 	<mate:Listener type="{ListenersEvent.REGISTER_LISTENERS}" method="registerListeners" />
@@ -71,6 +74,11 @@
 			[Bindable] public var listenerOptions:ListenerOptions;
 			[Bindable] private var showPushToTalkBtn:Boolean = UserManager.getInstance().getConference().voiceLocked &&
 				UserManager.getInstance().getConference().voiceJoined;
+			[Bindable] private var baseIndex:int;
+			
+			private function init():void {
+				baseIndex = listenerOptions.baseTabIndex;
+			}
 			
 			private function onCreationComplete():void {
 				BindingUtils.bindSetter(updateNumberOfListeners, listeners, "length");		
@@ -224,13 +232,15 @@
  			itemRenderer="org.bigbluebutton.modules.listeners.views.ListenerItem" 
             dragEnabled="false" dataProvider="{listeners}"
 			itemRollOver="onItemRollOver(event)"
-			itemRollOut="onItemRollOut(event)">          
+			itemRollOut="onItemRollOut(event)"
+			tabIndex="{baseIndex}">          
     	</mx:List>				
     	    	
     	<mx:ControlBar width="100%">
 			<flc:CanvasButton id="pushToTalkBtn" visible="{showPushToTalkBtn}" 
 							  toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" 
-							  click="toggleMuteMeState()" height="30" maxWidth="180">
+							  click="toggleMuteMeState()" height="30" maxWidth="180"
+							  tabIndex="{baseIndex+1}">
 				<mx:HBox verticalAlign="middle" horizontalGap="0" paddingLeft="5" paddingTop="5" paddingRight="5" paddingBottom="5">
 					<mx:Image source="{UserManager.getInstance().getConference().voiceMuted ? images.sound_mute : images.sound_none}" />
 					<mx:Label text="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.talk') : ResourceUtil.getInstance().getString('bbb.listeners.mute')}" />
@@ -239,9 +249,11 @@
      	   	<mx:Spacer width="100%"/>
 			<flc:CanvasButton id="muteAllBtn" visible="false" toggle="true" selected="false"
 							  toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}" 
-							  click="toggleMuteState()" height="30" maxWidth="180">
+							  click="toggleMuteState()" height="30" maxWidth="180"
+							  tabIndex="{baseIndex+2}">
 				<mx:HBox verticalAlign="middle" horizontalGap="0" paddingLeft="5" paddingTop="5" paddingRight="5" paddingBottom="5">
-					<mx:Label text="{muteAllBtn.selected ?  ResourceUtil.getInstance().getString('bbb.listeners.unmuteAllBtn.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}" />
+					<mx:Label text="{muteAllBtn.selected ?  ResourceUtil.getInstance().getString('bbb.listeners.unmuteAllBtn.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}"
+							  tabIndex="{baseIndex+3}" />
 				</mx:HBox> 
 			</flc:CanvasButton>
     	</mx:ControlBar>
