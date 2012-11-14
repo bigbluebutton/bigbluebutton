@@ -58,6 +58,7 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     private FreeswitchHeartbeatMonitor heartbeatMonitor;
     private boolean debug = false;
  
+    private String icecastProtocol = "shout";
     private String icecastHost = "localhost";
     private int icecastPort = 8000;
     private String icecastUsername = "source";
@@ -364,7 +365,11 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     public void setDebugNullConferenceAction(boolean enabled) {
         this.debug = enabled;
     }
-  
+    
+    public void setIcecastProtocol(String protocol) {
+    	icecastProtocol = protocol;
+    }
+    
     public void setIcecastHost(String host) {
     	icecastHost = host;
     }
