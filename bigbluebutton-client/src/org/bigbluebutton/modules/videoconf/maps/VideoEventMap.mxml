@@ -99,6 +99,7 @@
 					button.isPresenter = !module.presenterShareOnly;
 					var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 					event.button = button;
+					//event.tabIndex = 1;
 					globalDispatcher.dispatchEvent(event);
 				}
 			}

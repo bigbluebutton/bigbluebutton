@@ -48,9 +48,10 @@ package org.bigbluebutton.modules.deskshare.managers
 			
 			if ((button != null) && (!buttonShownOnToolbar)) {
 				button = new ToolbarButton();
-				   			   	
+				/* Test */ //button.tabIndex=4;
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 				event.button = button;
+				//event.tabIndex = 0;
 				globalDispatcher.dispatchEvent(event);	
 				buttonShownOnToolbar = true;	
 				button.enabled = true;		

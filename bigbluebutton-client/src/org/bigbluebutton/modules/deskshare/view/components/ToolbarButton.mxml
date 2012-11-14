@@ -120,6 +120,10 @@
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_LEFT;
 			}
+			
+			public function theory():String{
+				return "Deskshare button";
+			}
 		]]>
 	</mx:Script>
 </mx:Button>

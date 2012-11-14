@@ -38,6 +38,7 @@ package org.bigbluebutton.common.events
 		 */		
 		public var button:IBbbToolbarComponent;
 		public var location:String = TOP_TOOLBAR;
+		//public var tabIndex:int;
 		
 		public function ToolbarButtonEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

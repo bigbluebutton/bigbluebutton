@@ -198,7 +198,7 @@
     	   			width="130" height="20"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
     	   			click="assignPresenterClicked()"
-    	   			tabIndex="10"/>
+    	   			/>
      	 <mx:Spacer width="100%"/>
     	 <mx:Button id="raiseHandImage" icon="{handIcon}" toggle="true" 
     	   			width="20" height="20"

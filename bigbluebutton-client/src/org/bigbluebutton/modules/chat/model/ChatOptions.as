@@ -30,10 +30,10 @@ package org.bigbluebutton.modules.chat.model
 					position = cxml.@position.toString();
 				}
 				if (cxml.@baseTabIndex != undefined) {
-					LogUtil.debug("WATERFALL-OPTIONS Setting base tab index for chat in ChatOptions");
-					LogUtil.debug("WATERFALL-OPTIONS cxml.@baseTabIndex.toString() is " + cxml.@baseTabIndex.toString());
+					//LogUtil.debug("WATERFALL-OPTIONS Setting base tab index for chat in ChatOptions");
+					//LogUtil.debug("WATERFALL-OPTIONS cxml.@baseTabIndex.toString() is " + cxml.@baseTabIndex.toString());
 					baseTabIndex = cxml.@baseTabIndex;
-					LogUtil.debug("WATERFALL-OPTIONS About to leave ChatOptions, baseTabIndex is " + baseTabIndex);
+					//LogUtil.debug("WATERFALL-OPTIONS About to leave ChatOptions, baseTabIndex is " + baseTabIndex);
 				}
 			}
 		}

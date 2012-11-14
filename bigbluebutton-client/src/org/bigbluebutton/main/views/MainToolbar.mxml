@@ -22,7 +22,8 @@
 
 <mx:ApplicationControlBar xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/" visible="{showToolbar}"
-	enabled="true" xmlns:views="org.bigbluebutton.main.views.*" >   
+	enabled="true" xmlns:views="org.bigbluebutton.main.views.*"
+	initialize="init()" >   
 	
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
@@ -63,6 +64,41 @@
 			private var showToolbar:Boolean = false;
 			[Bindable]
 			public var toolbarOptions:LayoutOptions = new LayoutOptions();
+			
+			[Bindable]
+			private var baseIndex:int;
+			[Bindable]
+			private var numButtons:int;
+			/*
+			 * Because of the de-centralized way buttons are added to the toolbar, there is a large gap between the tab indexes of the main buttons
+			 * on the left and the tab indexes of the "other" items on the right (shortcut glossary, language slector, etc). This will make it more
+			 * convenient to add future items to the tab order.
+			 * 
+			 * - Justin Robinson, November 13 2012 
+			 */
+			
+			private var xml:XML;
+						
+			private function init():void{
+				baseIndex = 1;
+				numButtons = 0;
+				
+				/*
+				baseIndex=999;
+				LogUtil.debug("WATERFALL Entering MTB init");
+				var mtxml:XML = BBB.getConfigForModule("MainToolbar");
+				LogUtil.debug("Survived getting config");
+				if (mtxml != null) {
+					LogUtil.debug("Survived null check");
+					if (mtxml.@baseTabIndex != undefined) {
+						LogUtil.debug("Survived undefined check");
+						baseIndex = mtxml.@baseTabIndex;
+						LogUtil.debug("Survived getting BTI");
+					}
+				}
+				LogUtil.debug("WATERFALL End of MTB init, baseindex is " + baseIndex);
+				//*/
+			}			
 						
 			public function displayToolbar():void{
 				toolbarOptions = new LayoutOptions();
@@ -113,8 +149,16 @@
 			}
 			
 			private function handleAddToolbarButtonEvent(event:ToolbarButtonEvent):void {
+				// Find out how to import accessibility into custom components; even though the ToolbarButtons are buttons, they don't seem to have a tabIndex
 				if (event.location == ToolbarButtonEvent.TOP_TOOLBAR) {
+
+					/*var localButton:IBbbToolbarComponent;
+					localButton = event.button;
+					(localButton as Button).tabIndex = baseIndex + numButtons;
+					addedBtns.addChild(localButton as UIComponent);*/
+					
 					addedBtns.addChild(event.button as UIComponent);
+					numButtons++;
 					realignButtons();
 				}
 			}
@@ -127,8 +171,17 @@
 			private function realignButtons():void{
 				for each (var button:UIComponent in addedBtns.getChildren()){
 					var toolbarComponent:IBbbToolbarComponent = button as IBbbToolbarComponent;
-					if (toolbarComponent.getAlignment() == ALIGN_LEFT) addedBtns.setChildIndex(button, 0);
-					else if (toolbarComponent.getAlignment() == ALIGN_RIGHT) addedBtns.setChildIndex(button, addedBtns.numChildren - 1);
+					if (toolbarComponent.getAlignment() == ALIGN_LEFT){ 
+						addedBtns.setChildIndex(button, 0);
+						//(addedBtns.getChildAt(0) as Button).tabIndex = 0;
+					}
+					else if (toolbarComponent.getAlignment() == ALIGN_RIGHT){ 
+						addedBtns.setChildIndex(button, addedBtns.numChildren - 1);
+						//(addedBtns.getChildAt(0) as Button).tabIndex = addedBtns.numChildren - 1;
+					}
+					for (var i:int = 0; i < addedBtns.numChildren; i++){
+						(addedBtns.getChildAt(i) as Button).tabIndex = baseIndex + i;
+					}
 				}
 			}
 						
@@ -165,7 +218,7 @@
 	</mx:Script>	
 	<mx:HBox id="addedBtns"/>
 	<mx:Spacer width="100%"/>
-	<views:LanguageSelector id="langSelector" visible="false" />
+	<views:LanguageSelector id="langSelector" visible="false" tabIndex="{baseIndex+numButtons+25}"/>
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
 -->
@@ -173,13 +226,22 @@
 	<mx:Button  label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" 
 				click="onShortcutButtonClick()" 
 				height="22" 
-				toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" 
-				tabIndex="1"/>
-	<mx:Button label="."/>
+				toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}"
+				tabIndex="{baseIndex+numButtons+26}"/>
 	<!-- Help Button -->
-	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" visible="{showHelpBtn}" click="onHelpButtonClicked()" height="22"/>
+	<mx:LinkButton id="helpBtn" 
+				   label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
+				   visible="{showHelpBtn}" 
+				   click="onHelpButtonClicked()" 
+				   height="22"
+				   tabIndex="{baseIndex+numButtons+27}"/>
 	
 	<!-- Logout Button -->
-	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()" height="22"/>
+	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" 
+			   id="btnLogout" 
+			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" 
+			   right="10" 
+			   click="doLogout()" 
+			   height="22"
+			   tabIndex="{baseIndex+numButtons+28}"/>
 </mx:ApplicationControlBar>

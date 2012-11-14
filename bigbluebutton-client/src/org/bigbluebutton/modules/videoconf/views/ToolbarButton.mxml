@@ -121,6 +121,10 @@
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_LEFT;
 			}
+			
+			public function theory():String{
+				return "Webcam button";
+			}
 		]]>
 	</mx:Script>
 	

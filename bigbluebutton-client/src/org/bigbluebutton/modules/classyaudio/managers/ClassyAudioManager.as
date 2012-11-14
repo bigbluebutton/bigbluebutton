@@ -101,6 +101,7 @@ package org.bigbluebutton.modules.classyaudio.managers
 		private function enablePushToTalkButton():void{
 			var e:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 			e.button = new PushToTalkButton();
+			//e.tabIndex = 2;
 			dispatcher.dispatchEvent(e);
 		}
 		

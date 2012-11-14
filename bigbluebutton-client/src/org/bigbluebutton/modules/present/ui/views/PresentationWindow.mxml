@@ -525,7 +525,7 @@
     	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="25" height="25"
     	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
     	   		click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"
-    	   		tabIndex="20"/>        	  
+    	   		/>        	  
     	  <mx:Spacer width="50%" id="spacer1"/>
     	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="30" height="20"
     	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="gotoPreviousSlide()"/>
