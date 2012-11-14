@@ -123,7 +123,7 @@ public class SipPeer implements SipRegisterAgentListener {
     	caGlobal.setCallStreamFactory(callStreamFactory);
 
     	callManager.add(ca);
-	callManager.add(caGlobal);
+	callManager.addGlobal(caGlobal);
     	caGlobal.callGlobal(callerNameGlobal, destination, ca);
     }    
 
@@ -172,11 +172,30 @@ public class SipPeer implements SipRegisterAgentListener {
 
     public void hangup(String clientId) {
     	log.debug( "SIPUser hangup" );
-
     	CallAgent ca = callManager.remove(clientId);
-        if (ca != null) {
+	String destination;
+	if(ca != null) {
+		destination = ca.getDestination();
+	}
+	else {
+		destination = clientId;
+	}
+	if(ca != null && ca.isTalking() == false)
+		GlobalCall.removeUser(destination);
+
+	if(GlobalCall.roomHasGlobalStream(destination) && GlobalCall.getNumberOfUsers(destination) <= 0) {
+	   CallAgent caGlobal = callManager.removeGlobal(destination);
+	   GlobalCall.removeRoom(destination);
+	   if(caGlobal != null) {
+		caGlobal.hangup();
+	   
+           }	
+	}
+	if (ca != null) {
            ca.hangup();
         }
+
+        
     }
 
     public void unregister() {
@@ -188,6 +207,14 @@ public class SipPeer implements SipRegisterAgentListener {
     		ca.hangup();
     	}
     	
+	calls = callManager.getAllGlobal();
+	for (Iterator<CallAgent> iter = calls.iterator(); iter.hasNext();) {
+    		CallAgent ca = (CallAgent) iter.next();
+    		ca.hangup();
+    	}
+
+
+
         if (registerAgent != null) {
             registerAgent.unregister();
             registerAgent = null;

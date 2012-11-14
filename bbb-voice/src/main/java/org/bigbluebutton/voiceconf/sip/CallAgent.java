@@ -70,6 +70,10 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 
     private CallState callState;
 
+    public String getDestination() {
+	return _destination;
+    }
+
     public CallAgent(SipProvider sipProvider, SipPeerProfile userProfile, AudioConferenceProvider portProvider, String clientId) {
         this.sipProvider = sipProvider;
         this.userProfile = userProfile;
@@ -88,6 +92,10 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         		userProfile.videoPort, userProfile.audioCodecsPrecedence );        
         localSession = newSdp.toString();        
         log.debug("localSession Descriptor = " + localSession );
+    }
+
+    public Boolean isTalking() {
+	return talking;
     }
 
     public void callGlobal(String callerName, String destination, CallAgent ca) {
@@ -132,6 +140,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 
     public void call(String callerName, String destination) {   
 	_callerName = callerName;
+	_destination = destination;
 	log.debug("{} making a call to {}", callerName, destination);  
     	try {
 			localSocket = getLocalAudioSocket();
@@ -238,6 +247,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 						callStream = callStreamFactory.createCallStream(sipCodec, connInfo);
 						callStream.addCallStreamObserver(this);
 						callStream.start();
+						
 						if(_callerName.contains("GLOBAL_AUDIO") == true) {
 							//String room = _callerName.subSequence(13, _callerName.length()).toString();
 							GlobalCall.addGlobalAudioStream(_destination, callStream.getListenStreamName());
@@ -246,8 +256,10 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 						}
 						else {
 							talking = true;
+							
 							notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
 						}
+						
 					} catch (Exception e) {
 						log.error("Failed to create Call Stream.");
 						System.out.println(StackTraceUtil.getStackTrace(e));
@@ -277,6 +289,8 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 
     public void returnGlobalStreamName(String clientId, String destination) {
 	talking = false;
+	_destination = destination;
+	GlobalCall.addUser(_destination);
 	clientConnManager.joinConferenceSuccessNew(clientId, GlobalCall.getGlobalAudioStream(destination));
 
    }
@@ -383,7 +397,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 
     private void notifyListenersOnCallConnected(String talkStream, String listenStream) {
     	log.debug("notifyListenersOnCallConnected for {}", clientId);
-    	clientConnManager.joinConferenceSuccess(clientId, talkStream, listenStream, sipCodec.getCodecName());
+	clientConnManager.joinConferenceSuccess(clientId, talkStream, listenStream, sipCodec.getCodecName());
     }
   
     private void notifyListenersOnOutgoingCallFailed() {
