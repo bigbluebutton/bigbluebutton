@@ -28,7 +28,8 @@
 		xmlns:maps="org.bigbluebutton.main.maps.*"
 		xmlns:api="org.bigbluebutton.main.api.*"
 		width="100%" height="100%" 
-		creationComplete="initializeShell()" xmlns:common="org.bigbluebutton.common.*">
+		creationComplete="initializeShell()" 
+		xmlns:common="org.bigbluebutton.common.*">
 		
 	<mate:Listener type="{OpenWindowEvent.OPEN_WINDOW_EVENT}" method="handleOpenWindowEvent" />	
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="handleCloseWindowEvent"/>
@@ -93,6 +94,8 @@
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
 			
+			[Bindable] private var baseIndex:int = 100000;
+			
 			// LIVE or PLAYBACK
 			private var _mode:String = 'LIVE';
 			[Bindable] public var appVersion:String = ' ';
@@ -139,7 +142,12 @@
       }
 			
 			protected function initializeShell():void {	
-				globalDispatcher = new Dispatcher();	
+				globalDispatcher = new Dispatcher();
+				/*LogUtil.debug("WATER initializeShell is called, addedBtns.numChildren is " + addedBtns.numChildren);
+				for each (var button:UIComponent in addedBtns.getChildren()){
+					LogUtil.debug("WATERFALL Bottom toolbar setting tabIndex for " + button.toString());
+					button.tabIndex = baseIndex;
+				}*/
 			}
 		
 			protected function initFullScreen():void {				
@@ -334,8 +342,14 @@
 						
 			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
 				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
+					(event.button as UIComponent).tabIndex = baseIndex;
 					addedBtns.addChild(event.button as UIComponent);
-//					realignButtons();
+					//realignButtons();
+					/*LogUtil.debug("WATER initializeShell is called, addedBtns.numChildren is " + addedBtns.numChildren);
+					for each (var button:UIComponent in addedBtns.getChildren()){
+						LogUtil.debug("WATERFALL Bottom toolbar setting tabIndex for " + button.toString());
+						button.tabIndex = baseIndex;
+					}*/
 				}
 			}
 			
@@ -347,8 +361,21 @@
 		]]>
 	</mx:Script>
 			
-	<views:MainToolbar id="toolbar" dock="true" width="100%" height="{toolbarHeight}" visible="{showToolbarOpt}" verticalAlign="middle" toolbarOptions="{layoutOptions}" paddingTop="{toolbarPaddingTop}"/>
-	<views:MainCanvas id="mdiCanvas" horizontalScrollPolicy="off" verticalScrollPolicy="off" effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" width="100%" height="100%">
+	<views:MainToolbar id="toolbar" 
+					   dock="true" 
+					   width="100%" 
+					   height="{toolbarHeight}" 
+					   visible="{showToolbarOpt}" 
+					   verticalAlign="middle" 
+					   toolbarOptions="{layoutOptions}" 
+					   paddingTop="{toolbarPaddingTop}"/>
+					   
+	<views:MainCanvas id="mdiCanvas" 
+					  horizontalScrollPolicy="off" 
+					  verticalScrollPolicy="off" 
+					  effectsLib="{flexlib.mdi.effects.effectsLib.MDIVistaEffects}" 
+					  width="100%" 
+					  height="100%">
 		<views:LoadingBar id="progressBar" x="{this.width/2 - progressBar.width/2}" y="{this.height/2 - progressBar.height/2}" width="{this.width/2}" />
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
@@ -358,7 +385,16 @@
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
     <mx:Label text="{isTunneling ? '[Tunnelling]' : ''}" id="isTunnellingLbl"/>
-		<mx:Button width="20" height="20" visible="{layoutOptions.showLogButton}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
+		
+		<mx:Button width="20" 
+				   height="20" 
+				   visible="{layoutOptions.showLogButton}" 
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" 
+				   id="logBtn" 
+				   icon="{logs_icon}" 
+				   click="openLogWindow()" 
+				   tabIndex="{baseIndex}"/>
+		
 		<!-- mx:Button width="20" height="20" visible="{layoutOptions.showResetLayout}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" /-->
 		<mx:HBox id="addedBtns" />
 	</mx:ControlBar>

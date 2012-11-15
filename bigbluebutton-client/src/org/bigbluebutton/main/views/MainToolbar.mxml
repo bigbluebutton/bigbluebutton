@@ -179,9 +179,10 @@
 						addedBtns.setChildIndex(button, addedBtns.numChildren - 1);
 						//(addedBtns.getChildAt(0) as Button).tabIndex = addedBtns.numChildren - 1;
 					}
-					for (var i:int = 0; i < addedBtns.numChildren; i++){
-						(addedBtns.getChildAt(i) as Button).tabIndex = baseIndex + i;
-					}
+					button.tabIndex = baseIndex;
+					//for (var i:int = 0; i < addedBtns.numChildren; i++){
+					//	(addedBtns.getChildAt(i) as Button).tabIndex = baseIndex + i;
+					//}
 				}
 			}
 						

@@ -21,12 +21,20 @@
 -->
 
 <mx:VBox xmlns="flexlib.containers.*" 
-		xmlns:mx="http://www.adobe.com/2006/mxml" 
-		xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
-		xmlns:wbBtns="org.bigbluebutton.modules.whiteboard.views.buttons.*"
-		xmlns:mate="http://mate.asfusion.com/" creationComplete="onCreationComplete()"
-		visible="true" backgroundColor="0xCCCCCC" cornerRadius="5" borderStyle="solid" 
-	    paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" >
+		 xmlns:mx="http://www.adobe.com/2006/mxml" 
+		 xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
+		 xmlns:wbBtns="org.bigbluebutton.modules.whiteboard.views.buttons.*"
+		 xmlns:mate="http://mate.asfusion.com/" 
+		 initialize="init()"
+		 creationComplete="onCreationComplete()"
+		 visible="true" 
+		 backgroundColor="0xCCCCCC" 
+		 cornerRadius="5" 
+		 borderStyle="solid" 
+	     paddingBottom="3" 
+	     paddingTop="3" 
+	     paddingLeft="3" 
+	     paddingRight="3" >
 	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />
@@ -78,6 +86,7 @@
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
+			import org.bigbluebutton.modules.whiteboard.views.models.WhiteBoardOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.common.LogUtil;
 			
@@ -101,14 +110,27 @@
 			[Bindable] private var select_icon:Class = images.select_icon;
 			[Bindable] private var grid_icon:Class = images.grid_icon;
 			
+			[Bindable] public var wbOptions:WhiteBoardOptions;
+			[Bindable] private var baseIndex:int;
+			
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
 			
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
 			
+			private function init():void{
+				//LogUtil.debug("WATERFALL WBT Entering init");
+				wbOptions = new WhiteBoardOptions();
+				//LogUtil.debug("WATERFALL WBT Survived new wbOptions");
+				baseIndex = wbOptions.baseTabIndex;
+				// WhiteBoardToolBar
+				//LogUtil.debug("WATERFALL WBT baseIndex is " + baseIndex);
+			}
+			
             private function onCreationComplete():void {
                 setToolType(WhiteboardConstants.TYPE_ZOOM, null);
+				//LogUtil.debug("WATERFALL WBT creation complete, baseIndex is " + baseIndex);
             }
                        
 			private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
@@ -255,18 +277,18 @@
 	that identifies the "category" of the tool (ex. shape vs text), and the other specifies the 
 	tool itself (ex. line tool vs triangle tool, even though both are "shapes")
 	-->
-    <wbBtns:PanZoomButton id="panzoomBtn"/>
+    <wbBtns:PanZoomButton id="panzoomBtn" tabIndex="{baseIndex}"/>
     <mx:Spacer height="10"/>
-	<wbBtns:ScribbleButton id="scribbleBtn"/>
-	<wbBtns:RectangleButton id="rectangleBtn"/>
-	<wbBtns:CircleButton id="circleBtn"/>
-	<wbBtns:TriangleButton id="triangleBtn"/>
-	<wbBtns:LineButton id="lineBtn"/>
-	<wbBtns:TextButton id="textBtn"/>
+	<wbBtns:ScribbleButton id="scribbleBtn" tabIndex="{baseIndex}"/>
+	<wbBtns:RectangleButton id="rectangleBtn" tabIndex="{baseIndex}"/>
+	<wbBtns:CircleButton id="circleBtn" tabIndex="{baseIndex}"/>
+	<wbBtns:TriangleButton id="triangleBtn" tabIndex="{baseIndex}"/>
+	<wbBtns:LineButton id="lineBtn" tabIndex="{baseIndex}"/>
+	<wbBtns:TextButton id="textBtn" tabIndex="{baseIndex}"/>
 		
 	<mx:Spacer height="5"/>
-	<wbBtns:ClearButton id="clearBtn"/>
-	<wbBtns:UndoButton id="undoBtn"/>
+	<wbBtns:ClearButton id="clearBtn" tabIndex="{baseIndex}"/>
+	<wbBtns:UndoButton id="undoBtn" tabIndex="{baseIndex}"/>
 	
 	<mx:Spacer height="5"/>
 	
@@ -281,14 +303,27 @@
 	of ColorPickers, one for the "line" color for the outlines of shapes, and the other for
 	the "fill" color that is used only if "fill" is enabled in WhiteboardCanvasModel
 	-->
-	<mx:ColorPicker change="changeColor(event)" id="cpik"  selectedColor="0x000000" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
+	<mx:ColorPicker change="changeColor(event)" 
+					id="cpik"  
+					selectedColor="0x000000" 
+					toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}" 
+					tabIndex="{baseIndex}"/>
    
 	<mx:Spacer height="3" />
 	<mx:Image source="{thick_icon}" horizontalAlign="center" width="20"/>
-	<mx:VSlider height="50" id="sld" change="changeThickness(event)" 
+	<mx:VSlider height="50" 
+				id="sld" 
+				change="changeThickness(event)" 
 				toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness')}" 
-				minimum="2" maximum="20" 
-				useHandCursor="true" value="2" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" />
+				minimum="2" 
+				maximum="20" 
+				useHandCursor="true" 
+				value="2" 
+				showDataTip="true" 
+				snapInterval="1" 
+				dataTipOffset="0" 
+				labelOffset="0"
+				tabIndex="{baseIndex}" />
 	<mx:Image source="{thin_icon}" horizontalAlign="center" width="20" />
 	
 </mx:VBox>
