@@ -2,6 +2,7 @@ package org.bigbluebutton.conference.service.presentation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
@@ -75,6 +76,29 @@ public class PresentationBridge {
 		clr.add(meetingID);
 		clr.add("clrPaper");
 		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(clr));
+		
+		Jedis jedis = messagingService.createRedisClient();
+		
+		List<String> shapeids = jedis.lrange("meeting-" + meetingID + "-presentation-" + presentationName + "-page-"+slideNum+"-currentshapes",0,-1);
+		ArrayList shapes = new ArrayList();
+		for(int i=0;i<shapeids.size();i++){
+			String shapeid = shapeids.get(i);
+			Map<String,String> mapAnn = jedis.hgetAll("meeting-" + meetingID + "-presentation-" + presentationName + "-page-"+ slideNum +"-shape-"+shapeid);
+			shapes.add(mapAnn);
+		}
+		messagingService.dropRedisClient(jedis);
+		
+		ArrayList<Object> all_shapes = new ArrayList<Object>();
+		all_shapes.add(meetingID);
+		all_shapes.add("all_shapes");
+		all_shapes.add(shapes);
+		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(all_shapes));
+		
+		
+		/*
+		
+		pub.publish(receivers, JSON.stringify(['all_shapes', shapes]));
+		 * */
 	}
 	
 }

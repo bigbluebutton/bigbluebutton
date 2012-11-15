@@ -61,6 +61,7 @@ public class WhiteboardService {
 		
 		application.sendAnnotation(a);
 		whiteboardBridge.sendAnnotation(application.getMeetingId(), a);
+		whiteboardBridge.storeAnnotation(application.getMeetingId(), a);
 	}
 	
 	private String pointsToString(ArrayList<Double> points){
