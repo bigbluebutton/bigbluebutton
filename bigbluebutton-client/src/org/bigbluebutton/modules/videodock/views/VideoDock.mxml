@@ -62,7 +62,7 @@ $Id: $
 			[Bindable] private var baseIndex:int;
 			
 			private function init():void{
-				baseIndex = dockOptions.baseTabIndex;
+				baseIndex = options.baseTabIndex;
 			}
 			
 			private function onCreationComplete():void{				

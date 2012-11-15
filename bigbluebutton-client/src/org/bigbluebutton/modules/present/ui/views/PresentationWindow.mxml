@@ -34,6 +34,7 @@
 	showControls="true" resize="maximizeHandler()"
 	backgroundColor="#efefef"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	initialize="init()"
 	creationComplete="onCreationComplete()" 
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
@@ -91,6 +92,7 @@
 			import org.bigbluebutton.modules.present.events.ZoomEvent;
 			import org.bigbluebutton.modules.present.managers.Slide;
 			import org.bigbluebutton.modules.present.managers.SlideManager;
+			import org.bigbluebutton.modules.present.ui.views.PresentOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
              			
             public static const TITLE:String = "Presentation";
@@ -133,7 +135,29 @@
 			[Bindable] private var presentationLoaded:Boolean = false;
 			[Bindable] private var currentPresentation:String = "";
 			
+			[Bindable] private var baseIndex:int; 
+			[Bindable] private var presentOptions:PresentOptions;
+			
 			private var externalButtons:ArrayCollection = new ArrayCollection();
+			
+			private function init():void{
+				//LogUtil.debug("WATERFALL Entering Pres Init");
+				presentOptions = new PresentOptions();
+				//LogUtil.debug("WATERFALL Survived new PO");
+				baseIndex = presentOptions.baseTabIndex;
+				//LogUtil.debug("WATERFALL Survived assignment");
+				//LogUtil.debug("WATERFALL Base pres index is " + baseIndex);
+			}
+			
+			private function onCreationComplete():void{
+				//LogUtil.debug("WATERFALL Entering Pres OCC");
+				thumbY = this.height - 160;
+                bindKeyboardEvents();
+				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
+				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
+				
+				resourcesChanged();
+			}
 			
 			private function maximizeHandler():void {
 //				LogUtil.debug("Max handler");
@@ -141,15 +165,6 @@
 				fitSlideToWindowMaintainingAspectRatio();
 				//Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.	
 				stage.focus = this; 
-			}
-					
-			private function onCreationComplete():void{
-				thumbY = this.height - 160;
-                bindKeyboardEvents();
-				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
-				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
-				
-				resourcesChanged();
 			}
 			
 			private function onItemRollOver(e:ListEvent):void{
@@ -518,34 +533,92 @@
 	<mx:Fade id="thumbFadeIn" alphaFrom="1" alphaTo="0" duration="100" />
 	<mx:Fade id="thumbFadeOut" alphaFrom="0" alphaTo="1" duration="100" />
 
-	<views:SlideView id="slideView" width="100%" height="100%" visible="false" mouseDown="mouseDown = true" backgroundColor="#efefef"
-			 mouseUp="mouseDown = false" verticalScrollPolicy="off" horizontalScrollPolicy="off" />			    
+	<views:SlideView id="slideView" 
+					 width="100%" 
+					 height="100%" 
+					 visible="false" 
+					 mouseDown="mouseDown = true" 
+					 backgroundColor="#efefef"
+					 mouseUp="mouseDown = false" 
+					 verticalScrollPolicy="off" 
+					 horizontalScrollPolicy="off" 
+					 tabIndex="{baseIndex}"/>			    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <!-- Upload Presentation Button -->
-    	  <mx:Button id="uploadPres" icon="{uploadIcon}" visible="false" width="25" height="25"
-    	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
-    	   		click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"
-    	   		/>        	  
+    	  <mx:Button id="uploadPres" 
+    	  			 icon="{uploadIcon}" 
+    	  			 visible="false" 
+    	  			 width="25" 
+    	  			 height="25" 
+    	  			 toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
+    	   			 click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"
+    	   			 tabIndex="{baseIndex+1}"/>        	  
     	  <mx:Spacer width="50%" id="spacer1"/>
-    	  <mx:Button id="backButton" icon="{backwardIcon}" visible="false" width="30" height="20"
-    	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" click="gotoPreviousSlide()"/>
-    	  <mx:Button id="btnSlideNum" visible="false" label="" click="showThumbnails()" doubleClick="showPageDialog()" 
-					 toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.slideNumLbl.toolTip')}"/>
-    	  <mx:Button id="forwardButton" icon="{forwardIcon}" visible="false" width="30" height="20"
-    	   		toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" click="gotoNextSlide()"/>    				
+    	  
+    	  <mx:Button id="backButton" 
+    	  			 icon="{backwardIcon}" 
+    	  			 visible="false" 
+    	  			 width="30" 
+    	  			 height="20"
+    	  			 toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" 
+    	  			 click="gotoPreviousSlide()"
+    	  			 tabIndex="{baseIndex+2}"/>
+    	  
+    	  <mx:Button id="btnSlideNum" 
+    	  			 visible="false" 
+    	  			 label="" 
+    	  			 click="showThumbnails()" 
+    	  			 doubleClick="showPageDialog()" 
+					 toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.slideNumLbl.toolTip')}"
+					 tabIndex="{baseIndex+3}"/>
+    	  
+    	  <mx:Button id="forwardButton" 
+    	  			 icon="{forwardIcon}" 
+    	  			 visible="false" 
+    	  			 width="30" 
+    	  			 height="20"
+    	   			 toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" 
+    	   			 click="gotoNextSlide()"
+    	   			 tabIndex="{baseIndex+4}"/>    				
+		
 		<mx:Spacer width="10%" id="spacer2"/>
     	 
-		<mx:HSlider id="zoomSlider" visible="false" value="{slideView.zoomPercentage}"
-    		minimum="100" maximum="400" dataTipPlacement="top" labels="['100%','400%']" 
-    		useHandCursor="true" snapInterval="5" allowTrackClick="true" liveDragging="true" 
-    		dataTipFormatFunction="removeDecimalFromDataTip" change="onSliderZoom()" width="100"/>
+		<mx:HSlider id="zoomSlider" 
+					visible="false" 
+					value="{slideView.zoomPercentage}"
+    				minimum="100" 
+    				maximum="400" 
+    				dataTipPlacement="top" 
+    				labels="['100%','400%']" 
+    				useHandCursor="true" 
+    				snapInterval="5" 
+    				allowTrackClick="true" 
+    				liveDragging="true" 
+    				dataTipFormatFunction="removeDecimalFromDataTip" 
+    				change="onSliderZoom()" 
+    				width="100"
+    				tabIndex="{baseIndex+6}"/>
+    	
     	<mx:Spacer width="50%" id="spacer3"/>
-    	<mx:Button id="btnFitToWidth" icon="{fitToWidthIcon}" visible="false" width="25" height="25" 
+    	
+    	<mx:Button id="btnFitToWidth" 
+    			   icon="{fitToWidthIcon}" 
+    			   visible="false" 
+    			   width="25" 
+    			   height="25" 
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToWidth.toolTip')}" 
-				   click="onFitToPage(false)"/>
-		<mx:Button id="btnFitToPage" icon="{fitToPageIcon}" visible="false" width="25" height="25" 
+				   click="onFitToPage(false)"
+				   tabIndex="{baseIndex+7}"/>
+		
+		<mx:Button id="btnFitToPage" 
+				   icon="{fitToPageIcon}" 
+				   visible="false" 
+				   width="25" 
+				   height="25" 
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
-				   click="onFitToPage(true)"/>
+				   click="onFitToPage(true)"
+				   tabIndex="{baseIndex+8}"/>
+    	
     	<mx:Spacer width="5" id="spacer4"/>
     </mx:ApplicationControlBar>
 </pres:MDIWindow>
