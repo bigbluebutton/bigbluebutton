@@ -63,6 +63,7 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     private int icecastPort = 8000;
     private String icecastUsername = "source";
     private String icecastPassword = "hackme";
+    private String icecastStreamExtension = ".mp3";
     private Boolean icecastBroadcast = false;
     
     private final Integer USER = 0; /* not used for now */
@@ -181,8 +182,8 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     }
     
     private void broadcastToIcecast(String room, String meetingid) {
-    	String shoutPath = "shout://" + icecastUsername + ":" + icecastPassword + "@" + icecastHost + ":" + icecastPort 
-    			+ File.separatorChar + meetingid + ".mp3";       
+    	String shoutPath = icecastProtocol + "://" + icecastUsername + ":" + icecastPassword + "@" + icecastHost + ":" + icecastPort 
+    			+ File.separatorChar + meetingid + "." + icecastStreamExtension;       
     	
     	if (log.isDebugEnabled())
     		log.debug("Broadcast to {}", shoutPath);
@@ -388,6 +389,10 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     
     public void setIcecastBroadcast(Boolean broadcast) {
     	icecastBroadcast = broadcast;
+    }
+
+    public void setIcecastStreamExtension(String ext) {
+    	icecastStreamExtension = ext;
     }
     
     private Integer getMemberIdFromEvent(EslEvent e)
