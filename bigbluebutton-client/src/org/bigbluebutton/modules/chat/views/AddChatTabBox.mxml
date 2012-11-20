@@ -27,8 +27,13 @@
 	
 	<mx:Script>
 		<![CDATA[
+      import com.asfusion.mate.events.Dispatcher;
+      
       import mx.collections.ArrayCollection;
+      
+      import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.CoreEvent;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.modules.chat.model.ChatOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -52,7 +57,12 @@
         if (UsersUtil.isMe(chatWithUserID)) return;
         
 				usersList.selectedIndex = -1;
-				chatView.startPrivateChatWith(chatWithUserID);
+        
+        var e:CoreEvent = new CoreEvent(EventConstants.START_PRIVATE_CHAT);
+        e.message.chatWith = chatWithUserID;
+        var gd:Dispatcher = new Dispatcher();
+        gd.dispatchEvent(e);
+        
 			}
 						
       public function focusToTextMessageArea():void {

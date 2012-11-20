@@ -56,5 +56,9 @@
   <EventHandlers type="{EventConstants.NEW_PUBLIC_CHAT}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleNewPublicChatEvent" arguments="{event}"/>
   </EventHandlers>
+
+  <EventHandlers type="{EventConstants.START_PRIVATE_CHAT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleStartPrivateChatEvent" arguments="{event}"/>
+  </EventHandlers>
   
 </EventMap>

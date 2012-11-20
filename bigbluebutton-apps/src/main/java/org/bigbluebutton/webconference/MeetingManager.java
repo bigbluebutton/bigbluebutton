@@ -21,6 +21,22 @@
 */
 package org.bigbluebutton.webconference;
 
-public class ConferenceManager {
+import java.util.HashMap;
+import java.util.Map;
 
+public class MeetingManager {
+
+	private final Map<String, Meeting> meetings = new HashMap<String, Meeting>();
+	
+	public void create(String id) {
+		Meeting m = new Meeting(id);
+		meetings.put(id, m);
+	}
+	
+	public void destory(String id) {
+		Meeting m = meetings.remove(id);
+		if (m != null) {
+			m.end();
+		}
+	}
 }

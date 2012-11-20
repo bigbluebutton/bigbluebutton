@@ -31,35 +31,37 @@
 
 	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="conferenceStarted" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	
+
     <mx:Script>
         <![CDATA[
-        	import org.bigbluebutton.modules.viewers.model.ViewerOptions;
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flexlib.mdi.events.MDIWindowEvent;
-			
-			import mx.binding.utils.BindingUtils;
-			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
-			import mx.controls.listClasses.IListItemRenderer;
-			import mx.events.DataGridEvent;
-			import mx.events.ListEvent;
-			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.Role;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.main.events.ParticipantJoinEvent;
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
-			import org.bigbluebutton.main.model.users.events.KickUserEvent;
-			import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
-			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.viewers.events.ChangeStatusEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+          import com.asfusion.mate.events.Dispatcher;
+          
+          import flexlib.mdi.events.MDIWindowEvent;
+          
+          import mx.binding.utils.BindingUtils;
+          import mx.collections.ArrayCollection;
+          import mx.controls.Alert;
+          import mx.controls.listClasses.IListItemRenderer;
+          import mx.events.DataGridEvent;
+          import mx.events.ListEvent;
+          
+          import org.bigbluebutton.common.Images;
+          import org.bigbluebutton.common.Role;
+          import org.bigbluebutton.common.events.LocaleChangeEvent;
+          import org.bigbluebutton.core.EventConstants;
+          import org.bigbluebutton.core.events.CoreEvent;
+          import org.bigbluebutton.core.managers.UserManager;
+          import org.bigbluebutton.main.events.ParticipantJoinEvent;
+          import org.bigbluebutton.main.model.users.BBBUser;
+          import org.bigbluebutton.main.model.users.Conference;
+          import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+          import org.bigbluebutton.main.model.users.events.KickUserEvent;
+          import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
+          import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+          import org.bigbluebutton.main.views.MainCanvas;
+          import org.bigbluebutton.modules.viewers.events.ChangeStatusEvent;
+          import org.bigbluebutton.modules.viewers.model.ViewerOptions;
+          import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.viewers.title',["", ""]);
 			
@@ -93,6 +95,7 @@
 				resourcesChanged();
 			}
 			
+          
 			private function updateNumberOfViewers(numViewers:int):void {
 				if (numViewers > 4)
 					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', [":", numViewers]);

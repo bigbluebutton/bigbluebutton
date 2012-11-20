@@ -36,7 +36,7 @@ public class RoomListener implements IRoomListener{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void participantStatusChange(Participant p, String status, Object value){
+	public void participantStatusChange(User p, String status, Object value){
 		List list = new ArrayList();
 		list.add(p.getInternalUserID());
 		list.add(status);
@@ -45,14 +45,14 @@ public class RoomListener implements IRoomListener{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void participantJoined(Participant p) {
+	public void participantJoined(User p) {
 		List args = new ArrayList();
 		args.add(p.toMap());
 		so.sendMessage("participantJoined", args);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void participantLeft(Participant p) {		
+	public void participantLeft(User p) {		
 		List args = new ArrayList();
 		args.add(p.getInternalUserID());
 		so.sendMessage("participantLeft", args);

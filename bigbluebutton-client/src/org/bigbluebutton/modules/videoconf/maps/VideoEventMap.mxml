@@ -23,8 +23,7 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-      import mx.collections.ArrayCollection;
-      
+      import mx.collections.ArrayCollection;      
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.OpenWindowEvent;
       import org.bigbluebutton.common.events.ToolbarButtonEvent;

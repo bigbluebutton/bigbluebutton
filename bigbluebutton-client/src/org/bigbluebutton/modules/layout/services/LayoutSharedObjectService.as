@@ -19,7 +19,8 @@
  */
 package org.bigbluebutton.modules.layout.services
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.IEventDispatcher;
 	import flash.events.NetStatusEvent;
@@ -28,9 +29,13 @@ package org.bigbluebutton.modules.layout.services
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.net.SharedObject;
-	import flash.utils.Timer;	
-	import mx.controls.Alert;	
+	import flash.utils.Timer;
+	
+	import mx.controls.Alert;
+	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.EventConstants;
+	import org.bigbluebutton.core.events.CoreEvent;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.ModuleLoadEvent;
 	import org.bigbluebutton.modules.layout.events.ConnectionEvent;
@@ -171,8 +176,10 @@ package org.bigbluebutton.modules.layout.services
 			
 			if (!_locked && locked) {
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT));
+        _dispatcher.dispatchEvent(new CoreEvent(EventConstants.REMOTE_LOCKED_LAYOUT));
 			} else if (_locked && !locked) {
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.REMOTE_UNLOCK_LAYOUT_EVENT));
+        _dispatcher.dispatchEvent(new CoreEvent(EventConstants.REMOTE_UNLOCKED_LAYOUT));
 			}
 			
 			if (locked && !dispatchedByMe) {

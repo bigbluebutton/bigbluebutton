@@ -18,15 +18,21 @@
 */
 package org.bigbluebutton.modules.listeners.business
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;	
+	import flash.net.SharedObject;
+	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.EventConstants;
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.events.CoreEvent;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
+	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.modules.listeners.business.vo.Listener;
 	import org.bigbluebutton.modules.listeners.business.vo.Listeners;
 	import org.bigbluebutton.modules.listeners.events.ListenersEvent;
@@ -129,6 +135,14 @@ package org.bigbluebutton.modules.listeners.business
 						UserManager.getInstance().getConference().muteMyVoice(n.muted);
 						UserManager.getInstance().getConference().setMyVoiceJoined(true);
 					}	
+          
+          if (UsersUtil.hasUser(result[1])) {
+            var bu:BBBUser = UsersUtil.getUser(result[1]);
+            bu.voiceUserid = n.userid;
+            bu.voiceMuted = n.muted;
+            bu.voiceJoined = true;
+          }
+          
 					n.callerName = result[2]; /* Store the username */
 				}
 								
@@ -150,7 +164,12 @@ package org.bigbluebutton.modules.listeners.business
 				 */
 				if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
 					UserManager.getInstance().getConference().muteMyVoice(l.muted);
-				}					
+				}				
+        
+        var bu:BBBUser = UsersUtil.getVoiceUser(userId)
+        if (bu != null) {
+          bu.voiceMuted = l.muted;
+        }        
 			}					
 		}
 
@@ -165,6 +184,11 @@ package org.bigbluebutton.modules.listeners.business
 				if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
 					UserManager.getInstance().getConference().voiceLocked = l.locked;
 				}
+        
+        var bu:BBBUser = UsersUtil.getVoiceUser(userId)
+        if (bu != null) {
+          bu.voiceLocked = l.locked;
+        }   
 			}					
 		}
 		
@@ -173,6 +197,15 @@ package org.bigbluebutton.modules.listeners.business
 			var l:Listener = _listeners.getListener(userId);			
 			if (l != null) {
 				l.talking = talk;
+        
+        var bu:BBBUser = UsersUtil.getVoiceUser(userId);
+        if (bu != null) {
+          var event:CoreEvent = new CoreEvent(EventConstants.USER_TALKING);
+          event.message.userID = bu.userID;
+          event.message.talking = l.talking;
+          var gd:Dispatcher = new Dispatcher();
+          gd.dispatchEvent(event);  
+        }
 			}	
 		}
 
@@ -187,6 +220,13 @@ package org.bigbluebutton.modules.listeners.business
 				UserManager.getInstance().getConference().setMyVoiceUserId(0);
 				UserManager.getInstance().getConference().setMyVoiceJoined(false);
 			}
+      
+      var bu:BBBUser = UsersUtil.getVoiceUser(userId)
+      if (bu != null) {
+        bu.voiceUserid = 0;
+        bu.voiceMuted = false;
+        bu.voiceJoined = false;
+      }
 		}
 		
 		public function ping(message:String):void {

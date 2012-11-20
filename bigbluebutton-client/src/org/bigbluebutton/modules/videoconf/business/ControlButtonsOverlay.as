@@ -25,7 +25,7 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.events.MouseEvent;
 	import org.bigbluebutton.common.LogUtil;
 	
-	public class ButtonsOverlay extends HBox
+	public class ControlButtonsOverlay extends HBox
 	{
 		private var buttons:Dictionary = new Dictionary;
 		private var BUTTONS_SIZE:int = 20;
@@ -43,7 +43,6 @@ package org.bigbluebutton.modules.videoconf.business
 		
 		public function get(name:String):Button {
 			var tmp:Object = buttons[name];
-			//return (flash.utils.getQualifiedClassName(tmp) == "mx.controls::Button"? (tmp as Button): null);
 			return (tmp as Button);
 		}
 		
