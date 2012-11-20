@@ -155,22 +155,27 @@ package org.bigbluebutton.modules.listeners.business
 			}
 		}
 
-		public function userMute(userId:Number, mute:Boolean):void {
-			var l:Listener = _listeners.getListener(userId);			
+		public function userMute(userID:Number, mute:Boolean):void {
+			var l:Listener = _listeners.getListener(userID);			
 			if (l != null) {
 				l.muted = mute;
 				/**
 				 * Let's store the voice userid so we can do push to talk.
 				 */
-				if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
+				if (UserManager.getInstance().getConference().amIThisVoiceUser(userID)) {
 					UserManager.getInstance().getConference().muteMyVoice(l.muted);
 				}				
         
-        var bu:BBBUser = UsersUtil.getVoiceUser(userId)
+        var bu:BBBUser = UsersUtil.getVoiceUser(userID)
         if (bu != null) {
           bu.voiceMuted = l.muted;
-        }        
-			}					
+        }     
+        
+        var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_MUTED);
+        bbbEvent.payload.muted = mute;
+        bbbEvent.payload.userID = userID;
+        globalDispatcher.dispatchEvent(bbbEvent);
+			}			     
 		}
 
 		public function userLockedMute(userId:Number, locked:Boolean):void {
