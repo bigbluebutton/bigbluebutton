@@ -35,6 +35,18 @@ var getMyRoleSynch = function() {
   });
 }
 
+var getMyUserID = function() {
+  BBB.getMyUserID(function(userID) {
+    console.log("My user ID  = [" + userID + "]");
+  });
+}
+
+var getMeetingID = function() {
+  BBB.getMeetingID(function(meetingID) {
+    console.log("Meeting ID  = [" + meetingID + "]");
+  });
+}
+
 var muteMe = function() {
   BBB.muteMe();
 }
