@@ -88,8 +88,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         log.debug("localSession Descriptor = " + localSession );
     }
 
-    public void call(String callerName, String pdestination) {
-    	String destination = "125";
+    public void call(String callerName, String destination) {
     	log.debug("{} making a call to {}", callerName, destination);  
     	try {
 			localSocket = getLocalAudioSocket();
