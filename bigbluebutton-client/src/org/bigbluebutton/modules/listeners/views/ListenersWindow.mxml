@@ -216,6 +216,10 @@
 
 					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
 					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.listeners.closeBtn.accessibilityName");
+					
+					minimizeBtn.tabIndex = baseIndex++;
+					maximizeRestoreBtn.tabIndex = baseIndex++;
+					closeBtn.tabIndex = baseIndex++;
 				}
 			}
 			
@@ -240,7 +244,7 @@
 			<flc:CanvasButton id="pushToTalkBtn" visible="{showPushToTalkBtn}" 
 							  toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" 
 							  click="toggleMuteMeState()" height="30" maxWidth="180"
-							  tabIndex="{baseIndex+1}">
+							  tabIndex="{baseIndex}">
 				<mx:HBox verticalAlign="middle" horizontalGap="0" paddingLeft="5" paddingTop="5" paddingRight="5" paddingBottom="5">
 					<mx:Image source="{UserManager.getInstance().getConference().voiceMuted ? images.sound_mute : images.sound_none}" />
 					<mx:Label text="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.talk') : ResourceUtil.getInstance().getString('bbb.listeners.mute')}" />
@@ -250,10 +254,10 @@
 			<flc:CanvasButton id="muteAllBtn" visible="false" toggle="true" selected="false"
 							  toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}" 
 							  click="toggleMuteState()" height="30" maxWidth="180"
-							  tabIndex="{baseIndex+2}">
+							  tabIndex="{baseIndex}">
 				<mx:HBox verticalAlign="middle" horizontalGap="0" paddingLeft="5" paddingTop="5" paddingRight="5" paddingBottom="5">
 					<mx:Label text="{muteAllBtn.selected ?  ResourceUtil.getInstance().getString('bbb.listeners.unmuteAllBtn.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}"
-							  tabIndex="{baseIndex+3}" />
+							  tabIndex="{baseIndex}" />
 				</mx:HBox> 
 			</flc:CanvasButton>
     	</mx:ControlBar>

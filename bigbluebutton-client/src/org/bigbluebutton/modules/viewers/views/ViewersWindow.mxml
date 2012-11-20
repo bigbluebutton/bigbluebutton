@@ -158,6 +158,10 @@
 
 					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
 					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.viewers.closeBtn.accessibilityName");
+					
+					minimizeBtn.tabIndex = baseIndex++;
+					maximizeRestoreBtn.tabIndex = baseIndex++;
+					closeBtn.tabIndex = baseIndex++;
 				}
 			}
 			
@@ -199,20 +203,20 @@
     	</mx:columns>
     </mx:DataGrid>
     
-   <mx:ControlBar width="100%"> 
+   <mx:ControlBar width="100%" tabIndex="0"> 
    		 <!-- Switch Presenter Button -->
    		 <mx:Button id="presentBtn" label="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.label')}" visible="{isModerator}"
     	   			width="130" height="20"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
     	   			click="assignPresenterClicked()"
-    	   			tabIndex="{baseIndex+1}"
+    	   			tabIndex="{baseIndex}"
     	   			/>
      	 <mx:Spacer width="100%"/>
     	 <mx:Button id="raiseHandImage" icon="{handIcon}" toggle="true" 
     	   			width="20" height="20"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.raiseHandBtn.toolTip')}" 
     	   			click="raiseHand()"
-    	   			tabIndex="{baseIndex+2}"/>  			
+    	   			tabIndex="{baseIndex}"/>  			
     </mx:ControlBar>  
     
 </viewer:MDIWindow>
