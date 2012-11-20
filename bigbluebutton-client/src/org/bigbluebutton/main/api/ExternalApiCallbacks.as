@@ -28,6 +28,7 @@ package org.bigbluebutton.main.api
     
     private function init():void {
       if (ExternalInterface.available) {
+        ExternalInterface.addCallback("getMyUserID", handleGetMyUserID);
         ExternalInterface.addCallback("getExternalMeetingID", handleGetExternalMeetingID);
         ExternalInterface.addCallback("joinVoiceRequest", handleJoinVoiceRequest);
         ExternalInterface.addCallback("getMyRoleRequestSync", handleGetMyRoleRequestSync);
@@ -44,6 +45,10 @@ package org.bigbluebutton.main.api
       }
     }
 
+    private function handleGetMyUserID():String {
+      return UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+    }
+    
     private function handleGetExternalMeetingID():String {
       return UserManager.getInstance().getConference().externalMeetingID;
     }

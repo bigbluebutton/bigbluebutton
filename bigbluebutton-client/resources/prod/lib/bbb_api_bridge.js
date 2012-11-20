@@ -34,6 +34,19 @@
     /**
      * Get external meetingID.
      */  
+    BBB.getMyUserID = function(callback) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        console.log("Getting my userID");
+        if (typeof callback === 'function') {
+          callback(swfObj.getMyUserID());
+        }
+      }
+    }
+    
+    /**
+     * Get external meetingID.
+     */  
     BBB.getMeetingID = function(callback) {
       var swfObj = getSwfObj();
       if (swfObj) {
