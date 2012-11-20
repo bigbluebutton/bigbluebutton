@@ -6,6 +6,10 @@ package org.bigbluebutton.core
 
   public class UsersUtil
   {
+    public static function getExternalMeetingID():String {
+      return UserManager.getInstance().getConference().externalMeetingID;
+    }
+    
     public static function amIModerator():Boolean {
       return UserManager.getInstance().getConference().amIModerator();
     }

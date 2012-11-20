@@ -32,6 +32,19 @@
     }
 
     /**
+     * Get external meetingID.
+     */  
+    BBB.getMeetingID = function(callback) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        console.log("Getting external meetingID");
+        if (typeof callback === 'function') {
+          callback(swfObj.getExternalMeetingID());
+        }
+      }
+    }
+    
+    /**
      * Join the voice conference.
      */  
     BBB.joinVoiceConference = function() {
