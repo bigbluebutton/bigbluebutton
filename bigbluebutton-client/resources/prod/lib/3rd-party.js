@@ -35,6 +35,12 @@ var getMyRoleSynch = function() {
   });
 }
 
+var getMeetingID = function() {
+  BBB.getMeetingID(function(meetingID) {
+    console.log("Meeting ID  = [" + meetingID + "]");
+  });
+}
+
 var muteMe = function() {
   BBB.muteMe();
 }
