@@ -2,3 +2,13 @@ see http://code.google.com/p/bigbluebutton
 
 Developing the client
 1. Copy src/conf/config.xml.dev to src/cong/config.xml
+
+Implementing Tab Order:
+If you want to use the enforced tab order for BigBlueButton (necessary for accessibility), check resources/config.xml.template and it to src/conf/config.xml.
+Certain modules must have the baseTabIndex property, and for the default tab order, their values should be as follows:  
+	101: ViewersModule		(Viewers list window)
+	201: ListenersModule	(Listeners list window)
+	301: VideodockModule	(Webcam window)
+	401: PresentModule		(Presentaiton window)
+	501: WhiteboardModule	(Whiteboard toolbar)
+	601: ChatModule			(Chat window)
