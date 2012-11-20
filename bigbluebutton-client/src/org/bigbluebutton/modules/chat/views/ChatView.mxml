@@ -111,10 +111,8 @@
 			// Initialization
 			private function init():void{
 				chatOptions = new ChatOptions();
-				//LogUtil.debug("WATERFALL-INIT-1 In chat.init, about to try and set baseIndex");
-				//LogUtil.debug("WATERFALL-INIT-2 chatOptions.baseIndex is " + chatOptions.getBaseIndex());
-				baseIndex = chatOptions.getBaseIndex();
-				//LogUtil.debug("WATERFALL-INIT-3 Leaving init, baseIndex is " + baseIndex);
+				// Get the base tab index from config, and add three to make up for the min/max/close buttons
+				baseIndex = chatOptions.getBaseIndex() + 3;
 			}
 			
 			private function onCreationComplete():void{

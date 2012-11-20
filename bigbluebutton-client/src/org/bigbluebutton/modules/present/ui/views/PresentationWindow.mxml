@@ -512,6 +512,10 @@
 
 					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
 					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.closeBtn.accessibilityName");
+					
+					minimizeBtn.tabIndex = baseIndex++;
+					maximizeRestoreBtn.tabIndex = baseIndex++;
+					closeBtn.tabIndex = baseIndex++;
 				}
 				
 				Accessibility.updateProperties();

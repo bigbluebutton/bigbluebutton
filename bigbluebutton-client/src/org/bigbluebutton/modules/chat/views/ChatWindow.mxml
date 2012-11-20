@@ -25,6 +25,7 @@
 	       xmlns:chat="org.bigbluebutton.modules.chat.views.components.*"
 	       showCloseButton="false"
 	       implements="org.bigbluebutton.common.IBbbModuleWindow" 
+	       initialize="init()"
 	       creationComplete="onCreationComplete()"
 	       xmlns:components="org.bigbluebutton.modules.chat.view.components.*" 
 		   xmlns:mate="http://mate.asfusion.com/" 
@@ -56,6 +57,11 @@
 			private var disp:Dispatcher;
 			private var dispState:String;
 			[Bindable] public var chatOptions:ChatOptions;
+			
+			[Bindable] private var baseIndex:int;
+			private function init(){
+				baseIndex = chatOptions.baseTabIndex;
+			}
 			
 			public function getPrefferedPosition():String{
 				return chatOptions.position;
@@ -96,9 +102,13 @@
 					
 					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
 					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.chat.maximizeRestoreBtn.accessibilityName");
-
+					
 					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
 					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.chat.closeBtn.accessibilityName");
+					
+					minimizeBtn.tabIndex = baseIndex;
+					maximizeRestoreBtn.tabIndex = baseIndex+1;
+					closeBtn.tabIndex = baseIndex+2;
 				}
 			}
 			
@@ -130,5 +140,5 @@
 		]]>
 	</mx:Script>
 	
-	<views:ChatView id="chatView" chatOptions="{chatOptions}"/>
+	<views:ChatView id="chatView" chatOptions="{chatOptions}" tabIndex="0"/>
 </MDIWindow>

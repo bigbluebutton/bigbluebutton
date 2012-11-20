@@ -63,6 +63,9 @@ $Id: $
 			
 			private function init():void{
 				baseIndex = options.baseTabIndex;
+				minimizeBtn.tabIndex = baseIndex++;
+				maximizeRestoreBtn.tabIndex = baseIndex++;
+				closeBtn.tabIndex = baseIndex++;
 			}
 			
 			private function onCreationComplete():void{				
