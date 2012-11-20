@@ -41,25 +41,28 @@
 */
 package org.bigbluebutton.webconference;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-public class Conference {
+public class Meeting {
 
-	private final Map<String, Object> apps;
+	private final Map<String, User> users =  new HashMap<String, User>();
 	
-	private final String name;
+	private final String id;
 	
-	public Conference(String name) {
-		this.name = name;
-		apps = new ConcurrentHashMap<String, Object>();
+	public Meeting(String id) {
+		this.id = id;
+	}
+		
+	public String getID() {
+		return id;
 	}
 	
-	public void addApplication(String app, Object data) {
-		apps.put(app, data);
+	public void processMessage(Message message) {
+		
 	}
 	
-	public String getName() {
-		return name;
+	public void end() {
+		
 	}
 }

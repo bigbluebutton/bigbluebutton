@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.layout.services
 {
 	import flash.events.IEventDispatcher;
 	
+	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 	
 	public class LayoutService
@@ -47,6 +48,7 @@ package org.bigbluebutton.modules.layout.services
 		}
 		
 		public function lockLayout(layout:LayoutDefinition):void {
+      LogUtil.debug("Locking the layout [" + layout.name + "]");
 			_layoutSOService.lockLayout(layout);
 		}
 		

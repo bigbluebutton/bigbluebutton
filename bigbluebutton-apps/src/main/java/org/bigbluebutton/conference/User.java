@@ -24,13 +24,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.Serializable;
-import java.lang.Long;
+
 /**
  * Contains information for a Participant. Encapsulates status and the
  * only way to change/add status is through setStatus;
  */
 @ThreadSafe
-public class Participant implements Serializable {
+public class User implements Serializable {
 	private String internalUserID;
 	private String name;
 	private String role = "VIEWER";
@@ -39,7 +39,7 @@ public class Participant implements Serializable {
 	private final Map status;
 	private Map<String, Object> unmodifiableStatus;
 	
-	public Participant(String internalUserID, String name, String role, String externalUserID, Map<String, Object> status) {
+	public User(String internalUserID, String name, String role, String externalUserID, Map<String, Object> status) {
 		this.internalUserID = internalUserID;
 		this.name = name;
 		this.role = role;

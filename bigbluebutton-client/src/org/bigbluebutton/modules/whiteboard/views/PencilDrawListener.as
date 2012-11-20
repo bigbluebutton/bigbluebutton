@@ -133,6 +133,7 @@ package org.bigbluebutton.modules.whiteboard.views
       * **/
       if (tool.toolType == DrawObject.PENCIL) {
           status = DrawObject.DRAW_START;
+          _curID = _idGenerator.generateID();
       }
       
       switch (status) {
@@ -160,6 +161,7 @@ package org.bigbluebutton.modules.whiteboard.views
             
       /** PENCIL is a special case as each segment is a separate shape **/
       if (tool.toolType == DrawObject.PENCIL) {
+        dobj.status = DrawObject.DRAW_START;
         _drawStatus = DrawObject.DRAW_START;
         _segment = new Array();	
         var xy:Array = _wbCanvas.getMouseXY();

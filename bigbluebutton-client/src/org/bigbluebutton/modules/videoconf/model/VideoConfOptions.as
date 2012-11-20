@@ -58,6 +58,16 @@ package org.bigbluebutton.modules.videoconf.model
 		[Bindable]
 		public var camQualityPicture:Number = 50;	
 		
+    [Bindable]
+    public var presenterShareOnly:Boolean = false; 
+
+    [Bindable]
+    public var controlsForPresenter:Boolean = false; 
+    
+    public function VideoConfOptions() {
+      parseOptions();
+    }
+    
 		public function parseOptions():void {
 			var vxml:XML = BBB.getConfigForModule("VideoconfModule");
 			if (vxml != null) {
@@ -72,7 +82,13 @@ package org.bigbluebutton.modules.videoconf.model
 				}
 				if (vxml.@publishWindowVisible != undefined) {
 					publishWindowVisible = (vxml.@publishWindowVisible.toString().toUpperCase() == "TRUE") ? true : false;
-				}				
+				}		       
+        if (vxml.@presenterShareOnly != undefined) {
+          presenterShareOnly = (vxml.@presenterShareOnly.toString().toUpperCase() == "TRUE") ? true : false;
+        }
+        if (vxml.@controlsForPresenter != undefined) {
+          controlsForPresenter = (vxml.@controlsForPresenter.toString().toUpperCase() == "TRUE") ? true : false;
+        }	
 				if (vxml.@viewerWindowMaxed != undefined) {
 					viewerWindowMaxed = (vxml.@viewerWindowMaxed.toString().toUpperCase() == "TRUE") ? true : false;
 				}					

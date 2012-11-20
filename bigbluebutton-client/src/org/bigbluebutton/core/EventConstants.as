@@ -9,9 +9,10 @@ package org.bigbluebutton.core
     public static const SHARE_CAM_REQ:String              = 'ShareCameraRequest';
     public static const MUTE_ALL_REQ:String               = 'MuteAllRequest';
     public static const MUTE_USER_REQ:String              = 'MuteUserRequest';
-    public static const LOGOUT_REQ:String                 = 'LogoutRequest';
-    
+    public static const LOGOUT_REQ:String                 = 'LogoutRequest';    
     public static const SWITCH_LAYOUT_REQ:String          = 'SwitchLayoutRequest';
+    public static const LOCK_LAYOUT_REQ:String            = 'LockLayoutRequest';
+    public static const UNLOCK_LAYOUT_REQ:String          = 'UnlockLayoutRequest';
     public static const SEND_PUBLIC_CHAT_REQ:String       = 'SendPublicChatRequest';
     public static const SEND_PRIVATE_CHAT_REQ:String      = 'SendPrivateChatRequest';
     
@@ -25,8 +26,11 @@ package org.bigbluebutton.core
     public static const NEW_PRIVATE_CHAT:String           = 'NewPrivateChatEvent';
     public static const NEW_PUBLIC_CHAT:String            = 'NewPublicChatEvent';
     public static const SWITCHED_LAYOUT:String            = 'SwitchedLayoutEvent';
+    public static const REMOTE_LOCKED_LAYOUT:String       = 'RemoteLockedLayoutEvent';
+    public static const REMOTE_UNLOCKED_LAYOUT:String     = 'RemoteUnlockedLayoutEvent';
     public static const USER_JOINED_VOICE:String          = 'UserJoinedVoiceEvent';
     public static const USER_LEFT_VOICE:String            = 'UserLeftVoiceEvent';
     public static const USER_TALKING:String               = 'UserTalkingEvent';
+    public static const START_PRIVATE_CHAT:String         = "StartPrivateChatEvent";
   }
 }

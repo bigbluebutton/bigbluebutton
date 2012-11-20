@@ -37,7 +37,6 @@ public class ChatApplication {
 
 	private static Logger log = Red5LoggerFactory.getLogger( ChatApplication.class, "bigbluebutton" );	
 		
-	private static final String APP = "CHAT";
 	private ChatRoomsManager roomsManager;
 	public ChatHandler handler;
 	private ConnectionInvokerService connInvokerService;

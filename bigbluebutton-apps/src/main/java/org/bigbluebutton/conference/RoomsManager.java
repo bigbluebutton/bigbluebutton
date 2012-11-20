@@ -23,11 +23,9 @@ import org.bigbluebutton.conference.service.messaging.MessageListener;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.MessagingService;
 import org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener;
-import org.bigbluebutton.conference.service.presentation.PresentationRoom;
 import org.red5.logging.Red5LoggerFactory;
 import com.google.gson.Gson;
 import net.jcip.annotations.ThreadSafe;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -140,7 +138,7 @@ public class RoomsManager {
 //		log.warn("Removing listener from a non-existing room ${roomName}")
 //	}
 
-	public void addParticipant(String roomName, Participant participant) {
+	public void addParticipant(String roomName, User participant) {
 		log.debug("Add participant " + participant.getName());
 		Room r = getRoom(roomName);
 		if (r != null) {
