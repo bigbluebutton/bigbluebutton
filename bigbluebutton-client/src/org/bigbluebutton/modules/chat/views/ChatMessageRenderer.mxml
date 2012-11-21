@@ -20,7 +20,7 @@
   $Id: $
 -->
 
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" height="{txtMessage.height + 3}" 
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" 
 		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()"
 		 creationComplete="onCreationComplete()">
 	
