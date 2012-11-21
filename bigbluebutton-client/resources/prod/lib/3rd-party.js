@@ -1,19 +1,29 @@
 
 var registerListeners = function() {
+  console.log("Listening for events.");
   BBB.listen("UserLeftEvent", function(bbbEvent) {
     console.log("User [" + bbbEvent.userID + "] has left.");
   });
   BBB.listen("UserJoinedEvent", function(bbbEvent) {
     console.log("User [" + bbbEvent.userID + ", [" + bbbEvent.userName + "] has joined.");
   });
-  BBB.listen("UserJoinedVoiceEvent", function(bbbEvent) {
-    console.log("Received userHasJoinedVoiceConference event");
-  });
   BBB.listen("NewPublicChatEvent", function(bbbEvent) {
     console.log("Received NewPublicChatEvent [" + bbbEvent.message + "]");
   });
   BBB.listen("NewPrivateChatEvent", function(bbbEvent) {
     console.log("Received NewPrivateChatEvent event");
+  });
+  BBB.listen("UserJoinedVoiceEvent", function(bbbEvent) {
+    console.log("User [" + bbbEvent.userID + "] had joined the voice conference.");
+  });
+  BBB.listen("UserLeftVoiceEvent", function(bbbEvent) {
+    console.log("User [" + bbbEvent.userID + "has left the voice conference.");
+  });
+  BBB.listen("UserVoiceMutedEvent", function(bbbEvent) {
+    console.log("User [" + bbbEvent.userID + "] is muted [" + bbbEvent.muted + "]");
+  });
+  BBB.listen("UserLockedVoiceEvent", function(bbbEvent) {
+    console.log("User [" + bbbEvent.userID + "] is locked [" + bbbEvent.locked + "]");
   });
 }
 
