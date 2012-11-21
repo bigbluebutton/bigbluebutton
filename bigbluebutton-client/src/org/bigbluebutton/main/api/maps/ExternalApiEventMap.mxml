@@ -33,8 +33,20 @@
   <!--
     Listen for events we are interested to forward to the external container..
   -->
-  <EventHandlers type="{BBBEvent.ADDED_LISTENER}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserJoinedVoiceEvent"/>
+  <EventHandlers type="{BBBEvent.USER_VOICE_MUTED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceMutedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{BBBEvent.USER_VOICE_LOCKED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceLockedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{BBBEvent.USER_VOICE_LEFT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceLeftEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{BBBEvent.USER_VOICE_JOINED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserJoinedVoiceEvent" arguments="{event}"/>
   </EventHandlers>
   
   <EventHandlers type="{EventConstants.GET_MY_ROLE_RESP}" >
