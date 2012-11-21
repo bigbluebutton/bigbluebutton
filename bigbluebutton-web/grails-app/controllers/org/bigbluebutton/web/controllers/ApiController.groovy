@@ -304,6 +304,7 @@ class ApiController {
 	us.internalUserId = internalUserID
     us.conferencename = meeting.getName()
     us.meetingID = meeting.getInternalId()
+	us.externMeetingID = meeting.getExternalId()
     us.externUserID = externUserID
     us.fullname = fullName 
     us.role = role
@@ -319,8 +320,7 @@ class ApiController {
 	if (! StringUtils.isEmpty(params.defaulLayout)) {
 		us.defaultLayout = params.defaulLayout;
 	}
-	  
-    
+	     
 	// Store the following into a session so we can handle
 	// logout, restarts properly.
 	session['meeting-id'] = us.meetingID
@@ -329,9 +329,7 @@ class ApiController {
 	
 	meetingService.addUserSession(session['user-token'], us);
 	
-	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")
-	
-	
+	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")	
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
     
 	//check if exists the param redirect
@@ -768,6 +766,7 @@ class ApiController {
               fullname(us.fullname)
               confname(us.conferencename)
               meetingID(us.meetingID)
+			  externMeetingID(us.externMeetingID)
               externUserID(us.externUserID)
 			  internalUserID(us.internalUserId)
               role(us.role)

@@ -4,6 +4,7 @@ public class UserSession {
 	String internalUserId = null;
     String conferencename = null;
     String meetingID = null;
+    String externMeetingID = null;
     String externUserID = null;
     String fullname = null; 
     String role = null;

@@ -17,14 +17,16 @@
 * 
 */
 package org.bigbluebutton.main.model.users {
-	import mx.collections.ArrayCollection;
-	
+	import mx.collections.ArrayCollection;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
 
 	public class Conference {		
-//		private var _myUserid:Number;		
+    public var meetingName:String;
+    public var externalMeetingID:String;
+    public var internalMeetingID:String;
+    
 		[Bindable] private var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;			
 	
