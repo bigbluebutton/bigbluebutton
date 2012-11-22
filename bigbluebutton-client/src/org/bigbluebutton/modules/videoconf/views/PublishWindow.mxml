@@ -24,7 +24,8 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:pubVid="org.bigbluebutton.modules.videoconf.business.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	creationComplete="init()"
+	initialize="init()"
+	creationComplete="onCreationComplete()"
 	width="{defaultWidth + 6}" height="{defaultHeight + 75}" 
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()"
@@ -84,10 +85,15 @@
 			
 			static private var _cameraAccessDenied:Boolean = false;
 			
-			[Bindable]
-			public var videoOptions:VideoConfOptions;
+			[Bindable] public var videoOptions:VideoConfOptions;
+			[Bindable] public var baseIndex:int;
 			
 			private function init():void{
+				videoOptions = new VideoConfOptions();
+				baseIndex = videoOptions.baseTabIndex;
+			}
+			
+			private function onCreationComplete():void{
 				_videoHolder = new UIComponent();
 				_videoHolder.width = camWidth;
 				_videoHolder.height = camHeight;
@@ -116,6 +122,11 @@
 					autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
 					autoPublishTimer.start();
 				}
+				
+				titleBarOverlay.tabIndex = baseIndex;
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				closeBtn.tabIndex = baseIndex+3;
 				
 				// start the camera preview
 				updateCamera();
@@ -427,9 +438,24 @@
 	<mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
 	<mx:Text id="lblWarning" width="100%" textAlign="right" fontSize="14" fontWeight="bold" y="{this.height - (videoOptionsBar.visible? videoOptionsBar.height: 0) - lblWarning.height - 30}" visible="false" selectable="false" hideEffect="{dissolveOut}" showEffect="{dissolveIn}"/>
 	<mx:ControlBar id="videoOptionsBar" visible="true">
-		<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" enabled="false"/>
-		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" change="updateCamera()"/>
-		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" change="updateCamera()"/>
+		<mx:Button id="btnStartPublish" 
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
+				   icon="{camIcon}" 
+				   click="startPublishing()" 
+				   enabled="false"
+				   tabIndex="{baseIndex+4}"/>
+		<mx:ComboBox id="cmbCameraSelector" 
+					 dataProvider="{Camera.names}" 
+					 width="150" 
+					 visible="false" 
+					 change="updateCamera()"
+					 tabIndex="{baseIndex+5}"/>
+		<mx:ComboBox id="cmbResolution" 
+					 dataProvider="{resolutions}" 
+					 width="20%" 
+					 visible="false" 
+					 change="updateCamera()"
+					 tabIndex="{baseIndex+6}"/>
 	</mx:ControlBar>
 	
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />

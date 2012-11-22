@@ -19,7 +19,7 @@
 			translationEnabled="false"	
 			privateEnabled="true"  
 			position="top-right"
-			baseTabIndex="601"
+			baseTabIndex="701"
 		/>
 		
 		<module name="ViewersModule" url="http://bbbdev2.googool.com/client/ViewersModule.swf?v=4105" 
@@ -27,7 +27,7 @@
 			host="http://bbbdev2.googool.com/bigbluebutton/api/enter"
 			allowKickUser="false"
 			windowVisible="true"
-			baseTabIndex="101"
+			baseTabIndex="201"
 		/>
 			
 		<module name="ListenersModule" url="http://bbbdev2.googool.com/client/ListenersModule.swf?v=4105" 
@@ -35,13 +35,14 @@
 			recordingHost="http://bbbdev2.googool.com"
 			windowVisible="true"
 			position="bottom-left"
-			baseTabIndex="201"
+			baseTabIndex="301"
 		/>
 		
 		<module name="DeskShareModule" 
 			url="http://bbbdev2.googool.com/client/DeskShareModule.swf?v=4105" 
 			uri="rtmp://bbbdev2.googool.com/deskShare"
 			autoStart="false"
+			baseTabIndex="101"
 		/>
 		
 		<module name="PhoneModule" url="http://bbbdev2.googool.com/client/PhoneModule.swf?v=4105" 
@@ -77,13 +78,14 @@
 			filterDivisor="4"
 			enableH264 = "true"
 			h264Level = "2.1"
-			h264Profile = "main"			
+			h264Profile = "main"	
+			baseTabIndex="101"		
 		/>
 		
 		<module name="WhiteboardModule" url="http://bbbdev2.googool.com/client/WhiteboardModule.swf?v=4105" 
 			uri="rtmp://bbbdev2.googool.com/bigbluebutton" 
 			dependsOn="PresentModule"
-			baseTabIndex="501"
+			baseTabIndex="601"
 		/>
 		
 		<module name="PresentModule" url="http://bbbdev2.googool.com/client/PresentModule.swf?v=4105" 
@@ -92,7 +94,7 @@
 			showPresentWindow="true"
 			showWindowControls="true"
 			dependsOn="ViewersModule"
-			baseTabIndex="401"
+			baseTabIndex="501"
 		/>
 
 		<module name="VideodockModule" url="http://bbbdev2.googool.com/client/VideodockModule.swf?v=4105"
@@ -105,7 +107,7 @@
 			height="179"
 			layout="smart"
 			oneAlwaysBigger="false"
-			baseTabIndex="301"
+			baseTabIndex="401"
 		/>
 		
 		<module name="LayoutModule" url="http://bbbdev2.googool.com/client/LayoutModule.swf?v=4105"

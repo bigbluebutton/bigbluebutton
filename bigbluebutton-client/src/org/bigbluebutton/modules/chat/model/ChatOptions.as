@@ -17,8 +17,7 @@ package org.bigbluebutton.modules.chat.model
 		[Bindable]
 		public var position:String = "top-right";
 		
-		[Bindable]
-		public var baseTabIndex:int;
+		[Bindable] public var baseTabIndex:int;
 		
 		public function ChatOptions() {
 			var cxml:XML = 	BBB.getConfigForModule("ChatModule");

@@ -58,6 +58,8 @@ package org.bigbluebutton.modules.videoconf.model
 		[Bindable]
 		public var camQualityPicture:Number = 50;	
 		
+		[Bindable] public var baseTabIndex:int;
+		
     [Bindable]
     public var presenterShareOnly:Boolean = false; 
 
@@ -137,6 +139,12 @@ package org.bigbluebutton.modules.videoconf.model
 				}
 				if (vxml.@h264Profile != undefined) {
 					h264Profile = vxml.@h264Profile.toString();
+				}
+				if (vxml.@baseTabIndex != undefined) {
+					baseTabIndex = vxml.@baseTabIndex;
+				}
+				else{
+					baseTabIndex = 101;
 				}
 			}
 		}

@@ -25,6 +25,7 @@
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:dspub="flexlib.mdi.containers.*"
+	initialize="init()"
 	creationComplete="onCreationComplete()"
 	
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
@@ -62,6 +63,8 @@
 			import org.bigbluebutton.modules.deskshare.events.StreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
+			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
+			
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			public static const SCALE:Number = 5;
@@ -90,7 +93,13 @@
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 			
 			[Bindable] private var cursor:Sprite;
-			//[Bindable] private var baseIndex:int = 101;
+			[Bindable] private var baseIndex:int;
+			[Bindable] private var dsOptions:DeskshareOptions;
+			
+			private function init():void {
+				dsOptions = new DeskshareOptions();
+				baseIndex = dsOptions.baseTabIndex;
+			}
 			
 			private function onCreationComplete():void {
 				windowControls.maximizeRestoreBtn.enabled = false;
@@ -102,6 +111,11 @@
 				setCurrentState("dispFullRegionControlBar");
 				
 				resourcesChanged();
+				
+				titleBarOverlay.tabIndex = baseIndex;
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				closeBtn.tabIndex = baseIndex+3;
 			}
 			
 			public function get defaultWidth():int{
@@ -323,11 +337,27 @@
         <mx:State name="dispFullRegionControlBar">   
             <mx:AddChild>
 				<mx:ControlBar id="fullRegionBottomBar">
-					<mx:Button id="btnFSPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}" visible="true" click="shareScreen(true)" />
+					<mx:Button id="btnFSPublish" 
+							   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.tooltip')}" 
+							   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}" 
+							   visible="true" 
+							   click="shareScreen(true)" 
+							   tabIndex="{baseIndex+4}"/>
 					<mx:Spacer width="100%"/>
-					<mx:Button id="btnClosePublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}" visible="true" enabled="false" click="stopSharing()" />
+					<mx:Button id="btnClosePublish" 
+							   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}" 
+							   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}" 
+							   visible="true" 
+							   enabled="false" 
+							   click="stopSharing()" 
+							   tabIndex="{baseIndex+5}"/>
 					<mx:Spacer width="100%"/>
-					<mx:Button id="btnRegionPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" visible="true" click="shareScreen(false)" />
+					<mx:Button id="btnRegionPublish" 
+							   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" 
+							   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" 
+							   visible="true" 
+							   click="shareScreen(false)" 
+							   tabIndex="{baseIndex+6}"/>
 					<mx:Spacer width="100%"/>
 					<!--mx:CheckBox id="useSVC2Check" label="SVC2" selected="true" /-->
 				</mx:ControlBar>

@@ -23,6 +23,7 @@
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="600" height="400"
+	initialize="init()"
 	creationComplete="onCreationComplete()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
@@ -49,6 +50,7 @@
 			import org.bigbluebutton.modules.deskshare.events.StartedViewingEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewWindowEvent;
+			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var screenHeight:Number = Capabilities.screenResolutionY;
@@ -77,6 +79,14 @@
 			private var savedX:Number;
 			private var savedY:Number;
 			private var isMaximized:Boolean = false;
+			
+			[Bindable] private var baseIndex:int;
+			[Bindable] private var dsOptions:DeskshareOptions;
+									
+			private function init():void{
+				dsOptions = new DeskshareOptions();
+				baseIndex = dsOptions.baseTabIndex;
+			}
 									
 			private function onCreationComplete():void{
 				videoHolder.addChild(video);				
@@ -94,6 +104,11 @@
 				maximize();
 				
 				resourcesChanged();
+				
+				titleBarOverlay.tabIndex = baseIndex;
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				closeBtn.tabIndex = baseIndex+3;
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -280,8 +295,13 @@
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 		
 	<mx:ControlBar id="bottomBar" height="35" horizontalAlign="center">
-		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" selected="false"
-			height="90%" label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
-			toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" />
+		<mx:Button id="btnActualSize" 
+				   toggle="true" 
+				   click="determineHowToDisplayVideo()" 
+				   selected="false"
+				   height="90%" 
+				   label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
+				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
+				   tabIndex="{baseIndex+4}"/>
 	</mx:ControlBar>
 </MDIWindow>
