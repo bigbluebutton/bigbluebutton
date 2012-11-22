@@ -533,7 +533,7 @@
 	</mx:Script>
 
   <mx:HBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
-    <mx:List width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true" alternatingItemColors="[#EFEFEF, #FEFEFE]"
+    <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true" alternatingItemColors="[#EFEFEF, #FEFEFE]"
              itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="auto" wordWrap="true"
              dataProvider="{chatMessages.messages}" />    
   </mx:HBox>
