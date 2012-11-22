@@ -111,8 +111,8 @@
 			// Initialization
 			private function init():void{
 				chatOptions = new ChatOptions();
-				// Get the base tab index from config, and add three to make up for the min/max/close buttons
-				baseIndex = chatOptions.getBaseIndex() + 3;
+				// Get the base tab index from config, and add four to make up for the min/max/close buttons and title overlay
+				baseIndex = chatOptions.getBaseIndex() + 4;
 			}
 			
 			private function onCreationComplete():void{

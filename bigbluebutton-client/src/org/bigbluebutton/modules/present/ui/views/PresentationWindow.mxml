@@ -39,7 +39,8 @@
 	width="{DEFAULT_WINDOW_WIDTH}" height="{DEFAULT_WINDOW_HEIGHT}" 
 	x="{DEFAULT_X_POSITION}" y="{DEFAULT_Y_POSITION}"
 	title="{currentPresentation}"
-	xmlns:views="org.bigbluebutton.modules.present.ui.views.*">
+	xmlns:views="org.bigbluebutton.modules.present.ui.views.*"
+	>
 	
 	<mate:Dispatcher id="globalDispatcher" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
@@ -141,12 +142,8 @@
 			private var externalButtons:ArrayCollection = new ArrayCollection();
 			
 			private function init():void{
-				//LogUtil.debug("WATERFALL Entering Pres Init");
 				presentOptions = new PresentOptions();
-				//LogUtil.debug("WATERFALL Survived new PO");
 				baseIndex = presentOptions.baseTabIndex;
-				//LogUtil.debug("WATERFALL Survived assignment");
-				//LogUtil.debug("WATERFALL Base pres index is " + baseIndex);
 			}
 			
 			private function onCreationComplete():void{
@@ -155,8 +152,18 @@
                 bindKeyboardEvents();
 				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
-				
+				//LogUtil.debug("WATERFALL slideView.tabIndex is " + slideView.tabIndex);
 				resourcesChanged();
+				
+				titleBarOverlay.tabIndex = baseIndex;
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				closeBtn.tabIndex = baseIndex+3;
+				//slideView.tabIndex = baseIndex+4;
+				//LogUtil.debug("WATERFALL Presentation slideView.tabIndex " + slideView.tabIndex);
+				
+				slideView.slideLoader.tabIndex = baseIndex+4;
+				LogUtil.debug("WATERFALL Presentation slideView.slideLoader.tabIndex " + slideView.slideLoader.tabIndex);
 			}
 			
 			private function maximizeHandler():void {
@@ -225,6 +232,7 @@
                 stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
             }
             
+			// Maybe there's a problem in here too?
 			private function onKeyUp(event:KeyboardEvent):void {	
                 if (event.shiftKey && event.ctrlKey) {
                     switch (event.keyCode) {
@@ -512,10 +520,6 @@
 
 					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
 					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.closeBtn.accessibilityName");
-					
-					minimizeBtn.tabIndex = baseIndex++;
-					maximizeRestoreBtn.tabIndex = baseIndex++;
-					closeBtn.tabIndex = baseIndex++;
 				}
 				
 				Accessibility.updateProperties();
@@ -546,7 +550,8 @@
 					 mouseUp="mouseDown = false" 
 					 verticalScrollPolicy="off" 
 					 horizontalScrollPolicy="off" 
-					 tabIndex="{baseIndex}"/>			    
+					 tabIndex="{baseIndex+4}"/>
+					 			    
     <mx:ApplicationControlBar id="presCtrlBar" width="100%" height="{CONTROL_BAR_HEIGHT}">
     	  <!-- Upload Presentation Button -->
     	  <mx:Button id="uploadPres" 
@@ -556,7 +561,7 @@
     	  			 height="25" 
     	  			 toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.uploadPresBtn.toolTip')}" 
     	   			 click="dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW))"
-    	   			 tabIndex="{baseIndex+1}"/>        	  
+    	   			 tabIndex="{baseIndex+5}"/>        	  
     	  <mx:Spacer width="50%" id="spacer1"/>
     	  
     	  <mx:Button id="backButton" 
@@ -566,7 +571,7 @@
     	  			 height="20"
     	  			 toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.backBtn.toolTip')}" 
     	  			 click="gotoPreviousSlide()"
-    	  			 tabIndex="{baseIndex+2}"/>
+    	  			 tabIndex="{baseIndex+6}"/>
     	  
     	  <mx:Button id="btnSlideNum" 
     	  			 visible="false" 
@@ -574,7 +579,7 @@
     	  			 click="showThumbnails()" 
     	  			 doubleClick="showPageDialog()" 
 					 toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.slideNumLbl.toolTip')}"
-					 tabIndex="{baseIndex+3}"/>
+					 tabIndex="{baseIndex+7}"/>
     	  
     	  <mx:Button id="forwardButton" 
     	  			 icon="{forwardIcon}" 
@@ -583,7 +588,7 @@
     	  			 height="20"
     	   			 toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.forwardBtn.toolTip')}" 
     	   			 click="gotoNextSlide()"
-    	   			 tabIndex="{baseIndex+4}"/>    				
+    	   			 tabIndex="{baseIndex+8}"/>    				
 		
 		<mx:Spacer width="10%" id="spacer2"/>
     	 
@@ -601,7 +606,7 @@
     				dataTipFormatFunction="removeDecimalFromDataTip" 
     				change="onSliderZoom()" 
     				width="100"
-    				tabIndex="{baseIndex+6}"/>
+    				tabIndex="{baseIndex+9}"/>
     	
     	<mx:Spacer width="50%" id="spacer3"/>
     	
@@ -612,7 +617,7 @@
     			   height="25" 
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToWidth.toolTip')}" 
 				   click="onFitToPage(false)"
-				   tabIndex="{baseIndex+7}"/>
+				   tabIndex="{baseIndex+10}"/>
 		
 		<mx:Button id="btnFitToPage" 
 				   icon="{fitToPageIcon}" 
@@ -621,7 +626,7 @@
 				   height="25" 
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
 				   click="onFitToPage(true)"
-				   tabIndex="{baseIndex+8}"/>
+				   tabIndex="{baseIndex+11}"/>
     	
     	<mx:Spacer width="5" id="spacer4"/>
     </mx:ApplicationControlBar>

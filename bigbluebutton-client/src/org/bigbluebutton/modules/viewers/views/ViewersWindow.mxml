@@ -93,6 +93,11 @@
 				this.visible = viewerOptions.windowVisible;
 				
 				resourcesChanged();
+				
+				titleBarOverlay.tabIndex = baseIndex;
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				closeBtn.tabIndex = baseIndex+3;
 			}
 			
           
@@ -161,10 +166,6 @@
 
 					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
 					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.viewers.closeBtn.accessibilityName");
-					
-					minimizeBtn.tabIndex = baseIndex++;
-					maximizeRestoreBtn.tabIndex = baseIndex++;
-					closeBtn.tabIndex = baseIndex++;
 				}
 			}
 			
@@ -195,7 +196,7 @@
     	dragEnabled="false" itemClick="viewerSelectEvent(event);" width="100%" height="100%"
 		itemRollOver="onItemRollOver(event)"
 		itemRollOut="onItemRollOut(event)"
-		tabIndex="{baseIndex}">
+		tabIndex="{baseIndex+4}">
     	<mx:columns>
     		<mx:DataGridColumn dataField="role" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.roleItemRenderer')}" dataTipField="Role" editable="false" width="35"
     			itemRenderer="org.bigbluebutton.modules.viewers.views.RoleItemRenderer" sortable="false" id="roleField"/>
@@ -206,20 +207,20 @@
     	</mx:columns>
     </mx:DataGrid>
     
-   <mx:ControlBar width="100%" tabIndex="0"> 
+   <mx:ControlBar width="100%"> 
    		 <!-- Switch Presenter Button -->
    		 <mx:Button id="presentBtn" label="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.label')}" visible="{isModerator}"
     	   			width="130" height="20"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
     	   			click="assignPresenterClicked()"
-    	   			tabIndex="{baseIndex}"
+    	   			tabIndex="{baseIndex+5}"
     	   			/>
      	 <mx:Spacer width="100%"/>
     	 <mx:Button id="raiseHandImage" icon="{handIcon}" toggle="true" 
     	   			width="20" height="20"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.raiseHandBtn.toolTip')}" 
     	   			click="raiseHand()"
-    	   			tabIndex="{baseIndex}"/>  			
+    	   			tabIndex="{baseIndex+6}"/>  			
     </mx:ControlBar>  
     
 </viewer:MDIWindow>

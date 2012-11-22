@@ -84,7 +84,12 @@
 				BindingUtils.bindSetter(updateNumberOfListeners, listeners, "length");		
 				BindingUtils.bindSetter(updateShowPushToTalkBtn, UserManager.getInstance().getConference(), "voiceLocked");
 				BindingUtils.bindSetter(updateShowPushToTalkBtn, UserManager.getInstance().getConference(), "voiceJoined");
-				this.visible = listenerOptions.windowVisible;		
+				this.visible = listenerOptions.windowVisible;	
+				
+				titleBarOverlay.tabIndex = baseIndex;
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				closeBtn.tabIndex = baseIndex+3;	
 				
 				resourcesChanged();
 			}
@@ -216,10 +221,6 @@
 
 					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
 					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.listeners.closeBtn.accessibilityName");
-					
-					minimizeBtn.tabIndex = baseIndex++;
-					maximizeRestoreBtn.tabIndex = baseIndex++;
-					closeBtn.tabIndex = baseIndex++;
 				}
 			}
 			
@@ -237,14 +238,14 @@
             dragEnabled="false" dataProvider="{listeners}"
 			itemRollOver="onItemRollOver(event)"
 			itemRollOut="onItemRollOut(event)"
-			tabIndex="{baseIndex}">          
+			tabIndex="{baseIndex+4}">          
     	</mx:List>				
     	    	
     	<mx:ControlBar width="100%">
 			<flc:CanvasButton id="pushToTalkBtn" visible="{showPushToTalkBtn}" 
 							  toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" 
 							  click="toggleMuteMeState()" height="30" maxWidth="180"
-							  tabIndex="{baseIndex}">
+							  tabIndex="{baseIndex+5}">
 				<mx:HBox verticalAlign="middle" horizontalGap="0" paddingLeft="5" paddingTop="5" paddingRight="5" paddingBottom="5">
 					<mx:Image source="{UserManager.getInstance().getConference().voiceMuted ? images.sound_mute : images.sound_none}" />
 					<mx:Label text="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.talk') : ResourceUtil.getInstance().getString('bbb.listeners.mute')}" />
@@ -254,10 +255,10 @@
 			<flc:CanvasButton id="muteAllBtn" visible="false" toggle="true" selected="false"
 							  toolTip="{ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}" 
 							  click="toggleMuteState()" height="30" maxWidth="180"
-							  tabIndex="{baseIndex}">
+							  tabIndex="{baseIndex+6}">
 				<mx:HBox verticalAlign="middle" horizontalGap="0" paddingLeft="5" paddingTop="5" paddingRight="5" paddingBottom="5">
 					<mx:Label text="{muteAllBtn.selected ?  ResourceUtil.getInstance().getString('bbb.listeners.unmuteAllBtn.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip')}"
-							  tabIndex="{baseIndex}" />
+							  tabIndex="{baseIndex+7}" />
 				</mx:HBox> 
 			</flc:CanvasButton>
     	</mx:ControlBar>

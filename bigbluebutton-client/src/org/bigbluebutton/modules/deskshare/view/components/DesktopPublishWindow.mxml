@@ -90,6 +90,7 @@
 			private var globalDispatcher:Dispatcher = new Dispatcher();
 			
 			[Bindable] private var cursor:Sprite;
+			//[Bindable] private var baseIndex:int = 101;
 			
 			private function onCreationComplete():void {
 				windowControls.maximizeRestoreBtn.enabled = false;

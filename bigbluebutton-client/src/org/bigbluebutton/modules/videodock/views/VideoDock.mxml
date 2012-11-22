@@ -63,9 +63,6 @@ $Id: $
 			
 			private function init():void{
 				baseIndex = options.baseTabIndex;
-				minimizeBtn.tabIndex = baseIndex++;
-				maximizeRestoreBtn.tabIndex = baseIndex++;
-				closeBtn.tabIndex = baseIndex++;
 			}
 			
 			private function onCreationComplete():void{				
@@ -81,6 +78,11 @@ $Id: $
 				
 				addEventListener(ChildExistenceChangedEvent.CHILD_ADD, onChildAdd);			
 				addEventListener(ChildExistenceChangedEvent.CHILD_REMOVE, onChildRemove);
+				
+				titleBarOverlay.tabIndex = baseIndex;
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				closeBtn.tabIndex = baseIndex+3;
 				
 				if (options.maximize) this.maximize();
 			}
@@ -180,7 +182,7 @@ $Id: $
 				window.minimizeBtn.visible = false;
 				window.maximizeRestoreBtn.visible = false;
 				window.resizable = false;
-        window.draggable = false;
+       			window.draggable = false;
 
 				window.addEventListener(MouseEvent.CLICK, onWindowClick);
 
@@ -198,7 +200,7 @@ $Id: $
 				window.minimizeBtn.visible = true;
 				window.maximizeRestoreBtn.visible = true;
 				window.resizable = true;
-        window.draggable = true;
+        		window.draggable = true;
         
 				window.removeEventListener(MouseEvent.CLICK, onWindowClick);
 	

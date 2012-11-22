@@ -60,6 +60,9 @@ package org.bigbluebutton.modules.videodock.views
 				if (vxml.@baseTabIndex != undefined) {
 					baseTabIndex = vxml.@baseTabIndex;
 				}
+				else{
+					baseTabIndex = 301;
+				}
 			}
 		}
 	}

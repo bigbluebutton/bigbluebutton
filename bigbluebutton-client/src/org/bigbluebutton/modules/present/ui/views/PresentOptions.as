@@ -15,9 +15,10 @@ package org.bigbluebutton.modules.present.ui.views
 					showWindowControls = (vxml.@showWindowControls.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 				if (vxml.@baseTabIndex != undefined) {
-					//LogUtil.debug("WATERFALL In PresOptions, setting baseTabIndex");
 					baseTabIndex = vxml.@baseTabIndex;
-					//LogUtil.debug("WATERFALL In PresOptions, BTI has been set");
+				}
+				else{
+					baseTabIndex = 401;
 				}
 			}
 		}

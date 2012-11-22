@@ -76,6 +76,11 @@
 				disp  = new Dispatcher();
 //				disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
 
+				titleBarOverlay.tabIndex = baseIndex;
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				closeBtn.tabIndex = baseIndex+3;
+
 				resourcesChanged(); // update the window controls once they've been created
 			}
 			
@@ -105,10 +110,6 @@
 					
 					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
 					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.chat.closeBtn.accessibilityName");
-					
-					minimizeBtn.tabIndex = baseIndex;
-					maximizeRestoreBtn.tabIndex = baseIndex+1;
-					closeBtn.tabIndex = baseIndex+2;
 				}
 			}
 			
@@ -140,5 +141,5 @@
 		]]>
 	</mx:Script>
 	
-	<views:ChatView id="chatView" chatOptions="{chatOptions}" tabIndex="0"/>
+	<views:ChatView id="chatView" chatOptions="{chatOptions}"/>
 </MDIWindow>

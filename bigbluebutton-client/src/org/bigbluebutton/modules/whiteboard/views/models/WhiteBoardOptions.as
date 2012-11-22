@@ -7,13 +7,13 @@ package org.bigbluebutton.modules.whiteboard.views.models
 		[Bindable] public var baseTabIndex:int;
 		
 		public function WhiteBoardOptions() {
-			//LogUtil.debug("WATERFALL WBOptions Entering constructor");
 			var vxml:XML = 	BBB.getConfigForModule("WhiteboardModule");
 			if (vxml != null) {
 				if (vxml.@baseTabIndex != undefined) {
-					//LogUtil.debug("WATERFALL WBOptions About to set baseTabIndex");
 					baseTabIndex = vxml.@baseTabIndex;
-					//LogUtil.debug("WATERFALL WBOptions Survived set baseTabIndex of " + baseTabIndex);
+				}
+				else{
+					baseTabIndex = 501;
 				}
 			}
 		}

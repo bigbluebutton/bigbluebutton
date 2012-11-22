@@ -17,7 +17,9 @@ package org.bigbluebutton.modules.listeners.model
 				}
 				if (vxml.@baseTabIndex != undefined) {
 					baseTabIndex = vxml.@baseTabIndex;
-					//LogUtil.debug("WATERFALL-OPTIONS About to leave ViewerOptions, baseTabIndex is " + baseTabIndex);
+				}
+				else{
+					baseTabIndex = 201;
 				}
 				windowVisible = (vxml.@windowVisible.toString().toUpperCase() == "TRUE") ? true : false;
 			}

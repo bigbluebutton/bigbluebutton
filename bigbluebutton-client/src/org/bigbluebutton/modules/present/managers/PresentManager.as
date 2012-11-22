@@ -51,10 +51,13 @@ package org.bigbluebutton.modules.present.managers
 		
 		public function handleStartModuleEvent(e:PresentModuleEvent):void{
 			if (presentWindow != null) return;
+			//LogUtil.debug("WATERFALL Before instantiation");
 			presentWindow = new PresentationWindow();
+			//LogUtil.debug("WATERFALL After instantiation");
 			presentWindow.visible = (e.data.showPresentWindow == "true");
 			presentWindow.showControls = (e.data.showWindowControls == "true");
 			openWindow(presentWindow);
+			//LogUtil.debug("WATERFALL After openWindow()"); 
 		}
 		
 		public function handleStopModuleEvent():void{
