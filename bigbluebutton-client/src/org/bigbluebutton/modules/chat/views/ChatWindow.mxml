@@ -59,7 +59,7 @@
 			[Bindable] public var chatOptions:ChatOptions;
 			
 			[Bindable] private var baseIndex:int;
-			private function init(){
+			private function init():void{
 				baseIndex = chatOptions.baseTabIndex;
 			}
 			

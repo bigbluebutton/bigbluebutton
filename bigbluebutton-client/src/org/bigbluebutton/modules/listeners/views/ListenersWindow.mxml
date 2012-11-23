@@ -50,6 +50,7 @@
 			import mx.controls.Label;
 			import mx.events.ListEvent;
 			import mx.messaging.channels.AMFChannel;
+			import org.bigbluebutton.common.LogUtil;
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
@@ -85,6 +86,7 @@
 				BindingUtils.bindSetter(updateShowPushToTalkBtn, UserManager.getInstance().getConference(), "voiceLocked");
 				BindingUtils.bindSetter(updateShowPushToTalkBtn, UserManager.getInstance().getConference(), "voiceJoined");
 				this.visible = listenerOptions.windowVisible;	
+				LogUtil.debug("WATERFALL this.visible is " + this.visible.toString());
 				
 				titleBarOverlay.tabIndex = baseIndex;
 				minimizeBtn.tabIndex = baseIndex+1;
@@ -92,6 +94,11 @@
 				closeBtn.tabIndex = baseIndex+3;	
 				
 				resourcesChanged();
+				
+				LogUtil.debug("WATERFALL Trying to access parts of listenersList");
+				LogUtil.debug(listenersList.id);
+				LogUtil.debug(listenersList.visible.toString());
+				LogUtil.debug(listenersList.enabled.toString());
 			}
 			
 			private function updateShowPushToTalkBtn(show:Boolean):void {

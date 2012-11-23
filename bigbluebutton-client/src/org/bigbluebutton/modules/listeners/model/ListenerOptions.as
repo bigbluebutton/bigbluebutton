@@ -12,6 +12,7 @@ package org.bigbluebutton.modules.listeners.model
 		{
 			var vxml:XML = BBB.getConfigForModule("ListenersModule");
 			if (vxml != null) {
+				windowVisible = (vxml.@windowVisible.toString().toUpperCase() == "TRUE") ? true : false;
 				if (vxml.@position != undefined) {
 					position = vxml.@position.toString();
 				}
@@ -21,7 +22,6 @@ package org.bigbluebutton.modules.listeners.model
 				else{
 					baseTabIndex = 201;
 				}
-				windowVisible = (vxml.@windowVisible.toString().toUpperCase() == "TRUE") ? true : false;
 			}
 			
 		}
