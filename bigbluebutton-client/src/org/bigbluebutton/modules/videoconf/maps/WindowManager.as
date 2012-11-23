@@ -5,14 +5,14 @@ package org.bigbluebutton.modules.videoconf.maps
   import mx.collections.ArrayCollection;
   
   import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
-  
-  
+  import org.bigbluebutton.modules.videoconf.views.AvatarWindow;
+    
   public class WindowManager
   {
     private var webcamWindows:ArrayCollection = new ArrayCollection();
     
     public function addWindow(userID:String):VideoWindowItf {      
-      var win:VideoWindowItf = new VideoWindowItf();
+      var win:VideoWindowItf = new AvatarWindow();
       win.userID = userID;
       webcamWindows.addItem(win);
       

@@ -40,6 +40,7 @@
       import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
       import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
       import org.bigbluebutton.modules.videoconf.business.VideoProxy;
+      import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
       import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
       import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
       import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
@@ -55,6 +56,7 @@
       import org.flexunit.runner.manipulation.filters.IncludeAllFilter;
 			
       private var options:VideoConfOptions = new VideoConfOptions();
+      private var webcamWindows:WindowManager = new WindowManager();
       
 			private var button:ToolbarButton;
 			private var publishWindow:PublishWindow;
@@ -119,7 +121,53 @@
 				windowEvent.window = publishWindow;
 				globalDispatcher.dispatchEvent(windowEvent);
 			}
-			
+	
+      private function openWebcamWindows():void {
+        var uids:ArrayCollection = UsersUtil.getUserIDs();
+        
+        for (var i:int = 0; i < uids.length; i++) {
+          var u:String = uids.getItemAt(i) as String;
+          
+          //        if ((! _options.displayAllUsers && UsersUtil.hasWebcamStream(u)) || _options.displayAllUsers) {
+          openWebcamWindow(u);
+          //        }       
+        }
+      }
+      
+      private function openWebcamWindow(userID:String):void {
+        //      if (UsersUtil.isMe(userID)) return;
+        
+        if (webcamWindows.hasWindow(userID)) return;
+        
+        var window:VideoWindowItf = webcamWindows.addWindow(userID);
+        window.userID = userID;
+        window.title = UsersUtil.getUserName(userID);
+        
+        openWidow(window);
+        dockWindow(window);
+//        playWebcamStream(window, userID);
+        
+      }
+      
+      private function playWebcamStream(window:VideoWindowItf, userID:String):void {
+        if (UsersUtil.hasWebcamStream(userID)) {
+
+        }        
+      }
+      
+      private function openWidow(window:VideoWindowItf):void {
+        var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+        windowEvent.window = window;
+        globalDispatcher.dispatchEvent(windowEvent);      
+      }
+      
+      private function dockWindow(window:VideoWindowItf):void {
+        // this event will dock the window, if it's enabled
+        var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();
+        openVideoEvent.window = window;
+        globalDispatcher.dispatchEvent(openVideoEvent);         
+      }
+      
 			private function closePublishWindow():void{
 				publishWindow.close();
 			}
@@ -186,11 +234,14 @@
 			}
 			
       private function connectedToVideoApp():void{
-        autoStart();
+        openWebcamWindows();
+        
+//        addToolbarButton();
+//        autoStart();
         
         var dispatcher:Dispatcher = new Dispatcher();
         var users:ArrayCollection = UserManager.getInstance().getConference().users;
-        for (var i:int = 0; i < users.length; i++){
+        for (var i:int = 0; i < users.length; i++) {
           var user:BBBUser = (users.getItemAt(i) as BBBUser);
           if (user.hasStream) dispatcher.dispatchEvent(new StreamStartedEvent(user.userID, user.name, user.streamName));
         }

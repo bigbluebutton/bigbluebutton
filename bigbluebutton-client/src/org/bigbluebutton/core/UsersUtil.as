@@ -1,11 +1,35 @@
 package org.bigbluebutton.core
 {
+  import mx.collections.ArrayCollection;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.model.users.BBBUser;
 
   public class UsersUtil
   {
+    public static function hasWebcamStream(userID:String):Boolean {
+      var u:BBBUser = getUser(userID);
+      if (u != null) {
+        return u.hasStream;
+      }
+      
+      return false;
+    }
+    
+    public static function getWebcamStream(userID:String):String {
+      var u:BBBUser = getUser(userID);
+      if (u != null) {
+        return u.streamName;
+      }
+      
+      return null;
+    }
+    
+    public static function getUserIDs():ArrayCollection {
+      return UserManager.getInstance().getConference().getUserIDs();
+    }
+    
     public static function getInternalMeetingID():String {
       return UserManager.getInstance().getConference().internalMeetingID;
     }

@@ -293,6 +293,15 @@ package org.bigbluebutton.main.model.users {
 			
 			sort();		
 		}
+    
+    public function getUserIDs():ArrayCollection {
+      var uids:ArrayCollection = new ArrayCollection();
+      for (var i:int = 0; i < users.length; i++) {
+        var u:BBBUser = users.getItemAt(i) as BBBUser;
+        uids.addItem(u.userID);
+      }
+      return uids;
+    }
 		
 		/**
 		 * Sorts the users by name 

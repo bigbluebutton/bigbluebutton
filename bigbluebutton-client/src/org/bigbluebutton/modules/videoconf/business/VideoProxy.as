@@ -86,47 +86,12 @@ package org.bigbluebutton.modules.videoconf.business
     
 		private function onNetStatus(event:NetStatusEvent):void{
 			switch(event.info.code){
-				case "NetConnection.Connect.Failed":
-					break;
 				case "NetConnection.Connect.Success":
 					ns = new NetStream(nc);
           onConnectedToVideoApp();
 					break;
-				case "NetConnection.Connect.Rejected":
-					break;
-				case "NetConnection.Connect.Closed":
-					break;
-				case "NetConnection.Connect.InvalidApp":
-					break;
-				case "NetConnection.Connect.AppShutdown":
-					break;
-					
-				case "NetStream.Publish.Start":
-					LogUtil.debug("NetStream.Publish.Start for broadcast stream [");
-					break;
-					
-				case "NetStream.Publish.Idle":
-					LogUtil.debug("NetStream.Publish.Idle for broadcast stream [");
-					break;
-					
-				case "NetStream.Record.Failed":
-					LogUtil.debug("NetStream.Record.Failed for broadcast stream [");
-					break;
-					
-				case "NetStream.Record.Stop":
-					LogUtil.debug("NetStream.Record.Stop for broadcast stream [");
-					break;
-					
-				case "NetStream.Record.Start":
-					LogUtil.debug("NetStream.Record.Start for broadcast stream [");
-					break;
-					
-				case "NetStream.Unpublish.Success":
-					LogUtil.debug("NetStream.Unpublish.Success for broadcast stream [");
-					break;
-					
-				case "NetStream.Publish.BadName":
-					LogUtil.debug("NetStream.Publish.BadName for broadcast stream [");
+        default:
+					LogUtil.debug("[" + event.info.code + "] for [" + _url + "]");
 					break;
 			}
 		}
