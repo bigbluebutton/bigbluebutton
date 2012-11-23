@@ -65,7 +65,7 @@ package org.bigbluebutton.modules.videoconf.business
 		
 		public var streamName:String;
 
-    protected var _sharerUserID:String = null;
+    public var userID:String = null;
 
     protected var _controlButtons:ControlButtons = new ControlButtons();
 		
@@ -82,7 +82,7 @@ package org.bigbluebutton.modules.videoconf.business
         var uid:String = UserManager.getInstance().getConference().getMyUserId();
         LogUtil.debug("Stream resolution is [" + pattern.exec(stream)[1] + "]");
         LogUtil.debug("Userid [" + pattern.exec(stream)[2] + "]");
-        _sharerUserID = pattern.exec(stream)[2];
+        userID = pattern.exec(stream)[2];
         addControlButtons();
         return pattern.exec(stream)[1].split("x");
 			} else {
@@ -229,7 +229,7 @@ package org.bigbluebutton.modules.videoconf.business
     private var chatIcon:Class = images.chatIcon;
     
     protected function addControlButtons():void {
-      _controlButtons.sharerUserID = _sharerUserID;
+      _controlButtons.sharerUserID = userID;
       _controlButtons.visible = true;
       this.addChild(_controlButtons);
     }

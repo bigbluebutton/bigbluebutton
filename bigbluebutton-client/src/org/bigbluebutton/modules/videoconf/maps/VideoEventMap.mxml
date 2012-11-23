@@ -23,10 +23,15 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-      import mx.collections.ArrayCollection;      
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.collections.ArrayCollection;
+      
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.OpenWindowEvent;
       import org.bigbluebutton.common.events.ToolbarButtonEvent;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.ConnectAppEvent;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -37,20 +42,23 @@
       import org.bigbluebutton.modules.videoconf.business.VideoProxy;
       import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
       import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
+      import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
       import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
       import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
       import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
       import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+      import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
       import org.bigbluebutton.modules.videoconf.views.PublishWindow;
       import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
       import org.bigbluebutton.modules.videoconf.views.VideoWindow;
       import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;
       import org.flexunit.runner.manipulation.filters.IncludeAllFilter;
 			
-			public var module:VideoconfModule;
+      private var options:VideoConfOptions = new VideoConfOptions();
+      
 			private var button:ToolbarButton;
 			private var publishWindow:PublishWindow;
-			public var proxy:VideoProxy;
+			private var proxy:VideoProxy;
 
 			// This variable is used to avoid dispatching the BroadcastStoppedEvent
 			// when the user just open the publish window and close it before start
@@ -62,17 +70,13 @@
 				if (UserManager.getInstance().getConference().amIThisUser(userid)) return;
 				
 				var window:VideoWindow = new VideoWindow();
-//				window.userId = userid;
 				window.videoOptions = proxy.videoOptions;
 				
-				window.resolutions = module.resolutions.split(",");
+				window.resolutions = options.resolutions.split(",");
 				
-				if (mock) {
-					window.startVideo(module.mockConnection, stream);
-				}
-				else {
-					window.startVideo(module.connection, stream);
-				}
+
+//					window.startVideo(module.connection, stream);
+
 				window.title = name;
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = window;
@@ -87,48 +91,52 @@
 			private function viewVideoFile(e:BBBEvent):void {
 				viewCamera("1", e.message, e.message, true);
 			}
-			
-			private function mockConnect():void {
-				module.mockConnect();
-			}
-			
-			public function addToolbarButton():void{
+						
+			private function addToolbarButton():void{
 				if (proxy.videoOptions.showButton) {
 					button = new ToolbarButton();	  
-					button.isPresenter = !module.presenterShareOnly;
+					button.isPresenter = !options.presenterShareOnly;
 					var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 					event.button = button;
 					globalDispatcher.dispatchEvent(event);
 				}
 			}
 			
+      private function autoStart():void {
+//        if (options.autoStart) {
+          var dispatcher:Dispatcher = new Dispatcher();        
+          dispatcher.dispatchEvent(new ShareCameraRequestEvent());					
+//        }        
+      }
+           
 			private function openPublishWindow():void{
 				publishWindow = new PublishWindow();
 				publishWindow.videoOptions = proxy.videoOptions;
-				publishWindow.userrole = module.role;
-				publishWindow.quality = module.quality;
-				publishWindow.resolutions = module.resolutions.split(",");
+				publishWindow.quality = options.videoQuality;
+				publishWindow.resolutions = options.resolutions.split(",");
 				
 				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				windowEvent.window = publishWindow;
 				globalDispatcher.dispatchEvent(windowEvent);
 			}
 			
-
-
 			private function closePublishWindow():void{
 				publishWindow.close();
 			}
 
-
+      private function connectToVideoApp():void{
+        proxy = new VideoProxy(options.uri + "/" + UsersUtil.getInternalMeetingID());
+        proxy.connect();
+      }
+      
 			private function startPublishing(e:StartBroadcastEvent):void{
 			    LogUtil.debug("Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
 				proxy.startPublishing(e);
 				var broadcastEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
 				broadcastEvent.stream = e.stream;
-				broadcastEvent.userid = module.userid;
+				broadcastEvent.userid = UsersUtil.getMyUserID();
 				globalDispatcher.dispatchEvent(broadcastEvent);
-				publishWindow.title = module.username + " (you)";
+				publishWindow.title = UsersUtil.getMyUsername() + " (you)";
 				_publishing = true;
 				button.publishingStatus(button.START_PUBLISHING);
 
@@ -140,7 +148,7 @@
 					
 					var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
 					broadcastEvent.stream = publishWindow.streamName;
-					broadcastEvent.userid = module.userid;
+					broadcastEvent.userid = UsersUtil.getMyUserID();
 					globalDispatcher.dispatchEvent(broadcastEvent);
 					_publishing = false;
 				}
@@ -165,22 +173,36 @@
 			}
 			
 			private function switchToPresenter():void{
-				if (module.presenterShareOnly){
+				if (options.presenterShareOnly){
 					button.isPresenter = true;
 				}
 			}
 			
 			private function switchToViewer():void{
-				if (module.presenterShareOnly){
+				if (options.presenterShareOnly){
 					button.isPresenter = false;
 					if (publishWindow != null) publishWindow.close();
 				}
 			}
 			
+      private function connectedToVideoApp():void{
+        autoStart();
+        
+        var dispatcher:Dispatcher = new Dispatcher();
+        var users:ArrayCollection = UserManager.getInstance().getConference().users;
+        for (var i:int = 0; i < users.length; i++){
+          var user:BBBUser = (users.getItemAt(i) as BBBUser);
+          if (user.hasStream) dispatcher.dispatchEvent(new StreamStartedEvent(user.userID, user.name, user.streamName));
+        }
+      }
 			
 		]]>
 	</mx:Script>
 	
+  <EventHandlers type="{ConnectAppEvent.CONNECT_VIDEO_APP}">
+    <InlineInvoker method="connectToVideoApp" />
+  </EventHandlers>
+  
 	<EventHandlers type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}">
 		<InlineInvoker method="openPublishWindow" />
 	</EventHandlers>
@@ -202,7 +224,7 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{BBBEvent.START_VIDEO_CONNECTION}">
-		<InlineInvoker method="mockConnect" />
+		<!--<InlineInvoker method="mockConnect" />-->
 	</EventHandlers>
 	
 	<EventHandlers type="{StreamStartedEvent.STREAM_STARTED}">
@@ -220,5 +242,9 @@
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
 		<InlineInvoker method="switchToViewer" />
 	</EventHandlers>
-	
+
+  <EventHandlers type="{ConnectedEvent.VIDEO_CONNECTED}">
+    <InlineInvoker method="connectedToVideoApp" />
+  </EventHandlers>
+  
 </EventMap>

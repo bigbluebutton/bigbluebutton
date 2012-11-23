@@ -24,6 +24,9 @@ package org.bigbluebutton.modules.videoconf.business
 	import flash.events.IOErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
+	import flash.media.H264Level;
+	import flash.media.H264Profile;
+	import flash.media.H264VideoStreamSettings;
 	import flash.net.NetConnection;
 	import flash.net.NetStream;
 	import flash.system.Capabilities;
@@ -31,18 +34,13 @@ package org.bigbluebutton.modules.videoconf.business
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+	import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
 	import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
 	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-
-// Uncomment if you want to build support for H264. But you need at least FP 11. (ralam july 23, 2011)		
-	 
- 	 import flash.media.H264VideoStreamSettings;
-	 import flash.media.H264Profile;
-	 import flash.media.H264Level;
 
 	
 	public class VideoProxy
@@ -51,7 +49,8 @@ package org.bigbluebutton.modules.videoconf.business
 		
 		private var nc:NetConnection;
 		private var ns:NetStream;
-		
+		private var _url:String;
+    
 		private function parseOptions():void {
 			videoOptions = new VideoConfOptions();
 			videoOptions.parseOptions();	
@@ -59,30 +58,39 @@ package org.bigbluebutton.modules.videoconf.business
 		
 		public function VideoProxy(url:String)
 		{
-			parseOptions();
-			
+      _url = url;
+			parseOptions();			
 			nc = new NetConnection();
 			nc.client = this;
 			nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 			nc.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
 			nc.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
 			nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
-			nc.connect(url);
+			
 		}
 		
+    public function connect():void {
+      nc.connect(_url);
+    }
+    
 		private function onAsyncError(event:AsyncErrorEvent):void{
 		}
 		
 		private function onIOError(event:NetStatusEvent):void{
 		}
 		
+    private function onConnectedToVideoApp():void{
+      var dispatcher:Dispatcher = new Dispatcher();
+      dispatcher.dispatchEvent(new ConnectedEvent(ConnectedEvent.VIDEO_CONNECTED));
+    }
+    
 		private function onNetStatus(event:NetStatusEvent):void{
 			switch(event.info.code){
 				case "NetConnection.Connect.Failed":
 					break;
 				case "NetConnection.Connect.Success":
 					ns = new NetStream(nc);
-					openAvailableVideos();
+          onConnectedToVideoApp();
 					break;
 				case "NetConnection.Connect.Rejected":
 					break;
@@ -215,13 +223,6 @@ package org.bigbluebutton.modules.videoconf.business
 			trace("bandwidth = " + p_bw + " Kbps."); 
 		}
 		
-		public function openAvailableVideos():void{
-			var dispatcher:Dispatcher = new Dispatcher();
-			var users:ArrayCollection = UserManager.getInstance().getConference().users;
-			for (var i:int = 0; i < users.length; i++){
-				var user:BBBUser = (users.getItemAt(i) as BBBUser);
-				if (user.hasStream) dispatcher.dispatchEvent(new StreamStartedEvent(user.userID, user.name, user.streamName));
-			}
-		}
+
 	}
 }

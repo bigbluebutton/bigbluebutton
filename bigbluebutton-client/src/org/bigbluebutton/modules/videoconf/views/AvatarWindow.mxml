@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+--> 
+
+<pubVid:VideoWindowItf
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:pubVid="org.bigbluebutton.modules.videoconf.business.*"
+	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	creationComplete="init()"
+	width="{defaultWidth + 6}" height="{defaultHeight + 75}" 
+	xmlns:mate="http://mate.asfusion.com/"
+	resize="onResize()"
+	horizontalScrollPolicy="off"
+	verticalScrollPolicy="off"
+	layout="absolute">
+	
+  <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
+  <mate:Listener type="{EventConstants.NEW_ROLE}" method="handleNewRoleEvent" />
+  <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
+  
+	<mx:Script>
+		<![CDATA[
+      import flexlib.mdi.events.MDIWindowEvent;    
+      import mx.core.UIComponent;
+      import mx.events.ResizeEvent;     
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.CoreEvent;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
+      import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+      import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
+      import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
+      import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
+      import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+      import org.bigbluebutton.common.Role;
+      
+			[Bindable] public var camIcon:Class = images.control_play;
+			[Bindable] public var bbbLogo:Class = images.bbb_logo;
+
+			[Bindable] private var defaultWidth:Number = 320;
+			[Bindable] private var defaultHeight:Number = 240;
+			         
+			private var camWidth:Number = 320;
+			private var camHeight:Number = 240;
+			private var _userrole:String;
+
+			
+			[Bindable]
+			public var videoOptions:VideoConfOptions;
+			
+			private function init():void {
+				_videoHolder = new UIComponent();
+				_videoHolder.width = camWidth;
+				_videoHolder.height = camHeight;
+				this.addChild(_videoHolder);				
+				this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
+
+        _video = new Video();
+
+				this.minWidth = _minWidth;
+				this.minHeight = _minHeight;
+				maximizeRestoreBtn.visible = false;
+				this.resizable = false;
+				
+
+			}
+			
+      private function handleNewRoleEvent(event:CoreEvent):void {
+        switchRole(event.message.role == Role.PRESENTER)
+      }
+      
+      private function handleUserTalkingEvent(event:CoreEvent):void {
+        if (event.message.userID ==  userID) {
+          if (event.message.talking) {
+            notTalkingEffect.end();
+            talkingEffect.play([_videoHolder]);            
+          } else {
+            talkingEffect.end();
+            notTalkingEffect.play([_videoHolder]);
+          }
+        }
+      }
+      
+ 			
+						
+			private function startPublishing():void{
+
+				
+				defaultWidth = originalWidth;
+				defaultHeight = originalHeight;
+
+				maximizeRestoreBtn.visible = true;
+				this.resizable = true;
+				onResize();
+				
+				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
+				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
+				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
+				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
+				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+				
+        // Store the userid for the publisher. This allows us to control
+        // the user's status from the video window
+        userID = UsersUtil.getMyUserID();
+				
+        createButtons();
+        addControlButtons();
+        
+				// this event will dock the window, if it's enabled
+				var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();
+				openVideoEvent.window = this;
+				dispatchEvent(openVideoEvent);					
+			}
+			
+			override public function close(event:MouseEvent=null):void{
+				stopPublishing();
+				super.close(event);
+			}
+			
+			private function stopCamera():void {
+
+			}
+			
+			private function stopPublishing():void{
+
+			}
+			
+
+			
+			public function set userrole(role:String):void{
+				this._userrole = role;
+			}
+			
+			private function isPresenter():Boolean{
+				if (this._userrole == "MODERATOR" || this._userrole == "PRESENTER") return true;
+				else return false;
+			}
+			
+
+			
+			private function closeWindow(e:CloseAllWindowsEvent):void{
+				closeThisWindow();
+			}
+			
+			private function closeThisWindow():void {
+				stopCamera();
+				this.close();
+			}
+			
+
+			
+		]]>
+	</mx:Script>
+
+  <mx:Glow id="talkingEffect" duration="500" alphaFrom="1.0" alphaTo="0.3"
+           blurXFrom="0.0" blurXTo="30.0" blurYFrom="0.0" blurYTo="30.0" color="0xFF0000"/>
+  <mx:Glow id="notTalkingEffect" duration="500" alphaFrom="0.3" alphaTo="1.0"
+           blurXFrom="30.0" blurXTo="0.0" blurYFrom="30.0" blurYTo="0.0" color="0xFF0000"/>
+  	
+
+</pubVid:VideoWindowItf>

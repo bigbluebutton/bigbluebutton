@@ -37,11 +37,14 @@
   
 	<mx:Script>
 		<![CDATA[
-      import flexlib.mdi.events.MDIWindowEvent;    
+      import flexlib.mdi.events.MDIWindowEvent;
+      
       import mx.core.UIComponent;
-      import mx.events.ResizeEvent;     
+      import mx.events.ResizeEvent;
+      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.Role;
       import org.bigbluebutton.common.events.CloseWindowEvent;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
       import org.bigbluebutton.core.EventConstants;
@@ -56,7 +59,6 @@
       import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-      import org.bigbluebutton.common.Role;
       
 			[Bindable] public var camIcon:Class = images.control_play;
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
@@ -66,7 +68,6 @@
 			         
 			private var camWidth:Number = 320;
 			private var camHeight:Number = 240;
-			private var _userrole:String;
 			private var _camera:Camera = null;
 			public var quality:Number = 0;
 						
@@ -131,7 +132,7 @@
       }
       
       private function handleUserTalkingEvent(event:CoreEvent):void {
-        if (event.message.userID ==  _sharerUserID) {
+        if (event.message.userID ==  userID) {
           if (event.message.talking) {
             notTalkingEffect.end();
             talkingEffect.play([_videoHolder]);            
@@ -285,7 +286,7 @@
 				
         // Store the userid for the publisher. This allows us to control
         // the user's status from the video window
-        _sharerUserID = UsersUtil.getMyUserID();
+        userID = UsersUtil.getMyUserID();
 				
         createButtons();
         addControlButtons();
@@ -336,13 +337,9 @@
         var uid:String = UserManager.getInstance().getConference().getMyUserId();
         this.streamName = cmbResolution.selectedLabel.concat("-" + uid) + "-" + curTime;
 			}
-			
-			public function set userrole(role:String):void{
-				this._userrole = role;
-			}
-			
+						
 			private function isPresenter():Boolean{
-				if (this._userrole == "MODERATOR" || this._userrole == "PRESENTER") return true;
+				if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return true;
 				else return false;
 			}
 			

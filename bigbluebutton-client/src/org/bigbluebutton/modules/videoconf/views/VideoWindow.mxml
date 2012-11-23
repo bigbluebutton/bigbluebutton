@@ -105,7 +105,7 @@
 			}
 			
       private function handleUserTalkingEvent(event:CoreEvent):void {
-        if (event.message.userID ==  _sharerUserID) {
+        if (event.message.userID ==  userID) {
           if (event.message.talking) {
             notTalkingEffect.end();
             talkingEffect.play([_videoHolder]);            
