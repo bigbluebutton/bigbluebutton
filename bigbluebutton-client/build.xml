@@ -3,6 +3,7 @@
 <project name="BigBlueButton Client" basedir="." default="clean-build-all" >
     	<property environment="env" />
     	<property name="STATIC_RSL" value="true" />
+	<property name="DEBUG" value="true" />
     	<property name="BUILD_ENV" value="DEV" />
     	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
     	<property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
@@ -71,7 +72,7 @@
 		<sequential>
 			<mxmlc file="${SRC_DIR}/branding/css/${themeFile}" 
 				output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" 
-				debug="false" 
+				debug="${DEBUG}" 
 				mxml.compatibility-version="3.0.0" 
 				swf-version="13" 
 				optimize="true">
@@ -254,7 +255,7 @@
 			<attribute name="app" default="."/>
 			<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 			<sequential>
-				<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true" link-report="linker-report.xml">
+				<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="${DEBUG}" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true" link-report="linker-report.xml">
 					<target-player>11</target-player>
 					<load-config filename="@{flex}/frameworks/flex-config.xml" />
 					<source-path path-element="@{flex}/frameworks" />
@@ -293,7 +294,7 @@
 		<attribute name="app" default="."/>
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
-			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="13">
+			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="${DEBUG}" mxml.compatibility-version="3.0.0" swf-version="13">
 				<target-player>11</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
@@ -320,7 +321,7 @@
 		<attribute name="app" default="."/>
 		<attribute name="src" default="${SRC_DIR}" description="Path to the module to compile" />
 		<sequential>
-			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="false" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true" load-externs="linker-report.xml">
+			<mxmlc file="@{src}/@{target}.mxml" output="${OUTPUT_DIR}/@{target}.swf" debug="${DEBUG}" mxml.compatibility-version="3.0.0" swf-version="13" optimize="true" load-externs="linker-report.xml">
 				<target-player>11</target-player>
 				<load-config filename="@{flex}/frameworks/flex-config.xml" />
 				<source-path path-element="@{flex}/frameworks" />
