@@ -3,12 +3,12 @@
 <project name="BigBlueButton Client" basedir="." default="clean-build-all" >
     	<property environment="env" />
     	<property name="STATIC_RSL" value="true" />
-	<property name="DEBUG" value="true" />
+	     <property name="DEBUG" value="true" />
     	<property name="BUILD_ENV" value="DEV" />
     	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
     	<property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
     	<property name="BASE_DIR" value="${basedir}" />
-	<property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />	
+	     <property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />	
 	<property name="PROD_RESOURCES_DIR" value="${RESOURCES_DIR}/prod" />	
 	<property name="SRC_DIR" value="${BASE_DIR}/src" />
 		
@@ -16,7 +16,6 @@
 	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
 
 	<!-- Declare module names here -->
-	<property name="BBB_MAIN_TEST" value="BigBlueButtonTest" />
 	<property name="BBB_MAIN" value="BigBlueButton" />
 	<property name="CHAT" value="ChatModule" />
 	<property name="VIEWERS" value="ViewersModule" />
@@ -27,10 +26,6 @@
 	<property name="PHONE" value="PhoneModule" />
 	<property name="VIDEO" value="VideoconfModule" />
 	<property name="WHITEBOARD" value="WhiteboardModule" />
-	<property name="DYN_INFO" value="DynamicInfoModule" />
-	<property name="BREAKOUT" value="BreakoutModule" />
-	<property name="CLASSROOM_AUDIO" value="ClassroomAudioModule" />
-	<property name="SETTINGS" value="SettingsModule" />
 	<property name="VIDEO_DOCK" value="VideodockModule" />
 	<property name="LAYOUT" value="LayoutModule" />
 	
@@ -164,10 +159,6 @@
 		</copy>		
 	</target>
 	
-	<target name="build-breakout" description="Compile Breakout Module" >
-		<build-module src="${SRC_DIR}" target="${BREAKOUT}" />
-	</target>
-	
 	<target name="build-chat" description="Compile Chat Module">
 		<build-module src="${SRC_DIR}" target="${CHAT}" />
 	</target>
@@ -208,14 +199,6 @@
 			<fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/phone/views/assets/images/" />
 		</copy>		
 	</target>
-
-	<target name="build-classroom-audio" description="Compile Classroom Audio Module">
-		<build-module src="${SRC_DIR}" target="${CLASSROOM_AUDIO}" />
-	</target>
-	
-	<target name="build-settings" description="Compile Settings Module">
-		<build-module src="${SRC_DIR}" target="${SETTINGS}" />
-	</target>
 	
 	<target name="build-video" description="Compile Video Module">
 		<build-module src="${SRC_DIR}" target="${VIDEO}" />
@@ -229,24 +212,20 @@
 		<build-module src="${SRC_DIR}" target="${WHITEBOARD}" />
 	</target>
 	
-	<target name="build-dyn" description="Compile Dynamic Info Module">
-		<build-module src="${SRC_DIR}" target="${DYN_INFO}" />
-	</target>
-	
 	<target name="build-layout" description="Compile Layout Module">
 		<build-module src="${SRC_DIR}" target="${LAYOUT}" />
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main, build-bbb-main-test, build-chat, build-viewers, build-listeners, build-present, build-breakout, build-layout"
-			description="Compile main, chat, viewers, listeners, present, breakout modules">
+			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present, build-layout"
+			description="Compile main, chat, viewers, listeners, present modules">
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
-			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard, build-dyn, build-classroom-audio, build-settings"
-			description="Compile deskshare, phone, video, whiteboard, dynamic info modules">
+			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard"
+			description="Compile deskshare, phone, video, whiteboard modules">
 	</target>
 	
 	<macrodef name="build-main">
@@ -464,5 +443,5 @@
                         description="Build BBB client without locales"/>		
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
 
-	<target name="build-custom" depends="init-ant-contrib, build-classroom-audio" description="Build a custom defined module only, to save time as each build takes several minutes" />
+	<target name="build-custom" depends="init-ant-contrib" description="Build a custom defined module only, to save time as each build takes several minutes" />
 </project>
