@@ -17,3 +17,9 @@
 })(jQuery);
 
 $(function () { $.fn.bigbluebutton(); });
+
+$(function () {
+	setTimeout(function(){
+		   $('#BigBlueButton').focus();
+	},25);
+});

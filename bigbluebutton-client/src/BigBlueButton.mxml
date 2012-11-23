@@ -273,7 +273,7 @@
     {
       var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
                             (e.altKey   ? "alt+"     : "") + e.keyCode;
-      //LogUtil.debug("Chad keypress " + keyPress);
+      LogUtil.debug("Chad keypress " + keyPress);
 
       if (keyCombos[keyPress])
       {

@@ -4,7 +4,8 @@
 		   click="onClick()" 
 		   icon="{ellipse_icon}" 
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" 
-		   toggle="true">
+		   toggle="true" 
+		   accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse.accessibilityName')}">
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.common.Images;
