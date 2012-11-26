@@ -105,12 +105,8 @@
           }
         }
       }
-      
- 			
-						
-			private function startPublishing():void{
-
-				
+      						
+			private function startPublishing():void{				
 				defaultWidth = originalWidth;
 				defaultHeight = originalHeight;
 
@@ -130,15 +126,11 @@
 				
         createButtons();
         addControlButtons();
-        
-				// this event will dock the window, if it's enabled
-				var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();
-				openVideoEvent.window = this;
-				dispatchEvent(openVideoEvent);					
+        		
 			}
 			
 			override public function close(event:MouseEvent=null):void{
-				stopPublishing();
+        closeThisWindow();
 				super.close(event);
 			}
 			
@@ -168,8 +160,9 @@
 			}
 			
 			private function closeThisWindow():void {
-				stopCamera();
-				this.close();
+        trace("******************** Closing avatar window *********************");
+	//			stopCamera();
+	//			this.close();
 			}
 			
 

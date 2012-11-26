@@ -68,16 +68,11 @@
 			// publishing
 			private var _publishing:Boolean = false;		
 			
-			private function viewCamera(userid:String, stream:String, name:String, mock:Boolean = false):void {
-        LogUtil.debug("Viewing [" + userid + " stream [" + stream + "]");
-				if (UserManager.getInstance().getConference().amIThisUser(userid)) return;
+			private function viewCamera(userID:String, stream:String, name:String, mock:Boolean = false):void {
+        LogUtil.debug("Viewing [" + userID + " stream [" + stream + "]");
+				if (UserManager.getInstance().getConference().amIThisUser(userID)) return;
 				
-				var window:VideoWindow = new VideoWindow();
-				window.videoOptions = proxy.videoOptions;
-				
-				window.resolutions = options.resolutions.split(",");
-				
-//					window.startVideo(module.connection, stream);
+        openViewWindowFor(userID);
 
 			}
 
@@ -139,23 +134,30 @@
           closeWindow(userID);
         }
         var window:AvatarWindow = new AvatarWindow();
+        window.userID = userID;
         window.title = UsersUtil.getUserName(userID);
         
         webcamWindows.addWindow(window);        
+        trace("Opening AVATAR window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
+        
         openWindow(window);
         dockWindow(window);          
       }
       
       private function openPublishWindowFor(userID:String):void {
         publishWindow = new PublishWindow();
+        publishWindow.userID = userID;
         publishWindow.videoOptions = proxy.videoOptions;
         publishWindow.quality = options.videoQuality;
         publishWindow.resolutions = options.resolutions.split(",");
 
         if (webcamWindows.hasWindow(userID)) {
+          trace("Closing window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
           closeWindow(userID);
         }
         webcamWindows.addWindow(publishWindow);
+        
+        trace("Opening PUBLISH window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
         
         openWindow(publishWindow);        
       }
@@ -169,9 +171,13 @@
       
       private function openViewWindowFor(userID:String):void {
         var window:VideoWindow = new VideoWindow();
+        window.userID = userID;
         window.videoOptions = proxy.videoOptions;       
         window.resolutions = options.resolutions.split(",");
         window.title = UsersUtil.getUserName(userID);
+        
+        var bbbUser:BBBUser = UsersUtil.getUser(userID);
+        window.startVideo(proxy.connection, bbbUser.streamName);
         
         webcamWindows.addWindow(window);        
         openWindow(window);
