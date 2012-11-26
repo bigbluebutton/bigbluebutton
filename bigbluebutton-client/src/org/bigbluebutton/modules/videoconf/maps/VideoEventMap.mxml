@@ -127,32 +127,60 @@
         
         for (var i:int = 0; i < uids.length; i++) {
           var u:String = uids.getItemAt(i) as String;
-          
-          //        if ((! _options.displayAllUsers && UsersUtil.hasWebcamStream(u)) || _options.displayAllUsers) {
-          openWebcamWindow(u);
-          //        }       
+          openWebcamWindowFor(u); 
         }
       }
       
-      private function openWebcamWindow(userID:String):void {
+      private function openWebcamWindowFor(userID:String):void {
         //      if (UsersUtil.isMe(userID)) return;
         
-        if (webcamWindows.hasWindow(userID)) return;
+//        if (webcamWindows.hasWindow(userID)) return;
         
-        var window:VideoWindowItf = webcamWindows.addWindow(userID);
-        window.userID = userID;
-        window.title = UsersUtil.getUserName(userID);
+//        var window:VideoWindowItf = webcamWindows.addWindow(userID);
+//        window.userID = userID;
+//        window.title = UsersUtil.getUserName(userID);
         
-        openWidow(window);
-        dockWindow(window);
+//        openWidow(window);
+//        dockWindow(window);
 //        playWebcamStream(window, userID);
         
+        if (UsersUtil.hasWebcamStream(userID)) {
+          if (webcamWindows.hasWindow(userID)) {
+            webcamWindows.removeWindow(userID);
+          }
+          openViewWindowFor(userID);
+        } 
       }
       
       private function playWebcamStream(window:VideoWindowItf, userID:String):void {
-        if (UsersUtil.hasWebcamStream(userID)) {
-
-        }        
+       
+      }
+      
+      private function openAvatarWindowFor(userID:String):void {
+        
+      }
+      
+      private function openPublishWindowFor(userID:String):void {
+        
+      }
+      
+      private function openViewWindowFor(userID:String):void {
+        var window:VideoWindow = new VideoWindow();
+        window.videoOptions = proxy.videoOptions;       
+        window.resolutions = options.resolutions.split(",");
+        
+        
+//        window.startVideo(proxy.connection, stream);
+        
+        window.title = UsersUtil.getUserName(userID);
+        var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+        windowEvent.window = window;
+        globalDispatcher.dispatchEvent(windowEvent);
+        
+        // this event will dock the window, if it's enabled
+        var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();
+        openVideoEvent.window = window;
+        globalDispatcher.dispatchEvent(openVideoEvent);        
       }
       
       private function openWidow(window:VideoWindowItf):void {
@@ -178,7 +206,7 @@
       }
       
 			private function startPublishing(e:StartBroadcastEvent):void{
-			    LogUtil.debug("Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
+			  LogUtil.debug("Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
 				proxy.startPublishing(e);
 				var broadcastEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
 				broadcastEvent.stream = e.stream;
@@ -236,7 +264,7 @@
       private function connectedToVideoApp():void{
         openWebcamWindows();
         
-//        addToolbarButton();
+        addToolbarButton();
 //        autoStart();
         
         var dispatcher:Dispatcher = new Dispatcher();

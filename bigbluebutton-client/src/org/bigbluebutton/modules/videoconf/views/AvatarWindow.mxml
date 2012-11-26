@@ -182,5 +182,5 @@
   <mx:Glow id="notTalkingEffect" duration="500" alphaFrom="0.3" alphaTo="1.0"
            blurXFrom="30.0" blurXTo="0.0" blurYFrom="30.0" blurYTo="0.0" color="0xFF0000"/>
   	
-
+  <mx:Image source="{bbbLogo}"/>
 </pubVid:VideoWindowItf>
