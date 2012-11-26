@@ -133,6 +133,7 @@
         if (webcamWindows.hasWindow(userID)) {
           closeWindow(userID);
         }
+        
         var window:AvatarWindow = new AvatarWindow();
         window.userID = userID;
         window.title = UsersUtil.getUserName(userID);
@@ -230,9 +231,12 @@
 				}
 				
 				//Make toolbar button enabled again
-
 				button.publishingStatus(button.STOP_PUBLISHING);
-				//button.show();
+				
+        if (options.displayAvatar) {
+          openAvatarWindowFor(UsersUtil.getMyUserID());              
+        }
+        
 			}
 			
 			public function stopModule():void {
