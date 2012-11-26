@@ -11,12 +11,8 @@ package org.bigbluebutton.modules.videoconf.maps
   {
     private var webcamWindows:ArrayCollection = new ArrayCollection();
     
-    public function addWindow(userID:String):VideoWindowItf {      
-      var win:VideoWindowItf = new AvatarWindow();
-      win.userID = userID;
-      webcamWindows.addItem(win);
-      
-      return win;
+    public function addWindow(window:VideoWindowItf):void {      
+      webcamWindows.addItem(window);
     }
     
     public function removeWindow(userID:String):VideoWindowItf {
