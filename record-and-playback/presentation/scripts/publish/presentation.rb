@@ -469,7 +469,7 @@ def processShapesAndClears
 			# Print out the gathered/detected images. 
 			$slides_compiled.each do |key, val|
 				$val = val
-				$xml.image(:id => "image#{$val[2].to_i}", :in => $val[0].join(' '), :out => $val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => :hidden, :text => $val[3])
+				$xml.image(:id => "image#{$val[2].to_i}", :in => $val[0].join(' '), :out => $val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => :hidden, :text => $val[3], :x => 0)
 				$canvas_number+=1
 				$xml.g(:class => :canvas, :id => "canvas#{$val[2].to_i}", :image => "image#{$val[2].to_i}", :display => :none) do
 					
@@ -790,5 +790,6 @@ if ($playback == "presentation")
 end
 
 performance_end = Time.now
+
 
 
