@@ -92,11 +92,7 @@
           var dispatcher:Dispatcher = new Dispatcher();        
           dispatcher.dispatchEvent(new ShareCameraRequestEvent());					       
       }
-           
-//			private function openPublishWindow():void{
-//        openPublishWindowFor(UsersUtil.getMyUserID());
-//			}
-	
+           	
       private function openWebcamWindows():void {
         var uids:ArrayCollection = UsersUtil.getUserIDs();
         
@@ -147,8 +143,7 @@
         publishWindow = new PublishWindow();
         publishWindow.userID = userID;
         publishWindow.camIndex = camIndex;
-        publishWindow.camWidth = camWidth;
-        publishWindow.camHeight = camHeight;
+        publishWindow.setResolution(camWidth, camHeight);
         publishWindow.videoOptions = proxy.videoOptions;
         publishWindow.quality = options.videoQuality;
         publishWindow.resolutions = options.resolutions.split(",");
@@ -286,12 +281,7 @@
         var cameraIndex:int = event.payload.cameraIndex;
         var camWidth:int = event.payload.cameraWidth;
         var camHeight:int = event.payload.cameraHeight;
-        if (webcamWindows.hasWindow(UsersUtil.getMyUserID())) {
-//          var webcamWindow:WebcamWindow = webcamWindows.getWindow(UsersUtil.getMyUserID());
-          //        var bStream:BroadcastStream = new BroadcastStream(UsersUtil.getMyUserID(), _conn.
-//          webcamWindow.publish(cameraIndex, camWidth, camHeight);
-        }
-        
+      
         openPublishWindowFor(UsersUtil.getMyUserID(), cameraIndex, camWidth, camHeight);
         
       }

@@ -25,7 +25,7 @@
 	xmlns:pubVid="org.bigbluebutton.modules.videoconf.business.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="init()"
-	width="{defaultWidth + 6}" height="{defaultHeight + 75}" 
+	width="{defaultWidth + 6}" height="{defaultHeight + 6}" 
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()"
 	horizontalScrollPolicy="off"
@@ -66,8 +66,8 @@
 			[Bindable] private var defaultHeight:Number = 240;
 			
       public var camIndex:int = 0;
-			public var camWidth:Number = 320;
-      public var camHeight:Number = 240;
+			private var camWidth:Number = 320;
+      private var camHeight:Number = 240;
 			private var _camera:Camera = null;
 			public var quality:Number = 0;
 						
@@ -176,7 +176,7 @@
 				_camera.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
 				
 				if (_camera.width != camWidth || _camera.height != camHeight) {
-					LogUtil.debug("Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
+					trace("Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
 					setResolution(_camera.width, _camera.height);
 				}				
 				
@@ -202,8 +202,8 @@
 			private function onActivityEvent(e:ActivityEvent):void {
 			    if (_waitingForActivation && e.activating) {
 			        _activationTimer.stop();
-					showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
-			     	_waitingForActivation = false;
+					    showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
+			     	  _waitingForActivation = false;
 			    }
 			}
 
@@ -296,7 +296,7 @@
 			}
 			
 		
-			private function setResolution(width:int, height:int):void {
+			public function setResolution(width:int, height:int):void {
 				camWidth = originalWidth = width;
 				camHeight = originalHeight = height;
 				setAspectRatio(camWidth, camHeight);
