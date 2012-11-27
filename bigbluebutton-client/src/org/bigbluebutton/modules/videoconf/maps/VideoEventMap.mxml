@@ -23,8 +23,10 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;     
-      import mx.collections.ArrayCollection;     
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.collections.ArrayCollection;
+      
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.OpenWindowEvent;
       import org.bigbluebutton.common.events.ToolbarButtonEvent;
@@ -91,9 +93,9 @@
           dispatcher.dispatchEvent(new ShareCameraRequestEvent());					       
       }
            
-			private function openPublishWindow():void{
-        openPublishWindowFor(UsersUtil.getMyUserID());
-			}
+//			private function openPublishWindow():void{
+//        openPublishWindowFor(UsersUtil.getMyUserID());
+//			}
 	
       private function openWebcamWindows():void {
         var uids:ArrayCollection = UsersUtil.getUserIDs();
@@ -141,9 +143,12 @@
         dockWindow(window);          
       }
       
-      private function openPublishWindowFor(userID:String):void {
+      private function openPublishWindowFor(userID:String, camIndex:int, camWidth:int, camHeight:int):void {
         publishWindow = new PublishWindow();
         publishWindow.userID = userID;
+        publishWindow.camIndex = camIndex;
+        publishWindow.camWidth = camWidth;
+        publishWindow.camHeight = camHeight;
         publishWindow.videoOptions = proxy.videoOptions;
         publishWindow.quality = options.videoQuality;
         publishWindow.resolutions = options.resolutions.split(",");
@@ -156,7 +161,8 @@
         
         trace("Opening PUBLISH window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
         
-        openWindow(publishWindow);        
+        openWindow(publishWindow);     
+        dockWindow(publishWindow);  
       }
       
       private function closeWindow(userID:String):void {
@@ -231,8 +237,7 @@
 				
         if (options.displayAvatar) {
           openAvatarWindowFor(UsersUtil.getMyUserID());              
-        }
-        
+        }        
 			}
 			
       public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
@@ -276,10 +281,28 @@
         addToolbarButton();
         openWebcamWindows();        
       }
+      
+      private function handleCameraSetting(event:BBBEvent):void {      
+        var cameraIndex:int = event.payload.cameraIndex;
+        var camWidth:int = event.payload.cameraWidth;
+        var camHeight:int = event.payload.cameraHeight;
+        if (webcamWindows.hasWindow(UsersUtil.getMyUserID())) {
+//          var webcamWindow:WebcamWindow = webcamWindows.getWindow(UsersUtil.getMyUserID());
+          //        var bStream:BroadcastStream = new BroadcastStream(UsersUtil.getMyUserID(), _conn.
+//          webcamWindow.publish(cameraIndex, camWidth, camHeight);
+        }
+        
+        openPublishWindowFor(UsersUtil.getMyUserID(), cameraIndex, camWidth, camHeight);
+        
+      }
 			
 		]]>
 	</mx:Script>
 	
+  <EventHandlers type="{BBBEvent.CAMERA_SETTING}" >
+    <InlineInvoker method="handleCameraSetting" arguments="{event}"/>
+  </EventHandlers>
+  
   <EventHandlers type="{ConnectAppEvent.CONNECT_VIDEO_APP}">
     <InlineInvoker method="connectToVideoApp" />
   </EventHandlers>
