@@ -23,10 +23,8 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.collections.ArrayCollection;
-      
+      import com.asfusion.mate.events.Dispatcher;     
+      import mx.collections.ArrayCollection;     
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.OpenWindowEvent;
       import org.bigbluebutton.common.events.ToolbarButtonEvent;
@@ -70,10 +68,8 @@
 			
 			private function viewCamera(userID:String, stream:String, name:String, mock:Boolean = false):void {
         LogUtil.debug("Viewing [" + userID + " stream [" + stream + "]");
-				if (UserManager.getInstance().getConference().amIThisUser(userID)) return;
-				
+				if (UserManager.getInstance().getConference().amIThisUser(userID)) return;				
         openViewWindowFor(userID);
-
 			}
 
 			private function viewVideoFile(e:BBBEvent):void {
@@ -239,6 +235,17 @@
         
 			}
 			
+      public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
+        openWebcamPreview();
+      }
+      
+      private function openWebcamPreview():void {
+        var openEvent:BBBEvent = new BBBEvent(BBBEvent.OPEN_WEBCAM_PREVIEW);
+        openEvent.payload.resolutions = options.resolutions;
+        
+        globalDispatcher.dispatchEvent(openEvent);      
+      }
+      
 			public function stopModule():void {
 				closeAllWindows();
 				proxy.disconnect();
@@ -278,7 +285,7 @@
   </EventHandlers>
   
 	<EventHandlers type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}">
-		<InlineInvoker method="openPublishWindow" />
+		<InlineInvoker method="handleShareCameraRequestEvent" arguments="{event}"/>
 	</EventHandlers>
 
 	<EventHandlers type="{ClosePublishWindowEvent.CLOSE_PUBLISH_WINDOW}">

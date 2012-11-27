@@ -34,14 +34,13 @@
 	
   <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
   <mate:Listener type="{EventConstants.NEW_ROLE}" method="handleNewRoleEvent" />
+  <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
   
 	<mx:Script>
 		<![CDATA[
-      import flexlib.mdi.events.MDIWindowEvent;
-      
+      import flexlib.mdi.events.MDIWindowEvent;      
       import mx.core.UIComponent;
-      import mx.events.ResizeEvent;
-      
+      import mx.events.ResizeEvent;      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.Role;
@@ -428,6 +427,5 @@
 		<mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" change="updateCamera()"/>
 		<mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" change="updateCamera()"/>
 	</mx:ControlBar>
-	
-	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
+
 </pubVid:VideoWindowItf>

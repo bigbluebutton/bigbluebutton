@@ -44,7 +44,8 @@
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarComponent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarComponent"/>
 	<mate:Listener type="{ShortcutEvent.OPEN_SHORTCUT_WIN}" method="openShortcutHelpWindow" />
-	
+  <mate:Listener type="{BBBEvent.OPEN_WEBCAM_PREVIEW}" method="openVideoPreviewWindow" />
+  
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -274,6 +275,18 @@
 				micSettings.y = point1.y - (micSettings.height/2);	
 			}
 			
+      private function openVideoPreviewWindow(event:BBBEvent):void {
+        var camSettings:CameraDisplaySettings = CameraDisplaySettings(PopUpManager.createPopUp(mdiCanvas, CameraDisplaySettings, true));		
+        camSettings.resolutions = (event.payload.resolutions as String).split(",");
+        
+        var point1:Point = new Point();
+        // Calculate position of TitleWindow in Application's coordinates. 
+        point1.x = width/2;
+        point1.y = height/2;                
+        camSettings.x = point1.x - (camSettings.width/2);
+        camSettings.y = point1.y - (camSettings.height/2);	
+      }
+      
 	   		private function wrongLocaleVersion():void {
 				var localeWindow:OldLocaleWarnWindow = OldLocaleWarnWindow(PopUpManager.createPopUp(mdiCanvas, OldLocaleWarnWindow, false));
 

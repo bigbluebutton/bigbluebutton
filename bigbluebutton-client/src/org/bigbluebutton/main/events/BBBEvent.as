@@ -38,6 +38,8 @@ package org.bigbluebutton.main.events {
     public static const USER_VOICE_LOCKED:String = "user voice locked event";
     public static const USER_VOICE_LEFT:String = "user voice left event";
     public static const USER_VOICE_TALKING:String = "user voice talking event";
+    public static const CAMERA_SETTING:String = "camera settings event";
+    public static const OPEN_WEBCAM_PREVIEW:String = "open webcam preview event";
     
 		public var message:String;
 		public var payload:Object = new Object();
