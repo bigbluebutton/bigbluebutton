@@ -38,9 +38,11 @@
   
 	<mx:Script>
 		<![CDATA[
-      import flexlib.mdi.events.MDIWindowEvent;      
+      import flexlib.mdi.events.MDIWindowEvent;
+      
       import mx.core.UIComponent;
-      import mx.events.ResizeEvent;      
+      import mx.events.ResizeEvent;
+      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.Role;
@@ -59,9 +61,6 @@
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
-			[Bindable] public var camIcon:Class = images.control_play;
-			[Bindable] public var bbbLogo:Class = images.bbb_logo;
-
 			[Bindable] private var defaultWidth:Number = 320;
 			[Bindable] private var defaultHeight:Number = 240;
 			
@@ -88,6 +87,12 @@
 			[Bindable]
 			public var videoOptions:VideoConfOptions;
 			
+      private var windowType:String = "PublishWindowType";
+      
+      override public function getWindowType():String {
+        return windowType;
+      }
+      
 			private function init():void{
 				_videoHolder = new UIComponent();
 				_videoHolder.width = camWidth;
@@ -103,16 +108,7 @@
 				this.resizable = false;
 							
 				this.visible = videoOptions.publishWindowVisible;
-				
-				if (videoOptions.autoStart) {
-					/*
-					 * Need to have a timer to trigger auto-publishing of webcam.
-					 */
-					autoPublishTimer = new Timer(3000, 1);
-					autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
-					autoPublishTimer.start();
-				}
-				
+								
 				// start the camera preview
 				updateCamera();
 			}
@@ -140,14 +136,13 @@
       		
 			private function updateCamera():void {
 				stopCamera();
-			
-			
+					
 				if (Camera.names.length == 0) {
 					showWarning('bbb.video.publish.hint.noCamera');
 					return;
 				}
 				
-				_camera = Camera.getCamera(new Number(camIndex).toString());
+        _camera = Camera.getCamera();
 				if (_camera == null) {
 					showWarning('bbb.video.publish.hint.cantOpenCamera');
 					return;
@@ -168,8 +163,8 @@
 					onCameraAccessAllowed();
 				}
 
-			    _camera.addEventListener(ActivityEvent.ACTIVITY, onActivityEvent);
-			    _camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
+			  _camera.addEventListener(ActivityEvent.ACTIVITY, onActivityEvent);
+			  _camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
 				
 				_camera.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
 				_camera.setMode(camWidth, camHeight, videoOptions.camModeFps);
@@ -196,7 +191,7 @@
 				}				
 
 				_videoHolder.addChild(_video);
-        
+                
    		}
    		      
 			private function onActivityEvent(e:ActivityEvent):void {
@@ -205,6 +200,10 @@
 					    showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
 			     	  _waitingForActivation = false;
 			    }
+          
+          autoPublishTimer = new Timer(3000, 1);
+          autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
+          autoPublishTimer.start();
 			}
 
 			private function onStatusEvent(e:StatusEvent):void {
@@ -241,9 +240,10 @@
 			private function startPublishing():void{
 				if (_camera == null) return;
 
-				if (autoPublishTimer != null)
-					autoPublishTimer.stop();
-
+				if (autoPublishTimer != null) {
+          autoPublishTimer.stop();
+        }
+					
 				showWarning('bbb.video.publish.hint.publishing', true, "0xFFFF00");
 				
 				defaultWidth = originalWidth;
@@ -274,8 +274,8 @@
 			}
 			
 			override public function close(event:MouseEvent=null):void{
+        trace("PublishWindow::close");
 				stopPublishing();
-				super.close(event);
 			}
 			
 			private function stopCamera():void {
@@ -289,6 +289,7 @@
 			}
 			
 			private function stopPublishing():void{
+        trace("PublishWindow::stopPublishing");
 				stopCamera();
 				var e:StopBroadcastEvent = new StopBroadcastEvent()
 				e.stream = streamName;
@@ -318,12 +319,13 @@
 			
 			
 			private function closeWindow(e:CloseAllWindowsEvent):void{
+        trace("PublishWindow::closeWindow");
 				closeThisWindow();
 			}
 			
 			private function closeThisWindow():void {
+        trace("PublishWindow::closeThisWindow");
 				stopCamera();
-				this.close();
 			}
 					
 			private var hideWarningTimer:Timer = null;
@@ -360,7 +362,8 @@
   
 	<mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
 	<mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
-	<mx:Text id="lblWarning" width="100%" textAlign="right" fontSize="14" fontWeight="bold" y="{this.height - lblWarning.height - 30}" visible="false" selectable="false" hideEffect="{dissolveOut}" showEffect="{dissolveIn}"/>
+	<mx:Text id="lblWarning" width="100%" textAlign="right" fontSize="14" fontWeight="bold" y="{this.height - lblWarning.height - 30}" 
+           visible="false" selectable="false" hideEffect="{dissolveOut}" showEffect="{dissolveIn}"/>
 
 
 </pubVid:VideoWindowItf>

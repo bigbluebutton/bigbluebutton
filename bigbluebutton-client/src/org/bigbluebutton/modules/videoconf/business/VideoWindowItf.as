@@ -64,13 +64,19 @@ package org.bigbluebutton.modules.videoconf.business
 		protected var mousePositionOnDragStart:Point;
 		
 		public var streamName:String;
-
+    
+    private var windowType:String = "VideoWindowItf";
+    
     public var userID:String = null;
 
     protected var _controlButtons:ControlButtons = new ControlButtons();
 		
     [Bindable] public var resolutions:Array;
-		
+
+    public function getWindowType():String {
+      return windowType;
+    }
+    
     protected function switchRole(presenter:Boolean):void {
       _controlButtons.handleNewRoleEvent(presenter);
     }

@@ -28,6 +28,7 @@
       import mx.collections.ArrayCollection;
       
       import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
       import org.bigbluebutton.common.events.OpenWindowEvent;
       import org.bigbluebutton.common.events.ToolbarButtonEvent;
       import org.bigbluebutton.core.UsersUtil;
@@ -60,7 +61,7 @@
       private var webcamWindows:WindowManager = new WindowManager();
       
 			private var button:ToolbarButton;
-			private var publishWindow:PublishWindow;
+//			private var publishWindow:PublishWindow;
 			private var proxy:VideoProxy;
 
 			// This variable is used to avoid dispatching the BroadcastStoppedEvent
@@ -123,11 +124,7 @@
        
       }
       
-      private function openAvatarWindowFor(userID:String):void {
-        if (webcamWindows.hasWindow(userID)) {
-          closeWindow(userID);
-        }
-        
+      private function openAvatarWindowFor(userID:String):void {      
         var window:AvatarWindow = new AvatarWindow();
         window.userID = userID;
         window.title = UsersUtil.getUserName(userID);
@@ -140,7 +137,7 @@
       }
       
       private function openPublishWindowFor(userID:String, camIndex:int, camWidth:int, camHeight:int):void {
-        publishWindow = new PublishWindow();
+        var publishWindow:PublishWindow = new PublishWindow();
         publishWindow.userID = userID;
         publishWindow.camIndex = camIndex;
         publishWindow.setResolution(camWidth, camHeight);
@@ -163,6 +160,7 @@
       private function closeWindow(userID:String):void {
         var win:VideoWindowItf = webcamWindows.removeWindow(userID);
         if (win != null) {
+          trace("Closing [" + win.getWindowType() + "] for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
           win.close();
         }
       }
@@ -195,10 +193,6 @@
         globalDispatcher.dispatchEvent(openVideoEvent);         
       }
       
-			private function closePublishWindow():void {
-				publishWindow.close();
-			}
-
       private function connectToVideoApp():void {
         proxy = new VideoProxy(options.uri + "/" + UsersUtil.getInternalMeetingID());
         proxy.connect();
@@ -211,17 +205,16 @@
 				broadcastEvent.stream = e.stream;
 				broadcastEvent.userid = UsersUtil.getMyUserID();
 				globalDispatcher.dispatchEvent(broadcastEvent);
-				publishWindow.title = UsersUtil.getMyUsername() + " (you)";
-				_publishing = true;
 				button.publishingStatus(button.START_PUBLISHING);
 			}
 			
 			private function stopPublishing(e:StopBroadcastEvent):void{
+        trace("Stop publishing");
 				if (_publishing) {
 					proxy.stopBroadcasting();
 					
 					var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
-					broadcastEvent.stream = publishWindow.streamName;
+//					broadcastEvent.stream = publishWindow.streamName;
 					broadcastEvent.userid = UsersUtil.getMyUserID();
 					globalDispatcher.dispatchEvent(broadcastEvent);
 					_publishing = false;
@@ -230,7 +223,18 @@
 				//Make toolbar button enabled again
 				button.publishingStatus(button.STOP_PUBLISHING);
 				
+        if (webcamWindows.hasWindow(UsersUtil.getMyUserID())) {
+          trace("Closing window for [" + UsersUtil.getMyUserID() + "] [" + UsersUtil.getUserName(UsersUtil.getMyUserID()) + "]");
+          var win:VideoWindowItf = webcamWindows.removeWindow(UsersUtil.getMyUserID());
+          if (win != null) {
+            var cwe:CloseWindowEvent = new CloseWindowEvent();
+            cwe.window = win;
+            globalDispatcher.dispatchEvent(cwe);
+          }
+        }
+        
         if (options.displayAvatar) {
+          trace("Opening avatar");
           openAvatarWindowFor(UsersUtil.getMyUserID());              
         }        
 			}
@@ -252,10 +256,10 @@
 			}
 			
 			public function closeAllWindows():void{
-				if (publishWindow != null) {
-					proxy.stopBroadcasting();
-					publishWindow.close();
-				}
+//				if (publishWindow != null) {
+//					proxy.stopBroadcasting();
+//					publishWindow.close();
+//				}
 				globalDispatcher.dispatchEvent(new CloseAllWindowsEvent());
 			}
 			
@@ -268,7 +272,7 @@
 			private function switchToViewer():void{
 				if (options.presenterShareOnly){
 					button.isPresenter = false;
-					if (publishWindow != null) publishWindow.close();
+//					if (publishWindow != null) publishWindow.close();
 				}
 			}
 			
@@ -280,10 +284,8 @@
       private function handleCameraSetting(event:BBBEvent):void {      
         var cameraIndex:int = event.payload.cameraIndex;
         var camWidth:int = event.payload.cameraWidth;
-        var camHeight:int = event.payload.cameraHeight;
-      
-        openPublishWindowFor(UsersUtil.getMyUserID(), cameraIndex, camWidth, camHeight);
-        
+        var camHeight:int = event.payload.cameraHeight;     
+        openPublishWindowFor(UsersUtil.getMyUserID(), cameraIndex, camWidth, camHeight);       
       }
 			
 		]]>
@@ -301,10 +303,6 @@
 		<InlineInvoker method="handleShareCameraRequestEvent" arguments="{event}"/>
 	</EventHandlers>
 
-	<EventHandlers type="{ClosePublishWindowEvent.CLOSE_PUBLISH_WINDOW}">
-		<InlineInvoker method="closePublishWindow" />
-	</EventHandlers>
-	
 	<EventHandlers type="{StartBroadcastEvent.START_BROADCAST}" >
 		<InlineInvoker method="startPublishing" arguments="{event}" />
 	</EventHandlers>

@@ -56,6 +56,12 @@
 			[Bindable]
 			public var videoOptions:VideoConfOptions;
 			
+      private var windowType:String = "VideoWindowType";
+      
+      override public function getWindowType():String {
+        return windowType;
+      }
+      
 			private function init():void{
 				_videoHolder = new UIComponent();
 				_videoHolder.addChild(_video);

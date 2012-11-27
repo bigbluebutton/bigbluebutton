@@ -6,14 +6,11 @@
                 showCloseButton="true" close="onCancelClicked()" keyDown="handleKeyDown(event)">
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import flash.ui.Keyboard;
-      
+      import com.asfusion.mate.events.Dispatcher;      
+      import flash.ui.Keyboard;      
       import mx.events.CloseEvent;
       import mx.events.ItemClickEvent;
-      import mx.managers.PopUpManager;
-      
+      import mx.managers.PopUpManager;      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.UsersUtil;
@@ -195,6 +192,7 @@
         _camera = null;
         _video.attachCamera(null);
         _video.clear();
+        _videoHolder.remove(_video);
         _video = null;        
       }
       
@@ -248,8 +246,6 @@
       
       private function activationTimeout(e:TimerEvent):void {
         _videoHolder.showWarning('bbb.video.publish.hint.cameraIsBeingUsed');
-        // it will try to reopen the camera after the timeout
-        //      updateCamera();
       } 
       
       private function showCameraSettings():void {

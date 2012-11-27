@@ -54,7 +54,6 @@
       import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
       import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
       import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
-      import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       import org.bigbluebutton.common.Role;
@@ -73,6 +72,12 @@
 			[Bindable]
 			public var videoOptions:VideoConfOptions;
 			
+      private var windowType:String = "AvatarWindowType";
+      
+      override public function getWindowType():String {
+        return windowType;
+      }
+      
 			private function init():void {
 				_videoHolder = new UIComponent();
 				_videoHolder.width = camWidth;
@@ -161,8 +166,6 @@
 			
 			private function closeThisWindow():void {
         trace("******************** Closing avatar window *********************");
-	//			stopCamera();
-	//			this.close();
 			}
 			
 
