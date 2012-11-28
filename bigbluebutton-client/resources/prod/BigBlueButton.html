@@ -14,8 +14,6 @@
       //swfobject.registerObject("BigBlueButton", "11", "expressInstall.swf");
       var flashvars = {};
       var params = {};
-      //params.scale = "noscale";
-      //params.movie = "BigBlueButton.swf";
       params.quality = "high";
       params.bgcolor = "#869ca7";
       params.allowfullscreen = "true";
@@ -26,7 +24,8 @@
       attributes.id = "BigBlueButton";
       attributes.name = "BigBlueButton";
       attributes.align = "middle";
-      swfobject.embedSWF("BigBlueButton.swf?v=VERSION", "altFlash", "90%", "100%", "11.0.0", "expressInstall.swf", flashvars, params, attributes);
+      attributes.tabIndex = 0;
+      swfobject.embedSWF("BigBlueButton.swf?v=VERSION", "altFlash", "100%", "100%", "11.0.0", "expressInstall.swf", flashvars, params, attributes);
     </script>
     <script src="lib/jquery-1.5.1.min.js" language="javascript"></script>
     <script src="lib/bigbluebutton.js" language="javascript"></script>
@@ -38,33 +37,11 @@
   <body>
     <button id="enterFlash" onclick="startFlashFocus();">Click to focus the client</button>
     <div id="content">
-    <!-- 
-      <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="100%" height="100%" id="BigBlueButton" name="BigBlueButton" align="middle">
-        <param name="movie" value="BigBlueButton.swf?v=VERSION" />
-        <param name="quality" value="high" />
-        <param name="allowfullscreen" value="true" />
-        <param name="bgcolor" value="#869ca7" />
-        <param name="wmode" value="window" />
-        <param name="allowScriptAccess" value="always" />
-        <param name="seamlesstabbing" value="true" />
-        <!--[if !IE]>->
-          <object type="application/x-shockwave-flash" data="BigBlueButton.swf?v=VERSION" width="100%" height="100%" align="middle">
-            <param name="quality" value="high" />
-            <param name="allowfullscreen" value="true" />
-            <param name="bgcolor" value="#869ca7" />
-            <param name="wmode" value="window" />
-            <param name="allowScriptAccess" value="always" />
-            <param name="seamlesstabbing" value="true" />
-        <!--<![endif]-->
-        <div id="altFlash">
-          <a href="http://www.adobe.com/go/getflashplayer">
-            <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
-          </a>
-        </div>
-        <!--[if !IE]>->
-          </object>
-        <!--<![endif]->
-      </object>-->
+      <div id="altFlash">
+        <a href="http://www.adobe.com/go/getflashplayer">
+          <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+        </a>
+      </div>
     </div>
     <div id="notifications" aria-live="polite" role="region" aria-label="Chat Notifications"></div>
   </body>
