@@ -189,10 +189,9 @@
                 
    		}
    		      
-			private function onActivityEvent(e:ActivityEvent):void {
-        trace("Cam activity event:  waitingForActivation = [" + _waitingForActivation + "] activating = [" + e.activating + "]");
-        
+			private function onActivityEvent(e:ActivityEvent):void {        
         if (_waitingForActivation && e.activating) {
+          trace("Cam activity event:  waitingForActivation = [" + _waitingForActivation + "] activating = [" + e.activating + "]");
           _activationTimer.stop();
           showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
           _waitingForActivation = false;
@@ -221,9 +220,9 @@
           _activationTimer.stop();
         }
 					
-			    _activationTimer = new Timer(10000, 1);
-			    _activationTimer.addEventListener(TimerEvent.TIMER, activationTimeout);
-			    _activationTimer.start();
+        _activationTimer = new Timer(10000, 1);
+        _activationTimer.addEventListener(TimerEvent.TIMER, activationTimeout);
+        _activationTimer.start();
 			}
 			
 			private function onCameraAccessDisallowed():void {

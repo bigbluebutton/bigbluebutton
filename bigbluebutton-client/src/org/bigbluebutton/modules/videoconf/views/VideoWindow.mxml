@@ -104,12 +104,17 @@
         switchRole(event.message.role == Role.PRESENTER)
       }
       
+      private var _closing:Boolean = false;
+      
 			private function onCloseEvent(event:MDIWindowEvent = null):void {
 				LogUtil.debug("ViewWindow closing " + streamName);
-        
-				var stopEvent:StoppedViewingWebcamEvent = new StoppedViewingWebcamEvent();
-        stopEvent.webcamUserID = userID;
-        globalDispatcher.dispatchEvent(stopEvent);
+        if (!_closing) {
+          _closing = true;
+          var stopEvent:StoppedViewingWebcamEvent = new StoppedViewingWebcamEvent();
+          stopEvent.webcamUserID = userID;
+          globalDispatcher.dispatchEvent(stopEvent);          
+        }
+
 			}
 			
       private function handleUserTalkingEvent(event:CoreEvent):void {
