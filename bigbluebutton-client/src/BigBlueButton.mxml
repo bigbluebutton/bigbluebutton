@@ -255,6 +255,7 @@
 
     private function loadKeyCombos():void {
       keyCombos = new Object(); // always start with a fresh array
+      keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.flash.exit') as String)] = ShortcutEvent.FOCUS_AWAY_EVENT;
       keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.listeners.muteme') as String)] = ShortcutEvent.MUTE_ME_EVENT;
       keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput') as String)] = ShortcutEvent.FOCUS_CHAT_INPUT;
       keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chattabs') as String)] = ShortcutEvent.FOCUS_CHAT_TABS;
@@ -262,20 +263,24 @@
       keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo') as String)] = ShortcutEvent.UNDO_WHITEBOARD;
     }
 
-    public function hotkeyCapture():void{
+    private function hotkeyCapture():void{
       LogUtil.debug("Entering hotkeyCapture");
       stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
       ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
       LogUtil.debug("Leaving hotkeyCapture");
     }
 
-    public function handleKeyDown(e:KeyboardEvent) :void {
+    private function handleKeyDown(e:KeyboardEvent) :void {
       var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
                             (e.altKey   ? "alt+"     : "") + e.keyCode;
 
       if (keyCombos[keyPress]) {
         globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
       }
+    }
+    
+    private function loseFocusFromApp(e:Event) {
+      ExternalInterface.call("stopFlashFocus");
     }
     ]]>
   </mx:Script>
@@ -290,4 +295,5 @@
   <mate:Listener type="{BBBEvent.ADDED_LISTENER}" method="handleAddedListenerEvent"/>
   <mate:Listener type="{BBBEvent.PRESENTATION_CONVERTED}" method="handlePresentationConversion"/>
   <mate:Listener type="{BBBEvent.VIDEO_STARTED}" method="videoHasStarted"/>
+  <mate:Listener type="{ShortcutEvent.FOCUS_AWAY_EVENT}" method="loseFocusFromApp"/>
 </mx:Application>
