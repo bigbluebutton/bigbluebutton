@@ -35,12 +35,9 @@
   
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import flexlib.mdi.events.MDIWindowEvent;
-      
-      import mx.core.UIComponent;
-      
+      import com.asfusion.mate.events.Dispatcher;      
+      import flexlib.mdi.events.MDIWindowEvent;     
+      import mx.core.UIComponent;      
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.Role;
       import org.bigbluebutton.common.events.CloseWindowEvent;
@@ -110,9 +107,9 @@
 			private function onCloseEvent(event:MDIWindowEvent = null):void {
 				LogUtil.debug("ViewWindow closing " + streamName);
         
-				var bbbEvt:StoppedViewingWebcamEvent = new StoppedViewingWebcamEvent();
-				bbbEvt.webcamUserID = userID;
-				dispatchEvent(bbbEvt);
+				var stopEvent:StoppedViewingWebcamEvent = new StoppedViewingWebcamEvent();
+        stopEvent.webcamUserID = userID;
+        globalDispatcher.dispatchEvent(stopEvent);
 			}
 			
       private function handleUserTalkingEvent(event:CoreEvent):void {

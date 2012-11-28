@@ -1,9 +1,7 @@
 package org.bigbluebutton.modules.videoconf.maps
 {
-  import flash.events.IEventDispatcher;
-  
-  import mx.collections.ArrayCollection;
-  
+  import flash.events.IEventDispatcher;  
+  import mx.collections.ArrayCollection;  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.common.events.CloseWindowEvent;
   import org.bigbluebutton.common.events.OpenWindowEvent;
@@ -52,7 +50,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function start():void {
-      
+      trace("Video Module Started.");
     }
     
     public function stop():void {
@@ -150,7 +148,7 @@ package org.bigbluebutton.modules.videoconf.maps
     private function openViewWindowFor(userID:String):void {
       var window:VideoWindow = new VideoWindow();
       window.userID = userID;
-      window.videoOptions = proxy.videoOptions;       
+      window.videoOptions = options;       
       window.resolutions = options.resolutions.split(",");
       window.title = UsersUtil.getUserName(userID);
       
@@ -243,13 +241,15 @@ package org.bigbluebutton.modules.videoconf.maps
       _dispatcher.dispatchEvent(new CloseAllWindowsEvent());
     }
     
-    public function switchToPresenter():void{
+    public function switchToPresenter(event:MadePresenterEvent):void{
+      trace("Got Switch to presenter event.");
       if (options.presenterShareOnly){
         button.isPresenter = true;
       }
     }
     
-    public function switchToViewer():void{
+    public function switchToViewer(event:MadePresenterEvent):void{
+      trace("Got Switch to viewer event.");
       if (options.presenterShareOnly){
         button.isPresenter = false;
         //					if (publishWindow != null) publishWindow.close();
@@ -266,6 +266,23 @@ package org.bigbluebutton.modules.videoconf.maps
       var camWidth:int = event.payload.cameraWidth;
       var camHeight:int = event.payload.cameraHeight;     
       openPublishWindowFor(UsersUtil.getMyUserID(), cameraIndex, camWidth, camHeight);       
+    }
+    
+    public function handleStoppedViewingWebcamEvent(event:StoppedViewingWebcamEvent):void {
+      if (webcamWindows.hasWindow(event.webcamUserID)) {
+        var win:VideoWindowItf = webcamWindows.removeWindow(event.webcamUserID);
+        if (win != null) {
+          trace("Closing [" + win.getWindowType() + "] for [" + event.webcamUserID + "] [" + UsersUtil.getUserName(event.webcamUserID) + "]");
+          var cwe:CloseWindowEvent = new CloseWindowEvent();
+          cwe.window = win;
+          _dispatcher.dispatchEvent(cwe);
+        }
+      }
+      
+      if (options.displayAvatar) {
+        trace("Opening avatar");
+        openAvatarWindowFor(event.webcamUserID);              
+      }        
     }
   }
 }

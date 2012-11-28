@@ -34,11 +34,7 @@
       import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
       import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
       import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;
-      import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;
-
-			
-
-			
+      import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;		
 		]]>
 	</mx:Script>
 	
@@ -48,7 +44,6 @@
   </EventHandlers>
  
   <EventHandlers type="{VideoModuleStopEvent.STOP}">
-    <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
     <MethodInvoker generator="{VideoEventMapDelegate}" method="stop"/>
   </EventHandlers>
   
@@ -73,6 +68,7 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{StreamStartedEvent.STREAM_STARTED}">
+    <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
     <MethodInvoker generator="{VideoEventMapDelegate}" method="viewCamera" arguments="{[event.userID, event.stream, event.user]}" />
 	</EventHandlers>
 	
@@ -81,11 +77,13 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" >
-    <MethodInvoker generator="{VideoEventMapDelegate}" method="switchToPresenter" />	
+    <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="switchToPresenter" arguments="{event}"/>	
 	</EventHandlers>
 	
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
-    <MethodInvoker generator="{VideoEventMapDelegate}" method="switchToViewer" />
+    <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="switchToViewer" arguments="{event}"/>
 	</EventHandlers>
 
   <EventHandlers type="{ConnectedEvent.VIDEO_CONNECTED}">

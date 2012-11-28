@@ -69,6 +69,7 @@
 			}
 			
 			public function start(attributes:Object):void {	
+        trace("Starting Video Module");
         var globalDispatcher:Dispatcher = new Dispatcher();
         globalDispatcher.dispatchEvent(new VideoModuleStartEvent(VideoModuleStartEvent.START));
 			}
