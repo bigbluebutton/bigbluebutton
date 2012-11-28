@@ -3,13 +3,16 @@
 	xmlns:maps="org.bigbluebutton.modules.videoconf.maps.*" implements="org.bigbluebutton.common.IBigBlueButtonModule">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
-			import com.asfusion.mate.events.Dispatcher;			
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
-			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.common.events.OpenWindowEvent;
+      import org.bigbluebutton.modules.videoconf.business.VideoProxy;
+      import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+      import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+      import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
+      import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;
 			
 			private var _moduleName:String = "Videoconf Module";			
 			private var _attributes:Object; 
@@ -66,12 +69,13 @@
 			}
 			
 			public function start(attributes:Object):void {	
-				LogUtil.debug("Videoconf attr: " + attributes.username);
-				_attributes = attributes;
+        var globalDispatcher:Dispatcher = new Dispatcher();
+        globalDispatcher.dispatchEvent(new VideoModuleStartEvent(VideoModuleStartEvent.START));
 			}
 		
 			public function stop():void {
-				eventMap.stopModule();
+        var globalDispatcher:Dispatcher = new Dispatcher();
+        globalDispatcher.dispatchEvent(new VideoModuleStopEvent(VideoModuleStopEvent.STOP));
 			}
 			
 		]]>

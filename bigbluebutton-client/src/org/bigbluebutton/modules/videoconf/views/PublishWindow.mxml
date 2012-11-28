@@ -38,11 +38,9 @@
   
 	<mx:Script>
 		<![CDATA[
-      import flexlib.mdi.events.MDIWindowEvent;
-      
+      import flexlib.mdi.events.MDIWindowEvent;      
       import mx.core.UIComponent;
-      import mx.events.ResizeEvent;
-      
+      import mx.events.ResizeEvent;      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.Role;
@@ -100,8 +98,6 @@
 				this.addChild(_videoHolder);				
 				this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
 
-				if (!isPresenter() && Camera.names.length == 1) startPublishing();
-
 				this.minWidth = _minWidth;
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = false;
@@ -109,7 +105,6 @@
 							
 				this.visible = videoOptions.publishWindowVisible;
 								
-				// start the camera preview
 				updateCamera();
 			}
 
@@ -195,30 +190,28 @@
    		}
    		      
 			private function onActivityEvent(e:ActivityEvent):void {
-			    if (_waitingForActivation && e.activating) {
-			        _activationTimer.stop();
-					    showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
-			     	  _waitingForActivation = false;
+        trace("Cam activity event:  waitingForActivation = [" + _waitingForActivation + "] activating = [" + e.activating + "]");
+        
+        if (_waitingForActivation && e.activating) {
+          _activationTimer.stop();
+          showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
+          _waitingForActivation = false;
               
-              trace("Activating camera");
-              
-              autoPublishTimer = new Timer(3000, 1);
-              autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
-              autoPublishTimer.start();
-			    }
-          
-          trace("Cam activity event [" + e.type + "]");
-
+          trace("Starting auto-publisher timer.");             
+          autoPublishTimer = new Timer(3000, 1);
+          autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
+          autoPublishTimer.start();
+        }
 			}
 
 			private function onStatusEvent(e:StatusEvent):void {
 				if (e.code == "Camera.Unmuted") {
 					onCameraAccessAllowed();
 					// this is just to overwrite the message of waiting for approval
-				    showWarning('bbb.video.publish.hint.openingCamera');
-			    } else if (e.code == "Camera.Muted") {
-			    	onCameraAccessDisallowed();
-			    }
+          showWarning('bbb.video.publish.hint.openingCamera');
+        } else if (e.code == "Camera.Muted") {
+          onCameraAccessDisallowed();
+        }
 			}
 			
 			private function onCameraAccessAllowed():void {
@@ -324,18 +317,12 @@
 				if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return true;
 				else return false;
 			}
-			
-			
+						
 			private function closeWindow(e:CloseAllWindowsEvent):void{
         trace("PublishWindow::closeWindow");
-				closeThisWindow();
+        stopCamera();
 			}
-			
-			private function closeThisWindow():void {
-        trace("PublishWindow::closeThisWindow");
-				stopCamera();
-			}
-					
+							
 			private var hideWarningTimer:Timer = null;
 			
 			private function showWarning(resourceName:String, autoHide:Boolean=false, color:String="0xFF0000"):void {

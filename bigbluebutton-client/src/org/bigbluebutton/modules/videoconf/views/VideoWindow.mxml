@@ -35,20 +35,23 @@
   
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;      
-      import flexlib.mdi.events.MDIWindowEvent;      
-      import mx.controls.Alert;
-      import mx.core.UIComponent;      
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flexlib.mdi.events.MDIWindowEvent;
+      
+      import mx.core.UIComponent;
+      
       import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.Role;
       import org.bigbluebutton.common.events.CloseWindowEvent;
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.events.CoreEvent;
       import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
       import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-      import org.bigbluebutton.common.Role;
       
 			private var ns:NetStream;			
 			private var globalDispatcher:Dispatcher;
@@ -106,8 +109,9 @@
       
 			private function onCloseEvent(event:MDIWindowEvent = null):void {
 				LogUtil.debug("ViewWindow closing " + streamName);
-				var bbbEvt:BBBEvent = new BBBEvent("ViewVideoCloseEvent");
-				bbbEvt.message = streamName;
+        
+				var bbbEvt:StoppedViewingWebcamEvent = new StoppedViewingWebcamEvent();
+				bbbEvt.webcamUserID = userID;
 				dispatchEvent(bbbEvt);
 			}
 			
@@ -144,7 +148,7 @@
 
 
 				if (videoOptions.smoothVideo) {
-					LogUtil.debug("Smoothing video.")
+					trace("Smoothing video.")
 					_video.smoothing = true;
 				} 
 				
@@ -152,7 +156,7 @@
 					var filter:ConvolutionFilter = new flash.filters.ConvolutionFilter();
 					filter.matrixX = 3;
 					filter.matrixY = 3;
-					LogUtil.debug("Applying convolution filter =[" + videoOptions.convolutionFilter + "]");					
+					trace("Applying convolution filter =[" + videoOptions.convolutionFilter + "]");					
 					filter.matrix = videoOptions.convolutionFilter;
 					filter.bias =  videoOptions.filterBias;
 					filter.divisor = videoOptions.filterDivisor;
@@ -171,7 +175,7 @@
 			}
 			
 			public function onMetaData(info:Object):void{
-				LogUtil.debug("metadata: width=" + info.width + " height=" + info.height);
+				trace("metadata: width=" + info.width + " height=" + info.height);
 				_video.width = info.width;
 				_video.height = info.height;
 				setAspectRatio(info.width, info.height);

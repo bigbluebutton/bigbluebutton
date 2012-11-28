@@ -23,320 +23,79 @@
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.collections.ArrayCollection;
-      
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.common.events.CloseWindowEvent;
-      import org.bigbluebutton.common.events.OpenWindowEvent;
-      import org.bigbluebutton.common.events.ToolbarButtonEvent;
-      import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.ConnectAppEvent;
-      import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.MadePresenterEvent;
-      import org.bigbluebutton.main.model.users.BBBUser;
-      import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
-      import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+      import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
       import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
-      import org.bigbluebutton.modules.videoconf.business.VideoProxy;
-      import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
-      import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-      import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
       import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
-      import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
       import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
       import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
       import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
-      import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-      import org.bigbluebutton.modules.videoconf.views.AvatarWindow;
-      import org.bigbluebutton.modules.videoconf.views.PublishWindow;
-      import org.bigbluebutton.modules.videoconf.views.ToolbarButton;
-      import org.bigbluebutton.modules.videoconf.views.VideoWindow;
+      import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
+      import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;
       import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;
-      import org.flexunit.runner.manipulation.filters.IncludeAllFilter;
-			
-      private var options:VideoConfOptions = new VideoConfOptions();
-      private var webcamWindows:WindowManager = new WindowManager();
-      
-			private var button:ToolbarButton;
-//			private var publishWindow:PublishWindow;
-			private var proxy:VideoProxy;
 
-			// This variable is used to avoid dispatching the BroadcastStoppedEvent
-			// when the user just open the publish window and close it before start
-			// publishing
-//			private var _publishing:Boolean = false;		
 			
-			private function viewCamera(userID:String, stream:String, name:String, mock:Boolean = false):void {
-        LogUtil.debug("Viewing [" + userID + " stream [" + stream + "]");
-				if (UserManager.getInstance().getConference().amIThisUser(userID)) return;				
-        openViewWindowFor(userID);
-			}
 
-			private function viewVideoFile(e:BBBEvent):void {
-				viewCamera("1", e.message, e.message, true);
-			}
-						
-			private function addToolbarButton():void{
-				if (proxy.videoOptions.showButton) {
-					button = new ToolbarButton();	  
-					button.isPresenter = !options.presenterShareOnly;
-					var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
-					event.button = button;
-					globalDispatcher.dispatchEvent(event);
-				}
-			}
-			
-      private function autoStart():void {
-          var dispatcher:Dispatcher = new Dispatcher();        
-          dispatcher.dispatchEvent(new ShareCameraRequestEvent());					       
-      }
-           	
-      private function openWebcamWindows():void {
-        var uids:ArrayCollection = UsersUtil.getUserIDs();
-        
-        for (var i:int = 0; i < uids.length; i++) {
-          var u:String = uids.getItemAt(i) as String;
-          openWebcamWindowFor(u); 
-        }
-      }
-      
-      private function openWebcamWindowFor(userID:String):void {       
-        if (! UsersUtil.isMe(userID) && UsersUtil.hasWebcamStream(userID)) {
-          if (webcamWindows.hasWindow(userID)) {
-            closeWindow(userID);
-          }
-          openViewWindowFor(userID);
-        } else {
-          if (UsersUtil.isMe(userID) && options.autoStart) {
-            autoStart();
-          } else {
-            if (options.displayAvatar) {
-              openAvatarWindowFor(userID);              
-            }
-          }
-        }
-      }
-      
-      private function playWebcamStream(window:VideoWindowItf, userID:String):void {
-       
-      }
-      
-      private function openAvatarWindowFor(userID:String):void {      
-        var window:AvatarWindow = new AvatarWindow();
-        window.userID = userID;
-        window.title = UsersUtil.getUserName(userID);
-        
-        webcamWindows.addWindow(window);        
-        trace("Opening AVATAR window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
-        
-        openWindow(window);
-        dockWindow(window);          
-      }
-      
-      private function openPublishWindowFor(userID:String, camIndex:int, camWidth:int, camHeight:int):void {
-        var publishWindow:PublishWindow = new PublishWindow();
-        publishWindow.userID = userID;
-        publishWindow.camIndex = camIndex;
-        publishWindow.setResolution(camWidth, camHeight);
-        publishWindow.videoOptions = proxy.videoOptions;
-        publishWindow.quality = options.videoQuality;
-        publishWindow.resolutions = options.resolutions.split(",");
-
-        if (webcamWindows.hasWindow(userID)) {
-          trace("Closing window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
-          closeWindow(userID);
-        }
-        webcamWindows.addWindow(publishWindow);
-        
-        trace("Opening PUBLISH window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
-        
-        openWindow(publishWindow);     
-        dockWindow(publishWindow);  
-      }
-      
-      private function closeWindow(userID:String):void {
-        var win:VideoWindowItf = webcamWindows.removeWindow(userID);
-        if (win != null) {
-          trace("Closing [" + win.getWindowType() + "] for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
-          win.close();
-        }
-      }
-      
-      private function openViewWindowFor(userID:String):void {
-        var window:VideoWindow = new VideoWindow();
-        window.userID = userID;
-        window.videoOptions = proxy.videoOptions;       
-        window.resolutions = options.resolutions.split(",");
-        window.title = UsersUtil.getUserName(userID);
-        
-        var bbbUser:BBBUser = UsersUtil.getUser(userID);
-        window.startVideo(proxy.connection, bbbUser.streamName);
-        
-        webcamWindows.addWindow(window);        
-        openWindow(window);
-        dockWindow(window);  
-      }
-      
-      private function openWindow(window:VideoWindowItf):void {
-        var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-        windowEvent.window = window;
-        globalDispatcher.dispatchEvent(windowEvent);      
-      }
-      
-      private function dockWindow(window:VideoWindowItf):void {
-        // this event will dock the window, if it's enabled
-        var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();
-        openVideoEvent.window = window;
-        globalDispatcher.dispatchEvent(openVideoEvent);         
-      }
-      
-      private function connectToVideoApp():void {
-        proxy = new VideoProxy(options.uri + "/" + UsersUtil.getInternalMeetingID());
-        proxy.connect();
-      }
-      
-			private function startPublishing(e:StartBroadcastEvent):void{
-			  LogUtil.debug("Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
-        streamName = e.stream;
-        proxy.startPublishing(e);
-				var broadcastEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
-				broadcastEvent.stream = e.stream;
-				broadcastEvent.userid = UsersUtil.getMyUserID();
-				globalDispatcher.dispatchEvent(broadcastEvent);
-				button.publishingStatus(button.START_PUBLISHING);
-			}
-			
-      private var streamName:String;
-      
-			private function stopPublishing(e:StopBroadcastEvent):void{
-        trace("Stop publishing");
-					proxy.stopBroadcasting();
-					
-					var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
-					broadcastEvent.stream = streamName;
-					broadcastEvent.userid = UsersUtil.getMyUserID();
-					globalDispatcher.dispatchEvent(broadcastEvent);
-
-				//Make toolbar button enabled again
-				button.publishingStatus(button.STOP_PUBLISHING);
-				
-        if (webcamWindows.hasWindow(UsersUtil.getMyUserID())) {
-          var win:VideoWindowItf = webcamWindows.removeWindow(UsersUtil.getMyUserID());
-          if (win != null) {
-            trace("Closing [" + win.getWindowType() + "] for [" + UsersUtil.getMyUserID() + "] [" + UsersUtil.getUserName(UsersUtil.getMyUserID()) + "]");
-            var cwe:CloseWindowEvent = new CloseWindowEvent();
-            cwe.window = win;
-            globalDispatcher.dispatchEvent(cwe);
-          }
-        }
-        
-        if (options.displayAvatar) {
-          trace("Opening avatar");
-          openAvatarWindowFor(UsersUtil.getMyUserID());              
-        }        
-			}
-			
-      public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
-        openWebcamPreview();
-      }
-      
-      private function openWebcamPreview():void {
-        var openEvent:BBBEvent = new BBBEvent(BBBEvent.OPEN_WEBCAM_PREVIEW);
-        openEvent.payload.resolutions = options.resolutions;
-        
-        globalDispatcher.dispatchEvent(openEvent);      
-      }
-      
-			public function stopModule():void {
-				closeAllWindows();
-				proxy.disconnect();
-			}
-			
-			public function closeAllWindows():void{
-//				if (publishWindow != null) {
-//					proxy.stopBroadcasting();
-//					publishWindow.close();
-//				}
-				globalDispatcher.dispatchEvent(new CloseAllWindowsEvent());
-			}
-			
-			private function switchToPresenter():void{
-				if (options.presenterShareOnly){
-					button.isPresenter = true;
-				}
-			}
-			
-			private function switchToViewer():void{
-				if (options.presenterShareOnly){
-					button.isPresenter = false;
-//					if (publishWindow != null) publishWindow.close();
-				}
-			}
-			
-      private function connectedToVideoApp():void{
-        addToolbarButton();
-        openWebcamWindows();        
-      }
-      
-      private function handleCameraSetting(event:BBBEvent):void {      
-        var cameraIndex:int = event.payload.cameraIndex;
-        var camWidth:int = event.payload.cameraWidth;
-        var camHeight:int = event.payload.cameraHeight;     
-        openPublishWindowFor(UsersUtil.getMyUserID(), cameraIndex, camWidth, camHeight);       
-      }
 			
 		]]>
 	</mx:Script>
 	
+  <EventHandlers type="{VideoModuleStartEvent.START}">
+    <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="start"/>
+  </EventHandlers>
+ 
+  <EventHandlers type="{VideoModuleStopEvent.STOP}">
+    <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="stop"/>
+  </EventHandlers>
+  
   <EventHandlers type="{BBBEvent.CAMERA_SETTING}" >
-    <InlineInvoker method="handleCameraSetting" arguments="{event}"/>
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleCameraSetting" arguments="{event}"/>
   </EventHandlers>
   
   <EventHandlers type="{ConnectAppEvent.CONNECT_VIDEO_APP}">
-    <InlineInvoker method="connectToVideoApp" />
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectToVideoApp" />
   </EventHandlers>
   
 	<EventHandlers type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}">
-		<InlineInvoker method="handleShareCameraRequestEvent" arguments="{event}"/>
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleShareCameraRequestEvent" arguments="{event}"/>
 	</EventHandlers>
 
 	<EventHandlers type="{StartBroadcastEvent.START_BROADCAST}" >
-		<InlineInvoker method="startPublishing" arguments="{event}" />
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="startPublishing" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{StopBroadcastEvent.STOP_BROADCASTING}" >
-		<InlineInvoker method="stopPublishing" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{BBBEvent.START_VIDEO_STREAM}" >
-		<InlineInvoker method="viewVideoFile" arguments="{event}" />
-	</EventHandlers>
-	
-	<EventHandlers type="{BBBEvent.START_VIDEO_CONNECTION}">
-		<!--<InlineInvoker method="mockConnect" />-->
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="stopPublishing" arguments="{event}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{StreamStartedEvent.STREAM_STARTED}">
-		<InlineInvoker method="viewCamera" arguments="{[event.userID, event.stream, event.user]}" />
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="viewCamera" arguments="{[event.userID, event.stream, event.user]}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{ViewCameraEvent.VIEW_CAMERA_EVENT}">
-		<InlineInvoker method="viewCamera" arguments="{[event.userid, event.stream, event.viewedName]}" />
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="viewCamera" arguments="{[event.userid, event.stream, event.viewedName]}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" >
-		<InlineInvoker method="switchToPresenter" />	
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="switchToPresenter" />	
 	</EventHandlers>
 	
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
-		<InlineInvoker method="switchToViewer" />
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="switchToViewer" />
 	</EventHandlers>
 
   <EventHandlers type="{ConnectedEvent.VIDEO_CONNECTED}">
-    <InlineInvoker method="connectedToVideoApp" />
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="connectedToVideoApp" />
   </EventHandlers>
+  
+  <EventHandlers type="{StoppedViewingWebcamEvent.STOPPED_VIEWING_WEBCAM}">
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleStoppedViewingWebcamEvent"  arguments="{event}"/>
+  </EventHandlers>
+  
+  <!-- ~~~~~~~~~~~~~~~~~~    INJECTORS     ~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   
 </EventMap>

@@ -250,6 +250,7 @@ package org.bigbluebutton.modules.videoconf.business
 		protected function createButtons():void {      
 			// creates the window keeping the aspect ratio 
 			onKeepAspectClick();
+      updateButtonsPosition();
 		}
 		
 		protected function updateButtonsPosition():void {
