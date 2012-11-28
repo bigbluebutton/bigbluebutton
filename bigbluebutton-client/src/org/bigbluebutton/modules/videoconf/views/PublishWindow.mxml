@@ -24,7 +24,7 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:pubVid="org.bigbluebutton.modules.videoconf.business.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	creationComplete="init()"
+	creationComplete="onCreationComplete()"
 	width="{defaultWidth + 6}" height="{defaultHeight + 6}" 
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()"
@@ -91,7 +91,7 @@
         return windowType;
       }
       
-			private function init():void{
+			private function onCreationComplete():void{
 				_videoHolder = new UIComponent();
 				_videoHolder.width = camWidth;
 				_videoHolder.height = camHeight;

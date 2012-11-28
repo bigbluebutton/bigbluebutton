@@ -23,7 +23,7 @@
 <viewVid:VideoWindowItf  
   xmlns:viewVid="org.bigbluebutton.modules.videoconf.business.*"
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	creationComplete="init()"
+	creationComplete="onCreationComplete()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()"
@@ -62,7 +62,7 @@
         return windowType;
       }
       
-			private function init():void{
+			private function onCreationComplete():void{
 				_videoHolder = new UIComponent();
 				_videoHolder.addChild(_video);
 				this.addChild(_videoHolder);

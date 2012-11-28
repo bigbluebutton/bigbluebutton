@@ -73,7 +73,7 @@
 	</EventHandlers>
 	
 	<EventHandlers type="{ViewCameraEvent.VIEW_CAMERA_EVENT}">
-    <MethodInvoker generator="{VideoEventMapDelegate}" method="viewCamera" arguments="{[event.userid, event.stream, event.viewedName]}" />
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="viewCamera" arguments="{[event.userID, event.stream, event.viewedName]}" />
 	</EventHandlers>
 	
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" >

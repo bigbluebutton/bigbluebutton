@@ -43,6 +43,7 @@ package org.bigbluebutton.modules.videoconf.maps
     private var streamName:String;
     
     private var _dispatcher:IEventDispatcher;
+    private var _ready:Boolean = false;
     
     public function VideoEventMapDelegate(dispatcher:IEventDispatcher)
     {
@@ -58,7 +59,8 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function viewCamera(userID:String, stream:String, name:String, mock:Boolean = false):void {
-      LogUtil.debug("Viewing [" + userID + " stream [" + stream + "]");
+      if (!_ready) return;
+      trace("Viewing [" + userID + " stream [" + stream + "]");
       if (! UserManager.getInstance().getConference().amIThisUser(userID)) {
         openViewWindowFor(userID);			
       }      
@@ -146,13 +148,26 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     private function openViewWindowFor(userID:String):void {
+      trace("Opening VIEW window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
+      
       var window:VideoWindow = new VideoWindow();
       window.userID = userID;
       window.videoOptions = options;       
       window.resolutions = options.resolutions.split(",");
       window.title = UsersUtil.getUserName(userID);
       
-      var bbbUser:BBBUser = UsersUtil.getUser(userID);
+      if (webcamWindows.hasWindow(userID)) {
+        var win:VideoWindowItf = webcamWindows.removeWindow(userID);
+        if (win != null) {
+          trace("Closing [" + win.getWindowType() + "] for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
+          closeWindow(userID);
+          var cwe:CloseWindowEvent = new CloseWindowEvent();
+          cwe.window = win;
+          _dispatcher.dispatchEvent(cwe);
+        }
+      }
+      
+      var bbbUser:BBBUser = UsersUtil.getUser(userID);      
       window.startVideo(proxy.connection, bbbUser.streamName);
       
       webcamWindows.addWindow(window);        
@@ -257,6 +272,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function connectedToVideoApp():void{
+      _ready = true;
       addToolbarButton();
       openWebcamWindows();        
     }
