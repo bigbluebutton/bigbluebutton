@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 		   width="20" height="20" click="onClick()" icon="{line_icon}" 
-		   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.line')}" toggle="true">
+		   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.line')}" toggle="true"
+		   accessibilityName="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.line.accessibilityName')}">
 	<mx:Script>
 		<![CDATA[
             import org.bigbluebutton.common.Images;

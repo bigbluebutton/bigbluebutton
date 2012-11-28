@@ -33,7 +33,7 @@
   
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;      
+      import com.asfusion.mate.events.Dispatcher;    
       import flash.events.Event;      
       import mx.controls.Alert;
       import mx.managers.HistoryManager;
@@ -269,17 +269,11 @@
       LogUtil.debug("Leaving hotkeyCapture");
     }
 
-    public function handleKeyDown(e:KeyboardEvent) :void
-    {
+    public function handleKeyDown(e:KeyboardEvent) :void {
       var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
                             (e.altKey   ? "alt+"     : "") + e.keyCode;
-      LogUtil.debug("Chad keypress " + keyPress);
 
-      if (keyCombos[keyPress])
-      {
-        LogUtil.debug("Chad keypress " + keyPress);
-		LogUtil.debug("Chad keypress " + keyCombos[keyPress]);
-		// FOCUS_CHAT_INPUT
+      if (keyCombos[keyPress]) {
         globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
       }
     }
