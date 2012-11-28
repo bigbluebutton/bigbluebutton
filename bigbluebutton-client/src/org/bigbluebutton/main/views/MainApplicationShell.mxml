@@ -241,7 +241,7 @@
 	   		
 	   		private function handleCloseWindowEvent(event:CloseWindowEvent):void {
 	   			var window:IBbbModuleWindow = event.window;
-				mdiCanvas.removeWindow(window);
+				  mdiCanvas.removeWindow(window);
 	   		}
 	   		
 	   		private function resetLayout():void{
@@ -287,7 +287,7 @@
         camSettings.y = point1.y - (camSettings.height/2);	
       }
       
-	   		private function wrongLocaleVersion():void {
+	   	private function wrongLocaleVersion():void {
 				var localeWindow:OldLocaleWarnWindow = OldLocaleWarnWindow(PopUpManager.createPopUp(mdiCanvas, OldLocaleWarnWindow, false));
 
 				var point1:Point = new Point();
@@ -296,7 +296,7 @@
 				point1.y = height/2;              
 				localeWindow.x = point1.x - (localeWindow.width/2);
 				localeWindow.y = point1.y - (localeWindow.height/2);	
-            }
+      }
 			
 			private function handleLogout(e:ConnectionFailedEvent):void {
 				if (layoutOptions.showLogoutWindow) {

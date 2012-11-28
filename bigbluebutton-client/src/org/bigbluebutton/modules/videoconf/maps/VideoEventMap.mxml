@@ -67,7 +67,7 @@
 			// This variable is used to avoid dispatching the BroadcastStoppedEvent
 			// when the user just open the publish window and close it before start
 			// publishing
-			private var _publishing:Boolean = false;		
+//			private var _publishing:Boolean = false;		
 			
 			private function viewCamera(userID:String, stream:String, name:String, mock:Boolean = false):void {
         LogUtil.debug("Viewing [" + userID + " stream [" + stream + "]");
@@ -200,7 +200,8 @@
       
 			private function startPublishing(e:StartBroadcastEvent):void{
 			  LogUtil.debug("Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
-				proxy.startPublishing(e);
+        streamName = e.stream;
+        proxy.startPublishing(e);
 				var broadcastEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
 				broadcastEvent.stream = e.stream;
 				broadcastEvent.userid = UsersUtil.getMyUserID();
@@ -208,25 +209,24 @@
 				button.publishingStatus(button.START_PUBLISHING);
 			}
 			
+      private var streamName:String;
+      
 			private function stopPublishing(e:StopBroadcastEvent):void{
         trace("Stop publishing");
-				if (_publishing) {
 					proxy.stopBroadcasting();
 					
 					var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
-//					broadcastEvent.stream = publishWindow.streamName;
+					broadcastEvent.stream = streamName;
 					broadcastEvent.userid = UsersUtil.getMyUserID();
 					globalDispatcher.dispatchEvent(broadcastEvent);
-					_publishing = false;
-				}
-				
+
 				//Make toolbar button enabled again
 				button.publishingStatus(button.STOP_PUBLISHING);
 				
         if (webcamWindows.hasWindow(UsersUtil.getMyUserID())) {
-          trace("Closing window for [" + UsersUtil.getMyUserID() + "] [" + UsersUtil.getUserName(UsersUtil.getMyUserID()) + "]");
           var win:VideoWindowItf = webcamWindows.removeWindow(UsersUtil.getMyUserID());
           if (win != null) {
+            trace("Closing [" + win.getWindowType() + "] for [" + UsersUtil.getMyUserID() + "] [" + UsersUtil.getUserName(UsersUtil.getMyUserID()) + "]");
             var cwe:CloseWindowEvent = new CloseWindowEvent();
             cwe.window = win;
             globalDispatcher.dispatchEvent(cwe);

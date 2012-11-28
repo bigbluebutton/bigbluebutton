@@ -151,13 +151,16 @@ $Id: $
 			
 			private function onCloseWindow(e:CloseWindowEvent):void {
 				// it should not just undock the window, it should close the window forever
-				if (isVideoWindow(e.window) && this.contains(e.window as VideoWindowItf))
-					this.removeChild(e.window as VideoWindowItf);
+				if (isVideoWindow(e.window) && this.contains(e.window as VideoWindowItf)) {
+          this.removeChild(e.window as VideoWindowItf);
+        }
+					
 			}
 			
 			private function onOpenWindow(e:OpenVideoWindowEvent):void {
-				if (isVideoWindow(e.window) && options.autoDock)
-					addVideoChild(e.window as VideoWindowItf);
+				if (isVideoWindow(e.window) && options.autoDock) {
+          addVideoChild(e.window as VideoWindowItf);
+        }					
 			}
 			
 			private function addVideoChild(window:VideoWindowItf):void {
@@ -186,25 +189,6 @@ $Id: $
 				dispatchEvent(e);
 				
 				this.addChild(window);
-			}
-			
-			private function removeVideoChild(window:VideoWindowItf):void {
-				if (!this.contains(window))
-					return;
-				
-				window.minimizeBtn.visible = true;
-				window.maximizeRestoreBtn.visible = true;
-				window.resizable = true;
-        window.draggable = true;
-        
-				window.removeEventListener(MouseEvent.CLICK, onWindowClick);
-	
-				this.removeChild(window);
-				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				e.window = window;
-				dispatchEvent(e);
-				
-				restoreWindowDimensions(window);
 			}
 			
 			override public function close(event:MouseEvent = null):void {

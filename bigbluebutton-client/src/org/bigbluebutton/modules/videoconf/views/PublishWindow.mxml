@@ -199,11 +199,16 @@
 			        _activationTimer.stop();
 					    showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
 			     	  _waitingForActivation = false;
+              
+              trace("Activating camera");
+              
+              autoPublishTimer = new Timer(3000, 1);
+              autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
+              autoPublishTimer.start();
 			    }
           
-          autoPublishTimer = new Timer(3000, 1);
-          autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
-          autoPublishTimer.start();
+          trace("Cam activity event [" + e.type + "]");
+
 			}
 
 			private function onStatusEvent(e:StatusEvent):void {
@@ -219,8 +224,10 @@
 			private function onCameraAccessAllowed():void {
 				// set timer to ensure that the camera activates.  If not, it might be in use by another application
 				_waitingForActivation = true;
-				if (_activationTimer != null)
-					_activationTimer.stop();
+				if (_activationTimer != null) {
+          _activationTimer.stop();
+        }
+					
 			    _activationTimer = new Timer(10000, 1);
 			    _activationTimer.addEventListener(TimerEvent.TIMER, activationTimeout);
 			    _activationTimer.start();
@@ -279,13 +286,14 @@
 			}
 			
 			private function stopCamera():void {
+        _camera = null;
 				if (_video != null) {
 					_videoHolder.removeChild(_video);
 					_video.attachCamera(null);
 					_video.clear();
 					_video = null;
 				}
-				_camera = null;
+				
 			}
 			
 			private function stopPublishing():void{
