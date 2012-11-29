@@ -58,7 +58,6 @@
       import org.bigbluebutton.util.i18n.ResourceUtil;
       import org.bigbluebutton.common.Role;
       
-			[Bindable] public var camIcon:Class = images.control_play;
 			[Bindable] public var bbbLogo:Class = images.bbb_logo;
 
 			[Bindable] private var defaultWidth:Number = 320;
@@ -66,12 +65,7 @@
 			         
 			private var camWidth:Number = 320;
 			private var camHeight:Number = 240;
-			private var _userrole:String;
-
-			
-			[Bindable]
-			public var videoOptions:VideoConfOptions;
-			
+		
       private var windowType:String = "AvatarWindowType";
       
       override public function getWindowType():String {
@@ -90,7 +84,8 @@
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = false;
 				this.resizable = false;
-				
+				setAspectRatio(camWidth, camHeight);
+        
         startPublishing();
 			}
 			
@@ -126,35 +121,14 @@
 								
         createButtons();
         addControlButtons();
-        		
+        _videoHolder.addChild(_video);		
 			}
 			
 			override public function close(event:MouseEvent=null):void{
         closeThisWindow();
 				super.close(event);
 			}
-			
-			private function stopCamera():void {
-
-			}
-			
-			private function stopPublishing():void{
-
-			}
-			
-
-			
-			public function set userrole(role:String):void{
-				this._userrole = role;
-			}
-			
-			private function isPresenter():Boolean{
-				if (this._userrole == "MODERATOR" || this._userrole == "PRESENTER") return true;
-				else return false;
-			}
-			
-
-			
+					
 			private function closeWindow(e:CloseAllWindowsEvent):void{
 				closeThisWindow();
 			}
@@ -163,7 +137,6 @@
         trace("******************** Closing avatar window for user [" + userID + "]*********************");
 			}
 			
-
 			
 		]]>
 	</mx:Script>
