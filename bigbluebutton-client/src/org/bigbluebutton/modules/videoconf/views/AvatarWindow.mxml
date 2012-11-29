@@ -83,7 +83,6 @@
 				_videoHolder.width = camWidth;
 				_videoHolder.height = camHeight;
 				this.addChild(_videoHolder);				
-				this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
 
         _video = new Video();
 
@@ -92,6 +91,7 @@
 				maximizeRestoreBtn.visible = false;
 				this.resizable = false;
 				
+        startPublishing();
 			}
 			
       private function handleNewRoleEvent(event:CoreEvent):void {
@@ -123,11 +123,7 @@
 				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
 				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
 				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
-				
-        // Store the userid for the publisher. This allows us to control
-        // the user's status from the video window
-        userID = UsersUtil.getMyUserID();
-				
+								
         createButtons();
         addControlButtons();
         		
@@ -164,7 +160,7 @@
 			}
 			
 			private function closeThisWindow():void {
-        trace("******************** Closing avatar window *********************");
+        trace("******************** Closing avatar window for user [" + userID + "]*********************");
 			}
 			
 

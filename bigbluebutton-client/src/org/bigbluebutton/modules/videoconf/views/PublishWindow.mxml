@@ -96,7 +96,6 @@
 				_videoHolder.width = camWidth;
 				_videoHolder.height = camHeight;
 				this.addChild(_videoHolder);				
-				this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
 
 				this.minWidth = _minWidth;
 				this.minHeight = _minHeight;
