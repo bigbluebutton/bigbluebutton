@@ -17,8 +17,10 @@ package org.bigbluebutton.modules.videoconf.maps
     
     public function removeWindow(userID:String):VideoWindowItf {
       for (var i:int = 0; i < webcamWindows.length; i++) {
-        var win:VideoWindowItf = webcamWindows.removeItemAt(i) as VideoWindowItf;
-        if (win.userID == userID) return win;
+        var win:VideoWindowItf = webcamWindows.getItemAt(i) as VideoWindowItf;
+        if (win.userID == userID) {
+          return webcamWindows.removeItemAt(i) as VideoWindowItf;
+        }
       }      
       
       return null;
