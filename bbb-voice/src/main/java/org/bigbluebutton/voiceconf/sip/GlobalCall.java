@@ -3,6 +3,7 @@ package org.bigbluebutton.voiceconf.sip;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.net.DatagramSocket;
 
 public class GlobalCall {
     
@@ -26,6 +27,8 @@ public class GlobalCall {
     public static void removeRoom(String roomName) {
 	System.out.println("REMOVENDO A SALA "+roomName);
 	voiceConference.remove(roomName);
+	numberOfUsers.remove(roomName);
+	
     }
 
     public static void addUser(String roomName) {
@@ -40,6 +43,7 @@ public class GlobalCall {
 		int nUsers = numberOfUsers.get(roomName);
 		nUsers-=1;
 		numberOfUsers.put(roomName, nUsers);
+		System.out.println("REMOVENDO USUARIO: numero eh de " + nUsers);
 	}
     }
 

@@ -114,9 +114,9 @@ public class SipPeer implements SipRegisterAgentListener {
 	SipPeerProfile callerProfileGlobal = SipPeerProfile.copy(registeredProfile);    	
     	
     	CallAgent ca = new CallAgent(sipProvider, callerProfile, audioconfProvider, clientId);
+	ca.setLocalSocketRelatedToGlobal();
 	CallAgent caGlobal = new CallAgent(sipProvider, callerProfileGlobal, audioconfProvider, clientIdGlobal);
-
-    	ca.setClientConnectionManager(clientConnManager);
+	ca.setClientConnectionManager(clientConnManager);
     	ca.setCallStreamFactory(callStreamFactory);
 
 	caGlobal.setClientConnectionManager(clientConnManager);
@@ -142,7 +142,7 @@ public class SipPeer implements SipRegisterAgentListener {
     	
     	SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);    	
     	CallAgent ca = new CallAgent(sipProvider, callerProfile, audioconfProvider, clientId);
-    	ca.setClientConnectionManager(clientConnManager);
+	ca.setClientConnectionManager(clientConnManager);
     	ca.setCallStreamFactory(callStreamFactory);
     	callManager.add(ca);
     	ca.call(callerName, destination);
@@ -151,7 +151,7 @@ public class SipPeer implements SipRegisterAgentListener {
 	public void returnGlobalStream(String clientId, String destination) {
 		SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);    	
     		CallAgent ca = new CallAgent(sipProvider, callerProfile, audioconfProvider, clientId);
-    		ca.setClientConnectionManager(clientConnManager);
+		ca.setClientConnectionManager(clientConnManager);
     		ca.setCallStreamFactory(callStreamFactory);
     		callManager.add(ca);
     		ca.returnGlobalStreamName(clientId, destination);
@@ -180,23 +180,27 @@ public class SipPeer implements SipRegisterAgentListener {
 	else {
 		destination = clientId;
 	}
-	if(ca != null && ca.isTalking() == false)
-		GlobalCall.removeUser(destination);
 
-	if(GlobalCall.roomHasGlobalStream(destination) && GlobalCall.getNumberOfUsers(destination) <= 0) {
-	   CallAgent caGlobal = callManager.removeGlobal(destination);
-	   GlobalCall.removeRoom(destination);
-	   if(caGlobal != null) {
-		caGlobal.hangup();
-	   
-           }	
-	}
-	if (ca != null) {
-           ca.hangup();
+
+	if(ca != null) {
+		if(ca.isTalking()) {
+			System.out.println("CA ESTA FALANDO");
+			ca.hangup();
+		}
+		else {
+			System.out.println("REMOVE USER");
+			GlobalCall.removeUser(destination);
+			ca.hangup();
+			if(GlobalCall.roomHasGlobalStream(destination) && GlobalCall.getNumberOfUsers(destination) <= 0) 				{		
+				System.out.println("REMOVE GLOBAL");
+				CallAgent caGlobal = callManager.removeGlobal(destination);
+	   			GlobalCall.removeRoom(destination);
+				caGlobal.hangup();
+		        }
+               }
         }
-
-        
-    }
+	
+     }
 
     public void unregister() {
     	log.debug( "SIPUser unregister" );

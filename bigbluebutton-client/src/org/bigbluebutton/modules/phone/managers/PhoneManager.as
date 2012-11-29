@@ -41,13 +41,16 @@ package org.bigbluebutton.modules.phone.managers {
 		private var rejoining:Boolean = false;
 		// User has requested to leave the voice conference.
 		private var userHangup:Boolean = false;
-		
+
+		private var globalCall:Boolean = true;
+		private var userRequestedToChangeToGlobal:Boolean = true;
+		private var userRequestedToChange:Boolean = false;
 		
 		public function PhoneManager() {
 			connectionManager = new ConnectionManager();
 			streamManager = new StreamManager();
 		}
-		
+
 		public function setModuleAttributes(attributes:Object):void {
 			this.attributes = attributes;
 			var vxml:XML = BBB.getConfigForModule("PhoneModule");
@@ -56,24 +59,26 @@ package org.bigbluebutton.modules.phone.managers {
 				phoneOptions.showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
 				phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
 				phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
+				phoneOptions.joinGlobal = (vxml.@joinGlobal.toString().toUpperCase() == "TRUE") ? true : false; 
 			}
-			if (phoneOptions.autoJoin) {
-					
-							
-				if (phoneOptions.skipCheck || noMicrophone()) {
-					/*					
-					if (noMicrophone()) {
-						joinVoice(false);
-					} else {
-						joinVoice(true);						
-					}
-					*/
-					joinVoice(false);
-				} else {
-					var dispatcher:Dispatcher = new Dispatcher();
-					dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
-				}
 			
+			if (phoneOptions.autoJoin) {
+				if (phoneOptions.skipCheck) {
+					if (phoneOptions.joinGlobal)
+						joinVoiceGlobal();
+					else if (noMicrophone()) {
+							joinVoice(false);
+						} else {
+							joinVoice(true);						
+						}
+				} else {
+					if (phoneOptions.joinGlobal)
+						joinVoiceGlobal();
+					else {
+						var dispatcher:Dispatcher = new Dispatcher();
+						dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
+					}
+				}
 			}
 		}
 
@@ -89,49 +94,55 @@ package org.bigbluebutton.modules.phone.managers {
 			else
 				streamManager.initWithNoMicrophone();
 		}
-
-		public function muteAudio():void {
-			streamManager.muteAudio();
-		}
 		
-
-		public function unMuteAudio():void {
-			streamManager.unMuteAudio();
-		}
-
-		public function stopOutStream():void {
-			streamManager.stopOutStream();
-		}
-
 		private function setupConnection():void {
 			streamManager.setConnection(connectionManager.getConnection());
 		}
-				
+		
+		public function joinVoiceGlobal():void {
+			userHangup = false;
+			globalCall = true;
+			var uid:String = String(Math.floor(new Date().getTime()));
+			var uname:String = encodeURIComponent(UserManager.getInstance().getConference().getMyUserId() + "-" + attributes.username);
+			connectionManager.connect(uid, attributes.externUserID, uname , attributes.room, attributes.uri);
+		}
+		
+
+		
 		public function joinVoice(autoJoin:Boolean):void {
 			userHangup = false;
+			globalCall = false;
 			setupMic(autoJoin);
 			var uid:String = String(Math.floor(new Date().getTime()));
 			var uname:String = encodeURIComponent(UserManager.getInstance().getConference().getMyUserId() + "-" + attributes.username);
 			connectionManager.connect(uid, attributes.externUserID, uname , attributes.room, attributes.uri);
+					
 		}		
-		
-		public function rejoin():void {
-			if (!rejoining && !userHangup) {
-				// We got disconnected and it's not because the user requested it. Let's rejoin the conference.
-				LogUtil.debug("Rejoining the conference");
-				rejoining = true;
-				joinVoice(withMic);
-			}			
-		}
-				
-		public function dialConference():void {
-			LogUtil.debug("*** Dialling conference ***");
-			connectionManager.doCall(attributes.webvoiceconf);
-		}
 
 		
-		public function beginPublish():void {
-			streamManager.beginPublishing();
+		
+		public function rejoin():void {
+			
+			if (!rejoining && !userHangup) {
+				LogUtil.debug("Rejoining the conference");
+				rejoining = true;
+				if(globalCall == false) {
+					joinVoice(true);
+				}
+				else
+					joinVoiceGlobal();
+			}
+		}
+
+		public function dialConference():void {
+			if(globalCall == false) {
+				LogUtil.debug("*** Talking/Listening ***");
+				connectionManager.doCall(attributes.webvoiceconf);
+			}
+			else {
+				LogUtil.debug("*** Only Listening ***");
+				connectionManager.doCallGlobal(attributes.webvoiceconf);			
+			}
 		}
 		
 		public function callConnected(event:CallConnectedEvent):void {
@@ -141,19 +152,56 @@ package org.bigbluebutton.modules.phone.managers {
 			// We have joined the conference. Reset so that if and when we get disconnected, we
 			// can rejoin automatically.
 			rejoining = false;
+			userHangup = false;
+			var dispatcher:Dispatcher = new Dispatcher();
+			if(globalCall)
+				dispatcher.dispatchEvent(new BBBEvent("LISTENING_ONLY"));
+			else
+				dispatcher.dispatchEvent(new BBBEvent("SPEAKING_AND_LISTENING"));
+			
 		}
 		
 		public function userRequestedHangup():void {
 			LogUtil.debug("User has requested to hangup and leave the conference");
 			userHangup = true;
+			rejoining = false;
+			this.userRequestedToChange = false;
 			hangup();
 		}
+
+		public function userRequestedHangupToChange(event:BBBEvent):void {
+			userHangup = true;
+			rejoining = true;
+			userRequestedToChange = true;
+			userRequestedToChangeToGlobal = event.payload.global;
+			hangup();
+		}
+		public function muteAudio():void {
+			LogUtil.debug("User has requested to mute audio");
+			streamManager.muteAudio();
+		}
+
+		public function unmuteAudio():void {
+			LogUtil.debug("User has requested to unmute audio");
+			streamManager.unmuteAudio();
+		}
+
+				
 		
 		public function hangup():void {
 			if (onCall) {
 				streamManager.stopStreams();
 				connectionManager.doHangUp();
 				onCall = false;
+			}
+			else {
+				if(this.userRequestedToChange) {
+					this.userRequestedToChange = false;
+					if(userRequestedToChangeToGlobal)
+						joinVoiceGlobal();
+					else
+						joinVoice(withMic);
+				}
 			}			
 		}
 	}

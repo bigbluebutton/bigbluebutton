@@ -153,28 +153,7 @@ package org.bigbluebutton.modules.listeners.business
 				 * Let's store the voice userid so we can do push to talk.
 				 */
 				if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
-				     UserManager.getInstance().getConference().muteMyVoice(l.muted);
-				     if(l.muted == false && UserManager.getInstance().getConference().getFirstTimeUnMute()) {
-					   UserManager.getInstance().getConference().setFirstTimeUnMute(false);
-					   dispatcher.dispatchEvent(new BBBEvent("MUTE_AUDIO_CONFIG"));
-				           dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
-					   //dispatcher.dispatchEvent(new BBBEvent("VOICE_CONFERENCE_EVENT_BEGIN_PUBLISH"));
-
-	
-				     }
-				     else {
-					  if(l.muted == true && UserManager.getInstance().getConference().getFirstTimeUnMute() == false) {
-					  	dispatcher.dispatchEvent(new BBBEvent("STOP_OUT_STREAM"));
-						
-						  
-					  }
-					  else if(l.muted == false && UserManager.getInstance().getConference().getFirstTimeUnMute() == false){
-					  	dispatcher.dispatchEvent(new BBBEvent("VOICE_CONFERENCE_EVENT_BEGIN_PUBLISH"));
-					   }
-					 	   
-				     }
-				     
-					
+					UserManager.getInstance().getConference().muteMyVoice(l.muted);
 				}					
 			}					
 		}
@@ -332,7 +311,6 @@ package org.bigbluebutton.modules.listeners.business
 						if (result.count > 0) {
 							for(var p:Object in result.participants) 
 							{
-								
 								var u:Object = result.participants[p]
 								userJoin(u.participant, u.name, u.name, u.muted, u.talking, u.locked);
 							}							

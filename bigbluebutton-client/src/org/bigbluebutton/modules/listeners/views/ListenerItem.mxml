@@ -45,8 +45,7 @@
 			[Bindable] private var statusTooltip : String = "";
 			[Bindable] private var ejectTooltip : String = ResourceUtil.getInstance().getString('bbb.listeners.ejectTooltip');
 			[Bindable] private var moderator:Boolean = false;
-			private var firstMute:Boolean = true;
-
+			
 			public function onRollOver():void{
 				if (moderator) kickUserBtn.visible = true;
 			}

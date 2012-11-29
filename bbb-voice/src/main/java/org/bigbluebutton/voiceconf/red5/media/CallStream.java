@@ -32,6 +32,8 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.IScope;
 import org.red5.server.api.stream.IBroadcastStream;
+import java.net.DatagramSocket;
+
 
 public class CallStream implements StreamObserver {
     private final static Logger log = Red5LoggerFactory.getLogger(CallStream.class, "sip");
@@ -72,6 +74,10 @@ public class CallStream implements StreamObserver {
 		log.debug("Starting userListenStream so that users with no mic can listen.");
 		userListenStream.start();
 		userTalkStream = new FlashToSipAudioStream(flashToSipTranscoder, connInfo.getSocket(), connInfo); 
+    }
+
+    public DatagramSocket getSocket() {
+	return connInfo.getSocket();
     }
     
     public String getTalkStreamName() {

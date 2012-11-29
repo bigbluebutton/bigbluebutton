@@ -152,15 +152,7 @@ package org.bigbluebutton.main.model.users {
 		public function amIThisUser(userid:int):Boolean {
 			return me.userid == userid;
 		}
-
-		public function setFirstTimeUnMute(firstTimeUnMute:Boolean):void {
-			me.firstTimeUnMute = firstTimeUnMute;
-		}
-		
-		public function getFirstTimeUnMute():Boolean {
-			return me.firstTimeUnMute;
-		}
-		
+				
 		public function amIModerator():Boolean {
 			return me.role == Role.MODERATOR;
 		}

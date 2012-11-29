@@ -63,55 +63,52 @@
     
     <EventHandlers type="{StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT}">       
     	<MethodInvoker generator="{PhoneEventMapDelegate}" method="removeToolbarButton"/> 
-		<MethodInvoker generator="{PhoneManager}" method="userRequestedHangup"/>
+		<MethodInvoker generator="{PhoneManager}" method="userRequestedHangup" />
     </EventHandlers>
     
     <EventHandlers type="LEAVE_VOICE_CONFERENCE_EVENT">        
 		<MethodInvoker generator="{PhoneManager}" method="userRequestedHangup"/>
     </EventHandlers>
+
+	<EventHandlers type="ASK_TO_CHANGE_VOICE_CONFERENCE_EVENT">        
+		<MethodInvoker generator="{PhoneManager}" method="userRequestedHangupToChange" arguments="{event}"/>
+   	 </EventHandlers>
+
     
 	<EventHandlers type="JOIN_VOICE_CONFERENCE_EVENT">        
 		<MethodInvoker generator="{PhoneManager}" method="joinVoice" arguments="{event.payload.useMicrophone}"/>
 	</EventHandlers>
 
-	<EventHandlers type="VOICE_CONFERENCE_EVENT_BEGIN_PUBLISH">        
-		<MethodInvoker generator="{PhoneManager}" method="beginPublish"/>
+
+	<EventHandlers type="JOIN_VOICE_CONFERENCE_EVENT_GLOBAL">        
+		<MethodInvoker generator="{PhoneManager}" method="joinVoiceGlobal" arguments="{event.payload.useMicrophone}"/>
 	</EventHandlers>
 
-	<EventHandlers type="MUTE_AUDIO_CONFIG">        
+
+
+	<EventHandlers type="MUTE_AUDIO_VOICE_CONFERENCE">        
 		<MethodInvoker generator="{PhoneManager}" method="muteAudio"/>
 	</EventHandlers>
 
-	<EventHandlers type="UNMUTE_AUDIO_CONFIG">        
-		<MethodInvoker generator="{PhoneManager}" method="unMuteAudio"/>
+	<EventHandlers type="UNMUTE_AUDIO_VOICE_CONFERENCE">        
+		<MethodInvoker generator="{PhoneManager}" method="unmuteAudio"/>
 	</EventHandlers>
 
-	<EventHandlers type="STOP_O2">        
-		<MethodInvoker generator="{PhoneManager}" method="stopOutStream2"/>
-	</EventHandlers>
-
-	<EventHandlers type="STOP_OUT_STREAM">        
-		<MethodInvoker generator="{PhoneManager}" method="stopOutStream"/>
-	</EventHandlers>
-
-
+	
 	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">     
-		<MethodInvoker generator="{PhoneEventMapDelegate}" method="disableToolbarButton"/>
 		<MethodInvoker generator="{PhoneManager}" method="callConnected" arguments="{event}"/>
     </EventHandlers>
     
     <EventHandlers type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">   
     	<MethodInvoker generator="{PhoneManager}" method="hangup" /> 
-		<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableToolbarButton" /> 
-		<MethodInvoker generator="{PhoneManager}" method="rejoin" />
+	<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableToolbarButton" /> 
+	<MethodInvoker generator="{PhoneManager}" method="rejoin" />
     </EventHandlers>
         
     <EventHandlers type="{ConnectionStatusEvent.CONNECTION_STATUS_EVENT}">        
 		<MethodInvoker generator="{PhoneManager}" method="dialConference"/>
     </EventHandlers>
 	
-	<EventHandlers type="{ConnectionStatusEvent.SUCCESS}">        
-		<MethodInvoker generator="{PhoneManager}" method="calledFromGlobal" arguments="ConnectionStatusEvent.SUCCESS"/>
-	</EventHandlers>
+	
     
 </EventMap>

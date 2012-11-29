@@ -56,6 +56,10 @@ package org.bigbluebutton.modules.phone.managers {
 		public function getConnection():NetConnection {
 			return netConnection;
 		}
+
+		public function getConnected():Boolean {
+			return isConnected;
+		}
 		
 		public function connect(uid:String, externUID:String, username:String, room:String, uri:String):void {
 			if (isConnected) return;
@@ -137,6 +141,8 @@ package org.bigbluebutton.modules.phone.managers {
 			event.codec = codec;
 			dispatcher.dispatchEvent(event);
 		}
+
+		
 						
 		//********************************************************************************************
 		//			
@@ -145,10 +151,14 @@ package org.bigbluebutton.modules.phone.managers {
 		//********************************************************************************************		
 		public function doCall(dialStr:String):void {
 			LogUtil.debug("in doCall - Calling " + dialStr);
-			//netConnection.call("voiceconf.call", null, "default", username, dialStr);
-			netConnection.call("voiceconf.call", null, "default", username, dialStr, "true");
+			netConnection.call("voiceconf.call", null, "default", username, dialStr, "false");
 		}
 
+		public function doCallGlobal(dialStr:String):void {
+			LogUtil.debug("in doCallGlobal - Calling " + dialStr + " " + username);
+			netConnection.call("voiceconf.call", null, "default", username, dialStr, "true");
+		}
+				
 		public function doHangUp():void {			
 			if (isConnected) {
 				netConnection.call("voiceconf.hangup", null, "default");

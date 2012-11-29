@@ -40,9 +40,8 @@ public class Service {
 	public Boolean call(String peerId, String callerName, String destination, Boolean global) {
 
 		
-
+		
 		if(global == true) {
-			hangup(peerId); 
 			if(GlobalCall.roomHasGlobalStream(destination) == false) {
 				String extension = callExtensionPattern.format(new String[] { destination });
 				try {
@@ -93,6 +92,7 @@ public class Service {
     	String username = getUsername();		
     	log.debug("{} is requesting to hang up from the conference.", username + "[uid=" + userid + "][clientid=" + clientId + "]");
 		try {
+			System.out.println("USUARIO " + username + " saiu da conferencia AKI OI OI OI");
 			sipPeerManager.hangup(peerId, getClientId());
 			return true;
 		} catch (PeerNotFoundException e) {

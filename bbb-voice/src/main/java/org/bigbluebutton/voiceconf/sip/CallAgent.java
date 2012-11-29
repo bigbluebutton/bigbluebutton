@@ -55,12 +55,14 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     private ClientConnectionManager clientConnManager; 
     private final String clientId;
     private final AudioConferenceProvider portProvider;
-    private DatagramSocket localSocket; 
+    private DatagramSocket localSocket = null; 
     public String _callerName;
     private String _destination;
     private CallAgent caToInit = null;
     private Boolean talking = false;
+    private Boolean socketGlobal = false;
     
+
     private enum CallState {
     	UA_IDLE(0), UA_INCOMING_CALL(1), UA_OUTGOING_CALL(2), UA_ONCALL(3);    	
     	private final int state;
@@ -70,11 +72,18 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 
     private CallState callState;
 
+    
+    public void setLocalSocketRelatedToGlobal() {
+	this.socketGlobal = true;
+    }
+
+
     public String getDestination() {
 	return _destination;
     }
 
     public CallAgent(SipProvider sipProvider, SipPeerProfile userProfile, AudioConferenceProvider portProvider, String clientId) {
+	System.out.println("FUI CRIADO AGORA");
         this.sipProvider = sipProvider;
         this.userProfile = userProfile;
         this.portProvider = portProvider;
@@ -192,11 +201,18 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     /** Closes an ongoing, incoming, or pending call */
     public void hangup() {
     	log.debug("hangup");
-    	
-    	if (callState == CallState.UA_IDLE) return;    	
-    	closeVoiceStreams();        
-    	if (call != null) call.hangup();    
-    	callState = CallState.UA_IDLE; 
+    	if(talking) {
+    		if (callState == CallState.UA_IDLE) return;    	
+    		closeVoiceStreams();        
+    		if (call != null) call.hangup();
+    		callState = CallState.UA_IDLE; 
+	}
+	else {
+		callState = CallState.UA_IDLE; 
+		System.out.println("NAO ESTOU FALANDO");
+		System.out.println(clientId  + " eh o usuario que ta indo");
+		clientConnManager.leaveConference(clientId);
+	}
     }
 
     private DatagramSocket getLocalAudioSocket() throws Exception {
@@ -250,9 +266,9 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 						
 						if(_callerName.contains("GLOBAL_AUDIO") == true) {
 							//String room = _callerName.subSequence(13, _callerName.length()).toString();
-							GlobalCall.addGlobalAudioStream(_destination, callStream.getListenStreamName());
+							GlobalCall.addGlobalAudioStream(_destination, callStream.getListenStreamName());							
 							caToInit.returnGlobalStreamName(caToInit.getCallId(), _destination); 
-							talking = false;
+							talking = true;
 						}
 						else {
 							talking = true;
@@ -298,6 +314,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     private void closeVoiceStreams() {        
     	log.debug("Shutting down the voice streams.");         
         if (callStream != null) {
+		System.out.println("FECHANDO AS VOICE STREAMS");
         	callStream.stop();
         	callStream = null;
         } else {
@@ -412,18 +429,20 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
     
     private void notifyListenersOfOnCallClosed() {
-    	log.debug("notifyListenersOfOnCallClosed for {}", clientId);
+	log.debug("notifyListenersOfOnCallClosed for {}", clientId);
     	clientConnManager.leaveConference(clientId);
-    	cleanup();
+	cleanup();
     }
     
     private void cleanup() {
-    	log.debug("Closing local audio port {}", localSocket.getLocalPort());
-    	if (localSocket != null) {
-    		localSocket.close();
+	if (localSocket != null) {
+		if(talking == true) {
+	    		localSocket.close();
+		}
     	} else {
-    		log.debug("Trying to close un-allocated port {}", localSocket.getLocalPort());
+		log.debug("Trying to close un-allocated port {}", localSocket.getLocalPort());
     	}
+	
     }
     
     /** Callback function called when arriving a BYE request */

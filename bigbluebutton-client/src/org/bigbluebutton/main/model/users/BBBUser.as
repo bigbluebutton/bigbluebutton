@@ -46,7 +46,6 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var voiceMuted:Boolean = false;
 		[Bindable] public var voiceJoined:Boolean = false;
 		[Bindable] public var voiceLocked:Boolean = false;
-		[Bindable] public var firstTimeUnMute:Boolean = true;
 		
 		private var _status:StatusCollection = new StatusCollection();
 				

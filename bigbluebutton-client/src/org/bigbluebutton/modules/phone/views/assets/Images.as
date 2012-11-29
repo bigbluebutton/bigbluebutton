@@ -30,6 +30,13 @@ package org.bigbluebutton.modules.phone.views.assets
 
 	[Embed(source="images/headset_open.png")]
 	public var headsetActiveIcon:Class;  
+
+	[Embed(source="images/sound.png")]
+	public var speakerActiveIcon:Class;  
+	
+	[Embed(source="images/sound_mute.png")]
+	public var speakerInactiveIcon:Class;  
+
        
 	}
 }
