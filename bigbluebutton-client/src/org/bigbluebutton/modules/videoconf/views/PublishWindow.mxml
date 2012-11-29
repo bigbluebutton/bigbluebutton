@@ -272,9 +272,14 @@
         			
 			}
 			
+      private var _isClosing:Boolean = false;
+      
 			override public function close(event:MouseEvent=null):void{
         trace("PublishWindow::close");
-				stopPublishing();
+			  if (!_isClosing) {
+          _isClosing = true;
+          stopPublishing();
+        }
 			}
 			
 			private function stopCamera():void {

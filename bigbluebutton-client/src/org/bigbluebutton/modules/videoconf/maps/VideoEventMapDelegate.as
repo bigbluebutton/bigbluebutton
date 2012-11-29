@@ -1,7 +1,9 @@
 package org.bigbluebutton.modules.videoconf.maps
 {
-  import flash.events.IEventDispatcher;  
-  import mx.collections.ArrayCollection;  
+  import flash.events.IEventDispatcher;
+  
+  import mx.collections.ArrayCollection;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.common.events.CloseWindowEvent;
   import org.bigbluebutton.common.events.OpenWindowEvent;
@@ -12,6 +14,8 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
+  import org.bigbluebutton.main.events.UserJoinedEvent;
+  import org.bigbluebutton.main.events.UserLeftEvent;
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
   import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
@@ -64,6 +68,20 @@ package org.bigbluebutton.modules.videoconf.maps
       if (! UserManager.getInstance().getConference().amIThisUser(userID)) {
         openViewWindowFor(userID);			
       }      
+    }
+
+    public function handleUserLeftEvent(event:UserLeftEvent):void {
+      if (!_ready) return;
+      
+      closeWindow(event.userID);
+    }
+    
+    public function handleUserJoinedEvent(event:UserJoinedEvent):void {
+      if (!_ready) return;
+      
+      if (options.displayAvatar) {
+        openAvatarWindowFor(event.userID);
+      }
     }
     
     private function addToolbarButton():void{
@@ -144,6 +162,9 @@ package org.bigbluebutton.modules.videoconf.maps
       if (win != null) {
         trace("Closing [" + win.getWindowType() + "] for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
         win.close();
+        var cwe:CloseWindowEvent = new CloseWindowEvent();
+        cwe.window = win;
+        _dispatcher.dispatchEvent(cwe);
       }
     }
     
@@ -220,9 +241,7 @@ package org.bigbluebutton.modules.videoconf.maps
         var win:VideoWindowItf = webcamWindows.removeWindow(UsersUtil.getMyUserID());
         if (win != null) {
           trace("Closing [" + win.getWindowType() + "] for [" + UsersUtil.getMyUserID() + "] [" + UsersUtil.getUserName(UsersUtil.getMyUserID()) + "]");
-          var cwe:CloseWindowEvent = new CloseWindowEvent();
-          cwe.window = win;
-          _dispatcher.dispatchEvent(cwe);
+          closeWindow(UsersUtil.getMyUserID());
         }
       }
       
@@ -257,6 +276,8 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function switchToPresenter(event:MadePresenterEvent):void{
+      if (!_ready) return;
+      
       trace("Got Switch to presenter event.");
       if (options.presenterShareOnly){
         button.isPresenter = true;
@@ -264,6 +285,8 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function switchToViewer(event:MadePresenterEvent):void{
+      if (!_ready) return;
+      
       trace("Got Switch to viewer event.");
       if (options.presenterShareOnly){
         button.isPresenter = false;
@@ -289,9 +312,7 @@ package org.bigbluebutton.modules.videoconf.maps
         var win:VideoWindowItf = webcamWindows.removeWindow(event.webcamUserID);
         if (win != null) {
           trace("Closing [" + win.getWindowType() + "] for [" + event.webcamUserID + "] [" + UsersUtil.getUserName(event.webcamUserID) + "]");
-          var cwe:CloseWindowEvent = new CloseWindowEvent();
-          cwe.window = win;
-          _dispatcher.dispatchEvent(cwe);
+          closeWindow(event.webcamUserID);
         }
       }
       

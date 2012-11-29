@@ -25,7 +25,7 @@
 	xmlns:pubVid="org.bigbluebutton.modules.videoconf.business.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	creationComplete="onCreationComplete()"
-	width="{defaultWidth + 6}" height="{defaultHeight + 75}" 
+	width="{defaultWidth + 6}" height="{defaultHeight + 6}" 
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()"
 	horizontalScrollPolicy="off"
@@ -92,7 +92,6 @@
 				maximizeRestoreBtn.visible = false;
 				this.resizable = false;
 				
-
 			}
 			
       private function handleNewRoleEvent(event:CoreEvent):void {

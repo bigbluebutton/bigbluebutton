@@ -27,6 +27,8 @@
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
+      import org.bigbluebutton.main.events.UserJoinedEvent;
+      import org.bigbluebutton.main.events.UserLeftEvent;
       import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
       import org.bigbluebutton.modules.videoconf.events.ConnectedEvent;
       import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
@@ -75,7 +77,17 @@
 	<EventHandlers type="{ViewCameraEvent.VIEW_CAMERA_EVENT}">
     <MethodInvoker generator="{VideoEventMapDelegate}" method="viewCamera" arguments="{[event.userID, event.stream, event.viewedName]}" />
 	</EventHandlers>
-	
+
+  <EventHandlers type="{UserJoinedEvent.JOINED}">
+    <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleUserJoinedEvent" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{UserLeftEvent.LEFT}">
+    <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleUserLeftEvent" arguments="{event}" />
+  </EventHandlers>
+  
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" >
     <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
     <MethodInvoker generator="{VideoEventMapDelegate}" method="switchToPresenter" arguments="{event}"/>	

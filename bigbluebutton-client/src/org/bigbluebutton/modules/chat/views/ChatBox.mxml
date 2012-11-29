@@ -55,20 +55,23 @@
 	<mate:Listener type="{ShortcutEvent.GOREAD_MESSAGE}" method="goToLatestReadMessage" />
   <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
   <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
-  <mate:Listener type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}" method="handleParticipantJoinEvent"/>
+  <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
   
 	<mx:Script>
 		<![CDATA[
       import com.adobe.utils.StringUtil;
-      import com.asfusion.mate.events.Dispatcher;      
+      import com.asfusion.mate.events.Dispatcher;
+      
       import mx.binding.utils.BindingUtils;
       import mx.collections.ArrayCollection;
       import mx.controls.Button;
-      import mx.core.ScrollPolicy;     
+      import mx.core.ScrollPolicy;
+      
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.main.events.ParticipantJoinEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.events.UserJoinedEvent;
+      import org.bigbluebutton.main.events.UserLeftEvent;
       import org.bigbluebutton.modules.chat.ChatConstants;
       import org.bigbluebutton.modules.chat.ChatUtil;
       import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
@@ -196,9 +199,9 @@
         }
       }
       
-      private function handleParticipantJoinEvent(event:ParticipantJoinEvent):void {
+      private function handleUserLeftEvent(event:UserLeftEvent):void {
         // Handle user leaving so that the user won't be talking to someone not there.
-        if (!publicChat && !event.join && event.userID == chatWithUserID) {
+        if (!publicChat && event.userID == chatWithUserID) {
           displayUserHasLeftMessage();
           txtMsgArea.enabled = false;
           scrollToEndOfMessage();
