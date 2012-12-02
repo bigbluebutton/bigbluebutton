@@ -320,7 +320,13 @@ class ApiController {
 	if (! StringUtils.isEmpty(params.defaulLayout)) {
 		us.defaultLayout = params.defaulLayout;
 	}
-	     
+
+    if (! StringUtils.isEmpty(params.avatarURL)) {
+        us.avatarURL = params.avatarURL;
+    } else {
+        us.avatarURL = meeting.defaultAvatarURL
+    }
+    	     
 	// Store the following into a session so we can handle
 	// logout, restarts properly.
 	session['meeting-id'] = us.meetingID
@@ -779,6 +785,7 @@ class ApiController {
               welcome(us.welcome)
 			  logoutUrl(us.logoutUrl)
 			  defaultLayout(us.defaultLayout)
+			  avatarURL(us.avatarURL)
             }
           }
         }

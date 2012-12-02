@@ -71,6 +71,7 @@ package org.bigbluebutton.main.model.users
         UserManager.getInstance().getConference().externalMeetingID = result.externMeetingID;
         UserManager.getInstance().getConference().meetingName = result.confereceName;
         UserManager.getInstance().getConference().internalMeetingID = result.room;
+        UserManager.getInstance().getConference().avatarURL = result.avatarURL;
         
 				_conferenceParameters = new ConferenceParameters();
         _conferenceParameters.meetingName = result.confereceName;

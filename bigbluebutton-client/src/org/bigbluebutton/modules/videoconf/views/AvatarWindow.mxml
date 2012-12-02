@@ -38,11 +38,14 @@
   
 	<mx:Script>
 		<![CDATA[
-      import flexlib.mdi.events.MDIWindowEvent;    
+      import flexlib.mdi.events.MDIWindowEvent;
+      
       import mx.core.UIComponent;
-      import mx.events.ResizeEvent;     
+      import mx.events.ResizeEvent;
+      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.Role;
       import org.bigbluebutton.common.events.CloseWindowEvent;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
       import org.bigbluebutton.core.EventConstants;
@@ -56,10 +59,7 @@
       import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-      import org.bigbluebutton.common.Role;
       
-			[Bindable] public var bbbLogo:Class = images.bbb_logo;
-
 			[Bindable] private var defaultWidth:Number = 320;
 			[Bindable] private var defaultHeight:Number = 240;
 			         
@@ -70,6 +70,23 @@
       
       override public function getWindowType():String {
         return windowType;
+      }
+      
+      private var loader:Loader;
+      private var request:URLRequest;
+      
+      private function loadAvatar():void {
+        loader = new Loader();
+        request = new URLRequest(UsersUtil.getAvatarURL());
+        loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onComplete);
+        loader.load(request);
+        
+      }
+      
+      private function onComplete(event:Event):void {
+        loader.x = (_videoHolder.width - loader.width) / 2;
+        loader.y = (_videoHolder.height - loader.height) / 2;
+        _videoHolder.addChild(loader);
       }
       
 			private function onCreationComplete():void {
@@ -87,8 +104,18 @@
 				setAspectRatio(camWidth, camHeight);
         
         startPublishing();
+        
+        loadAvatar();
 			}
 			
+      override protected function onResize():void {
+        super.onResize();
+        if (loader != null && _videoHolder != null) {
+          loader.x = (_videoHolder.width - loader.width) / 2;
+          loader.y = (_videoHolder.height - loader.height) / 2;          
+        }
+      }
+      
       private function handleNewRoleEvent(event:CoreEvent):void {
         switchRole(event.message.role == Role.PRESENTER)
       }
@@ -117,11 +144,9 @@
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
 				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
 				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
-				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
 								
         createButtons();
-        addControlButtons();
-        _videoHolder.addChild(_video);		
+        addControlButtons();	
 			}
 			
 			override public function close(event:MouseEvent=null):void{
@@ -145,6 +170,5 @@
            blurXFrom="0.0" blurXTo="30.0" blurYFrom="0.0" blurYTo="30.0" color="0xFF0000"/>
   <mx:Glow id="notTalkingEffect" duration="500" alphaFrom="0.3" alphaTo="1.0"
            blurXFrom="30.0" blurXTo="0.0" blurYFrom="30.0" blurYTo="0.0" color="0xFF0000"/>
-  	
-  <mx:Image source="{bbbLogo}"/>
+
 </pubVid:VideoWindowItf>

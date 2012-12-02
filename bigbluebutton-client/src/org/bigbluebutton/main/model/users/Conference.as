@@ -26,6 +26,7 @@ package org.bigbluebutton.main.model.users {
     public var meetingName:String;
     public var externalMeetingID:String;
     public var internalMeetingID:String;
+    public var avatarURL:String;
     
 		[Bindable] private var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;			

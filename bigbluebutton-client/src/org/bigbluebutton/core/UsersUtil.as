@@ -34,6 +34,10 @@ package org.bigbluebutton.core
       return UserManager.getInstance().getConference().internalMeetingID;
     }
     
+    public static function getAvatarURL():String {
+      return UserManager.getInstance().getConference().avatarURL;
+    }
+    
     public static function getExternalMeetingID():String {
       return UserManager.getInstance().getConference().externalMeetingID;
     }
