@@ -281,11 +281,12 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
-      openWebcamPreview();
+      openWebcamPreview(event.publishInClient);
     }
     
-    private function openWebcamPreview():void {
+    private function openWebcamPreview(publishInClient:Boolean):void {
       var openEvent:BBBEvent = new BBBEvent(BBBEvent.OPEN_WEBCAM_PREVIEW);
+      openEvent.payload.publishInClient = publishInClient;
       openEvent.payload.resolutions = options.resolutions;
       
       _dispatcher.dispatchEvent(openEvent);      

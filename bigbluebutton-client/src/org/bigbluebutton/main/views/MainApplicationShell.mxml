@@ -278,6 +278,7 @@
       private function openVideoPreviewWindow(event:BBBEvent):void {
         var camSettings:CameraDisplaySettings = CameraDisplaySettings(PopUpManager.createPopUp(mdiCanvas, CameraDisplaySettings, true));		
         camSettings.resolutions = (event.payload.resolutions as String).split(",");
+        camSettings.publishInClient = event.payload.publishInClient;
         
         var point1:Point = new Point();
         // Calculate position of TitleWindow in Application's coordinates. 

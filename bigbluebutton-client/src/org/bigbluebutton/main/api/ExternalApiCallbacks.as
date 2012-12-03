@@ -176,9 +176,12 @@ package org.bigbluebutton.main.api
       _dispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_CONFERENCE));
     }
     
-    private function onShareVideoCamera():void {
-      LogUtil.debug("Sharing webcam");
-      _dispatcher.dispatchEvent(new ShareCameraRequestEvent());
+    private function onShareVideoCamera(publishInClient:Boolean=true):void {
+      LogUtil.debug("Sharing webcam: publishInClient = [" + publishInClient + "]");
+      var event:ShareCameraRequestEvent = new ShareCameraRequestEvent();
+      event.publishInClient = publishInClient;
+      
+      _dispatcher.dispatchEvent(event);
     }
     
   }

@@ -6,11 +6,14 @@
                 showCloseButton="true" close="onCancelClicked()" keyDown="handleKeyDown(event)">
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;      
-      import flash.ui.Keyboard;      
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.ui.Keyboard;
+      
       import mx.events.CloseEvent;
       import mx.events.ItemClickEvent;
-      import mx.managers.PopUpManager;      
+      import mx.managers.PopUpManager;
+      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.UsersUtil;
@@ -28,6 +31,7 @@
       
       [Bindable]
       public var resolutions:Array;
+      public var publishInClient:Boolean;
       
       public var camWidth:Number = 320;
       public var camHeight:Number = 240;
@@ -182,6 +186,7 @@
         camEvent.payload.cameraIndex = camIndex;
         camEvent.payload.cameraWidth = camWidth;
         camEvent.payload.cameraHeight = camHeight;
+        camEvent.payload.publishInClient = publishInClient;
         
         globalDispatcher.dispatchEvent(camEvent);
         
