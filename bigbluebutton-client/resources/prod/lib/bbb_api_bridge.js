@@ -71,10 +71,14 @@
     /**
      * Share user's webcam.
      */    
-    BBB.shareVideoCamera = function() {
+    BBB.shareVideoCamera = function(publishInClient) {
       var swfObj = getSwfObj();
       if (swfObj) {
-        swfObj.shareVideoCamera(); 
+        if (typeof publishInClient === 'boolean') {
+          swfObj.shareVideoCamera(publishInClient);
+        } else {
+          swfObj.shareVideoCamera();
+        }        
       }
     }
 
