@@ -280,6 +280,12 @@ package org.bigbluebutton.modules.videoconf.maps
       }      
     }
     
+    public function handleClosePublishWindowEvent(event:ClosePublishWindowEvent):void {
+      if (_isPublishing) {
+        stopBroadcasting();
+      }
+    }
+    
     public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
       openWebcamPreview(event.publishInClient);
     }
@@ -298,11 +304,6 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function closeAllWindows():void{
-      //				if (publishWindow != null) {
-      //					proxy.stopBroadcasting();
-      //					publishWindow.close();
-      //				}
-      
       if (_isPublishing) {
         stopBroadcasting();
       }
@@ -344,6 +345,7 @@ package org.bigbluebutton.modules.videoconf.maps
       var cameraIndex:int = event.payload.cameraIndex;
       var camWidth:int = event.payload.cameraWidth;
       var camHeight:int = event.payload.cameraHeight;     
+      
       openPublishWindowFor(UsersUtil.getMyUserID(), cameraIndex, camWidth, camHeight);       
     }
     
