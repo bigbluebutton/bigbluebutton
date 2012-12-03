@@ -48,6 +48,7 @@ package org.bigbluebutton.modules.videoconf.maps
     
     private var _dispatcher:IEventDispatcher;
     private var _ready:Boolean = false;
+    private var _isPublishing:Boolean = false;
     
     public function VideoEventMapDelegate(dispatcher:IEventDispatcher)
     {
@@ -243,6 +244,9 @@ package org.bigbluebutton.modules.videoconf.maps
       LogUtil.debug("[" + me + "] startPublishing:: Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
       streamName = e.stream;
       proxy.startPublishing(e);
+      
+      _isPublishing = true;
+      
       var broadcastEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
       broadcastEvent.stream = e.stream;
       broadcastEvent.userid = UsersUtil.getMyUserID();
@@ -251,8 +255,14 @@ package org.bigbluebutton.modules.videoconf.maps
     }
        
     public function stopPublishing(e:StopBroadcastEvent):void{
-      trace("[" + me + "] Stop publishing. ready = [" + _ready + "]");
+      trace("[" + me + "] Stop publishing. ready = [" + _ready + "]"); 
+      stopBroadcasting();    
+    }
+    
+    private function stopBroadcasting():void {
       proxy.stopBroadcasting();
+      
+      _isPublishing = false;
       
       var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
       broadcastEvent.stream = streamName;
@@ -263,11 +273,11 @@ package org.bigbluebutton.modules.videoconf.maps
       button.publishingStatus(button.STOP_PUBLISHING);
       
       closeWindow(UsersUtil.getMyUserID());
-            
+      
       if (options.displayAvatar) {
         trace("[" + me + "] Opening avatar");
         openAvatarWindowFor(UsersUtil.getMyUserID());              
-      }        
+      }      
     }
     
     public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
@@ -291,6 +301,11 @@ package org.bigbluebutton.modules.videoconf.maps
       //					proxy.stopBroadcasting();
       //					publishWindow.close();
       //				}
+      
+      if (_isPublishing) {
+        stopBroadcasting();
+      }
+      
       _dispatcher.dispatchEvent(new CloseAllWindowsEvent());
     }
     
@@ -311,7 +326,9 @@ package org.bigbluebutton.modules.videoconf.maps
             
       if (options.presenterShareOnly){
         button.isPresenter = false;
-        //					if (publishWindow != null) publishWindow.close();
+        if (_isPublishing) {
+          stopBroadcasting();
+        }
       }
     }
     
