@@ -273,13 +273,15 @@
     private function handleKeyDown(e:KeyboardEvent) :void {
       var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
                             (e.altKey   ? "alt+"     : "") + e.keyCode;
-
+      
+      if (keyCombos == null) loadKeyCombos();                         
       if (keyCombos[keyPress]) {
         globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
       }
     }
     
-    private function loseFocusFromApp(e:Event) {
+    // Moves page focus outside and past the Flash content
+    private function loseFocusFromApp(e:Event):void {
       ExternalInterface.call("stopFlashFocus");
     }
     ]]>
