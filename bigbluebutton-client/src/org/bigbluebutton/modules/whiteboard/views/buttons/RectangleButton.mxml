@@ -2,7 +2,8 @@
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 		   width="20" height="20"
 		   click="onClick()" 
-		   icon="{rectangle_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true">
+		   icon="{rectangle_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle')}" toggle="true" 
+		   accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.rectangle.accessibilityName')}">
 	<mx:Script>
 		<![CDATA[
             import org.bigbluebutton.common.Images;

@@ -42,7 +42,7 @@
 			private var chatKeys:ArrayList;
 			private var audKeys:ArrayList;
 			
-			private var genResource:Array = [];
+			private var genResource:Array = ['bbb.shortcutkey.flash.exit'];
 			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', 'bbb.shortcutkey.whiteboard.undo'];
 			private var chatResource:Array = ['bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.chat.chattabs', 'bbb.shortcutkey.chat.chatbox.advance', 
 											  'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.repeat', 'bbb.shortcutkey.chat.chatbox.golatest', 

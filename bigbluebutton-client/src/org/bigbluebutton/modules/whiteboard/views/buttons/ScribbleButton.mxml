@@ -2,7 +2,8 @@
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 		   width="20" height="20" click="onClick()"  
 		   icon="{scribble_icon}" toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.pencil')}" 
-		   toggle="true" selected="true">
+		   toggle="true" selected="true" 
+		   accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.pencil.accessibilityName')}">
 	<mx:Script>
 		<![CDATA[
             import org.bigbluebutton.common.Images;

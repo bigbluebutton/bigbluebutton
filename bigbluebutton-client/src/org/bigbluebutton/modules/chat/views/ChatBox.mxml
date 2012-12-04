@@ -353,10 +353,12 @@
 			
 			public function handleKeyDown(e:KeyboardEvent) :void {
 				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
+
 				if (keyCombos == null) loadKeyCombos();	
+
 				if (keyCombos[keyPress]) {
 					var event:ShortcutEvent = new ShortcutEvent(keyCombos[keyPress]);
-					event.otherUserID = chatWithUserID; 
+					event.otherUserID = chatWithUserID;
 					globalDispatcher.dispatchEvent(event);
 				}
 			}

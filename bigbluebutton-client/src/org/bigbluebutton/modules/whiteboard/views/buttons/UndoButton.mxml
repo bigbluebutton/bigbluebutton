@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 		   width="20" height="20" click="onClick()" icon="{undo_icon}" 
-		   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo')}">
+		   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo')}" 
+		   accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo.accessibilityName')}">
 	<mx:Script>
 		<![CDATA[
             import org.bigbluebutton.common.Images;
