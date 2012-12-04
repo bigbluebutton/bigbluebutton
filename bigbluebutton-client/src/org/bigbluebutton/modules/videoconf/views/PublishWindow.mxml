@@ -123,6 +123,11 @@
 					autoPublishTimer.start();
 				}
 				
+				titleBarOverlay.enabled = true;
+				maximizeRestoreBtn.enabled = true;
+				
+				//shortcut
+				
 				titleBarOverlay.tabIndex = baseIndex;
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
