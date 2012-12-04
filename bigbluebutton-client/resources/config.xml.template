@@ -74,7 +74,8 @@
 			filterDivisor="4"
 			enableH264 = "true"
 			h264Level = "2.1"
-			h264Profile = "main"			
+			h264Profile = "main"		
+			displayAvatar = "false"	
 		/>
 		
 		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=VERSION" 
