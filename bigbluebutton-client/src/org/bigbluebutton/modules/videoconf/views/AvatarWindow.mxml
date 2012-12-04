@@ -27,7 +27,7 @@
 	creationComplete="onCreationComplete()"
 	width="{defaultWidth + 6}" height="{defaultHeight + 6}" 
 	xmlns:mate="http://mate.asfusion.com/"
-	resize="onResize()"
+	resize="onResize()" 
 	horizontalScrollPolicy="off"
 	verticalScrollPolicy="off"
 	layout="absolute">
@@ -78,15 +78,17 @@
       private function loadAvatar():void {
         loader = new Loader();
         request = new URLRequest(UsersUtil.getAvatarURL());
-        loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onComplete);
+        loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadingComplete);
         loader.load(request);
         
       }
       
-      private function onComplete(event:Event):void {
+      private function onLoadingComplete(event:Event):void {
         loader.x = (_videoHolder.width - loader.width) / 2;
         loader.y = (_videoHolder.height - loader.height) / 2;
         _videoHolder.addChild(loader);
+        
+        onResize();
       }
       
 			private function onCreationComplete():void {
@@ -100,8 +102,16 @@
 				this.minWidth = _minWidth;
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = false;
+        
+        showCloseButton = false;
+        
 				this.resizable = false;
 				setAspectRatio(camWidth, camHeight);
+        
+        addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
+        addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
+        addEventListener(MouseEvent.MOUSE_OVER, showButtons);
+        addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
         
         startPublishing();
         
@@ -110,6 +120,7 @@
 			
       override protected function onResize():void {
         super.onResize();
+        
         if (loader != null && _videoHolder != null) {
           loader.x = (_videoHolder.width - loader.width) / 2;
           loader.y = (_videoHolder.height - loader.height) / 2;          
@@ -140,13 +151,11 @@
 				this.resizable = true;
 				onResize();
 				
-				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
-				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
-				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
-				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
+
 								
         createButtons();
         addControlButtons();	
+        updateButtonsPosition();
 			}
 			
 			override public function close(event:MouseEvent=null):void{

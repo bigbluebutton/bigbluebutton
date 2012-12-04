@@ -103,7 +103,13 @@
 				this.resizable = false;
 							
 				this.visible = videoOptions.publishWindowVisible;
-								
+				
+        addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
+        addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
+        addEventListener(MouseEvent.MOUSE_OVER, showButtons);
+        addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
+        addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+        
 				updateCamera();
 			}
 
@@ -256,11 +262,7 @@
 				this.resizable = true;
 				onResize();
 				
-				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
-				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
-				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
-				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
-				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+
 				
         // Store the userid for the publisher. This allows us to control
         // the user's status from the video window
