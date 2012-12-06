@@ -279,16 +279,16 @@
 	-->
     <wbBtns:PanZoomButton id="panzoomBtn" tabIndex="{baseIndex}"/>
     <mx:Spacer height="10"/>
-	<wbBtns:ScribbleButton id="scribbleBtn" tabIndex="{baseIndex}"/>
-	<wbBtns:RectangleButton id="rectangleBtn" tabIndex="{baseIndex}"/>
-	<wbBtns:CircleButton id="circleBtn" tabIndex="{baseIndex}"/>
-	<wbBtns:TriangleButton id="triangleBtn" tabIndex="{baseIndex}"/>
-	<wbBtns:LineButton id="lineBtn" tabIndex="{baseIndex}"/>
-	<wbBtns:TextButton id="textBtn" tabIndex="{baseIndex}"/>
+	<wbBtns:ScribbleButton id="scribbleBtn" tabIndex="{baseIndex+1}"/>
+	<wbBtns:RectangleButton id="rectangleBtn" tabIndex="{baseIndex+2}"/>
+	<wbBtns:CircleButton id="circleBtn" tabIndex="{baseIndex+3}"/>
+	<wbBtns:TriangleButton id="triangleBtn" tabIndex="{baseIndex+4}"/>
+	<wbBtns:LineButton id="lineBtn" tabIndex="{baseIndex+5}"/>
+	<wbBtns:TextButton id="textBtn" tabIndex="{baseIndex+6}"/>
 		
 	<mx:Spacer height="5"/>
-	<wbBtns:ClearButton id="clearBtn" tabIndex="{baseIndex}"/>
-	<wbBtns:UndoButton id="undoBtn" tabIndex="{baseIndex}"/>
+	<wbBtns:ClearButton id="clearBtn" tabIndex="{baseIndex+7}"/>
+	<wbBtns:UndoButton id="undoBtn" tabIndex="{baseIndex+8}"/>
 	
 	<mx:Spacer height="5"/>
 	
@@ -307,7 +307,7 @@
 					id="cpik"  
 					selectedColor="0x000000" 
 					toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}" 
-					tabIndex="{baseIndex}"/>
+					tabIndex="{baseIndex+9}"/>
    
 	<mx:Spacer height="3" />
 	<mx:Image source="{thick_icon}" horizontalAlign="center" width="20"/>
@@ -323,7 +323,7 @@
 				snapInterval="1" 
 				dataTipOffset="0" 
 				labelOffset="0"
-				tabIndex="{baseIndex}" />
+				tabIndex="{baseIndex+10}" />
 	<mx:Image source="{thin_icon}" horizontalAlign="center" width="20" />
 	
 </mx:VBox>
