@@ -161,6 +161,13 @@ package org.bigbluebutton.modules.listeners.business
 			var l:Listener = _listeners.getListener(userID);			
 			if (l != null) {
 				l.muted = mute;
+        
+        if (l.muted) {
+          // When the user is muted, set the talking flag to false so that the UI will not display the
+          // user as talking even if muted.
+          userTalk(userID, false);
+        }
+        
 				/**
 				 * Let's store the voice userid so we can do push to talk.
 				 */
