@@ -104,17 +104,18 @@
 				}
 			}
 			
-			private function micStatusEventHandler(event:StatusEvent):void {					
+			private function micStatusEventHandler(event:StatusEvent):void {				
+        var joinEvent:BBBEvent;
 				switch(event.code) {
 					case "Microphone.Muted":						
 						LogUtil.warn("Access to microphone has been denied.");
-						var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+						joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
 						joinEvent.payload['useMicrophone'] = false;
 						dispatcher.dispatchEvent(joinEvent);
 						break;
 					case "Microphone.Unmuted":
 						LogUtil.debug("Access to the microphone has been allowed.");
-						var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+						joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
 						joinEvent.payload['useMicrophone'] = true;
 						dispatcher.dispatchEvent(joinEvent);
 						break;
