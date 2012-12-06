@@ -365,4 +365,5 @@
   <mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
   <mx:Text id="lblWarning" width="100%" textAlign="right" fontSize="14" fontWeight="bold" y="{this.height - lblWarning.height - 30}" 
            visible="false" selectable="false" hideEffect="{dissolveOut}" showEffect="{dissolveIn}"/>
+  <mx:Label text="Foo!!!"/>
 </mx:Application>
