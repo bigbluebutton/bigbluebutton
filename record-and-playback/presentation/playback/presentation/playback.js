@@ -301,8 +301,8 @@ document.addEventListener( "DOMContentLoaded", function() {
   }
   
   //load_audio();
-  load_script("lib/writing.js")
-  generateThumbnails();
+  load_script("lib/writing.js");
+  //generateThumbnails();
 
   //load up the acorn controls
   jQuery('#video').acornMediaPlayer({
