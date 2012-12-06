@@ -85,13 +85,13 @@
 			public function muteLocalUser():void {
 				var e:BBBEvent = new BBBEvent("MUTE_AUDIO_VOICE_CONFERENCE");
 				dispatcher.dispatchEvent(e);	
-				this.enabled = true;
 			}
 			public function unmuteLocalUser():void{
 				var e:BBBEvent = new BBBEvent("UNMUTE_AUDIO_VOICE_CONFERENCE");
 				dispatcher.dispatchEvent(e);	
-				this.enabled = true;
 			}
+
+			
 
 			private function mouseOverHandler(event:MouseEvent):void {
 				if(_currentState == LISTENING_STATE)

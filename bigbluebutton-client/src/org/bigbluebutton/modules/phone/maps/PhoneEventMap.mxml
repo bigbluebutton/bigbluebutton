@@ -80,6 +80,9 @@
 	</EventHandlers>
 
 
+	
+
+
 	<EventHandlers type="JOIN_VOICE_CONFERENCE_EVENT_GLOBAL">        
 		<MethodInvoker generator="{PhoneManager}" method="joinVoiceGlobal" arguments="{event.payload.useMicrophone}"/>
 	</EventHandlers>
@@ -94,6 +97,20 @@
 		<MethodInvoker generator="{PhoneManager}" method="unmuteAudio"/>
 	</EventHandlers>
 
+
+	<EventHandlers type="SHOW_MIC_SETTINGS">        
+		<MethodInvoker generator="{PhoneManager}" method="saveAudio"/>
+	</EventHandlers>
+
+	<EventHandlers type="SAVE_TO_ADJUST">        
+		<MethodInvoker generator="{PhoneManager}" method="saveAudio"/>
+	</EventHandlers>
+
+	<EventHandlers type="RESTORE_TO_ADJUST">        
+		<MethodInvoker generator="{PhoneManager}" method="restoreAudio"/>
+	</EventHandlers>
+
+
 	
 	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">     
 		<MethodInvoker generator="{PhoneManager}" method="callConnected" arguments="{event}"/>
@@ -101,14 +118,25 @@
     
     <EventHandlers type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}">   
     	<MethodInvoker generator="{PhoneManager}" method="hangup" /> 
-	<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableToolbarButton" /> 
 	<MethodInvoker generator="{PhoneManager}" method="rejoin" />
     </EventHandlers>
         
     <EventHandlers type="{ConnectionStatusEvent.CONNECTION_STATUS_EVENT}">        
 		<MethodInvoker generator="{PhoneManager}" method="dialConference"/>
     </EventHandlers>
+
+	<EventHandlers type="MUTE_AUDIO_VOICE_CONFERENCE_COMPLETE">        
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableMuteButton"/> 
+    </EventHandlers>
 	
-	
+	<EventHandlers type="UNMUTE_AUDIO_VOICE_CONFERENCE_COMPLETE">        
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableMuteButton"/> 
+    </EventHandlers>
+
+
+	<EventHandlers type="ENABLE_JOIN_BUTTON">        
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableToolbarButton"/> 
+    </EventHandlers>
+
     
 </EventMap>

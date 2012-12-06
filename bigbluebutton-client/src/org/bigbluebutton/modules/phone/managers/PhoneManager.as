@@ -186,6 +186,14 @@ package org.bigbluebutton.modules.phone.managers {
 			streamManager.unmuteAudio();
 		}
 
+		public function saveAudio():void {
+			streamManager.saveAudio();
+		}
+		
+		public function restoreAudio():void {
+			streamManager.restoreAudio();
+		}
+		
 				
 		
 		public function hangup():void {

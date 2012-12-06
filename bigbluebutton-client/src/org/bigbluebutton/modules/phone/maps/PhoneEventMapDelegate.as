@@ -81,6 +81,10 @@ package org.bigbluebutton.modules.phone.maps
 			phoneButton.enabled = true;
 			phoneButton.userJoinedConference(true);
 		}
+
+		public function enableMuteButton():void {
+			soundButton.enabled = true;		
+		}
 		
 		public function enableToolbarButton():void {
 			phoneButton.selected = false;

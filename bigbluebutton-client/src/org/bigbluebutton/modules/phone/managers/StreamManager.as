@@ -48,7 +48,9 @@ package org.bigbluebutton.modules.phone.managers {
 		private var audioCodec:String = "SPEEX";
 		private var dispatcher:Dispatcher;
 		private var listeningOnGlobal:Boolean;
+		private var savedAudio:Boolean = false;
 					
+		
 		public function StreamManager() {			
 			dispatcher = new Dispatcher();
 		}
@@ -58,6 +60,7 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		public function initMicrophone():void {
+			LogUtil.debug("INIT O MIC");
 			mic = Microphone.getMicrophone(-1);
 			if(mic == null){
 				initWithNoMicrophone();
@@ -83,6 +86,9 @@ package org.bigbluebutton.modules.phone.managers {
 				options.echoPath = 128;
 				options.nonLinearProcessing = true;
 				mic['enhancedOptions'] = options;
+
+
+
 			} else {
 				
 			}
@@ -123,17 +129,14 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 										
 		public function callConnected(playStreamName:String, publishStreamName:String, codec:String):void {
-			
-			LogUtil.debug("TOCANDO STREAM");
 			setupMicrophone();
-			if(codec != null)
+			
+			
+			if(codec != "")
 				audioCodec = codec;
+			
 			isCallConnected = true;
-			if(incomingStream != null) {
-  				stopStreams();
-				incomingStream = null;
-				
-			}
+			
 			setupIncomingStream();
 			
 			if (publishStreamName != "") {
@@ -143,7 +146,6 @@ package org.bigbluebutton.modules.phone.managers {
 				}
 			}
 			else {
-				//mic = null;
 				listeningOnGlobal = true;
 			}
 			setupPlayStatusHandler();
@@ -151,11 +153,16 @@ package org.bigbluebutton.modules.phone.managers {
 			if (listeningOnGlobal == false && publishStreamName != null) {			
 				publish(publishStreamName);
 			}	
-			
+
+			// Restore mute state when changing between global and normal
+			if(muted == true) {
+				muted = false;
+				muteAudio(); 
+			}
+					
 		}
 		
 		private function play(playStreamName:String):void {	
-			LogUtil.debug("PLAY TO");	
 			incomingStream.play(playStreamName);
 		}
 		
@@ -184,20 +191,45 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 
 		public function muteAudio():void {
-			if(incomingStream != null)
-				incomingStream.receiveAudio(false);		
+			if(incomingStream != null && muted == false) {
+				incomingStream.togglePause();	
+				muted = true;
+			}
+			dispatcher.dispatchEvent(new BBBEvent("MUTE_AUDIO_VOICE_CONFERENCE_COMPLETE"));	
 		}
 
 		public function unmuteAudio():void {
-			if(incomingStream != null)
-				incomingStream.receiveAudio(true);		
+			if(incomingStream != null && muted == true) {
+				incomingStream.togglePause();
+				muted = false;
+			}
+			dispatcher.dispatchEvent(new BBBEvent("UNMUTE_AUDIO_VOICE_CONFERENCE_COMPLETE"));	
+		}
+
+		public function saveAudio():void {
+			if(incomingStream != null && muted == false) {	
+				savedAudio = true;
+				incomingStream.togglePause();
+				LogUtil.debug("SAVED");
+			}	
+			else {
+				savedAudio = false;
+			}	
 		}
 		
+
+		public function restoreAudio():void {
+			setupMicrophone();
+			if(savedAudio) {	
+				LogUtil.debug("RESTORED");
+				incomingStream.togglePause();
+			}	
+		}
+
 		private function setupOutgoingStream():void {
 			outgoingStream = new NetStream(connection);
 			outgoingStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
-			outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
-			setupMicrophone();
+			outgoingStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 			outgoingStream.attachAudio(mic);
 		}
 		
@@ -216,6 +248,7 @@ package org.bigbluebutton.modules.phone.managers {
 			if(incomingStream != null) {
 				LogUtil.debug("--Stopping Incoming Stream");
 				incomingStream.play(false); 
+				
 			} else {
 				LogUtil.debug("--Incoming Stream Null");
 			}
@@ -224,10 +257,12 @@ package org.bigbluebutton.modules.phone.managers {
 				LogUtil.debug("--Stopping Outgoing Stream");
 				outgoingStream.attachAudio(null);
 				outgoingStream.close();
+				
 			} else {
 				LogUtil.debug("--Outgoing Stream Null");
 			}
-				
+			incomingStream = null;
+			outgoingStream = null;
 			isCallConnected = false;
 			LogUtil.debug("Stopped Stream(s)");
 			
@@ -262,7 +297,7 @@ package org.bigbluebutton.modules.phone.managers {
 	    }
 	        
 	    private function playStatus(event:Object):void {
-	    	// do nothing
+		// do nothing
 	    }
 		
 		private function onMetadata(event:Object):void {
