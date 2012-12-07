@@ -25,7 +25,7 @@
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 		xmlns:mx="http://www.adobe.com/2006/mxml" 
 		xmlns:mate="http://mate.asfusion.com/"
-		title="Network statistics" 
+		title="Network monitor" 
 		creationComplete="onCreationComplete()"
 		resizable="false"
 		implements="org.bigbluebutton.common.IBbbModuleWindow"

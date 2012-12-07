@@ -114,12 +114,15 @@
 			}
 			
 			private function handleAddToolbarButtonEvent(event:ToolbarButtonEvent):void {
-				addedBtns.addChild(event.button as UIComponent);
-				realignButtons();
+				if (event.location == ToolbarButtonEvent.TOP_TOOLBAR) {
+					addedBtns.addChild(event.button as UIComponent);
+					realignButtons();
+				}
 			}
 			
 			private function handleRemoveToolbarButtonEvent(event:ToolbarButtonEvent):void {
-				addedBtns.removeChild(event.button as UIComponent);
+				if (addedBtns.contains(event.button as UIComponent))
+					addedBtns.removeChild(event.button as UIComponent);
 			}
 			
 			private function realignButtons():void{

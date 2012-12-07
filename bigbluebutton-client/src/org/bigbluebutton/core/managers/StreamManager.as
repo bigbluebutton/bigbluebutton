@@ -38,7 +38,7 @@ package org.bigbluebutton.core.managers
 		private var _netmon:NetMonitor;
 		private var _heartbeat:Timer = new Timer( 2000 );
 		private var _globalDispatcher:Dispatcher = new Dispatcher();
-		private var _totalByteCount:Dictionary = new Dictionary();
+		private var _totalBytesCounter:Dictionary = new Dictionary();
 		
 		/**
 		 * This class is a singleton. Please initialize it using the getInstance() method.
@@ -189,21 +189,22 @@ package org.bigbluebutton.core.managers
 				totalReg.streamName = streamName;
 				totalReg.remote = remote;
 				totalReg.byteCount = streams[i].info["byteCount"];
-				if (_totalByteCount.hasOwnProperty(streamName) && _totalByteCount[streamName].byteCount > totalReg.byteCount) {
+				if (_totalBytesCounter.hasOwnProperty(streamName) && _totalBytesCounter[streamName].byteCount > totalReg.byteCount) {
 					var curTime:Number = new Date().getTime();
 					var newStreamName:String = streamName + "_" + curTime;
-					_totalByteCount[streamName].streamName = newStreamName;
-					_totalByteCount[newStreamName] = _totalByteCount[streamName];
-					delete _totalByteCount[streamName];
+					_totalBytesCounter[streamName].streamName = newStreamName;
+					_totalBytesCounter[newStreamName] = _totalBytesCounter[streamName];
+					delete _totalBytesCounter[streamName];
 				}
-				_totalByteCount[streamName] = totalReg;
+				_totalBytesCounter[streamName] = totalReg;
 			}
 
-			for each (var value:Object in _totalByteCount) {
+			download["byteCount"] = upload["byteCount"] = 0;
+			for each (var value:Object in _totalBytesCounter) {
 				if (value.remote)
-					download["byteCount"] = value.byteCount;
+					download["byteCount"] += value.byteCount;
 				else
-					upload["byteCount"] = value.byteCount;
+					upload["byteCount"] += value.byteCount;
 				log(value.streamName + ": " + value.byteCount);
 			}
 
