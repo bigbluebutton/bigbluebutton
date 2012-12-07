@@ -18,16 +18,13 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.*;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	import flash.utils.Timer;
-	
-	import mx.controls.Alert;
-	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.services.BandwidthMonitor;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
@@ -68,51 +65,45 @@ package org.bigbluebutton.main.model.users
 			_netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 		}
 		
-        public function setUri(uri:String):void {
-            _applicationURI = uri;
-        }
+    public function setUri(uri:String):void {
+      _applicationURI = uri;
+    }
        
         
 		public function get connection():NetConnection {
 			return _netConnection;
 		}
         
-        public function addMessageListener(listener:IMessageListener):void
-        {
-            _messageListeners.push(listener);
-        }
+    public function addMessageListener(listener:IMessageListener):void {
+      _messageListeners.push(listener);
+    }
         
-        public function removeMessageListener(listener:IMessageListener):void
-        {
-            for (var ob:int=0; ob<_messageListeners.length; ob++)
-            {
-                if (_messageListeners[ob]==listener)                    
-                {
-                    _messageListeners.splice (ob,1);
-                    break;
-                }
-            }
+    public function removeMessageListener(listener:IMessageListener):void {
+      for (var ob:int=0; ob<_messageListeners.length; ob++) {
+        if (_messageListeners[ob] == listener) {
+          _messageListeners.splice (ob,1);
+          break;
         }
+      }
+    }
         
-        private function notifyListeners(messageName:String, message:Object):void
-        {
-            if (messageName != null && messageName != "") {
-                for (var notify:String in _messageListeners)
-                {
-                    _messageListeners[notify].onMessage(messageName, message);
-                }                
-            } else {
-                LogUtil.debug("Message name is undefined");
-            }
-        }   
+    private function notifyListeners(messageName:String, message:Object):void {
+      if (messageName != null && messageName != "") {
+        for (var notify:String in _messageListeners) {
+          _messageListeners[notify].onMessage(messageName, message);
+        }                
+      } else {
+        LogUtil.debug("Message name is undefined");
+      }
+    }   
         
-        public function onMessageFromServer(messageName:String, result:Object):void {
-//            LogUtil.debug("Got message from server [" + messageName + "]");    
-            notifyListeners(messageName, result);
-        }
+    public function onMessageFromServer(messageName:String, result:Object):void {
+      trace("Got message from server [" + messageName + "]");    
+      notifyListeners(messageName, result);
+    }
 		
 		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object=null):void {
-//			LogUtil.debug("SENDING [" + service + "]");
+      trace("SENDING [" + service + "]");
 			var responder:Responder =	new Responder(                    
 					function(result:Object):void { // On successful result
 						onSuccess("Successfully sent [" + service + "]."); 
@@ -130,7 +121,6 @@ package org.bigbluebutton.main.model.users
 			} else {
 				_netConnection.call(service, responder, message);
 			}
-
 		}
 		
 		/**
@@ -142,8 +132,7 @@ package org.bigbluebutton.main.model.users
 		 * mode: LIVE/PLAYBACK - Live:when used to collaborate, Playback:when being used to playback a recorded conference.
 		 * room: Need the room number when playing back a recorded conference. When LIVE, the room is taken from the URI.
 		 */
-		public function connect(params:ConferenceParameters, tunnel:Boolean = false):void
-		{	
+		public function connect(params:ConferenceParameters, tunnel:Boolean = false):void {	
 			_conferenceParameters = params;
 			
 			tried_tunneling = tunnel;	
@@ -157,10 +146,9 @@ package org.bigbluebutton.main.model.users
 											_conferenceParameters.room, _conferenceParameters.voicebridge, 
 											_conferenceParameters.record, _conferenceParameters.externUserID,
 											_conferenceParameters.internalUserID);			
-			} catch( e : ArgumentError ) {
+			} catch(e:ArgumentError) {
 				// Invalid parameters.
-				switch ( e.errorID ) 
-				{
+				switch (e.errorID) {
 					case 2004 :						
 						LogUtil.debug("Error! Invalid server location: " + uri);											   
 						break;						
@@ -171,8 +159,7 @@ package org.bigbluebutton.main.model.users
 			}	
 		}
 			
-		public function disconnect(logoutOnUserCommand:Boolean) : void
-		{
+		public function disconnect(logoutOnUserCommand:Boolean):void {
 			this.logoutOnUserCommand = logoutOnUserCommand;
 			_netConnection.close();
 		}
@@ -182,22 +169,31 @@ package org.bigbluebutton.main.model.users
       _netConnection.close();
     }
     
-		protected function netStatus( event : NetStatusEvent ) : void 
-		{
+		protected function netStatus(event:NetStatusEvent):void {
 			handleResult( event );
 		}
 		
+    private var _bwMon:BandwidthMonitor = new BandwidthMonitor();
+    
+    private function startMonitoringBandwidth():void {
+      trace("Start monitoring bandwidth.");
+      _bwMon.serverURL = "192.168.0.249";
+      _bwMon.serverApplication = "video";
+      _bwMon.start();
+    }
+        
     private var autoReconnectTimer:Timer = new Timer(1000, 1);
     
-		public function handleResult(  event : Object  ) : void {
+		public function handleResult(event:Object):void {
 			var info : Object = event.info;
 			var statusCode : String = info.code;
 
-			switch ( statusCode ) 
-			{
+			switch (statusCode) {
 				case "NetConnection.Connect.Success":
 					LogUtil.debug(NAME + ":Connection to viewers application succeeded.");
-
+          
+//          startMonitoringBandwidth();
+          
 					_netConnection.call(
 							"getMyUserId",// Remote function name
 							new Responder(
@@ -270,7 +266,6 @@ package org.bigbluebutton.main.model.users
 		
     private function autoReconnectTimerHandler(event:TimerEvent):void {
       LogUtil.debug(NAME + "autoReconnectTimerHandler: " + event);
-      Alert.show("Attempting to reconnect");
       connect(_conferenceParameters, tried_tunneling);
     }
         
