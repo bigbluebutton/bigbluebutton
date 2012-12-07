@@ -547,7 +547,9 @@
   <mx:HBox width="100%" height="{chatListHeight}">
     <mx:List width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true"
              itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer"
-             dataProvider="{chatMessages.messages}" tabIndex="{baseIndex}"/>    
+             dataProvider="{chatMessages.messages}" 
+             tabIndex="{baseIndex}"
+             accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}"/>    
   </mx:HBox>
   
   <mx:HBox id="chatCtrlBar" width="100%" height="50" styleName="chatControlBarStyle" paddingLeft="5" paddingRight="5">		
@@ -562,7 +564,8 @@
                  styleName="chatControlBarSendButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" 
                  click="sendMessages()"
-                 tabIndex="{baseIndex+2}"/>  
+                 tabIndex="{baseIndex+2}"
+                 accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.name')}"/>  
       <mx:ColorPicker id="cmpColorPicker" showTextField="false" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
                  selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"

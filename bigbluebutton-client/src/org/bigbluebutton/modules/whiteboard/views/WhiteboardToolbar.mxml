@@ -307,7 +307,8 @@
 					id="cpik"  
 					selectedColor="0x000000" 
 					toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}" 
-					tabIndex="{baseIndex+9}"/>
+					tabIndex="{baseIndex+9}"
+					accessibilityName="{ResourceUtil.getInstance().getString('bbb.whiteboard.chooseColour')}"/>
    
 	<mx:Spacer height="3" />
 	<mx:Image source="{thick_icon}" horizontalAlign="center" width="20"/>
@@ -323,7 +324,8 @@
 				snapInterval="1" 
 				dataTipOffset="0" 
 				labelOffset="0"
-				tabIndex="{baseIndex+10}" />
+				tabIndex="{baseIndex+10}"
+				accessibilityName="{ResourceUtil.getInstance().getString('bbb.whiteboard.slider')}" />
 	<mx:Image source="{thin_icon}" horizontalAlign="center" width="20" />
 	
 </mx:VBox>

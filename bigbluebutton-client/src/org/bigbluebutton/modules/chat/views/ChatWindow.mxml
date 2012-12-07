@@ -77,6 +77,8 @@
 //				disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
 
 				titleBarOverlay.tabIndex = baseIndex;
+				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.chat.titleBar');
+				
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;

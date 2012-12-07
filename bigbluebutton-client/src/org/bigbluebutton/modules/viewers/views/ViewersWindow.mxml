@@ -95,6 +95,8 @@
 				resourcesChanged();
 				
 				titleBarOverlay.tabIndex = baseIndex;
+				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.viewers.titleBar');
+				
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
@@ -196,7 +198,8 @@
     	dragEnabled="false" itemClick="viewerSelectEvent(event);" width="100%" height="100%"
 		itemRollOver="onItemRollOver(event)"
 		itemRollOut="onItemRollOut(event)"
-		tabIndex="{baseIndex+4}">
+		tabIndex="{baseIndex+4}"
+		accessibilityName="{ResourceUtil.getInstance().getString('bbb.viewers.userList')}">
     	<mx:columns>
     		<mx:DataGridColumn dataField="role" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.roleItemRenderer')}" dataTipField="Role" editable="false" width="35"
     			itemRenderer="org.bigbluebutton.modules.viewers.views.RoleItemRenderer" sortable="false" id="roleField"/>
@@ -214,6 +217,7 @@
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
     	   			click="assignPresenterClicked()"
     	   			tabIndex="{baseIndex+5}"
+    	   			accessibilityName="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.accessibilityName')}"
     	   			/>
      	 <mx:Spacer width="100%"/>
     	 <mx:Button id="raiseHandImage" icon="{handIcon}" toggle="true" 

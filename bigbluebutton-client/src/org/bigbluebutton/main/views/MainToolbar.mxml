@@ -219,7 +219,10 @@
 	</mx:Script>	
 	<mx:HBox id="addedBtns"/>
 	<mx:Spacer width="100%"/>
-	<views:LanguageSelector id="langSelector" visible="false" tabIndex="{baseIndex+numButtons+25}"/>
+	<views:LanguageSelector id="langSelector" 
+							visible="false" 
+							tabIndex="{baseIndex+numButtons+25}"
+							accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"/>
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
 -->

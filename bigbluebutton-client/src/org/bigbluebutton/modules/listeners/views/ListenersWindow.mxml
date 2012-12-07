@@ -89,6 +89,8 @@
 				LogUtil.debug("WATERFALL this.visible is " + this.visible.toString());
 				
 				titleBarOverlay.tabIndex = baseIndex;
+				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.listeners.titleBar');
+				
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;	
@@ -245,7 +247,8 @@
             dragEnabled="false" dataProvider="{listeners}"
 			itemRollOver="onItemRollOver(event)"
 			itemRollOut="onItemRollOut(event)"
-			tabIndex="{baseIndex+4}">          
+			tabIndex="{baseIndex+4}"
+			accessibilityName="{ResourceUtil.getInstance().getString('bbb.listeners.userList')}">          
     	</mx:List>				
     	    	
     	<mx:ControlBar width="100%">
