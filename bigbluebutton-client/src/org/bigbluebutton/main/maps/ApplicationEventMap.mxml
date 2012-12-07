@@ -98,9 +98,13 @@
 	</EventHandlers>
 
 	<EventHandlers type="{ModuleLoadEvent.START_ALL_MODULES}">
-		<MethodInvoker generator="{ModulesProxy}" method="startAllModules" />
+		<MethodInvoker generator="{ModulesProxy}" method="startLayoutModule" />
 	</EventHandlers>
-	
+
+  <EventHandlers type="{ModuleLoadEvent.LAYOUT_MODULE_STARTED}">
+    <MethodInvoker generator="{ModulesProxy}" method="startAllModules" />
+  </EventHandlers>
+  
 	<mx:Script>
 	<![CDATA[
 		import mx.events.FlexEvent;
@@ -110,7 +114,6 @@
 		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModuleLoadEvent;
-		import org.bigbluebutton.main.events.ParticipantJoinEvent;
 		import org.bigbluebutton.main.events.PortTestEvent;
 		import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 		import org.bigbluebutton.main.events.UserServicesEvent;

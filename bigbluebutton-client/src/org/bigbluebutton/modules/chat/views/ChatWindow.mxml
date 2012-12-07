@@ -30,6 +30,9 @@
 		   xmlns:mate="http://mate.asfusion.com/" 
 		   xmlns:views="org.bigbluebutton.modules.chat.views.*">
 	
+	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_TABS}" method="focusChatTabs" />
+	
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.modules.chat.model.ChatOptions;
@@ -41,13 +44,16 @@
 			import mx.resources.ResourceBundle;
 			import mx.resources.ResourceManager;			
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.chat.events.TranscriptEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.common.LogUtil;
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
 			
+			private var disp:Dispatcher;
 			private var dispState:String;
 			[Bindable] public var chatOptions:ChatOptions;
 			
@@ -60,13 +66,13 @@
 				FlexGlobals.topLevelApplication.stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
 				dispState = FlexGlobals.topLevelApplication.stage.displayState;
 				
-				var disp:Dispatcher = new Dispatcher();
-				disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
-				
+				// var disp:Dispatcher = new Dispatcher();
+				disp  = new Dispatcher();
+//				disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));				
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
-				dispState = FlexGlobals.topLevelApplication.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
+/*				dispState = FlexGlobals.topLevelApplication.stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
 					txtMsg.text = "Chat not enabled in full screen mode";
 					txtMsg.enabled = false;
@@ -76,7 +82,7 @@
 					txtMsg.enabled = true;
 					sendBtn.enabled = true;
 				}
-			}		
+*/			}		
 			
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
@@ -87,24 +93,28 @@
 				resourcesChanged();
 			}
             
-            private function enableMessageEntryTextBox():void {
-                txtMsg.enabled = true;
-            }
+      private function enableMessageEntryTextBox():void {
+//        txtMsg.enabled = true;
+      }
             
-            private function disableMessageEntryTextBox():void {
-                txtMsg.enabled = false;
-            }
+      private function disableMessageEntryTextBox():void {
+//        txtMsg.enabled = false;
+      }
 			
+			private function focusChatInput(e:ShortcutEvent):void{
+//				if (txtMsg.enabled){
+					//cant get it to focus the whole window as well
+//					windowManager.bringToFront(this);
+//					focusManager.setFocus(txtMsg);
+//				}
+			}
+			
+			private function focusChatTabs(e:ShortcutEvent):void{
+//				windowManager.bringToFront(this);
+//				focusManager.setFocus(chatView.chatTabs);
+			}
 		]]>
 	</mx:Script>
 	
-	<views:ChatView id="chatView" chatOptions="{chatOptions}" chatWindow="{this}"/>
-    
-    <mx:ControlBar id="chatCtrlBar" width="100%" height="10%" styleName="chatControlBarStyle">		
-        <mx:TextInput id="txtMsg" width="100%" enter="chatView.sendMessages()" color="{cmpColorPicker.selectedColor}" styleName="chatControlBarTextMsgStyle"/>
-        <mx:ColorPicker id="cmpColorPicker" showTextField="false" toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
-                        selectedColor="0x000000" dataProvider="{chatView.colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"/>
-        <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn" styleName="chatControlBarSendButtonStyle"
-                   toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" click="chatView.sendMessages()"/> 
-    </mx:ControlBar>	
+	<views:ChatView id="chatView" chatOptions="{chatOptions}"/>
 </MDIWindow>

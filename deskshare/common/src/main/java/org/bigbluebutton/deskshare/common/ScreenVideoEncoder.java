@@ -21,13 +21,38 @@ package org.bigbluebutton.deskshare.common;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
 
 public final class ScreenVideoEncoder {
 
 	private static byte FLV_KEYFRAME = 0x10;
 	private static byte FLV_INTERFRAME = 0x20;
 	private static byte SCREEN_VIDEO_CODEC_ID = 0x03;
+	private static byte SCREEN_VIDEO_CODEC_V2_ID = 0x06;
+	
+	private static final int PALETTE[] = { 0x00000000, 0x00333333, 0x00666666, 0x00999999, 0x00CCCCCC, 0x00FFFFFF,
+			0x00330000, 0x00660000, 0x00990000, 0x00CC0000, 0x00FF0000, 0x00003300, 0x00006600, 0x00009900, 0x0000CC00,
+			0x0000FF00, 0x00000033, 0x00000066, 0x00000099, 0x000000CC, 0x000000FF, 0x00333300, 0x00666600, 0x00999900,
+			0x00CCCC00, 0x00FFFF00, 0x00003333, 0x00006666, 0x00009999, 0x0000CCCC, 0x0000FFFF, 0x00330033, 0x00660066,
+			0x00990099, 0x00CC00CC, 0x00FF00FF, 0x00FFFF33, 0x00FFFF66, 0x00FFFF99, 0x00FFFFCC, 0x00FF33FF, 0x00FF66FF,
+			0x00FF99FF, 0x00FFCCFF, 0x0033FFFF, 0x0066FFFF, 0x0099FFFF, 0x00CCFFFF, 0x00CCCC33, 0x00CCCC66, 0x00CCCC99,
+			0x00CCCCFF, 0x00CC33CC, 0x00CC66CC, 0x00CC99CC, 0x00CCFFCC, 0x0033CCCC, 0x0066CCCC, 0x0099CCCC, 0x00FFCCCC,
+			0x00999933, 0x00999966, 0x009999CC, 0x009999FF, 0x00993399, 0x00996699, 0x0099CC99, 0x0099FF99, 0x00339999,
+			0x00669999, 0x00CC9999, 0x00FF9999, 0x00666633, 0x00666699, 0x006666CC, 0x006666FF, 0x00663366, 0x00669966,
+			0x0066CC66, 0x0066FF66, 0x00336666, 0x00996666, 0x00CC6666, 0x00FF6666, 0x00333366, 0x00333399, 0x003333CC,
+			0x003333FF, 0x00336633, 0x00339933, 0x0033CC33, 0x0033FF33, 0x00663333, 0x00993333, 0x00CC3333, 0x00FF3333,
+			0x00003366, 0x00336600, 0x00660033, 0x00006633, 0x00330066, 0x00663300, 0x00336699, 0x00669933, 0x00993366,
+			0x00339966, 0x00663399, 0x00996633, 0x006699CC, 0x0099CC66, 0x00CC6699, 0x0066CC99, 0x009966CC, 0x00CC9966,
+			0x0099CCFF, 0x00CCFF99, 0x00FF99CC, 0x0099FFCC, 0x00CC99FF, 0x00FFCC99, 0x00111111, 0x00222222, 0x00444444,
+			0x00555555, 0x00AAAAAA, 0x00BBBBBB, 0x00DDDDDD, 0x00EEEEEE };
+	
+	private static final int C7_C15_THRESHOLD = 15;
+	
+	private static int[] paletteIndex; // maps c15 -> c7 (2^15=32768; palette size: 2^7=128)
 	
 	public static int[] getPixelsFromImage(BufferedImage image) {
 		int[] picpixels = ((DataBufferInt)(image).getRaster().getDataBuffer()).getData();
@@ -35,9 +60,8 @@ public final class ScreenVideoEncoder {
 		return picpixels;
 	}
 	
-	public static byte encodeFlvVideoDataHeader(boolean isKeyFrame) {
-		if (isKeyFrame) return (byte) (FLV_KEYFRAME + SCREEN_VIDEO_CODEC_ID);
-		return (byte) (FLV_INTERFRAME + SCREEN_VIDEO_CODEC_ID);		
+	public static byte encodeFlvVideoDataHeader(boolean isKeyFrame, boolean useSVC2) {
+		return (byte) ((isKeyFrame ? FLV_KEYFRAME : FLV_INTERFRAME) + (useSVC2 ? SCREEN_VIDEO_CODEC_V2_ID : SCREEN_VIDEO_CODEC_ID));
 	}
 	
 	public static byte[] encodeBlockAndScreenDimensions(int blockWidth, int imageWidth, int blockHeight, int imageHeight) {
@@ -59,7 +83,7 @@ public final class ScreenVideoEncoder {
 		return dims;
 	}
 	
-	public static int[] getPixels(BufferedImage image, int x, int y, int width, int height) throws PixelExtractException {
+	public static int[] getPixels(BufferedImage image, int x, int y, int width, int height, boolean useSVC2) throws PixelExtractException {
 		long start = System.currentTimeMillis();
 					
 		/* Use this!!! Fast!!! (ralam Oct. 14, 2009) */
@@ -233,4 +257,101 @@ public final class ScreenVideoEncoder {
 			   
 	    return buf.toString();
 	}    
+	
+	public static byte[] encodePixelsSVC2(int pixels[], int width, int height) {
+		changePixelScanFromBottomLeftToTopRight(pixels, width, height);
+		
+		// write the block as IMAGEBLOCKV2
+		
+		if (paletteIndex == null)
+			createPaletteIndex();
+		
+		try {
+			ByteArrayOutputStream baos1 = new ByteArrayOutputStream(); // TODO calibrate initial size
+
+			for (int i=0; i<pixels.length; i++) {
+				writeAs15_7(pixels[i], baos1);
+			}
+			
+			// baos2 contains everything from IMAGEBLOCKV2 except the DataSize field
+			ByteArrayOutputStream baos2 = new ByteArrayOutputStream(); // TODO calibrate initial size
+			
+			// IMAGEFORMAT:
+			// ColorDepth: UB[2] 10 (15/7 hybrid color image); HasDiffBlocks: UB[1] 0; Zlib prime stuff (2 bits) not used (0)
+			baos2.write(16);
+			
+			// No ImageBlockHeader (IMAGEDIFFPOSITION, IMAGEPRIMEPOSITION)
+			
+			Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
+			DeflaterOutputStream deflateroutputstream = new DeflaterOutputStream(baos2, deflater);
+			deflateroutputstream.write(baos1.toByteArray());
+			deflateroutputstream.finish();
+			byte dataBuffer[] = baos2.toByteArray();
+			
+			// DataSize field
+			int dataSize = dataBuffer.length;
+			ByteArrayOutputStream baos = new ByteArrayOutputStream(); // TODO calibrate initial size
+			writeShort(((OutputStream) (baos)), dataSize);
+			// Data
+			baos.write(dataBuffer, 0, dataSize);
+			return baos.toByteArray();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	private static void writeShort(OutputStream outputstream, int l) throws IOException {
+		outputstream.write(l >> 8 & 0xff);
+		outputstream.write(l & 0xff);
+	}
+	
+	private static int chromaDifference(int c1, int c2) {
+		int t1 = (c1 & 0x000000ff) + ((c1 & 0x0000ff00) >> 8) + ((c1 & 0x00ff0000) >> 16);
+		int t2 = (c2 & 0x000000ff) + ((c2 & 0x0000ff00) >> 8) + ((c2 & 0x00ff0000) >> 16);
+		return Math.abs(t1 - t2) + Math.abs((c1 & 0x000000ff) - (c2 & 0x000000ff))
+				+ Math.abs(((c1 & 0x0000ff00) >> 8) - ((c2 & 0x0000ff00) >> 8))
+				+ Math.abs(((c1 & 0x00ff0000) >> 16) - ((c2 & 0x00ff0000) >> 16));
+	}
+
+	private static int computePaletteIndexForColor(int rgb) {
+		int min = 0x7fffffff;
+		int minc = -1;
+		for (int i = 0; i < 128; i++) {
+			int diff = chromaDifference(PALETTE[i], rgb);
+			if (diff < min) {
+				min = diff;
+				minc = i;
+			}
+		}
+		return minc;
+	}
+
+	private static int createPaletteIndex() {
+		paletteIndex = new int[32768];
+		for (int r = 4; r < 256; r += 8) {
+			for (int g = 4; g < 256; g += 8) {
+				for (int b = 4; b < 256; b += 8) {
+					int rgb = b | (g << 8) | (r << 16);
+					int c15 = (b >> 3) | ((g & 0xf8) << 2) | ((r & 0xf8) << 7);
+					int index = computePaletteIndexForColor(rgb);
+					paletteIndex[c15] = index;
+				}
+			}
+		}
+		return 0;
+	}
+	
+	private static void writeAs15_7(int rgb, ByteArrayOutputStream stream) throws IOException {
+		// convert from 24 bit RGB to 15 bit RGB
+		int c15 = ((rgb & 0xf80000) >> 9 | (rgb & 0xf800) >> 6 | (rgb & 0xf8) >> 3) & 0x7fff;
+		int d15 = chromaDifference(rgb, rgb & 0x00f8f8f8);
+		int c7 = paletteIndex[c15];
+		int d7 = chromaDifference(rgb, PALETTE[c7]);
+		if (d7 - d15 <= C7_C15_THRESHOLD) {
+			// write c7, c15 isn't much better
+			stream.write(c7);
+		} else {
+			writeShort(stream, 0x8000 | c15); // high bit set as marker for c15
+		}
+	}
 }

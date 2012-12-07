@@ -18,15 +18,32 @@
 		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
 	</bean>
 	
-	<bean id="participantsApplication" 
-	    class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">
+	<bean id="participantsApplication" class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">
 		<property name="roomsManager"> <ref local="roomsManager"/></property>
+		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>
 	</bean>
 	
 	<bean id="participants.service" class="org.bigbluebutton.conference.service.participants.ParticipantsService">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 	</bean>
 	
+	
+	<!-- BEGIN LAYOUT -->	
+	<bean id="layoutRoomsManager" class="org.bigbluebutton.conference.service.layout.LayoutRoomsManager"/>
+	
+	<bean id="layoutHandler" class="org.bigbluebutton.conference.service.layout.LayoutHandler">
+	    <property name="layoutApplication"><ref local="layoutApplication"/></property>
+	</bean>
+
+	<bean id="layoutApplication" class="org.bigbluebutton.conference.service.layout.LayoutApplication">
+		<property name="roomsManager"><ref local="layoutRoomsManager"/></property>
+	</bean>
+	
+	<bean id="layout.service" class="org.bigbluebutton.conference.service.layout.LayoutService">
+	    <property name="layoutApplication"><ref local="layoutApplication"/></property>
+   	</bean>	
+	<!-- END LAYOUT -->	
+		
 	<!-- BEGIN PRESENTATION -->	
 	<bean id="presentationRoomsManager" class="org.bigbluebutton.conference.service.presentation.PresentationRoomsManager"/>
 			
@@ -43,9 +60,8 @@
 	</bean>
 	
 	<bean id="presentationApplication" class="org.bigbluebutton.conference.service.presentation.PresentationApplication">
-		<property name="roomsManager"> 
-			<ref local="presentationRoomsManager"/>
-		</property>
+		<property name="roomsManager"> <ref local="presentationRoomsManager"/></property>
+		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>
 	</bean>
 	
 	<bean id="presentation.service" class="org.bigbluebutton.conference.service.presentation.PresentationService">
@@ -69,9 +85,9 @@
 		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
 	</bean>
 	
-	<bean id="chatApplication" 
-	    class="org.bigbluebutton.conference.service.chat.ChatApplication">
+	<bean id="chatApplication" class="org.bigbluebutton.conference.service.chat.ChatApplication">
 		<property name="roomsManager"> <ref local="chatRoomsManager"/></property>
+		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>
 	</bean>
 	
 	<bean id="chat.service" class="org.bigbluebutton.conference.service.chat.ChatService">
@@ -86,6 +102,7 @@
 	    class="org.bigbluebutton.conference.service.whiteboard.WhiteboardApplication">
 	    <property name="roomManager"> <ref local="whiteboardRoomManager"/></property>
 	    <property name="recorderApplication"> <ref local="recorderApplication"/></property>
+	    <property name="connInvokerService"> <ref bean="connInvokerService"/></property>
 	</bean>
 	
 	<bean id="whiteboard.service" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardService">

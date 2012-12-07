@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
-		width="600" height="300" creationComplete="initDefaultMic()" showCloseButton="true" close="onCancelClicked()">
+		width="600" height="300" creationComplete="initDefaultMic()" showCloseButton="true" close="onCancelClicked()" keyDown="handleKeyDown(event)">
 	<mx:Script>
 		<![CDATA[
+			import flash.ui.Keyboard;
+		
+			import mx.events.CloseEvent;
 			import mx.events.ItemClickEvent;
 			import mx.managers.PopUpManager;
 			
@@ -33,6 +36,13 @@
 				timer = new Timer(100);
 				timer.addEventListener(TimerEvent.TIMER, updateMicLevel);
 				timer.start();	
+			}
+			
+			// Added by Chad to enable closing the window without clicking the X
+			private function handleKeyDown(event:KeyboardEvent):void {
+				if (event.charCode == Keyboard.ESCAPE) {
+                    this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+                }
 			}
 			
 			private function micStatusEventHandler(event:StatusEvent):void {					

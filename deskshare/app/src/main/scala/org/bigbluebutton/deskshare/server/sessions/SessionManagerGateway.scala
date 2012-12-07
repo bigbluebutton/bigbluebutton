@@ -21,7 +21,6 @@
 */
 package org.bigbluebutton.deskshare.server.sessions
 
-import org.bigbluebutton.deskshare.common.Dimension
 import org.bigbluebutton.deskshare.server.svc1.Dimension
 import org.bigbluebutton.deskshare.server.stream.StreamManager
 import org.bigbluebutton.deskshare.server.session.ISessionManagerGateway
@@ -36,10 +35,10 @@ class SessionManagerGateway(streamManager: StreamManager, keyFrameInterval: Int,
 	val sessionManager: SessionManagerSVC = new SessionManagerSVC(streamManager, keyFrameInterval, interframeInterval, waitForAllBlocks)
     sessionManager.start 
   
-	def createSession(room: String, screenDim: common.Dimension, blockDim: common.Dimension, seqNum: Int): Unit = {
+	def createSession(room: String, screenDim: org.bigbluebutton.deskshare.common.Dimension, blockDim: org.bigbluebutton.deskshare.common.Dimension, seqNum: Int, useSVC2: Boolean): Unit = {
 		log.info("SessionManagerGateway:createSession for %s", room)
-		sessionManager ! new CreateSession(room, new svc1.Dimension(screenDim.getWidth(), screenDim.getHeight()), 
-	                                       new svc1.Dimension(blockDim.getWidth(), blockDim.getHeight()), seqNum)
+		sessionManager ! new CreateSession(room, new Dimension(screenDim.getWidth(), screenDim.getHeight()), 
+	                                       new Dimension(blockDim.getWidth(), blockDim.getHeight()), seqNum, useSVC2)
 		log.info("SessionManagerGateway:Sent create session for %s", room)	    
 	}
 

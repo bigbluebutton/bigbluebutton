@@ -155,7 +155,28 @@ package org.bigbluebutton.modules.present.business {
 		 * 
 		 */		
 		public function sendCursorUpdate(xPercent:Number, yPercent:Number):void{
-			_presentationSO.send("updateCursorCallback", xPercent, yPercent);
+			//_presentationSO.send("updateCursorCallback", xPercent, yPercent);
+			nc.call("presentation.sendCursorUpdate",// Remote function name
+				new Responder(
+					// On successful result
+					function(result:Boolean):void { 
+						
+						if (result) {
+							LogUtil.debug("Successfully sent sendCursorUpdate");							
+						}	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				), //new Responder
+				xPercent,
+				yPercent
+			); //_netConnection.call
+			
 		}
 		
 		/**
@@ -165,10 +186,10 @@ package org.bigbluebutton.modules.present.business {
 		 * 
 		 */		
 		public function updateCursorCallback(xPercent:Number, yPercent:Number):void{
-			var e:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR);
-			e.xPercent = xPercent;
-			e.yPercent = yPercent;
-			dispatcher.dispatchEvent(e);
+//			var e:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR);
+//			e.xPercent = xPercent;
+//			e.yPercent = yPercent;
+//			dispatcher.dispatchEvent(e);
 		}
 		
 		/**
@@ -259,9 +280,9 @@ package org.bigbluebutton.modules.present.business {
 			}
 		}
 		
-		public function whatIsTheSlideInfoReply(userId:Number, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
+		public function whatIsTheSlideInfoReply(userID:String, xOffset:Number, yOffset:Number, widthRatio:Number, heightRatio:Number):void{
 			LogUtil.debug("Rx whatIsTheSlideInfoReply");
-			if (UserManager.getInstance().getConference().amIThisUser(userId)) {
+			if (UserManager.getInstance().getConference().amIThisUser(userID)) {
 				LogUtil.debug("Got reply for Query for slide info");
 				var e:MoveEvent = new MoveEvent(MoveEvent.CUR_SLIDE_SETTING);
 				e.xOffset = xOffset;
@@ -416,9 +437,9 @@ package org.bigbluebutton.modules.present.business {
 				if (p != null) {
 					LogUtil.debug("trigger Switch to Viewer mode ");
 					var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
-					viewerEvent.userid = p.userid;
+					viewerEvent.userid = p.userID;
 					viewerEvent.presenterName = p.name;
-					viewerEvent.assignerBy = p.userid;
+					viewerEvent.assignerBy = p.userID;
 					
 					dispatcher.dispatchEvent(viewerEvent);					
 				}

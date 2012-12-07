@@ -83,6 +83,10 @@ package org.bigbluebutton.main.model.modules
 			return configParameters.portTestApplication;
 		}
 		
+		public function get portTestTimeout():Number {
+			return configParameters.portTestTimeout;
+		}
+		
 		private function getModule(name:String):ModuleDescriptor {
 			return configParameters.getModule(name);	
 		}
@@ -103,7 +107,7 @@ package org.bigbluebutton.main.model.modules
 			if (m != null) {
 				LogUtil.debug('Stopping ' + name);
 				var bbb:IBigBlueButtonModule = m.module as IBigBlueButtonModule;
-				if(bbb == null) { //Still has null object refrence on logout sometimes.
+				if(bbb == null) { //Still has null object reference on logout sometimes.
 					LogUtil.debug('Module ' + name + ' was null skipping');
 					return;
 				}
@@ -166,7 +170,7 @@ package org.bigbluebutton.main.model.modules
 		public function startUserServices():void {
 			configParameters.application = configParameters.application.replace(/rtmp:/gi, _protocol + ":");
 			LogUtil.debug("**** Using " + _protocol + " to connect to " + configParameters.application + "******");
-			modulesDispatcher.sendStartUserServicesEvent(configParameters.application, configParameters.host);
+			modulesDispatcher.sendStartUserServicesEvent(configParameters.application, configParameters.host, _protocol.toUpperCase() == "RTMPT");
 		}
 		
 		public function loadAllModules(parameters:ConferenceParameters):void{
@@ -180,14 +184,25 @@ package org.bigbluebutton.main.model.modules
 			}
 		}
 		
-		public function startAllModules():void{
+		public function startLayoutModule():void{
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
-				startModule(m.getName());
+        if (m.getName() == "LayoutModule") {
+          startModule(m.getName());
+        }				
 			}
-			modulesDispatcher.sendAllModulesLoadedEvent();
 		}
-		
+
+    public function startAllModules():void{
+      for (var i:int = 0; i<sorted.length; i++){
+        var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
+        if (m.getName() != "LayoutModule") {
+          startModule(m.getName());
+        }
+      }
+      modulesDispatcher.sendAllModulesLoadedEvent();
+    }
+    
 		public function handleLogout():void {
 			for (var i:int = 0; i <sorted.length; i++) {				
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;

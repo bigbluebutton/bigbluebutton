@@ -3,22 +3,20 @@
 	xmlns:maps="org.bigbluebutton.modules.videoconf.maps.*" implements="org.bigbluebutton.common.IBigBlueButtonModule">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.videoconf.events.OpenPublishWindowEvent;
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.controls.Alert;
-			
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.modules.videoconf.business.VideoProxy;
-			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.common.events.OpenWindowEvent;
+      import org.bigbluebutton.modules.videoconf.business.VideoProxy;
+      import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+      import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+      import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
+      import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;
 			
 			private var _moduleName:String = "Videoconf Module";			
 			private var _attributes:Object; 
-			private var proxy:VideoProxy;
-			private var mockProxy:VideoProxy;
-			
+		
 			private function onCreationComplete():void {
 				LogUtil.debug("VideoconfModule initialized");	
 			}
@@ -38,15 +36,7 @@
 			public function get username():String {
 				return _attributes.username;
 			}
-			
-			public function get connection():NetConnection {
-				return proxy.connection;
-			}
-			
-			public function get mockConnection():NetConnection {
-				return mockProxy.connection;
-			}
-			
+					
 			public function get mode():String {
 				if (_attributes.mode == null) {					
 					//_attributes.mode = "PLAYBACK"
@@ -57,8 +47,8 @@
 				return _attributes.mode;
 			}
 						
-			public function get userid():Number {
-				return _attributes.userid as Number;
+			public function get userid():String {
+				return _attributes.userid as String;
 			}
 			
 			public function get role():String {
@@ -79,27 +69,16 @@
 			}
 			
 			public function start(attributes:Object):void {	
-				LogUtil.debug("Videoconf attr: " + attributes.username);
-				_attributes = attributes;
-				proxy = new VideoProxy(uri);
-				
-				eventMap.module = this;
-				eventMap.proxy = proxy;
-				eventMap.addToolbarButton();
-				
-				if (proxy.videoOptions.autoStart) {
-					var dispatcher:Dispatcher = new Dispatcher();        
-					dispatcher.dispatchEvent(new OpenPublishWindowEvent());					
-				}
+        trace("Starting Video Module");
+        var globalDispatcher:Dispatcher = new Dispatcher();
+        globalDispatcher.dispatchEvent(new VideoModuleStartEvent(VideoModuleStartEvent.START));
 			}
 		
 			public function stop():void {
-				eventMap.stopModule();
+        var globalDispatcher:Dispatcher = new Dispatcher();
+        globalDispatcher.dispatchEvent(new VideoModuleStopEvent(VideoModuleStopEvent.STOP));
 			}
 			
-			public function mockConnect():void {
-				mockProxy = new VideoProxy(proxy.connection.uri.substring(0, proxy.connection.uri.indexOf("video") + 5));
-			}
 		]]>
 	</mx:Script>
 	

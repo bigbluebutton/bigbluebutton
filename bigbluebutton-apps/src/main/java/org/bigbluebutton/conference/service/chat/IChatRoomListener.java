@@ -21,5 +21,5 @@ package org.bigbluebutton.conference.service.chat;
 
 public interface IChatRoomListener {
 	public String getName();
-	public void newChatMessage(ChatObject message);
+	public void newChatMessage(ChatMessageVO message);
 }

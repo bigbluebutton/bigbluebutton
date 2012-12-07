@@ -117,6 +117,7 @@ public class DeskshareClient {
     	private Image sysTrayIcon;
     	private boolean enableTrayActions = false;
     	private boolean fullScreen = false;
+    	private boolean useSVC2 = false;
     	
     	public NewBuilder host(String host) {
     		this.host = host;
@@ -183,6 +184,11 @@ public class DeskshareClient {
     		return this;
     	}
     	
+    	public NewBuilder useSVC2(boolean useSVC2) {
+    		this.useSVC2 = useSVC2;
+    		return this;
+    	}
+    	
     	public NewBuilder trayIcon(Image icon) {
     		this.sysTrayIcon = icon;
     		return this;
@@ -216,6 +222,7 @@ public class DeskshareClient {
     		ssi.y = y;
     		ssi.httpTunnel = httpTunnel;
     		ssi.fullScreen = fullScreen;
+    		ssi.useSVC2 = useSVC2;
     		ssi.sysTrayIcon = sysTrayIcon;
     		ssi.enableTrayActions = enableTrayActions;
     		return new DeskshareClient(ssi);

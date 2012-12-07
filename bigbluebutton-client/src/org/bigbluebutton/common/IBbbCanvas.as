@@ -20,6 +20,8 @@ package org.bigbluebutton.common
 {
 	import flash.display.DisplayObject;
 	
+	import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+	
 	/**
 	 * An interface currently used to interface the Whiteboard module with the Presentation module in a decoupled sort of way.
 	 * 

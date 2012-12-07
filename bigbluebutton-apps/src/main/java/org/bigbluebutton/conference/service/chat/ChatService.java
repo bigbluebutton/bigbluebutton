@@ -17,12 +17,10 @@
 * 
 */
 package org.bigbluebutton.conference.service.chat;
-import java.util.ArrayList;
-import java.util.List;
 
+import java.util.Map;
 import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.so.ISharedObject;import org.red5.server.api.Red5;
+import org.red5.logging.Red5LoggerFactory;import org.red5.server.api.Red5;
 
 public class ChatService {
 	
@@ -30,32 +28,48 @@ public class ChatService {
 	
 	private ChatApplication application;
 
-	public List<ChatObject> getChatMessages() {
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		return application.getChatMessages(roomName);
+	public void sendPublicChatHistory() {
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		application.sendPublicChatHistory(meetingID);
 	}
 	
-	//public void sendMessage(String message, String username, String color, String time, String language, String userid) {
-	public void sendMessage(ChatObject chatobj) {
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.sendMessage(roomName, chatobj);
+	public void sendPublicMessage(Map<String, Object> msg) {
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		
+		ChatMessageVO chatObj = new ChatMessageVO();
+		chatObj.chatType = msg.get("chatType").toString(); 
+		chatObj.fromUserID = msg.get("fromUserID").toString();
+		chatObj.fromUsername = msg.get("fromUsername").toString();
+		chatObj.fromColor = msg.get("fromColor").toString();
+		chatObj.fromTime = Double.valueOf(msg.get("fromTime").toString());   
+		chatObj.fromTimezoneOffset = Long.valueOf(msg.get("fromTimezoneOffset").toString());
+		chatObj.fromLang = msg.get("fromLang").toString(); 	 
+		chatObj.toUserID = msg.get("toUserID").toString();
+		chatObj.toUsername = msg.get("toUsername").toString();
+		chatObj.message = msg.get("message").toString();
+	
+		application.sendPublicMessage(meetingID, chatObj);
 	}
+	
 	public void setChatApplication(ChatApplication a) {
 		log.debug("Setting Chat Applications");
 		application = a;
 	}
 	
-	public void privateMessage(ChatObject chatobj, String sender, String receiver){
-		log.debug("Received private message: " + chatobj.message + " from " + sender + " to " + receiver + ". The client scope is: " + Red5.getConnectionLocal().getScope().getName());
-		ISharedObject sharedObject = application.handler.getSharedObject(Red5.getConnectionLocal().getScope(), receiver);
-		if (sharedObject != null) {
-			ArrayList<Object> arguments = new ArrayList<Object>();
-			arguments.add(sender);
-			arguments.add(chatobj);
-			sharedObject.sendMessage("messageReceived", arguments);			
-		} else {
-			log.debug("Not sending private message from " + sender + " to " + receiver + " as the user may have already left.");
-		}
+	public void sendPrivateMessage(Map<String, Object> msg){
+		ChatMessageVO chatObj = new ChatMessageVO();
+		chatObj.chatType = msg.get("chatType").toString();  
+		chatObj.fromUserID = msg.get("fromUserID").toString();
+		chatObj.fromUsername = msg.get("fromUsername").toString();
+		chatObj.fromColor = msg.get("fromColor").toString();
+		chatObj.fromTime = Double.valueOf(msg.get("fromTime").toString());   
+		chatObj.fromTimezoneOffset = Long.valueOf(msg.get("fromTimezoneOffset").toString()); 
+		chatObj.fromLang = msg.get("fromLang").toString(); 	  
+		chatObj.toUserID = msg.get("toUserID").toString();
+		chatObj.toUsername = msg.get("toUsername").toString();
+		chatObj.message = msg.get("message").toString();
+	
+		application.sendPrivateMessage(chatObj);
 
 	}
 }

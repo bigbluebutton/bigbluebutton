@@ -19,8 +19,7 @@
 
 package org.bigbluebutton.modules.breakout.business
 {
-	import com.adobe.crypto.SHA1;
-	
+	import com.adobe.crypto.SHA1;	
 	import flash.events.Event;
 	import flash.events.NetStatusEvent;
 	import flash.events.SyncEvent;
@@ -29,11 +28,9 @@ package org.bigbluebutton.modules.breakout.business
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.net.URLRequestMethod;
-	import flash.net.navigateToURL;
-	
+	import flash.net.navigateToURL;	
 	import mx.controls.Alert;
-	import mx.events.CloseEvent;
-	
+	import mx.events.CloseEvent;	
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.Conference;
@@ -44,8 +41,7 @@ package org.bigbluebutton.modules.breakout.business
 		private var request:URLRequest;
 		private var meetingName:String;
 		private var attendeePW:String;
-		private var moderatorPW:String;
-		
+		private var moderatorPW:String;		
 		private var host:String;
 		private var conference:String;
 		private var room:String;
@@ -54,11 +50,9 @@ package org.bigbluebutton.modules.breakout.business
 		private var userrole:String;
 		private var connection:NetConnection;
 		private var ncURL:String;
-		private var breakoutSO:SharedObject;
-		
+		private var breakoutSO:SharedObject;		
 		private var usersList:Array;
-		private var kickUsers:Boolean;
-		
+		private var kickUsers:Boolean;		
 		private var api_url:String;
 		private var api_salt:String;
 		
@@ -178,7 +172,7 @@ package org.bigbluebutton.modules.breakout.business
 		private function newRoomHasModerator(list:Array):Boolean{
 			var conference:Conference = UserManager.getInstance().getConference();
 			for (var i:int = 0; i<list.length; i++){
-				var user:BBBUser = conference.getParticipant(Number(list[i]));
+				var user:BBBUser = conference.getUser(String(list[i]));
 				if (user.role == BBBUser.MODERATOR) return true;
 			}
 			return false;

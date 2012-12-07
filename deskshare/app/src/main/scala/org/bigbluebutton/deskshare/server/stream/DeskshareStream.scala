@@ -24,10 +24,12 @@ package org.bigbluebutton.deskshare.server.stream
 import org.bigbluebutton.deskshare.server.recorder.Recorder
 import org.bigbluebutton.deskshare.server.red5.DeskshareApplication
 import org.bigbluebutton.deskshare.server.ScreenVideoBroadcastStream
-import org.red5.server.api.{IContext, IScope}
+import org.bigbluebutton.deskshare.server.RtmpClientAdapter
+import org.red5.server.api.IContext
+import org.red5.server.api.scope.{IScope, IBroadcastScope}
 import org.red5.server.api.so.ISharedObject
 import org.red5.server.net.rtmp.event.VideoData;
-import org.red5.server.stream.{BroadcastScope, IBroadcastScope, IProviderService}
+import org.red5.server.stream.IProviderService
 import org.red5.server.net.rtmp.message.Constants;
 import org.apache.mina.core.buffer.IoBuffer
 import java.util.ArrayList
@@ -62,7 +64,7 @@ class DeskshareStream(app: DeskshareApplication, name: String, val width: Int, v
 	     		broadcastStream = bs; 
 		       	app.createDeskshareClient(name) match {
 				     case None => return false
-				     case Some(dsc) => {
+				     case Some(dsc:RtmpClientAdapter) => {
 				     		dsClient = dsc; 
 				     		recorder.addListener(dsClient)
 				     		return true

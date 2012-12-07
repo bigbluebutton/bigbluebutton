@@ -29,7 +29,7 @@ package org.bigbluebutton.modules.present.events
 		
 		public var presentationName:String;
 		private var _slides:PresentationSlides;
-		public var numberOfSlides:int;
+		public var numberOfPages:int;
 		
 		public function PresentationEvent(type:String)
 		{
@@ -38,7 +38,7 @@ package org.bigbluebutton.modules.present.events
 		
 		public function set slides(presentSlides:PresentationSlides):void{
 			this._slides = presentSlides;
-			this.numberOfSlides = presentSlides.size();
+			this.numberOfPages = presentSlides.size();
 		}
 		
 		public function get slides():PresentationSlides{

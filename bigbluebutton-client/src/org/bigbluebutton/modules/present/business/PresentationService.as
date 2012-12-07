@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.managers.Slide;
 	import org.bigbluebutton.common.LogUtil;
+  import org.bigbluebutton.modules.present.services.MessageReceiver;
 	        	
 	/**
 	 * This class directly communicates with an HTTP service in order to send and recives files (slides
@@ -47,10 +48,12 @@ package org.bigbluebutton.modules.present.business
 		private var urlLoader:URLLoader;
 		private var slideUri:String;
 		private var dispatcher:Dispatcher;
-		
+    private var _messageReceiver:MessageReceiver;
+    
 		public function PresentationService()
 		{
 			service = new HTTPService();
+      _messageReceiver = new MessageReceiver();
 			dispatcher = new Dispatcher();
 		}
 		
@@ -96,10 +99,13 @@ package org.bigbluebutton.modules.present.business
 			for each(item in list){		
 				var sUri:String = slideUri + "/" + item.@name;
 				var thumbUri:String =  slideUri + "/" + item.@thumb;
-				var slide:Slide = new Slide(item.@number, sUri, thumbUri);						
+				var txtUri:String = slideUri + "/" + item.@textfile;
+				
+				var slide:Slide = new Slide(item.@number, sUri, thumbUri,txtUri);						
 				_slides.add(slide);
 				//LogUtil.debug("Available slide: " + sUri + " number = " + item.@number);
 				//LogUtil.debug("Available thumb: " + thumbUri);
+				LogUtil.debug("Available textfile: " + txtUri);
 			}		
 			
 			//LogUtil.debug("number of slide=" + _slides.size());

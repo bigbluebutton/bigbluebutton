@@ -23,11 +23,9 @@ package org.bigbluebutton.conference.service.presentation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.Red5;
-import org.red5.server.api.IScope;import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
+import org.red5.logging.Red5LoggerFactory;import org.red5.server.api.Red5;import org.red5.server.api.scope.IScope;
+import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 
 public class PresentationService {	
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationService.class, "bigbluebutton" );
@@ -42,17 +40,17 @@ public class PresentationService {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Map getPresentationInfo() {
+	public Map<String, Object> getPresentationInfo() {
 		log.debug("Getting presentation information.");
 		IScope scope = Red5.getConnectionLocal().getScope();
 		ArrayList<String> curPresenter = participantsApplication.getCurrentPresenter(scope.getName());
 		int curSlide = presentationApplication.getCurrentSlide(scope.getName());
 		Boolean isSharing = presentationApplication.getSharingPresentation(scope.getName());
 		String currentPresentation = presentationApplication.getCurrentPresentation(scope.getName());
-		Map presentersSettings = presentationApplication.getPresenterSettings(scope.getName());
+		Map<String, Object> presentersSettings = presentationApplication.getPresenterSettings(scope.getName());
 		ArrayList<String> presentationNames = presentationApplication.getPresentations(scope.getName());
 		
-		Map presenter = new HashMap();		
+		Map<String, Object> presenter = new HashMap<String, Object>();		
 		if (curPresenter != null) {
 			presenter.put("hasPresenter", true);
 			presenter.put("user", curPresenter.get(0));
@@ -63,7 +61,7 @@ public class PresentationService {
 			presenter.put("hasPresenter", false);
 		}
 				
-		Map presentation = new HashMap();
+		Map<String, Object> presentation = new HashMap<String, Object>();
 		if (isSharing.booleanValue()) {
 			presentation.put("sharing", true);
 			presentation.put("slide", curSlide);
@@ -79,7 +77,7 @@ public class PresentationService {
 			presentation.put("sharing", false);
 		}
 		
-		Map presentationInfo = new HashMap();
+		Map<String, Object> presentationInfo = new HashMap<String, Object>();
 		presentationInfo.put("presenter", presenter);
 		presentationInfo.put("presentation", presentation);
 		presentationInfo.put("presentations", presentationNames);
@@ -98,6 +96,12 @@ public class PresentationService {
 		log.debug("Request to go to sharePresentation " + presentationName + " " + share);
 		IScope scope = Red5.getConnectionLocal().getScope();
 		presentationApplication.sharePresentation(scope.getName(), presentationName, share);
+	}
+	
+	public void sendCursorUpdate(Double xPercent,Double yPercent) {
+		log.debug("Request update cursor[" + xPercent + "," + yPercent + "]" );
+		IScope scope = Red5.getConnectionLocal().getScope();
+		presentationApplication.sendCursorUpdate(scope.getName(), xPercent, yPercent);
 	}
 	
 	public void resizeAndMoveSlide(Double xOffset,Double yOffset,Double widthRatio,Double heightRatio) {

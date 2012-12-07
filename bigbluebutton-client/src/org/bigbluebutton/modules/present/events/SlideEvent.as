@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.present.events
 		
 		public var slideNumber:Number;
 		public var slide:ByteArray;
+		public var slideText:String;
 		public var page:Slide;
 		
 		public function SlideEvent(type:String)

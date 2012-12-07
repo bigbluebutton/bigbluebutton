@@ -21,35 +21,28 @@
 */
 package org.bigbluebutton.conference.service.whiteboard;
 
-import java.util.ArrayList;
-
-import org.red5.server.api.IScope;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class WhiteboardRoomManager {
 
-	private ArrayList<WhiteboardRoom> rooms;
+	private ConcurrentHashMap<String, WhiteboardRoom> rooms;
 	
 	public WhiteboardRoomManager(){
-		rooms = new ArrayList<WhiteboardRoom>();
+		rooms = new ConcurrentHashMap<String, WhiteboardRoom>();
 	}
 	
-	public WhiteboardRoom addRoom(IScope scope){
-		WhiteboardRoom newRoom = new WhiteboardRoom(scope);
-		rooms.add(newRoom);
+	public WhiteboardRoom addRoom(String id){
+		WhiteboardRoom newRoom = new WhiteboardRoom(id);
+		rooms.put(id, newRoom);
 		
 		return newRoom;
 	}
 	
-	public WhiteboardRoom getRoom(String scopeName){
-		for (int i=0; i<rooms.size(); i++){
-			if (rooms.get(i).getScope().getName().equals(scopeName)) return rooms.get(i);
-		}
-		return null;
+	public WhiteboardRoom getRoom(String id) {
+		return rooms.get(id);
 	}
 	
-	public void removeRoom(String scopeName){
-		for (int i=0; i<rooms.size(); i++){
-			if (rooms.get(i).getScope().getName().equals(scopeName)) rooms.remove(i);
-		}
+	public void removeRoom(String id){
+		rooms.remove(id);
 	}
 }

@@ -9,9 +9,12 @@ package org.bigbluebutton.main.model
 		[Bindable] public var showVideoLayout:Boolean = true;
 		[Bindable] public var showResetLayout:Boolean = true;
 		[Bindable] public var showToolbar:Boolean = true;
+    [Bindable] public var showFooter:Boolean = true;
 		[Bindable] public var showHelpButton:Boolean = true;
 		[Bindable] public var showLogoutWindow:Boolean = true;
 		
+    public var defaultLayout:String = "Default";
+    
 		public function parseOptions():void {
 			var vxml:XML = BBB.initConfigManager().config.layout;
 			if (vxml != null) {
@@ -34,7 +37,11 @@ package org.bigbluebutton.main.model
 				if (vxml.@showToolbar != undefined) {
 					showToolbar = (vxml.@showToolbar.toString().toUpperCase() == "TRUE") ? true : false;
 				}
-				
+
+        if (vxml.@showFooter != undefined) {
+          showFooter = (vxml.@showFooter.toString().toUpperCase() == "TRUE") ? true : false;
+        }
+        
 				if (vxml.@showHelpButton != undefined) {
 					showHelpButton = (vxml.@showHelpButton.toString().toUpperCase() == "TRUE") ? true : false;
 				}
@@ -42,6 +49,10 @@ package org.bigbluebutton.main.model
 				if (vxml.@showLogoutWindow != undefined) {
 					showLogoutWindow = (vxml.@showLogoutWindow.toString().toUpperCase() == "TRUE") ? true : false;
 				}
+        
+        if (vxml.@defaultLayout != undefined) {
+          defaultLayout = vxml.@defaultLayout.toString();
+        }
 			}
 		}
 		

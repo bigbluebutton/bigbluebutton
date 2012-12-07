@@ -36,13 +36,6 @@ package org.bigbluebutton.main.model.users
 	{
 		public static const NAME:String = "NetConnectionDelegate";
 		
-		public static const CONNECT_SUCCESS:String = "NetConnection.Connect.Success";
-		public static const CONNECT_FAILED:String = "NetConnection.Connect.Failed";
-		public static const CONNECT_CLOSED:String = "NetConnection.Connect.Closed";
-		public static const INVALID_APP:String = "NetConnection.Connect.InvalidApp";
-		public static const APP_SHUTDOWN:String = "NetConnection.Connect.AppShutDown";
-		public static const CONNECT_REJECTED:String = "NetConnection.Connect.Rejected";
-
 		private var _netConnection:NetConnection;	
 		private var connectionId:Number;
 		private var connected:Boolean = false;
@@ -60,11 +53,11 @@ package org.bigbluebutton.main.model.users
 		private var logoutOnUserCommand:Boolean = false;
 		private var backoff:Number = 2000;
 		
-		private var dispatcher:Dispatcher;
-				
-		public function NetConnectionDelegate(uri:String) : void
+		private var dispatcher:Dispatcher;    
+    private var _messageListeners:Array = new Array();
+        
+		public function NetConnectionDelegate():void
 		{
-			_applicationURI = uri;
 			dispatcher = new Dispatcher();
 			
 			_netConnection = new NetConnection();				
@@ -75,8 +68,69 @@ package org.bigbluebutton.main.model.users
 			_netConnection.addEventListener( IOErrorEvent.IO_ERROR, netIOError );
 		}
 		
+        public function setUri(uri:String):void {
+            _applicationURI = uri;
+        }
+       
+        
 		public function get connection():NetConnection {
 			return _netConnection;
+		}
+        
+        public function addMessageListener(listener:IMessageListener):void
+        {
+            _messageListeners.push(listener);
+        }
+        
+        public function removeMessageListener(listener:IMessageListener):void
+        {
+            for (var ob:int=0; ob<_messageListeners.length; ob++)
+            {
+                if (_messageListeners[ob]==listener)                    
+                {
+                    _messageListeners.splice (ob,1);
+                    break;
+                }
+            }
+        }
+        
+        private function notifyListeners(messageName:String, message:Object):void
+        {
+            if (messageName != null && messageName != "") {
+                for (var notify:String in _messageListeners)
+                {
+                    _messageListeners[notify].onMessage(messageName, message);
+                }                
+            } else {
+                LogUtil.debug("Message name is undefined");
+            }
+        }   
+        
+        public function onMessageFromServer(messageName:String, result:Object):void {
+//            LogUtil.debug("Got message from server [" + messageName + "]");    
+            notifyListeners(messageName, result);
+        }
+		
+		public function sendMessage(service:String, onSuccess:Function, onFailure:Function, message:Object=null):void {
+//			LogUtil.debug("SENDING [" + service + "]");
+			var responder:Responder =	new Responder(                    
+					function(result:Object):void { // On successful result
+						onSuccess("Successfully sent [" + service + "]."); 
+					},	                   
+					function(status:Object):void { // status - On error occurred
+						var errorReason:String = "Failed to send [" + service + "]:\n"; 
+						for (var x:Object in status) { 
+							errorReason += "\t" + x + " : " + status[x]; 
+						} 
+					}
+				);
+			
+			if (message == null) {
+				_netConnection.call(service, responder);			
+			} else {
+				_netConnection.call(service, responder, message);
+			}
+
 		}
 		
 		/**
@@ -93,7 +147,7 @@ package org.bigbluebutton.main.model.users
 			_conferenceParameters = params;
 			
 			tried_tunneling = tunnel;	
-			
+            
 			try {	
 				var uri:String = _applicationURI + "/" + _conferenceParameters.room;
 				
@@ -122,26 +176,34 @@ package org.bigbluebutton.main.model.users
 			this.logoutOnUserCommand = logoutOnUserCommand;
 			_netConnection.close();
 		}
-					
+		
+    
+    public function forceClose():void {
+      _netConnection.close();
+    }
+    
 		protected function netStatus( event : NetStatusEvent ) : void 
 		{
 			handleResult( event );
 		}
 		
+    private var autoReconnectTimer:Timer = new Timer(1000, 1);
+    
 		public function handleResult(  event : Object  ) : void {
 			var info : Object = event.info;
 			var statusCode : String = info.code;
 
 			switch ( statusCode ) 
 			{
-				case CONNECT_SUCCESS :
+				case "NetConnection.Connect.Success":
 					LogUtil.debug(NAME + ":Connection to viewers application succeeded.");
+
 					_netConnection.call(
 							"getMyUserId",// Remote function name
 							new Responder(
 	        					// result - On successful result
 								function(result:Object):void { 
-									LogUtil.debug("Successful result: " + result); 
+									LogUtil.debug("Userid [" + result + "]"); 
 									sendConnectionSuccessEvent(result);
 								},	
 								// status - On error occurred
@@ -156,7 +218,7 @@ package org.bigbluebutton.main.model.users
 			
 					break;
 			
-				case CONNECT_FAILED :					
+				case "NetConnection.Connect.Failed":					
 					if (tried_tunneling) {
 						LogUtil.debug(NAME + ":Connection to viewers application failed...even when tunneling");
 						sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_FAILED);
@@ -169,22 +231,28 @@ package org.bigbluebutton.main.model.users
 					}									
 					break;
 					
-				case CONNECT_CLOSED :	
-					LogUtil.debug(NAME + ":Connection to viewers application closed");					
-					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);								
+				case "NetConnection.Connect.Closed":	
+					LogUtil.debug(NAME + ":Connection to viewers application closed");		
+//          if (logoutOnUserCommand) {
+            sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_CLOSED);		
+//          } else {
+//            autoReconnectTimer.addEventListener("timer", autoReconnectTimerHandler);
+//            autoReconnectTimer.start();		
+//          }
+											
 					break;
 					
-				case INVALID_APP :	
+				case "NetConnection.Connect.InvalidApp":	
 					LogUtil.debug(NAME + ":viewers application not found on server");			
 					sendConnectionFailedEvent(ConnectionFailedEvent.INVALID_APP);				
 					break;
 					
-				case APP_SHUTDOWN :
+				case "NetConnection.Connect.AppShutDown":
 					LogUtil.debug(NAME + ":viewers application has been shutdown");
 					sendConnectionFailedEvent(ConnectionFailedEvent.APP_SHUTDOWN);	
 					break;
 					
-				case CONNECT_REJECTED :
+				case "NetConnection.Connect.Rejected":
 					LogUtil.debug(NAME + ":Connection to the server rejected. Uri: " + _applicationURI + ". Check if the red5 specified in the uri exists and is running" );
 					sendConnectionFailedEvent(ConnectionFailedEvent.CONNECTION_REJECTED);		
 					break;
@@ -200,6 +268,12 @@ package org.bigbluebutton.main.model.users
 			}
 		}
 		
+    private function autoReconnectTimerHandler(event:TimerEvent):void {
+      LogUtil.debug(NAME + "autoReconnectTimerHandler: " + event);
+      Alert.show("Attempting to reconnect");
+      connect(_conferenceParameters, tried_tunneling);
+    }
+        
 		private function rtmptRetryTimerHandler(event:TimerEvent):void {
             LogUtil.debug(NAME + "rtmptRetryTimerHandler: " + event);
             connect(_conferenceParameters, true);
@@ -238,7 +312,7 @@ package org.bigbluebutton.main.model.users
 		
 		private function sendConnectionSuccessEvent(userid:Object):void{
 			var useridString:String = userid as String;
-			var n:int = parseInt(useridString);
+			var n:String = useridString;
 			
 			var e:UsersConnectionEvent = new UsersConnectionEvent(UsersConnectionEvent.CONNECTION_SUCCESS);
 			e.connection = _netConnection;

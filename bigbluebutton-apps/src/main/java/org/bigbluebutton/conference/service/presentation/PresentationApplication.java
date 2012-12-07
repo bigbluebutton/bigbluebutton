@@ -22,18 +22,19 @@
 
 package org.bigbluebutton.conference.service.presentation;
 
-
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.bigbluebutton.conference.ClientMessage;
+import org.bigbluebutton.conference.ConnectionInvokerService;
 import org.red5.logging.Red5LoggerFactory;
-import java.util.ArrayList;
+import org.red5.server.api.Red5;import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
-public class PresentationApplication {
 
+public class PresentationApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( PresentationApplication.class, "bigbluebutton" );	
 		
-	private static final String APP = "PRESENTATION";
 	private PresentationRoomsManager roomsManager;
+	private ConnectionInvokerService connInvokerService;
 	
 	public boolean createRoom(String name) {
 		roomsManager.addRoom(new PresentationRoom(name));
@@ -62,6 +63,7 @@ public class PresentationApplication {
 	
 	@SuppressWarnings("unchecked")
 	public void sendUpdateMessage(Map message){
+	
 		String room = (String) message.get("room");
 		if (roomsManager.hasRoom(room)){
 			roomsManager.sendUpdateMessage(message);
@@ -118,6 +120,23 @@ public class PresentationApplication {
 		return null;
 	}
 	
+	public void sendCursorUpdate(String room, Double xPercent, Double yPercent) {	
+		if (roomsManager.hasRoom(room)){
+			log.debug("Request to update cursor[" + xPercent + "," + yPercent + "]");
+			roomsManager.sendCursorUpdate(room, xPercent, yPercent);
+			
+			Map<String, Object> message = new HashMap<String, Object>();	
+			message.put("xPercent", xPercent);
+			message.put("yPercent", yPercent);
+			ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "PresentationCursorUpdateCommand", message);
+			connInvokerService.sendMessage(m);
+			
+			return;
+		}
+				
+		log.warn("Sending cursor update on a non-existant room " + room);
+	}
+	
 	public void resizeAndMoveSlide(String room, Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
 		if (roomsManager.hasRoom(room)){
 			log.debug("Request to resize and move slide[" + xOffset + "," + yOffset + "," + widthRatio + "," + heightRatio + "]");
@@ -150,4 +169,13 @@ public class PresentationApplication {
 		roomsManager = r;
 		log.debug("Done setting room manager");
 	}
+
+	private String getMeetingId(){
+		return Red5.getConnectionLocal().getScope().getName();
+	}
+	
+	
+	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
+		this.connInvokerService = connInvokerService;
+	}	
 }

@@ -46,6 +46,7 @@ package org.bigbluebutton.modules.chat.maps {
 			this.dispatcher = dispatcher;
 			_chatWindow = new ChatWindow();
 			globalDispatcher = new Dispatcher();
+      openChatWindow();
 		}
 
 		private function getChatOptions():void {

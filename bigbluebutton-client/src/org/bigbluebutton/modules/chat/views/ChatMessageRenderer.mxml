@@ -20,15 +20,15 @@
   $Id: $
 -->
 
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" height="{txtMessage.height + 3}" 
-		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()" 
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" 
+		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()"
 		 creationComplete="onCreationComplete()">
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.binding.utils.ChangeWatcher;			
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.modules.chat.model.ChatMessage;
-			import org.bigbluebutton.common.LogUtil;		
-			import mx.binding.utils.ChangeWatcher;
 
 			[Bindable] private var rolledOver:Boolean = false;					
 			[Bindable] private var chatMsg:ChatMessage;
@@ -80,10 +80,16 @@
 		]]>
 	</mx:Script>
 	
-	<mx:Label maxWidth="50" width="50" truncateToFit="true" id="lblName" text="{chatMsg.name} " visible="{!(chatMsg.senderId == chatMsg.lastSenderId)}" color="gray" />
-	<mx:Text id="txtMessage" htmlText="{rolledOver ? chatMsg.senderText : chatMsg.translatedText}" link="onLinkClick(event)" color="{chatMsg.senderColor}"
-			 rollOver="onRollOver()" rollOut="onRollOut()" width="100%" />
-	<mx:Text id="lblTime" htmlText="{chatMsg.translateLocale} {rolledOver ? chatMsg.senderTime : chatMsg.time}" 
-				visible="{!(chatMsg.lastTime == chatMsg.time) || !(chatMsg.senderId == chatMsg.lastSenderId)}" 
-				color="gray" />
-</mx:HBox>
+  <mx:HBox width="100%">
+    <mx:Label id="lblName" text="{chatMsg.name} " visible="{!(chatMsg.senderId == chatMsg.lastSenderId)}" color="gray" width="100%" textAlign="left"/>
+    <mx:Spacer width="100%"/>
+    <mx:Text id="lblTime" htmlText="{chatMsg.translateLocale} {rolledOver ? chatMsg.senderTime : chatMsg.time}" textAlign="right"
+             visible="{!(chatMsg.lastTime == chatMsg.time) || !(chatMsg.senderId == chatMsg.lastSenderId)}" 
+             color="gray"  width="100%"/>       
+  </mx:HBox>
+  <mx:HBox width="100%">
+    <mx:Spacer width="5"/>
+    <mx:Text id="txtMessage" htmlText="{rolledOver ? chatMsg.senderText : chatMsg.translatedText}" link="onLinkClick(event)" color="{chatMsg.senderColor}"
+             rollOver="onRollOver()" rollOut="onRollOut()" width="100%" />
+  </mx:HBox>  
+</mx:VBox>

@@ -26,7 +26,7 @@ package org.bigbluebutton.main.model.users.events
 		public static const CONNECTION_SUCCESS:String = "usersConnectionSuccess";
 		
 		public var connection:NetConnection;
-		public var userid:Number;
+		public var userid:String;
 		
 		public function UsersConnectionEvent(type:String)
 		{

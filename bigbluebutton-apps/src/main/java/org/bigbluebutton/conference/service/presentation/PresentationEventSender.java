@@ -139,6 +139,18 @@ public class PresentationEventSender implements IPresentationRoomListener {
 		list.add(share);
 		so.sendMessage("sharePresentationCallback", list);
 	}
+	
+	@Override
+	public void sendCursorUpdate(Double xPercent, Double yPercent) {
+		// Disable. We are using connection invoke now. (ralam Oct 1, 2012).
+		// We'll have to convert all other messages to use conn invoke soon.
+		
+//		log.debug("calling updateCursorCallback[" + xPercent + "," + yPercent + "]");
+//		ArrayList list=new ArrayList();
+//		list.add(xPercent);
+//		list.add(yPercent);
+//		so.sendMessage("updateCursorCallback", list);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -151,4 +163,6 @@ public class PresentationEventSender implements IPresentationRoomListener {
 		list.add(heightRatio);
 		so.sendMessage("moveCallback", list);
 	}
+
+	
 }

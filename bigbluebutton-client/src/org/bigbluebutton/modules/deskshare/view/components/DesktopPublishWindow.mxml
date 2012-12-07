@@ -38,13 +38,18 @@
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="closePublishWindow" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
+	
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import flexlib.mdi.events.MDIWindowEvent;
-			import flexlib.scheduling.scheduleClasses.BackgroundItem;			
-			import mx.core.UIComponent;			
+			import flexlib.scheduling.scheduleClasses.BackgroundItem;
+			
+			import mx.core.UIComponent;
+			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
@@ -56,6 +61,7 @@
 			import org.bigbluebutton.modules.deskshare.events.ShareWindowEvent;
 			import org.bigbluebutton.modules.deskshare.events.StreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+			import org.bigbluebutton.modules.deskshare.events.StopSharingButtonEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			public static const SCALE:Number = 5;
@@ -134,6 +140,7 @@
 				LogUtil.debug("Calling shareScreen");
 				btnFSPublish.enabled = false;
 				btnRegionPublish.enabled = false;
+//				useSVC2Check.enabled = false;
 				startSharing(connection, uri, room, fullScreen);
 			}
 			
@@ -142,10 +149,22 @@
 				var captureY:Number = 0;				
 				sharingFullScreen = fullScreen;
 				LogUtil.debug("Calling startApplet");
-				ExternalInterface.call("startApplet", uri, room, fullScreen);
+				ExternalInterface.call("startApplet", uri, room, fullScreen, true /*useSVC2Check.selected*/);
 			}
 			
 			public function stopSharing():void{
+				if (streaming) {
+					stopStream();
+					var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
+					dispatchEvent(streamEvent);					
+				}
+				sharingFullScreen = false;
+				streaming = false;
+									
+				closeWindow();
+			}
+
+			public function stopSharingEvent(evt:StopSharingButtonEvent):void{
 				if (streaming) {
 					stopStream();
 					var streamEvent:StreamEvent = new StreamEvent(StreamEvent.STOP);
@@ -297,7 +316,9 @@
 					<mx:Spacer width="100%"/>
 					<mx:Button id="btnClosePublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.label')}" visible="true" enabled="false" click="stopSharing()" />
 					<mx:Spacer width="100%"/>
-					<mx:Button id="btnRegionPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" visible="true" click="shareScreen(false)" />		
+					<mx:Button id="btnRegionPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" visible="true" click="shareScreen(false)" />
+					<mx:Spacer width="100%"/>
+					<!--mx:CheckBox id="useSVC2Check" label="SVC2" selected="true" /-->
 				</mx:ControlBar>
             </mx:AddChild>
         </mx:State>	

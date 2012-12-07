@@ -21,6 +21,15 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
+    [Embed(source="assets/images/avatar.png")]
+    public var avatar:Class;
+    
+    [Embed(source="assets/images/sign-out.png")]
+    public var signOutIcon:Class;
+    
+    [Embed(source="assets/images/chat.png")]
+    public var chatIcon:Class;
+    
 		[Embed(source="assets/images/webcam_close.png")]
 		public var webcamClose:Class;
 		
@@ -93,6 +102,9 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/webcam.png")]
         public var webcam:Class;                            
         
+	[Embed(source="assets/images/webcam_on.png")]
+        public var webcamOn:Class; 
+
         [Embed(source="assets/images/pencil.png")]
         public var pencil_icon:Class;  
         
@@ -101,6 +113,15 @@ package org.bigbluebutton.common
         
         [Embed(source="assets/images/arrow_undo.png")] 
         public var undo_icon:Class;  
+        
+        [Embed(source="assets/images/hand_icon.png")]
+        public var hand_icon:Class; 
+        
+        [Embed(source="assets/images/scribble_icon.png")]
+        public var scribble_icon:Class; 
+
+        [Embed(source="assets/images/text_icon.png")]
+        public var text_icon:Class; 
         
         [Embed(source="assets/images/circle.png")]
         public var circle_icon:Class; 
@@ -114,6 +135,9 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/deskshare_icon.png")]
         public var deskShareIcon:Class;  
         
+	[Embed(source="assets/images/deskshare_on.png")]
+        public var deskShareIconOn:Class;  
+
         [Embed(source="assets/images/control_play_blue.png")]
         public var control_play:Class;  
 
@@ -173,5 +197,42 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/shape_handles.png")]
 		public var shape_handles:Class;		
+
+		[Embed(source="assets/images/disk.png")]
+		public var disk:Class;		
+
+		[Embed(source="assets/images/folder.png")]
+		public var folder:Class;		
+	
+		// PLACE CUSTOM IMAGES BELOW
+		[Embed(source="assets/images/line.png")]
+		public var line_icon:Class;	
+		
+//		[Embed(source="assets/images/text_icon.png")]
+//		public var text_icon:Class;	
+		
+		[Embed(source="assets/images/fill_icon.png")]
+		public var fill_icon:Class;	
+		
+		[Embed(source="assets/images/transparency_icon.png")]
+		public var transparency_icon:Class;	
+		
+		[Embed(source="assets/images/eraser.png")]
+		public var eraser_icon:Class;	
+		
+		[Embed(source="assets/images/highlighter_icon.png")]
+		public var highlighter_icon:Class;	
+		
+		[Embed(source="assets/images/pointer_icon_small.png")]
+		public var select_icon:Class;	
+		
+		[Embed(source="assets/images/triangle_icon.png")]
+		public var triangle_icon:Class;	
+		
+		[Embed(source="assets/images/text_background_icon.png")]
+		public var toggle_text_background_icon:Class;	
+		
+		[Embed(source="assets/images/grid_icon.png")]
+		public var grid_icon:Class;	
 	}
 }

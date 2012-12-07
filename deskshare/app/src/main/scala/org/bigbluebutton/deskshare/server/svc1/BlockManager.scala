@@ -27,10 +27,10 @@ import org.bigbluebutton.deskshare.common.ScreenVideoEncoder
 import org.bigbluebutton.deskshare.server.session.ScreenVideoFrame
 import net.lag.logging.Logger
 
-class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension, waitForAllBlocks: Boolean) extends BlockFactory {
+class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension, waitForAllBlocks: Boolean, useSVC2: Boolean) extends BlockFactory {
     private val log = Logger.get
     
-	private var blocksMap = new ConcurrentHashMap[Integer, Block]
+	private var blocksMap = new ConcurrentHashMap[Int, Block]
 	
 	private var numberOfRows = getNumberOfRows(screenDim, blockDim)
 	private var numberOfColumns = getNumberOfColumns(screenDim, blockDim)
@@ -82,10 +82,15 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension, wait
 		val encodedDim: Array[Byte] = ScreenVideoEncoder.encodeBlockAndScreenDimensions(blockDim.width, screenDim.width, blockDim.height, screenDim.height)
      	    	
     	val numberOfBlocks = numberOfRows * numberOfColumns 		
-    	val videoDataHeader: Byte = ScreenVideoEncoder.encodeFlvVideoDataHeader(genKeyFrame)
+    	val videoDataHeader: Byte = ScreenVideoEncoder.encodeFlvVideoDataHeader(genKeyFrame, useSVC2)
     		    		
     	screenVideoFrame.write(videoDataHeader)
     	screenVideoFrame.write(encodedDim)
+    	
+    	if (useSVC2) {
+    	  val flags : Byte = 0; // 6 bits reserved (0); HasIFrameImage=0; HasPaletteInfo=0
+    	  screenVideoFrame.write(flags);
+    	}
     	
     	if (! gotAllBlocks ) {
     	  gotAllBlocks = allBlocksReceived(numberOfBlocks)

@@ -40,12 +40,10 @@
 			import flash.sampler.NewObjectSample;			
 			import flexlib.mdi.events.MDIWindowEvent;
 			import mx.core.UIComponent;			
-			import org.bigbluebutton.common.IUserListener;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.main.model.User;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 			import org.bigbluebutton.modules.deskshare.events.StartedViewingEvent;

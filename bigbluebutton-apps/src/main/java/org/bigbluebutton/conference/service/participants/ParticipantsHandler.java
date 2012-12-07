@@ -22,9 +22,9 @@ package org.bigbluebutton.conference.service.participants;
 import org.red5.server.adapter.IApplication;
 import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
-import org.red5.server.api.IScope;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.scope.IScope;
 import org.red5.server.api.so.ISharedObject;
 import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.api.Red5;
@@ -109,7 +109,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		if (bbbSession == null) {
 			log.debug("roomLeave - session is null"); 
 		} else {
-			participantsApplication.participantLeft(bbbSession.getSessionName(), bbbSession.getClientID());
+			participantsApplication.participantLeft(bbbSession.getSessionName(), bbbSession.getInternalUserID());
 		}		
 	}
 	
@@ -138,7 +138,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		log.debug(APP + ":participantJoin - getting userid");
 		BigBlueButtonSession bbbSession = getBbbSession();
 		if (bbbSession != null) {
-			Long userid = bbbSession.getClientID();
+			String userid = bbbSession.getInternalUserID();
 			String username = bbbSession.getUsername();
 			String role = bbbSession.getRole();
 			String room = bbbSession.getRoom();

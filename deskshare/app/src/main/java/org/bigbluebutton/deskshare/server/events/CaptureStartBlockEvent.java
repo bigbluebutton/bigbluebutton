@@ -29,12 +29,14 @@ public class CaptureStartBlockEvent {
 	private final Dimension screenDim;
 	private final Dimension blockDim;
 	private final int sequenceNum;
+	private final boolean useSVC2;
 	
-	public CaptureStartBlockEvent(String room, Dimension screen, Dimension block, int sequenceNum) {
+	public CaptureStartBlockEvent(String room, Dimension screen, Dimension block, int sequenceNum, boolean useSVC2) {
 		this.room = room;
 		screenDim = screen;
 		blockDim = block;
 		this.sequenceNum = sequenceNum;
+		this.useSVC2 = useSVC2;
 	}
 	
 	public Dimension getScreenDimension() {
@@ -51,5 +53,9 @@ public class CaptureStartBlockEvent {
 	
 	public int getSequenceNum() {
 		return sequenceNum;
+	}
+
+	public boolean isUseSVC2() {
+		return useSVC2;
 	}
 }

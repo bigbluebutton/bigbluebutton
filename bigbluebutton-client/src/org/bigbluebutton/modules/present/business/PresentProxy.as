@@ -148,8 +148,6 @@ package org.bigbluebutton.modules.present.business
 		private function sendViewerNotify(e:TimerEvent):void{
 			if (soService == null) return;
 			soService.gotoSlide(0);
-			
-			
 		}
 			
 		/**

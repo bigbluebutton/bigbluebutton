@@ -19,20 +19,27 @@
 
 package org.bigbluebutton.conference.service.chat;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import org.bigbluebutton.conference.service.chat.ChatRoomsManager;
+import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.ClientMessage;
+import org.bigbluebutton.conference.ConnectionInvokerService;
+import org.bigbluebutton.conference.Constants;
+import org.bigbluebutton.conference.service.chat.ChatRoomsManager;
 import org.bigbluebutton.conference.service.chat.ChatRoom;import org.bigbluebutton.conference.service.chat.IChatRoomListener;
+
 
 public class ChatApplication {
 
 	private static Logger log = Red5LoggerFactory.getLogger( ChatApplication.class, "bigbluebutton" );	
 		
-	private static final String APP = "CHAT";
 	private ChatRoomsManager roomsManager;
 	public ChatHandler handler;
+	private ConnectionInvokerService connInvokerService;
 	
 	public boolean createRoom(String name) {
 		roomsManager.addRoom(new ChatRoom(name));
@@ -59,16 +66,51 @@ public class ChatApplication {
 		return false;
 	}
 	
-	public List<ChatObject> getChatMessages(String room) {
-		return roomsManager.getChatMessages(room);
+	public void sendPublicChatHistory(String meetingID) {
+		List<ChatMessageVO> messages = roomsManager.getChatMessages(meetingID);
+		
+		List<Map<String, Object>> msgs = new ArrayList<Map<String, Object>>();
+		for (ChatMessageVO v : messages) {
+			msgs.add(v.toMap());
+		}
+		
+		Map<String, Object> messageToSend = new HashMap<String, Object>();
+		messageToSend.put("count", new Integer(msgs.size()));
+		messageToSend.put("messages", msgs);
+		
+		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, getBbbSession().getInternalUserID(), "ChatRequestMessageHistoryReply", messageToSend);
+		connInvokerService.sendMessage(m);
 	}
 	
-	public void sendMessage(String room, ChatObject chatobj) {
+	public void sendPublicMessage(String room, ChatMessageVO chatobj) {
 		roomsManager.sendMessage(room, chatobj);
+		
+		ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "ChatReceivePublicMessageCommand", chatobj.toMap());
+		connInvokerService.sendMessage(m);
+	}
+
+	public void sendPrivateMessage(ChatMessageVO chatobj) {
+		ClientMessage m = new ClientMessage(ClientMessage.DIRECT, chatobj.toUserID, "ChatReceivePrivateMessageCommand", chatobj.toMap());
+		connInvokerService.sendMessage(m);
+		
+		ClientMessage m2 = new ClientMessage(ClientMessage.DIRECT, chatobj.fromUserID, "ChatReceivePrivateMessageCommand", chatobj.toMap());
+		connInvokerService.sendMessage(m2);
 	}
 	
 	public void setRoomsManager(ChatRoomsManager r) {
 		log.debug("Setting room manager");
 		roomsManager = r;
+	}
+	
+	private String getMeetingId(){
+		return Red5.getConnectionLocal().getScope().getName();
+	}
+	
+	private BigBlueButtonSession getBbbSession() {
+		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
+	}
+	
+	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
+		this.connInvokerService = connInvokerService;
 	}
 }

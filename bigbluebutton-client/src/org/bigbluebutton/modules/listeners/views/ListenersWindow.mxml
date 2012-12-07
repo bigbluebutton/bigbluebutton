@@ -22,7 +22,7 @@
 
 <MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 			xmlns="flexlib.mdi.containers.*"
-			xmlns:flc="flexlib.controls.*"
+			xmlns:flc="flexlib.controls.*" visible="false"
 			implements="org.bigbluebutton.common.IBbbModuleWindow"
 			title="{windowTitle}"
 			creationComplete="onCreationComplete()" xmlns:mate="http://mate.asfusion.com/" xmlns:controls="flexlib.controls.*">
@@ -31,6 +31,7 @@
 	<mate:Listener type="{ListenersEvent.REGISTER_LISTENERS}" method="registerListeners" />
 	<mate:Listener type="{ListenersEvent.SET_LOCAL_MODERATOR_STATUS}" method="{setModerator}" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="muteMeHandler" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -50,6 +51,7 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.listeners.events.ListenersCommand;
 			import org.bigbluebutton.modules.listeners.events.ListenersEvent;
@@ -200,6 +202,9 @@
 				resourcesChanged();
 			}
 			
+			private function muteMeHandler(e:ShortcutEvent):void{
+				toggleMuteMeState();
+			}
 		]]>
 	</mx:Script>
     	<mx:List id="listenersList" height="100%" width="100%"

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+--> 
+
+<EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
+  <mx:Script>
+    <![CDATA[
+      import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.main.api.ExternalApiCalls;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.UserJoinedEvent;
+      import org.bigbluebutton.main.events.UserLeftEvent;
+    ]]>
+  </mx:Script>
+  <!--
+    Listen for events we are interested to forward to the external container..
+  -->
+  <EventHandlers type="{BBBEvent.USER_VOICE_MUTED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceMutedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{BBBEvent.USER_VOICE_LOCKED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceLockedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{BBBEvent.USER_VOICE_LEFT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceLeftEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{BBBEvent.USER_VOICE_JOINED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserJoinedVoiceEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{EventConstants.GET_MY_ROLE_RESP}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleGetMyRoleResponse" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{UserJoinedEvent.JOINED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserJoinedEvent" arguments="{event}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{UserLeftEvent.LEFT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserLeftEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{EventConstants.NEW_ROLE}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleSwitchToNewRoleEvent" arguments="{event}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{EventConstants.NEW_PRIVATE_CHAT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleNewPrivateChatEvent" arguments="{event}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{EventConstants.NEW_PUBLIC_CHAT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleNewPublicChatEvent" arguments="{event}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{EventConstants.START_PRIVATE_CHAT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleStartPrivateChatEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+</EventMap>

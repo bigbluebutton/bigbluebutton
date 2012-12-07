@@ -1,0 +1,112 @@
+body {
+  padding: 10px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+#chat_messages {
+    float: right;
+    width: 300px;
+    height: 400px;
+    border: 1px solid red;
+	  overflow:scroll;
+	  word-wrap: break-word;
+}
+
+#chat_input_box {
+  width: 250px;
+}
+
+#slide {
+  width: 805px;
+  height: 610px;
+  border: 1px solid black;
+  overflow:hidden; /* so they don't overlap */
+}
+
+.textinput {
+  font-family: Arial;
+  font-size:14px; /* keep in pixels*/
+  resize:none;
+  display:block;
+}
+
+.presenter {
+  border: 3px solid red;
+}
+
+.clickable {
+  cursor:pointer;
+}
+
+.selected {
+  background-color:#000;
+  color: #FFF;
+}
+
+#slideAndControls {
+  float:left;
+}
+
+#chat_input {
+  clear: both;
+  display: block;
+  float: right;
+}
+
+#uploadcontrols {
+  
+}
+
+#chat_title {
+  
+  padding-left: 25px;
+}
+
+#listUsers {
+  float: right;
+}
+
+#current_users {
+  width: 200px;
+  height: 300px;
+  border: 1px solid red;
+}
+
+#ChatAndControls {
+  float:right;
+}
+
+#logout {
+  float: right;
+}
+
+#send_chat {
+  float:right;
+}
+
+#imagecontrols form {
+  display: inline;
+}
+
+#thickness {
+  width: 60px;
+}
+
+#colourText {
+  width: 50px;
+  margin-left: 5px;
+}
+
+#colourView {
+  margin-left: 5px;
+  cursor:pointer;
+}
+
+.canvas {
+  border: 1px solid blue;
+  position: absolute;
+}

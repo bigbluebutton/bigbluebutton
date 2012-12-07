@@ -23,9 +23,11 @@ package org.bigbluebutton.modules.present.events
 	public class NavigationEvent extends Event
 	{
 		public static const GOTO_PAGE:String = "GOTO_PAGE";
-		
+		public static const BIND_KEYBOARD_EVENT:String = "Bind to keyboard events";
+        
 		public var pageNumber:Number;
-		
+		public var bindToKeyboard:Boolean = false;
+        
 		public function NavigationEvent(type:String)
 		{
 			super(type, true, false);

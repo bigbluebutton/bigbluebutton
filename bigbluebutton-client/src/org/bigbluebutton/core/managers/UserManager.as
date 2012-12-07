@@ -18,9 +18,6 @@
 */
 package org.bigbluebutton.core.managers {
 	import mx.collections.ArrayCollection;
-	
-	import org.bigbluebutton.common.IUserListener;
-	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.main.model.users.Conference;
 
 	/**
@@ -30,7 +27,6 @@ package org.bigbluebutton.core.managers {
 	public class UserManager {
 		private static var instance:UserManager = null;
 		private var listeners:ArrayCollection;
-		private var users:ArrayCollection;
 		private var conference:Conference = new Conference();
 		
 		/**
@@ -46,7 +42,6 @@ package org.bigbluebutton.core.managers {
 		
 		private function initialize():void{
 			listeners = new ArrayCollection();
-			users = new ArrayCollection();
 		}
 		
 		/**
@@ -58,48 +53,11 @@ package org.bigbluebutton.core.managers {
 			}
 			return instance;
 		}
-		
-		/**
-		 * Register a class to listen to updates from the UserManager
-		 */ 
-		public function registerListener(listener:IUserListener):void{
-			listeners.addItem(listener);
-		}
-						
+							
 		public function getConference():Conference{
 			return this.conference;
 		}
-				
-		public function participantJoined(participant:User):void{
-			users.addItem(participant);
-			for (var i:int = 0; i < listeners.length; i++){
-				(listeners.getItemAt(i) as IUserListener).userJoined(participant);
-			}
-		}
-		
-		public function participantLeft(participant:User):void{
-			var j:int = -1;
-			for (var i:int = 0; i<users.length; i++){
-				if ((users.getItemAt(i) as User).userid == participant.userid) j = i;
-			}
-			if (j >= 0) users.removeItemAt(j);
 			
-			for (var k:int = 0; k<listeners.length; k++){
-				(listeners.getItemAt(k) as IUserListener).userLeft(participant);
-			}
-		}
-		
-		public function presenterChanged(userId:int):void{
-			var user:User = null;
-			
-			for (var i:int = 0; i<users.length; i++){
-				if ((users.getItemAt(i) as User).userid == userId.toString()) user = users.getItemAt(i) as User;
-			}
-			
-			for (var k:int = 0; k<listeners.length; k++){
-				(listeners.getItemAt(k) as IUserListener).presenterChanged(user);
-			}
-		}
 	}
 }
 

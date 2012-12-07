@@ -47,6 +47,11 @@ public class PresentationRoom {
 	Double yOffset = 0D;
 	Double widthRatio = 0D;
 	Double heightRatio = 0D;
+	
+	/* cursor location */
+	Double xPercent = 0D;
+	Double yPercent = 0D;
+	
 	ArrayList<String> presentationNames = new ArrayList<String>();
 	
 	public PresentationRoom(String name) {
@@ -92,6 +97,18 @@ public class PresentationRoom {
             presentationNames.add(presentationName);                                
         }           
     }
+	
+	public void sendCursorUpdate(Double xPercent, Double yPercent) {
+		this.xPercent = xPercent;
+		this.yPercent = yPercent;
+		
+		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+			log.debug("calling on listener");
+			IPresentationRoomListener listener = (IPresentationRoomListener) iter.next();
+			log.debug("calling sendCursorUpdate on listener " + listener.getName());
+			listener.sendCursorUpdate(xPercent,yPercent);
+		}
+	}
 	
 	public void resizeAndMoveSlide(Double xOffset, Double yOffset, Double widthRatio, Double heightRatio) {
 		this.xOffset = xOffset;
@@ -192,4 +209,6 @@ public class PresentationRoom {
 	public Double getHeightRatio() {
 		return heightRatio;
 	}
+
+	
 }

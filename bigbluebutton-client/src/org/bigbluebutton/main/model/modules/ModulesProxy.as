@@ -64,13 +64,17 @@ package org.bigbluebutton.main.model.modules
 		public function getPortTestApplication():String {
 			return modulesManager.portTestApplication;
 		}
+
+		public function getPortTestTimeout():Number {
+			return modulesManager.portTestTimeout;
+		}
 		
 		public function testRTMP():void{
-			portTestProxy.connect("RTMP", getPortTestHost(), "1935", getPortTestApplication());
+			portTestProxy.connect("RTMP", getPortTestHost(), "1935", getPortTestApplication(), getPortTestTimeout());
 		}
 		
 		public function testRTMPT(protocol:String):void{
-			if (protocol == "RTMP") portTestProxy.connect("RTMPT", getPortTestHost(), "", getPortTestApplication());
+			if (protocol == "RTMP") portTestProxy.connect("RTMPT", getPortTestHost(), "", getPortTestApplication(), getPortTestTimeout());
 			else modulesDispatcher.sendTunnelingFailedEvent();
 		}
 		
@@ -81,7 +85,11 @@ package org.bigbluebutton.main.model.modules
 		public function handleLogout():void {
 			modulesManager.handleLogout();
 		}
-		
+
+    public function startLayoutModule():void{
+      modulesManager.startLayoutModule();
+    }
+    
 		public function startAllModules():void{
 			modulesManager.startAllModules();
 		}

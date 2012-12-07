@@ -25,7 +25,7 @@
 		public static const BROADCAST_STARTED_EVENT:String = "BROADCAST_STARTED_EVENT";
 		
 		public var stream:String;
-		public var userid:Number;
+		public var userid:String;
 		
 		public function BroadcastStartedEvent(type:String = BROADCAST_STARTED_EVENT)
 		{

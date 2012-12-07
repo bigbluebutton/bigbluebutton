@@ -37,8 +37,8 @@ package org.bigbluebutton.main.model {
 			modulesDispatcher = new ModulesDispatcher();
 		}
 		
-		public function connect(protocol:String = "", hostname:String = "", port:String = "", application:String = ""):void {
-			var portTest:PortTest = new PortTest(protocol,hostname,port,application);
+		public function connect(protocol:String = "", hostname:String = "", port:String = "", application:String = "", testTimeout:Number = 10000):void {
+			var portTest:PortTest = new PortTest(protocol,hostname,port,application, testTimeout);
 			portTest.addConnectionSuccessListener(connectionListener);
 			portTest.connect();
 		}

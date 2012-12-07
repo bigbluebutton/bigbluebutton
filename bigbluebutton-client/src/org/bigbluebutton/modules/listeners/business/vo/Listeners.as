@@ -84,8 +84,7 @@ package org.bigbluebutton.modules.listeners.business.vo
 			listeners.removeAll();
 		}		
 	
-		public function newUserStatus(id:Number, newStatus:String) : void
-		{
+		public function newUserStatus(id:Number, newStatus:String):void {
 			var l:Listener = getListener(id);
 			
 			if (l != null) {

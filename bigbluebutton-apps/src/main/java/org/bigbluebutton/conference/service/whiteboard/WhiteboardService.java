@@ -21,10 +21,14 @@
 */
 package org.bigbluebutton.conference.service.whiteboard;
 
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 
-import org.red5.compatibility.flex.messaging.io.ArrayCollection;
+import org.bigbluebutton.conference.BigBlueButtonSession;
+import org.bigbluebutton.conference.Constants;
+import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.api.Red5;
 import org.slf4j.Logger;
 
 public class WhiteboardService {
@@ -38,60 +42,80 @@ public class WhiteboardService {
 		this.application = a;
 	}
 	
-	public void sendShape(double[] shape, String type, int color, int thickness, String id, String status){
-		log.info("WhiteboardApplication - Sending share");
-		application.sendShape(shape, type, color, thickness, id, status);
-	}
-	
-	/**
-	 * Sets the active page
-	 * @param pageNum - the number of the page to set to active
-	 * @return - returns the number of shapes in the history of the requested page. This way the client can perform a simple check of whether
-	 * it should retrieve the page history. This saves some bandwidth for the server.
-	 */
-	public int setActivePage(int pageNum){
-		log.info("WhiteboardApplication - Getting number of shapes for page: " + pageNum);
-		return application.getNumShapesOnPage(pageNum);
-	}
-	
-	public List<Object[]> getShapes(){
-		log.info("WhiteboardApplication - Returning shapes");
-		List<Object[]> shapes = application.getShapes();
+	public void sendAnnotation(Map<String, Object> annotation) {
+//		for (Map.Entry<String, Object> entry : annotation.entrySet()) {
+//		    String key = entry.getKey();
+//		    Object value = entry.getValue();
+		    
+//		    if (key.equals("points")) {
+//		    	String points = "points=[";
+//		    	ArrayList<Double> v = (ArrayList<Double>) value;
+//		    	log.debug(points + pointsToString(v) + "]");
+//		    } else {
+//		    	log.debug(key + "=[" + value + "]");
+//		    }
+//		}
 		
-		/*System.out.println("Number of shapes: " + shapes.size());
-		System.out.println("First shape. Num params: " + shapes.get(0).length);
-		System.out.println("double[] : " + (double[])shapes.get(0)[0]);
-		System.out.println("type : " + shapes.get(0)[1]);
-		System.out.println("color : " + shapes.get(0)[2]);
-		System.out.println("thickness : " + shapes.get(0)[3]);
-		System.out.println("parentWidth : " + shapes.get(0)[4]);
-		System.out.println("parentHeight : " + shapes.get(0)[5]);*/
+		Annotation a = new Annotation(annotation);
 		
-		return shapes;
+		application.sendAnnotation(a);
 	}
 	
-	public void clear(){
+	private String pointsToString(ArrayList<Double> points){
+    	String datapoints = "";
+    	for (Double i : points) {
+    		datapoints += i + ",";
+    	}
+    	// Trim the trailing comma
+//    	log.debug("Data Point = " + datapoints);
+    	return datapoints.substring(0, datapoints.length() - 1);
+
+//		application.sendShape(shape, type, color, thickness, fill, fillColor, transparency, id, status);
+
+	}
+	
+	public void setActivePage(Map<String, Object> message){		
+		log.info("WhiteboardApplication - Getting number of shapes for page: " + (Integer) message.get("pageNum"));
+		application.changePage((Integer) message.get("pageNum"));
+	}
+	
+	public void requestAnnotationHistory(Map<String, Object> message) {
+		log.info("WhiteboardApplication - requestAnnotationHistory");
+		application.sendAnnotationHistory(getBbbSession().getInternalUserID(), 
+				(String) message.get("presentationID"), (Integer) message.get("pageNumber"));
+	}
+		
+	public void clear() {
 		log.info("WhiteboardApplication - Clearing board");
 		application.clear();
 	}
 	
-	public void undo(){
-		log.info("WhiteboardApplication - Deleting last shape");
+	public void undo() {
+		log.info("WhiteboardApplication - Deleting last graphic");
 		application.undo();
 	}
 	
-	public void setActivePresentation(String name, int numPages){
-		log.info("WhiteboardApplication - Setting active presentation: " + name);
-		application.setActivePresentation(name, numPages);
+	public void toggleGrid() {
+		log.info("WhiteboardApplication - Toggling grid mode");
+		application.toggleGrid();
 	}
 	
-	public void enableWhiteboard(boolean enable){
-		log.info("WhiteboardApplication - Setting whiteboard enabled: " + enable);
-		application.enableWhiteboard(enable);
+	public void setActivePresentation(Map<String, Object> message) {		
+		log.info("WhiteboardApplication - Setting active presentation: " + (String)message.get("presentationID"));
+		application.setActivePresentation((String)message.get("presentationID"), (Integer) message.get("numberOfSlides"));
 	}
 	
-	public boolean isWhiteboardEnabled(){
-		return application.isWhiteboardEnabled();
+	public void enableWhiteboard(Map<String, Object> message) {
+		log.info("WhiteboardApplication - Setting whiteboard enabled: " + (Boolean)message.get("enabled"));
+		application.enableWhiteboard((Boolean)message.get("enabled"));
+	}
+	
+	public void isWhiteboardEnabled() {
+		application.isWhiteboardEnabled(getBbbSession().getInternalUserID());
+	}
+	
+	private BigBlueButtonSession getBbbSession() {
+		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}
 	
 }

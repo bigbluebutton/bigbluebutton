@@ -293,15 +293,18 @@ class ApiController {
 
     boolean redirectImm = parseBoolean(params.redirectImmediately)
     
+	String internalUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+	
     String externUserID = params.userID
     if (StringUtils.isEmpty(externUserID)) {
-      externUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+      externUserID = internalUserID
     }
     
 	UserSession us = new UserSession();
-	us.internalUserId = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+	us.internalUserId = internalUserID
     us.conferencename = meeting.getName()
     us.meetingID = meeting.getInternalId()
+	us.externMeetingID = meeting.getExternalId()
     us.externUserID = externUserID
     us.fullname = fullName 
     us.role = role
@@ -313,7 +316,17 @@ class ApiController {
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
 	us.logoutUrl = meeting.getLogoutUrl();
-    
+	
+	if (! StringUtils.isEmpty(params.defaulLayout)) {
+		us.defaultLayout = params.defaulLayout;
+	}
+
+    if (! StringUtils.isEmpty(params.avatarURL)) {
+        us.avatarURL = params.avatarURL;
+    } else {
+        us.avatarURL = meeting.defaultAvatarURL
+    }
+    	     
 	// Store the following into a session so we can handle
 	// logout, restarts properly.
 	session['meeting-id'] = us.meetingID
@@ -322,13 +335,44 @@ class ApiController {
 	
 	meetingService.addUserSession(session['user-token'], us);
 	
-	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")
-	
-	
+	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")	
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
     
-    log.info("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}"); 		
-    redirect(url: paramsProcessorUtil.getDefaultClientUrl())
+	//check if exists the param redirect
+	boolean redirectClient = true;
+	String clientURL = paramsProcessorUtil.getDefaultClientUrl();
+	
+	if(!StringUtils.isEmpty(params.redirect))
+	{
+		try{
+			redirectClient = Boolean.parseBoolean(params.redirect);
+		}catch(Exception e){
+			redirectClient = true;
+		}
+	}
+	if(!StringUtils.isEmpty(params.clientURL)){
+		clientURL = params.clientURL;
+	}
+	
+	if(redirectClient){
+		log.info("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}"); 		
+		redirect(url: clientURL);
+	}
+	else{
+		log.info("Successfully joined. Sending XML response.");
+		response.addHeader("Cache-Control", "no-cache")
+		withFormat {
+		  xml {
+			render(contentType:"text/xml") {
+			  response() {
+				returncode(RESP_CODE_SUCCESS)
+				messageKey("successfullyJoined")
+				message("You have joined successfully.")
+			  }
+			}
+		  }
+		}
+	}
   }
 
   /*******************************************
@@ -728,6 +772,7 @@ class ApiController {
               fullname(us.fullname)
               confname(us.conferencename)
               meetingID(us.meetingID)
+			  externMeetingID(us.externMeetingID)
               externUserID(us.externUserID)
 			  internalUserID(us.internalUserId)
               role(us.role)
@@ -739,6 +784,8 @@ class ApiController {
               record(us.record)
               welcome(us.welcome)
 			  logoutUrl(us.logoutUrl)
+			  defaultLayout(us.defaultLayout)
+			  avatarURL(us.avatarURL)
             }
           }
         }

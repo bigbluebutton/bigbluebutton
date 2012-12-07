@@ -27,6 +27,10 @@ package org.bigbluebutton.main.model
 	 */	
 	public class ConferenceParameters
 	{
+    public var meetingName:String;
+    
+    public var externMeetingID:String;
+    
 		/**
 		 * The name of the conference
 		 */		
@@ -84,7 +88,7 @@ package org.bigbluebutton.main.model
 		/**
 		 * The unique userid internal to bbb-client.
 		 */		
-		public var userid:Number;
+		public var userid:String;
 		public var record:Boolean;
 	}
 }

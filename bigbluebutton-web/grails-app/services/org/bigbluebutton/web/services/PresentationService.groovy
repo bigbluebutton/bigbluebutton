@@ -114,10 +114,25 @@ class PresentationService {
 		new File(thumbFile)
 	}
 	
+	def showTextfile = {conf, room, presentationName, textfile ->
+		println "Show textfiles request for $presentationName $textfile"
+		def txt = roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar +
+					"textfiles" + File.separatorChar + "slide-${textfile}.txt"
+		log.debug "showing $txt"
+		
+		new File(txt)
+	}
+	
 	def numberOfThumbnails = {conf, room, name ->
 		def thumbDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "thumbnails")
 		thumbDir.listFiles().length
-	}   
+	}
+	
+	def numberOfTextfiles = {conf, room, name ->
+		log.debug roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "textfiles"
+		def textfilesDir = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + name + File.separatorChar + "textfiles")
+		textfilesDir.listFiles().length
+	}
 	
 	def roomDirectory = {conf, room ->
 		return new File(presentationDir + File.separatorChar + conf + File.separatorChar + room)

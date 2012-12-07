@@ -23,19 +23,19 @@ public class RecordConferenceCommand extends FreeswitchCommand {
 	private String recordPath;
 	
 	public RecordConferenceCommand(String room, Integer requesterId, boolean record, String recordPath){
-		super(room,requesterId);
+		super(room, requesterId);
 		this.record = record;
-		this.recordPath=recordPath;
+		this.recordPath = recordPath;
 	}
 	
 
 	@Override
 	public String getCommandArgs() {
-		String action="norecord";
-		if(record)
-			action="record";
+		String action = "norecord";
+		if (record)
+			action = "record";
 		
-		return getRoom() + SPACE + action + SPACE + recordPath;
+		return SPACE + getRoom() + SPACE + action + SPACE + recordPath;
 	}
 
 	public void handleResponse(EslMessage response, ConferenceEventListener eventListener) {
