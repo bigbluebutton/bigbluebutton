@@ -50,6 +50,7 @@ package org.bigbluebutton.modules.whiteboard
 				 * a mouseUp event at the end of resize. We don't want to dispatch another
 				 * shape to the viewers.
 				 */
+                                //LogUtil.error("doMouseUp, reset isDrawing")    
 				isDrawing = false;
 				sendShapeToServer(DrawObject.DRAW_END);
 			}
@@ -100,10 +101,11 @@ package org.bigbluebutton.modules.whiteboard
 		}
 		
 		public function doMouseMove(mouseX:Number, mouseY:Number):void{
+                        //LogUtil.error("isDrawing = " + isDrawing);
 			if (isDrawing){
 				segment.push(mouseX);
 				segment.push(mouseY);
-				if (segment.length > 30) {
+				if (segment.length > 5) {
 					sendShapeToServer(drawStatus);
 				}
 			}

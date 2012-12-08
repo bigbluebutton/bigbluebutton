@@ -60,6 +60,7 @@
 			}
 			
 			private function doMouseUp():void {
+                                LogUtil.debug("doMouseUp, doMouseUp");
 				model.doMouseUp();
 			}
 
@@ -116,7 +117,8 @@
 			
 			private function removeCursor():void{
 				CursorManager.removeCursor(CursorManager.currentCursorID);
-				doMouseUp();
+                                //LogUtil.debug("removeCursor doMouseUp");
+				//doMouseUp();
 			}
 			
 			/** Inherited from org.bigbluebutton.common.IBbbCanvas*/
