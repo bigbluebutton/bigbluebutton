@@ -3,7 +3,7 @@ link(rel="stylesheet", href="css/font-awesome.css")
 link(rel="stylesheet", href="css/layout.css")
 //-h1= title
 //-  form(id="logout")
-//-    input(type="submit", value="Logout", onclick="logout();return false;")
+//-    input(type="submit", value="Logout", onclick="Connection.emitLogout();return false;")
 //-p Welcome to BigBlueButton, #{user}!
 div(id="layout")
   div(id="presentation")
@@ -13,16 +13,14 @@ div(id="layout")
     h3 Users
     div(id="current_users")
     form(id="switchPresenter")
-      input(type="submit", value="Switch presenter", onclick="switchPresenter();return false;")
+      input(type="submit", value="Switch presenter", onclick="Chat.switchPresenter();return false;")
   div(id="chat")
     h3 Chat
     div(id="chat_messages")
       div You are now connected to MeetingID <b>#{meetingID}</b>
-    //- div(id="chat-text")
-      //- p Chat messages go here
     div(id="chat-entry")
-      textarea(id="chat_input_box", placeholder="Enter a chat message.")
-      button(onclick="sendMessage();return false;") Post
+      textarea(id="chat_input_box", maxlength="#{max_chat_length}", placeholder="Enter a chat message.")
+      button#chat-send Post
   div(id="navbar")
     div(class="navbar-btngroup")
       button(id="prev-slide-btn", class="navbar-btn") <i class="icon-arrow-left"></i> Previous
@@ -36,49 +34,48 @@ div(id="layout")
       button(id="video-btn", class="navbar-btn") <i class="icon-facetime-video"></i> Video
       button(id="chat-btn", class="navbar-btn") <i class="icon-comments"></i> Chat <div id="chat-notifications" class="notification">12</div>
       button(id="logout-btn", class="navbar-btn") <i class="icon-signout"></i> Logout
-canvas(id="colourView", width="12", height="12", onclick='toggleColourPicker()')
+canvas(id="colourView", width="12", height="12", onclick='Whiteboard.toggleColourPicker()')
 input(id='colourText', maxlength='7', type='text')
 
 canvas(id="thicknessView", width="20", height="20")
-//-
-  // The chat box and its controls
+
+  -// The chat box and its controls
   div(id="ChatAndControls")
     div(id="chat_title") <b>Chat messages</b>
-
     form(id='chat_input')
       label(id="charcount")= max_chat_length
-      input(id="chat_input_box", maxlength="#{max_chat_length}", onKeyUp="countchars(#{max_chat_length})", placeholder="Type and press enter")
-      input(id="send_chat", type="submit", value="Send", onclick="sendMessage();return false;")
+      input(id="chat_input_box", maxlength="#{max_chat_length}", onKeyUp="Chat.countchars(#{max_chat_length})", placeholder="Type and press enter")
+      input(id="send_chat", type="submit", value="Send")
 
-  // List of the connected users
+  -// List of the connected users
   div(id="listUsers")
     div Current users
     div(id="current_users")
     form(id="switchPresenter")
-      input(type="submit", value="Switch presenter", onclick="switchPresenter();return false;")
-  // The slide and controls of the chat page
+      input(type="submit", value="Switch presenter", onclick="Chat.switchPresenter();return false;")
+  -// The slide and controls of the chat page
 
   div(id="slideAndControls")
     div(id="slide")
 
-    // Buttons below the slide
+  -// Buttons below the slide
   div(id='imagecontrols', style="clear:left")
     form(id='backward_image')
-      input(type="submit", value="<<<", onclick="prevImg();return false;")
+      input(type="submit", value="<<<", onclick="Connection.emitPrevSlide();return false;")
     form(id='forward_image')
-      input(type="submit", value=">>>", onclick='nextImg();return false;')
+      input(type="submit", value=">>>", onclick='Connection.emitNextSlide();return false;')
     form(id='clearCanvas')
-      input(type="submit", value="Clear", onclick="clearCanvas();return false;")
+      input(type="submit", value="Clear", onclick="Chat.clearCanvas();return false;")
     form(id="chooseLine")
-      input(id='lineButton', type="submit", value="Line", onclick="changeTool('line');return false;")
+      input(id='lineButton', type="submit", value="Line", onclick="Connection.emitChangeTool('line');return false;")
     form(id="chooseRect")
-      input(id='rectButton', type="submit", value="Rect", onclick="changeTool('rect');return false;")
+      input(id='rectButton', type="submit", value="Rect", onclick="Connection.emitChangeTool('rect');return false;")
     form(id='chooseEllipse')
-      input(id='ellipseButton', type="submit", value="Ellipse", onclick="changeTool('ellipse');return false;")
+      input(id='ellipseButton', type="submit", value="Ellipse", onclick="Connection.emitChangeTool('ellipse');return false;")
     form(id="choosePanZoom")
-      input(type="submit", value='Pan', onclick="changeTool('panzoom');return false;")
+      input(type="submit", value='Pan', onclick="Connection.emitChangeTool('panzoom');return false;")
     form(id='chooseText')
-      input(type="submit", value='Text', onclick="changeTool('text');return false;")
+      input(type="submit", value='Text', onclick="Connection.emitChangeTool('text');return false;")
     select
       //-option(value="12") 12
       option(value="14") 14
@@ -88,13 +85,13 @@ canvas(id="thicknessView", width="20", height="20")
       //-option(value="32") 32
       //-option(value="36") 36
     form(id="undoShape")
-      input(type='submit', value='Undo', onclick='undoShape();return false;')
+      input(type='submit', value='Undo', onclick='Connection.emitUndo();return false;')
     form(id='fitToPage')
-      input(type="submit", value='Fit to Page', onclick='sendFitToPage(true);return false;')
+      input(type="submit", value='Fit to Page', onclick='Connection.sendFitToPage(true);return false;')
     form(id='fitToWidth')
-      input(type="submit", value='Fit to Width', onclick='sendFitToPage(false);return false;')
+      input(type="submit", value='Fit to Width', onclick='Connection.sendFitToPage(false);return false;')
     br
-    canvas(id="colourView", width="12", height="12", onclick='toggleColourPicker()')
+    canvas(id="colourView", width="12", height="12", onclick='Whiteboard.toggleColourPicker()')
     input(id='colourText', maxlength='7', type='text')
     canvas(id="thicknessView", width="20", height="20")
     div(id='thickness')
@@ -107,17 +104,5 @@ canvas(id="thicknessView", width="20", height="20")
           //input(type="submit", value="Upload")
     textarea(autofocus, id='area', class='textinput', style="visibility:hidden;")
 
-// External scripts here
-script(src='/js/lib/raphael-min.js')
-script(src='/js/lib/colorwheel.js')
-script(src="/js/lib/jquery-1.7.2.min.js")
-script(src="/js/lib/jquery.mousewheel.min.js")
-script(src='/js/lib/jquery.autosize-min.js')
-script(src='/js/lib/jquery.form.js')
-script(src='/js/lib/jq-ui.js')
-script(src="/socket.io/socket.io.js")
-script(src='/js/chat/whiteboard.js')
-script(src='/js/chat/chat.js') //all socket interactions javascript
-script(src='/js/lib/textflow.js')
-script(src='/js/lib/textflow-helper.js') //for textFlow
-script(src="js/chat/behaviour.js")
+-// External scripts here
+script(src='/js/lib/require-min.js', data-main='/js/main.js')

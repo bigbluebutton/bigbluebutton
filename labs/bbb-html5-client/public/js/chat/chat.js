@@ -1,15 +1,19 @@
-// Documented
+define(["jquery", "raphael", "chat/whiteboard", "chat/connection"],
+       function($, Raphael, Whiteboard, Connection) {
+
+var Chat = {};
+
+var socket = Connection.socket;
 
 // Object references
-var chcount = document.getElementById('charcount');
 var msgbox = document.getElementById("chat_messages");
 var chatbox = document.getElementById('chat_input_box');
 
-var PORT = 3000; //port that SocketIO will connect on
-var SERVER_IP = window.location.hostname;
+// var PORT = 3000; //port that SocketIO will connect on
+// var SERVER_IP = window.location.hostname;
 
-// Connect to the websocket via SocketIO
-var socket = io.connect('http://'+SERVER_IP+':'+PORT);
+// // Connect to the websocket via SocketIO
+// var socket = io.connect('http://'+SERVER_IP+':'+PORT);
 
 /**
  * If the socket is connected
@@ -19,6 +23,8 @@ socket.on('connect', function () {
 
   // Immediately say we are connected
   socket.emit('user connect');
+
+});
 
   /**
    * Received event for a new public chat message
@@ -36,8 +42,8 @@ socket.on('connect', function () {
    * @return {undefined}
    */
   socket.on('logout', function () {
-      post_to_url('logout');
-      window.location.replace("./");
+    post_to_url('logout');
+    window.location.replace("./");
   });
 
   /**
@@ -62,7 +68,7 @@ socket.on('connect', function () {
   socket.on('all_messages', function (messages) {
     //msgbox.innerHTML = '';
     for (var i = messages.length - 1; i >= 0; i--){
-    msgbox.innerHTML += '<div>' + messages[i].username + ": " + messages[i].message + '</div>';
+      msgbox.innerHTML += '<div>' + messages[i].username + ": " + messages[i].message + '</div>';
     };
     msgbox.scrollTop = msgbox.scrollHeight;
   });
@@ -73,8 +79,8 @@ socket.on('connect', function () {
    * @return {undefined}
    */
   socket.on('all_shapes', function (shapes) {
-    clearPaper();
-    drawListOfShapes(shapes);
+    Whiteboard.clearPaper();
+    Whiteboard.drawListOfShapes(shapes);
   });
 
   /**
@@ -106,7 +112,7 @@ socket.on('connect', function () {
    * @return {undefined}
    */
   socket.on('disconnect', function() {
-      window.location.replace("./");
+    window.location.replace("./");
   });
 
   /**
@@ -114,7 +120,7 @@ socket.on('connect', function () {
    * @return {undefined}
    */
   socket.on('clrPaper', function () {
-    clearPaper();
+    Whiteboard.clearPaper();
   });
 
   /**
@@ -130,7 +136,7 @@ socket.on('connect', function () {
     yperc = parseFloat(yperc, 10);
     wperc = parseFloat(wperc, 10);
     hperc = parseFloat(hperc, 10);
-    updatePaperFromServer(xperc, yperc, wperc, hperc);
+    Whiteboard.updatePaperFromServer(xperc, yperc, wperc, hperc);
   });
 
   /**
@@ -140,7 +146,7 @@ socket.on('connect', function () {
    * @return {undefined}
    */
   socket.on('mvCur', function(x, y) {
-    mvCur(x, y);
+    Whiteboard.mvCur(x, y);
   });
 
   /**
@@ -149,7 +155,7 @@ socket.on('connect', function () {
    * @return {undefined}
    */
   socket.on('changeslide', function(url) {
-    showImageFromPaper(url);
+    Whiteboard.showImageFromPaper(url);
   });
 
   /**
@@ -158,7 +164,7 @@ socket.on('connect', function () {
    * @return {undefined}
    */
   socket.on('fitToPage', function(fit) {
-    setFitToPage(fit);
+    Whiteboard.setFitToPage(fit);
   });
 
   /**
@@ -167,7 +173,7 @@ socket.on('connect', function () {
    * @return {undefined}
    */
   socket.on('zoom', function(delta) {
-    setZoom(delta);
+    Whiteboard.setZoom(delta);
   });
 
   /**
@@ -187,20 +193,20 @@ socket.on('connect', function () {
   socket.on('makeShape', function(shape, data) {
     switch(shape) {
     case 'line':
-      makeLine.apply(makeLine, data);
-    break;
+      Whiteboard.makeLine.apply(makeLine, data);
+      break;
 
     case 'rect':
-      makeRect.apply(makeRect, data);
-    break;
+      Whiteboard.makeRect.apply(Whiteboard.makeRect, data);
+      break;
 
     case 'ellipse':
-      makeEllipse.apply(makeEllipse, data);
-    break;
+      Whiteboard.makeEllipse.apply(Whiteboard.makeEllipse, data);
+      break;
 
     default:
       //no other shapes allowed
-    break;
+      break;
     }
   });
 
@@ -213,25 +219,25 @@ socket.on('connect', function () {
   socket.on('updShape', function(shape, data) {
     switch(shape) {
     case 'line':
-      updateLine.apply(updateLine, data);
-    break;
+      Whiteboard.updateLine.apply(updateLine, data);
+      break;
 
     case 'rect':
-      updateRect.apply(updateRect, data);
-    break;
+      Whiteboard.updateRect.apply(Whiteboard.updateRect, data);
+      break;
 
     case 'ellipse':
-      updateEllipse.apply(updateEllipse, data);
-    break;
+      Whiteboard.updateEllipse.apply(Whiteboard.updateEllipse, data);
+      break;
 
     case 'text':
-      updateText.apply(updateText, data);
-    break;
+      Whiteboard.updateText.apply(Whiteboard.updateText, data);
+      break;
 
     default:
       console.log('shape not recognized');
-    break;
-  }
+      break;
+    }
   });
 
   /**
@@ -239,7 +245,7 @@ socket.on('connect', function () {
    * @return {undefined}
    */
   socket.on('textDone', function() {
-    textDone();
+    Whiteboard.textDone();
   });
 
   /**
@@ -248,7 +254,7 @@ socket.on('connect', function () {
    * @return {undefined}
    */
   socket.on('toolChanged', function(tool) {
-    turnOn(tool);
+    Whiteboard.turnOn(tool);
   });
 
   /**
@@ -260,7 +266,7 @@ socket.on('connect', function () {
    * @return {undefined}
    */
   socket.on('paper', function(cx, cy, sw, sh) {
-  updatePaperFromServer(cx, cy, sw, sh);
+    Whiteboard.updatePaperFromServer(cx, cy, sw, sh);
   });
 
   /**
@@ -297,20 +303,19 @@ socket.on('connect', function () {
    */
   socket.on('all_slides', function(urls) {
     $('#uploadStatus').text(""); //upload finished
-    removeAllImagesFromPaper();
+    Whiteboard.removeAllImagesFromPaper();
     var count = 0;
     var numOfSlides = urls.length;
     for (var i = 0; i < numOfSlides; i++) {
       var array = urls[i];
-      var img = addImageToPaper(array[0], array[1], array[2]);
+      var img = Whiteboard.addImageToPaper(array[0], array[1], array[2]);
       //TODO: temporary solution for remove :3000
       var custom_src = img.attr('src');
-      custom_src = custom_src.replace(':3000', ""); 
+      custom_src = custom_src.replace(':3000', "");
       console.log(custom_src);
       $('#slide').append('<img id="preload'+img.id+'"src="'+custom_src+'" style="display:none;" alt=""/>'); //preload images
     };
   });
-});
 
 /**
  * If an error occurs while not connected
@@ -332,6 +337,7 @@ function post_to_url(path, params, method) {
   method = method || "post"; // Set method to post by default, if not specified.
   // The rest of this code assumes you are not using a library.
   // It can be made less wordy if you use one.
+  // TODO: can be a lot cleaner with jQuery
   var form = document.createElement("form");
   form.setAttribute("method", method);
   form.setAttribute("action", path);
@@ -352,171 +358,32 @@ function post_to_url(path, params, method) {
  * Sending a public chat message to users
  * @return {undefined}
  */
-function sendMessage() {
+Chat.sendMessage = function() {
   var msg = chatbox.value;
-    if (msg != '') {
-        socket.emit('msg', msg);
-        chatbox.value = '';
-    }
-    chatbox.focus();
+  if (msg != '') {
+    Connection.emitMsg(msg);
+    chatbox.value = '';
+  }
+  chatbox.focus();
 }
 
 /**
  * Clearing the canvas drawings
  * @return {undefined}
  */
-function clearCanvas() {
+Chat.clearCanvas = function() {
   socket.emit("clrPaper");
-}
-
-/**
- * Requests the shapes from the server.
- * @return {undefined}
- */
-function getShapesFromServer() {
-  socket.emit('all_shapes');
-}
-
-/**
- * Emit an update in a fit of the whiteboard
- * @param  {boolean} true for fitToPage, false for fitToWidth
- * @return {undefined}
- */
-function sendFitToPage(fit) {
-  socket.emit('fitToPage', fit);
-}
-
-/**
- * Emit the finish of a text shape
- * @return {undefined}
- */
-function emitDoneText() {
-  socket.emit('textDone');
-}
-
-/**
- * Emit the creation of a shape
- * @param  {string} shape type of shape
- * @param  {Array} data  all the data required to draw the shape on the client whiteboard
- * @return {undefined}
- */
-function emitMakeShape(shape, data) {
-  socket.emit('makeShape', shape, data);
-}
-
-/**
- * Emit the update of a shape
- * @param  {string} shape type of shape
- * @param  {Array} data  all the data required to update the shape on the client whiteboard
- * @return {undefined}
- */
-function emitUpdateShape(shape, data) {
-  socket.emit('updShape', shape, data);
-}
-
-/**
- * Emit an update in the whiteboard position/size values
- * @param  {number} cx x-offset from top left corner as percentage of original width of paper
- * @param  {number} cy y-offset from top left corner as percentage of original height of paper
- * @param  {number} sw slide width as percentage of original width of paper
- * @param  {number} sh slide height as a percentage of original height of paper
- * @return {undefined}
- */
-function sendPaperUpdate(cx, cy, sw, sh) {
-  socket.emit('paper', cx, cy, sw, sh);
-}
-
-/**
- * Emit an update to move the cursor around the canvas
- * @param  {number} x x-coord of the cursor as a percentage of page width
- * @param  {number} y y-coord of the cursor as a percentage of page height
- * @return {undefined}
- */
-function emMvCur(x, y) {
-  socket.emit('mvCur', x, y);
-}
-
-/**
- * Update the zoom level for the clients
- * @param  {number} delta amount of change in scroll wheel
- * @return {undefined}
- */
-function emZoom(delta) {
-  socket.emit('zoom', delta);
-}
-
-/**
- * Request the next slide
- * @return {undefined}
- */
-function nextImg() {
-  socket.emit('nextslide');
-}
-
-/**
- * Request the previous slide
- * @return {undefined}
- */
-function prevImg() {
-  socket.emit('prevslide');
-}
-
-/**
- * Logout of the meeting
- * @return {undefined}
- */
-function logout() {
-  socket.emit('logout');
-}
-
-/**
- * Emit panning has stopped
- * @return {undefined}
- */
-function emPanStop() {
-  socket.emit('panStop');
-}
-
-/**
- * Publish a shape to the server to be saved
- * @param  {string} shape type of shape to be saved
- * @param  {Array} data   information about shape so that it can be recreated later
- * @return {undefined}
- */
-function emitPublishShape(shape, data) {
-  socket.emit('saveShape', shape, JSON.stringify(data));
-}
-
-/**
- * Emit a change in the current tool
- * @param  {string} tool [description]
- * @return {undefined}
- */
-function changeTool(tool) {
-  socket.emit('changeTool', tool);
-}
-
-/**
- * Tell the server to undo the last shape
- * @return {undefined}
- */
-function undoShape() {
-  socket.emit('undo');
 }
 
 /**
  * Emit a change in the presenter
  * @return {undefined}
  */
-function switchPresenter() {
-  socket.emit('setPresenter', $('.selected').attr('id'));
+Chat.switchPresenter = function() {
+  var id = $('.selected').attr('id');
+  Connection.emitSetPresenter(id);
 }
 
-/**
- * Update the character count remaining in the chat box
- * @param  {number} max maximum number of allowed characters
- * @return {undefined}
- */
-function countchars(max) {
-  chcount.innerHTML = max - chatbox.value.length;
-}
+return Chat;
+
+});

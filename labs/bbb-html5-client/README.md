@@ -36,3 +36,13 @@ TODOs
 - Update UI to look nicer
 - Add mouse events to shapes and slides instead of just cursor so user can move the mouse quickly, and click to pan right away
 - Put textbox in a smart place when using the text tool. (such as a popup modal)
+
+
+Notes
+=====
+
+* Raphael.js doesn't work well with Require.js. Currently we're using an alternative version
+  of Raphael that can be loaded by Require.js. See: https://github.com/DmitryBaranovskiy/raphael/issues/407.
+  Another option is to use [shim config](http://requirejs.org/docs/api.html#config-shim), but wasn't working for Raphael yet.
+  Currently using Raphael.js from `pmcelhaney/raphael@pure-amd-2 (9a6125bb518bc)` and eve.js from
+  `DmitryBaranovskiy/eve@2243bf22164`.

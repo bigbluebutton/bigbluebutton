@@ -1,4 +1,9 @@
-var PRESENTATION_SERVER = "http://192.168.1.218/";
+define(["jquery", "raphael", "chat/connection", "colorwheel"],
+       function($, Raphael, Connection) {
+
+var Whiteboard = {}
+
+var PRESENTATION_SERVER = "http://192.168.0.101/";
 
 //object references
 slide_obj = document.getElementById("slide");
@@ -20,7 +25,7 @@ var zoom_level = 1, fitToPage = true, path_max = 30,
  * @param  {string} colour    the colour it should be displayed as
  * @return {undefined}
  */
-function drawThicknessView(thickness, colour){
+var drawThicknessView = function(thickness, colour) {
   current_thickness = thickness;
   tctx.fillStyle='#FFFFFF';
   tctx.fillRect(0,0,20,20);
@@ -37,7 +42,7 @@ function drawThicknessView(thickness, colour){
  * @param  {string} colour the colour it should be displayed as
  * @return {undefined}
  */
-function drawColourView(colour) {
+var drawColourView = function(colour) {
   current_colour = colour;
   ctx.fillStyle = colour;
   cptext.value = colour;
@@ -51,7 +56,7 @@ function drawColourView(colour) {
  * must be shown/hidden individually.
  * @return {undefined}
  */
-function toggleColourPicker() {
+Whiteboard.toggleColourPicker = function() {
   if(cpVisible) {
     cpVisible = false;
     cp.raphael.forEach(function(i){ i.hide(); });
@@ -68,7 +73,7 @@ function toggleColourPicker() {
  * @param  {string} tool the tool to turn on
  * @return {undefined}
  */
-function turnOn(tool) {
+Whiteboard.turnOn = function(tool) {
   current_tool = tool;
   console.log("it's here the tool:"+tool);
   switch(tool) {
@@ -108,7 +113,7 @@ function turnOn(tool) {
  * the entire SVG object on the webpage.
  * @return {undefined}
  */
-function initPaper() {
+var initPaper = function() {
   //paper is embedded within the div#slide of the page.
   paper = paper || Raphael('slide', gw, gh); //create a SVG object using RaphaelJS
   paper.canvas.setAttribute('preserveAspectRatio', 'xMinYMin slice');
@@ -133,7 +138,7 @@ function initPaper() {
  * @param  {number} sh_ the slide height value as a percentage of the original height
  * @return {undefined}
  */
-function updatePaperFromServer(cx_, cy_, sw_, sh_) {
+Whiteboard.updatePaperFromServer = function(cx_, cy_, sw_, sh_) {
   //if updating the slide size (zooming!)
   if(sw_ && sh_) {
     paper.setViewBox(cx_*gw, cy_*gh, sw_*gw, sh_*gh);
@@ -166,14 +171,14 @@ function updatePaperFromServer(cx_, cy_, sw_, sh_) {
  * Sets the fit to page.
  * @param {boolean} fit fit == true ? -> fit to page. fit == false ? -> fit to width.
  */
-function setFitToPage(fit) {
+Whiteboard.setFitToPage = function(fit) {
   fitToPage = fit;
   var temp = slides;
-  removeAllImagesFromPaper();
+  Whiteboard.removeAllImagesFromPaper();
   slides = temp;
   rebuildPaper(); //re-add all the images as they should fit differently
-  sendPaperUpdate(0, 0, 1, 1); //set to default zoom level
-  getShapesFromServer(); //reprocess the shapes
+  Connection.emitPaperUpdate(0, 0, 1, 1); //set to default zoom level
+  Connection.emitAllShapes(); // get the shapes to reprocess
 }
 
 /**
@@ -183,7 +188,7 @@ function setFitToPage(fit) {
  * @param {number} h   the height of the image (in pixels)
  * @return {Raphael.image} the image object added to the whiteboard
  */
-function addImageToPaper(url, w, h) {
+Whiteboard.addImageToPaper = function(url, w, h) {
   console.log("addIMageToPaper show me url:" + url);
   var img;
   if(fitToPage) {
@@ -226,7 +231,7 @@ function addImageToPaper(url, w, h) {
   else {
     img.hide();
   }
-  img.mousemove(mvingCur);
+  img.mousemove(onCursorMove);
   $(img.node).bind('mousewheel', zoomSlide);
   return img;
 }
@@ -235,7 +240,7 @@ function addImageToPaper(url, w, h) {
  * Removes all the images from the Raphael paper.
  * @return {undefined}
  */
-function removeAllImagesFromPaper() {
+Whiteboard.removeAllImagesFromPaper = function() {
   var img;
   for (url in slides) {
     if(slides.hasOwnProperty(url)) {
@@ -252,7 +257,7 @@ function removeAllImagesFromPaper() {
  * @param  {array} shapes the array of shapes to draw
  * @return {undefined}
  */
-function drawListOfShapes(shapes) {
+Whiteboard.drawListOfShapes = function(shapes) {
   current_shapes = paper.set();
   for (var i = shapes.length - 1; i >= 0; i--) {
     var data = JSON.parse(shapes[i].data);
@@ -285,11 +290,11 @@ function drawListOfShapes(shapes) {
  * in the slides array (an object of urls and dimensions).
  * @return {undefined}
  */
-function rebuildPaper() {
+var rebuildPaper = function() {
   current_url = null;
   for(url in slides) {
     if(slides.hasOwnProperty(url)) {
-      addImageToPaper(url, slides[url].w, slides[url].h, function(img) {
+      Whiteboard.addImageToPaper(url, slides[url].w, slides[url].h, function(img) {
       });
     }
   }
@@ -301,7 +306,7 @@ function rebuildPaper() {
  * @param  {string} url the url of the image (must be in slides array)
  * @return {undefined}
  */
-function showImageFromPaper(url) {
+Whiteboard.showImageFromPaper = function(url) {
   if(current_url != url) {
     //temporary solution
     url = PRESENTATION_SERVER + url;
@@ -326,7 +331,7 @@ function showImageFromPaper(url) {
  * @param  {string} url        the url of the image (must be in slides array)
  * @return {Raphael.image}     return the image or null if not found
  */
-function getImageFromPaper(url) {
+var getImageFromPaper = function(url) {
   console.log("show me url:" + url);
   if(slides[url]) {
     var id = slides[url].id;
@@ -344,7 +349,7 @@ function getImageFromPaper(url) {
  * @param  {string} url the url of the image (must be in slides array)
  * @return {undefined}
  */
-function hideImageFromPaper(url) {
+var hideImageFromPaper = function(url) {
   var img = getImageFromPaper(url);
   if(img) img.hide();
 }
@@ -354,7 +359,7 @@ function hideImageFromPaper(url) {
  * get hidden behind any objects/images.
  * @return {undefined}
  */
-function bringCursorToFront() {
+var bringCursorToFront = function() {
   cur.toFront();
 }
 
@@ -389,7 +394,7 @@ var panDragging = function(dx, dy) {
   if(fitToPage) y2 = gh + y;
   else y2 = vh + y; //height of image could be greater (or less) than the box it fits in
   y = y2 > sh ? sh - (vh - sy*2) : y; //cannot pan below the height
-  sendPaperUpdate(x/sw, y/sh, null, null);
+  Connection.emitPaperUpdate(x/sw, y/sh, null, null);
 };
 
 /**
@@ -411,7 +416,7 @@ var curDragStart = function(x, y) {
   //find the x and y values in relation to the whiteboard
   cx1 = x - s_left - sx + cx;
   cy1 = y - s_top - sy + cy;
-  emitMakeShape('line', [cx1/sw, cy1/sh, current_colour, current_thickness]);
+  Connection.emitMakeShape('line', [cx1/sw, cy1/sh, current_colour, current_thickness]);
 };
 
 /**
@@ -427,12 +432,12 @@ var curDragging = function(dx, dy, x, y) {
   cx2 = x - s_left - sx + cx;
   cy2 = y - s_top - sy + cy;
   if(shift_pressed) {
-    emitUpdateShape('line', [cx2/sw, cy2/sh, false]);
+    Connection.emitUpdateShape('line', [cx2/sw, cy2/sh, false]);
   }
   else {
     path_count++;
     if(path_count < path_max) {
-      emitUpdateShape('line', [cx2/sw, cy2/sh, true]);
+      Connection.emitUpdateShape('line', [cx2/sw, cy2/sh, true]);
     }
     else {
       path_count = 0;
@@ -441,8 +446,8 @@ var curDragging = function(dx, dy, x, y) {
       var path = line.attrs.path.join(' ');
       line.attr({ path : (path + "L" + cx1 + " " + cy1) });
       //scale the path appropriately before sending
-      emitPublishShape('path', [line.attrs.path.join(',').toScaledPath(1/gw, 1/gh), current_colour, current_thickness]);
-      emitMakeShape('line', [cx1/sw, cy1/sh, current_colour, current_thickness]);
+      Connection.emitPublishShape('path', [line.attrs.path.join(',').toScaledPath(1/gw, 1/gh), current_colour, current_thickness]);
+      Connection.emitMakeShape('line', [cx1/sw, cy1/sh, current_colour, current_thickness]);
     }
     cx1 = cx2;
     cy1 = cy2;
@@ -458,7 +463,7 @@ var curDragStop = function(e) {
   var path = line.attrs.path;
   line = null; //any late updates will be blocked by this
   //scale the path appropriately before sending
-  emitPublishShape('path', [path.join(',').toScaledPath(1/gw, 1/gh), current_colour, current_thickness]);
+  Connection.emitPublishShape('path', [path.join(',').toScaledPath(1/gw, 1/gh), current_colour, current_thickness]);
 };
 
 /**
@@ -469,7 +474,7 @@ var curDragStop = function(e) {
  * @param  {number} thickness the thickness of the line to be drawn
  * @return {undefined}
  */
-function makeLine(x, y, colour, thickness) {
+Whiteboard.makeLine = function(x, y, colour, thickness) {
   x *= gw;
   y *= gh;
   line = paper.path("M" + x + " " + y + "L" + x + " " + y);
@@ -484,7 +489,7 @@ function makeLine(x, y, colour, thickness) {
  * @param  {number} thickness the thickness of the line to be drawn
  * @return {undefined}
  */
-function drawLine(path, colour, thickness) {
+var drawLine = function (path, colour, thickness) {
   var l = paper.path(path.toScaledPath(gw, gh));
   l.attr({ 'stroke' : colour, 'stroke-width' : thickness });
   current_shapes.push(l);
@@ -497,7 +502,7 @@ function drawLine(path, colour, thickness) {
  * @param  {boolean} add true if the line should be added to the current line, false if it should replace the last point
  * @return {undefined}
  */
-function updateLine(x2, y2, add) {
+Whiteboard.updateLine = function(x2, y2, add) {
   x2 *= gw;
   y2 *= gh;
   if(add) {
@@ -526,7 +531,7 @@ function updateLine(x2, y2, add) {
  * @param  {number} fontsize the size of the font (in PIXELS)
  * @return {undefined}
  */
-function updateText(t, x, y, w, spacing, colour, font, fontsize) {
+Whiteboard.updateText = function(t, x, y, w, spacing, colour, font, fontsize) {
   x = x*gw;
   y = y*gh;
   if(!text) {
@@ -556,7 +561,7 @@ function updateText(t, x, y, w, spacing, colour, font, fontsize) {
  * @param  {number} fontsize the size of the font (in PIXELS)
  * @return {undefined}
  */
-function drawText(t, x, y, w, spacing, colour, font, fontsize) {
+var drawText = function(t, x, y, w, spacing, colour, font, fontsize) {
   x = x*gw;
   y = y*gh;
   var txt = paper.text(x, y, "").attr({fill: colour, 'font-family' : font, 'font-size' : fontsize});
@@ -574,8 +579,8 @@ function drawText(t, x, y, w, spacing, colour, font, fontsize) {
  */
 var curTextStart = function(x, y) {
   if(text) {
-    emitPublishShape('text', [textbox.value, text.attrs.x/gw, text.attrs.y/gh, textbox.clientWidth, 16, current_colour, 'Arial', 14]);
-    emitDoneText();
+    Connection.emitPublishShape('text', [textbox.value, text.attrs.x/gw, text.attrs.y/gh, textbox.clientWidth, 16, current_colour, 'Arial', 14]);
+    Connection.emitTextDone();
   }
   textbox.value = "";
   textbox.style.visibility = "hidden";
@@ -583,7 +588,7 @@ var curTextStart = function(x, y) {
   texty = y;
   cx2 = (x - s_left - sx + cx)/sw;
   cy2 = (y - s_top - sy + cy)/sh;
-  emitMakeShape('rect', [cx2, cy2, '#000', 1]);
+  Connection.emitMakeShape('rect', [cx2, cy2, '#000', 1]);
 };
 
 /**
@@ -609,8 +614,8 @@ var curTextStop = function(e) {
     //if you click outside, it will automatically sumbit
     textbox.onblur = function(e) {
       if(text) {
-        emitPublishShape('text', [this.value, text.attrs.x/gw, text.attrs.y/gh, textbox.clientWidth, 16, current_colour, 'Arial', 14]);
-        emitDoneText();
+        Connection.emitPublishShape('text', [this.value, text.attrs.x/gw, text.attrs.y/gh, textbox.clientWidth, 16, current_colour, 'Arial', 14]);
+        Connection.emitTextDone();
       }
       textbox.value = "";
       textbox.style.visibility = "hidden";
@@ -629,7 +634,7 @@ var curTextStop = function(e) {
     textbox.onkeyup = function(e) {
       this.style.color = current_colour;
       this.value = this.value.replace(/\n{1,}/g, ' ').replace(/\s{2,}/g, ' '); //enforce no 2 or greater consecutive spaces, no new lines
-      emitUpdateShape('text', [this.value, x/sw, (y+(14*(sh/gh)))/sh, tboxw*(gw/sw), 16, current_colour, 'Arial', 14]);
+      Connection.emitUpdateShape('text', [this.value, x/sw, (y+(14*(sh/gh)))/sh, tboxw*(gw/sw), 16, current_colour, 'Arial', 14]);
     };
   }
 };
@@ -639,7 +644,7 @@ var curTextStop = function(e) {
  * so set it to null for the next text object
  * @return {undefined}
  */
-function textDone() {
+Whiteboard.textDone = function() {
   if(text) {
     text = null;
     if(rect) rect.hide();
@@ -656,7 +661,7 @@ var curRectDragStart = function(x, y) {
   //find the x and y values in relation to the whiteboard
   cx2 = (x - s_left - sx + cx)/sw;
   cy2 = (y - s_top - sy + cy)/sh;
-  emitMakeShape('rect', [cx2, cy2, current_colour, current_thickness]);
+  Connection.emitMakeShape('rect', [cx2, cy2, current_colour, current_thickness]);
 };
 
 /**
@@ -686,7 +691,7 @@ var curRectDragging = function(dx, dy, x, y, e) {
     y1 = cy2 + dy;
     dy = -dy;
   }
-  emitUpdateShape('rect', [x1, y1, dx, dy]);
+  Connection.emitUpdateShape('rect', [x1, y1, dx, dy]);
 };
 
 /**
@@ -697,7 +702,7 @@ var curRectDragging = function(dx, dy, x, y, e) {
 var curRectDragStop = function(e) {
   var r;
   if(rect) r = rect.attrs;
-  if(r) emitPublishShape('rect', [r.x/gw, r.y/gh, r.width/gw, r.height/gh, current_colour, current_thickness]);
+  if(r) Connection.emitPublishShape('rect', [r.x/gw, r.y/gh, r.width/gw, r.height/gh, current_colour, current_thickness]);
   rect = null;
 };
 
@@ -709,7 +714,7 @@ var curRectDragStop = function(e) {
  * @param  {number} thickness the thickness of the object's line(s)
  * @return {undefined}
  */
-function makeRect(x, y, colour, thickness) {
+Whiteboard.makeRect = function(x, y, colour, thickness) {
   rect = paper.rect(x*gw, y*gh, 0, 0);
   if(colour) rect.attr({ 'stroke' : colour, 'stroke-width' : thickness });
   current_shapes.push(rect);
@@ -725,7 +730,7 @@ function makeRect(x, y, colour, thickness) {
  * @param  {number} thickness the thickness of the object's line(s)
  * @return {undefined}
  */
-function drawRect(x, y, w, h, colour, thickness) {
+var drawRect = function(x, y, w, h, colour, thickness) {
   var r = paper.rect(x*gw, y*gh, w*gw, h*gh);
   if(colour) r.attr({ 'stroke' : colour, 'stroke-width' : thickness });
   current_shapes.push(r);
@@ -739,7 +744,7 @@ function drawRect(x, y, w, h, colour, thickness) {
  * @param  {number} h  height of the shape as a percentage of the original height
  * @return {undefined}
  */
-function updateRect(x1, y1, w, h) {
+Whiteboard.updateRect = function(x1, y1, w, h) {
   if(rect) rect.attr({ x: (x1)*gw, y: (y1)*gh, width: w*gw, height: h*gh });
 }
 
@@ -753,7 +758,7 @@ var curEllipseDragStart = function(x, y) {
   //find the x and y values in relation to the whiteboard
   ex = (x - s_left - sx + cx);
   ey = (y - s_top - sy + cy);
-  emitMakeShape('ellipse', [ex/sw, ey/sh, current_colour, current_thickness]);
+  Connection.emitMakeShape('ellipse', [ex/sw, ey/sh, current_colour, current_thickness]);
 };
 
 /**
@@ -764,7 +769,7 @@ var curEllipseDragStart = function(x, y) {
  * @param  {number} thickness the thickness of the object's line(s)
  * @return {undefined}
  */
-function makeEllipse(cx, cy, colour, thickness) {
+Whiteboard.makeEllipse = function(cx, cy, colour, thickness) {
   ellipse = paper.ellipse(cx*gw, cy*gh, 0, 0);
   if(colour) ellipse.attr({ 'stroke' : colour, 'stroke-width' : thickness });
   current_shapes.push(ellipse);
@@ -780,7 +785,7 @@ function makeEllipse(cx, cy, colour, thickness) {
  * @param  {number} thickness the thickness of the object's line(s)
  * @return {undefined}
  */
-function drawEllipse(cx, cy, rx, ry, colour, thickness) {
+var drawEllipse = function(cx, cy, rx, ry, colour, thickness) {
   var elip = paper.ellipse(cx*gw, cy*gh, rx*gw, ry*gh);
   if(colour) elip.attr({ 'stroke' : colour, 'stroke-width' : thickness });
   current_shapes.push(elip);
@@ -805,7 +810,7 @@ var curEllipseDragging = function(dx, dy, x, y, e) {
   y = ey+dy;
   dx = dx < 0 ? -dx : dx;
   dy = dy < 0 ? -dy : dy;
-  emitUpdateShape('ellipse', [x/sw, y/sh, dx/sw, dy/sh]);
+  Connection.emitUpdateShape('ellipse', [x/sw, y/sh, dx/sw, dy/sh]);
 };
 
 /**
@@ -816,7 +821,7 @@ var curEllipseDragging = function(dx, dy, x, y, e) {
  * @param  {number} h height of the shape as a percentage of the original height
  * @return {undefined}
  */
-function updateEllipse(x, y, w, h) {
+Whiteboard.updateEllipse = function(x, y, w, h) {
   if(ellipse) ellipse.attr({cx: x*gw, cy: y*gh, rx: w*gw, ry: h*gh });
 }
 
@@ -828,19 +833,22 @@ function updateEllipse(x, y, w, h) {
 var curEllipseDragStop = function(e) {
   var attrs;
   if(ellipse) attrs = ellipse.attrs;
-  if(attrs) emitPublishShape('ellipse', [attrs.cx/gw, attrs.cy/gh, attrs.rx/gw, attrs.ry/gh, current_colour, current_thickness]);
+  if(attrs) Connection.emitPublishShape('ellipse', [attrs.cx/gw, attrs.cy/gh, attrs.rx/gw, attrs.ry/gh, current_colour, current_thickness]);
   ellipse = null; //late updates will be blocked by this
 };
 
 /**
- * Send cursor moving event to server
+ * Called when the cursor is moved over the presentation.
+ * Sends cursor moving event to server.
  * @param  {Event} e the mouse event
  * @param  {number} x the x value of cursor at the time in relation to the left side of the browser
  * @param  {number} y the y value of cursor at the time in relation to the top of the browser
  * @return {undefined}
  */
-var mvingCur = function(e, x, y) {
-  emMvCur((x - sx - s_left + cx)/sw, (y - sy - s_top + cy)/sh);
+var onCursorMove = function(e, x, y) {
+  var xLocal = (x - sx - s_left + cx)/sw;
+  var yLocal = (y - sy - s_top + cy)/sh;
+  Connection.emitMoveCursor(xLocal, yLocal);
 };
 
 /**
@@ -849,7 +857,7 @@ var mvingCur = function(e, x, y) {
  * @param  {number} y the y value of the cursor as a percentage of the height
  * @return {undefined}
  */
-function mvCur(x, y) {
+Whiteboard.mvCur = function(x, y) {
   cur.attr({ cx: x*gw, cy: y*gh });
 }
 
@@ -857,7 +865,7 @@ function mvCur(x, y) {
  * Socket response - Clear canvas
  * @return {undefined}
  */
-function clearPaper() {
+Whiteboard.clearPaper = function() {
   if(current_shapes){
     current_shapes.forEach(function(element) {
       element.remove();
@@ -872,7 +880,7 @@ function clearPaper() {
  * @return {undefined}
  */
 var zoomSlide = function(event, delta) {
-  emZoom(delta);
+  Connection.emitZoom(delta);
 };
 
 /**
@@ -880,7 +888,7 @@ var zoomSlide = function(event, delta) {
  * @param {number} d the delta value from the scroll event
  * @return {undefined}
  */
-function setZoom(d) {
+Whiteboard.setZoom = function(d) {
   var step = 0.05; //step size
   if(d < 0) zoom_level += step; //zooming out
   else zoom_level -= step; //zooming in
@@ -894,7 +902,7 @@ function setZoom(d) {
   var zz = 1 - z;
   x = x > zz ? zz : x;
   y = y > zz ? zz : y;
-  sendPaperUpdate(x, y, z, z); //send update to all clients
+  Connection.emitPaperUpdate(x, y, z, z); //send update to all clients
 }
 
 initPaper();
@@ -953,7 +961,7 @@ document.onkeydown = function(event) {
   }
 };
 
-function windowResized(div) {
+Whiteboard.windowResized = function(div) {
   s_top = slide_obj.offsetTop;
   s_left = slide_obj.offsetLeft;
 
@@ -979,28 +987,32 @@ document.onkeyup = function(event) {
   }
 };
 
-//upload without a refresh
-$('#uploadForm').submit(function() {
-  $('#uploadStatus').text("Uploading...");
-  $(this).ajaxSubmit({
-    error: function(xhr) {
-      console.log('Error: ' + xhr.status);
-    },
-    success: function(response) {
+$(document).ready(function() {
 
-    }
+  //upload without a refresh
+  $('#uploadForm').submit(function() {
+    $('#uploadStatus').text("Uploading...");
+    $(this).ajaxSubmit({
+      error: function(xhr) {
+        console.log('Error: ' + xhr.status);
+      },
+      success: function(response) {
+
+      }
+    });
+    // Have to stop the form from submitting and causing refresh
+    return false;
   });
-  // Have to stop the form from submitting and causing refresh
-  return false;
-});
 
-//automatically upload the file if it is chosen
-$('#uploadFile').change(function() {
-  $("#uploadForm").submit();
+  //automatically upload the file if it is chosen
+  $('#uploadFile').change(function() {
+    $("#uploadForm").submit();
+  });
+
 });
 
 window.onresize = function () {
-  windowResized();
+  Whiteboard.windowResized();
 }
 
 /**
@@ -1020,3 +1032,7 @@ String.prototype.toScaledPath = function(w, h) {
   }
   return path;
 };
+
+return Whiteboard;
+
+});
