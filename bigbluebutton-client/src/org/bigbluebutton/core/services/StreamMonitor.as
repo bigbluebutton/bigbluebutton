@@ -1,4 +1,4 @@
-package org.bigbluebutton.core.managers
+package org.bigbluebutton.core.services
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
@@ -18,7 +18,7 @@ package org.bigbluebutton.core.managers
 	import org.bigbluebutton.main.events.NetworkStatsEvent;
 	import org.bigbluebutton.main.model.NetworkStatsData;
 	
-	public class StreamManager
+	public class StreamMonitor
 	{
 		/**
 		 * https://github.com/ritzalam/red5-bw-check
@@ -40,7 +40,7 @@ package org.bigbluebutton.core.managers
 		private var _globalDispatcher:Dispatcher = new Dispatcher();
 		private var _totalBytesCounter:Dictionary = new Dictionary();
 		
-		public function StreamManager():void {
+		public function StreamMonitor():void {
 			//Create NetMonitor object 
 			_netmon = new NetMonitor(); 
 			_netmon.addEventListener( NetMonitorEvent.NET_STREAM_CREATE, newNetStream );
@@ -115,7 +115,7 @@ package org.bigbluebutton.core.managers
 			 
 			for (var i:int = 0; i < streams.length; i++) {
 				if (streams[i] == null || streams[i].info == null) {
-					log("Stream info is null, returning");
+					// stream info is null, returning
 					continue;
 				}
 				
@@ -206,7 +206,7 @@ package org.bigbluebutton.core.managers
 		}
 		
 		private function log(s:String):void {
-			LogUtil.debug("[StreamManager] " + s);
+			LogUtil.debug("[StreamMonitor] " + s);
 		}
 	}
 }

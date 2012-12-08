@@ -2,7 +2,6 @@ package org.bigbluebutton.core
 {
 	import org.bigbluebutton.core.managers.ConfigManager2;
 	import org.bigbluebutton.core.managers.ConnectionManager;
-	import org.bigbluebutton.core.managers.StreamManager;
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.Session;

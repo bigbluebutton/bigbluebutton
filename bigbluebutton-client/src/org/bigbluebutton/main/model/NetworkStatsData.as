@@ -15,6 +15,10 @@ package org.bigbluebutton.main.model
 		private var _currentConsumedUpBW:Number = 0; // Kb
 		private var _totalConsumedDownBW:Number = 0; // MB
 		private var _totalConsumedUpBW:Number = 0; // MB
+		private var _measuredDownBW:int = 0; // Mb
+		private var _measuredDownLatency:int = 0; // ms
+		private var _measuredUpBW:int = 0; // Mb
+		private var _measuredUpLatency:int = 0; // ms
 		
 		/**
 		 * This class is a singleton. Please initialize it using the getInstance() method.
@@ -47,6 +51,31 @@ package org.bigbluebutton.main.model
 			_totalConsumedUpBW = upTotal / 1048576;
 		}
 		
+		/*
+			12/8/2012 17:24:38.293 [DEBUG] (Array)#0
+			  [deltaDown] 2455.704
+			  [deltaTime] 170
+			  [kbitDown] 14445
+			  [latency] 10
+		*/
+		public function setDownloadMeasuredBW(info:Object):void {
+			_measuredDownBW = info["kbitDown"] / 1000;
+			_measuredDownLatency = info["latency"];
+  		}
+		
+		/*
+			12/8/2012 17:24:39.556 [DEBUG] (Object)#0
+			  deltaTime = 1
+			  deltaUp = 10516
+			  kbitUp = 10516
+			  KBytes = 1283
+			  latency = 11
+		*/
+		public function setUploadMeasuredBW(info:Object):void {
+			_measuredUpBW = info.kbitUp / 1000;
+			_measuredUpLatency = info.latency;
+		}
+		
 		public function get currentConsumedDownBW():Number {
 			return _currentConsumedDownBW;
 		}
@@ -63,6 +92,21 @@ package org.bigbluebutton.main.model
 			return _totalConsumedUpBW;
 		}
 
+		public function get measuredDownBW():int {
+			return _measuredDownBW;
+		}
+
+		public function get measuredDownLatency():int {
+			return _measuredDownLatency;
+		}
+
+		public function get measuredUpBW():int {
+			return _measuredUpBW;
+		}
+
+		public function get measuredUpLatency():int {
+			return _measuredUpLatency;
+		}
 	}
 }
 

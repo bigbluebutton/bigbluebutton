@@ -177,7 +177,9 @@ package org.bigbluebutton.main.model.users
     
     private function startMonitoringBandwidth():void {
       trace("Start monitoring bandwidth.");
-      _bwMon.serverURL = "192.168.0.249";
+      var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
+      var result:Array = pattern.exec(_applicationURI);
+      _bwMon.serverURL = result.server;
       _bwMon.serverApplication = "video";
       _bwMon.start();
     }
@@ -192,7 +194,7 @@ package org.bigbluebutton.main.model.users
 				case "NetConnection.Connect.Success":
 					LogUtil.debug(NAME + ":Connection to viewers application succeeded.");
           
-//          startMonitoringBandwidth();
+					startMonitoringBandwidth();
           
 					_netConnection.call(
 							"getMyUserId",// Remote function name

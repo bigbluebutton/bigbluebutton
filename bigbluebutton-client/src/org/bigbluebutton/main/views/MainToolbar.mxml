@@ -52,7 +52,7 @@
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.red5.flash.bwcheck.app.BandwidthDetectionApp;
+			import org.bigbluebutton.core.services.BandwidthMonitor;
 
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 			
@@ -163,17 +163,6 @@
 				d.dispatchEvent(new ShortcutEvent(ShortcutEvent.OPEN_SHORTCUT_WIN));
 			}
 
-			private var bwApp:BandwidthDetectionApp;
-
-			private function detectBandwidth():void {
-				bwApp = new BandwidthDetectionApp();
-				bwApp.serverURL = "demo.bigbluebutton.org";
-				bwApp.serverApplication = "deskShare";
-				bwApp.clientServerService = "checkBandwidthUp";
-				bwApp.serverClientService = "checkBandwidth";
-				bwApp.connect();
-			}
-			
 		]]>
 	</mx:Script>	
 	<mx:HBox id="addedBtns"/>
@@ -181,9 +170,7 @@
 	<views:LanguageSelector id="langSelector" visible="false" />
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
-  <mx:Button label="BW!" click="detectBandwidth()" height="22" toolTip="Click to simulate disconnection" />
 -->
-  
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" click="onShortcutButtonClick()" height="22" toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" />
 	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" visible="{showHelpBtn}" click="onHelpButtonClicked()" height="22"/>
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
