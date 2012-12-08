@@ -162,13 +162,6 @@
 				d.dispatchEvent(new ShortcutEvent(ShortcutEvent.OPEN_SHORTCUT_WIN));
 			}
 			
-			private function openNetworkStatsWindow(e:Event = null):void{
-				var d:Dispatcher = new Dispatcher();
-				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				windowEvent.window = new NetworkStatsWindow();
-				d.dispatchEvent(windowEvent);
-			}
-			
 		]]>
 	</mx:Script>	
 	<mx:HBox id="addedBtns"/>
@@ -181,6 +174,4 @@
 	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" visible="{showHelpBtn}" click="onHelpButtonClicked()" height="22"/>
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 
 			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()" height="22"/>
-	<mx:Button id="btnNetwork" 
-			   width="22" height="22" click="openNetworkStatsWindow()"/>
 </mx:ApplicationControlBar>

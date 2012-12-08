@@ -32,14 +32,25 @@
 		width="210" height="185" minHeight="0" minWidth="0"
 		resize="onResize()">
 
-	<mate:Listener type="{NetworkStatsEvent.NETWORK_STATS_EVENTS}" method="onNetworkStats" />
-
 	<mx:Script>
 		<![CDATA[
+
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.utils.Timer;
+
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.main.model.NetworkStatsData;
+		
+			import mx.effects.Fade;
+			import mx.events.EffectEvent;
 			import mx.formatters.NumberFormatter;
 
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.events.NetworkStatsEvent;
+			private var _globalDispatcher:Dispatcher = new Dispatcher();
+			private var _updateTimer:Timer = new Timer(1000);
+			private var _numberFormatter:NumberFormatter = new NumberFormatter();
 		
 			private function onCreationComplete():void {
 				this.windowControls.maximizeRestoreBtn.visible = false;
@@ -47,25 +58,58 @@
 				
 				this.x = parent.width - this.width; 
 				this.y = 0;
+				
+				_numberFormatter.precision = 2;
+				_numberFormatter.useThousandsSeparator = true;
+
+				_updateTimer.addEventListener(TimerEvent.TIMER, timerHandler);
+				_updateTimer.start();
 			}
 			
+	        private function timerHandler(e:TimerEvent):void {
+				labelCurrentDownload.text = _numberFormatter.format(NetworkStatsData.getInstance().currentConsumedDownBW);
+			 	labelTotalDownload.text   = _numberFormatter.format(NetworkStatsData.getInstance().totalConsumedDownBW);
+			 	labelCurrentUpload.text   = _numberFormatter.format(NetworkStatsData.getInstance().currentConsumedUpBW);
+			 	labelTotalUpload.text     = _numberFormatter.format(NetworkStatsData.getInstance().totalConsumedUpBW);
+	        }
+        			
 			public function getPrefferedPosition():String {
 				return MainCanvas.ABSOLUTE;
 			}
 			
-			private function onNetworkStats(e:NetworkStatsEvent):void {
-				var formatter:NumberFormatter = new NumberFormatter();
-				formatter.precision = 2;
-				formatter.useThousandsSeparator = true;
-				
-				labelCurrentDownload.text = e.downloadStats.hasOwnProperty("currentBytesPerSecond")? formatter.format((e.downloadStats["currentBytesPerSecond"] * 8)/1000): "0.00";
-			 	labelTotalDownload.text   = e.downloadStats.hasOwnProperty("byteCount")?             formatter.format((e.downloadStats["byteCount"] * 8)/1000000): "0.00";
-			 	labelCurrentUpload.text   = e.uploadStats.hasOwnProperty("currentBytesPerSecond")?   formatter.format((e.uploadStats["currentBytesPerSecond"] * 8)/1000): "0.00";
-			 	labelTotalUpload.text     = e.uploadStats.hasOwnProperty("byteCount")?               formatter.format((e.uploadStats["byteCount"] * 8)/1000000): "0.00";
-			}
-			
 			private function onResize():void {
 				LogUtil.debug("width=" + width + " height=" + height);
+			}
+			
+			public function appear():void {
+				var fader:Fade = new Fade();
+				fader.alphaFrom = 0;
+				fader.alphaTo = 1;
+				fader.duration = 500;
+				fader.target = this;
+//				fader.addEventListener(EffectEvent.EFFECT_START, function(e:EffectEvent):void {
+//					var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+//					windowEvent.window = e.currentTarget as IBbbModuleWindow;
+//					_globalDispatcher.dispatchEvent(windowEvent);
+//				});
+				fader.play();
+				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				windowEvent.window = this;
+				_globalDispatcher.dispatchEvent(windowEvent);
+			}
+			
+			public function disappear():void {
+				var fader:Fade = new Fade();
+				fader.alphaFrom = 1;
+				fader.alphaTo = 0;
+				fader.duration = 500;
+				fader.target = this;
+				fader.addEventListener(EffectEvent.EFFECT_END, function(e:EffectEvent):void {
+					var windowEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
+					windowEvent.window = e.target as IBbbModuleWindow;
+					_globalDispatcher.dispatchEvent(windowEvent);
+				});
+				fader.play();
 			}
 		]]>
 	</mx:Script>

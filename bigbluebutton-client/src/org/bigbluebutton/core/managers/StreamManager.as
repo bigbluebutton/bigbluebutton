@@ -16,6 +16,7 @@ package org.bigbluebutton.core.managers
 	 
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.NetworkStatsEvent;
+	import org.bigbluebutton.main.model.NetworkStatsData;
 	
 	public class StreamManager
 	{
@@ -34,23 +35,12 @@ package org.bigbluebutton.core.managers
 		 * http://osflash.org/pipermail/red5_osflash.org/2009-January/028906.html
 		 */
 		
-		private static var _instance:StreamManager = null;
 		private var _netmon:NetMonitor;
 		private var _heartbeat:Timer = new Timer( 2000 );
 		private var _globalDispatcher:Dispatcher = new Dispatcher();
 		private var _totalBytesCounter:Dictionary = new Dictionary();
 		
-		/**
-		 * This class is a singleton. Please initialize it using the getInstance() method.
-		 */		
-		public function StreamManager(enforcer:SingletonEnforcer) {
-			if (enforcer == null){
-				throw new Error("There can only be 1 StreamManager instance");
-			}
-			initialize();
-		}
-		
-		private function initialize():void {
+		public function StreamManager():void {
 			//Create NetMonitor object 
 			_netmon = new NetMonitor(); 
 			_netmon.addEventListener( NetMonitorEvent.NET_STREAM_CREATE, newNetStream );
@@ -58,16 +48,6 @@ package org.bigbluebutton.core.managers
 			//Start the heartbeat timer 
 			_heartbeat.addEventListener( TimerEvent.TIMER, onHeartbeat ); 
 			_heartbeat.start(); 
-		}
-		
-		/**
-		 * Return the single instance of the StreamManager class
-		 */
-		public static function getInstance():StreamManager {
-			if (_instance == null){
-				_instance = new StreamManager(new SingletonEnforcer());
-			}
-			return _instance;
 		}
 		
 		//On new NetStream 
@@ -205,13 +185,18 @@ package org.bigbluebutton.core.managers
 					download["byteCount"] += value.byteCount;
 				else
 					upload["byteCount"] += value.byteCount;
-				log(value.streamName + ": " + value.byteCount);
+				//log(value.streamName + ": " + value.byteCount);
 			}
 
-			var netstatsEvent:NetworkStatsEvent = new NetworkStatsEvent();
-			netstatsEvent.downloadStats = download;
-			netstatsEvent.uploadStats = upload;
-			_globalDispatcher.dispatchEvent(netstatsEvent);
+//			var netstatsEvent:NetworkStatsEvent = new NetworkStatsEvent();
+//			netstatsEvent.downloadStats = download;
+//			netstatsEvent.uploadStats = upload;
+//			_globalDispatcher.dispatchEvent(netstatsEvent);
+
+			NetworkStatsData.getInstance().updateConsumedBW(download["currentBytesPerSecond"],
+					upload["currentBytesPerSecond"],
+					download["byteCount"],
+					upload["byteCount"]);
 		}
 		
 		static public function printDictionary(dict:Dictionary):void {
@@ -225,5 +210,3 @@ package org.bigbluebutton.core.managers
 		}
 	}
 }
-
-class SingletonEnforcer{}
