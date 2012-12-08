@@ -327,17 +327,15 @@ button:focus, textarea:focus, input:focus {
   background: #fff;
 }
 
-#switchPresenter {
+#switch-presenter {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   height: 32px;
   border-top: 1px solid #ccc;
-  padding: 16px;
+  margin: 16px;
   text-align: center;
-}
-#switchPresenter > input {
   border: 1px solid #ccc;
   border-radius: 4px;
   background: -moz-linear-gradient(top, #fff, #ddd);

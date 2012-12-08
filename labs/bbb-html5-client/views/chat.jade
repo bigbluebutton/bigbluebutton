@@ -1,42 +1,61 @@
 link(rel="stylesheet", href="css/reset.css")
 link(rel="stylesheet", href="css/font-awesome.css")
 link(rel="stylesheet", href="css/layout.css")
-//-h1= title
-//-  form(id="logout")
-//-    input(type="submit", value="Logout", onclick="Connection.emitLogout();return false;")
-//-p Welcome to BigBlueButton, #{user}!
-div(id="layout")
-  div(id="presentation")
-    div(id="slideAndControls")
-      div(id="slide")
-  div(id="users")
-    h3 Users
-    div(id="current_users")
-    form(id="switchPresenter")
-      input(type="submit", value="Switch presenter", onclick="Chat.switchPresenter();return false;")
-  div(id="chat")
-    h3 Chat
-    div(id="chat_messages")
-      div You are now connected to MeetingID <b>#{meetingID}</b>
-    div(id="chat-entry")
-      textarea(id="chat_input_box", maxlength="#{max_chat_length}", placeholder="Enter a chat message.")
-      button#chat-send Post
-  div(id="navbar")
-    div(class="navbar-btngroup")
-      button(id="prev-slide-btn", class="navbar-btn") <i class="icon-arrow-left"></i> Previous
-      button(id="next-slide-btn", class="navbar-btn") <i class="icon-arrow-right"></i> Next
-      button(id="tool-pan-btn", class="navbar-btn") <i class="icon-move"></i> Pan/Zoom
-      button(id="tool-line-btn", class="navbar-btn") <i class="icon-pencil"></i> Line
-      button(id="tool-rect-btn", class="navbar-btn") Rectangle
-      button(id="tool-ellipse-btn", class="navbar-btn") Ellipse
-    div(class="navbar-btngroup pull-right")
-      button(id="users-btn", class="navbar-btn") <i class="icon-group"></i> Users
-      button(id="video-btn", class="navbar-btn") <i class="icon-facetime-video"></i> Video
-      button(id="chat-btn", class="navbar-btn") <i class="icon-comments"></i> Chat <div id="chat-notifications" class="notification">12</div>
-      button(id="logout-btn", class="navbar-btn") <i class="icon-signout"></i> Logout
-canvas(id="colourView", width="12", height="12", onclick='Whiteboard.toggleColourPicker()')
-input(id='colourText', maxlength='7', type='text')
 
+div#layout
+  div#presentation
+    div#slideAndControls
+      div#slide
+  div#users
+    h3 Users
+    div#current_users
+    input#switch-presenter(type="button", value="Switch presenter")
+  div#chat
+    h3 Chat
+    div#chat_messages
+      span
+        | You are now connected to MeetingID
+        strong= meetingID
+    div#chat-entry
+      textarea#chat_input_box(maxlength="#{max_chat_length}", placeholder="Enter a chat message.")
+      button#chat-send Post
+  div#navbar
+    div.navbar-btngroup
+      button#prev-slide-btn.navbar-btn
+        i.icon-arrow-left
+        | Previous
+      button#next-slide-btn.navbar-btn
+        i.icon-arrow-right
+        | Next
+      button#tool-pan-btn.navbar-btn
+        i.icon-move
+        | Pan/Zoom
+      button#tool-line-btn.navbar-btn
+        i.icon-pencil
+        | Line
+      button#tool-rect-btn.navbar-btn
+        | Rectangle
+      button#tool-ellipse-btn.navbar-btn
+        | Ellipse
+    div.navbar-btngroup.pull-right
+      button#users-btn.navbar-btn
+        i.icon-group
+        | Users
+      button#video-btn.navbar-btn
+        i.icon-facetime-video
+        | Video
+      button#chat-btn.navbar-btn
+        i.icon-comments
+        | Chat
+        #chat-notifications.notification 12
+      button#logout-btn.navbar-btn
+        i.icon-signout
+        | Logout
+canvas#colourView(width="12", height="12")
+input#colourText(maxlength='7', type='text')
+
+
+-// TODO: is this thicknessView still used?
 canvas(id="thicknessView", width="20", height="20")
 
   -// The chat box and its controls
@@ -91,7 +110,7 @@ canvas(id="thicknessView", width="20", height="20")
     form(id='fitToWidth')
       input(type="submit", value='Fit to Width', onclick='Connection.sendFitToPage(false);return false;')
     br
-    canvas(id="colourView", width="12", height="12", onclick='Whiteboard.toggleColourPicker()')
+    canvas(id="colourView", width="12", height="12")
     input(id='colourText', maxlength='7', type='text')
     canvas(id="thicknessView", width="20", height="20")
     div(id='thickness')
