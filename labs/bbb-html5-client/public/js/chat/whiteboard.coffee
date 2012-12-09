@@ -54,10 +54,10 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
   default_thickness = 1
   dcr = 3
 
-  slide_obj = document.getElementById("slide")
-  textbox = document.getElementById("area")
+  # slide_obj = document.getElementById("slide")
+  # textbox = document.getElementById("area")
 
-  $("#area").autosize()
+  # $("#area").autosize()
 
   # Drawing the thickness viewer for client feedback.
   # No messages are sent to the server, it is completely
@@ -806,63 +806,63 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
     y = (if y > zz then zz else y)
     Connection.emitPaperUpdate x, y, z, z # send update to all clients
 
-  initPaper()
+  # initPaper()
 
-  c = document.getElementById("colourView")
-  tc = document.getElementById("thicknessView")
-  cptext = document.getElementById("colourText")
-  ctx = c.getContext("2d")
-  tctx = tc.getContext("2d")
+  # c = document.getElementById("colourView")
+  # tc = document.getElementById("thicknessView")
+  # cptext = document.getElementById("colourText")
+  # ctx = c.getContext("2d")
+  # tctx = tc.getContext("2d")
 
-  s_left = slide_obj.offsetLeft
-  s_top = slide_obj.offsetTop
-  vw = slide_obj.clientWidth
-  vh = slide_obj.clientHeight
+  # s_left = slide_obj.offsetLeft
+  # s_top = slide_obj.offsetTop
+  # vw = slide_obj.clientWidth
+  # vh = slide_obj.clientHeight
 
-  drawThicknessView default_thickness, default_colour
-  drawColourView default_colour
+  # drawThicknessView default_thickness, default_colour
+  # drawColourView default_colour
 
-  # create colour picker
-  cp = Raphael.colorwheel(-75, -75, 75, default_colour)
-  # hide it
-  cp.raphael.forEach (item) -> item.hide()
+  # # create colour picker
+  # cp = Raphael.colorwheel(-75, -75, 75, default_colour)
+  # # hide it
+  # cp.raphael.forEach (item) -> item.hide()
 
-  cpVisible = false
+  # cpVisible = false
 
-  $ ->
-    $("#thickness").slider
-      value: 1
-      min: 1
-      max: 20
+  # $ ->
+  #   $("#thickness").slider
+  #     value: 1
+  #     min: 1
+  #     max: 20
 
-    $("#thickness").bind "slide", (event, ui) ->
-      drawThicknessView ui.value, current_colour
+  #   $("#thickness").bind "slide", (event, ui) ->
+  #     drawThicknessView ui.value, current_colour
 
-    # upload without a refresh
-    $("#uploadForm").submit ->
-      $("#uploadStatus").text "Uploading..."
-      $(this).ajaxSubmit
-        error: (xhr) ->
-          console.log "Error: " + xhr.status
+  #   # upload without a refresh
+  #   $("#uploadForm").submit ->
+  #     $("#uploadStatus").text "Uploading..."
+  #     $(this).ajaxSubmit
+  #       error: (xhr) ->
+  #         console.log "Error: " + xhr.status
 
-        success: (response) ->
+  #       success: (response) ->
 
-      # Have to stop the form from submitting and causing refresh
-      false
+  #     # Have to stop the form from submitting and causing refresh
+  #     false
 
-    # automatically upload the file if it is chosen
-    $("#uploadFile").change ->
-      $("#uploadForm").submit()
+  #   # automatically upload the file if it is chosen
+  #   $("#uploadFile").change ->
+  #     $("#uploadForm").submit()
 
-  # when the colour picker colour changes
-  cp.onchange = ->
-    drawColourView @color()
-    drawThicknessView current_thickness, @color()
+  # # when the colour picker colour changes
+  # cp.onchange = ->
+  #   drawColourView @color()
+  #   drawThicknessView current_thickness, @color()
 
-  # when finished typing a colour into the colour text box
-  cptext.onkeyup = ->
-    drawColourView @value
-    drawThicknessView current_thickness, @value
+  # # when finished typing a colour into the colour text box
+  # cptext.onkeyup = ->
+  #   drawColourView @value
+  #   drawThicknessView current_thickness, @value
 
   # when pressing down on a key at anytime
   document.onkeydown = (event) ->
@@ -884,14 +884,14 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
       when 16 # shift key
         shift_pressed = false
 
-  window.onresize = ->
-    Whiteboard.windowResized()
+  # window.onresize = ->
+  #   Whiteboard.windowResized()
 
-  Whiteboard.windowResized = (div) ->
-    s_top = slide_obj.offsetTop
-    s_left = slide_obj.offsetLeft
-    s_left += $("#presentation")[0].offsetLeft  if div
-    console.log "window resized"
+  # Whiteboard.windowResized = (div) ->
+  #   s_top = slide_obj.offsetTop
+  #   s_left = slide_obj.offsetLeft
+  #   s_left += $("#presentation")[0].offsetLeft  if div
+  #   console.log "window resized"
 
   # Scales a path string to fit within a width and height of the new paper size
   # @param  {number} w width of the shape as a percentage of the original width

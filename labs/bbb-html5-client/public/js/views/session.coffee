@@ -2,11 +2,15 @@ define [
   'jquery',
   'underscore',
   'backbone',
-  'text!templates/session.html'
+  'text!templates/session.html',
+  'cs!chat/connection',
+  'cs!chat/whiteboard',
+  'cs!chat/chat',
+  'cs!chat/behaviour'
 ], ($, _, Backbone, sessionTemplate) ->
 
   SessionView = Backbone.View.extend
-    id: '#session-view'
+    id: 'session-view'
 
     render: ->
       data = {}

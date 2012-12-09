@@ -1,70 +1,70 @@
-define [ "jquery", "cs!chat/whiteboard", "cs!chat/connection", "chat/chat" ], ($, Whiteboard, Connection, Chat) ->
+define [ "jquery", "cs!chat/whiteboard", "cs!chat/connection", "cs!chat/chat" ], ($, Whiteboard, Connection, Chat) ->
 
-  layout = $("#layout")
-  chatToogleBtn = $("#chat-btn")
-  usersToogleBtn = $("#users-btn")
-  logoutBtn = $("#logout-btn")
-  userclick = null
-  chatclick = null
+  # layout = $("#layout")
+  # chatToogleBtn = $("#chat-btn")
+  # usersToogleBtn = $("#users-btn")
+  # logoutBtn = $("#logout-btn")
+  # userclick = null
+  # chatclick = null
 
-  # Ensure the status is set right at page load.
-  chatToogleBtn.toggleClass "active", layout.hasClass("chat-enabled")
-  usersToogleBtn.toggleClass "active", layout.hasClass("users-enabled")
+  # # Ensure the status is set right at page load.
+  # chatToogleBtn.toggleClass "active", layout.hasClass("chat-enabled")
+  # usersToogleBtn.toggleClass "active", layout.hasClass("users-enabled")
 
-  chatToogleBtn.on "click", ->
+  $(document).on "click", "#chat-enabled", ->
     clearTimeout chatclick if chatclick?
-    layout.toggleClass "chat-enabled"
-    chatToogleBtn.toggleClass "active", layout.hasClass("chat-enabled")
+    $("#layout").toggleClass "chat-enabled"
+    $(this).toggleClass "active", $("#layout").hasClass("chat-enabled")
     chatclick = setTimeout(->
       Whiteboard.windowResized()
     , 1100)
 
-  usersToogleBtn.on "click", ->
-    clearTimeout userclick if userclick?
-    layout.toggleClass "users-enabled"
-    usersToogleBtn.toggleClass "active", layout.hasClass("users-enabled")
-    userclick = setTimeout(->
-      Whiteboard.windowResized "users"
-    , 1100)
+  # usersToogleBtn.on "click", ->
+  #   clearTimeout userclick if userclick?
+  #   layout.toggleClass "users-enabled"
+  #   usersToogleBtn.toggleClass "active", layout.hasClass("users-enabled")
+  #   userclick = setTimeout(->
+  #     Whiteboard.windowResized "users"
+  #   , 1100)
 
-  logoutBtn.on "click", ->
-    Connection.emitLogout()
+  # logoutBtn.on "click", ->
+  #   Connection.emitLogout()
 
-  $("#prev-slide-btn").on "click", ->
-    Connection.emitPrevSlide()
-    false
+  # $("#prev-slide-btn").on "click", ->
+  #   Connection.emitPrevSlide()
+  #   false
 
-  $("#next-slide-btn").on "click", ->
-    Connection.emitNextSlide()
-    false
+  # $("#next-slide-btn").on "click", ->
+  #   Connection.emitNextSlide()
+  #   false
 
-  $("#tool-pan-btn").on "click", ->
-    Connection.emitChangeTool "panzoom"
-    false
+  # $("#tool-pan-btn").on "click", ->
+  #   Connection.emitChangeTool "panzoom"
+  #   false
 
-  $("#tool-line-btn").on "click", ->
-    Connection.emitChangeTool "line"
-    false
+  # $("#tool-line-btn").on "click", ->
+  #   Connection.emitChangeTool "line"
+  #   false
 
-  $("#tool-rect-btn").on "click", ->
-    Connection.emitChangeTool "rect"
-    false
+  # $("#tool-rect-btn").on "click", ->
+  #   Connection.emitChangeTool "rect"
+  #   false
 
-  $("#tool-ellipse-btn").on "click", ->
-    Connection.emitChangeTool "ellipse"
-    false
+  # $("#tool-ellipse-btn").on "click", ->
+  #   Connection.emitChangeTool "ellipse"
+  #   false
 
-  $("button#chat-send").on "click", ->
-    Chat.sendMessage()
-    false
+  # $("button#chat-send").on "click", ->
+  #   Chat.sendMessage()
+  #   false
 
-  $("#colourView").on "click", ->
-    Whiteboard.toggleColourPicker()
-    false
+  # $("#colourView").on "click", ->
+  #   Whiteboard.toggleColourPicker()
+  #   false
 
-  $("#switch-presenter").on "click", ->
-    Chat.switchPresenter()
-    false
+  # $("#switch-presenter").on "click", ->
+  #   Chat.switchPresenter()
+  #   false
 
   # $("#chat_input_box").on "keyup", (e) ->
   #   count = $(this).attr("maxlength")

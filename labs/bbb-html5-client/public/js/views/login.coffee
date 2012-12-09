@@ -9,7 +9,7 @@ define [
 ], ($, _, Backbone, configs, AuthenticationModel, MeetingsCollection, loginTemplate) ->
 
   LoginView = Backbone.View.extend
-    id: '#login-view'
+    id: 'login-view'
     model: new AuthenticationModel()
 
     events:
