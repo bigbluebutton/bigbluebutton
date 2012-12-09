@@ -19,11 +19,11 @@ var express = require('express'),
   format = require('util').format;
   fs = require('fs');
   im = require('imagemagick');
-  
+
   util = require('util');
   exec = require('child_process').exec;
   ip_address = 'localhost';
-  
+
   //global variables
   redisAction = require('./redis');
   socketAction = require('./routes/socketio');
@@ -32,7 +32,7 @@ var express = require('express'),
   //store.flushdb();
   pub = redis.createClient();
   sub = redis.createClient();
-  
+
   subscriptions = ['*'];
   sub.psubscribe.apply(sub, subscriptions);
 
@@ -89,9 +89,11 @@ function requiresLogin(req, res, next) {
 app.get('/', routes.get_index);
 app.post('/chat',  routes.post_chat);
 app.post('/logout', requiresLogin, routes.logout);
+app.get('/logout', routes.logout); // TODO
 app.get('/chat', requiresLogin, routes.get_chat);
 app.post('/', routes.post_index);
 app.get('/join', routes.join);
+app.get('/meetings', routes.meetings);
 
 // --- 404 (keep as last route) --- //
 app.get('*', routes.error404);
@@ -180,7 +182,7 @@ sub.on("pmessage", function(pattern, channel, message) {
   else if(channel == "bigbluebutton:meeting:presentation"){
     var attributes = JSON.parse(message);
     if(attributes.messageKey == "CONVERSION_COMPLETED"){
-      var meetingID = attributes.room; 
+      var meetingID = attributes.room;
       pub.publish(meetingID, JSON.stringify(['clrPaper']));
       socketAction.publishSlides(meetingID, null, function() {
         socketAction.publishViewBox(meetingID);
@@ -192,6 +194,6 @@ sub.on("pmessage", function(pattern, channel, message) {
     //value of pub channel is used as the name of the SocketIO room to send to.
     var channel_viewers = io.sockets.in(channel);
     //apply the parameters to the socket event, and emit it on the channels
-    channel_viewers.emit.apply(channel_viewers, JSON.parse(message));    
+    channel_viewers.emit.apply(channel_viewers, JSON.parse(message));
   }
 });

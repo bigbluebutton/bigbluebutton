@@ -1,7 +1,21 @@
 !!! 5
 html
   head
-    title= title
-    //-link(rel='stylesheet', href='/css/style.css')
-    link(rel='stylesheet', href='/css/jq-ui.css')
-    body!= body
+    block head
+      title= title
+      -// link(rel='stylesheet', href='/css/style.css')
+      -// link(rel='stylesheet', href='/css/jq-ui.css')
+
+  body
+    block content
+      #container
+
+  script(src='/js/lib/require/require-min.js')
+  - if (typeof(meetings) != 'undefined')
+    script(type='text/javascript')
+      define('configs', function() {
+        return {
+          bootstrappedMeetings: !{JSON.stringify(meetings)}
+        };
+      });
+  script(src='/js/main.js')

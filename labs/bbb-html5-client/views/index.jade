@@ -1,12 +1,1 @@
-h1= title
-p Please type a username and meeting ID below and click Sign in to start your BigBlueButton session.
-
--// Login form
-form#login(method='post', name='login')
-  input#user-name(type="text", maxlength="#{max_u}", name="user[name]", placeholder='Enter a username')
-  select#meeting-id(name="meeting[id]")
-    - for(var i=0; i<meetings.length; i++)
-      option(value="#{meetings[i].meetingID}")= meetings[i].meetingName
-  input(type="submit", value='Sign in')
-
-script(src='/js/lib/require-min.js', data-main='/js/index.js')
+extends layout

@@ -94,16 +94,21 @@ function makeMeeting(meetingID, sessionID, username, callback) {
  * @return {undefined}  Response object is sent back to the client.
  */
 exports.post_index = function(req, res) {
-  var username = sanitizer.escape(req.body.user.name);
-  var meetingID = sanitizer.escape(req.body.meeting.id);
+  var user = req.body;
+  var username = sanitizer.escape(user.username);
+  var meetingID = sanitizer.escape(user.meetingID);
   var sessionID = req.sessionID;
   makeMeeting(meetingID, sessionID, username, function(join) {
     if(join) {
       res.cookie('sessionid', sessionID); //save the id so socketio can get the username
       res.cookie('meetingid', meetingID);
-      res.redirect('/chat');
+      res.contentType("json");
+      user.loginAccepted = true;
+      res.send(user);
+    } else {
+      res.contentType("json");
+      res.send({ loginAccepted: false });
     }
-    else res.redirect('/');
   });
 };
 
@@ -118,6 +123,7 @@ exports.logout = function(req, res) {
   req.session.destroy(); //end the session
   res.cookie('sessionid', null); //clear the cookie from the client
   res.cookie('meetingid', null);
+  res.redirect('/');
 };
 
 /**
@@ -206,7 +212,7 @@ exports.post_chat = function(req, res) {
                     for(var i = 0; i < numOfPages; i++) {
                       var setCurrent = true;
                       if(i !== 0) setCurrent = false;
-                      redisAction.createPage(meetingID, presentationID, "slide" + i + ".png", setCurrent, function (pageID, imageName) {       
+                      redisAction.createPage(meetingID, presentationID, "slide" + i + ".png", setCurrent, function (pageID, imageName) {
                         //ImageMagick call to get the image size from each of the converted images.
                         im.identify(folder + "/" + imageName, function(err, features) {
                           if (err) throw err;
@@ -256,4 +262,16 @@ exports.post_chat = function(req, res) {
 exports.error404 = function(req, res) {
   console.log("User tried to access: " + req.url);
   res.send("Page not found", 404);
+};
+
+/**
+ * @param  {Object} req Request object from the client
+ * @param  {Object} res Response object to the client
+ * @return {undefined}  Response object is sent back to the client.
+ */
+exports.meetings = function(req, res) {
+  redisAction.getMeetings(function (results){
+    res.contentType("json");
+    res.send(JSON.stringify(results));
+  });
 };
