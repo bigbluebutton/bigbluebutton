@@ -42,7 +42,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.text.DateFormat;
-
+import org.apache.commons.httpclient.*
+import org.apache.commons.httpclient.methods.*
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours    
@@ -300,6 +301,15 @@ class ApiController {
       externUserID = internalUserID
     }
     
+	String configURL = params.configURL;
+	if (StringUtils.isEmpty(configURL)) {
+		configURL = meeting.defaultConfigURL
+	}
+	
+	println "JOIN Config URL [" + configURL + "]"
+	
+	String configXML = getConfig(configURL)
+		
 	UserSession us = new UserSession();
 	us.internalUserId = internalUserID
     us.conferencename = meeting.getName()
@@ -316,6 +326,11 @@ class ApiController {
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
 	us.logoutUrl = meeting.getLogoutUrl();
+	us.configXML = configXML;
+		
+	println "============"
+	println us.configXML
+	println "============="
 	
 	if (! StringUtils.isEmpty(params.defaulLayout)) {
 		us.defaultLayout = params.defaulLayout;
@@ -720,6 +735,63 @@ class ApiController {
     }
   }
 
+  /***********************************************
+  * CONFIG API
+  ***********************************************/
+  def configXML = {
+	  println "GOT HERE"
+	  
+//	  String config = getConfig("http://192.168.0.249/client/conf/config.xml")
+	  	  
+	  if (! session["user-token"] || (meetingService.getUserSession(session['user-token']) == null)) {
+		  log.info("No session for user in conference.")
+		  
+		  Meeting meeting = null;
+		  
+		  // Determine the logout url so we can send the user there.
+		  String logoutUrl = session["logout-url"]
+						
+		  if (! session['meeting-id']) {
+			  meeting = meetingService.getMeeting(session['meeting-id']);
+		  }
+		
+		  // Log the user out of the application.
+		  session.invalidate()
+		
+		  if (meeting != null) {
+			  log.debug("Logging out from [" + meeting.getInternalId() + "]");
+			  logoutUrl = meeting.getLogoutUrl();
+		  }
+		  
+		  if (StringUtils.isEmpty(logoutUrl))
+			  logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+		  
+		  response.addHeader("Cache-Control", "no-cache")
+		  withFormat {
+			xml {
+			  render(contentType:"text/xml") {
+				response() {
+				  returncode("FAILED")
+				  message("Could not find conference.")
+				  logoutURL(logoutUrl)
+				}
+			  }
+			}
+		  }		  
+		} else {
+			UserSession us = meetingService.getUserSession(session['user-token']);
+			log.info("Found conference for " + us.fullname)
+			
+			println "************* ============ **************"
+			println us.configXML
+			println "************** ============= ************"
+			
+			response.addHeader("Cache-Control", "no-cache")
+			render text: us.configXML, contentType: 'text/xml'
+		}
+
+  }
+  
   /***********************************************
    * ENTER API
    ***********************************************/
@@ -1318,4 +1390,16 @@ class ApiController {
 		}
 		return false
   }  
+  
+  def getConfig(url) {
+	  def client = new HttpClient()
+	  def get = new GetMethod(url)
+	  client.executeMethod(get)
+	  
+	  println "queryForUserId response = " + get.getResponseBodyAsString()
+	  
+  		return get.getResponseBodyAsString()
+//      def result =  new XmlSlurper().parseText(get.getResponseBodyAsString()).text()
+//      println result
+  }
 }

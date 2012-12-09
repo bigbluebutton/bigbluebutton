@@ -32,6 +32,7 @@ public class ParamsProcessorUtil {
 	private int defaultNumDigitsForTelVoice;
 	private String defaultClientUrl;
 	private String defaultAvatarURL;
+	private String defaultConfigURL;
 	private int defaultMeetingDuration;
 	private boolean disableRecordingDefault;
 	
@@ -258,6 +259,10 @@ public class ParamsProcessorUtil {
 	    String welcomeMessage = processWelcomeMessage(params.get("welcome"));
 	    welcomeMessage = substituteKeywords(welcomeMessage, dialNumber, telVoice, meetingName);
 	    
+	    String configURL = processConfigURL(params.get("configURL"));
+	    
+	    System.out.println("ParamsProc [" + configURL + "]");
+	    
 	    String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
 	    
 	    // Check if this is a test meeting. NOTE: This should not belong here. Extract this out.				
@@ -287,7 +292,7 @@ public class ParamsProcessorUtil {
 	        .withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
 	        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
 	        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
-	        .withDefaultAvatarURL(defaultAvatarURL)
+	        .withDefaultAvatarURL(defaultAvatarURL).withDefaultConfigURL(configURL)
 	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build();
 	    
 	    return meeting;
@@ -304,6 +309,17 @@ public class ParamsProcessorUtil {
 	
 	public String getDefaultClientUrl() {
 		return defaultClientUrl;
+	}
+	
+	private String processConfigURL(String url) {
+		if (StringUtils.isEmpty(url)) {
+			return defaultConfigURL;
+		}
+		return url;
+	}
+	
+	public String getDefaultConfigURL() {
+		return defaultConfigURL;
 	}
 	
 	public String getDefaultLogoutUrl() {
@@ -477,6 +493,10 @@ public class ParamsProcessorUtil {
 		this.defaultLogoutUrl = defaultLogoutUrl;
 	}
 
+	public void setDefaultConfigURL(String defaultConfigUrl) {
+		this.defaultConfigURL = defaultConfigUrl;
+	}
+	
 	public void setDefaultServerUrl(String defaultServerUrl) {
 		this.defaultServerUrl = defaultServerUrl;
 	}
