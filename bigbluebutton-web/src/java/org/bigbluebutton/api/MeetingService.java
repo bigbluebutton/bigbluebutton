@@ -5,9 +5,7 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.*;
-
 import org.apache.commons.lang.RandomStringUtils;
-import org.bigbluebutton.api.domain.Config;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Playback;
 import org.bigbluebutton.api.domain.Recording;
@@ -24,7 +22,7 @@ public class MeetingService {
 	
 	private final ConcurrentMap<String, Meeting> meetings;	
 	private final ConcurrentMap<String, UserSession> sessions;
-	private final ConcurrentMap<String, Config> configs;
+	
 	
 	private int defaultMeetingExpireDuration = 1;	
 	private int defaultMeetingCreateJoinDuration = 5;
@@ -36,7 +34,7 @@ public class MeetingService {
 	public MeetingService() {
 		meetings = new ConcurrentHashMap<String, Meeting>();	
 		sessions = new ConcurrentHashMap<String, UserSession>();
-		configs = new ConcurrentHashMap<String, Config>();
+		
 	}
 	
 	public void addUserSession(String token, UserSession user) {
@@ -50,39 +48,7 @@ public class MeetingService {
 	public UserSession removeUserSession(String token) {
 		return sessions.remove(token);
 	}
-	
-	public String storeConfig(String config) {
-		String token = RandomStringUtils.randomAlphanumeric(8);
-		while (configs.containsKey(token)) {
-			token = RandomStringUtils.randomAlphanumeric(8);
-		}
 		
-		configs.put(token, new Config(token, System.currentTimeMillis(), config));
-		
-		return token;
-	}
-	
-	public Config getConfig(String token) {
-		return configs.get(token);
-	}
-	
-	public Config removeConfig(String token) {
-		return configs.remove(token);
-	}
-	
-	private static final long HOUR = 1000 * 60 * 60;
-	
-	public void removeExpiredConfigs() {
-		long now = System.currentTimeMillis();
-		
-		for (Config c: configs.values()) {
-			if (((now - c.createdOn) / HOUR) > 10) {
-				System.out.println("Removing config [" + c.token + "]");
-				configs.remove(c.token);
-			}
-		}
-	}
-	
 	/**
 	 * Remove the meetings that have ended from the list of
 	 * running meetings.

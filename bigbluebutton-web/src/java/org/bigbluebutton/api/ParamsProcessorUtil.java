@@ -261,11 +261,7 @@ public class ParamsProcessorUtil {
 	    int meetingDuration = processMeetingDuration(params.get("duration"));
 	    String welcomeMessage = processWelcomeMessage(params.get("welcome"));
 	    welcomeMessage = substituteKeywords(welcomeMessage, dialNumber, telVoice, meetingName);
-	    
-	    String configXML = getDefaultConfigXML();
 	    	    
-	    System.out.println("ParamsProc [" + configXML + "]");
-	    
 	    String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
 	    
 	    // Check if this is a test meeting. NOTE: This should not belong here. Extract this out.				
@@ -295,8 +291,11 @@ public class ParamsProcessorUtil {
 	        .withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
 	        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
 	        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
-	        .withDefaultAvatarURL(defaultAvatarURL).withDefaultConfig(configXML)
+	        .withDefaultAvatarURL(defaultAvatarURL)
 	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build();
+	    
+	    String configXML = getDefaultConfigXML();
+	    meeting.storeConfig(true, configXML);
 	    
 	    return meeting;
 	}

@@ -312,12 +312,20 @@ class ApiController {
       externUserID = internalUserID
     }
     
-	String configXML = meeting.defaultConfig;
+	String configXML = null;
 	
 	if (! StringUtils.isEmpty(params.configToken)) {
-		Config conf = meetingService.getConfig(params.configToken);
+		Config conf = meeting.getConfig(params.configToken);
 		if (conf == null) {
 			errors.noConfigFoundForToken(params.configToken);
+			respondWithErrors(errors);
+		} else {
+			configXML = conf.config;
+		}
+	} else {
+		Config conf = meeting.getDefaultConfig();
+		if (conf == null) {
+			errors.noConfigFound();
 			respondWithErrors(errors);
 		} else {
 			configXML = conf.config;
@@ -325,8 +333,7 @@ class ApiController {
 	}
 	
 	if (StringUtils.isEmpty(configXML)) {
-		errors.noConfigFound();
-		respondWithErrors(errors);
+
 	}
 	
 	UserSession us = new UserSession();
@@ -754,7 +761,30 @@ class ApiController {
   * CONFIG API
   ***********************************************/
   def configXml = {
-	  println "** handling config xml "
+
+	if (StringUtils.isEmpty(params.checksum)) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+
+	if (StringUtils.isEmpty(params.meetingID)) {
+		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+		return
+	}
+	
+	// Translate the external meeting id into an internal meeting id.
+	String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
+	Meeting meeting = meetingService.getMeeting(internalMeetingId);
+	if (meeting == null) {
+		// BEGIN - backward compatibility
+		invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
+		return;
+		// END - backward compatibility
+		
+	   errors.invalidMeetingIdError();
+	   respondWithErrors(errors)
+	   return;
+    }
 	  
 	  println "**************** ==================================================== **************************"
 	  if (! paramsProcessorUtil.isConfigXMLChecksumSame(params.configxml, params.checksum)) {		 
@@ -772,7 +802,17 @@ class ApiController {
 		  }		  
 		} else {
 		    println "**************** CHECKSUM PASSED **************************"
-			String token = meetingService.storeConfig(params.configxml);
+			boolean defaultConfig = false;
+			
+			if(! StringUtils.isEmpty(params.defaultConfig)) {
+				try{
+					defaultConfig = Boolean.parseBoolean(params.defaultConfig);
+				}catch(Exception e) {
+					defaultConfig = false;
+				}
+			}
+			
+			String token = meeting.storeConfig(defaultConfig, params.configxml);
 			response.addHeader("Cache-Control", "no-cache")
 			withFormat {
 			  xml {
@@ -792,9 +832,6 @@ class ApiController {
   * CONFIG API
   ***********************************************/
   def configXML = {
-	  println "GOT HERE"
-	  
-//	  String config = getConfig("http://192.168.0.249/client/conf/config.xml")
 	  	  
 	  if (! session["user-token"] || (meetingService.getUserSession(session['user-token']) == null)) {
 		  log.info("No session for user in conference.")
@@ -833,12 +870,8 @@ class ApiController {
 		  }		  
 		} else {
 			UserSession us = meetingService.getUserSession(session['user-token']);
-			log.info("Found conference for " + us.fullname)
-			
-			println "************* ============ **************"
-			println us.configXML
-			println "************** ============= ************"
-			
+			log.info("Found session for " + us.fullname)
+						
 			response.addHeader("Cache-Control", "no-cache")
 			render text: us.configXML, contentType: 'text/xml'
 		}
