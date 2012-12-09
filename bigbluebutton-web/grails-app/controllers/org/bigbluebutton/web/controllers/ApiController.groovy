@@ -149,17 +149,7 @@ class ApiController {
     }
      
     Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);      
-	
-	if (! StringUtils.isEmpty(params.configToken)) {
-		Config conf = meetingService.getConfig(params.configToken);
-		if (conf == null) {
-			errors.noConfigFoundForToken(params.configToken);
-			respondWithErrors(errors);
-		} else {
-			newMeeting.setDefaultConfig(conf.config);
-		}
-	}
-	      
+		      
     meetingService.createMeeting(newMeeting);
     
     // See if the request came with pre-uploading of presentation.
@@ -760,7 +750,7 @@ class ApiController {
   /***********************************************
   * CONFIG API
   ***********************************************/
-  def configXml = {
+  def setConfigXML = {
 
 	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
@@ -831,7 +821,7 @@ class ApiController {
   /***********************************************
   * CONFIG API
   ***********************************************/
-  def configXML = {
+  def getConfigXML = {
 	  	  
 	  if (! session["user-token"] || (meetingService.getUserSession(session['user-token']) == null)) {
 		  log.info("No session for user in conference.")
