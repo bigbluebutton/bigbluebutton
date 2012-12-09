@@ -28,6 +28,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
+import org.bigbluebutton.api.domain.Config;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.MeetingService;
@@ -42,8 +43,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.text.DateFormat;
-import org.apache.commons.httpclient.*
-import org.apache.commons.httpclient.methods.*
+
 
 class ApiController {
   private static final Integer SESSION_TIMEOUT = 14400  // 4 hours    
@@ -148,7 +148,18 @@ class ApiController {
       return;    
     }
      
-    Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);            
+    Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);      
+	
+	if (! StringUtils.isEmpty(params.configToken)) {
+		Config conf = meetingService.getConfig(params.configToken);
+		if (conf == null) {
+			errors.noConfigFoundForToken(params.configToken);
+			respondWithErrors(errors);
+		} else {
+			newMeeting.setDefaultConfig(conf.config);
+		}
+	}
+	      
     meetingService.createMeeting(newMeeting);
     
     // See if the request came with pre-uploading of presentation.
@@ -301,15 +312,23 @@ class ApiController {
       externUserID = internalUserID
     }
     
-	String configURL = params.configURL;
-	if (StringUtils.isEmpty(configURL)) {
-		configURL = meeting.defaultConfigURL
+	String configXML = meeting.defaultConfig;
+	
+	if (! StringUtils.isEmpty(params.configToken)) {
+		Config conf = meetingService.getConfig(params.configToken);
+		if (conf == null) {
+			errors.noConfigFoundForToken(params.configToken);
+			respondWithErrors(errors);
+		} else {
+			configXML = conf.config;
+		}
 	}
 	
-	println "JOIN Config URL [" + configURL + "]"
+	if (StringUtils.isEmpty(configXML)) {
+		errors.noConfigFound();
+		respondWithErrors(errors);
+	}
 	
-	String configXML = getConfig(configURL)
-		
 	UserSession us = new UserSession();
 	us.internalUserId = internalUserID
     us.conferencename = meeting.getName()
@@ -327,11 +346,7 @@ class ApiController {
     us.welcome = meeting.getWelcomeMessage()
 	us.logoutUrl = meeting.getLogoutUrl();
 	us.configXML = configXML;
-		
-	println "============"
-	println us.configXML
-	println "============="
-	
+			
 	if (! StringUtils.isEmpty(params.defaulLayout)) {
 		us.defaultLayout = params.defaulLayout;
 	}
@@ -735,6 +750,44 @@ class ApiController {
     }
   }
 
+  /***********************************************
+  * CONFIG API
+  ***********************************************/
+  def configXml = {
+	  println "** handling config xml "
+	  
+	  println "**************** ==================================================== **************************"
+	  if (! paramsProcessorUtil.isConfigXMLChecksumSame(params.configxml, params.checksum)) {		 
+		  println "**************** CHECKSUM FAILED **************************"
+		  response.addHeader("Cache-Control", "no-cache")
+		  withFormat {
+			xml {
+			  render(contentType:"text/xml") {
+				response() {
+				  returncode("FAILED")
+				  message("Failed to set config xml.")
+				}
+			  }
+			}
+		  }		  
+		} else {
+		    println "**************** CHECKSUM PASSED **************************"
+			String token = meetingService.storeConfig(params.configxml);
+			response.addHeader("Cache-Control", "no-cache")
+			withFormat {
+			  xml {
+				  println "**************** CHECKSUM PASSED - XML RESPONSE **************************"
+			    render(contentType:"text/xml") {
+				  response() {
+				    returncode("SUCCESS")
+				    configToken(token)
+				  }
+			    }
+			  }
+		    }
+		 }
+  }
+  
   /***********************************************
   * CONFIG API
   ***********************************************/
@@ -1391,15 +1444,4 @@ class ApiController {
 		return false
   }  
   
-  def getConfig(url) {
-	  def client = new HttpClient()
-	  def get = new GetMethod(url)
-	  client.executeMethod(get)
-	  
-	  println "queryForUserId response = " + get.getResponseBodyAsString()
-	  
-  		return get.getResponseBodyAsString()
-//      def result =  new XmlSlurper().parseText(get.getResponseBodyAsString()).text()
-//      println result
-  }
 }

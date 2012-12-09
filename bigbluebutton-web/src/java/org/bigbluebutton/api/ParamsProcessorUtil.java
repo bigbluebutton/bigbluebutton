@@ -1,5 +1,6 @@
 package org.bigbluebutton.api;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -13,6 +14,8 @@ import org.apache.commons.lang.StringUtils;
 import org.bigbluebutton.api.domain.Meeting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.methods.*;
 
 public class ParamsProcessorUtil {
 	private static Logger log = LoggerFactory.getLogger(ParamsProcessorUtil.class);
@@ -259,9 +262,9 @@ public class ParamsProcessorUtil {
 	    String welcomeMessage = processWelcomeMessage(params.get("welcome"));
 	    welcomeMessage = substituteKeywords(welcomeMessage, dialNumber, telVoice, meetingName);
 	    
-	    String configURL = processConfigURL(params.get("configURL"));
-	    
-	    System.out.println("ParamsProc [" + configURL + "]");
+	    String configXML = getDefaultConfigXML();
+	    	    
+	    System.out.println("ParamsProc [" + configXML + "]");
 	    
 	    String internalMeetingId = convertToInternalMeetingId(externalMeetingId);
 	    
@@ -292,7 +295,7 @@ public class ParamsProcessorUtil {
 	        .withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
 	        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
 	        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
-	        .withDefaultAvatarURL(defaultAvatarURL).withDefaultConfigURL(configURL)
+	        .withDefaultAvatarURL(defaultAvatarURL).withDefaultConfig(configXML)
 	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build();
 	    
 	    return meeting;
@@ -311,12 +314,27 @@ public class ParamsProcessorUtil {
 		return defaultClientUrl;
 	}
 	
-	private String processConfigURL(String url) {
-		if (StringUtils.isEmpty(url)) {
-			return defaultConfigURL;
-		}
-		return url;
+	public String getDefaultConfigXML() {
+		return getConfig(defaultConfigURL);
 	}
+	
+	private String getConfig(String url) {
+		HttpClient client = new HttpClient();
+		GetMethod get = new GetMethod(url);
+		String configXML = "";
+		try {
+			client.executeMethod(get);
+			configXML = get.getResponseBodyAsString();
+		} catch (HttpException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		  		  
+		return configXML;
+	  }
 	
 	public String getDefaultConfigURL() {
 		return defaultConfigURL;
@@ -426,6 +444,32 @@ public class ParamsProcessorUtil {
 		} 
 		
 		return "";	
+	}
+	
+	public boolean isConfigXMLChecksumSame(String configXML, String checksum) {
+		if (StringUtils.isEmpty(securitySalt)) {
+			log.warn("Security is disabled in this service. Make sure this is intentional.");
+			return true;
+		}
+		
+		String decodedConfigXML;
+		
+		try {
+			decodedConfigXML = URLDecoder.decode(configXML,"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			log.error("Couldn't decode config XML.");
+			return false;
+		}
+		
+		String cs = DigestUtils.shaHex(decodedConfigXML + securitySalt);
+		log.debug("our checksum: [{}], client: [{}]", cs, checksum);
+		System.out.println("our checksum: [" + cs + "] client: [" + checksum + "]");
+		if (cs == null || cs.equals(checksum) == false) {
+			log.info("checksumError: request did not pass the checksum security check");
+			return false;
+		}
+		log.debug("checksum ok: request passed the checksum security check");
+		return true;
 	}
 	
 	public boolean isChecksumSame(String apiCall, String checksum, String queryString) {

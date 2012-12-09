@@ -27,6 +27,7 @@ public class ExpiredMeetingCleanupTimerTask {
 	private class CleanupTask extends TimerTask {
         public void run() {
         	service.removeExpiredMeetings();
+        	service.removeExpiredConfigs();
         }
     }
 }

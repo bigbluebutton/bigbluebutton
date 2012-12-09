@@ -47,7 +47,7 @@ public class Meeting {
 	private boolean record;
 	private String dialNumber;
 	private String defaultAvatarURL;
-	private String defaultConfigURL;
+	private String defaultConfig;
 	
 	private Map<String, String> metadata;	
 	private final ConcurrentMap<String, User> users; 
@@ -61,7 +61,7 @@ public class Meeting {
 		maxUsers = builder.maxUsers;
 		logoutUrl = builder.logoutUrl;
 		defaultAvatarURL = builder.defaultAvatarURL;
-		defaultConfigURL = builder.defaultConfigURL;
+		defaultConfig = builder.defaultConfig;
 		record = builder.record;
     	duration = builder.duration;
     	webVoice = builder.webVoice;
@@ -160,8 +160,12 @@ public class Meeting {
 		return defaultAvatarURL;
 	}
 
-	public String getDefaultConfigURL() {
-		return defaultConfigURL;
+	public String getDefaultConfig() {
+		return defaultConfig;
+	}
+	
+	public void setDefaultConfig(String config) {
+		defaultConfig = config;
 	}
 	
 	public String getLogoutUrl() {
@@ -262,7 +266,7 @@ public class Meeting {
     	private Map<String, String> metadata;
     	private String dialNumber;
     	private String defaultAvatarURL;
-    	private String defaultConfigURL;
+    	private String defaultConfig;
     	private long createdTime;
     	
     	public Builder(String externalId, String internalId, long createTime) {
@@ -326,8 +330,8 @@ public class Meeting {
     		return this;
     	}
     	
-    	public Builder withDefaultConfigURL(String w) {
-    		defaultConfigURL = w;
+    	public Builder withDefaultConfig(String w) {
+    		defaultConfig = w;
     		return this;
     	}
     	

@@ -37,6 +37,14 @@ public class ApiErrors {
 		errors.add(new String[] {"recordingNotFound", "We could not find a recording with that recordID."});
 	}
 	
+	public void noConfigFoundForToken(String token) {
+		errors.add(new String[] {"configNotFound", "We could not find a config for token [" + token + "]."});
+	}
+	
+	public void noConfigFound() {
+		errors.add(new String[] {"noConfigFound", "We could not find a config for this request."});
+	}
+	
 	public boolean hasErrors() {
 		return errors.size() > 0;
 	}
