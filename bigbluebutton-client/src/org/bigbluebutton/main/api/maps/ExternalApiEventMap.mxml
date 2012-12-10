@@ -24,6 +24,7 @@
   <mx:Script>
     <![CDATA[
       import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
       import org.bigbluebutton.main.api.ExternalApiCalls;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -34,6 +35,10 @@
   <!--
     Listen for events we are interested to forward to the external container..
   -->
+  <EventHandlers type="{AmIPresenterQueryEvent.AM_I_PRESENTER_QUERY}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleAmIPresenterQueryEvent" arguments="{event}"/>
+  </EventHandlers>
+  
   <EventHandlers type="{BBBEvent.USER_VOICE_MUTED}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceMutedEvent" arguments="{event}"/>
   </EventHandlers>

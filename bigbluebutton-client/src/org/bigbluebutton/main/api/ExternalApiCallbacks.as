@@ -9,6 +9,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.BBBEvent;
@@ -19,8 +20,7 @@ package org.bigbluebutton.main.api
   {
     private var _dispatcher:Dispatcher;
     
-    public function ExternalApiCallbacks()
-    {
+    public function ExternalApiCallbacks() {
       _dispatcher = new Dispatcher();
       
       init();
@@ -33,6 +33,8 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("joinVoiceRequest", handleJoinVoiceRequest);
         ExternalInterface.addCallback("getMyRoleRequestSync", handleGetMyRoleRequestSync);
         ExternalInterface.addCallback("getMyRoleRequestAsync", handleGetMyRoleRequestAsynch);
+        ExternalInterface.addCallback("amIPresenterRequestSync", handleAmIPresenterRequestSync);
+        ExternalInterface.addCallback("amIPresenterRequestAsync", handleAmIPresenterRequestAsync);
         ExternalInterface.addCallback("muteMeRequest", handleMuteMeRequest);
         ExternalInterface.addCallback("unmuteMeRequest", handleUnmuteMeRequest);
         ExternalInterface.addCallback("muteAllUsersRequest", handleMuteAllUsersRequest);
@@ -45,6 +47,14 @@ package org.bigbluebutton.main.api
       }
     }
 
+    private function handleAmIPresenterRequestSync():void {
+      return UsersUtil.amIPresenter();
+    }
+    
+    private function handleAmIPresenterRequestAsync():void {
+      _dispatcher.dispatchEvent(new AmIPresenterQueryEvent());
+    }
+    
     private function handleGetMyUserID():String {
       return UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
     }
@@ -75,7 +85,7 @@ package org.bigbluebutton.main.api
     * 
     */
     private function handleSendPublicChatRequest(fontColor:String, localeLang:String, message:String):void {
-      LogUtil.debug("handleSendPublicChatRequest");
+      trace("handleSendPublicChatRequest");
       var chatEvent:CoreEvent = new CoreEvent(EventConstants.SEND_PUBLIC_CHAT_REQ);      
       var payload:Object = new Object();      
       payload.fromColor = fontColor;
@@ -167,17 +177,17 @@ package org.bigbluebutton.main.api
     }
     
     private function handleGetMyRoleRequestAsynch():void {
-      LogUtil.debug("handleGetMyRoleRequestAsynch");
+      trace("handleGetMyRoleRequestAsynch");
       _dispatcher.dispatchEvent(new CoreEvent(EventConstants.GET_MY_ROLE_REQ));
     }
     
     private function handleJoinVoiceRequest():void {
-      LogUtil.debug("handleJoinVoiceRequest");
+      trace("handleJoinVoiceRequest");
       _dispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_CONFERENCE));
     }
     
     private function onShareVideoCamera(publishInClient:Boolean=true):void {
-      LogUtil.debug("Sharing webcam: publishInClient = [" + publishInClient + "]");
+      trace("Sharing webcam: publishInClient = [" + publishInClient + "]");
       var event:ShareCameraRequestEvent = new ShareCameraRequestEvent();
       event.publishInClient = publishInClient;
       

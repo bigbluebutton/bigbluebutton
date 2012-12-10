@@ -5,6 +5,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.BBBEvent;
@@ -12,8 +13,15 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.events.UserLeftEvent;
   import org.bigbluebutton.main.model.users.BBBUser;
 
-  public class ExternalApiCalls
-  {   
+  public class ExternalApiCalls { 
+    
+    public function handleAmIPresenterQueryEvent(event:AmIPresenterQueryEvent):void {
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.AM_I_PRESENTER_RESP;
+      payload.amIPresenter = UsersUtil.amIPresenter();
+      broadcastEvent(payload);        
+    }
+    
     public function handleSwitchToNewRoleEvent(event:CoreEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.NEW_ROLE;
@@ -40,7 +48,7 @@ package org.bigbluebutton.main.api
       payload.eventName = EventConstants.USER_JOINED_VOICE;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       
-      LogUtil.debug("Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] has joined the voice conference.");
+      trace("Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] has joined the voice conference.");
       
       broadcastEvent(payload);
     }
@@ -51,7 +59,7 @@ package org.bigbluebutton.main.api
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       payload.muted = event.payload.muted;
       
-      LogUtil.debug("Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] is now muted=[" + payload.muted + "]");
+      trace("Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] is now muted=[" + payload.muted + "]");
       broadcastEvent(payload);
     }
     
@@ -61,7 +69,7 @@ package org.bigbluebutton.main.api
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       payload.locked = event.payload.locked;
       
-      LogUtil.debug("Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] is now locked=[" + payload.locked + "]");
+      trace("Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] is now locked=[" + payload.locked + "]");
       broadcastEvent(payload);
     }
     
@@ -70,7 +78,7 @@ package org.bigbluebutton.main.api
       payload.eventName = EventConstants.USER_LEFT_VOICE;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       
-      LogUtil.debug("Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] has left the voice conference.");
+      trace("Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] has left the voice conference.");
       
       broadcastEvent(payload);
     }
