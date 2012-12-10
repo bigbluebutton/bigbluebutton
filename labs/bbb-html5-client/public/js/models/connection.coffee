@@ -1,8 +1,9 @@
 define [
   'underscore',
   'backbone',
-  'socket.io'
-], (_, Backbone, io) ->
+  'socket.io',
+  'cs!utils'
+], (_, Backbone, io, Utils) ->
 
   ConnectionModel = Backbone.Model.extend
 
@@ -15,6 +16,7 @@ define [
         console.log "disconnecting from", @host
         @socket.disconnect()
         @socket = null
+        @trigger('connection:disconnected');
       else
         console.log "tried to disconnect but it's not connected"
 
@@ -22,8 +24,35 @@ define [
       unless @socket?
         console.log "connecting to the server", @host
         @socket = io.connect(@host)
+        @registerEvents()
+        @trigger('connection:connected');
       else
         console.log "tried to connect but it's already connected"
+
+    # Registers listeners to some events in the websocket.
+    # Events here are generic and related to the connection.
+    registerEvents: ->
+
+      # Immediately say we are connected
+      @socket.on "connect", =>
+        console.log "socket on: connect"
+        @socket.emit "user connect"
+
+      # Received event to logout yourself
+      @socket.on "logout", ->
+        console.log "socket on: logout"
+        Utils.postToUrl "logout"
+        window.location.replace "./"
+
+      # If the server disconnects from the client or vice-versa
+      @socket.on "disconnect", ->
+        console.log "socket on: disconnect"
+        window.location.replace "./"
+
+      # If an error occurs while not connected
+      # @param  {string} reason Reason for the error.
+      @socket.on "error", (reason) ->
+        console.error "unable to connect socket.io", reason
 
     # Emit an update to move the cursor around the canvas
     # @param  {number} x x-coord of the cursor as a percentage of page width

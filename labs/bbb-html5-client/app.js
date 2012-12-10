@@ -89,7 +89,6 @@ function requiresLogin(req, res, next) {
 app.get('/', routes.get_index);
 app.post('/chat',  routes.post_chat);
 app.post('/logout', requiresLogin, routes.logout);
-app.get('/logout', routes.logout); // TODO
 app.get('/chat', requiresLogin, routes.get_chat);
 app.post('/', routes.post_index);
 app.get('/join', routes.join);

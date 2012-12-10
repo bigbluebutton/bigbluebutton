@@ -223,7 +223,7 @@ button:focus, textarea:focus, input:focus {
 #chat-entry > button:active {
   background: #ddd;
 }
-#chat_messages {
+#chat-messages {
   position: absolute;
   overflow: auto;
   top: 33px;
@@ -250,7 +250,7 @@ button:focus, textarea:focus, input:focus {
 
 /* ryans stuff */
 /*
-#chat_messages {
+#chat-messages {
     float: right;
     width: 300px;
     height: 400px;
@@ -259,7 +259,7 @@ button:focus, textarea:focus, input:focus {
     word-wrap: break-word;
 }
 */
-#chat_input_box {
+#chat-input-box {
   width: 250px;
 }
 

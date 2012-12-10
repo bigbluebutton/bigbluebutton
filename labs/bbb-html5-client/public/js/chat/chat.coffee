@@ -2,50 +2,11 @@ define [ "jquery", "raphael", "cs!chat/whiteboard", "cs!chat/connection" ], ($, 
 
   Chat = {}
 
-  # TODO: this could be in a Utils class
-  # POST request using javascript
-  # @param  {string} path   path of submission
-  # @param  {string} params parameters to submit
-  # @param  {string} method method of submission ("post" is default)
-  # @return {undefined}
-  postToUrl = (path, params, method) ->
-    method = method or "post"
-    # TODO: can be a lot cleaner with jQuery
-    form = document.createElement("form")
-    form.setAttribute "method", method
-    form.setAttribute "action", path
-    for key of params
-      if params.hasOwnProperty(key)
-        hiddenField = document.createElement("input")
-        hiddenField.setAttribute "type", "hidden"
-        hiddenField.setAttribute "name", key
-        hiddenField.setAttribute "value", params[key]
-        form.appendChild hiddenField
-    document.body.appendChild form
-    form.submit()
-
   # shortcut to the socket object
   socket = Connection.socket
 
   msgbox = document.getElementById("chat_messages")
   chatbox = document.getElementById("chat_input_box")
-
-  socket.on "connect", ->
-    # Immediately say we are connected
-    socket.emit "user connect"
-
-  # Received event for a new public chat message
-  # @param  {string} name name of user
-  # @param  {string} msg  message to be displayed
-  # @return {undefined}
-  socket.on "msg", (name, msg) ->
-    msgbox.innerHTML += "<div>" + name + ": " + msg + "</div>"
-    msgbox.scrollTop = msgbox.scrollHeight
-
-  # Received event to logout yourself
-  socket.on "logout", ->
-    postToUrl "logout"
-    window.location.replace "./"
 
   # Received event to update the user list
   # @param  {Array} names Array of names and publicIDs of connected users
@@ -58,15 +19,6 @@ define [ "jquery", "raphael", "cs!chat/whiteboard", "cs!chat/connection" ], ($, 
       # TODO: remove onclick
       currusers.innerHTML += "<div class=\"user clickable\" onclick=\"" + clickFunc + "\" id= \"" + names[i].id + "\"><b>" + names[i].name + "</b></div>"
       i--
-
-  # Received event to update all the messages in the chat box
-  # @param  {Array} messages Array of messages in public chat box
-  socket.on "all_messages", (messages) ->
-    i = messages.length - 1
-    while i >= 0
-      msgbox.innerHTML += "<div>" + messages[i].username + ": " + messages[i].message + "</div>"
-      i--
-    msgbox.scrollTop = msgbox.scrollHeight
 
   # Received event to update all the shapes in the whiteboard
   # @param  {Array} shapes Array of shapes to be drawn
@@ -82,10 +34,6 @@ define [ "jquery", "raphael", "cs!chat/whiteboard", "cs!chat/connection" ], ($, 
 
   socket.on "reconnect_failed", ->
     msgbox.innerHTML += "<div><b> Reconnect FAILED! </b></div>"
-
-  # If the server disconnects from the client or vice-versa
-  socket.on "disconnect", ->
-    window.location.replace "./"
 
   # Received event to clear the whiteboard shapes
   socket.on "clrPaper", ->
@@ -208,19 +156,6 @@ define [ "jquery", "raphael", "cs!chat/whiteboard", "cs!chat/connection" ], ($, 
       console.log custom_src
       $("#slide").append "<img id=\"preload" + img.id + "\"src=\"" + custom_src + "\" style=\"display:none;\" alt=\"\"/>"
       i++
-
-  # If an error occurs while not connected
-  # @param  {string} reason Reason for the error.
-  socket.on "error", (reason) ->
-    console.error "Unable to connect Socket.IO", reason
-
-  # Send a public chat message to users
-  Chat.sendMessage = ->
-    msg = chatbox.value
-    unless msg is ""
-      Connection.emitMsg msg
-      chatbox.value = ""
-    chatbox.focus()
 
   # Clear the canvas drawings
   Chat.clearCanvas = ->
