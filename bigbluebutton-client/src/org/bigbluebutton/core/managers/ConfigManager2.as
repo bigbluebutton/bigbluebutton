@@ -15,7 +15,7 @@ package org.bigbluebutton.core.managers
 	import org.bigbluebutton.core.model.Config;
 	
 	public class ConfigManager2 extends EventDispatcher {
-    public static const CONFIG_XML:String = "bigbluebutton/api/getConfigXML";
+    public static const CONFIG_XML:String = "bigbluebutton/api/configXML";
     
 		private var _config:Config = null;
 				

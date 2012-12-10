@@ -302,7 +302,7 @@ class ApiController {
       externUserID = internalUserID
     }
     
-	String configXML = null;
+	String configxml = null;
 	
 	if (! StringUtils.isEmpty(params.configToken)) {
 		Config conf = meeting.getConfig(params.configToken);
@@ -310,7 +310,8 @@ class ApiController {
 			errors.noConfigFoundForToken(params.configToken);
 			respondWithErrors(errors);
 		} else {
-			configXML = conf.config;
+			configxml = conf.config;
+			println ("USING PREFERRED CONFIG")
 		}
 	} else {
 		Config conf = meeting.getDefaultConfig();
@@ -318,12 +319,14 @@ class ApiController {
 			errors.noConfigFound();
 			respondWithErrors(errors);
 		} else {
-			configXML = conf.config;
+			configxml = conf.config;
+			println ("USING DEFAULT CONFIG")
 		}
 	}
 	
-	if (StringUtils.isEmpty(configXML)) {
-
+	if (StringUtils.isEmpty(configxml)) {
+		errors.noConfigFound();
+		respondWithErrors(errors);
 	}
 	
 	UserSession us = new UserSession();
@@ -342,7 +345,7 @@ class ApiController {
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
 	us.logoutUrl = meeting.getLogoutUrl();
-	us.configXML = configXML;
+	us.configXML = configxml;
 			
 	if (! StringUtils.isEmpty(params.defaulLayout)) {
 		us.defaultLayout = params.defaulLayout;
@@ -369,19 +372,21 @@ class ApiController {
 	boolean redirectClient = true;
 	String clientURL = paramsProcessorUtil.getDefaultClientUrl();
 	
-	if(!StringUtils.isEmpty(params.redirect))
-	{
+	if(! StringUtils.isEmpty(params.redirect)) {
 		try{
 			redirectClient = Boolean.parseBoolean(params.redirect);
 		}catch(Exception e){
 			redirectClient = true;
 		}
 	}
+	
 	if(!StringUtils.isEmpty(params.clientURL)){
 		clientURL = params.clientURL;
 	}
 	
-	if(redirectClient){
+	if (redirectClient){
+		println("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}");
+		println "ClientURL ${clientURL}"
 		log.info("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}"); 		
 		redirect(url: clientURL);
 	}
@@ -756,6 +761,11 @@ class ApiController {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
 	}
+	
+	if (StringUtils.isEmpty(params.configXML)) {
+		invalid("configXMLError", "You did not pass a config XML")
+		return
+	}
 
 	if (StringUtils.isEmpty(params.meetingID)) {
 		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
@@ -775,10 +785,10 @@ class ApiController {
 	   respondWithErrors(errors)
 	   return;
     }
-	  
-	  println "**************** ==================================================== **************************"
-	  if (! paramsProcessorUtil.isConfigXMLChecksumSame(params.configxml, params.checksum)) {		 
-		  println "**************** CHECKSUM FAILED **************************"
+	 
+	String configXML = params.configXML
+	 
+	  if (! paramsProcessorUtil.isConfigXMLChecksumSame(params.meetingID, configXML, params.checksum)) {		 
 		  response.addHeader("Cache-Control", "no-cache")
 		  withFormat {
 			xml {
@@ -802,7 +812,7 @@ class ApiController {
 				}
 			}
 			
-			String token = meeting.storeConfig(defaultConfig, params.configxml);
+			String token = meeting.storeConfig(defaultConfig, configXML);
 			response.addHeader("Cache-Control", "no-cache")
 			withFormat {
 			  xml {
@@ -821,7 +831,8 @@ class ApiController {
   /***********************************************
   * CONFIG API
   ***********************************************/
-  def getConfigXML = {
+  def configXML = {
+	  println "Getting config xml"
 	  	  
 	  if (! session["user-token"] || (meetingService.getUserSession(session['user-token']) == null)) {
 		  log.info("No session for user in conference.")
@@ -861,7 +872,9 @@ class ApiController {
 		} else {
 			UserSession us = meetingService.getUserSession(session['user-token']);
 			log.info("Found session for " + us.fullname)
-						
+			println ("Found session for " + us.fullname)
+			println us.configXML
+			
 			response.addHeader("Cache-Control", "no-cache")
 			render text: us.configXML, contentType: 'text/xml'
 		}

@@ -445,7 +445,7 @@ public class ParamsProcessorUtil {
 		return "";	
 	}
 	
-	public boolean isConfigXMLChecksumSame(String configXML, String checksum) {
+	public boolean isConfigXMLChecksumSame(String meetingID, String configXML, String checksum) {
 		if (StringUtils.isEmpty(securitySalt)) {
 			log.warn("Security is disabled in this service. Make sure this is intentional.");
 			return true;
@@ -460,7 +460,7 @@ public class ParamsProcessorUtil {
 			return false;
 		}
 		
-		String cs = DigestUtils.shaHex(decodedConfigXML + securitySalt);
+		String cs = DigestUtils.shaHex(meetingID + decodedConfigXML + securitySalt);
 		log.debug("our checksum: [{}], client: [{}]", cs, checksum);
 		System.out.println("our checksum: [" + cs + "] client: [" + checksum + "]");
 		if (cs == null || cs.equals(checksum) == false) {

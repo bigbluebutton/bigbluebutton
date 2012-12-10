@@ -35,7 +35,7 @@ package org.bigbluebutton.main.model
 	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
 
 	public class ConfigParameters {
-    public static const CONFIG_XML:String = "bigbluebutton/api/getConfigXML";
+    public static const CONFIG_XML:String = "bigbluebutton/api/configXML";
 		
 		private var _urlLoader:URLLoader;
 		
