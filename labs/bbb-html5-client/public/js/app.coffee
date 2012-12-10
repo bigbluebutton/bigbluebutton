@@ -3,21 +3,28 @@ define [
   'underscore',
   'backbone',
   'raphael',
-  'socket.io',
-  'configs',
+  'globals',
   'cs!router',
+  'cs!models/connection',
   'jquery.mousewheel',
   'jquery.autosize',
   'jquery.form',
   'jquery.ui'
-], ($, _, Backbone, Raphael, io, configs, Router) ->
+], ($, _, Backbone, Raphael, globals, Router, ConnectionModel) ->
 
-  configs.router = {}
+  globals.router = {}
+  globals.connection = {}
 
   initialize = ->
-    configs.router = new Router()
+    # Default application router
+    globals.router = new Router()
     Backbone.history.start()
-    configs.router.navigate "/login", {trigger: true, replace: true}
+
+    # Default connection (websocket)
+    globals.connection = new ConnectionModel()
+
+    # Start at /login
+    globals.router.navigate "/login", {trigger: true, replace: true}
 
   return {
     initialize: initialize

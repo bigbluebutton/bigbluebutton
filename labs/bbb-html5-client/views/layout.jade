@@ -14,7 +14,7 @@ html
   script(src='/js/lib/require/require-min.js')
   - if (typeof(meetings) != 'undefined')
     script(type='text/javascript')
-      define('configs', function() {
+      define('globals', function() {
         return {
           bootstrappedMeetings: !{JSON.stringify(meetings)}
         };
