@@ -27,8 +27,8 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
   left: -1px;
   right: -1px;
   bottom: 69px;
-  -moz-transition: right 1s, left 1s;
-  -webkit-transition: right 1s, left 1s;
+  -moz-transition: right .5s, left .5s;
+  -webkit-transition: right .5s, left .5s;
   z-index: 1000;
   border-right: 1px solid #999;
   border-left: 1px solid #999;
@@ -54,10 +54,10 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
   z-index: 0;
 }
 
-.chat-enabled > #presentation {
+.chat-enabled #presentation {
   right: 300px;
 }
-.users-enabled > #presentation {
+.users-enabled #presentation {
   left: 200px;
 }
 
