@@ -22,6 +22,8 @@ package org.bigbluebutton.core
     public static const AM_I_PRESENTER_RESP:String        = 'AmIPresenterQueryResponse';
     public static const AM_I_SHARING_CAM_RESP:String      = 'AmISharingCamQueryResponse';
 
+    public static const I_AM_SHARING_CAM:String           = 'IAmSharingCamEvent';
+    public static const CAM_STREAM_SHARED:String          = 'CamStreamSharedEvent';
     public static const USER_JOINED:String                = 'UserJoinedEvent';
     public static const USER_LEFT:String                  = 'UserLeftEvent';
     public static const NEW_ROLE:String                   = 'NewRoleEvent';

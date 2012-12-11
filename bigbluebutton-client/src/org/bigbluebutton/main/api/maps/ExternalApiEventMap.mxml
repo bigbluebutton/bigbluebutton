@@ -31,11 +31,23 @@
       import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.main.events.UserJoinedEvent;
       import org.bigbluebutton.main.events.UserLeftEvent;
+      import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
+      import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
     ]]>
   </mx:Script>
   <!--
     Listen for events we are interested to forward to the external container..
   -->
+  
+
+  <EventHandlers type="{StreamStartedEvent.STREAM_STARTED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleStreamStartedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleBroadcastStartedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
   <EventHandlers type="{AmIPresenterQueryEvent.AM_I_PRESENTER_QUERY}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleAmIPresenterQueryEvent" arguments="{event}"/>
   </EventHandlers>

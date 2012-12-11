@@ -1,7 +1,6 @@
 package org.bigbluebutton.main.api
 {
-  import flash.external.ExternalInterface;
-  
+  import flash.external.ExternalInterface;  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
@@ -14,8 +13,33 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.events.UserJoinedEvent;
   import org.bigbluebutton.main.events.UserLeftEvent;
   import org.bigbluebutton.main.model.users.BBBUser;
+  import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
+  import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 
   public class ExternalApiCalls { 
+    
+    public function handleStreamStartedEvent(event:StreamStartedEvent):void {
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.CAM_STREAM_SHARED;
+      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.userID);
+      payload.streamName = event.stream;
+      
+      broadcastEvent(payload);
+    }
+    
+    public function handleBroadcastStartedEvent(event:BroadcastStartedEvent):void {
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.AM_I_SHARING_CAM_RESP;
+      payload.isPresenter = UsersUtil.amIPresenter();
+      payload.streamName = event.stream;
+      payload.isPublishing = event.camSettings.isPublishing;
+      payload.camIndex = event.camSettings.camIndex;
+      payload.camWidth = event.camSettings.camWidth;
+      payload.camHeight = event.camSettings.camHeight;
+      
+      broadcastEvent(payload);         
+    }
+    
     public function handleAmISharingCamQueryEvent(event:AmISharingWebcamQueryEvent):void {
       var camSettings:CameraSettingsVO = UsersUtil.amIPublishing();
       

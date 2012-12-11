@@ -252,6 +252,9 @@ package org.bigbluebutton.modules.videoconf.maps
       var broadcastEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
       broadcastEvent.stream = e.stream;
       broadcastEvent.userid = UsersUtil.getMyUserID();
+      broadcastEvent.isPresenter = UsersUtil.amIPresenter();
+      broadcastEvent.camSettings = UsersUtil.amIPublishing();
+      
       _dispatcher.dispatchEvent(broadcastEvent);
       button.publishingStatus(button.START_PUBLISHING);
     }
