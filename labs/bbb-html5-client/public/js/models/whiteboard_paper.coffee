@@ -5,7 +5,7 @@ define [
   'cs!utils'
 ], (_, Backbone, Raphael, Utils) ->
 
-  # TODO: text, ellipse, line and rect could be models
+  # TODO: text, ellipse, line, rect and cursor could be models
 
   # TODO: temporary solution
   PRESENTATION_SERVER = window.location.protocol + "//" + window.location.host
@@ -17,15 +17,12 @@ define [
 
     # Container must be a DOM element
     initialize: (@container, @paperWidth, @paperHeight) ->
-      @paperWidth = 800
-      @paperHeight = 600
-
       @gw = null
       @gh = null
       @cursor = null
+      @cursorRadius = 4
       @slides = null
       @currentUrl = null
-      @dcr = 3
       @fitToPage = true
       @currentShapes = null
       @currentLine = null
@@ -37,7 +34,7 @@ define [
       # paper is embedded within the div#slide of the page.
       @raphaelObj ?= Raphael(@container, @gw, @gh)
       @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
-      @cursor = @raphaelObj.circle(0, 0, @dcr)
+      @cursor = @raphaelObj.circle(0, 0, @cursorRadius)
       @cursor.attr "fill", "red"
       # TODO $(@cursor.node).bind "mousewheel", zoomSlide
       if @slides
@@ -112,6 +109,40 @@ define [
       @slides = {}
       @currentUrl = null
 
+    # Retrieves an image element from the paper.
+    # The url must be in the slides array.
+    # @param  {string} url        the url of the image (must be in slides array)
+    # @return {Raphael.image}     return the image or null if not found
+    getImageFromPaper: (url) ->
+      if @slides[url]
+        id = @slides[url].id
+        return @raphaelObj.getById(id) if id?
+      null
+
+    # Hides an image from the paper given the URL.
+    # The url must be in the slides array.
+    # @param  {string} url the url of the image (must be in slides array)
+    hideImageFromPaper: (url) ->
+      img = @getImageFromPaper(url)
+      img.hide() if img?
+
+    # Shows an image from the paper.
+    # The url must be in the slides array.
+    # @param  {string} url the url of the image (must be in slides array)
+    showImageFromPaper: (url) ->
+      unless @currentUrl is url
+        # TODO: temporary solution
+        url = PRESENTATION_SERVER + url
+        @hideImageFromPaper @currentUrl
+        next = @getImageFromPaper(url)
+        if next
+          next.show()
+          next.toFront()
+          @currentShapes.forEach (element) ->
+            element.toFront()
+          @bringCursorToFront()
+        @currentUrl = url
+
     # Clear all shapes from this paper.
     clearShapes: ->
       console.log "clearing shapes", @currentShapes
@@ -163,6 +194,14 @@ define [
           @makeEllipse.apply @, data
         else
           console.log "shape not recognized at makeShape", shape
+
+    # Update the cursor position on screen
+    # @param  {number} x the x value of the cursor as a percentage of the width
+    # @param  {number} y the y value of the cursor as a percentage of the height
+    moveCursor: (x, y) ->
+      @cursor.attr
+        cx: x * @gw
+        cy: y * @gh
 
     # Puts the cursor on top so it doesn't get hidden behind any objects.
     bringCursorToFront: ->

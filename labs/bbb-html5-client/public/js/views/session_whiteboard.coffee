@@ -7,6 +7,8 @@ define [
   'text!templates/preupload_image.html'
 ], ($, _, Backbone, globals, WhiteboardPaperModel, preuploadImageTemplate) ->
 
+  # TODO: this is being used for presentation and whiteboard, maybe they could be separated
+
   DEFAULT_COLOUR = "#FF0000"
   DEFAULT_THICKNESS = 1
 
@@ -51,15 +53,25 @@ define [
       # @param  {string} shape type of shape being updated
       # @param  {Array} data   all information to update the shape
       socket.on "updShape", (shape, data) =>
-        console.log "received updShape", shape, data
         @paper?.updateShape shape, data
 
       # Received event to create a shape on the whiteboard
       # @param  {string} shape type of shape being made
       # @param  {Array} data   all information to make the shape
       socket.on "makeShape", (shape, data) =>
-        console.log "received makeShape", shape, data
         @paper?.makeShape shape, data
+
+      # Received event to update the cursor coordinates
+      # @param  {number} x x-coord of the cursor as a percentage of page width
+      # @param  {number} y y-coord of the cursor as a percentage of page height
+      socket.on "mvCur", (x, y) =>
+        @paper?.moveCursor x, y
+
+      # Received event to update the slide image
+      # @param  {string} url URL of image to show
+      socket.on "changeslide", (url) =>
+        console.log "received changeslide", url
+        @paper?.showImageFromPaper url
 
     # don't need to render anything, the rendering is done by SessionView.
     render: ->

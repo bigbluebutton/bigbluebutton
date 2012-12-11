@@ -96,48 +96,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
     # get the shapes to reprocess
     Connection.emitAllShapes()
 
-  # Shows an image from the paper.
-  # The url must be in the slides array.
-  # @param  {string} url the url of the image (must be in slides array)
-  # @return {undefined}
-  Whiteboard.showImageFromPaper = (url) ->
-    unless current_url is url
-      # TODO: temporary solution
-      url = PRESENTATION_SERVER + url
-      hideImageFromPaper current_url
-      next = getImageFromPaper(url)
-      if next
-        next.show()
-        next.toFront()
-        current_shapes.forEach (element) ->
-          element.toFront()
-
-        cur.toFront()
-      current_url = url
-
-  # Retrieves an image element from the paper.
-  # The url must be in the slides array.
-  # @param  {string} url        the url of the image (must be in slides array)
-  # @return {Raphael.image}     return the image or null if not found
-  getImageFromPaper = (url) ->
-    console.log "show me url:" + url
-    if slides[url]
-      id = slides[url].id
-      if id
-        paper.getById id
-      else
-        null
-    else
-      null
-
-  # Hides an image from the paper given the URL.
-  # The url must be in the slides array.
-  # @param  {string} url the url of the image (must be in slides array)
-  # @return {undefined}
-  hideImageFromPaper = (url) ->
-    img = getImageFromPaper(url)
-    img.hide()  if img
-
   # When panning starts
   # @param  {number} x the x value of the cursor
   # @param  {number} y the y value of the cursor
@@ -377,15 +335,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
     xLocal = (x - sx - s_left + cx) / sw
     yLocal = (y - sy - s_top + cy) / sh
     Connection.emitMoveCursor xLocal, yLocal
-
-  # Socket response - Update the cursor position on screen
-  # @param  {number} x the x value of the cursor as a percentage of the width
-  # @param  {number} y the y value of the cursor as a percentage of the height
-  # @return {undefined}
-  Whiteboard.mvCur = (x, y) ->
-    cur.attr
-      cx: x * gw
-      cy: y * gh
 
   # Update zoom variables on all clients
   # @param  {Event} event the event that occurs when scrolling

@@ -29,17 +29,6 @@ define [ "jquery", "raphael", "cs!chat/whiteboard", "cs!chat/connection" ], ($, 
     hperc = parseFloat(hperc, 10)
     Whiteboard.updatePaperFromServer xperc, yperc, wperc, hperc
 
-  # Received event to update the cursor coordinates
-  # @param  {number} x x-coord of the cursor as a percentage of page width
-  # @param  {number} y y-coord of the cursor as a percentage of page height
-  socket.on "mvCur", (x, y) ->
-    Whiteboard.mvCur x, y
-
-  # Received event to update the slide image
-  # @param  {string} url URL of image to show
-  socket.on "changeslide", (url) ->
-    Whiteboard.showImageFromPaper url
-
   # Received event to update the whiteboard between fit to width and fit to page
   # @param  {boolean} fit choice of fit: true for fit to page, false for fit to width
   socket.on "fitToPage", (fit) ->
