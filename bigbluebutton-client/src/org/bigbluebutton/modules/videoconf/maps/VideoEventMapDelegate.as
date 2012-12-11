@@ -11,6 +11,7 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.ConnectAppEvent;
   import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
   import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
@@ -246,6 +247,7 @@ package org.bigbluebutton.modules.videoconf.maps
       proxy.startPublishing(e);
       
       _isPublishing = true;
+      UsersUtil.setIAmPublishing(true);
       
       var broadcastEvent:BroadcastStartedEvent = new BroadcastStartedEvent();
       broadcastEvent.stream = e.stream;
@@ -263,7 +265,7 @@ package org.bigbluebutton.modules.videoconf.maps
       proxy.stopBroadcasting();
       
       _isPublishing = false;
-      
+      UsersUtil.setIAmPublishing(false);
       var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
       broadcastEvent.stream = streamName;
       broadcastEvent.userid = UsersUtil.getMyUserID();
@@ -345,6 +347,13 @@ package org.bigbluebutton.modules.videoconf.maps
       var cameraIndex:int = event.payload.cameraIndex;
       var camWidth:int = event.payload.cameraWidth;
       var camHeight:int = event.payload.cameraHeight;     
+      
+      var camSettings:CameraSettingsVO = new CameraSettingsVO();
+      camSettings.camIndex = cameraIndex;
+      camSettings.camWidth = camWidth;
+      camSettings.camHeight = camHeight;
+      
+      UsersUtil.setCameraSettings(camSettings);
       
       openPublishWindowFor(UsersUtil.getMyUserID(), cameraIndex, camWidth, camHeight);       
     }

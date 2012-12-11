@@ -25,6 +25,7 @@
     <![CDATA[
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
+      import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
       import org.bigbluebutton.main.api.ExternalApiCalls;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -37,6 +38,10 @@
   -->
   <EventHandlers type="{AmIPresenterQueryEvent.AM_I_PRESENTER_QUERY}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleAmIPresenterQueryEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{AmISharingWebcamQueryEvent.AM_I_SHARING_CAM_QUERY}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleAmISharingCamQueryEvent" arguments="{event}"/>
   </EventHandlers>
   
   <EventHandlers type="{BBBEvent.USER_VOICE_MUTED}" >

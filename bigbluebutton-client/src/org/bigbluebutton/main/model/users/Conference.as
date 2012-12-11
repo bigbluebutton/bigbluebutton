@@ -17,16 +17,20 @@
 * 
 */
 package org.bigbluebutton.main.model.users {
-	import mx.collections.ArrayCollection;	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.vo.CameraSettingsVO;
 
 	public class Conference {		
     public var meetingName:String;
     public var externalMeetingID:String;
     public var internalMeetingID:String;
     public var avatarURL:String;
+    
+    private var _myCamSettings:CameraSettingsVO;
     
 		[Bindable] private var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;			
@@ -39,9 +43,9 @@ package org.bigbluebutton.main.model.users {
 		}
 
 		public function addUser(newuser:BBBUser):void {
-      LogUtil.debug("Adding new user [" + newuser.userID + "]");
+      trace("Adding new user [" + newuser.userID + "]");
 			if (! hasUser(newuser.userID)) {
-        LogUtil.debug("Am I this new user [" + newuser.userID + ", " + me.userID + "]");
+        trace("Am I this new user [" + newuser.userID + ", " + me.userID + "]");
 				if (newuser.userID == me.userID) {
 					newuser.me = true;
 				}						
@@ -51,6 +55,18 @@ package org.bigbluebutton.main.model.users {
 			}					
 		}
 
+    public function setCamPublishing(publishing:Boolean):void {
+      _myCamSettings.isPublishing = publishing;
+    }
+    
+    public function setCameraSettings(camSettings:CameraSettingsVO):void {
+      _myCamSettings = camSettings;
+    }
+    
+    public function amIPublishing():CameraSettingsVO {
+      return _myCamSettings;
+    }
+    
     public function setDefaultLayout(defaultLayout:String):void {
       this.defaultLayout = defaultLayout;  
     }
@@ -141,7 +157,7 @@ package org.bigbluebutton.main.model.users {
 		public function removeUser(userID:String):void {
 			var p:Object = getUserIndex(userID);
 			if (p != null) {
-				LogUtil.debug("removing user[" + p.participant.name + "," + p.participant.userID + "]");				
+				trace("removing user[" + p.participant.name + "," + p.participant.userID + "]");				
 				users.removeItemAt(p.index);
 				sort();
 			}							

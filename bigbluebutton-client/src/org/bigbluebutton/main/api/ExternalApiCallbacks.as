@@ -10,8 +10,10 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
+  import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.modules.listeners.events.ListenersCommand;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
@@ -35,6 +37,8 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("getMyRoleRequestAsync", handleGetMyRoleRequestAsynch);
         ExternalInterface.addCallback("amIPresenterRequestSync", handleAmIPresenterRequestSync);
         ExternalInterface.addCallback("amIPresenterRequestAsync", handleAmIPresenterRequestAsync);
+        ExternalInterface.addCallback("amISharingCameraRequestSync", handleAmISharingCameraRequestSync);
+        ExternalInterface.addCallback("amISharingCameraRequestAsync", handleAmISharingCameraRequestAsync);
         ExternalInterface.addCallback("muteMeRequest", handleMuteMeRequest);
         ExternalInterface.addCallback("unmuteMeRequest", handleUnmuteMeRequest);
         ExternalInterface.addCallback("muteAllUsersRequest", handleMuteAllUsersRequest);
@@ -47,7 +51,22 @@ package org.bigbluebutton.main.api
       }
     }
 
-    private function handleAmIPresenterRequestSync():void {
+    private function handleAmISharingCameraRequestSync():Object {
+      var obj:Object = new Object();
+      var camSettings:CameraSettingsVO = UsersUtil.amIPublishing();
+      obj.isPublishing = camSettings.isPublishing;
+      obj.camIndex = camSettings.camIndex;
+      obj.camWidth = camSettings.camWidth;
+      obj.camHeight = camSettings.camHeight;
+      
+      return obj;
+    }
+    
+    private function handleAmISharingCameraRequestAsync():void {
+      _dispatcher.dispatchEvent(new AmISharingWebcamQueryEvent());
+    }
+    
+    private function handleAmIPresenterRequestSync():Boolean {
       return UsersUtil.amIPresenter();
     }
     
