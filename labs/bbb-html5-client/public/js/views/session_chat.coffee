@@ -45,24 +45,24 @@ define [
 
     # Send a chat message
     sendMessage: ->
-      $chatInput = $(@chatInputID)
+      $chatInput = @$(@chatInputID)
       msg = $chatInput.val()
       if msg? and msg.trim() isnt ""
         globals.connection.emitMsg msg
         $chatInput.val("")
       $chatInput.focus()
 
-    # Add a message and scroll the chat area to bottom
+    # Add a message to the screen and scroll the chat area to bottom
     addChatMessage: (username, message) ->
       data =
         username: username
         message: message
       compiledTemplate = _.template(chatMessageTemplate, data)
-      $(@msgBoxID).append compiledTemplate
+      @$(@msgBoxID).append compiledTemplate
 
     # Scrolls the chat area to bottom to show the last messages
     scrollToBottom: ->
-      $msgBox = $(@msgBoxID)
+      $msgBox = @$(@msgBoxID)
       $msgBox.prop({ scrollTop: $msgBox.prop("scrollHeight") })
 
     # A key was pressed in the input box

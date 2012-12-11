@@ -8,18 +8,6 @@ define [ "jquery", "raphael", "cs!chat/whiteboard", "cs!chat/connection" ], ($, 
   msgbox = document.getElementById("chat_messages")
   chatbox = document.getElementById("chat_input_box")
 
-  # Received event to update the user list
-  # @param  {Array} names Array of names and publicIDs of connected users
-  socket.on "user list change", (names) ->
-    clickFunc = "$('.selected').removeClass('selected');$(this).addClass('selected');"
-    currusers = document.getElementById("current_users")
-    currusers.innerHTML = ""
-    i = names.length - 1
-    while i >= 0
-      # TODO: remove onclick
-      currusers.innerHTML += "<div class=\"user clickable\" onclick=\"" + clickFunc + "\" id= \"" + names[i].id + "\"><b>" + names[i].name + "</b></div>"
-      i--
-
   # Received event to update all the shapes in the whiteboard
   # @param  {Array} shapes Array of shapes to be drawn
   socket.on "all_shapes", (shapes) ->
@@ -123,12 +111,6 @@ define [ "jquery", "raphael", "cs!chat/whiteboard", "cs!chat/connection" ], ($, 
   socket.on "paper", (cx, cy, sw, sh) ->
     Whiteboard.updatePaperFromServer cx, cy, sw, sh
 
-  # Received event to set the presenter to a user
-  # @param  {string} publicID publicID of the user that is being set as the current presenter
-  socket.on "setPresenter", (publicID) ->
-    $(".presenter").removeClass "presenter"
-    $("#" + publicID).addClass "presenter"
-
   # Received event to update the status of the upload progress
   # @param  {string} message  update message of status of upload progress
   # @param  {boolean} fade    true if you wish the message to automatically disappear after 3 seconds
@@ -160,10 +142,5 @@ define [ "jquery", "raphael", "cs!chat/whiteboard", "cs!chat/connection" ], ($, 
   # Clear the canvas drawings
   Chat.clearCanvas = ->
     socket.emit "clrPaper"
-
-  # Change the current presenter
-  Chat.switchPresenter = ->
-    id = $(".selected").attr("id")
-    Connection.emitSetPresenter id
 
   Chat

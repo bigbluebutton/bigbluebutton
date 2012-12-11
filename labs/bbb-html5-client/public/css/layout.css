@@ -305,9 +305,9 @@ button:focus, textarea:focus, input:focus {
   cursor:pointer;
 }
 
-.selected {
-  background: #007fff;
+.selected, .user:nth-child(even).selected {
   color: #FFF;
+  background: #007fff;
   background: -moz-linear-gradient(top, #007fff, #005fdf);
   background: -webkit-linear-gradient(top, #007fff, #005fdf);
 }
@@ -358,6 +358,7 @@ button:focus, textarea:focus, input:focus {
   background: -moz-linear-gradient(top, #fff, #ddd);
   background: -webkit-linear-gradient(top, #fff, #ddd);
   height: 32px;
+  cursor: pointer;
 }
 
 #ChatAndControls {
