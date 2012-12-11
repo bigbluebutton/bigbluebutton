@@ -429,3 +429,8 @@ button:focus, textarea:focus, input:focus {
 #slide .preupload-image {
   display: none;
 }
+
+#slide > svg {
+  width: 100%;
+  height: 100%;
+}

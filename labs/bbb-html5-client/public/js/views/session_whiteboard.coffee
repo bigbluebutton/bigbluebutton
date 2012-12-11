@@ -7,9 +7,6 @@ define [
   'text!templates/preupload_image.html'
 ], ($, _, Backbone, globals, WhiteboardPaperModel, preuploadImageTemplate) ->
 
-  # TODO: can be split in multiple views
-  # TODO: maybe the drawing stuff could be in a separate model
-
   DEFAULT_COLOUR = "#FF0000"
   DEFAULT_THICKNESS = 1
 
@@ -33,10 +30,36 @@ define [
       # @param  {Array} urls list of URLs to be added to the paper (after old images are removed)
       socket.on "all_slides", (urls) =>
         console.log "received all_slides", urls
-        # $("#uploadStatus").text ""
-        @paper.removeAllImagesFromPaper()
+        # TODO $("#uploadStatus").text ""
+        @paper?.removeAllImagesFromPaper()
         for url in urls
-          @paper.addImageToPaper(url[0], url[1], url[2])
+          @paper?.addImageToPaper(url[0], url[1], url[2])
+
+      # Received event to clear the whiteboard shapes
+      socket.on "clrPaper", =>
+        console.log "received clrPaper"
+        @paper?.clear()
+
+      # Received event to update all the shapes in the whiteboard
+      # @param  {Array} shapes Array of shapes to be drawn
+      socket.on "all_shapes", (shapes) =>
+        console.log "received all_shapes"
+        @paper?.clear()
+        @paper?.drawListOfShapes shapes
+
+      # Received event to update a shape being created
+      # @param  {string} shape type of shape being updated
+      # @param  {Array} data   all information to update the shape
+      socket.on "updShape", (shape, data) =>
+        console.log "received updShape", shape, data
+        @paper?.updateShape shape, data
+
+      # Received event to create a shape on the whiteboard
+      # @param  {string} shape type of shape being made
+      # @param  {Array} data   all information to make the shape
+      socket.on "makeShape", (shape, data) =>
+        console.log "received makeShape", shape, data
+        @paper?.makeShape shape, data
 
     # don't need to render anything, the rendering is done by SessionView.
     render: ->

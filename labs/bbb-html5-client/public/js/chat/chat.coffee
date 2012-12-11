@@ -8,12 +8,6 @@ define [ "jquery", "raphael", "cs!chat/whiteboard", "cs!chat/connection" ], ($, 
   msgbox = document.getElementById("chat_messages")
   chatbox = document.getElementById("chat_input_box")
 
-  # Received event to update all the shapes in the whiteboard
-  # @param  {Array} shapes Array of shapes to be drawn
-  socket.on "all_shapes", (shapes) ->
-    Whiteboard.clearPaper()
-    Whiteboard.drawListOfShapes shapes
-
   socket.on "reconnect", ->
     msgbox.innerHTML += "<div><b> RECONNECTED! </b></div>"
 
@@ -22,10 +16,6 @@ define [ "jquery", "raphael", "cs!chat/whiteboard", "cs!chat/connection" ], ($, 
 
   socket.on "reconnect_failed", ->
     msgbox.innerHTML += "<div><b> Reconnect FAILED! </b></div>"
-
-  # Received event to clear the whiteboard shapes
-  socket.on "clrPaper", ->
-    Whiteboard.clearPaper()
 
   # Received event to update the viewBox value
   # @param  {string} xperc Percentage of x-offset from top left corner
@@ -63,36 +53,6 @@ define [ "jquery", "raphael", "cs!chat/whiteboard", "cs!chat/connection" ], ($, 
   # Received event when the panning action finishes
   socket.on "panStop", ->
     panDone()
-
-  # Received event to create a shape on the whiteboard
-  # @param  {string} shape type of shape being made
-  # @param  {Array} data   all information to make the shape
-  socket.on "makeShape", (shape, data) ->
-    switch shape
-      when "line"
-        Whiteboard.makeLine.apply makeLine, data
-      when "rect"
-        Whiteboard.makeRect.apply Whiteboard.makeRect, data
-      when "ellipse"
-        Whiteboard.makeEllipse.apply Whiteboard.makeEllipse, data
-      else
-        console.log "shape not recognized at makeShape", shape
-
-  # Received event to update a shape being created
-  # @param  {string} shape type of shape being updated
-  # @param  {Array} data   all information to update the shape
-  socket.on "updShape", (shape, data) ->
-    switch shape
-      when "line"
-        Whiteboard.updateLine.apply updateLine, data
-      when "rect"
-        Whiteboard.updateRect.apply Whiteboard.updateRect, data
-      when "ellipse"
-        Whiteboard.updateEllipse.apply Whiteboard.updateEllipse, data
-      when "text"
-        Whiteboard.updateText.apply Whiteboard.updateText, data
-      else
-        console.log "shape not recognized at updShape", shape
 
   # Received event to denote when the text has been created
   socket.on "textDone", ->

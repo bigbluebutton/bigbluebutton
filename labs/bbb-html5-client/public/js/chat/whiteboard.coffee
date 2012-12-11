@@ -96,30 +96,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
     # get the shapes to reprocess
     Connection.emitAllShapes()
 
-  # Draws an array of shapes to the paper.
-  # @param  {array} shapes the array of shapes to draw
-  # @return {undefined}
-  Whiteboard.drawListOfShapes = (shapes) ->
-    current_shapes = paper.set()
-    i = shapes.length - 1
-
-    while i >= 0
-      data = JSON.parse(shapes[i].data)
-      switch shapes[i].shape
-        when "path"
-          drawLine.apply drawLine, data
-        when "rect"
-          drawRect.apply drawRect, data
-        when "ellipse"
-          drawEllipse.apply drawEllipse, data
-        when "text"
-          drawText.apply drawText, data
-        else
-      i--
-    # make sure the cursor is still on top
-    bringCursorToFront()
-
-
   # Shows an image from the paper.
   # The url must be in the slides array.
   # @param  {string} url the url of the image (must be in slides array)
@@ -161,12 +137,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
   hideImageFromPaper = (url) ->
     img = getImageFromPaper(url)
     img.hide()  if img
-
-  # Puts the cursor on top so it doesn't
-  # get hidden behind any objects/images.
-  # @return {undefined}
-  bringCursorToFront = ->
-    cur.toFront()
 
   # When panning starts
   # @param  {number} x the x value of the cursor
@@ -253,105 +223,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
     line = null # any late updates will be blocked by this
     # scale the path appropriately before sending
     Connection.emitPublishShape "path", [ path.join(",").toScaledPath(1 / gw, 1 / gh), current_colour, current_thickness ]
-
-  # Make a line on the whiteboard that could be updated shortly after
-  # @param  {number} x         the x value of the line start point as a percentage of the original width
-  # @param  {number} y         the y value of the line start point as a percentage of the original height
-  # @param  {string} colour    the colour of the shape to be drawn
-  # @param  {number} thickness the thickness of the line to be drawn
-  # @return {undefined}
-  Whiteboard.makeLine = (x, y, colour, thickness) ->
-    x *= gw
-    y *= gh
-    line = paper.path("M" + x + " " + y + "L" + x + " " + y)
-    if colour
-      line.attr
-        stroke: colour
-        "stroke-width": thickness
-    current_shapes.push line
-
-  # Drawing a line from the list o
-  # @param  {string} path      height of the shape as a percentage of the original height
-  # @param  {string} colour    the colour of the shape to be drawn
-  # @param  {number} thickness the thickness of the line to be drawn
-  # @return {undefined}
-  drawLine = (path, colour, thickness) ->
-    l = paper.path(path.toScaledPath(gw, gh))
-    l.attr
-      stroke: colour
-      "stroke-width": thickness
-
-    current_shapes.push l
-
-  # Updating drawing the line
-  # @param  {number} x2  the next x point to be added to the line as a percentage of the original width
-  # @param  {number} y2  the next y point to be added to the line as a percentage of the original height
-  # @param  {boolean} add true if the line should be added to the current line, false if it should replace the last point
-  # @return {undefined}
-  Whiteboard.updateLine = (x2, y2, add) ->
-    x2 *= gw
-    y2 *= gh
-    if add
-      # if adding to the line
-      line.attr path: (line.attrs.path + "L" + x2 + " " + y2)  if line
-    else
-      # if simply updating the last portion (for drawing a straight line)
-      if line
-        line.attrs.path.pop()
-        path = line.attrs.path.join(" ")
-        line.attr path: (path + "L" + x2 + " " + y2)
-
-  # Updating the text from the messages on the socket
-  # @param  {string} t        the text of the text object
-  # @param  {number} x        the x value of the object as a percentage of the original width
-  # @param  {number} y        the y value of the object as a percentage of the original height
-  # @param  {number} w        the width of the text box as a percentage of the original width
-  # @param  {number} spacing  the spacing between the letters
-  # @param  {string} colour   the colour of the text
-  # @param  {string} font     the font family of the text
-  # @param  {number} fontsize the size of the font (in PIXELS)
-  # @return {undefined}
-  Whiteboard.updateText = (t, x, y, w, spacing, colour, font, fontsize) ->
-    x = x * gw
-    y = y * gh
-    unless text
-      text = paper.text(x, y, "").attr(
-        fill: colour
-        "font-family": font
-        "font-size": fontsize
-      )
-      text.node.style["text-anchor"] = "start" # force left align
-      text.node.style["textAnchor"] = "start" # for firefox, 'cause they like to be different
-      current_shapes.push text
-    else
-      text.attr fill: colour
-      cell = text.node
-      cell.removeChild cell.firstChild  while cell.hasChildNodes()
-      dy = textFlow(t, cell, w, x, spacing, false)
-    cur.toFront()
-
-  # Drawing the text on the whiteboard from object
-  # @param  {string} t        the text of the text object
-  # @param  {number} x        the x value of the object as a percentage of the original width
-  # @param  {number} y        the y value of the object as a percentage of the original height
-  # @param  {number} w        the width of the text box as a percentage of the original width
-  # @param  {number} spacing  the spacing between the letters
-  # @param  {string} colour   the colour of the text
-  # @param  {string} font     the font family of the text
-  # @param  {number} fontsize the size of the font (in PIXELS)
-  # @return {undefined}
-  drawText = (t, x, y, w, spacing, colour, font, fontsize) ->
-    x = x * gw
-    y = y * gh
-    txt = paper.text(x, y, "").attr(
-      fill: colour
-      "font-family": font
-      "font-size": fontsize
-    )
-    txt.node.style["text-anchor"] = "start" # force left align
-    txt.node.style["textAnchor"] = "start" # for firefox, 'cause they like to be different
-    dy = textFlow(t, txt.node, w, x, spacing, false)
-    current_shapes.push txt
 
   # When first dragging the mouse to create the textbox size
   # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
@@ -458,50 +329,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
     Connection.emitPublishShape "rect", [ r.x / gw, r.y / gh, r.width / gw, r.height / gh, current_colour, current_thickness ]  if r
     rect = null
 
-  # Socket response - Make rectangle on canvas
-  # @param  {number} x         the x value of the object as a percentage of the original width
-  # @param  {number} y         the y value of the object as a percentage of the original height
-  # @param  {string} colour    the colour of the object
-  # @param  {number} thickness the thickness of the object's line(s)
-  # @return {undefined}
-  Whiteboard.makeRect = (x, y, colour, thickness) ->
-    rect = paper.rect(x * gw, y * gh, 0, 0)
-    if colour
-      rect.attr
-        stroke: colour
-        "stroke-width": thickness
-    current_shapes.push rect
-
-  # Draw a rectangle on the paper
-  # @param  {number} x         the x value of the object as a percentage of the original width
-  # @param  {number} y         the y value of the object as a percentage of the original height
-  # @param  {number} w         width of the shape as a percentage of the original width
-  # @param  {number} h         height of the shape as a percentage of the original height
-  # @param  {string} colour    the colour of the object
-  # @param  {number} thickness the thickness of the object's line(s)
-  # @return {undefined}
-  drawRect = (x, y, w, h, colour, thickness) ->
-    r = paper.rect(x * gw, y * gh, w * gw, h * gh)
-    if colour
-      r.attr
-        stroke: colour
-        "stroke-width": thickness
-    current_shapes.push r
-
-  # Socket response - Update rectangle drawn
-  # @param  {number} x1 the x value of the object as a percentage of the original width
-  # @param  {number} y1 the y value of the object as a percentage of the original height
-  # @param  {number} w  width of the shape as a percentage of the original width
-  # @param  {number} h  height of the shape as a percentage of the original height
-  # @return {undefined}
-  Whiteboard.updateRect = (x1, y1, w, h) ->
-    if rect
-      rect.attr
-        x: (x1) * gw
-        y: (y1) * gh
-        width: w * gw
-        height: h * gh
-
   # When first starting drawing the ellipse
   # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
   # @param  {number} y the y value of cursor at the time in relation to the top of the browser
@@ -511,36 +338,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
     ex = (x - s_left - sx + cx)
     ey = (y - s_top - sy + cy)
     Connection.emitMakeShape "ellipse", [ ex / sw, ey / sh, current_colour, current_thickness ]
-
-  # Make an ellipse on the whiteboard
-  # @param  {[type]} cx        the x value of the center as a percentage of the original width
-  # @param  {[type]} cy        the y value of the center as a percentage of the original height
-  # @param  {string} colour    the colour of the object
-  # @param  {number} thickness the thickness of the object's line(s)
-  # @return {undefined}
-  Whiteboard.makeEllipse = (cx, cy, colour, thickness) ->
-    ellipse = paper.ellipse(cx * gw, cy * gh, 0, 0)
-    if colour
-      ellipse.attr
-        stroke: colour
-        "stroke-width": thickness
-    current_shapes.push ellipse
-
-  # Draw an ellipse on the whiteboard
-  # @param  {[type]} cx        the x value of the center as a percentage of the original width
-  # @param  {[type]} cy        the y value of the center as a percentage of the original height
-  # @param  {[type]} rx        the radius-x of the ellipse as a percentage of the original width
-  # @param  {[type]} ry        the radius-y of the ellipse as a percentage of the original height
-  # @param  {string} colour    the colour of the object
-  # @param  {number} thickness the thickness of the object's line(s)
-  # @return {undefined}
-  drawEllipse = (cx, cy, rx, ry, colour, thickness) ->
-    elip = paper.ellipse(cx * gw, cy * gh, rx * gw, ry * gh)
-    if colour
-      elip.attr
-        stroke: colour
-        "stroke-width": thickness
-    current_shapes.push elip
 
   # When first starting to draw an ellipse
   # @param  {number} dx the difference in the x value at the start as opposed to the x value now
@@ -560,20 +357,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
     dx = (if dx < 0 then -dx else dx)
     dy = (if dy < 0 then -dy else dy)
     Connection.emitUpdateShape "ellipse", [ x / sw, y / sh, dx / sw, dy / sh ]
-
-  # Socket response - Update rectangle drawn
-  # @param  {number} x the x value of the object as a percentage of the original width
-  # @param  {number} y the y value of the object as a percentage of the original height
-  # @param  {number} w width of the shape as a percentage of the original width
-  # @param  {number} h height of the shape as a percentage of the original height
-  # @return {undefined}
-  Whiteboard.updateEllipse = (x, y, w, h) ->
-    if ellipse
-      ellipse.attr
-        cx: x * gw
-        cy: y * gh
-        rx: w * gw
-        ry: h * gh
 
   # When releasing the mouse after drawing the ellipse
   # @param  {Event} e the mouse event
@@ -603,13 +386,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
     cur.attr
       cx: x * gw
       cy: y * gh
-
-  # Socket response - Clear canvas
-  # @return {undefined}
-  Whiteboard.clearPaper = ->
-    if current_shapes
-      current_shapes.forEach (element) ->
-        element.remove()
 
   # Update zoom variables on all clients
   # @param  {Event} event the event that occurs when scrolling
@@ -724,24 +500,5 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
   #   s_left = slide_obj.offsetLeft
   #   s_left += $("#presentation")[0].offsetLeft  if div
   #   console.log "window resized"
-
-  # Scales a path string to fit within a width and height of the new paper size
-  # @param  {number} w width of the shape as a percentage of the original width
-  # @param  {number} h height of the shape as a percentage of the original height
-  # @return {string}   the path string after being manipulated to new paper size
-  String::toScaledPath = (w, h) ->
-    path = undefined
-    points = @match(/(\d+[.]?\d*)/g)
-    len = points.length
-    j = 0
-
-    # go through each point and multiply it by the new height and width
-    while j < len
-      if j isnt 0
-        path += "L" + (points[j] * w) + "," + (points[j + 1] * h)
-      else
-        path = "M" + (points[j] * w) + "," + (points[j + 1] * h)
-      j += 2
-    path
 
   Whiteboard

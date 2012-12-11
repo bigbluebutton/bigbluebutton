@@ -26,4 +26,23 @@ define [
     document.body.appendChild form
     form.submit()
 
+  # Scales a path string to fit within a width and height of the new paper size
+  # @param  {number} w width of the shape as a percentage of the original width
+  # @param  {number} h height of the shape as a percentage of the original height
+  # @return {string}   the path string after being manipulated to new paper size
+  Utils.stringToScaledPath = (string, w, h) ->
+    path = undefined
+    points = string.match(/(\d+[.]?\d*)/g)
+    len = points.length
+    j = 0
+
+    # go through each point and multiply it by the new height and width
+    while j < len
+      if j isnt 0
+        path += "L" + (points[j] * w) + "," + (points[j + 1] * h)
+      else
+        path = "M" + (points[j] * w) + "," + (points[j + 1] * h)
+      j += 2
+    path
+
   Utils
