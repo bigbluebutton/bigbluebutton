@@ -121,24 +121,6 @@ define [ "jquery", "raphael", "cs!chat/whiteboard", "cs!chat/connection" ], ($, 
         $("#uploadStatus").text ""
       ), 3000
 
-  # Received event to update all the slide images
-  # @param  {Array} urls list of URLs to be added to the paper (after old images are removed)
-  socket.on "all_slides", (urls) ->
-    $("#uploadStatus").text ""
-    Whiteboard.removeAllImagesFromPaper()
-    count = 0
-    numOfSlides = urls.length
-    i = 0
-
-    while i < numOfSlides
-      array = urls[i]
-      img = Whiteboard.addImageToPaper(array[0], array[1], array[2])
-      custom_src = img.attr("src")
-      custom_src = custom_src.replace(":3000", "")
-      console.log custom_src
-      $("#slide").append "<img id=\"preload" + img.id + "\"src=\"" + custom_src + "\" style=\"display:none;\" alt=\"\"/>"
-      i++
-
   # Clear the canvas drawings
   Chat.clearCanvas = ->
     socket.emit "clrPaper"

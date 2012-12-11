@@ -16,7 +16,7 @@ define [
         console.log "disconnecting from", @host
         @socket.disconnect()
         @socket = null
-        @trigger('connection:disconnected');
+        @trigger('connection:disconnected')
       else
         console.log "tried to disconnect but it's not connected"
 

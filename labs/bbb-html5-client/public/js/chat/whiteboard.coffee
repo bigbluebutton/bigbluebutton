@@ -2,87 +2,10 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
 
   Whiteboard = {}
 
-  # As is done in Connection
-  PRESENTATION_SERVER = window.location.protocol + "//" + window.location.host
-  PRESENTATION_SERVER = PRESENTATION_SERVER.replace(/:\d+/, "/") # remove :port
-
-  gw = undefined
-  gh = undefined
-  cx2 = undefined
-  cy2 = undefined
-  cx1 = undefined
-  cy1 = undefined
-  px = undefined
-  py = undefined
-  cx = undefined
-  cy = undefined
-  sw = undefined
-  sh = undefined
-  slides = undefined
-  textx = undefined
-  texty = undefined
-  text = undefined
-  paper = undefined
-  cur = undefined
-  s_top = undefined
-  s_left = undefined
-  current_url = undefined
-  ex = undefined
-  ey = undefined
-  ellipse = undefined
-  line = undefined
-  scrollh = undefined
-  scrollw = undefined
-  textoffset = undefined
-  current_colour = undefined
-  current_thickness = undefined
-  path = undefined
-  rect = undefined
-  sx = undefined
-  sy = undefined
-  current_shapes = undefined
-  sw_orig = undefined
-  sh_orig = undefined
-  vw = undefined
-  vh = undefined
-  shift_pressed = undefined
-  zoom_level = 1
-  fitToPage = true
-  path_max = 30
-  path_count = 0
-  default_colour = "#FF0000"
-  default_thickness = 1
-  dcr = 3
-
   # slide_obj = document.getElementById("slide")
   # textbox = document.getElementById("area")
 
   # $("#area").autosize()
-
-  # Drawing the thickness viewer for client feedback.
-  # No messages are sent to the server, it is completely
-  # local. Shows visual of thickness for drawing tools.
-  # @param  {number} thickness the thickness value
-  # @param  {string} colour    the colour it should be displayed as
-  # @return {undefined}
-  drawThicknessView = (thickness, colour) ->
-    current_thickness = thickness
-    tctx.fillStyle = "#FFFFFF"
-    tctx.fillRect 0, 0, 20, 20
-    center = Math.round((20 - thickness + 1) / 2)
-    tctx.fillStyle = colour
-    tctx.fillRect center, center, thickness + 1, thickness + 1
-
-  # Drawing the colour viewer for client feedback.
-  # No messages are sent to the server, it is
-  # completely local. Shows colour visual for drawing tools.
-  # @param  {string} colour the colour it should be displayed as
-  # @return {undefined}
-  drawColourView = (colour) ->
-    current_colour = colour
-    ctx.fillStyle = colour
-    cptext.value = colour
-    ctx.fillRect 0, 0, 12, 12
 
   # Toggles the visibility of the colour picker, which is hidden by
   # default. The picker is a RaphaelJS object, so each node of the object
@@ -123,23 +46,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
         cur.drag curRectDragging, curTextStart, curTextStop
       else
         console.log "ERROR: Cannot turn on tool, invalid tool: " + tool
-
-  # Initializes the "Paper" which is the Raphael term for
-  # the entire SVG object on the webpage.
-  # @return {undefined}
-  initPaper = ->
-    # paper is embedded within the div#slide of the page.
-    paper = paper or Raphael("slide", gw, gh)
-    paper.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
-    cur = paper.circle(0, 0, dcr)
-    cur.attr "fill", "red"
-    $(cur.node).bind "mousewheel", zoomSlide
-    if slides
-      rebuildPaper()
-    else
-      slides = {} # if previously loaded
-    unless navigator.userAgent.indexOf("Firefox") is -1
-      paper.renderfix()
 
   # Updates the paper from the server values.
   # @param  {number} cx_ the x-offset value as a percentage of the original width
@@ -190,68 +96,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
     # get the shapes to reprocess
     Connection.emitAllShapes()
 
-  # Add an image to the paper.
-  # @param {string} url the URL of the image to add to the paper
-  # @param {number} w   the width of the image (in pixels)
-  # @param {number} h   the height of the image (in pixels)
-  # @return {Raphael.image} the image object added to the whiteboard
-  Whiteboard.addImageToPaper = (url, w, h) ->
-    console.log "addIMageToPaper show me url:" + url
-    img = undefined
-    if fitToPage
-      # solve for the ratio of what length is going to fit more than the other
-      xr = w / vw
-      yr = h / vh
-      max = Math.max(xr, yr)
-      # fit it all in appropriately
-      # TODO: temporary solution
-      url = PRESENTATION_SERVER + url
-      img = paper.image(url, cx = 0, cy = 0, gw = w, gh = h)
-      console.log img
-
-      # update the global variables we will need to use
-      sw = w / max
-      sh = h / max
-      sw_orig = sw
-      sh_orig = sh
-    else
-      # fit to width
-      # assume it will fit width ways
-      wr = w / vw
-      img = paper.image(url, cx = 0, cy = 0, w / wr, h / wr)
-      sw = w / wr
-      sh = h / wr
-      sw_orig = sw
-      sh_orig = sh
-      gw = sw
-      gh = sh
-    slides[url] =
-      id: img.id
-      w: w
-      h: h
-
-    unless current_url
-      img.toBack()
-      current_url = url
-    else if current_url is url
-      img.toBack()
-    else
-      img.hide()
-    img.mousemove onCursorMove
-    $(img.node).bind "mousewheel", zoomSlide
-    img
-
-  # Removes all the images from the Raphael paper.
-  # @return {undefined}
-  Whiteboard.removeAllImagesFromPaper = ->
-    img = undefined
-    for url of slides
-      if slides.hasOwnProperty(url)
-        paper.getById(slides[url].id).remove()
-        $("#preload" + slides[url].id).remove()
-    slides = {}
-    current_url = null
-
   # Draws an array of shapes to the paper.
   # @param  {array} shapes the array of shapes to draw
   # @return {undefined}
@@ -275,14 +119,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
     # make sure the cursor is still on top
     bringCursorToFront()
 
-  # Re-add the images to the paper that are found
-  # in the slides array (an object of urls and dimensions).
-  # @return {undefined}
-  rebuildPaper = ->
-    current_url = null
-    for url of slides
-      if slides.hasOwnProperty(url)
-        Whiteboard.addImageToPaper url, slides[url].w, slides[url].h
 
   # Shows an image from the paper.
   # The url must be in the slides array.
@@ -806,8 +642,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
     y = (if y > zz then zz else y)
     Connection.emitPaperUpdate x, y, z, z # send update to all clients
 
-  # initPaper()
-
   # c = document.getElementById("colourView")
   # tc = document.getElementById("thicknessView")
   # cptext = document.getElementById("colourText")
@@ -819,8 +653,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
   # vw = slide_obj.clientWidth
   # vh = slide_obj.clientHeight
 
-  # drawThicknessView default_thickness, default_colour
-  # drawColourView default_colour
 
   # # create colour picker
   # cp = Raphael.colorwheel(-75, -75, 75, default_colour)
