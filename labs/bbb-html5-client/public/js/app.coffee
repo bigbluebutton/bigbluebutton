@@ -16,6 +16,9 @@ define [
   globals.connection = {}
 
   initialize = ->
+    # Authentication object, set when the user is authorized in
+    globals.currentAuth = null
+
     # Default application router
     globals.router = new Router()
     Backbone.history.start()

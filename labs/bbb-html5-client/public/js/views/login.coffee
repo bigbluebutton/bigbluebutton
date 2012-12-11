@@ -26,16 +26,18 @@ define [
 
       data = { meetings: collection.models }
       compiledTemplate = _.template(loginTemplate, data)
-      this.$el.html compiledTemplate
-      this
+      @$el.html compiledTemplate
+      @
 
     doLogin: ->
       app = require 'cs!app'
       params =
-        "username": this.$el.find("#user-name").val()
-        "meetingID": this.$el.find("#meeting-id").val()
+        "username": @$("#user-name").val()
+        "meetingID": @$("#meeting-id").val()
       @model.save params,
         success: =>
+          # TODO: check @model.loginAccepted
+          globals.currentAuth = @model
           globals.router.navigate "/session", {trigger: true, replace: true}
         error: =>
           console.log "authentication error"

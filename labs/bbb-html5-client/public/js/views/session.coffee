@@ -31,7 +31,7 @@ define [
       this.unbind()
 
     render: ->
-      data = {}
+      data = { auth: globals.currentAuth }
       compiledTemplate = _.template(sessionTemplate, data)
       @$el.append compiledTemplate
 

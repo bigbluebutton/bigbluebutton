@@ -56,6 +56,7 @@ define [
     # Log out of the session
     logout: ->
       globals.connection.emitLogout()
+      globals.currentAuth = null
 
     # Go to the previous slide
     previousSlide: ->

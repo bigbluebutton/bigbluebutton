@@ -107,7 +107,7 @@ exports.post_index = function(req, res) {
       res.send(user);
     } else {
       res.contentType("json");
-      res.send({ loginAccepted: false });
+      res.send({ loginAccepted: false, meetingID: meetingID, username: username });
     }
   });
 };

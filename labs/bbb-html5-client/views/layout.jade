@@ -12,11 +12,12 @@ html
       #container
 
   script(src='/js/lib/require/require-min.js')
-  - if (typeof(meetings) != 'undefined')
-    script(type='text/javascript')
-      define('globals', function() {
-        return {
-          bootstrappedMeetings: !{JSON.stringify(meetings)}
-        };
-      });
+  - if (typeof(meetings) == 'undefined')
+    - meetings = []
+  script(type='text/javascript')
+    define('globals', function() {
+      return {
+        bootstrappedMeetings: !{JSON.stringify(meetings)}
+      };
+    });
   script(src='/js/main.js')

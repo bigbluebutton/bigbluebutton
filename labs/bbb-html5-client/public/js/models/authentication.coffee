@@ -6,8 +6,8 @@ define [
   AuthenticationModel = Backbone.Model.extend
     url: '/'
     defaults:
-      username: "",
-      meetingID: "",
+      username: null
+      meetingID: null
       loginAccepted: false
 
   AuthenticationModel
