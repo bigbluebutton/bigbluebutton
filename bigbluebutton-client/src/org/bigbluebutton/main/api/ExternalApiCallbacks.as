@@ -74,7 +74,8 @@ package org.bigbluebutton.main.api
     
     private function handleAmIPresenterRequestAsync():void {
       _dispatcher.dispatchEvent(new AmIPresenterQueryEvent());
-
+    }
+    
     private function handleStopShareCameraRequest():void {
       _dispatcher.dispatchEvent(new ClosePublishWindowEvent());	
     }
