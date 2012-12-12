@@ -9,14 +9,16 @@ public class GlobalCall {
     
     public static Map<String,String> voiceConference = new ConcurrentHashMap<String,String>();
     public static Map<String,Integer> numberOfUsers = new ConcurrentHashMap<String,Integer>();
-    
+    public static Map<String,String> codecVoiceConference = new ConcurrentHashMap<String, String>();
+
     
     public static boolean roomHasGlobalStream(String roomName) {
 	return voiceConference.containsKey(roomName);
     }
 
-    public static void addGlobalAudioStream(String roomName, String globalAudioStreamName) {
+    public static void addGlobalAudioStream(String roomName, String globalAudioStreamName, String codecName) {
 	voiceConference.put(roomName, globalAudioStreamName);
+	codecVoiceConference.put(roomName, codecName);
 	numberOfUsers.put(roomName, 0);
     }
 
@@ -28,7 +30,7 @@ public class GlobalCall {
 	System.out.println("REMOVENDO A SALA "+roomName);
 	voiceConference.remove(roomName);
 	numberOfUsers.remove(roomName);
-	
+	codecVoiceConference.remove(roomName);
     }
 
     public static void addUser(String roomName) {
@@ -49,6 +51,10 @@ public class GlobalCall {
 
     public static int getNumberOfUsers(String roomName) {
     	return numberOfUsers.get(roomName);
+    }
+
+    public static String getRoomCodec(String roomName) {
+	return codecVoiceConference.get(roomName);
     }
 
 
