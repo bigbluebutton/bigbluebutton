@@ -4,14 +4,15 @@ package org.red5.flash.bwcheck.app
 	import flash.net.NetConnection;
 	import flash.net.Responder;
 	
-	import mx.controls.TextArea;
 	import mx.core.Application;
 	
+	import org.bigbluebutton.common.LogUtil;
+
 	import org.red5.flash.bwcheck.ClientServerBandwidth;
 	import org.red5.flash.bwcheck.ServerClientBandwidth;
 	import org.red5.flash.bwcheck.events.BandwidthDetectEvent;
 	
-	public class BandwidthDetectionApp
+	public class BandwidthDetectionApp extends Application
 	{
 		private var _serverURL:String = "localhost";
 		private var _serverApplication:String = "";
@@ -19,7 +20,7 @@ package org.red5.flash.bwcheck.app
 		private var _serverClientService:String = "";
 		
 		private var nc:NetConnection;
-
+		
 		public function BandwidthDetectionApp()
 		{
 			
@@ -28,26 +29,21 @@ package org.red5.flash.bwcheck.app
 		public function set serverURL(url:String):void
 		{
 			_serverURL = url;
-      _serverURL = "demo.bigbluebutton.org";
 		}
 		
 		public function set serverApplication(app:String):void
 		{
 			_serverApplication = app;
-      _serverApplication = "video";
 		}
 		
 		public function set clientServerService(service:String):void
 		{
 			_clientServerService = service;
-      _clientServerService = "checkBandwidthUp";
-      
 		}
 		
 		public function set serverClientService(service:String):void
 		{
 			_serverClientService = service;
-      _serverClientService = "checkBandwidth";
 		}
 		
 		public function connect():void
@@ -56,7 +52,7 @@ package org.red5.flash.bwcheck.app
 			nc.objectEncoding = flash.net.ObjectEncoding.AMF0;
 			nc.client = this;
 			nc.addEventListener(NetStatusEvent.NET_STATUS, onStatus);	
-			nc.connect("rtmpt://" + _serverURL + "/" + _serverApplication);
+			nc.connect("rtmp://" + _serverURL + "/" + _serverApplication);
 		}
 		
 		
@@ -65,8 +61,8 @@ package org.red5.flash.bwcheck.app
 			switch (event.info.code)
 			{
 				case "NetConnection.Connect.Success":
-					trace("\n" + event.info.code);
-          trace("\n Detecting Server Client Bandwidth \n\n");
+					LogUtil.debug(event.info.code);
+					LogUtil.debug("Detecting Server Client Bandwidth");
 					ServerClient();
 				break;	
 			}
@@ -100,34 +96,34 @@ package org.red5.flash.bwcheck.app
 		
 		public function onDetectFailed(event:BandwidthDetectEvent):void
 		{
-			trace("\n Detection failed with error: " + event.info.application + " " + event.info.description);
+			LogUtil.debug("Detection failed with error: " + event.info.application + " " + event.info.description);
 		}
 		
 		public function onClientServerComplete(event:BandwidthDetectEvent):void
 		{			
-			trace("\n\n kbitUp = " + event.info.kbitUp + ", deltaUp= " + event.info.deltaUp + ", deltaTime = " + event.info.deltaTime + ", latency = " + event.info.latency + " KBytes " + event.info.KBytes);
-			trace("\n\n Client to Server Bandwidth Detection Complete");
+			LogUtil.debug("kbitUp = " + event.info.kbitUp + ", deltaUp= " + event.info.deltaUp + ", deltaTime = " + event.info.deltaTime + ", latency = " + event.info.latency + " KBytes " + event.info.KBytes);
+			LogUtil.debug("Client to Server Bandwidth Detection Complete");
 		}
 		
 		public function onClientServerStatus(event:BandwidthDetectEvent):void
 		{
 			if (event.info) {
-				trace("\n count: "+event.info.count+ " sent: "+event.info.sent+" timePassed: "+event.info.timePassed+" latency: "+event.info.latency+" overhead:  "+event.info.overhead+" packet interval: " + event.info.pakInterval + " cumLatency: " + event.info.cumLatency);
+				LogUtil.debug("count: "+event.info.count+ " sent: "+event.info.sent+" timePassed: "+event.info.timePassed+" latency: "+event.info.latency+" overhead:  "+event.info.overhead+" packet interval: " + event.info.pakInterval + " cumLatency: " + event.info.cumLatency);
 			}
 		}
 		
 		public function onServerClientComplete(event:BandwidthDetectEvent):void
 		{
-			trace("\n\n kbit Down: " + event.info.kbitDown + " Delta Down: " + event.info.deltaDown + " Delta Time: " + event.info.deltaTime + " Latency: " + event.info.latency);
-			trace("\n\n Server Client Bandwidth Detect Complete");
-			trace("\n\n Detecting Client Server Bandwidth\n\n");
+			LogUtil.debug("kbit Down: " + event.info.kbitDown + " Delta Down: " + event.info.deltaDown + " Delta Time: " + event.info.deltaTime + " Latency: " + event.info.latency);
+			LogUtil.debug("Server Client Bandwidth Detect Complete");
+			LogUtil.debug("Detecting Client Server Bandwidth)";
 			ClientServer();
 		}
 		
 		public function onServerClientStatus(event:BandwidthDetectEvent):void
 		{	
 			if (event.info) {
-				trace("\n count: "+event.info.count+ " sent: "+event.info.sent+" timePassed: "+event.info.timePassed+" latency: "+event.info.latency+" cumLatency: " + event.info.cumLatency);
+				LogUtil.debug("count: "+event.info.count+ " sent: "+event.info.sent+" timePassed: "+event.info.timePassed+" latency: "+event.info.latency+" cumLatency: " + event.info.cumLatency);
 			}
 		}
 

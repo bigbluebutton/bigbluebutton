@@ -2,7 +2,6 @@ package org.bigbluebutton.core
 {
 	import org.bigbluebutton.core.managers.ConfigManager2;
 	import org.bigbluebutton.core.managers.ConnectionManager;
-	import org.bigbluebutton.core.managers.StreamManager;
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.core.model.Session;
@@ -10,7 +9,6 @@ package org.bigbluebutton.core
 	
 	public class BBB {
 		private static var configManager:ConfigManager2 = null;
-		private static var streamManager:StreamManager = StreamManager.getInstance();
 		private static var connectionManager:ConnectionManager = null;
 		private static var session:Session = null;
 		private static var userConfigManager:UserConfigManager = null;
@@ -32,13 +30,6 @@ package org.bigbluebutton.core
 
 		public static function getConfigForModule(module:String):XML {
 			return initConfigManager().config.getConfigFor(module);
-		}
-		
-		public static function initStreamManager():StreamManager {
-			if (streamManager == null) {
-				streamManager = StreamManager.getInstance();
-			}
-			return streamManager;
 		}
 		
 		public static function initConnectionManager():ConnectionManager {
