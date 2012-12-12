@@ -11,6 +11,7 @@
     <script type="text/javascript" src="http://192.168.0.249/client/swfobject/swfobject.js"></script>
     <script type="text/javascript">
       swfobject.registerObject("BigBlueButton", "11", "expressInstall.swf");
+      swfobject.registerObject("WebcamPreviewStandalone", "11", "expressInstall.swf");
     </script>
     <script src="http://192.168.0.249/client/lib/jquery-1.5.1.min.js" language="javascript"></script>
     <script src="http://192.168.0.249/client/lib/bigbluebutton.js" language="javascript"></script>
@@ -22,7 +23,14 @@
     <script>
       window.displayBBBClient = function() {
         var bbbc = document.getElementById("flashclient");
+        var wcpc = document.getElementById("webcampreviewclient");
+        wcpc.style.display = "none";
         bbbc.style.display = "block";
+      }
+      window.displayWCClient = function() {
+        console.log("Displaying webcam preview client");
+        var wcpc = document.getElementById("webcampreview");
+        wcpc.style.display = "block";
       }
       window.onload = function() {
          registerListeners();
@@ -32,9 +40,13 @@
   <body>
     <div id="controls">
       <button type="button" onclick="registerListeners()">Listen for Events</button>
-      <button type="button" onclick="displayBBBClient()">Show Client</button>
-      <button type="button" onclick="BBB.shareVideoCamera()">Webcam</button>
+      <button type="button" onclick="displayBBBClient()">Show BBB Client</button>
+      <button type="button" onclick="displayWCClient()">Show WC Client</button>
+      <button type="button" onclick="BBB.shareVideoCamera()">Share Webcam</button>
+      <button type="button" onclick="BBB.stopSharingCamera()">Stop Webcam</button>
+      <button type="button" onclick="BBB.switchPresenter('x8hxeozsqbk1')">Switch Presenter</button>
       <button type="button" onclick="joinVoiceConference2()">Join Voice</button>
+      <button type="button" onclick="leaveVoiceConference2()">Leave Voice</button>
       <button type="button" onclick="getMyUserID()">Get My UserID</button>
       <button type="button" onclick="getMeetingID()">Get MeetingID</button>
       <button type="button" onclick="getMyRoleAsynch()">Get My Role Asynch</button>
@@ -50,8 +62,9 @@
       <button type="button" onclick="sendPublicChat()">Send Public Chat</button>
       <button type="button" onclick="sendPrivateChat()">Send Private Chat</button>
     </div>
-      <div id="flashclient" style="display: none">
-        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="100%" height="90%" id="BigBlueButton" name="BigBlueButton" align="middle">
+
+     <div id="flashclient" style="background-color:#EEEEEE;height:900px;width:1200px;float:left;">
+        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="50%" height="50%" id="BigBlueButton" name="BigBlueButton" align="middle">
           <param name="movie" value="http://192.168.0.249/client/BigBlueButton.swf?v=VERSION" />
           <param name="quality" value="high" />
           <param name="allowfullscreen" value="true" />
@@ -71,7 +84,7 @@
            </object>
         <!--<![endif]-->
         </object>
-      </div>
+    </div>
     <div id="update-display"/>
     <div id="notifications" aria-live="polite" role="region" aria-label="Chat Notifications"></div>
   </body>

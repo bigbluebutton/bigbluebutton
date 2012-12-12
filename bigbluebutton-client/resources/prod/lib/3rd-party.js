@@ -27,6 +27,10 @@ var registerListeners = function() {
   });
 }
 
+var leaveVoiceConference2 = function () {
+  BBB.leaveVoiceConference();
+}
+
 var joinVoiceConference2 = function () {
   BBB.joinVoiceConference();
 }
