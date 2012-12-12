@@ -12,7 +12,9 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
   import org.bigbluebutton.modules.listeners.events.ListenersCommand;
+  import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 
   public class ExternalApiCallbacks
@@ -28,9 +30,11 @@ package org.bigbluebutton.main.api
     
     private function init():void {
       if (ExternalInterface.available) {
+        ExternalInterface.addCallback("switchPresenterRequest", handleSwitchPresenterRequest);
         ExternalInterface.addCallback("getMyUserID", handleGetMyUserID);
         ExternalInterface.addCallback("getExternalMeetingID", handleGetExternalMeetingID);
         ExternalInterface.addCallback("joinVoiceRequest", handleJoinVoiceRequest);
+        ExternalInterface.addCallback("leaveVoiceRequest", handleLeaveVoiceRequest);        
         ExternalInterface.addCallback("getMyRoleRequestSync", handleGetMyRoleRequestSync);
         ExternalInterface.addCallback("getMyRoleRequestAsync", handleGetMyRoleRequestAsynch);
         ExternalInterface.addCallback("muteMeRequest", handleMuteMeRequest);
@@ -38,6 +42,7 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("muteAllUsersRequest", handleMuteAllUsersRequest);
         ExternalInterface.addCallback("unmuteAllUsersRequest", handleUnmuteAllUsersRequest);
         ExternalInterface.addCallback("shareVideoCamera", onShareVideoCamera);
+        ExternalInterface.addCallback("stopShareCameraRequest", handleStopShareCameraRequest);
         ExternalInterface.addCallback("switchLayout", handleSwitchLayoutRequest);
         ExternalInterface.addCallback("sendPublicChatRequest", handleSendPublicChatRequest);  
         ExternalInterface.addCallback("sendPrivateChatRequest", handleSendPrivateChatRequest); 
@@ -45,6 +50,20 @@ package org.bigbluebutton.main.api
       }
     }
 
+    private function handleStopShareCameraRequest():void {
+      _dispatcher.dispatchEvent(new ClosePublishWindowEvent());	
+    }
+    
+    private function handleSwitchPresenterRequest(userID:String):void {
+      var intUserID:String = UsersUtil.externalUserIDToInternalUserID(userID);
+      trace("Switching presenter to [" + intUserID + "] [" + UsersUtil.getUserName(intUserID) + "]"); 
+      
+      var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
+      e.userid = intUserID;
+      e.username = UsersUtil.getUserName(intUserID);
+      _dispatcher.dispatchEvent(e);
+    }
+    
     private function handleGetMyUserID():String {
       return UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
     }
@@ -174,6 +193,12 @@ package org.bigbluebutton.main.api
     private function handleJoinVoiceRequest():void {
       LogUtil.debug("handleJoinVoiceRequest");
       _dispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_CONFERENCE));
+    }
+    
+    private function handleLeaveVoiceRequest():void {
+      var leaveEvent:BBBEvent = new BBBEvent("LEAVE_VOICE_CONFERENCE_EVENT");
+      leaveEvent.payload["userRequested"] = true;
+      _dispatcher.dispatchEvent(leaveEvent);
     }
     
     private function onShareVideoCamera(publishInClient:Boolean=true):void {
