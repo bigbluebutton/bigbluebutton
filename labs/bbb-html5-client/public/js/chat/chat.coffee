@@ -8,27 +8,6 @@ define [ "jquery", "raphael", "cs!chat/whiteboard", "cs!chat/connection" ], ($, 
   msgbox = document.getElementById("chat_messages")
   chatbox = document.getElementById("chat_input_box")
 
-  socket.on "reconnect", ->
-    msgbox.innerHTML += "<div><b> RECONNECTED! </b></div>"
-
-  socket.on "reconnecting", ->
-    msgbox.innerHTML += "<div><b> Reconnecting... </b></div>"
-
-  socket.on "reconnect_failed", ->
-    msgbox.innerHTML += "<div><b> Reconnect FAILED! </b></div>"
-
-  # Received event to update the viewBox value
-  # @param  {string} xperc Percentage of x-offset from top left corner
-  # @param  {string} yperc Percentage of y-offset from top left corner
-  # @param  {string} wperc Percentage of full width of image to be displayed
-  # @param  {string} hperc Percentage of full height of image to be displayed
-  socket.on "viewBox", (xperc, yperc, wperc, hperc) ->
-    xperc = parseFloat(xperc, 10)
-    yperc = parseFloat(yperc, 10)
-    wperc = parseFloat(wperc, 10)
-    hperc = parseFloat(hperc, 10)
-    Whiteboard.updatePaperFromServer xperc, yperc, wperc, hperc
-
   # Received event to update the whiteboard between fit to width and fit to page
   # @param  {boolean} fit choice of fit: true for fit to page, false for fit to width
   socket.on "fitToPage", (fit) ->

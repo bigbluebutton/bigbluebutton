@@ -40,6 +40,20 @@ define [
           @addChatMessage(msgBlock.username, msgBlock.message)
         @scrollToBottom()
 
+      # TODO: for now these messages are only being shown in the chat, maybe
+      #       they should have their own view and do more stuff
+      #       (e.g. disable the interface when disconnected)
+      socket.on "connect", =>
+        @addChatMessage("system", "Connected to the server.")
+      socket.on "disconnect", =>
+        @addChatMessage("system", "Disconnected form the server.")
+      socket.on "reconnect", =>
+        @addChatMessage("system", "Reconnected!")
+      socket.on "reconnecting", =>
+        @addChatMessage("system", "Reconnecting...")
+      socket.on "reconnect_failed", =>
+        @addChatMessage("system", "Reconnect failed!")
+
     # don't need to render anything, the rendering is done by SessionView
     render: ->
 

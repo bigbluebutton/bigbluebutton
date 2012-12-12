@@ -14,8 +14,6 @@ define [
   SessionView = Backbone.View.extend
     id: 'session-view'
     # className: 'users-enabled' # to start with #users opened
-    events:
-      "click #colourView": "toogleColorPicker"
 
     initialize: ->
       @navbarView = new SessionNavbarView()
@@ -30,8 +28,7 @@ define [
       @chatView.close()
       @usersView.close()
       @whiteboardView.close()
-      this.remove()
-      this.unbind()
+      Backbone.View.prototype.close.call(@)
 
     render: ->
       data = { auth: globals.currentAuth }
@@ -47,10 +44,5 @@ define [
       globals.connection.connect()
 
       @
-
-    # Toogle the current color picker
-    toogleColorPicker: ->
-      console.log "swith toogle pick"
-      # Whiteboard.toogleColorPicker() # TODO
 
   SessionView

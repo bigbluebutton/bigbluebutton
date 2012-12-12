@@ -16,6 +16,15 @@ define [
   # The contents are rendered by SessionView, this class is Used to
   # manage the events in the users.
   SessionWhiteboardView = Backbone.View.extend
+    events:
+      "click #colourView": "toogleColorPicker"
+
+    # Toogle the current color picker
+    toogleColorPicker: ->
+      console.log "swith toogle pick"
+      # Whiteboard.toogleColorPicker() # TODO
+      # TODO: event temporarilly being used to test things
+      # @paper.setFitToPage(if @paper.fitToPage is 0 then 1 else 0)
 
     initialize: ->
       @paper = null
@@ -73,6 +82,20 @@ define [
         console.log "received changeslide", url
         @paper?.showImageFromPaper url
 
+      # Received event to update the viewBox value
+      # @param  {string} xperc Percentage of x-offset from top left corner
+      # @param  {string} yperc Percentage of y-offset from top left corner
+      # @param  {string} wperc Percentage of full width of image to be displayed
+      # @param  {string} hperc Percentage of full height of image to be displayed
+      # TODO: not tested yet
+      socket.on "viewBox", (xperc, yperc, wperc, hperc) =>
+        console.log "received viewBox", xperc, yperc, wperc, hperc
+        xperc = parseFloat(xperc, 10)
+        yperc = parseFloat(yperc, 10)
+        wperc = parseFloat(wperc, 10)
+        hperc = parseFloat(hperc, 10)
+        @paper?.updatePaperFromServer xperc, yperc, wperc, hperc
+
     # don't need to render anything, the rendering is done by SessionView.
     render: ->
       @colorView = @$("#colourView")
@@ -88,16 +111,14 @@ define [
 
     _renderPaper: ->
       # have to create the paper here, in the initializer #slide doesn't exist yet
-      $slide = @$("#slide")
-      # TODO: at this point the dimensions of $slide are 0
-      @paper ?= new WhiteboardPaperModel($slide[0], $slide.innerWidth(), $slide.innerHeight())
+      @paper ?= new WhiteboardPaperModel(@$("#slide"))
       @paper.create()
 
       # events triggered when an image is added or removed from the paper
-      @paper.bind "paper:image:added", @addPreloadImage, this
-      @paper.bind "paper:image:removed", @removePreloadImage, this
+      @paper.bind "paper:image:added", @_addPreloadImage, this
+      @paper.bind "paper:image:removed", @_removePreloadImage, this
 
-    addPreloadImage: (img) ->
+    _addPreloadImage: (img) ->
       customSrc = img.attr("src")
       customSrc = customSrc.replace(":3000", "") # TODO: temporary
       console.log "adding preload image", customSrc
@@ -108,7 +129,7 @@ define [
       compiledTemplate = _.template(preuploadImageTemplate, data)
       @$("#slide").append compiledTemplate
 
-    removePreloadImage: (imgID) ->
+    _removePreloadImage: (imgID) ->
       console.log "removing preload image", imgID
       $("#preload-" + imgID).remove()
 

@@ -47,55 +47,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
       else
         console.log "ERROR: Cannot turn on tool, invalid tool: " + tool
 
-  # Updates the paper from the server values.
-  # @param  {number} cx_ the x-offset value as a percentage of the original width
-  # @param  {number} cy_ the y-offset value as a percentage of the original height
-  # @param  {number} sw_ the slide width value as a percentage of the original width
-  # @param  {number} sh_ the slide height value as a percentage of the original height
-  # @return {undefined}
-  Whiteboard.updatePaperFromServer = (cx_, cy_, sw_, sh_) ->
-    # if updating the slide size (zooming!)
-    if sw_ and sh_
-      paper.setViewBox cx_ * gw, cy_ * gh, sw_ * gw, sh_ * gh
-      sw = gw / sw_
-      sh = gh / sh_
-    # just panning, so use old slide size values
-    else
-      paper.setViewBox cx_ * gw, cy_ * gh, paper._viewBox[2], paper._viewBox[3]
-
-    # update corners
-    cx = cx_ * sw
-    cy = cy_ * sh
-    # update position of svg object in the window
-    sx = (vw - gw) / 2
-    sy = (vh - gh) / 2
-    sy = 0  if sy < 0
-    paper.canvas.style.left = sx + "px"
-    paper.canvas.style.top = sy + "px"
-    paper.setSize gw - 2, gh - 2
-
-    # update zoom level and cursor position
-    z = paper._viewBox[2] / gw
-    cur.attr r: dcr * z
-    zoom_level = z
-
-    # force the slice attribute despite Raphael changing it
-    paper.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
-
-  # Sets the fit to page.
-  # @param {boolean} fit fit == true ? -> fit to page. fit == false ? -> fit to width.
-  Whiteboard.setFitToPage = (fit) ->
-    fitToPage = fit
-    temp = slides
-    Whiteboard.removeAllImagesFromPaper()
-    slides = temp
-    # re-add all the images as they should fit differently
-    rebuildPaper()
-    # set to default zoom level
-    Connection.emitPaperUpdate 0, 0, 1, 1
-    # get the shapes to reprocess
-    Connection.emitAllShapes()
-
   # When panning starts
   # @param  {number} x the x value of the cursor
   # @param  {number} y the y value of the cursor

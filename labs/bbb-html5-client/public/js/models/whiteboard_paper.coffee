@@ -1,9 +1,11 @@
 define [
+  'jquery',
   'underscore',
   'backbone',
   'raphael',
+  'globals',
   'cs!utils'
-], (_, Backbone, Raphael, Utils) ->
+], ($, _, Backbone, Raphael, globals, Utils) ->
 
   # TODO: text, ellipse, line, rect and cursor could be models
 
@@ -16,7 +18,7 @@ define [
   WhiteboardPaperModel = Backbone.Model.extend
 
     # Container must be a DOM element
-    initialize: (@container, @paperWidth, @paperHeight) ->
+    initialize: (@container) ->
       @gw = null
       @gh = null
       @cursor = null
@@ -28,6 +30,15 @@ define [
       @currentLine = null
       @currentRect = null
       @currentEllipse = null
+      @zoomLevel = 1
+      $(window).on "resize", _.bind(@onWindowResize, @)
+      # TODO: at this point the dimensions of @container are 0
+      @updateContainerDimensions()
+
+    # Override the close() to unbind events.
+    close: ->
+      $(window).off "resize"
+      Backbone.View.prototype.close.call(@)
 
     # Initializes the paper in the page.
     create: ->
@@ -52,6 +63,15 @@ define [
         if @slides.hasOwnProperty(url)
           @addImageToPaper url, @slides[url].w, @slides[url].h
 
+    # Called when the application window is resized.
+    onWindowResize: ->
+      @updateContainerDimensions()
+
+    # Update the dimensions of the container.
+    updateContainerDimensions: ->
+      @containerWidth = $(@container).innerWidth()
+      @containerHeight = $(@container).innerHeight()
+
     # Add an image to the paper.
     # @param {string} url the URL of the image to add to the paper
     # @param {number} width   the width of the image (in pixels)
@@ -61,10 +81,10 @@ define [
       console.log "adding image to paper", url, width, height
       if @fitToPage
         # solve for the ratio of what length is going to fit more than the other
-        max = Math.max(width / @paperWidth, height / @paperHeight)
+        max = Math.max(width / @containerWidth, height / @containerHeight)
         # fit it all in appropriately
         # TODO: temporary solution
-        url = PRESENTATION_SERVER + url
+        url = PRESENTATION_SERVER + url unless url.match(/http[s]?:/)
         img = @raphaelObj.image(url, cx = 0, cy = 0, @gw = width, @gh = height)
 
         # update the global variables we will need to use
@@ -75,7 +95,7 @@ define [
       else
         # fit to width
         # assume it will fit width ways
-        wr = width / @paperWidth
+        wr = width / @containerWidth
         img = @raphaelObj.image(url, cx = 0, cy = 0, width / wr, height / wr)
         sw = width / wr
         sh = height / wr
@@ -132,7 +152,7 @@ define [
     showImageFromPaper: (url) ->
       unless @currentUrl is url
         # TODO: temporary solution
-        url = PRESENTATION_SERVER + url
+        url = PRESENTATION_SERVER + url unless url.match(/http[s]?:/)
         @hideImageFromPaper @currentUrl
         next = @getImageFromPaper(url)
         if next
@@ -142,6 +162,56 @@ define [
             element.toFront()
           @bringCursorToFront()
         @currentUrl = url
+
+    # Updates the paper from the server values.
+    # @param  {number} cx_ the x-offset value as a percentage of the original width
+    # @param  {number} cy_ the y-offset value as a percentage of the original height
+    # @param  {number} sw_ the slide width value as a percentage of the original width
+    # @param  {number} sh_ the slide height value as a percentage of the original height
+    # TODO: not tested yet
+    updatePaperFromServer: (cx_, cy_, sw_, sh_) ->
+      # if updating the slide size (zooming!)
+      if sw_ and sh_
+        @raphaelObj.setViewBox cx_ * @gw, cy_ * @gh, sw_ * @gw, sh_ * @gh
+        sw = @gw / sw_
+        sh = @gh / sh_
+      # just panning, so use old slide size values
+      else
+        @raphaelObj.setViewBox cx_ * @gw, cy_ * @gh, @raphaelObj._viewBox[2], @raphaelObj._viewBox[3]
+
+      # update corners
+      cx = cx_ * sw
+      cy = cy_ * sh
+      # update position of svg object in the window
+      sx = (vw - @gw) / 2
+      sy = (vh - @gh) / 2
+      sy = 0  if sy < 0
+      @raphaelObj.canvas.style.left = sx + "px"
+      @raphaelObj.canvas.style.top = sy + "px"
+      @raphaelObj.setSize @gw - 2, @gh - 2
+
+      # update zoom level and cursor position
+      z = @raphaelObj._viewBox[2] / @gw
+      @cursor.attr r: dcr * z
+      @zoomLevel = z
+
+      # force the slice attribute despite Raphael changing it
+      @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
+
+    # Sets the fit to page.
+    # @param {boolean} value If true fit to page. If false fit to width.
+    # TODO: not really working as it should be
+    setFitToPage: (value) ->
+      @fitToPage = value
+      temp = @slides
+      @removeAllImagesFromPaper()
+      @slides = temp
+      # re-add all the images as they should fit differently
+      @rebuild()
+      # set to default zoom level
+      globals.connection.emitPaperUpdate 0, 0, 1, 1
+      # get the shapes to reprocess
+      globals.connection.emitAllShapes()
 
     # Clear all shapes from this paper.
     clearShapes: ->
