@@ -10,7 +10,7 @@ package org.bigbluebutton.core
 	
 	public class BBB {
 		private static var configManager:ConfigManager2 = null;
-		private static var streamManager:StreamManager = null;
+		private static var streamManager:StreamManager = StreamManager.getInstance();
 		private static var connectionManager:ConnectionManager = null;
 		private static var session:Session = null;
 		private static var userConfigManager:UserConfigManager = null;
@@ -36,7 +36,7 @@ package org.bigbluebutton.core
 		
 		public static function initStreamManager():StreamManager {
 			if (streamManager == null) {
-				streamManager = new StreamManager();
+				streamManager = StreamManager.getInstance();
 			}
 			return streamManager;
 		}
