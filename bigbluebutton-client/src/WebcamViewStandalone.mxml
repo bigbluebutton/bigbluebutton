@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+
+Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+
+BigBlueButton is free software; you can redistribute it and/or modify it under the 
+terms of the GNU Lesser General Public License as published by the Free Software 
+Foundation; either version 2.1 of the License, or (at your option) any later 
+version. 
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along 
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+$Id: $
+-->
+
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+                creationComplete="onCreationComplete()"
+                pageTitle="WebcamView" width="600" height="400" layout="absolute">	
+  <mx:Script>
+    <![CDATA[
+   
+      import flash.net.NetConnection;     
+      import mx.core.UIComponent;
+      
+      private var _video:Video;
+      private var _videoHolder:UIComponent;      
+      private var ns:NetStream;			
+      private var nc:NetConnection;
+      private var PADDING_HORIZONTAL:Number = 6;
+      private var PADDING_VERTICAL:Number = 29;
+      private var _minWidth:int = 160 + PADDING_HORIZONTAL;
+      private var _minHeight:int = 120 + PADDING_VERTICAL;
+      private var aspectRatio:Number = 1;
+      
+      private var _url:String;
+      private var _stream:String;
+      
+      private var smoothVideo:Boolean = false;
+      private var applyConvolutionFilter:Boolean = false;
+      private var convolutionFilter:Array = [-1, 0, -1, 0, 6, 0, -1, 0, -1];
+      private var filterBias:Number = 0;
+      private var filterDivisor:Number = 4;
+      private var enableH264:Boolean = false;
+      private var h264Level:String = "2.1";	
+      private var h264Profile:String = "main";	
+      
+      private function onCreationComplete():void{
+        _videoHolder = new UIComponent();
+        _videoHolder.addChild(_video);
+        this.addChild(_videoHolder);
+                
+        this.minWidth = _minWidth;
+        this.minHeight = _minHeight;
+
+      }
+      
+      private function connect(url:String):void {
+        nc = new NetConnection();
+        nc.client = this;
+        nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+        nc.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+        nc.addEventListener(NetStatusEvent.NET_STATUS, onNetConnectStatus);
+        nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
+        nc.connect(url);
+      }
+     
+      private function getVideoResolution(stream:String):Array {
+        var pattern:RegExp = new RegExp("(\\d+x\\d+)-([A-Za-z0-9]+)-\\d+", "");
+        if (pattern.test(stream)) {
+          trace("The stream name is well formatted [" + stream + "]");
+          trace("Stream resolution is [" + pattern.exec(stream)[1] + "]");
+          trace("Userid [" + pattern.exec(stream)[2] + "]");
+          return pattern.exec(stream)[1].split("x");
+        } else {
+          trace("The stream name doesn't follow the pattern <width>x<height>-<userId>-<timestamp>. Using 320x240 resolution.");
+          return "320x240".split("x");
+        }
+      }
+      
+    
+      private function onIOError(event:NetStatusEvent):void{
+      }
+           
+      private function onNetConnectStatus(event:NetStatusEvent):void{
+        switch(event.info.code){
+          case "NetConnection.Connect.Success":
+            playWebcamStream();
+            break;
+          default:
+            trace("[" + event.info.code + "] for [" + _url + "]");
+            break;
+        }
+      }
+      
+      private function onSecurityError(event:NetStatusEvent):void{
+      }
+      
+      public function viewWebcam(url:String, stream:String):void {
+        _url = url;
+        _stream = stream;
+        connect(url);
+      }
+      
+      public function playWebcamStream():void {
+        ns = new NetStream(nc);
+        ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
+        ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+        ns.client = this;
+        ns.bufferTime = 0;
+        ns.receiveVideo(true);
+        ns.receiveAudio(false);
+        
+        var res:Array = getVideoResolution(_stream);
+        if (res == null) // error
+          return;
+        _video = new Video(Number(res[0]), Number(res[1]));
+        _video.width = Number(res[0]);
+        _video.height = Number(res[1]);
+        setAspectRatio(Number(res[0]), Number(res[1])); 
+        _video.attachNetStream(ns);
+        
+        _video.smoothing = smoothVideo;
+        
+        if (applyConvolutionFilter) {
+          var filter:ConvolutionFilter = new flash.filters.ConvolutionFilter();
+          filter.matrixX = 3;
+          filter.matrixY = 3;					
+          filter.matrix = convolutionFilter;
+          filter.bias =  filterBias;
+          filter.divisor = filterDivisor;
+          _video.filters = [filter];					
+        }
+        
+        ns.play(_stream);       
+      }
+      
+      private function onAsyncError(e:AsyncErrorEvent):void{
+        trace("VideoWindow::asyncerror " + e.toString());
+      }
+      
+      public function onMetaData(info:Object):void{
+        trace("metadata: width=" + info.width + " height=" + info.height);
+        _video.width = info.width;
+        _video.height = info.height;
+        setAspectRatio(info.width, info.height);
+      }
+      
+      private function onNetStatus(e:NetStatusEvent):void{
+        switch(e.info.code){
+          case "NetStream.Publish.Start":
+            trace("NetStream.Publish.Start for broadcast stream ");
+            break;
+          case "NetStream.Play.UnpublishNotify":
+            ns.close();
+            break;
+          case "NetStream.Play.Start":
+            trace("Netstatus: " + e.info.code);					
+            break;
+          case "NetStream.Play.FileStructureInvalid":
+            trace("The MP4's file structure is invalid.");
+            break;
+          case "NetStream.Play.NoSupportedTrackFound":
+            trace("The MP4 doesn't contain any supported tracks");
+            break;
+        }
+      }
+      
+      private function setAspectRatio(width:int, height:int):void {
+        aspectRatio = (width/height);
+        this.minHeight = Math.floor((this.minWidth - PADDING_HORIZONTAL) / aspectRatio) + PADDING_VERTICAL;
+      }
+           
+    ]]>
+  </mx:Script>
+   
+</mx:Application>

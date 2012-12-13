@@ -24,6 +24,7 @@
 	<property name="DESKSHARE" value="DeskShareModule" />
 	<property name="DESKSHARE_SA" value="DeskshareStandalone" />
 	<property name="CAM_PREVIEW_SA" value="WebcamPreviewStandalone" />
+	<property name="CAM_VIEW_SA" value="WebcamViewStandalone" />
 	<property name="PHONE" value="PhoneModule" />
 	<property name="VIDEO" value="VideoconfModule" />
 	<property name="WHITEBOARD" value="WhiteboardModule" />
@@ -190,7 +191,12 @@
     <echo message="Compiling webcam preview standalone without optimization." />
     <build-module-no-link src="${SRC_DIR}" target="${CAM_PREVIEW_SA}" />
   </target>
-  	
+
+  <target name="build-webcam-view-standalone" description="Compile Webcam View Standalone Application">
+    <echo message="Compiling webcam view standalone without optimization." />
+    <build-module-no-link src="${SRC_DIR}" target="${CAM_VIEW_SA}" />
+  </target>
+    	
 	<target name="build-deskshare" description="Compile Deskshare Module">
 		<build-module src="${SRC_DIR}" target="${DESKSHARE}" />
 		<echo message="Copying deskshare applet for Deskshare Module" />
@@ -442,11 +448,14 @@
 
 	<!-- NOTE: compile-deskshare-standalone MUST come first before compile-bbb as we need the deskshare-standalone
 				to be compiled withouth being optimized by using the linker -->
-	<target name="clean-build-bbb" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, build-webcam-preview-standalone, compile-bbb" 
+	<target name="clean-build-bbb" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
+	                                        build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" 
 			description="Build BBB client skipping compiling of locales"/>	
-	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, build-webcam-preview-standalone, compile-bbb" 
+	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
+	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" 
 			description="Build BBB client including locales"/>
-	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, build-webcam-preview-standalone, compile-bbb"
+	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
+	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb"
                         description="Build BBB client without locales"/>		
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
 
