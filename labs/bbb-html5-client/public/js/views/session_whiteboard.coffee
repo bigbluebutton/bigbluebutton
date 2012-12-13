@@ -64,6 +64,15 @@ define [
           @_drawColourView(color.hex)
         @colourPicker.color DEFAULT_COLOUR
 
+    _renderPaper: ->
+      # have to create the paper here, in the initializer #slide doesn't exist yet
+      @paper ?= new WhiteboardPaperModel(@$("#slide")[0], @$("#slide-current-text-area")[0])
+      @paper.create()
+
+      # events triggered when an image is added or removed from the paper
+      @paper.bind "paper:image:added", @_addPreloadImage, this
+      @paper.bind "paper:image:removed", @_removePreloadImage, this
+
     # Registers listeners for events in the application socket.
     _registerConnectionEvents: ->
       socket = globals.connection.socket
@@ -147,8 +156,17 @@ define [
 
       # Received event when the panning action finishes
       socket.on "panStop", ->
-        # TODO: implement
-        # @paper?.panDone()
+        @paper?.stopPanning()
+
+      # Received event to change the current tool
+      # @param  {string} tool The tool to be turned on
+      socket.on "toolChanged", (tool) ->
+        console.log "received toolChanged", tool
+        @paper?.setCurrentTool tool
+
+      # Received event to denote when the text has been created
+      socket.on "textDone", ->
+        @paper?.textDone()
 
     # Toggles the visibility of the colour picker, which is hidden by
     # default. The picker is a RaphaelJS object, so each node of the object
@@ -161,15 +179,6 @@ define [
 
       # TODO: to use the event to test other things
       # @controlsView.setUploadStatus "msg", true
-
-    _renderPaper: ->
-      # have to create the paper here, in the initializer #slide doesn't exist yet
-      @paper ?= new WhiteboardPaperModel(@$("#slide")[0])
-      @paper.create()
-
-      # events triggered when an image is added or removed from the paper
-      @paper.bind "paper:image:added", @_addPreloadImage, this
-      @paper.bind "paper:image:removed", @_removePreloadImage, this
 
     _addPreloadImage: (img) ->
       customSrc = img.attr("src")

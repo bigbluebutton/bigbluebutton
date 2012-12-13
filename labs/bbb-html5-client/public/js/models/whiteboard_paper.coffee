@@ -13,12 +13,14 @@ define [
   PRESENTATION_SERVER = window.location.protocol + "//" + window.location.host
   PRESENTATION_SERVER = PRESENTATION_SERVER.replace(/:\d+/, "/") # remove :port
 
+  MAX_PATHS_IN_SEQUENCE = 30
+
   # "Paper" which is the Raphael term for the entire SVG object on the webpage.
   # This class deals with this SVG component only.
   WhiteboardPaperModel = Backbone.Model.extend
 
     # Container must be a DOM element
-    initialize: (@container) ->
+    initialize: (@container, @textbox) ->
       @gw = null # TODO: description
       @gh = null # TODO: description
       # x-offset from top left corner as percentage of original width of paper
@@ -30,6 +32,19 @@ define [
       # sh slide height as a percentage of original height of paper
       @sh = null
 
+      @panX = null
+      @panY = null
+      @lineX = null
+      @lineY = null
+      @ellipseX = null
+      @ellipseY = null
+      @textX = null
+      @textY = null
+
+      # TODO: could be local variables or defined with better names
+      @cx2 = null
+      @cy2 = null
+
       @cursor = null
       @cursorRadius = 4
       @slides = null
@@ -39,7 +54,10 @@ define [
       @currentLine = null
       @currentRect = null
       @currentEllipse = null
+      @currentText = null
       @zoomLevel = 1
+      @shiftPressed = false
+      @currentPathCount = 0
       $(window).on "resize", _.bind(@onWindowResize, @)
       # TODO: at this point the dimensions of @container are 0
       @updateContainerDimensions()
@@ -56,6 +74,7 @@ define [
       @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
       @cursor = @raphaelObj.circle(0, 0, @cursorRadius)
       @cursor.attr "fill", "red"
+
       # TODO $(@cursor.node).bind "mousewheel", zoomSlide
       if @slides
         @rebuild()
@@ -80,6 +99,8 @@ define [
     updateContainerDimensions: ->
       @containerWidth = $(@container).innerWidth()
       @containerHeight = $(@container).innerHeight()
+      @containerOffsetLeft = @container.offsetLeft
+      @containerOffsetTop = @container.offsetTop
       # TODO: temporary solution
       @containerWidth or= 800
       @containerHeight or= 600
@@ -127,7 +148,8 @@ define [
         img.toBack()
       else
         img.hide()
-      # TODO img.mousemove onCursorMove
+      $(@container).on "mousemove", _.bind(@_onCursorMove, @)
+      # img.mousemove _.bind(@_onCursorMove, @)
       # TODO $(img.node).bind "mousewheel", zoomSlide
       @trigger('paper:image:added', img)
       img
@@ -210,6 +232,37 @@ define [
       # force the slice attribute despite Raphael changing it
       @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
 
+    # Switches the tool and thus the functions that get
+    # called when certain events are fired from Raphael.
+    # @param  {string} tool the tool to turn on
+    # @return {undefined}
+    setCurrentTool: (tool) ->
+      @currentTool = tool
+      console.log "setting current tool to", tool
+      switch tool
+        when "line"
+          @cursor.undrag()
+          @cursor.drag _.bind(@_lineDragging, @),
+            _.bind(@_lineDragStart, @), _.bind(@_lineDragStop, @)
+        when "rect"
+          @cursor.undrag()
+          @cursor.drag _.bind(@_rectDragging, @),
+            _.bind(@_rectDragStart, @), _.bind(@_rectDragStop, @)
+        when "panzoom"
+          @cursor.undrag()
+          @cursor.drag _.bind(@_panDragging, @),
+            _.bind(@_panGo, @), _.bind(@_panStop, @)
+        when "ellipse"
+          @cursor.undrag()
+          @cursor.drag _.bind(@_ellipseDragging, @),
+            _.bind(@_ellipseDragStart, @), _.bind(@_ellipseDragStop, @)
+        when "text"
+          @cursor.undrag()
+          @cursor.drag _.bind(@_rectDragging, @),
+            _.bind(@_textStart, @), _.bind(@_textStop, @)
+        else
+          console.log "ERROR: Cannot set invalid tool:", tool
+
     # Sets the fit to page.
     # @param {boolean} value If true fit to page. If false fit to width.
     # TODO: not really working as it should be
@@ -255,6 +308,16 @@ define [
       if @currentShapes?
         @currentShapes.forEach (element) ->
           element.remove()
+
+    stopPanning: ->
+      # nothing to do
+
+    # The server has said the text is finished,
+    # so set it to null for the next text object
+    textDone: ->
+      if @currentText?
+        @currentText = null
+        @currentRect.hide() if @currentRect?
 
     # Draws an array of shapes to the paper.
     # @param  {array} shapes the array of shapes to draw
@@ -502,7 +565,270 @@ define [
 
     # zoomSlide: ->
     #   ???
-    # onCursorMove: ->
-      # ??
+
+    # Called when the cursor is moved over the presentation.
+    # Sends cursor moving event to server.
+    # @param  {Event} e the mouse event
+    # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
+    # @param  {number} y the y value of cursor at the time in relation to the top of the browser
+    _onCursorMove: (e, x, y) ->
+      sx = (@containerWidth - @gw) / 2
+      sy = (@containerHeight - @gh) / 2
+      xLocal = (e.pageX - sx - @containerOffsetLeft + @cx) / @sw
+      yLocal = (e.pageY - sy - @containerOffsetTop + @cy) / @sh
+      globals.connection.emitMoveCursor xLocal, yLocal
+
+    # When the user is dragging the cursor (click + move)
+    # @param  {number} dx the difference between the x value from panGo and now
+    # @param  {number} dy the difference between the y value from panGo and now
+    _panDragging: (dx, dy) ->
+      sx = (@containerWidth - @gw) / 2
+      sy = (@containerHeight - @gh) / 2
+
+      # ensuring that we cannot pan outside of the boundaries
+      x = (@panX - dx)
+      # cannot pan past the left edge of the page
+      x = (if x < 0 then 0 else x)
+      y = (@panY - dy)
+      # cannot pan past the top of the page
+      y = (if y < 0 then 0 else y)
+      if @fitToPage
+        x2 = @gw + x
+      else
+        x2 = @containerWidth + x
+      # cannot pan past the width
+      x = (if x2 > @sw then @sw - (@containerWidth - sx * 2) else x)
+      if @fitToPage
+        y2 = @gh + y
+      else
+        # height of image could be greater (or less) than the box it fits in
+        y2 = @containerHeight + y
+      # cannot pan below the height
+      y = (if y2 > @sh then @sh - (@containerHeight - sy * 2) else y)
+      globals.connection.emitPaperUpdate x / @sw, y / @sh, null, null
+
+    # When panning starts
+    # @param  {number} x the x value of the cursor
+    # @param  {number} y the y value of the cursor
+    _panGo: (x, y) ->
+      @panX = @cx
+      @panY = @cy
+
+    # When panning finishes
+    # @param  {Event} e the mouse event
+    _panStop: (e) ->
+      @stopPanning()
+
+    # When dragging for drawing lines starts
+    # @param  {number} x the x value of the cursor
+    # @param  {number} y the y value of the cursor
+    _lineDragStart: (x, y) ->
+      # find the x and y values in relation to the whiteboard
+      sx = (@containerWidth - @gw) / 2
+      sy = (@containerHeight - @gh) / 2
+      @lineX = x - @containerOffsetLeft - sx + @cx
+      @lineY = y - @containerOffsetTop - sy + @cy
+      values = [ @lineX / @sw, @lineY / @sh, @currentColour, @currentThickness ]
+      globals.connection.emitMakeShape "line", values
+
+    # As line drawing drag continues
+    # @param  {number} dx the difference between the x value from _lineDragStart and now
+    # @param  {number} dy the difference between the y value from _lineDragStart and now
+    # @param  {number} x  the x value of the cursor
+    # @param  {number} y  the y value of the cursor
+    _lineDragging: (dx, dy, x, y) ->
+      sx = (@containerWidth - @gw) / 2
+      sy = (@containerHeight - @gh) / 2
+      # find the x and y values in relation to the whiteboard
+      @cx2 = x - @containerOffsetLeft - sx + @cx
+      @cy2 = y - @containerOffsetTop - sy + @cy
+      if @shiftPressed
+        globals.connection.emitUpdateShape "line", [ @cx2 / @sw, @cy2 / @sh, false ]
+      else
+        @currentPathCount++
+        if @currentPathCount < MAX_PATHS_IN_SEQUENCE
+          globals.connection.emitUpdateShape "line", [ @cx2 / @sw, @cy2 / @sh, true ]
+        else if @currentLine?
+          @currentPathCount = 0
+          # save the last path of the line
+          @currentLine.attrs.path.pop()
+          path = @currentLine.attrs.path.join(" ")
+          @currentLine.attr path: (path + "L" + @lineX + " " + @lineY)
+
+          # scale the path appropriately before sending
+          pathStr = @currentLine.attrs.path.join(",")
+          globals.connection.emitPublishShape "path",
+            [ Utils.stringToScaledPath(pathStr, 1 / @gw, 1 / @gh),
+              @currentColour, @currentThickness ]
+          globals.connection.emitMakeShape "line",
+            [ @lineX / @sw, @lineY / @sh, @currentColour, @currentThickness ]
+        @lineX = @cx2
+        @lineY = @cy2
+
+    # Drawing line has ended
+    # @param  {Event} e the mouse event
+    _lineDragStop: (e) ->
+      if @currentLine?
+        path = @currentLine.attrs.path
+        @currentLine = null # any late updates will be blocked by this
+        # scale the path appropriately before sending
+        globals.connection.emitPublishShape "path",
+          [ Utils.stringToScaledPath(path.join(","), 1 / @gw, 1 / @gh),
+            @currentColour, @currentThickness ]
+
+    # Creating a rectangle has started
+    # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
+    # @param  {number} y the y value of cursor at the time in relation to the top of the browser
+    _rectDragStart: (x, y) ->
+      sx = (@containerWidth - @gw) / 2
+      sy = (@containerHeight - @gh) / 2
+      # find the x and y values in relation to the whiteboard
+      @cx2 = (x - @containerOffsetLeft - sx + @cx) / @sw
+      @cy2 = (y - @containerOffsetTop - sy + @cy) / @sh
+      globals.connection.emitMakeShape "rect",
+        [ @cx2, @cy2, @currentColour, @currentThickness ]
+
+    # Adjusting rectangle continues
+    # @param  {number} dx the difference in the x value at the start as opposed to the x value now
+    # @param  {number} dy the difference in the y value at the start as opposed to the y value now
+    # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
+    # @param  {number} y the y value of cursor at the time in relation to the top of the browser
+    # @param  {Event} e  the mouse event
+    _rectDragging: (dx, dy, x, y, e) ->
+      # if shift is pressed, make it a square
+      dy = dx if @shiftPressed
+      dx = dx / @sw
+      dy = dy / @sh
+      # adjust for negative values as well
+      if dx >= 0
+        x1 = @cx2
+      else
+        x1 = @cx2 + dx
+        dx = -dx
+      if dy >= 0
+        y1 = @cy2
+      else
+        y1 = @cy2 + dy
+        dy = -dy
+      globals.connection.emitUpdateShape "rect", [ x1, y1, dx, dy ]
+
+    # When rectangle finished being drawn
+    # @param  {Event} e the mouse event
+    _rectDragStop: (e) ->
+      if @currentRect?
+        attrs = undefined
+        attrs = @currentRect.attrs if @currentRect
+        if attrs?
+          globals.connection.emitPublishShape "rect",
+            [ attrs.x / @gw, attrs.y / @gh, attrs.width / @gw, attrs.height / @gh,
+              @currentColour, @currentThickness ]
+      @currentRect = null
+
+    # When first starting drawing the ellipse
+    # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
+    # @param  {number} y the y value of cursor at the time in relation to the top of the browser
+    _ellipseDragStart: (x, y) ->
+      sx = (@containerWidth - @gw) / 2
+      sy = (@containerHeight - @gh) / 2
+      # find the x and y values in relation to the whiteboard
+      @ellipseX = (x - @containerOffsetLeft - sx + @cx)
+      @ellipseY = (y - @containerOffsetTop - sy + @cy)
+      globals.connection.emitMakeShape "ellipse",
+        [ @ellipseX / @sw, @ellipseY / @sh, @currentColour, @currentThickness ]
+
+    # When first starting to draw an ellipse
+    # @param  {number} dx the difference in the x value at the start as opposed to the x value now
+    # @param  {number} dy the difference in the y value at the start as opposed to the y value now
+    # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
+    # @param  {number} y the y value of cursor at the time in relation to the top of the browser
+    # @param  {Event} e   the mouse event
+    _ellipseDragging: (dx, dy, x, y, e) ->
+      # if shift is pressed, draw a circle instead of ellipse
+      dy = dx if @shiftPressed
+      dx = dx / 2
+      dy = dy / 2
+      # adjust for negative values as well
+      x = @ellipseX + dx
+      y = @ellipseY + dy
+      dx = (if dx < 0 then -dx else dx)
+      dy = (if dy < 0 then -dy else dy)
+      globals.connection.emitUpdateShape "ellipse",
+        [ x / @sw, y / @sh, dx / @sw, dy / @sh ]
+
+    # When releasing the mouse after drawing the ellipse
+    # @param  {Event} e the mouse event
+    _ellipseDragStop: (e) ->
+      attrs = undefined
+      attrs = @currentEllipse.attrs if @currentEllipse?
+      if attrs?
+        globals.connection.emitPublishShape "ellipse",
+          [ attrs.cx / @gw, attrs.cy / @gh, attrs.rx / @gw, attrs.ry / @gh,
+            @currentColour, @currentThickness ]
+      @currentEllipse = null # late updates will be blocked by this
+
+    # When first dragging the mouse to create the textbox size
+    # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
+    # @param  {number} y the y value of cursor at the time in relation to the top of the browser
+    _textStart: (x, y) ->
+      if @currentText?
+        globals.connection.emitPublishShape "text",
+          [ @textbox.value, @currentText.attrs.x / @gw, @currentText.attrs.y / @gh,
+            @textbox.clientWidth, 16, @currentColour, "Arial", 14 ]
+        globals.connection.emitTextDone()
+      @textbox.value = ""
+      @textbox.style.visibility = "hidden"
+      @textX = x
+      @textY = y
+      sx = (@containerWidth - @gw) / 2
+      sy = (@containerHeight - @gh) / 2
+      @cx2 = (x - @containerOffsetLeft - sx + @cx) / @sw
+      @cy2 = (y - @containerOffsetTop - sy + @cy) / @sh
+      @makeRect @cx2, @cy2, "#000", 1
+      globals.connection.emitMakeShape "rect", [ @cx2, @cy2, "#000", 1 ]
+
+    # Finished drawing the rectangle that the text will fit into
+    # @param  {Event} e the mouse event
+    _textStop: (e) ->
+      @currentRect.hide() if @currentRect?
+      tboxw = (e.pageX - @textX)
+      tboxh = (e.pageY - @textY)
+      if tboxw >= 14 or tboxh >= 14 # restrict size
+        @textbox.style.width = tboxw * (@gw / @sw) + "px"
+        @textbox.style.visibility = "visible"
+        @textbox.style["font-size"] = 14 + "px"
+        @textbox.style["fontSize"] = 14 + "px" # firefox
+        @textbox.style.color = @currentColour
+        @textbox.value = ""
+        sx = (@containerWidth - @gw) / 2
+        sy = (@containerHeight - @gh) / 2
+        x = @textX - @containerOffsetLeft - sx + @cx + 1 # 1px random padding
+        y = @textY - @containerOffsetTop - sy + @cy
+        @textbox.focus()
+
+        # if you click outside, it will automatically sumbit
+        @textbox.onblur = (e) =>
+          if @currentText
+            globals.connection.emitPublishShape "text",
+              [ @value, @currentText.attrs.x / @gw, @currentText.attrs.y / @gh,
+                @textbox.clientWidth, 16, @currentColour, "Arial", 14 ]
+            globals.connection.emitTextDone()
+          @textbox.value = ""
+          @textbox.style.visibility = "hidden"
+
+        # if user presses enter key, then automatically submit
+        @textbox.onkeypress = (e) ->
+          if e.keyCode is "13"
+            e.preventDefault()
+            e.stopPropagation()
+            @onblur()
+
+        # update everyone with the new text at every change
+        _paper = @
+        @textbox.onkeyup = (e) ->
+          @style.color = _paper.currentColour
+          @value = @value.replace(/\n{1,}/g, " ").replace(/\s{2,}/g, " ")
+          globals.connection.emitUpdateShape "text",
+            [ @value, x / _paper.sw, (y + (14 * (_paper.sh / _paper.gh))) / _paper.sh,
+              tboxw * (_paper.gw / _paper.sw), 16, _paper.currentColour, "Arial", 14 ]
 
   WhiteboardPaperModel
