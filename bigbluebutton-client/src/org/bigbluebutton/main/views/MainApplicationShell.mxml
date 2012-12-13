@@ -62,7 +62,7 @@
 			import mx.core.UIComponent;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
-			
+			import flash.geom.Point;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -103,7 +103,8 @@
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 			[Bindable] private var logs_icon:Class = images.table;
 			[Bindable] private var reset_layout_icon:Class = images.layout;
-
+      [Bindable] private var statsIcon:Class = images.bandwidth;
+      
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
 			
@@ -357,7 +358,27 @@
 				if (addedBtns.contains(event.button as UIComponent))
 					addedBtns.removeChild(event.button as UIComponent);
 			}
+
+			private var networkStatsWindow:NetworkStatsWindow = new NetworkStatsWindow();
+
+			private function openNetworkStatsWindow(e:Event = null):void {
+				/*var btnPosition:Point = new Point(btnNetwork.x, btnNetwork.y);
+				var btnPositionOnGlobal:Point = btnNetwork.localToGlobal(btnPosition);
+				var windowPosition:Point = networkStatsWindow.globalToLocal(btnPositionOnGlobal);
+				
+				windowPosition.x += btnNetwork.width + 10;
+				windowPosition.y -= networkStatsWindow.height - 10;
+
+				networkStatsWindow.x = windowPosition.x;
+				networkStatsWindow.y = windowPosition.y;*/
+
+				networkStatsWindow.appear();
+			}
 			
+			private function closeNetworkStatsWindow(e:Event = null):void {
+				networkStatsWindow.disappear();
+			}
+
 		]]>
 	</mx:Script>
 			
@@ -374,6 +395,7 @@
     <mx:Label text="{isTunneling ? '[Tunnelling]' : ''}" id="isTunnellingLbl"/>
 		<mx:Button width="20" height="20" visible="{layoutOptions.showLogButton}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
 		<!-- mx:Button width="20" height="20" visible="{layoutOptions.showResetLayout}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" /-->
+		<mx:Button id="btnNetwork" icon="{statsIcon}" width="20" height="20" mouseOver="openNetworkStatsWindow()" mouseOut="closeNetworkStatsWindow()" />		
 		<mx:HBox id="addedBtns" />
 	</mx:ControlBar>
 </mx:VBox>
