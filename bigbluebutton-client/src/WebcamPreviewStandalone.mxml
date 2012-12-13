@@ -67,19 +67,34 @@
       private var userID:String;
                 
       private function onCreationComplete():void{
-//        _videoHolder = new UIComponent();
-//        _videoHolder.width = camWidth;
-//        _videoHolder.height = camHeight;
-//        this.addChild(_videoHolder);				
+        _videoHolder = new UIComponent();
+        _videoHolder.width = camWidth;
+        _videoHolder.height = camHeight;
+        this.addChild(_videoHolder);				
         
-//        this.minWidth = _minWidth;
-//        this.minHeight = _minHeight;
-        trace('onCreationComplete');
+        this.minWidth = _minWidth;
+        this.minHeight = _minHeight;
+
+        trace('WebcamSA::onCreationComplete');
         initExternalInterface();
+        displayCamera("0", 30, 10, 0, 90);
       }
       
       private function initExternalInterface():void {
-        trace('initExternalInterface');
+        trace('WebcamSA::initExternalInterface');
+        if (ExternalInterface.available) {
+          ExternalInterface.addCallback("startPreviewCamera", handleStartPreviewCameraRequest);
+          ExternalInterface.addCallback("stopPreviewCamera", handleStopPreviewCamera);
+        }
+      }
+      
+      private function handleStartPreviewCameraRequest(camIndex:String, camKeyFrameInterval:int, camModeFps:Number, 
+                                                                        camQualityBandwidth:int, camQualityPicture:int):void {
+        displayCamera(camIndex, camKeyFrameInterval, camModeFps, camQualityBandwidth, camQualityPicture);
+      }
+      
+      private function handleStopPreviewCamera():void {
+        stopCamera();
       }
       
       public function handleUserTalkingEvent(event:CoreEvent):void {
@@ -95,18 +110,21 @@
       }
       
       public function displayCamera(camIndex:String, camKeyFrameInterval:int, camModeFps:Number, camQualityBandwidth:int, camQualityPicture:int):void {
+        trace('WebcamSA::displayCamera');
         stopCamera();
         
         if (Camera.names.length == 0) {
-          trace('bbb.video.publish.hint.noCamera');
+          trace('WebcamSA::bbb.video.publish.hint.noCamera');
           return;
         }
         
         _camera = Camera.getCamera(camIndex);
         if (_camera == null) {
-          trace('bbb.video.publish.hint.cantOpenCamera');
+          trace('WebcamSA::bbb.video.publish.hint.cantOpenCamera');
           return;
         }
+        
+        setResolution(camWidth, camHeight);
         
         _camera.setMotionLevel(5, 1000);
                
@@ -115,7 +133,7 @@
         _camera.setQuality(camQualityBandwidth, camQualityPicture);
         
         if (_camera.width != camWidth || _camera.height != camHeight) {
-          trace("Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
+          trace("WebcamSA::Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
           setResolution(_camera.width, _camera.height);
         }				
         
@@ -155,7 +173,7 @@
         setAspectRatio(camWidth, camHeight);        
       }
       
-      private function setAspectRatio(width:int,height:int):void {
+      private function setAspectRatio(width:int, height:int):void {
         aspectRatio = (width/height);
         this.minHeight = Math.floor((this.minWidth - PADDING_HORIZONTAL) / aspectRatio) + PADDING_VERTICAL;
       }
@@ -172,8 +190,5 @@
   <mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
   <mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
   
-  <mx:Text id="lblWarning" width="100%" textAlign="right" fontSize="14" fontWeight="bold" y="{this.height - lblWarning.height - 30}" 
-           visible="false" selectable="false" hideEffect="{dissolveOut}" showEffect="{dissolveIn}"/>
   
-  <mx:Label text="Fooo!" width="100%" height="100%" color="blue"/>
 </mx:Application>

@@ -350,7 +350,7 @@ package org.bigbluebutton.modules.videoconf.maps
       var cameraIndex:int = event.payload.cameraIndex;
       var camWidth:int = event.payload.cameraWidth;
       var camHeight:int = event.payload.cameraHeight;     
-      
+      trace("VideoEventMapDelegate::handleCameraSettings [" + cameraIndex + "," + camWidth + "," + camHeight + "]");
       var camSettings:CameraSettingsVO = new CameraSettingsVO();
       camSettings.camIndex = cameraIndex;
       camSettings.camWidth = camWidth;
