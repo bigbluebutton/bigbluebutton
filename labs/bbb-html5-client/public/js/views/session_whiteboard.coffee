@@ -6,8 +6,10 @@ define [
   'globals',
   'cs!models/whiteboard_paper',
   'text!templates/preupload_image.html',
+  'cs!views/session_whiteboard_controls',
   'colorwheel'
-], ($, _, Backbone, Raphael, globals, WhiteboardPaperModel, preuploadImageTemplate) ->
+], ($, _, Backbone, Raphael, globals, WhiteboardPaperModel,
+    preuploadImageTemplate, SessionWhiteboardControlsView) ->
 
   # TODO: this is being used for presentation and whiteboard, maybe they could be separated
 
@@ -19,17 +21,25 @@ define [
   # manage the events in the users.
   SessionWhiteboardView = Backbone.View.extend
     events:
-      "click #colour-view": "_toogleColorPicker"
+      "click #colour-view": "_toggleColorPicker"
 
     initialize: ->
       @paper = null
+      @controlsView = new SessionWhiteboardControlsView()
 
       # Bind to the event triggered when the client connects to the server
       globals.connection.bind "connection:connected",
         @_registerConnectionEvents, @
 
+    # Override the close() method so we can close the sub-views.
+    close: ->
+      @controlsView.close()
+      Backbone.View.prototype.close.call(@)
+
     # don't need to render anything, the rendering is done by SessionView.
     render: ->
+      @assign(@controlsView, "#slide-controls")
+
       @colorView = @$("#colour-view")
       @colourViewCtx = @colorView[0].getContext("2d")
       @colourText = @$("#colour-text")
@@ -41,6 +51,8 @@ define [
 
       @_drawThicknessView(DEFAULT_THICKNESS, DEFAULT_COLOUR)
       @_drawColourView(DEFAULT_COLOUR)
+
+      @
 
     _createColourPicker: ->
       unless @colourPicker
@@ -60,7 +72,7 @@ define [
       # @param  {Array} urls list of URLs to be added to the paper (after old images are removed)
       socket.on "all_slides", (urls) =>
         console.log "received all_slides", urls
-        # TODO $("#uploadStatus").text ""
+        @controlsView.clearUploadStatus()
         @paper?.removeAllImagesFromPaper()
         for url in urls
           @paper?.addImageToPaper(url[0], url[1], url[2])
@@ -141,14 +153,14 @@ define [
     # Toggles the visibility of the colour picker, which is hidden by
     # default. The picker is a RaphaelJS object, so each node of the object
     # must be shown/hidden individually.
-    _toogleColorPicker: ->
+    _toggleColorPicker: ->
       if @$("#colour-picker").is(":visible")
         @$("#colour-picker").hide()
       else
         @$("#colour-picker").show()
 
       # TODO: to use the event to test other things
-      # @paper.setZoom(1)
+      # @controlsView.setUploadStatus "msg", true
 
     _renderPaper: ->
       # have to create the paper here, in the initializer #slide doesn't exist yet

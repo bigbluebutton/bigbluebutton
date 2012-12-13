@@ -301,22 +301,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
   #   $("#thickness").bind "slide", (event, ui) ->
   #     drawThicknessView ui.value, current_colour
 
-  #   # upload without a refresh
-  #   $("#uploadForm").submit ->
-  #     $("#uploadStatus").text "Uploading..."
-  #     $(this).ajaxSubmit
-  #       error: (xhr) ->
-  #         console.log "Error: " + xhr.status
-
-  #       success: (response) ->
-
-  #     # Have to stop the form from submitting and causing refresh
-  #     false
-
-  #   # automatically upload the file if it is chosen
-  #   $("#uploadFile").change ->
-  #     $("#uploadForm").submit()
-
   # when pressing down on a key at anytime
   document.onkeydown = (event) ->
     unless event

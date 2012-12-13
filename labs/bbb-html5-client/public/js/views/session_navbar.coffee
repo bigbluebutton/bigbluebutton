@@ -59,7 +59,7 @@ define [
 
     # Go to the previous slide
     previousSlide: ->
-      globals.connection.emitPrevSlide()
+      globals.connection.emitPreviousSlide()
 
     # Go to the next slide
     nextSlide: ->

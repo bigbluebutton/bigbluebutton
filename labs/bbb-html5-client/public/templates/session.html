@@ -2,15 +2,30 @@
 <div id="layout">
 
   <div id="presentation">
-    <div id="slideAndControls">
-      <div id="slide">
-      </div>
+    <div id="slide-controls" style="clear:left">
       <canvas id="colour-view" width="12" height="12"></canvas>
       <div id="colour-picker">
         <input id="colour-text" maxlength="7" type="text">
       </div>
       <canvas id="thickness-view" width="20" height="20"></canvas>
+      <button id="slide-clean-btn">Clean</button>
+      <button id="slide-text-btn">Text</button>
+      <select>
+        <option value="14">14</option>
+      </select>
+      <button id="slide-undo-btn">Undo</button>
+      <button id="slide-fit-to-page-btn">Fit to Page</button>
+      <button id="slide-fit-to-width-btn">Fit to Width</button>
+      <div id="slide-upload-controls">
+        <p>Upload custom slides
+          <form method="post" action="/chat" enctype="multipart/form-data" id="slide-upload-form">
+            <input type="file" name="image" id="slide-upload-file">
+          </form>
+          <span id="slide-upload-status"></span>
+        </p>
+      </div>
     </div>
+    <div id="slide"></div>
   </div>
 
   <div id="users">

@@ -327,17 +327,13 @@ button:focus, textarea:focus, input:focus {
   background: -webkit-linear-gradient(top, #007fff, #005fdf);
 }
 
-#slideAndControls {
-  /*float:left;*/
-}
-
 #chat_input {
   clear: both;
   display: block;
   float: right;
 }
 
-#uploadcontrols {
+#slide-upload-controls {
 
 }
 
@@ -388,7 +384,13 @@ button:focus, textarea:focus, input:focus {
   float:right;
 }
 
-#imagecontrols form {
+#slide-controls {
+  width: 800px;
+  margin: 0 auto;
+  background: #f6f6f6;
+}
+
+#slide-controls form {
   display: inline;
 }
 
@@ -407,6 +409,7 @@ button:focus, textarea:focus, input:focus {
 }
 
 #colour-picker {
+  position: absolute;
   z-index: 9; /* over everything */
 }
 

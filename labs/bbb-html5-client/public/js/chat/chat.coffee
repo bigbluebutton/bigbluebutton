@@ -17,18 +17,4 @@ define [ "jquery", "raphael", "cs!chat/whiteboard", "cs!chat/connection" ], ($, 
   socket.on "toolChanged", (tool) ->
     Whiteboard.turnOn tool
 
-  # Received event to update the status of the upload progress
-  # @param  {string} message  update message of status of upload progress
-  # @param  {boolean} fade    true if you wish the message to automatically disappear after 3 seconds
-  socket.on "uploadStatus", (message, fade) ->
-    $("#uploadStatus").text message
-    if fade
-      setTimeout (->
-        $("#uploadStatus").text ""
-      ), 3000
-
-  # Clear the canvas drawings
-  Chat.clearCanvas = ->
-    socket.emit "clrPaper"
-
   Chat

@@ -66,8 +66,8 @@ define [
 
     # Emit an update in a fit of the whiteboard
     # @param  {boolean} true for fitToPage, false for fitToWidth
-    emitFitToPage: (fit) ->
-      @socket.emit "fitToPage", fit
+    emitFitToPage: (value) ->
+      @socket.emit "fitToPage", value
 
     # Emit a message to the server
     # @param  {string} the message
@@ -108,7 +108,7 @@ define [
       @socket.emit "nextslide"
 
     # Request the previous slide
-    emitPrevSlide: ->
+    emitPreviousSlide: ->
       @socket.emit "prevslide"
 
     # Logout of the meeting
@@ -137,5 +137,9 @@ define [
     # Emit a change in the presenter
     emitSetPresenter: (id) ->
       @socket.emit "setPresenter", id
+
+    # Emit signal to clear the canvas
+    emitClearCanvas: (id) ->
+      @socket.emit "clrPaper", id
 
   ConnectionModel
