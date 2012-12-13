@@ -294,30 +294,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
   zoomSlide = (event, delta) ->
     Connection.emitZoom delta
 
-  # Socket response - Update zoom variables and viewbox
-  # @param {number} d the delta value from the scroll event
-  # @return {undefined}
-  Whiteboard.setZoom = (d) ->
-    step = 0.05 # step size
-    if d < 0
-      zoom_level += step # zooming out
-    else
-      zoom_level -= step # zooming in
-    x = cx / sw
-    y = cy / sh
-    # cannot zoom out further than 100%
-    z = (if zoom_level > 1 then 1 else zoom_level)
-    # cannot zoom in further than 400% (1/4)
-    z = (if z < 0.25 then 0.25 else z)
-    # cannot zoom to make corner less than (x,y) = (0,0)
-    x = (if x < 0 then 0 else x)
-    y = (if y < 0 then 0 else y)
-    # cannot view more than the bottom corners
-    zz = 1 - z
-    x = (if x > zz then zz else x)
-    y = (if y > zz then zz else y)
-    Connection.emitPaperUpdate x, y, z, z # send update to all clients
-
   # c = document.getElementById("colourView")
   # tc = document.getElementById("thicknessView")
   # cptext = document.getElementById("colourText")

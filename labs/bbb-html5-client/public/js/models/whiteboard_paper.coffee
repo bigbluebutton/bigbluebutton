@@ -19,8 +19,17 @@ define [
 
     # Container must be a DOM element
     initialize: (@container) ->
-      @gw = null
-      @gh = null
+      @gw = null # TODO: description
+      @gh = null # TODO: description
+      # x-offset from top left corner as percentage of original width of paper
+      @cx = null
+      # y-offset from top left corner as percentage of original height of paper
+      @cy = null
+      # sw slide width as percentage of original width of paper
+      @sw = null
+      # sh slide height as a percentage of original height of paper
+      @sh = null
+
       @cursor = null
       @cursorRadius = 4
       @slides = null
@@ -71,6 +80,9 @@ define [
     updateContainerDimensions: ->
       @containerWidth = $(@container).innerWidth()
       @containerHeight = $(@container).innerHeight()
+      # TODO: temporary solution
+      @containerWidth or= 800
+      @containerHeight or= 600
 
     # Add an image to the paper.
     # @param {string} url the URL of the image to add to the paper
@@ -85,24 +97,24 @@ define [
         # fit it all in appropriately
         # TODO: temporary solution
         url = PRESENTATION_SERVER + url unless url.match(/http[s]?:/)
-        img = @raphaelObj.image(url, cx = 0, cy = 0, @gw = width, @gh = height)
+        img = @raphaelObj.image(url, @cx = 0, @cy = 0, @gw = width, @gh = height)
 
         # update the global variables we will need to use
-        sw = width / max # TODO: needed?
-        sh = height / max # TODO: needed?
+        @sw = width / max
+        @sh = height / max
         # sw_orig = sw
         # sh_orig = sh
       else
         # fit to width
         # assume it will fit width ways
         wr = width / @containerWidth
-        img = @raphaelObj.image(url, cx = 0, cy = 0, width / wr, height / wr)
-        sw = width / wr
-        sh = height / wr
+        img = @raphaelObj.image(url, @cx = 0, @cy = 0, width / wr, height / wr)
+        @sw = width / wr
+        @sh = height / wr
         # sw_orig = sw
         # sh_orig = sh
-        @gw = sw
-        @gh = sh
+        @gw = @sw
+        @gh = @sh
       @slides[url] =
         id: img.id
         w: width
@@ -173,18 +185,18 @@ define [
       # if updating the slide size (zooming!)
       if sw_ and sh_
         @raphaelObj.setViewBox cx_ * @gw, cy_ * @gh, sw_ * @gw, sh_ * @gh
-        sw = @gw / sw_
-        sh = @gh / sh_
+        @sw = @gw / sw_
+        @sh = @gh / sh_
       # just panning, so use old slide size values
       else
         @raphaelObj.setViewBox cx_ * @gw, cy_ * @gh, @raphaelObj._viewBox[2], @raphaelObj._viewBox[3]
 
       # update corners
-      cx = cx_ * sw
-      cy = cy_ * sh
+      @cx = cx_ * @sw
+      @cy = cy_ * @sh
       # update position of svg object in the window
-      sx = (vw - @gw) / 2
-      sy = (vh - @gh) / 2
+      sx = (@containerWidth - @gw) / 2
+      sy = (@containerHeight - @gh) / 2
       sy = 0  if sy < 0
       @raphaelObj.canvas.style.left = sx + "px"
       @raphaelObj.canvas.style.top = sy + "px"
@@ -212,6 +224,30 @@ define [
       globals.connection.emitPaperUpdate 0, 0, 1, 1
       # get the shapes to reprocess
       globals.connection.emitAllShapes()
+
+    # Socket response - Update zoom variables and viewbox
+    # @param {number} d the delta value from the scroll event
+    # @return {undefined}
+    setZoom: (d) ->
+      step = 0.05 # step size
+      if d < 0
+        @zoomLevel += step # zooming out
+      else
+        @zoomLevel -= step # zooming in
+      x = @cx / @sw
+      y = @cy / @sh
+      # cannot zoom out further than 100%
+      z = (if @zoomLevel > 1 then 1 else @zoomLevel)
+      # cannot zoom in further than 400% (1/4)
+      z = (if z < 0.25 then 0.25 else z)
+      # cannot zoom to make corner less than (x,y) = (0,0)
+      x = (if x < 0 then 0 else x)
+      y = (if y < 0 then 0 else y)
+      # cannot view more than the bottom corners
+      zz = 1 - z
+      x = (if x > zz then zz else x)
+      y = (if y > zz then zz else y)
+      globals.connection.emitPaperUpdate x, y, z, z # send update to all clients
 
     # Clear all shapes from this paper.
     clearShapes: ->

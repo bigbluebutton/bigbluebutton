@@ -24,7 +24,7 @@ define [
       console.log "swith toogle pick"
       # Whiteboard.toogleColorPicker() # TODO
       # TODO: event temporarilly being used to test things
-      # @paper.setFitToPage(if @paper.fitToPage is 0 then 1 else 0)
+      # @paper.setZoom(1)
 
     initialize: ->
       @paper = null
@@ -96,6 +96,29 @@ define [
         hperc = parseFloat(hperc, 10)
         @paper?.updatePaperFromServer xperc, yperc, wperc, hperc
 
+      # Received event to update the whiteboard between fit to width and fit to page
+      # @param  {boolean} value choice of fit: true for fit to page, false for fit to width
+      socket.on "fitToPage", (value) ->
+        @paper?.setFitToPage value
+
+      # Received event to update the zoom level of the whiteboard.
+      # @param  {number} delta amount of change in scroll wheel
+      socket.on "zoom", (delta) ->
+        @paper?.setZoom delta
+
+      # Received event to update the whiteboard size and position
+      # @param  {number} cx x-offset from top left corner as percentage of original width of paper
+      # @param  {number} cy y-offset from top left corner as percentage of original height of paper
+      # @param  {number} sw slide width as percentage of original width of paper
+      # @param  {number} sh slide height as a percentage of original height of paper
+      socket.on "paper", (cx, cy, sw, sh) ->
+        @paper?.updatePaperFromServer cx, cy, sw, sh
+
+      # Received event when the panning action finishes
+      socket.on "panStop", ->
+        # TODO: implement
+        # @paper?.panDone()
+
     # don't need to render anything, the rendering is done by SessionView.
     render: ->
       @colorView = @$("#colourView")
@@ -111,7 +134,7 @@ define [
 
     _renderPaper: ->
       # have to create the paper here, in the initializer #slide doesn't exist yet
-      @paper ?= new WhiteboardPaperModel(@$("#slide"))
+      @paper ?= new WhiteboardPaperModel(@$("#slide")[0])
       @paper.create()
 
       # events triggered when an image is added or removed from the paper
