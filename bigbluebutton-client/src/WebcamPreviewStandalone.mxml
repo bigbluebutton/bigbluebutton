@@ -22,31 +22,10 @@
 
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
 	creationComplete="onCreationComplete()"
-	backgroundColor="red"
-  pageTitle="WebcamPreview"
-	width="600" height="400"
-	layout="absolute">	
+	pageTitle="WebcamPreview" width="600" height="400" layout="absolute">	
   <mx:Script>
     <![CDATA[    
       import mx.core.UIComponent;
-      import mx.events.ResizeEvent;      
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.common.Role;
-      import org.bigbluebutton.common.events.CloseWindowEvent;
-      import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.EventConstants;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.events.CoreEvent;
-      import org.bigbluebutton.core.managers.UserManager;
-      import org.bigbluebutton.main.views.MainCanvas;
-      import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
-      import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-      import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
-      import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
-      import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
-      import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
       
       [Bindable] private var defaultWidth:Number = 320;
       [Bindable] private var defaultHeight:Number = 240;
@@ -63,9 +42,7 @@
       private var _minWidth:int = 160 + PADDING_HORIZONTAL;
       private var _minHeight:int = 120 + PADDING_VERTICAL;
       private var aspectRatio:Number = 1;
-      
-      private var userID:String;
-                
+                     
       private function onCreationComplete():void{
         _videoHolder = new UIComponent();
         _videoHolder.width = camWidth;
@@ -96,19 +73,7 @@
       private function handleStopPreviewCamera():void {
         stopCamera();
       }
-      
-      public function handleUserTalkingEvent(event:CoreEvent):void {
-        if (event.message.userID ==  userID) {
-          if (event.message.talking) {
-            notTalkingEffect.end();
-            talkingEffect.play([_videoHolder]);            
-          } else {
-            talkingEffect.end();
-            notTalkingEffect.play([_videoHolder]);
-          }
-        }
-      }
-      
+          
       public function displayCamera(camIndex:String, camKeyFrameInterval:int, camModeFps:Number, camQualityBandwidth:int, camQualityPicture:int):void {
         trace('WebcamSA::displayCamera');
         stopCamera();
@@ -152,8 +117,7 @@
           _video.y = 0;
         }				
         
-        _videoHolder.addChild(_video);
-        
+        _videoHolder.addChild(_video);        
       }
               
       private function stopCamera():void {
@@ -163,8 +127,7 @@
           _video.attachCamera(null);
           _video.clear();
           _video = null;
-        }
-        
+        }        
       }
       
       private function setResolution(width:int, height:int):void {
@@ -181,14 +144,5 @@
       
     ]]>
   </mx:Script>
-  
-  <mx:Glow id="talkingEffect" duration="500" alphaFrom="1.0" alphaTo="0.3"
-           blurXFrom="0.0" blurXTo="30.0" blurYFrom="0.0" blurYTo="30.0" color="0xFF0000"/>
-  <mx:Glow id="notTalkingEffect" duration="500" alphaFrom="0.3" alphaTo="1.0"
-           blurXFrom="30.0" blurXTo="0.0" blurYFrom="30.0" blurYTo="0.0" color="0xFF0000"/>
-  
-  <mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
-  <mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
-  
-  
+   
 </mx:Application>
