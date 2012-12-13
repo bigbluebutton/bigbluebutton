@@ -10,8 +10,8 @@ define [
   # manage the events in the navbar.
   SessionNavbarView = Backbone.View.extend
     events:
-      "click #chat-btn": "toogleChat"
-      "click #users-btn": "toogleUsers"
+      "click #chat-btn": "toggleChat"
+      "click #users-btn": "toggleUsers"
       "click #logout-btn": "logout"
       "click #prev-slide-btn": "previousSlide"
       "click #next-slide-btn": "nextSlide"
@@ -23,33 +23,32 @@ define [
     initialize: ->
       @$parentEl = null
 
-    # Ensure the status of the toogle buttons is ok
-    setToogleButtonsStatus: ->
+    # Ensure the status of the toggle buttons is ok
+    setToggleButtonsStatus: ->
       $("#chat-btn", @$el).toggleClass "active", @$parentEl.hasClass("chat-enabled")
       $("#users-btn", @$el).toggleClass "active", @$parentEl.hasClass("users-enabled")
 
+    # don't really need to render anything, the rendering is done by SessionView
     render: ->
-      # don't really need to render anything, the rendering is done by
-      # SessionView, so we just update the status of some buttons
-      @setToogleButtonsStatus()
+      @setToggleButtonsStatus()
 
-    # Toogle the visibility of the chat panel
-    toogleChat: ->
-      clearTimeout @toogleChatTimeout if @toogleChatTimeout?
+    # Toggle the visibility of the chat panel
+    toggleChat: ->
+      clearTimeout @toggleChatTimeout if @toggleChatTimeout?
       @$parentEl.toggleClass "chat-enabled"
-      @setToogleButtonsStatus()
+      @setToggleButtonsStatus()
       # TODO
-      # @toogleChatTimeout = setTimeout(->
+      # @toggleChatTimeout = setTimeout(->
       #   Whiteboard.windowResized()
       # , 510)
 
-    # Toogle the visibility of the users panel
-    toogleUsers: ->
-      clearTimeout @toogleUsersTimeout if @toogleUsersTimeout?
+    # Toggle the visibility of the users panel
+    toggleUsers: ->
+      clearTimeout @toggleUsersTimeout if @toggleUsersTimeout?
       @$parentEl.toggleClass "users-enabled"
-      @setToogleButtonsStatus()
+      @setToggleButtonsStatus()
       # TODO
-      # @toogleUsersTimeout = setTimeout(->
+      # @toggleUsersTimeout = setTimeout(->
       #   Whiteboard.windowResized()
       # , 510)
 

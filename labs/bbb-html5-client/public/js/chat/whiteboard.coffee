@@ -7,20 +7,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
 
   # $("#area").autosize()
 
-  # Toggles the visibility of the colour picker, which is hidden by
-  # default. The picker is a RaphaelJS object, so each node of the object
-  # must be shown/hidden individually.
-  # @return {undefined}
-  Whiteboard.toggleColourPicker = ->
-    if cpVisible
-      cpVisible = false
-      cp.raphael.forEach (i) ->
-        i.hide()
-    else
-      cpVisible = true
-      cp.raphael.forEach (i) ->
-        i.show()
-
   # Switches the tool and thus the functions that get
   # called when certain events are fired from Raphael.
   # @param  {string} tool the tool to turn on
@@ -306,13 +292,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
   # vh = slide_obj.clientHeight
 
 
-  # # create colour picker
-  # cp = Raphael.colorwheel(-75, -75, 75, default_colour)
-  # # hide it
-  # cp.raphael.forEach (item) -> item.hide()
-
-  # cpVisible = false
-
   # $ ->
   #   $("#thickness").slider
   #     value: 1
@@ -337,16 +316,6 @@ define [ "jquery", "raphael", "cs!chat/connection", "colorwheel" ], ($, Raphael,
   #   # automatically upload the file if it is chosen
   #   $("#uploadFile").change ->
   #     $("#uploadForm").submit()
-
-  # # when the colour picker colour changes
-  # cp.onchange = ->
-  #   drawColourView @color()
-  #   drawThicknessView current_thickness, @color()
-
-  # # when finished typing a colour into the colour text box
-  # cptext.onkeyup = ->
-  #   drawColourView @value
-  #   drawThicknessView current_thickness, @value
 
   # when pressing down on a key at anytime
   document.onkeydown = (event) ->

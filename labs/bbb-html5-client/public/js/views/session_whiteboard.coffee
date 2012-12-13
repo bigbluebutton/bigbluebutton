@@ -2,10 +2,12 @@ define [
   'jquery',
   'underscore',
   'backbone',
+  'raphael',
   'globals',
   'cs!models/whiteboard_paper',
-  'text!templates/preupload_image.html'
-], ($, _, Backbone, globals, WhiteboardPaperModel, preuploadImageTemplate) ->
+  'text!templates/preupload_image.html',
+  'colorwheel'
+], ($, _, Backbone, Raphael, globals, WhiteboardPaperModel, preuploadImageTemplate) ->
 
   # TODO: this is being used for presentation and whiteboard, maybe they could be separated
 
@@ -17,24 +19,41 @@ define [
   # manage the events in the users.
   SessionWhiteboardView = Backbone.View.extend
     events:
-      "click #colourView": "toogleColorPicker"
-
-    # Toogle the current color picker
-    toogleColorPicker: ->
-      console.log "swith toogle pick"
-      # Whiteboard.toogleColorPicker() # TODO
-      # TODO: event temporarilly being used to test things
-      # @paper.setZoom(1)
+      "click #colour-view": "_toogleColorPicker"
 
     initialize: ->
       @paper = null
 
       # Bind to the event triggered when the client connects to the server
       globals.connection.bind "connection:connected",
-        this.registerConnectionEvents, this
+        @_registerConnectionEvents, @
+
+    # don't need to render anything, the rendering is done by SessionView.
+    render: ->
+      @colorView = @$("#colour-view")
+      @colourViewCtx = @colorView[0].getContext("2d")
+      @colourText = @$("#colour-text")
+      @thicknessControl = @$("#thickness-view")
+      @thicknessControlCtx = @thicknessControl[0].getContext("2d")
+      @_createColourPicker()
+
+      @_renderPaper()
+
+      @_drawThicknessView(DEFAULT_THICKNESS, DEFAULT_COLOUR)
+      @_drawColourView(DEFAULT_COLOUR)
+
+    _createColourPicker: ->
+      unless @colourPicker
+        @$("#colour-picker").hide()
+        @colourPicker = Raphael.colorwheel(@$("#colour-picker")[0], 75)
+        @colourPicker.input(@$("#colour-text")[0])
+        @colourPicker.onchange (color) =>
+          @_drawThicknessView(null, color.hex)
+          @_drawColourView(color.hex)
+        @colourPicker.color DEFAULT_COLOUR
 
     # Registers listeners for events in the application socket.
-    registerConnectionEvents: ->
+    _registerConnectionEvents: ->
       socket = globals.connection.socket
 
       # Received event to update all the slide images
@@ -119,18 +138,17 @@ define [
         # TODO: implement
         # @paper?.panDone()
 
-    # don't need to render anything, the rendering is done by SessionView.
-    render: ->
-      @colorView = @$("#colourView")
-      @colourViewCtx = @colorView[0].getContext("2d")
-      @colourText = @$("#colourText")
-      @thicknessControl = @$("#thicknessView")
-      @thicknessControlCtx = @thicknessControl[0].getContext("2d")
+    # Toggles the visibility of the colour picker, which is hidden by
+    # default. The picker is a RaphaelJS object, so each node of the object
+    # must be shown/hidden individually.
+    _toogleColorPicker: ->
+      if @$("#colour-picker").is(":visible")
+        @$("#colour-picker").hide()
+      else
+        @$("#colour-picker").show()
 
-      @_renderPaper()
-
-      @_drawThicknessView(DEFAULT_THICKNESS, DEFAULT_COLOUR)
-      @_drawColourView(DEFAULT_COLOUR)
+      # TODO: to use the event to test other things
+      # @paper.setZoom(1)
 
     _renderPaper: ->
       # have to create the paper here, in the initializer #slide doesn't exist yet
@@ -163,12 +181,12 @@ define [
     # @param  {string} colour    the colour it should be displayed as
     # @return {undefined}
     _drawThicknessView: (thickness, colour) ->
-      @currentThickness = thickness
+      @currentThickness = thickness if thickness?
       @thicknessControlCtx.fillStyle = "#FFFFFF"
       @thicknessControlCtx.fillRect 0, 0, 20, 20
-      center = Math.round((20 - thickness + 1) / 2)
+      center = Math.round((20 - @currentThickness + 1) / 2)
       @thicknessControlCtx.fillStyle = colour
-      @thicknessControlCtx.fillRect center, center, thickness + 1, thickness + 1
+      @thicknessControlCtx.fillRect center, center, @currentThickness + 1, @currentThickness + 1
 
     # Drawing the colour viewer for client feedback.
     # No messages are sent to the server, it is

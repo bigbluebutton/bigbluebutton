@@ -3,13 +3,13 @@ html { width: 100%; height: 100%; }
 
 
 /* TODO: TEMPORARY */
-/* #colourView { */
+/* #colour-view { */
 /*   position: absolute; */
 /*   top: 10px; */
 /*   left: 10px; */
 /*   z-index: 9999; */
 /* } */
-/* #thicknessView { */
+/* #thickness-view { */
 /*   position: absolute; */
 /*   top: 50px; */
 /*   left: 50px; */
@@ -44,7 +44,7 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
   bottom: 69px;
   -moz-transition: right .5s, left .5s;
   -webkit-transition: right .5s, left .5s;
-  z-index: 1000;
+  z-index: 1;
   border-right: 1px solid #999;
   border-left: 1px solid #999;
 }
@@ -100,7 +100,7 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
   border-top: 1px solid #2f3138;
   border-bottom: 1px solid #2f3138;
   text-align: center;
-  z-index: 1001; /* over #presentation */
+  z-index: 3; /* over #presentation and sidebars */
 }
 
 #navbar a {
@@ -396,14 +396,18 @@ button:focus, textarea:focus, input:focus {
   width: 60px;
 }
 
-#colourText {
+#colour-text {
   width: 50px;
   margin-left: 5px;
 }
 
-#colourView {
+#colour-view {
   margin-left: 5px;
   cursor:pointer;
+}
+
+#colour-picker {
+  z-index: 9; /* over everything */
 }
 
 .canvas {
