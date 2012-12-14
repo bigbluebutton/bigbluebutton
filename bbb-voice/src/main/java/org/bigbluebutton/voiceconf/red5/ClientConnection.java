@@ -64,11 +64,8 @@ private static Logger log = Red5LoggerFactory.getLogger(ClientConnection.class, 
     }
 
     public void onLeaveConference() {
-	System.out.println("ESTOU AQUI + " + username + userid);
     	log.debug("Notify client that {} [{}] left the conference.", username, userid);
 	if(connection != null && connection.isConnected())
         	connection.invoke("disconnectedFromJoinVoiceConferenceCallback", new Object[] {"onUaCallClosed"});
-
-	System.out.println("PASSEI PALA INVOCACAO");
-    }
+	}
 }

@@ -50,7 +50,6 @@ package org.bigbluebutton.modules.phone.managers {
 		private var listeningOnGlobal:Boolean;
 		private var savedAudio:Boolean = false;
 					
-		
 		public function StreamManager() {			
 			dispatcher = new Dispatcher();
 		}
@@ -60,7 +59,6 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 		
 		public function initMicrophone():void {
-			LogUtil.debug("INIT O MIC");
 			mic = Microphone.getMicrophone(-1);
 			if(mic == null){
 				initWithNoMicrophone();
@@ -86,9 +84,6 @@ package org.bigbluebutton.modules.phone.managers {
 				options.echoPath = 128;
 				options.nonLinearProcessing = true;
 				mic['enhancedOptions'] = options;
-
-
-
 			} else {
 				
 			}
@@ -162,7 +157,7 @@ package org.bigbluebutton.modules.phone.managers {
 					
 		}
 		
-		private function play(playStreamName:String):void {	
+		private function play(playStreamName:String):void {		
 			incomingStream.play(playStreamName);
 		}
 		
@@ -243,12 +238,10 @@ package org.bigbluebutton.modules.phone.managers {
 		}
 			
 		public function stopStreams():void {
-					
 			LogUtil.debug("Stopping Stream(s)");
 			if(incomingStream != null) {
 				LogUtil.debug("--Stopping Incoming Stream");
 				incomingStream.play(false); 
-				
 			} else {
 				LogUtil.debug("--Incoming Stream Null");
 			}
@@ -257,7 +250,6 @@ package org.bigbluebutton.modules.phone.managers {
 				LogUtil.debug("--Stopping Outgoing Stream");
 				outgoingStream.attachAudio(null);
 				outgoingStream.close();
-				
 			} else {
 				LogUtil.debug("--Outgoing Stream Null");
 			}
@@ -265,7 +257,6 @@ package org.bigbluebutton.modules.phone.managers {
 			outgoingStream = null;
 			isCallConnected = false;
 			LogUtil.debug("Stopped Stream(s)");
-			
 		}
 
 		private function netStatus (evt:NetStatusEvent ):void {		 
@@ -297,7 +288,7 @@ package org.bigbluebutton.modules.phone.managers {
 	    }
 	        
 	    private function playStatus(event:Object):void {
-		// do nothing
+	    	// do nothing
 	    }
 		
 		private function onMetadata(event:Object):void {

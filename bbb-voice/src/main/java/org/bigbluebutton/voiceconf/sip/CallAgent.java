@@ -62,7 +62,6 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     private Boolean talking = false;
     private Boolean socketGlobal = false;
     
-
     private enum CallState {
     	UA_IDLE(0), UA_INCOMING_CALL(1), UA_OUTGOING_CALL(2), UA_ONCALL(3);    	
     	private final int state;
@@ -83,7 +82,6 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
 
     public CallAgent(SipProvider sipProvider, SipPeerProfile userProfile, AudioConferenceProvider portProvider, String clientId) {
-	System.out.println("FUI CRIADO AGORA");
         this.sipProvider = sipProvider;
         this.userProfile = userProfile;
         this.portProvider = portProvider;
@@ -121,7 +119,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 			return;
 		}    	
     	
-	setupCallerDisplayName(callerName, destination);	
+		setupCallerDisplayName(callerName, destination);	
     	userProfile.initContactAddress(sipProvider);        
         initSessionDescriptor();
         
@@ -134,9 +132,7 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         // In case of incomplete url (e.g. only 'user' is present), 
         // try to complete it.       
         destination = sipProvider.completeNameAddress(destination).toString();
-
-
-	log.debug("call {}", destination);  
+        log.debug("call {}", destination);  
         if (userProfile.noOffer) {
             call.call(destination);
         } else {
@@ -209,8 +205,6 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 	}
 	else {
 		callState = CallState.UA_IDLE; 
-		System.out.println("NAO ESTOU FALANDO");
-		System.out.println(clientId  + " eh o usuario que ta indo");
 		clientConnManager.leaveConference(clientId);
 	}
     }
@@ -314,7 +308,6 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     private void closeVoiceStreams() {        
     	log.debug("Shutting down the voice streams.");         
         if (callStream != null) {
-		System.out.println("FECHANDO AS VOICE STREAMS");
         	callStream.stop();
         	callStream = null;
         } else {
@@ -410,11 +403,9 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
         notifyListenersOfOnIncomingCallCancelled();
     }
 
-    
-
     private void notifyListenersOnCallConnected(String talkStream, String listenStream) {
     	log.debug("notifyListenersOnCallConnected for {}", clientId);
-	clientConnManager.joinConferenceSuccess(clientId, talkStream, listenStream, sipCodec.getCodecName());
+    	clientConnManager.joinConferenceSuccess(clientId, talkStream, listenStream, sipCodec.getCodecName());
     }
   
     private void notifyListenersOnOutgoingCallFailed() {
@@ -429,9 +420,9 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     }
     
     private void notifyListenersOfOnCallClosed() {
-	log.debug("notifyListenersOfOnCallClosed for {}", clientId);
+    	log.debug("notifyListenersOfOnCallClosed for {}", clientId);
     	clientConnManager.leaveConference(clientId);
-	cleanup();
+    	cleanup();
     }
     
     private void cleanup() {
@@ -440,9 +431,8 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 	    		localSocket.close();
 		}
     	} else {
-		log.debug("Trying to close un-allocated port {}", localSocket.getLocalPort());
+    		log.debug("Trying to close un-allocated port {}", localSocket.getLocalPort());
     	}
-	
     }
     
     /** Callback function called when arriving a BYE request */

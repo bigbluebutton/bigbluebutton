@@ -20,20 +20,12 @@
 * ===License Header===
 */
 package org.bigbluebutton.conference.service.voice;
-
-import org.slf4j.Logger;
-import org.red5.server.api.Red5;
-import org.bigbluebutton.conference.BigBlueButtonSession;
-import org.bigbluebutton.conference.Constants;
-import org.red5.logging.Red5LoggerFactory;
-import org.bigbluebutton.webconference.voice.ConferenceService;
-import java.util.ArrayList;
-import java.util.HashMap;
+import org.slf4j.Logger;import org.red5.server.api.Red5;import org.bigbluebutton.conference.BigBlueButtonSession;import org.bigbluebutton.conference.Constants;import org.red5.logging.Red5LoggerFactory;
+import org.bigbluebutton.webconference.voice.ConferenceService;import java.util.ArrayList;import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bigbluebutton.webconference.voice.Participant;
-
+import org.bigbluebutton.webconference.voice.Participant;
 public class VoiceService {
 	
 	private static Logger log = Red5LoggerFactory.getLogger( VoiceService.class, "bigbluebutton" );
@@ -52,7 +44,7 @@ public class VoiceService {
 			participants.put("count", 0);
 		} else {		
 			participants.put("count", p.size());
-			if (p.size() > 0) {	
+			if (p.size() > 0) {				
 				participants.put("participants", arrayListToMap(p));
 			}			
 		}

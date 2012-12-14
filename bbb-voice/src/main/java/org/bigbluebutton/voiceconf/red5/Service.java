@@ -34,8 +34,6 @@ public class Service {
     private SipPeerManager sipPeerManager;
 	
 	private MessageFormat callExtensionPattern = new MessageFormat("{0}");
-
-
     	
 	public Boolean call(String peerId, String callerName, String destination, Boolean global) {
 
@@ -68,12 +66,10 @@ public class Service {
 	}
 
 	public Boolean call(String peerId, String callerName, String destination) {
-	
-	String clientId = Red5.getConnectionLocal().getClient().getId();
+    	String clientId = Red5.getConnectionLocal().getClient().getId();
     	String userid = getUserId();
     	String username = getUsername();		
-
-	log.debug("{} is requesting to join into the conference {}", username + "[uid=" + userid + "][clientid=" + clientId + "]", destination);
+    	log.debug("{} is requesting to join into the conference {}", username + "[uid=" + userid + "][clientid=" + clientId + "]", destination);
 		
 		String extension = callExtensionPattern.format(new String[] { destination });
 		try {
@@ -92,7 +88,6 @@ public class Service {
     	String username = getUsername();		
     	log.debug("{} is requesting to hang up from the conference.", username + "[uid=" + userid + "][clientid=" + clientId + "]");
 		try {
-			System.out.println("USUARIO " + username + " saiu da conferencia AKI OI OI OI");
 			sipPeerManager.hangup(peerId, getClientId());
 			return true;
 		} catch (PeerNotFoundException e) {

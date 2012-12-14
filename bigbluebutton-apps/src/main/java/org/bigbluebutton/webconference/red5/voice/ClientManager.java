@@ -63,7 +63,6 @@ public class ClientManager implements ClientNotifier {
 		RoomInfo soi = voiceRooms.get(room);
 		if (soi != null) {
 			List<Object> list = new ArrayList<Object>();
-			
 			list.add(participant);
 			list.add(name);
 			list.add(name);

@@ -142,7 +142,7 @@ public class SipPeer implements SipRegisterAgentListener {
     	
     	SipPeerProfile callerProfile = SipPeerProfile.copy(registeredProfile);    	
     	CallAgent ca = new CallAgent(sipProvider, callerProfile, audioconfProvider, clientId);
-	ca.setClientConnectionManager(clientConnManager);
+    	ca.setClientConnectionManager(clientConnManager);
     	ca.setCallStreamFactory(callStreamFactory);
     	callManager.add(ca);
     	ca.call(callerName, destination);
@@ -172,6 +172,7 @@ public class SipPeer implements SipRegisterAgentListener {
 
     public void hangup(String clientId) {
     	log.debug( "SIPUser hangup" );
+
     	CallAgent ca = callManager.remove(clientId);
 	String destination;
 	if(ca != null) {
@@ -199,8 +200,7 @@ public class SipPeer implements SipRegisterAgentListener {
 		        }
                }
         }
-	
-     }
+    }
 
     public void unregister() {
     	log.debug( "SIPUser unregister" );

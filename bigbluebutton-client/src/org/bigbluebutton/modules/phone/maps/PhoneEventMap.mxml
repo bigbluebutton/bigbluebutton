@@ -63,7 +63,7 @@
     
     <EventHandlers type="{StopPhoneModuleEvent.STOP_PHONE_MODULE_EVENT}">       
     	<MethodInvoker generator="{PhoneEventMapDelegate}" method="removeToolbarButton"/> 
-		<MethodInvoker generator="{PhoneManager}" method="userRequestedHangup" />
+		<MethodInvoker generator="{PhoneManager}" method="userRequestedHangup"/>
     </EventHandlers>
     
     <EventHandlers type="LEAVE_VOICE_CONFERENCE_EVENT">        
@@ -113,6 +113,7 @@
 
 	
 	<EventHandlers type="{CallConnectedEvent.CALL_CONNECTED_EVENT}">     
+		<MethodInvoker generator="{PhoneEventMapDelegate}" method="disableToolbarButton"/>
 		<MethodInvoker generator="{PhoneManager}" method="callConnected" arguments="{event}"/>
     </EventHandlers>
     

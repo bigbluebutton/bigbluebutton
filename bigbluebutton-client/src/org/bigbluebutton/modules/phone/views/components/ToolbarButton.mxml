@@ -59,6 +59,8 @@
 			[Bindable] public var phoneIcon:Class = images.headsetDefaultIcon;
 			
 			private function startPhone():void {
+				// Disable the button right away to prevent the user from clicking
+				// multiple times.
 				this.enabled = false;
 				var vxml:XML = BBB.getConfigForModule("PhoneModule");
 				var phoneOptions:PhoneOptions = new PhoneOptions();
@@ -84,10 +86,6 @@
 					}
 					dispatcher.dispatchEvent(askToChangeEvent);
 				}
-					
-					
-
-				
 			}
 			
 			private function mouseOverHandler(event:MouseEvent):void {
@@ -105,8 +103,6 @@
 			}
 
 			public function userJoinedConference(joined: Boolean):void {
-				
-
 				if (joined) {
 					this.selected = true;
 					this.enabled = true;
@@ -120,9 +116,6 @@
 					phoneIcon = images.headsetDefaultIcon;
 					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
 				}
-				
-
-				
 			}
 			
 			private function noMicrophone():Boolean {

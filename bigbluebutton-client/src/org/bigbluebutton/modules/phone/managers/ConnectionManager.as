@@ -141,8 +141,6 @@ package org.bigbluebutton.modules.phone.managers {
 			event.codec = codec;
 			dispatcher.dispatchEvent(event);
 		}
-
-		
 						
 		//********************************************************************************************
 		//			

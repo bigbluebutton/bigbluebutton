@@ -116,24 +116,21 @@ package org.bigbluebutton.modules.phone.managers {
 			var uid:String = String(Math.floor(new Date().getTime()));
 			var uname:String = encodeURIComponent(UserManager.getInstance().getConference().getMyUserId() + "-" + attributes.username);
 			connectionManager.connect(uid, attributes.externUserID, uname , attributes.room, attributes.uri);
-					
 		}		
-
-		
 		
 		public function rejoin():void {
-			
 			if (!rejoining && !userHangup) {
+				// We got disconnected and it's not because the user requested it. Let's rejoin the conference.
 				LogUtil.debug("Rejoining the conference");
 				rejoining = true;
 				if(globalCall == false) {
-					joinVoice(true);
+					joinVoice(withMic);
 				}
 				else
 					joinVoiceGlobal();
 			}
 		}
-
+				
 		public function dialConference():void {
 			if(globalCall == false) {
 				LogUtil.debug("*** Talking/Listening ***");
