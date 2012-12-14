@@ -58,16 +58,24 @@ define [
       @zoomLevel = 1
       @shiftPressed = false
       @currentPathCount = 0
-      $(window).on "resize", _.bind(@onWindowResize, @)
+
+      $(window).on "resize.whiteboard_paper", _.bind(@_onWindowResize, @)
+      $(document).on "keydown.whiteboard_paper", _.bind(@_onKeyDown, @)
+      $(document).on "keyup.whiteboard_paper", _.bind(@_onKeyUp, @)
+
       # TODO: at this point the dimensions of @container are 0
       @updateContainerDimensions()
 
     # Override the close() to unbind events.
-    close: ->
-      $(window).off "resize"
-      Backbone.View.prototype.close.call(@)
+    unbindEvents: ->
+      $(window).off "resize.whiteboard_paper"
+      $(document).off "keydown.whiteboard_paper"
+      $(document).off "keyup.whiteboard_paper"
+      # TODO: other events are being used in the code and should be off() here
 
     # Initializes the paper in the page.
+    # Can't do these things in initialize() because by then some elements
+    # are not yet created in the page.
     create: ->
       # paper is embedded within the div#slide of the page.
       @raphaelObj ?= Raphael(@container, @gw, @gh)
@@ -75,7 +83,7 @@ define [
       @cursor = @raphaelObj.circle(0, 0, @cursorRadius)
       @cursor.attr "fill", "red"
 
-      # TODO $(@cursor.node).bind "mousewheel", zoomSlide
+      $(@cursor.node).on "mousewheel", _.bind(@_zoomSlide, @)
       if @slides
         @rebuild()
       else
@@ -90,10 +98,6 @@ define [
       for url of @slides
         if @slides.hasOwnProperty(url)
           @addImageToPaper url, @slides[url].w, @slides[url].h
-
-    # Called when the application window is resized.
-    onWindowResize: ->
-      @updateContainerDimensions()
 
     # Update the dimensions of the container.
     updateContainerDimensions: ->
@@ -149,7 +153,7 @@ define [
       else
         img.hide()
       $(@container).on "mousemove", _.bind(@_onCursorMove, @)
-      # img.mousemove _.bind(@_onCursorMove, @)
+      $(@container).on "mousewheel", _.bind(@_zoomSlide, @)
       # TODO $(img.node).bind "mousewheel", zoomSlide
       @trigger('paper:image:added', img)
       img
@@ -563,8 +567,11 @@ define [
         dy = textFlow(t, cell, w, x, spacing, false)
       @cursor.toFront()
 
-    # zoomSlide: ->
-    #   ???
+    # Update zoom variables on all clients
+    # @param  {Event} e the event that occurs when scrolling
+    # @param  {number} delta the speed/direction at which the scroll occurred
+    _zoomSlide: (e, delta) ->
+      globals.connection.emitZoom delta
 
     # Called when the cursor is moved over the presentation.
     # Sends cursor moving event to server.
@@ -830,5 +837,30 @@ define [
           globals.connection.emitUpdateShape "text",
             [ @value, x / _paper.sw, (y + (14 * (_paper.sh / _paper.gh))) / _paper.sh,
               tboxw * (_paper.gw / _paper.sw), 16, _paper.currentColour, "Arial", 14 ]
+
+    # Called when the application window is resized.
+    _onWindowResize: ->
+      @updateContainerDimensions()
+
+    # when pressing down on a key at anytime
+    _onKeyDown: (event) ->
+      unless event
+        keyCode = window.event.keyCode
+      else
+        keyCode = event.keyCode
+      switch keyCode
+        when 16 # shift key
+          @shiftPressed = true
+
+    # when releasing any key at any time
+    _onKeyUp: ->
+      unless event
+        keyCode = window.event.keyCode
+      else
+        keyCode = event.keyCode
+      switch keyCode
+        when 16 # shift key
+          @shiftPressed = false
+
 
   WhiteboardPaperModel

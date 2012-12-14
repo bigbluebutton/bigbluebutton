@@ -394,7 +394,7 @@ button:focus, textarea:focus, input:focus {
   display: inline;
 }
 
-#thickness {
+#thickness-slider {
   width: 60px;
 }
 

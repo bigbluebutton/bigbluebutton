@@ -34,6 +34,7 @@ define [
     # Override the close() method so we can close the sub-views.
     close: ->
       @controlsView.close()
+      @paper?.unbindEvents()
       Backbone.View.prototype.close.call(@)
 
     # don't need to render anything, the rendering is done by SessionView.
@@ -43,11 +44,18 @@ define [
       @colorView = @$("#colour-view")
       @colourViewCtx = @colorView[0].getContext("2d")
       @colourText = @$("#colour-text")
-      @thicknessControl = @$("#thickness-view")
-      @thicknessControlCtx = @thicknessControl[0].getContext("2d")
-      @_createColourPicker()
+      @thicknessView = @$("#thickness-view")
+      @thicknessViewCtx = @thicknessView[0].getContext("2d")
+      @$("#thickness-slider").slider
+        value: 1
+        min: 1
+        max: 20
+      @$("#thickness-slider").on "slide", (event, ui) =>
+        @_drawThicknessView ui.value, @currentColour
+      @$("#slide-current-text-area").autosize()
 
-      @_renderPaper()
+      @_createColourPicker()
+      @_createPaper()
 
       @_drawThicknessView(DEFAULT_THICKNESS, DEFAULT_COLOUR)
       @_drawColourView(DEFAULT_COLOUR)
@@ -64,9 +72,11 @@ define [
           @_drawColourView(color.hex)
         @colourPicker.color DEFAULT_COLOUR
 
-    _renderPaper: ->
+    _createPaper: ->
       # have to create the paper here, in the initializer #slide doesn't exist yet
-      @paper ?= new WhiteboardPaperModel(@$("#slide")[0], @$("#slide-current-text-area")[0])
+      container = @$("#slide")[0]
+      textbox = @$("#slide-current-text-area")[0]
+      @paper ?= new WhiteboardPaperModel(container, textbox)
       @paper.create()
 
       # events triggered when an image is added or removed from the paper
@@ -203,11 +213,11 @@ define [
     # @return {undefined}
     _drawThicknessView: (thickness, colour) ->
       @currentThickness = thickness if thickness?
-      @thicknessControlCtx.fillStyle = "#FFFFFF"
-      @thicknessControlCtx.fillRect 0, 0, 20, 20
+      @thicknessViewCtx.fillStyle = "#FFFFFF"
+      @thicknessViewCtx.fillRect 0, 0, 20, 20
       center = Math.round((20 - @currentThickness + 1) / 2)
-      @thicknessControlCtx.fillStyle = colour
-      @thicknessControlCtx.fillRect center, center, @currentThickness + 1, @currentThickness + 1
+      @thicknessViewCtx.fillStyle = colour
+      @thicknessViewCtx.fillRect center, center, @currentThickness + 1, @currentThickness + 1
 
     # Drawing the colour viewer for client feedback.
     # No messages are sent to the server, it is
