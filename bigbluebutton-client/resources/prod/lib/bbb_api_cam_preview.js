@@ -16,10 +16,14 @@
     /**
      * Preview user's webcam.
      */    
-    CAM_PREVIEW.previewCamera = function(camIndex, camWidth, camHeight) {
+    CAM_PREVIEW.previewCamera = function(camIndex, camWidth, camHeight, 
+                                          camKeyFrameInterval, camModeFps, 
+                                          camQualityBandwidth, camQualityPicture) {
+      console.log("CAM_PREVIEW::previewCamera [" + camIndex + "]");
       var swfObj = getSwfObj();
       if (swfObj) {
-          swfObj.previewCamera(camIndex, camWidth, camHeight);    
+          swfObj.startPreviewCamera(camIndex, camWidth, camHeight, camKeyFrameInterval, camModeFps, 
+                               camQualityBandwidth, camQualityPicture);    
       }
     }
 
@@ -32,6 +36,8 @@
           swfObj.stopPreviewCamera();    
       }
     }
+    
+    console.log("CAM_PREVIEW INITIALIZED");
         
     window.CAM_PREVIEW = CAM_PREVIEW;
 })(this);

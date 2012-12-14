@@ -25,9 +25,10 @@ $Id: $
                 pageTitle="WebcamView" width="600" height="400" layout="absolute">	
   <mx:Script>
     <![CDATA[
-   
-      import flash.net.NetConnection;     
+      import flash.net.NetConnection;
+      
       import mx.core.UIComponent;
+      import mx.utils.URLUtil;
       
       private var _video:Video;
       private var _videoHolder:UIComponent;      
@@ -54,16 +55,33 @@ $Id: $
       private function onCreationComplete():void{
         _videoHolder = new UIComponent();
         this.addChild(_videoHolder);
-        
-                
+                       
         this.minWidth = _minWidth;
         this.minHeight = _minHeight;
+        
+        Security.allowDomain(determineHTMLURL());
+        trace("WebcamViewSA:: Security.allowDomain(" + determineHTMLURL() + ");");
         
         initExternalInterface();
       }
       
+      private function determineHTMLURL():String {
+        var serverName:String = "*";
+        if(ExternalInterface.available) {
+          try {
+            var htmlURL:String = String(ExternalInterface.call("window.location.href.toString"));
+            serverName = URLUtil.getServerName(htmlURL);
+            trace("WebcamViewSA::determineHTMLURL HTML URL [" + htmlURL + "]");
+          } catch(s:Error) {
+            trace("WebcamViewSA::determineHTMLURL Cannot determine HTML URL");
+          }
+        }
+        
+        return serverName;
+      }
+      
       private function initExternalInterface():void {
-        trace('WebcamSA::initExternalInterface');
+        trace('WebcamViewSA::initExternalInterface');
         if (ExternalInterface.available) {
           ExternalInterface.addCallback("startViewCameraStream", handleStartViewCameraRequest);
           ExternalInterface.addCallback("stopViewCameraStream", handleStopViewCamera);
@@ -80,15 +98,27 @@ $Id: $
         nc.connect(url);
       }
      
+      public function onBWCheck(... rest):Number { 
+        return 0; 
+      } 
+      
+      public function onBWDone(... rest):void { 
+        var p_bw:Number; 
+        if (rest.length > 0) p_bw = rest[0]; 
+        // your application should do something here 
+        // when the bandwidth check is complete 
+        trace("WebcamViewSA:: bandwidth = " + p_bw + " Kbps."); 
+      }
+      
       private function getVideoResolution(stream:String):Array {
         var pattern:RegExp = new RegExp("(\\d+x\\d+)-([A-Za-z0-9]+)-\\d+", "");
         if (pattern.test(stream)) {
-          trace("The stream name is well formatted [" + stream + "]");
-          trace("Stream resolution is [" + pattern.exec(stream)[1] + "]");
-          trace("Userid [" + pattern.exec(stream)[2] + "]");
+          trace("WebcamViewSA:: The stream name is well formatted [" + stream + "]");
+          trace("WebcamViewSA:: Stream resolution is [" + pattern.exec(stream)[1] + "]");
+          trace("WebcamViewSA:: Userid [" + pattern.exec(stream)[2] + "]");
           return pattern.exec(stream)[1].split("x");
         } else {
-          trace("The stream name doesn't follow the pattern <width>x<height>-<userId>-<timestamp>. Using 320x240 resolution.");
+          trace("WebcamViewSA:: The stream name doesn't follow the pattern <width>x<height>-<userId>-<timestamp>. Using 320x240 resolution.");
           return "320x240".split("x");
         }
       }
@@ -103,7 +133,7 @@ $Id: $
             playWebcamStream();
             break;
           default:
-            trace("[" + event.info.code + "] for [" + _url + "]");
+            trace("WebcamViewSA:: [" + event.info.code + "] for [" + _url + "]");
             break;
         }
       }
@@ -156,11 +186,11 @@ $Id: $
       }
       
       private function onAsyncError(e:AsyncErrorEvent):void{
-        trace("VideoWindow::asyncerror " + e.toString());
+        trace("WebcamViewSA::asyncerror " + e.toString());
       }
       
       public function onMetaData(info:Object):void{
-        trace("metadata: width=" + info.width + " height=" + info.height);
+        trace("WebcamViewSA:: metadata: width=" + info.width + " height=" + info.height);
         _video.width = info.width;
         _video.height = info.height;
         setAspectRatio(info.width, info.height);
@@ -169,19 +199,19 @@ $Id: $
       private function onNetStatus(e:NetStatusEvent):void{
         switch(e.info.code){
           case "NetStream.Publish.Start":
-            trace("NetStream.Publish.Start for broadcast stream ");
+            trace("WebcamViewSA:: NetStream.Publish.Start for broadcast stream ");
             break;
           case "NetStream.Play.UnpublishNotify":
             ns.close();
             break;
           case "NetStream.Play.Start":
-            trace("Netstatus: " + e.info.code);					
+            trace("WebcamViewSA:: Netstatus: " + e.info.code);					
             break;
           case "NetStream.Play.FileStructureInvalid":
-            trace("The MP4's file structure is invalid.");
+            trace("WebcamViewSA:: The MP4's file structure is invalid.");
             break;
           case "NetStream.Play.NoSupportedTrackFound":
-            trace("The MP4 doesn't contain any supported tracks");
+            trace("WebcamViewSA:: The MP4 doesn't contain any supported tracks");
             break;
         }
       }

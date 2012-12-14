@@ -26,6 +26,7 @@
   <mx:Script>
     <![CDATA[    
       import mx.core.UIComponent;
+      import mx.utils.URLUtil;
       
       [Bindable] private var defaultWidth:Number = 320;
       [Bindable] private var defaultHeight:Number = 240;
@@ -52,40 +53,59 @@
         this.minWidth = _minWidth;
         this.minHeight = _minHeight;
 
-        trace('WebcamSA::onCreationComplete');
+        trace('WebcamPreviewSA::onCreationComplete');
+        Security.allowDomain(determineHTMLURL());
+        trace("WebcamPreviewSA:: Security.allowDomain(" + determineHTMLURL() + ");");
+        
         initExternalInterface();
 //        displayCamera("0", 30, 10, 0, 90);
       }
       
+      private function determineHTMLURL():String {
+        var serverName:String = "*";
+        if(ExternalInterface.available) {
+          try {
+            var htmlURL:String = String(ExternalInterface.call("window.location.href.toString"));
+            serverName = URLUtil.getServerName(htmlURL);
+            trace("WebcamPreviewSA::determineHTMLURL HTML URL [" + htmlURL + "]");
+          } catch(s:Error) {
+            trace("WebcamPreviewSA::determineHTMLURL Cannot determine HTML URL");
+          }
+        }
+        
+        return serverName;
+      }
+      
       private function initExternalInterface():void {
-        trace('WebcamSA::initExternalInterface');
+        trace('WebcamPreviewSA::initExternalInterface');
         if (ExternalInterface.available) {
           ExternalInterface.addCallback("startPreviewCamera", handleStartPreviewCameraRequest);
           ExternalInterface.addCallback("stopPreviewCamera", handleStopPreviewCamera);
         }
       }
       
-      private function handleStartPreviewCameraRequest(camIndex:String, camKeyFrameInterval:int, camModeFps:Number, 
+      private function handleStartPreviewCameraRequest(camIndex:String, camWidth:int, camHeight:int,
+                                                                        camKeyFrameInterval:int, camModeFps:Number, 
                                                                         camQualityBandwidth:int, camQualityPicture:int):void {
-        displayCamera(camIndex, camKeyFrameInterval, camModeFps, camQualityBandwidth, camQualityPicture);
+        displayCamera(camIndex, camWidth, camHeight, camKeyFrameInterval, camModeFps, camQualityBandwidth, camQualityPicture);
       }
       
       private function handleStopPreviewCamera():void {
         stopCamera();
       }
           
-      public function displayCamera(camIndex:String, camKeyFrameInterval:int, camModeFps:Number, camQualityBandwidth:int, camQualityPicture:int):void {
-        trace('WebcamSA::displayCamera');
+      public function displayCamera(camIndex:String, camWidth:int, camHeight:int, camKeyFrameInterval:int, camModeFps:Number, camQualityBandwidth:int, camQualityPicture:int):void {
+        trace('WebcamPreviewSA::displayCamera');
         stopCamera();
         
         if (Camera.names.length == 0) {
-          trace('WebcamSA::bbb.video.publish.hint.noCamera');
+          trace('WebcamPreviewSA::bbb.video.publish.hint.noCamera');
           return;
         }
         
         _camera = Camera.getCamera(camIndex);
         if (_camera == null) {
-          trace('WebcamSA::bbb.video.publish.hint.cantOpenCamera');
+          trace('WebcamPreviewSA::bbb.video.publish.hint.cantOpenCamera');
           return;
         }
         
@@ -98,7 +118,7 @@
         _camera.setQuality(camQualityBandwidth, camQualityPicture);
         
         if (_camera.width != camWidth || _camera.height != camHeight) {
-          trace("WebcamSA::Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
+          trace("WebcamPreviewSA::Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
           setResolution(_camera.width, _camera.height);
         }				
         

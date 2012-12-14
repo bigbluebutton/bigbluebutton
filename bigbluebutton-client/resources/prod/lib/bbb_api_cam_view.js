@@ -17,9 +17,12 @@
      * View user's webcam.
      */    
     CAM_VIEW.viewWebcamStream = function(url, streamName) {
+      console.log("CAM_VIEW::viewWebcamStream [" + url + "," + streamName + "]");
+      
       var swfObj = getSwfObj();
       if (swfObj) {
-          swfObj.viewCamera(url, streamName);    
+          console.log("CAM_VIEW::viewWebcamStream 2 [" + url + "," + streamName + "]");
+          swfObj.startViewCameraStream(url, streamName);    
       }
     }
 
@@ -29,10 +32,11 @@
     CAM_VIEW.stopViewWebcamStream = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
-          swfObj.stopViewCamera();    
+          swfObj.stopViewCameraStream();    
       }
     }
-        
+    
+    console.log("CAM_VIEW INITIALIZED");    
     window.CAM_VIEW = CAM_VIEW;
 })(this);
 

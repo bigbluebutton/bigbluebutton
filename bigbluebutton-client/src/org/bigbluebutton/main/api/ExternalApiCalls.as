@@ -1,12 +1,12 @@
 package org.bigbluebutton.main.api
 {
-  import flash.external.ExternalInterface;  
+  import flash.external.ExternalInterface;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
-
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
@@ -16,28 +16,38 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+  import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
 
   public class ExternalApiCalls { 
     
     public function handleStreamStartedEvent(event:StreamStartedEvent):void {
+      var vidConf:VideoConfOptions = new VideoConfOptions();
+      
       var payload:Object = new Object();
       payload.eventName = EventConstants.CAM_STREAM_SHARED;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.userID);
+      payload.uri = vidConf.uri;
       payload.streamName = event.stream;
       
       broadcastEvent(payload);
     }
     
     public function handleBroadcastStartedEvent(event:BroadcastStartedEvent):void {
+      var vidConf:VideoConfOptions = new VideoConfOptions();
+      
       var payload:Object = new Object();
-      payload.eventName = EventConstants.AM_I_SHARING_CAM_RESP;
+      payload.eventName = EventConstants.BROADCASTING_CAM_STARTED;
       payload.isPresenter = UsersUtil.amIPresenter();
       payload.streamName = event.stream;
       payload.isPublishing = event.camSettings.isPublishing;
       payload.camIndex = event.camSettings.camIndex;
       payload.camWidth = event.camSettings.camWidth;
       payload.camHeight = event.camSettings.camHeight;
+      payload.camKeyFrameInterval = vidConf.camKeyFrameInterval;
+      payload.camModeFps = vidConf.camModeFps;
+      payload.camQualityBandwidth = vidConf.camQualityBandwidth;
+      payload.camQualityPicture = vidConf.camQualityPicture;
       
       broadcastEvent(payload);         
     }
