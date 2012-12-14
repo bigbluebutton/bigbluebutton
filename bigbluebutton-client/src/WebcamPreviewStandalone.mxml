@@ -54,7 +54,7 @@
 
         trace('WebcamSA::onCreationComplete');
         initExternalInterface();
-        displayCamera("0", 30, 10, 0, 90);
+//        displayCamera("0", 30, 10, 0, 90);
       }
       
       private function initExternalInterface():void {

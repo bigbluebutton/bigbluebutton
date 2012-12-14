@@ -53,12 +53,21 @@ $Id: $
       
       private function onCreationComplete():void{
         _videoHolder = new UIComponent();
-        _videoHolder.addChild(_video);
         this.addChild(_videoHolder);
+        
                 
         this.minWidth = _minWidth;
         this.minHeight = _minHeight;
-
+        
+        initExternalInterface();
+      }
+      
+      private function initExternalInterface():void {
+        trace('WebcamSA::initExternalInterface');
+        if (ExternalInterface.available) {
+          ExternalInterface.addCallback("startViewCameraStream", handleStartViewCameraRequest);
+          ExternalInterface.addCallback("stopViewCameraStream", handleStopViewCamera);
+        }
       }
       
       private function connect(url:String):void {
@@ -102,13 +111,17 @@ $Id: $
       private function onSecurityError(event:NetStatusEvent):void{
       }
       
-      public function viewWebcam(url:String, stream:String):void {
+      private function handleStartViewCameraRequest(url:String, stream:String):void {
         _url = url;
         _stream = stream;
         connect(url);
       }
       
-      public function playWebcamStream():void {
+      public function handleStopViewCamera():void {
+        ns.close();
+      }
+      
+      private function playWebcamStream():void {
         ns = new NetStream(nc);
         ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
         ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
@@ -138,6 +151,7 @@ $Id: $
           _video.filters = [filter];					
         }
         
+        _videoHolder.addChild(_video);
         ns.play(_stream);       
       }
       

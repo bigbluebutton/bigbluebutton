@@ -16,7 +16,7 @@
     /**
      * View user's webcam.
      */    
-    CAM_VIEW.viewCamera = function(url, streamName) {
+    CAM_VIEW.viewWebcamStream = function(url, streamName) {
       var swfObj = getSwfObj();
       if (swfObj) {
           swfObj.viewCamera(url, streamName);    
@@ -26,7 +26,7 @@
     /**
      * Stop viewing user's webcam.
      */ 
-    CAM_VIEW.stopViewCamera = function() {
+    CAM_VIEW.stopViewWebcamStream = function() {
       var swfObj = getSwfObj();
       if (swfObj) {
           swfObj.stopViewCamera();    
