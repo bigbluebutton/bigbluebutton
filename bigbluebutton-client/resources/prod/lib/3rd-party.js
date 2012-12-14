@@ -25,6 +25,19 @@ var registerListeners = function() {
   BBB.listen("UserLockedVoiceEvent", function(bbbEvent) {
     console.log("User [" + bbbEvent.userID + "] is locked [" + bbbEvent.locked + "]");
   });
+  BBB.listen("CamStreamSharedEvent", function(bbbEvent) {
+    console.log("User CamStreamSharedEvent [" + bbbEvent.uri + "," + bbbEvent.streamName + "]");
+    CAM_VIEW.viewWebcamStream(bbbEvent.uri, bbbEvent.streamName);
+  });
+  BBB.listen("BroadcastingCameraStartedEvent", function(bbbEvent) {
+    console.log("User BroadcastingCameraStartedEvent [" + bbbEvent.camIndex + "] [" + bbbEvent.camWidth + "]");
+    CAM_PREVIEW.previewCamera(bbbEvent.camIndex, bbbEvent.camWidth, bbbEvent.camHeight, bbbEvent.camKeyFrameInterval,
+                              bbbEvent.camModeFps, bbbEvent.camQualityBandwidth, bbbEvent.camQualityPicture);
+  });
+  BBB.listen("BroadcastingCameraStoppedEvent", function(bbbEvent) {
+    console.log("User BroadcastingCameraStoppedEvent ]");
+    CAM_PREVIEW.stopPreviewCamera();
+  });
 }
 
 var leaveVoiceConference2 = function () {
@@ -48,7 +61,6 @@ var amIPresenterSync = function() {
     console.log("Am I Presenter = " + amIPresenter);
   });
 }
-
 
 var getMyRoleAsynch = function() {
   BBB.listen("GetMyRoleResponse", function(bbbEvent) {
