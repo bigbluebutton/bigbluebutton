@@ -289,7 +289,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				viewportH = (vrhp/vrwp)*parentW;				 
 				if (parentH < viewportH) {
 					viewportH = parentH;
-					viewportW = ((vrwp * viewportH)/viewportH);
+					viewportW = ((vrwp * viewportH)/vrhp);
 //					LogUtil.debug("calc viewport ***** resizing [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
 				}
 			} else {
