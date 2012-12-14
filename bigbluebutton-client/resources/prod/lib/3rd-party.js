@@ -35,6 +35,21 @@ var joinVoiceConference2 = function () {
   BBB.joinVoiceConference();
 }
 
+var amIPresenterAsync = function() {
+  BBB.listen("AmIPresenterQueryResponse", function(bbbEvent) {
+    console.log("Received AmIPresenterQueryResponse event [" + bbbEvent.amIPresenter + "]");
+  });
+
+  BBB.amIPresenter();
+}
+
+var amIPresenterSync = function() {
+  BBB.amIPresenter(function(amIPresenter) {
+    console.log("Am I Presenter = " + amIPresenter);
+  });
+}
+
+
 var getMyRoleAsynch = function() {
   BBB.listen("GetMyRoleResponse", function(bbbEvent) {
     console.log("Received GetMyRoleResponse event");
