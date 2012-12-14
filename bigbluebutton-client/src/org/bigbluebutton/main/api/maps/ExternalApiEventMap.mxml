@@ -24,6 +24,7 @@
   <mx:Script>
     <![CDATA[
       import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
       import org.bigbluebutton.main.api.ExternalApiCalls;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -52,6 +53,10 @@
   
   <EventHandlers type="{EventConstants.GET_MY_ROLE_RESP}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleGetMyRoleResponse" arguments="{event}"/>
+  </EventHandlers>
+
+  <EventHandlers type="{AmIPresenterQueryEvent.AM_I_PRESENTER_QUERY}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleAmIPresenterQueryEvent" arguments="{event}"/>
   </EventHandlers>
   
   <EventHandlers type="{UserJoinedEvent.JOINED}" >

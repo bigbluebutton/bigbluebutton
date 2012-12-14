@@ -9,6 +9,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.BBBEvent;
@@ -37,6 +38,8 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("leaveVoiceRequest", handleLeaveVoiceRequest);        
         ExternalInterface.addCallback("getMyRoleRequestSync", handleGetMyRoleRequestSync);
         ExternalInterface.addCallback("getMyRoleRequestAsync", handleGetMyRoleRequestAsynch);
+        ExternalInterface.addCallback("amIPresenterRequestSync", handleAmIPresenterRequestSync);
+        ExternalInterface.addCallback("amIPresenterRequestAsync", handleAmIPresenterRequestAsync);
         ExternalInterface.addCallback("muteMeRequest", handleMuteMeRequest);
         ExternalInterface.addCallback("unmuteMeRequest", handleUnmuteMeRequest);
         ExternalInterface.addCallback("muteAllUsersRequest", handleMuteAllUsersRequest);
@@ -50,6 +53,14 @@ package org.bigbluebutton.main.api
       }
     }
 
+    private function handleAmIPresenterRequestSync():Boolean {
+      return UsersUtil.amIPresenter();
+    }
+    
+    private function handleAmIPresenterRequestAsync():void {
+      _dispatcher.dispatchEvent(new AmIPresenterQueryEvent());
+    }
+    
     private function handleStopShareCameraRequest():void {
       _dispatcher.dispatchEvent(new ClosePublishWindowEvent());	
     }

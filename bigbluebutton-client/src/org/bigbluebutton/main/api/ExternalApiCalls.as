@@ -5,6 +5,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
+  import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.main.events.BBBEvent;
@@ -14,6 +15,13 @@ package org.bigbluebutton.main.api
 
   public class ExternalApiCalls
   {   
+    public function handleAmIPresenterQueryEvent(event:AmIPresenterQueryEvent):void {
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.AM_I_PRESENTER_RESP;
+      payload.amIPresenter = UsersUtil.amIPresenter();
+      broadcastEvent(payload);        
+    }
+    
     public function handleSwitchToNewRoleEvent(event:CoreEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.NEW_ROLE;
