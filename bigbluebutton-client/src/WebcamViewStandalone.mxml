@@ -39,6 +39,8 @@ $Id: $
       private var _minWidth:int = 160 + PADDING_HORIZONTAL;
       private var _minHeight:int = 120 + PADDING_VERTICAL;
       private var aspectRatio:Number = 1;
+      private var camWidth:Number = 320;
+      private var camHeight:Number = 240;
       
       private var _url:String;
       private var _stream:String;
@@ -54,8 +56,10 @@ $Id: $
       
       private function onCreationComplete():void{
         _videoHolder = new UIComponent();
+        _videoHolder.width = camWidth;
+        _videoHolder.height = camHeight;
         this.addChild(_videoHolder);
-                       
+        
         this.minWidth = _minWidth;
         this.minHeight = _minHeight;
         
@@ -166,6 +170,7 @@ $Id: $
         _video = new Video(Number(res[0]), Number(res[1]));
         _video.width = Number(res[0]);
         _video.height = Number(res[1]);
+        trace("WebcamViewSA:: resolution [" + _video.width + "," + _video.height + "]");
         setAspectRatio(Number(res[0]), Number(res[1])); 
         _video.attachNetStream(ns);
         
@@ -181,7 +186,10 @@ $Id: $
           _video.filters = [filter];					
         }
         
+        trace("WebcamViewSA:: adding video to video holder");
+        
         _videoHolder.addChild(_video);
+        
         ns.play(_stream);       
       }
       

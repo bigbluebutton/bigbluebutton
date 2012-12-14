@@ -27,7 +27,7 @@ package org.bigbluebutton.main.api
       var payload:Object = new Object();
       payload.eventName = EventConstants.CAM_STREAM_SHARED;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.userID);
-      payload.uri = vidConf.uri;
+      payload.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
       payload.streamName = event.stream;
       
       broadcastEvent(payload);
