@@ -15,6 +15,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.events.UserLeftEvent;
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
+  import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
@@ -31,6 +32,12 @@ package org.bigbluebutton.main.api
       payload.streamName = event.stream;
       
       broadcastEvent(payload);
+    }
+    
+    public function handleBroadcastStoppedEvent(event:BroadcastStoppedEvent):void {
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.BROADCASTING_CAM_STOPPED;
+      broadcastEvent(payload);  
     }
     
     public function handleBroadcastStartedEvent(event:BroadcastStartedEvent):void {

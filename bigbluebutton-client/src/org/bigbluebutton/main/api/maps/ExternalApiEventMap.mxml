@@ -32,6 +32,7 @@
       import org.bigbluebutton.main.events.UserJoinedEvent;
       import org.bigbluebutton.main.events.UserLeftEvent;
       import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
+      import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
       import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
     ]]>
   </mx:Script>
@@ -46,6 +47,10 @@
   
   <EventHandlers type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleBroadcastStartedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleBroadcastStoppedEvent" arguments="{event}"/>
   </EventHandlers>
   
   <EventHandlers type="{AmIPresenterQueryEvent.AM_I_PRESENTER_QUERY}" >

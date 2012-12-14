@@ -151,7 +151,19 @@ $Id: $
         connect(url);
       }
       
-      public function handleStopViewCamera():void {
+      private function handleStopViewCamera():void {
+        stopViewing();
+      }
+      
+      private function stopViewing():void {
+        if (_video != null) {
+          trace("WebcamViewSA:: removing video from holder");
+          _videoHolder.removeChild(_video);
+          _video.clear();
+          _video = null;
+        }
+        _videoHolder.visible = false;
+        trace("WebcamViewSA:: closing stream");
         ns.close();
       }
       
@@ -190,6 +202,7 @@ $Id: $
         
         _videoHolder.addChild(_video);
         
+        _videoHolder.visible = true;
         ns.play(_stream);       
       }
       
@@ -207,10 +220,11 @@ $Id: $
       private function onNetStatus(e:NetStatusEvent):void{
         switch(e.info.code){
           case "NetStream.Publish.Start":
-            trace("WebcamViewSA:: NetStream.Publish.Start for broadcast stream ");
+            trace("WebcamViewSA:: NetStream.Publish.Start");
             break;
           case "NetStream.Play.UnpublishNotify":
-            ns.close();
+            trace("WebcamViewSA:: NetStream.Play.UnpublishNotify");
+            stopViewing();
             break;
           case "NetStream.Play.Start":
             trace("WebcamViewSA:: Netstatus: " + e.info.code);					
