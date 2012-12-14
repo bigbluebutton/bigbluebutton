@@ -19,7 +19,26 @@
         swfObj.switchPresenterRequest(newPresenterUserID);
       }    
     }
-        
+
+    /**
+     * Query the Flash client if user is presenter.
+     * Params:
+     *    callback - function if you want a callback as response. Otherwise, you need to listen
+     *               for the response as an event.
+     */
+    BBB.amIPresenter = function(callback) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        if (arguments.length == 0) {
+          swfObj.amIPresenterRequestAsync();
+        } else {
+          if (typeof callback === 'function') {
+            callback(swfObj.amIPresenterRequestSync());
+          }
+        }
+      }
+    }
+            
     /**
      * Query the Flash client for the user's role.
      * Params:

@@ -6,6 +6,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
+
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
@@ -15,6 +16,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.model.users.BBBUser;
   import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+
 
   public class ExternalApiCalls { 
     
@@ -53,6 +55,7 @@ package org.bigbluebutton.main.api
       broadcastEvent(payload);        
     }
     
+
     public function handleAmIPresenterQueryEvent(event:AmIPresenterQueryEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.AM_I_PRESENTER_RESP;

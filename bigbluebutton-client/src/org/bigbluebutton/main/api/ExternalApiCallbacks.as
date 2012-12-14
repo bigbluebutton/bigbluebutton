@@ -8,6 +8,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
+
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
@@ -53,6 +54,7 @@ package org.bigbluebutton.main.api
       }
     }
 
+
     private function handleAmISharingCameraRequestSync():Object {
       var obj:Object = new Object();
       var camSettings:CameraSettingsVO = UsersUtil.amIPublishing();
@@ -68,6 +70,7 @@ package org.bigbluebutton.main.api
       _dispatcher.dispatchEvent(new AmISharingWebcamQueryEvent());
     }
     
+
     private function handleAmIPresenterRequestSync():Boolean {
       return UsersUtil.amIPresenter();
     }
@@ -75,7 +78,7 @@ package org.bigbluebutton.main.api
     private function handleAmIPresenterRequestAsync():void {
       _dispatcher.dispatchEvent(new AmIPresenterQueryEvent());
     }
-    
+
     private function handleStopShareCameraRequest():void {
       _dispatcher.dispatchEvent(new ClosePublishWindowEvent());	
     }
