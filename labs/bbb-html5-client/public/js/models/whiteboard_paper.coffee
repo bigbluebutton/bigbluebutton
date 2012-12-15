@@ -64,7 +64,7 @@ define [
       $(document).on "keyup.whiteboard_paper", _.bind(@_onKeyUp, @)
 
       # TODO: at this point the dimensions of @container are 0
-      @updateContainerDimensions()
+      @_updateContainerDimensions()
 
     # Override the close() to unbind events.
     unbindEvents: ->
@@ -98,16 +98,6 @@ define [
       for url of @slides
         if @slides.hasOwnProperty(url)
           @addImageToPaper url, @slides[url].w, @slides[url].h
-
-    # Update the dimensions of the container.
-    updateContainerDimensions: ->
-      @containerWidth = $(@container).innerWidth()
-      @containerHeight = $(@container).innerHeight()
-      @containerOffsetLeft = @container.offsetLeft
-      @containerOffsetTop = @container.offsetTop
-      # TODO: temporary solution
-      @containerWidth or= 800
-      @containerHeight or= 600
 
     # Add an image to the paper.
     # @param {string} url the URL of the image to add to the paper
@@ -167,23 +157,6 @@ define [
       @slides = {}
       @currentUrl = null
 
-    # Retrieves an image element from the paper.
-    # The url must be in the slides array.
-    # @param  {string} url        the url of the image (must be in slides array)
-    # @return {Raphael.image}     return the image or null if not found
-    getImageFromPaper: (url) ->
-      if @slides[url]
-        id = @slides[url].id
-        return @raphaelObj.getById(id) if id?
-      null
-
-    # Hides an image from the paper given the URL.
-    # The url must be in the slides array.
-    # @param  {string} url the url of the image (must be in slides array)
-    hideImageFromPaper: (url) ->
-      img = @getImageFromPaper(url)
-      img.hide() if img?
-
     # Shows an image from the paper.
     # The url must be in the slides array.
     # @param  {string} url the url of the image (must be in slides array)
@@ -191,14 +164,14 @@ define [
       unless @currentUrl is url
         # TODO: temporary solution
         url = PRESENTATION_SERVER + url unless url.match(/http[s]?:/)
-        @hideImageFromPaper @currentUrl
-        next = @getImageFromPaper(url)
+        @_hideImageFromPaper @currentUrl
+        next = @_getImageFromPaper(url)
         if next
           next.show()
           next.toFront()
           @currentShapes.forEach (element) ->
             element.toFront()
-          @bringCursorToFront()
+          @_bringCursorToFront()
         @currentUrl = url
 
     # Updates the paper from the server values.
@@ -306,13 +279,6 @@ define [
       y = (if y > zz then zz else y)
       globals.connection.emitPaperUpdate x, y, z, z # send update to all clients
 
-    # Clear all shapes from this paper.
-    clearShapes: ->
-      console.log "clearing shapes", @currentShapes
-      if @currentShapes?
-        @currentShapes.forEach (element) ->
-          element.remove()
-
     stopPanning: ->
       # nothing to do
 
@@ -331,28 +297,28 @@ define [
         data = JSON.parse(shape.data)
         switch shape.shape
           when "path"
-            @drawLine.apply @, data
+            @_drawLine.apply @, data
           when "rect"
-            @drawRect.apply @, data
+            @_drawRect.apply @, data
           when "ellipse"
-            @drawEllipse.apply @, data
+            @_drawEllipse.apply @, data
           when "text"
-            @drawText.apply @, data
+            @_drawText.apply @, data
 
       # make sure the cursor is still on top
-      @bringCursorToFront()
+      @_bringCursorToFront()
 
     # Updated a shape `shape` with the data in `data`.
     updateShape: (shape, data) ->
       switch shape
         when "line"
-          @updateLine.apply @, data
+          @_updateLine.apply @, data
         when "rect"
-          @updateRect.apply @, data
+          @_updateRect.apply @, data
         when "ellipse"
-          @updateEllipse.apply @, data
+          @_updateEllipse.apply @, data
         when "text"
-          @updateText.apply @, data
+          @_updateText.apply @, data
         else
           console.log "shape not recognized at updateShape", shape
 
@@ -360,11 +326,11 @@ define [
     makeShape: (shape, data) ->
       switch shape
         when "line"
-          @makeLine.apply @, data
+          @_makeLine.apply @, data
         when "rect"
-          @makeRect.apply @, data
+          @_makeRect.apply @, data
         when "ellipse"
-          @makeEllipse.apply @, data
+          @_makeEllipse.apply @, data
         else
           console.log "shape not recognized at makeShape", shape
 
@@ -376,15 +342,49 @@ define [
         cx: x * @gw
         cy: y * @gh
 
+    # Update the dimensions of the container.
+    _updateContainerDimensions: ->
+      @containerWidth = $(@container).innerWidth()
+      @containerHeight = $(@container).innerHeight()
+      @containerOffsetLeft = @container.offsetLeft
+      @containerOffsetTop = @container.offsetTop
+      # TODO: temporary solution
+      @containerWidth or= 800
+      @containerHeight or= 600
+
+    # Retrieves an image element from the paper.
+    # The url must be in the slides array.
+    # @param  {string} url        the url of the image (must be in slides array)
+    # @return {Raphael.image}     return the image or null if not found
+    _getImageFromPaper: (url) ->
+      if @slides[url]
+        id = @slides[url].id
+        return @raphaelObj.getById(id) if id?
+      null
+
+    # Hides an image from the paper given the URL.
+    # The url must be in the slides array.
+    # @param  {string} url the url of the image (must be in slides array)
+    _hideImageFromPaper: (url) ->
+      img = @_getImageFromPaper(url)
+      img.hide() if img?
+
+    # Clear all shapes from this paper.
+    _clearShapes: ->
+      console.log "clearing shapes", @currentShapes
+      if @currentShapes?
+        @currentShapes.forEach (element) ->
+          element.remove()
+
     # Puts the cursor on top so it doesn't get hidden behind any objects.
-    bringCursorToFront: ->
+    _bringCursorToFront: ->
       @cursor.toFront()
 
     # Drawing a line from the list o
     # @param  {string} path      height of the shape as a percentage of the original height
     # @param  {string} colour    the colour of the shape to be drawn
     # @param  {number} thickness the thickness of the line to be drawn
-    drawLine: (path, colour, thickness) ->
+    _drawLine: (path, colour, thickness) ->
       line = @raphaelObj.path(Utils.stringToScaledPath(path, @gw, @gh))
       line.attr
         stroke: colour
@@ -399,7 +399,7 @@ define [
     # @param  {string} colour    the colour of the object
     # @param  {number} thickness the thickness of the object's line(s)
     # TODO: not tested yet
-    drawRect: (x, y, w, h, colour, thickness) ->
+    _drawRect: (x, y, w, h, colour, thickness) ->
       r = @raphaelObj.rect(x * @gw, y * @gh, w * @gw, h * @gh)
       if colour
         r.attr
@@ -415,7 +415,7 @@ define [
     # @param  {string} colour    the colour of the object
     # @param  {number} thickness the thickness of the object's line(s)
     # TODO: not tested yet
-    drawEllipse: (cx, cy, rx, ry, colour, thickness) ->
+    _drawEllipse: (cx, cy, rx, ry, colour, thickness) ->
       elip = @raphaelObj.ellipse(cx * @gw, cy * @gh, rx * @gw, ry * @gh)
       if colour
         elip.attr
@@ -433,7 +433,7 @@ define [
     # @param  {string} font     the font family of the text
     # @param  {number} fontsize the size of the font (in PIXELS)
     # TODO: not tested yet
-    drawText: (t, x, y, w, spacing, colour, font, fontsize) ->
+    _drawText: (t, x, y, w, spacing, colour, font, fontsize) ->
       x = x * @gw
       y = y * @gh
       txt = @raphaelObj.text(x, y, "").attr(
@@ -452,7 +452,7 @@ define [
     # @param  {string} colour    the colour of the shape to be drawn
     # @param  {number} thickness the thickness of the line to be drawn
     # TODO: not tested yet
-    makeLine: (x, y, colour, thickness) ->
+    _makeLine: (x, y, colour, thickness) ->
       x *= @gw
       y *= @gh
       @currentLine = @raphaelObj.path("M" + x + " " + y + "L" + x + " " + y)
@@ -468,7 +468,7 @@ define [
     # @param  {string} colour    the colour of the object
     # @param  {number} thickness the thickness of the object's line(s)
     # TODO: not tested yet
-    makeRect: (x, y, colour, thickness) ->
+    _makeRect: (x, y, colour, thickness) ->
       @currentRect = @raphaelObj.rect(x * @gw, y * @gh, 0, 0)
       if colour
         @currentRect.attr
@@ -482,7 +482,7 @@ define [
     # @param  {string} colour    the colour of the object
     # @param  {number} thickness the thickness of the object's line(s)
     # TODO: not tested yet
-    makeEllipse: (cx, cy, colour, thickness) ->
+    _makeEllipse: (cx, cy, colour, thickness) ->
       @currentEllipse = @raphaelObj.ellipse(cx * @gw, cy * @gh, 0, 0)
       if colour
         @currentEllipse.attr
@@ -495,7 +495,7 @@ define [
     # @param  {number} y2  the next y point to be added to the line as a percentage of the original height
     # @param  {boolean} add true if the line should be added to the current line, false if it should replace the last point
     # TODO: not tested yet
-    updateLine: (x2, y2, add) ->
+    _updateLine: (x2, y2, add) ->
       if @currentLine?
         x2 *= @gw
         y2 *= @gh
@@ -516,7 +516,7 @@ define [
     # @param  {number} w  width of the shape as a percentage of the original width
     # @param  {number} h  height of the shape as a percentage of the original height
     # TODO: not tested yet
-    updateRect: (x1, y1, w, h) ->
+    _updateRect: (x1, y1, w, h) ->
       if @currentRect?
         @currentRect.attr
           x: (x1) * @gw
@@ -530,7 +530,7 @@ define [
     # @param  {number} w width of the shape as a percentage of the original width
     # @param  {number} h height of the shape as a percentage of the original height
     # TODO: not tested yet
-    updateEllipse: (x, y, w, h) ->
+    _updateEllipse: (x, y, w, h) ->
       if @currentEllipse?
         @currentEllipse.attr
           cx: x * @gw
@@ -547,11 +547,11 @@ define [
     # @param  {string} colour   the colour of the text
     # @param  {string} font     the font family of the text
     # @param  {number} fontsize the size of the font (in PIXELS)
-    updateText: (t, x, y, w, spacing, colour, font, fontsize) ->
+    _updateText: (t, x, y, w, spacing, colour, font, fontsize) ->
       x = x * @gw
       y = y * @gh
       unless @currentText?
-        # TODO: does almost the same as calling @drawText()
+        # TODO: does almost the same as calling @_drawText()
         @currentText = @raphaelObj.text(x, y, "").attr(
           fill: colour
           "font-family": font
@@ -790,7 +790,7 @@ define [
       sy = (@containerHeight - @gh) / 2
       @cx2 = (x - @containerOffsetLeft - sx + @cx) / @sw
       @cy2 = (y - @containerOffsetTop - sy + @cy) / @sh
-      @makeRect @cx2, @cy2, "#000", 1
+      @_makeRect @cx2, @cy2, "#000", 1
       globals.connection.emitMakeShape "rect", [ @cx2, @cy2, "#000", 1 ]
 
     # Finished drawing the rectangle that the text will fit into
@@ -840,7 +840,7 @@ define [
 
     # Called when the application window is resized.
     _onWindowResize: ->
-      @updateContainerDimensions()
+      @_updateContainerDimensions()
 
     # when pressing down on a key at anytime
     _onKeyDown: (event) ->

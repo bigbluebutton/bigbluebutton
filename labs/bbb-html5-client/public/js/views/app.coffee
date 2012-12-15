@@ -13,11 +13,8 @@ define [
     initialize: ->
       @currentView = null
 
-    closeCurrentView: () ->
-      @currentView.close() if @currentView?
-
     render: (view) ->
-      @closeCurrentView()
+      @_closeCurrentView()
       @currentView = view
       @currentView.render()
 
@@ -25,6 +22,9 @@ define [
       # removed as well as the html content
       @$el.html @currentView.el
       @
+
+    _closeCurrentView: () ->
+      @currentView.close() if @currentView?
 
   # Default close() method for all views
   # More details at:

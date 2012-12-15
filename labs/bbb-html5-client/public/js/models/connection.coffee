@@ -24,14 +24,14 @@ define [
       unless @socket?
         console.log "connecting to the server", @host
         @socket = io.connect(@host)
-        @registerEvents()
+        @_registerEvents()
         @trigger('connection:connected');
       else
         console.log "tried to connect but it's already connected"
 
     # Registers listeners to some events in the websocket.
     # Events here are generic and related to the connection.
-    registerEvents: ->
+    _registerEvents: ->
 
       # Immediately say we are connected
       @socket.on "connect", =>

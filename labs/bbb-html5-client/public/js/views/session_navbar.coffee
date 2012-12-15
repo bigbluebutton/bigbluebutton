@@ -10,75 +10,75 @@ define [
   # manage the events in the navbar.
   SessionNavbarView = Backbone.View.extend
     events:
-      "click #chat-btn": "toggleChat"
-      "click #users-btn": "toggleUsers"
-      "click #logout-btn": "logout"
-      "click #prev-slide-btn": "previousSlide"
-      "click #next-slide-btn": "nextSlide"
-      "click #tool-pan-btn": "toolPan"
-      "click #tool-line-btn": "toolLine"
-      "click #tool-rect-btn": "toolRect"
-      "click #tool-ellipse-btn": "toolEllipse"
+      "click #chat-btn": "_toggleChat"
+      "click #users-btn": "_toggleUsers"
+      "click #logout-btn": "_logout"
+      "click #prev-slide-btn": "_previousSlide"
+      "click #next-slide-btn": "_nextSlide"
+      "click #tool-pan-btn": "_toolPan"
+      "click #tool-line-btn": "_toolLine"
+      "click #tool-rect-btn": "_toolRect"
+      "click #tool-ellipse-btn": "_toolEllipse"
 
     initialize: ->
       @$parentEl = null
 
+    # don't really need to render anything, the rendering is done by SessionView
+    render: ->
+      @_setToggleButtonsStatus()
+
     # Ensure the status of the toggle buttons is ok
-    setToggleButtonsStatus: ->
+    _setToggleButtonsStatus: ->
       $("#chat-btn", @$el).toggleClass "active", @$parentEl.hasClass("chat-enabled")
       $("#users-btn", @$el).toggleClass "active", @$parentEl.hasClass("users-enabled")
 
-    # don't really need to render anything, the rendering is done by SessionView
-    render: ->
-      @setToggleButtonsStatus()
-
     # Toggle the visibility of the chat panel
-    toggleChat: ->
+    _toggleChat: ->
       clearTimeout @toggleChatTimeout if @toggleChatTimeout?
       @$parentEl.toggleClass "chat-enabled"
-      @setToggleButtonsStatus()
+      @_setToggleButtonsStatus()
       # TODO
       # @toggleChatTimeout = setTimeout(->
       #   Whiteboard.windowResized()
       # , 510)
 
     # Toggle the visibility of the users panel
-    toggleUsers: ->
+    _toggleUsers: ->
       clearTimeout @toggleUsersTimeout if @toggleUsersTimeout?
       @$parentEl.toggleClass "users-enabled"
-      @setToggleButtonsStatus()
+      @_setToggleButtonsStatus()
       # TODO
       # @toggleUsersTimeout = setTimeout(->
       #   Whiteboard.windowResized()
       # , 510)
 
     # Log out of the session
-    logout: ->
+    _logout: ->
       globals.connection.emitLogout()
       globals.currentAuth = null
 
     # Go to the previous slide
-    previousSlide: ->
+    _previousSlide: ->
       globals.connection.emitPreviousSlide()
 
     # Go to the next slide
-    nextSlide: ->
+    _nextSlide: ->
       globals.connection.emitNextSlide()
 
     # "Pan" tool was clicked
-    toolPan: ->
+    _toolPan: ->
       globals.connection.emitChangeTool("panzoom")
 
     # "Line" tool was clicked
-    toolLine: ->
+    _toolLine: ->
       globals.connection.emitChangeTool("line")
 
     # "Rect" tool was clicked
-    toolRect: ->
+    _toolRect: ->
       globals.connection.emitChangeTool("rect")
 
     # "Ellipse" tool was clicked
-    toolEllipse: ->
+    _toolEllipse: ->
       globals.connection.emitChangeTool("ellipse")
 
   SessionNavbarView

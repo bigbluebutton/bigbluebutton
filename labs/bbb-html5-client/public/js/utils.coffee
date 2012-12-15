@@ -3,6 +3,7 @@ define [
   'backbone'
 ], (_, Backbone) ->
 
+  # Module with general utility methods.
   Utils = {}
 
   # POST request using javascript

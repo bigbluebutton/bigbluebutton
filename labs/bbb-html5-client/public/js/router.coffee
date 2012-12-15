@@ -12,13 +12,10 @@ define [
     routes:
       'session': 'showSession',
       'login': 'showLogin',
-      '*actions': 'defaultAction'
+      # '*actions': 'defaultAction'
 
     initialize: ->
       @appView = new AppView()
-
-    defaultAction: (actions) ->
-      console.log "router action:", actions
 
     showLogin: () ->
       globals.router.navigate "/login", {replace: true}

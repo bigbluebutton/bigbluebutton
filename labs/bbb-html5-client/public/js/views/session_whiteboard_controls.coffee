@@ -25,17 +25,6 @@ define [
     # don't need to render anything, the rendering is done by SessionView.
     render: ->
 
-    # Registers listeners for events in the application socket.
-    _registerConnectionEvents: ->
-      socket = globals.connection.socket
-
-      # Received event to update the status of the upload progress
-      # @param  {string} message  update message of status of upload progress
-      # @param  {boolean} fade    true if you wish the message to automatically disappear after 3 seconds
-      socket.on "uploadStatus", (message, fade) =>
-        console.log "received uploadStatus"
-        @setUploadStatus message, fade
-
     clearUploadStatus: ->
       @$("#slide-upload-status").text ""
 
@@ -48,6 +37,17 @@ define [
         setTimeout (->
           $textInput.text ""
         ), 3000
+
+    # Registers listeners for events in the application socket.
+    _registerConnectionEvents: ->
+      socket = globals.connection.socket
+
+      # Received event to update the status of the upload progress
+      # @param  {string} message  update message of status of upload progress
+      # @param  {boolean} fade    true if you wish the message to automatically disappear after 3 seconds
+      socket.on "uploadStatus", (message, fade) =>
+        console.log "received uploadStatus"
+        @setUploadStatus message, fade
 
     _uploadFileSelected: ->
       @$("#slide-upload-form").submit()
