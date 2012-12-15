@@ -2,10 +2,11 @@ define [
   'jquery',
   'underscore',
   'backbone',
+  'globals',
   'cs!views/app',
   'cs!views/login',
   'cs!views/session'
-], ($, _, Backbone, AppView, LoginView, SessionView) ->
+], ($, _, Backbone, globals, AppView, LoginView, SessionView) ->
 
   Router = Backbone.Router.extend
     routes:
@@ -20,11 +21,13 @@ define [
       console.log "router action:", actions
 
     showLogin: () ->
-      loginView = new LoginView()
-      @appView.render(loginView)
+      globals.router.navigate "/login", {replace: true}
+      @loginView ?= new LoginView()
+      @appView.render(@loginView)
 
     showSession: () ->
-      sessionView = new SessionView()
-      @appView.render(sessionView)
+      globals.router.navigate "/session", {replace: true}
+      @sessionView ?= new SessionView()
+      @appView.render(@sessionView)
 
   Router

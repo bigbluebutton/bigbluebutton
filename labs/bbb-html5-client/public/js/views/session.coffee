@@ -33,7 +33,7 @@ define [
     render: ->
       data = { auth: globals.currentAuth }
       compiledTemplate = _.template(sessionTemplate, data)
-      @$el.append compiledTemplate
+      @$el.html compiledTemplate
 
       @assign(@navbarView, "#navbar")
       @assign(@chatView, "#chat")

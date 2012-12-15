@@ -23,15 +23,8 @@ exports.presentationImageFolder = function(meetingID,presentationID) {
  * @return {undefined}  Response object is sent back to the client.
  */
 exports.get_index = function(req, res) {
-  redisAction.isValidSession(req.cookies.meetingid, req.cookies.sessionid, function (reply) {
-    if(!reply) {
-      redisAction.getMeetings(function (meetings){
-        res.render('index', { title: 'BigBlueButton HTML5 Client', max_u: max_username_length, meetings: meetings });
-      });
-    }
-    else {
-      res.redirect('/chat');
-    }
+  redisAction.getMeetings(function (meetings){
+    res.render('index', { title: 'BigBlueButton HTML5 Client', meetings: meetings });
   });
 };
 
@@ -87,30 +80,61 @@ function makeMeeting(meetingID, sessionID, username, callback) {
 /**
  * Upon submitting their login details from the index page via a POST request,
  * a meeting will be created and joined. If an error occurs, which usually
- * results in using a username/meetingID that is too long, they will be redirected
- * to the index page again.
+ * results in using a username/meetingID that is too long, the user receives
+ * an error response. Both success and error responses are in json only.
  * @param  {Object} req Request object from the client
  * @param  {Object} res Response object to the client
  * @return {undefined}  Response object is sent back to the client.
  */
-exports.post_index = function(req, res) {
+exports.post_auth = function(req, res) {
   var user = req.body;
   var username = sanitizer.escape(user.username);
   var meetingID = sanitizer.escape(user.meetingID);
   var sessionID = req.sessionID;
   makeMeeting(meetingID, sessionID, username, function(join) {
+    user.meetingID = meetingID;
+    user.username = username;
+    res.contentType("json");
     if(join) {
       res.cookie('sessionid', sessionID); //save the id so socketio can get the username
       res.cookie('meetingid', meetingID);
-      res.contentType("json");
       user.loginAccepted = true;
       res.send(user);
     } else {
-      res.contentType("json");
-      res.send({ loginAccepted: false, meetingID: meetingID, username: username });
+      user.loginAccepted = false;
+      res.send(user);
     }
   });
 };
+
+/**
+ * Returns a json informing if there's an authenticated user or not.
+ * The  meetingID and sessionID are extracted from the user's cookie.
+ * If they match with a user that is in the database, the user is
+ * accepted and his information is included in the response. If they don't
+ * match, the user is not accepted.
+ * @param  {Object} req Request object from the client
+ * @param  {Object} res Response object to the client
+ * @return {undefined}  Response object is sent back to the client.
+ */
+exports.get_auth = function(req, res) {
+  redisAction.isValidSession(req.cookies.meetingid, req.cookies.sessionid, function (valid) {
+    res.contentType("json");
+    if(!valid) {
+      var user = {};
+      user.loginAccepted = false;
+      res.send(user);
+    }
+    else {
+      var user = {};
+      user.loginAccepted = true;
+      user.meetingID = req.cookies.meetingid;
+      // user.username = ?? // TODO
+      res.send(user);
+    }
+  });
+};
+
 
 /**
  * When a user logs out, their session is destroyed,
@@ -153,29 +177,13 @@ exports.join = function(req, res) {
           //store the cookies
           res.cookie('sessionid', sessionID); //save the id so socketio can get the username
           res.cookie('meetingid', meetingID);
-          res.redirect('/chat');
         }
-        else res.redirect('/');
+        res.redirect('/');
       });
     }
     else res.redirect('/');
   }
 };
-
-/**
- * When we return to the chat page (or open a new tab when already logged in)
- * @param  {Object} req Request object from the client
- * @param  {Object} res Response object to the client
- * @return {undefined}  Response object is sent back to the client.
- */
-exports.get_chat = function(req, res) {
-  //requiresLogin before this verifies that a user is logged in...
-  var meetingID = req.cookies.meetingid;
-  redisAction.getUserProperty(meetingID, req.cookies.sessionid, "username", function (username) {
-    res.render('chat', { title: 'BigBlueButton HTML5 Client', user: username, max_chat_length: max_chat_length, meetingID : meetingID });
-  });
-};
-
 
 /**
  * POSTing a file from the client page, the images will be
@@ -185,7 +193,7 @@ exports.get_chat = function(req, res) {
  * @param  {Object}   res  Response object to the client
  * @return {undefined}     Response object is sent back to the client.
  */
-exports.post_chat = function(req, res) {
+exports.post_upload = function(req, res) {
   // the client must send a file
   if(req.files.image.size !== 0) {
     var meetingID = req.cookies.meetingid;
@@ -250,7 +258,8 @@ exports.post_chat = function(req, res) {
       });
     });
   }
-  res.redirect('/chat');
+  // TODO: return a json indicating success/failure
+  res.redirect('/');
 };
 
 /**

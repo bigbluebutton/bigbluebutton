@@ -4,7 +4,7 @@ define [
 ], (_, Backbone) ->
 
   AuthenticationModel = Backbone.Model.extend
-    url: '/'
+    url: '/auth'
     defaults:
       username: null
       meetingID: null

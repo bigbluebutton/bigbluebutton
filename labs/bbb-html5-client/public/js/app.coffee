@@ -21,13 +21,13 @@ define [
 
     # Default application router
     globals.router = new Router()
-    Backbone.history.start()
 
     # Default connection (websocket)
     globals.connection = new ConnectionModel()
 
     # Start at /login
-    globals.router.navigate "/login", {trigger: true, replace: true}
+    globals.router.showLogin()
+    Backbone.history.start({silent: true})
 
   return {
     initialize: initialize

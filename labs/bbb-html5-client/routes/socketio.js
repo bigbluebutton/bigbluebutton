@@ -254,7 +254,7 @@ exports.SocketOnConnection = function(socket) {
               socketAction.publishPresenter(meetingID, sessionID);
              }
            });
-         }, 1000);
+         }, 5000);
        });
      }
    });

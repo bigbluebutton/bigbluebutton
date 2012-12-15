@@ -85,13 +85,14 @@ function requiresLogin(req, res, next) {
   });
 }
 
+
 // Routes (see /routes/index.js)
 app.get('/', routes.get_index);
-app.post('/chat',  routes.post_chat);
+app.get('/auth', routes.get_auth);
+app.post('/auth', routes.post_auth);
 app.post('/logout', requiresLogin, routes.logout);
-app.get('/chat', requiresLogin, routes.get_chat);
-app.post('/', routes.post_index);
 app.get('/join', routes.join);
+app.post('/upload', requiresLogin, routes.post_upload);
 app.get('/meetings', routes.meetings);
 
 // --- 404 (keep as last route) --- //
