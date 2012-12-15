@@ -22,7 +22,7 @@ define [
       globals.connection.bind "connection:connected",
         @_registerConnectionEvents, @
 
-    # don't need to render anything, the rendering is done by SessionView.
+    # don't need to render anything, the rendering is done by the parent view.
     render: ->
 
     clearUploadStatus: ->

@@ -25,8 +25,6 @@ define [
       # Go check the authentication
       @_checkAuthentication()
 
-      @
-
     # Method to render the template with the inputs that the user can
     # use to log in.
     _renderLoginFields: ->

@@ -1,0 +1,11 @@
+<h3>Chat</h3>
+<div id="chat-messages">
+  <span>
+    You are now connected to MeetingID
+    <strong><%= auth.get('meetingID') %></strong>
+  </span>
+</div>
+<div id="chat-entry">
+  <textarea id="chat-input-box" maxlength="140" placeholder="Enter a chat message."></textarea>
+  <button id="chat-send">Post</button>
+</div>

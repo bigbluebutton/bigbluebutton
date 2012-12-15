@@ -31,18 +31,15 @@ define [
       Backbone.View.prototype.close.call(@)
 
     render: ->
-      data = { auth: globals.currentAuth }
-      compiledTemplate = _.template(sessionTemplate, data)
+      compiledTemplate = _.template(sessionTemplate)
       @$el.html compiledTemplate
 
       @assign(@navbarView, "#navbar")
       @assign(@chatView, "#chat")
       @assign(@usersView, "#users")
-      @assign(@whiteboardView, "#presentation")
+      @assign(@whiteboardView, "#whiteboard")
 
       # Connect to the server
       globals.connection.connect()
-
-      @
 
   SessionView

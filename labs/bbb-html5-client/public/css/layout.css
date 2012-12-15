@@ -35,7 +35,7 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
   height: 100%;
 }
 
-#presentation {
+#whiteboard {
   position: absolute;
   background: #aaa;
   top: 0;
@@ -69,14 +69,14 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
   z-index: 0;
 }
 
-.chat-enabled #presentation {
+.chat-enabled #whiteboard {
   right: 300px;
 }
-.users-enabled #presentation {
+.users-enabled #whiteboard {
   left: 200px;
 }
 
-#presentation object {
+#whiteboard object {
   display: block;
   position: absolute;
   max-width: 100%;
@@ -100,7 +100,7 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
   border-top: 1px solid #2f3138;
   border-bottom: 1px solid #2f3138;
   text-align: center;
-  z-index: 3; /* over #presentation and sidebars */
+  z-index: 3; /* over #whiteboard and sidebars */
 }
 
 #navbar a {
@@ -346,7 +346,7 @@ button:focus, textarea:focus, input:focus {
   float: right;
 }
 
-#current_users {
+#current-users {
   position: absolute;
   top: 33px;
   bottom: 65px;

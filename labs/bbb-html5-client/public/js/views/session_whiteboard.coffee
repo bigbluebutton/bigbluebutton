@@ -5,11 +5,12 @@ define [
   'raphael',
   'globals',
   'cs!models/whiteboard_paper',
-  'text!templates/preupload_image.html',
   'cs!views/session_whiteboard_controls',
+  'text!templates/preupload_image.html',
+  'text!templates/session_whiteboard.html',
   'colorwheel'
-], ($, _, Backbone, Raphael, globals, WhiteboardPaperModel,
-    preuploadImageTemplate, SessionWhiteboardControlsView) ->
+], ($, _, Backbone, Raphael, globals, WhiteboardPaperModel, SessionWhiteboardControlsView,
+    preuploadImageTemplate, sessionWhiteboardTemplate) ->
 
   # TODO: this is being used for presentation and whiteboard, maybe they could be separated
 
@@ -37,8 +38,11 @@ define [
       @paper?.unbindEvents()
       Backbone.View.prototype.close.call(@)
 
-    # don't need to render anything, the rendering is done by SessionView.
     render: ->
+      compiledTemplate = _.template(sessionWhiteboardTemplate)
+      @$el.html compiledTemplate
+
+      # subview with whiteboard controls
       @assign(@controlsView, "#slide-controls")
 
       @colorView = @$("#colour-view")
@@ -59,8 +63,6 @@ define [
 
       @_drawThicknessView(DEFAULT_THICKNESS, DEFAULT_COLOUR)
       @_drawColourView(DEFAULT_COLOUR)
-
-      @
 
     _createColourPicker: ->
       unless @colourPicker

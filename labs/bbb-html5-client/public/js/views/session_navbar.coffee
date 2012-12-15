@@ -2,8 +2,9 @@ define [
   'jquery',
   'underscore',
   'backbone',
-  'globals'
-], ($, _, Backbone, globals) ->
+  'globals',
+  'text!templates/session_navbar.html',
+], ($, _, Backbone, globals, sessionNavbarTemplate) ->
 
   # The navbar in a session
   # The contents are rendered by SessionView, this class is Used to
@@ -23,8 +24,9 @@ define [
     initialize: ->
       @$parentEl = null
 
-    # don't really need to render anything, the rendering is done by SessionView
     render: ->
+      compiledTemplate = _.template(sessionNavbarTemplate)
+      @$el.html compiledTemplate
       @_setToggleButtonsStatus()
 
     # Ensure the status of the toggle buttons is ok

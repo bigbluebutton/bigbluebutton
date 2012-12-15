@@ -3,8 +3,9 @@ define [
   'underscore',
   'backbone',
   'globals',
+  'text!templates/session_chat.html',
   'text!templates/chat_message.html',
-], ($, _, Backbone, globals, chatMessageTemplate) ->
+], ($, _, Backbone, globals, sessionChatTemplate, chatMessageTemplate) ->
 
   # The chat panel in a session
   # The contents are rendered by SessionView, this class is Used to
@@ -22,8 +23,10 @@ define [
       globals.connection.bind "connection:connected",
         @_registerConnectionEvents, @
 
-    # don't need to render anything, the rendering is done by SessionView
     render: ->
+      data = { auth: globals.currentAuth }
+      compiledTemplate = _.template(sessionChatTemplate, data)
+      @$el.html compiledTemplate
 
     # Registers listeners for events in the application socket.
     _registerConnectionEvents: ->

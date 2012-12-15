@@ -3,8 +3,9 @@ define [
   'underscore',
   'backbone',
   'globals',
+  'text!templates/session_users.html',
   'text!templates/user.html',
-], ($, _, Backbone, globals, userTemplate) ->
+], ($, _, Backbone, globals, sessionUsersTemplate, userTemplate) ->
 
   # The users panel in a session
   # The contents are rendered by SessionView, this class is Used to
@@ -15,14 +16,15 @@ define [
       "click .user": "_userClicked"
 
     initialize: ->
-      @userListID = "#current_users"
+      @userListID = "#current-users"
 
       # Bind to the event triggered when the client connects to the server
       globals.connection.bind "connection:connected",
         @_registerConnectionEvents, @
 
-    # don't need to render anything, the rendering is done by SessionView.
     render: ->
+      compiledTemplate = _.template(sessionUsersTemplate)
+      @$el.html compiledTemplate
 
     # Registers listeners for events in the application socket.
     _registerConnectionEvents: ->
