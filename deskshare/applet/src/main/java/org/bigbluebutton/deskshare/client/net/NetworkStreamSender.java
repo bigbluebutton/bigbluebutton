@@ -72,8 +72,10 @@ public class NetworkStreamSender implements NextBlockRetriever, NetworkStreamLis
       //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       // Use one thread per row of tiles
       //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      numThreads = screenDim.getHeight() / blockDim.getHeight();
-      
+      //numThreads = screenDim.getHeight() / blockDim.getHeight();
+
+      // Use one single thread to save resources
+      numThreads = 1;
 		System.out.println(NAME + "Starting up " + numThreads + " sender threads.");
 		executor = Executors.newFixedThreadPool(numThreads);
 	}
