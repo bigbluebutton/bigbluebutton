@@ -110,10 +110,22 @@
 							
 				this.visible = videoOptions.publishWindowVisible;
 				
+				if (videoOptions.autoStart) {
+					/*
+					 * Need to have a timer to trigger auto-publishing of webcam.
+					 */
+					autoPublishTimer = new Timer(3000, 1);
+					autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
+					autoPublishTimer.start();
+				}
+				
 
 				titleBarOverlay.tabIndex = baseIndex;
+				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.titleBar');
 				minimizeBtn.tabIndex = baseIndex+1;
+				minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.minimizeBtn');
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.maximizeRestoreBtn');
 				closeBtn.tabIndex = baseIndex+3;
 				
 				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
@@ -122,6 +134,17 @@
 				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
 				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
         
+				
+				LogUtil.debug("WATERFALL Webcam tabindexes for title, min/max/close: " + titleBarOverlay.tabIndex + " " + minimizeBtn.tabIndex + " " + maximizeRestoreBtn.tabIndex + " " + closeBtn.tabIndex);
+				
+				titleBarOverlay.enabled = true;
+				maximizeRestoreBtn.enabled = true;
+				titleBarOverlay.focusEnabled = true;
+				maximizeRestoreBtn.focusEnabled = true;
+				
+				//shortcut
+				
+				// start the camera preview
 				updateCamera();
 			}
 
@@ -373,8 +396,34 @@
            blurXFrom="30.0" blurXTo="0.0" blurYFrom="30.0" blurYTo="0.0" color="0xFF0000"/>
   
 	<mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
+
 	<mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
 	<mx:Text id="lblWarning" width="100%" textAlign="right" fontSize="14" fontWeight="bold" y="{this.height - lblWarning.height - 30}" 
            visible="false" selectable="false" hideEffect="{dissolveOut}" showEffect="{dissolveIn}"/>
-
+	
+	<mx:ControlBar id="videoOptionsBar" visible="true">
+		<mx:Button id="btnStartPublish" 
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
+				   icon="{camIcon}" 
+				   click="startPublishing()" 
+				   enabled="false"
+				   tabIndex="{baseIndex+4}"
+				   accessibilityName = "{ResourceUtil.getInstance().getString('bbb.video.publish.startBtn')}"/>
+		<mx:ComboBox id="cmbCameraSelector" 
+					 dataProvider="{Camera.names}" 
+					 width="150" 
+					 visible="false" 
+					 change="updateCamera()"
+					 tabIndex="{baseIndex+5}"
+					 accessibilityName = "{ResourceUtil.getInstance().getString('bbb.video.publish.selectBtn')}"/>
+		<mx:ComboBox id="cmbResolution" 
+					 dataProvider="{resolutions}" 
+					 width="20%" 
+					 visible="false" 
+					 change="updateCamera()"
+					 tabIndex="{baseIndex+6}"
+					 accessibilityName = "{ResourceUtil.getInstance().getString('bbb.video.publish.resolutionBtn')}"/>
+	</mx:ControlBar>
+	
+	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
 </pubVid:VideoWindowItf>

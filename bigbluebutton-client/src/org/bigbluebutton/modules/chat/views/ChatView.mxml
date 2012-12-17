@@ -376,7 +376,7 @@
 					if (publicWaiting && !publicFocus) {
 						if (playSoundClip) {
 	            			publicSound.play();
-            } else{
+            			} else{
 	            			message += PUBLIC_TAB_NEW; 
 						}
 					}
@@ -407,6 +407,7 @@
 				var browserName:String = ExternalInterface.call("determineBrowser");
 				if (browserName == "Chrome" || browserName == "Opera"){
 					// If the user is in a non-compliant browser, the ARIA alerts will not be picked up by the screen reader, and thus we need to use the sound clip
+					// bbb_blinker
 					rvalue = true;
 				}		
 				return rvalue;

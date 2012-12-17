@@ -18,7 +18,7 @@ package org.bigbluebutton.modules.present.ui.views
 					baseTabIndex = vxml.@baseTabIndex;
 				}
 				else{
-					baseTabIndex = 401;
+					baseTabIndex = 501;
 				}
 			}
 		}

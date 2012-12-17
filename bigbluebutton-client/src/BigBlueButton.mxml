@@ -104,19 +104,23 @@
      */
 
     private function localeChanged(e:Event):void{
-      loadKeyCombos();
+      loadKeyCombos(ExternalInterface.call("determineModifier"));
     }
 
     private var keyCombos:Object;
 
-    private function loadKeyCombos():void {
+    private function loadKeyCombos(modifier:String):void {
       keyCombos = new Object(); // always start with a fresh array
+      
       keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.flash.exit') as String)] = ShortcutEvent.FOCUS_AWAY_EVENT;
       keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.listeners.muteme') as String)] = ShortcutEvent.MUTE_ME_EVENT;
       keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput') as String)] = ShortcutEvent.FOCUS_CHAT_INPUT;
       keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chattabs') as String)] = ShortcutEvent.FOCUS_CHAT_TABS;
-      keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide') as String)] = ShortcutEvent.FOCUS_SLIDE;
-      keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo') as String)] = ShortcutEvent.UNDO_WHITEBOARD;
+      
+      //keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide') as String)] = ShortcutEvent.FOCUS_SLIDE;
+      keyCombos[modifier+"83"] = ShortcutEvent.FOCUS_SLIDE;
+      
+	  keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo') as String)] = ShortcutEvent.UNDO_WHITEBOARD;
     }
 
     private function hotkeyCapture():void{
@@ -126,11 +130,20 @@
       LogUtil.debug("Leaving hotkeyCapture");
     }
 
+	// Handle general-access hotkeys, regardless of what window the user is focused in
     private function handleKeyDown(e:KeyboardEvent) :void {
-      var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
+      var modifier:String = ExternalInterface.call("determineModifier");
+	  loadKeyCombos(modifier);
+	  
+	  var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
                             (e.altKey   ? "alt+"     : "") + e.keyCode;
       
-      if (keyCombos == null) loadKeyCombos();                         
+      LogUtil.debug("WATERFALL: keyPress is " + keyPress);
+	  LogUtil.debug("WATERFALL: Your modifier + non-mod keys is " + modifier + e.keyCode);
+      //var browserName:String = ExternalInterface.call("determineBrowser");
+	  //LogUtil.debug("WATERFALL: browserName is " + browserName + " and your modifier is " + modifier);
+      
+      //if (keyCombos == null) loadKeyCombos();                         
       if (keyCombos[keyPress]) {
         globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
       }

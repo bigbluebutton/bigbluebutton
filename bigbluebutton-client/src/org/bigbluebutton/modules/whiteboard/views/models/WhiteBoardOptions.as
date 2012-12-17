@@ -13,7 +13,7 @@ package org.bigbluebutton.modules.whiteboard.views.models
 					baseTabIndex = vxml.@baseTabIndex;
 				}
 				else{
-					baseTabIndex = 501;
+					baseTabIndex = 601;
 				}
 			}
 		}

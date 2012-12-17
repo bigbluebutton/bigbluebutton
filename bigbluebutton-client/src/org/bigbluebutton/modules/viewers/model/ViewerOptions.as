@@ -14,7 +14,7 @@ package org.bigbluebutton.modules.viewers.model
 					baseTabIndex = vxml.@baseTabIndex;
 				}
 				else{
-					baseTabIndex = 101;
+					baseTabIndex = 201;
 				}
 			}
 		}

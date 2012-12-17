@@ -99,6 +99,7 @@
 			private function init():void {
 				dsOptions = new DeskshareOptions();
 				baseIndex = dsOptions.baseTabIndex;
+				LogUtil.debug("Waterfall: Deskshare base index: " + baseIndex);
 			}
 			
 			private function onCreationComplete():void {
@@ -113,6 +114,13 @@
 				resourcesChanged();
 				
 				titleBarOverlay.tabIndex = baseIndex;
+				titleBarOverlay.focusEnabled = true;
+				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
+				
+				LogUtil.debug("Waterfall: Deskshare titleBarOverlay is having troubles");
+				LogUtil.debug("Waterfall: Focusable? " + titleBarOverlay.focusEnabled);
+				LogUtil.debug("Waterfall: Index? " + titleBarOverlay.tabIndex);
+								
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
@@ -342,7 +350,8 @@
 							   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}" 
 							   visible="true" 
 							   click="shareScreen(true)" 
-							   tabIndex="{baseIndex+4}"/>
+							   tabIndex="{baseIndex+4}"
+							   accessibilityName="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullScreenBtn')}"/>
 					<mx:Spacer width="100%"/>
 					<mx:Button id="btnClosePublish" 
 							   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}" 
@@ -350,14 +359,16 @@
 							   visible="true" 
 							   enabled="false" 
 							   click="stopSharing()" 
-							   tabIndex="{baseIndex+5}"/>
+							   tabIndex="{baseIndex+5}"
+							   accessibilityName="{ResourceUtil.getInstance().getString('bbb.desktopPublish.closeBtn')}"/>
 					<mx:Spacer width="100%"/>
 					<mx:Button id="btnRegionPublish" 
 							   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" 
 							   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" 
 							   visible="true" 
 							   click="shareScreen(false)" 
-							   tabIndex="{baseIndex+6}"/>
+							   tabIndex="{baseIndex+6}"
+							   accessibilityName="{ResourceUtil.getInstance().getString('bbb.desktopPublish.regionBtn')}"/>
 					<mx:Spacer width="100%"/>
 					<!--mx:CheckBox id="useSVC2Check" label="SVC2" selected="true" /-->
 				</mx:ControlBar>

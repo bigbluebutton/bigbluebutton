@@ -61,7 +61,7 @@ package org.bigbluebutton.modules.videodock.views
 					baseTabIndex = vxml.@baseTabIndex;
 				}
 				else{
-					baseTabIndex = 301;
+					baseTabIndex = 401;
 				}
 			}
 		}

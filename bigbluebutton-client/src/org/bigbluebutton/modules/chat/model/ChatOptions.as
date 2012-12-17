@@ -32,7 +32,7 @@ package org.bigbluebutton.modules.chat.model
 					baseTabIndex = cxml.@baseTabIndex;
 				}
 				else{
-					baseTabIndex = 601;
+					baseTabIndex = 701;
 				}
 			}
 		}

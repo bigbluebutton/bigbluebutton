@@ -20,7 +20,7 @@ package org.bigbluebutton.modules.listeners.model
 					baseTabIndex = vxml.@baseTabIndex;
 				}
 				else{
-					baseTabIndex = 201;
+					baseTabIndex = 301;
 				}
 			}
 			
