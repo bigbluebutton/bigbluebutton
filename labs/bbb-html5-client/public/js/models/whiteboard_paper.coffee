@@ -63,7 +63,6 @@ define [
       $(document).on "keydown.whiteboard_paper", _.bind(@_onKeyDown, @)
       $(document).on "keyup.whiteboard_paper", _.bind(@_onKeyUp, @)
 
-      # TODO: at this point the dimensions of @container are 0
       @_updateContainerDimensions()
 
     # Override the close() to unbind events.
@@ -146,6 +145,10 @@ define [
       $(@container).on "mousewheel", _.bind(@_zoomSlide, @)
       # TODO $(img.node).bind "mousewheel", zoomSlide
       @trigger('paper:image:added', img)
+
+      # TODO: other places might also required an update in these dimensions
+      @_updateContainerDimensions()
+
       img
 
     # Removes all the images from the Raphael paper.
@@ -349,9 +352,6 @@ define [
       @containerHeight = $container.innerHeight()
       @containerOffsetLeft = $container.offset().left
       @containerOffsetTop = $container.offset().top
-      # TODO: temporary solution
-      @containerWidth or= 800
-      @containerHeight or= 600
 
     # Retrieves an image element from the paper.
     # The url must be in the slides array.
