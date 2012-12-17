@@ -57,7 +57,12 @@ define [
     # Marks a user as selected when clicked.
     _userClicked: (e) ->
       @$('.user.selected').removeClass('selected')
-      @$(e.target).addClass('selected')
+
+      # add .selected to the user's element
+      $target = @$(e.target)
+      unless $target.hasClass('user') # clicked on a child
+        $target = $target.parents('.user')
+      $target.addClass('selected')
 
     # Sets the current presenter to the user currently selected.
     _switchPresenter: ->
