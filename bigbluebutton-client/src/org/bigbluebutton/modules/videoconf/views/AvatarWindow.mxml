@@ -134,14 +134,13 @@
       }
       
       private function handleUserTalkingEvent(event:CoreEvent):void {
-        trace("******************** Talking Event for [" + event.message.userID + "]*********************");
         if (event.message.userID ==  userID) {
           if (event.message.talking) {
             notTalkingEffect.end();
-            talkingEffect.play([_videoHolder]);            
+            talkingEffect.play([this]);            
           } else {
             talkingEffect.end();
-            notTalkingEffect.play([_videoHolder]);
+            notTalkingEffect.play([this]);
           }
         }
       }
