@@ -89,7 +89,7 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
 }
 
 #navbar {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
@@ -387,11 +387,15 @@ button:focus, textarea:focus, input:focus {
 #slide-controls {
   width: 800px;
   margin: 0 auto;
-  background: #f6f6f6;
 }
 
 #slide-controls form {
   display: inline;
+}
+
+#slide-controls * {
+  float: left;
+  margin: 5px 10px 0 0;
 }
 
 #thickness-slider {
