@@ -1,0 +1,71 @@
+Application {
+  backgroundColor: #ffffff;
+}
+
+
+
+ApplicationControlBar {
+  highlightAlphas: 0.1, 0;
+  fillAlphas: 0, 0;
+  fillColors: #32343b, #32343b;
+  backgroundColor: #42444c;
+  backgroundAlpha: 1;
+  cornerRadius: 0;
+  dropShadowEnabled: true;
+  shadowDistance: 1;
+  shadowDirection: center;
+  dropShadowColor: #000000;
+}
+
+Panel {
+  borderColor: #dfdfdf;
+  borderAlpha: 1;
+  shadowDistance: 1;
+  dropShadowColor: #666666;
+  titleStyleName: "mypanelTitle";
+}
+
+.mypanelTitle {
+  color: #444444;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+
+Button {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+DataGrid {
+  backgroundColor: #e1e2e5;
+  rollOverColor: #f3f3f3;
+  textRollOverColor: #5e5f63;
+  selectionColor: #e1e2e5;
+  color: #5e5f63;
+  textSelectedColor: #5e5f63;
+  dropShadowEnabled: false;
+  fontFamily: arial;
+  fontSize: 11;
+  headerStyleName: "mydataGridHeaderStyle";
+}
+
+.mydataGridHeaderStyle {
+  color: #5e5f63;
+  fontFamily: arial;
+  fontSize: 12;
+}
+
