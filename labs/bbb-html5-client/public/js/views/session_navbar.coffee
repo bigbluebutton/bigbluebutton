@@ -39,20 +39,22 @@ define [
       clearTimeout @toggleChatTimeout if @toggleChatTimeout?
       @$parentEl.toggleClass "chat-enabled"
       @_setToggleButtonsStatus()
-      # TODO
-      # @toggleChatTimeout = setTimeout(->
-      #   Whiteboard.windowResized()
-      # , 510)
+      # TODO: timeouting this is not the best solution, maybe the js
+      #       should control the visibility of the panel, not the css
+      @toggleChatTimeout = setTimeout(->
+        $(window).resize()
+      , 510)
 
     # Toggle the visibility of the users panel
     _toggleUsers: ->
       clearTimeout @toggleUsersTimeout if @toggleUsersTimeout?
       @$parentEl.toggleClass "users-enabled"
       @_setToggleButtonsStatus()
-      # TODO
-      # @toggleUsersTimeout = setTimeout(->
-      #   Whiteboard.windowResized()
-      # , 510)
+      # TODO: timeouting this is not the best solution, maybe the js
+      #       should control the visibility of the panel, not the css
+      @toggleChatTimeout = setTimeout(->
+        $(window).resize()
+      , 510)
 
     # Log out of the session
     _logout: ->

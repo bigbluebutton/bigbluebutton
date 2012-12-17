@@ -344,10 +344,11 @@ define [
 
     # Update the dimensions of the container.
     _updateContainerDimensions: ->
-      @containerWidth = $(@container).innerWidth()
-      @containerHeight = $(@container).innerHeight()
-      @containerOffsetLeft = @container.offsetLeft
-      @containerOffsetTop = @container.offsetTop
+      $container = $(@container)
+      @containerWidth = $container.innerWidth()
+      @containerHeight = $container.innerHeight()
+      @containerOffsetLeft = $container.offset().left
+      @containerOffsetTop = $container.offset().top
       # TODO: temporary solution
       @containerWidth or= 800
       @containerHeight or= 600
@@ -581,8 +582,8 @@ define [
     _onCursorMove: (e, x, y) ->
       sx = (@containerWidth - @gw) / 2
       sy = (@containerHeight - @gh) / 2
-      xLocal = (e.pageX - sx - @containerOffsetLeft + @cx) / @sw
-      yLocal = (e.pageY - sy - @containerOffsetTop + @cy) / @sh
+      xLocal = (e.pageX - @containerOffsetLeft) / @sw
+      yLocal = (e.pageY - @containerOffsetTop) / @sh
       globals.connection.emitMoveCursor xLocal, yLocal
 
     # When the user is dragging the cursor (click + move)
