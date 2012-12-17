@@ -18,14 +18,12 @@
 */
 package org.bigbluebutton.modules.listeners.business
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;
-	
+	import flash.net.SharedObject;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.EventConstants;
 	import org.bigbluebutton.core.UsersUtil;
@@ -141,6 +139,10 @@ package org.bigbluebutton.modules.listeners.business
             bu.voiceUserid = n.userid;
             bu.voiceMuted = n.muted;
             bu.voiceJoined = true;
+            
+            var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_JOINED);
+            bbbEvent.payload.userID = bu.userID;            
+            globalDispatcher.dispatchEvent(bbbEvent);            
           }
           
 					n.callerName = result[2]; /* Store the username */
@@ -149,35 +151,49 @@ package org.bigbluebutton.modules.listeners.business
 				LogUtil.info(LOGNAME + "Adding listener [" + n.callerName + "," + userId + "]");
 				_listeners.addListener(n);
 				
-				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.ADDED_LISTENER, n.callerName));
+//				globalDispatcher.dispatchEvent(new BBBEvent(BBBEvent.USER_VOICE_JOINED, n.callerName));
 			} else {
 				LogUtil.debug(LOGNAME + "There is a listener with userid " + userId + " " + cidName + " in the conference.");
 			}
 		}
 
-		public function userMute(userId:Number, mute:Boolean):void {
-			var l:Listener = _listeners.getListener(userId);			
+		public function userMute(userID:Number, mute:Boolean):void {
+			var l:Listener = _listeners.getListener(userID);			
 			if (l != null) {
 				l.muted = mute;
+        
+        if (l.muted) {
+          // When the user is muted, set the talking flag to false so that the UI will not display the
+          // user as talking even if muted.
+          userTalk(userID, false);
+        }
+        
 				/**
 				 * Let's store the voice userid so we can do push to talk.
 				 */
-				if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
+				if (UserManager.getInstance().getConference().amIThisVoiceUser(userID)) {
 					UserManager.getInstance().getConference().muteMyVoice(l.muted);
 				}				
         
-        var bu:BBBUser = UsersUtil.getVoiceUser(userId)
+        var bu:BBBUser = UsersUtil.getVoiceUser(userID)
         if (bu != null) {
           bu.voiceMuted = l.muted;
-        }        
-			}					
+          
+          LogUtil.debug("[" + bu.name + "] is now muted=[" + bu.voiceMuted + "]");
+          
+          var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_MUTED);
+          bbbEvent.payload.muted = mute;
+          bbbEvent.payload.userID = bu.userID;
+          globalDispatcher.dispatchEvent(bbbEvent);
+        }     
+			}			     
 		}
 
 		public function userLockedMute(userId:Number, locked:Boolean):void {
 			var l:Listener = _listeners.getListener(userId);			
 			if (l != null) {
 				l.locked = locked;
-				LogUtil.debug(LOGNAME + 'Lock Un/Muting user ' + userId + " locked=" + locked);
+
 				/**
 				 * Let's store the voice userid so we can do push to talk.
 				 */
@@ -188,6 +204,12 @@ package org.bigbluebutton.modules.listeners.business
         var bu:BBBUser = UsersUtil.getVoiceUser(userId)
         if (bu != null) {
           bu.voiceLocked = l.locked;
+          LogUtil.debug("[" + bu.name + "] is now locked=[" + bu.voiceLocked + "] muted=[" + bu.voiceMuted + "]");
+          
+          var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LOCKED);
+          bbbEvent.payload.locked = bu.voiceLocked;
+          bbbEvent.payload.userID = bu.userID;
+          globalDispatcher.dispatchEvent(bbbEvent);
         }   
 			}					
 		}
@@ -226,6 +248,10 @@ package org.bigbluebutton.modules.listeners.business
         bu.voiceUserid = 0;
         bu.voiceMuted = false;
         bu.voiceJoined = false;
+        
+        var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
+        bbbEvent.payload.userID = bu.userID;
+        globalDispatcher.dispatchEvent(bbbEvent);
       }
 		}
 		

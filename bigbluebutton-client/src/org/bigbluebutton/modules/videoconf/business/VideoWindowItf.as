@@ -64,13 +64,19 @@ package org.bigbluebutton.modules.videoconf.business
 		protected var mousePositionOnDragStart:Point;
 		
 		public var streamName:String;
-
-    protected var _sharerUserID:String = null;
+    
+    private var windowType:String = "VideoWindowItf";
+    
+    public var userID:String = null;
 
     protected var _controlButtons:ControlButtons = new ControlButtons();
 		
     [Bindable] public var resolutions:Array;
-		
+
+    public function getWindowType():String {
+      return windowType;
+    }
+    
     protected function switchRole(presenter:Boolean):void {
       _controlButtons.handleNewRoleEvent(presenter);
     }
@@ -82,7 +88,7 @@ package org.bigbluebutton.modules.videoconf.business
         var uid:String = UserManager.getInstance().getConference().getMyUserId();
         LogUtil.debug("Stream resolution is [" + pattern.exec(stream)[1] + "]");
         LogUtil.debug("Userid [" + pattern.exec(stream)[2] + "]");
-        _sharerUserID = pattern.exec(stream)[2];
+        userID = pattern.exec(stream)[2];
         addControlButtons();
         return pattern.exec(stream)[1].split("x");
 			} else {
@@ -229,7 +235,7 @@ package org.bigbluebutton.modules.videoconf.business
     private var chatIcon:Class = images.chatIcon;
     
     protected function addControlButtons():void {
-      _controlButtons.sharerUserID = _sharerUserID;
+      _controlButtons.sharerUserID = userID;
       _controlButtons.visible = true;
       this.addChild(_controlButtons);
     }
@@ -244,6 +250,7 @@ package org.bigbluebutton.modules.videoconf.business
 		protected function createButtons():void {      
 			// creates the window keeping the aspect ratio 
 			onKeepAspectClick();
+      updateButtonsPosition();
 		}
 		
 		protected function updateButtonsPosition():void {

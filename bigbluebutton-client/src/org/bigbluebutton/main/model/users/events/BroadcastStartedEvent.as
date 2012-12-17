@@ -20,15 +20,18 @@
 {
 	import flash.events.Event;
 	
+	import org.bigbluebutton.core.vo.CameraSettingsVO;
+	
 	public class BroadcastStartedEvent extends Event
 	{
 		public static const BROADCAST_STARTED_EVENT:String = "BROADCAST_STARTED_EVENT";
 		
 		public var stream:String;
 		public var userid:String;
-		
-		public function BroadcastStartedEvent(type:String = BROADCAST_STARTED_EVENT)
-		{
+		public var isPresenter:Boolean;
+    public var camSettings:CameraSettingsVO;
+    
+		public function BroadcastStartedEvent(type:String = BROADCAST_STARTED_EVENT) {
 			super(type, true, false);
 		}
 

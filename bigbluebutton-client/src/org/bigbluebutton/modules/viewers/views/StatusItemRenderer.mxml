@@ -25,25 +25,28 @@
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	creationComplete="onCreationComplete()" > 
 	
-	<mate:Listener type="ViewVideoCloseEvent" method="onViewVideoCloseEvent"/>
+	<mate:Listener type="{StoppedViewingWebcamEvent.STOPPED_VIEWING_WEBCAM}" method="onViewVideoCloseEvent"/>
 	<mate:Listener type="{ViewersRollEvent.VIEWERS_ROLL_OVER}" method="onRollOver" />
 	<mate:Listener type="{ViewersRollEvent.VIEWERS_ROLL_OUT}" method="onRollOut" />
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;			
-			import mx.controls.Alert;
-			import mx.events.ListEvent;			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.Role;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.main.model.users.events.KickUserEvent;
-			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
-			import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.controls.Alert;
+      import mx.events.ListEvent;
+      
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.Role;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
+      import org.bigbluebutton.main.model.users.Conference;
+      import org.bigbluebutton.main.model.users.events.KickUserEvent;
+      import org.bigbluebutton.main.model.users.events.LowerHandEvent;
+      import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
 			[Bindable] public var kickIcon:Class = images.delete_icon;
@@ -77,9 +80,9 @@
 				dispatchEvent(new ViewCameraEvent(data.userID, data.streamName, data.name));
    			}
    			
-   			private function onViewVideoCloseEvent(event:BBBEvent):void {
-   				LogUtil.debug("ViewWindoClosing event: " + event.message);
-   				if (data.streamName == event.message) {
+   			private function onViewVideoCloseEvent(event:StoppedViewingWebcamEvent):void {
+   				LogUtil.debug("ViewWindoClosing event: " + event.webcamUserID);
+   				if (data.userID == event.webcamUserID) {
    					streamIcon.enabled = true;
    				}
    			}

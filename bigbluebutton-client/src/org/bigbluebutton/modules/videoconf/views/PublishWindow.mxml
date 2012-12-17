@@ -35,14 +35,16 @@
 	
   <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
   <mate:Listener type="{EventConstants.NEW_ROLE}" method="handleNewRoleEvent" />
+  <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
   
 	<mx:Script>
 		<![CDATA[
-      import flexlib.mdi.events.MDIWindowEvent;    
+      import flexlib.mdi.events.MDIWindowEvent;      
       import mx.core.UIComponent;
-      import mx.events.ResizeEvent;     
+      import mx.events.ResizeEvent;      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.Role;
       import org.bigbluebutton.common.events.CloseWindowEvent;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
       import org.bigbluebutton.core.EventConstants;
@@ -57,17 +59,13 @@
       import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-      import org.bigbluebutton.common.Role;
       
-			[Bindable] public var camIcon:Class = images.control_play;
-			[Bindable] public var bbbLogo:Class = images.bbb_logo;
-
 			[Bindable] private var defaultWidth:Number = 320;
 			[Bindable] private var defaultHeight:Number = 240;
-			         
+			
+      public var camIndex:int = 0;
 			private var camWidth:Number = 320;
-			private var camHeight:Number = 240;
-			private var _userrole:String;
+      private var camHeight:Number = 240;
 			private var _camera:Camera = null;
 			public var quality:Number = 0;
 						
@@ -92,48 +90,38 @@
 				videoOptions = new VideoConfOptions();
 				baseIndex = videoOptions.baseTabIndex;
 			}
+
+			private var windowType:String = "PublishWindowType";
 			
+			override public function getWindowType():String {
+				return windowType;
+			}
+      
 			private function onCreationComplete():void{
 				_videoHolder = new UIComponent();
 				_videoHolder.width = camWidth;
 				_videoHolder.height = camHeight;
 				this.addChild(_videoHolder);				
-				this.title = ResourceUtil.getInstance().getString('bbb.publishVideo.title');
-
-				checkIfMacCamera();
-				if (isPresenter()) showResControls(true);
-				if (Camera.names.length > 1) showVideoControls(true);
-				if (!isPresenter() && Camera.names.length == 1) startPublishing();
 
 				this.minWidth = _minWidth;
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = false;
 				this.resizable = false;
-				
-				loadPrefs();
-				
+							
 				this.visible = videoOptions.publishWindowVisible;
 				
-				if (videoOptions.autoStart) {
-					/*
-					 * Need to have a timer to trigger auto-publishing of webcam.
-					 */
-					autoPublishTimer = new Timer(3000, 1);
-					autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
-					autoPublishTimer.start();
-				}
-				
-				titleBarOverlay.enabled = true;
-				maximizeRestoreBtn.enabled = true;
-				
-				//shortcut
-				
+
 				titleBarOverlay.tabIndex = baseIndex;
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
 				
-				// start the camera preview
+				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
+				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
+				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
+				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
+				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+        
 				updateCamera();
 			}
 
@@ -147,7 +135,7 @@
       }
       
       private function handleUserTalkingEvent(event:CoreEvent):void {
-        if (event.message.userID ==  _sharerUserID) {
+        if (event.message.userID ==  userID) {
           if (event.message.talking) {
             notTalkingEffect.end();
             talkingEffect.play([_videoHolder]);            
@@ -157,26 +145,16 @@
           }
         }
       }
-      
-			private function loadPrefs():void{
-				var sharedObject:SharedObject = SharedObject.getLocal("bbbUserProperties", "/");
-				var webcam:String = sharedObject.data["webcam"] as String;
-				for (var i:Number = 0; i<Camera.names.length; i++){
-					if (Camera.names[i] == webcam) cmbCameraSelector.selectedIndex = i;
-				}
-			}
-			
+      		
 			private function updateCamera():void {
 				stopCamera();
-			
-				btnStartPublish.enabled = false;
-				
+					
 				if (Camera.names.length == 0) {
 					showWarning('bbb.video.publish.hint.noCamera');
 					return;
 				}
 				
-				_camera = Camera.getCamera(cmbCameraSelector.selectedIndex.toString());
+        _camera = Camera.getCamera();
 				if (_camera == null) {
 					showWarning('bbb.video.publish.hint.cantOpenCamera');
 					return;
@@ -197,17 +175,15 @@
 					onCameraAccessAllowed();
 				}
 
-			    _camera.addEventListener(ActivityEvent.ACTIVITY, onActivityEvent);
-			    _camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
-
-				setComboResolution();
+			  _camera.addEventListener(ActivityEvent.ACTIVITY, onActivityEvent);
+			  _camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
 				
 				_camera.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
 				_camera.setMode(camWidth, camHeight, videoOptions.camModeFps);
 				_camera.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
 				
 				if (_camera.width != camWidth || _camera.height != camHeight) {
-					LogUtil.debug("Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
+					trace("Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
 					setResolution(_camera.width, _camera.height);
 				}				
 				
@@ -227,36 +203,43 @@
 				}				
 
 				_videoHolder.addChild(_video);
-        
+                
    		}
    		      
-			private function onActivityEvent(e:ActivityEvent):void {
-			    if (_waitingForActivation && e.activating) {
-			        _activationTimer.stop();
-					showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
-			     	btnStartPublish.enabled = true;
-			     	_waitingForActivation = false;
-			    }
+			private function onActivityEvent(e:ActivityEvent):void {        
+        if (_waitingForActivation && e.activating) {
+          trace("Cam activity event:  waitingForActivation = [" + _waitingForActivation + "] activating = [" + e.activating + "]");
+          _activationTimer.stop();
+          showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
+          _waitingForActivation = false;
+              
+          trace("Starting auto-publisher timer.");             
+          autoPublishTimer = new Timer(3000, 1);
+          autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
+          autoPublishTimer.start();
+        }
 			}
 
 			private function onStatusEvent(e:StatusEvent):void {
 				if (e.code == "Camera.Unmuted") {
 					onCameraAccessAllowed();
 					// this is just to overwrite the message of waiting for approval
-				    showWarning('bbb.video.publish.hint.openingCamera');
-			    } else if (e.code == "Camera.Muted") {
-			    	onCameraAccessDisallowed();
-			    }
+          showWarning('bbb.video.publish.hint.openingCamera');
+        } else if (e.code == "Camera.Muted") {
+          onCameraAccessDisallowed();
+        }
 			}
 			
 			private function onCameraAccessAllowed():void {
 				// set timer to ensure that the camera activates.  If not, it might be in use by another application
 				_waitingForActivation = true;
-				if (_activationTimer != null)
-					_activationTimer.stop();
-			    _activationTimer = new Timer(10000, 1);
-			    _activationTimer.addEventListener(TimerEvent.TIMER, activationTimeout);
-			    _activationTimer.start();
+				if (_activationTimer != null) {
+          _activationTimer.stop();
+        }
+					
+        _activationTimer = new Timer(10000, 1);
+        _activationTimer.addEventListener(TimerEvent.TIMER, activationTimeout);
+        _activationTimer.start();
 			}
 			
 			private function onCameraAccessDisallowed():void {
@@ -273,9 +256,10 @@
 			private function startPublishing():void{
 				if (_camera == null) return;
 
-				if (autoPublishTimer != null)
-					autoPublishTimer.stop();
-
+				if (autoPublishTimer != null) {
+          autoPublishTimer.stop();
+        }
+					
 				showWarning('bbb.video.publish.hint.publishing', true, "0xFFFF00");
 				
 				defaultWidth = originalWidth;
@@ -286,60 +270,52 @@
 				e.camera = _camera;
 				dispatchEvent(e);
 				
-				showVideoControls(false);
-				showResControls(false);
-
 				maximizeRestoreBtn.visible = true;
 				this.resizable = true;
 				onResize();
 				
-				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
-				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
-				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
-				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
-				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+
 				
         // Store the userid for the publisher. This allows us to control
         // the user's status from the video window
-        _sharerUserID = UsersUtil.getMyUserID();
+        userID = UsersUtil.getMyUserID();
 				
         createButtons();
         addControlButtons();
-        
-				// this event will dock the window, if it's enabled
-				var openVideoEvent:OpenVideoWindowEvent = new OpenVideoWindowEvent();
-				openVideoEvent.window = this;
-				dispatchEvent(openVideoEvent);					
+        			
 			}
 			
+      private var _isClosing:Boolean = false;
+      
 			override public function close(event:MouseEvent=null):void{
-				stopPublishing();
-				super.close(event);
+        trace("PublishWindow::close");
+			  if (!_isClosing) {
+          _isClosing = true;
+          stopPublishing();
+        }
 			}
 			
 			private function stopCamera():void {
+        _camera = null;
 				if (_video != null) {
 					_videoHolder.removeChild(_video);
 					_video.attachCamera(null);
 					_video.clear();
 					_video = null;
 				}
-				_camera = null;
+				
 			}
 			
 			private function stopPublishing():void{
+        trace("PublishWindow::stopPublishing");
 				stopCamera();
 				var e:StopBroadcastEvent = new StopBroadcastEvent()
 				e.stream = streamName;
 				dispatchEvent(e);
 			}
 			
-			private function setComboResolution():void {
-				var res:Array = cmbResolution.selectedLabel.split( "x" );
-				setResolution(Number(res[0]), Number(res[1]));
-			}
-			
-			private function setResolution(width:int, height:int):void {
+		
+			public function setResolution(width:int, height:int):void {
 				camWidth = originalWidth = width;
 				camHeight = originalHeight = height;
 				setAspectRatio(camWidth, camHeight);
@@ -350,63 +326,20 @@
          		 */	 	
 				var curTime:Number = new Date().getTime();	
         var uid:String = UserManager.getInstance().getConference().getMyUserId();
-        this.streamName = cmbResolution.selectedLabel.concat("-" + uid) + "-" + curTime;
+        var res:String = camWidth + "x" + camHeight;
+        this.streamName = res.concat("-" + uid) + "-" + curTime;
 			}
-			
-			public function set userrole(role:String):void{
-				this._userrole = role;
-			}
-			
+						
 			private function isPresenter():Boolean{
-				if (this._userrole == "MODERATOR" || this._userrole == "PRESENTER") return true;
+				if (UsersUtil.amIModerator() || UsersUtil.amIPresenter()) return true;
 				else return false;
 			}
-			
-			private function showVideoControls(show:Boolean):void{
-				if (show){
-					videoOptionsBar.visible = true;
-					btnStartPublish.visible = true;
-					cmbCameraSelector.visible = true;
-				} else{					
-					videoOptionsBar.visible = false;
-					videoOptionsBar.width = 0;
-					videoOptionsBar.height = 0;
-					btnStartPublish.visible = false;
-					cmbCameraSelector.visible = false;
-					videoOptionsBar.visible = false;
-				}
-			}
-			
-			private function showResControls(show:Boolean):void{
-				if (show) cmbResolution.visible = true;
-				else cmbResolution.visible = false;
-			}
-			
+						
 			private function closeWindow(e:CloseAllWindowsEvent):void{
-				closeThisWindow();
+        trace("PublishWindow::closeWindow");
+        stopCamera();
 			}
-			
-			private function closeThisWindow():void {
-				stopCamera();
-				this.close();
-			}
-			
-			private function checkIfMacCamera():void{
-				for (var i:int = 0; i<Camera.names.length; i++){
-					if (Camera.names[i] == "USB Video Class Video") {
-						/**
-						 * Set as default for Macs
-						 */
-						cmbCameraSelector.selectedIndex = i;
-					}
-				}
-			}
-			
-			override protected function resourcesChanged():void{
-				super.resourcesChanged();
-			}		
-			
-			
+							
 			private var hideWarningTimer:Timer = null;
 			
 			private function showWarning(resourceName:String, autoHide:Boolean=false, color:String="0xFF0000"):void {
@@ -441,27 +374,7 @@
   
 	<mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
 	<mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
-	<mx:Text id="lblWarning" width="100%" textAlign="right" fontSize="14" fontWeight="bold" y="{this.height - (videoOptionsBar.visible? videoOptionsBar.height: 0) - lblWarning.height - 30}" visible="false" selectable="false" hideEffect="{dissolveOut}" showEffect="{dissolveIn}"/>
-	<mx:ControlBar id="videoOptionsBar" visible="true">
-		<mx:Button id="btnStartPublish" 
-				   toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
-				   icon="{camIcon}" 
-				   click="startPublishing()" 
-				   enabled="false"
-				   tabIndex="{baseIndex+4}"/>
-		<mx:ComboBox id="cmbCameraSelector" 
-					 dataProvider="{Camera.names}" 
-					 width="150" 
-					 visible="false" 
-					 change="updateCamera()"
-					 tabIndex="{baseIndex+5}"/>
-		<mx:ComboBox id="cmbResolution" 
-					 dataProvider="{resolutions}" 
-					 width="20%" 
-					 visible="false" 
-					 change="updateCamera()"
-					 tabIndex="{baseIndex+6}"/>
-	</mx:ControlBar>
-	
-	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
+	<mx:Text id="lblWarning" width="100%" textAlign="right" fontSize="14" fontWeight="bold" y="{this.height - lblWarning.height - 30}" 
+           visible="false" selectable="false" hideEffect="{dissolveOut}" showEffect="{dissolveIn}"/>
+
 </pubVid:VideoWindowItf>

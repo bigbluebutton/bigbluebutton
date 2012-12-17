@@ -46,7 +46,7 @@
 			
 			private var images:Images = new Images();
 			private var dispatcher:Dispatcher = new Dispatcher();
-
+			private var mic:Microphone;
 			
 			public const DEFAULT_STATE:Number = 0;
 			public const ACTIVE_STATE:Number = 1;
@@ -67,17 +67,32 @@
 						phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
 						phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
 					}
+          
+          var joinEvent:BBBEvent;
+          
 					if (phoneOptions.skipCheck || noMicrophone()) {
+						// need to figure out if the user has a mic and if they do if it's muted ask for access
+						mic = Microphone.getMicrophone();
 						
-						/*
-						 * If the user had no mic, let her join but she'll just be listening.	
-						 * We should indicate a warning that the user is joining without mic
-						 * so that he will know that others won't be able to hear him.
-						*/
-						var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-						joinEvent.payload['useMicrophone'] = true;
-						dispatcher.dispatchEvent(joinEvent);
-						
+						if (mic == null) {
+							/*
+							 * If the user had no mic, let her join but she'll just be listening.	
+							 * We should indicate a warning that the user is joining without mic
+							 * so that he will know that others won't be able to hear him.
+							*/
+							joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+							joinEvent.payload['useMicrophone'] = false;
+							dispatcher.dispatchEvent(joinEvent);
+						} else if (mic.muted) {
+  							// user has disallowed access to the mic
+  							mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
+  							Security.showSettings();
+						} else {
+							// user has allowed access to the mic already
+						  joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+							joinEvent.payload['useMicrophone'] = true;
+							dispatcher.dispatchEvent(joinEvent);
+					  }						
 					} else {
 						dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
 					}
@@ -88,6 +103,26 @@
 					userJoinedConference(false);
 				}
 			}
+			
+			private function micStatusEventHandler(event:StatusEvent):void {				
+        var joinEvent:BBBEvent;
+				switch(event.code) {
+					case "Microphone.Muted":						
+						LogUtil.warn("Access to microphone has been denied.");
+						joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+						joinEvent.payload['useMicrophone'] = false;
+						dispatcher.dispatchEvent(joinEvent);
+						break;
+					case "Microphone.Unmuted":
+						LogUtil.debug("Access to the microphone has been allowed.");
+						joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+						joinEvent.payload['useMicrophone'] = true;
+						dispatcher.dispatchEvent(joinEvent);
+						break;
+					default:
+						LogUtil.debug("unknown micStatusHandler event: " + event);
+				}
+			}			
 			
 			private function mouseOverHandler(event:MouseEvent):void {
 				if(_currentState == ACTIVE_STATE)

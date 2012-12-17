@@ -35,8 +35,9 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
-	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
+	import org.bigbluebutton.main.events.UserJoinedEvent;
+	import org.bigbluebutton.main.events.UserLeftEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
@@ -211,9 +212,8 @@ package org.bigbluebutton.main.model.users {
 			UserManager.getInstance().getConference().removeUser(userID);	
 			
 			var dispatcher:Dispatcher = new Dispatcher();
-			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
+			var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
 			joinEvent.userID = user.userID;
-			joinEvent.join = false;
 			dispatcher.dispatchEvent(joinEvent);	
 		}
 		
@@ -233,9 +233,8 @@ package org.bigbluebutton.main.model.users {
 			participantStatusChange(user.userID, "raiseHand", joinedUser.status.raiseHand);
 			
 			var dispatcher:Dispatcher = new Dispatcher();
-			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
+			var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
 			joinEvent.userID = user.userID;
-			joinEvent.join = true;
 			dispatcher.dispatchEvent(joinEvent);	
 			
 		}

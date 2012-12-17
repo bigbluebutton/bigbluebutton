@@ -31,29 +31,37 @@
 	
   <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
   <mate:Listener type="{EventConstants.NEW_ROLE}" method="handleNewRoleEvent" />
+  <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
   
 	<mx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;      
-      import flexlib.mdi.events.MDIWindowEvent;      
-      import mx.controls.Alert;
+      import flexlib.mdi.events.MDIWindowEvent;     
       import mx.core.UIComponent;      
       import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.Role;
       import org.bigbluebutton.common.events.CloseWindowEvent;
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.events.CoreEvent;
       import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
       import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-      import org.bigbluebutton.common.Role;
       
 			private var ns:NetStream;			
 			private var globalDispatcher:Dispatcher;
       
-			[Bindable] public var videoOptions:VideoConfOptions;
-				
+			[Bindable]
+			public var videoOptions:VideoConfOptions;
+			
+      private var windowType:String = "VideoWindowType";
+      
+      override public function getWindowType():String {
+        return windowType;
+      }
+      
 			private function onCreationComplete():void{
 				_videoHolder = new UIComponent();
 				_videoHolder.addChild(_video);
@@ -96,15 +104,21 @@
         switchRole(event.message.role == Role.PRESENTER)
       }
       
+      private var _closing:Boolean = false;
+      
 			private function onCloseEvent(event:MDIWindowEvent = null):void {
 				LogUtil.debug("ViewWindow closing " + streamName);
-				var bbbEvt:BBBEvent = new BBBEvent("ViewVideoCloseEvent");
-				bbbEvt.message = streamName;
-				dispatchEvent(bbbEvt);
+        if (!_closing) {
+          _closing = true;
+          var stopEvent:StoppedViewingWebcamEvent = new StoppedViewingWebcamEvent();
+          stopEvent.webcamUserID = userID;
+          globalDispatcher.dispatchEvent(stopEvent);          
+        }
+
 			}
 			
       private function handleUserTalkingEvent(event:CoreEvent):void {
-        if (event.message.userID ==  _sharerUserID) {
+        if (event.message.userID ==  userID) {
           if (event.message.talking) {
             notTalkingEffect.end();
             talkingEffect.play([_videoHolder]);            
@@ -136,7 +150,7 @@
 
 
 				if (videoOptions.smoothVideo) {
-					LogUtil.debug("Smoothing video.")
+					trace("Smoothing video.")
 					_video.smoothing = true;
 				} 
 				
@@ -144,7 +158,7 @@
 					var filter:ConvolutionFilter = new flash.filters.ConvolutionFilter();
 					filter.matrixX = 3;
 					filter.matrixY = 3;
-					LogUtil.debug("Applying convolution filter =[" + videoOptions.convolutionFilter + "]");					
+					trace("Applying convolution filter =[" + videoOptions.convolutionFilter + "]");					
 					filter.matrix = videoOptions.convolutionFilter;
 					filter.bias =  videoOptions.filterBias;
 					filter.divisor = videoOptions.filterDivisor;
@@ -163,7 +177,7 @@
 			}
 			
 			public function onMetaData(info:Object):void{
-				LogUtil.debug("metadata: width=" + info.width + " height=" + info.height);
+				trace("metadata: width=" + info.width + " height=" + info.height);
 				_video.width = info.width;
 				_video.height = info.height;
 				setAspectRatio(info.width, info.height);
@@ -212,5 +226,5 @@
   <mx:Glow id="notTalkingEffect" duration="500" alphaFrom="0.3" alphaTo="1.0"
            blurXFrom="10.0" blurXTo="0.0" blurYFrom="10.0" blurYTo="0.0" color="0xFF0000"/>
 	
-  <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
+
 </viewVid:VideoWindowItf>

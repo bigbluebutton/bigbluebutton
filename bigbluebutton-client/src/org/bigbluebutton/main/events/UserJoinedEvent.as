@@ -22,14 +22,13 @@ package org.bigbluebutton.main.events
 	
 	import org.bigbluebutton.main.model.User;
 
-	public class ParticipantJoinEvent extends Event
+	public class UserJoinedEvent extends Event
 	{
-		public static const PARTICIPANT_JOINED_EVENT:String = 'PARTICIPANT_JOINED_EVENT';
+		public static const JOINED:String = 'user has joined event';
 		
 		public var userID:String;
-		public var join:Boolean = false;
     
-		public function ParticipantJoinEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function UserJoinedEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
 		}

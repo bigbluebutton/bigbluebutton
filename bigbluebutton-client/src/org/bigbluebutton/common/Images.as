@@ -21,6 +21,12 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
+    [Embed(source="assets/images/bandwidth.png")]
+    public var bandwidth:Class;
+    
+    [Embed(source="assets/images/statistics.png")]
+    public var stats:Class;
+    
     [Embed(source="assets/images/avatar.png")]
     public var avatar:Class;
     

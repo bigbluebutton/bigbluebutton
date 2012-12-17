@@ -20,7 +20,9 @@
 package org.bigbluebutton.modules.phone.managers {
 	import com.asfusion.mate.events.Dispatcher;
 	
+	import flash.events.StatusEvent;
 	import flash.media.Microphone;
+	import flash.system.Security;
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
@@ -41,7 +43,7 @@ package org.bigbluebutton.modules.phone.managers {
 		private var rejoining:Boolean = false;
 		// User has requested to leave the voice conference.
 		private var userHangup:Boolean = false;
-		
+		private var mic:Microphone;
 		
 		public function PhoneManager() {
 			connectionManager = new ConnectionManager();
@@ -60,10 +62,15 @@ package org.bigbluebutton.modules.phone.managers {
 			
 			if (phoneOptions.autoJoin) {
 				if (phoneOptions.skipCheck || noMicrophone()) {
-					if (noMicrophone()) {
+					mic = Microphone.getMicrophone();
+					
+					if (mic == null) {
 						joinVoice(false);
+					} else if (mic.muted) {
+						Security.showSettings();
+						mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
 					} else {
-						joinVoice(true);						
+						joinVoice(true);
 					}
 				} else {
 					var dispatcher:Dispatcher = new Dispatcher();
@@ -72,6 +79,21 @@ package org.bigbluebutton.modules.phone.managers {
 			}
 		}
 
+		private function micStatusEventHandler(event:StatusEvent):void {					
+			switch(event.code) {
+				case "Microphone.Muted":
+					LogUtil.warn("Access to microphone has been denied.");
+					joinVoice(false);
+					break;
+				case "Microphone.Unmuted":
+					LogUtil.debug("Access to the microphone has been allowed.");
+					joinVoice(true);
+					break;
+				default:
+					LogUtil.debug("unknown micStatusHandler event: " + event);
+			}
+		}			
+		
 		private function noMicrophone():Boolean {
 			return ((Microphone.getMicrophone() == null) || (Microphone.names.length == 0) 
 				|| ((Microphone.names.length == 1) && (Microphone.names[0] == "Unknown Microphone")));

@@ -34,17 +34,19 @@ $Id: $
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.events.ChildExistenceChangedEvent;			
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.DragWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
-			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;     
+      import mx.events.ChildExistenceChangedEvent;     
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.common.events.DragWindowEvent;
+      import org.bigbluebutton.common.events.OpenWindowEvent;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.events.ConnectAppEvent;
+      import org.bigbluebutton.main.model.users.Conference;
+      import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
+      import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var childrenDimension:Dictionary = new Dictionary();
 			private var borderColor:String;
@@ -59,13 +61,15 @@ $Id: $
 			private var priorityWindowWeight:Number = 2/3;
 			
 			private var options:DockOptions = new DockOptions();
-			[Bindable] private var baseIndex:int;
+			
+			[Bindable] 
+			private var baseIndex:int;
 			
 			private function init():void{
 				baseIndex = options.baseTabIndex;
 			}
 			
-			private function onCreationComplete():void{				
+			private function onCreationComplete():void {				
 				this.showCloseButton = false;		
 				
 				this.minWidth = options.width;
@@ -91,6 +95,10 @@ $Id: $
 				closeBtn.tabIndex = baseIndex+3;
 				
 				if (options.maximize) this.maximize();
+        
+        var gDispatcher:Dispatcher = new Dispatcher();
+        var evt:ConnectAppEvent = new ConnectAppEvent(ConnectAppEvent.CONNECT_VIDEO_APP);
+        gDispatcher.dispatchEvent(evt);
 			}
 			
 			/**
@@ -162,13 +170,16 @@ $Id: $
 			
 			private function onCloseWindow(e:CloseWindowEvent):void {
 				// it should not just undock the window, it should close the window forever
-				if (isVideoWindow(e.window) && this.contains(e.window as VideoWindowItf))
-					this.removeChild(e.window as VideoWindowItf);
+				if (isVideoWindow(e.window) && this.contains(e.window as VideoWindowItf)) {
+          this.removeChild(e.window as VideoWindowItf);
+        }
+					
 			}
 			
 			private function onOpenWindow(e:OpenVideoWindowEvent):void {
-				if (isVideoWindow(e.window) && options.autoDock)
-					addVideoChild(e.window as VideoWindowItf);
+				if (isVideoWindow(e.window) && options.autoDock) {
+          addVideoChild(e.window as VideoWindowItf);
+        }					
 			}
 			
 			private function addVideoChild(window:VideoWindowItf):void {
@@ -197,25 +208,6 @@ $Id: $
 				dispatchEvent(e);
 				
 				this.addChild(window);
-			}
-			
-			private function removeVideoChild(window:VideoWindowItf):void {
-				if (!this.contains(window))
-					return;
-				
-				window.minimizeBtn.visible = true;
-				window.maximizeRestoreBtn.visible = true;
-				window.resizable = true;
-        		window.draggable = true;
-        
-				window.removeEventListener(MouseEvent.CLICK, onWindowClick);
-	
-				this.removeChild(window);
-				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				e.window = window;
-				dispatchEvent(e);
-				
-				restoreWindowDimensions(window);
 			}
 			
 			override public function close(event:MouseEvent = null):void {

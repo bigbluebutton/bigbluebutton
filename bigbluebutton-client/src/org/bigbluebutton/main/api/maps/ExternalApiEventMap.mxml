@@ -23,28 +23,76 @@
 <EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
   <mx:Script>
     <![CDATA[
-    import org.bigbluebutton.core.EventConstants;
-    import org.bigbluebutton.main.api.ExternalApiCalls;
-    import org.bigbluebutton.main.events.BBBEvent;
-    import org.bigbluebutton.main.events.ParticipantJoinEvent;
-    import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
+      import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
+      import org.bigbluebutton.main.api.ExternalApiCalls;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.UserJoinedEvent;
+      import org.bigbluebutton.main.events.UserLeftEvent;
+      import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
+      import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
+      import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
     ]]>
   </mx:Script>
   <!--
     Listen for events we are interested to forward to the external container..
   -->
-  <EventHandlers type="{BBBEvent.ADDED_LISTENER}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserJoinedVoiceEvent"/>
+  
+
+  <EventHandlers type="{StreamStartedEvent.STREAM_STARTED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleStreamStartedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{BroadcastStartedEvent.BROADCAST_STARTED_EVENT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleBroadcastStartedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleBroadcastStoppedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{AmIPresenterQueryEvent.AM_I_PRESENTER_QUERY}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleAmIPresenterQueryEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{AmISharingWebcamQueryEvent.AM_I_SHARING_CAM_QUERY}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleAmISharingCamQueryEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{BBBEvent.USER_VOICE_MUTED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceMutedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{BBBEvent.USER_VOICE_LOCKED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceLockedEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{BBBEvent.USER_VOICE_LEFT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserVoiceLeftEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{BBBEvent.USER_VOICE_JOINED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserJoinedVoiceEvent" arguments="{event}"/>
   </EventHandlers>
   
   <EventHandlers type="{EventConstants.GET_MY_ROLE_RESP}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleGetMyRoleResponse" arguments="{event}"/>
   </EventHandlers>
+
+  <EventHandlers type="{AmIPresenterQueryEvent.AM_I_PRESENTER_QUERY}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleAmIPresenterQueryEvent" arguments="{event}"/>
+  </EventHandlers>
   
-  <EventHandlers type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}" >
-    <MethodInvoker generator="{ExternalApiCalls}" method="handleParticipantJoinEvent" arguments="{event}"/>
+  <EventHandlers type="{UserJoinedEvent.JOINED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserJoinedEvent" arguments="{event}"/>
   </EventHandlers>
 
+  <EventHandlers type="{UserLeftEvent.LEFT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserLeftEvent" arguments="{event}"/>
+  </EventHandlers>
+  
   <EventHandlers type="{EventConstants.NEW_ROLE}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleSwitchToNewRoleEvent" arguments="{event}"/>
   </EventHandlers>

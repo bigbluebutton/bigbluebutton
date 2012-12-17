@@ -44,16 +44,13 @@
 			private var images:Images = new Images();
 			[Bindable] public var camIcon:Class = images.webcam;
 
-
 			public const OFF_STATE:Number = 0;
 			public const ON_STATE:Number = 1;
 			
 			public const STOP_PUBLISHING:Number = 0;
 			public const START_PUBLISHING:Number = 1;
-			
-			
+						
 			private var _currentState:Number = OFF_STATE;
-
 
 			
 			private var dispatcher:Dispatcher;

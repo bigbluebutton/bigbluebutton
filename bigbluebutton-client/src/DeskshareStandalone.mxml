@@ -34,7 +34,6 @@
 	<mx:Script>
 		<![CDATA[
 			import mx.controls.Image;
-
 			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import mx.controls.Button;

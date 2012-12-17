@@ -202,7 +202,9 @@ package org.bigbluebutton.modules.present.ui.views.models
 				}					
 			} else {
 				if (viewportW < pageOrigW) {
-					viewportH = (viewportW/pageOrigW)*pageOrigH;
+					if (_calcPageH < viewportH) {
+						viewportH = (viewportW/pageOrigW)*pageOrigH;
+					}
 				}
 			}		
 		}	
@@ -287,7 +289,7 @@ package org.bigbluebutton.modules.present.ui.views.models
 				viewportH = (vrhp/vrwp)*parentW;				 
 				if (parentH < viewportH) {
 					viewportH = parentH;
-					viewportW = ((vrwp * viewportH)/viewportH);
+					viewportW = ((vrwp * viewportH)/vrhp);
 //					LogUtil.debug("calc viewport ***** resizing [" + viewportW + "," + viewportH + "] [" + parentW + "," + parentH + "," + fitToPage + "] [" + pageOrigW + "," + pageOrigH + "]");
 				}
 			} else {
