@@ -21,6 +21,24 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
+    [Embed(source="assets/images/webcam_kickuser.png")]
+    public var webcam_kickuser:Class;
+    
+    [Embed(source="assets/images/webcam_make_presenter.png")]
+    public var webcam_make_presenter:Class;
+    
+    [Embed(source="assets/images/webcam_mute.png")]
+    public var webcam_mute:Class;
+    
+    [Embed(source="assets/images/webcam_private_chat.png")]
+    public var webcam_private_chat:Class;
+    
+    [Embed(source="assets/images/webcam_unmute.png")]
+    public var webcam_unmute:Class;
+    
+    [Embed(source="assets/images/vdoc_bg.jpg")]
+    public var video_dock_bg:Class;
+        
     [Embed(source="assets/images/bandwidth.png")]
     public var bandwidth:Class;
     

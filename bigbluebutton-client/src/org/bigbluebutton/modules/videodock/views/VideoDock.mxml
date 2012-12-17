@@ -25,16 +25,20 @@ $Id: $
 		   creationComplete="onCreationComplete()" 
 		   implements="org.bigbluebutton.common.IBbbModuleWindow"
 		   title="{ResourceUtil.getInstance().getString('bbb.videodock.title')}"
-		   xmlns:mate="http://mate.asfusion.com/"
-		   layout="absolute" visible="false"
-		   horizontalAlign="center"
+		   xmlns:mate="http://mate.asfusion.com/" styleNameFocus="videoDockStyleFocus"
+		   layout="absolute" visible="false" styleNameNoFocus="videoDockStyleNoFocus"
+		   horizontalAlign="center" 
 		   verticalAlign="middle"
 		   resize="onChildAdd()">
 	
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;     
-      import mx.events.ChildExistenceChangedEvent;     
+      //backgroundImage="{backgroundImage}"
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.events.ChildExistenceChangedEvent;
+      
+      import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.CloseWindowEvent;
       import org.bigbluebutton.common.events.DragWindowEvent;
@@ -61,9 +65,15 @@ $Id: $
 			
 			private var options:DockOptions = new DockOptions();
 			
+      private var images:Images = new Images();
+      
+      [Bindable]
+      private var backgroundImage:Class = images.video_dock_bg;
+      
 			private function onCreationComplete():void {				
 				this.showCloseButton = false;		
-				
+				this.showControls = options.showControls;
+        
 				this.minWidth = options.width;
 				this.minHeight = options.height;
 				this.maxWidth = this.parent.width;

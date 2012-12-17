@@ -24,6 +24,8 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:pubVid="org.bigbluebutton.modules.videoconf.business.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
+  styleNameFocus="videoAvatarStyleFocus"
+  styleNameNoFocus="videoAvatarStyleNoFocus"
 	creationComplete="onCreationComplete()"
 	width="{defaultWidth + 6}" height="{defaultHeight + 6}" 
 	xmlns:mate="http://mate.asfusion.com/"
@@ -132,6 +134,7 @@
       }
       
       private function handleUserTalkingEvent(event:CoreEvent):void {
+        trace("******************** Talking Event for [" + event.message.userID + "]*********************");
         if (event.message.userID ==  userID) {
           if (event.message.talking) {
             notTalkingEffect.end();
@@ -176,8 +179,8 @@
 	</mx:Script>
 
   <mx:Glow id="talkingEffect" duration="500" alphaFrom="1.0" alphaTo="0.3"
-           blurXFrom="0.0" blurXTo="30.0" blurYFrom="0.0" blurYTo="30.0" color="0xFF0000"/>
+           blurXFrom="0.0" blurXTo="30.0" blurYFrom="0.0" blurYTo="30.0" color="0x4A931D"/>
   <mx:Glow id="notTalkingEffect" duration="500" alphaFrom="0.3" alphaTo="1.0"
-           blurXFrom="30.0" blurXTo="0.0" blurYFrom="30.0" blurYTo="0.0" color="0xFF0000"/>
+           blurXFrom="30.0" blurXTo="0.0" blurYFrom="30.0" blurYTo="0.0" color="0x4A931D"/>
 
 </pubVid:VideoWindowItf>

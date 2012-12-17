@@ -95,6 +95,7 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="VideoconfModule, ViewersModule"
 			autoDock="true"
+			showControls="true"
 			maximizeWindow="false"
 			position="bottom-right"
 			width="172"
