@@ -1,14 +1,16 @@
 package org.bigbluebutton.main.api
 {
-  import com.asfusion.mate.events.Dispatcher; 
-  import flash.external.ExternalInterface;  
-  import mx.controls.Alert;  
+  import com.asfusion.mate.events.Dispatcher;
+  
+  import flash.external.ExternalInterface;
+  
+  import mx.controls.Alert;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
-
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
@@ -221,7 +223,9 @@ package org.bigbluebutton.main.api
     
     private function handleJoinVoiceRequest():void {
       trace("handleJoinVoiceRequest");
-      _dispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_CONFERENCE));
+      var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+      joinEvent.payload['useMicrophone'] = true;
+      _dispatcher.dispatchEvent(joinEvent);
     }
     
     private function handleLeaveVoiceRequest():void {
