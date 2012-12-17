@@ -1,4 +1,5 @@
 requirejs.config({
+  waitSeconds: 60,
   baseUrl: 'js',
   shim: {
     'colorwheel': ['raphael'],
