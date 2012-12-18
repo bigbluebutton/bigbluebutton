@@ -403,8 +403,7 @@
 	
 	<mx:ControlBar id="videoOptionsBar" visible="true">
 		<mx:Button id="btnStartPublish" 
-				   toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
-				   icon="{camIcon}" 
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}"  
 				   click="startPublishing()" 
 				   enabled="false"
 				   tabIndex="{baseIndex+4}"

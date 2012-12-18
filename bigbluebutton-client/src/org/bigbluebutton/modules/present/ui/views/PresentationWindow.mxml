@@ -43,6 +43,7 @@
 	>
 	
 	<mate:Dispatcher id="globalDispatcher" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_PRESENTATION_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="becomeViewer" />
 	<mate:Listener type="{PresentationEvent.PRESENTATION_LOADED}" method="handlePresentationLoadedEvent" />
@@ -72,6 +73,7 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.*;
 			
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -166,6 +168,10 @@
 				
 				slideView.slideLoader.tabIndex = baseIndex+4;
 				LogUtil.debug("WATERFALL Presentation slideView.slideLoader.tabIndex " + slideView.slideLoader.tabIndex);
+			}
+			
+			private function focusWindow(e:ShortcutEvent):void{
+				focusManager.setFocus(titleBarOverlay);
 			}
 			
 			private function maximizeHandler():void {

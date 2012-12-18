@@ -26,7 +26,7 @@
 	       creationComplete="onCreationComplete()"
 		   xmlns:mate="http://mate.asfusion.com/" 
 		   title="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.title')}"
-		   initialize="testInit()">
+		   >
 		   
 	<mx:Script>
 		<![CDATA[
@@ -42,7 +42,9 @@
 			private var chatKeys:ArrayList;
 			private var audKeys:ArrayList;
 			
-			private var genResource:Array = ['bbb.shortcutkey.flash.exit'];
+			private var genResource:Array = ['bbb.shortcutkey.flash.exit', 'bbb.shortcutkey.focus.viewers', 'bbb.shortcutkey.focus.listeners', 
+											 'bbb.shortcutkey.focus.video', 'bbb.shortcutkey.focus.presentation', 'bbb.shortcutkey.focus.chat',
+											 'bbb.shortcutkey.share.desktop', 'bbb.shortcutkey.share.microphone', 'bbb.shortcutkey.share.webcam'];
 			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', 'bbb.shortcutkey.whiteboard.undo'];
 			private var chatResource:Array = ['bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.chat.chattabs', 'bbb.shortcutkey.chat.chatbox.advance', 
 											  'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.repeat', 'bbb.shortcutkey.chat.chatbox.golatest', 
@@ -51,12 +53,15 @@
 			[Bindable]
 			private var shownKeys:ArrayCollection;
 			
-			private function testInit():void {
-				//LogUtil.debug("WATERFALL: Initializing Shortcut window");
+			private function init():void {
+				
 			}
 			
 			private function onCreationComplete():void {
 				//LogUtil.debug("WATERFALL: Creation Complete - Shortcut window");
+				//var browser = ExternalInterface.call("determineBrowser");
+				//var modifier = ExternalInterface.call("determineModifier");
+				//browserInfo.text = "You are using " + browser + " and your hotkey modifier is " + modifier + ".";
 				reloadKeys();
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, reloadKeys); // Listen for locale changing
 			}
@@ -103,21 +108,27 @@
 				var keyList:ArrayList = new ArrayList();
 				//LogUtil.debug("CHAD " + resource.length);
 				var keyCombo:String;
+				var modifier:String;
 				var indx:int = 255;
 				//LogUtil.debug("CHAD " + resource.length);
 				for (var i:int = 0; i < resource.length; i++) {
 					//LogUtil.debug("CHAD inside" + resource.length);
+					
+					// Find the modifier key(s) for the user's browser
+					modifier = ExternalInterface.call("determineModifier");
 					keyCombo = ResourceUtil.getInstance().getString(resource[i]);
-					indx = keyCombo.lastIndexOf("+") + 1;
-					var key:int = int(keyCombo.substring(indx));
+					//indx = keyCombo.lastIndexOf("+") + 1;
+					var key:int = int(keyCombo);
 					var convKey:String;
 					if (key == 32) { //special case
 						convKey = "Space";
 					} else {
 						convKey = String.fromCharCode(key);
 					}
-					keyList.addItem({Shortcut:keyCombo.substring(0, indx) + convKey, 
+					keyList.addItem({Shortcut:modifier + convKey, 
 								Function:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
+					/*keyList.addItem({Shortcut:keyCombo.substring(0, indx) + convKey, 
+								Function:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});*/
 				}
 				//LogUtil.debug("CHAD after " + resource.length);
 				return keyList;
@@ -130,6 +141,8 @@
 		]]>
 	</mx:Script>
 	
+	<!-- Probably need to change this from a Label to something else. -->
+	<mx:Label id="browserInfo" focusEnabled="true" accessibilityName="Placeholder for Browser Info"/>
 	<mx:ComboBox id="categories" labelField="Please select an area for which to view shortcut keys: " 
 				 editable="false" 
 				 change="changeArray()"

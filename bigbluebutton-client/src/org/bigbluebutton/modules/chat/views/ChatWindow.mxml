@@ -33,6 +33,7 @@
 	
 	
 	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_TABS}" method="focusChatTabs" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_WINDOW}" method="focusWindow" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -84,6 +85,10 @@
 				closeBtn.tabIndex = baseIndex+3;
 
 				resourcesChanged(); // update the window controls once they've been created
+			}
+			
+			private function focusWindow(e:ShortcutEvent):void{
+				focusManager.setFocus(titleBarOverlay);
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
@@ -140,6 +145,8 @@
 //				windowManager.bringToFront(this);
 //				focusManager.setFocus(chatView.chatTabs);
 			}
+			
+			
 		]]>
 	</mx:Script>
 	

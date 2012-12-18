@@ -30,6 +30,7 @@
 			xmlns:mate="http://mate.asfusion.com/" 
 			xmlns:controls="flexlib.controls.*">
 	
+	<mate:Listener type="{ShortcutEvent.FOCUS_LISTENERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{ListenersEvent.ROOM_MUTE_STATE}" method="roomMuteStateChange" />
 	<mate:Listener type="{ListenersEvent.REGISTER_LISTENERS}" method="registerListeners" />
 	<mate:Listener type="{ListenersEvent.SET_LOCAL_MODERATOR_STATUS}" method="{setModerator}" />
@@ -101,6 +102,10 @@
 				LogUtil.debug(listenersList.id);
 				LogUtil.debug(listenersList.visible.toString());
 				LogUtil.debug(listenersList.enabled.toString());
+			}
+			
+			private function focusWindow(e:ShortcutEvent):void{
+				focusManager.setFocus(titleBarOverlay);
 			}
 			
 			private function updateShowPushToTalkBtn(show:Boolean):void {

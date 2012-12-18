@@ -32,10 +32,12 @@ $Id: $
 		   verticalAlign="middle"
 		   resize="onChildAdd()">
 	
+	<mate:Listener type="{ShortcutEvent.FOCUS_VIDEO_WINDOW}" method="focusWindow" />
 	<mx:Script>
 		<![CDATA[
       import com.asfusion.mate.events.Dispatcher;     
       import mx.events.ChildExistenceChangedEvent;     
+	  import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.CloseWindowEvent;
       import org.bigbluebutton.common.events.DragWindowEvent;
@@ -96,9 +98,13 @@ $Id: $
 				
 				if (options.maximize) this.maximize();
         
-        var gDispatcher:Dispatcher = new Dispatcher();
-        var evt:ConnectAppEvent = new ConnectAppEvent(ConnectAppEvent.CONNECT_VIDEO_APP);
-        gDispatcher.dispatchEvent(evt);
+		        var gDispatcher:Dispatcher = new Dispatcher();
+		        var evt:ConnectAppEvent = new ConnectAppEvent(ConnectAppEvent.CONNECT_VIDEO_APP);
+		        gDispatcher.dispatchEvent(evt);
+			}
+			
+			private function focusWindow(e:ShortcutEvent):void{
+				focusManager.setFocus(titleBarOverlay);
 			}
 			
 			/**

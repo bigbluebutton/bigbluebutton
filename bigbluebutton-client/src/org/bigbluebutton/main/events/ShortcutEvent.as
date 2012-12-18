@@ -35,6 +35,17 @@ package org.bigbluebutton.main.events {
 		public static const GOREAD_MESSAGE:String = 'GOREAD_MESSAGE';
 		public static const OPEN_SHORTCUT_WIN:String = 'OPEN_SHORTCUT_WIN';
 		
+		public static const FOCUS_VIEWERS_WINDOW:String = 'FOCUS_VIEWERS_WINDOW';
+		public static const FOCUS_LISTENERS_WINDOW:String = 'FOCUS_LISTENERS_WINDOW';
+		public static const FOCUS_VIDEO_WINDOW:String = 'FOCUS_VIDEO_WINDOW';
+		public static const FOCUS_PRESENTATION_WINDOW:String = 'FOCUS_PRESENTATION_WINDOW';
+		public static const FOCUS_CHAT_WINDOW:String = 'FOCUS_CHAT_WINDOW';
+		
+		public static const SHARE_DESKTOP:String = 'SHARE_DESKTOP';
+		public static const SHARE_MICROPHONE:String = 'SHARE_MICROPHONE';
+		public static const SHARE_WEBCAM:String = 'SHARE_WEBCAM';
+		
+		
 		public var otherUserID:String;
 		
 		public function ShortcutEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false) {

@@ -32,6 +32,10 @@
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="gotConfigParameters" />
 	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
 	
+	<mate:Listener type="{ShortcutEvent.SHARE_DESKTOP}" method="shareDesktop" />
+	<mate:Listener type="{ShortcutEvent.SHARE_WEBCAM}" method="shareWebcam" />
+	<mate:Listener type="{ShortcutEvent.SHARE_MICROPHONE}" method="shareMicrophone" />
+	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;		
@@ -100,6 +104,18 @@
 				LogUtil.debug("WATERFALL End of MTB init, baseindex is " + baseIndex);
 				//*/
 			}			
+			
+			public function shareDesktop:void{
+				
+			}
+			
+			public function shareWebcam:void{
+				
+			}
+			
+			public function shareMicrophone:void{
+				
+			}
 						
 			public function displayToolbar():void{
 				toolbarOptions = new LayoutOptions();
@@ -153,12 +169,22 @@
 				// Find out how to import accessibility into custom components; even though the ToolbarButtons are buttons, they don't seem to have a tabIndex
 				if (event.location == ToolbarButtonEvent.TOP_TOOLBAR) {
 
-					/*var localButton:IBbbToolbarComponent;
-					localButton = event.button;
-					(localButton as Button).tabIndex = baseIndex + numButtons;
-					addedBtns.addChild(localButton as UIComponent);*/
+					var localButton:UIComponent;
+					if (event.module == "DeskShare"){
+						localButton.id = "deskshareBtn";
+					}
+					else if (event.module == "Microphone"){
+						localButton.id = "microphoneBtn";
+					}
+					else if (event.module == "Webcam"){
+						localButton.id = "webcamBtn";
+					}
 					
-					addedBtns.addChild(event.button as UIComponent);
+					localButton = event.button as UIComponent;
+					//(localButton as Button).tabIndex = baseIndex + numButtons;
+					addedBtns.addChild(localButton);
+					
+					//addedBtns.addChild(event.button as UIComponent);
 					numButtons++;
 					realignButtons();
 				}

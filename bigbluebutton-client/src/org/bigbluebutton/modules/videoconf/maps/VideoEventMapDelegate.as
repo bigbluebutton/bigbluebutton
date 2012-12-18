@@ -102,6 +102,7 @@ package org.bigbluebutton.modules.videoconf.maps
         button.isPresenter = !options.presenterShareOnly;
         var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
         event.button = button;
+		event.module="Webcam";
         _dispatcher.dispatchEvent(event);
       }
     }

@@ -29,6 +29,7 @@
 	creationComplete="onCreationComplete()"
 	showCloseButton="false">
 
+	<mate:Listener type="{ShortcutEvent.FOCUS_VIEWERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="conferenceStarted" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 
@@ -42,6 +43,7 @@
           import mx.controls.listClasses.IListItemRenderer;
           import mx.events.DataGridEvent;
           import mx.events.ListEvent;          
+		  import org.bigbluebutton.main.events.ShortcutEvent;
           import org.bigbluebutton.common.Images;
           import org.bigbluebutton.common.Role;
           import org.bigbluebutton.common.events.LocaleChangeEvent;
@@ -96,6 +98,10 @@
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
+			}
+			
+			private function focusWindow(e:ShortcutEvent):void{
+				focusManager.setFocus(titleBarOverlay);
 			}
 			
           
