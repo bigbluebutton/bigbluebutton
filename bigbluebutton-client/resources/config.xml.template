@@ -6,7 +6,7 @@
     <porttest host="HOST" application="video" timeout="10000"/>    
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
-    <skinning enabled="false" url="branding/css/theme.css.swf" />
+    <skinning enabled="false" url="http://HOST/client/branding/css/theme.css.swf" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
             showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true"/>
             
