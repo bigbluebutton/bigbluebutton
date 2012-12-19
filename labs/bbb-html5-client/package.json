@@ -12,6 +12,8 @@
     "hiredis": ">= 0.1.14",
     "sanitizer": ">= 0.0.15",
     "hat": ">= 0.0.3",
-    "imagemagick": ">= 0.1.2"
+    "imagemagick": ">= 0.1.2",
+    "requirejs": ">= 2.1.2",
+    "coffee-script": ">= 1.4.0"
   }
 }

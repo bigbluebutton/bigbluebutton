@@ -66,6 +66,10 @@ app.configure('production', function(){
   app.use(express.errorHandler());
 });
 
+app.helpers({
+  h_environment: app.settings.env
+});
+
 /**
  * If a page requires authentication to view, this
  * function is used to verify they are logged in.
