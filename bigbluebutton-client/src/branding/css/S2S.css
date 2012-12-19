@@ -110,6 +110,27 @@ ComboBox {
   themeColor: #999999;
 }
 
+VBox.whiteboardToolbarStyle {
+  backgroundColor: #4798C6;
+  cornerRadius: 5;
+  borderColor: #2D586E;
+  borderStyle: solid;
+  borderThickness: 1;
+  paddingBottom: 3;
+  paddingTop: 3;
+  paddingLeft: 3;
+  paddingRight: 3;
+}
+
+Button.whiteboardButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;
+}
+
 MDIWindow {
   resizeCursorHorizontalXOffset: 20	
 }

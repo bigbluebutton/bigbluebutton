@@ -25,8 +25,7 @@
 		xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
 		xmlns:wbBtns="org.bigbluebutton.modules.whiteboard.views.buttons.*"
 		xmlns:mate="http://mate.asfusion.com/" creationComplete="onCreationComplete()"
-		visible="true" backgroundColor="0xCCCCCC" cornerRadius="5" borderStyle="solid" 
-	    paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" >
+		visible="true" styleName="whiteboardToolbarStyle">
 	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="viewerMode" />

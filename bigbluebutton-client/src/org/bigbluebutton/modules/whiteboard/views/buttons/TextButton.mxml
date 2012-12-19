@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
-		   width="20" height="20" click="onClick()" icon="{text_icon}" 
+		   width="20" height="20" click="onClick()" icon="{text_icon}" styleName="whiteboardButtonStyle"
 		   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.text')}" toggle="true">
 	<mx:Script>
 		<![CDATA[

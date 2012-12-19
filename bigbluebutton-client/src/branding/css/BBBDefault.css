@@ -31,6 +31,16 @@ Panel {
   fontSize: 12;
 }
 
+.whiteboardToolbarStyle {
+  backgroundColor: #CCCCCC;
+  cornerRadius: 5;
+  borderStyle: solid;
+  borderThickness: 1;
+  paddingBottom: 3;
+  paddingTop: 3;
+  paddingLeft: 3;
+  paddingRight: 3;
+}
 
 Button {
   textIndent: 0;
