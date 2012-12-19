@@ -36,6 +36,7 @@
   <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
   <mate:Listener type="{EventConstants.NEW_ROLE}" method="handleNewRoleEvent" />
   <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
+  <mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_WEBCAM}" method="remoteFocus" />
   
 	<mx:Script>
 		<![CDATA[
@@ -59,6 +60,7 @@
       import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
+	  import org.bigbluebutton.main.events.ShortcutEvent;
       
 			[Bindable] private var defaultWidth:Number = 320;
 			[Bindable] private var defaultHeight:Number = 240;
@@ -126,6 +128,7 @@
 				minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.minimizeBtn');
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.maximizeRestoreBtn');
+				closeBtn.focusEnabled = true;
 				closeBtn.tabIndex = baseIndex+3;
 				
 				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
@@ -146,6 +149,10 @@
 				
 				// start the camera preview
 				updateCamera();
+			}
+			
+			private function remoteFocus(e:ShortcutEvent):void{
+				focusManager.setFocus(closeBtn);
 			}
 
 			private function autopublishTimerHandler(event:TimerEvent):void {				
@@ -408,21 +415,23 @@
 				   enabled="false"
 				   tabIndex="{baseIndex+4}"
 				   accessibilityName = "{ResourceUtil.getInstance().getString('bbb.video.publish.startBtn')}"/>
+		
 		<mx:ComboBox id="cmbCameraSelector" 
 					 dataProvider="{Camera.names}" 
-					 width="150" 
+					  
 					 visible="false" 
 					 change="updateCamera()"
 					 tabIndex="{baseIndex+5}"
 					 accessibilityName = "{ResourceUtil.getInstance().getString('bbb.video.publish.selectBtn')}"/>
 		<mx:ComboBox id="cmbResolution" 
 					 dataProvider="{resolutions}" 
-					 width="20%" 
+					  
 					 visible="false" 
 					 change="updateCamera()"
 					 tabIndex="{baseIndex+6}"
 					 accessibilityName = "{ResourceUtil.getInstance().getString('bbb.video.publish.resolutionBtn')}"/>
 	</mx:ControlBar>
+	
 	
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
 </pubVid:VideoWindowItf>

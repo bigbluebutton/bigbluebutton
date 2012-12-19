@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
-		width="600" height="300" creationComplete="initDefaultMic()" showCloseButton="true" close="onCancelClicked()" keyDown="handleKeyDown(event)">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				layout="absolute"
+				xmlns:mate="http://mate.asfusion.com/" 
+				width="600" height="300" 
+				creationComplete="initDefaultMic()" 
+				showCloseButton="true" 
+				close="onCancelClicked()" 
+				keyDown="handleKeyDown(event)">
+	<!-- mate:Listener type="{ShortcutEvent.SHARE_MICROPHONE}" method="remoteClick" / -->
 	<mx:Script>
 		<![CDATA[
 			import flash.system.Security;
@@ -14,6 +21,9 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			
 			
 			[Embed(source="assets/audio-test.mp3")]
 			[Bindable] private var soundClass:Class;
@@ -83,6 +93,12 @@
 					playButton.label = ResourceUtil.getInstance().getString('bbb.micSettings.playSound');
 					playingAudio = false;
 				}	                     
+			}
+			
+			public function remoteClick():void{
+				LogUtil.debug("WATERFALL: Registered hotkey in MicSettings");
+				//showMicSettingsPanel();
+				//initDefaultMic();
 			}
 						
 			private function showMicSettingsPanel():void {

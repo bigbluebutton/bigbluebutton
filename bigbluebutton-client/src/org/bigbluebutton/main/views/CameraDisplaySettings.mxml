@@ -263,7 +263,16 @@
   <mx:VBox id="webcamDisplay" width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
     <view:VideoHolder id="_videoHolder" width="100%" height="90%"/>
     <mx:HBox width="100%"> 
-      <mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" enabled="true"/>
+      <mx:Button id="btnStartPublish" 
+      			 toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
+      			 icon="{camIcon}" 
+      			 click="startPublishing()" 
+      			 enabled="true"/>
+      <mx:Button id="btnClosePublish"   
+				 click="onCancelClicked()" 
+				 enabled="true"
+				 label="{ResourceUtil.getInstance().getString('bbb.video.publish.closeBtn.label')}"
+				 accessibilityName="{ResourceUtil.getInstance().getString('bbb.video.publish.closeBtn.accessName')}"/>
       <mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" change="updateCamera()"/>
       <mx:Button id="changeCamera" label="Change Camera" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" click="showCameraSettings()"/>
       <mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" change="updateCamera()"/>

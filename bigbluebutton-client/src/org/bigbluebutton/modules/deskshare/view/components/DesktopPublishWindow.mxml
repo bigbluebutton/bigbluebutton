@@ -41,6 +41,8 @@
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{StopSharingButtonEvent.STOP_SHARING}" method="stopSharingEvent" />
 	
+	<mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_DESKTOP}" method="remoteFocus" />
+	
 	
 	<mx:Script>
 		<![CDATA[
@@ -55,6 +57,7 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
@@ -116,7 +119,7 @@
 				titleBarOverlay.tabIndex = baseIndex;
 				titleBarOverlay.focusEnabled = true;
 				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
-				
+								
 				LogUtil.debug("Waterfall: Deskshare titleBarOverlay is having troubles");
 				LogUtil.debug("Waterfall: Focusable? " + titleBarOverlay.focusEnabled);
 				LogUtil.debug("Waterfall: Index? " + titleBarOverlay.tabIndex);
@@ -124,6 +127,10 @@
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
+			}
+			
+			private function remoteFocus(e:ShortcutEvent):void{
+				focusManager.setFocus(minimizeBtn);
 			}
 			
 			public function get defaultWidth():int{

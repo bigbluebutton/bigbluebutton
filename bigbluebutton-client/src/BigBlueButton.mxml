@@ -149,6 +149,7 @@
 	  //LogUtil.debug("WATERFALL: Your modifier + non-mod keys is " + modifier + e.keyCode);
                               
       if (keyCombos[keyPress]) {
+		LogUtil.debug("WATERFALL: keyCombo is " + keyCombos[keyPress]);
         globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
       }
     }

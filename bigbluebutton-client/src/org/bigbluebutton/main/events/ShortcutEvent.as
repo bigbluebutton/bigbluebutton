@@ -45,6 +45,11 @@ package org.bigbluebutton.main.events {
 		public static const SHARE_MICROPHONE:String = 'SHARE_MICROPHONE';
 		public static const SHARE_WEBCAM:String = 'SHARE_WEBCAM';
 		
+		public static const REMOTE_FOCUS_DESKTOP:String = 'REMOTE_FOCUS_DESKTOP';
+		public static const REMOTE_FOCUS_WEBCAM:String = 'REMOTE_FOCUS_WEBCAM';
+		// Remote focus microphone not necessary; audio options already hog focus
+		
+		
 		
 		public var otherUserID:String;
 		
