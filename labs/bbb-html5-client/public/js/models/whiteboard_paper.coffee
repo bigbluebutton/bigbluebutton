@@ -104,6 +104,7 @@ define [
     # @param {number} height   the height of the image (in pixels)
     # @return {Raphael.image} the image object added to the whiteboard
     addImageToPaper: (url, width, height) ->
+      @_updateContainerDimensions()
       console.log "adding image to paper", url, width, height
       if @fitToPage
         # solve for the ratio of what length is going to fit more than the other
@@ -580,8 +581,6 @@ define [
     # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
     # @param  {number} y the y value of cursor at the time in relation to the top of the browser
     _onCursorMove: (e, x, y) ->
-      sx = (@containerWidth - @gw) / 2
-      sy = (@containerHeight - @gh) / 2
       xLocal = (e.pageX - @containerOffsetLeft) / @sw
       yLocal = (e.pageY - @containerOffsetTop) / @sh
       globals.connection.emitMoveCursor xLocal, yLocal
