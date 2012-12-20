@@ -131,6 +131,86 @@ Button.whiteboardButtonStyle {
   borderColor: #50a6d7;
 }
 
+.whiteboardUndoButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;
+  icon: Embed('assets/images/undo.png');
+}
+
+.whiteboardCircleButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;
+  icon: Embed('assets/images/ellipse.png');  
+}
+
+.whiteboardClearButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;
+  icon: Embed('assets/images/trash.png');    
+}
+
+.whiteboardLineButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;
+  icon: Embed('assets/images/line.png');    
+}
+
+.whiteboardPanZoomButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;
+  icon: Embed('assets/images/hand.png');   
+}
+
+.whiteboardRectangleButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;
+  icon: Embed('assets/images/square.png');   
+}
+
+.whiteboardTextButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;
+  icon: Embed('assets/images/text.png');   
+}
+
+.whiteboardTriangleButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;
+  icon: Embed('assets/images/triangle.png');    
+}
+
 .presentationUploadButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;

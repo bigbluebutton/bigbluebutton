@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 		   width="20" height="20" 
-		   click="onClick()" styleName="whiteboardButtonStyle"
-		   icon="{ellipse_icon}" 
+		   click="onClick()" styleName="whiteboardCircleButtonStyle"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.ellipse')}" 
 		   toggle="true">
 	<mx:Script>
@@ -12,10 +11,7 @@
 			import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
-			private var images:Images = new Images();			
-			[Bindable] private var ellipse_icon:Class = images.circle_icon;
-			
+						
 			private function onClick():void {
 				var event:WhiteboardButtonEvent = new WhiteboardButtonEvent(WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED);
 				event.graphicType = WhiteboardConstants.TYPE_SHAPE;

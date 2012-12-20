@@ -65,7 +65,7 @@
 			private var images:Images = new Images();
 			[Bindable] private var addIcon : Class = images.add;
 			[Bindable] private var bulletGoIcon : Class = images.bulletGo;
-			[Bindable] private var deleteIcon : Class = images.delete_icon;
+			[Bindable] private var deleteIcon : Class = images.cancel;
 	        
 	        private var thumbnailTimer:Timer = new Timer(5000);
 	        private var genThumbText:String = ResourceUtil.getInstance().getString('bbb.fileupload.genThumbText');

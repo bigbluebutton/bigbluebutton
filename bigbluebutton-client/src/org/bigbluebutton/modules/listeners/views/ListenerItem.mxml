@@ -41,7 +41,7 @@
 			[Bindable] private var muteIcon:Class = images.sound_mute;
 			[Bindable] private var unmuteIcon:Class = images.sound_none;
 			[Bindable] private var talkIcon:Object = images.sound;   		
-			[Bindable] private var ejectIcon:Class = images.delete_icon;
+			[Bindable] private var ejectIcon:Class = images.cancel;
 			[Bindable] private var statusTooltip : String = "";
 			[Bindable] private var ejectTooltip : String = ResourceUtil.getInstance().getString('bbb.listeners.ejectTooltip');
 			[Bindable] private var moderator:Boolean = false;

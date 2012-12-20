@@ -118,7 +118,7 @@ package org.bigbluebutton.common
         public var sound:Class;                
 
         [Embed(source="assets/images/cancel.png")]
-        public var cancel_user:Class;    
+        public var cancel:Class;    
 
         [Embed(source="assets/images/user_go.png")]
         public var eject_user:Class;  
