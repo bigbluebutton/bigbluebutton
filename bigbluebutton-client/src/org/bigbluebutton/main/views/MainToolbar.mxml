@@ -32,7 +32,7 @@
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="gotConfigParameters" />
 	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
 	
-	<mate:Listener type="{ShortcutEvent.SHARE_MICROPHONE}" method="remoteMicClick" />
+	
 	
 	<mx:Script>
 		<![CDATA[
@@ -103,14 +103,7 @@
 				//*/
 			}
 			
-			public function remoteMicClick():void{
-				LogUtil.debug("WATERFALL: Registered hotkey in MicSettings");
-				//showMicSettingsPanel();
-				//initDefaultMic();
-			}			
-			
-			
-						
+								
 			public function displayToolbar():void{
 				toolbarOptions = new LayoutOptions();
 				toolbarOptions.parseOptions();	
@@ -180,8 +173,8 @@
 					//addedBtns.addChild(localButton);*/
 					
 					
-					//addedBtns.addChild(event.button as UIComponent);
-					addedBtns.addChildAt(event.button as UIComponent, index);					
+					addedBtns.addChild(event.button as UIComponent);
+					// Won't work quite like this: addedBtns.addChildAt(event.button as UIComponent, index);					
 					numButtons++;
 					realignButtons();
 				}
