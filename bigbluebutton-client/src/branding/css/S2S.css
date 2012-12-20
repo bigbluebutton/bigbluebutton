@@ -161,6 +161,16 @@ Button.whiteboardButtonStyle {
   icon: Embed('assets/images/trash.png');    
 }
 
+.whiteboardScribbleButtonStyle{
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;
+  icon: Embed('assets/images/marker.png');  
+}
+
 .whiteboardLineButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
@@ -228,7 +238,7 @@ Button.whiteboardButtonStyle {
   textRollOverColor: #ffffff;
   textSelectedColor: #ffffff;
   borderColor: #50a6d7;
-  icon:   Embed('assets/images/left_arrow.png'); 
+  icon:   Embed('assets/images/left-arrow.png'); 
 }
 
 .presentationForwardButtonStyle {
@@ -238,7 +248,7 @@ Button.whiteboardButtonStyle {
   textRollOverColor: #ffffff;
   textSelectedColor: #ffffff;
   borderColor: #50a6d7;
-  icon:   Embed('assets/images/left_arrow.png'); 
+  icon:   Embed('assets/images/right-arrow.png'); 
 }
 
 .presentationFitToWidthButtonStyle {
@@ -259,6 +269,29 @@ Button.whiteboardButtonStyle {
   textSelectedColor: #ffffff;
   borderColor: #50a6d7;
   icon:   Embed('assets/images/fit-to-screen.png'); 
+}
+
+.presentationZoomSliderStyle{
+  labelOffset: 0;
+  thumbOffset: 3;
+  dataTipOffset: -1;
+  tickOffset: 2;
+  tickLength: 5;
+  tickThickness: 2;
+  tickColor: #6cccff;
+  showTrackHighlight: true;
+  invertThumbDirection: false;
+  borderColor: #6cccff;
+  trackColors: #6cccff, #6cccff;
+  themeColor: #6cccff;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #6cccff, #6cccff, #6cccff, #6cccff;
+  labelStyleName: "presentationZoomSliderLabelStyle";
+}
+
+.presentationZoomSliderLabelStyle {
+  color: #6cccff;
+  fontFamily: Arial;
 }
 
 MDIWindow {
@@ -325,6 +358,52 @@ MDIWindow {
   controlButtonWidth: 10;
   controlButtonHeight: 10;
   controlButtonGap: 4;
+}
+
+.presentationWindowStyleNoFocus 
+{
+  borderColor: #242424;
+  borderAlpha: 1;
+  borderThicknessLeft: 0;
+  borderThicknessTop: 0;
+  borderThicknessBottom: 0;
+  borderThicknessRight: 0;
+  roundedBottomCorners: false;
+  cornerRadius: 0;
+  headerHeight: 0;
+  backgroundColor: #242424;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+}
+
+.presentationWindowStyleFocus 
+{
+  borderColor: #242424;
+  borderAlpha: 1;
+  borderThicknessLeft: 0;
+  borderThicknessTop: 0;
+  borderThicknessBottom: 0;
+  borderThicknessRight: 0;
+  roundedBottomCorners: false;
+  cornerRadius: 0;
+  headerHeight: 0;
+  backgroundColor: #242424;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+}
+
+.presentationSlideViewStyle {
+  backgroundColor: #003650;
+}
+
+.presentationWindowControlsStyle {
+  paddingBottom: 5;
+  paddingTop: 3;
+  paddingLeft: 3;
+  paddingRight: 3;
+  bottom: 5;
+  cornerRadius: 0;
+  dropShadowEnabled: false;
 }
 
 .videoDockStyleNoFocus 
