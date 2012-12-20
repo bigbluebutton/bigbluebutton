@@ -39,8 +39,8 @@ criptfiles = Dir.glob("#{recording_dir}/raw/*.dat")
 criptfiles.each do |cf|
   match = /(.*).dat/.match cf.sub(/.+\//, "")
   meeting_id = match[1]
-	if File.exist?("#{recording_dir}/raw/#{meeting_id}.enc") 
-	      Dir.chdir("#{recording_dir}/raw") do
+	if File.exist?("#{rawdir}/#{meeting_id}.enc") 
+	      Dir.chdir(rawdir) do
 		command = "openssl rsautl -decrypt -inkey key.pem < #{meeting_id}.enc > key.txt"
 		BigBlueButton.logger.info(command)
 		Open3.popen3(command) do | stdin, stdout, stderr|
@@ -52,12 +52,7 @@ criptfiles.each do |cf|
 			#BigBlueButton.logger.info("commandresult2") #{$?.exitstatus}")
 		end
 		
-        	BigBlueButton::MconfProcessor.unzip("#{recording_dir}/raw", "#{meeting_id}.zip")
-		#command = "unzip #{meeting_id}.zip"
-		#BigBlueButton.logger.info(command)
-		#Open3.popen3(command) do | stdin, stdout, stderr|
-			#BigBlueButton.logger.info("commandresult3") #{$?.exitstatus}")
-		end
+        	BigBlueButton::MconfProcessor.unzip(rawdir, "#{meeting_id}.zip")
 
 	      end
 	end

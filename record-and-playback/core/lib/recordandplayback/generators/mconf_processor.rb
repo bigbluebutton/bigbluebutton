@@ -40,21 +40,15 @@ module BigBlueButton
       end
     end
     
-    def upload_to(host, username, password, file)
-      BigBlueButton.logger.info("Task: Sending zipped package")
-      c = Curl::Easy.new("#{host}/ingest/rest/addZippedMediaPackage")
-      c.http_auth_types = :digest
-      c.username = username
-      c.password = password
-      c.headers["X-Requested-Auth"] = "Digest"
-      c.multipart_form_post = true
-      c.http_post(Curl::PostField.file('upload', file))
-      c.verbose = true
+    def self.unzip(unzip_dir, zipfile)
+        Zip::ZipFile.open(zipfile) do |zip_file|
+	     zip_file.each do |f|
+		f_path=File.join(unzip_dir, f.name)
+		FileUtils.mkdir_p(File.dirname(f_path))
+		zip_file.extract(f, f_path) unless File.exist?(f_path)
+	     end
+	end
+    end
 
-      begin
-        c.perform
-      rescue Exception=>e	
-      end
-    end    
   end
 end

@@ -45,75 +45,77 @@ done_files.each do |df|
 
       	metadata = BigBlueButton::Events.get_meeting_metadata("#{process_dir}/#{meeting_id}/events.xml")
       	
-	BigBlueButton.logger.info("Verifying events: #{metadata[:keypublic.to_s]}")
-	public_key_decoded = CGI::unescape("#{metadata[:keypublic.to_s]}")
-      	
-	length = 16
-      	chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-      	password = ''
-      	length.times { password << chars[rand(chars.size)] }      
-      
-      	passfile = File.new("#{meeting_id}.txt", "w")
-      	passfile.write "#{password}"
-      	passfile.close
+	if not (metadata[:keypublic]) 
+		BigBlueButton.logger.info("Verifying events: #{metadata[:keypublic.to_s]}")
+		public_key_decoded = CGI::unescape("#{metadata[:keypublic.to_s]}")
+		
+		length = 16
+		chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+		password = ''
+		length.times { password << chars[rand(chars.size)] }      
+	      
+		passfile = File.new("#{meeting_id}.txt", "w")
+		passfile.write "#{password}"
+		passfile.close
 
-      	keypublic = File.new("key-public.pem","w") 
-      	keypublic.write  "#{public_key_decoded}"
-      	keypublic.close  
+		keypublic = File.new("key-public.pem","w") 
+		keypublic.write  "#{public_key_decoded}"
+		keypublic.close  
 
-      	command = "openssl enc -aes-256-cbc -pass file:#{meeting_id}.txt < #{meeting_id}.zip > #{meeting_id}.dat"
-      	BigBlueButton.logger.info(command)
-      	Open3.popen3(command) do | stdin, stdout, stderr|
-      		BigBlueButton.logger.info("commandresult=")#{$?.exitstatus}")
-      	end
-      	command = "openssl rsautl -encrypt -pubin -inkey key-public.pem < #{meeting_id}.txt > #{meeting_id}.enc"
-      	BigBlueButton.logger.info(command)
-      	Open3.popen3(command) do | stdin, stdout, stderr|
-      		BigBlueButton.logger.info("commandresult=") #{$?.exitstatus}")
-      	end
+		command = "openssl enc -aes-256-cbc -pass file:#{meeting_id}.txt < #{meeting_id}.zip > #{meeting_id}.dat"
+		BigBlueButton.logger.info(command)
+		Open3.popen3(command) do | stdin, stdout, stderr|
+			BigBlueButton.logger.info("commandresult=")#{$?.exitstatus}")
+		end
+		command = "openssl rsautl -encrypt -pubin -inkey key-public.pem < #{meeting_id}.txt > #{meeting_id}.enc"
+		BigBlueButton.logger.info(command)
+		Open3.popen3(command) do | stdin, stdout, stderr|
+			BigBlueButton.logger.info("commandresult=") #{$?.exitstatus}")
+		end
 
-	BigBlueButton.logger.info("Removing files")
-	PUBLICKEY = "key-public.pem"
-	PASSFILE = "#{meeting_id}.txt"
-	ZIPFILE = "#{meeting_id}.zip"
-	
-	[PUBLICKEY, PASSFILE, ZIPFILE].each  { |file| FileUtils.rm_f(file)}
-	
-	BigBlueButton.logger.info("Creating metadata.xml")
-	# Create metadata.xml
-	b = Builder::XmlMarkup.new(:indent => 2)
-	metaxml = b.recording {
-		b.id(meeting_id)
-		b.state("available")
-		b.published(true)
-		# Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
-		b.start_time(BigBlueButton::Events.first_event_timestamp("#{process_dir}/#{meeting_id}/events.xml"))
-		b.end_time(BigBlueButton::Events.last_event_timestamp("#{process_dir}/#{meeting_id}/events.xml"))
-		b.playback {
-			b.format("mconf")
-		b.link("http://#{playback_host}/mconf/#{meeting_id}/#{meeting_id}.dat")
+		BigBlueButton.logger.info("Removing files")
+		PUBLICKEY = "key-public.pem"
+		PASSFILE = "#{meeting_id}.txt"
+		ZIPFILE = "#{meeting_id}.zip"
+		
+		[PUBLICKEY, PASSFILE, ZIPFILE].each  { |file| FileUtils.rm_f(file)}
+		
+		BigBlueButton.logger.info("Creating metadata.xml")
+		# Create metadata.xml
+		b = Builder::XmlMarkup.new(:indent => 2)
+		metaxml = b.recording {
+			b.id(meeting_id)
+			b.state("available")
+			b.published(true)
+			# Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
+			b.start_time(BigBlueButton::Events.first_event_timestamp("#{process_dir}/#{meeting_id}/events.xml"))
+			b.end_time(BigBlueButton::Events.last_event_timestamp("#{process_dir}/#{meeting_id}/events.xml"))
+			b.playback {
+				b.format("mconf")
+			b.link("http://#{playback_host}/mconf/#{meeting_id}/#{meeting_id}.dat")
+			}
+			b.meta {
+				BigBlueButton::Events.get_meeting_metadata("#{process_dir}/#{meeting_id}/events.xml").each { |k,v| b.method_missing(k,v) }
+			}
 		}
-		b.meta {
-			BigBlueButton::Events.get_meeting_metadata("#{process_dir}/#{meeting_id}/events.xml").each { |k,v| b.method_missing(k,v) }
-		}
-        }
 
-	metadata_xml = File.new("metadata.xml","w")
-	metadata_xml.write(metaxml)
-	metadata_xml.close
-	
-	BigBlueButton.logger.info("Removing processed files.")
-	FileUtils.rm_r(Dir.glob("#{process_dir}/*"))
-	
-	BigBlueButton.logger.info("Publishing slides")
-	# Now publish this recording    
-	if not FileTest.directory?(publish_dir)
-		FileUtils.mkdir_p publish_dir
-	end
-	FileUtils.cp_r(target_dir, publish_dir)
-      end
+		metadata_xml = File.new("metadata.xml","w")
+		metadata_xml.write(metaxml)
+		metadata_xml.close
+		
+		BigBlueButton.logger.info("Removing processed files.")
+		FileUtils.rm_r(Dir.glob("#{process_dir}/*"))
+		
+		BigBlueButton.logger.info("Publishing slides")
+		# Now publish this recording    
+		if not FileTest.directory?(publish_dir)
+			FileUtils.mkdir_p publish_dir
+		end
+		FileUtils.cp_r(target_dir, publish_dir)
+	      end
 
-    end
+	 end
+     end
   end
 end
 
