@@ -25,12 +25,11 @@
   xmlns:apimap="org.bigbluebutton.main.api.maps.*"
   xmlns:coreMap="org.bigbluebutton.core.controllers.maps.*"
   xmlns:mate="http://mate.asfusion.com/"
-  xmlns:m="library://melomel/2010"
   pageTitle="BigBlueButton" 
   layout="absolute" preinitialize="init()"
   preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader"
   applicationComplete="hotkeyCapture()">
-  
+ 
   <mx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;      
@@ -119,10 +118,10 @@
     }
 
     public function hotkeyCapture():void{
-      LogUtil.debug("Entering hotkeyCapture");
+      trace("Entering hotkeyCapture");
       stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
       ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
-      LogUtil.debug("Leaving hotkeyCapture");
+      trace("Leaving hotkeyCapture");
     }
 
     public function handleKeyDown(e:KeyboardEvent) :void
@@ -133,7 +132,7 @@
 
       if (keyCombos[keyPress])
       {
-        LogUtil.debug("Chad keypress " + keyPress);
+        trace("Chad keypress " + keyPress);
         globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
       }
     }

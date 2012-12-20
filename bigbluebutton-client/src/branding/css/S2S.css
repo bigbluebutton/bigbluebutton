@@ -131,6 +131,56 @@ Button.whiteboardButtonStyle {
   borderColor: #50a6d7;
 }
 
+.presentationUploadButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;
+  icon:   Embed('assets/images/upload.png'); 
+}
+
+.presentationBackButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;
+  icon:   Embed('assets/images/left_arrow.png'); 
+}
+
+.presentationForwardButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;
+  icon:   Embed('assets/images/left_arrow.png'); 
+}
+
+.presentationFitToWidthButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;
+  icon:   Embed('assets/images/fit-to-width.png'); 
+}
+
+.presentationFitToPageButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;
+  icon:   Embed('assets/images/fit-to-screen.png'); 
+}
+
 MDIWindow {
   resizeCursorHorizontalXOffset: 20	
 }
