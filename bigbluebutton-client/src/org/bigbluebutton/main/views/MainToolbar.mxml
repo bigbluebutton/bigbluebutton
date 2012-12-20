@@ -31,7 +31,8 @@
 	<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="hideToolbar" />
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="gotConfigParameters" />
 	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
-	
+	<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
+	<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
 	
 	
 	<mx:Script>
@@ -227,6 +228,14 @@
 			private function openSettings(e:Event = null):void{
 				var d:Dispatcher = new Dispatcher();
 				d.dispatchEvent(new SettingsEvent(SettingsEvent.OPEN_SETTINGS_PANEL));
+			}
+			
+			public function remoteShortcutClick(e:ShortcutEvent):void{
+				onShortcutButtonClick();
+			}
+			
+			public function remoteLogout(e:ShortcutEvent):void{
+				doLogout();
 			}
 			
 			private function onShortcutButtonClick(e:Event = null):void {

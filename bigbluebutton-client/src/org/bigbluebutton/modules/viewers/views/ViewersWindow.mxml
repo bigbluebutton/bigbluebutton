@@ -32,6 +32,7 @@
 	<mate:Listener type="{ShortcutEvent.FOCUS_VIEWERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="conferenceStarted" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 
     <mx:Script>
         <![CDATA[
@@ -141,6 +142,10 @@
 				
 				presentBtn.enabled = false;
         	}
+			
+			public function remoteRaiseHand(e:ShortcutEvent):void{
+				raiseHand();
+			}
 			
 			private function raiseHand():void{
 				handRaised = !handRaised;

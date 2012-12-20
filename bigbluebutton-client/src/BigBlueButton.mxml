@@ -119,6 +119,7 @@
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide') as String)] = ShortcutEvent.FOCUS_SLIDE;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo') as String)] = ShortcutEvent.UNDO_WHITEBOARD;
 	    
+		// General hotKeys (usable from anywhere in the application)
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.viewers') as String)] = ShortcutEvent.FOCUS_VIEWERS_WINDOW;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.listeners') as String)] = ShortcutEvent.FOCUS_LISTENERS_WINDOW;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.video') as String)] = ShortcutEvent.FOCUS_VIDEO_WINDOW;
@@ -128,6 +129,10 @@
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.desktop') as String)] = ShortcutEvent.SHARE_DESKTOP;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.webcam') as String)] = ShortcutEvent.SHARE_WEBCAM;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.microphone') as String)] = ShortcutEvent.SHARE_MICROPHONE;
+		
+		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.shortcutWindow') as String)] = ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN;
+		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.logout') as String)] = ShortcutEvent.LOGOUT;
+		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.raiseHand') as String)] = ShortcutEvent.RAISE_HAND;
 	}
 
     private function hotkeyCapture():void{

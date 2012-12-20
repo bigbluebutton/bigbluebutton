@@ -49,6 +49,11 @@ package org.bigbluebutton.main.events {
 		public static const REMOTE_FOCUS_WEBCAM:String = 'REMOTE_FOCUS_WEBCAM';
 		// Remote focus microphone not necessary; audio options already hog focus
 		
+		//public static const CHANGE_LANGUAGE:String = 'CHANGE_LANGUAGE';
+		public static const REMOTE_OPEN_SHORTCUT_WIN:String = 'REMOTE_OPEN_SHORTCUT_WIN';
+		public static const LOGOUT:String = 'LOGOUT';
+		public static const RAISE_HAND:String = 'RAISE_HAND';
+		
 		
 		
 		public var otherUserID:String;
