@@ -369,10 +369,10 @@ DataGrid {
 }
 
 MDIWindow {
-  resizeCursorHorizontalXOffset: 20	
+  resizeCursorHorizontalXOffset: 2;	
 }
 
-.mdiWindowFocus 
+.mdiWindowFocus, .mdiWindowNoFocus, .presentationWindowStyleNoFocus, .presentationWindowStyleFocus, .videoDockStyleNoFocus, .videoDockStyleFocus
 {
   headerHeight: 26;
   roundedBottomCorners: false;
@@ -383,111 +383,18 @@ MDIWindow {
   borderStyle: solid;
   borderColor: #b9babc;
   borderAlpha: 1;
-  borderThickness: 2;
-  borderThicknessLeft: 6;
-  borderThicknessTop: 6;
-  borderThicknessBottom: 6;
-  borderThicknessRight: 6;
+  borderThickness: 1;
+  borderThicknessLeft: 1;
+  borderThicknessTop: 1;
+  borderThicknessBottom: 1;
+  borderThicknessRight: 1;
   cornerRadius: 0;
   dropShadowEnabled: false;
   titleStyleName: "mypanelTitle";
   
   cornerResizeImg: Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
-  cornerResizeWidth: 15;
-  cornerResizeHeight: 15;
-  cornerResizePaddingRight: 2;
-  cornerResizePaddingBottom: 2;
-  
-  controlButtonWidth: 10;
-  controlButtonHeight: 10;
-  controlButtonGap: 4;
-}
-
-.mdiWindowNoFocus 
-{
-  headerHeight: 26;
-  roundedBottomCorners: false;
-  backgroundAlpha: 0.5;
-  backgroundColor: #b9babc;
-  backgroundSize: '100%';
-  
-  borderStyle: solid;
-  borderColor: #b9babc;
-  borderAlpha: 1;
-  borderThickness: 2;
-  borderThicknessLeft: 6;
-  borderThicknessTop: 6;
-  borderThicknessBottom: 6;
-  borderThicknessRight: 6;
-  cornerRadius: 0;
-  dropShadowEnabled: false;
-  titleStyleName: "mypanelTitle";
-  
-  cornerResizeImg: Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
-  cornerResizeWidth: 15;
-  cornerResizeHeight: 15;
-  cornerResizePaddingRight: 2;
-  cornerResizePaddingBottom: 2;
-  
-  controlButtonWidth: 10;
-  controlButtonHeight: 10;
-  controlButtonGap: 4;
-}
-
-.presentationWindowStyleNoFocus 
-{
-  headerHeight: 26;
-  roundedBottomCorners: false;
-  backgroundAlpha: 0.5;
-  backgroundColor: #b9babc;
-  backgroundSize: '100%';
-  
-  borderStyle: solid;
-  borderColor: #b9babc;
-  borderAlpha: 1;
-  borderThickness: 2;
-  borderThicknessLeft: 6;
-  borderThicknessTop: 6;
-  borderThicknessBottom: 6;
-  borderThicknessRight: 6;
-  cornerRadius: 0;
-  dropShadowEnabled: false;
-  titleStyleName: "mypanelTitle";
-  
-  cornerResizeImg: Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
-  cornerResizeWidth: 15;
-  cornerResizeHeight: 15;
-  cornerResizePaddingRight: 2;
-  cornerResizePaddingBottom: 2;
-  
-  controlButtonWidth: 10;
-  controlButtonHeight: 10;
-  controlButtonGap: 4;
-}
-
-.presentationWindowStyleFocus 
-{
-  headerHeight: 26;
-  roundedBottomCorners: false;
-  backgroundAlpha: 0.5;
-  backgroundColor: #b9babc;
-  backgroundSize: '100%';
-  
-  borderStyle: solid;
-  borderColor: #b9babc;
-  borderAlpha: 1;
-  borderThickness: 2;
-  borderThicknessLeft: 6;
-  borderThicknessTop: 6;
-  borderThicknessBottom: 6;
-  borderThicknessRight: 6;
-  cornerRadius: 0;
-  dropShadowEnabled: false;
-  titleStyleName: "mypanelTitle";
-  
-  cornerResizeImg: Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
-  cornerResizeWidth: 15;
-  cornerResizeHeight: 15;
+  cornerResizeWidth: 2;
+  cornerResizeHeight: 2;
   cornerResizePaddingRight: 2;
   cornerResizePaddingBottom: 2;
   
@@ -508,68 +415,6 @@ MDIWindow {
   bottom: 5;
   cornerRadius: 0;
   dropShadowEnabled: false;
-}
-
-.videoDockStyleNoFocus 
-{
-  headerHeight: 26;
-  roundedBottomCorners: false;
-  backgroundAlpha: 0.5;
-  backgroundColor: #b9babc;
-  backgroundSize: '100%';
-  
-  borderStyle: solid;
-  borderColor: #b9babc;
-  borderAlpha: 1;
-  borderThickness: 2;
-  borderThicknessLeft: 6;
-  borderThicknessTop: 6;
-  borderThicknessBottom: 6;
-  borderThicknessRight: 6;
-  cornerRadius: 0;
-  dropShadowEnabled: false;
-  titleStyleName: "mypanelTitle";
-  
-  cornerResizeImg: Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
-  cornerResizeWidth: 15;
-  cornerResizeHeight: 15;
-  cornerResizePaddingRight: 2;
-  cornerResizePaddingBottom: 2;
-  
-  controlButtonWidth: 10;
-  controlButtonHeight: 10;
-  controlButtonGap: 4;
-}
-
-.videoDockStyleFocus 
-{
-  headerHeight: 26;
-  roundedBottomCorners: false;
-  backgroundAlpha: 0.5;
-  backgroundColor: #b9babc;
-  backgroundSize: '100%';
-  
-  borderStyle: solid;
-  borderColor: #b9babc;
-  borderAlpha: 1;
-  borderThickness: 2;
-  borderThicknessLeft: 6;
-  borderThicknessTop: 6;
-  borderThicknessBottom: 6;
-  borderThicknessRight: 6;
-  cornerRadius: 0;
-  dropShadowEnabled: false;
-  titleStyleName: "mypanelTitle";
-  
-  cornerResizeImg: Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
-  cornerResizeWidth: 15;
-  cornerResizeHeight: 15;
-  cornerResizePaddingRight: 2;
-  cornerResizePaddingBottom: 2;
-  
-  controlButtonWidth: 10;
-  controlButtonHeight: 10;
-  controlButtonGap: 4;
 }
 
 .videoViewStyleNoFocus 
