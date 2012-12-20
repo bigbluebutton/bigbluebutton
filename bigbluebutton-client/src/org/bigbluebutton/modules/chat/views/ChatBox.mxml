@@ -53,10 +53,10 @@
 	<mate:Listener type="{ShortcutEvent.GOLATEST_MESSAGE}" method="goToLatestMessage" />
 	<mate:Listener type="{ShortcutEvent.GOFIRST_MESSAGE}" method="goToFirstMessage" />
 	<mate:Listener type="{ShortcutEvent.GOREAD_MESSAGE}" method="goToLatestReadMessage" />
-  <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
-  <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
+  	<mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
+  	<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
   	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
-  <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
+  	<mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
 
 	<mx:Script>
 		<![CDATA[
@@ -276,7 +276,7 @@
 				chatMessagesList.invalidateDisplayList();
 				chatMessagesList.validateDisplayList();
 				chatMessagesList.validateNow();		
-        chatMessagesList.scrollToIndex(chatMessages.numMessages());
+        		chatMessagesList.scrollToIndex(chatMessages.numMessages());
 			}
 			
 			private function onScrollTimer(event:TimerEvent):void {
@@ -324,8 +324,8 @@
 			private function setDescription():Boolean{
 				var chatHistorySpacer:Boolean = false;
 				if (chatMessagesList.accessibilityProperties.description == chatMessages[currentMessage].toString()) {
-          chatHistorySpacer = true;
-        }
+	          	chatHistorySpacer = true;
+	        }
 					
 				return chatHistorySpacer;
 			}
@@ -354,12 +354,12 @@
 			}
 			
 			public function handleKeyDown(e:KeyboardEvent) :void {
-				//LogUtil.debug("WATERFALL: Entering handleKeyDown");
+				LogUtil.debug("WATERFALL: Entering handleKeyDown in Chat");
 				if (keyCombos == null) loadKeyCombos();
 				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;	
-				//LogUtil.debug("WATERFALL keypress: " + keyPress);		
+				LogUtil.debug("WATERFALL keypress in chat: " + keyPress);		
 				if (keyCombos[keyPress]) {
-					//LogUtil.debug("WATERFALL keypress matched something in keyCombos: " + keyCombos[keyPress]);
+					LogUtil.debug("WATERFALL keypress matched something in keyCombos: " + keyCombos[keyPress]);
 					var event:ShortcutEvent = new ShortcutEvent(keyCombos[keyPress]);
 					event.otherUserID = chatWithUserID; 
 					globalDispatcher.dispatchEvent(event);

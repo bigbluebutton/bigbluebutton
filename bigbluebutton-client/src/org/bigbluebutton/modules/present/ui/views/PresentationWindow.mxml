@@ -62,6 +62,7 @@
 			
 			import flexlib.containers.DockableToolBar;
 			import flexlib.mdi.events.MDIWindowEvent;
+			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
@@ -142,6 +143,8 @@
 			[Bindable] private var presentOptions:PresentOptions;
 			
 			private var externalButtons:ArrayCollection = new ArrayCollection();
+			private var keyCombos:Object;
+			private var localDispatcher:Dispatcher = new Dispatcher();
 			
 			private function init():void{
 				presentOptions = new PresentOptions();
@@ -167,7 +170,37 @@
 				//LogUtil.debug("WATERFALL Presentation slideView.tabIndex " + slideView.tabIndex);
 				
 				slideView.slideLoader.tabIndex = baseIndex+4;
+				hotkeyCapture();
 				LogUtil.debug("WATERFALL Presentation slideView.slideLoader.tabIndex " + slideView.slideLoader.tabIndex);
+			}
+			
+			private function hotkeyCapture():void{
+			    LogUtil.debug("Entering hotkeyCapture");
+			    this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+			    ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+			    LogUtil.debug("Leaving hotkeyCapture");
+		    }
+			
+			private function loadKeyCombos(modifier:String):void {
+				keyCombos = new Object(); // always start with a fresh array
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide') as String)] = ShortcutEvent.FOCUS_SLIDE;
+			}
+			
+			// Handle presentation-scope hotkeys
+			private function handleKeyDown(e:KeyboardEvent) :void {
+				var modifier:String = ExternalInterface.call("determineModifier");
+				loadKeyCombos(modifier);
+				  
+				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
+				  
+				//LogUtil.debug("WATERFALL: keyPress is " + keyPress);
+				//LogUtil.debug("WATERFALL: Your modifier + non-mod keys is " + modifier + e.keyCode);
+				                          
+				if (keyCombos[keyPress]) {
+					LogUtil.debug("WATERFALL: keyCombo is " + keyCombos[keyPress]);
+				    //globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+				    localDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+				}
 			}
 			
 			private function focusWindow(e:ShortcutEvent):void{
@@ -242,7 +275,7 @@
             
 			// Maybe there's a problem in here too?
 			private function onKeyUp(event:KeyboardEvent):void {	
-                if (event.shiftKey && event.ctrlKey) {
+                /*if (event.shiftKey && event.ctrlKey) {
                     switch (event.keyCode) {
                         case Keyboard.LEFT:
                         case Keyboard.UP:
@@ -257,7 +290,7 @@
                             gotoNextSlide();
                             break; 
                     }                    
-                }
+                }*/
 			}
 			
 			public function getPrefferedPosition():String{
