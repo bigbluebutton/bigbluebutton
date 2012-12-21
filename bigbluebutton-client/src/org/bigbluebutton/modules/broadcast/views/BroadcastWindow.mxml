@@ -4,7 +4,7 @@
 					  implements="org.bigbluebutton.common.IBbbModuleWindow" preinitialize="onCreationComplete()"
 					  xmlns:mate="http://mate.asfusion.com/" showCloseButton="false"
 					  layout="absolute" title="Broadcast"
-					  resize="onResize()" resizeEnd="onResize()">
+					  resize="onResize()" resizeEndMDIWindow="onResize()">
 
 	<mx:Script>
 		<![CDATA[

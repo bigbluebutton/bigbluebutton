@@ -43,7 +43,7 @@ package org.bigbluebutton.modules.broadcast.managers
 			LogUtil.debug("BroadcastModule Start");
 			dispatcher = new Dispatcher();
 			if (broadcastWindow == null){
-				LogUtil.debug("*** Opening BroadcastModule Window");
+				trace("*** Opening BroadcastModule Window");
 				var opt:BroadcastOptions = new BroadcastOptions();
 								
 				broadcastWindow = new BroadcastWindow();
@@ -58,7 +58,7 @@ package org.bigbluebutton.modules.broadcast.managers
 				dispatcher.dispatchEvent(e);
 				streamService.queryAvailableStreams(options.streamsUri);
 			} else {
-				LogUtil.debug("*** Not Opening BroadcastModule Window");
+				trace("*** Not Opening BroadcastModule Window");
 			}
 			
 			sendWhatIsTheCurrentStreamRequest();
@@ -79,10 +79,12 @@ package org.bigbluebutton.modules.broadcast.managers
 		}
 		
 		public function playVideo(index:int):void {
+      trace("BroadcastModule::playVideo [" + streams.streamUrls[index] + "],[" + streams.streamIds[index] + "],[" + streams.streamNames[index] + "]"); 
 			broadcastService.playStream(streams.streamUrls[index], streams.streamIds[index], streams.streamNames[index]);
 		}
 				
 		public function stopVideo():void {
+      trace("BroadcastModule::stopVideo"); 
 			broadcastService.stopStream();
 		}
 		
@@ -91,7 +93,7 @@ package org.bigbluebutton.modules.broadcast.managers
 		}
 		
 		public function handleWhatIsTheCurrentStreamRequest(event:BBBEvent):void {
-			LogUtil.debug("Received " + event.payload["messageId"] );
+			trace("Received " + event.payload["messageID"] );
 			var isPresenter:Boolean = UserManager.getInstance().getConference().amIPresenter();
 			if (isPresenter && curStream != null) {
 				broadcastService.sendWhatIsTheCurrentStreamReply(event.payload["requestedBy"], curStream.getStreamId());
@@ -99,10 +101,10 @@ package org.bigbluebutton.modules.broadcast.managers
 		}
 		
 		public function handleWhatIsTheCurrentStreamReply(event:BBBEvent):void {
-			LogUtil.debug("Received " + event.payload["messageId"] );
+			trace("Received " + event.payload["messageID"] );
 			var amIRequester:Boolean = UserManager.getInstance().getConference().amIThisUser(event.payload["requestedBy"]);
 			if (amIRequester) {
-				var streamId:String = event.payload["streamId"];
+				var streamId:String = event.payload["streamID"];
 				var info:Object = streams.getStreamNameAndUrl(streamId);
 				if (info != null) {
 					playStream(info["url"], streamId, info["name"]);
@@ -118,12 +120,12 @@ package org.bigbluebutton.modules.broadcast.managers
 		}
 		
 		public function handlePlayStreamRequest(event:BBBEvent):void {
-			LogUtil.debug("Received " + event.payload["messageId"]);
-			playStream(event.payload["uri"], event.payload["streamId"], event.payload["streamName"]);
+			trace("Received " + event.payload["messageID"]);
+			playStream(event.payload["uri"], event.payload["streamID"], event.payload["streamName"]);
 		}
 		
 		public function handleStopStreamRequest(event:BBBEvent):void {
-			LogUtil.debug("Received " + event.payload["messageId"]);
+			trace("Received " + event.payload["messageID"]);
 			stopPlayingStream();
 		}
 		

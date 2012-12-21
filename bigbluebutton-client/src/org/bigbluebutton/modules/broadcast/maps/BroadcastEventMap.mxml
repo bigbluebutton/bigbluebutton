@@ -24,13 +24,15 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import mx.events.FlexEvent;
-			
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.modules.broadcast.managers.BroadcastManager;
-			import org.bigbluebutton.modules.broadcast.services.BroadcastService;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.events.FlexEvent;
+      
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.modules.broadcast.managers.BroadcastManager;
+      import org.bigbluebutton.modules.broadcast.services.BroadcastService;
+      import org.bigbluebutton.modules.broadcast.services.MessageReceiver;
+      import org.bigbluebutton.modules.broadcast.services.MessageSender;
 			
 		]]>
 	</mx:Script>
@@ -51,22 +53,32 @@
 		<MethodInvoker generator="{BroadcastManager}" method="handleSwitchToViewerMode" />
 	</EventHandlers>
 	
-	<EventHandlers type="playBroadcastStream">
+	<EventHandlers type="BroadcastPlayStreamCommand">
 		<MethodInvoker generator="{BroadcastManager}" method="handlePlayStreamRequest" arguments="{event}"/>
 	</EventHandlers>
 
-	<EventHandlers type="stopBroadcastStream">
+	<EventHandlers type="BroadcastStopStreamCommand">
 		<MethodInvoker generator="{BroadcastManager}" method="handleStopStreamRequest" arguments="{event}"/>
 	</EventHandlers>
 	
-	<EventHandlers type="whatIsTheCurrentStreamRequest">
+	<EventHandlers type="BroadcastWhatIsTheCurrentStreamRequest">
 		<MethodInvoker generator="{BroadcastManager}" method="handleWhatIsTheCurrentStreamRequest" arguments="{event}"/>
 	</EventHandlers>
 	
-	<EventHandlers type="whatIsTheCurrentStreamReply">
+	<EventHandlers type="BroadcastWhatIsTheCurrentStreamReply">
 		<MethodInvoker generator="{BroadcastManager}" method="handleWhatIsTheCurrentStreamReply" arguments="{event}"/>
 	</EventHandlers>
+
+<!--
+  <Injectors target="{BroadcastService}">
+    <ObjectBuilder generator="{MessageSender}" cache="global"/>
+    <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
+    <PropertyInjector targetKey="sender" source="{MessageSender}"/>
+  </Injectors>
 	
-	
-	
+  <Injectors target="{MessageReceiver}">
+    <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
+  </Injectors>
+-->
+  
 </EventMap>

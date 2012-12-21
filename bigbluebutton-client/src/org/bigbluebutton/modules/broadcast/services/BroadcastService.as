@@ -2,49 +2,35 @@ package org.bigbluebutton.modules.broadcast.services
 {
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.core.model.Connection;
 
-	public class BroadcastService {				
-		public function playStream(uri:String, streamId:String, streamName:String):void {
-			var conn:Connection = BBB.initConnectionManager().getConnection("bbb");
-			if (conn != null) {
-				var message:Object = new Object();
-				message["messageId"] = "playBroadcastStream";
-				message["uri"] = uri;
-				message["streamId"] = streamId;
-				message["streamName"] = streamName;				
-				conn.sendMessage(message);
-			}
+	public class BroadcastService {	
+    private var sender:MessageSender;
+    private var receiver:MessageReceiver;
+    
+    public function BroadcastService() {
+      sender = new MessageSender();
+      receiver = new MessageReceiver();
+    }
+    
+		public function playStream(uri:String, streamID:String, streamName:String):void {
+      trace("BroadcastService::playStream"); 
+      if (sender == null) {
+        trace("SENDER is NULL!!!!");
+      }
+      sender.playStream(uri, streamID, streamName);
 		}
 		
 		public function stopStream():void {
-			var conn:Connection = BBB.initConnectionManager().getConnection("bbb");
-			if (conn != null) {
-				var message:Object = new Object();
-				message["messageId"] = "stopBroadcastStream";			
-				conn.sendMessage(message);
-			}
+      trace("BroadcastService::stopStream"); 
+			sender.stopStream();
 		}
 		
 		public function sendWhatIsTheCurrentStreamRequest():void {
-			var conn:Connection = BBB.initConnectionManager().getConnection("bbb");
-			if (conn != null) {
-				var message:Object = new Object();
-				message["messageId"] = "whatIsTheCurrentStreamRequest";	
-				message["requestedBy"] = UserManager.getInstance().getConference().getMyUserId();
-				conn.sendMessage(message);
-			}
+			sender.sendWhatIsTheCurrentStreamRequest();
 		}
 		
-		public function sendWhatIsTheCurrentStreamReply(requestedByUserid:Number, streamId:String):void {
-			var conn:Connection = BBB.initConnectionManager().getConnection("bbb");
-			if (conn != null) {
-				var message:Object = new Object();
-				message["messageId"] = "whatIsTheCurrentStreamReply";	
-				message["requestedBy"] = requestedByUserid;
-				message["streamId"] = streamId;
-				conn.sendMessage(message);
-			}			
+		public function sendWhatIsTheCurrentStreamReply(requestedByUserID:Number, streamID:String):void {
+			sender.sendWhatIsTheCurrentStreamReply(requestedByUserID, streamID);
 		}
 	}
 }
