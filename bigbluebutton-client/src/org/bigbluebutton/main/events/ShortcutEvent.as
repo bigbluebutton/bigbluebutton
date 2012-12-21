@@ -54,6 +54,12 @@ package org.bigbluebutton.main.events {
 		public static const LOGOUT:String = 'LOGOUT';
 		public static const RAISE_HAND:String = 'RAISE_HAND';
 		
+		public static const UPLOAD_PRESENTATION:String = 'UPLOAD_PRESENTATION';
+		public static const PREVIOUS_SLIDE:String = 'PREVIOUS_SLIDE';
+		public static const SELECT_SLIDES:String = 'SELECT_SLIDES';
+		public static const NEXT_SLIDE:String = 'NEXT_SLIDE';
+		public static const FIT_TO_WIDTH:String = 'FIT_TO_WIDTH';
+		public static const FIT_TO_PAGE:String = 'FIT_TO_PAGE';		
 		
 		
 		public var otherUserID:String;

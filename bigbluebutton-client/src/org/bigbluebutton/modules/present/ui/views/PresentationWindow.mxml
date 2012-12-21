@@ -56,6 +56,15 @@
 	<mate:Listener type="{AddButtonToPresentationEvent.ADD_BUTTON}" method="addButton" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	
+	<mate:Listener type="{ShortcutEvent.UPLOAD_PRESENTATION}" method="remoteUpload" />
+	<mate:Listener type="{ShortcutEvent.PREVIOUS_SLIDE}" method="remotePrevious" />
+	<mate:Listener type="{ShortcutEvent.SELECT_SLIDES}" method="remoteSelect" />
+	<mate:Listener type="{ShortcutEvent.NEXT_SLIDE}" method="remoteNext" />
+	<mate:Listener type="{ShortcutEvent.FIT_TO_WIDTH}" method="remoteWidth" />
+	<mate:Listener type="{ShortcutEvent.FIT_TO_PAGE}" method="remotePage" />
+	
+	
+	
 	<mx:Script>
 		<![CDATA[
 			import flash.geom.Point;
@@ -184,6 +193,13 @@
 			private function loadKeyCombos(modifier:String):void {
 				keyCombos = new Object(); // always start with a fresh array
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide') as String)] = ShortcutEvent.FOCUS_SLIDE;
+				
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.upload') as String)] = ShortcutEvent.UPLOAD_PRESENTATION;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.previous') as String)] = ShortcutEvent.PREVIOUS_SLIDE;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.select') as String)] = ShortcutEvent.SELECT_SLIDES;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.next') as String)] = ShortcutEvent.NEXT_SLIDE;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.fitWidth') as String)] = ShortcutEvent.FIT_TO_WIDTH;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.fitPage') as String)] = ShortcutEvent.FIT_TO_PAGE;
 			}
 			
 			// Handle presentation-scope hotkeys
@@ -575,6 +591,32 @@
 				slideView.switchToFitToPage(fitToPage);
 				fitSlideToWindowMaintainingAspectRatio();				
 			}
+			
+						
+			private function remoteUpload(e:ShortcutEvent):void{
+				dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW));
+			}
+			
+			private function remotePrevious(e:ShortcutEvent):void{
+				gotoPreviousSlide();
+			}
+			
+			private function remoteSelect(e:ShortcutEvent):void{
+				showThumbnails();
+			}
+			
+			private function remoteNext(e:ShortcutEvent):void{
+				gotoNextSlide();
+			}
+			
+			private function remoteWidth(e:ShortcutEvent):void{
+				onFitToPage(false);
+			}
+			
+			private function remotePage(e:ShortcutEvent):void{
+				onFitToPage(true);
+			}
+			 
 			          
 		]]>
 	</mx:Script>

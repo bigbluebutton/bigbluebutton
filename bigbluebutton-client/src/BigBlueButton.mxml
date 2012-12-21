@@ -117,7 +117,7 @@
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput') as String)] = ShortcutEvent.FOCUS_CHAT_INPUT;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chattabs') as String)] = ShortcutEvent.FOCUS_CHAT_TABS; // Deprecated; doesn't actually do anything
 		
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo') as String)] = ShortcutEvent.UNDO_WHITEBOARD;
+		// keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo') as String)] = ShortcutEvent.UNDO_WHITEBOARD;
 	    
 		// General hotKeys (usable from anywhere in the application)
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.viewers') as String)] = ShortcutEvent.FOCUS_VIEWERS_WINDOW;
