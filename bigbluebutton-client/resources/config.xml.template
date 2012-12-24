@@ -118,6 +118,8 @@
       height="400"
       x="40"
       y="40"
+      showStreams="true"
+      autoPlay="false"
       dependsOn="ViewersModule"
     />
     
