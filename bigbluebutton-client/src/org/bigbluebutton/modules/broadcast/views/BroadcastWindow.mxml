@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <bcast:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 					  xmlns:bcast="flexlib.mdi.containers.*" 
-					  implements="org.bigbluebutton.common.IBbbModuleWindow" preinitialize="onCreationComplete()"
+					  implements="org.bigbluebutton.common.IBbbModuleWindow" 
+            creationComplete="onCreationComplete()"
 					  xmlns:mate="http://mate.asfusion.com/" showCloseButton="false"
-					  layout="absolute" title="Broadcast"
-					  resize="onResize()" resizeEndMDIWindow="onResize()">
+					  layout="absolute" title="Broadcast">
 
 	<mx:Script>
 		<![CDATA[
-			import flexlib.mdi.events.MDIWindowEvent;
+			import flexlib.mdi.events.MDIWindowEvent;			
 			import mx.core.UIComponent;
 			import mx.events.ResizeEvent;
 			import mx.skins.Border;			
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.broadcast.managers.BroadcastManager;
 			import org.bigbluebutton.modules.broadcast.models.BroadcastOptions;
 			import org.bigbluebutton.modules.broadcast.models.Stream;
@@ -39,19 +38,18 @@
 			[Bindable]
 			public var streams:Streams;
 			
-			public var videoHolder2:UIComponent;
-			
 			private function onCreationComplete():void {
+        options = new BroadcastOptions();
 				xPosition = options.x;
 				yPosition = options.y;
 				defWidth = options.width;
 				defHeight = options.height;
-				this.x = options.x;
-				this.y = options.y;
-				this.width = options.width;
-				this.height = options.height;
-				onResize();
-			}
+        streamsList.visible = options.showStreams;
+        
+        if (options.autoPlay) {
+          broadcastManager.playVideo(0);
+        }
+      }
 			
 			public function becomePresenter():void{
 				videoStreamList.visible = true;
@@ -88,11 +86,7 @@
 					stopVideo();
 				}
 			}
-			
-			public function removeDisplay():void {
-				videoHolder.removeChild(videoHolder2);			
-			}
-						
+								
 			private function stopVideo():void {
 				broadcastManager.stopVideo();
 			}
@@ -104,74 +98,11 @@
 				this.height = options.height;
 				return options.position;
 			}
-			
-			public function addDisplay():void {
-				videoHolder2 = new UIComponent();
-				videoHolder2.width = videoHolder.width;
-				videoHolder2.height = videoHolder.height;
-				videoHolder.addChild(videoHolder2);
-			}
-						
-			static private var RESIZING_DIRECTION_UNKNOWN:int = 0; 
-			static private var RESIZING_DIRECTION_VERTICAL:int = 1; 
-			static private var RESIZING_DIRECTION_HORIZONTAL:int = 2; 
-			static private var RESIZING_DIRECTION_BOTH:int = 3;
-			private var resizeDirection:int = RESIZING_DIRECTION_BOTH;
-			static public var PADDING_HORIZONTAL:Number = 18; 
-			static public var PADDING_VERTICAL:Number = 72;
-			
-			/**
-			 * when the window is resized by the user, the application doesn't know
-			 * about the resize direction
-			 */
-			public function onResizeStart(event:MDIWindowEvent = null):void {
-				resizeDirection = RESIZING_DIRECTION_UNKNOWN;
-			}
-			
-			/**
-			 * after the resize ends, the direction is set to BOTH because of the
-			 * non-user resize actions - like when the window is docked, and so on
-			 */
-			public function onResizeEnd(event:MDIWindowEvent = null):void {
-				resizeDirection = RESIZING_DIRECTION_BOTH;
-			}
-			
-			public function onResize():void {
-				if (videoHolder2 == null || curStream == null) return;
-				var aspectRatio:Number =  curStream.getAstpectRatio();				
-				var tmpWidth:Number = this.width - PADDING_HORIZONTAL;
-				var tmpHeight:Number = this.height - PADDING_VERTICAL;
-				
-				// try to discover in which direction the user is resizing the window
-				if (resizeDirection != RESIZING_DIRECTION_BOTH) {
-					if (tmpWidth == videoHolder.width && tmpHeight != videoHolder.height)
-						resizeDirection = (resizeDirection == RESIZING_DIRECTION_VERTICAL || resizeDirection == RESIZING_DIRECTION_UNKNOWN? RESIZING_DIRECTION_VERTICAL: RESIZING_DIRECTION_BOTH);
-					else if (tmpWidth != videoHolder.width && tmpHeight == videoHolder.height)
-						resizeDirection = (resizeDirection == RESIZING_DIRECTION_HORIZONTAL || resizeDirection == RESIZING_DIRECTION_UNKNOWN? RESIZING_DIRECTION_HORIZONTAL: RESIZING_DIRECTION_BOTH);
-					else
-						resizeDirection = RESIZING_DIRECTION_BOTH;
-				}
-				
-				tmpWidth = Math.min (tmpWidth, Math.floor(tmpHeight * aspectRatio));
-				tmpHeight = Math.min (tmpHeight, Math.floor(tmpWidth / aspectRatio));
-				
-				videoHolder2.width = videoHolder.width = tmpWidth;
-				videoHolder2.height = videoHolder.height = tmpHeight;
-
-//				LogUtil.debug("vh=[" + this.width + "," + this.height + "," 
-//					+ videoHolder.width + "," + videoHolder.height + "," + videoHolder2.width + "," + videoHolder2.height + "]");
-				curStream.onResize();
-				
-				videoHolder.x = 0;
-				videoHolder.y = 0;
-				this.width = tmpWidth + PADDING_HORIZONTAL;
-				this.height = tmpHeight + PADDING_VERTICAL;
-			}
-			
+												
 		]]>
 	</mx:Script>
-		<mx:HBox id="videoHolder" width="100%" height="100%" horizontalAlign="center" verticalAlign="middle" />		
-		<mx:ControlBar width="100%" height="30" paddingTop="0" borderStyle="outset" horizontalAlign="center">
+		<mx:HBox id="videoHolderBox" width="100%" height="100%" />		
+		<mx:ControlBar id="streamsList" width="100%" height="30" paddingTop="0" borderStyle="outset" horizontalAlign="center">
 			<mx:HBox x="1" y="1" id="videoStreamList" width="100%" height="30" horizontalAlign="center">
 				<mx:ComboBox id="streamsComboBox" width="85%" dataProvider="{streams.streamNames}" />
 				<mx:Button id="playBtn" label="Play" width="15% " click="playStopVideo()" toggle="true"/>				

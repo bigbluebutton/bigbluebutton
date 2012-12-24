@@ -1,10 +1,13 @@
 package org.bigbluebutton.modules.broadcast.services
 {
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.Event;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.modules.broadcast.events.StreamsListLoadedEvent;
 	import org.bigbluebutton.modules.broadcast.managers.BroadcastManager;
 	import org.bigbluebutton.modules.broadcast.models.Streams;
 	
@@ -18,6 +21,7 @@ package org.bigbluebutton.modules.broadcast.services
 		}
 		
 		public function queryAvailableStreams(uri:String):void {
+      trace("StreamsService::queryAvailableStreams");
 			var urlLoader:URLLoader = new URLLoader();
 			urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			var date:Date = new Date();
@@ -25,10 +29,10 @@ package org.bigbluebutton.modules.broadcast.services
 			urlLoader.load(new URLRequest(uri + "?a=" + date.time));			
 		}		
 		
-		private function handleComplete(e:Event):void{
+		private function handleComplete(e:Event):void {
 			streamsXml = new XML(e.target.data);
 			LogUtil.debug(streamsXml);
-			
+      trace("StreamsService::handleComplete\n" + streamsXml.toXMLString());
 			var mn:XMLList = streamsXml.stream..@name;
 			
 			for each (var n:XML in mn) {
@@ -43,6 +47,9 @@ package org.bigbluebutton.modules.broadcast.services
 				broadcastManager.streams.streamUrls.push(item.@url);
 				broadcastManager.streams.streamIds.push(item.@id);
 			}			
+      
+      var dispatcher:Dispatcher = new Dispatcher();
+      dispatcher.dispatchEvent(new StreamsListLoadedEvent(StreamsListLoadedEvent.STREAMS_LIST_LOADED));
 		}
 	}
 }

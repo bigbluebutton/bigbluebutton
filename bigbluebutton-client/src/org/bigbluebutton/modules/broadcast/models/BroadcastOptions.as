@@ -9,6 +9,9 @@ package org.bigbluebutton.modules.broadcast.models
 		[Bindable]
 		public var position:String = "absolute";
 		
+    public var showStreams:Boolean = true;
+    public var autoPlay:Boolean = false;
+    
 		public var width:int = 400;
 		public var height:int = 300;
 		public var x:int = 1;
@@ -20,6 +23,12 @@ package org.bigbluebutton.modules.broadcast.models
 				if (cxml.@streamsUri != undefined) {
 					streamsUri = cxml.@streamsUri.toString();
 				}
+        if (cxml.@showStreams != undefined) {
+          showStreams = (cxml.@showStreams.toString().toUpperCase() == "TRUE") ? true : false;
+        }
+        if (cxml.@autoPlay != undefined) {
+          autoPlay = (cxml.@autoPlay.toString().toUpperCase() == "TRUE") ? true : false;
+        }
 				if (cxml.@position != undefined) {
 					position = cxml.@position.toString();
 				}

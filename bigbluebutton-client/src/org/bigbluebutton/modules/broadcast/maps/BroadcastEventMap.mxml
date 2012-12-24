@@ -29,6 +29,7 @@
       import mx.events.FlexEvent;
       
       import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.modules.broadcast.events.StreamsListLoadedEvent;
       import org.bigbluebutton.modules.broadcast.managers.BroadcastManager;
       import org.bigbluebutton.modules.broadcast.services.BroadcastService;
       import org.bigbluebutton.modules.broadcast.services.MessageReceiver;
@@ -53,6 +54,10 @@
 		<MethodInvoker generator="{BroadcastManager}" method="handleSwitchToViewerMode" />
 	</EventHandlers>
 	
+  <EventHandlers type="{StreamsListLoadedEvent.STREAMS_LIST_LOADED}">
+    <MethodInvoker generator="{BroadcastManager}" method="handleStreamsListLoadedEvent" />
+  </EventHandlers>
+  
 	<EventHandlers type="BroadcastPlayStreamCommand">
 		<MethodInvoker generator="{BroadcastManager}" method="handlePlayStreamRequest" arguments="{event}"/>
 	</EventHandlers>

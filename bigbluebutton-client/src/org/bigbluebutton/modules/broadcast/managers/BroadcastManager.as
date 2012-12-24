@@ -29,62 +29,71 @@ package org.bigbluebutton.modules.broadcast.managers
 		private var dispatcher:Dispatcher;
 		private var broadcastService:BroadcastService = new BroadcastService();
 		private var streamService:StreamsService;
-		
+		private var opt:BroadcastOptions;
+    
 		[Bindable]
 		public var streams:Streams = new Streams();	
 		private var curStream:Stream;
 		
 		public function BroadcastManager() {
 			streamService = new StreamsService(this);
-			LogUtil.debug("BroadcastModule Created");
+			LogUtil.debug("BroadcastManager Created");
 		}
 		
 		public function start():void {
-			LogUtil.debug("BroadcastModule Start");
+			LogUtil.debug("BroadcastManager Start");
+      opt = new BroadcastOptions();
 			dispatcher = new Dispatcher();
-			if (broadcastWindow == null){
-				trace("*** Opening BroadcastModule Window");
-				var opt:BroadcastOptions = new BroadcastOptions();
-								
-				broadcastWindow = new BroadcastWindow();
-				broadcastWindow.options = opt;
-				broadcastWindow.streams = streams;
-				
-				broadcastWindow.broadcastManager = this;
-				var options:BroadcastOptions = new BroadcastOptions();
-				
-				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				e.window = broadcastWindow;
-				dispatcher.dispatchEvent(e);
-				streamService.queryAvailableStreams(options.streamsUri);
-			} else {
-				trace("*** Not Opening BroadcastModule Window");
-			}
-			
-			sendWhatIsTheCurrentStreamRequest();
-			
-			if (UserManager.getInstance().getConference().amIPresenter()) {
-				handleSwitchToPresenterMode();
-			} else {
-				handleSwitchToViewerMode();
-			}
+      streamService.queryAvailableStreams(opt.streamsUri);
 		}
 		
+    public function handleStreamsListLoadedEvent():void {
+      if (broadcastWindow == null){
+        trace("*** BroadcastManager Opening BroadcastModule Window");
+
+        broadcastWindow = new BroadcastWindow();
+        broadcastWindow.options = opt;
+        broadcastWindow.streams = streams;
+        
+        broadcastWindow.broadcastManager = this;
+        
+        var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+        e.window = broadcastWindow;
+        dispatcher.dispatchEvent(e);
+        
+      } else {
+        trace("***BroadcastManager Not Opening BroadcastModule Window");
+      }
+      
+      sendWhatIsTheCurrentStreamRequest();
+      
+      if (UserManager.getInstance().getConference().amIPresenter()) {
+        handleSwitchToPresenterMode();
+      } else {
+        handleSwitchToViewerMode();
+      }
+    }
+    
 		public function handleSwitchToPresenterMode():void {
-			broadcastWindow.becomePresenter();
+      if (broadcastWindow != null) {
+        broadcastWindow.becomePresenter();        
+      }
 		}
 		
 		public function handleSwitchToViewerMode():void {
-			broadcastWindow.becomeViewer();
+      if (broadcastWindow != null) {
+        broadcastWindow.becomeViewer();
+      }
+			
 		}
 		
 		public function playVideo(index:int):void {
-      trace("BroadcastModule::playVideo [" + streams.streamUrls[index] + "],[" + streams.streamIds[index] + "],[" + streams.streamNames[index] + "]"); 
+      trace("BroadcastManager::playVideo [" + streams.streamUrls[index] + "],[" + streams.streamIds[index] + "],[" + streams.streamNames[index] + "]"); 
 			broadcastService.playStream(streams.streamUrls[index], streams.streamIds[index], streams.streamNames[index]);
 		}
 				
 		public function stopVideo():void {
-      trace("BroadcastModule::stopVideo"); 
+      trace("BroadcastManager::stopVideo"); 
 			broadcastService.stopStream();
 		}
 		
@@ -93,7 +102,7 @@ package org.bigbluebutton.modules.broadcast.managers
 		}
 		
 		public function handleWhatIsTheCurrentStreamRequest(event:BBBEvent):void {
-			trace("Received " + event.payload["messageID"] );
+			trace("BroadcastManager:: Received " + event.payload["messageID"] );
 			var isPresenter:Boolean = UserManager.getInstance().getConference().amIPresenter();
 			if (isPresenter && curStream != null) {
 				broadcastService.sendWhatIsTheCurrentStreamReply(event.payload["requestedBy"], curStream.getStreamId());
@@ -101,7 +110,7 @@ package org.bigbluebutton.modules.broadcast.managers
 		}
 		
 		public function handleWhatIsTheCurrentStreamReply(event:BBBEvent):void {
-			trace("Received " + event.payload["messageID"] );
+			trace("BroadcastManager:: Received " + event.payload["messageID"] );
 			var amIRequester:Boolean = UserManager.getInstance().getConference().amIThisUser(event.payload["requestedBy"]);
 			if (amIRequester) {
 				var streamId:String = event.payload["streamID"];
@@ -113,24 +122,23 @@ package org.bigbluebutton.modules.broadcast.managers
 		}		
 		
 		private function playStream(url:String, streamId:String, streamName:String):void {
+      trace("BroadcastManager::playStream [" + url + "], [" + streamId + "], [" + streamName + "]");
 			curStream = new Stream(url, streamId, streamName);
 			broadcastWindow.curStream = curStream;
-			broadcastWindow.addDisplay();
 			curStream.play(broadcastWindow);			
 		}
 		
 		public function handlePlayStreamRequest(event:BBBEvent):void {
-			trace("Received " + event.payload["messageID"]);
+			trace("BroadcastManager Received " + event.payload["messageID"]);
 			playStream(event.payload["uri"], event.payload["streamID"], event.payload["streamName"]);
 		}
 		
 		public function handleStopStreamRequest(event:BBBEvent):void {
-			trace("Received " + event.payload["messageID"]);
+			trace("BroadcastManager Received " + event.payload["messageID"]);
 			stopPlayingStream();
 		}
 		
 		public function stopPlayingStream():void {
-			broadcastWindow.removeDisplay();
 			if (curStream != null)	{
 				curStream.stop();
 				broadcastWindow.curStream = null;
