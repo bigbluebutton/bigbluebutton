@@ -59,8 +59,7 @@ package org.bigbluebutton.modules.broadcast.models
       video.y = videoHolder.y;
       video.width = videoHolder.width;
       video.height = videoHolder.height;
-      videoHolder.addChild(video);
-      window.videoHolderBox.addChild(videoHolder);
+
       
 			ns.play(streamId);				
 		}		
@@ -151,22 +150,79 @@ package org.bigbluebutton.modules.broadcast.models
       trace("****metadata: width=" + info.width + " height=" + info.height);
 			videoWidth = info.width;
 			videoHeight = info.height;
-			video.width = info.width;
-			video.height = info.height;
+      
+      determineHowToDisplayVideo();
 		}
 		
+    public function onResize():void {
+      determineHowToDisplayVideo();
+    }
+    
 		public function onPlayStatus(infoObject:Object):void {
 			LogUtil.debug("onPlayStatus");
 		}		
 		
-		public function resizeVideo(w:Number, h:Number):void {
-			video.width = w;
-			video.height = h;
-		}
-				
-		public function getAstpectRatio():Number {
-			return videoWidth / videoHeight;
-		}
 
+    private function centerToWindow():void{
+      videoHolder.width = video.width = videoWidth;
+      videoHolder.height = video.height = videoHeight;
+      videoHolder.x = video.x = (window.width - video.width) / 2;
+      videoHolder.y = video.y = (window.height - video.height) / 2;
+      
+      videoHolder.addChild(video);
+      window.videoHolderBox.addChild(videoHolder);
+    }
+    
+    private function fitVideoToWindow():void {
+      if (window.width < window.height) {
+        fitToWidthAndAdjustHeightToMaintainAspectRatio();				
+      } else {
+        fitToHeightAndAdjustWidthToMaintainAspectRatio();
+      }				
+    }
+       
+    private function videoIsSmallerThanWindow():Boolean {
+      return (videoHeight < window.height) && (videoWidth < window.width);
+    }
+    
+    private const VIDEO_WIDTH_PADDING:int = 7;
+    private const VIDEO_HEIGHT_PADDING:int = 65;
+    
+    private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
+      videoHolder.width = video.width = window.width - VIDEO_WIDTH_PADDING;
+      // Maintain aspect-ratio
+      videoHolder.height = video.height = (videoHeight * video.width) / videoWidth;
+      videoHolder.x = video.x = 0;
+      videoHolder.y = video.y = 0;
+      
+      videoHolder.addChild(video);
+      window.videoHolderBox.addChild(videoHolder);
+    }
+    
+    private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
+      videoHolder.height = video.height = window.height - VIDEO_HEIGHT_PADDING;
+      // Maintain aspect-ratio
+      videoHolder.width = video.width = (videoWidth * video.height) / videoHeight;
+      
+      if (videoHolder.width > window.width - VIDEO_WIDTH_PADDING) {
+        videoHolder.width = video.width = window.width - VIDEO_WIDTH_PADDING;
+        videoHolder.height = video.height = (videoHeight * video.width) / videoWidth;
+      }
+      
+      videoHolder.x = video.x = (window.width - VIDEO_WIDTH_PADDING - video.width) / 2;
+      videoHolder.y = video.y = (window.height - VIDEO_WIDTH_PADDING - video.height) / 2;	
+      
+      videoHolder.addChild(video);
+      window.videoHolderBox.addChild(videoHolder);
+    }
+       
+    private function determineHowToDisplayVideo():void {
+      if (videoIsSmallerThanWindow()) {
+        centerToWindow();
+      } else {
+        fitVideoToWindow();
+      }
+    }
+    
 	}
 }

@@ -4,7 +4,7 @@
 					  implements="org.bigbluebutton.common.IBbbModuleWindow" 
             creationComplete="onCreationComplete()"
 					  xmlns:mate="http://mate.asfusion.com/" showCloseButton="false"
-					  layout="absolute" title="Broadcast">
+					  layout="absolute" title="Broadcast" resize="onResize()" resizeEndMDIWindow="onResize()">
 
 	<mx:Script>
 		<![CDATA[
@@ -18,6 +18,8 @@
 			import org.bigbluebutton.modules.broadcast.models.Stream;
 			import org.bigbluebutton.modules.broadcast.models.Streams;
 			
+
+      
 			public var broadcastManager:BroadcastManager;
 			public var curStream:Stream;
 			
@@ -51,8 +53,11 @@
         }
       }
 			
-			public function becomePresenter():void{
-				videoStreamList.visible = true;
+			public function becomePresenter():void {
+        if (options.showStreams) {
+          videoStreamList.visible = true;
+        }
+				
 				if (curStream != null) {
 					playBtn.selected = true;
 					playBtn.label = "Stop";
@@ -65,7 +70,10 @@
 			}
 			
 			public function becomeViewer():void{
-				videoStreamList.visible = false;
+        if (options.showStreams) {
+          videoStreamList.visible = false;
+        }
+				
 				if (curStream != null) {
 					playBtn.selected = true;
 					playBtn.label = "Stop";
@@ -98,12 +106,19 @@
 				this.height = options.height;
 				return options.position;
 			}
+            
+      private function onResize():void {
+        if (curStream != null) {
+          curStream.onResize();         
+        }
+
+      }
 												
 		]]>
 	</mx:Script>
 		<mx:HBox id="videoHolderBox" width="100%" height="100%" />		
-		<mx:ControlBar id="streamsList" width="100%" height="30" paddingTop="0" borderStyle="outset" horizontalAlign="center">
-			<mx:HBox x="1" y="1" id="videoStreamList" width="100%" height="30" horizontalAlign="center">
+		<mx:ControlBar id="streamsList" visible="false" width="100%" height="30" paddingTop="0" borderStyle="outset" horizontalAlign="center">
+			<mx:HBox x="1" y="1" id="videoStreamList" visible="false" width="100%" height="30" horizontalAlign="center">
 				<mx:ComboBox id="streamsComboBox" width="85%" dataProvider="{streams.streamNames}" />
 				<mx:Button id="playBtn" label="Play" width="15% " click="playStopVideo()" toggle="true"/>				
 			</mx:HBox>
