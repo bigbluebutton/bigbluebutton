@@ -35,12 +35,10 @@ Button
   borderColor: #bebcac;
   themeColor:#d6d4c9;
   fontFamily: Arial;
-  fontSize: 12;
-  
-  
+  fontSize: 12;  
 }
 
-Button.Present{
+.switchPresenterButtonStyle {
   cornerRadius: 0;
   highlightAlphas: 0, 0;
   fillAlphas: 1, 1, 1, 1;
@@ -54,7 +52,7 @@ Button.Present{
   fontSize: 12;
 }
 
-Button.Send{
+.chatSendButtonStyle {
   cornerRadius: 0;
   highlightAlphas: 0, 0;
   fillAlphas: 1, 1, 1, 1;
@@ -68,7 +66,7 @@ Button.Send{
   fontSize: 12;
 }
 
-Button.Logout{
+.logoutButtonStyle {
   cornerRadius: 0;
   highlightAlphas: 0, 0;
   fillAlphas: 1, 1, 1, 1;
@@ -82,7 +80,7 @@ Button.Logout{
   fontSize: 12;
 }
 
-LinkButton {
+.helpLinkButtonStyle {
   rollOverColor: #cccccc;
   selectionColor: #999999;
   color: #504f3d;
