@@ -5,8 +5,10 @@ package org.bigbluebutton.modules.broadcast.models
 	import flash.events.SecurityErrorEvent;
 	import flash.media.Video;
 	import flash.net.NetConnection;
-	import flash.net.NetStream;	
-	import mx.core.UIComponent;	
+	import flash.net.NetStream;
+	
+	import mx.core.UIComponent;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.broadcast.views.BroadcastWindow;
 
@@ -20,13 +22,15 @@ package org.bigbluebutton.modules.broadcast.models
 		private var video:Video;
 		private var videoWidth:int;
 		private var videoHeight:int;
-		
+		private var videoHolder:UIComponent;
+    
 		[Bindable]
 		public var width:int = 320;
 		[Bindable]
 		public var height:int = 240;
 		
 		public function Stream(uri:String, streamId:String, streamName:String) {
+      videoHolder = new UIComponent();
 			this.uri = uri;
 			this.streamId = streamId;
 			this.streamName = streamName;
@@ -51,6 +55,12 @@ package org.bigbluebutton.modules.broadcast.models
 			ns.addEventListener(NetStatusEvent.NET_STATUS, netstreamStatus);
 			ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, nsAsyncErrorHandler);
 			video.attachNetStream(ns);
+      video.x = videoHolder.x;
+      video.y = videoHolder.y;
+      video.width = videoHolder.width;
+      video.height = videoHolder.height;
+
+      
 			ns.play(streamId);				
 		}		
 				
@@ -91,20 +101,20 @@ package org.bigbluebutton.modules.broadcast.models
 		private function netStatus(evt:NetStatusEvent ):void {		 			
 			switch(evt.info.code) {				
 				case "NetConnection.Connect.Success":
-					LogUtil.debug("Successfully connected to SIP application.");
+					LogUtil.debug("Successfully connected to broadcast application.");
 					displayVideo();
 					break;				
 				case "NetConnection.Connect.Failed":
-					LogUtil.debug("Failed to connect to SIP application.");
+					LogUtil.debug("Failed to connect to broadcast application.");
 					break;				
 				case "NetConnection.Connect.Closed":
-					trace("Connection to SIP application has closed.");
+					trace("Connection to broadcast application has closed.");
 					break;				
 				case "NetConnection.Connect.Rejected":
-					LogUtil.debug("Connection to SIP application was rejected.");
+					LogUtil.debug("Connection to broadcast application was rejected.");
 					break;					
 				default:	
-					LogUtil.debug("Connection to SIP application failed. " + evt.info.code);
+					LogUtil.debug("Connection to broadcast application failed. " + evt.info.code);
 			}			
 		}
 		
@@ -125,6 +135,8 @@ package org.bigbluebutton.modules.broadcast.models
 		}
 		
 		public function stop():void {
+      window.videoHolderBox.removeChild(videoHolder);
+      videoHolder.removeChild(video);
 			ns.close();
 			nc.close();
 		}
@@ -135,36 +147,82 @@ package org.bigbluebutton.modules.broadcast.models
 		
 		public function onMetaData(info:Object):void {
 			LogUtil.debug("****metadata: width=" + info.width + " height=" + info.height);
+      trace("****metadata: width=" + info.width + " height=" + info.height);
 			videoWidth = info.width;
 			videoHeight = info.height;
-			video.width = info.width;
-			video.height = info.height;
-			window.onResize();
+      
+      determineHowToDisplayVideo();
 		}
 		
+    public function onResize():void {
+      determineHowToDisplayVideo();
+    }
+    
 		public function onPlayStatus(infoObject:Object):void {
 			LogUtil.debug("onPlayStatus");
 		}		
 		
-		public function resizeVideo(w:Number, h:Number):void {
-			video.width = w;
-			video.height = h;
-		}
-		
-		public function onResize():void {
-			fitVideoToWindow();
-			LogUtil.debug("Video [" + video.width + "," + video.height + "]");
-			window.videoHolder2.addChild(video);
-		}
-				
-		private function fitVideoToWindow():void {
-			video.width = window.videoHolder2.width;
-			video.height = window.videoHolder2.height;
-		}
-		
-		public function getAstpectRatio():Number {
-			return videoWidth / videoHeight;
-		}
 
+    private function centerToWindow():void{
+      videoHolder.width = video.width = videoWidth;
+      videoHolder.height = video.height = videoHeight;
+      videoHolder.x = video.x = (window.width - video.width) / 2;
+      videoHolder.y = video.y = (window.height - video.height) / 2;
+      
+      videoHolder.addChild(video);
+      window.videoHolderBox.addChild(videoHolder);
+    }
+    
+    private function fitVideoToWindow():void {
+      if (window.width < window.height) {
+        fitToWidthAndAdjustHeightToMaintainAspectRatio();				
+      } else {
+        fitToHeightAndAdjustWidthToMaintainAspectRatio();
+      }				
+    }
+       
+    private function videoIsSmallerThanWindow():Boolean {
+      return (videoHeight < window.height) && (videoWidth < window.width);
+    }
+    
+    private const VIDEO_WIDTH_PADDING:int = 7;
+    private const VIDEO_HEIGHT_PADDING:int = 65;
+    
+    private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
+      videoHolder.width = video.width = window.width - VIDEO_WIDTH_PADDING;
+      // Maintain aspect-ratio
+      videoHolder.height = video.height = (videoHeight * video.width) / videoWidth;
+      videoHolder.x = video.x = 0;
+      videoHolder.y = video.y = 0;
+      
+      videoHolder.addChild(video);
+      window.videoHolderBox.addChild(videoHolder);
+    }
+    
+    private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
+      videoHolder.height = video.height = window.height - VIDEO_HEIGHT_PADDING;
+      // Maintain aspect-ratio
+      videoHolder.width = video.width = (videoWidth * video.height) / videoHeight;
+      
+      if (videoHolder.width > window.width - VIDEO_WIDTH_PADDING) {
+        videoHolder.width = video.width = window.width - VIDEO_WIDTH_PADDING;
+        videoHolder.height = video.height = (videoHeight * video.width) / videoWidth;
+      }
+      
+      videoHolder.x = video.x = (window.width - VIDEO_WIDTH_PADDING - video.width) / 2;
+      videoHolder.y = video.y = (window.height - VIDEO_WIDTH_PADDING - video.height) / 2;	
+      
+      videoHolder.addChild(video);
+      window.videoHolderBox.addChild(videoHolder);
+    }
+       
+    private function determineHowToDisplayVideo():void {
+      if (videoIsSmallerThanWindow()) {
+        centerToWindow();
+      } else {
+        fitVideoToWindow();
+      }
+    }
+    
 	}
 }

@@ -110,6 +110,19 @@
 			enableEdit="true"
 		/>
 
+    <module name="BroadcastModule" url="http://HOST/client/BroadcastModule.swf?v=VERSION"
+      uri="rtmp://HOST/bigbluebutton"
+      streamsUri="http://HOST/streams.xml"
+      position="absolute"
+      width="600"
+      height="400"
+      x="40"
+      y="40"
+      showStreams="true"
+      autoPlay="false"
+      dependsOn="ViewersModule"
+    />
+    
 		<!-- new module in development: 
 		<module name="DynamicInfoModule" url="http://HOST/client/DynamicInfoModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 

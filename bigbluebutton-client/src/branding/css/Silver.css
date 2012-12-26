@@ -1,0 +1,256 @@
+Application 
+{  
+  themeColor: #CCC;
+  backgroundGradientAlphas: 1, 1;  
+  backgroundGradientColors: #FFF, #FFF;
+  color: #504f3d;
+  fontFamily: Arial;
+}
+
+ApplicationControlBar {
+  fillAlphas: 1, 1;
+  fillColors: #ffffff, #fffcf5;
+  backgroundAlpha: 0;
+  dropShadowEnabled: true;
+  shadowDistance: 1
+}
+
+
+MDICanvas 
+{
+  backgroundColor: #FFFFFF;
+  backgroundAlpha: 0;
+}
+
+
+Button 
+{
+  cornerRadius: 0;
+  highlightAlphas: 0, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fff, #fff, #f6eded, #f6eded;
+  color: #504f3d;
+  textRollOverColor: #e6e3dc;
+  textSelectedColor: #d6d4c9;
+  borderColor: #bebcac;
+  themeColor:#d6d4c9;
+  fontFamily: Arial;
+  fontSize: 12;
+  
+  
+}
+
+Button.Present{
+  cornerRadius: 0;
+  highlightAlphas: 0, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #262626, #262626, #454545, #454545;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #262626;
+  borderColor: #000000;
+  themeColor: #000000;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+Button.Send{
+  cornerRadius: 0;
+  highlightAlphas: 0, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #262626, #262626, #454545, #454545;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #262626;
+  borderColor: #000000;
+  themeColor: #000000;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+Button.Logout{
+  cornerRadius: 0;
+  highlightAlphas: 0, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #262626, #262626, #454545, #454545;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #262626;
+  borderColor: #000000;
+  themeColor: #000000;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+LinkButton {
+  rollOverColor: #cccccc;
+  selectionColor: #999999;
+  color: #504f3d;
+  textRollOverColor: #504f3d;
+  textSelectedColor: #504f3d;
+}
+
+VScrollBar {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #ffffff, #ffffff, #ffffff, #ffffff;
+  trackColors: #94999b, #e7e7e7;
+  themeColor: #333333;
+}
+
+ComboBox {
+  color: #504f3d;
+  borderColor: #999999;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #ffffff, #ffffff, #ffffff, #ffffff;
+  selectionColor: #cccccc;
+  textSelectedColor: #504f3d;
+  useRollOver: true;
+  rollOverColor: #cccccc;
+  textRollOverColor: #ffffff;
+  themeColor: #999999;
+}
+
+MDIWindow {
+  resizeCursorHorizontalXOffset: 20	
+}
+
+.mdiWindowFocus 
+{
+  headerHeight: 26;
+  roundedBottomCorners: false;
+  backgroundAlpha: 1;
+  backgroundColor: #fffcf5;
+  /* backgroundImage: Embed(source="assets/swf/Blue.swf", symbol="Window_Background"); */
+  backgroundSize: '100%';
+  
+  borderStyle: solid;
+  borderColor: #bebcac;
+  borderAlpha: 1;
+  borderThickness: 2;
+  borderThicknessLeft: 6;
+  borderThicknessTop: 6;
+  borderThicknessBottom: 6;
+  borderThicknessRight: 6;
+  cornerRadius: 0;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+  
+  cornerResizeImg: Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
+  cornerResizeWidth: 15;
+  cornerResizeHeight: 15;
+  cornerResizePaddingRight: 2;
+  cornerResizePaddingBottom: 2;
+  
+  controlButtonWidth: 10;
+  controlButtonHeight: 10;
+  controlButtonGap: 4;
+}
+
+.mdiWindowNoFocus 
+{
+  headerHeight: 26;
+  roundedBottomCorners: false;
+  backgroundAlpha: 0.5;
+  backgroundColor: #fffcf5;
+  /* backgroundImage: Embed(source="assets/swf/Blue.swf", symbol="Window_Background"); */
+  backgroundSize: '100%';
+  
+  borderStyle: solid;
+  borderColor: #bebcac;
+  borderAlpha: 1;
+  borderThickness: 2;
+  borderThicknessLeft: 6;
+  borderThicknessTop: 6;
+  borderThicknessBottom: 6;
+  borderThicknessRight: 6;
+  cornerRadius: 0;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+  
+  cornerResizeImg: Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
+  cornerResizeWidth: 15;
+  cornerResizeHeight: 15;
+  cornerResizePaddingRight: 2;
+  cornerResizePaddingBottom: 2;
+  
+  controlButtonWidth: 10;
+  controlButtonHeight: 10;
+  controlButtonGap: 4;
+}
+
+.mypanelTitle 
+{
+  fontFamily: Arial;
+  fontSize: 14;
+  paddingLeft: 15;
+  color: #4c4b39;
+}
+
+
+.closeBtnFocus
+{
+  upSkin:        Embed('assets/img/3_closeButton.png');
+  overSkin:      Embed('assets/img/3_closeButton.png');
+  downSkin:      Embed('assets/img/3_closeButton.png');
+  disabledSkin:  Embed('assets/img/3_closeButton.png');
+}
+
+.closeBtnNoFocus
+{
+  upSkin:        Embed('assets/img/3_closeButton.png');
+  overSkin:      Embed('assets/img/3_closeButton.png');
+  downSkin:      Embed('assets/img/3_closeButton.png');
+  disabledSkin:  Embed('assets/img/3_closeButton.png');
+}
+
+
+.increaseBtnFocus
+{
+  upSkin:        Embed('assets/img/3_increaseButton.png');
+  overSkin:      Embed('assets/img/3_increaseButton.png');
+  downSkin:      Embed('assets/img/3_increaseButton.png');
+  disabledSkin:  Embed('assets/img/3_increaseButton.png');
+}
+
+.increaseBtnNoFocus
+{
+  upSkin:        Embed('assets/img/3_increaseButton.png');
+  overSkin:      Embed('assets/img/3_increaseButton.png');
+  downSkin:      Embed('assets/img/3_increaseButton.png');
+  disabledSkin:  Embed('assets/img/3_increaseButton.png');
+}
+
+
+.decreaseBtnFocus 
+{
+  upSkin:        Embed('assets/img/3_decreaseButton.png');
+  overSkin:      Embed('assets/img/3_decreaseButton.png');
+  downSkin:      Embed('assets/img/3_decreaseButton.png');
+  disabledSkin:  Embed('assets/img/3_decreaseButton.png');
+}
+
+.decreaseBtnNoFocus 
+{
+  upSkin:        Embed('assets/img/3_decreaseButton.png');
+  overSkin:      Embed('assets/img/3_decreaseButton.png');
+  downSkin:      Embed('assets/img/3_decreaseButton.png');
+  disabledSkin:  Embed('assets/img/3_decreaseButton.png');
+}
+
+
+.minimizeBtnFocus 
+{
+  upSkin:        Embed('assets/img/3_minimizeButton.png');
+  overSkin:      Embed('assets/img/3_minimizeButton.png');
+  downSkin:      Embed('assets/img/3_minimizeButton.png');
+  disabledSkin:  Embed('assets/img/3_minimizeButton.png');
+}
+
+
+.resizeHndlr 
+{
+  upSkin:        Embed('assets/img/resizeHandler.png');
+  overSkin:      Embed('assets/img/resizeHandler.png');
+  downSkin:      Embed('assets/img/resizeHandler.png');
+  disabledSkin:  Embed('assets/img/resizeHandler.png');
+}

@@ -1,63 +1,79 @@
 package org.bigbluebutton.modules.broadcast.services
 {
   import org.bigbluebutton.common.LogUtil;
+  import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.managers.ConnectionManager;
+  import org.bigbluebutton.core.managers.UserManager;
 
-  public class MessageSender
-  {
+  public class MessageSender {
     public function playStream(uri:String, streamId:String, streamName:String):void {
-      var conn:Connection = BBB.initConnectionManager().getConnection("bbb");
-      if (conn != null) {
-        var message:Object = new Object();
-        message["messageId"] = "playBroadcastStream";
-        message["uri"] = uri;
-        message["streamId"] = streamId;
-        message["streamName"] = streamName;				
-        conn.sendMessage(message);
-        var message:Object = new Object();
-        message["pageNum"] = pageNum;
-        
-        var _nc:ConnectionManager = BBB.initConnectionManager();
-        _nc.sendMessage("whiteboard.setActivePage", 
-          function(result:String):void { // On successful result
-            trace(result); 
-          },	                   
-          function(status:String):void { // status - On error occurred
-            LogUtil.error(status); 
-          },
-          message
-        );
-      }
+      var message:Object = new Object();
+      message["messageID"] = "BroadcastPlayStreamCommand";
+      message["uri"] = uri;
+      message["streamID"] = streamId;
+      message["streamName"] = streamName;				
+      
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("bigbluebutton.sendMessage", 
+        function(result:String):void { // On successful result
+          trace(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
+        message
+      );
     }
     
     public function stopStream():void {
-      var conn:Connection = BBB.initConnectionManager().getConnection("bbb");
-      if (conn != null) {
-        var message:Object = new Object();
-        message["messageId"] = "stopBroadcastStream";			
-        conn.sendMessage(message);
-      }
+      var message:Object = new Object();
+      message["messageID"] = "BroadcastStopStreamCommand";			
+        
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("bigbluebutton.sendMessage", 
+        function(result:String):void { // On successful result
+          trace(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
+        message
+      );
     }
-    
+       
     public function sendWhatIsTheCurrentStreamRequest():void {
-      var conn:Connection = BBB.initConnectionManager().getConnection("bbb");
-      if (conn != null) {
-        var message:Object = new Object();
-        message["messageId"] = "whatIsTheCurrentStreamRequest";	
-        message["requestedBy"] = UserManager.getInstance().getConference().getMyUserId();
-        conn.sendMessage(message);
-      }
+      var message:Object = new Object();
+      message["messageID"] = "BroadcastWhatIsTheCurrentStreamRequest";	
+      message["requestedBy"] = UserManager.getInstance().getConference().getMyUserId();
+        
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("bigbluebutton.sendMessage", 
+        function(result:String):void { // On successful result
+          trace(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
+        message
+      );
     }
     
-    public function sendWhatIsTheCurrentStreamReply(requestedByUserid:Number, streamId:String):void {
-      var conn:Connection = BBB.initConnectionManager().getConnection("bbb");
-      if (conn != null) {
-        var message:Object = new Object();
-        message["messageId"] = "whatIsTheCurrentStreamReply";	
-        message["requestedBy"] = requestedByUserid;
-        message["streamId"] = streamId;
-        conn.sendMessage(message);
-      }			
+    public function sendWhatIsTheCurrentStreamReply(requestedByUserID:Number, streamID:String):void {
+      var message:Object = new Object();
+      message["messageID"] = "BroadcastWhatIsTheCurrentStreamReply";	
+      message["requestedBy"] = requestedByUserID;
+      message["streamID"] = streamID;
+
+      var _nc:ConnectionManager = BBB.initConnectionManager();
+      _nc.sendMessage("bigbluebutton.sendMessage", 
+        function(result:String):void { // On successful result
+          trace(result); 
+        },	                   
+        function(status:String):void { // status - On error occurred
+          LogUtil.error(status); 
+        },
+        message
+      );        
     }
   }
 }
