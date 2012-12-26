@@ -2,7 +2,10 @@
 <bcast:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 					  xmlns:bcast="flexlib.mdi.containers.*" 
 					  implements="org.bigbluebutton.common.IBbbModuleWindow" 
+            styleNameFocus="broadcastStyleFocus"
+            styleNameNoFocus="broadcastStyleNoFocus"
             creationComplete="onCreationComplete()"
+            visible="false"
 					  xmlns:mate="http://mate.asfusion.com/" showCloseButton="false"
 					  layout="absolute" title="Broadcast" resize="onResize()" resizeEndMDIWindow="onResize()">
 
@@ -17,40 +20,26 @@
 			import org.bigbluebutton.modules.broadcast.models.BroadcastOptions;
 			import org.bigbluebutton.modules.broadcast.models.Stream;
 			import org.bigbluebutton.modules.broadcast.models.Streams;
-			
-
-      
+			     
 			public var broadcastManager:BroadcastManager;
 			public var curStream:Stream;
-			
-//			[Bindable]
-//			private var xPosition:int = 1;
-			
-//			[Bindable]
-//			private var yPosition:int = 1;
-			
-//			[Bindable]
-//			private var defHeight:int = 300;
-			
-//			[Bindable]
-//			private var defWidth:int = 400;
-			
+					
 			public var options:BroadcastOptions;
-			
+			private var createComplete:Boolean = false;
+      
 			[Bindable]
 			public var streams:Streams;
 			
 			private function onCreationComplete():void {
         options = new BroadcastOptions();
-//				xPosition = options.x;
-//				yPosition = options.y;
-//				defWidth = options.width;
-//				defHeight = options.height;
         streamsList.visible = options.showStreams;
+        this.showControls = options.showWindowControls;
         
         if (options.autoPlay) {
           broadcastManager.playVideo(0);
         }
+        
+        createComplete = true;
       }
 			
 			public function becomePresenter():void {
@@ -100,18 +89,13 @@
 			}
 			
 			public function getPrefferedPosition():String {	
-//				this.x = options.x;
-//				this.y = options.y;
-//				this.width = options.width;
-//				this.height = options.height;
 				return options.position;
 			}
             
       private function onResize():void {
-        if (curStream != null) {
+        if (curStream != null && createComplete) {
           curStream.onResize();         
         }
-
       }
 												
 		]]>

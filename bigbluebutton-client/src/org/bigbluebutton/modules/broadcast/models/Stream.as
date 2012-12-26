@@ -137,8 +137,9 @@ package org.bigbluebutton.modules.broadcast.models
 		public function stop():void {
       window.videoHolderBox.removeChild(videoHolder);
       videoHolder.removeChild(video);
-			ns.close();
-			nc.close();
+      ns.close();
+      nc.close();      
+      video = null;
 		}
 		
 		public function onCuePoint(infoObject:Object):void {
@@ -155,14 +156,15 @@ package org.bigbluebutton.modules.broadcast.models
 		}
 		
     public function onResize():void {
-      determineHowToDisplayVideo();
+      if (video != null) {
+        determineHowToDisplayVideo();        
+      }
     }
     
 		public function onPlayStatus(infoObject:Object):void {
 			LogUtil.debug("onPlayStatus");
 		}		
 		
-
     private function centerToWindow():void{
       videoHolder.width = video.width = videoWidth;
       videoHolder.height = video.height = videoHeight;
