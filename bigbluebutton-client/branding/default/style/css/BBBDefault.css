@@ -2,7 +2,6 @@ Application {
   backgroundColor: #ffffff;
 }
 
-
 ApplicationControlBar {
   highlightAlphas: 0.1, 0;
   fillAlphas: 0, 0;
@@ -519,70 +518,44 @@ MDIWindow {
   fontSize: 12;
 }
 
-.closeBtnFocus
+.closeBtnFocus, .closeBtnNoFocus
 {
-  upSkin:        Embed('assets/img/3_closeButton.png');
-  overSkin:      Embed('assets/img/3_closeButton.png');
-  downSkin:      Embed('assets/img/3_closeButton.png');
-  disabledSkin:  Embed('assets/img/3_closeButton.png');
-}
-
-.closeBtnNoFocus
-{
-  upSkin:        Embed('assets/img/3_closeButton.png');
-  overSkin:      Embed('assets/img/3_closeButton.png');
-  downSkin:      Embed('assets/img/3_closeButton.png');
-  disabledSkin:  Embed('assets/img/3_closeButton.png');
+  upSkin:        Embed('assets/images/3_closeButton.png');
+  overSkin:      Embed('assets/images/3_closeButton.png');
+  downSkin:      Embed('assets/images/3_closeButton.png');
+  disabledSkin:  Embed('assets/images/3_closeButton.png');
 }
 
 
-.increaseBtnFocus
+.increaseBtnFocus, .increaseBtnNoFocus
 {
-  upSkin:        Embed('assets/img/3_increaseButton.png');
-  overSkin:      Embed('assets/img/3_increaseButton.png');
-  downSkin:      Embed('assets/img/3_increaseButton.png');
-  disabledSkin:  Embed('assets/img/3_increaseButton.png');
+  upSkin:        Embed('assets/images/3_increaseButton.png');
+  overSkin:      Embed('assets/images/3_increaseButton.png');
+  downSkin:      Embed('assets/images/3_increaseButton.png');
+  disabledSkin:  Embed('assets/images/3_increaseButton.png');
 }
 
-.increaseBtnNoFocus
+.decreaseBtnFocus, .decreaseBtnNoFocus  
 {
-  upSkin:        Embed('assets/img/3_increaseButton.png');
-  overSkin:      Embed('assets/img/3_increaseButton.png');
-  downSkin:      Embed('assets/img/3_increaseButton.png');
-  disabledSkin:  Embed('assets/img/3_increaseButton.png');
+  upSkin:        Embed('assets/images/3_decreaseButton.png');
+  overSkin:      Embed('assets/images/3_decreaseButton.png');
+  downSkin:      Embed('assets/images/3_decreaseButton.png');
+  disabledSkin:  Embed('assets/images/3_decreaseButton.png');
 }
-
-
-.decreaseBtnFocus 
-{
-  upSkin:        Embed('assets/img/3_decreaseButton.png');
-  overSkin:      Embed('assets/img/3_decreaseButton.png');
-  downSkin:      Embed('assets/img/3_decreaseButton.png');
-  disabledSkin:  Embed('assets/img/3_decreaseButton.png');
-}
-
-.decreaseBtnNoFocus 
-{
-  upSkin:        Embed('assets/img/3_decreaseButton.png');
-  overSkin:      Embed('assets/img/3_decreaseButton.png');
-  downSkin:      Embed('assets/img/3_decreaseButton.png');
-  disabledSkin:  Embed('assets/img/3_decreaseButton.png');
-}
-
 
 .minimizeBtnFocus 
 {
-  upSkin:        Embed('assets/img/3_minimizeButton.png');
-  overSkin:      Embed('assets/img/3_minimizeButton.png');
-  downSkin:      Embed('assets/img/3_minimizeButton.png');
-  disabledSkin:  Embed('assets/img/3_minimizeButton.png');
+  upSkin:        Embed('assets/images/3_minimizeButton.png');
+  overSkin:      Embed('assets/images/3_minimizeButton.png');
+  downSkin:      Embed('assets/images/3_minimizeButton.png');
+  disabledSkin:  Embed('assets/images/3_minimizeButton.png');
 }
 
 
 .resizeHndlr 
 {
-  upSkin:        Embed('assets/img/resizeHandler.png');
-  overSkin:      Embed('assets/img/resizeHandler.png');
-  downSkin:      Embed('assets/img/resizeHandler.png');
-  disabledSkin:  Embed('assets/img/resizeHandler.png');
+  upSkin:        Embed('assets/images/resizeHandler.png');
+  overSkin:      Embed('assets/images/resizeHandler.png');
+  downSkin:      Embed('assets/images/resizeHandler.png');
+  disabledSkin:  Embed('assets/images/resizeHandler.png');
 }
