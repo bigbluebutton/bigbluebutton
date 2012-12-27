@@ -118,7 +118,7 @@ package org.bigbluebutton.common
         public var sound:Class;                
 
         [Embed(source="assets/images/cancel.png")]
-        public var cancel_user:Class;    
+        public var cancel:Class;    
 
         [Embed(source="assets/images/user_go.png")]
         public var eject_user:Class;  
@@ -135,19 +135,19 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/shape_square.png")]
         public var square_icon:Class;  
         
-        [Embed(source="assets/images/arrow_undo.png")] 
+        [Embed(source="assets/images/undo.png")] 
         public var undo_icon:Class;  
         
-        [Embed(source="assets/images/hand_icon.png")]
+        [Embed(source="assets/images/hand.png")]
         public var hand_icon:Class; 
         
-        [Embed(source="assets/images/scribble_icon.png")]
+        [Embed(source="assets/images/marker.png")]
         public var scribble_icon:Class; 
 
-        [Embed(source="assets/images/text_icon.png")]
+        [Embed(source="assets/images/text.png")]
         public var text_icon:Class; 
         
-        [Embed(source="assets/images/circle.png")]
+        [Embed(source="assets/images/ellipse.png")]
         public var circle_icon:Class; 
         
         [Embed(source="assets/images/arrow_out.png")]
@@ -171,7 +171,7 @@ package org.bigbluebutton.common
 		[Embed(source="assets/images/table.png")]
 		public var table:Class; 
 		
-		[Embed(source="assets/images/cancel.png")]
+		[Embed(source="assets/images/trash.png")]
 		public var delete_icon:Class; 
 
         [Embed(source="assets/images/arrow_right.png")]
@@ -250,7 +250,7 @@ package org.bigbluebutton.common
 		[Embed(source="assets/images/pointer_icon_small.png")]
 		public var select_icon:Class;	
 		
-		[Embed(source="assets/images/triangle_icon.png")]
+		[Embed(source="assets/images/triangle.png")]
 		public var triangle_icon:Class;	
 		
 		[Embed(source="assets/images/text_background_icon.png")]
