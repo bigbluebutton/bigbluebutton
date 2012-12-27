@@ -25,6 +25,7 @@
 			import mx.events.FlexEvent;
 			
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+			import org.bigbluebutton.main.events.FullScreenPresentationEvent;
 			import org.bigbluebutton.modules.present.api.PresentationAPI;
 			import org.bigbluebutton.modules.present.business.PresentProxy;
 			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
@@ -60,6 +61,14 @@
 		<MethodInvoker generator="{PresentManager}" method="handleStopModuleEvent" />
 	</EventHandlers>
 	
+	<EventHandlers type="{FullScreenPresentationEvent.SWITCH_TO_FULL_SCREEN_PRESENTATION}">
+		<MethodInvoker generator="{PresentManager}" method="handleFullScreenPresentationEvent" arguments="{event}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{FullScreenPresentationEvent.SWITCH_TO_WINDOW_PRESENTATION}">
+		<MethodInvoker generator="{PresentManager}" method="handleWindowPresentationEvent" arguments="{event}"/>
+	</EventHandlers>
+		
 	<EventHandlers type="{UploadEvent.OPEN_UPLOAD_WINDOW}" >
 		<MethodInvoker generator="{PresentManager}" method="handleOpenUploadWindow" arguments="{event}" />
 	</EventHandlers>

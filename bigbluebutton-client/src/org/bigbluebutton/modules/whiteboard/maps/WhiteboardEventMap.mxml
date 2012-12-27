@@ -24,6 +24,7 @@
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.main.events.ModuleStartedEvent;
+			import org.bigbluebutton.main.events.FullScreenPresentationEvent;
 			import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
 			import org.bigbluebutton.modules.present.events.NavigationEvent;
@@ -57,6 +58,14 @@
 	
 	<EventHandlers type="{StartWhiteboardModuleEvent.START_HIGHLIGHTER_MODULE_EVENT}">
 		<MethodInvoker generator="{WhiteboardManager}" method="handleStartModuleEvent" />
+	</EventHandlers>
+	
+	<EventHandlers type="{FullScreenPresentationEvent.SWITCH_TO_FULL_SCREEN_PRESENTATION}">
+		<MethodInvoker generator="{WhiteboardManager}" method="handleFullScreenPresentationEvent" arguments="{event}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{FullScreenPresentationEvent.SWITCH_TO_WINDOW_PRESENTATION}">
+		<MethodInvoker generator="{WhiteboardManager}" method="handleWindowPresentationEvent" arguments="{event}"/>
 	</EventHandlers>
 
     <EventHandlers type="{WhiteboardDrawEvent.GET_ANNOTATION_HISTORY}">
