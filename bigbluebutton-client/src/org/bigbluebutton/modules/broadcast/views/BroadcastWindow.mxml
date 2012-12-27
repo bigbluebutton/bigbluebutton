@@ -29,18 +29,27 @@
 			[Bindable]
 			public var streams:Streams;
 			
+      private var autoPlayTimer:Timer
+      
 			private function onCreationComplete():void {
         options = new BroadcastOptions();
         streamsList.visible = options.showStreams;
         this.showControls = options.showWindowControls;
-        
-        if (options.autoPlay && visible) {
-          broadcastManager.playVideo(0);
-        }
-        
+              
         createComplete = true;
+        
+        autoPlayTimer = new Timer(3000,1);
+        autoPlayTimer.addEventListener(TimerEvent.TIMER, onTimerComplete);
+        autoPlayTimer.start();
       }
 			
+      private function onTimerComplete(event:TimerEvent = null):void {
+        if (options.autoPlay && visible) {
+          // Don't start playing the video if the video is hidden.
+          broadcastManager.playVideo(0);
+        }        
+      }
+      
 			public function becomePresenter():void {
         if (options.showStreams) {
           videoStreamList.visible = true;
