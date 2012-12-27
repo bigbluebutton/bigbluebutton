@@ -19,8 +19,7 @@
 			import org.bigbluebutton.modules.broadcast.managers.BroadcastManager;
 			import org.bigbluebutton.modules.broadcast.models.BroadcastOptions;
 			import org.bigbluebutton.modules.broadcast.models.Stream;
-			import org.bigbluebutton.modules.broadcast.models.Streams;
-			     
+			import org.bigbluebutton.modules.broadcast.models.Streams;			     
 			public var broadcastManager:BroadcastManager;
 			public var curStream:Stream;
 					
@@ -35,7 +34,7 @@
         streamsList.visible = options.showStreams;
         this.showControls = options.showWindowControls;
         
-        if (options.autoPlay) {
+        if (options.autoPlay && visible) {
           broadcastManager.playVideo(0);
         }
         
