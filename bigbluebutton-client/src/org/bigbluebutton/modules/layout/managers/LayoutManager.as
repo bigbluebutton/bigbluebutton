@@ -64,6 +64,7 @@ package org.bigbluebutton.modules.layout.managers
     private var _sendCurrentLayoutUpdateTimer:Timer = new Timer(500,1);
     private var _applyCurrentLayoutTimer:Timer = new Timer(150,1);
     private var _customLayoutsCount:int = 0;
+    private var _isFullScreen:Boolean = false;
     private var _eventsToDelay:Array = new Array(MDIManagerEvent.WINDOW_RESTORE,
                                                   MDIManagerEvent.WINDOW_MINIMIZE,
                                                   MDIManagerEvent.WINDOW_MAXIMIZE);
@@ -76,6 +77,14 @@ package org.bigbluebutton.modules.layout.managers
                   sendLayoutUpdate(updateCurrentLayout());
               });
     }
+    		
+	public function handleFullScreenPresentationEvent():void {
+		_isFullScreen = true;
+	}
+		
+	public function handleWindowPresentationEvent():void {
+		_isFullScreen = false;
+	}
 		
 		public function loadServerLayouts(layoutUrl:String):void {
 			LogUtil.debug("LayoutManager: loading server layouts from " + layoutUrl);
@@ -241,11 +250,14 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		private function applyLayout(layout:LayoutDefinition):void {
-			_detectContainerChange = false;
-			if (layout != null)
-				layout.applyToCanvas(_canvas);
-			updateCurrentLayout(layout);
-			_detectContainerChange = true;
+			if (!_isFullScreen) {
+				// Temporarily stop updating layouts in full screen mode
+				_detectContainerChange = false;
+				if (layout != null)
+					layout.applyToCanvas(_canvas);
+				updateCurrentLayout(layout);
+				_detectContainerChange = true;
+			}
 		}
 
 		public function redefineLayout(e:RedefineLayoutEvent):void {
@@ -327,7 +339,7 @@ package org.bigbluebutton.modules.layout.managers
 			_currentLayout = (layout != null? layout: LayoutDefinition.getLayout(_canvas, ResourceUtil.getInstance().getString('bbb.layout.combo.customName')));
 			return _currentLayout;
 		}
-		
+
 		/*
 		 * this is because a unique layout may have multiple definitions depending
 		 * on the role of the participant

@@ -76,6 +76,7 @@
 			[Bindable] public var zoomPercentage:Number = 100;
 			public static const ZOOM_STEP:int = 5;
 			public static const THUMBNAILS_CLOSED:String = "ThumbnailsClosed";
+			[Bindable] public var fullScreenThumbnailOffset:Number = 0;
 			
 			
 			/**
@@ -491,6 +492,6 @@
 	
    		
     <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.ui.views.Thumbnail" itemRollOver="changeIndex(event)" 
-    	visible="false" width="100%" height="100" y="{this.height - 100}" change="changeSlide()" />
+    	visible="false" width="100%" height="100" y="{this.height - 100 - fullScreenThumbnailOffset}" change="changeSlide()" />
 		      		 
 </mx:Canvas>

@@ -27,6 +27,7 @@
       
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.FullScreenPresentationEvent;
       import org.bigbluebutton.modules.layout.events.ConnectionEvent;
       import org.bigbluebutton.modules.layout.events.LayoutEvent;
       import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
@@ -58,7 +59,15 @@
    		<MethodInvoker generator="{LayoutService}" method="leave" />
    		<MethodInvoker generator="{LayoutEventMapDelegate}" method="stopModule" />
     </EventHandlers>
-        
+	
+	<EventHandlers type="{FullScreenPresentationEvent.SWITCH_TO_FULL_SCREEN_PRESENTATION}">
+		<MethodInvoker generator="{LayoutManager}" method="handleFullScreenPresentationEvent"/>
+	</EventHandlers>
+	
+	<EventHandlers type="{FullScreenPresentationEvent.SWITCH_TO_WINDOW_PRESENTATION}">
+		<MethodInvoker generator="{LayoutManager}" method="handleWindowPresentationEvent"/>
+	</EventHandlers>
+	        
     <EventHandlers type="{ConnectionEvent.CONNECT_EVENT}">
    		<MethodInvoker generator="{LayoutService}" method="initLayout" arguments="{event.success}" />
     </EventHandlers>

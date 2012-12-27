@@ -51,6 +51,7 @@
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import flash.events.MouseEvent;
+			import flash.events.Event;
 			
 			import flexlib.mdi.containers.MDIWindow;
 			import flexlib.mdi.effects.effectsLib.MDIVistaEffects;
@@ -79,6 +80,7 @@
 			import org.bigbluebutton.main.events.RecordStatusEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+			import org.bigbluebutton.main.events.FullScreenPresentationEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -141,10 +143,12 @@
       }
 			
 			protected function initializeShell():void {	
-				globalDispatcher = new Dispatcher();	
+				globalDispatcher = new Dispatcher();
+				// Initialze full screen handler once we've been added to the display list
+				this.addEventListener(Event.ADDED_TO_STAGE, initFullScreen);
 			}
 		
-			protected function initFullScreen():void {				
+			protected function initFullScreen(e:Event):void {				
 				/* Set up full screen handler. */
 				stage.addEventListener(FullScreenEvent.FULL_SCREEN, fullScreenHandler);
 				dispState = stage.displayState;
@@ -181,14 +185,26 @@
 			}
 			
 			private function fullScreenHandler(evt:FullScreenEvent):void {
+				var dispatcher:Dispatcher;
 				dispState = stage.displayState + " (fullScreen=" + evt.fullScreen.toString() + ")";
 				if (evt.fullScreen) {
 					LogUtil.debug("Switching to full screen");
 					/* Do something specific here if we switched to full screen mode. */
-				
+					toolbar.visible = false;
+					toolbar.height = 0;
+					controlbar.visible = false;
+					controlbar.height = 0;
+					dispatcher = new Dispatcher();
+					dispatcher.dispatchEvent(new FullScreenPresentationEvent(FullScreenPresentationEvent.SWITCH_TO_FULL_SCREEN_PRESENTATION));
 				} else {
 					LogUtil.debug("Switching to normal screen");
 					/* Do something specific here if we switched to normal mode. */
+					toolbar.visible = true;
+					toolbar.height = toolbarHeight;
+					controlbar.visible = true;
+					controlbar.height = footerHeight;
+					dispatcher = new Dispatcher();
+					dispatcher.dispatchEvent(new FullScreenPresentationEvent(FullScreenPresentationEvent.SWITCH_TO_WINDOW_PRESENTATION));
 				}
 			}			
 			
@@ -348,6 +364,7 @@
 			}
 						
 			private function handleAddToolbarComponent(event:ToolbarButtonEvent):void {
+				LogUtil.debug("MainApplicationShell:handleAddToolbarComponent; event.location=" + event.location);
 				if (event.location == ToolbarButtonEvent.BOTTOM_TOOLBAR) {
 					addedBtns.addChild(event.button as UIComponent);
 //					realignButtons();
@@ -388,7 +405,7 @@
 		<views:BrandingLogo x="{this.width - 300}" y="{this.height - 300}" />
 	</views:MainCanvas>	
 	
-	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0">		
+	<mx:ControlBar width="100%" height="{footerHeight}" paddingTop="0" id="controlbar">		
 	  <mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 

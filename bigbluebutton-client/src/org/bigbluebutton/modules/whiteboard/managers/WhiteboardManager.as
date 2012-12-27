@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
+	import org.bigbluebutton.main.events.FullScreenPresentationEvent;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.modules.present.api.PresentationAPI;
@@ -91,6 +92,14 @@ package org.bigbluebutton.modules.whiteboard.managers
 			t.addEventListener(TimerEvent.TIMER, addHighlighterCanvas);
 			t.addEventListener(TimerEvent.TIMER, addHighlighterToolbar);
 			t.start();
+		}
+		
+		public function handleFullScreenPresentationEvent(e:FullScreenPresentationEvent):void {
+			highlighterToolbar.setFullScreenPosition();
+		}
+		
+		public function handleWindowPresentationEvent(e:FullScreenPresentationEvent):void {
+			highlighterToolbar.setWindowPosition();
 		}
 		
 		private function addHighlighterCanvas(e:TimerEvent):void {

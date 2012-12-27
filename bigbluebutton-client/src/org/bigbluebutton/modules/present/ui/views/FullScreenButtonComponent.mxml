@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+  Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+  This program is free software; you can redistribute it and/or modify it under the
+  terms of the GNU Lesser General Public License as published by the Free Software
+  Foundation; either version 2.1 of the License, or (at your option) any later
+  version.
+
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License along
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+  Author: Duffy Mazan <dmazan@mazan.org>
+
+  $Id: $
+-->
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" 
+			xmlns:mate="http://mate.asfusion.com/"
+			implements="org.bigbluebutton.common.IBbbToolbarComponent"
+			width="{BUTTON_SIZE}"
+			height="{BUTTON_SIZE}"
+			creationComplete="init()" 
+			icon="{fullscreen_icon}"
+			visible="true" 
+			toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fullScreen.toolTip')}" 
+			click="toggleFullScreen()">
+	
+	<mx:Script>
+		<![CDATA[
+
+			import mx.controls.Button;
+			import org.bigbluebutton.main.views.MainToolbar;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+
+
+			static public const BUTTON_SIZE:int = 20;
+			private var images:Images = new Images();
+			[Bindable] private var fullscreen_icon:Class = images.full_screen;
+			
+			private function init():void {
+			}
+			
+			private function toggleFullScreen():void {
+	   			try {
+					switch (stage.displayState) {
+						case StageDisplayState.FULL_SCREEN:
+							// If already in full screen mode, switch to normal mode.
+							stage.displayState = StageDisplayState.NORMAL;
+							break;
+						default:
+							// If not in full screen mode, switch to full screen mode.
+							stage.displayState = StageDisplayState.FULL_SCREEN;
+							break;
+					}
+				} catch (err:SecurityError) {
+					// ignore
+				}
+			}
+			
+			public function getAlignment():String{
+				return MainToolbar.ALIGN_RIGHT;
+			}
+			
+		]]>
+	</mx:Script>
+
+</mx:Button>

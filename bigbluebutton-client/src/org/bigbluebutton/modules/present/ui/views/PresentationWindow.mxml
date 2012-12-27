@@ -64,17 +64,21 @@
 			import mx.collections.ArrayCollection;
 			import mx.containers.TitleWindow;
 			import mx.core.Application;
+			import mx.core.FlexGlobals;
 			import mx.effects.Move;
 			import mx.events.ListEvent;
 			import mx.events.ResizeEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.*;
 			
+			import com.asfusion.mate.events.Dispatcher;
+			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.FullScreenPresentationEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.present.api.IPresentationButton;
 			import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
@@ -91,6 +95,8 @@
 			import org.bigbluebutton.modules.present.events.ZoomEvent;
 			import org.bigbluebutton.modules.present.managers.Slide;
 			import org.bigbluebutton.modules.present.managers.SlideManager;
+			import org.bigbluebutton.common.events.ToolbarButtonEvent;
+			import org.bigbluebutton.modules.present.ui.views.FullScreenButtonComponent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
              			
             public static const TITLE:String = "Presentation";
@@ -106,6 +112,9 @@
 			[Bindable] private var magnifierIcon:Class = images.magnifier;
 			[Bindable] public var fitToWidthIcon:Class = images.fitToWidth;
 			[Bindable] public var fitToPageIcon:Class = images.fitToPage;
+			[Bindable] private var fullscreen_icon:Class = images.full_screen;
+			[Bindable] public var isFullScreen:Boolean = false;
+			[Bindable] public var presentOptions:PresentOptions;
 						
 			[Bindable] private var thumbY:Number;
 			public var uploadWindow:FileUploadWindow = null;
@@ -144,7 +153,25 @@
 			}
 					
 			private function onCreationComplete():void{
+				LogUtil.debug("PresentationWindow:onCreationComplete");
 				thumbY = this.height - 160;
+				presentOptions = new PresentOptions();
+				LogUtil.debug("PresentationWindow:onCreationComplete; showFullScreenButton=" + presentOptions.showFullScreenButton);
+				switch (presentOptions.showFullScreenButton) {
+					case "TRUE" :
+						LogUtil.debug("PresentationWindow:onCreationComplete; set btnFullScreen.visible = true");
+						btnFullScreen.visible = true;
+						break;
+					case "TOOLBAR" :
+						var fullScreenButton:FullScreenButtonComponent = new FullScreenButtonComponent();
+						var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
+						var dispatcher:Dispatcher = new Dispatcher();
+						event.button = fullScreenButton;
+						event.location = ToolbarButtonEvent.BOTTOM_TOOLBAR;
+						LogUtil.debug("PresentationWindow:onCreationComplete; dispatching ToolbarButtonEvent");
+						dispatcher.dispatchEvent(event);
+						break;
+				}
                 bindKeyboardEvents();
 				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
@@ -164,8 +191,12 @@
 			private function fitSlideToWindowMaintainingAspectRatio():void {
 				if (this.minimized) return;
 				
-				// Send the available space to display the slide.				
-				sendWindowResizedEvent((this.width - WIDTH_PADDING), (this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER));
+				// Send the available space to display the slide.		
+				if (isFullScreen) {
+					sendWindowResizedEvent((this.width - WIDTH_PADDING), this.height)
+				} else {
+					sendWindowResizedEvent((this.width - WIDTH_PADDING), (this.height - CONTROL_BAR_HEIGHT - TOP_WINDOW_BORDER));
+				}
 			}
 			
 			/*
@@ -261,6 +292,13 @@
 			private function becomePresenter(e:MadePresenterEvent):void{
 				setupPresenter(true, e.presenterName);
 				addContextMenuItems();
+				try {
+					if (StageDisplayState.FULL_SCREEN) {
+						stage.displayState = StageDisplayState.NORMAL;
+					}
+				} catch (err:SecurityError) {
+					// ignore
+				}
 			}
 			
 			private function becomeViewer(e:MadePresenterEvent):void{
@@ -270,6 +308,13 @@
 				this.contextMenu.hideBuiltInItems();
 				if (slideView.thumbnailView.visible)
 					showThumbnails();
+				try {
+					if (StageDisplayState.FULL_SCREEN) {
+						stage.displayState = StageDisplayState.NORMAL;
+					}
+				} catch (err:SecurityError) {
+					// ignore
+				}
 			}
 						
 			private function setupPresenter(isPresenter:Boolean, presentersName:String):void {
@@ -496,6 +541,26 @@
 				slideView.switchToFitToPage(fitToPage);
 				fitSlideToWindowMaintainingAspectRatio();				
 			}
+			
+			private function toggleFullScreen():void {
+	   			LogUtil.debug("PresentationWindow:Toggling fullscreen");
+	   			try {
+					switch (stage.displayState) {
+						case StageDisplayState.FULL_SCREEN:
+							LogUtil.debug("PresentationWindow:full screen mode, switch to window");
+							// If already in full screen mode, switch to normal mode.
+							stage.displayState = StageDisplayState.NORMAL;
+							break;
+						default:
+							LogUtil.debug("PresentationWindow:Normal screen mode, switch to full");
+							// If not in full screen mode, switch to full screen mode.
+							stage.displayState = StageDisplayState.FULL_SCREEN;
+							break;
+					}
+				} catch (err:SecurityError) {
+					// ignore
+				}
+			}
 			          
 		]]>
 	</mx:Script>
@@ -529,6 +594,9 @@
 		<mx:Button id="btnFitToPage" icon="{fitToPageIcon}" visible="false" width="25" height="25" 
 				   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fitToPage.toolTip')}" 
 				   click="onFitToPage(true)"/>
+		   <mx:Button id="btnFullScreen" icon="{fullscreen_icon}" visible="false" width="25" height="25" 
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.presentation.fullScreen.toolTip')}" 
+				   click="toggleFullScreen()"/>
     	<mx:Spacer width="5" id="spacer4"/>
     </mx:ApplicationControlBar>
 </pres:MDIWindow>

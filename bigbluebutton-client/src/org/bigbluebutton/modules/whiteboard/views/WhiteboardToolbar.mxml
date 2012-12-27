@@ -101,6 +101,8 @@
 			[Bindable] private var select_icon:Class = images.select_icon;
 			[Bindable] private var grid_icon:Class = images.grid_icon;
 			
+			private var toolbarFullScreenPosition:Boolean = false;
+			
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
 			
@@ -216,19 +218,35 @@
 				if (!canvas.isPageEmpty()) 
 					dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO));
 			}
+			
+			public function setFullScreenPosition():void {
+				toolbarFullScreenPosition = true;
+			}
+			
+			public function setWindowPosition():void {
+				toolbarFullScreenPosition = false;
+			}
 						
 			public function positionToolbar(window:PresentationWindow):void {
 				presentationWindow = window;
 				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
 				presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
-				this.x = presentationWindow.x + presentationWindow.width + 3;
+				if (toolbarFullScreenPosition) {
+					this.x = presentationWindow.x + presentationWindow.width - this.width - 6;
+				} else {
+					this.x = presentationWindow.x + presentationWindow.width + 3;
+				}
 				this.y = presentationWindow.y + 30;
 				parent.setChildIndex(this, parent.numChildren - 1);
 			}
 			
 			private function setPositionAndDepth(e:Event = null):void {
-				this.x = presentationWindow.x + presentationWindow.width + 3;
+				if (toolbarFullScreenPosition) {
+					this.x = presentationWindow.x + presentationWindow.width - this.width - 6;
+				} else {
+					this.x = presentationWindow.x + presentationWindow.width + 3;
+				}
 				this.y = presentationWindow.y + 30;
 				parent.setChildIndex(this, parent.numChildren - 1);
 			}
