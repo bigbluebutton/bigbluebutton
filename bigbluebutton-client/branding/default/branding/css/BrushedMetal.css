@@ -1,0 +1,100 @@
+Application
+{
+	
+	backgroundImage: Embed(source="assets/img/BrushedMetalBack.jpg"); 
+	backgroundSize: "100%";
+   themeColor: #999999;
+    fontFamily: Arial;
+    paddingLeft:10; paddingRight:10; paddingTop:10; paddingBottom:10;
+}
+
+.mdiWindowFocus 
+{
+	borderStyle: solid;
+   borderColor: #FFFFFF;
+   borderAlpha: 0;
+   borderThickness: 1;
+   borderThicknessLeft: 5;
+   borderThicknessTop: 5;
+   borderThicknessBottom: 15;
+   borderThicknessRight: 5;
+   roundedBottomCorners: true;
+   cornerRadius: 5;
+   headerHeight: 27;
+   
+   backgroundAlpha: 1; 
+   backgroundColor: #FFFFFF;
+   
+	backgroundImage: Embed(source="assets/swf/BrushedMetal.swf", symbol="Window_Background");
+	backgroundSize: "100%";
+	
+   dropShadowEnabled: true;
+	
+	
+	cornerResizeImg: Embed(source="assets/swf/BrushedMetal.swf", symbol="Corner_Resize");
+	cornerResizeWidth: 12;
+	cornerResizeHeight: 12;
+	cornerResizePaddingRight: 2;
+	cornerResizePaddingBottom: 2;
+	
+	titleStyleName: "mypanelTitle";
+	titleBackgroundSkin: Embed(source="assets/swf/BrushedMetal.swf", symbol="header");
+	
+	controlButtonWidth: 10;
+	controlButtonHeight: 10;
+	controlButtonGap: 8;
+}
+
+.mdiWindowNoFocus 
+{
+	borderStyle: solid;
+   borderColor: #FFFFFF;
+   borderAlpha: 0;
+   borderThickness: 1;
+   borderThicknessLeft: 5;
+   borderThicknessTop: 5;
+   borderThicknessBottom: 15;
+   borderThicknessRight: 5;
+   roundedBottomCorners: true;
+   cornerRadius: 5;
+   headerHeight: 27;
+   
+
+	
+   
+   backgroundAlpha: 1; 
+   backgroundColor: #FFFFFF;
+   
+	backgroundImage: Embed(source="assets/swf/BrushedMetal.swf", symbol="Window_Background");
+	backgroundSize: "100%";
+	
+   dropShadowEnabled: true;
+	
+	
+	cornerResizeImg: Embed(source="assets/swf/BrushedMetal.swf", symbol="Corner_Resize");
+	cornerResizeWidth: 12;
+	cornerResizeHeight: 12;
+	cornerResizePaddingRight: 2;
+	cornerResizePaddingBottom: 2;
+	
+	titleStyleName: "mypanelTitle";
+	titleBackgroundSkin: Embed(source="assets/swf/BrushedMetal.swf", symbol="header");
+	
+	controlButtonWidth: 10;
+	controlButtonHeight: 10;
+	controlButtonGap: 8;
+}
+
+
+
+.mypanelTitle {
+	fontSize: 12;
+	fontWeight: bold;
+	color: #000000;
+}
+
+
+Button {
+   fillColors: #ffffff, #999999, #ffffff, #eeeeee;
+   themeColor: #999999;
+}

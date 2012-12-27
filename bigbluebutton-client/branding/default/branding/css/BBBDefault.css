@@ -1,0 +1,588 @@
+Application {
+  backgroundColor: #ffffff;
+}
+
+
+ApplicationControlBar {
+  highlightAlphas: 0.1, 0;
+  fillAlphas: 0, 0;
+  fillColors: #32343b, #32343b;
+  backgroundColor: #42444c;
+  backgroundAlpha: 1;
+  cornerRadius: 0;
+  dropShadowEnabled: true;
+  shadowDistance: 1;
+  shadowDirection: center;
+  dropShadowColor: #000000;
+}
+
+Panel {
+  borderColor: #dfdfdf;
+  borderAlpha: 1;
+  shadowDistance: 1;
+  dropShadowColor: #666666;
+  titleStyleName: "mypanelTitle";
+}
+
+.mypanelTitle {
+  color: #444444;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+.whiteboardToolbarStyle {
+  backgroundColor: #CCCCCC;
+  cornerRadius: 5;
+  borderStyle: solid;
+  borderThickness: 1;
+  paddingBottom: 3;
+  paddingTop: 3;
+  paddingLeft: 3;
+  paddingRight: 3;
+}
+
+Button {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+DataGrid {
+  backgroundColor: #e1e2e5;
+  rollOverColor: #f3f3f3;
+  textRollOverColor: #5e5f63;
+  selectionColor: #e1e2e5;
+  color: #5e5f63;
+  textSelectedColor: #5e5f63;
+  dropShadowEnabled: false;
+  fontFamily: arial;
+  fontSize: 11;
+  headerStyleName: "mydataGridHeaderStyle";
+}
+
+.mydataGridHeaderStyle {
+  color: #5e5f63;
+  fontFamily: arial;
+  fontSize: 12;
+}
+
+
+.whiteboardUndoButtonStyle {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+  icon: Embed('assets/images/undo.png');
+}
+
+.whiteboardCircleButtonStyle {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+  icon: Embed('assets/images/ellipse.png');  
+}
+
+.whiteboardClearButtonStyle {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+  icon: Embed('assets/images/trash.png');    
+}
+
+.whiteboardScribbleButtonStyle{
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+  icon: Embed('assets/images/marker.png');  
+}
+
+.whiteboardLineButtonStyle {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+  icon: Embed('assets/images/line.png');    
+}
+
+.whiteboardPanZoomButtonStyle {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+  icon: Embed('assets/images/hand.png');   
+}
+
+.whiteboardRectangleButtonStyle {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+  icon: Embed('assets/images/square.png');   
+}
+
+.whiteboardTextButtonStyle {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+  icon: Embed('assets/images/text.png');   
+}
+
+.whiteboardTriangleButtonStyle {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+  icon: Embed('assets/images/triangle.png');    
+}
+
+.presentationUploadButtonStyle {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+  icon:   Embed('assets/images/upload.png'); 
+}
+
+.presentationBackButtonStyle {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+  icon:   Embed('assets/images/left-arrow.png'); 
+}
+
+.presentationForwardButtonStyle {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+  icon:   Embed('assets/images/right-arrow.png'); 
+}
+
+.presentationFitToWidthButtonStyle {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+  icon:   Embed('assets/images/fit-to-width.png'); 
+}
+
+.presentationFitToPageButtonStyle {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+  icon:   Embed('assets/images/fit-to-screen.png'); 
+}
+
+.presentationZoomSliderStyle{
+  labelOffset: 0;
+  thumbOffset: 3;
+  dataTipOffset: -1;
+  tickOffset: 2;
+  tickLength: 5;
+  tickThickness: 2;
+  tickColor: #6cccff;
+  showTrackHighlight: true;
+  invertThumbDirection: false;
+  borderColor: #b9babc;
+  trackColors: #aaaaaa, #aaaaaa;
+  themeColor: #aaaaaa;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  labelStyleName: "presentationZoomSliderLabelStyle";
+}
+
+.presentationZoomSliderLabelStyle {
+  color: #5e5f63;
+  fontFamily: Arial;
+}
+
+MDIWindow {
+  resizeCursorHorizontalXOffset: 2;	
+}
+
+.mdiWindowFocus, .mdiWindowNoFocus, .presentationWindowStyleNoFocus, .presentationWindowStyleFocus, .videoDockStyleNoFocus, .videoDockStyleFocus
+{
+  headerHeight: 26;
+  roundedBottomCorners: false;
+  backgroundAlpha: 1;
+  backgroundColor: #b9babc;
+  backgroundSize: '100%';
+  
+  borderStyle: solid;
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThickness: 1;
+  borderThicknessLeft: 1;
+  borderThicknessTop: 1;
+  borderThicknessBottom: 1;
+  borderThicknessRight: 1;
+  cornerRadius: 0;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+  
+  cornerResizeImg: Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
+  cornerResizeWidth: 2;
+  cornerResizeHeight: 2;
+  cornerResizePaddingRight: 2;
+  cornerResizePaddingBottom: 2;
+  
+  controlButtonWidth: 10;
+  controlButtonHeight: 10;
+  controlButtonGap: 4;
+}
+
+.presentationSlideViewStyle {
+  backgroundColor: #b9babc;
+}
+
+.presentationWindowControlsStyle {
+  paddingBottom: 5;
+  paddingTop: 3;
+  paddingLeft: 3;
+  paddingRight: 3;
+  bottom: 5;
+  cornerRadius: 0;
+  dropShadowEnabled: false;
+}
+
+.videoViewStyleNoFocus 
+{
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThicknessLeft: 5;
+  borderThicknessTop: 5;
+  borderThicknessBottom: 5;
+  borderThicknessRight: 5;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundColor: #b9babc;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+}
+
+.videoViewStyleFocus 
+{
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThicknessLeft: 5;
+  borderThicknessTop: 5;
+  borderThicknessBottom: 5;
+  borderThicknessRight: 5;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundColor: #b9babc;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+}
+
+.videoPublishStyleNoFocus 
+{
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThicknessLeft: 5;
+  borderThicknessTop: 5;
+  borderThicknessBottom: 5;
+  borderThicknessRight: 5;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundColor: #b9babc;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+}
+
+.videoPublishStyleFocus 
+{
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThicknessLeft: 5;
+  borderThicknessTop: 5;
+  borderThicknessBottom: 5;
+  borderThicknessRight: 5;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundColor: #b9babc;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+}
+
+.videoAvatarStyleNoFocus 
+{
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThicknessLeft: 5;
+  borderThicknessTop: 5;
+  borderThicknessBottom: 5;
+  borderThicknessRight: 5;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundColor: #b9babc;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+}
+
+.videoAvatarStyleFocus 
+{
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThicknessLeft: 5;
+  borderThicknessTop: 5;
+  borderThicknessBottom: 5;
+  borderThicknessRight: 5;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundColor: #b9babc;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+}
+
+.mypanelTitle {
+  color: #5e5f63;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+.closeBtnFocus
+{
+  upSkin:        Embed('assets/img/3_closeButton.png');
+  overSkin:      Embed('assets/img/3_closeButton.png');
+  downSkin:      Embed('assets/img/3_closeButton.png');
+  disabledSkin:  Embed('assets/img/3_closeButton.png');
+}
+
+.closeBtnNoFocus
+{
+  upSkin:        Embed('assets/img/3_closeButton.png');
+  overSkin:      Embed('assets/img/3_closeButton.png');
+  downSkin:      Embed('assets/img/3_closeButton.png');
+  disabledSkin:  Embed('assets/img/3_closeButton.png');
+}
+
+
+.increaseBtnFocus
+{
+  upSkin:        Embed('assets/img/3_increaseButton.png');
+  overSkin:      Embed('assets/img/3_increaseButton.png');
+  downSkin:      Embed('assets/img/3_increaseButton.png');
+  disabledSkin:  Embed('assets/img/3_increaseButton.png');
+}
+
+.increaseBtnNoFocus
+{
+  upSkin:        Embed('assets/img/3_increaseButton.png');
+  overSkin:      Embed('assets/img/3_increaseButton.png');
+  downSkin:      Embed('assets/img/3_increaseButton.png');
+  disabledSkin:  Embed('assets/img/3_increaseButton.png');
+}
+
+
+.decreaseBtnFocus 
+{
+  upSkin:        Embed('assets/img/3_decreaseButton.png');
+  overSkin:      Embed('assets/img/3_decreaseButton.png');
+  downSkin:      Embed('assets/img/3_decreaseButton.png');
+  disabledSkin:  Embed('assets/img/3_decreaseButton.png');
+}
+
+.decreaseBtnNoFocus 
+{
+  upSkin:        Embed('assets/img/3_decreaseButton.png');
+  overSkin:      Embed('assets/img/3_decreaseButton.png');
+  downSkin:      Embed('assets/img/3_decreaseButton.png');
+  disabledSkin:  Embed('assets/img/3_decreaseButton.png');
+}
+
+
+.minimizeBtnFocus 
+{
+  upSkin:        Embed('assets/img/3_minimizeButton.png');
+  overSkin:      Embed('assets/img/3_minimizeButton.png');
+  downSkin:      Embed('assets/img/3_minimizeButton.png');
+  disabledSkin:  Embed('assets/img/3_minimizeButton.png');
+}
+
+
+.resizeHndlr 
+{
+  upSkin:        Embed('assets/img/resizeHandler.png');
+  overSkin:      Embed('assets/img/resizeHandler.png');
+  downSkin:      Embed('assets/img/resizeHandler.png');
+  disabledSkin:  Embed('assets/img/resizeHandler.png');
+}
