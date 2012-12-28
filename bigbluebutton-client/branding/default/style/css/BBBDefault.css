@@ -42,8 +42,8 @@ Panel {
 
 Button {
   textIndent: 0;
-  paddingLeft: 10;
-  paddingRight: 10;
+  paddingLeft: 5;
+  paddingRight: 5;
   paddingTop: 5;
   paddingBottom: 5;
   highlightAlphas: 0.4, 0;
@@ -78,10 +78,13 @@ DataGrid {
 }
 
 
-.whiteboardUndoButtonStyle {
+.whiteboardUndoButtonStyle, .whiteboardCircleButtonStyle, .whiteboardClearButtonStyle,
+.whiteboardTriangleButtonStyle, .whiteboardTextButtonStyle, .whiteboardRectangleButtonStyle,
+.whiteboardPanZoomButtonStyle, .whiteboardLineButtonStyle, .whiteboardScribbleButtonStyle
+{
   textIndent: 0;
-  paddingLeft: 10;
-  paddingRight: 10;
+  paddingLeft: 0;
+  paddingRight: 0;
   paddingTop: 5;
   paddingBottom: 5;
   highlightAlphas: 0.4, 0;
@@ -94,162 +97,48 @@ DataGrid {
   themeColor: #aaaaaa;
   fontFamily: Arial;
   fontSize: 12;
+}
+
+.whiteboardUndoButtonStyle 
+{
   icon: Embed('assets/images/undo.png');
 }
 
 .whiteboardCircleButtonStyle {
-  textIndent: 0;
-  paddingLeft: 10;
-  paddingRight: 10;
-  paddingTop: 5;
-  paddingBottom: 5;
-  highlightAlphas: 0.4, 0;
-  fillAlphas: 1, 1, 1, 1;
-  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
-  borderColor: #b9babc;
-  themeColor: #aaaaaa;
-  fontFamily: Arial;
-  fontSize: 12;
   icon: Embed('assets/images/ellipse.png');  
 }
 
 .whiteboardClearButtonStyle {
-  textIndent: 0;
-  paddingLeft: 10;
-  paddingRight: 10;
-  paddingTop: 5;
-  paddingBottom: 5;
-  highlightAlphas: 0.4, 0;
-  fillAlphas: 1, 1, 1, 1;
-  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
-  borderColor: #b9babc;
-  themeColor: #aaaaaa;
-  fontFamily: Arial;
-  fontSize: 12;
   icon: Embed('assets/images/delete.png');    
 }
 
 .whiteboardScribbleButtonStyle{
-  textIndent: 0;
-  paddingLeft: 10;
-  paddingRight: 10;
-  paddingTop: 5;
-  paddingBottom: 5;
-  highlightAlphas: 0.4, 0;
-  fillAlphas: 1, 1, 1, 1;
-  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
-  borderColor: #b9babc;
-  themeColor: #aaaaaa;
-  fontFamily: Arial;
-  fontSize: 12;
   icon: Embed('assets/images/pencil.png');  
 }
 
 .whiteboardLineButtonStyle {
-  textIndent: 0;
-  paddingLeft: 10;
-  paddingRight: 10;
-  paddingTop: 5;
-  paddingBottom: 5;
-  highlightAlphas: 0.4, 0;
-  fillAlphas: 1, 1, 1, 1;
-  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
-  borderColor: #b9babc;
-  themeColor: #aaaaaa;
-  fontFamily: Arial;
-  fontSize: 12;
   icon: Embed('assets/images/line.png');    
 }
 
 .whiteboardPanZoomButtonStyle {
-  textIndent: 0;
-  paddingLeft: 10;
-  paddingRight: 10;
-  paddingTop: 5;
-  paddingBottom: 5;
-  highlightAlphas: 0.4, 0;
-  fillAlphas: 1, 1, 1, 1;
-  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
-  borderColor: #b9babc;
-  themeColor: #aaaaaa;
-  fontFamily: Arial;
-  fontSize: 12;
   icon: Embed('assets/images/hand.png');   
 }
 
 .whiteboardRectangleButtonStyle {
-  textIndent: 0;
-  paddingLeft: 10;
-  paddingRight: 10;
-  paddingTop: 5;
-  paddingBottom: 5;
-  highlightAlphas: 0.4, 0;
-  fillAlphas: 1, 1, 1, 1;
-  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
-  borderColor: #b9babc;
-  themeColor: #aaaaaa;
-  fontFamily: Arial;
-  fontSize: 12;
   icon: Embed('assets/images/square.png');   
 }
 
 .whiteboardTextButtonStyle {
-  textIndent: 0;
-  paddingLeft: 10;
-  paddingRight: 10;
-  paddingTop: 5;
-  paddingBottom: 5;
-  highlightAlphas: 0.4, 0;
-  fillAlphas: 1, 1, 1, 1;
-  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
-  borderColor: #b9babc;
-  themeColor: #aaaaaa;
-  fontFamily: Arial;
-  fontSize: 12;
   icon: Embed('assets/images/text.png');   
 }
 
 .whiteboardTriangleButtonStyle {
-  textIndent: 0;
-  paddingLeft: 10;
-  paddingRight: 10;
-  paddingTop: 5;
-  paddingBottom: 5;
-  highlightAlphas: 0.4, 0;
-  fillAlphas: 1, 1, 1, 1;
-  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
-  borderColor: #b9babc;
-  themeColor: #aaaaaa;
-  fontFamily: Arial;
-  fontSize: 12;
   icon: Embed('assets/images/triangle.png');    
 }
 
-.presentationUploadButtonStyle {
+.presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationForwardButtonStyle,
+.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle 
+{
   textIndent: 0;
   paddingLeft: 10;
   paddingRight: 10;
@@ -265,82 +154,25 @@ DataGrid {
   themeColor: #aaaaaa;
   fontFamily: Arial;
   fontSize: 12;
-  icon:   Embed('assets/images/upload.png'); 
+}
+
+.presentationUploadButtonStyle {
+  icon:   Embed('assets/images/upload.png');   
 }
 
 .presentationBackButtonStyle {
-  textIndent: 0;
-  paddingLeft: 10;
-  paddingRight: 10;
-  paddingTop: 5;
-  paddingBottom: 5;
-  highlightAlphas: 0.4, 0;
-  fillAlphas: 1, 1, 1, 1;
-  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
-  borderColor: #b9babc;
-  themeColor: #aaaaaa;
-  fontFamily: Arial;
-  fontSize: 12;
   icon:   Embed('assets/images/left-arrow.png'); 
 }
 
 .presentationForwardButtonStyle {
-  textIndent: 0;
-  paddingLeft: 10;
-  paddingRight: 10;
-  paddingTop: 5;
-  paddingBottom: 5;
-  highlightAlphas: 0.4, 0;
-  fillAlphas: 1, 1, 1, 1;
-  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
-  borderColor: #b9babc;
-  themeColor: #aaaaaa;
-  fontFamily: Arial;
-  fontSize: 12;
   icon:   Embed('assets/images/right-arrow.png'); 
 }
 
 .presentationFitToWidthButtonStyle {
-  textIndent: 0;
-  paddingLeft: 10;
-  paddingRight: 10;
-  paddingTop: 5;
-  paddingBottom: 5;
-  highlightAlphas: 0.4, 0;
-  fillAlphas: 1, 1, 1, 1;
-  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
-  borderColor: #b9babc;
-  themeColor: #aaaaaa;
-  fontFamily: Arial;
-  fontSize: 12;
   icon:   Embed('assets/images/fit-to-width.png'); 
 }
 
 .presentationFitToPageButtonStyle {
-  textIndent: 0;
-  paddingLeft: 10;
-  paddingRight: 10;
-  paddingTop: 5;
-  paddingBottom: 5;
-  highlightAlphas: 0.4, 0;
-  fillAlphas: 1, 1, 1, 1;
-  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
-  color: #5e5f63;
-  textRollOverColor: #5e5f63;
-  textSelectedColor: #5e5f63;
-  borderColor: #b9babc;
-  themeColor: #aaaaaa;
-  fontFamily: Arial;
-  fontSize: 12;
   icon:   Embed('assets/images/fit-to-screen.png'); 
 }
 

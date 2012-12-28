@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
-		   width="20" height="20" click="onClick()" styleName="whiteboardTriangleButtonStyle"
+           width="30" height="30"
+       click="onClick()" styleName="whiteboardTriangleButtonStyle"
 		   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.triangle')}" 
 		   toggle="true">
 	<mx:Script>
