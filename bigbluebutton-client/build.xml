@@ -70,7 +70,7 @@
 		
 	<target name="branding" depends="init-ant-contrib">
 		<sequential>
-			<mxmlc file="${SRC_DIR}/branding/css/${themeFile}" 
+			<mxmlc file="${BASE_DIR}/branding/default/style/css/${themeFile}" 
 				output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" 
 				debug="${DEBUG}" 
 				mxml.compatibility-version="3.0.0" 
