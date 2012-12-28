@@ -132,7 +132,7 @@ DataGrid {
   themeColor: #aaaaaa;
   fontFamily: Arial;
   fontSize: 12;
-  icon: Embed('assets/images/trash.png');    
+  icon: Embed('assets/images/delete.png');    
 }
 
 .whiteboardScribbleButtonStyle{
@@ -151,7 +151,7 @@ DataGrid {
   themeColor: #aaaaaa;
   fontFamily: Arial;
   fontSize: 12;
-  icon: Embed('assets/images/marker.png');  
+  icon: Embed('assets/images/pencil.png');  
 }
 
 .whiteboardLineButtonStyle {
