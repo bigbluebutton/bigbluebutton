@@ -6,7 +6,7 @@
     <porttest host="HOST" application="video" timeout="10000"/>    
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
-    <skinning enabled="false" url="http://HOST/client/branding/css/theme.css.swf" />
+    <skinning enabled="true" url="http://192.168.153.128/client/branding/css/BBBDefault.css.swf" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
             showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true"/>
             
@@ -109,37 +109,16 @@
 			layoutConfig="http://HOST/client/conf/layout.xml"
 			enableEdit="true"
 		/>
-
+<!--
     <module name="BroadcastModule" url="http://HOST/client/BroadcastModule.swf?v=VERSION"
       uri="rtmp://HOST/bigbluebutton"
       streamsUri="http://HOST/streams.xml"
-      position="absolute"
-      width="600"
-      height="400"
-      x="40"
-      y="40"
+      position="top-left"
       showStreams="true"
       autoPlay="false"
       dependsOn="ViewersModule"
     />
-    
-		<!-- new module in development: 
-		<module name="DynamicInfoModule" url="http://HOST/client/DynamicInfoModule.swf?v=VERSION" 
-			uri="rtmp://HOST/bigbluebutton" 
-			host="http://HOST" 
-			infoURL="http://HOST/client/conf/example-info-data.xml?user={userID}&role={role}&meetingID={meetingID}"
-		/>
-		-->
-		
-		<!--<module name="ExampleChatModule" url="http://HOST/client/ExampleChatModule.swf?v=56" 
-			uri="rtmp://HOST/bigbluebutton" 
-			host="http://HOST"
-		/>-->
-		
-		<!--<module name="SharedNotesModule" url="http://HOST/client/SharedNotesModule.swf?v=VERSION" 
-			uri="http://192.168.0.225/bigbluebutton" 
-			dependsOn="ViewersModule"
-		/>-->
-		
+-->
+    		
 	</modules>
 </config>

@@ -8,6 +8,8 @@
     	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
     	<property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
     	<property name="BASE_DIR" value="${basedir}" />
+      <property name="themeFile" value="BBBDefault.css"/>
+	
 	     <property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />	
 	<property name="PROD_RESOURCES_DIR" value="${RESOURCES_DIR}/prod" />	
 	<property name="SRC_DIR" value="${BASE_DIR}/src" />
@@ -457,7 +459,7 @@
 	                                        build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" 
 			description="Build BBB client skipping compiling of locales"/>	
 	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
-	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" 
+	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb, branding" 
 			description="Build BBB client including locales"/>
 	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
 	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb"
