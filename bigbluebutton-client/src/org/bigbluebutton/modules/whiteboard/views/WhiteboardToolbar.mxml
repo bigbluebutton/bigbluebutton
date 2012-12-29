@@ -56,7 +56,7 @@
 	
 	<mx:Script>
 		<![CDATA[
-            import flash.ui.Keyboard;
+      import flash.ui.Keyboard;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
 			import mx.managers.CursorManager;			
@@ -81,7 +81,7 @@
 			import org.bigbluebutton.common.LogUtil;
 			
 			private var images:Images = new Images();
-            [Bindable] private var hand_icon:Class = images.hand_icon;
+      [Bindable] private var hand_icon:Class = images.hand_icon;
 			[Bindable] private var pencil_icon:Class = images.pencil_icon;
 			[Bindable] private var undo_icon:Class = images.undo_icon;
 			[Bindable] private var delete_icon:Class = images.delete_icon;
@@ -89,8 +89,8 @@
 			[Bindable] private var ellipse_icon:Class = images.circle_icon;
 			[Bindable] private var thick_icon:Class = images.whiteboard_thick;
 			[Bindable] private var thin_icon:Class = images.whiteboard_thin;
-            [Bindable] private var scribble_icon:Class = images.scribble_icon;
-            [Bindable] private var text_icon:Class = images.text_icon;            
+      [Bindable] private var scribble_icon:Class = images.scribble_icon;
+      [Bindable] private var text_icon:Class = images.text_icon;            
 			[Bindable] private var triangle_icon:Class = images.triangle_icon;
 			[Bindable] private var line_icon:Class = images.line_icon;
 			[Bindable] private var fill_icon:Class = images.fill_icon;
@@ -108,78 +108,63 @@
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
 			
-            private function onCreationComplete():void {
-                setToolType(WhiteboardConstants.TYPE_ZOOM, null);
-            }
+      private function onCreationComplete():void {
+        setToolType(WhiteboardConstants.TYPE_ZOOM, null);
+      }
                        
 			private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
-                setToolType(e.graphicType, e.toolType);
-            }
+        setToolType(e.graphicType, e.toolType);
+      }
             
-            private function setToolType(graphicType:String, toolType:String):void {                
-                canvas.setGraphicType(graphicType);
-                canvas.setTool(toolType);
+      private function setToolType(graphicType:String, toolType:String):void {                
+        canvas.setGraphicType(graphicType);
+        canvas.setTool(toolType);
                 
-                if (panzoomBtn != null) {
-                    panzoomBtn.setTool(graphicType, toolType);
-                }
+        if (panzoomBtn != null) {
+          panzoomBtn.setTool(graphicType, toolType);
+        }
                 
-                if (scribbleBtn != null) {
-                    scribbleBtn.setTool(graphicType, toolType); 
-                }
+        if (scribbleBtn != null) {
+          scribbleBtn.setTool(graphicType, toolType); 
+        }
                                 
-                if (rectangleBtn != null) {
-                    rectangleBtn.setTool(graphicType, toolType); 
-                }
+        if (rectangleBtn != null) {
+          rectangleBtn.setTool(graphicType, toolType); 
+        }
                 
-                if (circleBtn != null) {
-                    circleBtn.setTool(graphicType, toolType);
-                }
+        if (circleBtn != null) {
+          circleBtn.setTool(graphicType, toolType);
+        }
                 
-                if (triangleBtn != null) {
-                    triangleBtn.setTool(graphicType, toolType);
-                }
+        if (triangleBtn != null) {
+          triangleBtn.setTool(graphicType, toolType);
+        }
                                 
-                if (lineBtn != null) {
-                    lineBtn.setTool(graphicType, toolType);
-                }
+        if (lineBtn != null) {
+          lineBtn.setTool(graphicType, toolType);
+        }
                 
-                if (textBtn != null) {
-                    textBtn.setTool(graphicType, toolType);
-                }
+        if (textBtn != null) {
+          textBtn.setTool(graphicType, toolType);
+        }
                                 
-                if(graphicType == WhiteboardConstants.TYPE_CLEAR) {
-                    dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
-                }
+        if(graphicType == WhiteboardConstants.TYPE_CLEAR) {
+          dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
+        }
                 
-                if (graphicType == WhiteboardConstants.TYPE_UNDO) {
-                    sendUndoCommand();
-                }
+        if (graphicType == WhiteboardConstants.TYPE_UNDO) {
+          sendUndoCommand();
+        }
 			}
 						
-			/**
-			 * Sets the color 
-			 * @param e event containing the color (e.target.selectedColor)
-			 * 
-			 */		
 			protected function changeColor(e:Event):void {
 				canvas.changeColor(e);
 			}
 			
-			/**
-			 * Sets the fill color 
-			 * @param e event containing the color (e.target.selectedColor)
-			 * 
-			 */		
 			protected function changeFillColor(e:Event):void {
 				canvas.changeFillColor(e);
 			}
 			
-			/**
-			 * Sets the thickness 
-			 * @param e event containing the thickness (e.target.value)
-			 * 
-			 */		
 			protected function changeThickness(e:Event):void {
 				canvas.changeThickness(e);
 			}
@@ -193,16 +178,17 @@
 			}
 						
 			private function presenterMode(e:MadePresenterEvent):void {
-                if (canvas == null) return;
+        if (canvas == null) return;
+        
 				canvas.makeTextObjectsEditable(e);
-                this.visible = true;
-                setToolType(WhiteboardConstants.TYPE_ZOOM, null);
+        hideOrDisplayToolbar();
+        setToolType(WhiteboardConstants.TYPE_ZOOM, null);
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void {
-				canvas.makeTextObjectsUneditable(e);
-			    this.visible = false;
-            }
+        canvas.makeTextObjectsUneditable(e);
+        hideOrDisplayToolbar();
+      }
 			
 			private function undoShortcut(e:ShortcutEvent):void{
 				LogUtil.debug("Ctrl-Z got into undoShortcut");
@@ -210,8 +196,9 @@
 			}
 			
 			private function sendUndoCommand():void {
-				if (!canvas.isPageEmpty()) 
+				if (!canvas.isPageEmpty()) {          
 					dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.UNDO));
+        }
 			}
 						
 			public function positionToolbar(window:PresentationWindow):void {
@@ -247,15 +234,13 @@
         }
       }
            
-            private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
-                var gobj:GraphicObject = event.data;
-//                LogUtil.debug("!!!!SELECTED:" );
-            }
+      private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
+        var gobj:GraphicObject = event.data;
+      }
             
-            private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
-                var gobj:GraphicObject = event.data;
- //               LogUtil.debug("!!!!DESELECTED:" + " " );
-            }
+      private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
+        var gobj:GraphicObject = event.data;
+      }
 			           
 		]]>
 	</mx:Script>
