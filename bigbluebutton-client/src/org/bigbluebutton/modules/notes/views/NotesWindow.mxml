@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ns:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+              xmlns:ns="http://code.google.com/p/flexlib/" 
+              layout="absolute" width="400" height="300">
+  
+</ns:MDIWindow>
