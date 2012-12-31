@@ -52,8 +52,6 @@ package org.bigbluebutton.modules.notes.services
       } catch (error:Error) {
         trace("Unable to load requested document.");
       }
-
-
     }
     
     private function base64Encode(data:String):String {
