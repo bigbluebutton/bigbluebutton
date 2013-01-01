@@ -63,7 +63,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 	border=3>
 	<tbody>
 		<tr>
-			<td width="50%">Create your own meeting.
+			<td width="50%">نام کلاس خود را همراه با ذکر جلسه وارد نمایید .
 			<p />
 			</td>
 			<td width="50%">Step 1. Enter your name: <input type="text" autofocus required
