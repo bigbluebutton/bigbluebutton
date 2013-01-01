@@ -30,10 +30,14 @@
   
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.common.LogUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.modules.notes.events.NotesModuleStartEvent;
 			
 			private var _moduleName:String = "Layout Module";
-			
+			private var _dispatcher:Dispatcher = new Dispatcher();
+      
 			private function onCreationComplete():void {
 				LogUtil.debug(_moduleName + " initialized");	
 			}
@@ -43,7 +47,7 @@
 			}
 			
 			public function start(attributes:Object):void {
-
+        _dispatcher.dispatchEvent(new NotesModuleStartEvent());
 			}
 			
 			public function stop():void {

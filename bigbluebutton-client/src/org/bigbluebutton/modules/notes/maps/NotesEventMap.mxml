@@ -38,6 +38,7 @@
 
   <EventHandlers type="{NotesModuleStartEvent.NOTES_MODULE_START}">        
     <ObjectBuilder generator="{NotesMessageService}" cache="global" constructorArguments="{scope.dispatcher}"/>
+    <ObjectBuilder generator="{NotesEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
   </EventHandlers>
 
   <EventHandlers type="{SaveNoteEvent.SAVE_NOTE}">        
