@@ -6,8 +6,5 @@ package org.bigbluebutton.modules.notes.models
     public var note:String;
     public var saved:Boolean = false;
     
-    public function Note()
-    {
-    }
   }
 }

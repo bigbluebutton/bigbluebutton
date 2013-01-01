@@ -2,10 +2,10 @@ package org.bigbluebutton.modules.notes.models
 {
   import mx.collections.ArrayCollection;
 
-  public class Notes
+  public class NotesModel
   {
     private var _notes:ArrayCollection = new ArrayCollection();
-    
+        
     public function addNote(n:Note):void {
       _notes.addItem(n);
     }

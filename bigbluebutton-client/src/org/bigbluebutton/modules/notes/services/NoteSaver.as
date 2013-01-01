@@ -1,7 +1,5 @@
 package org.bigbluebutton.modules.notes.services
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
   import flash.events.Event;
   import flash.events.HTTPStatusEvent;
   import flash.events.IEventDispatcher;
@@ -23,19 +21,19 @@ package org.bigbluebutton.modules.notes.services
   
   public class NoteSaver
   {
-    public var serverURL:String;
-    public var dispatcher:Dispatcher;
-    
+    private var _serverURL:String;
+
     private var _request:URLRequest = new URLRequest();
     private var _vars:URLVariables;
     private var _uri:String;
-    private var _loader = new URLLoader();
+    private var _loader:URLLoader = new URLLoader();
     private var _note:Note;
-    private var _dispatcher:Dispatcher;
+    private var _dispatcher:IEventDispatcher;
     
-    public function NoteSaver(note:Note, dispatcher:Dispatcher) {
+    public function NoteSaver(note:Note, serverURL:String, dispatcher:IEventDispatcher) {
       _note = note;
       _dispatcher = dispatcher;
+      _serverURL = serverURL;
       
       _loader.addEventListener(Event.COMPLETE, completeHandler);
       _loader.addEventListener(Event.OPEN, openHandler);
@@ -50,12 +48,10 @@ package org.bigbluebutton.modules.notes.services
     }
     
     public function save():void {
-      _request.url = serverURL;
+      _request.url = _serverURL;
       _request.method = URLRequestMethod.GET;
-      
-      var date:Date = new Date();
-      
-      _vars.noteID = generateRandomString(5) + "-" + date.time;           
+       
+      _vars.noteID = _note.noteID;
       _vars.note = base64Encode(_note.note);
       _vars.eventName = UsersUtil.getExternalMeetingID();
       _vars.userId = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
@@ -84,8 +80,6 @@ package org.bigbluebutton.modules.notes.services
       successEvent.noteID = _note.noteID;
       _dispatcher.dispatchEvent(successEvent);
       
- //     var loader:URLLoader = URLLoader(event.target);
- //     trace("completeHandler: " + loader.data);
     }
     
     private function openHandler(event:Event):void {
@@ -116,15 +110,6 @@ package org.bigbluebutton.modules.notes.services
       _dispatcher.dispatchEvent(errorEvent);
     }
     
-    private function generateRandomString(strlen:Number):String{
-      var chars:String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-      var num_chars:Number = chars.length - 1;
-      var randomChar:String = "";
-      
-      for (var i:Number = 0; i < strlen; i++){
-        randomChar += chars.charAt(Math.floor(Math.random() * num_chars));
-      }
-      return randomChar;
-    }
+
   }
 }

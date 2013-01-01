@@ -26,9 +26,29 @@
 		<![CDATA[
       import mx.events.FlexEvent;
       
+      import org.bigbluebutton.modules.notes.events.NotesModuleStartEvent;
+      import org.bigbluebutton.modules.notes.events.SaveErrorEvent;
+      import org.bigbluebutton.modules.notes.events.SaveNoteEvent;
+      import org.bigbluebutton.modules.notes.events.SaveSuccessEvent;
+      import org.bigbluebutton.modules.notes.models.NotesModel;
+      import org.bigbluebutton.modules.notes.services.NotesMessageService;
+      
 		]]>
 	</mx:Script>
 
+  <EventHandlers type="{NotesModuleStartEvent.NOTES_MODULE_START}">        
+    <ObjectBuilder generator="{NotesMessageService}" cache="global" constructorArguments="{scope.dispatcher}"/>
+  </EventHandlers>
 
-	
+  <EventHandlers type="{SaveNoteEvent.SAVE_NOTE}">        
+    <MethodInvoker generator="{NotesMessageService}" method="save" arguments="{event.note}" />
+  </EventHandlers>
+  
+  <EventHandlers type="{SaveSuccessEvent.NOTE_SAVE_SUCCESS}">        
+    <MethodInvoker generator="{NotesMessageService}" method="saveSuccess" arguments="{event.noteID}" />
+  </EventHandlers>	
+  
+  <EventHandlers type="{SaveErrorEvent.FAILED_TO_SAVE}">        
+    <MethodInvoker generator="{NotesMessageService}" method="saveError" arguments="{event}" />
+  </EventHandlers>	
 </EventMap>
