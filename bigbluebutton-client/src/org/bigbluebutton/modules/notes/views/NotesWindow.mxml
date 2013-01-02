@@ -3,6 +3,7 @@
               xmlns:ns="http://code.google.com/p/flexlib/" 
               xmlns:views="org.bigbluebutton.modules.notes.views.*"
               implements="org.bigbluebutton.common.IBbbModuleWindow" 
+              title="Notes"
               creationComplete="onCreationComplete()"
               layout="absolute">
   <mx:Script>

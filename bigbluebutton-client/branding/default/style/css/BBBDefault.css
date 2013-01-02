@@ -42,10 +42,10 @@ Panel {
 
 Button {
   textIndent: 0;
-  paddingLeft: 5;
-  paddingRight: 5;
-  paddingTop: 5;
-  paddingBottom: 5;
+  paddingLeft: 1;
+  paddingRight: 1;
+  paddingTop: 1;
+  paddingBottom: 1;
   highlightAlphas: 0.4, 0;
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
@@ -56,6 +56,42 @@ Button {
   themeColor: #aaaaaa;
   fontFamily: Arial;
   fontSize: 12;
+}
+
+.chatSendButtonStyle {
+  cornerRadius: 0;
+  highlightAlphas: 0, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #262626, #262626, #454545, #454545;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #262626;
+  borderColor: #000000;
+  themeColor: #000000;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+.logoutButtonStyle {
+  cornerRadius: 0;
+  highlightAlphas: 0, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #262626, #262626, #454545, #454545;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #262626;
+  borderColor: #000000;
+  themeColor: #000000;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+.helpLinkButtonStyle {
+  rollOverColor: #cccccc;
+  selectionColor: #999999;
+  color: #504f3d;
+  textRollOverColor: #504f3d;
+  textSelectedColor: #504f3d;
 }
 
 DataGrid {
