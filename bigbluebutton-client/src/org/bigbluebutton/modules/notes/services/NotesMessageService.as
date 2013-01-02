@@ -18,6 +18,7 @@ package org.bigbluebutton.modules.notes.services
     private var _dispatcher:IEventDispatcher;
     
     public function NotesMessageService(dispatcher:IEventDispatcher) {
+      _options = new NotesOptions();
       _dispatcher = dispatcher;
     }
     

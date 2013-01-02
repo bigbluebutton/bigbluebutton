@@ -10,7 +10,9 @@ package org.bigbluebutton.modules.notes.services
   import flash.net.URLRequest;
   import flash.net.URLRequestMethod;
   import flash.net.URLVariables;
+  import flash.utils.ByteArray;
   
+  import mx.utils.Base64Decoder;
   import mx.utils.Base64Encoder;
   
   import org.bigbluebutton.core.UsersUtil;
@@ -50,13 +52,19 @@ package org.bigbluebutton.modules.notes.services
     public function save():void {
       _request.url = _serverURL;
       _request.method = URLRequestMethod.GET;
-       
+      
+      _vars = new URLVariables();
       _vars.noteID = _note.noteID;
       _vars.note = base64Encode(_note.note);
       _vars.eventName = UsersUtil.getExternalMeetingID();
       _vars.userId = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
       _vars.username = base64Encode(UsersUtil.getMyUsername());
-           
+/*
+      var dec:Base64Decoder = new Base64Decoder();
+      dec.decode(_vars.note)
+      var decNote:String = dec.toByteArray().toString();
+      trace("Saving note [" + _vars.noteID + "][" + decNote + "]");
+*/      
       try {
         _loader.load(_request);
       } catch (error:Error) {
@@ -66,6 +74,7 @@ package org.bigbluebutton.modules.notes.services
         errorEvent.noteID = _note.noteID;
         _dispatcher.dispatchEvent(errorEvent);
       }
+      
     }
     
     private function base64Encode(data:String):String {
