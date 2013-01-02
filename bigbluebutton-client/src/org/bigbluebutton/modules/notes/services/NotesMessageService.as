@@ -39,7 +39,7 @@ package org.bigbluebutton.modules.notes.services
     }
     
     public function saveError(event:SaveErrorEvent):void {
-      
+      // TODO: Re-save?
     }
     
     public function saveSuccess(noteID:String):void {

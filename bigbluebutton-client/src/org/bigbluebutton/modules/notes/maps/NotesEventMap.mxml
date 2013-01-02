@@ -27,11 +27,13 @@
       import mx.events.FlexEvent;
       
       import org.bigbluebutton.modules.notes.events.NotesModuleStartEvent;
+      import org.bigbluebutton.modules.notes.events.RetrieveNotesEvent;
       import org.bigbluebutton.modules.notes.events.SaveErrorEvent;
       import org.bigbluebutton.modules.notes.events.SaveNoteEvent;
       import org.bigbluebutton.modules.notes.events.SaveSuccessEvent;
       import org.bigbluebutton.modules.notes.models.NotesModel;
       import org.bigbluebutton.modules.notes.services.NotesMessageService;
+      import org.bigbluebutton.modules.notes.services.RetrieveNotesService;
       
 		]]>
 	</mx:Script>
@@ -39,8 +41,13 @@
   <EventHandlers type="{NotesModuleStartEvent.NOTES_MODULE_START}">        
     <ObjectBuilder generator="{NotesMessageService}" cache="global" constructorArguments="{scope.dispatcher}"/>
     <ObjectBuilder generator="{NotesEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+    <ObjectBuilder generator="{RetrieveNotesService}" cache="global" constructorArguments="{scope.dispatcher}"/>
   </EventHandlers>
 
+  <EventHandlers type="{RetrieveNotesEvent.RETRIEVE}">        
+    <MethodInvoker generator="{RetrieveNotesService}" method="retrieveNotes"/>
+  </EventHandlers>
+  
   <EventHandlers type="{SaveNoteEvent.SAVE_NOTE}">        
     <MethodInvoker generator="{NotesMessageService}" method="save" arguments="{event.note}" />
   </EventHandlers>
