@@ -80,6 +80,15 @@
     <window name="PresentationWindow" hidden="true" draggable="false" resizable="false"/>
     <window name="ListenersWindow" hidden="true" draggable="false" resizable="false"/>
   </layout>
+    <layout name="Notes">
+    <window name="NotesWindow" hidden="false" width="0.7" height="0.9" x="0" y="0" draggable="false" resizable="false"/>
+    <window name="BroadcastWindow" hidden="true" width="0.7" height="0.9" x="0" y="0" draggable="false" resizable="false"/>
+    <window name="ViewersWindow" hidden="true" draggable="false" resizable="false"/>
+    <window name="VideoDock" hidden="true" draggable="false" resizable="false"/>
+    <window name="ChatWindow" width="0.3" height="1" x="0.7" y="0" draggable="false" resizable="false"/>
+    <window name="PresentationWindow" hidden="true" draggable="false" resizable="false"/>
+    <window name="ListenersWindow" hidden="true" draggable="false" resizable="false"/>
+  </layout>
   <layout name="Broadcast">
     <window name="BroadcastWindow" hidden="false" width="0.7" height="0.9" x="0" y="0" draggable="false" resizable="false"/>
     <window name="ViewersWindow" hidden="true" draggable="false" resizable="false"/>

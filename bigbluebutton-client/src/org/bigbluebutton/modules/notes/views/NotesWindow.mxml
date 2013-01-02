@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ns:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
               xmlns:ns="http://code.google.com/p/flexlib/" 
+              xmlns:views="org.bigbluebutton.modules.notes.views.*"
               implements="org.bigbluebutton.common.IBbbModuleWindow" 
-              layout="absolute" width="400" height="300">
+              creationComplete="onCreationComplete()"
+              layout="absolute">
   <mx:Script>
     <![CDATA[
+      import org.bigbluebutton.modules.notes.models.NotesOptions;
       public function getPrefferedPosition():String{
-        return "top-left";
+        var options:NotesOptions = new NotesOptions();
+        return options.position;
       } 
+      
+      private function onCreationComplete():void {
+        
+      }
     ]]>
   </mx:Script>
+  
+  <views:NotesView id="notesView"/>
 </ns:MDIWindow>
