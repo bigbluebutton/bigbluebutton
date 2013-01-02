@@ -9,13 +9,14 @@
   <mx:Script>
     <![CDATA[
       import org.bigbluebutton.modules.notes.models.NotesOptions;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
       public function getPrefferedPosition():String{
         var options:NotesOptions = new NotesOptions();
         return options.position;
       } 
       
       private function onCreationComplete():void {
-        
+        this.title = ResourceUtil.getInstance().getString("bbb.notes.title");
       }
     ]]>
   </mx:Script>
