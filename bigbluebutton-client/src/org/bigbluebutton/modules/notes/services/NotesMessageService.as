@@ -26,7 +26,7 @@ package org.bigbluebutton.modules.notes.services
       var date:Date = new Date();
 
       var n:Note = new Note();
-      n.noteID = generateRandomString(5) + "-" + date.time;
+      n.noteID = generateRandomString(5) + date.time;
       n.note = note;
       n.saved = false;
       _notesModel.addNote(n);

@@ -56,15 +56,18 @@ package org.bigbluebutton.modules.notes.services
       _vars = new URLVariables();
       _vars.noteID = _note.noteID;
       _vars.note = base64Encode(_note.note);
-      _vars.eventName = UsersUtil.getExternalMeetingID();
+      _vars.externalMeetingID = UsersUtil.getExternalMeetingID();
+      _vars.internalMeetingID = UsersUtil.getInternalMeetingID();
       _vars.userId = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
       _vars.username = base64Encode(UsersUtil.getMyUsername());
-/*
+
       var dec:Base64Decoder = new Base64Decoder();
       dec.decode(_vars.note)
       var decNote:String = dec.toByteArray().toString();
-      trace("Saving note [" + _vars.noteID + "][" + decNote + "]");
-*/      
+      trace("Saving note [" + _vars.noteID + "][" + decNote + "] to [" + _request.url + "]");
+      
+      _request.data = _vars;
+      
       try {
         _loader.load(_request);
       } catch (error:Error) {
@@ -73,8 +76,7 @@ package org.bigbluebutton.modules.notes.services
         errorEvent.reason = SaveErrorEvent.FAILED_TO_SAVE;
         errorEvent.noteID = _note.noteID;
         _dispatcher.dispatchEvent(errorEvent);
-      }
-      
+      }     
     }
     
     private function base64Encode(data:String):String {
@@ -84,11 +86,21 @@ package org.bigbluebutton.modules.notes.services
     }
     
     private function completeHandler(event:Event):void {
-      var xml:XML = new XML(event.target.data)
-      var successEvent:SaveSuccessEvent = new SaveSuccessEvent();
-      successEvent.noteID = _note.noteID;
-      _dispatcher.dispatchEvent(successEvent);
+      var xml:XML = new XML(event.target.data);
       
+      if (saveSuccess(xml)) {
+        trace("SAVED");
+        var successEvent:SaveSuccessEvent = new SaveSuccessEvent();
+        successEvent.noteID = _note.noteID;
+        _dispatcher.dispatchEvent(successEvent);        
+      } else {
+        trace("NOT SAVED");
+      } 
+    }
+    
+    private function saveSuccess(xml:XML):Boolean {
+      if (xml.success == 'T' || xml.success == 't') return true;
+      return false;
     }
     
     private function openHandler(event:Event):void {
@@ -118,7 +130,6 @@ package org.bigbluebutton.modules.notes.services
       errorEvent.noteID = _note.noteID;
       _dispatcher.dispatchEvent(errorEvent);
     }
-    
 
   }
 }
