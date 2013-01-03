@@ -38,10 +38,10 @@
 		]]>
 	</mx:Script>
 
-  <EventHandlers type="{NotesModuleStartEvent.NOTES_MODULE_START}">        
-    <ObjectBuilder generator="{NotesMessageService}" cache="global" constructorArguments="{scope.dispatcher}"/>
-    <ObjectBuilder generator="{NotesEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+  <EventHandlers type="{NotesModuleStartEvent.NOTES_MODULE_START}">       
     <ObjectBuilder generator="{RetrieveNotesService}" cache="global" constructorArguments="{scope.dispatcher}"/>
+    <ObjectBuilder generator="{NotesMessageService}" cache="global" constructorArguments="{scope.dispatcher}"/>
+    <ObjectBuilder generator="{NotesEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>   
   </EventHandlers>
 
   <EventHandlers type="{RetrieveNotesEvent.RETRIEVE}">        

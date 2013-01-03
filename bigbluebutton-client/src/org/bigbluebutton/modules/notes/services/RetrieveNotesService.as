@@ -46,7 +46,7 @@ package org.bigbluebutton.modules.notes.services
     }
        
     public function retrieveNotes():void {
-      _request.url = _options.saveURL;
+      _request.url = _options.saveURL + "/notes";
       _request.method = URLRequestMethod.GET;
       
       _vars = new URLVariables();
@@ -80,6 +80,23 @@ package org.bigbluebutton.modules.notes.services
     }
     
     private function parseNotes(xml:XML):ArrayCollection {
+      var notes:ArrayCollection = new ArrayCollection();
+      var list:XMLList = getNotes(xml);
+      var item:XML;
+      for each(item in list){
+        trace("Saving note [" + item.noteID + "][" + item.text + "]");
+        var note:Note = new Note();
+//        var dec:Base64Decoder = new Base64Decoder();
+//        dec.decode(item.text)
+//        var decNote:String = dec.toByteArray().toString();
+//        trace("Saving note [" + item.noteID + "][" + decNote + "]");
+//        note.note = decNote;
+        note.noteID =  item.noteID;
+        note.saved = true;
+        notes.addItem(note);
+      }
+      return notes;
+      
       /*
       var dec:Base64Decoder = new Base64Decoder();
       dec.decode(_vars.note)
@@ -87,9 +104,14 @@ package org.bigbluebutton.modules.notes.services
       trace("Saving note [" + _vars.noteID + "][" + decNote + "]");
       */  
       
-      return new ArrayCollection();
+      return ;
     }
     
+    private function getNotes(xml:XML):XMLList{
+      trace("*** [" + xml.toXMLString() + "]");
+      return xml.note;
+    }
+        
     private function openHandler(event:Event):void {
       trace("openHandler: " + event);
     }
