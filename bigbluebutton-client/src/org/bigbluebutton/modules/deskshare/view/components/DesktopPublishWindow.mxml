@@ -118,7 +118,6 @@
 				
 				titleBarOverlay.tabIndex = baseIndex;
 				titleBarOverlay.focusEnabled = true;
-				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
 								
 				LogUtil.debug("Waterfall: Deskshare titleBarOverlay is having troubles");
 				LogUtil.debug("Waterfall: Focusable? " + titleBarOverlay.focusEnabled);
@@ -322,6 +321,10 @@
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
+				
+				if (titleBarOverlay != null) {
+					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.desktopPublish.title');
+				}
 				
 				if (windowControls != null) {
 					minimizeBtn.toolTip = ResourceUtil.getInstance().getString('bbb.desktopPublish.minimizeBtn.toolTip');
