@@ -44,11 +44,17 @@
 			
 			private var genResource:Array = ['bbb.shortcutkey.flash.exit', 'bbb.shortcutkey.focus.viewers', 'bbb.shortcutkey.focus.listeners', 
 											 'bbb.shortcutkey.focus.video', 'bbb.shortcutkey.focus.presentation', 'bbb.shortcutkey.focus.chat',
-											 'bbb.shortcutkey.share.desktop', 'bbb.shortcutkey.share.microphone', 'bbb.shortcutkey.share.webcam'];
-			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', 'bbb.shortcutkey.whiteboard.undo'];
+											 'bbb.shortcutkey.share.desktop', 'bbb.shortcutkey.share.microphone', 'bbb.shortcutkey.share.webcam',
+											 'bbb.shortcutkey.shortcutWindow', 'bbb.shortcutkey.logout', 'bbb.shortcutkey.raiseHand'];
+											 
+			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', 'bbb.shortcutkey.whiteboard.undo', 'bbb.shortcutkey.present.upload',
+											  'bbb.shortcutkey.present.previous', 'bbb.shortcutkey.present.select',	'bbb.shortcutkey.present.next',
+											  'bbb.shortcutkey.present.fitWidth', 'bbb.shortcutkey.present.fitPage'];
+			
 			private var chatResource:Array = ['bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.chat.chattabs', 'bbb.shortcutkey.chat.chatbox.advance', 
 											  'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.repeat', 'bbb.shortcutkey.chat.chatbox.golatest', 
 											  'bbb.shortcutkey.chat.chatbox.gofirst', 'bbb.shortcutkey.chat.chatbox.goread'];
+											  
 			private var audResource:Array = ['bbb.shortcutkey.listeners.muteme'];
 			[Bindable]
 			private var shownKeys:ArrayCollection;

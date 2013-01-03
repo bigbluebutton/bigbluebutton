@@ -56,12 +56,22 @@
 	<mate:Listener type="{AddButtonToPresentationEvent.ADD_BUTTON}" method="addButton" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	
+	<mate:Listener type="{ShortcutEvent.UPLOAD_PRESENTATION}" method="remoteUpload" />
+	<mate:Listener type="{ShortcutEvent.PREVIOUS_SLIDE}" method="remotePrevious" />
+	<mate:Listener type="{ShortcutEvent.SELECT_SLIDES}" method="remoteSelect" />
+	<mate:Listener type="{ShortcutEvent.NEXT_SLIDE}" method="remoteNext" />
+	<mate:Listener type="{ShortcutEvent.FIT_TO_WIDTH}" method="remoteWidth" />
+	<mate:Listener type="{ShortcutEvent.FIT_TO_PAGE}" method="remotePage" />
+	
+	
+	
 	<mx:Script>
 		<![CDATA[
 			import flash.geom.Point;
 			
 			import flexlib.containers.DockableToolBar;
 			import flexlib.mdi.events.MDIWindowEvent;
+			import com.asfusion.mate.events.Dispatcher;
 			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
@@ -142,6 +152,8 @@
 			[Bindable] private var presentOptions:PresentOptions;
 			
 			private var externalButtons:ArrayCollection = new ArrayCollection();
+			private var keyCombos:Object;
+			private var localDispatcher:Dispatcher = new Dispatcher();
 			
 			private function init():void{
 				presentOptions = new PresentOptions();
@@ -166,7 +178,44 @@
 				//LogUtil.debug("WATERFALL Presentation slideView.tabIndex " + slideView.tabIndex);
 				
 				slideView.slideLoader.tabIndex = baseIndex+4;
+				hotkeyCapture();
 				LogUtil.debug("WATERFALL Presentation slideView.slideLoader.tabIndex " + slideView.slideLoader.tabIndex);
+			}
+			
+			private function hotkeyCapture():void{
+			    LogUtil.debug("Entering hotkeyCapture");
+			    this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+			    ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+			    LogUtil.debug("Leaving hotkeyCapture");
+		    }
+			
+			private function loadKeyCombos(modifier:String):void {
+				keyCombos = new Object(); // always start with a fresh array
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide') as String)] = ShortcutEvent.FOCUS_SLIDE;
+				
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.upload') as String)] = ShortcutEvent.UPLOAD_PRESENTATION;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.previous') as String)] = ShortcutEvent.PREVIOUS_SLIDE;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.select') as String)] = ShortcutEvent.SELECT_SLIDES;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.next') as String)] = ShortcutEvent.NEXT_SLIDE;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.fitWidth') as String)] = ShortcutEvent.FIT_TO_WIDTH;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.fitPage') as String)] = ShortcutEvent.FIT_TO_PAGE;
+			}
+			
+			// Handle presentation-scope hotkeys
+			private function handleKeyDown(e:KeyboardEvent) :void {
+				var modifier:String = ExternalInterface.call("determineModifier");
+				loadKeyCombos(modifier);
+				  
+				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
+				  
+				//LogUtil.debug("WATERFALL: keyPress is " + keyPress);
+				//LogUtil.debug("WATERFALL: Your modifier + non-mod keys is " + modifier + e.keyCode);
+				                          
+				if (keyCombos[keyPress]) {
+					LogUtil.debug("WATERFALL: keyCombo is " + keyCombos[keyPress]);
+				    //globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+				    localDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+				}
 			}
 			
 			private function focusWindow(e:ShortcutEvent):void{
@@ -241,7 +290,7 @@
             
 			// Maybe there's a problem in here too?
 			private function onKeyUp(event:KeyboardEvent):void {	
-                if (event.shiftKey && event.ctrlKey) {
+                /*if (event.shiftKey && event.ctrlKey) {
                     switch (event.keyCode) {
                         case Keyboard.LEFT:
                         case Keyboard.UP:
@@ -256,7 +305,7 @@
                             gotoNextSlide();
                             break; 
                     }                    
-                }
+                }*/
 			}
 			
 			public function getPrefferedPosition():String{
@@ -553,6 +602,31 @@
 			override protected function showAllChildren():void {
 				slideView.includeInLayout=true;
 			}
+			
+			private function remoteUpload(e:ShortcutEvent):void{
+				dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW));
+			}
+			
+			private function remotePrevious(e:ShortcutEvent):void{
+				gotoPreviousSlide();
+			}
+			
+			private function remoteSelect(e:ShortcutEvent):void{
+				showThumbnails();
+			}
+			
+			private function remoteNext(e:ShortcutEvent):void{
+				gotoNextSlide();
+			}
+			
+			private function remoteWidth(e:ShortcutEvent):void{
+				onFitToPage(false);
+			}
+			
+			private function remotePage(e:ShortcutEvent):void{
+				onFitToPage(true);
+			}
+			
 		]]>
 	</mx:Script>
   	 
