@@ -28,6 +28,7 @@ package org.bigbluebutton.main.model.users
 	import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.services.BandwidthMonitor;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.UsersConnectionEvent;
@@ -128,6 +129,17 @@ package org.bigbluebutton.main.model.users
 			handleResult( event );
 		}
 		
+    private var _bwMon:BandwidthMonitor = new BandwidthMonitor();
+    
+    private function startMonitoringBandwidth():void {
+      trace("Start monitoring bandwidth.");
+      var pattern:RegExp = /(?P<protocol>.+):\/\/(?P<server>.+)\/(?P<app>.+)/;
+      var result:Array = pattern.exec(_applicationURI);
+      _bwMon.serverURL = result.server;
+      _bwMon.serverApplication = "video";
+      _bwMon.start();
+    }
+        
 		public function handleResult(  event : Object  ) : void {
 			var info : Object = event.info;
 			var statusCode : String = info.code;
@@ -136,6 +148,9 @@ package org.bigbluebutton.main.model.users
 			{
 				case CONNECT_SUCCESS :
 					LogUtil.debug(NAME + ":Connection to viewers application succeeded.");
+          
+					startMonitoringBandwidth();
+          
 					_netConnection.call(
 							"getMyUserId",// Remote function name
 							new Responder(

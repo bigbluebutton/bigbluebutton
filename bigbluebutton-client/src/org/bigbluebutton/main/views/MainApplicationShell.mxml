@@ -73,6 +73,7 @@
 			import org.bigbluebutton.main.events.RecordStatusEvent;
 			import org.bigbluebutton.main.events.SuccessfulLoginEvent;
 			import org.bigbluebutton.main.model.LayoutOptions;
+			import org.bigbluebutton.main.model.NetworkStatsData;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
@@ -107,6 +108,10 @@
 			
 			[Bindable] private var showToolbarOpt:Boolean = true;
 			
+			[Bindable] private var _bandwidthConsumedUp:String = "-";
+			[Bindable] private var _bandwidthConsumedDown:String = "-";
+			private var _updateBandwidthTimer:Timer = new Timer(1000);
+      
 			public function initOptions(e:Event):void {
 				LogUtil.debug("**** Init layout options ***");
 				layoutOptions = new LayoutOptions();
@@ -114,6 +119,9 @@
 				showToolbarOpt = layoutOptions.showToolbar;
 				LogUtil.debug("*** show toolbar = " + layoutOptions.showToolbar);
 				toolbar.displayToolbar();
+
+				_updateBandwidthTimer.addEventListener(TimerEvent.TIMER, updateBandwidthTimerHandler);
+				_updateBandwidthTimer.start();
 			}
 			
 			protected function initializeShell():void {	
@@ -298,6 +306,36 @@
 				Alert.show(evt.status, evt.module);
 			}
 						
+			private var networkStatsWindow:NetworkStatsWindow = new NetworkStatsWindow();
+
+			private function openNetworkStatsWindow(event:MouseEvent):void {
+				event.target.addEventListener(MouseEvent.MOUSE_MOVE, updateNetworkStatsWindowPosition);
+				networkStatsWindow.appear(this);
+			}
+			
+			private function updateNetworkStatsWindowPosition(event:MouseEvent):void {
+				var mousePosition:Point = new Point(event.localX, event.localY);
+				//LogUtil.debug("mouse position: " + mousePosition.x + " " + mousePosition.y);
+				
+				var mouseGlobal:Point = event.target.localToGlobal(mousePosition);
+				//LogUtil.debug("mouse global position: " + mouseGlobal.x + " " + mouseGlobal.y);
+				
+				var windowPosition:Point = this.globalToContent(mouseGlobal);
+				//LogUtil.debug("window position: " + windowPosition.x + " " + windowPosition.y);
+				
+				networkStatsWindow.x = windowPosition.x - networkStatsWindow.width - 10;
+				networkStatsWindow.y = windowPosition.y - networkStatsWindow.height - 10;
+			}
+			
+			private function closeNetworkStatsWindow(event:MouseEvent):void {
+				event.target.removeEventListener(MouseEvent.MOUSE_MOVE, updateNetworkStatsWindowPosition);
+				networkStatsWindow.disappear();
+			}
+
+	        private function updateBandwidthTimerHandler(e:TimerEvent):void {
+				_bandwidthConsumedDown = NetworkStatsData.getInstance().formattedCurrentConsumedDownBW;
+				_bandwidthConsumedUp = NetworkStatsData.getInstance().formattedCurrentConsumedUpBW;
+	        }
 		]]>
 	</mx:Script>
 			
@@ -311,6 +349,7 @@
 	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
+		<mx:Label text="[{ResourceUtil.getInstance().getString('bbb.bwmonitor.upload.short')}: {_bandwidthConsumedUp} | {ResourceUtil.getInstance().getString('bbb.bwmonitor.download.short')}: {_bandwidthConsumedDown}]" mouseOver="openNetworkStatsWindow(event)" mouseOut="closeNetworkStatsWindow(event)" id="lblNetworkStats"/>
 		<mx:Button width="20" height="20" visible="{layoutOptions.showLogButton}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
 		<mx:Button width="20" height="20" visible="{layoutOptions.showResetLayout}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
 	</mx:ControlBar>

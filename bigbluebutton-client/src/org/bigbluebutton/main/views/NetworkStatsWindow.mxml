@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+  Author: Felipe Cecagno <felipe@mconf.org>
+ 
+  $Id: $
+-->
+
+<MDIWindow xmlns="flexlib.mdi.containers.*" 
+		xmlns:mx="http://www.adobe.com/2006/mxml" 
+		xmlns:mate="http://mate.asfusion.com/"
+		title="{ResourceUtil.getInstance().getString('bbb.bwmonitor.title')}" 
+		creationComplete="onCreationComplete()"
+		resizable="false"
+		showCloseButton="false"
+		implements="org.bigbluebutton.common.IBbbModuleWindow"
+		width="210" height="223" minHeight="0" minWidth="0"
+		resize="onResize()">
+	<!-- height="261" with available bandwidth enabled -->
+	<mx:Script>
+		<![CDATA[
+
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import flash.utils.Timer;
+
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.main.model.NetworkStatsData;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+		
+			import mx.core.IFlexDisplayObject;
+			import mx.effects.Fade;
+			import mx.events.EffectEvent;
+			import mx.managers.PopUpManager;
+
+			private var _globalDispatcher:Dispatcher = new Dispatcher();
+			private var _updateTimer:Timer = new Timer(1000);
+		
+			private function onCreationComplete():void {
+				this.windowControls.maximizeRestoreBtn.visible = false;
+				this.windowControls.minimizeBtn.visible = false;
+				
+				_updateTimer.addEventListener(TimerEvent.TIMER, timerHandler);
+				_updateTimer.start();
+			}
+			
+	        private function timerHandler(e:TimerEvent):void {
+				labelCurrentDownload.text = NetworkStatsData.getInstance().formattedCurrentConsumedDownBW;
+			 	labelTotalDownload.text   = NetworkStatsData.getInstance().formattedTotalConsumedDownBW;
+			 	labelAvailableDownload.text   = NetworkStatsData.getInstance().formattedMeasuredDownBW;
+			 	labelDownloadLatency.text   = NetworkStatsData.getInstance().formattedMeasuredDownLatency;
+
+			 	labelCurrentUpload.text   = NetworkStatsData.getInstance().formattedCurrentConsumedUpBW;
+			 	labelTotalUpload.text     = NetworkStatsData.getInstance().formattedTotalConsumedUpBW;
+			 	labelAvailableUpload.text   = NetworkStatsData.getInstance().formattedMeasuredUpBW;
+			 	labelUploadLatency.text   = NetworkStatsData.getInstance().formattedMeasuredUpLatency;
+	        }
+        			
+			public function getPrefferedPosition():String {
+				return MainCanvas.ABSOLUTE;
+			}
+			
+			private function onResize():void {
+				//LogUtil.debug("width=" + width + " height=" + height);
+			}
+			
+			public function appear(parent:DisplayObject):void {
+				var fader:Fade = new Fade();
+				fader.alphaFrom = 0;
+				fader.alphaTo = 1;
+				fader.duration = 750;
+				fader.target = this;
+//				fader.addEventListener(EffectEvent.EFFECT_START, function(e:EffectEvent):void {
+//					PopUpManager.addPopUp(e.effectInstance as IFlexDisplayObject, parent, false);
+//				});
+				fader.play();
+				PopUpManager.addPopUp(this, parent, false);
+			}
+			
+			public function disappear():void {
+				var fader:Fade = new Fade();
+				fader.alphaFrom = 1;
+				fader.alphaTo = 0;
+				fader.duration = 750;
+				fader.target = this;
+				fader.addEventListener(EffectEvent.EFFECT_END, function(e:EffectEvent):void {
+					PopUpManager.removePopUp(e.target as IFlexDisplayObject);
+				});
+				fader.play();
+			}
+		]]>
+	</mx:Script>
+	
+	
+	<mx:Panel width="100%" height="100%"
+	 paddingTop="10" paddingLeft="10" paddingRight="10" paddingBottom="10" headerHeight="10">
+		<mx:VBox verticalGap="0" width="100%" height="100%">
+			<mx:HBox backgroundColor="haloOrange" width="100%" horizontalAlign="center"><mx:Label fontWeight="bold" text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.upload')}"/></mx:HBox>
+			<mx:HBox horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.total')}: "/><mx:Label id="labelTotalUpload" fontWeight="bold" text="-"/></mx:HBox>
+			<mx:HBox horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.current')}: "/><mx:Label id="labelCurrentUpload" fontWeight="bold" text="-"/></mx:HBox>
+			<mx:HBox visible="false" includeInLayout="false" horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.available')}: "/><mx:Label id="labelAvailableUpload" fontWeight="bold" text="-"/></mx:HBox>
+			<mx:HBox horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.latency')}: "/><mx:Label id="labelUploadLatency" fontWeight="bold" text="-"/></mx:HBox>
+			<mx:HBox backgroundColor="haloOrange" width="100%" horizontalAlign="center"><mx:Label fontWeight="bold" text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.download')}"/></mx:HBox>
+			<mx:HBox horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.total')}: "/><mx:Label id="labelTotalDownload" fontWeight="bold" text="-"/></mx:HBox>
+			<mx:HBox horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.current')}: "/><mx:Label id="labelCurrentDownload" fontWeight="bold" text="-"/></mx:HBox>
+			<mx:HBox visible="false" includeInLayout="false" horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.available')}: "/><mx:Label id="labelAvailableDownload" fontWeight="bold" text="-"/></mx:HBox>
+			<mx:HBox horizontalGap="0"><mx:Label text="{ResourceUtil.getInstance().getString('bbb.bwmonitor.latency')}: "/><mx:Label id="labelDownloadLatency" fontWeight="bold" text="-"/></mx:HBox>
+		</mx:VBox>
+	</mx:Panel>
+
+</MDIWindow>

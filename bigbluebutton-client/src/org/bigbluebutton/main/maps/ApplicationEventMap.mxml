@@ -31,6 +31,7 @@
 		<ObjectBuilder generator="{ModulesProxy}" cache="global" />
 		<ObjectBuilder generator="{UserService}" cache="global" />
 		<ObjectBuilder generator="{ConfigManager}" cache="global" />
+		<ObjectBuilder generator="{StreamMonitor}" cache="global" />
 	</EventHandlers>
 	
 	<EventHandlers type="{PortTestEvent.TEST_RTMP}" >
@@ -107,6 +108,7 @@
 		
 		import org.bigbluebutton.core.managers.ConfigManager;
 		import org.bigbluebutton.core.services.SkinningService;
+		import org.bigbluebutton.core.services.StreamMonitor;
 		import org.bigbluebutton.main.events.ConfigEvent;
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModuleLoadEvent;
