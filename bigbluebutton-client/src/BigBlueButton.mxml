@@ -136,10 +136,10 @@
 	}
 
     private function hotkeyCapture():void{
-      LogUtil.debug("Entering hotkeyCapture");
+      //LogUtil.debug("Entering hotkeyCapture");
       stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
       ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
-      LogUtil.debug("Leaving hotkeyCapture");
+      //LogUtil.debug("Leaving hotkeyCapture");
     }
 
 	// Handle general-access hotkeys, regardless of what window the user is focused in
@@ -154,7 +154,7 @@
 	  //LogUtil.debug("WATERFALL: Your modifier + non-mod keys is " + modifier + e.keyCode);
                               
       if (keyCombos[keyPress]) {
-		LogUtil.debug("WATERFALL: keyCombo is " + keyCombos[keyPress]);
+		//LogUtil.debug("WATERFALL: keyCombo is " + keyCombos[keyPress]);
         globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
       }
     }

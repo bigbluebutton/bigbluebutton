@@ -59,7 +59,9 @@ package org.bigbluebutton.main.events {
 		public static const SELECT_SLIDES:String = 'SELECT_SLIDES';
 		public static const NEXT_SLIDE:String = 'NEXT_SLIDE';
 		public static const FIT_TO_WIDTH:String = 'FIT_TO_WIDTH';
-		public static const FIT_TO_PAGE:String = 'FIT_TO_PAGE';		
+		public static const FIT_TO_PAGE:String = 'FIT_TO_PAGE';
+		
+		public static const MAKE_PERSON_PRESENTER:String = 'MAKE_PERSON_PRESENTER';
 		
 		
 		public var otherUserID:String;
