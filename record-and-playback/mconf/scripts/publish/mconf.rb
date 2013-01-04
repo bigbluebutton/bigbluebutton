@@ -22,6 +22,8 @@ require '../../core/lib/recordandplayback'
 require 'rubygems'
 require 'yaml'
 require 'cgi'
+require 'digest/md5'
+
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 simple_props = YAML::load(File.open('mconf.yml'))
 recording_dir = bbb_props['recording_dir']
@@ -60,8 +62,9 @@ done_files.each do |df|
 
 		keypublic = File.new("key-public.pem","w") 
 		keypublic.write  "#{public_key_decoded}"
-		keypublic.close  
+		keypublic.close 
 
+		#Encrypt files 
 		command = "openssl enc -aes-256-cbc -pass file:#{meeting_id}.txt < #{meeting_id}.zip > #{meeting_id}.dat"
 		BigBlueButton.logger.info(command)
 		Open3.popen3(command) do | stdin, stdout, stderr|
@@ -72,6 +75,12 @@ done_files.each do |df|
 		Open3.popen3(command) do | stdin, stdout, stderr|
 			BigBlueButton.logger.info("commandresult=") #{$?.exitstatus}")
 		end
+
+		#Generate md5 checksum
+		md5sum = Digest::MD5.file("#{meeting_id}.dat")
+		md5file = File.new("#{meeting_id}.md5", "w")
+		md5file.write "#{md5sum}"
+		md5file.close
 
 		BigBlueButton.logger.info("Removing files")
 		PUBLICKEY = "key-public.pem"
@@ -106,7 +115,7 @@ done_files.each do |df|
 		BigBlueButton.logger.info("Removing processed files.")
 		FileUtils.rm_r(Dir.glob("#{process_dir}/*"))
 		
-		BigBlueButton.logger.info("Publishing slides")
+		BigBlueButton.logger.info("Publishing mconf")
 		# Now publish this recording    
 		if not FileTest.directory?(publish_dir)
 			FileUtils.mkdir_p publish_dir
