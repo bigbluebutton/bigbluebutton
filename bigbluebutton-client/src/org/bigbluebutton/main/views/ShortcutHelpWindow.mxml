@@ -41,21 +41,25 @@
 			private var presKeys:ArrayList;
 			private var chatKeys:ArrayList;
 			private var audKeys:ArrayList;
+			private var viewerKeys:ArrayList;
 			
 			private var genResource:Array = ['bbb.shortcutkey.flash.exit', 'bbb.shortcutkey.focus.viewers', 'bbb.shortcutkey.focus.listeners', 
 											 'bbb.shortcutkey.focus.video', 'bbb.shortcutkey.focus.presentation', 'bbb.shortcutkey.focus.chat',
 											 'bbb.shortcutkey.share.desktop', 'bbb.shortcutkey.share.microphone', 'bbb.shortcutkey.share.webcam',
 											 'bbb.shortcutkey.shortcutWindow', 'bbb.shortcutkey.logout', 'bbb.shortcutkey.raiseHand'];
 											 
-			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', 'bbb.shortcutkey.whiteboard.undo', 'bbb.shortcutkey.present.upload',
+			private var presResource:Array = ['bbb.shortcutkey.focus.presentation', 'bbb.shortcutkey.present.focusslide', 'bbb.shortcutkey.whiteboard.undo', 'bbb.shortcutkey.present.upload',
 											  'bbb.shortcutkey.present.previous', 'bbb.shortcutkey.present.select',	'bbb.shortcutkey.present.next',
 											  'bbb.shortcutkey.present.fitWidth', 'bbb.shortcutkey.present.fitPage'];
 			
-			private var chatResource:Array = ['bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.chat.chattabs', 'bbb.shortcutkey.chat.chatbox.advance', 
+			private var chatResource:Array = ['bbb.shortcutkey.focus.chat', 'bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.chat.chattabs', 'bbb.shortcutkey.chat.chatbox.advance', 
 											  'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.repeat', 'bbb.shortcutkey.chat.chatbox.golatest', 
 											  'bbb.shortcutkey.chat.chatbox.gofirst', 'bbb.shortcutkey.chat.chatbox.goread'];
 											  
-			private var audResource:Array = ['bbb.shortcutkey.listeners.muteme'];
+			private var audResource:Array = ['bbb.shortcutkey.focus.listeners', 'bbb.shortcutkey.listeners.muteme'];
+			
+			private var viewerResource:Array = ['bbb.shortcutkey.focus.viewers', 'bbb.shortcutkey.viewers.makePresenter'];
+			
 			[Bindable]
 			private var shownKeys:ArrayCollection;
 			
@@ -82,6 +86,7 @@
 				//LogUtil.debug("CHAD loaded" + chatKeys.length);
 				audKeys = loadKeys(audResource);
 				//LogUtil.debug("CHAD loaded" + audKeys.length);
+				viewerKeys = loadKeys(viewerResource);
 				
 				changeArray();
 			}
@@ -94,6 +99,7 @@
 					shownKeys.addAll(presKeys);
 					shownKeys.addAll(chatKeys);
 					shownKeys.addAll(audKeys);
+					shownKeys.addAll(viewerKeys);
 					break;
 				case 1: //General
 					shownKeys.addAll(genKeys);
@@ -106,6 +112,9 @@
 					break;
 				case 4: //Audio
 					shownKeys.addAll(audKeys);
+					break;
+				case 5: //Viewers
+					shownKeys.addAll(viewerKeys);
 					break;
 				}
 			}
