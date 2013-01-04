@@ -25,12 +25,11 @@
   xmlns:apimap="org.bigbluebutton.main.api.maps.*"
   xmlns:coreMap="org.bigbluebutton.core.controllers.maps.*"
   xmlns:mate="http://mate.asfusion.com/"
-  xmlns:m="library://melomel/2010"
   pageTitle="BigBlueButton" 
   layout="absolute" preinitialize="init()"
   preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader"
   applicationComplete="hotkeyCapture()">
-  
+ 
   <mx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;    
@@ -134,12 +133,12 @@
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.logout') as String)] = ShortcutEvent.LOGOUT;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.raiseHand') as String)] = ShortcutEvent.RAISE_HAND;
 	}
-
-    private function hotkeyCapture():void{
-      LogUtil.debug("Entering hotkeyCapture");
+	
+    public function hotkeyCapture():void{
+      trace("Entering hotkeyCapture");
       stage.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
       ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
-      LogUtil.debug("Leaving hotkeyCapture");
+      trace("Leaving hotkeyCapture");
     }
 
 	// Handle general-access hotkeys, regardless of what window the user is focused in
@@ -149,12 +148,9 @@
 	  
 	  var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
                             (e.altKey   ? "alt+"     : "") + e.keyCode;
-      
-      //LogUtil.debug("WATERFALL: keyPress is " + keyPress);
-	  //LogUtil.debug("WATERFALL: Your modifier + non-mod keys is " + modifier + e.keyCode);
-                              
+	
       if (keyCombos[keyPress]) {
-		LogUtil.debug("WATERFALL: keyCombo is " + keyCombos[keyPress]);
+        trace("Chad keypress " + keyPress);
         globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
       }
     }

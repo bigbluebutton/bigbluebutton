@@ -26,6 +26,8 @@
 	creationComplete="onCreationComplete()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
+  styleNameFocus="videoViewStyleFocus"
+  styleNameNoFocus="videoViewStyleNoFocus"
 	resize="onResize()"
 	layout="absolute">
 	
@@ -121,10 +123,10 @@
         if (event.message.userID ==  userID) {
           if (event.message.talking) {
             notTalkingEffect.end();
-            talkingEffect.play([_videoHolder]);            
+            talkingEffect.play([this]);            
           } else {
             talkingEffect.end();
-            notTalkingEffect.play([_videoHolder]);
+            notTalkingEffect.play([this]);
           }
         }
       }
@@ -222,9 +224,9 @@
 	</mx:Script>
   
   <mx:Glow id="talkingEffect" duration="500" alphaFrom="1.0" alphaTo="0.3"
-           blurXFrom="0.0" blurXTo="10.0" blurYFrom="0.0" blurYTo="10.0" color="0xFF0000"/>
+           blurXFrom="0.0" blurXTo="10.0" blurYFrom="0.0" blurYTo="10.0" color="0x4A931D"/>
   <mx:Glow id="notTalkingEffect" duration="500" alphaFrom="0.3" alphaTo="1.0"
-           blurXFrom="10.0" blurXTo="0.0" blurYFrom="10.0" blurYTo="0.0" color="0xFF0000"/>
+           blurXFrom="10.0" blurXTo="0.0" blurYFrom="10.0" blurYTo="0.0" color="0x4A931D"/>
 	
 
 </viewVid:VideoWindowItf>

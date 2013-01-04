@@ -8,6 +8,8 @@
     	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
     	<property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
     	<property name="BASE_DIR" value="${basedir}" />
+      <property name="themeFile" value="BBBDefault.css"/>
+	
 	     <property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />	
 	<property name="PROD_RESOURCES_DIR" value="${RESOURCES_DIR}/prod" />	
 	<property name="SRC_DIR" value="${BASE_DIR}/src" />
@@ -17,6 +19,7 @@
 
 	<!-- Declare module names here -->
 	<property name="BBB_MAIN" value="BigBlueButton" />
+	<property name="BROADCAST" value="BroadcastModule" />
 	<property name="CHAT" value="ChatModule" />
 	<property name="VIEWERS" value="ViewersModule" />
 	<property name="LISTENERS" value="ListenersModule" />
@@ -67,7 +70,7 @@
 		
 	<target name="branding" depends="init-ant-contrib">
 		<sequential>
-			<mxmlc file="${SRC_DIR}/branding/css/${themeFile}" 
+			<mxmlc file="${BASE_DIR}/branding/default/style/css/${themeFile}" 
 				output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" 
 				debug="${DEBUG}" 
 				mxml.compatibility-version="3.0.0" 
@@ -160,7 +163,11 @@
 			<fileset dir="${BASE_DIR}/src/org/bigbluebutton/common/assets/images/" />
 		</copy>		
 	</target>
-	
+
+  <target name="build-broadcast" description="Compile Broadcast Module" >
+    <build-module src="${SRC_DIR}" target="${BROADCAST}" />
+  </target>
+  	
 	<target name="build-chat" description="Compile Chat Module">
 		<build-module src="${SRC_DIR}" target="${CHAT}" />
 	</target>
@@ -230,7 +237,7 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present, build-layout"
+			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present, build-layout, build-broadcast"
 			description="Compile main, chat, viewers, listeners, present modules">
 	</target>
 	
@@ -452,7 +459,7 @@
 	                                        build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" 
 			description="Build BBB client skipping compiling of locales"/>	
 	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
-	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" 
+	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb, branding" 
 			description="Build BBB client including locales"/>
 	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
 	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb"

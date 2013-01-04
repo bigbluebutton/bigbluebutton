@@ -229,10 +229,10 @@ package org.bigbluebutton.modules.videoconf.business
 		private var img_lock_keep_aspect:Class = images.lock_close;
 		private var img_fit_video:Class = images.arrow_in;
 		private var img_original_size:Class = images.shape_handles;
-		private var img_mute_icon:Class = images.sound_mute;
-    private var signOutIcon:Class = images.signOutIcon;
-    private var adminIcon:Class = images.admin;
-    private var chatIcon:Class = images.chatIcon;
+		private var img_mute_icon:Class = images.webcam_mute;
+    private var signOutIcon:Class = images.webcam_kickuser;
+    private var adminIcon:Class = images.webcam_make_presenter;
+    private var chatIcon:Class = images.webcam_private_chat;
     
     protected function addControlButtons():void {
       _controlButtons.sharerUserID = userID;

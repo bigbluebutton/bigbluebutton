@@ -12,7 +12,11 @@
 		<property name="messagingService" ref="messagingService"></property>
 		<property name="conversionUpdatesMessageListener" ref="conversionUpdatesMessageListener"></property>
 	</bean>
-			
+	
+	<bean id="bigbluebutton.service" class="org.bigbluebutton.conference.BigBlueButtonService">
+      <property name="connInvokerService"> <ref bean="connInvokerService"/></property>
+    </bean>
+  		
 	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 		<property name="recorderApplication"> <ref local="recorderApplication"/></property>

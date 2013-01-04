@@ -35,15 +35,11 @@ package org.bigbluebutton.modules.layout.model {
 		[Bindable] public var defaultLayout:Boolean = false;
 		private var _windows:Dictionary = new Dictionary();
 		
-		static private var _ignoredWindows:Array = new Array("PublishWindow", 
+		static private var _ignoredWindows:Array = new Array("AvatarWindow", "PublishWindow", 
 				"VideoWindow", "DesktopPublishWindow", "DesktopViewWindow",
 				"LogWindow");
 		static private var _roles:Array = new Array(Role.VIEWER, Role.MODERATOR, Role.PRESENTER);
-		
-		public function LayoutDefinition() {
-			
-		}
-		
+				
 		private function loadLayout(vxml:XML):void {
 			if (vxml.@name != undefined) {
 				name = vxml.@name.toString();
@@ -81,18 +77,19 @@ package org.bigbluebutton.modules.layout.model {
 			var hasModeratorLayout:Boolean = _windows.hasOwnProperty(Role.MODERATOR);
 			var hasPresenterLayout:Boolean = _windows.hasOwnProperty(Role.PRESENTER);
 			
-			if (UserManager.getInstance().getConference().amIPresenter() && hasPresenterLayout)
-				return _windows[Role.PRESENTER];
-			else if (UserManager.getInstance().getConference().amIModerator() && hasModeratorLayout)
-				return _windows[Role.MODERATOR];
-			else if (hasViewerLayout) 
-				return _windows[Role.VIEWER];
-			else if (hasModeratorLayout)
-				return _windows[Role.MODERATOR];
-			else if (hasPresenterLayout)
-				return _windows[Role.PRESENTER];
-			else {
+			if (UserManager.getInstance().getConference().amIPresenter() && hasPresenterLayout) {
+        return _windows[Role.PRESENTER];        
+      } else if (UserManager.getInstance().getConference().amIModerator() && hasModeratorLayout) {
+        return _windows[Role.MODERATOR];        
+      } else if (hasViewerLayout) {
+        return _windows[Role.VIEWER];        
+      } else if (hasModeratorLayout) {
+        return _windows[Role.MODERATOR];        
+      } else if (hasPresenterLayout) {
+        return _windows[Role.PRESENTER];        
+      } else {
 				LogUtil.error("There's no layout that fits the participants profile");
+        trace("LayoutDefinition::getMyLayout There's no layout that fits the participants profile");
 				return null;
 			}
 		}
@@ -189,11 +186,15 @@ package org.bigbluebutton.modules.layout.model {
 		}
 		
 		public function applyToWindow(canvas:MDICanvas, window:MDIWindow, type:String=null):void {
-			if (type == null)
-				type = WindowLayout.getType(window);
+			if (type == null) {
+        type = WindowLayout.getType(window);
+      }
+				
 
-			if (!ignoreWindowByType(type))
-				WindowLayout.setLayout(canvas, window, myLayout[type]);
+			if (!ignoreWindowByType(type)) {
+        trace("LayoutDefinition::applyToWindow [" + window.name + ", type=" + type + "]");
+        WindowLayout.setLayout(canvas, window, myLayout[type]);
+      }				
 		}
 		
 		static private function ignoreWindowByType(type:String):Boolean {

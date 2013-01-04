@@ -6,7 +6,7 @@
     <porttest host="HOST" application="video" timeout="10000"/>    
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
-    <skinning enabled="false" url="branding/css/theme.css.swf" />
+    <skinning enabled="true" url="http://192.168.153.128/client/branding/css/BBBDefault.css.swf" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
             showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true"/>
             
@@ -101,6 +101,7 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="VideoconfModule, ViewersModule"
 			autoDock="true"
+			showControls="true"
 			maximizeWindow="false"
 			position="bottom-right"
 			width="172"
@@ -115,6 +116,7 @@
 			layoutConfig="http://HOST/client/conf/layout.xml"
 			enableEdit="true"
 		/>
+<<<<<<< HEAD
 
 		<!-- new module in development: 
 		<module name="DynamicInfoModule" url="http://HOST/client/DynamicInfoModule.swf?v=4105" 
@@ -134,5 +136,18 @@
 			dependsOn="ViewersModule"
 		/>-->
 		
+=======
+<!--
+    <module name="BroadcastModule" url="http://HOST/client/BroadcastModule.swf?v=VERSION"
+      uri="rtmp://HOST/bigbluebutton"
+      streamsUri="http://HOST/streams.xml"
+      position="top-left"
+      showStreams="true"
+      autoPlay="false"
+      dependsOn="ViewersModule"
+    />
+-->
+    		
+>>>>>>> upstream/master
 	</modules>
 </config>

@@ -216,6 +216,7 @@ package org.bigbluebutton.modules.listeners.business
 		
 		public function userTalk(userId:Number, talk:Boolean) : void
 		{
+      trace("User talking event");
 			var l:Listener = _listeners.getListener(userId);			
 			if (l != null) {
 				l.talking = talk;

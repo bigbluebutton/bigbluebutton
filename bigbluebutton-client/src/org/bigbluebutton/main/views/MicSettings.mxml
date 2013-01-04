@@ -34,7 +34,7 @@
 			private var mic:Microphone;
 			private var playingAudio:Boolean = false;
 			private var images:Images = new Images();
-			[Bindable] private var cancelIcon:Class = images.delete_icon;
+			[Bindable] private var cancelIcon:Class = images.cancel;
 			
 			private function initDefaultMic():void {
 				mic = Microphone.getMicrophone();
