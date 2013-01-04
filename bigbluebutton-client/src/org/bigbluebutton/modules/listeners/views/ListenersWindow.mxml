@@ -90,7 +90,6 @@
 				LogUtil.debug("WATERFALL this.visible is " + this.visible.toString());
 				
 				titleBarOverlay.tabIndex = baseIndex;
-				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.listeners.titleBar');
 				
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
@@ -225,7 +224,11 @@
 					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', [":", listeners.length]);
 				else 
 					windowTitle = ResourceUtil.getInstance().getString('bbb.listeners.title', ["",""]);
-					
+				
+				if (titleBarOverlay != null) {
+					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.listeners.titleBar');
+				}
+				
 				if (windowControls != null) {
 					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
 					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.listeners.minimizeBtn.accessibilityName");
@@ -245,6 +248,15 @@
 			private function muteMeHandler(e:ShortcutEvent):void{
 				toggleMuteMeState();
 			}
+			
+			override protected function hideAllChildren():void {
+				listenersList.includeInLayout=false;
+			}
+			
+			override protected function showAllChildren():void {
+				listenersList.includeInLayout=true;
+			}
+			
 		]]>
 	</mx:Script>
     	<mx:List id="listenersList" height="100%" width="100%"

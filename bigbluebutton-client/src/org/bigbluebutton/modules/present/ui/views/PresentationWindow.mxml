@@ -170,7 +170,6 @@
 				resourcesChanged();
 				
 				titleBarOverlay.tabIndex = baseIndex;
-				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.presentation.titleBar');
 				
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
@@ -568,6 +567,10 @@
 				super.resourcesChanged();
 				if ((slideView != null) && (!slideView.visible)) this.title = ResourceUtil.getInstance().getString('bbb.presentation.title');
 				
+				if (titleBarOverlay != null) {
+					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.presentation.titleBar');
+				}
+				
 				if (windowControls != null) {
 					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
 					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.minimizeBtn.accessibilityName");
@@ -592,7 +595,14 @@
 				fitSlideToWindowMaintainingAspectRatio();				
 			}
 			
-						
+			override protected function hideAllChildren():void {
+				slideView.includeInLayout=false;
+			}
+			
+			override protected function showAllChildren():void {
+				slideView.includeInLayout=true;
+			}
+			
 			private function remoteUpload(e:ShortcutEvent):void{
 				dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW));
 			}
@@ -616,8 +626,7 @@
 			private function remotePage(e:ShortcutEvent):void{
 				onFitToPage(true);
 			}
-			 
-			          
+			
 		]]>
 	</mx:Script>
   	 

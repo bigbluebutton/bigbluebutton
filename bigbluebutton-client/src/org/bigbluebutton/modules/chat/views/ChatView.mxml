@@ -464,9 +464,9 @@
 			private function onUserClosedTab(e:SuperTabEvent):void{
 				var name:String = chatTabs.getChildAt(e.tabIndex).name;
 			}
-									
+			
 		]]>
 	</mx:Script>
-	<containers:SuperTabNavigator id="chatTabs" width="100%" height="100%" change="onTabNavChange()" tabClose="onTabClose(event)" minTabWidth="20"
+	<containers:SuperTabNavigator includeInLayout="false" id="chatTabs" width="100%" height="100%" change="onTabNavChange()" tabClose="onTabClose(event)" minTabWidth="20"
 								  dragEnabled="false" popUpButtonPolicy="off" tabIndex="{baseIndex}"/>
 </mx:VBox>

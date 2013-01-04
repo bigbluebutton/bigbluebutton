@@ -86,13 +86,9 @@ $Id: $
 				addEventListener(ChildExistenceChangedEvent.CHILD_REMOVE, onChildRemove);
 				
 				titleBarOverlay.tabIndex = baseIndex;
-				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.videoDock.titleBar');
 				
 				minimizeBtn.tabIndex = baseIndex+1;
-				minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.minimizeBtn.accessibilityName');
-				
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
-				maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.maximizeRestoreBtn.accessibilityName');
 				
 				closeBtn.tabIndex = baseIndex+3;
 				
@@ -382,6 +378,15 @@ $Id: $
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString('bbb.videodock.title');
+				
+				if (titleBarOverlay != null) {
+					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.videoDock.titleBar');
+				}
+				
+				if (windowControls != null) {
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.maximizeRestoreBtn.accessibilityName');
+					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.minimizeBtn.accessibilityName');
+				}
 			}			
 						
 		]]>
