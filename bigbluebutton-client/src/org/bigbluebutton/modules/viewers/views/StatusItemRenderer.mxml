@@ -49,7 +49,7 @@
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
-			[Bindable] public var kickIcon:Class = images.delete_icon;
+			[Bindable] public var kickIcon:Class = images.cancel;
 			
 			private var isModerator:Boolean = false;
 			private var allowKickUser:Boolean = false;

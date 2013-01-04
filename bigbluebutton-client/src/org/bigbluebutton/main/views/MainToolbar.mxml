@@ -254,26 +254,15 @@
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
 -->
-	<!-- Shortcut Glossary Button -->
-	<mx:Button  label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" 
-				click="onShortcutButtonClick()" 
-				height="22" 
-				toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}"
-				tabIndex="{baseIndex+numButtons+26}"/>
-	<!-- Help Button -->
-	<mx:LinkButton id="helpBtn" 
-				   label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
-				   visible="{showHelpBtn}" 
-				   click="onHelpButtonClicked()" 
-				   height="22"
-				   tabIndex="{baseIndex+numButtons+27}"/>
-	
-	<!-- Logout Button -->
-	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" 
-			   id="btnLogout" 
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" 
-			   right="10" 
-			   click="doLogout()" 
-			   height="22"
-			   tabIndex="{baseIndex+numButtons+28}"/>
+
+	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
+             click="onShortcutButtonClick()" height="22" 
+             toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" 
+             tabIndex="{baseIndex+numButtons+26}" />
+	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
+                 visible="{showHelpBtn}" click="onHelpButtonClicked()" height="22" styleName="helpLinkButtonStyle"
+                 tabIndex="{baseIndex+numButtons+27}" />
+	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" styleName="logoutButtonStyle"
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()" height="22"
+                 tabIndex="{baseIndex+numButtons+28}" />
 </mx:ApplicationControlBar>

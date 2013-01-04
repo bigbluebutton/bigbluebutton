@@ -28,13 +28,13 @@
       private var images:Images = new Images();
       
       [Bindable]
-      private var img_mute_icon:Class = images.sound_mute;
+      private var img_mute_icon:Class = images.webcam_mute;
       [Bindable]
-      private var signOutIcon:Class = images.signOutIcon;
+      private var signOutIcon:Class = images.webcam_kickuser;
       [Bindable]
-      private var adminIcon:Class = images.admin;
+      private var adminIcon:Class = images.webcam_make_presenter;
       [Bindable]
-      private var chatIcon:Class = images.chatIcon;
+      private var chatIcon:Class = images.webcam_private_chat;
       
       [Bindable]
       private var showButton:Boolean;
@@ -109,7 +109,10 @@
     ]]>
   </mx:Script>
   <mx:Button id="muteUnmuteBtn" visible="false" click="onMuteUnmuteClicked()" icon="{img_mute_icon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
+  <mx:Spacer width="2"/>
   <mx:Button id="switchPresenter" visible="false" click="onSwitchPresenterClicked()" icon="{adminIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
+  <mx:Spacer width="2"/>
   <mx:Button id="ejectUserBtn" visible="false" click="onKickUserClicked()" icon="{signOutIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
+  <mx:Spacer width="2"/>
   <mx:Button id="privateChatBtn" click="onPrivateChatClicked()" icon="{chatIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
 </mx:HBox>

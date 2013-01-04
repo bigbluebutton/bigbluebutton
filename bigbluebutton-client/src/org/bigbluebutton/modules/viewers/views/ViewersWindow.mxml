@@ -267,7 +267,7 @@
    <mx:ControlBar width="100%">
    		 <!-- Switch Presenter Button -->
    		 <mx:Button id="presentBtn" label="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.label')}" visible="{isModerator}"
-    	   			width="130" height="20"
+    	   			width="130" height="20" styleName="switchPresenterButtonStyle"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
     	   			click="assignPresenterClicked()"
     	   			tabIndex="{baseIndex+5}"
