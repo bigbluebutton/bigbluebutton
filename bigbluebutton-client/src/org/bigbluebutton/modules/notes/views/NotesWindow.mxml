@@ -8,8 +8,13 @@
               layout="absolute">
   <mx:Script>
     <![CDATA[
+      import org.bigbluebutton.modules.notes.models.NotesModel;
       import org.bigbluebutton.modules.notes.models.NotesOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
+      
+      [Bindable]
+      public var notesModel:NotesModel;
+      
       public function getPrefferedPosition():String{
         var options:NotesOptions = new NotesOptions();
         return options.position;
@@ -21,5 +26,5 @@
     ]]>
   </mx:Script>
   
-  <views:NotesView id="notesView"/>
+  <views:NotesView id="notesView" notesArray="{notesModel}"/>
 </ns:MDIWindow>

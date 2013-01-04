@@ -11,7 +11,7 @@ package org.bigbluebutton.modules.notes.services
 
   public class NotesMessageService
   {
-    private var _notesModel:NotesModel = new NotesModel();
+    public var notesModel:NotesModel;
     
     private var _noteSavers:ArrayCollection = new ArrayCollection();    
     private var _options:NotesOptions;
@@ -29,7 +29,7 @@ package org.bigbluebutton.modules.notes.services
       n.noteID = generateRandomString(5) + date.time;
       n.note = note;
       n.saved = false;
-      _notesModel.addNote(n);
+      notesModel.addNote(n);
       
       var noteSaver:NoteSaver = new NoteSaver(n, _options.saveURL, _dispatcher);
       _noteSavers.addItem(noteSaver);
@@ -43,7 +43,7 @@ package org.bigbluebutton.modules.notes.services
     }
     
     public function saveSuccess(noteID:String):void {
-      _notesModel.noteSaved(noteID);
+      notesModel.noteSaved(noteID);
     }
     
     private function generateRandomString(strlen:Number):String{

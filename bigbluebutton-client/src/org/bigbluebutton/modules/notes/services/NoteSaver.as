@@ -64,7 +64,7 @@ package org.bigbluebutton.modules.notes.services
       var dec:Base64Decoder = new Base64Decoder();
       dec.decode(_vars.note)
       var decNote:String = dec.toByteArray().toString();
-      trace("Saving note [" + _vars.noteID + "][" + decNote + "] to [" + _request.url + "]");
+      trace("Saving note [" + _vars.noteID + "][" + _vars.note + "] to [" + _request.url + "]");
       
       _request.data = _vars;
       

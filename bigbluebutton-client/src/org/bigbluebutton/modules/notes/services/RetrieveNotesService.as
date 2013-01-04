@@ -10,12 +10,10 @@ package org.bigbluebutton.modules.notes.services
   import flash.net.URLRequest;
   import flash.net.URLRequestMethod;
   import flash.net.URLVariables;
-  import flash.utils.ByteArray;
-  
+  import flash.utils.ByteArray;  
   import mx.collections.ArrayCollection;
   import mx.utils.Base64Decoder;
-  import mx.utils.Base64Encoder;
-  
+  import mx.utils.Base64Encoder; 
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.modules.notes.events.RetrieveNotesErrorEvent;
   import org.bigbluebutton.modules.notes.events.RetrieveNotesSuccessEvent;
@@ -72,11 +70,11 @@ package org.bigbluebutton.modules.notes.services
     private function completeHandler(event:Event):void {
       var xml:XML = new XML(event.target.data)
       var notes:ArrayCollection = parseNotes(xml);
-      if (notes.length > 0) {
+//      if (notes.length > 0) {
         var successEvent:RetrieveNotesSuccessEvent = new RetrieveNotesSuccessEvent();
         successEvent.notes = notes;
         _dispatcher.dispatchEvent(successEvent);        
-      }    
+//      }    
     }
     
     private function parseNotes(xml:XML):ArrayCollection {
@@ -86,25 +84,16 @@ package org.bigbluebutton.modules.notes.services
       for each(item in list){
         trace("Saving note [" + item.noteID + "][" + item.text + "]");
         var note:Note = new Note();
-//        var dec:Base64Decoder = new Base64Decoder();
-//        dec.decode(item.text)
-//        var decNote:String = dec.toByteArray().toString();
-//        trace("Saving note [" + item.noteID + "][" + decNote + "]");
-//        note.note = decNote;
+        var dec:Base64Decoder = new Base64Decoder();
+        dec.decode(item.text)
+        var decNote:String = dec.toByteArray().toString();
+        trace("Saving note [" + item.noteID + "][" + decNote + "]");
+        note.note = decNote;
         note.noteID =  item.noteID;
         note.saved = true;
         notes.addItem(note);
       }
       return notes;
-      
-      /*
-      var dec:Base64Decoder = new Base64Decoder();
-      dec.decode(_vars.note)
-      var decNote:String = dec.toByteArray().toString();
-      trace("Saving note [" + _vars.noteID + "][" + decNote + "]");
-      */  
-      
-      return ;
     }
     
     private function getNotes(xml:XML):XMLList{

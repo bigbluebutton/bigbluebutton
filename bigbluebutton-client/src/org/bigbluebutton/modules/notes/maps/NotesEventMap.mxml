@@ -28,6 +28,7 @@
       
       import org.bigbluebutton.modules.notes.events.NotesModuleStartEvent;
       import org.bigbluebutton.modules.notes.events.RetrieveNotesEvent;
+      import org.bigbluebutton.modules.notes.events.RetrieveNotesSuccessEvent;
       import org.bigbluebutton.modules.notes.events.SaveErrorEvent;
       import org.bigbluebutton.modules.notes.events.SaveNoteEvent;
       import org.bigbluebutton.modules.notes.events.SaveSuccessEvent;
@@ -38,7 +39,8 @@
 		]]>
 	</mx:Script>
 
-  <EventHandlers type="{NotesModuleStartEvent.NOTES_MODULE_START}">       
+  <EventHandlers type="{NotesModuleStartEvent.NOTES_MODULE_START}">    
+    <ObjectBuilder generator="{NotesModel}" cache="global"/>
     <ObjectBuilder generator="{RetrieveNotesService}" cache="global" constructorArguments="{scope.dispatcher}"/>
     <ObjectBuilder generator="{NotesMessageService}" cache="global" constructorArguments="{scope.dispatcher}"/>
     <ObjectBuilder generator="{NotesEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>   
@@ -46,6 +48,10 @@
 
   <EventHandlers type="{RetrieveNotesEvent.RETRIEVE}">        
     <MethodInvoker generator="{RetrieveNotesService}" method="retrieveNotes"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{RetrieveNotesSuccessEvent.RETRIEVE_SUCCESS}">        
+    <MethodInvoker generator="{NotesEventMapDelegate}" method="handleRetrieveNotesSuccessEvent" arguments="{event}"/>
   </EventHandlers>
   
   <EventHandlers type="{SaveNoteEvent.SAVE_NOTE}">        
@@ -59,4 +65,12 @@
   <EventHandlers type="{SaveErrorEvent.FAILED_TO_SAVE}">        
     <MethodInvoker generator="{NotesMessageService}" method="saveError" arguments="{event}" />
   </EventHandlers>	
+  
+  <Injectors target="{NotesEventMapDelegate}">
+    <PropertyInjector targetKey="notesModel" source="{NotesModel}"/>
+  </Injectors>
+  
+  <Injectors target="{NotesMessageService}">
+    <PropertyInjector targetKey="notesModel" source="{NotesModel}"/>
+  </Injectors>
 </EventMap>

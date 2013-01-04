@@ -4,15 +4,16 @@ package org.bigbluebutton.modules.notes.models
 
   public class NotesModel
   {
-    private var _notes:ArrayCollection = new ArrayCollection();
+    [Bindable]
+    public var notes:ArrayCollection = new ArrayCollection();
         
     public function addNote(n:Note):void {
-      _notes.addItem(n);
+      notes.addItem(n);
     }
     
     public function noteSaved(noteID:String):void {
-      for (var i:int = 0; i < _notes.length; i++){
-        var item:Note = _notes.getItemAt(i) as Note;
+      for (var i:int = 0; i < notes.length; i++){
+        var item:Note = notes.getItemAt(i) as Note;
         if (item.noteID == noteID) {
           item.saved = true;
         }
@@ -20,8 +21,8 @@ package org.bigbluebutton.modules.notes.models
     }
     
     public function getNote(noteID:String):Note {
-      for (var i:int = 0; i < _notes.length; i++){
-        var item:Note = _notes.getItemAt(i) as Note;
+      for (var i:int = 0; i < notes.length; i++){
+        var item:Note = notes.getItemAt(i) as Note;
         if (item.noteID == noteID) {
           return item;
         }

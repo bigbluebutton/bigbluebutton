@@ -29,10 +29,14 @@
       import com.adobe.utils.StringUtil;
       
       import org.bigbluebutton.modules.notes.events.SaveNoteEvent;
+      import org.bigbluebutton.modules.notes.models.NotesModel;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
       [Bindable] public var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
         '0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
+      
+      [Bindable]
+      public var notesArray:NotesModel;
       
       private function onCreationComplete():void {    
         // Listen for the ENTER key to send the message.
@@ -70,7 +74,9 @@
   <mx:HBox width="100%" height="100%" verticalScrollPolicy="off">
     <notes:AdvancedList width="100%" height="100%" id="notesMessagesList" selectable="false" 
                        variableRowHeight="true" alternatingItemColors="[#EFEFEF, #FEFEFE]"
-                        verticalScrollPolicy="auto" wordWrap="true"/>    
+                       itemRenderer="org.bigbluebutton.modules.notes.views.NoteRenderer"
+                       dataProvider="{notesArray.notes}"
+                       verticalScrollPolicy="auto" wordWrap="true"/>    
   </mx:HBox>
   
   <mx:HBox id="notesCtrlBar" width="100%" height="55" styleName="notesControlBarStyle" 
