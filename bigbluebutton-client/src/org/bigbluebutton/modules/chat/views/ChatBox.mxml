@@ -57,6 +57,9 @@
   	<mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
   	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
   	<mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
+  	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_BOX}" method="focusChatBox" />
+  	<mate:Listener type="{ShortcutEvent.CHANGE_FONT_COLOUR}" method="focusColourPicker" />
+  	<mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
 
 	<mx:Script>
 		<![CDATA[
@@ -171,6 +174,21 @@
 				Accessibility.updateProperties();
 		        
 		        queryForChatHistory();
+			}
+			
+			private function focusChatBox(e:ShortcutEvent):void{
+				LogUtil.debug("WATERFALL: Focus Chat Box signal received.");
+				focusManager.setFocus(chatMessagesList);
+			}
+			
+			private function focusColourPicker(e:ShortcutEvent):void{
+				LogUtil.debug("WATERFALL: Focus Colour Picker signal received.");
+				focusManager.setFocus(cmpColorPicker);
+			}
+			
+			private function remoteSendMessage(e:ShortcutEvent):void{
+				LogUtil.debug("WATERFALL: Send Message signal received.");
+				sendMessages();
 			}
       
       private function bindToHeightToDetermineHeightOfMessageList():void {
@@ -547,11 +565,16 @@
 	</mx:Script>
 
   <mx:HBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
-    <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true" alternatingItemColors="[#EFEFEF, #FEFEFE]"
-             itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="auto" wordWrap="true"
-             dataProvider="{chatMessages.messages}" 
-             tabIndex="{baseIndex}"
-             accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />    
+    <chat:AdvancedList width="100%" 
+    				   height="{chatListHeight}" 
+    				   id="chatMessagesList" 
+    				   selectable="false" 
+    				   variableRowHeight="true" 
+    				   alternatingItemColors="[#EFEFEF, #FEFEFE]"
+    				   itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="auto" wordWrap="true"
+    				   dataProvider="{chatMessages.messages}" 
+    				   tabIndex="{baseIndex}"
+    				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.messageList')}" />    
   </mx:HBox>
   
   <mx:HBox id="chatCtrlBar" width="100%" height="50" styleName="chatControlBarStyle" paddingLeft="5" paddingRight="5">		

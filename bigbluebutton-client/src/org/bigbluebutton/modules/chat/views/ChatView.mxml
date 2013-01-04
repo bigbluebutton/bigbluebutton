@@ -31,6 +31,7 @@
   <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
   <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
   <mate:Listener type="{EventConstants.START_PRIVATE_CHAT}" method="handleStartPrivateChatMessageEvent"/>
+  <mate:Listener type="{ShortcutEvent.FOCUS_CHAT_TABS}" method="focusChatTabs" />
   
 	<mx:Script>
 		<![CDATA[
@@ -137,6 +138,11 @@
 				
 			}       
 			
+			private function focusChatTabs(e:ShortcutEvent):void{
+				LogUtil.debug("WATERFALL: Focus Chat Tab signal received.");
+				focusManager.setFocus(chatTabs);
+			}
+			
       private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
         notifyUserOfNewMessage(PUBLIC_CHAT_USERID);
       }
@@ -224,23 +230,23 @@
 		        chatBox.focusToTextMessageArea();
 			}
 								
-      private function userHasChatBox(userID:String):Boolean {
-        var chatBox:ChatBox = chatTabs.getChildByName(userID) as ChatBox;
-        if (chatBox != null) return true;
-        return false;
-      }
-      
-      private function getChatBoxForUser(userID:String):ChatBox {
-        return chatTabs.getChildByName(userID) as ChatBox;
-      }
-      
-      private function handleStartPrivateChatMessageEvent(event:CoreEvent):void {
-        var userID:String = event.message.chatWith;
-        openChatBoxFor(userID);
-        var chatBox:ChatBox = getChatBoxForUser(userID);
-        var tabIndex:int = getTabIndexFor(chatBox);
-        chatTabs.selectedIndex = tabIndex;
-      }
+		      private function userHasChatBox(userID:String):Boolean {
+		        var chatBox:ChatBox = chatTabs.getChildByName(userID) as ChatBox;
+		        if (chatBox != null) return true;
+		        return false;
+		      }
+		      
+		      private function getChatBoxForUser(userID:String):ChatBox {
+		        return chatTabs.getChildByName(userID) as ChatBox;
+		      }
+		      
+		      private function handleStartPrivateChatMessageEvent(event:CoreEvent):void {
+		        var userID:String = event.message.chatWith;
+		        openChatBoxFor(userID);
+		        var chatBox:ChatBox = getChatBoxForUser(userID);
+		        var tabIndex:int = getTabIndexFor(chatBox);
+		        chatTabs.selectedIndex = tabIndex;
+		      }
       
 			public function openChatBoxFor(chatWithUserID:String, publicChat:Boolean=false):void {
 				var chatBox:ChatBox;

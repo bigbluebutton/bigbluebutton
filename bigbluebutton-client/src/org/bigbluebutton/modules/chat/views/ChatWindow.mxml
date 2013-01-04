@@ -31,8 +31,6 @@
 		   xmlns:mate="http://mate.asfusion.com/" 
 		   xmlns:views="org.bigbluebutton.modules.chat.views.*">
 	
-	
-	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_TABS}" method="focusChatTabs" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_WINDOW}" method="focusWindow" />
 	
 	<mx:Script>
@@ -54,7 +52,7 @@
 			
 			private var _xPosition:int;
 			private var _yPosition:int;
-			
+			private var keyCombos:Object;
 			private var disp:Dispatcher;
 			private var dispState:String;
 			[Bindable] public var chatOptions:ChatOptions;
@@ -77,6 +75,7 @@
 				disp  = new Dispatcher();
 //				disp.dispatchEvent(new TranscriptEvent(TranscriptEvent.LOAD_TRANSCRIPT));
 
+				hotkeyCapture();
 				titleBarOverlay.tabIndex = baseIndex;
 				
 				minimizeBtn.tabIndex = baseIndex+1;
@@ -85,6 +84,34 @@
 
 				resourcesChanged(); // update the window controls once they've been created
 			}
+			
+			private function loadKeyCombos(modifier:String):void {
+				keyCombos = new Object(); // always start with a fresh array
+			    keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.focusTabs') as String)] = ShortcutEvent.FOCUS_CHAT_TABS;
+				
+				// Get sent to chatView
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.focusBox') as String)] = ShortcutEvent.FOCUS_CHAT_BOX;
+				
+				// Get sent to chatBox
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.changeColour') as String)] = ShortcutEvent.CHANGE_FONT_COLOUR;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.sendMessage') as String)] = ShortcutEvent.SEND_MESSAGE;
+			}
+		
+		    private function hotkeyCapture():void{
+		      this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+		      ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+		    }
+		
+			// Handle general-access hotkeys, regardless of what window the user is focused in
+		    private function handleKeyDown(e:KeyboardEvent) :void {
+		      var modifier:String = ExternalInterface.call("determineModifier");
+			  loadKeyCombos(modifier);			  
+			  var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
+		                            (e.altKey   ? "alt+"     : "") + e.keyCode;		                              
+		      if (keyCombos[keyPress]) {
+		        disp.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+		      }
+		    }
 			
 			private function focusWindow(e:ShortcutEvent):void{
 				focusManager.setFocus(titleBarOverlay);
@@ -134,20 +161,6 @@
       private function disableMessageEntryTextBox():void {
 //        txtMsg.enabled = false;
       }
-			
-			/*private function focusChatInput(e:ShortcutEvent):void{
-				LogUtil.debug("WATERFALL focusChatInput");
-//				if (txtMsg.enabled){
-					//cant get it to focus the whole window as well
-//					windowManager.bringToFront(this);
-//					focusManager.setFocus(txtMsg);
-//				}
-			}*/
-			
-			private function focusChatTabs(e:ShortcutEvent):void{
-//				windowManager.bringToFront(this);
-//				focusManager.setFocus(chatView.chatTabs);
-			}
 			
 			override protected function hideAllChildren():void {
 				chatView.includeInLayout=false;

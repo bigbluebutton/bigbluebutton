@@ -26,7 +26,6 @@ package org.bigbluebutton.main.events {
 		public static const FOCUS_CHAT_INPUT:String = 'FOCUS_CHAT_INPUT';
 		public static const UNDO_WHITEBOARD:String = 'UNDO_WHITEBOARD';
 		public static const FOCUS_SLIDE:String = 'FOCUS_SLIDE_VIEW';
-		public static const FOCUS_CHAT_TABS:String = 'FOCUS_CHAT_TABS';
 		public static const ADVANCE_MESSAGE:String = 'ADVANCE_MESSAGE';
 		public static const GOBACK_MESSAGE:String = 'GOBACK_MESSAGE';
 		public static const REPEAT_MESSAGE:String = 'REPEAT_MESSAGE';
@@ -64,6 +63,10 @@ package org.bigbluebutton.main.events {
 		public static const MAKE_PERSON_PRESENTER:String = 'MAKE_PERSON_PRESENTER';
 		public static const FOCUS_USER_LIST:String = 'FOCUS_USER_LIST';
 		
+		public static const FOCUS_CHAT_TABS:String = 'FOCUS_CHAT_TABS';
+		public static const FOCUS_CHAT_BOX:String = 'FOCUS_CHAT_BOX';
+		public static const CHANGE_FONT_COLOUR:String = 'CHANGE_FONT_COLOUR';
+		public static const SEND_MESSAGE:String = 'SEND_MESSAGE';
 		
 		public var otherUserID:String;
 		

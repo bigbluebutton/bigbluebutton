@@ -114,10 +114,7 @@
 	    keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.flash.exit') as String)] = ShortcutEvent.FOCUS_AWAY_EVENT;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.listeners.muteme') as String)] = ShortcutEvent.MUTE_ME_EVENT;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput') as String)] = ShortcutEvent.FOCUS_CHAT_INPUT;
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chattabs') as String)] = ShortcutEvent.FOCUS_CHAT_TABS; // Deprecated; doesn't actually do anything
-		
-		// keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo') as String)] = ShortcutEvent.UNDO_WHITEBOARD;
-	    
+			    
 		// General hotKeys (usable from anywhere in the application)
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.viewers') as String)] = ShortcutEvent.FOCUS_VIEWERS_WINDOW;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.listeners') as String)] = ShortcutEvent.FOCUS_LISTENERS_WINDOW;
@@ -142,17 +139,20 @@
     }
 
 	// Handle general-access hotkeys, regardless of what window the user is focused in
-    private function handleKeyDown(e:KeyboardEvent) :void {
-      var modifier:String = ExternalInterface.call("determineModifier");
-	  loadKeyCombos(modifier);
-	  
-	  var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
-                            (e.altKey   ? "alt+"     : "") + e.keyCode;
-	
-      if (keyCombos[keyPress]) {
-        trace("Chad keypress " + keyPress);
-        globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
-      }
+	private function handleKeyDown(e:KeyboardEvent) :void {
+  		var modifier:String = ExternalInterface.call("determineModifier");
+  		loadKeyCombos(modifier);
+  
+  		var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
+		
+		if (e.keyCode < 64 || e.keyCode > 90){
+			LogUtil.debug("WATERFALL: KeyCode " + e.keyCode + " is nonalphabetic (probably)");
+		}
+		
+		if (keyCombos[keyPress]) {
+			trace("Chad keypress " + keyPress);
+			globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+		}
     }
     
     // Moves page focus outside and past the Flash content
