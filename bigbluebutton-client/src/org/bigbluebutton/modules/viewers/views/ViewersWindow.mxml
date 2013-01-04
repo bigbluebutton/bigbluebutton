@@ -34,6 +34,7 @@
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 	<mate:Listener type="{ShortcutEvent.MAKE_PERSON_PRESENTER}" method="remoteMakePresenter" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_USER_LIST}" method="remoteFocusUsers" />
 
     <mx:Script>
         <![CDATA[
@@ -94,7 +95,7 @@
 				dispatcher = new Dispatcher();
 				
 				this.visible = viewerOptions.windowVisible;
-				
+				hotkeyCapture();
 				resourcesChanged();
 				
 				titleBarOverlay.tabIndex = baseIndex;
@@ -105,32 +106,23 @@
 
 		    private function loadKeyCombos(modifier:String):void {
 				keyCombos = new Object(); // always start with a fresh array
-		      
-			  	// Doesn't work yet
 			    keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.viewers.makePresenter') as String)] = ShortcutEvent.MAKE_PERSON_PRESENTER;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.viewers.focusUsers') as String)] = ShortcutEvent.FOCUS_USER_LIST;
 				
 			}
 		
 		    private function hotkeyCapture():void{
-		      LogUtil.debug("Entering Viewers hotkeyCapture");
 		      this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
 		      ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
-		      LogUtil.debug("Leaving Viewers hotkeyCapture");
 		    }
 		
 			// Handle general-access hotkeys, regardless of what window the user is focused in
 		    private function handleKeyDown(e:KeyboardEvent) :void {
 		      var modifier:String = ExternalInterface.call("determineModifier");
-			  loadKeyCombos(modifier);
-			  
+			  loadKeyCombos(modifier);			  
 			  var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
-		                            (e.altKey   ? "alt+"     : "") + e.keyCode;
-		      
-		      LogUtil.debug("WATERFALL: Users window keyPress is " + keyPress);
-			  LogUtil.debug("WATERFALL: Your modifier + non-mod keys is " + modifier + e.keyCode);
-		                              
+		                            (e.altKey   ? "alt+"     : "") + e.keyCode;		                              
 		      if (keyCombos[keyPress]) {
-				LogUtil.debug("WATERFALL: Users window keyCombo is " + keyCombos[keyPress]);
 		        dispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
 		      }
 		    }
@@ -166,8 +158,11 @@
         	}
 			
 			public function remoteMakePresenter(e:ShortcutEvent):void{
-				LogUtil.debug("WATERFALL: Remote Make Presenter");
 				assignPresenterClicked();
+			}
+			
+			public function remoteFocusUsers(e:ShortcutEvent):void{
+				focusManager.setFocus(viewersGrid);
 			}           
         	
         	private function assignPresenterClicked():void {

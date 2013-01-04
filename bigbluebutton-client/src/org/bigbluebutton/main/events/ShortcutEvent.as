@@ -62,6 +62,7 @@ package org.bigbluebutton.main.events {
 		public static const FIT_TO_PAGE:String = 'FIT_TO_PAGE';
 		
 		public static const MAKE_PERSON_PRESENTER:String = 'MAKE_PERSON_PRESENTER';
+		public static const FOCUS_USER_LIST:String = 'FOCUS_USER_LIST';
 		
 		
 		public var otherUserID:String;

@@ -94,26 +94,19 @@
 			private function changeArray():void {
 				shownKeys = new ArrayCollection();
 				switch(categories.selectedIndex) {
-				case 0: //All
-					shownKeys.addAll(genKeys);
-					shownKeys.addAll(presKeys);
-					shownKeys.addAll(chatKeys);
-					shownKeys.addAll(audKeys);
-					shownKeys.addAll(viewerKeys);
-					break;
-				case 1: //General
+				case 0: //General
 					shownKeys.addAll(genKeys);
 					break;
-				case 2: //Presentation
+				case 1: //Presentation
 					shownKeys.addAll(presKeys);
 					break;
-				case 3: //Chat
+				case 2: //Chat
 					shownKeys.addAll(chatKeys);
 					break;
-				case 4: //Audio
+				case 3: //Audio
 					shownKeys.addAll(audKeys);
 					break;
-				case 5: //Viewers
+				case 4: //Viewers
 					shownKeys.addAll(viewerKeys);
 					break;
 				}
@@ -163,11 +156,11 @@
 				 change="changeArray()"
 				 tabIndex="5">
 		<mx:ArrayCollection>
-        	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.all")}</mx:String>
         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.presentation")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.chat")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.audio")}</mx:String>
+         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.viewers")}</mx:String>
       	</mx:ArrayCollection>
 	</mx:ComboBox>
 	<mx:DataGrid id="keyList" draggableColumns="false" dataProvider="{shownKeys}" width="100%" height="100%">
