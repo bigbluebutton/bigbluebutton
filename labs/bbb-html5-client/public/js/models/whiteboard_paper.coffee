@@ -105,6 +105,11 @@ define [
     # @return {Raphael.image} the image object added to the whiteboard
     addImageToPaper: (url, width, height) ->
       @_updateContainerDimensions()
+
+      # TODO: temporary adaptation for iPads
+      width = 670
+      height = 515
+
       console.log "adding image to paper", url, width, height
       if @fitToPage
         # solve for the ratio of what length is going to fit more than the other

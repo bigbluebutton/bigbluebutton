@@ -34,6 +34,9 @@ define [
       compiledTemplate = _.template(sessionTemplate)
       @$el.html compiledTemplate
 
+      # TODO: temporary adaptation for iPads
+      @$el.addClass("chat-enabled")
+
       @assign(@navbarView, "#navbar")
       @assign(@chatView, "#chat")
       @assign(@usersView, "#users")

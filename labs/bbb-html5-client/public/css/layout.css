@@ -30,7 +30,7 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
 
 #layout {
   position: relative;
-  background: #f00;
+  background: #aaa;
   width: 100%;
   height: 100%;
 }
@@ -42,8 +42,8 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
   left: -1px;
   right: -1px;
   bottom: 69px;
-  -moz-transition: right .5s, left .5s;
-  -webkit-transition: right .5s, left .5s;
+  // -moz-transition: right .5s, left .5s;
+  // -webkit-transition: right .5s, left .5s;
   z-index: 1;
   border-right: 1px solid #999;
   border-left: 1px solid #999;
@@ -214,7 +214,7 @@ button:focus, textarea:focus, input:focus {
   font-family: sans-serif;
   font-size: 12px;
   width: 197px;
-  height: 56px;
+  height: 25px;
   resize: none;
   background: #fff;
   border: 1px solid #ccc;
@@ -227,7 +227,7 @@ button:focus, textarea:focus, input:focus {
   bottom: 0;
   right: 16px;
   width: 63px;
-  height: 64px;
+  height: 33px;
   margin: 0;
   border: 1px solid #ccc;
   border-left: none;
@@ -242,7 +242,7 @@ button:focus, textarea:focus, input:focus {
   position: absolute;
   overflow: auto;
   top: 33px;
-  bottom: 96px;
+  bottom: 62px;
   left: 0;
   right: 0;
   background: #fff;
@@ -444,4 +444,32 @@ button:focus, textarea:focus, input:focus {
 #slide > svg {
   width: 100%;
   height: 100%;
+}
+
+
+/* TODO: temporary adaptation for iPads */
+#navbar {
+  text-align: left;
+}
+#slide-controls {
+  display: none;
+}
+#slide {
+  width: 670px;
+  height: 515px;
+  border: 1px solid #888;
+  margin-top: 25px;
+}
+.users-enabled #whiteboard {
+  left: -1px;
+}
+#users {
+  z-index: 2;
+  border-left: 1px solid #888;
+  // top: 10px;
+  // bottom: 75px;
+  right: 0;
+  left: auto;
+  width: 300px;
+  display: none;
 }

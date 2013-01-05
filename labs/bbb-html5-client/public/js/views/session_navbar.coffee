@@ -11,7 +11,9 @@ define [
   # manage the events in the navbar.
   SessionNavbarView = Backbone.View.extend
     events:
-      "click #chat-btn": "_toggleChat"
+      # TODO: temporary adaptation for iPads: chat always visible
+      # "click #chat-btn": "_toggleChat"
+
       "click #users-btn": "_toggleUsers"
       "click #logout-btn": "_logout"
       "click #prev-slide-btn": "_previousSlide"
@@ -47,14 +49,17 @@ define [
 
     # Toggle the visibility of the users panel
     _toggleUsers: ->
-      clearTimeout @toggleUsersTimeout if @toggleUsersTimeout?
+      # clearTimeout @toggleUsersTimeout if @toggleUsersTimeout?
       @$parentEl.toggleClass "users-enabled"
       @_setToggleButtonsStatus()
       # TODO: timeouting this is not the best solution, maybe the js
       #       should control the visibility of the panel, not the css
-      @toggleChatTimeout = setTimeout(->
-        $(window).resize()
-      , 510)
+      # @toggleChatTimeout = setTimeout(->
+      #   $(window).resize()
+      # , 510)
+
+      # TODO: temporary adaptation for iPads
+      $("#users").toggle()
 
     # Log out of the session
     _logout: ->
