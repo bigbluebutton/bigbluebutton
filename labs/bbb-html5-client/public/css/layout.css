@@ -451,6 +451,9 @@ button:focus, textarea:focus, input:focus {
 #navbar {
   text-align: left;
 }
+.whiteboard-tools {
+  display: none;
+}
 #slide-controls {
   display: none;
 }
@@ -473,3 +476,15 @@ button:focus, textarea:focus, input:focus {
   width: 300px;
   display: none;
 }
+#chat {
+  top: 200px;
+}
+#video {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 200px;
+  width: 300px;
+  background: blue;
+}
+
