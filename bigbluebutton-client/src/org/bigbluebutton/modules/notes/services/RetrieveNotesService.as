@@ -98,7 +98,7 @@ package org.bigbluebutton.modules.notes.services
     
     private function getNotes(xml:XML):XMLList{
       trace("*** [" + xml.toXMLString() + "]");
-      return xml.note;
+      return xml.notes.note;
     }
         
     private function openHandler(event:Event):void {

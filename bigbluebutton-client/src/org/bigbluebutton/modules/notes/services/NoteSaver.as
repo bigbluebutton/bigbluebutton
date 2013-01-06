@@ -55,14 +55,14 @@ package org.bigbluebutton.modules.notes.services
       
       _vars = new URLVariables();
       _vars.noteID = _note.noteID;
-      _vars.note = base64Encode(_note.note);
+      _vars.text = base64Encode(_note.note);
       _vars.externalMeetingID = UsersUtil.getExternalMeetingID();
       _vars.internalMeetingID = UsersUtil.getInternalMeetingID();
-      _vars.userId = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+      _vars.userID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
       _vars.username = base64Encode(UsersUtil.getMyUsername());
 
       var dec:Base64Decoder = new Base64Decoder();
-      dec.decode(_vars.note)
+      dec.decode(_vars.text)
       var decNote:String = dec.toByteArray().toString();
       trace("Saving note [" + _vars.noteID + "][" + _vars.note + "] to [" + _request.url + "]");
       
