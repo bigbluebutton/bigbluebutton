@@ -6,7 +6,7 @@
     <porttest host="HOST" application="video" timeout="10000"/>    
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
-    <skinning enabled="true" url="http://192.168.153.128/client/branding/css/S2S.css.swf" />
+    <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
             showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true"/>
             
@@ -110,6 +110,11 @@
 			enableEdit="true"
 		/>
 <!--
+    <module name="NotesModule" url="http://HOST/client/NotesModule.swf?v=VERSION"
+      saveURL="http://HOST"
+      position="top-left"
+    />
+    
     <module name="BroadcastModule" url="http://HOST/client/BroadcastModule.swf?v=VERSION"
       uri="rtmp://HOST/bigbluebutton"
       streamsUri="http://HOST/streams.xml"
