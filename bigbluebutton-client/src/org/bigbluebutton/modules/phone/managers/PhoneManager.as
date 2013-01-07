@@ -61,25 +61,23 @@ package org.bigbluebutton.modules.phone.managers {
 				phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
 				phoneOptions.joinGlobal = (vxml.@joinGlobal.toString().toUpperCase() == "TRUE") ? true : false; 
 			}
-			
-			if (phoneOptions.autoJoin) {
-				if (phoneOptions.skipCheck) {
-					if (phoneOptions.joinGlobal)
-						joinVoiceGlobal();
-					else if (noMicrophone()) {
-							joinVoice(false);
-						} else {
-							joinVoice(true);						
-						}
-				} else {
-					if (phoneOptions.joinGlobal)
-						joinVoiceGlobal();
-					else {
-						var dispatcher:Dispatcher = new Dispatcher();
-						dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
-					}
-				}
+
+			if (phoneOptions.joinGlobal) {
+				joinVoiceGlobal();
 			}
+			else if (phoneOptions.autoJoin) 
+			        if (phoneOptions.skipCheck)
+				{
+					if (noMicrophone())
+						joinVoice(false);
+					else
+						joinVoice(true);						
+				} 
+				else 
+				{
+					var dispatcher:Dispatcher = new Dispatcher();
+					dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
+				}
 		}
 
 		private function noMicrophone():Boolean {
