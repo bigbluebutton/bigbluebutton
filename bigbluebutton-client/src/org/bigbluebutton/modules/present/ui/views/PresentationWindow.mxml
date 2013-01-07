@@ -190,6 +190,7 @@
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.next') as String)] = ShortcutEvent.NEXT_SLIDE;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.fitWidth') as String)] = ShortcutEvent.FIT_TO_WIDTH;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.fitPage') as String)] = ShortcutEvent.FIT_TO_PAGE;
+				//keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.whiteboard.undo') as String)] = ShortcutEvent.UNDO_WHITEBOARD;
 			}
 			
 			// Handle presentation-scope hotkeys
@@ -509,7 +510,8 @@
 				LogUtil.debug("OVERLAYING WHITEBOARD CANVAS");
 				e.canvas.acceptOverlayCanvas(slideView);
             	slideView.acceptOverlayCanvas(e.canvas);
-            	
+            	//LogUtil.debug("WATERFALL: Canvas property is " + e.canvas.toString());
+            	// WhiteboardToolbar
             }
             
             /**
