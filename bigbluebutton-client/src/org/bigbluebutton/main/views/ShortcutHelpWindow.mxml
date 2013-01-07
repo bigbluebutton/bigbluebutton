@@ -54,8 +54,9 @@
 			
 			private var chatResource:Array = ['bbb.shortcutkey.focus.chat', 'bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.chat.focusTabs', 
 											  'bbb.shortcutkey.chat.focusBox', 'bbb.shortcutkey.chat.changeColour', 'bbb.shortcutkey.chat.sendMessage',
-											  'bbb.shortcutkey.chat.chatbox.advance', 'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.repeat', 
-											  'bbb.shortcutkey.chat.chatbox.golatest', 'bbb.shortcutkey.chat.chatbox.gofirst', 'bbb.shortcutkey.chat.chatbox.goread'];
+											  'bbb.shortcutkey.chat.explanation',
+											  'bbb.shortcutkey.chat.chatbox.gofirst', 'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.repeat', 
+											  'bbb.shortcutkey.chat.chatbox.advance', 'bbb.shortcutkey.chat.chatbox.golatest',  'bbb.shortcutkey.chat.chatbox.goread'];
 											  
 			private var audResource:Array = ['bbb.shortcutkey.focus.listeners', 'bbb.shortcutkey.listeners.muteme'];
 			
@@ -131,13 +132,21 @@
 					var convKey:String;
 					if (key == 32) { //special case
 						convKey = "Space";
-					} else {
+					} 
+					else {
 						convKey = String.fromCharCode(key);
 					}
-					keyList.addItem({Shortcut:modifier + convKey, 
-								Function:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
-					/*keyList.addItem({Shortcut:keyCombo.substring(0, indx) + convKey, 
-								Function:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});*/
+					
+					if (keyCombo == "----"){
+						//convKey = "";
+						//keyList.addItem({Shortcut:"", Function:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
+						keyList.addItem({Shortcut:(ResourceUtil.getInstance().getString(resource[i] + '.function')), Function:""});
+					}
+					else{
+						keyList.addItem({Shortcut:modifier + convKey, Function:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
+					}
+					
+					//keyList.addItem({Shortcut:modifier + convKey, Function:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});	
 				}
 				//LogUtil.debug("CHAD after " + resource.length);
 				return keyList;

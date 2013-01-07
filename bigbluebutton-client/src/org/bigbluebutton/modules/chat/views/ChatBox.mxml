@@ -144,7 +144,7 @@
         		
 				//LogUtil.debug("WATERFALL-BOX BaseIndex is " + baseIndex);
 				
-				loadKeyCombos()
+				//loadKeyCombos();
 				addContextMenuItems();
 				scrollTimer = new Timer(750, 2);
 				scrollTimer.addEventListener(TimerEvent.TIMER, onScrollTimer);
@@ -167,6 +167,7 @@
 		        if (chatMessages.numMessages() > 0) {
 		          chatMessagesList.accessibilityProperties.description = chatMessages.messages[0].toString();
 		        }
+				hotkeyCapture();
 						
 		        // Listen for the ENTER key to send the message.
 				txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
@@ -357,21 +358,45 @@
 			}
 			
 			private function localeChanged(e:Event):void {
-				loadKeyCombos();
+				var modifier:String = ExternalInterface.call("determineModifier");
+		  		loadKeyCombos(modifier);
 			}
 
-			private function loadKeyCombos():void {
+			private function loadKeyCombos(modifier:String):void {
 				keyCombos = new Object(); // always start with a fresh array
 				// keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.listeners.muteme') as String)] = ShortcutEvent.MUTE_ME_EVENT;
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.advance') as String)] = ShortcutEvent.ADVANCE_MESSAGE;
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.goback') as String)] = ShortcutEvent.GOBACK_MESSAGE;
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.repeat') as String)] = ShortcutEvent.REPEAT_MESSAGE;
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.golatest') as String)] = ShortcutEvent.GOLATEST_MESSAGE;
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.gofirst') as String)] = ShortcutEvent.GOFIRST_MESSAGE;
-				keyCombos[(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.goread') as String)] = ShortcutEvent.GOREAD_MESSAGE;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.advance') as String)] = ShortcutEvent.ADVANCE_MESSAGE;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.goback') as String)] = ShortcutEvent.GOBACK_MESSAGE;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.repeat') as String)] = ShortcutEvent.REPEAT_MESSAGE;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.golatest') as String)] = ShortcutEvent.GOLATEST_MESSAGE;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.gofirst') as String)] = ShortcutEvent.GOFIRST_MESSAGE;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.goread') as String)] = ShortcutEvent.GOREAD_MESSAGE;
 			}
 			
-			public function handleKeyDown(e:KeyboardEvent) :void {
+			public function hotkeyCapture():void{
+				//trace("Entering hotkeyCapture");
+			    this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+			    ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+			    //trace("Leaving hotkeyCapture");
+		    }
+			
+			private function handleKeyDown(e:KeyboardEvent) :void {
+		  		var modifier:String = ExternalInterface.call("determineModifier");
+		  		loadKeyCombos(modifier);
+		  
+		  		var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
+				
+				/*if (e.keyCode < 64 || e.keyCode > 90){
+					LogUtil.debug("WATERFALL: KeyCode " + e.keyCode + " is nonalphabetic (probably)");
+				}*/
+				
+				if (keyCombos[keyPress]) {
+					//trace("Chad keypress " + keyPress);
+					globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+				}
+		    }
+			
+			/*public function handleKeyDown(e:KeyboardEvent) :void {
 				LogUtil.debug("WATERFALL: Entering handleKeyDown in Chat");
 				if (keyCombos == null) loadKeyCombos();
 				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;	
@@ -382,7 +407,7 @@
 					event.otherUserID = chatWithUserID; 
 					globalDispatcher.dispatchEvent(event);
 				}
-			}
+			}*/
 			      
 			private function advanceMessage(e:ShortcutEvent):void{
 				if (e.otherUserID == chatWithUserID){
@@ -429,6 +454,7 @@
 			}
 			
 			private function goToFirstMessage(e:ShortcutEvent):void {
+				LogUtil.debug("WATERFALL Entering goToFirstMessage");
 				if (e.otherUserID == chatWithUserID){
 					currentMessage = 0;
 					navToFirst = true;
