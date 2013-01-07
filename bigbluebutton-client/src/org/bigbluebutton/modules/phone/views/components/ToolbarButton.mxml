@@ -24,7 +24,7 @@
 	icon="{phoneIcon}" click="startPhone()"
 	mouseOver = "mouseOverHandler(event)"
 	mouseOut = "mouseOutHandler(event)"
-	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop')}"
+	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
 	
 
@@ -109,6 +109,7 @@
 					_currentState = ACTIVE_STATE;
 					phoneIcon = images.headsetActiveIcon;
 					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');
+
 				} else {
 					this.selected = false;
 					this.enabled = true;
@@ -147,7 +148,14 @@
 			
 			//For whatever reason the tooltip does not update when localization is changed dynamically. Overrideing it here
 			override protected function resourcesChanged():void{
-				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
+				if(_currentState == ACTIVE_STATE) {
+					phoneIcon = images.headsetActiveIcon;
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');
+				} 
+				else {
+					phoneIcon = images.headsetDefaultIcon;
+					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
+				}
 			}
 			
 			public function getAlignment():String{
