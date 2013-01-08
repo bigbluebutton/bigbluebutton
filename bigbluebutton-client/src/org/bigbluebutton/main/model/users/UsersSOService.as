@@ -165,7 +165,7 @@ package org.bigbluebutton.main.model.users {
 		 * Called by the server to assign a presenter
 		 */
 		public function assignPresenterCallback(userid:String, name:String, assignedBy:String):void {
-			LogUtil.debug("assignPresenterCallback " + userid + "," + name + "," + assignedBy);
+			trace("assignPresenterCallback " + userid + "," + name + "," + assignedBy);
 			var dispatcher:Dispatcher = new Dispatcher();
 			var meeting:Conference = UserManager.getInstance().getConference();
 			if (meeting.amIThisUser(userid)) {
@@ -176,7 +176,7 @@ package org.bigbluebutton.main.model.users {
 				e.assignerBy = assignedBy;
 				
 				dispatcher.dispatchEvent(e);		
-        
+        trace("Switching to [" + e.presenterName + "] to presenter");
         var roleEvent:CoreEvent = new CoreEvent(EventConstants.NEW_ROLE);
         roleEvent.message.role = Role.PRESENTER;
         dispatcher.dispatchEvent(roleEvent);
@@ -190,6 +190,7 @@ package org.bigbluebutton.main.model.users {
 
 				dispatcher.dispatchEvent(viewerEvent);
         
+        trace("Switching to [" + e.presenterName + "] to presenter. I am viewer.");
         var newRoleEvent:CoreEvent = new CoreEvent(EventConstants.NEW_ROLE);
         newRoleEvent.message.role = Role.VIEWER;
         dispatcher.dispatchEvent(newRoleEvent);

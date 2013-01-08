@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" 
+		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()"
+		 creationComplete="onCreationComplete()">
+	
+	<mx:Script>
+		<![CDATA[
+      import mx.binding.utils.ChangeWatcher;
+      
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.modules.notes.models.Note;
+
+			[Bindable] private var rolledOver:Boolean = false;					
+			[Bindable] private var note:Note;
+
+			
+			private function onCreationComplete():void{
+				/** Register a change handler as the renderer get recycled. If we don't
+				 * do this, we'll get a stale data which will display the chat 
+				 * message repeatedly. (ralam Nov 1, 2010)
+				 */
+				ChangeWatcher.watch(this, "data", dataChangeHandler);
+				if (data != null) {
+					note = data as Note;
+					data = null;	
+				}
+				
+				validateNow();
+			}
+			
+			private function dataChangeHandler(e:Event = null):void{
+				if (data == null) {
+					return;
+				}				
+				note = data as Note;
+				data = null;
+			}
+			
+
+						
+		]]>
+	</mx:Script>
+	
+  <mx:HBox width="100%">
+    <mx:Text id="lblTime" htmlText="{note.note}" textAlign="left"
+             color="gray"  width="100%"/>       
+  </mx:HBox> 
+</mx:VBox>

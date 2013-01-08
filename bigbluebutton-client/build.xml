@@ -29,6 +29,7 @@
 	<property name="CAM_PREVIEW_SA" value="WebcamPreviewStandalone" />
 	<property name="CAM_VIEW_SA" value="WebcamViewStandalone" />
 	<property name="PHONE" value="PhoneModule" />
+	<property name="NOTES" value="NotesModule" />
 	<property name="VIDEO" value="VideoconfModule" />
 	<property name="WHITEBOARD" value="WhiteboardModule" />
 	<property name="VIDEO_DOCK" value="VideodockModule" />
@@ -171,6 +172,10 @@
 	<target name="build-chat" description="Compile Chat Module">
 		<build-module src="${SRC_DIR}" target="${CHAT}" />
 	</target>
+  
+  <target name="build-notes" description="Compile Notes Module">
+    <build-module src="${SRC_DIR}" target="${NOTES}" />
+  </target>
 	
 	<target name="build-viewers" description="Compile Viewers Module">
 		<build-module src="${SRC_DIR}" target="${VIEWERS}" />
@@ -243,7 +248,7 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
-			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard"
+			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard, build-notes"
 			description="Compile deskshare, phone, video, whiteboard modules">
 	</target>
 	
