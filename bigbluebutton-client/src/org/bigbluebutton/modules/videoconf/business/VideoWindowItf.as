@@ -19,15 +19,19 @@
 
 package org.bigbluebutton.modules.videoconf.business
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-	import flash.media.Video;	
+	import flash.media.Video;
+	
 	import flexlib.mdi.containers.MDIWindow;
-	import flexlib.mdi.events.MDIWindowEvent;	
+	import flexlib.mdi.events.MDIWindowEvent;
+	
 	import mx.containers.Panel;
 	import mx.controls.Button;
-	import mx.core.UIComponent;	
+	import mx.core.UIComponent;
+	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.common.LogUtil;
@@ -318,5 +322,8 @@ package org.bigbluebutton.modules.videoconf.business
 			onFitVideoClick();
 		}
 		
+    protected function userMuted(muted:Boolean):void {
+      _controlButtons.userMuted(muted);
+    }
 	}
 }

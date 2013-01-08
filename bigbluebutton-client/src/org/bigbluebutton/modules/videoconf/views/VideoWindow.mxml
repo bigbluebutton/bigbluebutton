@@ -31,6 +31,7 @@
 	resize="onResize()"
 	layout="absolute">
 	
+  <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceMutedEvent" />
   <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
   <mate:Listener type="{EventConstants.NEW_ROLE}" method="handleNewRoleEvent" />
   <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
@@ -104,6 +105,12 @@
 			
       private function handleNewRoleEvent(event:CoreEvent):void {
         switchRole(event.message.role == Role.PRESENTER)
+      }
+      
+      private function handleUserVoiceMutedEvent(event:BBBEvent):void {
+        if (event.payload.userID ==  userID) {
+          userMuted(event.payload.muted);
+        }
       }
       
       private var _closing:Boolean = false;

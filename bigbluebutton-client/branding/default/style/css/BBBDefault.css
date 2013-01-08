@@ -235,6 +235,44 @@ DataGrid {
   fontFamily: Arial;
 }
 
+.videoMuteButtonStyle, .videoUnmutedButtonStyle, .videoSwitchPresenterButtonStyle, .videoEjectUserButtonStyle, .videoPrivateChatButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #b9babc;  
+  cornerRadius: 17;
+}
+
+.videoMutedButtonStyle {
+  /* Need to duplicate info here as the styleName is programatically changed. Extracting it out doesn't have any effect. */
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;  
+  cornerRadius: 17;
+  icon:   Embed('assets/images/webcam-muted.png');
+}
+
+.videoUnmutedButtonStyle {
+  icon:   Embed('assets/images/webcam-unmuted.png');
+}
+
+.videoSwitchPresenterButtonStyle {
+  icon:   Embed('assets/images/webcam-switch-presenter.png');
+}
+
+.videoEjectUserButtonStyle {
+  icon:   Embed('assets/images/webcam-eject-user.png');
+}
+
+.videoPrivateChatButtonStyle {
+  icon:   Embed('assets/images/webcam-private-chat.png');
+}
+
 MDIWindow {
   resizeCursorHorizontalXOffset: 2;	
 }

@@ -25,13 +25,11 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
 			allowKickUser="false"
-			windowVisible="true"
 		/>
 			
 		<module name="ListenersModule" url="http://HOST/client/ListenersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
-			windowVisible="true"
 			position="bottom-left"
 		/>
 		
@@ -109,6 +107,7 @@
 			layoutConfig="http://HOST/client/conf/layout.xml"
 			enableEdit="true"
 		/>
+		
 <!--
     <module name="NotesModule" url="http://HOST/client/NotesModule.swf?v=VERSION"
       saveURL="http://HOST"

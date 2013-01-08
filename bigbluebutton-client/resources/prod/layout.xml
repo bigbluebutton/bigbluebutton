@@ -78,7 +78,7 @@
     <window name="ChatWindow" hidden="true" draggable="false" resizable="false"/>
     <window name="ListenersWindow" hidden="true" draggable="false" resizable="false"/>
     <window name="ViewersWindow" hidden="true" draggable="false" resizable="false"/>
-    <window name="PresentationWindow" width="1" height="1" x="0" y="0" draggable="false" resizable="false"/>
+    <window name="PresentationWindow" width="0.8" height="1" x="0" y="0" draggable="false" resizable="false"/>
     <window name="VideoDock" hidden="true" draggable="false" resizable="false"/>
   </layout>
   <layout name="S2SVideoChat">
