@@ -32,6 +32,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Mconf-Live Demo</title>
+	<link rel="stylesheet" href="css/mconf-bootstrap.min.css" type="text/css" />
 	<link rel="icon" type="image/png" href="/client/mconf.png">
 </head>
 <body>
@@ -94,85 +95,85 @@ if (request.getParameterMap().isEmpty()) {
 		//
 	%> 
 
-<div style="width: 400px; text-align: center; ">
-	<h2>Mconf-Live Demo</h2>
+<div style="width: 400px; margin: 0px auto; margin-top: 100px; ">
+	<div style="text-align: center; margin-bottom: 35px; ">
+		<h1>Mconf-Live Demo</h1>
+	</div>
+
+	<FORM NAME="form1" METHOD="GET">
+	<table cellpadding="3" cellspacing="5">
+		<tbody>
+			<tr>
+				<td>
+					&nbsp;</td>
+				<td style="text-align: right; ">
+					Full&nbsp;Name:</td>
+				<td style="width: 5px; ">
+					&nbsp;</td>
+				<td style="text-align: left ">
+					<input type="text" autofocus required name="username" /></td>
+			</tr>
+			
+		
+			
+			<tr>
+				<td>
+					&nbsp;</td>
+				<td style="text-align: right; ">
+					Session:</td>
+				<td>
+					&nbsp;
+				</td>
+				<td style="text-align: left ">
+				<select name="meetingID">
+				<%
+					String key;
+					while (meetingIterator.hasNext()) {
+						key = meetingIterator.next(); 
+						out.println("<option value=\"" + key + "\">" + key + "</option>");
+					}
+				%>
+				</select>
+					
+				</td>
+			</tr>
+			<tr>
+				<td>
+					&nbsp;</td>
+				<td style="text-align: right; ">
+					Role:</td>
+				<td>
+					&nbsp;</td>
+				<td>
+					<input type="radio" name="password" value="prof123" text"Moderator" checked>Moderator</input>
+					<input type="radio" name="password" value="student123">Viewer</input>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					&nbsp;</td>
+				<td style="text-align: right; ">
+					Guest:</td>
+				<td>
+					&nbsp;</td>
+				<td>
+					<input type="checkbox" name="guest" value="guest" />&nbsp;&nbsp;&nbsp;(authorization required)</td>
+			</tr>
+			<tr>
+				<td>
+					&nbsp;</td>
+				<td>
+					&nbsp;</td>
+				<td>
+					&nbsp;</td>
+				<td>
+					<input type="submit" value="Join" style="width: 220px; "></td>
+			</tr>	
+		</tbody>
+	</table>
+	<INPUT TYPE=hidden NAME=action VALUE="create">
+	</FORM>
 </div>
-
-
-<FORM NAME="form1" METHOD="GET">
-<table cellpadding="3" cellspacing="5" style="width: 400px; ">
-	<tbody>
-		<tr>
-			<td>
-				&nbsp;</td>
-			<td style="text-align: right; ">
-				Full&nbsp;Name:</td>
-			<td style="width: 5px; ">
-				&nbsp;</td>
-			<td style="text-align: left ">
-				<input type="text" autofocus required name="username" /></td>
-		</tr>
-		
-	
-		
-		<tr>
-			<td>
-				&nbsp;</td>
-			<td style="text-align: right; ">
-				Session:</td>
-			<td>
-				&nbsp;
-			</td>
-			<td style="text-align: left ">
-			<select name="meetingID">
-			<%
-				String key;
-				while (meetingIterator.hasNext()) {
-					key = meetingIterator.next(); 
-					out.println("<option value=\"" + key + "\">" + key + "</option>");
-				}
-			%>
-			</select>
-				
-			</td>
-		</tr>
-		<tr>
-			<td>
-				&nbsp;</td>
-			<td style="text-align: right; ">
-				Role:</td>
-			<td>
-				&nbsp;</td>
-			<td>
-				<input type="radio" name="password" value="prof123" text"Moderator" checked>Moderator</input>
-				<input type="radio" name="password" value="student123">Viewer</input>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				&nbsp;</td>
-			<td style="text-align: right; ">
-				Guest:</td>
-			<td>
-				&nbsp;</td>
-			<td>
-				<input type="checkbox" name="guest" value="guest" /></td>
-		</tr>
-		<tr>
-			<td>
-				&nbsp;</td>
-			<td>
-				&nbsp;</td>
-			<td>
-				&nbsp;</td>
-			<td>
-				<input type="submit" value="Join" /></td>
-		</tr>	
-	</tbody>
-</table>
-<INPUT TYPE=hidden NAME=action VALUE="create">
-</FORM>
-
 <%
 	} else if (request.getParameter("action").equals("create")) {
 		//
