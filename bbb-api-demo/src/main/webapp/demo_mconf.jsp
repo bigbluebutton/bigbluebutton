@@ -32,6 +32,7 @@ Author: Fred Dixon <ffdixon@bigbluebutton.org>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Mconf-Live Demo</title>
+	<link rel="icon" type="image/png" href="/client/mconf.png">
 </head>
 <body>
 
