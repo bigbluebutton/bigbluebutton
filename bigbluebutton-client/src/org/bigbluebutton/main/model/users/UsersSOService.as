@@ -177,7 +177,7 @@ package org.bigbluebutton.main.model.users {
 				
 				dispatcher.dispatchEvent(e);		
         trace("Switching to [" + e.presenterName + "] to presenter");
-        var roleEvent:CoreEvent = new CoreEvent(EventConstants.NEW_ROLE);
+        var roleEvent:CoreEvent = new CoreEvent(EventConstants.SWITCHED_PRESENTER);
         roleEvent.message.role = Role.PRESENTER;
         dispatcher.dispatchEvent(roleEvent);
         
@@ -191,7 +191,7 @@ package org.bigbluebutton.main.model.users {
 				dispatcher.dispatchEvent(viewerEvent);
         
         trace("Switching to [" + e.presenterName + "] to presenter. I am viewer.");
-        var newRoleEvent:CoreEvent = new CoreEvent(EventConstants.NEW_ROLE);
+        var newRoleEvent:CoreEvent = new CoreEvent(EventConstants.SWITCHED_PRESENTER);
         newRoleEvent.message.role = Role.VIEWER;
         dispatcher.dispatchEvent(newRoleEvent);
 			}

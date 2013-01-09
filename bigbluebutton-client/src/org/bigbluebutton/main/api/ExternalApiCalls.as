@@ -92,7 +92,7 @@ package org.bigbluebutton.main.api
     public function handleSwitchToNewRoleEvent(event:CoreEvent):void {
       trace("Got NEW ROLE EVENT role = [" + event.message.role + "]");
       var payload:Object = new Object();
-      payload.eventName = EventConstants.NEW_ROLE;
+      payload.eventName = EventConstants.SWITCHED_PRESENTER;
       payload.role = event.message.role;
       broadcastEvent(payload);        
     }
