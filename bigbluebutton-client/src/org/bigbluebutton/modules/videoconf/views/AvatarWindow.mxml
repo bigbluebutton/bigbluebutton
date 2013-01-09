@@ -36,14 +36,14 @@
 	
   <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceMutedEvent" />
   <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
-  <mate:Listener type="{EventConstants.SWITCHED_PRESENTER}" method="handleNewRoleEvent" />
+  <mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleNewRoleEvent" />
   <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
   
 	<mx:Script>
 		<![CDATA[
-      import flexlib.mdi.events.MDIWindowEvent;     
+      import flexlib.mdi.events.MDIWindowEvent; 
       import mx.core.UIComponent;
-      import mx.events.ResizeEvent;      
+      import mx.events.ResizeEvent;
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.Role;
@@ -52,8 +52,10 @@
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.CoreEvent;
+      import org.bigbluebutton.core.events.SwitchedLayoutEvent;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.SwitchedPresenterEvent;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
       import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
@@ -81,8 +83,7 @@
         loader = new Loader();
         request = new URLRequest(UsersUtil.getAvatarURL());
         loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadingComplete);
-        loader.load(request);
-        
+        loader.load(request);        
       }
       
       private function onLoadingComplete(event:Event):void {
@@ -129,8 +130,8 @@
         }
       }
       
-      private function handleNewRoleEvent(event:CoreEvent):void {
-        switchRole(event.message.role == Role.PRESENTER)
+      private function handleNewRoleEvent(event:SwitchedPresenterEvent):void {
+        switchRole(event.amIPresenter);
       }
 
       private function handleUserVoiceMutedEvent(event:BBBEvent):void {

@@ -30,6 +30,7 @@
       import org.bigbluebutton.main.api.ExternalApiCalls;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.SwitchedPresenterEvent;
       import org.bigbluebutton.main.events.UserJoinedEvent;
       import org.bigbluebutton.main.events.UserLeftEvent;
       import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
@@ -98,7 +99,7 @@
     <MethodInvoker generator="{ExternalApiCalls}" method="handleUserLeftEvent" arguments="{event}"/>
   </EventHandlers>
   
-  <EventHandlers type="{EventConstants.SWITCHED_PRESENTER}" >
+  <EventHandlers type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleSwitchToNewRoleEvent" arguments="{event}"/>
   </EventHandlers>
 

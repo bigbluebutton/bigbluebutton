@@ -253,8 +253,10 @@ package org.bigbluebutton.modules.layout.managers
 		
 		private function applyLayout(layout:LayoutDefinition):void {
 			_detectContainerChange = false;
-			if (layout != null)
-				layout.applyToCanvas(_canvas);
+			if (layout != null) {
+        layout.applyToCanvas(_canvas);
+      }
+				
 			updateCurrentLayout(layout);
 			_detectContainerChange = true;
 		}
@@ -262,8 +264,9 @@ package org.bigbluebutton.modules.layout.managers
 		public function redefineLayout(e:RedefineLayoutEvent):void {
 			var layout:LayoutDefinition = e.layout;
 			applyLayout(layout);
-			if (!e.remote)
-				sendLayoutUpdate(layout);
+			if (!e.remote) {
+        sendLayoutUpdate(layout);        
+      }
 		}
 		
 		public function remoteLockLayout():void {

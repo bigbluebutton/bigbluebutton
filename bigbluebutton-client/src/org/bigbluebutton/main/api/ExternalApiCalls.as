@@ -12,6 +12,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.events.SwitchedPresenterEvent;
   import org.bigbluebutton.main.events.UserJoinedEvent;
   import org.bigbluebutton.main.events.UserLeftEvent;
   import org.bigbluebutton.main.model.users.BBBUser;
@@ -89,11 +90,12 @@ package org.bigbluebutton.main.api
       broadcastEvent(payload);        
     }
     
-    public function handleSwitchToNewRoleEvent(event:CoreEvent):void {
-      trace("Got NEW ROLE EVENT role = [" + event.message.role + "]");
+    public function handleSwitchToNewRoleEvent(event:SwitchedPresenterEvent):void {
+      trace("Got NEW ROLE EVENT presenter = [" + event.amIPresenter + "]");
       var payload:Object = new Object();
       payload.eventName = EventConstants.SWITCHED_PRESENTER;
-      payload.role = event.message.role;
+      payload.amIPresenter = event.amIPresenter;
+      payload.newPresenterUserID = event.newPresenterUserID;
       broadcastEvent(payload);        
     }
 

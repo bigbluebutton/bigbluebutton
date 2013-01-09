@@ -36,6 +36,7 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.events.LogoutEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
+	import org.bigbluebutton.main.events.SwitchedPresenterEvent;
 	import org.bigbluebutton.main.events.UserJoinedEvent;
 	import org.bigbluebutton.main.events.UserLeftEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -175,11 +176,10 @@ package org.bigbluebutton.main.model.users {
 				e.presenterName = name;
 				e.assignerBy = assignedBy;
 				
-				dispatcher.dispatchEvent(e);		
+				dispatcher.dispatchEvent(e);	
+        
         trace("Switching to [" + e.presenterName + "] to presenter");
-        var roleEvent:CoreEvent = new CoreEvent(EventConstants.SWITCHED_PRESENTER);
-        roleEvent.message.role = Role.PRESENTER;
-        dispatcher.dispatchEvent(roleEvent);
+        sendSwitchedPresenterEvent(true, userid);
         
 			} else {				
 				meeting.setMePresenter(false);
@@ -191,12 +191,18 @@ package org.bigbluebutton.main.model.users {
 				dispatcher.dispatchEvent(viewerEvent);
         
         trace("Switching to [" + e.presenterName + "] to presenter. I am viewer.");
-        var newRoleEvent:CoreEvent = new CoreEvent(EventConstants.SWITCHED_PRESENTER);
-        newRoleEvent.message.role = Role.VIEWER;
-        dispatcher.dispatchEvent(newRoleEvent);
+        sendSwitchedPresenterEvent(false, userid);
 			}
 		}
 		
+    private function sendSwitchedPresenterEvent(amIPresenter:Boolean, newPresenterUserID:String):void {
+      var dispatcher:Dispatcher = new Dispatcher();
+      var roleEvent:SwitchedPresenterEvent = new SwitchedPresenterEvent();
+      roleEvent.amIPresenter = true;
+      roleEvent.newPresenterUserID = newPresenterUserID;
+      dispatcher.dispatchEvent(roleEvent);   
+    }
+    
 		public function kickUser(userid:String):void{
 			_participantsSO.send("kickUserCallback", userid);
 		}

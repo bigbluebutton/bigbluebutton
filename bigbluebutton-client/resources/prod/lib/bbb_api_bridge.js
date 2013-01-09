@@ -263,27 +263,27 @@
      * See https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/src/org/bigbluebutton/core/EventConstants.as
      *
      ************************************************/
-    var GET_MY_ROLE_RESP:String           = 'GetMyRoleResponse';
-    var AM_I_PRESENTER_RESP:String        = 'AmIPresenterQueryResponse';
-    var AM_I_SHARING_CAM_RESP:String      = 'AmISharingCamQueryResponse';
-    var BROADCASTING_CAM_STARTED:String   = 'BroadcastingCameraStartedEvent';
-    var BROADCASTING_CAM_STOPPED:String   = 'BroadcastingCameraStoppedEvent';
-    var I_AM_SHARING_CAM:String           = 'IAmSharingCamEvent';
-    var CAM_STREAM_SHARED:String          = 'CamStreamSharedEvent';
-    var USER_JOINED:String                = 'UserJoinedEvent';
-    var USER_LEFT:String                  = 'UserLeftEvent';
-    var SWITCHED_PRESENTER:String         = 'SwitchedPresenterEvent';
-    var NEW_PRIVATE_CHAT:String           = 'NewPrivateChatEvent';
-    var NEW_PUBLIC_CHAT:String            = 'NewPublicChatEvent';
-    var SWITCHED_LAYOUT:String            = 'SwitchedLayoutEvent';
-    var REMOTE_LOCKED_LAYOUT:String       = 'RemoteLockedLayoutEvent';
-    var REMOTE_UNLOCKED_LAYOUT:String     = 'RemoteUnlockedLayoutEvent';
-    var USER_JOINED_VOICE:String          = 'UserJoinedVoiceEvent';
-    var USER_LEFT_VOICE:String            = 'UserLeftVoiceEvent';
-    var USER_MUTED_VOICE:String           = 'UserVoiceMutedEvent';
-    var USER_TALKING:String               = 'UserTalkingEvent';
-    var USER_LOCKED_VOICE:String          = 'UserLockedVoiceEvent';
-    var START_PRIVATE_CHAT:String         = "StartPrivateChatEvent";
+    var GET_MY_ROLE_RESP           = 'GetMyRoleResponse';
+    var AM_I_PRESENTER_RESP        = 'AmIPresenterQueryResponse';
+    var AM_I_SHARING_CAM_RESP      = 'AmISharingCamQueryResponse';
+    var BROADCASTING_CAM_STARTED   = 'BroadcastingCameraStartedEvent';
+    var BROADCASTING_CAM_STOPPED   = 'BroadcastingCameraStoppedEvent';
+    var I_AM_SHARING_CAM           = 'IAmSharingCamEvent';
+    var CAM_STREAM_SHARED          = 'CamStreamSharedEvent';
+    var USER_JOINED                = 'UserJoinedEvent';
+    var USER_LEFT                  = 'UserLeftEvent';
+    var SWITCHED_PRESENTER         = 'SwitchedPresenterEvent';
+    var NEW_PRIVATE_CHAT           = 'NewPrivateChatEvent';
+    var NEW_PUBLIC_CHAT            = 'NewPublicChatEvent';
+    var SWITCHED_LAYOUT            = 'SwitchedLayoutEvent';
+    var REMOTE_LOCKED_LAYOUT       = 'RemoteLockedLayoutEvent';
+    var REMOTE_UNLOCKED_LAYOUT     = 'RemoteUnlockedLayoutEvent';
+    var USER_JOINED_VOICE          = 'UserJoinedVoiceEvent';
+    var USER_LEFT_VOICE            = 'UserLeftVoiceEvent';
+    var USER_MUTED_VOICE           = 'UserVoiceMutedEvent';
+    var USER_TALKING               = 'UserTalkingEvent';
+    var USER_LOCKED_VOICE          = 'UserLockedVoiceEvent';
+    var START_PRIVATE_CHAT         = 'StartPrivateChatEvent';
            
     window.BBB = BBB;
 })(this);
