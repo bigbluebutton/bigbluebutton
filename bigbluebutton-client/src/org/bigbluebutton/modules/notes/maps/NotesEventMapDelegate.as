@@ -7,6 +7,7 @@ package org.bigbluebutton.modules.notes.maps
   import org.bigbluebutton.common.events.OpenWindowEvent;
   import org.bigbluebutton.modules.notes.events.RetrieveNotesEvent;
   import org.bigbluebutton.modules.notes.events.RetrieveNotesSuccessEvent;
+  import org.bigbluebutton.modules.notes.events.SaveNoteEvent;
   import org.bigbluebutton.modules.notes.models.NotesModel;
   import org.bigbluebutton.modules.notes.views.NotesWindow;
 
@@ -27,6 +28,13 @@ package org.bigbluebutton.modules.notes.maps
       notesModel.notes = event.notes;
       
       openNotesWindow();
+      saveALoginNote();    
+    }
+    
+    private function saveALoginNote():void {
+      var saveEvent:SaveNoteEvent = new SaveNoteEvent();
+      saveEvent.note = "** Logged in. **";
+      _dispatcher.dispatchEvent(saveEvent);
     }
     
     public function openNotesWindow():void {

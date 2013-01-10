@@ -5,6 +5,7 @@ package org.bigbluebutton.modules.notes.services
   import mx.collections.ArrayCollection;
   
   import org.bigbluebutton.modules.notes.events.SaveErrorEvent;
+  import org.bigbluebutton.modules.notes.events.SaveSuccessEvent;
   import org.bigbluebutton.modules.notes.models.Note;
   import org.bigbluebutton.modules.notes.models.NotesModel;
   import org.bigbluebutton.modules.notes.models.NotesOptions;
@@ -42,8 +43,8 @@ package org.bigbluebutton.modules.notes.services
       // TODO: Re-save?
     }
     
-    public function saveSuccess(noteID:String):void {
-      notesModel.noteSaved(noteID);
+    public function saveSuccess(event:SaveSuccessEvent):void {
+      notesModel.noteSaved(event.noteID, event.timestamp);
     }
     
     private function generateRandomString(strlen:Number):String{

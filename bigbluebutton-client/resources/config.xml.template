@@ -26,14 +26,12 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
 			allowKickUser="false"
-			windowVisible="true"
 			baseTabIndex="201"
 		/>
 			
 		<module name="ListenersModule" url="http://HOST/client/ListenersModule.swf?v=4105" 
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
-			windowVisible="true"
 			position="bottom-left"
 			baseTabIndex="301"
 		/>
@@ -116,27 +114,7 @@
 			layoutConfig="http://HOST/client/conf/layout.xml"
 			enableEdit="true"
 		/>
-<<<<<<< HEAD
 
-		<!-- new module in development: 
-		<module name="DynamicInfoModule" url="http://HOST/client/DynamicInfoModule.swf?v=4105" 
-			uri="rtmp://HOST/bigbluebutton" 
-			host="http://HOST" 
-			infoURL="http://HOST/client/conf/example-info-data.xml?user={userID}&role={role}&meetingID={meetingID}"
-		/>
-		-->
-		
-		<!--<module name="ExampleChatModule" url="http://HOST/client/ExampleChatModule.swf?v=56" 
-			uri="rtmp://HOST/bigbluebutton" 
-			host="http://HOST"
-		/>-->
-		
-		<!--<module name="SharedNotesModule" url="http://HOST/client/SharedNotesModule.swf?v=4105" 
-			uri="http://HOST/bigbluebutton" 
-			dependsOn="ViewersModule"
-		/>-->
-		
-=======
 <!--
     <module name="NotesModule" url="http://HOST/client/NotesModule.swf?v=VERSION"
       saveURL="http://HOST"
@@ -153,6 +131,5 @@
     />
 -->
     		
->>>>>>> upstream/master
 	</modules>
 </config>

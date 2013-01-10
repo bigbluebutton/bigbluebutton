@@ -67,6 +67,7 @@
         txtMsgArea.text = "";        
       }
  
+      //color="{cmpColorPicker.selectedColor}"
     ]]>
     
   </mx:Script>
@@ -81,7 +82,7 @@
   
   <mx:HBox id="notesCtrlBar" width="100%" height="55" styleName="notesControlBarStyle" 
            paddingLeft="5" paddingRight="5" verticalScrollPolicy="off">		
-    <mx:TextArea id="txtMsgArea" width="100%"  color="{cmpColorPicker.selectedColor}" 
+    <mx:TextArea id="txtMsgArea" width="100%"   
                  styleName="notesControlBarTextMsgStyle" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.notes.notesview.input')}"/>
     <mx:VBox verticalScrollPolicy="off">
@@ -89,9 +90,11 @@
                  styleName="notesControlBarSendButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.notes.saveBtn.toolTip')}" 
                  click="saveNote()"/>  
+      <!--
       <mx:ColorPicker id="cmpColorPicker" showTextField="false" 
                       toolTip="{ResourceUtil.getInstance().getString('bbb.notes.cmpColorPicker.toolTip')}" 
                       selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="notesColorPickerStyle"/>
+      -->
     </mx:VBox>
   </mx:HBox>
 </mx:VBox>

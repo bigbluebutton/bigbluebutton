@@ -39,6 +39,7 @@ package org.bigbluebutton.modules.layout.managers
   
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventBroadcaster;
+  import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.Config;
   import org.bigbluebutton.main.events.ModuleLoadEvent;
@@ -195,9 +196,11 @@ package org.bigbluebutton.modules.layout.managers
       var newLayout:LayoutDefinition = _layouts.getLayout(name);
       if (newLayout == null) return;
 
-      LogUtil.debug("************** USING [" + newLayout.name + "] as new LAYOUT ***************************");
+      trace("************** USING [" + newLayout.name + "] as new LAYOUT ***************************");
       applyLayout(newLayout);
-      sendLayoutUpdate(_currentLayout);      
+      sendLayoutUpdate(_currentLayout);     
+      
+      dispatchSwitchedLayoutEvent(newLayout.name);
     }
     
 		public function applyDefaultLayout():void {   
@@ -220,11 +223,19 @@ package org.bigbluebutton.modules.layout.managers
         defaultLayout = _layouts.getDefault();
       }
       
-      LogUtil.debug("************** USING [" + defaultLayout.name + "] as default LAYOUT ***************************");
+      trace("************** USING [" + defaultLayout.name + "] as default LAYOUT ***************************");
 			applyLayout(defaultLayout);
 			sendLayoutUpdate(_currentLayout);
+      
+      dispatchSwitchedLayoutEvent(defaultLayout.name);
 		}
 		
+    private function dispatchSwitchedLayoutEvent(layoutID:String):void {
+      var layoutEvent:SwitchedLayoutEvent = new SwitchedLayoutEvent();
+      layoutEvent.layoutID = layoutID;
+      _globalDispatcher.dispatchEvent(layoutEvent);      
+    }
+    
 		public function lockLayout():void {
 			_locked = true;
 			LogUtil.debug("LayoutManager: layout locked by myself");
