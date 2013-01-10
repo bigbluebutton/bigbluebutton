@@ -118,6 +118,7 @@ public class DeskshareClient {
     	private boolean enableTrayActions = false;
     	private boolean fullScreen = false;
     	private boolean useSVC2 = false;
+    	private boolean isPreScaled = false;
     	
     	public NewBuilder host(String host) {
     		this.host = host;
@@ -189,6 +190,11 @@ public class DeskshareClient {
     		return this;
     	}
     	
+    	public NewBuilder isPreScaled(boolean isPreScaled){
+    		this.isPreScaled = isPreScaled;
+    		return this;
+    	}
+    	
     	public NewBuilder trayIcon(Image icon) {
     		this.sysTrayIcon = icon;
     		return this;
@@ -254,18 +260,22 @@ public class DeskshareClient {
     		java.awt.Dimension fullScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
     		captureWidth = (int) fullScreenSize.getWidth();
     		captureHeight = (int) fullScreenSize.getHeight();
-    		scaleWidth = captureWidth;
-    		scaleHeight = captureHeight;
+    		
     		x = 0;
     		y = 0;
 
-    		System.out.println("Check for scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
+    		if(!isPreScaled){
+    			scaleWidth = captureWidth;
+    			scaleHeight = captureHeight;
+    		
+    			System.out.println("Check for scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
 
-    		if (scaleWidth > 1280) {   
-    			scaleWidth = 1280;
-    			double ratio = (double)captureHeight/(double)captureWidth;
-    			scaleHeight = (int)((double)scaleWidth * ratio);
-    			System.out.println("Scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
+    			if (scaleWidth > 1280) {   
+    				scaleWidth = 1280;
+    				double ratio = (double)captureHeight/(double)captureWidth;
+    				scaleHeight = (int)((double)scaleWidth * ratio);
+    				System.out.println("Scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
+    			}
     		}
     	}
     	
