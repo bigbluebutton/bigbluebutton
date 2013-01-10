@@ -50,7 +50,8 @@ package org.bigbluebutton.modules.notes.services
     }
     
     public function save():void {
-      _request.url = _serverURL + "/save";
+      //_request.url = _serverURL + "/save";
+      _request.url = _serverURL;
       _request.method = URLRequestMethod.GET;
       
       _vars = new URLVariables();

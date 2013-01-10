@@ -44,7 +44,8 @@ package org.bigbluebutton.modules.notes.services
     }
        
     public function retrieveNotes():void {
-      _request.url = _options.saveURL + "/notes";
+     // _request.url = _options.saveURL + "/notes";
+      _request.url = _options.saveURL;
       _request.method = URLRequestMethod.GET;
       
       _vars = new URLVariables();
