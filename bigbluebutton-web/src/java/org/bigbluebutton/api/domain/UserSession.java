@@ -4,6 +4,7 @@ public class UserSession {
 	String internalUserId = null;
     String conferencename = null;
     String meetingID = null;
+    String externMeetingID = null;
     String externUserID = null;
     String fullname = null; 
     String role = null;
@@ -15,4 +16,6 @@ public class UserSession {
     String record = null;
     String welcome = null;
     String logoutUrl = null;
+    String defaultLayout = "NOLAYOUT";
+    String avatarURL;
 }

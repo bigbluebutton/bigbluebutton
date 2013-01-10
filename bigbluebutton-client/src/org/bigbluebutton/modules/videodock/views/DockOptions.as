@@ -4,6 +4,9 @@ package org.bigbluebutton.modules.videodock.views
 
 	public class DockOptions
 	{
+    [Bindable]
+    public var showControls:Boolean = true;
+    
 		[Bindable]
 		public var autoDock:Boolean = true;
 		
@@ -32,6 +35,9 @@ package org.bigbluebutton.modules.videodock.views
 		{
 			var vxml:XML = BBB.getConfigForModule("VideodockModule");
 			if (vxml != null) {
+        if (vxml.@showControls != undefined) {
+          showControls = (vxml.@showControls.toString().toUpperCase() == "TRUE") ? true : false;
+        }
 				if (vxml.@autoDock != undefined) {
 					autoDock = (vxml.@autoDock.toString().toUpperCase() == "TRUE") ? true : false;
 				}

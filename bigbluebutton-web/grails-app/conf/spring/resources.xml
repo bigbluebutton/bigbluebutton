@@ -83,6 +83,7 @@
     <property name="defaultClientUrl" value="${defaultClientUrl}"/>
     <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
     <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
+    <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
   </bean>
         
 	<import resource="doc-conversion.xml" />

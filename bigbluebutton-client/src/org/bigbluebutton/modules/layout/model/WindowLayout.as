@@ -23,13 +23,11 @@ package org.bigbluebutton.modules.layout.model {
 
 		import flexlib.mdi.containers.MDICanvas;
 		import flexlib.mdi.containers.MDIWindow;
-
 		import mx.effects.Fade;
 		import mx.effects.Move;
 		import mx.effects.Parallel;
 		import mx.effects.Resize;
 		import mx.events.EffectEvent;
-
 		import flash.display.DisplayObject;
 		import flash.display.DisplayObjectContainer;
 		import flash.utils.Dictionary;
@@ -47,12 +45,15 @@ package org.bigbluebutton.modules.layout.model {
 		[Bindable] public var minimized:Boolean = false;
 		[Bindable] public var maximized:Boolean = false;
 		[Bindable] public var hidden:Boolean = false;
+    [Bindable] public var resizable:Boolean = true;
+    [Bindable] public var draggable:Boolean = true;
 		[Bindable] public var order:int = -1;
 		
 
 		static private var EVENT_DURATION:int = 500;
 
 		public function load(vxml:XML):void {
+//      trace("Load layout \n" + vxml.toXMLString() + "\n");
 			if (vxml != null) {
 				if (vxml.@name != undefined) {
 					name = vxml.@name.toString();
@@ -78,10 +79,19 @@ package org.bigbluebutton.modules.layout.model {
 				if (vxml.@hidden != undefined) {
 					hidden = (vxml.@hidden.toString().toUpperCase() == "TRUE") ? true : false;
 				}
+        if (vxml.@draggable != undefined) {
+          draggable = (vxml.@draggable.toString().toUpperCase() == "TRUE") ? true : false;
+        }
+        if (vxml.@resizable != undefined) {
+          resizable = (vxml.@resizable.toString().toUpperCase() == "TRUE") ? true : false;
+        }
 				if (vxml.@order != undefined) {
 					order = int(vxml.@order);
 				}
 			}
+      
+//      trace("WindowLayout::load for " + name + " [minimized=" + minimized + ",maximized=" 
+//        + maximized + ",hidden=" + hidden + ",drag=" + draggable + ",resize=" + resizable + "]");
 		}
 		
 		static public function getLayout(canvas:MDICanvas, window:MDIWindow):WindowLayout {
@@ -93,13 +103,27 @@ package org.bigbluebutton.modules.layout.model {
 			layout.y = window.y / canvas.height;
 			layout.minimized = window.minimized;
 			layout.maximized = window.maximized;
+      layout.resizable = window.resizable;
+      layout.draggable = window.draggable;
 			layout.hidden = !window.visible;
 			layout.order = OrderManager.getInstance().getOrderByRef(window);
+      
+//      trace("WindowLayout::getLayout for " + layout.name + " [minimized=" + layout.minimized + ",maximized=" + layout.maximized + ",hidden=" + layout.hidden 
+//        + ",drag=" + layout.draggable + ",resize=" + layout.resizable + "]");
+      
 			return layout;
 		}
 		
 		static public function setLayout(canvas:MDICanvas, window:MDIWindow, layout:WindowLayout):void {
-			if (layout == null) return;
+//      trace("WindowLayout::setLayout for " + window.name + ",layout=" + layout.name + "]");
+      
+			if (layout == null) {
+        return;
+      }
+      
+//      trace("WindowLayout::setLayout [minimized=" + layout.minimized + ",maximized=" + layout.maximized + ",hidden=" + layout.hidden 
+//        + ",drag=" + layout.draggable + ",resize=" + layout.resizable + "]");
+      
 			layout.applyToWindow(canvas, window);
 		}
 		
@@ -113,11 +137,14 @@ package org.bigbluebutton.modules.layout.model {
 		}
 		
 		private function onTimerComplete(event:TimerEvent = null):void {
+//      trace("::onTimerComplete");
 			var obj:Object = _delayedEffects.pop();
 			applyToWindow(obj.canvas, obj.window);
 		}
 		
 		public function applyToWindow(canvas:MDICanvas, window:MDIWindow):void {
+//      trace("WindowLayout::applyToWindow for " + window.name + " using layout " + this.name + "]");
+      
 			var effect:Parallel = new Parallel();
 			effect.duration = EVENT_DURATION;
 			effect.target = window;
@@ -129,6 +156,9 @@ package org.bigbluebutton.modules.layout.model {
       if (!this.hidden) {
         window.visible = true;
       }
+      
+      window.draggable = this.draggable;
+      window.resizable = this.resizable;
       
 			if (this.minimized) {
 				if (!window.minimized) window.minimize();
@@ -165,29 +195,19 @@ package org.bigbluebutton.modules.layout.model {
 				}
 			}
       
-
-
-      /*
-			var layoutHidden:Boolean = this.hidden;
-//			var windowVisible:Boolean = (window.alpha == 1);
-			var windowVisible:Boolean = window.visible;
-			if (windowVisible == layoutHidden) {
-				var fader:Fade = new Fade();
-				fader.alphaFrom = (layoutHidden? 1: 0);
-				fader.alphaTo = (layoutHidden? 0: 1);
-				fader.addEventListener(EffectEvent.EFFECT_START, function(e:EffectEvent):void {
-					if (!windowVisible)
-						window.enabled = window.visible = true;
-				});
-				fader.addEventListener(EffectEvent.EFFECT_END, function(e:EffectEvent):void {
-					if (windowVisible)
-						window.enabled = window.visible = false;
-				});
-				effect.addChild(fader);
-			}
-*/			
-			if (effect.children.length > 0)
+      if (window.visible && this.hidden) {
+        window.visible = false;
+      }
+      
+//      trace("WindowLayout::applyToWindow Layout= [minimized=" + this.minimized + ",maximized=" + this.maximized + ",visible=" + !this.hidden 
+//        + ",drag=" + this.draggable + ",resize=" + this.resizable + "]");
+      
+//      trace("WindowLayout::applyToWindow Window = [minimized=" + window.minimized + ",maximized=" + window.maximized + ",visible=" + window.visible 
+//        + ",drag=" + window.draggable + ",resize=" + window.resizable + "]");
+		
+			if (effect.children.length > 0) {
 				effect.play();
+      }
 		}
 		
 		static public function getType(obj:Object):String {

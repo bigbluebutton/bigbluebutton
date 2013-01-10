@@ -19,10 +19,15 @@ package org.bigbluebutton.core
     
     /** Events to External JS **/
     public static const GET_MY_ROLE_RESP:String           = 'GetMyRoleResponse';
- 
+    public static const AM_I_PRESENTER_RESP:String        = 'AmIPresenterQueryResponse';
+    public static const AM_I_SHARING_CAM_RESP:String      = 'AmISharingCamQueryResponse';
+    public static const BROADCASTING_CAM_STARTED:String   = 'BroadcastingCameraStartedEvent';
+    public static const BROADCASTING_CAM_STOPPED:String   = 'BroadcastingCameraStoppedEvent';
+    public static const I_AM_SHARING_CAM:String           = 'IAmSharingCamEvent';
+    public static const CAM_STREAM_SHARED:String          = 'CamStreamSharedEvent';
     public static const USER_JOINED:String                = 'UserJoinedEvent';
     public static const USER_LEFT:String                  = 'UserLeftEvent';
-    public static const NEW_ROLE:String                   = 'NewRoleEvent';
+    public static const SWITCHED_PRESENTER:String         = 'SwitchedPresenterEvent';
     public static const NEW_PRIVATE_CHAT:String           = 'NewPrivateChatEvent';
     public static const NEW_PUBLIC_CHAT:String            = 'NewPublicChatEvent';
     public static const SWITCHED_LAYOUT:String            = 'SwitchedLayoutEvent';
@@ -30,7 +35,9 @@ package org.bigbluebutton.core
     public static const REMOTE_UNLOCKED_LAYOUT:String     = 'RemoteUnlockedLayoutEvent';
     public static const USER_JOINED_VOICE:String          = 'UserJoinedVoiceEvent';
     public static const USER_LEFT_VOICE:String            = 'UserLeftVoiceEvent';
+    public static const USER_MUTED_VOICE:String           = 'UserVoiceMutedEvent';
     public static const USER_TALKING:String               = 'UserTalkingEvent';
+    public static const USER_LOCKED_VOICE:String          = 'UserLockedVoiceEvent';
     public static const START_PRIVATE_CHAT:String         = "StartPrivateChatEvent";
   }
 }

@@ -39,6 +39,7 @@ package org.bigbluebutton.modules.layout.managers
   
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventBroadcaster;
+  import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.Config;
   import org.bigbluebutton.main.events.ModuleLoadEvent;
@@ -195,23 +196,46 @@ package org.bigbluebutton.modules.layout.managers
       var newLayout:LayoutDefinition = _layouts.getLayout(name);
       if (newLayout == null) return;
 
-      LogUtil.debug("************** USING [" + newLayout.name + "] LAYOUT ***************************");
+      trace("************** USING [" + newLayout.name + "] as new LAYOUT ***************************");
       applyLayout(newLayout);
-      sendLayoutUpdate(_currentLayout);      
+      sendLayoutUpdate(_currentLayout);     
+      
+      dispatchSwitchedLayoutEvent(newLayout.name);
     }
     
-		public function applyDefaultLayout():void {      
+		public function applyDefaultLayout():void {   
+      
       var layoutOptions:LayoutOptions = new LayoutOptions();
       layoutOptions.parseOptions();
       var defaultLayout:LayoutDefinition = _layouts.getLayout(layoutOptions.defaultLayout);
+           
+      var sessionDefaulLayout:String = UserManager.getInstance().getConference().getDefaultLayout();
+      
+      
+      if (sessionDefaulLayout != "NOLAYOUT") {
+        var sesLayout:LayoutDefinition = _layouts.getLayout(sessionDefaulLayout);
+        if (sesLayout != null) {
+          defaultLayout = sesLayout;
+        }
+      }
+      
       if (defaultLayout == null) {
         defaultLayout = _layouts.getDefault();
       }
-      LogUtil.debug("************** USING [" + defaultLayout.name + "] LAYOUT ***************************");
+      
+      trace("************** USING [" + defaultLayout.name + "] as default LAYOUT ***************************");
 			applyLayout(defaultLayout);
 			sendLayoutUpdate(_currentLayout);
+      
+      dispatchSwitchedLayoutEvent(defaultLayout.name);
 		}
 		
+    private function dispatchSwitchedLayoutEvent(layoutID:String):void {
+      var layoutEvent:SwitchedLayoutEvent = new SwitchedLayoutEvent();
+      layoutEvent.layoutID = layoutID;
+      _globalDispatcher.dispatchEvent(layoutEvent);      
+    }
+    
 		public function lockLayout():void {
 			_locked = true;
 			LogUtil.debug("LayoutManager: layout locked by myself");

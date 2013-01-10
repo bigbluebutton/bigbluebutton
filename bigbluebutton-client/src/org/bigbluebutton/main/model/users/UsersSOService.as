@@ -35,8 +35,9 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
-	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
+	import org.bigbluebutton.main.events.UserJoinedEvent;
+	import org.bigbluebutton.main.events.UserLeftEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
@@ -164,7 +165,7 @@ package org.bigbluebutton.main.model.users {
 		 * Called by the server to assign a presenter
 		 */
 		public function assignPresenterCallback(userid:String, name:String, assignedBy:String):void {
-			LogUtil.debug("assignPresenterCallback " + userid + "," + name + "," + assignedBy);
+			trace("assignPresenterCallback " + userid + "," + name + "," + assignedBy);
 			var dispatcher:Dispatcher = new Dispatcher();
 			var meeting:Conference = UserManager.getInstance().getConference();
 			if (meeting.amIThisUser(userid)) {
@@ -175,8 +176,8 @@ package org.bigbluebutton.main.model.users {
 				e.assignerBy = assignedBy;
 				
 				dispatcher.dispatchEvent(e);		
-        
-        var roleEvent:CoreEvent = new CoreEvent(EventConstants.NEW_ROLE);
+        trace("Switching to [" + e.presenterName + "] to presenter");
+        var roleEvent:CoreEvent = new CoreEvent(EventConstants.SWITCHED_PRESENTER);
         roleEvent.message.role = Role.PRESENTER;
         dispatcher.dispatchEvent(roleEvent);
         
@@ -189,7 +190,8 @@ package org.bigbluebutton.main.model.users {
 
 				dispatcher.dispatchEvent(viewerEvent);
         
-        var newRoleEvent:CoreEvent = new CoreEvent(EventConstants.NEW_ROLE);
+        trace("Switching to [" + e.presenterName + "] to presenter. I am viewer.");
+        var newRoleEvent:CoreEvent = new CoreEvent(EventConstants.SWITCHED_PRESENTER);
         newRoleEvent.message.role = Role.VIEWER;
         dispatcher.dispatchEvent(newRoleEvent);
 			}
@@ -211,9 +213,8 @@ package org.bigbluebutton.main.model.users {
 			UserManager.getInstance().getConference().removeUser(userID);	
 			
 			var dispatcher:Dispatcher = new Dispatcher();
-			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
+			var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
 			joinEvent.userID = user.userID;
-			joinEvent.join = false;
 			dispatcher.dispatchEvent(joinEvent);	
 		}
 		
@@ -233,9 +234,8 @@ package org.bigbluebutton.main.model.users {
 			participantStatusChange(user.userID, "raiseHand", joinedUser.status.raiseHand);
 			
 			var dispatcher:Dispatcher = new Dispatcher();
-			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
+			var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
 			joinEvent.userID = user.userID;
-			joinEvent.join = true;
 			dispatcher.dispatchEvent(joinEvent);	
 			
 		}

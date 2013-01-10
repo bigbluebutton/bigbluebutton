@@ -31,6 +31,7 @@ public class ParamsProcessorUtil {
 	private String defaultServerUrl;
 	private int defaultNumDigitsForTelVoice;
 	private String defaultClientUrl;
+	private String defaultAvatarURL;
 	private int defaultMeetingDuration;
 	private boolean disableRecordingDefault;
 	
@@ -286,6 +287,7 @@ public class ParamsProcessorUtil {
 	        .withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
 	        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
 	        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
+	        .withDefaultAvatarURL(defaultAvatarURL)
 	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build();
 	    
 	    return meeting;
@@ -493,6 +495,10 @@ public class ParamsProcessorUtil {
 
 	public void setDisableRecordingDefault(boolean disabled) {
 		this.disableRecordingDefault = disabled;
+	}
+	
+	public void setdefaultAvatarURL(String url) {
+		this.defaultAvatarURL = url;
 	}
 	
 	public ArrayList<String> decodeIds(String encodeid){

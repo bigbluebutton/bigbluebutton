@@ -22,28 +22,34 @@ $Id: $
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 		   xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   creationComplete="init()" 
+		   creationComplete="onCreationComplete()" 
 		   implements="org.bigbluebutton.common.IBbbModuleWindow"
 		   title="{ResourceUtil.getInstance().getString('bbb.videodock.title')}"
-		   xmlns:mate="http://mate.asfusion.com/"
-		   layout="absolute" visible="false"
-		   horizontalAlign="center"
+		   xmlns:mate="http://mate.asfusion.com/" styleNameFocus="videoDockStyleFocus"
+		   layout="absolute" visible="false" styleNameNoFocus="videoDockStyleNoFocus"
+		   horizontalAlign="center" 
 		   verticalAlign="middle"
 		   resize="onChildAdd()">
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.events.ChildExistenceChangedEvent;			
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.DragWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.core.BBB;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
-			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      //backgroundImage="{backgroundImage}"
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.events.ChildExistenceChangedEvent;
+      
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.common.events.DragWindowEvent;
+      import org.bigbluebutton.common.events.OpenWindowEvent;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.core.events.ConnectAppEvent;
+      import org.bigbluebutton.main.model.users.Conference;
+      import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
+      import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var childrenDimension:Dictionary = new Dictionary();
 			private var borderColor:String;
@@ -59,9 +65,15 @@ $Id: $
 			
 			private var options:DockOptions = new DockOptions();
 			
-			private function init():void {				
+      private var images:Images = new Images();
+      
+      [Bindable]
+      private var backgroundImage:Class = images.video_dock_bg;
+      
+			private function onCreationComplete():void {				
 				this.showCloseButton = false;		
-				
+				this.showControls = options.showControls;
+        
 				this.minWidth = options.width;
 				this.minHeight = options.height;
 				this.maxWidth = this.parent.width;
@@ -74,6 +86,10 @@ $Id: $
 				addEventListener(ChildExistenceChangedEvent.CHILD_REMOVE, onChildRemove);
 				
 				if (options.maximize) this.maximize();
+        
+        var gDispatcher:Dispatcher = new Dispatcher();
+        var evt:ConnectAppEvent = new ConnectAppEvent(ConnectAppEvent.CONNECT_VIDEO_APP);
+        gDispatcher.dispatchEvent(evt);
 			}
 			
 			/**
@@ -122,33 +138,7 @@ $Id: $
 				//return MainCanvas.BOTTOM_RIGHT;
 				return options.position;
 			}
-			
-			private function onDragVideoWindow(e:DragWindowEvent):void{
-				switch (e.mode) {
-					case DragWindowEvent.DRAG:
-						if (hitTestPoint(e.mouseGlobal.x, e.mouseGlobal.y, true)) {
-							setStyle("borderColor","0xFF0000");
-							e.window.width = e.window.minWidth;
-							e.window.height = e.window.minHeight;
-						} else {
-							setStyle("borderColor",borderColor);
-							restoreWindowDimensions(e.window);
-						}
-						break;
-					case DragWindowEvent.DRAG_START:
-						borderColor = getStyle("borderColor");
-						removeVideoChild(e.window as VideoWindowItf);
-						saveWindowDimensions(e.window);
-						break;
-					case DragWindowEvent.DRAG_END:
-						setStyle("borderColor",borderColor);
-						restoreWindowDimensions(e.window);
-						if (hitTestPoint(e.mouseGlobal.x, e.mouseGlobal.y, true))
-							addVideoChild(e.window as VideoWindowItf);
-						break;
-				}
-			}
-			
+					
 			private function saveWindowDimensions(window:MDIWindow):void {
 				var dimensions:Object = {width:window.width, height:window.height};
 				childrenDimension[window] = dimensions;
@@ -171,13 +161,16 @@ $Id: $
 			
 			private function onCloseWindow(e:CloseWindowEvent):void {
 				// it should not just undock the window, it should close the window forever
-				if (isVideoWindow(e.window) && this.contains(e.window as VideoWindowItf))
-					this.removeChild(e.window as VideoWindowItf);
+				if (isVideoWindow(e.window) && this.contains(e.window as VideoWindowItf)) {
+          this.removeChild(e.window as VideoWindowItf);
+        }
+					
 			}
 			
 			private function onOpenWindow(e:OpenVideoWindowEvent):void {
-				if (isVideoWindow(e.window) && options.autoDock)
-					addVideoChild(e.window as VideoWindowItf);
+				if (isVideoWindow(e.window) && options.autoDock) {
+          addVideoChild(e.window as VideoWindowItf);
+        }					
 			}
 			
 			private function addVideoChild(window:VideoWindowItf):void {
@@ -197,7 +190,7 @@ $Id: $
 				window.minimizeBtn.visible = false;
 				window.maximizeRestoreBtn.visible = false;
 				window.resizable = false;
-//				window.buttonsEnabled = false;
+        window.draggable = false;
 
 				window.addEventListener(MouseEvent.CLICK, onWindowClick);
 
@@ -206,25 +199,6 @@ $Id: $
 				dispatchEvent(e);
 				
 				this.addChild(window);
-			}
-			
-			private function removeVideoChild(window:VideoWindowItf):void {
-				if (!this.contains(window))
-					return;
-				
-				window.minimizeBtn.visible = true;
-				window.maximizeRestoreBtn.visible = true;
-				window.resizable = true;
-//				window.buttonsEnabled = true;
-				
-				window.removeEventListener(MouseEvent.CLICK, onWindowClick);
-	
-				this.removeChild(window);
-				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				e.window = window;
-				dispatchEvent(e);
-				
-				restoreWindowDimensions(window);
 			}
 			
 			override public function close(event:MouseEvent = null):void {
@@ -398,7 +372,6 @@ $Id: $
 		]]>
 	</mx:Script>
 	
-	<mate:Listener type="{DragWindowEvent.DRAG_WINDOW_EVENT}" method="onDragVideoWindow" />
 	<mate:Listener type="{OpenVideoWindowEvent.OPEN_VIDEO_WINDOW_EVENT}" method="onOpenWindow" />
 	<mate:Listener type="{CloseWindowEvent.CLOSE_WINDOW_EVENT}" method="onCloseWindow" />
 </MDIWindow>

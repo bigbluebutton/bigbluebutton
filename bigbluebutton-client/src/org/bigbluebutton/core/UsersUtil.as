@@ -1,11 +1,61 @@
 package org.bigbluebutton.core
 {
+  import mx.collections.ArrayCollection;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.model.users.BBBUser;
 
   public class UsersUtil
   {
+    
+    public static function amIPublishing():CameraSettingsVO {
+     return UserManager.getInstance().getConference().amIPublishing();
+    }
+    
+    public static function setIAmPublishing(publishing:Boolean):void {
+      UserManager.getInstance().getConference().setCamPublishing(publishing);
+    }
+    
+    public static function setCameraSettings(camSettings:CameraSettingsVO):void {
+      UserManager.getInstance().getConference().setCameraSettings(camSettings);
+    }
+    
+    public static function hasWebcamStream(userID:String):Boolean {
+      var u:BBBUser = getUser(userID);
+      if (u != null) {
+        return u.hasStream;
+      }
+      
+      return false;
+    }
+    
+    public static function getWebcamStream(userID:String):String {
+      var u:BBBUser = getUser(userID);
+      if (u != null) {
+        return u.streamName;
+      }
+      
+      return null;
+    }
+    
+    public static function getUserIDs():ArrayCollection {
+      return UserManager.getInstance().getConference().getUserIDs();
+    }
+    
+    public static function getInternalMeetingID():String {
+      return UserManager.getInstance().getConference().internalMeetingID;
+    }
+    
+    public static function getAvatarURL():String {
+      return UserManager.getInstance().getConference().avatarURL;
+    }
+    
+    public static function getExternalMeetingID():String {
+      return UserManager.getInstance().getConference().externalMeetingID;
+    }
+    
     public static function amIModerator():Boolean {
       return UserManager.getInstance().getConference().amIModerator();
     }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
-		   width="20" height="20" click="onClick()" icon="{text_icon}" 
+           width="30" height="30"
+       click="onClick()" styleName="whiteboardTextButtonStyle"
 		   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.text')}" toggle="true">
 	<mx:Script>
 		<![CDATA[
@@ -8,10 +9,7 @@
             import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
             import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
             import org.bigbluebutton.util.i18n.ResourceUtil;
-			
-			private var images:Images = new Images();
-			[Bindable] private var text_icon:Class = images.text_icon;
-			
+						
             private function onClick():void {
                 var event:WhiteboardButtonEvent = new WhiteboardButtonEvent(WhiteboardButtonEvent.WHITEBOARD_BUTTON_PRESSED);
                 event.graphicType = WhiteboardConstants.TYPE_TEXT;

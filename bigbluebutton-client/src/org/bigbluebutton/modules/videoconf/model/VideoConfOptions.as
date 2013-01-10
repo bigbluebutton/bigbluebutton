@@ -4,6 +4,14 @@ package org.bigbluebutton.modules.videoconf.model
 	
 	public class VideoConfOptions
 	{
+    public var uri:String = "rtmp://localhost/video";
+
+    [Bindable]
+    public var videoQuality:Number = 100;
+    
+    [Bindable]
+    public var resolutions:String = "320x240,640x480,1280x720";
+    
 		[Bindable]
 		public var autoStart:Boolean = false;
 		
@@ -64,6 +72,9 @@ package org.bigbluebutton.modules.videoconf.model
     [Bindable]
     public var controlsForPresenter:Boolean = false; 
     
+    [Bindable]
+    public var displayAvatar:Boolean = false;
+    
     public function VideoConfOptions() {
       parseOptions();
     }
@@ -71,6 +82,15 @@ package org.bigbluebutton.modules.videoconf.model
 		public function parseOptions():void {
 			var vxml:XML = BBB.getConfigForModule("VideoconfModule");
 			if (vxml != null) {
+        if (vxml.@uri != undefined) {
+          uri = vxml.@uri.toString();
+        }		
+        if (vxml.@videoQuality != undefined) {
+          videoQuality = Number(vxml.@videoQuality.toString());
+        }	
+        if (vxml.@resolutions != undefined) {
+          resolutions = vxml.@resolutions.toString();
+        }
 				if (vxml.@showCloseButton != undefined) {
 					showCloseButton = (vxml.@showCloseButton.toString().toUpperCase() == "TRUE") ? true : false;
 				}
@@ -138,6 +158,9 @@ package org.bigbluebutton.modules.videoconf.model
 				if (vxml.@h264Profile != undefined) {
 					h264Profile = vxml.@h264Profile.toString();
 				}
+        if (vxml.@displayAvatar != undefined) {
+          displayAvatar = (vxml.@displayAvatar.toString().toUpperCase() == "TRUE") ? true : false;
+        }	
 			}
 		}
 	}

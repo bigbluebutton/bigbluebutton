@@ -27,6 +27,10 @@ package org.bigbluebutton.main.model
 	 */	
 	public class ConferenceParameters
 	{
+    public var meetingName:String;
+    
+    public var externMeetingID:String;
+    
 		/**
 		 * The name of the conference
 		 */		

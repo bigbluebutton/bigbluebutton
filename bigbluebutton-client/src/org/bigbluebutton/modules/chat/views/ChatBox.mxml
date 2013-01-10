@@ -55,7 +55,7 @@
 	<mate:Listener type="{ShortcutEvent.GOREAD_MESSAGE}" method="goToLatestReadMessage" />
   <mate:Listener type="{PrivateChatMessageEvent.PRIVATE_CHAT_MESSAGE_EVENT}" method="handlePrivateChatMessageEvent"/>
   <mate:Listener type="{PublicChatMessageEvent.PUBLIC_CHAT_MESSAGE_EVENT}" method="handlePublicChatMessageEvent"/>
-  <mate:Listener type="{ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT}" method="handleParticipantJoinEvent"/>
+  <mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
   
 	<mx:Script>
 		<![CDATA[
@@ -69,8 +69,9 @@
       
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.main.events.ParticipantJoinEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.events.UserJoinedEvent;
+      import org.bigbluebutton.main.events.UserLeftEvent;
       import org.bigbluebutton.modules.chat.ChatConstants;
       import org.bigbluebutton.modules.chat.ChatUtil;
       import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
@@ -158,10 +159,7 @@
 				
         // Listen for the ENTER key to send the message.
         txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
-        
-        // Put the cursor on the txt message area when this chat box is in focus
-        this.addEventListener(FocusEvent.FOCUS_IN, handleFocusInEvent);
-        
+                
 				Accessibility.updateProperties();
         focusToTextMessageArea();
         
@@ -198,9 +196,9 @@
         }
       }
       
-      private function handleParticipantJoinEvent(event:ParticipantJoinEvent):void {
+      private function handleUserLeftEvent(event:UserLeftEvent):void {
         // Handle user leaving so that the user won't be talking to someone not there.
-        if (!publicChat && !event.join && event.userID == chatWithUserID) {
+        if (!publicChat && event.userID == chatWithUserID) {
           displayUserHasLeftMessage();
           txtMsgArea.enabled = false;
           scrollToEndOfMessage();
@@ -223,11 +221,7 @@
         
         chatMessages.newChatMessage(msg);
       }
-      
-      private function handleFocusInEvent(event:FocusEvent):void {
-        focusToTextMessageArea();
-      }
-      
+          
       public function focusToTextMessageArea():void {
         txtMsgArea.setFocus();
         txtMsgArea.drawFocus(true);
@@ -267,11 +261,11 @@
 			 * doing as I don't know why it works, but it does. (ralam Nov 3, 2010)
 			 */
 			private function scrollToBottom():void {
-//				chatMessagesList.invalidateSize();
-//				chatMessagesList.invalidateDisplayList();
-				chatMessagesList.scrollToIndex(chatMessages.numMessages());
-//				chatMessagesList.validateDisplayList();
-//				chatMessagesList.validateNow();		
+				chatMessagesList.invalidateSize();
+				chatMessagesList.invalidateDisplayList();
+				chatMessagesList.validateDisplayList();
+				chatMessagesList.validateNow();		
+        chatMessagesList.scrollToIndex(chatMessages.numMessages());
 			}
 			
 			private function onScrollTimer(event:TimerEvent):void {
@@ -480,7 +474,7 @@
         cm.fromTime = now.valueOf();
         cm.fromTimezoneOffset = now.getTimezoneOffset();
         
-        cm.message = ChatUtil.cleanup(message);
+        cm.message = ChatUtil.parseURLs(ChatUtil.cleanup(message));
         
         publicEvent.chatMessage = cm;
         globalDispatcher.dispatchEvent(publicEvent);
@@ -534,17 +528,18 @@
 		
 	</mx:Script>
 
-  <mx:HBox width="100%" height="{chatListHeight}">
-    <mx:List width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true"
-             itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer"
+  <mx:HBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
+    <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="true" variableRowHeight="true" alternatingItemColors="[#EFEFEF, #FEFEFE]"
+             itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="auto" wordWrap="true"
              dataProvider="{chatMessages.messages}" />    
   </mx:HBox>
   
-  <mx:HBox id="chatCtrlBar" width="100%" height="50" styleName="chatControlBarStyle" paddingLeft="5" paddingRight="5">		
+  <mx:HBox id="chatCtrlBar" width="100%" height="50" styleName="chatControlBarStyle" verticalScrollPolicy="off"
+           paddingLeft="5" paddingRight="5">		
     <mx:TextArea id="txtMsgArea" width="100%"  color="{cmpColorPicker.selectedColor}" 
                  styleName="chatControlBarTextMsgStyle" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"/>
-    <mx:VBox>
+    <mx:VBox verticalScrollPolicy="off">
       <mx:Button label="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn')}" id="sendBtn" 
                  styleName="chatControlBarSendButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.toolTip')}" 

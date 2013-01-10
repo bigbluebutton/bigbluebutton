@@ -5,8 +5,7 @@
     
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
+      import com.asfusion.mate.events.Dispatcher;     
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.EventConstants;
@@ -22,20 +21,9 @@
       
       public var sharerUserID:String;
       [Bindable]
-      private var BUTTONS_SIZE:int = 20;
+      private var BUTTONS_SIZE:int = 31;
       private var BUTTONS_PADDING:int = 10;
-      
-      private var images:Images = new Images();
-      
-      [Bindable]
-      private var img_mute_icon:Class = images.sound_mute;
-      [Bindable]
-      private var signOutIcon:Class = images.signOutIcon;
-      [Bindable]
-      private var adminIcon:Class = images.admin;
-      [Bindable]
-      private var chatIcon:Class = images.chatIcon;
-      
+           
       [Bindable]
       private var showButton:Boolean;
       
@@ -46,6 +34,14 @@
       
       public function get padding():int {
         return BUTTONS_PADDING;
+      }
+      
+      public function userMuted(muted:Boolean):void {
+        if (muted) {
+          muteUnmuteBtn.styleName = "videoMutedButtonStyle";
+        } else {
+          muteUnmuteBtn.styleName = "videoUnmutedButtonStyle";
+        }
       }
       
       public function handleNewRoleEvent(presenter:Boolean):void {
@@ -108,8 +104,15 @@
       }
     ]]>
   </mx:Script>
-  <mx:Button id="muteUnmuteBtn" visible="false" click="onMuteUnmuteClicked()" icon="{img_mute_icon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
-  <mx:Button id="switchPresenter" visible="false" click="onSwitchPresenterClicked()" icon="{adminIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
-  <mx:Button id="ejectUserBtn" visible="false" click="onKickUserClicked()" icon="{signOutIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
-  <mx:Button id="privateChatBtn" click="onPrivateChatClicked()" icon="{chatIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
+  <mx:Button id="muteUnmuteBtn" visible="false" click="onMuteUnmuteClicked()"
+             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoUnmutedButtonStyle"/>
+  <mx:Spacer width="2"/>
+  <mx:Button id="switchPresenter" visible="false" click="onSwitchPresenterClicked()"
+             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoSwitchPresenterButtonStyle"/>
+  <mx:Spacer width="2"/>
+  <mx:Button id="ejectUserBtn" visible="false" click="onKickUserClicked()"
+             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoEjectUserButtonStyle"/>
+  <mx:Spacer width="2"/>
+  <mx:Button id="privateChatBtn" click="onPrivateChatClicked()"
+             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoPrivateChatButtonStyle"/>
 </mx:HBox>
