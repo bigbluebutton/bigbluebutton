@@ -78,9 +78,6 @@ done_files.each do |df|
 
 		#Generate md5 checksum
 		md5sum = Digest::MD5.file("#{meeting_id}.dat")
-		md5file = File.new("#{meeting_id}.md5", "w")
-		md5file.write "#{md5sum}"
-		md5file.close
 
 		BigBlueButton.logger.info("Removing files")
 		PUBLICKEY = "key-public.pem"
@@ -95,13 +92,15 @@ done_files.each do |df|
 		metaxml = b.recording {
 			b.id(meeting_id)
 			b.state("available")
-			b.published(true)
+			b.published(false)
 			# Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
 			b.start_time(BigBlueButton::Events.first_event_timestamp("#{process_dir}/#{meeting_id}/events.xml"))
 			b.end_time(BigBlueButton::Events.last_event_timestamp("#{process_dir}/#{meeting_id}/events.xml"))
 			b.playback {
-				b.format("mconf")
+				b.format("encrypted")
 			b.link("http://#{playback_host}/mconf/#{meeting_id}/#{meeting_id}.dat")
+			b.md5(md5sum)
+			b.key("http://#{playback_host}/mconf/#{meeting_id}/#{meeting_id}.enc")
 			}
 			b.meta {
 				BigBlueButton::Events.get_meeting_metadata("#{process_dir}/#{meeting_id}/events.xml").each { |k,v| b.method_missing(k,v) }

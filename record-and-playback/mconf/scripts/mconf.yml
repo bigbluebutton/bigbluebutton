@@ -1,3 +1,3 @@
 publish_dir: /var/bigbluebutton/published/mconf
 playback_host: 143.54.10.141
-
+get_recordings_url: http://143.54.10.141/bigbluebutton/api/getRecordings?checksum=890f03ce56424120dc467f3bbf310a54fd05b541

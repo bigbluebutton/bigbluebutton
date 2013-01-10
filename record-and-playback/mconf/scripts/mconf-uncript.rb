@@ -21,19 +21,54 @@
 require '../../core/lib/recordandplayback'
 require 'rubygems'
 require 'yaml'
-
+require 'net/http'
+require 'rexml/document'
+require 'open-uri'
 
 
 #BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/uncrypt.log",'daily' )
 
 BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/uncypt.log",'daily' ) 
 
-
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 mconf_props = YAML::load(File.open('mconf.yml'))
 #private_key = mconf_props['privatekey']
+xml_url = mconf_props['get_recordings_url']
 recording_dir = bbb_props['recording_dir'] 
 rawdir = "#{recording_dir}/raw"
+
+xml_data = Net::HTTP.get_response(URI.parse(url)).body
+doc = REXML::Document.new(xml_data)
+files_url = []
+types = []
+
+doc.elements.each('response/recordings/recording/playback/format/type') do |type|
+   types << type.text
+end
+doc.elements.each('response/recordings/recording/playback/format/url') do |url|
+    files_url << url.text
+end
+
+types.each_with_index do |eachtype, idx|
+   if (eachtype == "mconf") then
+      url = files_url[idx]
+      file = url.split("/").last
+
+      writeOut = open("#{rawdir}/#{file}", "wb")
+      writeOut.write(open(url).read)
+      writeOut.close
+
+      i = url.length
+      j = file.length
+
+      writeOut = open("#{rawdir}/#{file[0 .. j-5] }.enc", "wb")
+      writeOut.write(open("#{url[0 .. i-5]}.enc").read)
+      writeOut.close
+
+   end
+end
+
+
 #BigBlueButton.logger.info("DIR: #{recording_dir} ")
 criptfiles = Dir.glob("#{recording_dir}/raw/*.dat")
 criptfiles.each do |cf|
