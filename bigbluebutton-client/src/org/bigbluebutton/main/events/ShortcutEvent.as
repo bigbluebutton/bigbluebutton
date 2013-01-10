@@ -21,6 +21,9 @@ package org.bigbluebutton.main.events {
 	import flash.events.Event;
 
 	public class ShortcutEvent extends Event {
+		public static const MAXIMIZE:String = 'MAXIMIZE';
+		public static const MINIMIZE:String = 'MINIMIZE';
+		
 		public static const FOCUS_AWAY_EVENT:String = 'FOCUS_AWAY_EVENT';
 		public static const MUTE_ME_EVENT:String = 'MUTE_ME_EVENT';
 		public static const FOCUS_CHAT_INPUT:String = 'FOCUS_CHAT_INPUT';

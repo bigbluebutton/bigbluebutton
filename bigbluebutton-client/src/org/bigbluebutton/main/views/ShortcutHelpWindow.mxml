@@ -43,7 +43,8 @@
 			private var audKeys:ArrayList;
 			private var viewerKeys:ArrayList;
 			
-			private var genResource:Array = ['bbb.shortcutkey.flash.exit', 'bbb.shortcutkey.focus.viewers', 'bbb.shortcutkey.focus.listeners', 
+			private var genResource:Array = ['bbb.shortcutkey.general.minimize', 'bbb.shortcutkey.general.maximize', 
+											 'bbb.shortcutkey.flash.exit', 'bbb.shortcutkey.focus.viewers', 'bbb.shortcutkey.focus.listeners', 
 											 'bbb.shortcutkey.focus.video', 'bbb.shortcutkey.focus.presentation', 'bbb.shortcutkey.focus.chat',
 											 'bbb.shortcutkey.share.desktop', 'bbb.shortcutkey.share.microphone', 'bbb.shortcutkey.share.webcam',
 											 'bbb.shortcutkey.shortcutWindow', 'bbb.shortcutkey.logout', 'bbb.shortcutkey.raiseHand'];
@@ -130,12 +131,29 @@
 					//indx = keyCombo.lastIndexOf("+") + 1;
 					var key:int = int(keyCombo);
 					var convKey:String;
-					if (key == 32) { //special case
+					
+					// Special cases where the keycodes don't render a sensible character
+					switch (key) {
+						case 32 :
+							convKey = "Space";
+						  	break;
+						case 189 :
+						  	convKey = "Minus";
+						  	break;
+						case 187 :
+						  	convKey = "Plus";
+						  	break;
+						default:
+							convKey = String.fromCharCode(key);
+							break;
+					}
+					
+					/*if (key == 32) { //special case
 						convKey = "Space";
 					} 
 					else {
 						convKey = String.fromCharCode(key);
-					}
+					}*/
 					
 					if (keyCombo == "----"){
 						//convKey = "";
