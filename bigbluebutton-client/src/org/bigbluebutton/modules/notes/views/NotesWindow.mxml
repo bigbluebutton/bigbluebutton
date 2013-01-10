@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ns:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+              xmlns:ns="http://code.google.com/p/flexlib/" 
+              xmlns:views="org.bigbluebutton.modules.notes.views.*"
+              implements="org.bigbluebutton.common.IBbbModuleWindow" 
+              title="Notes"
+              creationComplete="onCreationComplete()"
+              layout="absolute">
+  <mx:Script>
+    <![CDATA[
+      import org.bigbluebutton.modules.notes.models.NotesModel;
+      import org.bigbluebutton.modules.notes.models.NotesOptions;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+      
+      [Bindable]
+      public var notesModel:NotesModel;
+      
+      public function getPrefferedPosition():String{
+        var options:NotesOptions = new NotesOptions();
+        return options.position;
+      } 
+      
+      private function onCreationComplete():void {
+        this.title = ResourceUtil.getInstance().getString("bbb.notes.title");
+      }
+    ]]>
+  </mx:Script>
+  
+  <views:NotesView id="notesView" notesArray="{notesModel}"/>
+</ns:MDIWindow>

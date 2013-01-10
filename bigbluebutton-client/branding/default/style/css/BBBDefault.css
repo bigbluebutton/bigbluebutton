@@ -42,10 +42,10 @@ Panel {
 
 Button {
   textIndent: 0;
-  paddingLeft: 5;
-  paddingRight: 5;
-  paddingTop: 5;
-  paddingBottom: 5;
+  paddingLeft: 1;
+  paddingRight: 1;
+  paddingTop: 1;
+  paddingBottom: 1;
   highlightAlphas: 0.4, 0;
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
@@ -53,9 +53,45 @@ Button {
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;
-  themeColor: #aaaaaa;
+  themeColor: haloBlue;
   fontFamily: Arial;
   fontSize: 12;
+}
+
+.chatSendButtonStyle {
+  cornerRadius: 0;
+  highlightAlphas: 0, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #262626, #262626, #454545, #454545;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #262626;
+  borderColor: #000000;
+  themeColor: haloBlue;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+.logoutButtonStyle {
+  cornerRadius: 0;
+  highlightAlphas: 0, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #262626, #262626, #454545, #454545;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #262626;
+  borderColor: #000000;
+  themeColor: haloBlue;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+.helpLinkButtonStyle {
+  rollOverColor: #cccccc;
+  selectionColor: #999999;
+  color: #ffffff;
+  textRollOverColor: #504f3d;
+  textSelectedColor: #504f3d;
 }
 
 DataGrid {
@@ -94,7 +130,7 @@ DataGrid {
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;
-  themeColor: #aaaaaa;
+  themeColor: haloBlue;
   fontFamily: Arial;
   fontSize: 12;
 }
@@ -151,7 +187,7 @@ DataGrid {
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;
-  themeColor: #aaaaaa;
+  themeColor: haloBlue;
   fontFamily: Arial;
   fontSize: 12;
 }
@@ -188,7 +224,7 @@ DataGrid {
   invertThumbDirection: false;
   borderColor: #b9babc;
   trackColors: #aaaaaa, #aaaaaa;
-  themeColor: #aaaaaa;
+  themeColor: haloBlue;
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
   labelStyleName: "presentationZoomSliderLabelStyle";
@@ -199,14 +235,52 @@ DataGrid {
   fontFamily: Arial;
 }
 
-MDIWindow {
-  resizeCursorHorizontalXOffset: 2;	
+.videoMuteButtonStyle, .videoUnmutedButtonStyle, .videoSwitchPresenterButtonStyle, .videoEjectUserButtonStyle, .videoPrivateChatButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #b9babc;  
+  cornerRadius: 17;
 }
 
-.mdiWindowFocus, .mdiWindowNoFocus, .presentationWindowStyleNoFocus, .presentationWindowStyleFocus, .videoDockStyleNoFocus, .videoDockStyleFocus
+.videoMutedButtonStyle {
+  /* Need to duplicate info here as the styleName is programatically changed. Extracting it out doesn't have any effect. */
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #ffffff;
+  textSelectedColor: #ffffff;
+  borderColor: #50a6d7;  
+  cornerRadius: 17;
+  icon:   Embed('assets/images/webcam-muted.png');
+}
+
+.videoUnmutedButtonStyle {
+  icon:   Embed('assets/images/webcam-unmuted.png');
+}
+
+.videoSwitchPresenterButtonStyle {
+  icon:   Embed('assets/images/webcam-switch-presenter.png');
+}
+
+.videoEjectUserButtonStyle {
+  icon:   Embed('assets/images/webcam-eject-user.png');
+}
+
+.videoPrivateChatButtonStyle {
+  icon:   Embed('assets/images/webcam-private-chat.png');
+}
+
+MDIWindow {
+  
+}
+
+.mdiWindowFocus, .presentationWindowStyleFocus, .videoDockStyleFocus
 {
   headerHeight: 26;
-  roundedBottomCorners: false;
+  roundedBottomCorners: true;
   backgroundAlpha: 1;
   backgroundColor: #b9babc;
   backgroundSize: '100%';
@@ -214,6 +288,37 @@ MDIWindow {
   borderStyle: solid;
   borderColor: #b9babc;
   borderAlpha: 1;
+  borderThickness: 1;
+  borderThicknessLeft: 1;
+  borderThicknessTop: 1;
+  borderThicknessBottom: 1;
+  borderThicknessRight: 1;
+  cornerRadius: 0;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+  
+  cornerResizeImg: Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
+  cornerResizeWidth: 2;
+  cornerResizeHeight: 2;
+  cornerResizePaddingRight: 2;
+  cornerResizePaddingBottom: 2;
+  
+  controlButtonWidth: 10;
+  controlButtonHeight: 10;
+  controlButtonGap: 4;
+}
+
+.mdiWindowNoFocus, .presentationWindowStyleNoFocus, .videoDockStyleNoFocus
+{
+  headerHeight: 26;
+  roundedBottomCorners: false;
+  backgroundAlpha: 0.5;
+  backgroundColor: #b9babc;
+  backgroundSize: '100%';
+  
+  borderStyle: solid;
+  borderColor: #b9babc;
+  borderAlpha: 0.5;
   borderThickness: 1;
   borderThicknessLeft: 1;
   borderThicknessTop: 1;
@@ -251,7 +356,7 @@ MDIWindow {
 .videoViewStyleNoFocus 
 {
   borderColor: #b9babc;
-  borderAlpha: 1;
+  borderAlpha: 0.5;
   borderThicknessLeft: 5;
   borderThicknessTop: 5;
   borderThicknessBottom: 5;
@@ -260,6 +365,7 @@ MDIWindow {
   cornerRadius: 5;
   headerHeight: 20;
   backgroundColor: #b9babc;
+  backgroundAlpha: 0.5;
   dropShadowEnabled: false;
   titleStyleName: "mypanelTitle";
 }
@@ -276,6 +382,7 @@ MDIWindow {
   cornerRadius: 5;
   headerHeight: 20;
   backgroundColor: #b9babc;
+  backgroundAlpha: 1;
   dropShadowEnabled: false;
   titleStyleName: "mypanelTitle";
 }
@@ -283,7 +390,7 @@ MDIWindow {
 .videoPublishStyleNoFocus 
 {
   borderColor: #b9babc;
-  borderAlpha: 1;
+  borderAlpha: 0.5;
   borderThicknessLeft: 5;
   borderThicknessTop: 5;
   borderThicknessBottom: 5;
@@ -292,6 +399,7 @@ MDIWindow {
   cornerRadius: 5;
   headerHeight: 20;
   backgroundColor: #b9babc;
+  backgroundAlpha: 0.5;
   dropShadowEnabled: false;
   titleStyleName: "mypanelTitle";
 }
@@ -308,6 +416,7 @@ MDIWindow {
   cornerRadius: 5;
   headerHeight: 20;
   backgroundColor: #b9babc;
+  backgroundAlpha: 1;
   dropShadowEnabled: false;
   titleStyleName: "mypanelTitle";
 }
@@ -315,7 +424,7 @@ MDIWindow {
 .videoAvatarStyleNoFocus 
 {
   borderColor: #b9babc;
-  borderAlpha: 1;
+  borderAlpha: 0.5;
   borderThicknessLeft: 5;
   borderThicknessTop: 5;
   borderThicknessBottom: 5;
@@ -324,6 +433,7 @@ MDIWindow {
   cornerRadius: 5;
   headerHeight: 20;
   backgroundColor: #b9babc;
+  backgroundAlpha: 0.5;
   dropShadowEnabled: false;
   titleStyleName: "mypanelTitle";
 }
@@ -340,6 +450,7 @@ MDIWindow {
   cornerRadius: 5;
   headerHeight: 20;
   backgroundColor: #b9babc;
+  backgroundAlpha: 1;
   dropShadowEnabled: false;
   titleStyleName: "mypanelTitle";
 }

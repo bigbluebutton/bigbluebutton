@@ -27,7 +27,7 @@ package org.bigbluebutton.core
     public static const CAM_STREAM_SHARED:String          = 'CamStreamSharedEvent';
     public static const USER_JOINED:String                = 'UserJoinedEvent';
     public static const USER_LEFT:String                  = 'UserLeftEvent';
-    public static const NEW_ROLE:String                   = 'NewRoleEvent';
+    public static const SWITCHED_PRESENTER:String         = 'SwitchedPresenterEvent';
     public static const NEW_PRIVATE_CHAT:String           = 'NewPrivateChatEvent';
     public static const NEW_PUBLIC_CHAT:String            = 'NewPublicChatEvent';
     public static const SWITCHED_LAYOUT:String            = 'SwitchedLayoutEvent';

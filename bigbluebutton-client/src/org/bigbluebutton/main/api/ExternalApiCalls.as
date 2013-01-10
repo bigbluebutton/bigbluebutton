@@ -8,6 +8,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
   import org.bigbluebutton.core.events.CoreEvent;
+  import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
@@ -21,6 +22,14 @@ package org.bigbluebutton.main.api
 
 
   public class ExternalApiCalls { 
+        
+    public function handleSwitchedLayoutEvent(event:SwitchedLayoutEvent):void {
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.SWITCHED_LAYOUT;
+      payload.layoutID = event.layoutID;
+      
+      broadcastEvent(payload);
+    }    
     
     public function handleStreamStartedEvent(event:StreamStartedEvent):void {
       var vidConf:VideoConfOptions = new VideoConfOptions();
@@ -81,8 +90,9 @@ package org.bigbluebutton.main.api
     }
     
     public function handleSwitchToNewRoleEvent(event:CoreEvent):void {
+      trace("Got NEW ROLE EVENT role = [" + event.message.role + "]");
       var payload:Object = new Object();
-      payload.eventName = EventConstants.NEW_ROLE;
+      payload.eventName = EventConstants.SWITCHED_PRESENTER;
       payload.role = event.message.role;
       broadcastEvent(payload);        
     }
@@ -140,14 +150,7 @@ package org.bigbluebutton.main.api
       
       broadcastEvent(payload);
     }
-    
-    public function handleSwitchedLayoutEvent(layoutID:String):void {
-      var payload:Object = new Object();
-      payload.eventName = EventConstants.SWITCHED_LAYOUT;
-      payload.layoutID = layoutID;
-      broadcastEvent(payload);
-    }
-        
+            
     public function handleNewPublicChatEvent(event:CoreEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.NEW_PUBLIC_CHAT;
