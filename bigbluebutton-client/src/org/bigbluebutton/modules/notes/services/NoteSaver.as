@@ -54,6 +54,7 @@ package org.bigbluebutton.modules.notes.services
       _request.method = URLRequestMethod.GET;
       
       _vars = new URLVariables();
+      _vars.saveNote = "";
       _vars.noteID = _note.noteID;
       _vars.text = base64Encode(_note.note);
       _vars.externalMeetingID = UsersUtil.getExternalMeetingID();
@@ -89,9 +90,10 @@ package org.bigbluebutton.modules.notes.services
       var xml:XML = new XML(event.target.data);
       
       if (saveSuccess(xml)) {
-        trace("SAVED");
+        trace("SAVED noteID [" + _note.noteID + "] on [" + xml.timestamp + "]");
         var successEvent:SaveSuccessEvent = new SaveSuccessEvent();
         successEvent.noteID = _note.noteID;
+        successEvent.timestamp = xml.timestamp;
         _dispatcher.dispatchEvent(successEvent);        
       } else {
         trace("NOT SAVED");

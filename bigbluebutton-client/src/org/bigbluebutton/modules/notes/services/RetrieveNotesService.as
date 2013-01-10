@@ -48,8 +48,9 @@ package org.bigbluebutton.modules.notes.services
       _request.method = URLRequestMethod.GET;
       
       _vars = new URLVariables();
+      _vars.retrieveNotes = "";
       _vars.meetingID = UsersUtil.getExternalMeetingID();
-      _vars.userId = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+      _vars.userID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
     
       try {
         _loader.load(_request);
@@ -91,6 +92,7 @@ package org.bigbluebutton.modules.notes.services
         note.note = decNote;
         note.noteID =  item.noteID;
         note.saved = true;
+        note.timestamp = item.timestamp;
         notes.addItem(note);
       }
       return notes;

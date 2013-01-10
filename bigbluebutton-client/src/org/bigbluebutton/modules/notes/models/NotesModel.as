@@ -11,11 +11,12 @@ package org.bigbluebutton.modules.notes.models
       notes.addItem(n);
     }
     
-    public function noteSaved(noteID:String):void {
+    public function noteSaved(noteID:String, timestamp:String):void {
       for (var i:int = 0; i < notes.length; i++){
         var item:Note = notes.getItemAt(i) as Note;
         if (item.noteID == noteID) {
           item.saved = true;
+          item.timestamp = timestamp;
         }
       }
     }
