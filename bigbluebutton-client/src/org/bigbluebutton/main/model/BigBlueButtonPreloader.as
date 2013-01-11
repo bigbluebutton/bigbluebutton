@@ -33,15 +33,14 @@ package org.bigbluebutton.main.model
 		public function BigBlueButtonPreloader()
 		{
 			super();
-			downloadingLabel = "Downloading BigBlueButton...";
-			initializingLabel = "BigBlueButton starting...";
+			downloadingLabel = "Downloading ...";
+			initializingLabel = "Starting...";
 			MINIMUM_DISPLAY_TIME = 0;
 		}
 		
 		override public function set preloader(value:Sprite):void{
 			super.preloader = value;
 			value.addEventListener(RSLEvent.RSL_ERROR, sharedLibraryLoadingFailed);
-//			ResourceUtil.getInstance();
 		}
 		
 		override protected function get labelRect():Rectangle{
