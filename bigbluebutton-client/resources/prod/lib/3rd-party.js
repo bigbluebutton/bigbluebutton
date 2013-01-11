@@ -1,6 +1,15 @@
 
 var registerListeners = function() {
   console.log("Listening for events.");
+  BBB.listen("SwitchedLayoutEvent", function(bbbEvent) {
+    console.log("New Layout [" + bbbEvent.layoutID + "].");
+  });
+  BBB.listen("NewRoleEvent", function(bbbEvent) {
+    console.log("Switched Presenter [amIPresenter=" + bbbEvent.amIPresenter + ",role=" + bbbEvent.role + ",newPresenterUserID=" + bbbEvent.newPresenterUserID + "].");
+  });
+  BBB.listen("SwitchedPresenterEvent", function(bbbEvent) {
+    console.log("Switched Presenter [amIPresenter=" + bbbEvent.amIPresenter + ",role=" + bbbEvent.role + ",newPresenterUserID=" + bbbEvent.newPresenterUserID + "].");
+  });
   BBB.listen("UserLeftEvent", function(bbbEvent) {
     console.log("User [" + bbbEvent.userID + "] has left.");
   });
@@ -62,9 +71,23 @@ var amIPresenterSync = function() {
   });
 }
 
+var getMyUserInfoAsynch = function() {
+  BBB.listen("GetMyUserInfoResponse", function(bbbEvent) {
+    console.log("User info response [myUserID=" + bbbEvent.myUserID + ",myUsername=" + bbbEvent.myUsername + ",myAvatarURL=" + bbbEvent.myAvatarURL + ",myRole=" + bbbEvent.myRole + ",amIPresenter=" + bbbEvent.amIPresenter + "].");
+  });
+
+  BBB.getMyUserInfo();
+}
+
+var getMyUserInfoSynch = function() {
+  BBB.getMyUserInfo(function(userInfo) {
+    console.log("User info callback [myUserID=" + userInfo.myUserID + ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL + ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter + "].");
+  });
+}
+
 var getMyRoleAsynch = function() {
   BBB.listen("GetMyRoleResponse", function(bbbEvent) {
-    console.log("Received GetMyRoleResponse event");
+    console.log("Received GetMyRoleResponse event [" + bbbEvent.myRole + "]");
   });
 
   BBB.getMyRole();
