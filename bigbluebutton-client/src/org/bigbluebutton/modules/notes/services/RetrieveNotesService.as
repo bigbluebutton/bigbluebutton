@@ -44,14 +44,17 @@ package org.bigbluebutton.modules.notes.services
     }
        
     public function retrieveNotes():void {
-      _request.url = _options.saveURL + "/notes";
+      //_request.url = _options.saveURL + "/notes";
+      _request.url = _options.saveURL;
       _request.method = URLRequestMethod.GET;
       
       _vars = new URLVariables();
+      _vars.retrieveNotes = "";
       _vars.meetingID = UsersUtil.getExternalMeetingID();
-      _vars.userId = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+      _vars.userID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
     
       try {
+        _request.data = _vars;
         _loader.load(_request);
       } catch (error:Error) {
         trace("Unable to load requested document.");
@@ -91,6 +94,7 @@ package org.bigbluebutton.modules.notes.services
         note.note = decNote;
         note.noteID =  item.noteID;
         note.saved = true;
+        note.timestamp = item.timestamp;
         notes.addItem(note);
       }
       return notes;

@@ -100,8 +100,15 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
 //        Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer((int)dim.getHeight()));
       Integer cWidthValue = (Integer)parser.getOptionValue(cWidth, new Integer(800));
       Integer cHeightValue = (Integer)parser.getOptionValue(cHeight, new Integer(600));
+      
       Integer sWidthValue = (Integer)parser.getOptionValue(sWidth, new Integer(800));
       Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer(600));
+      
+      Boolean isPreScaled = true; 
+      if(sWidthValue.intValue() == 800 && sHeightValue.intValue() == 600){
+    	  isPreScaled = false;
+      }
+      
         Boolean qualityValue = (Boolean)parser.getOptionValue(quality, new Boolean(false));
         Boolean aspectValue = (Boolean)parser.getOptionValue(aspectRatio, new Boolean(false));
         Integer xValue = (Integer)parser.getOptionValue(xCoord, new Integer(0));
@@ -120,7 +127,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         						.room(roomValue).captureWidth(cWidthValue)
         						.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
         						.quality(qualityValue).aspectRatio(aspectValue)
-        						.x(xValue).y(yValue).fullScreen(fullScreenValue).useSVC2(useSVC2Value)
+        						.x(xValue).y(yValue).fullScreen(fullScreenValue).useSVC2(useSVC2Value).isPreScaled(isPreScaled)
         						.httpTunnel(tunnelValue).trayIcon(image).enableTrayIconActions(true).build();
         
         client.addClientListener(dsMain);

@@ -20,7 +20,7 @@
   $Id: $
 -->
 
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" 
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" styleName="noteRendererStyle"
 		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()"
 		 creationComplete="onCreationComplete()">
 	
@@ -62,8 +62,11 @@
 		]]>
 	</mx:Script>
 	
-  <mx:HBox width="100%">
-    <mx:Text id="lblTime" htmlText="{note.note}" textAlign="left"
-             color="gray"  width="100%"/>       
+  <mx:HBox width="100%" height="15" styleName="noteRendererTimestampStyle">
+    <mx:Text id="timestamp" htmlText="{note.timestamp}" textAlign="left" color="gray"  width="100%"/>      
+  </mx:HBox> 
+  <mx:HBox width="100%" styleName="noteRendererTextStyle">
+    <mx:Spacer width="5"/>
+    <mx:Text id="lblTime" htmlText="{note.note}" textAlign="left" color="gray"  width="100%"/>       
   </mx:HBox> 
 </mx:VBox>
