@@ -84,6 +84,10 @@ package org.bigbluebutton.core
       return UserManager.getInstance().getConference().getMyUserId();
     }
     
+    public static function getMyRole():String {
+      return UserManager.getInstance().getConference().getMyRole();
+    }
+    
     public static function getMyUsername():String {
       return UserManager.getInstance().getConference().getMyName();
     }

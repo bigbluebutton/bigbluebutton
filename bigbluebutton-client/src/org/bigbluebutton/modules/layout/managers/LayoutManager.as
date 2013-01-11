@@ -196,7 +196,6 @@ package org.bigbluebutton.modules.layout.managers
       applyLayout(newLayout);
       sendLayoutUpdate(_currentLayout);     
       
-//      dispatchSwitchedLayoutEvent(newLayout.name);
     }
     
 		public function applyDefaultLayout():void {   
@@ -206,8 +205,7 @@ package org.bigbluebutton.modules.layout.managers
       var defaultLayout:LayoutDefinition = _layouts.getLayout(layoutOptions.defaultLayout);
            
       var sessionDefaulLayout:String = UserManager.getInstance().getConference().getDefaultLayout();
-      
-      
+            
       if (sessionDefaulLayout != "NOLAYOUT") {
         var sesLayout:LayoutDefinition = _layouts.getLayout(sessionDefaulLayout);
         if (sesLayout != null) {
@@ -222,8 +220,7 @@ package org.bigbluebutton.modules.layout.managers
       trace("************** USING [" + defaultLayout.name + "] as default LAYOUT ***************************");
 			applyLayout(defaultLayout);
 			sendLayoutUpdate(_currentLayout);
-      
-//      dispatchSwitchedLayoutEvent(defaultLayout.name);
+
 		}
 		
     private function dispatchSwitchedLayoutEvent(layoutID:String):void {

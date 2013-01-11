@@ -59,7 +59,7 @@
     }
 
     /**
-     * Get external meetingID.
+     * Get external userID.
      */  
     BBB.getMyUserID = function(callback) {
       var swfObj = getSwfObj();
@@ -70,7 +70,23 @@
         }
       }
     }
-    
+ 
+     /**
+     * Get my user info.
+     */  
+    BBB.getMyUserInfo = function(callback) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        if (arguments.length == 0) {
+          swfObj.getMyUserInfoAsync();
+        } else {
+          if (typeof callback === 'function') {
+            callback(swfObj.getMyUserInfoSync());
+          }
+        }
+      }
+    }
+       
     /**
      * Get external meetingID.
      */  

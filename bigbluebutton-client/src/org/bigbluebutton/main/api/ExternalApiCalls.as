@@ -3,11 +3,13 @@ package org.bigbluebutton.main.api
   import flash.external.ExternalInterface;
   
   import org.bigbluebutton.common.LogUtil;
+  import org.bigbluebutton.common.Role;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
   import org.bigbluebutton.core.events.CoreEvent;
+  import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
@@ -23,7 +25,19 @@ package org.bigbluebutton.main.api
 
 
   public class ExternalApiCalls { 
-        
+    
+    public function handleGetMyUserInfoRequest(event:GetMyUserInfoRequestEvent):void {
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.GET_MY_USER_INFO_REP;
+      payload.myUserID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+      payload.myUsername = UsersUtil.getMyUsername();
+      payload.myAvatarURL = UsersUtil.getAvatarURL();
+      payload.myRole = UsersUtil.getMyRole();
+      payload.amIPresenter = UsersUtil.amIPresenter();
+      
+      broadcastEvent(payload);
+    } 
+    
     public function handleSwitchedLayoutEvent(event:SwitchedLayoutEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.SWITCHED_LAYOUT;
@@ -95,8 +109,15 @@ package org.bigbluebutton.main.api
       var payload:Object = new Object();
       payload.eventName = EventConstants.SWITCHED_PRESENTER;
       payload.amIPresenter = event.amIPresenter;
+      payload.role = event.amIPresenter ? Role.PRESENTER : Role.VIEWER;
       payload.newPresenterUserID = event.newPresenterUserID;
-      broadcastEvent(payload);        
+      broadcastEvent(payload);
+      
+      payload.eventName = EventConstants.NEW_ROLE;
+      payload.amIPresenter = event.amIPresenter;
+      payload.newPresenterUserID = event.newPresenterUserID;
+      payload.role = event.amIPresenter ? Role.PRESENTER : Role.VIEWER;
+      broadcastEvent(payload);      
     }
 
     public function handleStartPrivateChatEvent(event:CoreEvent):void {
