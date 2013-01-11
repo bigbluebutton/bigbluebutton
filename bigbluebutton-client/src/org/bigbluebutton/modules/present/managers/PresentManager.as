@@ -18,15 +18,12 @@
 */
 package org.bigbluebutton.modules.present.managers
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
-	import mx.managers.PopUpManager;
-	
+	import com.asfusion.mate.events.Dispatcher;	
+	import mx.managers.PopUpManager;	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;

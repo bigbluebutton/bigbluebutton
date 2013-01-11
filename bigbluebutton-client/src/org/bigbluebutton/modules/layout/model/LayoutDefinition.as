@@ -192,7 +192,7 @@ package org.bigbluebutton.modules.layout.model {
 				
 
 			if (!ignoreWindowByType(type)) {
-        trace("LayoutDefinition::applyToWindow [" + window.name + ", type=" + type + "]");
+//        trace("LayoutDefinition::applyToWindow [" + window.name + ", type=" + type + "]");
         WindowLayout.setLayout(canvas, window, myLayout[type]);
       }				
 		}

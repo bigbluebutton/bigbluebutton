@@ -224,6 +224,8 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
     private function dispatchSwitchedLayoutEvent(layoutID:String):void {
+      if (_currentLayout != null && _currentLayout.name == layoutID) return;
+      
       trace("************** DISPATCHING [" + layoutID + "] as new LAYOUT ***************************");
       var layoutEvent:SwitchedLayoutEvent = new SwitchedLayoutEvent();
       layoutEvent.layoutID = layoutID;
