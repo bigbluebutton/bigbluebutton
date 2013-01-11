@@ -242,6 +242,9 @@ public class DeskshareClient {
         			System.out.println("Info[" + captureWidth + "," + captureHeight + "][" + x + "," + y +"]"
         					+ "[" + fullScreenSize.getWidth() + "," + fullScreenSize.getHeight() + "]");
 //    			calculateDimensionsToMaintainAspectRatio();
+        			if (aspectRatio) {
+        				recalculateScaleDimensionsToMaintainAspectRatio();
+        			}
     		}
     	}
     	
