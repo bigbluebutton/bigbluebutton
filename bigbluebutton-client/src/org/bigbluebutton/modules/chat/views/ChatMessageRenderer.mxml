@@ -36,8 +36,9 @@
 			
 			private function onLinkClick(e:TextEvent):void{
         trace("Clicked on link[" + e.text + "] from chat");
-				var url:URLRequest = new URLRequest(e.text);
-				navigateToURL(url, '_blank');
+        if (ExternalInterface.available) {
+          ExternalInterface.call("chatLinkClicked", e.text);
+        } 
 			}
 			
 			private function onCreationComplete():void{
