@@ -5,7 +5,7 @@ var registerListeners = function() {
     console.log("New Layout [" + bbbEvent.layoutID + "].");
   });
   BBB.listen("NewRoleEvent", function(bbbEvent) {
-    console.log("Switched Presenter [amIPresenter=" + bbbEvent.amIPresenter + ",role=" + bbbEvent.role + ",newPresenterUserID=" + bbbEvent.newPresenterUserID + "].");
+    console.log("New Role Event [amIPresenter=" + bbbEvent.amIPresenter + ",role=" + bbbEvent.role + ",newPresenterUserID=" + bbbEvent.newPresenterUserID + "].");
   });
   BBB.listen("SwitchedPresenterEvent", function(bbbEvent) {
     console.log("Switched Presenter [amIPresenter=" + bbbEvent.amIPresenter + ",role=" + bbbEvent.role + ",newPresenterUserID=" + bbbEvent.newPresenterUserID + "].");
