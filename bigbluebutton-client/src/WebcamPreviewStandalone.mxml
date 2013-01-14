@@ -94,7 +94,9 @@
         stopCamera();
       }
           
-      public function displayCamera(camIndex:String, camWidth:int, camHeight:int, camKeyFrameInterval:int, camModeFps:Number, camQualityBandwidth:int, camQualityPicture:int):void {
+      public function displayCamera(camIndex:String, camWidth:int, camHeight:int, camKeyFrameInterval:int, 
+                                                                                  camModeFps:Number, camQualityBandwidth:int, 
+                                                                                                     camQualityPicture:int):void {
         trace('WebcamPreviewSA::displayCamera');
         stopCamera();
         

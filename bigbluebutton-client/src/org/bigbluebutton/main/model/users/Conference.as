@@ -208,7 +208,11 @@ package org.bigbluebutton.main.model.users {
 		public function amIThisUser(userID:String):Boolean {
 			return me.userID == userID;
 		}
-				
+		
+    public function getMyRole():String {
+      return me.role;
+    }
+    
 		public function amIModerator():Boolean {
 			return me.role == Role.MODERATOR;
 		}

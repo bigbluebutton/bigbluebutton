@@ -19,8 +19,7 @@
  */
 package org.bigbluebutton.modules.layout.managers
 {
-  import com.asfusion.mate.events.Dispatcher;
-  
+  import com.asfusion.mate.events.Dispatcher; 
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.events.TimerEvent;
@@ -28,15 +27,12 @@ package org.bigbluebutton.modules.layout.managers
   import flash.net.URLLoader;
   import flash.net.URLRequest;
   import flash.utils.Dictionary;
-  import flash.utils.Timer;
-  
+  import flash.utils.Timer;  
   import flexlib.mdi.containers.MDICanvas;
   import flexlib.mdi.containers.MDIWindow;
-  import flexlib.mdi.events.MDIManagerEvent;
-  
+  import flexlib.mdi.events.MDIManagerEvent;  
   import mx.controls.Alert;
-  import mx.events.ResizeEvent;
-  
+  import mx.events.ResizeEvent;  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventBroadcaster;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
@@ -200,7 +196,6 @@ package org.bigbluebutton.modules.layout.managers
       applyLayout(newLayout);
       sendLayoutUpdate(_currentLayout);     
       
-      dispatchSwitchedLayoutEvent(newLayout.name);
     }
     
 		public function applyDefaultLayout():void {   
@@ -210,8 +205,7 @@ package org.bigbluebutton.modules.layout.managers
       var defaultLayout:LayoutDefinition = _layouts.getLayout(layoutOptions.defaultLayout);
            
       var sessionDefaulLayout:String = UserManager.getInstance().getConference().getDefaultLayout();
-      
-      
+            
       if (sessionDefaulLayout != "NOLAYOUT") {
         var sesLayout:LayoutDefinition = _layouts.getLayout(sessionDefaulLayout);
         if (sesLayout != null) {
@@ -226,11 +220,13 @@ package org.bigbluebutton.modules.layout.managers
       trace("************** USING [" + defaultLayout.name + "] as default LAYOUT ***************************");
 			applyLayout(defaultLayout);
 			sendLayoutUpdate(_currentLayout);
-      
-      dispatchSwitchedLayoutEvent(defaultLayout.name);
+
 		}
 		
     private function dispatchSwitchedLayoutEvent(layoutID:String):void {
+      if (_currentLayout != null && _currentLayout.name == layoutID) return;
+      
+      trace("************** DISPATCHING [" + layoutID + "] as new LAYOUT ***************************");
       var layoutEvent:SwitchedLayoutEvent = new SwitchedLayoutEvent();
       layoutEvent.layoutID = layoutID;
       _globalDispatcher.dispatchEvent(layoutEvent);      
@@ -253,8 +249,11 @@ package org.bigbluebutton.modules.layout.managers
 		
 		private function applyLayout(layout:LayoutDefinition):void {
 			_detectContainerChange = false;
-			if (layout != null)
-				layout.applyToCanvas(_canvas);
+			if (layout != null) {
+        layout.applyToCanvas(_canvas);
+        dispatchSwitchedLayoutEvent(layout.name);
+      }
+				
 			updateCurrentLayout(layout);
 			_detectContainerChange = true;
 		}
@@ -262,8 +261,9 @@ package org.bigbluebutton.modules.layout.managers
 		public function redefineLayout(e:RedefineLayoutEvent):void {
 			var layout:LayoutDefinition = e.layout;
 			applyLayout(layout);
-			if (!e.remote)
-				sendLayoutUpdate(layout);
+			if (!e.remote) {
+        sendLayoutUpdate(layout);        
+      }
 		}
 		
 		public function remoteLockLayout():void {

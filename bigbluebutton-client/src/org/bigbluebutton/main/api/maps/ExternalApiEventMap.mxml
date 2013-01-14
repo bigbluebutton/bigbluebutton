@@ -26,10 +26,11 @@
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
       import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
+      import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
       import org.bigbluebutton.core.events.SwitchedLayoutEvent;
       import org.bigbluebutton.main.api.ExternalApiCalls;
       import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.SwitchedPresenterEvent;
       import org.bigbluebutton.main.events.UserJoinedEvent;
       import org.bigbluebutton.main.events.UserLeftEvent;
       import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
@@ -82,6 +83,10 @@
     <MethodInvoker generator="{ExternalApiCalls}" method="handleGetMyRoleResponse" arguments="{event}"/>
   </EventHandlers>
 
+  <EventHandlers type="{GetMyUserInfoRequestEvent.GET_MY_USER_INFO_REQUEST}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleGetMyUserInfoRequest" arguments="{event}"/>
+  </EventHandlers>
+  
   <EventHandlers type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleSwitchedLayoutEvent" arguments="{event}"/>
   </EventHandlers>
@@ -98,7 +103,7 @@
     <MethodInvoker generator="{ExternalApiCalls}" method="handleUserLeftEvent" arguments="{event}"/>
   </EventHandlers>
   
-  <EventHandlers type="{EventConstants.SWITCHED_PRESENTER}" >
+  <EventHandlers type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleSwitchToNewRoleEvent" arguments="{event}"/>
   </EventHandlers>
 

@@ -12,6 +12,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
   import org.bigbluebutton.core.events.CoreEvent;
+  import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
@@ -33,6 +34,8 @@ package org.bigbluebutton.main.api
     private function init():void {
       if (ExternalInterface.available) {
         ExternalInterface.addCallback("switchPresenterRequest", handleSwitchPresenterRequest);
+        ExternalInterface.addCallback("getMyUserInfoSync", handleGetMyUserInfoSynch);
+        ExternalInterface.addCallback("getMyUserInfoAsync", handleGetMyUserInfoAsynch);
         ExternalInterface.addCallback("getMyUserID", handleGetMyUserID);
         ExternalInterface.addCallback("getExternalMeetingID", handleGetExternalMeetingID);
         ExternalInterface.addCallback("joinVoiceRequest", handleJoinVoiceRequest);
@@ -56,7 +59,21 @@ package org.bigbluebutton.main.api
       }
     }
 
-
+    private function handleGetMyUserInfoAsynch():void {
+      _dispatcher.dispatchEvent(new GetMyUserInfoRequestEvent());
+    }
+    
+    private function handleGetMyUserInfoSynch():Object {
+      var obj:Object = new Object();
+      obj.myUserID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+      obj.myUserID = UsersUtil.getMyUsername();
+      obj.myAvatarURL = UsersUtil.getAvatarURL();
+      obj.myRole = UsersUtil.getMyRole();
+      obj.amIPresenter = UsersUtil.amIPresenter();
+      
+      return obj;
+    }
+    
     private function handleAmISharingCameraRequestSync():Object {
       var obj:Object = new Object();
       var camSettings:CameraSettingsVO = UsersUtil.amIPublishing();
