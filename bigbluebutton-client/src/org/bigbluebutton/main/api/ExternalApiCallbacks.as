@@ -13,6 +13,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
+  import org.bigbluebutton.core.events.IsUserPublishingCamRequest;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
@@ -39,7 +40,9 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("getMyUserID", handleGetMyUserID);
         ExternalInterface.addCallback("getExternalMeetingID", handleGetExternalMeetingID);
         ExternalInterface.addCallback("joinVoiceRequest", handleJoinVoiceRequest);
-        ExternalInterface.addCallback("leaveVoiceRequest", handleLeaveVoiceRequest);        
+        ExternalInterface.addCallback("leaveVoiceRequest", handleLeaveVoiceRequest);   
+        ExternalInterface.addCallback("isUserPublishingCamRequestSync", handleIsUserPublishingCamRequestSync);
+        ExternalInterface.addCallback("isUserPublishingCamRequestAsync", handleIsUserPublishingCamRequestAsync);
         ExternalInterface.addCallback("getMyRoleRequestSync", handleGetMyRoleRequestSync);
         ExternalInterface.addCallback("getMyRoleRequestAsync", handleGetMyRoleRequestAsynch);
         ExternalInterface.addCallback("amIPresenterRequestSync", handleAmIPresenterRequestSync);
@@ -59,6 +62,31 @@ package org.bigbluebutton.main.api
       }
     }
 
+    private function handleIsUserPublishingCamRequestAsync(userID:String):void {
+      var event:IsUserPublishingCamRequest = new IsUserPublishingCamRequest();
+      event.userID = UsersUtil.externalUserIDToInternalUserID(userID);
+      if (event.userID != null) {
+        _dispatcher.dispatchEvent(event);
+      } else {
+        LogUtil.warn("Cannot find user with external userID [" + userID + "] to query is sharing webcam or not.");
+      }
+    }
+ 
+    private function handleIsUserPublishingCamRequestSync(userID:String):Object {
+      var obj:Object = new Object();
+      var isUserPublishing:Boolean = false;
+      
+      var streamName:String = UsersUtil.getWebcamStream(UsersUtil.externalUserIDToInternalUserID(userID));
+      if (streamName != null) {
+        isUserPublishing = true; 
+      }
+      
+      obj.isUserPublishing = isUserPublishing;
+      obj.streamName = streamName;
+      
+      return obj;
+    }
+    
     private function handleGetMyUserInfoAsynch():void {
       _dispatcher.dispatchEvent(new GetMyUserInfoRequestEvent());
     }

@@ -10,6 +10,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
+  import org.bigbluebutton.core.events.IsUserPublishingCamRequest;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
@@ -25,6 +26,26 @@ package org.bigbluebutton.main.api
 
 
   public class ExternalApiCalls { 
+    
+    public function handleIsUserPublishingCamRequest(event:IsUserPublishingCamRequest):void {
+      var payload:Object = new Object();
+      var isUserPublishing:Boolean = false;
+      
+      var streamName:String = UsersUtil.getWebcamStream(event.userID);
+      if (streamName != null) {
+        isUserPublishing = true; 
+      }
+      
+      payload.eventName = EventConstants.IS_USER_PUBLISHING_CAM_RESP;
+      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.userID);
+      payload.isUserPublishing = isUserPublishing;
+      
+      var vidConf:VideoConfOptions = new VideoConfOptions();
+      payload.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
+      
+      payload.streamName = streamName; 
+      broadcastEvent(payload);
+    }
     
     public function handleGetMyUserInfoRequest(event:GetMyUserInfoRequestEvent):void {
       var payload:Object = new Object();
@@ -85,6 +106,7 @@ package org.bigbluebutton.main.api
     
     public function handleAmISharingCamQueryEvent(event:AmISharingWebcamQueryEvent):void {
       var camSettings:CameraSettingsVO = UsersUtil.amIPublishing();
+      var vidConf:VideoConfOptions = new VideoConfOptions();
       
       var payload:Object = new Object();
       payload.eventName = EventConstants.AM_I_SHARING_CAM_RESP;
@@ -92,6 +114,10 @@ package org.bigbluebutton.main.api
       payload.camIndex = camSettings.camIndex;
       payload.camWidth = camSettings.camWidth;
       payload.camHeight = camSettings.camHeight;
+      payload.camKeyFrameInterval = vidConf.camKeyFrameInterval;
+      payload.camModeFps = vidConf.camModeFps;
+      payload.camQualityBandwidth = vidConf.camQualityBandwidth;
+      payload.camQualityPicture = vidConf.camQualityPicture;
       
       broadcastEvent(payload);        
     }
@@ -110,12 +136,12 @@ package org.bigbluebutton.main.api
       payload.eventName = EventConstants.SWITCHED_PRESENTER;
       payload.amIPresenter = event.amIPresenter;
       payload.role = event.amIPresenter ? Role.PRESENTER : Role.VIEWER;
-      payload.newPresenterUserID = event.newPresenterUserID;
+      payload.newPresenterUserID = UsersUtil.internalUserIDToExternalUserID(event.newPresenterUserID);
       broadcastEvent(payload);
       
       payload.eventName = EventConstants.NEW_ROLE;
       payload.amIPresenter = event.amIPresenter;
-      payload.newPresenterUserID = event.newPresenterUserID;
+      payload.newPresenterUserID = UsersUtil.internalUserIDToExternalUserID(event.newPresenterUserID);
       payload.role = event.amIPresenter ? Role.PRESENTER : Role.VIEWER;
       broadcastEvent(payload);      
     }

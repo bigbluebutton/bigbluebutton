@@ -41,5 +41,7 @@ package org.bigbluebutton.core
     public static const USER_LOCKED_VOICE:String          = 'UserLockedVoiceEvent';
     public static const START_PRIVATE_CHAT:String         = "StartPrivateChatEvent";
     public static const GET_MY_USER_INFO_REP:String       = "GetMyUserInfoResponse";
+    public static const IS_USER_PUBLISHING_CAM_RESP:String = "IsUserPublishingCamResponse";
+    
   }
 }

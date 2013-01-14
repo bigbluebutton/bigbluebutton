@@ -12,6 +12,38 @@
       return swfobject.getObjectById("BigBlueButton");
     }
 
+     /**
+     * Get info if user is sharing webcam.
+     */  
+    BBB.amISharingWebcam = function(callback) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        if (arguments.length == 0) {
+          swfObj.amISharingCameraRequestAsync();
+        } else {
+          if (typeof callback === 'function') {
+            callback(swfObj.amISharingCameraRequestSync());
+          }
+        }
+      }
+    }
+    
+    /**
+     * Get my user info.
+     */  
+    BBB.isUserSharingWebcam = function(userID, callback) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        if (arguments.length == 1) {
+          swfObj.isUserPublishingCamRequestAsync(userID);
+        } else {
+          if (arguments.length == 2 && typeof callback === 'function') {
+            callback(swfObj.isUserPublishingCamRequestSync(userID));
+          }
+        }
+      }
+    }
+    
     BBB.switchPresenter = function(newPresenterUserID) {
       var swfObj = getSwfObj();
       if (swfObj) {
