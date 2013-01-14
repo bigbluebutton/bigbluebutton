@@ -61,6 +61,12 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("sendPrivateChatRequest", handleSendPrivateChatRequest); 
         ExternalInterface.addCallback("lockLayout", handleSendLockLayoutRequest);
       }
+      
+      // Tell out JS counterpart that we are ready.
+      if (ExternalInterface.available) {
+        ExternalInterface.call("BBB.swfClientIsReady");
+      }  
+      
     }
 
     private function handleIsUserPublishingCamRequestAsync(userID:String):void {

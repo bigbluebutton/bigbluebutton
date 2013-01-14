@@ -242,6 +242,7 @@
         swfObj.sendPrivateChatRequest(fontColor, localeLang, message, toUserID);
       }    
     }
+    
         
     /* ***********************************************************************************
      *       Broadcasting of events to 3rd-party apps.
@@ -305,6 +306,18 @@
       callback;
     }
     
+    // Flag to indicate that the SWF file has been loaded and ready to handle calls.
+    var swfReady = false;
+    BBB.swfClientIsReady = function () {
+      console.log("BigBlueButton SWF is ready.");
+      swfReady = true;
+    }
+    
+    // Third-party JS apps should use this to query if the BBB SWF file is ready to handle calls.
+    BBB.isSwfClientReady = function() {
+      return swfReady;
+    }
+     
     /************************************************
      * EVENT NAME CONSTANTS
      *
