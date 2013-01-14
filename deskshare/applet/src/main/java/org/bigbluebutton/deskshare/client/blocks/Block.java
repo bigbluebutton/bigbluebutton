@@ -23,8 +23,6 @@ package org.bigbluebutton.deskshare.client.blocks;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.bigbluebutton.deskshare.client.net.EncodedBlockData;
@@ -32,17 +30,19 @@ import org.bigbluebutton.deskshare.common.PixelExtractException;
 import org.bigbluebutton.deskshare.common.ScreenVideoEncoder;
 import org.bigbluebutton.deskshare.common.Dimension;
 
-public final class Block {   
-	Random random = new Random();
+public final class Block {
+    private static final int KEEP_ALIVE_INTERVAL = 30000;
+    private static final int DIRTY_COUNT_LIMIT = 10;
+    
     private final BlockChecksum checksum;
     private final Dimension dim;
     private final int position;
     private final Point location;    
     private int[] capturedPixels;
     private final Object pixelsLock = new Object();
-    private AtomicBoolean dirtyBlock = new AtomicBoolean(false);
     private long lastSent = System.currentTimeMillis();
     private AtomicLong sentCount = new AtomicLong();
+    private Integer dirtyCount = DIRTY_COUNT_LIMIT; // initially, blocks are sent immediately
     private boolean useSVC2;
     
     Block(Dimension dim, int position, Point location, boolean useSVC2) {
@@ -61,15 +61,26 @@ public final class Block {
             	System.out.println(e.toString());
         	}  
             
-            if (! dirtyBlock.get()) {
-                if ((! checksumSame(capturedPixels)) || sendKeepAliveBlock()) {
-                	dirtyBlock.set(true);
-                	return true;
-                }            	
-            } 
+            
     	}
-    	 		    	
-        return false;
+        synchronized (dirtyCount) {
+            if ((! checksumSame(capturedPixels)) || sendKeepAliveBlock()) {
+                if (dirtyCount >= DIRTY_COUNT_LIMIT) {
+                    dirtyCount = 0;
+                    return true;
+                } else {
+                    dirtyCount++;
+                    return false;
+                }
+            } else {
+                if (dirtyCount > 0) {
+                    dirtyCount = 0;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
     }
          
     private boolean isKeepAliveBlock() {
@@ -81,7 +92,7 @@ public final class Block {
     
     private boolean sendKeepAliveBlock() {
     	long now = System.currentTimeMillis();
-    	if (isKeepAliveBlock() && (now - lastSent > 30000)) {
+    	if (isKeepAliveBlock() && (now - lastSent > KEEP_ALIVE_INTERVAL)) {
     		// Send keepalive block every 30 seconds.
     		lastSent = now;
     		System.out.println("Sending keep alive block!");
@@ -92,7 +103,6 @@ public final class Block {
     
     public void sent() {
     	sentCount.incrementAndGet();
-    	dirtyBlock.set(false);
     }
     
     public EncodedBlockData encode() {   
