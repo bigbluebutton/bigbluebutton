@@ -21,6 +21,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.modules.listeners.events.ListenersCommand;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
+  import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
   public class ExternalApiCallbacks
   {
@@ -81,6 +82,9 @@ package org.bigbluebutton.main.api
         isUserPublishing = true; 
       }
       
+      var vidConf:VideoConfOptions = new VideoConfOptions();
+      obj.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
+      obj.userID = userID;
       obj.isUserPublishing = isUserPublishing;
       obj.streamName = streamName;
       
@@ -94,7 +98,7 @@ package org.bigbluebutton.main.api
     private function handleGetMyUserInfoSynch():Object {
       var obj:Object = new Object();
       obj.myUserID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
-      obj.myUserID = UsersUtil.getMyUsername();
+      obj.myUsername = UsersUtil.getMyUsername();
       obj.myAvatarURL = UsersUtil.getAvatarURL();
       obj.myRole = UsersUtil.getMyRole();
       obj.amIPresenter = UsersUtil.amIPresenter();
@@ -109,6 +113,13 @@ package org.bigbluebutton.main.api
       obj.camIndex = camSettings.camIndex;
       obj.camWidth = camSettings.camWidth;
       obj.camHeight = camSettings.camHeight;
+      
+      var vidConf:VideoConfOptions = new VideoConfOptions();
+      
+      obj.camKeyFrameInterval = vidConf.camKeyFrameInterval;
+      obj.camModeFps = vidConf.camModeFps;
+      obj.camQualityBandwidth = vidConf.camQualityBandwidth;
+      obj.camQualityPicture = vidConf.camQualityPicture;  
       
       return obj;
     }
