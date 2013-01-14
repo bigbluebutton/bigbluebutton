@@ -43,7 +43,7 @@
 			private var audKeys:ArrayList;
 			private var viewerKeys:ArrayList;
 			
-			private var genResource:Array = ['bbb.shortcutkey.general.minimize', 'bbb.shortcutkey.general.maximize', 
+			private var genResource:Array = [/*'bbb.shortcutkey.general.minimize', 'bbb.shortcutkey.general.maximize',*/ 
 											 'bbb.shortcutkey.flash.exit', 'bbb.shortcutkey.focus.viewers', 'bbb.shortcutkey.focus.listeners', 
 											 'bbb.shortcutkey.focus.video', 'bbb.shortcutkey.focus.presentation', 'bbb.shortcutkey.focus.chat',
 											 'bbb.shortcutkey.share.desktop', 'bbb.shortcutkey.share.microphone', 'bbb.shortcutkey.share.webcam',
