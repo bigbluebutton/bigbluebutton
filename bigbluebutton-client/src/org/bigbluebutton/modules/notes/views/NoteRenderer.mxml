@@ -63,7 +63,7 @@
 	</mx:Script>
 	
   <mx:HBox width="100%" height="15" styleName="noteRendererTimestampStyle">
-    <mx:Text id="timestamp" htmlText="{note.timestamp}" textAlign="left" color="gray"  width="100%"/>      
+    <mx:Text id="timestamp" htmlText="{note.timestamp}" textAlign="right" color="gray"  width="100%"/>      
   </mx:HBox> 
   <mx:HBox width="100%" styleName="noteRendererTextStyle">
     <mx:Spacer width="5"/>
