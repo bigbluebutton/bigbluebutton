@@ -9,6 +9,37 @@ var registerListeners = function() {
   });
   BBB.listen("SwitchedPresenterEvent", function(bbbEvent) {
     console.log("Switched Presenter [amIPresenter=" + bbbEvent.amIPresenter + ",role=" + bbbEvent.role + ",newPresenterUserID=" + bbbEvent.newPresenterUserID + "].");
+	if (bbbEvent.amIPresenter) {
+		console.log("*** User is presenter. Is user publishing webcam?");
+		BBB.listen("AmISharingCamQueryResponse", function(bbbEvent2) {
+			console.log("AmISharingCamQueryResponse [isPublishing=" + bbbEvent2.isPublishing + ",camIndex=" + bbbEvent2.camIndex + "]");
+		});
+		BBB.amISharingWebcam();
+		BBB.amISharingWebcam(function(bbbEvent3) {
+			console.log("amISharingWebcam [isPublishing=" + bbbEvent3.isPublishing 
+						+ ",camIndex=" + bbbEvent3.camIndex 
+						+ ",camWidth=" + bbbEvent3.camWidth
+						+ ",camHeight=" + bbbEvent3.camHeight
+						+ ",camKeyFrameInterval=" + bbbEvent3.camKeyFrameInterval
+						+ ",camModeFps=" + bbbEvent3.camModeFps
+						+ ",camQualityBandwidth=" + bbbEvent3.camQualityBandwidth
+						+ ",camQualityPicture=" + bbbEvent3.camQualityPicture						
+						+ "]");
+		});
+	} else {
+		console.log("*** User is NOT presenter. Is new presenter publishing webcam?");
+		BBB.listen("IsUserPublishingCamResponse", function(bbbEvent4) {
+			console.log("IsUserPublishingCamResponse [isUserPublishing=" + bbbEvent4.isUserPublishing 
+						+ ",uri=" + bbbEvent4.uri 
+						+ ",streamName=" + bbbEvent4.streamName + "]");
+		});
+		BBB.isUserSharingWebcam(bbbEvent.newPresenterUserID);
+		BBB.isUserSharingWebcam(bbbEvent.newPresenterUserID, function(bbbEvent5) {
+			console.log("isUserSharingWebcam [isUserPublishing=" + bbbEvent5.isUserPublishing 
+						+ ",uri=" + bbbEvent5.uri 
+						+ ",streamName=" + bbbEvent5.streamName + "]");
+		});	
+	}
   });
   BBB.listen("UserLeftEvent", function(bbbEvent) {
     console.log("User [" + bbbEvent.userID + "] has left.");
