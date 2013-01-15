@@ -22,7 +22,7 @@
 
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
-	creationComplete="onCreationComplete()"
+	creationComplete="onCreationComplete()" resize="onResize()"
 	backgroundColor="white"
 	width="100%" height="100%"
 	layout="absolute">
@@ -61,7 +61,10 @@
 			private var displayHeight:Number;
 			
 			private var service:DeskshareService = new DeskshareService();
-			
+
+      private var videoWidth:int;
+      private var videoHeight:int;
+      
 			private function onCreationComplete():void {			
 			    var p:QueryStringParameters = new QueryStringParameters();
 				p.collectParameters();
@@ -102,35 +105,43 @@
 				video = new Video(videoWidth, videoHeight);
 				video.attachNetStream(ns);
 				
+        this.videoWidth = videoWidth;
+        this.videoHeight = videoHeight;
+        
 				videoHolder = new UIComponent();
-				calculateDisplayDimensions(video, videoHolder);
-				videoHolder.addChild(video);	
-				videoHolder.addChild(cursor);	
-				videoHolder.addChild(cursorImg);
-				centerVideo();
+        
+        trace("Determine how to display video = [" + videoWidth + "x" + videoHeight + "] display=[" + this.width + "x" + this.height + "]");
+        determineHowToDisplayVideo();
+        
+//				calculateDisplayDimensions(video, videoHolder);
+        
+//				videoHolder.addChild(video);	
+//				videoHolder.addChild(cursor);	
+//				videoHolder.addChild(cursorImg);
+        
+//				centerVideo();
+        
 				ns.play(stream);	
 				this.stream = stream;
-				vbox.addChild(videoHolder);		
+//				vbox.addChild(videoHolder);		
 			}
 			
-			private function centerVideo():void {
-				videoHolder.x = vbox.width/2 - video.width/2;
-				videoHolder.y = vbox.height/2 - video.height/2;				
-			}
-			
-			private function calculateDisplayDimensions(video:Video, videoHolder:UIComponent):void {
-				if (videoIsSmallerThanDisplay(video, videoHolder)) {
-					videoHolder.width = video.width;
-					videoHolder.height = video.height;
-					return;
-				}
-				
-				if (displayWidth < displayHeight) {
-					fitToWidthAndAdjustHeightToMaintainAspectRatio();				
-				} else {
-					fitToHeightAndAdjustWidthToMaintainAspectRatio();
-				}
-			}
+      private function onMetaData(info:Object):void {
+        trace("****metadata: width=" + info.width + " height=" + info.height);
+        videoWidth = info.width;
+        videoHeight = info.height;
+        
+//        determineHowToDisplayVideo();
+      }
+      
+      private function onResize():void {
+        if (video != null) {
+          determineHowToDisplayVideo();        
+        }
+      }
+      
+
+
 			
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
 				if (cursor == null) return;	
@@ -140,11 +151,10 @@
 				
 				cursorImg.visible = true;
            
-                // DO NOT compute the x and y coordinate and assign directly to the cursorImg
-                // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
-                cursorImg.x = cursor.x;
-                cursorImg.y = cursor.y;
-                
+        // DO NOT compute the x and y coordinate and assign directly to the cursorImg
+        // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
+        cursorImg.x = cursor.x;
+        cursorImg.y = cursor.y;                
 			}
 			
 			public function stopViewing():void {
@@ -168,7 +178,26 @@
 					break;
 				}
 			}
-
+/*
+      private function centerVideo():void {
+      videoHolder.x = vbox.width/2 - video.width/2;
+      videoHolder.y = vbox.height/2 - video.height/2;				
+      }
+      
+      private function calculateDisplayDimensions(video:Video, videoHolder:UIComponent):void {
+      if (videoIsSmallerThanDisplay(video, videoHolder)) {
+      videoHolder.width = video.width;
+      videoHolder.height = video.height;
+      return;
+      }
+      
+      if (displayWidth < displayHeight) {
+      fitToWidthAndAdjustHeightToMaintainAspectRatio();				
+      } else {
+      fitToHeightAndAdjustWidthToMaintainAspectRatio();
+      }
+      }
+      
 			private function videoIsSmallerThanDisplay(video:Video, videoHolder:UIComponent):Boolean {
 				return (video.height < displayHeight) && (video.width < displayWidth);
 			}
@@ -190,8 +219,95 @@
 				video.width = aspectRatio * displayHeight;
 				videoHolder.width = video.width;				
 			}			
+*/      
+      //----------------------------
+      private function centerToWindow():void{
+        videoHolder.width = video.width = videoWidth;
+        videoHolder.height = video.height = videoHeight;
+        videoHolder.x = video.x = (this.width - video.width) / 4;
+        videoHolder.y = video.y = (this.height - video.height) / 4;
+        
+//        videoHolder.x = video.x = 0;
+//        videoHolder.y = video.y = 0;
+        
+        trace("Center video = [" + video.width + "x" + video.height 
+                                + "] display=[" + this.width + "x" + this.height + "]"
+                                + "loc=[" + videoHolder.x + "," + videoHolder.y + "]");
+        
+        videoHolder.addChild(video);
+        videoHolder.addChild(cursor);	
+        videoHolder.addChild(cursorImg);
+        
+        addChild(videoHolder);
+      }
+      
+      private function fitVideoToWindow():void {
+        if (width < height) {
+          fitToWidthAndAdjustHeightToMaintainAspectRatio();				
+        } else {
+          fitToHeightAndAdjustWidthToMaintainAspectRatio();
+        }				
+      }
+      
+      private function videoIsSmallerThanWindow():Boolean {
+        return (videoHeight < height) && (videoWidth < width);
+      }
+      
+      private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
+        trace("fitToWidthAndAdjustHeightToMaintainAspectRatio");
+        videoHolder.width = video.width = width;
+        // Maintain aspect-ratio
+        videoHolder.height = video.height = (videoHeight * video.width) / videoWidth;
+        videoHolder.x = video.x = 0;
+        videoHolder.y = video.y = 0;
+        
+        trace("Disp video = [" + video.width + "x" + video.height 
+          + "] display=[" + this.width + "x" + this.height + "]"
+          + "loc=[" + videoHolder.x + "," + videoHolder.y + "]");
+        
+        videoHolder.addChild(video);	
+        videoHolder.addChild(cursor);	
+        videoHolder.addChild(cursorImg);
+        
+        addChild(videoHolder);
+      }
+      
+      private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
+        trace("fitToHeightAndAdjustWidthToMaintainAspectRatio");
+        videoHolder.height = video.height = height;
+        // Maintain aspect-ratio
+        videoHolder.width = video.width = (videoWidth * video.height) / videoHeight;
+        
+        if (videoHolder.width > width) {
+          videoHolder.width = video.width = width;
+          videoHolder.height = video.height = (videoHeight * video.width) / videoWidth;
+        }
+        
+        videoHolder.x = video.x = (width - video.width) / 4;
+        videoHolder.y = video.y = (height - video.height) / 4;	
+        
+        trace("Disp video = [" + video.width + "x" + video.height 
+          + "] display=[" + this.width + "x" + this.height + "]"
+          + "loc=[" + videoHolder.x + "," + videoHolder.y + "]");
+        
+        videoHolder.addChild(video);	
+        videoHolder.addChild(cursor);	
+        videoHolder.addChild(cursorImg);
+        
+        addChild(videoHolder);
+      }
+      
+      private function determineHowToDisplayVideo():void {
+         if (videoIsSmallerThanWindow()) {
+           trace("Video is smaller than window. Centering.");
+          centerToWindow();
+         } else {
+           trace("Video is greater than window. Scaling.");
+          fitVideoToWindow();
+        }
+      }
 		]]>
 	</mx:Script>
 		<mx:Image id="cursorImg" visible="false" source="@Embed('org/bigbluebutton/modules/deskshare/assets/images/cursor4.png')"/>
-		<mx:Canvas id="vbox" width="100%" height="100%"/>	
+<!--		<mx:Canvas id="vbox" width="100%" height="100%" backgroundColor="blue"/>	-->
 </mx:Application>

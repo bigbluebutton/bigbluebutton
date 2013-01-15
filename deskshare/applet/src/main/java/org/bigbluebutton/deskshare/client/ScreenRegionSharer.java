@@ -105,8 +105,8 @@ public class ScreenRegionSharer implements ScreenSharer {
 			ssi.y = y;
 			ssi.captureWidth = width;
 			ssi.captureHeight = height;
-			//ssi.scaleWidth = width;
-			//ssi.scaleHeight = height;
+			ssi.scaleWidth = width;
+			ssi.scaleHeight = height;
 			sharer = new ScreenSharerRunner(ssi);
 			sharer.addClientListener(listener);
 			sharer.startSharing();

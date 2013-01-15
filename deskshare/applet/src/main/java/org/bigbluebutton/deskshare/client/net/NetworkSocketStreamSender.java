@@ -148,8 +148,8 @@ public class NetworkSocketStreamSender implements Runnable {
 				BlockStreamProtocolEncoder.encodeBlock(bv, dataToSend);
 			}
 			
-			System.out.println(blockSize + "] total=" + totalBytes + " bytes");
-			System.out.println(encodeTime + "] total=" + totalMillis + " ms");
+//			System.out.println(blockSize + "] total=" + totalBytes + " bytes");
+//			System.out.println(encodeTime + "] total=" + totalMillis + " ms");
 
 			BlockStreamProtocolEncoder.encodeDelimiter(dataToSend);
 			sendHeader(BlockStreamProtocolEncoder.encodeHeaderAndLength(dataToSend));
@@ -158,7 +158,7 @@ public class NetworkSocketStreamSender implements Runnable {
 				retriever.blockSent((Integer)changedBlocks[i]);
 			}
 			long end = System.currentTimeMillis();
-			System.out.println("[Socket Thread " + id + "] Sending " + changedBlocks.length + " blocks took " + (end - start) + " millis");
+//			System.out.println("[Socket Thread " + id + "] Sending " + changedBlocks.length + " blocks took " + (end - start) + " millis");
 		} else if (message.getMessageType() == Message.MessageType.CURSOR) {
 			CursorMessage msg = (CursorMessage)message;
 			sendCursor(msg.getMouseLocation(), msg.getRoom());

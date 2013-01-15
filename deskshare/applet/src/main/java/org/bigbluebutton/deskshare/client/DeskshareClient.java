@@ -246,14 +246,14 @@ public class DeskshareClient {
     	}
     	
     	private void calculateDimensionsToMaintainAspectRatio() {
-    		if (scaleWidth > 0 && scaleHeight > 0) {
-    			if (aspectRatio) {
-    				recalculateScaleDimensionsToMaintainAspectRatio();
-    			}
-    		} else {
+//    		if (scaleWidth > 0 && scaleHeight > 0) {
+//    			if (aspectRatio) {
+//    				recalculateScaleDimensionsToMaintainAspectRatio();
+//    			}
+ //   		} else {
     			scaleWidth = captureWidth;
     			scaleHeight = captureHeight;
-    		}    		
+//    		}    		
     	}
     	
     	private void setupFullScreen() {

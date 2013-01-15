@@ -67,6 +67,7 @@ public class ScreenCapture {
 	
 	public BufferedImage takeSingleSnapshot() {
 		BufferedImage capturedImage = robot.createScreenCapture(this.screenBounds);
+//		return capturedImage;
 		if (needToScaleImage()) {
 			if (quality) {
 				return useQuality(capturedImage);
