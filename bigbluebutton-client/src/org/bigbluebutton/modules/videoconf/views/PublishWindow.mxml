@@ -420,30 +420,5 @@
 	<mx:Text id="lblWarning" width="100%" textAlign="right" fontSize="14" fontWeight="bold" y="{this.height - lblWarning.height - 30}" 
            visible="false" selectable="false" hideEffect="{dissolveOut}" showEffect="{dissolveIn}"/>
 	
-	<mx:ControlBar id="videoOptionsBar" visible="true">
-		<mx:Button id="btnStartPublish" 
-				   toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}"  
-				   click="startPublishing()" 
-				   enabled="false"
-				   tabIndex="{baseIndex+4}"
-				   accessibilityName = "{ResourceUtil.getInstance().getString('bbb.video.publish.startBtn')}"/>
-		
-		<mx:ComboBox id="cmbCameraSelector" 
-					 dataProvider="{Camera.names}" 
-					  
-					 visible="false" 
-					 change="updateCamera()"
-					 tabIndex="{baseIndex+5}"
-					 accessibilityName = "{ResourceUtil.getInstance().getString('bbb.video.publish.selectBtn')}"/>
-		<mx:ComboBox id="cmbResolution" 
-					 dataProvider="{resolutions}" 
-					  
-					 visible="false" 
-					 change="updateCamera()"
-					 tabIndex="{baseIndex+6}"
-					 accessibilityName = "{ResourceUtil.getInstance().getString('bbb.video.publish.resolutionBtn')}"/>
-	</mx:ControlBar>
-	
-	
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
 </pubVid:VideoWindowItf>
