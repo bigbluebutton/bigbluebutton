@@ -1,25 +1,50 @@
 body { width: 100%; height: 100%; overflow: hidden; }
 html { width: 100%; height: 100%; }
 
+
+/* TODO: TEMPORARY */
+/* #colour-view { */
+/*   position: absolute; */
+/*   top: 10px; */
+/*   left: 10px; */
+/*   z-index: 9999; */
+/* } */
+/* #thickness-view { */
+/*   position: absolute; */
+/*   top: 50px; */
+/*   left: 50px; */
+/*   z-index: 9999; */
+/* } */
+
 body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
 
-#layout {
-  position: relative;
-  background: #f00;
+#container {
   width: 100%;
   height: 100%;
 }
 
-#presentation {
+#session-view {
+  width: 100%;
+  height: 100%;
+}
+
+#layout {
+  position: relative;
+  background: #aaa;
+  width: 100%;
+  height: 100%;
+}
+
+#whiteboard {
   position: absolute;
   background: #aaa;
   top: 0;
   left: -1px;
   right: -1px;
   bottom: 69px;
-  -moz-transition: right 1s, left 1s;
-  -webkit-transition: right 1s, left 1s;
-  z-index: 1000;
+  // -moz-transition: right .5s, left .5s;
+  // -webkit-transition: right .5s, left .5s;
+  z-index: 1;
   border-right: 1px solid #999;
   border-left: 1px solid #999;
 }
@@ -44,14 +69,14 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
   z-index: 0;
 }
 
-.chat-enabled > #presentation {
+.chat-enabled #whiteboard {
   right: 300px;
 }
-.users-enabled > #presentation {
+.users-enabled #whiteboard {
   left: 200px;
 }
 
-#presentation object {
+#whiteboard object {
   display: block;
   position: absolute;
   max-width: 100%;
@@ -64,7 +89,7 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
 }
 
 #navbar {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
@@ -75,6 +100,12 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
   border-top: 1px solid #2f3138;
   border-bottom: 1px solid #2f3138;
   text-align: center;
+  z-index: 3; /* over #whiteboard and sidebars */
+}
+
+#navbar a {
+  color: white;
+  text-decoration: none;
 }
 
 .navbar-btngroup {
@@ -105,6 +136,7 @@ body { font: 12px Arial, Helvetica, "Helvetica Neue", sans-serif }
   font-size: 9px;
   line-height: 24px;
   position: relative;
+  cursor: pointer;
 }
 
 .navbar-btn:hover {
@@ -182,7 +214,7 @@ button:focus, textarea:focus, input:focus {
   font-family: sans-serif;
   font-size: 12px;
   width: 197px;
-  height: 56px;
+  height: 25px;
   resize: none;
   background: #fff;
   border: 1px solid #ccc;
@@ -195,7 +227,7 @@ button:focus, textarea:focus, input:focus {
   bottom: 0;
   right: 16px;
   width: 63px;
-  height: 64px;
+  height: 33px;
   margin: 0;
   border: 1px solid #ccc;
   border-left: none;
@@ -206,11 +238,11 @@ button:focus, textarea:focus, input:focus {
 #chat-entry > button:active {
   background: #ddd;
 }
-#chat_messages {
+#chat-messages {
   position: absolute;
   overflow: auto;
   top: 33px;
-  bottom: 96px;
+  bottom: 62px;
   left: 0;
   right: 0;
   background: #fff;
@@ -233,7 +265,7 @@ button:focus, textarea:focus, input:focus {
 
 /* ryans stuff */
 /*
-#chat_messages {
+#chat-messages {
     float: right;
     width: 300px;
     height: 400px;
@@ -242,7 +274,7 @@ button:focus, textarea:focus, input:focus {
     word-wrap: break-word;
 }
 */
-#chat_input_box {
+#chat-input-box {
   width: 250px;
 }
 
@@ -288,15 +320,11 @@ button:focus, textarea:focus, input:focus {
   cursor:pointer;
 }
 
-.selected {
-  background: #007fff;
+.selected, .user:nth-child(even).selected {
   color: #FFF;
+  background: #007fff;
   background: -moz-linear-gradient(top, #007fff, #005fdf);
   background: -webkit-linear-gradient(top, #007fff, #005fdf);
-}
-
-#slideAndControls {
-  /*float:left;*/
 }
 
 #chat_input {
@@ -305,7 +333,7 @@ button:focus, textarea:focus, input:focus {
   float: right;
 }
 
-#uploadcontrols {
+#slide-upload-controls {
 
 }
 
@@ -318,7 +346,7 @@ button:focus, textarea:focus, input:focus {
   float: right;
 }
 
-#current_users {
+#current-users {
   position: absolute;
   top: 33px;
   bottom: 65px;
@@ -327,22 +355,21 @@ button:focus, textarea:focus, input:focus {
   background: #fff;
 }
 
-#switchPresenter {
+#switch-presenter {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   height: 32px;
   border-top: 1px solid #ccc;
-  padding: 16px;
+  margin: 16px;
   text-align: center;
-}
-#switchPresenter > input {
   border: 1px solid #ccc;
   border-radius: 4px;
   background: -moz-linear-gradient(top, #fff, #ddd);
   background: -webkit-linear-gradient(top, #fff, #ddd);
   height: 32px;
+  cursor: pointer;
 }
 
 #ChatAndControls {
@@ -357,25 +384,107 @@ button:focus, textarea:focus, input:focus {
   float:right;
 }
 
-#imagecontrols form {
+#slide-controls {
+  width: 800px;
+  margin: 0 auto;
+}
+
+#slide-controls form {
   display: inline;
 }
 
-#thickness {
+#slide-controls * {
+  float: left;
+  margin: 5px 10px 0 0;
+}
+
+#thickness-slider {
   width: 60px;
 }
 
-#colourText {
+#colour-text {
   width: 50px;
   margin-left: 5px;
 }
 
-#colourView {
+#colour-view {
   margin-left: 5px;
   cursor:pointer;
+}
+
+#colour-picker {
+  position: absolute;
+  z-index: 9; /* over everything */
 }
 
 .canvas {
   border: 1px solid blue;
   position: absolute;
 }
+
+#login-view {
+  width: 400px;
+  margin: 50px auto;
+  border: 10x solid #ddd;
+  padding: 10px;
+  background: #f6f6f6;
+}
+
+#login-view h1 {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin: 5px 0 20px 0;
+}
+
+#slide .preupload-image {
+  display: none;
+}
+
+#slide > svg {
+  width: 100%;
+  height: 100%;
+}
+
+
+/* TODO: temporary adaptation for iPads */
+#navbar {
+  text-align: left;
+}
+.whiteboard-tools {
+  display: none;
+}
+#slide-controls {
+  display: none;
+}
+#slide {
+  width: 670px;
+  height: 515px;
+  border: 1px solid #888;
+  margin-top: 25px;
+}
+.users-enabled #whiteboard {
+  left: -1px;
+}
+#users {
+  z-index: 2;
+  border-left: 1px solid #888;
+  // top: 10px;
+  // bottom: 75px;
+  right: 0;
+  left: auto;
+  width: 300px;
+  display: none;
+}
+#chat {
+  top: 200px;
+}
+#video {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 200px;
+  width: 300px;
+  background: blue;
+}
+

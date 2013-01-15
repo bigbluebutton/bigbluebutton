@@ -77,7 +77,7 @@ exports.publishSlides = function(meetingID, sessionID, callback) {
          redisAction.getImageSize(meetingID, presentationID, pageID, function(width, height) {
            //slides.push(['images/presentation' +presentationID+'/'+filename, width, height]);
            slides.push(['bigbluebutton/presentation/'+meetingID +"/" + meetingID + "/" + presentationID + "/png/" + filename, width, height]);
-           
+
             if(slides.length == numOfSlides) {
                var receivers = sessionID != undefined ? sessionID : meetingID;
                pub.publish(receivers, JSON.stringify(['all_slides', slides]));
@@ -148,7 +148,7 @@ exports.publishTool = function(meetingID, sessionID, tool, callback) {
  * @param {[type]} socket [description]
  */
 exports.SocketOnConnection = function(socket) {
- 
+
   //When a user sends a message...
   socket.on('msg', function (msg) {
     msg = sanitizer.escape(msg);
@@ -164,7 +164,7 @@ exports.SocketOnConnection = function(socket) {
           var username = handshake.username;
           pub.publish("bigbluebutton:bridge", JSON.stringify([meetingID,'msg', username, msg]));
           var messageID = rack(); //get a randomly generated id for the message
-         
+
           //try later taking these nulls out and see if the function still works
           store.rpush(redisAction.getMessagesString(meetingID, null, null), messageID); //store the messageID in the list of messages
           store.hmset(redisAction.getMessageString(meetingID, null, null, messageID), 'message', msg, 'username', username);
@@ -185,10 +185,10 @@ exports.SocketOnConnection = function(socket) {
      if(reply) {
         var username = handshake.username;
         var socketID = socket.id;
-     
+
         socket.join(meetingID); //join the socket Room with value of the meetingID
         socket.join(sessionID); //join the socket Room with value of the sessionID
-       
+
         //add socket to list of sockets.
         redisAction.getUserProperties(meetingID, sessionID, function(properties) {
           var numOfSockets = parseInt(properties.sockets, 10);
@@ -254,12 +254,12 @@ exports.SocketOnConnection = function(socket) {
               socketAction.publishPresenter(meetingID, sessionID);
              }
            });
-         }, 1000);
+         }, 5000);
        });
      }
    });
   });
- 
+
   /**
    * When the user logs out
    * @return {undefined} publish to Redis PubSub
@@ -284,7 +284,7 @@ exports.SocketOnConnection = function(socket) {
      socketAction.publishUsernames(meetingID);
     });
   });
- 
+
   /**
    * A user clicks to change to previous slide
    * @return {undefined} publish to Redis PubSub
@@ -308,7 +308,7 @@ exports.SocketOnConnection = function(socket) {
       }
     });
   });
- 
+
   /**
    * A user clicks to change to next slide
    * @return {undefined} publish to Redis PubSub
@@ -332,7 +332,7 @@ exports.SocketOnConnection = function(socket) {
       }
     });
   });
- 
+
   /**
    * When a rectangle creation event is received
    * @param  {string} shape type of shape
@@ -347,7 +347,7 @@ exports.SocketOnConnection = function(socket) {
       }
     });
   });
- 
+
   /**
    * When a update shape event is received
    * @param  {string} shape type of shape
@@ -377,7 +377,7 @@ exports.SocketOnConnection = function(socket) {
       }
     });
   });
- 
+
   /**
    * When a clear Paper event is received
    * @return {undefined} publish to Redis PubSub
@@ -438,7 +438,7 @@ exports.SocketOnConnection = function(socket) {
       }
     });
   });
- 
+
   /**
    * When a user is zooming
    * @param  {number} delta amount the mouse scroll has moved
@@ -452,7 +452,7 @@ exports.SocketOnConnection = function(socket) {
       }
     });
   });
- 
+
   /**
    * When a user finishes panning
    * @return {undefined} publish to Redis PubSub
@@ -465,7 +465,7 @@ exports.SocketOnConnection = function(socket) {
       }
     });
   });
-  
+
   /**
    * Undoing the last shape
    * @return {undefined} publish to Redis PubSub
@@ -485,7 +485,7 @@ exports.SocketOnConnection = function(socket) {
       }
     });
   });
-  
+
   /**
    * Telling everyone the current text has been finished
    * @return {undefined} publish to Redis PubSub
@@ -498,7 +498,7 @@ exports.SocketOnConnection = function(socket) {
       }
     });
   });
- 
+
   /**
    * Saving a shape to Redis. Does not provide feedback to client(s)
    * @param  {string} shape type of shape
@@ -543,7 +543,7 @@ exports.SocketOnConnection = function(socket) {
        }
      });
   });
- 
+
   /**
    * If a user requests all the shapes,
    * publish the shapes to everyone.
@@ -556,7 +556,7 @@ exports.SocketOnConnection = function(socket) {
     var sessionID = handshake.sessionID;
     socketAction.publishShapes(meetingID);
   });
-  
+
   /**
    * Updating the fit of the image to the whiteboard
    * @param  {boolean} fit true for fit to page and false for fit to width
@@ -566,7 +566,7 @@ exports.SocketOnConnection = function(socket) {
     var handshake = socket.handshake;
     var meetingID = handshake.meetingID;
     redisAction.getPresenterSessionID(meetingID, function(presenterID) {
-       if(presenterID == sockt.handshake.sessionID) {
+       if(presenterID == socket.handshake.sessionID) {
          pub.publish(meetingID, JSON.stringify(['fitToPage', fit]));
        }
      });

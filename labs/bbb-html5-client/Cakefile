@@ -1,0 +1,31 @@
+fs            = require 'fs'
+{print}       = require 'util'
+{spawn, exec} = require 'child_process'
+
+config = {}
+config.binPath = './node_modules/.bin/'
+
+# Spawns an application with `options` and calls `onExit`
+# when it finishes.
+run = (bin, options, onExit) ->
+  bin = config.binPath + bin
+  console.log timeNow() + ' - running: ' + bin + ' ' + (if options? then options.join(' ') else "")
+  cmd = spawn bin, options
+  cmd.stdout.on 'data', (data) -> print data.toString()
+  cmd.stderr.on 'data', (data) -> print data.toString()
+  cmd.on 'exit', (code) ->
+    console.log 'done.'
+    onExit?(code, options)
+
+# Returns a string with the current time to print out.
+timeNow = ->
+  today = new Date()
+  today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds()
+
+
+buildAssets = ->
+  options = ['-o', 'public/js/build.js']
+  run 'r.js', options
+
+task 'build', 'Builds what is needed for production', ->
+  buildAssets()

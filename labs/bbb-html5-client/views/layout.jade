@@ -1,7 +1,30 @@
 !!! 5
 html
   head
-    title= title
-    //-link(rel='stylesheet', href='/css/style.css')
-    link(rel='stylesheet', href='/css/jq-ui.css')
-    body!= body
+    block head
+      title= title
+      link(rel="stylesheet", href="css/jquery-ui-1.9.2.custom.min.css")
+      link(rel="stylesheet", href="css/reset.css")
+      link(rel="stylesheet", href="css/font-awesome.css")
+      link(rel="stylesheet", href="css/layout.css")
+
+  body
+    block content
+      #container
+
+  script(src='/js/lib/require/require-min.js')
+  - if (typeof(meetings) == 'undefined')
+    - meetings = []
+  script(type='text/javascript')
+    define('globals', function() {
+      return {
+        bootstrappedMeetings: !{JSON.stringify(meetings)}
+      };
+    });
+
+  script(src='http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js')
+  script(src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js')
+  - if (h_environment == "development")
+    script(src='/js/main.js')
+  - else
+    script(src='/js/main-dist.js')
