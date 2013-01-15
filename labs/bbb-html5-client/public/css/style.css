@@ -7,7 +7,7 @@ a {
   color: #00B7FF;
 }
 
-#chat_messages {
+#chat-messages {
     float: right;
     width: 300px;
     height: 400px;
@@ -16,7 +16,7 @@ a {
 	  word-wrap: break-word;
 }
 
-#chat_input_box {
+#chat-input-box {
   width: 250px;
 }
 
