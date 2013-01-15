@@ -219,11 +219,11 @@ package org.bigbluebutton.modules.broadcast.models
     }
        
     private function determineHowToDisplayVideo():void {
-      if (videoIsSmallerThanWindow()) {
-        centerToWindow();
-      } else {
+//      if (videoIsSmallerThanWindow()) {
+//        centerToWindow();
+//      } else {
         fitVideoToWindow();
-      }
+//      }
     }
     
 	}

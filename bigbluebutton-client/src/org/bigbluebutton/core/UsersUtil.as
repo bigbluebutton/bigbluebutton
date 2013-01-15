@@ -33,7 +33,7 @@ package org.bigbluebutton.core
     
     public static function getWebcamStream(userID:String):String {
       var u:BBBUser = getUser(userID);
-      if (u != null) {
+      if (u != null && u.hasStream) {
         return u.streamName;
       }
       
@@ -82,6 +82,10 @@ package org.bigbluebutton.core
     
     public static function getMyUserID():String {
       return UserManager.getInstance().getConference().getMyUserId();
+    }
+    
+    public static function getMyRole():String {
+      return UserManager.getInstance().getConference().getMyRole();
     }
     
     public static function getMyUsername():String {

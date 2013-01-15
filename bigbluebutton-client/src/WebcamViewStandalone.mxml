@@ -164,7 +164,9 @@ $Id: $
         }
         _videoHolder.visible = false;
         trace("WebcamViewSA:: closing stream");
-        ns.close();
+        if (ns != null) {
+          ns.close();
+        }        
       }
       
       private function playWebcamStream():void {

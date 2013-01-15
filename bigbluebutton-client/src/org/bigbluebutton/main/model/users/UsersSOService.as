@@ -17,14 +17,12 @@
 * 
 */
 package org.bigbluebutton.main.model.users {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;
-	
+	import flash.net.SharedObject;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
@@ -36,6 +34,7 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.events.LogoutEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
+	import org.bigbluebutton.main.events.SwitchedPresenterEvent;
 	import org.bigbluebutton.main.events.UserJoinedEvent;
 	import org.bigbluebutton.main.events.UserLeftEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
@@ -165,23 +164,26 @@ package org.bigbluebutton.main.model.users {
 		 * Called by the server to assign a presenter
 		 */
 		public function assignPresenterCallback(userid:String, name:String, assignedBy:String):void {
-			trace("assignPresenterCallback " + userid + "," + name + "," + assignedBy);
-			var dispatcher:Dispatcher = new Dispatcher();
+			trace("**** assignPresenterCallback [" + userid + "," + name + "," + assignedBy + "]");
+      
 			var meeting:Conference = UserManager.getInstance().getConference();
+
 			if (meeting.amIThisUser(userid)) {
+        trace("**** Switching [" + name + "] to presenter");
+        sendSwitchedPresenterEvent(true, userid);
+        
 				meeting.setMePresenter(true);				
 				var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
 				e.userid = userid;
 				e.presenterName = name;
 				e.assignerBy = assignedBy;
 				
-				dispatcher.dispatchEvent(e);		
-        trace("Switching to [" + e.presenterName + "] to presenter");
-        var roleEvent:CoreEvent = new CoreEvent(EventConstants.SWITCHED_PRESENTER);
-        roleEvent.message.role = Role.PRESENTER;
-        dispatcher.dispatchEvent(roleEvent);
+				dispatcher.dispatchEvent(e);	
+              
+			} else {	
+        trace("**** Switching [" + name + "] to presenter. I am viewer.");
+        sendSwitchedPresenterEvent(false, userid);
         
-			} else {				
 				meeting.setMePresenter(false);
 				var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
 				viewerEvent.userid = userid;
@@ -189,14 +191,17 @@ package org.bigbluebutton.main.model.users {
 				viewerEvent.assignerBy = assignedBy;
 
 				dispatcher.dispatchEvent(viewerEvent);
-        
-        trace("Switching to [" + e.presenterName + "] to presenter. I am viewer.");
-        var newRoleEvent:CoreEvent = new CoreEvent(EventConstants.SWITCHED_PRESENTER);
-        newRoleEvent.message.role = Role.VIEWER;
-        dispatcher.dispatchEvent(newRoleEvent);
 			}
 		}
 		
+    private function sendSwitchedPresenterEvent(amIPresenter:Boolean, newPresenterUserID:String):void {
+
+      var roleEvent:SwitchedPresenterEvent = new SwitchedPresenterEvent();
+      roleEvent.amIPresenter = amIPresenter;
+      roleEvent.newPresenterUserID = newPresenterUserID;
+      dispatcher.dispatchEvent(roleEvent);   
+    }
+    
 		public function kickUser(userid:String):void{
 			_participantsSO.send("kickUserCallback", userid);
 		}
@@ -212,7 +217,7 @@ package org.bigbluebutton.main.model.users {
 			
 			UserManager.getInstance().getConference().removeUser(userID);	
 			
-			var dispatcher:Dispatcher = new Dispatcher();
+
 			var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
 			joinEvent.userID = user.userID;
 			dispatcher.dispatchEvent(joinEvent);	
@@ -233,7 +238,7 @@ package org.bigbluebutton.main.model.users {
 			participantStatusChange(user.userID, "presenter", joinedUser.status.presenter);
 			participantStatusChange(user.userID, "raiseHand", joinedUser.status.raiseHand);
 			
-			var dispatcher:Dispatcher = new Dispatcher();
+
 			var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
 			joinEvent.userID = user.userID;
 			dispatcher.dispatchEvent(joinEvent);	
@@ -244,7 +249,7 @@ package org.bigbluebutton.main.model.users {
 		 * Called by the server to tell the client that the meeting has ended.
 		 */
 		public function logout():void {
-			var dispatcher:Dispatcher = new Dispatcher();
+
 			var endMeetingEvent:BBBEvent = new BBBEvent(BBBEvent.END_MEETING_EVENT);
 			dispatcher.dispatchEvent(endMeetingEvent);
 		}
@@ -260,7 +265,7 @@ package org.bigbluebutton.main.model.users {
 			if (status == "presenter"){
 				var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
 				e.userID = userID;
-				var dispatcher:Dispatcher = new Dispatcher();
+
 				dispatcher.dispatchEvent(e);
 			}		
 		}

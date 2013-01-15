@@ -23,7 +23,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
     	title="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}"
-    	x="168" y="86" layout="absolute" width="600" height="200"
+    	x="168" y="86" layout="absolute" width="600" height="200" styleName="presentationFileUploadWindowStyle"
     	initialize="initData();">
     	
     <mate:Dispatcher id="globalDispatch" />

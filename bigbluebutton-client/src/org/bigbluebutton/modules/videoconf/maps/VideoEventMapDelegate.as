@@ -61,7 +61,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function start():void {
-      trace("[" + me + "] Video Module Started.");
+      trace("VideoEventMapDelegate:: [" + me + "] Video Module Started.");
     }
     
     public function stop():void {
@@ -69,17 +69,17 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function viewCamera(userID:String, stream:String, name:String, mock:Boolean = false):void {
-      trace("[" + me + "] viewCamera. ready = [" + _ready + "]");
+      trace("VideoEventMapDelegate:: [" + me + "] viewCamera. ready = [" + _ready + "]");
       
       if (!_ready) return;
-      trace("[" + me + "] Viewing [" + userID + " stream [" + stream + "]");
+      trace("VideoEventMapDelegate:: [" + me + "] Viewing [" + userID + " stream [" + stream + "]");
       if (! UserManager.getInstance().getConference().amIThisUser(userID)) {
         openViewWindowFor(userID);			
       }      
     }
 
     public function handleUserLeftEvent(event:UserLeftEvent):void {
-      trace("[" + me + "] handleUserLeftEvent. ready = [" + _ready + "]");
+      trace("VideoEventMapDelegate:: [" + me + "] handleUserLeftEvent. ready = [" + _ready + "]");
       
       if (!_ready) return;
       
@@ -87,7 +87,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function handleUserJoinedEvent(event:UserJoinedEvent):void {
-      trace("[" + me + "] handleUserJoinedEvent. ready = [" + _ready + "]");
+      trace("VideoEventMapDelegate:: [" + me + "] handleUserJoinedEvent. ready = [" + _ready + "]");
       
       if (!_ready) return;
       
@@ -111,38 +111,38 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     private function openWebcamWindows():void {
-      trace("[" + me + "] openWebcamWindows:: ready = [" + _ready + "]");
+      trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindows:: ready = [" + _ready + "]");
       
       var uids:ArrayCollection = UsersUtil.getUserIDs();
       
       for (var i:int = 0; i < uids.length; i++) {
         var u:String = uids.getItemAt(i) as String;
-        trace("[" + me + "] openWebcamWindows:: open window for = [" + u + "]");
+        trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindows:: open window for = [" + u + "]");
         openWebcamWindowFor(u); 
       }
     }
     
     private function openWebcamWindowFor(userID:String):void {      
-      trace("[" + me + "] openWebcamWindowFor:: open window for = [" + userID + "]");
+      trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: open window for = [" + userID + "]");
       if (! UsersUtil.isMe(userID) && UsersUtil.hasWebcamStream(userID)) {
-        trace("[" + me + "] openWebcamWindowFor:: Not ME and user = [" + userID + "] is publishing.");
+        trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: Not ME and user = [" + userID + "] is publishing.");
         
         if (webcamWindows.hasWindow(userID)) {
-          trace("[" + me + "] openWebcamWindowFor:: user = [" + userID + "] has a window open. Close it.");
+          trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: user = [" + userID + "] has a window open. Close it.");
           closeWindow(userID);
         }
-        trace("[" + me + "] openWebcamWindowFor:: View user's = [" + userID + "] webcam.");
+        trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: View user's = [" + userID + "] webcam.");
         openViewWindowFor(userID);
       } else {
         if (UsersUtil.isMe(userID) && options.autoStart) {
-          trace("[" + me + "] openWebcamWindowFor:: It's ME and AutoStart. Start publishing.");
+          trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: It's ME and AutoStart. Start publishing.");
           autoStart();
         } else {
           if (options.displayAvatar) {
-            trace("[" + me + "] openWebcamWindowFor:: It's NOT ME and NOT AutoStart. Open Avatar for user = [" + userID + "]");
+            trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: It's NOT ME and NOT AutoStart. Open Avatar for user = [" + userID + "]");
             openAvatarWindowFor(userID);              
           } else {
-            trace("[" + me + "] openWebcamWindowFor:: Is THERE another option for user = [" + userID + "]");
+            trace("VideoEventMapDelegate:: [" + me + "] openWebcamWindowFor:: Is THERE another option for user = [" + userID + "]");
           }
         }
       }
@@ -153,12 +153,12 @@ package org.bigbluebutton.modules.videoconf.maps
       window.userID = userID;
       window.title = UsersUtil.getUserName(userID);
      
-      trace("[" + me + "] openAvatarWindowFor:: Closing window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
+      trace("VideoEventMapDelegate:: [" + me + "] openAvatarWindowFor:: Closing window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
       closeWindow(userID);
             
       webcamWindows.addWindow(window);        
       
-      trace("[" + me + "] openAvatarWindowFor:: Opening AVATAR window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
+      trace("VideoEventMapDelegate:: [" + me + "] openAvatarWindowFor:: Opening AVATAR window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
       
       openWindow(window);
       dockWindow(window);          
@@ -175,12 +175,12 @@ package org.bigbluebutton.modules.videoconf.maps
       publishWindow.resolutions = options.resolutions.split(",");
       
 
-      trace("[" + me + "] openPublishWindowFor:: Closing window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
+      trace("VideoEventMapDelegate:: [" + me + "] openPublishWindowFor:: Closing window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
       closeWindow(userID);
 
       webcamWindows.addWindow(publishWindow);
       
-      trace("[" + me + "] openPublishWindowFor:: Opening PUBLISH window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
+      trace("VideoEventMapDelegate:: [" + me + "] openPublishWindowFor:: Opening PUBLISH window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
       
       openWindow(publishWindow);     
       dockWindow(publishWindow);  
@@ -188,24 +188,24 @@ package org.bigbluebutton.modules.videoconf.maps
     
     private function closeWindow(userID:String):void {
       if (! webcamWindows.hasWindow(userID)) {
-        trace("[" + me + "] closeWindow:: No window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
+        trace("VideoEventMapDelegate:: [" + me + "] closeWindow:: No window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
         return;
       }
       
       var win:VideoWindowItf = webcamWindows.removeWindow(userID);
       if (win != null) {
-        trace("[" + me + "] closeWindow:: Closing [" + win.getWindowType() + "] for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
+        trace("VideoEventMapDelegate:: [" + me + "] closeWindow:: Closing [" + win.getWindowType() + "] for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
         win.close();
         var cwe:CloseWindowEvent = new CloseWindowEvent();
         cwe.window = win;
         _dispatcher.dispatchEvent(cwe);
       } else {
-        trace("[" + me + "] closeWindow:: Not Closing. No window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
+        trace("VideoEventMapDelegate:: [" + me + "] closeWindow:: Not Closing. No window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
       }
     }
     
     private function openViewWindowFor(userID:String):void {
-      trace("[" + me + "] openViewWindowFor:: Opening VIEW window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
+      trace("VideoEventMapDelegate:: [" + me + "] openViewWindowFor:: Opening VIEW window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
       
       var window:VideoWindow = new VideoWindow();
       window.userID = userID;
@@ -242,7 +242,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function startPublishing(e:StartBroadcastEvent):void{
-      LogUtil.debug("[" + me + "] startPublishing:: Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
+      LogUtil.debug("VideoEventMapDelegate:: [" + me + "] startPublishing:: Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
       streamName = e.stream;
       proxy.startPublishing(e);
       
@@ -260,7 +260,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
        
     public function stopPublishing(e:StopBroadcastEvent):void{
-      trace("[" + me + "] Stop publishing. ready = [" + _ready + "]"); 
+      trace("VideoEventMapDelegate:: [" + me + "] Stop publishing. ready = [" + _ready + "]"); 
       stopBroadcasting();    
     }
     
@@ -280,7 +280,7 @@ package org.bigbluebutton.modules.videoconf.maps
       closeWindow(UsersUtil.getMyUserID());
       
       if (options.displayAvatar) {
-        trace("[" + me + "] Opening avatar");
+        trace("VideoEventMapDelegate:: [" + me + "] Opening avatar");
         openAvatarWindowFor(UsersUtil.getMyUserID());              
       }      
     }
@@ -317,7 +317,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function switchToPresenter(event:MadePresenterEvent):void{
-      trace("[" + me + "] Got Switch to presenter event. ready = [" + _ready + "]");
+      trace("VideoEventMapDelegate:: [" + me + "] Got Switch to presenter event. ready = [" + _ready + "]");
       
       if (!_ready) return;
            
@@ -327,7 +327,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function switchToViewer(event:MadePresenterEvent):void{
-      trace("[" + me + "] Got Switch to viewer event. ready = [" + _ready + "]");
+      trace("VideoEventMapDelegate:: [" + me + "] Got Switch to viewer event. ready = [" + _ready + "]");
       
       if (!_ready) return;
             
@@ -340,7 +340,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function connectedToVideoApp():void{
-      trace("[" + me + "] Connected to video application.");
+      trace("VideoEventMapDelegate:: [" + me + "] Connected to video application.");
       _ready = true;
       addToolbarButton();
       openWebcamWindows();        
@@ -365,7 +365,7 @@ package org.bigbluebutton.modules.videoconf.maps
       closeWindow(event.webcamUserID);
             
       if (options.displayAvatar) {
-        trace("[" + me + "] Opening avatar");
+        trace("VideoEventMapDelegate:: [" + me + "] Opening avatar");
         openAvatarWindowFor(event.webcamUserID);              
       }        
     }
