@@ -69,10 +69,10 @@ public class ScreenCapture {
 		BufferedImage capturedImage = robot.createScreenCapture(this.screenBounds);
 
 		if (needToScaleImage()) {
-			if (quality) {
+//			if (quality) {
 				return useQuality(capturedImage);
-			}
-			return getScaledInstance(capturedImage, scaleWidth, scaleHeight, RenderingHints.VALUE_INTERPOLATION_BICUBIC, true);
+//			}
+//			return getScaledInstance(capturedImage, scaleWidth, scaleHeight, RenderingHints.VALUE_INTERPOLATION_BICUBIC, true);
 		} else {
 			return capturedImage;
 		}
