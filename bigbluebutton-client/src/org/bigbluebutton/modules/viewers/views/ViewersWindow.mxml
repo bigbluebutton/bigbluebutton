@@ -35,8 +35,8 @@
 	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 	<mate:Listener type="{ShortcutEvent.MAKE_PERSON_PRESENTER}" method="remoteMakePresenter" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_USER_LIST}" method="remoteFocusUsers" />
-	<mate:Listener type="{ShortcutEvent.MINIMIZE}" method="remoteMinimize" />
-	<mate:Listener type="{ShortcutEvent.MAXIMIZE}" method="remoteMaximize" />
+	<mate:Listener type="{ShortcutEvent.MINIMIZE_USERS}" method="remoteMinimize" />
+	<mate:Listener type="{ShortcutEvent.MAXIMIZE_USERS}" method="remoteMaximize" />
 
     <mx:Script>
         <![CDATA[
@@ -127,8 +127,8 @@
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.viewers.focusUsers') as String)] = ShortcutEvent.FOCUS_USER_LIST;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.viewers.focusUsers') as String)] = ShortcutEvent.FOCUS_USER_LIST;
 				
-			    keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE;
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE;
+			    keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_USERS;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_USERS;
 				
 			}
 		

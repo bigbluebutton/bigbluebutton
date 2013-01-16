@@ -63,6 +63,8 @@
 	<mate:Listener type="{ShortcutEvent.FIT_TO_WIDTH}" method="remoteWidth" />
 	<mate:Listener type="{ShortcutEvent.FIT_TO_PAGE}" method="remotePage" />
 	
+	<mate:Listener type="{ShortcutEvent.MINIMIZE_PRES}" method="remoteMinimize" />
+	<mate:Listener type="{ShortcutEvent.MAXIMIZE_PRES}" method="remoteMaximize" />
 	
 	
 	<mx:Script>
@@ -184,6 +186,9 @@
 				keyCombos = new Object(); // always start with a fresh array
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.focusslide') as String)] = ShortcutEvent.FOCUS_SLIDE;
 				
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_PRES;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_PRES;
+				
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.upload') as String)] = ShortcutEvent.UPLOAD_PRESENTATION;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.previous') as String)] = ShortcutEvent.PREVIOUS_SLIDE;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.present.select') as String)] = ShortcutEvent.SELECT_SLIDES;
@@ -208,6 +213,21 @@
 				    //globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
 				    localDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
 				}
+			}
+			
+			private function remoteMinimize(e:ShortcutEvent){
+				if (!minimized){
+					this.minimize();
+				}
+			}
+			
+			private function remoteMaximize(e:ShortcutEvent){
+				if (!maximized && !minimized){
+					this.maximize();
+				}
+				else{
+					this.restore();
+				}				
 			}
 			
 			private function focusWindow(e:ShortcutEvent):void{
