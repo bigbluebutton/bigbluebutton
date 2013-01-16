@@ -26,10 +26,16 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.awt.Image;
+import java.awt.MediaTracker;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.PointerInfo;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
@@ -44,6 +50,8 @@ public class ScreenCapture {
 	private int scaleWidth, scaleHeight, x,y, captureWidth, captureHeight;
 	private boolean quality;
 	private GraphicsConfiguration graphicsConfig;
+	private Image cursorImage;
+	private Point oldMouseLocation = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
 	
 	public ScreenCapture(int x, int y, int captureWidth, int captureHeight, int scaleWidth, int scaleHeight, boolean quality) {
 		this.captureWidth = captureWidth;
@@ -63,8 +71,9 @@ public class ScreenCapture {
 	    GraphicsDevice js = je.getDefaultScreenDevice();
 
 	    graphicsConfig = js.getDefaultConfiguration();
+	    cursorImage = Toolkit.getDefaultToolkit().getImage("/cursor4.png");
 	}
-	
+		
 	public BufferedImage takeSingleSnapshot() {
 		BufferedImage capturedImage = robot.createScreenCapture(this.screenBounds);
 
@@ -106,29 +115,60 @@ public class ScreenCapture {
 		return (captureWidth != scaleWidth && captureHeight != scaleHeight);
 	}
 
+	private Point getMouseLocation() {
+		PointerInfo pInfo;
+		Point pointerLocation = new Point(0,0);
+		
+		try {
+			pInfo = MouseInfo.getPointerInfo();
+		} catch (HeadlessException e) {
+			pInfo = null;
+		} catch (SecurityException e) {
+			pInfo = null;
+		}
+		
+		if (pInfo == null) return pointerLocation;
+		
+		return pInfo.getLocation();		
+	}
+	
+	private boolean isMouseInsideCapturedRegion(Point p) {
+		return ( ( (p.x > x) && (p.x < (x + captureWidth) ) ) 
+				&& (p.y > y && p.y < y + captureHeight));
+	}
+	
 	private BufferedImage useQuality(BufferedImage image) {	    
+		Graphics2D g1 = image.createGraphics();
+	
 	    BufferedImage resultImage = graphicsConfig.createCompatibleImage(scaleWidth, scaleHeight, Transparency.BITMASK);
 	    resultImage.setAccelerationPriority(1);
 	    
 		Graphics2D g2 = resultImage.createGraphics();
 		
-		System.out.println("Image=[" + image.getWidth() + "," + image.getHeight() + "] scale=[" + scaleWidth + "," + scaleHeight + "]");
+		Point mouseLoc = getMouseLocation();
+		
+//		if (isMouseInsideCapturedRegion(mouseLoc)) {
+			System.out.println("Drawing cursor at [" + (mouseLoc.x - x) + "," + (mouseLoc.y - y));
+			g1.drawImage(cursorImage, mouseLoc.x - x, mouseLoc.y - y, cursorImage.getWidth(null), cursorImage.getHeight(null), null);
+//		}
+			
+//		System.out.println("Image=[" + image.getWidth() + "," + image.getHeight() + "] scale=[" + scaleWidth + "," + scaleHeight + "]");
 		
 		if (image.getWidth() < scaleWidth || image.getHeight() <  scaleHeight) {
 			int imgWidth = image.getWidth();
 			int imgHeight = image.getHeight();
 						
 			if (imgWidth < scaleWidth && imgHeight < scaleHeight) {
-				System.out.println("Capture is smaller than scale dims. Just draw the image.");
+//				System.out.println("Capture is smaller than scale dims. Just draw the image.");
 				g2.drawImage(image, (resultImage.getWidth() - imgWidth) / 2, (resultImage.getHeight() - imgHeight) / 2, imgWidth, imgHeight, null);
 			} else {
 	    		if (imgWidth > scaleWidth) {
-	    			System.out.println("Fit to width.");
+//	    			System.out.println("Fit to width.");
 	    			double ratio = (double)imgHeight/(double)imgWidth;
 	    			imgWidth = scaleWidth;
 	    			imgHeight = (int)((double)imgWidth * ratio);
 	    		} else {
-	    			System.out.println("Fit to height.");
+//	    			System.out.println("Fit to height.");
 	    			double ratio = (double)imgWidth/(double)imgHeight;
 	    			imgHeight = scaleHeight;
 	    			imgWidth = (int)((double)imgHeight * ratio);
@@ -139,7 +179,7 @@ public class ScreenCapture {
 				g2.drawImage(scaledImage, (resultImage.getWidth() - imgWidth) / 2, (resultImage.getHeight() - imgHeight) / 2, imgWidth, imgHeight, null);				
 			}
 		} else {
-			System.out.println("Both capture sides are greater than the scaled dims. Downscale image.");
+//			System.out.println("Both capture sides are greater than the scaled dims. Downscale image.");
 			Image scaledImage = image.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_AREA_AVERAGING);
 			g2.drawImage(scaledImage, 0, 0, scaleWidth, scaleHeight, null);	
 		}
