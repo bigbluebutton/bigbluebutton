@@ -12,6 +12,38 @@
       return swfobject.getObjectById("BigBlueButton");
     }
 
+     /**
+     * Get info if user is sharing webcam.
+     */  
+    BBB.amISharingWebcam = function(callback) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        if (arguments.length == 0) {
+          swfObj.amISharingCameraRequestAsync();
+        } else {
+          if (typeof callback === 'function') {
+            callback(swfObj.amISharingCameraRequestSync());
+          }
+        }
+      }
+    }
+    
+    /**
+     * Get my user info.
+     */  
+    BBB.isUserSharingWebcam = function(userID, callback) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        if (arguments.length == 1) {
+          swfObj.isUserPublishingCamRequestAsync(userID);
+        } else {
+          if (arguments.length == 2 && typeof callback === 'function') {
+            callback(swfObj.isUserPublishingCamRequestSync(userID));
+          }
+        }
+      }
+    }
+    
     BBB.switchPresenter = function(newPresenterUserID) {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -210,6 +242,7 @@
         swfObj.sendPrivateChatRequest(fontColor, localeLang, message, toUserID);
       }    
     }
+    
         
     /* ***********************************************************************************
      *       Broadcasting of events to 3rd-party apps.
@@ -273,6 +306,18 @@
       callback;
     }
     
+    // Flag to indicate that the SWF file has been loaded and ready to handle calls.
+    var swfReady = false;
+    BBB.swfClientIsReady = function () {
+      console.log("BigBlueButton SWF is ready.");
+      swfReady = true;
+    }
+    
+    // Third-party JS apps should use this to query if the BBB SWF file is ready to handle calls.
+    BBB.isSwfClientReady = function() {
+      return swfReady;
+    }
+     
     /************************************************
      * EVENT NAME CONSTANTS
      *

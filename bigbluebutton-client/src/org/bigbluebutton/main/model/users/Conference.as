@@ -30,7 +30,7 @@ package org.bigbluebutton.main.model.users {
     public var internalMeetingID:String;
     public var avatarURL:String;
     
-    private var _myCamSettings:CameraSettingsVO;
+    private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
     
 		[Bindable] private var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;			

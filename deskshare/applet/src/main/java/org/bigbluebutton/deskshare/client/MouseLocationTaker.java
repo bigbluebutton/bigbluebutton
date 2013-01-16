@@ -43,6 +43,8 @@ public class MouseLocationTaker {
 	private int captureX;
 	private int captureY;
 	
+	private Point oldMouseLocation = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
+	
 	public MouseLocationTaker(int captureWidth, int captureHeight, int scaleWidth, int scaleHeight, int captureX, int captureY) {
 		this.captureWidth = captureWidth;
 		this.captureHeight = captureHeight;
@@ -91,7 +93,11 @@ public class MouseLocationTaker {
 	}
 
 	private void takeMouseLocation() {		
-		notifyListeners(getMouseLocation());
+		Point mouseLocation = getMouseLocation();
+		if (!mouseLocation.equals(oldMouseLocation)) {
+			notifyListeners(getMouseLocation());
+			oldMouseLocation = mouseLocation;
+		}
 	}
 	
 	private void notifyListeners(Point location) {
