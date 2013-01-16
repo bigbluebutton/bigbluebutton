@@ -231,6 +231,10 @@ public class DeskshareClient {
     		ssi.useSVC2 = useSVC2;
     		ssi.sysTrayIcon = sysTrayIcon;
     		ssi.enableTrayActions = enableTrayActions;
+    		
+    		System.out.println("ScreenShareInfo[captureWidth=" + captureWidth + ",captureHeight=" + captureHeight + "][" + x + "," + y +"]"
+					+ "[scaleWidth=" + scaleWidth + ",scaleHeight=" + scaleHeight + "]");
+    		
     		return new DeskshareClient(ssi);
     	}
     	    	
@@ -246,14 +250,14 @@ public class DeskshareClient {
     	}
     	
     	private void calculateDimensionsToMaintainAspectRatio() {
-//    		if (scaleWidth > 0 && scaleHeight > 0) {
+    		if (scaleWidth > 0 && scaleHeight > 0) {
 //    			if (aspectRatio) {
 //    				recalculateScaleDimensionsToMaintainAspectRatio();
 //    			}
- //   		} else {
+    		} else {
     			scaleWidth = captureWidth;
     			scaleHeight = captureHeight;
-//    		}    		
+    		}    		
     	}
     	
     	private void setupFullScreen() {

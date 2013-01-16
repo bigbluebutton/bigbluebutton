@@ -67,7 +67,7 @@ public class ScreenCapture {
 	
 	public BufferedImage takeSingleSnapshot() {
 		BufferedImage capturedImage = robot.createScreenCapture(this.screenBounds);
-//		return capturedImage;
+
 		if (needToScaleImage()) {
 			if (quality) {
 				return useQuality(capturedImage);
@@ -107,12 +107,43 @@ public class ScreenCapture {
 	}
 
 	private BufferedImage useQuality(BufferedImage image) {	    
-	    BufferedImage resultImage = graphicsConfig.createCompatibleImage(scaleWidth, scaleHeight, image.getType());
+	    BufferedImage resultImage = graphicsConfig.createCompatibleImage(scaleWidth, scaleHeight, Transparency.BITMASK);
 	    resultImage.setAccelerationPriority(1);
 	    
 		Graphics2D g2 = resultImage.createGraphics();
-		Image scaledImage = image.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_AREA_AVERAGING);
-		g2.drawImage(scaledImage, 0, 0, scaleWidth, scaleHeight, null);
+		
+		System.out.println("Image=[" + image.getWidth() + "," + image.getHeight() + "] scale=[" + scaleWidth + "," + scaleHeight + "]");
+		
+		if (image.getWidth() < scaleWidth || image.getHeight() <  scaleHeight) {
+			int imgWidth = image.getWidth();
+			int imgHeight = image.getHeight();
+						
+			if (imgWidth < scaleWidth && imgHeight < scaleHeight) {
+				System.out.println("Capture is smaller than scale dims. Just draw the image.");
+				g2.drawImage(image, (resultImage.getWidth() - imgWidth) / 2, (resultImage.getHeight() - imgHeight) / 2, imgWidth, imgHeight, null);
+			} else {
+	    		if (imgWidth > scaleWidth) {
+	    			System.out.println("Fit to width.");
+	    			double ratio = (double)imgHeight/(double)imgWidth;
+	    			imgWidth = scaleWidth;
+	    			imgHeight = (int)((double)imgWidth * ratio);
+	    		} else {
+	    			System.out.println("Fit to height.");
+	    			double ratio = (double)imgWidth/(double)imgHeight;
+	    			imgHeight = scaleHeight;
+	    			imgWidth = (int)((double)imgHeight * ratio);
+	    		}
+	    			    		
+	    		Image scaledImage = image.getScaledInstance(imgWidth, imgHeight, Image.SCALE_AREA_AVERAGING);
+	    		
+				g2.drawImage(scaledImage, (resultImage.getWidth() - imgWidth) / 2, (resultImage.getHeight() - imgHeight) / 2, imgWidth, imgHeight, null);				
+			}
+		} else {
+			System.out.println("Both capture sides are greater than the scaled dims. Downscale image.");
+			Image scaledImage = image.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_AREA_AVERAGING);
+			g2.drawImage(scaledImage, 0, 0, scaleWidth, scaleHeight, null);	
+		}
+
 		g2.dispose();
 		return resultImage;
 	}
@@ -141,12 +172,7 @@ public class ScreenCapture {
      *    the {@code BILINEAR} hint is specified)
      * @return a scaled version of the original {@code BufferedImage}
      */
-    public BufferedImage getScaledInstance(BufferedImage img,
-                                           int targetWidth,
-                                           int targetHeight,
-                                           Object hint,
-                                           boolean higherQuality)
-    {
+    public BufferedImage getScaledInstance(BufferedImage img, int targetWidth, int targetHeight, Object hint, boolean higherQuality) {
         int type = (img.getTransparency() == Transparency.OPAQUE) ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
         BufferedImage ret = (BufferedImage)img;
         int w, h;
