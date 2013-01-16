@@ -100,7 +100,7 @@
 			[Bindable] private var select_icon:Class = images.select_icon;
 			[Bindable] private var grid_icon:Class = images.grid_icon;
 			
-      [Bindable] private var showWhiteboardToolbar:Boolean = true;
+      [Bindable] private var showWhiteboardToolbar:Boolean = false;
       
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
@@ -207,14 +207,19 @@
 				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
 				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
 				presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
-				this.x = presentationWindow.x + presentationWindow.width + 3;
+				presentationWindow.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
+				presentationWindow.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
+				this.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
+				this.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
+				
+				this.x = presentationWindow.x + presentationWindow.width - 43;
 				this.y = presentationWindow.y + 30;
         hideOrDisplayToolbar();
 				parent.setChildIndex(this, parent.numChildren - 1);
 			}
 			
 			private function setPositionAndDepth(e:Event = null):void {
-				this.x = presentationWindow.x + presentationWindow.width + 3;
+				this.x = presentationWindow.x + presentationWindow.width - 43;
 				this.y = presentationWindow.y + 30;
         hideOrDisplayToolbar();
 				parent.setChildIndex(this, parent.numChildren - 1);
@@ -224,14 +229,22 @@
 				parent.removeChild(this);
 			}
       
+      private function showToolbar(e:MouseEvent):void {
+        showWhiteboardToolbar = true;
+      }
+      
+      private function hideToolbar(e:MouseEvent):void {
+        showWhiteboardToolbar = false;
+      }
+      
       private function hideOrDisplayToolbar():void {
-        if (presentationWindow != null && presentationWindow.visible && ! presentationWindow.minimized) {
+       /* if (presentationWindow != null && presentationWindow.visible && ! presentationWindow.minimized) {
           trace("Positioning whiteboard toolbar: showing");
           showWhiteboardToolbar = true;
         } else {
           trace("Positioning whiteboard toolbar: not showing");
           showWhiteboardToolbar = false;
-        }
+        }*/
       }
            
       private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
