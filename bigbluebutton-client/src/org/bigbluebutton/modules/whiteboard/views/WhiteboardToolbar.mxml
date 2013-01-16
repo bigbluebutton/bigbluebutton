@@ -62,6 +62,7 @@
 			import mx.managers.CursorManager;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
@@ -181,13 +182,12 @@
         if (canvas == null) return;
         
 				canvas.makeTextObjectsEditable(e);
-        hideOrDisplayToolbar();
         setToolType(WhiteboardConstants.TYPE_ZOOM, null);
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void {
         canvas.makeTextObjectsUneditable(e);
-        hideOrDisplayToolbar();
+        hideToolbar();
       }
 			
 			private function undoShortcut(e:ShortcutEvent):void{
@@ -214,14 +214,12 @@
 				
 				this.x = presentationWindow.x + presentationWindow.width - 43;
 				this.y = presentationWindow.y + 30;
-        hideOrDisplayToolbar();
 				parent.setChildIndex(this, parent.numChildren - 1);
 			}
 			
 			private function setPositionAndDepth(e:Event = null):void {
 				this.x = presentationWindow.x + presentationWindow.width - 43;
 				this.y = presentationWindow.y + 30;
-        hideOrDisplayToolbar();
 				parent.setChildIndex(this, parent.numChildren - 1);
 			}
 			
@@ -230,21 +228,12 @@
 			}
       
       private function showToolbar(e:MouseEvent):void {
-        showWhiteboardToolbar = true;
+        if (isPresenter)
+        	showWhiteboardToolbar = true;
       }
       
-      private function hideToolbar(e:MouseEvent):void {
+      private function hideToolbar(e:MouseEvent = null):void {
         showWhiteboardToolbar = false;
-      }
-      
-      private function hideOrDisplayToolbar():void {
-       /* if (presentationWindow != null && presentationWindow.visible && ! presentationWindow.minimized) {
-          trace("Positioning whiteboard toolbar: showing");
-          showWhiteboardToolbar = true;
-        } else {
-          trace("Positioning whiteboard toolbar: not showing");
-          showWhiteboardToolbar = false;
-        }*/
       }
            
       private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
@@ -253,6 +242,11 @@
             
       private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
         var gobj:GraphicObject = event.data;
+      }
+      
+      /** Helper method to test whether this user is the presenter */
+      private function get isPresenter():Boolean {
+        return UserManager.getInstance().getConference().amIPresenter();
       }
 			           
 		]]>
