@@ -62,6 +62,13 @@
 		</genkey>
 	</target>
 
+	<target name="sign-jar" depends="get-password">
+		<signjar jar="build/libs/bbb-deskshare-applet-0.8.jar"
+			alias="${keystore.alias}"
+			keystore="${keystore}"
+			storepass="${keystore.password}" />
+	</target>
+
 	<!-- Sign jar with Certificate using pkcs12 file -->
 	<target name="check-certificate">
 		<input message="Enter cetificate filename:" addproperty="cert.name" />
