@@ -82,17 +82,22 @@ public class MouseLocationTaker {
 			int imgHeight = captureHeight;
 						
 			if (imgWidth < scaleWidth && imgHeight < scaleHeight) {
-				System.out.println("Capture is smaller than scale dims. Just draw the image.");
+				System.out.println("Capture is smaller than scale dims. Just draw the image. capture=[" 
+							+ captureWidth + "," + captureHeight + "] scale=[" + scaleWidth + "," + scaleHeight + "]");
 				int imgX = (scaleWidth - captureWidth) / 2;
 				int imgY = (scaleHeight - captureHeight) / 2;
 								
-				int mX = p.x - captureX;
-				int mY = p.y - captureY;
+				int mX = p.x - captureX + imgX;
+				int mY = p.y - captureY + imgY;
 				
-				System.out.println("imgX=[" + imgX + "," + imgY + "] p=[" + p.x + "," + p.y + "] capture=[" + captureX + "," + captureY + "]");
+			//	int mX = p.x - captureX;
+			//	int mY = p.y - captureY;
 				
-		//		return new Point(imgX + mX, imgY + mY);
-				return new Point(imgX, imgY);
+			//	System.out.println("imgX=[" + imgX + "," + imgY + "] p=[" + p.x + "," + p.y + "] capture=[" + captureX + "," + captureY + "]");
+				System.out.println("m=[" + mX + "," + mY + "] p=[" + p.x + "," + p.y + "] capture=[" + captureX + "," + captureY + "]");
+				
+			//	return new Point(imgX + mX, imgY + mY);
+				return new Point(mX, mY);
 			} else {
 	    		if (imgWidth > scaleWidth) {
 	    			System.out.println("Fit to width.");
@@ -139,12 +144,12 @@ public class MouseLocationTaker {
 	}
 
 	private void takeMouseLocation() {		
-//		Point mouseLocation = getMouseLocation();
-//		if ( !mouseLocation.equals(oldMouseLocation) && isMouseInsideCapturedRegion(mouseLocation)) {
-//			System.out.println("Mouse is inside captured region [" + mouseLocation.x + "," + mouseLocation.y + "]");
-//			notifyListeners(calculatePointerLocation(mouseLocation));
-//			oldMouseLocation = mouseLocation;
-//		}
+		Point mouseLocation = getMouseLocation();
+		if ( !mouseLocation.equals(oldMouseLocation) ) { //&& isMouseInsideCapturedRegion(mouseLocation)) {
+			System.out.println("Mouse is inside captured region [" + mouseLocation.x + "," + mouseLocation.y + "]");
+			notifyListeners(calculatePointerLocation(mouseLocation));
+			oldMouseLocation = mouseLocation;
+		}
 	}
 	
 	private boolean isMouseInsideCapturedRegion(Point p) {
