@@ -25,6 +25,7 @@
 		xmlns:view="org.bigbluebutton.modules.whiteboard.views.*"
 		xmlns:wbBtns="org.bigbluebutton.modules.whiteboard.views.buttons.*"
 		xmlns:mate="http://mate.asfusion.com/" creationComplete="onCreationComplete()"
+		initialize="init()"
     visible="{showWhiteboardToolbar}" styleName="whiteboardToolbarStyle">
 	
 	<mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="presenterMode" />
@@ -78,6 +79,7 @@
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
+			import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.common.LogUtil;
 			
@@ -101,6 +103,8 @@
 			[Bindable] private var select_icon:Class = images.select_icon;
 			[Bindable] private var grid_icon:Class = images.grid_icon;
 			
+			private var wbOptions:WhiteboardOptions;
+			
       [Bindable] private var showWhiteboardToolbar:Boolean = false;
       
 			public var canvas:WhiteboardCanvas;
@@ -108,6 +112,10 @@
 			
 			[Bindable] private var colorPickerColours:Array = ['0x000000', '0xFFFFFF' , '0xFF0000', '0xFF8800',
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
+                
+			private function init():void {
+				wbOptions = new WhiteboardOptions();
+			}
 			
       private function onCreationComplete():void {
         setToolType(WhiteboardConstants.TYPE_ZOOM, null);
@@ -186,9 +194,9 @@
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void {
-        canvas.makeTextObjectsUneditable(e);
-        hideToolbar();
-      }
+				canvas.makeTextObjectsUneditable(e);
+				if (!toolbarAllowed()) hideToolbar();
+			}
 			
 			private function undoShortcut(e:ShortcutEvent):void{
 				LogUtil.debug("Ctrl-Z got into undoShortcut");
@@ -204,17 +212,17 @@
 			public function positionToolbar(window:PresentationWindow):void {
         trace("Positioning whiteboard toolbar");
 				presentationWindow = window;
-				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
-				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
-				presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
+				//presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
+				//presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
+				//presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
 				presentationWindow.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
 				presentationWindow.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
 				this.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
 				this.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
 				
-				this.x = presentationWindow.x + presentationWindow.width - 43;
-				this.y = presentationWindow.y + 30;
-				parent.setChildIndex(this, parent.numChildren - 1);
+				//this.x = presentationWindow.x + presentationWindow.width - 43;
+				//this.y = presentationWindow.y + 30;
+				//parent.setChildIndex(this, parent.numChildren - 1);
 			}
 			
 			private function setPositionAndDepth(e:Event = null):void {
@@ -228,8 +236,10 @@
 			}
       
       private function showToolbar(e:MouseEvent):void {
-        if (isPresenter)
+        if (toolbarAllowed()) {
+        	setPositionAndDepth();
         	showWhiteboardToolbar = true;
+        }
       }
       
       private function hideToolbar(e:MouseEvent = null):void {
@@ -244,11 +254,29 @@
         var gobj:GraphicObject = event.data;
       }
       
+      private function toolbarAllowed():Boolean {
+      	if (wbOptions) {
+      	  if (wbOptions.whiteboardAccess == "presenter")
+            return isPresenter;
+          else if (wbOptions.whiteboardAccess == "moderator")
+            return isModerator || isPresenter;
+          else if (wbOptions.whiteboardAccess == "all")
+            return true;
+          else
+            return false;
+        } else
+          return false;
+      }
+      
       /** Helper method to test whether this user is the presenter */
       private function get isPresenter():Boolean {
         return UserManager.getInstance().getConference().amIPresenter();
       }
-			           
+      
+      private function get isModerator():Boolean {
+        return UserManager.getInstance().getConference().amIModerator();
+      }
+		           
 		]]>
 	</mx:Script>
 	
