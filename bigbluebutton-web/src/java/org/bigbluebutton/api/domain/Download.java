@@ -1,11 +1,11 @@
 package org.bigbluebutton.api.domain;
 
-public class Playback {
+public class Download {
 	private String format;
 	private String url;
 	private int length;
 	private String md5;	
-	public Playback(String format, String url, String md5, int length) {
+	public Download(String format, String url, String md5, int length) {
 		this.format = format;
 		this.url = url;
 		this.length = length;

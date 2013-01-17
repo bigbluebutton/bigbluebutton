@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.*;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Playback;
+import org.bigbluebutton.api.domain.Download;
 import org.bigbluebutton.api.domain.Recording;
 import org.bigbluebutton.api.domain.User;
 import org.bigbluebutton.api.domain.UserSession;
@@ -126,13 +127,20 @@ public class MeetingService {
 
 				ArrayList<Playback> plays=new ArrayList<Playback>();
 				
-				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getDurationRecording(r.getEndTime(), r.getStartTime())));
+				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),r.getPlaybackMd5(), getDurationRecording(r.getEndTime(), r.getStartTime())));
 				r.setPlaybacks(plays);
+
+				ArrayList<Download> downloads=new ArrayList<Download>();
+				
+				downloads.add(new Download(r.getDownloadFormat(), r.getDownloadLink(),r.getDownloadMd5(), getDurationRecording(r.getEndTime(), r.getStartTime())));
+				r.setDownloads(downloads);
+
 				map.put(r.getId(), r);
 			}
 			else{
 				Recording rec=map.get(r.getId());
-				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getDurationRecording(r.getEndTime(), r.getStartTime())));
+				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), r.getPlaybackMd5(), getDurationRecording(r.getEndTime(), r.getStartTime())));
+				rec.getDownloads().add(new Download(r.getDownloadFormat(), r.getDownloadLink(), r.getDownloadMd5(), getDurationRecording(r.getEndTime(), r.getStartTime())));
 			}
 		}
 		

@@ -36,36 +36,58 @@ mconf_props = YAML::load(File.open('mconf.yml'))
 xml_url = mconf_props['get_recordings_url']
 recording_dir = bbb_props['recording_dir'] 
 rawdir = "#{recording_dir}/raw"
+archived_dir = "#{recording_dir}/status/archived"
 
-xml_data = Net::HTTP.get_response(URI.parse(url)).body
+xml_data = Net::HTTP.get_response(URI.parse(xml_url)).body
 doc = REXML::Document.new(xml_data)
+
 files_url = []
 types = []
-
+keys_url = []
+md5_server_side = []
 doc.elements.each('response/recordings/recording/playback/format/type') do |type|
    types << type.text
 end
 doc.elements.each('response/recordings/recording/playback/format/url') do |url|
     files_url << url.text
 end
+doc.elements.each('response/recordings/recording/playback/format/md5') do |md5|
+    md5_server_side << md5.text
+end
+doc.elements.each('response/recordings/recording/playback/format/key') do |key|
+    keys_url << key.text
+end
 
 types.each_with_index do |eachtype, idx|
-   if (eachtype == "mconf") then
-      url = files_url[idx]
-      file = url.split("/").last
+	if (eachtype == "encrypted") then
+		url = files_url[idx]
+		file = url.split("/").last
+		match = /(.*).dat/.match file
+		meeting_id = match[1]
+		if not File.exist?("#{archived_dir}/#{meeting_id}.done"
+			Dir.chdir(rawdir) do
 
-      writeOut = open("#{rawdir}/#{file}", "wb")
-      writeOut.write(open(url).read)
-      writeOut.close
 
-      i = url.length
-      j = file.length
+				puts file
 
-      writeOut = open("#{rawdir}/#{file[0 .. j-5] }.enc", "wb")
-      writeOut.write(open("#{url[0 .. i-5]}.enc").read)
-      writeOut.close
+				writeOut = open(file, "wb")
+				writeOut.write(open(url).read)
+				writeOut.close
+	
+				i = url.length
+				j = file.length
 
-   end
+				writeOut = open("#{file[0 .. j-5] }.enc", "wb")
+				writeOut.write(open("#{url[0 .. i-5]}.enc").read)
+				writeOut.close
+
+				archived_done = File.new("#{archived_dir}/#{meeting_id}.done", "w")
+				process_done.write("Archived #{meeting_id}")
+				process_done.close
+			end
+		end
+
+	end
 end
 
 
