@@ -102,7 +102,6 @@ public class MouseLocationTaker {
 	    			imgWidth = scaleWidth;
 	    			imgHeight = (int)((double)imgWidth * ratio);
 	    			
-					int imgX = 0;
 					int imgY = (scaleHeight - imgHeight) / 2;
 					
 					double mX =  ((double)((double)p.x - (double)captureX) * (double)((double)scaleWidth / (double)captureWidth));
@@ -110,12 +109,12 @@ public class MouseLocationTaker {
 					System.out.println("(p.x - captureX)=[" + (p.x - captureX) + "] (scaleWidth / captureWidth)=[" 
 									+ (double)((double)scaleWidth / (double)captureWidth) + "] mX=[" + mX + "]");
 					
-					int mY = (int) ((p.y - captureY) * ratio) + imgY;
+					double mY = ((double)((double)p.y - (double)captureY) * (double)((double)imgHeight / (double)captureHeight)) + imgY;
 									
 				//	System.out.println("imgX=[" + imgX + "," + imgY + "] p=[" + p.x + "," + p.y + "] capture=[" + captureX + "," + captureY + "]");
 					System.out.println("m=[" + mX + "," + mY + "] p=[" + p.x + "," + p.y + "] capture=[" + captureX + "," + captureY + "]");
 					
-					return new Point((int)mX, mY);
+					return new Point((int)mX, (int)mY);
 	    		} else {
 	    			System.out.println("Fit to height.");
 	    			double hRatio = (double)scaleHeight/(double)captureHeight;
