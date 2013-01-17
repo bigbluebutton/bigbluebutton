@@ -50,9 +50,7 @@ public class ScreenCapture {
 	private int scaleWidth, scaleHeight, x,y, captureWidth, captureHeight;
 	private boolean quality;
 	private GraphicsConfiguration graphicsConfig;
-	private Image cursorImage;
-	private Point oldMouseLocation = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
-	
+
 	public ScreenCapture(int x, int y, int captureWidth, int captureHeight, int scaleWidth, int scaleHeight, boolean quality) {
 		this.captureWidth = captureWidth;
 		this.captureHeight = captureHeight;
@@ -71,7 +69,6 @@ public class ScreenCapture {
 	    GraphicsDevice js = je.getDefaultScreenDevice();
 
 	    graphicsConfig = js.getDefaultConfiguration();
-	    cursorImage = Toolkit.getDefaultToolkit().getImage("/cursor4.png");
 	}
 		
 	public BufferedImage takeSingleSnapshot() {
@@ -115,43 +112,12 @@ public class ScreenCapture {
 		return (captureWidth != scaleWidth && captureHeight != scaleHeight);
 	}
 
-	private Point getMouseLocation() {
-		PointerInfo pInfo;
-		Point pointerLocation = new Point(0,0);
-		
-		try {
-			pInfo = MouseInfo.getPointerInfo();
-		} catch (HeadlessException e) {
-			pInfo = null;
-		} catch (SecurityException e) {
-			pInfo = null;
-		}
-		
-		if (pInfo == null) return pointerLocation;
-		
-		return pInfo.getLocation();		
-	}
-	
-	private boolean isMouseInsideCapturedRegion(Point p) {
-		return ( ( (p.x > x) && (p.x < (x + captureWidth) ) ) 
-				&& (p.y > y && p.y < y + captureHeight));
-	}
-	
 	private BufferedImage useQuality(BufferedImage image) {	    
-		Graphics2D g1 = image.createGraphics();
-	
 	    BufferedImage resultImage = graphicsConfig.createCompatibleImage(scaleWidth, scaleHeight, Transparency.BITMASK);
 	    resultImage.setAccelerationPriority(1);
 	    
 		Graphics2D g2 = resultImage.createGraphics();
-		
-		Point mouseLoc = getMouseLocation();
-		
-//		if (isMouseInsideCapturedRegion(mouseLoc)) {
-			System.out.println("Drawing cursor at [" + (mouseLoc.x - x) + "," + (mouseLoc.y - y));
-			g1.drawImage(cursorImage, mouseLoc.x - x, mouseLoc.y - y, cursorImage.getWidth(null), cursorImage.getHeight(null), null);
-//		}
-			
+					
 //		System.out.println("Image=[" + image.getWidth() + "," + image.getHeight() + "] scale=[" + scaleWidth + "," + scaleHeight + "]");
 		
 		if (image.getWidth() < scaleWidth || image.getHeight() <  scaleHeight) {
