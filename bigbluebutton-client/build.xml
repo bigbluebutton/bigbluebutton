@@ -34,6 +34,7 @@
 	<property name="WHITEBOARD" value="WhiteboardModule" />
 	<property name="VIDEO_DOCK" value="VideodockModule" />
 	<property name="LAYOUT" value="LayoutModule" />
+	<property name="PARTICIPANTS" value="ParticipantsModule" />
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
 	
@@ -240,9 +241,13 @@
 		<build-module src="${SRC_DIR}" target="${LAYOUT}" />
 	</target>
 	
+	<target name="build-participants" description="Compile Participants Module">
+			<build-module src="${SRC_DIR}" target="${PARTICIPANTS}" />
+	</target>
+	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present, build-layout, build-broadcast"
+			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present, build-layout, build-broadcast, build-participants"
 			description="Compile main, chat, viewers, listeners, present modules">
 	</target>
 	
@@ -471,5 +476,5 @@
                         description="Build BBB client without locales"/>		
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
 
-	<target name="build-custom" depends="init-ant-contrib" description="Build a custom defined module only, to save time as each build takes several minutes" />
+	<target name="build-custom" depends="init-ant-contrib, build-participants" description="Build a custom defined module only, to save time as each build takes several minutes" />
 </project>
