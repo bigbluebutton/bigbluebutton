@@ -227,8 +227,8 @@
         videoHolder.x = video.x = (this.width - video.width) / 4;
         videoHolder.y = video.y = (this.height - video.height) / 4;
         
-//        videoHolder.x = video.x = 0;
-//        videoHolder.y = video.y = 0;
+ //       videoHolder.x = video.x = 0;
+ //       videoHolder.y = video.y = 0;
         
         trace("Center video = [" + video.width + "x" + video.height 
                                 + "] display=[" + this.width + "x" + this.height + "]"
