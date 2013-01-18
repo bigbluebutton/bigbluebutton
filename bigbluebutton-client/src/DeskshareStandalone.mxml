@@ -139,14 +139,14 @@
           determineHowToDisplayVideo();        
         }
       }
-      
-
-
-			
+      			
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
 				if (cursor == null) return;	
-				cursor.x = ((event.x/video.videoWidth)) * videoHolder.width;
-				cursor.y = ((event.y/video.videoHeight)) * videoHolder.height;
+        
+//				cursor.x = ((event.x/video.videoWidth)) * videoHolder.width;
+//				cursor.y = ((event.y/video.videoHeight)) * videoHolder.height;
+        cursor.x = videoHolder.x + (event.x * (videoHolder.width / videoWidth));
+        cursor.y = videoHolder.y + (event.y * (videoHolder.height / videoHeight));
 //				cursor.visible = true;
 				
 				cursorImg.visible = true;
@@ -178,48 +178,7 @@
 					break;
 				}
 			}
-/*
-      private function centerVideo():void {
-      videoHolder.x = vbox.width/2 - video.width/2;
-      videoHolder.y = vbox.height/2 - video.height/2;				
-      }
       
-      private function calculateDisplayDimensions(video:Video, videoHolder:UIComponent):void {
-      if (videoIsSmallerThanDisplay(video, videoHolder)) {
-      videoHolder.width = video.width;
-      videoHolder.height = video.height;
-      return;
-      }
-      
-      if (displayWidth < displayHeight) {
-      fitToWidthAndAdjustHeightToMaintainAspectRatio();				
-      } else {
-      fitToHeightAndAdjustWidthToMaintainAspectRatio();
-      }
-      }
-      
-			private function videoIsSmallerThanDisplay(video:Video, videoHolder:UIComponent):Boolean {
-				return (video.height < displayHeight) && (video.width < displayWidth);
-			}
-			
-			private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {	
-				var aspectRatio:Number = video.height/video.width;			
-				video.width = displayWidth;
-				videoHolder.width = video.width;
-				// Maintain aspect-ratio
-				video.height = displayWidth * aspectRatio;
-				videoHolder.height = video.height;				
-			}
-				
-			private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
-				var aspectRatio:Number = video.width/video.height;					
-				video.height = displayHeight;
-				videoHolder.height = video.height;
-				// Maintain aspect-ratio
-				video.width = aspectRatio * displayHeight;
-				videoHolder.width = video.width;				
-			}			
-*/      
       //----------------------------
       private function centerToWindow():void{
         videoHolder.width = video.width = videoWidth;
@@ -227,8 +186,8 @@
         videoHolder.x = video.x = (this.width - video.width) / 4;
         videoHolder.y = video.y = (this.height - video.height) / 4;
         
- //       videoHolder.x = video.x = 0;
- //       videoHolder.y = video.y = 0;
+//        videoHolder.x = video.x = 0;
+//        videoHolder.y = video.y = 0;
         
         trace("Center video = [" + video.width + "x" + video.height 
                                 + "] display=[" + this.width + "x" + this.height + "]"
