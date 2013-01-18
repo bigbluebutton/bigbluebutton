@@ -149,14 +149,46 @@ public class ScreenCapture {
 				g2.drawImage(scaledImage, (resultImage.getWidth() - imgWidth) / 2, (resultImage.getHeight() - imgHeight) / 2, imgWidth, imgHeight, null);				
 			}
 		} else {
-//			System.out.println("Both capture sides are greater than the scaled dims. Downscale image.");
-			Image scaledImage = image.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_AREA_AVERAGING);
-			g2.drawImage(scaledImage, 0, 0, scaleWidth, scaleHeight, null);	
+			System.out.println("Both capture sides are greater than the scaled dims. Downscale image.");
+//			Image scaledImage = image.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_AREA_AVERAGING);
+//			g2.drawImage(scaledImage, 0, 0, scaleWidth, scaleHeight, null);	
+			
+			double imgWidth = image.getWidth();
+			double imgHeight = image.getHeight();
+			
+    		if (captureWidth >= captureHeight) {
+    	        System.out.println("fitToWidthAndAdjustHeightToMaintainAspectRatio");  
+    			imgWidth = scaleWidth;
+
+    	        // Maintain aspect-ratio
+    			imgHeight = (double)captureHeight * (double)((double)scaleWidth / (double)captureWidth);
+
+    	        if (imgHeight > scaleHeight) {
+    	        	imgWidth = (double)imgWidth * ((double)scaleHeight / (double)imgHeight);
+    	        	imgHeight = scaleHeight;
+    	        }
+    		} else {
+    	        System.out.println("fitToHeightAndAdjustWidthToMaintainAspectRatio");   
+    	        imgHeight = scaleHeight;
+    	        
+    	        // Maintain aspect-ratio
+    			imgWidth = (double)captureWidth * (double)((double)scaleHeight / (double)captureHeight);
+
+    	        if (imgWidth > scaleWidth) {
+    	        	imgHeight = (double)imgHeight * (double)((double)scaleWidth / (double)imgWidth);
+    	        	imgWidth = scaleWidth;
+    	        }
+    		}
+    			    		
+    		Image scaledImage = image.getScaledInstance((int)imgWidth, (int)imgHeight, Image.SCALE_AREA_AVERAGING);
+    		
+			g2.drawImage(scaledImage, (resultImage.getWidth() - (int)imgWidth) / 2, (resultImage.getHeight() - (int)imgHeight) / 2, (int)imgWidth, (int)imgHeight, null);				
 		}
 
 		g2.dispose();
 		return resultImage;
 	}
+	
 		 
 	/**
 	 * See http://today.java.net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html
