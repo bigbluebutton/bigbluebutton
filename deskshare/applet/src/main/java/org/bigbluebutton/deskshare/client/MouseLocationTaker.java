@@ -143,13 +143,46 @@ public class MouseLocationTaker {
 			}
 		} else {
 			System.out.println("Both capture sides are greater than the scaled dims. Downscale image.");
-			double mx = ((double)p.x / (double)captureWidth) * (double)scaleWidth;
-			double my = ((double)p.y / (double)captureHeight) * (double)scaleHeight;
+
 			
-			mx = mx - captureX;
-			my = my - captureY;
+			double imgWidth = captureWidth;
+			double imgHeight = captureHeight;
 			
-			return new Point((int)mx, (int)my);
+    		if (captureWidth >= captureHeight) {
+    	        System.out.println("fitToWidthAndAdjustHeightToMaintainAspectRatio");  
+    			imgWidth = scaleWidth;
+
+    	        // Maintain aspect-ratio
+    			imgHeight = (double)captureHeight * (double)((double)scaleWidth / (double)captureWidth);
+
+    	        if (imgHeight > scaleHeight) {
+    	        	imgWidth = (double)imgWidth * ((double)scaleHeight / (double)imgHeight);
+    	        	imgHeight = scaleHeight;
+    	        }
+    		} else {
+    	        System.out.println("fitToHeightAndAdjustWidthToMaintainAspectRatio");   
+    	        imgHeight = scaleHeight;
+    	        
+    	        // Maintain aspect-ratio
+    			imgWidth = (double)captureWidth * (double)((double)scaleHeight / (double)captureHeight);
+
+    	        if (imgWidth > scaleWidth) {
+    	        	imgHeight = (double)imgHeight * (double)((double)scaleWidth / (double)imgWidth);
+    	        	imgWidth = scaleWidth;
+    	        }
+    		}
+    		
+			int imgX = (int)(scaleWidth - imgWidth) / 2;
+			int imgY = (int)(scaleHeight - imgHeight) / 2;
+			
+			double mX =  ((double)((double)p.x - (double)captureX) * (double)((double) imgWidth  / (double) captureWidth)) + imgX;
+		//	double mX =  ((double)((double)p.x - (double)captureX) * (double)(ratio))  + imgX ;
+			System.out.println("(p.x - captureX)=[" + (p.x - captureX) + "] ** (imgWidth  /  captureWidth)=[" 
+							+ (double)((double)imgWidth / (double) captureWidth) + "] mX=[" + mX + "]");
+			
+			double mY = ((double)((double)p.y - (double)captureY) * (double)((double)scaleHeight / (double)captureHeight)) + imgY;
+    		
+			return new Point((int)mX, (int)mY);
 		}
 	}
 	
