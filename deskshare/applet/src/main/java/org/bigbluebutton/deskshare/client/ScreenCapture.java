@@ -126,8 +126,9 @@ public class ScreenCapture {
 						
 			if (imgWidth < scaleWidth && imgHeight < scaleHeight) {
 //				System.out.println("Capture is smaller than scale dims. Just draw the image.");
-				System.out.println("Screen capture. capture=[" 
-						+ imgWidth + "," + imgHeight + "] scale=[" + resultImage.getWidth() + "," + resultImage.getHeight() + "]");
+				System.out.println("Screen capture. capture=[" + imgWidth + "," + imgHeight 
+						+ "] scale=[" + resultImage.getWidth() + "," + resultImage.getHeight() + "]");
+				
 				g2.drawImage(image, (resultImage.getWidth() - imgWidth) / 2, (resultImage.getHeight() - imgHeight) / 2, imgWidth, imgHeight, null);
 //				g2.drawImage(image, 0, 0, imgWidth, imgHeight, null);
 			} else {
