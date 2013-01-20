@@ -22,8 +22,7 @@
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
-      title=""
-      x="168" y="86" layout="absolute" width="700" height="400" styleName="presentationFileUploadWindowStyle"
+      x="168" y="86" layout="absolute" width="700" height="410" styleName="presentationFileUploadWindowStyle"
       initialize="initData();">
 
     <mate:Dispatcher id="globalDispatch" />
@@ -270,22 +269,25 @@
   <mx:VBox width="100%" height="100%">
     <mx:Label text="{ResourceUtil.getInstance().getString('bbb.fileupload.title')}" styleName="presentationUploadTitleStyle"/>
     <mx:Spacer height="10"/>
-    <mx:HBox>
+    <mx:HBox width="100%">
+      <mx:Spacer height="5"/>
       <mx:Label id="fileLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileLbl')}" styleName="presentationUploadChooseFileLabelStyle"/>
+      <mx:Spacer width="100%"/>
       <mx:Button label="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.label')}" id="selectBtn" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.toolTip')}" 
                  click="selectFile()" styleName="presentationUploadChooseFileButtonStyle"/>
+      <mx:Spacer height="5"/>
     </mx:HBox>
     <mx:Spacer height="5"/>
-    <mx:HBox> 
+    <mx:HBox width="100%"> 
       <mx:Spacer width="5"/>
       <mx:TextInput id="fileTxtInput" width="328" editable="false"/>
       <mx:Button id="uploadBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn')}" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn.toolTip')}"  click="startUpload()"
                  enabled="false" icon="{bulletGoIcon}"/>
     </mx:HBox>
-    <mx:Spacer height="10"/>
-    <mx:HBox>
+    <mx:Spacer height="5"/>
+    <mx:HBox width="100%">
       <mx:Spacer width="10"/>
       <mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" 
                 styleName="presentationUploadProgressBarLabelStyle"
@@ -295,7 +297,10 @@
                       labelPlacement="center" width="460" visible="true"/>      
     </mx:HBox>
     <mx:Spacer height="10"/>
-    <mx:Label id="presentationNamesLb" text="{ResourceUtil.getInstance().getString('bbb.fileupload.presentationNamesLbl')}" styleName="presentationNamesLabelStyle"/>
+    <mx:HBox width="100%">
+      <mx:Spacer width="5"/>
+      <mx:Label id="presentationNamesLb" text="{ResourceUtil.getInstance().getString('bbb.fileupload.presentationNamesLbl')}" styleName="presentationNamesLabelStyle"/>
+    </mx:HBox>  
     <mx:Spacer height="5"/>
     <mx:HBox width="90%" height="100">
       <mx:Spacer width="10"/>
