@@ -274,7 +274,7 @@
       <mx:Button label="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.label')}" id="selectBtn" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.toolTip')}" 
                  click="selectFile()" styleName="presentationUploadChooseFileButtonStyle"/>
-      <mx:Spacer height="5"/>
+      <mx:Spacer width="5"/>
     </mx:HBox>
     <mx:Spacer height="5"/>
     <mx:HBox width="100%"> 
@@ -308,11 +308,12 @@
       </mx:List>
     </mx:HBox>
     <mx:Spacer height="5"/>
-    <mx:HBox width="90%">
+    <mx:HBox width="100%">
       <mx:Spacer width="100%"/>
       <mx:Button id="okCancelBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn')}"
                  styleName="presentationUploadCancelButtonStyle"
                  click="globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))"/>
+      <mx:Spacer width="5"/>
     </mx:HBox>	
   </mx:VBox>
 
