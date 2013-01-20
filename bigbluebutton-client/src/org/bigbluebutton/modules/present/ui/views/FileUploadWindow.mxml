@@ -289,10 +289,10 @@
       <mx:Spacer width="10"/>
       <mx:Label id="progBarLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}" 
                 styleName="presentationUploadProgressBarLabelStyle"
-                visible="true"/>
+                visible="false"/>
       <mx:ProgressBar id="progressBar" mode="manual" label="{ResourceUtil.getInstance().getString('bbb.fileupload.progBarLbl')}"
                       styleName="presentationUploadProgressBarStyle"
-                      labelPlacement="center" width="460" visible="true"/>      
+                      labelPlacement="center" width="460" visible="false"/>      
     </mx:HBox>
     <mx:Spacer height="10"/>
     <mx:HBox width="100%">
