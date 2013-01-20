@@ -58,7 +58,6 @@
       import org.bigbluebutton.util.i18n.ResourceUtil;
 
             	
-      [Bindable] public var presentationNames:Array = new Array();
       [Bindable] public var presentationNamesAC:ArrayCollection;
 
       private var images:Images = new Images();
@@ -73,8 +72,7 @@
       private var fileToUpload:FileReference = new FileReference();
 
       private function initData():void {
-        presentationNamesAC = new ArrayCollection(presentationNames);
-        if (presentationNames.length <= 0) {
+        if (presentationNamesAC.length <= 0) {
           selectFile();
         }
       }
