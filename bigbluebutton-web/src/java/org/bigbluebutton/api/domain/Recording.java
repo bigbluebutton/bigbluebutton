@@ -22,12 +22,12 @@ public class Recording {
 	private String state;
 	private String playbackLink;
 	private String playbackFormat;
-	private String playbackMd5;
 	
 	private String downloadLink;
 	private String downloadFormat;
 	private String downloadMd5;
-	
+	private String downloadKey;
+
 	public String getId() {
 		return id;
 	}
@@ -90,6 +90,14 @@ public class Recording {
 	public void setDownloadMd5(String downloadMd5) {
 		this.downloadMd5 = downloadMd5;
 	}
+
+	public String getDownloadKey() {
+		return downloadKey;
+	}
+	
+	public void setDownloadKey(String downloadKey) {
+		this.downloadKey = downloadKey;
+	}
 	public String getPlaybackLink() {
 		return playbackLink;
 	}
@@ -106,13 +114,6 @@ public class Recording {
 		this.playbackFormat = playbackFormat;
 	}
 
-	public String getPlaybackMd5() {
-		return playbackMd5;
-	}
-	
-	public void setPlaybackMd5(String playbackMd5) {
-		this.playbackMd5 = playbackMd5;
-	}
 	
 	public Map<String, String> getMetadata() {
 		return metadata;

@@ -127,20 +127,20 @@ public class MeetingService {
 
 				ArrayList<Playback> plays=new ArrayList<Playback>();
 				
-				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(),r.getPlaybackMd5(), getDurationRecording(r.getEndTime(), r.getStartTime())));
+				plays.add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getDurationRecording(r.getEndTime(), r.getStartTime())));
 				r.setPlaybacks(plays);
 
 				ArrayList<Download> downloads=new ArrayList<Download>();
 				
-				downloads.add(new Download(r.getDownloadFormat(), r.getDownloadLink(),r.getDownloadMd5(), getDurationRecording(r.getEndTime(), r.getStartTime())));
+				downloads.add(new Download(r.getDownloadFormat(), r.getDownloadLink(),r.getDownloadMd5(), r.getDownloadKey(), getDurationRecording(r.getEndTime(), r.getStartTime())));
 				r.setDownloads(downloads);
 
 				map.put(r.getId(), r);
 			}
 			else{
 				Recording rec=map.get(r.getId());
-				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), r.getPlaybackMd5(), getDurationRecording(r.getEndTime(), r.getStartTime())));
-				rec.getDownloads().add(new Download(r.getDownloadFormat(), r.getDownloadLink(), r.getDownloadMd5(), getDurationRecording(r.getEndTime(), r.getStartTime())));
+				rec.getPlaybacks().add(new Playback(r.getPlaybackFormat(), r.getPlaybackLink(), getDurationRecording(r.getEndTime(), r.getStartTime())));
+				rec.getDownloads().add(new Download(r.getDownloadFormat(), r.getDownloadLink(), r.getDownloadMd5(), r.getDownloadKey(), getDurationRecording(r.getEndTime(), r.getStartTime())));
 			}
 		}
 		

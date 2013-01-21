@@ -4,12 +4,10 @@ public class Playback {
 	private String format;
 	private String url;
 	private int length;
-	private String md5;	
-	public Playback(String format, String url, String md5, int length) {
+	public Playback(String format, String url, int length) {
 		this.format = format;
 		this.url = url;
 		this.length = length;
-		this.md5 = md5;
 	}
 	public String getFormat() {
 		return format;
@@ -28,12 +26,6 @@ public class Playback {
 	}
 	public void setLength(int length) {
 		this.length = length;
-	}
-	public void setMd5(String md5) {
-		this.md5 = md5;
-	}
-	public String getMd5() {
-		return md5;
 	}
 	
 }

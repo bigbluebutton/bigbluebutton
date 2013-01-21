@@ -5,11 +5,13 @@ public class Download {
 	private String url;
 	private int length;
 	private String md5;	
-	public Download(String format, String url, String md5, int length) {
+	private String key;
+	public Download(String format, String url, String md5, String key, int length) {
 		this.format = format;
 		this.url = url;
 		this.length = length;
 		this.md5 = md5;
+		this.key = key;
 	}
 	public String getFormat() {
 		return format;
@@ -35,5 +37,11 @@ public class Download {
 	public String getMd5() {
 		return md5;
 	}
-	
+	public void setKey(String key) {
+		this.key = key;
+	}
+	public String getKey() {
+		return key;
+	}
+
 }

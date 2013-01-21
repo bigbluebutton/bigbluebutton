@@ -874,7 +874,6 @@ class ApiController {
 							  type(item.getFormat())
 							  url(item.getUrl())
 							  length(item.getLength())
-							  md5(item.getMd5())
 						  }
 					  }
                   }
@@ -883,8 +882,9 @@ class ApiController {
 						  format{
 							  type(item.getFormat())
 							  url(item.getUrl())
-							  length(item.getLength())
 							  md5(item.getMd5())
+							  key(item.getKey())
+							  length(item.getLength())
 						  }
 					  }
                   }
