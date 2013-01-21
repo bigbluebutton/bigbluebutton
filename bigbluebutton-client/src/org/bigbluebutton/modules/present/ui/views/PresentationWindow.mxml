@@ -215,13 +215,13 @@
 				}
 			}
 			
-			private function remoteMinimize(e:ShortcutEvent){
+			private function remoteMinimize(e:ShortcutEvent):void{
 				if (!minimized){
 					this.minimize();
 				}
 			}
 			
-			private function remoteMaximize(e:ShortcutEvent){
+			private function remoteMaximize(e:ShortcutEvent):void{
 				if (!maximized && !minimized){
 					this.maximize();
 				}

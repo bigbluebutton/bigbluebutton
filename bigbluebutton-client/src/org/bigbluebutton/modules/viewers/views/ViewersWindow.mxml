@@ -79,9 +79,9 @@
             [Bindable] public var presenterIcon : Class = images.presenter;
    			[Bindable] public var handIcon:Class = images.raisehand;
    			
-			private var dispatcher:Dispatcher;
+			private var dispatcher:Dispatcher;			
 			private var keyCombos:Object;
-			
+						
 			[Bindable] public var viewerOptions:ViewerOptions;
 			[Bindable] private var baseIndex:int;
 			
@@ -106,14 +106,13 @@
 				closeBtn.tabIndex = baseIndex+3;
 			}
 			
-			private function remoteMinimize(e:ShortcutEvent){
-				LogUtil.debug("WATERFALL: Minimize hotkey for viewers");
+			private function remoteMinimize(e:ShortcutEvent):void{
 				if (!minimized){
 					this.minimize();
 				}
 			}
 			
-			private function remoteMaximize(e:ShortcutEvent){
+			private function remoteMaximize(e:ShortcutEvent):void{
 				if (!maximized && !minimized){
 					this.maximize();
 				}

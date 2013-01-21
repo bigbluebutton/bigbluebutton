@@ -36,9 +36,12 @@
 	<mate:Listener type="{ListenersEvent.SET_LOCAL_MODERATOR_STATUS}" method="{setModerator}" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="muteMeHandler" />
+	<mate:Listener type="{ShortcutEvent.MINIMIZE_LISTEN}" method="remoteMinimize" />
+	<mate:Listener type="{ShortcutEvent.MAXIMIZE_LISTEN}" method="remoteMaximize" />
 	
 	<mx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
 			import flash.events.MouseEvent;
 			import flash.sampler.getInvocationCount;
 			
@@ -78,6 +81,9 @@
 				UserManager.getInstance().getConference().voiceJoined;
 			[Bindable] private var baseIndex:int;
 			
+			private var dispatcher:Dispatcher;
+			private var keyCombos:Object;
+			
 			private function init():void {
 				baseIndex = listenerOptions.baseTabIndex;
 			}
@@ -95,6 +101,8 @@
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;	
 				
+				dispatcher = new Dispatcher();
+				hotkeyCapture();
 				resourcesChanged();
 				
 				LogUtil.debug("WATERFALL Trying to access parts of listenersList");
@@ -102,6 +110,43 @@
 				LogUtil.debug(listenersList.visible.toString());
 				LogUtil.debug(listenersList.enabled.toString());
 			}
+			
+			private function remoteMinimize(e:ShortcutEvent):void{
+				if (!minimized){
+					this.minimize();
+				}
+			}
+			
+			private function remoteMaximize(e:ShortcutEvent):void{
+				if (!maximized && !minimized){
+					this.maximize();
+				}
+				else{
+					this.restore();
+				}				
+			}
+
+		    private function loadKeyCombos(modifier:String):void {
+				keyCombos = new Object(); // always start with a fresh array
+			    keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_LISTEN;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_LISTEN;
+			}
+		
+		    private function hotkeyCapture():void{
+		      this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+		      ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+		    }
+		
+			// Handle general-access hotkeys, regardless of what window the user is focused in
+		    private function handleKeyDown(e:KeyboardEvent) :void {
+		      var modifier:String = ExternalInterface.call("determineModifier");
+			  loadKeyCombos(modifier);			  
+			  var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
+		                            (e.altKey   ? "alt+"     : "") + e.keyCode;		                              
+		      if (keyCombos[keyPress]) {
+		        dispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+		      }
+		    }
 			
 			private function focusWindow(e:ShortcutEvent):void{
 				focusManager.setFocus(titleBarOverlay);

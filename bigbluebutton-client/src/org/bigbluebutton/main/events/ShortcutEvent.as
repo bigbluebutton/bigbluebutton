@@ -23,8 +23,14 @@ package org.bigbluebutton.main.events {
 	public class ShortcutEvent extends Event {
 		public static const MAXIMIZE_USERS:String = 'MAXIMIZE_USERS';
 		public static const MINIMIZE_USERS:String = 'MINIMIZE_USERS';
+		public static const MAXIMIZE_LISTEN:String = 'MAXIMIZE_LISTEN';
+		public static const MINIMIZE_LISTEN:String = 'MINIMIZE_LISTEN';
+		public static const MAXIMIZE_DOCK:String = 'MAXIMIZE_DOCK';
+		public static const MINIMIZE_DOCK:String = 'MINIMIZE_DOCK';
 		public static const MAXIMIZE_PRES:String = 'MAXIMIZE_PRES';
 		public static const MINIMIZE_PRES:String = 'MINIMIZE_PRES';
+		public static const MAXIMIZE_CHAT:String = 'MAXIMIZE_CHAT';
+		public static const MINIMIZE_CHAT:String = 'MINIMIZE_CHAT';
 		
 		public static const FOCUS_AWAY_EVENT:String = 'FOCUS_AWAY_EVENT';
 		public static const MUTE_ME_EVENT:String = 'MUTE_ME_EVENT';
@@ -79,3 +85,22 @@ package org.bigbluebutton.main.events {
 		}		
 	}
 }
+
+/*
+	Notes on adding shortcuts:
+	
+	Steps to making a GLOBAL shortcut:
+		-Add a constant to ShortcutEvent
+		-Create a locale string for the hotkey and the description
+		-Add modifier+hotkey string to keyCombos, instantiate it as the relevant ShortCutEvent:
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.chat') as String)] = ShortcutEvent.FOCUS_CHAT_WINDOW;
+		-Add a <mate> tag in the MXML file (before mx:Script) which will process the event:
+			<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_WINDOW}" method="focusWindow" />
+		-Add the hotkey locale to one of the resource arrays in ShortcutHelpWindow.mxml
+	
+	Steps to making a LOCAL shortcut:
+		-Copy the structure of hotKeyCapture, loadKeyCombos, and handleKeyDown into the window you're adding the shortcut to.
+		-Add the call to hotKeyCapture to onCreationComplete
+		-Change the stage.addListener in hotKeyCapture to <parent element id>.addListener
+		-Use the same process as for GLOBAL shortcuts
+*/
