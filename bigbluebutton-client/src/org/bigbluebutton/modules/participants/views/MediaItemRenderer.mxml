@@ -47,8 +47,10 @@
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
-			[Bindable] public var kickIcon:Class = images.cancel;
-			
+			[Bindable] public var kickIcon:Class = images.eject_user;
+			[Bindable] private var webcamIcon:Class = images.webcam_new;
+   			[Bindable] private var handIcon:Class = images.raisehand;	
+   			
 			private var isModerator:Boolean = false;
 			private var allowKickUser:Boolean = false;
 			[Bindable] private var kickButtonEnabled:Boolean = false;
@@ -63,11 +65,11 @@
 			}
 			
 			public function onRollOver(e:ListEvent):void{
-				//if (kickButtonEnabled && (e.userID == data.userID)) kickUserBtn.visible = true;
+				kickUserBtn.visible = true;
 			}
 			
 			public function onRollOut(e:ListEvent):void{
-				//if (kickButtonEnabled && (e.userID == data.userID)) kickUserBtn.visible = false;
+				kickUserBtn.visible = false;
 			}
 			
 			private function viewCamera():void {
@@ -91,10 +93,6 @@
 					dispatchEvent(new KickUserEvent(data.userID));
 				}
 			}
-		
-   			[Bindable] private var webcamIcon:Class = images.webcam;
-   			[Bindable] private var handIcon:Class = images.raisehand;	
-   			[Bindable] private var presenterIcon:Object = images.presenter;
 		]]>
 	</mx:Script>
 	<mx:Button id="raiseHand" visible="{data.raiseHand}" click="lowerHand()" 
@@ -102,9 +100,7 @@
 				toolTip="Hand Raised"/>
 	<mx:Button id="streamIcon" visible="{data.hasStream}" click="viewCamera()" icon="{webcamIcon}"
 				width="18" height="18" enabled="false"
-				toolTip="Webcam"/>	
-	<mx:Image id="presIcon" visible="{data.presenter}" source="{presenterIcon}" toolTip="Presenter"/>
-
+				toolTip="Webcam"/>
 	<mx:Button id="kickUserBtn" icon="{kickIcon}" 
 			   width="20" height="20" visible="false"
 			   toolTip="Kick"

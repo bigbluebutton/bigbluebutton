@@ -33,44 +33,86 @@
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
+			import mx.controls.listClasses.IListItemRenderer;
 			import mx.events.DataGridEvent;
+			import mx.events.ListEvent;
+			
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.participants.events.ParticipantRollEvent;
+			import org.bigbluebutton.modules.participants.events.VoiceConfEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;		
+			
+			private var dispatcher:Dispatcher;
+			
+			[Bindable]
+			private var images:Images = new Images();
 			
 			[Bindable]
 			private var participants:ArrayCollection = new ArrayCollection();
 			
+			private var handRaised:Boolean = false;
+			
 			private function onCreationComplete():void {
-				
+				dispatcher = new Dispatcher();
+			
+				participants = UserManager.getInstance().getConference().users;
 			}
 			
 			public function getPrefferedPosition():String{
 				return MainCanvas.TOP_LEFT;
 			}
 			
-			private function assignPresenterClicked():void {
-				
-			}
-			
-			private function raiseHand():void {
-				
-			}
-			
 			private function localeChanged(e:LocaleChangeEvent):void {
 			
 			}
 			
+			private function onItemRollOver(event:ListEvent):void{
+				var item:IListItemRenderer = event.itemRenderer;
+				var user:BBBUser = item.data as BBBUser;
+				var rollEvent:ParticipantRollEvent = new ParticipantRollEvent(ParticipantRollEvent.PARTICIPANT_ROLL_OVER, user.userID);
+				dispatcher.dispatchEvent(rollEvent);
+			}
+			
+			private function onItemRollOut(event:ListEvent):void{
+				var item:IListItemRenderer = event.itemRenderer;
+				var user:BBBUser = item.data as BBBUser;
+				var rollEvent:ParticipantRollEvent = new ParticipantRollEvent(ParticipantRollEvent.PARTICIPANT_ROLL_OUT, user.userID);
+				dispatcher.dispatchEvent(rollEvent);
+			}
+			
+			private function toggleMuteMeState():void{
+				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
+				e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
+				e.mute = !UserManager.getInstance().getConference().isMyVoiceMuted();
+				dispatchEvent(e);
+			}
+			
+			private function raiseHand():void{
+				handRaised = !handRaised;
+				var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
+				e.raised = handRaised;
+				dispatchEvent(e);
+			}
+			
+			private function openSettings():void {
+			
+			}
 		]]>
 	</mx:Script>
 	
 	<mx:DataGrid id="participantsGrid" dataProvider="{participants}" editable="false" sortableColumns="true"
-    	dragEnabled="false" width="100%" height="100%" >
+    	dragEnabled="false" width="100%" height="100%" 
+    	itemRollOver="onItemRollOver(event)"
+		itemRollOut="onItemRollOut(event)" >
     	<mx:columns>
     		<mx:DataGridColumn dataField="role" headerText="Status" editable="false" width="35"
     			itemRenderer="org.bigbluebutton.modules.participants.views.StatusItemRenderer" sortable="false" />
@@ -82,15 +124,19 @@
     </mx:DataGrid>
 	
 	<mx:ControlBar width="100%">
-		<mx:Button id="presentBtn" label="Switch Presenter" visible="true"
-					width="130" height="20" styleName="switchPresenterButtonStyle"
-					toolTip="Switch Presenter"
-					click="assignPresenterClicked()"/>
+		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}"
+					width="30" height="30" toolTip="Raise Hand" click="raiseHand()"
+					visible="{UserManager.getInstance().getConference().amIPresenter() ? false : (UserManager.getInstance().getConference().amIModerator() ? false : true)}" 
+					includeInLayout="{raiseHandBtn.visible}" />
+		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
+					toolTip="Settings" click="openSettings()" 
+					visible="{UserManager.getInstance().getConference().amIPresenter() ? true : (UserManager.getInstance().getConference().amIModerator() ? true : false)}"
+					includeInLayout="{settingsBtn.visible}" />
 		<mx:Spacer width="100%"/>
-		<mx:Button id="raiseHandImage" toggle="true"
-					width="20" height="20"
-					toolTip="Raise Hand"
-					click="raiseHand()"/>
+		<mx:Button id="muteMeBtn" visible="true" click="toggleMuteMeState()" height="30" width="30" 
+					icon="{UserManager.getInstance().getConference().voiceMuted ? images.audio_muted : images.audio}"
+					toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" />
+		
 	</mx:ControlBar>
 	
 </mdi:MDIWindow>

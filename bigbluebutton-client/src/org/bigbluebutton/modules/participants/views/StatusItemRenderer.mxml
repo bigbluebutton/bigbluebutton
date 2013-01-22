@@ -21,21 +21,58 @@
 -->
 
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:mate="http://mate.asfusion.com/"
+	creationComplete="onCreationComplete()"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	horizontalAlign="center">
+	
+	<mate:Listener type="{ParticipantRollEvent.PARTICIPANT_ROLL_OVER}" method="onRollOver" />
+	<mate:Listener type="{ParticipantRollEvent.PARTICIPANT_ROLL_OUT}" method="onRollOut" />
 	
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+			import org.bigbluebutton.modules.participants.events.ParticipantRollEvent;
 			
-			private var images:Images = new Images();
+			private var images:Images = new Images();			
 			
-			[Bindable] private var adminIcon:Object = images.admin;
-   			[Bindable] private var viewerIcon:Object = images.participant;
-  			   			   			
+			[Bindable] private var modIcon:Class = images.moderator;
+   			[Bindable] private var presentIcon:Class = images.presenter_new;
+  			[Bindable] private var handIcon:Class = images.raisehand;
+  			
+  			[Bindable] private var rolledOver:Boolean = false;
+  			
+  			[Bindable]
+  			private var moderator:Boolean = false;
+  			
+  			private function onCreationComplete():void {
+  				moderator = UserManager.getInstance().getConference().amIModerator();
+  			}
+  			
+  			private function onRollOver(e:ParticipantRollEvent):void{
+				if (moderator && (e.userID == data.userID)) rolledOver = true;
+			}
+			
+			private function onRollOut(e:ParticipantRollEvent):void{
+				if (moderator && (e.userID == data.userID)) rolledOver = false;
+			}
+  			
+  			private function assignPresenterClicked():void {
+        		// Ignore if the selected user is already the presenter.
+        		if (data.presenter) return;
+        		
+				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
+				e.userid = data.userID;
+				e.username = data.name;
+				dispatchEvent(e);
+        	}
 		]]>
 	</mx:Script>	
-	<mx:Image id="roleImage" source="{data.role == Role.MODERATOR ? adminIcon : ''}" 
-			toolTip="{data.role == Role.MODERATOR ? 'moderator' : 'viewer'}"/>
+	<mx:Button id="roleBtn" icon="{data.presenter ? presentIcon : (rolledOver ? presentIcon : (data.role == Role.MODERATOR ? modIcon : (data.raisedHand ? handIcon : null)))}" 
+			toolTip="{data.presenter ? 'Presenter' : (rolledOver ? 'Switch Presenter' : '')}"
+			enabled="{data.presenter ? false : (rolledOver ? true : false)}"
+			width="20" height="20" click="assignPresenterClicked()" />
 </mx:HBox>
