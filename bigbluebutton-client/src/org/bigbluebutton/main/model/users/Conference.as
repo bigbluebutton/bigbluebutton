@@ -197,11 +197,12 @@ package org.bigbluebutton.main.model.users {
       return me.role;
     }
     
-		public function amIPresenter():Boolean {
+    	[Bindable]
+		public function get amIPresenter():Boolean {
 			return me.presenter;
 		}
 		
-		public function setMePresenter(presenter:Boolean):void {
+		public function set amIPresenter(presenter:Boolean):void {
 			me.presenter = presenter;
 		}
 				

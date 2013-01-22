@@ -135,7 +135,7 @@ package org.bigbluebutton.modules.whiteboard
 
     /** Helper method to test whether this user is the presenter */
     private function get isPresenter():Boolean {
-      return UserManager.getInstance().getConference().amIPresenter();
+      return UserManager.getInstance().getConference().amIPresenter;
     }
   }
 }

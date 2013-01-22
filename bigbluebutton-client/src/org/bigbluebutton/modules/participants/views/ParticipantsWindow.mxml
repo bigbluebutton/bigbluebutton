@@ -126,11 +126,11 @@
 	<mx:ControlBar width="100%">
 		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}"
 					width="30" height="30" toolTip="Raise Hand" click="raiseHand()"
-					visible="{UserManager.getInstance().getConference().amIPresenter() ? false : (UserManager.getInstance().getConference().amIModerator() ? false : true)}" 
+					visible="{UserManager.getInstance().getConference().amIPresenter ? false : (UserManager.getInstance().getConference().amIModerator() ? false : true)}" 
 					includeInLayout="{raiseHandBtn.visible}" />
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
 					toolTip="Settings" click="openSettings()" 
-					visible="{UserManager.getInstance().getConference().amIPresenter() ? true : (UserManager.getInstance().getConference().amIModerator() ? true : false)}"
+					visible="{UserManager.getInstance().getConference().amIPresenter ? true : (UserManager.getInstance().getConference().amIModerator() ? true : false)}"
 					includeInLayout="{settingsBtn.visible}" />
 		<mx:Spacer width="100%"/>
 		<mx:Button id="muteMeBtn" visible="true" click="toggleMuteMeState()" height="30" width="30" 

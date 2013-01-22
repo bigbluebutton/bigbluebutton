@@ -188,7 +188,7 @@
 				
 				slideModel.parentChange(parentWidth, parentHeight);
 				
-				if (UserManager.getInstance().getConference().amIPresenter()) {
+				if (UserManager.getInstance().getConference().amIPresenter) {
 					slideModel.adjustSlideAfterParentResized();
 					slideModel.displayPresenterView();
 					slideModel.printViewedRegion();
@@ -271,7 +271,7 @@
 			 * Handles notification from presenter that the slide has moved.
 			 */
 			private function handleCurSlideSettingEvent(e:MoveEvent):void{
-				if (UserManager.getInstance().getConference().amIPresenter()) {
+				if (UserManager.getInstance().getConference().amIPresenter) {
 					return;
 				}
 
@@ -285,7 +285,7 @@
 			 * Handles notification from presenter that the slide has moved.
 			 */
 			private function handleMoveEvent(e:MoveEvent):void{
-				if (UserManager.getInstance().getConference().amIPresenter()) {
+				if (UserManager.getInstance().getConference().amIPresenter) {
 					return;
 				}
 				

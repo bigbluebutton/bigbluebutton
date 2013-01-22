@@ -61,7 +61,7 @@ package org.bigbluebutton.core
     }
     
     public static function amIPresenter():Boolean {
-      return UserManager.getInstance().getConference().amIPresenter();
+      return UserManager.getInstance().getConference().amIPresenter;
     }
     
     public static function getVoiceUser(voiceUserID:Number):BBBUser {
