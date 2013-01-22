@@ -85,8 +85,6 @@ public class Room implements Serializable {
 			log.debug("calling participantJoined on listener " + listener.getName());
 			listener.participantJoined(participant);
 		}
-		log.debug("sending update with participants bridge");
-		participantsBridge.sendParticipantsUpdateList(name, participants);
 	}
 
 	public void removeParticipant(Long userid) {
@@ -106,7 +104,6 @@ public class Room implements Serializable {
 				listener.participantLeft(p);
 			}
 		}
-		participantsBridge.sendParticipantsUpdateList(name, participants);
 	}
 
 	public void changeParticipantStatus(Long userid, String status, Object value) {

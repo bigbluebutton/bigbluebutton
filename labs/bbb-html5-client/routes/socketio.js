@@ -24,6 +24,56 @@ exports.publishUsernames = function(meetingID, sessionID, callback) {
   });
 };
 
+exports.publishLoadUsers = function(meetingID, sessionID, callback) {
+  var usernames = [];
+  redisAction.getUsers(meetingID, function (users) {
+      for (var i = users.length - 1; i >= 0; i--){
+        usernames.push({ 'name' : users[i].username, 'id' : users[i].pubID });
+      };
+      var receivers = sessionID != undefined ? sessionID : meetingID;
+      //pub.publish(receivers, JSON.stringify(['user list change', usernames]));
+      pub.publish("bigbluebutton:bridge", JSON.stringify([receivers,'load users', usernames]));
+      if(callback) callback(true);
+  });
+  store.scard(redisAction.getUsersString(meetingID), function(err, cardinality) {
+    if(cardinality == '0') {
+      redisAction.processMeeting(meetingID);
+      if(callback) callback(false);
+    }
+  });
+};
+
+exports.publishUserJoin = function(meetingID, sessionID, userid, username, callback) {
+  
+  var receivers = sessionID != undefined ? sessionID : meetingID;
+  //pub.publish(receivers, JSON.stringify(['user list change', usernames]));
+  pub.publish("bigbluebutton:bridge", JSON.stringify([receivers,'user join', userid, username, "VIEWER" ]));
+  if(callback) callback(true);
+  
+  store.scard(redisAction.getUsersString(meetingID), function(err, cardinality) {
+    if(cardinality == '0') {
+      redisAction.processMeeting(meetingID);
+      if(callback) callback(false);
+    }
+  });
+};
+
+exports.publishUserLeave = function(meetingID, sessionID, userid, callback) {
+  
+  var receivers = sessionID != undefined ? sessionID : meetingID;
+  //pub.publish(receivers, JSON.stringify(['user list change', usernames]));
+  pub.publish("bigbluebutton:bridge", JSON.stringify([receivers,'user leave', userid ]));
+  if(callback) callback(true);
+  
+  store.scard(redisAction.getUsersString(meetingID), function(err, cardinality) {
+    if(cardinality == '0') {
+      redisAction.processMeeting(meetingID);
+      if(callback) callback(false);
+    }
+  });
+};
+
+
 /**
  * Publish presenter to appropriate clients.
  * @param  {string}    meetingID ID of the meeting
@@ -191,22 +241,32 @@ exports.SocketOnConnection = function(socket) {
 
         //add socket to list of sockets.
         redisAction.getUserProperties(meetingID, sessionID, function(properties) {
+          socketAction.publishLoadUsers(meetingID, null, function() {
+              socketAction.publishPresenter(meetingID);
+          });
           var numOfSockets = parseInt(properties.sockets, 10);
           numOfSockets+=1;
           store.hset(redisAction.getUserString(meetingID, sessionID), 'sockets', numOfSockets);
           if ((properties.refreshing == 'false') && (properties.dupSess == 'false')) {
             //all of the next sessions created with this sessionID are duplicates
             store.hset(redisAction.getUserString(meetingID, sessionID), 'dupSess', true);
-            socketAction.publishUsernames(meetingID, null, function() {
+            /*socketAction.publishUsernames(meetingID, null, function() {
+              socketAction.publishPresenter(meetingID);
+            });*/
+            socketAction.publishUserJoin(meetingID, null, properties.pubID,properties.username, function() {
               socketAction.publishPresenter(meetingID);
             });
          }
          else {
            store.hset(redisAction.getUserString(meetingID, sessionID), 'refreshing', false);
-           socketAction.publishUsernames(meetingID, sessionID, function() {
+           /*socketAction.publishUsernames(meetingID, sessionID, function() {
+             socketAction.publishPresenter(meetingID, sessionID);
+           });*/
+           socketAction.publishUserJoin(meetingID, sessionID, properties.pubID,properties.username, function() {
              socketAction.publishPresenter(meetingID, sessionID);
            });
          }
+         
          socketAction.publishMessages(meetingID, sessionID);
          socketAction.publishSlides(meetingID, sessionID, function() {
            socketAction.publishTool(meetingID, sessionID);
@@ -241,7 +301,8 @@ exports.SocketOnConnection = function(socket) {
                   numOfSockets-=1;
                 if(numOfSockets == 0) {
                   redisAction.deleteUser(meetingID, sessionID, function() {
-                    socketAction.publishUsernames(meetingID);
+                    //socketAction.publishUsernames(meetingID);
+                    socketAction.publishUserLeave(meetingID, sessionID, properties.pubID);
                   });
                 }
                 else {
@@ -251,7 +312,7 @@ exports.SocketOnConnection = function(socket) {
             }
              else {
               socketAction.publishUsernames(meetingID);
-              socketAction.publishPresenter(meetingID, sessionID);
+              //socketAction.publishPresenter(meetingID, sessionID);
              }
            });
          }, 5000);
@@ -272,16 +333,21 @@ exports.SocketOnConnection = function(socket) {
      if(isValid) {
        //initialize local variables
        var username = handshake.username;
+       redisAction.getUserProperties(meetingID, sessionID, function(properties) {
+          socketAction.publishUserLeave(meetingID, null, properties.pubID);
+       });
+
        //remove the user from the list of users
        store.srem(redisAction.getUsersString(meetingID), sessionID, function(numDeleted) {
          //delete key from database
          store.del(redisAction.getUserString(meetingID, sessionID), function(reply) {
             pub.publish(sessionID, JSON.stringify(['logout'])); //send to all users on same session (all tabs)
+            //socketAction.publishUserLeave(meetingID, sessionID, sessionID);
             socket.disconnect(); //disconnect own socket
          });
        });
      }
-     socketAction.publishUsernames(meetingID);
+     //socketAction.publishUsernames(meetingID);
     });
   });
 

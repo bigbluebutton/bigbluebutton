@@ -157,8 +157,9 @@ public class RedisMessagingService implements MessagingService{
 			    String meetingId = gson.fromJson(array.get(0), String.class);
 			    String messageName = gson.fromJson(array.get(1), String.class);
 
+			    
 			    //JsonObject params = array.getAsJsonObject("params");
-				if(messageName.equalsIgnoreCase("user list change")){
+				/*if(messageName.equalsIgnoreCase("user list change")){
 					//usernames.push({ 'name' : users[i].username, 'id' : users[i].pubID });
 					JsonArray remoteParticipants = array.get(2).getAsJsonArray();
 					
@@ -201,6 +202,21 @@ public class RedisMessagingService implements MessagingService{
 						participantsApplication.participantLeft(meetingId, Long.parseLong(entry.getKey().toString()));
 					}
 					
+				}else*/ if(messageName.equalsIgnoreCase("user join")){
+					String nUserId = gson.fromJson(array.get(2), String.class);
+					String username = gson.fromJson(array.get(3), String.class);
+					String role = gson.fromJson(array.get(4), String.class);
+					String externalUserID = UUID.randomUUID().toString();
+					
+					Map<String, Object> status = new HashMap<String, Object>();
+					status.put("raiseHand", false);
+					status.put("presenter", false);
+					status.put("hasStream", false);
+					
+					participantsApplication.participantJoin(meetingId, Long.parseLong(nUserId), username, role, externalUserID, status);
+				}else if(messageName.equalsIgnoreCase("user leave")){
+					String nUserId = gson.fromJson(array.get(2), String.class);
+					participantsApplication.participantLeft(meetingId, Long.parseLong(nUserId));
 				}else if(messageName.equalsIgnoreCase("msg")){
 					String username = gson.fromJson(array.get(2), String.class);
 					String chat_message = gson.fromJson(array.get(3), String.class);

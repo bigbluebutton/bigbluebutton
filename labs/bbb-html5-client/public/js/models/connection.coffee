@@ -3,7 +3,7 @@ define [
   'backbone',
   'socket.io',
   'cs!utils'
-], (_, Backbone, io, Utils) ->
+], (_, Backbone, IO, Utils) ->
 
   ConnectionModel = Backbone.Model.extend
 

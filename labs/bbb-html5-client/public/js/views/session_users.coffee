@@ -37,6 +37,23 @@ define [
         for userBlock in users
           @_addUser(userBlock.id, userBlock.name)
 
+      socket.on "load users", (users) =>
+        @_removeAllUsers()
+        for userBlock in users
+          @_addUser(userBlock.id, userBlock.name)
+
+      # Received event for a new user
+      socket.on "user join", (userid,username) =>
+        #@_removeAllUsers()
+        #for userBlock in users
+        @_addUser(userid, username)
+
+      # Received event when a user leave
+      socket.on "user leave", (userid) =>
+        #@_removeAllUsers()
+        #for userBlock in users
+        @_removeUserByID(userid)
+
       # Received event to set the presenter to a user
       # @param  {string} userID publicID of the user that is being set as the current presenter
       socket.on "setPresenter", (userID) =>
@@ -45,6 +62,10 @@ define [
     # Removes all users from the screen.
     _removeAllUsers: ->
       @$(@userListID).empty()
+
+    # Removes all users from the screen.
+    _removeUserByID: (userID)->
+      @$("#user-"+userID).remove()
 
     # Add a user to the screen.
     _addUser: (userID, username) ->

@@ -22,7 +22,7 @@ public class ParticipantsBridge {
 		
 	}
 
-	public void participantJoined(String meetingID, long internalUserID, String username) {
+	public void storeParticipant(String meetingID, long internalUserID, String username) {
 
 		//temporary solution for integrate with the html5 client
 		Jedis jedis = messagingService.createRedisClient();
@@ -49,7 +49,7 @@ public class ParticipantsBridge {
 		messagingService.dropRedisClient(jedis);
 	}
 	
-	public void participantLeft(String meetingID, long internalUserID) {
+	public void removeParticipant(String meetingID, long internalUserID) {
 
 		Jedis jedis = messagingService.createRedisClient();
 		jedis.srem("meeting-"+meetingID+"-users", Long.toString(internalUserID));
@@ -57,12 +57,34 @@ public class ParticipantsBridge {
 		messagingService.dropRedisClient(jedis);
 	}
 	
-	public void sendParticipantsUpdateList(String meetingID, Map<Long,Participant> participants){
+	public void sendParticipantJoin(String meetingID, Long userid, String username, String role){
+		ArrayList<Object> updates = new ArrayList<Object>();
+		updates.add(meetingID);
+		updates.add("user join");
+		updates.add(userid);
+		updates.add(username);
+		updates.add(role);
+		
+		Gson gson = new Gson();
+		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
+	}
+	
+	public void sendParticipantLeave(String meetingID, Long userid){
+		ArrayList<Object> updates = new ArrayList<Object>();
+		updates.add(meetingID);
+		updates.add("user leave");
+		updates.add(userid);
+		
+		Gson gson = new Gson();
+		messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
+	}
+	
+	public void sendParticipantsUpdateList(String meetingID){
 		ArrayList<Object> updates = new ArrayList<Object>();
 		updates.add(meetingID);
 		updates.add("user list change");
 		
-		ArrayList<Participant> arr= new ArrayList<Participant>(participants.values());
+		ArrayList<Participant> arr= new ArrayList<Participant>(loadParticipants(meetingID).values());
 		ArrayList<Object> all_participants = new ArrayList<Object>();
 		for(int i=0; i<arr.size(); i++){
 			Participant p = arr.get(i);
