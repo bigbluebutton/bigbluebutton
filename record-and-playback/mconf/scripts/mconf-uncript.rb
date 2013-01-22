@@ -24,6 +24,7 @@ require 'yaml'
 require 'net/http'
 require 'rexml/document'
 require 'open-uri'
+require 'digest/md5'
 
 
 #BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/uncrypt.log",'daily' )
@@ -35,7 +36,8 @@ mconf_props = YAML::load(File.open('mconf.yml'))
 #private_key = mconf_props['privatekey']
 xml_url = mconf_props['get_recordings_url']
 recording_dir = bbb_props['recording_dir'] 
-rawdir = "#{recording_dir}/raw"
+#rawdir = "#{recording_dir}/raw"
+rawdir = "/home/mconf/rawteste"
 archived_dir = "#{recording_dir}/status/archived"
 
 xml_data = Net::HTTP.get_response(URI.parse(xml_url)).body
@@ -45,45 +47,72 @@ files_url = []
 types = []
 keys_url = []
 md5_server_side = []
-doc.elements.each('response/recordings/recording/playback/format/type') do |type|
+doc.elements.each('response/recordings/recording/download/format/type') do |type|
    types << type.text
 end
-doc.elements.each('response/recordings/recording/playback/format/url') do |url|
+doc.elements.each('response/recordings/recording/download/format/url') do |url|
     files_url << url.text
 end
-doc.elements.each('response/recordings/recording/playback/format/md5') do |md5|
+doc.elements.each('response/recordings/recording/download/format/md5') do |md5|
     md5_server_side << md5.text
 end
-doc.elements.each('response/recordings/recording/playback/format/key') do |key|
+doc.elements.each('response/recordings/recording/download/format/key') do |key|
     keys_url << key.text
 end
 
 types.each_with_index do |eachtype, idx|
+	puts eachtype
 	if (eachtype == "encrypted") then
 		url = files_url[idx]
-		file = url.split("/").last
-		match = /(.*).dat/.match file
+		k_url = keys_url[idx]
+		encrypted_file = url.split("/").last
+		match = /(.*).dat/.match encrypted_file
 		meeting_id = match[1]
-		if not File.exist?("#{archived_dir}/#{meeting_id}.done"
+		if not File.exist?("#{archived_dir}/#{meeting_id}.done") then
 			Dir.chdir(rawdir) do
 
 
-				puts file
+				puts encrypted_file
 
-				writeOut = open(file, "wb")
+				writeOut = open(encrypted_file, "wb")
 				writeOut.write(open(url).read)
 				writeOut.close
+
+				md5sum = Digest::MD5.file(encrypted_file)
+				puts md5sum
+
+				if (md5sum == md5_server_side[idx]) then
+					key_file = k_url.split("/").last
+					writeOut = open(key_file, "wb")
+					writeOut.write(open(k_url).read)
+					writeOut.close
+
+					puts "salvo"
 	
-				i = url.length
-				j = file.length
+					command = "openssl rsautl -decrypt -inkey key.pem < #{key_file} > key.txt"
+					BigBlueButton.logger.info(command)
+					Open3.popen3(command) do | stdin, stdout, stderr|
+						BigBlueButton.logger.info("commandresult=") #{$?.exitstatus}")
+					end
+					command = "openssl enc -aes-256-cbc -d -pass file:key.txt < #{encrypted_file} > #{meeting_id}.zip"
+					BigBlueButton.logger.info(command)
+					Open3.popen3(command) do | stdin, stdout, stderr|
+						BigBlueButton.logger.info("commandresult2") #{$?.exitstatus}")
+					end
+		
+			        	BigBlueButton::MconfProcessor.unzip(rawdir, "#{meeting_id}.zip")
 
-				writeOut = open("#{file[0 .. j-5] }.enc", "wb")
-				writeOut.write(open("#{url[0 .. i-5]}.enc").read)
-				writeOut.close
 
-				archived_done = File.new("#{archived_dir}/#{meeting_id}.done", "w")
-				process_done.write("Archived #{meeting_id}")
-				process_done.close
+					archived_done = File.new("#{archived_dir}/#{meeting_id}.done", "w")
+					archived_done.write("Archived #{meeting_id}")
+					archived_done.close
+					#deletar arquivos nao mais necessarios
+				else
+					#checksum incorreto entao deletar arquivos e nao criar archived_done
+
+					puts "ok"
+				end
+				
 			end
 		end
 
@@ -92,6 +121,7 @@ end
 
 
 #BigBlueButton.logger.info("DIR: #{recording_dir} ")
+=begin
 criptfiles = Dir.glob("#{recording_dir}/raw/*.dat")
 criptfiles.each do |cf|
   match = /(.*).dat/.match cf.sub(/.+\//, "")
@@ -115,10 +145,9 @@ criptfiles.each do |cf|
 	end
 
 
-#    BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/mconf/uncrypt-#{meeting_id}.log", 'daily' )
-
-#BigBlueButton.logger.info("teste Meeting id calculated:")
-#    BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/mconf/uncrypt.log", 'daily' )
-#    BigBlueButton.logger.info("Meeting id calculated: #{meeting_id}")
+    BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/mconf/uncrypt-#{meeting_id}.log", 'daily' )
+    BigBlueButton.logger.info("teste Meeting id calculated:")
+    BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/mconf/uncrypt.log", 'daily' )
+    BigBlueButton.logger.info("Meeting id calculated: #{meeting_id}")
 end
-
+=end
