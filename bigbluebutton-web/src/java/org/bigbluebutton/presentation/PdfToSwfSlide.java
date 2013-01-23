@@ -36,6 +36,7 @@ public class PdfToSwfSlide {
 	private PageConverter pdfToSwfConverter;
 	private PdfPageToImageConversionService imageConvertService;
 	private String BLANK_SLIDE;
+	private int MAX_SWF_FILE_SIZE;
 	
 	private volatile boolean done = false;
 	private File slide;
@@ -74,7 +75,7 @@ public class PdfToSwfSlide {
 		// If the resulting swf file is greater than 500K, it probably contains a lot of objects
 		// that it becomes very slow to render on the client. Take an image snapshot instead and
 		// use it to generate the SWF file. (ralam Sept 2, 2009)
-		return slide.length() > 500000;
+		return slide.length() > MAX_SWF_FILE_SIZE;
 	}
 	
 	public void generateBlankSlide() {
@@ -103,6 +104,10 @@ public class PdfToSwfSlide {
 	
 	public void setBlankSlide(String blankSlide) {
 		this.BLANK_SLIDE = blankSlide;
+	}
+	
+	public void setMaxSwfFileSize(int size) {
+		this.MAX_SWF_FILE_SIZE = size;
 	}
 
 	public boolean isDone() {

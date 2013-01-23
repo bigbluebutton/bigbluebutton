@@ -54,6 +54,7 @@ public class PdfToSwfSlidesGenerationService {
 	private TextFileCreator textFileCreator;
 	private long MAX_CONVERSION_TIME = 5*60*1000;
 	private String BLANK_SLIDE;
+	private int MAX_SWF_FILE_SIZE;
 		
 	public void generateSlides(UploadedPresentation pres) {
 		log.debug("Generating slides");		
@@ -166,6 +167,7 @@ public class PdfToSwfSlidesGenerationService {
 		for (int page = 1; page <= numPages; page++) {		
 			PdfToSwfSlide slide = new PdfToSwfSlide(pres, page);
 			slide.setBlankSlide(BLANK_SLIDE);
+			slide.setMaxSwfFileSize(MAX_SWF_FILE_SIZE);
 			slide.setPageConverter(pdfToSwfConverter);
 			slide.setPdfPageToImageConversionService(imageConvertService);
 			
@@ -191,6 +193,10 @@ public class PdfToSwfSlidesGenerationService {
 	
 	public void setBlankSlide(String blankSlide) {
 		this.BLANK_SLIDE = blankSlide;
+	}
+	
+	public void setMaxSwfFileSize(int size) {
+		this.MAX_SWF_FILE_SIZE = size;
 	}
 	
 	public void setThumbnailCreator(ThumbnailCreator thumbnailCreator) {
