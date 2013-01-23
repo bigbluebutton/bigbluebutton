@@ -36,8 +36,7 @@ mconf_props = YAML::load(File.open('mconf.yml'))
 #private_key = mconf_props['privatekey']
 xml_url = mconf_props['get_recordings_url']
 recording_dir = bbb_props['recording_dir'] 
-#rawdir = "#{recording_dir}/raw"
-rawdir = "/home/mconf/rawteste"
+rawdir = "#{recording_dir}/raw"
 archived_dir = "#{recording_dir}/status/archived"
 
 xml_data = Net::HTTP.get_response(URI.parse(xml_url)).body
@@ -61,7 +60,6 @@ doc.elements.each('response/recordings/recording/download/format/key') do |key|
 end
 
 types.each_with_index do |eachtype, idx|
-	puts eachtype
 	if (eachtype == "encrypted") then
 		url = files_url[idx]
 		k_url = keys_url[idx]
@@ -71,15 +69,11 @@ types.each_with_index do |eachtype, idx|
 		if not File.exist?("#{archived_dir}/#{meeting_id}.done") then
 			Dir.chdir(rawdir) do
 
-
-				puts encrypted_file
-
 				writeOut = open(encrypted_file, "wb")
 				writeOut.write(open(url).read)
 				writeOut.close
 
 				md5sum = Digest::MD5.file(encrypted_file)
-				puts md5sum
 
 				if (md5sum == md5_server_side[idx]) then
 					key_file = k_url.split("/").last
@@ -106,11 +100,12 @@ types.each_with_index do |eachtype, idx|
 					archived_done = File.new("#{archived_dir}/#{meeting_id}.done", "w")
 					archived_done.write("Archived #{meeting_id}")
 					archived_done.close
-					#deletar arquivos nao mais necessarios
+					
+					BigBlueButton.logger.info("Removing files")
+					ZIPFILE = "#{meeting_id}.zip"
+					[encrypted_file, key_file, "key.txt", ZIPFILE].each  { |file| FileUtils.rm_f(file)}
 				else
-					#checksum incorreto entao deletar arquivos e nao criar archived_done
-
-					puts "ok"
+					FileUtils.rm_f(encrypted_file)
 				end
 				
 			end

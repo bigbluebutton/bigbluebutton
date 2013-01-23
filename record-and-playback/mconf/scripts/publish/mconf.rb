@@ -96,7 +96,7 @@ done_files.each do |df|
 			# Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
 			b.start_time(BigBlueButton::Events.first_event_timestamp("#{process_dir}/#{meeting_id}/events.xml"))
 			b.end_time(BigBlueButton::Events.last_event_timestamp("#{process_dir}/#{meeting_id}/events.xml"))
-			b.playback {
+			b.download {
 				b.format("encrypted")
 			b.link("http://#{playback_host}/mconf/#{meeting_id}/#{meeting_id}.dat")
 			b.md5(md5sum)
