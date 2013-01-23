@@ -43,7 +43,8 @@
       import org.bigbluebutton.main.model.users.Conference;
       import org.bigbluebutton.main.model.users.events.KickUserEvent;
       import org.bigbluebutton.main.model.users.events.LowerHandEvent;
-      import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;
+      import org.bigbluebutton.modules.participants.events.VoiceConfEvent;
+      import org.bigbluebutton.modules.participants.events.ViewCameraEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
@@ -51,17 +52,12 @@
 			[Bindable] private var webcamIcon:Class = images.webcam_new;
    			[Bindable] private var handIcon:Class = images.raisehand;	
    			
-			private var isModerator:Boolean = false;
+			private var moderator:Boolean = false;
 			private var allowKickUser:Boolean = false;
 			[Bindable] private var kickButtonEnabled:Boolean = false;
 			
 			private function onCreationComplete():void{
-				this.isModerator = UserManager.getInstance().getConference().amIModerator();
-				
-				kickButtonEnabled = this.isModerator && allowKickUser;
-				
-				this.addEventListener(ListEvent.ITEM_ROLL_OVER, onRollOver);
-				this.addEventListener(ListEvent.ITEM_ROLL_OUT, onRollOut);
+				muteBtn.enabled = kickUserBtn.enabled = UserManager.getInstance().getConference().amIModerator();
 			}
 			
 			public function onRollOver(e:ListEvent):void{
@@ -73,36 +69,42 @@
 			}
 			
 			private function viewCamera():void {
-   				streamIcon.enabled = false;
-   				//streamName = data.streamName;
+   				webcamBtn.enabled = false;
 				dispatchEvent(new ViewCameraEvent(data.userID, data.streamName, data.name));
    			}
    			
    			private function onViewVideoCloseEvent(event:StoppedViewingWebcamEvent):void {
    				if (data.userID == event.webcamUserID) {
-   					streamIcon.enabled = true;
+   					webcamBtn.enabled = true;
    				}
-   			}
-   			
-   			private function lowerHand():void {
-				dispatchEvent(new LowerHandEvent(data.userID));
-   			}			
+   			}		
 			
 			private function kickUser():void{
-				if (isModerator){
-					dispatchEvent(new KickUserEvent(data.userID));
-				}
+				dispatchEvent(new KickUserEvent(data.userID));
+			}
+			
+			private function toggleMuteState():void {
+				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
+				e.userid = data.voiceUserid;
+				e.mute = !data.voiceMuted;
+				dispatchEvent(e);
 			}
 		]]>
 	</mx:Script>
-	<mx:Button id="raiseHand" visible="{data.raiseHand}" click="lowerHand()" 
-				icon="{handIcon}" width="18" height="18"
-				toolTip="Hand Raised"/>
-	<mx:Button id="streamIcon" visible="{data.hasStream}" click="viewCamera()" icon="{webcamIcon}"
-				width="18" height="18" enabled="false"
-				toolTip="Webcam"/>
+	
+	<!-- data.talking still needs to be implemented
+	<mx:Image id="talkingIcon" visible="{data.talking}" source="{images.sound_new}" width="20" height="20" toolTip="Talking" />
+	-->
+	
+	<mx:Button id="webcamBtn" visible="{data.hasStream}" click="viewCamera()" icon="{webcamIcon}"
+				width="20" height="20" enabled="false"
+				toolTip="Webcam" />
+	<mx:Button id="muteBtn" visible="{data.voiceJoined}" enabled="false"
+				width="20" height="20" click="toggleMuteState()"
+				icon="{data.voiceMuted ? images.audio_muted : images.audio}"
+				toolTip="{data.voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" />
 	<mx:Button id="kickUserBtn" icon="{kickIcon}" 
-			   width="20" height="20" visible="false"
-			   toolTip="Kick"
-			   click="kickUser()"/>
+				width="20" height="20" visible="false"
+				toolTip="Kick"
+				click="kickUser()"/>
 </mx:HBox>

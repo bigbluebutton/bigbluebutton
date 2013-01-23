@@ -34,17 +34,23 @@
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import flash.system.Security;
+			import flash.system.SecurityPanel;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.controls.listClasses.IListItemRenderer;
+			import mx.controls.Menu;
 			import mx.events.DataGridEvent;
 			import mx.events.ListEvent;
+			import mx.events.MenuEvent;
 			
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 			import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.participants.events.ParticipantRollEvent;
@@ -60,11 +66,16 @@
 			private var participants:ArrayCollection = new ArrayCollection();
 			
 			private var handRaised:Boolean = false;
+			private var amIModerator:Boolean = false;
 			
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
 			
 				participants = UserManager.getInstance().getConference().users;
+				amIModerator = UserManager.getInstance().getConference().amIModerator();
+				
+				BindingUtils.bindSetter(changeButtons, UserManager.getInstance().getConference(), "amIPresenter");
+				changeButtons(UserManager.getInstance().getConference().amIPresenter);
 			}
 			
 			public function getPrefferedPosition():String{
@@ -72,7 +83,11 @@
 			}
 			
 			private function localeChanged(e:LocaleChangeEvent):void {
+				
+			}
 			
+			private function changeButtons(presenter:Boolean):void {
+				raiseHandBtn.visible = !(presenter || amIModerator);
 			}
 			
 			private function onItemRollOver(event:ListEvent):void{
@@ -104,7 +119,58 @@
 			}
 			
 			private function openSettings():void {
+				// everyone can see the audio settings
+				var myMenuData:Array = [{label: "Audio Settings", icon: images.audio}];
+				
+				if (UserManager.getInstance().getConference().amIPresenter || amIModerator) {
+					myMenuData[1] = {type: "separator"};
+					myMenuData[2] = {label: "Mute All", icon: images.audio_muted};
+					myMenuData[3] = {label: "Lower All Hands", icon: images.hand_new};
+				}
+				
+				var myMenu:Menu = Menu.createMenu(null, myMenuData, true);
+				myMenu.show(this.x + settingsBtn.x, this.y + this.height + 30);
+				myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+			}
 			
+			private function menuClickHandler(e:MenuEvent):void {
+				// case 1 is the separator and can never get called
+				switch (e.index) {
+				case 0:
+					showAudioSettings();
+					break;
+				case 2:
+					muteAll();
+					break;
+				case 3:
+					lowerHands();
+					break;
+				}
+			}
+			
+			private function showAudioSettings():void {
+				Security.showSettings(SecurityPanel.MICROPHONE);
+			}
+			
+			private function muteAll():void {
+				// I can't do this one yet without access to the shared object
+				// it would be something like 
+				/*
+				if (everyone's unmuted) {
+					var muteCommand:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_ALL);
+					dispatchEvent(muteCommand);
+				} else {
+					var muteCommand:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.UNMUTE_ALL);
+					dispatchEvent(muteCommand);
+				}				
+				 */
+			}
+			
+			private function lowerHands():void {
+				for (var i:int = 0; i < participants.length; i++) {
+					var p:BBBUser = participants.getItemAt(i) as BBBUser;
+					if (p.raiseHand) dispatchEvent(new LowerHandEvent(p.userID));
+        		}
 			}
 		]]>
 	</mx:Script>
@@ -126,15 +192,13 @@
 	<mx:ControlBar width="100%">
 		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}"
 					width="30" height="30" toolTip="Raise Hand" click="raiseHand()"
-					visible="{UserManager.getInstance().getConference().amIPresenter ? false : (UserManager.getInstance().getConference().amIModerator() ? false : true)}" 
-					includeInLayout="{raiseHandBtn.visible}" />
+					visible="false" includeInLayout="{raiseHandBtn.visible}" />
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
-					toolTip="Settings" click="openSettings()" 
-					visible="{UserManager.getInstance().getConference().amIPresenter ? true : (UserManager.getInstance().getConference().amIModerator() ? true : false)}"
-					includeInLayout="{settingsBtn.visible}" />
+					toolTip="Settings" click="openSettings()" visible="true" />
 		<mx:Spacer width="100%"/>
-		<mx:Button id="muteMeBtn" visible="true" click="toggleMuteMeState()" height="30" width="30" 
+		<mx:Button id="muteMeBtn" click="toggleMuteMeState()" height="30" width="30" 
 					icon="{UserManager.getInstance().getConference().voiceMuted ? images.audio_muted : images.audio}"
+					visible="{UserManager.getInstance().getConference().voiceJoined}"
 					toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" />
 		
 	</mx:ControlBar>

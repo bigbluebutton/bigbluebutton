@@ -31,33 +31,69 @@
 	
 	<mx:Script>
 		<![CDATA[
+				
+			import org.bigbluebutton.common.LogUtil;
+		
+		
+		
+		
+			import mx.binding.utils.BindingUtils;
+		
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.modules.participants.events.ParticipantRollEvent;
 			
-			private var images:Images = new Images();			
-			
-			[Bindable] private var modIcon:Class = images.moderator;
-   			[Bindable] private var presentIcon:Class = images.presenter_new;
-  			[Bindable] private var handIcon:Class = images.raisehand;
-  			
-  			[Bindable] private var rolledOver:Boolean = false;
-  			
-  			[Bindable]
+			private var images:Images = new Images();
+  			private var rolledOver:Boolean = false;
   			private var moderator:Boolean = false;
   			
   			private function onCreationComplete():void {
   				moderator = UserManager.getInstance().getConference().amIModerator();
+  				
+  				BindingUtils.bindSetter(updateButton, data, "presenter");
+  				BindingUtils.bindSetter(updateButton, data, "raiseHand"); 
+  				updateButton(); //initialize state
+  			}
+  			
+  			private function updateButton(unneeded:Boolean = true):void {
+  			LogUtil.debug("name: " + data.name + ", raiseHand: " + data.raiseHand);
+  				if (data.presenter) {
+  					roleBtn.setStyle("icon", images.presenter_new);
+  					roleBtn.toolTip = "Presenter";
+  					roleBtn.enabled = false;
+  				} else if (rolledOver) {
+  					roleBtn.setStyle("icon", images.presenter_new);
+  					roleBtn.toolTip = "Switch Presenter";
+  					roleBtn.enabled = true;
+  				} else if (data.role == Role.MODERATOR) {
+  					roleBtn.setStyle("icon", images.moderator);
+  					roleBtn.toolTip = "Moderator";
+  					roleBtn.enabled = false;
+  				} else if (data.raiseHand) {
+  					roleBtn.setStyle("icon", images.hand_new);
+  					roleBtn.toolTip = "Hand Raised";
+  					roleBtn.enabled = false;
+  				} else {
+  					roleBtn.setStyle("icon", null);
+  					roleBtn.toolTip = "";
+  					roleBtn.enabled = false;
+  				}
   			}
   			
   			private function onRollOver(e:ParticipantRollEvent):void{
-				if (moderator && (e.userID == data.userID)) rolledOver = true;
+				if (moderator && (e.userID == data.userID)) {
+					rolledOver = true;
+					updateButton();
+				}
 			}
 			
 			private function onRollOut(e:ParticipantRollEvent):void{
-				if (moderator && (e.userID == data.userID)) rolledOver = false;
+				if (moderator && (e.userID == data.userID)) {
+					rolledOver = false;
+					updateButton();
+				}
 			}
   			
   			private function assignPresenterClicked():void {
@@ -71,8 +107,6 @@
         	}
 		]]>
 	</mx:Script>	
-	<mx:Button id="roleBtn" icon="{data.presenter ? presentIcon : (rolledOver ? presentIcon : (data.role == Role.MODERATOR ? modIcon : (data.raisedHand ? handIcon : null)))}" 
-			toolTip="{data.presenter ? 'Presenter' : (rolledOver ? 'Switch Presenter' : '')}"
-			enabled="{data.presenter ? false : (rolledOver ? true : false)}"
-			width="20" height="20" click="assignPresenterClicked()" />
+	<mx:Button id="roleBtn" enabled="false" width="20" height="20" click="assignPresenterClicked()" />
+	<mx:Button id="testingIcon" visible="{data.raiseHand}" width="20" height="20" icon="{images.hand_new}" />
 </mx:HBox>
