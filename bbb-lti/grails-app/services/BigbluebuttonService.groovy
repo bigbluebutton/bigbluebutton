@@ -70,7 +70,7 @@ class BigbluebuttonService {
     
     }
     
-    public String getJoinURL(params, welcome){
+    public String getJoinURL(params, welcome, mode){
         //Set the injected values
         if( !url.equals(bbbProxy.url) && !url.equals("") ) bbbProxy.setUrl(url)
         if( !salt.equals(bbbProxy.salt) && !salt.equals("") ) bbbProxy.setSalt(salt)
@@ -87,12 +87,21 @@ class BigbluebuttonService {
         String courseTitle = getValidatedCourseTitle(params.get(Parameter.COURSE_TITLE))
         String userID = getValidatedUserId(params.get(Parameter.USER_ID))
         
+        Integer voiceBridge = 0
+        Boolean record = false
+        Integer duration = 0
+        if( "extended".equals(mode) ){
+            voiceBridge = getValidatedBBBVoiceBridge(params.get(Parameter.CUSTOM_BBB_VOICEBRIDGE))
+            record = getValidatedBBBRecord(params.get(Parameter.CUSTOM_BBB_RECORD))
+            duration = getValidatedBBBDuration(params.get(Parameter.CUSTOM_BBB_DURATION))
+        }
+        
         String[] values = [meetingName, courseTitle]
         String welcomeMsg = MessageFormat.format(welcome, values)
         
         String meta = getMonitoringMetaData(params)
         
-        String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcomeMsg, logoutURL, meta )
+        String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcomeMsg, voiceBridge, logoutURL, record, duration, meta )
         //log.debug "createURL: " + createURL
         Map<String, Object> createResponse = doAPICall(createURL)
         //log.debug "createResponse: " + createResponse
@@ -110,10 +119,10 @@ class BigbluebuttonService {
         
     }
     
-    private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, String logoutURL, String meta ) {
-        Integer voiceBridge = 70000 + new Random(System.currentTimeMillis()).nextInt(10000);
+    private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, Integer voiceBridge, String logoutURL, Boolean record, Integer duration, String meta ) {
+        voiceBridge = ( voiceBridge == null || voiceBridge == 0 )? 70000 + new Random(System.currentTimeMillis()).nextInt(10000): voiceBridge;
 
-        String url = bbbProxy.getCreateURL(name, meetingID, attendeePW, moderatorPW, welcome, "", voiceBridge.toString(), "", logoutURL, "", "", "", meta );
+        String url = bbbProxy.getCreateURL(name, meetingID, attendeePW, moderatorPW, welcome, "", voiceBridge.toString(), "", logoutURL, "", record.toString(), duration.toString(), meta );
         return url;
     }
     
@@ -121,8 +130,8 @@ class BigbluebuttonService {
         return (meetingName == null || meetingName == "")? "Meeting": meetingName
     }
     
-    private String getValidatedMeetingId(String meetingId, String consumerId){
-        return DigestUtils.shaHex(meetingId + consumerId)
+    private String getValidatedMeetingId(String resourceId, String consumerId){
+        return DigestUtils.shaHex(resourceId + consumerId)
     }
 
     private String getValidatedLogoutURL(String logoutURL){
@@ -157,6 +166,18 @@ class BigbluebuttonService {
         return (userId == null)? "": userId
     }
     
+    private Integer getValidatedBBBVoiceBridge(String voiceBridge){
+        return (voiceBridge != null )? voiceBridge.toInteger(): 0
+    }
+    
+    private Boolean getValidatedBBBRecord(String record){
+        return (record != null && record == "true")? true: false
+    }
+    
+    private Integer getValidatedBBBDuration(String duration){
+        return (duration != null )? duration.toInteger(): 0
+    }
+
     private String getMonitoringMetaData(params){
         String meta
 

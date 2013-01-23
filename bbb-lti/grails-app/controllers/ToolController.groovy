@@ -74,8 +74,7 @@ class ToolController {
                     String welcome = message(code: "bigbluebutton.welcome", args: ["\"{0}\"", "\"{1}\""])
                     log.debug "Localized default welcome message: [" + welcome + "]"
             
-                    //String destinationURL = "http://www.bigbluebutton.org/"
-                    String destinationURL = bigbluebuttonService.getJoinURL(params, welcome)
+                    String destinationURL = bigbluebuttonService.getJoinURL(params, welcome, ltiService.mode)
                     
                     log.debug "redirecting to " + destinationURL
                     if( destinationURL != null ) {
@@ -190,6 +189,11 @@ class ToolController {
 
         if (! ((Map<String, String>)params).containsKey(Parameter.OAUTH_SIGNATURE)) {
             ((ArrayList<String>)missingParams).add(Parameter.OAUTH_SIGNATURE);
+            hasAllParams = false;
+        }
+
+        if (! ((Map<String, String>)params).containsKey(Parameter.RESOURCE_LINK_ID)) {
+            ((ArrayList<String>)missingParams).add(Parameter.RESOURCE_LINK_ID);
             hasAllParams = false;
         }
 
