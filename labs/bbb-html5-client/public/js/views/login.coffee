@@ -55,7 +55,7 @@ define [
 
     # Triggered when the login form is submitted.
     _onLoginFormSubmit: ->
-      return unless @_validateForm()
+      return unless @_validateForm() and @_browserSupportsWebSockets()
 
       params =
         "username": @$("#user-name").val()
@@ -77,6 +77,14 @@ define [
     _onLoginAccepted: ->
       globals.currentAuth = @model
       globals.router.showSession()
+
+    #Checks if browser support websockets
+    _browserSupportsWebSockets: ->
+      if window.WebSocket?
+        true
+      else
+        alert("Websockets is not supported by your current browser")
+        false
 
     # Checks if the login form is valid. If not, shows an alert.
     _validateForm: ->
