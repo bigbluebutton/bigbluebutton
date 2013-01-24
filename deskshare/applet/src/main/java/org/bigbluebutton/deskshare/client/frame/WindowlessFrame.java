@@ -608,12 +608,13 @@ class WindowlessFrame implements Serializable {
 		final OffsetLocator toolbarOffsetLocator = new OffsetLocator() {
 			@Override
 			public int getTopOffset() {
-				return mOverallSize.height + mBorderWidth;
+				return (mOverallSize.height + mBorderWidth) / 2;
 			}
 			
 			@Override
 			public int getLeftOffset() {
-				return 0;
+				//return 0;
+				return (mOverallSize.width + mBorderWidth) / 2;
 			}
 		};
 		mToolbarFrame = new ToolbarFrame(mWindowFrame, toolbarOffsetLocator, toolbar);

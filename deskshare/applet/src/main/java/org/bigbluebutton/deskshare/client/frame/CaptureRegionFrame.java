@@ -22,6 +22,7 @@
 package org.bigbluebutton.deskshare.client.frame;
 
 import java.awt.Button;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -62,9 +63,12 @@ public class CaptureRegionFrame {
 	
 	private JPanel createToolbar() {
 		final JPanel panel = new JPanel();
+		panel.setBackground(Color.RED); 
 		panel.setLayout(new FlowLayout());
 		capturing = false;
 		btnStartStop = new Button("Start Sharing");
+//		btnStartStop.setBackground(Color.GRAY);
+//		btnStartStop.setForeground(Color.GRAY);
 		btnStartStop.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
