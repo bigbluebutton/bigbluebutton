@@ -102,9 +102,9 @@ class BigbluebuttonService {
         String meta = getMonitoringMetaData(params)
         
         String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcomeMsg, voiceBridge, logoutURL, record, duration, meta )
-        //log.debug "createURL: " + createURL
+        log.debug "createURL: " + createURL
         Map<String, Object> createResponse = doAPICall(createURL)
-        //log.debug "createResponse: " + createResponse
+        log.debug "createResponse: " + createResponse
 
         if( createResponse != null){
             String returnCode = (String) createResponse.get("returncode")

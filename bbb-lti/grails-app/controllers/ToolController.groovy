@@ -57,7 +57,7 @@ class ToolController {
             consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
             if (consumer != null) {
                 log.debug "Found consumer with key " + consumer.get("key") //+ " and sharedSecret " + consumer.get("secret")
-                if (checkValidSignature(request.getMethod().toUpperCase(), retrieveLtiEndpoint(), consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
+                if (checkValidSignature(request.getMethod().toUpperCase(), ltiService.endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
                     log.debug  "The message has a valid signature."
                     
                     String locale = params.get(Parameter.LAUNCH_LOCALE)
@@ -73,17 +73,24 @@ class ToolController {
                     log.debug "Locale has been set to " + locale
                     String welcome = message(code: "bigbluebutton.welcome", args: ["\"{0}\"", "\"{1}\""])
                     log.debug "Localized default welcome message: [" + welcome + "]"
-            
-                    String destinationURL = bigbluebuttonService.getJoinURL(params, welcome, ltiService.mode)
-                    
-                    log.debug "redirecting to " + destinationURL
-                    if( destinationURL != null ) {
-                        success = true
-                        redirect(url:destinationURL)
+
+                    if( !"extended".equals(ltiService.mode) ) {
+                        log.debug  "LTI service running in simple mode."
+                        String destinationURL = bigbluebuttonService.getJoinURL(params, welcome, ltiService.mode)
+                        
+                        log.debug "redirecting to " + destinationURL
+                        if( destinationURL != null ) {
+                            success = true
+                            redirect(url:destinationURL)
+                        } else {
+                            resultMessageKey = 'BigBlueButtonServerError'
+                            resultMessage = "The join could not be completed"
+                            log.debug resultMessage
+                        }
+    
                     } else {
-                        resultMessageKey = 'BigBlueButtonServerError'
-                        resultMessage = "The join could not be completed"
-                        log.debug resultMessage
+                        log.debug  "LTI service running in extended mode."
+                        success = true
                     }
 
                 } else {
@@ -109,21 +116,18 @@ class ToolController {
         }
 
         if (!success) {
-            log.debug "Error"
-            response.addHeader("Cache-Control", "no-cache")
-            withFormat {
-                xml {
-                    render(contentType:"text/xml") {
-                        response() {
-                            returncode(success)
-                            messageKey(resultMessageKey)
-                            message(resultMessage)
-                        }
-                    }
-                }
-            }
+            log.debug "Error [resultMessageKey:'" + resultMessageKey + "', resultMessage:'" + resultMessage + "']"
+            render(view: "error", model: ['resultMessageKey': resultMessageKey, 'resultMessage': resultMessage])
 
-        } 
+        } else {
+            render(view: "index", model: ['resultMessageKey': resultMessageKey, 'resultMessage': resultMessage])
+        }
+
+    }
+    
+    def exec = {
+        log.debug CONTROLLER_NAME + "#exec"
+        log.debug params
         
 
     }
@@ -146,9 +150,7 @@ class ToolController {
 
     }
 
-    private String retrieveLtiEndpoint() {
-        String endPoint = ltiService.endPoint
-        return endPoint
+    private void doJoinMeeting() {
     }
 
     /**
