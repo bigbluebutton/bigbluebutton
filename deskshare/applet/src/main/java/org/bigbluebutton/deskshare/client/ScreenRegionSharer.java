@@ -36,14 +36,14 @@ public class ScreenRegionSharer implements ScreenSharer {
 		this.ssi = ssi;
 	}
 	
-	public void start() {
+	public void start(boolean autoStart) {
 		CaptureRegionListener crl = new CaptureRegionListenerImp(this);
 		frame = new CaptureRegionFrame(crl, 5);
 		frame.setHeight(ssi.captureHeight);
 		frame.setWidth(ssi.captureWidth);
 		frame.setLocation(ssi.x, ssi.y);		
 		System.out.println(NAME + "Launching Screen Capture Frame");
-		frame.start(false);
+		frame.start(autoStart);
 		
 	}
 	

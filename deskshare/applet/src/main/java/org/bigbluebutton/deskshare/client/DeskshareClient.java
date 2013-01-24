@@ -48,36 +48,15 @@ public class DeskshareClient {
 	private void shareWithFrame() {
 		screenSharer = new ScreenRegionSharer(ssi);
 		screenSharer.addClientListener(listener);
-		screenSharer.start();		
+		screenSharer.start(false);		
 	}
 		
 	private void shareFullScreen() {
-		screenSharer = new FullScreenSharer(ssi);
+		screenSharer = new ScreenRegionSharer(ssi);
 		screenSharer.addClientListener(listener);
-		screenSharer.start();
+		screenSharer.start(true);
 	}
 	
-	/*****************************************************************************
-    ;  disconnected
-    ;----------------------------------------------------------------------------
-	; DESCRIPTION
-	;   This routine is used to set the desktop sharing string to disconnected.
-	;
-	; RETURNS : N/A
-	;
-	; INTERFACE NOTES
-	; 
-	;       INPUT : N/A
-	; 
-	;       OUTPUT : N/A
-	; 
-	; IMPLEMENTATION
-	;
-	; HISTORY
-	; __date__ :        PTS:  
-	; 2010.11.19		problem 272
-	;
-	******************************************************************************/
 	public void disconnected(){
 		System.out.println(NAME + "Disconneted");
 		screenSharer.disconnected();
@@ -110,7 +89,7 @@ public class DeskshareClient {
        	private int scaleWidth = 0;
        	private int scaleHeight = 0;
        	private boolean quality = false;
-       	private boolean aspectRatio = false; 
+       	private double scale = 1; 
     	private int x = -1;
     	private int y = -1;
     	private boolean httpTunnel = true;
@@ -159,8 +138,8 @@ public class DeskshareClient {
     		return this;
     	}
     	
-    	public NewBuilder aspectRatio(boolean aspectRatio) {
-    		this.aspectRatio = aspectRatio;
+    	public NewBuilder autoScale(double scaleTo) {
+    		this.scale = scaleTo;
     		return this;
     	}
     	
@@ -217,7 +196,7 @@ public class DeskshareClient {
     		ssi.scaleWidth = scaleWidth;
     		ssi.scaleHeight = scaleHeight;
     		ssi.quality = quality;
-    		ssi.aspectRatio = aspectRatio;
+    		ssi.scale = scale;
     		ssi.x = x;
     		ssi.y = y;
     		ssi.httpTunnel = httpTunnel;
@@ -262,28 +241,12 @@ public class DeskshareClient {
     		x = 0;
     		y = 0;
 
-    			scaleWidth = captureWidth;
-    			scaleHeight = captureHeight;
-    		
-    			System.out.println("Check for scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
+    		if (scale > 0) {
+        		scaleWidth = (int)(scale * (double)captureWidth);
+        		scaleHeight = (int)(scale * (double)captureHeight);     			
+    		} 
 
-    			if (scaleWidth > 1280) {   
-    				scaleWidth = 1280;
-    				double ratio = (double)captureHeight/(double)captureWidth;
-    				scaleHeight = (int)((double)scaleWidth * ratio);
-    				System.out.println("Scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
-    			}
     	}
-    	
-    	private void recalculateScaleDimensionsToMaintainAspectRatio() {
-    		if (captureWidth < captureHeight) {
-    			double ratio = (double)captureHeight/(double)captureWidth;
-    			scaleHeight = (int)((double)scaleWidth * ratio);
-    		} else {
-    			double ratio = (double)captureWidth/(double)captureHeight;
-    			scaleWidth = (int)((double)scaleHeight * ratio);
-    		}
-    	}    	
-    	
+    	  	
     }
 }

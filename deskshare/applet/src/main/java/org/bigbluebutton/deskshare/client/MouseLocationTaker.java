@@ -73,6 +73,19 @@ public class MouseLocationTaker {
 		
 		return pInfo.getLocation();		
 	}
+
+	private Point calculatePointerLocation1(Point p) {
+		System.out.println("Mouse Tracker:: Image=[" + captureWidth + "," + captureHeight + "] scale=[" + scaleWidth + "," + scaleHeight + "]");
+		
+		int mouseXInCapturedRegion = p.x - captureX;
+		int mouseYInCapturedRegion = p.y - captureY;
+		
+		double scaledMouseX = mouseXInCapturedRegion * (double)((double)captureWidth / (double)scaleWidth);
+		double scaledMouseY = mouseYInCapturedRegion * (double)((double)captureHeight / (double)scaleHeight);
+		
+		return new Point((int)scaledMouseX, (int)scaledMouseY);
+		
+	}
 	
 	private Point calculatePointerLocation(Point p) {
 		System.out.println("Mouse Tracker:: Image=[" + captureWidth + "," + captureHeight + "] scale=[" + scaleWidth + "," + scaleHeight + "]");

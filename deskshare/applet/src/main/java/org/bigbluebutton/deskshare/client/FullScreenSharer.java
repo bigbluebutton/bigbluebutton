@@ -31,7 +31,7 @@ public class FullScreenSharer implements ScreenSharer {
 		this.ssi = ssi;
 	}
 	
-	public void start() {
+	public void start(boolean autoStart) {
 		sharer = new ScreenSharerRunner(ssi);
 		sharer.addClientListener(listener);
 		sharer.startSharing();
