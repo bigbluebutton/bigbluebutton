@@ -85,8 +85,6 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
             System.exit(0);
         }
         
-//        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-
         // Extract the values entered for the various options -- if the
         // options were not specified, the corresponding values will be
         // the default.
@@ -94,21 +92,12 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         Integer portValue = (Integer)parser.getOptionValue(port, new Integer(9123));
         Integer listenPortValue = (Integer)parser.getOptionValue(listenPort, new Integer(9125));
         String roomValue = (String)parser.getOptionValue(room, "85115");
-//        Integer cWidthValue = (Integer)parser.getOptionValue(cWidth, new Integer((int)dim.getWidth()));
-//        Integer cHeightValue = (Integer)parser.getOptionValue(cHeight, new Integer((int)dim.getHeight()));
-//        Integer sWidthValue = (Integer)parser.getOptionValue(sWidth, new Integer((int)dim.getWidth()));
-//        Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer((int)dim.getHeight()));
-      Integer cWidthValue = (Integer)parser.getOptionValue(cWidth, new Integer(800));
-      Integer cHeightValue = (Integer)parser.getOptionValue(cHeight, new Integer(600));
+        Integer cWidthValue = (Integer)parser.getOptionValue(cWidth, new Integer(800));
+        Integer cHeightValue = (Integer)parser.getOptionValue(cHeight, new Integer(600));
       
-      Integer sWidthValue = (Integer)parser.getOptionValue(sWidth, new Integer(800));
-      Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer(600));
-      
-      Boolean isPreScaled = true; 
-      if(sWidthValue.intValue() == 800 && sHeightValue.intValue() == 600){
-    	  isPreScaled = false;
-      }
-      
+        Integer sWidthValue = (Integer)parser.getOptionValue(sWidth, new Integer(800));
+        Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer(600));
+          
         Boolean qualityValue = (Boolean)parser.getOptionValue(quality, new Boolean(false));
         Boolean aspectValue = (Boolean)parser.getOptionValue(aspectRatio, new Boolean(false));
         Integer xValue = (Integer)parser.getOptionValue(xCoord, new Integer(0));
@@ -127,7 +116,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         						.room(roomValue).captureWidth(cWidthValue)
         						.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
         						.quality(qualityValue).aspectRatio(aspectValue)
-        						.x(xValue).y(yValue).fullScreen(fullScreenValue).useSVC2(useSVC2Value).isPreScaled(isPreScaled)
+        						.x(xValue).y(yValue).fullScreen(fullScreenValue).useSVC2(useSVC2Value)
         						.httpTunnel(tunnelValue).trayIcon(image).enableTrayIconActions(true).build();
         
         client.addClientListener(dsMain);

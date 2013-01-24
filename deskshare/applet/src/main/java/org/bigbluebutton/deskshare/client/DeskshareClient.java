@@ -118,7 +118,6 @@ public class DeskshareClient {
     	private boolean enableTrayActions = false;
     	private boolean fullScreen = false;
     	private boolean useSVC2 = false;
-    	private boolean isPreScaled = false;
     	
     	public NewBuilder host(String host) {
     		this.host = host;
@@ -189,12 +188,7 @@ public class DeskshareClient {
     		this.useSVC2 = useSVC2;
     		return this;
     	}
-    	
-    	public NewBuilder isPreScaled(boolean isPreScaled){
-    		this.isPreScaled = isPreScaled;
-    		return this;
-    	}
-    	
+    	   	
     	public NewBuilder trayIcon(Image icon) {
     		this.sysTrayIcon = icon;
     		return this;
@@ -268,7 +262,6 @@ public class DeskshareClient {
     		x = 0;
     		y = 0;
 
-    		if(!isPreScaled){
     			scaleWidth = captureWidth;
     			scaleHeight = captureHeight;
     		
@@ -280,7 +273,6 @@ public class DeskshareClient {
     				scaleHeight = (int)((double)scaleWidth * ratio);
     				System.out.println("Scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
     			}
-    		}
     	}
     	
     	private void recalculateScaleDimensionsToMaintainAspectRatio() {

@@ -47,8 +47,9 @@ public class ScreenSharerRunner {
 	
 	public ScreenSharerRunner(ScreenShareInfo ssi) {
 		this.ssi = ssi;
-		captureTaker = new ScreenCaptureTaker(ssi.x, ssi.y, ssi.captureWidth, ssi.captureHeight, ssi.scaleWidth, 
-				ssi.scaleHeight, ssi.quality);
+		calculateScaledCapturedWidthAndHeight();
+		
+		captureTaker = new ScreenCaptureTaker(ssi.x, ssi.y, ssi.captureWidth, ssi.captureHeight, ssi.scaleWidth, ssi.scaleHeight, ssi.quality);
 		mouseLocTaker = new MouseLocationTaker(ssi.captureWidth, ssi.captureHeight, ssi.scaleWidth, ssi.scaleHeight, ssi.x, ssi.y);
 		
 		// Use the scaleWidth and scaleHeight as the dimension we pass to the BlockManager.
@@ -132,6 +133,64 @@ public class ScreenSharerRunner {
 	public void setCaptureCoordinates(int x, int y) {
 		captureTaker.setCaptureCoordinates(x, y);
 		mouseLocTaker.setCaptureCoordinates(x, y);
+	}
+	
+	private void calculateScaledCapturedWidthAndHeight() {
+		double imgWidth = ssi.captureWidth;
+		double imgHeight = ssi.captureHeight;
+		
+		if (ssi.captureWidth < ssi.scaleWidth || ssi.captureHeight <  ssi.scaleHeight) {
+						
+			if (imgWidth < ssi.scaleWidth && imgHeight < ssi.scaleHeight) {
+				System.out.println("Capture is smaller than scale dims. Just draw the image.");
+				System.out.println("Screen capture. capture=[" + imgWidth + "," + imgHeight + "] scale=[" + ssi.scaleWidth + "," + ssi.scaleHeight + "]");				
+			} else {
+	    		if (imgWidth > ssi.scaleWidth) {
+//	    			System.out.println("Fit to width.");
+	    			double ratio = imgHeight/imgWidth;
+	    			imgWidth = ssi.scaleWidth;
+	    			imgHeight = imgWidth * ratio;
+	    		} else {
+//	    			System.out.println("Fit to height.");
+	    			double ratio = imgWidth/imgHeight;
+	    			imgHeight = ssi.scaleHeight;
+	    			imgWidth = imgHeight * ratio;
+	    		}			
+			}
+		} else {
+			System.out.println("Both capture sides are greater than the scaled dims. Downscale image.");
+			
+    		if (ssi.captureWidth >= ssi.captureHeight) {
+    	        System.out.println("fitToWidthAndAdjustHeightToMaintainAspectRatio");  
+    			imgWidth = ssi.scaleWidth;
+
+    	        // Maintain aspect-ratio
+    			imgHeight = (double)ssi.captureHeight * ((double)ssi.scaleWidth / (double)ssi.captureWidth);
+
+    	        if (imgHeight > ssi.scaleHeight) {
+    	        	// The height is still bigger than the requested scale height. Downscale some more. This time, we
+    	        	// do fit-to-height.
+    	        	imgWidth = imgWidth * ((double)ssi.scaleHeight / imgHeight);
+    	        	imgHeight = ssi.scaleHeight;
+    	        }
+    		} else {
+    	        System.out.println("fitToHeightAndAdjustWidthToMaintainAspectRatio");   
+    	        imgHeight = ssi.scaleHeight;
+    	        
+    	        // Maintain aspect-ratio
+    			imgWidth = (double)ssi.captureWidth * ((double)ssi.scaleHeight / (double)ssi.captureHeight);
+
+    	        if (imgWidth > ssi.scaleWidth) {
+    	        	// The width is still bigger than the requested scale width. Downscale some more. This time, we
+    	        	// do fit-to-width.
+    	        	imgHeight = imgHeight * ((double)ssi.scaleWidth / imgWidth);
+    	        	imgWidth = ssi.scaleWidth;
+    	        }
+    		}				
+		}
+		
+		ssi.scaleWidth = (int)imgWidth;
+		ssi.scaleHeight = (int)imgHeight;
 	}
 	
 	private void notifyListener(ExitCode reason) {

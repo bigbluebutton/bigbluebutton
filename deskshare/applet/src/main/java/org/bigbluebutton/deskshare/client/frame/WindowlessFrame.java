@@ -613,7 +613,6 @@ class WindowlessFrame implements Serializable {
 			
 			@Override
 			public int getLeftOffset() {
-				//return 0;
 				return (mOverallSize.width + mBorderWidth) / 2;
 			}
 		};

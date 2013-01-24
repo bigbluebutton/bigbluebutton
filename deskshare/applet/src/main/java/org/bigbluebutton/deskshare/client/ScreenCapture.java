@@ -26,16 +26,10 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.HeadlessException;
 import java.awt.Image;
-import java.awt.MediaTracker;
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.PointerInfo;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Robot;
-import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
@@ -118,72 +112,9 @@ public class ScreenCapture {
 	    
 		Graphics2D g2 = resultImage.createGraphics();
 					
-//		System.out.println("Image=[" + image.getWidth() + "," + image.getHeight() + "] scale=[" + scaleWidth + "," + scaleHeight + "]");
-		
-		if (image.getWidth() < scaleWidth || image.getHeight() <  scaleHeight) {
-			int imgWidth = image.getWidth();
-			int imgHeight = image.getHeight();
-						
-			if (imgWidth < scaleWidth && imgHeight < scaleHeight) {
-//				System.out.println("Capture is smaller than scale dims. Just draw the image.");
-				System.out.println("Screen capture. capture=[" + imgWidth + "," + imgHeight 
-						+ "] scale=[" + resultImage.getWidth() + "," + resultImage.getHeight() + "]");
-				
-				g2.drawImage(image, (resultImage.getWidth() - imgWidth) / 2, (resultImage.getHeight() - imgHeight) / 2, imgWidth, imgHeight, null);
-//				g2.drawImage(image, 0, 0, imgWidth, imgHeight, null);
-			} else {
-	    		if (imgWidth > scaleWidth) {
-//	    			System.out.println("Fit to width.");
-	    			double ratio = (double)imgHeight/(double)imgWidth;
-	    			imgWidth = scaleWidth;
-	    			imgHeight = (int)((double)imgWidth * ratio);
-	    		} else {
-//	    			System.out.println("Fit to height.");
-	    			double ratio = (double)imgWidth/(double)imgHeight;
-	    			imgHeight = scaleHeight;
-	    			imgWidth = (int)((double)imgHeight * ratio);
-	    		}
-	    			    		
-	    		Image scaledImage = image.getScaledInstance(imgWidth, imgHeight, Image.SCALE_AREA_AVERAGING);
-	    		
-				g2.drawImage(scaledImage, (resultImage.getWidth() - imgWidth) / 2, (resultImage.getHeight() - imgHeight) / 2, imgWidth, imgHeight, null);				
-			}
-		} else {
-			System.out.println("Both capture sides are greater than the scaled dims. Downscale image.");
-//			Image scaledImage = image.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_AREA_AVERAGING);
-//			g2.drawImage(scaledImage, 0, 0, scaleWidth, scaleHeight, null);	
-			
-			double imgWidth = image.getWidth();
-			double imgHeight = image.getHeight();
-			
-    		if (captureWidth >= captureHeight) {
-    	        System.out.println("fitToWidthAndAdjustHeightToMaintainAspectRatio");  
-    			imgWidth = scaleWidth;
+		Image scaledImage = image.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_AREA_AVERAGING);
+		g2.drawImage(scaledImage, 0, 0, scaleWidth, scaleHeight, null);				
 
-    	        // Maintain aspect-ratio
-    			imgHeight = (double)captureHeight * (double)((double)scaleWidth / (double)captureWidth);
-
-    	        if (imgHeight > scaleHeight) {
-    	        	imgWidth = (double)imgWidth * ((double)scaleHeight / (double)imgHeight);
-    	        	imgHeight = scaleHeight;
-    	        }
-    		} else {
-    	        System.out.println("fitToHeightAndAdjustWidthToMaintainAspectRatio");   
-    	        imgHeight = scaleHeight;
-    	        
-    	        // Maintain aspect-ratio
-    			imgWidth = (double)captureWidth * (double)((double)scaleHeight / (double)captureHeight);
-
-    	        if (imgWidth > scaleWidth) {
-    	        	imgHeight = (double)imgHeight * (double)((double)scaleWidth / (double)imgWidth);
-    	        	imgWidth = scaleWidth;
-    	        }
-    		}
-    			    		
-    		Image scaledImage = image.getScaledInstance((int)imgWidth, (int)imgHeight, Image.SCALE_AREA_AVERAGING);
-    		
-			g2.drawImage(scaledImage, (resultImage.getWidth() - (int)imgWidth) / 2, (resultImage.getHeight() - (int)imgHeight) / 2, (int)imgWidth, (int)imgHeight, null);				
-		}
 
 		g2.dispose();
 		return resultImage;
