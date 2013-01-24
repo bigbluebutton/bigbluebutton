@@ -74,129 +74,17 @@ public class MouseLocationTaker {
 		return pInfo.getLocation();		
 	}
 
-	private Point calculatePointerLocation1(Point p) {
-		System.out.println("Mouse Tracker:: Image=[" + captureWidth + "," + captureHeight + "] scale=[" + scaleWidth + "," + scaleHeight + "]");
+	private Point calculatePointerLocation(Point p) {
+//		System.out.println("Mouse Tracker:: Image=[" + captureWidth + "," + captureHeight + "] scale=[" + scaleWidth + "," + scaleHeight + "]");
 		
 		int mouseXInCapturedRegion = p.x - captureX;
 		int mouseYInCapturedRegion = p.y - captureY;
 		
-		double scaledMouseX = mouseXInCapturedRegion * (double)((double)captureWidth / (double)scaleWidth);
-		double scaledMouseY = mouseYInCapturedRegion * (double)((double)captureHeight / (double)scaleHeight);
+		double scaledMouseX = mouseXInCapturedRegion * (double)((double)scaleWidth  / (double)captureWidth);
+		double scaledMouseY = mouseYInCapturedRegion * (double)((double)scaleHeight  / (double)captureHeight);
 		
 		return new Point((int)scaledMouseX, (int)scaledMouseY);
 		
-	}
-	
-	private Point calculatePointerLocation(Point p) {
-		System.out.println("Mouse Tracker:: Image=[" + captureWidth + "," + captureHeight + "] scale=[" + scaleWidth + "," + scaleHeight + "]");
-		
-		if (captureWidth < scaleWidth || captureHeight <  scaleHeight) {
-			int imgWidth = captureWidth;
-			int imgHeight = captureHeight;
-						
-			if (imgWidth < scaleWidth && imgHeight < scaleHeight) {
-				System.out.println("Capture is smaller than scale dims. Just draw the image. capture=[" 
-							+ captureWidth + "," + captureHeight + "] scale=[" + scaleWidth + "," + scaleHeight + "]");
-				int imgX = (scaleWidth - captureWidth) / 2;
-				int imgY = (scaleHeight - captureHeight) / 2;
-								
-				int mX = p.x - captureX + imgX;
-				int mY = p.y - captureY + imgY;
-								
-			//	System.out.println("imgX=[" + imgX + "," + imgY + "] p=[" + p.x + "," + p.y + "] capture=[" + captureX + "," + captureY + "]");
-				System.out.println("m=[" + mX + "," + mY + "] p=[" + p.x + "," + p.y + "] capture=[" + captureX + "," + captureY + "]");
-				
-				return new Point(mX, mY);
-			} else {
-	    		if (imgWidth > scaleWidth) {
-					System.out.println("Fit to width. capture=[" 
-							+ captureWidth + "," + captureHeight + "] scale=[" + scaleWidth + "," + scaleHeight + "]");
-	    			double ratio = (double)imgHeight/(double)imgWidth;
-	    			imgWidth = scaleWidth;
-	    			imgHeight = (int)((double)imgWidth * ratio);
-	    			
-					int imgY = (scaleHeight - imgHeight) / 2;
-					
-					double mX =  ((double)((double)p.x - (double)captureX) * (double)((double)scaleWidth / (double)captureWidth));
-					
-					System.out.println("(p.x - captureX)=[" + (p.x - captureX) + "] (scaleWidth / captureWidth)=[" 
-									+ (double)((double)scaleWidth / (double)captureWidth) + "] mX=[" + mX + "]");
-					
-					double mY = ((double)((double)p.y - (double)captureY) * (double)((double)imgHeight / (double)captureHeight)) + imgY;
-									
-				//	System.out.println("imgX=[" + imgX + "," + imgY + "] p=[" + p.x + "," + p.y + "] capture=[" + captureX + "," + captureY + "]");
-					System.out.println("m=[" + mX + "," + mY + "] p=[" + p.x + "," + p.y + "] capture=[" + captureX + "," + captureY + "]");
-					
-					return new Point((int)mX, (int)mY);
-	    		} else {
-					System.out.println("Fit to height. capture=[" + captureWidth + "," + captureHeight + "] scale=[" + scaleWidth + "," + scaleHeight + "]");
-					
-//	    			double hRatio = (double)scaleHeight/(double)captureHeight;
-//	    			imgHeight = scaleHeight;
-//	    			imgWidth = (int)((double)imgHeight * hRatio);
-	    			
-	    			double ratio = (double)imgWidth/(double)imgHeight;
-	    			imgHeight = scaleHeight;
-	    			imgWidth = (int)((double)imgHeight * ratio);
-	    			
-					int imgX = (scaleWidth - imgWidth) / 2;
-
-					double mX =  ((double)((double)p.x - (double)captureX) * (double)((double) imgWidth  / (double) captureWidth)) + imgX;
-				//	double mX =  ((double)((double)p.x - (double)captureX) * (double)(ratio))  + imgX ;
-					System.out.println("(p.x - captureX)=[" + (p.x - captureX) + "] ** (imgWidth  /  captureWidth)=[" 
-									+ (double)((double)imgWidth / (double) captureWidth) + "] mX=[" + mX + "]");
-					
-					double mY = ((double)((double)p.y - (double)captureY) * (double)((double)scaleHeight / (double)captureHeight));
-									
-				//	System.out.println("imgX=[" + imgX + "," + imgY + "] p=[" + p.x + "," + p.y + "] capture=[" + captureX + "," + captureY + "]");
-					System.out.println("m=[" + mX + "," + mY + "] p=[" + p.x + "," + p.y + "] capture=[" + captureX + "," + captureY + "]");
-					
-					return new Point((int)mX, (int)mY);
-	    		}			
-			}
-		} else {
-			System.out.println("Both capture sides are greater than the scaled dims. Downscale image.");
-
-			
-			double imgWidth = captureWidth;
-			double imgHeight = captureHeight;
-			
-    		if (captureWidth >= captureHeight) {
-    	        System.out.println("fitToWidthAndAdjustHeightToMaintainAspectRatio");  
-    			imgWidth = scaleWidth;
-
-    	        // Maintain aspect-ratio
-    			imgHeight = (double)captureHeight * (double)((double)scaleWidth / (double)captureWidth);
-
-    	        if (imgHeight > scaleHeight) {
-    	        	imgWidth = (double)imgWidth * ((double)scaleHeight / (double)imgHeight);
-    	        	imgHeight = scaleHeight;
-    	        }
-    		} else {
-    	        System.out.println("fitToHeightAndAdjustWidthToMaintainAspectRatio");   
-    	        imgHeight = scaleHeight;
-    	        
-    	        // Maintain aspect-ratio
-    			imgWidth = (double)captureWidth * (double)((double)scaleHeight / (double)captureHeight);
-
-    	        if (imgWidth > scaleWidth) {
-    	        	imgHeight = (double)imgHeight * (double)((double)scaleWidth / (double)imgWidth);
-    	        	imgWidth = scaleWidth;
-    	        }
-    		}
-    		
-			int imgX = (int)(scaleWidth - imgWidth) / 2;
-			int imgY = (int)(scaleHeight - imgHeight) / 2;
-			
-			double mX =  ((double)((double)p.x - (double)captureX) * (double)((double) imgWidth  / (double) captureWidth)) + imgX;
-		//	double mX =  ((double)((double)p.x - (double)captureX) * (double)(ratio))  + imgX ;
-			System.out.println("(p.x - captureX)=[" + (p.x - captureX) + "] ** (imgWidth  /  captureWidth)=[" 
-							+ (double)((double)imgWidth / (double) captureWidth) + "] mX=[" + mX + "]");
-			
-			double mY = ((double)((double)p.y - (double)captureY) * (double)((double)scaleHeight / (double)captureHeight)) + imgY;
-    		
-			return new Point((int)mX, (int)mY);
-		}
 	}
 	
 	public boolean adjustPointerLocationDueToScaling() {
