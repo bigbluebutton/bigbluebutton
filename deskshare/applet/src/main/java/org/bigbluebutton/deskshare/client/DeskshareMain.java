@@ -64,7 +64,8 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
     	CmdLineParser.Option sWidth = dsMain.addHelp(parser.addIntegerOption('d', "scaleWidth"),"Scale capture width");
     	CmdLineParser.Option sHeight = dsMain.addHelp(parser.addIntegerOption('g', "scaleHeight"),"Scale capture height");    
     	CmdLineParser.Option quality = dsMain.addHelp(parser.addBooleanOption('q', "quality"),"Scale with better quality instead of speed");
-    	CmdLineParser.Option autoScale = dsMain.addHelp(parser.addDoubleOption('a', "autoScale"),"Scale factor [0.5 to 1]. Override -d and -g options.");
+    	CmdLineParser.Option aspectRatio = dsMain.addHelp(parser.addBooleanOption('a', "aspectRatio"),"Maintain aspect ratio when scaling");
+//    	CmdLineParser.Option autoScale = dsMain.addHelp(parser.addDoubleOption('a', "autoScale"),"Scale factor [0.5 to 0.8]. Override -d and -g options.");
     	CmdLineParser.Option xCoord = dsMain.addHelp(parser.addIntegerOption('x', "x"),"Upper-left x coordinate of the screen capture");
     	CmdLineParser.Option yCoord = dsMain.addHelp(parser.addIntegerOption('y', "y"),"Upper-left y coordinate of the screen capture");
     	CmdLineParser.Option tryHttpTunnel = dsMain.addHelp(parser.addBooleanOption('n', "httptunnel"),"Http tunnel if direct connection fails");
@@ -100,7 +101,9 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer(0));
           
         Boolean qualityValue = (Boolean)parser.getOptionValue(quality, new Boolean(false));
-        Double autoScaleValue = (Double)parser.getOptionValue(autoScale, new Double(0));
+//        Double autoScaleValue = (Double)parser.getOptionValue(autoScale, new Double(0));
+        Double autoScaleValue = new Double(0);
+        Boolean aspectValue = (Boolean)parser.getOptionValue(aspectRatio, new Boolean(false));
         Integer xValue = (Integer)parser.getOptionValue(xCoord, new Integer(0));
         Integer yValue = (Integer)parser.getOptionValue(yCoord, new Integer(0));
         Boolean tunnelValue = (Boolean)parser.getOptionValue(tryHttpTunnel, new Boolean(false));
@@ -161,5 +164,5 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
 		}
 	}
 	
-	private static String serverHelpText = "\n\t The host or IP of the desktop sharing server. Default is localhost.";
+	private static final String serverHelpText = "\n\t The host or IP of the desktop sharing server. Default is localhost.";
 }

@@ -257,13 +257,13 @@
       }
       
       private function determineHowToDisplayVideo():void {
-         if (videoIsSmallerThanWindow()) {
-           trace("Video is smaller than window. Centering.");
+//         if (videoIsSmallerThanWindow()) {
+//           trace("Video is smaller than window. Centering.");
           centerToWindow();
-         } else {
-           trace("Video is greater than window. Scaling.");
-          fitVideoToWindow();
-        }
+//         } else {
+//           trace("Video is greater than window. Scaling.");
+//          fitVideoToWindow();
+//        }
       }
 		]]>
 	</mx:Script>

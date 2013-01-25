@@ -94,15 +94,16 @@ public class MouseLocationTaker {
 	private void takeMouseLocation() {		
 		Point mouseLocation = getMouseLocation();
 		if ( !mouseLocation.equals(oldMouseLocation) && isMouseInsideCapturedRegion(mouseLocation)) {
-			System.out.println("Mouse is inside captured region [" + mouseLocation.x + "," + mouseLocation.y + "]");
+//			System.out.println("Mouse is inside captured region [" + mouseLocation.x + "," + mouseLocation.y + "]");
 			notifyListeners(calculatePointerLocation(mouseLocation));
 			oldMouseLocation = mouseLocation;
 		}
 	}
 	
 	private boolean isMouseInsideCapturedRegion(Point p) {
-		return ( ( (p.x > captureX) && (p.x < (captureX + captureWidth) ) ) 
-				&& (p.y > captureY && p.y < captureY + captureHeight));
+		return true;
+//		return ( ( (p.x > captureX) && (p.x < (captureX + captureWidth) ) ) 
+//				&& (p.y > captureY && p.y < captureY + captureHeight));
 	}
 	
 	private void notifyListeners(Point location) {

@@ -47,7 +47,13 @@ public class ScreenSharerRunner {
 	
 	public ScreenSharerRunner(ScreenShareInfo ssi) {
 		this.ssi = ssi;
-		calculateScaledCapturedWidthAndHeight();
+		
+		if (! ssi.fullScreen) {
+			calculateScaledCapturedWidthAndHeight();
+		}
+				
+		System.out.println("ScreenSharerRunner[captureWidth=" + ssi.captureWidth + ",captureHeight=" + ssi.captureHeight + "][" + ssi.x + "," + ssi.y +"]"
+				+ "[scaleWidth=" + ssi.scaleWidth + ",scaleHeight=" + ssi.scaleHeight + "]");
 		
 		captureTaker = new ScreenCaptureTaker(ssi.x, ssi.y, ssi.captureWidth, ssi.captureHeight, ssi.scaleWidth, ssi.scaleHeight, ssi.quality);
 		mouseLocTaker = new MouseLocationTaker(ssi.captureWidth, ssi.captureHeight, ssi.scaleWidth, ssi.scaleHeight, ssi.x, ssi.y);
@@ -83,28 +89,7 @@ public class ScreenSharerRunner {
 		}
 	}
 	
-	/*****************************************************************************
-    ;  disconnectSharing
-    ;----------------------------------------------------------------------------
-	; DESCRIPTION
-	;   This routine is used to stop the screen capture, change desktop 
-	;   sharing system icon tray message.
-	;
-	; RETURNS : N/A
-	;
-	; INTERFACE NOTES
-	; 
-	;       INPUT : N/A
-	; 
-	;       OUTPUT : N/A
-	; 
-	; IMPLEMENTATION
-	;
-	; HISTORY
-	; __date__ :        PTS:  
-	; 2010.11.19		problem 272
-	;
-	******************************************************************************/
+
 	public void disconnectSharing(){
 		System.out.println(NAME + "Disconneted");
 		System.out.println(NAME + "Change system tray icon message");
@@ -138,6 +123,10 @@ public class ScreenSharerRunner {
 	private void calculateScaledCapturedWidthAndHeight() {
 		double imgWidth = ssi.captureWidth;
 		double imgHeight = ssi.captureHeight;
+		
+		if ((ssi.captureWidth == ssi.scaleWidth) && (ssi.captureHeight == ssi.scaleHeight)) {
+			return;
+		}
 		
 		if (ssi.captureWidth < ssi.scaleWidth || ssi.captureHeight <  ssi.scaleHeight) {
 						

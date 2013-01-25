@@ -68,11 +68,11 @@ public class ScreenCapture {
 	public BufferedImage takeSingleSnapshot() {
 		BufferedImage capturedImage = robot.createScreenCapture(this.screenBounds);
 
+//		System.out.println("ScreenCapture snap: [cw=" + captureWidth + ",ch=" + captureHeight + "] at [x=" + x + ",y=" + y +"]"
+//				+ "[sw==" + scaleWidth + ",sh=" + scaleHeight + "]");
+		
 		if (needToScaleImage()) {
-//			if (quality) {
-				return useQuality(capturedImage);
-//			}
-//			return getScaledInstance(capturedImage, scaleWidth, scaleHeight, RenderingHints.VALUE_INTERPOLATION_BICUBIC, true);
+			return useQuality(capturedImage);
 		} else {
 			return capturedImage;
 		}

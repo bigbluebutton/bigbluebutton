@@ -51,28 +51,6 @@ public class ScreenRegionSharer implements ScreenSharer {
 		listener = l;
 	}
 	
-	/*****************************************************************************
-    ;  disconnected
-    ;----------------------------------------------------------------------------
-	; DESCRIPTION
-	;   This routine is used to pop up the dialog and change icon try message when 
-	;   client is disconnected from server.
-	;
-	; RETURNS : N/A
-	;
-	; INTERFACE NOTES
-	; 
-	;       INPUT : N/A
-	; 
-	;       OUTPUT : N/A
-	; 
-	; IMPLEMENTATION
-	;
-	; HISTORY
-	; __date__ :        PTS:  
-	; 2010.11.19		problem 272
-	;
-	******************************************************************************/
 	public void disconnected(){
 		frame.setVisible(false);
 		sharer.disconnectSharing();

@@ -604,16 +604,16 @@ class WindowlessFrame implements Serializable {
 		return new WindowlessFrameResizingMouseListener();
 	}
 
-	public void setToolbar(JPanel toolbar) {
+	public void setToolbar(final JPanel toolbar) {
 		final OffsetLocator toolbarOffsetLocator = new OffsetLocator() {
 			@Override
 			public int getTopOffset() {
-				return (mOverallSize.height + mBorderWidth) / 2;
+				return (mOverallSize.height + mBorderWidth - toolbar.getHeight()) / 2;
 			}
 			
 			@Override
 			public int getLeftOffset() {
-				return (mOverallSize.width + mBorderWidth) / 2;
+				return (mOverallSize.width + mBorderWidth - toolbar.getWidth()) / 2;
 			}
 		};
 		mToolbarFrame = new ToolbarFrame(mWindowFrame, toolbarOffsetLocator, toolbar);
