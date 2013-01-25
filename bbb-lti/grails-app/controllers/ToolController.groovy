@@ -36,6 +36,8 @@ class ToolController {
     private static final String CONTROLLER_NAME = 'ToolController'
     private static final String RESP_CODE_SUCCESS = 'SUCCESS'
     private static final String RESP_CODE_FAILED = 'FAILED'
+    private static final String REQUEST_METHOD = "request_method";
+    
     
     LtiService ltiService
     BigbluebuttonService bigbluebuttonService
@@ -43,92 +45,39 @@ class ToolController {
     def index = { 
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
         log.debug CONTROLLER_NAME + "#index" + ltiService.consumerMap
-        log.debug params
+        log.debug "params: " + params
         
-        def resultMessageKey = "init"
-        def resultMessage = "init"
-        def success = false
-        def consumer
-        ArrayList<String> missingParams = new ArrayList<String>()
-        log.debug "Checking for required parameters"
-        if (hasAllRequiredParams(params, missingParams)) {
-            def sanitizedParams = sanitizePrametersForBaseString(params)
-
-            consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
-            if (consumer != null) {
-                log.debug "Found consumer with key " + consumer.get("key") //+ " and sharedSecret " + consumer.get("secret")
-                if (checkValidSignature(request.getMethod().toUpperCase(), ltiService.endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
-                    log.debug  "The message has a valid signature."
-                    
-                    String locale = params.get(Parameter.LAUNCH_LOCALE)
-                    locale = (locale == null || locale.equals("")?"en":locale)
-                    log.debug "Locale code =" + locale
-                    String[] localeCodes = locale.split("_")
-                    //Localize the default welcome message
-                    if( localeCodes.length > 1 )
-                        session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0], localeCodes[1])
-                    else
-                        session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
-                    
-                    log.debug "Locale has been set to " + locale
-                    String welcome = message(code: "bigbluebutton.welcome", args: ["\"{0}\"", "\"{1}\""])
-                    log.debug "Localized default welcome message: [" + welcome + "]"
-
-                    if( !"extended".equals(ltiService.mode) ) {
-                        log.debug  "LTI service running in simple mode."
-                        String destinationURL = bigbluebuttonService.getJoinURL(params, welcome, ltiService.mode)
-                        
-                        log.debug "redirecting to " + destinationURL
-                        if( destinationURL != null ) {
-                            success = true
-                            redirect(url:destinationURL)
-                        } else {
-                            resultMessageKey = 'BigBlueButtonServerError'
-                            resultMessage = "The join could not be completed"
-                            log.debug resultMessage
-                        }
-    
-                    } else {
-                        log.debug  "LTI service running in extended mode."
-                        success = true
-                    }
-
-                } else {
-                    resultMessageKey = 'InvalidSignature'
-                    resultMessage = "Invalid signature (" + params.get(Parameter.OAUTH_SIGNATURE) + ")."
-                    log.debug resultMessage
-                }
-                
-            } else {
-                resultMessageKey = 'CustomerNotFound'
-                resultMessage = "Customer with id = " + params.get(Parameter.CONSUMER_ID) + " was not found."
-                log.debug resultMessage
-            }
-
+        params.put(REQUEST_METHOD, request.getMethod().toUpperCase())
+        Map<String, String> result
+        if( !"extended".equals(ltiService.mode) ) {
+            log.debug  "LTI service running in simple mode."
+            result = doJoinMeeting(params) 
         } else {
-            resultMessageKey = 'MissingRequiredParameter'
-            String missingStr = ""
-            for(String str:missingParams)
-                missingStr += str + ", ";
-
-            resultMessage = "Missing parameters [$missingStr]"
-            log.debug resultMessage
-        }
-
-        if (!success) {
-            log.debug "Error [resultMessageKey:'" + resultMessageKey + "', resultMessage:'" + resultMessage + "']"
-            render(view: "error", model: ['resultMessageKey': resultMessageKey, 'resultMessage': resultMessage])
-
+            log.debug  "LTI service running in extended mode."
+        }    
+        
+        if( result != null ) {
+            log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
+            render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
+            
         } else {
-            render(view: "index", model: ['resultMessageKey': resultMessageKey, 'resultMessage': resultMessage])
+            session["params"] = params
+            def recordings = bigbluebuttonService.getRecordings(params)
+            log.debug "Recordings " + recordings
+            
+            render(view: "index", model: ['params': params, 'recordings': recordings])
         }
-
     }
     
-    def exec = {
-        log.debug CONTROLLER_NAME + "#exec"
-        log.debug params
+    def join = {
+        log.debug CONTROLLER_NAME + "#join"
+        def sessionParams = session["params"]
+        log.debug "sessionParams: " + sessionParams
         
+        Map<String, String> result = doJoinMeeting(sessionParams)
+
+        log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
+        render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
 
     }
     
@@ -149,10 +98,66 @@ class ToolController {
         }
 
     }
+    
+    private Object doJoinMeeting(params) {
+        Map<String, String> result = new HashMap<String, String>()
+        ArrayList<String> missingParams = new ArrayList<String>()
+        log.debug "Checking for required parameters"
+        if (hasAllRequiredParams(params, missingParams)) {
+            def sanitizedParams = sanitizePrametersForBaseString(params)
+            def consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
+            if (consumer != null) {
+                log.debug "Found consumer with key " + consumer.get("key") //+ " and sharedSecret " + consumer.get("secret")
+                if (checkValidSignature(params.get(REQUEST_METHOD), ltiService.endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
+                    log.debug  "The message has a valid signature."
+                    
+                    String locale = params.get(Parameter.LAUNCH_LOCALE)
+                    locale = (locale == null || locale.equals("")?"en":locale)
+                    log.debug "Locale code =" + locale
+                    String[] localeCodes = locale.split("_")
+                    //Localize the default welcome message
+                    if( localeCodes.length > 1 )
+                        session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0], localeCodes[1])
+                    else
+                        session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
+                    
+                    log.debug "Locale has been set to " + locale
+                    String welcome = message(code: "bigbluebutton.welcome", args: ["\"{0}\"", "\"{1}\""])
+                    log.debug "Localized default welcome message: [" + welcome + "]"
+            
+                    String destinationURL = bigbluebuttonService.getJoinURL(params, welcome, ltiService.mode)
+                    log.debug "redirecting to " + destinationURL
+                    
+                    if( destinationURL != null ) {
+                        redirect(url:destinationURL)
+                    } else {
+                        result.put("resultMessageKey", "BigBlueButtonServerError")
+                        result.put("resultMessage", "The join could not be completed")
+                    }
+                    
+                } else {
+                    result.put("resultMessageKey", "InvalidSignature")
+                    result.put("resultMessage", "Invalid signature (" + params.get(Parameter.OAUTH_SIGNATURE) + ").")
+                }
+                
+            } else {
+                result.put("resultMessageKey", "ConsumerNotFound")
+                result.put("resultMessage", "Consumer with id = " + params.get(Parameter.CONSUMER_ID) + " was not found.")
+    
+            }
 
-    private void doJoinMeeting() {
+        } else {
+            String missingStr = ""
+            for(String str:missingParams) {
+                missingStr += str + ", ";
+            }
+            result.put("resultMessageKey", "MissingRequiredParameter")
+            result.put("resultMessage", "Missing parameters [$missingStr]")
+        }
+        
+        return result
     }
-
+        
     /**
      * Assemble all parameters passed that is required to sign the request.
      * @param the HTTP request parameters
@@ -167,6 +172,9 @@ class ToolController {
                 continue
             } else if (key == "oauth_signature") {
                 // We don't need this as part of the base string
+                continue
+            } else if (key == "request_method") {
+                // As this is was added by the controller, we don't want it as part of the base string
                 continue
             }
 

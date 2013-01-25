@@ -119,6 +119,28 @@ class BigbluebuttonService {
         
     }
     
+    public Object getRecordings(params){
+        //Set the injected values
+        if( !url.equals(bbbProxy.url) && !url.equals("") ) bbbProxy.setUrl(url)
+        if( !salt.equals(bbbProxy.salt) && !salt.equals("") ) bbbProxy.setSalt(salt)
+
+        String meetingID = getValidatedMeetingId(params.get(Parameter.RESOURCE_LINK_ID), params.get(Parameter.CONSUMER_ID))
+        
+        String recordingsURL = bbbProxy.getRecordingsURL( meetingID )
+        log.debug "recordingsURL: " + recordingsURL
+        Map<String, Object> recordings = doAPICall(recordingsURL)
+
+        if( recordings != null){
+            String returnCode = (String) recordings.get("returncode")
+            String messageKey = (String) recordings.get("messageKey")
+            if ( Proxy.APIRESPONSE_SUCCESS.equals(returnCode) && messageKey == null ){
+                return recordings.get("recordings")
+            } 
+        }
+
+        return null
+    }
+    
     private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, Integer voiceBridge, String logoutURL, Boolean record, Integer duration, String meta ) {
         voiceBridge = ( voiceBridge == null || voiceBridge == 0 )? 70000 + new Random(System.currentTimeMillis()).nextInt(10000): voiceBridge;
 

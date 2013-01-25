@@ -144,10 +144,10 @@ public class Proxy {
 
     public String getRecordingsURL(String meetingID) {
         
-        String url = "meetingID=" + meetingID;
-        url += getCheckSumParameterForQuery(APICALL_GETRECORDINGS, url);
+        String queryString = "meetingID=" + meetingID;
+        queryString += getCheckSumParameterForQuery(APICALL_GETRECORDINGS, queryString);
         
-        return this.url + API_SERVERPATH + APICALL_GETRECORDINGS + "?" + url;
+        return this.url + API_SERVERPATH + APICALL_GETRECORDINGS + "?" + queryString;
     }
     
     public String getPublishRecordingsURL(String recordID, String publish) {

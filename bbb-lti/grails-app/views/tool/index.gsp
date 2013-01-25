@@ -4,7 +4,7 @@
 		<meta name="layout" content="internal" />
     </head>
     <body>
-        <h1 style="margin-left:20px; text-align: center;"><a title="Join" class="action-icon" href="#"><img title="Join" alt="Join the meeting" src="${resource(dir:'images',file:'bbb.jpg')}" /></a></h1>
+        <h1 style="margin-left:20px; text-align: center;"><a title="Join" class="action-icon" href="${createLink(controller:'tool',action:'join')}"><img title="Join" alt="Join the meeting" src="${resource(dir:'images',file:'bbb.jpg')}" /></a></h1>
         <p style="margin-left:20px;width:80%"></p>
         <br>
         <table class="generaltable">
