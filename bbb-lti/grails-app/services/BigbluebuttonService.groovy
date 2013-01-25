@@ -288,41 +288,40 @@ class BigbluebuttonService {
     }
     
     /** Get all nodes under the specified element tag name as a Java map */
-    private Map<String, Object> getNodesAsMap(Document dom, String elementTagName) {
+    protected Map<String, Object> getNodesAsMap(Document dom, String elementTagName) {
         Node firstNode = dom.getElementsByTagName(elementTagName).item(0);
         return processNode(firstNode);
     }
 
-    private Map<String, Object> processNode(Node _node) {
-        Map<String, Object> map = new LinkedHashMap<String, Object>();
+    protected Map<String, Object> processNode(Node _node) {
+        Map<String, Object> map = new HashMap<String, Object>();
         NodeList responseNodes = _node.getChildNodes();
         for (int i = 0; i < responseNodes.getLength(); i++) {
             Node node = responseNodes.item(i);
             String nodeName = node.getNodeName().trim();
-            if (node.getChildNodes().getLength() == 1 && node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.TEXT_NODE) {
+            if (node.getChildNodes().getLength() == 1
+                    && ( node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.TEXT_NODE || node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.CDATA_SECTION_NODE) ) {
                 String nodeValue = node.getTextContent();
                 map.put(nodeName, nodeValue != null ? nodeValue.trim() : null);
-            } else if (node.getChildNodes().getLength() == 0 && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE) {
+            
+            } else if (node.getChildNodes().getLength() == 0
+                    && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE
+                    && node.getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE) {
                 map.put(nodeName, "");
-            } else {
-                if( !map.containsKey(nodeName) ) {
-                    map.put(nodeName, processNode(node));
+            
+            } else if ( node.getChildNodes().getLength() >= 1
+                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.TEXT_NODE
+                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE ) {
 
-                } else {
-                    Object curObject = map.get(nodeName);
-                    List<Object> list;
-                    
-                    if( curObject.getClass().equals(LinkedHashMap.class) ){
-                        list = new LinkedList<Object>();
-                        list.add(curObject);
-                        list.add(processNode(node));
-                        map.remove(nodeName);
-                        map.put(nodeName, list);
-                    } else {
-                        list = (List<Object>)curObject;
-                        list.add(processNode(node));
-                    }
+                List<Object> list = new ArrayList<Object>();
+                for (int c = 0; c < node.getChildNodes().getLength(); c++) {
+                    Node n = node.getChildNodes().item(c);
+                    list.add(processNode(n));
                 }
+                map.put(nodeName, list);
+            
+            } else {
+                map.put(nodeName, processNode(node));
             }
         }
         return map;

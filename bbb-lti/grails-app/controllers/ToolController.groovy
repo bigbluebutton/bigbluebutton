@@ -62,10 +62,8 @@ class ToolController {
             
         } else {
             session["params"] = params
-            def recordings = bigbluebuttonService.getRecordings(params)
-            log.debug "Recordings " + recordings
-            
-            render(view: "index", model: ['params': params, 'recordings': recordings])
+            List<Object> recordings = bigbluebuttonService.getRecordings(params)
+            render(view: "index", model: ['params': params, 'recordingList': recordings])
         }
     }
     
