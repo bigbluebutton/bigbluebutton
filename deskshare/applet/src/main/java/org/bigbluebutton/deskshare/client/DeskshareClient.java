@@ -241,14 +241,20 @@ public class DeskshareClient {
     		x = 0;
     		y = 0;
 
-//			scaleWidth = captureWidth;
-//			scaleHeight = captureHeight;
-			
+
     		if (scale > 0 && scale <= 0.8) {
         		scaleWidth = (int)(scale * (double)captureWidth);
         		scaleHeight = (int)(scale * (double)captureHeight);     			
      		} 
-	
+		
+			System.out.println("Check for scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
+
+			if (scaleWidth > 1280) {   
+				scaleWidth = 1280;
+				double ratio = (double)captureHeight/(double)captureWidth;
+				scaleHeight = (int)((double)scaleWidth * ratio);
+				System.out.println("Scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
+			}
     	}
     	  	
     }

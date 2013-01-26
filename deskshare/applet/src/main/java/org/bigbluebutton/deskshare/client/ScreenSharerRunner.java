@@ -48,9 +48,9 @@ public class ScreenSharerRunner {
 	public ScreenSharerRunner(ScreenShareInfo ssi) {
 		this.ssi = ssi;
 		
-		if (! ssi.fullScreen) {
+//		if (! ssi.fullScreen) {
 			calculateScaledCapturedWidthAndHeight();
-		}
+//		}
 				
 		System.out.println("ScreenSharerRunner[captureWidth=" + ssi.captureWidth + ",captureHeight=" + ssi.captureHeight + "][" + ssi.x + "," + ssi.y +"]"
 				+ "[scaleWidth=" + ssi.scaleWidth + ",scaleHeight=" + ssi.scaleHeight + "]");
