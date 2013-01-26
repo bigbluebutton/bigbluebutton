@@ -71,7 +71,7 @@
 				logoutURL = p.getParameter("LOGOUTURL");
 				host = p.getParameter("HOST");
 				room = p.getParameter("ROOM");
-				service.connect(host+"/"+room);
+				service.connect(host, room);
 				
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);				
@@ -141,6 +141,10 @@
       }
       			
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
+        
+        return;
+        
+        
 				if (cursor == null) return;	
         
 //				cursor.x = ((event.x/video.videoWidth)) * videoHolder.width;

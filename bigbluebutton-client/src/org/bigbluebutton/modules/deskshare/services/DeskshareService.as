@@ -18,10 +18,12 @@
 */
 package org.bigbluebutton.modules.deskshare.services
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;	
+	import flash.net.SharedObject;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.main.events.RecordStatusEvent;
 	import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
@@ -47,7 +49,8 @@ package org.bigbluebutton.modules.deskshare.services
 		private var width:Number;
 		private var height:Number;
 		private var uri:String;
-		
+		private var room:String;
+    
 		public function DeskshareService()
 		{
 			this.dispatcher = new Dispatcher();			
@@ -56,12 +59,13 @@ package org.bigbluebutton.modules.deskshare.services
 		public function handleStartModuleEvent(module:DeskShareModule):void {
 			LogUtil.debug("Deskshare Module starting");
 			this.module = module;			
-			connect(module.uri);
+			connect(module.uri, module.getRoom());
 		}
 		
-		public function connect(uri:String):void {
+		public function connect(uri:String, room:String):void {
 			this.uri = uri;
-			LogUtil.debug("Deskshare Service connecting to " + uri);
+      this.room = room;
+			trace("Deskshare Service connecting to " + uri);
 			conn = new Connection();
 			conn.addEventListener(Connection.SUCCESS, connectionSuccessHandler);
 			conn.addEventListener(Connection.FAILED, connectionFailedHandler);
@@ -74,17 +78,17 @@ package org.bigbluebutton.modules.deskshare.services
 								if (result != null && (result.publishing as Boolean)){
 									width = result.width as Number;
 									height = result.height as Number;
-									LogUtil.debug("Desk Share stream is streaming [" + width + "," + height + "]");
+									trace("Desk Share stream is streaming [" + width + "," + height + "]");
 									var event:ViewStreamEvent = new ViewStreamEvent(ViewStreamEvent.START);
 									event.videoWidth = width;
 									event.videoHeight = height;
 									dispatcher.dispatchEvent(event);
 								} else {
-									LogUtil.debug("No deskshare stream being published");
+									trace("No deskshare stream being published");
 								}
 							},
 							function(status:Object):void{
-								LogUtil.error("Error while trying to call remote mathod on server");
+								trace("Error while trying to call remote mathod on server");
 							}
 									);
 		}
@@ -94,13 +98,14 @@ package org.bigbluebutton.modules.deskshare.services
 		}
 		
 		private function connectionSuccessHandler(e:ConnectionEvent):void{
-			LogUtil.debug("Successully connection to " + uri);
+			trace("Successully connection to " + uri);
 			nc = conn.getConnection();
-			deskSO = SharedObject.getRemote("deskSO", uri, false);
-            deskSO.client = this;
-            deskSO.connect(nc);
+      var deskSOName:String = room + "-deskSO";
+			deskSO = SharedObject.getRemote(deskSOName, uri, false);
+      deskSO.client = this;
+      deskSO.connect(nc);
             
-            checkIfStreamIsPublishing();
+      checkIfStreamIsPublishing(room);
 		}
 			
 		public function getConnection():NetConnection{
@@ -127,7 +132,7 @@ package org.bigbluebutton.modules.deskshare.services
 		 * 
 		 */		
 		public function appletStarted(videoWidth:Number, videoHeight:Number):void{
-			LogUtil.debug("Got applet started");
+			trace("Got applet started");
 			var event:AppletStartedEvent = new AppletStartedEvent();
 			event.videoWidth = videoWidth;
 			event.videoHeight = videoHeight;
@@ -147,7 +152,7 @@ package org.bigbluebutton.modules.deskshare.services
 		}
 		
 		public function sendStartedViewingNotification():void{
-			LogUtil.debug("Sending start viewing to server");
+			trace("Sending start viewing to server");
 			nc.call("deskshare.startedToViewStream", null);
 		}
 		
@@ -157,7 +162,7 @@ package org.bigbluebutton.modules.deskshare.services
 		 * 
 		 */		
 		public function startViewing(videoWidth:Number, videoHeight:Number):void{
-			LogUtil.debug("startViewing invoked by server");
+			trace("startViewing invoked by server");
 			
 			var event:ViewStreamEvent = new ViewStreamEvent(ViewStreamEvent.START);
 			event.videoWidth = videoWidth;
@@ -170,11 +175,11 @@ package org.bigbluebutton.modules.deskshare.services
 		 * 
 		 */		
 		public function sendStopViewingNotification():void{
-			LogUtil.debug("Sending stop viewing notification to other clients.");
+			trace("Sending stop viewing notification to other clients.");
 			try{
 				deskSO.send("stopViewing");
 			} catch(e:Error){
-				LogUtil.error("could not send stop viewing notification");
+				trace("could not send stop viewing notification");
 			}
 		}
 		
@@ -191,7 +196,7 @@ package org.bigbluebutton.modules.deskshare.services
 		 * 
 		 */		
 		public function stopViewing():void{
-			LogUtil.debug("Received dekskshareStreamStopped");
+			trace("Received dekskshareStreamStopped");
 			dispatcher.dispatchEvent(new ViewStreamEvent(ViewStreamEvent.STOP));
 		}
 		
@@ -214,9 +219,9 @@ package org.bigbluebutton.modules.deskshare.services
 		 * This method is useful for clients which have joined a room where somebody is already publishing
 		 * 
 		 */		
-		private function checkIfStreamIsPublishing():void{
-			LogUtil.debug("checking if desk share stream is publishing");
-			nc.call("deskshare.checkIfStreamIsPublishing", responder);
+		private function checkIfStreamIsPublishing(room:String):void{
+			trace("checking if desk share stream is publishing");
+			nc.call("deskshare.checkIfStreamIsPublishing", responder, room);
 		}
 				
 		public function calculateEncodingDimensions(captureWidth:Number, captureHeight:Number):void{
