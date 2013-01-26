@@ -315,8 +315,10 @@ function runPopcorn() {
           else var thisimg = svgobj.getSVGDocument('svgfile').getElementById(current_image);
   
           var offsets = thisimg.getBoundingClientRect();
-          imageXOffset = (1600 - parseInt(thisimg.getAttribute("width"), 10))/2;
-          imageYOffset = (1200 - parseInt(thisimg.getAttribute("height"), 10))/2;
+          // Offsets divided by 4. By 2 because of the padding and by 2 again because 800x600 is half  1600x1200
+          imageXOffset = (1600 - parseInt(thisimg.getAttribute("width"), 10))/4;
+          imageYOffset = (1200 - parseInt(thisimg.getAttribute("height"), 10))/4;
+
           
           var vboxVal = getViewboxAtTime(t);
           if(vboxVal !== undefined) {
@@ -365,7 +367,7 @@ var cursorStyle;
 
 var params = getUrlParameters();
 var MEETINGID = params.meetingId;
-var HOST = window.location.hostname;
+var HOST = window.location.host;
 var url = "http://" + HOST + "/presentation/" + MEETINGID;
 var shapes_svg = url + '/shapes.svg';
 var events_xml = url + '/panzooms.xml';

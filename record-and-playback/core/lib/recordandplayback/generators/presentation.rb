@@ -51,8 +51,10 @@ module BigBlueButton
     # Extract a page from the pdf file.    
     def self.extract_page_from_pdf(page_num, pdf_presentation, pdf_out)
         BigBlueButton.logger.info("Task: Extracting a page from pdf file")      
-        command = "ghostscript #{OPTIONS} #{FIRSTPAGE}=#{page_num} #{LASTPAGE}=#{page_num} #{OUTPUTFILE}=#{pdf_out} #{NO_PDF_MARK_WORKAROUND} #{pdf_presentation}"
+        temp_out = "/tmp/#{File.basename(pdf_out)}"
+        command = "ghostscript #{OPTIONS} #{FIRSTPAGE}=#{page_num} #{LASTPAGE}=#{page_num} #{OUTPUTFILE}=#{temp_out} #{NO_PDF_MARK_WORKAROUND} #{pdf_presentation}"
         BigBlueButton.execute(command)
+        FileUtils.mv(temp_out,pdf_out)
  #       Process.wait
     end
     

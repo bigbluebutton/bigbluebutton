@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:util="http://www.springframework.org/schema/util"
@@ -12,7 +31,11 @@
 		<property name="messagingService" ref="messagingService"></property>
 		<property name="conversionUpdatesMessageListener" ref="conversionUpdatesMessageListener"></property>
 	</bean>
-			
+	
+	<bean id="bigbluebutton.service" class="org.bigbluebutton.conference.BigBlueButtonService">
+      <property name="connInvokerService"> <ref bean="connInvokerService"/></property>
+    </bean>
+  		
 	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
@@ -27,9 +50,9 @@
 		<property name="messagingService" ref="messagingService"></property>
 	</bean>
 	
-	<bean id="participantsApplication" 
-	    class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">
+	<bean id="participantsApplication" class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">
 		<property name="roomsManager"> <ref local="roomsManager"/></property>
+		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>
 	</bean>
 	
 	<bean id="participants.service" class="org.bigbluebutton.conference.service.participants.ParticipantsService">
@@ -70,9 +93,8 @@
 	</bean>
 	
 	<bean id="presentationApplication" class="org.bigbluebutton.conference.service.presentation.PresentationApplication">
-		<property name="roomsManager"> 
-			<ref local="presentationRoomsManager"/>
-		</property>
+		<property name="roomsManager"> <ref local="presentationRoomsManager"/></property>
+		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>
 	</bean>
 	
 	<bean id="presentationBridge" class="org.bigbluebutton.conference.service.presentation.PresentationBridge">
@@ -101,9 +123,9 @@
 		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
 	</bean>
 	
-	<bean id="chatApplication" 
-	    class="org.bigbluebutton.conference.service.chat.ChatApplication">
+	<bean id="chatApplication" class="org.bigbluebutton.conference.service.chat.ChatApplication">
 		<property name="roomsManager"> <ref local="chatRoomsManager"/></property>
+		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>
 	</bean>
 	
 	<bean id="chat.service" class="org.bigbluebutton.conference.service.chat.ChatService">

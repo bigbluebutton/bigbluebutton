@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 	
+         xmlns:notes="org.bigbluebutton.modules.notes.views.*"
+         width="100%" height="100%"
+         verticalScrollPolicy="off"
+         creationComplete="onCreationComplete()">
+  
+  <mx:Style>
+    .notesColorPickerStyle {
+      backgroundColor:#E5E6E7;
+      columnCount:12;
+      horizontalGap:0;
+      previewHeight:22;
+      previewWidth:45;
+      swatchGridBackgroundColor:#000000;
+      swatchGridBorderSize:0;
+      swatchHeight:60;
+      swatchHighlightColor:#FFFFFF;
+      swatchHighlightSize:1;
+      swatchWidth:12;
+      textFieldWidth:72;
+      verticalGap:0;
+    }
+    
+  </mx:Style>
+   
+  <mx:Script>
+    <![CDATA[
+      import com.adobe.utils.StringUtil;
+      
+      import org.bigbluebutton.modules.notes.events.SaveNoteEvent;
+      import org.bigbluebutton.modules.notes.models.NotesModel;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
+      
+      [Bindable] public var colorPickerColours:Array = ['0x000000', '0x7A7A7A' ,'0xFF0000', '0xFF8800',
+        '0x88FF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF'];
+      
+      [Bindable]
+      public var notesArray:NotesModel;
+      
+      private var scrollTimer:Timer;
+      
+      private function onCreationComplete():void {    
+        // Listen for the ENTER key to send the message.
+        txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
+        
+        scrollTimer = new Timer(750, 2);
+        scrollTimer.addEventListener(TimerEvent.TIMER, onScrollTimer);
+        
+        /**
+         * The next two lines will force the scrollbar to the end of the message when displaying the
+         * notes history.
+         */
+        callLater(scrollToBottom);	
+        scrollTimer.start();	
+        
+      }
+      
+      /**
+       * Magic sauce to force scrollbar to the bottom message. This took a lot
+       * of trial and error. If you change this, make sure you know what you are
+       * doing as I don't know why it works, but it does. (ralam Nov 3, 2010)
+       */
+      private function scrollToBottom():void {
+        notesMessagesList.invalidateSize();
+        notesMessagesList.invalidateDisplayList();
+        notesMessagesList.validateDisplayList();
+        notesMessagesList.validateNow();		
+        notesMessagesList.scrollToIndex(notesArray.notes.length);
+      }
+      
+      private function onScrollTimer(event:TimerEvent):void {
+        scrollToBottom();
+      }
+      
+      private function handleTextAreaKeyUpEvent(e:KeyboardEvent):void {
+        if (e.keyCode == Keyboard.ENTER) {
+          saveNote();
+        }        
+      }
+      
+      private function sendNoteToSave(note:String):void {
+        var saveEvent:SaveNoteEvent = new SaveNoteEvent();
+        saveEvent.note = note;
+        dispatchEvent(saveEvent);
+      }
+      
+      private function saveNote():void {
+        // Trim the message. This will trim the '/n' char so we don't send a message when the
+        // user just hits the enter key
+        var noteToSave:String = StringUtil.trim(txtMsgArea.text);
+        
+        if (noteToSave != ""){								
+          sendNoteToSave(noteToSave);
+        }
+        
+        txtMsgArea.text = "";     
+        
+        scrollToBottom();
+      }
+ 
+      //color="{cmpColorPicker.selectedColor}"
+    ]]>
+    
+  </mx:Script>
+  
+  <mx:HBox width="100%" height="100%" verticalScrollPolicy="off">
+    <notes:AdvancedList width="100%" height="100%" id="notesMessagesList" selectable="false" 
+                       variableRowHeight="true" alternatingItemColors="[#EFEFEF, #FEFEFE]"
+                       itemRenderer="org.bigbluebutton.modules.notes.views.NoteRenderer"
+                       dataProvider="{notesArray.notes}"
+                       verticalScrollPolicy="auto" wordWrap="true"/>    
+  </mx:HBox>
+  
+  <mx:HBox id="notesCtrlBar" width="100%" height="55" styleName="notesControlBarStyle" 
+           paddingLeft="5" paddingRight="5" verticalScrollPolicy="off">		
+    <mx:TextArea id="txtMsgArea" width="100%"   
+                 styleName="notesControlBarTextMsgStyle" 
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.notes.notesview.input')}"/>
+    <mx:VBox verticalScrollPolicy="off">
+      <mx:Button label="{ResourceUtil.getInstance().getString('bbb.notes.saveBtn')}" id="saveBtn" 
+                 styleName="notesControlBarSendButtonStyle"
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.notes.saveBtn.toolTip')}" 
+                 click="saveNote()"/>  
+      <!--
+      <mx:ColorPicker id="cmpColorPicker" showTextField="false" 
+                      toolTip="{ResourceUtil.getInstance().getString('bbb.notes.cmpColorPicker.toolTip')}" 
+                      selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="notesColorPickerStyle"/>
+      -->
+    </mx:VBox>
+  </mx:HBox>
+</mx:VBox>

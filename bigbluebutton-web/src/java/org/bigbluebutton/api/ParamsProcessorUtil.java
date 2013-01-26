@@ -1,3 +1,22 @@
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+* 
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
+
 package org.bigbluebutton.api;
 
 import java.io.UnsupportedEncodingException;
@@ -31,6 +50,7 @@ public class ParamsProcessorUtil {
 	private String defaultServerUrl;
 	private int defaultNumDigitsForTelVoice;
 	private String defaultClientUrl;
+	private String defaultAvatarURL;
 	private int defaultMeetingDuration;
 	private boolean disableRecordingDefault;
 	
@@ -232,7 +252,11 @@ public class ParamsProcessorUtil {
 	
 	public Meeting processCreateParams(Map<String, String> params) {
 	    String meetingName = params.get("name");
+	    if(meetingName == null){
+	    	meetingName = "";
+	    }
 	    String externalMeetingId = params.get("meetingID");
+	    
 	    String viewerPass = processPassword(params.get("attendeePW"));
 	    String modPass = processPassword(params.get("moderatorPW")); 
 	    
@@ -286,6 +310,7 @@ public class ParamsProcessorUtil {
 	        .withName(meetingName).withMaxUsers(maxUsers).withModeratorPass(modPass)
 	        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
 	        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
+	        .withDefaultAvatarURL(defaultAvatarURL)
 	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build();
 	    
 	    return meeting;
@@ -493,6 +518,10 @@ public class ParamsProcessorUtil {
 
 	public void setDisableRecordingDefault(boolean disabled) {
 		this.disableRecordingDefault = disabled;
+	}
+	
+	public void setdefaultAvatarURL(String url) {
+		this.defaultAvatarURL = url;
 	}
 	
 	public ArrayList<String> decodeIds(String encodeid){

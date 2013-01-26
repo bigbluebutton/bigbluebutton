@@ -1,25 +1,24 @@
 /**
- * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
- *
- * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
- *
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License as published by the Free Software
- * Foundation; either version 2.1 of the License, or (at your option) any later
- * version.
- *
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along
- * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- * 
- * Author: Felipe Cecagno <felipe@mconf.org>
- */
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+* 
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
 package org.bigbluebutton.modules.layout.managers
 {
-  import com.asfusion.mate.events.Dispatcher;
+  import com.asfusion.mate.events.Dispatcher; 
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.events.TimerEvent;
@@ -27,24 +26,27 @@ package org.bigbluebutton.modules.layout.managers
   import flash.net.URLLoader;
   import flash.net.URLRequest;
   import flash.utils.Dictionary;
-  import flash.utils.Timer;
+  import flash.utils.Timer;  
   import flexlib.mdi.containers.MDICanvas;
   import flexlib.mdi.containers.MDIWindow;
-  import flexlib.mdi.events.MDIManagerEvent;
+  import flexlib.mdi.events.MDIManagerEvent;  
   import mx.controls.Alert;
-  import mx.events.ResizeEvent;
+  import mx.events.ResizeEvent;  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventBroadcaster;
+  import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.Config;
+  import org.bigbluebutton.main.events.ModuleLoadEvent;
+  import org.bigbluebutton.main.model.LayoutOptions;
   import org.bigbluebutton.modules.layout.events.LayoutEvent;
   import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
+  import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
   import org.bigbluebutton.modules.layout.events.UpdateLayoutEvent;
   import org.bigbluebutton.modules.layout.model.LayoutDefinition;
   import org.bigbluebutton.modules.layout.model.LayoutDefinitionFile;
   import org.bigbluebutton.modules.layout.model.LayoutLoader;
   import org.bigbluebutton.modules.layout.model.WindowLayout;
-  import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
   public class LayoutManager extends EventDispatcher {
@@ -78,6 +80,8 @@ package org.bigbluebutton.modules.layout.managers
 				if (e.success) {
 					_layouts = e.layouts;
 					LogUtil.debug("LayoutManager: layouts loaded successfully");
+          
+          
 				} else {
 					LogUtil.error("LayoutManager: layouts not loaded (" + e.error.message + ")");
 				}
@@ -183,11 +187,50 @@ package org.bigbluebutton.modules.layout.managers
 			}
 		}
 
-		public function applyDefaultLayout():void {
-			applyLayout(_layouts.getDefault());
+    public function switchToLayout(name:String):void {
+      var newLayout:LayoutDefinition = _layouts.getLayout(name);
+      if (newLayout == null) return;
+
+      trace("************** USING [" + newLayout.name + "] as new LAYOUT ***************************");
+      applyLayout(newLayout);
+      sendLayoutUpdate(_currentLayout);     
+      
+    }
+    
+		public function applyDefaultLayout():void {   
+      
+      var layoutOptions:LayoutOptions = new LayoutOptions();
+      layoutOptions.parseOptions();
+      var defaultLayout:LayoutDefinition = _layouts.getLayout(layoutOptions.defaultLayout);
+           
+      var sessionDefaulLayout:String = UserManager.getInstance().getConference().getDefaultLayout();
+            
+      if (sessionDefaulLayout != "NOLAYOUT") {
+        var sesLayout:LayoutDefinition = _layouts.getLayout(sessionDefaulLayout);
+        if (sesLayout != null) {
+          defaultLayout = sesLayout;
+        }
+      }
+      
+      if (defaultLayout == null) {
+        defaultLayout = _layouts.getDefault();
+      }
+      
+      trace("************** USING [" + defaultLayout.name + "] as default LAYOUT ***************************");
+			applyLayout(defaultLayout);
 			sendLayoutUpdate(_currentLayout);
+
 		}
 		
+    private function dispatchSwitchedLayoutEvent(layoutID:String):void {
+      if (_currentLayout != null && _currentLayout.name == layoutID) return;
+      
+      trace("************** DISPATCHING [" + layoutID + "] as new LAYOUT ***************************");
+      var layoutEvent:SwitchedLayoutEvent = new SwitchedLayoutEvent();
+      layoutEvent.layoutID = layoutID;
+      _globalDispatcher.dispatchEvent(layoutEvent);      
+    }
+    
 		public function lockLayout():void {
 			_locked = true;
 			LogUtil.debug("LayoutManager: layout locked by myself");
@@ -205,8 +248,11 @@ package org.bigbluebutton.modules.layout.managers
 		
 		private function applyLayout(layout:LayoutDefinition):void {
 			_detectContainerChange = false;
-			if (layout != null)
-				layout.applyToCanvas(_canvas);
+			if (layout != null) {
+        layout.applyToCanvas(_canvas);
+        dispatchSwitchedLayoutEvent(layout.name);
+      }
+				
 			updateCurrentLayout(layout);
 			_detectContainerChange = true;
 		}
@@ -214,8 +260,9 @@ package org.bigbluebutton.modules.layout.managers
 		public function redefineLayout(e:RedefineLayoutEvent):void {
 			var layout:LayoutDefinition = e.layout;
 			applyLayout(layout);
-			if (!e.remote)
-				sendLayoutUpdate(layout);
+			if (!e.remote) {
+        sendLayoutUpdate(layout);        
+      }
 		}
 		
 		public function remoteLockLayout():void {

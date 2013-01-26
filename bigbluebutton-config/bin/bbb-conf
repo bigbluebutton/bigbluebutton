@@ -44,7 +44,7 @@
 #   2012-02-22 FFD  Updates to development environment
 #   2012-04-27 FFD  Added sum of version numbers in --check
 
-##set -x
+#set -x
 #set -e
 
 PATH=$PATH:/sbin
@@ -178,6 +178,7 @@ usage() {
         echo "   --debug                          Scan the log files for error messages"
         echo "   --watch                          Scan the log files for error messages every 2 seconds"
         echo "   --salt                           View the URL and salt (shared secret) for the server"
+        echo "   --lti                            View the URL and secret for LTI (if installed)"
         echo
         echo "Administration:"
         echo "   --restart                        Restart BigBueButton"
@@ -522,6 +523,30 @@ while [ $# -gt 0 ]; do
 		shift; shift
 		continue
 	fi
+
+	if [ "$1" = "--lti" -o "$1" = "-lti" ]; then
+		if [ -z "$SALT" ]; then
+			if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
+				LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')
+				CUSTOMER=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiConsumer/{s/^.*=//;s/:.*//p}')
+				SECRET=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiConsumer/{s/^[^:]*://;p}')
+				echo
+				echo "       URL: $LTI_URL"
+				echo "  Customer: $CUSTOMER"
+				echo "    Secret: $SECRET"
+				echo
+				ICON_URL=$( echo $LTI_URL | sed 's/tool.xml/images\/favicon.ico/')
+				echo "  Icon URL: $ICON_URL"
+				echo
+				echo
+				exit 0
+			fi
+		fi
+		shift; shift
+		continue
+	fi
+
+
 
 	usage 
 	exit 1
@@ -1028,8 +1053,8 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 
 		if [ "$SALT_PROPERTIES" != "$SALT_DEMO" ]; then
 			echo "# Warning: API Salt mismatch: "
-			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties=$SALT_PROPERTIES"
-			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp=$SALT_DEMO"
+			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $SALT_PROPERTIES"
+			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp                                   = $SALT_DEMO"
 			echo 
 		fi
 
@@ -1040,6 +1065,18 @@ $RED5_DIR/webapps/sip/WEB-INF/bigbluebutton-sip.properties"
 			echo "#                                IP from ifconfig: $IP"
 			echo "#  ${SERVLET_DIR}/demo/bbb_api_conf.jsp: $API_IP"
 			echo
+		fi
+	fi
+
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
+                LTI_SALT=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | tr -d '\r' | sed -n '/^bigbluebuttonSalt/{s/.*=//;p}')
+                BBB_SALT=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | tr -d '\r' | sed -n '/securitySalt/{s/.*=//;p}')
+
+		if [ "$LTI_SALT" != "$BBB_SALT" ]; then
+			echo "# Warning: LTI Salt mismatch:"
+			echo "#  ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties                      = $LTI_SALT"
+			echo "#  ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties  = $BBB_SALT"
+			echo 
 		fi
 	fi
 
@@ -1389,6 +1426,16 @@ check_state() {
             fi
 	fi
 
+	if [ -d ${SERVLET_DIR}/lti ]; then
+		if test ${SERVLET_DIR}/lti.war -nt ${SERVLET_DIR}/lti; then 
+			echo "# Error: The updated lti.war did not deploy.  To manually deploy:"
+			echo "#"
+                        echo "#    sudo touch ${SERVLET_DIR}/lti.war"
+			echo "#"
+                        echo
+		fi
+	fi
+
 	if [ -d ${SERVLET_DIR}/demo ]; then
 		if test ${SERVLET_DIR}/demo.war -nt ${SERVLET_DIR}/demo; then 
 			echo "# Error: The updated demo.war did not deploy.  To manually deploy:"
@@ -1421,7 +1468,7 @@ check_state() {
 	fi
 
 	
-	if [ -f /var/lib/tomcat6/webapps/demo/demo1.jsp ]; then
+	if [ -f ${SERVLET_DIR}/demo/demo1.jsp ]; then
 		BBB_WEB=$(cat ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 		echo "# Warning: The API demos are installed and accessible from:"
 		echo "#"
@@ -1430,6 +1477,18 @@ check_state() {
 		echo "# Use the API demos test your BigBlueButton setup. To remove"
 		echo "#"
 		echo "#    sudo apt-get purge bbb-demo"
+		echo 
+	fi
+
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
+		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties | sed -n '/^ltiEndPoint/{s/^.*=//;p}')
+		echo "# Warning: The IMS Learning Tools Integration (LTI) is accessible from:"
+		echo "#"
+		echo "#    $LTI_URL"
+		echo "#"
+		echo "# To get the access parameters for LTI, run the command"
+		echo "#"
+		echo "#    bbb-conf --lti"
 		echo 
 	fi
 
@@ -1514,6 +1573,13 @@ if [ $CHECK ]; then
 		echo
 		echo "${SERVLET_DIR}/demo/bbb_api_conf.jsp (API demos)"
 		echo "                           api url: $API_IP"
+	fi
+
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
+		LTI_URL=$(cat ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties  | sed -n '/^bigbluebuttonURL/{s/.*http:\/\///;s/\/.*//;p}' | tr -d '\015')
+		echo
+		echo "${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties (LTI integration)"
+		echo "                           api url: $LTI_URL"
 	fi
 
 	if [ $VOICE_CONFERENCE == "bbb-voice-freeswitch.xml" ]; then
@@ -1799,6 +1865,16 @@ if [ -n "$HOST" ]; then
 			${SERVLET_DIR}/demo/bbb_api_conf.jsp
 	fi
 	
+
+	if [ -f ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties ]; then
+		echo "Assigning $HOST for LTI integration in ${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties"
+        	sed -i "s/bigbluebuttonURL=http:\/\/.*/bigbluebuttonURL=http:\/\/$HOST\/bigbluebutton/g" \
+                	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
+        	sed -i "s/ltiEndPoint=http:\/\/.*/ltiEndPoint=http:\/\/$HOST\/lti\/tool.xml/g" \
+                	${SERVLET_DIR}/lti/WEB-INF/classes/lti.properties
+	fi
+
+
 	if [ -f /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml ]; then
 		echo "Assigning $HOST for record and playback in /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml"
 		change_yml_value /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml $redis_host playback_host $HOST

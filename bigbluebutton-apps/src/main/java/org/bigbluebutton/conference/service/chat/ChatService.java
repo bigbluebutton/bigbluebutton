@@ -1,28 +1,26 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.conference.service.chat;
-import java.util.ArrayList;
-import java.util.List;
 
+import java.util.Map;
 import org.slf4j.Logger;
-import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.api.so.ISharedObject;import org.red5.server.api.Red5;
+import org.red5.logging.Red5LoggerFactory;import org.red5.server.api.Red5;
 
 public class ChatService {
 	
@@ -31,20 +29,31 @@ public class ChatService {
 	private ChatApplication application;
 	private ChatBridge chatBridge;
 
-	public List<ChatObject> getChatMessages() {
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		List<ChatObject> m = application.getChatMessages(roomName);
-		log.debug("NUM CHAT MSGS = " + m.size());
-		return m;
+	public void sendPublicChatHistory() {
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		application.sendPublicChatHistory(meetingID);
 	}
 	
-	//public void sendMessage(String message, String username, String color, String time, String language, String userid) {
-	public void sendMessage(ChatObject chatobj) {
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-		//application.sendMessage(roomName, chatobj);
-		chatBridge.storeMsg(roomName,chatobj);
-		chatBridge.sendMsg(roomName, chatobj);
+	public void sendPublicMessage(Map<String, Object> msg) {
+		String meetingID = Red5.getConnectionLocal().getScope().getName();
+		
+		ChatMessageVO chatObj = new ChatMessageVO();
+		chatObj.chatType = msg.get("chatType").toString(); 
+		chatObj.fromUserID = msg.get("fromUserID").toString();
+		chatObj.fromUsername = msg.get("fromUsername").toString();
+		chatObj.fromColor = msg.get("fromColor").toString();
+		chatObj.fromTime = Double.valueOf(msg.get("fromTime").toString());   
+		chatObj.fromTimezoneOffset = Long.valueOf(msg.get("fromTimezoneOffset").toString());
+		chatObj.fromLang = msg.get("fromLang").toString(); 	 
+		chatObj.toUserID = msg.get("toUserID").toString();
+		chatObj.toUsername = msg.get("toUsername").toString();
+		chatObj.message = msg.get("message").toString();
+	
+		//application.sendPublicMessage(meetingID, chatObj);
+		chatBridge.storeMsg(meetingID,chatObj);
+		chatBridge.sendMsg(meetingID,chatObj);
 	}
+	
 	public void setChatApplication(ChatApplication a) {
 		log.debug("Setting Chat Applications");
 		application = a;
@@ -53,17 +62,20 @@ public class ChatService {
 		this.chatBridge = cb;
 	}
 	
-	public void privateMessage(ChatObject chatobj, String sender, String receiver){
-		log.debug("Received private message: " + chatobj.message + " from " + sender + " to " + receiver + ". The client scope is: " + Red5.getConnectionLocal().getScope().getName());
-		ISharedObject sharedObject = application.handler.getSharedObject(Red5.getConnectionLocal().getScope(), receiver);
-		if (sharedObject != null) {
-			ArrayList<Object> arguments = new ArrayList<Object>();
-			arguments.add(sender);
-			arguments.add(chatobj);
-			sharedObject.sendMessage("messageReceived", arguments);			
-		} else {
-			log.debug("Not sending private message from " + sender + " to " + receiver + " as the user may have already left.");
-		}
+	public void sendPrivateMessage(Map<String, Object> msg){
+		ChatMessageVO chatObj = new ChatMessageVO();
+		chatObj.chatType = msg.get("chatType").toString();  
+		chatObj.fromUserID = msg.get("fromUserID").toString();
+		chatObj.fromUsername = msg.get("fromUsername").toString();
+		chatObj.fromColor = msg.get("fromColor").toString();
+		chatObj.fromTime = Double.valueOf(msg.get("fromTime").toString());   
+		chatObj.fromTimezoneOffset = Long.valueOf(msg.get("fromTimezoneOffset").toString()); 
+		chatObj.fromLang = msg.get("fromLang").toString(); 	  
+		chatObj.toUserID = msg.get("toUserID").toString();
+		chatObj.toUsername = msg.get("toUsername").toString();
+		chatObj.message = msg.get("message").toString();
+	
+		application.sendPrivateMessage(chatObj);
 
 	}
 }

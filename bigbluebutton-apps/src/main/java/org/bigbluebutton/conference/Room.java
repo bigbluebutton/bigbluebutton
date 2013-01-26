@@ -1,20 +1,20 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 
 package org.bigbluebutton.conference;
@@ -38,9 +38,8 @@ public class Room implements Serializable {
 	private static Logger log = Red5LoggerFactory.getLogger( Room.class, "bigbluebutton" );	
 	ArrayList<String> currentPresenter = null;
 	private String name;
-	private Map <Long, Participant> participants;
-	
 	private ParticipantsBridge participantsBridge;
+	private Map <String, User> participants;
 
 	// these should stay transient so they're not serialized in ActiveMQ messages:	
 	//private transient Map <Long, Participant> unmodifiableMap;
@@ -48,7 +47,7 @@ public class Room implements Serializable {
 
 	public Room(String name) {
 		this.name = name;
-		participants = new ConcurrentHashMap<Long, Participant>();
+		participants = new ConcurrentHashMap<String, User>();
 		//unmodifiableMap = Collections.unmodifiableMap(participants);
 		listeners   = new ConcurrentHashMap<String, IRoomListener>();
 	}
@@ -73,7 +72,7 @@ public class Room implements Serializable {
 		listeners.remove(listener);		
 	}
 
-	public void addParticipant(Participant participant) {
+	public void addParticipant(User participant) {
 		synchronized (this) {
 			log.debug("adding participant " + participant.getInternalUserID());
 			participants.put(participant.getInternalUserID(), participant);
@@ -87,9 +86,9 @@ public class Room implements Serializable {
 		}
 	}
 
-	public void removeParticipant(Long userid) {
+	public void removeParticipant(String userid) {
 		boolean present = false;
-		Participant p = null;
+		User p = null;
 		synchronized (this) {
 			present = participants.containsKey(userid);
 			if (present) {
@@ -106,9 +105,9 @@ public class Room implements Serializable {
 		}
 	}
 
-	public void changeParticipantStatus(Long userid, String status, Object value) {
+	public void changeParticipantStatus(String userid, String status, Object value) {
 		boolean present = false;
-		Participant p = null;
+		User p = null;
 		synchronized (this) {
 			present = participants.containsKey(userid);
 			if (present) {
@@ -140,7 +139,7 @@ public class Room implements Serializable {
 		return participants;//unmodifiableMap;
 	}	
 
-	public Collection<Participant> getParticipantCollection() {
+	public Collection<User> getParticipantCollection() {
 		return participants.values();
 	}
 
@@ -151,8 +150,8 @@ public class Room implements Serializable {
 
 	public int getNumberOfModerators() {
 		int sum = 0;
-		for (Iterator<Participant> it = participants.values().iterator(); it.hasNext(); ) {
-			Participant part = it.next();
+		for (Iterator<User> it = participants.values().iterator(); it.hasNext(); ) {
+			User part = it.next();
 			if (part.isModerator()) {
 				sum++;
 			}
@@ -175,18 +174,7 @@ public class Room implements Serializable {
 		}	
 	}
 
-	public Participant getParticipantByUsername(String username) {
-		ArrayList<Participant> parts = new ArrayList<Participant>(participants.values());
-		for(int i=0; i<parts.size();i++){
-			Participant p = parts.get(i);
-			if(username.equalsIgnoreCase(p.getName())){
-				return p;
-			}
-		}
-		return null;
-	}
-
-	public Participant getParticipantByUserID(long userid) {
+	public User getParticipantByUserID(String userid) {
 		return participants.get(userid);
 	}
 }

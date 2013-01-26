@@ -57,7 +57,8 @@ module BigBlueButton
   #   create_blank_video(15, 1000, canvas.jpg, blank-video.flv)
   def self.create_blank_deskshare_video(length, rate, blank_canvas, video_out)
     BigBlueButton.logger.info("Task: Creating blank deskshare video")      
-    command = "ffmpeg -loop 1 -t #{length} -i #{blank_canvas} -loglevel fatal -v -10 -r #{rate} -vcodec flashsv #{video_out}"
+    loop_param = (`ffmpeg -version | grep ffmpeg | cut -d ' ' -f3`).chomp.eql?("0.11.2") ? "-loop 1" : "-loop_input"
+    command = "ffmpeg #{loop_param} -t #{length} -i #{blank_canvas} -loglevel fatal -v -10 -r #{rate} -vcodec flashsv #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check for result, raise exception when there is an error
   end
@@ -71,7 +72,8 @@ module BigBlueButton
   #   create_blank_video(15, 1000, canvas.jpg, blank-video.flv)
   def self.create_blank_video(length, rate, blank_canvas, video_out)
     BigBlueButton.logger.info("Task: Creating blank video")      
-    command = "ffmpeg -y -loop 1 -t #{length} -i #{blank_canvas} -loglevel fatal -v -10 -r #{rate} #{video_out}"
+    loop_param = (`ffmpeg -version | grep ffmpeg | cut -d ' ' -f3`).chomp.eql?("0.11.2") ? "-loop 1" : "-loop_input"
+    command = "ffmpeg -y #{loop_param} -t #{length} -i #{blank_canvas} -loglevel fatal -v -10 -r #{rate} #{video_out}"
     BigBlueButton.execute(command)
     # TODO: check for result, raise exception when there is an error
   end
@@ -124,16 +126,16 @@ module BigBlueButton
 	target_dir = File.dirname("#{video_out}")
 
 	#Concatenate mpg files
-	BigBlueButton.concatenate_mpg_files(mpgs,"#{target_dir}/webcam.mpg")
+	BigBlueButton.concatenate_mpg_files(mpgs,"#{target_dir}/concatenated.mpg")
     
 	#Convert mpg to flv
-	BigBlueButton.convert_mpg_to_flv("#{target_dir}/webcam.mpg", video_out)
+	BigBlueButton.convert_mpg_to_flv("#{target_dir}/concatenated.mpg", video_out)
 
   end
 
   #Converts flv to mpg
   def self.convert_flv_to_mpg(flv_video, mpg_video_out)
-        command = "ffmpeg -i #{flv_video} -loglevel fatal -v -10 -sameq -f mpegts #{mpg_video_out}"
+        command = "ffmpeg -i #{flv_video} -loglevel fatal -v -10 -sameq -f mpegts -r 29.97 #{mpg_video_out}"
         BigBlueButton.logger.info("Task: Converting .flv to .mpg")    
         BigBlueButton.execute(command)
   end
@@ -639,6 +641,17 @@ module BigBlueButton
     command = "ffmpeg -i #{target_dir}/audio.ogg -i #{concat_vid} -loglevel fatal -v -10 -vcodec libvpx -b 1000k -threads 0  -map 1:0 -map 0:0 -ar 22050 #{target_dir}/webcams.webm"
     BigBlueButton.execute(command)
   end
+
+
+ # Muxes audio with deskshare video
+ # audio_file     : Audio of the recording
+ # deskshare_file : Video of shared desktop of the recording
+
+ def self.mux_audio_deskshare(target_dir, audio_file, deskshare_file)
+  command = "ffmpeg -i #{audio_file} -i #{deskshare_file} -loglevel fatal -v -10 -vcodec flv -b 1000k -threads 0  -map 1:0 -map 0:0 -ar 22050 #{target_dir}/muxed_audio_deskshare.flv"
+  BigBlueButton.execute(command)
+  FileUtils.mv("#{target_dir}/muxed_audio_deskshare.flv","#{target_dir}/deskshare.flv")
+ end
 
 end
 

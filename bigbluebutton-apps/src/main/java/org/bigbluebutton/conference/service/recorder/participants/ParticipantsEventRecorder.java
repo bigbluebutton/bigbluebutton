@@ -1,8 +1,26 @@
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+* 
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
 package org.bigbluebutton.conference.service.recorder.participants;
 
 import java.util.ArrayList;
 import org.bigbluebutton.conference.IRoomListener;
-import org.bigbluebutton.conference.Participant;
+import org.bigbluebutton.conference.User;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
@@ -28,10 +46,10 @@ public class ParticipantsEventRecorder implements IRoomListener {
 	}
 
 	@Override
-	public void participantJoined(Participant p) {
+	public void participantJoined(User p) {
 		ParticipantJoinRecordEvent ev = new ParticipantJoinRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());
-		ev.setUserId(p.getInternalUserID().toString());
+		ev.setUserId(p.getInternalUserID());
 		ev.setName(p.getName());
 		ev.setMeetingId(session);
 		ev.setStatus(p.getStatus().toString());
@@ -41,20 +59,20 @@ public class ParticipantsEventRecorder implements IRoomListener {
 	}
 
 	@Override
-	public void participantLeft(Participant p) {
+	public void participantLeft(User p) {
 		ParticipantLeftRecordEvent ev = new ParticipantLeftRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());
-		ev.setUserId(p.getInternalUserID().toString());
+		ev.setUserId(p.getInternalUserID());
 		ev.setMeetingId(session);
 		
 		recorder.record(session, ev);
 	}
 
 	@Override
-	public void participantStatusChange(Participant p, String status, Object value) {
+	public void participantStatusChange(User p, String status, Object value) {
 		ParticipantStatusChangeRecordEvent ev = new ParticipantStatusChangeRecordEvent();
 		ev.setTimestamp(System.currentTimeMillis());
-		ev.setUserId(p.getInternalUserID().toString());
+		ev.setUserId(p.getInternalUserID());
 		ev.setMeetingId(session);
 		ev.setStatus(status);
 		ev.setValue(value.toString());

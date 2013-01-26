@@ -1,8 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
-		width="600" height="300" creationComplete="initDefaultMic()" showCloseButton="true" close="onCancelClicked()" keyDown="handleKeyDown(event)">
+		width="600" height="300" creationComplete="initDefaultMic()" styleName="micSettingsStyle"
+    showCloseButton="true" close="onCancelClicked()" keyDown="handleKeyDown(event)">
 	<mx:Script>
 		<![CDATA[
+			import flash.system.Security;
 			import flash.ui.Keyboard;
 		
 			import mx.events.CloseEvent;
@@ -23,13 +44,20 @@
 			private var mic:Microphone;
 			private var playingAudio:Boolean = false;
 			private var images:Images = new Images();
-			[Bindable] private var cancelIcon:Class = images.delete_icon;
+			[Bindable] private var cancelIcon:Class = images.cancel;
 			
 			private function initDefaultMic():void {
-				mic = Microphone.getMicrophone(-1);
-				mic.setLoopBack(true);
+				mic = Microphone.getMicrophone();
+				
 				if (mic != null) {
-					mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);				
+					if (mic.muted) {
+						// user has disallowed access to the mic
+						mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
+						Security.showSettings();
+					} else {
+						// user has allowed access to the mic
+						mic.setLoopBack(true);
+					}
 				} else {
 					LogUtil.warn("Microphone is used by another application.");
 				}
@@ -51,6 +79,7 @@
 						LogUtil.warn("Access to microphone has been denied.");
 						break;
 					case "Microphone.Unmuted":
+						mic.setLoopBack(true);
 						LogUtil.debug("Access to the microphone has been allowed.");
 						break;
 					default:

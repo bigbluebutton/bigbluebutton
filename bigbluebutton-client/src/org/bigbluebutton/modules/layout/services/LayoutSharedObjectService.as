@@ -1,22 +1,21 @@
 /**
- * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
- *
- * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
- *
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License as published by the Free Software
- * Foundation; either version 2.1 of the License, or (at your option) any later
- * version.
- *
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along
- * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- * 
- * Author: Felipe Cecagno <felipe@mconf.org>
- */
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+* 
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
 package org.bigbluebutton.modules.layout.services
 {
 	import com.asfusion.mate.events.Dispatcher;
@@ -34,7 +33,10 @@ package org.bigbluebutton.modules.layout.services
 	import mx.controls.Alert;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.core.EventConstants;
+	import org.bigbluebutton.core.events.CoreEvent;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.events.ModuleLoadEvent;
 	import org.bigbluebutton.modules.layout.events.ConnectionEvent;
 	import org.bigbluebutton.modules.layout.events.LayoutEvent;
 	import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
@@ -119,12 +121,14 @@ package org.bigbluebutton.modules.layout.services
 		private function onReceivedFirstLayout(result:Object):void {
 			LogUtil.debug("LayoutService: handling the first layout"); 
 			var locked:Boolean = result[0];
-			var userId:int = result[1];
+			var userID:String = result[1];
 			var layout:String = result[2];
 			if (locked)
-				remoteUpdateLayout(locked, userId, layout);
+				remoteUpdateLayout(locked, userID, layout);
 			else
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
+      
+      _dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.LAYOUT_MODULE_STARTED));
 		}
 		
 		public function lockLayout(layout:LayoutDefinition):void {
@@ -163,16 +167,18 @@ package org.bigbluebutton.modules.layout.services
 			);
 		}
 
-		public function remoteUpdateLayout(locked:Boolean, userId:int, layout:String):void {
-			var dispatchedByMe:Boolean = UserManager.getInstance().getConference().amIThisUser(userId);
+		public function remoteUpdateLayout(locked:Boolean, userID:String, layout:String):void {
+			var dispatchedByMe:Boolean = UserManager.getInstance().getConference().amIThisUser(userID);
 
 			LogUtil.debug("LayoutService: received a remote update" + (locked? " from " + (dispatchedByMe? "myself": "a remote user"): ""));
 			LogUtil.debug("Locked? " + (locked? "yes": "no"));
 			
 			if (!_locked && locked) {
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT));
+        _dispatcher.dispatchEvent(new CoreEvent(EventConstants.REMOTE_LOCKED_LAYOUT));
 			} else if (_locked && !locked) {
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.REMOTE_UNLOCK_LAYOUT_EVENT));
+        _dispatcher.dispatchEvent(new CoreEvent(EventConstants.REMOTE_UNLOCKED_LAYOUT));
 			}
 			
 			if (locked && !dispatchedByMe) {

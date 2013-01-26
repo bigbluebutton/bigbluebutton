@@ -1,3 +1,21 @@
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+* 
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
 package org.bigbluebutton.conference.service.messaging;
 
 import java.util.ArrayList;
@@ -9,9 +27,9 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.bigbluebutton.conference.Participant;
+import org.bigbluebutton.conference.User;
 import org.bigbluebutton.conference.service.chat.ChatApplication;
-import org.bigbluebutton.conference.service.chat.ChatObject;
+import org.bigbluebutton.conference.service.chat.ChatMessageVO;
 import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 import org.bigbluebutton.conference.service.presentation.PresentationApplication;
 import org.red5.logging.Red5LoggerFactory;
@@ -213,34 +231,39 @@ public class RedisMessagingService implements MessagingService{
 					status.put("presenter", false);
 					status.put("hasStream", false);
 					
-					participantsApplication.participantJoin(meetingId, Long.parseLong(nUserId), username, role, externalUserID, status);
+					participantsApplication.participantJoin(meetingId, nUserId, username, role, externalUserID, status);
 				}else if(messageName.equalsIgnoreCase("user leave")){
 					String nUserId = gson.fromJson(array.get(2), String.class);
-					participantsApplication.participantLeft(meetingId, Long.parseLong(nUserId));
+					participantsApplication.participantLeft(meetingId, nUserId);
 				}else if(messageName.equalsIgnoreCase("msg")){
 					String username = gson.fromJson(array.get(2), String.class);
-					String chat_message = gson.fromJson(array.get(3), String.class);
+					String message_text = gson.fromJson(array.get(3), String.class);
+					String userid = gson.fromJson(array.get(4), String.class);
 					
-					Participant p = participantsApplication.getParticipantByUsername(meetingId, username);
-					String userid = "0";
-					if(p != null){
-						userid = p.getInternalUserID().toString();
-					}
+					ChatMessageVO chatObj = new ChatMessageVO();
+					chatObj.chatType = "PUBLIC"; 
+					chatObj.fromUserID = userid;
+					chatObj.fromUsername = username;
+					chatObj.fromColor = "0";
+					chatObj.fromTime = 0.0;   
+					chatObj.fromTimezoneOffset = (long)0;
+					chatObj.fromLang = "en"; 	 
+					chatObj.toUserID = "";
+					chatObj.toUsername = "";
+					chatObj.message = message_text;
 					
-					ChatObject chatobj = new ChatObject(chat_message, username, "0", "00:00", "en", userid);
-					
-					chatApplication.sendMessage(meetingId, chatobj);
+					chatApplication.sendPublicMessage(meetingId, chatObj);
 				}else if(messageName.equalsIgnoreCase("setPresenter")){
 					String pubID = gson.fromJson(array.get(2), String.class);
 					
-					Participant p = participantsApplication.getParticipantByUserID(meetingId,Long.parseLong(pubID));
+					User p = participantsApplication.getParticipantByUserID(meetingId,pubID);
 					log.debug("new presenter: " + p.getInternalUserID() + " "+p.getName());
 
 					ArrayList<String> newPresenter = new ArrayList<String>();
 					
 					newPresenter.add(pubID);
 					newPresenter.add(p.getName());
-					newPresenter.add(pubID);
+					newPresenter.add(pubID);//TODO: assignedBy, need to check if I can remove it
 					
 					//Update participant status of the new presenter
 					participantsApplication.setParticipantStatus(meetingId, p.getInternalUserID(), "presenter", true);
@@ -250,13 +273,13 @@ public class RedisMessagingService implements MessagingService{
 						String curUserID = curPresenter.get(0);
 						log.debug("previous presenter: " + curUserID + " "+ curPresenter.get(1));
 						if(!curUserID.equalsIgnoreCase(pubID)){
-							participantsApplication.setParticipantStatus(meetingId, Long.parseLong(curUserID), "presenter", false);
+							participantsApplication.setParticipantStatus(meetingId, curUserID, "presenter", false);
 						}
 					}
 					
 					participantsApplication.assignPresenter(meetingId, newPresenter);
 
-				}else if(messageName.equalsIgnoreCase("mvCur")){
+				}/*else if(messageName.equalsIgnoreCase("mvCur")){
 					Double xPercent = gson.fromJson(array.get(2), Double.class);
 					Double yPercent = gson.fromJson(array.get(3), Double.class);
 					
@@ -267,7 +290,7 @@ public class RedisMessagingService implements MessagingService{
 					}
 					
 					presentationApplication.sendCursorUpdate(meetingId, xPercent, yPercent);
-				}
+				}*/
 
 			}
 			

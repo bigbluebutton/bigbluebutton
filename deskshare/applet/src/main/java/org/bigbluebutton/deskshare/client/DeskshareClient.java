@@ -1,23 +1,20 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.client;
 
@@ -118,6 +115,7 @@ public class DeskshareClient {
     	private boolean enableTrayActions = false;
     	private boolean fullScreen = false;
     	private boolean useSVC2 = false;
+    	private boolean isPreScaled = false;
     	
     	public NewBuilder host(String host) {
     		this.host = host;
@@ -189,6 +187,11 @@ public class DeskshareClient {
     		return this;
     	}
     	
+    	public NewBuilder isPreScaled(boolean isPreScaled){
+    		this.isPreScaled = isPreScaled;
+    		return this;
+    	}
+    	
     	public NewBuilder trayIcon(Image icon) {
     		this.sysTrayIcon = icon;
     		return this;
@@ -235,7 +238,7 @@ public class DeskshareClient {
         			y = ((int) fullScreenSize.getHeight() - captureHeight) / 2;    
         			System.out.println("Info[" + captureWidth + "," + captureHeight + "][" + x + "," + y +"]"
         					+ "[" + fullScreenSize.getWidth() + "," + fullScreenSize.getHeight() + "]");
-//    			calculateDimensionsToMaintainAspectRatio();
+        			calculateDimensionsToMaintainAspectRatio();
     		}
     	}
     	
@@ -254,18 +257,22 @@ public class DeskshareClient {
     		java.awt.Dimension fullScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
     		captureWidth = (int) fullScreenSize.getWidth();
     		captureHeight = (int) fullScreenSize.getHeight();
-    		scaleWidth = captureWidth;
-    		scaleHeight = captureHeight;
+    		
     		x = 0;
     		y = 0;
 
-    		System.out.println("Check for scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
+    		if(!isPreScaled){
+    			scaleWidth = captureWidth;
+    			scaleHeight = captureHeight;
+    		
+    			System.out.println("Check for scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
 
-    		if (scaleWidth > 1280) {   
-    			scaleWidth = 1280;
-    			double ratio = (double)captureHeight/(double)captureWidth;
-    			scaleHeight = (int)((double)scaleWidth * ratio);
-    			System.out.println("Scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
+    			if (scaleWidth > 1280) {   
+    				scaleWidth = 1280;
+    				double ratio = (double)captureHeight/(double)captureWidth;
+    				scaleHeight = (int)((double)scaleWidth * ratio);
+    				System.out.println("Scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
+    			}
     		}
     	}
     	

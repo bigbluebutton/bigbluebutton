@@ -1,20 +1,20 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 
 package org.bigbluebutton.conference.service.participants;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;import org.bigbluebutton.conference.Participant;
+import java.util.Map;import org.bigbluebutton.conference.User;
 
 public class ParticipantsService {
 
@@ -38,11 +38,11 @@ public class ParticipantsService {
 	private ParticipantsBridge participantsBridge;
 
 	@SuppressWarnings("unchecked")
-	public void assignPresenter(Long userid, String name, Long assignedBy) {
+	public void assignPresenter(String userid, String name, Long assignedBy) {
 		log.info("Receive assignPresenter request from client [" + userid + "," + name + "," + assignedBy + "]");
 		IScope scope = Red5.getConnectionLocal().getScope();
 		/*ArrayList<String> presenter = new ArrayList<String>();
-		presenter.add(userid.toString());
+		presenter.add(userid);
 		presenter.add(name);
 		presenter.add(assignedBy.toString());
 		ArrayList<String> curPresenter = application.getCurrentPresenter(scope.getName());
@@ -50,9 +50,9 @@ public class ParticipantsService {
 		
 		if (curPresenter != null){ 
 			String curUserid = (String) curPresenter.get(0);
-			if (! curUserid.equals(userid.toString())){
+			if (! curUserid.equals(userid)){
 				log.info("Changing the current presenter [" + curPresenter.get(0) + "] to viewer.");
-				application.setParticipantStatus(scope.getName(), new Long(curPresenter.get(0)), "presenter", false);
+				application.setParticipantStatus(scope.getName(), curPresenter.get(0), "presenter", false);
 			}
 		} else {
 			log.info("No current presenter. So do nothing.");
@@ -60,16 +60,18 @@ public class ParticipantsService {
 		//application.assignPresenter(scope.getName(), presenter);
 		
 		ArrayList<String> curPresenter = application.getCurrentPresenter(scope.getName());
-		long previousPresenter = -1;
+		String previousPresenter = null;
 		if (curPresenter != null){ 
 			String curUserid = (String) curPresenter.get(0);
-			if (! curUserid.equals(userid.toString())){
-				previousPresenter = Long.parseLong(curUserid);
+			if (! curUserid.equalsIgnoreCase(userid)){
+				previousPresenter = curUserid;
 			}
 		} else {
 			log.info("No current presenter. So do nothing.");
 		}
-		participantsBridge.assignPresenter(scope.getName(), userid, previousPresenter);
+		participantsBridge.storeAssignPresenter(scope.getName(), userid, previousPresenter);
+		
+		participantsBridge.sendAssignPresenter(scope.getName(), userid);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -94,7 +96,7 @@ public class ParticipantsService {
 				Collection pc = p.values();
 	    		Map pm = new HashMap();
 	    		for (Iterator it = pc.iterator(); it.hasNext();) {
-	    			Participant ap = (Participant) it.next();
+	    			User ap = (User) it.next();
 	    			pm.put(ap.getInternalUserID(), ap.toMap()); 
 	    		}  
 				participants.put("participants", pm);
@@ -103,7 +105,7 @@ public class ParticipantsService {
 		return participants;
 	}
 	
-	public void setParticipantStatus(Long userid, String status, Object value) {
+	public void setParticipantStatus(String userid, String status, Object value) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		log.debug("Setting participant status " + roomName + " " + userid + " " + status + " " + value);
 		application.setParticipantStatus(roomName, userid, status, value);

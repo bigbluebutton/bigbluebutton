@@ -1,23 +1,20 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.client;
 
@@ -42,6 +39,8 @@ public class MouseLocationTaker {
 	
 	private int captureX;
 	private int captureY;
+	
+	private Point oldMouseLocation = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
 	
 	public MouseLocationTaker(int captureWidth, int captureHeight, int scaleWidth, int scaleHeight, int captureX, int captureY) {
 		this.captureWidth = captureWidth;
@@ -91,7 +90,11 @@ public class MouseLocationTaker {
 	}
 
 	private void takeMouseLocation() {		
-		notifyListeners(getMouseLocation());
+		Point mouseLocation = getMouseLocation();
+		if (!mouseLocation.equals(oldMouseLocation)) {
+			notifyListeners(getMouseLocation());
+			oldMouseLocation = mouseLocation;
+		}
 	}
 	
 	private void notifyListeners(Point location) {

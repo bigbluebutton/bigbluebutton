@@ -1,20 +1,20 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.main.model.modules
 {
@@ -170,7 +170,7 @@ package org.bigbluebutton.main.model.modules
 		public function startUserServices():void {
 			configParameters.application = configParameters.application.replace(/rtmp:/gi, _protocol + ":");
 			LogUtil.debug("**** Using " + _protocol + " to connect to " + configParameters.application + "******");
-			modulesDispatcher.sendStartUserServicesEvent(configParameters.application, configParameters.host);
+			modulesDispatcher.sendStartUserServicesEvent(configParameters.application, configParameters.host, _protocol.toUpperCase() == "RTMPT");
 		}
 		
 		public function loadAllModules(parameters:ConferenceParameters):void{
@@ -184,14 +184,25 @@ package org.bigbluebutton.main.model.modules
 			}
 		}
 		
-		public function startAllModules():void{
+		public function startLayoutModule():void{
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
-				startModule(m.getName());
+        if (m.getName() == "LayoutModule") {
+          startModule(m.getName());
+        }				
 			}
-			modulesDispatcher.sendAllModulesLoadedEvent();
 		}
-		
+
+    public function startAllModules():void{
+      for (var i:int = 0; i<sorted.length; i++){
+        var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
+        if (m.getName() != "LayoutModule") {
+          startModule(m.getName());
+        }
+      }
+      modulesDispatcher.sendAllModulesLoadedEvent();
+    }
+    
 		public function handleLogout():void {
 			for (var i:int = 0; i <sorted.length; i++) {				
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;

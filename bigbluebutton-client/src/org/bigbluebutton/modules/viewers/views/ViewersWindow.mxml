@@ -1,64 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
---> 
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
 
 <viewer:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:viewer="flexlib.mdi.containers.*" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	xmlns:mate="http://mate.asfusion.com/"
-	title="{windowTitle}"
+	title="{windowTitle}" visible="false"
 	creationComplete="onCreationComplete()"
 	showCloseButton="false">
 
 	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="conferenceStarted" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
-	
+
     <mx:Script>
         <![CDATA[
-        	import org.bigbluebutton.modules.viewers.model.ViewerOptions;
-			import com.asfusion.mate.events.Dispatcher;
-			
-			import flexlib.mdi.events.MDIWindowEvent;
-			
-			import mx.binding.utils.BindingUtils;
-			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
-			import mx.controls.listClasses.IListItemRenderer;
-			import mx.events.DataGridEvent;
-			import mx.events.ListEvent;
-			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.Role;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.main.events.ParticipantJoinEvent;
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.main.model.users.Conference;
-			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
-			import org.bigbluebutton.main.model.users.events.KickUserEvent;
-			import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
-			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.viewers.events.ChangeStatusEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+          import com.asfusion.mate.events.Dispatcher;          
+          import flexlib.mdi.events.MDIWindowEvent;          
+          import mx.binding.utils.BindingUtils;
+          import mx.collections.ArrayCollection;
+          import mx.controls.Alert;
+          import mx.controls.listClasses.IListItemRenderer;
+          import mx.events.DataGridEvent;
+          import mx.events.ListEvent;          
+          import org.bigbluebutton.common.Images;
+          import org.bigbluebutton.common.Role;
+          import org.bigbluebutton.common.events.LocaleChangeEvent;
+          import org.bigbluebutton.core.EventConstants;
+          import org.bigbluebutton.core.events.CoreEvent;
+          import org.bigbluebutton.core.managers.UserManager;
+          import org.bigbluebutton.main.model.users.BBBUser;
+          import org.bigbluebutton.main.model.users.Conference;
+          import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+          import org.bigbluebutton.main.model.users.events.KickUserEvent;
+          import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
+          import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
+          import org.bigbluebutton.main.views.MainCanvas;
+          import org.bigbluebutton.modules.viewers.events.ChangeStatusEvent;
+          import org.bigbluebutton.modules.viewers.model.ViewerOptions;
+          import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable] private var windowTitle:String = ResourceUtil.getInstance().getString('bbb.viewers.title',["", ""]);
 			
@@ -85,6 +82,7 @@
 				this.visible = viewerOptions.windowVisible;
 			}
 			
+          
 			private function updateNumberOfViewers(numViewers:int):void {
 				if (numViewers > 4)
 					windowTitle = ResourceUtil.getInstance().getString('bbb.viewers.title', [":", numViewers]);
@@ -115,7 +113,7 @@
         		if (viewersGrid.selectedItem == null || viewersGrid.selectedItem.presenter) return;
         		
 				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
-				e.userid = viewersGrid.selectedItem.userid;
+				e.userid = viewersGrid.selectedItem.userID;
 				e.username = viewersGrid.selectedItem.name;
 				dispatchEvent(e);
 				
@@ -150,7 +148,7 @@
 				var item:IListItemRenderer = event.itemRenderer;
 				var user:BBBUser = item.data as BBBUser;
 				var rollEvent:ViewersRollEvent = new ViewersRollEvent(ViewersRollEvent.VIEWERS_ROLL_OVER);
-				rollEvent.userid = user.userid;
+				rollEvent.userID = user.userID;
 				dispatcher.dispatchEvent(rollEvent);
 			}
 			
@@ -158,7 +156,7 @@
 				var item:IListItemRenderer = event.itemRenderer;
 				var user:BBBUser = item.data as BBBUser;
 				var rollEvent:ViewersRollEvent = new ViewersRollEvent(ViewersRollEvent.VIEWERS_ROLL_OUT);
-				rollEvent.userid = user.userid;
+				rollEvent.userID = user.userID;
 				dispatcher.dispatchEvent(rollEvent);
 			}
 
@@ -181,7 +179,7 @@
     
    <mx:ControlBar width="100%"> 
    		 <mx:Button id="presentBtn" label="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.label')}" visible="{isModerator}"
-    	   			width="130" height="20"
+    	   			width="130" height="20" styleName="switchPresenterButtonStyle"
     	   			toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.toolTip')}"
     	   			click="assignPresenterClicked()"/>
      	 <mx:Spacer width="100%"/>

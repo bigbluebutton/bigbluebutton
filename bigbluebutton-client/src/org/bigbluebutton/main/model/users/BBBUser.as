@@ -1,27 +1,25 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
-	import mx.collections.ArrayCollection;
-	
+	import com.asfusion.mate.events.Dispatcher;	
+	import mx.collections.ArrayCollection;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
@@ -32,7 +30,8 @@ package org.bigbluebutton.main.model.users
 		public static const PRESENTER:String = "PRESENTER";
 		
 		[Bindable] public var me:Boolean = false;
-		[Bindable] public var userid:Number = 1935;
+		[Bindable] public var userID:String = "UNKNOWN USER";
+    [Bindable] public var externUserID:String = "UNKNOWN USER";
 		[Bindable] public var name:String;
 		[Bindable] public var hasStream:Boolean = false;
 		[Bindable] public var streamName:String = "";
@@ -107,7 +106,8 @@ package org.bigbluebutton.main.model.users
 			var n:BBBUser = new BBBUser();
 			n.authToken = user.authToken;
 			n.me = user.me;
-			n.userid = user.userid;
+			n.userID = user.userID;
+      n.externUserID = user.externUserID;
 			n.name = user.name;
 			n.hasStream = user.hasStream;
 			n.streamName = user.streamName;
@@ -121,7 +121,7 @@ package org.bigbluebutton.main.model.users
 		
 		private function sendStreamStartedEvent():void{
 			var dispatcher:Dispatcher = new Dispatcher();
-			dispatcher.dispatchEvent(new StreamStartedEvent(userid, name, streamName));
+			dispatcher.dispatchEvent(new StreamStartedEvent(userID, name, streamName));
 		}
 	}
 }

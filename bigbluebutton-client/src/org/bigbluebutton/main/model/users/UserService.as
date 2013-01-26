@@ -1,29 +1,26 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
-	import flash.net.NetConnection;
-	
-	import mx.collections.ArrayCollection;
-	
+	import com.asfusion.mate.events.Dispatcher;	
+	import flash.net.NetConnection;	
+	import mx.collections.ArrayCollection;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserConfigManager;
@@ -53,23 +50,32 @@ package org.bigbluebutton.main.model.users
 			dispatcher = new Dispatcher();
 		}
 		
-		public function startService(e:UserServicesEvent):void{
+		public function startService(e:UserServicesEvent):void {
 			applicationURI = e.applicationURI;
 			hostURI = e.hostURI;
-			
+			BBB.initConnectionManager().isTunnelling = e.isTunnelling;
+      
 			joinService = new JoinService();
 			joinService.addJoinResultListener(joinListener);
 			joinService.load(e.hostURI);
 		}
 		
-		private function joinListener(success:Boolean, result:Object):void{
+		private function joinListener(success:Boolean, result:Object):void {
 			if (success) {
 				UserManager.getInstance().getConference().setMyName(result.username);
 				UserManager.getInstance().getConference().setMyRole(result.role);
 				UserManager.getInstance().getConference().setMyRoom(result.room);
 				UserManager.getInstance().getConference().setMyAuthToken(result.authToken);
-				
+        UserManager.getInstance().getConference().setDefaultLayout(result.defaultLayout);
+        
+        UserManager.getInstance().getConference().externalMeetingID = result.externMeetingID;
+        UserManager.getInstance().getConference().meetingName = result.confereceName;
+        UserManager.getInstance().getConference().internalMeetingID = result.room;
+        UserManager.getInstance().getConference().avatarURL = result.avatarURL;
+        
 				_conferenceParameters = new ConferenceParameters();
+        _conferenceParameters.meetingName = result.confereceName;
+        _conferenceParameters.externMeetingID = result.externMeetingID;
 				_conferenceParameters.conference = result.conference;
 				_conferenceParameters.username = result.username;
 				_conferenceParameters.role = result.role;
@@ -83,7 +89,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.logoutUrl = result.logoutUrl;
 				_conferenceParameters.record = true;
 				
-				if(result.record == "false") {
+				if (result.record == "false") {
 					_conferenceParameters.record = false;
 				}
 				
@@ -160,7 +166,7 @@ package org.bigbluebutton.main.model.users
 		 * 
 		 */		
 		public function assignPresenter(e:RoleChangeEvent):void{
-			var assignTo:Number = e.userid;
+			var assignTo:String = e.userid;
 			var name:String = e.username;
 			_userSOService.assignPresenter(assignTo, name, 1);
 		}

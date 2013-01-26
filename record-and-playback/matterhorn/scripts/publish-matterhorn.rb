@@ -47,20 +47,26 @@ done_files.each do |df|
       MANIFEST = "manifest.xml"
       DUBLIN = "dublincore.xml"
 
-      [WEBCAM, DESKSHARE, MANIFEST, DUBLIN].each { |file| FileUtils.cp("#{process_dir}/#{file}", target_dir)}
-
+      files = [WEBCAM, DESKSHARE, MANIFEST, DUBLIN]
+      files.select! do |file| 
+	if File.exist?("#{process_dir}/#{file}") 
+	 FileUtils.cp("#{process_dir}/#{file}", target_dir) 
+	 file
+	end
+      end
+	BigBlueButton.logger.info files
       Dir.chdir(target_dir) do
-        BigBlueButton::MatterhornProcessor.zip_artifacts(WEBCAM, DESKSHARE, DUBLIN, MANIFEST, "#{meeting_id}.zip")
+        BigBlueButton::MatterhornProcessor.zip_artifacts(files, "#{meeting_id}.zip")
       end
 
       command = "scp -i #{scp_key} -o StrictHostKeyChecking=no -o CheckHostIP=no #{target_dir}/#{meeting_id}.zip #{scp_user}@#{scp_server}:#{scp_inbox}"
-      BigBlueButton.logger.info(command)
-      Open3.popen3(command) do | stdin, stdout, stderr|
-        BigBlueButton.logger.info("scp result=#{$?.exitstatus}")
-      end
+      BigBlueButton.execute(command)
 
       BigBlueButton.logger.info("Removing processed files.")
-      FileUtils.rm_r(Dir.glob("#{$process_dir}/*"))
+      FileUtils.rm_r(Dir.glob("#{process_dir}/*"))
+
+      BigBlueButton.logger.info("Removing published files.")
+      FileUtils.rm_r(Dir.glob("#{target_dir}/*"))
 
     end
   end

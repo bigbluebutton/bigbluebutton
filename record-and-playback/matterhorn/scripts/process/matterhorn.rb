@@ -42,29 +42,30 @@ raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 target_dir = "#{recording_dir}/process/matterhorn/#{meeting_id}"
 
 if not FileTest.directory?(target_dir)	  
-	FileUtils.mkdir_p target_dir
+	  	 FileUtils.mkdir_p target_dir
 
-	#Verify media absence before trying to process
-	media_absence = Hash.new
-	media_absence["audio"] = !Dir["#{raw_archive_dir}/audio/*"].empty?
-	media_absence["video"] = !Dir["#{raw_archive_dir}/video/*"].empty?
-	media_absence["deskshare"] = !Dir["#{raw_archive_dir}/deskshare/*"].empty?
 
-	if not media_absence.values.join("_").include? "false"
+	if !Dir["#{raw_archive_dir}/video/*"].empty? or !Dir["#{raw_archive_dir}/deskshare/*"].empty?
 		  # Create a copy of the raw archives
 		  temp_dir = "#{target_dir}/temp"
 		  FileUtils.mkdir_p temp_dir
 		  FileUtils.cp_r(raw_archive_dir, temp_dir)
 
 		  # Process webcam recording
-		  BigBlueButton.process_webcam(target_dir, temp_dir, meeting_id)
+		  BigBlueButton.process_webcam(target_dir, temp_dir, meeting_id) if !Dir["#{raw_archive_dir}/video/*"].empty?
 				  
 		  # Process desktop sharing
-		  BigBlueButton.process_deskstop_sharing(target_dir, temp_dir, meeting_id)
-		  
+		  BigBlueButton.process_deskstop_sharing(target_dir, temp_dir, meeting_id) if !Dir["#{raw_archive_dir}/deskshare/*"].empty?		 
+
+		  # Mux audio and deskshare if webcam was not processed
+		  if !File.exists?("#{target_dir}/muxed-audio-webcam.flv")
+		    BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio.ogg")
+		    BigBlueButton.mux_audio_deskshare( target_dir, "#{target_dir}/audio.ogg", "#{target_dir}/deskshare.flv") 
+		  end
+
 		  #Create xml files with metadata
-		  BigBlueButton::MatterhornProcessor.create_manifest_xml("#{target_dir}/muxed-audio-webcam.flv", "#{target_dir}/deskshare.flv", "#{target_dir}/manifest.xml")
-		  
+		  BigBlueButton::MatterhornProcessor.create_manifest_xml("#{target_dir}/muxed-audio-webcam.flv", "#{target_dir}/deskshare.flv", "#{target_dir}/manifest.xml")  		
+
 		  metadata = BigBlueButton::Events.get_meeting_metadata("#{temp_dir}/#{meeting_id}/events.xml")
 		  
 		  dublincore_data = {   :title => metadata[:title.to_s].nil? ? meeting_id : metadata[:title.to_s],
@@ -76,10 +77,10 @@ if not FileTest.directory?(target_dir)
 					:identifier => metadata[:identifier.to_s]
 					}                                                                                                                                             
 		  BigBlueButton::MatterhornProcessor.create_dublincore_xml("#{target_dir}/dublincore.xml", dublincore_data)
+
 	else
-		logger.error "Failed Matterhorn process for meeting  #{meeting_id}. Absence of media #{media_absence.to_s}"
-	end
-	
+		logger.error "Failed Matterhorn process for meeting #{meeting_id}. Absence of video (webcam or deskshare)."	
+	end	
 	process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-matterhorn.done", "w")
 	process_done.write("Processed #{meeting_id}")
 	process_done.close

@@ -1,23 +1,20 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.client;
 
@@ -100,8 +97,15 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
 //        Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer((int)dim.getHeight()));
       Integer cWidthValue = (Integer)parser.getOptionValue(cWidth, new Integer(800));
       Integer cHeightValue = (Integer)parser.getOptionValue(cHeight, new Integer(600));
+      
       Integer sWidthValue = (Integer)parser.getOptionValue(sWidth, new Integer(800));
       Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer(600));
+      
+      Boolean isPreScaled = true; 
+      if(sWidthValue.intValue() == 800 && sHeightValue.intValue() == 600){
+    	  isPreScaled = false;
+      }
+      
         Boolean qualityValue = (Boolean)parser.getOptionValue(quality, new Boolean(false));
         Boolean aspectValue = (Boolean)parser.getOptionValue(aspectRatio, new Boolean(false));
         Integer xValue = (Integer)parser.getOptionValue(xCoord, new Integer(0));
@@ -120,7 +124,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         						.room(roomValue).captureWidth(cWidthValue)
         						.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
         						.quality(qualityValue).aspectRatio(aspectValue)
-        						.x(xValue).y(yValue).fullScreen(fullScreenValue).useSVC2(useSVC2Value)
+        						.x(xValue).y(yValue).fullScreen(fullScreenValue).useSVC2(useSVC2Value).isPreScaled(isPreScaled)
         						.httpTunnel(tunnelValue).trayIcon(image).enableTrayIconActions(true).build();
         
         client.addClientListener(dsMain);

@@ -1,23 +1,20 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.conference.service.presentation;
 import java.util.ArrayList;
@@ -41,17 +38,17 @@ public class PresentationService {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Map getPresentationInfo() {
+	public Map<String, Object> getPresentationInfo() {
 		log.debug("Getting presentation information.");
 		IScope scope = Red5.getConnectionLocal().getScope();
 		ArrayList<String> curPresenter = participantsApplication.getCurrentPresenter(scope.getName());
 		int curSlide = presentationApplication.getCurrentSlide(scope.getName());
 		Boolean isSharing = presentationApplication.getSharingPresentation(scope.getName());
 		String currentPresentation = presentationApplication.getCurrentPresentation(scope.getName());
-		Map presentersSettings = presentationApplication.getPresenterSettings(scope.getName());
+		Map<String, Object> presentersSettings = presentationApplication.getPresenterSettings(scope.getName());
 		ArrayList<String> presentationNames = presentationApplication.getPresentations(scope.getName());
 		
-		Map presenter = new HashMap();		
+		Map<String, Object> presenter = new HashMap<String, Object>();		
 		if (curPresenter != null) {
 			presenter.put("hasPresenter", true);
 			presenter.put("user", curPresenter.get(0));
@@ -62,7 +59,7 @@ public class PresentationService {
 			presenter.put("hasPresenter", false);
 		}
 				
-		Map presentation = new HashMap();
+		Map<String, Object> presentation = new HashMap<String, Object>();
 		if (isSharing.booleanValue()) {
 			presentation.put("sharing", true);
 			presentation.put("slide", curSlide);
@@ -78,7 +75,7 @@ public class PresentationService {
 			presentation.put("sharing", false);
 		}
 		
-		Map presentationInfo = new HashMap();
+		Map<String, Object> presentationInfo = new HashMap<String, Object>();
 		presentationInfo.put("presenter", presenter);
 		presentationInfo.put("presentation", presentation);
 		presentationInfo.put("presentations", presentationNames);

@@ -155,7 +155,7 @@ def processClearEvents
 		$pageCleared = clearEvent.xpath(".//pageNumber")[0].text()
 		slideFolder = clearEvent.xpath(".//presentation")[0].text()
 		#$clearPageTimes[clearTime] = [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i+1}.png", nil]
-		$clearPageTimes[($prev_clear_time..clearTime)] = [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared.to_i+1}.png", nil]
+		$clearPageTimes[($prev_clear_time..clearTime)] = [$pageCleared, $canvas_number, "presentation/#{slideFolder}/slide-#{$pageCleared}.png", nil]
 		$prev_clear_time = clearTime
 		$canvas_number+=1
 	end
@@ -255,7 +255,7 @@ def storeLineShape
                         $originalOriginX = $originX
                         $originalOriginY = $originY
 
-                        $xml.line(:x1 => $originX, :y1 => $originY, :x2 => endPointY, :y2 => endPointY )
+                        $xml.line(:x1 => $originX, :y1 => $originY, :x2 => endPointX, :y2 => endPointY )
                         $prev_time = $shapeCreationTime
                 end
         end
@@ -285,7 +285,12 @@ def storeRectShape
 				$originX = $originX + rectWidth
 				rectWidth = rectWidth.abs
 			end
-			$xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectHeight)
+                        if $is_square == "true"
+				#width of the square as reference
+                                $xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectWidth)
+                        else
+                                $xml.rect(:x => $originX, :y => $originY, :width => rectWidth, :height => rectHeight)
+                        end
 			$prev_time = $shapeCreationTime
 		end
 	end
@@ -352,7 +357,12 @@ def storeEllipseShape
 				$originX = $originX + ellipseWidth
 				ellipseWidth = ellipseWidth.abs
 			end
-			$xml.ellipse(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseHeight/2), :rx => ellipseWidth/2, :ry => ellipseHeight/2)
+                        if $is_circle == "true"
+                                #Use width as reference
+                                $xml.circle(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseWidth/2), :r => ellipseWidth/2)
+                        else
+                                $xml.ellipse(:cx => $originX+(ellipseWidth/2), :cy => $originY+(ellipseHeight/2), :rx => ellipseWidth/2, :ry => ellipseHeight/2)
+                        end
 			$prev_time = $shapeCreationTime
 		end # end xml.g
 	end # end if($shapeCreationTime != $prev_time)
@@ -367,12 +377,21 @@ def storeTextShape
 		else
 			$text_count = $text_count + 1
 		end
-		font_size_factor = 2
-		y_gap = 45		
+		font_size_factor = 1.7
+                width_extra_percent = -0.7
+                height_extra_percent = 1
+                width = ( ($textBoxWidth.to_f + width_extra_percent) / 100.0) * $vbox_width
+                height = ( ($textBoxHeight.to_f + height_extra_percent ) / 100.0) * $vbox_height
+		y_gap = -30.0 		
+		x_gap = 5.0
 		$textFontSize_pixels = $textFontSize.to_f * font_size_factor				
-		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "fill:\##{$colour_hex}; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels};") do
-			$xml.text_( "font-size" => "#{$textFontSize_pixels}", :x => "#{(($shapeDataPoints[0].to_f)/100)*$vbox_width}", :y => "#{((($shapeDataPoints[1].to_f)/100) *$vbox_height )  + y_gap.to_f }") do
-				$xml.text($textValue)				
+		$xml.g(:class => :shape, :id => "draw#{$shapeCreationTime}", :undo => $shapeUndoTime, :shape => "text#{$text_count}", :style => "word-wrap: break-word; visibility:hidden; font-family: #{$textFontType}; font-size: #{$textFontSize_pixels}px;") do
+			$xml.switch do 
+				$xml.foreignObject(  :color => "##{$colour_hex}", :width => width, :height => height, :x => "#{((($shapeDataPoints[0].to_f)/100)*$vbox_width) + x_gap}", :y => "#{((($shapeDataPoints[1].to_f)/100) *$vbox_height )  + y_gap.to_f }") do
+					$xml.p( :xmlns => "http://www.w3.org/1999/xhtml" ) do
+						$xml.text($textValue)
+					end
+				end
 			end
 			$prev_time = $shapeCreationTime
 		end # end xml.g		
@@ -450,7 +469,7 @@ def processShapesAndClears
 			# Print out the gathered/detected images. 
 			$slides_compiled.each do |key, val|
 				$val = val
-				$xml.image(:id => "image#{$val[2].to_i}", :in => $val[0].join(' '), :out => $val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => :hidden, :text => $val[3])
+				$xml.image(:id => "image#{$val[2].to_i}", :in => $val[0].join(' '), :out => $val[1].join(' '), 'xlink:href' => key[0], :height => key[1], :width => key[2], :visibility => :hidden, :text => $val[3], :x => 0)
 				$canvas_number+=1
 				$xml.g(:class => :canvas, :id => "canvas#{$val[2].to_i}", :image => "image#{$val[2].to_i}", :display => :none) do
 					
@@ -482,6 +501,7 @@ def processShapesAndClears
                                                                 $textValue = shape.xpath(".//text")[0].text()
                                                                 $textFontType = "Arial"
                                                                 $textFontSize = shape.xpath(".//fontSize")[0].text()
+                                                                colour = shape.xpath(".//fontColor")[0].text()
                                                         else
                                                                 $shapeThickness = shape.xpath(".//thickness")[0].text()
                                                                 colour = shape.xpath(".//color")[0].text()
@@ -546,6 +566,7 @@ def processShapesAndClears
 
 							# Process the rectangle shapes
 							elsif $shapeType.eql? "rectangle"
+                                                                $is_square = shape.xpath(".//square")[0].text()
 								storeRectShape()
 
 							# Process the triangle shapes
@@ -554,9 +575,12 @@ def processShapesAndClears
 
 							# Process the ellipse shapes
 							elsif $shapeType.eql? "ellipse"
+                                                                $is_circle = shape.xpath(".//circle")[0].text()
 								storeEllipseShape()
-								
+							
 							elsif $shapeType.eql? "text"
+								$textBoxWidth = shape.xpath(".//textBoxWidth")[0].text()
+								$textBoxHeight = shape.xpath(".//textBoxHeight")[0].text()
 								storeTextShape()
 							end # end if pencil (and other shapes)
 						end # end if((in_this_image) && (in_this_canvas))
@@ -766,5 +790,6 @@ if ($playback == "presentation")
 end
 
 performance_end = Time.now
+
 
 
