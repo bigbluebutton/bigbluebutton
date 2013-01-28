@@ -52,5 +52,9 @@ public class Parameter {
     public static final String CUSTOM_BBB_RECORD = "custom_bbb_record";
     public static final String CUSTOM_BBB_VOICEBRIDGE = "custom_bbb_voicebridge";
     public static final String CUSTOM_BBB_DURATION = "custom_bbb_duration";
+    
+    ///BigBlueButton internal parameters
+    public static final String BBB_RECORDING_ID = "bbb_recording_id";
+    public static final String BBB_RECORDING_PUBLISHED = "bbb_recording_published";
 
 }

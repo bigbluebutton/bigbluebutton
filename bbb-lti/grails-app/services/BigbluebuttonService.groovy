@@ -140,6 +140,51 @@ class BigbluebuttonService {
 
         return null
     }
+
+    public Object doDeleteRecordings(params){
+        //Set the injected values
+        if( !url.equals(bbbProxy.url) && !url.equals("") ) bbbProxy.setUrl(url)
+        if( !salt.equals(bbbProxy.salt) && !salt.equals("") ) bbbProxy.setSalt(salt)
+
+        Map<String, Object> result
+        
+        String recordingId = getValidatedBBBRecordingId(params.get(Parameter.BBB_RECORDING_ID))
+        
+        if( !recordingId.equals("") ){
+            String deleteRecordingsURL = bbbProxy.getDeleteRecordingsURL( recordingId )
+            log.debug "deleteRecordingsURL: " + deleteRecordingsURL
+            result = doAPICall(deleteRecordingsURL)
+        } else {
+            result = new HashMap<String, String>()
+            result.put("resultMessageKey", "InvalidRecordingId")
+            result.put("resultMessage", "RecordingId is invalid. The recording can not be deleted.")
+        }
+
+        return result
+    }
+    
+    public Object doPublishRecordings(params){
+        //Set the injected values
+        if( !url.equals(bbbProxy.url) && !url.equals("") ) bbbProxy.setUrl(url)
+        if( !salt.equals(bbbProxy.salt) && !salt.equals("") ) bbbProxy.setSalt(salt)
+        
+        Map<String, Object> result
+
+        String recordingId = getValidatedBBBRecordingId(params.get(Parameter.BBB_RECORDING_ID))
+        String publish = getValidatedBBBRecordingPublished(params.get(Parameter.BBB_RECORDING_PUBLISHED))
+        
+        if( !recordingId.equals("") ){
+            String publishRecordingsURL = bbbProxy.getPublishRecordingsURL( recordingId, "true".equals(publish)?"false":"true" )
+            log.debug "publishRecordingsURL: " + publishRecordingsURL
+            result = doAPICall(publishRecordingsURL)
+        } else {
+            result = new HashMap<String, String>()
+            result.put("resultMessageKey", "InvalidRecordingId")
+            result.put("resultMessage", "RecordingId is invalid. The recording can not be deleted.")
+        }
+
+        return result
+    }
     
     private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, Integer voiceBridge, String logoutURL, Boolean record, Integer duration, String meta ) {
         voiceBridge = ( voiceBridge == null || voiceBridge == 0 )? 70000 + new Random(System.currentTimeMillis()).nextInt(10000): voiceBridge;
@@ -200,6 +245,14 @@ class BigbluebuttonService {
         return (duration != null )? duration.toInteger(): 0
     }
 
+    private String getValidatedBBBRecordingId(String recordingId){
+        return (recordingId != null )? recordingId: ""
+    }
+
+    private String getValidatedBBBRecordingPublished(String published){
+        return (published != null && published.equals("true") )? "true": "false"
+    }
+    
     private String getMonitoringMetaData(params){
         String meta
 

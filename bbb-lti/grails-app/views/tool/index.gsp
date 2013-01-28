@@ -41,7 +41,15 @@
                         </g:if>
                     </g:each>
                     </td>
-                    <td class="cell c5 lastcol" style="text-align:left;"><a title="Hide" class="action-icon" href="http://192.168.0.176/moodle24/mod/recordingsbn/view.php?id=7&amp;recordingid=1c0aacd9be834a0e507601d8f7bbcd63f1902f4a-1359055850614&amp;action=hide"><img title="Hide" alt="Hide" class="smallicon" src="${resource(dir:'images',file:'hide.gif')}" /></a><a title="Delete" class="action-icon" href="http://192.168.0.176/moodle24/mod/recordingsbn/view.php?id=7&amp;recordingid=1c0aacd9be834a0e507601d8f7bbcd63f1902f4a-1359055850614&amp;action=delete" id="action_link51018c7ac6bf04"><img title="Delete" alt="Delete" class="smallicon" src="${resource(dir:'images',file:'delete.gif')}" /></a></td>
+                    <td class="cell c5 lastcol" style="text-align:left;">
+                      <g:if test="${r.published == 'true'}">
+                      <a title="Hide" class="action-icon" href="${createLink(controller:'tool',action:'publish')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}"><img title="Hide" alt="Hide" class="smallicon" src="${resource(dir:'images',file:'hide.gif')}" /></a>
+                      </g:if>
+                      <g:else>
+                      <a title="Show" class="action-icon" href="${createLink(controller:'tool',action:'publish')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}"><img title="Show" alt="Show" class="smallicon" src="${resource(dir:'images',file:'show.gif')}" /></a>
+                      </g:else>
+                      <a title="Delete" class="action-icon" href="${createLink(controller:'tool',action:'delete')}?bbb_recording_id=${r.recordID}"><img title="Delete" alt="Delete" class="smallicon" src="${resource(dir:'images',file:'delete.gif')}" /></a>
+                    </td>
                 </tr>
             </g:each>
             </tbody>

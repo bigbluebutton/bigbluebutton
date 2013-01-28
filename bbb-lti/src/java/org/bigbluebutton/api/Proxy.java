@@ -162,9 +162,9 @@ public class Proxy {
     public String getDeleteRecordingsURL(String recordID) {
         
         String url = "recordID=" + recordID;
-        url += getCheckSumParameterForQuery(APICALL_PUBLISHRECORDINGS, url);
+        url += getCheckSumParameterForQuery(APICALL_DELETERECORDINGS, url);
         
-        return this.url + API_SERVERPATH + APICALL_PUBLISHRECORDINGS + "?" + url;
+        return this.url + API_SERVERPATH + APICALL_DELETERECORDINGS + "?" + url;
     }
     
     public String getStringEncoded(String string){
