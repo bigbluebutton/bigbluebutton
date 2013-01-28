@@ -18,6 +18,7 @@
 */
 package org.bigbluebutton.main.model.users {
 	import mx.collections.ArrayCollection;
+	import mx.collections.Sort;
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
@@ -32,14 +33,41 @@ package org.bigbluebutton.main.model.users {
     
     private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
     
-		[Bindable] private var me:BBBUser = null;		
-		[Bindable] public var users:ArrayCollection = null;			
+	[Bindable] private var me:BBBUser = null;		
+	[Bindable] public var users:ArrayCollection = null;			
+	private var sort:Sort;
 	
     private var defaultLayout:String;
     
 		public function Conference():void {
 			me = new BBBUser();
 			users = new ArrayCollection();
+			sort = new Sort();
+			sort.compareFunction = sortFunction;
+			users.sort = sort;
+			users.refresh();
+		}
+		
+		private function sortFunction(a:Object, b:Object, array:Array = null):int {
+			var au:BBBUser = a as BBBUser;
+			var bu:BBBUser = b as BBBUser;
+			if (a.presenter)
+				return -1;
+			if (b.presenter)
+				return 1;
+			if (a.role == Role.MODERATOR && b.role == Role.MODERATOR)
+				return 0;
+			if (a.role == Role.MODERATOR)
+				return -1;
+			if (b.role == Role.MODERATOR)
+				return 1;
+			if (a.raiseHand && b.raiseHand)
+				return 0;
+			if (a.raiseHand)
+				return -1;
+			if (b.raiseHand)
+				return 1;
+			return 0;
 		}
 
 		public function addUser(newuser:BBBUser):void {
@@ -51,7 +79,8 @@ package org.bigbluebutton.main.model.users {
 				}						
 				
 				users.addItem(newuser);
-				sort();
+				//sort();
+				users.refresh();
 			}					
 		}
 
@@ -159,7 +188,8 @@ package org.bigbluebutton.main.model.users {
 			if (p != null) {
 				trace("removing user[" + p.participant.name + "," + p.participant.userID + "]");				
 				users.removeItemAt(p.index);
-				sort();
+				//sort();
+				users.refresh();
 			}							
 		}
 		
@@ -313,7 +343,8 @@ package org.bigbluebutton.main.model.users {
 				aUser.changeStatus(s);
 			}	
 			
-			sort();		
+			//sort();
+			users.refresh();		
 		}
     
     public function getUserIDs():ArrayCollection {
@@ -329,9 +360,10 @@ package org.bigbluebutton.main.model.users {
 		 * Sorts the users by name 
 		 * 
 		 */		
+		 /*
 		private function sort():void {
-			users.source.sortOn("name", Array.CASEINSENSITIVE);	
-			users.refresh();				
-		}				
+			//users.source.sortOn("name", Array.CASEINSENSITIVE);	
+			//users.refresh();				
+		} */			
 	}
 }
