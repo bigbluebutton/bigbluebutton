@@ -39,7 +39,7 @@ public class LifeLine {
 	}
 	
 	public void listen() {
-		System.out.println("Starting listener on port " + port);
+		
 		lifeLineServer = new LifeLineServer();
 		lifeLineThread = new Thread(lifeLineServer, "LifeLineServer");
 		lifeLineThread.start();       
@@ -58,13 +58,14 @@ public class LifeLine {
 		public void run() {
 			 try {
 		            serverSocket = new ServerSocket();
-		            serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost(), port));
+		            serverSocket.bind(new InetSocketAddress("127.0.0.1", port));
 		        } catch (IOException e) {
 		            System.err.println("Could not listen on port: " + port);
 		            notifyListener(ExitCode.CANNOT_BIND_TO_LIFELINE_PORT);
 		        }
 		        
 		        try {
+		        	System.out.println("Starting listener on [" + serverSocket.getInetAddress() + ":" + port + "]");
 		            clientSocket = serverSocket.accept();
 		            clientSocket.setKeepAlive(true);
 		            out = new PrintWriter(clientSocket.getOutputStream(), true);
