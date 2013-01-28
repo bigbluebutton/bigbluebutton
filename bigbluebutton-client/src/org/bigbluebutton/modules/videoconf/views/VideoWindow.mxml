@@ -28,6 +28,8 @@
 	xmlns:mate="http://mate.asfusion.com/"
   styleNameFocus="videoViewStyleFocus"
   styleNameNoFocus="videoViewStyleNoFocus"
+  horizontalScrollPolicy="off"
+  verticalScrollPolicy="off"
 	resize="onResize()"
 	layout="absolute">
 	
