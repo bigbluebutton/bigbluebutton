@@ -111,7 +111,7 @@ class BigbluebuttonService {
             String messageKey = (String) createResponse.get("messageKey")
             if ( Proxy.APIRESPONSE_SUCCESS.equals(returnCode) ||
                 (Proxy.APIRESPONSE_FAILED.equals(returnCode) &&  (Proxy.MESSAGEKEY_IDNOTUNIQUE.equals(messageKey) || Proxy.MESSAGEKEY_DUPLICATEWARNING.equals(messageKey)) ) ){
-                joinURL = bbbProxy.getJoinMeetingURL( userFullName, meetingID, isModerator? moderatorPW: attendeePW, (String) createResponse.get("createTime"), userID);
+                joinURL = bbbProxy.getJoinURL( userFullName, meetingID, isModerator? moderatorPW: attendeePW, (String) createResponse.get("createTime"), userID);
             }
         }
 
@@ -126,7 +126,7 @@ class BigbluebuttonService {
 
         String meetingID = getValidatedMeetingId(params.get(Parameter.RESOURCE_LINK_ID), params.get(Parameter.CONSUMER_ID))
         
-        String recordingsURL = bbbProxy.getRecordingsURL( meetingID )
+        String recordingsURL = bbbProxy.getGetRecordingsURL( meetingID )
         log.debug "recordingsURL: " + recordingsURL
         Map<String, Object> recordings = doAPICall(recordingsURL)
 
