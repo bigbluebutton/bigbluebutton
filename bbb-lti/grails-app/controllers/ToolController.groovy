@@ -93,7 +93,7 @@ class ToolController {
         } else {
             session["params"] = params
             List<Object> recordings = bigbluebuttonService.getRecordings(params)
-            render(view: "index", model: ['params': params, 'recordingList': recordings])
+            render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(params)])
         }
     }
     
@@ -122,7 +122,7 @@ class ToolController {
             
         } else {
             List<Object> recordings = bigbluebuttonService.getRecordings(sessionParams)
-            render(view: "index", model: ['params': sessionParams, 'recordingList': recordings])
+            render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator':bigbluebuttonService.isModerator(sessionParams)])
         }
     }
 
@@ -157,18 +157,20 @@ class ToolController {
         
         def sessionParams = session["params"]
         
-        if( sessionParams != null ) {
+        if( sessionParams == null ) {
+            result = new HashMap<String, String>()
+            result.put("resultMessageKey", "InvalidSession")
+            result.put("resultMessage", "Invalid session. User can not execute this action.")
+        } else if ( !bigbluebuttonService.isModerator(sessionParams) ) {
+            result = new HashMap<String, String>()
+            result.put("resultMessageKey", "NotAllowed")
+            result.put("resultMessage", "User not allowed to execute this action.")
+        } else {
             log.debug "params: " + params
             log.debug "sessionParams: " + sessionParams
             
             //Execute the publish command
             result = bigbluebuttonService.doPublishRecordings(params)
-            log.debug "result: " + result
-            
-        } else {
-            result = new HashMap<String, String>()
-            result.put("resultMessageKey", "InvalidSession")
-            result.put("resultMessage", "Invalid session. User can not execute this action.")
         } 
         
         if( result.containsKey("resultMessageKey")) {
@@ -189,18 +191,20 @@ class ToolController {
         
         def sessionParams = session["params"]
         
-        if( sessionParams != null ) {
+        if( sessionParams == null ) {
+            result = new HashMap<String, String>()
+            result.put("resultMessageKey", "InvalidSession")
+            result.put("resultMessage", "Invalid session. User can not execute this action.")
+        } else if ( !bigbluebuttonService.isModerator(sessionParams) ) {
+            result = new HashMap<String, String>()
+            result.put("resultMessageKey", "NotAllowed")
+            result.put("resultMessage", "User not allowed to execute this action.")
+        } else {
             log.debug "params: " + params
             log.debug "sessionParams: " + sessionParams
             
             //Execute the delete command
             result = bigbluebuttonService.doDeleteRecordings(params)
-            log.debug "result: " + result
-            
-        } else {
-            result = new HashMap<String, String>()
-            result.put("resultMessageKey", "InvalidSession")
-            result.put("resultMessage", "Invalid session. User can not execute this action.")
         }
         
         if( result.containsKey("resultMessageKey")) {
@@ -215,25 +219,6 @@ class ToolController {
 
     }
 
-    
-    def test = {
-        log.debug CONTROLLER_NAME + "#index"
-        
-        response.addHeader("Cache-Control", "no-cache")
-        withFormat {
-            xml {
-                render(contentType:"text/xml") {
-                    response() {
-                        returncode(false)
-                        messageKey('RequestInvalid')
-                        message('The request is not supported.')
-                    }
-                }
-            }
-        }
-
-    }
-    
     private Object doJoinMeeting(params) {
         Map<String, String> result = new HashMap<String, String>()
                     

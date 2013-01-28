@@ -82,7 +82,7 @@ class BigbluebuttonService {
         String attendeePW = DigestUtils.shaHex("ap" + params.get(Parameter.RESOURCE_LINK_ID) + params.get(Parameter.CONSUMER_ID))
         String moderatorPW = DigestUtils.shaHex("mp" + params.get(Parameter.RESOURCE_LINK_ID) + params.get(Parameter.CONSUMER_ID))
         String logoutURL = getValidatedLogoutURL(params.get(Parameter.LAUNCH_RETURN_URL))
-        boolean isModerator = params.get(Parameter.ROLES) != null? Role.isModerator(params.get(Parameter.ROLES)): true
+        boolean isModerator = isModerator(params)
         String userFullName = getValidatedUserFullName(params, isModerator)
         String courseTitle = getValidatedCourseTitle(params.get(Parameter.COURSE_TITLE))
         String userID = getValidatedUserId(params.get(Parameter.USER_ID))
@@ -184,6 +184,11 @@ class BigbluebuttonService {
         }
 
         return result
+    }
+    
+    public boolean isModerator(params) {
+        boolean isModerator = params.get(Parameter.ROLES) != null? Role.isModerator(params.get(Parameter.ROLES)): true
+        return isModerator
     }
     
     private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, Integer voiceBridge, String logoutURL, Boolean record, Integer duration, String meta ) {
