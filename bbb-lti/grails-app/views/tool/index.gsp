@@ -48,7 +48,7 @@
                       <g:else>
                       <a title="Show" class="action-icon" href="${createLink(controller:'tool',action:'publish')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}"><img title="Show" alt="Show" class="smallicon" src="${resource(dir:'images',file:'show.gif')}" /></a>
                       </g:else>
-                      <a title="Delete" class="action-icon" href="${createLink(controller:'tool',action:'delete')}?bbb_recording_id=${r.recordID}"><img title="Delete" alt="Delete" class="smallicon" src="${resource(dir:'images',file:'delete.gif')}" /></a>
+                      <a title="Delete" class="action-icon" onClick="if(confirm('Are you sure to delete this recording?')) window.location='${createLink(controller:'tool',action:'delete')}?bbb_recording_id=${r.recordID}'; return false;" href="#"><img title="Delete" alt="Delete" class="smallicon" src="${resource(dir:'images',file:'delete.gif')}" /></a>
                     </td>
                 </tr>
             </g:each>
