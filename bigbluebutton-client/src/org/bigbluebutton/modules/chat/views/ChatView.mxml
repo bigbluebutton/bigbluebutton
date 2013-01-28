@@ -143,31 +143,34 @@
 				focusManager.setFocus(chatTabs);
 			}
 			
-      private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-        notifyUserOfNewMessage(PUBLIC_CHAT_USERID);
-      }
+		private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
+			publicWaiting = true;
+			notifyUserOfNewMessage(PUBLIC_CHAT_USERID);
+      	}
       
-      private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
-        // This message is from me. Ignore as a chatbox has already been created for this
-        // private chat and that chatbox will handle this message.
-        if (UsersUtil.isMe(event.message.fromUserID)) return;
-        
-        // I received a new private chat. Open up a new chatbox and forward the message
-        // to the chatbox. Succeeding messages will be handled by that chatbox.
-        if (! userHasChatBox(event.message.fromUserID)) {
-          // Open a private chat tab.
-          openChatBoxFor(event.message.fromUserID, false);
-          // Forward the message to the private chat
-          getChatBoxForUser(event.message.fromUserID).handleFirstPrivateMessage(event);          
-        }
-        
-        // See if the chatbox is not in focus and notify user about the message.
-        notifyUserOfNewMessage(event.message.fromUserID);
-      }
+		private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
+		    // This message is from me. Ignore as a chatbox has already been created for this
+			// private chat and that chatbox will handle this message.
+			if (UsersUtil.isMe(event.message.fromUserID)) return;
+			
+			// I received a new private chat. Open up a new chatbox and forward the message
+			// to the chatbox. Succeeding messages will be handled by that chatbox.
+			if (! userHasChatBox(event.message.fromUserID)) {
+			  	// Open a private chat tab.
+			  	openChatBoxFor(event.message.fromUserID, false);
+			  	// Forward the message to the private chat
+				getChatBoxForUser(event.message.fromUserID).handleFirstPrivateMessage(event);          
+			}
+			
+			// See if the chatbox is not in focus and notify user about the message.
+			privateWaiting.addItem(event);
+			notifyUserOfNewMessage(event.message.fromUserID);
+		}
       
       private function notifyUserOfNewMessage(userID:String):void {
         if (! isChatBoxCurrentlySelected(userID)) {
-          notifyParticipantOfUnreadMessageFrom(userID);
+			LogUtil.debug("WATERFALL: Notifying user of new message from ID: " + userID);
+        	notifyParticipantOfUnreadMessageFrom(userID);
         }
       }
       		
@@ -307,6 +310,7 @@
 			
 			// Activates an audio alert for screen-reader users on public message reception
 			private function publicNotification():void {
+				LogUtil.debug("WATERFALL: In publicNotification, publicWaiting will be true");
 				publicWaiting = true;
 				chatTabs.getChildByName(PUBLIC_CHAT_USERID).addEventListener(FocusEvent.FOCUS_IN, publicChatFocus);
 				chatTabs.getChildByName(PUBLIC_CHAT_USERID).addEventListener(FocusEvent.FOCUS_OUT, publicChatUnfocus);
@@ -337,9 +341,8 @@
 			public function publicChatFocus(event:FocusEvent):void{
 				publicFocus = true;
 				if (publicWaiting) {
-          ExternalInterface.call("clearblink");
-        }
-					
+	          		ExternalInterface.call("clearblink");
+	        	}					
 				publicWaiting = false;
 			}
 			
@@ -379,6 +382,7 @@
 					var debugDate:Date = new Date();
 					var message:String = "";
 					var playSoundClip:Boolean = useSoundClip();
+					LogUtil.debug("WATERFALL: In CheckNotifications, publicWaiting and publicfocus are: " + publicWaiting + " " + publicFocus);
 					if (publicWaiting && !publicFocus) {
 						if (playSoundClip) {
 	            			publicSound.play();
@@ -402,6 +406,7 @@
 						}
 					}
 					if (playSoundClip == false){
+						LogUtil.debug("WATERFALL: Going into addAlert with message: " + message);
 						ExternalInterface.call("addAlert", message);
 					}				
 				}

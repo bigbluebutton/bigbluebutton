@@ -146,7 +146,7 @@
   		var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
 		
 		if (e.keyCode < 64 || e.keyCode > 90){
-			LogUtil.debug("WATERFALL: KeyCode " + e.keyCode + " is nonalphabetic (probably)");
+			trace("Keypress debugging: KeyCode " + e.keyCode + " is nonalphabetic (probably)");
 		}
 		
 		if (keyCombos[keyPress]) {

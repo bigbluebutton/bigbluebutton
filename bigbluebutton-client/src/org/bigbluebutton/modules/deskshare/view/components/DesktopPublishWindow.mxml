@@ -102,7 +102,6 @@
 			private function init():void {
 				dsOptions = new DeskshareOptions();
 				baseIndex = dsOptions.baseTabIndex;
-				LogUtil.debug("Waterfall: Deskshare base index: " + baseIndex);
 			}
 			
 			private function onCreationComplete():void {
@@ -118,10 +117,6 @@
 				
 				titleBarOverlay.tabIndex = baseIndex;
 				titleBarOverlay.focusEnabled = true;
-								
-				LogUtil.debug("Waterfall: Deskshare titleBarOverlay is having troubles");
-				LogUtil.debug("Waterfall: Focusable? " + titleBarOverlay.focusEnabled);
-				LogUtil.debug("Waterfall: Index? " + titleBarOverlay.tabIndex);
 								
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;

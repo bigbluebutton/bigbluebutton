@@ -78,6 +78,9 @@ package org.bigbluebutton.main.events {
 		public static const CHANGE_FONT_COLOUR:String = 'CHANGE_FONT_COLOUR';
 		public static const SEND_MESSAGE:String = 'SEND_MESSAGE';
 		
+		// Temporary string to help fix chat message navigation for screen readers
+		public static const CHAT_DEBUG:String = 'CHAT_DEBUG';
+		
 		public var otherUserID:String;
 		
 		public function ShortcutEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false) {
