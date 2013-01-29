@@ -1,13 +1,13 @@
 <html>
     <head>
         <title>BigBlueButton LTI Interface</title>
-        <link rel="stylesheet" href="${resource(dir:'css',file:'bootstrap.css')}" />
-        <link rel="shortcut icon" href="${resource(dir:'images',file:'favicon.ico')}" type="image/x-icon" />
+		<meta name="layout" content="internal" />
     </head>
     <body>
-        <h1 style="margin-left:20px; text-align: center;"><a title="Join" class="btn btn-primary btn-large" href="${createLink(controller:'tool',action:'join')}">Join Meeting</a></h1>
-        <br><br>
-        <table class="table table-striped table-bordered table-condensed">
+        <h1 style="margin-left:20px; text-align: center;"><a title="Join" class="action-icon" href="${createLink(controller:'tool',action:'join')}"><img title="Join" alt="Join the meeting" src="${resource(dir:'images',file:'bbb.jpg')}" /></a></h1>
+        <p style="margin-left:20px;width:80%"></p>
+        <br>
+        <table class="generaltable">
             <thead>
                 <tr>
                     <th class="header c0" style="text-align:center;" scope="col">Recording</th>
