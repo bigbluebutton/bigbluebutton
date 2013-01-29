@@ -48,16 +48,32 @@
   			private function onCreationComplete():void {
   				moderator = UserManager.getInstance().getConference().amIModerator();
   				
+  				/* I was trying to the binds through actionscript, but every time the itemrenderer was recycled 
+  				 * the binds would stop functioning. I think it might have been because I was using strong 
+  				 * binding and the bind was automatically garbage collected when data was set to null. You could 
+  				 * use weak binding and then the binds shouldn't get garbage collected, but then you have to 
+  				 * make sure to delete the bindings yourself or you'll have memory leaks.
+  				 * 		Chad
+  				 */
   				//BindingUtils.bindSetter(updateButton, data, "presenter");
-  				//BindingUtils.bindSetter(updateButton, data, "raiseHand"); 
-  				//BindingUtils.bindSetter(updateButton, this, "data");
+  				//BindingUtils.bindSetter(updateButton, data, "raiseHand");
+				
+				/* I had to bind to an Image property which is in turn bound through MXML to the data properties. 
+				 * This really needs to be changed, but it's the only way I could get it work.
+				 * 		Chad
+				 */
   				BindingUtils.bindSetter(updateButton, presenterInd, "includeInLayout");
   				BindingUtils.bindSetter(updateButton, moderatorInd, "includeInLayout");
   				BindingUtils.bindSetter(updateButton, raiseHandInd, "includeInLayout");
   				
+  				// The next two lines should be listening for the same data to change and be updating at the same 
+  				// time, but the FlexEvent.DATA_CHANGE wasn't working consistently.
   				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
   				ChangeWatcher.watch(this, "data", dataChangeHandler);
-  				//updateButton(); //initialize state
+  				
+  				if (data != null) // if data has already been set
+  					updateButton(); //initialize state
+  					
   				validateNow();
   			}
   			
