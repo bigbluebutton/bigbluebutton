@@ -20,13 +20,28 @@ package org.bigbluebutton.modules.deskshare.services.red5
 {
 	import flash.events.Event;
 	
-	public class ConnectionEvent extends Event
-	{
-		public var code:String = "";
-		public function ConnectionEvent(type:String, bubbles:Boolean, cancelable:Boolean, p_code:String=""):void
-		{
-			super(type, bubbles, cancelable);
-			code = p_code;
+	public class ConnectionEvent extends Event {
+    
+    public static const DESKSHARE_CONNECTION_EVENT:String = "deskshare connection event";
+    
+    public static const SUCCESS:String = "connection success";
+    public static const FAILED:String = "connection failed";
+    public static const CLOSED:String = "connection closed";
+    public static const REJECTED:String = "connection rejected";
+    public static const INVALIDAPP:String = "connection invalidApp";
+    public static const APPSHUTDOWN:String = "connection appShutdown";
+    public static const SECURITYERROR:String = "connection securityError";
+    public static const DISCONNECTED:String = "connection disconnected";
+    public static const CONNECTING:String = "connection connecting";
+    public static const CONNECTING_RETRY:String = "connection retry";
+    public static const CONNECTING_MAX_RETRY:String = "connection max retry";
+    
+		public var status:String = "";
+    
+    public var retryAttempts:int = 0;
+    
+		public function ConnectionEvent():void {
+			super(DESKSHARE_CONNECTION_EVENT, true, false);
 		}	
 	}
 }
