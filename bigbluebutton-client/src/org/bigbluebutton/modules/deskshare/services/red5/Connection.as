@@ -20,81 +20,130 @@
 
 package org.bigbluebutton.modules.deskshare.services.red5
 {
+	import com.asfusion.mate.events.Dispatcher;
+  import flash.net.Responder;
+  import flash.net.SharedObject;
 	import flash.events.EventDispatcher;
-	import mx.events.MetadataEvent;
-	import flash.net.NetConnection;
-	import flash.net.ObjectEncoding;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
+	import flash.events.TimerEvent;
+	import flash.net.NetConnection;
+	import flash.net.ObjectEncoding;
+	import flash.utils.Timer;
+  import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
+  import org.bigbluebutton.modules.deskshare.events.CursorEvent;
+  import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;	
+	import mx.events.MetadataEvent;	
 	import org.bigbluebutton.common.LogUtil;
+
 	
-	public class Connection extends EventDispatcher
-	{
-		public static var SUCCESS:String = "success";
-		public static var FAILED:String = "failed";
-		public static var CLOSED:String = "closed";
-		public static var REJECTED:String = "rejected";
-		public static var INVALIDAPP:String = "invalidApp";
-		public static var APPSHUTDOWN:String = "appShutdown";
-		public static var SECURITYERROR:String = "securityError";
-		public static var DISCONNECTED:String = "disconnected";
-		
+	public class Connection {
+   
 		private var nc:NetConnection;
 		private var uri:String;
-		
-		public function Connection()
-		{
-			//  create the netConnection
-			nc = new NetConnection();
-			
-			// set the encoding to AMF0 - still waiting for AMF3 to be implemented on Red5
-			nc.objectEncoding = ObjectEncoding.AMF0;
-			
-			//  set it's client/focus to this
-			nc.client = this;
-			
-			// add listeners for netstatus and security issues
-			nc.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
-			nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
-		}
-		
-		public function connect():void
-		{
-			if(getURI().length == 0)
-			{
+    private const connectionTimeout:int = 5000;
+    private var retryTimer:Timer = null;
+    private var retryCount:int = 0;
+    private const MAX_RETRIES:int = 5;
+    private var deskSO:SharedObject;
+    private var responder:Responder;
+    private var width:Number;
+    private var height:Number;
+    private var room:String;
+    
+    private var dispatcher:Dispatcher = new Dispatcher();    
+
+    public function Connection(room:String) {
+      this.room = room;
+      
+      responder = new Responder(
+        function(result:Object):void {
+          if (result != null && (result.publishing as Boolean)){
+            width = result.width as Number;
+            height = result.height as Number;
+            trace("Desk Share stream is streaming [" + width + "," + height + "]");
+            var event:ViewStreamEvent = new ViewStreamEvent(ViewStreamEvent.START);
+            event.videoWidth = width;
+            event.videoHeight = height;
+            dispatcher.dispatchEvent(event);
+          } else {
+            trace("No deskshare stream being published");
+          }
+        },
+        function(status:Object):void{
+          trace("Error while trying to call remote mathod on server");
+        }
+      );
+    }
+    
+		public function connect(retry:Boolean = false):void {
+      nc = new NetConnection();
+      nc.objectEncoding = ObjectEncoding.AMF0;
+      nc.client = this;
+      
+      nc.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
+      nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+      
+			if (getURI().length == 0){
 				LogUtil.error("please provide a valid URI connection string. URI Connection String missing");
 				return;
-			}else if(nc.connected)
-			{
+			} else if (nc.connected){
 				LogUtil.error("You are already connected to " + getURI());
 				return;
 			}
+      
+      trace("Trying to connect to [" + getURI() + "] retry=[" + retry + "]");
+      if (! (retryCount > 0)) {
+        var ce:ConnectionEvent = new ConnectionEvent();
+        ce.status = ConnectionEvent.CONNECTING;
+        
+        dispatcher.dispatchEvent(ce);        
+      }
+
+      
 			nc.connect(getURI());
+      
+      if (!retry) {
+        retryTimer = new Timer(connectionTimeout, 1);
+        retryTimer.addEventListener(TimerEvent.TIMER_COMPLETE, connectTimeoutHandler);
+        retryTimer.start();
+      }
 		}
 		
-		public function close():void
-		{
+    private function connectTimeoutHandler(e:TimerEvent):void {
+      trace("Connection attempt to [" + getURI() + "] timedout. Retrying.");
+      retryTimer.stop();
+      retryTimer = null;
+      
+      nc.close();
+      nc = null;
+      
+      var ce:ConnectionEvent = new ConnectionEvent();;
+      
+      retryCount++;
+      if (retryCount < MAX_RETRIES) {
+        ce.status = ConnectionEvent.CONNECTING_RETRY;
+        ce.retryAttempts = retryCount;
+        dispatcher.dispatchEvent(ce);
+        
+        connect(false);
+      } else {
+        ce.status = ConnectionEvent.CONNECTING_MAX_RETRY;
+        dispatcher.dispatchEvent(ce);
+      }
+      
+    }
+       
+		public function close():void{
 			nc.close();
 		}
 		
-		public function setURI(p_URI:String):void
-		{
+		public function setURI(p_URI:String):void{
 			uri = p_URI;
 		}
 		
-		public function getURI():String
-		{
+		public function getURI():String{
 			return uri;
-		}
-		
-		public function getConnection():NetConnection
-		{
-			return nc;
-		}
-		
-		public function getConnected():Boolean
-		{
-			return nc.connected;
 		}
 		
 		public function onBWCheck(... rest):Number { 
@@ -109,40 +158,49 @@ package org.bigbluebutton.modules.deskshare.services.red5
 			trace("bandwidth = " + p_bw + " Kbps."); 
 		}
 		
-		private function netStatusHandler(event:NetStatusEvent):void 
-		{	
-			var e:ConnectionEvent;
+		private function netStatusHandler(event:NetStatusEvent):void {	
+      trace("Connected to [" + getURI() + "]. [" + event.info.code + "]");
+      
+      if (retryTimer) {
+        retryCount = 0;
+        trace("Cancelling retry timer.");
+        retryTimer.stop();
+        retryTimer = null;
+      }
+      
+			var ce:ConnectionEvent = new ConnectionEvent();
 			
-			switch(event.info.code)
-			{
+			switch(event.info.code){
 				case "NetConnection.Connect.Failed":
-					e = new ConnectionEvent(Connection.FAILED, false, false, event.info.code);
-					dispatchEvent(e);
+					ce.status = ConnectionEvent.FAILED;
+          
+          dispatcher.dispatchEvent(ce);
 				break;
 				
 				case "NetConnection.Connect.Success":
-					e = new ConnectionEvent(Connection.SUCCESS, false, false, event.info.code);
-					dispatchEvent(e);
+          ce.status = ConnectionEvent.SUCCESS;
+          dispatcher.dispatchEvent(ce);
+          connectionSuccessHandler();
 				break;
 				
 				case "NetConnection.Connect.Rejected":
-					e = new ConnectionEvent(Connection.REJECTED, false, false, event.info.code);
-					dispatchEvent(e);
+          ce.status = ConnectionEvent.REJECTED;
+          dispatcher.dispatchEvent(ce);
 				break;
 				
 				case "NetConnection.Connect.Closed":
-					e = new ConnectionEvent(Connection.CLOSED, false, false, event.info.code);
-					dispatchEvent(e);
+          ce.status = ConnectionEvent.CLOSED;
+          dispatcher.dispatchEvent(ce);
 				break;
 				
 				case "NetConnection.Connect.InvalidApp":
-					e = new ConnectionEvent(Connection.INVALIDAPP, false, false, event.info.code);
-					dispatchEvent(e);
+          ce.status = ConnectionEvent.INVALIDAPP;
+          dispatcher.dispatchEvent(ce);
 				break;
 				
 				case "NetConnection.Connect.AppShutdown":
-					e = new ConnectionEvent(Connection.APPSHUTDOWN, false, false, event.info.code);
-					dispatchEvent(e);
+          ce.status = ConnectionEvent.APPSHUTDOWN;
+          dispatcher.dispatchEvent(ce);
 				break;
 				
 				case "NetConnection.Connect.NetworkChange":
@@ -152,16 +210,135 @@ package org.bigbluebutton.modules.deskshare.services.red5
 				default :
 					// I dispatch DISCONNECTED incase someone just simply wants to know if we're not connected'
 					// rather than having to subscribe to the events individually
-					e = new ConnectionEvent(Connection.DISCONNECTED, false, false, event.info.code);
-					dispatchEvent(e);
+          ce.status = ConnectionEvent.DISCONNECTED;
+          dispatcher.dispatchEvent(ce);
 					break;
 			}
 		}
 		
-		private function securityErrorHandler(event:SecurityErrorEvent):void
-		{
-			var e:ConnectionEvent = new ConnectionEvent(Connection.SECURITYERROR, false, false, event.text);
-			dispatchEvent(e);
+		private function securityErrorHandler(event:SecurityErrorEvent):void{
+      var ce:ConnectionEvent = new ConnectionEvent();
+      ce.status = ConnectionEvent.SECURITYERROR;
+      dispatcher.dispatchEvent(ce);
 		}
+    
+    public function mouseLocationCallback(x:Number, y:Number):void {
+      var event:CursorEvent = new CursorEvent(CursorEvent.UPDATE_CURSOR_LOC_EVENT);
+      event.x = x;
+      event.y = y;
+      dispatcher.dispatchEvent(event);
+    }
+    
+    /**
+     * Check if anybody is publishing the stream for this room 
+     * This method is useful for clients which have joined a room where somebody is already publishing
+     * 
+     */		
+    private function checkIfStreamIsPublishing(room:String):void{
+      trace("checking if desk share stream is publishing");
+      nc.call("deskshare.checkIfStreamIsPublishing", responder, room);
+    }
+    
+    public function disconnect():void{
+      if (nc != null) nc.close();
+    }
+    
+    public function connectionSuccessHandler():void{
+      trace("Successully connection to " + uri);
+      var deskSOName:String = room + "-deskSO";
+      deskSO = SharedObject.getRemote(deskSOName, uri, false);
+      deskSO.client = this;
+      deskSO.connect(nc);
+      
+      checkIfStreamIsPublishing(room);
+    }
+    
+    public function getConnection():NetConnection{
+      return nc;
+    }
+    
+    public function connectionFailedHandler(e:ConnectionEvent):void{
+      LogUtil.error("connection failed to " + uri + " with message " + e.toString());
+    }
+    
+    public function connectionRejectedHandler(e:ConnectionEvent):void{
+      LogUtil.error("connection rejected " + uri + " with message " + e.toString());
+    }
+    
+    
+    /**
+     * Invoked on the server once the clients' applet has started sharing and the server has started a video stream 
+     * 
+     */		
+    public function appletStarted(videoWidth:Number, videoHeight:Number):void{
+      trace("Got applet started");
+      var event:AppletStartedEvent = new AppletStartedEvent();
+      event.videoWidth = videoWidth;
+      event.videoHeight = videoHeight;
+      dispatcher.dispatchEvent(event);
+    }
+    
+    /**
+     * Call this method to send out a room-wide notification to start viewing the stream 
+     * 
+     */		
+    public function sendStartViewingNotification(captureWidth:Number, captureHeight:Number):void{
+      try{
+        deskSO.send("startViewing", captureWidth, captureHeight);
+      } catch(e:Error){
+        LogUtil.error("error while trying to send start viewing notification");
+      }
+    }
+    
+    public function sendStartedViewingNotification():void{
+      trace("Sending start viewing to server");
+      nc.call("deskshare.startedToViewStream", null);
+    }
+    
+    /**
+     * Called by the server when a notification is received to start viewing the broadcast stream .
+     * This method is called on successful execution of sendStartViewingNotification()
+     * 
+     */		
+    public function startViewing(videoWidth:Number, videoHeight:Number):void{
+      trace("startViewing invoked by server");
+      
+      var event:ViewStreamEvent = new ViewStreamEvent(ViewStreamEvent.START);
+      event.videoWidth = videoWidth;
+      event.videoHeight = videoHeight;
+      dispatcher.dispatchEvent(event);
+    }
+    
+    /**
+     * Sends a notification through the server to all the participants in the room to stop viewing the stream 
+     * 
+     */		
+    public function sendStopViewingNotification():void{
+      trace("Sending stop viewing notification to other clients.");
+      try{
+        deskSO.send("stopViewing");
+      } catch(e:Error){
+        trace("could not send stop viewing notification");
+      }
+    }
+    
+    /**
+     * Called by the server to notify clients that the deskshare stream has stooped.
+     */
+    public function deskshareStreamStopped():void {
+      stopViewing();
+    }
+    
+    /**
+     * Sends a notification to the module to stop viewing the stream 
+     * This method is called on successful execution of sendStopViewingNotification()
+     * 
+     */		
+    public function stopViewing():void{
+      trace("Received dekskshareStreamStopped");
+      dispatcher.dispatchEvent(new ViewStreamEvent(ViewStreamEvent.STOP));
+    }
+    
+    
 	}
 }

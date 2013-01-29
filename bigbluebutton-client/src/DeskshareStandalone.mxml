@@ -31,18 +31,23 @@
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="onAppletStop" />
 	<mate:Listener type="{ViewStreamEvent.START}" method="onViewStreamStart"/>
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
+  <mate:Listener type="{ConnectionEvent.DESKSHARE_CONNECTION_EVENT}" method="onDeskshareConnectionEvent" />
+  
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Image;
-			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
-			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
-			import mx.controls.Button;
-			import mx.containers.Canvas;
-			import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
-			import org.bigbluebutton.util.QueryStringParameters;
-			import mx.core.UIComponent;
-			import org.bigbluebutton.modules.deskshare.services.DeskshareService;
-			import org.bigbluebutton.common.Images;
+      import mx.containers.Canvas;
+      import mx.controls.Button;
+      import mx.controls.Image;
+      import mx.core.UIComponent;
+      
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
+      import org.bigbluebutton.modules.deskshare.events.CursorEvent;
+      import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+      import org.bigbluebutton.modules.deskshare.services.DeskshareService;
+      import org.bigbluebutton.modules.deskshare.services.red5.Connection;
+      import org.bigbluebutton.modules.deskshare.services.red5.ConnectionEvent;
+      import org.bigbluebutton.util.QueryStringParameters;
 			
 			private var videoHolder:UIComponent;
 
@@ -71,7 +76,7 @@
 				logoutURL = p.getParameter("LOGOUTURL");
 				host = p.getParameter("HOST");
 				room = p.getParameter("ROOM");
-				service.connect(host+"/"+room);
+				service.connect(host, room);
 				
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);				
@@ -82,18 +87,67 @@
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
+        trace("DeskshareSA::onAppletStart.");
 				startVideo(service.getConnection(), room, event.videoWidth, event.videoHeight);
 			}
 
 			private function onViewStreamStart(event:ViewStreamEvent):void {
+        trace("DeskshareSA::onViewStreamStart.");
 				startVideo(service.getConnection(), room, event.videoWidth, event.videoHeight);
 			}
 			
 			private function onAppletStop(event:ViewStreamEvent):void {
+        trace("DeskshareSA::onAppletStop.");
 				var url:URLRequest = new URLRequest(logoutURL);
 				navigateToURL(url, '_self');
 			}
-						
+			
+      private function onDeskshareConnectionEvent(event:ConnectionEvent):void {        
+        switch(event.status) {
+          case ConnectionEvent.SUCCESS:
+            progressLabel.text = "Connecting to server successful.";
+            break;
+          case ConnectionEvent.FAILED:
+            progressLabel.text = "Connecting to server failed.";
+            break;
+          case ConnectionEvent.CLOSED:
+            progressLabel.text = "Connection to server closed.";
+            break;
+          case ConnectionEvent.REJECTED:
+            progressLabel.text = "Connection to server rejected.";
+            break;
+          case ConnectionEvent.INVALIDAPP:
+            progressLabel.text = "Connecting to server failed. Invalid application.";
+            break;
+          case ConnectionEvent.APPSHUTDOWN:
+            progressLabel.text = "Connection to server failed. Server shutting down.";
+            break;
+          case ConnectionEvent.SECURITYERROR:
+            progressLabel.text = "Connecting to server failed. Security error.";
+            break;
+          case ConnectionEvent.DISCONNECTED:
+            progressLabel.text = "Connection to server disconnected.";
+            break;
+          case ConnectionEvent.CONNECTING:
+            progressLabel.text = "Connecting to server.";
+            break;
+          case ConnectionEvent.CONNECTING_RETRY:
+            progressLabel.text = "Connecting to server. Retry [" + event.retryAttempts + "]";
+            break;
+          case ConnectionEvent.CONNECTING_MAX_RETRY:
+            progressLabel.text = "Connecting to server. Max retry reached.";
+            break;
+        }
+
+        trace("DeskshareSA::Connecting to server.");
+      }
+      
+      private function onConnectingToServerRetry(event:ConnectionEvent):void {
+        progressLabel.text = "Connecting to server timedout. Retrying.";
+        trace("DeskshareSA::Connecting to server timedout. Retrying.");
+      }
+      
+      
 			private function startVideo(connection:NetConnection, stream:String, videoWidth:Number, videoHeight:Number):void{	
 				ns = new NetStream(connection);
 				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
@@ -110,7 +164,7 @@
         
 				videoHolder = new UIComponent();
         
-        trace("Determine how to display video = [" + videoWidth + "x" + videoHeight + "] display=[" + this.width + "x" + this.height + "]");
+        trace("DeskshareSA::Determine how to display video = [" + videoWidth + "x" + videoHeight + "] display=[" + this.width + "x" + this.height + "]");
         determineHowToDisplayVideo();
         
 //				calculateDisplayDimensions(video, videoHolder);
@@ -127,7 +181,7 @@
 			}
 			
       private function onMetaData(info:Object):void {
-        trace("****metadata: width=" + info.width + " height=" + info.height);
+        trace("DeskshareSA:: ****metadata: width=" + info.width + " height=" + info.height);
         videoWidth = info.width;
         videoHeight = info.height;
         
@@ -141,6 +195,7 @@
       }
       			
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
+
 				if (cursor == null) return;	
         
 //				cursor.x = ((event.x/video.videoWidth)) * videoHolder.width;
@@ -162,18 +217,18 @@
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{
-				trace("VIdeoWindow::asyncerror " + e.toString());
+				trace("DeskshareSA::::asyncerror " + e.toString());
 			}
 			
 			private function onNetStatus(e:NetStatusEvent):void{
 				switch(e.info.code){
 				case "NetStream.Play.Start":
-					trace("NetStream.Publish.Start for broadcast stream " + stream);
-					trace("Dispatching start viewing event");
+					trace("DeskshareSA::NetStream.Publish.Start for broadcast stream " + stream);
+					trace("DeskshareSA::Dispatching start viewing event");
 					service.sendStartedViewingNotification();
 					break;
 				case "NetStream.Play.UnpublishNotify":
-					trace("NetStream.Play.UnpublishNotify for broadcast stream " + stream);
+					trace("DeskshareSA::NetStream.Play.UnpublishNotify for broadcast stream " + stream);
 					stopViewing();
 					break;
 				}
@@ -189,7 +244,7 @@
 //        videoHolder.x = video.x = 0;
 //        videoHolder.y = video.y = 0;
         
-        trace("Center video = [" + video.width + "x" + video.height 
+        trace("DeskshareSA::Center video = [" + video.width + "x" + video.height 
                                 + "] display=[" + this.width + "x" + this.height + "]"
                                 + "loc=[" + videoHolder.x + "," + videoHolder.y + "]");
         
@@ -213,14 +268,14 @@
       }
       
       private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
-        trace("fitToWidthAndAdjustHeightToMaintainAspectRatio");
+        trace("DeskshareSA::fitToWidthAndAdjustHeightToMaintainAspectRatio");
         videoHolder.width = video.width = width;
         // Maintain aspect-ratio
         videoHolder.height = video.height = (videoHeight * video.width) / videoWidth;
         videoHolder.x = video.x = 0;
         videoHolder.y = video.y = 0;
         
-        trace("Disp video = [" + video.width + "x" + video.height 
+        trace("DeskshareSA::Disp video = [" + video.width + "x" + video.height 
           + "] display=[" + this.width + "x" + this.height + "]"
           + "loc=[" + videoHolder.x + "," + videoHolder.y + "]");
         
@@ -232,7 +287,7 @@
       }
       
       private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
-        trace("fitToHeightAndAdjustWidthToMaintainAspectRatio");
+        trace("DeskshareSA::fitToHeightAndAdjustWidthToMaintainAspectRatio");
         videoHolder.height = video.height = height;
         // Maintain aspect-ratio
         videoHolder.width = video.width = (videoWidth * video.height) / videoHeight;
@@ -245,7 +300,7 @@
         videoHolder.x = video.x = (width - video.width) / 4;
         videoHolder.y = video.y = (height - video.height) / 4;	
         
-        trace("Disp video = [" + video.width + "x" + video.height 
+        trace("DeskshareSA::Disp video = [" + video.width + "x" + video.height 
           + "] display=[" + this.width + "x" + this.height + "]"
           + "loc=[" + videoHolder.x + "," + videoHolder.y + "]");
         
@@ -268,5 +323,9 @@
 		]]>
 	</mx:Script>
 		<mx:Image id="cursorImg" visible="false" source="@Embed('org/bigbluebutton/modules/deskshare/assets/images/cursor4.png')"/>
-<!--		<mx:Canvas id="vbox" width="100%" height="100%" backgroundColor="blue"/>	-->
+  <!--
+    <mx:Canvas id="vbox" width="100%" height="100%" backgroundColor="blue"/>
+  -->
+  <mx:Label id="progressLabel" text="FOOOOOOO!!!!!" width="100%" height="30" x="100" y="100" color="red"/>
+
 </mx:Application>
