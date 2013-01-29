@@ -82,6 +82,12 @@
 				return MainCanvas.TOP_LEFT;
 			}
 			
+			
+			/* 
+			 * This function might be unneeded. I'm not sure if it's required to change the title 
+			 * based on how many users are logged in still.
+			 *			Chad
+			 */
 			private function localeChanged(e:LocaleChangeEvent):void {
 				
 			}
@@ -180,9 +186,9 @@
     	itemRollOver="onItemRollOver(event)"
 		itemRollOut="onItemRollOut(event)" >
     	<mx:columns>
-    		<mx:DataGridColumn dataField="role" headerText="Status" editable="false" width="35"
+    		<mx:DataGridColumn dataField="role" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer')}" editable="false" width="35"
     			itemRenderer="org.bigbluebutton.modules.participants.views.StatusItemRenderer" sortable="false" />
-    		<mx:DataGridColumn dataField="name" headerText="Name" editable="false" width="100" sortable="false"
+    		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.nameItemRenderer')}" editable="false" width="100" sortable="false"
     			itemRenderer="org.bigbluebutton.modules.participants.views.NameItemRenderer"/>
     		<mx:DataGridColumn dataField="status" headerText="Media" sortable="false"
     			itemRenderer="org.bigbluebutton.modules.participants.views.MediaItemRenderer"/>

@@ -23,6 +23,9 @@
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
 	creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.participants.maps.*" >
+	
+	<maps:ParticipantsEventMap id="participantsEventMap" />
+	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;

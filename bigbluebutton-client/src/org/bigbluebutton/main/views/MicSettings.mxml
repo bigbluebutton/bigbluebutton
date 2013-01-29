@@ -5,6 +5,7 @@
 	<mx:Script>
 		<![CDATA[
 			import flash.system.Security;
+			import flash.system.SecurityPanel;
 			import flash.ui.Keyboard;
 		
 			import mx.events.CloseEvent;
@@ -34,7 +35,7 @@
 					if (mic.muted) {
 						// user has disallowed access to the mic
 						mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
-						Security.showSettings();
+						Security.showSettings(SecurityPanel.PRIVACY);
 					} else {
 						// user has allowed access to the mic
 						mic.setLoopBack(true);
