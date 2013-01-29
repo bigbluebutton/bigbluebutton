@@ -22,6 +22,7 @@
             </thead>
             <tbody>
             <g:each in="${recordingList}" var="r">
+                <g:if test="${ismoderator || r.published == 'true'}">  
                 <tr class="r0 lastrow">
                     <td class="cell c0" style="text-align:center;">
                     <g:each in="${r.playback}" var="p">
@@ -50,6 +51,7 @@
                     </td>
                     </g:if>
                 </tr>
+                </g:if>
             </g:each>
             </tbody>
         </table>
