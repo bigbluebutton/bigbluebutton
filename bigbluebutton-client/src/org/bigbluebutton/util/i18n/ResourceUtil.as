@@ -119,6 +119,10 @@ package org.bigbluebutton.util.i18n
 			}
 			return -1;
 		}
+
+		public function getPreferredLocaleName():String {
+			return localeNames[localeIndex];
+		}
 		
 		public function setPreferredLocale(locale:String):void {
 			LogUtil.debug("Setting up preferred locale " + locale);
