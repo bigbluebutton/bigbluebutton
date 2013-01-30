@@ -1,23 +1,20 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.server.red5
 
@@ -121,20 +118,22 @@ class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskSh
     	return Some(roomScope)
 	}
  
-	private def getRoomSharedObject(roomScope:IScope):Option[ISharedObject] = {
+	private def getRoomSharedObject(roomScope:IScope, name:String):Option[ISharedObject] = {
+	    var soName:String = name + "-deskSO";
+	  
 		if (roomScope == null) {
 		   logger.error("DeskshareApplication: Cannot get shared object because room scope is null.")
 		   return None
 		} 
 		logger.debug("DeskshareApplication: Getting shared object.")
-		var deskSO:ISharedObject = getSharedObject(roomScope, "deskSO")
+		var deskSO:ISharedObject = getSharedObject(roomScope, soName)
 		logger.debug("DeskshareApplication: Got shared object.")
 		
 		if (deskSO == null) {	
 		  logger.debug("DeskshareApplication: Creating shared object.")
-			if (createSharedObject(roomScope, "deskSO", false)) {
+			if (createSharedObject(roomScope, soName, false)) {
 			  logger.debug("DeskshareApplication: Created shared object. Getting shared object.")
-			  deskSO = getSharedObject(roomScope, "deskSO")
+			  deskSO = getSharedObject(roomScope, soName)
 			} else {
 			  logger.error("DeskshareApplication: Failed to create shared object for room")
 			//	println ("Failed to create shared object")
@@ -147,17 +146,17 @@ class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskSh
 	}
  
  	def createDeskshareClient(name: String): Option[RtmpClientAdapter] = {
- 		getRoomScope(name) match {
-	     case None => logger.error("DeskshareApplication: Failed to get room scope for [ %s ] ", name)
-	     case Some(roomScope) => {
-	    	 getRoomSharedObject(roomScope) match {
+ //		getRoomScope(name) match {
+//	     case None => logger.error("DeskshareApplication: Failed to get room scope for [ %s ] ", name)
+//	     case Some(roomScope) => {
+	    	 getRoomSharedObject(appScope, name) match {
 	    	   case None => logger.error("DeskshareApplication:: Failed to get shared object for room [ %s ]",name)
 	    	   case Some(deskSO) => {
 	    	     logger.debug("DeskshareApplication: Creating RtmpClientAdapter")
 	    		 return Some(new RtmpClientAdapter(deskSO))
 	    	   }
-	    	 }
-	       }
+//	    	 }
+//	       }
 	   }
 	   
 	   return None
@@ -166,18 +165,18 @@ class DeskshareApplication(streamManager: StreamManager, deskShareServer: DeskSh
  	
 	def createScreenVideoBroadcastStream(name: String): Option[ScreenVideoBroadcastStream] = {
 	  logger.debug("DeskshareApplication: Creating ScreenVideoBroadcastStream")
-	   getRoomScope(name) match {
-	     case None => logger.error("Failed to get room scope %s", name)
-	     case Some(roomScope) => {
-	    	 getRoomSharedObject(roomScope) match {
+//	   getRoomScope(name) match {
+//	     case None => logger.error("Failed to get room scope %s", name)
+//	     case Some(roomScope) => {
+	    	 getRoomSharedObject(appScope, name) match {
 	    	   case None => logger.error("Failed to get shared object for room %s",name)
 	    	   case Some(deskSO) => {
 	    	     logger.debug("DeskshareApplication: Creating Broadcast Stream for room [ %s ]", name)
-	    		   return createBroadcastStream(name, roomScope)
+	    		   return createBroadcastStream(name, appScope)
 	    	   }
 	    	 }
-	       }
-	   }
+//	       }
+//	   }
 	   
 	   return None	   
 	}

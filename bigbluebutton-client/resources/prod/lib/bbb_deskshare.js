@@ -5,7 +5,7 @@ function startApplet(IP, roomNumber, fullScreen, useSVC2)
         document.body.appendChild(iframe);
         frames[frames.length - 1].document.write(
                 "<applet code=\"org.bigbluebutton.deskshare.client.DeskShareApplet.class\"" +
-                        "id=\"DeskShareApplet\" width=\"0\" height=\"1\" archive=\"bbb-deskshare-applet-0.8.jar\">" +
+                        "id=\"DeskShareApplet\" width=\"0\" height=\"1\" archive=\"bbb-deskshare-applet-0.8.1.jar\">" +
                 "<param name=\"ROOM\" value=\"" + roomNumber  + "\"/>" +
                 "<param name=\"IP\" value=\"" + IP + "\"/>" +
                 "<param name=\"PORT\" value=\"9123\"/>" +
