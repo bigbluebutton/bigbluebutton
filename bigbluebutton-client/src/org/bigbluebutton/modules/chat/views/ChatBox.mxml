@@ -143,10 +143,7 @@
       
 			private function onCreationComplete():void {    
         		bindToHeightToDetermineHeightOfMessageList();
-        		
-				//LogUtil.debug("WATERFALL-BOX BaseIndex is " + baseIndex);
-				
-				//loadKeyCombos();
+        						
 				addContextMenuItems();
 				scrollTimer = new Timer(750, 2);
 				scrollTimer.addEventListener(TimerEvent.TIMER, onScrollTimer);
@@ -181,17 +178,14 @@
 			}
 			
 			private function focusChatBox(e:ShortcutEvent):void{
-				LogUtil.debug("WATERFALL: Focus Chat Box signal received.");
 				focusManager.setFocus(chatMessagesList);
 			}
 			
 			private function focusColourPicker(e:ShortcutEvent):void{
-				LogUtil.debug("WATERFALL: Focus Colour Picker signal received.");
 				focusManager.setFocus(cmpColorPicker);
 			}
 			
 			private function remoteSendMessage(e:ShortcutEvent):void{
-				LogUtil.debug("WATERFALL: Send Message signal received.");
 				sendMessages();
 			}
       
@@ -340,18 +334,10 @@
 			
 			// Determines for navigateMessages() whether the message to be spoken by the screen-reader needs an extra space added to the end or not
 			private function setDescription():Boolean{
-				LogUtil.debug("Starting setDescription");	
-				//LogUtil.debug("WATERFALL: In setDesdecription; currentMessage is " + currentMessage); // It's zero when we navigate to first message
-				//LogUtil.debug("chatMessages.messages.length is " + chatMessages.messages.length);
-				//LogUtil.debug("WATERFALL: And just to check: " + chatMessages.messages.getItemAt(currentMessage).toString());
-				
 				var chatHistorySpacer:Boolean = false;
-				//LogUtil.debug("About to enter SD if block");
 				if (chatMessagesList.accessibilityProperties.description == chatMessages.messages.getItemAt(currentMessage).toString()) {
-					//LogUtil.debug("In SD if block");
 		          	chatHistorySpacer = true;
 		        }
-				LogUtil.debug("Done with setDescription");
 				return chatHistorySpacer;
 			}
 			
@@ -381,10 +367,8 @@
 			}
 			
 			public function hotkeyCapture():void{
-				//trace("Entering hotkeyCapture");
 			    this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
 			    ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
-			    //trace("Leaving hotkeyCapture");
 		    }
 			
 			private function handleKeyDown(e:KeyboardEvent) :void {
@@ -393,12 +377,7 @@
 		  
 		  		var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
 				
-				/*if (e.keyCode < 64 || e.keyCode > 90){
-					LogUtil.debug("WATERFALL: KeyCode " + e.keyCode + " is nonalphabetic (probably)");
-				}*/
-				LogUtil.debug("WATERFALL: Checking if " + modifier + e.keyCode + " is a recognized ChatBox hotkey");
 				if (keyCombos[keyPress]) {
-					LogUtil.debug("Yes it is");
 					var event:ShortcutEvent = new ShortcutEvent(keyCombos[keyPress]);
 					event.otherUserID = chatWithUserID;
 					globalDispatcher.dispatchEvent(event);
@@ -406,25 +385,17 @@
 		    }
 			      
 			private function advanceMessage(e:ShortcutEvent):void{
-				LogUtil.debug("WATERFALL: Entering advanceMessage()");
-				LogUtil.debug("e.otherUserID = " + e.otherUserID + ", chatWithUserID = " + chatWithUserID);
-				// Recompile this in the morning and see how it goes
 				if (e.otherUserID == chatWithUserID){
-					//if (currentMessage < (chatMessages.numMessages() - 3)){
 					if (currentMessage < (chatMessages.numMessages() - 1)){
-						LogUtil.debug("Incrementing message");
 						currentMessage++;
 					} else {
 						chatMessagesList.accessibilityProperties.description += " ";
-						LogUtil.debug("We can go no further; description is " + chatMessagesList.accessibilityProperties.description);
 					}
-					LogUtil.debug("WATERFALL: About to go into navigationMaintenance()");
 					navigationMaintenance();
 				}
 			}
 			
 			private function goBackOneMessage(e:ShortcutEvent):void {
-				//LogUtil.debug("WATERFALL: Entering goBackOneMessage()");
 				if (e.otherUserID == chatWithUserID){
 					if (currentMessage > 0){
 						currentMessage--;
@@ -432,43 +403,30 @@
 					else{
 						chatMessagesList.accessibilityProperties.description += " ";
 					}
-					//LogUtil.debug("WATERFALL: About to go into navigationMaintenance()");
 					navigationMaintenance();
 				}
 			}
 			
 			private function repeatMessage(e:ShortcutEvent):void {
-				//LogUtil.debug("WATERFALL: Entering repeatMessage()");
 				if (e.otherUserID == chatWithUserID){
 					chatMessagesList.accessibilityProperties.description += " ";	
 					repeat = true;
-					//LogUtil.debug("WATERFALL: About to go into navigationMaintenance()");
 					navigationMaintenance();
 				}
 			}
 			
 			private function goToLatestMessage(e:ShortcutEvent):void {
-				//LogUtil.debug("WATERFALL: Entering goToLatestMessage()");
 				if (e.otherUserID == chatWithUserID){
-					currentMessage = chatMessages.numMessages() - 3;
+					currentMessage = chatMessages.numMessages() - 1;
 					navToLatest = true;
 					spacerNeeded = setDescription();
-					
 					indicatorNeeded = true;
-					LogUtil.debug("In golatest; currentMessage is " + currentMessage + " and numMessages is " + chatMessages.numMessages());
-					LogUtil.debug(navLatestString);
-					LogUtil.debug(chatMessages.messages.getItemAt(currentMessage).toString());
-					LogUtil.debug(navLatestString + " " + chatMessages.messages.getItemAt(currentMessage).toString());
 					chatMessagesList.accessibilityProperties.description = navLatestString + " " + chatMessages.messages.getItemAt(currentMessage).toString();
-					//Accessibility.updateProperties();
-					//LogUtil.debug("WATERFALL: About to go into navigationMaintenance()");
 					navigationMaintenance();
 				}
 			}
 			
 			private function goToFirstMessage(e:ShortcutEvent):void {
-				//LogUtil.debug("WATERFALL: Entering goToFirstMessage()");
-				//LogUtil.debug("WATERFALL: e.otherUserID = " + e.otherUserID + ", chatWithUserID = " + chatWithUserID);
 				if (e.otherUserID == chatWithUserID){
 					currentMessage = 0;
 					navToFirst = true;
@@ -480,19 +438,15 @@
 			}
 			
 			private function goToLatestReadMessage(e:ShortcutEvent):void {
-				//LogUtil.debug("WATERFALL: Entering goToLatestReadMessage()");
 				if (e.otherUserID == chatWithUserID){
 					currentMessage = latestMessage;
 					chatMessagesList.accessibilityProperties.description = navRecentString;
-					//Accessibility.updateProperties();
-					//LogUtil.debug("WATERFALL: About to go into navigationMaintenance()");
 					navigationMaintenance();
 				}
 			}
 			
 			private function navigationMaintenance():void {
 				// Update the latestMessage counter for new message notifications
-				LogUtil.debug("WATERFALL: Entering navigationMaintenance()");
 				if (currentMessage > latestMessage)
 					latestMessage = currentMessage;
 					
@@ -500,22 +454,17 @@
 				// Make it clear to the user that they have either navigated to or reached one end of the message history or the other.
 					if (currentMessage == 0){
 						if (!navToFirst){
-							LogUtil.debug("Trying to navigate before first message");
 							indicatorNeeded = true;
 							chatMessagesList.accessibilityProperties.description = reachedFirst + " " + chatMessages.messages.getItemAt(currentMessage).toString();
-							//Accessibility.updateProperties();
 						}
 					}
-					else if (currentMessage == chatMessages.numMessages() - 3){
+					else if (currentMessage == chatMessages.numMessages() - 1){
 						if (!navToLatest){
-							LogUtil.debug("Trying to navigate past last message");
 							indicatorNeeded = true;
-							chatMessagesList.accessibilityProperties.description = reachedLatest + " " + chatMessages.messages.getItemAt(currentMessage).toString();
-							//Accessibility.updateProperties();			
+							chatMessagesList.accessibilityProperties.description = reachedLatest + " " + chatMessages.messages.getItemAt(currentMessage).toString();			
 						}
 					}
 					else{
-						LogUtil.debug("In else statement");
 						// Set the accessibility description to the indicated message
 						chatMessagesList.accessibilityProperties.description = chatMessages.messages.getItemAt(currentMessage).toString();
 					}
@@ -525,11 +474,7 @@
 						chatMessagesList.accessibilityProperties.description += " ";
 					}
 				}
-					
-				//LogUtil.debug("WATERFALL: About to update Accessibility properties");
-				LogUtil.debug("WATERFALL: About to run Acc.upProp in navMaint, description is: " + chatMessagesList.accessibilityProperties.description);
 				Accessibility.updateProperties();
-				//LogUtil.debug("WATERFALL: Update successful");
 				navToFirst = false;
 				navToLatest = false;
 				spacerNeeded = false;
@@ -538,19 +483,32 @@
 				LogUtil.debug("Done with navigationMaintenance(); description is now " + chatMessagesList.accessibilityProperties.description);
 			}
 			
+			// General-purpose developer method, used during testing of ChatBox accessibility
 			private function chatDebugInfo(e:ShortcutEvent):void{
 				LogUtil.debug("----CHAT DEBUG INFORMATION----");
-				LogUtil.debug("chatWithUserID is: " + chatWithUserID);
-				LogUtil.debug("currentMessage is: " + currentMessage);
-				LogUtil.debug("latestMessage is: " + latestMessage);
-				LogUtil.debug("Focused message is: " + chatMessages.messages.getItemAt(currentMessage).toString());
-				LogUtil.debug("Number of messages is: " + chatMessages.messages.length);
-				LogUtil.debug("chatMessagesList.accessibilityProperties.description is: " + chatMessagesList.accessibilityProperties.description);
-				//LogUtil.debug("repeat is: " + repeat);
-				//LogUtil.debug("navToFirst is: " + navToFirst);
-				//LogUtil.debug("indicatorNeeded is: " + indicatorNeeded);
-				//LogUtil.debug("navToLatest is: " + navToLatest);
-				//LogUtil.debug(" is: " + ); 
+					var num:int = chatMessages.numMessages();
+					LogUtil.debug("Printing all chat messages of the " + num + " present:");
+					for (var i:int = 0; i < num; i++){
+						if (chatMessages.messages.getItemAt(i) != null)
+							LogUtil.debug("Message " + i + ": " + chatMessages.messages.getItemAt(i).toString());
+						else
+							LogUtil.debug("Message " + i + " is NULL");
+					}
+					
+					/*
+					LogUtil.debug("chatWithUserID is: " + chatWithUserID);
+					LogUtil.debug("currentMessage is: " + currentMessage);
+					LogUtil.debug("latestMessage is: " + latestMessage);
+					LogUtil.debug("Focused message is: " + chatMessages.messages.getItemAt(currentMessage).toString());
+					LogUtil.debug("Number of messages is: " + chatMessages.messages.length);
+					LogUtil.debug("chatMessagesList.accessibilityProperties.description is: " + chatMessagesList.accessibilityProperties.description);
+					*/
+					//LogUtil.debug("repeat is: " + repeat);
+					//LogUtil.debug("navToFirst is: " + navToFirst);
+					//LogUtil.debug("indicatorNeeded is: " + indicatorNeeded);
+					//LogUtil.debug("navToLatest is: " + navToLatest);
+					//LogUtil.debug(" is: " + ); 
+				
 				LogUtil.debug("------------------------------");
 			}
      
@@ -599,8 +557,6 @@
       }
 
       private function handleTextAreaKeyUpEvent(e:KeyboardEvent):void {
-		//LogUtil.debug("Entering handle key UP with keycode " + e.keyCode);
-		// Chad keypress
 		if (e.keyCode == Keyboard.ENTER) {
 			sendMessages();
 		}     
@@ -622,7 +578,6 @@
       }	
 	  
 		private function focusChatInput(e:ShortcutEvent):void{
-			//LogUtil.debug("WATERFALL focusChatInput");
 			txtMsgArea.setFocus();
 		}
 		]]>
