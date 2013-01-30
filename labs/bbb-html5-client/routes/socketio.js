@@ -212,12 +212,14 @@ exports.SocketOnConnection = function(socket) {
         }
         else {
           var username = handshake.username;
-          pub.publish("bigbluebutton:bridge", JSON.stringify([meetingID,'msg', username, msg]));
-          var messageID = rack(); //get a randomly generated id for the message
+          redisAction.getUserProperties(meetingID, sessionID, function(properties) {
+            pub.publish("bigbluebutton:bridge", JSON.stringify([meetingID,'msg', username, msg, properties.pubID]));
+            var messageID = rack(); //get a randomly generated id for the message
 
-          //try later taking these nulls out and see if the function still works
-          store.rpush(redisAction.getMessagesString(meetingID, null, null), messageID); //store the messageID in the list of messages
-          store.hmset(redisAction.getMessageString(meetingID, null, null, messageID), 'message', msg, 'username', username);
+            //try later taking these nulls out and see if the function still works
+            store.rpush(redisAction.getMessagesString(meetingID, null, null), messageID); //store the messageID in the list of messages
+            store.hmset(redisAction.getMessageString(meetingID, null, null, messageID), 'message', msg, 'username', username, 'userID', properties.pubID);
+          });
         }
       }
     });

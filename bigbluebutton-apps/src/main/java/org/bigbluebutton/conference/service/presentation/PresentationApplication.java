@@ -124,7 +124,8 @@ public class PresentationApplication {
 			Map<String, Object> message = new HashMap<String, Object>();	
 			message.put("xPercent", xPercent);
 			message.put("yPercent", yPercent);
-			ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "PresentationCursorUpdateCommand", message);
+			//ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "PresentationCursorUpdateCommand", message);
+			ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, room, "PresentationCursorUpdateCommand", message);
 			connInvokerService.sendMessage(m);
 			
 			return;

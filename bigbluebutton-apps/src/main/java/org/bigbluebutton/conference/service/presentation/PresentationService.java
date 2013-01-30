@@ -98,7 +98,7 @@ public class PresentationService {
 	}
 	
 	public void sendCursorUpdate(Double xPercent,Double yPercent) {
-		log.debug("Request update cursor[" + xPercent + "," + yPercent + "]" );
+		log.debug("[HTML5-Debug] Request update cursor[" + xPercent + "," + yPercent + "]" );
 		IScope scope = Red5.getConnectionLocal().getScope();
 		//presentationApplication.sendCursorUpdate(scope.getName(), xPercent, yPercent);
 		bridge.sendCursorUpdate(scope.getName(),xPercent,yPercent);

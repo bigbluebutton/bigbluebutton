@@ -279,7 +279,7 @@ public class RedisMessagingService implements MessagingService{
 					
 					participantsApplication.assignPresenter(meetingId, newPresenter);
 
-				}/*else if(messageName.equalsIgnoreCase("mvCur")){
+				}else if(messageName.equalsIgnoreCase("mvCur")){
 					Double xPercent = gson.fromJson(array.get(2), Double.class);
 					Double yPercent = gson.fromJson(array.get(3), Double.class);
 					
@@ -290,7 +290,7 @@ public class RedisMessagingService implements MessagingService{
 					}
 					
 					presentationApplication.sendCursorUpdate(meetingId, xPercent, yPercent);
-				}*/
+				}
 
 			}
 			
