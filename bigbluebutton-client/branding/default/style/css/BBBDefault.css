@@ -624,3 +624,8 @@ MDIWindow {
   downSkin:      Embed('assets/images/resizeHandler.png');
   disabledSkin:  Embed('assets/images/resizeHandler.png');
 }
+
+.cameraDisplaySettingsWindowStartBtn
+{
+  icon: Embed('assets/images/webcam.png'); 
+}

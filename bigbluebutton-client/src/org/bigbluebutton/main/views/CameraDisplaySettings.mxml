@@ -21,7 +21,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
                 xmlns:view="org.bigbluebutton.main.views.*"
                 layout="absolute" 
-                width="600" height="400" creationComplete="onCreationComplete()" 
+                width="600" height="400" creationComplete="onCreationComplete()" styleName="cameraDisplaySettingsWindowStyle" 
                 showCloseButton="true" close="onCancelClicked()" keyDown="handleKeyDown(event)">
   <mx:Script>
     <![CDATA[
@@ -62,9 +62,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var _waitingForActivation:Boolean = false;
       
       static private var _cameraAccessDenied:Boolean = false;
-      
-      [Bindable]
-      private var camIcon:Class = images.webcam;
       
       private var _video:Video;
       private var aspectRatio:Number = 1;
@@ -174,8 +171,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function showResControls(show:Boolean):void {
-        if (show) cmbResolution.visible = true;
-        else cmbResolution.visible = false;
+        //if (show) cmbResolution.visible = true;
+        //else cmbResolution.visible = false;
       }
       
       private function setComboResolution():void {
@@ -279,13 +276,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     ]]>
   </mx:Script>
   
-  <mx:VBox id="webcamDisplay" width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+  <mx:VBox id="webcamDisplay" width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" styleName="cameraDisplaySettingsWindowBackground">
     <view:VideoHolder id="_videoHolder" width="100%" height="90%"/>
     <mx:HBox width="100%"> 
-      <mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" icon="{camIcon}" click="startPublishing()" enabled="true"/>
-      <mx:ComboBox id="cmbCameraSelector" dataProvider="{Camera.names}" width="150" visible="false" change="updateCamera()"/>
-      <mx:Button id="changeCamera" label="Change Camera" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" click="showCameraSettings()"/>
-      <mx:ComboBox id="cmbResolution" dataProvider="{resolutions}" width="20%" visible="false" change="updateCamera()"/>
+      <mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" click="startPublishing()" enabled="true" styleName="cameraDisplaySettingsWindowStartBtn" label="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.labelText')}" />
+      <mx:ComboBox id="cmbCameraSelector" includeInLayout="false" dataProvider="{Camera.names}" width="150" visible="false" change="updateCamera()"/>
+      <mx:Button id="changeCamera" styleName="cameraDisplaySettingsWindowChangeCamBtn" label="{ResourceUtil.getInstance().getString('bbb.publishVideo.changeCameraBtn.labelText')}" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" click="showCameraSettings()"/>
+      <mx:ComboBox id="cmbResolution" includeInLayout="false" styleName="cameraDisplaySettingsWindowChangeResolutionCombo" dataProvider="{resolutions}" width="20%" visible="false" change="updateCamera()"/>
     </mx:HBox>
     
   </mx:VBox>		
