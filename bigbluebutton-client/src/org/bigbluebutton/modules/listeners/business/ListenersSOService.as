@@ -18,12 +18,14 @@
 */
 package org.bigbluebutton.modules.listeners.business
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;	
+	import flash.net.SharedObject;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.EventConstants;
 	import org.bigbluebutton.core.UsersUtil;
@@ -125,17 +127,23 @@ package org.bigbluebutton.modules.listeners.business
 				var pattern:RegExp = /(.*)-(.*)$/;
 				var result:Object = pattern.exec(n.callerName);
 				if (result != null) {
+          
+          trace("******************** [" + n.callerName + "," + result[1] + "," + result[2] + "] ****************"); 
+          
 					/**
 					 * The first item is the userid and the second is the username.
 					 */
-					if (UserManager.getInstance().getConference().amIThisUser(result[1])) {
+          var externUserID:String = result[1] as String;
+          var internUserID:String = UsersUtil.externalUserIDToInternalUserID(externUserID);
+          
+					if (UsersUtil.getMyExternalUserID() == externUserID) {
 						UserManager.getInstance().getConference().setMyVoiceUserId(n.userid);						
 						UserManager.getInstance().getConference().muteMyVoice(n.muted);
 						UserManager.getInstance().getConference().setMyVoiceJoined(true);
 					}	
           
-          if (UsersUtil.hasUser(result[1])) {
-            var bu:BBBUser = UsersUtil.getUser(result[1]);
+          if (UsersUtil.hasUser(internUserID)) {
+            var bu:BBBUser = UsersUtil.getUser(internUserID);
             bu.voiceUserid = n.userid;
             bu.voiceMuted = n.muted;
             bu.voiceJoined = true;
