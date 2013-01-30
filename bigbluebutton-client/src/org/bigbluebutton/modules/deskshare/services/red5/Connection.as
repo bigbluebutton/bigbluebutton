@@ -233,9 +233,9 @@ package org.bigbluebutton.modules.deskshare.services.red5
      * This method is useful for clients which have joined a room where somebody is already publishing
      * 
      */		
-    private function checkIfStreamIsPublishing(room:String):void{
+    private function checkIfStreamIsPublishing():void{
       trace("checking if desk share stream is publishing");
-      nc.call("deskshare.checkIfStreamIsPublishing", responder, room);
+      nc.call("deskshare.checkIfStreamIsPublishing", responder);
     }
     
     public function disconnect():void{
@@ -244,12 +244,13 @@ package org.bigbluebutton.modules.deskshare.services.red5
     
     public function connectionSuccessHandler():void{
       trace("Successully connection to " + uri);
-      var deskSOName:String = room + "-deskSO";
+     // var deskSOName:String = room + "-deskSO";
+      var deskSOName:String = "deskSO";
       deskSO = SharedObject.getRemote(deskSOName, uri, false);
       deskSO.client = this;
       deskSO.connect(nc);
       
-      checkIfStreamIsPublishing(room);
+      checkIfStreamIsPublishing();
     }
     
     public function getConnection():NetConnection{

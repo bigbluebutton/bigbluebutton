@@ -55,7 +55,7 @@ package org.bigbluebutton.modules.deskshare.services
 			trace("Deskshare Service connecting to " + uri);
 			conn = new Connection(room);
 
-			conn.setURI(uri);
+			conn.setURI(uri + "/" + room);
 			conn.connect();
 		
 		}
