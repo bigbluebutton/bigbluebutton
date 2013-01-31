@@ -134,24 +134,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             warningText = "Connecting to server.";
             break;
           case ConnectionEvent.CONNECTING_RETRY:
-            warningText = "Connecting to server. Retry [" + event.retryAttempts + "]";
+            warningText = "Connecting to server failed. Retry [" + event.retryAttempts + "]";
             break;
           case ConnectionEvent.CONNECTING_MAX_RETRY:
-            warningText = "Connecting to server. Max retry reached. Giving up.";
+            warningText = "Connecting to server failed. Max retry reached. Giving up.";
             break;
           case ConnectionEvent.CHECK_FOR_DESKSHARE_STREAM:
-            warningText = "Checking if desktop is being shared.";
+            warningText = "Checking if desktop is shared.";
             break;          
           case ConnectionEvent.FAIL_CHECK_FOR_DESKSHARE_STREAM:
-            warningText = "Failed to check if desktop is being shared.";
+            warningText = "Checking if desktop is shared failed.";
             break; 
           case ConnectionEvent.NO_DESKSHARE_STREAM:
-            warningText = "No desktop is being shared.";
+            warningText = "Desktop is not shared.";
             break; 
         }
 
         showStatusText(warningText, true, "0x000000");
-        trace("DeskshareSA::Connecting to server.");
+
+        trace("CONNECT STATUS EVENT [" + event.status + "]");
       }
       
       
@@ -216,20 +217,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onNetStatus(e:NetStatusEvent):void{
 				switch(e.info.code){
-				case "NetStream.Play.Start":
-					trace("DeskshareSA::NetStream.Publish.Start for broadcast stream " + stream);
-					trace("DeskshareSA::Dispatching start viewing event");
-					service.sendStartedViewingNotification();
-					break;
-				case "NetStream.Play.UnpublishNotify":
-					trace("DeskshareSA::NetStream.Play.UnpublishNotify for broadcast stream " + stream);
-					stopViewing();
-					break;
-        default :
-          break;
+  				case "NetStream.Play.Start":
+  					trace("DeskshareSA::NetStream.Publish.Start for broadcast stream " + stream);
+  					trace("DeskshareSA::Dispatching start viewing event");
+  					service.sendStartedViewingNotification();
+  					break;
+  				case "NetStream.Play.UnpublishNotify":
+  					trace("DeskshareSA::NetStream.Play.UnpublishNotify for broadcast stream " + stream);
+  					stopViewing();
+  					break;
+          case "NetStream.DRM.UpdateNeeded":
+          case "NetStream.Play.Failed":
+          case "NetStream.Play.FileStructureInvalid":
+          case "NetStream.Play.NoSupportedTrackFound":
+          case "NetStream.Play.StreamNotFound":
+//          case "NetStream.Play.Reset":
+            showStatusText(e.info.code, true, "0x000000");
+            break;
 				} 
         
-        showStatusText(e.info.code, true, "0x000000");
+        trace("NET STATUS EVENT [" + e.info.code + "]");
 			}
       
       //----------------------------
