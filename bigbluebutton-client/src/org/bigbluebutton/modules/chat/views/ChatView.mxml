@@ -90,14 +90,14 @@
       public var chatOptions:ChatOptions;
 	  
 	  [Bindable]
-	  private var baseIndex:int;
-	  private static const PUBLIC_TAB_NEW:String = ResourceUtil.getInstance().getString("bbb.accessibility.chat.chatView.publicTabNew");
-      private var publicWaiting:Boolean = false;
+		private var baseIndex:int;
+		private static const PUBLIC_TAB_NEW:String = ResourceUtil.getInstance().getString("bbb.accessibility.chat.chatView.publicTabNew");
+		private var publicWaiting:Boolean = false;
 		private var privateWaiting:ArrayCollection = new ArrayCollection();
 		private var publicFocus:Boolean = false;
 		private var privateFocus:Boolean = false;
 		private var timerInterval:int = 10; // How many seconds you want the timer to wait between chat notifications
-      private var notificationTimer:Timer = new Timer(timerInterval * 1000);
+		private var notificationTimer:Timer = new Timer(timerInterval * 1000);
 			
 			[Embed(source="../sounds/publicSound.mp3")] 
       private var publicSoundClass:Class;
@@ -144,8 +144,9 @@
 			}
 			
 		private function handlePublicChatMessageEvent(event:PublicChatMessageEvent):void {
-			publicWaiting = true;
+			//publicWaiting = true;
 			notifyUserOfNewMessage(PUBLIC_CHAT_USERID);
+			publicNotification();
       	}
       
 		private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
@@ -163,13 +164,13 @@
 			}
 			
 			// See if the chatbox is not in focus and notify user about the message.
-			privateWaiting.addItem(event);
+			//privateWaiting.addItem(event);
 			notifyUserOfNewMessage(event.message.fromUserID);
+			privateNotification(event);
 		}
       
       private function notifyUserOfNewMessage(userID:String):void {
         if (! isChatBoxCurrentlySelected(userID)) {
-			LogUtil.debug("WATERFALL: Notifying user of new message from ID: " + userID);
         	notifyParticipantOfUnreadMessageFrom(userID);
         }
       }
@@ -310,7 +311,7 @@
 			
 			// Activates an audio alert for screen-reader users on public message reception
 			private function publicNotification():void {
-				LogUtil.debug("WATERFALL: In publicNotification, publicWaiting will be true");
+				LogUtil.debug("WATERFALL: In publicNotification, adding publicChatFocus listener");
 				publicWaiting = true;
 				chatTabs.getChildByName(PUBLIC_CHAT_USERID).addEventListener(FocusEvent.FOCUS_IN, publicChatFocus);
 				chatTabs.getChildByName(PUBLIC_CHAT_USERID).addEventListener(FocusEvent.FOCUS_OUT, publicChatUnfocus);
@@ -339,6 +340,7 @@
 			}
 			
 			public function publicChatFocus(event:FocusEvent):void{
+				LogUtil.debug("WATERFALL: Entering publicChatFocus");
 				publicFocus = true;
 				if (publicWaiting) {
 	          		ExternalInterface.call("clearblink");
@@ -379,11 +381,9 @@
 			// Listens to the notification timer, and checks if there are messages waiting
 			private function checkNotifications(event:TimerEvent):void {
 				if (Accessibility.active) {
-					var debugDate:Date = new Date();
 					var message:String = "";
 					var playSoundClip:Boolean = useSoundClip();
-					LogUtil.debug("WATERFALL: In CheckNotifications, publicWaiting and publicfocus are: " + publicWaiting + " " + publicFocus);
-					if (publicWaiting && !publicFocus) {
+					if (publicWaiting == true && publicFocus == false) {
 						if (playSoundClip) {
 	            			publicSound.play();
             			} else{
@@ -405,9 +405,13 @@
 							message += ResourceUtil.getInstance().getString("bbb.accessibility.chat.chatView.privateTabNew", [names]);
 						}
 					}
+					
 					if (playSoundClip == false){
-						LogUtil.debug("WATERFALL: Going into addAlert with message: " + message);
-						ExternalInterface.call("addAlert", message);
+						if (message == ""){
+						}
+						else{
+							ExternalInterface.call("addAlert", message);
+						}
 					}				
 				}
 			}

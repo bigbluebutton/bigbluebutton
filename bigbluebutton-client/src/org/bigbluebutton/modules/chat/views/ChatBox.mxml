@@ -390,6 +390,7 @@
 						currentMessage++;
 					} else {
 						chatMessagesList.accessibilityProperties.description += " ";
+						repeat = true;
 					}
 					navigationMaintenance();
 				}
@@ -402,6 +403,7 @@
 					}
 					else{
 						chatMessagesList.accessibilityProperties.description += " ";
+						repeat = true;
 					}
 					navigationMaintenance();
 				}
@@ -409,7 +411,7 @@
 			
 			private function repeatMessage(e:ShortcutEvent):void {
 				if (e.otherUserID == chatWithUserID){
-					chatMessagesList.accessibilityProperties.description += " ";	
+					chatMessagesList.accessibilityProperties.description += " ";
 					repeat = true;
 					navigationMaintenance();
 				}
@@ -440,7 +442,7 @@
 			private function goToLatestReadMessage(e:ShortcutEvent):void {
 				if (e.otherUserID == chatWithUserID){
 					currentMessage = latestMessage;
-					chatMessagesList.accessibilityProperties.description = navRecentString;
+					chatMessagesList.accessibilityProperties.description = navRecentString + " " + chatMessages.messages.getItemAt(currentMessage).toString();
 					navigationMaintenance();
 				}
 			}
