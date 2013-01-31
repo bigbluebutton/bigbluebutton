@@ -131,7 +131,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             warningText =  "Connection to server disconnected.";
             break;
           case ConnectionEvent.CONNECTING:
-            warningText = "Connecting to server.";
+            warningText = "Connecting to server...";
             break;
           case ConnectionEvent.CONNECTING_RETRY:
             warningText = "Connecting to server failed. Retry [" + event.retryAttempts + "]";
@@ -140,10 +140,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             warningText = "Connecting to server failed. Max retry reached. Giving up.";
             break;
           case ConnectionEvent.CHECK_FOR_DESKSHARE_STREAM:
-            warningText = "Checking if desktop is shared.";
+            warningText = "Loading...";
             break;          
           case ConnectionEvent.FAIL_CHECK_FOR_DESKSHARE_STREAM:
-            warningText = "Checking if desktop is shared failed.";
+            warningText = "Loading shared desktop failed.";
             break; 
           case ConnectionEvent.NO_DESKSHARE_STREAM:
             warningText = "Desktop is not shared.";
@@ -154,7 +154,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
         trace("CONNECT STATUS EVENT [" + event.status + "]");
       }
-      
       
 			private function startVideo(connection:NetConnection, stream:String, videoWidth:Number, videoHeight:Number):void{	
 				ns = new NetStream(connection);
