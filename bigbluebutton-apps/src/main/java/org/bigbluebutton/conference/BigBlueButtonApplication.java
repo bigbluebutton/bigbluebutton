@@ -1,26 +1,25 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.conference;
 
 import java.util.Iterator;
 import java.util.Set;
-
 import org.red5.server.api.Red5;import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.red5.logging.Red5LoggerFactory;
@@ -28,7 +27,7 @@ import org.red5.server.adapter.IApplication;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.IContext;
-import org.red5.server.api.IScope;
+import org.red5.server.api.scope.IScope;
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -40,6 +39,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	private ParticipantsApplication participantsApplication;
 	private RecorderApplication recorderApplication;
 	private AbstractApplicationContext appCtx;
+	private ConnectionInvokerService connInvokerService;
 	
 	private String version;
 	
@@ -63,7 +63,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     public boolean roomStart(IScope room) {
     	log.debug("Starting room [" + room.getName() + "].");
     	assert participantsApplication != null;
-    	
+    	connInvokerService.addScope(room.getName(), room);
     	return super.roomStart(room);
     }	
 	
@@ -81,7 +81,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     	 */
 		assert recorderApplication != null;
 		recorderApplication.destroyRecordSession(bbbSession.getSessionName());
-		
+		connInvokerService.removeScope(room.getName());
 		log.debug("Stopped room [" + room.getName() + "].");
     }
     
@@ -108,8 +108,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		log.debug("record value - [" + record + "]"); 
 
     	String externalUserID = ((String) params[6]).toString();
-    	String internalUserID = ((String) params[6]).toString();
-    	
+    	String internalUserID = ((String) params[7]).toString();
+    	    	
 		if (record == true) {
 			recorderApplication.createRecordSession(sessionName);
 		}
@@ -123,6 +123,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
 		participantsApplication.createRoom(room);
         super.roomConnect(connection, params);
+        
+        connInvokerService.addConnection(bbbSession.getInternalUserID(), connection);
     	return true;
 	}
 
@@ -133,6 +135,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         String clientId = Red5.getConnectionLocal().getClient().getId();
     	log.info("[clientid=" + clientId + "] disconnnected from " + remoteHost + ":" + remotePort + ".");
     	
+    	connInvokerService.removeConnection(getBbbSession().getInternalUserID());
+    	
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 		log.info("User [" + bbbSession.getUsername() + "] disconnected from room [" + bbbSession.getRoom() +"]");
 		super.roomDisconnect(conn);
@@ -141,7 +145,8 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	public String getMyUserId() {
 		BigBlueButtonSession bbbSession = (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 		assert bbbSession != null;
-		return Long.toString(bbbSession.getClientID());
+		//return Long.toString(bbbSession.getClientID());
+		return bbbSession.getInternalUserID();
 	}
 	
 	public void setParticipantsApplication(ParticipantsApplication a) {
@@ -153,11 +158,9 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	}
 	
 	public void setApplicationListeners(Set<IApplication> listeners) {
-		int count = 0;
 		Iterator<IApplication> iter = listeners.iterator();
 		while (iter.hasNext()) {
 			super.addListener((IApplication) iter.next());
-			count++;
 		}
 	}
 	
@@ -167,6 +170,11 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
+	}
+
+	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
+		System.out.print("Setting conn invoket service!!!!");
+		this.connInvokerService = connInvokerService;
 	}
 	
 	private class ShutdownHookListener implements ApplicationListener<ApplicationEvent> {

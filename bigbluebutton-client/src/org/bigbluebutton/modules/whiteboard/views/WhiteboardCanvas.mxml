@@ -1,94 +1,163 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
 -->
 
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:mate="http://mate.asfusion.com/"
-	mouseDown="doMouseDown()" mouseMove="doMouseMove()" mouseUp="doMouseUp()" creationComplete="init()" visible="false" 
-	mouseOver="setCursor()" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:mate="http://mate.asfusion.com/"	 
+    creationComplete="init()" visible="false" mouseOver="setCursor(toolType)" mouseOut="removeCursor()" implements="org.bigbluebutton.common.IBbbCanvas">
 	<mx:Script>
-		<![CDATA[			
-			import mx.collections.ArrayCollection;
-			import mx.core.Application;
-			import mx.managers.CursorManager;
+		<![CDATA[		
+            import com.asfusion.mate.events.Dispatcher;
+            
+            import mx.managers.CursorManager;
+            
+            import org.bigbluebutton.common.IBbbCanvas;
+            import org.bigbluebutton.common.Images;
+            import org.bigbluebutton.common.LogUtil;
+            import org.bigbluebutton.main.events.MadePresenterEvent;
+            import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
+            import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
+            import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+            import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+            import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
+            import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+            import org.bigbluebutton.modules.whiteboard.events.PageEvent;
+            import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+            import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+            import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
+            import org.bigbluebutton.modules.whiteboard.models.Annotation;
 			
-			import org.bigbluebutton.common.IBbbCanvas;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-			import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
-			import org.bigbluebutton.modules.whiteboard.events.PageEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
-			import org.bigbluebutton.modules.whiteboard.maps.WhiteboardEventMap;
-			
-			public var model:WhiteboardCanvasModel;			
+			public var model:WhiteboardCanvasModel;	
+            public var displayModel:WhiteboardCanvasDisplayModel;
+            
+			public var textToolbar:WhiteboardTextToolbar;		
 			private var bbbCanvas:IBbbCanvas;
-
 			private var _xPosition:int;
 			private var _yPosition:int;
 			private var images:Images = new Images();
+			[Bindable] private var select_icon:Class = images.select_icon;
 			[Bindable] private var pencil_icon:Class = images.pencil_icon;
+			[Bindable] private var rectangle_icon:Class = images.square_icon;
+			[Bindable] private var triangle_icon:Class = images.triangle_icon;
+			[Bindable] private var ellipse_icon:Class = images.circle_icon;
+			[Bindable] private var line_icon:Class = images.line_icon;
+			[Bindable] private var text_icon:Class = images.text_icon;
+			[Bindable] private var eraser_icon:Class = images.eraser_icon;
+			[Bindable] private var highlighter_icon:Class = images.highlighter_icon;
+			private var toolType:String = DrawObject.PENCIL;
 			private var whiteboardEnabled:Boolean = false;
 			private var showWhiteboard:Boolean = true;
-
-			
-			private function init():void{
+          
+			private function init():void {
 				this.label = "Highlighter";
+                registerForMouseEvents();
 			}
+            
+            public function queryForAnnotationHistory():void {
+                var dispatcher:Dispatcher = new Dispatcher();
+                dispatcher.dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.GET_ANNOTATION_HISTORY));
+            }
 			
-			private function doMouseUp():void {
-				model.doMouseUp();
+            public function registerForMouseEvents():void {
+                addEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
+                addEventListener(MouseEvent.MOUSE_UP, doMouseUp);
+                addEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
+                stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+                stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);               
+            }
+            
+            public function unregisterForMouseEvents():void {
+                removeEventListener(MouseEvent.MOUSE_DOWN, doMouseDown);
+                removeEventListener(MouseEvent.MOUSE_UP, doMouseUp);
+                removeEventListener(MouseEvent.MOUSE_MOVE, doMouseMove);
+                stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+                stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+            }
+            
+            private function onKeyDown(event:KeyboardEvent):void {
+                model.onKeyDown(event); 
+            }
+            
+            private function onKeyUp(event:KeyboardEvent):void {
+                model.onKeyUp(event);
+            }
+            
+			private function doMouseUp(event:Event):void {
+				model.doMouseUp(this.mouseX, this.mouseY);
 			}
-
-			private function doMouseDown():void{
+						
+			private function doMouseDown(event:Event):void {
+                displayModel.doMouseDown(this.mouseX, this.mouseY);
 				model.doMouseDown(this.mouseX, this.mouseY);
 			}
 						
-			private function doMouseMove():void{
+			private function doMouseMove(event:Event):void {
 				model.doMouseMove(this.mouseX, this.mouseY);
 			}
 			
-			public function sendShapeToServer(dobj:DrawObject):void{
-				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(WhiteboardDrawEvent.SEND_SHAPE);
-				event.message = dobj;
-				dispatchEvent(event);					
-			}
 			
-			public function setShape(s:String):void{
-				model.setShape(s);
+			public function setShape(s:String):void {
+//                LogUtil.debug("SET SHAPE [" + s + "]");
+//				model.setShape(s);
 			}
 				
-			public function changeColor(e:Event):void{
+			public function changeColor(e:Event):void {
 				model.changeColor(e.target.selectedColor);
 			}
 	
-			public function changeThickness(e:Event):void{
+
+			public function sendGraphicToServer(gobj:Annotation, type:String):void {
+ //               LogUtil.debug("DISPATCHING SEND sendGraphicToServer [" + type + "]");
+				var event:WhiteboardDrawEvent = new WhiteboardDrawEvent(type);
+				event.annotation = gobj;
+                var dispatcher:Dispatcher = new Dispatcher();
+                dispatcher.dispatchEvent(event);					
+			}
+			
+			public function setGraphicType(type:String):void {
+                if (model == null) return;
+				model.setGraphicType(type);
+			}
+			
+			public function setTool(s:String):void {
+                if (model == null) return;
+				model.setTool(s);
+				toolType = s;
+			}
+			
+			public function changeFillColor(e:Event):void {
+//				model.changeFillColor(e.target.selectedColor);
+			}
+			
+			public function changeThickness(e:Event):void {
 				model.changeThickness(e.target.value);
 			}
-					
+			
+			public function toggleFill():void {
+//				model.toggleFill();
+			}
+			
+			public function toggleTransparency():void {
+//				model.toggleTransparency();
+			}
+			
 			public function get xPosition():int {
 				return _xPosition;
 			}
@@ -104,40 +173,91 @@
 			public function set yPosition(y:int):void {
 				_yPosition = y;
 			}
-									
-			private function setWhiteboardVisibility():void{
-				if (this.whiteboardEnabled && this.showWhiteboard) this.visible = true;
-				else this.visible = false;
+			
+			public function modifySelectedTextObject(fgColor:uint, bgColorVisible:Boolean, backgroundColor:uint, textSize:Number):void {
+//                LogUtil.debug("modifying text size = " + textSize);
+				displayModel.modifySelectedTextObject(fgColor, bgColorVisible, backgroundColor, textSize);
 			}
 			
-			private function setCursor():void{
+			public function makeTextObjectsEditable(e:MadePresenterEvent):void {
+//				model.makeTextObjectsEditable(e);
+			}
+			
+			public function makeTextObjectsUneditable(e:MadePresenterEvent):void {
+//				model.makeTextObjectsUneditable(e);
+			}
+			
+			private function setWhiteboardVisibility():void {
+                if (this.whiteboardEnabled && this.showWhiteboard) {
+                    this.visible = true;
+                    registerForMouseEvents();
+                } else {
+                    this.visible = false;
+                    unregisterForMouseEvents();
+                }
+			}
+			
+			/* added this functionality in WhiteboardToolbar.mxml instead to allow a variety of cursors */			
+			public function setCursorPencil():void {
 				CursorManager.setCursor(pencil_icon);
 			}
 			
-			private function removeCursor():void{
+			public function setCursor(toolType:String):void {
+				if(toolType == DrawObject.ELLIPSE) {
+					CursorManager.setCursor(ellipse_icon);
+				} else if(toolType == DrawObject.RECTANGLE) {
+					CursorManager.setCursor(rectangle_icon);
+				} else if(toolType == DrawObject.TRIANGLE) {
+					CursorManager.setCursor(triangle_icon, 2, -7, 0);
+				} else if(toolType == DrawObject.PENCIL) {
+					CursorManager.setCursor(pencil_icon, 2, 0, -16);
+				} else if(toolType == DrawObject.LINE) {
+					CursorManager.setCursor(line_icon, 2, 0, -14);
+				} else if(toolType == DrawObject.HIGHLIGHTER) {
+					CursorManager.setCursor(highlighter_icon);
+				} else if(toolType == DrawObject.ERASER) {
+					CursorManager.setCursor(eraser_icon);
+				} else if(toolType == TextObject.TEXT_TOOL) {
+					CursorManager.setCursor(text_icon);
+//				} else if(toolType == SelectObject.SELECT_TOOL) {
+//					CursorManager.setCursor(select_icon);
+				} 
+			}
+			
+			private function removeCursor():void {
 				CursorManager.removeCursor(CursorManager.currentCursorID);
-				doMouseUp();
 			}
 			
 			/** Inherited from org.bigbluebutton.common.IBbbCanvas*/
-			public function addRawChild(child:DisplayObject):void{
+			public function addRawChild(child:DisplayObject):void {
 				this.bbbCanvas.addRawChild(child);
 			}
 			
-			public function removeRawChild(child:DisplayObject):void{
+			public function removeRawChild(child:DisplayObject):void {
 				this.bbbCanvas.removeRawChild(child);
 			}
 			
-			public function doesContain(child:DisplayObject):Boolean{
+			public function doesContain(child:DisplayObject):Boolean {
 				return bbbCanvas.doesContain(child);
 			}
 			
-			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
-				LogUtil.debug("WhiteboardCanvas::acceptOverlayCanvas()");
-				LogUtil.debug("OVERLAYING PRESENTATION CANVAS");
+			public function acceptOverlayCanvas(overlay:IBbbCanvas):void {
+//				LogUtil.debug("WhiteboardCanvas::acceptOverlayCanvas()");
+//				LogUtil.debug("OVERLAYING PRESENTATION CANVAS");
+                
 				this.bbbCanvas = overlay;
 				//Load existing shapes onto the canvas.
 				dispatchEvent(new PageEvent(PageEvent.LOAD_PAGE));
+                
+                /**
+                * Check if this is the first time we overlayed the whiteboard canvas into the
+                * presentation canvas. If so, query for annotations history.
+                */
+                if (! displayModel.canvasInited) {
+                    displayModel.parentCanvasInitialized();
+                    queryForAnnotationHistory();
+                }
+                    
 			}
 			
 			public function moveCanvas(x:Number, y:Number):void {
@@ -149,41 +269,45 @@
 				return [this.mouseX, this.mouseY];
 			}
 			
-			public function removeShape(child:DisplayObject):void {
+			public function removeGraphic(child:DisplayObject):void {
 				if (bbbCanvas == null) return;
 				if (doesContain(child)) removeRawChild(child);
 			}
 			
-			public function addShape(child:DisplayObject):void {
+			public function addGraphic(child:DisplayObject):void {
 				if (bbbCanvas == null) return;
 				addRawChild(child);
 			}
-						
+			
 			public function zoomCanvas(width:Number, height:Number):void {
 				this.width = width;
 				this.height = height;	
-				model.zoomCanvas(width, height);
+				displayModel.zoomCanvas(width, height);
+                model.zoomCanvas(width, height);
+				textToolbar.adjustForZoom(width, height);
 			}
 					
 			public function showCanvas(show:Boolean):void{
 				this.showWhiteboard = show;
+                
 				setWhiteboardVisibility();
 			}
 			
-			/** End IBBBCanvas*/
-			
+			/** End IBBBCanvas*/		
 			public function isPageEmpty():Boolean {
-				return model.isPageEmpty();
+				return displayModel.isPageEmpty();
 			}
 			
 			public function enableWhiteboard(e:WhiteboardButtonEvent):void{
 				this.whiteboardEnabled = true;
 				setWhiteboardVisibility();
+                useHandCursor = false;
 			}
 			
 			public function disableWhiteboard(e:WhiteboardButtonEvent):void{
 				this.whiteboardEnabled = false;
 				setWhiteboardVisibility();
+                useHandCursor = true;
 			}
 			
 		]]>

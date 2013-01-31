@@ -1,23 +1,21 @@
-/* BigBlueButton - http://www.bigbluebutton.org
- * 
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * @author Jeremy Thomerson <jthomerson@genericconf.com>
- * @version $Id: $
- */
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+*
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+*
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
 package org.bigbluebutton.web.controllers
 
 
@@ -293,15 +291,18 @@ class ApiController {
 
     boolean redirectImm = parseBoolean(params.redirectImmediately)
     
+	String internalUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+	
     String externUserID = params.userID
     if (StringUtils.isEmpty(externUserID)) {
-      externUserID = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+      externUserID = internalUserID
     }
     
 	UserSession us = new UserSession();
-	us.internalUserId = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+	us.internalUserId = internalUserID
     us.conferencename = meeting.getName()
     us.meetingID = meeting.getInternalId()
+	us.externMeetingID = meeting.getExternalId()
     us.externUserID = externUserID
     us.fullname = fullName 
     us.role = role
@@ -313,7 +314,17 @@ class ApiController {
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
 	us.logoutUrl = meeting.getLogoutUrl();
-    
+	
+	if (! StringUtils.isEmpty(params.defaulLayout)) {
+		us.defaultLayout = params.defaulLayout;
+	}
+
+    if (! StringUtils.isEmpty(params.avatarURL)) {
+        us.avatarURL = params.avatarURL;
+    } else {
+        us.avatarURL = meeting.defaultAvatarURL
+    }
+    	     
 	// Store the following into a session so we can handle
 	// logout, restarts properly.
 	session['meeting-id'] = us.meetingID
@@ -322,13 +333,44 @@ class ApiController {
 	
 	meetingService.addUserSession(session['user-token'], us);
 	
-	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")
-	
-	
+	log.info("Session user token for " + us.fullname + " [" + session['user-token'] + "]")	
     session.setMaxInactiveInterval(SESSION_TIMEOUT);
     
-    log.info("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}"); 		
-    redirect(url: paramsProcessorUtil.getDefaultClientUrl())
+	//check if exists the param redirect
+	boolean redirectClient = true;
+	String clientURL = paramsProcessorUtil.getDefaultClientUrl();
+	
+	if(!StringUtils.isEmpty(params.redirect))
+	{
+		try{
+			redirectClient = Boolean.parseBoolean(params.redirect);
+		}catch(Exception e){
+			redirectClient = true;
+		}
+	}
+	if(!StringUtils.isEmpty(params.clientURL)){
+		clientURL = params.clientURL;
+	}
+	
+	if(redirectClient){
+		log.info("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}"); 		
+		redirect(url: clientURL);
+	}
+	else{
+		log.info("Successfully joined. Sending XML response.");
+		response.addHeader("Cache-Control", "no-cache")
+		withFormat {
+		  xml {
+			render(contentType:"text/xml") {
+			  response() {
+				returncode(RESP_CODE_SUCCESS)
+				messageKey("successfullyJoined")
+				message("You have joined successfully.")
+			  }
+			}
+		  }
+		}
+	}
   }
 
   /*******************************************
@@ -727,6 +769,7 @@ class ApiController {
               fullname(us.fullname)
               confname(us.conferencename)
               meetingID(us.meetingID)
+			  externMeetingID(us.externMeetingID)
               externUserID(us.externUserID)
 			  internalUserID(us.internalUserId)
               role(us.role)
@@ -738,6 +781,8 @@ class ApiController {
               record(us.record)
               welcome(us.welcome)
 			  logoutUrl(us.logoutUrl)
+			  defaultLayout(us.defaultLayout)
+			  avatarURL(us.avatarURL)
             }
           }
         }

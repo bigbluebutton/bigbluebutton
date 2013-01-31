@@ -1,4 +1,21 @@
 <!DOCTYPE html>
+<!--
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+*
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+-->
 <html>
 <head>
 
@@ -51,15 +68,17 @@
 	  audio.setAttribute('data-timeline-sources', SLIDES_XML) 
 	}, false);
   </script>
-  <script src="lib/popcorn-complete.min.js"></script>
+  <script src="lib/popcorn-custom.min.js"></script>
+  <script src="lib/popcorn.chattimeline.js"></script>
+  <script src="lib/popcorn.altimage.js"></script>
 </head>
 <body>
 	<div id="playbackArea">
-		<div style="width:800px; height:650px;" id="slide"></div> 
+		<div style="width:800px; height:650px;" id="slide" aria-live="polite" role="region" aria-label="Presentation slides"></div> 
 		<audio id="audioRecording" controls > You must use an HTML5 capable browser to view this page.
 		This playback requires modern browser, please use FF, Safari, Chrome</audio>
 		<div class="chatcontainer">
-			<div id="chat"></div>			
+			<div id="chat" aria-live="polite" role="region" aria-label="Chat messages"></div>			
 		</div>
 	</div>
 	<p id="footer">Recorded with <a href="http://bigbluebutton.org/">BigBlueButton</a>.</p>

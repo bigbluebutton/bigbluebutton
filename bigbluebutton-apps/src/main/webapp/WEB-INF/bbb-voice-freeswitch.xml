@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
 <beans:beans 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:beans="http://www.springframework.org/schema/beans"
@@ -14,12 +33,18 @@
 	<beans:bean id="freeswitchApplication" class="org.bigbluebutton.webconference.voice.freeswitch.FreeswitchApplication">
 		<beans:property name="managerConnection" ref="eslConnection"/>
     <beans:property name="DebugNullConferenceAction" value="true"/>
+    <beans:property name="icecastProtocol" value="${icecast.protocol}"/>
+    <beans:property name="icecastHost" value="${icecast.host}"/>
+    <beans:property name="icecastPort" value="${icecast.port}"/>
+    <beans:property name="icecastUsername" value="${icecast.username}"/>
+    <beans:property name="icecastPassword" value="${icecast.password}"/>
+    <beans:property name="icecastBroadcast" value="${icecast.broadcast}"/>
 	</beans:bean>
 
 	<beans:bean id="eslConnection" class="org.freeswitch.esl.client.manager.DefaultManagerConnection">
 		<beans:property name="hostname" value="${esl.host}"/>
 		<beans:property name="port" value="${esl.port}"/>
-		<beans:property name="password" value="${esl.password}"/>
+		<beans:property name="password" value="${esl.password}"/>		
 	</beans:bean>
                        
 </beans:beans>

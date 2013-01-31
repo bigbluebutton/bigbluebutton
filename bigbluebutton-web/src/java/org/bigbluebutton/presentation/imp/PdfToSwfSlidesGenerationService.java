@@ -1,25 +1,22 @@
-/* BigBlueButton - http://www.bigbluebutton.org
- * 
- * 
- * Copyright (c) 2008-2009 by respective authors (see below). All rights reserved.
- * 
- * BigBlueButton is free software; you can redistribute it and/or modify it under the 
- * terms of the GNU Lesser General Public License as published by the Free Software 
- * Foundation; either version 3 of the License, or (at your option) any later 
- * version. 
- * 
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along 
- * with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
- *
- * Author: Richard Alam <ritzalam@gmail.com>
- * 		   DJP <DJP@architectes.org>
- * 
- * @version $Id: $
- */
+/**
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+* 
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
+
 package org.bigbluebutton.presentation.imp;
 
 import java.util.ArrayList;
@@ -39,6 +36,7 @@ import org.bigbluebutton.presentation.ConversionMessageConstants;
 import org.bigbluebutton.presentation.ConversionUpdateMessage;
 import org.bigbluebutton.presentation.PageConverter;
 import org.bigbluebutton.presentation.PdfToSwfSlide;
+import org.bigbluebutton.presentation.TextFileCreator;
 import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.bigbluebutton.presentation.ConversionUpdateMessage.MessageBuilder;
@@ -53,8 +51,10 @@ public class PdfToSwfSlidesGenerationService {
 	private PageConverter pdfToSwfConverter;
 	private PdfPageToImageConversionService imageConvertService;
 	private ThumbnailCreator thumbnailCreator;
+	private TextFileCreator textFileCreator;
 	private long MAX_CONVERSION_TIME = 5*60*1000;
 	private String BLANK_SLIDE;
+	private int MAX_SWF_FILE_SIZE;
 		
 	public void generateSlides(UploadedPresentation pres) {
 		log.debug("Generating slides");		
@@ -62,6 +62,8 @@ public class PdfToSwfSlidesGenerationService {
 		log.debug("Determined number of pages " + pres.getNumberOfPages());
 		if (pres.getNumberOfPages() > 0) {
 			convertPdfToSwf(pres);
+			/* adding accessibility */
+			createTextFiles(pres);
 			createThumbnails(pres);
 			notifier.sendConversionCompletedMessage(pres);
 		}		
@@ -94,6 +96,12 @@ public class PdfToSwfSlidesGenerationService {
 		log.debug("Creating thumbnails.");
 		notifier.sendCreatingThumbnailsUpdateMessage(pres);
 		thumbnailCreator.createThumbnails(pres);
+	}
+	
+	private void createTextFiles(UploadedPresentation pres) {
+		log.debug("Creating textfiles for accessibility.");
+		notifier.sendCreatingTextFilesUpdateMessage(pres);
+		textFileCreator.createTextFiles(pres);
 	}
 	
 	private void convertPdfToSwf(UploadedPresentation pres) {
@@ -159,6 +167,7 @@ public class PdfToSwfSlidesGenerationService {
 		for (int page = 1; page <= numPages; page++) {		
 			PdfToSwfSlide slide = new PdfToSwfSlide(pres, page);
 			slide.setBlankSlide(BLANK_SLIDE);
+			slide.setMaxSwfFileSize(MAX_SWF_FILE_SIZE);
 			slide.setPageConverter(pdfToSwfConverter);
 			slide.setPdfPageToImageConversionService(imageConvertService);
 			
@@ -186,8 +195,15 @@ public class PdfToSwfSlidesGenerationService {
 		this.BLANK_SLIDE = blankSlide;
 	}
 	
+	public void setMaxSwfFileSize(int size) {
+		this.MAX_SWF_FILE_SIZE = size;
+	}
+	
 	public void setThumbnailCreator(ThumbnailCreator thumbnailCreator) {
 		this.thumbnailCreator = thumbnailCreator;
+	}
+	public void setTextFileCreator(TextFileCreator textFileCreator) {
+		this.textFileCreator = textFileCreator;
 	}
 	
 	public void setMaxConversionTime(int minutes) {

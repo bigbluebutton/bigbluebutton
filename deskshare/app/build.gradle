@@ -21,7 +21,7 @@ dependencies {
 	providedCompile 'org.springframework:spring-core:3.0.6.RELEASE@jar'
 	compile 'org.springframework:spring-webmvc:3.0.6.RELEASE@jar'
 		
-	providedCompile 'org/red5:red5:1.0r4316@jar'
+	providedCompile 'org/red5:red5:1.0r4415@jar'
 	
 
 	// Logging
@@ -34,16 +34,20 @@ dependencies {
 	providedCompile ':jul-to-slf4j:1.6.1@jar'
 	
 	compile project(':common')
-    providedCompile 'commons-fileupload:commons-fileupload:1.2.2@jar'
-	providedCompile 'commons-io:commons-io:2.1@jar' 
+    compile 'commons-fileupload:commons-fileupload:1.2.2@jar'
+	compile 'commons-io:commons-io:2.1@jar' 
     
     // Libraries needed to run the scala tools
-    scalaTools 'org.scala-lang:scala-compiler:2.7.7'
-    scalaTools 'org.scala-lang:scala-library:2.7.7'
+    scalaTools 'org.scala-lang:scala-compiler:2.9.2'
+    scalaTools 'org.scala-lang:scala-library:2.9.2'
 
+	// workaround for http://issues.gradle.org/browse/GRADLE-1273
+	compileScala.classpath = sourceSets.main.compileClasspath + files(sourceSets.main.classesDir)
+	compileTestScala.classpath = sourceSets.test.compileClasspath + files(sourceSets.test.classesDir)
+	
     // Libraries needed for scala api
-    compile 'org.scala-lang:scala-library:2.7.7'   
-    compile 'net/lag/configgy:configgy:1.5@jar'
+    compile 'org.scala-lang:scala-library:2.9.2'   
+    compile 'net.lag:configgy:2.0.0'
     
         // Testing
     compile 'org.testng:testng:5.8@jar' 
@@ -55,7 +59,7 @@ dependencies {
 	
         //redis
 	compile 'redis.clients:jedis:1.5.1'
-	providedCompile 'commons-pool:commons-pool:1.5.6'
+	compile 'commons-pool:commons-pool:1.5.6'
 }
 
 test {

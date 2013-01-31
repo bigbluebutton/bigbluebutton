@@ -1,0 +1,626 @@
+Application {
+  backgroundColor: #ffffff;
+}
+
+ApplicationControlBar {
+  highlightAlphas: 0.1, 0;
+  fillAlphas: 0, 0;
+  fillColors: #32343b, #32343b;
+  backgroundColor: #42444c;
+  backgroundAlpha: 1;
+  cornerRadius: 0;
+  dropShadowEnabled: true;
+  shadowDistance: 1;
+  shadowDirection: center;
+  dropShadowColor: #000000;
+}
+
+Panel {
+  borderColor: #dfdfdf;
+  borderAlpha: 1;
+  shadowDistance: 1;
+  dropShadowColor: #666666;
+  titleStyleName: "mypanelTitle";
+}
+
+.mypanelTitle {
+  color: #444444;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+.whiteboardToolbarStyle {
+  backgroundColor: #CCCCCC;
+  cornerRadius: 5;
+  borderStyle: solid;
+  borderThickness: 1;
+  paddingBottom: 3;
+  paddingTop: 3;
+  paddingLeft: 3;
+  paddingRight: 3;
+}
+
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+
+.helpLinkButtonStyle {
+  rollOverColor: #cccccc;
+  selectionColor: #999999;
+  color: #ffffff;
+  textRollOverColor: #504f3d;
+  textSelectedColor: #504f3d;
+}
+
+DataGrid {
+  backgroundColor: #e1e2e5;
+  rollOverColor: #f3f3f3;
+  textRollOverColor: #5e5f63;
+  selectionColor: #e1e2e5;
+  color: #5e5f63;
+  textSelectedColor: #5e5f63;
+  dropShadowEnabled: false;
+  fontFamily: arial;
+  fontSize: 11;
+  headerStyleName: "mydataGridHeaderStyle";
+}
+
+.mydataGridHeaderStyle {
+  color: #5e5f63;
+  fontFamily: arial;
+  fontSize: 12;
+}
+
+
+.whiteboardUndoButtonStyle, .whiteboardCircleButtonStyle, .whiteboardClearButtonStyle,
+.whiteboardTriangleButtonStyle, .whiteboardTextButtonStyle, .whiteboardRectangleButtonStyle,
+.whiteboardPanZoomButtonStyle, .whiteboardLineButtonStyle, .whiteboardScribbleButtonStyle
+{
+  textIndent: 0;
+  paddingLeft: 0;
+  paddingRight: 0;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+.whiteboardUndoButtonStyle 
+{
+  icon: Embed('assets/images/undo.png');
+}
+
+.whiteboardCircleButtonStyle {
+  icon: Embed('assets/images/ellipse.png');  
+}
+
+.whiteboardClearButtonStyle {
+  icon: Embed('assets/images/delete.png');    
+}
+
+.whiteboardScribbleButtonStyle{
+  icon: Embed('assets/images/pencil.png');  
+}
+
+.whiteboardLineButtonStyle {
+  icon: Embed('assets/images/line.png');    
+}
+
+.whiteboardPanZoomButtonStyle {
+  icon: Embed('assets/images/hand.png');   
+}
+
+.whiteboardRectangleButtonStyle {
+  icon: Embed('assets/images/square.png');   
+}
+
+.whiteboardTextButtonStyle {
+  icon: Embed('assets/images/text.png');   
+}
+
+.whiteboardTriangleButtonStyle {
+  icon: Embed('assets/images/triangle.png');    
+}
+
+.presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationForwardButtonStyle,
+.presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle 
+{
+  textIndent: 0;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
+  highlightAlphas: 0.4, 0;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;
+  themeColor: #aaaaaa;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+.presentationUploadButtonStyle {
+  icon:   Embed('assets/images/upload.png');   
+}
+
+.presentationBackButtonStyle {
+  icon:   Embed('assets/images/left-arrow.png'); 
+}
+
+.presentationForwardButtonStyle {
+  icon:   Embed('assets/images/right-arrow.png'); 
+}
+
+.presentationFitToWidthButtonStyle {
+  icon:   Embed('assets/images/fit-to-width.png'); 
+}
+
+.presentationFitToPageButtonStyle {
+  icon:   Embed('assets/images/fit-to-screen.png'); 
+}
+
+.presentationZoomSliderStyle{
+  labelOffset: 0;
+  thumbOffset: 3;
+  dataTipOffset: -1;
+  tickOffset: 2;
+  tickLength: 5;
+  tickThickness: 2;
+  tickColor: #6cccff;
+  showTrackHighlight: true;
+  invertThumbDirection: false;
+  borderColor: #b9babc;
+  trackColors: #aaaaaa, #aaaaaa;
+  themeColor: #aaaaaa;
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  labelStyleName: "presentationZoomSliderLabelStyle";
+}
+
+.presentationZoomSliderLabelStyle {
+  color: #5e5f63;
+  fontFamily: Arial;
+}
+
+.videoMuteButtonStyle, .videoUnmutedButtonStyle, .videoSwitchPresenterButtonStyle, .videoEjectUserButtonStyle, .videoPrivateChatButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
+  cornerRadius: 17;
+}
+
+.videoMutedButtonStyle {
+  /* Need to duplicate info here as the styleName is programatically changed. Extracting it out doesn't have any effect. */
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #ffffff;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
+  cornerRadius: 17;
+  icon:   Embed('assets/images/webcam-muted.png');
+}
+
+.videoUnmutedButtonStyle {
+  icon:   Embed('assets/images/webcam-unmuted.png');
+}
+
+.videoSwitchPresenterButtonStyle {
+  icon:   Embed('assets/images/webcam-switch-presenter.png');
+}
+
+.videoEjectUserButtonStyle {
+  icon:   Embed('assets/images/webcam-eject-user.png');
+}
+
+.videoPrivateChatButtonStyle {
+  icon:   Embed('assets/images/webcam-private-chat.png');
+}
+
+.presentationFileUploadWindowStyle {
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThicknessLeft: 10;
+  borderThicknessTop: 0;
+  borderThicknessBottom: 10;
+  borderThicknessRight: 10;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundAlpha: 1;
+  headerColors: #b9babc, #b9babc;
+  footerColors: #b9babc, #b9babc;
+  backgroundColor: #EFEFEF;
+  dropShadowEnabled: true;
+  titleStyleName: "presentationFileUploadWindowTitleStyle";
+}
+
+.presentationFileUploadWindowTitleStyle, .presentationUploadTitleStyle {
+  fontFamily: Arial;
+  fontSize: 20;  
+  fontWeight: bold;
+}
+
+.presentationUploadChooseFileLabelStyle, .presentationNamesLabelStyle {
+  fontFamily: Arial;
+  fontSize: 14;  
+  fontWeight: bold;
+}
+
+.presentationUploadChooseFileButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
+  cornerRadius: 5;  
+}
+
+.presentationUploadCancelButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #ff0000, #ff0000, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
+  cornerRadius: 5;    
+}
+
+.presentationUploadShowButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
+  cornerRadius: 5;  
+}
+
+.presentationUploadDeleteButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
+  cornerRadius: 5;    
+  icon:   Embed('assets/images/trash.png');
+}
+
+.presentationUploadProgressBarLabelStyle {
+  
+}
+
+.presentationUploadProgressBarStyle {
+  
+}
+
+.presentationNameLabelStyle {
+  
+}
+
+.micSettingsWindowStyle {
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThicknessLeft: 10;
+  borderThicknessTop: 0;
+  borderThicknessBottom: 10;
+  borderThicknessRight: 10;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundAlpha: 1;
+  headerColors: #b9babc, #b9babc;
+  footerColors: #b9babc, #b9babc;
+  backgroundColor: #EFEFEF;
+  dropShadowEnabled: true;
+  titleStyleName: "micSettingsWindowTitleStyle";
+}
+
+.micSettingsWindowTitleStyle {
+  fontFamily: Arial;
+  fontSize: 20;  
+  fontWeight: bold;
+}
+
+.micSettingsWindowTestSpeakersLabelStyle, .micSettingsWindowTestMicrophoneLabelStyle {
+  fontFamily: Arial;
+  fontSize: 14;  
+  fontWeight: bold;    
+}
+
+.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle {
+  fontFamily: Arial;
+  fontSize: 12;    
+}
+
+.micSettingsWindowPlaySoundButtonStyle, .micSettingsWindowChangeMicButtonStyle, 
+.micSettingsWindowJoinButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  rollOverColor: #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
+  cornerRadius: 5;      
+}
+
+.micSettingsWindowCancelButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #ff0000, #ff0000, #ffffff, #eeeeee;
+  rollOverColor: #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
+  cornerRadius: 5;    
+}
+
+.micSettingsWindowMicProgressBarStyle {
+  
+}
+
+.micSettingsWindowHelpButtonStyle {
+  icon:   Embed('assets/images/questionmark.png');
+}
+
+MDIWindow {
+  
+}
+
+.mdiWindowFocus, .presentationWindowStyleFocus, .videoDockStyleFocus
+{
+  headerHeight: 26;
+  roundedBottomCorners: true;
+  backgroundAlpha: 1;
+  backgroundColor: #b9babc;
+  backgroundSize: '100%';
+  
+  borderStyle: solid;
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThickness: 1;
+  borderThicknessLeft: 1;
+  borderThicknessTop: 1;
+  borderThicknessBottom: 1;
+  borderThicknessRight: 1;
+  cornerRadius: 0;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+  
+  cornerResizeImg: Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
+  cornerResizeWidth: 2;
+  cornerResizeHeight: 2;
+  cornerResizePaddingRight: 2;
+  cornerResizePaddingBottom: 2;
+  
+  controlButtonWidth: 10;
+  controlButtonHeight: 10;
+  controlButtonGap: 4;
+}
+
+.mdiWindowNoFocus, .presentationWindowStyleNoFocus, .videoDockStyleNoFocus
+{
+  headerHeight: 26;
+  roundedBottomCorners: false;
+  backgroundAlpha: 0.5;
+  backgroundColor: #b9babc;
+  backgroundSize: '100%';
+  
+  borderStyle: solid;
+  borderColor: #b9babc;
+  borderAlpha: 0.5;
+  borderThickness: 1;
+  borderThicknessLeft: 1;
+  borderThicknessTop: 1;
+  borderThicknessBottom: 1;
+  borderThicknessRight: 1;
+  cornerRadius: 0;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+  
+  cornerResizeImg: Embed(source="assets/swf/Blue.swf", symbol="Corner_Resize");
+  cornerResizeWidth: 2;
+  cornerResizeHeight: 2;
+  cornerResizePaddingRight: 2;
+  cornerResizePaddingBottom: 2;
+  
+  controlButtonWidth: 10;
+  controlButtonHeight: 10;
+  controlButtonGap: 4;
+}
+
+.presentationSlideViewStyle {
+  backgroundColor: #b9babc;
+}
+
+.presentationWindowControlsStyle {
+  paddingBottom: 5;
+  paddingTop: 3;
+  paddingLeft: 3;
+  paddingRight: 3;
+  bottom: 5;
+  cornerRadius: 0;
+  dropShadowEnabled: false;
+}
+
+.videoViewStyleNoFocus 
+{
+  borderColor: #b9babc;
+  borderAlpha: 0.5;
+  borderThicknessLeft: 5;
+  borderThicknessTop: 5;
+  borderThicknessBottom: 5;
+  borderThicknessRight: 5;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundColor: #b9babc;
+  backgroundAlpha: 0.5;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+}
+
+.videoViewStyleFocus 
+{
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThicknessLeft: 5;
+  borderThicknessTop: 5;
+  borderThicknessBottom: 5;
+  borderThicknessRight: 5;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundColor: #b9babc;
+  backgroundAlpha: 1;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+}
+
+.videoPublishStyleNoFocus 
+{
+  borderColor: #b9babc;
+  borderAlpha: 0.5;
+  borderThicknessLeft: 5;
+  borderThicknessTop: 5;
+  borderThicknessBottom: 5;
+  borderThicknessRight: 5;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundColor: #b9babc;
+  backgroundAlpha: 0.5;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+}
+
+.videoPublishStyleFocus 
+{
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThicknessLeft: 5;
+  borderThicknessTop: 5;
+  borderThicknessBottom: 5;
+  borderThicknessRight: 5;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundColor: #b9babc;
+  backgroundAlpha: 1;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+}
+
+.videoAvatarStyleNoFocus 
+{
+  borderColor: #b9babc;
+  borderAlpha: 0.5;
+  borderThicknessLeft: 5;
+  borderThicknessTop: 5;
+  borderThicknessBottom: 5;
+  borderThicknessRight: 5;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundColor: #b9babc;
+  backgroundAlpha: 0.5;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+}
+
+.videoAvatarStyleFocus 
+{
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThicknessLeft: 5;
+  borderThicknessTop: 5;
+  borderThicknessBottom: 5;
+  borderThicknessRight: 5;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundColor: #b9babc;
+  backgroundAlpha: 1;
+  dropShadowEnabled: false;
+  titleStyleName: "mypanelTitle";
+}
+
+.mypanelTitle {
+  color: #5e5f63;
+  fontFamily: Arial;
+  fontSize: 12;
+}
+
+.closeBtnFocus, .closeBtnNoFocus
+{
+  upSkin:        Embed('assets/images/3_closeButton.png');
+  overSkin:      Embed('assets/images/3_closeButton.png');
+  downSkin:      Embed('assets/images/3_closeButton.png');
+  disabledSkin:  Embed('assets/images/3_closeButton.png');
+}
+
+
+.increaseBtnFocus, .increaseBtnNoFocus
+{
+  upSkin:        Embed('assets/images/3_increaseButton.png');
+  overSkin:      Embed('assets/images/3_increaseButton.png');
+  downSkin:      Embed('assets/images/3_increaseButton.png');
+  disabledSkin:  Embed('assets/images/3_increaseButton.png');
+}
+
+.decreaseBtnFocus, .decreaseBtnNoFocus  
+{
+  upSkin:        Embed('assets/images/3_decreaseButton.png');
+  overSkin:      Embed('assets/images/3_decreaseButton.png');
+  downSkin:      Embed('assets/images/3_decreaseButton.png');
+  disabledSkin:  Embed('assets/images/3_decreaseButton.png');
+}
+
+.minimizeBtnFocus 
+{
+  upSkin:        Embed('assets/images/3_minimizeButton.png');
+  overSkin:      Embed('assets/images/3_minimizeButton.png');
+  downSkin:      Embed('assets/images/3_minimizeButton.png');
+  disabledSkin:  Embed('assets/images/3_minimizeButton.png');
+}
+
+
+.resizeHndlr 
+{
+  upSkin:        Embed('assets/images/resizeHandler.png');
+  overSkin:      Embed('assets/images/resizeHandler.png');
+  downSkin:      Embed('assets/images/resizeHandler.png');
+  disabledSkin:  Embed('assets/images/resizeHandler.png');
+}

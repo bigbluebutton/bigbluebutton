@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
 -->
 
 <MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 			xmlns="flexlib.mdi.containers.*"
-			xmlns:flc="flexlib.controls.*"
+			xmlns:flc="flexlib.controls.*" visible="false"
 			implements="org.bigbluebutton.common.IBbbModuleWindow"
 			title="{windowTitle}"
 			creationComplete="onCreationComplete()" xmlns:mate="http://mate.asfusion.com/" xmlns:controls="flexlib.controls.*">
@@ -31,6 +31,7 @@
 	<mate:Listener type="{ListenersEvent.REGISTER_LISTENERS}" method="registerListeners" />
 	<mate:Listener type="{ListenersEvent.SET_LOCAL_MODERATOR_STATUS}" method="{setModerator}" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="muteMeHandler" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -50,6 +51,7 @@
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.listeners.events.ListenersCommand;
 			import org.bigbluebutton.modules.listeners.events.ListenersEvent;
@@ -200,6 +202,9 @@
 				resourcesChanged();
 			}
 			
+			private function muteMeHandler(e:ShortcutEvent):void{
+				toggleMuteMeState();
+			}
 		]]>
 	</mx:Script>
     	<mx:List id="listenersList" height="100%" width="100%"
