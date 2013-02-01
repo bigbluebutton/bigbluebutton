@@ -139,8 +139,10 @@
 				}
 				
 				var myMenu:Menu = Menu.createMenu(null, myMenuData, true);
+				myMenu.variableRowHeight = true;
 				myMenu.show(this.x + settingsBtn.x + 2, this.y + this.height + 25);
 				myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
+				myMenu.setFocus();
 			}
 			
 			private function menuClickHandler(e:MenuEvent):void {
