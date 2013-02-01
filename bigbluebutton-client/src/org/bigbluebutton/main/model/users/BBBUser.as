@@ -33,9 +33,27 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var userID:String = "UNKNOWN USER";
     [Bindable] public var externUserID:String = "UNKNOWN USER";
 		[Bindable] public var name:String;
-		[Bindable] public var hasStream:Boolean = false;
+		
+		private var _hasStream:Boolean = false;
+		[Bindable]
+		public function get hasStream():Boolean {
+			return _hasStream;
+		}
+		public function set hasStream(s:Boolean):void {
+			_hasStream = s;
+		}
+		
 		[Bindable] public var streamName:String = "";
-		[Bindable] public var presenter:Boolean = false;
+		
+		private var _presenter:Boolean = false;
+		[Bindable] 
+		public function get presenter():Boolean {
+			return _presenter;
+		}
+		public function set presenter(p:Boolean):void {
+			_presenter = p;
+		}
+		
 		[Bindable] public var raiseHand:Boolean = false;
 		[Bindable] public var role:String = Role.VIEWER;	
 		[Bindable] public var room:String = "";
@@ -43,9 +61,21 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var selected:Boolean = false;
 		[Bindable] public var voiceUserid:Number;
 		[Bindable] public var voiceMuted:Boolean = false;
-		[Bindable] public var voiceJoined:Boolean = false;
+		
+		private var _voiceJoined:Boolean = false;
+		[Bindable] 
+		public function get voiceJoined():Boolean {
+			return _voiceJoined;
+		}
+		public function set voiceJoined(v:Boolean):void {
+			_voiceJoined = v;
+		}
+		
 		[Bindable] public var voiceLocked:Boolean = false;
 		
+		[Bindable] public var userStatus:String = "";
+		[Bindable] public var media:String = "";
+		 
 		private var _status:StatusCollection = new StatusCollection();
 				
 		public function get status():ArrayCollection {

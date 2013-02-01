@@ -135,7 +135,7 @@
 				}
 				
 				var myMenu:Menu = Menu.createMenu(null, myMenuData, true);
-				myMenu.show(this.x + settingsBtn.x, this.y + this.height + 30);
+				myMenu.show(this.x + settingsBtn.x, this.y + this.height + 25);
 				myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
 			}
 			
@@ -184,23 +184,24 @@
 	<mx:DataGrid id="participantsGrid" dataProvider="{participants}" editable="false" sortableColumns="true"
     	dragEnabled="false" width="100%" height="100%" 
     	itemRollOver="onItemRollOver(event)"
-		itemRollOut="onItemRollOut(event)" >
+		itemRollOut="onItemRollOut(event)" 
+		accessibilityName="{ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.accessibilityName')}" >
     	<mx:columns>
-    		<mx:DataGridColumn dataField="role" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer')}" editable="false" width="35"
+    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer')}" editable="false" width="40"
     			itemRenderer="org.bigbluebutton.modules.participants.views.StatusItemRenderer" sortable="false" />
     		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.nameItemRenderer')}" editable="false" width="100" sortable="false"
     			itemRenderer="org.bigbluebutton.modules.participants.views.NameItemRenderer"/>
-    		<mx:DataGridColumn dataField="status" headerText="Media" sortable="false"
+    		<mx:DataGridColumn dataField="media" headerText="{ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer')}" sortable="false"
     			itemRenderer="org.bigbluebutton.modules.participants.views.MediaItemRenderer"/>
     	</mx:columns>
     </mx:DataGrid>
 	
 	<mx:ControlBar width="100%">
+		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
+					toolTip="Settings" click="openSettings()" visible="true" />
 		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}"
 					width="30" height="30" toolTip="Raise Hand" click="raiseHand()"
 					visible="false" includeInLayout="{raiseHandBtn.visible}" />
-		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
-					toolTip="Settings" click="openSettings()" visible="true" />
 		<mx:Spacer width="100%"/>
 		<mx:Button id="muteMeBtn" click="toggleMuteMeState()" height="30" width="30" 
 					icon="{UserManager.getInstance().getConference().voiceMuted ? images.audio_muted : images.audio}"
