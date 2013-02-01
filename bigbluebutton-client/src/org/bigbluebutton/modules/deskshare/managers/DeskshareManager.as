@@ -59,7 +59,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			LogUtil.debug("Sending startViewing command");
 			service.sendStartViewingNotification(videoWidth, videoHeight);
 		}
-		
+		    
 		public function handleStartedViewingEvent():void {
 			LogUtil.debug("handleStartedViewingEvent");
 			service.sendStartedViewingNotification();

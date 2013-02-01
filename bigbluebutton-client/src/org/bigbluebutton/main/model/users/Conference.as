@@ -28,6 +28,7 @@ package org.bigbluebutton.main.model.users {
     public var meetingName:String;
     public var externalMeetingID:String;
     public var internalMeetingID:String;
+    public var externalUserID:String;
     public var avatarURL:String;
     
     private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
@@ -273,6 +274,10 @@ package org.bigbluebutton.main.model.users {
 			return me.voiceLocked;
 		}
 		
+    public function getMyExternalUserId():String {
+      return externalUserID;
+    }
+    
 		public function getMyUserId():String {
 			return me.userID;
 		}
