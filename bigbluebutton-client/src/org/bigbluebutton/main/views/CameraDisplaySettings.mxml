@@ -21,18 +21,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
                 xmlns:view="org.bigbluebutton.main.views.*"
                 layout="absolute" 
-                width="630" height="550" creationComplete="onCreationComplete()" styleName="cameraDisplaySettingsWindowStyle" 
+                width="630" height="450" creationComplete="onCreationComplete()" styleName="cameraDisplaySettingsWindowStyle" 
                 showCloseButton="true" close="onCancelClicked()" keyDown="handleKeyDown(event)">
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import flash.ui.Keyboard;
-      
+      import com.asfusion.mate.events.Dispatcher;     
+      import flash.ui.Keyboard;      
       import mx.events.CloseEvent;
       import mx.events.ItemClickEvent;
-      import mx.managers.PopUpManager;
-      
+      import mx.managers.PopUpManager;     
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.UsersUtil;
@@ -84,7 +81,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         for (var i:int = 0; i < Camera.names.length; i++){
           if (Camera.names[i] == "USB Video Class Video") {
             /** Set as default for Macs */
-            cmbCameraSelector.selectedIndex = i;
+            _camera = Camera.getCamera("USB Video Class Video");
           }
         }
       }
@@ -93,12 +90,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (show) {
           this.visible = true;
           btnStartPublish.visible = true;
-          cmbCameraSelector.visible = true;
         } else{					
           this.width = 0;
           this.height = 0;
           btnStartPublish.visible = false;
-          cmbCameraSelector.visible = false;
           this.visible = false;
         }
       }
@@ -192,6 +187,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function startPublishing():void {
+        updateCamera();
+        
         // Save the index of the camera. Need it to send the message.
         var camIndex:int = _camera.index;
         
@@ -276,13 +273,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     ]]>
   </mx:Script>
   
-  <mx:VBox id="webcamDisplay" width="100%" height="100%" paddingBottom="15" paddingLeft="15" paddingRight="15" paddingTop="15" styleName="cameraDisplaySettingsWindowBackground">
-    <view:VideoHolder id="_videoHolder" width="100%" height="95%" />
-    <mx:HBox width="100%"> 
-	  <mx:Button id="changeCamera" width="35%" styleName="cameraDisplaySettingsWindowChangeCamBtn" label="{ResourceUtil.getInstance().getString('bbb.publishVideo.changeCameraBtn.labelText')}" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" click="showCameraSettings()"/>
-      <mx:ComboBox id="cmbCameraSelector" width="20%" dataProvider="{Camera.names}" visible="false" change="updateCamera()"/>
-      <mx:ComboBox id="cmbResolution" width="20%" styleName="cameraDisplaySettingsWindowChangeResolutionCombo" dataProvider="{resolutions}" visible="false" change="updateCamera()"/>
-	  <mx:Button id="btnStartPublish" width="25%" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" click="startPublishing()" enabled="true" styleName="cameraDisplaySettingsWindowStartBtn" label="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.labelText')}" />
+  <mx:VBox id="webcamDisplay" width="100%" height="100%" paddingTop="10" styleName="cameraDisplaySettingsWindowBackground">
+    <view:VideoHolder id="_videoHolder" width="100%" height="75%" />
+    <mx:HBox width="100%" height="20%"> 
+      <mx:Spacer width="5"/>
+	    <mx:Button id="changeCamera" styleName="cameraDisplaySettingsWindowChangeCamBtn" 
+                 label="{ResourceUtil.getInstance().getString('bbb.publishVideo.changeCameraBtn.labelText')}" 
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
+                 click="showCameraSettings()"/>
+      <mx:Spacer width="70%"/>
+      <mx:ComboBox id="cmbResolution" styleName="cameraDisplaySettingsWindowChangeResolutionCombo" 
+                   dataProvider="{resolutions}" visible="false" change="updateCamera()"/>
+      <mx:Spacer width="5"/>
+	    <mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
+                 click="startPublishing()" enabled="true" styleName="cameraDisplaySettingsWindowStartBtn" 
+                 label="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.labelText')}" />
+      <mx:Spacer width="5"/>
     </mx:HBox>
     
   </mx:VBox>		
