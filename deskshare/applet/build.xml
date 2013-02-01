@@ -63,7 +63,7 @@
 	</target>
 
 	<target name="sign-jar" depends="get-password">
-		<signjar jar="build/libs/bbb-deskshare-applet-0.8.jar"
+		<signjar jar="build/libs/bbb-deskshare-applet-0.8.1.jar"
 			alias="${keystore.alias}"
 			keystore="${keystore}"
 			storepass="${keystore.password}" />
@@ -95,7 +95,7 @@
 	
 
 	<target name="sign-certificate-jar" depends="get-alias-name">
-		<signjar jar="build/libs/bbb-deskshare-applet-0.8.jar"
+		<signjar jar="build/libs/bbb-deskshare-applet-0.8.1.jar"
 			storetype="pkcs12"
 			keystore="${cert.name}"
 			storepass="${cert.password}"
