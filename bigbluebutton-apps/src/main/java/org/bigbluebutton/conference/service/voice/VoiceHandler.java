@@ -79,7 +79,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 		log.debug("In live mode");
 		ISharedObject so = getSharedObject(connection.getScope(), VOICE_SO);
 		    		
-		String voiceBridge = getBbbSession().getSessionName();
+		String voiceBridge = getBbbSession().getVoiceBridge();
 		String meetingid = getBbbSession().getConference(); 
 		Boolean record = getBbbSession().getRecord();
 		

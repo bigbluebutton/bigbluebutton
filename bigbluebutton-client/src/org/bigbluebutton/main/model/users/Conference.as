@@ -274,7 +274,7 @@ package org.bigbluebutton.main.model.users {
 			return me.voiceLocked;
 		}
 		
-    public function getMyExternalUserId():String {
+    public function getMyExternalUserID():String {
       return externalUserID;
     }
     
