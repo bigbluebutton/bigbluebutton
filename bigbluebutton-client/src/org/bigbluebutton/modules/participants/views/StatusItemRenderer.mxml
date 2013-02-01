@@ -28,6 +28,7 @@
 	
 	<mate:Listener type="{ParticipantRollEvent.PARTICIPANT_ROLL_OVER}" method="onRollOver" />
 	<mate:Listener type="{ParticipantRollEvent.PARTICIPANT_ROLL_OUT}" method="onRollOut" />
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -35,11 +36,13 @@
 			import mx.binding.utils.ChangeWatcher;
 			import mx.events.FlexEvent;
 		
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.modules.participants.events.ParticipantRollEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
   			private var rolledOver:Boolean = false;
@@ -86,19 +89,19 @@
 	  			if (data != null) {
 	  				if (data.presenter) {
 	  					roleBtn.setStyle("icon", images.presenter_new);
-	  					roleBtn.toolTip = "Presenter";
+	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.presenter');
 	  					roleBtn.enabled = false;
 	  				} else if (rolledOver) {
 	  					roleBtn.setStyle("icon", images.presenter_new);
-	  					roleBtn.toolTip = "Switch Presenter";
+	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.label');
 	  					roleBtn.enabled = true;
 	  				} else if (data.role == Role.MODERATOR) {
 	  					roleBtn.setStyle("icon", images.moderator);
-	  					roleBtn.toolTip = "Moderator";
+	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.moderator');
 	  					roleBtn.enabled = false;
 	  				} else if (data.raiseHand) {
 	  					roleBtn.setStyle("icon", images.hand_new);
-	  					roleBtn.toolTip = "Hand Raised";
+	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.handRaised');
 	  					roleBtn.enabled = false;
 	  				} else {
 	  					roleBtn.setStyle("icon", null);
@@ -131,6 +134,11 @@
 				e.username = data.name;
 				dispatchEvent(e);
         	}
+			
+			// Need to refresh the roleBtn toolTip text on locale change
+			private function localeChanged(e:LocaleChangeEvent) {
+				updateButton();
+			}
 		]]>
 	</mx:Script>	
 	<mx:Button id="roleBtn" enabled="false" width="20" height="20" click="assignPresenterClicked()" />

@@ -75,6 +75,8 @@
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
 				
 				BindingUtils.bindSetter(changeButtons, UserManager.getInstance().getConference(), "amIPresenter");
+				BindingUtils.bindSetter(updateNumberofParticipants, participants, "length");
+				
 				changeButtons(UserManager.getInstance().getConference().amIPresenter);
 			}
 			
@@ -83,13 +85,15 @@
 			}
 			
 			
-			/* 
-			 * This function might be unneeded. I'm not sure if it's required to change the title 
-			 * based on how many users are logged in still.
-			 *			Chad
-			 */
+			private function updateNumberofParticipants(numParticipants:int):void {
+				if (numParticipants > 8)
+					this.title = ResourceUtil.getInstance().getString('bbb.participants.title', [":", numParticipants]);
+				else 
+					this.title = ResourceUtil.getInstance().getString('bbb.participants.title', ["", ""]);
+			}
+			
 			private function localeChanged(e:LocaleChangeEvent):void {
-				
+				updateNumberofParticipants(participants.length);
 			}
 			
 			private function changeButtons(presenter:Boolean):void {
@@ -135,7 +139,7 @@
 				}
 				
 				var myMenu:Menu = Menu.createMenu(null, myMenuData, true);
-				myMenu.show(this.x + settingsBtn.x, this.y + this.height + 25);
+				myMenu.show(this.x + settingsBtn.x + 2, this.y + this.height + 25);
 				myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClickHandler);
 			}
 			
@@ -187,7 +191,7 @@
 		itemRollOut="onItemRollOut(event)" 
 		accessibilityName="{ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.accessibilityName')}" >
     	<mx:columns>
-    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer')}" editable="false" width="40"
+    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer')}" editable="false" width="45"
     			itemRenderer="org.bigbluebutton.modules.participants.views.StatusItemRenderer" sortable="false" />
     		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.nameItemRenderer')}" editable="false" width="100" sortable="false"
     			itemRenderer="org.bigbluebutton.modules.participants.views.NameItemRenderer"/>

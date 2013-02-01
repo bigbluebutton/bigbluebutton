@@ -1,23 +1,20 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.client;
 
@@ -42,7 +39,7 @@ public class LifeLine {
 	}
 	
 	public void listen() {
-		System.out.println("Starting listener on port " + port);
+		
 		lifeLineServer = new LifeLineServer();
 		lifeLineThread = new Thread(lifeLineServer, "LifeLineServer");
 		lifeLineThread.start();       
@@ -61,13 +58,14 @@ public class LifeLine {
 		public void run() {
 			 try {
 		            serverSocket = new ServerSocket();
-		            serverSocket.bind(new InetSocketAddress(InetAddress.getLocalHost(), port));
+		            serverSocket.bind(new InetSocketAddress("127.0.0.1", port));
 		        } catch (IOException e) {
 		            System.err.println("Could not listen on port: " + port);
 		            notifyListener(ExitCode.CANNOT_BIND_TO_LIFELINE_PORT);
 		        }
 		        
 		        try {
+		        	System.out.println("Starting listener on [" + serverSocket.getInetAddress() + ":" + port + "]");
 		            clientSocket = serverSocket.accept();
 		            clientSocket.setKeepAlive(true);
 		            out = new PrintWriter(clientSocket.getOutputStream(), true);

@@ -1,28 +1,31 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
-	import mx.collections.ArrayCollection;	
+	import com.asfusion.mate.events.Dispatcher;
+	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class BBBUser {
 		public static const MODERATOR:String = "MODERATOR";
@@ -41,6 +44,7 @@ package org.bigbluebutton.main.model.users
 		}
 		public function set hasStream(s:Boolean):void {
 			_hasStream = s;
+			verifyMedia();
 		}
 		
 		[Bindable] public var streamName:String = "";
@@ -52,15 +56,43 @@ package org.bigbluebutton.main.model.users
 		}
 		public function set presenter(p:Boolean):void {
 			_presenter = p;
+			verifyUserStatus();
 		}
 		
-		[Bindable] public var raiseHand:Boolean = false;
-		[Bindable] public var role:String = Role.VIEWER;	
+		private var _raiseHand:Boolean = false;
+		[Bindable]
+		public function get raiseHand():Boolean {
+			return _raiseHand;
+		}
+		public function set raiseHand(r:Boolean):void {
+			_raiseHand = r;
+			verifyUserStatus();
+		}
+		
+		private var _role:String = Role.VIEWER;
+		[Bindable] 
+		public function get role():String {
+			return _role;
+		}
+		public function set role(r:String):void {
+			_role = r;
+			verifyUserStatus();
+		}
+		
 		[Bindable] public var room:String = "";
 		[Bindable] public var authToken:String = "";
 		[Bindable] public var selected:Boolean = false;
 		[Bindable] public var voiceUserid:Number;
-		[Bindable] public var voiceMuted:Boolean = false;
+		
+		private var _voiceMuted:Boolean = false;
+		[Bindable]
+		public function get voiceMuted():Boolean {
+			return _voiceMuted;
+		}
+		public function set voiceMuted(v:Boolean):void {
+			_voiceMuted = v;
+			verifyMedia();
+		}
 		
 		private var _voiceJoined:Boolean = false;
 		[Bindable] 
@@ -69,12 +101,52 @@ package org.bigbluebutton.main.model.users
 		}
 		public function set voiceJoined(v:Boolean):void {
 			_voiceJoined = v;
+			verifyMedia();
 		}
 		
 		[Bindable] public var voiceLocked:Boolean = false;
 		
-		[Bindable] public var userStatus:String = "";
-		[Bindable] public var media:String = "";
+		/*
+		 * This variable is for accessibility for the Participants Window. It can't be manually set
+		 * and only changes when one of the relevant status variables changes. Use the verifyUserStatus
+		 * method to update the value.
+		 *			Chad
+		 */
+		private var _userStatus:String = "";
+		[Bindable] 
+		public function get userStatus():String {
+			return _userStatus;
+		}
+		private function set userStatus(s:String):void {}
+		private function verifyUserStatus():void {
+			if (presenter)
+				_userStatus = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.presenter');
+			else if (role == Role.MODERATOR)
+				_userStatus = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.moderator');
+			else if (raiseHand)
+				_userStatus = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.handRaised');
+			else
+				_userStatus = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.viewer');
+		}
+		
+		/*
+		* This variable is for accessibility for the Participants Window. It can't be manually set
+		* and only changes when one of the relevant media variables changes. Use the verifyMedia
+		* method to update the value.
+		*			Chad
+		*/
+		private var _media:String = "";
+		[Bindable] 
+		public function get media():String {
+			return _media;
+		}
+		private function set media(m:String):void {}
+		private function verifyMedia():void {
+			_media = (hasStream ? ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer.webcam') + " " : "") + 
+					(!voiceJoined ? ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer.noAudio') : 
+									(voiceMuted ? ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer.micOff') : 
+												  ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer.micOn')));
+		}
 		 
 		private var _status:StatusCollection = new StatusCollection();
 				
