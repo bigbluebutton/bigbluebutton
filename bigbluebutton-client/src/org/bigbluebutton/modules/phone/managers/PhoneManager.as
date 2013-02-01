@@ -26,6 +26,7 @@ package org.bigbluebutton.modules.phone.managers {
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.modules.phone.PhoneOptions;
@@ -115,7 +116,7 @@ package org.bigbluebutton.modules.phone.managers {
 			userHangup = false;
 			setupMic(autoJoin);
 			var uid:String = String(Math.floor(new Date().getTime()));
-			var uname:String = encodeURIComponent(UserManager.getInstance().getConference().getMyUserId() + "-" + attributes.username);
+			var uname:String = encodeURIComponent(UsersUtil.getMyExternalUserID() + "-" + attributes.username);
 			connectionManager.connect(uid, attributes.internalUserID, uname , attributes.room, attributes.uri);
 		}		
 		
