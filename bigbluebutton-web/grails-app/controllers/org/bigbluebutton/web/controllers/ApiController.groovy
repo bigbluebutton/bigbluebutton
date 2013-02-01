@@ -307,7 +307,7 @@ class ApiController {
     us.fullname = fullName 
     us.role = role
     us.conference = meeting.getInternalId()
-    us.room = meeting.getName()
+    us.room = meeting.getInternalId()
     us.voicebridge = meeting.getTelVoice()
     us.webvoiceconf = meeting.getWebVoice()
     us.mode = "LIVE"
@@ -759,7 +759,8 @@ class ApiController {
       }
 	  
     } else {
-		UserSession us = meetingService.getUserSession(session['user-token']);
+		UserSession us = meetingService.getUserSession(session['user-token']);	
+        log.info("Found conference for " + us.fullname)
         response.addHeader("Cache-Control", "no-cache")
         withFormat {				
         xml {
@@ -1233,7 +1234,7 @@ class ApiController {
   }
   
   def respondWithConference(meeting, msgKey, msg) {
-	response.addHeader("Cache-Control", "no-cache")
+    response.addHeader("Cache-Control", "no-cache")
     withFormat {	
       xml {
         log.debug "Rendering as xml"

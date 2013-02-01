@@ -31,10 +31,10 @@ public class VoiceService {
 
 	@SuppressWarnings("unchecked")
 	public Map<String, List> getMeetMeUsers() {
-		String confName = getBbbSession().getSessionName();
+		String voiceBridge = getBbbSession().getVoiceBridge();
 		
-    	log.debug("GetMeetmeUsers request for room[" + confName + "]");
-    	ArrayList<Participant> p = conferenceService.getParticipants(confName);
+    	log.debug("GetMeetmeUsers request for room[" + voiceBridge + "]");
+    	ArrayList<Participant> p = conferenceService.getParticipants(voiceBridge);
 
 		Map participants = new HashMap();
 		if (p == null) {
@@ -68,30 +68,30 @@ public class VoiceService {
 	}
 	
 	public void muteAllUsers(boolean mute) {
-		String conference = getBbbSession().getSessionName();    	
+		String conference = getBbbSession().getVoiceBridge();    	
     	log.debug("Mute all users in room[" + conference + "]");
     	conferenceService.mute(conference, mute);	   	
 	}	
 	
 	public boolean isRoomMuted(){
-		String conference = getBbbSession().getSessionName(); 
+		String conference = getBbbSession().getVoiceBridge(); 
     	return conferenceService.isRoomMuted(conference);	
 	}
 	
 	public void muteUnmuteUser(Integer userid,Boolean mute) {
-		String conference = getBbbSession().getSessionName();    	
+		String conference = getBbbSession().getVoiceBridge();    	
     	log.debug("MuteUnmute request for user [" + userid + "] in room[" + conference + "]");
     	conferenceService.mute(userid, conference, mute);
 	}
 
 	public void lockMuteUser(Integer userid, Boolean lock) {
-		String conference = getBbbSession().getSessionName();    	
+		String conference = getBbbSession().getVoiceBridge();    	
     	log.debug("Lock request for user [" + userid + "] in room[" + conference + "]");
     	conferenceService.lock(userid, conference, lock);
 	}
 	
 	public void kickUSer(Integer userid) {
-		String conference = getBbbSession().getSessionName();		
+		String conference = getBbbSession().getVoiceBridge();		
     	log.debug("KickUser " + userid + " from " + conference);		
 		conferenceService.eject(userid, conference);
 	}

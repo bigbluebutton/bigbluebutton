@@ -85,7 +85,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
-		String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
+        String remoteHost = Red5.getConnectionLocal().getRemoteAddress();
         int remotePort = Red5.getConnectionLocal().getRemotePort();
         String username = ((String) params[0]).toString();
         String role = ((String) params[1]).toString();
