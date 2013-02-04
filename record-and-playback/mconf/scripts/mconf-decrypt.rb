@@ -27,9 +27,7 @@ require 'open-uri'
 require 'digest/md5'
 
 
-#BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/uncrypt.log",'daily' )
-
-BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/uncypt.log",'daily' ) 
+BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/decrypt.log",'daily' )
 
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 mconf_props = YAML::load(File.open('mconf.yml'))
@@ -140,9 +138,9 @@ criptfiles.each do |cf|
 	end
 
 
-    BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/mconf/uncrypt-#{meeting_id}.log", 'daily' )
+    BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/mconf/decrypt-#{meeting_id}.log", 'daily' )
     BigBlueButton.logger.info("teste Meeting id calculated:")
-    BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/mconf/uncrypt.log", 'daily' )
+    BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/mconf/decrypt.log", 'daily' )
     BigBlueButton.logger.info("Meeting id calculated: #{meeting_id}")
 end
 =end

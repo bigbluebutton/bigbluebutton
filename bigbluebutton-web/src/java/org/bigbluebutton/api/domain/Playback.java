@@ -4,6 +4,7 @@ public class Playback {
 	private String format;
 	private String url;
 	private int length;
+	
 	public Playback(String format, String url, int length) {
 		this.format = format;
 		this.url = url;
@@ -27,5 +28,6 @@ public class Playback {
 	public void setLength(int length) {
 		this.length = length;
 	}
+	
 	
 }

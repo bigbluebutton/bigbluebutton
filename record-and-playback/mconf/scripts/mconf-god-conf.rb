@@ -23,13 +23,13 @@
 # Monitors the BigBlueButton Matterhorn publisher process
 God.watch do |w|
 	# The name of the watcher 
-	w.name = "mconf-uncript"
+	w.name = "mconf-decrypt"
 
 	# The default time for reporting the state of the monitored process
 	w.interval = 1.minute
 
 	# Start the process
-	w.start = "ruby mconf-uncript.rb"
+	w.start = "ruby mconf-decrypt.rb"
 
 	# Start your process in this directory
 	w.dir = "/usr/local/bigbluebutton/core/scripts/"
