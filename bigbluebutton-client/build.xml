@@ -247,8 +247,8 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main, build-bbb-main-test, build-chat, build-polling, build-viewers, build-listeners, build-present, build-layout"
-			description="Compile main, chat, polling, viewers, listeners, present, breakout modules">
+			depends="build-bbb-main, build-chat, build-polling, build-viewers, build-listeners, build-present, build-layout, build-broadcast"
+			description="Compile main, chat, polling, viewers, listeners, present modules">
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
@@ -477,7 +477,4 @@
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
 
 	<target name="build-poll" depends="init-ant-contrib, build-polling" description="Build only the polling module." />
-	
-	<!-- target name="build-custom" depends="init-ant-contrib, build-classroom-audio" description="Build a custom defined module only, to save time as each build takes several minutes" / -->
-
 </project>
