@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
 <!--
 
 BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
@@ -15,9 +17,8 @@ PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-
 -->
-<?xml version="1.0" encoding="UTF-8"?>
+
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:lang="http://www.springframework.org/schema/lang"
@@ -48,8 +49,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 
 	<bean id="web.handler" class="org.bigbluebutton.voiceconf.red5.Application">
-		<property name="sipServerHost" value="${sip.server.host}" />
-		<property name="sipPort" value="${sip.server.port}" />
+		<property name="sipClientRtpIp" value="${bbb.sip.app.ip}" />
+		<property name="sipServerHost" value="${freeswitch.ip}" />
+		<property name="sipPort" value="${bbb.sip.app.port}" />
 		<property name="username" value="${sip.server.username}" />
 		<property name="password" value="${sip.server.password}" />
 		<property name="startAudioPort" value="${startAudioPort}" />
@@ -64,6 +66,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     	
 	<bean id="sipPeerManager" class="org.bigbluebutton.voiceconf.sip.SipPeerManager">
 		<property name="sipStackDebugLevel" value="${sipStackDebugLevel}"/>
+		<property name="sipRemotePort" value="${freeswitch.port}"/>
 	</bean>
 	
 	<bean id="clientConnectionManager" class="org.bigbluebutton.voiceconf.red5.ClientConnectionManager"/>

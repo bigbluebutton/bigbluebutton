@@ -93,7 +93,7 @@ public class BlockManager {
 		}
 
 		long end = System.currentTimeMillis();
-		System.out.println("Processing blocks took " + (end - start) + " millis");
+//		System.out.println("Processing blocks took " + (end - start) + " millis");
     }
         
     private void notifyChangedBlockListener(BlockMessage position) {

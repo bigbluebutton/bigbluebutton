@@ -28,7 +28,7 @@ public class FullScreenSharer implements ScreenSharer {
 		this.ssi = ssi;
 	}
 	
-	public void start() {
+	public void start(boolean autoStart) {
 		sharer = new ScreenSharerRunner(ssi);
 		sharer.addClientListener(listener);
 		sharer.startSharing();
@@ -38,28 +38,6 @@ public class FullScreenSharer implements ScreenSharer {
 		listener = l;
 	}
 	
-	/*****************************************************************************
-    ;  disconnected
-    ;----------------------------------------------------------------------------
-	; DESCRIPTION
-	;   This routine is used to pop up the dialog box and change icon try 
-	;   message when client is disconnected from the server.
-	;
-	; RETURNS : N/A
-	;
-	; INTERFACE NOTES
-	; 
-	;       INPUT : N/A
-	; 
-	;       OUTPUT : N/A
-	; 
-	; IMPLEMENTATION
-	;
-	; HISTORY
-	; __date__ :        PTS:  
-	; 2010.11.19		problem 272
-	;
-	******************************************************************************/
 	public void disconnected(){
 		sharer.disconnectSharing();
 	} // END FUNCTION disconnected

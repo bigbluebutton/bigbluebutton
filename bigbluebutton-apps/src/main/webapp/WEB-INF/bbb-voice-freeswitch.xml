@@ -42,9 +42,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</beans:bean>
 
 	<beans:bean id="eslConnection" class="org.freeswitch.esl.client.manager.DefaultManagerConnection">
-		<beans:property name="hostname" value="${esl.host}"/>
-		<beans:property name="port" value="${esl.port}"/>
-		<beans:property name="password" value="${esl.password}"/>		
+		<beans:property name="hostname" value="${freeswitch.esl.host}"/>
+		<beans:property name="port" value="${freeswitch.esl.port}"/>
+		<beans:property name="password" value="${freeswitch.esl.password}"/>		
 	</beans:bean>
                        
 </beans:beans>

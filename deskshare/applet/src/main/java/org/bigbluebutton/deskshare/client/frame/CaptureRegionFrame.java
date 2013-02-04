@@ -19,6 +19,7 @@
 package org.bigbluebutton.deskshare.client.frame;
 
 import java.awt.Button;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -26,8 +27,6 @@ import java.awt.event.ActionListener;
 import javax.swing.JPanel;
 
 public class CaptureRegionFrame {
-	private static final long serialVersionUID = 1L;
-
 	private Button btnStartStop;
 	private CaptureRegionListener client;
 	private boolean capturing = false;
@@ -37,7 +36,7 @@ public class CaptureRegionFrame {
 		frame = new WindowlessFrame(borderWidth);
 		this.client = client;
 		frame.setCaptureRegionListener(client);
-		frame.setToolbar(createToolbar());
+				
 	}
 	
 	public void setHeight(int h) {
@@ -56,9 +55,17 @@ public class CaptureRegionFrame {
 		frame.setVisible(visible);	
 	}
 	
+	public void start(boolean autoStart) {
+		frame.setToolbar(createToolbar());
+		setVisible(true);
+		if (autoStart) {
+			startCapture();	
+		} 
+	}
 	
 	private JPanel createToolbar() {
 		final JPanel panel = new JPanel();
+		panel.setBackground(Color.RED); 
 		panel.setLayout(new FlowLayout());
 		capturing = false;
 		btnStartStop = new Button("Start Sharing");

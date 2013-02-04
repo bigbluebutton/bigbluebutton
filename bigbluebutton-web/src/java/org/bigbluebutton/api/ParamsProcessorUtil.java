@@ -252,7 +252,11 @@ public class ParamsProcessorUtil {
 	
 	public Meeting processCreateParams(Map<String, String> params) {
 	    String meetingName = params.get("name");
+	    if(meetingName == null){
+	    	meetingName = "";
+	    }
 	    String externalMeetingId = params.get("meetingID");
+	    
 	    String viewerPass = processPassword(params.get("attendeePW"));
 	    String modPass = processPassword(params.get("moderatorPW")); 
 	    

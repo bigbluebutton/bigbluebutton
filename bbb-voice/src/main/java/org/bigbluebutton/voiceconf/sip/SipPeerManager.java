@@ -41,13 +41,14 @@ public final class SipPeerManager {
 	
     private Map<String, SipPeer> sipPeers;
     private int sipStackDebugLevel = 8;
+    private int sipRemotePort = 5060;
     
     public SipPeerManager() {
         sipPeers = Collections.synchronizedMap(new HashMap<String, SipPeer>());
     }
 
-    public void createSipPeer(String peerId, String host, int sipPort, int startRtpPort, int stopRtpPort) {
-    	SipPeer sipPeer = new SipPeer(peerId, host, sipPort, startRtpPort, stopRtpPort);
+    public void createSipPeer(String peerId, String clientRtpIp, String host, int sipPort, int startRtpPort, int stopRtpPort) {
+    	SipPeer sipPeer = new SipPeer(peerId, clientRtpIp, host, sipPort, startRtpPort, stopRtpPort);
     	sipPeer.setClientConnectionManager(clientConnManager);
     	sipPeer.setCallStreamFactory(callStreamFactory);
     	sipPeers.put(peerId, sipPeer);    	
@@ -125,6 +126,12 @@ public final class SipPeerManager {
 		SipStack.init();
         SipStack.debug_level = sipStackDebugLevel;
         SipStack.log_path = "log"; 
+	}
+	
+	public void setSipRemotePort(int port) {
+		this.sipRemotePort =  port;
+		SipStack.init();
+		SipStack.default_port = sipRemotePort;
 	}
 	
 	public void setCallStreamFactory(CallStreamFactory csf) {

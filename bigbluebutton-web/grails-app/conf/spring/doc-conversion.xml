@@ -88,6 +88,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="thumbnailCreator" ref="thumbCreator"/>
 		<property name="textFileCreator" ref="textFileCreator"/>
 		<property name="blankSlide" value="${BLANK_SLIDE}"/>
+		<property name="maxSwfFileSize" value="${MAX_SWF_FILE_SIZE}"/>
 		<property name="maxConversionTime" value="${maxConversionTime}"/>
 		<property name="swfSlidesGenerationProgressNotifier" ref="swfSlidesGenerationProgressNotifier"/>
 	</bean>	

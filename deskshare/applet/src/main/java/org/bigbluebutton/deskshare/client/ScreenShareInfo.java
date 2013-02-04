@@ -29,7 +29,7 @@ public class ScreenShareInfo {
    	public int scaleWidth;
    	public int scaleHeight;
    	public boolean quality;
-   	public boolean aspectRatio;
+   	public double scale;
    	public int x;
    	public int y;
    	public boolean httpTunnel;
