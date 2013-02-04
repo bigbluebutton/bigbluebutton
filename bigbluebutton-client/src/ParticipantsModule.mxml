@@ -29,16 +29,14 @@
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-			
 			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.modules.participants.views.ParticipantsWindow;
+			
+			import org.bigbluebutton.modules.participants.events.StartParticipantsModuleEvent;
+			import org.bigbluebutton.modules.participants.events.StopParticipantsModuleEvent;
 			
 			private var _moduleName:String = "Participants Module";
 			private var _attributes:Object;
 			private var dispatcher:Dispatcher;
-			private var participantsWindow:ParticipantsWindow;
 			
 			private function onCreationComplete():void {
 				LogUtil.debug("ParticipantsModule Initialized");		
@@ -47,22 +45,34 @@
 			public function get moduleName():String {
 				return _moduleName;
 			}
-						
-			public function start(attributes:Object):void {
-				_attributes = attributes;
-				dispatcher = new Dispatcher();
+			
+			public function get uri():String {
+				if (_attributes.mode == "PLAYBACK") {										
+					return _attributes.uri + "/" + _attributes.playbackRoom;
+				} 
 				
-				participantsWindow = new ParticipantsWindow();
-				
-				var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				windowEvent.window = participantsWindow;
-				dispatcher.dispatchEvent(windowEvent);
+				return _attributes.uri + "/" + _attributes.room;
 			}
-		
+			
+			public function get connection():NetConnection {
+				return _attributes.connection;
+			}
+			
+			public function start(attributes:Object):void {		
+				_attributes = attributes;	
+				
+				dispatcher = new Dispatcher();
+				var startEvent:StartParticipantsModuleEvent = new StartParticipantsModuleEvent(StartParticipantsModuleEvent.START_PARTICIPANTS_MODULE);
+				startEvent.module = this;
+				dispatcher.dispatchEvent(startEvent);
+			}
+			
 			public function stop():void {
-				var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
-				event.window = participantsWindow;
-				dispatcher.dispatchEvent(event);
+				LogUtil.debug("ParticipantsModule is stopping");
+				
+				var endEvent:StopParticipantsModuleEvent = new StopParticipantsModuleEvent(StopParticipantsModuleEvent.STOP_PARTICIPANTS_MODULE);
+				dispatcher.dispatchEvent(endEvent);
+				
 			}
 		]]>
 	</mx:Script>

@@ -39,14 +39,14 @@
 			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
-			import mx.controls.listClasses.IListItemRenderer;
 			import mx.controls.Menu;
+			import mx.controls.listClasses.IListItemRenderer;
 			import mx.events.DataGridEvent;
 			import mx.events.ListEvent;
 			import mx.events.MenuEvent;
 			
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.model.users.BBBUser;
 			import org.bigbluebutton.main.model.users.Conference;
@@ -55,9 +55,11 @@
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.participants.events.ParticipantRollEvent;
 			import org.bigbluebutton.modules.participants.events.VoiceConfEvent;
+			import org.bigbluebutton.modules.participants.model.ParticipantsOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;		
 			
 			private var dispatcher:Dispatcher;
+			public var participantsOptions:ParticipantsOptions;
 			
 			[Bindable]
 			private var images:Images = new Images();

@@ -35,6 +35,9 @@
     <application path="BigBlueButtonUnitTests.mxml"/>
     <application path="DeskshareStandalone.mxml"/>
     <application path="src/TestRunners.mxml"/>
+    <application path="WebcamPreviewStandalone.mxml"/>
+    <application path="WebcamViewStandalone.mxml"/>
+    <application path="org/red5/flash/bwcheck/app/BandwidthDetectionApp.as"/>
   </applications>
   <modules>
     <module application="src/BigBlueButton.mxml" destPath="DynamicInfoModule.swf" optimize="true" sourcePath="src/DynamicInfoModule.mxml"/>
