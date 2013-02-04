@@ -1,26 +1,25 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.conference;
 
 import java.util.Iterator;
 import java.util.Set;
-
 import org.red5.server.api.Red5;import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.red5.logging.Red5LoggerFactory;
@@ -41,12 +40,10 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	private RecorderApplication recorderApplication;
 	private AbstractApplicationContext appCtx;
 	private ConnectionInvokerService connInvokerService;
-	
-	private String version;
-	
+		
 	@Override
     public boolean appStart(IScope app) {
-        log.debug("Starting BigBlueButton version " + version); 
+        log.debug("Starting BigBlueButton "); 
         IContext context = app.getContext();
         appCtx = (AbstractApplicationContext) context.getApplicationContext();
         appCtx.addApplicationListener(new ShutdownHookListener());
@@ -56,7 +53,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     
 	@Override
     public void appStop(IScope app) {
-        log.debug("Stopping BigBlueButton version " + version);
+        log.debug("Stopping BigBlueButton ");
         super.appStop(app);
     }
     
@@ -99,7 +96,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
          * equivalent (i.e. zero (0) becomes 48) if we don't.
          */
         long clientID = Long.parseLong(Red5.getConnectionLocal().getClient().getId());
-        String sessionName = connection.getScope().getName();
+        String sessionName = ((String)params[3]).toString();
         log.info("[clientid=" + clientID + "] connected from " + remoteHost + ":" + remotePort + ".");
         
         String voiceBridge = ((String) params[4]).toString();
@@ -110,9 +107,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 
     	String externalUserID = ((String) params[6]).toString();
     	String internalUserID = ((String) params[7]).toString();
-    	
-    	
-    	
+    	    	
 		if (record == true) {
 			recorderApplication.createRecordSession(sessionName);
 		}
@@ -161,18 +156,12 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	}
 	
 	public void setApplicationListeners(Set<IApplication> listeners) {
-		int count = 0;
 		Iterator<IApplication> iter = listeners.iterator();
 		while (iter.hasNext()) {
 			super.addListener((IApplication) iter.next());
-			count++;
 		}
 	}
-	
-	public void setVersion(String v) {
-		version = v;
-	}
-	
+		
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}

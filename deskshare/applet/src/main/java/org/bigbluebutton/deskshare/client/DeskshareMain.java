@@ -1,23 +1,20 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.client;
 
@@ -54,7 +51,8 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
 	public static void main(String[] args) {
 		DeskshareMain dsMain = new DeskshareMain();
     	CmdLineParser parser = new CmdLineParser();
-    	CmdLineParser.Option host = dsMain.addHelp(parser.addStringOption('s', "server"),"The address of Red5 server");
+    	
+    	CmdLineParser.Option host = dsMain.addHelp(parser.addStringOption('s', "server"), serverHelpText);
         CmdLineParser.Option port = dsMain.addHelp(parser.addIntegerOption('p', "port"),"The port the application is listening");
         CmdLineParser.Option listenPort = dsMain.addHelp(parser.addIntegerOption('l', "listenPort"),"Port to listen for lifeline");
         CmdLineParser.Option room = dsMain.addHelp(parser.addStringOption('r', "room"),"Room");        
@@ -62,8 +60,9 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
     	CmdLineParser.Option cHeight = dsMain.addHelp(parser.addIntegerOption('t', "captureHeight"),"Height of the screen capture");
     	CmdLineParser.Option sWidth = dsMain.addHelp(parser.addIntegerOption('d', "scaleWidth"),"Scale capture width");
     	CmdLineParser.Option sHeight = dsMain.addHelp(parser.addIntegerOption('g', "scaleHeight"),"Scale capture height");    
-    	CmdLineParser.Option quality = dsMain.addHelp(parser.addBooleanOption('q', "quality"),"Scale with better quality instead of speed");
-    	CmdLineParser.Option aspectRatio = dsMain.addHelp(parser.addBooleanOption('a', "aspectRatio"),"Maintain aspect ratio when scaling");
+//    	CmdLineParser.Option quality = dsMain.addHelp(parser.addBooleanOption('q', "quality"),"Scale with better quality instead of speed");
+//    	CmdLineParser.Option aspectRatio = dsMain.addHelp(parser.addBooleanOption('a', "aspectRatio"),"Maintain aspect ratio when scaling");
+//    	CmdLineParser.Option autoScale = dsMain.addHelp(parser.addDoubleOption('a', "autoScale"),"Scale factor [0.5 to 0.8]. Override -d and -g options.");
     	CmdLineParser.Option xCoord = dsMain.addHelp(parser.addIntegerOption('x', "x"),"Upper-left x coordinate of the screen capture");
     	CmdLineParser.Option yCoord = dsMain.addHelp(parser.addIntegerOption('y', "y"),"Upper-left y coordinate of the screen capture");
     	CmdLineParser.Option tryHttpTunnel = dsMain.addHelp(parser.addBooleanOption('n', "httptunnel"),"Http tunnel if direct connection fails");
@@ -85,8 +84,6 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
             System.exit(0);
         }
         
-//        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-
         // Extract the values entered for the various options -- if the
         // options were not specified, the corresponding values will be
         // the default.
@@ -94,16 +91,16 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         Integer portValue = (Integer)parser.getOptionValue(port, new Integer(9123));
         Integer listenPortValue = (Integer)parser.getOptionValue(listenPort, new Integer(9125));
         String roomValue = (String)parser.getOptionValue(room, "85115");
-//        Integer cWidthValue = (Integer)parser.getOptionValue(cWidth, new Integer((int)dim.getWidth()));
-//        Integer cHeightValue = (Integer)parser.getOptionValue(cHeight, new Integer((int)dim.getHeight()));
-//        Integer sWidthValue = (Integer)parser.getOptionValue(sWidth, new Integer((int)dim.getWidth()));
-//        Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer((int)dim.getHeight()));
-      Integer cWidthValue = (Integer)parser.getOptionValue(cWidth, new Integer(800));
-      Integer cHeightValue = (Integer)parser.getOptionValue(cHeight, new Integer(600));
-      Integer sWidthValue = (Integer)parser.getOptionValue(sWidth, new Integer(800));
-      Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer(600));
-        Boolean qualityValue = (Boolean)parser.getOptionValue(quality, new Boolean(false));
-        Boolean aspectValue = (Boolean)parser.getOptionValue(aspectRatio, new Boolean(false));
+        Integer cWidthValue = (Integer)parser.getOptionValue(cWidth, new Integer(800));
+        Integer cHeightValue = (Integer)parser.getOptionValue(cHeight, new Integer(600));
+      
+        Integer sWidthValue = (Integer)parser.getOptionValue(sWidth, new Integer(800));
+        Integer sHeightValue = (Integer)parser.getOptionValue(sHeight, new Integer(600));
+          
+//        Boolean qualityValue = (Boolean)parser.getOptionValue(quality, new Boolean(false));
+//        Double autoScaleValue = (Double)parser.getOptionValue(autoScale, new Double(0));
+//        Double autoScaleValue = new Double(0);
+//        Boolean aspectValue = (Boolean)parser.getOptionValue(aspectRatio, new Boolean(false));
         Integer xValue = (Integer)parser.getOptionValue(xCoord, new Integer(0));
         Integer yValue = (Integer)parser.getOptionValue(yCoord, new Integer(0));
         Boolean tunnelValue = (Boolean)parser.getOptionValue(tryHttpTunnel, new Boolean(false));
@@ -119,7 +116,7 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
         client = new DeskshareClient.NewBuilder().host(hostValue).port(portValue)
         						.room(roomValue).captureWidth(cWidthValue)
         						.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
-        						.quality(qualityValue).aspectRatio(aspectValue)
+        						.quality(true).autoScale(0)
         						.x(xValue).y(yValue).fullScreen(fullScreenValue).useSVC2(useSVC2Value)
         						.httpTunnel(tunnelValue).trayIcon(image).enableTrayIconActions(true).build();
         
@@ -163,4 +160,6 @@ public class DeskshareMain implements ClientListener, LifeLineListener {
 			System.exit(reason.getExitCode());
 		}
 	}
+	
+	private static final String serverHelpText = "\n\t The host or IP of the desktop sharing server. Default is localhost.";
 }

@@ -1,30 +1,28 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.main.model.users {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;
-	
+	import flash.net.SharedObject;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
@@ -35,8 +33,10 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.events.LogoutEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
-	import org.bigbluebutton.main.events.ParticipantJoinEvent;
 	import org.bigbluebutton.main.events.PresenterStatusEvent;
+	import org.bigbluebutton.main.events.SwitchedPresenterEvent;
+	import org.bigbluebutton.main.events.UserJoinedEvent;
+	import org.bigbluebutton.main.events.UserLeftEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
@@ -164,23 +164,26 @@ package org.bigbluebutton.main.model.users {
 		 * Called by the server to assign a presenter
 		 */
 		public function assignPresenterCallback(userid:String, name:String, assignedBy:String):void {
-			LogUtil.debug("assignPresenterCallback " + userid + "," + name + "," + assignedBy);
-			var dispatcher:Dispatcher = new Dispatcher();
+			trace("**** assignPresenterCallback [" + userid + "," + name + "," + assignedBy + "]");
+      
 			var meeting:Conference = UserManager.getInstance().getConference();
+
 			if (meeting.amIThisUser(userid)) {
+        trace("**** Switching [" + name + "] to presenter");
+        sendSwitchedPresenterEvent(true, userid);
+        
 				meeting.setMePresenter(true);				
 				var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
 				e.userid = userid;
 				e.presenterName = name;
 				e.assignerBy = assignedBy;
 				
-				dispatcher.dispatchEvent(e);		
+				dispatcher.dispatchEvent(e);	
+              
+			} else {	
+        trace("**** Switching [" + name + "] to presenter. I am viewer.");
+        sendSwitchedPresenterEvent(false, userid);
         
-        var roleEvent:CoreEvent = new CoreEvent(EventConstants.NEW_ROLE);
-        roleEvent.message.role = Role.PRESENTER;
-        dispatcher.dispatchEvent(roleEvent);
-        
-			} else {				
 				meeting.setMePresenter(false);
 				var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
 				viewerEvent.userid = userid;
@@ -188,13 +191,17 @@ package org.bigbluebutton.main.model.users {
 				viewerEvent.assignerBy = assignedBy;
 
 				dispatcher.dispatchEvent(viewerEvent);
-        
-        var newRoleEvent:CoreEvent = new CoreEvent(EventConstants.NEW_ROLE);
-        newRoleEvent.message.role = Role.VIEWER;
-        dispatcher.dispatchEvent(newRoleEvent);
 			}
 		}
 		
+    private function sendSwitchedPresenterEvent(amIPresenter:Boolean, newPresenterUserID:String):void {
+
+      var roleEvent:SwitchedPresenterEvent = new SwitchedPresenterEvent();
+      roleEvent.amIPresenter = amIPresenter;
+      roleEvent.newPresenterUserID = newPresenterUserID;
+      dispatcher.dispatchEvent(roleEvent);   
+    }
+    
 		public function kickUser(userid:String):void{
 			_participantsSO.send("kickUserCallback", userid);
 		}
@@ -210,10 +217,9 @@ package org.bigbluebutton.main.model.users {
 			
 			UserManager.getInstance().getConference().removeUser(userID);	
 			
-			var dispatcher:Dispatcher = new Dispatcher();
-			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
+
+			var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
 			joinEvent.userID = user.userID;
-			joinEvent.join = false;
 			dispatcher.dispatchEvent(joinEvent);	
 		}
 		
@@ -232,10 +238,9 @@ package org.bigbluebutton.main.model.users {
 			participantStatusChange(user.userID, "presenter", joinedUser.status.presenter);
 			participantStatusChange(user.userID, "raiseHand", joinedUser.status.raiseHand);
 			
-			var dispatcher:Dispatcher = new Dispatcher();
-			var joinEvent:ParticipantJoinEvent = new ParticipantJoinEvent(ParticipantJoinEvent.PARTICIPANT_JOINED_EVENT);
+
+			var joinEvent:UserJoinedEvent = new UserJoinedEvent(UserJoinedEvent.JOINED);
 			joinEvent.userID = user.userID;
-			joinEvent.join = true;
 			dispatcher.dispatchEvent(joinEvent);	
 			
 		}
@@ -244,7 +249,7 @@ package org.bigbluebutton.main.model.users {
 		 * Called by the server to tell the client that the meeting has ended.
 		 */
 		public function logout():void {
-			var dispatcher:Dispatcher = new Dispatcher();
+
 			var endMeetingEvent:BBBEvent = new BBBEvent(BBBEvent.END_MEETING_EVENT);
 			dispatcher.dispatchEvent(endMeetingEvent);
 		}
@@ -260,7 +265,7 @@ package org.bigbluebutton.main.model.users {
 			if (status == "presenter"){
 				var e:PresenterStatusEvent = new PresenterStatusEvent(PresenterStatusEvent.PRESENTER_NAME_CHANGE);
 				e.userID = userID;
-				var dispatcher:Dispatcher = new Dispatcher();
+
 				dispatcher.dispatchEvent(e);
 			}		
 		}

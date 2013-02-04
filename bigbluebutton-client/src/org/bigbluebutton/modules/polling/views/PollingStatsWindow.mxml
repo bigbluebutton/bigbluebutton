@@ -46,30 +46,24 @@
 		import org.bigbluebutton.modules.polling.events.StopPollEvent;
 		import org.bigbluebutton.modules.polling.events.SavePollEvent;
 		import org.bigbluebutton.modules.polling.events.PublishPollEvent;
-		import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
-		
-		import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
-			
+		import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;		
+		import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;			
 		import org.bigbluebutton.modules.polling.model.PollObject;
 		import org.bigbluebutton.modules.polling.model.PollStatLineObject;
-		import org.bigbluebutton.modules.polling.model.AnswerObject;
-				
+		import org.bigbluebutton.modules.polling.model.AnswerObject;				
 		import org.bigbluebutton.core.managers.UserManager;
 		import org.bigbluebutton.main.model.users.Conference 
 		import org.bigbluebutton.main.model.users.BBBUser;
 		import org.bigbluebutton.common.Role;
-
 		import mx.validators.Validator;	
 		import mx.utils.ObjectUtil;
-		import org.bigbluebutton.util.i18n.ResourceUtil;
-			
+		import org.bigbluebutton.util.i18n.ResourceUtil;			
 		import mx.collections.ArrayCollection;
 		import mx.core.IUIComponent;
 		import mx.controls.Text;
 		import mx.controls.TextArea;
 		import mx.containers.*;
-		import mx.controls.*;
-		
+		import mx.controls.*;		
 		import flash.utils.Timer;
 		import flash.events.TimerEvent;
 
@@ -430,7 +424,6 @@
         	</mx:columns>
         </mx:DataGrid>
 
-Hey Justin. You left off here, trying to get the DataGrids to work. TestGrid and ResultsGrid both seem okay; when you come back, try each of them with trackingPoll.generateTestStats(). If that works, we'll figure out what to do next.        
 
         <mx:Label text="^ TestGrid   V ResultsGrid"/>
         <mx:DataGrid id="resultsGrid" editable="false" dataProvider="{trackingPoll.generateOneLine()}" width="90%" dragEnabled="false">

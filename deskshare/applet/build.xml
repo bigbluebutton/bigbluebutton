@@ -1,6 +1,5 @@
 <?xml version="1.0" ?>
-<project name="bbb-deskshare-applet" basedir=".">
-	
+<project name="bbb-deskshare-applet" basedir=".">	
 	<!-- How to sign the applet. From Ant in Action book -->
 <!--
 	<target name="getPassword" depends="initSecurity" description="Prompts for password for keystore">
@@ -62,12 +61,45 @@
 			</dname>
 		</genkey>
 	</target>
-	
+
 	<target name="sign-jar" depends="get-password">
-		<signjar jar="build/libs/bbb-deskshare-applet-0.8.jar"
+		<signjar jar="build/libs/bbb-deskshare-applet-0.8.1.jar"
 			alias="${keystore.alias}"
 			keystore="${keystore}"
 			storepass="${keystore.password}" />
+	</target>
+
+	<!-- Sign jar with Certificate using pkcs12 file -->
+	<target name="check-certificate">
+		<input message="Enter cetificate filename:" addproperty="cert.name" />
+		<input message="Enter cetificate password:" addproperty="cert.password" />
+                <exec executable="/usr/bin/keytool" outputproperty="cert.info">
+			<arg line="-list" />
+			<arg line="-storetype pkcs12" />
+                        <arg line="-keystore ${cert.name}" />
+			<arg line="-storepass ${cert.password}" />
+			<arg line="-v" /> 
+		</exec>
+        </target>
+
+	<target name="get-alias-name" depends="check-certificate">
+		<script language="javascript">
+        		<![CDATA[
+			// getting the value
+                	info = project.getProperty("cert.info");
+                	alias = (info.match(/Alias name:(.*)/)[0]).replace("Alias name: ","");
+                	project.setProperty("cert.alias",alias);
+            		]]>
+    		</script> 
+	</target>
+	
+
+	<target name="sign-certificate-jar" depends="get-alias-name">
+		<signjar jar="build/libs/bbb-deskshare-applet-0.8.1.jar"
+			storetype="pkcs12"
+			keystore="${cert.name}"
+			storepass="${cert.password}"
+			alias="${cert.alias}" />
 	</target>
 
 </project>

@@ -1,27 +1,25 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.client.frame;
 
 import java.awt.Button;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -29,8 +27,6 @@ import java.awt.event.ActionListener;
 import javax.swing.JPanel;
 
 public class CaptureRegionFrame {
-	private static final long serialVersionUID = 1L;
-
 	private Button btnStartStop;
 	private CaptureRegionListener client;
 	private boolean capturing = false;
@@ -40,7 +36,7 @@ public class CaptureRegionFrame {
 		frame = new WindowlessFrame(borderWidth);
 		this.client = client;
 		frame.setCaptureRegionListener(client);
-		frame.setToolbar(createToolbar());
+				
 	}
 	
 	public void setHeight(int h) {
@@ -59,9 +55,17 @@ public class CaptureRegionFrame {
 		frame.setVisible(visible);	
 	}
 	
+	public void start(boolean autoStart) {
+		frame.setToolbar(createToolbar());
+		setVisible(true);
+		if (autoStart) {
+			startCapture();	
+		} 
+	}
 	
 	private JPanel createToolbar() {
 		final JPanel panel = new JPanel();
+		panel.setBackground(Color.RED); 
 		panel.setLayout(new FlowLayout());
 		capturing = false;
 		btnStartStop = new Button("Start Sharing");
