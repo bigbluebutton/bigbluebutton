@@ -71,9 +71,9 @@ if not FileTest.directory?(target_dir)
     FileUtils.mkdir_p target_pres_dir
     FileUtils.mkdir_p "#{target_pres_dir}/textfiles"
     
-    images=Dir.glob("#{pres_dir}/#{pres}.{jpg,png,gif}")
-    if images.empty?
-         1.upto(num_pages) do |page|
+    images=Dir.glob("#{pres_dir}/#{pres}.{jpg,png,gif,JPG,PNG,GIF}")
+    if images.empty? 
+         1.upto(num_pages) do |page| 
            pdf_page = "#{pres_dir}/slide-#{page}.pdf"
            BigBlueButton::Presentation.extract_page_from_pdf(page, pres_pdf, pdf_page)
            #BigBlueButton::Presentation.convert_pdf_to_png(pdf_page, "#{target_pres_dir}/slide-#{page}.png")

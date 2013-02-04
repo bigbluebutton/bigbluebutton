@@ -211,5 +211,6 @@ br{
 #cursor {
 	position: relative;
 	background: red;
+	z-index: 10;
 }
 

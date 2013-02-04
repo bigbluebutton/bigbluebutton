@@ -1,23 +1,20 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.webconference.voice.freeswitch;
 
@@ -58,10 +55,12 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     private FreeswitchHeartbeatMonitor heartbeatMonitor;
     private boolean debug = false;
  
+    private String icecastProtocol = "shout";
     private String icecastHost = "localhost";
     private int icecastPort = 8000;
     private String icecastUsername = "source";
     private String icecastPassword = "hackme";
+    private String icecastStreamExtension = ".mp3";
     private Boolean icecastBroadcast = false;
     
     private final Integer USER = 0; /* not used for now */
@@ -180,8 +179,8 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     }
     
     private void broadcastToIcecast(String room, String meetingid) {
-    	String shoutPath = "shout://" + icecastUsername + ":" + icecastPassword + "@" + icecastHost + ":" + icecastPort 
-    			+ File.separatorChar + meetingid + ".mp3";       
+    	String shoutPath = icecastProtocol + "://" + icecastUsername + ":" + icecastPassword + "@" + icecastHost + ":" + icecastPort 
+    			+ File.separatorChar + meetingid + "." + icecastStreamExtension;       
     	
     	if (log.isDebugEnabled())
     		log.debug("Broadcast to {}", shoutPath);
@@ -364,7 +363,11 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     public void setDebugNullConferenceAction(boolean enabled) {
         this.debug = enabled;
     }
-  
+    
+    public void setIcecastProtocol(String protocol) {
+    	icecastProtocol = protocol;
+    }
+    
     public void setIcecastHost(String host) {
     	icecastHost = host;
     }
@@ -383,6 +386,10 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
     
     public void setIcecastBroadcast(Boolean broadcast) {
     	icecastBroadcast = broadcast;
+    }
+
+    public void setIcecastStreamExtension(String ext) {
+    	icecastStreamExtension = ext;
     }
     
     private Integer getMemberIdFromEvent(EslEvent e)

@@ -49,6 +49,11 @@ var switchLayout = function(newLayout) {
   BBB.switchLayout(newLayout);
 }
 
+var lockLayout = function(lock) {
+  BBB.lockLayout(lock);
+}
+
+
 var sendPublicChat = function () {
   var message = "Hello from the Javascript API";
   BBB.sendPublicChatMessage('0x7A7A7A', "en", message);
