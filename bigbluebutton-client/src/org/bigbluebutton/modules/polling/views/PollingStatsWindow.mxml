@@ -250,7 +250,8 @@
 		}
  		
 		// function receives Array.length and ArrayCollection
-		/*private function createResultsTable(amount:uint, content:Array):void{
+		/* Is this the createResultsTable that was obsolete? Who knows?*/
+			private function createResultsTable(amount:uint, content:Array):void{
 			var _tx: Text;
 			var _votes: Text;
 			var _percent: Text;
@@ -261,7 +262,7 @@
 				totalVotes+= int(trackingPoll.votes[n]);
 			}
 			// delete existing rows
-			resultBox.removeAllChildren();
+			resultsGrid.removeChildren();
 			// creating rows one by one
 			for (var i:int = 0; i < amount; i++) {
 				_tx = new Text();
@@ -291,28 +292,20 @@
 					_percent.text = " ";
 				}
 					
-				resultBox.addChild(_hb);					
+				resultsGrid.addChild(_hb);					
 				_hb.addChild(_tx);
 				_hb.addChild(_votes);
 				_hb.addChild(_percent);
 				
-				resultBox.addChild(_line);
+				resultsGrid.addChild(_line);
 			} // end of loop
 			didNotVote();
 			invalidateDisplayList();
-			resultBox.validateNow();	
+			resultsGrid.validateNow();	
 		} // end of function createResultsTable */
 		
-		private function createResultsTable(amount:uint, content:Array):void{
-			// DEBUG AREA to test PollObject.generateStats()
-			/*LogUtil.debug("Testing PollObject.generateStats()");
-			var ac:ArrayCollection = trackingPoll.generateStats();
-			for (var i:int = 0; i < ac.length; i++){
-				var pso:PollStatLineObject = ac.getItemAt(i) as PollStatLineObject;
-				LogUtil.debug("PSO: " + pso.answer + " " + pso.votes + " " + pso.percentage);
-			}*/
-			/*
-			answersAC = trackingPoll.generateStats();
+		
+		/*private function createResultsTable(amount:uint, content:Array):void{
 			
 			var totalVotes:int = 0;
 			for (var n:int = 0; n < trackingPoll.votes.length; n++){
@@ -338,12 +331,12 @@
 			
 			didNotVote();
 			resultsGrid.invalidateDisplayList();
-			//resultBox.validateNow();	
-			 *
-			 */
+			//resultBox.validateNow();
 		} // end of function createResultsTable 
 			
-		private function didNotVote():void{
+			
+		// New didNotVote; disregard this for now
+		/*private function didNotVote():void{
 			var dnvAnswer:AnswerObject = new AnswerObject();
 
 			dnvAnswer.answer = ResourceUtil.getInstance().getString('bbb.polling.stats.didNotVote'); 			
@@ -351,9 +344,9 @@
 			dnvAnswer.percent = " ";
 								
 			answersAC.addItem(dnvAnswer);
-		}
+		}*/
 			
-		/*private function didNotVote():void{
+		private function didNotVote():void{
 			var _tx:Text = new Text();
 			var _votes:Text= new Text;
 			var _hb:HBox = new HBox();
@@ -365,32 +358,16 @@
 			_votes.width = 30;
 			_votes.text = trackingPoll.didNotVote.toString();
 								
-			resultBox.addChild(_hb);					
+			//resultBox.addChild(_hb);					
 			_hb.addChild(_tx);
 			_hb.addChild(_votes);
 			
 			_hb.focusEnabled="true";
 			_hb.accessibilityDescription='bbb.polling.stats.didNotVote' + _votes.text + " votes.";
-			  
-			  
-			 <!--mx:DataGridColumn dataField="votes" 
-    						   	   headerText="Total Votes" 
-    						  	   editable="false" 
-    						       width="90" 
-    						       sortable="false"
-    						       itemRenderer="org.bigbluebutton.modules.polling.views.VotesItemRenderer"
-    						       /-->
-    			<!--mx:DataGridColumn dataField="percentage" 
-    						   	   headerText="Percentage" 
-    						  	   editable="false" 
-    						       width="90" 
-    						       sortable="false"
-    						       itemRenderer="org.bigbluebutton.modules.polling.views.PercentageItemRenderer"
-    						       /--> 
-			 
-		}*/	
+		}
 	]]>
 	</mx:Script>
+	
 	<!-- Prototype of Polling Statistics View Design -->
     <mx:VBox width="100%" 
     		 height="75%" 
@@ -422,17 +399,17 @@
                	 fontWeight="bold" textAlign="center"
                  text="{question}"/>       
         
-        <mx:DataGrid id="testGrid" editable="false" dataProvider="{trackingPoll.generateOneLine()}" width="90%" dragEnabled="false">
+        <!--mx:DataGrid id="testGrid" editable="false" dataProvider="{trackingPoll.generateOneLine()}" width="90%" dragEnabled="false">
         	<mx:columns>
         		<mx:DataGridColumn dataField="answer"/>
     			<mx:DataGridColumn dataField="votes"/>
     			<mx:DataGridColumn dataField="percentage"/> 
         	</mx:columns>
-        </mx:DataGrid>
-
+        </mx:DataGrid-->
+<!--
 Hey Justin. You left off here, trying to get the DataGrids to work. TestGrid and ResultsGrid both seem okay; when you come back, try each of them with trackingPoll.generateTestStats(). If that works, we'll figure out what to do next.        
-
-        <mx:Label text="^ TestGrid   V ResultsGrid"/>
+-->
+        <!--mx:Label text="^ TestGrid   V ResultsGrid"/-->
         <mx:DataGrid id="resultsGrid" editable="false" dataProvider="{trackingPoll.generateOneLine()}" width="90%" dragEnabled="false">
         	<mx:columns>
         		<mx:DataGridColumn dataField="answer" 
@@ -458,8 +435,9 @@ Hey Justin. You left off here, trying to get the DataGrids to work. TestGrid and
     						       />
         	</mx:columns>
         </mx:DataGrid>
-        
-        <mx:DataGrid id="viewersGrid" dataProvider="{UserManager.getInstance().getConference().users}" editable="false"
+    
+	<!-- Viewer's grid used as an example -->
+	<!--mx:DataGrid id="viewersGrid" dataProvider="{UserManager.getInstance().getConference().users}" editable="false"
     	dragEnabled="false"  width="90%" height="100%"	accessibilityName="Users list.">
     	<mx:columns>
     		<mx:DataGridColumn dataField="role" 
@@ -483,7 +461,7 @@ Hey Justin. You left off here, trying to get the DataGrids to work. TestGrid and
     						   sortable="false" 
     						   itemRenderer="org.bigbluebutton.modules.viewers.views.StatusItemRenderer"/>
     	</mx:columns>
-    </mx:DataGrid>
+    </mx:DataGrid-->
        
 	</mx:VBox>
 	<mx:ControlBar width="100%" height="10%">
