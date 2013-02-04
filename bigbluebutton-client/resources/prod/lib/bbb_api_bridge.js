@@ -12,6 +12,38 @@
       return swfobject.getObjectById("BigBlueButton");
     }
 
+     /**
+     * Get info if user is sharing webcam.
+     */  
+    BBB.amISharingWebcam = function(callback) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        if (arguments.length == 0) {
+          swfObj.amISharingCameraRequestAsync();
+        } else {
+          if (typeof callback === 'function') {
+            callback(swfObj.amISharingCameraRequestSync());
+          }
+        }
+      }
+    }
+    
+    /**
+     * Get my user info.
+     */  
+    BBB.isUserSharingWebcam = function(userID, callback) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        if (arguments.length == 1) {
+          swfObj.isUserPublishingCamRequestAsync(userID);
+        } else {
+          if (arguments.length == 2 && typeof callback === 'function') {
+            callback(swfObj.isUserPublishingCamRequestSync(userID));
+          }
+        }
+      }
+    }
+    
     BBB.switchPresenter = function(newPresenterUserID) {
       var swfObj = getSwfObj();
       if (swfObj) {
@@ -59,7 +91,7 @@
     }
 
     /**
-     * Get external meetingID.
+     * Get external userID.
      */  
     BBB.getMyUserID = function(callback) {
       var swfObj = getSwfObj();
@@ -70,7 +102,23 @@
         }
       }
     }
-    
+ 
+     /**
+     * Get my user info.
+     */  
+    BBB.getMyUserInfo = function(callback) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        if (arguments.length == 0) {
+          swfObj.getMyUserInfoAsync();
+        } else {
+          if (typeof callback === 'function') {
+            callback(swfObj.getMyUserInfoSync());
+          }
+        }
+      }
+    }
+       
     /**
      * Get external meetingID.
      */  
@@ -194,6 +242,7 @@
         swfObj.sendPrivateChatRequest(fontColor, localeLang, message, toUserID);
       }    
     }
+    
         
     /* ***********************************************************************************
      *       Broadcasting of events to 3rd-party apps.
@@ -257,33 +306,45 @@
       callback;
     }
     
+    // Flag to indicate that the SWF file has been loaded and ready to handle calls.
+    var swfReady = false;
+    BBB.swfClientIsReady = function () {
+      console.log("BigBlueButton SWF is ready.");
+      swfReady = true;
+    }
+    
+    // Third-party JS apps should use this to query if the BBB SWF file is ready to handle calls.
+    BBB.isSwfClientReady = function() {
+      return swfReady;
+    }
+     
     /************************************************
      * EVENT NAME CONSTANTS
      *
      * See https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/src/org/bigbluebutton/core/EventConstants.as
      *
      ************************************************/
-    var GET_MY_ROLE_RESP:String           = 'GetMyRoleResponse';
-    var AM_I_PRESENTER_RESP:String        = 'AmIPresenterQueryResponse';
-    var AM_I_SHARING_CAM_RESP:String      = 'AmISharingCamQueryResponse';
-    var BROADCASTING_CAM_STARTED:String   = 'BroadcastingCameraStartedEvent';
-    var BROADCASTING_CAM_STOPPED:String   = 'BroadcastingCameraStoppedEvent';
-    var I_AM_SHARING_CAM:String           = 'IAmSharingCamEvent';
-    var CAM_STREAM_SHARED:String          = 'CamStreamSharedEvent';
-    var USER_JOINED:String                = 'UserJoinedEvent';
-    var USER_LEFT:String                  = 'UserLeftEvent';
-    var SWITCHED_PRESENTER:String         = 'SwitchedPresenterEvent';
-    var NEW_PRIVATE_CHAT:String           = 'NewPrivateChatEvent';
-    var NEW_PUBLIC_CHAT:String            = 'NewPublicChatEvent';
-    var SWITCHED_LAYOUT:String            = 'SwitchedLayoutEvent';
-    var REMOTE_LOCKED_LAYOUT:String       = 'RemoteLockedLayoutEvent';
-    var REMOTE_UNLOCKED_LAYOUT:String     = 'RemoteUnlockedLayoutEvent';
-    var USER_JOINED_VOICE:String          = 'UserJoinedVoiceEvent';
-    var USER_LEFT_VOICE:String            = 'UserLeftVoiceEvent';
-    var USER_MUTED_VOICE:String           = 'UserVoiceMutedEvent';
-    var USER_TALKING:String               = 'UserTalkingEvent';
-    var USER_LOCKED_VOICE:String          = 'UserLockedVoiceEvent';
-    var START_PRIVATE_CHAT:String         = "StartPrivateChatEvent";
+    var GET_MY_ROLE_RESP           = 'GetMyRoleResponse';
+    var AM_I_PRESENTER_RESP        = 'AmIPresenterQueryResponse';
+    var AM_I_SHARING_CAM_RESP      = 'AmISharingCamQueryResponse';
+    var BROADCASTING_CAM_STARTED   = 'BroadcastingCameraStartedEvent';
+    var BROADCASTING_CAM_STOPPED   = 'BroadcastingCameraStoppedEvent';
+    var I_AM_SHARING_CAM           = 'IAmSharingCamEvent';
+    var CAM_STREAM_SHARED          = 'CamStreamSharedEvent';
+    var USER_JOINED                = 'UserJoinedEvent';
+    var USER_LEFT                  = 'UserLeftEvent';
+    var SWITCHED_PRESENTER         = 'SwitchedPresenterEvent';
+    var NEW_PRIVATE_CHAT           = 'NewPrivateChatEvent';
+    var NEW_PUBLIC_CHAT            = 'NewPublicChatEvent';
+    var SWITCHED_LAYOUT            = 'SwitchedLayoutEvent';
+    var REMOTE_LOCKED_LAYOUT       = 'RemoteLockedLayoutEvent';
+    var REMOTE_UNLOCKED_LAYOUT     = 'RemoteUnlockedLayoutEvent';
+    var USER_JOINED_VOICE          = 'UserJoinedVoiceEvent';
+    var USER_LEFT_VOICE            = 'UserLeftVoiceEvent';
+    var USER_MUTED_VOICE           = 'UserVoiceMutedEvent';
+    var USER_TALKING               = 'UserTalkingEvent';
+    var USER_LOCKED_VOICE          = 'UserLockedVoiceEvent';
+    var START_PRIVATE_CHAT         = 'StartPrivateChatEvent';
            
     window.BBB = BBB;
 })(this);

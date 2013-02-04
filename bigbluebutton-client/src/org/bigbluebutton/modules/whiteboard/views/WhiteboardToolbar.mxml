@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
 -->
 
 <mx:VBox xmlns="flexlib.containers.*" 
@@ -122,6 +122,7 @@
 			
             private function onCreationComplete():void {
                 setToolType(WhiteboardConstants.TYPE_ZOOM, null);
+				LogUtil.debug("WATERFALL: TextButton tabIndex is " + textBtn.tabIndex);
             }
                        
 			private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
@@ -251,7 +252,7 @@
       }
             
       private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
-        var gobj:GraphicObject = event.data;
+		var gobj:GraphicObject = event.data;
       }
 			           
 		]]>
@@ -261,18 +262,36 @@
 	that identifies the "category" of the tool (ex. shape vs text), and the other specifies the 
 	tool itself (ex. line tool vs triangle tool, even though both are "shapes")
 	-->
-    <wbBtns:PanZoomButton id="panzoomBtn" tabIndex="{baseIndex}" visible="{showWhiteboardToolbar}"/>
+    <wbBtns:PanZoomButton id="panzoomBtn" 
+    					  tabIndex="{baseIndex}" 
+    					  visible="{showWhiteboardToolbar}"/>
     <mx:Spacer height="10" visible="{showWhiteboardToolbar}"/>
-	<wbBtns:ScribbleButton id="scribbleBtn" tabIndex="{baseIndex+1}" visible="{showWhiteboardToolbar}"/>
-	<wbBtns:RectangleButton id="rectangleBtn" tabIndex="{baseIndex+2}" visible="{showWhiteboardToolbar}"/>
-	<wbBtns:CircleButton id="circleBtn" tabIndex="{baseIndex+3}" visible="{showWhiteboardToolbar}"/>
-	<wbBtns:TriangleButton id="triangleBtn" tabIndex="{baseIndex+4}" visible="{showWhiteboardToolbar}"/>
-	<wbBtns:LineButton id="lineBtn" tabIndex="{baseIndex+5}" visible="{showWhiteboardToolbar}"/>
-	<wbBtns:TextButton id="textBtn" tabIndex="{baseIndex+6}" visible="{showWhiteboardToolbar}"/>
+	<wbBtns:ScribbleButton id="scribbleBtn" 
+						   tabIndex="{baseIndex+1}" 
+						   visible="{showWhiteboardToolbar}"/>
+	<wbBtns:RectangleButton id="rectangleBtn" 
+							tabIndex="{baseIndex+2}" 
+							visible="{showWhiteboardToolbar}"/>
+	<wbBtns:CircleButton id="circleBtn" 
+						 tabIndex="{baseIndex+3}" 
+						 visible="{showWhiteboardToolbar}"/>
+	<wbBtns:TriangleButton id="triangleBtn" 
+						   tabIndex="{baseIndex+4}" 
+						   visible="{showWhiteboardToolbar}"/>
+	<wbBtns:LineButton id="lineBtn" 
+					   tabIndex="{baseIndex+5}" 
+					   visible="{showWhiteboardToolbar}"/>
+	<wbBtns:TextButton id="textBtn" 
+					   tabIndex="{baseIndex+6}" 
+					   visible="{showWhiteboardToolbar}"/>
 		
 	<mx:Spacer height="5" visible="{showWhiteboardToolbar}"/>
-	<wbBtns:ClearButton id="clearBtn" tabIndex="{baseIndex+7}" visible="{showWhiteboardToolbar}"/>
-	<wbBtns:UndoButton id="undoBtn" tabIndex="{baseIndex+8}" visible="{showWhiteboardToolbar}"/>
+	<wbBtns:ClearButton id="clearBtn" 
+						tabIndex="{baseIndex+7}" 
+						visible="{showWhiteboardToolbar}"/>
+	<wbBtns:UndoButton id="undoBtn" 
+					   tabIndex="{baseIndex+8}" 
+					   visible="{showWhiteboardToolbar}"/>
 	
 	<mx:Spacer height="5" visible="{showWhiteboardToolbar}"/>
 	

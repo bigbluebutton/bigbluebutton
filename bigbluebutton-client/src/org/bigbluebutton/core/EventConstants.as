@@ -1,3 +1,21 @@
+/**
+ * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+ * 
+ * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+ *
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation; either version 3.0 of the License, or (at your option) any later
+ * version.
+ * 
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.bigbluebutton.core
 {
   public class EventConstants
@@ -28,6 +46,7 @@ package org.bigbluebutton.core
     public static const USER_JOINED:String                = 'UserJoinedEvent';
     public static const USER_LEFT:String                  = 'UserLeftEvent';
     public static const SWITCHED_PRESENTER:String         = 'SwitchedPresenterEvent';
+    public static const NEW_ROLE:String                   = 'NewRoleEvent';
     public static const NEW_PRIVATE_CHAT:String           = 'NewPrivateChatEvent';
     public static const NEW_PUBLIC_CHAT:String            = 'NewPublicChatEvent';
     public static const SWITCHED_LAYOUT:String            = 'SwitchedLayoutEvent';
@@ -39,5 +58,8 @@ package org.bigbluebutton.core
     public static const USER_TALKING:String               = 'UserTalkingEvent';
     public static const USER_LOCKED_VOICE:String          = 'UserLockedVoiceEvent';
     public static const START_PRIVATE_CHAT:String         = "StartPrivateChatEvent";
+    public static const GET_MY_USER_INFO_REP:String       = "GetMyUserInfoResponse";
+    public static const IS_USER_PUBLISHING_CAM_RESP:String = "IsUserPublishingCamResponse";
+    
   }
 }

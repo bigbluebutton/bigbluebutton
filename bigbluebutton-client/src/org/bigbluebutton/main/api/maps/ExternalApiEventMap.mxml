@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
---> 
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
 
 <EventMap xmlns="http://mate.asfusion.com/" xmlns:mx="http://www.adobe.com/2006/mxml">
   <mx:Script>
@@ -26,10 +26,12 @@
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
       import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
+      import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
+      import org.bigbluebutton.core.events.IsUserPublishingCamRequest;
       import org.bigbluebutton.core.events.SwitchedLayoutEvent;
       import org.bigbluebutton.main.api.ExternalApiCalls;
       import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.SwitchedPresenterEvent;
       import org.bigbluebutton.main.events.UserJoinedEvent;
       import org.bigbluebutton.main.events.UserLeftEvent;
       import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
@@ -42,6 +44,10 @@
   -->
   
 
+  <EventHandlers type="{IsUserPublishingCamRequest.IS_USER_PUBLISHING_CAM_REQ}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleIsUserPublishingCamRequest" arguments="{event}"/>
+  </EventHandlers>
+  
   <EventHandlers type="{StreamStartedEvent.STREAM_STARTED}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleStreamStartedEvent" arguments="{event}"/>
   </EventHandlers>
@@ -82,6 +88,10 @@
     <MethodInvoker generator="{ExternalApiCalls}" method="handleGetMyRoleResponse" arguments="{event}"/>
   </EventHandlers>
 
+  <EventHandlers type="{GetMyUserInfoRequestEvent.GET_MY_USER_INFO_REQUEST}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleGetMyUserInfoRequest" arguments="{event}"/>
+  </EventHandlers>
+  
   <EventHandlers type="{SwitchedLayoutEvent.SWITCHED_LAYOUT_EVENT}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleSwitchedLayoutEvent" arguments="{event}"/>
   </EventHandlers>
@@ -98,7 +108,7 @@
     <MethodInvoker generator="{ExternalApiCalls}" method="handleUserLeftEvent" arguments="{event}"/>
   </EventHandlers>
   
-  <EventHandlers type="{EventConstants.SWITCHED_PRESENTER}" >
+  <EventHandlers type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleSwitchToNewRoleEvent" arguments="{event}"/>
   </EventHandlers>
 

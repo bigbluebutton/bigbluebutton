@@ -56,7 +56,7 @@ function determineModifier()
 		modifier = "control+";
 	}
 	else if (browser == "Microsoft Internet Explorer"){
-		modifier = "control+shift+";
+		modifier = "shift+alt+";
 	}
 	/*else if (browser == "Safari"){
 		modifier = "control+";

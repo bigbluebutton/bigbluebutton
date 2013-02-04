@@ -1,17 +1,39 @@
+/**
+ * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+ * 
+ * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+ *
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation; either version 3.0 of the License, or (at your option) any later
+ * version.
+ * 
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.bigbluebutton.main.api
 {
   import flash.external.ExternalInterface;
   
   import org.bigbluebutton.common.LogUtil;
+  import org.bigbluebutton.common.Role;
   import org.bigbluebutton.core.EventConstants;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.AmIPresenterQueryEvent;
   import org.bigbluebutton.core.events.AmISharingWebcamQueryEvent;
   import org.bigbluebutton.core.events.CoreEvent;
+  import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
+  import org.bigbluebutton.core.events.IsUserPublishingCamRequest;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.events.SwitchedPresenterEvent;
   import org.bigbluebutton.main.events.UserJoinedEvent;
   import org.bigbluebutton.main.events.UserLeftEvent;
   import org.bigbluebutton.main.model.users.BBBUser;
@@ -22,7 +44,39 @@ package org.bigbluebutton.main.api
 
 
   public class ExternalApiCalls { 
-        
+    
+    public function handleIsUserPublishingCamRequest(event:IsUserPublishingCamRequest):void {
+      var payload:Object = new Object();
+      var isUserPublishing:Boolean = false;
+      
+      var streamName:String = UsersUtil.getWebcamStream(event.userID);
+      if (streamName != null) {
+        isUserPublishing = true; 
+      }
+      
+      payload.eventName = EventConstants.IS_USER_PUBLISHING_CAM_RESP;
+      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.userID);
+      payload.isUserPublishing = isUserPublishing;
+      
+      var vidConf:VideoConfOptions = new VideoConfOptions();
+      payload.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
+      
+      payload.streamName = streamName; 
+      broadcastEvent(payload);
+    }
+    
+    public function handleGetMyUserInfoRequest(event:GetMyUserInfoRequestEvent):void {
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.GET_MY_USER_INFO_REP;
+      payload.myUserID = UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+      payload.myUsername = UsersUtil.getMyUsername();
+      payload.myAvatarURL = UsersUtil.getAvatarURL();
+      payload.myRole = UsersUtil.getMyRole();
+      payload.amIPresenter = UsersUtil.amIPresenter();
+      
+      broadcastEvent(payload);
+    } 
+    
     public function handleSwitchedLayoutEvent(event:SwitchedLayoutEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.SWITCHED_LAYOUT;
@@ -70,6 +124,7 @@ package org.bigbluebutton.main.api
     
     public function handleAmISharingCamQueryEvent(event:AmISharingWebcamQueryEvent):void {
       var camSettings:CameraSettingsVO = UsersUtil.amIPublishing();
+      var vidConf:VideoConfOptions = new VideoConfOptions();
       
       var payload:Object = new Object();
       payload.eventName = EventConstants.AM_I_SHARING_CAM_RESP;
@@ -77,6 +132,10 @@ package org.bigbluebutton.main.api
       payload.camIndex = camSettings.camIndex;
       payload.camWidth = camSettings.camWidth;
       payload.camHeight = camSettings.camHeight;
+      payload.camKeyFrameInterval = vidConf.camKeyFrameInterval;
+      payload.camModeFps = vidConf.camModeFps;
+      payload.camQualityBandwidth = vidConf.camQualityBandwidth;
+      payload.camQualityPicture = vidConf.camQualityPicture;
       
       broadcastEvent(payload);        
     }
@@ -89,12 +148,20 @@ package org.bigbluebutton.main.api
       broadcastEvent(payload);        
     }
     
-    public function handleSwitchToNewRoleEvent(event:CoreEvent):void {
-      trace("Got NEW ROLE EVENT role = [" + event.message.role + "]");
+    public function handleSwitchToNewRoleEvent(event:SwitchedPresenterEvent):void {
+      trace("ExternalApiCalls:: Got NEW ROLE EVENT presenter = [" + event.amIPresenter + "]");
       var payload:Object = new Object();
       payload.eventName = EventConstants.SWITCHED_PRESENTER;
-      payload.role = event.message.role;
-      broadcastEvent(payload);        
+      payload.amIPresenter = event.amIPresenter;
+      payload.role = event.amIPresenter ? Role.PRESENTER : Role.VIEWER;
+      payload.newPresenterUserID = UsersUtil.internalUserIDToExternalUserID(event.newPresenterUserID);
+      broadcastEvent(payload);
+      
+      payload.eventName = EventConstants.NEW_ROLE;
+      payload.amIPresenter = event.amIPresenter;
+      payload.newPresenterUserID = UsersUtil.internalUserIDToExternalUserID(event.newPresenterUserID);
+      payload.role = event.amIPresenter ? Role.PRESENTER : Role.VIEWER;
+      broadcastEvent(payload);      
     }
 
     public function handleStartPrivateChatEvent(event:CoreEvent):void {
@@ -116,7 +183,7 @@ package org.bigbluebutton.main.api
       payload.eventName = EventConstants.USER_JOINED_VOICE;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       
-      trace("Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] has joined the voice conference.");
+      trace("ExternalApiCalls:: Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] has joined the voice conference.");
       
       broadcastEvent(payload);
     }
@@ -127,7 +194,7 @@ package org.bigbluebutton.main.api
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       payload.muted = event.payload.muted;
       
-      trace("Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] is now muted=[" + payload.muted + "]");
+      trace("ExternalApiCalls:: Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] is now muted=[" + payload.muted + "]");
       broadcastEvent(payload);
     }
     
@@ -137,7 +204,7 @@ package org.bigbluebutton.main.api
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       payload.locked = event.payload.locked;
       
-      trace("Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] is now locked=[" + payload.locked + "]");
+      trace("ExternalApiCalls:: Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] is now locked=[" + payload.locked + "]");
       broadcastEvent(payload);
     }
     
@@ -146,7 +213,7 @@ package org.bigbluebutton.main.api
       payload.eventName = EventConstants.USER_LEFT_VOICE;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.payload.userID);
       
-      trace("Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] has left the voice conference.");
+      trace("ExternalApiCalls:: Notifying external API that [" + UsersUtil.getUserName(event.payload.userID) + "] has left the voice conference.");
       
       broadcastEvent(payload);
     }

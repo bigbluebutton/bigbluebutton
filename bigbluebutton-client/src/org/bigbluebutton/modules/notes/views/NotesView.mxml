@@ -1,4 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 	
          xmlns:notes="org.bigbluebutton.modules.notes.views.*"
          width="100%" height="100%"
@@ -38,9 +57,39 @@
       [Bindable]
       public var notesArray:NotesModel;
       
+      private var scrollTimer:Timer;
+      
       private function onCreationComplete():void {    
         // Listen for the ENTER key to send the message.
         txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
+        
+        scrollTimer = new Timer(750, 2);
+        scrollTimer.addEventListener(TimerEvent.TIMER, onScrollTimer);
+        
+        /**
+         * The next two lines will force the scrollbar to the end of the message when displaying the
+         * notes history.
+         */
+        callLater(scrollToBottom);	
+        scrollTimer.start();	
+        
+      }
+      
+      /**
+       * Magic sauce to force scrollbar to the bottom message. This took a lot
+       * of trial and error. If you change this, make sure you know what you are
+       * doing as I don't know why it works, but it does. (ralam Nov 3, 2010)
+       */
+      private function scrollToBottom():void {
+        notesMessagesList.invalidateSize();
+        notesMessagesList.invalidateDisplayList();
+        notesMessagesList.validateDisplayList();
+        notesMessagesList.validateNow();		
+        notesMessagesList.scrollToIndex(notesArray.notes.length);
+      }
+      
+      private function onScrollTimer(event:TimerEvent):void {
+        scrollToBottom();
       }
       
       private function handleTextAreaKeyUpEvent(e:KeyboardEvent):void {
@@ -64,7 +113,9 @@
           sendNoteToSave(noteToSave);
         }
         
-        txtMsgArea.text = "";        
+        txtMsgArea.text = "";     
+        
+        scrollToBottom();
       }
  
       //color="{cmpColorPicker.selectedColor}"
