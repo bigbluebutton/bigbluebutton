@@ -1,17 +1,18 @@
 <?xml version="1.0" ?>
 <config>
-    <localeversion suppressWarning="false">0.8-beta4</localeversion>
+    <localeversion suppressWarning="false">0.8</localeversion>
     <version>VERSION</version>
     <help url="http://HOST/help.html"/>
-    <porttest host="HOST" application="video"/>    
+    <porttest host="HOST" application="video" timeout="10000"/>    
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
-    <skinning enabled="false" url="branding/css/theme.css.swf" />
-    <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" showToolbar="true" showHelpButton="true" showLogoutWindow="true"/>
-    
+    <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
+    <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
+            showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true"/>
+            
 	<modules>
 		
-		<module name="ChatModule" url="ChatModule.swf?v=VERSION" 
+		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="ViewersModule"	
 			translationOn="false"
@@ -20,27 +21,25 @@
 			position="top-right"
 		/>
 		
-		<module name="ViewersModule" url="ViewersModule.swf?v=VERSION" 
+		<module name="ViewersModule" url="http://HOST/client/ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
 			allowKickUser="false"
-			windowVisible="true"
 		/>
 			
-		<module name="ListenersModule" url="ListenersModule.swf?v=VERSION" 
+		<module name="ListenersModule" url="http://HOST/client/ListenersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
-			windowVisible="true"
 			position="bottom-left"
 		/>
 		
 		<module name="DeskShareModule" 
-			url="DeskShareModule.swf?v=VERSION" 
+			url="http://HOST/client/DeskShareModule.swf?v=VERSION" 
 			uri="rtmp://HOST/deskShare"
 			autoStart="false"
 		/>
 		
-		<module name="PhoneModule" url="PhoneModule.swf?v=VERSION" 
+		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
 			autoJoin="true"
 			skipCheck="false"
@@ -49,11 +48,12 @@
 			dependsOn="ViewersModule"
 		/>
 
-		<module name="VideoconfModule" url="VideoconfModule.swf?v=VERSION" 
+		<module name="VideoconfModule" url="http://HOST/client/VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"
 			dependson = "ViewersModule"
 			videoQuality = "100"
 			presenterShareOnly = "false"
+			controlsForPresenter = "false"
 			resolutions = "320x240,640x480,1280x720"
 			autoStart = "false"
 			showButton = "true"
@@ -65,17 +65,23 @@
 			camModeFps = "10"
 			camQualityBandwidth = "0"
 			camQualityPicture = "90"
-			enableH264 = "false"
+			smoothVideo="false"
+			applyConvolutionFilter="false"
+			convolutionFilter="-1, 0, -1, 0, 6, 0, -1, 0, -1"
+			filterBias="0"
+			filterDivisor="4"
+			enableH264 = "true"
 			h264Level = "2.1"
-			h264Profile = "main"			
+			h264Profile = "main"		
+			displayAvatar = "false"	
 		/>
 		
-		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=VERSION" 
+		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="PresentModule"
 		/>
 		
-		<module name="PresentModule" url="PresentModule.swf?v=VERSION" 
+		<module name="PresentModule" url="http://HOST/client/PresentModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 
 			showPresentWindow="true"
@@ -83,10 +89,11 @@
 			dependsOn="ViewersModule"
 		/>
 
-		<module name="VideodockModule" url="VideodockModule.swf?v=VERSION"
+		<module name="VideodockModule" url="http://HOST/client/VideodockModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="VideoconfModule, ViewersModule"
 			autoDock="true"
+			showControls="true"
 			maximizeWindow="false"
 			position="bottom-right"
 			width="172"
@@ -95,23 +102,27 @@
 			oneAlwaysBigger="false"
 		/>
 		
-		<!-- new module in development: 
-		<module name="DynamicInfoModule" url="DynamicInfoModule.swf?v=VERSION" 
-			uri="rtmp://HOST/bigbluebutton" 
-			host="http://HOST" 
-			infoURL="http://HOST/client/conf/example-info-data.xml?user={userID}&role={role}&meetingID={meetingID}"
+		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
+			uri="rtmp://HOST/bigbluebutton"
+			layoutConfig="http://HOST/client/conf/layout.xml"
+			enableEdit="true"
 		/>
-		-->
 		
-		<!--<module name="ExampleChatModule" url="ExampleChatModule.swf?v=56" 
-			uri="rtmp://HOST/bigbluebutton" 
-			host="http://HOST"
-		/>-->
-		
-		<!--<module name="SharedNotesModule" url="SharedNotesModule.swf?v=VERSION" 
-			uri="http://192.168.0.225/bigbluebutton" 
-			dependsOn="ViewersModule"
-		/>-->
-		
+<!--
+    <module name="NotesModule" url="http://HOST/client/NotesModule.swf?v=VERSION"
+      saveURL="http://HOST"
+      position="top-left"
+    />
+    
+    <module name="BroadcastModule" url="http://HOST/client/BroadcastModule.swf?v=VERSION"
+      uri="rtmp://HOST/bigbluebutton"
+      streamsUri="http://HOST/streams.xml"
+      position="top-left"
+      showStreams="true"
+      autoPlay="false"
+      dependsOn="ViewersModule"
+    />
+-->
+    		
 	</modules>
 </config>

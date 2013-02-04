@@ -1,0 +1,5 @@
+<ul>
+  <% _.each(chatMessages, function(chatMessage){ %>
+   <li><%= chatMessage.get("name") %> - <%= chatMessage.get("score") %></li> 
+  <% }); %>
+</ul>

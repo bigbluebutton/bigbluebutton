@@ -1,0 +1,5 @@
+<ul>
+  <% _.each(users, function(user){ %>
+   <li><%= user.get("userid") %> - <%= user.get("username") %></li> 
+  <% }); %>
+</ul>

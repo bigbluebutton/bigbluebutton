@@ -1,20 +1,20 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.main.model.users
 {
@@ -24,8 +24,7 @@ package org.bigbluebutton.main.model.users
 	{			
 		private var _status:ArrayCollection;	
 					
-		public function StatusCollection()
-		{
+		public function StatusCollection() {
 			_status = new ArrayCollection();
 		}
 	
@@ -33,15 +32,13 @@ package org.bigbluebutton.main.model.users
 			_status = s;
 		}
 		
-		public function addStatus(status:Status):void
-		{				
+		public function addStatus(status:Status):void {				
 			if (! hasStatus(status.name)) {						
 				_status.addItem(status);
 			}					
 		}
 	
-		public function hasStatus(name:String):Boolean
-		{
+		public function hasStatus(name:String):Boolean {
 			var index:int = getStatusIndex(name);
 			
 			if (index > -1) {
@@ -57,8 +54,7 @@ package org.bigbluebutton.main.model.users
 			}	
 		}
 		
-		public function getStatus(name:String):Status
-		{
+		public function getStatus(name:String):Status {
 			var index:int = getStatusIndex(name);
 			
 			if (index > -1) {
@@ -68,8 +64,7 @@ package org.bigbluebutton.main.model.users
 			return null;				
 		}
 			
-		public function removeStatus(name:String):void
-		{
+		public function removeStatus(name:String):void {
 			var index : int = getStatusIndex(name);
 
 			if (index > -1) {
@@ -77,10 +72,8 @@ package org.bigbluebutton.main.model.users
 			}							
 		}
 			
-		private function getStatusIndex(name:String):int
-		{			
-			for (var i:int=0;i<_status.length;i++)
-			{
+		private function getStatusIndex(name:String):int {			
+			for (var i:int=0;i<_status.length;i++) {
 				var s:Status = _status.getItemAt(i) as Status;
 				
 				if (s.name == name) {
@@ -92,13 +85,11 @@ package org.bigbluebutton.main.model.users
 			return -1;
 		}
 	
-		public function removeAll():void
-		{
+		public function removeAll():void {
 			_status.removeAll();
 		}		
 		
-		public function getAll():ArrayCollection
-		{
+		public function getAll():ArrayCollection {
 			return _status;
 		}			
 	}

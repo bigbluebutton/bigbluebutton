@@ -1,205 +1,159 @@
+/**
+ * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+ * 
+ * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+ *
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation; either version 3.0 of the License, or (at your option) any later
+ * version.
+ * 
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.bigbluebutton.modules.whiteboard
 {
-	import flash.display.Shape;
-	
-	import mx.collections.ArrayCollection;
-	import mx.core.Application;
-	import mx.managers.CursorManager;
-	
-	import org.bigbluebutton.common.IBbbCanvas;
-	import org.bigbluebutton.common.Images;
-	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.modules.present.events.WindowResizedEvent;
-	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObjectFactory;
-	import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
-	import org.bigbluebutton.modules.whiteboard.events.PageEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
-	import org.bigbluebutton.modules.whiteboard.maps.WhiteboardEventMap;
-	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
-	
-	public class WhiteboardCanvasModel {
-		public var wbCanvas:WhiteboardCanvas;
-		
-		private var isDrawing:Boolean; 
-		private var sending:Boolean = false;
-		private var feedback:Shape = new Shape();
-		private var latentFeedbacks:Array = new Array();
-		private var segment:Array = new Array();
-		private var shapeList:Array = new Array();
-		
-		private var shapeFactory:ShapeFactory = new ShapeFactory();
-		private var bbbCanvas:IBbbCanvas;
-		
-		private var shapeStyle:String = DrawObject.PENCIL;
-		private var drawColor:uint = 0x000000;
-		private var thickness:uint = 1;
-				
-		private var drawStatus:String = DrawObject.DRAW_START;
-		private var width:Number;
-		private var height:Number;
+  import flash.display.DisplayObject;
+  import flash.display.Shape;
+  import flash.display.Sprite;
+  import flash.events.FocusEvent;
+  import flash.events.KeyboardEvent;
+  import flash.events.MouseEvent;
+  import flash.events.TextEvent;
+  import flash.geom.Point;
+  import flash.text.TextField;
+  import flash.text.TextFieldAutoSize;
+  import flash.text.TextFieldType;
+  import flash.text.TextFormat;
+  import flash.ui.Keyboard;
+  import mx.controls.TextInput;
+  import mx.core.Application;
+  import mx.core.UIComponent;
+  import mx.managers.CursorManager;
+  import org.bigbluebutton.common.IBbbCanvas;
+  import org.bigbluebutton.common.LogUtil;
+  import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.main.events.MadePresenterEvent;
+  import org.bigbluebutton.modules.whiteboard.business.shapes.DrawGrid;
+  import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+  import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicFactory;
+  import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+  import org.bigbluebutton.modules.whiteboard.business.shapes.ShapeFactory;
+  import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+  import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
+  import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
+  import org.bigbluebutton.modules.whiteboard.events.PageEvent;
+  import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
+  import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+  import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
+  import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
+  import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
+  import org.bigbluebutton.modules.whiteboard.views.AnnotationIDGenerator;
+  import org.bigbluebutton.modules.whiteboard.views.IDrawListener;
+  import org.bigbluebutton.modules.whiteboard.views.PencilDrawListener;
+  import org.bigbluebutton.modules.whiteboard.views.TextDrawListener;
+  import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
+  import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardTool;
 
-		public function doMouseUp():void{
-			if (isDrawing) {
-				/**
-				 * Check if we are drawing because when resizing the window, it generates
-				 * a mouseUp event at the end of resize. We don't want to dispatch another
-				 * shape to the viewers.
-				 */
-				isDrawing = false;
-				sendShapeToServer(DrawObject.DRAW_END);
-			}
-		}
-		
-		private var objCount:int = 0;
-		
-		private function sendShapeToServer(status:String):void{
-			if (segment.length == 0) return;
-			
-			var dobj:DrawObject = shapeFactory.createDrawObject(this.shapeStyle, segment, this.drawColor, this.thickness);
-			
-			dobj.id = "" + objCount++;
-			
-			switch (status) {
-				case DrawObject.DRAW_START:
-					dobj.status = DrawObject.DRAW_START;
-					drawStatus = DrawObject.DRAW_UPDATE;
-					break;
-				case DrawObject.DRAW_UPDATE:
-					dobj.status = DrawObject.DRAW_UPDATE;								
-					break;
-				case DrawObject.DRAW_END:
-					dobj.status = DrawObject.DRAW_END;
-					drawStatus = DrawObject.DRAW_START;
-					break;
-			}
-			
-			LogUtil.error("SEGMENT LENGTH = [" + segment.length + "] STATUS = [" + dobj.status + "]");
-			
-			if (this.shapeStyle == DrawObject.PENCIL) {
-				dobj.status = DrawObject.DRAW_END;
-				drawStatus = DrawObject.DRAW_START;
-				segment = new Array();	
-				var xy:Array = wbCanvas.getMouseXY();
-				segment.push(xy[0], xy[1]);
-			}
-			
-			wbCanvas.sendShapeToServer(dobj);			
-		}
-		
-		public function doMouseDown(mouseX:Number, mouseY:Number):void{
-			isDrawing = true;
-			drawStatus = DrawObject.DRAW_START;
-			segment = new Array();
-			segment.push(mouseX);
-			segment.push(mouseY);
-		}
-		
-		public function doMouseMove(mouseX:Number, mouseY:Number):void{
-			if (isDrawing){
-				segment.push(mouseX);
-				segment.push(mouseY);
-				if (segment.length > 30) {
-					sendShapeToServer(drawStatus);
-				}
-			}
-		}
-		
-		public function drawSegment(event:WhiteboardUpdate):void{
-			var o:DrawObject = event.data;
-			draw(o);
-		}
-		
-		private function draw(o:DrawObject):void{		
-			LogUtil.debug("Got shape [" + o.getType() + " " + o.status + "]");
-			switch (o.status) {
-				case DrawObject.DRAW_START:
-						addNewShape(o);														
-					break;
-				case DrawObject.DRAW_UPDATE:
-				case DrawObject.DRAW_END:
-					if (shapeList.length == 0 || o.getType() == DrawObject.PENCIL) {
-						addNewShape(o);
-					} else {
-						removeLastShape();		
-						addNewShape(o);
-					}					
-					break;
-			}        
-		}
-		
-		private function addNewShape(o:DrawObject):void {
-			LogUtil.error("Adding new shape");
-			var dobj:DrawObject = shapeFactory.makeShape(o);
-			wbCanvas.addShape(dobj.getShape());
-			shapeList.push(dobj);
-		}
-			
-		public function setShape(s:String):void{
-			this.shapeStyle = s;
-		}
-				
-		public function changeColor(color:uint):void{
-			drawColor = color;
-		}
-			
-		public function changeThickness(thickness:uint):void{
-			this.thickness = thickness;
-		}
-				
-		private function removeLastShape():void {
-			var dobj:DrawObject = shapeList.pop() as DrawObject;
-			wbCanvas.removeShape(dobj.getShape());
-		}
-		
-	
-		public function clearBoard(event:WhiteboardUpdate = null):void{
-			var numShapes:int = this.shapeList.length;
-			for (var i:Number = 0; i < numShapes; i++){
-				removeLastShape();
-			}
-		}
-		
-		public function undoShape():void{
-			if (this.shapeList.length > 0) {
-				removeLastShape();
-			}
-		}
-				
-		public function changePage(e:PageEvent):void{
-			var page:Number = e.pageNum;
-			var shapes:ArrayCollection = e.shapes;
-			
-			clearBoard();
-			for (var i:int = 0; i < shapes.length; i++){
-				var o:DrawObject = shapes.getItemAt(i) as DrawObject;
-				draw(o);
-			}
-		}
-								
-		public function zoomCanvas(width:Number, height:Number):void{
-			shapeFactory.setParentDim(width, height);	
-			
-			this.width = width;
-			this.height = height;
-			
-			for (var i:int = 0; i < this.shapeList.length; i++){
-				redrawShape(this.shapeList[i] as DrawObject);
-			}				
-		}
-		
-		private function redrawShape(dobj:DrawObject):void {
-			wbCanvas.removeShape(dobj.getShape());
-			shapeFactory.makeShape(dobj);
-			wbCanvas.addShape(dobj.getShape());
-		}	
-		
-		public function isPageEmpty():Boolean {
-			return shapeList.length == 0;
-		}
-	}
+    /**
+    * Class responsible for handling actions from presenter and sending annotations to the server.
+    */
+  public class WhiteboardCanvasModel {
+    public var whiteboardModel:WhiteboardModel;
+    private var _wbCanvas:WhiteboardCanvas;	      
+    private var drawListeners:Array = new Array();
+    private var wbTool:WhiteboardTool = new WhiteboardTool();
+    private var shapeFactory:ShapeFactory = new ShapeFactory();
+    private var idGenerator:AnnotationIDGenerator = new AnnotationIDGenerator();
+
+    /* represents the max number of 'points' enumerated in 'segment' before 
+      sending an update to server. Used to prevent spamming red5 with unnecessary packets */
+    private var sendShapeFrequency:uint = 30;	
+
+    /* same as above, except a faster interval may be desirable when erasing, for aesthetics */
+    private var sendEraserFrequency:uint = 20;	
+
+    private var width:Number;
+    private var height:Number;
+        
+    public function set wbCanvas(canvas:WhiteboardCanvas):void {
+      _wbCanvas = canvas;
+      drawListeners.push(new PencilDrawListener(idGenerator, _wbCanvas, sendShapeFrequency, shapeFactory, whiteboardModel));
+      drawListeners.push(new TextDrawListener(idGenerator, _wbCanvas, sendShapeFrequency, shapeFactory, whiteboardModel));
+    }
+        
+    public function zoomCanvas(width:Number, height:Number):void {
+      shapeFactory.setParentDim(width, height);	
+      this.width = width;
+      this.height = height;	
+    }
+        
+    public function changeFontStyle(font:String):void {
+      wbTool._fontStyle = font;	
+    }
+
+    public function changeFontSize(size:Number):void {
+      wbTool._fontSize = size;
+    }
+        
+    public function onKeyDown(event:KeyboardEvent):void {
+      for (var ob:int = 0; ob < drawListeners.length; ob++) {
+        (drawListeners[ob] as IDrawListener).ctrlKeyDown(event.ctrlKey);
+      }
+    }        
+
+    public function onKeyUp(event:KeyboardEvent):void {
+      for (var ob:int = 0; ob < drawListeners.length; ob++) {
+        (drawListeners[ob] as IDrawListener).ctrlKeyDown(event.ctrlKey);
+      }
+    }
+        
+    public function doMouseUp(mouseX:Number, mouseY:Number):void {
+      // LogUtil.debug("CanvasModel doMouseUp ***");
+      for (var ob:int = 0; ob < drawListeners.length; ob++) {
+        (drawListeners[ob] as IDrawListener).onMouseUp(mouseX, mouseY, wbTool);
+      }
+    }
+
+    public function doMouseDown(mouseX:Number, mouseY:Number):void {
+      // LogUtil.debug("*** CanvasModel doMouseDown");
+      for (var ob:int = 0; ob < drawListeners.length; ob++) {
+        (drawListeners[ob] as IDrawListener).onMouseDown(mouseX, mouseY, wbTool);
+      }
+    }
+
+    public function doMouseMove(mouseX:Number, mouseY:Number):void {
+      for (var ob:int = 0; ob < drawListeners.length; ob++) {
+        (drawListeners[ob] as IDrawListener).onMouseMove(mouseX, mouseY, wbTool);
+      }
+    }
+
+    public function setGraphicType(type:String):void {
+      //LogUtil.debug("!!! Set graphic type = " + type);
+      wbTool.graphicType = type;
+    }
+
+    public function setTool(s:String):void {
+      // LogUtil.debug("!!!! Set graphic tool = " + s);
+      wbTool.toolType = s;
+    }
+
+    public function changeColor(color:uint):void {
+      wbTool.drawColor = color;
+    }
+    
+    public function changeThickness(thickness:uint):void {
+      wbTool.thickness = thickness;
+    }
+
+    /** Helper method to test whether this user is the presenter */
+    private function get isPresenter():Boolean {
+      return UserManager.getInstance().getConference().amIPresenter();
+    }
+  }
 }

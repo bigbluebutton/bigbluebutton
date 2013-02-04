@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<EventMap xmlns="http://mate.asfusion.com/"
+	xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:Script>
+		<![CDATA[
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import mx.events.FlexEvent;
+      
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.modules.broadcast.events.StreamsListLoadedEvent;
+      import org.bigbluebutton.modules.broadcast.managers.BroadcastManager;
+      import org.bigbluebutton.modules.broadcast.services.BroadcastService;
+      import org.bigbluebutton.modules.broadcast.services.MessageReceiver;
+      import org.bigbluebutton.modules.broadcast.services.MessageSender;
+			
+		]]>
+	</mx:Script>
+	
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<ObjectBuilder generator="{BroadcastManager}" cache="global"/>
+	</EventHandlers>
+	
+	<EventHandlers type="BroadcastModuleStartEvent">
+		<MethodInvoker generator="{BroadcastManager}" method="start" />
+	</EventHandlers>	
+
+	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
+		<MethodInvoker generator="{BroadcastManager}" method="handleSwitchToPresenterMode" />
+	</EventHandlers>
+	
+	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
+		<MethodInvoker generator="{BroadcastManager}" method="handleSwitchToViewerMode" />
+	</EventHandlers>
+	
+  <EventHandlers type="{StreamsListLoadedEvent.STREAMS_LIST_LOADED}">
+    <MethodInvoker generator="{BroadcastManager}" method="handleStreamsListLoadedEvent" />
+  </EventHandlers>
+  
+	<EventHandlers type="BroadcastPlayStreamCommand">
+		<MethodInvoker generator="{BroadcastManager}" method="handlePlayStreamRequest" arguments="{event}"/>
+	</EventHandlers>
+
+	<EventHandlers type="BroadcastStopStreamCommand">
+		<MethodInvoker generator="{BroadcastManager}" method="handleStopStreamRequest" arguments="{event}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="BroadcastWhatIsTheCurrentStreamRequest">
+		<MethodInvoker generator="{BroadcastManager}" method="handleWhatIsTheCurrentStreamRequest" arguments="{event}"/>
+	</EventHandlers>
+	
+	<EventHandlers type="BroadcastWhatIsTheCurrentStreamReply">
+		<MethodInvoker generator="{BroadcastManager}" method="handleWhatIsTheCurrentStreamReply" arguments="{event}"/>
+	</EventHandlers>
+
+<!--
+  <Injectors target="{BroadcastService}">
+    <ObjectBuilder generator="{MessageSender}" cache="global"/>
+    <PropertyInjector targetKey="receiver" source="{MessageReceiver}"/>
+    <PropertyInjector targetKey="sender" source="{MessageSender}"/>
+  </Injectors>
+	
+  <Injectors target="{MessageReceiver}">
+    <PropertyInjector targetKey="dispatcher" source="{scope.dispatcher}"/>
+  </Injectors>
+-->
+  
+</EventMap>

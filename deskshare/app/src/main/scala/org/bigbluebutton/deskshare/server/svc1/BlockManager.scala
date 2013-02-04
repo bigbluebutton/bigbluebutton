@@ -1,23 +1,20 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.server.svc1
 
@@ -27,10 +24,10 @@ import org.bigbluebutton.deskshare.common.ScreenVideoEncoder
 import org.bigbluebutton.deskshare.server.session.ScreenVideoFrame
 import net.lag.logging.Logger
 
-class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension, waitForAllBlocks: Boolean) extends BlockFactory {
+class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension, waitForAllBlocks: Boolean, useSVC2: Boolean) extends BlockFactory {
     private val log = Logger.get
     
-	private var blocksMap = new ConcurrentHashMap[Integer, Block]
+	private var blocksMap = new ConcurrentHashMap[Int, Block]
 	
 	private var numberOfRows = getNumberOfRows(screenDim, blockDim)
 	private var numberOfColumns = getNumberOfColumns(screenDim, blockDim)
@@ -82,10 +79,15 @@ class BlockManager(room: String, screenDim: Dimension, blockDim: Dimension, wait
 		val encodedDim: Array[Byte] = ScreenVideoEncoder.encodeBlockAndScreenDimensions(blockDim.width, screenDim.width, blockDim.height, screenDim.height)
      	    	
     	val numberOfBlocks = numberOfRows * numberOfColumns 		
-    	val videoDataHeader: Byte = ScreenVideoEncoder.encodeFlvVideoDataHeader(genKeyFrame)
+    	val videoDataHeader: Byte = ScreenVideoEncoder.encodeFlvVideoDataHeader(genKeyFrame, useSVC2)
     		    		
     	screenVideoFrame.write(videoDataHeader)
     	screenVideoFrame.write(encodedDim)
+    	
+    	if (useSVC2) {
+    	  val flags : Byte = 0; // 6 bits reserved (0); HasIFrameImage=0; HasPaletteInfo=0
+    	  screenVideoFrame.write(flags);
+    	}
     	
     	if (! gotAllBlocks ) {
     	  gotAllBlocks = allBlocksReceived(numberOfBlocks)

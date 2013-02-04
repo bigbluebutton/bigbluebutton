@@ -1,23 +1,20 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.client;
 
@@ -48,36 +45,15 @@ public class DeskshareClient {
 	private void shareWithFrame() {
 		screenSharer = new ScreenRegionSharer(ssi);
 		screenSharer.addClientListener(listener);
-		screenSharer.start();		
+		screenSharer.start(false);		
 	}
 		
 	private void shareFullScreen() {
-		screenSharer = new FullScreenSharer(ssi);
+		screenSharer = new ScreenRegionSharer(ssi);
 		screenSharer.addClientListener(listener);
-		screenSharer.start();
+		screenSharer.start(true);
 	}
 	
-	/*****************************************************************************
-    ;  disconnected
-    ;----------------------------------------------------------------------------
-	; DESCRIPTION
-	;   This routine is used to set the desktop sharing string to disconnected.
-	;
-	; RETURNS : N/A
-	;
-	; INTERFACE NOTES
-	; 
-	;       INPUT : N/A
-	; 
-	;       OUTPUT : N/A
-	; 
-	; IMPLEMENTATION
-	;
-	; HISTORY
-	; __date__ :        PTS:  
-	; 2010.11.19		problem 272
-	;
-	******************************************************************************/
 	public void disconnected(){
 		System.out.println(NAME + "Disconneted");
 		screenSharer.disconnected();
@@ -110,13 +86,14 @@ public class DeskshareClient {
        	private int scaleWidth = 0;
        	private int scaleHeight = 0;
        	private boolean quality = false;
-       	private boolean aspectRatio = false; 
+       	private double scale = 1; 
     	private int x = -1;
     	private int y = -1;
     	private boolean httpTunnel = true;
     	private Image sysTrayIcon;
     	private boolean enableTrayActions = false;
     	private boolean fullScreen = false;
+    	private boolean useSVC2 = false;
     	
     	public NewBuilder host(String host) {
     		this.host = host;
@@ -158,8 +135,8 @@ public class DeskshareClient {
     		return this;
     	}
     	
-    	public NewBuilder aspectRatio(boolean aspectRatio) {
-    		this.aspectRatio = aspectRatio;
+    	public NewBuilder autoScale(double scaleTo) {
+    		this.scale = scaleTo;
     		return this;
     	}
     	
@@ -183,6 +160,11 @@ public class DeskshareClient {
     		return this;
     	}
     	
+    	public NewBuilder useSVC2(boolean useSVC2) {
+    		this.useSVC2 = useSVC2;
+    		return this;
+    	}
+    	   	
     	public NewBuilder trayIcon(Image icon) {
     		this.sysTrayIcon = icon;
     		return this;
@@ -211,13 +193,18 @@ public class DeskshareClient {
     		ssi.scaleWidth = scaleWidth;
     		ssi.scaleHeight = scaleHeight;
     		ssi.quality = quality;
-    		ssi.aspectRatio = aspectRatio;
+    		ssi.scale = scale;
     		ssi.x = x;
     		ssi.y = y;
     		ssi.httpTunnel = httpTunnel;
     		ssi.fullScreen = fullScreen;
+    		ssi.useSVC2 = useSVC2;
     		ssi.sysTrayIcon = sysTrayIcon;
     		ssi.enableTrayActions = enableTrayActions;
+    		
+    		System.out.println("ScreenShareInfo[captureWidth=" + captureWidth + ",captureHeight=" + captureHeight + "][" + x + "," + y +"]"
+					+ "[scaleWidth=" + scaleWidth + ",scaleHeight=" + scaleHeight + "]");
+    		
     		return new DeskshareClient(ssi);
     	}
     	    	
@@ -228,15 +215,15 @@ public class DeskshareClient {
         			y = ((int) fullScreenSize.getHeight() - captureHeight) / 2;    
         			System.out.println("Info[" + captureWidth + "," + captureHeight + "][" + x + "," + y +"]"
         					+ "[" + fullScreenSize.getWidth() + "," + fullScreenSize.getHeight() + "]");
-//    			calculateDimensionsToMaintainAspectRatio();
+        			calculateDimensionsToMaintainAspectRatio();
     		}
     	}
     	
     	private void calculateDimensionsToMaintainAspectRatio() {
     		if (scaleWidth > 0 && scaleHeight > 0) {
-    			if (aspectRatio) {
-    				recalculateScaleDimensionsToMaintainAspectRatio();
-    			}
+//    			if (aspectRatio) {
+//    				recalculateScaleDimensionsToMaintainAspectRatio();
+//    			}
     		} else {
     			scaleWidth = captureWidth;
     			scaleHeight = captureHeight;
@@ -247,30 +234,25 @@ public class DeskshareClient {
     		java.awt.Dimension fullScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
     		captureWidth = (int) fullScreenSize.getWidth();
     		captureHeight = (int) fullScreenSize.getHeight();
-    		scaleWidth = captureWidth;
-    		scaleHeight = captureHeight;
+    		
     		x = 0;
     		y = 0;
 
-    		System.out.println("Check for scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
 
-    		if (scaleWidth > 1280) {   
-    			scaleWidth = 1280;
-    			double ratio = (double)captureHeight/(double)captureWidth;
-    			scaleHeight = (int)((double)scaleWidth * ratio);
-    			System.out.println("Scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
-    		}
+    		if (scale > 0 && scale <= 0.8) {
+        		scaleWidth = (int)(scale * (double)captureWidth);
+        		scaleHeight = (int)(scale * (double)captureHeight);     			
+     		} 
+		
+			System.out.println("Check for scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
+
+			if (scaleWidth > 1280) {   
+				scaleWidth = 1280;
+				double ratio = (double)captureHeight/(double)captureWidth;
+				scaleHeight = (int)((double)scaleWidth * ratio);
+				System.out.println("Scaling[" + captureWidth + "," + captureHeight +"][" + scaleWidth + "," + scaleHeight + "]");
+			}
     	}
-    	
-    	private void recalculateScaleDimensionsToMaintainAspectRatio() {
-    		if (captureWidth < captureHeight) {
-    			double ratio = (double)captureHeight/(double)captureWidth;
-    			scaleHeight = (int)((double)scaleWidth * ratio);
-    		} else {
-    			double ratio = (double)captureWidth/(double)captureHeight;
-    			scaleWidth = (int)((double)scaleHeight * ratio);
-    		}
-    	}    	
-    	
+    	  	
     }
 }

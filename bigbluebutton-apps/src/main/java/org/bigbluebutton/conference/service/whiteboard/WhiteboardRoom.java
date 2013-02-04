@@ -1,23 +1,20 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.conference.service.whiteboard;
 
@@ -27,28 +24,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.bigbluebutton.conference.service.chat.IChatRoomListener;
-import org.red5.compatibility.flex.messaging.io.ArrayCollection;
-import org.red5.server.api.IScope;
+import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
 
 public class WhiteboardRoom {
-	
-	private IScope scope;
 	private ArrayList<Presentation> presentations;
-	
+	private final String id;
 	private Presentation activePresentation;
 	private boolean whiteboardEnabled = false;
 	
+	private final UIDGenerator uidGen;
 	private final Map<String, IWhiteboardRoomListener> listeners;
 	
-	public WhiteboardRoom(IScope scope){
-		this.scope = scope;
+	public WhiteboardRoom(String id){
+		this.id = id;
 		this.presentations = new ArrayList<Presentation>();
 		listeners = new ConcurrentHashMap<String, IWhiteboardRoomListener>();
+		uidGen = new UIDGenerator();
 	}
 	
-	public IScope getScope(){
-		return this.scope;
+	public String getId() {
+		return id;
 	}
 	
 	/**
@@ -56,54 +51,73 @@ public class WhiteboardRoom {
 	 * @param name
 	 * @param numPages
 	 */
-	public void addPresentation(String name, int numPages){
+	public void addPresentation(String name, int numPages) {
 		activePresentation = new Presentation(name, numPages);
 		presentations.add(activePresentation);
 	}
 	
-	public Presentation getPresentation(String name){
-		if (name.equals(activePresentation.getName())) return activePresentation;
-		
-		for (int i=0; i<presentations.size(); i++){
+	private Presentation getPresentation(String name) {
+		for (int  i = 0; i < presentations.size(); i++){
 			Presentation pres = presentations.get(i);
-			if (pres.getName().equals(name)) activePresentation = pres;
+			if (pres.getName().equals(name)) return pres;
 		}
+		return null;
+	}
+	
+	public Presentation getActivePresentation() {
 		return activePresentation;
 	}
 	
-	public Presentation getActivePresentation(){
-		return activePresentation;
+	public void setActivePresentation(String name) {
+		Presentation p = getPresentation(name);
+		if (p != null) {
+			this.activePresentation = p;
+		}		
 	}
 	
-	public void setActivePresentation(String name){
-		this.activePresentation = getPresentation(name);
-	}
-	
-	public boolean presentationExists(String name){
+	public boolean presentationExists(String name) {
 		boolean exists = false;
-		for (int i=0; i<presentations.size(); i++){
+		for (int i = 0; i < presentations.size(); i++) {
 			if (presentations.get(i).getName().equals(name)) exists = true;
 		}
 		return exists;
 	}
-	
-	public void addShape(Shape shape){
-		activePresentation.getActivePage().addShape(shape);
-		notifyAddShape(activePresentation, shape);
+		
+	public void addAnnotation(Annotation annotation) {
+		activePresentation.getActivePage().addAnnotation(annotation);
+		notifyAddShape(activePresentation, annotation);
 	}
 	
-	public List<Object[]> getShapes(){
-		return activePresentation.getActivePage().getShapes();
+	public List<Annotation> getAnnotations(String presentationID, Integer pageNumber) {
+		Presentation p = getPresentation(presentationID);
+		if (p != null) {
+			Page pg = p.getPage(pageNumber.intValue());
+			if (pg != null) {
+				return pg.getAnnotations();
+			}
+		}
+
+		return new ArrayList<Annotation>();
 	}
 	
-	public void clear(){
+	public void modifyText(Annotation annotation) {
+		activePresentation.getActivePage().modifyText(annotation.getID(), annotation);
+		notifyModifyText(activePresentation, annotation);
+	}
+		
+	public void clear() {
 		activePresentation.getActivePage().clear();
 		notifyClearPage(activePresentation);
 	}
 	
-	public void undo(){
+	public void undo() {
 		activePresentation.getActivePage().undo();
-		notifyUndoShape(activePresentation);
+		notifyUndoWBGraphic(activePresentation);
+	}
+	
+	public void toggleGrid() {
+		activePresentation.getActivePage().toggleGrid();
+		notifyToggleGrid(activePresentation.getActivePage().isGrid(), activePresentation);
 	}
 
 	public void setWhiteboardEnabled(boolean whiteboardEnabled) {
@@ -124,25 +138,55 @@ public class WhiteboardRoom {
 		listeners.remove(listener);		
 	}
 	
-	public void notifyAddShape(Presentation presentation, Shape shape){
-		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+	public void notifyAddShape(Presentation presentation, Annotation annotation){
+		for (Iterator<IWhiteboardRoomListener> iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
-			listener.addShape(shape, presentation);
+			listener.addAnnotation(annotation, presentation);
+		}
+	}
+
+	public void notifyUndoShape(Presentation presentation){
+		for (Iterator<IWhiteboardRoomListener> iter = listeners.values().iterator(); iter.hasNext();) {
+		}
+}
+
+	public void notifyAddText(Presentation presentation, Annotation text){
+		for (Iterator<IWhiteboardRoomListener> iter = listeners.values().iterator(); iter.hasNext();) {
+			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
+			listener.addText(text, presentation);
 		}
 	}
 	
-	public void notifyUndoShape(Presentation presentation){
-		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+	public void notifyModifyText(Presentation presentation, Annotation text){
+		for (Iterator<IWhiteboardRoomListener> iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
-			listener.undoShape(presentation);
+			listener.modifyText(text, presentation);
+		}
+	}
+	
+	public void notifyUndoWBGraphic(Presentation presentation){
+		for (Iterator<IWhiteboardRoomListener> iter = listeners.values().iterator(); iter.hasNext();) {
+			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
+			listener.undoWBGraphic(presentation);
+		}
+	}
+	
+	public void notifyToggleGrid(boolean enabled, Presentation presentation){
+		for (Iterator<IWhiteboardRoomListener> iter = listeners.values().iterator(); iter.hasNext();) {
+			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
+			listener.toggleGrid(enabled, presentation);
 		}
 	}
 	
 	public void notifyClearPage(Presentation presentation){
-		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
+		for (Iterator<IWhiteboardRoomListener> iter = listeners.values().iterator(); iter.hasNext();) {
 			IWhiteboardRoomListener listener = (IWhiteboardRoomListener) iter.next();
 			listener.clearPage(presentation);
 		}
 	}
-	
+		
+	public int getUniqueWBGraphicIdentifier() {
+		return uidGen.generateUID();
+	}
+
 }
