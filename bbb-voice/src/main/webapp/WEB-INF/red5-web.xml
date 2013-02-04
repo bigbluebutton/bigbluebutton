@@ -49,8 +49,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</bean>
 
 	<bean id="web.handler" class="org.bigbluebutton.voiceconf.red5.Application">
-		<property name="sipServerHost" value="${sip.server.host}" />
-		<property name="sipPort" value="${sip.server.port}" />
+		<property name="sipClientRtpIp" value="${bbb.sip.app.ip}" />
+		<property name="sipServerHost" value="${freeswitch.ip}" />
+		<property name="sipPort" value="${bbb.sip.app.port}" />
 		<property name="username" value="${sip.server.username}" />
 		<property name="password" value="${sip.server.password}" />
 		<property name="startAudioPort" value="${startAudioPort}" />
@@ -65,6 +66,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     	
 	<bean id="sipPeerManager" class="org.bigbluebutton.voiceconf.sip.SipPeerManager">
 		<property name="sipStackDebugLevel" value="${sipStackDebugLevel}"/>
+		<property name="sipRemotePort" value="${freeswitch.port}"/>
 	</bean>
 	
 	<bean id="clientConnectionManager" class="org.bigbluebutton.voiceconf.red5.ClientConnectionManager"/>

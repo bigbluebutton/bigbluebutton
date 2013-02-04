@@ -99,7 +99,7 @@ package org.bigbluebutton.core
     }
     
     public static function getMyExternalUserID():String {
-      return UserManager.getInstance().getConference().getMyExternalUserId();
+      return UserManager.getInstance().getConference().getMyExternalUserID();
     }
     
     public static function getMyUserID():String {

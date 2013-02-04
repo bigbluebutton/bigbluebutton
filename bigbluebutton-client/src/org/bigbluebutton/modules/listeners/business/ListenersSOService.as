@@ -111,6 +111,8 @@ package org.bigbluebutton.modules.listeners.business
 		}
 				
 		public function userJoin(userId:Number, cidName:String, cidNum:String, muted:Boolean, talking:Boolean, locked:Boolean):void {
+      trace("***************** Voice user joining [" + cidName + "]");
+      
 			if (! _listeners.hasListener(userId)) {
 				var n:Listener = new Listener();
 				n.callerName = cidName != null ? cidName : "<Unknown Caller>";

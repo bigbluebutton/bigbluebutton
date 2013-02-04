@@ -35,6 +35,9 @@ package org.bigbluebutton.modules.deskshare.services.red5
     public static const CONNECTING:String = "connection connecting";
     public static const CONNECTING_RETRY:String = "connection retry";
     public static const CONNECTING_MAX_RETRY:String = "connection max retry";
+    public static const CHECK_FOR_DESKSHARE_STREAM:String = "connection check deskshare publishing";
+    public static const NO_DESKSHARE_STREAM:String = "connection deskshare publishing";
+    public static const FAIL_CHECK_FOR_DESKSHARE_STREAM:String = "connection failed check deskshare publishing";
     
 		public var status:String = "";
     

@@ -224,7 +224,8 @@ package org.bigbluebutton.core.services
 		}
 		
 		private function log(s:String):void {
-			LogUtil.debug("[StreamMonitor] " + s);
+			//LogUtil.debug("[StreamMonitor] " + s);
+      trace("[StreamMonitor] " + s);
 		}
 	}
 }
