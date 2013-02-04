@@ -1,5 +1,22 @@
 # Set encoding to utf-8
 # encoding: UTF-8
+#
+# BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+#
+# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+#
+# This program is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License as published by the Free Software
+# Foundation; either version 3.0 of the License, or (at your option) any later
+# version.
+#
+# BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License along
+# with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+#
 
 require '../../core/lib/recordandplayback'
 require 'rubygems'
@@ -30,17 +47,27 @@ done_files.each do |df|
       MANIFEST = "manifest.xml"
       DUBLIN = "dublincore.xml"
 
-      [WEBCAM, DESKSHARE, MANIFEST, DUBLIN].each { |file| FileUtils.cp("#{process_dir}/#{file}", target_dir)}
-
+      files = [WEBCAM, DESKSHARE, MANIFEST, DUBLIN]
+      files.select! do |file| 
+	if File.exist?("#{process_dir}/#{file}") 
+	 FileUtils.cp("#{process_dir}/#{file}", target_dir) 
+	 file
+	end
+      end
+	BigBlueButton.logger.info files
       Dir.chdir(target_dir) do
-        BigBlueButton::MatterhornProcessor.zip_artifacts(WEBCAM, DESKSHARE, DUBLIN, MANIFEST, "#{meeting_id}.zip")
+        BigBlueButton::MatterhornProcessor.zip_artifacts(files, "#{meeting_id}.zip")
       end
 
       command = "scp -i #{scp_key} -o StrictHostKeyChecking=no -o CheckHostIP=no #{target_dir}/#{meeting_id}.zip #{scp_user}@#{scp_server}:#{scp_inbox}"
-      BigBlueButton.logger.info(command)
-      Open3.popen3(command) do | stdin, stdout, stderr|
-        BigBlueButton.logger.info("scp result=#{$?.exitstatus}")
-      end
+      BigBlueButton.execute(command)
+
+      BigBlueButton.logger.info("Removing processed files.")
+      FileUtils.rm_r(Dir.glob("#{process_dir}/*"))
+
+      BigBlueButton.logger.info("Removing published files.")
+      FileUtils.rm_r(Dir.glob("#{target_dir}/*"))
+
     end
   end
 end
