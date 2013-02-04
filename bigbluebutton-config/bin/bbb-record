@@ -1,12 +1,12 @@
 #!/bin/bash
 #
-# Copyright (c) 2008-2011 by BigBlueButton Inc.
+# BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
-# This file is part of BigBlueButton - http://www.bigbluebutton.org
+# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 #
-# BigBlueButton is free software; you can redistribute it and/or modify it under the
+# This program is free software; you can redistribute it and/or modify it under the
 # terms of the GNU Lesser General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
+# Foundation; either version 3.0 of the License, or (at your option) any later
 # version.
 #
 # BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -18,6 +18,7 @@
 #
 # Author(s):
 #       Fred Dixon <ffdixon@bigbluebutton.org>
+#       Gustavo Salazar <guga.salazar.loor@gmail.com>
 #
 # Changelog:
 #   2011-08-18 FFD  Inital Version
@@ -88,8 +89,8 @@ mark_for_republish() {
 	#set -x
 	for type in $TYPES; do                
                 if [ -d $BASE/publish/$type/$MEETING_ID ]; then
-						rm -rf $BASE/publish/$type/$MEETING_ID
-				fi
+			rm -rf $BASE/publish/$type/$MEETING_ID
+		fi
               
                 if [ -d /var/bigbluebutton/published/$type/$MEETING_ID ]; then
                         rm -rf /var/bigbluebutton/published/$type/$MEETING_ID
@@ -353,7 +354,7 @@ fi
 tmp_file=$(mktemp)
 ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD > $tmp_file
 ls -t /var/bigbluebutton/recording/raw | grep "[0-9]\{13\}$" | head -n $HEAD >> $tmp_file
-                                                              
+                                                 
 #for meeting in $(ls -t /var/bigbluebutton | grep "[0-9]\{13\}$" | head -n $HEAD); do
 for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
 	echo -n "$meeting"
@@ -452,7 +453,11 @@ for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
 
 	#
 	# Numbe rof slides
-	printf "%7s" $(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
+	if [ -d /var/bigbluebutton/$meeting/$meeting ]; then
+		printf "%7s" $(find /var/bigbluebutton/$meeting/$meeting -name "*.swf" | wc -l)
+        else
+		printf "%7s" $(find /var/bigbluebutton/recording/raw/$meeting -name "*.swf" | wc -l)
+	fi
 
 
 	echo -n " "

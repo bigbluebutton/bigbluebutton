@@ -1,20 +1,20 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.main.model.users {
 	import mx.collections.ArrayCollection;
@@ -22,21 +22,31 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.vo.CameraSettingsVO;
 
 	public class Conference {		
-//		private var _myUserid:Number;		
+    public var meetingName:String;
+    public var externalMeetingID:String;
+    public var internalMeetingID:String;
+    public var externalUserID:String;
+    public var avatarURL:String;
+    
+    private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
+    
 		[Bindable] private var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;			
-				
+	
+    private var defaultLayout:String;
+    
 		public function Conference():void {
 			me = new BBBUser();
 			users = new ArrayCollection();
 		}
 
 		public function addUser(newuser:BBBUser):void {
-      LogUtil.debug("Adding new user [" + newuser.userID + "]");
+      trace("Adding new user [" + newuser.userID + "]");
 			if (! hasUser(newuser.userID)) {
-        LogUtil.debug("Am I this new user [" + newuser.userID + ", " + me.userID + "]");
+        trace("Am I this new user [" + newuser.userID + ", " + me.userID + "]");
 				if (newuser.userID == me.userID) {
 					newuser.me = true;
 				}						
@@ -46,6 +56,26 @@ package org.bigbluebutton.main.model.users {
 			}					
 		}
 
+    public function setCamPublishing(publishing:Boolean):void {
+      _myCamSettings.isPublishing = publishing;
+    }
+    
+    public function setCameraSettings(camSettings:CameraSettingsVO):void {
+      _myCamSettings = camSettings;
+    }
+    
+    public function amIPublishing():CameraSettingsVO {
+      return _myCamSettings;
+    }
+    
+    public function setDefaultLayout(defaultLayout:String):void {
+      this.defaultLayout = defaultLayout;  
+    }
+    
+    public function getDefaultLayout():String {
+      return defaultLayout;
+    }
+    
 		public function hasUser(userID:String):Boolean {
 			var p:Object = getUserIndex(userID);
 			if (p != null) {
@@ -128,7 +158,7 @@ package org.bigbluebutton.main.model.users {
 		public function removeUser(userID:String):void {
 			var p:Object = getUserIndex(userID);
 			if (p != null) {
-				LogUtil.debug("removing user[" + p.participant.name + "," + p.participant.userID + "]");				
+				trace("removing user[" + p.participant.name + "," + p.participant.userID + "]");				
 				users.removeItemAt(p.index);
 				sort();
 			}							
@@ -154,6 +184,15 @@ package org.bigbluebutton.main.model.users {
 			// Participant not found.
 			return null;
 		}
+    
+    public function getVoiceUser(voiceUserID:Number):BBBUser {     
+      for (var i:int = 0; i < users.length; i++) {
+        var aUser:BBBUser = users.getItemAt(i) as BBBUser;
+        if (aUser.voiceUserid == voiceUserID) return aUser;
+      }
+      
+      return null;
+    }
 	
     public function whatsMyRole():String {
       return me.role;
@@ -170,7 +209,11 @@ package org.bigbluebutton.main.model.users {
 		public function amIThisUser(userID:String):Boolean {
 			return me.userID == userID;
 		}
-				
+		
+    public function getMyRole():String {
+      return me.role;
+    }
+    
 		public function amIModerator():Boolean {
 			return me.role == Role.MODERATOR;
 		}
@@ -231,6 +274,10 @@ package org.bigbluebutton.main.model.users {
 			return me.voiceLocked;
 		}
 		
+    public function getMyExternalUserID():String {
+      return externalUserID;
+    }
+    
 		public function getMyUserId():String {
 			return me.userID;
 		}
@@ -272,6 +319,15 @@ package org.bigbluebutton.main.model.users {
 			
 			sort();		
 		}
+    
+    public function getUserIDs():ArrayCollection {
+      var uids:ArrayCollection = new ArrayCollection();
+      for (var i:int = 0; i < users.length; i++) {
+        var u:BBBUser = users.getItemAt(i) as BBBUser;
+        uids.addItem(u.userID);
+      }
+      return uids;
+    }
 		
 		/**
 		 * Sorts the users by name 

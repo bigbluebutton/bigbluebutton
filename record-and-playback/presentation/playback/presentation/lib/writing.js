@@ -323,8 +323,10 @@ function runPopcorn() {
           else var thisimg = svgobj.getSVGDocument('svgfile').getElementById(current_image);
   
           var offsets = thisimg.getBoundingClientRect();
-          imageXOffset = (1600 - parseInt(thisimg.getAttribute("width"), 10))/2;
-          imageYOffset = (1200 - parseInt(thisimg.getAttribute("height"), 10))/2;
+          // Offsets divided by 4. By 2 because of the padding and by 2 again because 800x600 is half  1600x1200
+          imageXOffset = (1600 - parseInt(thisimg.getAttribute("width"), 10))/4;
+          imageYOffset = (1200 - parseInt(thisimg.getAttribute("height"), 10))/4;
+
           
           var vboxVal = getViewboxAtTime(t);
           if(vboxVal !== undefined) {
@@ -344,6 +346,35 @@ function runPopcorn() {
     }
   });
 };
+
+function defineStartTime() {
+  if (params.t === undefined)
+    return 1;
+
+  var extractNumber = /\d+/g;
+  var extractUnit = /\D+/g;
+  var temp_start_time = 0;
+
+  while (true) {
+    var param1 = extractUnit.exec(params.t);
+    var param2 = extractNumber.exec(params.t);
+    if (param1 == null || param2 == null)
+      break;
+
+    var unit = String(param1).toLowerCase();
+    var value = parseInt(String(param2));
+
+    if (unit == "h")
+      value *= 3600;
+    else if (unit == "m")
+      value *= 60;
+
+    temp_start_time += value;
+  }
+
+  console.log("Start time: " + temp_start_time);
+  return temp_start_time;
+}
 
 var current_canvas = "canvas0";
 var current_image = "image0";
@@ -380,17 +411,29 @@ var events_xml = url + '/panzooms.xml';
 var cursor_xml = url + '/cursor.xml';
 
 var svgobj = document.createElement('object');
-
 svgobj.setAttribute('data', shapes_svg);
 svgobj.setAttribute('height', '600px');
 svgobj.setAttribute('width', '800px');
 svgobj.addEventListener('load', runPopcorn, false);
+
+/**
+ * we need an urgently refactor here
+ * first the writing.js must be loaded, and then runPopcorn loads, but it loads 
+ * only after the svg file gets loaded, and the generation of thumbnails must
+ * came after that because it needs the popcorn element to be created properly
+ */
+svgobj.addEventListener('load', function() {
+  generateThumbnails();
+  var p = Popcorn("#video");
+  p.on('loadeddata', function() {
+    p.currentTime(defineStartTime());
+  });
+}, false);
+
+
 document.getElementById('slide').appendChild(svgobj);
-
-//immediately load the content
-
 
 window.onresize = function(event) {
 	svgobj.style.left = document.getElementById("slide").offsetLeft + "px";
-    svgobj.style.top = "8px";
+  svgobj.style.top = "8px";
 };

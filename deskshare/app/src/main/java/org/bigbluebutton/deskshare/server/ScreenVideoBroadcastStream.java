@@ -1,23 +1,20 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.server;
 
@@ -65,7 +62,7 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	public ScreenVideoBroadcastStream(String name) {	
 		publishedStreamName = name;
 		livePipe = null;
-		log.trace("name: {}", name);
+		log.debug("name: {}", name);
 
 		// we want to create a video codec when we get our
 		// first video packet.
@@ -74,22 +71,22 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	}
 
 	public IProvider getProvider() {
-		log.trace("getProvider()");
+		log.debug("getProvider()");
 		return this;
 	}
 
 	public String getPublishedName() {
-		log.trace("getPublishedName()");
+		log.debug("getPublishedName()");
 		return publishedStreamName;
 	}
 
 	public String getSaveFilename() {
-		log.trace("getSaveFilename()");
+		log.debug("getSaveFilename()");
 		throw new Error("unimplemented method");
 	}
 
 	public void addStreamListener(IStreamListener listener) {
-		log.trace("addStreamListener(listener: {})", listener);
+		log.debug("addStreamListener(listener: {})", listener);
 		streamListeners.add(listener);
 	}
 
@@ -99,23 +96,23 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	}
 
 	public void removeStreamListener(IStreamListener listener) {
-		log.trace("removeStreamListener({})", listener);
+		log.debug("removeStreamListener({})", listener);
 		streamListeners.remove(listener);
 	}
 
 	public void saveAs(String filePath, boolean isAppend) throws IOException,
   			ResourceNotFoundException, ResourceExistException {
-		log.trace("saveAs(filepath:{}, isAppend:{})", filePath, isAppend);
+		log.debug("saveAs(filepath:{}, isAppend:{})", filePath, isAppend);
 		throw new Error("unimplemented method");
 	}
 
 	public void setPublishedName(String name) {
-		log.trace("setPublishedName(name:{})", name);
+		log.debug("setPublishedName(name:{})", name);
 		publishedStreamName = name;
 	}
 
 	public void close() {
-		log.trace("close()");
+		log.debug("close()");
 	}
 
 	public IStreamCodecInfo getCodecInfo() {
@@ -125,7 +122,7 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	}
 
 	public String getName() {
-		log.trace("getName(): {}", publishedStreamName);
+		log.debug("getName(): {}", publishedStreamName);
 		// for now, just return the published name
 		return publishedStreamName;
 	}
@@ -135,30 +132,29 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	}
 
 	public IScope getScope() {
-		log.trace("getScope(): {}", scope);
+		log.debug("getScope(): {}", scope);
 		return scope;
 	}
 
 	public void start() {
-		log.trace("start()");
+		log.debug("start()");
 	}
 
 	public void stop() {
-		log.trace("stop");
+		log.debug("stop");
 	}
 
 	public void onOOBControlMessage(IMessageComponent source, IPipe pipe, OOBControlMessage oobCtrlMsg) {
-		log.trace("onOOBControlMessage");
+		log.debug("onOOBControlMessage");
 	}
 
 	public void onPipeConnectionEvent(PipeConnectionEvent event) {
-		log.trace("onPipeConnectionEvent(event:{})", event);
+		log.debug("onPipeConnectionEvent(event:{})", event);
 		switch (event.getType()) {
 	    	case PipeConnectionEvent.PROVIDER_CONNECT_PUSH:
-	    		log.trace("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
-	    		if (event.getProvider() == this && (event.getParamMap() == null 
-	    				|| !event.getParamMap().containsKey("record"))) {
-	    			log.trace("Creating a live pipe");
+	    		log.debug("PipeConnectionEvent.PROVIDER_CONNECT_PUSH");
+	    		if (event.getProvider() == this && (event.getParamMap() == null || !event.getParamMap().containsKey("record"))) {
+	    			log.debug("Creating a live pipe");
 	    			System.out.println("Creating a live pipe");
 	    			this.livePipe = (IPipe) event.getSource();
 	    		}
@@ -166,21 +162,21 @@ public class ScreenVideoBroadcastStream implements IBroadcastStream, IProvider, 
 	    	case PipeConnectionEvent.PROVIDER_DISCONNECT:
 	    		log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT");
 	    		if (this.livePipe == event.getSource()) {
-	    			log.trace("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
+	    			log.debug("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
 	    			System.out.println("PipeConnectionEvent.PROVIDER_DISCONNECT - this.mLivePipe = null;");
 	    			this.livePipe = null;
 	    		}
 	    		break;
 	    	case PipeConnectionEvent.CONSUMER_CONNECT_PUSH:
-	    		log.trace("PipeConnectionEvent.CONSUMER_CONNECT_PUSH");
+	    		log.debug("PipeConnectionEvent.CONSUMER_CONNECT_PUSH");
 	    		System.out.println("PipeConnectionEvent.CONSUMER_CONNECT_PUSH");
 	    		break;
 	    	case PipeConnectionEvent.CONSUMER_DISCONNECT:
-	    		log.trace("PipeConnectionEvent.CONSUMER_DISCONNECT");
+	    		log.debug("PipeConnectionEvent.CONSUMER_DISCONNECT");
 	    		System.out.println("PipeConnectionEvent.CONSUMER_DISCONNECT");
 	    		break;
 	    	default:
-	    		log.trace("PipeConnectionEvent default");
+	    		log.debug("PipeConnectionEvent default");
 	    		System.out.println("PipeConnectionEvent default");
 	    		break;
 		}
