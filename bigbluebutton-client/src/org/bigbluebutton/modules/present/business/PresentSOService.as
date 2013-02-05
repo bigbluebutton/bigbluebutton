@@ -274,7 +274,7 @@ package org.bigbluebutton.modules.present.business {
 		
 		public function whatIsTheSlideInfo(userid:Number):void {
 			LogUtil.debug("Rx Query for slide info");
-			if (UserManager.getInstance().getConference().amIPresenter()) {
+			if (UserManager.getInstance().getConference().amIPresenter) {
 				LogUtil.debug("User Query for slide info");
 				_presentationSO.send("whatIsTheSlideInfoReply", userid, presenterViewedRegionX, presenterViewedRegionY, presenterViewedRegionW, presenterViewedRegionH);
 			}
@@ -423,7 +423,7 @@ package org.bigbluebutton.modules.present.business {
 			
 			var dispatcher:Dispatcher = new Dispatcher();
 			var meeting:Conference = UserManager.getInstance().getConference();
-			if (meeting.amIPresenter()) {		
+			if (meeting.amIPresenter) {		
 				LogUtil.debug("trigger Switch to Presenter mode ");
         trace("PresentSOService:: trigger Switch to Presenter mode ");
 				var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);

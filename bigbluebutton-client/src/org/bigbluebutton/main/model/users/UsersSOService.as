@@ -172,7 +172,7 @@ package org.bigbluebutton.main.model.users {
         trace("**** Switching [" + name + "] to presenter");
         sendSwitchedPresenterEvent(true, userid);
         
-				meeting.setMePresenter(true);				
+				meeting.amIPresenter = true;				
 				var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
 				e.userid = userid;
 				e.presenterName = name;
@@ -184,7 +184,7 @@ package org.bigbluebutton.main.model.users {
         trace("**** Switching [" + name + "] to presenter. I am viewer.");
         sendSwitchedPresenterEvent(false, userid);
         
-				meeting.setMePresenter(false);
+				meeting.amIPresenter = false;
 				var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
 				viewerEvent.userid = userid;
 				viewerEvent.presenterName = name;
