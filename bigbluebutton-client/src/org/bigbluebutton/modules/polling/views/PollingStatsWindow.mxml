@@ -243,148 +243,79 @@
 			dispatchEvent(stopPollEvent);
 		}
  		
-		// function receives Array.length and ArrayCollection
-		/*private function createResultsTable(amount:uint, content:Array):void{
-			var _tx: Text;
-			var _votes: Text;
-			var _percent: Text;
-			var _hb: HBox; 
-			var _line: HRule;
-			var totalVotes:int = 0;
-			for (var n:int = 0; n < trackingPoll.votes.length; n++){
-				totalVotes+= int(trackingPoll.votes[n]);
-			}
-			// delete existing rows
-			resultBox.removeAllChildren();
-			// creating rows one by one
-			for (var i:int = 0; i < amount; i++) {
-				_tx = new Text();
-				_votes= new Text;
-				_percent= new Text();
-				_hb = new HBox();
-				
-				_line = new HRule();
-				_line.width = 290;
-				
-				_tx.name = "option" +i;
-				_tx.width = 200;
-				_tx.text =content[i].toString(); 
-										
-				_votes.name = "votes" +i;
-				_votes.width = 30;
-				_votes.text = trackingPoll.votes[i];
-					
-				_percent.name = "percent" +i;
-				_percent.width = 50;
-					
-				// Percentage is in terms of how many votes each option has in terms of total votes
-				if (totalVotes > 0){
-					_percent.text = Math.round(100*(trackingPoll.votes[i]/totalVotes)) + "%";
-				}else{
-					// Prevents percentages from displaying misleading results before any votes come in, and from dividing by zero
-					_percent.text = " ";
+			// function receives Array.length and ArrayCollection
+			private function createResultsTable(amount:uint, content:Array):void{
+				var _tx: Text;
+				var _votes: Text;
+				var _percent: Text;
+				var _hb: HBox; 
+				var _line: HRule;
+				var totalVotes:int = 0;
+				for (var n:int = 0; n < trackingPoll.votes.length; n++){
+					totalVotes+= int(trackingPoll.votes[n]);
 				}
+				// delete existing rows
+				resultBox.removeAllChildren();
+				// creating rows one by one
+				for (var i:int = 0; i < amount; i++) {
+					_tx = new Text();
+					_votes= new Text;
+					_percent= new Text();
+					_hb = new HBox();
 					
+					_line = new HRule();
+					_line.width = 290;
+					
+					_tx.name = "option" +i;
+					_tx.width = 200;
+					_tx.text =content[i].toString(); 
+					
+					_votes.name = "votes" +i;
+					_votes.width = 30;
+					_votes.text = trackingPoll.votes[i];
+					
+					_percent.name = "percent" +i;
+					_percent.width = 50;
+					
+					// Percentage is in terms of how many votes each option has in terms of total votes
+					if (totalVotes > 0){
+						_percent.text = Math.round(100*(trackingPoll.votes[i]/totalVotes)) + "%";
+					}else{
+						// Prevents percentages from displaying misleading results before any votes come in, and from dividing by zero
+						_percent.text = " ";
+					}
+					
+					resultBox.addChild(_hb);					
+					_hb.addChild(_tx);
+					_hb.addChild(_votes);
+					_hb.addChild(_percent);
+					
+					resultBox.addChild(_line);
+				} // end of loop
+				didNotVote();
+				invalidateDisplayList();
+				resultBox.validateNow();	
+			} // end of function createResultsTable
+			
+			private function didNotVote():void{
+				var _tx:Text = new Text();
+				var _votes:Text= new Text;
+				var _hb:HBox = new HBox();
+				_tx.name = "optionNull";
+				_tx.width = 200;
+				_tx.text = ResourceUtil.getInstance().getString('bbb.polling.stats.didNotVote'); 
+				
+				_votes.name = "voteNull";
+				_votes.width = 30;
+				_votes.text = trackingPoll.didNotVote.toString();
+				
 				resultBox.addChild(_hb);					
 				_hb.addChild(_tx);
 				_hb.addChild(_votes);
-				_hb.addChild(_percent);
-				
-				resultBox.addChild(_line);
-			} // end of loop
-			didNotVote();
-			invalidateDisplayList();
-			resultBox.validateNow();	
-		} // end of function createResultsTable */
-		
-		private function createResultsTable(amount:uint, content:Array):void{
-			// DEBUG AREA to test PollObject.generateStats()
-			/*LogUtil.debug("Testing PollObject.generateStats()");
-			var ac:ArrayCollection = trackingPoll.generateStats();
-			for (var i:int = 0; i < ac.length; i++){
-				var pso:PollStatLineObject = ac.getItemAt(i) as PollStatLineObject;
-				LogUtil.debug("PSO: " + pso.answer + " " + pso.votes + " " + pso.percentage);
-			}*/
-			/*
-			answersAC = trackingPoll.generateStats();
-			
-			var totalVotes:int = 0;
-			for (var n:int = 0; n < trackingPoll.votes.length; n++){
-				totalVotes+= int(trackingPoll.votes[n]);
 			}
-			// delete existing rows
-			answersAC.removeAll();
-			resultsGrid.removeChildren();
-			// creating rows one by one
-			for (var i:int = 0; i < amount; i++) {
-				var newAnswer:AnswerObject = new AnswerObject();
-				newAnswer.answer = content[i].toString();
-				newAnswer.votes = trackingPoll.votes[i];
-				// Percentage is in terms of how many votes each option has in terms of total votes
-				if (totalVotes > 0){
-					newAnswer.percent = Math.round(100*(trackingPoll.votes[i]/totalVotes)) + "%";
-				}else{
-					// Prevents percentages from displaying misleading results before any votes come in, and from dividing by zero
-					newAnswer.percent = " ";
-				}
-				answersAC.addItem(newAnswer);
-			} // end of loop
-			
-			didNotVote();
-			resultsGrid.invalidateDisplayList();
-			//resultBox.validateNow();	
-			 *
-			 */
-		} // end of function createResultsTable 
-			
-		private function didNotVote():void{
-			var dnvAnswer:AnswerObject = new AnswerObject();
-
-			dnvAnswer.answer = ResourceUtil.getInstance().getString('bbb.polling.stats.didNotVote'); 			
-			dnvAnswer.votes = trackingPoll.didNotVote.toString();
-			dnvAnswer.percent = " ";
-								
-			answersAC.addItem(dnvAnswer);
-		}
-			
-		/*private function didNotVote():void{
-			var _tx:Text = new Text();
-			var _votes:Text= new Text;
-			var _hb:HBox = new HBox();
-			_tx.name = "optionNull";
-			_tx.width = 200;
-			_tx.text = ResourceUtil.getInstance().getString('bbb.polling.stats.didNotVote'); 
-										
-			_votes.name = "voteNull";
-			_votes.width = 30;
-			_votes.text = trackingPoll.didNotVote.toString();
-								
-			resultBox.addChild(_hb);					
-			_hb.addChild(_tx);
-			_hb.addChild(_votes);
-			
-			_hb.focusEnabled="true";
-			_hb.accessibilityDescription='bbb.polling.stats.didNotVote' + _votes.text + " votes.";
-			  
-			  
-			 <!--mx:DataGridColumn dataField="votes" 
-    						   	   headerText="Total Votes" 
-    						  	   editable="false" 
-    						       width="90" 
-    						       sortable="false"
-    						       itemRenderer="org.bigbluebutton.modules.polling.views.VotesItemRenderer"
-    						       /-->
-    			<!--mx:DataGridColumn dataField="percentage" 
-    						   	   headerText="Percentage" 
-    						  	   editable="false" 
-    						       width="90" 
-    						       sortable="false"
-    						       itemRenderer="org.bigbluebutton.modules.polling.views.PercentageItemRenderer"
-    						       /--> 
-			 
-		}*/	
 	]]>
 	</mx:Script>
+	
 	<!-- Prototype of Polling Statistics View Design -->
     <mx:VBox width="100%" 
     		 height="75%" 
@@ -411,48 +342,17 @@
 						 width="95%"
 						 />          
 		</mx:HBox>
-        <mx:Text width="200" 
-        		 paddingTop="15" paddingBottom="10" 
-               	 fontWeight="bold" textAlign="center"
-                 text="{question}"/>       
-        
-        <mx:DataGrid id="testGrid" editable="false" dataProvider="{trackingPoll.generateOneLine()}" width="90%" dragEnabled="false">
-        	<mx:columns>
-        		<mx:DataGridColumn dataField="answer"/>
-    			<mx:DataGridColumn dataField="votes"/>
-    			<mx:DataGridColumn dataField="percentage"/> 
-        	</mx:columns>
-        </mx:DataGrid>
-
-
-        <mx:Label text="^ TestGrid   V ResultsGrid"/>
-        <mx:DataGrid id="resultsGrid" editable="false" dataProvider="{trackingPoll.generateOneLine()}" width="90%" dragEnabled="false">
-        	<mx:columns>
-        		<mx:DataGridColumn dataField="answer" 
-    						   	   headerText="Answers" 
-    						  	   editable="false" 
-    						       width="90" 
-    						       sortable="false"
-    						       itemRenderer="org.bigbluebutton.modules.polling.views.AnswerItemRenderer"
-    						       />
-				<mx:DataGridColumn dataField="votes" 
-    						   	   headerText="Answers" 
-    						  	   editable="false" 
-    						       width="90" 
-    						       sortable="false"
-    						       itemRenderer="org.bigbluebutton.modules.polling.views.VotesItemRenderer"
-    						       />
-				<mx:DataGridColumn dataField="percentage" 
-    						   	   headerText="Answers" 
-    						  	   editable="false" 
-    						       width="90" 
-    						       sortable="false"
-    						       itemRenderer="org.bigbluebutton.modules.polling.views.PercentageItemRenderer"
-    						       />
-        	</mx:columns>
-        </mx:DataGrid>
-        
-        <mx:DataGrid id="viewersGrid" dataProvider="{UserManager.getInstance().getConference().users}" editable="false"
+		<mx:Text width="200" 
+				 paddingTop="15" paddingBottom="10" 
+				 fontWeight="bold" textAlign="center"
+				 text="{question}"/>
+		<mx:Box id="resultBox"  
+				width="90%" 
+				height="90%" />
+    
+	<!-- Viewer's grid used as an example -->
+	<!--mx:DataGrid id="viewersGrid" dataProvider="{UserManager.getInstance().getConference().users}" editable="false"
+>>>>>>> poll-access
     	dragEnabled="false"  width="90%" height="100%"	accessibilityName="Users list.">
     	<mx:columns>
     		<mx:DataGridColumn dataField="role" 
@@ -476,7 +376,7 @@
     						   sortable="false" 
     						   itemRenderer="org.bigbluebutton.modules.viewers.views.StatusItemRenderer"/>
     	</mx:columns>
-    </mx:DataGrid>
+    </mx:DataGrid-->
        
 	</mx:VBox>
 	<mx:ControlBar width="100%" height="10%">
