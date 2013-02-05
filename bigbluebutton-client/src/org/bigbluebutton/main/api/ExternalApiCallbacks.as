@@ -303,9 +303,8 @@ package org.bigbluebutton.main.api
     
     private function handleJoinVoiceRequest():void {
       trace("handleJoinVoiceRequest");
-      var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-      joinEvent.payload['useMicrophone'] = true;
-      _dispatcher.dispatchEvent(joinEvent);
+      var showMicEvent:BBBEvent = new BBBEvent("SHOW_MIC_SETTINGS");
+      _dispatcher.dispatchEvent(showMicEvent);
     }
     
     private function handleLeaveVoiceRequest():void {
