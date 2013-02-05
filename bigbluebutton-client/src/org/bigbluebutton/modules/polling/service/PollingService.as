@@ -109,6 +109,7 @@ package org.bigbluebutton.modules.polling.service
         public function openPollingWindow(serverPoll:Array):void{
 			var username:String = module.username;
 	        var poll:PollObject = extractPoll(serverPoll, serverPoll[1]+"-"+serverPoll[0]);
+			//LogUtil.debug("Is user moderator? " + UserManager.getInstance().getConference().amIModerator());
 	        if (!UserManager.getInstance().getConference().amIModerator()){
 				var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
 			    e.poll = poll;
