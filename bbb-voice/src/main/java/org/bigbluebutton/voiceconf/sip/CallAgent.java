@@ -257,12 +257,14 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 						callStream = callStreamFactory.createCallStream(sipCodec, connInfo);
 						callStream.addCallStreamObserver(this);
 						callStream.start();
-						
 						if(_callerName.contains("GLOBAL_AUDIO") == true) {
 							//String room = _callerName.subSequence(13, _callerName.length()).toString();
-							GlobalCall.addGlobalAudioStream(_destination, callStream.getListenStreamName(), sipCodec.getCodecName());							
+							KeepGlobalAudioAlive globalAudioKeepAlive = new KeepGlobalAudioAlive(connInfo.getSocket(), connInfo, callStream.sipCodec.getCodecId());
+							GlobalCall.addGlobalAudioStream(_destination, callStream.getListenStreamName(), sipCodec.getCodecName(), globalAudioKeepAlive);							
 							caToInit.returnGlobalStreamName(caToInit.getCallId(), _destination); 
 							talking = true;
+							
+							
 						}
 						else {
 							talking = true;
