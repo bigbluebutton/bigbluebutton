@@ -41,7 +41,7 @@
 		/>
 		
 		<module name="PhoneModule" url="PhoneModule.swf?v=VERSION" 
-			uri="rtmp://143.54.10.63/sip" 
+			uri="rtmp://HOST/sip" 
 			autoJoin="false"
 			joinGlobal="true"
 			skipCheck="false"
