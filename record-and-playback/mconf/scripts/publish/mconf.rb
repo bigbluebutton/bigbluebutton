@@ -25,10 +25,11 @@ require 'cgi'
 require 'digest/md5'
 
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
-simple_props = YAML::load(File.open('mconf.yml'))
 recording_dir = bbb_props['recording_dir']
-playback_host = simple_props['playback_host']
-publish_dir = simple_props['publish_dir']
+playback_host = bbb_props['playback_host']
+published_dir = bbb_props['published_dir']
+raw_presentation_src = bbb_props['raw_presentation_src']
+
 done_files = Dir.glob("#{recording_dir}/status/processed/*.done")
 done_files.each do |df|
   match = /(.*)-(.*).done/.match df.sub(/.+\//, "")
@@ -36,94 +37,102 @@ done_files.each do |df|
   if (match[2] == "mconf")
     BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/mconf/publish-#{meeting_id}.log", 'daily' )
 
-    process_dir = "#{recording_dir}/process/mconf/#{meeting_id}"
-    target_dir = "#{recording_dir}/publish/mconf/#{meeting_id}"
-    if not FileTest.directory?(target_dir)
-      FileUtils.mkdir_p target_dir
+    meeting_process_dir = "#{recording_dir}/process/mconf/#{meeting_id}"
+    meeting_publish_dir = "#{recording_dir}/publish/mconf/#{meeting_id}"
+    meeting_published_dir = "#{recording_dir}/published/mconf/#{meeting_id}"
+    meeting_raw_dir = "#{recording_dir}/raw/#{meeting_id}"
+    meeting_raw_presentation_dir = "#{raw_presentation_src}/#{meeting_id}"
 
-      Dir.chdir(target_dir) do
-        BigBlueButton::MconfProcessor.zip_directory(process_dir, "#{meeting_id}.zip")
-      
+    if not FileTest.directory?(meeting_publish_dir)
+      FileUtils.mkdir_p meeting_publish_dir
 
-      	metadata = BigBlueButton::Events.get_meeting_metadata("#{process_dir}/#{meeting_id}/events.xml")
-      	
-	if not (metadata[:keypublic]) 
-		BigBlueButton.logger.info("Verifying events: #{metadata[:keypublic.to_s]}")
-		public_key_decoded = CGI::unescape("#{metadata[:keypublic.to_s]}")
-		
-		length = 16
-		chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-		password = ''
-		length.times { password << chars[rand(chars.size)] }      
-	      
-		passfile = File.new("#{meeting_id}.txt", "w")
-		passfile.write "#{password}"
-		passfile.close
+      Dir.chdir(meeting_publish_dir) do
+        BigBlueButton::MconfProcessor.zip_directory(meeting_process_dir, "#{meeting_id}.zip")
 
-		keypublic = File.new("key-public.pem","w") 
-		keypublic.write  "#{public_key_decoded}"
-		keypublic.close 
+        metadata = BigBlueButton::Events.get_meeting_metadata("#{meeting_process_dir}/events.xml")
 
-		#Encrypt files 
-		command = "openssl enc -aes-256-cbc -pass file:#{meeting_id}.txt < #{meeting_id}.zip > #{meeting_id}.dat"
-		BigBlueButton.logger.info(command)
-		Open3.popen3(command) do | stdin, stdout, stderr|
-			BigBlueButton.logger.info("commandresult=")#{$?.exitstatus}")
-		end
-		command = "openssl rsautl -encrypt -pubin -inkey key-public.pem < #{meeting_id}.txt > #{meeting_id}.enc"
-		BigBlueButton.logger.info(command)
-		Open3.popen3(command) do | stdin, stdout, stderr|
-			BigBlueButton.logger.info("commandresult=") #{$?.exitstatus}")
-		end
+        length = 16
+        chars = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+        password = ''
+        length.times { password << chars[rand(chars.size)] }      
 
-		#Generate md5 checksum
-		md5sum = Digest::MD5.file("#{meeting_id}.dat")
+        passfile = File.new("#{meeting_id}.txt", "w")
+        passfile.write "#{password}"
+        passfile.close
 
-		BigBlueButton.logger.info("Removing files")
-		PUBLICKEY = "key-public.pem"
-		PASSFILE = "#{meeting_id}.txt"
-		ZIPFILE = "#{meeting_id}.zip"
-		
-		[PUBLICKEY, PASSFILE, ZIPFILE].each  { |file| FileUtils.rm_f(file)}
-		
-		BigBlueButton.logger.info("Creating metadata.xml")
-		# Create metadata.xml
-		b = Builder::XmlMarkup.new(:indent => 2)
-		metaxml = b.recording {
-			b.id(meeting_id)
-			b.state("available")
-			b.published(false)
-			# Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
-			b.start_time(BigBlueButton::Events.first_event_timestamp("#{process_dir}/#{meeting_id}/events.xml"))
-			b.end_time(BigBlueButton::Events.last_event_timestamp("#{process_dir}/#{meeting_id}/events.xml"))
-			b.download {
-				b.format("encrypted")
-			b.link("http://#{playback_host}/mconf/#{meeting_id}/#{meeting_id}.dat")
-			b.md5(md5sum)
-			b.key("http://#{playback_host}/mconf/#{meeting_id}/#{meeting_id}.enc")
-			}
-			b.meta {
-				BigBlueButton::Events.get_meeting_metadata("#{process_dir}/#{meeting_id}/events.xml").each { |k,v| b.method_missing(k,v) }
-			}
-		}
+        # encrypt files 
+        command = "openssl enc -aes-256-cbc -pass file:#{meeting_id}.txt < #{meeting_id}.zip > #{meeting_id}.dat"
+        BigBlueButton.execute(command)
 
-		metadata_xml = File.new("metadata.xml","w")
-		metadata_xml.write(metaxml)
-		metadata_xml.close
-		
-		BigBlueButton.logger.info("Removing processed files.")
-		FileUtils.rm_r(Dir.glob("#{process_dir}/*"))
-		
-		BigBlueButton.logger.info("Publishing mconf")
-		# Now publish this recording    
-		if not FileTest.directory?(publish_dir)
-			FileUtils.mkdir_p publish_dir
-		end
-		FileUtils.cp_r(target_dir, publish_dir)
-	      end
+        key_filename = ""
+        if metadata.has_key?('public_key')
+          key_filename = "#{meeting_id}.enc"
+          BigBlueButton.logger.info("Unescaping public key")
+          public_key_decoded = CGI::unescape("#{metadata[:public_key.to_s]}")
+          public_key = File.new("public_key.pem","w") 
+          public_key.write "#{public_key_decoded}"
+          public_key.close 
 
-	 end
-     end
+          command = "openssl rsautl -encrypt -pubin -inkey public-key.pem < #{meeting_id}.txt > #{meeting_id}.enc"
+          BigBlueButton.execute(command)
+          FileUtils.rm_f "#{meeting_id}.txt"
+        else
+          key_filename = "#{meeting_id}.txt"
+          BigBlueButton.logger.warn "No public key was found in the meeting's metadata"
+        end
+          
+        # generate md5 checksum
+        md5sum = Digest::MD5.file("#{meeting_id}.dat")
+
+        BigBlueButton.logger.info("Creating metadata.xml")
+
+        # TODO: create a flag to indicate if the file .enc is encrypted or not 
+        # due to the presence the public key in the meeting's metadata
+
+        # Create metadata.xml
+        b = Builder::XmlMarkup.new(:indent => 2)
+        metaxml = b.recording {
+          b.id(meeting_id)
+          b.state("available")
+          b.published(true)
+          # Date Format for recordings: Thu Mar 04 14:05:56 UTC 2010
+          b.start_time(BigBlueButton::Events.first_event_timestamp("#{meeting_process_dir}/events.xml"))
+          b.end_time(BigBlueButton::Events.last_event_timestamp("#{meeting_process_dir}/events.xml"))
+          b.download {
+            b.format("encrypted")
+            b.link("http://#{playback_host}/mconf/#{meeting_id}/#{meeting_id}.dat")
+            b.md5(md5sum)
+            b.key("http://#{playback_host}/mconf/#{meeting_id}/#{key_filename}")
+          }
+          b.meta {
+            BigBlueButton::Events.get_meeting_metadata("#{meeting_process_dir}/events.xml").each { |k,v| b.method_missing(k,v) }
+          }
+        }
+
+        metadata_xml = File.new("metadata.xml","w")
+        metadata_xml.write(metaxml)
+        metadata_xml.close
+
+        BigBlueButton.logger.info("Publishing mconf")
+
+        # Now publish this recording    
+        if not FileTest.directory?("#{published_dir}/mconf")
+          FileUtils.mkdir_p "#{published_dir}/mconf"
+        end
+        BigBlueButton.logger.info("Publishing files")
+        FileUtils.cp_r(meeting_publish_dir, "#{published_dir}/mconf")
+
+        BigBlueButton.logger.info("Removing processed files: #{meeting_process_dir}")
+        FileUtils.remove_entry_secure meeting_process_dir, :force => true, :verbose => true
+
+        BigBlueButton.logger.info("Removing published files: #{meeting_publish_dir}")
+        FileUtils.remove_entry_secure meeting_publish_dir, :force => true, :verbose => true
+
+        BigBlueButton.logger.info("Removing the recording raw files: #{meeting_raw_dir}")
+        FileUtils.remove_entry_secure meeting_raw_dir, :force => true, :verbose => true
+        BigBlueButton.logger.info("Removing the recording presentation: #{meeting_raw_presentation_dir}")
+        FileUtils.remove_entry_secure meeting_raw_presentation_dir, :force => true, :verbose => true
+      end
+    end
   end
 end
-
