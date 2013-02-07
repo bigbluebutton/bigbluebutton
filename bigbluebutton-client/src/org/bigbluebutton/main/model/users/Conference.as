@@ -51,8 +51,6 @@ package org.bigbluebutton.main.model.users {
 		
 		// Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
 		private function sortFunction(a:Object, b:Object, array:Array = null):int {
-			var au:BBBUser = a as BBBUser;
-			var bu:BBBUser = b as BBBUser;
 			if (a.presenter)
 				return -1;
 			else if (b.presenter)
@@ -68,6 +66,12 @@ package org.bigbluebutton.main.model.users {
 			} else if (a.raiseHand)
 				return -1;
 			else if (b.raiseHand)
+				return 1;
+			else if (a.phoneUser && b.phoneUser) {
+				
+			} else if (a.phoneUser)
+				return -1;
+			else if (b.phoneUser)
 				return 1;
 			
 			/* 
