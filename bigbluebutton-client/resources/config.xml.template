@@ -14,14 +14,14 @@
 		
 		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
-			dependsOn="ViewersModule"	
+			dependsOn="ParticipantsModule"	
 			translationOn="false"
 			translationEnabled="false"	
 			privateEnabled="true"  
 			position="top-right"
 		/>
 		
-		<module name="ViewersModule" url="http://HOST/client/ViewersModule.swf?v=VERSION" 
+		<!--module name="ViewersModule" url="http://HOST/client/ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
 			allowKickUser="false"
@@ -31,6 +31,10 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
 			position="bottom-left"
+		/-->
+		
+		<module name="ParticipantsModule" url="http://HOST/client/ParticipantsModule.swf?v=VERSION" 
+			uri="rtmp://HOST/bigbluebutton" 
 		/>
 		
 		<module name="DeskShareModule" 
@@ -45,12 +49,12 @@
 			skipCheck="false"
 			showButton="true"
 			enabledEchoCancel="true"
-			dependsOn="ViewersModule"
+			dependsOn="ParticipantsModule"
 		/>
 
 		<module name="VideoconfModule" url="http://HOST/client/VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"
-			dependson = "ViewersModule"
+			dependson = "ParticipantsModule"
 			videoQuality = "100"
 			presenterShareOnly = "false"
 			controlsForPresenter = "false"
@@ -86,12 +90,12 @@
 			host="http://HOST" 
 			showPresentWindow="true"
 			showWindowControls="true"
-			dependsOn="ViewersModule"
+			dependsOn="ParticipantsModule"
 		/>
 
 		<module name="VideodockModule" url="http://HOST/client/VideodockModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
-			dependsOn="VideoconfModule, ViewersModule"
+			dependsOn="VideoconfModule, ParticipantsModule"
 			autoDock="true"
 			showControls="true"
 			maximizeWindow="false"
@@ -120,7 +124,7 @@
       position="top-left"
       showStreams="true"
       autoPlay="false"
-      dependsOn="ViewersModule"
+      dependsOn="ParticipantsModule"
     />
 -->
     		
