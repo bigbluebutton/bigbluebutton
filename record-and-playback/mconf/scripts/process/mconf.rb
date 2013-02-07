@@ -38,16 +38,22 @@ BigBlueButton.logger = logger
 props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 
 recording_dir = props['recording_dir']
-raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
-target_dir = "#{recording_dir}/process/mconf/#{meeting_id}"
+raw_presentation_src = props['raw_presentation_src']
 
-if not FileTest.directory?(target_dir)	  
-	FileUtils.mkdir_p target_dir
-	# Create a copy of the raw archives
-	FileUtils.cp_r(raw_archive_dir, target_dir)
-	FileUtils.rm_r(Dir.glob("#{raw_archive_dir}/*"))
-	process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-mconf.done", "w")
-	process_done.write("Processed #{meeting_id}")
-	process_done.close
+meeting_raw_dir = "#{recording_dir}/raw/#{meeting_id}"
+meeting_raw_presentation_dir = "#{raw_presentation_src}/#{meeting_id}"
+meeting_process_dir = "#{recording_dir}/process/mconf/#{meeting_id}"
+
+if not FileTest.directory?(meeting_process_dir)
+  FileUtils.mkdir_p "#{meeting_process_dir}/presentation_raw"
+  # Create a copy of the raw archives
+  BigBlueButton.logger.info("Copying the recording raw files from #{meeting_raw_dir} to #{meeting_process_dir}")
+  FileUtils.cp_r Dir.glob("#{meeting_raw_dir}/*"), meeting_process_dir
+  BigBlueButton.logger.info("Copying the recording presentation from #{meeting_raw_presentation_dir}/#{meeting_id} to #{meeting_process_dir}/presentation_raw")
+  FileUtils.cp_r Dir.glob("#{meeting_raw_presentation_dir}/#{meeting_id}/*"), "#{meeting_process_dir}/presentation_raw" 
+
+  process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-mconf.done", "w")
+  process_done.write("Processed #{meeting_id}")
+  process_done.close
 end
 

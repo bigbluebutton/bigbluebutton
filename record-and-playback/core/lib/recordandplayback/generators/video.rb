@@ -488,6 +488,19 @@ module BigBlueButton
     last_timestamp = BigBlueButton::Events.last_event_timestamp(events_xml)        
     start_evt = BigBlueButton::Events.get_start_video_events(events_xml)
     stop_evt = BigBlueButton::Events.get_stop_video_events(events_xml)               
+
+    # fix the stop events list so the matched events will be consistent
+    start_evt.each do |evt|
+      if stop_evt.select{ |s| s[:stream] == evt[:stream] }.empty?
+        new_event = { 
+          :stream => evt[:stream],
+          :stop_timestamp => evt[:start_timestamp] + (BigBlueButton.get_video_duration("#{video_dir}/#{evt[:stream]}.flv") * 1000).to_i
+        }
+        BigBlueButton.logger.debug("Adding stop event: #{new_event}")
+        stop_evt << new_event
+      end
+    end
+
     matched_evts = BigBlueButton::Events.match_start_and_stop_video_events(start_evt, stop_evt)        
     BigBlueButton.logger.debug("First timestamp: #{first_timestamp}")
     BigBlueButton.logger.debug("Last timestamp: #{last_timestamp}")

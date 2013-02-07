@@ -72,16 +72,16 @@ module BigBlueButton
     status = Open4::popen4(command) do | pid, stdin, stdout, stderr|
         BigBlueButton.logger.info("Executing: #{command}")
 
-	output = stdout.readlines
-        BigBlueButton.logger.info( "Output: #{output} ") unless output.empty?
+        output = stdout.readlines
+        BigBlueButton.logger.info( "Output: #{Array(output).join()} ") unless output.empty?
  
         errors = stderr.readlines
         unless errors.empty?
-          BigBlueButton.logger.error( "Error: stderr: #{errors}")
- #         raise errors.to_s 
+          BigBlueButton.logger.error( "Error: stderr: #{Array(errors).join()}")
+#          raise errors.to_s
         end
     end
-    BigBlueButton.logger.info("Success ?:  #{status.success?}")
+    BigBlueButton.logger.info("Success?: #{status.success?}")
     BigBlueButton.logger.info("Process exited? #{status.exited?}")
     BigBlueButton.logger.info("Exit status: #{status.exitstatus}")
     output
