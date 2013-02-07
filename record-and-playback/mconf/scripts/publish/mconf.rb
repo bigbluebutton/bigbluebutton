@@ -47,7 +47,7 @@ done_files.each do |df|
 
       	metadata = BigBlueButton::Events.get_meeting_metadata("#{process_dir}/#{meeting_id}/events.xml")
       	
-	if not (metadata[:keypublic]) 
+        if  ("#{metadata[:keypublic.to_s]}".length > 0) 
 		BigBlueButton.logger.info("Verifying events: #{metadata[:keypublic.to_s]}")
 		public_key_decoded = CGI::unescape("#{metadata[:keypublic.to_s]}")
 		

@@ -31,7 +31,7 @@ BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/decrypt.log",'daily' )
 
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 mconf_props = YAML::load(File.open('mconf.yml'))
-#private_key = mconf_props['privatekey']
+privatekey_path = mconf_props['privatekey_path']
 xml_url = mconf_props['get_recordings_url']
 recording_dir = bbb_props['recording_dir'] 
 rawdir = "#{recording_dir}/raw"
@@ -79,17 +79,15 @@ types.each_with_index do |eachtype, idx|
 					writeOut.write(open(k_url).read)
 					writeOut.close
 
-					puts "salvo"
-	
-					command = "openssl rsautl -decrypt -inkey key.pem < #{key_file} > key.txt"
+					command = "openssl rsautl -decrypt -inkey #{privatekey_path} < #{key_file} > key.txt"
 					BigBlueButton.logger.info(command)
 					Open3.popen3(command) do | stdin, stdout, stderr|
-						BigBlueButton.logger.info("commandresult=") #{$?.exitstatus}")
+						BigBlueButton.logger.info("command= #{command}") #{$?.exitstatus}")
 					end
 					command = "openssl enc -aes-256-cbc -d -pass file:key.txt < #{encrypted_file} > #{meeting_id}.zip"
 					BigBlueButton.logger.info(command)
 					Open3.popen3(command) do | stdin, stdout, stderr|
-						BigBlueButton.logger.info("commandresult2") #{$?.exitstatus}")
+						BigBlueButton.logger.info("command= #{command}") #{$?.exitstatus}")
 					end
 		
 			        	BigBlueButton::MconfProcessor.unzip(rawdir, "#{meeting_id}.zip")
@@ -113,34 +111,3 @@ types.each_with_index do |eachtype, idx|
 end
 
 
-#BigBlueButton.logger.info("DIR: #{recording_dir} ")
-=begin
-criptfiles = Dir.glob("#{recording_dir}/raw/*.dat")
-criptfiles.each do |cf|
-  match = /(.*).dat/.match cf.sub(/.+\//, "")
-  meeting_id = match[1]
-	if File.exist?("#{rawdir}/#{meeting_id}.enc") 
-	      Dir.chdir(rawdir) do
-		command = "openssl rsautl -decrypt -inkey key.pem < #{meeting_id}.enc > key.txt"
-		BigBlueButton.logger.info(command)
-		Open3.popen3(command) do | stdin, stdout, stderr|
-			#BigBlueButton.logger.info("commandresult=") #{$?.exitstatus}")
-		end
-		command = "openssl enc -aes-256-cbc -d -pass file:key.txt < #{meeting_id}.dat > #{meeting_id}.zip"
-		BigBlueButton.logger.info(command)
-		Open3.popen3(command) do | stdin, stdout, stderr|
-			#BigBlueButton.logger.info("commandresult2") #{$?.exitstatus}")
-		end
-		
-        	BigBlueButton::MconfProcessor.unzip(rawdir, "#{meeting_id}.zip")
-
-	      end
-	end
-
-
-    BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/mconf/decrypt-#{meeting_id}.log", 'daily' )
-    BigBlueButton.logger.info("teste Meeting id calculated:")
-    BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/mconf/decrypt.log", 'daily' )
-    BigBlueButton.logger.info("Meeting id calculated: #{meeting_id}")
-end
-=end
