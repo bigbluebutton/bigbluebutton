@@ -112,14 +112,14 @@
   			}
   			
   			private function onRollOver(e:ParticipantRollEvent):void{
-				if (moderator && (e.userID == data.userID)) {
+				if (moderator && (e.userID == data.userID) && !data.phoneUser) {
 					rolledOver = true;
 					updateButton();
 				}
 			}
 			
 			private function onRollOut(e:ParticipantRollEvent):void{
-				if (moderator && (e.userID == data.userID)) {
+				if (moderator) {
 					rolledOver = false;
 					updateButton();
 				}
