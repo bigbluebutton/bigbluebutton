@@ -8,6 +8,8 @@
     	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
     	<property name="LOCALE_DIR" value="${FLEX_HOME}/frameworks/locale"/>
     	<property name="BASE_DIR" value="${basedir}" />
+      <property name="themeFile" value="BBBDefault.css"/>
+	
 	     <property name="RESOURCES_DIR" value="${BASE_DIR}/resources" />	
 	<property name="PROD_RESOURCES_DIR" value="${RESOURCES_DIR}/prod" />	
 	<property name="SRC_DIR" value="${BASE_DIR}/src" />
@@ -17,16 +19,21 @@
 
 	<!-- Declare module names here -->
 	<property name="BBB_MAIN" value="BigBlueButton" />
+	<property name="BROADCAST" value="BroadcastModule" />
 	<property name="CHAT" value="ChatModule" />
 	<property name="VIEWERS" value="ViewersModule" />
 	<property name="LISTENERS" value="ListenersModule" />
 	<property name="PRESENT" value="PresentModule" />
 	<property name="DESKSHARE" value="DeskShareModule" />
 	<property name="DESKSHARE_SA" value="DeskshareStandalone" />
+	<property name="CAM_PREVIEW_SA" value="WebcamPreviewStandalone" />
+	<property name="CAM_VIEW_SA" value="WebcamViewStandalone" />
 	<property name="PHONE" value="PhoneModule" />
+	<property name="NOTES" value="NotesModule" />
 	<property name="VIDEO" value="VideoconfModule" />
 	<property name="WHITEBOARD" value="WhiteboardModule" />
 	<property name="VIDEO_DOCK" value="VideodockModule" />
+	<property name="POLLING" value="PollingModule" />
 	<property name="LAYOUT" value="LayoutModule" />
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
@@ -65,7 +72,7 @@
 		
 	<target name="branding" depends="init-ant-contrib">
 		<sequential>
-			<mxmlc file="${SRC_DIR}/branding/css/${themeFile}" 
+			<mxmlc file="${BASE_DIR}/branding/default/style/css/${themeFile}" 
 				output="${OUTPUT_DIR}/branding/css/${themeFile}.swf" 
 				debug="${DEBUG}" 
 				mxml.compatibility-version="3.0.0" 
@@ -158,11 +165,23 @@
 			<fileset dir="${BASE_DIR}/src/org/bigbluebutton/common/assets/images/" />
 		</copy>		
 	</target>
-	
+
+  <target name="build-broadcast" description="Compile Broadcast Module" >
+    <build-module src="${SRC_DIR}" target="${BROADCAST}" />
+  </target>
+  	
 	<target name="build-chat" description="Compile Chat Module">
 		<build-module src="${SRC_DIR}" target="${CHAT}" />
 	</target>
+  
+  <target name="build-notes" description="Compile Notes Module">
+    <build-module src="${SRC_DIR}" target="${NOTES}" />
+  </target>
 	
+	<target name="build-polling" description="Compile Polling Module">
+		<build-module src="${SRC_DIR}" target="${POLLING}" />
+	</target>
+
 	<target name="build-viewers" description="Compile Viewers Module">
 		<build-module src="${SRC_DIR}" target="${VIEWERS}" />
 	</target>
@@ -175,20 +194,30 @@
 		<build-module src="${SRC_DIR}" target="${PRESENT}" />
 	</target>
 
-	<target name="build-deskshare-standalone" depends="build-deskshare-no-linker" description="Compile Deskshare Standalone Module">
+	<target name="build-deskshare-standalone" depends="build-deskshare-no-linker" description="Compile Deskshare Standalone Application">
 		<echo message="Compiling deskshare standalone without optimization." />
 		<build-module-no-link src="${SRC_DIR}" target="${DESKSHARE_SA}" />
 	</target>
-	
-	<target name="build-deskshare-no-linker" description="Compile Deskshare Module without the linker">
-		<echo message="Compiling deskshare without optimization." />
-		<build-module-no-link src="${SRC_DIR}" target="${DESKSHARE}" />	
-	</target>
-	
+  
+  <target name="build-deskshare-no-linker" description="Compile Deskshare Module without the linker">
+    <echo message="Compiling deskshare without optimization." />
+    <build-module-no-link src="${SRC_DIR}" target="${DESKSHARE}" /> 
+  </target>
+    
+  <target name="build-webcam-preview-standalone" description="Compile Webcam Preview Standalone Application">
+    <echo message="Compiling webcam preview standalone without optimization." />
+    <build-module-no-link src="${SRC_DIR}" target="${CAM_PREVIEW_SA}" />
+  </target>
+
+  <target name="build-webcam-view-standalone" description="Compile Webcam View Standalone Application">
+    <echo message="Compiling webcam view standalone without optimization." />
+    <build-module-no-link src="${SRC_DIR}" target="${CAM_VIEW_SA}" />
+  </target>
+    	
 	<target name="build-deskshare" description="Compile Deskshare Module">
 		<build-module src="${SRC_DIR}" target="${DESKSHARE}" />
 		<echo message="Copying deskshare applet for Deskshare Module" />
-		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.8.jar" todir="${OUTPUT_DIR}"/>		
+		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.8.1.jar" todir="${OUTPUT_DIR}"/>		
 	</target>
 	
 	<target name="build-phone" description="Compile Phone Module">
@@ -218,13 +247,13 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present, build-layout"
-			description="Compile main, chat, viewers, listeners, present modules">
+			depends="build-bbb-main, build-chat, build-polling, build-viewers, build-listeners, build-present, build-layout, build-broadcast"
+			description="Compile main, chat, polling, viewers, listeners, present modules">
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
-			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard"
+			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard, build-notes"
 			description="Compile deskshare, phone, video, whiteboard modules">
 	</target>
 	
@@ -436,13 +465,16 @@
 
 	<!-- NOTE: compile-deskshare-standalone MUST come first before compile-bbb as we need the deskshare-standalone
 				to be compiled withouth being optimized by using the linker -->
-	<target name="clean-build-bbb" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, compile-bbb" 
+	<target name="clean-build-bbb" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
+	                                        build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" 
 			description="Build BBB client skipping compiling of locales"/>	
-	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, compile-bbb" 
+	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
+	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb, branding" 
 			description="Build BBB client including locales"/>
-	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, compile-bbb"
+	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
+	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb"
                         description="Build BBB client without locales"/>		
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
 
-	<target name="build-custom" depends="init-ant-contrib" description="Build a custom defined module only, to save time as each build takes several minutes" />
+	<target name="build-poll" depends="init-ant-contrib, build-polling" description="Build only the polling module." />
 </project>

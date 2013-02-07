@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
 -->
 
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/"
-	creationComplete="onCreationComplete()"
+	creationComplete="onCreationComplete()" resize="onResize()"
 	backgroundColor="white"
 	width="100%" height="100%"
 	layout="absolute">
@@ -31,18 +31,23 @@
 	<mate:Listener type="{ViewStreamEvent.STOP}" method="onAppletStop" />
 	<mate:Listener type="{ViewStreamEvent.START}" method="onViewStreamStart"/>
 	<mate:Listener type="{CursorEvent.UPDATE_CURSOR_LOC_EVENT}" method="onUpdateCursorEvent" />
+  <mate:Listener type="{ConnectionEvent.DESKSHARE_CONNECTION_EVENT}" method="onDeskshareConnectionEvent" />
+  
 	<mx:Script>
 		<![CDATA[
-			import mx.controls.Image;
-			import org.bigbluebutton.modules.deskshare.events.CursorEvent;
-			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
-			import mx.controls.Button;
-			import mx.containers.Canvas;
-			import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
-			import org.bigbluebutton.util.QueryStringParameters;
-			import mx.core.UIComponent;
-			import org.bigbluebutton.modules.deskshare.services.DeskshareService;
-			import org.bigbluebutton.common.Images;
+      import mx.containers.Canvas;
+      import mx.controls.Button;
+      import mx.controls.Image;
+      import mx.controls.Label;
+      import mx.core.UIComponent;      
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
+      import org.bigbluebutton.modules.deskshare.events.CursorEvent;
+      import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
+      import org.bigbluebutton.modules.deskshare.services.DeskshareService;
+      import org.bigbluebutton.modules.deskshare.services.red5.Connection;
+      import org.bigbluebutton.modules.deskshare.services.red5.ConnectionEvent;
+      import org.bigbluebutton.util.QueryStringParameters;
 			
 			private var videoHolder:UIComponent;
 
@@ -61,14 +66,17 @@
 			private var displayHeight:Number;
 			
 			private var service:DeskshareService = new DeskshareService();
-			
+
+      private var videoWidth:int;
+      private var videoHeight:int;
+      
 			private function onCreationComplete():void {			
 			    var p:QueryStringParameters = new QueryStringParameters();
 				p.collectParameters();
 				logoutURL = p.getParameter("LOGOUTURL");
 				host = p.getParameter("HOST");
 				room = p.getParameter("ROOM");
-				service.connect(host+"/"+room);
+				service.connect(host, room);
 				
 				cursor.graphics.lineStyle(6, 0xFF0000, 0.6);
 				cursor.graphics.drawCircle(0,0,3);				
@@ -79,18 +87,74 @@
 			}
 			
 			private function onAppletStart(event:AppletStartedEvent):void{
+        trace("DeskshareSA::onAppletStart.");
 				startVideo(service.getConnection(), room, event.videoWidth, event.videoHeight);
 			}
 
 			private function onViewStreamStart(event:ViewStreamEvent):void {
+        trace("DeskshareSA::onViewStreamStart.");
 				startVideo(service.getConnection(), room, event.videoWidth, event.videoHeight);
 			}
 			
 			private function onAppletStop(event:ViewStreamEvent):void {
+        trace("DeskshareSA::onAppletStop.");
 				var url:URLRequest = new URLRequest(logoutURL);
 				navigateToURL(url, '_self');
 			}
-						
+			
+      private function onDeskshareConnectionEvent(event:ConnectionEvent):void {  
+        var warningText:String;
+        
+        switch(event.status) {
+          case ConnectionEvent.SUCCESS:
+            warningText = "Connecting to server successful.";
+            break;
+          case ConnectionEvent.FAILED:
+            warningText = "Connecting to server failed.";
+            break;
+          case ConnectionEvent.CLOSED:
+            warningText = "Connection to server closed.";
+            break;
+          case ConnectionEvent.REJECTED:
+            warningText = "Connection to server rejected.";
+            break;
+          case ConnectionEvent.INVALIDAPP:
+            warningText = "Connecting to server failed. Invalid application.";
+            break;
+          case ConnectionEvent.APPSHUTDOWN:
+            warningText = "Connection to server failed. Server shutting down.";
+            break;
+          case ConnectionEvent.SECURITYERROR:
+            warningText = "Connecting to server failed. Security error.";
+            break;
+          case ConnectionEvent.DISCONNECTED:
+            warningText =  "Connection to server disconnected.";
+            break;
+          case ConnectionEvent.CONNECTING:
+            warningText = "Connecting to server...";
+            break;
+          case ConnectionEvent.CONNECTING_RETRY:
+            warningText = "Connecting to server failed. Retry [" + event.retryAttempts + "]";
+            break;
+          case ConnectionEvent.CONNECTING_MAX_RETRY:
+            warningText = "Connecting to server failed. Max retry reached. Giving up.";
+            break;
+          case ConnectionEvent.CHECK_FOR_DESKSHARE_STREAM:
+            warningText = "Loading...";
+            break;          
+          case ConnectionEvent.FAIL_CHECK_FOR_DESKSHARE_STREAM:
+            warningText = "Loading shared desktop failed.";
+            break; 
+          case ConnectionEvent.NO_DESKSHARE_STREAM:
+            warningText = "Desktop is not shared.";
+            break; 
+        }
+
+        showStatusText(warningText, true, "0x000000");
+
+        trace("CONNECT STATUS EVENT [" + event.status + "]");
+      }
+      
 			private function startVideo(connection:NetConnection, stream:String, videoWidth:Number, videoHeight:Number):void{	
 				ns = new NetStream(connection);
 				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
@@ -102,49 +166,44 @@
 				video = new Video(videoWidth, videoHeight);
 				video.attachNetStream(ns);
 				
+        this.videoWidth = videoWidth;
+        this.videoHeight = videoHeight;
+        
 				videoHolder = new UIComponent();
-				calculateDisplayDimensions(video, videoHolder);
-				videoHolder.addChild(video);	
-				videoHolder.addChild(cursor);	
-				videoHolder.addChild(cursorImg);
-				centerVideo();
+        
+        trace("DeskshareSA::Determine how to display video = [" + videoWidth + "x" + videoHeight + "] display=[" + this.width + "x" + this.height + "]");
+        determineHowToDisplayVideo();
+                
 				ns.play(stream);	
 				this.stream = stream;
-				vbox.addChild(videoHolder);		
 			}
 			
-			private function centerVideo():void {
-				videoHolder.x = vbox.width/2 - video.width/2;
-				videoHolder.y = vbox.height/2 - video.height/2;				
-			}
-			
-			private function calculateDisplayDimensions(video:Video, videoHolder:UIComponent):void {
-				if (videoIsSmallerThanDisplay(video, videoHolder)) {
-					videoHolder.width = video.width;
-					videoHolder.height = video.height;
-					return;
-				}
-				
-				if (displayWidth < displayHeight) {
-					fitToWidthAndAdjustHeightToMaintainAspectRatio();				
-				} else {
-					fitToHeightAndAdjustWidthToMaintainAspectRatio();
-				}
-			}
-			
+      private function onMetaData(info:Object):void {
+        trace("DeskshareSA:: ****metadata: width=" + info.width + " height=" + info.height);
+        videoWidth = info.width;
+        videoHeight = info.height;
+        
+//        determineHowToDisplayVideo();
+      }
+      
+      private function onResize():void {
+        if (video != null) {
+          determineHowToDisplayVideo();        
+        }
+      }
+      			
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
 				if (cursor == null) return;	
-				cursor.x = ((event.x/video.videoWidth)) * videoHolder.width;
-				cursor.y = ((event.y/video.videoHeight)) * videoHolder.height;
-//				cursor.visible = true;
-				
+        
+        cursor.x = videoHolder.x + (event.x * (videoHolder.width / videoWidth));
+        cursor.y = videoHolder.y + (event.y * (videoHolder.height / videoHeight));
+
 				cursorImg.visible = true;
            
-                // DO NOT compute the x and y coordinate and assign directly to the cursorImg
-                // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
-                cursorImg.x = cursor.x;
-                cursorImg.y = cursor.y;
-                
+        // DO NOT compute the x and y coordinate and assign directly to the cursorImg
+        // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
+        cursorImg.x = cursor.x;
+        cursorImg.y = cursor.y;                
 			}
 			
 			public function stopViewing():void {
@@ -152,46 +211,148 @@
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{
-				trace("VIdeoWindow::asyncerror " + e.toString());
+				trace("DeskshareSA::::asyncerror " + e.toString());
 			}
 			
 			private function onNetStatus(e:NetStatusEvent):void{
 				switch(e.info.code){
-				case "NetStream.Play.Start":
-					trace("NetStream.Publish.Start for broadcast stream " + stream);
-					trace("Dispatching start viewing event");
-					service.sendStartedViewingNotification();
-					break;
-				case "NetStream.Play.UnpublishNotify":
-					trace("NetStream.Play.UnpublishNotify for broadcast stream " + stream);
-					stopViewing();
-					break;
-				}
+  				case "NetStream.Play.Start":
+  					trace("DeskshareSA::NetStream.Publish.Start for broadcast stream " + stream);
+  					trace("DeskshareSA::Dispatching start viewing event");
+  					service.sendStartedViewingNotification();
+  					break;
+  				case "NetStream.Play.UnpublishNotify":
+  					trace("DeskshareSA::NetStream.Play.UnpublishNotify for broadcast stream " + stream);
+  					stopViewing();
+  					break;
+          case "NetStream.DRM.UpdateNeeded":
+          case "NetStream.Play.Failed":
+          case "NetStream.Play.FileStructureInvalid":
+          case "NetStream.Play.NoSupportedTrackFound":
+          case "NetStream.Play.StreamNotFound":
+//          case "NetStream.Play.Reset":
+            showStatusText(e.info.code, true, "0x000000");
+            break;
+				} 
+        
+        trace("NET STATUS EVENT [" + e.info.code + "]");
 			}
+      
+      //----------------------------
+      private function centerToWindow():void{
+        videoHolder.width = video.width = videoWidth;
+        videoHolder.height = video.height = videoHeight;
+        videoHolder.x = video.x = (this.width - video.width) / 4;
+        videoHolder.y = video.y = (this.height - video.height) / 4;
+               
+        trace("DeskshareSA::Center video = [" + video.width + "x" + video.height 
+                                + "] display=[" + this.width + "x" + this.height + "]"
+                                + "loc=[" + videoHolder.x + "," + videoHolder.y + "]");
+        
+        videoHolder.addChild(video);
+        videoHolder.addChild(cursor);	
+        videoHolder.addChild(cursorImg);
+        
+        showVideoHolder();
+      }
+      
+      private function fitVideoToWindow():void {
+        if (width < height) {
+          fitToWidthAndAdjustHeightToMaintainAspectRatio();				
+        } else {
+          fitToHeightAndAdjustWidthToMaintainAspectRatio();
+        }				
+      }
+      
+      private function videoIsSmallerThanWindow():Boolean {
+        return (videoHeight < height) && (videoWidth < width);
+      }
+      
+      private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
+        trace("DeskshareSA::fitToWidthAndAdjustHeightToMaintainAspectRatio");
+        videoHolder.width = video.width = width;
+        // Maintain aspect-ratio
+        videoHolder.height = video.height = (videoHeight * video.width) / videoWidth;
+        videoHolder.x = video.x = 0;
+        videoHolder.y = video.y = 0;
+        
+        trace("DeskshareSA::Disp video = [" + video.width + "x" + video.height 
+          + "] display=[" + this.width + "x" + this.height + "]"
+          + "loc=[" + videoHolder.x + "," + videoHolder.y + "]");
+        
+        videoHolder.addChild(video);	
+        videoHolder.addChild(cursor);	
+        videoHolder.addChild(cursorImg);
+        
+        showVideoHolder();
+      }
+      
+      private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
+        trace("DeskshareSA::fitToHeightAndAdjustWidthToMaintainAspectRatio");
+        videoHolder.height = video.height = height;
+        // Maintain aspect-ratio
+        videoHolder.width = video.width = (videoWidth * video.height) / videoHeight;
+        
+        if (videoHolder.width > width) {
+          videoHolder.width = video.width = width;
+          videoHolder.height = video.height = (videoHeight * video.width) / videoWidth;
+        }
+        
+        videoHolder.x = video.x = (width - video.width) / 4;
+        videoHolder.y = video.y = (height - video.height) / 4;	
+        
+        trace("DeskshareSA::Disp video = [" + video.width + "x" + video.height 
+          + "] display=[" + this.width + "x" + this.height + "]"
+          + "loc=[" + videoHolder.x + "," + videoHolder.y + "]");
+        
+        videoHolder.addChild(video);	
+        videoHolder.addChild(cursor);	
+        videoHolder.addChild(cursorImg);
+        
+        showVideoHolder();
+      }
+      
+      private function showVideoHolder():void {
+        addChild(videoHolder);      
+      }
+            
+      private function determineHowToDisplayVideo():void {
+//         if (videoIsSmallerThanWindow()) {
+//           trace("Video is smaller than window. Centering.");
+          centerToWindow();
+//         } else {
+//           trace("Video is greater than window. Scaling.");
+//          fitVideoToWindow();
+//        }
+      }
+      
+      private var hideStatusTextTimer:Timer = null;
+      private function showStatusText(statusText:String, autoHide:Boolean=false, color:String="0xFF0000"):void {
 
-			private function videoIsSmallerThanDisplay(video:Video, videoHolder:UIComponent):Boolean {
-				return (video.height < displayHeight) && (video.width < displayWidth);
-			}
-			
-			private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {	
-				var aspectRatio:Number = video.height/video.width;			
-				video.width = displayWidth;
-				videoHolder.width = video.width;
-				// Maintain aspect-ratio
-				video.height = displayWidth * aspectRatio;
-				videoHolder.height = video.height;				
-			}
-				
-			private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
-				var aspectRatio:Number = video.width/video.height;					
-				video.height = displayHeight;
-				videoHolder.height = video.height;
-				// Maintain aspect-ratio
-				video.width = aspectRatio * displayHeight;
-				videoHolder.width = video.width;				
-			}			
+        if (hideStatusTextTimer != null)
+          hideStatusTextTimer.stop();
+        if (autoHide) {
+          hideStatusTextTimer = new Timer(3000, 1);
+          hideStatusTextTimer.addEventListener(TimerEvent.TIMER, hideStatusText);
+          hideStatusTextTimer.start();
+        }
+        // bring the label to front
+        setChildIndex(statusTextDisplay, getChildren().length - 1);
+        statusTextDisplay.text = statusText;
+        statusTextDisplay.setStyle("color", color);
+        statusTextDisplay.visible = true;
+      }
+      
+      private function hideStatusText(e:TimerEvent):void {
+        statusTextDisplay.visible = false;
+      }
 		]]>
 	</mx:Script>
+    
 		<mx:Image id="cursorImg" visible="false" source="@Embed('org/bigbluebutton/modules/deskshare/assets/images/cursor4.png')"/>
-		<mx:Canvas id="vbox" width="100%" height="100%"/>	
+
+  <mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
+  <mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
+  <mx:Text id="statusTextDisplay" width="100%" fontSize="14" fontWeight="bold"  textAlign="center" y="{(this.height - statusTextDisplay.height) / 2}" 
+           visible="false" selectable="false" hideEffect="{dissolveOut}" showEffect="{dissolveIn}"/>
 </mx:Application>

@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
 -->
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:mate="http://mate.asfusion.com/"
@@ -46,7 +46,7 @@
 			
 			private var images:Images = new Images();
 			private var dispatcher:Dispatcher = new Dispatcher();
-
+			private var mic:Microphone;
 			
 			public const DEFAULT_STATE:Number = 0;
 			public const ACTIVE_STATE:Number = 1;
@@ -67,17 +67,32 @@
 						phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
 						phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
 					}
+          
+          var joinEvent:BBBEvent;
+          
 					if (phoneOptions.skipCheck || noMicrophone()) {
+						// need to figure out if the user has a mic and if they do if it's muted ask for access
+						mic = Microphone.getMicrophone();
 						
-						/*
-						 * If the user had no mic, let her join but she'll just be listening.	
-						 * We should indicate a warning that the user is joining without mic
-						 * so that he will know that others won't be able to hear him.
-						*/
-						var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-						joinEvent.payload['useMicrophone'] = true;
-						dispatcher.dispatchEvent(joinEvent);
-						
+						if (mic == null) {
+							/*
+							 * If the user had no mic, let her join but she'll just be listening.	
+							 * We should indicate a warning that the user is joining without mic
+							 * so that he will know that others won't be able to hear him.
+							*/
+							joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+							joinEvent.payload['useMicrophone'] = false;
+							dispatcher.dispatchEvent(joinEvent);
+						} else if (mic.muted) {
+  							// user has disallowed access to the mic
+  							mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
+  							Security.showSettings();
+						} else {
+							// user has allowed access to the mic already
+						  joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+							joinEvent.payload['useMicrophone'] = true;
+							dispatcher.dispatchEvent(joinEvent);
+					  }						
 					} else {
 						dispatcher.dispatchEvent(new BBBEvent("SHOW_MIC_SETTINGS"));
 					}
@@ -88,6 +103,26 @@
 					userJoinedConference(false);
 				}
 			}
+			
+			private function micStatusEventHandler(event:StatusEvent):void {				
+        var joinEvent:BBBEvent;
+				switch(event.code) {
+					case "Microphone.Muted":						
+						LogUtil.warn("Access to microphone has been denied.");
+						joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+						joinEvent.payload['useMicrophone'] = false;
+						dispatcher.dispatchEvent(joinEvent);
+						break;
+					case "Microphone.Unmuted":
+						LogUtil.debug("Access to the microphone has been allowed.");
+						joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
+						joinEvent.payload['useMicrophone'] = true;
+						dispatcher.dispatchEvent(joinEvent);
+						break;
+					default:
+						LogUtil.debug("unknown micStatusHandler event: " + event);
+				}
+			}			
 			
 			private function mouseOverHandler(event:MouseEvent):void {
 				if(_currentState == ACTIVE_STATE)

@@ -1,26 +1,50 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.common
 {
 	[Bindable]
 	public class Images
 	{
+    [Embed(source="assets/images/webcam_kickuser.png")]
+    public var webcam_kickuser:Class;
+    
+    [Embed(source="assets/images/webcam_make_presenter.png")]
+    public var webcam_make_presenter:Class;
+    
+    [Embed(source="assets/images/webcam_mute.png")]
+    public var webcam_mute:Class;
+    
+    [Embed(source="assets/images/webcam_private_chat.png")]
+    public var webcam_private_chat:Class;
+    
+    [Embed(source="assets/images/webcam_unmute.png")]
+    public var webcam_unmute:Class;
+    
+    [Embed(source="assets/images/vdoc_bg.jpg")]
+    public var video_dock_bg:Class;
+        
+    [Embed(source="assets/images/bandwidth.png")]
+    public var bandwidth:Class;
+    
+    [Embed(source="assets/images/statistics.png")]
+    public var stats:Class;
+    
     [Embed(source="assets/images/avatar.png")]
     public var avatar:Class;
     
@@ -94,7 +118,7 @@ package org.bigbluebutton.common
         public var sound:Class;                
 
         [Embed(source="assets/images/cancel.png")]
-        public var cancel_user:Class;    
+        public var cancel:Class;    
 
         [Embed(source="assets/images/user_go.png")]
         public var eject_user:Class;  
@@ -111,19 +135,19 @@ package org.bigbluebutton.common
         [Embed(source="assets/images/shape_square.png")]
         public var square_icon:Class;  
         
-        [Embed(source="assets/images/arrow_undo.png")] 
+        [Embed(source="assets/images/undo.png")] 
         public var undo_icon:Class;  
         
-        [Embed(source="assets/images/hand_icon.png")]
+        [Embed(source="assets/images/hand.png")]
         public var hand_icon:Class; 
         
-        [Embed(source="assets/images/scribble_icon.png")]
+        [Embed(source="assets/images/marker.png")]
         public var scribble_icon:Class; 
 
-        [Embed(source="assets/images/text_icon.png")]
+        [Embed(source="assets/images/text.png")]
         public var text_icon:Class; 
         
-        [Embed(source="assets/images/circle.png")]
+        [Embed(source="assets/images/ellipse.png")]
         public var circle_icon:Class; 
         
         [Embed(source="assets/images/arrow_out.png")]
@@ -147,7 +171,7 @@ package org.bigbluebutton.common
 		[Embed(source="assets/images/table.png")]
 		public var table:Class; 
 		
-		[Embed(source="assets/images/cancel.png")]
+		[Embed(source="assets/images/trash.png")]
 		public var delete_icon:Class; 
 
         [Embed(source="assets/images/arrow_right.png")]
@@ -196,7 +220,9 @@ package org.bigbluebutton.common
 		public var arrow_in:Class;
 		
 		[Embed(source="assets/images/shape_handles.png")]
-		public var shape_handles:Class;		
+		public var shape_handles:Class;
+	[Embed(source="assets/images/poll_icon.png")]
+	public var pollIcon:Class;		
 
 		[Embed(source="assets/images/disk.png")]
 		public var disk:Class;		
@@ -226,7 +252,7 @@ package org.bigbluebutton.common
 		[Embed(source="assets/images/pointer_icon_small.png")]
 		public var select_icon:Class;	
 		
-		[Embed(source="assets/images/triangle_icon.png")]
+		[Embed(source="assets/images/triangle.png")]
 		public var triangle_icon:Class;	
 		
 		[Embed(source="assets/images/text_background_icon.png")]

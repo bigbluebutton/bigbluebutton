@@ -1,30 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
-  
-  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-  
-  BigBlueButton is free software; you can redistribute it and/or modify it under the 
-  terms of the GNU Lesser General Public License as published by the Free Software 
-  Foundation; either version 2.1 of the License, or (at your option) any later 
-  version. 
-  
-  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
-  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-  
-  You should have received a copy of the GNU Lesser General Public License along 
-  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- 
-  $Id: $
---> 
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
 
 <pubVid:VideoWindowItf
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:pubVid="org.bigbluebutton.modules.videoconf.business.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-	creationComplete="onCreationComplete()"
+  styleNameFocus="videoPublishStyleFocus"
+  styleNameNoFocus="videoPublishStyleNoFocus"
+	creationComplete="onCreationComplete()" 
 	width="{defaultWidth + 6}" height="{defaultHeight + 6}" 
 	xmlns:mate="http://mate.asfusion.com/"
 	resize="onResize()"
@@ -32,15 +34,18 @@
 	verticalScrollPolicy="off"
 	layout="absolute">
 	
+  <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceMutedEvent" />
   <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
-  <mate:Listener type="{EventConstants.NEW_ROLE}" method="handleNewRoleEvent" />
+  <mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleNewRoleEvent" />
   <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
   
 	<mx:Script>
 		<![CDATA[
-      import flexlib.mdi.events.MDIWindowEvent;      
+      import flexlib.mdi.events.MDIWindowEvent;
+      
       import mx.core.UIComponent;
-      import mx.events.ResizeEvent;      
+      import mx.events.ResizeEvent;
+      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.Role;
@@ -50,6 +55,8 @@
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.CoreEvent;
       import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.SwitchedPresenterEvent;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
       import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
@@ -118,18 +125,24 @@
 				autoPublishTimer.stop();
 			}
 			
-      private function handleNewRoleEvent(event:CoreEvent):void {
-        switchRole(event.message.role == Role.PRESENTER)
+      private function handleNewRoleEvent(event:SwitchedPresenterEvent):void {
+        switchRole(event.amIPresenter)
+      }
+      
+      private function handleUserVoiceMutedEvent(event:BBBEvent):void {
+        if (event.payload.userID ==  userID) {
+          userMuted(event.payload.muted);
+        }
       }
       
       private function handleUserTalkingEvent(event:CoreEvent):void {
         if (event.message.userID ==  userID) {
           if (event.message.talking) {
             notTalkingEffect.end();
-            talkingEffect.play([_videoHolder]);            
+            talkingEffect.play([this]);            
           } else {
             talkingEffect.end();
-            notTalkingEffect.play([_videoHolder]);
+            notTalkingEffect.play([this]);
           }
         }
       }
@@ -355,10 +368,10 @@
 		]]>
 	</mx:Script>
 
-  <mx:Glow id="talkingEffect" duration="500" alphaFrom="1.0" alphaTo="0.3"
-           blurXFrom="0.0" blurXTo="30.0" blurYFrom="0.0" blurYTo="30.0" color="0xFF0000"/>
+  <mx:Glow id="talkingEffect" duration="500" alphaFrom="1.0" alphaTo="0.3" 
+           blurXFrom="0.0" blurXTo="30.0" blurYFrom="0.0" blurYTo="30.0" color="0x4A931D"/>
   <mx:Glow id="notTalkingEffect" duration="500" alphaFrom="0.3" alphaTo="1.0"
-           blurXFrom="30.0" blurXTo="0.0" blurYFrom="30.0" blurYTo="0.0" color="0xFF0000"/>
+           blurXFrom="30.0" blurXTo="0.0" blurYFrom="30.0" blurYTo="0.0" color="0x4A931D"/>
   
 	<mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
 	<mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>

@@ -180,13 +180,25 @@ br{
 	cursor: pointer;
 }
 
+#accInfo{
+        margin: 20px auto;
+        font-size:0.75em;
+        text-align: center;
+        clear: both;
+	padding-top: 75px;
+}
+
 #footer{
         margin: 20px auto;
         font-size:0.75em;
         color: #666;
         text-align: center;
         clear: both;
+<<<<<<< HEAD
+	padding-top: 25px;
+=======
 	padding-top: 35px;
+>>>>>>> origin/master
 }
 
 .circle {

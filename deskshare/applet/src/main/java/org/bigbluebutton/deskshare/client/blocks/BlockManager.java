@@ -1,28 +1,24 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.client.blocks;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -39,8 +35,6 @@ public class BlockManager {
     private ChangedBlocksListener listeners;
     private Dimension screenDim, blockDim;
     
-    private boolean useSVC2;
-    
     public BlockManager() {
     	blocksMap = new HashMap<Integer, Block>();
     }
@@ -55,8 +49,6 @@ public class BlockManager {
         numRows = factory.getRowCount();
         int numberOfBlocks = numColumns * numRows;
         System.out.println("Sharing " + numberOfBlocks + " blocks [rows=" + numRows + ", cols=" + numColumns + "]");
-        
-        this.useSVC2 = useSVC2;
         
         for (int position = 1; position <= numberOfBlocks; position++) {
         	Block block = factory.createBlock(position, useSVC2);
@@ -101,7 +93,7 @@ public class BlockManager {
 		}
 
 		long end = System.currentTimeMillis();
-		System.out.println("Processing blocks took " + (end - start) + " millis");
+//		System.out.println("Processing blocks took " + (end - start) + " millis");
     }
         
     private void notifyChangedBlockListener(BlockMessage position) {

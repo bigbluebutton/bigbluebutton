@@ -1,12 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
          xmlns:mate="http://mate.asfusion.com/"
          creationComplete="onCreationComplete()">
     
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
+      import com.asfusion.mate.events.Dispatcher;     
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.EventConstants;
@@ -22,20 +40,9 @@
       
       public var sharerUserID:String;
       [Bindable]
-      private var BUTTONS_SIZE:int = 20;
+      private var BUTTONS_SIZE:int = 31;
       private var BUTTONS_PADDING:int = 10;
-      
-      private var images:Images = new Images();
-      
-      [Bindable]
-      private var img_mute_icon:Class = images.sound_mute;
-      [Bindable]
-      private var signOutIcon:Class = images.signOutIcon;
-      [Bindable]
-      private var adminIcon:Class = images.admin;
-      [Bindable]
-      private var chatIcon:Class = images.chatIcon;
-      
+           
       [Bindable]
       private var showButton:Boolean;
       
@@ -46,6 +53,14 @@
       
       public function get padding():int {
         return BUTTONS_PADDING;
+      }
+      
+      public function userMuted(muted:Boolean):void {
+        if (muted) {
+          muteUnmuteBtn.styleName = "videoMutedButtonStyle";
+        } else {
+          muteUnmuteBtn.styleName = "videoUnmutedButtonStyle";
+        }
       }
       
       public function handleNewRoleEvent(presenter:Boolean):void {
@@ -108,8 +123,15 @@
       }
     ]]>
   </mx:Script>
-  <mx:Button id="muteUnmuteBtn" visible="false" click="onMuteUnmuteClicked()" icon="{img_mute_icon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
-  <mx:Button id="switchPresenter" visible="false" click="onSwitchPresenterClicked()" icon="{adminIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
-  <mx:Button id="ejectUserBtn" visible="false" click="onKickUserClicked()" icon="{signOutIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
-  <mx:Button id="privateChatBtn" click="onPrivateChatClicked()" icon="{chatIcon}" width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}"/>
+  <mx:Button id="muteUnmuteBtn" visible="false" click="onMuteUnmuteClicked()"
+             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoUnmutedButtonStyle"/>
+  <mx:Spacer width="2"/>
+  <mx:Button id="switchPresenter" visible="false" click="onSwitchPresenterClicked()"
+             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoSwitchPresenterButtonStyle"/>
+  <mx:Spacer width="2"/>
+  <mx:Button id="ejectUserBtn" visible="false" click="onKickUserClicked()"
+             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoEjectUserButtonStyle"/>
+  <mx:Spacer width="2"/>
+  <mx:Button id="privateChatBtn" click="onPrivateChatClicked()"
+             width="{BUTTONS_SIZE}" height="{BUTTONS_SIZE}" styleName="videoPrivateChatButtonStyle"/>
 </mx:HBox>

@@ -1,33 +1,37 @@
 /**
- * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
- *
- * Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
- *
- * This program is free software; you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License as published by the Free Software
- * Foundation; either version 2.1 of the License, or (at your option) any later
- * version.
- *
- * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along
- * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
- * 
- */
+* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+*
+* This program is free software; you can redistribute it and/or modify it under the
+* terms of the GNU Lesser General Public License as published by the Free Software
+* Foundation; either version 3.0 of the License, or (at your option) any later
+* version.
+* 
+* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License along
+* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+*
+*/
 
 package org.bigbluebutton.modules.videoconf.business
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-	import flash.media.Video;	
+	import flash.media.Video;
+	
 	import flexlib.mdi.containers.MDIWindow;
-	import flexlib.mdi.events.MDIWindowEvent;	
+	import flexlib.mdi.events.MDIWindowEvent;
+	
 	import mx.containers.Panel;
 	import mx.controls.Button;
-	import mx.core.UIComponent;	
+	import mx.core.UIComponent;
+	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.Images;
 	import org.bigbluebutton.common.LogUtil;
@@ -229,10 +233,10 @@ package org.bigbluebutton.modules.videoconf.business
 		private var img_lock_keep_aspect:Class = images.lock_close;
 		private var img_fit_video:Class = images.arrow_in;
 		private var img_original_size:Class = images.shape_handles;
-		private var img_mute_icon:Class = images.sound_mute;
-    private var signOutIcon:Class = images.signOutIcon;
-    private var adminIcon:Class = images.admin;
-    private var chatIcon:Class = images.chatIcon;
+		private var img_mute_icon:Class = images.webcam_mute;
+    private var signOutIcon:Class = images.webcam_kickuser;
+    private var adminIcon:Class = images.webcam_make_presenter;
+    private var chatIcon:Class = images.webcam_private_chat;
     
     protected function addControlButtons():void {
       _controlButtons.sharerUserID = userID;
@@ -318,5 +322,8 @@ package org.bigbluebutton.modules.videoconf.business
 			onFitVideoClick();
 		}
 		
+    protected function userMuted(muted:Boolean):void {
+      _controlButtons.userMuted(muted);
+    }
 	}
 }
