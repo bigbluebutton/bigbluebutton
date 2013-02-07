@@ -105,11 +105,8 @@
 		]]>
 	</mx:Script>
 	
-	<!-- data.talking still needs to be implemented, once it is this can be uncommented
 	<mx:Image id="talkingIcon" visible="{data.talking}" source="{images.sound_new}" width="20" height="20" 
 				toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.talkImg.toolTip')}" />
-	-->
-	
 	<mx:Button id="webcamBtn" visible="{data.hasStream}" click="viewCamera()" icon="{images.webcam_new}"
 				width="20" height="20" enabled="false"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.streamIcon.toolTip')}" />

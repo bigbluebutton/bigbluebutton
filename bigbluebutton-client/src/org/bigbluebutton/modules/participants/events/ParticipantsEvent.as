@@ -22,8 +22,7 @@ package org.bigbluebutton.modules.participants.events
 
 	public class ParticipantsEvent extends Event
 	{
-		public static const ROOM_MUTE_STATE:String = "ROOM_MUTE_STATE";
-		public static const REGISTER_LISTENERS:String = "REGISTER_LISTENERS";
+		public static const ROOM_MUTE_STATE:String = "PARTICIPANTS_ROOM_MUTE_STATE";
 		
 		public var mute_state:Boolean;
 		
