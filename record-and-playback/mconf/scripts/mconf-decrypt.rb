@@ -31,83 +31,92 @@ BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/decrypt.log",'daily' )
 
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 mconf_props = YAML::load(File.open('mconf.yml'))
-privatekey_path = mconf_props['privatekey_path']
-xml_url = mconf_props['get_recordings_url']
+
+private_key = mconf_props['private_key']
+get_recordings_url = mconf_props['get_recordings_url']
 recording_dir = bbb_props['recording_dir'] 
-rawdir = "#{recording_dir}/raw"
+raw_dir = "#{recording_dir}/raw"
 archived_dir = "#{recording_dir}/status/archived"
 
-xml_data = Net::HTTP.get_response(URI.parse(xml_url)).body
-doc = REXML::Document.new(xml_data)
-
-files_url = []
-types = []
-keys_url = []
-md5_server_side = []
-doc.elements.each('response/recordings/recording/download/format/type') do |type|
-   types << type.text
-end
-doc.elements.each('response/recordings/recording/download/format/url') do |url|
-    files_url << url.text
-end
-doc.elements.each('response/recordings/recording/download/format/md5') do |md5|
-    md5_server_side << md5.text
-end
-doc.elements.each('response/recordings/recording/download/format/key') do |key|
-    keys_url << key.text
+doc = Nokogiri::XML(Net::HTTP.get_response(URI.parse(get_recordings_url)).body)
+returncode = doc.xpath("//returncode")
+if returncode.empty? or returncode.text != "SUCCESS"
+  raise "getRecordings didn't return success"
 end
 
-types.each_with_index do |eachtype, idx|
-	if (eachtype == "encrypted") then
-		url = files_url[idx]
-		k_url = keys_url[idx]
-		encrypted_file = url.split("/").last
-		match = /(.*).dat/.match encrypted_file
-		meeting_id = match[1]
-		if not File.exist?("#{archived_dir}/#{meeting_id}.done") then
-			Dir.chdir(rawdir) do
+doc.xpath("//recording").each do |recording|
+  record_id = recording.xpath("recordID").text
+  recording.xpath("//download/format").each do |format|
+    type = format.xpath("type").text
+    BigBlueButton.logger.info("type = #{type}")
+    if type == "encrypted"
+      meeting_id = record_id
+      file_url = format.xpath("url").text
+      key_file_url = format.xpath("key").text
+      md5_value = format.xpath("md5").text
 
-				writeOut = open(encrypted_file, "wb")
-				writeOut.write(open(url).read)
-				writeOut.close
+      BigBlueButton.logger.info("recordID = #{record_id}")
+      BigBlueButton.logger.info("file_url = #{file_url}")
+      BigBlueButton.logger.info("key_file_url = #{key_file_url}")
+      BigBlueButton.logger.info("md5_value = #{md5_value}")
 
-				md5sum = Digest::MD5.file(encrypted_file)
+      encrypted_file = file_url.split("/").last
+      decrypted_file = File.basename(encrypted_file, '.*') + ".zip"
+      if not File.exist?("#{archived_dir}/#{meeting_id}.done") then
+        Dir.chdir(raw_dir) do
+          BigBlueButton.logger.info("Decrypting the recording #{meeting_id}")
 
-				if (md5sum == md5_server_side[idx]) then
-					key_file = k_url.split("/").last
-					writeOut = open(key_file, "wb")
-					writeOut.write(open(k_url).read)
-					writeOut.close
+          BigBlueButton.logger.info("Downloading the encrypted file to #{encrypted_file}")
+          writeOut = open(encrypted_file, "wb")
+          writeOut.write(open(file_url).read)
+          writeOut.close
 
-					command = "openssl rsautl -decrypt -inkey #{privatekey_path} < #{key_file} > key.txt"
-					BigBlueButton.logger.info(command)
-					Open3.popen3(command) do | stdin, stdout, stderr|
-						BigBlueButton.logger.info("command= #{command}") #{$?.exitstatus}")
-					end
-					command = "openssl enc -aes-256-cbc -d -pass file:key.txt < #{encrypted_file} > #{meeting_id}.zip"
-					BigBlueButton.logger.info(command)
-					Open3.popen3(command) do | stdin, stdout, stderr|
-						BigBlueButton.logger.info("command= #{command}") #{$?.exitstatus}")
-					end
-		
-			        	BigBlueButton::MconfProcessor.unzip(rawdir, "#{meeting_id}.zip")
+          md5_calculated = Digest::MD5.file(encrypted_file)
 
+          if md5_calculated == md5_value
+            BigBlueButton.logger.info("The calculated MD5 matches the expected value")
+            key_file = key_file_url.split("/").last
+            decrypted_key_file = File.basename(key_file, '.*') + ".txt"
 
-					archived_done = File.new("#{archived_dir}/#{meeting_id}.done", "w")
-					archived_done.write("Archived #{meeting_id}")
-					archived_done.close
-					
-					BigBlueButton.logger.info("Removing files")
-					ZIPFILE = "#{meeting_id}.zip"
-					[encrypted_file, key_file, "key.txt", ZIPFILE].each  { |file| FileUtils.rm_f(file)}
-				else
-					FileUtils.rm_f(encrypted_file)
-				end
-				
-			end
-		end
+            BigBlueButton.logger.info("Downloading the key file to #{key_file}")
+            writeOut = open(key_file, "wb")
+            writeOut.write(open(key_file_url).read)
+            writeOut.close
 
-	end
+            if key_file != decrypted_key_file
+              command = "openssl rsautl -decrypt -inkey #{private_key} < #{key_file} > #{decrypted_key_file}"
+              status = BigBlueButton.execute(command)
+              if not status.success?
+                raise "Couldn't decrypt the random key with the server private key"
+              end
+              FileUtils.rm_r "#{key_file}"
+            else
+              BigBlueButton.logger.info("No public key was used to encrypt the random key")
+            end
+
+            command = "openssl enc -aes-256-cbc -d -pass file:#{decrypted_key_file} < #{encrypted_file} > #{decrypted_file}"
+            status = BigBlueButton.execute(command)
+            if not status.success?
+              raise "Couldn't decrypt the recording file using the random key"
+            end
+     
+            BigBlueButton::MconfProcessor.unzip("#{raw_dir}/#{meeting_id}", decrypted_file)
+
+            archived_done = File.new("#{archived_dir}/#{meeting_id}.done", "w")
+            archived_done.write("Archived #{meeting_id}")
+            archived_done.close
+            
+            [ "#{encrypted_file}", "#{decrypted_file}", "#{decrypted_key_file}" ].each { |file|
+              BigBlueButton.logger.info("Removing #{file}")
+              FileUtils.rm_r "#{file}"
+            }
+
+          else
+            BigBlueButton.logger.error("The calculated MD5 doesn't match the expected value")
+            FileUtils.rm_f(encrypted_file)
+          end
+        end
+      end
+    end
+  end
 end
-
-

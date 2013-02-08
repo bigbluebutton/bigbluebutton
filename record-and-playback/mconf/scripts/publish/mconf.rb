@@ -62,20 +62,41 @@ done_files.each do |df|
 
         # encrypt files 
         command = "openssl enc -aes-256-cbc -pass file:#{meeting_id}.txt < #{meeting_id}.zip > #{meeting_id}.dat"
-        BigBlueButton.execute(command)
+        status = BigBlueButton.execute(command)
+        if not status.success?
+          raise "Couldn't encrypt the recording file using the random key"
+        end
+
+        FileUtils.rm_f "#{meeting_id}.zip"
 
         key_filename = ""
-        if metadata.has_key?('public_key')
+        if metadata.has_key?('public-key')
           key_filename = "#{meeting_id}.enc"
-          BigBlueButton.logger.info("Unescaping public key")
-          public_key_decoded = CGI::unescape("#{metadata[:public_key.to_s]}")
-          public_key = File.new("public_key.pem","w") 
+          #BigBlueButton.logger.info("Unescaping public key")
+          #public_key_decoded = CGI::unescape("#{metadata['public-key'].to_s}")
+          # The key is already unescaped in the metadata!!
+          public_key_decoded = "#{metadata['public-key'].to_s}"
+          public_key_filename = "public-key.pem"
+          public_key = File.new("#{public_key_filename}", "w") 
           public_key.write "#{public_key_decoded}"
           public_key.close 
 
-          command = "openssl rsautl -encrypt -pubin -inkey public-key.pem < #{meeting_id}.txt > #{meeting_id}.enc"
-          BigBlueButton.execute(command)
-          FileUtils.rm_f "#{meeting_id}.txt"
+          public_key = File.new("#{public_key_filename}", "r")
+          counter = 0
+          while (line = public_key.gets)
+            BigBlueButton.logger.info "#{counter}: #{line}"
+            counter = counter + 1
+          end
+          public_key.close          
+
+          command = "openssl rsautl -encrypt -pubin -inkey #{public_key_filename} < #{meeting_id}.txt > #{meeting_id}.enc"
+          status = BigBlueButton.execute(command)
+          if not status.success?
+            raise "Couldn't encrypt the random key using the server public key passed as metadata"
+          end
+
+        # Comment it for testing
+          FileUtils.rm_f ["#{meeting_id}.txt", "#{public_key_filename}"]
         else
           key_filename = "#{meeting_id}.txt"
           BigBlueButton.logger.warn "No public key was found in the meeting's metadata"
@@ -85,9 +106,6 @@ done_files.each do |df|
         md5sum = Digest::MD5.file("#{meeting_id}.dat")
 
         BigBlueButton.logger.info("Creating metadata.xml")
-
-        # TODO: create a flag to indicate if the file .enc is encrypted or not 
-        # due to the presence the public key in the meeting's metadata
 
         # Create metadata.xml
         b = Builder::XmlMarkup.new(:indent => 2)
@@ -128,6 +146,13 @@ done_files.each do |df|
         BigBlueButton.logger.info("Removing published files: #{meeting_publish_dir}")
         FileUtils.remove_entry_secure meeting_publish_dir, :force => true, :verbose => true
 
+        # Remove all the recording flags
+        FileUtils.rm_f [ "#{recording_dir}/status/processed/#{meeting_id}-mconf.done",
+                         "#{recording_dir}/status/sanity/#{meeting_id}.done",
+                         "#{recording_dir}/status/recorded/#{meeting_id}.done",
+                         "#{recording_dir}/status/archived/#{meeting_id}.done" ]
+
+        # Comment it for testing
         BigBlueButton.logger.info("Removing the recording raw files: #{meeting_raw_dir}")
         FileUtils.remove_entry_secure meeting_raw_dir, :force => true, :verbose => true
         BigBlueButton.logger.info("Removing the recording presentation: #{meeting_raw_presentation_dir}")
