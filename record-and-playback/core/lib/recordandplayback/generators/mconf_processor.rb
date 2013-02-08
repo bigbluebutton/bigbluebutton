@@ -35,19 +35,19 @@ module BigBlueButton
       #files = [webcam, deskshare, dublincore, manifest]
       Zip::ZipFile.open(zipped_file, Zip::ZipFile::CREATE) do |zipfile|
         Dir["#{directory}/**/**"].reject{|f|f==zipped_file}.each do |file|  
-		zipfile.add(file.sub(directory+'/', ''), file) 
-	end
+          zipfile.add(file.sub(directory+'/', ''), file) 
+        end
       end
     end
     
     def self.unzip(unzip_dir, zipfile)
-        Zip::ZipFile.open(zipfile) do |zip_file|
-	     zip_file.each do |f|
-		f_path=File.join(unzip_dir, f.name)
-		FileUtils.mkdir_p(File.dirname(f_path))
-		zip_file.extract(f, f_path) unless File.exist?(f_path)
-	     end
-	end
+      Zip::ZipFile.open(zipfile) do |zip_file|
+        zip_file.each do |f|
+          f_path=File.join(unzip_dir, f.name)
+          FileUtils.mkdir_p(File.dirname(f_path))
+          zip_file.extract(f, f_path) unless File.exist?(f_path)
+        end
+      end
     end
 
   end
