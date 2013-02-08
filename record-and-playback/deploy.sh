@@ -25,16 +25,26 @@ echo
 echo "+++++ Building record-and-playback"
 cd ~/dev/bigbluebutton/record-and-playback/
 
+sudo rm -f /usr/local/bigbluebutton/core/scripts/*.rb
 sudo rm -f /usr/local/bigbluebutton/core/scripts/process/*.rb
 sudo rm -f /usr/local/bigbluebutton/core/scripts/publish/*.rb
-sudo rm -f /usr/local/bigbluebutton/core/scripts/*.yml
+#sudo rm -f /usr/local/bigbluebutton/core/scripts/*.yml
 sudo rm -f /usr/local/bigbluebutton/core/scripts/*.nginx
 
-sudo cp -r core/god/god/* /etc/bigbluebutton/god/
+sudo cp -r core/god/* /etc/bigbluebutton/
 sudo cp -r core/lib/* /usr/local/bigbluebutton/core/lib/
 sudo cp -r core/scripts/* /usr/local/bigbluebutton/core/scripts/
-#PLAYBACK_LIST="slides presentation"
-PLAYBACK_LIST="mconf"
+
+if [ $# -eq 0 ]; then
+    PLAYBACK_LIST="slides presentation"
+
+    # Mconf specific files
+    sudo cp mconf/scripts/mconf-god-conf.rb /etc/bigbluebutton/god/conf/
+    sudo cp mconf/scripts/mconf-decrypt.rb /usr/local/bigbluebutton/core/scripts/
+else
+    PLAYBACK_LIST="$1"
+fi
+
 sudo mkdir -p /var/bigbluebutton/playback/
 sudo mkdir -p /var/bigbluebutton/recording/raw/
 sudo mkdir -p /var/bigbluebutton/recording/process/
