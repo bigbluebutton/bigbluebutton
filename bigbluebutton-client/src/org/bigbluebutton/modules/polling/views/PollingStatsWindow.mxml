@@ -21,7 +21,7 @@
 -->
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   height="150"
+		   height="600"
 		   width="410"  
 		   xmlns:mate="http://mate.asfusion.com/"
 		   implements="org.bigbluebutton.common.IBbbModuleWindow"
@@ -34,44 +34,43 @@
 
 	<mx:Script>
 		<![CDATA[
-		import flexlib.mdi.events.MDIWindowEvent;
-		import org.bigbluebutton.main.views.MainCanvas;
-		import mx.controls.Alert;
-		import org.bigbluebutton.common.LogUtil;	 
-		import org.bigbluebutton.modules.polling.events.StartPollingEvent;
-		import org.bigbluebutton.modules.polling.managers.PollingManager;
-		import org.bigbluebutton.modules.polling.events.VoteEvent;
-		import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
-		import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
-		import org.bigbluebutton.modules.polling.events.StopPollEvent;
-		import org.bigbluebutton.modules.polling.events.SavePollEvent;
-		import org.bigbluebutton.modules.polling.events.PublishPollEvent;
-		import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
-		
-		import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+			import flash.events.TimerEvent;
+			import flash.utils.Timer;
 			
-		import org.bigbluebutton.modules.polling.model.PollObject;
-		import org.bigbluebutton.modules.polling.model.PollStatLineObject;
-		import org.bigbluebutton.modules.polling.model.AnswerObject;
-				
-		import org.bigbluebutton.core.managers.UserManager;
-		import org.bigbluebutton.main.model.users.Conference 
-		import org.bigbluebutton.main.model.users.BBBUser;
-		import org.bigbluebutton.common.Role;
-
-		import mx.validators.Validator;	
-		import mx.utils.ObjectUtil;
-		import org.bigbluebutton.util.i18n.ResourceUtil;
+			import flexlib.mdi.events.MDIWindowEvent;
 			
-		import mx.collections.ArrayCollection;
-		import mx.core.IUIComponent;
-		import mx.controls.Text;
-		import mx.controls.TextArea;
-		import mx.containers.*;
-		import mx.controls.*;
-		
-		import flash.utils.Timer;
-		import flash.events.TimerEvent;
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.containers.*;
+			import mx.controls.*;
+			import mx.controls.Alert;
+			import mx.controls.Text;
+			import mx.controls.TextArea;
+			import mx.core.IUIComponent;
+			import mx.utils.ObjectUtil;
+			import mx.validators.Validator;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+			import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+			import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
+			import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
+			import org.bigbluebutton.modules.polling.events.PublishPollEvent;
+			import org.bigbluebutton.modules.polling.events.SavePollEvent;
+			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
+			import org.bigbluebutton.modules.polling.events.StopPollEvent;
+			import org.bigbluebutton.modules.polling.events.VoteEvent;
+			import org.bigbluebutton.modules.polling.managers.PollingManager;
+			import org.bigbluebutton.modules.polling.model.AnswerObject;
+			import org.bigbluebutton.modules.polling.model.PollObject;
+			import org.bigbluebutton.modules.polling.model.PollStatLineObject;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.util.logging.ArrayCollectionLogTarget;
 
 	   	public static const LOGNAME:String = "[PollingStatsWindow] ";
 		[Bindable] public var question:String;
@@ -90,7 +89,7 @@
 		private var webClosed:Boolean;
 		private var notified:Boolean;
 		private var refreshTimer:Timer = new Timer(1000);
-		private var answersAC:ArrayCollection = new ArrayCollection();
+		private var answerCollection:ArrayCollection;
 		
 		private function init():void{			
 			conference = UserManager.getInstance().getConference();
@@ -104,9 +103,16 @@
 				generate.poll = trackingPoll;
 				dispatchEvent(generate);
 			}
+			
+			answerCollection = trackingPoll.generateStats();
+			/*LogUtil.debug("WATERFALL: In init, answerCollection is: ");// + answerCollection.toString());
+			for (var i:int = 0; i < answerCollection.length; i++){
+				LogUtil.debug(i + ": " + answerCollection.getItemAt(i).toString());
+			}
+			LogUtil.debug("-------");*/
+			
 			refreshTimer.addEventListener(TimerEvent.TIMER, autoRefresh);
 			refreshTimer.start();
-			answersAC = trackingPoll.generateStats();
 			notified = false;
 		}
 
@@ -249,8 +255,16 @@
 			dispatchEvent(stopPollEvent);
 		}
  		
+			// This version of createResultsTable works with the OFNA table
 			// function receives Array.length and ArrayCollection
 			private function createResultsTable(amount:uint, content:Array):void{
+				answerCollection = trackingPoll.generateStats();
+				resultsGrid.dataProvider = answerCollection;
+				
+				// Above this point is experimental DataGrid logic
+				/////////////
+				// From this point forward is the normal table logic
+				
 				var _tx: Text;
 				var _votes: Text;
 				var _percent: Text;
@@ -301,8 +315,9 @@
 				didNotVote();
 				invalidateDisplayList();
 				resultBox.validateNow();	
-			} // end of function createResultsTable
+			} // /OFNA createResultsTable
 			
+			// This version of didNotVote works with the OFNA table
 			private function didNotVote():void{
 				var _tx:Text = new Text();
 				var _votes:Text= new Text;
@@ -319,6 +334,7 @@
 				_hb.addChild(_tx);
 				_hb.addChild(_votes);
 			}
+			// /OFNA didNotVote
 	]]>
 	</mx:Script>
 	
@@ -348,6 +364,8 @@
 						 width="95%"
 						 />          
 		</mx:HBox>
+		
+		<!-- THIS IS THE OFNA TABLE (ORIGINAL, FUNCTIONING, NON-ACCESSIBLE) --> 
 		<mx:Text width="200" 
 				 paddingTop="15" paddingBottom="10" 
 				 fontWeight="bold" textAlign="center"
@@ -355,9 +373,37 @@
 		<mx:Box id="resultBox"  
 				width="90%" 
 				height="90%" />
+		<!-- DO NOT GET RID OF THIS UNTIL THE DATAGRID WORKS PROPERLY -->
+		
+		
+		<!-- EXPERIMENTAL DATAGRID -->
+		<mx:DataGrid id="resultsGrid" width="90%">
+			<!--mx:columns>
+				<mx:DataGridColumn dataField="answer"
+								   headerText="Answers"
+								   />
+				<mx:DataGridColumn dataField="votes"
+								   headerText="Votes"
+								   editable="false"
+								   width="90"
+								   sortable="false"
+								   itemRenderer="org.bigbluebutton.modules.polling.views.VotesItemRenderer"
+								   />
+				<mx:DataGridColumn dataField="percentage"
+								   headerText="% of Votes"
+								   editable="false"
+								   width="90"
+								   sortable="false"
+								   itemRenderer="org.bigbluebutton.modules.polling.views.PercentageItemRenderer"
+								   />
+			</mx:columns-->
+		</mx:DataGrid>
+		<!-- THIS WILL BE THE ACCESSIBLE POLLING STATS VIEW 
+				Try getting rid of the renderer and using "data.answer" etc-->
+		
     
 	<!-- Viewer's grid used as an example -->
-	<!--mx:DataGrid id="viewersGrid" dataProvider="{UserManager.getInstance().getConference().users}" editable="false"
+	<!-- mx:DataGrid id="viewersGrid" dataProvider="{UserManager.getInstance().getConference().users}" editable="false"
     	dragEnabled="false"  width="90%" height="100%"	accessibilityName="Users list.">
     	<mx:columns>
     		<mx:DataGridColumn dataField="role" 

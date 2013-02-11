@@ -28,5 +28,5 @@
 			// {data.answer}
 		]]>
 	</mx:Script>
-	<mx:Label id="answerRenderLabel" textAlign="left" text="ANSWER"/>
+	<mx:Label id="answerRenderLabel" textAlign="left" text="This is the test answer."/>
 </mx:HBox>

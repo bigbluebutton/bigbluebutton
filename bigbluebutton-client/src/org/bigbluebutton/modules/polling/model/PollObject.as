@@ -1,6 +1,9 @@
 package org.bigbluebutton.modules.polling.model
 {
+	import com.asfusion.mate.events.InternalResponseEvent;
+	
 	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.polling.model.PollStatLineObject;
 	
@@ -61,7 +64,7 @@ package org.bigbluebutton.modules.polling.model
 		}
 		
 		public function generateStats():ArrayCollection{
-			var returnCollection:ArrayCollection = new ArrayCollection;
+			/*var returnCollection:ArrayCollection = new ArrayCollection();
 			for (var i:int = 0; i < answers.length; i++){
 				var pso:PollStatLineObject = new PollStatLineObject;
 				pso.answer = answers[i].toString();
@@ -75,7 +78,25 @@ package org.bigbluebutton.modules.polling.model
 				}
 				returnCollection.addItem(pso);
 			}
+			return returnCollection;*/
+			var buildArray:Array = generateStatArray();
+			var returnCollection:ArrayCollection = new ArrayCollection(buildArray);
 			return returnCollection;
+		}
+		
+		public function generateStatArray():Array{
+			var returnArray:Array = new Array();
+			for (var i:int = 0; i < answers.length; i++){
+				var percent:String;
+				if (totalVotes == 0){
+					percent = "";
+				}
+				else{
+					percent = Math.round(100*(votes[i]/totalVotes)) + "%";
+				}
+				returnArray.push({answer: answers[i].toString(), votes: votes[i].toString(), percentage: percent});
+			}
+			return returnArray;
 		}
 		
 		public function generateTestStats():ArrayCollection{
@@ -87,12 +108,12 @@ package org.bigbluebutton.modules.polling.model
 				pso.votes = "Test votes " + i;
 				pso.percentage = "Test percent " + i;
 				returnCollection.addItem(pso);
-				LogUtil.debug(ds + pso.debug());
+				LogUtil.debug(ds + pso.toString());
 			}
 			return returnCollection;
 		}
 		
-		public function generateOneLine():ArrayCollection{
+		/*public function generateOneLine():ArrayCollection{
 			var ds:String = "TEST LINE: ";
 			var returnCollection:ArrayCollection = new ArrayCollection;
 			
@@ -101,9 +122,9 @@ package org.bigbluebutton.modules.polling.model
 				pso.votes = "VOTEs CELL";
 				pso.percentage = "PERCENTAGE CELL";
 				returnCollection.addItem(pso);
-				LogUtil.debug(ds + pso.debug());
+				LogUtil.debug(ds + pso.toString());
 			
 			return returnCollection;
-		}
+		}*/
 	}
 }

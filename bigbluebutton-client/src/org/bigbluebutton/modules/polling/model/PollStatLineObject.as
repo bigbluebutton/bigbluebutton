@@ -5,11 +5,11 @@ package org.bigbluebutton.modules.polling.model
 	[Bindable]
 	public class PollStatLineObject
 	{
-		public var answer:String;
-		public var votes:String;
-		public var percentage:String;
+		public var answer:String = "empty test";
+		public var votes:String = "empty test";
+		public var percentage:String = "empty test";
 		
-		public function debug():String{
+		public function toString():String{
 			return answer + " " + votes + " " + percentage;
 		}
 	}
