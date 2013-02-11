@@ -1,26 +1,27 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;	
 	import mx.collections.ArrayCollection;	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	
@@ -45,17 +46,23 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var voiceMuted:Boolean = false;
 		[Bindable] public var voiceJoined:Boolean = false;
 		[Bindable] public var voiceLocked:Boolean = false;
+		[Bindable] public var status:String = "";
 		
 		private var _status:StatusCollection = new StatusCollection();
-				
-		public function get status():ArrayCollection {
-			return _status.getAll();
-		}
-		
-		public function set status(s:ArrayCollection):void {
-			_status.status = s;
-		}	
 			
+		public function buildStatus():void{
+			var showingWebcam:String = "";
+			var isPresenter:String = "";
+			var handRaised:String = "";
+			if (hasStream)
+				showingWebcam = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.streamIcon.toolTip');
+			if (presenter)
+				isPresenter = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.presIcon.toolTip');
+			if (raiseHand)
+				handRaised = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip');
+			status = showingWebcam + isPresenter + handRaised;
+		}
+	
 		public function addStatus(status:Status):void {
 			_status.addStatus(status);
 		}
@@ -92,6 +99,7 @@ package org.bigbluebutton.main.model.users
 					raiseHand = status.value as Boolean;
 					break;
 			}
+			buildStatus();
 		}
 		
 		public function removeStatus(name:String):void {

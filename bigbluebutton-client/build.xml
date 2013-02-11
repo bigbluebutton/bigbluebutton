@@ -33,6 +33,7 @@
 	<property name="VIDEO" value="VideoconfModule" />
 	<property name="WHITEBOARD" value="WhiteboardModule" />
 	<property name="VIDEO_DOCK" value="VideodockModule" />
+	<property name="POLLING" value="PollingModule" />
 	<property name="LAYOUT" value="LayoutModule" />
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
@@ -177,6 +178,10 @@
     <build-module src="${SRC_DIR}" target="${NOTES}" />
   </target>
 	
+	<target name="build-polling" description="Compile Polling Module">
+		<build-module src="${SRC_DIR}" target="${POLLING}" />
+	</target>
+
 	<target name="build-viewers" description="Compile Viewers Module">
 		<build-module src="${SRC_DIR}" target="${VIEWERS}" />
 	</target>
@@ -212,7 +217,7 @@
 	<target name="build-deskshare" description="Compile Deskshare Module">
 		<build-module src="${SRC_DIR}" target="${DESKSHARE}" />
 		<echo message="Copying deskshare applet for Deskshare Module" />
-		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.8.jar" todir="${OUTPUT_DIR}"/>		
+		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.8.1.jar" todir="${OUTPUT_DIR}"/>		
 	</target>
 	
 	<target name="build-phone" description="Compile Phone Module">
@@ -242,8 +247,8 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present, build-layout, build-broadcast"
-			description="Compile main, chat, viewers, listeners, present modules">
+			depends="build-bbb-main, build-chat, build-polling, build-viewers, build-listeners, build-present, build-layout, build-broadcast"
+			description="Compile main, chat, polling, viewers, listeners, present modules">
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
@@ -471,5 +476,5 @@
                         description="Build BBB client without locales"/>		
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
 
-	<target name="build-custom" depends="init-ant-contrib" description="Build a custom defined module only, to save time as each build takes several minutes" />
+	<target name="build-poll" depends="init-ant-contrib, build-polling" description="Build only the polling module." />
 </project>

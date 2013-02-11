@@ -1,29 +1,30 @@
-/** 
-* ===License Header===
-*
+/**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-* ===License Header===
+*
 */
 package org.bigbluebutton.deskshare.client;
 
+import javax.imageio.ImageIO;
 import javax.swing.JApplet;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+
+import java.io.IOException;
+import java.net.URL;
 import java.security.*;
 import java.awt.Image;
 
@@ -76,7 +77,11 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 
 		String tunnel = getParameter("HTTP_TUNNEL");
 		if (tunnel != null) tunnelValue = Boolean.parseBoolean(tunnel);
-		icon = getImage(getCodeBase(), "bbb.gif");
+		try {
+			URL url = new URL(getCodeBase(), "bbb.gif");
+			icon = ImageIO.read(url);
+		} catch (IOException e) {
+		}
 	}
 		
 	@Override
@@ -86,7 +91,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 		client = new DeskshareClient.NewBuilder().host(hostValue).port(portValue)
 					.room(roomValue).captureWidth(cWidthValue)
 					.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
-					.quality(qualityValue).aspectRatio(aspectRatioValue)
+					.quality(qualityValue)
 					.x(xValue).y(yValue).fullScreen(fullScreenValue).useSVC2(useSVC2Value)
 					.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
 		client.addClientListener(this);

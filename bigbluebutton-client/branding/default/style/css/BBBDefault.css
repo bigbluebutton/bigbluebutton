@@ -40,12 +40,12 @@ Panel {
   paddingRight: 3;
 }
 
-Button {
+Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
   textIndent: 0;
-  paddingLeft: 1;
-  paddingRight: 1;
-  paddingTop: 1;
-  paddingBottom: 1;
+  paddingLeft: 10;
+  paddingRight: 10;
+  paddingTop: 5;
+  paddingBottom: 5;
   highlightAlphas: 0.4, 0;
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
@@ -53,38 +53,11 @@ Button {
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;
-  themeColor: haloBlue;
+  themeColor: #aaaaaa;
   fontFamily: Arial;
   fontSize: 12;
 }
 
-.chatSendButtonStyle {
-  cornerRadius: 0;
-  highlightAlphas: 0, 0;
-  fillAlphas: 1, 1, 1, 1;
-  fillColors: #262626, #262626, #454545, #454545;
-  color: #ffffff;
-  textRollOverColor: #ffffff;
-  textSelectedColor: #262626;
-  borderColor: #000000;
-  themeColor: haloBlue;
-  fontFamily: Arial;
-  fontSize: 12;
-}
-
-.logoutButtonStyle {
-  cornerRadius: 0;
-  highlightAlphas: 0, 0;
-  fillAlphas: 1, 1, 1, 1;
-  fillColors: #262626, #262626, #454545, #454545;
-  color: #ffffff;
-  textRollOverColor: #ffffff;
-  textSelectedColor: #262626;
-  borderColor: #000000;
-  themeColor: haloBlue;
-  fontFamily: Arial;
-  fontSize: 12;
-}
 
 .helpLinkButtonStyle {
   rollOverColor: #cccccc;
@@ -130,7 +103,7 @@ DataGrid {
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;
-  themeColor: haloBlue;
+  themeColor: #aaaaaa;
   fontFamily: Arial;
   fontSize: 12;
 }
@@ -187,7 +160,7 @@ DataGrid {
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;
-  themeColor: haloBlue;
+  themeColor: #aaaaaa;
   fontFamily: Arial;
   fontSize: 12;
 }
@@ -224,7 +197,7 @@ DataGrid {
   invertThumbDirection: false;
   borderColor: #b9babc;
   trackColors: #aaaaaa, #aaaaaa;
-  themeColor: haloBlue;
+  themeColor: #aaaaaa;
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
   labelStyleName: "presentationZoomSliderLabelStyle";
@@ -239,8 +212,8 @@ DataGrid {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
   color: #5e5f63;
-  textRollOverColor: #ffffff;
-  textSelectedColor: #ffffff;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
   borderColor: #b9babc;  
   cornerRadius: 17;
 }
@@ -248,11 +221,11 @@ DataGrid {
 .videoMutedButtonStyle {
   /* Need to duplicate info here as the styleName is programatically changed. Extracting it out doesn't have any effect. */
   fillAlphas: 1, 1, 1, 1;
-  fillColors: #96c7e6, #50a6d7, #ffffff, #eeeeee;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
   color: #ffffff;
-  textRollOverColor: #ffffff;
-  textSelectedColor: #ffffff;
-  borderColor: #50a6d7;  
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
   cornerRadius: 17;
   icon:   Embed('assets/images/webcam-muted.png');
 }
@@ -271,6 +244,155 @@ DataGrid {
 
 .videoPrivateChatButtonStyle {
   icon:   Embed('assets/images/webcam-private-chat.png');
+}
+
+.presentationFileUploadWindowStyle {
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThicknessLeft: 10;
+  borderThicknessTop: 0;
+  borderThicknessBottom: 10;
+  borderThicknessRight: 10;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundAlpha: 1;
+  headerColors: #b9babc, #b9babc;
+  footerColors: #b9babc, #b9babc;
+  backgroundColor: #EFEFEF;
+  dropShadowEnabled: true;
+  titleStyleName: "presentationFileUploadWindowTitleStyle";
+}
+
+.presentationFileUploadWindowTitleStyle, .presentationUploadTitleStyle {
+  fontFamily: Arial;
+  fontSize: 20;  
+  fontWeight: bold;
+}
+
+.presentationUploadChooseFileLabelStyle, .presentationNamesLabelStyle {
+  fontFamily: Arial;
+  fontSize: 14;  
+  fontWeight: bold;
+}
+
+.presentationUploadChooseFileButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
+  cornerRadius: 5;  
+}
+
+.presentationUploadCancelButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #ff0000, #ff0000, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
+  cornerRadius: 5;    
+}
+
+.presentationUploadShowButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
+  cornerRadius: 5;  
+}
+
+.presentationUploadDeleteButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
+  cornerRadius: 5;    
+  icon:   Embed('assets/images/trash.png');
+}
+
+.presentationUploadProgressBarLabelStyle {
+  
+}
+
+.presentationUploadProgressBarStyle {
+  
+}
+
+.presentationNameLabelStyle {
+  
+}
+
+.micSettingsWindowStyle {
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThicknessLeft: 10;
+  borderThicknessTop: 0;
+  borderThicknessBottom: 10;
+  borderThicknessRight: 10;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundAlpha: 1;
+  headerColors: #b9babc, #b9babc;
+  footerColors: #b9babc, #b9babc;
+  backgroundColor: #EFEFEF;
+  dropShadowEnabled: true;
+  titleStyleName: "micSettingsWindowTitleStyle";
+}
+
+.micSettingsWindowTitleStyle {
+  fontFamily: Arial;
+  fontSize: 20;  
+  fontWeight: bold;
+}
+
+.micSettingsWindowTestSpeakersLabelStyle, .micSettingsWindowTestMicrophoneLabelStyle {
+  fontFamily: Arial;
+  fontSize: 14;  
+  fontWeight: bold;    
+}
+
+.micSettingsWindowHearFromHeadsetLabelStyle, .micSettingsWindowSpeakIntoMicLabelStyle, .micSettingsWindowMicNameLabelStyle {
+  fontFamily: Arial;
+  fontSize: 12;    
+}
+
+.micSettingsWindowPlaySoundButtonStyle, .micSettingsWindowChangeMicButtonStyle, 
+.micSettingsWindowJoinButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+  rollOverColor: #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
+  cornerRadius: 5;      
+}
+
+.micSettingsWindowCancelButtonStyle {
+  fillAlphas: 1, 1, 1, 1;
+  fillColors: #ffffff, #eeeeee, #ffffff, #eeeeee;
+  rollOverColor: #eeeeee;
+  color: #5e5f63;
+  textRollOverColor: #5e5f63;
+  textSelectedColor: #5e5f63;
+  borderColor: #b9babc;  
+  cornerRadius: 5;    
+}
+
+.micSettingsWindowMicProgressBarStyle {
+  
+}
+
+.micSettingsWindowHelpButtonStyle {
+  icon:   Embed('assets/images/questionmark.png');
 }
 
 MDIWindow {
@@ -501,4 +623,9 @@ MDIWindow {
   overSkin:      Embed('assets/images/resizeHandler.png');
   downSkin:      Embed('assets/images/resizeHandler.png');
   disabledSkin:  Embed('assets/images/resizeHandler.png');
+}
+
+.cameraDisplaySettingsWindowStartBtn
+{
+  icon:   Embed('assets/images/play-blue.png');
 }

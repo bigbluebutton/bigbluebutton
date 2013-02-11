@@ -1,29 +1,31 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+* 
+* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
+* Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-*
+* 
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 *
 * You should have received a copy of the GNU Lesser General Public License along
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
+*
 */
 package org.bigbluebutton.modules.listeners.business
 {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;	
+	import flash.net.SharedObject;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.EventConstants;
 	import org.bigbluebutton.core.UsersUtil;
@@ -109,6 +111,8 @@ package org.bigbluebutton.modules.listeners.business
 		}
 				
 		public function userJoin(userId:Number, cidName:String, cidNum:String, muted:Boolean, talking:Boolean, locked:Boolean):void {
+      trace("***************** Voice user joining [" + cidName + "]");
+      
 			if (! _listeners.hasListener(userId)) {
 				var n:Listener = new Listener();
 				n.callerName = cidName != null ? cidName : "<Unknown Caller>";
@@ -125,17 +129,23 @@ package org.bigbluebutton.modules.listeners.business
 				var pattern:RegExp = /(.*)-(.*)$/;
 				var result:Object = pattern.exec(n.callerName);
 				if (result != null) {
+          
+          trace("******************** [" + n.callerName + "," + result[1] + "," + result[2] + "] ****************"); 
+          
 					/**
 					 * The first item is the userid and the second is the username.
 					 */
-					if (UserManager.getInstance().getConference().amIThisUser(result[1])) {
+          var externUserID:String = result[1] as String;
+          var internUserID:String = UsersUtil.externalUserIDToInternalUserID(externUserID);
+          
+					if (UsersUtil.getMyExternalUserID() == externUserID) {
 						UserManager.getInstance().getConference().setMyVoiceUserId(n.userid);						
 						UserManager.getInstance().getConference().muteMyVoice(n.muted);
 						UserManager.getInstance().getConference().setMyVoiceJoined(true);
 					}	
           
-          if (UsersUtil.hasUser(result[1])) {
-            var bu:BBBUser = UsersUtil.getUser(result[1]);
+          if (UsersUtil.hasUser(internUserID)) {
+            var bu:BBBUser = UsersUtil.getUser(internUserID);
             bu.voiceUserid = n.userid;
             bu.voiceMuted = n.muted;
             bu.voiceJoined = true;
