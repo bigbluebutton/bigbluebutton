@@ -134,21 +134,32 @@ package org.bigbluebutton.modules.participants.business
 						var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_JOINED);
 						bbbEvent.payload.userID = bu.userID;            
 						globalDispatcher.dispatchEvent(bbbEvent);            
-					} else { // caller doesn't exist yet and must be a phone user
-						var n:BBBUser = new BBBUser();
-						n.name = result[2];
-						n.userID = internUserID;
-						n.externUserID = externUserID;
-						n.phoneUser = true;
-						n.talking = talking
-						n.voiceMuted = muted;
-						n.voiceUserid = userId;
-						n.voiceJoined = true;
-						
-						_conference.addUser(n);
-					}
+					} 
+				} else { // caller doesn't exist yet and must be a phone user
+					var n:BBBUser = new BBBUser();
+					n.name = cidName;
+					n.userID = randomString(11);
+					n.externUserID = randomString(11);
+					n.phoneUser = true;
+					n.talking = talking
+					n.voiceMuted = muted;
+					n.voiceUserid = userId;
+					n.voiceJoined = true;
+					
+					_conference.addUser(n);
 				}
 			}
+		}
+		
+		private static function randomString(l:uint):String {
+			var seed:String = "abcdefghijklmnopqrstuvwxyz1234567890";
+			var seedArray:Array = seed.split("");
+			var seedLength = seedArray.length;
+			var randString:String = "";
+			for (var i:uint = 0; i < l; i++){
+				randString += seedArray[int(Math.floor(Math.random() * seedLength))];
+			}
+			return randString;
 		}
 		
 		public function userMute(userID:Number, mute:Boolean):void {
@@ -208,6 +219,7 @@ package org.bigbluebutton.modules.participants.business
 				l.voiceUserid = 0;
 				l.voiceMuted = false;
 				l.voiceJoined = false;
+				l.talking = false;
 				
 				var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
 				bbbEvent.payload.userID = l.userID;
