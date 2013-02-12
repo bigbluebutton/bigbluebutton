@@ -201,3 +201,11 @@ var sendPrivateChat = function () {
   var message = "ECHO: " + bbbEvent.message;
   BBB.sendPrivateChatMessage(bbbEvent.fromColor, bbbEvent.fromLang, message,  bbbEvent.fromUserID);
 }
+
+var webcamViewStandaloneAppReady = function() {
+  console.log("WebcamViewStandalone App is ready.");
+}
+
+var webcamPreviewStandaloneAppReady = function() {
+  console.log("WebcamPreviewStandalone App is ready.");
+}
