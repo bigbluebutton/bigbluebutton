@@ -5,6 +5,7 @@ package org.bigbluebutton.modules.polling.model
 	import mx.collections.ArrayCollection;
 	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	import org.bigbluebutton.modules.polling.model.PollStatLineObject;
 	
 	/*
@@ -40,6 +41,10 @@ package org.bigbluebutton.modules.polling.model
 		public var didNotVote:int;
 		public var publishToWeb:Boolean;
 		public var webKey:String = new String;
+		
+		public var answerT:String = "TEST1";
+		public var votesT:String = "TEST2";
+		public var percentT:String = "TEST3";
 		
 		// For developer use, this method outputs all fields of a poll into the debug log for examination.
 		// Please remember to add lines for any new fields that may be added.
@@ -94,37 +99,27 @@ package org.bigbluebutton.modules.polling.model
 				else{
 					percent = Math.round(100*(votes[i]/totalVotes)) + "%";
 				}
+				
+				// Functioning proof-of-concept, do not remove!
 				returnArray.push({answer: answers[i].toString(), votes: votes[i].toString(), percentage: percent});
+				// Functioning proof-of-concept, do not remove!
+				
+				// Does not work: returnArray.push({{answerT}: answers[i].toString(), {votesT}: votes[i].toString(), {percentT}: percent});
+				// Maybe doesn't work? 
+				returnArray.push({"{answerT}": answers[i].toString(), "{votesT}": votes[i].toString(), "{percentT}": percent});
+				
+				
+				/*returnArray.push({{ResourceUtil:getInstance().getString('bbb.polling.stats.answers')}: answers[i].toString(), 
+								  {ResourceUtil:getInstance().getString('bbb.polling.stats.votes')}: votes[i].toString(), 
+								  {ResourceUtil:getInstance().getString('bbb.polling.stats.percentage')}: percent});*/
 			}
+			// Adding "Did Not Vote"
+			/*returnArray.push({ResourceUtil:getInstance().getString('bbb.polling.stats.answers'): ResourceUtil:getInstance().getString('bbb.polling.stats.didNotVote'), 
+							  ResourceUtil:getInstance().getString('bbb.polling.stats.votes'): didNotVote.toString(), 
+							  ResourceUtil:getInstance().getString('bbb.polling.stats.percentage'): ""});*/
+			
 			return returnArray;
 		}
 		
-		public function generateTestStats():ArrayCollection{
-			var ds:String = "TEST STATS: ";
-			var returnCollection:ArrayCollection = new ArrayCollection;
-			for (var i:int = 0; i < 6; i++){
-				var pso:PollStatLineObject = new PollStatLineObject;
-				pso.answer = "Test answer " + i;
-				pso.votes = "Test votes " + i;
-				pso.percentage = "Test percent " + i;
-				returnCollection.addItem(pso);
-				LogUtil.debug(ds + pso.toString());
-			}
-			return returnCollection;
-		}
-		
-		/*public function generateOneLine():ArrayCollection{
-			var ds:String = "TEST LINE: ";
-			var returnCollection:ArrayCollection = new ArrayCollection;
-			
-				var pso:PollStatLineObject = new PollStatLineObject;
-				pso.answer = "ANSWER CELL";
-				pso.votes = "VOTEs CELL";
-				pso.percentage = "PERCENTAGE CELL";
-				returnCollection.addItem(pso);
-				LogUtil.debug(ds + pso.toString());
-			
-			return returnCollection;
-		}*/
 	}
 }

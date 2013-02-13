@@ -378,25 +378,14 @@
 		
 		<!-- EXPERIMENTAL DATAGRID -->
 		<mx:DataGrid id="resultsGrid" width="90%">
-			<!--mx:columns>
-				<mx:DataGridColumn dataField="answer"
-								   headerText="Answers"
+			<!-- mx:columns>
+				<mx:DataGridColumn id="answerColumn"
 								   />
-				<mx:DataGridColumn dataField="votes"
-								   headerText="Votes"
-								   editable="false"
-								   width="90"
-								   sortable="false"
-								   itemRenderer="org.bigbluebutton.modules.polling.views.VotesItemRenderer"
+				<mx:DataGridColumn id="voteColumn"
 								   />
-				<mx:DataGridColumn dataField="percentage"
-								   headerText="% of Votes"
-								   editable="false"
-								   width="90"
-								   sortable="false"
-								   itemRenderer="org.bigbluebutton.modules.polling.views.PercentageItemRenderer"
+				<mx:DataGridColumn id="percentColumn"
 								   />
-			</mx:columns-->
+			</mx:columns -->
 		</mx:DataGrid>
 		<!-- THIS WILL BE THE ACCESSIBLE POLLING STATS VIEW 
 				Try getting rid of the renderer and using "data.answer" etc-->
