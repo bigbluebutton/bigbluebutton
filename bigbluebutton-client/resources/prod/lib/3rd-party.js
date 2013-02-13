@@ -204,8 +204,25 @@ var sendPrivateChat = function () {
 
 var webcamViewStandaloneAppReady = function() {
   console.log("WebcamViewStandalone App is ready.");
+  BBB.getPresenterUserID(function(puid) {
+	if (puid == "") {
+	  console.log("There is no presenter in the meeting");
+	} else {
+	  console.log("The presenter user id is [" + puid + "]");
+	  // Is presenter sharing webcam? If so, get the webcam stream and display.
+	}
+  });
 }
 
 var webcamPreviewStandaloneAppReady = function() {
   console.log("WebcamPreviewStandalone App is ready.");
+  BBB.getPresenterUserID(function(puid) {
+	if (puid == "") {
+	  console.log("There is no presenter in the meeting");
+	} else {
+	  console.log("The presenter user id is [" + puid + "]");
+	}
+  });
+  // Am I presenter? If so, am I publishing my camera? If so, display my camera.
+  
 }
