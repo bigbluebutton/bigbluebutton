@@ -28,6 +28,15 @@ package org.bigbluebutton.core
   public class UsersUtil
   {
     
+    public static function getPresenterUserID():String {
+      var presenter:BBBUser = UserManager.getInstance().getConference().getPresenter();
+      if (presenter != null) {
+        return presenter.userID;
+      }
+      
+      return "";
+    }
+    
     public static function amIPublishing():CameraSettingsVO {
      return UserManager.getInstance().getConference().amIPublishing();
     }
