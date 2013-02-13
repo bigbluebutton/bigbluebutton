@@ -242,9 +242,6 @@ package org.bigbluebutton.modules.present.ui.views.models
 			var zpyp:Number = zpy/cph;
 			
 			LogUtil.debug("CHAD 1: zoom: " + zoomValue + " cpw: " + cpw + " cph: " + cph + " _calcPageW: " + _calcPageW + " _calcPageH: " + _calcPageH);
-
-			doWidthBoundsDetection();
-			doHeightBoundsDetection();
 			
 			LogUtil.debug("CHAD 2: zoom: " + zoomValue + " cpw: " + cpw + " cph: " + cph + " _calcPageW: " + _calcPageW + " _calcPageH: " + _calcPageH);
 			
@@ -252,7 +249,6 @@ package org.bigbluebutton.modules.present.ui.views.models
 				if (fitToPage) {
 					_calcPageH = viewportH * zoomValue / HUNDRED_PERCENT;
 					_calcPageW = (_pageOrigW/_pageOrigH)*_calcPageH;
-					
 				} else {
 					_calcPageW = viewportW * zoomValue / HUNDRED_PERCENT;
 					_calcPageH = (_calcPageW/_pageOrigW)*_pageOrigH;
@@ -273,6 +269,9 @@ package org.bigbluebutton.modules.present.ui.views.models
 			_calcPageY = -((zpy1 + zpy)/2) + mouseY;
 			
 			LogUtil.debug("CHAD 3: zoom: " + zoomValue + " cpw: " + cpw + " cph: " + cph + " _calcPageW: " + _calcPageW + " _calcPageH: " + _calcPageH);
+			
+			doWidthBoundsDetection();
+			doHeightBoundsDetection();
 			
 			calcViewedRegion();
 			
