@@ -1,3 +1,10 @@
+/**
+  This file contains the BigBlueButton client APIs that will allow 3rd-party applications
+  to embed the Flash client and interact with it through Javascript.
+  
+  
+*/
+
 (function(window, undefined) {
 
     var BBB = {};
@@ -333,27 +340,30 @@
      * See https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-client/src/org/bigbluebutton/core/EventConstants.as
      *
      ************************************************/
-    var GET_MY_ROLE_RESP           = 'GetMyRoleResponse';
-    var AM_I_PRESENTER_RESP        = 'AmIPresenterQueryResponse';
-    var AM_I_SHARING_CAM_RESP      = 'AmISharingCamQueryResponse';
-    var BROADCASTING_CAM_STARTED   = 'BroadcastingCameraStartedEvent';
-    var BROADCASTING_CAM_STOPPED   = 'BroadcastingCameraStoppedEvent';
-    var I_AM_SHARING_CAM           = 'IAmSharingCamEvent';
-    var CAM_STREAM_SHARED          = 'CamStreamSharedEvent';
-    var USER_JOINED                = 'UserJoinedEvent';
-    var USER_LEFT                  = 'UserLeftEvent';
-    var SWITCHED_PRESENTER         = 'SwitchedPresenterEvent';
-    var NEW_PRIVATE_CHAT           = 'NewPrivateChatEvent';
-    var NEW_PUBLIC_CHAT            = 'NewPublicChatEvent';
-    var SWITCHED_LAYOUT            = 'SwitchedLayoutEvent';
-    var REMOTE_LOCKED_LAYOUT       = 'RemoteLockedLayoutEvent';
-    var REMOTE_UNLOCKED_LAYOUT     = 'RemoteUnlockedLayoutEvent';
-    var USER_JOINED_VOICE          = 'UserJoinedVoiceEvent';
-    var USER_LEFT_VOICE            = 'UserLeftVoiceEvent';
-    var USER_MUTED_VOICE           = 'UserVoiceMutedEvent';
-    var USER_TALKING               = 'UserTalkingEvent';
-    var USER_LOCKED_VOICE          = 'UserLockedVoiceEvent';
-    var START_PRIVATE_CHAT         = 'StartPrivateChatEvent';
+    var GET_MY_ROLE_RESP            = 'GetMyRoleResponse';
+    var AM_I_PRESENTER_RESP         = 'AmIPresenterQueryResponse';
+    var AM_I_SHARING_CAM_RESP       = 'AmISharingCamQueryResponse';
+    var BROADCASTING_CAM_STARTED    = 'BroadcastingCameraStartedEvent';
+    var BROADCASTING_CAM_STOPPED    = 'BroadcastingCameraStoppedEvent';
+    var I_AM_SHARING_CAM            = 'IAmSharingCamEvent';
+    var CAM_STREAM_SHARED           = 'CamStreamSharedEvent';
+    var USER_JOINED                 = 'UserJoinedEvent';
+    var USER_LEFT                   = 'UserLeftEvent';
+    var SWITCHED_PRESENTER          = 'SwitchedPresenterEvent';
+    var NEW_ROLE                    = 'NewRoleEvent';
+    var NEW_PRIVATE_CHAT            = 'NewPrivateChatEvent';
+    var NEW_PUBLIC_CHAT             = 'NewPublicChatEvent';
+    var SWITCHED_LAYOUT             = 'SwitchedLayoutEvent';
+    var REMOTE_LOCKED_LAYOUT        = 'RemoteLockedLayoutEvent';
+    var REMOTE_UNLOCKED_LAYOUT      = 'RemoteUnlockedLayoutEvent';
+    var USER_JOINED_VOICE           = 'UserJoinedVoiceEvent';
+    var USER_LEFT_VOICE             = 'UserLeftVoiceEvent';
+    var USER_MUTED_VOICE            = 'UserVoiceMutedEvent';
+    var USER_TALKING                = 'UserTalkingEvent';
+    var USER_LOCKED_VOICE           = 'UserLockedVoiceEvent';
+    var START_PRIVATE_CHAT          = "StartPrivateChatEvent";
+    var GET_MY_USER_INFO_REP        = "GetMyUserInfoResponse";
+    var IS_USER_PUBLISHING_CAM_RESP  = "IsUserPublishingCamResponse";
            
     window.BBB = BBB;
 })(this);
