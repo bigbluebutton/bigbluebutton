@@ -286,8 +286,8 @@ class ApiController {
 	    respondWithErrors(errors)
 	    return;
     }
-        
-    String webVoice = StringUtils.isEmpty(params.webVoiceConf) ? meeting.getTelVoice() : params.webVoiceConf
+	
+	String webVoice = StringUtils.isEmpty(params.webVoiceConf) ? meeting.getTelVoice() : params.webVoiceConf
 
     boolean redirectImm = parseBoolean(params.redirectImmediately)
     
@@ -297,6 +297,12 @@ class ApiController {
     if (StringUtils.isEmpty(externUserID)) {
       externUserID = internalUserID
     }
+	
+	//Return a Map with the user custom data
+	Map<String,String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
+	//Currently, it's associated with the externalUserID
+	if(userCustomData.size()>0)
+		meetingService.addUserCustomData(meeting.getInternalId(),externUserID,userCustomData);
     
 	UserSession us = new UserSession();
 	us.internalUserId = internalUserID
@@ -1217,6 +1223,11 @@ class ApiController {
                   userID("${att.externalUserId}")
                   fullName("${att.fullname}")
                   role("${att.role}")
+				  customdata(){
+					  meeting.getUserCustomData(att.externalUserId).each{ k,v ->
+						  "$k"("$v")
+					  }
+				  }
                 }
               }
             }

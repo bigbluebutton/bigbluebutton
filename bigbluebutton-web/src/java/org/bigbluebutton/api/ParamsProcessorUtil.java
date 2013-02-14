@@ -542,4 +542,20 @@ public class ParamsProcessorUtil {
 		}
 		return internalMeetingIds;
 	}
+	
+	public Map<String,String> getUserCustomData(Map<String,String> params){
+		Map<String,String> resp = new HashMap<String, String>();
+		
+		for (String key: params.keySet()) {
+	    	if (key.contains("userdata")&&key.indexOf("userdata")==0){
+	    		String[] userdata = key.split("-");
+			    if(userdata.length == 2){
+			    	log.debug("Got user custom data {} = {}", key, params.get(key));
+			    	resp.put(userdata[1], params.get(key));
+			    }
+			}   
+	    }
+		
+		return resp;
+	}
 }
