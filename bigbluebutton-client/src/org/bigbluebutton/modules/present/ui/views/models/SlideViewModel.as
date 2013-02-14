@@ -219,11 +219,9 @@ package org.bigbluebutton.modules.present.ui.views.models
 					}												
 				}					
 			} else {
-				if (viewportW < pageOrigW) {
-					if (_calcPageH < viewportH) {
-						viewportH = (viewportW/pageOrigW)*pageOrigH;
-					}
-				}
+				viewportH = (viewportW/pageOrigW)*pageOrigH;
+				if (viewportH > parentH) 
+					viewportH = parentH;
 			}		
 		}	
 			
