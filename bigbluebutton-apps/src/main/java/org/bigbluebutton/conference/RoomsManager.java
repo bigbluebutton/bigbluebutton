@@ -206,6 +206,21 @@ public class RoomsManager {
 			return;
 		}
 	}
+
+	public boolean isAcceptAll(String roomName) {
+		Room r = getRoom(roomName);
+		if (r != null) {
+			return r.isAcceptAll();
+		}
+		return false;
+	}
+
+	public void setAcceptAll(String roomName) {
+		Room r = getRoom(roomName);
+		if (r != null) {
+			r.setAcceptAll();
+		}
+	}
 	
 	public void responseToAllGuests(String roomName, Boolean resp) {
 		Room r = getRoom(roomName);

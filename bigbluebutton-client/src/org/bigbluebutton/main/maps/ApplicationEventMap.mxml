@@ -70,6 +70,10 @@
 	<EventHandlers type="{UsersConnectionEvent.CONNECTION_SUCCESS}" >
 		<MethodInvoker generator="{UserService}" method="userLoggedIn" arguments="{event}" />
 	</EventHandlers>
+
+	<EventHandlers type="LOAD_MODULE_GUEST_AUTO_ACCEPT">        
+		<MethodInvoker generator="{UserService}" method="loadModulesCommand"/>
+	</EventHandlers>
 	
 	<EventHandlers type="{SuccessfulLoginEvent.USER_LOGGED_IN}" >
 		<MethodInvoker generator="{ModulesProxy}" method="loadAllModules" arguments="{event.conferenceParameters}" />
@@ -89,8 +93,17 @@
 		<MethodInvoker generator="{UserService}" method="responseToAllGuests" arguments="{event}" />
 	</EventHandlers>
 
-	
+	<EventHandlers type="ASK_TO_ACCEPT_GUEST" >
+		<MethodInvoker generator="{UserService}" method="askToAccept" />
+	</EventHandlers>
 
+	<EventHandlers type="ACCEPT_GUEST" >
+		<MethodInvoker generator="{UserService}" method="acceptGuest" />
+	</EventHandlers>
+
+	<EventHandlers type="SET_ACCEPT_ALL_GUEST" >
+		<MethodInvoker generator="{UserService}" method="setAcceptGuest" />
+	</EventHandlers>
 
 	<!-- Viewers Stuff -->
 	<EventHandlers type="{RaiseHandEvent.RAISE_HAND}" >

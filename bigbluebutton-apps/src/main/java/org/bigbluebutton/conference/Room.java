@@ -39,6 +39,7 @@ public class Room implements Serializable {
 	private String name;
 	private Map <Long, Participant> participants;
 	private Map <Long, String> guestsWaiting;
+	private Boolean acceptAll = false;
 
 	// these should stay transient so they're not serialized in ActiveMQ messages:	
 	//private transient Map <Long, Participant> unmodifiableMap;
@@ -80,6 +81,14 @@ public class Room implements Serializable {
 			log.debug("calling participantJoined on listener " + listener.getName());
 			listener.participantJoined(participant);
 		}
+	}
+
+	public boolean isAcceptAll() {
+		return acceptAll;
+	}
+
+	public void setAcceptAll() {
+		acceptAll = true;
 	}
 
 	public void removeParticipant(Long userid) {

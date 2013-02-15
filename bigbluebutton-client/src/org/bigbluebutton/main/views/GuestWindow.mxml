@@ -22,7 +22,7 @@
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
     title="{ResourceUtil.getInstance().getString('bbb.guests.title')}" showCloseButton="false" creationComplete="init()"
-    x="0" y="0" layout="vertical" width="300" height="180" horizontalAlign="center">
+    x="0" y="0" layout="vertical" width="300" height="200" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[
 			import mx.core.FlexGlobals;
@@ -36,6 +36,7 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import mx.containers.HBox;
 			import mx.controls.Button;
+			import org.bigbluebutton.main.events.BBBEvent;
 			
 			private var urlLoader:URLLoader;
 			private var guestWindowMap:Object = new Object();
@@ -110,6 +111,11 @@
 				dispatcher.dispatchEvent(respCommand);
 				
 			}
+
+			public function sendResponseToServer():void {
+				dispatcher.dispatchEvent(new BBBEvent("SET_ACCEPT_ALL_GUEST"));
+				sendResponseToAllGuests(true);
+			}
 	
 			public function removeAllGuests():void {
 				if (numberOfGuests < 11 && numberOfGuests > 0) {
@@ -158,6 +164,7 @@
 	</mx:Script>
 	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.guests.message', [String(numberOfGuests)])}"/>
 	<mx:HRule width="100%"/>
+	<mx:Button id="acceptEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.acceptEveryoneBtn.text')}"  width="70%" click="sendResponseToServer()" toolTip="{ResourceUtil.getInstance().getString('bbb.guests.acceptEveryoneBtn.toolTip')}"/> 
 	<mx:Button id="allowEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.allowEveryoneBtn.text')}" width="70%" click="sendResponseToAllGuests(true)" toolTip="{allowEveryoneBtn.label}"/>
 	<mx:Button id="denyEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.denyEveryoneBtn.text')}" width="70%" click="sendResponseToAllGuests(false)" toolTip="{denyEveryoneBtn.label}"/>
 	<mx:HRule width="100%"/>		

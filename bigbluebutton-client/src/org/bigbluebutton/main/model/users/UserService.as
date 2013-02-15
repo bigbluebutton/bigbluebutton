@@ -121,10 +121,7 @@ package org.bigbluebutton.main.model.users
 			
 			
 			if(UserManager.getInstance().getConference().isGuest()) {
-				UserManager.getInstance().getConference().setWaitForModerator(true);
-				var guestCommand:WaitModeratorEvent = new WaitModeratorEvent(WaitModeratorEvent.USER_LOGGED_IN);
-				guestCommand.conferenceParameters = _conferenceParameters;
-				dispatcher.dispatchEvent(guestCommand);  
+				_userSOService.isAcceptAll();
 			}
 			else {
 				var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
@@ -133,6 +130,23 @@ package org.bigbluebutton.main.model.users
 			}
 			
 				
+		}
+
+		public function askToAccept():void {
+			UserManager.getInstance().getConference().setWaitForModerator(true);
+			var guestCommand:WaitModeratorEvent = new WaitModeratorEvent(WaitModeratorEvent.USER_LOGGED_IN);
+			guestCommand.conferenceParameters = _conferenceParameters;
+			dispatcher.dispatchEvent(guestCommand);  
+		}
+
+		public function acceptGuest():void {
+			var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
+			loadCommand.conferenceParameters = _conferenceParameters;
+			dispatcher.dispatchEvent(loadCommand);
+		}
+
+		public function setAcceptGuest():void {
+			_userSOService.setAcceptAll();
 		}
 
 		public function getAllGuests(e:SuccessfulLoginEvent):void {
@@ -145,7 +159,8 @@ package org.bigbluebutton.main.model.users
 		public function guestDisconnect():void {
 			_userSOService.guestDisconnect();
 		}
-		
+
+
 		public function logoutUser():void {
 			_userSOService.disconnect(true);
 			

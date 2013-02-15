@@ -349,6 +349,39 @@ package org.bigbluebutton.main.model.users {
 			); //_netConnection.call
 		}
 
+
+		public function setAcceptAll():void {
+			var nc:NetConnection = netConnectionDelegate.connection;			
+			nc.call(
+				"participants.setAcceptAll",// Remote function name
+				responder
+			); //_netConnection.call
+		}
+
+		public function isAcceptAll():void {
+			var nc:NetConnection = netConnectionDelegate.connection;			
+			nc.call(
+				"participants.isAcceptAll",// Remote function name
+				new Responder(
+	        			function(result:Object):void { 
+						if(result) {
+							dispatcher.dispatchEvent(new BBBEvent("ACCEPT_GUEST"));
+						}
+						else {
+							dispatcher.dispatchEvent(new BBBEvent("ASK_TO_ACCEPT_GUEST"));
+						}
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+			); //_netConnection.call
+		}
+
 		public function guestWaitingForModerator(userid:Number, userId_userName:String):void {
 			if(UserManager.getInstance().getConference().getMyUserId() == userid && UserManager.getInstance().getConference().amIModerator()) {
 				if(userId_userName != "") {
