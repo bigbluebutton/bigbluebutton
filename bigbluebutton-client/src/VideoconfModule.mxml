@@ -87,10 +87,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				else return false;
 			}
 			
+<<<<<<< HEAD
 			public function start(attributes:Object):void {	
         trace("Starting Video Module");
         var globalDispatcher:Dispatcher = new Dispatcher();
         globalDispatcher.dispatchEvent(new VideoModuleStartEvent(VideoModuleStartEvent.START));
+=======
+            public function start():void{
+                LogUtil.debug("Video module starting.");
+            }
+            
+			public function start1(attributes:Object):void {	
+				LogUtil.debug("Videoconf attr: " + attributes.username);
+				_attributes = attributes;
+				proxy = new VideoProxy(uri);
+				
+				eventMap.module = this;
+				eventMap.proxy = proxy;
+				eventMap.addToolbarButton();
+				
+				if (proxy.videoOptions.autoStart) {
+					var dispatcher:Dispatcher = new Dispatcher();        
+					dispatcher.dispatchEvent(new OpenPublishWindowEvent());					
+				}
+>>>>>>> origin/0.81-development
 			}
 		
 			public function stop():void {

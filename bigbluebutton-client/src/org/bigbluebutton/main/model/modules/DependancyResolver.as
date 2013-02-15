@@ -51,7 +51,7 @@ package org.bigbluebutton.main.model.modules
 				for (var key:Object in _modules){
 					var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
 					m.removeDependancy(n.getName());
-					if ((m.unresolvedDependancies.length == 0) && (!m.resolved)){
+					if ((m.unresolvedDependencies.length == 0) && (!m.resolved)){
 						independent.addItem(m);
 						m.resolved = true;
 					}
@@ -61,9 +61,9 @@ package org.bigbluebutton.main.model.modules
 			//Debug Information
 			for (var key2:Object in _modules) {
 				var m2:ModuleDescriptor = _modules[key2] as ModuleDescriptor;
-				if (m2.unresolvedDependancies.length != 0){
+				if (m2.unresolvedDependencies.length != 0){
 					throw new Error("Modules have circular dependancies, please check your config file. Unresolved: " + 
-													m2.getName() + " depends on " + m2.unresolvedDependancies.toString());
+													m2.getName() + " depends on " + m2.unresolvedDependencies.toString());
 				}
 			}
 			LogUtil.debug("Dependency Order: ");
@@ -79,7 +79,7 @@ package org.bigbluebutton.main.model.modules
 			var returnArray:ArrayCollection = new ArrayCollection();
 			for (var key:Object in _modules) {
 				var m:ModuleDescriptor = _modules[key] as ModuleDescriptor;
-				if (m.unresolvedDependancies.length == 0) {
+				if (m.unresolvedDependencies.length == 0) {
 					returnArray.addItem(m);
 				}
 			}

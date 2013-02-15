@@ -27,6 +27,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
+<<<<<<< HEAD
       import com.asfusion.mate.events.Dispatcher;
       
       import mx.collections.ArrayCollection;
@@ -37,15 +38,46 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.modules.chat.model.ChatOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
+=======
+			import com.adobe.utils.StringUtil;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.ListEvent;
+			import mx.utils.StringUtil;
+			
+			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+>>>>>>> origin/0.81-development
 			
 			[Bindable] public var users:ArrayCollection;
 			[Bindable] public var chatView:ChatView;
 
 			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();			
-
+<<<<<<< HEAD
+=======
+			[Bindable] private var langNames:Array = new Array();		
+			[Bindable] private var langCodes:Array = new Array();
 			
 			private function init():void{
+				participants = new ArrayCollection();
+			}
+>>>>>>> origin/0.81-development
+
+			
+<<<<<<< HEAD
+			private function init():void{
 				users = UserManager.getInstance().getConference().users;
+=======
+			private function changeLanguage():void {
+			//	ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(this.langComboBox.selectedIndex));
+			}
+			
+			private function toggleTranslation():void {
+				var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.TOGGLE_TRANSLATE);	
+				e.translateOn = autoTransCheckBox.selected;
+				dispatchEvent(e);
+>>>>>>> origin/0.81-development
 			}
 			
 			public function accessibleClick(event:KeyboardEvent):void{
@@ -84,5 +116,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                itemRenderer="org.bigbluebutton.modules.chat.views.UserRenderer"
                itemClick="openPrivateChat(event)"/>
 		</mx:VBox>
+<<<<<<< HEAD
 	</mx:HBox>	
+=======
+		<mx:VBox id="optionsBox" height="100%" width="50%" >
+			<mx:Label id="chatOptionsLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
+			<mx:HBox width="100%">
+				<mx:Label id="chatFountSizeLabel" text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
+				<mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" selectedIndex="1" />
+			</mx:HBox>
+			<mx:ComboBox id="langComboBox" dataProvider="{this.langNames}" selectedIndex="0"  change="changeLanguage()" rowCount="15" />
+			<mx:CheckBox id="autoTransCheckBox" selected="false" label="AutoTranslate" toolTip="Auto detect language and translate" change="toggleTranslation()"/>
+		</mx:VBox>
+	</mx:HBox>
+	
+	
+>>>>>>> origin/0.81-development
 </mx:VBox>

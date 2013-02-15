@@ -21,11 +21,8 @@ package org.bigbluebutton.main.model.modules
 	import flash.events.Event;
 	import flash.events.ProgressEvent;
 	import flash.system.ApplicationDomain;
-	import flash.utils.Dictionary;
 	
 	import mx.collections.ArrayCollection;
-	import mx.controls.Alert;
-	import mx.core.IFlexModuleFactory;
 	import mx.events.ModuleEvent;
 	import mx.modules.ModuleLoader;
 	import mx.utils.StringUtil;
@@ -45,12 +42,12 @@ package org.bigbluebutton.main.model.modules
 		private var callbackHandler:Function;
 		private var applicationDomain:ApplicationDomain;
 		
-		public var unresolvedDependancies:ArrayCollection;
+		private var _unresolvedDependencies:ArrayCollection = new ArrayCollection();
 		public var resolved:Boolean = false;
 		
 		public function ModuleDescriptor(attributes:XML)
 		{
-			unresolvedDependancies = new ArrayCollection();
+            _unresolvedDependencies = new ArrayCollection();
 			_attributes = new Object();
 			_loader = new BigBlueButtonModuleLoader();
 			
@@ -68,14 +65,22 @@ package org.bigbluebutton.main.model.modules
 		public function getName():String{
 			return _attributes["name"] as String;
 		}
+        
+        public function get name():String{
+            return _attributes["name"] as String;
+        }        
 		
 		public function getAttribute(name:String):Object {
 			return _attributes[name];
 		}
 		
-		public function get attributes():Object {
-			return _attributes;
-		}
+        public function set attributes(attr:Object):void {
+            _attributes = attr;
+        }
+        
+        public function get attributes():Object {
+            return _attributes;
+        }
 		
 		public function get module():IBigBlueButtonModule {
 			return _module;
@@ -88,6 +93,20 @@ package org.bigbluebutton.main.model.modules
 		public function get loader():ModuleLoader{
 			return _loader;
 		}
+        
+        public function set unresolvedDependencies(deps:ArrayCollection):void {
+            _unresolvedDependencies = deps;
+        }
+        
+        public function get unresolvedDependencies():ArrayCollection {
+            return _unresolvedDependencies;
+        }
+        
+        public function removeDependency(module:String):void{
+            for (var i:int = 0; i < _unresolvedDependencies.length; i++){
+                if (_unresolvedDependencies[i] == module) _unresolvedDependencies.removeItemAt(i);
+            }
+        }
 		
 		private function parseAttributes(item:XML):void {
 			var attNamesList:XMLList = item.@*;
@@ -152,8 +171,8 @@ package org.bigbluebutton.main.model.modules
 		}
 		
 		public function removeDependancy(module:String):void{
-			for (var i:int = 0; i<unresolvedDependancies.length; i++){
-				if (unresolvedDependancies[i] == module) unresolvedDependancies.removeItemAt(i);
+			for (var i:int = 0; i < _unresolvedDependencies.length; i++){
+				if (_unresolvedDependencies[i] == module) _unresolvedDependencies.removeItemAt(i);
 			}
 		}
 		
@@ -165,7 +184,7 @@ package org.bigbluebutton.main.model.modules
 			var dependancies:Array = trimmedString.split(",");
 			
 			for (var i:int = 0; i<dependancies.length; i++){
-				unresolvedDependancies.addItem(dependancies[i]);
+				_unresolvedDependencies.addItem(dependancies[i]);
 			}
 		}
 		

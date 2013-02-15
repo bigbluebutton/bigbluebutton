@@ -20,6 +20,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+<<<<<<< HEAD
   xmlns:views="org.bigbluebutton.main.views.*"
   xmlns:maps="org.bigbluebutton.main.maps.*"
   xmlns:apimap="org.bigbluebutton.main.api.maps.*"
@@ -142,4 +143,58 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <maps:ApplicationEventMap />	
   <views:MainApplicationShell id="mainShell"/>	
   
+=======
+	xmlns:views="org.bigbluebutton.main.views.*"
+	xmlns:maps="org.bigbluebutton.main.maps.*"
+    xmlns:coremaps="org.bigbluebutton.core.controllers.maps.*"
+	xmlns:mate="http://mate.asfusion.com/"
+	xmlns:m="library://melomel/2010"
+	pageTitle="BigBlueButton"
+	layout="absolute" preinitialize="init()"
+	preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader">
+	
+	<mx:Script>
+		<![CDATA[
+            import com.asfusion.mate.events.Dispatcher;
+            
+            import mx.managers.HistoryManager;
+            
+            import org.bigbluebutton.common.LogUtil;
+            import org.bigbluebutton.core.BBB;
+            import org.bigbluebutton.core.EventBroadcaster;
+            import org.bigbluebutton.core.controllers.events.StartAppEvent;
+            import org.bigbluebutton.core.managers.ConfigManager2;
+            import org.bigbluebutton.main.events.BBBEvent;
+            import org.bigbluebutton.main.views.MainApplicationShell;
+            import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+//		private var langResources:ResourceUtil = ResourceUtil.getInstance();
+		
+
+			
+		/**
+		 * Thse two lines are workaround for this. (ralam - Nov 8, 2008)
+		 * http://gregjessup.com/flex-3-advanceddatagrid-cannot-convert-mxmanagersdragmanagerimpl-to-mxmanagersidragmanager/
+		 * http://butterfliesandbugs.wordpress.com/2007/10/25/workaround-for-error-when-loading-popups-from-modules/
+		 */
+		import mx.managers.IDragManager; 
+		private var iDragManager:IDragManager;  
+
+		/** another workaround - for this issue: https://bugs.adobe.com/jira/browse/SDK-13121*/
+		private var hist:HistoryManager
+
+		]]>
+	</mx:Script>	
+		
+    <coremaps:BigBlueButtonAppEventMap id="mainEventMap"/>		
+	<views:MainApplicationShell id="mainShell"/>	
+<!--
+    <maps:ApplicationEventMap/>
+	<mate:Listener type="{BBBEvent.LOGIN_EVENT}" method="handleLoginEvent"/>
+	<mate:Listener type="{BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT}" method="handleReceivedPublicChatMessageEvent"/>
+	<mate:Listener type="{BBBEvent.ADDED_LISTENER}" method="handleAddedListenerEvent"/>
+	<mate:Listener type="{BBBEvent.PRESENTATION_CONVERTED}" method="handlePresentationConversion"/>
+	<mate:Listener type="{BBBEvent.VIDEO_STARTED}" method="videoHasStarted"/>
+-->	
+>>>>>>> origin/0.81-development
 </mx:Application>

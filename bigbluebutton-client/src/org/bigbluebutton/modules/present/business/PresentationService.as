@@ -30,6 +30,7 @@ package org.bigbluebutton.modules.present.business
 	import org.bigbluebutton.modules.present.events.PresentationEvent;
 	import org.bigbluebutton.modules.present.managers.PresentationSlides;
 	import org.bigbluebutton.modules.present.managers.Slide;
+<<<<<<< HEAD
 	import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.modules.present.services.MessageReceiver;
 	        	
@@ -41,6 +42,10 @@ package org.bigbluebutton.modules.present.business
 	 * @author dev_team@bigbluebutton.org
 	 * 
 	 */	        	
+=======
+	import org.bigbluebutton.common.LogUtil;
+	        	      	
+>>>>>>> origin/0.81-development
 	public class PresentationService implements IResponder
 	{  
 		private var service : HTTPService;

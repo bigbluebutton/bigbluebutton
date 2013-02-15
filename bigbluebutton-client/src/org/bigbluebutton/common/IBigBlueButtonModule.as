@@ -38,7 +38,7 @@ package org.bigbluebutton.common
 		 * the client's config.xml file for your module will be passed to the module as well. The attributes object is dynamic
 		 * however and should not be cast into any other class.
 		 */		
-		function start(attributes:Object):void;
+		function start():void;
 		function stop():void;
 	}
 }

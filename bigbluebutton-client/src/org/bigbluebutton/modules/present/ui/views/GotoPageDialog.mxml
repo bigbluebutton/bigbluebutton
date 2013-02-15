@@ -31,11 +31,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public static const SWITCH_PAGE:String = "switch to page";
 			[Bindable] public var totalSlides:int;
-			public var window:PresentationWindow;
+			public var window:PresentWindow;
 			
 			private function closeDialog():void{
 				var page:Number = parseInt(txtPageNum.text);
-				window.loadPage(page - 1);
+//				window.loadPage(page - 1);
 				PopUpManager.removePopUp(this);
 			}
 			

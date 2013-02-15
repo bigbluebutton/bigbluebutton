@@ -246,15 +246,27 @@
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
+	<!-- build-bbb-main-test, , build-breakout  build-chat,  build-listeners,-->
 	<target name="build-main-chat-viewers-listeners-present" 
+<<<<<<< HEAD
 			depends="build-bbb-main, build-chat, build-polling, build-viewers, build-listeners, build-present, build-layout, build-broadcast"
 			description="Compile main, chat, polling, viewers, listeners, present modules">
+=======
+			depends="build-bbb-main,  build-viewers, build-present"
+			description="Compile main, chat, viewers, listeners, present, breakout modules">
+>>>>>>> origin/0.81-development
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
+	<!-- , build-dyn, build-classroom-audio, build-settings build-phone, build-video, build-videodock,  build-deskshare,-->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
+<<<<<<< HEAD
 			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard, build-notes"
 			description="Compile deskshare, phone, video, whiteboard modules">
+=======
+			depends=" build-whiteboard"
+			description="Compile deskshare, phone, video, whiteboard, dynamic info modules">
+>>>>>>> origin/0.81-development
 	</target>
 	
 	<macrodef name="build-main">

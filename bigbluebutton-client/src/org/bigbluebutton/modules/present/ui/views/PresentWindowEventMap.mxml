@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
+	
+	<mx:Script>
+		<![CDATA[
+            import org.bigbluebutton.core.model.MeetingModel;
+            import org.bigbluebutton.core.model.UsersModel;
+            import org.bigbluebutton.modules.present.controllers.events.GotoNextPageEvent;
+            import org.bigbluebutton.modules.present.controllers.events.GotoPreviousPageEvent;
+            import org.bigbluebutton.modules.present.events.PresentModuleEvent;
+            import org.bigbluebutton.modules.present.events.UploadEvent;
+            import org.bigbluebutton.modules.present.models.PresentationConfigModel;
+            import org.bigbluebutton.modules.present.models.PresentationModel;
+
+		]]>
+	</mx:Script>
+	
+    <EventHandlers type="{PresentModuleEvent.START_MODULE}">
+        <ObjectBuilder generator="{PresentWindowEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+        <MethodInvoker generator="{PresentWindowEventMapDelegate}" method="start"/>
+    </EventHandlers>	
+
+    <EventHandlers type="{UploadEvent.OPEN_UPLOAD_WINDOW}" >
+        <MethodInvoker generator="{PresentWindowEventMapDelegate}" method="handleOpenUploadWindow"/>
+    </EventHandlers> 
+
+    <EventHandlers type="{UploadEvent.CLOSE_UPLOAD_WINDOW}" >
+        <MethodInvoker generator="{PresentWindowEventMapDelegate}" method="handleCloseUploadWindow"/>
+    </EventHandlers>
+
+    <EventHandlers type="{GotoNextPageEvent.GOTO_NEXT_PAGE_EVENT}" >
+        <MethodInvoker generator="{PresentWindowEventMapDelegate}" method="handleGotoNextPageEvent"/>
+    </EventHandlers>
+
+    <EventHandlers type="{GotoPreviousPageEvent.GOTO_PREVIOUS_PAGE_EVENT}" >
+        <MethodInvoker generator="{PresentWindowEventMapDelegate}" method="handleGotoPreviousPageEvent"/>
+    </EventHandlers>
+    
+    <Injectors target="{PresentWindowEventMapDelegate}">
+        <PropertyInjector targetKey="presentModel" source="{PresentationModel}"/>       
+        <PropertyInjector targetKey="config" source="{PresentationConfigModel}"/>
+        <PropertyInjector targetKey="users" source="{UsersModel}"/>
+        <PropertyInjector targetKey="meeting" source="{MeetingModel}"/>
+    </Injectors>
+
+    <!--
+    <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="becomePresenter" />
+    <mate:Listener type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}" method="becomeViewer" />
+    <mate:Listener type="{PresentationEvent.PRESENTATION_LOADED}" method="handlePresentationLoadedEvent" />
+    <mate:Listener type="{NavigationEvent.GOTO_PAGE}" method="gotoPage" />
+    <mate:Listener type="{UploadEvent.CLEAR_PRESENTATION}" method="clearPresentation" />
+    <mate:Listener type="{SlideResizedEvent.SLIDE_RESIZED_EVENT}" method="handleSlideResizedEvent" />
+    <mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
+    <mate:Listener type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" method="addOverlayCanvas" />
+    <mate:Listener type="{AddButtonToPresentationEvent.ADD_BUTTON}" method="addButton" />
+    <mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+    --> 
+    	
+</EventMap>

@@ -34,10 +34,14 @@ package org.bigbluebutton.modules.present.managers
 		private var _slideHandler:Function;
 		private var _slideNum:Number;
 		private var _thumbUri:String;
+<<<<<<< HEAD
 		private var _txtUri:String;
 		private var _txtLoader:URLLoader;
 		private var _txtLoaded:Boolean = false;
 
+=======
+		
+>>>>>>> origin/0.81-development
 				
 		public function Slide(slideNum:Number, slideUri:String, thumbUri:String,txtUri:String)
 		{

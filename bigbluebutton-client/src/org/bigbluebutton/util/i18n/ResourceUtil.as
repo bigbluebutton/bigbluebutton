@@ -43,8 +43,9 @@ package org.bigbluebutton.util.i18n
 	import org.bigbluebutton.common.events.LocaleChangeEvent;
 	import org.bigbluebutton.main.events.AppVersionEvent;
 
-	public class ResourceUtil extends EventDispatcher {
+	public class ResourceUtil {
 		private static var instance:ResourceUtil = null;
+<<<<<<< HEAD
 		public static const LOCALES_FILE:String = "client/conf/locales.xml";
 		public static const VERSION:String = "0.8";
     
@@ -58,23 +59,18 @@ package org.bigbluebutton.util.i18n
 		[Bindable] public var localeIndex:Number;
 		
 		private var eventDispatcher:IEventDispatcher;
+=======
+        private static var BBB_RESOURCE_BUNDLE:String = 'bbbResources';
+        private static var MASTER_LOCALE:String = "en_US";
+>>>>>>> origin/0.81-development
 		private var resourceManager:IResourceManager;
-		private var preferredLocale:String
-		
 		
 		public function ResourceUtil(enforcer:SingletonEnforcer) {
 			if (enforcer == null) {
 				throw new Error( "You Can Only Have One ResourceUtil" );
 			}
-			initialize();
-		}
-		
-		private function isInited():Boolean {
-			return inited;
-		}
-		
-		public function initialize():void {
 			resourceManager = ResourceManager.getInstance();
+<<<<<<< HEAD
 			// Add a random string on the query so that we always get an up-to-date config.xml
 			var date:Date = new Date();
 			
@@ -173,55 +169,17 @@ package org.bigbluebutton.util.i18n
 			} 
 			return instance;
         }
+=======
+		}
+>>>>>>> origin/0.81-development
         
-		public function changeLocale(locale:String):void{        	
-			eventDispatcher = loadResource(locale);
-			eventDispatcher.addEventListener(ResourceEvent.COMPLETE, localeChangeComplete);
-			eventDispatcher.addEventListener(ResourceEvent.ERROR, handleResourceNotLoaded);
-		}
-		
-		private function localeChangeComplete(event:ResourceEvent):void {
-			// Set the preferred locale and master as backup.
-			if (preferredLocale != MASTER_LOCALE) {
-				LogUtil.debug("Loaded locale [" + preferredLocale + "] but setting [" + MASTER_LOCALE + "] as fallback");
-				resourceManager.localeChain = [preferredLocale, MASTER_LOCALE];
-				localeIndex = getIndexForLocale(preferredLocale);
-			} else {
-				if (preferredLocale != MASTER_LOCALE) {
-					LogUtil.debug("Failed to load locale [" + preferredLocale + "].");
-				}
-				LogUtil.debug("Using [" + MASTER_LOCALE + "] locale.");
-				resourceManager.localeChain = [MASTER_LOCALE];
-				preferredLocale = MASTER_LOCALE;
-				localeIndex = getIndexForLocale(preferredLocale);
-			}
-			sendAppAndLocaleVersions();
-			update();
-		}
-		
-		private function sendAppAndLocaleVersions():void {
-			var dispatcher:Dispatcher = new Dispatcher();
-			var versionEvent:AppVersionEvent = new AppVersionEvent();
-			versionEvent.configLocaleVersion = false;
-			dispatcher.dispatchEvent(versionEvent);			
-		}		
-		
-		/**
-		 * Defaults to DEFAULT_LANGUAGE when an error is thrown by the ResourceManager 
-		 * @param event
-		 */        
-		private function handleResourceNotLoaded(event:ResourceEvent):void{
-			LogUtil.warn("Resource locale [" + preferredLocale + "] could not be loaded.");
-			resourceManager.localeChain = [MASTER_LOCALE];
-			preferredLocale = MASTER_LOCALE;
-			localeIndex = getIndexForLocale(preferredLocale);
-			update();
-		}
-		
-		public function update():void{
-			dispatchEvent(new Event(Event.CHANGE));
-		}
-		
+        public static function getInstance():ResourceUtil {
+            if (instance == null) {
+                instance = new ResourceUtil(new SingletonEnforcer);
+            } 
+            return instance;
+        }
+				
 		[Bindable("change")]
 		public function getString(resourceName:String, parameters:Array = null, locale:String = null):String{
 			/**
@@ -238,13 +196,6 @@ package org.bigbluebutton.util.i18n
 			return localeTxt;
 		}
 		
-		public function getCurrentLanguageCode():String{
-			return preferredLocale;
-		}
-				
-		public function getLocaleCodeForIndex(index:int):String {
-			return localeCodes[index];
-		}
 	}
 }
 

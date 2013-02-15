@@ -34,7 +34,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return _moduleName;
 			}
 			
-			public function start(attributes:Object):void {	
+            public function start():void{
+                LogUtil.debug("Video dock module starting.");
+            }
+            
+			public function start1(attributes:Object):void {	
 				LogUtil.debug("Videodock attr: " + attributes.username);
 				
 				eventMap.startModule();

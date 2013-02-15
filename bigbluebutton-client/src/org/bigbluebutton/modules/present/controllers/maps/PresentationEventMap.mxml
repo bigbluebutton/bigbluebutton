@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
+	
+	<mx:Script>
+		<![CDATA[
+            import org.bigbluebutton.core.model.ConfigModel;
+            import org.bigbluebutton.core.model.MeetingModel;
+            import org.bigbluebutton.core.model.UsersModel;
+            import org.bigbluebutton.core.services.Red5BBBAppConnectionService;
+            import org.bigbluebutton.modules.present.controllers.events.PresentationEvent;
+            import org.bigbluebutton.modules.present.events.PresentModuleEvent;
+            import org.bigbluebutton.modules.present.events.PresenterCommands;
+            import org.bigbluebutton.modules.present.events.RemovePresentationEvent;
+            import org.bigbluebutton.modules.present.events.SlideEvent;
+            import org.bigbluebutton.modules.present.events.UploadEvent;
+            import org.bigbluebutton.modules.present.models.PresentationConfigModel;
+            import org.bigbluebutton.modules.present.models.PresentationModel;
+            import org.bigbluebutton.modules.present.services.PresentationSOService;
+            import org.bigbluebutton.modules.present.services.PresentationService;
+            import org.bigbluebutton.modules.present.services.PresentationUploadService;
+		]]>
+	</mx:Script>
+	
+    <EventHandlers type="{PresentModuleEvent.START_MODULE}">
+        <ObjectBuilder generator="{PresentationConfigModel}" cache="global"/>
+        <ObjectBuilder generator="{PresentationUploadService}" cache="global" constructorArguments="{scope.dispatcher}"/>
+		<ObjectBuilder generator="{PresentationEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
+		<ObjectBuilder generator="{PresentationModel}" cache="global" constructorArguments="{scope.dispatcher}"/>
+        <MethodInvoker generator="{PresentationEventMapDelegate}" method="start"/>
+        <ObjectBuilder generator="{PresentationSOService}" cache="global" constructorArguments="{scope.dispatcher}"/>
+        <MethodInvoker generator="{PresentationSOService}" method="connect"/>
+    </EventHandlers>	
+    
+    <Injectors target="{PresentationEventMapDelegate}">
+        <PropertyInjector targetKey="configModel" source="{PresentationConfigModel}"/>
+    </Injectors>
+
+    <Injectors target="{PresentationSOService}">
+        <PropertyInjector targetKey="red5Conn" source="{Red5BBBAppConnectionService}"/>
+        <PropertyInjector targetKey="meetingModel" source="{MeetingModel}"/>
+        <PropertyInjector targetKey="presentationModel" source="{PresentationModel}"/>
+    </Injectors>
+
+	<Injectors target="{PresentationService}">
+		<PropertyInjector targetKey="uploadService" source="{PresentationUploadService}"/>
+		<PropertyInjector targetKey="soService" source="{PresentationSOService}"/>
+	</Injectors>
+	
+    <Injectors target="{PresentationConfigModel}">
+        <PropertyInjector targetKey="configModel" source="{ConfigModel}"/>
+    </Injectors>
+
+	<Injectors target="{PresentationModel}">
+		<PropertyInjector targetKey="config" source="{PresentationConfigModel}"/>
+		<PropertyInjector targetKey="meeting" source="{MeetingModel}"/>
+		<PropertyInjector targetKey="users" source="{UsersModel}"/>
+	</Injectors>
+	
+    <Injectors target="{PresentationUploadService}">
+        <PropertyInjector targetKey="config" source="{PresentationConfigModel}"/>
+        <PropertyInjector targetKey="users" source="{UsersModel}"/>
+    </Injectors>
+	
+	
+	<EventHandlers type="{PresentModuleEvent.STOP_MODULE}" >
+		<MethodInvoker generator="{PresentationService}" method="handleStopModuleEvent" />
+	</EventHandlers>
+	
+	<EventHandlers type="{UploadEvent.OPEN_UPLOAD_WINDOW}" >
+		<MethodInvoker generator="{PresentationService}" method="handleOpenUploadWindow" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{UploadEvent.CLOSE_UPLOAD_WINDOW}" >
+		<MethodInvoker generator="{PresentationService}" method="handleCloseUploadWindow" />
+	</EventHandlers>
+	
+	<EventHandlers type="{UploadEvent.START_UPLOAD}">
+		<MethodInvoker generator="{PresentationService}" method="startUpload" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresenterCommands.GOTO_SLIDE}" >
+		<MethodInvoker generator="{PresentationService}" method="gotoSlide" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresenterCommands.RESET_ZOOM}" >
+		<MethodInvoker generator="{PresentationService}" method="resetZoom" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresenterCommands.SHARE_PRESENTATION_COMMAND}">
+		<MethodInvoker generator="{PresentationService}" method="sharePresentation" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresenterCommands.MOVE}" >
+		<MethodInvoker generator="{PresentationService}" method="moveSlide" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresenterCommands.ZOOM}" >
+		<MethodInvoker generator="{PresentationService}" method="zoomSlide" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresenterCommands.SEND_CURSOR_UPDATE}" >
+		<MethodInvoker generator="{PresentationService}" method="sendCursorUpdate" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{PresenterCommands.RESIZE}" >
+		<MethodInvoker generator="{PresentationService}" method="resizeSlide" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{UploadEvent.PRESENTATION_READY}" >
+		<MethodInvoker generator="{PresentationService}" method="loadPresentation" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{RemovePresentationEvent.REMOVE_PRESENTATION_EVENT}">
+		<MethodInvoker generator="{PresentationService}" method="removePresentation" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{RemovePresentationEvent.PRESENTATION_REMOVED_EVENT}">
+		<MethodInvoker generator="{PresentationService}" method="removePresentation" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{UploadEvent.CONVERT_SUCCESS}">
+		<MethodInvoker generator="{PresentationService}" method="updatePresentationNames" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{SlideEvent.LOAD_CURRENT_SLIDE}" >
+		<MethodInvoker generator="{PresentationService}" method="loadCurrentSlideLocally" arguments="{event}" />
+	</EventHandlers>
+
+    <EventHandlers type="{PresentationEvent.PRESENTATION_LOADED_EVENT}" >
+        <MethodInvoker generator="{PresentationModel}" method="loadCurrentPage"/>
+    </EventHandlers>
+
+    <EventHandlers type="{PresentationEvent.SHARING_PRESENTATION_EVENT}" >
+        <MethodInvoker generator="{PresentationModel}" method="loadPresentation" arguments="{event.presentationID}" />
+    </EventHandlers>
+</EventMap>

@@ -20,15 +20,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 
+<<<<<<< HEAD
 <mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="{ResourceUtil.getInstance().localeNames}" 
 			 selectedIndex="{ResourceUtil.getInstance().localeIndex}"
 			 change="changeLanguage()" rowCount="15" width="120" height="22">
+=======
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" dataProvider="" 
+			 selectedIndex="0"
+			 change="changeLanguage()" rowCount="15" width="120">
+>>>>>>> origin/0.81-development
 	<mx:Script>
 		<![CDATA[
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private function changeLanguage():void {
-				ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(selectedIndex));
+		//		ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(selectedIndex));
 			}
 		]]>
 	</mx:Script>

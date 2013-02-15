@@ -187,7 +187,99 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var chatIndex:int = getTabIndexFor(chatBox);
 				chatTabs.setClosePolicyForTab(chatIndex, SuperTab.CLOSE_NEVER);								
 			}
+<<<<<<< HEAD
 											
+=======
+			
+			public function setFocusOn(component:UIComponent):void {
+				if (component.id == "txtMsg") {
+					component.setFocus();
+					component.drawFocus(true);
+				}
+				else {
+                    chatWindow..txtMsg.setFocus();
+                    chatWindow..txtMsg.drawFocus(true);
+				}
+			}
+			
+			public function setFocusOff():void {
+                chatWindow..txtMsg.drawFocus(false);
+			}
+			
+			private function currentTime() : String {
+				return ChatBox.getHours() + ":" + ChatBox.getMinutes();
+			}
+			
+			public function sendMessages():void {
+				if (hasMessageToSend()){				
+					if (isChatBoxCurrentlySelected(PUBLIC_CHAT_USERID)) {						
+						sendPublicChatMessage(chatWindow.txtMsg.text);
+					} else{						
+						sendPrivateChatMessage();
+					}
+					clearMessageEntryTextBox();
+				}
+			}			
+			
+			private function hasMessageToSend():Boolean {
+				return chatWindow.txtMsg.text != "";
+                
+                return false;
+			}
+			
+			private function clearMessageEntryTextBox():void {
+                chatWindow.txtMsg.text = "";
+			}
+			
+			private function cleanup(message:String):String{
+				var parsedString:String = message.replace('<', '&#60;')
+				parsedString = parsedString.replace('>', '&#62;')
+				
+				return parsedString;
+			}
+			
+			private function parseURLs(message:String):String{
+				var indexOfHTTP:Number = message.indexOf("http://");
+				var indexOfWWW:Number = message.indexOf("www.");
+				if (indexOfHTTP == -1 && indexOfWWW == -1) return message;
+				
+				var words:Array = message.split(" ");
+				var parsedString:String = "";
+				
+				for (var n:Number = 0; n<words.length; n++){
+					var word:String = words[n] as String;
+					if (word.indexOf("http://") != -1) parsedString += '<a href="event:' + word + '"> <u>' + word + '</u></a> ';
+					else if (word.indexOf("www.") != -1) parsedString += '<a href="event:http://' + word + '"> <u>' + word + '</u></a> ';
+					else parsedString += word + ' ';
+				}
+				return parsedString;
+			}
+			
+			private function sendPublicChatMessage(message:String):void {
+				var publicEvent:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
+				publicEvent.message = parseURLs(cleanup(message));
+				publicEvent.color = chatWindow.cmpColorPicker.selectedColor.toString();
+				publicEvent.time = currentTime();
+				publicEvent.language = "en"; //ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
+				globalDispatcher.dispatchEvent(publicEvent);
+			}
+			
+			private function queryForParticipants():void {
+				var event:QueryParticipantsEvent = new QueryParticipantsEvent(QueryParticipantsEvent.QUERY_PARTICIPANTS_EVENT);
+				globalDispatcher.dispatchEvent(event);
+			}
+			
+			private function sendPrivateChatMessage():void {
+				var privateEvent:SendPrivateChatMessageEvent = new SendPrivateChatMessageEvent(SendPrivateChatMessageEvent.SEND_PRIVATE_CHAT_MESSAGE_EVENT);
+				privateEvent.message = parseURLs(cleanup(chatWindow.txtMsg.text));
+				privateEvent.toUser = chatTabs.selectedChild.name;
+				privateEvent.color = chatWindow.cmpColorPicker.selectedColor.toString();
+				privateEvent.time = currentTime();
+				privateEvent.language = "en"; //ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
+				globalDispatcher.dispatchEvent(privateEvent);
+			}
+			
+>>>>>>> origin/0.81-development
 			private function isChatBoxCurrentlySelected(id:String):Boolean {
 				if (chatTabs.getChildByName(id) == chatTabs.selectedChild){
 					return true;
@@ -346,6 +438,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						privateFocus == false;
 					}
 				}
+<<<<<<< HEAD
+=======
+				
+				chatBox = getChatBoxForParticipant(sender);
+				chatBox.showNewMessage(chatobj, translate, "en" /* ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0]*/);
+				
+				if (! isChatBoxCurrentlySelected(sender)) {
+					notifyParticipantOfUnreadMessageFrom(sender);
+				}				
+>>>>>>> origin/0.81-development
 			}
 			
 			public function publicChatUnfocus(event:FocusEvent):void {
