@@ -70,17 +70,19 @@ done_files.each do |df|
         FileUtils.rm_f "#{meeting_id}.zip"
 
         key_filename = ""
-        if metadata.has_key?('public-key')
+        if metadata.has_key?('mconflb-rec-server-key')
           key_filename = "#{meeting_id}.enc"
           #BigBlueButton.logger.info("Unescaping public key")
           #public_key_decoded = CGI::unescape("#{metadata['public-key'].to_s}")
           # The key is already unescaped in the metadata!!
-          public_key_decoded = "#{metadata['public-key'].to_s}"
+          public_key_decoded = "#{metadata['mconflb-rec-server-key'].to_s}"
           public_key_filename = "public-key.pem"
           public_key = File.new("#{public_key_filename}", "w") 
           public_key.write "#{public_key_decoded}"
-          public_key.close 
+          public_key.close
 
+=begin
+          # Test: print the public key
           public_key = File.new("#{public_key_filename}", "r")
           counter = 0
           while (line = public_key.gets)
@@ -88,6 +90,7 @@ done_files.each do |df|
             counter = counter + 1
           end
           public_key.close          
+=end
 
           command = "openssl rsautl -encrypt -pubin -inkey #{public_key_filename} < #{meeting_id}.txt > #{meeting_id}.enc"
           status = BigBlueButton.execute(command)
