@@ -254,7 +254,7 @@
 			private function createResultsTable(amount:uint, content:Array):void{
 				
 				answerCollection = trackingPoll.generateStats();
-				// Default row height for DataGrid is 20 pixels; the first row is a little larger.
+				// Default row height for DataGrid is 20 pixels; the first row is a little bit larger.
 				resultsGrid.height = (answers.length * 20) + 30;
 				
 				LogUtil.debug("WATERFALL AnswerCollection population: ");
