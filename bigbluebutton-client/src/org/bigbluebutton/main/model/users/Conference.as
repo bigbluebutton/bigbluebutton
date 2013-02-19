@@ -294,6 +294,14 @@ package org.bigbluebutton.main.model.users {
 			return me.name;
 		}
 		
+		public function setMyCustomData(customdata:Object):void{
+			me.customdata = customdata;
+		}
+		
+		public function getMyCustomData():Object{
+			return me.customdata;
+		}
+		
 		public function setMyRole(role:String):void {
 			me.role = role;
 		}

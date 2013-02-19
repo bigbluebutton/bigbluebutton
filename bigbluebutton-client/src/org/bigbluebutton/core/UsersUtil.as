@@ -78,6 +78,10 @@ package org.bigbluebutton.core
     public static function getAvatarURL():String {
       return UserManager.getInstance().getConference().avatarURL;
     }
+	
+	public static function getCustomData():Object {
+		return UserManager.getInstance().getConference().getMyCustomData();
+	}
     
     public static function getExternalMeetingID():String {
       return UserManager.getInstance().getConference().externalMeetingID;

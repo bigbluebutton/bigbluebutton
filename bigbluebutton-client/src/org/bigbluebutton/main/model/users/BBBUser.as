@@ -47,6 +47,7 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var voiceJoined:Boolean = false;
 		[Bindable] public var voiceLocked:Boolean = false;
 		[Bindable] public var status:String = "";
+		[Bindable] public var customdata:Object = {};
 		
 		private var _status:StatusCollection = new StatusCollection();
 			

@@ -72,7 +72,7 @@ package org.bigbluebutton.main.model.users
 										role:xml.role, room:xml.room, authToken:xml.room, record:xml.record, 
 										webvoiceconf:xml.webvoiceconf,
 										voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome, logoutUrl:xml.logoutUrl, 
-                    defaultLayout:xml.defaultLayout, avatarURL:xml.avatarURL};
+                    defaultLayout:xml.defaultLayout, avatarURL:xml.avatarURL, customdata:xml.customdata};
 				
 				if (_resultListener != null) _resultListener(true, user);
 			}

@@ -765,7 +765,8 @@ class ApiController {
       }
 	  
     } else {
-		UserSession us = meetingService.getUserSession(session['user-token']);	
+		UserSession us = meetingService.getUserSession(session['user-token']);
+		Meeting meeting = meetingService.getMeeting(us.meetingID);
         log.info("Found conference for " + us.fullname)
         response.addHeader("Cache-Control", "no-cache")
         withFormat {				
@@ -790,6 +791,11 @@ class ApiController {
 			  logoutUrl(us.logoutUrl)
 			  defaultLayout(us.defaultLayout)
 			  avatarURL(us.avatarURL)
+			  customdata(){
+				  meeting.getUserCustomData(us.externUserID).each{ k,v ->
+					  "$k"("$v")
+				  }
+			  }
             }
           }
         }
@@ -1207,6 +1213,7 @@ class ApiController {
             meetingID(meeting.getExternalId())
 			createTime(meeting.getCreateTime())
 			voiceBridge(meeting.getTelVoice())
+			dialNumber(meeting.getDialNumber())
             attendeePW(meeting.getViewerPassword())
             moderatorPW(meeting.getModeratorPassword())
             running(meeting.isRunning() ? "true" : "false")
