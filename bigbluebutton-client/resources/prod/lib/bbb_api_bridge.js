@@ -70,6 +70,15 @@
         }
       }
     }
+    
+    BBB.getPresenterUserID = function(callback) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        if (typeof callback === 'function') {
+          callback(swfObj.getPresenterUserID());
+        }
+      }
+    }
             
     /**
      * Query the Flash client for the user's role.

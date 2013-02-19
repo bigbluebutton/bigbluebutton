@@ -111,6 +111,8 @@ package org.bigbluebutton.modules.listeners.business
 		}
 				
 		public function userJoin(userId:Number, cidName:String, cidNum:String, muted:Boolean, talking:Boolean, locked:Boolean):void {
+      trace("***************** Voice user joining [" + cidName + "]");
+      
 			if (! _listeners.hasListener(userId)) {
 				var n:Listener = new Listener();
 				n.callerName = cidName != null ? cidName : "<Unknown Caller>";
@@ -222,9 +224,8 @@ package org.bigbluebutton.modules.listeners.business
 			}					
 		}
 		
-		public function userTalk(userId:Number, talk:Boolean) : void
-		{
-      trace("User talking event");
+		public function userTalk(userId:Number, talk:Boolean):void {
+      trace("ListenersSOService:: User talking event userID=[" + userId + "] talking=[" + talk + "]");
 			var l:Listener = _listeners.getListener(userId);			
 			if (l != null) {
 				l.talking = talk;
@@ -240,19 +241,20 @@ package org.bigbluebutton.modules.listeners.business
 			}	
 		}
 
-		public function userLeft(userId:Number):void
-		{
-			_listeners.removeListener(userId);	
+		public function userLeft(userID:Number):void {
+      // Set the user to not talking. This will update UIs that depend on the user talking state.
+      userTalk(userID, false);
+      
 			/**
 			 * Let's store the voice userid so we can do push to talk.
 			 */
-			if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
+			if (UserManager.getInstance().getConference().amIThisVoiceUser(userID)) {
 				UserManager.getInstance().getConference().setMyVoiceJoined(false);
 				UserManager.getInstance().getConference().setMyVoiceUserId(0);
 				UserManager.getInstance().getConference().setMyVoiceJoined(false);
 			}
       
-      var bu:BBBUser = UsersUtil.getVoiceUser(userId)
+      var bu:BBBUser = UsersUtil.getVoiceUser(userID)
       if (bu != null) {
         bu.voiceUserid = 0;
         bu.voiceMuted = false;
@@ -262,6 +264,8 @@ package org.bigbluebutton.modules.listeners.business
         bbbEvent.payload.userID = bu.userID;
         globalDispatcher.dispatchEvent(bbbEvent);
       }
+      
+      _listeners.removeListener(userID);
 		}
 		
 		public function ping(message:String):void {

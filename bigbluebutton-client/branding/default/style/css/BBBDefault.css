@@ -53,7 +53,7 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;
-  themeColor: #aaaaaa;
+  themeColor: haloBlue;
   fontFamily: Arial;
   fontSize: 12;
 }
@@ -103,7 +103,7 @@ DataGrid {
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;
-  themeColor: #aaaaaa;
+  themeColor: haloBlue;
   fontFamily: Arial;
   fontSize: 12;
 }
@@ -160,7 +160,7 @@ DataGrid {
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;
-  themeColor: #aaaaaa;
+  themeColor: haloBlue;
   fontFamily: Arial;
   fontSize: 12;
 }
@@ -197,7 +197,7 @@ DataGrid {
   invertThumbDirection: false;
   borderColor: #b9babc;
   trackColors: #aaaaaa, #aaaaaa;
-  themeColor: #aaaaaa;
+  themeColor: haloBlue;
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
   labelStyleName: "presentationZoomSliderLabelStyle";
@@ -378,7 +378,7 @@ DataGrid {
 
 .micSettingsWindowCancelButtonStyle {
   fillAlphas: 1, 1, 1, 1;
-  fillColors: #ff0000, #ff0000, #ffffff, #eeeeee;
+  fillColors: #ffffff, #eeeeee, #ffffff, #eeeeee;
   rollOverColor: #eeeeee;
   color: #5e5f63;
   textRollOverColor: #5e5f63;
@@ -623,4 +623,9 @@ MDIWindow {
   overSkin:      Embed('assets/images/resizeHandler.png');
   downSkin:      Embed('assets/images/resizeHandler.png');
   disabledSkin:  Embed('assets/images/resizeHandler.png');
+}
+
+.cameraDisplaySettingsWindowStartBtn
+{
+  icon:   Embed('assets/images/play-blue.png');
 }

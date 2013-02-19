@@ -137,7 +137,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
       trace("Leaving hotkeyCapture");
     }
-
+	
 	// Handle general-access hotkeys, regardless of what window the user is focused in
 	private function handleKeyDown(e:KeyboardEvent) :void {
   		var modifier:String = ExternalInterface.call("determineModifier");
@@ -150,7 +150,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 		
 		if (keyCombos[keyPress]) {
-			trace("Chad keypress " + keyPress);
 			globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
 		}
     }

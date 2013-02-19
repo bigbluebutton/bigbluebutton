@@ -19,12 +19,8 @@
 .acorn-player.darkglass {
 	float: left;
 	position: relative;	
-	
 	padding: 2px;
-
 	font-family: Arial, Helvetica, sans-serif;
-	
-	
 }
 /* <video> element */
 .acorn-player.darkglass video {
@@ -52,7 +48,6 @@
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
-	
 	background: #000000;
 	background-image: -moz-linear-gradient(top, #313131, #000000);
 	background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #313131),color-stop(1, #000000));		

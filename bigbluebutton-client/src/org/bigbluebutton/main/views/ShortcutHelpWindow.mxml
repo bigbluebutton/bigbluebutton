@@ -71,10 +71,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void {
-				//LogUtil.debug("WATERFALL: Creation Complete - Shortcut window");
-				//var browser = ExternalInterface.call("determineBrowser");
-				//var modifier = ExternalInterface.call("determineModifier");
-				//browserInfo.text = "You are using " + browser + " and your hotkey modifier is " + modifier + ".";
 				reloadKeys();
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, reloadKeys); // Listen for locale changing
 			}
@@ -170,9 +166,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return keyList;
 			}
 			
-			public function focusCategories():void {
-				focusManager.setFocus(categories);
-				categories.drawFocus(true);
+			public function focusCategories():void { //actually focuses the datagrid instead
+				focusManager.setFocus(keyList);
+				keyList.drawFocus(true);
 			}
 		]]>
 	</mx:Script>

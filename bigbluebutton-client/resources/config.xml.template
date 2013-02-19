@@ -12,7 +12,7 @@
             
 		<modules>
 		 
-		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=4105" 
+		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="ViewersModule"	
 			translationOn="false"
@@ -22,14 +22,14 @@
 			baseTabIndex="701"
 		/>
 		
-		<module name="ViewersModule" url="http://HOST/client/ViewersModule.swf?v=4105" 
+		<module name="ViewersModule" url="http://HOST/client/ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
 			allowKickUser="false"
 			baseTabIndex="201"
 		/>
 			
-		<module name="ListenersModule" url="http://HOST/client/ListenersModule.swf?v=4105" 
+		<module name="ListenersModule" url="http://HOST/client/ListenersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
 			position="bottom-left"
@@ -43,7 +43,7 @@
 			baseTabIndex="101"
 		/>
 		
-		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=4105" 
+		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
 			uri="rtmp://HOST/sip" 
 			autoJoin="true"
 			skipCheck="false"
@@ -52,7 +52,7 @@
 			dependsOn="ViewersModule"
 		/>
 
-		<module name="VideoconfModule" url="http://HOST/client/VideoconfModule.swf?v=4105" 
+		<module name="VideoconfModule" url="http://HOST/client/VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"
 			dependson = "ViewersModule"
 			videoQuality = "100"
@@ -85,8 +85,15 @@
 			dependsOn="PresentModule"
 			baseTabIndex="601"
 		/>
-		
-		<module name="PresentModule" url="http://HOST/client/PresentModule.swf?v=4105" 
+
+<!--
+    <module name="PollingModule" url="http://HOST/client/PollingModule.swf?v=VERSION" 
+      uri="rtmp://HOST/bigbluebutton" 
+      dependsOn="PresentModule"
+    />
+-->
+    		
+		<module name="PresentModule" url="http://HOST/client/PresentModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST" 
 			showPresentWindow="true"
@@ -95,7 +102,7 @@
 			baseTabIndex="501"
 		/>
 
-		<module name="VideodockModule" url="http://HOST/client/VideodockModule.swf?v=4105"
+		<module name="VideodockModule" url="http://HOST/client/VideodockModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="VideoconfModule, ViewersModule"
 			autoDock="true"
@@ -109,7 +116,7 @@
 			baseTabIndex="401"
 		/>
 		
-		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=4105"
+		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton"
 			layoutConfig="http://HOST/client/conf/layout.xml"
 			enableEdit="true"

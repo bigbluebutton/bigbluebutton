@@ -47,6 +47,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void{
 				users = UserManager.getInstance().getConference().users;
 			}
+			
+			public function accessibleClick(event:KeyboardEvent):void{
+				if (event.keyCode == 32){
+					openPrivateChat(event);
+				}
+			}
 
 			protected function openPrivateChat(event:Event):void{
 				if (usersList.selectedIndex == -1) return;

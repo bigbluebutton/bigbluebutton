@@ -21,6 +21,7 @@ package org.bigbluebutton.main.model.users
 	import com.asfusion.mate.events.Dispatcher;	
 	import mx.collections.ArrayCollection;	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	
@@ -45,17 +46,23 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var voiceMuted:Boolean = false;
 		[Bindable] public var voiceJoined:Boolean = false;
 		[Bindable] public var voiceLocked:Boolean = false;
+		[Bindable] public var status:String = "";
 		
 		private var _status:StatusCollection = new StatusCollection();
-				
-		public function get status():ArrayCollection {
-			return _status.getAll();
-		}
-		
-		public function set status(s:ArrayCollection):void {
-			_status.status = s;
-		}	
 			
+		public function buildStatus():void{
+			var showingWebcam:String = "";
+			var isPresenter:String = "";
+			var handRaised:String = "";
+			if (hasStream)
+				showingWebcam = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.streamIcon.toolTip');
+			if (presenter)
+				isPresenter = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.presIcon.toolTip');
+			if (raiseHand)
+				handRaised = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip');
+			status = showingWebcam + isPresenter + handRaised;
+		}
+	
 		public function addStatus(status:Status):void {
 			_status.addStatus(status);
 		}
@@ -92,6 +99,7 @@ package org.bigbluebutton.main.model.users
 					raiseHand = status.value as Boolean;
 					break;
 			}
+			buildStatus();
 		}
 		
 		public function removeStatus(name:String):void {

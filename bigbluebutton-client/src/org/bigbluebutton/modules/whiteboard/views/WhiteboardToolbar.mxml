@@ -65,6 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.managers.CursorManager;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
@@ -80,7 +81,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
-			import org.bigbluebutton.modules.whiteboard.views.models.WhiteBoardOptions;
+			import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.common.LogUtil;
 			
@@ -104,11 +105,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var select_icon:Class = images.select_icon;
 			[Bindable] private var grid_icon:Class = images.grid_icon;
 			
-			[Bindable] public var wbOptions:WhiteBoardOptions;
+			[Bindable] public var wbOptions:WhiteboardOptions;
 			[Bindable] private var baseIndex:int;
 			
 			[Bindable] private var showWhiteboardToolbar:Boolean = true;
-			
+
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
 			
@@ -116,7 +117,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 '0xCCFF00', '0x00FF00', '0x00FF88', '0x00FFFF', '0x0088FF', '0x0000FF', '0x8800FF', '0xFF00FF', '0xC0C0C0'];
 			
 			private function init():void{
-				wbOptions = new WhiteBoardOptions();
+				wbOptions = new WhiteboardOptions();
 				baseIndex = wbOptions.baseTabIndex;
 			}
 			
@@ -194,14 +195,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (canvas == null) return;
         
 				canvas.makeTextObjectsEditable(e);
-        hideOrDisplayToolbar();
         setToolType(WhiteboardConstants.TYPE_ZOOM, null);
 			}
 			
 			private function viewerMode(e:MadePresenterEvent):void {
-        canvas.makeTextObjectsUneditable(e);
-        hideOrDisplayToolbar();
-      }
+				canvas.makeTextObjectsUneditable(e);
+				if (!toolbarAllowed()) hideToolbar();
+			}
 			
 			private function undoShortcut(e:ShortcutEvent):void{
 				LogUtil.debug("Ctrl-Z got into undoShortcut");
@@ -217,19 +217,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function positionToolbar(window:PresentationWindow):void {
         trace("Positioning whiteboard toolbar");
 				presentationWindow = window;
-				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
-				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
-				presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
-				this.x = presentationWindow.x + presentationWindow.width + 3;
-				this.y = presentationWindow.y + 30;
-        hideOrDisplayToolbar();
-				parent.setChildIndex(this, parent.numChildren - 1);
+				//presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
+				//presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
+				//presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
+				presentationWindow.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
+				presentationWindow.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
+				this.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
+				this.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
+				
+				//this.x = presentationWindow.x + presentationWindow.width - 43;
+				//this.y = presentationWindow.y + 30;
+				//parent.setChildIndex(this, parent.numChildren - 1);
 			}
 			
 			private function setPositionAndDepth(e:Event = null):void {
-				this.x = presentationWindow.x + presentationWindow.width + 3;
+				this.x = presentationWindow.x + presentationWindow.width - 43;
 				this.y = presentationWindow.y + 30;
-        hideOrDisplayToolbar();
 				parent.setChildIndex(this, parent.numChildren - 1);
 			}
 			
@@ -237,14 +240,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				parent.removeChild(this);
 			}
       
-      private function hideOrDisplayToolbar():void {
-        if (presentationWindow != null && presentationWindow.visible && ! presentationWindow.minimized) {
-          trace("Positioning whiteboard toolbar: showing");
-          showWhiteboardToolbar = true;
-        } else {
-          trace("Positioning whiteboard toolbar: not showing");
-          showWhiteboardToolbar = false;
+      private function showToolbar(e:MouseEvent):void {
+        if (toolbarAllowed()) {
+        	setPositionAndDepth();
+        	showWhiteboardToolbar = true;
         }
+      }
+      
+      private function hideToolbar(e:MouseEvent = null):void {
+        showWhiteboardToolbar = false;
       }
            
       private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
@@ -254,7 +258,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function graphicObjDeselected(event:GraphicObjectFocusEvent):void  {
 		var gobj:GraphicObject = event.data;
       }
-			           
+      
+      private function toolbarAllowed():Boolean {
+      	if (wbOptions) {
+      	  if (wbOptions.whiteboardAccess == "presenter")
+            return isPresenter;
+          else if (wbOptions.whiteboardAccess == "moderator")
+            return isModerator || isPresenter;
+          else if (wbOptions.whiteboardAccess == "all")
+            return true;
+          else
+            return false;
+        } else
+          return false;
+      }
+      
+      /** Helper method to test whether this user is the presenter */
+      private function get isPresenter():Boolean {
+        return UserManager.getInstance().getConference().amIPresenter();
+      }
+      
+      private function get isModerator():Boolean {
+        return UserManager.getInstance().getConference().amIModerator();
+      }
+		           
 		]]>
 	</mx:Script>
 	
