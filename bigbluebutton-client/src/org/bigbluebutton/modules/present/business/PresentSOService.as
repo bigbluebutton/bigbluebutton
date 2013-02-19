@@ -427,7 +427,7 @@ package org.bigbluebutton.modules.present.business {
 				LogUtil.debug("trigger Switch to Presenter mode ");
         trace("PresentSOService:: trigger Switch to Presenter mode ");
 				var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
-				e.userid = meeting.getMyUserId();
+				e.userID = meeting.getMyUserId();
 				e.presenterName = meeting.getMyName();
 				e.assignerBy = meeting.getMyUserId();
 				
@@ -439,7 +439,7 @@ package org.bigbluebutton.modules.present.business {
 					LogUtil.debug("trigger Switch to Viewer mode ");
           trace("PresentSOService:: trigger Switch to Presenter mode ");
 					var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
-					viewerEvent.userid = p.userID;
+					viewerEvent.userID = p.userID;
 					viewerEvent.presenterName = p.name;
 					viewerEvent.assignerBy = p.userID;
 					
