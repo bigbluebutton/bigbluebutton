@@ -56,6 +56,7 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("switchPresenterRequest", handleSwitchPresenterRequest);
         ExternalInterface.addCallback("getMyUserInfoSync", handleGetMyUserInfoSynch);
         ExternalInterface.addCallback("getMyUserInfoAsync", handleGetMyUserInfoAsynch);
+        ExternalInterface.addCallback("getPresenterUserID", handleGetPresenterUserID);
         ExternalInterface.addCallback("getMyUserID", handleGetMyUserID);
         ExternalInterface.addCallback("getExternalMeetingID", handleGetExternalMeetingID);
         ExternalInterface.addCallback("joinVoiceRequest", handleJoinVoiceRequest);
@@ -177,6 +178,15 @@ package org.bigbluebutton.main.api
     
     private function handleGetMyUserID():String {
       return UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+    }
+    
+    private function handleGetPresenterUserID():String {
+      var presUserID:String = UsersUtil.getPresenterUserID();
+      if (presUserID != "") {
+        return UsersUtil.internalUserIDToExternalUserID(presUserID);
+      }
+      // return an empty string. Meeting has no presenter.
+      return "";
     }
     
     private function handleGetExternalMeetingID():String {
@@ -303,9 +313,8 @@ package org.bigbluebutton.main.api
     
     private function handleJoinVoiceRequest():void {
       trace("handleJoinVoiceRequest");
-      var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-      joinEvent.payload['useMicrophone'] = true;
-      _dispatcher.dispatchEvent(joinEvent);
+      var showMicEvent:BBBEvent = new BBBEvent("SHOW_MIC_SETTINGS");
+      _dispatcher.dispatchEvent(showMicEvent);
     }
     
     private function handleLeaveVoiceRequest():void {

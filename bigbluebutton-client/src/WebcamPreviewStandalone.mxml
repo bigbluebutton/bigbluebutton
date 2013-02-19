@@ -58,7 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         trace("WebcamPreviewSA:: Security.allowDomain(" + determineHTMLURL() + ");");
         
         initExternalInterface();
-//        displayCamera("0", 30, 10, 0, 90);
+        callWebcamPreviewStandaloneReady();
       }
       
       private function determineHTMLURL():String {
@@ -82,6 +82,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           ExternalInterface.addCallback("startPreviewCamera", handleStartPreviewCameraRequest);
           ExternalInterface.addCallback("stopPreviewCamera", handleStopPreviewCamera);
         }
+      }
+      
+      private function callWebcamPreviewStandaloneReady():void {
+        if (ExternalInterface.available) {
+          ExternalInterface.call("webcamPreviewStandaloneAppReady");
+        }      
       }
       
       private function handleStartPreviewCameraRequest(camIndex:String, camWidth:int, camHeight:int,

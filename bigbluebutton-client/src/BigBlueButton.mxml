@@ -128,11 +128,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     {
       var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
                             (e.altKey   ? "alt+"     : "") + e.keyCode;
-      //LogUtil.debug("Chad keypress " + keyPress);
 
       if (keyCombos[keyPress])
       {
-        trace("Chad keypress " + keyPress);
         globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
       }
     }

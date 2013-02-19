@@ -180,6 +180,14 @@ br{
 	cursor: pointer;
 }
 
+#accInfo{
+        margin: 20px auto;
+        font-size:0.75em;
+        text-align: center;
+        clear: both;
+	padding-top: 75px;
+}
+
 #footer{
         margin: 20px auto;
         font-size:0.75em;

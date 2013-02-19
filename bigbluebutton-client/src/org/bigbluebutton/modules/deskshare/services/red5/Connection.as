@@ -20,20 +20,23 @@
 package org.bigbluebutton.modules.deskshare.services.red5
 {
 	import com.asfusion.mate.events.Dispatcher;
-  import flash.net.Responder;
-  import flash.net.SharedObject;
+	
 	import flash.events.EventDispatcher;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.events.TimerEvent;
 	import flash.net.NetConnection;
 	import flash.net.ObjectEncoding;
+	import flash.net.Responder;
+	import flash.net.SharedObject;
 	import flash.utils.Timer;
-  import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
-  import org.bigbluebutton.modules.deskshare.events.CursorEvent;
-  import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;	
-	import mx.events.MetadataEvent;	
+	
+	import mx.events.MetadataEvent;
+	
 	import org.bigbluebutton.common.LogUtil;
+	import org.bigbluebutton.modules.deskshare.events.AppletStartedEvent;
+	import org.bigbluebutton.modules.deskshare.events.CursorEvent;
+	import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 
 	
 	public class Connection {
@@ -67,9 +70,15 @@ package org.bigbluebutton.modules.deskshare.services.red5
             dispatcher.dispatchEvent(event);
           } else {
             trace("No deskshare stream being published");
+            var connEvent:ConnectionEvent = new ConnectionEvent();
+            connEvent.status = ConnectionEvent.NO_DESKSHARE_STREAM;
+            dispatcher.dispatchEvent(connEvent);
           }
         },
         function(status:Object):void{
+          var checkFailedEvent:ConnectionEvent = new ConnectionEvent();
+          checkFailedEvent.status = ConnectionEvent.FAIL_CHECK_FOR_DESKSHARE_STREAM;
+          dispatcher.dispatchEvent(checkFailedEvent);         
           trace("Error while trying to call remote mathod on server");
         }
       );
@@ -233,8 +242,12 @@ package org.bigbluebutton.modules.deskshare.services.red5
      * This method is useful for clients which have joined a room where somebody is already publishing
      * 
      */		
-    private function checkIfStreamIsPublishing(room:String):void{
+    private function checkIfStreamIsPublishing(room: String):void{
       trace("checking if desk share stream is publishing");
+      var event:ConnectionEvent = new ConnectionEvent();
+      event.status = ConnectionEvent.CHECK_FOR_DESKSHARE_STREAM;
+      dispatcher.dispatchEvent(event);
+      
       nc.call("deskshare.checkIfStreamIsPublishing", responder, room);
     }
     

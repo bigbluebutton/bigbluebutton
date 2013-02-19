@@ -923,7 +923,7 @@
 					 * to bypass a known webkit bug that causes loadedmetadata to be triggered
 					 * before the duration is available
 					 */
-					 
+
 					var t = window.setInterval(function() {
 								if (acorn.$self[0].readyState > 0) {									
 									updateSeek();
@@ -949,7 +949,6 @@
 					 */
 					acorn.$container.addClass('audio-player');
 				}
-				
 			}();
 		
 		};

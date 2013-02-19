@@ -343,11 +343,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function handleKeyDown(e:KeyboardEvent) :void {
-//				LogUtil.debug("WATERFALL: Entering handleKeyDown");
-				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
-//				LogUtil.debug("WATERFALL keypress: " + keyPress);		
+				var keyPress:String = (e.ctrlKey ? "control+" : "") + (e.shiftKey ? "shift+" : "") + (e.altKey ? "alt+" : "") + e.keyCode;		
 				if (keyCombos[keyPress]) {
-//					LogUtil.debug("WATERFALL keypress matched something in keyCombos: " + keyCombos[keyPress]);
 					var event:ShortcutEvent = new ShortcutEvent(keyCombos[keyPress]);
 					event.otherUserID = chatWithUserID; 
 					globalDispatcher.dispatchEvent(event);

@@ -51,21 +51,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var shownKeys:ArrayCollection;
 			
 			private function onCreationComplete():void {
-				LogUtil.debug("WATERFALL: Shortcut window has been opened");
 				reloadKeys();
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, reloadKeys); // Listen for locale changing
 			}
 			
 			private function reloadKeys(e:Event = null):void {
-				LogUtil.debug("Chad start of function");
+				// LogUtil.debug("Chad start of function");
 				genKeys = loadKeys(genResource);
-				LogUtil.debug("CHAD loaded" + genKeys);
+				// LogUtil.debug("CHAD loaded" + genKeys);
 				presKeys = loadKeys(presResource);
-				LogUtil.debug("CHAD loaded" + presKeys.length);
+				// LogUtil.debug("CHAD loaded" + presKeys.length);
 				chatKeys = loadKeys(chatResource);
-				LogUtil.debug("CHAD loaded" + chatKeys.length);
+				// LogUtil.debug("CHAD loaded" + chatKeys.length);
 				audKeys = loadKeys(audResource);
-				LogUtil.debug("CHAD loaded" + audKeys.length);
+				// LogUtil.debug("CHAD loaded" + audKeys.length);
 				
 				changeArray();
 			}
@@ -118,9 +117,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return keyList;
 			}
 			
-			public function focusCategories():void {
-				focusManager.setFocus(categories);
-				categories.drawFocus(true);
+			public function focusCategories():void { //actually focuses the datagrid instead
+				focusManager.setFocus(keyList);
+				keyList.drawFocus(true);
 			}
 		]]>
 	</mx:Script>

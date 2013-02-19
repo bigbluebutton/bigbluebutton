@@ -33,6 +33,7 @@
 	<property name="VIDEO" value="VideoconfModule" />
 	<property name="WHITEBOARD" value="WhiteboardModule" />
 	<property name="VIDEO_DOCK" value="VideodockModule" />
+	<property name="POLLING" value="PollingModule" />
 	<property name="LAYOUT" value="LayoutModule" />
 	<property name="PARTICIPANTS" value="ParticipantsModule" />
 	
@@ -178,6 +179,10 @@
     <build-module src="${SRC_DIR}" target="${NOTES}" />
   </target>
 	
+	<target name="build-polling" description="Compile Polling Module">
+		<build-module src="${SRC_DIR}" target="${POLLING}" />
+	</target>
+
 	<target name="build-viewers" description="Compile Viewers Module">
 		<build-module src="${SRC_DIR}" target="${VIEWERS}" />
 	</target>
@@ -476,5 +481,5 @@
                         description="Build BBB client without locales"/>		
 	<target name="cleanandmake" depends="clean-build-all" description="Build BBB client including locales"/>
 
-	<target name="build-custom" depends="init-ant-contrib, build-participants" description="Build a custom defined module only, to save time as each build takes several minutes" />
+	<target name="build-poll" depends="init-ant-contrib, build-polling" description="Build only the polling module." />
 </project>
