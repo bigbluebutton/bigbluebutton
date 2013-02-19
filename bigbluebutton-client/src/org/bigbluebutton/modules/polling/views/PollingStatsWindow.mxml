@@ -21,7 +21,7 @@
 -->
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   height="150"
+		   height="500"
 		   width="410"  
 		   xmlns:mate="http://mate.asfusion.com/"
 		   implements="org.bigbluebutton.common.IBbbModuleWindow"
@@ -34,7 +34,6 @@
 
 	<mx:Script>
 		<![CDATA[
-		
 		import flexlib.mdi.events.MDIWindowEvent;
 		import org.bigbluebutton.main.views.MainCanvas;
 		import mx.controls.Alert;
@@ -67,7 +66,10 @@
 		import mx.controls.*;		
 		import flash.utils.Timer;
 		import flash.events.TimerEvent;
-
+		import mx.controls.listClasses.ListBaseContentHolder;
+		import mx.controls.dataGridClasses.DataGridHeader;
+		import mx.core.UIComponent;
+			
 	   	public static const LOGNAME:String = "[PollingStatsWindow] ";
 		[Bindable] public var question:String;
 		[Bindable] public var answers:Array;
@@ -85,9 +87,12 @@
 		private var webClosed:Boolean;
 		private var notified:Boolean;
 		private var refreshTimer:Timer = new Timer(1000);
-		private var answersAC:ArrayCollection = new ArrayCollection();
+		[Bindable]
+		private var answerCollection:ArrayCollection = new ArrayCollection();
 		
-		private function init():void{			
+		private function init():void{
+			answerCollection = trackingPoll.generateStats();
+						
 			conference = UserManager.getInstance().getConference();
 			webPollText.visible = (conference.amIPresenter() && (!reviewing && trackingPoll.publishToWeb));
 			btnClosePoll.visible = conference.amIPresenter();
@@ -101,7 +106,6 @@
 			}
 			refreshTimer.addEventListener(TimerEvent.TIMER, autoRefresh);
 			refreshTimer.start();
-			answersAC = trackingPoll.generateStats();
 			notified = false;
 		}
 
@@ -138,11 +142,13 @@
 						
 			answers = trackingPoll.answers;
 			question = trackingPoll.question;
-			var lines:int = (question.length / 28) + 1;
+			
+			/*var lines:int = (question.length / 28) + 1;
 			for(var s:String in answers){
 				lines = lines + ((s.length / 28) + 1);	
 			}				 	            	
-			height = height + ((lines+1) * 45);
+			height = height + ((lines+1) * 45);*/
+			
 			createResultsTable(answers.length, answers);
 		}			
 
@@ -246,7 +252,109 @@
  		
 			// function receives Array.length and ArrayCollection
 			private function createResultsTable(amount:uint, content:Array):void{
-				var _tx: Text;
+				
+				answerCollection = trackingPoll.generateStats();
+				// Default row height for DataGrid is 20 pixels; the first row is a little larger.
+				resultsGrid.height = (answers.length * 20) + 30;
+				
+				LogUtil.debug("WATERFALL AnswerCollection population: ");
+				for (var i:int = 0; i < answerCollection.length; i++){
+					LogUtil.debug(i + ": " + answerCollection.getItemAt(i).toString());
+				}
+				LogUtil.debug("---------");
+				//resultsGrid.dataProvider = {answerCollection};
+				
+				/*
+				LogUtil.debug("WATERFALL ResultsGrid children: ");
+				for (var gridKid:int = 0; gridKid < resultsGrid.numChildren; gridKid++){
+					LogUtil.debug(gridKid + ": " + resultsGrid.getChildAt(gridKid).toString());
+					if (resultsGrid.getChildAt(gridKid).hasOwnProperty("numChildren")){
+						LogUtil.debug("---has children");
+					}
+				}
+				LogUtil.debug("---------");
+				*/
+				
+				/*
+				WATERFALL ResultsGrid children: 
+				0: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4861.VBox4871.resultsGrid.HaloBorder5428
+				1: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4861.VBox4871.resultsGrid.mask
+				2: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4861.VBox4871.resultsGrid.ListBaseContentHolder4885
+				---has children
+				3: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4861.VBox4871.resultsGrid.DataGridHeader4887
+				---has children
+				4: [object Shape]
+				---------
+				*/
+				/*
+				LogUtil.debug("WATERFALL ResultsGrid child 2: ");
+				var child2:ListBaseContentHolder = resultsGrid.getChildAt(2) as ListBaseContentHolder;
+				for (var gridKid:int = 0; gridKid < child2.numChildren; gridKid++){
+					LogUtil.debug(gridKid + ": " + child2.getChildAt(gridKid).toString());
+					if (child2.getChildAt(gridKid).hasOwnProperty("numChildren")){
+						LogUtil.debug("---has children");
+					}
+				}
+				LogUtil.debug("---------");
+				*/
+				/*
+				WATERFALL ResultsGrid child 2: 
+				2/14/2013 12:00:53.439 [DEBUG] 0: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.rowBGs
+				2/14/2013 12:00:53.439 [DEBUG] ---has children
+				2/14/2013 12:00:53.439 [DEBUG] 1: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.selectionLayer
+				2/14/2013 12:00:53.439 [DEBUG] ---has children
+				2/14/2013 12:00:53.440 [DEBUG] 2: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.DataGridItemRenderer5034
+				2/14/2013 12:00:53.440 [DEBUG] 3: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.DataGridItemRenderer5035
+				2/14/2013 12:00:53.440 [DEBUG] 4: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.DataGridItemRenderer5036
+				2/14/2013 12:00:53.440 [DEBUG] 5: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.DataGridItemRenderer5037
+				2/14/2013 12:00:53.440 [DEBUG] 6: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.DataGridItemRenderer5038
+				2/14/2013 12:00:53.440 [DEBUG] 7: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.DataGridItemRenderer5039
+				2/14/2013 12:00:53.441 [DEBUG] 8: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.lines
+				2/14/2013 12:00:53.441 [DEBUG] ---has children
+				2/14/2013 12:00:53.441 [DEBUG] ---------
+				*/
+				
+				
+				/*
+				// Nothing useful here
+				LogUtil.debug("WATERFALL ResultsGrid child 3: ");
+				var child3:DataGridHeader = resultsGrid.getChildAt(3) as DataGridHeader;
+				for (var gridKid:int = 0; gridKid < child3.numChildren; gridKid++){
+					LogUtil.debug(gridKid + ": " + child3.getChildAt(gridKid).toString());
+					if (child3.getChildAt(gridKid).hasOwnProperty("numChildren")){
+						LogUtil.debug("---has children");
+					}
+				}
+				LogUtil.debug("---------");
+				*/
+				
+				/*
+				2/14/2013 12:00:53.441 [DEBUG] WATERFALL ResultsGrid child 3: 
+				2/14/2013 12:00:53.441 [DEBUG] 0: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.DataGridHeader4407.headerBG
+				2/14/2013 12:00:53.441 [DEBUG] ---has children
+				2/14/2013 12:00:53.441 [DEBUG] 1: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.DataGridHeader4407.UIComponent4408
+				2/14/2013 12:00:53.441 [DEBUG] ---has children
+				2/14/2013 12:00:53.441 [DEBUG] 2: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.DataGridHeader4407.lines
+				2/14/2013 12:00:53.441 [DEBUG] ---has children
+				2/14/2013 12:00:53.441 [DEBUG] ---------
+				*/
+				
+				/*
+				// Has children, but they don't appear in the log
+				LogUtil.debug("WATERFALL ResultsGrid child 3, sub-child 1: ");
+				var subchild1:UIComponent = child3.getChildAt(1) as UIComponent;
+				for (var gridKid:int = 0; gridKid < subchild1.numChildren; gridKid++){
+					LogUtil.debug(gridKid + ": " + subchild1.getChildAt(gridKid).toString());
+					if (subchild1.getChildAt(gridKid).hasOwnProperty("numChildren")){
+						LogUtil.debug("---has children");
+					}
+				}
+				LogUtil.debug("---------");*/
+				
+				
+				////////////////////////////////////////////////////////
+				
+				/*var _tx: Text;
 				var _votes: Text;
 				var _percent: Text;
 				var _hb: HBox; 
@@ -295,11 +403,11 @@
 				} // end of loop
 				didNotVote();
 				invalidateDisplayList();
-				resultBox.validateNow();	
+				resultBox.validateNow();*/	
 			} // end of function createResultsTable
 			
 			private function didNotVote():void{
-				var _tx:Text = new Text();
+				/*var _tx:Text = new Text();
 				var _votes:Text= new Text;
 				var _hb:HBox = new HBox();
 				_tx.name = "optionNull";
@@ -312,7 +420,7 @@
 				
 				resultBox.addChild(_hb);					
 				_hb.addChild(_tx);
-				_hb.addChild(_votes);
+				_hb.addChild(_votes);*/
 			}
 	]]>
 	</mx:Script>
@@ -347,38 +455,34 @@
 				 paddingTop="15" paddingBottom="10" 
 				 fontWeight="bold" textAlign="center"
 				 text="{question}"/>
+		
+		<!-- This box holds the non-accessible table that the results have historically gone into
 		<mx:Box id="resultBox"  
 				width="90%" 
 				height="90%" />
+			 Do not delete yet. -->
     
-	<!-- Viewer's grid used as an example -->
-	<!--mx:DataGrid id="viewersGrid" dataProvider="{UserManager.getInstance().getConference().users}" editable="false"
->>>>>>> poll-access
-    	dragEnabled="false"  width="90%" height="100%"	accessibilityName="Users list.">
-    	<mx:columns>
-    		<mx:DataGridColumn dataField="role" 
-    						   headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.roleItemRenderer')}" 
-    						   dataTipField="Role" 
-    						   editable="false" 
-    						   width="35"
-    						   itemRenderer="org.bigbluebutton.modules.viewers.views.RoleItemRenderer" 
-    						   sortable="false" 
-    						   id="roleField"/>
-    		<mx:DataGridColumn dataField="name" 
-    						   headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.nameItemRenderer')}" 
-    						   editable="true" 
-    						   width="100" 
-    						   sortable="false"
-    						   itemRenderer="org.bigbluebutton.modules.viewers.views.NameItemRenderer"/>
-    		<mx:DataGridColumn dataField="status"
-    						   headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer')}"
-    						   dataTipField="Status"
-    						   id="statusField" 
-    						   sortable="false" 
-    						   itemRenderer="org.bigbluebutton.modules.viewers.views.StatusItemRenderer"/>
-    	</mx:columns>
-    </mx:DataGrid-->
-       
+		
+		<!-- EXPERIMENTAL DATAGRID -->
+		<mx:DataGrid id="resultsGrid" dataProvider="{answerCollection}" width="90%" accessibilityDescription="{trackingPoll.question}">
+			<mx:columns>
+			<mx:DataGridColumn id="answerColumn"
+							   dataField="answer"
+							   headerText="{ResourceUtil.getInstance().getString('bbb.polling.stats.answer')}"
+							   />
+			<mx:DataGridColumn id="voteColumn"
+							   dataField="votes"
+							   headerText="{ResourceUtil.getInstance().getString('bbb.polling.stats.votes')}"
+							   />
+			<mx:DataGridColumn id="percentColumn"
+							   dataField="percentage"
+							   headerText="{ResourceUtil.getInstance().getString('bbb.polling.stats.percentage')}"
+							   />
+			</mx:columns>
+		</mx:DataGrid>
+		<!-- THIS WILL BE THE ACCESSIBLE POLLING STATS VIEW -->
+	
+	       
 	</mx:VBox>
 	<mx:ControlBar width="100%" height="10%">
 		<mx:Spacer width="100%"/>

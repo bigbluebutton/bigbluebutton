@@ -9,7 +9,7 @@ package org.bigbluebutton.modules.polling.model
 		public var votes:String;
 		public var percentage:String;
 		
-		public function debug():String{
+		public function toString():String{
 			return answer + " " + votes + " " + percentage;
 		}
 	}
