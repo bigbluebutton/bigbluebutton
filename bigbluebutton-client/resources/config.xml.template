@@ -14,14 +14,14 @@
 		
 		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
-			dependsOn="ParticipantsModule"	
+			dependsOn="ViewersModule"	
 			translationOn="false"
 			translationEnabled="false"	
 			privateEnabled="true"  
 			position="top-right"
 		/>
 		
-		<!--module name="ViewersModule" url="http://HOST/client/ViewersModule.swf?v=VERSION" 
+		<module name="ViewersModule" url="http://HOST/client/ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
 			allowKickUser="false"
@@ -31,11 +31,13 @@
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
 			position="bottom-left"
-		/-->
-		
+		/>
+
+<!--		
 		<module name="ParticipantsModule" url="http://HOST/client/ParticipantsModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 		/>
+-->
 		
 		<module name="DeskShareModule" 
 			url="http://HOST/client/DeskShareModule.swf?v=VERSION" 
@@ -49,12 +51,12 @@
 			skipCheck="false"
 			showButton="true"
 			enabledEchoCancel="true"
-			dependsOn="ParticipantsModule"
+			dependsOn="ViewersModule"
 		/>
 
 		<module name="VideoconfModule" url="http://HOST/client/VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"
-			dependson = "ParticipantsModule"
+			dependson = "ViewersModule"
 			videoQuality = "100"
 			presenterShareOnly = "false"
 			controlsForPresenter = "false"
@@ -97,12 +99,12 @@
 			host="http://HOST" 
 			showPresentWindow="true"
 			showWindowControls="true"
-			dependsOn="ParticipantsModule"
+			dependsOn="ViewersModule"
 		/>
 
 		<module name="VideodockModule" url="http://HOST/client/VideodockModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
-			dependsOn="VideoconfModule, ParticipantsModule"
+			dependsOn="VideoconfModule, ViewersModule"
 			autoDock="true"
 			showControls="true"
 			maximizeWindow="false"
@@ -131,7 +133,7 @@
       position="top-left"
       showStreams="true"
       autoPlay="false"
-      dependsOn="ParticipantsModule"
+      dependsOn="ViewersModule"
     />
 -->
     		
