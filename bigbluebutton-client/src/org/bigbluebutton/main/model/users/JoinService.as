@@ -73,12 +73,12 @@ package org.bigbluebutton.main.model.users
 										webvoiceconf:xml.webvoiceconf,
 										voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome, logoutUrl:xml.logoutUrl, 
                     defaultLayout:xml.defaultLayout, avatarURL:xml.avatarURL};
-				user.customdata = {};
+				user.customdata = new Object();
 				if(xml.customdata)
 				{
 					for each(var cdnode:XML in xml.customdata.elements()){
 						LogUtil.debug("checking user customdata: "+cdnode.name() + " = " + cdnode);
-						user.customdata[cdnode.name()] = cdnode;
+						user.customdata[cdnode.name()] = cdnode.toString();
 					}
 				}
 				
