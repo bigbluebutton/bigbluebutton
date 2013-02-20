@@ -1207,6 +1207,7 @@ class ApiController {
             meetingID(meeting.getExternalId())
 			createTime(meeting.getCreateTime())
 			voiceBridge(meeting.getTelVoice())
+			dialNumber(meeting.getDialNumber())
             attendeePW(meeting.getViewerPassword())
             moderatorPW(meeting.getModeratorPassword())
             running(meeting.isRunning() ? "true" : "false")
