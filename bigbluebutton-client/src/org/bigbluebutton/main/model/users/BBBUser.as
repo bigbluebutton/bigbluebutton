@@ -108,6 +108,7 @@ package org.bigbluebutton.main.model.users
 		
 		[Bindable] public var voiceLocked:Boolean = false;
 		[Bindable] public var status:String = "";
+		[Bindable] public var customdata:Object = {};
 		
 		/*
 		 * This variable is for accessibility for the Participants Window. It can't be manually set
