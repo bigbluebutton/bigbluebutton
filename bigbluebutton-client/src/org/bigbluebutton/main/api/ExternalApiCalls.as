@@ -73,6 +73,7 @@ package org.bigbluebutton.main.api
       payload.myAvatarURL = UsersUtil.getAvatarURL();
       payload.myRole = UsersUtil.getMyRole();
       payload.amIPresenter = UsersUtil.amIPresenter();
+	  payload.customdata = UsersUtil.getCustomData();
       
       broadcastEvent(payload);
     } 
