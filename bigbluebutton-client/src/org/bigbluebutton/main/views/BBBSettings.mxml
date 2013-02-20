@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
+		width="600" height="300" creationComplete="init()" showCloseButton="true" close="onCancelClicked()">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.ItemClickEvent;
+			import mx.managers.PopUpManager;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			private var option:Number = 0;
+			
+			private function init():void {
+				
+			}
+			
+			 private function handleGuestClick(event:ItemClickEvent):void {
+				option = event.currentTarget.selectedValue;
+			}
+						
+			private function onCancelClicked():void {
+				PopUpManager.removePopUp(this);
+			}
+		
+			private function onOkClicked():void {
+				var event:BBBEvent = new BBBEvent("GUEST_POLICY");
+				if(option == 0) {
+					event.payload['guestPolicy'] = "ASK_MODERATOR";
+					dispatchEvent(event);				
+				}
+				else if(option == 1) {
+					event.payload['guestPolicy'] = "ALWAYS_ACCEPT";
+					dispatchEvent(event);
+					//Send Accept All Waiting Guests
+				}
+				else {
+					event.payload['guestPolicy'] = "ALWAYS_DENY";
+					dispatchEvent(event);
+					//Send Deny All Waiting Guests				
+				}
+				LogUtil.debug("SENDING TO SERVER POLICY");
+				PopUpManager.removePopUp(this);
+			}
+
+			
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+		<mx:HBox width="100%">
+			<mx:Spacer width="50%"/>
+			<mx:Spacer width="50%"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="20">
+			<mx:Spacer width="50%"/>
+			<mx:Spacer width="50%"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="50%">
+			<mx:HBox width="70%" height="100%">
+				<mx:Text width="100%" text="Guest Management"/>
+			</mx:HBox>	
+			<mx:HBox width="70%" height="100%">
+			<mx:RadioButtonGroup id="guestManagement" itemClick="handleGuestClick(event);"/>
+			<mx:VBox width="30%">
+				 <mx:RadioButton groupName="guestManagement" 
+					id="askModerator"
+					label="Ask Moderator" 
+					value="0"
+					width="150" 
+					/>
+			</mx:VBox>
+			<mx:VBox width="30%">
+				 <mx:RadioButton groupName="guestManagement" 
+					id="alwaysAccept"
+					label="Always Accept" 
+					value="1"
+					width="150" 
+					/>
+			</mx:VBox>
+			<mx:VBox width="30%">
+				 <mx:RadioButton groupName="guestManagement" 
+					id="AlwaysDeny"
+					label="Always Deny" 
+					value="2"
+					width="150" 
+					/>
+			</mx:VBox>	
+			</mx:HBox>
+        	</mx:HBox>
+		<mx:HBox width="100%" height="20">
+			<mx:Spacer width="50%"/>
+			<mx:Spacer width="50%"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="20">
+			<mx:Spacer width="50%"/>
+			<mx:Spacer width="50%"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="20">
+			<mx:Spacer width="50%"/>
+			<mx:Spacer width="50%"/>
+		</mx:HBox>
+		<mx:HBox width="100%">
+			<mx:Spacer width="80%"/>
+			<mx:Button id="okBtn" label="Ok" width="100" click="onOkClicked()"/>
+			<mx:Spacer width="2%"/>
+			<mx:Button id="cancelBtn" label="Cancel" width="100" click="onCancelClicked()"/>
+		</mx:HBox>
+	</mx:VBox>		
+</mx:TitleWindow>

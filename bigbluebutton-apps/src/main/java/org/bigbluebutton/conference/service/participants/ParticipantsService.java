@@ -108,14 +108,14 @@ public class ParticipantsService {
 		application.askingToEnter(roomName, userid);
 	}
 
-	public boolean isAcceptAll() {
+	public String getGuestPolicy() {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		return application.isAcceptAll(roomName);
+		return application.getGuestPolicy(roomName);
 	}	
 
-	public void setAcceptAll() {
+	public void newGuestPolicy(String guestPolicy) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.setAcceptAll(roomName);
+		application.newGuestPolicy(roomName, guestPolicy);
 	}
 
 	public void askingForGuestWaiting(Long userid) {

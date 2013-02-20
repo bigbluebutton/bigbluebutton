@@ -350,26 +350,38 @@ package org.bigbluebutton.main.model.users {
 		}
 
 
-		public function setAcceptAll():void {
+		public function newGuestPolicy(guestPolicy:String):void {
 			var nc:NetConnection = netConnectionDelegate.connection;			
 			nc.call(
-				"participants.setAcceptAll",// Remote function name
-				responder
+				//"participants.setAcceptAll",
+				"participants.newGuestPolicy",
+				responder,
+				guestPolicy
 			); //_netConnection.call
 		}
 
-		public function isAcceptAll():void {
+		public function guestPolicyChanged(guestPolicy:String):void {
+			LogUtil.debug("Received from server: " + guestPolicy);
+		}
+
+
+		public function getGuestPolicy():void {
 			var nc:NetConnection = netConnectionDelegate.connection;			
 			nc.call(
-				"participants.isAcceptAll",// Remote function name
+				"participants.getGuestPolicy",// Remote function name
 				new Responder(
 	        			function(result:Object):void { 
-						if(result) {
-							dispatcher.dispatchEvent(new BBBEvent("ACCEPT_GUEST"));
-						}
-						else {
-							dispatcher.dispatchEvent(new BBBEvent("ASK_TO_ACCEPT_GUEST"));
-						}
+							var policy:BBBEvent = new BBBEvent("GET_GUEST_POLICY");
+							policy.payload['guestPolicy'] = result;
+							if(UserManager.getInstance().getConference().isGuest()) {
+								if(result == "ALWAYS_DENY")
+									dispatcher.dispatchEvent(new BBBEvent("DENY_GUEST"));
+								else if(result == "ALWAYS_ACCEPT")
+									dispatcher.dispatchEvent(new BBBEvent("ACCEPT_GUEST"));
+								else
+								     dispatcher.dispatchEvent(new BBBEvent("ASK_TO_ACCEPT_GUEST"));
+							}
+							dispatcher.dispatchEvent(policy);
 					},	
 					// status - On error occurred
 					function(status:Object):void { 

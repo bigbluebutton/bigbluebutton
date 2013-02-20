@@ -39,7 +39,7 @@ public class Room implements Serializable {
 	private String name;
 	private Map <Long, Participant> participants;
 	private Map <Long, String> guestsWaiting;
-	private Boolean acceptAll = false;
+	private String guestPolicy = "ASK_MODERATOR";
 
 	// these should stay transient so they're not serialized in ActiveMQ messages:	
 	//private transient Map <Long, Participant> unmodifiableMap;
@@ -83,12 +83,17 @@ public class Room implements Serializable {
 		}
 	}
 
-	public boolean isAcceptAll() {
-		return acceptAll;
+	public String getGuestPolicy() {
+		return guestPolicy;
 	}
 
-	public void setAcceptAll() {
-		acceptAll = true;
+	public void newGuestPolicy(String guestPolicy) {
+		this.guestPolicy = guestPolicy;
+		for (Iterator it = listeners.values().iterator(); it.hasNext();) {
+					IRoomListener listener = (IRoomListener) it.next();
+					log.debug("calling guestPolicyChanged on listener " + listener.getName());
+					listener.guestPolicyChanged(guestPolicy);
+		}
 	}
 
 	public void removeParticipant(Long userid) {

@@ -85,6 +85,12 @@ public class RoomListener implements IRoomListener{
 		list.add(resp);
 		so.sendMessage("guestResponse", list);
 	}
+
+	public void guestPolicyChanged(String guestPolicy) {
+		List list = new ArrayList();
+		list.add(guestPolicy);
+		so.sendMessage("guestPolicyChanged", list);
+	}
 	
 	public void endAndKickAll() {
 		// no-op

@@ -207,18 +207,18 @@ public class RoomsManager {
 		}
 	}
 
-	public boolean isAcceptAll(String roomName) {
+	public String getGuestPolicy(String roomName) {
 		Room r = getRoom(roomName);
 		if (r != null) {
-			return r.isAcceptAll();
+			return r.getGuestPolicy();
 		}
-		return false;
+		return "";
 	}
 
-	public void setAcceptAll(String roomName) {
+	public void newGuestPolicy(String roomName, String guestPolicy) {
 		Room r = getRoom(roomName);
 		if (r != null) {
-			r.setAcceptAll();
+			r.newGuestPolicy(guestPolicy);
 		}
 	}
 	

@@ -32,6 +32,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.events.WaitModeratorEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.events.ResponseModeratorEvent;
+	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 	import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
@@ -120,10 +121,8 @@ package org.bigbluebutton.main.model.users
 			_userSOService.join(e.userid, _conferenceParameters.room);
 			
 			
-			if(UserManager.getInstance().getConference().isGuest()) {
-				_userSOService.isAcceptAll();
-			}
-			else {
+			_userSOService.getGuestPolicy();
+			if(UserManager.getInstance().getConference().isGuest() == false) {	
 				var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
 				loadCommand.conferenceParameters = _conferenceParameters;
 				dispatcher.dispatchEvent(loadCommand);
@@ -145,8 +144,12 @@ package org.bigbluebutton.main.model.users
 			dispatcher.dispatchEvent(loadCommand);
 		}
 
-		public function setAcceptGuest():void {
-			_userSOService.setAcceptAll();
+		public function denyGuest():void {
+			guestDisconnect();
+		}
+
+		public function newGuestPolicy(event:BBBEvent):void {
+			_userSOService.newGuestPolicy(event.payload['guestPolicy']);
 		}
 
 		public function getAllGuests(e:SuccessfulLoginEvent):void {

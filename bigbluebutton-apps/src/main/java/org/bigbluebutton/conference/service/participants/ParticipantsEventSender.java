@@ -107,6 +107,15 @@ public class ParticipantsEventSender implements IRoomListener {
 		list.add(resp);
 		so.sendMessage("guestResponse", list);
 	}
+
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public void guestPolicyChanged(String guestPolicy) {
+		ArrayList list = new ArrayList();
+		list.add(guestPolicy);
+		so.sendMessage("guestPolicyChanged", list);
+	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override

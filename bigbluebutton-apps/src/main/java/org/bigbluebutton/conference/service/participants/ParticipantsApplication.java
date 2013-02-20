@@ -77,12 +77,12 @@ public class ParticipantsApplication {
 		roomsManager.askToEnter(roomName, userid);	
 	}
 
-	public boolean isAcceptAll(String roomName) {
-		return roomsManager.isAcceptAll(roomName);
+	public String getGuestPolicy(String roomName) {
+		return roomsManager.getGuestPolicy(roomName);
 	}
 
-	public void setAcceptAll(String roomName) {
-		roomsManager.setAcceptAll(roomName);
+	public void newGuestPolicy(String roomName, String guestPolicy) {
+		roomsManager.newGuestPolicy(roomName, guestPolicy);
 	}
 	
 	

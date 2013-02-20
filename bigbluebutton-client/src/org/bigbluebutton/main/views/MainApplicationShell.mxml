@@ -46,7 +46,7 @@
 	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
 	<mate:Listener type="{NewGuestEvent.NEW_GUEST_EVENT}" method="newGuestWindow" />
 	<mate:Listener type="{ModeratorRespEvent.GUEST_ALLOWED}" method="guestAllowed" />
-
+	<mate:Listener type="GET_GUEST_POLICY" method="setGuestPolicy"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -113,6 +113,8 @@
 
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
+
+			private var guestPolicy:String = "ASK_MODERATOR";
 			
 			public function get mode():String {
 				return _mode;
@@ -130,6 +132,11 @@
 				LogUtil.debug("*** show toolbar = " + layoutOptions.showToolbar);
 				toolbar.displayToolbar();
 				
+			}
+
+			private function setGuestPolicy(event:BBBEvent):void {
+				LogUtil.debug("INICIALIZANDO GUEST_POLICY " + event.payload.guestPolicy);
+				guestPolicy = event.payload.guestPolicy;
 			}
 			
 			protected function initializeShell():void {	
@@ -281,13 +288,23 @@
 	   		}
 
 			private function showMicSettings(event:BBBEvent):void {
-				var micSettings:MicSettings = MicSettings(PopUpManager.createPopUp(mdiCanvas, MicSettings, true));				
+				//var micSettings:MicSettings = MicSettings(PopUpManager.createPopUp(mdiCanvas, MicSettings, true));				
+				//var point1:Point = new Point();
+				// Calculate position of TitleWindow in Application's coordinates. 
+				//point1.x = width/2;
+				//point1.y = height/2;                
+				//micSettings.x = point1.x - (micSettings.width/2);
+				//micSettings.y = point1.y - (micSettings.height/2);	
+
+
+
+				var bbbSettings:BBBSettings = BBBSettings(PopUpManager.createPopUp(mdiCanvas, BBBSettings, true));				
 				var point1:Point = new Point();
 				// Calculate position of TitleWindow in Application's coordinates. 
 				point1.x = width/2;
 				point1.y = height/2;                
-				micSettings.x = point1.x - (micSettings.width/2);
-				micSettings.y = point1.y - (micSettings.height/2);	
+				bbbSettings.x = point1.x - (bbbSettings.width/2);
+				bbbSettings.y = point1.y - (bbbSettings.height/2);
 			}
 			
 	   		private function wrongLocaleVersion():void {

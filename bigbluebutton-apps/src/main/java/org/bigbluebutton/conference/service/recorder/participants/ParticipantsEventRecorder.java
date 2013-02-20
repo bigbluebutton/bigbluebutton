@@ -102,6 +102,14 @@ public class ParticipantsEventRecorder implements IRoomListener {
 	}
 	
 	@Override
+	public void guestPolicyChanged(String guestPolicy) {
+		GuestPolicyEvent ev = new GuestPolicyEvent();
+		ev.setTimestamp(System.currentTimeMillis());
+		ev.setPolicy(guestPolicy);
+		recorder.record(session, ev);
+	}
+	
+	@Override
 	public String getName() {
 		return this.name;
 	}

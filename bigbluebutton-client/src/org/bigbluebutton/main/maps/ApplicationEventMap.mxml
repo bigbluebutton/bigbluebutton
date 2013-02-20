@@ -101,9 +101,18 @@
 		<MethodInvoker generator="{UserService}" method="acceptGuest" />
 	</EventHandlers>
 
-	<EventHandlers type="SET_ACCEPT_ALL_GUEST" >
-		<MethodInvoker generator="{UserService}" method="setAcceptGuest" />
+	<EventHandlers type="DENY_GUEST" >
+		<MethodInvoker generator="{UserService}" method="denyGuest" />
 	</EventHandlers>
+
+	<EventHandlers type="GUEST_POLICY" >
+		<MethodInvoker generator="{UserService}" method="newGuestPolicy" arguments="{event}" />
+	</EventHandlers>
+
+	<EventHandlers type="GET_GUEST_POLICY" >
+		<MethodInvoker generator="{UserService}" method="newGuestPolicy" arguments="{event}" />
+	</EventHandlers>
+
 
 	<!-- Viewers Stuff -->
 	<EventHandlers type="{RaiseHandEvent.RAISE_HAND}" >

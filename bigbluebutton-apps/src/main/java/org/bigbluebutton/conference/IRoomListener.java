@@ -31,4 +31,5 @@ public interface IRoomListener {
 	public void endAndKickAll();
 	public void guestResponse(Participant p, Boolean resp);
 	public void guestWaitingForModerator(Long userid, String userId_userName); 
+	public void guestPolicyChanged(String guestPolicy);
 }
