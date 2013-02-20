@@ -7,8 +7,19 @@
     <window name="ChatWindow" width="0.303125" height="0.9955703211517165" x="0.3229166666666667" y="0.9656699889258029" order="4" hidden="true" />
     <window name="PresentationWindow" minimized="true" order="1" hidden="true" />
     <window name="ParticipantsWindow" minimized="true" hidden="true" order="2"/>
+    <window name="ViewersWindow" hidden="true" draggable="false" resizable="false" />
+    <window name="ListenersWindow" hidden="true" draggable="false" resizable="false"/>
   </layout>
   <layout name="Default"  default="true">
+    <window name="NotesWindow" hidden="true" width="0.7" height="1" x="0" y="0" draggable="false" resizable="false"/>
+    <window name="BroadcastWindow" hidden="true" draggable="false" resizable="false"/>
+    <window name="PresentationWindow" width="0.5137481910274964" height="0.9946808510638298" x="0.18017366136034732" y="0" />
+    <window name="VideoDock" width="0.1772793053545586" height="0.30851063829787234" x="0" y="0.6875" />
+    <window name="ChatWindow" width="0.3031837916063676" height="0.9960106382978723" x="0.6968162083936325" y="0" />
+    <window name="ViewersWindow" width="0.1772793053545586" height="0.33643617021276595" x="0" y="0" />
+    <window name="ListenersWindow" width="0.1772793053545586" height="0.33643617021276595" x="0" y="0.34308510638297873" />
+  </layout>
+  <layout name="Users">
     <window name="NotesWindow" hidden="true" width="0.7" height="1" x="0" y="0" draggable="false" resizable="false"/>
     <window name="BroadcastWindow" hidden="true" draggable="false" resizable="false"/>
     <window name="ParticipantsWindow" width="0.1772793053545586" height="0.6795212765957446" x="0" y="0" />
