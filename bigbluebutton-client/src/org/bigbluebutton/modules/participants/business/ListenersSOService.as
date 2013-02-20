@@ -154,7 +154,7 @@ package org.bigbluebutton.modules.participants.business
 		private static function randomString(l:uint):String {
 			var seed:String = "abcdefghijklmnopqrstuvwxyz1234567890";
 			var seedArray:Array = seed.split("");
-			var seedLength = seedArray.length;
+			var seedLength:uint = seedArray.length;
 			var randString:String = "";
 			for (var i:uint = 0; i < l; i++){
 				randString += seedArray[int(Math.floor(Math.random() * seedLength))];
