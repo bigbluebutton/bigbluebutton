@@ -3,9 +3,10 @@ define [
   'underscore',
   'backbone',
   'raphael',
+  'raphael.scale',
   'globals',
   'cs!utils'
-], ($, _, Backbone, Raphael, globals, Utils) ->
+], ($, _, Backbone, Raphael, ScaleRaphael, globals, Utils) ->
 
   # TODO: text, ellipse, line, rect and cursor could be models
 
