@@ -31,6 +31,7 @@
 	<mate:Listener type="{ConnectionFailedEvent.GUEST_KICKED_OUT}" method="hideToolbar" />
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="gotConfigParameters" />
 	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
+	<mate:Listener type="SET_BBB_SETTINGS_BUTTON_VISIBLE" method="showBBBSettings"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -50,7 +51,8 @@
 			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-
+			import org.bigbluebutton.core.managers.UserManager;
+			
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 			
 			public static const ALIGN_RIGHT:String ="ALIGN_RIGHT";
@@ -152,13 +154,17 @@
 				d.dispatchEvent(new SettingsEvent(SettingsEvent.OPEN_SETTINGS_PANEL));
 			}
 			
+			private function showBBBSettings(e:Event = null):void {
+				bbbSettings.visible = true;
+			}
+			
 		]]>
 	</mx:Script>	
 	<mx:HBox id="addedBtns">
 	</mx:HBox>		
 	<mx:Spacer width="100%"/>
 	
-	<views:BBBSettingsButton id="bbbSetting" visible="true"/>
+	<views:BBBSettingsButton id="bbbSettings" visible="false"/>
 	<views:LanguageSelector id="langSelector" visible="false" />
 	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" visible="{showHelpBtn}" click="onHelpButtonClicked()"/>
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" 

@@ -128,6 +128,9 @@ package org.bigbluebutton.main.model.users
 				dispatcher.dispatchEvent(loadCommand);
 			}
 			
+				if(UserManager.getInstance().getConference().amIModerator()) {
+					dispatcher.dispatchEvent(new BBBEvent("SET_BBB_SETTINGS_BUTTON_VISIBLE"));
+				}
 				
 		}
 

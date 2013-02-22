@@ -194,7 +194,7 @@
 	<mx:HRule width="100%"/>
 	<mx:Button id="allowEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.allowEveryoneBtn.text')}" width="70%" click="sendResponseToAllGuestsCheckBox(true)" toolTip="{allowEveryoneBtn.label}"/>
 	<mx:Button id="denyEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.denyEveryoneBtn.text')}" width="70%" click="sendResponseToAllGuestsCheckBox(false)" toolTip="{denyEveryoneBtn.label}"/>
-	<mx:CheckBox id="checkBoxR" label="Remember my action to all other users"/>
+	<mx:CheckBox id="checkBoxR" label="{ResourceUtil.getInstance().getString('bbb.guests.rememberAction.text')}"/>
 	<mx:HRule width="100%"/>		
 	
 </mx:TitleWindow> 

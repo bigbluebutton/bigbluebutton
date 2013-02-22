@@ -90,14 +90,14 @@
 		</mx:HBox>
 		<mx:HBox width="100%" height="50%">
 			<mx:HBox width="70%" height="100%">
-				<mx:Text width="100%" text="Guest Management"/>
+				<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.guests.Management')}"/>
 			</mx:HBox>	
 			<mx:HBox width="70%" height="100%">
 			<mx:RadioButtonGroup id="guestManagement" itemClick="handleGuestClick(event);"/>
 			<mx:VBox width="30%">
 				 <mx:RadioButton groupName="guestManagement" 
 					id="askModerator"
-					label="Ask Moderator" 
+					label="{ResourceUtil.getInstance().getString('bbb.guests.askModerator')}" 
 					value="0"
 					width="150" 
 					/>
@@ -105,7 +105,7 @@
 			<mx:VBox width="30%">
 				 <mx:RadioButton groupName="guestManagement" 
 					id="alwaysAccept"
-					label="Always Accept" 
+					label="{ResourceUtil.getInstance().getString('bbb.guests.alwaysAccept')}" 
 					value="1"
 					width="150" 
 					/>
@@ -113,7 +113,7 @@
 			<mx:VBox width="30%">
 				 <mx:RadioButton groupName="guestManagement" 
 					id="AlwaysDeny"
-					label="Always Deny" 
+					label="{ResourceUtil.getInstance().getString('bbb.guests.alwaysDeny')}" 
 					value="2"
 					width="150" 
 					/>
@@ -134,9 +134,9 @@
 		</mx:HBox>
 		<mx:HBox width="100%">
 			<mx:Spacer width="80%"/>
-			<mx:Button id="okBtn" label="Ok" width="100" click="onOkClicked()"/>
+			<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.Ok')}" width="100" click="onOkClicked()"/>
 			<mx:Spacer width="2%"/>
-			<mx:Button id="cancelBtn" label="Cancel" width="100" click="onCancelClicked()"/>
+			<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.Cancel')}" width="100" click="onCancelClicked()"/>
 		</mx:HBox>
 	</mx:VBox>		
 </mx:TitleWindow>
