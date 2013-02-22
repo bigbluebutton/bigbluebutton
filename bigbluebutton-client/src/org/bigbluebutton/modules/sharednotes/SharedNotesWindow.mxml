@@ -24,7 +24,7 @@
 	minWidth="160" 
 	minHeight="160" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
-	title="Notes" 
+	title="{ResourceUtil.getInstance().getString('bbb.sharedNotes.title')}" 
 	creationComplete="init()" 
 	xmlns:components="org.bigbluebutton.modules.sharednotes.components.*"
 	resize="onResize()"
@@ -47,6 +47,7 @@
 			import org.bigbluebutton.modules.sharednotes.infrastructure.Client;
 			import org.bigbluebutton.modules.sharednotes.infrastructure.ServerConnection;
 			import org.bigbluebutton.modules.sharednotes.infrastructure.SharedNotesDispatcher;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var client:Client;
 			
@@ -269,5 +270,5 @@
 	<mx:Label id="lblPlaybackVersion" x="10" y="399" text="Version 0:"/>
 	<components:PatchableTextArea x="10" y="10" id="textArea" hideEffect="{dissolveOut}" showEffect="{dissolveIn}" creationComplete="addBlur()" width="482" height="407" editable="true"/>
 	<mx:Button x="0" y="0" label="Start" id="btnPlay" click="btnPlay_clickHandler(event)" visible="false"/>
-	<mx:Label x="211.5" y="186" text="Connecting..." id="lblConnecting"/>
+	<mx:Label x="211.5" y="186" text="{ResourceUtil.getInstance().getString('bbb.sharedNotes.connecting')}" id="lblConnecting"/>
 </containers:MDIWindow>
