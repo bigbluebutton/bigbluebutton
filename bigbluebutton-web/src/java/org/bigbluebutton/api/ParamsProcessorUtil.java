@@ -265,16 +265,7 @@ public class ParamsProcessorUtil {
 	    }
 	    
 	    // Collect metadata for this meeting that the third-party app wants to store if meeting is recorded.
-	    Map<String, String> meetingInfo = new HashMap<String, String>();
-	    for (String key: params.keySet()) {
-	    	if (key.contains("meta")&&key.indexOf("meta")==0){
-	    		String[] meta = key.split("_");
-			    if(meta.length == 2){
-			    	log.debug("Got metadata {} = {}", key, params.get(key));
-			    	meetingInfo.put(meta[1].toLowerCase(), params.get(key));
-			    }
-			}   
-	    }
+	    Map<String, String> meetingInfo = getMetadataFromParams(params);
 	    	    
 	    // Create a unique internal id by appending the current time. This way, the 3rd-party
 	    // app can reuse the external meeting id.
@@ -290,7 +281,21 @@ public class ParamsProcessorUtil {
 	    
 	    return meeting;
 	}
-	
+
+	public Map<String, String> getMetadataFromParams(Map<String, String> params) {
+		// Collect metadata for this meeting that the third-party app wants to store if meeting is recorded.
+		Map<String, String> meetingInfo = new HashMap<String, String>();
+		for (String key: params.keySet()) {
+			if (key.contains("meta")&&key.indexOf("meta")==0){
+				String[] meta = key.split("_");
+				if(meta.length == 2){
+					log.debug("Got metadata {} = {}", key, params.get(key));
+					meetingInfo.put(meta[1].toLowerCase(), params.get(key));
+				}
+			}
+		}
+		return meetingInfo;
+	}
 	
 	public String getApiVersion() {
 		return apiVersion;
