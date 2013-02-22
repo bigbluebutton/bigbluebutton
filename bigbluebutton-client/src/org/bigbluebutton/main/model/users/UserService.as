@@ -33,6 +33,7 @@ package org.bigbluebutton.main.model.users
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.events.ResponseModeratorEvent;
 	import org.bigbluebutton.main.events.BBBEvent;
+	import org.bigbluebutton.main.events.LogoutEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 	import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
@@ -150,7 +151,7 @@ package org.bigbluebutton.main.model.users
 		}
 
 		public function denyGuest():void {
-			guestDisconnect();
+			dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.GUEST_KICKED_OUT));
 		}
 
 		public function newGuestPolicy(event:BBBEvent):void {

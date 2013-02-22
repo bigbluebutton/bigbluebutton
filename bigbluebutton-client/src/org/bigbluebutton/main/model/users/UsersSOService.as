@@ -359,12 +359,7 @@ package org.bigbluebutton.main.model.users {
 				guestPolicy
 			); //_netConnection.call
 			
-			if(guestPolicy == "ALWAYS_DENY") {
-				dispatcher.dispatchEvent(new BBBEvent("DENY_ALL_WAITING_GUESTS"));
-			}
-			else if(guestPolicy == "ALWAYS_ACCEPT") {
-				dispatcher.dispatchEvent(new BBBEvent("ACCEPT_ALL_WAITING_GUESTS"));
-			} 
+			
 		}
 
 		public function guestPolicyChanged(guestPolicy:String):void {

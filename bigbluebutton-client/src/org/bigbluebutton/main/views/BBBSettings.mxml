@@ -8,7 +8,6 @@
 		
 		<mate:Listener type="GET_GUEST_POLICY" method="refreshGuestPolicy"/>
 		
-		
 	<mx:Script>
 		<![CDATA[
 			import mx.events.ItemClickEvent;
@@ -66,12 +65,12 @@
 				else if(option == 1) {
 					event.payload['guestPolicy'] = "ALWAYS_ACCEPT";
 					dispatchEvent(event);
-					//Send Accept All Waiting Guests
+					dispatchEvent(new BBBEvent("ACCEPT_ALL_WAITING_GUESTS"));
 				}
 				else {
 					event.payload['guestPolicy'] = "ALWAYS_DENY";
 					dispatchEvent(event);
-					//Send Deny All Waiting Guests				
+					dispatchEvent(new BBBEvent("DENY_ALL_WAITING_GUESTS"));			
 				}
 				LogUtil.debug("SENDING TO SERVER POLICY");
 				PopUpManager.removePopUp(this);

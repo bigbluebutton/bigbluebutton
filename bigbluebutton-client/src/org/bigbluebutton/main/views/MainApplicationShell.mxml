@@ -44,6 +44,7 @@
 	<mate:Listener type="{WaitModeratorEvent.USER_LOGGED_IN}" method="openWaitWindow" />
 	<mate:Listener type="{RemoveGuestRequestEvent.GUEST_EVENT}" method="removeGuestWindow" />
 	<mate:Listener type="SHOW_MIC_SETTINGS" method="showMicSettings"  />
+	<mate:Listener type="SHOW_BBB_SETTINGS" method="showBBBSettings"  />
 	<mate:Listener type="{NewGuestEvent.NEW_GUEST_EVENT}" method="newGuestWindow" />
 	<mate:Listener type="{ModeratorRespEvent.GUEST_ALLOWED}" method="guestAllowed" />
 	<mate:Listener type="GET_GUEST_POLICY" method="setGuestPolicy"/>
@@ -87,7 +88,6 @@
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
-			
 	
 			private var globalDispatcher:Dispatcher;			
 			private var dispState:String; //full-screen?
@@ -131,6 +131,7 @@
 				showToolbarOpt = layoutOptions.showToolbar;
 				LogUtil.debug("*** show toolbar = " + layoutOptions.showToolbar);
 				toolbar.displayToolbar();
+				
 				
 			}
 
@@ -288,16 +289,20 @@
 	   		}
 
 			private function showMicSettings(event:BBBEvent):void {
-				//var micSettings:MicSettings = MicSettings(PopUpManager.createPopUp(mdiCanvas, MicSettings, true));				
-				//var point1:Point = new Point();
-				// Calculate position of TitleWindow in Application's coordinates. 
-				//point1.x = width/2;
-				//point1.y = height/2;                
-				//micSettings.x = point1.x - (micSettings.width/2);
-				//micSettings.y = point1.y - (micSettings.height/2);	
+				var micSettings:MicSettings = MicSettings(PopUpManager.createPopUp(mdiCanvas, MicSettings, true));				
+				var point1:Point = new Point();
+				//Calculate position of TitleWindow in Application's coordinates. 
+				point1.x = width/2;
+				point1.y = height/2;                
+				micSettings.x = point1.x - (micSettings.width/2);
+				micSettings.y = point1.y - (micSettings.height/2);	
 
 
 
+				
+			}
+			
+			private function showBBBSettings(event:BBBEvent):void {
 				var bbbSettings:BBBSettings = BBBSettings(PopUpManager.createPopUp(mdiCanvas, BBBSettings, true));		
 				bbbSettings.setGuestPolicy(guestPolicy);		
 				var point1:Point = new Point();

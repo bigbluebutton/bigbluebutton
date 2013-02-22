@@ -35,6 +35,9 @@
 						
 			[Bindable] private var message:String = "You have logged out of the conference";
 			private var urlLoader:URLLoader;
+			private var timer:Timer = null;
+			private var reason:String;
+			
 			
 			private function init():void {
 				addEventListener(Event.CLOSE, onUserLoggedOutWindowClose);
@@ -61,10 +64,19 @@
             private function onUserLoggedOutWindowClose(e:Event):void {
             	PopUpManager.removePopUp(this);
             }
+            
+            
+            private function reSetReason(evt:TimerEvent):void {
+             	var tmr:Timer = evt.currentTarget as Timer;
+            	if(tmr.currentCount > 10)
+            		tmr.stop();
+            		
+            	setReason(reason);
+            }
 			
 			public function setReason(reason:String):void{
 
-				
+				this.reason = reason;
 				switch(reason){
 					case ConnectionFailedEvent.APP_SHUTDOWN:
 						message = ResourceUtil.getInstance().getString('bbb.logout.appshutdown');
@@ -94,10 +106,23 @@
 						message = ResourceUtil.getInstance().getString('bbb.logout.guestkickedout');
 						break;
 				}
+				
+				if(message == null) {
+					if(timer == null) {
+						 timer = new Timer(100);
+                		 timer.addEventListener(TimerEvent.TIMER, reSetReason);
+                		 timer.start();
+               		}
+				}
+				else if(timer != null)
+						timer.stop();
+				
+				
 			}
 		]]>
 	</mx:Script>
 
-	<mx:Button id="okBtn" label="OK" click="redirect()"/>
 	<mx:Label text="{message}"/>
+	<mx:Button id="okBtn" label="OK" click="redirect()"/>
+	
 </mx:TitleWindow> 

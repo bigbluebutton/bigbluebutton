@@ -118,6 +118,22 @@
 				dispatcher.dispatchEvent(respCommand);
 				
 			}
+			
+			
+			public function sendResponseToAllGuestsCheckBox(resp:Boolean):void {
+			
+				if(checkBoxR.selected) {
+					var event:BBBEvent = new BBBEvent("GUEST_POLICY");
+					if(resp) {
+						event.payload['guestPolicy'] = "ALWAYS_ACCEPT";
+					}
+					else {
+						event.payload['guestPolicy'] = "ALWAYS_DENY";
+					}
+					dispatchEvent(event);
+				}
+				sendResponseToAllGuests(resp);
+			}
 
 			public function acceptAllWaitingGuests(event:BBBEvent):void {
 				sendResponseToAllGuests(true);
@@ -176,8 +192,9 @@
 	</mx:Script>
 	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.guests.message', [String(numberOfGuests)])}"/>
 	<mx:HRule width="100%"/>
-	<mx:Button id="allowEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.allowEveryoneBtn.text')}" width="70%" click="sendResponseToAllGuests(true)" toolTip="{allowEveryoneBtn.label}"/>
-	<mx:Button id="denyEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.denyEveryoneBtn.text')}" width="70%" click="sendResponseToAllGuests(false)" toolTip="{denyEveryoneBtn.label}"/>
+	<mx:Button id="allowEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.allowEveryoneBtn.text')}" width="70%" click="sendResponseToAllGuestsCheckBox(true)" toolTip="{allowEveryoneBtn.label}"/>
+	<mx:Button id="denyEveryoneBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.denyEveryoneBtn.text')}" width="70%" click="sendResponseToAllGuestsCheckBox(false)" toolTip="{denyEveryoneBtn.label}"/>
+	<mx:CheckBox id="checkBoxR" label="Remember my action to all other users"/>
 	<mx:HRule width="100%"/>		
 	
 </mx:TitleWindow> 

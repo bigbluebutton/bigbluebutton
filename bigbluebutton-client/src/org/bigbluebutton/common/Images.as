@@ -177,5 +177,9 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/shape_handles.png")]
 		public var shape_handles:Class;		
+		
+		[Embed(source="assets/images/wrench.png")]
+		public var wrench:Class;
+		
 	}
 }
