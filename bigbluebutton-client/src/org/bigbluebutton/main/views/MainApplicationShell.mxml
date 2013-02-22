@@ -298,7 +298,8 @@
 
 
 
-				var bbbSettings:BBBSettings = BBBSettings(PopUpManager.createPopUp(mdiCanvas, BBBSettings, true));				
+				var bbbSettings:BBBSettings = BBBSettings(PopUpManager.createPopUp(mdiCanvas, BBBSettings, true));		
+				bbbSettings.setGuestPolicy(guestPolicy);		
 				var point1:Point = new Point();
 				// Calculate position of TitleWindow in Application's coordinates. 
 				point1.x = width/2;

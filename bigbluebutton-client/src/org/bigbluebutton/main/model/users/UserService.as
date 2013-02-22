@@ -120,7 +120,6 @@ package org.bigbluebutton.main.model.users
 			
 			_userSOService.join(e.userid, _conferenceParameters.room);
 			
-			
 			_userSOService.getGuestPolicy();
 			if(UserManager.getInstance().getConference().isGuest() == false) {	
 				var loadCommand:SuccessfulLoginEvent = new SuccessfulLoginEvent(SuccessfulLoginEvent.USER_LOGGED_IN);
@@ -136,6 +135,12 @@ package org.bigbluebutton.main.model.users
 			var guestCommand:WaitModeratorEvent = new WaitModeratorEvent(WaitModeratorEvent.USER_LOGGED_IN);
 			guestCommand.conferenceParameters = _conferenceParameters;
 			dispatcher.dispatchEvent(guestCommand);  
+			
+		}
+
+
+		public function getGuestPolicy():void {
+			_userSOService.getGuestPolicy();
 		}
 
 		public function acceptGuest():void {

@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
-		width="600" height="300" creationComplete="init()" showCloseButton="true" close="onCancelClicked()">
+		width="600" height="300"  showCloseButton="true" close="onCancelClicked()"
+		xmlns:mate="http://mate.asfusion.com/"
+		
+		>
+		
+		
+		<mate:Listener type="GET_GUEST_POLICY" method="refreshGuestPolicy"/>
+		
+		
 	<mx:Script>
 		<![CDATA[
 			import mx.events.ItemClickEvent;
@@ -12,10 +20,34 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var option:Number = 0;
+			private var guestPolicy:String;
 			
-			private function init():void {
+			
+			private function refreshGuestPolicy(event:BBBEvent):void {
+				this.guestPolicy = event.payload.guestPolicy;
 				
+				if(guestPolicy == "ASK_MODERATOR") {
+						guestManagement.selectedValue = 0;
+				} else if(guestPolicy == "ALWAYS_ACCEPT") {
+						guestManagement.selectedValue = 1;
+						}
+						else
+							guestManagement.selectedValue = 2;
 			}
+			
+			public function setGuestPolicy(guestPolicy:String):void {
+				this.guestPolicy = guestPolicy;
+				
+				if(guestPolicy == "ASK_MODERATOR") {
+						guestManagement.selectedValue = 0;
+				} else if(guestPolicy == "ALWAYS_ACCEPT") {
+						guestManagement.selectedValue = 1;
+						}
+						else
+							guestManagement.selectedValue = 2;
+			}
+			
+			
 			
 			 private function handleGuestClick(event:ItemClickEvent):void {
 				option = event.currentTarget.selectedValue;

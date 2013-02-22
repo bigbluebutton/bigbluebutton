@@ -351,17 +351,29 @@ package org.bigbluebutton.main.model.users {
 
 
 		public function newGuestPolicy(guestPolicy:String):void {
-			var nc:NetConnection = netConnectionDelegate.connection;			
+			
+		 	var nc:NetConnection = netConnectionDelegate.connection;			
 			nc.call(
-				//"participants.setAcceptAll",
 				"participants.newGuestPolicy",
 				responder,
 				guestPolicy
 			); //_netConnection.call
+			
+			if(guestPolicy == "ALWAYS_DENY") {
+				dispatcher.dispatchEvent(new BBBEvent("DENY_ALL_WAITING_GUESTS"));
+			}
+			else if(guestPolicy == "ALWAYS_ACCEPT") {
+				dispatcher.dispatchEvent(new BBBEvent("ACCEPT_ALL_WAITING_GUESTS"));
+			} 
 		}
 
 		public function guestPolicyChanged(guestPolicy:String):void {
-			LogUtil.debug("Received from server: " + guestPolicy);
+		    var policy:BBBEvent = new BBBEvent("GET_GUEST_POLICY");
+		    policy.payload['guestPolicy'] = guestPolicy;
+		    dispatcher.dispatchEvent(policy);
+		    
+		    LogUtil.debug("Received from server: " + guestPolicy);
+			
 		}
 
 

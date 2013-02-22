@@ -109,9 +109,7 @@
 		<MethodInvoker generator="{UserService}" method="newGuestPolicy" arguments="{event}" />
 	</EventHandlers>
 
-	<EventHandlers type="GET_GUEST_POLICY" >
-		<MethodInvoker generator="{UserService}" method="newGuestPolicy" arguments="{event}" />
-	</EventHandlers>
+	
 
 
 	<!-- Viewers Stuff -->
