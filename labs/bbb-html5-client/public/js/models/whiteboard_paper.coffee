@@ -78,7 +78,9 @@ define [
     # are not yet created in the page.
     create: ->
       # paper is embedded within the div#slide of the page.
-      @raphaelObj ?= Raphael(@container, @gw, @gh)
+
+      console.log(ScaleRaphael);
+      @raphaelObj ?= ScaleRaphael(@container, @gw, @gh)
       @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
       @cursor = @raphaelObj.circle(0, 0, @cursorRadius)
       @cursor.attr "fill", "red"
