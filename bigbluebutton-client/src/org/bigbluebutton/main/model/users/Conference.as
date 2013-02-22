@@ -30,6 +30,8 @@ package org.bigbluebutton.main.model.users {
     public var internalMeetingID:String;
     public var externalUserID:String;
     public var avatarURL:String;
+	public var voiceBridge:String;
+	public var dialNumber:String;
     
     private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
     
