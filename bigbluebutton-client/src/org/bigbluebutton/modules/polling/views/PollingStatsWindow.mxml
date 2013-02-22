@@ -69,6 +69,7 @@
 		import mx.controls.listClasses.ListBaseContentHolder;
 		import mx.controls.dataGridClasses.DataGridHeader;
 		import mx.core.UIComponent;
+		import org.bigbluebutton.modules.polling.model.PollStatLineObject;
 			
 	   	public static const LOGNAME:String = "[PollingStatsWindow] ";
 		[Bindable] public var question:String;
@@ -104,8 +105,9 @@
 				generate.poll = trackingPoll;
 				dispatchEvent(generate);
 			}
-			refreshTimer.addEventListener(TimerEvent.TIMER, autoRefresh);
-			refreshTimer.start();
+			// Refresh timer will not work with accessibility technology; we could re-instate it on the condition that the user is not using any, but we'll see.
+			//refreshTimer.addEventListener(TimerEvent.TIMER, autoRefresh);
+			//refreshTimer.start();
 			notified = false;
 		}
 
@@ -254,159 +256,25 @@
 			private function createResultsTable(amount:uint, content:Array):void{
 				
 				answerCollection = trackingPoll.generateStats();
-				// Default row height for DataGrid is 20 pixels; the first row is a little bit larger.
-				resultsGrid.height = (answers.length * 20) + 30;
+				answerCollection.addItem(didNotVote());
+								
+				//resultsGrid.height = ((answerCollection.length) * 24) + 26;
 				
 				LogUtil.debug("WATERFALL AnswerCollection population: ");
 				for (var i:int = 0; i < answerCollection.length; i++){
 					LogUtil.debug(i + ": " + answerCollection.getItemAt(i).toString());
 				}
 				LogUtil.debug("---------");
-				//resultsGrid.dataProvider = {answerCollection};
-				
-				/*
-				LogUtil.debug("WATERFALL ResultsGrid children: ");
-				for (var gridKid:int = 0; gridKid < resultsGrid.numChildren; gridKid++){
-					LogUtil.debug(gridKid + ": " + resultsGrid.getChildAt(gridKid).toString());
-					if (resultsGrid.getChildAt(gridKid).hasOwnProperty("numChildren")){
-						LogUtil.debug("---has children");
-					}
-				}
-				LogUtil.debug("---------");
-				*/
-				
-				/*
-				WATERFALL ResultsGrid children: 
-				0: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4861.VBox4871.resultsGrid.HaloBorder5428
-				1: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4861.VBox4871.resultsGrid.mask
-				2: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4861.VBox4871.resultsGrid.ListBaseContentHolder4885
-				---has children
-				3: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4861.VBox4871.resultsGrid.DataGridHeader4887
-				---has children
-				4: [object Shape]
-				---------
-				*/
-				/*
-				LogUtil.debug("WATERFALL ResultsGrid child 2: ");
-				var child2:ListBaseContentHolder = resultsGrid.getChildAt(2) as ListBaseContentHolder;
-				for (var gridKid:int = 0; gridKid < child2.numChildren; gridKid++){
-					LogUtil.debug(gridKid + ": " + child2.getChildAt(gridKid).toString());
-					if (child2.getChildAt(gridKid).hasOwnProperty("numChildren")){
-						LogUtil.debug("---has children");
-					}
-				}
-				LogUtil.debug("---------");
-				*/
-				/*
-				WATERFALL ResultsGrid child 2: 
-				2/14/2013 12:00:53.439 [DEBUG] 0: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.rowBGs
-				2/14/2013 12:00:53.439 [DEBUG] ---has children
-				2/14/2013 12:00:53.439 [DEBUG] 1: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.selectionLayer
-				2/14/2013 12:00:53.439 [DEBUG] ---has children
-				2/14/2013 12:00:53.440 [DEBUG] 2: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.DataGridItemRenderer5034
-				2/14/2013 12:00:53.440 [DEBUG] 3: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.DataGridItemRenderer5035
-				2/14/2013 12:00:53.440 [DEBUG] 4: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.DataGridItemRenderer5036
-				2/14/2013 12:00:53.440 [DEBUG] 5: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.DataGridItemRenderer5037
-				2/14/2013 12:00:53.440 [DEBUG] 6: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.DataGridItemRenderer5038
-				2/14/2013 12:00:53.440 [DEBUG] 7: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.DataGridItemRenderer5039
-				2/14/2013 12:00:53.441 [DEBUG] 8: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.ListBaseContentHolder4405.lines
-				2/14/2013 12:00:53.441 [DEBUG] ---has children
-				2/14/2013 12:00:53.441 [DEBUG] ---------
-				*/
-				
-				
-				/*
-				// Nothing useful here
-				LogUtil.debug("WATERFALL ResultsGrid child 3: ");
-				var child3:DataGridHeader = resultsGrid.getChildAt(3) as DataGridHeader;
-				for (var gridKid:int = 0; gridKid < child3.numChildren; gridKid++){
-					LogUtil.debug(gridKid + ": " + child3.getChildAt(gridKid).toString());
-					if (child3.getChildAt(gridKid).hasOwnProperty("numChildren")){
-						LogUtil.debug("---has children");
-					}
-				}
-				LogUtil.debug("---------");
-				*/
-				
-				/*
-				2/14/2013 12:00:53.441 [DEBUG] WATERFALL ResultsGrid child 3: 
-				2/14/2013 12:00:53.441 [DEBUG] 0: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.DataGridHeader4407.headerBG
-				2/14/2013 12:00:53.441 [DEBUG] ---has children
-				2/14/2013 12:00:53.441 [DEBUG] 1: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.DataGridHeader4407.UIComponent4408
-				2/14/2013 12:00:53.441 [DEBUG] ---has children
-				2/14/2013 12:00:53.441 [DEBUG] 2: BigBlueButton0.mainShell.mdiCanvas.PollingStatsWindow4381.VBox4391.resultsGrid.DataGridHeader4407.lines
-				2/14/2013 12:00:53.441 [DEBUG] ---has children
-				2/14/2013 12:00:53.441 [DEBUG] ---------
-				*/
-				
-				/*
-				// Has children, but they don't appear in the log
-				LogUtil.debug("WATERFALL ResultsGrid child 3, sub-child 1: ");
-				var subchild1:UIComponent = child3.getChildAt(1) as UIComponent;
-				for (var gridKid:int = 0; gridKid < subchild1.numChildren; gridKid++){
-					LogUtil.debug(gridKid + ": " + subchild1.getChildAt(gridKid).toString());
-					if (subchild1.getChildAt(gridKid).hasOwnProperty("numChildren")){
-						LogUtil.debug("---has children");
-					}
-				}
-				LogUtil.debug("---------");*/
-				
-				
-				////////////////////////////////////////////////////////
-				
-				/*var _tx: Text;
-				var _votes: Text;
-				var _percent: Text;
-				var _hb: HBox; 
-				var _line: HRule;
-				var totalVotes:int = 0;
-				for (var n:int = 0; n < trackingPoll.votes.length; n++){
-					totalVotes+= int(trackingPoll.votes[n]);
-				}
-				// delete existing rows
-				resultBox.removeAllChildren();
-				// creating rows one by one
-				for (var i:int = 0; i < amount; i++) {
-					_tx = new Text();
-					_votes= new Text;
-					_percent= new Text();
-					_hb = new HBox();
 					
-					_line = new HRule();
-					_line.width = 290;
-					
-					_tx.name = "option" +i;
-					_tx.width = 200;
-					_tx.text =content[i].toString(); 
-					
-					_votes.name = "votes" +i;
-					_votes.width = 30;
-					_votes.text = trackingPoll.votes[i];
-					
-					_percent.name = "percent" +i;
-					_percent.width = 50;
-					
-					// Percentage is in terms of how many votes each option has in terms of total votes
-					if (totalVotes > 0){
-						_percent.text = Math.round(100*(trackingPoll.votes[i]/totalVotes)) + "%";
-					}else{
-						// Prevents percentages from displaying misleading results before any votes come in, and from dividing by zero
-						_percent.text = " ";
-					}
-					
-					resultBox.addChild(_hb);					
-					_hb.addChild(_tx);
-					_hb.addChild(_votes);
-					_hb.addChild(_percent);
-					
-					resultBox.addChild(_line);
-				} // end of loop
-				didNotVote();
-				invalidateDisplayList();
-				resultBox.validateNow();*/	
 			} // end of function createResultsTable
 			
-			private function didNotVote():void{
+			private function didNotVote():PollStatLineObject{
+				var pso:PollStatLineObject = new PollStatLineObject();
+				pso.answer = ResourceUtil.getInstance().getString('bbb.polling.stats.didNotVote');
+				pso.votes = trackingPoll.didNotVote.toString();
+				pso.percentage = "";
+				return pso;
+				
 				/*var _tx:Text = new Text();
 				var _votes:Text= new Text;
 				var _hb:HBox = new HBox();
@@ -464,19 +332,27 @@
     
 		
 		<!-- EXPERIMENTAL DATAGRID -->
-		<mx:DataGrid id="resultsGrid" dataProvider="{answerCollection}" width="90%" accessibilityDescription="{trackingPoll.question}">
+		<mx:DataGrid id="resultsGrid" 
+					 dataProvider="{answerCollection}"
+					 rowCount="{answerCollection.length}" 
+					 width="90%" 
+					 accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.stats.question', [trackingPoll.question])}"
+					 >
 			<mx:columns>
 			<mx:DataGridColumn id="answerColumn"
 							   dataField="answer"
 							   headerText="{ResourceUtil.getInstance().getString('bbb.polling.stats.answer')}"
+							   wordWrap="true"
 							   />
 			<mx:DataGridColumn id="voteColumn"
 							   dataField="votes"
 							   headerText="{ResourceUtil.getInstance().getString('bbb.polling.stats.votes')}"
+							   width="40"
 							   />
 			<mx:DataGridColumn id="percentColumn"
 							   dataField="percentage"
 							   headerText="{ResourceUtil.getInstance().getString('bbb.polling.stats.percentage')}"
+							   width="70"
 							   />
 			</mx:columns>
 		</mx:DataGrid>
