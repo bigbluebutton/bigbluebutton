@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
 
 BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
@@ -19,9 +18,14 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"  
-                width="600" height="350" creationComplete="initDefaultMic()" styleName="micSettingsWindowStyle"
-                showCloseButton="false" close="onCancelClicked()" keyDown="handleKeyDown(event)">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				layout="absolute"
+				xmlns:mate="http://mate.asfusion.com/" 
+				width="600" height="300" 
+				creationComplete="initDefaultMic()" 
+				showCloseButton="true" 
+				close="onCancelClicked()" 
+				keyDown="handleKeyDown(event)">
 
 	<mx:Script>
 		<![CDATA[
@@ -36,6 +40,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			
 			
 			[Embed(source="assets/audio-test.mp3")]
 			[Bindable] private var soundClass:Class;
@@ -106,7 +113,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					playingAudio = false;
 				}	                     
 			}
-						
+			
+								
 			private function showMicSettingsPanel():void {
 				Security.showSettings(SecurityPanel.MICROPHONE);
 			}
@@ -158,6 +166,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <mx:HRule width="100%"/>
       </mx:VBox>   
 		</mx:HBox>
+
 		<mx:HBox width="100%">
 				<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.hearFromHeadset')}"
                  styleName="micSettingsWindowHearFromHeadsetLabelStyle"/>
@@ -202,5 +211,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  styleName="micSettingsWindowCancelButtonStyle"
                  click="onCancelClicked()"/>
 		</mx:HBox>
+		
 	</mx:VBox>		
 </mx:TitleWindow>

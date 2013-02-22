@@ -45,6 +45,28 @@ function addAlert(message){
 	contentDiv.show();
 }
 
+function determineModifier()
+{
+	var browser = determineBrowser();
+	var modifier;
+	if (browser == "Firefox"){
+		modifier = "control+";
+	}
+	else if (browser == "Chrome"){
+		modifier = "control+";
+	}
+	else if (browser == "Microsoft Internet Explorer"){
+		modifier = "shift+alt+";
+	}
+	/*else if (browser == "Safari"){
+		modifier = "control+";
+	}*/
+	else{
+		modifier = "shift+alt+";
+	}
+	return modifier;
+}
+
 function determineBrowser()
 {
 	// Browser name extraction code provided by http://www.javascripter.net/faq/browsern.htm
