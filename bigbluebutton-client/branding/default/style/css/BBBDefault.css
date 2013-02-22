@@ -378,7 +378,7 @@ DataGrid {
 
 .micSettingsWindowCancelButtonStyle {
   fillAlphas: 1, 1, 1, 1;
-  fillColors: #ff0000, #ff0000, #ffffff, #eeeeee;
+  fillColors: #ffffff, #eeeeee, #ffffff, #eeeeee;
   rollOverColor: #eeeeee;
   color: #5e5f63;
   textRollOverColor: #5e5f63;
@@ -627,5 +627,5 @@ MDIWindow {
 
 .cameraDisplaySettingsWindowStartBtn
 {
-
+  icon:   Embed('assets/images/play-blue.png');
 }

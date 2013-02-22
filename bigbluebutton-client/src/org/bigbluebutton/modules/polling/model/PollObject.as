@@ -7,11 +7,12 @@ package org.bigbluebutton.modules.polling.model
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	import org.bigbluebutton.modules.polling.model.PollStatLineObject;
+
 	
 	/*
-	 *  This class has been setted his attributes to public, for serialize with the model of the bigbluebutton-apps, in order
-	 *  to enable the communication. This class is used for send public and private.
-	 **/
+	*  This class has been setted his attributes to public, for serialize with the model of the bigbluebutton-apps, in order
+	*  to enable the communication. This class is used for send public and private.
+	**/
 	[Bindable]
 	[RemoteClass(alias="org.bigbluebutton.conference.service.poll.Poll")]
 	public class PollObject
@@ -19,14 +20,14 @@ package org.bigbluebutton.modules.polling.model
 		public static const LOGNAME:String = "[PollingObject] ";
 		
 		/* 
-		 ########################################################################################
-		 # KEY PLACES TO UPDATE, WHEN ADDING NEW FIELDS TO THE HASH:							#
-		 # PollingService.as, buildServerPoll()													#
-		 # PollingService.as, extractPoll()														#
-		 # PollingInstructionsWindow.mxml, buildPoll()											#
-		 # - Only necessary when the new field is involved with poll creation					#
-		 # Don't forget to update the server side as well (key locations found in Poll.java)	#
-		 ########################################################################################
+		########################################################################################
+		# KEY PLACES TO UPDATE, WHEN ADDING NEW FIELDS TO THE HASH:							#
+		# PollingService.as, buildServerPoll()													#
+		# PollingService.as, extractPoll()														#
+		# PollingInstructionsWindow.mxml, buildPoll()											#
+		# - Only necessary when the new field is involved with poll creation					#
+		# Don't forget to update the server side as well (key locations found in Poll.java)	#
+		########################################################################################
 		*/
 		
 		public var title:String;
@@ -69,12 +70,11 @@ package org.bigbluebutton.modules.polling.model
 		}
 		
 		public function generateStats():ArrayCollection{
-			/*var returnCollection:ArrayCollection = new ArrayCollection();
+			var returnCollection:ArrayCollection = new ArrayCollection();
 			for (var i:int = 0; i < answers.length; i++){
 				var pso:PollStatLineObject = new PollStatLineObject;
 				pso.answer = answers[i].toString();
 				pso.votes = votes[i].toString();
-				//pso.percentage =
 				if (totalVotes == 0){
 					pso.percentage = "";
 				}
@@ -83,43 +83,8 @@ package org.bigbluebutton.modules.polling.model
 				}
 				returnCollection.addItem(pso);
 			}
-			return returnCollection;*/
-			var buildArray:Array = generateStatArray();
-			var returnCollection:ArrayCollection = new ArrayCollection(buildArray);
 			return returnCollection;
 		}
-		
-		public function generateStatArray():Array{
-			var returnArray:Array = new Array();
-			for (var i:int = 0; i < answers.length; i++){
-				var percent:String;
-				if (totalVotes == 0){
-					percent = "";
-				}
-				else{
-					percent = Math.round(100*(votes[i]/totalVotes)) + "%";
-				}
 				
-				// Functioning proof-of-concept, do not remove!
-				returnArray.push({answer: answers[i].toString(), votes: votes[i].toString(), percentage: percent});
-				// Functioning proof-of-concept, do not remove!
-				
-				// Does not work: returnArray.push({{answerT}: answers[i].toString(), {votesT}: votes[i].toString(), {percentT}: percent});
-				// Maybe doesn't work? 
-				returnArray.push({"{answerT}": answers[i].toString(), "{votesT}": votes[i].toString(), "{percentT}": percent});
-				
-				
-				/*returnArray.push({{ResourceUtil:getInstance().getString('bbb.polling.stats.answers')}: answers[i].toString(), 
-								  {ResourceUtil:getInstance().getString('bbb.polling.stats.votes')}: votes[i].toString(), 
-								  {ResourceUtil:getInstance().getString('bbb.polling.stats.percentage')}: percent});*/
-			}
-			// Adding "Did Not Vote"
-			/*returnArray.push({ResourceUtil:getInstance().getString('bbb.polling.stats.answers'): ResourceUtil:getInstance().getString('bbb.polling.stats.didNotVote'), 
-							  ResourceUtil:getInstance().getString('bbb.polling.stats.votes'): didNotVote.toString(), 
-							  ResourceUtil:getInstance().getString('bbb.polling.stats.percentage'): ""});*/
-			
-			return returnArray;
-		}
-		
 	}
 }
