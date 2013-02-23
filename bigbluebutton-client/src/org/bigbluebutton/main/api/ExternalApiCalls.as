@@ -73,6 +73,9 @@ package org.bigbluebutton.main.api
       payload.myAvatarURL = UsersUtil.getAvatarURL();
       payload.myRole = UsersUtil.getMyRole();
       payload.amIPresenter = UsersUtil.amIPresenter();
+	  payload.dialNumber = UsersUtil.getDialNumber();
+	  payload.voiceBridge = UsersUtil.getVoiceBridge();
+	  payload.customdata = UsersUtil.getCustomData();
       
       broadcastEvent(payload);
     } 
@@ -174,7 +177,7 @@ package org.bigbluebutton.main.api
     public function handleGetMyRoleResponse(event:CoreEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.GET_MY_ROLE_RESP;
-      payload.myRole = event.message.myRole;
+      payload.myRole = UserManager.getInstance().getConference().whatsMyRole();
       broadcastEvent(payload);        
     }
 
@@ -266,7 +269,7 @@ package org.bigbluebutton.main.api
       }
       
       payload.eventName = EventConstants.USER_JOINED;
-      payload.userID = user.userID;
+      payload.userID = UsersUtil.internalUserIDToExternalUserID(user.userID);
       payload.userName = user.name;        
       
       broadcastEvent(payload);        
@@ -282,7 +285,7 @@ package org.bigbluebutton.main.api
       }
       
       payload.eventName = EventConstants.USER_LEFT;
-      payload.userID = user.userID;
+      payload.userID = UsersUtil.internalUserIDToExternalUserID(user.userID);
       
       broadcastEvent(payload);        
     }  

@@ -30,6 +30,8 @@ package org.bigbluebutton.main.model.users {
     public var internalMeetingID:String;
     public var externalUserID:String;
     public var avatarURL:String;
+	public var voiceBridge:String;
+	public var dialNumber:String;
     
     private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
     
@@ -292,6 +294,14 @@ package org.bigbluebutton.main.model.users {
 		
 		public function getMyName():String {
 			return me.name;
+		}
+		
+		public function setMyCustomData(customdata:Object):void{
+			me.customdata = customdata;
+		}
+		
+		public function getMyCustomData():Object{
+			return me.customdata;
 		}
 		
 		public function setMyRole(role:String):void {
