@@ -39,10 +39,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Style>
 		.colorPickerStyle {
 	      backgroundColor:#E5E6E7;
-	      columnCount:12;
+	      columnCount:13;
 	      horizontalGap:0;
 	      previewHeight:22;
-	      previewWidth:45;
+	      previewWidth:50;
 	      swatchGridBackgroundColor:#000000;
 	      swatchGridBorderSize:0;
 	      swatchHeight:60;
@@ -311,7 +311,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	the "fill" color that is used only if "fill" is enabled in WhiteboardCanvasModel
 	-->
 	<mx:ColorPicker change="changeColor(event)" id="cpik"  visible="{showWhiteboardToolbar}"
-                  selectedColor="0x000000" width="30" 
+                  selectedColor="0x000000" width="30" dataProvider="{colorPickerColours}" swatchPanelStyleName="colorPickerStyle"
                   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"/>
    
 	<mx:Spacer height="3" visible="{showWhiteboardToolbar}"/>
