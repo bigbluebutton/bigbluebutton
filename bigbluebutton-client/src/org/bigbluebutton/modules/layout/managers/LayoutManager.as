@@ -49,6 +49,7 @@ package org.bigbluebutton.modules.layout.managers
 	import org.bigbluebutton.modules.layout.model.LayoutLoader;
 	import org.bigbluebutton.modules.layout.model.WindowLayout;
 	import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
+	import org.bigbluebutton.modules.layout.events.PopulateComboboxEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class LayoutManager extends EventDispatcher {
@@ -62,6 +63,7 @@ package org.bigbluebutton.modules.layout.managers
 		private var _sendCurrentLayoutUpdateTimer:Timer = new Timer(500,1);
 		private var _applyCurrentLayoutTimer:Timer = new Timer(150,1);
 		private var _customLayoutsCount:int = 0;
+		private var sendToCombobox:Boolean = false;
 		private var _eventsToDelay:Array = new Array(MDIManagerEvent.WINDOW_RESTORE,
 				MDIManagerEvent.WINDOW_MINIMIZE,
 				MDIManagerEvent.WINDOW_MAXIMIZE);
@@ -88,6 +90,15 @@ package org.bigbluebutton.modules.layout.managers
 				}
 			});
 			loader.loadFromUrl(layoutUrl);
+		}
+		
+		public function sendLayoutToComboboxWhenReceived():void {
+			if(_layouts != null) {
+				var populateComboboxEvent:PopulateComboboxEvent = new PopulateComboboxEvent();
+				populateComboboxEvent.layouts = _layouts;
+				_globalDispatcher.dispatchEvent(populateComboboxEvent);
+				
+			}
 		}
 		
 		public function saveLayoutsToFile():void {

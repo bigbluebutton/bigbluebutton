@@ -32,6 +32,7 @@
 			import org.bigbluebutton.modules.layout.events.StartLayoutModuleEvent;
 			import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
 			import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
+			import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
 			import org.bigbluebutton.modules.layout.managers.LayoutManager;
 			import org.bigbluebutton.modules.layout.services.LayoutService;
 		]]>
@@ -52,6 +53,12 @@
    		<MethodInvoker generator="{LayoutManager}" method="setCanvas" arguments="{event.canvas}" />
    		<MethodInvoker generator="{LayoutService}" method="join" />
     </EventHandlers>
+    
+    <EventHandlers type="{ComboBoxCreatedEvent.COMBOBOX_CREATED_EVENT}">
+   		<MethodInvoker generator="{LayoutManager}" method="sendLayoutToComboboxWhenReceived"/>
+	</EventHandlers>
+    
+    
     
     <EventHandlers type="{LayoutEvent.STOP_LAYOUT_MODULE_EVENT}">
    		<MethodInvoker generator="{LayoutService}" method="leave" />

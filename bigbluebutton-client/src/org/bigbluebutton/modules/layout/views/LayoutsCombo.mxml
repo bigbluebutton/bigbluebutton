@@ -35,6 +35,8 @@
 	<mate:Listener type="{LayoutEvent.INVALIDATE_LAYOUT_EVENT}" method="invalidadeLayout" />
 	<mate:Listener type="{LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT}" method="populateLayoutsList" />
 	<mate:Listener type="{RedefineLayoutEvent.REDEFINE_LAYOUT_EVENT}" method="onRedefineLayout" />
+	<mate:Listener type="{PopulateComboboxEvent.POPULATE_COMBOBOX_EVENT}" method="repopulateLayoutsList"/>
+	
 	
 	<mx:Script>
 		<![CDATA[
@@ -62,6 +64,8 @@
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.modules.layout.events.LayoutEvent;
+			import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
+			import org.bigbluebutton.modules.layout.events.PopulateComboboxEvent;
 			import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
 			import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
 			import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
@@ -70,15 +74,39 @@
 			import org.bigbluebutton.modules.layout.model.WindowLayout;
 			import org.bigbluebutton.modules.layout.views.LayoutButton;
 			
+			
+			
+			private var populated:Boolean = false;
+			
+			
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			
 			private var _defaultLayout:Object = null;
 			
 			private function init():void {
 				LogUtil.debug("LayoutsCombo: view initialized");
+				var comboBoxCreated:ComboBoxCreatedEvent = new ComboBoxCreatedEvent();
+				_dispatcher.dispatchEvent(comboBoxCreated);
 			}
 			
+			private function repopulateLayoutsList(e:PopulateComboboxEvent):void {
+				if(populated == false) {
+						LogUtil.debug("LayoutsCombo: repopulating list because previous layout list was missed");
+						_defaultLayout = null;
+						dataProvider.removeAll();
+						var idx:int = 0;
+						for each (var value:LayoutDefinition in e.layouts.list) {
+							var item:Object = {index:idx, label:value.name, layout:value};
+							if (value.defaultLayout)
+								_defaultLayout = item;
+							dataProvider.addItem(item);
+							idx++;
+						}
+					invalidateDisplayList();
+					}
+			}
 			private function populateLayoutsList(e:LayoutsLoadedEvent):void {
+				populated = true;
 				LogUtil.debug("LayoutsCombo: populating list");
 				_defaultLayout = null;
 				dataProvider.removeAll();
