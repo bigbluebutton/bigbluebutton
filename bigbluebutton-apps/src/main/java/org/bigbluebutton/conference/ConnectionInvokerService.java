@@ -90,7 +90,7 @@ public class ConnectionInvokerService {
 				List<Object> params = new ArrayList<Object>();
 				params.add(message.getMessageName());
 				params.add(message.getMessage());
-				ServiceUtils.invokeOnAllConnections(scope, "onMessageFromServer", params.toArray());				
+				ServiceUtils.invokeOnAllScopeConnections(scope, "onMessageFromServer", params.toArray(), null);				
 			}
 		} else if (message.getType().equals(ClientMessage.DIRECT)) {
 			IConnection conn = connections.get(message.getDest());
