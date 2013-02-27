@@ -47,6 +47,7 @@ public class Parameter {
     public static final String TOOL_CONSUMER_INSTANCE_URL = "tool_consumer_instance_url";
     
     public static final String CUSTOM_USER_ID = "custom_lis_person_sourcedid";
+	public static final String CUSTOM_WELCOME = "custom_welcome";
 
 
 }
