@@ -55,7 +55,7 @@
     </EventHandlers>
     
     <EventHandlers type="{ComboBoxCreatedEvent.COMBOBOX_CREATED_EVENT}">
-   		<MethodInvoker generator="{LayoutManager}" method="sendLayoutToComboboxWhenReceived"/>
+   		<MethodInvoker generator="{LayoutManager}" method="comboboxInitialized"/>
 	</EventHandlers>
     
     
