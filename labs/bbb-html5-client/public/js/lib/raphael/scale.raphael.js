@@ -2,11 +2,12 @@
  * ScaleRaphael 0.8 by Zevan Rosser 2010 
  * For use with Raphael library : www.raphaeljs.com
  * Licensed under the MIT license.
+ * Adapted for Require.js by Dale Karp <me@dale.io>
  *
  * www.shapevent.com/scaleraphael/
  */
-(function(){
-  window.ScaleRaphael = function(container, width, height){
+define(['./scale.raphael'], function(R){
+  var ScaleRaphael = function(container, width, height){
     var wrapper = document.getElementById(container);
     if (!wrapper.style.position) wrapper.style.position = "relative";
     wrapper.style.width = width + "px";
@@ -99,4 +100,5 @@
     
     return paper;
   }
-})();
+
+});

@@ -25,6 +25,7 @@ requirejs.config({
     'raphael.core': 'lib/raphael/raphael.core',
     'raphael.vml': 'lib/raphael/raphael.vml',
     'raphael.svg': 'lib/raphael/raphael.svg',
+    'scale.raphael': 'lib/raphael/scale.raphael',
     'eve': 'lib/raphael/eve',
     'colorwheel': 'lib/colorwheel',
     'coffee-script': 'lib/coffee-script',
