@@ -16,24 +16,19 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.main.events
+package org.bigbluebutton.modules.participants.events
 {
 	import flash.events.Event;
-	
-	public class MadePresenterEvent extends Event
+
+	public class ParticipantsEvent extends Event
 	{
-		public static const PRESENTER_NAME_CHANGE:String = "PRESENTER_NAME_CHANGE";
-		public static const SWITCH_TO_VIEWER_MODE:String = "VIEWER_MODE";
-		public static const SWITCH_TO_PRESENTER_MODE:String = "PRESENTER_MODE";
+		public static const ROOM_MUTE_STATE:String = "PARTICIPANTS_ROOM_MUTE_STATE";
 		
-		public var presenterName:String;
-		public var assignerBy:String;
-		public var userID:String;
+		public var mute_state:Boolean;
 		
-		public function MadePresenterEvent(type:String)
+		public function ParticipantsEvent(type:String)
 		{
 			super(type, true, false);
 		}
-
 	}
 }

@@ -76,7 +76,7 @@ package org.bigbluebutton.modules.layout.model {
 			var hasModeratorLayout:Boolean = _windows.hasOwnProperty(Role.MODERATOR);
 			var hasPresenterLayout:Boolean = _windows.hasOwnProperty(Role.PRESENTER);
 			
-			if (UserManager.getInstance().getConference().amIPresenter() && hasPresenterLayout) {
+			if (UserManager.getInstance().getConference().amIPresenter && hasPresenterLayout) {
         return _windows[Role.PRESENTER];        
       } else if (UserManager.getInstance().getConference().amIModerator() && hasModeratorLayout) {
         return _windows[Role.MODERATOR];        

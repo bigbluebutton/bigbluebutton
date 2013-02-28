@@ -34,6 +34,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import flash.system.Security;
+			import flash.system.SecurityPanel;
+			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -86,7 +89,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						} else if (mic.muted) {
   							// user has disallowed access to the mic
   							mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
-  							Security.showSettings();
+  							Security.showSettings(SecurityPanel.PRIVACY);
 						} else {
 							// user has allowed access to the mic already
 						  joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
