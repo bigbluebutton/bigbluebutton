@@ -33,10 +33,12 @@ module BigBlueButton
       events_xml = "#{archive_dir}/events.xml"
       audio_events = BigBlueButton::AudioEvents.process_events(audio_dir, events_xml)
       audio_files = []
+      first_no_silence = audio_events.select { |e| !e.padding }.first
+      sampling_rate = first_no_silence.nil? ? 16000 :  FFMPEG::Movie.new(first_no_silence.file).audio_sample_rate
       audio_events.each do |ae|
         if ae.padding 
           ae.file = "#{audio_dir}/#{ae.length_of_gap}.wav"
-          BigBlueButton::AudioEvents.generate_silence(ae.length_of_gap, ae.file, 16000)
+          BigBlueButton::AudioEvents.generate_silence(ae.length_of_gap, ae.file, sampling_rate)
         else
           # Substitute the original file location with the archive location
           ae.file = ae.file.sub(/.+\//, "#{audio_dir}/")

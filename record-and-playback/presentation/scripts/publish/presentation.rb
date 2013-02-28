@@ -412,7 +412,8 @@ def processSlideEvents
 			slide_start = ((slide_timestamp.to_f - $meeting_start.to_f) / 1000).round(1)
 			slide_number = node.xpath(".//slide")[0].text()
 			slide_src = "presentation/#{$presentation_name}/slide-#{slide_number.to_i + 1}.png"
-                        slide_text = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i + 1}.txt"
+                        txt_file_path = "presentation/#{$presentation_name}/textfiles/slide-#{slide_number.to_i + 1}.txt"
+                        slide_text = File.exist?("#{$process_dir}/#{txt_file_path}") ? txt_file_path : nil
 			image_url = "#{$process_dir}/#{slide_src}"
 			slide_size = FastImage.size(image_url)
 			current_index = $slides_events.index(node)
