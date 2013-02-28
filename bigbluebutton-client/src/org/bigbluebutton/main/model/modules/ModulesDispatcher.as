@@ -140,6 +140,7 @@ package org.bigbluebutton.main.model.modules
 						.withHelpUrl(c.helpURL)
 						.withHost(c.host)
 						.withLanguageEnabled(c.languageEnabled)
+						.withShortcutKeysEnabled(c.shortcutKeysEnabled)
 						.withNumModule(c.numModules)
 						.withPortTestApplication(c.portTestApplication)
 						.withPortTestHost(c.portTestHost)
