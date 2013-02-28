@@ -19,30 +19,32 @@
 package org.bigbluebutton.conference;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.red5.server.api.IConnection;
 import org.red5.server.api.scope.IScope;
 import org.red5.server.api.service.ServiceUtils;
 
 public class ConnectionInvokerService {
 
-	private static final int NTHREADS = 4;
+	private static final int NTHREADS = 1;
 	private static final Executor exec = Executors.newFixedThreadPool(NTHREADS);
 			
-//	private ConcurrentLinkedQueue<ClientMessage> messages;
+	private BlockingQueue<ClientMessage> messages;
 	
 	private ConcurrentHashMap<String, IConnection> connections;
 	private ConcurrentHashMap<String, IScope> scopes;
 	
+	private volatile boolean sendMessages = false;
+	
 	public ConnectionInvokerService() {
-//		messages = new ConcurrentLinkedQueue<ClientMessage>();
-		System.out.print("Starting conn invoket service!!!!");
+		messages = new LinkedBlockingQueue<ClientMessage>();
+
 		connections = new ConcurrentHashMap<String, IConnection>();
 		scopes = new ConcurrentHashMap<String, IScope>();
 	}
@@ -62,6 +64,30 @@ public class ConnectionInvokerService {
 		connections.putIfAbsent(id, conn);
 	}
 	
+	public void start() {
+		sendMessages = true;
+		Runnable sender = new Runnable() {
+			public void run() {
+				while (sendMessages) {
+					ClientMessage message;
+					try {
+						message = messages.take();
+						sendMessageToClient(message);	
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+									
+				}
+			}
+		};
+		exec.execute(sender);		
+	}
+	
+	public void stop() {
+		sendMessages = false;
+	}
+	
 	public void removeConnection(String id) {
 		connections.remove(id);
 	}
@@ -75,12 +101,7 @@ public class ConnectionInvokerService {
 	}
 	
 	public void sendMessage(final ClientMessage message) {
-		Runnable sender = new Runnable() {
-			public void run() {
-				sendMessageToClient(message);
-			}
-		};
-		exec.execute(sender);
+		messages.offer(message);
 	}
 	
 	private void sendMessageToClient(ClientMessage message) {

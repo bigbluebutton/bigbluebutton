@@ -48,12 +48,16 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         appCtx = (AbstractApplicationContext) context.getApplicationContext();
         appCtx.addApplicationListener(new ShutdownHookListener());
         appCtx.registerShutdownHook();
+        
+        connInvokerService.start();
+        
         return super.appStart(app);
     }
     
 	@Override
     public void appStop(IScope app) {
         log.debug("Stopping BigBlueButton ");
+        connInvokerService.stop();
         super.appStop(app);
     }
     
