@@ -84,7 +84,6 @@ test {
 
 war.doLast {
   ant.unzip(src: war.archivePath, dest: "$buildDir/deskshare")
-  ant.copy(file: "$buildDir/deskshare/WEB-INF/logback-deskshare.xml", todir: "$buildDir/deskshare/WEB-INF/classes")
 }
 
 task deploy() << {

@@ -120,7 +120,6 @@ test {
 
 war.doLast {
   ant.unzip(src: war.archivePath, dest: "$buildDir/$appName")
-  ant.copy(file: "$buildDir/$appName/WEB-INF/logback-bigbluebutton.xml", todir: "$buildDir/$appName/WEB-INF/classes")
 }
 
 

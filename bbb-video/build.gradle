@@ -114,7 +114,6 @@ test {
 
 war.doLast {
   ant.unzip(src: war.archivePath, dest: "$buildDir/video")
-  ant.copy(file: "$buildDir/video/WEB-INF/logback-video.xml", todir: "$buildDir/video/WEB-INF/classes")
 }
 
 
