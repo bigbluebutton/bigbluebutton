@@ -64,7 +64,6 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.modules.layout.events.LayoutEvent;
 			import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
-			import org.bigbluebutton.modules.layout.events.PopulateComboboxEvent;
 			import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
 			import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
 			import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
@@ -108,7 +107,7 @@
 					onApplyDefaultLayout();
 				}
 				else {
-					houldSelectedItemGoToDefaultBecauseTheEventWasLost = false;
+					shouldSelectedItemGoToDefaultBecauseTheEventWasLost = false;
 				}
 			}
 			

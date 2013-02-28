@@ -49,7 +49,6 @@ package org.bigbluebutton.modules.layout.managers
 	import org.bigbluebutton.modules.layout.model.LayoutLoader;
 	import org.bigbluebutton.modules.layout.model.WindowLayout;
 	import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
-	import org.bigbluebutton.modules.layout.events.PopulateComboboxEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class LayoutManager extends EventDispatcher {
@@ -85,8 +84,9 @@ package org.bigbluebutton.modules.layout.managers
 		
 		
 		public function sendPopulateComboboxEvent():void {
+			LogUtil.debug("Sending layout to populate combobox");
 			var sendLayoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent(LayoutsLoadedEvent.SEND_LAYOUTS_LOADED_EVENT );
-		    sendLayoutsLoaded.layouts = _layouts;
+		    	sendLayoutsLoaded.layouts = _layouts;
 			_globalDispatcher.dispatchEvent(sendLayoutsLoaded);
 		}
 		
@@ -97,9 +97,10 @@ package org.bigbluebutton.modules.layout.managers
 		
 		
 		public function checkIfCanSendLayoutToCombobox():void {
-			LogUtil.debug("Estou tentando");
 			if(comboboxIsInitialized) {
-				_delayToSendLayoutsToCombobox.stop();
+				if(_delayToSendLayoutsToCombobox != null) {
+					_delayToSendLayoutsToCombobox.stop();
+				}
 				sendPopulateComboboxEvent();
 			}
 		}
