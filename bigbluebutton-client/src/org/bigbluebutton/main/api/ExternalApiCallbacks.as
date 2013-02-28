@@ -127,7 +127,9 @@ package org.bigbluebutton.main.api
       obj.myAvatarURL = UsersUtil.getAvatarURL();
       obj.myRole = UsersUtil.getMyRole();
       obj.amIPresenter = UsersUtil.amIPresenter();
-	    obj.customdata = UsersUtil.getCustomData();
+	  obj.dialNumber = UsersUtil.getDialNumber();
+	  obj.voiceBridge = UsersUtil.getVoiceBridge();
+	  obj.customdata = UsersUtil.getCustomData();
       
       return obj;
     }

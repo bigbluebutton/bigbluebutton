@@ -79,6 +79,14 @@ package org.bigbluebutton.core
       return UserManager.getInstance().getConference().avatarURL;
     }
 	
+	public static function getVoiceBridge():String {
+		return UserManager.getInstance().getConference().voiceBridge;
+	}
+	
+	public static function getDialNumber():String {
+		return UserManager.getInstance().getConference().dialNumber;
+	}
+	
 	public static function getCustomData():Object {
 		return UserManager.getInstance().getConference().getMyCustomData();
 	}

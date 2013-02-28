@@ -26,14 +26,16 @@ package org.bigbluebutton.main.model.users {
 	import org.bigbluebutton.core.vo.CameraSettingsVO;
 	
 	public class Conference {		
-		public var meetingName:String;
-		public var externalMeetingID:String;
-	    public var internalMeetingID:String;
-		public var externalUserID:String;
-	    public var avatarURL:String;
-	    
-	    private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
-		
+    public var meetingName:String;
+    public var externalMeetingID:String;
+    public var internalMeetingID:String;
+    public var externalUserID:String;
+    public var avatarURL:String;
+	public var voiceBridge:String;
+	public var dialNumber:String;
+    
+    private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
+    
 		[Bindable] private var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;			
 		private var sort:Sort;

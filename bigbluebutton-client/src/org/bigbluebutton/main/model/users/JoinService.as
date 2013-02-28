@@ -70,7 +70,7 @@ package org.bigbluebutton.main.model.users
 				var user:Object = {username:xml.fullname, conference:xml.conference, conferenceName:xml.confname, externMeetingID:xml.externMeetingID,
 										meetingID:xml.meetingID, externUserID:xml.externUserID, internalUserId:xml.internalUserID,
 										role:xml.role, room:xml.room, authToken:xml.room, record:xml.record, 
-										webvoiceconf:xml.webvoiceconf,
+										webvoiceconf:xml.webvoiceconf, dialnumber:xml.dialnumber,
 										voicebridge:xml.voicebridge, mode:xml.mode, welcome:xml.welcome, logoutUrl:xml.logoutUrl, 
                     defaultLayout:xml.defaultLayout, avatarURL:xml.avatarURL};
 				user.customdata = new Object();

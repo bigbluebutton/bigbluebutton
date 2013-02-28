@@ -784,6 +784,7 @@ class ApiController {
               conference(us.conference)
               room(us.room)
               voicebridge(us.voicebridge)
+			  dialnumber(meeting.getDialNumber())
               webvoiceconf(us.webvoiceconf)
               mode(us.mode)
               record(us.record)
