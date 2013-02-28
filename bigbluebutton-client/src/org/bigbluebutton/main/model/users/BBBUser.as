@@ -18,12 +18,15 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
-	import mx.collections.ArrayCollection;	
+	import com.asfusion.mate.events.Dispatcher;
+	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
 	public class BBBUser {
 		public static const MODERATOR:String = "MODERATOR";
@@ -34,21 +37,121 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var userID:String = "UNKNOWN USER";
     [Bindable] public var externUserID:String = "UNKNOWN USER";
 		[Bindable] public var name:String;
-		[Bindable] public var hasStream:Boolean = false;
+		[Bindable] public var talking:Boolean = false;
+		[Bindable] public var phoneUser:Boolean = false;
+		private var _hasStream:Boolean = false;
+		[Bindable]
+		public function get hasStream():Boolean {
+			return _hasStream;
+		}
+		public function set hasStream(s:Boolean):void {
+			_hasStream = s;
+			verifyMedia();
+		}
+		
 		[Bindable] public var streamName:String = "";
-		[Bindable] public var presenter:Boolean = false;
-		[Bindable] public var raiseHand:Boolean = false;
-		[Bindable] public var role:String = Role.VIEWER;	
+		
+		private var _presenter:Boolean = false;
+		[Bindable] 
+		public function get presenter():Boolean {
+			return _presenter;
+		}
+		public function set presenter(p:Boolean):void {
+			_presenter = p;
+			verifyUserStatus();
+		}
+		
+		private var _raiseHand:Boolean = false;
+		[Bindable]
+		public function get raiseHand():Boolean {
+			return _raiseHand;
+		}
+		public function set raiseHand(r:Boolean):void {
+			_raiseHand = r;
+			verifyUserStatus();
+		}
+		
+		private var _role:String = Role.VIEWER;
+		[Bindable] 
+		public function get role():String {
+			return _role;
+		}
+		public function set role(r:String):void {
+			_role = r;
+			verifyUserStatus();
+		}
+		
 		[Bindable] public var room:String = "";
 		[Bindable] public var authToken:String = "";
 		[Bindable] public var selected:Boolean = false;
 		[Bindable] public var voiceUserid:Number;
-		[Bindable] public var voiceMuted:Boolean = false;
-		[Bindable] public var voiceJoined:Boolean = false;
+		
+		private var _voiceMuted:Boolean = false;
+		[Bindable]
+		public function get voiceMuted():Boolean {
+			return _voiceMuted;
+		}
+		public function set voiceMuted(v:Boolean):void {
+			_voiceMuted = v;
+			verifyMedia();
+		}
+		
+		private var _voiceJoined:Boolean = false;
+		[Bindable] 
+		public function get voiceJoined():Boolean {
+			return _voiceJoined;
+		}
+		public function set voiceJoined(v:Boolean):void {
+			_voiceJoined = v;
+			verifyMedia();
+		}
+		
 		[Bindable] public var voiceLocked:Boolean = false;
 		[Bindable] public var status:String = "";
 		[Bindable] public var customdata:Object = {};
 		
+		/*
+		 * This variable is for accessibility for the Participants Window. It can't be manually set
+		 * and only changes when one of the relevant status variables changes. Use the verifyUserStatus
+		 * method to update the value.
+		 *			Chad
+		 */
+		private var _userStatus:String = "";
+		[Bindable] 
+		public function get userStatus():String {
+			return _userStatus;
+		}
+		private function set userStatus(s:String):void {}
+		private function verifyUserStatus():void {
+			if (presenter)
+				_userStatus = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.presenter');
+			else if (role == Role.MODERATOR)
+				_userStatus = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.moderator');
+			else if (raiseHand)
+				_userStatus = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.handRaised');
+			else
+				_userStatus = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.viewer');
+		}
+		
+		/*
+		* This variable is for accessibility for the Participants Window. It can't be manually set
+		* and only changes when one of the relevant media variables changes. Use the verifyMedia
+		* method to update the value.
+		*			Chad
+		*/
+		private var _media:String = "";
+		[Bindable] 
+		public function get media():String {
+			return _media;
+		}
+		private function set media(m:String):void {}
+		private function verifyMedia():void {
+			_media = (hasStream ? ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer.webcam') + " " : "") + 
+					(!voiceJoined ? ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer.noAudio') : 
+									(voiceMuted ? ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer.micOff') : 
+												  ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer.micOn')));
+		}
+		 
 		private var _status:StatusCollection = new StatusCollection();
 			
 		public function buildStatus():void{

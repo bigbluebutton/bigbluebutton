@@ -21,6 +21,34 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
+	
+	[Embed(source="assets/images/users_settings.png")]
+	public var users_settings:Class;
+	
+	[Embed(source="assets/images/eject_user.png")]
+	public var eject_user_new:Class;
+	
+	[Embed(source="assets/images/audio_muted.png")]
+	public var audio_muted:Class;
+	
+	[Embed(source="assets/images/audio.png")]
+	public var audio:Class;
+	
+	[Embed(source="assets/images/webcam_new.png")]
+	public var webcam_new:Class;
+	
+	[Embed(source="assets/images/sound_new.png")]
+	public var sound_new:Class;
+	
+	[Embed(source="assets/images/hand_new.png")]
+	public var hand_new:Class;
+	
+	[Embed(source="assets/images/moderator.png")]
+	public var moderator:Class;
+	
+	[Embed(source="assets/images/presenter_new.png")]
+	public var presenter_new:Class;
+	
     [Embed(source="assets/images/webcam_kickuser.png")]
     public var webcam_kickuser:Class;
     

@@ -58,30 +58,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
       import flash.ui.Keyboard;
-			import mx.events.MoveEvent;
-			import mx.events.ResizeEvent;
-			import mx.managers.CursorManager;			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.modules.present.events.PresentationEvent;
-			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
-			import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
-			import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
-			import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
-			import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
-			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
-			import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardOptions;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.common.LogUtil;
+      
+      import mx.events.MoveEvent;
+      import mx.events.ResizeEvent;
+      import mx.managers.CursorManager;
+      
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.modules.present.events.PresentationEvent;
+      import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+      import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
+      import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
+      import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
+      import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;
+      import org.bigbluebutton.modules.whiteboard.events.GraphicObjectFocusEvent;
+      import org.bigbluebutton.modules.whiteboard.events.StopWhiteboardModuleEvent;
+      import org.bigbluebutton.modules.whiteboard.events.ToggleGridEvent;
+      import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+      import org.bigbluebutton.modules.whiteboard.events.WhiteboardDrawEvent;
+      import org.bigbluebutton.modules.whiteboard.events.WhiteboardPresenterEvent;
+      import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
+      import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardOptions;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
       [Bindable] private var hand_icon:Class = images.hand_icon;
@@ -270,11 +272,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       /** Helper method to test whether this user is the presenter */
       private function get isPresenter():Boolean {
-        return UserManager.getInstance().getConference().amIPresenter();
+        return UsersUtil.amIPresenter();
       }
       
       private function get isModerator():Boolean {
-        return UserManager.getInstance().getConference().amIModerator();
+        return UsersUtil.amIModerator();
       }
 		           
 		]]>
