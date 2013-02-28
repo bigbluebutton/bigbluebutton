@@ -274,7 +274,9 @@ package org.bigbluebutton.modules.videoconf.maps
       broadcastEvent.camSettings = UsersUtil.amIPublishing();
       
       _dispatcher.dispatchEvent(broadcastEvent);
-      button.publishingStatus(button.START_PUBLISHING);
+	  if (proxy.videoOptions.showButton) {
+		  button.publishingStatus(button.START_PUBLISHING);
+	  }
     }
        
     public function stopPublishing(e:StopBroadcastEvent):void{
@@ -292,8 +294,12 @@ package org.bigbluebutton.modules.videoconf.maps
       broadcastEvent.userid = UsersUtil.getMyUserID();
       _dispatcher.dispatchEvent(broadcastEvent);
       
-      //Make toolbar button enabled again
-      button.publishingStatus(button.STOP_PUBLISHING);
+      
+	  
+	  if (proxy.videoOptions.showButton) {
+		  //Make toolbar button enabled again
+		  button.publishingStatus(button.STOP_PUBLISHING);
+	  }
       
       closeWindow(UsersUtil.getMyUserID());
       
