@@ -25,6 +25,8 @@ require 'cgi'
 require 'digest/md5'
 
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
+mconf_props = YAML::load(File.open('mconf.yml'))
+
 recording_dir = bbb_props['recording_dir']
 playback_host = bbb_props['playback_host']
 published_dir = bbb_props['published_dir']
@@ -70,11 +72,11 @@ done_files.each do |df|
         FileUtils.rm_f "#{meeting_id}.zip"
 
         key_filename = ""
-        if metadata.has_key?('mconflb-rec-server-key')
+        if metadata.has_key?('mconflb-rec-server-key') and not metadata['mconflb-rec-server-key'].to_s.empty?
           key_filename = "#{meeting_id}.enc"
+          # The key is already unescaped in the metadata!!
           #BigBlueButton.logger.info("Unescaping public key")
           #public_key_decoded = CGI::unescape("#{metadata['public-key'].to_s}")
-          # The key is already unescaped in the metadata!!
           public_key_decoded = "#{metadata['mconflb-rec-server-key'].to_s}"
           public_key_filename = "public-key.pem"
           public_key = File.new("#{public_key_filename}", "w") 
@@ -144,10 +146,17 @@ done_files.each do |df|
         FileUtils.cp_r(meeting_publish_dir, "#{published_dir}/mconf")
 
         BigBlueButton.logger.info("Removing processed files: #{meeting_process_dir}")
-        FileUtils.remove_entry_secure meeting_process_dir, :force => true, :verbose => true
+        FileUtils.rm_r meeting_process_dir, :force => true
 
         BigBlueButton.logger.info("Removing published files: #{meeting_publish_dir}")
-        FileUtils.remove_entry_secure meeting_publish_dir, :force => true, :verbose => true
+        FileUtils.rm_r meeting_publish_dir, :force => true
+
+        # it doesn't work since video and deskshare files are owned by red5, 
+        # freeswitch files are owned by freeswitch, and this script is ran by
+        # tomcat6, so it can just remove files owned by tomcat6
+        FileUtils.rm_r [ "/usr/share/red5/webapps/video/streams/#{meeting_id}",
+                         "/usr/share/red5/webapps/deskshare/streams/#{meeting_id}",
+                         Dir.glob("/var/freeswitch/meetings/#{meeting_id}*.wav") ], :force => true
 
         # Remove all the recording flags
         FileUtils.rm_f [ "#{recording_dir}/status/processed/#{meeting_id}-mconf.done",
@@ -157,9 +166,9 @@ done_files.each do |df|
 
         # Comment it for testing
         BigBlueButton.logger.info("Removing the recording raw files: #{meeting_raw_dir}")
-        FileUtils.remove_entry_secure meeting_raw_dir, :force => true, :verbose => true
+        FileUtils.rm_r meeting_raw_dir, :force => true
         BigBlueButton.logger.info("Removing the recording presentation: #{meeting_raw_presentation_dir}")
-        FileUtils.remove_entry_secure meeting_raw_presentation_dir, :force => true, :verbose => true
+        FileUtils.rm_r meeting_raw_presentation_dir, :force => true
       end
     end
   end

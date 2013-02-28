@@ -85,6 +85,9 @@ if not get_recordings_url.nil? and not get_recordings_url.empty?
               writeOut.close
 
               if key_file != decrypted_key_file
+                if not File.exists("#{private_key}")
+                  raise "Couldn't find the private key on #{private_key}"
+                end
                 command = "openssl rsautl -decrypt -inkey #{private_key} < #{key_file} > #{decrypted_key_file}"
                 status = BigBlueButton.execute(command)
                 if not status.success?

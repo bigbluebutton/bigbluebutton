@@ -25,24 +25,37 @@ echo
 echo "+++++ Building record-and-playback"
 cd ~/dev/bigbluebutton/record-and-playback/
 
-sudo rm -f /usr/local/bigbluebutton/core/scripts/*.rb
-sudo rm -f /usr/local/bigbluebutton/core/scripts/process/*.rb
-sudo rm -f /usr/local/bigbluebutton/core/scripts/publish/*.rb
-#sudo rm -f /usr/local/bigbluebutton/core/scripts/*.yml
-sudo rm -f /usr/local/bigbluebutton/core/scripts/*.nginx
+sudo cp core/Gemfile /usr/local/bigbluebutton/core/Gemfile
+sudo rm -rf /usr/local/bigbluebutton/core/lib
+sudo cp -r core/lib /usr/local/bigbluebutton/core/
+sudo rm -rf /usr/local/bigbluebutton/core/scripts
+sudo cp -r core/scripts /usr/local/bigbluebutton/core/
+sudo rm -rf /etc/bigbluebutton/god
+sudo cp -r core/god/god /etc/bigbluebutton/
+sudo rm -f /etc/init.d/bbb-record-core
+sudo cp core/god/initd.god /etc/init.d/bbb-record-core
+sudo chmod 0755 /etc/init.d/bbb-record-core
+sudo rm -rf /var/bigbluebutton/playback/*
 
-sudo cp -r core/god/* /etc/bigbluebutton/
-sudo cp -r core/lib/* /usr/local/bigbluebutton/core/lib/
-sudo cp -r core/scripts/* /usr/local/bigbluebutton/core/scripts/
+function deploy_format() {
+    local formats=$1
+    for format in $formats
+    do
+        playback_dir="$format/playback/$format"
+        scripts_dir="$format/scripts"
+        if [ -d $playback_dir ]; then sudo cp -r $playback_dir /var/bigbluebutton/playback/; fi
+        if [ -d $scripts_dir ]; then sudo cp -r $scripts_dir/* /usr/local/bigbluebutton/core/scripts/; fi
+        sudo mkdir -p /var/log/bigbluebutton/$format
+    done
+}
 
-if [ $# -eq 0 ]; then
-    PLAYBACK_LIST="slides presentation"
-
-    # Mconf specific files
+RECORDING_SERVER=false
+if $RECORDING_SERVER ; then
     sudo cp mconf/scripts/mconf-god-conf.rb /etc/bigbluebutton/god/conf/
     sudo cp mconf/scripts/mconf-decrypt.rb /usr/local/bigbluebutton/core/scripts/
+    deploy_format "presentation"
 else
-    PLAYBACK_LIST="$1"
+    deploy_format "mconf"
 fi
 
 sudo mkdir -p /var/bigbluebutton/playback/
@@ -54,13 +67,8 @@ sudo mkdir -p /var/bigbluebutton/recording/status/archived/
 sudo mkdir -p /var/bigbluebutton/recording/status/processed/
 sudo mkdir -p /var/bigbluebutton/recording/status/sanity/
 
-for PLAYBACK in $PLAYBACK_LIST
-do
-  if [ -d $PLAYBACK/playback ]; then sudo cp -r $PLAYBACK/playback/* /var/bigbluebutton/playback/; fi
-  if [ -d $PLAYBACK/scripts ]; then sudo cp -r $PLAYBACK/scripts/* /usr/local/bigbluebutton/core/scripts/; fi
-  sudo cp -f $PLAYBACK/scripts/*-god-conf.rb /etc/bigbluebutton/god/conf/
-  sudo mkdir -p /var/log/bigbluebutton/$PLAYBACK
-done
+sudo mv /usr/local/bigbluebutton/core/scripts/*.nginx /etc/bigbluebutton/nginx/
 sudo chown -R tomcat6:tomcat6 /var/bigbluebutton/ /var/log/bigbluebutton/
-sudo cp -f /usr/local/bigbluebutton/core/scripts/*.nginx /etc/bigbluebutton/nginx/
 
+cd /usr/local/bigbluebutton/core/
+sudo bundle install
