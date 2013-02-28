@@ -67,6 +67,50 @@ function determineModifier()
 	return modifier;
 }
 
+function determineGlobalModifier()
+{
+	var browser = determineBrowser();
+	var gmodifier;
+	if (browser == "Firefox"){
+		gmodifier = "control+";
+	}
+	else if (browser == "Chrome"){
+		gmodifier = "control+";
+	}
+	else if (browser == "Microsoft Internet Explorer"){
+		gmodifier = "control+alt+";
+	}
+	/*else if (browser == "Safari"){
+		gmodifier = "control+alt+";
+	}*/
+	else{
+		gmodifier = "control+alt+";
+	}
+	return gmodifier;
+}
+
+function determineLocalModifier()
+{
+	var browser = determineBrowser();
+	var lmodifier;
+	if (browser == "Firefox"){
+		lmodifier = "control+shift+";
+	}
+	else if (browser == "Chrome"){
+		lmodifier = "control+shift+";
+	}
+	else if (browser == "Microsoft Internet Explorer"){
+		lmodifier = "control+shift+";
+	}
+	/*else if (browser == "Safari"){
+		lmodifier = "control+shift+";
+	}*/
+	else{
+		lmodifier = "control+shift+";
+	}
+	return lmodifier;
+}
+
 function determineBrowser()
 {
 	// Browser name extraction code provided by http://www.javascripter.net/faq/browsern.htm

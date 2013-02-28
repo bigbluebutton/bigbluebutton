@@ -197,8 +197,17 @@ package org.bigbluebutton.modules.polling.managers
 
 		  // Make a call to the service to update the list of titles and statuses for the Polling Menu
 		  public function handleInitializePollMenuEvent(e:PollGetTitlesEvent):void{
-			  toolbarButtonManager.button.roomID = module.getRoom();
-			  service.initializePollingMenu(module.getRoom());
+			  if (module != null && module.getRoom() != null){
+				  toolbarButtonManager.button.roomID = module.getRoom();
+				  service.initializePollingMenu(module.getRoom());
+			  }
+		  }
+		  
+		  public function handleRemoteInitializePollMenuEvent(e:PollGetTitlesEvent):void{
+			  if (module != null && module.getRoom() != null){
+				  toolbarButtonManager.button.roomID = module.getRoom();
+				  service.initializePollingMenuRemotely(module.getRoom());
+			  }
 		  }
 		  
 		  public function handleUpdateTitlesEvent(e:PollGetTitlesEvent):void{
@@ -208,6 +217,21 @@ package org.bigbluebutton.modules.polling.managers
 
 		  public function handleReturnTitlesEvent(e:PollReturnTitlesEvent):void{
 			  toolbarButtonManager.button.titleList = e.titleList;
+			  LogUtil.debug("In PollingManager for REGULAR title return, titleList is: ");
+			  for (var i:int; i < toolbarButtonManager.button.titleList.length; i++){
+				  LogUtil.debug(i + ": " + toolbarButtonManager.button.titleList[i]);
+			  }
+			  LogUtil.debug("---");
+		  }
+		  
+		  public function handleRemoteReturnTitlesEvent(e:PollReturnTitlesEvent):void{
+			  toolbarButtonManager.button.titleList = e.titleList;
+			  LogUtil.debug("In PollingManager for REMOTE title return, titleList is: ");
+			  for (var i:int; i < toolbarButtonManager.button.titleList.length; i++){
+				  LogUtil.debug(i + ": " + toolbarButtonManager.button.titleList[i]);
+			  }
+			  LogUtil.debug("---");
+			  toolbarButtonManager.button.remoteOpenPollingMenu();
 		  }
 
 		  public function handleGetPollEvent(e:PollGetPollEvent):void{

@@ -200,7 +200,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			// Handle presentation-scope hotkeys
 			private function handleKeyDown(e:KeyboardEvent) :void {
-				var modifier:String = ExternalInterface.call("determineModifier");
+				var modifier:String = ExternalInterface.call("determineLocalModifier");
 				loadKeyCombos(modifier);
 				  
 				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;

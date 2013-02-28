@@ -19,13 +19,16 @@ $Id: $
 Notes.mxml is the main view of the SharedNotes application
 -->
 <MDIWindow xmlns="flexlib.mdi.containers.*"
-        xmlns:mx="http://www.adobe.com/2006/mxml"
-width="510" height="600"
-xmlns:mate="http://mate.asfusion.com/"
-implements="org.bigbluebutton.common.IBbbModuleWindow"
-creationComplete="onCreationComplete()"
-label="Create Poll" layout="absolute"
-title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
+	       xmlns:mx="http://www.adobe.com/2006/mxml"			
+		   width="510" height="600"	
+		   xmlns:mate="http://mate.asfusion.com/"	
+		   implements="org.bigbluebutton.common.IBbbModuleWindow"	
+		   initialize="init()"
+		   creationComplete="onCreationComplete()"	
+		   label="Create Poll" 
+		   layout="absolute"			
+		   title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}"
+		   >
 
 <!-- Pre Defined Validation -->
 	<mx:Script>
@@ -51,9 +54,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
 		import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 		import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
-		
 		import org.bigbluebutton.modules.polling.model.PollObject;
-		
+		import org.bigbluebutton.modules.polling.model.PollOptions;
 		import org.bigbluebutton.core.managers.UserManager;
 		import org.bigbluebutton.main.model.users.Conference 
 		import org.bigbluebutton.main.model.users.BBBUser;
@@ -69,6 +71,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		private var published:Boolean;
 		
 		[Bindable] public var participants:int;
+		[Bindable] public var pollOptions:PollOptions;
+		[Bindable] private var baseIndex:int;
 
 		// Bindable is set to allow data to change when You hit Back and change something, this change will appear in review
 		private var conference:Conference;
@@ -96,6 +100,13 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		
 		public function getPrefferedPosition():String{
 			return MainCanvas.POPUP;
+		}
+			
+		// Initialization
+		private function init():void{
+			pollOptions = new PollOptions();
+			// Get the base tab index from config, and add four to make up for the min/max/close buttons and title overlay
+			baseIndex = pollOptions.getBaseIndex() + 4;
 		}
 		
 		private function onCreationComplete():void{

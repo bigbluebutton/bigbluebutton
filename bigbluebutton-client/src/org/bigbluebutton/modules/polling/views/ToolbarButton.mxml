@@ -31,6 +31,10 @@
 	click="createAndShow();"
 	icon="{pollIcon}"
 	>
+	
+	<mate:Listener type="{ShortcutEvent.POLL_BUTTON_CLICK}" method="updateMenuByShortcut" />
+	<!--mate:Listener type="{ShortcutEvent.POLL_BUTTON_CLICK_STAGE_2}" method="remoteOpenPollingMenu" /-->
+	
 	<mx:Script>
 		<![CDATA[
 		    import com.asfusion.mate.events.Dispatcher;
@@ -43,6 +47,7 @@
 			import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
 			import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
 			import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			
 			import org.bigbluebutton.modules.polling.model.ValueObject;
 			import org.bigbluebutton.modules.polling.model.PollObject;
@@ -67,44 +72,104 @@
 			[Bindable] public var roomID:String;
 			[Bindable] public var titleList:Array;
 			[Bindable] public var pollList:ArrayCollection;
+			private var myMenu:Menu = new Menu();
+			
+			//private var visibleMenu:Boolean = false;
 			
 			// #################################################################
 			public function init():void {	
-				LogUtil.debug("Initializing Polling toolbar button.");
+				LogUtil.debug(LOGNAME + "Initializing Polling toolbar button. [init()]");
 				myMenuData = new ArrayCollection();
 				pollList = new ArrayCollection();			
 				listInitialize();
 				renderMenu();
 				
 				this.addEventListener(FocusEvent.FOCUS_IN, updateMenuByEvent);
+				LogUtil.debug(LOGNAME + "Poll button init complete. [/init()]");
             }
 			
-			private function createAndShow():void{
+			public function remoteOpenPollingMenu(e:ShortcutEvent = null):void{
+				LogUtil.debug("Opening poll menu by --SHORTCUT-- [remoteOpenPollingMenu()]");
+				// This is to prevent a strange bug where using the shortcut key to open the Polling Menu would open a second "phantom" menu in a random position.
+				if (this.toString() == "BigBlueButton.mainShell.toolbar.addedBtns.pollButton")
+					createAndShow(false);
+				LogUtil.debug("Finished opening menu by shortcut. [/remoteOpenPollingMenu()]");
+			}
+			
+			private function createAndShow(debugClick:Boolean = true):void{
+				if (debugClick){
+					LogUtil.debug("---------------------------------------");
+					LogUtil.debug("Entering createAndShow by click [createAndShow()]");
+				}
+				else
+					LogUtil.debug("Entering createAndShow by --SHORTCUT-- [createAndShow()]");
+				//myMenu.hide();
 				renderMenu();
-				var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
+				//var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
+				myMenu = Menu.createMenu(null, myMenuData, false);
 				myMenu.iconField="icon";
-				myMenu.show(this.x + 10, this.y + this.height + 10);
+				var xPos:int = this.x;
+				var yPos:int = this.y;
+				var heightVal:int = this.height;
+				myMenu.show(xPos + 10, yPos + heightVal + 10);
             	myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClick);
+				LogUtil.debug("Click logic should end here [/createAndShow()]");
 			}
 			// #################################################################
-
-			public function listInitialize():void{
+			
+			/*OpenSavedPollEvent.OPEN	
+			ReviewResultsEvent.REVIEW*/
+			
+			public function listInitialize(calledFromShortcut:Boolean = false):void{
+				LogUtil.debug("Entering listInitialize [listInitialize()]");
 				titleList = new Array();
-				myMenuData.removeAll();
-				pollList.removeAll();
-				var pevent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.INIT);
+				if (myMenuData != null)
+					myMenuData.removeAll();
+				else
+					myMenuData = new ArrayCollection();
+				if (pollList != null)
+					pollList.removeAll();
+				else
+					pollList = new ArrayCollection();
+				
+				if (calledFromShortcut){
+					var pevent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.REMOTE_CHECK);
+				}
+				else{
+					var pevent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.INIT);
+				}
+				
 				try{
 					dispatchEvent(pevent);
+					LogUtil.debug("GetTitlesEvent dispatched");
 				}
-				catch (e:*){
-					LogUtil.debug("Bleh.");
-				}
+				catch (e:*){LogUtil.debug("GetTitlesEvent failed");}
+				LogUtil.debug("Leaving listInitialize [/listInitialize()]");
 			}
 						
 			private function renderMenu():void{
+				LogUtil.debug("Entering renderMenu, about to check things for nulls [renderMenu()]");
+				if (myMenuData == null){
+					LogUtil.debug("Why the hell is myMenuData null?");
+					myMenuData = new ArrayCollection();
+				}
+				else{
+					LogUtil.debug("myMenuData isn't null. Good.");
+				}
+				if (pollList == null){
+					LogUtil.debug("Why the hell is PollList null?");
+					//pollList = new ArrayCollection();
+				}
+				else{
+					LogUtil.debug("PollList isn't null. Good.");
+					LogUtil.debug("PollList.length is " + pollList.length);
+				}
+				//pollList = new ArrayCollection(titleList);
+				
 				myMenuData.removeAll();
 				myMenuData.addItem(new ValueObject("create", ResourceUtil.getInstance().getString('bbb.polling.createPoll')));
 				for (var i:int = 0; i < pollList.length; i++){
+					LogUtil.debug("WF: pollList[" + i + "] is " + pollList[i].title);
 					if (pollList[i] != null){
 						var keyString:String = pollList[i].room +"-"+ pollList[i].title;
 						var menuEntry:ValueObject = new ValueObject(keyString, pollList[i].title);
@@ -117,14 +182,29 @@
 						myMenuData.addItem(menuEntry);
 					}
 				}
+				LogUtil.debug("Menu rendering complete [/renderMenu()]");
 			}
 			
 			private function updateMenuByEvent(e:FocusEvent):void{
+				LogUtil.debug("POLLING updating menu by FOCUS_IN event [updateMenuByEvent()]");
 				updateMenu();
+				LogUtil.debug("POLLING event menu update complete [updateMenuByEvent()]");
 			}
 			
-			private function updateMenu():void{
-				listInitialize();
+			private function updateMenuByShortcut(e:ShortcutEvent):void{
+				LogUtil.debug("------------------");
+				LogUtil.debug("POLLING updating menu by SHORTCUT event [updateMenuByShortcut()]");
+				updateMenu(true);
+				// RemoteOpenPollingMenu() must be called by an event after the NC.CALL is complete
+				//remoteOpenPollingMenu();
+				LogUtil.debug("Shortcut update complete [/updateMenuByShortcut()]");
+				//dispatchEvent(ShortcutEvent.POLL_BUTTON_CLICK_STAGE_2);
+			}
+			
+			private function updateMenu(calledFromShortcut:Boolean = false):void{
+				LogUtil.debug("UpdateMenu [updateMenu()]");
+				listInitialize(calledFromShortcut);
+				LogUtil.debug("UpdateMenu complete [/updateMenu()]");
 			}
 			
         	private function menuClick(event:MenuEvent):void {            	
@@ -132,6 +212,7 @@
 				focusManager.setFocus(this);
 				focusManager.setFocus(focusManager.getNextFocusManagerComponent());
 				LogUtil.debug("WATERFALL focus is now set to: " + focusManager.getFocus());*/
+				//visibleMenu = false;
 				if(event.index == 0){
             	  	openPollingInstructions();
             	}else{
@@ -149,7 +230,6 @@
             		}
             	}
         	}
-						
 								
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_RIGHT;

@@ -20,16 +20,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
-  xmlns:views="org.bigbluebutton.main.views.*"
-  xmlns:maps="org.bigbluebutton.main.maps.*"
-  xmlns:apimap="org.bigbluebutton.main.api.maps.*"
-  xmlns:coreMap="org.bigbluebutton.core.controllers.maps.*"
-  xmlns:mate="http://mate.asfusion.com/"
-  pageTitle="BigBlueButton" 
-  layout="absolute" preinitialize="init()"
-  preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader"
-  applicationComplete="hotkeyCapture()">
+			  	xmlns:views="org.bigbluebutton.main.views.*"
+			  	xmlns:maps="org.bigbluebutton.main.maps.*"
+			  	xmlns:apimap="org.bigbluebutton.main.api.maps.*"
+			  	xmlns:coreMap="org.bigbluebutton.core.controllers.maps.*"
+			  	xmlns:mate="http://mate.asfusion.com/"
+			  	pageTitle="BigBlueButton" 
+			  	layout="absolute" preinitialize="init()"
+			  	preloader="org.bigbluebutton.main.model.BigBlueButtonPreloader"
+			  	applicationComplete="hotkeyCapture()"
+				>
  
+	
+	
   <mx:Script>
     <![CDATA[
       import com.asfusion.mate.events.Dispatcher;    
@@ -103,7 +106,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
      */
 
     private function localeChanged(e:Event):void{
-      loadKeyCombos(ExternalInterface.call("determineModifier"));
+      loadKeyCombos(ExternalInterface.call("determineGlobalModifier"));
     }
 
     private var keyCombos:Object;
@@ -129,6 +132,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.shortcutWindow') as String)] = ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.logout') as String)] = ShortcutEvent.LOGOUT;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.raiseHand') as String)] = ShortcutEvent.RAISE_HAND;
+		
+		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.buttonClick') as String)] = ShortcutEvent.POLL_BUTTON_CLICK;
 	}
 	
     public function hotkeyCapture():void{
@@ -141,7 +146,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 	// Handle general-access hotkeys, regardless of what window the user is focused in
 	private function handleKeyDown(e:KeyboardEvent) :void {
-  		var modifier:String = ExternalInterface.call("determineModifier");
+  		var modifier:String = ExternalInterface.call("determineGlobalModifier");
   		loadKeyCombos(modifier);
   
   		var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
@@ -152,6 +157,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		if (keyCombos[keyPress]) {
 			trace("Chad keypress " + keyPress);
+			LogUtil.debug("WATERFALL: Dispatching " + keyCombos[keyPress]);
 			globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
 		}
     }
@@ -160,6 +166,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     private function loseFocusFromApp(e:Event):void {
       ExternalInterface.call("stopFlashFocus");
     }
+		
     ]]>
   </mx:Script>
   

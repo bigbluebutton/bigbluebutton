@@ -77,6 +77,9 @@ package org.bigbluebutton.main.events {
 		public static const CHANGE_FONT_COLOUR:String = 'CHANGE_FONT_COLOUR';
 		public static const SEND_MESSAGE:String = 'SEND_MESSAGE';
 		
+		public static const POLL_BUTTON_CLICK:String = 'POLL_BUTTON_CLICK';
+		public static const POLL_BUTTON_CLICK_STAGE_2:String = 'POLL_BUTTON_CLICK_STAGE_2';
+		
 		// Temporary string to help fix chat message navigation for screen readers
 		public static const CHAT_DEBUG:String = 'CHAT_DEBUG';
 		

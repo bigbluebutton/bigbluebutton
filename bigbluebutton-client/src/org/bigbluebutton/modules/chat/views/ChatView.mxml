@@ -314,7 +314,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			// Activates an audio alert for screen-reader users on public message reception
 			private function publicNotification():void {
-				LogUtil.debug("WATERFALL: In publicNotification, adding publicChatFocus listener");
+				//LogUtil.debug("WATERFALL: In publicNotification, adding publicChatFocus listener");
 				publicWaiting = true;
 				chatTabs.getChildByName(PUBLIC_CHAT_USERID).addEventListener(FocusEvent.FOCUS_IN, publicChatFocus);
 				chatTabs.getChildByName(PUBLIC_CHAT_USERID).addEventListener(FocusEvent.FOCUS_OUT, publicChatUnfocus);
@@ -343,7 +343,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function publicChatFocus(event:FocusEvent):void{
-				LogUtil.debug("WATERFALL: Entering publicChatFocus");
+				//LogUtil.debug("WATERFALL: Entering publicChatFocus");
 				publicFocus = true;
 				if (publicWaiting) {
 	          		ExternalInterface.call("clearblink");

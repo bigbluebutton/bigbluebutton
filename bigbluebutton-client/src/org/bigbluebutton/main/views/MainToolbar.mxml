@@ -35,10 +35,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
 	
 	
+	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;		
 			import mx.core.UIComponent;
+			import mx.managers.IFocusManagerComponent;
 			import org.bigbluebutton.common.IBbbToolbarComponent;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.CloseWindowEvent;
@@ -242,7 +244,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var d:Dispatcher = new Dispatcher();
 				d.dispatchEvent(new ShortcutEvent(ShortcutEvent.OPEN_SHORTCUT_WIN));
 			}
-
+			
+			
 		]]>
 	</mx:Script>	
 	<mx:HBox id="addedBtns"/>

@@ -48,6 +48,7 @@
 			import org.bigbluebutton.modules.polling.events.PublishPollEvent;
 			import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;		
 			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;			
+			import org.bigbluebutton.modules.polling.model.PollOptions;
 			import org.bigbluebutton.modules.polling.model.PollObject;
 			import org.bigbluebutton.modules.polling.model.PollStatLineObject;
 			import org.bigbluebutton.modules.polling.model.AnswerObject;				
@@ -91,8 +92,14 @@
 			private var refreshTimer:Timer = new Timer(1000);
 			[Bindable]
 			private var answerCollection:ArrayCollection = new ArrayCollection();
+			[Bindable] private var pollOptions:PollOptions;
+			[Bindable] private var baseIndex:int;
 		
 			private function init():void{
+				pollOptions = new PollOptions();
+				// Get the base tab index from config, and add four to make up for the min/max/close buttons and title overlay
+				baseIndex = pollOptions.getBaseIndex() + 4;
+				
 				answerCollection = trackingPoll.generateStats();
 							
 				conference = UserManager.getInstance().getConference();

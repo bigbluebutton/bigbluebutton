@@ -54,6 +54,7 @@ package org.bigbluebutton.modules.polling.managers
 				globalDispatcher.dispatchEvent(event);	
 				buttonShownOnToolbar = true;	
 				button.enabled = true;	
+				button.id = "pollButton";
 				appFM = button.focusManager;
 			}
 		}
