@@ -65,6 +65,7 @@
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
 			import mx.core.IFlexDisplayObject;
+			import org.bigbluebutton.common.IBbbToolbarComponent;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -88,7 +89,9 @@
 			import org.bigbluebutton.main.model.users.events.ConnectionFailedEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.util.logging.Logger;
-	
+			import org.bigbluebutton.common.events.SettingsComponentEvent;
+			
+			
 			private var globalDispatcher:Dispatcher;			
 			private var dispState:String; //full-screen?
 			private var images:Images = new Images();
@@ -97,7 +100,8 @@
 			private var logWindow:LogWindow;
 			private var waitWindow:WaitingWindow = null;	
 			private var guestWindow:GuestWindow = null;
-	
+			private var bbbSettings:BBBSettings = null;
+			
 			private var logoutWindow:LoggedOutWindow;
 			private var connectionLostWindow:ConnectionLostWindow;
 			
@@ -113,6 +117,7 @@
 
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
+			private var guestManagement:GuestManagement = null;
 
 			private var guestPolicy:String = "ASK_MODERATOR";
 			
@@ -132,12 +137,23 @@
 				LogUtil.debug("*** show toolbar = " + layoutOptions.showToolbar);
 				toolbar.displayToolbar();
 				
+				bbbSettings = BBBSettings(PopUpManager.createPopUp(mdiCanvas, BBBSettings, true));	
 				
 			}
 
 			private function setGuestPolicy(event:BBBEvent):void {
 				LogUtil.debug("INICIALIZANDO GUEST_POLICY " + event.payload.guestPolicy);
 				guestPolicy = event.payload.guestPolicy;
+				if(guestManagement == null) {
+					LogUtil.debug("ADD Guest Event");
+					guestManagement = new GuestManagement();
+					guestManagement.setGuestPolicy(guestPolicy);
+					//Add evento para init bbbsettings
+					var addGuestManagement:SettingsComponentEvent = new SettingsComponentEvent(SettingsComponentEvent.ADD);
+					addGuestManagement.component = guestManagement;
+					var dispatcher:Dispatcher = new Dispatcher();
+					dispatcher.dispatchEvent(addGuestManagement);
+				}
 			}
 			
 			protected function initializeShell():void {	
@@ -303,8 +319,7 @@
 			}
 			
 			private function showBBBSettings(event:BBBEvent):void {
-				var bbbSettings:BBBSettings = BBBSettings(PopUpManager.createPopUp(mdiCanvas, BBBSettings, true));		
-				bbbSettings.setGuestPolicy(guestPolicy);		
+				bbbSettings.visible = true;
 				var point1:Point = new Point();
 				// Calculate position of TitleWindow in Application's coordinates. 
 				point1.x = width/2;

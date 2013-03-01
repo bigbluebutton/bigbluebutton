@@ -1,129 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" 
-		width="600" height="300"  showCloseButton="true" close="onCancelClicked()"
+		 showCloseButton="true" close="onCancelClicked()"
+		
 		xmlns:mate="http://mate.asfusion.com/"
+		width =  "250"
+		height = "80"
+		creationComplete="onCancelClicked()"
 		title="{ResourceUtil.getInstance().getString('bbb.settings.titleWindow')}"
 		>
 		
 		
-		<mate:Listener type="GET_GUEST_POLICY" method="refreshGuestPolicy"/>
-		
+	<mate:Listener type="{SettingsComponentEvent.ADD}" method="handleAddComponent" />	
+	<mate:Listener type="{SettingsComponentEvent.REMOVE}" method="handleRemoveComponent"/>
+	
+	
 	<mx:Script>
 		<![CDATA[
 			import mx.events.ItemClickEvent;
 			import mx.managers.PopUpManager;
+			import mx.core.UIComponent;
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.common.events.SettingsComponentEvent;
 			
-			private var option:Number = 0;
-			private var guestPolicy:String;
+			private function handleAddComponent(event:SettingsComponentEvent):void {
 			
-			
-			private function refreshGuestPolicy(event:BBBEvent):void {
-				this.guestPolicy = event.payload.guestPolicy;
+				this.height = this.height + event.component.height;
+				if(this.width < event.component.width)
+					this.width = event.component.width + 60;
 				
-				if(guestPolicy == "ASK_MODERATOR") {
-						guestManagement.selectedValue = 0;
-				} else if(guestPolicy == "ALWAYS_ACCEPT") {
-						guestManagement.selectedValue = 1;
-						}
-						else
-							guestManagement.selectedValue = 2;
-			}
-			
-			public function setGuestPolicy(guestPolicy:String):void {
-				this.guestPolicy = guestPolicy;
+				addedComponents.addChildAt(event.component as UIComponent, 0);
 				
-				if(guestPolicy == "ASK_MODERATOR") {
-						guestManagement.selectedValue = 0;
-				} else if(guestPolicy == "ALWAYS_ACCEPT") {
-						guestManagement.selectedValue = 1;
-						}
-						else
-							guestManagement.selectedValue = 2;
+				
+				
 			}
 			
-			
-			
-			 private function handleGuestClick(event:ItemClickEvent):void {
-				option = event.currentTarget.selectedValue;
+			private function handleRemoveComponent(event:SettingsComponentEvent):void {
+				addedComponents.removeChild(event.component as UIComponent);
 			}
-						
+			
 			private function onCancelClicked():void {
-				PopUpManager.removePopUp(this);
+				var event:BBBEvent = new BBBEvent("CANCEL_CLICKED_EVENT");
+				dispatchEvent(event);
+				this.visible = false;
+				
+				
 			}
 		
 			private function onOkClicked():void {
-				var event:BBBEvent = new BBBEvent("GUEST_POLICY");
-				if(option == 0) {
-					event.payload['guestPolicy'] = "ASK_MODERATOR";
-					dispatchEvent(event);				
-				}
-				else if(option == 1) {
-					event.payload['guestPolicy'] = "ALWAYS_ACCEPT";
-					dispatchEvent(event);
-					dispatchEvent(new BBBEvent("ACCEPT_ALL_WAITING_GUESTS"));
-				}
-				else {
-					event.payload['guestPolicy'] = "ALWAYS_DENY";
-					dispatchEvent(event);
-					dispatchEvent(new BBBEvent("DENY_ALL_WAITING_GUESTS"));			
-				}
-				LogUtil.debug("SENDING TO SERVER POLICY");
-				PopUpManager.removePopUp(this);
+				var event:BBBEvent = new BBBEvent("OK_CLICKED_EVENT");
+				dispatchEvent(event);				
+				this.visible = false;
 			}
 
 			
 		]]>
 	</mx:Script>
-	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
-		<mx:HBox width="100%" height="50%">
-			<mx:VBox width="70%" height="100%">
-				<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.guests.Management')}"/>
-				<mx:RadioButtonGroup id="guestManagement" itemClick="handleGuestClick(event);"/>
-				<mx:HBox width="50%">
-					 <mx:Spacer width="40"/>
-					 <mx:RadioButton groupName="guestManagement" 
-						id="askModerator"
-						label="{ResourceUtil.getInstance().getString('bbb.guests.askModerator')}" 
-						value="0"
-						width="150" 
-						/>
-					<mx:RadioButton groupName="guestManagement" 
-					id="alwaysAccept"
-					label="{ResourceUtil.getInstance().getString('bbb.guests.alwaysAccept')}" 
-					value="1"
-					width="150" 
-					/>
-					<mx:RadioButton groupName="guestManagement" 
-					id="AlwaysDeny"
-					label="{ResourceUtil.getInstance().getString('bbb.guests.alwaysDeny')}" 
-					value="2"
-					width="150" 
-					/>
-				</mx:HBox>
-			</mx:VBox>
-        	</mx:HBox>
-		<mx:HBox width="100%" height="20">
-			<mx:Spacer width="50%"/>
-			<mx:Spacer width="50%"/>
-		</mx:HBox>
-		<mx:HBox width="100%" height="20">
-			<mx:Spacer width="50%"/>
-			<mx:Spacer width="50%"/>
-		</mx:HBox>
-		<mx:HBox width="100%" height="20">
-			<mx:Spacer width="50%"/>
-			<mx:Spacer width="50%"/>
-		</mx:HBox>
-		<mx:HBox width="100%">
-			<mx:Spacer width="80%"/>
-			<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.Ok')}" width="100" click="onOkClicked()"/>
-			<mx:Spacer width="2%"/>
-			<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.Cancel')}" width="100" click="onCancelClicked()"/>
-		</mx:HBox>
-	</mx:VBox>		
+	<mx:VBox id="addedComponents">
+	
+	<mx:HBox width="100%">
+	<mx:Spacer width="2%"/>
+	<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.Ok')}" width="100" click="onOkClicked()"/>
+	<mx:Spacer width="2%"/>
+	<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.guests.Cancel')}" width="100" click="onCancelClicked()"/>
+	</mx:HBox>	
+	</mx:VBox>
 </mx:TitleWindow>
