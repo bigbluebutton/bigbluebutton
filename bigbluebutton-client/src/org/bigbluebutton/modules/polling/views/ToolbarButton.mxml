@@ -85,6 +85,7 @@
 				renderMenu();
 				
 				this.addEventListener(FocusEvent.FOCUS_IN, updateMenuByEvent);
+				this.addEventListener(FocusEvent.FOCUS_OUT, onFocusOut);
 				//LogUtil.debug(LOGNAME + "Poll button init complete. [/init()]");
             }
 			
@@ -97,7 +98,9 @@
 			private function createAndShow(debugClick:Boolean = true):void{
 				//LogUtil.debug("Entering createAndShow [createAndShow()]");
 				renderMenu();
+				myMenu.hide();
 				myMenu = Menu.createMenu(null, myMenuData, false);
+				LogUtil.debug("MENU TOSTRING: " + myMenu.toString());
 				myMenu.iconField="icon";
 				var xPos:int = this.x;
 				var yPos:int = this.y;
@@ -176,7 +179,8 @@
 			private function updateMenuByShortcut(e:ShortcutEvent):void{
 				//LogUtil.debug("------------------");
 				//LogUtil.debug("POLLING updating menu by SHORTCUT event [updateMenuByShortcut()]");
-				updateMenu(true);
+				if (this.enabled)
+					updateMenu(true);
 				//LogUtil.debug("Shortcut update complete [/updateMenuByShortcut()]");
 			}
 			
@@ -186,12 +190,7 @@
 				//LogUtil.debug("UpdateMenu complete [/updateMenu()]");
 			}
 			
-        	private function menuClick(event:MenuEvent):void {            	
-            	/*LogUtil.debug("WATERFALL At the start of menuclick, focus is set to: " + focusManager.getFocus());
-				focusManager.setFocus(this);
-				focusManager.setFocus(focusManager.getNextFocusManagerComponent());
-				LogUtil.debug("WATERFALL focus is now set to: " + focusManager.getFocus());*/
-				//visibleMenu = false;
+        	private function menuClick(event:MenuEvent):void {
 				if(event.index == 0){
             	  	openPollingInstructions();
             	}else{
@@ -208,7 +207,9 @@
             			dispatchEvent(reviewEvent);
             		}
             	}
+				stage.dispatchEvent(new MenuEvent(MenuEvent.MENU_HIDE));
         	}
+			
 								
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_RIGHT;
@@ -227,6 +228,10 @@
 				else{
 					remoteOpenPollingMenu(e);
 				}
+			}
+			
+			private function onFocusOut(e:FocusEvent):void{
+				LogUtil.debug("FOCUS OUT, dudes.");
 			}
 		]]>
 	</mx:Script>  

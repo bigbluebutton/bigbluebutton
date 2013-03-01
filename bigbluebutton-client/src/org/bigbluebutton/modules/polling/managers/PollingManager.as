@@ -230,11 +230,13 @@ package org.bigbluebutton.modules.polling.managers
 			  synchTimer.start();
 		  }
 		  
-		  private function remoteOpen(e:TimerEvent):void{
-			  synchTimer.removeEventListener(TimerEvent.TIMER, remoteOpen);
-			  synchTimer = null;
-			  toolbarButtonManager.button.remoteOpenPollingMenu();
-		  }
+		private function remoteOpen(e:TimerEvent):void{
+			if (synchTimer != null){
+				synchTimer.removeEventListener(TimerEvent.TIMER, remoteOpen);
+				synchTimer = null;
+				toolbarButtonManager.button.remoteOpenPollingMenu();
+			}
+		}
 
 		  public function handleGetPollEvent(e:PollGetPollEvent):void{
 			  service.getPoll(e.pollKey, "menu");
