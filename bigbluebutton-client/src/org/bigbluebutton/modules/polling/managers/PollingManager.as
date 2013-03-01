@@ -220,33 +220,19 @@ package org.bigbluebutton.modules.polling.managers
 
 		  public function handleReturnTitlesEvent(e:PollReturnTitlesEvent):void{
 			  toolbarButtonManager.button.titleList = e.titleList;
-			  LogUtil.debug("In PollingManager for REGULAR title return, titleList is: ");
-			  for (var i:int; i < toolbarButtonManager.button.titleList.length; i++){
-				  LogUtil.debug(i + ": " + toolbarButtonManager.button.titleList[i]);
-			  }
-			  LogUtil.debug("---");
 		  }
 		  
 		  public function handleRemoteReturnTitlesEvent(e:PollReturnTitlesEvent):void{
 			  toolbarButtonManager.button.titleList = e.titleList;
-			  LogUtil.debug("In PollingManager for REMOTE title return, titleList is: ");
-			  for (var i:int; i < toolbarButtonManager.button.titleList.length; i++){
-				  LogUtil.debug(i + ": " + toolbarButtonManager.button.titleList[i]);
-			  }
-			  LogUtil.debug("---");
-			  // This is the problem, I think
-			  //toolbarButtonManager.button.remoteOpenPollingMenu();
-			  // Experiment time: What if I dispatch another event here?
-			  synchTimer = new Timer((1000*0.5));
+			  // This timer gives the earlier NetConnection.call time to finish and deliver what it was sent out to get.
+			  synchTimer = new Timer((1000*0.01));
 			  synchTimer.addEventListener(TimerEvent.TIMER, remoteOpen);
-			  LogUtil.debug("Starting synchTimer");
 			  synchTimer.start();
 		  }
 		  
 		  private function remoteOpen(e:TimerEvent):void{
 			  synchTimer.removeEventListener(TimerEvent.TIMER, remoteOpen);
 			  synchTimer = null;
-			  LogUtil.debug("Stopping synchTimer");
 			  toolbarButtonManager.button.remoteOpenPollingMenu();
 		  }
 
@@ -255,7 +241,7 @@ package org.bigbluebutton.modules.polling.managers
 		  }
 		  
 		  public function handlePopulateMenuEvent(e:PollGetPollEvent):void{
-			  LogUtil.debug("PollingManager.handlePopulateMenuEvent(), adding item to pollList");
+			  //LogUtil.debug("PollingManager.handlePopulateMenuEvent(), adding item to pollList");
 			  toolbarButtonManager.button.pollList.addItem(e.poll);
 		  }
 		  
@@ -272,7 +258,7 @@ package org.bigbluebutton.modules.polling.managers
 				  } // _for-loop
 			  } // _if pollList is null
 			  if (unique){
-				  LogUtil.debug("PollingManager.handleReturnPollEvent(), adding item to pollList");
+				  //LogUtil.debug("PollingManager.handleReturnPollEvent(), adding item to pollList");
 				  toolbarButtonManager.button.pollList.addItem(e.poll);
 			  }
 		  }

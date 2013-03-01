@@ -9,8 +9,135 @@ generate-html-wrapper:
 build-deskshare-no-linker:
      [echo] Compiling deskshare without optimization.
     [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
-    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/DeskShareModule.swf (1058465 bytes)
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/DeskShareModule.swf (1058464 bytes)
 
 build-deskshare-standalone:
      [echo] Compiling deskshare standalone without optimization.
     [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] Warning: DeskShareModule is a module or application that is directly referenced. This will cause DeskShareModule and all of its dependencies to be linked in with DeskshareStandalone. Using an interface is the recommended practice to avoid this.
+    [mxmlc] 
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/DeskshareStandalone.swf (1070209 bytes)
+
+compile-deskshare-standalone:
+     [echo] Deskshare standalone built without optimization.
+
+build-webcam-preview-standalone:
+     [echo] Compiling webcam preview standalone without optimization.
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/WebcamPreviewStandalone.swf (514145 bytes)
+
+build-webcam-view-standalone:
+     [echo] Compiling webcam view standalone without optimization.
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/WebcamViewStandalone.swf (515799 bytes)
+
+build-bbb-main:
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/BigBlueButton.swf (1524238 bytes)
+     [echo] **********************************************
+     [echo] *    Generated bundles.txt                   *
+     [echo] * Make sure you include all resources listed *
+     [echo] * in the file when building the locales.     *
+     [echo] **********************************************
+     [echo] Copying common assets for BBB Main
+     [copy] Copying 97 files to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/org/bigbluebutton/common/assets/images
+
+build-chat:
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/ChatModule.swf (363078 bytes)
+
+build-polling:
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/PollingModule.swf (222674 bytes)
+
+build-viewers:
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/ViewersModule.swf (117714 bytes)
+
+build-listeners:
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/src/org/bigbluebutton/modules/listeners/views/ListenersWindow.mxml(320): Warning: Data binding will not be able to detect assignments to "images".
+    [mxmlc] 
+    [mxmlc] 					<mx:Image source="{UserManager.getInstance().getConference().voiceMuted ? images.sound_mute : images.sound_none}" />
+    [mxmlc] 
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/src/org/bigbluebutton/modules/listeners/views/ListenersWindow.mxml(320): Warning: Data binding will not be able to detect assignments to "images".
+    [mxmlc] 
+    [mxmlc] 					<mx:Image source="{UserManager.getInstance().getConference().voiceMuted ? images.sound_mute : images.sound_none}" />
+    [mxmlc] 
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/ListenersModule.swf (129099 bytes)
+
+build-present:
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/PresentModule.swf (225665 bytes)
+
+build-layout:
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/LayoutModule.swf (111662 bytes)
+
+build-broadcast:
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/BroadcastModule.swf (95901 bytes)
+
+build-main-chat-viewers-listeners-present:
+
+build-deskshare:
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/DeskShareModule.swf (134850 bytes)
+     [echo] Copying deskshare applet for Deskshare Module
+     [copy] Copying 1 file to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin
+
+build-phone:
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/PhoneModule.swf (95020 bytes)
+     [echo] Copying assets for Phone Module
+     [copy] Copying 4 files to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/org/bigbluebutton/modules/phone/views/assets/images
+
+build-video:
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/VideoconfModule.swf (122391 bytes)
+
+build-videodock:
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/VideodockModule.swf (92714 bytes)
+
+build-whiteboard:
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/WhiteboardModule.swf (376610 bytes)
+
+build-notes:
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/NotesModule.swf (96886 bytes)
+
+build-deskshare-phone-video-whiteboard-dyn:
+
+copy-resource-files:
+     [copy] Copying 1 file to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/swfobject
+     [copy] Copying 10 files to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/lib
+     [copy] Copying 1 file to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin
+     [copy] Copying 1 file to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin
+     [copy] Copying 1 file to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin
+     [copy] Copying 1 file to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin
+     [copy] Copying 1 file to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin
+     [copy] Copying 1 file to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/conf
+     [copy] Copying 1 file to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin
+     [copy] Copying 1 file to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/conf
+     [copy] Copying 1 file to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/conf
+     [echo] Copying config.xml for development environment
+     [copy] Copying 1 file to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/conf
+     [echo] Copying join-mock.xml for development environment
+     [copy] Copying 1 file to /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/conf
+
+compile-bbb:
+
+branding:
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] Required RSLs:
+    [mxmlc]     http://fpdownload.adobe.com/pub/swz/flex/4.5.0.20967/framework_4.5.0.20967.swz with 1 failover.
+    [mxmlc]     http://fpdownload.adobe.com/pub/swz/tlf/2.0.0.232/textLayout_2.0.0.232.swz with 1 failover.
+    [mxmlc]     http://fpdownload.adobe.com/pub/swz/flex/4.5.0.20967/mx_4.5.0.20967.swz with 1 failover.
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/branding/css/BBBDefault.css.swf (86699 bytes)
+
+clean-build-all:
+
+BUILD SUCCESSFUL
+Total time: 4 minutes 5 seconds

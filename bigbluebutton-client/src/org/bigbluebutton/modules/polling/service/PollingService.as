@@ -311,8 +311,6 @@ package org.bigbluebutton.modules.polling.service
 					break;
 				case "extract":
 					break;
-				case "remote_initialize":
-					break;
 				default:
 				   	LogUtil.error(LOGNAME+"Error in extractPoll: unknown option ["+option+"]");
 				   	break;

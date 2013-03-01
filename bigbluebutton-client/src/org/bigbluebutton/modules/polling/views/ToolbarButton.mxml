@@ -72,40 +72,31 @@
 			[Bindable] public var titleList:Array;
 			[Bindable] public var pollList:ArrayCollection;
 			private var myMenu:Menu = new Menu();
-			private const REAL_BUTTON_ID = "BigBlueButton.mainShell.toolbar.addedBtns.pollButton";
+			private const REAL_BUTTON_ID:String = "BigBlueButton.mainShell.toolbar.addedBtns.pollButton";
 			
 			//private var visibleMenu:Boolean = false;
 			
 			// #################################################################
 			public function init():void {	
-				LogUtil.debug(LOGNAME + "Initializing Polling toolbar button. [init()]");
+				//LogUtil.debug(LOGNAME + "Initializing Polling toolbar button. [init()]");
 				myMenuData = new ArrayCollection();
 				pollList = new ArrayCollection();			
 				listInitialize();
 				renderMenu();
 				
 				this.addEventListener(FocusEvent.FOCUS_IN, updateMenuByEvent);
-				LogUtil.debug(LOGNAME + "Poll button init complete. [/init()]");
+				//LogUtil.debug(LOGNAME + "Poll button init complete. [/init()]");
             }
 			
 			public function remoteOpenPollingMenu(e:ShortcutEvent = null):void{
-				LogUtil.debug("Opening poll menu by --SHORTCUT-- [remoteOpenPollingMenu()]");
-				// This is to prevent a strange bug where using the shortcut key to open the Polling Menu would open a second "phantom" menu in a random position.
-				createAndShow(false);
-				LogUtil.debug("Finished opening menu by shortcut. [/remoteOpenPollingMenu()]");
+				//LogUtil.debug("Opening poll menu by --SHORTCUT-- [remoteOpenPollingMenu()]");
+				createAndShow();
+				//LogUtil.debug("Finished opening menu by shortcut. [/remoteOpenPollingMenu()]");
 			}
 			
 			private function createAndShow(debugClick:Boolean = true):void{
-				if (debugClick){
-					LogUtil.debug("---------------------------------------");
-					LogUtil.debug("Entering createAndShow by click [createAndShow()]");
-				}
-				else
-					LogUtil.debug("Entering createAndShow by --SHORTCUT-- [createAndShow()]");
-				LogUtil.debug("Testing: PollList.length = " + pollList.length);
-				//myMenu.hide();
+				//LogUtil.debug("Entering createAndShow [createAndShow()]");
 				renderMenu();
-				//var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
 				myMenu = Menu.createMenu(null, myMenuData, false);
 				myMenu.iconField="icon";
 				var xPos:int = this.x;
@@ -113,44 +104,37 @@
 				var heightVal:int = this.height;
 				myMenu.show(xPos + 10, yPos + heightVal + 10);
             	myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClick);
-				LogUtil.debug("Click logic should end here [/createAndShow()]");
+				//LogUtil.debug("Click logic should end here [/createAndShow()]");
 			}
 			// #################################################################
 			
-			/*OpenSavedPollEvent.OPEN	
-			ReviewResultsEvent.REVIEW*/
-			
 			public function listInitialize(calledFromShortcut:Boolean = false):void{
-				LogUtil.debug("Entering listInitialize [listInitialize()]");
+				//LogUtil.debug("Entering listInitialize [listInitialize()]");
 				titleList = new Array();
 				if (myMenuData != null)
 					myMenuData.removeAll();
-				else
-					myMenuData = new ArrayCollection();
 				if (pollList != null)
 					pollList.removeAll();
-				else
-					pollList = new ArrayCollection();
 				
+				var pevent:PollGetTitlesEvent;
 				if (calledFromShortcut){
-					var pevent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.REMOTE_CHECK);
+					pevent = new PollGetTitlesEvent(PollGetTitlesEvent.REMOTE_CHECK);
 				}
 				else{
-					var pevent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.INIT);
+					pevent = new PollGetTitlesEvent(PollGetTitlesEvent.INIT);
 				}
 				
 				try{
 					dispatchEvent(pevent);
-					LogUtil.debug("GetTitlesEvent dispatched");
+					//LogUtil.debug("GetTitlesEvent dispatched");
 				}
 				catch (e:*){LogUtil.debug("GetTitlesEvent failed");}
-				LogUtil.debug("Leaving listInitialize [/listInitialize()]");
+				//LogUtil.debug("Leaving listInitialize [/listInitialize()]");
 			}
 						
 			private function renderMenu():void{
-				LogUtil.debug("Entering renderMenu, about to check things for nulls [renderMenu()]");
-				if (myMenuData == null){
-					LogUtil.debug("Why the hell is myMenuData null?");
+				//LogUtil.debug("Entering renderMenu, about to check things for nulls [renderMenu()]");
+				/*if (myMenuData == null){
 					myMenuData = new ArrayCollection();
 				}
 				else{
@@ -162,12 +146,12 @@
 				else{
 					LogUtil.debug("PollList isn't null. Good.");
 					LogUtil.debug("PollList.length is " + pollList.length);
-				}
+				}*/
 				
 				myMenuData.removeAll();
 				myMenuData.addItem(new ValueObject("create", ResourceUtil.getInstance().getString('bbb.polling.createPoll')));
 				for (var i:int = 0; i < pollList.length; i++){
-					LogUtil.debug("WF: pollList[" + i + "] is " + pollList[i].title);
+					//LogUtil.debug("WF: pollList[" + i + "] is " + pollList[i].title);
 					if (pollList[i] != null){
 						var keyString:String = pollList[i].room +"-"+ pollList[i].title;
 						var menuEntry:ValueObject = new ValueObject(keyString, pollList[i].title);
@@ -180,31 +164,26 @@
 						myMenuData.addItem(menuEntry);
 					}
 				}
-				LogUtil.debug("Menu rendering complete [/renderMenu()]");
+				//LogUtil.debug("Menu rendering complete [/renderMenu()]");
 			}
 			
 			private function updateMenuByEvent(e:FocusEvent):void{
-				LogUtil.debug("POLLING updating menu by FOCUS_IN event [updateMenuByEvent()]");
+				//LogUtil.debug("POLLING updating menu by FOCUS_IN event [updateMenuByEvent()]");
 				updateMenu();
-				LogUtil.debug("POLLING event menu update complete [updateMenuByEvent()]");
+				//LogUtil.debug("POLLING event menu update complete [updateMenuByEvent()]");
 			}
 			
 			private function updateMenuByShortcut(e:ShortcutEvent):void{
-				//if (this.toString() == REAL_BUTTON_ID){
-					LogUtil.debug("------------------");
-					LogUtil.debug("POLLING updating menu by SHORTCUT event [updateMenuByShortcut()]");
-					updateMenu(true);
-					// RemoteOpenPollingMenu() must be called by an event after the NC.CALL is complete
-					//remoteOpenPollingMenu();
-					LogUtil.debug("Shortcut update complete [/updateMenuByShortcut()]");
-					//dispatchEvent(ShortcutEvent.POLL_BUTTON_CLICK_STAGE_2);
-				//}
+				//LogUtil.debug("------------------");
+				//LogUtil.debug("POLLING updating menu by SHORTCUT event [updateMenuByShortcut()]");
+				updateMenu(true);
+				//LogUtil.debug("Shortcut update complete [/updateMenuByShortcut()]");
 			}
 			
 			private function updateMenu(calledFromShortcut:Boolean = false):void{
-				LogUtil.debug("UpdateMenu [updateMenu()]");
+				//LogUtil.debug("UpdateMenu [updateMenu()]");
 				listInitialize(calledFromShortcut);
-				LogUtil.debug("UpdateMenu complete [/updateMenu()]");
+				//LogUtil.debug("UpdateMenu complete [/updateMenu()]");
 			}
 			
         	private function menuClick(event:MenuEvent):void {            	
