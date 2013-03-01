@@ -22,8 +22,10 @@ define [
 
     # Container must be a DOM element
     initialize: (@container, @textbox) ->
-      @gw = null # TODO: description
-      @gh = null # TODO: description
+      $parent = $(container.parentNode)
+
+      @gw = $parent.width()
+      @gh = $parent.height()
       # x-offset from top left corner as percentage of original width of paper
       @cx = null
       # y-offset from top left corner as percentage of original height of paper

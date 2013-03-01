@@ -6,9 +6,9 @@
  *
  * www.shapevent.com/scaleraphael/
  */
-define(['./scale.raphael'], function(R){
-  var ScaleRaphael = function(container, width, height){
-    var wrapper = document.getElementById(container);
+define(['./scale.raphael'], function(R) {
+  var ScaleRaphael = function (container, width, height){
+    var wrapper = container
     if (!wrapper.style.position) wrapper.style.position = "relative";
     wrapper.style.width = width + "px";
     wrapper.style.height = height + "px";
@@ -24,7 +24,7 @@ define(['./scale.raphael'], function(R){
       nestedWrapper = document.getElementById("svggroup");
     }
  
-    var paper = new Raphael(nestedWrapper, width, height);
+    var paper = new Raphael(container, width, height);
     var vmlDiv;
     
     if (Raphael.type == "SVG"){
@@ -100,5 +100,7 @@ define(['./scale.raphael'], function(R){
     
     return paper;
   }
+
+  return ScaleRaphael;
 
 });
