@@ -135,6 +135,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						
 			private function gotConfigParameters(e:ConfigEvent):void{
 				langSelector.visible = e.config.languageEnabled;
+				shortcutKeysBtn.visible = e.config.shorcutKeysEnabled;
 				DEFAULT_HELP_URL = e.config.helpURL;
 			}
 			
@@ -170,7 +171,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
 -->
-	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
+	<mx:Button id="shortcutKeysBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
              click="onShortcutButtonClick()" height="22" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" />
 	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 

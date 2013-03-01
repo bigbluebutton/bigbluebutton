@@ -18,14 +18,12 @@
 */
 package org.bigbluebutton.modules.listeners.business
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;
-	
+	import flash.net.SharedObject;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.EventConstants;
 	import org.bigbluebutton.core.UsersUtil;
@@ -37,8 +35,7 @@ package org.bigbluebutton.modules.listeners.business
 	import org.bigbluebutton.modules.listeners.business.vo.Listeners;
 	import org.bigbluebutton.modules.listeners.events.ListenersEvent;
 
-	public class ListenersSOService
-	{
+	public class ListenersSOService {
 		private static const LOGNAME:String = "[ListenersSOService]";		
 		private var _listenersSO : SharedObject;
 		private static const SHARED_OBJECT:String = "meetMeUsersSO";		
@@ -55,8 +52,7 @@ package org.bigbluebutton.modules.listeners.business
 		
 		private static var globalDispatcher:Dispatcher = new Dispatcher();
 							
-		public function ListenersSOService(listeners:Listeners, module:ListenersModule)
-		{			
+		public function ListenersSOService(listeners:Listeners, module:ListenersModule) {			
 			_listeners = listeners;		
 			_module = module;			
 			dispatcher = new Dispatcher();
@@ -82,8 +78,7 @@ package org.bigbluebutton.modules.listeners.business
 			}
 		}
 		
-	    private function join() : void
-		{
+    private function join():void {
 			trace("ListenertsSOService " + _module.uri);
 			_listenersSO = SharedObject.getRemote(SHARED_OBJECT, _module.uri, false);
 			_listenersSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
@@ -98,8 +93,7 @@ package org.bigbluebutton.modules.listeners.business
 			getRoomMuteState();
 		}
 		
-	    private function leave():void
-	    {
+    private function leave():void {
 	    	if (_listenersSO != null) {
 	    		_listenersSO.close();
 	    	}

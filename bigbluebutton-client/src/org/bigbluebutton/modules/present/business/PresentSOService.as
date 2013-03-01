@@ -274,7 +274,7 @@ package org.bigbluebutton.modules.present.business {
 		
 		public function whatIsTheSlideInfo(userid:Number):void {
 			LogUtil.debug("Rx Query for slide info");
-			if (UserManager.getInstance().getConference().amIPresenter()) {
+			if (UserManager.getInstance().getConference().amIPresenter) {
 				LogUtil.debug("User Query for slide info");
 				_presentationSO.send("whatIsTheSlideInfoReply", userid, presenterViewedRegionX, presenterViewedRegionY, presenterViewedRegionW, presenterViewedRegionH);
 			}
@@ -423,11 +423,11 @@ package org.bigbluebutton.modules.present.business {
 			
 			var dispatcher:Dispatcher = new Dispatcher();
 			var meeting:Conference = UserManager.getInstance().getConference();
-			if (meeting.amIPresenter()) {		
+			if (meeting.amIPresenter) {		
 				LogUtil.debug("trigger Switch to Presenter mode ");
         trace("PresentSOService:: trigger Switch to Presenter mode ");
 				var e:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_PRESENTER_MODE);
-				e.userid = meeting.getMyUserId();
+				e.userID = meeting.getMyUserId();
 				e.presenterName = meeting.getMyName();
 				e.assignerBy = meeting.getMyUserId();
 				
@@ -439,7 +439,7 @@ package org.bigbluebutton.modules.present.business {
 					LogUtil.debug("trigger Switch to Viewer mode ");
           trace("PresentSOService:: trigger Switch to Presenter mode ");
 					var viewerEvent:MadePresenterEvent = new MadePresenterEvent(MadePresenterEvent.SWITCH_TO_VIEWER_MODE);
-					viewerEvent.userid = p.userID;
+					viewerEvent.userID = p.userID;
 					viewerEvent.presenterName = p.name;
 					viewerEvent.assignerBy = p.userID;
 					
