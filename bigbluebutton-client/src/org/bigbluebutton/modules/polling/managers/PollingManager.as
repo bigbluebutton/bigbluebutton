@@ -20,7 +20,9 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.main.model.users.Conference 
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.common.Role;
-
+	
+	import flash.utils.Timer;
+	import flash.events.TimerEvent;
 			
 	public class PollingManager
 	{	
@@ -37,6 +39,7 @@ package org.bigbluebutton.modules.polling.managers
 		public var participants:int;
 		private var conference:Conference;
 
+		private var synchTimer:Timer;
 		
 		
 		public function PollingManager()
@@ -231,6 +234,19 @@ package org.bigbluebutton.modules.polling.managers
 				  LogUtil.debug(i + ": " + toolbarButtonManager.button.titleList[i]);
 			  }
 			  LogUtil.debug("---");
+			  // This is the problem, I think
+			  //toolbarButtonManager.button.remoteOpenPollingMenu();
+			  // Experiment time: What if I dispatch another event here?
+			  synchTimer = new Timer((1000*0.5));
+			  synchTimer.addEventListener(TimerEvent.TIMER, remoteOpen);
+			  LogUtil.debug("Starting synchTimer");
+			  synchTimer.start();
+		  }
+		  
+		  private function remoteOpen(e:TimerEvent):void{
+			  synchTimer.removeEventListener(TimerEvent.TIMER, remoteOpen);
+			  synchTimer = null;
+			  LogUtil.debug("Stopping synchTimer");
 			  toolbarButtonManager.button.remoteOpenPollingMenu();
 		  }
 
@@ -239,6 +255,7 @@ package org.bigbluebutton.modules.polling.managers
 		  }
 		  
 		  public function handlePopulateMenuEvent(e:PollGetPollEvent):void{
+			  LogUtil.debug("PollingManager.handlePopulateMenuEvent(), adding item to pollList");
 			  toolbarButtonManager.button.pollList.addItem(e.poll);
 		  }
 		  
@@ -255,6 +272,7 @@ package org.bigbluebutton.modules.polling.managers
 				  } // _for-loop
 			  } // _if pollList is null
 			  if (unique){
+				  LogUtil.debug("PollingManager.handleReturnPollEvent(), adding item to pollList");
 				  toolbarButtonManager.button.pollList.addItem(e.poll);
 			  }
 		  }

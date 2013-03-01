@@ -38,26 +38,25 @@
 	<mx:Script>
 		<![CDATA[
 		    import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.views.MainToolbar;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-	       	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
-			import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-			import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
-			import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
-			import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			
-			import org.bigbluebutton.modules.polling.model.ValueObject;
-			import org.bigbluebutton.modules.polling.model.PollObject;
-			
-			import mx.collections.ArrayCollection;
-			import mx.controls.Menu;
-			import mx.events.MenuEvent;
-			import flash.events.FocusEvent;
-			
-			import org.bigbluebutton.modules.polling.model.PollObject;
+		    
+		    import flash.events.FocusEvent;
+		    
+		    import mx.collections.ArrayCollection;
+		    import mx.controls.Menu;
+		    import mx.events.MenuEvent;
+		    
+		    import org.bigbluebutton.common.Images;
+		    import org.bigbluebutton.common.LogUtil;
+		    import org.bigbluebutton.main.events.ShortcutEvent;
+		    import org.bigbluebutton.main.views.MainToolbar;
+		    import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
+		    import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
+		    import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
+		    import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
+		    import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
+		    import org.bigbluebutton.modules.polling.model.PollObject;
+		    import org.bigbluebutton.modules.polling.model.ValueObject;
+		    import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
 			
@@ -73,6 +72,7 @@
 			[Bindable] public var titleList:Array;
 			[Bindable] public var pollList:ArrayCollection;
 			private var myMenu:Menu = new Menu();
+			private const REAL_BUTTON_ID = "BigBlueButton.mainShell.toolbar.addedBtns.pollButton";
 			
 			//private var visibleMenu:Boolean = false;
 			
@@ -91,8 +91,7 @@
 			public function remoteOpenPollingMenu(e:ShortcutEvent = null):void{
 				LogUtil.debug("Opening poll menu by --SHORTCUT-- [remoteOpenPollingMenu()]");
 				// This is to prevent a strange bug where using the shortcut key to open the Polling Menu would open a second "phantom" menu in a random position.
-				if (this.toString() == "BigBlueButton.mainShell.toolbar.addedBtns.pollButton")
-					createAndShow(false);
+				createAndShow(false);
 				LogUtil.debug("Finished opening menu by shortcut. [/remoteOpenPollingMenu()]");
 			}
 			
@@ -103,6 +102,7 @@
 				}
 				else
 					LogUtil.debug("Entering createAndShow by --SHORTCUT-- [createAndShow()]");
+				LogUtil.debug("Testing: PollList.length = " + pollList.length);
 				//myMenu.hide();
 				renderMenu();
 				//var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
@@ -158,13 +158,11 @@
 				}
 				if (pollList == null){
 					LogUtil.debug("Why the hell is PollList null?");
-					//pollList = new ArrayCollection();
 				}
 				else{
 					LogUtil.debug("PollList isn't null. Good.");
 					LogUtil.debug("PollList.length is " + pollList.length);
 				}
-				//pollList = new ArrayCollection(titleList);
 				
 				myMenuData.removeAll();
 				myMenuData.addItem(new ValueObject("create", ResourceUtil.getInstance().getString('bbb.polling.createPoll')));
@@ -192,13 +190,15 @@
 			}
 			
 			private function updateMenuByShortcut(e:ShortcutEvent):void{
-				LogUtil.debug("------------------");
-				LogUtil.debug("POLLING updating menu by SHORTCUT event [updateMenuByShortcut()]");
-				updateMenu(true);
-				// RemoteOpenPollingMenu() must be called by an event after the NC.CALL is complete
-				//remoteOpenPollingMenu();
-				LogUtil.debug("Shortcut update complete [/updateMenuByShortcut()]");
-				//dispatchEvent(ShortcutEvent.POLL_BUTTON_CLICK_STAGE_2);
+				//if (this.toString() == REAL_BUTTON_ID){
+					LogUtil.debug("------------------");
+					LogUtil.debug("POLLING updating menu by SHORTCUT event [updateMenuByShortcut()]");
+					updateMenu(true);
+					// RemoteOpenPollingMenu() must be called by an event after the NC.CALL is complete
+					//remoteOpenPollingMenu();
+					LogUtil.debug("Shortcut update complete [/updateMenuByShortcut()]");
+					//dispatchEvent(ShortcutEvent.POLL_BUTTON_CLICK_STAGE_2);
+				//}
 			}
 			
 			private function updateMenu(calledFromShortcut:Boolean = false):void{
@@ -239,6 +239,15 @@
 			private function openPollingInstructions():void {
 				dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.OPEN));
 				this.enabled=false;
+			}
+			
+			private function remoteSwitch(e:ShortcutEvent):void{
+				if (this.toString() != REAL_BUTTON_ID){
+					updateMenuByShortcut(e);
+				}
+				else{
+					remoteOpenPollingMenu(e);
+				}
 			}
 		]]>
 	</mx:Script>  

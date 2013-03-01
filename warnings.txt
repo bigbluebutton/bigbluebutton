@@ -1,0 +1,16 @@
+Buildfile: build.xml
+
+clean:
+
+init-ant-contrib:
+
+generate-html-wrapper:
+
+build-deskshare-no-linker:
+     [echo] Compiling deskshare without optimization.
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml
+    [mxmlc] /home/firstuser/dev/bigbluebutton/bigbluebutton-client/bin/DeskShareModule.swf (1058465 bytes)
+
+build-deskshare-standalone:
+     [echo] Compiling deskshare standalone without optimization.
+    [mxmlc] Loading configuration file /home/firstuser/dev/tools/flex-4.5.0.20967/frameworks/flex-config.xml

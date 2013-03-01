@@ -18,37 +18,27 @@
 */
 package org.bigbluebutton.modules.polling.service
 {
-	import com.asfusion.mate.events.Dispatcher;  
-	import flash.events.AsyncErrorEvent;
-	import flash.events.IEventDispatcher;
-	import flash.events.NetStatusEvent;
-	import flash.events.SyncEvent;
-
-	import flash.net.NetConnection;
-	import flash.net.SharedObject;
-	import flash.net.Responder;
-	import mx.collections.ArrayCollection;
-    
-	import mx.controls.Alert;
-	import org.bigbluebutton.core.managers.UserManager;
+	import com.asfusion.mate.events.Dispatcher;
 	
 	import org.bigbluebutton.common.LogUtil;
-	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
-	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
-	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
-	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-	import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
-	import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
+	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
-	
-	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
-	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
-	
+	import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
+	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
+	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
+	import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
+	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
+	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 	import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
-	import org.bigbluebutton.common.events.OpenWindowEvent;
-	import org.bigbluebutton.common.IBbbModuleWindow;
-	
 	import org.bigbluebutton.modules.polling.model.PollObject;
+	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
+	import flash.utils.Timer;
+	import flash.net.NetConnection;
+	import flash.net.Responder;
+	import flash.net.SharedObject;
+	import flash.events.NetStatusEvent;
+	import flash.events.SyncEvent;
+	
 
 	public class PollingService
 	{	
@@ -372,9 +362,10 @@ package org.bigbluebutton.modules.polling.service
 				// Append roomID to each item in titleList, call getPoll on that key, add the result to pollList back in ToolBarButton
 				for (var i:int = 0; i < event.titleList.length; i++){
 					var pollKey:String = roomID +"-"+ event.titleList[i];
-					getPoll(pollKey, "remote_initialize");
+					getPoll(pollKey, "initialize");
 				}
 				// This dispatch populates the titleList back in the Menu; the pollList is populated one item at a time in the for-loop
+				LogUtil.debug("PollingService.initializePollingMenuRemotely, dispatching PollReturnTitlesEvent.REMOTE_RETURN");
 				dispatcher.dispatchEvent(event);
 			}
 			function titleFailure(obj:Object):void{
