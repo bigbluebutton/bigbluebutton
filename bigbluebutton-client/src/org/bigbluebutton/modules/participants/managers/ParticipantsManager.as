@@ -32,18 +32,14 @@ package org.bigbluebutton.modules.participants.managers
 		private var dispatcher:Dispatcher;
 		private var participantsWindow:ParticipantsWindow;
 		
-		[Bindable]
-		public var participantsOptions:ParticipantsOptions;
-		
 		public function ParticipantsManager(){
 			dispatcher = new Dispatcher();
 		}
 		
 		public function moduleStarted(event:StartParticipantsModuleEvent):void{
 			if (participantsWindow == null){
-				participantsOptions = new ParticipantsOptions();
 				participantsWindow = new ParticipantsWindow();
-				participantsWindow.participantsOptions = participantsOptions;
+				participantsWindow.partOptions = new ParticipantsOptions();
 				
 				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 				e.window = participantsWindow;

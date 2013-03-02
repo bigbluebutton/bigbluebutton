@@ -22,6 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 		   xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   initialize="init()"
 		   creationComplete="onCreationComplete()" 
 		   implements="org.bigbluebutton.common.IBbbModuleWindow"
 		   title="{ResourceUtil.getInstance().getString('bbb.videodock.title')}"
@@ -31,14 +32,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   verticalAlign="middle"
 		   resize="onChildAdd()">
 	
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_VIDEO_WINDOW}" method="focusWindow" />
+	<mate:Listener type="{ShortcutEvent.MINIMIZE_DOCK}" method="remoteMinimize" />
+	<mate:Listener type="{ShortcutEvent.MAXIMIZE_DOCK}" method="remoteMaximize" />
 	<mx:Script>
-		<![CDATA[
-      //backgroundImage="{backgroundImage}"
+		<![CDATA[ 
+	  import org.bigbluebutton.main.events.ShortcutEvent;
       import com.asfusion.mate.events.Dispatcher;
       
       import mx.events.ChildExistenceChangedEvent;
       
       import org.bigbluebutton.common.Images;
+
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.common.events.CloseWindowEvent;
       import org.bigbluebutton.common.events.DragWindowEvent;
@@ -50,6 +56,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
       import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
       import org.bigbluebutton.util.i18n.ResourceUtil;
+	  import org.bigbluebutton.common.events.LocaleChangeEvent;
 			
 			private var childrenDimension:Dictionary = new Dictionary();
 			private var borderColor:String;
@@ -64,11 +71,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var priorityWindowWeight:Number = 2/3;
 			
 			private var options:DockOptions = new DockOptions();
+			private var dispatcher:Dispatcher;			
+			private var keyCombos:Object;
 			
-      private var images:Images = new Images();
+			[Bindable] 
+			private var baseIndex:int;
+			
+			private function init():void{
+				baseIndex = options.baseTabIndex;
+			}
+			
+			private var images:Images = new Images();
       
-      [Bindable]
-      private var backgroundImage:Class = images.video_dock_bg;
+			[Bindable]
+			private var backgroundImage:Class = images.video_dock_bg;
       
 			private function onCreationComplete():void {				
 				this.showCloseButton = false;		
@@ -85,11 +101,66 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				addEventListener(ChildExistenceChangedEvent.CHILD_ADD, onChildAdd);			
 				addEventListener(ChildExistenceChangedEvent.CHILD_REMOVE, onChildRemove);
 				
+				dispatcher = new Dispatcher();
+				hotkeyCapture();
+				
+				titleBarOverlay.tabIndex = baseIndex;
+				
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				
+				closeBtn.tabIndex = baseIndex+3;
+				
 				if (options.maximize) this.maximize();
         
-        var gDispatcher:Dispatcher = new Dispatcher();
-        var evt:ConnectAppEvent = new ConnectAppEvent(ConnectAppEvent.CONNECT_VIDEO_APP);
-        gDispatcher.dispatchEvent(evt);
+		        var gDispatcher:Dispatcher = new Dispatcher();
+		        var evt:ConnectAppEvent = new ConnectAppEvent(ConnectAppEvent.CONNECT_VIDEO_APP);
+		        gDispatcher.dispatchEvent(evt);
+			}
+			
+			private function remoteMinimize(e:ShortcutEvent):void{
+				if (!minimized){
+					this.minimize();
+				}
+			}
+			
+			private function remoteMaximize(e:ShortcutEvent):void{
+				if (!maximized && !minimized){
+					this.maximize();
+				}
+				else{
+					this.restore();
+				}				
+			}
+
+		    private function loadKeyCombos(modifier:String):void {
+				keyCombos = new Object(); // always start with a fresh array
+			    keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_DOCK;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_DOCK;
+			}
+		
+		    private function hotkeyCapture():void{
+		      this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+		      ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+		    }
+		
+			// Handle general-access hotkeys, regardless of what window the user is focused in
+		    private function handleKeyDown(e:KeyboardEvent) :void {
+		      var modifier:String = ExternalInterface.call("determineModifier");
+			  loadKeyCombos(modifier);			  
+			  var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") +
+		                            (e.altKey   ? "alt+"     : "") + e.keyCode;		                              
+		      if (keyCombos[keyPress]) {
+		        dispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+		      }
+		    }
+			
+			private function focusWindow(e:ShortcutEvent):void{
+				focusManager.setFocus(titleBarOverlay);
+			}
+		
+			private function localeChanged(e:LocaleChangeEvent):void{
+				resourcesChanged();
 			}
 			
 			/**
@@ -190,7 +261,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				window.minimizeBtn.visible = false;
 				window.maximizeRestoreBtn.visible = false;
 				window.resizable = false;
-        window.draggable = false;
+       			window.draggable = false;
 
 				window.addEventListener(MouseEvent.CLICK, onWindowClick);
 
@@ -367,6 +438,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString('bbb.videodock.title');
+				
+				if (titleBarOverlay != null) {
+					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.videoDock.titleBar');
+				}
+				
+				if (windowControls != null) {
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.maximizeRestoreBtn.accessibilityName');
+					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.minimizeBtn.accessibilityName');
+				}
 			}			
 						
 		]]>

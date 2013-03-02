@@ -29,6 +29,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   visible="{isPresenter}"
 		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
 
+	<mate:Listener type="{ShortcutEvent.SHARE_WEBCAM}" method="remoteClick" />
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -38,6 +39,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			
 			[Bindable] public var isPresenter:Boolean;
 			
@@ -62,6 +64,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.enabled = true;
 				this.selected = false;
 				_currentState = OFF_STATE;
+			}
+			
+			public function remoteClick(e:ShortcutEvent):void{
+				openPublishWindow();
+				dispatchEvent(new ShortcutEvent(ShortcutEvent.REMOTE_FOCUS_WEBCAM));
 			}
 			
 			public function publishingStatus(status:Number):void {
@@ -117,6 +124,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_LEFT;
+			}
+			
+			public function theory():String{
+				return "Webcam button";
 			}
 		]]>
 	</mx:Script>

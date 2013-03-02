@@ -29,7 +29,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import flash.events.MouseEvent;			
 			import mx.controls.Image;
 			import mx.controls.Label;
-			import mx.controls.TileList;			
+			import mx.controls.TileList;
+			import org.bigbluebutton.common.LogUtil;			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.modules.listeners.events.ListenersCommand;
 			import org.bigbluebutton.util.i18n.ResourceUtil; 

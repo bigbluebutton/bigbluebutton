@@ -200,6 +200,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var e:ViewersModuleStartedEvent = new ViewersModuleStartedEvent(ViewersModuleStartedEvent.VIEWERS_MODULE_STARTED);
 				e.module = this;
 				dispatcher.dispatchEvent(e);
+				//Users
 			}
 		
 			public function stop():void {
