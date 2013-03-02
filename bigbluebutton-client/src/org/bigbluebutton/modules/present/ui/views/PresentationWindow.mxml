@@ -154,12 +154,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void{
-				//LogUtil.debug("WATERFALL Entering Pres OCC");
 				thumbY = this.height - 160;
                 bindKeyboardEvents();
 				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
-				//LogUtil.debug("WATERFALL slideView.tabIndex is " + slideView.tabIndex);
 				resourcesChanged();
 				
 				titleBarOverlay.tabIndex = baseIndex;
@@ -167,12 +165,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
-				//slideView.tabIndex = baseIndex+4;
-				//LogUtil.debug("WATERFALL Presentation slideView.tabIndex " + slideView.tabIndex);
 				
 				slideView.slideLoader.tabIndex = baseIndex+4;
 				hotkeyCapture();
-				LogUtil.debug("WATERFALL Presentation slideView.slideLoader.tabIndex " + slideView.slideLoader.tabIndex);
 			}
 			
 			private function hotkeyCapture():void{
@@ -204,12 +199,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				loadKeyCombos(modifier);
 				  
 				var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
-				  
-				//LogUtil.debug("WATERFALL: keyPress is " + keyPress);
-				//LogUtil.debug("WATERFALL: Your modifier + non-mod keys is " + modifier + e.keyCode);
 				                          
 				if (keyCombos[keyPress]) {
-					LogUtil.debug("WATERFALL: keyCombo is " + keyCombos[keyPress]);
 				    //globalDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
 				    localDispatcher.dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
 				}
@@ -530,8 +521,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LogUtil.debug("OVERLAYING WHITEBOARD CANVAS");
 				e.canvas.acceptOverlayCanvas(slideView);
             	slideView.acceptOverlayCanvas(e.canvas);
-            	//LogUtil.debug("WATERFALL: Canvas property is " + e.canvas.toString());
-            	// WhiteboardToolbar
             }
             
             /**

@@ -22,8 +22,6 @@ package org.bigbluebutton.main.events {
 	public class ShortcutEvent extends Event {
 		public static const MAXIMIZE_USERS:String = 'MAXIMIZE_USERS';
 		public static const MINIMIZE_USERS:String = 'MINIMIZE_USERS';
-		public static const MAXIMIZE_LISTEN:String = 'MAXIMIZE_LISTEN';
-		public static const MINIMIZE_LISTEN:String = 'MINIMIZE_LISTEN';
 		public static const MAXIMIZE_DOCK:String = 'MAXIMIZE_DOCK';
 		public static const MINIMIZE_DOCK:String = 'MINIMIZE_DOCK';
 		public static const MAXIMIZE_PRES:String = 'MAXIMIZE_PRES';
@@ -44,8 +42,7 @@ package org.bigbluebutton.main.events {
 		public static const GOREAD_MESSAGE:String = 'GOREAD_MESSAGE';
 		public static const OPEN_SHORTCUT_WIN:String = 'OPEN_SHORTCUT_WIN';
 		
-		public static const FOCUS_VIEWERS_WINDOW:String = 'FOCUS_VIEWERS_WINDOW';
-		public static const FOCUS_LISTENERS_WINDOW:String = 'FOCUS_LISTENERS_WINDOW';
+		public static const FOCUS_PARTICIPANTS_WINDOW:String = 'FOCUS_PARTICIPANTS_WINDOW';
 		public static const FOCUS_VIDEO_WINDOW:String = 'FOCUS_VIDEO_WINDOW';
 		public static const FOCUS_PRESENTATION_WINDOW:String = 'FOCUS_PRESENTATION_WINDOW';
 		public static const FOCUS_CHAT_WINDOW:String = 'FOCUS_CHAT_WINDOW';
@@ -68,9 +65,6 @@ package org.bigbluebutton.main.events {
 		public static const NEXT_SLIDE:String = 'NEXT_SLIDE';
 		public static const FIT_TO_WIDTH:String = 'FIT_TO_WIDTH';
 		public static const FIT_TO_PAGE:String = 'FIT_TO_PAGE';
-		
-		public static const MAKE_PERSON_PRESENTER:String = 'MAKE_PERSON_PRESENTER';
-		public static const FOCUS_USER_LIST:String = 'FOCUS_USER_LIST';
 		
 		public static const FOCUS_CHAT_TABS:String = 'FOCUS_CHAT_TABS';
 		public static const FOCUS_CHAT_BOX:String = 'FOCUS_CHAT_BOX';

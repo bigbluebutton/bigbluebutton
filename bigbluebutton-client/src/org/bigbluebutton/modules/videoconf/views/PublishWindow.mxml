@@ -143,16 +143,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
 				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
 				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
-        
-				
-				LogUtil.debug("WATERFALL Webcam tabindexes for title, min/max/close: " + titleBarOverlay.tabIndex + " " + minimizeBtn.tabIndex + " " + maximizeRestoreBtn.tabIndex + " " + closeBtn.tabIndex);
-				
-				titleBarOverlay.enabled = true;
-				maximizeRestoreBtn.enabled = true;
-				titleBarOverlay.focusEnabled = true;
-				maximizeRestoreBtn.focusEnabled = true;
-				
-				//shortcut
 				
 				// start the camera preview
 				updateCamera();

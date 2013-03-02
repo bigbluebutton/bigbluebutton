@@ -31,6 +31,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   xmlns:mate="http://mate.asfusion.com/" 
 		   xmlns:views="org.bigbluebutton.modules.chat.views.*">
 	
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{ShortcutEvent.MINIMIZE_CHAT}" method="remoteMinimize" />
 	<mate:Listener type="{ShortcutEvent.MAXIMIZE_CHAT}" method="remoteMaximize" />

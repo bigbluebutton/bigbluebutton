@@ -25,11 +25,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
 	xmlns:dspub="flexlib.mdi.containers.*"
+	backgroundColor="#C0C0C0"
 	initialize="init()"
 	creationComplete="onCreationComplete()"
 	
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
-	width="320" height="240"
+	width="320" height="240" 
 	title="{ResourceUtil.getInstance().getString('bbb.desktopPublish.title')}"
 	resizable="false">
 	
@@ -86,7 +87,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var video:Video;
 			private var ns:NetStream;
-			private var videoHolder:UIComponent;
+			[Bindable] private var videoHolder:UIComponent;
 			private var stream:String;
 			private var videoHeight:Number;
 			private var videoWidth:Number;
@@ -202,16 +203,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onUpdateCursorEvent(event:CursorEvent):void {	
 				// DO NOT compute the x and y coordinate and assign directly to the cursorImg
                 // as it results in a flickering and jerky mouse pointer (ralam jun 10, 2010).
-				cursor.x = ((event.x/captureWidth)) * videoHolder.width;
-				cursor.y = ((event.y/captureHeight)) * videoHolder.height;					
+				cursor.x = video.x + ((event.x/captureWidth)) * video.width;
+				cursor.y = video.y + ((event.y/captureHeight)) * video.height;
 				cursorImg.visible = true;
 
 				// Do not display cursor if they are outside the capture area.
-                if (cursor.x < videoHolder.x) cursor.x = videoHolder.x;
-                if (cursor.y < videoHolder.y) cursor.y = videoHolder.y;
-                if (cursor.x > videoHolder.x + videoHolder.width) cursor.x = videoHolder.x + videoHolder.width;
-                if (cursor.y > videoHolder.y + videoHolder.height) cursor.y = videoHolder.y + videoHolder.height;
-                cursorImg.x = cursor.x;
+                if (cursor.x < video.x) cursor.x = video.x;
+                if (cursor.y < video.y) cursor.y = video.y;
+                if (cursor.x > video.x + video.width) cursor.x = video.x + video.width;
+                if (cursor.y > video.y + video.height) cursor.y = video.y + video.height;
+                cursorImg.x =  cursor.x;
                 cursorImg.y = cursor.y;
 			}
 			
@@ -232,14 +233,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				captureHeight = capHeight;
 				
 				videoHolder = new UIComponent();
+				
 				var vidW:Number = captureWidth;
 				var vidH:Number = captureHeight;
 				
 				// Don't scale if capture dimension is smaller than window.
 				if ((captureWidth > this.width - VID_WIDTH_PAD) && (captureHeight > this.height - VID_HEIGHT_PAD)) {
-					vidW = this.width - VID_WIDTH_PAD;	
-					vidH = this.height - VID_HEIGHT_PAD;					
+					vidH = this.height - VID_HEIGHT_PAD;
+					vidW = (captureWidth / captureHeight) * vidH;
+					vidW = vidW + VID_WIDTH_PAD;
 				} 
+				
 
 				LogUtil.debug("deskshare preview[" + captureWidth + "," + captureHeight + "][" + vidW + "," + vidH + "]");
 				video = new Video(vidW, vidH);
@@ -247,6 +251,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				video.height = vidH;
 				videoHolder.width = vidW;
 				videoHolder.height = vidH;
+				video.x = videoHolder.x = (this.width - VID_WIDTH_PAD - vidW) / 2;
+				video.y = videoHolder.y = (this.height - VID_HEIGHT_PAD - vidH) / 2;
+
+				
 				videoHolder.addChild(video);
 				videoHolder.addChild(cursor);
 				videoHolder.addChild(cursorImg);

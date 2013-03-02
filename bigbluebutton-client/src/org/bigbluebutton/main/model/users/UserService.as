@@ -66,6 +66,7 @@ package org.bigbluebutton.main.model.users
 				UserManager.getInstance().getConference().setMyRole(result.role);
 				UserManager.getInstance().getConference().setMyRoom(result.room);
 				UserManager.getInstance().getConference().setMyAuthToken(result.authToken);
+				UserManager.getInstance().getConference().setMyCustomData(result.customdata);
         UserManager.getInstance().getConference().setDefaultLayout(result.defaultLayout);
         
         UserManager.getInstance().getConference().externalMeetingID = result.externMeetingID;
@@ -73,6 +74,9 @@ package org.bigbluebutton.main.model.users
         UserManager.getInstance().getConference().internalMeetingID = result.room;
         UserManager.getInstance().getConference().externalUserID = result.externUserID;
         UserManager.getInstance().getConference().avatarURL = result.avatarURL;
+		UserManager.getInstance().getConference().voiceBridge = result.voicebridge;
+		UserManager.getInstance().getConference().dialNumber = result.dialnumber;
+		
         
 				_conferenceParameters = new ConferenceParameters();
         _conferenceParameters.meetingName = result.confereceName;

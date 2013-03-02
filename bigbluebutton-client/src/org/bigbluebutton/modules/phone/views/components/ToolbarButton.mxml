@@ -36,6 +36,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
+			import flash.system.Security;
+			import flash.system.SecurityPanel;
+			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
 			import org.bigbluebutton.main.events.BBBEvent;
@@ -58,7 +61,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var phoneIcon:Class = images.headsetDefaultIcon;
 			
 			private function startPhone():void {
-				LogUtil.debug("WATERFALL: startPhone()");
 				// Disable the button right away to prevent the user from clicking
 				// multiple times.
 				this.enabled = false;
@@ -90,7 +92,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						} else if (mic.muted) {
   							// user has disallowed access to the mic
   							mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
-  							Security.showSettings();
+  							Security.showSettings(SecurityPanel.PRIVACY);
 						} else {
 							// user has allowed access to the mic already
 						  joinEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
@@ -106,11 +108,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					dispatcher.dispatchEvent(leaveEvent);
 					userJoinedConference(false);
 				}
-				LogUtil.debug("WATERFALL: end startPhone()");
 			}
 			
 			public function remoteClick(event:ShortcutEvent):void{
-				LogUtil.debug("WATERFALL: remoteClick");
 				this.selected = true;
 				startPhone();
 			}

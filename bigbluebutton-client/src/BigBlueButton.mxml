@@ -49,7 +49,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.util.i18n.ResourceUtil;
       private var langResources:ResourceUtil = null; //ResourceUtil.getInstance();
 
-
+	private var modifier:String;
     /**
      * Thse two lines are workaround for this. (ralam - Nov 8, 2008)
      * http://gregjessup.com/flex-3-advanceddatagrid-cannot-convert-mxmanagersdragmanagerimpl-to-mxmanagersidragmanager/
@@ -67,6 +67,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       setupAPI();
       EventBroadcaster.getInstance().addEventListener("configLoadedEvent", configLoadedEventHandler);
       BBB.initConfigManager();
+	  modifier = ExternalInterface.call("determineModifier");
     }
 
     private function configLoadedEventHandler(e:Event):void {
@@ -103,7 +104,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
      */
 
     private function localeChanged(e:Event):void{
-      loadKeyCombos(ExternalInterface.call("determineModifier"));
+      loadKeyCombos(modifier);
     }
 
     private var keyCombos:Object;
@@ -112,12 +113,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		keyCombos = new Object(); // always start with a fresh array
       
 	    keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.flash.exit') as String)] = ShortcutEvent.FOCUS_AWAY_EVENT;
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.listeners.muteme') as String)] = ShortcutEvent.MUTE_ME_EVENT;
+		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.participants.muteme') as String)] = ShortcutEvent.MUTE_ME_EVENT;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatinput') as String)] = ShortcutEvent.FOCUS_CHAT_INPUT;
 			    
 		// General hotKeys (usable from anywhere in the application)
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.viewers') as String)] = ShortcutEvent.FOCUS_VIEWERS_WINDOW;
-		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.listeners') as String)] = ShortcutEvent.FOCUS_LISTENERS_WINDOW;
+		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.participants') as String)] = ShortcutEvent.FOCUS_PARTICIPANTS_WINDOW;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.video') as String)] = ShortcutEvent.FOCUS_VIDEO_WINDOW;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.presentation') as String)] = ShortcutEvent.FOCUS_PRESENTATION_WINDOW;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.chat') as String)] = ShortcutEvent.FOCUS_CHAT_WINDOW;
@@ -140,8 +140,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	// Handle general-access hotkeys, regardless of what window the user is focused in
 	private function handleKeyDown(e:KeyboardEvent) :void {
-  		var modifier:String = ExternalInterface.call("determineModifier");
-  		loadKeyCombos(modifier);
+  		if (keyCombos == null) loadKeyCombos(modifier);
   
   		var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
 		

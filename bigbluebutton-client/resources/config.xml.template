@@ -35,6 +35,12 @@
 			position="bottom-left"
 			baseTabIndex="301"
 		/>
+
+<!--		
+		<module name="ParticipantsModule" url="http://HOST/client/ParticipantsModule.swf?v=VERSION" 
+			uri="rtmp://HOST/bigbluebutton" 
+		/>
+-->
 		
 		<module name="DeskShareModule" 
 			url="http://HOST/client/DeskShareModule.swf?v=4105" 

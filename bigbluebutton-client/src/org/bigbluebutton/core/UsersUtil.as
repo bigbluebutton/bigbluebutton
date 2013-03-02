@@ -78,6 +78,18 @@ package org.bigbluebutton.core
     public static function getAvatarURL():String {
       return UserManager.getInstance().getConference().avatarURL;
     }
+	
+	public static function getVoiceBridge():String {
+		return UserManager.getInstance().getConference().voiceBridge;
+	}
+	
+	public static function getDialNumber():String {
+		return UserManager.getInstance().getConference().dialNumber;
+	}
+	
+	public static function getCustomData():Object {
+		return UserManager.getInstance().getConference().getMyCustomData();
+	}
     
     public static function getExternalMeetingID():String {
       return UserManager.getInstance().getConference().externalMeetingID;
@@ -88,7 +100,7 @@ package org.bigbluebutton.core
     }
     
     public static function amIPresenter():Boolean {
-      return UserManager.getInstance().getConference().amIPresenter();
+      return UserManager.getInstance().getConference().amIPresenter;
     }
     
     public static function getVoiceUser(voiceUserID:Number):BBBUser {

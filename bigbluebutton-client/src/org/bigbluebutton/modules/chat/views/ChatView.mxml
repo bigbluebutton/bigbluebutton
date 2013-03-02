@@ -116,7 +116,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void{
-				//LogUtil.debug("WATERFALL In OCC, baseIndex is " + baseIndex);
 				// Start the timer for screen-reader-friendly chat notifications
 				notificationTimer.addEventListener(TimerEvent.TIMER, checkNotifications);
 				notificationTimer.start();
@@ -139,7 +138,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}       
 			
 			private function focusChatTabs(e:ShortcutEvent):void{
-				LogUtil.debug("WATERFALL: Focus Chat Tab signal received.");
 				focusManager.setFocus(chatTabs);
 			}
 			
@@ -289,7 +287,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			     
 			private function createAddTabBox():AddChatTabBox {
-				//LogUtil.debug("WATERFALL-ADD Adding chat tab box");
 				tabBox = new AddChatTabBox();
 				tabBox.chatView = this;
 				tabBox.id = TAB_BOX_ID;
@@ -314,7 +311,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			// Activates an audio alert for screen-reader users on public message reception
 			private function publicNotification():void {
-				LogUtil.debug("WATERFALL: In publicNotification, adding publicChatFocus listener");
 				publicWaiting = true;
 				chatTabs.getChildByName(PUBLIC_CHAT_USERID).addEventListener(FocusEvent.FOCUS_IN, publicChatFocus);
 				chatTabs.getChildByName(PUBLIC_CHAT_USERID).addEventListener(FocusEvent.FOCUS_OUT, publicChatUnfocus);
@@ -343,7 +339,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function publicChatFocus(event:FocusEvent):void{
-				LogUtil.debug("WATERFALL: Entering publicChatFocus");
 				publicFocus = true;
 				if (publicWaiting) {
 	          		ExternalInterface.call("clearblink");

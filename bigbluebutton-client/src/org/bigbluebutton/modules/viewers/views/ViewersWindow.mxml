@@ -28,12 +28,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	creationComplete="onCreationComplete()"
 	showCloseButton="false">
 
-	<mate:Listener type="{ShortcutEvent.FOCUS_VIEWERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="conferenceStarted" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
-	<mate:Listener type="{ShortcutEvent.MAKE_PERSON_PRESENTER}" method="remoteMakePresenter" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_USER_LIST}" method="remoteFocusUsers" />
 	<mate:Listener type="{ShortcutEvent.MINIMIZE_USERS}" method="remoteMinimize" />
 	<mate:Listener type="{ShortcutEvent.MAXIMIZE_USERS}" method="remoteMaximize" />
 
@@ -125,9 +122,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		    private function loadKeyCombos(modifier:String):void {
 				keyCombos = new Object(); // always start with a fresh array
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.viewers.focusUsers') as String)] = ShortcutEvent.FOCUS_USER_LIST;
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.viewers.focusUsers') as String)] = ShortcutEvent.FOCUS_USER_LIST;
-				
 			    keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_USERS;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_USERS;
 				
@@ -190,8 +184,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         	private function assignPresenterClicked():void {
         		// Ignore if the selected user is already the presenter.
         		if (viewersGrid.selectedItem == null || viewersGrid.selectedItem.presenter) return;
-        		
-				LogUtil.debug("WATERFALL: Assigning presenter to " + viewersGrid.selectedItem.name);
 				var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
 				e.userid = viewersGrid.selectedItem.userID;
 				e.username = viewersGrid.selectedItem.name;

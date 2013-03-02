@@ -286,8 +286,8 @@ class ApiController {
 	    respondWithErrors(errors)
 	    return;
     }
-        
-    String webVoice = StringUtils.isEmpty(params.webVoiceConf) ? meeting.getTelVoice() : params.webVoiceConf
+	
+	String webVoice = StringUtils.isEmpty(params.webVoiceConf) ? meeting.getTelVoice() : params.webVoiceConf
 
     boolean redirectImm = parseBoolean(params.redirectImmediately)
     
@@ -297,6 +297,12 @@ class ApiController {
     if (StringUtils.isEmpty(externUserID)) {
       externUserID = internalUserID
     }
+	
+	//Return a Map with the user custom data
+	Map<String,String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
+	//Currently, it's associated with the externalUserID
+	if(userCustomData.size()>0)
+		meetingService.addUserCustomData(meeting.getInternalId(),externUserID,userCustomData);
     
 	UserSession us = new UserSession();
 	us.internalUserId = internalUserID
@@ -759,7 +765,8 @@ class ApiController {
       }
 	  
     } else {
-		UserSession us = meetingService.getUserSession(session['user-token']);	
+		UserSession us = meetingService.getUserSession(session['user-token']);
+		Meeting meeting = meetingService.getMeeting(us.meetingID);
         log.info("Found conference for " + us.fullname)
         response.addHeader("Cache-Control", "no-cache")
         withFormat {				
@@ -777,6 +784,7 @@ class ApiController {
               conference(us.conference)
               room(us.room)
               voicebridge(us.voicebridge)
+			  dialnumber(meeting.getDialNumber())
               webvoiceconf(us.webvoiceconf)
               mode(us.mode)
               record(us.record)
@@ -784,6 +792,11 @@ class ApiController {
 			  logoutUrl(us.logoutUrl)
 			  defaultLayout(us.defaultLayout)
 			  avatarURL(us.avatarURL)
+			  customdata(){
+				  meeting.getUserCustomData(us.externUserID).each{ k,v ->
+					  "$k"("$v")
+				  }
+			  }
             }
           }
         }
@@ -1201,6 +1214,7 @@ class ApiController {
             meetingID(meeting.getExternalId())
 			createTime(meeting.getCreateTime())
 			voiceBridge(meeting.getTelVoice())
+			dialNumber(meeting.getDialNumber())
             attendeePW(meeting.getViewerPassword())
             moderatorPW(meeting.getModeratorPassword())
             running(meeting.isRunning() ? "true" : "false")
@@ -1217,6 +1231,11 @@ class ApiController {
                   userID("${att.externalUserId}")
                   fullName("${att.fullname}")
                   role("${att.role}")
+				  customdata(){
+					  meeting.getUserCustomData(att.externalUserId).each{ k,v ->
+						  "$k"("$v")
+					  }
+				  }
                 }
               }
             }

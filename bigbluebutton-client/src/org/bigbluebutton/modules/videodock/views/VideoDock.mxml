@@ -32,6 +32,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   verticalAlign="middle"
 		   resize="onChildAdd()">
 	
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_VIDEO_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{ShortcutEvent.MINIMIZE_DOCK}" method="remoteMinimize" />
 	<mate:Listener type="{ShortcutEvent.MAXIMIZE_DOCK}" method="remoteMaximize" />

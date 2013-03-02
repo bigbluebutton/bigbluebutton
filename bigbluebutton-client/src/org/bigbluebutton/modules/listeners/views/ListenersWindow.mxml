@@ -30,14 +30,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			xmlns:mate="http://mate.asfusion.com/" 
 			xmlns:controls="flexlib.controls.*">
 	
-	<mate:Listener type="{ShortcutEvent.FOCUS_LISTENERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{ListenersEvent.ROOM_MUTE_STATE}" method="roomMuteStateChange" />
 	<mate:Listener type="{ListenersEvent.REGISTER_LISTENERS}" method="registerListeners" />
 	<mate:Listener type="{ListenersEvent.SET_LOCAL_MODERATOR_STATUS}" method="{setModerator}" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="muteMeHandler" />
-	<mate:Listener type="{ShortcutEvent.MINIMIZE_LISTEN}" method="remoteMinimize" />
-	<mate:Listener type="{ShortcutEvent.MAXIMIZE_LISTEN}" method="remoteMaximize" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -93,7 +90,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				BindingUtils.bindSetter(updateShowPushToTalkBtn, UserManager.getInstance().getConference(), "voiceLocked");
 				BindingUtils.bindSetter(updateShowPushToTalkBtn, UserManager.getInstance().getConference(), "voiceJoined");
 				this.visible = listenerOptions.windowVisible;	
-				LogUtil.debug("WATERFALL this.visible is " + this.visible.toString());
 				
 				titleBarOverlay.tabIndex = baseIndex;
 				
@@ -104,9 +100,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatcher = new Dispatcher();
 				hotkeyCapture();
 				resourcesChanged();
-				
-				LogUtil.debug("WATERFALL: Listeners titlebar tabIndex is " + titleBarOverlay.tabIndex);
-				LogUtil.debug("WATERFALL: Listeners minbutton tabIndex is " + minimizeBtn.tabIndex);
 			}
 			
 			private function remoteMinimize(e:ShortcutEvent):void{
@@ -126,8 +119,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 		    private function loadKeyCombos(modifier:String):void {
 				keyCombos = new Object(); // always start with a fresh array
-			    keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_LISTEN;
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_LISTEN;
 			}
 		
 		    private function hotkeyCapture():void{

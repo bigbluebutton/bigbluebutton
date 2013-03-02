@@ -41,10 +41,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Style>
 		.colorPickerStyle {
 	      backgroundColor:#E5E6E7;
-	      columnCount:12;
+	      columnCount:13;
 	      horizontalGap:0;
 	      previewHeight:22;
-	      previewWidth:45;
+	      previewWidth:50;
 	      swatchGridBackgroundColor:#000000;
 	      swatchGridBorderSize:0;
 	      swatchHeight:60;
@@ -59,12 +59,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-      import flash.ui.Keyboard;
+			import flash.ui.Keyboard;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
-			import mx.managers.CursorManager;			
+			import mx.managers.CursorManager;
+			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.UsersUtil;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
@@ -83,7 +85,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.whiteboard.events.WhiteboardSettingResetEvent;
 			import org.bigbluebutton.modules.whiteboard.views.models.WhiteboardOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.common.LogUtil;
 			
 			private var images:Images = new Images();
 			[Bindable] private var hand_icon:Class = images.hand_icon;
@@ -123,7 +124,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
             private function onCreationComplete():void {
                 setToolType(WhiteboardConstants.TYPE_ZOOM, null);
-				LogUtil.debug("WATERFALL: TextButton tabIndex is " + textBtn.tabIndex);
             }
                        
 			private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
@@ -275,11 +275,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       /** Helper method to test whether this user is the presenter */
       private function get isPresenter():Boolean {
-        return UserManager.getInstance().getConference().amIPresenter();
+        return UsersUtil.amIPresenter();
       }
       
       private function get isModerator():Boolean {
-        return UserManager.getInstance().getConference().amIModerator();
+        return UsersUtil.amIModerator();
       }
 		           
 		]]>
@@ -334,7 +334,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	the "fill" color that is used only if "fill" is enabled in WhiteboardCanvasModel
 	-->
 	<mx:ColorPicker change="changeColor(event)" id="cpik"  visible="{showWhiteboardToolbar}"
-                  selectedColor="0x000000" width="30" 
+                  selectedColor="0x000000" width="30" dataProvider="{colorPickerColours}" swatchPanelStyleName="colorPickerStyle"
                   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.color')}"
                   tabIndex="{baseIndex+9}"
 				  accessibilityName="{ResourceUtil.getInstance().getString('bbb.whiteboard.chooseColour')}"/>
@@ -343,7 +343,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Image source="{thick_icon}" horizontalAlign="center" width="30" visible="{showWhiteboardToolbar}"/>
 	<mx:VSlider height="50" id="sld" change="changeThickness(event)" visible="{showWhiteboardToolbar}"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.thickness')}" 
-				minimum="2" maximum="30" 
+				minimum="1" maximum="30" 
 				useHandCursor="true" value="2" showDataTip="true" snapInterval="1" dataTipOffset="0" labelOffset="0" 
 				tabIndex="{baseIndex+10}"
 				accessibilityName="{ResourceUtil.getInstance().getString('bbb.whiteboard.slider')}" />

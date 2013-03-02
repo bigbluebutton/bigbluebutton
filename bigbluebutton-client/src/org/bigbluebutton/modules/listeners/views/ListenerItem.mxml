@@ -86,7 +86,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onCreationComplete():void {
-				LogUtil.debug("WATERFALL Entering OCC for ListenerItem");
 				if ((data != null) && data.moderator) muteCB.visible = true;		
 				else muteCB.visible = false;
 				

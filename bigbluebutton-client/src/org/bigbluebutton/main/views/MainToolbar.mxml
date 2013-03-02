@@ -86,22 +86,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function init():void{
 				baseIndex = 1;
 				numButtons = 0;
-				
-				/*
-				baseIndex=999;
-				LogUtil.debug("WATERFALL Entering MTB init");
-				var mtxml:XML = BBB.getConfigForModule("MainToolbar");
-				LogUtil.debug("Survived getting config");
-				if (mtxml != null) {
-					LogUtil.debug("Survived null check");
-					if (mtxml.@baseTabIndex != undefined) {
-						LogUtil.debug("Survived undefined check");
-						baseIndex = mtxml.@baseTabIndex;
-						LogUtil.debug("Survived getting BTI");
-					}
-				}
-				LogUtil.debug("WATERFALL End of MTB init, baseindex is " + baseIndex);
-				//*/
 			}
 			
 								
@@ -249,7 +233,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Spacer width="100%"/>
 	<views:LanguageSelector id="langSelector" 
 							visible="false" 
-							tabIndex="{baseIndex+numButtons+25}"
+							tabIndex="{baseIndex+numButtons+5}"
 							accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"/>
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
@@ -258,11 +242,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
              click="onShortcutButtonClick()" height="22" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" 
-             tabIndex="{baseIndex+numButtons+26}" />
+             tabIndex="{baseIndex+numButtons+6}" />
 	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
                  visible="{showHelpBtn}" click="onHelpButtonClicked()" height="22" styleName="helpLinkButtonStyle"
-                 tabIndex="{baseIndex+numButtons+27}" />
+                 tabIndex="{baseIndex+numButtons+7}" />
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" styleName="logoutButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()" height="22"
-                 tabIndex="{baseIndex+numButtons+28}" />
+                 tabIndex="{baseIndex+numButtons+8}" />
 </mx:ApplicationControlBar>

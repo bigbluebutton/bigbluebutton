@@ -125,9 +125,14 @@ var amIPresenterSync = function() {
 
 var getMyUserInfoAsynch = function() {
   BBB.listen("GetMyUserInfoResponse", function(bbbEvent) {
-    console.log("User info response [myUserID=" + bbbEvent.myUserID 
-				+ ",myUsername=" + bbbEvent.myUsername + ",myAvatarURL=" + bbbEvent.myAvatarURL 
-				+ ",myRole=" + bbbEvent.myRole + ",amIPresenter=" + bbbEvent.amIPresenter + "].");
+    console.log("User info response [myUserID=" + bbbEvent.myUserID
+                                + ",myUsername=" + bbbEvent.myUsername + ",myAvatarURL=" + bbbEvent.myAvatarURL
+                                + ",myRole=" + bbbEvent.myRole + ",amIPresenter=" + bbbEvent.amIPresenter
+                                + ",dialNumber=" + bbbEvent.dialNumber + ",voiceBridge=" + bbbEvent.voiceBridge + "].");
+
+    for(var key in bbbEvent.customdata){
+      console.log(key + " " + bbbEvent.customdata[key]);
+    }
   });
 
   BBB.getMyUserInfo();
@@ -135,11 +140,17 @@ var getMyUserInfoAsynch = function() {
 
 var getMyUserInfoSynch = function() {
   BBB.getMyUserInfo(function(userInfo) {
-    console.log("User info callback [myUserID=" + userInfo.myUserID 
-				+ ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL 
-				+ ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter + "].");
+    console.log("User info callback [myUserID=" + userInfo.myUserID
+                                + ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL
+                                + ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter
+                                + ",dialNumber=" + userInfo.dialNumber + ",voiceBridge=" + userInfo.voiceBridge + "].");
+
+    for(var key in userInfo.customdata){
+      console.log(key + " " + userInfo.customdata[key]);
+    }
   });
 }
+
 
 var getMyRoleAsynch = function() {
   BBB.listen("GetMyRoleResponse", function(bbbEvent) {
