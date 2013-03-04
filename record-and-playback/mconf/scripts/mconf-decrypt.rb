@@ -26,7 +26,6 @@ require 'rexml/document'
 require 'open-uri'
 require 'digest/md5'
 
-
 BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/decrypt.log",'daily' )
 
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
@@ -85,9 +84,11 @@ if not get_recordings_url.nil? and not get_recordings_url.empty?
               writeOut.close
 
               if key_file != decrypted_key_file
-                if not File.exists("#{private_key}")
+                BigBlueButton.logger.debug("Locating private key")
+                if not File.exists?("#{private_key}")
                   raise "Couldn't find the private key on #{private_key}"
                 end
+                BigBlueButton.logger.debug("Decrypting recording key")
                 command = "openssl rsautl -decrypt -inkey #{private_key} < #{key_file} > #{decrypted_key_file}"
                 status = BigBlueButton.execute(command)
                 if not status.success?
@@ -98,6 +99,7 @@ if not get_recordings_url.nil? and not get_recordings_url.empty?
                 BigBlueButton.logger.info("No public key was used to encrypt the random key")
               end
 
+              BigBlueButton.logger.debug("Decrypting the recording file")
               command = "openssl enc -aes-256-cbc -d -pass file:#{decrypted_key_file} < #{encrypted_file} > #{decrypted_file}"
               status = BigBlueButton.execute(command)
               if not status.success?
