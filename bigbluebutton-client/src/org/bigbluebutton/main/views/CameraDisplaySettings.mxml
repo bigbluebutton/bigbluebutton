@@ -224,6 +224,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function onCancelClicked():void {
         disableCamera();
+		var event:BBBEvent = new BBBEvent(BBBEvent.CAM_SETTINGS_CLOSED);
+		event.payload['clicked'] = "cancel";
+		dispatchEvent(event);
         PopUpManager.removePopUp(this);
       }
       
