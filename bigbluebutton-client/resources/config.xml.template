@@ -7,11 +7,12 @@
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
     <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
+    <shortcutKeys userSelectionEnabled="true" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
             showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true"/>
             
-	<modules>
-		
+		<modules>
+		 
 		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="ViewersModule"	
@@ -19,18 +20,21 @@
 			translationEnabled="false"	
 			privateEnabled="true"  
 			position="top-right"
+			baseTabIndex="701"
 		/>
 		
 		<module name="ViewersModule" url="http://HOST/client/ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
 			allowKickUser="false"
+			baseTabIndex="201"
 		/>
 			
 		<module name="ListenersModule" url="http://HOST/client/ListenersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
 			position="bottom-left"
+			baseTabIndex="301"
 		/>
 
 <!--		
@@ -40,9 +44,10 @@
 -->
 		
 		<module name="DeskShareModule" 
-			url="http://HOST/client/DeskShareModule.swf?v=VERSION" 
+			url="http://HOST/client/DeskShareModule.swf?v=4105" 
 			uri="rtmp://HOST/deskShare"
 			autoStart="false"
+			baseTabIndex="101"
 		/>
 		
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
@@ -82,9 +87,10 @@
 			displayAvatar = "false"	
 		/>
 		
-		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=VERSION" 
+		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=4105" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="PresentModule"
+			baseTabIndex="601"
 		/>
 
 <!--
@@ -100,6 +106,7 @@
 			showPresentWindow="true"
 			showWindowControls="true"
 			dependsOn="ViewersModule"
+			baseTabIndex="501"
 		/>
 
 		<module name="VideodockModule" url="http://HOST/client/VideodockModule.swf?v=VERSION"
@@ -113,6 +120,7 @@
 			height="179"
 			layout="smart"
 			oneAlwaysBigger="false"
+			baseTabIndex="401"
 		/>
 		
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
@@ -120,7 +128,7 @@
 			layoutConfig="http://HOST/client/conf/layout.xml"
 			enableEdit="true"
 		/>
-		
+
 <!--
     <module name="NotesModule" url="http://HOST/client/NotesModule.swf?v=VERSION"
       saveURL="http://HOST"

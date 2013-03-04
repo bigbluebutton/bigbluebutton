@@ -23,6 +23,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="600" height="400"
+	initialize="init()"
 	creationComplete="onCreationComplete()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	xmlns:mate="http://mate.asfusion.com/"
@@ -49,6 +50,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.deskshare.events.StartedViewingEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewStreamEvent;
 			import org.bigbluebutton.modules.deskshare.events.ViewWindowEvent;
+			import org.bigbluebutton.modules.deskshare.model.DeskshareOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 
 			private var screenHeight:Number = Capabilities.screenResolutionY;
@@ -77,10 +79,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var savedX:Number;
 			private var savedY:Number;
 			private var isMaximized:Boolean = false;
+			
+			[Bindable] private var baseIndex:int;
+			[Bindable] private var dsOptions:DeskshareOptions;
+									
+			private function init():void{
+				dsOptions = new DeskshareOptions();
+				baseIndex = dsOptions.baseTabIndex;
+			}
 									
 			private function onCreationComplete():void{
-				windowControls.maximizeRestoreBtn.toolTip = "Maximize this window";
-				windowControls.minimizeBtn.toolTip = "Minimize this window";				
 				videoHolder.addChild(video);				
 				this.addChild(videoHolder);
 				videoHolder.percentWidth = 100;
@@ -94,6 +102,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				videoHolder.addChild(cursorImg);
 				cursor.visible = false;
 				maximize();
+				
+				resourcesChanged();
+				
+				titleBarOverlay.tabIndex = baseIndex;
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				closeBtn.tabIndex = baseIndex+3;
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
@@ -257,6 +272,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
 				this.title = ResourceUtil.getInstance().getString('bbb.desktopView.title');
+				
+				if (windowControls != null) {
+					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
+					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopView.minimizeBtn.accessibilityName");
+
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopView.maximizeRestoreBtn.accessibilityName");
+
+					closeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
+					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.desktopView.closeBtn.accessibilityName");
+				}
 			}
 			
 			private function localeChanged(e:LocaleChangeEvent):void{
@@ -269,8 +295,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Image id="cursorImg" visible="false" source="@Embed('../../assets/images/cursor4.png')"/>
 		
 	<mx:ControlBar id="bottomBar" height="35" horizontalAlign="center">
-		<mx:Button id="btnActualSize" toggle="true" click="determineHowToDisplayVideo()" selected="false"
-			height="90%" label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
-			toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" />
+		<mx:Button id="btnActualSize" 
+				   toggle="true" 
+				   click="determineHowToDisplayVideo()" 
+				   selected="false"
+				   height="90%" 
+				   label="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
+				   toolTip="{btnActualSize.selected ? ResourceUtil.getInstance().getString('bbb.desktopView.fitToWindow') : ResourceUtil.getInstance().getString('bbb.desktopView.actualSize')}" 
+				   tabIndex="{baseIndex+4}"/>
 	</mx:ControlBar>
 </MDIWindow>

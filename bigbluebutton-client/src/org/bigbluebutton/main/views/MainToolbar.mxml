@@ -22,7 +22,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:ApplicationControlBar xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:mate="http://mate.asfusion.com/" visible="{showToolbar}"
-	enabled="true" xmlns:views="org.bigbluebutton.main.views.*" >   
+	enabled="true" xmlns:views="org.bigbluebutton.main.views.*"
+	initialize="init()" >   
 	
 	<mate:Listener type="{ToolbarButtonEvent.ADD}" method="handleAddToolbarButtonEvent" />	
 	<mate:Listener type="{ToolbarButtonEvent.REMOVE}" method="handleRemoveToolbarButtonEvent"/>
@@ -30,6 +31,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{ConnectionFailedEvent.USER_LOGGED_OUT}" method="hideToolbar" />
 	<mate:Listener type="{ConfigEvent.CONFIG_EVENT}" method="gotConfigParameters" />
 	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
+	<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
+	<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
+	
 	
 	<mx:Script>
 		<![CDATA[
@@ -64,7 +68,27 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var showToolbar:Boolean = false;
 			[Bindable]
 			public var toolbarOptions:LayoutOptions = new LayoutOptions();
+			
+			[Bindable]
+			private var baseIndex:int;
+			[Bindable]
+			private var numButtons:int;
+			/*
+			 * Because of the de-centralized way buttons are added to the toolbar, there is a large gap between the tab indexes of the main buttons
+			 * on the left and the tab indexes of the "other" items on the right (shortcut glossary, language slector, etc). This will make it more
+			 * convenient to add future items to the tab order.
+			 * 
+			 * - Justin Robinson, November 13 2012 
+			 */
+			
+			private var xml:XML;
 						
+			private function init():void{
+				baseIndex = 1;
+				numButtons = 0;
+			}
+			
+								
 			public function displayToolbar():void{
 				toolbarOptions = new LayoutOptions();
 				toolbarOptions.parseOptions();	
@@ -114,8 +138,29 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleAddToolbarButtonEvent(event:ToolbarButtonEvent):void {
+				// Find out how to import accessibility into custom components; even though the ToolbarButtons are buttons, they don't seem to have a tabIndex
 				if (event.location == ToolbarButtonEvent.TOP_TOOLBAR) {
+					var index:int;
+					var added:int = 0;
+					//*var localButton:UIComponent;
+					if (event.module == "DeskShare"){
+						index = 0;
+					}
+					else if (event.module == "Microphone"){
+						index = 1;
+					}
+					else if (event.module == "Webcam"){
+						index = 2;
+					}
+					
+					//localButton = event.button as UIComponent;
+					//(localButton as Button).tabIndex = baseIndex + numButtons;
+					//addedBtns.addChild(localButton);*/
+					
+					
 					addedBtns.addChild(event.button as UIComponent);
+					// Won't work quite like this: addedBtns.addChildAt(event.button as UIComponent, index);					
+					numButtons++;
 					realignButtons();
 				}
 			}
@@ -128,13 +173,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function realignButtons():void{
 				for each (var button:UIComponent in addedBtns.getChildren()){
 					var toolbarComponent:IBbbToolbarComponent = button as IBbbToolbarComponent;
-					if (toolbarComponent.getAlignment() == ALIGN_LEFT) addedBtns.setChildIndex(button, 0);
-					else if (toolbarComponent.getAlignment() == ALIGN_RIGHT) addedBtns.setChildIndex(button, addedBtns.numChildren - 1);
+					
+					
+					/*if (toolbarComponent.getAlignment() == ALIGN_LEFT){ 
+						addedBtns.setChildIndex(button, 0);
+						//(addedBtns.getChildAt(0) as Button).tabIndex = 0;
+					}
+					else if (toolbarComponent.getAlignment() == ALIGN_RIGHT){ 
+						addedBtns.setChildIndex(button, addedBtns.numChildren - 1);
+						//(addedBtns.getChildAt(0) as Button).tabIndex = addedBtns.numChildren - 1;
+					}*/
+					button.tabIndex = baseIndex;
+					//for (var i:int = 0; i < addedBtns.numChildren; i++){
+					//	(addedBtns.getChildAt(i) as Button).tabIndex = baseIndex + i;
+					//}
 				}
 			}
 						
 			private function gotConfigParameters(e:ConfigEvent):void{
 				langSelector.visible = e.config.languageEnabled;
+				shortcutKeysBtn.includeInLayout = shortcutKeysBtn.visible = e.config.shortcutKeysEnabled; 
 				DEFAULT_HELP_URL = e.config.helpURL;
 			}
 			
@@ -157,6 +215,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				d.dispatchEvent(new SettingsEvent(SettingsEvent.OPEN_SETTINGS_PANEL));
 			}
 			
+			public function remoteShortcutClick(e:ShortcutEvent):void{
+				onShortcutButtonClick();
+			}
+			
+			public function remoteLogout(e:ShortcutEvent):void{
+				doLogout();
+			}
+			
 			private function onShortcutButtonClick(e:Event = null):void {
 				var d:Dispatcher = new Dispatcher();
 				d.dispatchEvent(new ShortcutEvent(ShortcutEvent.OPEN_SHORTCUT_WIN));
@@ -166,15 +232,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>	
 	<mx:HBox id="addedBtns"/>
 	<mx:Spacer width="100%"/>
-	<views:LanguageSelector id="langSelector" visible="false" />
+	<views:LanguageSelector id="langSelector" 
+							visible="false" 
+							tabIndex="{baseIndex+numButtons+5}"
+							accessibilityName="{ResourceUtil.getInstance().getString('bbb.mainToolbar.langSelector')}"/>
 <!--
   <mx:Button label="DISCONNECT!" click="BBB.initConnectionManager().forceClose()" height="22" toolTip="Click to simulate disconnection" />
 -->
-	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
+	<mx:Button id="shortcutKeysBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
              click="onShortcutButtonClick()" height="22" 
-             toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" />
+             toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" 
+             tabIndex="{baseIndex+numButtons+6}" />
 	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
-                 visible="{showHelpBtn}" click="onHelpButtonClicked()" height="22" styleName="helpLinkButtonStyle"/>
+                 visible="{showHelpBtn}" click="onHelpButtonClicked()" height="22" styleName="helpLinkButtonStyle"
+                 tabIndex="{baseIndex+numButtons+7}" />
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" styleName="logoutButtonStyle"
-			   toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()" height="22"/>
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()" height="22"
+                 tabIndex="{baseIndex+numButtons+8}" />
 </mx:ApplicationControlBar>

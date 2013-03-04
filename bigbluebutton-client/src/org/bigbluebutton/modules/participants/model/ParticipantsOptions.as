@@ -28,6 +28,9 @@ package org.bigbluebutton.modules.participants.model
 		[Bindable]
 		public var position:String = "top-left";
 		
+		[Bindable]
+		public var baseTabIndex:int = 201;
+		
 		public function ParticipantsOptions()
 		{
 			var vxml:XML = BBB.getConfigForModule("ParticipantsModule");
@@ -36,6 +39,9 @@ package org.bigbluebutton.modules.participants.model
 			}
 			if (vxml.@position != undefined) {
 				position = vxml.@position.toString();
+			}
+			if (vxml.@baseTabIndex != undefined) {
+				baseTabIndex = vxml.@baseTabIndex;
 			}
 		}
 

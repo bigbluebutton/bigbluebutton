@@ -128,10 +128,6 @@
 			}
 			
         	private function menuClick(event:MenuEvent):void {            	
-            	/*LogUtil.debug("WATERFALL At the start of menuclick, focus is set to: " + focusManager.getFocus());
-				focusManager.setFocus(this);
-				focusManager.setFocus(focusManager.getNextFocusManagerComponent());
-				LogUtil.debug("WATERFALL focus is now set to: " + focusManager.getFocus());*/
 				if(event.index == 0){
             	  	openPollingInstructions();
             	}else{

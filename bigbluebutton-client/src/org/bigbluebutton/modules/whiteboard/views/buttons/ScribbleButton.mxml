@@ -20,9 +20,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
            width="30" height="30"
-       click="onClick()"  styleName="whiteboardScribbleButtonStyle"
+           click="onClick()"  styleName="whiteboardScribbleButtonStyle"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.pencil')}" 
-		   toggle="true" selected="true">
+		   toggle="true" selected="true"
+		   accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.pencil.accessibilityName')}">
 	<mx:Script>
 		<![CDATA[
             import org.bigbluebutton.common.Images;

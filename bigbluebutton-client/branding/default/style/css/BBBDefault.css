@@ -53,7 +53,7 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;
-  themeColor: #aaaaaa;
+  themeColor: haloBlue;
   fontFamily: Arial;
   fontSize: 12;
 }
@@ -103,7 +103,7 @@ DataGrid {
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;
-  themeColor: #aaaaaa;
+  themeColor: haloBlue;
   fontFamily: Arial;
   fontSize: 12;
 }
@@ -160,7 +160,7 @@ DataGrid {
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;
-  themeColor: #aaaaaa;
+  themeColor: haloBlue;
   fontFamily: Arial;
   fontSize: 12;
 }
@@ -197,7 +197,7 @@ DataGrid {
   invertThumbDirection: false;
   borderColor: #b9babc;
   trackColors: #aaaaaa, #aaaaaa;
-  themeColor: #aaaaaa;
+  themeColor: haloBlue;
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
   labelStyleName: "presentationZoomSliderLabelStyle";

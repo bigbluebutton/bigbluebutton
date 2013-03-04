@@ -6,6 +6,8 @@ package org.bigbluebutton.modules.whiteboard.views.models
 	{
 		[Bindable] public var whiteboardAccess:String;
 		
+		[Bindable] public var baseTabIndex:int;
+
 		public function WhiteboardOptions() {
 			var vxml:XML = 	BBB.getConfigForModule("WhiteboardModule");
 			if (vxml != null) {
@@ -14,6 +16,13 @@ package org.bigbluebutton.modules.whiteboard.views.models
 				}
 				else{
 					whiteboardAccess = "presenter";
+				}
+
+				if (vxml.@baseTabIndex != undefined) {
+					baseTabIndex = vxml.@baseTabIndex;
+				}
+				else{
+					baseTabIndex = 601;
 				}
 			}
 		}
