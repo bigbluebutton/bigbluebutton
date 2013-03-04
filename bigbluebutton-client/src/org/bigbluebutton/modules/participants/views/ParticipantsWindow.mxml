@@ -31,6 +31,7 @@
 	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_PARTICIPANTS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="toggleMuteMeState" />
+	<mate:Listener type="{ParticipantsEvent.ROOM_MUTE_STATE}" method="setRoomMute" />
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -60,6 +61,7 @@
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.participants.events.ParticipantRollEvent;
 			import org.bigbluebutton.modules.participants.events.VoiceConfEvent;
+			import org.bigbluebutton.modules.participants.events.ParticipantsEvent;
 			import org.bigbluebutton.modules.participants.model.ParticipantsOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;		
 			
@@ -68,6 +70,7 @@
 			private var keyCombos:Object;
 			private var modifier:String;
 			
+			private var roomMuted:Boolean = false;
 			private var myMenu:Menu;
 			
 			[Bindable]
@@ -170,9 +173,12 @@
 				// everyone can see the audio settings
 				var myMenuData:Array = [{label: "Audio Settings", icon: images.audio}];
 				
-				if (UserManager.getInstance().getConference().amIPresenter || amIModerator) {
+				if (amIModerator) {
 					myMenuData[1] = {type: "separator"};
-					myMenuData[2] = {label: "Mute All", icon: images.audio_muted};
+					if (!roomMuted)
+						myMenuData[2] = {label: "Mute All", icon: images.audio_muted};
+					else
+						myMenuData[2] = {label: "Unmute All", icon: images.audio};
 					myMenuData[3] = {label: "Lower All Hands", icon: images.hand_new};
 				}
 				
@@ -208,18 +214,22 @@
 				Security.showSettings(SecurityPanel.MICROPHONE);
 			}
 			
+			private function setRoomMute(e:ParticipantsEvent):void {
+				roomMuted = e.mute_state;
+			}
+			
 			private function muteAll():void {
-				// I can't do this one yet without access to the shared object
-				// it would be something like 
-				/*
-				if (everyone's unmuted) {
-					var muteCommand:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_ALL);
-					dispatchEvent(muteCommand);
-				} else {
-					var muteCommand:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.UNMUTE_ALL);
-					dispatchEvent(muteCommand);
-				}				
-				 */
+				if (amIModerator) {
+					if (!roomMuted) {
+						var muteCommand:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_ALL);
+						dispatchEvent(muteCommand);
+						roomMuted = true;
+					} else {
+						var unmuteCommand:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.UNMUTE_ALL);
+						dispatchEvent(unmuteCommand);
+						roomMuted = false;
+					}
+				}
 			}
 			
 			private function lowerHands():void {
