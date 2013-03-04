@@ -47,7 +47,7 @@ def processPanAndZooms
 			y_prev = nil
 			timestamp_orig_prev = nil
 			timestamp_prev = nil
-			last_time = $panzoom_events.last[:timestamp].to_f
+			last_time = $panzoom_events.last[:timestamp].to_f unless $panzoom_events.empty?
 			$panzoom_events.each do |panZoomEvent|
 				# Get variables
 				timestamp_orig = panZoomEvent[:timestamp].to_f
