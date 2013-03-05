@@ -46,6 +46,7 @@
 		<module name="DeskShareModule" 
 			url="http://HOST/client/DeskShareModule.swf?v=4105" 
 			uri="rtmp://HOST/deskShare"
+			showButton="true"
 			autoStart="false"
 			baseTabIndex="101"
 		/>
