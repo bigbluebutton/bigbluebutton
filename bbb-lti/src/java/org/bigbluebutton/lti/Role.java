@@ -46,11 +46,15 @@ public class Role {
         for( int i=0; i < roles.length; i++){
             if( roles[i].equals(FACULTY) ||
                 roles[i].equals(URN_INSTITUTION_ROLE + FACULTY) ||
+                roles[i].equals(URN_CONTEXT_ROLE + FACULTY) ||
                 roles[i].equals(INSTRUCTOR) ||
                 roles[i].equals(URN_INSTITUTION_ROLE + INSTRUCTOR) ||
+                roles[i].equals(URN_CONTEXT_ROLE + INSTRUCTOR) ||
                 roles[i].equals(MENTOR) ||
                 roles[i].equals(URN_INSTITUTION_ROLE + MENTOR) ||
-                roles[i].equals(URN_INSTITUTION_ROLE + ADMINISTRATOR)
+                roles[i].equals(URN_CONTEXT_ROLE + MENTOR) ||
+                roles[i].equals(URN_INSTITUTION_ROLE + ADMINISTRATOR) ||
+                roles[i].equals(URN_CONTEXT_ROLE + ADMINISTRATOR)
                 ){
                 response = true;
                 break;
