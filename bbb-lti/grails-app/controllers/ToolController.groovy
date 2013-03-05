@@ -81,7 +81,11 @@ class ToolController {
 						log.debug "Overriding default welcome message with: [" + welcome + "]"
 					}
 
-            
+            		// Detect if the LTI has requested recording
+					if (params.get(Parameter.CUSTOM_RECORD) == "true") {
+						log.debug "This session will be recorded!"
+					}
+					
                     //String destinationURL = "http://www.bigbluebutton.org/"
                     String destinationURL = bigbluebuttonService.getJoinURL(params, welcome)
                     

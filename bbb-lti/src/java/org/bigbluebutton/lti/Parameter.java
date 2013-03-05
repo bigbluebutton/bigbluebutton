@@ -48,6 +48,7 @@ public class Parameter {
     
     public static final String CUSTOM_USER_ID = "custom_lis_person_sourcedid";
 	public static final String CUSTOM_WELCOME = "custom_welcome";
+	public static final String CUSTOM_RECORD = "custom_record";
 
 
 }
