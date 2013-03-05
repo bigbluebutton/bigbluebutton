@@ -148,11 +148,9 @@
 					LogUtil.debug("ADD Guest Event");
 					guestManagement = new GuestManagement();
 					guestManagement.setGuestPolicy(guestPolicy);
-					//Add evento para init bbbsettings
-					var addGuestManagement:SettingsComponentEvent = new SettingsComponentEvent(SettingsComponentEvent.ADD);
-					addGuestManagement.component = guestManagement;
-					var dispatcher:Dispatcher = new Dispatcher();
-					dispatcher.dispatchEvent(addGuestManagement);
+					guestManagement.addToSettings();
+					//Add event to init bbbsettings
+					
 				}
 			}
 			

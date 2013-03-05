@@ -19,7 +19,10 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
+			import org.bigbluebutton.common.events.SettingsComponentEvent;
+			import com.asfusion.mate.events.Dispatcher;
+
+
 			private var option:Number = 0;
 			private var guestPolicy:String;
 			
@@ -54,12 +57,18 @@
 							}
 			}
 			
-			
-			 private function onCancelClicked(e:Event = null):void {
+			public function addToSettings():void {
+				var addGuestManagement:SettingsComponentEvent = new SettingsComponentEvent(SettingsComponentEvent.ADD);
+				addGuestManagement.component = this;
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(addGuestManagement);
+			}
+
+			private function onCancelClicked(e:Event = null):void {
 			 		setGuestPolicy(guestPolicy);
 			 }
 			 
-			 private function handleGuestClick(event:ItemClickEvent):void {
+			private function handleGuestClick(event:ItemClickEvent):void {
 				option = event.currentTarget.selectedValue;
 			}
 						

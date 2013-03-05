@@ -22,7 +22,7 @@
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
     title="{ResourceUtil.getInstance().getString('bbb.guests.title')}" showCloseButton="false" creationComplete="init()"
-    x="0" y="0" layout="vertical" width="300" height="200" horizontalAlign="center"
+    x="0" y="0" layout="vertical" width="320" height="200" horizontalAlign="center"
     xmlns:mate="http://mate.asfusion.com/"
     
     >
