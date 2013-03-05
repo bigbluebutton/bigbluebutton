@@ -129,7 +129,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function onCancelClicked():void {
 				cleanUp();
-				var event:BBBEvent = new BBBEvent("MIC_SETTINGS_CLOSED");
+				var event:BBBEvent = new BBBEvent(BBBEvent.MIC_SETTINGS_CLOSED);
 				event.payload['clicked'] = "cancel";
 				dispatchEvent(event);
 				PopUpManager.removePopUp(this);
