@@ -23,6 +23,7 @@ import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.adapter.IApplication;
 import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
+import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
 import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
@@ -71,15 +72,24 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug(APP + ":roomConnect");
-		ISharedObject so = getSharedObject(connection.getScope(), LAYOUT_SO);
-		log.debug("Setting up Listener");
-		LayoutSender sender = new LayoutSender(so);
-		String room = connection.getScope().getName();
-		log.debug("Adding event listener to " + room);
-		log.debug("Adding room listener");
-		layoutApplication.addRoomListener(room, sender);
-		log.debug("Done setting up listener");
-		return true;
+		
+		IScope scope = Red5.getConnectionLocal().getScope();
+		
+    	if (!hasSharedObject(scope, LAYOUT_SO)) {
+    		if (createSharedObject(scope, LAYOUT_SO, false)) {   
+    			ISharedObject so = getSharedObject(connection.getScope(), LAYOUT_SO);
+    			log.debug("Setting up Listener");
+    			LayoutSender sender = new LayoutSender(so);
+    			String room = connection.getScope().getName();
+    			log.debug("Adding event listener to " + room);
+    			log.debug("Adding room listener");
+    			layoutApplication.addRoomListener(room, sender);
+    			log.debug("Done setting up listener");
+    			return true;
+    		}    		
+    	}  	
+    	
+		return false;
 	}
 
 	@Override
@@ -102,20 +112,15 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 	public boolean roomStart(IScope scope) {
 		log.debug(APP + ":roomStart " + scope.getName());
 		layoutApplication.createRoom(scope.getName());
-    	if (!hasSharedObject(scope, LAYOUT_SO)) {
-    		if (createSharedObject(scope, LAYOUT_SO, false)) {   
-    			return true;
-    		}    		
-    	}  	
-		log.error("Failed to start room " + scope.getName());
-    	return false;
+
+    	return true;
 	}
 
 	@Override
 	public void roomStop(IScope scope) {
 		log.debug(APP + ":roomStop " + scope.getName());
 		layoutApplication.destroyRoom(scope.getName());
-		if (!hasSharedObject(scope, LAYOUT_SO)) {
+		if (hasSharedObject(scope, LAYOUT_SO)) {
     		clearSharedObjects(scope, LAYOUT_SO);
     	}
 	}

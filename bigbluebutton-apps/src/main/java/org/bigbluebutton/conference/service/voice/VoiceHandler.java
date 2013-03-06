@@ -77,15 +77,24 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug(APP + ":roomConnect");
 		log.debug("In live mode");
-		ISharedObject so = getSharedObject(connection.getScope(), VOICE_SO);
-		    		
-		String voiceBridge = getBbbSession().getVoiceBridge();
-		String meetingid = getBbbSession().getConference(); 
-		Boolean record = getBbbSession().getRecord();
 		
-		log.debug("Setting up voiceBridge " + voiceBridge);
-		clientManager.addSharedObject(connection.getScope().getName(), voiceBridge, so);
-		conferenceService.createConference(voiceBridge, meetingid, record); 		
+		IScope scope = Red5.getConnectionLocal().getScope();
+		
+    	if (!hasSharedObject(scope, VOICE_SO)) {
+    		if (createSharedObject(scope, VOICE_SO, false)) {    			
+    			ISharedObject so = getSharedObject(connection.getScope(), VOICE_SO);
+	    		
+    			String voiceBridge = getBbbSession().getVoiceBridge();
+    			String meetingid = getBbbSession().getConference(); 
+    			Boolean record = getBbbSession().getRecord();
+    			
+    			log.debug("Setting up voiceBridge " + voiceBridge);
+    			clientManager.addSharedObject(connection.getScope().getName(), voiceBridge, so);
+    			conferenceService.createConference(voiceBridge, meetingid, record); 			
+    		}    		
+    	}  	
+    	
+	
 		return true;
 	}
 
@@ -109,13 +118,9 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	public boolean roomStart(IScope scope) {
 		log.debug(APP + " - roomStart " + scope.getName());
 
-    	if (!hasSharedObject(scope, VOICE_SO)) {
-    		if (createSharedObject(scope, VOICE_SO, false)) {    			
-    			return true; 			
-    		}    		
-    	}  	
+
 		log.error("Failed to start room " + scope.getName());
-    	return false;
+    	return true;
 	}
 
 	@Override
@@ -128,7 +133,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 		String voiceBridge = getBbbSession().getVoiceBridge();
 		conferenceService.destroyConference(voiceBridge);
 		clientManager.removeSharedObject(scope.getName());
-		if (!hasSharedObject(scope, VOICE_SO)) {
+		if (hasSharedObject(scope, VOICE_SO)) {
     		clearSharedObjects(scope, VOICE_SO);
     	}
 	}

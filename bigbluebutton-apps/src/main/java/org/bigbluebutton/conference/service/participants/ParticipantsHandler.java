@@ -78,16 +78,22 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug(APP + ":roomConnect");
 		
-		ISharedObject so = getSharedObject(connection.getScope(), PARTICIPANTS_SO);
-		ParticipantsEventSender sender = new ParticipantsEventSender(so);
-		ParticipantsEventRecorder recorder = new ParticipantsEventRecorder(connection.getScope().getName(), recorderApplication);
+		IScope scope = Red5.getConnectionLocal().getScope();
 		
-		log.debug("Adding room listener " + connection.getScope().getName());
-		participantsApplication.addRoomListener(connection.getScope().getName(), recorder);
-		participantsApplication.addRoomListener(connection.getScope().getName(), sender);
-		log.debug("Done setting up recorder and listener");
-		
-		return true;
+    	if (!hasSharedObject(scope, PARTICIPANTS_SO)) {
+    		if (createSharedObject(scope, PARTICIPANTS_SO, false)) {   
+    			ISharedObject so = getSharedObject(connection.getScope(), PARTICIPANTS_SO);
+    			ParticipantsEventSender sender = new ParticipantsEventSender(so);
+    			ParticipantsEventRecorder recorder = new ParticipantsEventRecorder(connection.getScope().getName(), recorderApplication);
+    			
+    			log.debug("Adding room listener " + connection.getScope().getName());
+    			participantsApplication.addRoomListener(connection.getScope().getName(), recorder);
+    			participantsApplication.addRoomListener(connection.getScope().getName(), sender);
+    			log.debug("Done setting up recorder and listener");	
+    		}    		
+    	}  	
+    			
+		return false;
 	}
 
 	@Override
@@ -116,20 +122,13 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 	@Override
 	public boolean roomStart(IScope scope) {
 		log.debug(APP + " - roomStart "+scope.getName());
-    	// create ParticipantSO if it is not already created
-    	if (!hasSharedObject(scope, PARTICIPANTS_SO)) {
-    		if (createSharedObject(scope, PARTICIPANTS_SO, false)) {   
-    			return true; 			
-    		}    		
-    	}  	
-		log.error("Failed to start room " + scope.getName());
-    	return false;
+    	return true;
 	}
 
 	@Override
 	public void roomStop(IScope scope) {
 		log.debug(APP + ":roomStop " + scope.getName());
-		if (!hasSharedObject(scope, PARTICIPANTS_SO)) {
+		if (hasSharedObject(scope, PARTICIPANTS_SO)) {
     		clearSharedObjects(scope, PARTICIPANTS_SO);
     	}
 	}
