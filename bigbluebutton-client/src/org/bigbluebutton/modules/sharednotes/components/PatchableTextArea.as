@@ -29,7 +29,11 @@ package org.bigbluebutton.modules.sharednotes.components
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.sharednotes.infrastructure.SharedNotesDispatcher;
 	import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
-	
+	import flash.net.FileReference;
+	import flexlib.mdi.containers.MDICanvas;
+	import mx.controls.Alert;
+	import org.bigbluebutton.util.i18n.ResourceUtil;
+
 	public class PatchableTextArea extends TextArea
 	{
 		private var _tackOnText : String = "";
@@ -37,6 +41,7 @@ package org.bigbluebutton.modules.sharednotes.components
 		
 		private var _patch : String = "";
 		private var _patchChanged : Boolean = false;
+		private var _canvas:MDICanvas = null;
 		
 		public function set tackOnText(value:String):void
 		{
@@ -79,6 +84,10 @@ package org.bigbluebutton.modules.sharednotes.components
 			}
 		}
 		
+		public function setCanvas(canvas:MDICanvas):void {
+			_canvas = canvas;
+		}	
+
 		public function get textFieldText():String {
 			if (_patchChanged) {
 				LogUtil.debug("Patching before commit properties");
@@ -87,6 +96,15 @@ package org.bigbluebutton.modules.sharednotes.components
 				patch = "";
 			}
 			return textField.text;
+		}
+
+		public function saveNotesToFile():void {
+			this.textFieldText
+			var _fileRef:FileReference = new FileReference();
+			_fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
+				Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK, _canvas);
+			});
+			_fileRef.save(this.textFieldText, "sharedNotes.txt");
 		}
 		
 		private function patchClientText():void {

@@ -40,6 +40,7 @@
 			
 			import mx.events.ResizeEvent;
 			import mx.events.SliderEvent;
+			import flexlib.mdi.containers.MDICanvas;
 			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.IBbbModuleWindow;
@@ -48,7 +49,8 @@
 			import org.bigbluebutton.modules.sharednotes.infrastructure.ServerConnection;
 			import org.bigbluebutton.modules.sharednotes.infrastructure.SharedNotesDispatcher;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
+			import flash.utils.getQualifiedClassName;
+
 			private var client:Client;
 			
 			private var _room:String;
@@ -66,13 +68,14 @@
 			[Bindable] private var RIGHT_PADDING:int = DEFAULT_PADDING; 
 			[Bindable] private var LEFT_PADDING:int = DEFAULT_PADDING;
 			[Bindable] private var TOP_PADDING:int = DEFAULT_PADDING;
-			[Bindable] private var BOTTOM_PADDING:int = 20;
+			[Bindable] private var BOTTOM_PADDING:int = 30;
 			
 			
 			public function init():void {
 				sendUpdateTimer = new Timer(options.refreshDelay, 1);
 			
 				textArea.visible = true;
+				textArea.setCanvas(getMdiCanvas(parent) as MDICanvas);
 				btnBackPlayback.visible = false;
 				btnPlayback.visible = options.enablePlayback;
 				playbackSlider.visible = false;
@@ -97,6 +100,32 @@
 				client = new Client(this);
 
 				onResize();
+			}
+
+
+			private function getType(obj:Object):String {
+
+					var qualifiedClass:String = String(getQualifiedClassName(obj));
+					var pattern:RegExp = /(\w+)::(\w+)/g;
+					if (qualifiedClass.match(pattern)) {
+						return qualifiedClass.split("::")[1];
+					} else {
+						return String(Object).substr(String(Object).lastIndexOf(".") + 1).match(/[a-zA-Z]+/).join();
+					}
+			}
+
+			private function getMdiCanvas(p:DisplayObjectContainer):DisplayObject {
+				if (p == null)
+					return null;
+				for (var i:int = 0; i < p.numChildren; ++i) {
+					//if (String(getQualifiedClassName(p.getChildAt(i))).match("MainCanvas"))
+					if (getType(p.getChildAt(i)) == "MainCanvas")
+						return p.getChildAt(i);
+					var obj:DisplayObject = getMdiCanvas(p.parent);
+					if (obj != null)
+						return obj;
+				}
+				return null;
 			}
 			
 			private function addBlur():void {
@@ -143,6 +172,8 @@
 				
 				icoSynced.x = icoSyncing.x = availableWidth - RIGHT_PADDING - icoSynced.width;
 				icoSynced.y = icoSyncing.y = availableHeight - BOTTOM_PADDING + (BOTTOM_PADDING - icoSynced.height) / 2;
+				btnSave.x = availableWidth - RIGHT_PADDING - btnSave.width - 30;
+				btnSave.y = availableHeight - BOTTOM_PADDING + (BOTTOM_PADDING - btnSave.height) / 2;				
 				playbackSlider.width = availableWidth - playbackSlider.x - 2 * RIGHT_PADDING - icoSynced.width;
 				
 				lblConnecting.x = (availableWidth - lblConnecting.measuredWidth - LEFT_PADDING - RIGHT_PADDING) / 2 + LEFT_PADDING;
@@ -196,7 +227,12 @@
 				switchComponentsVisibility();
 				onResize();
 			}
-			
+
+			protected function btnSave_clickHandler(event:MouseEvent):void
+			{
+				textArea.saveNotesToFile();
+			}
+
 			protected function btnBackPlayback_clickHandler(event:MouseEvent):void
 			{
 				switchComponentsVisibility();
@@ -269,6 +305,8 @@
 	<mx:Button x="10" y="425" icon="@Embed(source='images/arrow_left.png')" id="btnBackPlayback" click="btnBackPlayback_clickHandler(event)" visible="false"/>
 	<mx:Label id="lblPlaybackVersion" x="10" y="399" text="Version 0:"/>
 	<components:PatchableTextArea x="10" y="10" id="textArea" hideEffect="{dissolveOut}" showEffect="{dissolveIn}" creationComplete="addBlur()" width="482" height="407" editable="true"/>
+	<mx:Button  x="476" y="431" id="btnSave" click="btnSave_clickHandler(event)" visible="true" icon="@Embed(source='images/disk.png')"/>
 	<mx:Button x="0" y="0" label="Start" id="btnPlay" click="btnPlay_clickHandler(event)" visible="false"/>
 	<mx:Label x="211.5" y="186" text="{ResourceUtil.getInstance().getString('bbb.sharedNotes.connecting')}" id="lblConnecting"/>
+	
 </containers:MDIWindow>
