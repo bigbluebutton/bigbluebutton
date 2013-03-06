@@ -82,7 +82,7 @@ package org.bigbluebutton.core.vo {
 			return _languageEnabled;
 		}
 		
-		public function get shorcutKeysEnabled():Boolean {
+		public function get shortcutKeysEnabled():Boolean {
 			return _shortcutKeysEnabled;
 		}
 		

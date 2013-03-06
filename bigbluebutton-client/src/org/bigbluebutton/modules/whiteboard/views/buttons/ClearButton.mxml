@@ -19,9 +19,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
-           width="30" height="30"
-       click="onClick()" styleName="whiteboardClearButtonStyle"
-		   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.clear')}">
+		   width="30" height="30"
+		   click="onClick()" styleName="whiteboardClearButtonStyle"
+		   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.clear')}"
+		   accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.clear.accessibilityName')}">
 	<mx:Script>
 		<![CDATA[
             import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;

@@ -73,7 +73,19 @@ class ToolController {
                     log.debug "Locale has been set to " + locale
                     String welcome = message(code: "bigbluebutton.welcome", args: ["\"{0}\"", "\"{1}\""])
                     log.debug "Localized default welcome message: [" + welcome + "]"
-            
+
+					// Check for [custom_]welcome parameter being passed from the LTI
+					if (params.get(Parameter.CUSTOM_WELCOME) != null) {
+						log.debug "A custom welcome message has been provided"
+						welcome = params.get(Parameter.CUSTOM_WELCOME)
+						log.debug "Overriding default welcome message with: [" + welcome + "]"
+					}
+
+            		// Detect if the LTI has requested recording
+					if (params.get(Parameter.CUSTOM_RECORD) == "true") {
+						log.debug "This session will be recorded!"
+					}
+					
                     //String destinationURL = "http://www.bigbluebutton.org/"
                     String destinationURL = bigbluebuttonService.getJoinURL(params, welcome)
                     

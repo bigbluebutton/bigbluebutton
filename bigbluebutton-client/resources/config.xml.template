@@ -1,5 +1,8 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> upstream/master
 <?xml version="1.0" ?>
 <config>
     <localeversion suppressWarning="false">0.8</localeversion>
@@ -9,11 +12,20 @@
     <application uri="rtmp://HOST/bigbluebutton" host="http://HOST/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
     <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
+<<<<<<< HEAD
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
             showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true"/>
             
 	<modules>
 		
+=======
+    <shortcutKeys userSelectionEnabled="true" />
+    <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
+            showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true"/>
+            
+		<modules>
+		 
+>>>>>>> upstream/master
 		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="ViewersModule"	
@@ -21,24 +33,50 @@
 			translationEnabled="false"	
 			privateEnabled="true"  
 			position="top-right"
+<<<<<<< HEAD
+=======
+			baseTabIndex="701"
+>>>>>>> upstream/master
 		/>
 		
 		<module name="ViewersModule" url="http://HOST/client/ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			host="http://HOST/bigbluebutton/api/enter"
 			allowKickUser="false"
+<<<<<<< HEAD
+=======
+			baseTabIndex="201"
+>>>>>>> upstream/master
 		/>
 			
 		<module name="ListenersModule" url="http://HOST/client/ListenersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			recordingHost="http://HOST"
 			position="bottom-left"
+<<<<<<< HEAD
 		/>
 		
 		<module name="DeskShareModule" 
 			url="http://HOST/client/DeskShareModule.swf?v=VERSION" 
 			uri="rtmp://HOST/deskShare"
 			autoStart="false"
+=======
+			baseTabIndex="301"
+		/>
+
+<!--		
+		<module name="ParticipantsModule" url="http://HOST/client/ParticipantsModule.swf?v=VERSION" 
+			uri="rtmp://HOST/bigbluebutton" 
+		/>
+-->
+		
+		<module name="DeskShareModule" 
+			url="http://HOST/client/DeskShareModule.swf?v=4105" 
+			uri="rtmp://HOST/deskShare"
+			showButton="true"
+			autoStart="false"
+			baseTabIndex="101"
+>>>>>>> upstream/master
 		/>
 		
 		<module name="PhoneModule" url="http://HOST/client/PhoneModule.swf?v=VERSION" 
@@ -78,9 +116,16 @@
 			displayAvatar = "false"	
 		/>
 		
+<<<<<<< HEAD
 		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 			dependsOn="PresentModule"
+=======
+		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=4105" 
+			uri="rtmp://HOST/bigbluebutton" 
+			dependsOn="PresentModule"
+			baseTabIndex="601"
+>>>>>>> upstream/master
 		/>
 
 <!--
@@ -96,6 +141,10 @@
 			showPresentWindow="true"
 			showWindowControls="true"
 			dependsOn="ViewersModule"
+<<<<<<< HEAD
+=======
+			baseTabIndex="501"
+>>>>>>> upstream/master
 		/>
 
 		<module name="VideodockModule" url="http://HOST/client/VideodockModule.swf?v=VERSION"
@@ -109,6 +158,10 @@
 			height="179"
 			layout="smart"
 			oneAlwaysBigger="false"
+<<<<<<< HEAD
+=======
+			baseTabIndex="401"
+>>>>>>> upstream/master
 		/>
 		
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
@@ -116,7 +169,11 @@
 			layoutConfig="http://HOST/client/conf/layout.xml"
 			enableEdit="true"
 		/>
+<<<<<<< HEAD
 		
+=======
+
+>>>>>>> upstream/master
 <!--
     <module name="NotesModule" url="http://HOST/client/NotesModule.swf?v=VERSION"
       saveURL="http://HOST"
@@ -135,6 +192,7 @@
     		
 	</modules>
 </config>
+<<<<<<< HEAD
 =======
 <?xml version="1.0" ?>
 <config>
@@ -397,4 +455,6 @@
     		
 	</modules>
 </config>
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master

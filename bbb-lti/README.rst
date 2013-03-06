@@ -44,7 +44,7 @@ Configure the properties
         
     sudo vi /var/lib/tomcat6/webapps/lti/WEB-INF/classes/lti.properties
 
-Edit the URL and Salt of the BigBlueButton server you are going to connect to
+Edit the URL and Salt of the BigBlueButton server you are going to connect to (NOTE: Remove any trailing slashes from the URL!)
     
     bigbluebuttonURL=http://yourbigbluebuttonserver.com/bigbluebutton
     

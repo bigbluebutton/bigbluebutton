@@ -85,8 +85,6 @@ package org.bigbluebutton.modules.polling.managers
 	   }		
 		//Opening Instructions Window    
 	  	public function handleOpenPollingInstructionsWindowEvent(e:PollingInstructionsWindowEvent):void {
-			if (toolbarButtonManager.appFM == null)
-				LogUtil.debug("WATERFALL In Polling Manager, TBM's appFM is null");
 			viewWindowManager.appFM = toolbarButtonManager.appFM;
 		    viewWindowManager.handleOpenPollingInstructionsWindow(e);
 		}
@@ -100,7 +98,6 @@ package org.bigbluebutton.modules.polling.managers
 	  // Opening PollingViewWindow
 	  public function handleOpenPollingViewWindow(e:PollingViewWindowEvent):void{
 		   if(isPolling) return; 	
-		   LogUtil.debug("WATERFALL: PollingManager sending voting signal");
 	       viewWindowManager.handleOpenPollingViewWindow(e);
 	       toolbarButtonManager.disableToolbarButton();
 		}  	
