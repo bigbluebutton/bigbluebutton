@@ -33,7 +33,6 @@
 	>
 	
 	<mate:Listener type="{ShortcutEvent.POLL_BUTTON_CLICK}" method="updateMenuByShortcut" />
-	<!--mate:Listener type="{ShortcutEvent.POLL_BUTTON_CLICK_STAGE_2}" method="remoteOpenPollingMenu" /-->
 	
 	<mx:Script>
 		<![CDATA[

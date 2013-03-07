@@ -78,7 +78,11 @@ package org.bigbluebutton.main.events {
 		public static const SEND_MESSAGE:String = 'SEND_MESSAGE';
 		
 		public static const POLL_BUTTON_CLICK:String = 'POLL_BUTTON_CLICK';
-		public static const POLL_BUTTON_CLICK_STAGE_2:String = 'POLL_BUTTON_CLICK_STAGE_2';
+		public static const FOCUS_POLL_TITLE:String = 'FOCUS_POLL_TITLE';
+		public static const FOCUS_POLL_QUESTION:String = 'FOCUS_POLL_QUESTION';
+		public static const FOCUS_POLL_ANSWERS:String = 'FOCUS_POLL_ANSWERS';
+		public static const FOCUS_MULT_CHECK:String = 'FOCUS_MULT_CHECK';
+		public static const FOCUS_WEBPOLL_CHECK:String = 'FOCUS_WEBPOLL_CHECK';
 		
 		// Temporary string to help fix chat message navigation for screen readers
 		public static const CHAT_DEBUG:String = 'CHAT_DEBUG';

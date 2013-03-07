@@ -55,9 +55,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 											  'bbb.shortcutkey.present.upload', 'bbb.shortcutkey.present.previous', 'bbb.shortcutkey.present.select',	
 											  'bbb.shortcutkey.present.next', 'bbb.shortcutkey.present.fitWidth', 'bbb.shortcutkey.present.fitPage'];
 			
-			private var chatResource:Array = ['bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.chat.focusTabs', 
-											  'bbb.shortcutkey.chat.focusBox', 'bbb.shortcutkey.chat.changeColour', 'bbb.shortcutkey.chat.sendMessage',
-											  'bbb.shortcutkey.chat.explanation',
+			private var chatResource:Array = ['bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.chat.focusTabs', 'bbb.shortcutkey.chat.focusBox',  
+											  'bbb.shortcutkey.chat.changeColour', 'bbb.shortcutkey.chat.sendMessage', 'bbb.shortcutkey.chat.explanation',
 											  'bbb.shortcutkey.chat.chatbox.gofirst', 'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.repeat', 
 											  'bbb.shortcutkey.chat.chatbox.advance', 'bbb.shortcutkey.chat.chatbox.golatest',  'bbb.shortcutkey.chat.chatbox.goread'];
 											  
@@ -65,7 +64,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var viewerResource:Array = ['bbb.shortcutkey.viewers.makePresenter'];
 			
-			//private var pollResource:Array;
+			private var pollResource:Array = ['bbb.shortcutkey.polling.focusTitle', 'bbb.shortcutkey.polling.focusQuestion', 'bbb.shortcutkey.polling.focusAnswers', 
+											  'bbb.shortcutkey.polling.focusMultipleCB', 'bbb.shortcutkey.polling.focusWebPollCB', 'bbb.shortcutkey.polling.previewClick', 
+											  'bbb.shortcutkey.polling.cancelClick'];
 			
 			[Bindable]
 			private var shownKeys:ArrayCollection;
@@ -86,7 +87,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				chatKeys = loadKeys(chatResource);
 				audKeys = loadKeys(audResource);
 				viewerKeys = loadKeys(viewerResource);
-				//pollKeys = loadKeys(pollResource);
+				pollKeys = loadKeys(pollResource);
 				changeArray();
 			}
 			
@@ -108,9 +109,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				case 4: //Viewers
 					shownKeys.addAll(viewerKeys);
 					break;
-				/*case 5: //Polling
+				case 5: //Polling
 					shownKeys.addAll(pollKeys);
-					break;*/
+					break;
 				}
 			}
 			

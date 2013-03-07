@@ -32,6 +32,8 @@
 		   layout="absolute"
 		   >
 
+	
+	
 	<mx:Script>
 		<![CDATA[
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -71,6 +73,7 @@
 			import mx.controls.dataGridClasses.DataGridHeader;
 			import mx.core.UIComponent;
 			import org.bigbluebutton.modules.polling.model.PollStatLineObject;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			
 
 		   	public static const LOGNAME:String = "[PollingStatsWindow] ";
@@ -94,6 +97,7 @@
 			private var answerCollection:ArrayCollection = new ArrayCollection();
 			[Bindable] private var pollOptions:PollOptions;
 			[Bindable] private var baseIndex:int;
+			
 		
 			private function init():void{
 				pollOptions = new PollOptions();
@@ -124,7 +128,7 @@
 				refreshPoll();
 			}
 		
-		
+			
 
 			private function onCreationComplete():void{
 				
@@ -276,6 +280,8 @@
 				pso.percentage = "";
 				return pso;
 			}
+			
+			
 			
 	]]>
 	</mx:Script>
