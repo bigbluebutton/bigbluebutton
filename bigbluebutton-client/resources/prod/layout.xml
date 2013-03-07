@@ -16,6 +16,7 @@
     <window name="PresentationWindow" width="0.5137481910274964" height="0.9946808510638298" x="0.18017366136034732" y="0" />
     <window name="VideoDock" width="0.1772793053545586" height="0.30851063829787234" x="0" y="0.6875" />
     <window name="ChatWindow" width="0.3031837916063676" height="0.9960106382978723" x="0.6968162083936325" y="0" />
+    <window name="ParticipantsWindow" width="0.1772793053545586" height="0.6795212765957446" x="0" y="0" />
     <window name="ViewersWindow" width="0.1772793053545586" height="0.33643617021276595" x="0" y="0" />
     <window name="ListenersWindow" width="0.1772793053545586" height="0.33643617021276595" x="0" y="0.34308510638297873" />
   </layout>

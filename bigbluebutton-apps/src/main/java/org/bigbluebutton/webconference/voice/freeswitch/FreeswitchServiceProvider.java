@@ -51,6 +51,11 @@ public class FreeswitchServiceProvider implements ConferenceServiceProvider {
 	}
 
 	@Override
+	public void ejectAll(String room) {
+		appDelegate.ejectAll(room);
+	}
+	
+	@Override
 	public void mute(String room, Integer participant, Boolean mute) {
 		appDelegate.mute(room, participant, mute);
 	}
@@ -111,4 +116,6 @@ public class FreeswitchServiceProvider implements ConferenceServiceProvider {
 		conferenceEventListener = l;		
 		appDelegate.setConferenceEventListener(conferenceEventListener);
 	}
+
+
 }

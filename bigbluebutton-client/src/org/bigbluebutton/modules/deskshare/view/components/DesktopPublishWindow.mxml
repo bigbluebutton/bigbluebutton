@@ -238,12 +238,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var vidH:Number = captureHeight;
 				
 				// Don't scale if capture dimension is smaller than window.
-				if ((captureWidth > this.width - VID_WIDTH_PAD) && (captureHeight > this.height - VID_HEIGHT_PAD)) {
+				if((captureWidth > this.width - VID_WIDTH_PAD) && (captureHeight < this.height - VID_HEIGHT_PAD)){
+					vidW = this.width - VID_WIDTH_PAD;
+					vidH = (captureHeight / captureWidth) * vidW;
+				}
+				else if( ((captureWidth < this.width - VID_WIDTH_PAD) && (captureHeight > this.height - VID_HEIGHT_PAD)) 
+				|| ((captureWidth > this.width - VID_WIDTH_PAD) && (captureHeight > this.height - VID_HEIGHT_PAD)) ){
 					vidH = this.height - VID_HEIGHT_PAD;
 					vidW = (captureWidth / captureHeight) * vidH;
-					vidW = vidW + VID_WIDTH_PAD;
-				} 
-				
+				}
+				else{
+					vidW = captureWidth;
+					vidH = captureHeight;
+				}
 
 				LogUtil.debug("deskshare preview[" + captureWidth + "," + captureHeight + "][" + vidW + "," + vidH + "]");
 				video = new Video(vidW, vidH);

@@ -19,8 +19,6 @@
 package org.bigbluebutton.webconference.voice.freeswitch;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Observable;
@@ -33,6 +31,7 @@ import org.bigbluebutton.webconference.voice.events.ParticipantMutedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantTalkingEvent;
 import org.bigbluebutton.webconference.voice.events.StartRecordingEvent;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.BroadcastConferenceCommand;
+import org.bigbluebutton.webconference.voice.freeswitch.actions.EjectAllUsersCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.EjectParticipantCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.PopulateRoomCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.MuteParticipantCommand;
@@ -143,6 +142,20 @@ public class FreeswitchApplication extends Observable implements ConferenceServi
         	EjectParticipantCommand mpc = new EjectParticipantCommand(room, participant, USER);
             String jobId = c.sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
             log.debug("eject/kick called for room [{}] jobid [{}]", room, jobId);        	
+        }else {
+        	log.warn("Can't send eject request to FreeSWITCH as we are not connected.");
+        	// Let's see if we can recover the connection.
+        	startHeartbeatMonitor();
+        }
+    }
+
+    @Override
+    public void ejectAll(String room) {
+        Client c = manager.getESLClient();
+        if (c.canSend()) {
+        	EjectAllUsersCommand mpc = new EjectAllUsersCommand(room, USER);
+            String jobId = c.sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
+            log.debug("eject all user from room [{}], jobid [{}]", room, jobId);        	
         }else {
         	log.warn("Can't send eject request to FreeSWITCH as we are not connected.");
         	// Let's see if we can recover the connection.
