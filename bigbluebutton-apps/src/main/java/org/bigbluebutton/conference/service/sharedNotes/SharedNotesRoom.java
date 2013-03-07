@@ -38,6 +38,7 @@ public class SharedNotesRoom {
 
 	private final String name;
 	private final Map<String, ISharedNotesRoomListener> listeners;
+	private final Map<Long, ClientSharedNotes> clients;
 	private String _document = "";
 
 	public SharedNotesRoom(String name) {
