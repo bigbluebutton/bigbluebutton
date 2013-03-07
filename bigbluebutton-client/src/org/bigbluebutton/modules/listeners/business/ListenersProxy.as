@@ -23,6 +23,9 @@ package org.bigbluebutton.modules.listeners.business
 	import mx.collections.ArrayCollection;
 	import mx.controls.Alert;
 	
+	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.main.model.users.BBBUser;
+	import org.bigbluebutton.main.model.users.events.KickUserEvent;
 	import org.bigbluebutton.modules.listeners.business.vo.Listeners;
 	import org.bigbluebutton.modules.listeners.events.ListenersCommand;
 	import org.bigbluebutton.modules.listeners.events.ListenersEvent;
@@ -111,6 +114,11 @@ package org.bigbluebutton.modules.listeners.business
 			_listenersService.muteAllUsers(false);
 		}
 		
+    public function kickUser(event:KickUserEvent):void {
+      var user:BBBUser = UsersUtil.getUser(event.userid);
+      _listenersService.ejectUser(user.voiceUserid);
+    }
+ 
 		public function ejectUser(command:ListenersCommand):void
 		{
 			_listenersService.ejectUser(command.userid);			

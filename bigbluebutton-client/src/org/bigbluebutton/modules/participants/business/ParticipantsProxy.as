@@ -22,11 +22,14 @@ package org.bigbluebutton.modules.participants.business
 	
 	import mx.collections.ArrayCollection;
 	
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.modules.participants.events.VoiceConfEvent;
-	import org.bigbluebutton.modules.participants.events.ParticipantsEvent; 
+	import org.bigbluebutton.main.model.users.BBBUser;
+	import org.bigbluebutton.main.model.users.events.KickUserEvent;
+	import org.bigbluebutton.modules.participants.events.ParticipantsEvent;
 	import org.bigbluebutton.modules.participants.events.StartParticipantsModuleEvent;
 	import org.bigbluebutton.modules.participants.events.StopParticipantsModuleEvent;
+	import org.bigbluebutton.modules.participants.events.VoiceConfEvent;
 
 	public class ParticipantsProxy
 	{		
@@ -85,7 +88,12 @@ package org.bigbluebutton.modules.participants.business
 		public function unmuteAllUsers(command:VoiceConfEvent):void{
 			_listenersService.muteAllUsers(false);
 		}
-		
+
+    public function kickUser(event:KickUserEvent):void {
+      var user:BBBUser = UsersUtil.getUser(event.userid);
+      _listenersService.ejectUser(user.voiceUserid);
+    }
+      
 		public function ejectUser(command:VoiceConfEvent):void
 		{
 			_listenersService.ejectUser(command.userid);			

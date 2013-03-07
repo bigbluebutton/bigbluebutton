@@ -16,18 +16,16 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.webconference.voice;
+package org.bigbluebutton.webconference.voice.freeswitch.actions;
 
-import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
+public class EjectAllUsersCommand extends FreeswitchCommand {
+    
+    public EjectAllUsersCommand(String room, Integer requesterId) {
+            super(room, requesterId);
+    }
 
-public interface ConferenceServiceProvider {
-	public boolean startup();
-	public void shutdown();
-	public void populateRoom(String room);
-	public void mute(String room, Integer participant, Boolean mute);	
-	public void eject(String room, Integer participant);
-	public void ejectAll(String room);
-	public void record(String room, String meetingid);
-	public void broadcast(String room, String meetingid);
-	public void setConferenceEventListener(ConferenceEventListener l);
+    @Override
+    public String getCommandArgs() {
+        return room + " kick all";
+    }
 }
