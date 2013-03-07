@@ -281,8 +281,6 @@ button:focus, textarea:focus, input:focus {
 #slide {
   position: relative;
   margin: 0 auto;
-  width: 805px;
-  height: 610px;
   overflow:hidden; /* so they don't overlap */
 }
 
