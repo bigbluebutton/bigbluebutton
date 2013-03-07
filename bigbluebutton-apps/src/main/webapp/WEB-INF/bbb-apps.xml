@@ -26,6 +26,22 @@
 	<bean id="participants.service" class="org.bigbluebutton.conference.service.participants.ParticipantsService">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
 	</bean>
+
+	<!-- BEGIN SHARED NOTES -->	
+	<bean id="sharedNotesRoomsManager" class="org.bigbluebutton.conference.service.sharedNotes.SharedNotesRoomsManager"/>
+
+	<bean id="sharedNotesHandler" class="org.bigbluebutton.conference.service.sharedNotes.SharedNotesHandler">
+		<property name="sharedNotesApplication"><ref local="sharedNotesApplication"/></property>
+	</bean>
+
+	<bean id="sharedNotesApplication" class="org.bigbluebutton.conference.service.sharedNotes.SharedNotesApplication">
+		<property name="roomsManager"><ref local="sharedNotesRoomsManager"/></property>
+	</bean>
+
+	<bean id="sharedNotes.service" class="org.bigbluebutton.conference.service.sharedNotes.SharedNotesService">
+		<property name="sharedNotesApplication"><ref local="sharedNotesApplication"/></property>
+	</bean>	
+	<!-- END SHARED NOTES -->	
 	
 	<!-- BEGIN PRESENTATION -->	
 	<bean id="presentationRoomsManager" class="org.bigbluebutton.conference.service.presentation.PresentationRoomsManager"/>
