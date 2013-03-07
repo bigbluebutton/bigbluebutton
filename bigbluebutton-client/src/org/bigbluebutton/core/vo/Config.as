@@ -27,7 +27,7 @@ package org.bigbluebutton.core.vo {
 		private var _host:String;
 		private var _numModules:int;
 		private var _languageEnabled:Boolean;
-		private var _shortcutKeysEnabled:Boolean;
+		private var _shortcutKeysShowButton:Boolean;
 		private var _skinning:String = "";
 		private var _showDebug:Boolean = false;
 		
@@ -41,7 +41,7 @@ package org.bigbluebutton.core.vo {
 			_host = builder.host;
 			_numModules = builder.numModules;
 			_languageEnabled = builder.languageEnabled;
-			_shortcutKeysEnabled = builder.shortcutKeysEnabled;
+			_shortcutKeysShowButton = builder.shortcutKeysShowButton;
 			_skinning = builder.skinning;
 			_showDebug = builder.showDebug;
 		}
@@ -82,8 +82,8 @@ package org.bigbluebutton.core.vo {
 			return _languageEnabled;
 		}
 		
-		public function get shortcutKeysEnabled():Boolean {
-			return _shortcutKeysEnabled;
+		public function get shortcutKeysShowButton():Boolean {
+			return _shortcutKeysShowButton;
 		}
 		
 		public function get skinning():String {
