@@ -251,6 +251,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 		
 		private function onCameraAccessAllowed():void {
+			_cameraAccessDenied = false;
+			
 			// set timer to ensure that the camera activates.  If not, it might be in use by another application
 			_waitingForActivation = true;
 			if (_activationTimer != null) {
