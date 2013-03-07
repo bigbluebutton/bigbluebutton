@@ -24,7 +24,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import mx.events.FlexEvent;
-			
+      import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.modules.participants.business.ParticipantsProxy;
 			import org.bigbluebutton.modules.participants.events.VoiceConfEvent;
 			import org.bigbluebutton.modules.participants.events.StartParticipantsModuleEvent;
@@ -48,7 +48,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{ParticipantsProxy}" method="disconnect" />
 		<MethodInvoker generator="{ParticipantsManager}" method="moduleEnded" />
 	</EventHandlers>
-	
+
+  <EventHandlers type="{KickUserEvent.KICK_USER}" >
+    <MethodInvoker generator="{ParticipantsProxy}" method="kickUser" arguments="{event}" />
+  </EventHandlers>
+
+  
 	<EventHandlers type="{VoiceConfEvent.EJECT_USER}" >
 		<MethodInvoker generator="{ParticipantsProxy}" method="ejectUser" arguments="{event}" />
 	</EventHandlers>
