@@ -77,7 +77,6 @@ define [
     _createPaper: ->
       # have to create the paper here, in the initializer #slide doesn't exist yet
       container = @$("#slide")[0]
-      console.log container
       textbox = @$("#slide-current-text-area")[0]
       @paper ?= new WhiteboardPaperModel(container, textbox)
       @paper.create()

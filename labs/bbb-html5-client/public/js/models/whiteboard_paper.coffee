@@ -22,10 +22,13 @@ define [
 
     # Container must be a DOM element
     initialize: (@container, @textbox) ->
-      $parent = $(container.parentNode)
+      $parent = $(container)
 
+      console.log $parent
       @gw = $parent.width()
       @gh = $parent.height()
+      @gw = null
+      @gh = null
       # x-offset from top left corner as percentage of original width of paper
       @cx = null
       # y-offset from top left corner as percentage of original height of paper
@@ -80,6 +83,7 @@ define [
     # are not yet created in the page.
     create: ->
       # paper is embedded within the div#slide of the page.
+      console.log @container, @gw, @gh
       @raphaelObj ?= ScaleRaphael(@container, @gw, @gh)
       @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
       @cursor = @raphaelObj.circle(0, 0, @cursorRadius)
