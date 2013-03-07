@@ -108,6 +108,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.managers.SlideManager;
 			import org.bigbluebutton.modules.present.ui.views.PresentOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.model.users.Conference;
              			
       public static const TITLE:String = "Presentation";
 			private static const NEXT_BUTTON:String = "Next";
@@ -119,6 +122,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public var uploadWindow:FileUploadWindow = null;
 			private var slideManager:SlideManager = new SlideManager();
 			private var pageDialog:GotoPageDialog;
+			private var conference:Conference;
+			
 			
 			[Bindable] private var DEFAULT_X_POSITION:Number = 237;
 			[Bindable] private var DEFAULT_Y_POSITION:Number = 0;
@@ -161,6 +166,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
 				//LogUtil.debug("WATERFALL slideView.tabIndex is " + slideView.tabIndex);
 				resourcesChanged();
+				conference = UserManager.getInstance().getConference();
 				
 				titleBarOverlay.tabIndex = baseIndex;
 				
@@ -617,27 +623,39 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function remoteUpload(e:ShortcutEvent):void{
-				dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW));
+				if (conference.amIPresenter()){
+					dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW));
+				}
 			}
 			
 			private function remotePrevious(e:ShortcutEvent):void{
-				gotoPreviousSlide();
+				if (conference.amIPresenter()){
+					gotoPreviousSlide();
+				}
 			}
 			
 			private function remoteSelect(e:ShortcutEvent):void{
-				showThumbnails();
+				if (conference.amIPresenter()){
+					showThumbnails();
+				}
 			}
 			
 			private function remoteNext(e:ShortcutEvent):void{
-				gotoNextSlide();
+				if (conference.amIPresenter()){
+					gotoNextSlide();
+				}
 			}
 			
 			private function remoteWidth(e:ShortcutEvent):void{
-				onFitToPage(false);
+				if (conference.amIPresenter()){
+					onFitToPage(false);
+				}
 			}
 			
 			private function remotePage(e:ShortcutEvent):void{
-				onFitToPage(true);
+				if (conference.amIPresenter()){
+					onFitToPage(true);
+				}
 			}
 			
 			private function onUploadButtonClicked():void {

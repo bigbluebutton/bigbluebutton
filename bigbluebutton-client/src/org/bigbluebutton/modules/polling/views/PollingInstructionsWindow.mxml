@@ -35,6 +35,13 @@ Notes.mxml is the main view of the SharedNotes application
 	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_ANSWERS}" method="focusAnswers" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_MULT_CHECK}" method="focusMultiple" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_WEBPOLL_CHECK}" method="focusWebpoll" />
+	
+	<mate:Listener type="{ShortcutEvent.POLL_PREVIEW}" method="previewClick" />
+	<mate:Listener type="{ShortcutEvent.POLL_CANCEL}" method="cancelClick" />
+	
+	<mate:Listener type="{ShortcutEvent.POLL_MODIFY}" method="modifyClick" />
+	<mate:Listener type="{ShortcutEvent.POLL_PUBLISH}" method="publishClick" />
+	<mate:Listener type="{ShortcutEvent.POLL_SAVE}" method="saveClick" />
 
 <!-- Pre Defined Validation -->
 	<mx:Script>
@@ -96,6 +103,7 @@ Notes.mxml is the main view of the SharedNotes application
 		[Bindable] public var incomingPoll:PollObject;
 		[Bindable] public var editing:Boolean;
 		private var keyCombos:Object;
+		private var allowPreview:Boolean = true;
 		
 		// LENGTH CONSTRAINTS ( CHANGE IF YOU NEED)
 		//################################################
@@ -158,6 +166,12 @@ Notes.mxml is the main view of the SharedNotes application
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusMultipleCB') as String)] = ShortcutEvent.FOCUS_MULT_CHECK;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusWebPollCB') as String)] = ShortcutEvent.FOCUS_WEBPOLL_CHECK;
 				
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.previewClick') as String)] = ShortcutEvent.POLL_PREVIEW;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.cancelClick') as String)] = ShortcutEvent.POLL_CANCEL;
+				
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.modify') as String)] = ShortcutEvent.POLL_MODIFY;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.publish') as String)] = ShortcutEvent.POLL_PUBLISH;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.save') as String)] = ShortcutEvent.POLL_SAVE;
 			}
 			
 			private function hotkeyCapture():void{
@@ -214,34 +228,37 @@ Notes.mxml is the main view of the SharedNotes application
 		// DATA VALIDATION
 		//##################################################################################
 		private function validateAndSubmit():void {
-			var valid:Boolean = true;
-			// Gathering Error Messages
-			titleErrMsg.text = titleError();
-			qErrMsg.text = questionError();
-			aErrMsg.text = answerError();
-			// Making Error messages Visible if there is an Error
-			if (titleErrMsg.text != "VALID"){ // checking if function returned any error string
-				titleErrMsg.visible=true;
-				valid = false; // setting flag to false in case of error
-			}else
-				titleErrMsg.visible=false;
-			if(qErrMsg.text != "VALID"){
-				qErrMsg.visible=true;
-				valid = false;
-			} else
-				qErrMsg.visible=false;
-			if (aErrMsg.text != "VALID") {
-				aErrMsg.visible=true;
-				valid = false;
-			}else
-				aErrMsg.visible=false;
-			if(valid){
-				formatAndReview();
-			}else{
-				LogUtil.error(LOGNAME + "Error occurred in poll validation");
-			}
-			allowPublishing();
-			publishButton.enabled = publishingAllowed;
+			if (allowPreview){
+				allowPreview = false;
+				var valid:Boolean = true;
+				// Gathering Error Messages
+				titleErrMsg.text = titleError();
+				qErrMsg.text = questionError();
+				aErrMsg.text = answerError();
+				// Making Error messages Visible if there is an Error
+				if (titleErrMsg.text != "VALID"){ // checking if function returned any error string
+					titleErrMsg.visible=true;
+					valid = false; // setting flag to false in case of error
+				}else
+					titleErrMsg.visible=false;
+				if(qErrMsg.text != "VALID"){
+					qErrMsg.visible=true;
+					valid = false;
+				} else
+					qErrMsg.visible=false;
+				if (aErrMsg.text != "VALID") {
+					aErrMsg.visible=true;
+					valid = false;
+				}else
+					aErrMsg.visible=false;
+				if(valid){
+					formatAndReview();
+				}else{
+					LogUtil.error(LOGNAME + "Error occurred in poll validation");
+				}
+				allowPublishing();
+				publishButton.enabled = publishingAllowed;
+			}			
 		}
 		
 		// GENERATING ERROR MESSAGES
@@ -329,6 +346,7 @@ Notes.mxml is the main view of the SharedNotes application
 		//#####################################################################################################
 		
 		public function goBack():void{
+			allowPreview = true;
 			back.visible=false;
 			publishButton.visible=false;
 			options.removeAllChildren();
@@ -490,6 +508,32 @@ Notes.mxml is the main view of the SharedNotes application
 			private function focusWebpoll(e:ShortcutEvent):void{
 				if (publishToWeb_response.enabled && publishToWeb_response.visible){
 					focusManager.setFocus(publishToWeb_response);
+				}
+			}
+			private function previewClick(e:ShortcutEvent):void{
+				if (next.enabled && next.visible){
+					validateAndSubmit();
+				}
+			}
+			private function cancelClick(e:ShortcutEvent):void{
+				if (Cancel.enabled && Cancel.visible){
+					closeInstructionsWindow();
+				}
+			}
+			
+			private function modifyClick(e:ShortcutEvent):void{
+				if (back.enabled && back.visible){
+					goBack();
+				}
+			}
+			private function publishClick(e:ShortcutEvent):void{
+				if (publishButton.enabled && publishButton.visible){
+					publish();
+				}
+			}
+			private function saveClick(e:ShortcutEvent):void{
+				if (SavePoll.enabled && SavePoll.visible){
+					savePoll();
 				}
 			}
 		]]>

@@ -89,7 +89,8 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		
 		private function moveInstructionsFocus(event:TimerEvent):void{
-			appFM.setFocus(instructionsWindow.pollTitle);
+			//appFM.setFocus(instructionsWindow.pollTitle);
+			appFM.setFocus(instructionsWindow.titleBarOverlay);
 			instructionsFocusTimer.stop();
 		}
 		

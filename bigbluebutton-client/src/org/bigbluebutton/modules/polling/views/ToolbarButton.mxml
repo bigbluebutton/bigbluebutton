@@ -88,9 +88,7 @@
 				renderMenu();
 				conference = UserManager.getInstance().getConference();
 				
-				this.addEventListener(FocusEvent.FOCUS_IN, updateMenuByEvent);
-				this.addEventListener(FocusEvent.FOCUS_OUT, onFocusOut);
-				
+				this.addEventListener(FocusEvent.FOCUS_IN, updateMenuByEvent);				
 				//LogUtil.debug(LOGNAME + "Poll button init complete. [/init()]");
             }
 			
@@ -233,10 +231,6 @@
 				else{
 					remoteOpenPollingMenu(e);
 				}
-			}
-			
-			private function onFocusOut(e:FocusEvent):void{
-				LogUtil.debug("FOCUS OUT, dudes.");
 			}
 		]]>
 	</mx:Script>  

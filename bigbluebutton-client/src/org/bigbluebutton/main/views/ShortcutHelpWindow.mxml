@@ -66,7 +66,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var pollResource:Array = ['bbb.shortcutkey.polling.focusTitle', 'bbb.shortcutkey.polling.focusQuestion', 'bbb.shortcutkey.polling.focusAnswers', 
 											  'bbb.shortcutkey.polling.focusMultipleCB', 'bbb.shortcutkey.polling.focusWebPollCB', 'bbb.shortcutkey.polling.previewClick', 
-											  'bbb.shortcutkey.polling.cancelClick'];
+											  'bbb.shortcutkey.polling.cancelClick', 'bbb.shortcutkey.polling.modify', 'bbb.shortcutkey.polling.publish', 
+											  'bbb.shortcutkey.polling.save'];
 			
 			[Bindable]
 			private var shownKeys:ArrayCollection;
