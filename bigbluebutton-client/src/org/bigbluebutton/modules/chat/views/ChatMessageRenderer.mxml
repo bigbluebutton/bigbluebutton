@@ -21,7 +21,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" verticalAlign="top" 
-		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*" dataChange="validateNow()"
+		 verticalScrollPolicy="off" xmlns:common="org.bigbluebutton.common.*"
 		 creationComplete="onCreationComplete()">
 	
 	<mx:Script>
@@ -46,12 +46,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				 * do this, we'll get a stale data which will display the chat 
 				 * message repeatedly. (ralam Nov 1, 2010)
 				 */
-				ChangeWatcher.watch(this, "data", dataChangeHandler);
-				if (data != null) {
-					chatMsg = data as ChatMessage;
-					data = null;
-					chatMsg.translateMessage();					
-				}
+				//ChangeWatcher.watch(this, "data", dataChangeHandler);
+				//dataChangeHandler(); // call to intialize
 				
 				/**
 				 * The next line will refresh the display so that chat history don't show up as
@@ -62,13 +58,42 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				validateNow();
 			}
 			
-			private function dataChangeHandler(e:Event = null):void{
-				if (data == null) {
-					return;
-				}				
-				chatMsg = data as ChatMessage;
-				data = null;
-				chatMsg.translateMessage();	
+			//private function dataChangeHandler(e:Event = null):void{
+			override public function set data(value:Object):void {
+				//if (data == null) {
+				//	return;
+				//}		
+				super.data = value;
+				
+				//chatMsg = data as ChatMessage;
+				//data = null;
+				
+				if (data == null) return;
+				
+				data.translateMessage();
+				
+				/*
+				   This is setting the backgroundColor style. It changes the value correct and the if 
+				   statement works, but the style never takes effect. I have no idea what's wrong.
+				   		Chad
+				 */
+				//LogUtil.debug ("senderId: " + data.senderId);
+				//LogUtil.debug("backColor " + this.getStyle("backgroundColor") + "alpha " + this.getStyle("backgroundAlpha"));
+				if (data.senderId == " ") {
+					this.setStyle("backgroundColor", 0xff0000);
+				} else {
+					this.setStyle("backgroundColor", 0x00ff00);
+				}
+				
+				// The visibility check has to go here becasue ORs don't work with databinding
+				lblTime.visible = (!(data.lastTime == data.time) || !(data.senderId == data.lastSenderId));
+				// check the visibility of the name as well because events might fire in different order
+				lblName.visible = !(data.senderId == data.lastSenderId);
+				
+				//remove the header if not needed to save space
+				hbHeader.includeInLayout = hbHeader.visible = lblName.visible || lblTime.visible;
+				
+				validateNow();
 			}
 			
 			private function onRollOver():void{
@@ -82,16 +107,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	
-  <mx:HBox width="100%">
-    <mx:Label id="lblName" text="{chatMsg.name} " visible="{!(chatMsg.senderId == chatMsg.lastSenderId)}" color="gray" width="100%" textAlign="left"/>
+  <mx:HBox width="100%" id="hbHeader">
+    <mx:Label id="lblName" text="{data.name} " visible="true" color="gray" width="100%" textAlign="left"/>
     <mx:Spacer width="100%"/>
-    <mx:Text id="lblTime" htmlText="{chatMsg.translateLocale} {rolledOver ? chatMsg.senderTime : chatMsg.time}" textAlign="right"
-             visible="{!(chatMsg.lastTime == chatMsg.time) || !(chatMsg.senderId == chatMsg.lastSenderId)}" 
+    <mx:Text id="lblTime" htmlText="{data.translateLocale} {rolledOver ? data.senderTime : data.time}" textAlign="right"
+             visible="true" 
              color="gray"  width="100%"/>       
   </mx:HBox>
   <mx:HBox width="100%">
     <mx:Spacer width="5"/>
-    <mx:Text id="txtMessage" htmlText="{rolledOver ? chatMsg.senderText : chatMsg.translatedText}" link="onLinkClick(event)" color="{chatMsg.senderColor}"
+    <mx:Text id="txtMessage" htmlText="{rolledOver ? data.senderText : data.translatedText}" link="onLinkClick(event)" color="{data.senderColor}"
              rollOver="onRollOver()" rollOut="onRollOut()" width="100%" selectable="true"/>
   </mx:HBox>  
 </mx:VBox>
