@@ -21,18 +21,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
 	<mx:Script>
 		<![CDATA[
-      import mx.events.FlexEvent;
-      
-      import org.bigbluebutton.core.EventConstants;
-      import org.bigbluebutton.main.events.MadePresenterEvent;
-      import org.bigbluebutton.modules.layout.events.ConnectionEvent;
-      import org.bigbluebutton.modules.layout.events.LayoutEvent;
-      import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
-      import org.bigbluebutton.modules.layout.events.StartLayoutModuleEvent;
-      import org.bigbluebutton.modules.layout.events.UpdateLayoutEvent;
-      import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
-      import org.bigbluebutton.modules.layout.managers.LayoutManager;
-      import org.bigbluebutton.modules.layout.services.LayoutService;
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.core.EventConstants;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
+			import org.bigbluebutton.modules.layout.events.ConnectionEvent;
+			import org.bigbluebutton.modules.layout.events.LayoutEvent;
+			import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
+			import org.bigbluebutton.modules.layout.events.StartLayoutModuleEvent;
+			import org.bigbluebutton.modules.layout.events.UpdateLayoutEvent;
+			import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
+			import org.bigbluebutton.modules.layout.managers.LayoutManager;
+			import org.bigbluebutton.modules.layout.services.LayoutService;
 		]]>
 	</mx:Script>
 
@@ -51,6 +52,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
    		<MethodInvoker generator="{LayoutManager}" method="setCanvas" arguments="{event.canvas}" />
    		<MethodInvoker generator="{LayoutService}" method="join" />
     </EventHandlers>
+    
+    <EventHandlers type="{ComboBoxCreatedEvent.COMBOBOX_CREATED_EVENT}">
+   		<MethodInvoker generator="{LayoutManager}" method="comboboxInitialized"/>
+	</EventHandlers>
+    
+    
     
     <EventHandlers type="{LayoutEvent.STOP_LAYOUT_MODULE_EVENT}">
    		<MethodInvoker generator="{LayoutService}" method="leave" />
