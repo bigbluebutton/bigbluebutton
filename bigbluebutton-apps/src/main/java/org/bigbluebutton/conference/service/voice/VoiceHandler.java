@@ -98,7 +98,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
 		  			
-		ISharedObject so = getSharedObject(connection.getScope(), VOICE_SO);
+		ISharedObject so = getSharedObject(connection.getScope(), VOICE_SO, false);
 	    		
     	String voiceBridge = getBbbSession().getVoiceBridge();
     	String meetingid = getBbbSession().getConference(); 

@@ -89,7 +89,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
 		 
-		ISharedObject so = getSharedObject(connection.getScope(), PARTICIPANTS_SO);
+		ISharedObject so = getSharedObject(connection.getScope(), PARTICIPANTS_SO, false);
     	ParticipantsEventSender sender = new ParticipantsEventSender(so);
     	ParticipantsEventRecorder recorder = new ParticipantsEventRecorder(connection.getScope().getName(), recorderApplication);
     			

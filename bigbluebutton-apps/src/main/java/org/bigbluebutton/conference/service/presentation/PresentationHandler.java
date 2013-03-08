@@ -82,26 +82,13 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
 		
-		IScope scope = Red5.getConnectionLocal().getScope();
-		
-    	if (!hasSharedObject(scope, PRESENTATION_SO)) {
-    		if (createSharedObject(scope, PRESENTATION_SO, false)) {   
-    			ISharedObject so = getSharedObject(connection.getScope(), PRESENTATION_SO);
-    			
-    			log.debug("Setting up recorder");
-    			PresentationEventSender sender = new PresentationEventSender(so);
-    			PresentationEventRecorder recorder = new PresentationEventRecorder(connection.getScope().getName(), recorderApplication);
-    							
-    			log.debug("Adding room listener");
-    			presentationApplication.addRoomListener(connection.getScope().getName(), recorder);
-    			presentationApplication.addRoomListener(connection.getScope().getName(), sender);
-    			log.debug("Done setting up recorder and listener");
-    			return true;
-    		}
-    	}
-    			
-
-		return false;
+		ISharedObject so = getSharedObject(connection.getScope(), PRESENTATION_SO, false);
+		PresentationEventSender sender = new PresentationEventSender(so);
+		PresentationEventRecorder recorder = new PresentationEventRecorder(connection.getScope().getName(), recorderApplication);
+    	presentationApplication.addRoomListener(connection.getScope().getName(), recorder);
+    	presentationApplication.addRoomListener(connection.getScope().getName(), sender);
+    	
+    	return true;
 	}
 
 	@Override

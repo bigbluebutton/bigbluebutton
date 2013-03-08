@@ -88,7 +88,7 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
 		
-		ISharedObject so = getSharedObject(connection.getScope(), LAYOUT_SO);
+		ISharedObject so = getSharedObject(connection.getScope(), LAYOUT_SO, false);
     	log.debug("Setting up Listener");
     	LayoutSender sender = new LayoutSender(so);
     	String room = connection.getScope().getName();
