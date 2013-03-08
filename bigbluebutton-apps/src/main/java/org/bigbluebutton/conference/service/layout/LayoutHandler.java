@@ -23,7 +23,6 @@ import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.adapter.IApplication;
 import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
-import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
 import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
@@ -38,74 +37,64 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
-		log.debug(APP + ":appConnect");
+		log.debug("appConnect");
 		return true;
 	}
 
 	@Override
 	public void appDisconnect(IConnection conn) {
-		log.debug( APP + ":appDisconnect");
+		log.debug("appDisconnect");
 	}
 
 	@Override
 	public boolean appJoin(IClient client, IScope scope) {
-		log.debug( APP + ":appJoin " + scope.getName());
+		log.debug("appJoin: " + scope.getName());
 		return true;
 	}
 
 	@Override
 	public void appLeave(IClient client, IScope scope) {
-		log.debug(APP + ":appLeave " + scope.getName());
+		log.debug("appLeave: " + scope.getName());
 	}
 
 	@Override
 	public boolean appStart(IScope scope) {
-		log.debug(APP + ":appStart " + scope.getName());
+		this.scope = scope;
+		log.debug("appStart: " + scope.getName());
 		return true;
 	}
 
 	@Override
 	public void appStop(IScope scope) {
-		log.debug(APP + ":appStop " + scope.getName());
+		log.debug("appStop: " + scope.getName());
 	}
-
-	@Override
-	public boolean roomConnect(IConnection connection, Object[] params) {
-		log.debug(APP + ":roomConnect");
-		
-		IScope scope = Red5.getConnectionLocal().getScope();
-		
-    	if (!hasSharedObject(scope, LAYOUT_SO)) {
-    		if (createSharedObject(scope, LAYOUT_SO, false)) {   
-    			ISharedObject so = getSharedObject(connection.getScope(), LAYOUT_SO);
-    			log.debug("Setting up Listener");
-    			LayoutSender sender = new LayoutSender(so);
-    			String room = connection.getScope().getName();
-    			log.debug("Adding event listener to " + room);
-    			log.debug("Adding room listener");
-    			layoutApplication.addRoomListener(room, sender);
-    			log.debug("Done setting up listener");
-    			return true;
-    		}    		
-    	}  	
-    	
-		return false;
-	}
-
+	
 	@Override
 	public void roomDisconnect(IConnection connection) {
-		log.debug(APP + ":roomDisconnect");
+		log.debug("roomDisconnect");
 	}
 
 	@Override
 	public boolean roomJoin(IClient client, IScope scope) {
-		log.debug(APP + ":roomJoin " + scope.getName() + " - " + scope.getParent().getName());
+		log.debug("roomJoin " + scope.getName(), scope.getParent().getName());
 		return true;
 	}
-
+	
 	@Override
-	public void roomLeave(IClient client, IScope scope) {
-		log.debug(APP + ":roomLeave " + scope.getName());
+	public boolean roomConnect(IConnection connection, Object[] params) {
+		System.out.println("********* " + APP + ":roomConnect");
+		
+		log.debug(APP + ":roomConnect");
+		
+		ISharedObject so = getSharedObject(connection.getScope(), LAYOUT_SO);
+    	log.debug("Setting up Listener");
+    	LayoutSender sender = new LayoutSender(so);
+    	String room = connection.getScope().getName();
+    	log.debug("Adding event listener to " + room);
+    	log.debug("Adding room listener");
+    	layoutApplication.addRoomListener(room, sender);
+    	log.debug("Done setting up listener");
+    	return true;
 	}
 	
 	@Override
@@ -126,6 +115,8 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 	}
 	
 	public void setLayoutApplication(LayoutApplication a) {
+		System.out.println("****** Setting layout application ********");
+		
 		log.debug("Setting layout application");
 		layoutApplication = a;
 		layoutApplication.handler = this;

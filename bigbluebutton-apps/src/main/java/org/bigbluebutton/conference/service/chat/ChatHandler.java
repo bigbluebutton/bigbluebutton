@@ -69,15 +69,7 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 	public void appStop(IScope scope) {
 		log.debug("appStop: " + scope.getName());
 	}
-
-	@Override
-	public boolean roomConnect(IConnection connection, Object[] params) {
-		ChatEventRecorder recorder = new ChatEventRecorder(connection.getScope().getName(), recorderApplication);
-		chatApplication.addRoomListener(connection.getScope().getName(), recorder);
-
-		return true;
-	}
-
+	
 	@Override
 	public void roomDisconnect(IConnection connection) {
 		log.debug("roomDisconnect");
@@ -92,6 +84,14 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 	@Override
 	public void roomLeave(IClient client, IScope scope) {
 		log.debug("roomLeave: " + scope.getName());
+	}
+
+	@Override
+	public boolean roomConnect(IConnection connection, Object[] params) {
+		ChatEventRecorder recorder = new ChatEventRecorder(connection.getScope().getName(), recorderApplication);
+		chatApplication.addRoomListener(connection.getScope().getName(), recorder);
+
+		return true;
 	}
 
 	@Override

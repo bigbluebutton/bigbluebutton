@@ -25,6 +25,7 @@ import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.IApplication;
 import org.red5.server.adapter.MultiThreadedApplicationAdapter;
+import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
 import org.red5.server.api.IContext;
 import org.red5.server.api.scope.IScope;
@@ -40,7 +41,40 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 	private RecorderApplication recorderApplication;
 	private AbstractApplicationContext appCtx;
 	private ConnectionInvokerService connInvokerService;
-		
+	
+	@Override
+	public boolean appConnect(IConnection conn, Object[] params) {
+		log.debug("appConnect");
+		return true;
+	}
+
+	@Override
+	public void appDisconnect(IConnection conn) {
+		log.debug("appDisconnect");
+	}
+
+	@Override
+	public boolean appJoin(IClient client, IScope scope) {
+		log.debug("appJoin: " + scope.getName());
+		return true;
+	}
+
+	@Override
+	public void appLeave(IClient client, IScope scope) {
+		log.debug("appLeave: " + scope.getName());
+	}
+	
+	@Override
+	public boolean roomJoin(IClient client, IScope scope) {
+		log.debug("roomJoin " + scope.getName(), scope.getParent().getName());
+		return true;
+	}
+	
+	@Override
+	public void roomLeave(IClient client, IScope scope) {
+		log.debug("roomLeave: " + scope.getName());
+	}
+	
 	@Override
     public boolean appStart(IScope app) {
         log.debug("Starting BigBlueButton "); 
@@ -48,10 +82,11 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         appCtx = (AbstractApplicationContext) context.getApplicationContext();
         appCtx.addApplicationListener(new ShutdownHookListener());
         appCtx.registerShutdownHook();
+        super.appStart(app);
         
         connInvokerService.start();
         
-        return super.appStart(app);
+        return true;
     }
     
 	@Override
@@ -65,8 +100,10 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     public boolean roomStart(IScope room) {
     	log.debug("Starting room [" + room.getName() + "].");
     	assert participantsApplication != null;
+    	super.roomStart(room);
+    	
     	connInvokerService.addScope(room.getName(), room);
-    	return super.roomStart(room);
+    	return true;
     }	
 	
 	@Override
@@ -117,10 +154,13 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         					"session=" + sessionName + ",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID;
 		log.debug("User [{}] connected to room [{}]", debugInfo, room); 
 		participantsApplication.createRoom(room);
-        super.roomConnect(connection, params);
-        
+
+		super.roomConnect(connection, params);
+		
         connInvokerService.addConnection(bbbSession.getInternalUserID(), connection);
-    	return true;
+        
+        return true;
+        
 	}
 
 	@Override
