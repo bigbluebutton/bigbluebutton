@@ -25,69 +25,72 @@ import org.red5.server.api.IConnection;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.scope.IScope;
-import org.red5.server.adapter.ApplicationAdapter;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.conference.service.recorder.chat.ChatEventRecorder;
 
-public class ChatHandler extends ApplicationAdapter implements IApplication{
+public class ChatHandler implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger( ChatHandler.class, "bigbluebutton" );
 
 	private RecorderApplication recorderApplication;
 	private ChatApplication chatApplication;
 
+	private static final String APP = "CHAT";
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
-		log.debug("appConnect");
+		log.debug("***** " + APP + " [ " + " appConnect *********");
 		return true;
 	}
 
 	@Override
 	public void appDisconnect(IConnection conn) {
-		log.debug("appDisconnect");
+		log.debug("***** " + APP + " [ " + " appDisconnect *********");
 	}
 
 	@Override
 	public boolean appJoin(IClient client, IScope scope) {
-		log.debug("appJoin: " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appJoin [ " + scope.getName() + "] *********");
 		return true;
 	}
 
 	@Override
 	public void appLeave(IClient client, IScope scope) {
-		log.debug("appLeave: " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appLeave [ " + scope.getName() + "] *********");
 	}
 
 	@Override
 	public boolean appStart(IScope scope) {
-		this.scope = scope;
-		log.debug("appStart: " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appStart [ " + scope.getName() + "] *********");
 		return true;
 	}
 
 	@Override
 	public void appStop(IScope scope) {
-		log.debug("appStop: " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appStop [ " + scope.getName() + "] *********");
 	}
 	
 	@Override
 	public void roomDisconnect(IConnection connection) {
-		log.debug("roomDisconnect");
+		log.debug("***** " + APP + " [ " + " roomDisconnect [ " + connection.getScope().getName() + "] *********");
 	}
 
 	@Override
 	public boolean roomJoin(IClient client, IScope scope) {
-		log.debug("roomJoin " + scope.getName(), scope.getParent().getName());
+		log.debug("***** " + APP + " [ " + " roomJoin [ " + scope.getName() + "] *********");
 		return true;
 	}
 
 	@Override
 	public void roomLeave(IClient client, IScope scope) {
-		log.debug("roomLeave: " + scope.getName());
+		log.debug("***** " + APP + " [ " + " roomLeave [ " + scope.getName() + "] *********");
 	}
 
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
+		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
+		
+		chatApplication.createRoom(connection.getScope().getName());
+		
 		ChatEventRecorder recorder = new ChatEventRecorder(connection.getScope().getName(), recorderApplication);
 		chatApplication.addRoomListener(connection.getScope().getName(), recorder);
 
@@ -96,14 +99,13 @@ public class ChatHandler extends ApplicationAdapter implements IApplication{
 
 	@Override
 	public boolean roomStart(IScope scope) {
-		log.debug("roomStart " + scope.getName());
-		chatApplication.createRoom(scope.getName());
+		log.debug("***** " + APP + " [ " + " roomStart [ " + scope.getName() + "] *********");
     	return true;
 	}
 
 	@Override
 	public void roomStop(IScope scope) {
-		log.debug("roomStop ", scope.getName());
+		log.debug("***** " + APP + " [ " + " roomStop [ " + scope.getName() + "] *********");
 		chatApplication.destroyRoom(scope.getName());
 	}
 	

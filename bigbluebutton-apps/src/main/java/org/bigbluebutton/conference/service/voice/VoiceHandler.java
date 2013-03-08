@@ -37,24 +37,66 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 
 	private ClientNotifier clientManager;
 	private ConferenceService conferenceService;
-	
+
+	@Override
+	public boolean appConnect(IConnection conn, Object[] params) {
+		log.debug("***** " + APP + " [ " + " appConnect *********");
+		return true;
+	}
+
+	@Override
+	public void appDisconnect(IConnection conn) {
+		log.debug("***** " + APP + " [ " + " appDisconnect *********");
+	}
+
+	@Override
+	public boolean appJoin(IClient client, IScope scope) {
+		log.debug("***** " + APP + " [ " + " appJoin [ " + scope.getName() + "] *********");
+		return true;
+	}
+
+	@Override
+	public void appLeave(IClient client, IScope scope) {
+		log.debug("***** " + APP + " [ " + " appLeave [ " + scope.getName() + "] *********");
+	}
 
 	@Override
 	public boolean appStart(IScope scope) {
-		log.debug(APP + ":appStart " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appStart [ " + scope.getName() + "] *********");
 		return conferenceService.startup();
 	}
 
 	@Override
 	public void appStop(IScope scope) {
-		log.debug(APP + ":appStop " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appStop [ " + scope.getName() + "] *********");
 		conferenceService.shutdown();
+	}
+	
+	@Override
+	public void roomDisconnect(IConnection connection) {
+		log.debug("***** " + APP + " [ " + " roomDisconnect [ " + connection.getScope().getName() + "] *********");
+	}
+
+	@Override
+	public boolean roomJoin(IClient client, IScope scope) {
+		log.debug(APP + ":roomJoin " + scope.getName() + " - " + scope.getParent().getName());
+		return true;
+	}
+
+	@Override
+	public void roomLeave(IClient client, IScope scope) {
+		log.debug("***** " + APP + " [ " + " roomLeave [ " + scope.getName() + "] *********");
+	}
+	
+	@Override
+	public boolean roomStart(IScope scope) {
+		log.debug("***** " + APP + " [ " + " roomStart [ " + scope.getName() + "] *********");
+    	return true;
 	}
 
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
-		log.debug(APP + ":roomConnect");
-		log.debug("In live mode");
+		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
 		  			
 		ISharedObject so = getSharedObject(connection.getScope(), VOICE_SO);
 	    		
@@ -73,7 +115,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 
 	@Override
 	public void roomStop(IScope scope) {
-		log.debug(APP + ":roomStop " + scope.getName());
+		log.debug("***** " + APP + " [ " + " roomStop [ " + scope.getName() + "] *********");
 		/**
 		 * Remove the voicebridge from the list of running
 		 * voice conference.

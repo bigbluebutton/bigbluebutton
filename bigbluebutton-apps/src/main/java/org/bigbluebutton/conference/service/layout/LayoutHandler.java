@@ -37,54 +37,56 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
-		log.debug("appConnect");
+		log.debug("***** " + APP + " [ " + " appConnect *********");
 		return true;
 	}
 
 	@Override
 	public void appDisconnect(IConnection conn) {
-		log.debug("appDisconnect");
+		log.debug("***** " + APP + " [ " + " appDisconnect *********");
 	}
 
 	@Override
 	public boolean appJoin(IClient client, IScope scope) {
-		log.debug("appJoin: " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appJoin [ " + scope.getName() + "] *********");
 		return true;
 	}
 
 	@Override
 	public void appLeave(IClient client, IScope scope) {
-		log.debug("appLeave: " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appLeave [ " + scope.getName() + "] *********");
 	}
 
 	@Override
 	public boolean appStart(IScope scope) {
-		this.scope = scope;
-		log.debug("appStart: " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appStart [ " + scope.getName() + "] *********");
 		return true;
 	}
 
 	@Override
 	public void appStop(IScope scope) {
-		log.debug("appStop: " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appStop [ " + scope.getName() + "] *********");
 	}
 	
 	@Override
 	public void roomDisconnect(IConnection connection) {
-		log.debug("roomDisconnect");
+		log.debug("***** " + APP + " [ " + " roomDisconnect [ " + connection.getScope().getName() + "] *********");
 	}
 
 	@Override
 	public boolean roomJoin(IClient client, IScope scope) {
-		log.debug("roomJoin " + scope.getName(), scope.getParent().getName());
+		log.debug("***** " + APP + " [ " + " roomJoin [ " + scope.getName() + "] *********");
 		return true;
+	}
+
+	@Override
+	public void roomLeave(IClient client, IScope scope) {
+		log.debug("***** " + APP + " [ " + " roomLeave [ " + scope.getName() + "] *********");
 	}
 	
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
-		System.out.println("********* " + APP + ":roomConnect");
-		
-		log.debug(APP + ":roomConnect");
+		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
 		
 		ISharedObject so = getSharedObject(connection.getScope(), LAYOUT_SO);
     	log.debug("Setting up Listener");
@@ -99,7 +101,7 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 	
 	@Override
 	public boolean roomStart(IScope scope) {
-		log.debug(APP + ":roomStart " + scope.getName());
+		log.debug("***** " + APP + " [ " + " roomStart [ " + scope.getName() + "] *********");
 		layoutApplication.createRoom(scope.getName());
 
     	return true;
@@ -107,7 +109,7 @@ public class LayoutHandler extends ApplicationAdapter implements IApplication {
 
 	@Override
 	public void roomStop(IScope scope) {
-		log.debug(APP + ":roomStop " + scope.getName());
+		log.debug("***** " + APP + " [ " + " roomStop [ " + scope.getName() + "] *********");
 		layoutApplication.destroyRoom(scope.getName());
 		if (hasSharedObject(scope, LAYOUT_SO)) {
     		clearSharedObjects(scope, LAYOUT_SO);

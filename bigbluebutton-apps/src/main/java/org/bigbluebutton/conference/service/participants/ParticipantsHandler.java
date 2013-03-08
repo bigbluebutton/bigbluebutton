@@ -36,53 +36,58 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 	private static Logger log = Red5LoggerFactory.getLogger( ParticipantsHandler.class, "bigbluebutton" );
 
 	private static final String PARTICIPANTS_SO = "participantsSO";   
-	private static final String APP = "PARTICIPANTS";
+	private static final String APP = "USERS";
 
 	private ParticipantsApplication participantsApplication;
 	private RecorderApplication recorderApplication;
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
-		log.debug("appConnect");
+		log.debug("***** " + APP + " [ " + " appConnect *********");
 		return true;
 	}
 
 	@Override
 	public void appDisconnect(IConnection conn) {
-		log.debug("appDisconnect");
+		log.debug("***** " + APP + " [ " + " appDisconnect *********");
 	}
 
 	@Override
 	public boolean appJoin(IClient client, IScope scope) {
-		log.debug("appJoin: " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appJoin [ " + scope.getName() + "] *********");
 		return true;
 	}
 
 	@Override
 	public void appLeave(IClient client, IScope scope) {
-		log.debug("appLeave: " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appLeave [ " + scope.getName() + "] *********");
 	}
 
 	@Override
 	public boolean appStart(IScope scope) {
-		this.scope = scope;
-		log.debug("appStart: " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appStart [ " + scope.getName() + "] *********");
 		return true;
 	}
 
 	@Override
 	public void appStop(IScope scope) {
-		log.debug("appStop: " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appStop [ " + scope.getName() + "] *********");
+	}
+	
+	@Override
+	public void roomDisconnect(IConnection connection) {
+		log.debug("***** " + APP + " [ " + " roomDisconnect [ " + connection.getScope().getName() + "] *********");
 	}
 	
 	@Override
 	public boolean roomStart(IScope scope) {
+		log.debug("***** " + APP + " [ " + " roomStart [ " + scope.getName() + "] *********");
 		return true;
 	}
 	
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
-		log.debug(APP + ":roomConnect");
+		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
 		 
 		ISharedObject so = getSharedObject(connection.getScope(), PARTICIPANTS_SO);
     	ParticipantsEventSender sender = new ParticipantsEventSender(so);
@@ -105,7 +110,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 
 	@Override
 	public void roomLeave(IClient client, IScope scope) {
-		log.debug(APP + ":roomLeave " + scope.getName());
+		log.debug("***** " + APP + " [ " + " roomLeave [ " + scope.getName() + "] *********");
 		BigBlueButtonSession bbbSession = getBbbSession();
 		if (bbbSession == null) {
 			log.debug("roomLeave - session is null"); 
@@ -116,7 +121,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 	
 	@Override
 	public void roomStop(IScope scope) {
-		log.debug(APP + ":roomStop " + scope.getName());
+		log.debug("***** " + APP + " [ " + " roomStop [ " + scope.getName() + "] *********");
 		if (hasSharedObject(scope, PARTICIPANTS_SO)) {
     		clearSharedObjects(scope, PARTICIPANTS_SO);
     	}
