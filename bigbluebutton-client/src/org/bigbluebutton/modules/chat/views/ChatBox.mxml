@@ -587,7 +587,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 
   <mx:HBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
-    <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="true" variableRowHeight="true" alternatingItemColors="[#EFEFEF, #FEFEFE]"
+    <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true" 
              itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="auto" wordWrap="true"
              dataProvider="{chatMessages.messages}"
              tabIndex="{baseIndex}"
