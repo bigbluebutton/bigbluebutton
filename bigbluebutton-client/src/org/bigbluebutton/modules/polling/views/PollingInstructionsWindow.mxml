@@ -345,20 +345,15 @@ Notes.mxml is the main view of the SharedNotes application
 		
 		//#####################################################################################################
 		
+		
 		public function goBack():void{
-			allowPreview = true;
-			back.visible=false;
-			publishButton.visible=false;
-			options.removeAllChildren();
-		}
-			
-		public function goBack2():void{
 			mainArea.selectedChild=instrMain; 
 			buttons.selectedChild=instrButtons;
 			allowPreview = true;
 			back.visible=false;
 			publishButton.visible=false;
 			options.removeAllChildren();
+			focusTitle();
 		}
 			
 			
@@ -496,7 +491,7 @@ Notes.mxml is the main view of the SharedNotes application
 			dispatchEvent(new PollingStatusCheckEvent(PollingStatusCheckEvent.CHECK));
 		}
 			
-			private function focusTitle(e:ShortcutEvent):void{
+			private function focusTitle(e:ShortcutEvent = null):void{
 				if (pollTitle.enabled && pollTitle.visible){
 					focusManager.setFocus(pollTitle);
 				}
@@ -679,15 +674,9 @@ Notes.mxml is the main view of the SharedNotes application
 	<!-- area where buttons are located -->
 	<mx:ControlBar>
 		<!-- Back Button is not visible while instructions and visible while preView -->
-		<!--mx:Button id="back" 
-				   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}" 
-				   click="{mainArea.selectedChild=instrMain} {buttons.selectedChild=instrButtons} goBack()" 
-				   width="100" 
-				   height="30" 
-				   visible="false"/-->
 		<mx:Button id="back" 
 				   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}" 
-				   click="goBack2()" 
+				   click="goBack()" 
 				   width="100" 
 				   height="30" 
 				   visible="false"/>
