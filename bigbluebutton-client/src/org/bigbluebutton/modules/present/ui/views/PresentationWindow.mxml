@@ -149,16 +149,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var localDispatcher:Dispatcher = new Dispatcher();
 			
 			private function init():void{
+				LogUtil.debug("markos: begin init");
 				presentOptions = new PresentOptions();
 				baseIndex = presentOptions.baseTabIndex;
+				LogUtil.debug("markos: end init");
 			}
 			
 			private function onCreationComplete():void{
+				LogUtil.debug("markos: begin oncreationcomplete");
 				thumbY = this.height - 160;
-                bindKeyboardEvents();
+                
+				bindKeyboardEvents();
+				LogUtil.debug("markos: passed bindKeyboardEvents");
 				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
 				resourcesChanged();
+				LogUtil.debug("markos: passed resourcesChanged");
 				
 				titleBarOverlay.tabIndex = baseIndex;
 				
@@ -168,6 +174,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				slideView.slideLoader.tabIndex = baseIndex+4;
 				hotkeyCapture();
+				LogUtil.debug("markos: finish oncreationcomplete");
 			}
 			
 			private function hotkeyCapture():void{
@@ -584,7 +591,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					closeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.presentation.closeBtn.accessibilityName");
 				}
 				
-				Accessibility.updateProperties();
+				if(Capabilities.hasAccessibility)
+					Accessibility.updateProperties();
 			}
 			
 			private function localeChanged(e:LocaleChangeEvent):void{

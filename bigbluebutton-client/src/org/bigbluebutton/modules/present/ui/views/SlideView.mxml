@@ -308,8 +308,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */						
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
 				slideLoader.source = e.slide;
-				slideLoader.accessibilityProperties.description = e.slideText;
-				Accessibility.updateProperties()
+				if(Capabilities.hasAccessibility){
+					slideLoader.accessibilityProperties.description = e.slideText;
+					Accessibility.updateProperties()
+				}
 			}
 			
 			/**
