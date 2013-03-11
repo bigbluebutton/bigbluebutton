@@ -27,6 +27,7 @@ import org.red5.server.api.IConnection;
 import org.red5.server.api.IScope;
 import org.red5.server.api.so.ISharedObject;
 import org.slf4j.Logger;
+import org.red5.server.api.Red5;
 
 public class SharedNotesHandler extends ApplicationAdapter implements IApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( SharedNotesHandler.class, "bigbluebutton" );
@@ -79,6 +80,7 @@ public class SharedNotesHandler extends ApplicationAdapter implements IApplicati
 		log.debug("Adding event listener to " + room);
 		log.debug("Adding room listener");
 		sharedNotesApplication.addRoomListener(room, sender);
+		sharedNotesApplication.addRoomClient(room, Long.parseLong(Red5.getConnectionLocal().getClient().getId()));
 		log.debug("Done setting up listener");
 		return true;
 	}

@@ -70,4 +70,12 @@ public class SharedNotesSender implements ISharedNotesRoomListener {
 		args.add(document);
 		so.sendMessage("initClientDocumentCallBack", args);
 	}
+
+	@Override
+	public void remoteModifications(Long userid, String patches) {
+		List<Object> args = new ArrayList<Object>();
+		args.add(userid);
+		args.add(patches);
+		so.sendMessage("remoteModifications", args);
+	}
 }

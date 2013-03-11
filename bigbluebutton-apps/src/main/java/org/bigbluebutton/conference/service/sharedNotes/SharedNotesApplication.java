@@ -56,16 +56,25 @@ public class SharedNotesApplication {
 		return false;
 	}
 
+	public boolean addRoomClient(String room, Long userid) {
+		if (roomsManager.hasRoom(room)){
+			roomsManager.addRoomClient(room, userid);
+			return true;
+		}
+		log.warn("Adding client to a non-existant room " + room);
+		return false;
+	}
+
 	public void setRoomsManager(SharedNotesRoomsManager r) {
 		log.debug("Setting room manager");
 		roomsManager = r;
 	}
 
-	public void patchDocument(String room, int userId, String patch) {
+	public void patchDocument(String room, Long userId, String patch) {
 		roomsManager.patchDocument(room, userId, patch);
 	}
 
-	public String currentDocument(String roomName) {
-		return roomsManager.currentDocument(roomName);
+	public String currentDocument(String roomName, Long userid) {
+		return roomsManager.currentDocument(roomName, userid);
 	}
 }

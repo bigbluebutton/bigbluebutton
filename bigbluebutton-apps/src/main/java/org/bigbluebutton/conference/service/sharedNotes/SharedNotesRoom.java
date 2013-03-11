@@ -24,12 +24,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import name.fraser.neil.plaintext.*;
+import name.fraser.neil.plaintext.diff_match_patch;
+import name.fraser.neil.plaintext.diff_match_patch.Patch;
+import name.fraser.neil.plaintext.diff_match_patch.Diff;
+import java.util.LinkedList;
 
 import net.jcip.annotations.ThreadSafe;
 
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+
 /**
 * Contains information about a SharedNotesRoom.
 */
@@ -40,7 +44,7 @@ public class SharedNotesRoom {
 	private final String name;
 	private final Map<String, ISharedNotesRoomListener> listeners;
 	private final Map<Long, ClientSharedNotes> clients;
-	private String _document = "";
+	private String _document = "Initial Document";
 	private static final Object syncObject = new Object();
 	private diff_match_patch diffPatch = new diff_match_patch();
 
@@ -90,20 +94,48 @@ public class SharedNotesRoom {
 		}
 	}
 
-	public String currentDocument() {
-		return _document;
+	public String currentDocument(Long userid) {
+		String document = "";
+		synchronized (syncObject) {
+			document = clients.get(userid).getDocument();
+		}
+		return document;
 	}
 
-	public boolean patchClient() {
+	public boolean patchClient(Long userid, String patch) {
 		synchronized (syncObject) {	
-	
+			if(clients.containsKey(userid)) {
+				ClientSharedNotes client = clients.get(userid);
+				client.patchClient(patch);
+				patchServer(patch);
+				sendModificationsToClients();
+			}
 		}
 		return true;
 	}
 
-	public void patchDocument(int userId, String patch) {
-		//Do the patch
-		//UpdateListeners
+
+	private void sendModificationsToClients() {
+		 for (Iterator<ClientSharedNotes> iter = clients.values().iterator(); iter.hasNext();) {
+			ClientSharedNotes client = (ClientSharedNotes) iter.next();
+			LinkedList<Diff> diffs = diffPatch.diff_main(client.getDocument(), _document);
+			client.setDocument(_document);
+			LinkedList<Patch> patchObjects = diffPatch.patch_make(diffs);
+			String patches = diffPatch.patch_toText(patchObjects);
+			for (Iterator<ISharedNotesRoomListener> iter2 = listeners.values().iterator(); iter2.hasNext();) {
+				ISharedNotesRoomListener listener = (ISharedNotesRoomListener) iter2.next();
+				listener.remoteModifications(client.getUserid(), patches);
+			}
+		 }
+	}
+	private void patchServer(String patch) {
+		LinkedList<Patch> patchObjects = diffPatch.patch_fromText(patch);
+   		Object[] result = diffPatch.patch_apply(patchObjects, _document);
+		_document = result[0].toString();
+	}
+
+	public void patchDocument(Long userid, String patch) {
+		patchClient(userid, patch);
 	}
 }
 

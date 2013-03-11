@@ -31,17 +31,15 @@ public class SharedNotesService {
 	
 	private SharedNotesApplication application;
 
-	public String init(int userId) {
-		log.debug("Initializing sharedNotes");
+	public String currentDocument(Long userid) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		return application.currentDocument(roomName);
+		return application.currentDocument(roomName, userid);
 	}
 	
-	public void patchDocument(int userId, String patch) {
+	public void patchDocument(Long userId, String patch) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		application.patchDocument(roomName, userId, patch);
 	}
-	
 	
 	public void setSharedNotesApplication(SharedNotesApplication a) {
 		log.debug("Setting sharedNotes application");
