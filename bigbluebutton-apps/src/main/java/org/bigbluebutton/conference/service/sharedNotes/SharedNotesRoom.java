@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import name.fraser.neil.plaintext.*;
 
 import net.jcip.annotations.ThreadSafe;
 
@@ -40,10 +41,13 @@ public class SharedNotesRoom {
 	private final Map<String, ISharedNotesRoomListener> listeners;
 	private final Map<Long, ClientSharedNotes> clients;
 	private String _document = "";
+	private static final Object syncObject = new Object();
+	private diff_match_patch diffPatch = new diff_match_patch();
 
 	public SharedNotesRoom(String name) {
 		this.name = name;
 		this.listeners = new ConcurrentHashMap<String, ISharedNotesRoomListener>();
+		this.clients = new ConcurrentHashMap<Long, ClientSharedNotes>();
 	}
 
 	public String getName() {
@@ -54,6 +58,21 @@ public class SharedNotesRoom {
 		if (! listeners.containsKey(listener.getName())) {
 			log.debug("adding room listener");
 			listeners.put(listener.getName(), listener);	
+		}
+	}
+
+	public void addRoomClient(Long userid) {
+		if (! clients.containsKey(userid)) {
+			synchronized (syncObject) {
+				clients.put(userid, new ClientSharedNotes(userid, _document));
+				for (Iterator<ISharedNotesRoomListener> iter = listeners.values().iterator(); iter.hasNext();) {
+					log.debug("calling on listener");
+					ISharedNotesRoomListener listener = (ISharedNotesRoomListener) iter.next();
+					log.debug("calling updateSharedNotes on listener " + listener.getName());
+					listener.initClientDocument(userid, _document);
+				}
+			}
+			
 		}
 	}
 
@@ -73,6 +92,13 @@ public class SharedNotesRoom {
 
 	public String currentDocument() {
 		return _document;
+	}
+
+	public boolean patchClient() {
+		synchronized (syncObject) {	
+	
+		}
+		return true;
 	}
 
 	public void patchDocument(int userId, String patch) {

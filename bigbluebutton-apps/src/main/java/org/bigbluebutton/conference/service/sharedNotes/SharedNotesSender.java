@@ -25,6 +25,7 @@ import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.so.ISharedObject;
 import org.red5.server.api.statistics.ISharedObjectStatistics;
 import org.slf4j.Logger;
+import java.util.ArrayList;
 
 public class SharedNotesSender implements ISharedNotesRoomListener {
 
@@ -42,6 +43,7 @@ public class SharedNotesSender implements ISharedNotesRoomListener {
 		return name;
 	}
 
+	
 	@Override
 	public void updateLayout(List<Object> args) {
 		log.debug("Sending update layout");
@@ -60,4 +62,12 @@ public class SharedNotesSender implements ISharedNotesRoomListener {
 			log.info("Layout SO is acquired");
 	}
 
+
+	@Override
+	public void initClientDocument(Long userid, String document) {
+		List<Object> args = new ArrayList<Object>();
+		args.add(userid);
+		args.add(document);
+		so.sendMessage("initClientDocumentCallBack", args);
+	}
 }

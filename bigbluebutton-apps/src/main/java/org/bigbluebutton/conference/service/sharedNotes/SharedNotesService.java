@@ -31,7 +31,7 @@ public class SharedNotesService {
 	
 	private SharedNotesApplication application;
 
-	public String init() {
+	public String init(int userId) {
 		log.debug("Initializing sharedNotes");
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		return application.currentDocument(roomName);

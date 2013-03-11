@@ -25,5 +25,5 @@ public interface ISharedNotesRoomListener {
 
 	public String getName();
 	public void updateLayout(List<Object> args);
-
+	public void initClientDocument(Long userid, String document);
 }
