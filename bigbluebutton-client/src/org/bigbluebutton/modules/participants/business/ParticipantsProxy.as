@@ -94,12 +94,14 @@ package org.bigbluebutton.modules.participants.business
 		{	
 			//find the presenter and lock them
 			var pres:BBBUser = UserManager.getInstance().getConference().getPresenter();
-			_listenersService.lockMuteUser(int(pres.voiceUserid), true);
+			if (pres)
+				_listenersService.lockMuteUser(int(pres.voiceUserid), true);
 			
 			_listenersService.muteAllUsers(true);
 			
 			//unlock the presenter
-			_listenersService.lockMuteUser(int(pres.voiceUserid), false);
+			if (pres)
+				_listenersService.lockMuteUser(int(pres.voiceUserid), false);
 		}
 
     public function kickUser(event:KickUserEvent):void {

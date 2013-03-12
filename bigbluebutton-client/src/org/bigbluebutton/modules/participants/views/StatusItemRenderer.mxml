@@ -93,7 +93,7 @@
 	  					roleBtn.enabled = false;
 	  				} else if (rolledOver) {
 	  					roleBtn.setStyle("icon", images.presenter_new);
-	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.viewers.presentBtn.label');
+	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.changePresenter');
 	  					roleBtn.enabled = true;
 	  				} else if (data.role == Role.MODERATOR) {
 	  					roleBtn.setStyle("icon", images.moderator);

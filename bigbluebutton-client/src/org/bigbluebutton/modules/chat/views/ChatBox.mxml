@@ -172,7 +172,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         // Listen for the ENTER key to send the message.
         txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
                 
-				Accessibility.updateProperties();
+				if(Capabilities.hasAccessibility)
+					Accessibility.updateProperties();
 		        
 		        queryForChatHistory();
 			}
@@ -476,7 +477,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						chatMessagesList.accessibilityProperties.description += " ";
 					}
 				}
-				Accessibility.updateProperties();
+				if(Capabilities.hasAccessibility)
+					Accessibility.updateProperties();
 				navToFirst = false;
 				navToLatest = false;
 				spacerNeeded = false;
