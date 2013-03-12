@@ -87,13 +87,14 @@ class BigbluebuttonService {
         String courseTitle = getValidatedCourseTitle(params.get(Parameter.COURSE_TITLE))
         String userID = getValidatedUserId(params.get(Parameter.USER_ID))
         String record = getValidatedRecord(params.get(Parameter.CUSTOM_RECORD))
+		String duration = getValidatedDuration(params.get(Parameter.CUSTOM_DURATION))
         
         String[] values = [meetingName, courseTitle]
         String welcomeMsg = MessageFormat.format(welcome, values)
         
         String meta = getMonitoringMetaData(params)
         
-        String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcomeMsg, logoutURL, record, meta )
+        String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcomeMsg, logoutURL, record, duration, meta )
         //log.debug "createURL: " + createURL
         Map<String, Object> createResponse = doAPICall(createURL)
         //log.debug "createResponse: " + createResponse
@@ -111,10 +112,10 @@ class BigbluebuttonService {
         
     }
     
-    private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, String logoutURL, String record, String meta ) {
+    private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, String logoutURL, String record, String duration, String meta ) {
         Integer voiceBridge = 70000 + new Random(System.currentTimeMillis()).nextInt(10000);
 
-        String url = bbbProxy.getCreateURL(name, meetingID, attendeePW, moderatorPW, welcome, "", voiceBridge.toString(), "", logoutURL, "", record, "", meta );
+        String url = bbbProxy.getCreateURL(name, meetingID, attendeePW, moderatorPW, welcome, "", voiceBridge.toString(), "", logoutURL, "", record, duration, meta );
         return url;
     }
     
@@ -160,6 +161,16 @@ class BigbluebuttonService {
 	
 	private String getValidatedRecord(String record){
 		return (record != "true")? "": record
+	}
+
+	private String getValidatedDuration(String duration){
+		// Check with isInteger() first to prevent conversion error from being thrown
+		if (duration.isInteger()){
+			if (duration.toInteger() >= 0){
+				return duration
+			}
+		}
+		return ""
 	}
     
     private String getMonitoringMetaData(params){
