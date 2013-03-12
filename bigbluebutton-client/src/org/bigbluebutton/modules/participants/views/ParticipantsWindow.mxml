@@ -25,6 +25,7 @@
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
+	title="{ResourceUtil.getInstance().getString('bbb.participants.title')}"
 	showCloseButton="false">
 
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
@@ -171,15 +172,15 @@
 			
 			private function openSettings():void {
 				// everyone can see the audio settings
-				var myMenuData:Array = [{label: "Audio Settings", icon: images.audio}];
+				var myMenuData:Array = [{label: ResourceUtil.getInstance().getString('bbb.participants.settings.audioSettings'), icon: images.audio}];
 				
 				if (amIModerator) {
 					myMenuData[1] = {type: "separator"};
 					if (!roomMuted)
-						myMenuData[2] = {label: "Mute All", icon: images.audio_muted};
+						myMenuData[2] = {label: ResourceUtil.getInstance().getString('bbb.participants.settings.muteAll'), icon: images.audio_muted};
 					else
-						myMenuData[2] = {label: "Unmute All", icon: images.audio};
-					myMenuData[3] = {label: "Lower All Hands", icon: images.hand_new};
+						myMenuData[2] = {label: ResourceUtil.getInstance().getString('bbb.participants.settings.unmuteAll'), icon: images.audio};
+					myMenuData[3] = {label: ResourceUtil.getInstance().getString('bbb.participants.settings.lowerAllHands'), icon: images.hand_new};
 				}
 				
 				// make sure the previous menu is closed before opening a new one
@@ -374,9 +375,9 @@
 		tabIndex="{partOptions.baseTabIndex+5}"
 		accessibilityName="{ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.accessibilityName')}" >
     	<mx:columns>
-    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer')}" editable="false" width="45"
+    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer')}" editable="false" width="45"
     			itemRenderer="org.bigbluebutton.modules.participants.views.StatusItemRenderer" sortable="false" />
-    		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.nameItemRenderer')}" editable="false" width="100" sortable="false"
+    		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.nameItemRenderer')}" editable="false" width="100" sortable="false"
     			itemRenderer="org.bigbluebutton.modules.participants.views.NameItemRenderer"/>
     		<mx:DataGridColumn dataField="media" headerText="{ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer')}" sortable="false"
     			itemRenderer="org.bigbluebutton.modules.participants.views.MediaItemRenderer"/>
@@ -385,7 +386,7 @@
 	
 	<mx:ControlBar width="100%">
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
-					toolTip="Settings" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+10}"/>
+					toolTip="{ResourceUtil.getInstance().getString('bbb.participants.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+10}"/>
 		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}"
 					width="30" height="30" toolTip="Raise Hand" click="raiseHand()"
 					visible="false" includeInLayout="{raiseHandBtn.visible}" tabIndex="{partOptions.baseTabIndex+15}" />
@@ -393,7 +394,7 @@
 		<mx:Button id="muteMeBtn" click="toggleMuteMeState()" height="30" width="30" 
 					icon="{UserManager.getInstance().getConference().voiceMuted ? images.audio_muted : images.audio}"
 					visible="{UserManager.getInstance().getConference().voiceJoined}"
-					toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" 
+					toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.participants.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.participants.pushToMute.toolTip')}" 
 					tabIndex="{partOptions.baseTabIndex+20}"/>
 		
 	</mx:ControlBar>
