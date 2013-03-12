@@ -32,7 +32,7 @@
 	icon="{pollIcon}"
 	>
 	
-	<mate:Listener type="{ShortcutEvent.POLL_BUTTON_CLICK}" method="updateMenuByShortcut" />
+	<!-- mate:Listener type="{ShortcutEvent.POLL_BUTTON_CLICK}" method="updateMenuByShortcut" / -->
 	
 	<mx:Script>
 		<![CDATA[
@@ -179,12 +179,10 @@
 				//LogUtil.debug("POLLING event menu update complete [updateMenuByEvent()]");
 			}
 			
-			private function updateMenuByShortcut(e:ShortcutEvent):void{
+			public function updateMenuByShortcut(e:ShortcutEvent = null):void{
 				//LogUtil.debug("------------------");
 				//LogUtil.debug("POLLING updating menu by SHORTCUT event [updateMenuByShortcut()]");
-				if (this == null)
-					LogUtil.debug("Null button?");
-				if (this.enabled && conference.amIPresenter())
+				if (conference.amIPresenter())
 					updateMenu(true);
 				//LogUtil.debug("Shortcut update complete [/updateMenuByShortcut()]");
 			}

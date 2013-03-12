@@ -77,5 +77,16 @@ package org.bigbluebutton.modules.polling.managers
 			button.enabled = false;
 		}
 		// _Button
+		
+		public function openMenuRemotely():Boolean{
+			var rValue:Boolean = true;
+			if (button.enabled){
+				button.updateMenuByShortcut();
+			}
+			else{
+				rValue = false;
+			}
+			return rValue;
+		}
 	}
 }

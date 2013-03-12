@@ -20,7 +20,8 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.main.model.users.Conference 
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.common.Role;
-	
+	import org.bigbluebutton.main.events.ShortcutEvent;
+
 	import flash.utils.Timer;
 	import flash.events.TimerEvent;
 			
@@ -283,5 +284,14 @@ package org.bigbluebutton.modules.polling.managers
 			  viewWindowManager.handleReviewResultsEvent(e);
 		  }
 		//##################################################################################
+		  
+		  public function handleGlobalPollHotkey(e:ShortcutEvent):void{
+			  if (toolbarButtonManager.openMenuRemotely()){
+				  // Business as usual
+			  }
+			  else{
+				  // Check if Instructions, Stats, or Voting window is open instead; focus to that
+			  }
+		  }
    }
 }

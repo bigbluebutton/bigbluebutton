@@ -30,6 +30,8 @@
 			import org.bigbluebutton.modules.polling.managers.PollingManager;
 			
 			import org.bigbluebutton.modules.polling.events.*;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+
 			
 				]]>
 				
@@ -170,4 +172,8 @@
 	 <EventHandlers type="{GenerateWebKeyEvent.RETURN}">
 		<MethodInvoker generator="{PollingManager}"  method="handleReturnWebKeyEvent" arguments="{event}"/>
 	 </EventHandlers>
+	
+	<EventHandlers type="{ShortcutEvent.POLL_BUTTON_CLICK}">
+		<MethodInvoker generator="{PollingManager}" method="handleGlobalPollHotkey" arguments="{event}"/>
+	</EventHandlers>
 </EventMap>
