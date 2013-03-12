@@ -58,7 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_INPUT}" method="focusChatInput" />
   	<mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
   	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_BOX}" method="focusChatBox" />
-  	<mate:Listener type="{ShortcutEvent.CHANGE_FONT_COLOUR}" method="focusColourPicker" />
+  	<!--mate:Listener type="{ShortcutEvent.CHANGE_FONT_COLOUR}" method="focusColourPicker" /-->
   	<mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
   	
   	<mate:Listener type="{ShortcutEvent.CHAT_DEBUG}" method="chatDebugInfo" />
@@ -182,9 +182,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				focusManager.setFocus(chatMessagesList);
 			}
 			
-			private function focusColourPicker(e:ShortcutEvent):void{
+			/*private function focusColourPicker(e:ShortcutEvent):void{
 				focusManager.setFocus(cmpColorPicker);
-			}
+			}*/
 			
 			private function remoteSendMessage(e:ShortcutEvent):void{
 				sendMessages();
@@ -522,9 +522,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cm.chatType = ChatConstants.PUBLIC_CHAT;
         cm.fromUserID = UsersUtil.getMyUserID();
         cm.fromUsername = UsersUtil.getMyUsername();
-        cm.fromColor = cmpColorPicker.selectedColor.toString();
+        cm.fromColor = "0" //default the message colour to black now cmpColorPicker.selectedColor.toString();
         cm.fromLang = ChatUtil.getUserLang();
-
         // Get the current UTC time and the timezone for this sender.
         // The receiver will have to convert this to local time.
         var now:Date = new Date();
@@ -543,7 +542,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cm.chatType = ChatConstants.PRIVATE_CHAT;
         cm.fromUserID = UsersUtil.getMyUserID();
         cm.fromUsername = UsersUtil.getMyUsername();
-        cm.fromColor = cmpColorPicker.selectedColor.toString();
+        cm.fromColor = "0" //default the message colour to black now cmpColorPicker.selectedColor.toString();
         cm.fromLang = ChatUtil.getUserLang();
         
         // Get the current UTC time and the timezone for this sender.
@@ -598,7 +597,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   
   <mx:HBox id="chatCtrlBar" width="100%" height="50" styleName="chatControlBarStyle" verticalScrollPolicy="off"
            paddingLeft="5" paddingRight="5">		
-    <mx:TextArea id="txtMsgArea" width="100%"  color="{cmpColorPicker.selectedColor}" 
+    <mx:TextArea id="txtMsgArea" width="100%"
                  styleName="chatControlBarTextMsgStyle" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.accessibility.chat.chatwindow.input')}"
                  tabIndex="{baseIndex+1}"/>
@@ -609,10 +608,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  click="sendMessages()"
                  tabIndex="{baseIndex+2}"
                  accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.name')}"/>  
-      <mx:ColorPicker id="cmpColorPicker" showTextField="false" 
+      <!--mx:ColorPicker id="cmpColorPicker" showTextField="false" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
                  selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"
-                 tabIndex="{baseIndex+3}"/>
+                 tabIndex="{baseIndex+3}"/-->
     </mx:VBox>
   </mx:HBox>	
 </mx:VBox>

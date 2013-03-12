@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.participants.business
 	
 	import mx.collections.ArrayCollection;
 	
+	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.BBBUser;
@@ -87,6 +88,20 @@ package org.bigbluebutton.modules.participants.business
 		
 		public function unmuteAllUsers(command:VoiceConfEvent):void{
 			_listenersService.muteAllUsers(false);
+		}
+		
+		public function muteAlmostAllUsers(command:VoiceConfEvent):void
+		{	
+			//find the presenter and lock them
+			var pres:BBBUser = UserManager.getInstance().getConference().getPresenter();
+			if (pres)
+				_listenersService.lockMuteUser(int(pres.voiceUserid), true);
+			
+			_listenersService.muteAllUsers(true);
+			
+			//unlock the presenter
+			if (pres)
+				_listenersService.lockMuteUser(int(pres.voiceUserid), false);
 		}
 
     public function kickUser(event:KickUserEvent):void {
