@@ -86,6 +86,11 @@ class ToolController {
 						log.debug "This session will be recorded!"
 					}
 					
+					// Detect if the LTI has set a maximum duration
+					if (params.get(Parameter.CUSTOM_DURATION) != null) {
+						log.debug "A maximum duration has been provided; this room will automatically close after " + params.get(Parameter.CUSTOM_DURATION) + " minutes"
+					}
+					
                     //String destinationURL = "http://www.bigbluebutton.org/"
                     String destinationURL = bigbluebuttonService.getJoinURL(params, welcome)
                     
