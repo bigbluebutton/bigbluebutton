@@ -30,6 +30,7 @@
 	initialize="init();" 
 	click="createAndShow();"
 	icon="{pollIcon}"
+	accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.buttonName')}"
 	>
 	
 	<!-- mate:Listener type="{ShortcutEvent.POLL_BUTTON_CLICK}" method="updateMenuByShortcut" / -->
@@ -182,8 +183,11 @@
 			public function updateMenuByShortcut(e:ShortcutEvent = null):void{
 				//LogUtil.debug("------------------");
 				//LogUtil.debug("POLLING updating menu by SHORTCUT event [updateMenuByShortcut()]");
-				if (conference.amIPresenter())
+				if (conference.amIPresenter()){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.buttonNameShortcut');
+					ExternalInterface.call("addAlert", message);
 					updateMenu(true);
+				}
 				//LogUtil.debug("Shortcut update complete [/updateMenuByShortcut()]");
 			}
 			

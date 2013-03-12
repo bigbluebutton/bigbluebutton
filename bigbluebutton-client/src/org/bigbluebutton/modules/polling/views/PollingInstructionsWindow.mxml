@@ -186,11 +186,11 @@ Notes.mxml is the main view of the SharedNotes application
 				//publishToWeb_response.tabIndex = baseIndex+8;
 				//next.tabIndex = baseIndex+9;
 				
-				back.tabIndex = baseIndex+4;
-				publishButton.tabIndex = baseIndex+5;
-				SavePoll.tabIndex = baseIndex+6;
+				back.tabIndex = baseIndex+11;
+				publishButton.tabIndex = baseIndex+12;
+				SavePoll.tabIndex = baseIndex+13;
 				
-				Cancel.tabIndex = baseIndex+10;
+				Cancel.tabIndex = baseIndex+14;
 			}
 			
 			
