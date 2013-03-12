@@ -32,8 +32,9 @@
 		   layout="absolute"
 		   >
 
-	
-	
+	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_DATA}" method="focusDataGrid" />
+	<mate:Listener type="{ShortcutEvent.REFRESH_POLL}" method="remoteRefresh" />
+			
 	<mx:Script>
 		<![CDATA[
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -88,21 +89,20 @@
 			private var _userid:Number; 
 			private var window:PollingStatsWindow;
 			private var conference:Conference;
-			[Bindable]public var reviewing:Boolean = false;
+			[Bindable] public var reviewing:Boolean = false;
 			private var POLL_URL_COLOUR:String = "35071";
 			private var webClosed:Boolean;
 			private var notified:Boolean;
 			private var refreshTimer:Timer = new Timer(1000);
-			[Bindable]
-			private var answerCollection:ArrayCollection = new ArrayCollection();
+			[Bindable] private var answerCollection:ArrayCollection = new ArrayCollection();
 			[Bindable] private var pollOptions:PollOptions;
 			[Bindable] private var baseIndex:int;
+			private var keyCombos:Object;
 			
 		
 			private function init():void{
 				pollOptions = new PollOptions();
-				// Get the base tab index from config, and add four to make up for the min/max/close buttons and title overlay
-				baseIndex = pollOptions.getBaseIndex() + 4;
+				baseIndex = pollOptions.getBaseIndex();
 				
 				answerCollection = trackingPoll.generateStats();
 							
@@ -131,8 +131,14 @@
 			
 
 			private function onCreationComplete():void{
+				hotkeyCapture();
 				
-				//conference.amIPresenter()
+				titleBarOverlay.tabIndex = baseIndex;			
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				closeBtn.tabIndex = baseIndex+3;
+				
+				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.stats.accessTitle', [trackingPoll.title]);
 				
 				// If the statistics window is being opened to view a poll that has been published and closed, the interface will 
 				// immediately appear with only the option to close the window. 
@@ -165,7 +171,29 @@
 				height = height + ((lines+1) * 45);*/
 				
 				createResultsTable(answers.length, answers);
-			}			
+			}
+			
+			private function hotkeyCapture():void{
+				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+				//ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
+			}
+			
+			private function loadKeyCombos(modifier:String):void {
+				keyCombos = new Object(); // always start with a fresh array
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusData') as String)] = ShortcutEvent.FOCUS_POLL_DATA;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.refresh') as String)] = ShortcutEvent.REFRESH_POLL;
+			}
+			
+			private function handleKeyDown(e:KeyboardEvent) :void {
+				var modifier:String = ExternalInterface.call("determineLocalModifier");
+				loadKeyCombos(modifier);             
+				var keyPress:String = (e.ctrlKey  ? "control+" : "") +
+					(e.shiftKey ? "shift+"   : "") +
+					(e.altKey   ? "alt+"     : "") + e.keyCode;                                     
+				if (keyCombos[keyPress]) {
+					dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+				}
+			}
 
 			public function setUrlBoxText():void{
 				webPollURLBox.text = webPollUrl;
@@ -281,7 +309,13 @@
 				return pso;
 			}
 			
+			private function focusDataGrid(e:ShortcutEvent):void{
+				focusManager.setFocus(resultsGrid);
+			}
 			
+			private function remoteRefresh(e:ShortcutEvent):void{
+				refreshPoll();
+			}
 			
 	]]>
 	</mx:Script>
@@ -300,7 +334,8 @@
 				 accessibilityDescription="Bravo">
 			<mx:Text id="webPollText"
 					 text="{ResourceUtil.getInstance().getString('bbb.polling.stats.webPollURL')}" 
-					 width="140"/>
+					 width="140"
+					 />
 		</mx:HBox>
 		<mx:HBox id="webPollBox" 
 				 width="90%" 
@@ -310,6 +345,7 @@
 						 text="" 
 						 height="25"
 						 width="95%"
+						 tabIndex="{baseIndex+4}"
 						 />          
 		</mx:HBox>
 					
@@ -322,7 +358,8 @@
 					 dataProvider="{answerCollection}"
 					 rowCount="{answerCollection.length}" 
 					 width="90%" 
-					 accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.stats.question', [trackingPoll.question])}"
+					 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.stats.question', [trackingPoll.question])}"
+					 tabIndex="{baseIndex+5}"
 					 >
 			<mx:columns>
 			<mx:DataGridColumn id="answerColumn"
@@ -353,13 +390,15 @@
        			   width="100" 
        			   height="30"
        			   visible = "true"
+				   tabIndex="{baseIndex+6}"
        			   />
        	<mx:Button id="btnClosePoll" 
        			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')}" 
        			   click="stopPoll()" 
        			   width="100" 
        			   height="30"
-       			   visible = "true"/>
+       			   visible = "true"
+				   tabIndex="{baseIndex+7}"/>
 		<mx:Spacer width="100%"/>
  	 </mx:ControlBar>
 </MDIWindow>

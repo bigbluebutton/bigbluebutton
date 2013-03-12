@@ -88,6 +88,11 @@ package org.bigbluebutton.main.events {
 		public static const POLL_MODIFY:String = 'POLL_MODIFY';
 		public static const POLL_SAVE:String = 'POLL_SAVE';
 		public static const POLL_PUBLISH:String = 'POLL_PUBLISH';
+		public static const	FOCUS_POLL_DATA:String = 'FOCUS_POLL_DATA';
+		public static const REFRESH_POLL:String = 'REFRESH_POLL';
+		
+		
+		
 		
 		// Temporary string to help fix chat message navigation for screen readers
 		public static const CHAT_DEBUG:String = 'CHAT_DEBUG';

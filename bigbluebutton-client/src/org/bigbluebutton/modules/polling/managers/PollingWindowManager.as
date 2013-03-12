@@ -189,13 +189,22 @@ package org.bigbluebutton.modules.polling.managers
 			openWindow(statsWindow);
 			service.setPolling(true);
 			
+			/*// Deprecated; with accessibility, we want to focus to the titleBarOverlay in either case
 			if (statsWindow.webPollText.visible)
 				statsFocusTimer.addEventListener(TimerEvent.TIMER, focusStatsWebPoll);
 			else
 				statsFocusTimer.addEventListener(TimerEvent.TIMER, focusStatsRefresh);
+			*/
+			statsFocusTimer.addEventListener(TimerEvent.TIMER, focusStatsWindow);
 			statsFocusTimer.start();
 		}
 		
+		private function focusStatsWindow(event:TimerEvent):void{
+			statsWindow.focusManager.setFocus(statsWindow.titleBarOverlay);
+			statsFocusTimer.stop();
+		}
+		
+		/* // Deprecated
 		private function focusStatsWebPoll(event:TimerEvent):void{
 			statsWindow.focusManager.setFocus(statsWindow.webPollURLBox);
 			statsFocusTimer.stop();
@@ -205,6 +214,7 @@ package org.bigbluebutton.modules.polling.managers
 			statsWindow.focusManager.setFocus(statsWindow.btnRefreshResults);
 			statsFocusTimer.stop();
 		}
+		*/
 		
 		public function handleClosePollingStatsWindow(e:PollingStatsWindowEvent):void{
 			closeWindow(statsWindow);
