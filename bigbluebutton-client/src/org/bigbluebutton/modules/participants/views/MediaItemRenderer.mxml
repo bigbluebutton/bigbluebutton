@@ -104,7 +104,7 @@
 			}
 		]]>
 	</mx:Script>
-	
+	<mx:Image id="showLock" visible="{data.voiceLocked}" source="{images.lock_close}" width="20" height="20" />
 	<mx:Image id="talkingIcon" visible="{data.talking}" source="{images.sound_new}" width="20" height="20" 
 				toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.talkImg.toolTip')}" />
 	<mx:Button id="webcamBtn" visible="{data.hasStream}" click="viewCamera()" icon="{images.webcam_new}"

@@ -255,6 +255,28 @@ package org.bigbluebutton.modules.participants.business
 			}
 		}
 		
+		public function lockMuteUser(userid:Number, lock:Boolean):void {
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"voice.lockMuteUser",// Remote function name
+				new Responder(
+					// participants - On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Successfully lock mute/unmute: " + userid); 	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				),//new Responder
+				userid,
+				lock
+			); //_netConnection.call		
+		}
+		
 		public function muteUnmuteUser(userid:Number, mute:Boolean):void {
 			var nc:NetConnection = _module.connection;
 			nc.call(

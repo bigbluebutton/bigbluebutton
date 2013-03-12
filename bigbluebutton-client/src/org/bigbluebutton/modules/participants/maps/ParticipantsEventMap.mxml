@@ -70,4 +70,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{ParticipantsProxy}" method="unmuteAllUsers" arguments="{event}" />
 	</EventHandlers>
 	
+	<EventHandlers type="{VoiceConfEvent.MUTE_ALMOST_ALL}" >
+		<MethodInvoker generator="{ParticipantsProxy}" method="muteAlmostAllUsers" arguments="{event}" />
+	</EventHandlers>
+	
 </EventMap>

@@ -175,11 +175,13 @@
 				
 				if (amIModerator) {
 					myMenuData[1] = {type: "separator"};
-					if (!roomMuted)
-						myMenuData[2] = {label: "Mute All", icon: images.audio_muted};
-					else
-						myMenuData[2] = {label: "Unmute All", icon: images.audio};
-					myMenuData[3] = {label: "Lower All Hands", icon: images.hand_new};
+					myMenuData[2] = {label: "Lower All Hands", icon: images.hand_new};
+					if (!roomMuted) {
+						myMenuData[3] = {label: "Mute All", icon: images.audio_muted};
+						myMenuData[4] = {label: "Mute All Except Presenter", icon: images.audio_muted};
+					} else
+						myMenuData[3] = {label: "Unmute All", icon: images.audio};
+					
 				}
 				
 				// make sure the previous menu is closed before opening a new one
@@ -202,11 +204,13 @@
 					showAudioSettings();
 					break;
 				case 2:
-					muteAll();
-					break;
-				case 3:
 					lowerHands();
 					break;
+				case 3:
+					muteAll();
+					break;
+				case 4:
+					muteAlmostAll();
 				}
 			}
 			
@@ -228,6 +232,16 @@
 						var unmuteCommand:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.UNMUTE_ALL);
 						dispatchEvent(unmuteCommand);
 						roomMuted = false;
+					}
+				}
+			}
+			
+			private function muteAlmostAll():void {
+				if (amIModerator) {
+					if (!roomMuted) {
+						var muteCommand:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_ALMOST_ALL);
+						dispatchEvent(muteCommand);
+						roomMuted = true;
 					}
 				}
 			}
