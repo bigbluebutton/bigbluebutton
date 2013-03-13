@@ -88,13 +88,13 @@ public class Proxy {
         return this.url + API_SERVERPATH + APICALL_CREATE + "?" + url;
     }
     
-    public String getJoinMeetingURL(String fullName, String meetingID, String password, String createTime, String userID) {
-        String url = getJoinMeetingURL(fullName, meetingID, password, createTime, userID, "" );
+    public String getJoinURL(String fullName, String meetingID, String password, String createTime, String userID) {
+        String url = getJoinURL(fullName, meetingID, password, createTime, userID, "" );
         return url;
         
     }
 
-    public String getJoinMeetingURL(String fullName, String meetingID, String password, String createTime, String userID, String webVoiceConf ) {
+    public String getJoinURL(String fullName, String meetingID, String password, String createTime, String userID, String webVoiceConf ) {
 
         String url;
         url = "fullName=" + getStringEncoded(fullName);
@@ -117,7 +117,7 @@ public class Proxy {
         return this.url + API_SERVERPATH + APICALL_ISMEETINGRUNNING + "?" + url;
     }
 
-    public String getEndMeetingURL(String meetingID, String password) {
+    public String getEndURL(String meetingID, String password) {
         
         String url = "meetingID=" + meetingID;
         url += "&password=" + password;
@@ -126,7 +126,7 @@ public class Proxy {
         return this.url + API_SERVERPATH + APICALL_END + "?" + url;
     }
     
-    public String getMeetingInfoURL(String meetingID, String password) {
+    public String getGetMeetingInfoURL(String meetingID, String password) {
         
         String url = "meetingID=" + meetingID;
         url += "&password=" + password;
@@ -135,19 +135,19 @@ public class Proxy {
         return this.url + API_SERVERPATH + APICALL_GETMEETINGINFO + "?" + url;
     }
 
-    public String getMeetingsURL(String meetingID, String password) {
+    public String getGetMeetingsURL(String meetingID, String password) {
         
         String url = getCheckSumParameterForQuery(APICALL_END, "");
         
         return this.url + API_SERVERPATH + APICALL_END + "?" + url;
     }
 
-    public String getRecordingsURL(String meetingID) {
+    public String getGetRecordingsURL(String meetingID) {
         
-        String url = "meetingID=" + meetingID;
-        url += getCheckSumParameterForQuery(APICALL_GETRECORDINGS, url);
+        String queryString = "meetingID=" + meetingID;
+        queryString += getCheckSumParameterForQuery(APICALL_GETRECORDINGS, queryString);
         
-        return this.url + API_SERVERPATH + APICALL_GETRECORDINGS + "?" + url;
+        return this.url + API_SERVERPATH + APICALL_GETRECORDINGS + "?" + queryString;
     }
     
     public String getPublishRecordingsURL(String recordID, String publish) {
@@ -162,9 +162,9 @@ public class Proxy {
     public String getDeleteRecordingsURL(String recordID) {
         
         String url = "recordID=" + recordID;
-        url += getCheckSumParameterForQuery(APICALL_PUBLISHRECORDINGS, url);
+        url += getCheckSumParameterForQuery(APICALL_DELETERECORDINGS, url);
         
-        return this.url + API_SERVERPATH + APICALL_PUBLISHRECORDINGS + "?" + url;
+        return this.url + API_SERVERPATH + APICALL_DELETERECORDINGS + "?" + url;
     }
     
     public String getStringEncoded(String string){

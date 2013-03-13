@@ -53,6 +53,7 @@ public class Role {
                 roles[i].equals(MENTOR) ||
                 roles[i].equals(URN_INSTITUTION_ROLE + MENTOR) ||
                 roles[i].equals(URN_CONTEXT_ROLE + MENTOR) ||
+                roles[i].equals(ADMINISTRATOR) ||
                 roles[i].equals(URN_INSTITUTION_ROLE + ADMINISTRATOR) ||
                 roles[i].equals(URN_CONTEXT_ROLE + ADMINISTRATOR)
                 ){
