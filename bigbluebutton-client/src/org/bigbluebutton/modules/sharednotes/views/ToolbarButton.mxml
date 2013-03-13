@@ -39,6 +39,8 @@
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
+			import org.bigbluebutton.modules.sharednotes.events.ToolbarButtonWindowEvent;
+			import org.bigbluebutton.modules.sharednotes.events.JoinSharedNotesEvent;
 			
 			[Embed(source="images/note_edit.png")]
 			public var notes:Class;
@@ -49,32 +51,24 @@
 			
 			private var dispatcher:Dispatcher;
 			private var window:SharedNotesWindow;
-			
-			private function init():void{
-				dispatcher = new Dispatcher();
-				window = new SharedNotesWindow();
-				window.room = _attributes.room;
-				window.connection = _attributes.connection;
-				window.uri = _attributes.uri;
-				window.host = _attributes.host;
-				this.visible = this.includeInLayout = _attributes.showButton.toString().toUpperCase() == "TRUE";
+			private var _join:Boolean = false;
 
+			private function init():void{
+				_join = false;
+				dispatcher = new Dispatcher();
 				this.addEventListener(SharedNotesWindow.SHARED_NOTES_CLOSED, closeEventHandler);
-				
-				if (_attributes.autoStart.toString().toUpperCase() == "TRUE")
-					openNotesWindow();
 			}
 			
 			private function openNotesWindow():void{
 				if (!this.selected) {
-					var openEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-					openEvent.window = window;
-					dispatcher.dispatchEvent(openEvent);
+					if(!_join) {
+						_join = true;
+						dispatcher.dispatchEvent(new JoinSharedNotesEvent());
+					}
+					dispatcher.dispatchEvent(new ToolbarButtonWindowEvent(ToolbarButtonWindowEvent.SHOW_WINDOW));
 					this.selected = true;
 				} else {
-					var closeEvent:CloseWindowEvent = new CloseWindowEvent();
-					closeEvent.window = window;
-					dispatcher.dispatchEvent(closeEvent);
+					dispatcher.dispatchEvent(new ToolbarButtonWindowEvent(ToolbarButtonWindowEvent.HIDE_WINDOW));
 					this.selected = false;
 				}
 			}
@@ -85,11 +79,9 @@
 			
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_LEFT;
-            }
+            		}
 
-			public function set attributes(attributes:Object):void {
-				_attributes = attributes;
-			}
+			
 		]]>
 	</mx:Script>
 </mx:Button>

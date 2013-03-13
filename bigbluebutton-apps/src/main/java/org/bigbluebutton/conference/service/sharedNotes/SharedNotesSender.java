@@ -43,26 +43,6 @@ public class SharedNotesSender implements ISharedNotesRoomListener {
 		return name;
 	}
 
-	
-	@Override
-	public void updateLayout(List<Object> args) {
-		log.debug("Sending update layout");
-
-		if (so.isLocked()) 
-			log.info("Layout SO is locked");
-		if (so.isAcquired()) 
-			log.info("Layout SO is acquired");
-		ISharedObjectStatistics stats = so.getStatistics();
-		log.debug("Before: Layout SO stats [total-sends=" + stats.getTotalSends() + "]");
-		so.sendMessage("remoteUpdateLayout", args);
-		log.debug("After: Layout SO stats [total-sends=" + stats.getTotalSends() + "]");
-		if (so.isLocked()) 
-			log.info("Layout SO is locked");
-		if (so.isAcquired()) 
-			log.info("Layout SO is acquired");
-	}
-
-
 	@Override
 	public void initClientDocument(Long userid, String document) {
 		List<Object> args = new ArrayList<Object>();
@@ -76,6 +56,8 @@ public class SharedNotesSender implements ISharedNotesRoomListener {
 		List<Object> args = new ArrayList<Object>();
 		args.add(userid);
 		args.add(patches);
-		so.sendMessage("remoteModifications", args);
+		so.sendMessage("remoteModificationsCallBack", args);
+		
+		System.out.println("SEND MODIFICATIONS to " + userid + " patche: " + patches);
 	}
 }

@@ -72,8 +72,6 @@ public class SharedNotesRoom {
 				for (Iterator<ISharedNotesRoomListener> iter = listeners.values().iterator(); iter.hasNext();) {
 					log.debug("calling on listener");
 					ISharedNotesRoomListener listener = (ISharedNotesRoomListener) iter.next();
-					log.debug("calling updateSharedNotes on listener " + listener.getName());
-					listener.initClientDocument(userid, _document);
 				}
 			}
 			
