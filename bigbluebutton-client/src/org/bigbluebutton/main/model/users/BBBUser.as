@@ -84,7 +84,7 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var room:String = "";
 		[Bindable] public var authToken:String = "";
 		[Bindable] public var selected:Boolean = false;
-		[Bindable] public var voiceUserid:Number;
+		[Bindable] public var voiceUserid:Number = 0;
 		
 		private var _voiceMuted:Boolean = false;
 		[Bindable]
@@ -219,7 +219,7 @@ package org.bigbluebutton.main.model.users
 			n.authToken = user.authToken;
 			n.me = user.me;
 			n.userID = user.userID;
-      n.externUserID = user.externUserID;
+			n.externUserID = user.externUserID;
 			n.name = user.name;
 			n.hasStream = user.hasStream;
 			n.streamName = user.streamName;
@@ -227,6 +227,15 @@ package org.bigbluebutton.main.model.users
 			n.raiseHand = user.raiseHand;
 			n.role = user.role;	
 			n.room = user.room;
+			n.customdata = user.customdata;
+			n.media = user.media;
+			n.phoneUser = user.phoneUser;
+			n.talking = user.talking;
+			n.userStatus = user.userStatus;
+			n.voiceJoined = user.voiceJoined;
+			n.voiceLocked = user.voiceLocked;
+			n.voiceMuted = user.voiceMuted;
+			n.voiceUserid = user.voiceUserid;
 			
 			return n;		
 		}

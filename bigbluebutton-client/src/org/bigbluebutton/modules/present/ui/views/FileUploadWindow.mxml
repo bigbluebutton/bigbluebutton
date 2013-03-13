@@ -271,15 +271,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <mx:Spacer height="5"/>
       <mx:Label id="fileLbl" text="{ResourceUtil.getInstance().getString('bbb.fileupload.fileLbl')}" styleName="presentationUploadChooseFileLabelStyle"/>
       <mx:Spacer width="100%"/>
-      <mx:Button label="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.label')}" id="selectBtn" 
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.toolTip')}" 
-                 click="selectFile()" styleName="presentationUploadChooseFileButtonStyle"/>
-      <mx:Spacer width="5"/>
     </mx:HBox>
     <mx:Spacer height="5"/>
     <mx:HBox width="100%"> 
       <mx:Spacer width="5"/>
       <mx:TextInput id="fileTxtInput" width="328" editable="false"/>
+		<mx:Button label="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.label')}" id="selectBtn" 
+				   toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.selectBtn.toolTip')}" 
+				   click="selectFile()" styleName="presentationUploadChooseFileButtonStyle"/>
       <mx:Button id="uploadBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn')}" 
                  toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.uploadBtn.toolTip')}"  click="startUpload()"
                  enabled="false" icon="{bulletGoIcon}"/>

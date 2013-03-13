@@ -53,11 +53,11 @@ package org.bigbluebutton.main.model.users {
 		
 		// Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
 		private function sortFunction(a:Object, b:Object, array:Array = null):int {
-			if (a.presenter)
+			/*if (a.presenter)
 				return -1;
 			else if (b.presenter)
-				return 1;
-			else if (a.role == Role.MODERATOR && b.role == Role.MODERATOR) {
+				return 1;*/
+			if (a.role == Role.MODERATOR && b.role == Role.MODERATOR) {
 				// do nothing go to the end and check names
 			} else if (a.role == Role.MODERATOR)
 				return -1;

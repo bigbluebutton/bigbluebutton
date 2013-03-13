@@ -25,6 +25,8 @@ package org.bigbluebutton.modules.participants.events
 		public static const MUTE_ALL:String = "VOICECONF_MUTE_ALL";
 		public static const UNMUTE_ALL:String = "VOICECONF_UNMUTE_ALL";
 		
+		public static const MUTE_ALMOST_ALL:String = "VOICECONF_MUTE_ALMOST_ALL";
+		
 		public static const MUTE_USER:String = "VOICECONF_MUTE_USER";
 		public static const UNMUTE_USER:String = "VOICECONF_UNMUTE_USER";
 		
