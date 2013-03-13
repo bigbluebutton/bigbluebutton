@@ -47,8 +47,15 @@ public class Parameter {
     public static final String TOOL_CONSUMER_INSTANCE_URL = "tool_consumer_instance_url";
     
     public static final String CUSTOM_USER_ID = "custom_lis_person_sourcedid";
-	public static final String CUSTOM_WELCOME = "custom_welcome";
-	public static final String CUSTOM_RECORD = "custom_record";
-
+    
+    //BigBlueButton custom parameters
+    public static final String CUSTOM_BBB_RECORD = "custom_bbb_record";
+    public static final String CUSTOM_BBB_VOICEBRIDGE = "custom_bbb_voicebridge";
+    public static final String CUSTOM_BBB_DURATION = "custom_bbb_duration";
+    public static final String CUSTOM_WELCOME = "custom_bbb_welcome";
+    
+    ///BigBlueButton internal parameters
+    public static final String BBB_RECORDING_ID = "bbb_recording_id";
+    public static final String BBB_RECORDING_PUBLISHED = "bbb_recording_published";
 
 }

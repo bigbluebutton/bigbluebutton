@@ -28,6 +28,7 @@ class LtiService {
     
     def endPoint = "http://192.168.0.153/lti/tool.xml"
     def consumers = "demo:welcome"
+    def mode = "simple"
     Map<String, String> consumerMap
     
     private Map<String, String> getConsumer(consumerId) {
