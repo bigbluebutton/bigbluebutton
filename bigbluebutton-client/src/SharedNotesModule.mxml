@@ -43,10 +43,6 @@
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.common.events.OpenWindowEvent;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
-			import org.bigbluebutton.modules.sharednotes.SharedNotesWindow;
-			import org.bigbluebutton.modules.sharednotes.ToolbarButton;
-			import org.bigbluebutton.modules.sharednotes.infrastructure.Client;
-			import org.bigbluebutton.modules.sharednotes.infrastructure.HTTPServerConnection;
 			import org.bigbluebutton.modules.sharednotes.events.StartSharedNotesModuleEvent;
 	
 

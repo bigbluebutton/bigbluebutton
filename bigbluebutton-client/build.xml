@@ -236,8 +236,8 @@
                 <build-module src="${SRC_DIR}" target="${SHAREDNOTES}" />
 
 		<echo message="Copying assets for SharedNotesModule" />
-                <copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/sharednotes/images/" >
-                        <fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/sharednotes/images/" />
+                <copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/sharednotes/views/images/" >
+                        <fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/sharednotes/views/images/" />
                 </copy>
         </target>
 

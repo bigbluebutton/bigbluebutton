@@ -27,7 +27,7 @@
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	title="{ResourceUtil.getInstance().getString('bbb.sharedNotes.title')}" 
 	creationComplete="init()" 
-	xmlns:components="org.bigbluebutton.modules.sharednotes.components.*"
+	xmlns:components="org.bigbluebutton.modules.sharednotes.views.components.*"
 	resize="onResize()"
 	showCloseButton="false">
 
@@ -50,7 +50,7 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.sharednotes.components.PatchableTextArea;
+			import org.bigbluebutton.modules.sharednotes.views.components.PatchableTextArea;
 			import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
 			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 			import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
