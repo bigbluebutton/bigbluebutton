@@ -235,6 +235,12 @@ class ToolController {
         log.debug "Locale has been set to " + locale
         String welcome = message(code: "bigbluebutton.welcome", args: ["\"{0}\"", "\"{1}\""])
         log.debug "Localized default welcome message: [" + welcome + "]"
+
+		// Check for [custom_]welcome parameter being passed from the LTI
+		if (params.get(Parameter.CUSTOM_BBB_WELCOME) != null) {
+			welcome = params.get(Parameter.CUSTOM_BBB_WELCOME)
+			log.debug "Overriding default welcome message with: [" + welcome + "]"
+		}
            
         String destinationURL = bigbluebuttonService.getJoinURL(params, welcome, ltiService.mode)
         log.debug "redirecting to " + destinationURL
