@@ -29,8 +29,6 @@ import org.red5.server.api.scope.IScope;
 import org.red5.server.api.so.ISharedObject;
 import org.red5.server.adapter.ApplicationAdapter;
 import org.red5.server.api.Red5;
-import org.bigbluebutton.conference.BigBlueButtonSession;
-import org.bigbluebutton.conference.Constants;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.bigbluebutton.conference.service.recorder.presentation.PresentationEventRecorder;
 
@@ -47,61 +45,55 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
-		log.debug(APP + ":appConnect");
+		log.debug("***** " + APP + " [ " + " appConnect *********");
 		return true;
 	}
 
 	@Override
 	public void appDisconnect(IConnection conn) {
-		log.debug(APP + ":appDisconnect");
+		log.debug("***** " + APP + " [ " + " appDisconnect *********");
 	}
 
 	@Override
 	public boolean appJoin(IClient client, IScope scope) {
-		log.debug(APP + ":appJoin " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appJoin [ " + scope.getName() + "] *********");
 		return true;
 	}
 
 	@Override
 	public void appLeave(IClient client, IScope scope) {
-		log.debug(APP + ":appLeave " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appLeave [ " + scope.getName() + "] *********");
 	}
 
 	@Override
 	public boolean appStart(IScope scope) {
-		log.debug(APP + ":appStart " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appStart [ " + scope.getName() + "] *********");
 		conversionUpdatesMessageListener.start();
 		return true;
 	}
 
 	@Override
 	public void appStop(IScope scope) {
-		log.debug(APP + ":appStop " + scope.getName());
+		log.debug("***** " + APP + " [ " + " appStop [ " + scope.getName() + "] *********");
 		conversionUpdatesMessageListener.stop();
 	}
 
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
-		log.debug(APP + ":roomConnect");
+		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
 		
-		log.debug("In live mode");
-		ISharedObject so = getSharedObject(connection.getScope(), PRESENTATION_SO);
-		
-		log.debug("Setting up recorder");
+		ISharedObject so = getSharedObject(connection.getScope(), PRESENTATION_SO, false);
 		PresentationEventSender sender = new PresentationEventSender(so);
 		PresentationEventRecorder recorder = new PresentationEventRecorder(connection.getScope().getName(), recorderApplication);
-						
-		log.debug("Adding room listener");
-		presentationApplication.addRoomListener(connection.getScope().getName(), recorder);
-		presentationApplication.addRoomListener(connection.getScope().getName(), sender);
-		log.debug("Done setting up recorder and listener");
-		return true;
+    	presentationApplication.addRoomListener(connection.getScope().getName(), recorder);
+    	presentationApplication.addRoomListener(connection.getScope().getName(), sender);
+    	
+    	return true;
 	}
 
 	@Override
 	public void roomDisconnect(IConnection connection) {
-		log.debug(APP + ":roomDisconnect");
-
+		log.debug("***** " + APP + " [ " + " roomDisconnect [ " + connection.getScope().getName() + "] *********");
 	}
 
 	@Override
@@ -112,48 +104,44 @@ public class PresentationHandler extends ApplicationAdapter implements IApplicat
 
 	@Override
 	public void roomLeave(IClient client, IScope scope) {
-		log.debug(APP + ":roomLeave " + scope.getName());
+		log.debug("***** " + APP + " [ " + " roomLeave [ " + scope.getName() + "] *********");
 	}
 
 	@Override
 	public boolean roomStart(IScope scope) {
-		log.debug(APP + " - roomStart "+ scope.getName());
+		log.debug("***** " + APP + " [ " + " roomStart [ " + scope.getName() + "] *********");
+		
 		presentationApplication.createRoom(scope.getName());
-    	if (!hasSharedObject(scope, PRESENTATION_SO)) {
-    		if (createSharedObject(scope, PRESENTATION_SO, false)) {    			
-				log.debug(APP + " - scanning for presentations - " + scope.getName());
-				try {
-					// TODO: this is hard-coded, and not really a great abstraction.  need to fix this up later
-					String folderPath = "/var/bigbluebutton/" + scope.getName() + "/" + scope.getName();
-					File folder = new File(folderPath);
-					//log.debug("folder: {} - exists: {} - isDir: {}", folder.getAbsolutePath(), folder.exists(), folder.isDirectory());
-					if (folder.exists() && folder.isDirectory()) {
-						File[] presentations = folder.listFiles(new FileFilter() {
-							public boolean accept(File path) {
-								log.debug("\tfound: " + path.getAbsolutePath());
-								return path.isDirectory();
-							}
-						});
-						for (File presFile : presentations) {
-							log.debug("\tshare: " + presFile.getName());
-							presentationApplication.sharePresentation(scope.getName(), presFile.getName(), true);
-						}
+ 			
+		log.debug(APP + " - scanning for presentations - " + scope.getName());
+		try {
+			// TODO: this is hard-coded, and not really a great abstraction.  need to fix this up later
+			String folderPath = "/var/bigbluebutton/" + scope.getName() + "/" + scope.getName();
+			File folder = new File(folderPath);
+			//log.debug("folder: {} - exists: {} - isDir: {}", folder.getAbsolutePath(), folder.exists(), folder.isDirectory());
+			if (folder.exists() && folder.isDirectory()) {
+				File[] presentations = folder.listFiles(new FileFilter() {
+					public boolean accept(File path) {
+						log.debug("\tfound: " + path.getAbsolutePath());
+						return path.isDirectory();
 					}
-				} catch (Exception ex) {
-					log.error(scope.getName() + ": error scanning for existing presentations [" + ex.getMessage() + "]", ex);
+				});
+				for (File presFile : presentations) {
+					log.debug("\tshare: " + presFile.getName());
+					presentationApplication.sharePresentation(scope.getName(), presFile.getName(), true);
 				}
-    			return true; 			
-    		}    		
-    	}  	
-		log.error("Failed to start room " + scope.getName());
-    	return false;
+			}
+		} catch (Exception ex) {
+			log.error(scope.getName() + ": error scanning for existing presentations [" + ex.getMessage() + "]", ex);
+		}
+    	return true; 			
 	}
 
 	@Override
 	public void roomStop(IScope scope) {
-		log.debug(APP + ":roomStop " + scope.getName());
+		log.debug("***** " + APP + " [ " + " roomStop [ " + scope.getName() + "] *********");
 		presentationApplication.destroyRoom(scope.getName());
-		if (!hasSharedObject(scope, PRESENTATION_SO)) {
+		if (hasSharedObject(scope, PRESENTATION_SO)) {
     		clearSharedObjects(scope, PRESENTATION_SO);
     	}
 	}

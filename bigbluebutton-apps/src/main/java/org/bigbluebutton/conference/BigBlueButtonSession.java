@@ -25,13 +25,12 @@ public class BigBlueButtonSession {
 	private final String conference;
 	private final String room;
 	private final String internalUserID;
-	private final long clientID;
 	private final String sessionName;
 	private final String voiceBridge;
 	private final Boolean record;
 	private final String externalUserID;
 	
-	public BigBlueButtonSession(String sessionName, long clientID, String internalUserID, String username, 
+	public BigBlueButtonSession(String sessionName, String internalUserID, String username, 
 				String role, String conference, String room, String voiceBridge, Boolean record, 
 				String externalUserID){
 		this.internalUserID = internalUserID;
@@ -40,7 +39,6 @@ public class BigBlueButtonSession {
 		this.role = role;
 		this.conference = conference;
 		this.room = room;
-		this.clientID = clientID;
 		this.voiceBridge = voiceBridge;
 		this.record = record;
 		this.externalUserID = externalUserID;

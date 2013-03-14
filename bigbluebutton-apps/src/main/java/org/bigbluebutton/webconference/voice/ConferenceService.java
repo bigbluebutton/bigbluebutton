@@ -48,6 +48,7 @@ public class ConferenceService implements ConferenceEventListener {
 	}
 	
 	public void destroyConference(String room) {
+		confProvider.ejectAll(room);
 		roomMgr.destroyRoom(room);
 	}
 	

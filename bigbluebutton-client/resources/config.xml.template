@@ -13,6 +13,7 @@
     <language userSelectionEnabled="true" />
     <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
 <<<<<<< HEAD
+<<<<<<< HEAD
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
             showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true"/>
             
@@ -20,6 +21,9 @@
 		
 =======
     <shortcutKeys userSelectionEnabled="true" />
+=======
+    <shortcutKeys showButton="true" />
+>>>>>>> upstream/master
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
             showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true"/>
             

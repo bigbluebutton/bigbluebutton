@@ -23,13 +23,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/" >
 	<mx:Script>
 		<![CDATA[
-			import mx.events.FlexEvent;
-			
-			import org.bigbluebutton.modules.listeners.business.ListenersProxy;
-			import org.bigbluebutton.modules.listeners.events.ListenersCommand;
-			import org.bigbluebutton.modules.listeners.events.StartListenersModuleEvent;
-			import org.bigbluebutton.modules.listeners.events.StopListenersModuleEvent;
-			import org.bigbluebutton.modules.listeners.managers.ListenersManager;
+      import mx.events.FlexEvent;
+      
+      import org.bigbluebutton.main.model.users.events.KickUserEvent;
+      import org.bigbluebutton.modules.listeners.business.ListenersProxy;
+      import org.bigbluebutton.modules.listeners.events.ListenersCommand;
+      import org.bigbluebutton.modules.listeners.events.StartListenersModuleEvent;
+      import org.bigbluebutton.modules.listeners.events.StopListenersModuleEvent;
+      import org.bigbluebutton.modules.listeners.managers.ListenersManager;
 		]]>
 	</mx:Script>
 	
@@ -48,7 +49,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{ListenersProxy}" method="disconnect" />
 		<MethodInvoker generator="{ListenersManager}" method="moduleEnded" />
 	</EventHandlers>
-	
+
+  <EventHandlers type="{KickUserEvent.KICK_USER}" >
+    <MethodInvoker generator="{ListenersProxy}" method="kickUser" arguments="{event}" />
+  </EventHandlers>
+
 	<EventHandlers type="{ListenersCommand.EJECT_USER}" >
 		<MethodInvoker generator="{ListenersProxy}" method="ejectUser" arguments="{event}" />
 	</EventHandlers>
