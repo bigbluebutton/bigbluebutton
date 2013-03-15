@@ -16,40 +16,40 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.modules.participants.managers
+package org.bigbluebutton.modules.users.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import org.bigbluebutton.common.events.CloseWindowEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.core.BBB;
-	import org.bigbluebutton.modules.participants.events.StartParticipantsModuleEvent;
-	import org.bigbluebutton.modules.participants.model.ParticipantsOptions;
-	import org.bigbluebutton.modules.participants.views.ParticipantsWindow;
+	import org.bigbluebutton.modules.users.events.StartUsersModuleEvent;
+	import org.bigbluebutton.modules.users.model.UsersOptions;
+	import org.bigbluebutton.modules.users.views.UsersWindow;
 
-	public class ParticipantsManager
+	public class UsersManager
 	{		
 		private var dispatcher:Dispatcher;
-		private var participantsWindow:ParticipantsWindow;
+		private var usersWindow:UsersWindow;
 		
-		public function ParticipantsManager(){
+		public function UsersManager(){
 			dispatcher = new Dispatcher();
 		}
 		
-		public function moduleStarted(event:StartParticipantsModuleEvent):void{
-			if (participantsWindow == null){
-				participantsWindow = new ParticipantsWindow();
-				participantsWindow.partOptions = new ParticipantsOptions();
+		public function moduleStarted(event:StartUsersModuleEvent):void{
+			if (usersWindow == null){
+				usersWindow = new UsersWindow();
+				usersWindow.partOptions = new UsersOptions();
 				
 				var e:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				e.window = participantsWindow;
+				e.window = usersWindow;
 				dispatcher.dispatchEvent(e);
 			}
 		}
 		
 		public function moduleEnded():void{
 			var event:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
-			event.window = participantsWindow;
+			event.window = usersWindow;
 			dispatcher.dispatchEvent(event);
 		}
 	}

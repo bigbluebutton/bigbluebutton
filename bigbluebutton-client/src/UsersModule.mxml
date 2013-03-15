@@ -22,24 +22,24 @@
 
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
 	implements="org.bigbluebutton.common.IBigBlueButtonModule"
-	creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.participants.maps.*" >
+	creationComplete="onCreationComplete()" xmlns:maps="org.bigbluebutton.modules.users.maps.*" >
 	
-	<maps:ParticipantsEventMap id="participantsEventMap" />
+	<maps:UsersEventMap id="UsersEventMap" />
 	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.common.LogUtil;
 			
-			import org.bigbluebutton.modules.participants.events.StartParticipantsModuleEvent;
-			import org.bigbluebutton.modules.participants.events.StopParticipantsModuleEvent;
+			import org.bigbluebutton.modules.users.events.StartUsersModuleEvent;
+			import org.bigbluebutton.modules.users.events.StopUsersModuleEvent;
 			
-			private var _moduleName:String = "Participants Module";
+			private var _moduleName:String = "Users Module";
 			private var _attributes:Object;
 			private var dispatcher:Dispatcher;
 			
 			private function onCreationComplete():void {
-				LogUtil.debug("ParticipantsModule Initialized");		
+				LogUtil.debug("UsersModule Initialized");		
 			}
 			
 			public function get moduleName():String {
@@ -62,15 +62,15 @@
 				_attributes = attributes;	
 				
 				dispatcher = new Dispatcher();
-				var startEvent:StartParticipantsModuleEvent = new StartParticipantsModuleEvent(StartParticipantsModuleEvent.START_PARTICIPANTS_MODULE);
+				var startEvent:StartUsersModuleEvent = new StartUsersModuleEvent(StartUsersModuleEvent.START_USERS_MODULE);
 				startEvent.module = this;
 				dispatcher.dispatchEvent(startEvent);
 			}
 			
 			public function stop():void {
-				LogUtil.debug("ParticipantsModule is stopping");
+				LogUtil.debug("UsersModule is stopping");
 				
-				var endEvent:StopParticipantsModuleEvent = new StopParticipantsModuleEvent(StopParticipantsModuleEvent.STOP_PARTICIPANTS_MODULE);
+				var endEvent:StopUsersModuleEvent = new StopUsersModuleEvent(StopUsersModuleEvent.STOP_USERS_MODULE);
 				dispatcher.dispatchEvent(endEvent);
 				
 			}

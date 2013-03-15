@@ -16,17 +16,17 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.modules.participants.events
+package org.bigbluebutton.modules.users.events
 {
 	import flash.events.Event;
 
-	public class ParticipantsEvent extends Event
+	public class UsersEvent extends Event
 	{
-		public static const ROOM_MUTE_STATE:String = "PARTICIPANTS_ROOM_MUTE_STATE";
+		public static const ROOM_MUTE_STATE:String = "USERS_ROOM_MUTE_STATE";
 		
 		public var mute_state:Boolean;
 		
-		public function ParticipantsEvent(type:String)
+		public function UsersEvent(type:String)
 		{
 			super(type, true, false);
 		}

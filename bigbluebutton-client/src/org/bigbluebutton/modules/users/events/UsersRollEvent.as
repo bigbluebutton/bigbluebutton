@@ -16,18 +16,18 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.modules.participants.events
+package org.bigbluebutton.modules.users.events
 {
 	import flash.events.Event;
 
-	public class ParticipantRollEvent extends Event
+	public class UsersRollEvent extends Event
 	{
-		public static const PARTICIPANT_ROLL_OVER:String = "ParticipantRollOver";
-		public static const PARTICIPANT_ROLL_OUT:String = "ParticipantRollOut";
+		public static const USER_ROLL_OVER:String = "UserRollOver";
+		public static const USER_ROLL_OUT:String = "UserRollOut";
 		
 		public var userID:String;
 		
-		public function ParticipantRollEvent(type:String, u:String)
+		public function UsersRollEvent(type:String, u:String)
 		{
 			super(type, true, false);
 			

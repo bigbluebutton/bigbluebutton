@@ -25,14 +25,14 @@
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
-	title="{ResourceUtil.getInstance().getString('bbb.participants.title')}"
+	title="{ResourceUtil.getInstance().getString('bbb.users.title')}"
 	showCloseButton="false">
 
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
-	<mate:Listener type="{ShortcutEvent.FOCUS_PARTICIPANTS_WINDOW}" method="focusWindow" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="toggleMuteMeState" />
-	<mate:Listener type="{ParticipantsEvent.ROOM_MUTE_STATE}" method="setRoomMute" />
+	<mate:Listener type="{UsersEvent.ROOM_MUTE_STATE}" method="setRoomMute" />
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -60,10 +60,10 @@
 			import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.participants.events.ParticipantRollEvent;
+			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
-			import org.bigbluebutton.modules.participants.events.ParticipantsEvent;
-			import org.bigbluebutton.modules.participants.model.ParticipantsOptions;
+			import org.bigbluebutton.modules.users.events.UsersEvent;
+			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;		
 			
 			private var dispatcher:Dispatcher;
@@ -75,31 +75,31 @@
 			private var myMenu:Menu;
 			
 			[Bindable]
-			public var partOptions:ParticipantsOptions;
+			public var partOptions:UsersOptions;
 			
 			[Bindable]
 			private var images:Images = new Images();
 			
 			[Bindable]
-			private var participants:ArrayCollection = new ArrayCollection();
+			private var users:ArrayCollection = new ArrayCollection();
 			
 			private var handRaised:Boolean = false;
 			private var amIModerator:Boolean = false;
 			
-			private const FOCUS_PARTICIPANTS_LIST:String = "Focus Participants List";
+			private const FOCUS_USERS_LIST:String = "Focus Users List";
 			private const MAKE_PRESENTER:String = "Make Presenter";
-			private const KICK_PARTICIPANT:String = "Kick Participant";
-			private const MUTE_PARTICIPANT:String = "Mute Participant";
-			private const MUTE_ALL_PARTICIPANT:String = "Mute All Participant";
+			private const KICK_USER:String = "Kick User";
+			private const MUTE_USER:String = "Mute User";
+			private const MUTE_ALL_USER:String = "Mute All User";
 			
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
 			
-				participants = UserManager.getInstance().getConference().users;
+				users = UserManager.getInstance().getConference().users;
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
 				
 				BindingUtils.bindSetter(changeButtons, UserManager.getInstance().getConference(), "amIPresenter");
-				BindingUtils.bindSetter(updateNumberofParticipants, participants, "length");
+				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
 				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
@@ -122,15 +122,15 @@
 			}
 			
 			
-			private function updateNumberofParticipants(numParticipants:int):void {
-				if (numParticipants > 8)
-					this.title = ResourceUtil.getInstance().getString('bbb.participants.title', [":", numParticipants]);
+			private function updateNumberofUsers(numUsers:int):void {
+				if (numUsers > 8)
+					this.title = ResourceUtil.getInstance().getString('bbb.users.title', [":", numUsers]);
 				else 
-					this.title = ResourceUtil.getInstance().getString('bbb.participants.title', ["", ""]);
+					this.title = ResourceUtil.getInstance().getString('bbb.users.title', ["", ""]);
 			}
 			
 			private function localeChanged(e:LocaleChangeEvent):void {
-				updateNumberofParticipants(participants.length);
+				updateNumberofUsers(users.length);
 				resourcesChanged();
 			}
 			
@@ -141,14 +141,14 @@
 			private function onItemRollOver(event:ListEvent):void{
 				var item:IListItemRenderer = event.itemRenderer;
 				var user:BBBUser = item.data as BBBUser;
-				var rollEvent:ParticipantRollEvent = new ParticipantRollEvent(ParticipantRollEvent.PARTICIPANT_ROLL_OVER, user.userID);
+				var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OVER, user.userID);
 				dispatcher.dispatchEvent(rollEvent);
 			}
 			
 			private function onItemRollOut(event:ListEvent):void{
 				var item:IListItemRenderer = event.itemRenderer;
 				var user:BBBUser = item.data as BBBUser;
-				var rollEvent:ParticipantRollEvent = new ParticipantRollEvent(ParticipantRollEvent.PARTICIPANT_ROLL_OUT, user.userID);
+				var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OUT, user.userID);
 				dispatcher.dispatchEvent(rollEvent);
 			}
 			
@@ -172,16 +172,16 @@
 			
 			private function openSettings():void {
 				// everyone can see the audio settings
-				var myMenuData:Array = [{label: ResourceUtil.getInstance().getString('bbb.participants.settings.audioSettings'), icon: images.audio}];
+				var myMenuData:Array = [{label: ResourceUtil.getInstance().getString('bbb.users.settings.audioSettings'), icon: images.audio}];
 				
 				if (amIModerator) {
 					myMenuData[1] = {type: "separator"};
-					myMenuData[2] = {label: ResourceUtil.getInstance().getString('bbb.participants.settings.lowerAllHands'), icon: images.hand_new};
+					myMenuData[2] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.lowerAllHands'), icon: images.hand_new};
 					if (!roomMuted) {
-						myMenuData[3] = {label: ResourceUtil.getInstance().getString('bbb.participants.settings.muteAll'), icon: images.audio_muted};
-						myMenuData[4] = {label: ResourceUtil.getInstance().getString('bbb.participants.settings.muteAllExcept'), icon: images.audio_muted};
+						myMenuData[3] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted};
+						myMenuData[4] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept'), icon: images.audio_muted};
 					} else
-						myMenuData[3] = {label: ResourceUtil.getInstance().getString('bbb.participants.settings.unmuteAll'), icon: images.audio};
+						myMenuData[3] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio};
 				}
 				
 				// make sure the previous menu is closed before opening a new one
@@ -218,7 +218,7 @@
 				Security.showSettings(SecurityPanel.MICROPHONE);
 			}
 			
-			private function setRoomMute(e:ParticipantsEvent):void {
+			private function setRoomMute(e:UsersEvent):void {
 				roomMuted = e.mute_state;
 			}
 			
@@ -247,39 +247,39 @@
 			}
 			
 			private function lowerHands():void {
-				for (var i:int = 0; i < participants.length; i++) {
-					var p:BBBUser = participants.getItemAt(i) as BBBUser;
+				for (var i:int = 0; i < users.length; i++) {
+					var p:BBBUser = users.getItemAt(i) as BBBUser;
 					if (p.raiseHand) dispatchEvent(new LowerHandEvent(p.userID));
         		}
 			}
 			
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();				
-				if (participants.length > 8)
-					this.title = ResourceUtil.getInstance().getString('bbb.participants.title', [":", participants.length]);
+				if (users.length > 8)
+					this.title = ResourceUtil.getInstance().getString('bbb.users.title', [":", users.length]);
 				else 
-					this.title = ResourceUtil.getInstance().getString('bbb.participants.title', ["", ""]);
+					this.title = ResourceUtil.getInstance().getString('bbb.users.title', ["", ""]);
 				
 				if (titleBarOverlay != null) {
-					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.participants.titleBar');
+					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.users.titleBar');
 				}
 				
 				if (windowControls != null) {
 					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
-					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.participants.minimizeBtn.accessibilityName");
+					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.users.minimizeBtn.accessibilityName");
 					
 					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
-					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.participants.maximizeRestoreBtn.accessibilityName");
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.users.maximizeRestoreBtn.accessibilityName");
 				}
 			}
 			
 			private function loadKeyCombos(modifier:String):void {
-				keyCombos = new Object(); // always start with a fresh array bbb.shortcutkey.participants.muteall
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.participants.focusUsers') as String)] = FOCUS_PARTICIPANTS_LIST;
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.participants.makePresenter') as String)] = MAKE_PRESENTER;
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.participants.kick') as String)] = KICK_PARTICIPANT;
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.participants.mute') as String)] = MUTE_PARTICIPANT;
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.participants.muteall') as String)] = MUTE_ALL_PARTICIPANT;
+				keyCombos = new Object(); // always start with a fresh array bbb.shortcutkey.users.muteall
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.focusUsers') as String)] = FOCUS_USERS_LIST;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.makePresenter') as String)] = MAKE_PRESENTER;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.kick') as String)] = KICK_USER;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.mute') as String)] = MUTE_USER;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.users.muteall') as String)] = MUTE_ALL_USER;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.maximize') as String)] = ShortcutEvent.MAXIMIZE_USERS;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.general.minimize') as String)] = ShortcutEvent.MINIMIZE_USERS;
 			}
@@ -291,19 +291,19 @@
 					(e.altKey   ? "alt+"     : "") + e.keyCode;		                              
 				if (keyCombos[keyPress]) {
 					switch(keyCombos[keyPress]) {
-						case FOCUS_PARTICIPANTS_LIST:
+						case FOCUS_USERS_LIST:
 							remoteFocusUsers();
 							break;
 						case MAKE_PRESENTER:
 							remoteMakePresenter();
 							break;
-						case KICK_PARTICIPANT:
+						case KICK_USER:
 							remoteKickUser();
 							break;
-						case MUTE_PARTICIPANT:
+						case MUTE_USER:
 							remoteMuteUser();
 							break;
-						case MUTE_ALL_PARTICIPANT:
+						case MUTE_ALL_USER:
 							muteAll();
 							break;
 						case ShortcutEvent.MAXIMIZE_USERS:
@@ -339,8 +339,8 @@
 			}
 			
 			public function remoteMakePresenter():void{
-				if (amIModerator && participantsGrid.selectedIndex != -1) {
-					var selData:Object = participantsGrid.selectedItem;
+				if (amIModerator && usersGrid.selectedIndex != -1) {
+					var selData:Object = usersGrid.selectedItem;
 					
 					if (!selData.presenter && !selData.phoneUser) {
 						var e:RoleChangeEvent = new RoleChangeEvent(RoleChangeEvent.ASSIGN_PRESENTER);
@@ -352,8 +352,8 @@
 			}
 			
 			public function remoteKickUser():void{
-				if (amIModerator && participantsGrid.selectedIndex != -1) {
-					var selData:Object = participantsGrid.selectedItem;
+				if (amIModerator && usersGrid.selectedIndex != -1) {
+					var selData:Object = usersGrid.selectedItem;
 					
 					if (!selData.me)
 						dispatchEvent(new KickUserEvent(selData.userID));
@@ -361,8 +361,8 @@
 			}
 			
 			public function remoteMuteUser():void{
-				if (amIModerator && participantsGrid.selectedIndex != -1) {
-					var selData:Object = participantsGrid.selectedItem;
+				if (amIModerator && usersGrid.selectedIndex != -1) {
+					var selData:Object = usersGrid.selectedItem;
 					
 					if (selData.voiceJoined) {
 						var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
@@ -374,32 +374,32 @@
 			}
 			
 			public function remoteFocusUsers():void{
-				focusManager.setFocus(participantsGrid);
-				participantsGrid.drawFocus(true);
+				focusManager.setFocus(usersGrid);
+				usersGrid.drawFocus(true);
 			}
 			
 		]]>
 	</mx:Script>
 	
-	<mx:DataGrid id="participantsGrid" dataProvider="{participants}" editable="false" sortableColumns="true"
+	<mx:DataGrid id="usersGrid" dataProvider="{users}" editable="false" sortableColumns="true"
     	dragEnabled="false" width="100%" height="100%" 
     	itemRollOver="onItemRollOver(event)"
 		itemRollOut="onItemRollOut(event)" 
 		tabIndex="{partOptions.baseTabIndex+5}"
-		accessibilityName="{ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.accessibilityName')}" >
+		accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.accessibilityName')}" >
     	<mx:columns>
-    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer')}" editable="false" width="45"
-    			itemRenderer="org.bigbluebutton.modules.participants.views.StatusItemRenderer" sortable="false" />
-    		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.nameItemRenderer')}" editable="false" width="100" sortable="false"
-    			itemRenderer="org.bigbluebutton.modules.participants.views.NameItemRenderer"/>
-    		<mx:DataGridColumn dataField="media" headerText="{ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer')}" sortable="false"
-    			itemRenderer="org.bigbluebutton.modules.participants.views.MediaItemRenderer"/>
+    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="45"
+    			itemRenderer="org.bigbluebutton.modules.users.views.StatusItemRenderer" sortable="false" />
+    		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}" editable="false" width="100" sortable="false"
+    			itemRenderer="org.bigbluebutton.modules.users.views.NameItemRenderer"/>
+    		<mx:DataGridColumn dataField="media" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer')}" sortable="false"
+    			itemRenderer="org.bigbluebutton.modules.users.views.MediaItemRenderer"/>
     	</mx:columns>
     </mx:DataGrid>
 	
 	<mx:ControlBar width="100%">
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
-					toolTip="{ResourceUtil.getInstance().getString('bbb.participants.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+10}"/>
+					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+10}"/>
 		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}"
 					width="30" height="30" toolTip="Raise Hand" click="raiseHand()"
 					visible="false" includeInLayout="{raiseHandBtn.visible}" tabIndex="{partOptions.baseTabIndex+15}" />
@@ -407,7 +407,7 @@
 		<mx:Button id="muteMeBtn" click="toggleMuteMeState()" height="30" width="30" 
 					icon="{UserManager.getInstance().getConference().voiceMuted ? images.audio_muted : images.audio}"
 					visible="{UserManager.getInstance().getConference().voiceJoined}"
-					toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.participants.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.participants.pushToMute.toolTip')}" 
+					toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.users.pushToMute.toolTip')}" 
 					tabIndex="{partOptions.baseTabIndex+20}"/>
 		
 	</mx:ControlBar>

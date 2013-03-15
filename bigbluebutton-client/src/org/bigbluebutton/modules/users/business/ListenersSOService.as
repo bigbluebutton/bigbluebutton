@@ -16,7 +16,7 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.modules.participants.business
+package org.bigbluebutton.modules.users.business
 {
 	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.AsyncErrorEvent;
@@ -32,7 +32,7 @@ package org.bigbluebutton.modules.participants.business
 	import org.bigbluebutton.main.events.BBBEvent;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.Conference;
-	import org.bigbluebutton.modules.participants.events.ParticipantsEvent;
+	import org.bigbluebutton.modules.users.events.UsersEvent;
 	
 	public class ListenersSOService {
 		private static const LOGNAME:String = "[ListenersSOService]";		
@@ -46,13 +46,13 @@ package org.bigbluebutton.modules.participants.business
 		private var nc_responder : Responder;
 		private var _soErrors:Array;
 		private var pingCount:int = 0;
-		private var _module:ParticipantsModule;
+		private var _module:UsersModule;
 		private var dispatcher:Dispatcher;
 		private var moderator:Boolean;
 		
 		private static var globalDispatcher:Dispatcher = new Dispatcher();
 		
-		public function ListenersSOService(module:ParticipantsModule) {			
+		public function ListenersSOService(module:UsersModule) {			
 			_conference = UserManager.getInstance().getConference();		
 			_module = module;			
 			dispatcher = new Dispatcher();
@@ -322,7 +322,7 @@ package org.bigbluebutton.modules.participants.business
 		}
 		
 		public function muteStateCallback(mute:Boolean):void {
-			var e:ParticipantsEvent = new ParticipantsEvent(ParticipantsEvent.ROOM_MUTE_STATE);
+			var e:UsersEvent = new UsersEvent(UsersEvent.ROOM_MUTE_STATE);
 			e.mute_state = mute;
 			dispatcher.dispatchEvent(e);
 		}
@@ -382,7 +382,7 @@ package org.bigbluebutton.modules.participants.business
 				new Responder(
 					// participants - On successful result
 					function(result:Object):void { 
-						var e:ParticipantsEvent = new ParticipantsEvent(ParticipantsEvent.ROOM_MUTE_STATE);
+						var e:UsersEvent = new UsersEvent(UsersEvent.ROOM_MUTE_STATE);
 						e.mute_state = result as Boolean;
 						dispatcher.dispatchEvent(e);
 					},	

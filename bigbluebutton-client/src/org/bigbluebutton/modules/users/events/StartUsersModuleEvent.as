@@ -16,17 +16,17 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.modules.participants.events
+package org.bigbluebutton.modules.users.events
 {
 	import flash.events.Event;
 	
-	public class StartParticipantsModuleEvent extends Event
+	public class StartUsersModuleEvent extends Event
 	{
-		public static const START_PARTICIPANTS_MODULE:String = "Start_Participants_Module";
+		public static const START_USERS_MODULE:String = "Start_Users_Module";
 		
-		public var module:ParticipantsModule;
+		public var module:UsersModule;
 		
-		public function StartParticipantsModuleEvent(type:String)
+		public function StartUsersModuleEvent(type:String)
 		{
 			super(type, true, false);
 		}

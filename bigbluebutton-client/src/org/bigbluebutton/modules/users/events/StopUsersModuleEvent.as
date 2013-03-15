@@ -16,18 +16,18 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.modules.participants.events
+package org.bigbluebutton.modules.users.events
 {
 	import flash.events.Event;
 
-	public class StopParticipantsModuleEvent extends Event
+	public class StopUsersModuleEvent extends Event
 	{
-		public static const STOP_PARTICIPANTS_MODULE:String = "Stop_Participants_Module";
+		public static const STOP_USERS_MODULE:String = "Stop_Users_Module";
 		public static const DISCONNECTED:String = "Module Disconnected";
 		
 		public var manual_disconnect:Boolean;
 		
-		public function StopParticipantsModuleEvent(type:String)	
+		public function StopUsersModuleEvent(type:String)	
 		{
 			super(type, true, false);
 		}
