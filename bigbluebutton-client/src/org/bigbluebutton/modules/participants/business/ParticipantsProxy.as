@@ -30,7 +30,7 @@ package org.bigbluebutton.modules.participants.business
 	import org.bigbluebutton.modules.participants.events.ParticipantsEvent;
 	import org.bigbluebutton.modules.participants.events.StartParticipantsModuleEvent;
 	import org.bigbluebutton.modules.participants.events.StopParticipantsModuleEvent;
-	import org.bigbluebutton.modules.participants.events.VoiceConfEvent;
+	import org.bigbluebutton.core.events.VoiceConfEvent;
 
 	public class ParticipantsProxy
 	{		

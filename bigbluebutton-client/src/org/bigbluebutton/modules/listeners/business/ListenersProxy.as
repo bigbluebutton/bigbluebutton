@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.listeners.business
 	import mx.controls.Alert;
 	
 	import org.bigbluebutton.core.UsersUtil;
+	import org.bigbluebutton.core.events.VoiceConfEvent;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
 	import org.bigbluebutton.modules.listeners.business.vo.Listeners;
@@ -95,22 +96,22 @@ package org.bigbluebutton.modules.listeners.business
 			}
 		}
 
-		public function muteUnmuteUser(command:ListenersCommand):void
+		public function muteUnmuteUser(command:VoiceConfEvent):void
 		{
 			_listenersService.muteUnmuteUser(command.userid, command.mute);		
 		}
 
-		public function lockMuteUser(command:ListenersCommand):void
+		public function lockMuteUser(command:VoiceConfEvent):void
 		{
 			_listenersService.lockMuteUser(command.userid, command.lock);		
 		}
 		
-		public function muteAllUsers(command:ListenersCommand):void
+		public function muteAllUsers(command:VoiceConfEvent):void
 		{	
 			_listenersService.muteAllUsers(true);			
 		}
 		
-		public function unmuteAllUsers(command:ListenersCommand):void{
+		public function unmuteAllUsers(command:VoiceConfEvent):void{
 			_listenersService.muteAllUsers(false);
 		}
 		
@@ -119,7 +120,7 @@ package org.bigbluebutton.modules.listeners.business
       _listenersService.ejectUser(user.voiceUserid);
     }
  
-		public function ejectUser(command:ListenersCommand):void
+		public function ejectUser(command:VoiceConfEvent):void
 		{
 			_listenersService.ejectUser(command.userid);			
 		}	
