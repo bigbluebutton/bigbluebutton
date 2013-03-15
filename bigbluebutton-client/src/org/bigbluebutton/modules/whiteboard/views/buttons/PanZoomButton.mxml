@@ -20,8 +20,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
            width="30" height="30"
-       click="onClick()" styleName="whiteboardPanZoomButtonStyle"
-		   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.panzoom')}" toggle="true">
+           click="onClick()" styleName="whiteboardPanZoomButtonStyle"
+		   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.panzoom')}" toggle="true"
+		   accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.panzoom.accessibilityName')}">
 	<mx:Script>
 		<![CDATA[
             import org.bigbluebutton.modules.whiteboard.business.shapes.WhiteboardConstants;

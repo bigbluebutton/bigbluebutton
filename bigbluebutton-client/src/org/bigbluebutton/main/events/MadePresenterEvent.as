@@ -28,7 +28,7 @@ package org.bigbluebutton.main.events
 		
 		public var presenterName:String;
 		public var assignerBy:String;
-		public var userid:String;
+		public var userID:String;
 		
 		public function MadePresenterEvent(type:String)
 		{

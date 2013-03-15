@@ -46,6 +46,7 @@ public class ParamsProcessorUtil {
 	private String securitySalt;
 	private int defaultMaxUsers = 20;
 	private String defaultWelcomeMessage;
+	private String defaultWelcomeMessageFooter;
 	private String defaultDialAccessNumber;
 	private String testVoiceBridge;
 	private String testConferenceMock;
@@ -375,6 +376,8 @@ public class ParamsProcessorUtil {
 		if (StringUtils.isEmpty(message)) {
 			welcomeMessage = defaultWelcomeMessage;
 		}
+		if( !StringUtils.isEmpty(defaultWelcomeMessageFooter) )
+		    welcomeMessage += "<br><br>" + defaultWelcomeMessageFooter;
 		return welcomeMessage;
 	}
 
@@ -542,6 +545,10 @@ public class ParamsProcessorUtil {
 	public void setDefaultWelcomeMessage(String defaultWelcomeMessage) {
 		this.defaultWelcomeMessage = defaultWelcomeMessage;
 	}
+	
+	public void setDefaultWelcomeMessageFooter(String defaultWelcomeMessageFooter) {
+	    this.defaultWelcomeMessageFooter = defaultWelcomeMessageFooter;
+	}
 
 	public void setDefaultDialAccessNumber(String defaultDialAccessNumber) {
 		this.defaultDialAccessNumber = defaultDialAccessNumber;
@@ -604,5 +611,21 @@ public class ParamsProcessorUtil {
 			internalMeetingIds.add(convertToInternalMeetingId(extid));
 		}
 		return internalMeetingIds;
+	}
+	
+	public Map<String,String> getUserCustomData(Map<String,String> params){
+		Map<String,String> resp = new HashMap<String, String>();
+		
+		for (String key: params.keySet()) {
+	    	if (key.contains("userdata")&&key.indexOf("userdata")==0){
+	    		String[] userdata = key.split("-");
+			    if(userdata.length == 2){
+			    	log.debug("Got user custom data {} = {}", key, params.get(key));
+			    	resp.put(userdata[1], params.get(key));
+			    }
+			}   
+	    }
+		
+		return resp;
 	}
 }

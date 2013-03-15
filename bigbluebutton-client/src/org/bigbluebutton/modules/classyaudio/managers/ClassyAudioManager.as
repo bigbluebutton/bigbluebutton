@@ -119,11 +119,13 @@ package org.bigbluebutton.modules.classyaudio.managers
 		private function enablePushToTalkButton():void{
 			var e:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 			e.button = new PushToTalkButton();
+			event.module="Microphone";
+			//e.tabIndex = 2;
 			dispatcher.dispatchEvent(e);
 		}
 		
 		private function muteIfNotPresenter(e:Event = null):void{
-			if (UserManager.getInstance().getConference().amIPresenter()){
+			if (UserManager.getInstance().getConference().amIPresenter){
 				streamManager.unmute();
 			} else {
 				streamManager.mute();

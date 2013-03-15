@@ -85,7 +85,7 @@ package org.bigbluebutton.modules.broadcast.managers
       
  //     sendWhatIsTheCurrentStreamRequest();
       
-      if (UserManager.getInstance().getConference().amIPresenter()) {
+      if (UserManager.getInstance().getConference().amIPresenter) {
         handleSwitchToPresenterMode();
       } else {
         handleSwitchToViewerMode();
@@ -121,7 +121,7 @@ package org.bigbluebutton.modules.broadcast.managers
 		
 		public function handleWhatIsTheCurrentStreamRequest(event:BBBEvent):void {
 			trace("BroadcastManager:: Received " + event.payload["messageID"] );
-			var isPresenter:Boolean = UserManager.getInstance().getConference().amIPresenter();
+			var isPresenter:Boolean = UserManager.getInstance().getConference().amIPresenter;
 			if (isPresenter && curStream != null) {
 				broadcastService.sendWhatIsTheCurrentStreamReply(event.payload["requestedBy"], curStream.getStreamId());
 			}

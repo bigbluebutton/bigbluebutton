@@ -93,6 +93,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <property name="securitySalt" value="${securitySalt}"/>
     <property name="defaultMaxUsers" value="${defaultMaxUsers}"/>
     <property name="defaultWelcomeMessage" value="${defaultWelcomeMessage}"/>
+    <property name="defaultWelcomeMessageFooter" value="${defaultWelcomeMessageFooter}"/>
     <property name="defaultDialAccessNumber" value="${defaultDialAccessNumber}"/>
     <property name="testVoiceBridge" value="${testVoiceBridge}"/>
     <property name="testConferenceMock" value="${testConferenceMock}"/>

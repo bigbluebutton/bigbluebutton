@@ -70,7 +70,7 @@ class BigbluebuttonService {
     
     }
     
-    public String getJoinURL(params, welcome){
+    public String getJoinURL(params, welcome, mode){
         //Set the injected values
         if( !url.equals(bbbProxy.url) && !url.equals("") ) bbbProxy.setUrl(url)
         if( !salt.equals(bbbProxy.salt) && !salt.equals("") ) bbbProxy.setSalt(salt)
@@ -82,27 +82,36 @@ class BigbluebuttonService {
         String attendeePW = DigestUtils.shaHex("ap" + params.get(Parameter.RESOURCE_LINK_ID) + params.get(Parameter.CONSUMER_ID))
         String moderatorPW = DigestUtils.shaHex("mp" + params.get(Parameter.RESOURCE_LINK_ID) + params.get(Parameter.CONSUMER_ID))
         String logoutURL = getValidatedLogoutURL(params.get(Parameter.LAUNCH_RETURN_URL))
-        boolean isModerator = params.get(Parameter.ROLES) != null? Role.isModerator(params.get(Parameter.ROLES)): true
+        boolean isModerator = isModerator(params)
         String userFullName = getValidatedUserFullName(params, isModerator)
         String courseTitle = getValidatedCourseTitle(params.get(Parameter.COURSE_TITLE))
         String userID = getValidatedUserId(params.get(Parameter.USER_ID))
+        
+        Integer voiceBridge = 0
+        Boolean record = false
+        Integer duration = 0
+        if( "extended".equals(mode) ){
+            voiceBridge = getValidatedBBBVoiceBridge(params.get(Parameter.CUSTOM_BBB_VOICEBRIDGE))
+            record = getValidatedBBBRecord(params.get(Parameter.CUSTOM_BBB_RECORD))
+            duration = getValidatedBBBDuration(params.get(Parameter.CUSTOM_BBB_DURATION))
+        }
         
         String[] values = [meetingName, courseTitle]
         String welcomeMsg = MessageFormat.format(welcome, values)
         
         String meta = getMonitoringMetaData(params)
         
-        String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcomeMsg, logoutURL, meta )
-        //log.debug "createURL: " + createURL
+        String createURL = getCreateURL( meetingName, meetingID, attendeePW, moderatorPW, welcomeMsg, voiceBridge, logoutURL, record, duration, meta )
+        log.debug "createURL: " + createURL
         Map<String, Object> createResponse = doAPICall(createURL)
-        //log.debug "createResponse: " + createResponse
+        log.debug "createResponse: " + createResponse
 
         if( createResponse != null){
             String returnCode = (String) createResponse.get("returncode")
             String messageKey = (String) createResponse.get("messageKey")
             if ( Proxy.APIRESPONSE_SUCCESS.equals(returnCode) ||
                 (Proxy.APIRESPONSE_FAILED.equals(returnCode) &&  (Proxy.MESSAGEKEY_IDNOTUNIQUE.equals(messageKey) || Proxy.MESSAGEKEY_DUPLICATEWARNING.equals(messageKey)) ) ){
-                joinURL = bbbProxy.getJoinMeetingURL( userFullName, meetingID, isModerator? moderatorPW: attendeePW, (String) createResponse.get("createTime"), userID);
+                joinURL = bbbProxy.getJoinURL( userFullName, meetingID, isModerator? moderatorPW: attendeePW, (String) createResponse.get("createTime"), userID);
             }
         }
 
@@ -110,10 +119,82 @@ class BigbluebuttonService {
         
     }
     
-    private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, String logoutURL, String meta ) {
-        Integer voiceBridge = 70000 + new Random(System.currentTimeMillis()).nextInt(10000);
+    public Object getRecordings(params){
+        //Set the injected values
+        if( !url.equals(bbbProxy.url) && !url.equals("") ) bbbProxy.setUrl(url)
+        if( !salt.equals(bbbProxy.salt) && !salt.equals("") ) bbbProxy.setSalt(salt)
 
-        String url = bbbProxy.getCreateURL(name, meetingID, attendeePW, moderatorPW, welcome, "", voiceBridge.toString(), "", logoutURL, "", "", "", meta );
+        String meetingID = getValidatedMeetingId(params.get(Parameter.RESOURCE_LINK_ID), params.get(Parameter.CONSUMER_ID))
+        
+        String recordingsURL = bbbProxy.getGetRecordingsURL( meetingID )
+        log.debug "recordingsURL: " + recordingsURL
+        Map<String, Object> recordings = doAPICall(recordingsURL)
+
+        if( recordings != null){
+            String returnCode = (String) recordings.get("returncode")
+            String messageKey = (String) recordings.get("messageKey")
+            if ( Proxy.APIRESPONSE_SUCCESS.equals(returnCode) && messageKey == null ){
+                return recordings.get("recordings")
+            } 
+        }
+
+        return null
+    }
+
+    public Object doDeleteRecordings(params){
+        //Set the injected values
+        if( !url.equals(bbbProxy.url) && !url.equals("") ) bbbProxy.setUrl(url)
+        if( !salt.equals(bbbProxy.salt) && !salt.equals("") ) bbbProxy.setSalt(salt)
+
+        Map<String, Object> result
+        
+        String recordingId = getValidatedBBBRecordingId(params.get(Parameter.BBB_RECORDING_ID))
+        
+        if( !recordingId.equals("") ){
+            String deleteRecordingsURL = bbbProxy.getDeleteRecordingsURL( recordingId )
+            log.debug "deleteRecordingsURL: " + deleteRecordingsURL
+            result = doAPICall(deleteRecordingsURL)
+        } else {
+            result = new HashMap<String, String>()
+            result.put("resultMessageKey", "InvalidRecordingId")
+            result.put("resultMessage", "RecordingId is invalid. The recording can not be deleted.")
+        }
+
+        return result
+    }
+    
+    public Object doPublishRecordings(params){
+        //Set the injected values
+        if( !url.equals(bbbProxy.url) && !url.equals("") ) bbbProxy.setUrl(url)
+        if( !salt.equals(bbbProxy.salt) && !salt.equals("") ) bbbProxy.setSalt(salt)
+        
+        Map<String, Object> result
+
+        String recordingId = getValidatedBBBRecordingId(params.get(Parameter.BBB_RECORDING_ID))
+        String publish = getValidatedBBBRecordingPublished(params.get(Parameter.BBB_RECORDING_PUBLISHED))
+        
+        if( !recordingId.equals("") ){
+            String publishRecordingsURL = bbbProxy.getPublishRecordingsURL( recordingId, "true".equals(publish)?"false":"true" )
+            log.debug "publishRecordingsURL: " + publishRecordingsURL
+            result = doAPICall(publishRecordingsURL)
+        } else {
+            result = new HashMap<String, String>()
+            result.put("resultMessageKey", "InvalidRecordingId")
+            result.put("resultMessage", "RecordingId is invalid. The recording can not be deleted.")
+        }
+
+        return result
+    }
+    
+    public boolean isModerator(params) {
+        boolean isModerator = params.get(Parameter.ROLES) != null? Role.isModerator(params.get(Parameter.ROLES)): true
+        return isModerator
+    }
+    
+    private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, Integer voiceBridge, String logoutURL, Boolean record, Integer duration, String meta ) {
+        voiceBridge = ( voiceBridge == null || voiceBridge == 0 )? 70000 + new Random(System.currentTimeMillis()).nextInt(10000): voiceBridge;
+
+        String url = bbbProxy.getCreateURL(name, meetingID, attendeePW, moderatorPW, welcome, "", voiceBridge.toString(), "", logoutURL, "", record.toString(), duration.toString(), meta );
         return url;
     }
     
@@ -121,8 +202,8 @@ class BigbluebuttonService {
         return (meetingName == null || meetingName == "")? "Meeting": meetingName
     }
     
-    private String getValidatedMeetingId(String meetingId, String consumerId){
-        return DigestUtils.shaHex(meetingId + consumerId)
+    private String getValidatedMeetingId(String resourceId, String consumerId){
+        return DigestUtils.shaHex(resourceId + consumerId)
     }
 
     private String getValidatedLogoutURL(String logoutURL){
@@ -155,6 +236,26 @@ class BigbluebuttonService {
 
     private String getValidatedUserId(String userId){
         return (userId == null)? "": userId
+    }
+    
+    private Integer getValidatedBBBVoiceBridge(String voiceBridge){
+        return (voiceBridge != null )? voiceBridge.toInteger(): 0
+    }
+    
+    private Boolean getValidatedBBBRecord(String record){
+        return (record != null && record == "true")? true: false
+    }
+    
+    private Integer getValidatedBBBDuration(String duration){
+        return (duration != null )? duration.toInteger(): 0
+    }
+
+    private String getValidatedBBBRecordingId(String recordingId){
+        return (recordingId != null )? recordingId: ""
+    }
+
+    private String getValidatedBBBRecordingPublished(String published){
+        return (published != null && published.equals("true") )? "true": "false"
     }
     
     private String getMonitoringMetaData(params){
@@ -245,41 +346,40 @@ class BigbluebuttonService {
     }
     
     /** Get all nodes under the specified element tag name as a Java map */
-    private Map<String, Object> getNodesAsMap(Document dom, String elementTagName) {
+    protected Map<String, Object> getNodesAsMap(Document dom, String elementTagName) {
         Node firstNode = dom.getElementsByTagName(elementTagName).item(0);
         return processNode(firstNode);
     }
 
-    private Map<String, Object> processNode(Node _node) {
-        Map<String, Object> map = new LinkedHashMap<String, Object>();
+    protected Map<String, Object> processNode(Node _node) {
+        Map<String, Object> map = new HashMap<String, Object>();
         NodeList responseNodes = _node.getChildNodes();
         for (int i = 0; i < responseNodes.getLength(); i++) {
             Node node = responseNodes.item(i);
             String nodeName = node.getNodeName().trim();
-            if (node.getChildNodes().getLength() == 1 && node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.TEXT_NODE) {
+            if (node.getChildNodes().getLength() == 1
+                    && ( node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.TEXT_NODE || node.getChildNodes().item(0).getNodeType() == org.w3c.dom.Node.CDATA_SECTION_NODE) ) {
                 String nodeValue = node.getTextContent();
                 map.put(nodeName, nodeValue != null ? nodeValue.trim() : null);
-            } else if (node.getChildNodes().getLength() == 0 && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE) {
+            
+            } else if (node.getChildNodes().getLength() == 0
+                    && node.getNodeType() != org.w3c.dom.Node.TEXT_NODE
+                    && node.getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE) {
                 map.put(nodeName, "");
-            } else {
-                if( !map.containsKey(nodeName) ) {
-                    map.put(nodeName, processNode(node));
+            
+            } else if ( node.getChildNodes().getLength() >= 1
+                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.TEXT_NODE
+                    && node.getChildNodes().item(0).getChildNodes().item(0).getNodeType() != org.w3c.dom.Node.CDATA_SECTION_NODE ) {
 
-                } else {
-                    Object curObject = map.get(nodeName);
-                    List<Object> list;
-                    
-                    if( curObject.getClass().equals(LinkedHashMap.class) ){
-                        list = new LinkedList<Object>();
-                        list.add(curObject);
-                        list.add(processNode(node));
-                        map.remove(nodeName);
-                        map.put(nodeName, list);
-                    } else {
-                        list = (List<Object>)curObject;
-                        list.add(processNode(node));
-                    }
+                List<Object> list = new ArrayList<Object>();
+                for (int c = 0; c < node.getChildNodes().getLength(); c++) {
+                    Node n = node.getChildNodes().item(c);
+                    list.add(processNode(n));
                 }
+                map.put(nodeName, list);
+            
+            } else {
+                map.put(nodeName, processNode(node));
             }
         }
         return map;

@@ -67,6 +67,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         trace("WebcamViewSA:: Security.allowDomain(" + determineHTMLURL() + ");");
         
         initExternalInterface();
+        callWebcamViewStandaloneReady();
       }
       
       private function determineHTMLURL():String {
@@ -90,6 +91,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           ExternalInterface.addCallback("startViewCameraStream", handleStartViewCameraRequest);
           ExternalInterface.addCallback("stopViewCameraStream", handleStopViewCamera);
         }
+      }
+      
+      private function callWebcamViewStandaloneReady():void {
+        if (ExternalInterface.available) {
+          ExternalInterface.call("webcamViewStandaloneAppReady");
+        }      
       }
       
       private function connect(url:String):void {

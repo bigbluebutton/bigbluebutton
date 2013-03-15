@@ -64,6 +64,12 @@ package org.bigbluebutton.core.model
 			a.userSelectionEnabled = ((config.language.@userSelectionEnabled).toUpperCase() == "TRUE") ? true : false;
 			return a
 		}
+		
+		public function get shortcutKeys():Object {
+			var a:Object = new Object();
+			a.showButton = ((config.shortcutKeys.@showButton).toUpperCase() == "TRUE") ? true : false;
+			return a
+		}
 			
 		public function get skinning():Object {
 			var a:Object = new Object();

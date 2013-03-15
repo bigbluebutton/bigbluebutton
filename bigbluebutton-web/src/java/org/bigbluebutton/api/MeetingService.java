@@ -229,6 +229,13 @@ public class MeetingService {
 			log.debug("endMeeting - meeting doesn't exist: " + meetingId);
 		}
 	}
+	
+	public void addUserCustomData(String meetingId, String userID, Map<String,String> userCustomData){
+		Meeting m = getMeeting(meetingId);
+		if(m != null){
+			m.addUserCustomData(userID,userCustomData);
+		}
+	}
 
 	public void setDefaultMeetingCreateJoinDuration(int expiration) {
 		this.defaultMeetingCreateJoinDuration = expiration;

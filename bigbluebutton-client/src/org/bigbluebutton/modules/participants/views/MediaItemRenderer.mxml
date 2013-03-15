@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+--> 
+
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:mate="http://mate.asfusion.com/"
+	verticalScrollPolicy="off" horizontalScrollPolicy="off"
+	creationComplete="onCreationComplete()" > 
+	
+	<mate:Listener type="{StoppedViewingWebcamEvent.STOPPED_VIEWING_WEBCAM}" method="onViewVideoCloseEvent"/>
+	<mate:Listener type="{ParticipantRollEvent.PARTICIPANT_ROLL_OVER}" method="onRollOver" />
+	<mate:Listener type="{ParticipantRollEvent.PARTICIPANT_ROLL_OUT}" method="onRollOut" />
+	
+	<mx:Script>
+		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+	      
+			import mx.controls.Alert;
+			import mx.events.ListEvent;
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
+			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.model.users.events.KickUserEvent;
+			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
+			import org.bigbluebutton.modules.participants.events.ParticipantRollEvent;
+			import org.bigbluebutton.core.events.VoiceConfEvent;
+			import org.bigbluebutton.modules.participants.events.ViewCameraEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+			[Bindable]
+			private var images:Images = new Images();
+   			
+			private var moderator:Boolean = false;
+			[Bindable]
+			private var rolledOver:Boolean = false;
+			
+			private function onCreationComplete():void{
+				muteBtn.enabled = kickUserBtn.enabled = moderator = UserManager.getInstance().getConference().amIModerator();
+				
+				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
+			}
+			
+			private function dataChangeHandler(e:Event):void {
+				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
+				rolledOver = false;
+			}
+			
+			private function onRollOver(e:ParticipantRollEvent):void{
+				if (moderator && (e.userID == data.userID && !data.me && !data.phoneUser)) {
+					rolledOver = true;
+				}
+			}
+			
+			private function onRollOut(e:ParticipantRollEvent):void{
+				if (moderator && (e.userID == data.userID && !data.me)) {
+					rolledOver = false;
+				}
+			}
+			
+			private function viewCamera():void {
+   				webcamBtn.enabled = false;
+				dispatchEvent(new ViewCameraEvent(data.userID, data.streamName, data.name));
+   			}
+   			
+   			private function onViewVideoCloseEvent(event:StoppedViewingWebcamEvent):void {
+   				if (data.userID == event.webcamUserID) {
+   					webcamBtn.enabled = true;
+   				}
+   			}		
+			
+			private function kickUser():void{
+				dispatchEvent(new KickUserEvent(data.userID));
+			}
+			
+			private function toggleMuteState():void {
+				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
+				e.userid = data.voiceUserid;
+				e.mute = !data.voiceMuted;
+				dispatchEvent(e);
+			}
+		]]>
+	</mx:Script>
+	<mx:Image id="showLock" visible="{data.voiceLocked}" source="{images.lock_close}" width="20" height="20" />
+	<mx:Image id="talkingIcon" visible="{data.talking}" source="{images.sound_new}" width="20" height="20" 
+				toolTip="{ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer.talking')}" />
+	<mx:Button id="webcamBtn" visible="{data.hasStream}" click="viewCamera()" icon="{images.webcam_new}"
+				width="20" height="20" enabled="false"
+				toolTip="{ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer.webcam')}" />
+	<mx:Button id="muteBtn" visible="{data.voiceJoined}" enabled="false"
+				width="20" height="20" click="toggleMuteState()"
+				icon="{data.voiceMuted ? images.audio_muted : images.audio}"
+				toolTip="{data.voiceMuted ? ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer.pushToTalk') : ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer.pushToMute')}" />
+	<mx:Button id="kickUserBtn" icon="{images.eject_user_new}" 
+				width="20" height="20" visible="{rolledOver}"
+				toolTip="{ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.mediaItemRenderer.kickUser')}"
+				click="kickUser()"/>
+</mx:HBox>

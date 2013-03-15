@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
 
 BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
@@ -19,15 +18,21 @@ You should have received a copy of the GNU Lesser General Public License along
 with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"  
-                width="600" height="350" creationComplete="initDefaultMic()" styleName="micSettingsWindowStyle"
-                showCloseButton="false" close="onCancelClicked()" keyDown="handleKeyDown(event)">
-
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				xmlns:mate="http://mate.asfusion.com/" 
+				width="600" height="350" 
+				creationComplete="initDefaultMic()" 
+				styleName="micSettingsWindowStyle"
+				showCloseButton="false" 
+				close="onCancelClicked()" 
+				keyDown="handleKeyDown(event)">
+	
 	<mx:Script>
 		<![CDATA[
 			import flash.system.Security;
+			import flash.system.SecurityPanel;
 			import flash.ui.Keyboard;
-		
+			
 			import mx.events.CloseEvent;
 			import mx.events.ItemClickEvent;
 			import mx.managers.PopUpManager;
@@ -37,11 +42,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			
 			[Embed(source="assets/audio-test.mp3")]
 			[Bindable] private var soundClass:Class;
 			private var sound:Sound = new soundClass() as Sound;			
 			private var soundChannel:SoundChannel;
-
+			
 			private var timer:Timer;
 			private var mic:Microphone;
 			private var playingAudio:Boolean = false;
@@ -55,7 +62,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					if (mic.muted) {
 						// user has disallowed access to the mic
 						mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
-						Security.showSettings();
+						Security.showSettings(SecurityPanel.PRIVACY);
 					} else {
 						// user has allowed access to the mic
 						mic.setLoopBack(true);
@@ -71,8 +78,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			// Added by Chad to enable closing the window without clicking the X
 			private function handleKeyDown(event:KeyboardEvent):void {
 				if (event.charCode == Keyboard.ESCAPE) {
-                    this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
-                }
+					this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+				}
 			}
 			
 			private function micStatusEventHandler(event:StatusEvent):void {					
@@ -95,7 +102,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					micLevel1.setProgress(mic.activityLevel, 100);					
 				}
 			}
-						
+			
 			public function playButtonClickHandler():void {
 				if (playButton.selected) {
 					soundChannel = sound.play();  
@@ -106,7 +113,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					playingAudio = false;
 				}	                     
 			}
-						
+			
+			
 			private function showMicSettingsPanel():void {
 				Security.showSettings(SecurityPanel.MICROPHONE);
 			}
@@ -118,15 +126,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatchEvent(joinEvent);
 				PopUpManager.removePopUp(this);
 			}	
-
+			
 			private function onCancelClicked():void {
 				cleanUp();
-				var event:BBBEvent = new BBBEvent("MIC_SETTINGS_CLOSED");
+				var event:BBBEvent = new BBBEvent(BBBEvent.MIC_SETTINGS_CLOSED);
 				event.payload['clicked'] = "cancel";
 				dispatchEvent(event);
 				PopUpManager.removePopUp(this);
 			}
-
+			
 			private function cleanUp():void {
 				timer.stop();
 				mic.setLoopBack(false);
@@ -142,65 +150,67 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
 		<mx:HBox width="100%">
-      <mx:Label text="Audio Settings" styleName="micSettingsWindowTitleStyle"/>
+			<mx:Label text="Audio Settings" styleName="micSettingsWindowTitleStyle"/>
 			<mx:Spacer width="50%"/>
 		</mx:HBox>
 		<mx:HBox width="100%">
-      <mx:VBox width="100%">
-        <mx:Spacer height="5"/>
-        <mx:HBox width="100%">
-          <mx:Label id="testSpeakersLabel" text="Test Speakers" styleName="micSettingsWindowTestSpeakersLabelStyle"/>
-          <mx:Spacer width="100%"/>
-          <mx:LinkButton fontSize="10" label="" 
-                         styleName="micSettingsWindowHelpButtonStyle"
-                         click="onHelpButtonClicked()"/>          
-        </mx:HBox>
-        <mx:HRule width="100%"/>
-      </mx:VBox>   
+			<mx:VBox width="100%">
+				<mx:Spacer height="5"/>
+				<mx:HBox width="100%">
+					<mx:Label id="testSpeakersLabel" text="Test Speakers" styleName="micSettingsWindowTestSpeakersLabelStyle"/>
+					<mx:Spacer width="100%"/>
+					<mx:LinkButton fontSize="10" label="" 
+								   styleName="micSettingsWindowHelpButtonStyle"
+								   click="onHelpButtonClicked()"/>          
+				</mx:HBox>
+				<mx:HRule width="100%"/>
+			</mx:VBox>   
+		</mx:HBox>
+		
+		<mx:HBox width="100%">
+			<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.hearFromHeadset')}"
+					 styleName="micSettingsWindowHearFromHeadsetLabelStyle"/>
+			<mx:Button id="playButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}" 
+					   click="playButtonClickHandler()" toggle="true" styleName="micSettingsWindowPlaySoundButtonStyle"/>		
 		</mx:HBox>
 		<mx:HBox width="100%">
-				<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.hearFromHeadset')}"
-                 styleName="micSettingsWindowHearFromHeadsetLabelStyle"/>
-				<mx:Button id="playButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}" 
-						   click="playButtonClickHandler()" toggle="true" styleName="micSettingsWindowPlaySoundButtonStyle"/>		
-		</mx:HBox>
-		<mx:HBox width="100%">
-      <mx:VBox width="100%">
-        <mx:Spacer height="5"/>
-        <mx:HBox width="100%">
-          <mx:Label id="testMicLabel" text="Test Microphone" styleName="micSettingsWindowTestMicrophoneLabelStyle"/>
-          <mx:Spacer width="100%"/>
-          <mx:LinkButton fontSize="10" label="" 
-                         styleName="micSettingsWindowHelpButtonStyle"
-                         click="onHelpButtonClicked()"/>          
-        </mx:HBox>
-        <mx:HRule width="100%"/>
-      </mx:VBox> 
+			<mx:VBox width="100%">
+				<mx:Spacer height="5"/>
+				<mx:HBox width="100%">
+					<mx:Label id="testMicLabel" text="Test Microphone" styleName="micSettingsWindowTestMicrophoneLabelStyle"/>
+					<mx:Spacer width="100%"/>
+					<mx:LinkButton fontSize="10" label="" 
+								   styleName="micSettingsWindowHelpButtonStyle"
+								   click="onHelpButtonClicked()"/>          
+				</mx:HBox>
+				<mx:HRule width="100%"/>
+			</mx:VBox> 
 		</mx:HBox>
 		<mx:HBox width="100%">
 			<mx:VBox width="70%">
 				<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"
-                 styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
-        <mx:HBox width="100%">
-          <mx:Text id="mic1Label" text="Microphone Name" styleName="micSettingsWindowMicNameLabelStyle"/>
-          <mx:ProgressBar id="micLevel1" minimum="0" maximum="100"  
-                          labelPlacement="right" label="" styleName="micSettingsWindowMicProgressBarStyle"
-                          direction="right" mode="manual" visible="true" width="120"/>	          
-        </mx:HBox>			
+						 styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
+				<mx:HBox width="100%">
+					<mx:Text id="mic1Label" text="Microphone Name" styleName="micSettingsWindowMicNameLabelStyle"/>
+					<mx:ProgressBar id="micLevel1" minimum="0" maximum="100"  
+									labelPlacement="right" label="" styleName="micSettingsWindowMicProgressBarStyle"
+									direction="right" mode="manual" visible="true" width="120"/>	          
+				</mx:HBox>			
 				<mx:Button id="settingBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic')}" 
-                   styleName="micSettingsWindowChangeMicButtonStyle"
-                   click="showMicSettingsPanel()"/>				
+						   styleName="micSettingsWindowChangeMicButtonStyle"
+						   click="showMicSettingsPanel()"/>				
 			</mx:VBox>
 		</mx:HBox>	
 		<mx:HBox width="100%">
 			<mx:Spacer width="80%"/>
 			<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.join')}" 
-                 styleName="micSettingsWindowJoinButtonStyle"
-                 click="onJoinClicked()"/>
+					   styleName="micSettingsWindowJoinButtonStyle"
+					   click="onJoinClicked()"/>
 			<mx:Spacer width="10"/>
-      <mx:Button id="cancelBtn" label="Cancel" 
-                 styleName="micSettingsWindowCancelButtonStyle"
-                 click="onCancelClicked()"/>
+			<mx:Button id="cancelBtn" label="Cancel" 
+					   styleName="micSettingsWindowCancelButtonStyle"
+					   click="onCancelClicked()"/>
 		</mx:HBox>
+		
 	</mx:VBox>		
 </mx:TitleWindow>

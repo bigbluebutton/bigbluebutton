@@ -26,13 +26,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-			import flash.events.MouseEvent;			
-			import mx.controls.Image;
-			import mx.controls.Label;
-			import mx.controls.TileList;			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.modules.listeners.events.ListenersCommand;
-			import org.bigbluebutton.util.i18n.ResourceUtil; 
+      import flash.events.MouseEvent;     
+      import mx.controls.Image;
+      import mx.controls.Label;
+      import mx.controls.TileList;    
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.core.events.VoiceConfEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil; 
 			
 			private var images:Images = new Images();
 			
@@ -55,14 +56,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			public function muteUser():void {
-				var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);
+				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
 				e.userid = data.userid;
 				e.mute = !data.muted; // toggle muted
 				dispatchEvent(e);
 			}	
 			
 			public function lockMuteUser():void {
-				var e:ListenersCommand = new ListenersCommand(ListenersCommand.LOCK_MUTE_USER);
+				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.LOCK_MUTE_USER);
 				e.userid = data.userid;
 				e.lock = !data.locked;
 				dispatchEvent(e);
@@ -93,7 +94,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function handleEjectButtonClick():void {
 				//proxy.ejectUser(listenersList.selectedItem.userid);
-				var ejectCommand:ListenersCommand = new ListenersCommand(ListenersCommand.EJECT_USER);
+				var ejectCommand:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.EJECT_USER);
 				ejectCommand.userid = data.userid;
 				dispatchEvent(ejectCommand);
 			}	 

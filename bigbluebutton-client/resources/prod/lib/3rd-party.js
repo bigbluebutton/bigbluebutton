@@ -125,9 +125,14 @@ var amIPresenterSync = function() {
 
 var getMyUserInfoAsynch = function() {
   BBB.listen("GetMyUserInfoResponse", function(bbbEvent) {
-    console.log("User info response [myUserID=" + bbbEvent.myUserID 
-				+ ",myUsername=" + bbbEvent.myUsername + ",myAvatarURL=" + bbbEvent.myAvatarURL 
-				+ ",myRole=" + bbbEvent.myRole + ",amIPresenter=" + bbbEvent.amIPresenter + "].");
+    console.log("User info response [myUserID=" + bbbEvent.myUserID
+                                + ",myUsername=" + bbbEvent.myUsername + ",myAvatarURL=" + bbbEvent.myAvatarURL
+                                + ",myRole=" + bbbEvent.myRole + ",amIPresenter=" + bbbEvent.amIPresenter
+                                + ",dialNumber=" + bbbEvent.dialNumber + ",voiceBridge=" + bbbEvent.voiceBridge + "].");
+
+    for(var key in bbbEvent.customdata){
+      console.log(key + " " + bbbEvent.customdata[key]);
+    }
   });
 
   BBB.getMyUserInfo();
@@ -135,11 +140,17 @@ var getMyUserInfoAsynch = function() {
 
 var getMyUserInfoSynch = function() {
   BBB.getMyUserInfo(function(userInfo) {
-    console.log("User info callback [myUserID=" + userInfo.myUserID 
-				+ ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL 
-				+ ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter + "].");
+    console.log("User info callback [myUserID=" + userInfo.myUserID
+                                + ",myUsername=" + userInfo.myUsername + ",myAvatarURL=" + userInfo.myAvatarURL
+                                + ",myRole=" + userInfo.myRole + ",amIPresenter=" + userInfo.amIPresenter
+                                + ",dialNumber=" + userInfo.dialNumber + ",voiceBridge=" + userInfo.voiceBridge + "].");
+
+    for(var key in userInfo.customdata){
+      console.log(key + " " + userInfo.customdata[key]);
+    }
   });
 }
+
 
 var getMyRoleAsynch = function() {
   BBB.listen("GetMyRoleResponse", function(bbbEvent) {
@@ -200,4 +211,29 @@ var sendPublicChat = function () {
 var sendPrivateChat = function () {
   var message = "ECHO: " + bbbEvent.message;
   BBB.sendPrivateChatMessage(bbbEvent.fromColor, bbbEvent.fromLang, message,  bbbEvent.fromUserID);
+}
+
+var webcamViewStandaloneAppReady = function() {
+  console.log("WebcamViewStandalone App is ready.");
+  BBB.getPresenterUserID(function(puid) {
+	if (puid == "") {
+	  console.log("There is no presenter in the meeting");
+	} else {
+	  console.log("The presenter user id is [" + puid + "]");
+	  // Is presenter sharing webcam? If so, get the webcam stream and display.
+	}
+  });
+}
+
+var webcamPreviewStandaloneAppReady = function() {
+  console.log("WebcamPreviewStandalone App is ready.");
+  BBB.getPresenterUserID(function(puid) {
+	if (puid == "") {
+	  console.log("There is no presenter in the meeting");
+	} else {
+	  console.log("The presenter user id is [" + puid + "]");
+	}
+  });
+  // Am I presenter? If so, am I publishing my camera? If so, display my camera.
+  
 }

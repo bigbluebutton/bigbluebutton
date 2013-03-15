@@ -23,9 +23,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <pubVid:VideoWindowItf
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:pubVid="org.bigbluebutton.modules.videoconf.business.*"
+	initialize="init()"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-  styleNameFocus="videoPublishStyleFocus"
-  styleNameNoFocus="videoPublishStyleNoFocus"
+	styleNameFocus="videoPublishStyleFocus"
+	styleNameNoFocus="videoPublishStyleNoFocus"
 	creationComplete="onCreationComplete()" 
 	width="{defaultWidth + 6}" height="{defaultHeight + 6}" 
 	xmlns:mate="http://mate.asfusion.com/"
@@ -38,6 +39,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
   <mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleNewRoleEvent" />
   <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
+  <mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_WEBCAM}" method="remoteFocus" />
   
 	<mx:Script>
 		<![CDATA[
@@ -65,6 +67,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
+	  import org.bigbluebutton.main.events.ShortcutEvent;
       
 			[Bindable] private var defaultWidth:Number = 320;
 			[Bindable] private var defaultHeight:Number = 240;
@@ -89,14 +92,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			static private var _cameraAccessDenied:Boolean = false;
 			
-			[Bindable]
-			public var videoOptions:VideoConfOptions;
+			[Bindable] public var videoOptions:VideoConfOptions;
+			[Bindable] public var baseIndex:int;
 			
-      private var windowType:String = "PublishWindowType";
-      
-      override public function getWindowType():String {
-        return windowType;
-      }
+			private function init():void{
+				videoOptions = new VideoConfOptions();
+				baseIndex = videoOptions.baseTabIndex;
+			}
+
+			private var windowType:String = "PublishWindowType";
+			
+			override public function getWindowType():String {
+				return windowType;
+			}
       
 			private function onCreationComplete():void{
 				_videoHolder = new UIComponent();
@@ -111,13 +119,37 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							
 				this.visible = videoOptions.publishWindowVisible;
 				
-        addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
-        addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
-        addEventListener(MouseEvent.MOUSE_OVER, showButtons);
-        addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
-        addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
-        
+				if (videoOptions.autoStart) {
+					/*
+					 * Need to have a timer to trigger auto-publishing of webcam.
+					 */
+					autoPublishTimer = new Timer(3000, 1);
+					autoPublishTimer.addEventListener(TimerEvent.TIMER, autopublishTimerHandler);
+					autoPublishTimer.start();
+				}
+				
+
+				titleBarOverlay.tabIndex = baseIndex;
+				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.titleBar');
+				minimizeBtn.tabIndex = baseIndex+1;
+				minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.minimizeBtn');
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.maximizeRestoreBtn');
+				closeBtn.focusEnabled = true;
+				closeBtn.tabIndex = baseIndex+3;
+				
+				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
+				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
+				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
+				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
+				addEventListener(MouseEvent.DOUBLE_CLICK, onDoubleClick);
+				
+				// start the camera preview
 				updateCamera();
+			}
+			
+			private function remoteFocus(e:ShortcutEvent):void{
+				focusManager.setFocus(closeBtn);
 			}
 
 			private function autopublishTimerHandler(event:TimerEvent):void {				
@@ -374,9 +406,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
            blurXFrom="30.0" blurXTo="0.0" blurYFrom="30.0" blurYTo="0.0" color="0x4A931D"/>
   
 	<mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
+
 	<mx:Fade id="dissolveIn" duration="1000" alphaFrom="0.0" alphaTo="1.0"/>
 	<mx:Text id="lblWarning" width="100%" textAlign="right" fontSize="14" fontWeight="bold" y="{this.height - lblWarning.height - 30}" 
            visible="false" selectable="false" hideEffect="{dissolveOut}" showEffect="{dissolveIn}"/>
-
-
+	
+	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
 </pubVid:VideoWindowItf>

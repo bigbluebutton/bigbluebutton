@@ -52,6 +52,7 @@ package org.bigbluebutton.main.model
 		public var host:String;
 		public var numModules:int;
 		public var languageEnabled:Boolean;
+		public var shortcutKeysShowButton:Boolean;
 		public var skinning:String = "";
 		public var showDebug:Boolean = false;
 		
@@ -103,6 +104,10 @@ package org.bigbluebutton.main.model
 			if (xml.localeversion.@suppressWarning == "true") suppressLocaleWarning = true;
 			if (xml.language.@userSelectionEnabled == "true") languageEnabled = true;
 			else languageEnabled = false;
+			
+			if (xml.shortcutKeys.@showButton == "true") shortcutKeysShowButton = true;
+			else shortcutKeysShowButton = false;
+			
 			if (xml.skinning.@enabled == "true") skinning = xml.skinning.@url;
 
 			if (xml.debug.@showDebugWindow == "true") showDebug = true;

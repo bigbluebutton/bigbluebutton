@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EventMap 
+	xmlns="http://mate.asfusion.com/" 
+	xmlns:mx="http://www.adobe.com/2006/mxml">
+
+<mx:Script>
+	<![CDATA[
+		import org.bigbluebutton.modules.deskshare.events.StreamEvent;
+		import org.bigbluebutton.main.events.BBBEvent;
+	]]>
+</mx:Script>
+
+<EventHandlers type="{BBBEvent.LOGIN_EVENT}" >
+	<InlineInvoker method="{MonitoringModule.handleLoginEvent}" arguments="{[event]}" />
+</EventHandlers>
+
+<EventHandlers type="{BBBEvent.RECEIVED_PUBLIC_CHAT_MESSAGE_EVENT}" >
+	<InlineInvoker method="{MonitoringModule.handleReceivedPublicChatMessageEvent}" arguments="{[event]}" />
+</EventHandlers>
+
+<EventHandlers type="{StreamEvent.START}" >
+	<InlineInvoker method="{MonitoringModule.handleStreamEventStarted}"/>
+</EventHandlers>
+
+<EventHandlers type="{BBBEvent.ADDED_LISTENER}" >
+	<InlineInvoker method="{MonitoringModule.handleAddedListenerEvent}" arguments="{[event]}" />
+</EventHandlers>
+
+<EventHandlers type="{BBBEvent.PRESENTATION_CONVERTED}" >
+	<InlineInvoker method="{MonitoringModule.handlePresentationConversion}" arguments="{[event]}" />
+</EventHandlers>
+
+<EventHandlers type="{BBBEvent.VIDEO_STARTED}" >
+	<InlineInvoker method="{MonitoringModule.videoHasStarted}" arguments="{[event]}" />
+</EventHandlers>
+
+</EventMap>

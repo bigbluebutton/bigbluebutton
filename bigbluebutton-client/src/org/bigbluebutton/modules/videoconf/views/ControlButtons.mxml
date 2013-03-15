@@ -24,12 +24,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;     
+      import com.asfusion.mate.events.Dispatcher;
+      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.CoreEvent;
+      import org.bigbluebutton.core.events.VoiceConfEvent;
       import org.bigbluebutton.main.model.users.BBBUser;
       import org.bigbluebutton.main.model.users.events.KickUserEvent;
       import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
@@ -90,7 +92,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function onMuteUnmuteClicked():void {
         var bu:BBBUser = UsersUtil.getUser(sharerUserID);
         if (bu != null) {
-          var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);        
+          var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);        
           e.userid = bu.voiceUserid;
           e.mute = ! bu.voiceMuted; 
           var gd:Dispatcher = new Dispatcher();
@@ -100,16 +102,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function showControlButtons(presenter:Boolean):void {
           var vidOptions:VideoConfOptions = new VideoConfOptions();
-          if (UsersUtil.amIModerator()) {
-            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = true;
-          } else if (vidOptions.controlsForPresenter) {
-            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = presenter;
-          } else {
-            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = false;
+          
+          if (muteUnmuteBtn != null && switchPresenter != null && ejectUserBtn != null) {
+	          if (UsersUtil.amIModerator()) {
+	            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = true;
+	          } else if (vidOptions.controlsForPresenter) {
+	            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = presenter;
+	          } else {
+	            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = false;
+	          }
+	          
+	          muteUnmuteBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.muteButton.toolTip', [UsersUtil.getUserName(sharerUserID)]);
+	          switchPresenter.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.switchPresenter.toolTip', [UsersUtil.getUserName(sharerUserID)]);
+	          ejectUserBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.ejectUserBtn.toolTip', [UsersUtil.getUserName(sharerUserID)]);
           }
-          muteUnmuteBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.muteButton.toolTip', [UsersUtil.getUserName(sharerUserID)]);
-          switchPresenter.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.switchPresenter.toolTip', [UsersUtil.getUserName(sharerUserID)]);
-          ejectUserBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.ejectUserBtn.toolTip', [UsersUtil.getUserName(sharerUserID)]);
       }
       
       private function showPrivateChatButton():void {

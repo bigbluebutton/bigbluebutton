@@ -21,6 +21,7 @@ package org.bigbluebutton.api.domain;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -50,7 +51,8 @@ public class Meeting {
 	private String defaultAvatarURL;
 	private String defaultConfigToken;
 	
-	private Map<String, String> metadata;	
+	private Map<String, String> metadata;
+	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users; 
 	private final ConcurrentMap<String, Config> configs;
 	
@@ -71,6 +73,7 @@ public class Meeting {
     	dialNumber = builder.dialNumber;
     	metadata = builder.metadata;
     	createdTime = builder.createdTime;
+    	userCustomData = new HashMap<String, Object>();
 		users = new ConcurrentHashMap<String, User>();
 		
 		configs = new ConcurrentHashMap<String, Config>();
@@ -270,6 +273,14 @@ public class Meeting {
 		long now = System.currentTimeMillis();
 		System.out.println("Expiry " + now + " endTime=" + endTime + "expiry=" + (expiry * MILLIS_IN_A_MINUTE));
 		return (System.currentTimeMillis() - endTime > (expiry * MILLIS_IN_A_MINUTE));
+	}
+	
+	public void addUserCustomData(String userID, Map<String, String> data) {
+		userCustomData.put(userID, data);
+	}
+	
+	public Map getUserCustomData(String userID){
+		return (Map) userCustomData.get(userID);
 	}
 	
 	/***

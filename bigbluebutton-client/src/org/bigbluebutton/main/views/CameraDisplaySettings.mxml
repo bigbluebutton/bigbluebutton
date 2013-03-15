@@ -23,274 +23,285 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 layout="absolute" 
                 verticalScrollPolicy="off" horizontalScrollPolicy="off"
                 width="630" height="450" creationComplete="onCreationComplete()" styleName="cameraDisplaySettingsWindowStyle" 
-                showCloseButton="true" close="onCancelClicked()" keyDown="handleKeyDown(event)">
+                showCloseButton="false" close="onCancelClicked()" keyDown="handleKeyDown(event)">
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;     
-      import flash.ui.Keyboard;      
-      import mx.events.CloseEvent;
-      import mx.events.ItemClickEvent;
-      import mx.managers.PopUpManager;     
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-      
-      static public var PADDING_HORIZONTAL:Number = 6;
-      static public var PADDING_VERTICAL:Number = 29;
-      
-      private var images:Images = new Images();
-      
-      [Bindable] 
-      private var cancelIcon:Class = images.control_play;
-      
-      [Bindable]
-      public var resolutions:Array;
-      public var publishInClient:Boolean;
-      
-      public var camWidth:Number = 320;
-      public var camHeight:Number = 240;
-      private var _camera:Camera = null;
-      
-      // Timer used to enable the start publishing button, only after get any activity on the camera. 
-      // It avoids the problem of publishing a blank video
-      private var _activationTimer:Timer = null;
-      private var _waitingForActivation:Boolean = false;
-      
-      static private var _cameraAccessDenied:Boolean = false;
-      
-      private var _video:Video;
-      private var aspectRatio:Number = 1;
-      
-      private function onCreationComplete():void {          
-        changeDefaultCamForMac();
-        
-        if (UsersUtil.amIPresenter() && resolutions.length > 1) {
-          showResControls(true);
-        }
-        
-        if (Camera.names.length > 1) {
-          showVideoControls(true);
-        }
-        
-        updateCamera();
-      }
-      
-      private function changeDefaultCamForMac():void {
-        for (var i:int = 0; i < Camera.names.length; i++){
-          if (Camera.names[i] == "USB Video Class Video") {
-            /** Set as default for Macs */
-            _camera = Camera.getCamera("USB Video Class Video");
-          }
-        }
-      }
-      
-      private function showVideoControls(show:Boolean):void {
-        if (show) {
-          this.visible = true;
-          btnStartPublish.visible = true;
-        } else{					
-          this.width = 0;
-          this.height = 0;
-          btnStartPublish.visible = false;
-          this.visible = false;
-        }
-      }
-      
-      private function updateCamera():void {
-        _camera = null;
-        
-        _camera = Camera.getCamera(); 
-        
-        if (_camera == null) {
-          _videoHolder.showWarning('bbb.video.publish.hint.cantOpenCamera');
-          return;
-        }
-        
-        _camera.addEventListener(ActivityEvent.ACTIVITY, onActivityEvent);
-        _camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
-        
-        if (_camera.muted) {
-          if (_cameraAccessDenied) {
-            onCameraAccessDisallowed();
-            return;
-          } else {
-            _videoHolder.showWarning('bbb.video.publish.hint.waitingApproval');
-          }
-        } else {
-          // if the camera isn't muted, that is because the user has
-          // previously allowed the camera capture on the flash privacy box
-          onCameraAccessAllowed();
-        }
-        
-        displayVideoPreview();
-      }
-      
-      private function displayVideoPreview():void {       
-        var videoOptions:VideoConfOptions = new VideoConfOptions();
-        _camera.setMotionLevel(5, 1000);
-        _camera.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
-        _camera.setMode(camWidth, camHeight, videoOptions.camModeFps);
-        _camera.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
-        
-        if (_camera.width != camWidth || _camera.height != camHeight) {
-          LogUtil.debug("Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
-          setResolution(_camera.width, _camera.height);
-        }
-        
-        setComboResolution();
-        
-        if (_video != null) {
-          _videoHolder.remove(_video);
-        }
-        
-        _video = new Video();       
-        _video.attachCamera(_camera);
-        
-        aspectRatio = (_video.width / _video.height);
-        
-        if (aspectRatio > _videoHolder.width / _videoHolder.height) {
-          _video.width = _videoHolder.width;
-          _video.height = _videoHolder.width / aspectRatio;
-          _video.x = 0;
-          _video.y = (_videoHolder.height - _video.height) / 2;
-        } else {
-          _video.width = _videoHolder.height * aspectRatio;
-          _video.height = _videoHolder.height;
-          _video.x = (_videoHolder.width - _video.width) / 2;
-          _video.y = 0;
-        }				
-        
-        _videoHolder.add(_video);
-      }
-      
-      private function showResControls(show:Boolean):void {
-        if (show) cmbResolution.visible = true;
-        else cmbResolution.visible = false;
-      }
-      
-      private function setComboResolution():void {
-        var res:Array = cmbResolution.selectedLabel.split( "x" );
-        setResolution(Number(res[0]), Number(res[1]));
-      }
-      
-      private function setAspectRatio(width:int, height:int):void {
-        aspectRatio = (width/height);
-        this.minHeight = Math.floor((this.minWidth - PADDING_HORIZONTAL) / aspectRatio) + PADDING_VERTICAL;
-      }
-      
-      private function setResolution(width:int, height:int):void {
-        camWidth = width;
-        camHeight = height;
-        setAspectRatio(camWidth, camHeight);
-      }
-      
-      private function startPublishing():void {
-        updateCamera();
-        
-        // Save the index of the camera. Need it to send the message.
-        var camIndex:int = _camera.index;
-        
-        disableCamera();
-        
-        var globalDispatcher:Dispatcher = new Dispatcher();
-        var camEvent:BBBEvent = new BBBEvent(BBBEvent.CAMERA_SETTING);
-        camEvent.payload.cameraIndex = camIndex;
-        camEvent.payload.cameraWidth = camWidth;
-        camEvent.payload.cameraHeight = camHeight;
-        camEvent.payload.publishInClient = publishInClient;
-        
-        globalDispatcher.dispatchEvent(camEvent);
-        
-        PopUpManager.removePopUp(this);
-      }
-      
-      private function disableCamera():void {
-        _camera = null;
-        _video.attachCamera(null);
-        _video.clear();
-        _videoHolder.remove(_video);
-        _video = null;        
-      }
-      
-      private function handleKeyDown(event:KeyboardEvent):void {
-        if (event.charCode == Keyboard.ESCAPE) {
-          disableCamera();
-          this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
-        }
-      }
-      
-      private function onCancelClicked():void {
-        disableCamera();
-        PopUpManager.removePopUp(this);
-      }
-      
-      private function onActivityEvent(e:ActivityEvent):void {
-        if (_waitingForActivation && e.activating) {
-          _activationTimer.stop();
-          _videoHolder.showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
-          //        controls.btnStartPublish.enabled = true;
-          _waitingForActivation = false;
-        }
-      }
-      
-      private function onStatusEvent(e:StatusEvent):void {
-        if (e.code == "Camera.Unmuted") {
-          onCameraAccessAllowed();
-          // this is just to overwrite the message of waiting for approval
-          _videoHolder.showWarning('bbb.video.publish.hint.openingCamera');
-        } else if (e.code == "Camera.Muted") {
-          onCameraAccessDisallowed();
-        }
-      }
-      
-      private function onCameraAccessAllowed():void {
-        // set timer to ensure that the camera activates.  If not, it might be in use by another application
-        _waitingForActivation = true;
-        if (_activationTimer != null) {
-          _activationTimer.stop();
-        }
-        
-        _activationTimer = new Timer(10000, 1);
-        _activationTimer.addEventListener(TimerEvent.TIMER, activationTimeout);
-        _activationTimer.start();
-      }
-      
-      private function onCameraAccessDisallowed():void {
-        _videoHolder.showWarning('bbb.video.publish.hint.cameraDenied');
-        _cameraAccessDenied = true;
-      }
-      
-      private function activationTimeout(e:TimerEvent):void {
-        _videoHolder.showWarning('bbb.video.publish.hint.cameraIsBeingUsed');
-      } 
-      
-      private function showCameraSettings():void {
-        Security.showSettings(SecurityPanel.CAMERA);
-      }
+		import com.asfusion.mate.events.Dispatcher;     
+		import flash.ui.Keyboard;      
+		import mx.events.CloseEvent;
+		import mx.events.ItemClickEvent;
+		import mx.managers.PopUpManager;     
+		import org.bigbluebutton.common.Images;
+		import org.bigbluebutton.common.LogUtil;
+		import org.bigbluebutton.core.UsersUtil;
+		import org.bigbluebutton.main.events.BBBEvent;
+		import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
+		
+		static public var PADDING_HORIZONTAL:Number = 6;
+		static public var PADDING_VERTICAL:Number = 29;
+		
+		private var images:Images = new Images();
+		
+		[Bindable] 
+		private var cancelIcon:Class = images.control_play;
+		
+		[Bindable]
+		public var resolutions:Array;
+		public var publishInClient:Boolean;
+		
+		public var camWidth:Number = 320;
+		public var camHeight:Number = 240;
+		private var _camera:Camera = null;
+		
+		// Timer used to enable the start publishing button, only after get any activity on the camera. 
+		// It avoids the problem of publishing a blank video
+		private var _activationTimer:Timer = null;
+		private var _waitingForActivation:Boolean = false;
+		
+		static private var _cameraAccessDenied:Boolean = false;
+		
+		private var _video:Video;
+		private var aspectRatio:Number = 1;
+		
+		private function onCreationComplete():void {          
+			changeDefaultCamForMac();
+			
+			if (UsersUtil.amIPresenter() && resolutions.length > 1) {
+				showResControls(true);
+			}
+			
+			if (Camera.names.length > 1) {
+				showVideoControls(true);
+			}
+			
+			updateCamera();
+		}
+		
+		private function changeDefaultCamForMac():void {
+			for (var i:int = 0; i < Camera.names.length; i++){
+				if (Camera.names[i] == "USB Video Class Video") {
+					/** Set as default for Macs */
+					_camera = Camera.getCamera("USB Video Class Video");
+				}
+			}
+		}
+		
+		private function showVideoControls(show:Boolean):void {
+			if (show) {
+				this.visible = true;
+				btnStartPublish.visible = true;
+			} else{					
+				this.width = 0;
+				this.height = 0;
+				btnStartPublish.visible = false;
+				this.visible = false;
+			}
+		}
+		
+		private function updateCamera():void {
+			_camera = null;
+			
+			_camera = Camera.getCamera(); 
+			
+			if (_camera == null) {
+				_videoHolder.showWarning('bbb.video.publish.hint.cantOpenCamera');
+				return;
+			}
+			
+			_camera.addEventListener(ActivityEvent.ACTIVITY, onActivityEvent);
+			_camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
+			
+			if (_camera.muted) {
+				if (_cameraAccessDenied) {
+					//onCameraAccessDisallowed();
+					//return;
+					Security.showSettings(SecurityPanel.PRIVACY)
+				} else {
+					_videoHolder.showWarning('bbb.video.publish.hint.waitingApproval');
+				}
+			} else {
+				// if the camera isn't muted, that is because the user has
+				// previously allowed the camera capture on the flash privacy box
+				onCameraAccessAllowed();
+			}
+			
+			displayVideoPreview();
+		}
+		
+		private function displayVideoPreview():void {       
+			var videoOptions:VideoConfOptions = new VideoConfOptions();
+			_camera.setMotionLevel(5, 1000);
+			_camera.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
+			_camera.setMode(camWidth, camHeight, videoOptions.camModeFps);
+			_camera.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
+			
+			if (_camera.width != camWidth || _camera.height != camHeight) {
+				LogUtil.debug("Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
+				setResolution(_camera.width, _camera.height);
+			}
+			
+			setComboResolution();
+			
+			if (_video != null) {
+				_videoHolder.remove(_video);
+			}
+			
+			_video = new Video();       
+			_video.attachCamera(_camera);
+			
+			aspectRatio = (_video.width / _video.height);
+			
+			if (aspectRatio > _videoHolder.width / _videoHolder.height) {
+				_video.width = _videoHolder.width;
+				_video.height = _videoHolder.width / aspectRatio;
+				_video.x = 0;
+				_video.y = (_videoHolder.height - _video.height) / 2;
+			} else {
+				_video.width = _videoHolder.height * aspectRatio;
+				_video.height = _videoHolder.height;
+				_video.x = (_videoHolder.width - _video.width) / 2;
+				_video.y = 0;
+			}				
+			
+			_videoHolder.add(_video);
+		}
+		
+		private function showResControls(show:Boolean):void {
+			if (show) cmbResolution.visible = true;
+			else cmbResolution.visible = false;
+		}
+		
+		private function setComboResolution():void {
+			var res:Array = cmbResolution.selectedLabel.split( "x" );
+			setResolution(Number(res[0]), Number(res[1]));
+		}
+		
+		private function setAspectRatio(width:int, height:int):void {
+			aspectRatio = (width/height);
+			this.minHeight = Math.floor((this.minWidth - PADDING_HORIZONTAL) / aspectRatio) + PADDING_VERTICAL;
+		}
+		
+		private function setResolution(width:int, height:int):void {
+			camWidth = width;
+			camHeight = height;
+			setAspectRatio(camWidth, camHeight);
+		}
+		
+		private function startPublishing():void {
+			updateCamera();
+			
+			// Save the index of the camera. Need it to send the message.
+			var camIndex:int = _camera.index;
+			
+			disableCamera();
+			
+			var globalDispatcher:Dispatcher = new Dispatcher();
+			var camEvent:BBBEvent = new BBBEvent(BBBEvent.CAMERA_SETTING);
+			camEvent.payload.cameraIndex = camIndex;
+			camEvent.payload.cameraWidth = camWidth;
+			camEvent.payload.cameraHeight = camHeight;
+			camEvent.payload.publishInClient = publishInClient;
+			
+			globalDispatcher.dispatchEvent(camEvent);
+			
+			PopUpManager.removePopUp(this);
+		}
+		
+		private function disableCamera():void {
+			_camera = null;
+			_video.attachCamera(null);
+			_video.clear();
+			_videoHolder.remove(_video);
+			_video = null;        
+		}
+		
+		private function handleKeyDown(event:KeyboardEvent):void {
+			if (event.charCode == Keyboard.ESCAPE) {
+				disableCamera();
+				this.dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+			}
+		}
+		
+		private function onCancelClicked():void {
+			disableCamera();
+			var event:BBBEvent = new BBBEvent(BBBEvent.CAM_SETTINGS_CLOSED);
+			event.payload['clicked'] = "cancel";
+			dispatchEvent(event);
+			PopUpManager.removePopUp(this);
+		}
+		
+		private function onActivityEvent(e:ActivityEvent):void {
+			if (_waitingForActivation && e.activating) {
+				_activationTimer.stop();
+				_videoHolder.showWarning('bbb.video.publish.hint.videoPreview', false, "0xFFFF00");
+				//        controls.btnStartPublish.enabled = true;
+				_waitingForActivation = false;
+			}
+		}
+		
+		private function onStatusEvent(e:StatusEvent):void {
+			if (e.code == "Camera.Unmuted") {
+				onCameraAccessAllowed();
+				// this is just to overwrite the message of waiting for approval
+				_videoHolder.showWarning('bbb.video.publish.hint.openingCamera');
+			} else if (e.code == "Camera.Muted") {
+				onCameraAccessDisallowed();
+			}
+		}
+		
+		private function onCameraAccessAllowed():void {
+			_cameraAccessDenied = false;
+			
+			// set timer to ensure that the camera activates.  If not, it might be in use by another application
+			_waitingForActivation = true;
+			if (_activationTimer != null) {
+				_activationTimer.stop();
+			}
+			
+			_activationTimer = new Timer(10000, 1);
+			_activationTimer.addEventListener(TimerEvent.TIMER, activationTimeout);
+			_activationTimer.start();
+		}
+		
+		private function onCameraAccessDisallowed():void {
+			_videoHolder.showWarning('bbb.video.publish.hint.cameraDenied');
+			_cameraAccessDenied = true;
+		}
+		
+		private function activationTimeout(e:TimerEvent):void {
+			_videoHolder.showWarning('bbb.video.publish.hint.cameraIsBeingUsed');
+		} 
+		
+		private function showCameraSettings():void {
+			Security.showSettings(SecurityPanel.CAMERA);
+		}
       
     ]]>
   </mx:Script>
   
-  <mx:VBox id="webcamDisplay" width="100%" height="100%" paddingTop="10" styleName="cameraDisplaySettingsWindowBackground">
-    <view:VideoHolder id="_videoHolder" width="100%" height="75%" />
-    <mx:HBox width="100%" height="20%"> 
-      <mx:Spacer width="5"/>
-	    <mx:Button id="changeCamera" styleName="cameraDisplaySettingsWindowChangeCamBtn" 
-                 label="{ResourceUtil.getInstance().getString('bbb.publishVideo.changeCameraBtn.labelText')}" 
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
-                 click="showCameraSettings()"/>
-      <mx:Spacer width="70%"/>
-      <mx:ComboBox id="cmbResolution" styleName="cameraDisplaySettingsWindowChangeResolutionCombo" 
-                   dataProvider="{resolutions}" visible="false" change="updateCamera()"/>
-      <mx:Spacer width="5"/>
-	    <mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
-                 click="startPublishing()" enabled="true" styleName="cameraDisplaySettingsWindowStartBtn" 
-                 label="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.labelText')}" />
-      <mx:Spacer width="5"/>
-    </mx:HBox>
-    
-  </mx:VBox>		
+	<mx:VBox id="webcamDisplay" width="100%" height="100%" paddingTop="10" styleName="cameraDisplaySettingsWindowBackground">
+		<view:VideoHolder id="_videoHolder" width="100%" height="75%" />
+		<mx:HBox width="100%" height="20%"> 
+			<mx:Spacer width="5"/>
+			<mx:Button id="changeCamera" styleName="cameraDisplaySettingsWindowChangeCamBtn" 
+					   label="{ResourceUtil.getInstance().getString('bbb.publishVideo.changeCameraBtn.labelText')}" 
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
+					   click="showCameraSettings()"/>
+			<mx:Spacer width="70%"/>
+			<mx:ComboBox id="cmbResolution" styleName="cameraDisplaySettingsWindowChangeResolutionCombo" 
+						 dataProvider="{resolutions}" visible="false" change="updateCamera()"/>
+			<mx:Spacer width="5"/>
+			<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
+					   click="startPublishing()" enabled="true" styleName="cameraDisplaySettingsWindowStartBtn" 
+					   label="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.labelText')}" />
+			<mx:Spacer width="5"/>
+			<mx:Button id="btnClosePublish"   
+					   click="onCancelClicked()" 
+					   enabled="true"
+					   label="{ResourceUtil.getInstance().getString('bbb.video.publish.closeBtn.label')}"
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.video.publish.closeBtn.accessName')}"/>
+		</mx:HBox>
+		
+	</mx:VBox>		
 </mx:TitleWindow>
