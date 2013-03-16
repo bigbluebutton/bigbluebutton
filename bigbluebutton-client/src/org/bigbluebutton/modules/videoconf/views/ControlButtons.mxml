@@ -24,12 +24,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;     
+      import com.asfusion.mate.events.Dispatcher;
+      
       import org.bigbluebutton.common.Images;
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.CoreEvent;
+      import org.bigbluebutton.core.events.VoiceConfEvent;
       import org.bigbluebutton.main.model.users.BBBUser;
       import org.bigbluebutton.main.model.users.events.KickUserEvent;
       import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
@@ -90,7 +92,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function onMuteUnmuteClicked():void {
         var bu:BBBUser = UsersUtil.getUser(sharerUserID);
         if (bu != null) {
-          var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);        
+          var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);        
           e.userid = bu.voiceUserid;
           e.mute = ! bu.voiceMuted; 
           var gd:Dispatcher = new Dispatcher();

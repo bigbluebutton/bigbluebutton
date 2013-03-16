@@ -16,7 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.modules.participants.events
+package org.bigbluebutton.core.events
 {
 	import flash.events.Event;
 
@@ -24,7 +24,7 @@ package org.bigbluebutton.modules.participants.events
 	{
 		public static const MUTE_ALL:String = "VOICECONF_MUTE_ALL";
 		public static const UNMUTE_ALL:String = "VOICECONF_UNMUTE_ALL";
-		
+    public static const LOCK_MUTE_USER:String = "LOCK_MUTE_USER";
 		public static const MUTE_ALMOST_ALL:String = "VOICECONF_MUTE_ALMOST_ALL";
 		
 		public static const MUTE_USER:String = "VOICECONF_MUTE_USER";
@@ -34,6 +34,7 @@ package org.bigbluebutton.modules.participants.events
 		
 		public var userid:int;
 		public var mute:Boolean;
+    public var lock:Boolean;
 		
 		public function VoiceConfEvent(type:String)
 		{
