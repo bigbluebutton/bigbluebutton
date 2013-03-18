@@ -74,7 +74,6 @@ package org.bigbluebutton.main.events {
 		
 		public static const FOCUS_CHAT_TABS:String = 'FOCUS_CHAT_TABS';
 		public static const FOCUS_CHAT_BOX:String = 'FOCUS_CHAT_BOX';
-		public static const CHANGE_FONT_COLOUR:String = 'CHANGE_FONT_COLOUR';
 		public static const SEND_MESSAGE:String = 'SEND_MESSAGE';
 		
 		public static const POLL_BUTTON_CLICK:String = 'POLL_BUTTON_CLICK';

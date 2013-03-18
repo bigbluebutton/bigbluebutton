@@ -331,19 +331,23 @@
 			}
 			
 			private function remoteRefresh(e:ShortcutEvent):void{
-				refreshPoll();
+				if (btnRefreshResults.label == ResourceUtil.getInstance().getString('bbb.polling.stats.refresh'))
+					refreshPoll();
 			}
 			
 			private function remoteStop(e:ShortcutEvent):void{
-				stopPoll();
+				if (btnClosePoll.label == ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll'))
+					stopPoll();
 			}
 			
 			private function remoteRepost(e:ShortcutEvent):void{
-				publishPollAgain(e);
+				if (btnRefreshResults.label == ResourceUtil.getInstance().getString('bbb.polling.stats.repost'))
+					publishPollAgain(e);
 			}
 			
 			private function remoteClose(e:ShortcutEvent):void{
-				closeButtonClick(e);
+				if (btnClosePoll.label == ResourceUtil.getInstance().getString('bbb.polling.stats.close'))
+					closeButtonClick(e);
 			}
 			
 	]]>
