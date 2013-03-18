@@ -35,7 +35,7 @@
 	<property name="VIDEO_DOCK" value="VideodockModule" />
 	<property name="POLLING" value="PollingModule" />
 	<property name="LAYOUT" value="LayoutModule" />
-	<property name="PARTICIPANTS" value="ParticipantsModule" />
+	<property name="USERS" value="UsersModule" />
 	
 	<xmlproperty file="${SRC_DIR}/conf/locales.xml" collapseAttributes="true"/>
 	
@@ -246,13 +246,13 @@
 		<build-module src="${SRC_DIR}" target="${LAYOUT}" />
 	</target>
 	
-	<target name="build-participants" description="Compile Participants Module">
-			<build-module src="${SRC_DIR}" target="${PARTICIPANTS}" />
+	<target name="build-users" description="Compile Users Module">
+			<build-module src="${SRC_DIR}" target="${USERS}" />
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present, build-layout, build-broadcast, build-participants"
+			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present, build-layout, build-broadcast, build-users"
 			description="Compile main, chat, viewers, listeners, present modules">
 	</target>
 	

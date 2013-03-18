@@ -16,7 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.modules.participants.business
+package org.bigbluebutton.modules.users.business
 {
 	import flash.events.*;
 	import flash.net.NetConnection;
