@@ -86,6 +86,7 @@ package org.bigbluebutton.modules.polling.managers
 	   public function  handleClosePollingInstructionsWindowEvent(e:PollingInstructionsWindowEvent):void {
 		   viewWindowManager.handleClosePollingInstructionsWindow(e);
 		   toolbarButtonManager.enableToolbarButton();
+		   toolbarButtonManager.focusToolbarButton();
 	   }		
 		//Opening Instructions Window    
 	  	public function handleOpenPollingInstructionsWindowEvent(e:PollingInstructionsWindowEvent):void {

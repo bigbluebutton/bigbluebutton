@@ -72,6 +72,11 @@ package org.bigbluebutton.modules.polling.managers
 			button.enabled = true;
 		}
 		
+		public function focusToolbarButton():void {
+			appFM.setFocus(button);
+			button.notifyPosition();
+		}
+		
 		public function disableToolbarButton():void {
 			appFM.setFocus(button.focusManager.getNextFocusManagerComponent());
 			button.enabled = false;

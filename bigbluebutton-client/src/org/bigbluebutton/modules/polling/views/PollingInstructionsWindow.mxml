@@ -46,36 +46,37 @@ Notes.mxml is the main view of the SharedNotes application
 <!-- Pre Defined Validation -->
 	<mx:Script>
 		<![CDATA[
-		import flexlib.mdi.events.MDIWindowEvent;
-		import org.bigbluebutton.main.views.MainCanvas;
-		import mx.controls.Alert;
-		import org.bigbluebutton.common.LogUtil;
-		import mx.validators.Validator;
-		import mx.utils.ObjectUtil;
-		import mx.utils.StringUtil;
-		
-		import mx.collections.ArrayCollection;
-		import mx.core.IUIComponent;
-		import mx.containers.HBox;
-		import mx.controls.CheckBox;
-		import mx.controls.RadioButton;
-		import org.bigbluebutton.modules.polling.events.SavePollEvent;
-		import org.bigbluebutton.modules.polling.events.PublishPollEvent;
-		import org.bigbluebutton.modules.polling.managers.PollingManager;
-		import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
-		import org.bigbluebutton.modules.polling.events.StartPollingEvent;
-		import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
-		import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-		import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
-		import org.bigbluebutton.modules.polling.model.PollObject;
-		import org.bigbluebutton.modules.polling.model.PollOptions;
-		import org.bigbluebutton.core.managers.UserManager;
-		import org.bigbluebutton.main.model.users.Conference 
-		import org.bigbluebutton.main.model.users.BBBUser;
-		import org.bigbluebutton.common.Role;
-		import org.bigbluebutton.main.events.ShortcutEvent;
-		
-		import org.bigbluebutton.util.i18n.ResourceUtil;
+			import flexlib.controls.textClasses.StringBoundaries;
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.containers.HBox;
+			import mx.controls.Alert;
+			import mx.controls.CheckBox;
+			import mx.controls.RadioButton;
+			import mx.core.IUIComponent;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			import mx.validators.Validator;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+			import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
+			import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
+			import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
+			import org.bigbluebutton.modules.polling.events.PublishPollEvent;
+			import org.bigbluebutton.modules.polling.events.SavePollEvent;
+			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
+			import org.bigbluebutton.modules.polling.managers.PollingManager;
+			import org.bigbluebutton.modules.polling.model.PollObject;
+			import org.bigbluebutton.modules.polling.model.PollOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 		
 		public static const LOGNAME:String = "[PollingInstructionsWindow] ";
 		public var moduleAttributes:Object = new Object();
@@ -103,7 +104,7 @@ Notes.mxml is the main view of the SharedNotes application
 		[Bindable] public var incomingPoll:PollObject;
 		[Bindable] public var editing:Boolean;
 		private var keyCombos:Object;
-		private var allowPreview:Boolean = true;
+		//private var allowPreview:Boolean = true;
 		
 		// LENGTH CONSTRAINTS ( CHANGE IF YOU NEED)
 		//################################################
@@ -163,7 +164,7 @@ Notes.mxml is the main view of the SharedNotes application
 		}
 			
 			private function setTabIndexForInstructions():void{
-				pollTitle.tabIndex = baseIndex+4;
+				/*pollTitle.tabIndex = baseIndex+4;
 				pollQuestion.tabIndex = baseIndex+5;
 				pollAnswers.tabIndex = baseIndex+6;
 				multiple_response.tabIndex = baseIndex+7;
@@ -174,7 +175,7 @@ Notes.mxml is the main view of the SharedNotes application
 				//publishButton.tabIndex = baseIndex+5;
 				//SavePoll.tabIndex = baseIndex+6;
 				
-				Cancel.tabIndex = baseIndex+10; 
+				Cancel.tabIndex = baseIndex+14;*/ 
 			}
 			
 			
@@ -186,11 +187,11 @@ Notes.mxml is the main view of the SharedNotes application
 				//publishToWeb_response.tabIndex = baseIndex+8;
 				//next.tabIndex = baseIndex+9;
 				
-				back.tabIndex = baseIndex+11;
+				/*back.tabIndex = baseIndex+11;
 				publishButton.tabIndex = baseIndex+12;
 				SavePoll.tabIndex = baseIndex+13;
 				
-				Cancel.tabIndex = baseIndex+14;
+				Cancel.tabIndex = baseIndex+14;*/
 			}
 			
 			
@@ -264,9 +265,9 @@ Notes.mxml is the main view of the SharedNotes application
 		// DATA VALIDATION
 		//##################################################################################
 		private function validateAndSubmit():void {
-			if (allowPreview){
-				allowPreview = false;
+			if(instrMain.visible == true){
 				var valid:Boolean = true;
+				var accessibleError:String = ResourceUtil.getInstance().getString('bbb.polling.createPoll.errorHeader');
 				// Gathering Error Messages
 				titleErrMsg.text = titleError();
 				qErrMsg.text = questionError();
@@ -274,16 +275,19 @@ Notes.mxml is the main view of the SharedNotes application
 				// Making Error messages Visible if there is an Error
 				if (titleErrMsg.text != "VALID"){ // checking if function returned any error string
 					titleErrMsg.visible=true;
+					accessibleError += titleErrMsg.text;
 					valid = false; // setting flag to false in case of error
 				}else
 					titleErrMsg.visible=false;
 				if(qErrMsg.text != "VALID"){
 					qErrMsg.visible=true;
+					accessibleError += qErrMsg.text;
 					valid = false;
 				} else
 					qErrMsg.visible=false;
 				if (aErrMsg.text != "VALID") {
 					aErrMsg.visible=true;
+					accessibleError += aErrMsg.text;
 					valid = false;
 				}else
 					aErrMsg.visible=false;
@@ -291,11 +295,18 @@ Notes.mxml is the main view of the SharedNotes application
 					formatAndReview();
 				}else{
 					LogUtil.error(LOGNAME + "Error occurred in poll validation");
+					//allowPreview = false;
 				}
-				allowPublishing();
-				publishButton.enabled = publishingAllowed;
-				setTabIndexForReview();
-			}			
+				if (accessibleError != ResourceUtil.getInstance().getString('bbb.polling.createPoll.errorHeader')){
+					ExternalInterface.call("addAlert", accessibleError);
+				}
+				//if (allowPreview){
+					//allowPreview = false;
+					allowPublishing();
+					publishButton.enabled = publishingAllowed;
+					setTabIndexForReview();
+				//}		
+			}
 		}
 		
 		// GENERATING ERROR MESSAGES
@@ -386,7 +397,7 @@ Notes.mxml is the main view of the SharedNotes application
 		public function goBack():void{
 			mainArea.selectedChild=instrMain; 
 			buttons.selectedChild=instrButtons;
-			allowPreview = true;
+			//allowPreview = true;
 			back.visible=false;
 			publishButton.visible=false;
 			options.removeAllChildren();
@@ -616,7 +627,7 @@ Notes.mxml is the main view of the SharedNotes application
 									 width="200" 
 									 height="100" 
 									 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}"
-									 tabIndex="{baseIndex+5}"/>
+									 tabIndex="{baseIndex+4}"/>
 						<mx:Label id="qErrMsg" 
 								  text="" 
 								  visible="false" 
@@ -634,7 +645,7 @@ Notes.mxml is the main view of the SharedNotes application
 									 width="200" 
 									 height="100" 
 									 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}"
-									 tabIndex="{baseIndex+6}"/>
+									 tabIndex="{baseIndex+4}"/>
 						<mx:Label id="answerHint" 
 								  text="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.hint')}" 
 								  visible="true" 
@@ -660,12 +671,12 @@ Notes.mxml is the main view of the SharedNotes application
 						<mx:CheckBox id="multiple_response" 
 									 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}" 
 									 click="isMultiple()" 
-									 tabIndex="{baseIndex+7}"
+									 tabIndex="{baseIndex+4}"
 									 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}"/>
 						<mx:CheckBox id="publishToWeb_response" 
 									 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.publishToWeb')}" 
 									 click="publishToWeb()" 
-									 tabIndex="{baseIndex+8}"
+									 tabIndex="{baseIndex+4}"
 									 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.publishToWeb')}"/>
 					</mx:FormItem>
 				</mx:Form>
@@ -728,14 +739,18 @@ Notes.mxml is the main view of the SharedNotes application
 				   width="100" 
 				   height="30" 
 				   visible="false"
-				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}"/>
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}"
+				   tabIndex="{baseIndex+4}"
+				   />
 		<mx:Button id="publishButton"
 				   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.publish')}"
 				   click="publish();"
 				   width="100"
 				   height="30"
 				   visible="false"
-				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.publish')}"/>
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.publish')}"
+				   tabIndex="{baseIndex+4}"
+				   />
 		<mx:ViewStack id="buttons">
 			<!--buttons that appear when Instructions is displayed -->
 			<mx:Canvas id="instrButtons">
@@ -744,7 +759,9 @@ Notes.mxml is the main view of the SharedNotes application
 						   click="validateAndSubmit()" 
 						   width="100" 
 						   height="30"
-						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.preview')}"/>
+						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.preview')}"
+						   tabIndex="{baseIndex+4}"
+						   />
 			</mx:Canvas>
 			<!-- buttons that appear on Review -->
 			<mx:Canvas id="reviewButtons">
@@ -753,7 +770,9 @@ Notes.mxml is the main view of the SharedNotes application
 						   click="savePoll()" 
 						   width="100" 
 						   height="30"
-						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.save')}"/>
+						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.save')}"
+						   tabIndex="{baseIndex+4}"
+						   />
 			</mx:Canvas>
 		</mx:ViewStack>
 		<!-- Cancel button appear everywhere -->
@@ -762,6 +781,8 @@ Notes.mxml is the main view of the SharedNotes application
 				   click="closeInstructionsWindow()" 
 				   width="100" 
 				   height="30"
-				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}"/>
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}"
+				   tabIndex="{baseIndex+4}"
+				   />
 	</mx:ControlBar>
 </MDIWindow>

@@ -191,6 +191,11 @@
 				//LogUtil.debug("Shortcut update complete [/updateMenuByShortcut()]");
 			}
 			
+			public function notifyPosition():void{
+				var message:String = ResourceUtil.getInstance().getString('bbb.polling.buttonName');
+				ExternalInterface.call("addAlert", message);
+			}
+			
 			private function updateMenu(calledFromShortcut:Boolean = false):void{
 				//LogUtil.debug("UpdateMenu [updateMenu()]");
 				listInitialize(calledFromShortcut);

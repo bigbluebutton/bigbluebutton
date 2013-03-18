@@ -26,6 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	       creationComplete="onCreationComplete()"
 		   xmlns:mate="http://mate.asfusion.com/" 
 		   title="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.title')}"
+		   height="700"
 		   >
 		   
 	<mx:Script>
