@@ -17,4 +17,5 @@
 
 <a href="demo_openid.jsp">Login with Openid</a> &nbsp;&nbsp;&nbsp;
 
+<a href="demo11.jsp">Javascript API</a> &nbsp;&nbsp;&nbsp;
  

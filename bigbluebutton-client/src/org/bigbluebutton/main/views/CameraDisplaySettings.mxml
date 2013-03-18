@@ -210,10 +210,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		
 		private function disableCamera():void {
 			_camera = null;
-			_video.attachCamera(null);
-			_video.clear();
-			_videoHolder.remove(_video);
-			_video = null;        
+			if(_video != null){
+				_video.attachCamera(null);
+				_video.clear();
+				_videoHolder.remove(_video);
+				_video = null; 
+			}       
 		}
 		
 		private function handleKeyDown(event:KeyboardEvent):void {
@@ -245,7 +247,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				onCameraAccessAllowed();
 				// this is just to overwrite the message of waiting for approval
 				_videoHolder.showWarning('bbb.video.publish.hint.openingCamera');
-			} else if (e.code == "Camera.Muted") {
+			} else {//if (e.code == "Camera.Muted") {
 				onCameraAccessDisallowed();
 			}
 		}

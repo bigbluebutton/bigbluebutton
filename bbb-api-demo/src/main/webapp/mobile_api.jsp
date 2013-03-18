@@ -147,7 +147,7 @@
         if (password == null) return error(E_MISSING_PARAM_PASSWORD);
         
         String result = error("failedJoin", "Couldn't join the meeting.");
-        String joinUrl = getJoinMeetingURL(fullName, meetingID, password);
+        String joinUrl = getJoinMeetingURL(fullName, meetingID, password, null);
         String enterUrl = BigBlueButtonURL + "api/enter";
         try {
             HttpClient client = new HttpClient();
