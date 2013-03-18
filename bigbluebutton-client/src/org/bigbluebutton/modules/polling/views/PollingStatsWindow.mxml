@@ -32,49 +32,56 @@
 		   layout="absolute"
 		   >
 
+	<mate:Listener type="{ShortcutEvent.FOCUS_WEBPOLL_ADDRESS}" method="focusWebPollBox" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_POLL_DATA}" method="focusDataGrid" />
-	<mate:Listener type="{ShortcutEvent.REFRESH_POLL}" method="remoteRefresh" />
+	<mate:Listener type="{ShortcutEvent.SC_REFRESH_POLL}" method="remoteRefresh" />
+	<mate:Listener type="{ShortcutEvent.SC_STOP_POLL}" method="remoteStop" />
+	
+	<mate:Listener type="{ShortcutEvent.SC_REPOST_POLL}" method="remoteRepost" />
+	<mate:Listener type="{ShortcutEvent.CLOSE_POLL_STATS}" method="remoteClose" />
 			
 	<mx:Script>
 		<![CDATA[
+			import flash.events.TimerEvent;
+			import flash.utils.Timer;
+			
 			import flexlib.mdi.events.MDIWindowEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import mx.controls.Alert;
-			import org.bigbluebutton.common.LogUtil;	 
-			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
-			import org.bigbluebutton.modules.polling.managers.PollingManager;
-			import org.bigbluebutton.modules.polling.events.VoteEvent;
-			import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
-			import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
-			import org.bigbluebutton.modules.polling.events.StopPollEvent;
-			import org.bigbluebutton.modules.polling.events.SavePollEvent;
-			import org.bigbluebutton.modules.polling.events.PublishPollEvent;
-			import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;		
-			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;			
-			import org.bigbluebutton.modules.polling.model.PollOptions;
-			import org.bigbluebutton.modules.polling.model.PollObject;
-			import org.bigbluebutton.modules.polling.model.PollStatLineObject;
-			import org.bigbluebutton.modules.polling.model.AnswerObject;				
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.model.users.Conference 
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.common.Role;
-			import mx.validators.Validator;	
-			import mx.utils.ObjectUtil;
-			import org.bigbluebutton.util.i18n.ResourceUtil;			
+			
 			import mx.collections.ArrayCollection;
-			import mx.core.IUIComponent;
+			import mx.containers.*;
+			import mx.controls.*;
+			import mx.controls.Alert;
 			import mx.controls.Text;
 			import mx.controls.TextArea;
-			import mx.containers.*;
-			import mx.controls.*;		
-			import flash.utils.Timer;
-			import flash.events.TimerEvent;
-			import mx.controls.listClasses.ListBaseContentHolder;
 			import mx.controls.dataGridClasses.DataGridHeader;
+			import mx.controls.listClasses.ListBaseContentHolder;
+			import mx.core.IUIComponent;
 			import mx.core.UIComponent;
-			import org.bigbluebutton.modules.polling.model.PollStatLineObject;
+			import mx.utils.ObjectUtil;
+			import mx.validators.Validator;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.ShortcutEvent;
+			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.main.model.users.Conference;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+			import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+			import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
+			import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
+			import org.bigbluebutton.modules.polling.events.PublishPollEvent;
+			import org.bigbluebutton.modules.polling.events.SavePollEvent;
+			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
+			import org.bigbluebutton.modules.polling.events.StopPollEvent;
+			import org.bigbluebutton.modules.polling.events.VoteEvent;
+			import org.bigbluebutton.modules.polling.managers.PollingManager;
+			import org.bigbluebutton.modules.polling.model.AnswerObject;
+			import org.bigbluebutton.modules.polling.model.PollObject;
+			import org.bigbluebutton.modules.polling.model.PollOptions;
+			import org.bigbluebutton.modules.polling.model.PollStatLineObject;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 
 		   	public static const LOGNAME:String = "[PollingStatsWindow] ";
@@ -181,7 +188,11 @@
 			private function loadKeyCombos(modifier:String):void {
 				keyCombos = new Object(); // always start with a fresh array
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusData') as String)] = ShortcutEvent.FOCUS_POLL_DATA;
-				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.refresh') as String)] = ShortcutEvent.REFRESH_POLL;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.refresh') as String)] = ShortcutEvent.SC_REFRESH_POLL;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusWebPoll') as String)] = ShortcutEvent.FOCUS_WEBPOLL_ADDRESS;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.stopPoll') as String)] = ShortcutEvent.SC_STOP_POLL;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.closeStatsWindow') as String)] = ShortcutEvent.CLOSE_POLL_STATS;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.repostPoll') as String)] = ShortcutEvent.SC_REPOST_POLL;
 			}
 			
 			private function handleKeyDown(e:KeyboardEvent) :void {
@@ -273,6 +284,7 @@
 				}
 				notified = true;
 			}
+			//focusManager.setFocus();
 			stopViewersPolls();					
 		}
 			
@@ -309,12 +321,29 @@
 				return pso;
 			}
 			
+			private function focusWebPollBox(e:ShortcutEvent):void{
+				if (webPollURLBox.visible)
+					focusManager.setFocus(webPollURLBox);
+			}
+			
 			private function focusDataGrid(e:ShortcutEvent):void{
 				focusManager.setFocus(resultsGrid);
 			}
 			
 			private function remoteRefresh(e:ShortcutEvent):void{
 				refreshPoll();
+			}
+			
+			private function remoteStop(e:ShortcutEvent):void{
+				stopPoll();
+			}
+			
+			private function remoteRepost(e:ShortcutEvent):void{
+				publishPollAgain(e);
+			}
+			
+			private function remoteClose(e:ShortcutEvent):void{
+				closeButtonClick(e);
 			}
 			
 	]]>
