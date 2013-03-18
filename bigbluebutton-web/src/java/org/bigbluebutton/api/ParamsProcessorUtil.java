@@ -43,6 +43,7 @@ public class ParamsProcessorUtil {
 	private String securitySalt;
 	private int defaultMaxUsers = 20;
 	private String defaultWelcomeMessage;
+	private String defaultWelcomeMessageFooter;
 	private String defaultDialAccessNumber;
 	private String testVoiceBridge;
 	private String testConferenceMock;
@@ -342,6 +343,8 @@ public class ParamsProcessorUtil {
 		if (StringUtils.isEmpty(message)) {
 			welcomeMessage = defaultWelcomeMessage;
 		}
+		if( !StringUtils.isEmpty(defaultWelcomeMessageFooter) )
+		    welcomeMessage += "<br><br>" + defaultWelcomeMessageFooter;
 		return welcomeMessage;
 	}
 
@@ -482,6 +485,10 @@ public class ParamsProcessorUtil {
 
 	public void setDefaultWelcomeMessage(String defaultWelcomeMessage) {
 		this.defaultWelcomeMessage = defaultWelcomeMessage;
+	}
+	
+	public void setDefaultWelcomeMessageFooter(String defaultWelcomeMessageFooter) {
+	    this.defaultWelcomeMessageFooter = defaultWelcomeMessageFooter;
 	}
 
 	public void setDefaultDialAccessNumber(String defaultDialAccessNumber) {

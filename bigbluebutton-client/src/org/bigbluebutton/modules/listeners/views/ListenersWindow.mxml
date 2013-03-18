@@ -38,30 +38,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-			import com.asfusion.mate.events.Dispatcher;
-			import flash.events.MouseEvent;
-			import flash.sampler.getInvocationCount;
-			
-			import flexlib.mdi.events.MDIWindowEvent;
-			
-			import mx.binding.utils.BindingUtils;
-			import mx.collections.ArrayCollection;
-			import mx.controls.Alert;
-			import mx.controls.Image;
-			import mx.controls.Label;
-			import mx.events.ListEvent;
-			import mx.messaging.channels.AMFChannel;
-			import org.bigbluebutton.common.LogUtil;
-			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.listeners.events.ListenersCommand;
-			import org.bigbluebutton.modules.listeners.events.ListenersEvent;
-			import org.bigbluebutton.modules.listeners.model.ListenerOptions;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import com.asfusion.mate.events.Dispatcher;
+      
+      import flash.events.MouseEvent;
+      import flash.sampler.getInvocationCount;
+      
+      import flexlib.mdi.events.MDIWindowEvent;
+      
+      import mx.binding.utils.BindingUtils;
+      import mx.collections.ArrayCollection;
+      import mx.controls.Alert;
+      import mx.controls.Image;
+      import mx.controls.Label;
+      import mx.events.ListEvent;
+      import mx.messaging.channels.AMFChannel;
+      
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.events.VoiceConfEvent;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.listeners.events.ListenersCommand;
+      import org.bigbluebutton.modules.listeners.events.ListenersEvent;
+      import org.bigbluebutton.modules.listeners.model.ListenerOptions;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images= new Images();			
 			private var _xPosition:int;
@@ -209,19 +211,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function toggleMuteMeState():void{
 				if (UserManager.getInstance().getConference().voiceLocked && ! UserManager.getInstance().getConference().amIModerator()) return;
 				
-				var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);
+				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
 				e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
 				e.mute = !UserManager.getInstance().getConference().isMyVoiceMuted();
 				dispatchEvent(e);
 			}
 			
 			private function muteAllListeners():void{
-				var muteCommand:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_ALL);
+				var muteCommand:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_ALL);
 				dispatchEvent(muteCommand);
 			}
 			
 			private function unmuteAllListeners():void{
-				var unmuteCommand:ListenersCommand = new ListenersCommand(ListenersCommand.UNMUTE_ALL);
+				var unmuteCommand:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.UNMUTE_ALL);
 				dispatchEvent(unmuteCommand);
 			}
 			

@@ -26,7 +26,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.events.FlexEvent;
       import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.modules.participants.business.ParticipantsProxy;
-			import org.bigbluebutton.modules.participants.events.VoiceConfEvent;
+			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.modules.participants.events.StartParticipantsModuleEvent;
 			import org.bigbluebutton.modules.participants.events.StopParticipantsModuleEvent;
 			import org.bigbluebutton.modules.participants.managers.ParticipantsManager;

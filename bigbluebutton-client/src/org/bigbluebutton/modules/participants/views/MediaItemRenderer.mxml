@@ -47,7 +47,7 @@
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 			import org.bigbluebutton.modules.participants.events.ParticipantRollEvent;
-			import org.bigbluebutton.modules.participants.events.VoiceConfEvent;
+			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.modules.participants.events.ViewCameraEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
