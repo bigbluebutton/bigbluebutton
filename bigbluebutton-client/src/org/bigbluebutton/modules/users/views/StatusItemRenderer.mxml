@@ -26,8 +26,8 @@
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
 	horizontalAlign="center">
 	
-	<mate:Listener type="{ParticipantRollEvent.PARTICIPANT_ROLL_OVER}" method="onRollOver" />
-	<mate:Listener type="{ParticipantRollEvent.PARTICIPANT_ROLL_OUT}" method="onRollOut" />
+	<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
+	<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	
 	<mx:Script>
@@ -41,7 +41,7 @@
 			import org.bigbluebutton.common.Role;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-			import org.bigbluebutton.modules.participants.events.ParticipantRollEvent;
+			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			private var images:Images = new Images();
@@ -89,19 +89,19 @@
 	  			if (data != null) {
 	  				if (data.presenter) {
 	  					roleBtn.setStyle("icon", images.presenter_new);
-	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.presenter');
+	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
 	  					roleBtn.enabled = false;
 	  				} else if (rolledOver) {
 	  					roleBtn.setStyle("icon", images.presenter_new);
-	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.changePresenter');
+	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
 	  					roleBtn.enabled = true;
 	  				} else if (data.role == Role.MODERATOR) {
 	  					roleBtn.setStyle("icon", images.moderator);
-	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.moderator');
+	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
 	  					roleBtn.enabled = false;
 	  				} else if (data.raiseHand) {
 	  					roleBtn.setStyle("icon", images.hand_new);
-	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.participants.participantsGrid.statusItemRenderer.handRaised');
+	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised');
 	  					roleBtn.enabled = false;
 	  				} else {
 	  					roleBtn.setStyle("icon", null);
@@ -111,14 +111,14 @@
 	  			}
   			}
   			
-  			private function onRollOver(e:ParticipantRollEvent):void{
+  			private function onRollOver(e:UsersRollEvent):void{
 				if (moderator && (e.userID == data.userID) && !data.phoneUser) {
 					rolledOver = true;
 					updateButton();
 				}
 			}
 			
-			private function onRollOut(e:ParticipantRollEvent):void{
+			private function onRollOut(e:UsersRollEvent):void{
 				if (moderator) {
 					rolledOver = false;
 					updateButton();

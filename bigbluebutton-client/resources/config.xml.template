@@ -16,7 +16,7 @@
 		 
 		<module name="ChatModule" url="http://HOST/client/ChatModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
-			dependsOn="ParticipantsModule"	
+			dependsOn="UsersModule"	
 			translationOn="false"
 			translationEnabled="false"	
 			privateEnabled="true"  
@@ -39,7 +39,7 @@
 		/>
 -->
 
-		<module name="ParticipantsModule" url="http://HOST/client/ParticipantsModule.swf?v=VERSION" 
+		<module name="UsersModule" url="http://HOST/client/UsersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
 		/>
 
@@ -58,12 +58,12 @@
 			skipCheck="false"
 			showButton="true"
 			enabledEchoCancel="true"
-			dependsOn="ParticipantsModule"
+			dependsOn="UsersModule"
 		/>
 
 		<module name="VideoconfModule" url="http://HOST/client/VideoconfModule.swf?v=VERSION" 
 			uri="rtmp://HOST/video"
-			dependson = "ParticipantsModule"
+			dependson = "UsersModule"
 			videoQuality = "100"
 			presenterShareOnly = "false"
 			controlsForPresenter = "false"
@@ -107,13 +107,13 @@
 			host="http://HOST" 
 			showPresentWindow="true"
 			showWindowControls="true"
-			dependsOn="ParticipantsModule"
+			dependsOn="UsersModule"
 			baseTabIndex="501"
 		/>
 
 		<module name="VideodockModule" url="http://HOST/client/VideodockModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton" 
-			dependsOn="VideoconfModule, ParticipantsModule"
+			dependsOn="VideoconfModule, UsersModule"
 			autoDock="true"
 			showControls="true"
 			maximizeWindow="false"
@@ -143,7 +143,7 @@
       position="top-left"
       showStreams="true"
       autoPlay="false"
-      dependsOn="ParticipantsModule"
+      dependsOn="UsersModule"
     />
 -->
     		

@@ -42,7 +42,7 @@ package org.bigbluebutton.main.events {
 		public static const GOREAD_MESSAGE:String = 'GOREAD_MESSAGE';
 		public static const OPEN_SHORTCUT_WIN:String = 'OPEN_SHORTCUT_WIN';
 		
-		public static const FOCUS_PARTICIPANTS_WINDOW:String = 'FOCUS_PARTICIPANTS_WINDOW';
+		public static const FOCUS_USERS_WINDOW:String = 'FOCUS_USERS_WINDOW';
 		public static const FOCUS_VIDEO_WINDOW:String = 'FOCUS_VIDEO_WINDOW';
 		public static const FOCUS_PRESENTATION_WINDOW:String = 'FOCUS_PRESENTATION_WINDOW';
 		public static const FOCUS_CHAT_WINDOW:String = 'FOCUS_CHAT_WINDOW';
