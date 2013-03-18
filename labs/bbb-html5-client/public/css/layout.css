@@ -456,10 +456,10 @@ button:focus, textarea:focus, input:focus {
   display: none;
 }
 #slide {
-  width: 670px;
+  /*width: 670px;
   height: 515px;
   border: 1px solid #888;
-  margin-top: 25px;
+  margin-top: 25px;*/
 }
 .users-enabled #whiteboard {
   left: -1px;
