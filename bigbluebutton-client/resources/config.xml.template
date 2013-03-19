@@ -23,6 +23,7 @@
 			position="top-right"
 			baseTabIndex="701"
 		/>
+		
 <!--		
 		<module name="ViewersModule" url="http://HOST/client/ViewersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
