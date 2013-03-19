@@ -16,11 +16,11 @@
  * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.bigbluebutton.modules.participants.model
+package org.bigbluebutton.modules.users.model
 {
 	import org.bigbluebutton.core.BBB;
 
-	public class ParticipantsOptions
+	public class UsersOptions
 	{
 		[Bindable]
 		public var windowVisible:Boolean = true;
@@ -31,9 +31,9 @@ package org.bigbluebutton.modules.participants.model
 		[Bindable]
 		public var baseTabIndex:int = 201;
 		
-		public function ParticipantsOptions()
+		public function UsersOptions()
 		{
-			var vxml:XML = BBB.getConfigForModule("ParticipantsModule");
+			var vxml:XML = BBB.getConfigForModule("UsersModule");
 			if (vxml != null) {
 				windowVisible = (vxml.@windowVisible.toString().toUpperCase() == "TRUE") ? true : false;
 			}

@@ -16,7 +16,7 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.modules.participants.business 
+package org.bigbluebutton.modules.users.business 
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
@@ -27,30 +27,30 @@ package org.bigbluebutton.modules.participants.business
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
-	import org.bigbluebutton.modules.participants.events.ParticipantsEvent;
-	import org.bigbluebutton.modules.participants.events.StartParticipantsModuleEvent;
-	import org.bigbluebutton.modules.participants.events.StopParticipantsModuleEvent;
+	import org.bigbluebutton.modules.users.events.UsersEvent;
+	import org.bigbluebutton.modules.users.events.StartUsersModuleEvent;
+	import org.bigbluebutton.modules.users.events.StopUsersModuleEvent;
 	import org.bigbluebutton.core.events.VoiceConfEvent;
 
-	public class ParticipantsProxy
+	public class UsersProxy
 	{		
 		private var _listenersService:ListenersSOService;
-		private var _participants:ArrayCollection = null;
+		private var _users:ArrayCollection = null;
 		// Is teh disconnection due to user issuing the disconnect or is it the server
 		// disconnecting due to t fault?
 		private var manualDisconnect:Boolean = false;
 		
-		private var _module:ParticipantsModule;
+		private var _module:UsersModule;
 		
 		private var dispatcher:Dispatcher;
 		
-		public function ParticipantsProxy(){
+		public function UsersProxy(){
 			dispatcher = new Dispatcher();
 			
 		}
 		
-		public function connect(event:StartParticipantsModuleEvent):void {
-			_participants = UserManager.getInstance().getConference().users
+		public function connect(event:StartUsersModuleEvent):void {
+			_users = UserManager.getInstance().getConference().users
 			_module = event.module;
 			_listenersService = new ListenersSOService(_module);
 			_listenersService.addConnectionStatusListener(connectionStatusListener);
@@ -68,9 +68,9 @@ package org.bigbluebutton.modules.participants.business
 			if (connected) {
 			//	sendNotification(ListenersModuleConstants.CONNECTED);
 			} else {
-				_participants = null;
+				_users = null;
 				var dispatcher:Dispatcher = new Dispatcher();
-				var e:StopParticipantsModuleEvent = new StopParticipantsModuleEvent(StopParticipantsModuleEvent.DISCONNECTED);
+				var e:StopUsersModuleEvent = new StopUsersModuleEvent(StopUsersModuleEvent.DISCONNECTED);
 				e.manual_disconnect = manualDisconnect;
 				dispatcher.dispatchEvent(e);
 			}

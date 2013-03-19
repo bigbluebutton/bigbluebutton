@@ -273,7 +273,7 @@ Error: createMeeting() failed
 		// We've got a valid meeting_ID and passoword -- let's join!
 		//
 		
-		String joinURL = getJoinMeetingURL(username, meeting_ID, password);			
+		String joinURL = getJoinMeetingURL(username, meeting_ID, password, null);
 %>
 
 <script language="javascript" type="text/javascript">
