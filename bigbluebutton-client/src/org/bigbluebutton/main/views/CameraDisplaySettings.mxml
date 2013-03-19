@@ -129,7 +129,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			displayVideoPreview();
 		}
 		
-		private function displayVideoPreview():void {       
+		private function displayVideoPreview():void {
+			setComboResolution();		
+		
 			var videoOptions:VideoConfOptions = new VideoConfOptions();
 			_camera.setMotionLevel(5, 1000);
 			_camera.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
@@ -141,8 +143,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				setResolution(_camera.width, _camera.height);
 			}
 			
-			setComboResolution();
-			
 			if (_video != null) {
 				_videoHolder.remove(_video);
 			}
@@ -150,7 +150,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			_video = new Video();       
 			_video.attachCamera(_camera);
 			
-			aspectRatio = (_video.width / _video.height);
+			//aspectRatio = (_video.width / _video.height);
 			
 			if (aspectRatio > _videoHolder.width / _videoHolder.height) {
 				_video.width = _videoHolder.width;
@@ -288,7 +288,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Spacer width="5"/>
 			<mx:Button id="changeCamera" styleName="cameraDisplaySettingsWindowChangeCamBtn" 
 					   label="{ResourceUtil.getInstance().getString('bbb.publishVideo.changeCameraBtn.labelText')}" 
-					   toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
+					   toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.changeCamera.toolTip')}" 
 					   click="showCameraSettings()"/>
 			<mx:Spacer width="70%"/>
 			<mx:ComboBox id="cmbResolution" styleName="cameraDisplaySettingsWindowChangeResolutionCombo" 
