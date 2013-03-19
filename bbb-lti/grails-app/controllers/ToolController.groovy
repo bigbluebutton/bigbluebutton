@@ -96,8 +96,12 @@ class ToolController {
             
         } else {
             session["params"] = params
+	        def sessionParams = session["params"]
             List<Object> recordings = bigbluebuttonService.getRecordings(params)
-            render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(params)])
+			if (recordings != null) {
+				recordings = recordings.sort{it.startTime}.reverse()
+			}
+            render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(params), 'resource_link_title': sessionParams.get(Parameter.RESOURCE_LINK_TITLE)])
         }
     }
     
@@ -126,7 +130,7 @@ class ToolController {
             
         } else {
             List<Object> recordings = bigbluebuttonService.getRecordings(sessionParams)
-            render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator':bigbluebuttonService.isModerator(sessionParams)])
+            render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator':bigbluebuttonService.isModerator(sessionParams), 'resource_link_title': sessionParams.get(Parameter.RESOURCE_LINK_TITLE)])
         }
     }
 
