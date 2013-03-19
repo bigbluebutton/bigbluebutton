@@ -92,6 +92,8 @@
 			private const MUTE_USER:String = "Mute User";
 			private const MUTE_ALL_USER:String = "Mute All User";
 			
+			private var muteMeRolled:Boolean = false;
+			
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
 			
@@ -100,6 +102,8 @@
 				
 				BindingUtils.bindSetter(changeButtons, UserManager.getInstance().getConference(), "amIPresenter");
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
+				
+				BindingUtils.bindSetter(updateMuteMeBtn, UserManager.getInstance().getConference(), "voiceMuted"); 
 				
 				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
@@ -179,7 +183,8 @@
 					myMenuData[2] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.lowerAllHands'), icon: images.hand_new};
 					if (!roomMuted) {
 						myMenuData[3] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted};
-						myMenuData[4] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept'), icon: images.audio_muted};
+						if (UserManager.getInstance().getConference().getPresenter())
+							myMenuData[4] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted};
 					} else
 						myMenuData[3] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio};
 				}
@@ -378,6 +383,23 @@
 				usersGrid.drawFocus(true);
 			}
 			
+			private function updateMuteMeBtn(voiceMuted:Boolean = false):void {
+				if (UserManager.getInstance().getConference().voiceMuted == muteMeRolled)
+					muteMeBtn.setStyle("icon", images.audio);
+				else
+					muteMeBtn.setStyle("icon", images.audio_muted);
+			}
+			
+			private function mouseOverHandler():void {
+				muteMeRolled = true;
+				updateMuteMeBtn();
+			}
+			
+			private function mouseOutHandler():void {
+				muteMeRolled = false;
+				updateMuteMeBtn();
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -405,8 +427,9 @@
 					visible="false" includeInLayout="{raiseHandBtn.visible}" tabIndex="{partOptions.baseTabIndex+15}" />
 		<mx:Spacer width="100%"/>
 		<mx:Button id="muteMeBtn" click="toggleMuteMeState()" height="30" width="30" 
-					icon="{UserManager.getInstance().getConference().voiceMuted ? images.audio_muted : images.audio}"
 					visible="{UserManager.getInstance().getConference().voiceJoined}"
+					mouseOver="mouseOverHandler()"
+					mouseOut="mouseOutHandler()"
 					toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.users.pushToMute.toolTip')}" 
 					tabIndex="{partOptions.baseTabIndex+20}"/>
 		

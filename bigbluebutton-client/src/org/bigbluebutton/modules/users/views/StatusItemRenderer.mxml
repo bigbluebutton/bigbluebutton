@@ -88,24 +88,34 @@
   			private function updateButton(unneeded:Object = null):void {
 	  			if (data != null) {
 	  				if (data.presenter) {
-	  					roleBtn.setStyle("icon", images.presenter_new);
-	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
+	  					roleImg.source = images.presenter_new;
+	  					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.presenter');
+	  					roleImg.visible = true;
+	  					roleBtn.visible = false;
 	  					roleBtn.enabled = false;
 	  				} else if (rolledOver) {
 	  					roleBtn.setStyle("icon", images.presenter_new);
 	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.changePresenter');
+	  					roleImg.visible = false;
+	  					roleBtn.visible = true;
 	  					roleBtn.enabled = true;
 	  				} else if (data.role == Role.MODERATOR) {
-	  					roleBtn.setStyle("icon", images.moderator);
-	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
+	  					roleImg.source = images.moderator;
+	  					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.moderator');
+	  					roleImg.visible = true;
+	  					roleBtn.visible = false;
 	  					roleBtn.enabled = false;
 	  				} else if (data.raiseHand) {
-	  					roleBtn.setStyle("icon", images.hand_new);
-	  					roleBtn.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised');
+	  					roleImg.source = images.hand_new;
+	  					roleImg.toolTip = ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer.handRaised');
+	  					roleImg.visible = true;
+	  					roleBtn.visible = false;
 	  					roleBtn.enabled = false;
 	  				} else {
-	  					roleBtn.setStyle("icon", null);
-	  					roleBtn.toolTip = "";
+	  					roleImg.source = null;
+	  					roleImg.toolTip = "";
+	  					roleImg.visible = true;
+	  					roleBtn.visible = false;
 	  					roleBtn.enabled = false;
 	  				}
 	  			}
@@ -140,8 +150,11 @@
 				updateButton();
 			}
 		]]>
-	</mx:Script>	
-	<mx:Button id="roleBtn" enabled="false" width="20" height="20" click="assignPresenterClicked()" />
+	</mx:Script>
+	<mx:Image id="roleImg" visible="true" width="16" height="16" includeInLayout="{roleImg.visible}" />
+	<mx:Button id="roleBtn" visible="false" enabled="false" width="20" height="20" click="assignPresenterClicked()" includeInLayout="{roleBtn.visible}" />
+	
+	<!-- Helper objects because direct bindings to data break when the itemRenderer is recycled -->
 	<mx:Image id="presenterInd" includeInLayout="false" visible="{data.presenter}" />
 	<mx:Image id="moderatorInd" includeInLayout="false" visible="{data.role == Role.MODERATOR}" />
 	<mx:Image id="raiseHandInd" includeInLayout="false" visible="{data.raiseHand}" />
