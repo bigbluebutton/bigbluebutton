@@ -208,6 +208,7 @@
 
 			public function setUrlBoxText():void{
 				webPollURLBox.text = webPollUrl;
+				webPollURLBox.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.stats.webPollBoxAccessName', [webPollUrl]);
 				LogUtil.debug("webPollURLBox.Text is : " + webPollURLBox.text);
 				if (conference.amIPresenter())
 					messageForRecording(ResourceUtil.getInstance().getString('bbb.polling.stats.webPollURL') + " " + webPollUrl);
@@ -252,11 +253,12 @@
 			refreshTimer.stop();
  			btnRefreshResults.visible = conference.amIPresenter();
  			btnRefreshResults.label = ResourceUtil.getInstance().getString('bbb.polling.stats.repost');
+			btnRefreshResults.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.stats.repost');
 			btnRefreshResults.removeEventListener(MouseEvent.CLICK, refreshWindow);
 			btnRefreshResults.addEventListener(MouseEvent.CLICK, publishPollAgain);
 			
-			
 			btnClosePoll.label = ResourceUtil.getInstance().getString('bbb.polling.stats.close');
+			btnClosePoll.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.stats.close');
 			btnClosePoll.removeEventListener(MouseEvent.CLICK, closeWindow);
 			btnClosePoll.addEventListener(MouseEvent.CLICK, closeButtonClick); 
 			trackingPoll.status = false;
@@ -330,24 +332,37 @@
 				focusManager.setFocus(resultsGrid);
 			}
 			
+			// addAlert
 			private function remoteRefresh(e:ShortcutEvent):void{
-				if (btnRefreshResults.label == ResourceUtil.getInstance().getString('bbb.polling.stats.refresh'))
+				if (btnRefreshResults.label == ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.refresh');
+					ExternalInterface.call("addAlert", message);
 					refreshPoll();
+				}
 			}
 			
 			private function remoteStop(e:ShortcutEvent):void{
-				if (btnClosePoll.label == ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll'))
+				if (btnClosePoll.label == ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.stopPoll');
+					ExternalInterface.call("addAlert", message);
 					stopPoll();
+				}
 			}
 			
 			private function remoteRepost(e:ShortcutEvent):void{
-				if (btnRefreshResults.label == ResourceUtil.getInstance().getString('bbb.polling.stats.repost'))
+				if (btnRefreshResults.label == ResourceUtil.getInstance().getString('bbb.polling.stats.repost')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.repost');
+					ExternalInterface.call("addAlert", message);
 					publishPollAgain(e);
+				}
 			}
 			
 			private function remoteClose(e:ShortcutEvent):void{
-				if (btnClosePoll.label == ResourceUtil.getInstance().getString('bbb.polling.stats.close'))
+				if (btnClosePoll.label == ResourceUtil.getInstance().getString('bbb.polling.stats.close')){
+					var message:String = ResourceUtil.getInstance().getString('bbb.polling.stats.alerts.close');
+					ExternalInterface.call("addAlert", message);
 					closeButtonClick(e);
+				}
 			}
 			
 	]]>
@@ -419,6 +434,7 @@
 		<mx:Spacer width="100%"/>
 		<mx:Button id="btnRefreshResults" 
        			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')}" 
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')}"
        			   click="refreshPoll()" 
        			   width="100" 
        			   height="30"
@@ -426,7 +442,8 @@
 				   tabIndex="{baseIndex+6}"
        			   />
        	<mx:Button id="btnClosePoll" 
-       			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')}" 
+       			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')}"
+				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')}"
        			   click="stopPoll()" 
        			   width="100" 
        			   height="30"

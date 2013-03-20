@@ -413,7 +413,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						if (message == ""){
 						}
 						else{
-							ExternalInterface.call("addAlert", message);
+							// Chat alerts temporarily disabled, so messages do not interfere with accessibility testing of other modules.
+							//ExternalInterface.call("addAlert", message);
 						}
 					}				
 				}

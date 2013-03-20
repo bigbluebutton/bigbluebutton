@@ -36,7 +36,7 @@ package org.bigbluebutton.modules.chat.model
 		public var position:String = "top-right";
 		
 		[Bindable] public var baseTabIndex:int;
-		
+				
 		public function ChatOptions() {
 			var cxml:XML = 	BBB.getConfigForModule("ChatModule");
 			if (cxml != null) {
@@ -58,5 +58,6 @@ package org.bigbluebutton.modules.chat.model
 		public function getBaseIndex():int{
 			return baseTabIndex;
 		}
+		
 	}
 }

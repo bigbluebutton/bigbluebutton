@@ -21,12 +21,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" 
+		   height="700"
 	       xmlns:mx="http://www.adobe.com/2006/mxml" 
 	       showCloseButton="true"
 	       creationComplete="onCreationComplete()"
 		   xmlns:mate="http://mate.asfusion.com/" 
 		   title="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.title')}"
-		   height="700"
 		   >
 		   
 	<mx:Script>
