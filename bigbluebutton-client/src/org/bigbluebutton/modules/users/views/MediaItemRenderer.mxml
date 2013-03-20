@@ -32,7 +32,8 @@
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-	      
+			
+			import mx.binding.utils.BindingUtils;
 			import mx.controls.Alert;
 			import mx.events.ListEvent;
 			import mx.events.FlexEvent;
@@ -58,10 +59,19 @@
 			[Bindable]
 			private var rolledOver:Boolean = false;
 			
+			private var muteRolled:Boolean = false;
+			
 			private function onCreationComplete():void{
 				muteBtn.enabled = kickUserBtn.enabled = moderator = UserManager.getInstance().getConference().amIModerator();
+				if (moderator) {
+					BindingUtils.bindProperty(muteBtn, "visible", voiceJoinedInd, "visible");
+				} else {
+					BindingUtils.bindProperty(muteImg, "visible", voiceJoinedInd, "visible");
+				}
 				
 				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
+				
+				BindingUtils.bindSetter(updateMuteBtn, muteInd, "visible");
 			}
 			
 			private function dataChangeHandler(e:Event):void {
@@ -102,6 +112,33 @@
 				e.mute = !data.voiceMuted;
 				dispatchEvent(e);
 			}
+			
+			private function updateMuteBtn(voiceMuted:Boolean = false):void {
+				if (data != null) {
+					if (moderator) {
+						if (data.voiceMuted == muteRolled)
+							muteBtn.setStyle("icon", images.audio);
+						else
+							muteBtn.setStyle("icon", images.audio_muted);
+					} else {
+						if (data.voiceMuted == muteRolled)
+							muteImg.source = images.audio;
+						else
+							muteImg.source = images.audio_muted;
+					}
+				}
+			}
+			
+			private function mouseOverHandler():void {
+				muteRolled = true;
+				updateMuteBtn();
+			}
+			
+			private function mouseOutHandler():void {
+				muteRolled = false;
+				updateMuteBtn();
+			}
+			
 		]]>
 	</mx:Script>
 	<mx:Image id="showLock" visible="{data.voiceLocked}" source="{images.lock_close}" width="20" height="20" />
@@ -110,12 +147,18 @@
 	<mx:Button id="webcamBtn" visible="{data.hasStream}" click="viewCamera()" icon="{images.webcam_new}"
 				width="20" height="20" enabled="false"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcam')}" />
-	<mx:Button id="muteBtn" visible="{data.voiceJoined}" enabled="false"
+	<mx:Image id="muteImg" visible="false" includeInLayout="false" width="16" height="16" />
+	<mx:Button id="muteBtn" visible="false" includeInLayout="false" enabled="false" icon="{images.audio}"
 				width="20" height="20" click="toggleMuteState()"
-				icon="{data.voiceMuted ? images.audio_muted : images.audio}"
+				mouseOver="mouseOverHandler()"
+				mouseOut="mouseOutHandler()"
 				toolTip="{data.voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToTalk') : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToMute')}" />
 	<mx:Button id="kickUserBtn" icon="{images.eject_user_new}" 
 				width="20" height="20" visible="{rolledOver}"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser')}"
 				click="kickUser()"/>
+				
+	<!-- Helper objects because direct bindings to data break when the itemRenderer is recycled -->
+	<mx:Image id="muteInd" includeInLayout="false" visible="{data.voiceMuted}" />
+	<mx:Image id="voiceJoinedInd" includeInLayout="false" visible="{data.voiceJoined}" />
 </mx:HBox>
