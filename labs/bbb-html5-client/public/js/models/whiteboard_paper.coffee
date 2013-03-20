@@ -107,10 +107,6 @@ define [
     addImageToPaper: (url, width, height) ->
       @_updateContainerDimensions()
 
-      # TODO: temporary adaptation for iPads
-      width = 670
-      height = 515
-
       console.log "adding image to paper", url, width, height
       if @fitToPage
         # solve for the ratio of what length is going to fit more than the other
@@ -118,7 +114,11 @@ define [
         # fit it all in appropriately
         # TODO: temporary solution
         url = PRESENTATION_SERVER + url unless url.match(/http[s]?:/)
-        img = @raphaelObj.image(url, @cx = 0, @cy = 0, @gw = width, @gh = height)
+        @cx = (@containerWidth / 2) - (width / 2)
+        @cy = (@containerHeight / 2) - (height / 2)
+
+        console.log "its fits"
+        img = @raphaelObj.image(url, @cx, @cy, @gw = width, @gh = height)
 
         # update the global variables we will need to use
         @sw = width / max
@@ -127,6 +127,7 @@ define [
         # sh_orig = sh
       else
         # fit to width
+        console.log "no fit"
         # assume it will fit width ways
         wr = width / @containerWidth
         img = @raphaelObj.image(url, @cx = 0, @cy = 0, width / wr, height / wr)
@@ -138,8 +139,8 @@ define [
         @gh = @sh
       @slides[url] =
         id: img.id
-        w: width
-        h: height
+        w: @sw
+        h: @sh
 
       unless @currentUrl
         img.toBack()
