@@ -65,8 +65,10 @@
 				muteBtn.enabled = kickUserBtn.enabled = moderator = UserManager.getInstance().getConference().amIModerator();
 				if (moderator) {
 					BindingUtils.bindProperty(muteBtn, "visible", voiceJoinedInd, "visible");
+					muteBtn.includeInLayout = true;
 				} else {
 					BindingUtils.bindProperty(muteImg, "visible", voiceJoinedInd, "visible");
+					muteImg.includeInLayout = true;
 				}
 				
 				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
