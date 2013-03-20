@@ -67,7 +67,7 @@
 			private var _uri:String;
 			private var _host:String;
 			private var _connection:NetConnection;
-			private var _dispatcher = new Dispatcher();
+			private var _dispatcher:Dispatcher = new Dispatcher();
 			private var _document:String = "";
 
 			private var options:SharedNotesOptions = new SharedNotesOptions();
@@ -137,7 +137,7 @@
 				if (e.patch != "") {
 					var result:String = DiffPatch.patch(e.patch, _document);
 					_document = result;
-					textArea.patch = e.patch;
+					textArea.patchClientText(e.patch);
 					//patchHistory.push(serverMessage.patchData);
 				}
 			}
@@ -168,6 +168,7 @@
 			}
 			
 			private function addBlur():void {
+				textArea.init();
 				var bf:BlurFilter = new BlurFilter(0,0,0);
 				
 				var myFilters:Array = new Array();
@@ -241,6 +242,7 @@
 			}
 			private function onTextChange(e:Event):void {
 				onSyncing(e);
+				
 			}
 			
 			protected function btnPlay_clickHandler(event:MouseEvent):void
@@ -269,6 +271,7 @@
 			protected function btnSave_clickHandler(event:MouseEvent):void
 			{
 				textArea.saveNotesToFile();
+				
 			}
 
 			protected function btnBackPlayback_clickHandler(event:MouseEvent):void
@@ -288,6 +291,7 @@
 					
 			public function getPrefferedPosition():String{
 				return options.position;
+
 			}
 			
 			
@@ -311,7 +315,7 @@
 	<mx:Image x="476" y="431" source="@Embed(source='images/action_refresh.gif')" id="icoSyncing" visible="false" toolTip="Updating document..."/>
 	<mx:Button x="10" y="425" icon="@Embed(source='images/arrow_left.png')" id="btnBackPlayback" click="btnBackPlayback_clickHandler(event)" visible="false"/>
 	<mx:Label id="lblPlaybackVersion" x="10" y="399" text="Version 0:"/>
-	<components:PatchableTextArea x="10" y="10" id="textArea" hideEffect="{dissolveOut}" showEffect="{dissolveIn}" creationComplete="addBlur()" width="482" height="407" editable="true"/>
+	<components:PatchableTextArea x="10" y="10" id="textArea" hideEffect="{dissolveOut}" showEffect="{dissolveIn}" creationComplete="addBlur()" width="482" height="407" editable="true" verticalScrollPolicy = "auto"/>
 	<mx:Button  x="476" y="431" id="btnSave" click="btnSave_clickHandler(event)" visible="true" icon="@Embed(source='images/disk.png')"/>
 	<mx:Button x="0" y="0" label="Start" id="btnPlay" click="btnPlay_clickHandler(event)" visible="false"/>
 </containers:MDIWindow>
