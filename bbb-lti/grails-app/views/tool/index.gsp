@@ -13,6 +13,9 @@
 			font-size: 14px;
 			vertical-align: middle;
 		}
+		.table .text-center {
+			text-align: center;
+		}
 		
 		</style>
 		<script src="${resource(dir:'js',file:'jquery-1.9.1.min.js')}"></script>
@@ -27,7 +30,7 @@
 		<h1 class="text-center"><a title="Join" class="btn btn-success btn-large" href="${createLink(controller:'tool',action:'join')}">Join Session</a></h1>
         <hr />
 		<h4>Recordings</h4>
-		<p>Recorded sessions will appear only after all participants have disconnected and the session's multimedia is processed. Processing time will depend on a session's length and typically be completed within a few hours. <a href="http://firefox.com" target="_blank">Mozilla Firefox</a> or <a href="http://www.google.com/chrome" target="_blank">Google Chrome</a> is required for watching recordings.</p>
+		<p>A recorded session will appear below after all participants have disconnected and the session's multimedia is processed. Processing time is typically less than a few hours but will depend on the session's length. <a href="http://firefox.com" target="_blank">Mozilla Firefox</a> or <a href="http://www.google.com/chrome" target="_blank">Google Chrome</a> is required for watching recordings.</p>
         <table class="table table-striped">
             <thead>
                 <tr>
