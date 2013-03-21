@@ -226,7 +226,8 @@ class BigbluebuttonService {
                 userFullName = isModerator? "Moderator" : "Attendee"
             }
         }
-        
+        // 2013-03-21 Replace dashes with underscores to avoid a bug with pre-0.81 build of Flash client
+		userFullName = userFullName.replaceAll('-', '_')
         return userFullName
     }
 
