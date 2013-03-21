@@ -23,20 +23,20 @@
 <div class="container-fluid">
   <div class="row-fluid">
 
-        <h1 style="text-align: center;">${resource_link_title}</h1>
-		<h1 style="text-align: center;"><a title="Join" class="btn btn-success btn-large" href="${createLink(controller:'tool',action:'join')}">Join Session</a></h1>
+        <h1 class="text-center">${resource_link_title}</h1>
+		<h1 class="text-center"><a title="Join" class="btn btn-success btn-large" href="${createLink(controller:'tool',action:'join')}">Join Session</a></h1>
         <hr />
 		<h4>Recordings</h4>
 		<p>Recorded sessions will appear only after all participants have disconnected and the session's multimedia is processed. Processing time will depend on a session's length and typically be completed within a few hours. <a href="http://firefox.com" target="_blank">Mozilla Firefox</a> or <a href="http://www.google.com/chrome" target="_blank">Google Chrome</a> is required for watching recordings.</p>
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th class="header c0" style="text-align:center;" scope="col">Link</th>
-                    <th class="header c1" style="text-align:center;" scope="col">Title</th>
-                    <th class="header c3" style="text-align:center;" scope="col">Date</th>
-                    <th class="header c4" style="text-align:center;" scope="col">Duration</th>
+                    <th class="header c0 text-center" scope="col">Link</th>
+                    <th class="header c1 text-center" scope="col">Title</th>
+                    <th class="header c3 text-center" scope="col">Date</th>
+                    <th class="header c4 text-center" scope="col">Duration</th>
                     <g:if test="${ismoderator}">
-                    <th class="header c5 lastcol" style="text-align:center;" scope="col">Actions</th>
+                    <th class="header c5 lastcol text-center" scope="col">Actions</th>
                     </g:if>
                 </tr>
             </thead>
@@ -46,14 +46,14 @@
                 <g:if test="${ismoderator || r.published == 'true'}">
 					<g:set var="num_recordings_listed" value="${num_recordings_listed + 1}" />
 	                <tr class="r0 lastrow">
-	                    <td class="cell c0" style="text-align:center;">
+	                    <td class="cell c0 text-center">
 	                    <g:each in="${r.playback}" var="p">
 	                        <a title="${p.type}" target="_new" href="${p.url}">View ${p.type}</a>
 	                    </g:each>
 	                    </td>
-	                    <td class="cell c1" style="text-align:center;">${r.name}</td>
-	                    <td class="cell c3" style="text-align:center;">${new Date( Long.valueOf(r.startTime).longValue() ).format("MMMM d, yyyy 'at' h:mm a")}</td>
-	                    <td class="cell c4" style="text-align:center;">
+	                    <td class="cell c1 text-center">${r.name}</td>
+	                    <td class="cell c3 text-center">${new Date( Long.valueOf(r.startTime).longValue() ).format("MMMM d, yyyy 'at' h:mm a")}</td>
+	                    <td class="cell c4 text-center">
 	                    <g:each in="${r.playback}" var="p">
 		                    <g:if test="${p.type == 'slides'}">
 		                        ${p.length} minutes
@@ -64,7 +64,7 @@
 	                    </g:each>
 	                    </td>
 	                    <g:if test="${ismoderator}">
-	                    <td class="cell c5 lastcol" style="text-align:center;">
+	                    <td class="cell c5 lastcol text-center">
 							
 							<g:if test="${r.published == 'true'}">
 								<a title="Click to Unpublish" data-toggle="tooltip" data-placement="left" class="bbb-tooltip btn btn-small btn-success" href="${createLink(controller:'tool',action:'publish')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}">Published</a>
@@ -80,7 +80,7 @@
                 </g:if>
             </g:each>
 	        <g:if test="${num_recordings_listed == 0}">
-				<tr><td colspan="5" style="text-align:center;"><em>No recordings available.</em></td></tr>
+				<tr><td colspan="5" class="text-center"><em>No recordings available.</em></td></tr>
 			</g:if>
 			
             </tbody>
