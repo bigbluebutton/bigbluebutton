@@ -12,11 +12,21 @@ public class GlobalCall {
     public static Map<String,String> codecVoiceConference = new ConcurrentHashMap<String, String>();
     public static Map<String,KeepGlobalAudioAlive> globalAudioKeepAliverMap = new ConcurrentHashMap<String, KeepGlobalAudioAlive>();
     
-    public static boolean roomHasGlobalStream(String roomName) {
+    public static synchronized boolean roomHasGlobalStream(String roomName) {
 	return voiceConference.containsKey(roomName);
     }
 
-    public static void addGlobalAudioStream(String roomName, String globalAudioStreamName, String codecName, KeepGlobalAudioAlive globalAudioKeepAlive) {
+    public static synchronized boolean reservePlaceToCreateGlobal(String roomName) {
+	if(voiceConference.containsKey(roomName) == false) {
+		voiceConference.put(roomName, "reserved");
+		return true;
+	}
+	else {
+		return false;
+	}
+    }
+
+    public static synchronized void addGlobalAudioStream(String roomName, String globalAudioStreamName, String codecName, KeepGlobalAudioAlive globalAudioKeepAlive) {
 	voiceConference.put(roomName, globalAudioStreamName);
 	codecVoiceConference.put(roomName, codecName);
 	numberOfUsers.put(roomName, 0);
@@ -24,11 +34,11 @@ public class GlobalCall {
 	globalAudioKeepAlive.start();
     }
 
-    public static String getGlobalAudioStream(String roomName) {
+    public static synchronized String getGlobalAudioStream(String roomName) {
 	return voiceConference.get(roomName);
     }
  
-    public static void removeRoom(String roomName) {
+    public static synchronized void removeRoom(String roomName) {
 	System.out.println("REMOVING GLOBAL AUDIO FROM ROOM "+roomName);
 	voiceConference.remove(roomName);
 	numberOfUsers.remove(roomName);
@@ -38,13 +48,13 @@ public class GlobalCall {
 	globalAudioKeepAliverMap.remove(roomName);
     }
 
-    public static void addUser(String roomName) {
+    public static synchronized void addUser(String roomName) {
 	int nUsers = numberOfUsers.get(roomName);
 	nUsers+=1;
     	numberOfUsers.put(roomName, nUsers);	
     }
 
-    public static void removeUser(String roomName) {
+    public static synchronized void removeUser(String roomName) {
 	
 	if(numberOfUsers.containsKey(roomName)) {
 		int nUsers = numberOfUsers.get(roomName);
@@ -54,7 +64,7 @@ public class GlobalCall {
 	}
     }
 
-    public static int getNumberOfUsers(String roomName) {
+    public static synchronized int getNumberOfUsers(String roomName) {
     	return numberOfUsers.get(roomName);
     }
 

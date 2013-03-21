@@ -40,7 +40,7 @@ public class Service {
 		
 		
 		if(global == true) {
-			if(GlobalCall.roomHasGlobalStream(destination) == false) {
+			if(GlobalCall.reservePlaceToCreateGlobal(destination) == true) {
 				String extension = callExtensionPattern.format(new String[] { destination });
 				try {
 					sipPeerManager.callGlobal(peerId, destination, "GLOBAL_AUDIO_" + destination, getClientId(), callerName, extension);

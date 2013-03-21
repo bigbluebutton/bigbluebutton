@@ -258,17 +258,13 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
 						callStream.addCallStreamObserver(this);
 						callStream.start();
 						if(_callerName.contains("GLOBAL_AUDIO") == true) {
-							//String room = _callerName.subSequence(13, _callerName.length()).toString();
 							KeepGlobalAudioAlive globalAudioKeepAlive = new KeepGlobalAudioAlive(connInfo.getSocket(), connInfo, sipCodec.getCodecId());
 							GlobalCall.addGlobalAudioStream(_destination, callStream.getListenStreamName(), sipCodec.getCodecName(), globalAudioKeepAlive);							
 							caToInit.returnGlobalStreamName(caToInit.getCallId(), _destination); 
 							talking = true;
-							
-							
 						}
 						else {
 							talking = true;
-							
 							notifyListenersOnCallConnected(callStream.getTalkStreamName(), callStream.getListenStreamName());
 						}
 						
@@ -302,8 +298,18 @@ public class CallAgent extends CallListenerAdapter implements CallStreamObserver
     public void returnGlobalStreamName(String clientId, String destination) {
 	talking = false;
 	_destination = destination;
+	String globalAudioStreamName = GlobalCall.getGlobalAudioStream(destination);
+	while(globalAudioStreamName.equals("reserved")) {
+		try {
+			Thread.sleep(100);
+		}
+		catch (Exception e) {
+			
+		}
+		globalAudioStreamName = GlobalCall.getGlobalAudioStream(destination);
+	}
 	GlobalCall.addUser(_destination);
-	clientConnManager.joinConferenceSuccessNew(clientId, GlobalCall.getGlobalAudioStream(destination), GlobalCall.getRoomCodec(destination));
+	clientConnManager.joinConferenceSuccessNew(clientId, globalAudioStreamName, GlobalCall.getRoomCodec(destination));
 
    }
     
