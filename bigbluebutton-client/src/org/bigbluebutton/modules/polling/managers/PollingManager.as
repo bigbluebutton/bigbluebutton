@@ -287,7 +287,7 @@ package org.bigbluebutton.modules.polling.managers
 		//##################################################################################
 		  
 		  public function handleGlobalPollHotkey(e:ShortcutEvent):void{
-			  if (toolbarButtonManager.openMenuRemotely()){
+			  if (conference.amIPresenter() && toolbarButtonManager.openMenuRemotely()){
 				  // Business as usual
 			  }
 			  else{

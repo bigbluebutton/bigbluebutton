@@ -35,22 +35,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
   <mx:Script>
     <![CDATA[
-      import com.asfusion.mate.events.Dispatcher;    
-      import flash.events.Event;      
-      import mx.controls.Alert;
-      import mx.managers.HistoryManager;
-      import mx.utils.URLUtil;      
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
-      import org.bigbluebutton.core.BBB;
-      import org.bigbluebutton.core.EventBroadcaster;
-      import org.bigbluebutton.core.managers.ConfigManager2;
-      import org.bigbluebutton.main.api.ExternalApiCallbacks;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.ShortcutEvent;
-      import org.bigbluebutton.main.views.MainApplicationShell;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-      private var langResources:ResourceUtil = null; //ResourceUtil.getInstance();
+	    import com.asfusion.mate.events.Dispatcher;    
+	    import flash.events.Event;      
+	    import mx.controls.Alert;
+	    import mx.managers.HistoryManager;
+	    import mx.utils.URLUtil;      
+	    import org.bigbluebutton.common.LogUtil;
+	    import org.bigbluebutton.common.events.AddUIComponentToMainCanvas;
+	    import org.bigbluebutton.core.BBB;
+	    import org.bigbluebutton.core.EventBroadcaster;
+	    import org.bigbluebutton.core.managers.ConfigManager2;
+	    import org.bigbluebutton.main.api.ExternalApiCallbacks;
+	    import org.bigbluebutton.main.events.BBBEvent;
+	    import org.bigbluebutton.main.events.ShortcutEvent;
+	    import org.bigbluebutton.main.views.MainApplicationShell;
+	    import org.bigbluebutton.util.i18n.ResourceUtil;
+		import org.bigbluebutton.main.model.users.BBBUser;
+		import org.bigbluebutton.main.model.users.Conference;
+      	private var langResources:ResourceUtil = null;
+		private var conference:Conference;
 
 
     /**
@@ -124,6 +127,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.video') as String)] = ShortcutEvent.FOCUS_VIDEO_WINDOW;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.presentation') as String)] = ShortcutEvent.FOCUS_PRESENTATION_WINDOW;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.chat') as String)] = ShortcutEvent.FOCUS_CHAT_WINDOW;
+		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.voting') as String)] = ShortcutEvent.FOCUS_VOTING_WINDOW;
 		
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.desktop') as String)] = ShortcutEvent.SHARE_DESKTOP;
 		keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.share.webcam') as String)] = ShortcutEvent.SHARE_WEBCAM;

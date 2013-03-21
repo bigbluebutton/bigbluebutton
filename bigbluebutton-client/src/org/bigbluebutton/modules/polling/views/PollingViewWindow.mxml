@@ -23,12 +23,16 @@
 <MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="410" height="150" 
 	xmlns:mate="http://mate.asfusion.com/" 
-	implements="org.bigbluebutton.common.IBbbModuleWindow" 
+	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	initialize="init()"
 	creationComplete="onCreationComplete()"
 	label="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"  
-	title="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
+	title="This is voting, right?"
 	layout="absolute">
-
+<!-- title="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}" -->
+	
+	<mate:Listener type="{ShortcutEvent.FOCUS_VOTING_WINDOW}" method="focusWindow" />
+	
 	<mx:Script>
 		<![CDATA[
 			import flexlib.mdi.events.MDIWindowEvent;
@@ -40,9 +44,10 @@
 			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 			import org.bigbluebutton.modules.polling.managers.PollingManager;
 			import org.bigbluebutton.modules.polling.events.VoteEvent;
-			
+			import org.bigbluebutton.modules.polling.model.PollOptions;
 			import org.bigbluebutton.main.model.users.Conference;
-			
+			import org.bigbluebutton.main.events.ShortcutEvent;
+
 			import mx.validators.Validator;	
 			import mx.utils.ObjectUtil;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -66,6 +71,23 @@
 			private var window:PollingViewWindow;	
 			private var submissionAllowed:Boolean=false;		
 			public var cbSelected:Array = new Array(); // variable that receives either CheckBox or RadioButton info and sends it to VoteEvent
+			[Bindable] private var pollOptions:PollOptions;
+			[Bindable] private var baseIndex:int;
+			
+			
+			private function init():void{
+				pollOptions = new PollOptions();
+				baseIndex = pollOptions.getBaseIndex();
+				
+				// Send an alert to visually-impaired users that a voting window has opened.
+				var hotkeyString:String;
+				// Use External calls to put together the actual hotkey to focus the voting window
+				// Temporary value:
+				hotkeyString = "VOTE_FOCUS";
+				
+				var message:String = ResourceUtil.getInstance().getString('bbb.polling.vote.alerts.windowOpen', [hotkeyString]);
+				ExternalInterface.call("addAlert", message);
+			}
 			
 			public function getPrefferedPosition():String{
 				return MainCanvas.POPUP;
@@ -76,6 +98,13 @@
 			}
  			 
 			private function onCreationComplete():void{
+				titleBarOverlay.tabIndex = baseIndex;			
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				closeBtn.tabIndex = baseIndex+3;
+				btnAcceptPoll.tabIndex = baseIndex+15;
+				baseIndex = baseIndex+4;
+				
 				if (isMultiple)
 					errorMessage.text = ResourceUtil.getInstance().getString('bbb.polling.vote.error.check');
 				else
@@ -118,6 +147,7 @@
 				    	_cb.addEventListener(MouseEvent.CLICK, checkBoxClick);
 				    	// gap between the buttons
  				    	_cb.y=i*20;
+						_cb.tabIndex = baseIndex++;
  				    	// adding buttons to the Horizontal Box
  				      	_hb.addChild(_cb);
  				 	}else{
@@ -126,6 +156,7 @@
 				 		_rb.name = content[i].toString(); // giving button a name of array elelment to process it easier later
 				 		_rb.id = "answers"+i;
 						_rb.addEventListener(MouseEvent.CLICK, radioClick);
+						_rb.tabIndex = baseIndex++;
 				 		_hb.addChild(_rb);
 			 		}    
 			 		_hb.addChild(_tx); // adding text near button			 
@@ -177,6 +208,10 @@
 			public function radioClick(e:Event):void{
 				submissionAllowed = true;
 			}
+			
+			private function focusWindow(e:Event):void{
+				focusManager.setFocus(titleBarOverlay);
+			}
 		]]>
 	</mx:Script>
 
@@ -213,6 +248,7 @@
     			   label="{ResourceUtil.getInstance().getString('bbb.polling.pollView.vote')}" 
     			   click="Vote()"  
     			   width="100" 
-    			   height="30"/>
+    			   height="30"
+				   />
     </mx:ControlBar> 	 
 </MDIWindow>

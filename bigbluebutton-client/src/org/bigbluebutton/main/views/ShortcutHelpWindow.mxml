@@ -44,13 +44,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var audKeys:ArrayList;
 			private var viewerKeys:ArrayList;
 			private var pollKeys:ArrayList;
+			private var pollVoteKeys:ArrayList;
 			
 			private var genResource:Array = [/*'bbb.shortcutkey.general.minimize', 'bbb.shortcutkey.general.maximize',*/ 
 											 'bbb.shortcutkey.flash.exit', 'bbb.shortcutkey.focus.viewers', 'bbb.shortcutkey.focus.listeners', 
 											 'bbb.shortcutkey.focus.video', 'bbb.shortcutkey.focus.presentation', 'bbb.shortcutkey.focus.chat',
 											 'bbb.shortcutkey.share.desktop', 'bbb.shortcutkey.share.microphone', 'bbb.shortcutkey.share.webcam',
 											 'bbb.shortcutkey.shortcutWindow', 'bbb.shortcutkey.logout', 'bbb.shortcutkey.raiseHand', 
-											 'bbb.shortcutkey.polling.buttonClick'];
+											 'bbb.shortcutkey.polling.buttonClick', 'bbb.shortcutkey.focus.voting'];
 											 
 			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', 'bbb.shortcutkey.whiteboard.undo', 
 											  'bbb.shortcutkey.present.upload', 'bbb.shortcutkey.present.previous', 'bbb.shortcutkey.present.select',	
@@ -68,9 +69,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var pollResource:Array = ['bbb.shortcutkey.polling.focusTitle', 'bbb.shortcutkey.polling.focusQuestion', 'bbb.shortcutkey.polling.focusAnswers', 
 											  'bbb.shortcutkey.polling.focusMultipleCB', 'bbb.shortcutkey.polling.focusWebPollCB', 'bbb.shortcutkey.polling.previewClick', 
 											  'bbb.shortcutkey.polling.cancelClick', 'bbb.shortcutkey.polling.modify', 'bbb.shortcutkey.polling.publish', 
-											  'bbb.shortcutkey.polling.save', 'bbb.shortcutkey.poll.explanation', 'bbb.shortcutkey.polling.focusWebPoll', 
+											  'bbb.shortcutkey.polling.save', 'bbb.shortcutkey.pollStats.explanation', 'bbb.shortcutkey.polling.focusWebPoll', 
 											  'bbb.shortcutkey.polling.focusData', 'bbb.shortcutkey.polling.refresh', 'bbb.shortcutkey.polling.stopPoll', 
 											  'bbb.shortcutkey.polling.repostPoll', 'bbb.shortcutkey.polling.closeStatsWindow'];
+			
+			//private var pollVoteResource:Array = [];
 			
 			[Bindable]
 			private var shownKeys:ArrayCollection;
@@ -92,6 +95,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				audKeys = loadKeys(audResource);
 				viewerKeys = loadKeys(viewerResource);
 				pollKeys = loadKeys(pollResource);
+				//pollVoteKeys = loadKeys(pollVoteResource);
 				changeArray();
 			}
 			
@@ -113,8 +117,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				case 4: //Viewers
 					shownKeys.addAll(viewerKeys);
 					break;
-				case 5: //Polling
+				case 5: //Polling, Presenter
 					shownKeys.addAll(pollKeys);
+					break;
+				case 6: //Polling, Viewer
+					shownKeys.addAll(pollVoteKeys);
 					break;
 				}
 			}
@@ -216,6 +223,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.audio")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.viewers")}</mx:String>
 			<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling")}</mx:String>
+			<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling2")}</mx:String>
       	</mx:ArrayCollection>
 	</mx:ComboBox>
 	<mx:DataGrid id="keyList" draggableColumns="false" dataProvider="{shownKeys}" width="100%" height="100%">
