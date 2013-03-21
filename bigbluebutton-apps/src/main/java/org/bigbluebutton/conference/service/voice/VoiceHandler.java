@@ -31,7 +31,6 @@ import org.bigbluebutton.webconference.red5.voice.ClientNotifier;
 public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	private static Logger log = Red5LoggerFactory.getLogger(VoiceHandler.class, "bigbluebutton");
 
-	private static final String VOICE = "VOICE";
 	private static final String VOICE_SO = "meetMeUsersSO";
 	private static final String APP = "VOICE";
 
@@ -101,7 +100,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 		ISharedObject so = getSharedObject(connection.getScope(), VOICE_SO, false);
 	    		
     	String voiceBridge = getBbbSession().getVoiceBridge();
-    	String meetingid = getBbbSession().getConference(); 
+    	String meetingid = getBbbSession().getRoom(); 
     	Boolean record = getBbbSession().getRecord();
     			
     	log.debug("Setting up voiceBridge " + voiceBridge);
