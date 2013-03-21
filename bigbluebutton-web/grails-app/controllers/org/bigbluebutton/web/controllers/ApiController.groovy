@@ -760,7 +760,9 @@ class ApiController {
   * CONFIG API
   ***********************************************/
   def setConfigXML = {
-
+	  	
+	println "Handling setConfigXML"
+	
 	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
 		return
