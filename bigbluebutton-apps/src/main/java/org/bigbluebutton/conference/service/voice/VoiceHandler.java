@@ -90,9 +90,12 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 	@Override
 	public boolean roomStart(IScope scope) {
 		log.debug("***** " + APP + " [ " + " roomStart [ " + scope.getName() + "] *********");
+		
     	return true;
 	}
 
+	private static final String VOICE_BRIDGE = "VOICE_BRIDGE";
+	
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("***** " + APP + " [ " + " roomConnect [ " + connection.getScope().getName() + "] *********");
@@ -102,7 +105,11 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
     	String voiceBridge = getBbbSession().getVoiceBridge();
     	String meetingid = getBbbSession().getRoom(); 
     	Boolean record = getBbbSession().getRecord();
-    			
+    	
+    	if (!connection.getScope().hasAttribute(VOICE_BRIDGE)) {
+    		connection.getScope().setAttribute(VOICE_BRIDGE, getBbbSession().getVoiceBridge());
+    	}
+    	
     	log.debug("Setting up voiceBridge " + voiceBridge);
     	clientManager.addSharedObject(connection.getScope().getName(), voiceBridge, so);
     	conferenceService.createConference(voiceBridge, meetingid, record); 			
@@ -119,7 +126,7 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 		 * Remove the voicebridge from the list of running
 		 * voice conference.
 		 */
-		String voiceBridge = getBbbSession().getVoiceBridge();
+		String voiceBridge = (String) scope.getAttribute(VOICE_BRIDGE);
 		conferenceService.destroyConference(voiceBridge);
 		clientManager.removeSharedObject(scope.getName());
 		if (hasSharedObject(scope, VOICE_SO)) {
