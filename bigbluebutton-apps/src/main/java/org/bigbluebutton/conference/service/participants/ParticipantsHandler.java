@@ -115,7 +115,7 @@ public class ParticipantsHandler extends ApplicationAdapter implements IApplicat
 		if (bbbSession == null) {
 			log.debug("roomLeave - session is null"); 
 		} else {
-			participantsApplication.participantLeft(bbbSession.getSessionName(), bbbSession.getInternalUserID());
+			participantsApplication.participantLeft(scope.getName(), bbbSession.getInternalUserID());
 		}		
 	}
 	
