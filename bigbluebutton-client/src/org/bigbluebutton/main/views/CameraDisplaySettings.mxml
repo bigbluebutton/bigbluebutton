@@ -67,7 +67,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private function onCreationComplete():void {          
 			changeDefaultCamForMac();
 			
-			if (UsersUtil.amIPresenter() && resolutions.length > 1) {
+			if (resolutions.length > 1) {
 				showResControls(true);
 			}
 			
