@@ -477,6 +477,7 @@ public class ParamsProcessorUtil {
 			return true;
 		}
 		
+/**		
 		String decodedConfigXML;
 		
 		try {
@@ -486,7 +487,10 @@ public class ParamsProcessorUtil {
 			return false;
 		}
 		
-		String cs = DigestUtils.shaHex(meetingID + decodedConfigXML + securitySalt);
+		System.out.println("Calc checksum \n" + meetingID + decodedConfigXML + securitySalt);
+**/		
+		
+		String cs = DigestUtils.shaHex(meetingID + configXML + securitySalt);
 		log.debug("our checksum: [{}], client: [{}]", cs, checksum);
 		System.out.println("our checksum: [" + cs + "] client: [" + checksum + "]");
 		if (cs == null || cs.equals(checksum) == false) {
