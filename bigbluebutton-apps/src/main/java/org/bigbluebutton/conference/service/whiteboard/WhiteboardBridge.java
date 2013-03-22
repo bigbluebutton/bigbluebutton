@@ -29,33 +29,17 @@ public class WhiteboardBridge {
 		
 		if(an.getType().equalsIgnoreCase(WhiteboardBridge.PENCIL_TYPE)){
 			Map map = an.getAnnotation();
-			ArrayList points = (ArrayList) map.get("points");
-			for(int i=0;i<points.size();i+=2){
-				Double pA = (Double) points.get(i);
-				Double pB = (Double) points.get(i+1);
-				
-				ArrayList<Object> updates = new ArrayList<Object>();
-				updates.add(meetingID);
-				
-				log.debug("PERRO points:"+ pA + " " + pB);
-				ArrayList<Object> data = new ArrayList<Object>();
-				data.add(pA/100);
-				data.add(pB/100);
-				if(i == 0 ){
-					updates.add("makeShape");
-					data.add(map.get("color"));
-					data.add(map.get("thickness"));	
-				}else{
-					updates.add("updShape");
-					data.add(true);
-				}
-				updates.add("line");
-				
-				updates.add(data);
-				Gson gson = new Gson();
-				messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
-			}
+			ArrayList<Object> updates = new ArrayList<Object>();
 			
+			updates.add(meetingID);
+			updates.add("shapePoints");
+			updates.add("line");
+			updates.add(map.get("color"));
+			updates.add(map.get("thickness"));
+			updates.add(map.get("points"));
+			
+			Gson gson = new Gson();
+			messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
 		}
 		
 		
