@@ -142,7 +142,7 @@ package org.bigbluebutton.main.model.users
 				
 				LogUtil.debug(NAME + "::Connecting to " + uri + " [" + _conferenceParameters.username + "," + _conferenceParameters.role + "," + 
 					_conferenceParameters.conference + "," + _conferenceParameters.record + "," + _conferenceParameters.room + "]");	
-				_netConnection.connect(uri, _conferenceParameters.username, _conferenceParameters.role, _conferenceParameters.conference, 
+				_netConnection.connect(uri, _conferenceParameters.username, _conferenceParameters.role,
 											_conferenceParameters.room, _conferenceParameters.voicebridge, 
 											_conferenceParameters.record, _conferenceParameters.externUserID,
 											_conferenceParameters.internalUserID);			
