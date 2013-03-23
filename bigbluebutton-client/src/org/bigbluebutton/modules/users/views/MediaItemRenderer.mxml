@@ -141,7 +141,6 @@
 			
 		]]>
 	</mx:Script>
-	<mx:Image id="showLock" visible="{data.voiceLocked}" source="{images.lock_close}" width="20" height="20" />
 	<mx:Image id="talkingIcon" visible="{data.talking}" source="{images.sound_new}" width="20" height="20" 
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.talking')}" />
 	<mx:Button id="webcamBtn" visible="{data.hasStream}" click="viewCamera()" icon="{images.webcam_new}"
@@ -157,6 +156,7 @@
 				width="20" height="20" visible="{rolledOver}"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser')}"
 				click="kickUser()"/>
+	<mx:Image id="showLock" visible="{data.voiceLocked}" source="{images.lock_close}" width="20" height="20" />
 				
 	<!-- Helper objects because direct bindings to data break when the itemRenderer is recycled -->
 	<mx:Image id="muteInd" includeInLayout="false" visible="{data.voiceMuted}" />
