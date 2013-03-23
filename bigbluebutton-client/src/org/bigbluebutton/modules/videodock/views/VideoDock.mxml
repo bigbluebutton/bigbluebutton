@@ -55,6 +55,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.videoconf.business.VideoWindowItf;
       import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
+      import org.bigbluebutton.modules.videoconf.events.UserTalkingEvent;
+      import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 	  import org.bigbluebutton.common.events.LocaleChangeEvent;
 			
@@ -71,6 +73,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var priorityWindowWeight:Number = 2/3;
 			
 			private var options:DockOptions = new DockOptions();
+			private var confOptions:VideoConfOptions = new VideoConfOptions();
 			private var dispatcher:Dispatcher;			
 			private var keyCombos:Object;
 			
@@ -264,7 +267,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        			window.draggable = false;
 
 				window.addEventListener(MouseEvent.CLICK, onWindowClick);
-
+				window.addEventListener(UserTalkingEvent.TALKING, onTalking);
+				
 				var e:CloseWindowEvent = new CloseWindowEvent();
 				e.window = window;
 				dispatchEvent(e);
@@ -419,6 +423,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						_prioritizeWindow = true;
 					}
 				}
+				updateChildrenDimensions(mutableChildrenArray);
+			}
+			
+			protected function onTalking(event:UserTalkingEvent):void {
+				prioritizeTalking(event.currentTarget);
+			}
+			
+			private function prioritizeTalking(window:Object):void {
+				if (mutableChildrenArray.length <= 1
+						|| options.layout == DockOptions.LAYOUT_NONE)
+					return;
+				
+				if (window == priorityWindow) //window already prioritized
+					return;
+				
+				var index:int = mutableChildrenArray.indexOf(window);
+				if (index != -1) {
+					mutableChildrenArray[index] = mutableChildrenArray[0];
+					mutableChildrenArray[0] = window;
+					_prioritizeWindow = true;
+				}
+				
 				updateChildrenDimensions(mutableChildrenArray);
 			}
 			
