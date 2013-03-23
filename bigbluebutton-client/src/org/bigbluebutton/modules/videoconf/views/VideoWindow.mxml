@@ -136,7 +136,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (event.message.userID ==  userID) {
           if (event.message.talking) {
             notTalkingEffect.end();
-            talkingEffect.play([this]);            
+            talkingEffect.play([this]);   
+            simulateClick();         
           } else {
             talkingEffect.end();
             notTalkingEffect.play([this]);

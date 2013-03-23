@@ -95,6 +95,9 @@ package org.bigbluebutton.modules.videoconf.model
     [Bindable]
     public var displayAvatar:Boolean = false;
     
+    [Bindable]
+    public var focusTalking:Boolean = false;
+    
     public function VideoConfOptions() {
       parseOptions();
     }
@@ -188,6 +191,10 @@ package org.bigbluebutton.modules.videoconf.model
 
 				if (vxml.@displayAvatar != undefined) {
 					displayAvatar = (vxml.@displayAvatar.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				
+				if (vxml.@focusTalking != undefined) {
+					focusTalking = (vxml.@focusTalking.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 			}
 		}

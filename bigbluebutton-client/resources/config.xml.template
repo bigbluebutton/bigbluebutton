@@ -87,7 +87,8 @@
 			enableH264 = "true"
 			h264Level = "2.1"
 			h264Profile = "main"		
-			displayAvatar = "false"	
+			displayAvatar = "false"
+			focusTalking = "false"	
 		/>
 		
 		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=4105" 
