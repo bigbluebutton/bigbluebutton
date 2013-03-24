@@ -313,7 +313,8 @@ document.addEventListener( "DOMContentLoaded", function() {
   $('.acorn-controls').position({
     "my": "center top",
     "at": "center bottom",
-    "of": '#playbackArea'
+    "of": '#playbackArea',
+    "collision": "none none"
   });
 }, false);
 
