@@ -247,6 +247,11 @@
 .acorn-player.darkglass .acorn-volume-mute {
 	background-image: url(darkglass-volume.png);
 }
+/* Swap Button */
+.acorn-player.darkglass .acorn-swap-button {
+	float: right;
+	background-image: url(darkglass-swap.png);
+}
 /* Fullscreen Button */
 .acorn-player.darkglass .acorn-fullscreen-button {
 	float: right;
