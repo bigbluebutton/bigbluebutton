@@ -54,7 +54,7 @@ public class WhiteboardBridge {
 			
 			Map map = an.getAnnotation();
 			ArrayList points = (ArrayList) map.get("points");
-			String strPoints = "";
+			/*String strPoints = "";
 			for(int i=0;i<points.size();i+=2){
 				String letter = "";
 				Double pA = (Double) points.get(i);
@@ -66,14 +66,14 @@ public class WhiteboardBridge {
 					letter = "L";
 				
 				strPoints += letter + (pA/100) + "," + (pB/100);
-			}
+			}*/
 			
 			Jedis jedis = messagingService.createRedisClient();
 			
 			HashMap<String,String> mapAnn = new HashMap<String, String>();
 			
 			mapAnn.put("shape", shapeType);
-			data.add(strPoints);
+			data.add(points);
 			data.add( (Integer.parseInt(map.get("color").toString()) == 0) ? "#000000" : map.get("color")  );
 			data.add(map.get("thickness"));
 			Gson gson = new Gson();

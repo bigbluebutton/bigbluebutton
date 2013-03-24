@@ -101,13 +101,33 @@ define [
       # Received event to clear the whiteboard shapes
       socket.on "clrPaper", =>
         console.log "received clrPaper"
-        @paper?.clear()
+        @paper?._clearShapes()
 
       # Received event to update all the shapes in the whiteboard
       # @param  {Array} shapes Array of shapes to be drawn
       socket.on "all_shapes", (shapes) =>
         console.log "received all_shapes"
-        @paper?.clear()
+        
+        # TODO: a hackish trick for making compatible the shapes from redis with the node.js
+        for shape in shapes
+          properties = JSON.parse(shape.data)
+          points = properties[0]
+          strPoints = ""
+          for i in [0..points.length] by 2
+            letter = ""
+            pA = points[i];
+            pB = points[i+1];
+            if i == 0 
+              letter = "M";
+            else
+              letter = "L";
+        
+            strPoints += letter + (pA/100) + "," + (pB/100)
+          
+          properties[0] = strPoints
+          shape.data = JSON.stringify(properties)
+        
+        @paper?._clearShapes()
         @paper?.drawListOfShapes shapes
 
       # Received event to update a shape being created
