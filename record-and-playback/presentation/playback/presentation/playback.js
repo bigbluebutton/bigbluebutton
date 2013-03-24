@@ -314,7 +314,7 @@ document.addEventListener( "DOMContentLoaded", function() {
     "my": "center top",
     "at": "center bottom",
     "of": '#playbackArea',
-    "collision": "fit fit"
+    "collision": "none none"
   });
 }, false);
 
@@ -339,89 +339,4 @@ function Tick() {
   secondsToWait -= 1;
   $('#countdown').html(secondsToWait);
   window.setTimeout("Tick()", 1000);
-}
-
-var swapped = false;
-
-function swapVideoPres() {
-  if (swapped === false) {
-	  $('#slide').css("width", "400px");
-	  $('#slide').css("height", "300px");
-	  $('#slide > object').attr("width", "400px");
-	  $('#slide > object').attr("height", "300px");
-	  var svgfile = $('#slide > object')[0].contentDocument.getElementById("svgfile");
-	  svgfile.style.width = "400px";
-	  svgfile.style.height = "300px";
-	  
-	  var slide = document.getElementById("slide");
-	  var cursor = document.getElementById("cursor");
-	  var slideT = document.getElementById("slideText");
-	  var video = document.getElementById("video");
-	  
-	  video.style.width = "800px";
-	  video.style.height = "600px";
-	  
-	  $('#videoRecordingWrapper').position({
-	    "my": "left top",
-	    "at": "right top",
-	    "of": '#thumbnails',
-	    "collision": "none none",
-	    "offset": "10 0"
-	  });
-	  
-	  $('#presentation').position({
-	    "my": "center top",
-	    "at": "center bottom",
-	    "of": '#chat',
-	    "collision": "none none"
-	  });
-	  
-	  $('.acorn-controls').position({
-	    "my": "center top",
-	    "at": "center bottom",
-	    "of": '#playbackArea',
-	    "collision": "none none"
-	  });
-	  
-	  draw(0,0);
-
-	  swapped = true;
-  } else {
- 	  $('#slide').css("width", "800px");
-	  $('#slide').css("height", "600px");
-	  $('#slide > object').attr("width", "800px");
-	  $('#slide > object').attr("height", "600px");
-	  var svgfile = $('#slide > object')[0].contentDocument.getElementById("svgfile");
-	  svgfile.style.width = "800px";
-	  svgfile.style.height = "600px";
-	  
-	  var video = document.getElementById("video");
-	  
-	  video.style.width = "400px";
-	  video.style.height = "300px";
-	  
-	  $('#presentation').position({
-	    "my": "left top",
-	    "at": "right top",
-	    "of": '#thumbnails',
-	    "collision": "none none",
-	    "offset": "10 0"
-	  });
-	  
-	  $('#videoRecordingWrapper').position({
-	    "my": "center top",
-	    "at": "center bottom",
-	    "of": '#chat',
-	    "collision": "none none"
-	  });
-	  
-	  $('.acorn-controls').position({
-	    "my": "center top",
-	    "at": "center bottom",
-	    "of": '#playbackArea',
-	    "collision": "none none"
-	  });
-	  
-	  swapped = false;   
-  }
 }
