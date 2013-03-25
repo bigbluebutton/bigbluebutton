@@ -40,6 +40,40 @@ public class WhiteboardBridge {
 			
 			Gson gson = new Gson();
 			messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
+		}else if(an.getType().equalsIgnoreCase(WhiteboardBridge.RECTANGLE_TYPE)){
+			Map map = an.getAnnotation();
+			ArrayList<Object> updates = new ArrayList<Object>();
+			updates.add(meetingID);
+			
+			ArrayList points = (ArrayList) map.get("points");
+			Double pX = (Double) points.get(0);
+			Double pY = (Double) points.get(1);
+			Double pW = (Double) points.get(2);
+			Double pH = (Double) points.get(3);
+			
+			
+			ArrayList<Object> data = new ArrayList<Object>();
+			if(an.getStatus().equalsIgnoreCase("DRAW_START")){
+				updates.add("makeShape");
+				data.add(pX/100);
+				data.add(pY/100);
+				data.add(map.get("color"));
+				data.add(map.get("thickness"));
+				
+			}else{
+				updates.add("updShape");
+				data.add(pX/100);
+				data.add(pY/100);
+				data.add(pW/100);
+				data.add(pH/100);
+				
+			}
+			
+			updates.add("rect");
+			updates.add(data);
+			
+			Gson gson = new Gson();
+			messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
 		}
 		
 		
@@ -54,19 +88,6 @@ public class WhiteboardBridge {
 			
 			Map map = an.getAnnotation();
 			ArrayList points = (ArrayList) map.get("points");
-			/*String strPoints = "";
-			for(int i=0;i<points.size();i+=2){
-				String letter = "";
-				Double pA = (Double) points.get(i);
-				Double pB = (Double) points.get(i+1);
-				
-				if(i==0)
-					letter = "M";
-				else
-					letter = "L";
-				
-				strPoints += letter + (pA/100) + "," + (pB/100);
-			}*/
 			
 			Jedis jedis = messagingService.createRedisClient();
 			
@@ -82,6 +103,9 @@ public class WhiteboardBridge {
 			jedis.hmset("meeting-" + meetingID + "-presentation-" + map.get("presentationID") + "-page-"+map.get("pageNumber")+"-shape-"+shapeID, mapAnn);
 			
 			messagingService.dropRedisClient(jedis);
+		}
+		else{
+			log.debug("checking annotation: " + an.getAnnotation().toString());
 		}
 	}
 	

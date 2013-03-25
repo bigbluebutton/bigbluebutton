@@ -143,13 +143,14 @@ define [
         @paper?.makeShape shape, data
 
       socket.on "shapePoints", (type,color,thickness,points) =>
-        for i in [0..points.length] by 2
-          if i == 0
-            data = [(points[i]/100),(points[i+1]/100),color,thickness]
-            @paper?.makeShape type, data
-          else
-            data = [(points[i]/100),(points[i+1]/100),true]
-            @paper?.updateShape type, data
+        if type == "line"
+          for i in [0..points.length] by 2
+            if i == 0
+              data = [(points[i]/100),(points[i+1]/100),color,thickness]
+              @paper?.makeShape type, data
+            else
+              data = [(points[i]/100),(points[i+1]/100),true]
+              @paper?.updateShape type, data 
 
       # Received event to update the cursor coordinates
       # @param  {number} x x-coord of the cursor as a percentage of page width
