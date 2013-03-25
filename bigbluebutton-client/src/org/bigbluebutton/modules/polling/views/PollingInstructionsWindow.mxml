@@ -52,6 +52,7 @@ Notes.mxml is the main view of the SharedNotes application
 			import mx.collections.ArrayCollection;
 			import mx.containers.HBox;
 			import mx.controls.Alert;
+			import mx.controls.Text;
 			import mx.controls.CheckBox;
 			import mx.controls.RadioButton;
 			import mx.core.IUIComponent;
@@ -442,11 +443,16 @@ Notes.mxml is the main view of the SharedNotes application
 			// Make Back button visible
 			back.visible=true;
 			publishButton.visible=true;
-			checkInstructions.visible = _isMultiple;
+			//checkInstructions.visible = _isMultiple;
 			// Make Title and Question string first letter Upper case
 			_title = upperFirstLetter(_title);
 			_question = upperFirstLetter(_question);
 			createButtons(_answers.length,_answers);
+			
+			questionText.text = _question;
+			if (_isMultiple)
+				questionText.text += " " + ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll');
+			
 			focusManager.setFocus(back);
 		}
 		
@@ -458,8 +464,8 @@ Notes.mxml is the main view of the SharedNotes application
 		private function createButtons(amount:uint, content:ArrayCollection):void{
 			var _cb:CheckBox;
 			var _rb:RadioButton;
-			var _tx: Text;
-			var _hb: HBox;
+			var _tx:Text;
+			var _hb:HBox;
 			// creating buttons one by one
 			for (var i:int = 0; i < amount; i++) {
 				_tx = new Text();
@@ -684,7 +690,60 @@ Notes.mxml is the main view of the SharedNotes application
 		</mx:Canvas>
 
 		<!-- Review Window that is invoked when Next button is clicked -->
-		<mx:Canvas id="review">
+		<mx:Canvas id="review"
+				   width="90%" height="90%"
+				   >
+			
+			<mx:VBox id="previewBox"
+					 width="90%" height="90%" 
+					 paddingLeft="40">
+				<mx:TextArea id="previewExplanation"
+							 width="90%"
+							 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.hereIsYourPoll')}"
+							 editable="false"
+							 borderSkin="{null}"/>
+				<mx:TextArea text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.pollWillPublishOnline')}" 
+						  fontSize="11"
+						  editable="false"
+						  borderSkin="{null}"
+						  fontWeight="bold"
+						  width="90%"
+						  color="red"
+						  paddingTop="10"
+						  paddingLeft="20"
+						  paddingBottom="15"
+						  visible="{_publishToWeb}"/>
+				<!-- mx:Label text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.pollWillPublishOnline')}" 
+						  fontSize="11" 
+						  fontWeight="bold" 
+						  width ="100%" 
+						  color="red" 
+						  paddingTop="10" 
+						  paddingLeft="20" 
+						  paddingBottom="15" 
+						  visible="{_publishToWeb}"/ -->
+				<mx:Panel id="titleShow" 
+						  title="{_title}" 
+						  width="90%" >
+					<mx:VBox paddingTop="10"
+							 paddingLeft="40" 
+							 paddingBottom="40"
+							 horizontalAlign="center"
+							 >
+						<mx:TextArea id="questionText"
+									 width="200" 
+									 fontWeight="bold" 
+									 textAlign="center"
+									 editable="false"
+									 borderSkin="{null}"
+									 />
+						<mx:Box id="options" />   
+					</mx:VBox>
+				</mx:Panel>
+			</mx:VBox>
+			
+			
+			<!-- Original VBox, do not remove! >
 			<mx:VBox width="90%" height="90%" paddingLeft="40">
            		<mx:Label text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.hereIsYourPoll')}" 
            				  fontSize="11" 
@@ -726,6 +785,7 @@ Notes.mxml is the main view of the SharedNotes application
            			 	  paddingBottom="20" 
 	           			  paddingTop="20"/>
 			</mx:VBox>
+			< End of original vBox -->
 		</mx:Canvas>
 	</mx:ViewStack>
 

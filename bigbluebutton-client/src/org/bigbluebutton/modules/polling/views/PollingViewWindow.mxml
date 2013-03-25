@@ -97,11 +97,16 @@
 			}
  			 
 			private function onCreationComplete():void{
+				questionText.text = question;
+				if (isMultiple)
+					questionText.text += " " + ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll');
+				
 				titleBarOverlay.tabIndex = baseIndex;			
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
-				accInfoText.tabIndex = baseIndex+4
+				//accInfoText.tabIndex = baseIndex+4
+				questionText.tabIndex = baseIndex+4
 				
 				btnAcceptPoll.tabIndex = baseIndex+16;
 				
@@ -111,7 +116,9 @@
 					errorMessage.text = ResourceUtil.getInstance().getString('bbb.polling.vote.error.check');
 				else
 					errorMessage.text = ResourceUtil.getInstance().getString('bbb.polling.vote.error.radio');
-				checkInstructions.visible = isMultiple;
+				ExternalInterface.call("addAlert", errorMessage.text);
+				//checkInstructions.visible = isMultiple;
+				
 				createButtons(answers.length,answers);
 				invalidateDisplayList();
 				validateNow(); 
@@ -226,41 +233,54 @@
 
 	<mx:RadioButtonGroup id="answersGroup"/>
  	<!-- Prototype of Polling Module Design -->
-    <mx:VBox width="100%" 
-    		 height="75%" 
+	<mx:VBox id="votingBox"
+			 width="90%" 
+			 height="90%">
+		<mx:Panel id="titleShow" 
+				  width="90%" >
+			<mx:VBox paddingTop="10"
+					 paddingLeft="40" 
+					 paddingBottom="40"
+					 horizontalAlign="center"
+					 >
+				<mx:TextArea id="questionText"
+							 width="90%" 
+							 fontWeight="bold" 
+							 textAlign="center"
+							 editable="false"
+							 borderSkin="{null}"
+							 />
+				<mx:Box id="answerBox" />
+				<mx:Text id="errorMessage"
+						 color="red"
+						 visible="false"/>
+			</mx:VBox>
+		</mx:Panel>
+	</mx:VBox>
+	
+	<!--mx:VBox id="votingBox"
+			 width="90%" 
+    		 height="90%" 
     		 horizontalAlign="center" 
-    		 paddingLeft="10" 
+    		 paddingTop="20"
+			 paddingLeft="10" 
     		 paddingRight="10"
-    		 focusEnabled="true">
-    	<mx:Text id="questionText"
-				 width="200" 
-        		 paddingTop="30" 
-        		 paddingBottom="10" 
-        		 fontWeight="bold" 
-        		 textAlign="center"
-       			 text="{question}"
-       			 />
-       	<mx:Text id="checkInstructions" 
-       			 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll')}"/>
-		
-		<mx:HBox id="accInfoBox" 
-				 width="90%" 
-				 >
-			<mx:TextArea id="accInfoText" 
-						 editable="false" 
-						 text="{question}" 
-						 height="25"
-						 width="95%"
-						 />          
-		</mx:HBox>
-		
-     	<mx:Box id="answerBox"  
+    		 focusEnabled="true"
+			 backgroundColor="#CCCCCC">
+    	<mx:TextArea id="questionText"
+					 width="200" 
+	        		 fontWeight="bold" 
+	        		 textAlign="center"
+					 editable="false"
+       			 	 />
+       	<mx:Box id="answerBox"  
      			width="90%" 
      			height="90%" />
 		<mx:Text id="errorMessage"
 				 color="red"
 				 visible="false"/>
-	</mx:VBox>
+	</mx:VBox-->
+	
     <mx:ControlBar width="100%" 
     			   horizontalAlign="center">
     	<mx:Button id="btnAcceptPoll" 

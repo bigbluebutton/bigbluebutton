@@ -73,7 +73,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 											  'bbb.shortcutkey.polling.focusData', 'bbb.shortcutkey.polling.refresh', 'bbb.shortcutkey.polling.stopPoll', 
 											  'bbb.shortcutkey.polling.repostPoll', 'bbb.shortcutkey.polling.closeStatsWindow'];
 			
-			//private var pollVoteResource:Array = [];
+			private var pollVoteResource:Array = ['bbb.shortcutkey.focus.voting'];
 			
 			[Bindable]
 			private var shownKeys:ArrayCollection;
@@ -95,7 +95,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				audKeys = loadKeys(audResource);
 				viewerKeys = loadKeys(viewerResource);
 				pollKeys = loadKeys(pollResource);
-				//pollVoteKeys = loadKeys(pollVoteResource);
+				pollVoteKeys = loadKeys(pollVoteResource);
 				changeArray();
 			}
 			
