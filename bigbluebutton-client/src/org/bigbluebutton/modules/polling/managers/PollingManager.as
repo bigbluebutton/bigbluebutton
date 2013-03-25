@@ -38,7 +38,7 @@ package org.bigbluebutton.modules.polling.managers
 		private var isPolling:Boolean = false;
 		public var pollKey:String;
 		public var participants:int;
-		private var conference:Conference;
+		private var conference:Conference = UserManager.getInstance().getConference();
 
 		private var synchTimer:Timer;
 		
@@ -287,12 +287,14 @@ package org.bigbluebutton.modules.polling.managers
 		//##################################################################################
 		  
 		  public function handleGlobalPollHotkey(e:ShortcutEvent):void{
-			  if (conference.amIPresenter() && toolbarButtonManager.openMenuRemotely()){
+			  if (conference.amIPresenter())
+				  toolbarButtonManager.openMenuRemotely();
+			  //if (conference.amIPresenter() && toolbarButtonManager.openMenuRemotely()){
 				  // Business as usual
-			  }
-			  else{
+			  //}
+			  //else{
 				  // Check if Instructions, Stats, or Voting window is open instead; focus to that
-			  }
+			  //}
 		  }
    }
 }

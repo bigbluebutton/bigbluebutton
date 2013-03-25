@@ -145,14 +145,16 @@
 				var _tx: Text;
 				var _hb: HBox; 
 				var  _rb_group:RadioButtonGroup = new RadioButtonGroup();
+				var totalOptions:int = answers.length;
 				// creating buttons one by one
-			    for (var i:int = 0; i < amount; i++) {
+			    for (var i:int = 0; i < amount; i++) {					
+					var indicator:String = ResourceUtil.getInstance().getString('bbb.polling.vote.indicator', [i, indicator])
 					_tx = new Text();
 					_hb = new HBox();
 					_tx.name = "option" +i;
 					_tx.width = 200;
 					// assigning array element to text field
-					_tx.text =content[i].toString(); 
+					_tx.text = indicator + content[i].toString(); 
 				 	answerBox.addChild(_hb);
 					 
 					// if global var isMultiple is true it means user wants checkboxes, 
