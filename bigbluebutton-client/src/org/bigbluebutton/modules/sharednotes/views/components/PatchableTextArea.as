@@ -43,30 +43,16 @@ package org.bigbluebutton.modules.sharednotes.views.components
 		private var _patch : String = "";
 		private var _patchChanged : Boolean = false;
 		private var _canvas:MDICanvas = null;
-		private var _lastPositionBegin:Number = 0;
-		private var _lastPositionEnd:Number = 0;
-
+		
 		
 		public function init():void {
-			textField.addEventListener(MouseEvent.CLICK, changeLastPosition); 
-			textField.addEventListener(FocusEvent.FOCUS_IN, restore);
-			textField.addEventListener(KeyboardEvent.KEY_UP, changeLastPosition);
+			//textField.addEventListener(MouseEvent.CLICK, changeLastPosition); 
+			//textField.addEventListener(FocusEvent.FOCUS_IN, restore);
+			//textField.addEventListener(KeyboardEvent.KEY_UP, changeLastPosition);
 		}
 
-		public function changeLastPosition(e:Event):void {
-			_lastPositionBegin = selectionBeginIndex;
-			_lastPositionEnd = selectionEndIndex;
-		}
+		
 	
-		public function restore(e:Event):void {
-			//if(textField.length < _lastPosition)
-			//	_lastPosition = textField.length;
-			//else 
-			//	textField.setSelection(textField.length, textField.length);
-			
-			textField.setSelection(_lastPositionBegin, _lastPositionEnd);
-			
-		}
 		
 		
 		public function set patch(value:String):void
@@ -108,11 +94,11 @@ package org.bigbluebutton.modules.sharednotes.views.components
 
 		
 		public function patchClientText(patch:String):void {
-			var results:Array = DiffPatch.patchClientText(patch, textField.text, _lastPositionBegin, _lastPositionEnd);
+			var results:Array = DiffPatch.patchClientText(patch, textField.text, selectionBeginIndex, selectionEndIndex);
 			this.text = results[1];
-			textField.setSelection(_lastPositionBegin, _lastPositionEnd);
-			
-			
+			LogUtil.debug("Posicao Inicial: " + selectionBeginIndex + " " + selectionEndIndex);
+			LogUtil.debug("Posicao Final: " + results[0][0] + " " + results[0][1]);
+			this.setSelection(results[0][0], results[0][1]);
 		}
 	}
 }

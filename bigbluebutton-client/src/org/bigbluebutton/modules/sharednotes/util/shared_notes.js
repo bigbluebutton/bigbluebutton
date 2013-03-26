@@ -71,7 +71,8 @@ function patchClientText(patches, text, selectionStart, selectionEnd) {
   dmp.Match_Threshold = 0.6;
 
   var oldClientText = text
-  var cursor = captureCursor_(oldClientText, selectionStart, selectionEnd);
+  oldClientText = "#12FGKGMENI4873!#isKcJ" + oldClientText + "2OI3nfi#213fcouef*od(1";
+  var cursor = captureCursor_(oldClientText, selectionStart+22, selectionEnd+22);
   // Pack the cursor offsets into an array to be adjusted.
   // See http://neil.fraser.name/writing/cursor/
   var offsets = [];
@@ -94,12 +95,12 @@ function patchClientText(patches, text, selectionStart, selectionEnd) {
 		  cursor.collapsed = true;
 		}
 	  }
-	  return [restoreCursor_(cursor, newClientText), newClientText];
+	  return [restoreCursor_(cursor, newClientText), newClientText.substring(22,newClientText.length-22)];
 	//  this.restoreCursor_(cursor);
 	}
   }
   // no change in client text
-  return [[selectionStart, selectionEnd], newClientText];
+  return [[selectionStart, selectionEnd], newClientText.substring(22,newClientText.length-22)];
 }
 
 /**
@@ -248,24 +249,26 @@ function captureCursor_(text, selectionStart, selectionEnd) {
 function restoreCursor_(cursor, text) {
   // Set some constants which tweak the matching behaviour.
   // Maximum distance to search from expected location.
-  dmp.Match_Distance = 200;
+  dmp.Match_Distance = 1000;
   // At what point is no match declared (0.0 = perfection, 1.0 = very loose)
-  dmp.Match_Threshold = 0.0;
-
+  dmp.Match_Threshold = 0.9;
+  
   var padLength = dmp.Match_MaxBits / 2;  // Normally 16.
   var newText = text;
-
   // Find the start of the selection in the new text.
   var pattern1 = cursor.startPrefix + cursor.startSuffix;
   var pattern2, diff;
   var cursorStartPoint = dmp.match_main(newText, pattern1,
       cursor.startOffset - padLength);
+
+  	
   if (cursorStartPoint !== null) {
     pattern2 = newText.substring(cursorStartPoint,
                                  cursorStartPoint + pattern1.length);
     //alert(pattern1 + '\nvs\n' + pattern2);
     // Run a diff to get a framework of equivalent indicies.
     diff = dmp.diff_main(pattern1, pattern2, false);
+	
     cursorStartPoint += dmp.diff_xIndex(diff, cursor.startPrefix.length);
   }
 
@@ -299,6 +302,6 @@ function restoreCursor_(cursor, text) {
     // End not known, collapse to start.
     cursorEndPoint = cursorStartPoint;
   }
-
-  return [cursorStartPoint, cursorEndPoint];
+	
+  return [cursorStartPoint-22, cursorEndPoint-22];
 }
