@@ -239,6 +239,9 @@
                 <copy todir="${OUTPUT_DIR}/org/bigbluebutton/modules/sharednotes/views/images/" >
                         <fileset dir="${BASE_DIR}/src/org/bigbluebutton/modules/sharednotes/views/images/" />
                 </copy>
+		<copy file="${BASE_DIR}/src/org/bigbluebutton/modules/sharednotes/util/shared_notes.js" todir="${OUTPUT_DIR}/lib/">
+			
+		</copy>
         </target>
 
 	
