@@ -60,6 +60,7 @@
 			import org.bigbluebutton.modules.sharednotes.util.DiffPatch;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import flash.utils.getQualifiedClassName;
+			import mx.collections.ArrayCollection;
 
 			//private var client:Client;
 			
@@ -69,6 +70,9 @@
 			private var _connection:NetConnection;
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			private var _document:String = "";
+			private var _initialDocument:String = "";
+			private var _undoHistory:ArrayCollection = new ArrayCollection();
+			private var _redoHistory:Array = new Array();
 
 			private var options:SharedNotesOptions = new SharedNotesOptions();
 
@@ -123,9 +127,11 @@
 				if (_document != clientText) {
 					textArea.editable = false;
 					onSyncing();
+					LogUtil.debug("ADD LOCAL");
 					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
 					sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
 					//patchHistory.push(messageToSend.patchData);
+					_undoHistory.addItem([0,sendPatchEvent.patch]);
 					_dispatcher.dispatchEvent(sendPatchEvent);
 					_document = clientText;
 					textArea.editable = true;
@@ -133,12 +139,45 @@
 				}
 			}
 
+			private function undoLastChange():void {
+				var newText:String = _initialDocument;
+				var myLastPatch:Array = null;
+				var myLastPatchIndex:int = -1;
+				sendUpdateTimer.stop();
+				for (var i:int = 0; i < _undoHistory.length; i++)
+				{
+				    var patchArray:Array = _undoHistory[i];
+				    LogUtil.debug("Number: " + patchArray[0] + " Index: " + i);
+				    if(patchArray[0] == 0) {
+					myLastPatch = patchArray;
+					myLastPatchIndex = i;
+				    }
+				     newText = DiffPatch.patch(patchArray[1],  newText);
+				}
+				if(myLastPatchIndex != -1) {	
+					LogUtil.debug("Removi Number: " + _undoHistory[myLastPatchIndex][0] + " Index: " + myLastPatchIndex);
+					newText = DiffPatch.unpatch(_undoHistory[myLastPatchIndex][1], newText);
+					_undoHistory.removeItemAt(myLastPatchIndex);
+					textArea.editable = false;
+					onSyncing();
+					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
+					sendPatchEvent.patch = DiffPatch.diff(_document, newText);
+					_document = newText;
+					textArea.text = newText;
+					_dispatcher.dispatchEvent(sendPatchEvent);
+					textArea.editable = true;
+					onSynced();
+				}
+				sendUpdateTimer.start();
+			}
+
 			private function receivePatch(e:ReceivePatchEvent):void {
 				if (e.patch != "") {
 					var result:String = DiffPatch.patch(e.patch, _document);
 					_document = result;
 					textArea.patchClientText(e.patch);
-					//patchHistory.push(serverMessage.patchData);
+					LogUtil.debug("ADD PATCH SERVER");
+					_undoHistory.addItem([1,e.patch]);
 				}
 			}
 
@@ -238,6 +277,7 @@
 				icoSyncing.visible = false;
 				textArea.text = e.document;
 				_document = e.document;
+				_initialDocument = e.document;
 				
 			}
 			private function onTextChange(e:Event):void {
@@ -316,6 +356,7 @@
 	<mx:Button x="10" y="425" icon="@Embed(source='images/arrow_left.png')" id="btnBackPlayback" click="btnBackPlayback_clickHandler(event)" visible="false"/>
 	<mx:Label id="lblPlaybackVersion" x="10" y="399" text="Version 0:"/>
 	<components:PatchableTextArea x="10" y="10" id="textArea" hideEffect="{dissolveOut}" showEffect="{dissolveIn}" creationComplete="addBlur()" width="482" height="407" editable="true" verticalScrollPolicy = "auto"/>
-	<mx:Button  x="476" y="431" id="btnSave" click="btnSave_clickHandler(event)" visible="true" icon="@Embed(source='images/disk.png')"/>
+	<mx:Button  x="476" y="431" id="btnSave" click="btnSave_clickHandler(event)" visible="true" icon="@Embed(source='images/disk.png')"/> 
+	<!--<mx:Button  x="476" y="431" id="btnSave" click="undoLastChange()" visible="true" icon="@Embed(source='images/disk.png')"/> -->
 	<mx:Button x="0" y="0" label="Start" id="btnPlay" click="btnPlay_clickHandler(event)" visible="false"/>
 </containers:MDIWindow>

@@ -38,17 +38,23 @@ package org.bigbluebutton.modules.sharednotes.views.components
 	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent
 
+
 	public class PatchableTextArea extends TextArea
 	{
 		private var _patch : String = "";
 		private var _patchChanged : Boolean = false;
 		private var _canvas:MDICanvas = null;
+		private var lastBegin:int = 0;
+		private var lastEnd:int = 0;
+		private var focusIsOut:Boolean = false;
+		private var firstTime:Boolean = true;
 		
 		
 		public function init():void {
-			//textField.addEventListener(MouseEvent.CLICK, changeLastPosition); 
-			//textField.addEventListener(FocusEvent.FOCUS_IN, restore);
-			//textField.addEventListener(KeyboardEvent.KEY_UP, changeLastPosition);
+			textField.addEventListener(MouseEvent.CLICK, changeLastPosition); 
+			textField.addEventListener(FocusEvent.FOCUS_IN, restore);
+			textField.addEventListener(FocusEvent.FOCUS_OUT, signalFocusOut);
+			textField.addEventListener(KeyboardEvent.KEY_DOWN, changeLastPosition);
 		}
 
 		
@@ -62,6 +68,24 @@ package org.bigbluebutton.modules.sharednotes.views.components
 			invalidateProperties();
 		}
 		
+		public function restore(e:Event):void {
+			if(((lastBegin != selectionBeginIndex) || (lastEnd != selectionEndIndex)) && focusIsOut) {
+				this.setSelection(lastBegin, lastEnd);
+				focusIsOut = false;
+			}
+		}
+
+
+		public function changeLastPosition(e:Event):void {
+			if(focusIsOut == false) {
+				lastBegin = selectionBeginIndex;
+				lastEnd = selectionEndIndex;
+			}
+		}
+
+		public function signalFocusOut(e:Event):void {
+			focusIsOut = true;
+		}
 		 
 		
 		override protected function commitProperties():void
@@ -94,10 +118,18 @@ package org.bigbluebutton.modules.sharednotes.views.components
 
 		
 		public function patchClientText(patch:String):void {
-			var results:Array = DiffPatch.patchClientText(patch, textField.text, selectionBeginIndex, selectionEndIndex);
+			var results:Array;
+			if(firstTime) {
+				results = DiffPatch.patchClientText(patch, textField.text, selectionBeginIndex, selectionEndIndex);
+				firstTime = false;
+			}
+			else
+				results = DiffPatch.patchClientText(patch, textField.text, lastBegin, lastEnd);
 			this.text = results[1];
 			LogUtil.debug("Posicao Inicial: " + selectionBeginIndex + " " + selectionEndIndex);
 			LogUtil.debug("Posicao Final: " + results[0][0] + " " + results[0][1]);
+			lastBegin = results[0][0];
+			lastEnd = results[0][1];	
 			this.setSelection(results[0][0], results[0][1]);
 		}
 	}

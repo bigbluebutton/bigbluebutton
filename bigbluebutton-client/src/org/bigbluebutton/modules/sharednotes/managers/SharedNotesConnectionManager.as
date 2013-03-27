@@ -85,10 +85,10 @@ package org.bigbluebutton.modules.sharednotes.managers
 			switch ( statusCode ) 
 			{
 				case "NetConnection.Connect.Success":
-					LogUtil.debug("SUCESSOOO");
+					LogUtil.debug("SUCESS");
 					break;
 				default:
-					LogUtil.debug("FALHAAA");
+					LogUtil.debug("ERROR");
 					break;
 			}
 			
@@ -105,7 +105,7 @@ package org.bigbluebutton.modules.sharednotes.managers
 						_dispatcher.dispatchEvent(currentDocumentEvent);
 					},
 					function(status:Object):void {
-						LogUtil.error("LayoutSharedObjectService:unlockLayout - An error occurred"); 
+						LogUtil.error("SharedNotesSharedObjectService:currentDocument - An error occurred"); 
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 
 						} 
@@ -132,7 +132,6 @@ package org.bigbluebutton.modules.sharednotes.managers
 		}
 
 		public function remoteModificationsCallBack(userid:Number, patches:String):void {
-			LogUtil.debug("RECEIVED PATCH");
 			if(UserManager.getInstance().getConference().getMyUserId() == userid) {
 				var receivePatchEvent:ReceivePatchEvent = new ReceivePatchEvent();
 				receivePatchEvent.patch = patches;
