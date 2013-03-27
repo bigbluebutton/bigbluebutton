@@ -128,6 +128,9 @@ Notes.mxml is the main view of the SharedNotes application
 		
 		private function onCreationComplete():void{
 			published = false;
+			
+			instructionsBox.visible = true;
+			previewBox.visible = false;
 						
 			hotkeyCapture();
 			titleBarOverlay.tabIndex = baseIndex;
@@ -157,7 +160,7 @@ Notes.mxml is the main view of the SharedNotes application
 			}
 			
 			// TabIndex properties are set dynamically here due to the multi-screen nature of this window.
-			setTabIndexForInstructions();
+			// setTabIndexForInstructions();
 			
 			userName = moduleAttributes.username;
 			
@@ -266,7 +269,7 @@ Notes.mxml is the main view of the SharedNotes application
 		// DATA VALIDATION
 		//##################################################################################
 		private function validateAndSubmit():void {
-			if(instrMain.visible == true){
+			if(instructionsBox.visible == true){
 				var valid:Boolean = true;
 				var accessibleError:String = ResourceUtil.getInstance().getString('bbb.polling.createPoll.errorHeader');
 				// Gathering Error Messages
@@ -305,7 +308,7 @@ Notes.mxml is the main view of the SharedNotes application
 					//allowPreview = false;
 					allowPublishing();
 					publishButton.enabled = publishingAllowed;
-					setTabIndexForReview();
+					//setTabIndexForReview();
 				//}		
 			}
 		}
@@ -396,13 +399,16 @@ Notes.mxml is the main view of the SharedNotes application
 		
 		
 		public function goBack():void{
-			mainArea.selectedChild=instrMain; 
-			buttons.selectedChild=instrButtons;
+			//mainArea.selectedChild=instrMain; 
+			//buttons.selectedChild=instrButtons;
 			//allowPreview = true;
-			back.visible=false;
-			publishButton.visible=false;
+			//back.visible=false;
+			//publishButton.visible=false;
+			instructionsBox.visible = true;
+			previewBox.visible = false;
+			
 			options.removeAllChildren();
-			setTabIndexForInstructions();
+			//setTabIndexForInstructions();
 			focusTitle();
 		}
 			
@@ -435,14 +441,17 @@ Notes.mxml is the main view of the SharedNotes application
 		
 		private function formatAndReview():void{
 			// Change maind window and buttons to Review
-			mainArea.selectedChild=review;
-			buttons.selectedChild=reviewButtons;
+			//mainArea.selectedChild=review;
+			//buttons.selectedChild=reviewButtons;
+			instructionsBox.visible = false;
+			previewBox.visible = true;
+			
 			//REFRESHING CANVAS
 			invalidateDisplayList();
 			validateNow();
 			// Make Back button visible
-			back.visible=true;
-			publishButton.visible=true;
+			//back.visible=true;
+			//publishButton.visible=true;
 			//checkInstructions.visible = _isMultiple;
 			// Make Title and Question string first letter Upper case
 			_title = upperFirstLetter(_title);
@@ -578,222 +587,212 @@ Notes.mxml is the main view of the SharedNotes application
 				}
 			}
 			private function previewClick(e:ShortcutEvent):void{
-				if (next.enabled && next.visible){
+				if (instructionsBox.visible){
 					validateAndSubmit();
 				}
 			}
 			private function cancelClick(e:ShortcutEvent):void{
-				if (Cancel.enabled && Cancel.visible){
-					closeInstructionsWindow();
-				}
+				closeInstructionsWindow();
 			}
 			
 			private function modifyClick(e:ShortcutEvent):void{
-				if (back.enabled && back.visible){
+				if (previewBox.visible){
 					goBack();
 				}
 			}
 			private function publishClick(e:ShortcutEvent):void{
-				if (publishButton.enabled && publishButton.visible){
+				if (previewBox.visible){
 					publish();
 				}
 			}
 			private function saveClick(e:ShortcutEvent):void{
-				if (SavePoll.enabled && SavePoll.visible){
+				if (previewBox.visible){
 					savePoll();
 				}
 			}
 		]]>
 	</mx:Script>
 	
-    <mx:ViewStack id="mainArea" width="100%">
-    <!-- ################### MAIN AREA ##############-->
-    <!-- Instructions Window with Form-->
-	    <mx:Canvas id="instrMain" width="90%" height="90%" focusEnabled="true">
-        	<mx:VBox width="90%" height="90%" focusEnabled="true">
-           		<mx:Form width="100%" id="instructionsForm" paddingTop="30" paddingBottom="10" paddingLeft="30" focusEnabled="true">
-					<mx:FormItem fontWeight="bold" 
-								 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}" 
-								 paddingLeft="35" 
-								 id="titleFormItem"
-								 focusEnabled="true"
-								 >
-						<mx:TextInput id="pollTitle" 
-									  focusEnabled="true" 
-									  accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}"
-									  tabIndex="{baseIndex+4}"/>
-						<mx:Label id="titleErrMsg" 
-								  text="" 
-								  visible="false" 
-								  width="100%" 
-								  color="red" 
-								  fontSize="9" 
-								  fontWeight="normal"/>
-   					</mx:FormItem>
-
-					<mx:FormItem fontWeight="bold" 
-								 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}" 
-								 paddingLeft="35" 
-								 paddingTop="20" >
-						<mx:TextArea id="pollQuestion" 
-									 width="200" 
-									 height="100" 
-									 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}"
-									 tabIndex="{baseIndex+4}"/>
-						<mx:Label id="qErrMsg" 
-								  text="" 
-								  visible="false" 
-								  width="100%" 
-								  color="red" 
-								  fontSize="9" 
-								  fontWeight="normal" />
-					</mx:FormItem>
-
-					<mx:FormItem fontWeight="bold" 
-								 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}" 
-								 paddingLeft="35" 
-								 paddingTop="30" >
-						<mx:TextArea id="pollAnswers" 
-									 width="200" 
-									 height="100" 
-									 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}"
-									 tabIndex="{baseIndex+4}"/>
-						<mx:Label id="answerHint" 
-								  text="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.hint')}" 
-								  visible="true" 
-								  width="100%" 
-								  fontSize="9" 
-								  fontWeight="normal" />
-					</mx:FormItem>
-
-					<mx:FormItem fontWeight="bold" 
-								 paddingLeft="20" 
-								 paddingTop="5" >
-						<mx:Label id="aErrMsg" 
-								  text="" 
-								  visible="false" 
-								  width="100%" 
-								  color="red" 
-								  fontSize="9" 
-								  fontWeight="normal" />
-					</mx:FormItem>
-
-					<mx:FormItem paddingLeft="10" 
-								 paddingTop="5" >
-						<mx:CheckBox id="multiple_response" 
-									 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}" 
-									 click="isMultiple()" 
-									 tabIndex="{baseIndex+4}"
-									 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}"/>
-						<mx:CheckBox id="publishToWeb_response" 
-									 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.publishToWeb')}" 
-									 click="publishToWeb()" 
-									 tabIndex="{baseIndex+4}"
-									 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.publishToWeb')}"/>
-					</mx:FormItem>
-				</mx:Form>
-			</mx:VBox>
-		</mx:Canvas>
-
-		<!-- Review Window that is invoked when Next button is clicked -->
-		<mx:Canvas id="review"
-				   width="90%" height="90%"
-				   >
+	
+	<mx:VBox id="instructionsBox">
+		<mx:Form width="100%" id="instructionsForm" paddingTop="30" paddingBottom="10" paddingLeft="30" focusEnabled="true">
+			<mx:FormItem fontWeight="bold" 
+						 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}" 
+						 paddingLeft="35" 
+						 id="titleFormItem"
+						 focusEnabled="true"
+						 >
+				<mx:TextInput id="pollTitle" 
+							  focusEnabled="true" 
+							  accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}"
+							  tabIndex="{baseIndex+4}"/>
+				<mx:Label id="titleErrMsg" 
+						  text="" 
+						  visible="false" 
+						  width="100%" 
+						  color="red" 
+						  fontSize="9" 
+						  fontWeight="normal"/>
+			</mx:FormItem>
 			
-			<mx:VBox id="previewBox"
-					 width="90%" height="90%" 
-					 paddingLeft="40">
-				<mx:TextArea id="previewExplanation"
-							 width="90%"
-							 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.hereIsYourPoll')}"
+			<mx:FormItem fontWeight="bold" 
+						 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}" 
+						 paddingLeft="35" 
+						 paddingTop="20" >
+				<mx:TextArea id="pollQuestion" 
+							 width="200" 
+							 height="100" 
+							 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}"
+							 tabIndex="{baseIndex+4}"/>
+				<mx:Label id="qErrMsg" 
+						  text="" 
+						  visible="false" 
+						  width="100%" 
+						  color="red" 
+						  fontSize="9" 
+						  fontWeight="normal" />
+			</mx:FormItem>
+			
+			<mx:FormItem fontWeight="bold" 
+						 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}" 
+						 paddingLeft="35" 
+						 paddingTop="30" >
+				<mx:TextArea id="pollAnswers" 
+							 width="200" 
+							 height="100" 
+							 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answersAccessible')}"
+							 tabIndex="{baseIndex+4}"/>
+				<mx:Label id="answerHint" 
+						  text="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.hint')}" 
+						  visible="true" 
+						  width="100%" 
+						  fontSize="9" 
+						  fontWeight="normal" />
+			</mx:FormItem>
+			
+			<mx:FormItem fontWeight="bold" 
+						 paddingLeft="20" 
+						 paddingTop="5" >
+				<mx:Label id="aErrMsg" 
+						  text="" 
+						  visible="false" 
+						  width="100%" 
+						  color="red" 
+						  fontSize="9" 
+						  fontWeight="normal" />
+			</mx:FormItem>
+			
+			<mx:FormItem paddingLeft="10" 
+						 paddingTop="5" >
+				<mx:CheckBox id="multiple_response" 
+							 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}" 
+							 click="isMultiple()" 
+							 tabIndex="{baseIndex+4}"
+							 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}"/>
+				<mx:CheckBox id="publishToWeb_response" 
+							 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.publishToWeb')}" 
+							 click="publishToWeb()" 
+							 tabIndex="{baseIndex+4}"
+							 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.publishToWeb')}"/>
+			</mx:FormItem>
+		</mx:Form>
+		
+		<mx:ControlBar>
+			<mx:Button id="next" 
+					   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.preview')}" 
+					   click="validateAndSubmit()" 
+					   width="100" 
+					   height="30"
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.preview')}"
+					   tabIndex="{baseIndex+4}"
+					   />
+			
+			<mx:Button id="instCancel" 
+					   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}" 
+					   click="closeInstructionsWindow()" 
+					   width="100" 
+					   height="30"
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}"
+					   tabIndex="{baseIndex+4}"
+					   />
+		</mx:ControlBar>
+	</mx:VBox>
+	
+	
+	<mx:VBox id="previewBox"
+			 width="90%" height="90%" 
+			 paddingLeft="40">
+		<mx:TextArea id="previewExplanation"
+					 width="90%"
+					 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.hereIsYourPoll')}"
+					 editable="false"
+					 borderSkin="{null}"/>
+		<mx:TextArea text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.pollWillPublishOnline')}" 
+					 fontSize="11"
+					 editable="false"
+					 borderSkin="{null}"
+					 fontWeight="bold"
+					 width="90%"
+					 color="red"
+					 paddingTop="10"
+					 paddingLeft="20"
+					 paddingBottom="15"
+					 visible="{_publishToWeb}"/>
+		<mx:Panel id="titleShow" 
+				  title="{_title}" 
+				  width="90%" >
+			<mx:VBox paddingTop="10"
+					 paddingLeft="40" 
+					 paddingBottom="40"
+					 horizontalAlign="center"
+					 >
+				<mx:TextArea id="questionText"
+							 width="200" 
+							 fontWeight="bold" 
+							 textAlign="center"
 							 editable="false"
-							 borderSkin="{null}"/>
-				<mx:TextArea text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.pollWillPublishOnline')}" 
-						  fontSize="11"
-						  editable="false"
-						  borderSkin="{null}"
-						  fontWeight="bold"
-						  width="90%"
-						  color="red"
-						  paddingTop="10"
-						  paddingLeft="20"
-						  paddingBottom="15"
-				<mx:Panel id="titleShow" 
-						  title="{_title}" 
-						  width="90%" >
-					<mx:VBox paddingTop="10"
-							 paddingLeft="40" 
-							 paddingBottom="40"
-							 horizontalAlign="center"
-							 >
-						<mx:TextArea id="questionText"
-									 width="200" 
-									 fontWeight="bold" 
-									 textAlign="center"
-									 editable="false"
-									 borderSkin="{null}"
-									 />
-						<mx:Box id="options" />   
-					</mx:VBox>
-				</mx:Panel>
+							 borderSkin="{null}"
+							 />
+				<mx:Box id="options" />   
 			</mx:VBox>
-		</mx:Canvas>
-	</mx:ViewStack>
+		</mx:Panel>
+		
+		<mx:ControlBar>
+			<mx:Button id="back" 
+					   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}" 
+					   click="goBack()" 
+					   width="100" 
+					   height="30" 
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}"
+					   tabIndex="{baseIndex+4}"
+					   />
+			<mx:Button id="publishButton"
+					   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.publish')}"
+					   click="publish();"
+					   width="100"
+					   height="30"
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.publish')}"
+					   tabIndex="{baseIndex+4}"
+					   />
+			
+			<mx:Button id="SavePoll"
+					   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.save')}" 
+					   click="savePoll()" 
+					   width="100" 
+					   height="30"
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.save')}"
+					   tabIndex="{baseIndex+4}"
+					   />
+			
+			<mx:Button id="reviewCancel" 
+					   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}" 
+					   click="closeInstructionsWindow()" 
+					   width="100" 
+					   height="30"
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}"
+					   tabIndex="{baseIndex+4}"
+					   />
+		</mx:ControlBar>				
+	</mx:VBox>
 
-	<!-- ###################BUTTONS##############-->
-	<!-- area where buttons are located -->
-	<mx:ControlBar>
-		<!-- Back Button is not visible while instructions and visible while preView -->
-		<mx:Button id="back" 
-				   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}" 
-				   click="goBack()" 
-				   width="100" 
-				   height="30" 
-				   visible="false"
-				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}"
-				   tabIndex="{baseIndex+4}"
-				   />
-		<mx:Button id="publishButton"
-				   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.publish')}"
-				   click="publish();"
-				   width="100"
-				   height="30"
-				   visible="false"
-				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.publish')}"
-				   tabIndex="{baseIndex+4}"
-				   />
-		<mx:ViewStack id="buttons">
-			<!--buttons that appear when Instructions is displayed -->
-			<mx:Canvas id="instrButtons">
-				<mx:Button id="next" 
-						   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.preview')}" 
-						   click="validateAndSubmit()" 
-						   width="100" 
-						   height="30"
-						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.preview')}"
-						   tabIndex="{baseIndex+4}"
-						   />
-			</mx:Canvas>
-			<!-- buttons that appear on Review -->
-			<mx:Canvas id="reviewButtons">
-				<mx:Button id="SavePoll"
-						   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.save')}" 
-						   click="savePoll()" 
-						   width="100" 
-						   height="30"
-						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.save')}"
-						   tabIndex="{baseIndex+4}"
-						   />
-			</mx:Canvas>
-		</mx:ViewStack>
-		<!-- Cancel button appear everywhere -->
-		<mx:Button id="Cancel" 
-				   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}" 
-				   click="closeInstructionsWindow()" 
-				   width="100" 
-				   height="30"
-				   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}"
-				   tabIndex="{baseIndex+4}"
-				   />
-	</mx:ControlBar>
 </MDIWindow>
