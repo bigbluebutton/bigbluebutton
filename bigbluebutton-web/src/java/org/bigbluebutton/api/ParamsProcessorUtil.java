@@ -476,20 +476,7 @@ public class ParamsProcessorUtil {
 			log.warn("Security is disabled in this service. Make sure this is intentional.");
 			return true;
 		}
-		
-/**		
-		String decodedConfigXML;
-		
-		try {
-			decodedConfigXML = URLDecoder.decode(configXML,"UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			log.error("Couldn't decode config XML.");
-			return false;
-		}
-		
-		System.out.println("Calc checksum \n" + meetingID + decodedConfigXML + securitySalt);
-**/		
-		
+        
 		String cs = DigestUtils.shaHex(meetingID + configXML + securitySalt);
 		log.debug("our checksum: [{}], client: [{}]", cs, checksum);
 		System.out.println("our checksum: [" + cs + "] client: [" + checksum + "]");

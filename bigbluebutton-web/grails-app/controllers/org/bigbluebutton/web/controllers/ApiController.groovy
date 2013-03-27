@@ -793,7 +793,17 @@ class ApiController {
     }
 	 
 	String configXML = params.configXML
-	 
+	
+	String decodedConfigXML;
+        
+        try {
+            decodedConfigXML = URLDecoder.decode(configXML,"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            log.error("Couldn't decode config XML.");
+            invalid("configXMLError", "Cannot decode config XML")
+            return;
+        }
+         
 	  if (! paramsProcessorUtil.isConfigXMLChecksumSame(params.meetingID, configXML, params.checksum)) {		 
 		  response.addHeader("Cache-Control", "no-cache")
 		  withFormat {
@@ -818,7 +828,7 @@ class ApiController {
 				}
 			}
 			
-			String token = meeting.storeConfig(defaultConfig, configXML);
+			String token = meeting.storeConfig(defaultConfig, decodedConfigXML);
 			response.addHeader("Cache-Control", "no-cache")
 			withFormat {
 			  xml {
