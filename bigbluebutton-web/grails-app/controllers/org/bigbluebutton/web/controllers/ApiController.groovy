@@ -755,6 +755,37 @@ class ApiController {
       }
     }
   }
+  
+  def getDefaultConfigXML = {
+ 
+    String API_CALL = "getDefaultConfigXML"
+    
+    if (StringUtils.isEmpty(params.checksum)) {
+        invalid("checksumError", "You did not pass the checksum security check")
+        return
+    }
+        
+    // Do we agree on the checksum? If not, complain.       
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, API_CALL)) {
+        errors.checksumError()
+        respondWithErrors(errors)
+        return
+    }
+    
+    String defConfigXML = paramsProcessorUtil.getDefaultConfigXML();
+    
+    response.addHeader("Cache-Control", "no-cache")
+    withFormat {    
+      xml {
+        render(contentType:"text/xml") {
+          response() {
+            config(defConfigXML)
+          }
+        }
+      }
+    }
+      
+  }
 
   /***********************************************
   * CONFIG API
