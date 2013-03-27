@@ -718,16 +718,6 @@ Notes.mxml is the main view of the SharedNotes application
 						  paddingTop="10"
 						  paddingLeft="20"
 						  paddingBottom="15"
-						  visible="{_publishToWeb}"/>
-				<!-- mx:Label text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.pollWillPublishOnline')}" 
-						  fontSize="11" 
-						  fontWeight="bold" 
-						  width ="100%" 
-						  color="red" 
-						  paddingTop="10" 
-						  paddingLeft="20" 
-						  paddingBottom="15" 
-						  visible="{_publishToWeb}"/ -->
 				<mx:Panel id="titleShow" 
 						  title="{_title}" 
 						  width="90%" >
@@ -747,51 +737,6 @@ Notes.mxml is the main view of the SharedNotes application
 					</mx:VBox>
 				</mx:Panel>
 			</mx:VBox>
-			
-			
-			<!-- Original VBox, do not remove! >
-			<mx:VBox width="90%" height="90%" paddingLeft="40">
-           		<mx:Label text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.hereIsYourPoll')}" 
-           				  fontSize="11" 
-           				  fontWeight="bold" 
-	           			  width ="100%" 
-    	       			  paddingTop="30" 
-        	   			  paddingLeft="20" 
-           				  paddingBottom="5"/>
-           		<mx:Label text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.pollWillPublishOnline')}" 
-           				  fontSize="11" 
-           				  fontWeight="bold" 
-	           			  width ="100%" 
-    	       			  color="red" 
-        	   			  paddingTop="10" 
-           				  paddingLeft="20" 
-           				  paddingBottom="15" 
-           				  visible="{_publishToWeb}"/>
-	           	<mx:Panel id="titleShow" 
-	           			  title="{_title}" 
-	           			  width="90%" >
-					<mx:VBox paddingLeft="40" 
-							 paddingBottom="40">
-           				<mx:Text text="{_question}" 
-           					 fontSize="10" 
-           					 fontWeight="bold" 
-	           				 paddingBottom="5" 
-    	       				 paddingTop="20" 
-        	   				 width="{_MAX_QUESTION_LENGTH}"/>
-           				<mx:Text id="checkInstructions" 
-           						 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll')}"/>
-                		<mx:Box id="options" />   
-           			</mx:VBox>
-           		</mx:Panel>
-                <mx:Label text=" {ResourceUtil.getInstance().getString('bbb.polling.pollPreview.ifYouWantChanges')}"
-          	 			  fontSize="11"
-           				  fontWeight="normal" 
-           				  width ="100%"
-           				  paddingLeft="20" 
-           			 	  paddingBottom="20" 
-	           			  paddingTop="20"/>
-			</mx:VBox>
-			< End of original vBox -->
 		</mx:Canvas>
 	</mx:ViewStack>
 
