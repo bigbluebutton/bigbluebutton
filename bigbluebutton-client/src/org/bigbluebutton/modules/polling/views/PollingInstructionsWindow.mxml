@@ -453,7 +453,7 @@ Notes.mxml is the main view of the SharedNotes application
 			if (_isMultiple)
 				questionText.text += " " + ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll');
 			
-			focusManager.setFocus(back);
+			focusManager.setFocus(previewExplanation);
 		}
 		
 		private function upperFirstLetter(str:String) : String {
@@ -466,8 +466,10 @@ Notes.mxml is the main view of the SharedNotes application
 			var _rb:RadioButton;
 			var _tx:Text;
 			var _hb:HBox;
+			var totalOptions:int = content.length;
 			// creating buttons one by one
 			for (var i:int = 0; i < amount; i++) {
+				var indicator:String = ResourceUtil.getInstance().getString('bbb.polling.vote.indicator', [i+1, totalOptions])
 				_tx = new Text();
 				_hb = new HBox();
 				_tx.name = "option" +i;
@@ -481,6 +483,8 @@ Notes.mxml is the main view of the SharedNotes application
 					_cb= new CheckBox();
 					// giving button a name of array elelment to process it easier later
 					_cb.name=content.getItemAt(i).toString();
+					_cb.accessibilityName = indicator + content.getItemAt(i).toString();
+					_cb.tabIndex = baseIndex + 5 + i; 
 					// gap between the buttons
 					_cb.y=i*20;
 					// adding buttons to the Horizontal Box
@@ -488,8 +492,10 @@ Notes.mxml is the main view of the SharedNotes application
 				}else{
 					_rb = new RadioButton();
 					_rb.name = content.getItemAt(i).toString(); // giving button a name of array elelment to process it easier later
+					_rb.accessibilityName = indicator + content.getItemAt(i).toString();
 					_rb.groupName = "answers";
 					_rb.label =" ";
+					_rb.tabIndex = baseIndex + 5;
 					_hb.addChild(_rb);
 				}
 			_hb.addChild(_tx); // adding text near button

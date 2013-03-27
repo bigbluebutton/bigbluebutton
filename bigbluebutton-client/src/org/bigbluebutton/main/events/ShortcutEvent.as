@@ -95,7 +95,8 @@ package org.bigbluebutton.main.events {
 		public static const SC_REPOST_POLL:String = 'SC_REPOST_POLL';
 		public static const CLOSE_POLL_STATS:String = 'CLOSE_POLL_STATS';
 		
-		
+		public static const FOCUS_VOTE_QUESTION:String = 'FOCUS_VOTE_QUESTION';
+		public static const REMOTE_CAST_VOTE:String = 'REMOTE_CAST_VOTE';
 		
 		// Temporary string to help fix chat message navigation for screen readers
 		public static const CHAT_DEBUG:String = 'CHAT_DEBUG';

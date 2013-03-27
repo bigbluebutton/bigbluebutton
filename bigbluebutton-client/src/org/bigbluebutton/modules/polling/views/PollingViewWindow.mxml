@@ -31,6 +31,8 @@
 	layout="absolute">
 	
 	<mate:Listener type="{ShortcutEvent.FOCUS_VOTING_WINDOW}" method="focusWindow" />
+	<mate:Listener type="{ShortcutEvent.REMOTE_CAST_VOTE}" method="remoteVote" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_VOTE_QUESTION}" method="focusQuestion" />
 	
 	<mx:Script>
 		<![CDATA[
@@ -72,6 +74,7 @@
 			public var cbSelected:Array = new Array(); // variable that receives either CheckBox or RadioButton info and sends it to VoteEvent
 			[Bindable] private var pollOptions:PollOptions;
 			[Bindable] private var baseIndex:int;
+			private var keyCombos:Object;
 			
 			
 			private function init():void{
@@ -101,6 +104,7 @@
 				if (isMultiple)
 					questionText.text += " " + ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll');
 				
+				hotkeyCapture();
 				titleBarOverlay.tabIndex = baseIndex;			
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
@@ -136,6 +140,27 @@
 				}				 	            	
 				height = height + ((lines+1) * 45);
 			}
+			
+			private function hotkeyCapture():void{
+				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
+			}
+			
+			private function handleKeyDown(e:KeyboardEvent) :void {
+				var modifier:String = ExternalInterface.call("determineLocalModifier");
+				loadKeyCombos(modifier);             
+				var keyPress:String = (e.ctrlKey  ? "control+" : "") +
+					(e.shiftKey ? "shift+"   : "") +
+					(e.altKey   ? "alt+"     : "") + e.keyCode;                                     
+				if (keyCombos[keyPress]) {
+					dispatchEvent(new ShortcutEvent(keyCombos[keyPress]));
+				}
+			}
+			
+			private function loadKeyCombos(modifier:String):void {
+				keyCombos = new Object(); // always start with a fresh array
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.vote') as String)] = ShortcutEvent.REMOTE_CAST_VOTE;
+				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.polling.focusQuestion') as String)] = ShortcutEvent.FOCUS_VOTE_QUESTION;
+			}
 						
 			// This function will receive information and generate radiobuttons on fly
 			// function receives Array.length and ArrayCollection
@@ -145,16 +170,16 @@
 				var _tx: Text;
 				var _hb: HBox; 
 				var  _rb_group:RadioButtonGroup = new RadioButtonGroup();
-				var totalOptions:int = answers.length;
+				var totalOptions:int = content.length;
 				// creating buttons one by one
 			    for (var i:int = 0; i < amount; i++) {					
-					var indicator:String = ResourceUtil.getInstance().getString('bbb.polling.vote.indicator', [i, indicator])
+					var indicator:String = ResourceUtil.getInstance().getString('bbb.polling.vote.indicator', [i+1, totalOptions])
 					_tx = new Text();
 					_hb = new HBox();
 					_tx.name = "option" +i;
 					_tx.width = 200;
 					// assigning array element to text field
-					_tx.text = indicator + content[i].toString(); 
+					_tx.text = content[i].toString();
 				 	answerBox.addChild(_hb);
 					 
 					// if global var isMultiple is true it means user wants checkboxes, 
@@ -162,6 +187,7 @@
 					if(isMultiple){
 				 		_cb= new CheckBox();
 				    	_cb.id = "answers"+i;
+						_cb.accessibilityName = indicator + content[i].toString();
 				    	_cb.addEventListener(MouseEvent.CLICK, checkBoxClick);
 				    	// gap between the buttons
  				    	_cb.y=i*20;
@@ -174,6 +200,7 @@
 				 		_rb.name = content[i].toString(); // giving button a name of array elelment to process it easier later
 				 		_rb.id = "answers"+i;
 						_rb.addEventListener(MouseEvent.CLICK, radioClick);
+						_rb.accessibilityName = indicator + content[i].toString();
 						_rb.tabIndex = baseIndex++;
 				 		_hb.addChild(_rb);
 			 		}    
@@ -198,8 +225,10 @@
 					dispatchEvent(voteEvent);				
 					closeWindow();
 				}
-				else
+				else{
 					errorMessage.visible = true;
+					ExternalInterface.call("addAlert", errorMessage.text);
+				}
 			} // _vote
 						
 			// As the user clicks CheckBoxes, this function keeps a running tally of which boxes are and are not selected
@@ -229,6 +258,14 @@
 			
 			private function focusWindow(e:Event):void{
 				focusManager.setFocus(titleBarOverlay);
+			}
+			
+			private function focusQuestion(e:ShortcutEvent):void{
+				focusManager.setFocus(questionText);
+			}
+			
+			private function remoteVote(e:ShortcutEvent):void{
+				Vote();
 			}
 		]]>
 	</mx:Script>
