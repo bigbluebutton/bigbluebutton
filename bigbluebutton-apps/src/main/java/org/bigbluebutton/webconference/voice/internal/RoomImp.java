@@ -36,6 +36,7 @@ public class RoomImp implements Room {
 	private final ConcurrentMap<Integer, Participant> participants;
 	
 	private boolean muted = false;
+	private boolean viewerDisabled = false;
 	private boolean record = false;
 	private String meetingid;
 	private boolean recording = false;
@@ -78,6 +79,14 @@ public class RoomImp implements Room {
 	
 	public boolean isMuted() {
 		return muted;
+	}
+	
+	public void disable(boolean disable) {
+		viewerDisabled = disable;
+	}
+	
+	public boolean isViewerDisabled() {
+		return viewerDisabled;
 	}
 	
 	public void record(boolean record){

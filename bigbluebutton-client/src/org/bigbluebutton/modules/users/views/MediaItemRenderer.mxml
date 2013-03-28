@@ -60,20 +60,26 @@
 			private var rolledOver:Boolean = false;
 			
 			private var muteRolled:Boolean = false;
+			private var lockRolled:Boolean = false;
 			
 			private function onCreationComplete():void{
-				muteBtn.enabled = kickUserBtn.enabled = moderator = UserManager.getInstance().getConference().amIModerator();
+				lockBtn.enabled = muteBtn.enabled = kickUserBtn.enabled = moderator = UserManager.getInstance().getConference().amIModerator();
 				if (moderator) {
 					BindingUtils.bindProperty(muteBtn, "visible", voiceJoinedInd, "visible");
 					muteBtn.includeInLayout = true;
+					BindingUtils.bindProperty(lockBtn, "visible", voiceJoinedInd, "visible");
+					lockBtn.includeInLayout = true;
 				} else {
 					BindingUtils.bindProperty(muteImg, "visible", voiceJoinedInd, "visible");
 					muteImg.includeInLayout = true;
+					BindingUtils.bindProperty(lockImg, "visible", voiceJoinedInd, "visible");
+					lockImg.includeInLayout = true;
 				}
 				
 				this.addEventListener(FlexEvent.DATA_CHANGE, dataChangeHandler);
 				
 				BindingUtils.bindSetter(updateMuteBtn, muteInd, "visible");
+				BindingUtils.bindSetter(updateLockBtn, voiceLockedInd, "visible");
 			}
 			
 			private function dataChangeHandler(e:Event):void {
@@ -115,6 +121,13 @@
 				dispatchEvent(e);
 			}
 			
+			public function toggleLockState():void {
+				var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.LOCK_MUTE_USER);
+				e.userid = data.userid;
+				e.lock = !data.voiceLocked;
+				dispatchEvent(e);
+			}
+			
 			private function updateMuteBtn(voiceMuted:Boolean = false):void {
 				if (data != null) {
 					if (moderator) {
@@ -131,14 +144,40 @@
 				}
 			}
 			
-			private function mouseOverHandler():void {
+			private function updateLockBtn(voiceLocked:Boolean = false):void {
+				if (data != null) {
+					if (moderator) {
+						if (data.voiceLocked == lockRolled)
+							lockBtn.setStyle("icon", images.unlocked);
+						else
+							lockBtn.setStyle("icon", images.locked);
+					} else {
+						if (data.voiceLocked == lockRolled)
+							lockImg.source = images.unlocked;
+						else
+							lockImg.source = images.locked;
+					}
+				}
+			}
+			
+			private function mouseOverMuteHandler():void {
 				muteRolled = true;
 				updateMuteBtn();
 			}
 			
-			private function mouseOutHandler():void {
+			private function mouseOutMuteHandler():void {
 				muteRolled = false;
 				updateMuteBtn();
+			}
+			
+			private function mouseOverLockHandler():void {
+				lockRolled = true;
+				updateLockBtn();
+			}
+			
+			private function mouseOutLockHandler():void {
+				lockRolled = false;
+				updateLockBtn();
 			}
 			
 		]]>
@@ -151,16 +190,21 @@
 	<mx:Image id="muteImg" visible="false" includeInLayout="false" width="16" height="16" />
 	<mx:Button id="muteBtn" visible="false" includeInLayout="false" enabled="false" icon="{images.audio}"
 				width="20" height="20" click="toggleMuteState()"
-				mouseOver="mouseOverHandler()"
-				mouseOut="mouseOutHandler()"
+				mouseOver="mouseOverMuteHandler()"
+				mouseOut="mouseOutMuteHandler()"
 				toolTip="{data.voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToTalk') : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToMute')}" />
 	<mx:Button id="kickUserBtn" icon="{images.eject_user_new}" 
 				width="20" height="20" visible="{rolledOver}"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser')}"
 				click="kickUser()"/>
-	<mx:Image id="showLock" visible="{data.voiceLocked}" source="{images.lock_close}" width="20" height="20" />
-				
+	<mx:Image id="lockImg" visible="false" includeInLayout="false" width="16" height="16" />
+	<mx:Button id="lockBtn" visible="false" includeInLayout="false" enabled="false"
+				width="20" height="20" click="toggleLockState()"
+				mouseOver="mouseOverLockHandler()"
+				mouseOut="mouseOutLockHandler()"
+				toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.lockImg.toolTip')}" />		
 	<!-- Helper objects because direct bindings to data break when the itemRenderer is recycled -->
 	<mx:Image id="muteInd" includeInLayout="false" visible="{data.voiceMuted}" />
 	<mx:Image id="voiceJoinedInd" includeInLayout="false" visible="{data.voiceJoined}" />
+	<mx:Image id="voiceLockedInd" includeInLayout="false" visible="{data.voiceLocked}" />
 </mx:HBox>

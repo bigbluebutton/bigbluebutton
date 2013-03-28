@@ -79,6 +79,17 @@ public class RoomManager {
 		else return false;
 	}
 	
+	public void disable(String room, boolean lock) {
+		RoomImp rm = rooms.get(room);
+		if (rm != null) rm.disable(lock);
+	}
+	
+	public boolean isRoomViewerDisabled(String room){
+		RoomImp rm = rooms.get(room);
+		if (rm != null) return rm.isViewerDisabled();
+		else return false;
+	}
+	
 	public ArrayList<Participant> getParticipants(String room) {
 		log.debug("Getting participants for room: " + room);
 		RoomImp rm = rooms.get(room);		

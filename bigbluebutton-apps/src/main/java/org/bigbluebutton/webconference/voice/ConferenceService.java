@@ -92,6 +92,27 @@ public class ConferenceService implements ConferenceEventListener {
 		return false;
 	}
 	
+	public void disable(String room, Boolean lock) {
+		if (roomMgr.hasRoom(room)) {
+			roomMgr.disable(room, lock);
+			ArrayList<Participant> p = getParticipants(room);
+			for (Participant o : p) {
+				if (lock) {
+					muteParticipant(o.getId(), room, true);
+				}
+				
+				lock(o.getId(), room, lock);
+			}
+		}
+	}
+	
+	public boolean isRoomViewerDisabled(String room){
+		if (roomMgr.hasRoom(room)) {
+			return roomMgr.isRoomViewerDisabled(room);
+		}
+		return false;
+	}
+	
 	private void muteParticipant(Integer participant, String room, Boolean mute) {
 		confProvider.mute(room, participant, mute);		
 	}
