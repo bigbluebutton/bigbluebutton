@@ -52,10 +52,12 @@ public class SharedNotesSender implements ISharedNotesRoomListener {
 	}
 
 	@Override
-	public void remoteModifications(Long userid, String patches) {
+	public void remoteModifications(Long userid, String patches, Integer beginIndex, Integer endIndex) {
 		List<Object> args = new ArrayList<Object>();
 		args.add(userid);
 		args.add(patches);
+		args.add(beginIndex);
+		args.add(endIndex);
 		so.sendMessage("remoteModificationsCallBack", args);
 		
 		System.out.println("SEND MODIFICATIONS to " + userid + " patche: " + patches);

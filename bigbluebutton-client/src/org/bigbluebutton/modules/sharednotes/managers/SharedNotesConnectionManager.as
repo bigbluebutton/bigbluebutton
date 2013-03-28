@@ -126,15 +126,17 @@ package org.bigbluebutton.modules.sharednotes.managers
 			
 		}
 
-		public function patchDocument(userid:Number, patch:String):void {
+		public function patchDocument(userid:Number, patch:String, beginIndex:Number, endIndex:Number):void {
 			var nc:NetConnection = _connection;
-			nc.call("sharedNotes.patchDocument", null, userid, patch);
+			nc.call("sharedNotes.patchDocument", null, userid, patch, beginIndex, endIndex);
 		}
 
-		public function remoteModificationsCallBack(userid:Number, patches:String):void {
+		public function remoteModificationsCallBack(userid:Number, patches:String, beginIndex:Number, endIndex:Number):void {
 			if(UserManager.getInstance().getConference().getMyUserId() == userid) {
 				var receivePatchEvent:ReceivePatchEvent = new ReceivePatchEvent();
 				receivePatchEvent.patch = patches;
+				receivePatchEvent.beginIndex = beginIndex;
+				receivePatchEvent.endIndex = endIndex;
 				_dispatcher.dispatchEvent(receivePatchEvent);
 				LogUtil.debug("RECEIVED PATCH");
 			}

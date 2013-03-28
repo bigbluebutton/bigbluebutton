@@ -72,7 +72,7 @@
 	</EventHandlers>
 
 	<EventHandlers type="{SendPatchEvent.SEND_PATCH_EVENT}">       
-    		<MethodInvoker generator="{SharedNotesManager}" method="patchDocument" arguments="{event.patch}"/> 
+    		<MethodInvoker generator="{SharedNotesManager}" method="patchDocument" arguments="{event}"/> 
 	</EventHandlers>
 
 	<EventHandlers type="{JoinSharedNotesEvent.JOIN_SHARED_NOTES_EVENT}">       

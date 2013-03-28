@@ -117,8 +117,11 @@ package org.bigbluebutton.modules.sharednotes.views.components
 		}
 
 		
-		public function patchClientText(patch:String):void {
+		public function patchClientText(patch:String, beginIndex:Number, endIndex:Number):void {
 			var results:Array;
+			//LogUtil.debug("Posicao Inicial: " + selectionBeginIndex + " " + selectionEndIndex);
+			//LogUtil.debug("Posicao Final: " + results[0][0] + " " + results[0][1]);
+			
 			if(firstTime) {
 				results = DiffPatch.patchClientText(patch, textField.text, selectionBeginIndex, selectionEndIndex);
 				firstTime = false;
@@ -126,11 +129,15 @@ package org.bigbluebutton.modules.sharednotes.views.components
 			else
 				results = DiffPatch.patchClientText(patch, textField.text, lastBegin, lastEnd);
 			this.text = results[1];
-			LogUtil.debug("Posicao Inicial: " + selectionBeginIndex + " " + selectionEndIndex);
-			LogUtil.debug("Posicao Final: " + results[0][0] + " " + results[0][1]);
-			lastBegin = results[0][0];
-			lastEnd = results[0][1];	
-			this.setSelection(results[0][0], results[0][1]);
+
+			if(lastEnd <= beginIndex) {
+				this.setSelection(lastBegin, lastEnd);
+			}
+			else {
+				lastBegin = results[0][0];
+				lastEnd = results[0][1];	
+				this.setSelection(results[0][0], results[0][1]);
+			}
 		}
 	}
 }

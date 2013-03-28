@@ -36,9 +36,9 @@ public class SharedNotesService {
 		return application.currentDocument(roomName, userid);
 	}
 	
-	public void patchDocument(Long userId, String patch) {
+	public void patchDocument(Long userId, String patch, Integer beginIndex, Integer endIndex) {
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.patchDocument(roomName, userId, patch);
+		application.patchDocument(roomName, userId, patch, beginIndex, endIndex);
 	}
 	
 	public void setSharedNotesApplication(SharedNotesApplication a) {

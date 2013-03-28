@@ -70,8 +70,8 @@ public class SharedNotesApplication {
 		roomsManager = r;
 	}
 
-	public void patchDocument(String room, Long userId, String patch) {
-		roomsManager.patchDocument(room, userId, patch);
+	public void patchDocument(String room, Long userId, String patch, Integer beginIndex, Integer endIndex) {
+		roomsManager.patchDocument(room, userId, patch, beginIndex, endIndex);
 	}
 
 	public String currentDocument(String roomName, Long userid) {

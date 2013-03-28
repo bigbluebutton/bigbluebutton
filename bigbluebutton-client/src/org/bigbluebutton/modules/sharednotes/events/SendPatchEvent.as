@@ -25,6 +25,8 @@ package org.bigbluebutton.modules.sharednotes.events
 	{
 		public static const SEND_PATCH_EVENT:String = 'SEND_PATCH_EVENT';
 		public var patch:String;
+		public var beginIndex:Number;
+		public var endIndex:Number;
 				
 		public function SendPatchEvent(type:String = SEND_PATCH_EVENT, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

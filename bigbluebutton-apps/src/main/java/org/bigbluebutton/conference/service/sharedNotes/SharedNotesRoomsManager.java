@@ -93,10 +93,10 @@ public class SharedNotesRoomsManager {
 		log.warn("Removing listener to a non-existing room " + roomName);
 	}
 
-	public void patchDocument(String room, Long userId, String patch) {
+	public void patchDocument(String room, Long userId, String patch, Integer beginIndex, Integer endIndex) {
 		SharedNotesRoom r = getRoom(room);
 		if (r != null) {
-			r.patchDocument(userId, patch);
+			r.patchDocument(userId, patch, beginIndex, endIndex);
 		} else {
 			log.warn("patchDocument: sending message to a non-existing room " + room);
 		}

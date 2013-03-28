@@ -25,5 +25,5 @@ public interface ISharedNotesRoomListener {
 
 	public String getName();
 	public void initClientDocument(Long userid, String document);
-	public void remoteModifications(Long userid, String patches);
+	public void remoteModifications(Long userid, String patches, Integer beginIndex, Integer endIndex);
 }

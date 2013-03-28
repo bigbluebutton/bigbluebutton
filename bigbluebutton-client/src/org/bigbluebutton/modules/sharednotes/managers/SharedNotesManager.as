@@ -26,8 +26,7 @@ package org.bigbluebutton.modules.sharednotes.managers {
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
-	import org.bigbluebutton.modules.phone.PhoneOptions;
-	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
+	import org.bigbluebutton.modules.sharednotes.events.SendPatchEvent;
 	
 	public class SharedNotesManager {		
 		private var connectionManager:SharedNotesConnectionManager;
@@ -47,8 +46,8 @@ package org.bigbluebutton.modules.sharednotes.managers {
 			connectionManager.join(attributes.uri + "/" + attributes.room);
 		}
 
-		public function patchDocument(patch:String):void {
-			connectionManager.patchDocument(UserManager.getInstance().getConference().getMyUserId(), patch);
+		public function patchDocument(e:SendPatchEvent):void {
+			connectionManager.patchDocument(UserManager.getInstance().getConference().getMyUserId(), e.patch, e.beginIndex, e.endIndex);
 		}
 
 		public function getCurrentDocument():void {

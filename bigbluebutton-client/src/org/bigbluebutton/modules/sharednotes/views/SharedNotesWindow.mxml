@@ -130,6 +130,8 @@
 					LogUtil.debug("ADD LOCAL");
 					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
 					sendPatchEvent.patch = DiffPatch.diff(_document, clientText);
+					sendPatchEvent.beginIndex = textArea.selectionBeginIndex;
+					sendPatchEvent.endIndex = textArea.selectionEndIndex;
 					//patchHistory.push(messageToSend.patchData);
 					_undoHistory.addItem([0,sendPatchEvent.patch]);
 					_dispatcher.dispatchEvent(sendPatchEvent);
@@ -175,7 +177,7 @@
 				if (e.patch != "") {
 					var result:String = DiffPatch.patch(e.patch, _document);
 					_document = result;
-					textArea.patchClientText(e.patch);
+					textArea.patchClientText(e.patch, e.beginIndex, e.endIndex);
 					LogUtil.debug("ADD PATCH SERVER");
 					_undoHistory.addItem([1,e.patch]);
 				}

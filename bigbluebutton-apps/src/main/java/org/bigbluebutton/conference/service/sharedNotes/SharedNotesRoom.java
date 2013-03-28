@@ -100,20 +100,20 @@ public class SharedNotesRoom {
 		return document;
 	}
 
-	public boolean patchClient(Long userid, String patch) {
+	public boolean patchClient(Long userid, String patch, Integer beginIndex, Integer endIndex) {
 		synchronized (syncObject) {	
 			if(clients.containsKey(userid)) {
 				ClientSharedNotes client = clients.get(userid);
 				client.patchClient(patch);
 				patchServer(patch);
-				sendModificationsToClients();
+				sendModificationsToClients(beginIndex, endIndex);
 			}
 		}
 		return true;
 	}
 
 
-	private void sendModificationsToClients() {
+	private void sendModificationsToClients(Integer beginIndex, Integer endIndex) {
 		 for (Iterator<ClientSharedNotes> iter = clients.values().iterator(); iter.hasNext();) {
 			ClientSharedNotes client = (ClientSharedNotes) iter.next();
 			LinkedList<Diff> diffs = diffPatch.diff_main(client.getDocument(), _document);
@@ -122,7 +122,7 @@ public class SharedNotesRoom {
 			String patches = diffPatch.patch_toText(patchObjects);
 			for (Iterator<ISharedNotesRoomListener> iter2 = listeners.values().iterator(); iter2.hasNext();) {
 				ISharedNotesRoomListener listener = (ISharedNotesRoomListener) iter2.next();
-				listener.remoteModifications(client.getUserid(), patches);
+				listener.remoteModifications(client.getUserid(), patches, beginIndex, endIndex);
 			}
 		 }
 	}
@@ -132,8 +132,8 @@ public class SharedNotesRoom {
 		_document = result[0].toString();
 	}
 
-	public void patchDocument(Long userid, String patch) {
-		patchClient(userid, patch);
+	public void patchDocument(Long userid, String patch, Integer beginIndex, Integer endIndex) {
+		patchClient(userid, patch, beginIndex, endIndex);
 	}
 }
 
