@@ -1129,12 +1129,14 @@ check_state() {
 		fi
 	fi
 
-	if ! ps aux | grep -v grep | grep '[/]usr/lib/openoffice/program/soffice.bin' > /dev/null; then
-		print_header
-		NOT_RUNNING_APPS="${NOT_RUNNING_APPS} OpenOffice"
-	else
-		RUNNING_APPS="${RUNNING_APPS} OpenOffice"
-	fi	
+        if ! ps aux | grep -v grep | grep '[/]usr/lib/openoffice/program/soffice.bin' > /dev/null; then
+                if ! ps aux | grep -v grep | grep '[/]usr/lib/libreoffice/program/soffice.bin' > /dev/null; then
+                        print_header
+                        NOT_RUNNING_APPS="${NOT_RUNNING_APPS} OpenOffice or LibreOffice"
+                fi
+        else
+                RUNNING_APPS="${RUNNING_APPS} OpenOffice"
+        fi
 
 	if ! ps aux | grep -v grep | grep '[/]usr/sbin/nginx' > /dev/null; then
 		print_header
