@@ -46,47 +46,18 @@ package org.bigbluebutton.modules.sharednotes.views.components
 		private var _canvas:MDICanvas = null;
 		private var lastBegin:int = 0;
 		private var lastEnd:int = 0;
-		private var focusIsOut:Boolean = false;
-		private var firstTime:Boolean = true;
 		
 		
 		public function init():void {
-			textField.addEventListener(MouseEvent.CLICK, changeLastPosition); 
-			textField.addEventListener(FocusEvent.FOCUS_IN, restore);
-			textField.addEventListener(FocusEvent.FOCUS_OUT, signalFocusOut);
-			textField.addEventListener(KeyboardEvent.KEY_DOWN, changeLastPosition);
+			this.textField.alwaysShowSelection = true;
 		}
 
-		
-	
-		
-		
 		public function set patch(value:String):void
 		{
 			_patch = value;
 			_patchChanged = true;
 			invalidateProperties();
 		}
-		
-		public function restore(e:Event):void {
-			if(((lastBegin != selectionBeginIndex) || (lastEnd != selectionEndIndex)) && focusIsOut) {
-				this.setSelection(lastBegin, lastEnd);
-				focusIsOut = false;
-			}
-		}
-
-
-		public function changeLastPosition(e:Event):void {
-			if(focusIsOut == false) {
-				lastBegin = selectionBeginIndex;
-				lastEnd = selectionEndIndex;
-			}
-		}
-
-		public function signalFocusOut(e:Event):void {
-			focusIsOut = true;
-		}
-		 
 		
 		override protected function commitProperties():void
 		{			
@@ -117,29 +88,43 @@ package org.bigbluebutton.modules.sharednotes.views.components
 		}
 
 		
+
+		
 		public function patchClientText(patch:String, beginIndex:Number, endIndex:Number):void {
 			var results:Array;
-			
-			if(firstTime) {
-				results = DiffPatch.patchClientText(patch, textField.text, selectionBeginIndex, selectionEndIndex);
-				firstTime = false;
+
+			lastBegin = selectionBeginIndex;
+			lastEnd = selectionEndIndex;
+			results = DiffPatch.patchClientText(patch, textField.text, selectionBeginIndex, selectionEndIndex);
+
+			if(results[0][0] == lastBegin && results[0][1] > lastEnd) {
+				LogUtil.debug("MESMO BEGIN E END DIFERENTES");
+				var str1:String = this.text.substring(lastBegin,lastEnd);
+				var str2:String = results[1].substring(lastBegin,lastEnd);
+				LogUtil.debug("STRING 1: " + str1);
+				LogUtil.debug("STRING 2: " + str2);
+				
+				if(str1 != str2) {
+					lastEnd = results[0][1];
+				}
+
+			} else {
+				lastBegin = results[0][0];
+				lastEnd = results[0][1];
 			}
-			else
-				results = DiffPatch.patchClientText(patch, textField.text, lastBegin, lastEnd);
 			this.text = results[1];
 
-			LogUtil.debug("Initial Position: " + lastBegin + " " + lastEnd);
+			
 			LogUtil.debug("Final Position: " + results[0][0] + " " + results[0][1]);
 			LogUtil.debug("Remote Position: " + beginIndex + " " + endIndex);
-			
+			LogUtil.debug("Length: " + this.text.length); 
 
-			if(beginIndex >= lastBegin && beginIndex >= lastEnd && endIndex >= lastBegin && endIndex >= lastEnd)
-				this.setSelection(lastBegin, lastEnd);
-			else {
-				lastBegin = results[0][0];
-				lastEnd = results[0][1];	
-				this.setSelection(results[0][0], results[0][1]);
-			}
+			
+				
+			this.selectionBeginIndex = lastBegin;
+			this.selectionEndIndex = lastEnd;
+			this.validateNow();
+			
 		}
 	}
 }
