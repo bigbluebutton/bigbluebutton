@@ -87,6 +87,8 @@ public class SharedNotesHandler extends ApplicationAdapter implements IApplicati
 
 	@Override
 	public void roomDisconnect(IConnection connection) {
+		String room = connection.getScope().getName();
+		sharedNotesApplication.removeRoomClient(room, Long.parseLong(Red5.getConnectionLocal().getClient().getId()));
 		log.debug(APP + ":roomDisconnect");
 	}
 

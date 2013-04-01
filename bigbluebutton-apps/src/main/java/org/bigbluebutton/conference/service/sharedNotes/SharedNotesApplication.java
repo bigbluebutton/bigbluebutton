@@ -64,6 +64,14 @@ public class SharedNotesApplication {
 		log.warn("Adding client to a non-existant room " + room);
 		return false;
 	}
+	public boolean removeRoomClient(String room, Long userid) {
+		if (roomsManager.hasRoom(room)){
+			roomsManager.removeRoomClient(room, userid);
+			return true;
+		}
+		log.warn("Removing client to a non-existant room " + room);
+		return false;
+	}
 
 	public void setRoomsManager(SharedNotesRoomsManager r) {
 		log.debug("Setting room manager");
