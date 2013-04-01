@@ -119,8 +119,6 @@ package org.bigbluebutton.modules.sharednotes.views.components
 		
 		public function patchClientText(patch:String, beginIndex:Number, endIndex:Number):void {
 			var results:Array;
-			//LogUtil.debug("Posicao Inicial: " + selectionBeginIndex + " " + selectionEndIndex);
-			//LogUtil.debug("Posicao Final: " + results[0][0] + " " + results[0][1]);
 			
 			if(firstTime) {
 				results = DiffPatch.patchClientText(patch, textField.text, selectionBeginIndex, selectionEndIndex);
@@ -130,9 +128,13 @@ package org.bigbluebutton.modules.sharednotes.views.components
 				results = DiffPatch.patchClientText(patch, textField.text, lastBegin, lastEnd);
 			this.text = results[1];
 
-			if(lastEnd <= beginIndex) {
+			LogUtil.debug("Initial Position: " + lastBegin + " " + lastEnd);
+			LogUtil.debug("Final Position: " + results[0][0] + " " + results[0][1]);
+			LogUtil.debug("Remote Position: " + beginIndex + " " + endIndex);
+			
+
+			if(beginIndex >= lastBegin && beginIndex >= lastEnd && endIndex >= lastBegin && endIndex >= lastEnd)
 				this.setSelection(lastBegin, lastEnd);
-			}
 			else {
 				lastBegin = results[0][0];
 				lastEnd = results[0][1];	
