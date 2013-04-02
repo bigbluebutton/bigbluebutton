@@ -81,8 +81,10 @@
   			}
   			
   			private function dataChangeHandler(e:Event):void {
-  				if (data != null)
+  				if (data != null) {
+					rolledOver = false;
   					updateButton(); //reassess data state on change
+				}
   			}
   			
   			private function updateButton(unneeded:Object = null):void {

@@ -33,8 +33,6 @@
 	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="toggleMuteMeState" />
 	<mate:Listener type="{UsersEvent.ROOM_MUTE_STATE}" method="setRoomMute" />
-	<mate:Listener type="{UsersEvent.ROOM_DISABLE_STATE}" method="setRoomDisable" />
-	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -74,7 +72,6 @@
 			private var modifier:String;
 			
 			private var roomMuted:Boolean = false;
-			private var viewersDisabled:Boolean = false;
 			private var myMenu:Menu;
 			
 			[Bindable]
@@ -161,8 +158,6 @@
 			
 			private function toggleMuteMeState(event:ShortcutEvent = null):void{
 				if (UserManager.getInstance().getConference().voiceJoined) {
-					if (UserManager.getInstance().getConference().voiceLocked && ! UserManager.getInstance().getConference().amIModerator()) return;
-					
 					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
 					e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
 					e.mute = !UserManager.getInstance().getConference().isMyVoiceMuted();
@@ -186,17 +181,12 @@
 				if (amIModerator) {
 					myMenuData[1] = {type: "separator"};
 					myMenuData[2] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.lowerAllHands'), icon: images.hand_new};
-					if (!viewersDisabled) {
-						myMenuData[3] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.disableViewers'), icon: images.lock_close};
-					} else
-						myMenuData[3] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.enableViewers'), icon: images.lock_open};
-					
 					if (!roomMuted) {
-						myMenuData[4] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted};
+						myMenuData[3] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted};
 						if (UserManager.getInstance().getConference().getPresenter())
-							myMenuData[5] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted};
+							myMenuData[4] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted};
 					} else
-						myMenuData[4] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio};
+						myMenuData[3] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio};
 				}
 				
 				// make sure the previous menu is closed before opening a new one
@@ -222,12 +212,9 @@
 					lowerHands();
 					break;
 				case 3:
-					disableViewers();
-					break;
-				case 4:
 					muteAll();
 					break;
-				case 5:
+				case 4:
 					muteAlmostAll();
 				}
 			}
@@ -238,24 +225,6 @@
 			
 			private function setRoomMute(e:UsersEvent):void {
 				roomMuted = e.mute_state;
-			}
-			
-			private function setRoomDisable(e:UsersEvent):void {
-				viewersDisabled = e.disable_state;
-			}
-			
-			private function disableViewers():void {
-				if (amIModerator) {
-					if (!viewersDisabled) {
-						var disableCommand:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.DISABLE_VIEWERS_MIC);
-						dispatchEvent(disableCommand);
-						viewersDisabled = true;
-					} else {
-						var enableCommand:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.ENABLE_VIEWERS_MIC);
-						dispatchEvent(enableCommand);
-						viewersDisabled = false;
-					}
-				}
 			}
 			
 			private function muteAll():void {

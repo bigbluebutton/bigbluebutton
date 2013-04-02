@@ -81,15 +81,6 @@ package org.bigbluebutton.modules.users.business
 			_listenersService.muteUnmuteUser(command.userid, command.mute);		
 		}
 		
-		public function disableViewersMic(command:VoiceConfEvent):void
-		{	
-			_listenersService.disableViewersMic(true);			
-		}
-		
-		public function enableViewersMic(command:VoiceConfEvent):void{
-			_listenersService.disableViewersMic(false);
-		}
-		
 		public function muteAllUsers(command:VoiceConfEvent):void
 		{	
 			_listenersService.muteAllUsers(true);			
