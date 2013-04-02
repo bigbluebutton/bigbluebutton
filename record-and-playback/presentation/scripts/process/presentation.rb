@@ -42,11 +42,13 @@ raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
 target_dir = "#{recording_dir}/process/presentation/#{meeting_id}"
 if not FileTest.directory?(target_dir)
   FileUtils.mkdir_p "/var/log/bigbluebutton/presentation"
-	logger = Logger.new("/var/log/bigbluebutton/presentation/process-#{meeting_id}.log", 'daily' )
-	BigBlueButton.logger = logger
+  logger = Logger.new("/var/log/bigbluebutton/presentation/process-#{meeting_id}.log", 'daily' )
+  BigBlueButton.logger = logger
   BigBlueButton.logger.info("Processing script presentation.rb")
-	FileUtils.mkdir_p target_dir
+  FileUtils.mkdir_p target_dir
   
+ begin
+
   # Create a copy of the raw archives
   temp_dir = "#{target_dir}/temp"
   FileUtils.mkdir_p temp_dir
@@ -103,5 +105,8 @@ if not FileTest.directory?(target_dir)
   process_done.close
 #else
 #	BigBlueButton.logger.debug("Skipping #{meeting_id} as it has already been processed.")  
+ rescue Exception => e
+        BigBlueButton.logger.error(e.message)
+ end
 end
     
