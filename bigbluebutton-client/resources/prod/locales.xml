@@ -18,6 +18,7 @@
 	<locale code="fr_CA" name="French (Canadian)"/>
 	<locale code="de_DE" name="German"/>
 	<locale code="el_GR" name="Greek"/>
+	<locale code="he_IL" name="Hebrew"/>  
 	<locale code="hu_HU" name="Hungarian"/>
 	<locale code="id_ID" name="Indonesian"/>
 	<locale code="it_IT" name="Italian"/>
