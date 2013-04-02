@@ -69,10 +69,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-			import flash.geom.Point;			
+			import flash.geom.Point;
+			
 			import flexlib.containers.DockableToolBar;
 			import flexlib.mdi.events.MDIWindowEvent;
-
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.collections.ArrayCollection;
 			import mx.containers.TitleWindow;
@@ -83,13 +84,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.*;
 			
-			import org.bigbluebutton.main.events.ShortcutEvent;
-			
 			import org.bigbluebutton.common.IBbbCanvas;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
 			import org.bigbluebutton.modules.present.api.IPresentationButton;
 			import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
@@ -149,22 +149,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var localDispatcher:Dispatcher = new Dispatcher();
 			
 			private function init():void{
-				LogUtil.debug("markos: begin init");
 				presentOptions = new PresentOptions();
-				baseIndex = presentOptions.baseTabIndex;
-				LogUtil.debug("markos: end init");
+				baseIndex = presentOptions.baseTabIndex;;
 			}
 			
 			private function onCreationComplete():void{
-				LogUtil.debug("markos: begin oncreationcomplete");
 				thumbY = this.height - 160;
                 
 				bindKeyboardEvents();
-				LogUtil.debug("markos: passed bindKeyboardEvents");
 				this.addEventListener(MDIWindowEvent.RESIZE_END, onResizeEndEvent);
 				slideView.addEventListener(ListEvent.ITEM_ROLL_OVER, onItemRollOver);
 				resourcesChanged();
-				LogUtil.debug("markos: passed resourcesChanged");
 				
 				titleBarOverlay.tabIndex = baseIndex;
 				
@@ -174,7 +169,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				slideView.slideLoader.tabIndex = baseIndex+4;
 				hotkeyCapture();
-				LogUtil.debug("markos: finish oncreationcomplete");
 			}
 			
 			private function hotkeyCapture():void{
@@ -614,7 +608,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function remoteUpload(e:ShortcutEvent):void{
-				dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW));
+				openUploadWindow();
 			}
 			
 			private function remotePrevious(e:ShortcutEvent):void{
@@ -638,7 +632,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onUploadButtonClicked():void {
-				dispatchEvent(new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW));
+				openUploadWindow();	
+			}
+			
+			private function openUploadWindow():void {
+				var event:UploadEvent = new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW);
+				event.maxFileSize = presentOptions.maxFileSize;
+				dispatchEvent(event);
 			}
 
 		]]>

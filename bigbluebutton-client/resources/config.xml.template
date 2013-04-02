@@ -111,6 +111,7 @@
 			showWindowControls="true"
 			dependsOn="UsersModule"
 			baseTabIndex="501"
+			maxFileSize="30"
 		/>
 
 		<module name="VideodockModule" url="http://HOST/client/VideodockModule.swf?v=VERSION"
