@@ -27,6 +27,9 @@ package org.bigbluebutton.core.events
     public static const LOCK_MUTE_USER:String = "LOCK_MUTE_USER";
 		public static const MUTE_ALMOST_ALL:String = "VOICECONF_MUTE_ALMOST_ALL";
 		
+		public static const DISABLE_VIEWERS_MIC:String = "VOICECONF_DISABLE_VIEWERS";
+		public static const ENABLE_VIEWERS_MIC:String = "VOICECONF_ENABLE_VIEWERS";
+		
 		public static const MUTE_USER:String = "VOICECONF_MUTE_USER";
 		public static const UNMUTE_USER:String = "VOICECONF_UNMUTE_USER";
 		

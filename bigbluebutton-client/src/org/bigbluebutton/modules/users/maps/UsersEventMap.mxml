@@ -62,6 +62,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{UsersProxy}" method="muteUnmuteUser" arguments="{event}" />
 	</EventHandlers>
 	
+	<EventHandlers type="{VoiceConfEvent.DISABLE_VIEWERS_MIC}" >
+		<MethodInvoker generator="{UsersProxy}" method="disableViewersMic" arguments="{event}" />
+	</EventHandlers>
+	
+	<EventHandlers type="{VoiceConfEvent.ENABLE_VIEWERS_MIC}" >
+		<MethodInvoker generator="{UsersProxy}" method="enableViewersMic" arguments="{event}" />
+	</EventHandlers>
+	
 	<EventHandlers type="{VoiceConfEvent.MUTE_ALL}" >
 		<MethodInvoker generator="{UsersProxy}" method="muteAllUsers" arguments="{event}" />
 	</EventHandlers>

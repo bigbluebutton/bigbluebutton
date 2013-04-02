@@ -28,7 +28,6 @@ public interface Room {
 	public boolean hasParticipant(Integer id);
 	public ArrayList<Participant> getParticipants();
 	public boolean isMuted();
-	public boolean isViewerDisabled();
 	public void record(boolean rec);
 	public boolean record();
 	public void recording(boolean rec);

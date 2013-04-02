@@ -67,17 +67,6 @@ public class VoiceService {
 		return result;
 	}
 	
-	public void disableViewersMic(boolean lock) {
-		String conference = getBbbSession().getVoiceBridge();    	
-    	log.debug("Disable all viewers in room[" + conference + "]");
-    	conferenceService.disable(conference, lock);	   	
-	}
-	
-	public boolean isRoomViewerDisabled(){
-		String conference = getBbbSession().getVoiceBridge(); 
-    	return conferenceService.isRoomViewerDisabled(conference);	
-	}
-	
 	public void muteAllUsers(boolean mute) {
 		String conference = getBbbSession().getVoiceBridge();    	
     	log.debug("Mute all users in room[" + conference + "]");

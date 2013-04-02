@@ -65,7 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.listeners.model.ListenerOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 			
-			private var images:Images= new Images();			
+			[Bindable] private var images:Images= new Images();			
 			private var _xPosition:int;
 			private var _yPosition:int;
  			

@@ -75,10 +75,19 @@ package org.bigbluebutton.modules.users.business
 				dispatcher.dispatchEvent(e);
 			}
 		}
-
+		
 		public function muteUnmuteUser(command:VoiceConfEvent):void
 		{
 			_listenersService.muteUnmuteUser(command.userid, command.mute);		
+		}
+		
+		public function disableViewersMic(command:VoiceConfEvent):void
+		{	
+			_listenersService.disableViewersMic(true);			
+		}
+		
+		public function enableViewersMic(command:VoiceConfEvent):void{
+			_listenersService.disableViewersMic(false);
 		}
 		
 		public function muteAllUsers(command:VoiceConfEvent):void

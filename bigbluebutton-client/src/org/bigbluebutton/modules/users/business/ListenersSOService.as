@@ -92,6 +92,7 @@ package org.bigbluebutton.modules.users.business
 			// Query the server if there are already listeners in the conference.
 			getCurrentUsers();
 			getRoomMuteState();
+			getRoomViewerDisabledState()
 		}
 		
 		private function leave():void {
@@ -327,6 +328,34 @@ package org.bigbluebutton.modules.users.business
 			dispatcher.dispatchEvent(e);
 		}
 		
+		public function disableViewersMic(lock:Boolean):void {	
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"voice.disableViewersMic",// Remote function name
+				new Responder(
+					// participants - On successful result
+					function(result:Object):void { 
+						LogUtil.debug("Successfully disable all viewers: "); 	
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				),//new Responder
+				lock
+			); //_netConnection.call		
+			_listenersSO.send("disableStateCallback", lock);
+		}
+		
+		public function disableStateCallback(lock:Boolean):void {
+			var e:UsersEvent = new UsersEvent(UsersEvent.ROOM_DISABLE_STATE);
+			e.disable_state = lock;
+			dispatcher.dispatchEvent(e);
+		}
+		
 		public function ejectUser(userId:Number):void {
 			var nc:NetConnection = _module.connection;
 			nc.call(
@@ -384,6 +413,28 @@ package org.bigbluebutton.modules.users.business
 					function(result:Object):void { 
 						var e:UsersEvent = new UsersEvent(UsersEvent.ROOM_MUTE_STATE);
 						e.mute_state = result as Boolean;
+						dispatcher.dispatchEvent(e);
+					},	
+					// status - On error occurred
+					function(status:Object):void { 
+						LogUtil.error("Error occurred:"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				)//new Responder
+			); //_netConnection.call
+		}
+		
+		public function getRoomViewerDisabledState():void{
+			var nc:NetConnection = _module.connection;
+			nc.call(
+				"voice.isRoomViewerDisabled",// Remote function name
+				new Responder(
+					// participants - On successful result
+					function(result:Object):void { 
+						var e:UsersEvent = new UsersEvent(UsersEvent.ROOM_DISABLE_STATE);
+						e.disable_state = result as Boolean;
 						dispatcher.dispatchEvent(e);
 					},	
 					// status - On error occurred
