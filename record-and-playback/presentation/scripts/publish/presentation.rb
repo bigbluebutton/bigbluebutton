@@ -95,6 +95,17 @@ def processPanAndZooms
 				x_prev = x
 				y_prev = y
 			end
+			$xml.event(:timestamp => timestamp_prev, :orig => timestamp_orig_prev) do
+	                        $ss.each do |key,val|
+        		                $val = val
+                        		if key === timestamp_prev
+                                        $vbox_width = $val[0]
+                                        $vbox_height = $val[1]
+                                end
+                          end
+                          $xml.viewBox "#{($vbox_width-((1-((x_prev.to_f.abs)*$magic_mystery_number/100.0))*$vbox_width))} #{($vbox_height-((1-((y_prev.to_f.abs)*$magic_mystery_number/100.0))*$vbox_height)).round(2)} #{((w_ratio_prev.to_f/100.0)*$vbox_width).round(1)} #{((h_ratio_prev.to_f/100.0)*$vbox_height).round(1)}"
+                        end
+
 		end
 	end
 	BigBlueButton.logger.info("Finished creating panzooms.xml")
