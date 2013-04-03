@@ -75,7 +75,7 @@ package org.bigbluebutton.modules.users.business
 				dispatcher.dispatchEvent(e);
 			}
 		}
-
+		
 		public function muteUnmuteUser(command:VoiceConfEvent):void
 		{
 			_listenersService.muteUnmuteUser(command.userid, command.mute);		
@@ -94,6 +94,8 @@ package org.bigbluebutton.modules.users.business
 		{	
 			//find the presenter and lock them
 			var pres:BBBUser = UserManager.getInstance().getConference().getPresenter();
+			if (pres && pres.voiceLocked) pres = null;
+			
 			if (pres)
 				_listenersService.lockMuteUser(int(pres.voiceUserid), true);
 			
@@ -102,6 +104,11 @@ package org.bigbluebutton.modules.users.business
 			//unlock the presenter
 			if (pres)
 				_listenersService.lockMuteUser(int(pres.voiceUserid), false);
+		}
+		
+		public function lockMuteUser(command:VoiceConfEvent):void
+		{
+			_listenersService.lockMuteUser(command.userid, command.lock);		
 		}
 
     public function kickUser(event:KickUserEvent):void {
