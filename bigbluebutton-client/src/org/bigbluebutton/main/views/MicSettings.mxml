@@ -66,6 +66,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					} else {
 						// user has allowed access to the mic
 						mic.setLoopBack(true);
+            mic.setUseEchoSuppression(true);
 					}
 				} else {
 					LogUtil.warn("Microphone is used by another application.");
@@ -89,6 +90,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						break;
 					case "Microphone.Unmuted":
 						mic.setLoopBack(true);
+            mic.setUseEchoSuppression(true);
 						LogUtil.debug("Access to the microphone has been allowed.");
 						break;
 					default:
