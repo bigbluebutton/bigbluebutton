@@ -305,7 +305,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatchEvent(e);
 				
 				maximizeRestoreBtn.visible = true;
-				this.resizable = true;
+				
 				onResize();
 				
 

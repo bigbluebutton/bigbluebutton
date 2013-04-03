@@ -59,6 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
             	
       [Bindable] public var presentationNamesAC:ArrayCollection;
+	  [BIndable] public var maxFileSize:Number;
 
       private var images:Images = new Images();
       [Bindable] private var addIcon : Class = images.add;
@@ -122,12 +123,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private function startUpload():void {
         var fileSize:Number = fileToUpload.size;
-        var maxFileSize:Number = 30000000;
+        var maxFileSizeBytes:Number = maxFileSize * 1000000;
 
-        if (fileSize > maxFileSize) {     
+		progressBar.visible = true;
+        if (fileSize > maxFileSizeBytes) {     
           // Hardcode for now to 30M limit. 
           // This should be configurable to match what's allowed in nginx. (ralam feb 23, 2010) 
-          trace("File exceeds max limit:(" + fileSize + ">" + maxFileSize + ")");  			
+          trace("File exceeds max limit:(" + fileSize + ">" + maxFileSizeBytes + ")");  			
           enableControls();
           displayAlert(ResourceUtil.getInstance().getString('bbb.presentation.maxUploadFileExceededAlert'));
         } else {
@@ -147,7 +149,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           globalDispatch.dispatchEvent(uploadEvent);
 
           progBarLbl.visible = true;
-          progressBar.visible = true;
 
           okCancelBtn.visible = true;
           selectBtn.enabled = false;

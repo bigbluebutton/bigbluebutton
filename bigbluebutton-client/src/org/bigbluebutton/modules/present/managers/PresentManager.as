@@ -50,20 +50,13 @@ package org.bigbluebutton.modules.present.managers
 		}
 		
 		public function handleStartModuleEvent(e:PresentModuleEvent):void{
-			LogUtil.debug("markos: begin handleStartModuleEvent");
 			if (presentWindow != null){ 
-				LogUtil.debug("markos: presentwindow is NOT null");
 				return;
 			}
-			LogUtil.debug("markos: before presentwindow");
 			presentWindow = new PresentationWindow();
-			LogUtil.debug("markos: presentwindow is created");
 			presentWindow.visible = (e.data.showPresentWindow == "true");
-			LogUtil.debug("markos: presentwindow is visible");
 			presentWindow.showControls = (e.data.showWindowControls == "true");
-			LogUtil.debug("markos: presentwindow shows controls");
 			openWindow(presentWindow);
-			LogUtil.debug("markos: finish handleStartModuleEvent");
 		}
 		
 		public function handleStopModuleEvent():void{
@@ -71,11 +64,9 @@ package org.bigbluebutton.modules.present.managers
 		}
 		
 		private function openWindow(window:IBbbModuleWindow):void{
-			LogUtil.debug("markos: begin openwindow");
 			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			event.window = window;
 			globalDispatcher.dispatchEvent(event);
-			LogUtil.debug("markos: finish openwindow");
 		}
 	
 		public function handleOpenUploadWindow(e:UploadEvent):void{
@@ -83,6 +74,7 @@ package org.bigbluebutton.modules.present.managers
 			
 			uploadWindow = new FileUploadWindow();
 			uploadWindow.presentationNamesAC = presentationNames;
+			uploadWindow.maxFileSize = e.maxFileSize;
 			mx.managers.PopUpManager.addPopUp(uploadWindow, presentWindow, false);
 		}
 		

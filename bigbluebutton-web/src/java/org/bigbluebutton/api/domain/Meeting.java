@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.apache.commons.lang.RandomStringUtils;
+
 public class Meeting {
 	private static final int MILLIS_IN_A_MINUTE = 60000;
 	
@@ -47,10 +49,12 @@ public class Meeting {
 	private boolean record;
 	private String dialNumber;
 	private String defaultAvatarURL;
+	private String defaultConfigToken;
 	
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users; 
+	private final ConcurrentMap<String, Config> configs;
 	
 	public Meeting(Builder builder) {
 		name = builder.name;
@@ -71,8 +75,41 @@ public class Meeting {
     	createdTime = builder.createdTime;
     	userCustomData = new HashMap<String, Object>();
 		users = new ConcurrentHashMap<String, User>();
+		
+		configs = new ConcurrentHashMap<String, Config>();
 	}
 
+	public String storeConfig(boolean defaultConfig, String config) {
+		String token = RandomStringUtils.randomAlphanumeric(8);
+		while (configs.containsKey(token)) {
+			token = RandomStringUtils.randomAlphanumeric(8);
+		}
+		
+		configs.put(token, new Config(token, System.currentTimeMillis(), config));
+		
+		if (defaultConfig) {
+			defaultConfigToken = token;
+		}
+		
+		return token;
+	}
+	
+	public Config getDefaultConfig() {
+		if (defaultConfigToken != null) {
+			return getConfig(defaultConfigToken);
+		}
+		
+		return null;
+	}
+	
+	public Config getConfig(String token) {
+		return configs.get(token);
+	}
+	
+	public Config removeConfig(String token) {
+		return configs.remove(token);
+	}
+	
 	public Map<String, String> getMetadata() {
 		return metadata;
 	}
@@ -328,7 +365,7 @@ public class Meeting {
     		defaultAvatarURL = w;
     		return this;
     	}
-    	
+    	   	
     	public Builder withLogoutUrl(String l) {
     		logoutUrl = l;
     		return this;

@@ -139,7 +139,9 @@ function runPopcorn() {
   var shapeelements = xmlDoc.getElementsByTagName("svg");
 
   //get the array of values for the first shape (getDataPoints(0) is the first shape).
-  var array = shapeelements[0].getElementsByClassName("shape"); //get all the lines from the svg file
+  var array = $(shapeelements[0]).find("g").filter(function(){ //get all the lines from the svg file   
+    return $(this).attr('class') == 'shape';
+  });
   var images = shapeelements[0].getElementsByTagName("image");
 
   //fill the times array with the times of the svg images.

@@ -1,5 +1,0 @@
-<configuration name="limit.conf" description="LIMIT Configuration">
-  <settings>
-    <!--<param name="odbc-dsn" value="dsn:user:pass"/>-->
-  </settings>
-</configuration>
