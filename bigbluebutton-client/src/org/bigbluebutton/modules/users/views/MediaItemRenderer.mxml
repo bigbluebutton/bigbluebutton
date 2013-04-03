@@ -127,16 +127,23 @@
 				if (data != null) {
 					kickUserBtn.visible = !data.me && rolledOver;
 					
-					muteImg.visible = !rolledOver;
-					muteImg.includeInLayout = !rolledOver;
-					muteBtn.visible = rolledOver;
-					muteBtn.includeInLayout = rolledOver;
+					if (!data.voiceJoined) {
+						muteImg.visible = false;
+						muteImg.includeInLayout = false;
+						muteBtn.visible = false;
+						muteBtn.includeInLayout = true;
+					} else {
+						muteImg.visible = !rolledOver;
+						muteImg.includeInLayout = !rolledOver;
+						muteBtn.visible = rolledOver;
+						muteBtn.includeInLayout = rolledOver;
+					}
 					
-					if (data.role == Role.MODERATOR) {
+					if ((data.role == Role.MODERATOR) || !data.voiceJoined) {
 						lockImg.visible = false;
 						lockImg.includeInLayout = false;
 						lockBtn.visible = false;
-						lockBtn.includeInLayout = false;
+						lockBtn.includeInLayout = true;
 					} else {
 						lockImg.visible = !rolledOver;
 						lockImg.includeInLayout = !rolledOver;
