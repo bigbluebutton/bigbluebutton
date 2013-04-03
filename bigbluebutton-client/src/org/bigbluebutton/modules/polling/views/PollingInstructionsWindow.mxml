@@ -89,6 +89,7 @@ Notes.mxml is the main view of the SharedNotes application
 		[Bindable] public var participants:int;
 		[Bindable] public var pollOptions:PollOptions;
 		[Bindable] private var baseIndex:int;
+		[Bindable] private var answerIndex:int = 1;
 
 		// Bindable is set to allow data to change when You hit Back and change something, this change will appear in review
 		private var conference:Conference;
@@ -124,6 +125,7 @@ Notes.mxml is the main view of the SharedNotes application
 		private function init():void{
 			pollOptions = new PollOptions();
 			baseIndex = pollOptions.baseTabIndex;
+			//answerIndex = baseIndex+14;
 		}
 		
 		private function onCreationComplete():void{
@@ -136,10 +138,34 @@ Notes.mxml is the main view of the SharedNotes application
 			titleBarOverlay.tabIndex = baseIndex;
 			minimizeBtn.tabIndex = baseIndex+1;
 			maximizeRestoreBtn.tabIndex = baseIndex+2;
+			closeBtn.tabIndex = baseIndex+3;
 			
 			titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.createPoll.accessTitle');
-
-			closeBtn.tabIndex = baseIndex+3;
+			
+			pollTitle.tabIndex = baseIndex+4;
+			pollQuestion.tabIndex = baseIndex+5;
+			pollAnswers.tabIndex = baseIndex+6;
+			multiple_response.tabIndex = baseIndex+7;
+			publishToWeb_response.tabIndex = baseIndex+8;
+			next.tabIndex = baseIndex+9;
+			instCancel.tabIndex = baseIndex+10;
+			previewExplanation.tabIndex = baseIndex+11;
+			webPollExplanation.tabIndex = baseIndex+12;
+			questionText.tabIndex = baseIndex+13;
+			// Giving the answer box ("options") proper tab order requires us to get a little creative here, in init(), and in createButtons()
+			LogUtil.debug("INDEX TESTS: baseIndex before answerIndex is: " + baseIndex);
+			baseIndex += answerIndex;
+			baseIndex += 14;
+			LogUtil.debug("INDEX TESTS: baseIndex after answerIndex is: " + baseIndex);
+			//
+			back.tabIndex = baseIndex+1;
+			publishButton.tabIndex = baseIndex+2;
+			SavePoll.tabIndex = baseIndex+3;
+			reviewCancel.tabIndex = baseIndex+4;
+			
+			
+			LogUtil.debug("INDEX TEST 1/3: questionText.tabIndex = " + questionText.tabIndex);
+			LogUtil.debug("INDEX TEST 3/3: back.tabIndex = " + back.tabIndex);
 
 			if (incomingPoll != null){
 				LogUtil.debug("EDITING POLL");
@@ -166,38 +192,6 @@ Notes.mxml is the main view of the SharedNotes application
 			
 			this.module = module;
 		}
-			
-			private function setTabIndexForInstructions():void{
-				/*pollTitle.tabIndex = baseIndex+4;
-				pollQuestion.tabIndex = baseIndex+5;
-				pollAnswers.tabIndex = baseIndex+6;
-				multiple_response.tabIndex = baseIndex+7;
-				publishToWeb_response.tabIndex = baseIndex+8;
-				next.tabIndex = baseIndex+9;
-				
-				//back.tabIndex = baseIndex+4;
-				//publishButton.tabIndex = baseIndex+5;
-				//SavePoll.tabIndex = baseIndex+6;
-				
-				Cancel.tabIndex = baseIndex+14;*/ 
-			}
-			
-			
-			private function setTabIndexForReview():void{
-				//pollTitle.tabIndex = baseIndex+4;
-				//pollQuestion.tabIndex = baseIndex+5;
-				//pollAnswers.tabIndex = baseIndex+6;
-				//multiple_response.tabIndex = baseIndex+7;
-				//publishToWeb_response.tabIndex = baseIndex+8;
-				//next.tabIndex = baseIndex+9;
-				
-				/*back.tabIndex = baseIndex+11;
-				publishButton.tabIndex = baseIndex+12;
-				SavePoll.tabIndex = baseIndex+13;
-				
-				Cancel.tabIndex = baseIndex+14;*/
-			}
-			
 			
 			private function loadKeyCombos(modifier:String):void {
 				keyCombos = new Object(); // always start with a fresh array
@@ -304,12 +298,8 @@ Notes.mxml is the main view of the SharedNotes application
 				if (accessibleError != ResourceUtil.getInstance().getString('bbb.polling.createPoll.errorHeader')){
 					ExternalInterface.call("addAlert", accessibleError);
 				}
-				//if (allowPreview){
-					//allowPreview = false;
-					allowPublishing();
-					publishButton.enabled = publishingAllowed;
-					//setTabIndexForReview();
-				//}		
+				allowPublishing();
+				publishButton.enabled = publishingAllowed;		
 			}
 		}
 		
@@ -363,9 +353,9 @@ Notes.mxml is the main view of the SharedNotes application
 			var answersArray:Array;
 			var valid:Boolean=true;
 			answersArray = pollAnswers.text.split("\r"); 
-// splitting by '*' and new line, thus user can type '*' anywhere except the newline
-			//answersArray[0] = answersArray[0].split('*').join(''); 
-// As after split '*' is not displayed we need to take off from first element which is not splitted
+			// splitting by '*' and new line, thus user can type '*' anywhere except the newline
+			// answersArray[0] = answersArray[0].split('*').join(''); 
+			// As after split '*' is not displayed we need to take off from first element which is not splitted
 			answersArray = makeAnswersPretty(answersArray);
 			// ALL THE MESSAGES NEED TO BE LOCALISED!!!!!
 			if (pollAnswers.length == 0 )
@@ -399,16 +389,10 @@ Notes.mxml is the main view of the SharedNotes application
 		
 		
 		public function goBack():void{
-			//mainArea.selectedChild=instrMain; 
-			//buttons.selectedChild=instrButtons;
-			//allowPreview = true;
-			//back.visible=false;
-			//publishButton.visible=false;
 			instructionsBox.visible = true;
 			previewBox.visible = false;
 			
 			options.removeAllChildren();
-			//setTabIndexForInstructions();
 			focusTitle();
 		}
 			
@@ -441,18 +425,12 @@ Notes.mxml is the main view of the SharedNotes application
 		
 		private function formatAndReview():void{
 			// Change maind window and buttons to Review
-			//mainArea.selectedChild=review;
-			//buttons.selectedChild=reviewButtons;
 			instructionsBox.visible = false;
 			previewBox.visible = true;
 			
 			//REFRESHING CANVAS
 			invalidateDisplayList();
 			validateNow();
-			// Make Back button visible
-			//back.visible=true;
-			//publishButton.visible=true;
-			//checkInstructions.visible = _isMultiple;
 			// Make Title and Question string first letter Upper case
 			_title = upperFirstLetter(_title);
 			_question = upperFirstLetter(_question);
@@ -488,12 +466,17 @@ Notes.mxml is the main view of the SharedNotes application
 				options.addChild(_hb);
 				// if global var _isMultiple is true it means user wants checkboxes,
 				//otherwise radiobutton (if multiple choices are allowed)
+				LogUtil.debug("INDEX TESTS (won't be in numerical order)");
 				if(_isMultiple){
 					_cb= new CheckBox();
 					// giving button a name of array elelment to process it easier later
 					_cb.name=content.getItemAt(i).toString();
 					_cb.accessibilityName = indicator + content.getItemAt(i).toString();
-					_cb.tabIndex = baseIndex + 5 + i; 
+					_cb.tabIndex = baseIndex + 14 + i;
+					answerIndex = i;
+					LogUtil.debug("INDEX TEST: baseIndex is " + baseIndex + ", plus 14 plus i (" + i + ") is " + (baseIndex + 14 + i));
+					LogUtil.debug("INDEX TEST 2a/3: _cb.tabIndex = " + _cb.tabIndex);
+					LogUtil.debug("INDEX TEST 2b/3: answerIndex = " + answerIndex);
 					// gap between the buttons
 					_cb.y=i*20;
 					// adding buttons to the Horizontal Box
@@ -504,7 +487,10 @@ Notes.mxml is the main view of the SharedNotes application
 					_rb.accessibilityName = indicator + content.getItemAt(i).toString();
 					_rb.groupName = "answers";
 					_rb.label =" ";
-					_rb.tabIndex = baseIndex + 5;
+					_rb.tabIndex = baseIndex + 14;
+					LogUtil.debug("INDEX TEST: baseIndex is " + baseIndex);
+					LogUtil.debug("INDEX TEST 2a/3: _rb.tabIndex = " + _rb.tabIndex);
+					LogUtil.debug("INDEX TEST 2b/3: answerIndex = " + answerIndex);
 					_hb.addChild(_rb);
 				}
 			_hb.addChild(_tx); // adding text near button
@@ -615,6 +601,7 @@ Notes.mxml is the main view of the SharedNotes application
 	
 	
 	<mx:VBox id="instructionsBox">
+		<mx:VBox id="formBox" height="90%">
 		<mx:Form width="100%" id="instructionsForm" paddingTop="30" paddingBottom="10" paddingLeft="30" focusEnabled="true">
 			<mx:FormItem fontWeight="bold" 
 						 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}" 
@@ -696,7 +683,9 @@ Notes.mxml is the main view of the SharedNotes application
 							 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.publishToWeb')}"/>
 			</mx:FormItem>
 		</mx:Form>
+		</mx:VBox>
 		
+		<mx:VBox id="formBtnBox">
 		<mx:ControlBar>
 			<mx:Button id="next" 
 					   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.preview')}" 
@@ -716,18 +705,19 @@ Notes.mxml is the main view of the SharedNotes application
 					   tabIndex="{baseIndex+4}"
 					   />
 		</mx:ControlBar>
+		</mx:VBox>
 	</mx:VBox>
 	
 	
-	<mx:VBox id="previewBox"
-			 width="90%" height="90%" 
-			 paddingLeft="40">
+	<mx:VBox id="previewBox" width="90%" height="90%" paddingLeft="30">
+		<mx:VBox id="windowBox" height="90%">
 		<mx:TextArea id="previewExplanation"
 					 width="90%"
 					 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.hereIsYourPoll')}"
 					 editable="false"
 					 borderSkin="{null}"/>
-		<mx:TextArea text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.pollWillPublishOnline')}" 
+		<mx:TextArea id="webPollExplanation"
+					 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.pollWillPublishOnline')}" 
 					 fontSize="11"
 					 editable="false"
 					 borderSkin="{null}"
@@ -756,7 +746,8 @@ Notes.mxml is the main view of the SharedNotes application
 				<mx:Box id="options" />   
 			</mx:VBox>
 		</mx:Panel>
-		
+		</mx:VBox>
+		<mx:VBox id="previewBtnBox">
 		<mx:ControlBar>
 			<mx:Button id="back" 
 					   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}" 
@@ -792,7 +783,8 @@ Notes.mxml is the main view of the SharedNotes application
 					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}"
 					   tabIndex="{baseIndex+4}"
 					   />
-		</mx:ControlBar>				
+		</mx:ControlBar>		
+		</mx:VBox>
 	</mx:VBox>
 
 </MDIWindow>

@@ -94,6 +94,7 @@ package org.bigbluebutton.modules.polling.managers
 				LogUtil.debug("WATERFALL In Polling Manager, TBM's appFM is null");
 			viewWindowManager.appFM = toolbarButtonManager.appFM;
 		    viewWindowManager.handleOpenPollingInstructionsWindow(e);
+			toolbarButtonManager.disableToolbarButton();
 		}
 				
 	  // Checking the polling status to prevent a presenter from publishing two polls at a time
@@ -123,6 +124,10 @@ package org.bigbluebutton.modules.polling.managers
 		  viewWindowManager.handleStopPolling(e);
 		  service.closeAllPollingWindows();
 	  } 
+	  
+	  public function handleStopDisableButton(e:StopPollEvent):void{
+		  toolbarButtonManager.disableToolbarButton();
+	  }
 	//##################################################################################
 	   public function handleSavePollEvent(e:SavePollEvent):void
 		{
@@ -181,11 +186,13 @@ package org.bigbluebutton.modules.polling.managers
 		  // Opening PollingStatsWindow
 		  public function handleOpenPollingStatsWindow(e:PollingStatsWindowEvent):void{
 			      e.poll.room = module.getRoom();
+				  toolbarButtonManager.disableToolbarButton();
 			      viewWindowManager.handleOpenPollingStatsWindow(e);
 			}  	
 		  // Closing PollingStatsWindow	
 		  public function handleClosePollingStatsWindow(e:PollingStatsWindowEvent):void{
 			      viewWindowManager.handleClosePollingStatsWindow(e);
+				  toolbarButtonManager.enableToolbarButton();
 			}
 		  // Refreshing PollingStatsWindow	
 		  public function handleRefreshPollingStatsWindow(e:PollRefreshEvent):void{
@@ -277,13 +284,15 @@ package org.bigbluebutton.modules.polling.managers
 		  }
 		//##################################################################################
 		  
-		  public function handleOpenSavedPollEvent(e:OpenSavedPollEvent):void{
-		  	viewWindowManager.handleOpenPollingInstructionsWindowWithExistingPoll(e);
-		  }
+		public function handleOpenSavedPollEvent(e:OpenSavedPollEvent):void{
+			viewWindowManager.handleOpenPollingInstructionsWindowWithExistingPoll(e);
+			toolbarButtonManager.disableToolbarButton();
+		}
 		  
-		  public function handleReviewResultsEvent(e:ReviewResultsEvent):void{
-			  viewWindowManager.handleReviewResultsEvent(e);
-		  }
+		public function handleReviewResultsEvent(e:ReviewResultsEvent):void{
+			viewWindowManager.handleReviewResultsEvent(e);
+			toolbarButtonManager.disableToolbarButton();
+		}
 		//##################################################################################
 		  
 		  public function handleGlobalPollHotkey(e:ShortcutEvent):void{

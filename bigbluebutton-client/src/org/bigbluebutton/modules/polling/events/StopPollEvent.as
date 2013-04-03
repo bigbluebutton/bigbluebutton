@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.polling.events
 	public class StopPollEvent extends Event
 	{
 		public static const STOP_POLL:String = "STOP_POLL";
+		public static const STOP_DISABLE_BUTTON:String = "STOP_DISABLE_BUTTON";
 		public var pollKey : String;
 		public var poll:PollObject;
 		

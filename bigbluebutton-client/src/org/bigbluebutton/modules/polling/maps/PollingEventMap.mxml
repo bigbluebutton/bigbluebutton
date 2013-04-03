@@ -118,6 +118,10 @@
 	 <EventHandlers type="{StopPollEvent.STOP_POLL}">
 		<MethodInvoker generator="{PollingManager}"  method="handleStopPolling" arguments="{event}"/>
 	 </EventHandlers>
+	
+	<EventHandlers type="{StopPollEvent.STOP_DISABLE_BUTTON}">
+		<MethodInvoker generator="{PollingManager}"  method="handleStopDisableButton" arguments="{event}"/>
+	</EventHandlers>
 	 
 	 <!-- Event to check if a poll is already open before allowing presenter to publish a second poll -->
 	 <EventHandlers type="{PollingStatusCheckEvent.CHECK}">

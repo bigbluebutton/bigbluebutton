@@ -140,21 +140,6 @@
 			}
 						
 			private function renderMenu():void{
-				//LogUtil.debug("Entering renderMenu, about to check things for nulls [renderMenu()]");
-				/*if (myMenuData == null){
-					myMenuData = new ArrayCollection();
-				}
-				else{
-					LogUtil.debug("myMenuData isn't null. Good.");
-				}
-				if (pollList == null){
-					LogUtil.debug("Why the hell is PollList null?");
-				}
-				else{
-					LogUtil.debug("PollList isn't null. Good.");
-					LogUtil.debug("PollList.length is " + pollList.length);
-				}*/
-				
 				myMenuData.removeAll();
 				myMenuData.addItem(new ValueObject("create", ResourceUtil.getInstance().getString('bbb.polling.createPoll')));
 				for (var i:int = 0; i < pollList.length; i++){
