@@ -23,6 +23,7 @@
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:mate="http://mate.asfusion.com/"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
+	verticalAlign="middle"
 	creationComplete="onCreationComplete()" > 
 	
 	<mate:Listener type="{StoppedViewingWebcamEvent.STOPPED_VIEWING_WEBCAM}" method="onViewVideoCloseEvent"/>
@@ -75,7 +76,6 @@
 			private function dataChangeHandler(e:Event):void {
 				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
 				if (data != null) {
-					rolledOver = false;
 					updateButtons();
 				}
 			}
@@ -125,23 +125,35 @@
 			
 			private function updateButtons(voiceMuted:Boolean = false):void {
 				if (data != null) {
-					kickUserBtn.visible = !(data.me || rolledOver);
+					kickUserBtn.visible = !data.me && rolledOver;
 					
 					muteImg.visible = !rolledOver;
 					muteImg.includeInLayout = !rolledOver;
 					muteBtn.visible = rolledOver;
 					muteBtn.includeInLayout = rolledOver;
 					
-					lockImg.visible = !rolledOver;
-					lockImg.includeInLayout = !rolledOver;
-					lockBtn.visible = rolledOver;
-					lockBtn.includeInLayout = rolledOver;
+					if (data.role == Role.MODERATOR) {
+						lockImg.visible = false;
+						lockImg.includeInLayout = false;
+						lockBtn.visible = false;
+						lockBtn.includeInLayout = false;
+					} else {
+						lockImg.visible = !rolledOver;
+						lockImg.includeInLayout = !rolledOver;
+						lockBtn.visible = rolledOver;
+						lockBtn.includeInLayout = rolledOver;
+					}
 					
 					if (!rolledOver) {
 						if (data.voiceMuted)
 							muteImg.source = images.audio_muted;
 						else
 							muteImg.source = images.audio;
+						
+						if (data.voiceLocked)
+							lockImg.source = images.locked;
+						else
+							lockImg.source = images.unlocked;
 					} else {
 						if (data.voiceMuted)
 							muteBtn.setStyle("icon", images.audio);
@@ -156,25 +168,9 @@
 				}
 			}
 			
-			private function updateLockBtn(voiceLocked:Boolean = false):void {
-				if (data != null) {
-					if (moderator) {
-						if (data.voiceLocked == lockRolled)
-							lockBtn.setStyle("icon", images.unlocked);
-						else
-							lockBtn.setStyle("icon", images.locked);
-					} else {
-						if (data.voiceLocked == lockRolled)
-							lockImg.source = images.unlocked;
-						else
-							lockImg.source = images.locked;
-					}
-				}
-			}
-			
 		]]>
 	</mx:Script>
-	<mx:Image id="talkingIcon" visible="{data.talking}" source="{images.sound_new}" width="20" height="20" 
+	<mx:Image id="talkingIcon" visible="{data.talking}" source="{images.sound_new}" width="20" height="16" 
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.talking')}" />
 	<mx:Button id="webcamBtn" visible="{data.hasStream}" click="viewCamera()" icon="{images.webcam_new}"
 				width="20" height="20" enabled="false"
@@ -182,20 +178,16 @@
 	<mx:Image id="muteImg" visible="false" includeInLayout="true" width="16" height="16" />
 	<mx:Button id="muteBtn" visible="false" includeInLayout="false" enabled="false" icon="{images.audio}"
 				width="20" height="20" click="toggleMuteState()"
-				mouseOver="mouseOverMuteHandler()"
-				mouseOut="mouseOutMuteHandler()"
 				toolTip="{data.voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToTalk') : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToMute')}" />
 	<mx:Button id="kickUserBtn" icon="{images.eject_user_new}" 
 				width="20" height="20" visible="false"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser')}"
 				click="kickUser()"/>
-	<mx:Image id="lockImg" visible="false" includeInLayout="false" width="16" height="16" />
+	<mx:Image id="lockImg" visible="false" includeInLayout="false" width="11" height="12" />
 	<mx:Button id="lockBtn" visible="false" includeInLayout="false" enabled="false"
 				width="20" height="20" click="toggleLockState()"
-				mouseOver="mouseOverLockHandler()"
-				mouseOut="mouseOutLockHandler()"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.lockImg.toolTip')}" />		
-	<!-- Helper objects because direct bindings to data break when the itemRenderer is recycled -->
+	<!-- Helper objects because using BindingUtil with data break when the itemRenderer is recycled -->
 	<mx:Image id="muteInd" includeInLayout="false" visible="{data.voiceMuted}" />
 	<mx:Image id="voiceJoinedInd" includeInLayout="false" visible="{data.voiceJoined}" />
 	<mx:Image id="voiceLockedInd" includeInLayout="false" visible="{data.voiceLocked}" />

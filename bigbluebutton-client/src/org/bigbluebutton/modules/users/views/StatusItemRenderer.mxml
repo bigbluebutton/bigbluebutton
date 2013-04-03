@@ -24,6 +24,7 @@
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
 	verticalScrollPolicy="off" horizontalScrollPolicy="off"
+	verticalAlign="middle"
 	horizontalAlign="center">
 	
 	<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
@@ -82,7 +83,6 @@
   			
   			private function dataChangeHandler(e:Event):void {
   				if (data != null) {
-					rolledOver = false;
   					updateButton(); //reassess data state on change
 				}
   			}
