@@ -28,6 +28,7 @@
 #   2012-08-13 GUG  Republish recording
 #   2012-10-22 FFD  Use combination of /var/bigbluebutton and /var/bigbluebutton/recording/raw
 #                   to get the list of recent recordings for bbb-record --watch
+#   2012-02-03 GUG  Enable/Disable a recording workflow
 
 #set -e
 #set -x
@@ -137,6 +138,8 @@ usage() {
         echo "   --deletall                       delete all meetings and recordings"
         echo "   --debug                          check for recording errors"
         echo "   --check                          check for configuration errors"
+        echo "   --enable [workflow]              enable a recording workflow"
+        echo "   --disable [workflow]             disable a recording workflow"
 	echo
 }
 
@@ -219,6 +222,28 @@ while [ $# -gt 0 ]; do
         if [ "$1" = "-clean" -o "$1" = "--clean" ]; then
 		need_root
                 CLEAN=1
+		shift
+                continue
+        fi
+
+        if [ "$1" = "-disable" -o "$1" = "--disable" ]; then
+		need_root
+                if [ ! -z "${2}" ]; then
+                        WORKFLOW="${2}"
+                        shift
+                fi
+                DISABLE=1
+		shift
+                continue
+        fi
+
+        if [ "$1" = "-enable" -o "$1" = "--enable" ]; then
+		need_root
+                if [ ! -z "${2}" ]; then
+                        WORKFLOW="${2}"
+                        shift
+                fi
+                ENABLE=1
 		shift
                 continue
         fi
@@ -516,6 +541,38 @@ fi
 
 if [ $WATCH ]; then
 	watch -n 2 "bbb-record --list20"
+fi
+
+if [ $ENABLE ]; then
+	SCRIPTS_DIR=/usr/local/bigbluebutton/core/scripts
+	PROCESS_SCRIPT=$SCRIPTS_DIR/process/$WORKFLOW
+	PUBLISH_SCRIPT=$SCRIPTS_DIR/publish/$WORKFLOW
+	if [ -f $PROCESS_SCRIPT.rb.bk ]; then
+		echo "Enabling process script in workflow '$WORKFLOW'"
+		mv $PROCESS_SCRIPT.rb.bk $PROCESS_SCRIPT.rb
+		echo "Enabling publish script in workflow '$WORKFLOW'"
+		mv $PUBLISH_SCRIPT.rb.bk $PUBLISH_SCRIPT.rb
+	elif [ -f $PROCESS_SCRIPT.rb ]; then
+		echo "Workflow '$WORKFLOW' is already enabled."
+	else
+		echo "Workflow '$WORKFLOW' does not exist or is not installed"
+	fi
+fi
+
+if [ $DISABLE ]; then
+	SCRIPTS_DIR=/usr/local/bigbluebutton/core/scripts
+	PROCESS_SCRIPT=$SCRIPTS_DIR/process/$WORKFLOW
+	PUBLISH_SCRIPT=$SCRIPTS_DIR/publish/$WORKFLOW
+	if [ -f $PROCESS_SCRIPT.rb ]; then
+		echo "Disabling process script in workflow '$WORKFLOW'"
+		mv $PROCESS_SCRIPT.rb $PROCESS_SCRIPT.rb.bk
+		echo "Disabling publish script in workflow '$WORKFLOW'"
+		mv $PUBLISH_SCRIPT.rb $PUBLISH_SCRIPT.rb.bk
+	elif [ -f $PROCESS_SCRIPT.rb.bk ]; then
+		echo "Workflow '$WORKFLOW' is already disabled."
+	else
+		echo "Workflow '$WORKFLOW' does not exist or is not installed"
+	fi
 fi
 
 if [ $CHECK ]; then
