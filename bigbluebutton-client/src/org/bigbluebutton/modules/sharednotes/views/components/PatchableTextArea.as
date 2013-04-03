@@ -81,13 +81,50 @@ package org.bigbluebutton.modules.sharednotes.views.components
 				Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK, _canvas);
 			});
 			_fileRef.save(this.textFieldText, "sharedNotes.txt");
-
+			LogUtil.debug("Tamanho Máximo: " + this.maxVerticalScrollPosition);
 			//var format:TextFormat = new TextFormat();
 			//format.color = 0x0000FF;
 			//this.textField.setTextFormat( format, selectionBeginIndex, selectionBeginIndex+1 ) ;
+			//restorePositon(200);
 		}
 
-		
+		public function getOldPosition():Number {
+			var oldPosition:Number = 0;
+			if(selectionEndIndex == 0 && this.text.length == 0) {
+				oldPosition = 0;
+			}
+			else if(selectionEndIndex == this.text.length) {
+				oldPosition = this.textField.getLineIndexOfChar(selectionEndIndex-1);
+			}
+			else
+				oldPosition = this.textField.getLineIndexOfChar(selectionEndIndex);	
+
+			oldPosition-=this.verticalScrollPosition;
+			return oldPosition;
+		}
+
+		public function restoreCursor(endIndex:Number, oldPosition:Number, oldVerticalPosition:Number):void {
+
+			var cursorLine:Number = 0;
+			if(endIndex == 0 && this.text.length == 0) {
+				cursorLine = 0;
+			}
+			else if(endIndex == this.text.length) {
+				cursorLine = this.textField.getLineIndexOfChar(endIndex-1);
+			}
+			else
+				cursorLine = this.textField.getLineIndexOfChar(endIndex);
+
+			var relativePositon = cursorLine - this.verticalScrollPosition;
+
+			var desloc = relativePositon - oldPosition;
+			this.verticalScrollPosition+=desloc;
+			
+			LogUtil.debug("relative: " +  relativePositon);
+			LogUtil.debug("old: " + oldPosition);
+			LogUtil.debug("vertical: " + this.verticalScrollPosition);
+
+		}
 
 		
 		public function patchClientText(patch:String, beginIndex:Number, endIndex:Number):void {
@@ -95,10 +132,12 @@ package org.bigbluebutton.modules.sharednotes.views.components
 
 			lastBegin = selectionBeginIndex;
 			lastEnd = selectionEndIndex;
+			var oldPosition:Number = getOldPosition();
+			var oldVerticalPosition:Number = this.verticalScrollPosition;
+
 			results = DiffPatch.patchClientText(patch, textField.text, selectionBeginIndex, selectionEndIndex);
 
 			if(results[0][0] == lastBegin && results[0][1] > lastEnd) {
-				LogUtil.debug("MESMO BEGIN E END DIFERENTES");
 				var str1:String = this.text.substring(lastBegin,lastEnd);
 				var str2:String = results[1].substring(lastBegin,lastEnd);
 				LogUtil.debug("STRING 1: " + str1);
@@ -118,11 +157,12 @@ package org.bigbluebutton.modules.sharednotes.views.components
 			LogUtil.debug("Final Position: " + results[0][0] + " " + results[0][1]);
 			LogUtil.debug("Remote Position: " + beginIndex + " " + endIndex);
 			LogUtil.debug("Length: " + this.text.length); 
-
 			
 				
 			this.selectionBeginIndex = lastBegin;
 			this.selectionEndIndex = lastEnd;
+			this.validateNow();
+			restoreCursor(lastEnd, oldPosition, oldVerticalPosition);
 			this.validateNow();
 			
 		}
