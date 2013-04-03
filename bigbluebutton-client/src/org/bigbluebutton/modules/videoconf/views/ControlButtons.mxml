@@ -112,7 +112,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = false;
 	          }
 	          
-			  if(UsersUtil.isMe(UsersUtil.getMyUserID())){
+			  if(UsersUtil.isMe(sharerUserID)){
 				  ejectUserBtn.visible = false;
 			  }
 			  
