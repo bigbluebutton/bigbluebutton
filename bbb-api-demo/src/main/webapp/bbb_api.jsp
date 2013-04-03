@@ -226,84 +226,102 @@ public String getJoinURL(String username, String meetingID, String record, Strin
 }
 
 
-//
-//Create a meeting and return a URL to join it as moderator.  This is used for the API demos.
-//
-//Passed
-//- username
-//- meetingID
-//- record ["true", "false"]
-//- welcome message (null causes BigBlueButton to use the default welcome message
-//- metadata (passed through when record="true"
-//- xml (used for pre-upload of slides)_
-//
-//Returned
-//- valid join URL using the username
-//
-//Note this meeting will use username for meetingID
-
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
 public String getJoinURLwithDynamicConfigXML(String username, String meetingID, String xml) {
- String base_url_create = BigBlueButtonURL + "api/create?";
- String base_url_join = BigBlueButtonURL + "api/join?";
- String base_url_setConfigXML = BigBlueButtonURL + "api/setConfigXML.xml?";
+    
+    String base_url_create = BigBlueButtonURL + "api/create?";
+    String base_url_join = BigBlueButtonURL + "api/join?";
+    String base_url_setConfigXML = BigBlueButtonURL + "api/setConfigXML.xml";
 
- String xml_param = "";
- if ((xml != null) && !xml.equals("")) {
-     xml_param = xml;
- }
- 
- Random random = new Random();
- String voiceBridge_param = "&voiceBridge=" + (70000 + random.nextInt(9999));
- 
- //
- // When creating a meeting, the 'name' parameter is the name of the meeting (not to be confused with
- // the username).  For example, the name could be "Fred's meeting" and the meetingID could be "ID-1234312".
- //
- // While name and meetingID should be different, we'll keep them the same.  Why?  Because calling api/create? 
- // with a previously used meetingID will return same meetingToken (regardless if the meeting is running or not).
- //
- // This means the first person to call getJoinURL with meetingID="Demo Meeting" will actually create the
- // meeting.  Subsequent calls will return the same meetingToken and thus subsequent users will join the same
- // meeting.
- //
- // Note: We're hard-coding the password for moderator and attendee (viewer) for purposes of demo.
- //
+    Random random = new Random();
+    String voiceBridge_param = "&voiceBridge=" + (70000 + random.nextInt(9999));
+    
+    //
+    // When creating a meeting, the 'name' parameter is the name of the meeting (not to be confused with
+    // the username).  For example, the name could be "Fred's meeting" and the meetingID could be "ID-1234312".
+    //
+    // While name and meetingID should be different, we'll keep them the same.  Why?  Because calling api/create? 
+    // with a previously used meetingID will return same meetingToken (regardless if the meeting is running or not).
+    //
+    // This means the first person to call getJoinURL with meetingID="Demo Meeting" will actually create the
+    // meeting.  Subsequent calls will return the same meetingToken and thus subsequent users will join the same
+    // meeting.
+    //
+    // Note: We're hard-coding the password for moderator and attendee (viewer) for purposes of demo.
+    //
 
- String create_parameters = "name=" + urlEncode(meetingID)
-     + "&meetingID=" + urlEncode(meetingID) + voiceBridge_param
-     + "&attendeePW=ap&moderatorPW=mp";
+    String create_parameters = "name=" + urlEncode(meetingID)
+        + "&meetingID=" + urlEncode(meetingID) + voiceBridge_param
+        + "&attendeePW=ap&moderatorPW=mp";
 
 
- // Attempt to create a meeting using meetingID
- Document doc = null;
- try {
-     String url = base_url_create + create_parameters
-         + "&checksum="
-         + checksum("create" + create_parameters + salt); 
-     doc = parseXml( postURL( url, xml_param ) );
- } catch (Exception e) {
-     e.printStackTrace();
- }
+    // Attempt to create a meeting using meetingID
+    Document doc = null;
+    try {
+        String url = base_url_create + create_parameters
+            + "&checksum="
+            + checksum("create" + create_parameters + salt); 
+        doc = parseXml( postURL( url, "" ) );
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
 
- if (doc.getElementsByTagName("returncode").item(0).getTextContent()
-         .trim().equals("SUCCESS")) {
+    if (!doc.getElementsByTagName("returncode").item(0).getTextContent().trim().equals("SUCCESS")) {
+        //
+        // Someting went wrong, return the error 
+        //  
+        return doc.getElementsByTagName("messageKey").item(0).getTextContent()
+                .trim()
+                + ": " 
+                + doc.getElementsByTagName("message").item(0).getTextContent()
+                .trim();
+    }
 
-     //
-     // Looks good, now return a URL to join that meeting
-     //  
+    
+    //
+    // Looks good, now Attempt to send the ConfigXML file and get the token 
+    //  
+    
+    String xml_param = "";
+    if ((xml != null) && !xml.equals("")) {
+        xml_param = xml;
+    }
 
-     String join_parameters = "meetingID=" + urlEncode(meetingID)
-         + "&fullName=" + urlEncode(username) + "&password=mp";
+    String setConfigXML_parameters = "meetingID=" + urlEncode(meetingID) + "&checksum=" + checksum(meetingID + xml_param + salt)) +"&configXML=" + urlEncode(xml_param);
 
-     return base_url_join + join_parameters + "&checksum="
-         + checksum("join" + join_parameters + salt);
- }
- 
- return doc.getElementsByTagName("messageKey").item(0).getTextContent()
-     .trim()
-     + ": " 
-     + doc.getElementsByTagName("message").item(0).getTextContent()
-     .trim();
+    try {
+        String url = base_url_setConfigXML; 
+        doc = parseXml( postURL( url, setConfigXML_parameters ) );
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    String configToken = "";
+    if (!doc.getElementsByTagName("returncode").item(0).getTextContent().trim().equals("SUCCESS")) {
+        //
+        // Someting went wrong, return the error 
+        //  
+        return doc.getElementsByTagName("messageKey").item(0).getTextContent().trim()
+                + ": " 
+                + doc.getElementsByTagName("message").item(0).getTextContent().trim();
+    } else {
+        configToken = doc.getElementsByTagName("configToken").item(0).getTextContent().trim();
+    }
+    
+    
+    
+    //
+    // And finally return a URL to join that meeting
+    //  
+    String join_parameters = "meetingID=" + urlEncode(meetingID)
+        + "&fullName=" + urlEncode(username) + "&password=mp&configToken=" + configToken;
+
+    return base_url_join + join_parameters + "&checksum="
+        + checksum("join" + join_parameters + salt);
+
 }
 
 
@@ -717,8 +735,7 @@ public static String postURL(String targetURL, String urlParameters)
 		url = new URL(targetURL);
 		connection = (HttpURLConnection)url.openConnection();
 		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", 
-		"text/xml");
+		connection.setRequestProperty("Content-Type", "text/xml");
 		
 		connection.setRequestProperty("Content-Length", "" + 
 		Integer.toString(urlParameters.getBytes().length));
