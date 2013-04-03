@@ -152,17 +152,9 @@ Notes.mxml is the main view of the SharedNotes application
 			previewExplanation.tabIndex = baseIndex+11;
 			webPollExplanation.tabIndex = baseIndex+12;
 			questionText.tabIndex = baseIndex+13;
-			// Giving the answer box ("options") proper tab order requires us to get a little creative here, in init(), and in createButtons()
-			LogUtil.debug("INDEX TESTS: baseIndex before answerIndex is: " + baseIndex);
-			baseIndex += answerIndex;
-			baseIndex += 14;
-			LogUtil.debug("INDEX TESTS: baseIndex after answerIndex is: " + baseIndex);
-			//
-			back.tabIndex = baseIndex+1;
-			publishButton.tabIndex = baseIndex+2;
-			SavePoll.tabIndex = baseIndex+3;
-			reviewCancel.tabIndex = baseIndex+4;
 			
+			// Tab order for controls in the Review box must be reset each time the buttons are created, so we won't set them here.
+						
 			
 			LogUtil.debug("INDEX TEST 1/3: questionText.tabIndex = " + questionText.tabIndex);
 			LogUtil.debug("INDEX TEST 3/3: back.tabIndex = " + back.tabIndex);
@@ -494,6 +486,17 @@ Notes.mxml is the main view of the SharedNotes application
 					_hb.addChild(_rb);
 				}
 			_hb.addChild(_tx); // adding text near button
+			
+			LogUtil.debug("INDEX TESTS: baseIndex before answerIndex is: " + baseIndex);
+			baseIndex += answerIndex;
+			baseIndex += 14;
+			LogUtil.debug("INDEX TESTS: baseIndex after answerIndex is: " + baseIndex);
+			//
+			back.tabIndex = baseIndex+1;
+			publishButton.tabIndex = baseIndex+2;
+			SavePoll.tabIndex = baseIndex+3;
+			reviewCancel.tabIndex = baseIndex+4;
+			
 			} // end of loop
 		} // end of function
 		
