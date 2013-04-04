@@ -273,7 +273,7 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
         //
         // Someting went wrong, return the error 
         //  
-        return doc.getElementsByTagName("messageKey").item(0).getTextContent()
+        return "One: " + doc.getElementsByTagName("messageKey").item(0).getTextContent()
                 .trim()
                 + ": " 
                 + doc.getElementsByTagName("message").item(0).getTextContent()
@@ -290,7 +290,8 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
         xml_param = xml;
     }
 
-    String setConfigXML_parameters = "meetingID=" + urlEncode(meetingID) + "&checksum=" + checksum(meetingID + xml_param + salt)) +"&configXML=" + urlEncode(xml_param);
+    String setConfigXML_parameters = "meetingID=" + urlEncode(meetingID) + 
+            "&checksum=" + checksum(meetingID + xml_param + salt) +"&configXML=" + urlEncode(xml_param);
 
     try {
         String url = base_url_setConfigXML; 
@@ -304,9 +305,9 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
         //
         // Someting went wrong, return the error 
         //  
-        return doc.getElementsByTagName("messageKey").item(0).getTextContent().trim()
+        return "Two: " + doc.getElementsByTagName("messageKey").item(0).getTextContent().trim()
                 + ": " 
-                + doc.getElementsByTagName("message").item(0).getTextContent().trim();
+                + doc.getElementsByTagName("message").item(0).getTextContent().trim() + "[" + xml_param +"]";
     } else {
         configToken = doc.getElementsByTagName("configToken").item(0).getTextContent().trim();
     }

@@ -63,54 +63,59 @@ Author: Jesus Federico <jesus@123it.ca>
 
 <%
 	if (request.getParameterMap().isEmpty()) {
-		//
-		// Assume we want to create a meeting
-		//
+	    //
+        // Assume we want to create a meeting
+        //
 %>
-	<h2>Customized sessions using a dynamic config.xml</h2>
+    <h2>Customized sessions using a dynamic config.xml</h2>
 
-	<form id="formcreate" name="formcreate" method="get" action=""> 
-		<fieldset>
-			<legend>Meeting Information</legend>
-			<ul>
-				<li>
-					<label for="confname">Meeting Name:</label>
-					<input id="confname" autofocus required name="confname" type="text" />
-				</li>
-				<li>
-					<label for="username1">Your Name:</label>
-					<input id="username1" required name="username1" type="text" />	
-				</li>
-			</ul>
-		</fieldset>
+    <form id="formcreate" name="formcreate" method="get" action=""> 
+        <fieldset>
+            <legend>Meeting Information</legend>
+            <ul>
+                <li>
+                    <label for="confname">Meeting Name:</label>
+                    <input id="confname" autofocus required name="confname" type="text" />
+                </li>
+                <li>
+                    <label for="username1">Your Name:</label>
+                    <input id="username1" required name="username1" type="text" />	
+                </li>
+            </ul>
+        </fieldset>
+        <fieldset>
+            <legend>Predefined layouts</legend>
+            <label for="label_Layout">Select layout:</label>
+                <select name="Layout">
+                    <option value="Default" selected="selected">Default</option>
+                    <option value="VideoChat">Video Chat</option>
+                    <option value="Users">Users</option>
+                    <option value="Meeting">Meeting</option>
+                    <option value="Webinar">Webinar</option>
+                    <option value="LectureAssistant">Lecture assistant</option>
+                    <option value="Lecture">Lecture</option>
+                    <option value="S2SPresentation">S2SPresentation</option>
+                    <option value="S2SVideoChat">S2SVideoChat</option>
+                    <option value="Notes">Notes</option>
+                    <option value="Broadcast">Broadcast</option>
+                </select><br><br>
+        </fieldset>
         <fieldset>
             <legend>Modules to be included</legend>
             <ul>
-                <li><label for="label_Layout">Select predefined layout:</label>
-                    <select name="Layout">
-                        <option value="Default" selected="selected">Default</option>
-                        <option value="VideoChat">Video Chat</option>
-                        <option value="Users">Users</option>
-                        <option value="Meeting">Meeting</option>
-                        <option value="Webinar">Webinar</option>
-                        <option value="LectureAssistant">Lecture assistant</option>
-                        <option value="Lecture">Lecture</option>
-                        <option value="S2SPresentation">S2SPresentation</option>
-                        <option value="S2SVideoChat">S2SVideoChat</option>
-                        <option value="Notes">Notes</option>
-                        <option value="Broadcast">Broadcast</option>
-                    </select><br>
-                </li>
                 <li><input type="checkbox" name="ChatModule" 
                     value="ChatModule">ChatModule<br></li>
-                <li><input type="checkbox" name="ViewersModule"
-                    value="ViewersModule" checked="checked" disabled>ViewersModule<br></li>
-                <li><input type="checkbox" name="ListenersModule"
-                    value="ListenersModule" checked="checked" disabled>ListenersModule<br></li>
+                <li><input type="hidden" name="ViewersModule" value="ViewersModule" />
+                    <input type="checkbox" name="ViewersModule" 
+                    value="ViewersModule" checked="checked" disabled="disabled">ViewersModule<br></li>
+                <li><input type="hidden" name="ListenersModule" value="ListenersModule" />
+                    <input type="checkbox" name="ListenersModule"
+                    value="ListenersModule" checked="checked" disabled="disabled">ListenersModule<br></li>
                 <li><input type="checkbox" name="DeskShareModule"
                     value="DeskShareModule">DeskShareModule<br></li>
-                <li><input type="checkbox" name="PhoneModule"
-                    value="PhoneModule" checked="checked" disabled>PhoneModule<br></li>
+                <li><input type="hidden" name="PhoneModule" value="PhoneModule" />
+                    <input type="checkbox" name="PhoneModule"
+                    value="PhoneModule" checked="checked" disabled="disabled">PhoneModule<br></li>
                 <li><input type="checkbox" name="VideoconfModule"
                     value="VideoconfModule">VideoconfModule<br></li>
                 <li><input type="checkbox" name="WhiteboardModule"
@@ -119,68 +124,72 @@ Author: Jesus Federico <jesus@123it.ca>
                     value="PresentModule">PresentModule<br></li>
                 <li><input type="checkbox" name="VideodockModule"
                     value="VideodockModule">VideodockModule<br></li>
-                <li><input type="checkbox" name="LayoutModule"
-                    value="LayoutModule" checked="checked" disabled>LayoutModule<br></li>
+                <li><input type="hidden" name="LayoutModule" value="LayoutModule" />
+                    <input type="checkbox" name="LayoutModule"
+                    value="LayoutModule" checked="checked" disabled="disabled">LayoutModule<br></li>
             </ul>
         </fieldset>
 		
 		<input type="submit" value="Create" >
 		<input type="hidden" name="action" value="create" />
-	</form>
-
+    </form>
+	
 <%
 	} else if (request.getParameter("action").equals("create")) {
-		
 		String confname = request.getParameter("confname");
 		String username = request.getParameter("username1");
 		
-		String configXML = "\
-<?xml version=\"1.0\" encoding=\"UTF-8\"?> \
-<config> \
-  <localeversion suppressWarning=\"false\">0.8</localeversion> \
-  <version>4084-2013-01-30</version> \
-  <help url=\"http://192.168.0.158/help.html\"/> \
-  <porttest host=\"192.168.0.158\" application=\"video\" timeout=\"10000\"/> \
-  <application uri=\"rtmp://192.168.0.158/bigbluebutton\" host=\"http://192.168.0.158/bigbluebutton/api/enter\" /> \
-  <language userSelectionEnabled=\"true\" /> \
-  <skinning enabled=\"true\" url=\"http://192.168.0.158/client/branding/css/BBBDefault.css.swf\" /> \
-  <layout showLogButton=\"false\" showVideoLayout=\"false\" showResetLayout=\"true\" defaultLayout=\"%DEFAULTLAYOUT%\" showToolbar=\"true\" showFooter=\"true\" showHelpButton=\"true\" showLogoutWindow=\"true\"/> \
-  <modules> \
-    %CHATMODULE% \
-    %VIEWERSMODULE% \
-    %LISTENERSMODULE% \
-    %DESKSHAREMODULE% \
-    %PHONEMODULE% \
-    %VIDEOCONFMODULE% \
-    %WHITEBOARDMODULE% \
-    %PRESENTMODULE% \
-    %VIDEODOCKMODULE% \
-    %LAYOUTMODULE% \
-  </modules> \
-</config>";
+		String configXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                           "<config>\n" +
+                           "  <localeversion suppressWarning=\"false\">0.8</localeversion>\n" +
+                           "  <version>4084-2013-01-30</version>\n" +
+                           "  <help url=\"http://192.168.0.158/help.html\"/>\n" +
+                           "  <porttest host=\"192.168.0.158\" application=\"video\" timeout=\"10000\"/>\n" +
+                           "  <application uri=\"rtmp://192.168.0.158/bigbluebutton\" host=\"http://192.168.0.158/bigbluebutton/api/enter\" />\n" +
+                           "  <language userSelectionEnabled=\"true\" />\n" +
+                           "  <skinning enabled=\"true\" url=\"http://192.168.0.158/client/branding/css/BBBDefault.css.swf\" />\n" +
+                           "  <layout showLogButton=\"false\" showVideoLayout=\"false\" showResetLayout=\"true\" defaultLayout=\"%DEFAULTLAYOUT%\" showToolbar=\"true\" showFooter=\"true\" showHelpButton=\"true\" showLogoutWindow=\"true\"/>\n" +
+                           "  <modules>\n" +
+                           "%CHATMODULE%" + "%VIEWERSMODULE%" + "%LISTENERSMODULE%" + "%DESKSHAREMODULE%" + "%PHONEMODULE%" + "%VIDEOCONFMODULE%" + "%WHITEBOARDMODULE%" + "%PRESENTMODULE%" + "%VIDEODOCKMODULE%" + "%LAYOUTMODULE% \n" +
+                           "  </modules> \n" +
+                           "</config>\n";
 	              
-	    String chatModule = "<module name=\"ChatModule\" url=\"http://192.168.0.158/client/ChatModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" dependsOn=\"ViewersModule\" translationOn=\"false\" translationEnabled=\"false\" privateEnabled=\"true\"  position=\"top-right\"/>"; 
-        String viewersModule = "<module name=\"ViewersModule\" url=\"http://192.168.0.158/client/ViewersModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" host=\"http://192.168.0.158/bigbluebutton/api/enter\" allowKickUser=\"false\" />";
-        String listenersModule = "<module name=\"ListenersModule\" url=\"http://192.168.0.158/client/ListenersModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" recordingHost=\"http://192.168.0.158\" position=\"bottom-left\" />"; 
-        String deskShareModule = "<module name=\"DeskShareModule\" url=\"http://192.168.0.158/client/DeskShareModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/deskShare\" autoStart=\"false\" />";
-        String phoneModule = "<module name=\"PhoneModule\" url=\"http://192.168.0.158/client/PhoneModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/sip\" autoJoin=\"true\" skipCheck=\"false\" showButton=\"true\" enabledEchoCancel=\"true\" dependsOn=\"ViewersModule\" />";
-        String videoconfModule = "<module name=\"VideoconfModule\" url=\"http://192.168.0.158/client/VideoconfModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/video\" dependson = \"ViewersModule\" videoQuality = \"100\" presenterShareOnly = \"false\" controlsForPresenter = \"false\" resolutions = \"320x240,640x480,1280x720\" autoStart = \"false\" showButton = \"true\" showCloseButton = \"true\" publishWindowVisible = \"true\" viewerWindowMaxed = \"false\" viewerWindowLocation = \"top\" camKeyFrameInterval = \"30\" camModeFps = \"10\" camQualityBandwidth = \"0\" camQualityPicture = \"90\" smoothVideo=\"false\" applyConvolutionFilter=\"false\" convolutionFilter=\"-1, 0, -1, 0, 6, 0, -1, 0, -1\" filterBias=\"0\" filterDivisor=\"4\" enableH264 = \"true\" h264Level = \"2.1\" h264Profile = \"main\" displayAvatar = \"false\" />";
-        String whiteboardModule = "<module name=\"WhiteboardModule\" url=\"http://192.168.0.158/client/WhiteboardModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" dependsOn=\"PresentModule\" />";
-        String presentModule = "<module name=\"PresentModule\" url=\"http://192.168.0.158/client/PresentModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" host=\"http://192.168.0.158\" showPresentWindow=\"true\" showWindowControls=\"true\" dependsOn=\"ViewersModule\" />";
-        String videodockModule = "<module name=\"VideodockModule\" url=\"http://192.168.0.158/client/VideodockModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" dependsOn=\"VideoconfModule, ViewersModule\" autoDock=\"true\" showControls=\"true\" maximizeWindow=\"false\" position=\"bottom-right\" width=\"172\" height=\"179\" layout=\"smart\" oneAlwaysBigger=\"false\" />";
-        String layoutModule = "<module name=\"LayoutModule\" url=\"http://192.168.0.158/client/LayoutModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" layoutConfig=\"http://192.168.0.158/client/conf/layout.xml\" enableEdit=\"true\" />";
+	    String chatModule = "    <module name=\"ChatModule\" url=\"http://192.168.0.158/client/ChatModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" dependsOn=\"ViewersModule\" translationOn=\"false\" translationEnabled=\"false\" privateEnabled=\"true\"  position=\"top-right\"/>\n"; 
+        String viewersModule = "    <module name=\"ViewersModule\" url=\"http://192.168.0.158/client/ViewersModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" host=\"http://192.168.0.158/bigbluebutton/api/enter\" allowKickUser=\"false\" />\n";
+        String listenersModule = "    <module name=\"ListenersModule\" url=\"http://192.168.0.158/client/ListenersModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" recordingHost=\"http://192.168.0.158\" position=\"bottom-left\" />\n"; 
+        String deskShareModule = "    <module name=\"DeskShareModule\" url=\"http://192.168.0.158/client/DeskShareModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/deskShare\" autoStart=\"false\" />\n";
+        String phoneModule = "    <module name=\"PhoneModule\" url=\"http://192.168.0.158/client/PhoneModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/sip\" autoJoin=\"true\" skipCheck=\"false\" showButton=\"true\" enabledEchoCancel=\"true\" dependsOn=\"ViewersModule\" />\n";
+        String videoconfModule = "    <module name=\"VideoconfModule\" url=\"http://192.168.0.158/client/VideoconfModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/video\" dependson = \"ViewersModule\" videoQuality = \"100\" presenterShareOnly = \"false\" controlsForPresenter = \"false\" resolutions = \"320x240,640x480,1280x720\" autoStart = \"false\" showButton = \"true\" showCloseButton = \"true\" publishWindowVisible = \"true\" viewerWindowMaxed = \"false\" viewerWindowLocation = \"top\" camKeyFrameInterval = \"30\" camModeFps = \"10\" camQualityBandwidth = \"0\" camQualityPicture = \"90\" smoothVideo=\"false\" applyConvolutionFilter=\"false\" convolutionFilter=\"-1, 0, -1, 0, 6, 0, -1, 0, -1\" filterBias=\"0\" filterDivisor=\"4\" enableH264 = \"true\" h264Level = \"2.1\" h264Profile = \"main\" displayAvatar = \"false\" />\n";
+        String whiteboardModule = "    <module name=\"WhiteboardModule\" url=\"http://192.168.0.158/client/WhiteboardModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" dependsOn=\"PresentModule\" />\n";
+        String presentModule = "    <module name=\"PresentModule\" url=\"http://192.168.0.158/client/PresentModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" host=\"http://192.168.0.158\" showPresentWindow=\"true\" showWindowControls=\"true\" dependsOn=\"ViewersModule\" />\n";
+        String videodockModule = "    <module name=\"VideodockModule\" url=\"http://192.168.0.158/client/VideodockModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" dependsOn=\"VideoconfModule, ViewersModule\" autoDock=\"true\" showControls=\"true\" maximizeWindow=\"false\" position=\"bottom-right\" width=\"172\" height=\"179\" layout=\"smart\" oneAlwaysBigger=\"false\" />\n";
+        String layoutModule = "    <module name=\"LayoutModule\" url=\"http://192.168.0.158/client/LayoutModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" layoutConfig=\"http://192.168.0.158/client/conf/layout.xml\" enableEdit=\"true\" />\n";
         
-        if( request.getParameter("ChatModule") ) configXML.replace("%CHATMODULE%", chatModule); else configXML.replace("%CHATMODULE%", "");
-        if( request.getParameter("ViewersModule") ) configXML.replace("%VIEWERSMODULE%", viewersModule); else configXML.replace("%VIEWERSMODULE%", "");
-        if( request.getParameter("ListenersModule") ) configXML.replace("%LISTENERSMODULE%", listenersModule); else configXML.replace("%LISTENERSMODULE%", "");
-        if( request.getParameter("DeskShareModule") ) configXML.replace("%DESKSHAREMODULE%", deskShareModule); else configXML.replace("%DESKSHAREMODULE%", "");
-        if( request.getParameter("PhoneModule") ) configXML.replace("%PHONEMODULE%", phoneModule); else configXML.replace("%PHONEMODULE%", "");
-        if( request.getParameter("VideoconfModule") ) configXML.replace("%VIDEOCONFMODULE%", videoconfModule); else configXML.replace("%VIDEOCONFMODULE%", "");
-        if( request.getParameter("WhiteboardModule") ) configXML.replace("%WHITEBOARDMODULE%", whiteboardModule); else configXML.replace("%WHITEBOARDMODULE%", "");
-        if( request.getParameter("PresentModule") ) configXML.replace("%PRESENTMODULE%", presentModule); else configXML.replace("%PRESENTMODULE%", "");
-        if( request.getParameter("VideodockModule") ) configXML.replace("%VIDEODOCKMODULE%", videodockModule); else configXML.replace("%VIDEODOCKMODULE%", "");
-        if( request.getParameter("LayoutModule") ) configXML.replace("%LAYOUTMODULE%", layoutModule); else configXML.replace("%LAYOUTMODULE%", "");
+        String param_ChatModule = request.getParameter("ChatModule");
+        String param_ViewersModule = request.getParameter("ViewersModule");
+        String param_ListenersModule = request.getParameter("ListenersModule");
+        String param_DeskShareModule = request.getParameter("DeskShareModule");
+        String param_PhoneModule = request.getParameter("PhoneModule");
+        String param_VideoconfModule = request.getParameter("VideoconfModule");
+        String param_WhiteboardModule = request.getParameter("WhiteboardModule");
+        String param_PresentModule = request.getParameter("PresentModule");
+        String param_VideodockModule = request.getParameter("VideodockModule");
+        String param_LayoutModule = request.getParameter("LayoutModule");
+        
+        String param_Layout = request.getParameter("Layout");
+        configXML = ( request.getParameter("Layout") != null )? configXML.replace("%DEFAULTLAYOUT%", param_Layout): configXML.replace("%DEFAULTLAYOUT%", "Default");
 
+        configXML = ( request.getParameter("ChatModule") != null )? configXML.replace("%CHATMODULE%", chatModule): configXML.replace("%CHATMODULE%", "");
+        configXML = ( request.getParameter("ViewersModule") != null )? configXML.replace("%VIEWERSMODULE%", viewersModule): configXML.replace("%VIEWERSMODULE%", "");
+        configXML = ( request.getParameter("ListenersModule") != null )? configXML.replace("%LISTENERSMODULE%", listenersModule): configXML.replace("%LISTENERSMODULE%", "");
+        configXML = ( request.getParameter("DeskShareModule") != null )? configXML.replace("%DESKSHAREMODULE%", deskShareModule): configXML.replace("%DESKSHAREMODULE%", "");
+        configXML = ( request.getParameter("PhoneModule") != null )? configXML.replace("%PHONEMODULE%", phoneModule): configXML.replace("%PHONEMODULE%", "");
+        configXML = ( request.getParameter("VideoconfModule") != null )? configXML.replace("%VIDEOCONFMODULE%", videoconfModule): configXML.replace("%VIDEOCONFMODULE%", "");
+        configXML = ( request.getParameter("WhiteboardModule") != null )? configXML.replace("%WHITEBOARDMODULE%", whiteboardModule): configXML.replace("%WHITEBOARDMODULE%", "");
+        configXML = ( request.getParameter("PresentModule") != null )? configXML.replace("%PRESENTMODULE%", presentModule): configXML.replace("%PRESENTMODULE%", "");
+        configXML = ( request.getParameter("VideodockModule") != null )? configXML.replace("%VIDEODOCKMODULE%", videodockModule): configXML.replace("%VIDEODOCKMODULE%", "");
+        configXML = ( request.getParameter("LayoutModule") != null )? configXML.replace("%LAYOUTMODULE%", layoutModule): configXML.replace("%LAYOUTMODULE%", "");
+        
 		//
 		// This is the URL for to join the meeting as moderator
 		//
@@ -189,26 +198,44 @@ Author: Jesus Federico <jesus@123it.ca>
 
 		if (joinURL.startsWith("http://")) { 
 %>
+            <h2>Customized sessions using a dynamic config.xml, submit</h2>
 
-<script language="javascript" type="text/javascript">
-  window.location.href="<%=joinURL%>";
-</script>
+            <script language="javascript" type="text/javascript">
+                //window.location.href="<%=joinURL%>";
+            </script>
 
 <%
-	} else {
+        } else {
 %>
-
-Error: getJoinURL() failed
-<p/>
-<%=joinURL %>
-
+            <p>Error: <br>
+                &nbsp;&nbsp;getJoinURL() failed
+            </p>
+            <p>
+            <%=joinURL %>
+            </p>
+            <p>
+<%=configXML %>
+            </p>
+            <p>
+            <%=param_ChatModule %>
+            <%=param_ChatModule %>
+            <%=param_ViewersModule %>
+            <%=param_ListenersModule %>
+            <%=param_DeskShareModule %>
+            <%=param_PhoneModule %>
+            <%=param_VideoconfModule %>
+            <%=param_WhiteboardModule %>
+            <%=param_PresentModule %>
+            <%=param_VideodockModule %>
+            <%=param_LayoutModule %>
+            <%=param_Layout %>
+            </p>
+            
 <% 
-	}
-} 
+        }
+    } 
 %>
 
-<p>
-See: <a href="http://code.google.com/p/bigbluebutton/wiki/MatterhornIntegration">Matterhorn Integration</a>
 
 <%@ include file="demo_footer.jsp"%>
 
