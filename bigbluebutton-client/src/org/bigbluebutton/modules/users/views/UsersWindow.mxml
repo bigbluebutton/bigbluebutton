@@ -100,6 +100,8 @@
 				users = UserManager.getInstance().getConference().users;
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
 				
+				settingsBtn.visible = settingsBtn.includeInLayout = amIModerator;
+				
 				BindingUtils.bindSetter(changeButtons, UserManager.getInstance().getConference(), "amIPresenter");
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
@@ -158,6 +160,8 @@
 			
 			private function toggleMuteMeState(event:ShortcutEvent = null):void{
 				if (UserManager.getInstance().getConference().voiceJoined) {
+					if (UserManager.getInstance().getConference().voiceLocked && !UserManager.getInstance().getConference().amIModerator()) return;
+					
 					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
 					e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
 					e.mute = !UserManager.getInstance().getConference().isMyVoiceMuted();
@@ -176,18 +180,15 @@
 			
 			private function openSettings():void {
 				// everyone can see the audio settings
-				var myMenuData:Array = [{label: ResourceUtil.getInstance().getString('bbb.users.settings.audioSettings'), icon: images.audio}];
+				var myMenuData:Array = [];
 				
-				if (amIModerator) {
-					myMenuData[1] = {type: "separator"};
-					myMenuData[2] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.lowerAllHands'), icon: images.hand_new};
-					if (!roomMuted) {
-						myMenuData[3] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted};
-						if (UserManager.getInstance().getConference().getPresenter())
-							myMenuData[4] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted};
-					} else
-						myMenuData[3] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio};
-				}
+				myMenuData[0] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.lowerAllHands'), icon: images.hand_new};
+				if (!roomMuted) {
+					myMenuData[1] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted};
+					if (UserManager.getInstance().getConference().getPresenter())
+						myMenuData[2] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted};
+				} else
+					myMenuData[1] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio};
 				
 				// make sure the previous menu is closed before opening a new one
 				// This could be improved to include a flag that tells if the menu is open,
@@ -206,21 +207,14 @@
 				// case 1 is the separator and can never get called
 				switch (e.index) {
 				case 0:
-					showAudioSettings();
-					break;
-				case 2:
 					lowerHands();
 					break;
-				case 3:
+				case 1:
 					muteAll();
 					break;
-				case 4:
+				case 2:
 					muteAlmostAll();
 				}
-			}
-			
-			private function showAudioSettings():void {
-				Security.showSettings(SecurityPanel.MICROPHONE);
 			}
 			
 			private function setRoomMute(e:UsersEvent):void {
