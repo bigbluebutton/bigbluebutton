@@ -590,13 +590,13 @@ fi
 
 if [ $REARCHIVE ]; then
 	ARCHIVE_DONE_FILE=/var/bigbluebutton/recording/status/archived/$MEETING_ID.done
-	if [ -f $ARCHIVE_DONE_FILE ]; then
-		echo "Removing .done file and raw directory for meeting $MEETING_ID"
-		rm $ARCHIVE_DONE_FILE
-		rm -r /var/bigbluebutton/recording/raw/$MEETING_ID
-	else
-		echo "$MEETING_ID is not archived."
-	fi
+#	if [ -f $ARCHIVE_DONE_FILE ]; then
+#		echo "Removing .done file and raw directory for meeting $MEETING_ID"
+#		rm $ARCHIVE_DONE_FILE
+#		rm -r /var/bigbluebutton/recording/raw/$MEETING_ID
+#	else
+#		echo "$MEETING_ID is not archived."
+#	fi
 fi
 
 if [ $CHECK ]; then
