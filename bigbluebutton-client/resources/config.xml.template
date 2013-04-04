@@ -88,7 +88,9 @@
 			h264Level = "2.1"
 			h264Profile = "main"		
 			displayAvatar = "false"
-			focusTalking = "false"	
+			focusTalking = "false"
+			glowColor = "0x4A931D"
+			glowBlurSize = "30.0"	
 		/>
 		
 		<module name="WhiteboardModule" url="http://HOST/client/WhiteboardModule.swf?v=4105" 

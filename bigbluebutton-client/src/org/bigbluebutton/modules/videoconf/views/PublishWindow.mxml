@@ -95,6 +95,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var videoOptions:VideoConfOptions;
 			[Bindable] public var baseIndex:int;
 			
+			[Bindable] public var glowColor:String = ""; 
+			[Bindable] public var glowBlurSize:Number = 0;
+			
 			private function init():void{
 				videoOptions = new VideoConfOptions();
 				baseIndex = videoOptions.baseTabIndex;
@@ -107,6 +110,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
       
 			private function onCreationComplete():void{
+				this.glowColor = videoOptions.glowColor;
+				this.glowBlurSize = videoOptions.glowBlurSize;
+				
 				_videoHolder = new UIComponent();
 				_videoHolder.width = camWidth;
 				_videoHolder.height = camHeight;
@@ -402,9 +408,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 
   <mx:Glow id="talkingEffect" duration="500" alphaFrom="1.0" alphaTo="0.3" 
-           blurXFrom="0.0" blurXTo="30.0" blurYFrom="0.0" blurYTo="30.0" color="0x4A931D"/>
+           blurXFrom="0.0" blurXTo="{glowBlurSize}" blurYFrom="0.0" blurYTo="{glowBlurSize}" color="{glowColor}"/>
   <mx:Glow id="notTalkingEffect" duration="500" alphaFrom="0.3" alphaTo="1.0"
-           blurXFrom="30.0" blurXTo="0.0" blurYFrom="30.0" blurYTo="0.0" color="0x4A931D"/>
+           blurXFrom="{glowBlurSize}" blurXTo="0.0" blurYFrom="{glowBlurSize}" blurYTo="0.0" color="{glowColor}"/>
   
 	<mx:Fade id="dissolveOut" duration="1000" alphaFrom="1.0" alphaTo="0.0"/>
 

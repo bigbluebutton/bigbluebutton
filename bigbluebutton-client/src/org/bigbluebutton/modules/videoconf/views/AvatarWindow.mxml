@@ -24,8 +24,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:pubVid="org.bigbluebutton.modules.videoconf.business.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
-  styleNameFocus="videoAvatarStyleFocus"
-  styleNameNoFocus="videoAvatarStyleNoFocus"
+	styleNameFocus="videoAvatarStyleFocus"
+	styleNameNoFocus="videoAvatarStyleNoFocus"
 	creationComplete="onCreationComplete()"
 	width="{defaultWidth + 6}" height="{defaultHeight + 6}" 
 	xmlns:mate="http://mate.asfusion.com/"
@@ -34,158 +34,168 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	verticalScrollPolicy="off"
 	layout="absolute">
 	
-  <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceMutedEvent" />
-  <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
-  <mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleNewRoleEvent" />
-  <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
-  
+	<mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceMutedEvent" />
+	<mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
+	<mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleNewRoleEvent" />
+	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
+	
 	<mx:Script>
 		<![CDATA[
-      import flexlib.mdi.events.MDIWindowEvent; 
-      import mx.core.UIComponent;
-      import mx.events.ResizeEvent;
-      import org.bigbluebutton.common.Images;
-      import org.bigbluebutton.common.LogUtil;
-      import org.bigbluebutton.common.Role;
-      import org.bigbluebutton.common.events.CloseWindowEvent;
-      import org.bigbluebutton.common.events.LocaleChangeEvent;
-      import org.bigbluebutton.core.EventConstants;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.events.CoreEvent;
-      import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-      import org.bigbluebutton.core.managers.UserManager;
-      import org.bigbluebutton.main.events.BBBEvent;
-      import org.bigbluebutton.main.events.SwitchedPresenterEvent;
-      import org.bigbluebutton.main.views.MainCanvas;
-      import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
-      import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-      import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
-      import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
-      import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
-      
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import mx.core.UIComponent;
+			import mx.events.ResizeEvent;
+			
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
+			import org.bigbluebutton.core.EventConstants;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.CoreEvent;
+			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.SwitchedPresenterEvent;
+			import org.bigbluebutton.main.views.MainCanvas;
+			import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
+			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
+			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
+			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
 			[Bindable] private var defaultWidth:Number = 320;
 			[Bindable] private var defaultHeight:Number = 240;
-			         
+			
+			[Bindable] public var glowColor:String = ""; 
+			[Bindable] public var glowBlurSize:Number = 0;
+			
 			private var camWidth:Number = 320;
 			private var camHeight:Number = 240;
-		
-      private var windowType:String = "AvatarWindowType";
-      
-      override public function getWindowType():String {
-        return windowType;
-      }
-      
-      private var loader:Loader;
-      private var request:URLRequest;
-      
-      private function loadAvatar():void {
-        loader = new Loader();
-        request = new URLRequest(UsersUtil.getAvatarURL());
-        loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadingComplete);
-        loader.load(request);        
-      }
-      
-      private function onLoadingComplete(event:Event):void {
-        loader.x = (_videoHolder.width - loader.width) / 2;
-        loader.y = (_videoHolder.height - loader.height) / 2;
-        _videoHolder.addChild(loader);
-        
-        onResize();
-      }
-      
+			
+			private var videoconfOptions:VideoConfOptions = new VideoConfOptions();
+			
+			private var windowType:String = "AvatarWindowType";
+			
+			override public function getWindowType():String {
+				return windowType;
+			}
+			
+			private var loader:Loader;
+			private var request:URLRequest;
+			
+			private function loadAvatar():void {
+				loader = new Loader();
+				request = new URLRequest(UsersUtil.getAvatarURL());
+				loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadingComplete);
+				loader.load(request);        
+			}
+			
+			private function onLoadingComplete(event:Event):void {
+				loader.x = (_videoHolder.width - loader.width) / 2;
+				loader.y = (_videoHolder.height - loader.height) / 2;
+				_videoHolder.addChild(loader);
+				
+				onResize();
+			}
+			
 			private function onCreationComplete():void {
+				this.glowColor = videoconfOptions.glowColor;
+				this.glowBlurSize = videoconfOptions.glowBlurSize;
+				
 				_videoHolder = new UIComponent();
 				_videoHolder.width = camWidth;
 				_videoHolder.height = camHeight;
 				this.addChild(_videoHolder);				
-
-        _video = new Video();
-
+				
+				_video = new Video();
+				
 				this.minWidth = _minWidth;
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = false;
-        
-        showCloseButton = false;
-        
+				
+				showCloseButton = false;
+				
 				this.resizable = false;
 				setAspectRatio(camWidth, camHeight);
-        
-        addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
-        addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
-        addEventListener(MouseEvent.MOUSE_OVER, showButtons);
-        addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
-        
-        startPublishing();
-        
-        loadAvatar();
+				
+				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
+				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
+				addEventListener(MouseEvent.MOUSE_OVER, showButtons);
+				addEventListener(MouseEvent.MOUSE_OUT, hideButtons);
+				
+				startPublishing();
+				
+				loadAvatar();
 			}
 			
-      override protected function onResize():void {
-        super.onResize();
-        
-        if (loader != null && _videoHolder != null) {
-          loader.x = (_videoHolder.width - loader.width) / 2;
-          loader.y = (_videoHolder.height - loader.height) / 2;          
-        }
-      }
-      
-      private function handleNewRoleEvent(event:SwitchedPresenterEvent):void {
-        switchRole(event.amIPresenter);
-      }
-
-      private function handleUserVoiceMutedEvent(event:BBBEvent):void {
-        if (event.payload.userID ==  userID) {
-          userMuted(event.payload.muted);
-        }
-      }
-      
-      private function handleUserTalkingEvent(event:CoreEvent):void {
-        if (event.message.userID ==  userID) {
-          if (event.message.talking) {
-            notTalkingEffect.end();
-            talkingEffect.play([this]);
-			simulateClick();           
-          } else {
-            talkingEffect.end();
-            notTalkingEffect.play([this]);
-          }
-        }
-      }
-      						
+			override protected function onResize():void {
+				super.onResize();
+				
+				if (loader != null && _videoHolder != null) {
+					loader.x = (_videoHolder.width - loader.width) / 2;
+					loader.y = (_videoHolder.height - loader.height) / 2;          
+				}
+			}
+			
+			private function handleNewRoleEvent(event:SwitchedPresenterEvent):void {
+				switchRole(event.amIPresenter);
+			}
+			
+			private function handleUserVoiceMutedEvent(event:BBBEvent):void {
+				if (event.payload.userID ==  userID) {
+					userMuted(event.payload.muted);
+				}
+			}
+			
+			private function handleUserTalkingEvent(event:CoreEvent):void {
+				if (event.message.userID ==  userID) {
+					if (event.message.talking) {
+						notTalkingEffect.end();
+						talkingEffect.play([this]);
+						simulateClick();           
+					} else {
+						talkingEffect.end();
+						notTalkingEffect.play([this]);
+					}
+				}
+			}
+			
 			private function startPublishing():void{				
 				defaultWidth = originalWidth;
 				defaultHeight = originalHeight;
-
+				
 				maximizeRestoreBtn.visible = true;
 				this.resizable = true;
 				onResize();
-												
-        createButtons();
-        addControlButtons();	
-        updateButtonsPosition();
+				
+				createButtons();
+				addControlButtons();	
+				updateButtonsPosition();
 			}
 			
 			override public function close(event:MouseEvent=null):void{
-        closeThisWindow();
+				closeThisWindow();
 				super.close(event);
 			}
-					
+			
 			private function closeWindow(e:CloseAllWindowsEvent):void{
 				closeThisWindow();
 			}
 			
 			private function closeThisWindow():void {
-        trace("******************** Closing avatar window for user [" + userID + "]*********************");
+				trace("******************** Closing avatar window for user [" + userID + "]*********************");
 			}
 			
 			
 		]]>
 	</mx:Script>
-
-  <mx:Glow id="talkingEffect" duration="500" alphaFrom="1.0" alphaTo="0.3"
-           blurXFrom="0.0" blurXTo="30.0" blurYFrom="0.0" blurYTo="30.0" color="0x4A931D"/>
-  <mx:Glow id="notTalkingEffect" duration="500" alphaFrom="0.3" alphaTo="1.0"
-           blurXFrom="30.0" blurXTo="0.0" blurYFrom="30.0" blurYTo="0.0" color="0x4A931D"/>
-
+	
+	<mx:Glow id="talkingEffect" duration="500" alphaFrom="1.0" alphaTo="0.3"
+			 blurXFrom="0.0" blurXTo="{glowBlurSize}" blurYFrom="0.0" blurYTo="{glowBlurSize}" color="{glowColor}"/>
+	<mx:Glow id="notTalkingEffect" duration="500" alphaFrom="0.3" alphaTo="1.0"
+			 blurXFrom="{glowBlurSize}" blurXTo="0.0" blurYFrom="{glowBlurSize}" blurYTo="0.0" color="{glowColor}"/>
+	
 </pubVid:VideoWindowItf>

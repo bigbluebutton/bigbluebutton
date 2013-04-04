@@ -22,14 +22,14 @@ package org.bigbluebutton.modules.videoconf.model
 	
 	public class VideoConfOptions
 	{
-    public var uri:String = "rtmp://localhost/video";
-
-    [Bindable]
-    public var videoQuality:Number = 100;
-    
-    [Bindable]
-    public var resolutions:String = "320x240,640x480,1280x720";
-    
+		public var uri:String = "rtmp://localhost/video";
+		
+		[Bindable]
+		public var videoQuality:Number = 100;
+		
+		[Bindable]
+		public var resolutions:String = "320x240,640x480,1280x720";
+		
 		[Bindable]
 		public var autoStart:Boolean = false;
 		
@@ -44,10 +44,10 @@ package org.bigbluebutton.modules.videoconf.model
 		
 		[Bindable]
 		public var viewerWindowMaxed:Boolean = false;
-
+		
 		[Bindable]
 		public var viewerWindowLocation:String = "middle";
-
+		
 		[Bindable]
 		public var camKeyFrameInterval:Number = 5;
 		
@@ -56,25 +56,25 @@ package org.bigbluebutton.modules.videoconf.model
 		
 		[Bindable]
 		public var camQualityBandwidth:Number = 0;
-
+		
 		[Bindable]
 		public var smoothVideo:Boolean = false;
-
+		
 		[Bindable]
 		public var applyConvolutionFilter:Boolean = false;
-
+		
 		[Bindable]
 		public var convolutionFilter:Array = [-1, 0, -1, 0, 6, 0, -1, 0, -1];
-
+		
 		[Bindable]
 		public var filterBias:Number = 0;
-
+		
 		[Bindable]
 		public var filterDivisor:Number = 4;
-
+		
 		[Bindable]
 		public var enableH264:Boolean = false;
-
+		
 		[Bindable]
 		public var h264Level:String = "2.1";	
 		
@@ -86,34 +86,40 @@ package org.bigbluebutton.modules.videoconf.model
 		
 		[Bindable] public var baseTabIndex:int;
 		
-    [Bindable]
-    public var presenterShareOnly:Boolean = false; 
-
-    [Bindable]
-    public var controlsForPresenter:Boolean = false; 
-    
-    [Bindable]
-    public var displayAvatar:Boolean = false;
-    
-    [Bindable]
-    public var focusTalking:Boolean = false;
-    
-    public function VideoConfOptions() {
-      parseOptions();
-    }
-    
+		[Bindable]
+		public var presenterShareOnly:Boolean = false; 
+		
+		[Bindable]
+		public var controlsForPresenter:Boolean = false; 
+		
+		[Bindable]
+		public var displayAvatar:Boolean = false;
+		
+		[Bindable]
+		public var focusTalking:Boolean = false;
+		
+		[Bindable]
+		public var glowColor:String = "0x4A931D";
+		
+		[Bindable]
+		public var glowBlurSize:Number = 30.0;
+		
+		public function VideoConfOptions() {
+			parseOptions();
+		}
+		
 		public function parseOptions():void {
 			var vxml:XML = BBB.getConfigForModule("VideoconfModule");
 			if (vxml != null) {
-        if (vxml.@uri != undefined) {
-          uri = vxml.@uri.toString();
-        }		
-        if (vxml.@videoQuality != undefined) {
-          videoQuality = Number(vxml.@videoQuality.toString());
-        }	
-        if (vxml.@resolutions != undefined) {
-          resolutions = vxml.@resolutions.toString();
-        }
+				if (vxml.@uri != undefined) {
+					uri = vxml.@uri.toString();
+				}		
+				if (vxml.@videoQuality != undefined) {
+					videoQuality = Number(vxml.@videoQuality.toString());
+				}	
+				if (vxml.@resolutions != undefined) {
+					resolutions = vxml.@resolutions.toString();
+				}
 				if (vxml.@showCloseButton != undefined) {
 					showCloseButton = (vxml.@showCloseButton.toString().toUpperCase() == "TRUE") ? true : false;
 				}
@@ -126,12 +132,12 @@ package org.bigbluebutton.modules.videoconf.model
 				if (vxml.@publishWindowVisible != undefined) {
 					publishWindowVisible = (vxml.@publishWindowVisible.toString().toUpperCase() == "TRUE") ? true : false;
 				}		       
-        if (vxml.@presenterShareOnly != undefined) {
-          presenterShareOnly = (vxml.@presenterShareOnly.toString().toUpperCase() == "TRUE") ? true : false;
-        }
-        if (vxml.@controlsForPresenter != undefined) {
-          controlsForPresenter = (vxml.@controlsForPresenter.toString().toUpperCase() == "TRUE") ? true : false;
-        }	
+				if (vxml.@presenterShareOnly != undefined) {
+					presenterShareOnly = (vxml.@presenterShareOnly.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@controlsForPresenter != undefined) {
+					controlsForPresenter = (vxml.@controlsForPresenter.toString().toUpperCase() == "TRUE") ? true : false;
+				}	
 				if (vxml.@viewerWindowMaxed != undefined) {
 					viewerWindowMaxed = (vxml.@viewerWindowMaxed.toString().toUpperCase() == "TRUE") ? true : false;
 				}					
@@ -188,13 +194,21 @@ package org.bigbluebutton.modules.videoconf.model
 				else{
 					baseTabIndex = 101;
 				}
-
+				
 				if (vxml.@displayAvatar != undefined) {
 					displayAvatar = (vxml.@displayAvatar.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 				
 				if (vxml.@focusTalking != undefined) {
 					focusTalking = (vxml.@focusTalking.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				
+				if (vxml.@glowColor != undefined) {
+					glowColor = vxml.@glowColor.toString();
+				}
+				
+				if (vxml.@glowBlurSize != undefined) {
+					glowBlurSize = Number(vxml.@glowBlurSize.toString());
 				}
 			}
 		}
