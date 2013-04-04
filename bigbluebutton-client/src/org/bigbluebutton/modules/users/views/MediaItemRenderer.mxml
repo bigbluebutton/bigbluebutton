@@ -36,12 +36,13 @@
 			
 			import mx.binding.utils.BindingUtils;
 			import mx.controls.Alert;
-			import mx.events.ListEvent;
 			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
 			
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.Role;
+			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
@@ -49,7 +50,6 @@
 			import org.bigbluebutton.main.model.users.events.KickUserEvent;
 			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
-			import org.bigbluebutton.core.events.VoiceConfEvent;
 			import org.bigbluebutton.modules.users.events.ViewCameraEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -59,6 +59,9 @@
 			private var moderator:Boolean = false;
 			[Bindable]
 			private var rolledOver:Boolean = false;
+			
+			private var rolledOverMute:Boolean = false;
+			private var rolledOverLock:Boolean = false;
 			
 			private var muteRolled:Boolean = false;
 			private var lockRolled:Boolean = false;
@@ -92,6 +95,26 @@
 					rolledOver = false;
 					updateButtons();
 				}
+			}
+			
+			private function muteMouseOverHandler():void {
+				rolledOverMute = true;
+				updateButtons();
+			}
+			
+			private function muteMouseOutHandler():void {
+				rolledOverMute = false;
+				updateButtons();
+			}
+			
+			private function lockMouseOverHandler():void {
+				rolledOverLock = true;
+				updateButtons();
+			}
+			
+			private function lockMouseOutHandler():void {
+				rolledOverLock = false;
+				updateButtons();
 			}
 			
 			private function viewCamera():void {
@@ -162,12 +185,12 @@
 						else
 							lockImg.source = images.unlocked;
 					} else {
-						if (data.voiceMuted)
+						if (data.voiceMuted == rolledOverMute)
 							muteBtn.setStyle("icon", images.audio);
 						else
 							muteBtn.setStyle("icon", images.audio_muted);
 						
-						if (data.voiceLocked)
+						if (data.voiceLocked == rolledOverLock)
 							lockBtn.setStyle("icon", images.unlocked);
 						else
 							lockBtn.setStyle("icon", images.locked);
@@ -185,6 +208,8 @@
 	<mx:Image id="muteImg" visible="false" includeInLayout="true" width="16" height="16" />
 	<mx:Button id="muteBtn" visible="false" includeInLayout="false" enabled="false" icon="{images.audio}"
 				width="20" height="20" click="toggleMuteState()"
+				mouseOver="muteMouseOverHandler()"
+				mouseOut="muteMouseOutHandler()"
 				toolTip="{data.voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToTalk') : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToMute')}" />
 	<mx:Button id="kickUserBtn" icon="{images.eject_user_new}" 
 				width="20" height="20" visible="false"
@@ -193,7 +218,9 @@
 	<mx:Image id="lockImg" visible="false" includeInLayout="false" width="11" height="12" />
 	<mx:Button id="lockBtn" visible="false" includeInLayout="false" enabled="false"
 				width="20" height="20" click="toggleLockState()"
-				toolTip="{ResourceUtil.getInstance().getString('bbb.listenerItem.lockImg.toolTip')}" />		
+				mouseOver="lockMouseOverHandler()"
+				mouseOut="lockMouseOutHandler()"
+				toolTip="{data.voiceLocked ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToUnlock') : ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.pushToLock')}" />		
 	<!-- Helper objects because using BindingUtil with data break when the itemRenderer is recycled -->
 	<mx:Image id="muteInd" includeInLayout="false" visible="{data.voiceMuted}" />
 	<mx:Image id="voiceJoinedInd" includeInLayout="false" visible="{data.voiceJoined}" />
