@@ -103,6 +103,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				resourcesChanged();
 				
 				titleBarOverlay.tabIndex = baseIndex;
+				LogUtil.debug("INDEX TEST: Users.TitleBar index is " + titleBarOverlay.tabIndex); 
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
