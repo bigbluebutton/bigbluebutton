@@ -105,12 +105,13 @@ Author: Jesus Federico <jesus@123it.ca>
             <ul>
                 <li><input type="checkbox" name="ChatModule" 
                     value="ChatModule">ChatModule<br></li>
-                <li><input type="hidden" name="ViewersModule" value="ViewersModule" />
-                    <input type="checkbox" name="ViewersModule" 
-                    value="ViewersModule" checked="checked" disabled="disabled">ViewersModule<br></li>
-                <li><input type="hidden" name="ListenersModule" value="ListenersModule" />
-                    <input type="checkbox" name="ListenersModule"
-                    value="ListenersModule" checked="checked" disabled="disabled">ListenersModule<br></li>
+                <li><input type="checkbox" name="ViewersModule" 
+                    value="ViewersModule" disabled="disabled">ViewersModule<br></li>
+                <li><input type="checkbox" name="ListenersModule"
+                    value="ListenersModule" disabled="disabled">ListenersModule<br></li>
+                <li><input type="hidden" name="UsersModule" value="UsersModule" />
+                    <input type="checkbox" name="UsersModule"
+                    value="UsersModule" checked="checked" disabled="disabled">UsersModule<br></li>
                 <li><input type="checkbox" name="DeskShareModule"
                     value="DeskShareModule">DeskShareModule<br></li>
                 <li><input type="hidden" name="PhoneModule" value="PhoneModule" />
@@ -142,32 +143,37 @@ Author: Jesus Federico <jesus@123it.ca>
 		String configXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                            "<config>\n" +
                            "  <localeversion suppressWarning=\"false\">0.8</localeversion>\n" +
-                           "  <version>4084-2013-01-30</version>\n" +
-                           "  <help url=\"http://192.168.0.158/help.html\"/>\n" +
-                           "  <porttest host=\"192.168.0.158\" application=\"video\" timeout=\"10000\"/>\n" +
-                           "  <application uri=\"rtmp://192.168.0.158/bigbluebutton\" host=\"http://192.168.0.158/bigbluebutton/api/enter\" />\n" +
+                           "  <version>C-4143-2013-04-02</version>\n" +
+                           "  <help url=\"http://%BBBIP%/help.html\"/>\n" +
+                           "  <porttest host=\"%BBBIP%\" application=\"video/portTest\" timeout=\"10000\"/>\n" +    
+                           "  <bwMon server=\"HOST\" application=\"video/bwTest\"/>\n" +
+                           "  <application uri=\"rtmp://%BBBIP%/bigbluebutton\" host=\"http://%BBBIP%/bigbluebutton/api/enter\" />\n" +
                            "  <language userSelectionEnabled=\"true\" />\n" +
-                           "  <skinning enabled=\"true\" url=\"http://192.168.0.158/client/branding/css/BBBDefault.css.swf\" />\n" +
+                           "  <skinning enabled=\"true\" url=\"http://%BBBIP%/client/branding/css/BBBDefault.css.swf\" />\n" +
+                           "  <shortcutKeys showButton=\"true\" />\n" +
                            "  <layout showLogButton=\"false\" showVideoLayout=\"false\" showResetLayout=\"true\" defaultLayout=\"%DEFAULTLAYOUT%\" showToolbar=\"true\" showFooter=\"true\" showHelpButton=\"true\" showLogoutWindow=\"true\"/>\n" +
                            "  <modules>\n" +
-                           "%CHATMODULE%" + "%VIEWERSMODULE%" + "%LISTENERSMODULE%" + "%DESKSHAREMODULE%" + "%PHONEMODULE%" + "%VIDEOCONFMODULE%" + "%WHITEBOARDMODULE%" + "%PRESENTMODULE%" + "%VIDEODOCKMODULE%" + "%LAYOUTMODULE%\n" +
+                           "%CHATMODULE%" + "%VIEWERSMODULE%" + "%LISTENERSMODULE%" + "%USERSMODULE%" + "%DESKSHAREMODULE%" + "%PHONEMODULE%" + "%VIDEOCONFMODULE%" + "%WHITEBOARDMODULE%" + "%PRESENTMODULE%" + "%VIDEODOCKMODULE%" + "%LAYOUTMODULE%\n" +
                            "  </modules>\n" +
                            "</config>\n";
 	              
-	    String chatModule = "    <module name=\"ChatModule\" url=\"http://192.168.0.158/client/ChatModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" dependsOn=\"ViewersModule\" translationOn=\"false\" translationEnabled=\"false\" privateEnabled=\"true\"  position=\"top-right\"/>\n"; 
-        String viewersModule = "    <module name=\"ViewersModule\" url=\"http://192.168.0.158/client/ViewersModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" host=\"http://192.168.0.158/bigbluebutton/api/enter\" allowKickUser=\"false\" />\n";
-        String listenersModule = "    <module name=\"ListenersModule\" url=\"http://192.168.0.158/client/ListenersModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" recordingHost=\"http://192.168.0.158\" position=\"bottom-left\" />\n"; 
-        String deskShareModule = "    <module name=\"DeskShareModule\" url=\"http://192.168.0.158/client/DeskShareModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/deskShare\" autoStart=\"false\" />\n";
-        String phoneModule = "    <module name=\"PhoneModule\" url=\"http://192.168.0.158/client/PhoneModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/sip\" autoJoin=\"true\" skipCheck=\"false\" showButton=\"true\" enabledEchoCancel=\"true\" dependsOn=\"ViewersModule\" />\n";
-        String videoconfModule = "    <module name=\"VideoconfModule\" url=\"http://192.168.0.158/client/VideoconfModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/video\" dependson = \"ViewersModule\" videoQuality = \"100\" presenterShareOnly = \"false\" controlsForPresenter = \"false\" resolutions = \"320x240,640x480,1280x720\" autoStart = \"false\" showButton = \"true\" showCloseButton = \"true\" publishWindowVisible = \"true\" viewerWindowMaxed = \"false\" viewerWindowLocation = \"top\" camKeyFrameInterval = \"30\" camModeFps = \"10\" camQualityBandwidth = \"0\" camQualityPicture = \"90\" smoothVideo=\"false\" applyConvolutionFilter=\"false\" convolutionFilter=\"-1, 0, -1, 0, 6, 0, -1, 0, -1\" filterBias=\"0\" filterDivisor=\"4\" enableH264 = \"true\" h264Level = \"2.1\" h264Profile = \"main\" displayAvatar = \"false\" />\n";
-        String whiteboardModule = "    <module name=\"WhiteboardModule\" url=\"http://192.168.0.158/client/WhiteboardModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" dependsOn=\"PresentModule\" />\n";
-        String presentModule = "    <module name=\"PresentModule\" url=\"http://192.168.0.158/client/PresentModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" host=\"http://192.168.0.158\" showPresentWindow=\"true\" showWindowControls=\"true\" dependsOn=\"ViewersModule\" />\n";
-        String videodockModule = "    <module name=\"VideodockModule\" url=\"http://192.168.0.158/client/VideodockModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" dependsOn=\"VideoconfModule, ViewersModule\" autoDock=\"true\" showControls=\"true\" maximizeWindow=\"false\" position=\"bottom-right\" width=\"172\" height=\"179\" layout=\"smart\" oneAlwaysBigger=\"false\" />\n";
-        String layoutModule = "    <module name=\"LayoutModule\" url=\"http://192.168.0.158/client/LayoutModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" layoutConfig=\"http://192.168.0.158/client/conf/layout.xml\" enableEdit=\"true\" />\n";
+        String chatModule = "    <module name=\"ChatModule\" url=\"http://%BBBIP%/client/ChatModule.swf?v=4143\" uri=\"rtmp://%BBBIP%/bigbluebutton\" dependsOn=\"UsersModule\" translationOn=\"false\" translationEnabled=\"false\" privateEnabled=\"true\" position=\"top-right\" baseTabIndex=\"701\" />\n";
+        String viewersModule = "    <module name=\"ViewersModule\" url=\"http://%BBBIP%/client/ViewersModule.swf?v=4143\" uri=\"rtmp://%BBBIP%/bigbluebutton\" host=\"http://%BBBIP%/bigbluebutton/api/enter\" allowKickUser=\"false\" baseTabIndex=\"201\" />\n";
+        String listenersModule = "    <module name=\"ListenersModule\" url=\"http://%BBBIP%/client/ListenersModule.swf?v=4143\" uri=\"rtmp://%BBBIP%/bigbluebutton\" recordingHost=\"http://%BBBIP%\" position=\"bottom-left\" baseTabIndex=\"301\" />\n";
+        String usersModule = "    <module name=\"UsersModule\" url=\"http://%BBBIP%/client/UsersModule.swf?v=4143\" uri=\"rtmp://%BBBIP%/bigbluebutton\" />\n";
+        String deskShareModule = "    <module name=\"DeskShareModule\" url=\"http://%BBBIP%/client/DeskShareModule.swf?v=4105\" uri=\"rtmp://%BBBIP%/deskShare\" showButton=\"true\" autoStart=\"false\" baseTabIndex=\"101\" />\n";
+        String phoneModule = "    <module name=\"PhoneModule\" url=\"http://%BBBIP%/client/PhoneModule.swf?v=4143\" uri=\"rtmp://%BBBIP%/sip\" autoJoin=\"true\" skipCheck=\"false\" showButton=\"true\" enabledEchoCancel=\"true\" dependsOn=\"UsersModule\" />\n";
+        String videoconfModule = "    <module name=\"VideoconfModule\" url=\"http://%BBBIP%/client/VideoconfModule.swf?v=4143\" uri=\"rtmp://%BBBIP%/video\" dependson = \"UsersModule\" videoQuality = \"100\" presenterShareOnly = \"false\" controlsForPresenter = \"false\" resolutions = \"320x240,640x480,1280x720\" autoStart = \"false\" showButton = \"true\" showCloseButton = \"true\" publishWindowVisible = \"true\" viewerWindowMaxed = \"false\" viewerWindowLocation = \"top\" camKeyFrameInterval = \"30\" camModeFps = \"10\" camQualityBandwidth = \"0\" camQualityPicture = \"90\" smoothVideo=\"false\" applyConvolutionFilter=\"false\" convolutionFilter=\"-1, 0, -1, 0, 6, 0, -1, 0, -1\" filterBias=\"0\" filterDivisor=\"4\" enableH264 = \"true\" h264Level = \"2.1\" h264Profile = \"main\" displayAvatar = \"false\" focusTalking = \"false\" />\n";
+        String whiteboardModule = "    <module name=\"WhiteboardModule\" url=\"http://%BBBIP%/client/WhiteboardModule.swf?v=4105\" uri=\"rtmp://%BBBIP%/bigbluebutton\" dependsOn=\"PresentModule\" baseTabIndex=\"601\" />\n";
+        String presentModule = "    <module name=\"PresentModule\" url=\"http://%BBBIP%/client/PresentModule.swf?v=4143\" uri=\"rtmp://%BBBIP%/bigbluebutton\" host=\"http://%BBBIP%\" showPresentWindow=\"true\" showWindowControls=\"true\" dependsOn=\"UsersModule\" baseTabIndex=\"501\" maxFileSize=\"30\" />\n";
+        String videodockModule = "    <module name=\"VideodockModule\" url=\"http://%BBBIP%/client/VideodockModule.swf?v=4143\" uri=\"rtmp://%BBBIP%/bigbluebutton\" dependsOn=\"VideoconfModule, UsersModule\" autoDock=\"true\" showControls=\"true\" maximizeWindow=\"false\" position=\"bottom-right\" width=\"172\" height=\"179\" layout=\"smart\" oneAlwaysBigger=\"false\" baseTabIndex=\"401\" />\n";
+        String layoutModule = "    <module name=\"LayoutModule\" url=\"http://%BBBIP%/client/LayoutModule.swf?v=4143\" uri=\"rtmp://%BBBIP%/bigbluebutton\" layoutConfig=\"http://%BBBIP%/client/conf/layout.xml\" enableEdit=\"true\" />\n";
+
         
         String param_ChatModule = request.getParameter("ChatModule");
         String param_ViewersModule = request.getParameter("ViewersModule");
         String param_ListenersModule = request.getParameter("ListenersModule");
+        String param_UsersModule = request.getParameter("UsersModule");
         String param_DeskShareModule = request.getParameter("DeskShareModule");
         String param_PhoneModule = request.getParameter("PhoneModule");
         String param_VideoconfModule = request.getParameter("VideoconfModule");
@@ -182,6 +188,7 @@ Author: Jesus Federico <jesus@123it.ca>
         configXML = ( request.getParameter("ChatModule") != null )? configXML.replace("%CHATMODULE%", chatModule): configXML.replace("%CHATMODULE%", "");
         configXML = ( request.getParameter("ViewersModule") != null )? configXML.replace("%VIEWERSMODULE%", viewersModule): configXML.replace("%VIEWERSMODULE%", "");
         configXML = ( request.getParameter("ListenersModule") != null )? configXML.replace("%LISTENERSMODULE%", listenersModule): configXML.replace("%LISTENERSMODULE%", "");
+        configXML = ( request.getParameter("UsersModule") != null )? configXML.replace("%USERSMODULE%", usersModule): configXML.replace("%USERSMODULE%", "");
         configXML = ( request.getParameter("DeskShareModule") != null )? configXML.replace("%DESKSHAREMODULE%", deskShareModule): configXML.replace("%DESKSHAREMODULE%", "");
         configXML = ( request.getParameter("PhoneModule") != null )? configXML.replace("%PHONEMODULE%", phoneModule): configXML.replace("%PHONEMODULE%", "");
         configXML = ( request.getParameter("VideoconfModule") != null )? configXML.replace("%VIDEOCONFMODULE%", videoconfModule): configXML.replace("%VIDEOCONFMODULE%", "");
@@ -190,6 +197,7 @@ Author: Jesus Federico <jesus@123it.ca>
         configXML = ( request.getParameter("VideodockModule") != null )? configXML.replace("%VIDEODOCKMODULE%", videodockModule): configXML.replace("%VIDEODOCKMODULE%", "");
         configXML = ( request.getParameter("LayoutModule") != null )? configXML.replace("%LAYOUTMODULE%", layoutModule): configXML.replace("%LAYOUTMODULE%", "");
         
+        configXML = configXML.replace("%BBBIP%", getBigBlueButtonIP());
 		//
 		// This is the URL for to join the meeting as moderator
 		//
@@ -201,7 +209,7 @@ Author: Jesus Federico <jesus@123it.ca>
             <h2>Customized sessions using a dynamic config.xml, submit</h2>
 
             <script language="javascript" type="text/javascript">
-                //window.location.href="<%=joinURL%>";
+                window.location.href="<%=joinURL%>";
             </script>
 
 <%

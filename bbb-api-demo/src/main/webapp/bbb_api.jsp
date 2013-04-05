@@ -316,10 +316,8 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
                 + ": " 
                 + doc.getElementsByTagName("message").item(0).getTextContent().trim() + "<br>" + encodeURIComponent(xml_param);
     } else {
-    	System.out.println(doc.getElementsByTagName("configToken").item(0).getTextContent().trim());
         configToken = doc.getElementsByTagName("configToken").item(0).getTextContent().trim();
     }
-    
     
     //
     // And finally return a URL to join that meeting
@@ -696,8 +694,7 @@ public static String getURL(String url) {
 
 	try {
 		URL u = new URL(url);
-		HttpURLConnection httpConnection = (HttpURLConnection) u
-		.openConnection();
+		HttpURLConnection httpConnection = (HttpURLConnection) u.openConnection();
 
 		httpConnection.setUseCaches(false);
 		httpConnection.setDoOutput(true);
@@ -740,8 +737,6 @@ public static String postURL(String targetURL, String urlParameters)
 
 public static String postURL(String targetURL, String urlParameters, String contentType)
 {
-	System.out.println("targetURL: " + targetURL);
-	System.out.println("urlParameters: " + urlParameters);
 	URL url;
 	HttpURLConnection connection = null;  
 	int responseCode = 0;
@@ -881,6 +876,18 @@ public static String removeTag(String data, String startTag, String endTag){
 	int endIndex = data.indexOf(endTag) + endTag.length();
 	String tagStr = data.substring(startIndex, endIndex);
 	return data.replace(tagStr,"");
+}
+
+public String getBigBlueButtonIP()
+{
+    try {
+        URL url = new URL(BigBlueButtonURL);
+        String bbbIP = url.getHost();
+        return bbbIP;
+    } catch (Exception e) {
+        e.printStackTrace();
+        return "localhost";
+    }
 }
 
 %>
