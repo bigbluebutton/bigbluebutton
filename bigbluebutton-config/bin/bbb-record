@@ -29,7 +29,7 @@
 #   2012-10-22 FFD  Use combination of /var/bigbluebutton and /var/bigbluebutton/recording/raw
 #                   to get the list of recent recordings for bbb-record --watch
 #   2012-02-03 GUG  Enable/Disable a recording workflow
-#   2012-02-03 GUG  Rearchive recording
+#   2012-02-05 GUG  Description is optional in bbb-record --watch
 
 #set -e
 #set -x
@@ -131,6 +131,7 @@ usage() {
 	echo
         echo "Monitoring:"
         echo "   --watch                          Watch processing of recordings"
+        echo "   --watch --withDesc               Watch processing of recordings and show their description"
 	echo
         echo "Administration:"
         echo "   --rebuild [meetingID]            rebuild the output for meetingID"
@@ -141,7 +142,7 @@ usage() {
         echo "   --check                          check for configuration errors"
         echo "   --enable [workflow]              enable a recording workflow"
         echo "   --disable [workflow]             disable a recording workflow"
-        echo "   --rearchive [meetingID]          rearchive the recording (created before a restart)"
+        #echo "   --rearchive [meetingID]          rearchive the recording (created before a restart)"
 	echo
 }
 
@@ -154,6 +155,10 @@ fi
 while [ $# -gt 0 ]; do
         if [ "$1" = "-watch" -o "$1" = "--watch" ]; then
                 WATCH=1
+                if [ "$2" = "--withDesc" ]; then
+                        WITHDESC=1
+                        shift
+                fi
 		shift
                 continue
         fi
@@ -165,6 +170,10 @@ while [ $# -gt 0 ]; do
         if [ "$1" = "--list20" ]; then
                 LIST=1
 		HEAD=20
+                if [ "$2" ]; then
+                        WITHDESC=1
+                        shift
+                fi
 		shift
                 continue
         fi
@@ -250,16 +259,16 @@ while [ $# -gt 0 ]; do
                 continue
         fi
 
-	if [ "$1" = "-rearchive" -o "$1" = "--rearchive" ]; then
-                need_root
-                if [ ! -z "${2}" ]; then
-                        MEETING_ID="${2}"
-                        shift
-                fi
-                REARCHIVE=1
-                shift
-                continue
-        fi
+#	if [ "$1" = "-rearchive" -o "$1" = "--rearchive" ]; then
+#                need_root
+#                if [ ! -z "${2}" ]; then
+#                        MEETING_ID="${2}"
+#                        shift
+#                fi
+#                REARCHIVE=1
+#                shift
+#                continue
+#        fi
 
 	usage
 	exit 1
@@ -381,8 +390,13 @@ if [ $LIST ]; then
 # 	A -- Archiving
 #
 
-echo "MeetingID                                               Time                         APVD APVDE RAS Slides Processed            Published             Description"
-echo "------------------------------------------------------  ---------------------------- ---- ----- --- ------ -------------------- --------------------  -----------------------------"
+if [ $WITHDESC ]; then
+	echo "Internal MeetingID                                               Time                APVD APVDE RAS Slides Processed            Published             External MeetingID  Description"
+	echo "------------------------------------------------------  ---------------------------- ---- ----- --- ------ -------------------- --------------------  ------------------- -----------"
+else
+	echo "Internal MeetingID                                               Time                APVD APVDE RAS Slides Processed            Published             External MeetingID"
+	echo "------------------------------------------------------  ---------------------------- ---- ----- --- ------ -------------------- --------------------  -------------------"
+fi 
 
 if [ -z $HEAD ]; then
 	# If we're not called with --list20, show all recordings
@@ -531,8 +545,12 @@ for meeting in $(cat $tmp_file | sort -t - -k 2 -r| uniq); do
 
 
 	if [ -f /var/bigbluebutton/recording/raw/$recording/events.xml ]; then
-		echo -n "     "
-		echo -n $(head -n 5 /var/bigbluebutton/recording/raw/$recording/events.xml | grep description | sed s/.*description=\"//g | sed s/\".*//g) | sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g' -e 's/ \{1,\}/ /g' | tr -d '\n'
+		echo -n "   "
+		echo -n $(head -n 5 /var/bigbluebutton/recording/raw/$recording/events.xml | grep description | sed s/.*meetingId=\"//g | sed s/\".*//g) | sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g' -e 's/ \{1,\}/ /g' | tr -d '\n'
+		if [ $WITHDESC ]; then
+			echo -n "         "
+			echo -n $(head -n 5 /var/bigbluebutton/recording/raw/$recording/events.xml | grep description | sed s/.*description=\"//g | sed s/\".*//g) | sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g' -e 's/ \{1,\}/ /g' | tr -d '\n'
+		fi
 	fi
 
 fi
@@ -553,7 +571,7 @@ done
 fi
 
 if [ $WATCH ]; then
-	watch -n 2 "bbb-record --list20"
+	watch -n 2 "bbb-record --list20 $WITHDESC"
 fi
 
 if [ $ENABLE ]; then
@@ -588,8 +606,8 @@ if [ $DISABLE ]; then
 	fi
 fi
 
-if [ $REARCHIVE ]; then
-	ARCHIVE_DONE_FILE=/var/bigbluebutton/recording/status/archived/$MEETING_ID.done
+#if [ $REARCHIVE ]; then
+#	ARCHIVE_DONE_FILE=/var/bigbluebutton/recording/status/archived/$MEETING_ID.done
 #	if [ -f $ARCHIVE_DONE_FILE ]; then
 #		echo "Removing .done file and raw directory for meeting $MEETING_ID"
 #		rm $ARCHIVE_DONE_FILE
@@ -597,7 +615,7 @@ if [ $REARCHIVE ]; then
 #	else
 #		echo "$MEETING_ID is not archived."
 #	fi
-fi
+#fi
 
 if [ $CHECK ]; then
 	if [ -f /var/bigbluebutton/recording/process/slides ]; then 
