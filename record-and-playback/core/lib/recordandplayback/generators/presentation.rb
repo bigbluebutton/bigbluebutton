@@ -25,7 +25,7 @@ require 'nokogiri'
 
 module BigBlueButton
   class Presentation
-    OPTIONS = "-sDEVICE=pdfwrite -dNOPAUSE -dQUIET -dBATCH"
+    OPTIONS = "-sDEVICE=pdfwrite -dNOPAUSE -dQUIET -dBATCH -dUseCropBox"
     FIRSTPAGE = "-dFirstPage"
     LASTPAGE = "-dLastPage"
     NO_PDF_MARK_WORKAROUND = "/etc/bigbluebutton/nopdfmark.ps"
