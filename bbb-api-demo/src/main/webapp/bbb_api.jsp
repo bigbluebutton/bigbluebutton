@@ -239,6 +239,7 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
     Random random = new Random();
     String voiceBridge_param = "&voiceBridge=" + (70000 + random.nextInt(9999));
     
+    String url;
     //
     // When creating a meeting, the 'name' parameter is the name of the meeting (not to be confused with
     // the username).  For example, the name could be "Fred's meeting" and the meetingID could be "ID-1234312".
@@ -260,8 +261,9 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
 
     // Attempt to create a meeting using meetingID
     Document doc = null;
+    url = "";
     try {
-        String url = base_url_create + create_parameters
+        url = base_url_create + create_parameters
             + "&checksum="
             + checksum("create" + create_parameters + salt); 
         doc = parseXml( postURL( url, "" ) );
@@ -273,7 +275,7 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
         //
         // Someting went wrong, return the error 
         //  
-        return "One: " + doc.getElementsByTagName("messageKey").item(0).getTextContent()
+        return " " + url + "<br>" + doc.getElementsByTagName("messageKey").item(0).getTextContent()
                 .trim()
                 + ": " 
                 + doc.getElementsByTagName("message").item(0).getTextContent()
@@ -288,14 +290,19 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
     String xml_param = "";
     if ((xml != null) && !xml.equals("")) {
         xml_param = xml;
+        xml_param = xml_param.replace("\n", "");
+        xml_param = xml_param.replace("\t", "");
+        xml_param = xml_param.replace(">  <", "><");
+        xml_param = xml_param.replace(">    <", "><");
     }
 
     String setConfigXML_parameters = "meetingID=" + urlEncode(meetingID) + 
-            "&checksum=" + checksum(meetingID + xml_param + salt) +"&configXML=" + urlEncode(xml_param);
-
+            "&checksum=" + checksum(urlEncode(meetingID) + encodeURIComponent(xml_param) + salt) +"&configXML=" + urlEncode(encodeURIComponent(xml_param));
+    
+    url = "";
     try {
-        String url = base_url_setConfigXML; 
-        doc = parseXml( postURL( url, setConfigXML_parameters ) );
+        url = base_url_setConfigXML + "?"; // + setConfigXML_parameters; 
+        doc = parseXml( postURL( url, setConfigXML_parameters, "application/x-www-form-urlencoded" ) );
     } catch (Exception e) {
         e.printStackTrace();
     }
@@ -305,13 +312,13 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
         //
         // Someting went wrong, return the error 
         //  
-        return "Two: " + doc.getElementsByTagName("messageKey").item(0).getTextContent().trim()
+        return " " + url + "<br>" + doc.getElementsByTagName("messageKey").item(0).getTextContent().trim()
                 + ": " 
-                + doc.getElementsByTagName("message").item(0).getTextContent().trim() + "[" + xml_param +"]";
+                + doc.getElementsByTagName("message").item(0).getTextContent().trim() + "<br>" + encodeURIComponent(xml_param);
     } else {
+    	System.out.println(doc.getElementsByTagName("configToken").item(0).getTextContent().trim());
         configToken = doc.getElementsByTagName("configToken").item(0).getTextContent().trim();
     }
-    
     
     
     //
@@ -728,6 +735,13 @@ public static String getURL(String url) {
 
 public static String postURL(String targetURL, String urlParameters)
 {
+	return postURL(targetURL, urlParameters, "text/xml");
+}
+
+public static String postURL(String targetURL, String urlParameters, String contentType)
+{
+	System.out.println("targetURL: " + targetURL);
+	System.out.println("urlParameters: " + urlParameters);
 	URL url;
 	HttpURLConnection connection = null;  
 	int responseCode = 0;
@@ -736,7 +750,7 @@ public static String postURL(String targetURL, String urlParameters)
 		url = new URL(targetURL);
 		connection = (HttpURLConnection)url.openConnection();
 		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", "text/xml");
+		connection.setRequestProperty("Content-Type", contentType);
 		
 		connection.setRequestProperty("Content-Length", "" + 
 		Integer.toString(urlParameters.getBytes().length));
@@ -778,7 +792,6 @@ public static String postURL(String targetURL, String urlParameters)
 	} 
 }
 
-
 //
 // parseXml() -- return a DOM of the XML
 //
@@ -802,6 +815,27 @@ public static String urlEncode(String s) {
 	}
 	return "";
 }
+
+//
+//encodeURIComponent() -- Java encoding similiar to JavaScript encodeURIComponent
+//
+public static String encodeURIComponent(String component)   {     
+	String result = null;      
+	
+	try {       
+		result = URLEncoder.encode(component, "UTF-8")   
+			   .replaceAll("\\%28", "(")                          
+			   .replaceAll("\\%29", ")")   		
+			   .replaceAll("\\+", "%20")                          
+			   .replaceAll("\\%27", "'")   			   
+			   .replaceAll("\\%21", "!")
+			   .replaceAll("\\%7E", "~");     
+	} catch (UnsupportedEncodingException e) {       
+		result = component;     
+	}      
+	
+	return result;   
+}  
 
 public String getMeetingsWithoutPasswords() {
 	try {

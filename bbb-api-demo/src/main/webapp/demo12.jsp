@@ -150,8 +150,8 @@ Author: Jesus Federico <jesus@123it.ca>
                            "  <skinning enabled=\"true\" url=\"http://192.168.0.158/client/branding/css/BBBDefault.css.swf\" />\n" +
                            "  <layout showLogButton=\"false\" showVideoLayout=\"false\" showResetLayout=\"true\" defaultLayout=\"%DEFAULTLAYOUT%\" showToolbar=\"true\" showFooter=\"true\" showHelpButton=\"true\" showLogoutWindow=\"true\"/>\n" +
                            "  <modules>\n" +
-                           "%CHATMODULE%" + "%VIEWERSMODULE%" + "%LISTENERSMODULE%" + "%DESKSHAREMODULE%" + "%PHONEMODULE%" + "%VIDEOCONFMODULE%" + "%WHITEBOARDMODULE%" + "%PRESENTMODULE%" + "%VIDEODOCKMODULE%" + "%LAYOUTMODULE% \n" +
-                           "  </modules> \n" +
+                           "%CHATMODULE%" + "%VIEWERSMODULE%" + "%LISTENERSMODULE%" + "%DESKSHAREMODULE%" + "%PHONEMODULE%" + "%VIDEOCONFMODULE%" + "%WHITEBOARDMODULE%" + "%PRESENTMODULE%" + "%VIDEODOCKMODULE%" + "%LAYOUTMODULE%\n" +
+                           "  </modules>\n" +
                            "</config>\n";
 	              
 	    String chatModule = "    <module name=\"ChatModule\" url=\"http://192.168.0.158/client/ChatModule.swf?v=4084\" uri=\"rtmp://192.168.0.158/bigbluebutton\" dependsOn=\"ViewersModule\" translationOn=\"false\" translationEnabled=\"false\" privateEnabled=\"true\"  position=\"top-right\"/>\n"; 
@@ -212,23 +212,6 @@ Author: Jesus Federico <jesus@123it.ca>
             </p>
             <p>
             <%=joinURL %>
-            </p>
-            <p>
-<%=configXML %>
-            </p>
-            <p>
-            <%=param_ChatModule %>
-            <%=param_ChatModule %>
-            <%=param_ViewersModule %>
-            <%=param_ListenersModule %>
-            <%=param_DeskShareModule %>
-            <%=param_PhoneModule %>
-            <%=param_VideoconfModule %>
-            <%=param_WhiteboardModule %>
-            <%=param_PresentModule %>
-            <%=param_VideodockModule %>
-            <%=param_LayoutModule %>
-            <%=param_Layout %>
             </p>
             
 <% 
