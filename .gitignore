@@ -12,3 +12,9 @@ bbb-lti/bin
 bbb-lti/lti-0.1.1.war
 bbb-lti/make.sh
 bbb-lti/deploy.sh
+bbb-api-demo/bin*
+bbb-api-demo/.classpath
+bbb-api-demo/.project
+bigbluebutton-web/.settings*
+bigbluebutton-web/.classpath
+bigbluebutton-web/.project
