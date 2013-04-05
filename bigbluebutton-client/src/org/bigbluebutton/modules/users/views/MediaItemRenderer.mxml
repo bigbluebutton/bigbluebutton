@@ -176,14 +176,14 @@
 					
 					if (!rolledOver) {
 						if (data.voiceMuted)
-							muteImg.source = images.audio_muted;
+							muteImg.source = images.audio_muted_20;
 						else
-							muteImg.source = images.audio;
+							muteImg.source = images.audio_20;
 						
 						if (data.voiceLocked)
-							lockImg.source = images.locked;
+							lockImg.source = images.locked_20;
 						else
-							lockImg.source = images.unlocked;
+							lockImg.source = images.unlocked_20;
 					} else {
 						if (data.voiceMuted == rolledOverMute)
 							muteBtn.setStyle("icon", images.audio);
@@ -205,7 +205,7 @@
 	<mx:Button id="webcamBtn" visible="{data.hasStream}" click="viewCamera()" icon="{images.webcam_new}"
 				width="20" height="20" enabled="false"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcam')}" />
-	<mx:Image id="muteImg" visible="false" includeInLayout="true" width="16" height="16" />
+	<mx:Image id="muteImg" visible="false" includeInLayout="true" width="20" height="20" />
 	<mx:Button id="muteBtn" visible="false" includeInLayout="false" enabled="false" icon="{images.audio}"
 				width="20" height="20" click="toggleMuteState()"
 				mouseOver="muteMouseOverHandler()"
@@ -215,7 +215,7 @@
 				width="20" height="20" visible="false"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.kickUser')}"
 				click="kickUser()"/>
-	<mx:Image id="lockImg" visible="false" includeInLayout="false" width="11" height="12" />
+	<mx:Image id="lockImg" visible="false" includeInLayout="false" width="20" height="20" />
 	<mx:Button id="lockBtn" visible="false" includeInLayout="false" enabled="false"
 				width="20" height="20" click="toggleLockState()"
 				mouseOver="lockMouseOverHandler()"
