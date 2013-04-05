@@ -80,6 +80,7 @@ class ApiController {
   def create = {
     String API_CALL = 'create'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
+    log.debug params
   	
 	// BEGIN - backward compatibility
 	if (StringUtils.isEmpty(params.checksum)) {
@@ -791,8 +792,9 @@ class ApiController {
   * CONFIG API
   ***********************************************/
   def setConfigXML = {
-	  	
-	println "Handling setConfigXML"
+    String API_CALL = "setConfigXML"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+    log.debug params
 	
 	if (StringUtils.isEmpty(params.checksum)) {
 		invalid("checksumError", "You did not pass the checksum security check")
@@ -842,7 +844,8 @@ class ApiController {
 			  render(contentType:"text/xml") {
 				response() {
 				  returncode("FAILED")
-				  message("Failed to set config xml.")
+				  messageKey("configXMLChecksumError")
+				  message("configXMLChecksumError: request did not pass the checksum security check.")
 				}
 			  }
 			}
