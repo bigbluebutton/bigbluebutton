@@ -28,8 +28,9 @@
 #   2012-08-13 GUG  Republish recording
 #   2012-10-22 FFD  Use combination of /var/bigbluebutton and /var/bigbluebutton/recording/raw
 #                   to get the list of recent recordings for bbb-record --watch
-#   2012-02-03 GUG  Enable/Disable a recording workflow
-#   2012-02-05 GUG  Description is optional in bbb-record --watch
+#   2013-04-03 GUG  Enable/Disable a recording workflow
+#   2013-04-05 GUG  Description is optional in bbb-record --watch
+#   2013-04-05 GUG  Map internal meeting id with external meeting id
 
 #set -e
 #set -x
@@ -127,22 +128,24 @@ usage() {
         echo "   bbb-record [options]"
         echo
         echo "Reporting:"
-        echo "   --list                           List all recordings"
+        echo "   --list                          	 List all recordings"
 	echo
         echo "Monitoring:"
-        echo "   --watch                          Watch processing of recordings"
-        echo "   --watch --withDesc               Watch processing of recordings and show their description"
+        echo "   --watch                          	Watch processing of recordings"
+	echo "   --watch --withDesc               	Watch processing of recordings and show their description"
 	echo
         echo "Administration:"
-        echo "   --rebuild [meetingID]            rebuild the output for meetingID"
-        echo "   --republish [meetingID]          republish the recording for meetingID"
-	echo "   --delete [meetingID]             delete one meeting and recording"
-        echo "   --deletall                       delete all meetings and recordings"
-        echo "   --debug                          check for recording errors"
-        echo "   --check                          check for configuration errors"
-        echo "   --enable [workflow]              enable a recording workflow"
-        echo "   --disable [workflow]             disable a recording workflow"
-        #echo "   --rearchive [meetingID]          rearchive the recording (created before a restart)"
+        echo "   --rebuild [meetingID]            	rebuild the output for meetingID"
+        echo "   --republish [meetingID]          	republish the recording for meetingID"
+	echo "   --delete [meetingID]             	delete one meeting and recording"
+        echo "   --deletall                      	delete all meetings and recordings"
+        echo "   --debug                          	check for recording errors"
+        echo "   --check                          	check for configuration errors"
+        echo "   --enable [workflow]              	enable a recording workflow"
+        echo "   --disable [workflow]             	disable a recording workflow"
+        echo "   --tointernal [external meetingId]      get the internal meeting ids for the given external meetingId"
+        echo "   --toexternal [internal meetingId]      get the external meeting id for the given internal meetingId"
+        #echo "   --rearchive [meetingID]          	rearchive the recording (created before a restart)"
 	echo
 }
 
@@ -255,6 +258,28 @@ while [ $# -gt 0 ]; do
                         shift
                 fi
                 ENABLE=1
+		shift
+                continue
+        fi
+
+        if [ "$1" = "-toexternal" -o "$1" = "--toexternal" ]; then
+		need_root
+                if [ ! -z "${2}" ]; then
+                        INTERNAL_MEETINGID="${2}"
+                        shift
+                fi
+                TOEXTERNAL=1
+		shift
+                continue
+        fi
+
+        if [ "$1" = "-tointernal" -o "$1" = "--tointernal" ]; then
+		need_root
+                if [ ! -z "${2}" ]; then
+                        EXTERNAL_MEETINGID="${2}"
+                        shift
+                fi
+                TOINTERNAL=1
 		shift
                 continue
         fi
@@ -604,6 +629,24 @@ if [ $DISABLE ]; then
 	else
 		echo "Workflow '$WORKFLOW' does not exist or is not installed"
 	fi
+fi
+
+if [ $TOEXTERNAL ]; then
+	echo
+	echo "External meeting id related to the given internal meeting id:"
+	echo "-------------------------------------------------------------"
+	expr "$(grep meetingId /var/bigbluebutton/recording/raw/$INTERNAL_MEETINGID/events.xml 2> /dev/null)" : '.*meetingId="\(.*\)"' 
+	echo "-------------------------------------------------------------"
+	echo
+fi
+
+if [ $TOINTERNAL ]; then
+	echo
+	echo "Internal meeting ids related to the given external meeting id:"
+	echo "-------------------------------------------------------------"
+	grep  "meetingId=\"$EXTERNAL_MEETINGID\"" /var/bigbluebutton/recording/raw/*/events.xml  | cut -f6 -d'/'
+	echo "-------------------------------------------------------------"
+	echo
 fi
 
 #if [ $REARCHIVE ]; then
