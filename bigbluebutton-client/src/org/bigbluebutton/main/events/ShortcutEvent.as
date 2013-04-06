@@ -49,6 +49,7 @@ package org.bigbluebutton.main.events {
 		public static const FOCUS_VIDEO_WINDOW:String = 'FOCUS_VIDEO_WINDOW';
 		public static const FOCUS_PRESENTATION_WINDOW:String = 'FOCUS_PRESENTATION_WINDOW';
 		public static const FOCUS_CHAT_WINDOW:String = 'FOCUS_CHAT_WINDOW';
+		public static const FOCUS_POLLING_WINDOW:String = 'FOCUS_POLLING_WINDOW';
 		public static const FOCUS_VOTING_WINDOW:String = 'FOCUS_VOTING_WINDOW';
 		
 		public static const SHARE_DESKTOP:String = 'SHARE_DESKTOP';

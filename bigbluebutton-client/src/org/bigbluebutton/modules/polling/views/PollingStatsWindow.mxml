@@ -324,6 +324,12 @@
 				return pso;
 			}
 			
+			
+			public function focusWindow():void{
+				if (titleBarOverlay != null)
+					focusManager.setFocus(titleBarOverlay);
+			}
+			
 			private function focusWebPollBox(e:ShortcutEvent):void{
 				if (webPollURLBox.visible)
 					focusManager.setFocus(webPollURLBox);

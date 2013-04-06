@@ -152,13 +152,11 @@ Notes.mxml is the main view of the SharedNotes application
 			previewExplanation.tabIndex = baseIndex+11;
 			webPollExplanation.tabIndex = baseIndex+12;
 			questionText.tabIndex = baseIndex+13;
-			
-			// Tab order for controls in the Review box must be reset each time the buttons are created, so we won't set them here.
-						
-			LogUtil.debug("INDEX TEST : Polling BaseIndex = " + baseIndex);
-			LogUtil.debug("INDEX TEST : questionText.tabIndex = " + questionText.tabIndex);
-			LogUtil.debug("INDEX TEST < Answers should lie between these numbers >");
-			LogUtil.debug("INDEX TEST : back.tabIndex = " + back.tabIndex);
+			// Tab order for radio buttons/checkboxes in the Review box must be reset each time the buttons are created, so we won't set them here.
+			back.tabIndex = baseIndex+15;
+			publishButton.tabIndex = baseIndex+16;
+			SavePoll.tabIndex = baseIndex+17;
+			reviewCancel.tabIndex = baseIndex+18;
 
 			if (incomingPoll != null){
 				LogUtil.debug("EDITING POLL");
@@ -459,20 +457,13 @@ Notes.mxml is the main view of the SharedNotes application
 				options.addChild(_hb);
 				// if global var _isMultiple is true it means user wants checkboxes,
 				//otherwise radiobutton (if multiple choices are allowed)
-				LogUtil.debug("INDEX TESTS (won't be in numerical order)");
 				if(_isMultiple){
 					_cb= new CheckBox();
 					// giving button a name of array elelment to process it easier later
 					_cb.name=content.getItemAt(i).toString();
 					_cb.accessibilityName = indicator + content.getItemAt(i).toString();
-					
-					//_cb.tabIndex = baseIndex + 14 + i;
 					_cb.tabIndex = baseIndex + 14;
-					//answerIndex = i;
 					
-					//LogUtil.debug("INDEX TEST: baseIndex is " + baseIndex + ", plus 14 plus i (" + i + ") is " + (baseIndex + 14 + i));
-					LogUtil.debug("INDEX TEST : _cb.tabIndex = " + _cb.tabIndex);
-					LogUtil.debug("INDEX TEST : answerIndex = " + answerIndex);
 					// gap between the buttons
 					_cb.y=i*20;
 					// adding buttons to the Horizontal Box
@@ -484,29 +475,9 @@ Notes.mxml is the main view of the SharedNotes application
 					_rb.groupName = "answers";
 					_rb.label =" ";
 					_rb.tabIndex = baseIndex + 14;
-					//LogUtil.debug("INDEX TEST: baseIndex is " + baseIndex);
-					LogUtil.debug("INDEX TEST : _rb.tabIndex = " + _rb.tabIndex);
-					LogUtil.debug("INDEX TEST : answerIndex = " + answerIndex);
 					_hb.addChild(_rb);
 				}
 			_hb.addChild(_tx); // adding text near button
-			
-			//LogUtil.debug("INDEX TESTS: baseIndex before answerIndex is: " + baseIndex);
-			//baseIndex += answerIndex;
-			//baseIndex += 14;
-			//LogUtil.debug("INDEX TESTS: baseIndex after answerIndex is: " + baseIndex);
-			//
-			/*
-			back.tabIndex = baseIndex+1;
-			publishButton.tabIndex = baseIndex+2;
-			SavePoll.tabIndex = baseIndex+3;
-			reviewCancel.tabIndex = baseIndex+4;
-			*/
-			back.tabIndex = baseIndex+15;
-			publishButton.tabIndex = baseIndex+16;
-			SavePoll.tabIndex = baseIndex+17;
-			reviewCancel.tabIndex = baseIndex+18;
-			
 			} // end of loop
 		} // end of function
 		
@@ -559,6 +530,11 @@ Notes.mxml is the main view of the SharedNotes application
 		private function allowPublishing():void {
 			dispatchEvent(new PollingStatusCheckEvent(PollingStatusCheckEvent.CHECK));
 		}
+			
+			public function focusWindow():void{
+				if (titleBarOverlay != null)
+					focusManager.setFocus(titleBarOverlay);
+			}
 			
 			private function focusTitle(e:ShortcutEvent = null):void{
 				if (pollTitle.enabled && pollTitle.visible){

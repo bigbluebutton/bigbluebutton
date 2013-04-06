@@ -116,14 +116,17 @@ package org.bigbluebutton.modules.polling.managers
 		      toolbarButtonManager.enableToolbarButton();
 		}  	
 		
-	  // Stop polling, close all viewer's poll windows, and delete the web key if the poll in question has been published to the web	
-	  public function handleStopPolling(e:StopPollEvent):void{
-		  if (e.poll.publishToWeb){
-			  service.cutOffWebPoll(e.poll);
-		  }
-		  viewWindowManager.handleStopPolling(e);
-		  service.closeAllPollingWindows();
-	  } 
+	  	// Stop polling, close all viewer's poll windows, and delete the web key if the poll in question has been published to the web	
+	  	public function handleStopPolling(e:StopPollEvent):void{
+		  	if (e.poll.publishToWeb){
+			  	service.cutOffWebPoll(e.poll);
+		  	}
+		  	viewWindowManager.handleStopPolling(e);
+		  	toolbarButtonManager.disableToolbarButton();
+		  	
+			service.closeAllPollingWindows();
+			toolbarButtonManager.disableToolbarButton();
+	  	} 
 	  
 	  public function handleStopDisableButton(e:StopPollEvent):void{
 		  toolbarButtonManager.disableToolbarButton();
@@ -305,5 +308,10 @@ package org.bigbluebutton.modules.polling.managers
 				  // Check if Instructions, Stats, or Voting window is open instead; focus to that
 			  //}
 		  }
+		  
+		public function handleFocusPresenterPoll(e:ShortcutEvent):void{
+			if (conference.amIPresenter())
+				viewWindowManager.handleFocusPresenterPoll();
+		}
    }
 }

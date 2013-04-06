@@ -232,5 +232,18 @@ package org.bigbluebutton.modules.polling.managers
 			openWindow(statsWindow);
 		}
 		//##########################################################################
+		
+		public function handleFocusPresenterPoll():void{
+			/*
+			if (instructionsWindow != null)
+				instructionsWindow.focusWindow();
+			else if (statsWindow != null)
+				statsWindow.focusWindow();
+			*/
+			if (statsWindow != null)
+				statsWindow.focusWindow();
+			else if (instructionsWindow != null)
+				instructionsWindow.focusWindow();
+		}
 	}
 }

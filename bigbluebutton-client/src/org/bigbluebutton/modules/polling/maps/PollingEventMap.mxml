@@ -180,4 +180,7 @@
 	<EventHandlers type="{ShortcutEvent.POLL_BUTTON_CLICK}">
 		<MethodInvoker generator="{PollingManager}" method="handleGlobalPollHotkey" arguments="{event}"/>
 	</EventHandlers>
+	<EventHandlers type="{ShortcutEvent.FOCUS_POLLING_WINDOW}">
+		<MethodInvoker generator="{PollingManager}"  method="handleFocusPresenterPoll" arguments="{event}"/>
+	</EventHandlers>
 </EventMap>
