@@ -45,7 +45,8 @@ package org.bigbluebutton.modules.videoconf.business
 	import org.bigbluebutton.main.model.users.events.KickUserEvent;
 	import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
 	import org.bigbluebutton.main.views.MainCanvas;
-	import org.bigbluebutton.modules.listeners.events.ListenersCommand;
+	import org.bigbluebutton.modules.videoconf.events.UserTalkingEvent;
+	import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 	import org.bigbluebutton.modules.videoconf.views.ControlButtons;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 	
@@ -76,6 +77,8 @@ package org.bigbluebutton.modules.videoconf.business
     protected var _controlButtons:ControlButtons = new ControlButtons();
 		
     [Bindable] public var resolutions:Array;
+
+	protected var videoConfOptions:VideoConfOptions = new VideoConfOptions();
 
     public function getWindowType():String {
       return windowType;
@@ -324,6 +327,13 @@ package org.bigbluebutton.modules.videoconf.business
 		
     protected function userMuted(muted:Boolean):void {
       _controlButtons.userMuted(muted);
+    }
+    
+    protected function simulateClick():void {
+    	if (videoConfOptions.focusTalking) {
+    		var talkingEvent:UserTalkingEvent = new UserTalkingEvent(UserTalkingEvent.TALKING);
+    		dispatchEvent(talkingEvent);
+    	}
     }
 	}
 }

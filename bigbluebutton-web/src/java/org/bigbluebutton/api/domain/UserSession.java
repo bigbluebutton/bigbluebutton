@@ -37,4 +37,5 @@ public class UserSession {
     String logoutUrl = null;
     String defaultLayout = "NOLAYOUT";
     String avatarURL;
+    String configXML;
 }

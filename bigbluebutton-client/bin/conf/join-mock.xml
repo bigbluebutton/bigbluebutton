@@ -1,0 +1,15 @@
+<join>
+	<returncode>SUCCESS</returncode>
+	<fullname>Test User</fullname>
+  	<confname>Dev Meeting</confname>
+  	<meetingID>Dev Meeting</meetingID>
+  	<externUserID>kudzhwrszui9</externUserID>	
+	<role>MODERATOR</role>
+	<conference>conference-mock-default</conference>
+	<room>room-mock-default</room>
+	<voicebridge>85115</voicebridge>
+	<webvoiceconf>85115</webvoiceconf>
+	<mode>LIVE</mode>
+	<record>false</record>
+	<welcome>&lt;br&gt;Welcome to your BigBlueButton Dev Server.&lt;br&gt;&lt;br&gt;For help using BigBlueButton &lt;a href="event:http://www.bigbluebutton.org/content/videos"&gt;&lt;u&gt;check out these videos&lt;/u&gt;&lt;/a&gt;.&lt;br&gt;&lt;br&gt;</welcome>
+</join>

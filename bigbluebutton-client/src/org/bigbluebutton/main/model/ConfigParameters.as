@@ -25,7 +25,7 @@ package org.bigbluebutton.main.model
 	import flash.net.URLRequest;
 	import flash.system.ApplicationDomain;
 	import flash.utils.Dictionary;
-	
+	import org.bigbluebutton.common.LogUtil;
 	import mx.core.Application;
 	import mx.core.FlexGlobals;
 	import mx.managers.BrowserManager;
@@ -35,8 +35,7 @@ package org.bigbluebutton.main.model
 	import org.bigbluebutton.main.model.modules.ModuleDescriptor;
 
 	public class ConfigParameters {
-    public static const CONFIG_XML:String = "client/conf/config.xml";
-		
+    	public static const CONFIG_XML:String = "bigbluebutton/api/configXML";
 		private var _urlLoader:URLLoader;
 		
 		private var rawXML:XML;
@@ -52,6 +51,7 @@ package org.bigbluebutton.main.model
 		public var host:String;
 		public var numModules:int;
 		public var languageEnabled:Boolean;
+		public var shortcutKeysShowButton:Boolean;
 		public var skinning:String = "";
 		public var showDebug:Boolean = false;
 		
@@ -66,9 +66,11 @@ package org.bigbluebutton.main.model
 			_urlLoader = new URLLoader();
 			_urlLoader.addEventListener(Event.COMPLETE, handleComplete);
 			var date:Date = new Date();
-      var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
-      _urlLoader.load(new URLRequest(localeReqURL));
+     		var localeReqURL:String = buildRequestURL() + "?a=" + date.time;
+            trace("ConfigParameters:: [" + localeReqURL + "]");
+      		_urlLoader.load(new URLRequest(localeReqURL));
 		}
+
 		
     private function buildRequestURL():String {
       var swfURL:String = FlexGlobals.topLevelApplication.url;
@@ -84,6 +86,7 @@ package org.bigbluebutton.main.model
 		}
 		
 		private function parse(xml:XML):void{
+      trace("ConfigParameters:: parse [" + xml + "]");
 			rawXML = xml;
 			
 			portTestHost = xml.porttest.@host;
@@ -100,6 +103,10 @@ package org.bigbluebutton.main.model
 			if (xml.localeversion.@suppressWarning == "true") suppressLocaleWarning = true;
 			if (xml.language.@userSelectionEnabled == "true") languageEnabled = true;
 			else languageEnabled = false;
+			
+			if (xml.shortcutKeys.@showButton == "true") shortcutKeysShowButton = true;
+			else shortcutKeysShowButton = false;
+			
 			if (xml.skinning.@enabled == "true") skinning = xml.skinning.@url;
 
 			if (xml.debug.@showDebugWindow == "true") showDebug = true;

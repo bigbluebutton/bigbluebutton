@@ -18,14 +18,12 @@
 */
 package org.bigbluebutton.modules.listeners.business
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
+	import com.asfusion.mate.events.Dispatcher;	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;
-	
+	import flash.net.SharedObject;	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.EventConstants;
 	import org.bigbluebutton.core.UsersUtil;
@@ -37,8 +35,7 @@ package org.bigbluebutton.modules.listeners.business
 	import org.bigbluebutton.modules.listeners.business.vo.Listeners;
 	import org.bigbluebutton.modules.listeners.events.ListenersEvent;
 
-	public class ListenersSOService
-	{
+	public class ListenersSOService {
 		private static const LOGNAME:String = "[ListenersSOService]";		
 		private var _listenersSO : SharedObject;
 		private static const SHARED_OBJECT:String = "meetMeUsersSO";		
@@ -55,8 +52,7 @@ package org.bigbluebutton.modules.listeners.business
 		
 		private static var globalDispatcher:Dispatcher = new Dispatcher();
 							
-		public function ListenersSOService(listeners:Listeners, module:ListenersModule)
-		{			
+		public function ListenersSOService(listeners:Listeners, module:ListenersModule) {			
 			_listeners = listeners;		
 			_module = module;			
 			dispatcher = new Dispatcher();
@@ -82,8 +78,7 @@ package org.bigbluebutton.modules.listeners.business
 			}
 		}
 		
-	    private function join() : void
-		{
+    private function join():void {
 			trace("ListenertsSOService " + _module.uri);
 			_listenersSO = SharedObject.getRemote(SHARED_OBJECT, _module.uri, false);
 			_listenersSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
@@ -98,8 +93,7 @@ package org.bigbluebutton.modules.listeners.business
 			getRoomMuteState();
 		}
 		
-	    private function leave():void
-	    {
+    private function leave():void {
 	    	if (_listenersSO != null) {
 	    		_listenersSO.close();
 	    	}
@@ -224,9 +218,8 @@ package org.bigbluebutton.modules.listeners.business
 			}					
 		}
 		
-		public function userTalk(userId:Number, talk:Boolean) : void
-		{
-      trace("User talking event");
+		public function userTalk(userId:Number, talk:Boolean):void {
+      trace("ListenersSOService:: User talking event userID=[" + userId + "] talking=[" + talk + "]");
 			var l:Listener = _listeners.getListener(userId);			
 			if (l != null) {
 				l.talking = talk;
@@ -242,19 +235,20 @@ package org.bigbluebutton.modules.listeners.business
 			}	
 		}
 
-		public function userLeft(userId:Number):void
-		{
-			_listeners.removeListener(userId);	
+		public function userLeft(userID:Number):void {
+      // Set the user to not talking. This will update UIs that depend on the user talking state.
+      userTalk(userID, false);
+      
 			/**
 			 * Let's store the voice userid so we can do push to talk.
 			 */
-			if (UserManager.getInstance().getConference().amIThisVoiceUser(userId)) {
+			if (UserManager.getInstance().getConference().amIThisVoiceUser(userID)) {
 				UserManager.getInstance().getConference().setMyVoiceJoined(false);
 				UserManager.getInstance().getConference().setMyVoiceUserId(0);
 				UserManager.getInstance().getConference().setMyVoiceJoined(false);
 			}
       
-      var bu:BBBUser = UsersUtil.getVoiceUser(userId)
+      var bu:BBBUser = UsersUtil.getVoiceUser(userID)
       if (bu != null) {
         bu.voiceUserid = 0;
         bu.voiceMuted = false;
@@ -264,6 +258,8 @@ package org.bigbluebutton.modules.listeners.business
         bbbEvent.payload.userID = bu.userID;
         globalDispatcher.dispatchEvent(bbbEvent);
       }
+      
+      _listeners.removeListener(userID);
 		}
 		
 		public function ping(message:String):void {

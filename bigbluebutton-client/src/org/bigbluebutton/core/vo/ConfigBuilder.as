@@ -27,6 +27,7 @@ package org.bigbluebutton.core.vo {
 		internal var host:String;
 		internal var numModules:int;
 		internal var languageEnabled:Boolean;
+		internal var shortcutKeysShowButton:Boolean;
 		internal var skinning:String = "";
 		internal var showDebug:Boolean = false;
 		
@@ -67,6 +68,11 @@ package org.bigbluebutton.core.vo {
 		
 		public function withLanguageEnabled(languageEnabled:Boolean):ConfigBuilder {
 			this.languageEnabled = languageEnabled;
+			return this;
+		}
+		
+		public function withShortcutKeysShowButton(shortcutKeysShowButton:Boolean):ConfigBuilder {
+			this.shortcutKeysShowButton = shortcutKeysShowButton;
 			return this;
 		}
 		

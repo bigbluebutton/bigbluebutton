@@ -36,122 +36,225 @@ class ToolController {
     private static final String CONTROLLER_NAME = 'ToolController'
     private static final String RESP_CODE_SUCCESS = 'SUCCESS'
     private static final String RESP_CODE_FAILED = 'FAILED'
+    private static final String REQUEST_METHOD = "request_method";
     
     LtiService ltiService
     BigbluebuttonService bigbluebuttonService
     
     def index = { 
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
-        log.debug CONTROLLER_NAME + "#index" + ltiService.consumerMap
-        log.debug params
+        log.debug CONTROLLER_NAME + "#index"
         
-        def resultMessageKey = "init"
-        def resultMessage = "init"
-        def success = false
-        def consumer
+        params.put(REQUEST_METHOD, request.getMethod().toUpperCase())
+        log.debug "params: " + params
+        
+        Map<String, String> result = new HashMap<String, String>()
         ArrayList<String> missingParams = new ArrayList<String>()
         log.debug "Checking for required parameters"
         if (hasAllRequiredParams(params, missingParams)) {
             def sanitizedParams = sanitizePrametersForBaseString(params)
-
-            consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
+            def consumer = ltiService.getConsumer(params.get(Parameter.CONSUMER_ID))
             if (consumer != null) {
                 log.debug "Found consumer with key " + consumer.get("key") //+ " and sharedSecret " + consumer.get("secret")
-                if (checkValidSignature(request.getMethod().toUpperCase(), retrieveLtiEndpoint(), consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
+                if (checkValidSignature(params.get(REQUEST_METHOD), ltiService.endPoint, consumer.get("secret"), sanitizedParams, params.get(Parameter.OAUTH_SIGNATURE))) {
                     log.debug  "The message has a valid signature."
                     
-                    String locale = params.get(Parameter.LAUNCH_LOCALE)
-                    locale = (locale == null || locale.equals("")?"en":locale)
-                    log.debug "Locale code =" + locale
-                    String[] localeCodes = locale.split("_")
-                    //Localize the default welcome message
-                    if( localeCodes.length > 1 )
-                        session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0], localeCodes[1])
-                    else
-                        session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
-                    
-                    log.debug "Locale has been set to " + locale
-                    String welcome = message(code: "bigbluebutton.welcome", args: ["\"{0}\"", "\"{1}\""])
-                    log.debug "Localized default welcome message: [" + welcome + "]"
-            
-                    //String destinationURL = "http://www.bigbluebutton.org/"
-                    String destinationURL = bigbluebuttonService.getJoinURL(params, welcome)
-                    
-                    log.debug "redirecting to " + destinationURL
-                    if( destinationURL != null ) {
-                        success = true
-                        redirect(url:destinationURL)
+                    if( !"extended".equals(ltiService.mode) ) {
+                        log.debug  "LTI service running in simple mode."
+                        result = doJoinMeeting(params)
                     } else {
-                        resultMessageKey = 'BigBlueButtonServerError'
-                        resultMessage = "The join could not be completed"
-                        log.debug resultMessage
+                        log.debug  "LTI service running in extended mode."
                     }
-
+                    
                 } else {
-                    resultMessageKey = 'InvalidSignature'
-                    resultMessage = "Invalid signature (" + params.get(Parameter.OAUTH_SIGNATURE) + ")."
-                    log.debug resultMessage
+                    result.put("resultMessageKey", "InvalidSignature")
+                    result.put("resultMessage", "Invalid signature (" + params.get(Parameter.OAUTH_SIGNATURE) + ").")
                 }
                 
             } else {
-                resultMessageKey = 'CustomerNotFound'
-                resultMessage = "Customer with id = " + params.get(Parameter.CONSUMER_ID) + " was not found."
-                log.debug resultMessage
+                result.put("resultMessageKey", "ConsumerNotFound")
+                result.put("resultMessage", "Consumer with id = " + params.get(Parameter.CONSUMER_ID) + " was not found.")
             }
 
         } else {
-            resultMessageKey = 'MissingRequiredParameter'
             String missingStr = ""
-            for(String str:missingParams)
+            for(String str:missingParams) {
                 missingStr += str + ", ";
-
-            resultMessage = "Missing parameters [$missingStr]"
-            log.debug resultMessage
-        }
-
-        if (!success) {
-            log.debug "Error"
-            response.addHeader("Cache-Control", "no-cache")
-            withFormat {
-                xml {
-                    render(contentType:"text/xml") {
-                        response() {
-                            returncode(success)
-                            messageKey(resultMessageKey)
-                            message(resultMessage)
-                        }
-                    }
-                }
             }
-
-        } 
+            result.put("resultMessageKey", "MissingRequiredParameter")
+            result.put("resultMessage", "Missing parameters [$missingStr]")
+        }
         
-
+        
+        if( result != null && result.containsKey("resultMessageKey") ) {
+            log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
+            render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
+            
+        } else {
+            session["params"] = params
+            List<Object> recordings = bigbluebuttonService.getRecordings(params)
+            render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(params)])
+        }
     }
     
-    def test = {
-        log.debug CONTROLLER_NAME + "#index"
+    def view = {
+        if( ltiService.consumerMap == null) ltiService.initConsumerMap()
+        log.debug CONTROLLER_NAME + "#view" + ltiService.consumerMap
+        Map<String, String> result
         
-        response.addHeader("Cache-Control", "no-cache")
-        withFormat {
-            xml {
-                render(contentType:"text/xml") {
-                    response() {
-                        returncode(false)
-                        messageKey('RequestInvalid')
-                        message('The request is not supported.')
-                    }
-                }
-            }
+        def sessionParams = session["params"]
+        log.debug "params: " + params
+        log.debug "sessionParams: " + sessionParams
+
+        if( sessionParams == null ) {
+            result = new HashMap<String, String>()
+            result.put("resultMessageKey", "InvalidSession")
+            result.put("resultMessage", "Session is invalid user cannot execute this action.")
+        } else if( !"extended".equals(ltiService.mode) ){
+            result = new HashMap<String, String>()
+            result.put("resultMessageKey", "SimpleMode")
+            result.put("resultMessage", "LTI service running in simple mode.")
+        }
+        
+        if( result != null ) {
+            log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
+            render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
+            
+        } else {
+            List<Object> recordings = bigbluebuttonService.getRecordings(sessionParams)
+            render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator':bigbluebuttonService.isModerator(sessionParams)])
+        }
+    }
+
+    
+    def join = {
+        if( ltiService.consumerMap == null) ltiService.initConsumerMap()
+        log.debug CONTROLLER_NAME + "#join"
+        Map<String, String> result
+        
+        def sessionParams = session["params"]
+        
+        if( sessionParams != null ) {
+            log.debug "params: " + params
+            log.debug "sessionParams: " + sessionParams
+            result = doJoinMeeting(sessionParams)
+        } else {
+            result = new HashMap<String, String>()
+            result.put("resultMessageKey", "InvalidSession")
+            result.put("resultMessage", "Invalid session. User can not execute this action.")
+        } 
+        
+        if( result.containsKey("resultMessageKey")) {
+            log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
+            render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
         }
 
     }
 
-    private String retrieveLtiEndpoint() {
-        String endPoint = ltiService.endPoint
-        return endPoint
+    def publish = {
+        log.debug CONTROLLER_NAME + "#publish"
+        Map<String, String> result
+        
+        def sessionParams = session["params"]
+        
+        if( sessionParams == null ) {
+            result = new HashMap<String, String>()
+            result.put("resultMessageKey", "InvalidSession")
+            result.put("resultMessage", "Invalid session. User can not execute this action.")
+        } else if ( !bigbluebuttonService.isModerator(sessionParams) ) {
+            result = new HashMap<String, String>()
+            result.put("resultMessageKey", "NotAllowed")
+            result.put("resultMessage", "User not allowed to execute this action.")
+        } else {
+            log.debug "params: " + params
+            log.debug "sessionParams: " + sessionParams
+            
+            //Execute the publish command
+            result = bigbluebuttonService.doPublishRecordings(params)
+        } 
+        
+        if( result.containsKey("resultMessageKey")) {
+            log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
+            render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
+        } else {
+            //String destinationURL = createLink(controller:"tool", action:"view", params:"[foo: 'bar', boo: 'far']") 
+            String destinationURL = createLink(controller:"tool", action:"view") 
+            log.debug "destinationURL=[" + destinationURL + "]"
+            redirect(url:destinationURL)
+        }
+
     }
 
+    def delete = {
+        log.debug CONTROLLER_NAME + "#delete"
+        Map<String, String> result
+        
+        def sessionParams = session["params"]
+        
+        if( sessionParams == null ) {
+            result = new HashMap<String, String>()
+            result.put("resultMessageKey", "InvalidSession")
+            result.put("resultMessage", "Invalid session. User can not execute this action.")
+        } else if ( !bigbluebuttonService.isModerator(sessionParams) ) {
+            result = new HashMap<String, String>()
+            result.put("resultMessageKey", "NotAllowed")
+            result.put("resultMessage", "User not allowed to execute this action.")
+        } else {
+            log.debug "params: " + params
+            log.debug "sessionParams: " + sessionParams
+            
+            //Execute the delete command
+            result = bigbluebuttonService.doDeleteRecordings(params)
+        }
+        
+        if( result.containsKey("resultMessageKey")) {
+            log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
+            render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
+        } else {
+            //String destinationURL = createLink(controller:"tool", action:"view", params:"[foo: 'bar', boo: 'far']")
+            String destinationURL = createLink(controller:"tool", action:"view")
+            log.debug "destinationURL=[" + destinationURL + "]"
+            redirect(url:destinationURL)
+        }
+
+    }
+
+    private Object doJoinMeeting(params) {
+        Map<String, String> result = new HashMap<String, String>()
+                    
+        String locale = params.get(Parameter.LAUNCH_LOCALE)
+        locale = (locale == null || locale.equals("")?"en":locale)
+        log.debug "Locale code =" + locale
+        String[] localeCodes = locale.split("_")
+        //Localize the default welcome message
+        if( localeCodes.length > 1 )
+            session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0], localeCodes[1])
+        else
+            session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
+                    
+        log.debug "Locale has been set to " + locale
+        String welcome = message(code: "bigbluebutton.welcome", args: ["\"{0}\"", "\"{1}\""])
+        log.debug "Localized default welcome message: [" + welcome + "]"
+
+		// Check for [custom_]welcome parameter being passed from the LTI
+		if (params.get(Parameter.CUSTOM_BBB_WELCOME) != null) {
+			welcome = params.get(Parameter.CUSTOM_BBB_WELCOME)
+			log.debug "Overriding default welcome message with: [" + welcome + "]"
+		}
+           
+        String destinationURL = bigbluebuttonService.getJoinURL(params, welcome, ltiService.mode)
+        log.debug "redirecting to " + destinationURL
+                    
+        if( destinationURL != null ) {
+            redirect(url:destinationURL)
+        } else {
+            result.put("resultMessageKey", "BigBlueButtonServerError")
+            result.put("resultMessage", "The join could not be completed")
+        }
+        
+        return result
+    }
+        
     /**
      * Assemble all parameters passed that is required to sign the request.
      * @param the HTTP request parameters
@@ -166,6 +269,9 @@ class ToolController {
                 continue
             } else if (key == "oauth_signature") {
                 // We don't need this as part of the base string
+                continue
+            } else if (key == "request_method") {
+                // As this is was added by the controller, we don't want it as part of the base string
                 continue
             }
 
@@ -190,6 +296,11 @@ class ToolController {
 
         if (! ((Map<String, String>)params).containsKey(Parameter.OAUTH_SIGNATURE)) {
             ((ArrayList<String>)missingParams).add(Parameter.OAUTH_SIGNATURE);
+            hasAllParams = false;
+        }
+
+        if (! ((Map<String, String>)params).containsKey(Parameter.RESOURCE_LINK_ID)) {
+            ((ArrayList<String>)missingParams).add(Parameter.RESOURCE_LINK_ID);
             hasAllParams = false;
         }
 

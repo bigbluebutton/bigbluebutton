@@ -17,7 +17,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.service.PollingService;
 	
 	import org.bigbluebutton.core.managers.UserManager;
-	import org.bigbluebutton.main.model.users.Conference 
+	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.main.model.users.BBBUser;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.main.events.ShortcutEvent;
@@ -90,8 +90,6 @@ package org.bigbluebutton.modules.polling.managers
 	   }		
 		//Opening Instructions Window    
 	  	public function handleOpenPollingInstructionsWindowEvent(e:PollingInstructionsWindowEvent):void {
-			if (toolbarButtonManager.appFM == null)
-				LogUtil.debug("WATERFALL In Polling Manager, TBM's appFM is null");
 			viewWindowManager.appFM = toolbarButtonManager.appFM;
 		    viewWindowManager.handleOpenPollingInstructionsWindow(e);
 			toolbarButtonManager.disableToolbarButton();
@@ -106,7 +104,6 @@ package org.bigbluebutton.modules.polling.managers
 	  // Opening PollingViewWindow
 	  public function handleOpenPollingViewWindow(e:PollingViewWindowEvent):void{
 		   if(isPolling) return; 	
-		   LogUtil.debug("WATERFALL: PollingManager sending voting signal");
 	       viewWindowManager.handleOpenPollingViewWindow(e);
 	       toolbarButtonManager.disableToolbarButton();
 		}  	
@@ -299,18 +296,12 @@ package org.bigbluebutton.modules.polling.managers
 		//##################################################################################
 		  
 		  public function handleGlobalPollHotkey(e:ShortcutEvent):void{
-			  if (conference.amIPresenter())
+			  if (conference.amIPresenter)
 				  toolbarButtonManager.openMenuRemotely();
-			  //if (conference.amIPresenter() && toolbarButtonManager.openMenuRemotely()){
-				  // Business as usual
-			  //}
-			  //else{
-				  // Check if Instructions, Stats, or Voting window is open instead; focus to that
-			  //}
 		  }
 		  
 		public function handleFocusPresenterPoll(e:ShortcutEvent):void{
-			if (conference.amIPresenter())
+			if (conference.amIPresenter)
 				viewWindowManager.handleFocusPresenterPoll();
 		}
    }

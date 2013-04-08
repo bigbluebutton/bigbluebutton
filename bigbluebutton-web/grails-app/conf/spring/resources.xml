@@ -93,6 +93,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <property name="securitySalt" value="${securitySalt}"/>
     <property name="defaultMaxUsers" value="${defaultMaxUsers}"/>
     <property name="defaultWelcomeMessage" value="${defaultWelcomeMessage}"/>
+    <property name="defaultWelcomeMessageFooter" value="${defaultWelcomeMessageFooter}"/>
     <property name="defaultDialAccessNumber" value="${defaultDialAccessNumber}"/>
     <property name="testVoiceBridge" value="${testVoiceBridge}"/>
     <property name="testConferenceMock" value="${testConferenceMock}"/>
@@ -103,6 +104,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
     <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
     <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
+    <property name="defaultConfigURL" value="${defaultConfigURL}"/>
   </bean>
         
 	<import resource="doc-conversion.xml" />

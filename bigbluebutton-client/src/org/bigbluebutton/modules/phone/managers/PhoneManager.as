@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.phone.managers {
 	import flash.events.StatusEvent;
 	import flash.media.Microphone;
 	import flash.system.Security;
+	import flash.system.SecurityPanel;
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
@@ -68,7 +69,7 @@ package org.bigbluebutton.modules.phone.managers {
 					if (mic == null) {
 						joinVoice(false);
 					} else if (mic.muted) {
-						Security.showSettings();
+						Security.showSettings(SecurityPanel.PRIVACY);
 						mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
 					} else {
 						joinVoice(true);

@@ -1,1 +1,14 @@
-*.*
+.settings/org.eclipse.core.resources.prefs
+.project
+.actionScriptProperties
+.flexProperties
+linker-report.xml
+bundles.txt
+build/
+client
+bbbResources.properties.*
+asdoc/
+hs_err_pid*
+html-templateBackup/
+.actionScriptProperties.bak
+.flexProperties.bak

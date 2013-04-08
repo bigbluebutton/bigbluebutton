@@ -26,45 +26,47 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	       showCloseButton="true"
 	       creationComplete="onCreationComplete()"
 		   xmlns:mate="http://mate.asfusion.com/" 
-		   title="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.title')}"
-		   >
+		   title="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.title')}" >
 		   
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	
 	<mx:Script>
 		<![CDATA[
 			import flash.events.Event;
-			import mx.collections.ArrayList;
+			
 			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.common.LogUtil;
 			
 			private var genKeys:ArrayList;
 			private var presKeys:ArrayList;
 			private var chatKeys:ArrayList;
-			private var audKeys:ArrayList;
-			private var viewerKeys:ArrayList;
+			private var userKeys:ArrayList;
 			private var pollKeys:ArrayList;
 			private var pollVoteKeys:ArrayList;
 			
-			private var genResource:Array = [/*'bbb.shortcutkey.general.minimize', 'bbb.shortcutkey.general.maximize',*/ 
-											 'bbb.shortcutkey.flash.exit', 'bbb.shortcutkey.focus.viewers', 'bbb.shortcutkey.focus.listeners', 
-											 'bbb.shortcutkey.focus.video', 'bbb.shortcutkey.focus.presentation', 'bbb.shortcutkey.focus.chat',
-											 'bbb.shortcutkey.share.desktop', 'bbb.shortcutkey.share.microphone', 'bbb.shortcutkey.share.webcam',
-											 'bbb.shortcutkey.shortcutWindow', 'bbb.shortcutkey.logout', 'bbb.shortcutkey.raiseHand', 
+			private var genResource:Array = ['bbb.shortcutkey.general.minimize', 'bbb.shortcutkey.general.maximize',
+											 'bbb.shortcutkey.flash.exit', 'bbb.shortcutkey.focus.users', 'bbb.shortcutkey.focus.video', 
+											 'bbb.shortcutkey.focus.presentation', 'bbb.shortcutkey.focus.chat', 'bbb.shortcutkey.share.desktop', 
+											 'bbb.shortcutkey.share.microphone', 'bbb.shortcutkey.share.webcam', 'bbb.shortcutkey.shortcutWindow', 
+											 'bbb.shortcutkey.logout', 'bbb.shortcutkey.raiseHand', 'bbb.shortcutkey.users.muteme',
 											 'bbb.shortcutkey.polling.buttonClick', 'bbb.shortcutkey.focus.polling', 'bbb.shortcutkey.focus.voting'];
-											 
+										 
 			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', 'bbb.shortcutkey.whiteboard.undo', 
 											  'bbb.shortcutkey.present.upload', 'bbb.shortcutkey.present.previous', 'bbb.shortcutkey.present.select',	
 											  'bbb.shortcutkey.present.next', 'bbb.shortcutkey.present.fitWidth', 'bbb.shortcutkey.present.fitPage'];
-			
+
 			private var chatResource:Array = ['bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.chat.focusTabs', 'bbb.shortcutkey.chat.focusBox',  
 											  'bbb.shortcutkey.chat.sendMessage', 'bbb.shortcutkey.chat.explanation', 'bbb.shortcutkey.chat.chatbox.gofirst', 
 											  'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.repeat', 'bbb.shortcutkey.chat.chatbox.advance', 
 											  'bbb.shortcutkey.chat.chatbox.golatest',  'bbb.shortcutkey.chat.chatbox.goread'];
 											  
-			private var audResource:Array = ['bbb.shortcutkey.listeners.muteme'];
-			
-			private var viewerResource:Array = ['bbb.shortcutkey.viewers.makePresenter'];
+			private var userResource:Array = ['bbb.shortcutkey.focus.users', 'bbb.shortcutkey.users.focusUsers', 'bbb.shortcutkey.users.makePresenter', 
+											  'bbb.shortcutkey.users.mute', 'bbb.shortcutkey.users.kick', 'bbb.shortcutkey.users.muteall'];
 			
 			private var pollResource:Array = ['bbb.shortcutkey.polling.focusTitle', 'bbb.shortcutkey.polling.focusQuestion', 'bbb.shortcutkey.polling.focusAnswers', 
 											  'bbb.shortcutkey.polling.focusMultipleCB', 'bbb.shortcutkey.polling.focusWebPollCB', 'bbb.shortcutkey.polling.previewClick', 
@@ -78,24 +80,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable]
 			private var shownKeys:ArrayCollection;
 			
+			[Bindable]
+			private var baseIndex:int = 100;
+			
 			private function init():void {
 				
 			}
 			
 			private function onCreationComplete():void {
-				reloadKeys();
-				ResourceUtil.getInstance().addEventListener(Event.CHANGE, reloadKeys); // Listen for locale changing
+				localeChanged();
+				
+				titleBarOverlay.tabIndex = baseIndex;
+				
+				minimizeBtn.tabIndex = baseIndex + 1;
+				maximizeRestoreBtn.tabIndex = baseIndex + 2;
+				closeBtn.tabIndex = baseIndex + 3;
 			}
 			
-			private function reloadKeys(e:Event = null):void {
-				genKeys = loadGlobalKeys(genResource);
-				
+			private function reloadKeys():void {
+				genKeys = loadKeys(genResource);
 				presKeys = loadKeys(presResource);
 				chatKeys = loadKeys(chatResource);
-				audKeys = loadKeys(audResource);
-				viewerKeys = loadKeys(viewerResource);
-				pollKeys = loadKeys(pollResource);
-				pollVoteKeys = loadKeys(pollVoteResource);
+				userKeys = loadKeys(userResource);
 				changeArray();
 			}
 			
@@ -111,11 +117,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				case 2: //Chat
 					shownKeys.addAll(chatKeys);
 					break;
-				case 3: //Audio
-					shownKeys.addAll(audKeys);
-					break;
-				case 4: //Viewers
-					shownKeys.addAll(viewerKeys);
+				case 3: //Users
+					shownKeys.addAll(userKeys);
 					break;
 				case 5: //Polling, Presenter
 					shownKeys.addAll(pollKeys);
@@ -130,12 +133,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var keyList:ArrayList = new ArrayList();
 				var keyCombo:String;
 				var modifier:String;
-				var indx:int = 255;
+
 				for (var i:int = 0; i < resource.length; i++) {
 					// Find the modifier key(s) for the user's browser
 					modifier = ExternalInterface.call("determineLocalModifier");
 					keyCombo = ResourceUtil.getInstance().getString(resource[i]);
-					//indx = keyCombo.lastIndexOf("+") + 1;
 					var key:int = int(keyCombo);
 					var convKey:String;
 					
@@ -176,7 +178,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					//indx = keyCombo.lastIndexOf("+") + 1;
 					var key:int = int(keyCombo);
 					var convKey:String;
-					
 					// Special cases where the keycodes don't render a sensible character
 					switch (key) {
 						case 32 :
@@ -203,6 +204,32 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return keyList;
 			}
 			
+			private function localeChanged(e:LocaleChangeEvent = null):void{
+				reloadKeys();
+				resourcesChanged();
+			}
+			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();				
+				
+				this.title = ResourceUtil.getInstance().getString('bbb.shortcuthelp.title');
+				
+				if (titleBarOverlay != null) {
+					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.shortcuthelp.titleBar');
+				}
+				
+				if (windowControls != null) {
+					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
+					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.shortcuthelp.minimizeBtn.accessibilityName");
+					
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.shortcuthelp.maximizeRestoreBtn.accessibilityName");
+					
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.shortcuthelp.closeBtn.accessibilityName");
+				}
+			}
+			
 			public function focusCategories():void { //actually focuses the datagrid instead
 				focusManager.setFocus(keyList);
 				keyList.drawFocus(true);
@@ -210,26 +237,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>
 	
-	<!-- Probably need to change this from a Label to something else. -->
-	<mx:Label id="browserInfo" focusEnabled="true" accessibilityName="Placeholder for Browser Info"/>
 	<mx:ComboBox id="categories" labelField="Please select an area for which to view shortcut keys: " 
 				 editable="false" 
 				 change="changeArray()"
-				 tabIndex="5">
+				 tabIndex="{baseIndex + 10}">
 		<mx:ArrayCollection>
         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.presentation")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.chat")}</mx:String>
-         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.audio")}</mx:String>
-         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.viewers")}</mx:String>
+			<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.users")}</mx:String>
 			<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling")}</mx:String>
 			<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.polling2")}</mx:String>
       	</mx:ArrayCollection>
 	</mx:ComboBox>
-	<mx:DataGrid id="keyList" draggableColumns="false" dataProvider="{shownKeys}" width="100%" height="100%">
+	<mx:DataGrid id="keyList" draggableColumns="false" dataProvider="{shownKeys}" width="100%" height="100%" tabIndex="{baseIndex + 15}" >
 		<mx:columns>
-			<mx:DataGridColumn dataField="Shortcut" />
-			<mx:DataGridColumn dataField="Function" />
+			<mx:DataGridColumn dataField="shortcut" />
+			<mx:DataGridColumn dataField="func" />
 		</mx:columns>
 	</mx:DataGrid>
 </MDIWindow>

@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.present.ui.views
 	{
 		[Bindable] public var showWindowControls:Boolean = true;
 		[Bindable] public var baseTabIndex:int;
+		[Bindable] public var maxFileSize:Number;
 		
 		public function PresentOptions()
 		{
@@ -37,6 +38,12 @@ package org.bigbluebutton.modules.present.ui.views
 				}
 				else{
 					baseTabIndex = 501;
+				}
+				if (vxml.@maxFileSize != undefined) {
+					maxFileSize = vxml.@maxFileSize;
+				}
+				else{
+					maxFileSize = 30;
 				}
 			}
 		}

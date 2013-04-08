@@ -59,7 +59,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   	<mate:Listener type="{UserLeftEvent.LEFT}" method="handleUserLeftEvent"/>
   	<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_BOX}" method="focusChatBox" />
   	<mate:Listener type="{ShortcutEvent.SEND_MESSAGE}" method="remoteSendMessage" />
-  	
   	<mate:Listener type="{ShortcutEvent.CHAT_DEBUG}" method="chatDebugInfo" />
 
 	<mx:Script>
@@ -171,7 +170,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         // Listen for the ENTER key to send the message.
         txtMsgArea.addEventListener(KeyboardEvent.KEY_UP, handleTextAreaKeyUpEvent);
                 
-				Accessibility.updateProperties();
+				if(Capabilities.hasAccessibility)
+					Accessibility.updateProperties();
 		        
 		        queryForChatHistory();
 			}
@@ -360,7 +360,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.gofirst') as String)] = ShortcutEvent.GOFIRST_MESSAGE;
 				keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.chat.chatbox.goread') as String)] = ShortcutEvent.GOREAD_MESSAGE;
 			}
-			
+
 			public function hotkeyCapture():void{
 			    this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
 			    ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
@@ -370,6 +370,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		  		var modifier:String = ExternalInterface.call("determineLocalModifier");
 		  		loadKeyCombos(modifier);
 		  		var keyPress:String = (e.ctrlKey  ? "control+" : "") + (e.shiftKey ? "shift+"   : "") + (e.altKey   ? "alt+"     : "") + e.keyCode;
+
 				if (keyCombos[keyPress]) {
 					var event:ShortcutEvent = new ShortcutEvent(keyCombos[keyPress]);
 					event.otherUserID = chatWithUserID;
@@ -469,7 +470,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						chatMessagesList.accessibilityProperties.description += " ";
 					}
 				}
-				Accessibility.updateProperties();
+				if(Capabilities.hasAccessibility)
+					Accessibility.updateProperties();
 				navToFirst = false;
 				navToLatest = false;
 				spacerNeeded = false;
@@ -513,9 +515,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cm.chatType = ChatConstants.PUBLIC_CHAT;
         cm.fromUserID = UsersUtil.getMyUserID();
         cm.fromUsername = UsersUtil.getMyUsername();
-        //cm.fromColor = cmpColorPicker.selectedColor.toString();
+        cm.fromColor = "0" //default the message colour to black now cmpColorPicker.selectedColor.toString();
         cm.fromLang = ChatUtil.getUserLang();
-
         // Get the current UTC time and the timezone for this sender.
         // The receiver will have to convert this to local time.
         var now:Date = new Date();
@@ -534,7 +535,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         cm.chatType = ChatConstants.PRIVATE_CHAT;
         cm.fromUserID = UsersUtil.getMyUserID();
         cm.fromUsername = UsersUtil.getMyUsername();
-        //cm.fromColor = cmpColorPicker.selectedColor.toString();
+        cm.fromColor = "0" //default the message colour to black now cmpColorPicker.selectedColor.toString();
         cm.fromLang = ChatUtil.getUserLang();
         
         // Get the current UTC time and the timezone for this sender.
@@ -580,7 +581,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>
 
   <mx:HBox width="100%" height="{chatListHeight}" verticalScrollPolicy="off">
-    <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="true" variableRowHeight="true" alternatingItemColors="[#EFEFEF, #FEFEFE]"
+    <chat:AdvancedList width="100%" height="{chatListHeight}" id="chatMessagesList" selectable="false" variableRowHeight="true" 
              itemRenderer="org.bigbluebutton.modules.chat.views.ChatMessageRenderer" verticalScrollPolicy="auto" wordWrap="true"
              dataProvider="{chatMessages.messages}"
              tabIndex="{baseIndex}"
@@ -600,10 +601,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                  click="sendMessages()"
                  tabIndex="{baseIndex+2}"
                  accessibilityName="{ResourceUtil.getInstance().getString('bbb.chat.sendBtn.name')}"/>  
-      <!-- mx:ColorPicker id="cmpColorPicker" showTextField="false" 
-                 toolTip="{ResourceUtil.getInstance().getString('bbb.chat.cmpColorPicker.toolTip')}" 
-                 selectedColor="0x000000" dataProvider="{colorPickerColours}" swatchPanelStyleName="chatColorPickerStyle"
-                 tabIndex="{baseIndex+3}"/ -->
     </mx:VBox>
   </mx:HBox>	
 </mx:VBox>

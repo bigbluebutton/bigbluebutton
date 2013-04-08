@@ -21,6 +21,40 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
+	
+	[Embed(source="assets/images/users_settings.png")]
+	public var users_settings:Class;
+	
+	[Embed(source="assets/images/eject_user.png")]
+	public var eject_user_new:Class;
+	
+	[Embed(source="assets/images/audio_muted.png")]
+	public var audio_muted:Class;
+	
+	[Embed(source="assets/images/audio.png")]
+	public var audio:Class;
+	
+	[Embed(source="assets/images/audio_muted_20.png")]
+	public var audio_muted_20:Class;
+	
+	[Embed(source="assets/images/audio_20.png")]
+	public var audio_20:Class;
+	
+	[Embed(source="assets/images/webcam_new.png")]
+	public var webcam_new:Class;
+	
+	[Embed(source="assets/images/sound_new.png")]
+	public var sound_new:Class;
+	
+	[Embed(source="assets/images/hand_new.png")]
+	public var hand_new:Class;
+	
+	[Embed(source="assets/images/moderator.png")]
+	public var moderator:Class;
+	
+	[Embed(source="assets/images/presenter_new.png")]
+	public var presenter_new:Class;
+	
     [Embed(source="assets/images/webcam_kickuser.png")]
     public var webcam_kickuser:Class;
     
@@ -206,6 +240,12 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/unlock.png")]
 		public var unlocked:Class;
+		
+		[Embed(source="assets/images/lock_20.png")]
+		public var locked_20:Class;
+		
+		[Embed(source="assets/images/unlock_20.png")]
+		public var unlocked_20:Class;
 		
 		[Embed(source="assets/images/presenter.png")]
 		public var presenter:Class;

@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.deskshare.model
 	
 	public class DeskshareOptions
 	{
+		[Bindable] public var showButton:Boolean = true;
 		[Bindable] public var autoStart:Boolean = false;
 		[Bindable] public var baseTabIndex:int;
 		
@@ -36,6 +37,9 @@ package org.bigbluebutton.modules.deskshare.model
 				}
 				else{
 					baseTabIndex = 101;
+				}
+				if (vxml.@showButton != undefined){
+					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false; 
 				}
 			}
 		}

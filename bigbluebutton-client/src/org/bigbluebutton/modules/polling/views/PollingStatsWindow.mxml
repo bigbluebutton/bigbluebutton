@@ -114,8 +114,8 @@
 				answerCollection = trackingPoll.generateStats();
 							
 				conference = UserManager.getInstance().getConference();
-				webPollText.visible = (conference.amIPresenter() && (!reviewing && trackingPoll.publishToWeb));
-				btnClosePoll.visible = conference.amIPresenter();
+				webPollText.visible = (conference.amIPresenter && (!reviewing && trackingPoll.publishToWeb));
+				btnClosePoll.visible = conference.amIPresenter;
 				webPollBox.visible = webPollText.visible;
 							
 				if (webPollText.visible){				
@@ -152,7 +152,7 @@
 				if(viewingClosedPoll)
 					stopPoll();
 				
-				if (conference.amIPresenter()){
+				if (conference.amIPresenter){
 					messageForRecording("A poll is open for voting.");
 					messageForRecording(ResourceUtil.getInstance().getString('bbb.polling.createPoll.title') + " " + trackingPoll.title);
 					messageForRecording(ResourceUtil.getInstance().getString('bbb.polling.createPoll.question') + " " + trackingPoll.question);
@@ -210,7 +210,7 @@
 				webPollURLBox.text = webPollUrl;
 				webPollURLBox.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.stats.webPollBoxAccessName', [webPollUrl]);
 				LogUtil.debug("webPollURLBox.Text is : " + webPollURLBox.text);
-				if (conference.amIPresenter())
+				if (conference.amIPresenter)
 					messageForRecording(ResourceUtil.getInstance().getString('bbb.polling.stats.webPollURL') + " " + webPollUrl);
 			}
 
@@ -251,7 +251,7 @@
  		private function stopPoll():void{
  			refreshPoll();
 			refreshTimer.stop();
- 			btnRefreshResults.visible = conference.amIPresenter();
+ 			btnRefreshResults.visible = conference.amIPresenter;
  			btnRefreshResults.label = ResourceUtil.getInstance().getString('bbb.polling.stats.repost');
 			btnRefreshResults.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.stats.repost');
 			btnRefreshResults.removeEventListener(MouseEvent.CLICK, refreshWindow);
