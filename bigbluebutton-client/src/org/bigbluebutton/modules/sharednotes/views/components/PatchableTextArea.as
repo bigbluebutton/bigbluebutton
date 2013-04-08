@@ -37,6 +37,7 @@ package org.bigbluebutton.modules.sharednotes.views.components
 	import flash.events.MouseEvent;
 	import flash.events.FocusEvent;
 	import flash.events.KeyboardEvent
+	import flash.display.InteractiveObject;
 
 
 	public class PatchableTextArea extends TextArea
@@ -135,6 +136,7 @@ package org.bigbluebutton.modules.sharednotes.views.components
 			var oldPosition:Number = getOldPosition();
 			var oldVerticalPosition:Number = this.verticalScrollPosition;
 
+			LogUtil.debug("Initial Position: " + lastBegin + " " + lastEnd);
 			results = DiffPatch.patchClientText(patch, textField.text, selectionBeginIndex, selectionEndIndex);
 
 			if(results[0][0] == lastBegin && results[0][1] > lastEnd) {
@@ -152,18 +154,18 @@ package org.bigbluebutton.modules.sharednotes.views.components
 				lastEnd = results[0][1];
 			}
 			this.text = results[1];
-
+			this.validateNow();
 			
 			LogUtil.debug("Final Position: " + results[0][0] + " " + results[0][1]);
-			LogUtil.debug("Remote Position: " + beginIndex + " " + endIndex);
-			LogUtil.debug("Length: " + this.text.length); 
 			
-				
-			this.selectionBeginIndex = lastBegin;
-			this.selectionEndIndex = lastEnd;
-			this.validateNow();
+			LogUtil.debug("Length: " + this.text.length); 
 			restoreCursor(lastEnd, oldPosition, oldVerticalPosition);
 			this.validateNow();
+			textField.selectable = true;
+			textField.stage.focus = InteractiveObject(textField);
+			textField.setSelection(lastBegin, lastEnd);	
+			this.validateNow();
+			
 			
 		}
 	}

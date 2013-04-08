@@ -71,8 +71,8 @@ function patchClientText(patches, text, selectionStart, selectionEnd) {
   dmp.Match_Threshold = 0.6;
 
   var oldClientText = text
-  oldClientText = "#12FGKGMENI4873!#isKcJ" + oldClientText + "2OI3nfi#213fcouef*od(1";
-  var cursor = captureCursor_(oldClientText, selectionStart+22, selectionEnd+22);
+  oldClientText = oldClientText + "2OI3nfi#213fcouef*od(1";
+  var cursor = captureCursor_(oldClientText, selectionStart, selectionEnd);
   // Pack the cursor offsets into an array to be adjusted.
   // See http://neil.fraser.name/writing/cursor/
   var offsets = [];
@@ -95,12 +95,17 @@ function patchClientText(patches, text, selectionStart, selectionEnd) {
 		  cursor.collapsed = true;
 		}
 	  }
-	  return [restoreCursor_(cursor, newClientText), newClientText.substring(22,newClientText.length-22)];
+	//document.write(oldClientText+"<br>");
+	
+	//document.write(newClientText+"<br>");
+	//document.write(newClientText.substring(0,newClientText.length-22)+"<br>");
+	  return [restoreCursor_(cursor, newClientText), newClientText.substring(0,newClientText.length-22)];
 	//  this.restoreCursor_(cursor);
 	}
   }
   // no change in client text
-  return [[selectionStart, selectionEnd], newClientText.substring(22,newClientText.length-22)];
+	
+  return [[selectionStart, selectionEnd], newClientText.substring(0,newClientText.length-22)];
 }
 
 /**
@@ -303,5 +308,6 @@ function restoreCursor_(cursor, text) {
     cursorEndPoint = cursorStartPoint;
   }
 	
-  return [cursorStartPoint-22, cursorEndPoint-22];
+  return [cursorStartPoint, cursorEndPoint];
 }
+
