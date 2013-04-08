@@ -650,14 +650,25 @@ if [ $TOINTERNAL ]; then
 fi
 
 #if [ $REARCHIVE ]; then
-#	ARCHIVE_DONE_FILE=/var/bigbluebutton/recording/status/archived/$MEETING_ID.done
-#	if [ -f $ARCHIVE_DONE_FILE ]; then
-#		echo "Removing .done file and raw directory for meeting $MEETING_ID"
-#		rm $ARCHIVE_DONE_FILE
-#		rm -r /var/bigbluebutton/recording/raw/$MEETING_ID
-#	else
-#		echo "$MEETING_ID is not archived."
-#	fi
+#        ARCHIVE_DONE_FILE=/var/bigbluebutton/recording/status/archived/$MEETING_ID.done
+#        SANITY_FAIL_FILE=/var/bigbluebutton/recording/status/sanity/$MEETING_ID.fail
+#        if [ -f $SANITY_FAIL_FILE ]; then
+#                max_days=$(expr "$(grep history= /etc/cron.daily/bigbluebutton)" : 'history=\(.*\)')
+#                # The recording has not been removed.
+#                still_exists=$(find /var/bigbluebutton/recording/status/recorded/*.done  -mtime -$max_days | grep $MEETING_ID)
+#                if [ -n "$still_exists" ]; then
+#                        if [ -f $ARCHIVE_DONE_FILE ]; then
+#                                echo "Removing archived .done file, sanity .fail fail,  and raw directory for meeting $MEETING_ID"
+#                                rm $ARCHIVE_DONE_FILE
+#                                rm -r /var/bigbluebutton/recording/raw/$MEETING_ID
+#                                rm $SANITY_FAIL_FILE
+#                        else
+#                                echo "$MEETING_ID is not archived."
+#                        fi
+#                fi
+#        else
+#               echo "The meeting you want to re archive has not failed in sanity check."
+#        fi
 #fi
 
 if [ $CHECK ]; then
