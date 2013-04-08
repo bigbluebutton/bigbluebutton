@@ -273,6 +273,10 @@
 					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
 					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.users.maximizeRestoreBtn.accessibilityName");
 				}
+				
+				if (muteMeBtn != null) {
+					updateMuteMeBtn(); // text is changed in here so it needs to be updated when the locale changes
+				}
 			}
 			
 			private function loadKeyCombos(modifier:String):void {
@@ -389,18 +393,18 @@
 					if (muteMeRolled) {
 						if (UserManager.getInstance().getConference().voiceMuted) {
 							muteMeBtnImg.source = images.audio;
-							muteMeBtnTxt.text = "Unmute";
+							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.listeners.talk");
 						} else {
 							muteMeBtnImg.source = images.audio_muted;
-							muteMeBtnTxt.text = "Mute";
+							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.listeners.mute");
 						}
 					} else {
 						if (UserManager.getInstance().getConference().voiceMuted) {
 							muteMeBtnImg.source = images.audio_muted;
-							muteMeBtnTxt.text = "Muted";
+							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.muted");
 						} else {
 							muteMeBtnImg.source = images.audio;
-							muteMeBtnTxt.text = "Unmuted";
+							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.unmuted");
 						}
 					}
 				}
