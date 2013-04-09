@@ -109,11 +109,8 @@
 		/>-->
 		
 		<module name="SharedNotesModule" url="SharedNotesModule.swf?v=VERSION" 
-			uri="rtmp://HOST/bigbluebutton" 
-			host="http://HOST/bigbluebutton/notes.jsp"
+			uri="rtmp://HOST/bigbluebutton"
 			refreshDelay="500"
-			responseTimeout="3000"
-			enablePlayback="false"
 			autoStart="true"
 			showButton="false"
 			dependsOn="ViewersModule"

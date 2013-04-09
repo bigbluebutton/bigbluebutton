@@ -31,7 +31,7 @@
 	resize="onResize()"
 	showCloseButton="false">
 
-	<mate:Listener type="{GetCurrentDocumentEvent.GET_CURRENT_DOCUMENT}" method="onSyncing"/>
+	
 	<mate:Listener type="{CurrentDocumentEvent.CURRENT_DOCUMENT}" method="addRemoteDocument"/>
 	<mate:Listener type="{ReceivePatchEvent.RECEIVE_PATCH_EVENT}" method="receivePatch" />
 
@@ -93,11 +93,10 @@
 				textArea.visible = true;
 				textArea.setCanvas(getMdiCanvas(parent) as MDICanvas);
 				btnBackPlayback.visible = false;
-				btnPlayback.visible = options.enablePlayback;
+				btnPlayback.visible = false;
 				playbackSlider.visible = false;
 				lblPlaybackVersion.visible = false;
 			
-				//textArea.addEventListener(Event.CHANGE, onTextChange);
 				textArea.addEventListener(KeyboardEvent.KEY_DOWN, function(e:Event):void {
 					if (!sendUpdateTimer.running) {
 						sendUpdateTimer.reset();
@@ -108,17 +107,10 @@
 
 				sendUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:Event):void {
 					sendPatch();
-					//dispatchEvent(new Event(SharedNotesDispatcher.SEND_PATCH_EVENT));
 				});
 				_dispatcher.dispatchEvent(new GetCurrentDocumentEvent());
-				//addEventListener(ServerConnection.SYNCED_EVENT, onSynced);
-				//addEventListener(ServerConnection.SYNCING_EVENT, onSyncing);
-			
-				addEventListener(MDIWindowEvent.RESIZE, onResize);
-				//addEventListener(MDIWindowEvent.CLOSE, function(e:Event):void { if (client) client.shutdown(); });
 				
-				//client = new Client(this);
-
+				addEventListener(MDIWindowEvent.RESIZE, onResize);
 				onResize();
 			}
 
@@ -133,7 +125,7 @@
 					sendPatchEvent.beginIndex = textArea.selectionBeginIndex;
 					sendPatchEvent.endIndex = textArea.selectionEndIndex;
 					//patchHistory.push(messageToSend.patchData);
-					_undoHistory.addItem([0,sendPatchEvent.patch]);
+					//_undoHistory.addItem([0,sendPatchEvent.patch]);
 					_dispatcher.dispatchEvent(sendPatchEvent);
 					_document = clientText;
 					textArea.editable = true;
@@ -141,37 +133,7 @@
 				}
 			}
 
-			private function undoLastChange():void {
-				var newText:String = _initialDocument;
-				var myLastPatch:Array = null;
-				var myLastPatchIndex:int = -1;
-				sendUpdateTimer.stop();
-				for (var i:int = 0; i < _undoHistory.length; i++)
-				{
-				    var patchArray:Array = _undoHistory[i];
-				    LogUtil.debug("Number: " + patchArray[0] + " Index: " + i);
-				    if(patchArray[0] == 0) {
-					myLastPatch = patchArray;
-					myLastPatchIndex = i;
-				    }
-				     newText = DiffPatch.patch(patchArray[1],  newText);
-				}
-				if(myLastPatchIndex != -1) {	
-					LogUtil.debug("Removi Number: " + _undoHistory[myLastPatchIndex][0] + " Index: " + myLastPatchIndex);
-					newText = DiffPatch.unpatch(_undoHistory[myLastPatchIndex][1], newText);
-					_undoHistory.removeItemAt(myLastPatchIndex);
-					textArea.editable = false;
-					onSyncing();
-					var sendPatchEvent:SendPatchEvent = new SendPatchEvent();
-					sendPatchEvent.patch = DiffPatch.diff(_document, newText);
-					_document = newText;
-					textArea.text = newText;
-					_dispatcher.dispatchEvent(sendPatchEvent);
-					textArea.editable = true;
-					onSynced();
-				}
-				sendUpdateTimer.start();
-			}
+			
 
 			private function receivePatch(e:ReceivePatchEvent):void {
 				if (e.patch != "") {
@@ -179,7 +141,7 @@
 					_document = result;
 					textArea.patchClientText(e.patch, e.beginIndex, e.endIndex);
 					LogUtil.debug("ADD PATCH SERVER");
-					_undoHistory.addItem([1,e.patch]);
+					//_undoHistory.addItem([1,e.patch]);
 				}
 			}
 
@@ -230,15 +192,15 @@
 				const availableWidth:int = this.width - this.borderMetrics.left - this.borderMetrics.right;
 				const availableHeight:int = this.height - this.borderMetrics.top - this.borderMetrics.bottom;
 				
-				if (options.enablePlayback) {
-					if (BOTTOM_PADDING < Math.max(btnPlayback.height, btnBackPlayback.height) + 4)
-						BOTTOM_PADDING = Math.max(btnPlayback.height, btnBackPlayback.height) + 4;
-					btnPlayback.x = btnBackPlayback.x = LEFT_PADDING;
-					btnPlayback.y = btnBackPlayback.y = availableHeight - BOTTOM_PADDING + (BOTTOM_PADDING - Math.max(btnPlayback.height, btnBackPlayback.height)) / 2;
-				} else {
+				//if (options.enablePlayback) {
+				//	if (BOTTOM_PADDING < Math.max(btnPlayback.height, btnBackPlayback.height) + 4)
+				//		BOTTOM_PADDING = Math.max(btnPlayback.height, btnBackPlayback.height) + 4;
+				//	btnPlayback.x = btnBackPlayback.x = LEFT_PADDING;
+				//	btnPlayback.y = btnBackPlayback.y = availableHeight - BOTTOM_PADDING + (BOTTOM_PADDING - Math.max(btnPlayback.height, btnBackPlayback.height)) / 2;
+				//} else {
 					btnPlayback.x = btnBackPlayback.x = 0;
 					btnPlayback.y = btnBackPlayback.y = 0;
-				} 
+				//} 
 				
 				textArea.width = textArea.measuredWidth = txtPlayback.width = availableWidth - RIGHT_PADDING - LEFT_PADDING;
 				textArea.height = textArea.measuredHeight = txtPlayback.height = availableHeight - TOP_PADDING - BOTTOM_PADDING;
@@ -312,7 +274,7 @@
 
 			protected function btnSave_clickHandler(event:MouseEvent):void
 			{
-				textArea.saveNotesToFile();
+				textArea.saveNotesToFile(title);
 				
 			}
 
@@ -337,10 +299,6 @@
 			}
 			
 			
-			public function get responseTimeout():int {
-				return options.responseTimeout;
-			}
-
 			override public function close(event:MouseEvent=null):void {
 				//new Dispatcher().dispatchEvent(new Event(SHARED_NOTES_CLOSED, true));
 				super.close(event);

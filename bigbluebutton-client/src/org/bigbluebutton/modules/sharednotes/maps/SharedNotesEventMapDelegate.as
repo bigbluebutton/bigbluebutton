@@ -27,17 +27,31 @@ package org.bigbluebutton.modules.sharednotes.maps
 	import org.bigbluebutton.modules.sharednotes.views.ToolbarButton;
 	import org.bigbluebutton.modules.sharednotes.views.SharedNotesWindow;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
+	import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
+	import org.bigbluebutton.modules.sharednotes.events.JoinSharedNotesEvent;
+	import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
+	import org.bigbluebutton.common.LogUtil;
 	
 	public class SharedNotesEventMapDelegate {
-		private var sharedNotesButton:ToolbarButton;
+		private var sharedNotesButton:ToolbarButton = null;
 		private var globalDispatcher:Dispatcher;
 		private var window:SharedNotesWindow;
+		private var options:SharedNotesOptions = new SharedNotesOptions();
 		
 		public function SharedNotesEventMapDelegate() {
-			sharedNotesButton = new ToolbarButton();
 			globalDispatcher = new Dispatcher();
 			window = new SharedNotesWindow();
-			hideWindow();
+			
+			if(options.showButton) {
+				sharedNotesButton = new ToolbarButton();
+			} else {
+				if(options.autoStart) {
+					showWindow();
+					globalDispatcher.dispatchEvent(new JoinSharedNotesEvent());
+					globalDispatcher.dispatchEvent(new GetCurrentDocumentEvent());
+				}
+					
+			}
 		}
 
 		public function showWindow():void {
@@ -55,12 +69,14 @@ package org.bigbluebutton.modules.sharednotes.maps
 		}
 		
 		public function addToolbarButton():void {
-			var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
-			event.button = sharedNotesButton;
-			globalDispatcher.dispatchEvent(event);	
-
-			
-			window.visible = false;
+			LogUtil.debug("ADD BUTTON " + options.showButton);
+			if(options.showButton) {
+				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
+				event.button = sharedNotesButton;
+				globalDispatcher.dispatchEvent(event);	
+			}
+			if(!options.autoStart)
+				window.visible = false;
 	   	
 		}
 		

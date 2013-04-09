@@ -75,14 +75,15 @@ package org.bigbluebutton.modules.sharednotes.views.components
 			return textField.text;
 		}
 
-		public function saveNotesToFile():void {
-			this.textFieldText
+		public function saveNotesToFile(title:String):void {
+			var filename:String = title.replace(/\s+/g, '-').toLowerCase();
 			var _fileRef:FileReference = new FileReference();
 			_fileRef.addEventListener(Event.COMPLETE, function(e:Event):void {
 				Alert.show(ResourceUtil.getInstance().getString('bbb.sharedNotes.save.complete'), "", Alert.OK, _canvas);
 			});
-			_fileRef.save(this.textFieldText, "sharedNotes.txt");
-			LogUtil.debug("Tamanho Máximo: " + this.maxVerticalScrollPosition);
+			_fileRef.save(this.textFieldText, filename+".txt");
+			
+			//Future code to add zoom and font format
 			//var format:TextFormat = new TextFormat();
 			//format.color = 0x0000FF;
 			//this.textField.setTextFormat( format, selectionBeginIndex, selectionBeginIndex+1 ) ;
@@ -116,9 +117,9 @@ package org.bigbluebutton.modules.sharednotes.views.components
 			else
 				cursorLine = this.textField.getLineIndexOfChar(endIndex);
 
-			var relativePositon = cursorLine - this.verticalScrollPosition;
+			var relativePositon:Number = cursorLine - this.verticalScrollPosition;
 
-			var desloc = relativePositon - oldPosition;
+			var desloc:Number = relativePositon - oldPosition;
 			this.verticalScrollPosition+=desloc;
 			
 			LogUtil.debug("relative: " +  relativePositon);

@@ -8,16 +8,14 @@ package org.bigbluebutton.modules.sharednotes
 		public var refreshDelay:int = 500;
 		
 		[Bindable]
-		public var responseTimeout:int = 3000;
-		
-		[Bindable]
-		public var enablePlayback:Boolean = false;
-		
-		[Bindable]
 		public var position:String = "bottom-left";
 		
 		[Bindable]
 		public var autoStart:Boolean = false;
+		
+		[Bindable]
+		public var showButton:Boolean = false;
+
 		
 		public function SharedNotesOptions()
 		{
@@ -26,17 +24,14 @@ package org.bigbluebutton.modules.sharednotes
 				if (vxml.@refreshDelay != undefined) {
 					refreshDelay = Number(vxml.@refreshDelay);
 				}
-				if (vxml.@responseTimeout != undefined) {
-					responseTimeout = Number(vxml.@responseTimeout);
-				}
-				if (vxml.@enablePlayback != undefined) {
-					enablePlayback = (vxml.@enablePlayback.toString().toUpperCase() == "TRUE") ? true : false;
-				}
 				if (vxml.@position != undefined) {
 					position = vxml.@position.toString();
 				}
 				if (vxml.@autoStart != undefined) {
-					autoStart = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
+					autoStart = (vxml.@autoStart.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@showButton != undefined) {
+					showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
 				}
 			}
 		}

@@ -41,6 +41,9 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.modules.sharednotes.events.ToolbarButtonWindowEvent;
 			import org.bigbluebutton.modules.sharednotes.events.JoinSharedNotesEvent;
+			import org.bigbluebutton.modules.sharednotes.events.GetCurrentDocumentEvent;
+			import org.bigbluebutton.modules.sharednotes.SharedNotesOptions;
+			
 			
 			[Embed(source="images/note_edit.png")]
 			public var notes:Class;
@@ -52,20 +55,25 @@
 			private var dispatcher:Dispatcher;
 			private var window:SharedNotesWindow;
 			private var _join:Boolean = false;
+			private var options:SharedNotesOptions = new SharedNotesOptions();
 
 			private function init():void{
 				_join = false;
 				dispatcher = new Dispatcher();
 				this.addEventListener(SharedNotesWindow.SHARED_NOTES_CLOSED, closeEventHandler);
+				if(options.autoStart) {
+					openNotesWindow();
+				}
 			}
-			
-			private function openNotesWindow():void{
+
+			public function openNotesWindow(event:Event = null):void{
 				if (!this.selected) {
 					if(!_join) {
 						_join = true;
 						dispatcher.dispatchEvent(new JoinSharedNotesEvent());
 					}
 					dispatcher.dispatchEvent(new ToolbarButtonWindowEvent(ToolbarButtonWindowEvent.SHOW_WINDOW));
+					dispatcher.dispatchEvent(new GetCurrentDocumentEvent());
 					this.selected = true;
 				} else {
 					dispatcher.dispatchEvent(new ToolbarButtonWindowEvent(ToolbarButtonWindowEvent.HIDE_WINDOW));
