@@ -107,9 +107,9 @@ package org.bigbluebutton.modules.users.business
 		   
 		public function userJoin(userId:Number, cidName:String, cidNum:String, muted:Boolean, talking:Boolean, locked:Boolean):void {
 			trace("***************** Voice user joining [" + cidName + "]");
-			
+
 			if (cidName) {
-				var pattern:RegExp = /(.*)-(.*)$/;
+				var pattern:RegExp = /([[A-Za-z0-9]+)-(.*)$/;
 				var result:Object = pattern.exec(cidName);
 				
 				if (result != null) {
