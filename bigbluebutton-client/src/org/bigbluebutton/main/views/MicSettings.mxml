@@ -65,7 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						Security.showSettings(SecurityPanel.PRIVACY);
 					} else {
 						// user has allowed access to the mic
-						mic.setLoopBack(true);
+						mic.setLoopBack(false);
             mic.setUseEchoSuppression(true);
 					}
 				} else {
@@ -121,6 +121,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (settingBtn.selected) {
           if (mic != null) {
             mic.setLoopBack(true);
+            mic.setUseEchoSuppression(true);
           }
           
           Security.showSettings(SecurityPanel.MICROPHONE);
