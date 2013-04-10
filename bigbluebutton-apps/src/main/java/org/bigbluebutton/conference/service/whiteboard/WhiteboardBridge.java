@@ -29,33 +29,51 @@ public class WhiteboardBridge {
 		
 		if(an.getType().equalsIgnoreCase(WhiteboardBridge.PENCIL_TYPE)){
 			Map map = an.getAnnotation();
+			ArrayList<Object> updates = new ArrayList<Object>();
+			
+			updates.add(meetingID);
+			updates.add("shapePoints");
+			updates.add("line");
+			updates.add(map.get("color"));
+			updates.add(map.get("thickness"));
+			updates.add(map.get("points"));
+			
+			Gson gson = new Gson();
+			messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
+		}else if(an.getType().equalsIgnoreCase(WhiteboardBridge.RECTANGLE_TYPE)){
+			Map map = an.getAnnotation();
+			ArrayList<Object> updates = new ArrayList<Object>();
+			updates.add(meetingID);
+			
 			ArrayList points = (ArrayList) map.get("points");
-			for(int i=0;i<points.size();i+=2){
-				Double pA = (Double) points.get(i);
-				Double pB = (Double) points.get(i+1);
+			Double pX = (Double) points.get(0);
+			Double pY = (Double) points.get(1);
+			Double pW = (Double) points.get(2);
+			Double pH = (Double) points.get(3);
+			
+			
+			ArrayList<Object> data = new ArrayList<Object>();
+			if(an.getStatus().equalsIgnoreCase("DRAW_START")){
+				updates.add("makeShape");
+				data.add(pX/100);
+				data.add(pY/100);
+				data.add(map.get("color"));
+				data.add(map.get("thickness"));
 				
-				ArrayList<Object> updates = new ArrayList<Object>();
-				updates.add(meetingID);
+			}else{
+				updates.add("updShape");
+				data.add(pX/100);
+				data.add(pY/100);
+				data.add(pW/100);
+				data.add(pH/100);
 				
-				log.debug("PERRO points:"+ pA + " " + pB);
-				ArrayList<Object> data = new ArrayList<Object>();
-				data.add(pA/100);
-				data.add(pB/100);
-				if(i == 0 ){
-					updates.add("makeShape");
-					data.add(map.get("color"));
-					data.add(map.get("thickness"));	
-				}else{
-					updates.add("updShape");
-					data.add(true);
-				}
-				updates.add("line");
-				
-				updates.add(data);
-				Gson gson = new Gson();
-				messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
 			}
 			
+			updates.add("rect");
+			updates.add(data);
+			
+			Gson gson = new Gson();
+			messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
 		}
 		
 		
@@ -70,26 +88,13 @@ public class WhiteboardBridge {
 			
 			Map map = an.getAnnotation();
 			ArrayList points = (ArrayList) map.get("points");
-			String strPoints = "";
-			for(int i=0;i<points.size();i+=2){
-				String letter = "";
-				Double pA = (Double) points.get(i);
-				Double pB = (Double) points.get(i+1);
-				
-				if(i==0)
-					letter = "M";
-				else
-					letter = "L";
-				
-				strPoints += letter + (pA/100) + "," + (pB/100);
-			}
 			
 			Jedis jedis = messagingService.createRedisClient();
 			
 			HashMap<String,String> mapAnn = new HashMap<String, String>();
 			
 			mapAnn.put("shape", shapeType);
-			data.add(strPoints);
+			data.add(points);
 			data.add( (Integer.parseInt(map.get("color").toString()) == 0) ? "#000000" : map.get("color")  );
 			data.add(map.get("thickness"));
 			Gson gson = new Gson();
@@ -98,6 +103,45 @@ public class WhiteboardBridge {
 			jedis.hmset("meeting-" + meetingID + "-presentation-" + map.get("presentationID") + "-page-"+map.get("pageNumber")+"-shape-"+shapeID, mapAnn);
 			
 			messagingService.dropRedisClient(jedis);
+		}
+		else if(an.getType().equalsIgnoreCase(WhiteboardBridge.RECTANGLE_TYPE)){
+			if(an.getStatus().equalsIgnoreCase("DRAW_END")){
+				String shapeType = "rect";
+				String shapeID = Long.toString(System.currentTimeMillis());
+				ArrayList<Object> data = new ArrayList<Object>();
+				
+				Map map = an.getAnnotation();
+				ArrayList points = (ArrayList) map.get("points");
+				Double pX = (Double) points.get(0);
+				Double pY = (Double) points.get(1);
+				Double pW = (Double) points.get(2);
+				Double pH = (Double) points.get(3);
+				
+				
+				Jedis jedis = messagingService.createRedisClient();
+				
+				HashMap<String,String> mapAnn = new HashMap<String, String>();
+				
+				mapAnn.put("shape", shapeType);
+				
+				data.add(pX/100);
+				data.add(pY/100);
+				data.add(pW/100);
+				data.add(pH/100);
+				data.add( (Integer.parseInt(map.get("color").toString()) == 0) ? "#000000" : map.get("color")  );
+				data.add(map.get("thickness"));
+				
+				Gson gson = new Gson();
+				mapAnn.put("data", gson.toJson(data));
+				
+				jedis.rpush("meeting-" + meetingID + "-presentation-" + map.get("presentationID") + "-page-"+map.get("pageNumber")+"-currentshapes", shapeID);
+				jedis.hmset("meeting-" + meetingID + "-presentation-" + map.get("presentationID") + "-page-"+map.get("pageNumber")+"-shape-"+shapeID, mapAnn);
+				
+				messagingService.dropRedisClient(jedis);
+			}
+		}
+		else{
+			log.debug("checking annotation: " + an.getAnnotation().toString());
 		}
 	}
 	
