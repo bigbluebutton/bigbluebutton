@@ -89,8 +89,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						LogUtil.warn("Access to microphone has been denied.");
 						break;
 					case "Microphone.Unmuted":
-						mic.setLoopBack(true);
-            mic.setUseEchoSuppression(true);
+//						mic.setLoopBack(true);
+//            mic.setUseEchoSuppression(true);
 						LogUtil.debug("Access to the microphone has been allowed.");
 						break;
 					default:
@@ -118,7 +118,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			
 			private function showMicSettingsPanel():void {
-				Security.showSettings(SecurityPanel.MICROPHONE);
+        if (settingBtn.selected) {
+          if (mic != null) {
+            mic.setLoopBack(true);
+          }
+          
+          Security.showSettings(SecurityPanel.MICROPHONE);
+        } else {
+          mic.setLoopBack(false);
+        }
+				
 			}
 			
 			private function onJoinClicked():void {
@@ -204,7 +213,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				</mx:HBox>			
       -->
 				<mx:Button id="settingBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic')}" 
-						   styleName="micSettingsWindowChangeMicButtonStyle"
+						   styleName="micSettingsWindowChangeMicButtonStyle" toggle="true"
 						   click="showMicSettingsPanel()"/>				
 			</mx:VBox>
 		</mx:HBox>	
