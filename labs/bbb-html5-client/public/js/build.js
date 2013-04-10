@@ -38,7 +38,7 @@
     'raphael.core': 'lib/raphael/raphael.core',
     'raphael.vml': 'lib/raphael/raphael.vml',
     'raphael.svg': 'lib/raphael/raphael.svg',
-    'scale.raphael': 'lib/raphael/scale.raphael',
+    'raphael.scale': 'lib/raphael/raphael.scale',
     'eve': 'lib/raphael/eve',
     'colorwheel': 'lib/colorwheel',
     'socket.io': 'lib/socket.io',
