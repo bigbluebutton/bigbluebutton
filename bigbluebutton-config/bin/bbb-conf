@@ -930,18 +930,17 @@ check_configuration() {
 	# Check if we've got the voice conference servers properly installed and configured
 	#
         if [ "$VOICE_CONFERENCE" == "bbb-voice-freeswitch.xml" ]; then
-		check_file /opt/freeswitch/conf.dist/vars.xml
-	
-		if [ -f /opt/freeswitch/conf.dist/vars.xml ]; then	
-			if ! sudo cat /opt/freeswitch/conf/vars.xml | grep --quiet BigBlueButton; then
-				echo 
-				echo "# Did not detect a valid BigBlueButton configuration for FreeSWITCH. The file"
-				echo "#   /opt/freeswitch/conf.dist/vars.xml" 
-				echo "# appears to be the original FreeSWITCH configuration file."
-				echo "#   Try running: sudo apt-get install bbb-freeswitch-config"
-				echo 
-			fi
-		fi
+               if [ ! -d /opt/freeswitch/conf/jingle_profiles ]; then
+                        echo
+                        echo "# You have an older version of FreeSWITCH installed.  To upgrade"
+                        echo "# enter the following commands"
+                        echo "# "
+                        echo "#   sudo apt-get remove bbb-freeswitch"
+                        echo "#   sudo apt-get install bigbluebutton"
+                        echo "# "
+                        echo
+                fi
+
 		
 		#
 		# Check that freeswtich ESL matches the value in bigbluebutton.properties
@@ -1355,7 +1354,6 @@ check_state() {
 		fi
 	fi
 
-	if dpkg -l | grep -q bbb-freeswitch-config; then
 		if [ "$VOICE_CONFERENCE" == "bbb-voice-asterisk.xml" ]; then
 			echo "# Error: You have freeswitch installed, but the current voice conference set"
 			echo "# to asterisk.  To switch to freeswitch, enter"
@@ -1389,13 +1387,6 @@ check_state() {
 				echo 
 			fi
 		fi
-	else
-		echo "# Error: You don't have bbb-freeswitch-config installed.  To install FreeSWITCH"
-		echo "#"
-		echo "#      sudo apt-get install bbb-freeswitch-config"
-		echo "#"
-		echo 
-	fi
 
 	if [ -d ${SERVLET_DIR}/lti ]; then
 		if test ${SERVLET_DIR}/lti.war -nt ${SERVLET_DIR}/lti; then 
