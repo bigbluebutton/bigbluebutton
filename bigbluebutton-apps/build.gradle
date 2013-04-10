@@ -81,11 +81,8 @@ dependencies {
 	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.2@jar' 
 	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
 	providedCompile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
-  providedCompile 'org.slf4j:slf4j-api:1.7.2@jar'
+    providedCompile 'org.slf4j:slf4j-api:1.7.2@jar'
 
-providedCompile 'commons-pool:commons-pool:1.5.6'
-
-providedCompile 'org.apache.commons:commons-lang3:3.0'
 	// Needed for the JVM shutdown hook but needs to be put into red5/lib dir.
 	// Otherwise we get exception on aop utils class not found.
 	providedCompile 'org.springframework:spring-aop:3.0.6.RELEASE@jar'
