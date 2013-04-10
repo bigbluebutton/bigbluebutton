@@ -3,9 +3,10 @@ define [
   'underscore',
   'backbone',
   'raphael',
+  'scale.raphael',
   'globals',
   'cs!utils'
-], ($, _, Backbone, Raphael, globals, Utils) ->
+], ($, _, Backbone, Raphael, ScaleRaphael, globals, Utils) ->
 
   # TODO: text, ellipse, line, rect and cursor could be models
 
@@ -21,8 +22,8 @@ define [
 
     # Container must be a DOM element
     initialize: (@container, @textbox) ->
-      @gw = null # TODO: description
-      @gh = null # TODO: description
+      @gw = "100%"
+      @gh = "100%"
       # x-offset from top left corner as percentage of original width of paper
       @cx = null
       # y-offset from top left corner as percentage of original height of paper
@@ -77,7 +78,9 @@ define [
     # are not yet created in the page.
     create: ->
       # paper is embedded within the div#slide of the page.
-      @raphaelObj ?= Raphael(@container, @gw, @gh)
+
+      console.log(ScaleRaphael);
+      @raphaelObj ?= ScaleRaphael(@container, @gw, @gh)
       @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
       @cursor = @raphaelObj.circle(0, 0, @cursorRadius)
       @cursor.attr "fill", "red"
@@ -106,10 +109,6 @@ define [
     addImageToPaper: (url, width, height) ->
       @_updateContainerDimensions()
 
-      # TODO: temporary adaptation for iPads
-      width = 670
-      height = 515
-
       console.log "adding image to paper", url, width, height
       if @fitToPage
         # solve for the ratio of what length is going to fit more than the other
@@ -117,7 +116,11 @@ define [
         # fit it all in appropriately
         # TODO: temporary solution
         url = PRESENTATION_SERVER + url unless url.match(/http[s]?:/)
-        img = @raphaelObj.image(url, @cx = 0, @cy = 0, @gw = width, @gh = height)
+        @cx = (@containerWidth / 2) - (width / 2)
+        @cy = (@containerHeight / 2) - (height / 2)
+
+        console.log "its fits"
+        img = @raphaelObj.image(url, @cx, @cy, @gw = width, @gh = height)
 
         # update the global variables we will need to use
         @sw = width / max
@@ -126,6 +129,7 @@ define [
         # sh_orig = sh
       else
         # fit to width
+        console.log "no fit"
         # assume it will fit width ways
         wr = width / @containerWidth
         img = @raphaelObj.image(url, @cx = 0, @cy = 0, width / wr, height / wr)
@@ -137,8 +141,8 @@ define [
         @gh = @sh
       @slides[url] =
         id: img.id
-        w: width
-        h: height
+        w: @sw
+        h: @sh
 
       unless @currentUrl
         img.toBack()

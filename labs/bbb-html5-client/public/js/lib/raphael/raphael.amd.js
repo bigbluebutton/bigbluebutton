@@ -13,6 +13,6 @@
 // Apps that want to load a plain old script that exports window.raphael
 // should use the combined raphael.js file.
 
-define(['./raphael.core', './raphael.svg', './raphael.vml'], function (R) {
+define(['./raphael.core', './raphael.svg', './raphael.vml', './scale.raphael'], function (R) {
     return R;
 });
