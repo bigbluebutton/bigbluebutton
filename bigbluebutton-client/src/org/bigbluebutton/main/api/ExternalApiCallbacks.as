@@ -36,6 +36,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.model.users.events.KickUserEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
   import org.bigbluebutton.modules.listeners.events.ListenersCommand;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
@@ -54,6 +55,7 @@ package org.bigbluebutton.main.api
     
     private function init():void {
       if (ExternalInterface.available) {
+        ExternalInterface.addCallback("ejectUserRequest", handleEjectUserRequest);
         ExternalInterface.addCallback("switchPresenterRequest", handleSwitchPresenterRequest);
         ExternalInterface.addCallback("getMyUserInfoSync", handleGetMyUserInfoSynch);
         ExternalInterface.addCallback("getMyUserInfoAsync", handleGetMyUserInfoAsynch);
@@ -99,6 +101,11 @@ package org.bigbluebutton.main.api
       }
     }
  
+    private function handleEjectUserRequest(userID:String):void {
+        var intUserID:String = UsersUtil.externalUserIDToInternalUserID(userID);
+        _dispatcher.dispatchEvent(new KickUserEvent(intUserID));
+    }
+    
     private function handleIsUserPublishingCamRequestSync(userID:String):Object {
       var obj:Object = new Object();
       var isUserPublishing:Boolean = false;

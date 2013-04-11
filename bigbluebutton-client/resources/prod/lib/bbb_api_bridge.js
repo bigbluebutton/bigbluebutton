@@ -112,6 +112,19 @@
     }
 
     /**
+     * Eject a user.
+     *
+     * Params:
+     *    userID - userID of the user you want to eject.
+     */    
+    BBB.ejectUser = function(userID) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        swfObj.ejectUserRequest(userID);
+      }
+    }
+    
+    /**
      * Query who is presenter.
      *
      * Params:
