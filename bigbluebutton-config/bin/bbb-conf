@@ -930,6 +930,16 @@ check_state() {
 		fi
 	done
 
+	#
+	# Check if any of the red5 BigBlueButton applications did not start propery
+	#
+	COMMANDS="ffmpeg ruby gem ghostscript pdf2swf"
+	for cmd in $COMMANDS ; do
+		if ! which $cmd > /dev/null; then
+			echo "#    $cmd command not found"
+		fi
+	done
+
 
 	if [ -f /usr/share/red5/log/sip.log ]; then
 		#
