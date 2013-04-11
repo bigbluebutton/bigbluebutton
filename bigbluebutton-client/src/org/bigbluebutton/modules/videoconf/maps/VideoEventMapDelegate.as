@@ -168,6 +168,8 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     private function openAvatarWindowFor(userID:String):void {      
+      if (! UsersUtil.hasUser(userID)) return;
+      
       var window:AvatarWindow = new AvatarWindow();
       window.userID = userID;
       window.title = UsersUtil.getUserName(userID);
@@ -389,8 +391,8 @@ package org.bigbluebutton.modules.videoconf.maps
     public function handleStoppedViewingWebcamEvent(event:StoppedViewingWebcamEvent):void {
       closeWindow(event.webcamUserID);
             
-      if (options.displayAvatar) {
-        trace("VideoEventMapDelegate:: [" + me + "] Opening avatar");
+      if (options.displayAvatar && UsersUtil.hasUser(event.webcamUserID)) {
+        trace("VideoEventMapDelegate:: [" + me + "] Opening avatar for user [" + event.webcamUserID + "]");
         openAvatarWindowFor(event.webcamUserID);              
       }        
     }
