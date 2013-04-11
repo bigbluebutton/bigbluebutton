@@ -190,10 +190,6 @@ usage() {
         echo "   --zip                            Zip up log files for reporting an error"
         echo
 
-        echo "Development:"
-        echo "   --setup-samba                    Setup samba share for current users"
-        echo "   --setup-dev [tools|client|web|apps]    Setup development environment "
-        echo "   --reset-dev                      Reset environment back to using packages"
         echo
 }
 
@@ -355,40 +351,6 @@ display_bigbluebutton_status () {
 	/etc/init.d/${SERVLET_CONTAINER} status
 }
 
-check_tools() {
-    if [ ! -d $1 ]; then
-        echo
-        echo "# Error: You haven't installed the development tools yet."
-        echo "# Run:"
-        echo "#    bbb-conf --setup-dev tools "
-        echo
-        exit 1
-    else
-        echo "# Found dev tools at $1"
-    fi
-}
-
-
-check_source() {
-	mkdir -p $HOME/dev
-        if [ ! -d $1 ]; then
-                echo 
-                echo "# You need to clone the BigBlueButton source from GitHub into"
-		echo "#"
-		echo "#     $HOME/dev"
-                echo "#"
-                echo "# After cloning you should have the folder"
-                echo "#"
-		echo "#     $HOME/dev/bigbluebutton"
-                echo "#"
-                echo "# For more information, see:"
-                echo "#    http://code.google.com/p/bigbluebutton/wiki/08SettingDevEnvironment"
-		echo
-		exit 1
-	else
-		echo "#    Found source at $1"
-        fi
-}
 
 if [ $# -eq 0 ]; then
 	usage
@@ -456,9 +418,13 @@ while [ $# -gt 0 ]; do
 	fi
 
 	if [ "$1" = "--reset-dev" -o "$1" = "-reset-dev" -o "$1" = "-r" ]; then
-		RESET_DEV=1
-		shift
-		continue
+		echo 
+		echo "This option is depreciated.  See "
+		echo 
+		echo "   https://code.google.com/p/bigbluebutton/wiki/081DevelopingBigBlueButton "
+		echo 
+		echo "for instructions on how to setup a development environment."
+		exit 0
 	fi
 
 	if [ "$1" = "--restart" -o "$1" = "-restart" ]; then
@@ -485,12 +451,13 @@ while [ $# -gt 0 ]; do
 	fi		
 
         if [ "$1" = "--setup-dev" -o "$1" = "-setup-dev" ]; then
-                SETUPDEV="${2}"
-		if test -z "${2}"; then
-			usage;
-		fi
-                shift; shift
-                continue
+		echo 
+		echo "This option is depreciated.  See "
+		echo 
+		echo "   https://code.google.com/p/bigbluebutton/wiki/081DevelopingBigBlueButton "
+		echo 
+		echo "for instructions on how to setup a development environment."
+		exit 0
         fi
 
 	if [ "$1" = "--conference" -o "$1" = "-conference" ]; then
@@ -625,305 +592,6 @@ you can map the above path to a drive letter.
         fi
 fi
 
-
-if [ $SETUPDEV ]; then
-	check_root
-
-	#
-	# Setup the development tools
-	#
-	if [ $SETUPDEV == "tools" ]; then
-
-		#
-		# Check for core development tools
-		#
-			if ! which git > /dev/null; then
-					sudo apt-get install git-core -y --force-yes
-			fi
-
-			if ! which ant > /dev/null; then
-					sudo apt-get install ant -y --force-yes
-			fi
-
-			if ! which javac > /dev/null; then
-					sudo apt-get install openjdk-6-jdk -y --force-yes
-			fi
-
-		BASE=~/dev/tools
-		mkdir -p $BASE
-		#
-		# Check for BigBlueButton-specific development tools
-		#
-		TOOLS="gradle-0.8 grails-1.1.1 groovy-1.6.5"
-		for tool in $TOOLS; do
-			if [ ! -d $BASE/$tool ]; then
-				cd $BASE
-				if [ ! -f $tool.tar.gz ]; then
-					wget http://bigbluebutton.googlecode.com/files/$tool.tar.gz
-				fi
-				echo "Installing $tool to $BASE/$tool"
-				tar xvfz $tool.tar.gz 
-			fi
-		done
-
-		if [ ! -f $BASE/flex-4.5.0.20967/flex-sdk-description.xml ]; then
-			cd $BASE
-			if [ ! -f flex_sdk_4.5.0.20967_mpl.zip ]; then
-				wget http://fpdownload.adobe.com/pub/flex/sdk/builds/flex4.5/flex_sdk_4.5.0.20967_mpl.zip
-			fi
-			mkdir -p $BASE/flex-4.5.0.20967
-			cd $BASE/flex-4.5.0.20967
-			unzip $BASE/flex_sdk_4.5.0.20967_mpl.zip
-			#
-			# The permissions are not in good shape, so let's fix them 
-			#
-			sudo find $BASE/flex-4.5.0.20967 -type d -exec chmod o+rx '{}' \;
-			chmod 755 $BASE/flex-4.5.0.20967/bin/*
-			sudo chmod -R +r $BASE/flex-4.5.0.20967
-			#sudo chmod o+w /usr/share/flex-4.5.0.20967/frameworks/projects/framework/bundles
-		fi
-
-		if [ ! -L $BASE/flex ]; then
-			ln -s $BASE/flex-4.5.0.20967 $BASE/flex
-		fi
-
-                if [ ! -f $BASE/flex-4.5.0.20967/frameworks/libs/player/11.2/playerglobal.swc ]; then
-                        mkdir -p $BASE/flex-4.5.0.20967/frameworks/libs/player/11.2
-                        cd $BASE/flex-4.5.0.20967/frameworks/libs/player/11.2
-                        if [ ! -f playerglobal11_2.swc ]; then
-                                wget http://download.macromedia.com/get/flashplayer/updaters/11/playerglobal11_2.swc
-                        fi
-                        mv -f playerglobal11_2.swc playerglobal.swc
-                fi
-
-		if ! grep -q GROOVY_HOME ~/.profile; then
-			echo "
-#
-# BigBlueButton: Setup development environment
-
-export GROOVY_HOME=$HOME/dev/tools/groovy-1.6.5
-export PATH=\$PATH:\$GROOVY_HOME/bin
-
-export GRAILS_HOME=$HOME/dev/tools/grails-1.1.1
-export PATH=\$PATH:\$GRAILS_HOME/bin
-
-export FLEX_HOME=$HOME/dev/tools/flex
-export PATH=\$PATH:\$FLEX_HOME/bin
-
-export GRADLE_HOME=$HOME/dev/tools/gradle-0.8
-export PATH=\$PATH:\$GRADLE_HOME/bin
-
-export JAVA_HOME=/usr/lib/jvm/java-6-openjdk
-export ANT_OPTS=\"-Xmx512m -XX:MaxPermSize=512m\"
-" >> ~/.profile
-		fi
-
-		if [ ! -n "$GROOVY_HOME" ]; then
-			echo "
-
-# Finished setting up your development environment variables in
-#
-#   $HOME/.profile
-#
-# Before you continue, you need to load them into your environment.
-# Do the following
-#
-#   source ~/.profile
-#
-# You then need to checkout the source for BigBlueButton.  See
-#
-#   http://code.google.com/p/bigbluebutton/wiki/08SettingDevEnvironment
-#
-"
-		
-			exit 0
-		fi
-	fi
-
-	check_tools ~/dev/tools
-
-	check_source ~/dev/bigbluebutton
-
-	#
-	# Now, setup the specific development environment
-	#
-    if [ $SETUPDEV == "web" ]; then
-	BBBWEBHOME=$HOME/dev/bigbluebutton/bigbluebutton-web
-	check_source $BBBWEBHOME
-
-        cp ${SERVLET_DIR}/bigbluebutton/WEB-INF/classes/bigbluebutton.properties $BBBWEBHOME/grails-app/conf
-
-
-        # Enabling $USER to write to /var/bigbluebutton to upload slides
-        sudo chmod -R ugo+rwx /var/bigbluebutton
-
-        # Enabling $USER to write to /var/log/bigbluebutton to write log files
-        sudo chmod -R ugo+rwx /var/log/bigbluebutton
-
-	# Resolving dependencies
-	cd $BBBWEBHOME
-	gradle resolveDeps
-
-        if [ ! -f /etc/bigbluebutton/nginx/web_dev ]; then
-            echo "
-         # Handle request to bbb-web running within Tomcat.  This is for
-         # the BBB-API and Presentation.
-       location /bigbluebutton {
-           proxy_pass         http://127.0.0.1:8888;
-           proxy_redirect     default;
-           proxy_set_header   X-Forwarded-For   \$proxy_add_x_forwarded_for;
-
-        # Allow 30M uploaded presentation document.
-           client_max_body_size       30m;
-           client_body_buffer_size    128k;
-
-           proxy_connect_timeout      90;
-           proxy_send_timeout         90;
-           proxy_read_timeout         90;
-
-           proxy_buffer_size          4k;
-           proxy_buffers              4 32k;
-           proxy_busy_buffers_size    64k;
-           proxy_temp_file_write_size 64k;
-
-           include    fastcgi_params;
-       }
-" | sudo tee /etc/bigbluebutton/nginx/web_dev > /dev/null 2>&1
-
-    fi
-
-    #sudo rm /etc/bigbluebutton/nginx/web.nginx
-    sudo ln -s -f /etc/bigbluebutton/nginx/web_dev /etc/bigbluebutton/nginx/web.nginx
-
-    sudo /etc/init.d/nginx restart
-
-    echo "
-# Done.  To run your local build of bbb-web:
-
-        cd ${BBBWEBHOME}
-        grails -Dserver.port=8888 run-app
-
-## Note ## 
-
-   You'll get an error running the above the first time.  Just cancel and run again.
-"
-    fi
-
-    if [ $SETUPDEV == "client" ]; then
-		BBBCLIENTHOME=$HOME/dev/bigbluebutton/bigbluebutton-client
-		check_source $BBBCLIENTHOME
-
-		#
-		# Setup initial values from the working environment
-		# 
-                cp /var/www/bigbluebutton/client/conf/config.xml $BBBCLIENTHOME/src/conf/config.xml
-                cp $BBBCLIENTHOME/resources/dev/join-mock.xml $BBBCLIENTHOME/src/conf/join-mock.xml
-
-		#
-		# We're going to create a symbolic link to the new location for BigBlueButton client
-		#
-		if [ ! -f /etc/bigbluebutton/nginx/client_dev ]; then
-			echo "
-        location /client/BigBlueButton.html {
-                root    $BBBCLIENTHOME;
-                index  index.html index.htm;
-                expires 1m;
-        }
-
-        # BigBlueButton Flash client.
-        location /client {
-                root    $BBBCLIENTHOME;
-                index  index.html index.htm;
-        }
-" | sudo tee /etc/bigbluebutton/nginx/client_dev > /dev/null 2>&1
-
-		fi
-		sudo ln -f -s /etc/bigbluebutton/nginx/client_dev /etc/bigbluebutton/nginx/client.nginx
-
-		if [ ! -L $BBBCLIENTHOME/client ]; then
-			ln -s $BBBCLIENTHOME/bin $BBBCLIENTHOME/client
-		fi
-
-		echo	
-                sudo /etc/init.d/nginx restart
-
-		# xxx
-		#if [ ! -d /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default ]; then
-		#	echo "# Creating /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default"
-                #        sudo mkdir -p /var/bigbluebutton/conference-mock-default/conference-mock-default/room-mock-default
-		#	echo "# chown /var/bigbluebutton/conference-mock-default to tomcat6"
-		#	sudo chown -R tomcat6:tomcat6 /var/bigbluebutton/conference-mock-default
-                #fi
-
-                cd $BBBCLIENTHOME
-
-                echo "
-# Setup of development for bigbluebutton-client complete.
-#
-# 1.  Build the language files.  (You need only do this once unless
-# you change the language files in the future.)
-#
-#       cd ${BBBCLIENTHOME}
-#	ant locales
-#
-# 2.  Modify the source for the client.  The source is locatedt at
-# 
-#       $BBBCLIENTHOME
-#
-# 3.  Build the client
-#
-#       cd ${BBBCLIENTHOME}
-#	ant
-
-"
-    fi
-
-    if [ $SETUPDEV == "apps" ]; then
-	    BBBAPPSHOME=~/dev/bigbluebutton/bigbluebutton-apps
-		check_source $BBBAPPSHOME
-
-        #
-        # We're going to make it easier to deploy by giving write access to others to
-        # $RED5_DIR/webapps
-        #
-        sudo chmod -R o+w $RED5_DIR/webapps
-
-        #
-        # Let's remove the existing bbb-apps
-        #
-        if dpkg-query -s bbb-apps | grep "install ok installed" > /dev/null 2>&1; then
-            sudo apt-get purge --yes bbb-apps
-        fi
-
-        echo "
-# Done.  To run your local build of bbb-apps:
-
-    sudo /etc/init.d/red5 stop
-    cd ${BBBAPPSHOME}
-    gradle resolveDeps
-    gradle clean war deploy
-    cd $RED5_DIR
-    sudo -u red5 ./red5.sh
-
-# To restore the packaged version of bbb-apps:
-
-    rm -rf $RED5_DIR/webapps/bigbluebutton
-    sudo apt-get install bigbluebutton
-    sudo /etc/init.d/red5 start
-"
-
-    fi
-fi
-
-if [ $RESET_DEV ]; then
-	check_root
-
-	echo "Reseting /etc/nginx/sites-available/bigbluebutton to point to /var/www/bigbluebutton"
-        sudo rm /etc/bigbluebutton/nginx/client.nginx
-        sudo ln -s /etc/bigbluebutton/nginx/client /etc/bigbluebutton/nginx/client.nginx
-
-	sudo /etc/init.d/nginx restart
-fi
 
 check_configuration() {
 	#
