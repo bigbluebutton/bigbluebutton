@@ -21,27 +21,27 @@
 test -x /var/bigbluebutton || exit 0
 
 #
-# How far back to delete old files
+# How N days back to keep files
 #
 history=5
 
 #
-# Delete presentations older than 10 days
+# Delete presentations older than N days
 #
 find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec rm -r '{}' \;
 
 #
-# Delete webcam streams in red5 older than one day
+# Delete webcam streams in red5 older than N days
 #
 find /usr/share/red5/webapps/video/streams/ -name "*.flv" -mtime +$history -exec rm '{}' \;
 
 #
-# Delete desktop sharing streams in red5 older than one day
+# Delete desktop sharing streams in red5 older than N days
 #
 find /var/bigbluebutton/deskshare/ -name "*.flv" -mtime +$history -exec rm '{}' \;
 
 #
-# Delete FreeSWITCH wav recordings older than one day
+# Delete FreeSWITCH wav recordings older than N days
 #
 find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -exec rm '{}' \;
 
