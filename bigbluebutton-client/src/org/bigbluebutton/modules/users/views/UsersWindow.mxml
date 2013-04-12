@@ -22,6 +22,7 @@
 
 <mdi:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:mdi="flexlib.mdi.containers.*" 
+	xmlns:flc="flexlib.controls.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
@@ -31,7 +32,6 @@
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
-	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="toggleMuteMeState" />
 	<mate:Listener type="{UsersEvent.ROOM_MUTE_STATE}" method="setRoomMute" />
 	<mx:Script>
 		<![CDATA[
@@ -105,8 +105,6 @@
 				BindingUtils.bindSetter(changeButtons, UserManager.getInstance().getConference(), "amIPresenter");
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
 				
-				BindingUtils.bindSetter(updateMuteMeBtn, UserManager.getInstance().getConference(), "voiceMuted"); 
-				
 				this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
 				ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
 				
@@ -156,17 +154,6 @@
 				var user:BBBUser = item.data as BBBUser;
 				var rollEvent:UsersRollEvent = new UsersRollEvent(UsersRollEvent.USER_ROLL_OUT, user.userID);
 				dispatcher.dispatchEvent(rollEvent);
-			}
-			
-			private function toggleMuteMeState(event:ShortcutEvent = null):void{
-				if (UserManager.getInstance().getConference().voiceJoined) {
-					if (UserManager.getInstance().getConference().voiceLocked && !UserManager.getInstance().getConference().amIModerator()) return;
-					
-					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-					e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
-					e.mute = !UserManager.getInstance().getConference().isMyVoiceMuted();
-					dispatchEvent(e);
-				}
 			}
 			
 			private function raiseHand():void{
@@ -377,23 +364,6 @@
 				usersGrid.drawFocus(true);
 			}
 			
-			private function updateMuteMeBtn(voiceMuted:Boolean = false):void {
-				if (UserManager.getInstance().getConference().voiceMuted == muteMeRolled)
-					muteMeBtn.setStyle("icon", images.audio);
-				else
-					muteMeBtn.setStyle("icon", images.audio_muted);
-			}
-			
-			private function mouseOverHandler():void {
-				muteMeRolled = true;
-				updateMuteMeBtn();
-			}
-			
-			private function mouseOutHandler():void {
-				muteMeRolled = false;
-				updateMuteMeBtn();
-			}
-			
 		]]>
 	</mx:Script>
 	
@@ -420,13 +390,6 @@
 					width="30" height="30" toolTip="Raise Hand" click="raiseHand()"
 					visible="false" includeInLayout="{raiseHandBtn.visible}" tabIndex="{partOptions.baseTabIndex+15}" />
 		<mx:Spacer width="100%"/>
-		<mx:Button id="muteMeBtn" click="toggleMuteMeState()" height="30" width="30" 
-					visible="{UserManager.getInstance().getConference().voiceJoined}"
-					mouseOver="mouseOverHandler()"
-					mouseOut="mouseOutHandler()"
-					toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.users.pushToMute.toolTip')}" 
-					tabIndex="{partOptions.baseTabIndex+20}"/>
-		
 	</mx:ControlBar>
 	
 </mdi:MDIWindow>
