@@ -1394,58 +1394,9 @@ if [ $DEBUG ]; then
 	#
 	# Additional checks for record and playback
 	#
-	rm -rf /tmp/t
-	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
-		  sudo grep -i Error /var/log/bigbluebutton/slides-process-* > /tmp/t 
-		  if [ -s /tmp/t ]; then
-			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-process-*.log -- "
-			cat /tmp/t
-			echo
-		  fi
-	fi
 
-	rm -rf /tmp/t
-	if ls /var/log/bigbluebutton/slides-publish-* > /dev/null 2>1; then
-		  sudo grep -i Error /var/log/bigbluebutton/slides-publish-* > /tmp/t 
-		  if [ -s /tmp/t ]; then
-			echo "   -- Ingest and Processing errors found in /var/log/bigbluebutton/slides-publish-*.log -- "
-			cat /tmp/t
-			echo
-		  fi
-	fi
+	bbb-record --check
 
-	rm -rf /tmp/t
-	if ls /var/log/bigbluebutton/slides-process-* > /dev/null 2>1; then
-		for file in /var/log/bigbluebutton/slides-process-*; do 
-		  if [ ! -f $(echo $file | sed 's/process/publish/g') ]; then 
-			echo "  $file" >> /tmp/t
-                  fi 
-                done
-
-		  if [ -s /tmp/t ]; then
-			echo "   -- Ingest and Processing: found process file but not publish -- "
-			cat /tmp/t
-			echo
-		  fi
-	fi
-
-
-	rm -rf /tmp/t
-	if ls /var/bigbluebutton/recording/status/recorded/*.done > /dev/null 2>1; then
-		for file in /var/bigbluebutton/recording/status/recorded/*.done; do 
-		  if [ ! -f $(echo $file | sed 's/recorded/archived/g') ]; then 
-			echo "  $file" >> /tmp/t
-                  fi 
-                done
-
-		  if [ -s /tmp/t ]; then
-			echo "   -- Ingest and Processing: found recorded meeting but no archive files-- "
-			cat /tmp/t
-			echo
-		  fi
-	fi
-	
-	
 	exit 0
 fi
 
