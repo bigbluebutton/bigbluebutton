@@ -19,7 +19,9 @@
     <script type="text/javascript" src="lib/bbb_check.js" language="javascript"></script>
     <script type="text/javascript" src="lib/pre_flight_check.js" language="javascript"></script>
     <script>
-
+      var testJava = function() {
+         window.open("http://www.java.com/en/download/testjava.jsp")
+      }
 
     </script>
   </head>
@@ -27,6 +29,9 @@
     <div id="controls">
       <button type="button" onclick="bbbCheckFlashVersion()">Check Flash Version</button>
       <button type="button" onclick="bbbHasMinFlashVersion('9.0.18')">Min Version</button>
+      <button type="button" onclick="bbbGetBrowser()">Get browser</button>
+      <button type="button" onclick="bbbGetJREs()">Get JREs</button>
+      <button type="button" onclick="testJava()">test Java</button>
     </div>
   </body>
 </html>
