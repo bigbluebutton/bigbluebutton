@@ -596,7 +596,7 @@ public String getRecordings(String meetingID) {
 					} 
 					playback += StringEscapeUtils.escapeXml("<a href='" + urlP + "' target='_blank'>" + typeP + "</a>");
 					
-					if(typeP.equalsIgnoreCase("slides")){
+					if(typeP.equalsIgnoreCase("slides") || typeP.equalsIgnoreCase("presentation")){
 						length = lengthP;
 					}
 				}
