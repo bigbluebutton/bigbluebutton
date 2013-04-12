@@ -21,6 +21,12 @@ package org.bigbluebutton.common
 	[Bindable]
 	public class Images
 	{
+		[Embed(source="assets/images/bandwidth.png")]
+		public var bandwidth:Class;
+		
+		[Embed(source="assets/images/arrow_refresh_small.png")]
+		public var refreshSmall:Class;
+		
 		[Embed(source="assets/images/webcam_close.png")]
 		public var webcamClose:Class;
 		

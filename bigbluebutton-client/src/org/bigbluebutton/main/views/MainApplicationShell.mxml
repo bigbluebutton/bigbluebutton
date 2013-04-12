@@ -96,6 +96,7 @@
 			[Bindable] private var fullscreen_icon:Class = images.full_screen;
 			[Bindable] private var logs_icon:Class = images.table;
 			[Bindable] private var reset_layout_icon:Class = images.layout;
+			[Bindable] private var statsIcon:Class = images.bandwidth;
 
 			private var receivedConfigLocaleVer:Boolean = false;
 			private var receivedResourceLocaleVer:Boolean = false;
@@ -306,36 +307,22 @@
 				Alert.show(evt.status, evt.module);
 			}
 						
-			private var networkStatsWindow:NetworkStatsWindow = new NetworkStatsWindow();
+			private var networkStatsWindow:NetworkStatsWindow = null;
 
-			private function openNetworkStatsWindow(event:MouseEvent):void {
-				event.target.addEventListener(MouseEvent.MOUSE_MOVE, updateNetworkStatsWindowPosition);
-				networkStatsWindow.appear(this);
-			}
-			
-			private function updateNetworkStatsWindowPosition(event:MouseEvent):void {
-				var mousePosition:Point = new Point(event.localX, event.localY);
-				//LogUtil.debug("mouse position: " + mousePosition.x + " " + mousePosition.y);
-				
-				var mouseGlobal:Point = event.target.localToGlobal(mousePosition);
-				//LogUtil.debug("mouse global position: " + mouseGlobal.x + " " + mouseGlobal.y);
-				
-				var windowPosition:Point = this.globalToContent(mouseGlobal);
-				//LogUtil.debug("window position: " + windowPosition.x + " " + windowPosition.y);
-				
-				networkStatsWindow.x = windowPosition.x - networkStatsWindow.width - 10;
-				networkStatsWindow.y = windowPosition.y - networkStatsWindow.height - 10;
-			}
-			
-			private function closeNetworkStatsWindow(event:MouseEvent):void {
-				event.target.removeEventListener(MouseEvent.MOUSE_MOVE, updateNetworkStatsWindowPosition);
-				networkStatsWindow.disappear();
+			private function openNetworkStatsWindow():void {
+				if (networkStatsWindow == null)
+					networkStatsWindow = new NetworkStatsWindow();
+
+				mdiCanvas.windowManager.add(networkStatsWindow);
+				mdiCanvas.windowManager.absPos(networkStatsWindow, mdiCanvas.width - networkStatsWindow.width, mdiCanvas.height - networkStatsWindow.height);
+				mdiCanvas.windowManager.bringToFront(networkStatsWindow);
 			}
 
 	        private function updateBandwidthTimerHandler(e:TimerEvent):void {
 				_bandwidthConsumedDown = NetworkStatsData.getInstance().formattedCurrentConsumedDownBW;
 				_bandwidthConsumedUp = NetworkStatsData.getInstance().formattedCurrentConsumedUpBW;
 	        }
+	        
 		]]>
 	</mx:Script>
 			
@@ -349,7 +336,8 @@
 	  	<mx:Label text="{ResourceUtil.getInstance().getString('bbb.mainshell.copyrightLabel2',[appVersion])}" id="copyrightLabel2"/>
 	 	<mx:Spacer width="20"/>
 		<mx:Spacer width="100%"/> 
-		<mx:Label text="[{ResourceUtil.getInstance().getString('bbb.bwmonitor.upload.short')}: {_bandwidthConsumedUp} | {ResourceUtil.getInstance().getString('bbb.bwmonitor.download.short')}: {_bandwidthConsumedDown}]" mouseOver="openNetworkStatsWindow(event)" mouseOut="closeNetworkStatsWindow(event)" id="lblNetworkStats"/>
+		<mx:Label text="[{ResourceUtil.getInstance().getString('bbb.bwmonitor.upload.short')}: {_bandwidthConsumedUp} | {ResourceUtil.getInstance().getString('bbb.bwmonitor.download.short')}: {_bandwidthConsumedDown}]" id="lblNetworkStats"/>
+		<mx:Button id="btnNetwork" icon="{statsIcon}" width="20" height="20" click="openNetworkStatsWindow()" />
 		<mx:Button width="20" height="20" visible="{layoutOptions.showLogButton}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.logBtn.toolTip')}" id="logBtn" icon="{logs_icon}" click="openLogWindow()" />
 		<mx:Button width="20" height="20" visible="{layoutOptions.showResetLayout}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" />
 	</mx:ControlBar>
