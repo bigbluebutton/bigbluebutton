@@ -8,25 +8,25 @@
       body                                    { margin:0; padding:0; overflow:hidden; }
       #altContent                             { /* style alt content */ }
     </style>
-    <script type="text/javascript" src="http://192.168.153.128/client/swfobject/swfobject.js"></script>
+    <script type="text/javascript" src="../swfobject/swfobject.js"></script>
     <script type="text/javascript">
       swfobject.registerObject("BigBlueButton", "11", "expressInstall.swf");
       swfobject.registerObject("WebcamPreviewStandalone", "11", "expressInstall.swf");
       swfobject.registerObject("WebcamViewStandalone", "11", "expressInstall.swf");
     </script>
-    <script type="text/javascript" src="http://192.168.153.128/client/lib/jquery-1.5.1.min.js" language="javascript"></script>
-    <script type="text/javascript" src="http://192.168.153.128/client/check/lib/deployJava.js" language="javascript"></script>
+    <script type="text/javascript" src="../lib/jquery-1.5.1.min.js" language="javascript"></script>
+    <script type="text/javascript" src="lib/deployJava.js" language="javascript"></script>
+    <script type="text/javascript" src="lib/bbb_check.js" language="javascript"></script>
+    <script type="text/javascript" src="lib/pre_flight_check.js" language="javascript"></script>
     <script>
-      var playerVersion = swfobject.getFlashPlayerVersion();
-      var output = "You have Flash player " +
-      playerVersion.major + "." + playerVersion.minor + "." +
-      playerVersion.release + " installed";
-      alert(output);
+
+
     </script>
   </head>
   <body>
     <div id="controls">
-      <button type="button" onclick="registerListeners()">Listen for Events</button>
+      <button type="button" onclick="bbbCheckFlashVersion()">Check Flash Version</button>
+      <button type="button" onclick="bbbHasMinFlashVersion('9.0.18')">Min Version</button>
     </div>
   </body>
 </html>
