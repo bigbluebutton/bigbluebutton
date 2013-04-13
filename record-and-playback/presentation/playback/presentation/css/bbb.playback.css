@@ -22,7 +22,7 @@ html{
 }
 body {
 	font-family: Verdana;
-	background: #eee;
+	background: #fff;
 	padding-top: 30px;
 }
 h1 {
@@ -90,7 +90,7 @@ br{
 #slide {
 	background-image: url('../logo.png');
 	text-align: center;
-	border: 1px solid #ccc;
+	border: 0px solid #ccc;
 	width: 800px;
 	height: 600px; /* same as slide images */
 	position: relative;
@@ -120,7 +120,7 @@ br{
 #chat{
 	margin: 0 auto;
 	padding: 0 10px;
-	border: 1px solid #ccc;
+	border: 0px solid #ccc;
 	height: 300px;
 	overflow: auto;
 }
@@ -136,7 +136,7 @@ br{
 	width: 130px;
 	height: 600px; /* same as #slide */
 	background: #fff;
-	border: 1px solid #bbb;
+	border: 0px solid #bbb;
 	margin-right: 10px;
 	overflow-y: scroll;
 	overflow-x: hidden;
@@ -145,7 +145,7 @@ br{
 #thumbnails img.thumbnail {
 	width: 100px;
 	height: auto;
-	border: 1px solid #eee;
+	border: 0px solid #eee;
 	margin: 5px;
 	cursor: pointer;
 	vertical-align: bottom;
