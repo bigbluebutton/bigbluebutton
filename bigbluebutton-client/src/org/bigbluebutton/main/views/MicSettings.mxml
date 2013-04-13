@@ -198,7 +198,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 								   styleName="micSettingsWindowHelpButtonStyle"
 								   click="onHelpButtonClicked()"/>          
 				</mx:HBox>
-				<mx:HRule width="100%"/>
 			</mx:VBox> 
 		</mx:HBox>
 		<mx:HBox width="100%">      
