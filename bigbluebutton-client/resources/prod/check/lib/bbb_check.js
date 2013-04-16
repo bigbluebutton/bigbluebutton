@@ -2,6 +2,16 @@
 
   var BBBCheck = {};
 
+  /**
+     * Internal function to get the BBB embed object. Seems like we have to do this
+     * each time and can't create a var for it.
+     *
+     * To get the object, see https://code.google.com/p/swfobject/wiki/api
+  */
+  function getSwfObj() {
+    return swfobject.getObjectById("MicrophoneCheck");
+  }
+    
   BBBCheck.getFlashPlayerVersion = function() {
     return swfobject.getFlashPlayerVersion();
   }
@@ -30,6 +40,87 @@
     deployJava.runApplet(attributes, parameters, minimumVersion);
   }
 
+  BBBCheck.runApplet = function(attributes, parameters, minimumVersion) {
+    deployJava.runApplet(attributes, parameters, minimumVersion);
+  }
+  
+  BBBCheck.showMicSettings = function() {
+    var swfObj = getSwfObj();
+    if (swfObj) { 
+      swfObj.showMicSettings();
+    }
+  }
+  
+  BBBCheck.microphoneCheckAppReady = function() {
+    console.log("microphone check app ready.");
+    broadcast("MicCheckAppReadyEvent");
+  }
+  
+  BBBCheck.noAvailableMicrophoneError = function() {
+    console.log("no available microphone");
+  }
+
+  BBBCheck.microphoneAccessDenied = function() {
+    console.log("Mic access has been denied.");
+  }
+  
+  BBBCheck.microphoneAccessAllowed = function() {
+    console.log("Mic access has been allowed.");
+  }
+  
+    /* ***********************************************************************************
+     *       Broadcasting of events to 3rd-party apps.
+     *************************************************************************************/
+    
+    /** Stores the 3rd-party app event listeners ***/ 
+    var listeners = {};
+
+    /**
+     * 3rd-party apps should user this method to register to listen for events.
+     */
+    BBBCheck.listen = function(eventName, handler) {
+        if (typeof listeners[eventName] === 'undefined')
+            listeners[eventName] = [];
+        
+        listeners[eventName].push(handler);
+    };
+
+    /**
+     * 3rd-party app should use this method to unregister listener for a given event.
+     */
+    BBBCheck.unlisten = function(eventName, handler) {
+        if (!listeners[eventName])
+            return;
+        
+        for (var i = 0; i < listeners[eventName].length; i++) {
+            if (listeners[eventName][i] === handler) {
+                listeners.splice(i, 1);
+                break;
+            }
+        }
+    };
+
+    /**
+     * Private function to broadcast received event from the BigBlueButton Flash client to
+     * 3rd-parties.
+     */
+    function broadcast(eventName, params) {
+        if (!listeners[eventName]) {
+            console.log("No listeners for [" + eventName + "]");        
+            return;
+        }
+        
+        for (var i = 0; i < listeners[eventName].length; i++) {
+            console.log("Notifying listeners for [" + eventName + "]"); 
+            if (params == null) {
+              listeners[eventName][i]();
+            } else {
+              listeners[eventName][i](params);
+            }
+            
+        }
+    };
+    
   window.BBBCheck = BBBCheck;
 })(this);
  

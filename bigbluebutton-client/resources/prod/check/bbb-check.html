@@ -10,9 +10,7 @@
     </style>
     <script type="text/javascript" src="../swfobject/swfobject.js"></script>
     <script type="text/javascript">
-      swfobject.registerObject("BigBlueButton", "11", "expressInstall.swf");
-      swfobject.registerObject("WebcamPreviewStandalone", "11", "expressInstall.swf");
-      swfobject.registerObject("WebcamViewStandalone", "11", "expressInstall.swf");
+      swfobject.registerObject("MicrophoneCheck", "11", "expressInstall.swf");
     </script>
     <script type="text/javascript" src="../lib/jquery-1.5.1.min.js" language="javascript"></script>
     <script type="text/javascript" src="lib/deployJava.js" language="javascript"></script>
@@ -22,7 +20,9 @@
       var testJava = function() {
          window.open("http://www.java.com/en/download/testjava.jsp")
       }
-
+      window.onload = function() {
+         registerListeners();
+      }
     </script>
   </head>
   <body>
@@ -32,6 +32,29 @@
       <button type="button" onclick="bbbGetBrowser()">Get browser</button>
       <button type="button" onclick="bbbGetJREs()">Get JREs</button>
       <button type="button" onclick="testJava()">test Java</button>
+      <button type="button" onclick="bbbCheckShowMicSettings()">show mic settings</button>
     </div>
+    <div id="webcamview" style="background-color:#FFD700;height:215px;width:138px;float:left;">
+        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540002" width="215" height="138" id="MicrophoneCheck" name="MicrophoneCheck" align="middle">
+          <param name="movie" value="http://192.168.0.249/client/MicrophoneCheck.swf?v=VERSION" />
+          <param name="quality" value="high" />
+          <param name="allowfullscreen" value="true" />
+          <param name="bgcolor" value="#869ca7" />
+          <param name="wmode" value="window" />
+          <param name="allowScriptAccess" value="always" />
+          <!--[if !IE]>-->
+            <object type="application/x-shockwave-flash" data="http://192.168.0.249/client/MicrophoneCheck.swf?v=VERSION" width="215" height="138" align="middle">
+              <param name="quality" value="high" />
+              <param name="bgcolor" value="#869ca7" />
+              <param name="allowScriptAccess" value="always" />
+              <!--<![endif]-->
+                <a href="http://www.adobe.com/go/getflashplayer">
+                  <img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" />
+                </a>
+              <!--[if !IE]>-->
+           </object>
+        <!--<![endif]-->
+        </object>
+     </div>
   </body>
 </html>

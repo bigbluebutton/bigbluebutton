@@ -1,3 +1,13 @@
+var registerListeners = function() {
+  console.log("Listening for events.");
+  BBBCheck.listen("MicCheckAppReadyEvent", function() {
+    console.log("Received [MicCheckAppReadyEvent].");
+  });
+  BBBCheck.listen("NewRoleEvent", function(bbbCheckEvent) {
+    console.log("New Role Event [amIPresenter=" + bbbCheckEvent.amIPresenter + ",role=" + bbbCheckEvent.role + ",newPresenterUserID=" + bbbCheckEvent.newPresenterUserID + "].");
+  });
+}
+
 
 var bbbCheckFlashVersion = function() {
   var playerVersion = BBBCheck.getFlashPlayerVersion();
@@ -14,4 +24,8 @@ var bbbGetBrowser = function() {
 
 var bbbGetJREs = function() {
   console.log("JREs = " + BBBCheck.getJREs());
+}
+
+var bbbCheckShowMicSettings = function() {
+  BBBCheck.showMicSettings();
 }
