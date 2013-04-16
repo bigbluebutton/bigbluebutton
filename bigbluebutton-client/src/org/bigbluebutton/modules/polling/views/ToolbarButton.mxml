@@ -33,12 +33,12 @@
 	>
 	<mx:Script>
 		<![CDATA[
-		    import com.asfusion.mate.events.Dispatcher;
+      import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-	       	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
+	    import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 			import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
 			import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
@@ -127,7 +127,7 @@
 				listInitialize();
 			}
 			
-        	private function menuClick(event:MenuEvent):void {            	
+      private function menuClick(event:MenuEvent):void {            	
 				if(event.index == 0){
             	  	openPollingInstructions();
             	}else{

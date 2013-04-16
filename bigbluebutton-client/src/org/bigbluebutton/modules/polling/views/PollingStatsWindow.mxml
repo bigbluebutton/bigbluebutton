@@ -34,38 +34,42 @@
 
 	<mx:Script>
 		<![CDATA[
-		import flexlib.mdi.events.MDIWindowEvent;
-		import org.bigbluebutton.main.views.MainCanvas;
-		import mx.controls.Alert;
-		import org.bigbluebutton.common.LogUtil;	 
-		import org.bigbluebutton.modules.polling.events.StartPollingEvent;
-		import org.bigbluebutton.modules.polling.managers.PollingManager;
-		import org.bigbluebutton.modules.polling.events.VoteEvent;
-		import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
-		import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
-		import org.bigbluebutton.modules.polling.events.StopPollEvent;
-		import org.bigbluebutton.modules.polling.events.SavePollEvent;
-		import org.bigbluebutton.modules.polling.events.PublishPollEvent;
-		import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;		
-		import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;			
-		import org.bigbluebutton.modules.polling.model.PollObject;
-		import org.bigbluebutton.modules.polling.model.PollStatLineObject;
-		import org.bigbluebutton.modules.polling.model.AnswerObject;				
-		import org.bigbluebutton.core.managers.UserManager;
-		import org.bigbluebutton.main.model.users.Conference 
-		import org.bigbluebutton.main.model.users.BBBUser;
-		import org.bigbluebutton.common.Role;
-		import mx.validators.Validator;	
-		import mx.utils.ObjectUtil;
-		import org.bigbluebutton.util.i18n.ResourceUtil;			
-		import mx.collections.ArrayCollection;
-		import mx.core.IUIComponent;
-		import mx.controls.Text;
-		import mx.controls.TextArea;
-		import mx.containers.*;
-		import mx.controls.*;		
-		import flash.utils.Timer;
-		import flash.events.TimerEvent;
+      import flash.events.TimerEvent;
+      import flash.utils.Timer;
+      
+      import flexlib.mdi.events.MDIWindowEvent;
+      
+      import mx.collections.ArrayCollection;
+      import mx.containers.*;
+      import mx.controls.*;
+      import mx.controls.Alert;
+      import mx.controls.Text;
+      import mx.controls.TextArea;
+      import mx.core.IUIComponent;
+      import mx.utils.ObjectUtil;
+      import mx.validators.Validator;
+      
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.Role;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.model.users.BBBUser;
+      import org.bigbluebutton.main.model.users.Conference;
+      import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
+      import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+      import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
+      import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
+      import org.bigbluebutton.modules.polling.events.PublishPollEvent;
+      import org.bigbluebutton.modules.polling.events.SavePollEvent;
+      import org.bigbluebutton.modules.polling.events.StartPollingEvent;
+      import org.bigbluebutton.modules.polling.events.StopPollEvent;
+      import org.bigbluebutton.modules.polling.events.VoteEvent;
+      import org.bigbluebutton.modules.polling.managers.PollingManager;
+      import org.bigbluebutton.modules.polling.model.AnswerObject;
+      import org.bigbluebutton.modules.polling.model.PollObject;
+      import org.bigbluebutton.modules.polling.model.PollStatLineObject;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	   	public static const LOGNAME:String = "[PollingStatsWindow] ";
 		[Bindable] public var question:String;
@@ -88,8 +92,8 @@
 		
 		private function init():void{			
 			conference = UserManager.getInstance().getConference();
-			webPollText.visible = (conference.amIPresenter() && (!reviewing && trackingPoll.publishToWeb));
-			btnClosePoll.visible = conference.amIPresenter();
+			webPollText.visible = (UsersUtil.amIPresenter() && (!reviewing && trackingPoll.publishToWeb));
+			btnClosePoll.visible = UsersUtil.amIPresenter();
 			webPollBox.visible = webPollText.visible;
 						
 			if (webPollText.visible){				
@@ -119,7 +123,7 @@
 			if(viewingClosedPoll)
 				stopPoll();
 			
-			if (conference.amIPresenter()){
+			if (UsersUtil.amIPresenter()){
 				messageForRecording("A poll is open for voting.");
 				messageForRecording(ResourceUtil.getInstance().getString('bbb.polling.createPoll.title') + " " + trackingPoll.title);
 				messageForRecording(ResourceUtil.getInstance().getString('bbb.polling.createPoll.question') + " " + trackingPoll.question);
@@ -148,7 +152,7 @@
 		public function setUrlBoxText():void{
 			webPollURLBox.text = webPollUrl;
 			LogUtil.debug("webPollURLBox.Text is : " + webPollURLBox.text);
-			if (conference.amIPresenter())
+			if (UsersUtil.amIPresenter())
 				messageForRecording(ResourceUtil.getInstance().getString('bbb.polling.stats.webPollURL') + " " + webPollUrl);
 		}
 
@@ -189,7 +193,7 @@
  		private function stopPoll():void{
  			refreshPoll();
 			refreshTimer.stop();
- 			btnRefreshResults.visible = conference.amIPresenter();
+ 			btnRefreshResults.visible = UsersUtil.amIPresenter();
  			btnRefreshResults.label = ResourceUtil.getInstance().getString('bbb.polling.stats.repost');
 			btnRefreshResults.removeEventListener(MouseEvent.CLICK, refreshWindow);
 			btnRefreshResults.addEventListener(MouseEvent.CLICK, publishPollAgain);
