@@ -297,7 +297,7 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
     }
 
     String setConfigXML_parameters = "meetingID=" + urlEncode(meetingID) + 
-            "&checksum=" + checksum(urlEncode(meetingID) + encodeURIComponent(xml_param) + salt) +"&configXML=" + urlEncode(encodeURIComponent(xml_param));
+            "&checksum=" + checksum(meetingID + encodeURIComponent(xml_param) + salt) +"&configXML=" + urlEncode(encodeURIComponent(xml_param));
     
     url = "";
     try {
@@ -888,6 +888,26 @@ public String getBigBlueButtonIP()
         e.printStackTrace();
         return "localhost";
     }
+}
+
+public static Element getElementWithAttribute(Node root, String attrName, String attrValue)
+{
+      NodeList nl = root.getChildNodes();
+      for (int i = 0; i < nl.getLength(); i++) {
+          Node n = nl.item(i);
+          if (n instanceof Element) {
+              Element el = (Element) n;
+              if (el.getAttribute(attrName).equals(attrValue)) {
+                  return el;
+              }else{
+         el =  getElementWithAttribute(n, attrName, attrValue); //search recursively
+         if(el != null){
+          return el;
+         }
+      }
+          }
+      }
+      return null;
 }
 
 %>
