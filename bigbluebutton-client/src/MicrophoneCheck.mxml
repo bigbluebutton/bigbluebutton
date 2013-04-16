@@ -7,7 +7,11 @@
       private function appInit():void {
         if (ExternalInterface.available) {
           ExternalInterface.addCallback("showMicSettings", handleShowMicSettingsRequest);
-          ExternalInterface.addCallback("testMicrophone", handleShowMicSettingsRequest);
+          ExternalInterface.addCallback("startTestMicrophone", handleStartTestMicrophoneRequest);
+          ExternalInterface.addCallback("stopTestMicrophone", handleStopTestMicrophoneRequest);
+          
+          ExternalInterface.addCallback("showCamSettings", handleShowCamSettingsRequest);
+          
         }
         
         // Tell out JS counterpart that we are ready.
@@ -28,8 +32,7 @@
             Security.showSettings(SecurityPanel.PRIVACY);
           } else {
             // user has allowed access to the mic
-            mic.setLoopBack(false);
-            mic.setUseEchoSuppression(true);
+            handleStartTestMicrophoneRequest();
           }
         } else {
           ExternalInterface.call("BBBCheck.noAvailableMicrophoneError");
@@ -43,23 +46,37 @@
             break;
           case "Microphone.Unmuted":
             ExternalInterface.call("BBBCheck.microphoneAccessAllowed");
+            handleStartTestMicrophoneRequest();
+            break;
+          case "Camera.Unmuted":
+            ExternalInterface.call("BBBCheck.camAccessDenied");
+ //           handleStartTestCameraRequest();
+            break;
+          case "Camera.Muted":
+            ExternalInterface.call("BBBCheck.camAccessAllowed");
+//            handleStartTestMicrophoneRequest();
             break;
         }
       }	
       
-      private function handleTestMicrophoneRequest(loopback:Boolean=false):void {
-        if (loopback) {
+      private function handleStartTestMicrophoneRequest():void {
           if (mic != null) {
             mic.setLoopBack(true);
             mic.setUseEchoSuppression(true);
-          }
-          
-          Security.showSettings(SecurityPanel.MICROPHONE);
-        } else {
-          mic.setLoopBack(false);
-        }
-        
+            Security.showSettings(SecurityPanel.MICROPHONE);
+          }        
       }
+      
+      private function handleStopTestMicrophoneRequest():void {
+        if (mic != null) {
+          mic.setLoopBack(false);
+        }        
+      }
+      
+      private function handleShowCamSettingsRequest():void {
+        Security.showSettings(SecurityPanel.CAMERA);
+      }
+      
     ]]>
   </mx:Script>
 </mx:Application>

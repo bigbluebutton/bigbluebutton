@@ -29,6 +29,7 @@
 	<property name="DESKSHARE_SA" value="DeskshareStandalone" />
 	<property name="CAM_PREVIEW_SA" value="WebcamPreviewStandalone" />
 	<property name="MICROPHONE_CHECK" value="MicrophoneCheck" />
+	<property name="CAMERA_CHECK" value="CameraCheck" />
 	<property name="CAM_VIEW_SA" value="WebcamViewStandalone" />
 	<property name="PHONE" value="PhoneModule" />
 	<property name="NOTES" value="NotesModule" />
@@ -233,7 +234,12 @@
     <echo message="Compiling Microphone Check Application." />
     <build-module-no-link src="${SRC_DIR}" target="${MICROPHONE_CHECK}" />
   </target>
-      	
+
+  <target name="build-cam-check" description="Compile Camera Check Application">
+    <echo message="Compiling Camera Check Application." />
+    <build-module-no-link src="${SRC_DIR}" target="${CAMERA_CHECK}" />
+  </target>
+        	
 	<target name="build-deskshare" description="Compile Deskshare Module">
 		<build-module src="${SRC_DIR}" target="${DESKSHARE}" />
 		<echo message="Copying deskshare applet for Deskshare Module" />
@@ -496,7 +502,7 @@
 	                                        build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" 
 			description="Build BBB client skipping compiling of locales"/>	
 	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, build-polling, build-mic-check,
-	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb, branding, branding-black" 
+	                                         build-cam-check, build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb, branding, branding-black" 
 			description="Build BBB client including locales"/>
 	<target name="modules" depends="init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
 	                                         build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb"

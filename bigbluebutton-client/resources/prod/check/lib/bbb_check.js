@@ -43,11 +43,32 @@
   BBBCheck.runApplet = function(attributes, parameters, minimumVersion) {
     deployJava.runApplet(attributes, parameters, minimumVersion);
   }
+
+  BBBCheck.showCamSettings = function() {
+    var swfObj = getSwfObj();
+    if (swfObj) { 
+      swfObj.showCamSettings();
+    }
+  }
   
   BBBCheck.showMicSettings = function() {
     var swfObj = getSwfObj();
     if (swfObj) { 
       swfObj.showMicSettings();
+    }
+  }
+
+  BBBCheck.startTestMicrophone = function() {
+    var swfObj = getSwfObj();
+    if (swfObj) { 
+      swfObj.startTestMicrophone();
+    }
+  }
+
+  BBBCheck.stopTestMicrophone = function() {
+    var swfObj = getSwfObj();
+    if (swfObj) { 
+      swfObj.stopTestMicrophone();
     }
   }
   

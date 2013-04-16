@@ -29,3 +29,15 @@ var bbbGetJREs = function() {
 var bbbCheckShowMicSettings = function() {
   BBBCheck.showMicSettings();
 }
+
+var bbbCheckStartTestMic = function() {
+  BBBCheck.startTestMicrophone();
+}
+
+var bbbCheckStopTestMic = function() {
+  BBBCheck.stopTestMicrophone();
+}
+
+var bbbCheckShowCamSettings = function() {
+  BBBCheck.showCamSettings();
+}

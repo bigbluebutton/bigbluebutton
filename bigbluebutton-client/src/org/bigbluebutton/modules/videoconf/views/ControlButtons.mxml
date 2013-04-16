@@ -118,9 +118,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = false;
 	          }
 	          
-			  if(UsersUtil.isMe(sharerUserID)){
-				  ejectUserBtn.visible = false;
-			  }
+    			  if(UsersUtil.isMe(sharerUserID)){
+    				  ejectUserBtn.visible = false;
+    			  }
 			  
 	          muteUnmuteBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.muteButton.toolTip', [UsersUtil.getUserName(sharerUserID)]);
 	          switchPresenter.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.switchPresenter.toolTip', [UsersUtil.getUserName(sharerUserID)]);
