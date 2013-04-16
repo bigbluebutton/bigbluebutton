@@ -50,6 +50,19 @@ package org.bigbluebutton.common
 			logger.warn(message);
 		}
 		
+		public static function traceObject(obj : *, level : int = 0):void
+		{
+			var tabs : String = "";
+			for ( var i : int = 0 ; i < level ; ++i ) {
+				tabs += "        "
+			}
+			
+			for ( var prop : String in obj ){
+				debug( tabs + "[" + prop + "] -> " + obj[ prop ] );
+				traceObject( obj[ prop ], level + 1 );
+			}
+		}
+
 		private static function get logger():ILogger {
 			return Log.getLogger(LOGGER);
 		}

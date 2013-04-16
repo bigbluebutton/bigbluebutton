@@ -58,8 +58,6 @@
    		<MethodInvoker generator="{LayoutManager}" method="comboboxInitialized"/>
 	</EventHandlers>
     
-    
-    
     <EventHandlers type="{LayoutEvent.STOP_LAYOUT_MODULE_EVENT}">
    		<MethodInvoker generator="{LayoutService}" method="leave" />
    		<MethodInvoker generator="{LayoutEventMapDelegate}" method="stopModule" />
