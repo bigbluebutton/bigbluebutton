@@ -35,15 +35,19 @@ $Id: $
 	
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="toggleMuteMeState" />
-	
+	<mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalking" />
+				   
 	<mx:Script>
 		<![CDATA[
 			import mx.binding.utils.BindingUtils;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.core.EventConstants;
+			import org.bigbluebutton.core.events.CoreEvent;
 			import org.bigbluebutton.core.events.VoiceConfEvent;
+			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
@@ -60,6 +64,18 @@ $Id: $
 				updateMuteMeBtn();
 			}
 			
+			private function handleUserTalking(e:CoreEvent):void {
+				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
+				if (UserManager.getInstance().getConference().amIThisUser(e.message.userID)) {
+					if(e.message.talking){
+						LogUtil.debug("talking effect!!!!!!!!!!");
+						muteMeBtnImg.filters = [new GlowFilter(0x898989)];
+					}else{
+						muteMeBtnImg.filters = [];
+					}
+				}
+			}
+			
 			private function localeChanged(e:LocaleChangeEvent):void {
 				updateMuteMeBtn();
 			}
@@ -73,18 +89,28 @@ $Id: $
 					if (muteMeRolled) {
 						if (UserManager.getInstance().getConference().voiceMuted) {
 							muteMeBtnImg.source = images.audio;
-							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.listeners.talk");
+							muteMeBtnTxt.visible = false;
+							muteMeBtnTxt.includeInLayout = false;
+							setStyle("horizontalAlign", "center");
+							//muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.listeners.talk");
 						} else {
 							muteMeBtnImg.source = images.audio_muted;
+							muteMeBtnTxt.visible = true;
+							muteMeBtnTxt.includeInLayout = true;
 							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.listeners.mute");
 						}
 					} else {
 						if (UserManager.getInstance().getConference().voiceMuted) {
 							muteMeBtnImg.source = images.audio_muted;
+							muteMeBtnTxt.visible = true;
+							muteMeBtnTxt.includeInLayout = true;
 							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.muted");
 						} else {
 							muteMeBtnImg.source = images.audio;
-							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.unmuted");
+							muteMeBtnTxt.visible = false;
+							muteMeBtnTxt.includeInLayout = false;
+							setStyle("horizontalAlign", "center");
+							//muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.unmuted");
 						}
 					}
 				}
@@ -113,7 +139,7 @@ $Id: $
 		]]>
 	</mx:Script>
 	
-	<mx:HBox verticalAlign="middle" horizontalGap="0" paddingLeft="5" paddingTop="0" paddingRight="5" paddingBottom="0">
+	<mx:HBox verticalAlign="middle" horizontalAlign="center" horizontalGap="0" paddingLeft="5" paddingTop="0" paddingRight="5" paddingBottom="0" width="100%">
 		<mx:Image id="muteMeBtnImg" />
 		<mx:Label id="muteMeBtnTxt" />
 	</mx:HBox>

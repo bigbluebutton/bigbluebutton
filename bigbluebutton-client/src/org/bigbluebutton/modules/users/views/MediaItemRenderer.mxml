@@ -150,6 +150,7 @@
 				if (data != null) {
 					kickUserBtn.visible = !data.me && rolledOver;
 					
+					
 					if (!data.voiceJoined) {
 						muteImg.visible = false;
 						muteImg.includeInLayout = false;
@@ -158,6 +159,13 @@
 					} else {
 						muteImg.visible = !rolledOver;
 						muteImg.includeInLayout = !rolledOver;
+						
+						if(data.talking && !rolledOver){
+							muteImg.filters = [new GlowFilter(0x898989)];
+						}else{
+							muteImg.filters = [];
+						}
+						
 						muteBtn.visible = rolledOver;
 						muteBtn.includeInLayout = rolledOver;
 					}
@@ -200,8 +208,9 @@
 			
 		]]>
 	</mx:Script>
-	<mx:Image id="talkingIcon" visible="{data.talking}" source="{images.sound_new}" width="20" height="16" 
-				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.talking')}" />
+	
+	<!--mx:Image id="talkingIcon" visible="{data.talking}" source="{images.sound_new}" width="20" height="16" 
+				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.talking')}" /-->
 	<mx:Button id="webcamBtn" visible="{data.hasStream}" click="viewCamera()" icon="{images.webcam_new}"
 				width="20" height="20" enabled="false"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcam')}" />
