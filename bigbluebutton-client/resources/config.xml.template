@@ -10,7 +10,8 @@
     <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
     <shortcutKeys showButton="true" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
-            showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true"/>
+            showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true" 
+            showLayoutTools="true" showNetworkMonitor="true" />
             
 		<modules>
 		 

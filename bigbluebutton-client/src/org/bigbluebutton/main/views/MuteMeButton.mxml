@@ -139,7 +139,7 @@ $Id: $
 		]]>
 	</mx:Script>
 	
-	<mx:HBox verticalAlign="middle" horizontalAlign="center" horizontalGap="0" paddingLeft="5" paddingTop="0" paddingRight="5" paddingBottom="0" width="100%">
+	<mx:HBox verticalAlign="middle" horizontalAlign="center" horizontalGap="0" paddingLeft="5" paddingTop="2" paddingRight="5" paddingBottom="0" width="100%">
 		<mx:Image id="muteMeBtnImg" />
 		<mx:Label id="muteMeBtnTxt" />
 	</mx:HBox>
