@@ -451,6 +451,22 @@ public String getMeetingInfo(String meetingID, String password) {
 	}
 }
 
+public String getDefaultConfigXML() {
+	try {
+		 return getURL( getDefaultConfigXMLURL() );
+	} catch (Exception e) {
+		e.printStackTrace(System.out);
+		return null;
+	}
+}
+
+public String getDefaultConfigXMLURL() {
+	String meetingParameters = "";
+	return BigBlueButtonURL + "api/getDefaultConfigXML?" + meetingParameters
+		+ "&checksum="
+		+ checksum("getDefaultConfigXML" + meetingParameters + salt);
+}
+
 public String getMeetingsURL() {
 	String meetingParameters = "random=" + new Random().nextInt(9999);
 	return BigBlueButtonURL + "api/getMeetings?" + meetingParameters
