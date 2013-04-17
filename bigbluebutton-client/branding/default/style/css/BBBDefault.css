@@ -288,7 +288,7 @@ DataGrid {
 
 .presentationUploadCancelButtonStyle {
   fillAlphas: 1, 1, 1, 1;
-  fillColors: #ff0000, #ff0000, #ffffff, #eeeeee;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
   color: #5e5f63;
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
