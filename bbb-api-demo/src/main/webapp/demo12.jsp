@@ -94,9 +94,9 @@ Author: Jesus Federico <jesus@123it.ca>
 		<label for="layout" >Layout:</label>
 	                <select id="layout" name="Layout">
         	            <option value="Default" selected="selected">Default</option>
-                	    <option value="VideoChat">Video Chat</option>
+                	    <option value="Video Chat">Video Chat</option>
 	                    <option value="Meeting">Meeting</option>
-			    <option value="LectureAssistant">Lecture assistant</option>
+			    <option value="Lecture assistant">Lecture assistant</option>
 	    		<!--
 	 	            <option value="Users">Users</option>
        		            <option value="Webinar">Webinar</option>
