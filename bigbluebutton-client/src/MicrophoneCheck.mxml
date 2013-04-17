@@ -48,13 +48,23 @@
             ExternalInterface.call("BBBCheck.microphoneAccessAllowed");
             handleStartTestMicrophoneRequest();
             break;
+        }
+      }	
+
+      private function camStatusEventHandler(event:StatusEvent):void {					
+        switch(event.code) {
+          case "Microphone.Muted":						
+            ExternalInterface.call("BBBCheck.microphoneAccessDenied");
+            break;
+          case "Microphone.Unmuted":
+            ExternalInterface.call("BBBCheck.microphoneAccessAllowed");
+            handleStartTestMicrophoneRequest();
+            break;
           case "Camera.Unmuted":
-            ExternalInterface.call("BBBCheck.camAccessDenied");
- //           handleStartTestCameraRequest();
+            ExternalInterface.call("BBBCheck.camAccessAllowed");
             break;
           case "Camera.Muted":
-            ExternalInterface.call("BBBCheck.camAccessAllowed");
-//            handleStartTestMicrophoneRequest();
+            ExternalInterface.call("BBBCheck.camAccessDenied");
             break;
         }
       }	
@@ -73,8 +83,16 @@
         }        
       }
       
+      private var cam:Camera;
+      
       private function handleShowCamSettingsRequest():void {
-        Security.showSettings(SecurityPanel.CAMERA);
+        cam = Camera.getCamera();
+        cam.addEventListener(StatusEvent.STATUS, camStatusEventHandler);
+        if (cam.muted) {
+          Security.showSettings(SecurityPanel.PRIVACY);
+        } else {
+          Security.showSettings(SecurityPanel.CAMERA);
+        }        
       }
       
     ]]>

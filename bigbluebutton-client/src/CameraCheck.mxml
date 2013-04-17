@@ -22,7 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
                 creationComplete="onCreationComplete()"
-                pageTitle="WebcamPreview" width="600" height="400" layout="absolute">	
+                pageTitle="CameraCheck" width="600" height="400" layout="absolute">	
   <mx:Script>
     <![CDATA[    
       import mx.core.UIComponent;
@@ -53,9 +53,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         this.minWidth = _minWidth;
         this.minHeight = _minHeight;
         
-        trace('WebcamPreviewSA::onCreationComplete');
+        trace('CamCheck::onCreationComplete');
         Security.allowDomain(determineHTMLURL());
-        trace("WebcamPreviewSA:: Security.allowDomain(" + determineHTMLURL() + ");");
+        trace("CamCheck:: Security.allowDomain(" + determineHTMLURL() + ");");
         
         initExternalInterface();
         callWebcamPreviewStandaloneReady();
@@ -67,9 +67,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           try {
             var htmlURL:String = String(ExternalInterface.call("window.location.href.toString"));
             serverName = URLUtil.getServerName(htmlURL);
-            trace("WebcamPreviewSA::determineHTMLURL HTML URL [" + htmlURL + "]");
+            trace("CamCheck::determineHTMLURL HTML URL [" + htmlURL + "]");
           } catch(s:Error) {
-            trace("WebcamPreviewSA::determineHTMLURL Cannot determine HTML URL");
+            trace("CamCheck::determineHTMLURL Cannot determine HTML URL");
           }
         }
         
@@ -77,11 +77,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
       
       private function initExternalInterface():void {
-        trace('WebcamPreviewSA::initExternalInterface');
+        trace('CamCheck::initExternalInterface');
         if (ExternalInterface.available) {
           ExternalInterface.addCallback("startPreviewCamera", handleStartPreviewCameraRequest);
           ExternalInterface.addCallback("stopPreviewCamera", handleStopPreviewCamera);
+          ExternalInterface.addCallback("showCameraSettings", handleShowCameraSettings);
         }
+      }
+      
+      private function handleShowCameraSettings():void {
+        
       }
       
       private function callWebcamPreviewStandaloneReady():void {
@@ -103,17 +108,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       public function displayCamera(camIndex:String, camWidth:int, camHeight:int, camKeyFrameInterval:int, 
                                                      camModeFps:Number, camQualityBandwidth:int, 
                                                      camQualityPicture:int):void {
-        trace('WebcamPreviewSA::displayCamera');
+        trace('CamCheck::displayCamera');
         stopCamera();
         
         if (Camera.names.length == 0) {
-          trace('WebcamPreviewSA::bbb.video.publish.hint.noCamera');
+          trace('CamCheck::bbb.video.publish.hint.noCamera');
           return;
         }
         
         _camera = Camera.getCamera(camIndex);
         if (_camera == null) {
-          trace('WebcamPreviewSA::bbb.video.publish.hint.cantOpenCamera');
+          trace('CamCheck::bbb.video.publish.hint.cantOpenCamera');
           return;
         }
         
@@ -126,7 +131,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         _camera.setQuality(camQualityBandwidth, camQualityPicture);
         
         if (_camera.width != camWidth || _camera.height != camHeight) {
-          trace("WebcamPreviewSA::Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
+          trace("CamCheck::Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
           setResolution(_camera.width, _camera.height);
         }				
         

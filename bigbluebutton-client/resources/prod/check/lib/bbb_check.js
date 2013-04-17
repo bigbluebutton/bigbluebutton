@@ -88,6 +88,14 @@
   BBBCheck.microphoneAccessAllowed = function() {
     console.log("Mic access has been allowed.");
   }
+
+  BBBCheck.camAccessDenied = function() {
+    console.log("Cam access has been denied.");
+  }
+  
+  BBBCheck.camAccessAllowed = function() {
+    console.log("Cam access has been allowed.");
+  }
   
     /* ***********************************************************************************
      *       Broadcasting of events to 3rd-party apps.
