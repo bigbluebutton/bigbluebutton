@@ -769,7 +769,7 @@ class ApiController {
     }
         
     // Do we agree on the checksum? If not, complain.       
-    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, API_CALL)) {
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
         errors.checksumError()
         respondWithErrors(errors)
         return
