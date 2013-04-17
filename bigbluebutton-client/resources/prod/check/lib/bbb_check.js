@@ -11,6 +11,10 @@
   function getSwfObj() {
     return swfobject.getObjectById("MicrophoneCheck");
   }
+  
+  function getConnObj() {
+    return swfobject.getObjectById("RTMPConnCheck");
+  }
     
   BBBCheck.getFlashPlayerVersion = function() {
     return swfobject.getFlashPlayerVersion();
@@ -72,6 +76,22 @@
     }
   }
   
+  BBBCheck.testRTMPConnection = function(host, app) {
+    var swfObj = getConnObj();
+    if (swfObj) { 
+      swfObj.testRTMPConnection(host, app);
+    }
+  }  
+  
+  BBBCheck.testSocketConnection = function(host, port) {
+    var swfObj = getConnObj();
+    if (swfObj) { 
+      swfObj.testSocketConnection(host, port);
+    }
+  }  
+
+  
+  /*** Callbacks from Flash test apps **/
   BBBCheck.microphoneCheckAppReady = function() {
     console.log("microphone check app ready.");
     broadcast("MicCheckAppReadyEvent");
@@ -95,6 +115,38 @@
   
   BBBCheck.camAccessAllowed = function() {
     console.log("Cam access has been allowed.");
+  }
+  
+  BBBCheck.invalidParamsForRtmpConnectionTest = function() {
+    console.log("Invalid host or app for rtmp connection test.");
+  }  
+
+  BBBCheck.rtmpConnectionTestSuccess = function(rtmp, server, application) {
+    console.log("Connection succeeded using rtmp[" + rtmp + "]");
+  }
+
+  BBBCheck.rtmpConnectionTestFailed = function(host, app) {
+    console.log("Failed to connect to [" + host + "][" + app + "]");
+  }
+
+  BBBCheck.socketConnTestFailed = function(host, port) {
+    console.log("Failed to connect to [" + host + "][" + port + "]");
+  }
+
+  BBBCheck.socketConnTestClosed = function(host, port) {
+    console.log("Connection closed to [" + host + "][" + port + "]");
+  }
+
+  BBBCheck.socketConnTestSuccess = function(host, port) {
+    console.log("Connection success to [" + host + "][" + port + "]");
+  }
+
+  BBBCheck.socketConnTestIOError = function(host, port) {
+    console.log("Connection IO error to [" + host + "][" + port + "]");
+  }
+
+  BBBCheck.socketConnTestSecurityError = function(host, port) {
+    console.log("Connection security error to [" + host + "][" + port + "]");
   }
   
     /* ***********************************************************************************
