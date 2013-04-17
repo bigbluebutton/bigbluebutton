@@ -68,7 +68,6 @@ $Id: $
 				//rest rolledOver when the data changes because onRollOut wont be called if the row moves
 				if (UserManager.getInstance().getConference().amIThisUser(e.message.userID)) {
 					if(e.message.talking){
-						LogUtil.debug("talking effect!!!!!!!!!!");
 						muteMeBtnImg.filters = [new GlowFilter(0x898989)];
 					}else{
 						muteMeBtnImg.filters = [];
@@ -89,15 +88,16 @@ $Id: $
 					if (muteMeRolled) {
 						if (UserManager.getInstance().getConference().voiceMuted) {
 							muteMeBtnImg.source = images.audio;
-							muteMeBtnTxt.visible = false;
-							muteMeBtnTxt.includeInLayout = false;
-							setStyle("horizontalAlign", "center");
-							//muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.listeners.talk");
+							muteMeBtnTxt.visible = true;
+							muteMeBtnTxt.includeInLayout = true;
+							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.listeners.talk");
+							hboxMuteMe.setStyle("paddingTop",0);
 						} else {
 							muteMeBtnImg.source = images.audio_muted;
 							muteMeBtnTxt.visible = true;
 							muteMeBtnTxt.includeInLayout = true;
 							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.listeners.mute");
+							hboxMuteMe.setStyle("paddingTop",0);
 						}
 					} else {
 						if (UserManager.getInstance().getConference().voiceMuted) {
@@ -105,11 +105,12 @@ $Id: $
 							muteMeBtnTxt.visible = true;
 							muteMeBtnTxt.includeInLayout = true;
 							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.muted");
+							hboxMuteMe.setStyle("paddingTop",0);
 						} else {
 							muteMeBtnImg.source = images.audio;
 							muteMeBtnTxt.visible = false;
 							muteMeBtnTxt.includeInLayout = false;
-							setStyle("horizontalAlign", "center");
+							hboxMuteMe.setStyle("paddingTop",2);
 							//muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.unmuted");
 						}
 					}
@@ -139,7 +140,7 @@ $Id: $
 		]]>
 	</mx:Script>
 	
-	<mx:HBox verticalAlign="middle" horizontalAlign="center" horizontalGap="0" paddingLeft="5" paddingTop="2" paddingRight="5" paddingBottom="0" width="100%">
+	<mx:HBox id="hboxMuteMe" verticalAlign="middle" horizontalAlign="center" horizontalGap="0" paddingLeft="5" paddingTop="0" paddingRight="5" paddingBottom="0" width="100%">
 		<mx:Image id="muteMeBtnImg" />
 		<mx:Label id="muteMeBtnTxt" />
 	</mx:HBox>
