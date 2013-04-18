@@ -64,6 +64,10 @@ class ToolController {
                         result = doJoinMeeting(params)
                     } else {
                         log.debug  "LTI service running in extended mode."
+                        if (params.get(Parameter.CUSTOM_BBB_RECORD) == null) {
+                            log.debug  "No bbb_record parameter was sent; immediately redirecting to BBB session!"
+                            result = doJoinMeeting(params)
+                        }
                     }
                     
                 } else {
