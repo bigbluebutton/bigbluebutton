@@ -1,7 +1,7 @@
 <html>
     <head>
         <title>BigBlueButton LTI Interface</title>
-        <link rel="stylesheet" href="${resource(dir:'css',file:'bootstrap.css')}" />
+        <link rel="stylesheet" href="${resource(dir:'css',file:'bootstrap.min.css')}" />
         <link rel="shortcut icon" href="${resource(dir:'images',file:'favicon.ico')}" type="image/x-icon" />
     </head>
     <body>

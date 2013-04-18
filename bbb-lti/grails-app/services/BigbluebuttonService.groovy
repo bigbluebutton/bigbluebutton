@@ -88,7 +88,7 @@ class BigbluebuttonService {
         String userID = getValidatedUserId(params.get(Parameter.USER_ID))
         
         Integer voiceBridge = 0
-        Boolean record = false
+        String record = ""
         Integer duration = 0
         if( "extended".equals(mode) ){
             voiceBridge = getValidatedBBBVoiceBridge(params.get(Parameter.CUSTOM_BBB_VOICEBRIDGE))
@@ -191,10 +191,10 @@ class BigbluebuttonService {
         return isModerator
     }
     
-    private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, Integer voiceBridge, String logoutURL, Boolean record, Integer duration, String meta ) {
+    private String getCreateURL(String name, String meetingID, String attendeePW, String moderatorPW, String welcome, Integer voiceBridge, String logoutURL, String record, Integer duration, String meta ) {
         voiceBridge = ( voiceBridge == null || voiceBridge == 0 )? 70000 + new Random(System.currentTimeMillis()).nextInt(10000): voiceBridge;
 
-        String url = bbbProxy.getCreateURL(name, meetingID, attendeePW, moderatorPW, welcome, "", voiceBridge.toString(), "", logoutURL, "", record.toString(), duration.toString(), meta );
+        String url = bbbProxy.getCreateURL(name, meetingID, attendeePW, moderatorPW, welcome, "", voiceBridge.toString(), "", logoutURL, "", record, duration.toString(), meta );
         return url;
     }
     
@@ -226,7 +226,8 @@ class BigbluebuttonService {
                 userFullName = isModerator? "Moderator" : "Attendee"
             }
         }
-        
+        // 2013-03-21 Replace dashes with underscores to avoid a bug with pre-0.81 build of Flash client
+		userFullName = userFullName.replaceAll('-', '_')
         return userFullName
     }
 
@@ -242,8 +243,12 @@ class BigbluebuttonService {
         return (voiceBridge != null )? voiceBridge.toInteger(): 0
     }
     
-    private Boolean getValidatedBBBRecord(String record){
-        return (record != null && record == "true")? true: false
+    private String getValidatedBBBRecord(String record){
+		if (record == null) {
+			return ""
+		} else {
+			return (record == "true")? record: "false"
+		}
     }
     
     private Integer getValidatedBBBDuration(String duration){
