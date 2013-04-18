@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+                layout="absolute" width="215" height="138"
+                applicationComplete="appInit()">
+  <mx:Script>
+    <![CDATA[
+      private function appInit():void {
+        if (ExternalInterface.available) {
+          ExternalInterface.addCallback("showMicSettings", handleShowMicSettingsRequest);
+          ExternalInterface.addCallback("startTestMicrophone", handleStartTestMicrophoneRequest);
+          ExternalInterface.addCallback("stopTestMicrophone", handleStopTestMicrophoneRequest);
+          
+          ExternalInterface.addCallback("showCamSettings", handleShowCamSettingsRequest);
+          
+        }
+        
+        // Tell out JS counterpart that we are ready.
+        if (ExternalInterface.available) {
+          ExternalInterface.call("BBBCheck.microphoneCheckAppReady");
+        } 
+      }
+      
+      private var mic:Microphone;
+      
+      private function handleShowMicSettingsRequest():void {
+        mic = Microphone.getMicrophone();
+        
+        if (mic != null) {
+          if (mic.muted) {
+            // user has disallowed access to the mic
+            mic.addEventListener(StatusEvent.STATUS, micStatusEventHandler);
+            Security.showSettings(SecurityPanel.PRIVACY);
+          } else {
+            // user has allowed access to the mic
+            handleStartTestMicrophoneRequest();
+          }
+        } else {
+          ExternalInterface.call("BBBCheck.noAvailableMicrophoneError");
+        }
+      }
+      
+      private function micStatusEventHandler(event:StatusEvent):void {					
+        switch(event.code) {
+          case "Microphone.Muted":						
+            ExternalInterface.call("BBBCheck.microphoneAccessDenied");
+            break;
+          case "Microphone.Unmuted":
+            ExternalInterface.call("BBBCheck.microphoneAccessAllowed");
+            handleStartTestMicrophoneRequest();
+            break;
+        }
+      }	
+
+      private function camStatusEventHandler(event:StatusEvent):void {					
+        switch(event.code) {
+          case "Microphone.Muted":						
+            ExternalInterface.call("BBBCheck.microphoneAccessDenied");
+            break;
+          case "Microphone.Unmuted":
+            ExternalInterface.call("BBBCheck.microphoneAccessAllowed");
+            handleStartTestMicrophoneRequest();
+            break;
+          case "Camera.Unmuted":
+            ExternalInterface.call("BBBCheck.camAccessAllowed");
+            break;
+          case "Camera.Muted":
+            ExternalInterface.call("BBBCheck.camAccessDenied");
+            break;
+        }
+      }	
+      
+      private function handleStartTestMicrophoneRequest():void {
+          if (mic != null) {
+            mic.setLoopBack(true);
+            mic.setUseEchoSuppression(true);
+            Security.showSettings(SecurityPanel.MICROPHONE);
+          }        
+      }
+      
+      private function handleStopTestMicrophoneRequest():void {
+        if (mic != null) {
+          mic.setLoopBack(false);
+        }        
+      }
+      
+      private var cam:Camera;
+      
+      private function handleShowCamSettingsRequest():void {
+        cam = Camera.getCamera();
+        cam.addEventListener(StatusEvent.STATUS, camStatusEventHandler);
+        if (cam.muted) {
+          Security.showSettings(SecurityPanel.PRIVACY);
+        } else {
+          Security.showSettings(SecurityPanel.CAMERA);
+        }        
+      }
+      
+    ]]>
+  </mx:Script>
+</mx:Application>

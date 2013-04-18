@@ -10,7 +10,8 @@
     <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
     <shortcutKeys showButton="true" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
-            showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true"/>
+            showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true" 
+            showLayoutTools="true" showNetworkMonitor="false" />
             
 		<modules>
 		 
@@ -133,7 +134,7 @@
 		<module name="LayoutModule" url="http://HOST/client/LayoutModule.swf?v=VERSION"
 			uri="rtmp://HOST/bigbluebutton"
 			layoutConfig="http://HOST/client/conf/layout.xml"
-			enableEdit="true"
+			enableEdit="false"
 		/>
 
 <!--

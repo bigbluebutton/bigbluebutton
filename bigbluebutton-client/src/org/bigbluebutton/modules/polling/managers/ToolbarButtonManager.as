@@ -40,7 +40,7 @@ package org.bigbluebutton.modules.polling.managers
 		public static const LOGNAME:String = "[Polling :: ToolBarButtonManager] ";	
 		
 		public function ToolbarButtonManager() {
-			LogUtil.debug(LOGNAME + " initialized ")
+			LogUtil.debug(LOGNAME + " initialized ***************************************************************** ")
 			globalDispatcher = new Dispatcher();
 			button = new ToolbarButton();
 		}

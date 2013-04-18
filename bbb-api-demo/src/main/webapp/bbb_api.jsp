@@ -297,7 +297,7 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
     }
 
     String setConfigXML_parameters = "meetingID=" + urlEncode(meetingID) + 
-            "&checksum=" + checksum(urlEncode(meetingID) + encodeURIComponent(xml_param) + salt) +"&configXML=" + urlEncode(encodeURIComponent(xml_param));
+            "&checksum=" + checksum(meetingID + encodeURIComponent(xml_param) + salt) +"&configXML=" + urlEncode(encodeURIComponent(xml_param));
     
     url = "";
     try {
@@ -451,6 +451,22 @@ public String getMeetingInfo(String meetingID, String password) {
 	}
 }
 
+public String getDefaultConfigXML() {
+	try {
+		 return getURL( getDefaultConfigXMLURL() );
+	} catch (Exception e) {
+		e.printStackTrace(System.out);
+		return null;
+	}
+}
+
+public String getDefaultConfigXMLURL() {
+	String meetingParameters = "";
+	return BigBlueButtonURL + "api/getDefaultConfigXML?" + meetingParameters
+		+ "&checksum="
+		+ checksum("getDefaultConfigXML" + meetingParameters + salt);
+}
+
 public String getMeetingsURL() {
 	String meetingParameters = "random=" + new Random().nextInt(9999);
 	return BigBlueButtonURL + "api/getMeetings?" + meetingParameters
@@ -596,7 +612,7 @@ public String getRecordings(String meetingID) {
 					} 
 					playback += StringEscapeUtils.escapeXml("<a href='" + urlP + "' target='_blank'>" + typeP + "</a>");
 					
-					if(typeP.equalsIgnoreCase("slides")){
+					if(typeP.equalsIgnoreCase("slides") || typeP.equalsIgnoreCase("presentation")){
 						length = lengthP;
 					}
 				}
@@ -888,6 +904,26 @@ public String getBigBlueButtonIP()
         e.printStackTrace();
         return "localhost";
     }
+}
+
+public static Element getElementWithAttribute(Node root, String attrName, String attrValue)
+{
+      NodeList nl = root.getChildNodes();
+      for (int i = 0; i < nl.getLength(); i++) {
+          Node n = nl.item(i);
+          if (n instanceof Element) {
+              Element el = (Element) n;
+              if (el.getAttribute(attrName).equals(attrValue)) {
+                  return el;
+              }else{
+         el =  getElementWithAttribute(n, attrName, attrValue); //search recursively
+         if(el != null){
+          return el;
+         }
+      }
+          }
+      }
+      return null;
 }
 
 %>

@@ -22,28 +22,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
-
+			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.common.events.ToolbarButtonEvent;
+			import org.bigbluebutton.main.model.LayoutOptions;
 			import org.bigbluebutton.modules.layout.views.ToolbarComponent;
 			
 			private var _attributes:Object;
 			private var _globalDispatcher:Dispatcher = new Dispatcher();
+			private var options:LayoutOptions = new LayoutOptions();
 			
 			public function stopModule():void {
 			}
 			
 			public function startModule(attributes:Object):void {
 				_attributes = attributes;
+				options.parseOptions();
 				
 				var layoutComponent:ToolbarComponent = new ToolbarComponent();
+				
 				// using the negation will keep it enabled if the property is not there
 				layoutComponent.enableEdit = !(_attributes.enableEdit == "false");
-				
+				layoutComponent.visibleTools = options.showLayoutTools;
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 				event.button = layoutComponent;
 				event.location = ToolbarButtonEvent.BOTTOM_TOOLBAR;
 				_globalDispatcher.dispatchEvent(event);
+				
 			}
 		]]>
 	</mx:Script>

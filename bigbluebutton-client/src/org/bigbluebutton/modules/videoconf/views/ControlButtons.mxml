@@ -104,17 +104,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           var vidOptions:VideoConfOptions = new VideoConfOptions();
           
           if (muteUnmuteBtn != null && switchPresenter != null && ejectUserBtn != null) {
-			  if (UsersUtil.amIModerator()) {
+			      if (UsersUtil.amIModerator()) {
 	            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = true;
+              if (UsersUtil.amIPresenter()) {
+                switchPresenter.visible = false;
+              } 
 	          } else if (vidOptions.controlsForPresenter) {
 	            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = presenter;
+              if (UsersUtil.amIPresenter()) {
+                switchPresenter.visible = false;
+              } 
 	          } else {
 	            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = false;
 	          }
 	          
-			  if(UsersUtil.isMe(sharerUserID)){
-				  ejectUserBtn.visible = false;
-			  }
+    			  if(UsersUtil.isMe(sharerUserID)){
+    				  ejectUserBtn.visible = false;
+    			  }
 			  
 	          muteUnmuteBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.muteButton.toolTip', [UsersUtil.getUserName(sharerUserID)]);
 	          switchPresenter.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.switchPresenter.toolTip', [UsersUtil.getUserName(sharerUserID)]);

@@ -761,13 +761,15 @@ class ApiController {
  
     String API_CALL = "getDefaultConfigXML"
     
+    ApiErrors errors = new ApiErrors();
+    
     if (StringUtils.isEmpty(params.checksum)) {
         invalid("checksumError", "You did not pass the checksum security check")
         return
     }
         
     // Do we agree on the checksum? If not, complain.       
-    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, API_CALL)) {
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
         errors.checksumError()
         respondWithErrors(errors)
         return
