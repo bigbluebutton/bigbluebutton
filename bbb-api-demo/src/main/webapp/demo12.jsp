@@ -95,16 +95,7 @@ Author: Jesus Federico <jesus@123it.ca>
         	            <option value="Default" selected="selected">Default</option>
                 	    <option value="Video Chat">Video Chat</option>
 	                    <option value="Meeting">Meeting</option>
-			    <option value="Lecture assistant">Lecture assistant</option>
-	    		<!--
-	 	            <option value="Users">Users</option>
-       		            <option value="Webinar">Webinar</option>
-	                    <option value="Lecture">Lecture</option>
-	                    <option value="S2SPresentation">S2SPresentation</option>
-	                    <option value="S2SVideoChat">S2SVideoChat</option>
-	                    <option value="Notes">Notes</option>
-	                    <option value="Broadcast">Broadcast</option>
-			-->
+			    <option value="Webinar">Webinar</option>
 	                </select><br><br>
 
 		<label for="videomodule">Auto start webcam:</label>
