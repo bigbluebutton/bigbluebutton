@@ -32,13 +32,7 @@
                     <td class="cell c1" style="text-align:center;">${r.name}</td>
                     <td class="cell c2" style="text-align:center;">${r.metadata.contextactivitydescription}</td>
                     <td class="cell c3" style="text-align:center;">${new Date( Long.valueOf(r.startTime).longValue() )}</td>
-                    <td class="cell c4" style="text-align:center;">
-                    <g:each in="${r.playback}" var="p">
-                        <g:if test="${p.type == 'slides' || p.type == 'presentation'}">
-                            ${p.length}
-                        </g:if>
-                    </g:each>
-                    </td>
+                    <td class="cell c4" style="text-align:center;">${r.duration}</td>
                     <g:if test="${ismoderator}">
                     <td class="cell c5 lastcol" style="text-align:left;">
                       <g:if test="${r.published == 'true'}">

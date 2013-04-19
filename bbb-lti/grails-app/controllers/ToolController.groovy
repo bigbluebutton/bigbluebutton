@@ -99,42 +99,20 @@ class ToolController {
         } else {
             session["params"] = params
             List<Object> recordings = bigbluebuttonService.getRecordings(params)
+            for(Map<String, Object> recording: recordings){
+                /// Calculate duration
+                long endTime = Long.parseLong((String)recording.get("endTime"))
+                endTime -= (endTime % 1000) 
+                long startTime = Long.parseLong((String)recording.get("startTime"))
+                startTime -= (startTime % 1000)
+                int duration = (endTime - startTime) / 60000
+                /// Add duration
+                recording.put("duration", duration )
+            }
+            
             render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(params)])
         }
     }
-    
-    def view = {
-        
-        if( ltiService.consumerMap == null) ltiService.initConsumerMap()
-        log.debug CONTROLLER_NAME + "#view" + ltiService.consumerMap
-        Map<String, String> result
-        
-        setLocalization(params)
-        
-        def sessionParams = session["params"]
-        log.debug "params: " + params
-        log.debug "sessionParams: " + sessionParams
-
-        if( sessionParams == null ) {
-            result = new HashMap<String, String>()
-            result.put("resultMessageKey", "InvalidSession")
-            result.put("resultMessage", "Session is invalid user cannot execute this action.")
-        } else if( !"extended".equals(ltiService.mode) ){
-            result = new HashMap<String, String>()
-            result.put("resultMessageKey", "SimpleMode")
-            result.put("resultMessage", "LTI service running in simple mode.")
-        }
-        
-        if( result != null ) {
-            log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
-            render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
-            
-        } else {
-            List<Object> recordings = bigbluebuttonService.getRecordings(sessionParams)
-            render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator':bigbluebuttonService.isModerator(sessionParams)])
-        }
-    }
-
     
     def join = {
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
