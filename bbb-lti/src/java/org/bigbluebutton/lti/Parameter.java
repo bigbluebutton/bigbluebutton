@@ -49,7 +49,7 @@ public class Parameter {
     public static final String CUSTOM_USER_ID = "custom_lis_person_sourcedid";
     
     //BigBlueButton custom parameters
-    public static final String CUSTOM_BBB_RECORD = "custom_bbb_record";
+    public static final String CUSTOM_BBB_RECORD = "custom_bbb_recording";
     public static final String CUSTOM_BBB_VOICEBRIDGE = "custom_bbb_voicebridge";
     public static final String CUSTOM_BBB_DURATION = "custom_bbb_duration";
     public static final String CUSTOM_BBB_WELCOME = "custom_bbb_welcome";

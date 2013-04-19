@@ -44,6 +44,8 @@ class ToolController {
     def index = { 
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
         log.debug CONTROLLER_NAME + "#index"
+
+        setLocalization(params)
         
         params.put(REQUEST_METHOD, request.getMethod().toUpperCase())
         log.debug "params: " + params
@@ -64,6 +66,10 @@ class ToolController {
                         result = doJoinMeeting(params)
                     } else {
                         log.debug  "LTI service running in extended mode."
+                        if ( !Boolean.parseBoolean(params.get(Parameter.CUSTOM_BBB_RECORD)) ) {
+                            log.debug  "No bbb_record parameter was sent; immediately redirecting to BBB session!"
+                            result = doJoinMeeting(params)
+                        }
                     }
                     
                 } else {
@@ -93,39 +99,20 @@ class ToolController {
         } else {
             session["params"] = params
             List<Object> recordings = bigbluebuttonService.getRecordings(params)
+            for(Map<String, Object> recording: recordings){
+                /// Calculate duration
+                long endTime = Long.parseLong((String)recording.get("endTime"))
+                endTime -= (endTime % 1000) 
+                long startTime = Long.parseLong((String)recording.get("startTime"))
+                startTime -= (startTime % 1000)
+                int duration = (endTime - startTime) / 60000
+                /// Add duration
+                recording.put("duration", duration )
+            }
+            
             render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator': bigbluebuttonService.isModerator(params)])
         }
     }
-    
-    def view = {
-        if( ltiService.consumerMap == null) ltiService.initConsumerMap()
-        log.debug CONTROLLER_NAME + "#view" + ltiService.consumerMap
-        Map<String, String> result
-        
-        def sessionParams = session["params"]
-        log.debug "params: " + params
-        log.debug "sessionParams: " + sessionParams
-
-        if( sessionParams == null ) {
-            result = new HashMap<String, String>()
-            result.put("resultMessageKey", "InvalidSession")
-            result.put("resultMessage", "Session is invalid user cannot execute this action.")
-        } else if( !"extended".equals(ltiService.mode) ){
-            result = new HashMap<String, String>()
-            result.put("resultMessageKey", "SimpleMode")
-            result.put("resultMessage", "LTI service running in simple mode.")
-        }
-        
-        if( result != null ) {
-            log.debug "Error [resultMessageKey:'" + result.get("resultMessageKey") + "', resultMessage:'" + result.get("resultMessage") + "']"
-            render(view: "error", model: ['resultMessageKey': result.get("resultMessageKey"), 'resultMessage': result.get("resultMessage")])
-            
-        } else {
-            List<Object> recordings = bigbluebuttonService.getRecordings(sessionParams)
-            render(view: "index", model: ['params': params, 'recordingList': recordings, 'ismoderator':bigbluebuttonService.isModerator(sessionParams)])
-        }
-    }
-
     
     def join = {
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
@@ -218,10 +205,9 @@ class ToolController {
         }
 
     }
-
-    private Object doJoinMeeting(params) {
-        Map<String, String> result = new HashMap<String, String>()
-                    
+    
+    private void setLocalization(params){
+        
         String locale = params.get(Parameter.LAUNCH_LOCALE)
         locale = (locale == null || locale.equals("")?"en":locale)
         log.debug "Locale code =" + locale
@@ -233,6 +219,13 @@ class ToolController {
             session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
                     
         log.debug "Locale has been set to " + locale
+
+    }
+
+    private Object doJoinMeeting(params) {
+        Map<String, String> result = new HashMap<String, String>()
+                    
+        setLocalization(params)
         String welcome = message(code: "bigbluebutton.welcome", args: ["\"{0}\"", "\"{1}\""])
         log.debug "Localized default welcome message: [" + welcome + "]"
 
