@@ -44,6 +44,8 @@ class ToolController {
     def index = { 
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
         log.debug CONTROLLER_NAME + "#index"
+
+        setLocalization(params)
         
         params.put(REQUEST_METHOD, request.getMethod().toUpperCase())
         log.debug "params: " + params
@@ -64,7 +66,7 @@ class ToolController {
                         result = doJoinMeeting(params)
                     } else {
                         log.debug  "LTI service running in extended mode."
-                        if (params.get(Parameter.CUSTOM_BBB_RECORD) == null) {
+                        if ( params.get(Parameter.CUSTOM_BBB_RECORD) == null || !Boolean.parseBoolean(params.get(Parameter.CUSTOM_BBB_RECORD)) ) {
                             log.debug  "No bbb_record parameter was sent; immediately redirecting to BBB session!"
                             result = doJoinMeeting(params)
                         }
@@ -102,9 +104,12 @@ class ToolController {
     }
     
     def view = {
+        
         if( ltiService.consumerMap == null) ltiService.initConsumerMap()
         log.debug CONTROLLER_NAME + "#view" + ltiService.consumerMap
         Map<String, String> result
+        
+        setLocalization(params)
         
         def sessionParams = session["params"]
         log.debug "params: " + params
@@ -222,10 +227,9 @@ class ToolController {
         }
 
     }
-
-    private Object doJoinMeeting(params) {
-        Map<String, String> result = new HashMap<String, String>()
-                    
+    
+    private void setLocalization(params){
+        
         String locale = params.get(Parameter.LAUNCH_LOCALE)
         locale = (locale == null || locale.equals("")?"en":locale)
         log.debug "Locale code =" + locale
@@ -237,6 +241,13 @@ class ToolController {
             session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(localeCodes[0])
                     
         log.debug "Locale has been set to " + locale
+
+    }
+
+    private Object doJoinMeeting(params) {
+        Map<String, String> result = new HashMap<String, String>()
+                    
+        setLocalization(params)
         String welcome = message(code: "bigbluebutton.welcome", args: ["\"{0}\"", "\"{1}\""])
         log.debug "Localized default welcome message: [" + welcome + "]"
 

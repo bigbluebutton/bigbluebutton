@@ -243,7 +243,7 @@ class BigbluebuttonService {
     }
     
     private String getValidatedBBBRecord(String record){
-        return (record != null && record == "true")? "true": "false"
+        return (record != null && Boolean.parseBoolean(record))? "true": "false"
     }
     
     private Integer getValidatedBBBDuration(String duration){

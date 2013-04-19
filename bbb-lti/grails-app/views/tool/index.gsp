@@ -1,11 +1,11 @@
 <html>
     <head>
-        <title>BigBlueButton LTI Interface</title>
+        <title><g:message code="tool.view.title" /></title>
         <link rel="stylesheet" href="${resource(dir:'css',file:'bootstrap.css')}" />
         <link rel="shortcut icon" href="${resource(dir:'images',file:'favicon.ico')}" type="image/x-icon" />
     </head>
     <body>
-        <h1 style="margin-left:20px; text-align: center;"><a title="Join" class="btn btn-primary btn-large" href="${createLink(controller:'tool',action:'join')}"><g:message code="tool.view.join" /></a></h1>
+        <h1 style="margin-left:20px; text-align: center;"><a title="<g:message code="tool.view.join" />" class="btn btn-primary btn-large" href="${createLink(controller:'tool',action:'join')}"><g:message code="tool.view.join" /></a></h1>
         <br><br>
         <table class="table table-striped table-bordered table-condensed">
             <thead>
@@ -16,7 +16,7 @@
                     <th class="header c3" style="text-align:center;" scope="col"><g:message code="tool.view.date" /></th>
                     <th class="header c4" style="text-align:center;" scope="col"><g:message code="tool.view.duration" /></th>
                     <g:if test="${ismoderator}">
-                    <th class="header c5 lastcol" style="text-align:left;" scope="col">Toolbar</th>
+                    <th class="header c5 lastcol" style="text-align:left;" scope="col"><g:message code="tool.view.actions" /></th>
                     </g:if>
                 </tr>
             </thead>
@@ -42,12 +42,12 @@
                     <g:if test="${ismoderator}">
                     <td class="cell c5 lastcol" style="text-align:left;">
                       <g:if test="${r.published == 'true'}">
-                      <a title="Hide" class="action-icon" href="${createLink(controller:'tool',action:'publish')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}"><img title="Hide" alt="Hide" class="smallicon" src="${resource(dir:'images',file:'hide.gif')}" /></a>
+                      <a title="<g:message code="tool.view.unPublishRecording" />" class="action-icon" href="${createLink(controller:'tool',action:'publish')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}"><img title="<g:message code="tool.view.unpublishRecording" />" alt="<g:message code="tool.view.unpublishRecording" />" class="smallicon" src="${resource(dir:'images',file:'hide.gif')}" /></a>
                       </g:if>
                       <g:else>
-                      <a title="Show" class="action-icon" href="${createLink(controller:'tool',action:'publish')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}"><img title="Show" alt="Show" class="smallicon" src="${resource(dir:'images',file:'show.gif')}" /></a>
+                      <a title="<g:message code="tool.view.publishRecording" />" class="action-icon" href="${createLink(controller:'tool',action:'publish')}?bbb_recording_published=${r.published}&bbb_recording_id=${r.recordID}"><img title="<g:message code="tool.view.publishRecording" />" alt="<g:message code="tool.view.publishRecording" />" class="smallicon" src="${resource(dir:'images',file:'show.gif')}" /></a>
                       </g:else>
-                      <a title="Delete" class="action-icon" onClick="if(confirm('Are you sure to delete this recording?')) window.location='${createLink(controller:'tool',action:'delete')}?bbb_recording_id=${r.recordID}'; return false;" href="#"><img title="Delete" alt="Delete" class="smallicon" src="${resource(dir:'images',file:'delete.gif')}" /></a>
+                      <a title="<g:message code="tool.view.deleteRecording" />" class="action-icon" onClick="if(confirm('<g:message code="tool.view.deleteRecordingConfirmation" />')) window.location='${createLink(controller:'tool',action:'delete')}?bbb_recording_id=${r.recordID}'; return false;" href="#"><img title="<g:message code="tool.view.deleteRecording" />" alt="<g:message code="tool.view.deleteRecording" />" class="smallicon" src="${resource(dir:'images',file:'delete.gif')}" /></a>
                     </td>
                     </g:if>
                 </tr>
