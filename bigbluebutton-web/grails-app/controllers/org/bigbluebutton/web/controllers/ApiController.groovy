@@ -1006,6 +1006,11 @@ class ApiController {
 					  "$k"("$v")
 				  }
 			  }
+			  breakoutNumbers(){
+				  meeting.getBreakoutNumbers().each{ k,v ->
+					  "$k"("$v")
+				  }
+			  }
             }
           }
         }

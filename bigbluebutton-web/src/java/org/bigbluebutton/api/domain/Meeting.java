@@ -53,6 +53,8 @@ public class Meeting {
 	
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
+	private Map<String, String> breakoutNumbers;
+	
 	private final ConcurrentMap<String, User> users; 
 	private final ConcurrentMap<String, Config> configs;
 	
@@ -73,6 +75,7 @@ public class Meeting {
     	dialNumber = builder.dialNumber;
     	metadata = builder.metadata;
     	createdTime = builder.createdTime;
+    	breakoutNumbers = builder.breakoutNumbers;
     	userCustomData = new HashMap<String, Object>();
 		users = new ConcurrentHashMap<String, User>();
 		
@@ -283,6 +286,10 @@ public class Meeting {
 		return (Map) userCustomData.get(userID);
 	}
 	
+	public Map<String,String> getBreakoutNumbers(){
+		return breakoutNumbers;
+	}
+	
 	/***
 	 * Meeting Builder
 	 *
@@ -304,6 +311,7 @@ public class Meeting {
     	private String dialNumber;
     	private String defaultAvatarURL;
     	private long createdTime;
+    	private Map<String, String> breakoutNumbers;
     	
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -373,6 +381,11 @@ public class Meeting {
     	
     	public Builder withMetadata(Map<String, String> m) {
     		metadata = m;
+    		return this;
+    	}
+    	
+    	public Builder withBreakoutNumbers(Map<String, String> bn) {
+    		breakoutNumbers = bn;
     		return this;
     	}
     

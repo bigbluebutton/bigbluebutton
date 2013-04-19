@@ -304,6 +304,19 @@ public class ParamsProcessorUtil {
 			    }
 			}   
 	    }
+	    
+	    
+	    Map<String,String> breakoutNumbers = new HashMap<String, String>();
+	    for (String key: params.keySet()) {
+	    	if (key.contains("breakout")&&key.indexOf("breakout")==0){
+	    		String[] name_tag = key.split("_");
+			    if(name_tag.length == 2){
+			    	log.debug("Got breakoutNumbers {} = {}", key, params.get(key));
+			    	breakoutNumbers.put(name_tag[1], params.get(key));
+			    }
+			}   
+	    }
+	   
 	    	    
 	    // Create a unique internal id by appending the current time. This way, the 3rd-party
 	    // app can reuse the external meeting id.
@@ -316,7 +329,7 @@ public class ParamsProcessorUtil {
 	        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
 	        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
 	        .withDefaultAvatarURL(defaultAvatarURL)
-	        .withMetadata(meetingInfo).withWelcomeMessage(welcomeMessage).build();
+	        .withMetadata(meetingInfo).withBreakoutNumbers(breakoutNumbers).withWelcomeMessage(welcomeMessage).build();
 	    
 	    String configXML = getDefaultConfigXML();
 	    meeting.storeConfig(true, configXML);
