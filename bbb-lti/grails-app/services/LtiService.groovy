@@ -26,7 +26,7 @@ class LtiService {
 
     boolean transactional = false
     
-    def endPoint = "http://192.168.0.153/lti/tool.xml"
+    def endPoint = "http://localhost/lti/tool.xml"
     def consumers = "demo:welcome"
     def mode = "simple"
     Map<String, String> consumerMap

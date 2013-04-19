@@ -34,7 +34,7 @@
                     <td class="cell c3" style="text-align:center;">${new Date( Long.valueOf(r.startTime).longValue() )}</td>
                     <td class="cell c4" style="text-align:center;">
                     <g:each in="${r.playback}" var="p">
-                        <g:if test="${p.type == 'slides'}">
+                        <g:if test="${p.type == 'slides' || p.type == 'presentation'}">
                             ${p.length}
                         </g:if>
                     </g:each>
