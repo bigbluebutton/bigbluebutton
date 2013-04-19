@@ -5,16 +5,16 @@
         <link rel="shortcut icon" href="${resource(dir:'images',file:'favicon.ico')}" type="image/x-icon" />
     </head>
     <body>
-        <h1 style="margin-left:20px; text-align: center;"><a title="Join" class="btn btn-primary btn-large" href="${createLink(controller:'tool',action:'join')}">Join Meeting</a></h1>
+        <h1 style="margin-left:20px; text-align: center;"><a title="Join" class="btn btn-primary btn-large" href="${createLink(controller:'tool',action:'join')}"><g:message code="tool.view.join" /></a></h1>
         <br><br>
         <table class="table table-striped table-bordered table-condensed">
             <thead>
                 <tr>
-                    <th class="header c0" style="text-align:center;" scope="col">Recording</th>
-                    <th class="header c1" style="text-align:center;" scope="col">Activity</th>
-                    <th class="header c2" style="text-align:center;" scope="col">Description</th>
-                    <th class="header c3" style="text-align:center;" scope="col">Date</th>
-                    <th class="header c4" style="text-align:center;" scope="col">Duration</th>
+                    <th class="header c0" style="text-align:center;" scope="col"><g:message code="tool.view.recording" /></th>
+                    <th class="header c1" style="text-align:center;" scope="col"><g:message code="tool.view.activity" /></th>
+                    <th class="header c2" style="text-align:center;" scope="col"><g:message code="tool.view.description" /></th>
+                    <th class="header c3" style="text-align:center;" scope="col"><g:message code="tool.view.date" /></th>
+                    <th class="header c4" style="text-align:center;" scope="col"><g:message code="tool.view.duration" /></th>
                     <g:if test="${ismoderator}">
                     <th class="header c5 lastcol" style="text-align:left;" scope="col">Toolbar</th>
                     </g:if>
