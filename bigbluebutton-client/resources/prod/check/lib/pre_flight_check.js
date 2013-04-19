@@ -49,3 +49,7 @@ var bbbCheckTestRTMPConnection = function(host, app) {
 var bbbCheckTestSocketConnection = function(host, port) {
   BBBCheck.testSocketConnection(host, port);
 }
+
+var bbbCheckSetSocketPolicyFileURL = function(url) {
+  BBBCheck.setSocketPolicyFileURL(url);
+}
