@@ -26,15 +26,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
+import org.bigbluebutton.api.domain.BreakoutRoom;
 import org.bigbluebutton.api.domain.Meeting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.*;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
 
 public class ParamsProcessorUtil {
 	private static Logger log = LoggerFactory.getLogger(ParamsProcessorUtil.class);
@@ -305,19 +311,24 @@ public class ParamsProcessorUtil {
 			}   
 	    }
 	    
-	    
-	    Map<String,String> breakoutNumbers = new HashMap<String, String>();
-	    for (String key: params.keySet()) {
-	    	if (key.contains("breakout")&&key.indexOf("breakout")==0){
-	    		String[] name_tag = key.split("_");
-			    if(name_tag.length == 2){
-			    	log.debug("Got breakoutNumbers {} = {}", key, params.get(key));
-			    	breakoutNumbers.put(name_tag[1], params.get(key));
-			    }
-			}   
-	    }
-	   
-	    	    
+	    //process breakout rooms
+	    //parse json
+	    List<BreakoutRoom> breakoutRooms = new ArrayList<BreakoutRoom>();
+	    String breakoutStr = params.get("breakoutRooms");
+	    if (!StringUtils.isEmpty(breakoutStr)) {
+	    	JsonParser parser = new JsonParser();
+		    JsonArray array = parser.parse(breakoutStr).getAsJsonArray();
+		    
+		    //Create a breakoutroom 
+		    Gson gson = new Gson();
+		    
+		    for(int i=0; i<array.size(); i++){
+		    	JsonArray iRoom = array.get(i).getAsJsonArray();
+			    BreakoutRoom br = new BreakoutRoom(iRoom.get(0).getAsString() , iRoom.get(1).getAsString());
+		    	breakoutRooms.add(br);
+		    }
+		}
+	   	    
 	    // Create a unique internal id by appending the current time. This way, the 3rd-party
 	    // app can reuse the external meeting id.
 	    long createTime = System.currentTimeMillis();
@@ -329,7 +340,7 @@ public class ParamsProcessorUtil {
 	        .withViewerPass(viewerPass).withRecording(record).withDuration(meetingDuration)
 	        .withLogoutUrl(logoutUrl).withTelVoice(telVoice).withWebVoice(webVoice).withDialNumber(dialNumber)
 	        .withDefaultAvatarURL(defaultAvatarURL)
-	        .withMetadata(meetingInfo).withBreakoutNumbers(breakoutNumbers).withWelcomeMessage(welcomeMessage).build();
+	        .withMetadata(meetingInfo).withBreakoutRooms(breakoutRooms).withWelcomeMessage(welcomeMessage).build();
 	    
 	    String configXML = getDefaultConfigXML();
 	    meeting.storeConfig(true, configXML);

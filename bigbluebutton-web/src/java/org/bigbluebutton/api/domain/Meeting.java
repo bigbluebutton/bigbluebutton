@@ -22,6 +22,7 @@ package org.bigbluebutton.api.domain;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -53,7 +54,7 @@ public class Meeting {
 	
 	private Map<String, String> metadata;
 	private Map<String, Object> userCustomData;
-	private Map<String, String> breakoutNumbers;
+	private List<BreakoutRoom> breakoutRooms;
 	
 	private final ConcurrentMap<String, User> users; 
 	private final ConcurrentMap<String, Config> configs;
@@ -75,7 +76,7 @@ public class Meeting {
     	dialNumber = builder.dialNumber;
     	metadata = builder.metadata;
     	createdTime = builder.createdTime;
-    	breakoutNumbers = builder.breakoutNumbers;
+    	breakoutRooms = builder.breakoutRooms;
     	userCustomData = new HashMap<String, Object>();
 		users = new ConcurrentHashMap<String, User>();
 		
@@ -286,8 +287,8 @@ public class Meeting {
 		return (Map) userCustomData.get(userID);
 	}
 	
-	public Map<String,String> getBreakoutNumbers(){
-		return breakoutNumbers;
+	public List<BreakoutRoom> getBreakoutRooms(){
+		return breakoutRooms;
 	}
 	
 	/***
@@ -311,7 +312,7 @@ public class Meeting {
     	private String dialNumber;
     	private String defaultAvatarURL;
     	private long createdTime;
-    	private Map<String, String> breakoutNumbers;
+    	private List<BreakoutRoom> breakoutRooms;
     	
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -384,8 +385,8 @@ public class Meeting {
     		return this;
     	}
     	
-    	public Builder withBreakoutNumbers(Map<String, String> bn) {
-    		breakoutNumbers = bn;
+    	public Builder withBreakoutRooms(List<BreakoutRoom> br) {
+    		breakoutRooms = br;
     		return this;
     	}
     

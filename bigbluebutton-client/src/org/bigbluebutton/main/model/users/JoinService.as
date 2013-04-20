@@ -82,6 +82,13 @@ package org.bigbluebutton.main.model.users
 						user.customdata[cdnode.name()] = cdnode.toString();
 					}
 				}
+				user.breakoutRooms = [];
+				if(xml.breakoutRooms){
+					for each(var broom:XML in xml.breakoutRooms.elements()){
+						LogUtil.debug("checking breakoutRooms: "+broom.name + " = " + broom.number);
+						user.breakoutRooms.push({name:broom.name,number:broom.number});
+					}
+				}
 				
 				if (_resultListener != null) _resultListener(true, user);
 			}

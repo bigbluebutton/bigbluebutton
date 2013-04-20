@@ -231,6 +231,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		]]>
 	</mx:Script>	
 	<mx:HBox id="addedBtns"/>
+	<views:BreakoutRoomsSelector id="brSelector" visible="true" />
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}"/>
 	<views:MuteMeButton id="muteMeBtn"  height="20" />
 	<mx:Spacer width="100%"/>

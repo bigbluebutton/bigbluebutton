@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+
+Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+
+This program is free software; you can redistribute it and/or modify it under the
+terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 3.0 of the License, or (at your option) any later
+version.
+
+BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along
+with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml"
+			 xmlns:mate="http://mate.asfusion.com/"
+			 dataProvider="{bRooms}"
+			 change="chooseBreakoutRoom()" width="120" height="22">
+	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="getBreakoutRoomNames" />
+	<mx:Script>
+		<![CDATA[
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+			import mx.collections.ArrayCollection;
+			
+			[Bindable] private var bRooms:ArrayCollection = new ArrayCollection(); 
+			
+			private function chooseBreakoutRoom():void {
+				//ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(selectedIndex));
+			}
+			public function getBreakoutRoomNames(e:ConferenceCreatedEvent):void{
+				LogUtil.debug("init breakout room names");
+				var breakoutRooms:Array = UserManager.getInstance().getConference().breakoutRooms;
+				bRooms = new ArrayCollection(); 
+				
+				for(var i:Number=0; i<breakoutRooms.length; i++){
+					bRooms.addItem(breakoutRooms[i].name);
+				}
+			}
+		]]>
+	</mx:Script>
+</mx:ComboBox>

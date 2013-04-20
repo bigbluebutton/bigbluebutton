@@ -1006,9 +1006,12 @@ class ApiController {
 					  "$k"("$v")
 				  }
 			  }
-			  breakoutNumbers(){
-				  meeting.getBreakoutNumbers().each{ k,v ->
-					  "$k"("$v")
+			  breakoutRooms(){
+				  meeting.getBreakoutRooms().each{ br ->
+					  breakoutRoom{
+						  name(br.getName())
+						  number(br.getNumber())
+					  }
 				  }
 			  }
             }
