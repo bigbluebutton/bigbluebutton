@@ -41,9 +41,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				LogUtil.debug("init breakout room names");
 				var breakoutRooms:Array = UserManager.getInstance().getConference().breakoutRooms;
 				bRooms = new ArrayCollection(); 
-				
+				bRooms.addItem({label:"Audio Numbers",number:-1});
 				for(var i:Number=0; i<breakoutRooms.length; i++){
-					bRooms.addItem(breakoutRooms[i].name);
+					LogUtil.debug("breakout room: " + breakoutRooms[i].name);
+					var obj:Object = {};
+					obj.label = breakoutRooms[i].name;
+					obj.data = breakoutRooms[i].number;
+					bRooms.addItem(obj);
 				}
 			}
 		]]>

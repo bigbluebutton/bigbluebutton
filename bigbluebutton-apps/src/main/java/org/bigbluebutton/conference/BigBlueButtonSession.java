@@ -19,6 +19,8 @@
 
 package org.bigbluebutton.conference;
 
+import java.util.ArrayList;
+
 public class BigBlueButtonSession {
 	private final String username;
 	private final String role;
@@ -27,10 +29,11 @@ public class BigBlueButtonSession {
 	private final String voiceBridge;
 	private final Boolean record;
 	private final String externalUserID;
+	private final ArrayList breakoutRooms;
 	
 	public BigBlueButtonSession(String room, String internalUserID, String username, 
 				String role, String voiceBridge, Boolean record, 
-				String externalUserID){
+				String externalUserID, ArrayList breakoutRooms){
 		this.internalUserID = internalUserID;
 		this.username = username;
 		this.role = role;
@@ -38,6 +41,7 @@ public class BigBlueButtonSession {
 		this.voiceBridge = voiceBridge;
 		this.record = record;
 		this.externalUserID = externalUserID;
+		this.breakoutRooms = breakoutRooms;
 	}
 
 	public String getUsername() {
@@ -66,5 +70,8 @@ public class BigBlueButtonSession {
 
 	public String getExternUserID() {
 		return externalUserID;
+	}
+	public ArrayList getBreakoutRooms(){
+		return breakoutRooms;
 	}
 }

@@ -86,7 +86,7 @@ package org.bigbluebutton.main.model.users
 				if(xml.breakoutRooms){
 					for each(var broom:XML in xml.breakoutRooms.elements()){
 						LogUtil.debug("checking breakoutRooms: "+broom.name + " = " + broom.number);
-						user.breakoutRooms.push({name:broom.name,number:broom.number});
+						user.breakoutRooms.push({name:broom.name.toString(),number:broom.number.toString()});
 					}
 				}
 				

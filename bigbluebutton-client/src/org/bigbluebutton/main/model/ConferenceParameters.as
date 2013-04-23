@@ -90,5 +90,6 @@ package org.bigbluebutton.main.model
 		 */		
 		public var userid:String;
 		public var record:Boolean;
+		public var breakRooms:Array;
 	}
 }

@@ -95,6 +95,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.internalUserID = result.internalUserId;
 				_conferenceParameters.logoutUrl = result.logoutUrl;
 				_conferenceParameters.record = true;
+				_conferenceParameters.breakRooms = result.breakoutRooms;
 				
 				if (result.record == "false") {
 					_conferenceParameters.record = false;

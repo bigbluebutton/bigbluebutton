@@ -18,6 +18,8 @@
 */
 package org.bigbluebutton.conference;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import org.red5.server.api.Red5;import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
@@ -134,13 +136,16 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
 		
     	String externalUserID = ((String) params[5]).toString();
     	String internalUserID = ((String) params[6]).toString();
+    	
+    	ArrayList breakRooms = (ArrayList) params[7];
+    	log.debug("breakrooms: "+ breakRooms);
     	    	
 		if (record == true) {
 			recorderApplication.createRecordSession(room);
 		}
 			
     	BigBlueButtonSession bbbSession = new BigBlueButtonSession(room, internalUserID,  username, role, 
-    			voiceBridge, record, externalUserID);
+    			voiceBridge, record, externalUserID,breakRooms);
         connection.setAttribute(Constants.SESSION, bbbSession);        
         
         String debugInfo = "internalUserID=" + internalUserID + ",username=" + username + ",role=" +  role + "," + 
