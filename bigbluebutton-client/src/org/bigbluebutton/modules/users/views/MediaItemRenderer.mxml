@@ -51,6 +51,7 @@
 			import org.bigbluebutton.main.model.users.events.LowerHandEvent;
 			import org.bigbluebutton.modules.users.events.UsersRollEvent;
 			import org.bigbluebutton.modules.users.events.ViewCameraEvent;
+			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable]
@@ -66,6 +67,8 @@
 			private var muteRolled:Boolean = false;
 			private var lockRolled:Boolean = false;
 			
+			private var options:UsersOptions;
+			
 			private function onCreationComplete():void{
 				lockBtn.enabled = muteBtn.enabled = kickUserBtn.enabled = moderator = UserManager.getInstance().getConference().amIModerator();
 				
@@ -74,6 +77,10 @@
 				BindingUtils.bindSetter(updateButtons, voiceJoinedInd, "visible");
 				BindingUtils.bindSetter(updateButtons, muteInd, "visible");
 				BindingUtils.bindSetter(updateButtons, voiceLockedInd, "visible");
+				
+				options = new UsersOptions();
+				
+				LogUtil.debug("CHAD: " + options.allowKickUser);
 			}
 			
 			private function dataChangeHandler(e:Event):void {
@@ -148,7 +155,7 @@
 			
 			private function updateButtons(voiceMuted:Boolean = false):void {
 				if (data != null) {
-					kickUserBtn.visible = !data.me && rolledOver;
+					kickUserBtn.visible = !data.me && rolledOver && options.allowKickUser;
 					
 					
 					if (!data.voiceJoined) {
@@ -159,15 +166,14 @@
 					} else {
 						muteImg.visible = !rolledOver;
 						muteImg.includeInLayout = !rolledOver;
+						muteBtn.visible = rolledOver;
+						muteBtn.includeInLayout = rolledOver;
 						
 						if(data.talking && !rolledOver){
 							muteImg.filters = [new GlowFilter(0x898989)];
 						}else{
 							muteImg.filters = [];
 						}
-						
-						muteBtn.visible = rolledOver;
-						muteBtn.includeInLayout = rolledOver;
 					}
 					
 					if ((data.role == Role.MODERATOR) || !data.voiceJoined) {
@@ -192,6 +198,8 @@
 							lockImg.source = images.locked_20;
 						else if (moderator)
 							lockImg.source = images.unlocked_20;
+						else
+							lockImg.source = null;
 					} else {
 						if (data.voiceMuted == rolledOverMute)
 							muteBtn.setStyle("icon", images.audio);

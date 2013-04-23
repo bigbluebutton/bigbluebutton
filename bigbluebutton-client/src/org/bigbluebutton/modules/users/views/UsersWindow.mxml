@@ -338,7 +338,7 @@
 			}
 			
 			public function remoteKickUser():void{
-				if (amIModerator && usersGrid.selectedIndex != -1) {
+				if (amIModerator && usersGrid.selectedIndex != -1 && partOptions.allowKickUser) {
 					var selData:Object = usersGrid.selectedItem;
 					
 					if (!selData.me)

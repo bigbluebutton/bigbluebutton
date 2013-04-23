@@ -31,8 +31,10 @@ package org.bigbluebutton.modules.users.model
 		[Bindable]
 		public var baseTabIndex:int = 201;
 		
-		public function UsersOptions()
-		{
+		[Bindable]
+		public var allowKickUser:Boolean = false;
+		
+		public function UsersOptions() {
 			var vxml:XML = BBB.getConfigForModule("UsersModule");
 			if (vxml != null) {
 				windowVisible = (vxml.@windowVisible.toString().toUpperCase() == "TRUE") ? true : false;
@@ -42,6 +44,9 @@ package org.bigbluebutton.modules.users.model
 			}
 			if (vxml.@baseTabIndex != undefined) {
 				baseTabIndex = vxml.@baseTabIndex;
+			}
+			if (vxml.@allowKickUser != undefined) {
+				allowKickUser = vxml.@allowKickUser;
 			}
 		}
 
