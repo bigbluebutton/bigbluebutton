@@ -109,7 +109,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var wbOptions:WhiteboardOptions;
 			[Bindable] private var baseIndex:int;
 			
-			[Bindable] private var showWhiteboardToolbar:Boolean = true;
+			[Bindable] private var showWhiteboardToolbar:Boolean = false;
 
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
