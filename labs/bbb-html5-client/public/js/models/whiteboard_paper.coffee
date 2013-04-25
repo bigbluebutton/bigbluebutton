@@ -406,9 +406,7 @@ define [
     # @param  {number} thickness the thickness of the line to be drawn
     _drawLine: (path, colour, thickness) ->
       line = @raphaelObj.path(Utils.stringToScaledPath(path, @gw, @gh))
-      line.attr
-        stroke: colour
-        "stroke-width": thickness
+      line.attr @_strokeAndThickness(colour, thickness)
       @currentShapes.push line
 
     # Draw a rectangle on the paper
@@ -421,10 +419,7 @@ define [
     # TODO: not tested yet
     _drawRect: (x, y, w, h, colour, thickness) ->
       r = @raphaelObj.rect(x * @gw, y * @gh, w * @gw, h * @gh)
-      if colour
-        r.attr
-          stroke: colour
-          "stroke-width": thickness
+      r.attr @_strokeAndThickness(colour, thickness)
       @currentShapes.push r
 
     # Draw an ellipse on the whiteboard
@@ -437,10 +432,7 @@ define [
     # TODO: not tested yet
     _drawEllipse: (cx, cy, rx, ry, colour, thickness) ->
       elip = @raphaelObj.ellipse(cx * @gw, cy * @gh, rx * @gw, ry * @gh)
-      if colour
-        elip.attr
-          stroke: colour
-          "stroke-width": thickness
+      elip.attr @_strokeAndThickness(colour, thickness)
       @currentShapes.push elip
 
     # Drawing the text on the whiteboard from object
@@ -476,12 +468,7 @@ define [
       x *= @gw
       y *= @gh
       @currentLine = @raphaelObj.path("M" + x + " " + y + " L" + x + " " + y)
-      colour = "#000" unless colour? and colour
-      thickness = 1 unless thickness? and thickness
-      @currentLine.attr
-        stroke: colour
-        "stroke-width": "#{thickness}px"
-
+      @currentLine.attr @_strokeAndThickness(colour, thickness)
       @currentShapes.push @currentLine
 
     # Socket response - Make rectangle on canvas
@@ -492,10 +479,7 @@ define [
     # TODO: not tested yet
     _makeRect: (x, y, colour, thickness) ->
       @currentRect = @raphaelObj.rect(x * @gw, y * @gh, 0, 0)
-      if colour
-        @currentRect.attr
-          stroke: colour
-          "stroke-width": thickness
+      @currentRect.attr @_strokeAndThickness(colour, thickness)
       @currentShapes.push @currentRect
 
     # Make an ellipse on the whiteboard
@@ -506,10 +490,7 @@ define [
     # TODO: not tested yet
     _makeEllipse: (cx, cy, colour, thickness) ->
       @currentEllipse = @raphaelObj.ellipse(cx * @gw, cy * @gh, 0, 0)
-      if colour
-        @currentEllipse.attr
-          stroke: colour
-          "stroke-width": thickness
+      @currentEllipse.attr @_strokeAndThickness(colour, thickness)
       @currentShapes.push @currentEllipse
 
     # Updating drawing the line
@@ -918,5 +899,18 @@ define [
           @currentSlide.cy or 0 ]
       else
         [0, 0]
+
+    _strokeAndThickness: (stroke, thickness) ->
+      stroke = 0 unless stroke?
+      thickness = 1 unless thickness? and thickness
+      r =
+        stroke: @_colourToHex(stroke)
+        "stroke-width": "#{thickness}px"
+      r
+
+    _colourToHex: (value) ->
+      hex = value.toString(16)
+      hex = "0" + hex while hex.length < 6
+      "##{hex}"
 
   WhiteboardPaperModel
