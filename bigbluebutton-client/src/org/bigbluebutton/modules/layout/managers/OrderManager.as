@@ -71,25 +71,6 @@ package org.bigbluebutton.modules.layout.managers
 //				LogUtil.debug("==========> " + key + " order: " + _windowsOrder[key].order);
 			}
 			_windowsOrder[type] = { order: 0 };
-			
-//			if (_windowsOrder.length > window.windowManager.windowList.length) {
-//				var openWindows:Array = new Array();
-//				for each (var tmp:MDIWindow in window.windowManager.windowList) {
-//					openWindows.push(WindowLayout.getType(tmp));
-//				}
-//				for (key in _windowsOrder) {
-//					if (openWindows.indexOf(key) == -1) {
-//						LogUtil.debug("Removing order for " + key);
-//						delete _windowsOrder[key];
-//					}
-//				}
-//			}
-//			LogUtil.debug("Manipulating " + type);
-//			for (key in _windowsOrder) {
-//				LogUtil.debug("=====> " + key + " order: " + _windowsOrder[key].order);
-//			}
-			
-//			window.windowManager.bringToFront(window);
 		}
 		
 		public function getOrderByType(type:String):int {
