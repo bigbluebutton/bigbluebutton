@@ -224,27 +224,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				//presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
 				//presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
 				
-				var curChild:Object = window.getChildByName("presCtrlBar");
-				if (curChild) {
-					curChild.addEventListener(MouseEvent.ROLL_OVER, hideToolbar);
-					curChild.addEventListener(MouseEvent.ROLL_OUT, showToolbar);
-				} else {
-					LogUtil.debug("CHAD: presCtrlBar not found, numChildren " + window.numChildren);
-				}
-				
 				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OVER, hideToolbar);
 				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OUT, showToolbar);
-				
-				/*
-				for (var i:int =0; i < window.numChildren; i++) {
-					curChild = window.getChildAt(i);
-					if (curChild.) {
-						LogUtil.debug("CHAD: found control bar and attached");
-						curChild.addEventListener(MouseEvent.ROLL_OVER, hideToolbar);
-						curChild.addEventListener(MouseEvent.ROLL_OUT, showToolbar);
-					}
-				}
-				*/
 				
 				window.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
 				window.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
@@ -272,15 +253,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					setPositionAndDepth();
 					showWhiteboardToolbar = true;
 				}
-				
-				if (e)
-					LogUtil.debug("CHAD: mouse over: " + e.target);
 			}
 			
 			private function hideToolbar(e:MouseEvent = null):void {
 				showWhiteboardToolbar = false;
-				if (e)
-					LogUtil.debug("CHAD: mouse out: " + e.target);
 			}
            
       private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
