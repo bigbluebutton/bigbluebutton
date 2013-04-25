@@ -180,10 +180,24 @@ package org.bigbluebutton.main.model.modules
 			}
 		}
 		
-		public function startAllModules():void{
+		public function startLayoutModule():void{
+			LogUtil.debug("ModuleManager::startLayoutModule");
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
-				startModule(m.getName());
+				if (m.getName() == "LayoutModule") {
+					LogUtil.debug("Starting layout module");
+					startModule(m.getName());
+				}
+			}
+		}
+		
+		public function startAllModules():void{
+			LogUtil.debug("ModuleManager::startAllModules");
+			for (var i:int = 0; i<sorted.length; i++){
+				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
+				if (m.getName() != "LayoutModule") {
+					startModule(m.getName());
+				}
 			}
 			modulesDispatcher.sendAllModulesLoadedEvent();
 		}

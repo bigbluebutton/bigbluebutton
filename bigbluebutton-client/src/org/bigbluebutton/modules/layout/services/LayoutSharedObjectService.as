@@ -35,17 +35,17 @@ package org.bigbluebutton.modules.layout.services
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.events.ModuleLoadEvent;
 	import org.bigbluebutton.modules.layout.events.ConnectionEvent;
 	import org.bigbluebutton.modules.layout.events.LayoutEvent;
 	import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
 	import org.bigbluebutton.modules.layout.model.LayoutDefinition;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
-
 	public class LayoutSharedObjectService
 	{
 		public static const NAME:String = "LayoutSharedObjectService";
 		
-		private var _layoutSO:SharedObject;
+		private var _layoutSO:SharedObject = null;
 		private var _connection:NetConnection;
 		private var _dispatcher:Dispatcher;
 		private var _locked:Boolean = false;
@@ -63,19 +63,19 @@ package org.bigbluebutton.modules.layout.services
 						
 	    public function join(uri:String):void
 		{
-			_layoutSO = SharedObject.getRemote("layoutSO", uri, false);
-			_layoutSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
-			_layoutSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
-			_layoutSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);	
-			_layoutSO.client = this;
+			if (_layoutSO == null) {
+				_layoutSO = SharedObject.getRemote("layoutSO", uri, false);
+				_layoutSO.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
+				_layoutSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
+				_layoutSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
+				_layoutSO.client = this;
+			}
 			_layoutSO.connect(_connection);					
 		}
 		
-	    public function leave():void
+	    public function leave():void 
 	    {
-	    	if (_layoutSO != null) {
-	    		_layoutSO.close();
-	    	}
+    		_layoutSO.close();
 	    }
 
 		private function netStatusHandler(event:NetStatusEvent):void
@@ -125,6 +125,7 @@ package org.bigbluebutton.modules.layout.services
 				remoteUpdateLayout(locked, userId, layout);
 			else
 				_dispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
+			_dispatcher.dispatchEvent(new ModuleLoadEvent(ModuleLoadEvent.LAYOUT_MODULE_STARTED));
 		}
 		
 		public function lockLayout(layout:LayoutDefinition):void {

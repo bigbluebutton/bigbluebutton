@@ -98,6 +98,10 @@
 	</EventHandlers>
 
 	<EventHandlers type="{ModuleLoadEvent.START_ALL_MODULES}">
+		<MethodInvoker generator="{ModulesProxy}" method="startLayoutModule" />
+	</EventHandlers>
+	
+	<EventHandlers type="{ModuleLoadEvent.LAYOUT_MODULE_STARTED}">
 		<MethodInvoker generator="{ModulesProxy}" method="startAllModules" />
 	</EventHandlers>
 	
