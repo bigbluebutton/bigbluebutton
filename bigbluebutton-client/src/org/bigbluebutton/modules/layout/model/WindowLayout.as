@@ -257,10 +257,6 @@ package org.bigbluebutton.modules.layout.model {
 				xml.@maximized = true;
 			else if (hidden)
 				xml.@hidden = true;
-			else if (draggable)
-				xml.@draggable = true;
-			else if (resizable)
-				xml.@resizable = true;
 			else {
 				xml.@width = int(width * canvas.width);
 				xml.@height = int(height * canvas.height);
@@ -268,6 +264,9 @@ package org.bigbluebutton.modules.layout.model {
 				//xml.@minHeight = minHeight;
 				xml.@x = int(x * canvas.width);
 				xml.@y = int(y * canvas.height);
+
+				xml.@draggable = draggable;
+				xml.@resizable = resizable;
 			}
 			xml.@order = order;
 			return xml;
@@ -282,10 +281,6 @@ package org.bigbluebutton.modules.layout.model {
 				xml.@maximized = true;
 			else if (hidden)
 				xml.@hidden = true;
-			else if (draggable)
-				xml.@draggable = true;
-			else if (resizable)
-				xml.@resizable = true;
 			else {
 				xml.@width = width;
 				xml.@height = height;
@@ -293,6 +288,9 @@ package org.bigbluebutton.modules.layout.model {
 				//xml.@minHeight = minHeight;
 				xml.@x = x;
 				xml.@y = y;
+
+				xml.@draggable = draggable;
+				xml.@resizable = resizable;
 			}
 			xml.@order = order;
 			return xml;			
