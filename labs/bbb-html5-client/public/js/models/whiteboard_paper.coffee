@@ -78,8 +78,6 @@ define [
     # are not yet created in the page.
     create: ->
       # paper is embedded within the div#slide of the page.
-
-      console.log(ScaleRaphael);
       @raphaelObj ?= ScaleRaphael(@container, @gw, @gh)
       @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
       @cursor = @raphaelObj.circle(0, 0, @cursorRadius)
@@ -100,6 +98,21 @@ define [
       for url of @slides
         if @slides.hasOwnProperty(url)
           @addImageToPaper url, @slides[url].w, @slides[url].h
+
+    # A wrapper around ScaleRaphael's `changeSize()` method, more details at:
+    #   http://www.shapevent.com/scaleraphael/
+    # Also makes sure that the images are redraw in the canvas so they are actually resized.
+    changeSize: (windowWidth, windowHeight, center=true, clipping=false) ->
+      if @raphaelObj?
+        @raphaelObj.changeSize(windowWidth, windowHeight, center, clipping)
+
+        # TODO: isn't there a better way to do it? removing all and rebuilding doesn't seem very good.
+        slidesTmp = @slides
+        urlTmp = @currentUrl
+        @removeAllImagesFromPaper()
+        @slides = slidesTmp
+        @rebuild()
+        @showImageFromPaper(urlTmp)
 
     # Add an image to the paper.
     # @param {string} url the URL of the image to add to the paper
@@ -258,11 +271,14 @@ define [
     # TODO: not really working as it should be
     setFitToPage: (value) ->
       @fitToPage = value
+
+      # TODO: isn't there a better way to do it? removing all and rebuilding doesn't seem very good.
       temp = @slides
       @removeAllImagesFromPaper()
       @slides = temp
       # re-add all the images as they should fit differently
       @rebuild()
+
       # set to default zoom level
       globals.connection.emitPaperUpdate 0, 0, 1, 1
       # get the shapes to reprocess
