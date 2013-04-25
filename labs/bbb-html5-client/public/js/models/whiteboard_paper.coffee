@@ -24,14 +24,6 @@ define [
     initialize: (@container, @textbox) ->
       @gw = "100%"
       @gh = "100%"
-      # x-offset from top left corner as percentage of original width of paper
-      @cx = null
-      # y-offset from top left corner as percentage of original height of paper
-      @cy = null
-      # sw slide width as percentage of original width of paper
-      @sw = null
-      # sh slide height as a percentage of original height of paper
-      @sh = null
 
       @panX = null
       @panY = null
@@ -49,7 +41,7 @@ define [
       @cursor = null
       @cursorRadius = 4
       @slides = null
-      @currentUrl = null
+      @currentSlide = null
       @fitToPage = true
       @currentShapes = null
       @currentLine = null
@@ -94,7 +86,7 @@ define [
     # Re-add the images to the paper that are found
     # in the slides array (an object of urls and dimensions).
     rebuild: ->
-      @currentUrl = null
+      @_setCurrentSlide(null)
       for url of @slides
         if @slides.hasOwnProperty(url)
           @addImageToPaper url, @slides[url].w, @slides[url].h
@@ -108,11 +100,11 @@ define [
 
         # TODO: isn't there a better way to do it? removing all and rebuilding doesn't seem very good.
         slidesTmp = @slides
-        urlTmp = @currentUrl
+        urlTmp = @_getCurrentSlide()
         @removeAllImagesFromPaper()
         @slides = slidesTmp
         @rebuild()
-        @showImageFromPaper(urlTmp)
+        @showImageFromPaper(urlTmp.url)
 
     # Add an image to the paper.
     # @param {string} url the URL of the image to add to the paper
@@ -129,38 +121,35 @@ define [
         # fit it all in appropriately
         # TODO: temporary solution
         url = PRESENTATION_SERVER + url unless url.match(/http[s]?:/)
-        @cx = (@containerWidth / 2) - (width / 2)
-        @cy = (@containerHeight / 2) - (height / 2)
-
-        console.log "its fits"
-        img = @raphaelObj.image(url, @cx, @cy, @gw = width, @gh = height)
-
-        # update the global variables we will need to use
-        @sw = width / max
-        @sh = height / max
-        # sw_orig = sw
-        # sh_orig = sh
+        sw = width / max
+        sh = height / max
+        cx = (@containerWidth / 2) - (width / 2)
+        cy = (@containerHeight / 2) - (height / 2)
+        img = @raphaelObj.image(url, cx, cy, @gw = width, @gh = height)
       else
         # fit to width
         console.log "no fit"
         # assume it will fit width ways
+        sw = width / wr
+        sh = height / wr
         wr = width / @containerWidth
-        img = @raphaelObj.image(url, @cx = 0, @cy = 0, width / wr, height / wr)
-        @sw = width / wr
-        @sh = height / wr
-        # sw_orig = sw
-        # sh_orig = sh
-        @gw = @sw
-        @gh = @sh
+        img = @raphaelObj.image(url, cx = 0, cy = 0, width / wr, height / wr)
+        @gw = sw
+        @gh = sh
+
       @slides[url] =
         id: img.id
-        w: @sw
-        h: @sh
+        w: sw     # sw slide width as percentage of original width of paper
+        h: sh     # sh slide height as a percentage of original height of paper
+        img: img
+        url: url
+        cx: cx    # x-offset from top left corner as percentage of original width of paper
+        cy: cy    # y-offset from top left corner as percentage of original height of paper
 
-      unless @currentUrl
+      unless @_getCurrentSlide()?
         img.toBack()
-        @currentUrl = url
-      else if @currentUrl is url
+        @_setCurrentSlide(@slides[url])
+      else if @_getCurrentSlide()?.url is url
         img.toBack()
       else
         img.hide()
@@ -181,16 +170,16 @@ define [
           @raphaelObj.getById(@slides[url].id).remove()
           @trigger('paper:image:removed', @slides[url].id)
       @slides = {}
-      @currentUrl = null
+      @_setCurrentSlide(null)
 
     # Shows an image from the paper.
     # The url must be in the slides array.
     # @param  {string} url the url of the image (must be in slides array)
     showImageFromPaper: (url) ->
-      unless @currentUrl is url
+      url = PRESENTATION_SERVER + url unless url.match(/http[s]?:/)
+      if @_getCurrentSlide()?.url isnt url and @slides[url]?
         # TODO: temporary solution
-        url = PRESENTATION_SERVER + url unless url.match(/http[s]?:/)
-        @_hideImageFromPaper @currentUrl
+        @_hideImageFromPaper @_getCurrentSlide()?.url
         next = @_getImageFromPaper(url)
         if next
           next.show()
@@ -198,7 +187,7 @@ define [
           @currentShapes.forEach (element) ->
             element.toFront()
           @_bringCursorToFront()
-        @currentUrl = url
+        @_setCurrentSlide(@slides[url])
 
     # Updates the paper from the server values.
     # @param  {number} cx_ the x-offset value as a percentage of the original width
@@ -210,15 +199,16 @@ define [
       # if updating the slide size (zooming!)
       if sw_ and sh_
         @raphaelObj.setViewBox cx_ * @gw, cy_ * @gh, sw_ * @gw, sh_ * @gh
-        @sw = @gw / sw_
-        @sh = @gh / sh_
+        sw = @gw / sw_
+        sh = @gh / sh_
       # just panning, so use old slide size values
       else
+        [sw, sh] = @_currentSlideDimensions()
         @raphaelObj.setViewBox cx_ * @gw, cy_ * @gh, @raphaelObj._viewBox[2], @raphaelObj._viewBox[3]
 
       # update corners
-      @cx = cx_ * @sw
-      @cy = cy_ * @sh
+      cx = cx_ * sw
+      cy = cy_ * sh
       # update position of svg object in the window
       sx = (@containerWidth - @gw) / 2
       sy = (@containerHeight - @gh) / 2
@@ -293,8 +283,11 @@ define [
         @zoomLevel += step # zooming out
       else
         @zoomLevel -= step # zooming in
-      x = @cx / @sw
-      y = @cy / @sh
+
+      [sw, sh] = @_currentSlideDimensions()
+      [cx, cy] = @_currentSlideOffsets()
+      x = cx / sw
+      y = cy / sh
       # cannot zoom out further than 100%
       z = (if @zoomLevel > 1 then 1 else @zoomLevel)
       # cannot zoom in further than 400% (1/4)
@@ -482,11 +475,13 @@ define [
     _makeLine: (x, y, colour, thickness) ->
       x *= @gw
       y *= @gh
-      @currentLine = @raphaelObj.path("M" + x + " " + y + "L" + x + " " + y)
-      if colour
-        @currentLine.attr
-          stroke: colour
-          "stroke-width": thickness
+      @currentLine = @raphaelObj.path("M" + x + " " + y + " L" + x + " " + y)
+      colour = "#000" unless colour? and colour
+      thickness = 1 unless thickness? and thickness
+      @currentLine.attr
+        stroke: colour
+        "stroke-width": "#{thickness}px"
+
       @currentShapes.push @currentLine
 
     # Socket response - Make rectangle on canvas
@@ -606,8 +601,9 @@ define [
     # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
     # @param  {number} y the y value of cursor at the time in relation to the top of the browser
     _onCursorMove: (e, x, y) ->
-      xLocal = (e.pageX - @containerOffsetLeft) / @sw
-      yLocal = (e.pageY - @containerOffsetTop) / @sh
+      [sw, sh] = @_currentSlideDimensions()
+      xLocal = (e.pageX - @containerOffsetLeft) / sw
+      yLocal = (e.pageY - @containerOffsetTop) / sh
       globals.connection.emitMoveCursor xLocal, yLocal
 
     # When the user is dragging the cursor (click + move)
@@ -616,6 +612,7 @@ define [
     _panDragging: (dx, dy) ->
       sx = (@containerWidth - @gw) / 2
       sy = (@containerHeight - @gh) / 2
+      [sw, sh] = @_currentSlideDimensions()
 
       # ensuring that we cannot pan outside of the boundaries
       x = (@panX - dx)
@@ -629,22 +626,23 @@ define [
       else
         x2 = @containerWidth + x
       # cannot pan past the width
-      x = (if x2 > @sw then @sw - (@containerWidth - sx * 2) else x)
+      x = (if x2 > sw then sw - (@containerWidth - sx * 2) else x)
       if @fitToPage
         y2 = @gh + y
       else
         # height of image could be greater (or less) than the box it fits in
         y2 = @containerHeight + y
       # cannot pan below the height
-      y = (if y2 > @sh then @sh - (@containerHeight - sy * 2) else y)
-      globals.connection.emitPaperUpdate x / @sw, y / @sh, null, null
+      y = (if y2 > sh then sh - (@containerHeight - sy * 2) else y)
+      globals.connection.emitPaperUpdate x / sw, y / sh, null, null
 
     # When panning starts
     # @param  {number} x the x value of the cursor
     # @param  {number} y the y value of the cursor
     _panGo: (x, y) ->
-      @panX = @cx
-      @panY = @cy
+      [cx, cy] = @_currentSlideOffsets()
+      @panX = cx
+      @panY = cy
 
     # When panning finishes
     # @param  {Event} e the mouse event
@@ -658,9 +656,11 @@ define [
       # find the x and y values in relation to the whiteboard
       sx = (@containerWidth - @gw) / 2
       sy = (@containerHeight - @gh) / 2
-      @lineX = x - @containerOffsetLeft - sx + @cx
-      @lineY = y - @containerOffsetTop - sy + @cy
-      values = [ @lineX / @sw, @lineY / @sh, @currentColour, @currentThickness ]
+      [sw, sh] = @_currentSlideDimensions()
+      [cx, cy] = @_currentSlideOffsets()
+      @lineX = x - @containerOffsetLeft - sx + cx
+      @lineY = y - @containerOffsetTop - sy + cy
+      values = [ @lineX / sw, @lineY / sh, @currentColour, @currentThickness ]
       globals.connection.emitMakeShape "line", values
 
     # As line drawing drag continues
@@ -671,15 +671,17 @@ define [
     _lineDragging: (dx, dy, x, y) ->
       sx = (@containerWidth - @gw) / 2
       sy = (@containerHeight - @gh) / 2
+      [sw, sh] = @_currentSlideDimensions()
+      [cx, cy] = @_currentSlideOffsets()
       # find the x and y values in relation to the whiteboard
-      @cx2 = x - @containerOffsetLeft - sx + @cx
-      @cy2 = y - @containerOffsetTop - sy + @cy
+      @cx2 = x - @containerOffsetLeft - sx + cx
+      @cy2 = y - @containerOffsetTop - sy + cy
       if @shiftPressed
-        globals.connection.emitUpdateShape "line", [ @cx2 / @sw, @cy2 / @sh, false ]
+        globals.connection.emitUpdateShape "line", [ @cx2 / sw, @cy2 / sh, false ]
       else
         @currentPathCount++
         if @currentPathCount < MAX_PATHS_IN_SEQUENCE
-          globals.connection.emitUpdateShape "line", [ @cx2 / @sw, @cy2 / @sh, true ]
+          globals.connection.emitUpdateShape "line", [ @cx2 / sw, @cy2 / sh, true ]
         else if @currentLine?
           @currentPathCount = 0
           # save the last path of the line
@@ -693,7 +695,7 @@ define [
             [ Utils.stringToScaledPath(pathStr, 1 / @gw, 1 / @gh),
               @currentColour, @currentThickness ]
           globals.connection.emitMakeShape "line",
-            [ @lineX / @sw, @lineY / @sh, @currentColour, @currentThickness ]
+            [ @lineX / sw, @lineY / sh, @currentColour, @currentThickness ]
         @lineX = @cx2
         @lineY = @cy2
 
@@ -714,9 +716,11 @@ define [
     _rectDragStart: (x, y) ->
       sx = (@containerWidth - @gw) / 2
       sy = (@containerHeight - @gh) / 2
+      [sw, sh] = @_currentSlideDimensions()
+      [cx, cy] = @_currentSlideOffsets()
       # find the x and y values in relation to the whiteboard
-      @cx2 = (x - @containerOffsetLeft - sx + @cx) / @sw
-      @cy2 = (y - @containerOffsetTop - sy + @cy) / @sh
+      @cx2 = (x - @containerOffsetLeft - sx + cx) / sw
+      @cy2 = (y - @containerOffsetTop - sy + cy) / sh
       globals.connection.emitMakeShape "rect",
         [ @cx2, @cy2, @currentColour, @currentThickness ]
 
@@ -727,10 +731,11 @@ define [
     # @param  {number} y the y value of cursor at the time in relation to the top of the browser
     # @param  {Event} e  the mouse event
     _rectDragging: (dx, dy, x, y, e) ->
+      [sw, sh] = @_currentSlideDimensions()
       # if shift is pressed, make it a square
       dy = dx if @shiftPressed
-      dx = dx / @sw
-      dy = dy / @sh
+      dx = dx / sw
+      dy = dy / sh
       # adjust for negative values as well
       if dx >= 0
         x1 = @cx2
@@ -762,11 +767,13 @@ define [
     _ellipseDragStart: (x, y) ->
       sx = (@containerWidth - @gw) / 2
       sy = (@containerHeight - @gh) / 2
+      [sw, sh] = @_currentSlideDimensions()
+      [cx, cy] = @_currentSlideOffsets()
       # find the x and y values in relation to the whiteboard
-      @ellipseX = (x - @containerOffsetLeft - sx + @cx)
-      @ellipseY = (y - @containerOffsetTop - sy + @cy)
+      @ellipseX = (x - @containerOffsetLeft - sx + cx)
+      @ellipseY = (y - @containerOffsetTop - sy + cy)
       globals.connection.emitMakeShape "ellipse",
-        [ @ellipseX / @sw, @ellipseY / @sh, @currentColour, @currentThickness ]
+        [ @ellipseX / sw, @ellipseY / sh, @currentColour, @currentThickness ]
 
     # When first starting to draw an ellipse
     # @param  {number} dx the difference in the x value at the start as opposed to the x value now
@@ -775,6 +782,7 @@ define [
     # @param  {number} y the y value of cursor at the time in relation to the top of the browser
     # @param  {Event} e   the mouse event
     _ellipseDragging: (dx, dy, x, y, e) ->
+      [sw, sh] = @_currentSlideDimensions()
       # if shift is pressed, draw a circle instead of ellipse
       dy = dx if @shiftPressed
       dx = dx / 2
@@ -785,7 +793,7 @@ define [
       dx = (if dx < 0 then -dx else dx)
       dy = (if dy < 0 then -dy else dy)
       globals.connection.emitUpdateShape "ellipse",
-        [ x / @sw, y / @sh, dx / @sw, dy / @sh ]
+        [ x / sw, y / sh, dx / sw, dy / sh ]
 
     # When releasing the mouse after drawing the ellipse
     # @param  {Event} e the mouse event
@@ -802,6 +810,8 @@ define [
     # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
     # @param  {number} y the y value of cursor at the time in relation to the top of the browser
     _textStart: (x, y) ->
+      [sw, sh] = @_currentSlideDimensions()
+      [cx, cy] = @_currentSlideOffsets()
       if @currentText?
         globals.connection.emitPublishShape "text",
           [ @textbox.value, @currentText.attrs.x / @gw, @currentText.attrs.y / @gh,
@@ -813,8 +823,8 @@ define [
       @textY = y
       sx = (@containerWidth - @gw) / 2
       sy = (@containerHeight - @gh) / 2
-      @cx2 = (x - @containerOffsetLeft - sx + @cx) / @sw
-      @cy2 = (y - @containerOffsetTop - sy + @cy) / @sh
+      @cx2 = (x - @containerOffsetLeft - sx + cx) / sw
+      @cy2 = (y - @containerOffsetTop - sy + cy) / sh
       @_makeRect @cx2, @cy2, "#000", 1
       globals.connection.emitMakeShape "rect", [ @cx2, @cy2, "#000", 1 ]
 
@@ -822,10 +832,12 @@ define [
     # @param  {Event} e the mouse event
     _textStop: (e) ->
       @currentRect.hide() if @currentRect?
+      [sw, sh] = @_currentSlideDimensions()
+      [cx, cy] = @_currentSlideOffsets()
       tboxw = (e.pageX - @textX)
       tboxh = (e.pageY - @textY)
       if tboxw >= 14 or tboxh >= 14 # restrict size
-        @textbox.style.width = tboxw * (@gw / @sw) + "px"
+        @textbox.style.width = tboxw * (@gw / sw) + "px"
         @textbox.style.visibility = "visible"
         @textbox.style["font-size"] = 14 + "px"
         @textbox.style["fontSize"] = 14 + "px" # firefox
@@ -833,8 +845,8 @@ define [
         @textbox.value = ""
         sx = (@containerWidth - @gw) / 2
         sy = (@containerHeight - @gh) / 2
-        x = @textX - @containerOffsetLeft - sx + @cx + 1 # 1px random padding
-        y = @textY - @containerOffsetTop - sy + @cy
+        x = @textX - @containerOffsetLeft - sx + cx + 1 # 1px random padding
+        y = @textY - @containerOffsetTop - sy + cy
         @textbox.focus()
 
         # if you click outside, it will automatically sumbit
@@ -887,5 +899,24 @@ define [
         when 16 # shift key
           @shiftPressed = false
 
+    _setCurrentSlide: (value) ->
+      @currentSlide = value
+
+    _getCurrentSlide: ->
+      @currentSlide
+
+    _currentSlideDimensions: ->
+      if @currentSlide?
+        [ @currentSlide.w or 0,
+          @currentSlide.h or 0 ]
+      else
+        [0, 0]
+
+    _currentSlideOffsets: ->
+      if @currentSlide?
+        [ @currentSlide.cx or 0,
+          @currentSlide.cy or 0 ]
+      else
+        [0, 0]
 
   WhiteboardPaperModel
