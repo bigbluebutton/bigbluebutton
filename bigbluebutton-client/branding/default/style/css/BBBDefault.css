@@ -364,8 +364,7 @@ DataGrid {
   fontSize: 12;    
 }
 
-.micSettingsWindowPlaySoundButtonStyle, .micSettingsWindowChangeMicButtonStyle, 
-.micSettingsWindowJoinButtonStyle {
+.micSettingsWindowPlaySoundButtonStyle, .micSettingsWindowChangeMicButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
   rollOverColor: #eeeeee;
@@ -374,6 +373,18 @@ DataGrid {
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;  
   cornerRadius: 5;      
+}
+
+.micSettingsWindowJoinButtonStyle {
+	fillAlphas: 1, 1, 1, 1;
+	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+	rollOverColor: #eeeeee;
+	color: #5e5f63;
+	textRollOverColor: #5e5f63;
+	textSelectedColor: #5e5f63;
+	borderColor: #b9babc;  
+	cornerRadius: 5; 
+	icon:   Embed('assets/images/headset.png');
 }
 
 .micSettingsWindowCancelButtonStyle {
