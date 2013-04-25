@@ -85,11 +85,11 @@ package org.bigbluebutton.main.model.modules
 		public function handleLogout():void {
 			modulesManager.handleLogout();
 		}
-
-    public function startLayoutModule():void{
-      modulesManager.startLayoutModule();
-    }
-    
+		
+		public function startLayoutModule():void{
+			modulesManager.startLayoutModule();
+		}
+		
 		public function startAllModules():void{
 			modulesManager.startAllModules();
 		}

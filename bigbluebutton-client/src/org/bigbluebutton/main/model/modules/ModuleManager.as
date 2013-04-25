@@ -187,22 +187,22 @@ package org.bigbluebutton.main.model.modules
 		public function startLayoutModule():void{
 			for (var i:int = 0; i<sorted.length; i++){
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
-        if (m.getName() == "LayoutModule") {
-          startModule(m.getName());
-        }				
+				if (m.getName() == "LayoutModule") {
+					startModule(m.getName());
+				}
 			}
 		}
-
-    public function startAllModules():void{
-      for (var i:int = 0; i<sorted.length; i++){
-        var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
-        if (m.getName() != "LayoutModule") {
-          startModule(m.getName());
-        }
-      }
-      modulesDispatcher.sendAllModulesLoadedEvent();
-    }
-    
+		
+		public function startAllModules():void{
+			for (var i:int = 0; i<sorted.length; i++){
+				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
+				if (m.getName() != "LayoutModule") {
+					startModule(m.getName());
+				}
+			}
+			modulesDispatcher.sendAllModulesLoadedEvent();
+		}
+		
 		public function handleLogout():void {
 			for (var i:int = 0; i <sorted.length; i++) {				
 				var m:ModuleDescriptor = sorted.getItemAt(i) as ModuleDescriptor;
