@@ -330,6 +330,14 @@ define [
       # make sure the cursor is still on top
       @_bringCursorToFront()
 
+    # Clear all shapes from this paper.
+    clearShapes: ->
+      console.log "clearing shapes", @currentShapes
+      if @currentShapes?
+        @currentShapes.forEach (element) ->
+          element.remove()
+        @currentShapes = null
+
     # Updated a shape `shape` with the data in `data`.
     updateShape: (shape, data) ->
       switch shape
@@ -360,9 +368,10 @@ define [
     # @param  {number} x the x value of the cursor as a percentage of the width
     # @param  {number} y the y value of the cursor as a percentage of the height
     moveCursor: (x, y) ->
+      [cx, cy] = @_currentSlideOffsets()
       @cursor.attr
-        cx: x * @gw
-        cy: y * @gh
+        cx: x * @gw + cx
+        cy: y * @gh + cy
 
     # Update the dimensions of the container.
     _updateContainerDimensions: ->
@@ -389,13 +398,6 @@ define [
       img = @_getImageFromPaper(url)
       img.hide() if img?
 
-    # Clear all shapes from this paper.
-    _clearShapes: ->
-      console.log "clearing shapes", @currentShapes
-      if @currentShapes?
-        @currentShapes.forEach (element) ->
-          element.remove()
-
     # Puts the cursor on top so it doesn't get hidden behind any objects.
     _bringCursorToFront: ->
       @cursor.toFront()
@@ -405,7 +407,8 @@ define [
     # @param  {string} colour    the colour of the shape to be drawn
     # @param  {number} thickness the thickness of the line to be drawn
     _drawLine: (path, colour, thickness) ->
-      line = @raphaelObj.path(Utils.stringToScaledPath(path, @gw, @gh))
+      [cx, cy] = @_currentSlideOffsets()
+      line = @raphaelObj.path(Utils.stringToScaledPath(path, @gw, @gh, cx, cy))
       line.attr @_strokeAndThickness(colour, thickness)
       @currentShapes.push line
 
@@ -416,9 +419,11 @@ define [
     # @param  {number} h         height of the shape as a percentage of the original height
     # @param  {string} colour    the colour of the object
     # @param  {number} thickness the thickness of the object's line(s)
-    # TODO: not tested yet
     _drawRect: (x, y, w, h, colour, thickness) ->
-      r = @raphaelObj.rect(x * @gw, y * @gh, w * @gw, h * @gh)
+      [cx, cy] = @_currentSlideOffsets()
+      x = x * @gw
+      y = y * @gh
+      r = @raphaelObj.rect(x + cx, y + cy, (w * @gw) - x, (h * @gh) - y)
       r.attr @_strokeAndThickness(colour, thickness)
       @currentShapes.push r
 
@@ -463,10 +468,10 @@ define [
     # @param  {number} y         the y value of the line start point as a percentage of the original height
     # @param  {string} colour    the colour of the shape to be drawn
     # @param  {number} thickness the thickness of the line to be drawn
-    # TODO: not tested yet
     _makeLine: (x, y, colour, thickness) ->
-      x *= @gw
-      y *= @gh
+      [cx, cy] = @_currentSlideOffsets()
+      x = x * @gw + cx
+      y = y * @gh + cy
       @currentLine = @raphaelObj.path("M" + x + " " + y + " L" + x + " " + y)
       @currentLine.attr @_strokeAndThickness(colour, thickness)
       @currentShapes.push @currentLine
@@ -476,9 +481,9 @@ define [
     # @param  {number} y         the y value of the object as a percentage of the original height
     # @param  {string} colour    the colour of the object
     # @param  {number} thickness the thickness of the object's line(s)
-    # TODO: not tested yet
     _makeRect: (x, y, colour, thickness) ->
-      @currentRect = @raphaelObj.rect(x * @gw, y * @gh, 0, 0)
+      [cx, cy] = @_currentSlideOffsets()
+      @currentRect = @raphaelObj.rect(x * @gw + cx, y * @gh + cy, 0, 0)
       @currentRect.attr @_strokeAndThickness(colour, thickness)
       @currentShapes.push @currentRect
 
@@ -497,11 +502,11 @@ define [
     # @param  {number} x2  the next x point to be added to the line as a percentage of the original width
     # @param  {number} y2  the next y point to be added to the line as a percentage of the original height
     # @param  {boolean} add true if the line should be added to the current line, false if it should replace the last point
-    # TODO: not tested yet
     _updateLine: (x2, y2, add) ->
       if @currentLine?
-        x2 *= @gw
-        y2 *= @gh
+        [cx, cy] = @_currentSlideOffsets()
+        x2 = x2 * @gw + cx
+        y2 = y2 * @gh + cy
 
         # if adding to the line
         if add
@@ -518,14 +523,16 @@ define [
     # @param  {number} y1 the y value of the object as a percentage of the original height
     # @param  {number} w  width of the shape as a percentage of the original width
     # @param  {number} h  height of the shape as a percentage of the original height
-    # TODO: not tested yet
     _updateRect: (x1, y1, w, h) ->
       if @currentRect?
+        [cx, cy] = @_currentSlideOffsets()
+        x = x1 * @gw + cx
+        y = y1 * @gh + cy
         @currentRect.attr
-          x: (x1) * @gw
-          y: (y1) * @gh
-          width: w * @gw
-          height: h * @gh
+          x: x
+          y: y
+          width: (w * @gw + cx) - x
+          height: (h * @gh + cy) - y
 
     # Socket response - Update rectangle drawn
     # @param  {number} x the x value of the object as a percentage of the original width
@@ -900,12 +907,15 @@ define [
       else
         [0, 0]
 
+    # @param {string,int} stroke    stroke color, can be a number (a hex converted to int) or a
+    #                               string (e.g. "#ffff00")
+    # @param {string,ing} thickness thickness as a number or string (e.g. "2" or "2px")
     _strokeAndThickness: (stroke, thickness) ->
-      stroke = 0 unless stroke?
-      thickness = 1 unless thickness? and thickness
+      stroke = "0" unless stroke?
+      thickness = "1" unless thickness? and thickness
       r =
-        stroke: @_colourToHex(stroke)
-        "stroke-width": "#{thickness}px"
+        stroke: if stroke.toString().match(/\#.*/) then stroke else  @_colourToHex(stroke)
+        "stroke-width": if thickness.toString().match(/.*px$/) then thickness else "#{thickness}px"
       r
 
     _colourToHex: (value) ->
