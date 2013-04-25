@@ -61,9 +61,8 @@ package org.bigbluebutton.modules.layout.managers
 		private var _containerDeactivated:Boolean = false;
 		private var _sendCurrentLayoutUpdateTimer:Timer = new Timer(500,1);
 		private var _applyCurrentLayoutTimer:Timer = new Timer(150,1);
-		private var _delayToSendLayoutsToCombobox:Timer = new Timer(60,0);
 		private var _customLayoutsCount:int = 0;
-		private var comboboxIsInitialized:Boolean = false;
+		private var _serverLayoutsLoaded:Boolean = false;
 		private var _eventsToDelay:Array = new Array(MDIManagerEvent.WINDOW_RESTORE,
 				MDIManagerEvent.WINDOW_MINIMIZE,
 				MDIManagerEvent.WINDOW_MAXIMIZE);
@@ -76,33 +75,6 @@ package org.bigbluebutton.modules.layout.managers
 			_sendCurrentLayoutUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
 				sendLayoutUpdate(updateCurrentLayout());
 			});
-			
-			_delayToSendLayoutsToCombobox.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
-				checkIfCanSendLayoutToCombobox();
-			});
-		}
-		
-		
-		public function sendPopulateComboboxEvent():void {
-			LogUtil.debug("Sending layout to populate combobox");
-			var sendLayoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent(LayoutsLoadedEvent.SEND_LAYOUTS_LOADED_EVENT );
-		    	sendLayoutsLoaded.layouts = _layouts;
-			_globalDispatcher.dispatchEvent(sendLayoutsLoaded);
-		}
-		
-		
-		public function initDelayTimerUntilComboboxIsInitialized():void {
-			_delayToSendLayoutsToCombobox.start();
-		}
-		
-		
-		public function checkIfCanSendLayoutToCombobox():void {
-			if(comboboxIsInitialized) {
-				if(_delayToSendLayoutsToCombobox != null) {
-					_delayToSendLayoutsToCombobox.stop();
-				}
-				sendPopulateComboboxEvent();
-			}
 		}
 		
 		public function loadServerLayouts(layoutUrl:String):void {
@@ -111,23 +83,22 @@ package org.bigbluebutton.modules.layout.managers
 			loader.addEventListener(LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT, function(e:LayoutsLoadedEvent):void {
 				if (e.success) {
 					_layouts = e.layouts;
-					if(comboboxIsInitialized) {
-						sendPopulateComboboxEvent();
-					}
-					else {
-						initDelayTimerUntilComboboxIsInitialized();
-					}
+					_serverLayoutsLoaded = true;
 					LogUtil.debug("LayoutManager: layouts loaded successfully");
-					
+
 				} else {
 					LogUtil.error("LayoutManager: layouts not loaded (" + e.error.message + ")");
 				}
 			});
 			loader.loadFromUrl(layoutUrl);
 		}
-		
-		public function comboboxInitialized():void {
-			comboboxIsInitialized = true;
+
+		public function onComboLayoutCreated():void {
+			if (_serverLayoutsLoaded) {
+				var layoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent();
+				layoutsLoaded.layouts = _layouts;
+				_globalDispatcher.dispatchEvent(layoutsLoaded);
+			}
 		}
 		
 		public function saveLayoutsToFile():void {
@@ -147,15 +118,14 @@ package org.bigbluebutton.modules.layout.managers
 					/*
 					 * \TODO why do I need to create a new Event for this?
 					 */
-					//var layoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent();
-					//layoutsLoaded.layouts = _layouts;
-					//_globalDispatcher.dispatchEvent(layoutsLoaded);
+					var layoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent();
+					layoutsLoaded.layouts = _layouts;
+					_globalDispatcher.dispatchEvent(layoutsLoaded);
+					
 					/*
 					 *	it will update the ComboBox label, and will go back to this class
 					 * 	to apply the default layout
 					 */
-					 
-					 sendPopulateComboboxEvent();
 					_globalDispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
 					
 					Alert.show(ResourceUtil.getInstance().getString('bbb.layout.load.complete'), "", Alert.OK, _canvas);

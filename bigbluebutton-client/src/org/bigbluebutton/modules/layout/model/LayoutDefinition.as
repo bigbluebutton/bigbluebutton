@@ -184,7 +184,7 @@ package org.bigbluebutton.modules.layout.model {
 			adjustWindowsOrder(canvas);
 			
 			var windows:Array = canvas.windowManager.windowList;
-			LogUtil.traceObject(myLayout);
+			// LogUtil.traceObject(myLayout);
 			var transformedLayout:Dictionary = generateWindowsTransformations(myLayout, windows, canvas.width, canvas.height);
 			
 			var type:String;
@@ -234,6 +234,14 @@ package org.bigbluebutton.modules.layout.model {
 
 			items.sortOn("x0", Array.NUMERIC);
 
+			/**
+			 *	First we are interested in discovering which windows have a fixed 
+			 *	width. We understand as fixed width the window that will be restricted 
+			 *	in width by the minWidth parameter. The next procedure will discover 
+			 *	how many pixels are fixed or non-fixed at the left of each window. 
+			 *	This is an important information because it will say how the windows 
+			 *	will be positioned after the transformation.
+			 */
 			var pivot0:Number = 0.0;
 			var pivot1:Number = 0.0;
 			var fixed_w0:Number = 0.0;
@@ -271,6 +279,11 @@ package org.bigbluebutton.modules.layout.model {
 			var not_fixed_w1:Number = 1 - fixed_w1;
 			var not_fixed_multiplier:Number = (fixed_w1 - fixed_w0) / not_fixed_w0;
 
+			/**
+			 *	The same procedure is executed (using a pivot) to discover how 
+			 *	many pixels aren't fixed at the left of each window AFTER the transformation, 
+			 *	and then generate the transformation at the windows in position and width.
+			 */
 			pivot0 
 				= pivot1 
 				= fixed_w0 

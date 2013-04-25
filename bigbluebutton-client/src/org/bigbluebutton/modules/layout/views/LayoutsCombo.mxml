@@ -34,8 +34,7 @@
 	<mate:Listener type="{LayoutEvent.REMOTE_UNLOCK_LAYOUT_EVENT}" receive="{enabled=true}" />
 	<mate:Listener type="{LayoutEvent.INVALIDATE_LAYOUT_EVENT}" method="invalidadeLayout" />
 	<mate:Listener type="{RedefineLayoutEvent.REDEFINE_LAYOUT_EVENT}" method="onRedefineLayout" />
-	<mate:Listener type="{LayoutsLoadedEvent.SEND_LAYOUTS_LOADED_EVENT}" method="populateLayoutsList"/>
-	
+	<mate:Listener type="{LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT}" method="populateLayoutsList"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -72,16 +71,9 @@
 			import org.bigbluebutton.modules.layout.model.WindowLayout;
 			import org.bigbluebutton.modules.layout.views.LayoutButton;
 			
-			
-			
-			private var populated:Boolean = false;
-			
-			
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			
 			private var _defaultLayout:Object = null;
-			private var shouldSelectedItemGoToDefaultBecauseTheEventWasLost:Boolean = false;
-			
 			
 			private function init():void {
 				LogUtil.debug("LayoutsCombo: view initialized");
@@ -102,20 +94,11 @@
 					idx++;
 				}
 				invalidateDisplayList();
-				
-				if(shouldSelectedItemGoToDefaultBecauseTheEventWasLost) {
-					onApplyDefaultLayout();
-				}
-				else {
-					shouldSelectedItemGoToDefaultBecauseTheEventWasLost = false;
-				}
 			}
 			
 			private function onApplyDefaultLayout(e:Event = null):void {
 				if (_defaultLayout != null)
 					selectedItem = _defaultLayout; 
-				else
-					shouldSelectedItemGoToDefaultBecauseTheEventWasLost = true;
 			}
 			
 			private function onRedefineLayout(e:RedefineLayoutEvent):void {
@@ -123,7 +106,10 @@
 				 *	remote means that the this event wasn't dispatched by this class
 				 *	it will come tipically from LayoutService or LayoutManager
 				 */
+				LogUtil.debug("LayoutCombo::onRedefineLayout");
 				if (e.remote) {
+					LogUtil.debug("LayoutCombo::onRedefineLayout remote event");
+	
 					var idx:int = -1;
 					prompt = e.layout.name;
 					
@@ -133,6 +119,8 @@
 					}
 					selectedIndex = idx;
 				}
+				invalidateDisplayList();
+				LogUtil.debug("LayoutCombo::onRedefineLayout done");
 			}
 			
 			private function onSelectedItemChanged(e:Event):void {

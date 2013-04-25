@@ -55,8 +55,8 @@
     </EventHandlers>
     
     <EventHandlers type="{ComboBoxCreatedEvent.COMBOBOX_CREATED_EVENT}">
-   		<MethodInvoker generator="{LayoutManager}" method="comboboxInitialized"/>
-	</EventHandlers>
+   		<MethodInvoker generator="{LayoutManager}" method="onComboLayoutCreated"/>
+    </EventHandlers>
     
     <EventHandlers type="{LayoutEvent.STOP_LAYOUT_MODULE_EVENT}">
    		<MethodInvoker generator="{LayoutService}" method="leave" />

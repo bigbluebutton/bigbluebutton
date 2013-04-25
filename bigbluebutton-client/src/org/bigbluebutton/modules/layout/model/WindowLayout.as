@@ -89,10 +89,10 @@ package org.bigbluebutton.modules.layout.model {
 				if (vxml.@minWidth != undefined) {
 					minWidth = int(vxml.@minWidth);
 				}
-				// not implemented!
-//				if (vxml.@minHeight != undefined) {
-//					minHeight = int(vxml.@minHeight);
-//				}
+				// not implemented yet
+				//if (vxml.@minHeight != undefined) {
+				//	minHeight = int(vxml.@minHeight);
+				//}
 				if (vxml.@minimized != undefined) {
 					minimized = (vxml.@minimized.toString().toUpperCase() == "TRUE") ? true : false;
 				}
@@ -114,7 +114,7 @@ package org.bigbluebutton.modules.layout.model {
 			layout.width = window.width / canvas.width;
 			layout.height = window.height / canvas.height;
 			layout.minWidth = -1;
-			layout.minHeight = -1;
+			//layout.minHeight = -1;
 			layout.x = window.x / canvas.width;
 			layout.y = window.y / canvas.height;
 			layout.minimized = window.minimized;
@@ -228,7 +228,7 @@ package org.bigbluebutton.modules.layout.model {
 				xml.@width = int(width * canvas.width);
 				xml.@height = int(height * canvas.height);
 				xml.@minWidth = minWidth;
-				xml.@minHeight = minHeight;
+				//xml.@minHeight = minHeight;
 				xml.@x = int(x * canvas.width);
 				xml.@y = int(y * canvas.height);
 			}
@@ -249,7 +249,7 @@ package org.bigbluebutton.modules.layout.model {
 				xml.@width = width;
 				xml.@height = height;
 				xml.@minWidth = minWidth;
-				xml.@minHeight = minHeight;
+				//xml.@minHeight = minHeight;
 				xml.@x = x;
 				xml.@y = y;
 			}
