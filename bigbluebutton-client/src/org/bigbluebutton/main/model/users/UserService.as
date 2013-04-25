@@ -18,16 +18,21 @@
 */
 package org.bigbluebutton.main.model.users
 {
-	import com.asfusion.mate.events.Dispatcher;	
-	import flash.net.NetConnection;	
-	import mx.collections.ArrayCollection;	
+	import com.asfusion.mate.events.Dispatcher;
+	
+	import flash.net.NetConnection;
+	
+	import mx.collections.ArrayCollection;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+	import org.bigbluebutton.main.events.UserChangedBreakoutRoomEvent;
 	import org.bigbluebutton.main.events.UserServicesEvent;
 	import org.bigbluebutton.main.model.ConferenceParameters;
+	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
 	import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
 	import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
@@ -95,7 +100,7 @@ package org.bigbluebutton.main.model.users
 				_conferenceParameters.internalUserID = result.internalUserId;
 				_conferenceParameters.logoutUrl = result.logoutUrl;
 				_conferenceParameters.record = true;
-				_conferenceParameters.breakRooms = result.breakoutRooms;
+				_conferenceParameters.breakoutRooms = result.breakoutRooms;
 				
 				if (result.record == "false") {
 					_conferenceParameters.record = false;
@@ -112,6 +117,15 @@ package org.bigbluebutton.main.model.users
 				
 				connect();
 			}
+		}
+		
+		public function userJoinedToBreakoutRoom(evt:UserChangedBreakoutRoomEvent):void{
+			var new_name:String = UserManager.getInstance().getConference().getMyName();
+			if(evt.number != UserManager.getInstance().getConference().dialNumber)
+				new_name = new_name + " (" + evt.name + ")";
+			
+			LogUtil.debug("Setted: " + new_name);
+			UserManager.getInstance().getConference().setMyName(new_name);
 		}
 		
 		private function connect():void{

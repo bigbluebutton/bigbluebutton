@@ -32,6 +32,8 @@ package org.bigbluebutton.main.model.modules
 	import org.bigbluebutton.main.model.ConferenceParameters;
 	import org.bigbluebutton.main.model.ConfigParameters;
 	
+	import mx.utils.ObjectUtil;
+	
 	public class ModuleManager
 	{
 		public static const MODULE_LOAD_READY:String = "MODULE_LOAD_READY";

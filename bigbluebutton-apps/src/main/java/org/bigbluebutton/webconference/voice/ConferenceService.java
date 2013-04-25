@@ -40,9 +40,9 @@ public class ConferenceService implements ConferenceEventListener {
 		roomMgr = null;
 	}
 	
-	public void createConference(String room, String meetingid, boolean record) {
+	public void createConference(String room, String meetingid, boolean record, ArrayList breakoutNumbers) {
 		if (roomMgr.hasRoom(room)) return;
-		roomMgr.createRoom(room, record, meetingid);
+		roomMgr.createRoom(room, record, meetingid,breakoutNumbers);
 		confProvider.populateRoom(room);
 		
 	}

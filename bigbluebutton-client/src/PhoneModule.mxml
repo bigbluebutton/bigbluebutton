@@ -86,6 +86,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function get voicebridge():String {
 				return _attributes.voicebridge;
 			}
+			
+			public function get breakoutRooms():Array {
+				return _attributes.breakoutRooms;
+			}
 									
 			public function start(attributes:Object):void {	
 				LogUtil.debug("phone attr: " + attributes.username);

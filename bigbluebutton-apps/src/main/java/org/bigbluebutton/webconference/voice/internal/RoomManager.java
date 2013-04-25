@@ -19,6 +19,7 @@
 package org.bigbluebutton.webconference.voice.internal;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import org.bigbluebutton.webconference.voice.ConferenceService;
 import org.bigbluebutton.webconference.voice.Participant;
@@ -39,6 +40,7 @@ public class RoomManager {
 	private static final Logger log = Red5LoggerFactory.getLogger(RoomManager.class, "bigbluebutton");
 	
 	private final ConcurrentHashMap<String, RoomImp> rooms;
+	
 	private ConferenceService confService;
 	private VoiceEventRecorder recorder;
 		
@@ -46,10 +48,15 @@ public class RoomManager {
 		rooms = new ConcurrentHashMap<String, RoomImp>();
 	}
 	
-	public void createRoom(String name, boolean record, String meetingid) {
+	public void createRoom(String name, boolean record, String meetingid, ArrayList<HashMap<String,String>> breakoutNumbers) {
 		log.debug("Creating room: " + name);
-		RoomImp r = new RoomImp(name,record,meetingid);
+		RoomImp r = new RoomImp(name,record,meetingid,"meeting");
 		rooms.putIfAbsent(name, r);
+		//for breakoutRooms
+		for(HashMap<String,String> map: breakoutNumbers){
+			RoomImp br = new RoomImp(map.get("number"),false,meetingid,map.get("name"));
+			rooms.putIfAbsent(map.get("number"), br);
+		}
 	}
 	
 	public boolean hasRoom(String name) {

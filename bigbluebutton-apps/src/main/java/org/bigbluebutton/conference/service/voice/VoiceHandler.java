@@ -18,6 +18,8 @@
 */
 package org.bigbluebutton.conference.service.voice;
 
+import java.util.ArrayList;
+
 import org.red5.server.adapter.IApplication;
 import org.red5.server.api.IClient;
 import org.red5.server.api.IConnection;
@@ -105,14 +107,15 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
     	String voiceBridge = getBbbSession().getVoiceBridge();
     	String meetingid = getBbbSession().getRoom(); 
     	Boolean record = getBbbSession().getRecord();
+    	ArrayList breakoutNumbers = getBbbSession().getBreakoutRooms();
     	
     	if (!connection.getScope().hasAttribute(VOICE_BRIDGE)) {
     		connection.getScope().setAttribute(VOICE_BRIDGE, getBbbSession().getVoiceBridge());
     	}
     	
     	log.debug("Setting up voiceBridge " + voiceBridge);
-    	clientManager.addSharedObject(connection.getScope().getName(), voiceBridge, so);
-    	conferenceService.createConference(voiceBridge, meetingid, record); 			
+    	clientManager.addSharedObject(connection.getScope().getName(), voiceBridge, so, breakoutNumbers);
+    	conferenceService.createConference(voiceBridge, meetingid, record, breakoutNumbers); 			
 
 		return true;
 	}

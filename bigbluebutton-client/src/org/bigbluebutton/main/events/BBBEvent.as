@@ -41,6 +41,8 @@ package org.bigbluebutton.main.events {
     public static const OPEN_WEBCAM_PREVIEW:String = "open webcam preview event";
 	public static const MIC_SETTINGS_CLOSED:String = "MIC_SETTINGS_CLOSED";
 	public static const CAM_SETTINGS_CLOSED:String = "CAM_SETTINGS_CLOSED";
+	public static const BREAKOUT_ROOM_CHANGED:String = "BREAKOUT_ROOM_CHANGED";
+	
    
 		public var message:String;
 		public var payload:Object = new Object();

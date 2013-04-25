@@ -40,11 +40,18 @@ public class RoomImp implements Room {
 	private String meetingid;
 	private boolean recording = false;
 	
-	public RoomImp(String name,boolean record, String meetingid) {
+	private final String breakoutName;
+	
+	public RoomImp(String name,boolean record, String meetingid, String breakoutName) {
 		this.name = name;
 		this.record = record;
 		this.meetingid = meetingid;
+		this.breakoutName = breakoutName;
 		participants = new ConcurrentHashMap<Integer, Participant>();
+	}
+	
+	public String getBreakoutName(){
+		return this.breakoutName;
 	}
 	
 	public String getName() {

@@ -23,27 +23,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml"
 			 xmlns:mate="http://mate.asfusion.com/"
 			 dataProvider="{bRooms}"
-			 change="chooseBreakoutRoom()" width="120" height="22">
+			 change="chooseBreakoutRoom(event)" width="120" height="22">
 	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="getBreakoutRoomNames" />
 	<mx:Script>
 		<![CDATA[
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.collections.ArrayCollection;
+			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.events.UserChangedBreakoutRoomEvent;
 			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
-			import mx.collections.ArrayCollection;
 			
 			[Bindable] private var bRooms:ArrayCollection = new ArrayCollection(); 
 			
-			private function chooseBreakoutRoom():void {
-				//ResourceUtil.getInstance().setPreferredLocale(ResourceUtil.getInstance().getLocaleCodeForIndex(selectedIndex));
+			private function chooseBreakoutRoom(event:Event):void {
+				var evt:UserChangedBreakoutRoomEvent = new UserChangedBreakoutRoomEvent();
+				evt.name = event.currentTarget.selectedItem.label;
+				evt.number = event.currentTarget.selectedItem.data;
+				var dispatcher:Dispatcher = new Dispatcher();
+				dispatcher.dispatchEvent(evt);
 			}
 			public function getBreakoutRoomNames(e:ConferenceCreatedEvent):void{
-				LogUtil.debug("init breakout room names");
 				var breakoutRooms:Array = UserManager.getInstance().getConference().breakoutRooms;
 				bRooms = new ArrayCollection(); 
-				bRooms.addItem({label:"Audio Numbers",number:-1});
+				bRooms.addItem({label:"Audio Numbers",number:UserManager.getInstance().getConference().dialNumber});
 				for(var i:Number=0; i<breakoutRooms.length; i++){
-					LogUtil.debug("breakout room: " + breakoutRooms[i].name);
 					var obj:Object = {};
 					obj.label = breakoutRooms[i].name;
 					obj.data = breakoutRooms[i].number;

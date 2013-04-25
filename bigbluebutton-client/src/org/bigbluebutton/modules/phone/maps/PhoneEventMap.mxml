@@ -25,17 +25,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Script>
 		<![CDATA[
-			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
-			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
+			import mx.events.FlexEvent;
+			
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.main.events.UserChangedBreakoutRoomEvent;
 			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
-			import org.bigbluebutton.modules.phone.events.RegistrationSuccessEvent;
+			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 			import org.bigbluebutton.modules.phone.events.ConnectionStatusEvent;
+			import org.bigbluebutton.modules.phone.events.RegistrationSuccessEvent;
+			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
+			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
+			import org.bigbluebutton.modules.phone.managers.ConnectionManager;
 			import org.bigbluebutton.modules.phone.managers.PhoneManager;
 			import org.bigbluebutton.modules.phone.managers.StreamManager;
-			import org.bigbluebutton.modules.phone.managers.ConnectionManager;
-			import org.bigbluebutton.modules.phone.events.StartPhoneModuleEvent;
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import mx.events.FlexEvent;
 		]]>
 	</mx:Script>
 	
@@ -86,5 +88,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{ConnectionStatusEvent.SUCCESS}">        
 		<MethodInvoker generator="{PhoneManager}" method="calledFromGlobal" arguments="ConnectionStatusEvent.SUCCESS"/>
 	</EventHandlers>
+	
+	<EventHandlers type="{UserChangedBreakoutRoomEvent.BREAKOUT_ROOM_CHANGED}">        
+		<MethodInvoker generator="{PhoneManager}" method="setCallNumber" arguments="{event}"/>
+	</EventHandlers>
+	
     
 </EventMap>

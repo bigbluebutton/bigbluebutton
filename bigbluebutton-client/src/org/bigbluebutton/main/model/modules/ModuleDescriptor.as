@@ -182,6 +182,7 @@ package org.bigbluebutton.main.model.modules
 			addAttribute("externUserID", conferenceParameters.externUserID);
 			addAttribute("internalUserID", conferenceParameters.internalUserID);
 			addAttribute("meetingID", conferenceParameters.meetingID);
+			addAttribute("breakoutRooms", conferenceParameters.breakoutRooms);
 			addAttribute("protocol", protocol);
 			useProtocol(protocol);
 		}

@@ -83,6 +83,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<EventHandlers type="{BroadcastStoppedEvent.BROADCAST_STOPPED}" >
 		<MethodInvoker generator="{UserService}" method="removeStream" arguments="{event}" />
 	</EventHandlers>
+	
+	<EventHandlers type="{UserChangedBreakoutRoomEvent.BREAKOUT_ROOM_CHANGED}" >
+		<MethodInvoker generator="{UserService}" method="userJoinedToBreakoutRoom" arguments="{event}" />
+	</EventHandlers>
 	<!-- End Viewers Stuff -->
 	
 	<EventHandlers type="{KickUserEvent.KICK_USER}" >
@@ -110,8 +114,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<![CDATA[
 		import mx.events.FlexEvent;
 		
-		import org.bigbluebutton.main.events.ShortcutEvent;
-		
 		import org.bigbluebutton.core.managers.ConfigManager;
 		import org.bigbluebutton.core.services.SkinningService;
 		import org.bigbluebutton.core.services.StreamMonitor;
@@ -119,7 +121,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		import org.bigbluebutton.main.events.LogoutEvent;
 		import org.bigbluebutton.main.events.ModuleLoadEvent;
 		import org.bigbluebutton.main.events.PortTestEvent;
+		import org.bigbluebutton.main.events.ShortcutEvent;
 		import org.bigbluebutton.main.events.SuccessfulLoginEvent;
+		import org.bigbluebutton.main.events.UserChangedBreakoutRoomEvent;
 		import org.bigbluebutton.main.events.UserServicesEvent;
 		import org.bigbluebutton.main.model.PortTestProxy;
 		import org.bigbluebutton.main.model.modules.ModulesProxy;

@@ -19,6 +19,7 @@
 package org.bigbluebutton.webconference.red5.voice;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -36,23 +37,39 @@ public class ClientManager implements ClientNotifier {
 	private static Logger log = Red5LoggerFactory.getLogger(ClientManager.class, "bigbluebutton");
 
 	private final ConcurrentMap<String, RoomInfo> voiceRooms;
-	private final ConcurrentMap<String, RoomInfo> webRooms;
+	private final ConcurrentMap<String, ArrayList<RoomInfo>> webRooms;
 
 	public ClientManager() {
 		voiceRooms = new ConcurrentHashMap<String, RoomInfo>();
-		webRooms = new ConcurrentHashMap<String, RoomInfo>();
+		webRooms = new ConcurrentHashMap<String, ArrayList<RoomInfo>>();
 	}
 	
-	public void addSharedObject(String webRoom, String voiceRoom, ISharedObject so) {
+	public void addSharedObject(String webRoom, String voiceRoom, ISharedObject so, ArrayList<HashMap<String,String>> breakoutRooms) {
 		log.debug("Adding SO for [" + webRoom + "," + voiceRoom + "]");
 		RoomInfo soi = new RoomInfo(webRoom, voiceRoom, so);
 		voiceRooms.putIfAbsent(voiceRoom, soi);
-		webRooms.putIfAbsent(webRoom, soi);
+		
+		ArrayList<RoomInfo> ar_soi = new ArrayList<RoomInfo>();
+		ar_soi.add(soi);
+		
+		//for breakoutRooms
+		for(HashMap<String,String> map: breakoutRooms){
+			RoomInfo bsoi = new RoomInfo(webRoom, map.get("number"), so);
+			voiceRooms.putIfAbsent(map.get("number"), bsoi);
+			//webRooms.putIfAbsent(webRoom, bsoi);
+			ar_soi.add(bsoi);
+		}
+		
+		webRooms.putIfAbsent(webRoom, ar_soi);
 	}
 	
 	public void removeSharedObject(String webRoom) {
-		RoomInfo soi = webRooms.remove(webRoom);
-		if (soi != null) voiceRooms.remove(soi.getVoiceRoom());
+		ArrayList<RoomInfo> ar_soi = webRooms.remove(webRoom);
+		if (ar_soi != null){
+			for(RoomInfo soi:ar_soi){
+				voiceRooms.remove(soi.getVoiceRoom());
+			}
+		} 
 	}
 		
 	private void joined(String room, Integer participant, String name, Boolean muted, Boolean talking, Boolean locked){

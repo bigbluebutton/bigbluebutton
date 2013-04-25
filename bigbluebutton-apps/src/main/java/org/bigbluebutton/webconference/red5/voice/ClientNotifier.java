@@ -18,11 +18,14 @@
 */
 package org.bigbluebutton.webconference.red5.voice;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.red5.server.api.so.ISharedObject;
 
 public interface ClientNotifier  {
 	
-	public void addSharedObject(String webRoom, String voiceRoom, ISharedObject so);	
+	public void addSharedObject(String webRoom, String voiceRoom, ISharedObject so, ArrayList<HashMap<String,String>> breakoutRooms);	
 	public void removeSharedObject(String webRoom);
 
 }
