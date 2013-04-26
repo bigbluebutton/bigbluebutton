@@ -1,0 +1,87 @@
+/*
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (C) 2003-2006 Adobe Macromedia Software LLC and its licensors.
+// All Rights Reserved.
+// The following is Sample Code and is subject to all restrictions on such code
+// as contained in the End User License Agreement accompanying this product.
+// If you have received this file from a source other than Adobe,
+// then your use, modification, or distribution of it requires
+// the prior written permission of Adobe.
+//
+////////////////////////////////////////////////////////////////////////////////
+*/
+Application
+{
+    backgroundColor:            #484842;
+}
+
+CarouselImage
+{
+    frameColor:                 #9e9c8d;
+    frameThickness:             1;
+    frameSize:                  5;
+}
+
+ToolTip
+{
+    backgroundColor:           #484842;
+    color:                     #ffffff;
+}
+
+.button
+{
+	themeColor:                 #b7babc;
+}
+
+.thumbnailRolledOver
+{
+    backgroundColor:            #787872;
+}
+
+.thumbnailSelected
+{
+    backgroundColor:            #383832;
+}
+
+.thumbnailTitleBar
+{
+    fontSize:                   12;
+    fontWeight:                 "bold";
+    color:                      #666666;
+}
+
+.thumbnailListBorderBox
+{
+    backgroundColor:            #9e9c8d;
+}
+
+.thumbnailList
+{
+    borderColor:                #9e9c8d;
+	backgroundColor:            #9e9c8d;
+	selectionColor:             #9e9c8d;
+	rollOverColor:              #9e9c8d;
+	themeColor:                 #383832;
+    borderStyle:                "solid";
+    cornerRadius:               10;
+}
+
+.photoDescription
+{
+    fontWeight:                 "bold";
+    fontSize:                   14;
+    color:                      #ffffff;
+}
+
+.photoName
+{
+	fontSize:					12;
+	color:						#ffffff;
+}
+
+.slideshowControlBar
+{
+    backgroundAlpha:            .6;
+    backgroundColor:            #5b5b5b;
+}

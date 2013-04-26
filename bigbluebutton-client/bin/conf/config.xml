@@ -1,58 +1,70 @@
 <?xml version="1.0" ?>
 <config>
     <localeversion suppressWarning="false">0.8</localeversion>
-    <version>4132-2012-12-29</version>
-    <help url="http://bbbdev2.googool.com/help.html"/>
-    <porttest host="bbbdev2.googool.com" application="video" timeout="10000"/>    
-    <application uri="rtmp://bbbdev2.googool.com/bigbluebutton" host="http://bbbdev2.googool.com/bigbluebutton/api/enter" />
+    <version>4137-2013-03-23</version>
+    <help url="http://192.168.68.132/help.html"/>
+    <porttest host="192.168.68.132" application="video/portTest" timeout="10000"/>    
+    <bwMon server="192.168.68.131" application="video/bwTest"/>
+    <application uri="rtmp://192.168.68.132/bigbluebutton" host="http://192.168.68.132/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
-    <skinning enabled="true" url="http://bbbdev2.googool.com/client/branding/css/BBBDefault.css.swf" />
-    <layout showLogButton="true" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
+    <skinning enabled="true" url="http://192.168.68.132/client/branding/css/BBBDefault.css.swf" />
+    <shortcutKeys showButton="true" />
+    <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="Default"
             showToolbar="true" showFooter="true" showHelpButton="true" showLogoutWindow="true"/>
             
-	<modules>
-		
-		<module name="ChatModule" url="http://bbbdev2.googool.com/client/ChatModule.swf?v=4132" 
-			uri="rtmp://bbbdev2.googool.com/bigbluebutton" 
-			dependsOn="ViewersModule"	
+		<modules>
+		 
+		<module name="ChatModule" url="http://192.168.68.132/client/ChatModule.swf?v=4137" 
+			uri="rtmp://192.168.68.132/bigbluebutton" 
+			dependsOn="UsersModule"	
 			translationOn="false"
 			translationEnabled="false"	
 			privateEnabled="true"  
 			position="top-right"
+			baseTabIndex="701"
 		/>
 		
-		<module name="ViewersModule" url="http://bbbdev2.googool.com/client/ViewersModule.swf?v=4132" 
-			uri="rtmp://bbbdev2.googool.com/bigbluebutton" 
-			host="http://bbbdev2.googool.com/bigbluebutton/api/enter"
+<!--		
+		<module name="ViewersModule" url="http://192.168.68.132/client/ViewersModule.swf?v=4137" 
+			uri="rtmp://192.168.68.132/bigbluebutton" 
+			host="http://192.168.68.132/bigbluebutton/api/enter"
 			allowKickUser="false"
-			windowVisible="true"
+			baseTabIndex="201"
 		/>
 			
-		<module name="ListenersModule" url="http://bbbdev2.googool.com/client/ListenersModule.swf?v=4132" 
-			uri="rtmp://bbbdev2.googool.com/bigbluebutton" 
-			recordingHost="http://bbbdev2.googool.com"
-			windowVisible="true"
+		<module name="ListenersModule" url="http://192.168.68.132/client/ListenersModule.swf?v=4137" 
+			uri="rtmp://192.168.68.132/bigbluebutton" 
+			recordingHost="http://192.168.68.132"
 			position="bottom-left"
+			baseTabIndex="301"
 		/>
+-->
+
+		<module name="UsersModule" url="http://192.168.68.132/client/UsersModule.swf?v=4137" 
+			uri="rtmp://192.168.68.132/bigbluebutton" 
+		/>
+
 		
 		<module name="DeskShareModule" 
-			url="http://bbbdev2.googool.com/client/DeskShareModule.swf?v=4132" 
-			uri="rtmp://bbbdev2.googool.com/deskShare"
+			url="http://192.168.68.132/client/DeskShareModule.swf?v=4105" 
+			uri="rtmp://192.168.68.132/deskShare"
+			showButton="true"
 			autoStart="false"
+			baseTabIndex="101"
 		/>
 		
-		<module name="PhoneModule" url="http://bbbdev2.googool.com/client/PhoneModule.swf?v=4132" 
-			uri="rtmp://bbbdev2.googool.com/sip" 
+		<module name="PhoneModule" url="http://192.168.68.132/client/PhoneModule.swf?v=4137" 
+			uri="rtmp://192.168.68.132/sip" 
 			autoJoin="true"
 			skipCheck="false"
 			showButton="true"
 			enabledEchoCancel="true"
-			dependsOn="ViewersModule"
+			dependsOn="UsersModule"
 		/>
 
-		<module name="VideoconfModule" url="http://bbbdev2.googool.com/client/VideoconfModule.swf?v=4132" 
-			uri="rtmp://bbbdev2.googool.com/video"
-			dependson = "ViewersModule"
+		<module name="VideoconfModule" url="http://192.168.68.132/client/VideoconfModule.swf?v=4137" 
+			uri="rtmp://192.168.68.132/video"
+			dependson = "UsersModule"
 			videoQuality = "100"
 			presenterShareOnly = "false"
 			controlsForPresenter = "false"
@@ -75,25 +87,35 @@
 			enableH264 = "true"
 			h264Level = "2.1"
 			h264Profile = "main"		
-			displayAvatar = "false"	
+			displayAvatar = "false"
+			focusTalking = "false"	
 		/>
 		
-		<module name="WhiteboardModule" url="http://bbbdev2.googool.com/client/WhiteboardModule.swf?v=4132" 
-			uri="rtmp://bbbdev2.googool.com/bigbluebutton" 
+		<module name="WhiteboardModule" url="http://192.168.68.132/client/WhiteboardModule.swf?v=4105" 
+			uri="rtmp://192.168.68.132/bigbluebutton" 
 			dependsOn="PresentModule"
-		/>
-		
-		<module name="PresentModule" url="http://bbbdev2.googool.com/client/PresentModule.swf?v=4132" 
-			uri="rtmp://bbbdev2.googool.com/bigbluebutton" 
-			host="http://bbbdev2.googool.com" 
-			showPresentWindow="true"
-			showWindowControls="true"
-			dependsOn="ViewersModule"
+			baseTabIndex="601"
 		/>
 
-		<module name="VideodockModule" url="http://bbbdev2.googool.com/client/VideodockModule.swf?v=4132"
-			uri="rtmp://bbbdev2.googool.com/bigbluebutton" 
-			dependsOn="VideoconfModule, ViewersModule"
+<!--
+    <module name="PollingModule" url="http://192.168.68.132/client/PollingModule.swf?v=4137" 
+      uri="rtmp://192.168.68.132/bigbluebutton" 
+      dependsOn="PresentModule"
+    />
+-->
+    		
+		<module name="PresentModule" url="http://192.168.68.132/client/PresentModule.swf?v=4137" 
+			uri="rtmp://192.168.68.132/bigbluebutton" 
+			host="http://192.168.68.132" 
+			showPresentWindow="true"
+			showWindowControls="true"
+			dependsOn="UsersModule"
+			baseTabIndex="501"
+		/>
+
+		<module name="VideodockModule" url="http://192.168.68.132/client/VideodockModule.swf?v=4137"
+			uri="rtmp://192.168.68.132/bigbluebutton" 
+			dependsOn="VideoconfModule, UsersModule"
 			autoDock="true"
 			showControls="true"
 			maximizeWindow="false"
@@ -102,28 +124,28 @@
 			height="179"
 			layout="smart"
 			oneAlwaysBigger="false"
+			baseTabIndex="401"
 		/>
 		
-		<module name="LayoutModule" url="http://bbbdev2.googool.com/client/LayoutModule.swf?v=4132"
-			uri="rtmp://bbbdev2.googool.com/bigbluebutton"
-			layoutConfig="http://bbbdev2.googool.com/client/conf/layout.xml"
+		<module name="LayoutModule" url="http://192.168.68.132/client/LayoutModule.swf?v=4137"
+			uri="rtmp://192.168.68.132/bigbluebutton"
+			layoutConfig="http://192.168.68.132/client/conf/layout.xml"
 			enableEdit="true"
 		/>
-		
-		<module name="PollingModule" url="http://bbbdev2.googool.com/client/PollingModule.swf?v=4132" 
-			uri="rtmp://bbbdev2.googool.com/bigbluebutton" 
-			host="http://bbbdev2.googool.com/bigbluebutton/api/enter"
-			allowKickUser="false"
-			windowVisible="true"
-		/>
+
 <!--
-    <module name="BroadcastModule" url="http://bbbdev2.googool.com/client/BroadcastModule.swf?v=4132"
-      uri="rtmp://bbbdev2.googool.com/bigbluebutton"
-      streamsUri="http://bbbdev2.googool.com/streams.xml"
+    <module name="NotesModule" url="http://192.168.68.132/client/NotesModule.swf?v=4137"
+      saveURL="http://192.168.68.132"
+      position="top-left"
+    />
+    
+    <module name="BroadcastModule" url="http://192.168.68.132/client/BroadcastModule.swf?v=4137"
+      uri="rtmp://192.168.68.132/bigbluebutton"
+      streamsUri="http://192.168.68.132/streams.xml"
       position="top-left"
       showStreams="true"
       autoPlay="false"
-      dependsOn="ViewersModule"
+      dependsOn="UsersModule"
     />
 -->
     		
