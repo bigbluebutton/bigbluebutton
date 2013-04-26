@@ -75,7 +75,7 @@ dependencies {
     
         //redis
 	compile 'redis.clients:jedis:1.5.1'
-	compile 'commons-pool:commons-pool:1.5.6'
+	providedCompile 'commons-pool:commons-pool:1.5.6'
 }
 
 test {
