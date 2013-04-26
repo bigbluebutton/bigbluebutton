@@ -61,6 +61,7 @@ package org.bigbluebutton.modules.layout.managers
 		private var _applyCurrentLayoutTimer:Timer = new Timer(150,1);
 		private var _customLayoutsCount:int = 0;
 		private var _serverLayoutsLoaded:Boolean = false;
+        private var _comboLayoutCreated:Boolean = false;
 		private var _eventsToDelay:Array = new Array(MDIManagerEvent.WINDOW_RESTORE,
 				MDIManagerEvent.WINDOW_MINIMIZE,
 				MDIManagerEvent.WINDOW_MAXIMIZE);
@@ -75,13 +76,25 @@ package org.bigbluebutton.modules.layout.managers
 			});
 		}
 		
+        /**
+         *  There's a race condition when the layouts combo doesn't get populated 
+         *  with the server's layouts definition. The problem is that sometimes 
+         *  the layouts is loaded before the combo get created, and sometimes the 
+         *  combo is created first. We use two booleans to sync it and only dispatch 
+         *  the layouts to populate the list when both are created.
+         */
 		public function loadServerLayouts(layoutUrl:String):void {
 			LogUtil.debug("LayoutManager: loading server layouts from " + layoutUrl);
 			var loader:LayoutLoader = new LayoutLoader();
 			loader.addEventListener(LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT, function(e:LayoutsLoadedEvent):void {
 				if (e.success) {
 					_layouts = e.layouts;
+
+                    if (_comboLayoutCreated) {
+                        broadcastLayouts();
+                    }
 					_serverLayoutsLoaded = true;
+
 					LogUtil.debug("LayoutManager: layouts loaded successfully");
 				} else {
 					LogUtil.error("LayoutManager: layouts not loaded (" + e.error.message + ")");
@@ -92,11 +105,16 @@ package org.bigbluebutton.modules.layout.managers
 
 		public function onComboLayoutCreated():void {
 			if (_serverLayoutsLoaded) {
-				var layoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent();
-				layoutsLoaded.layouts = _layouts;
-				_globalDispatcher.dispatchEvent(layoutsLoaded);
+                broadcastLayouts();
 			}
+            _comboLayoutCreated = true;
 		}
+
+        private function broadcastLayouts():void {
+            var layoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent();
+            layoutsLoaded.layouts = _layouts;
+            _globalDispatcher.dispatchEvent(layoutsLoaded);
+        }
 		
 		public function saveLayoutsToFile():void {
 			var _fileRef:FileReference = new FileReference();
@@ -111,13 +129,8 @@ package org.bigbluebutton.modules.layout.managers
 			loader.addEventListener(LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT, function(e:LayoutsLoadedEvent):void {
 				if (e.success) {
 					_layouts = e.layouts;
-					
-					/*
-					 * \TODO why do I need to create a new Event for this?
-					 */
-					var layoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent();
-					layoutsLoaded.layouts = _layouts;
-					_globalDispatcher.dispatchEvent(layoutsLoaded);
+
+                    broadcastLayouts();
 					
 					/*
 					 *	it will update the ComboBox label, and will go back to this class
