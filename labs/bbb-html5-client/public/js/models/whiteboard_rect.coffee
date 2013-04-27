@@ -4,24 +4,19 @@ define [
   'backbone',
   'raphael',
   'globals',
-  'cs!utils'
-], ($, _, Backbone, Raphael, globals, Utils) ->
+  'cs!utils',
+  'cs!models/whiteboard_tool'
+], ($, _, Backbone, Raphael, globals, Utils, WhiteboardToolModel) ->
 
   # A rectangle in the whiteboard
-  WhiteboardRectModel = Backbone.Model.extend
+  class WhiteboardRectModel extends WhiteboardToolModel
 
     initialize: (@paper) ->
-      @gh = 0
-      @gw = 0
-      @obj = 0
+      super @paper
 
       # the defintion of this shape, kept so we can redraw the shape whenever needed
       # format: x1, y1, x2, y2, stroke color, thickness
       @definition = [0, 0, 0, 0, "#000", "0px"]
-
-    setPaperSize: (@gh, @gw) ->
-
-    setOffsets: (@xOffset, @yOffset) ->
 
     # Creates a rectangle in the paper
     # @param  {number} x         the x value of the top left corner
@@ -29,15 +24,12 @@ define [
     # @param  {string} colour    the colour of the object
     # @param  {number} thickness the thickness of the object's line(s)
     make: (x, y, colour, thickness) ->
-      @obj = @paper.rect(x * @gw + @xOffset, y * @gh + @yOffset, 0, 0)
+      @obj = @paper.rect(x * @gw + @xOffset, y * @gh + @yOffset, 0, 0, 1)
       @obj.attr Utils.strokeAndThickness(colour, thickness)
       @definition =
         shape: "rect"
         data: [x, y, 0, 0, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
       @obj
-
-    getDefinition: () ->
-      @definition
 
     # Update the rectangle dimensions
     # @param  {number} x1 the x value of the top left corner
@@ -72,7 +64,54 @@ define [
       r.attr Utils.strokeAndThickness(colour, thickness)
       r
 
-    hide: () ->
-      @obj.hide() if @obj?
+    # Creating a rectangle has started
+    # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
+    # @param  {number} y the y value of cursor at the time in relation to the top of the browser
+    # TODO: moved here but not finished
+    dragOnStart: (x, y) ->
+      # sx = (@paperWidth - @gw) / 2
+      # sy = (@paperHeight - @gh) / 2
+      # # find the x and y values in relation to the whiteboard
+      # @cx2 = (x - @containerOffsetLeft - sx + @xOffset) / @paperWidth
+      # @cy2 = (y - @containerOffsetTop - sy + @yOffset) / @paperHeight
+      # globals.connection.emitMakeShape "rect",
+      #   [ @cx2, @cy2, @currentColour, @currentThickness ]
+
+    # Adjusting rectangle continues
+    # @param  {number} dx the difference in the x value at the start as opposed to the x value now
+    # @param  {number} dy the difference in the y value at the start as opposed to the y value now
+    # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
+    # @param  {number} y the y value of cursor at the time in relation to the top of the browser
+    # @param  {Event} e  the mouse event
+    # TODO: moved here but not finished
+    dragOnMove: (dx, dy, x, y, e) ->
+      # # if shift is pressed, make it a square
+      # dy = dx if @shiftPressed
+      # dx = dx / @paperWidth
+      # dy = dy / @paperHeight
+      # # adjust for negative values as well
+      # if dx >= 0
+      #   x1 = @cx2
+      # else
+      #   x1 = @cx2 + dx
+      #   dx = -dx
+      # if dy >= 0
+      #   y1 = @cy2
+      # else
+      #   y1 = @cy2 + dy
+      #   dy = -dy
+      # globals.connection.emitUpdateShape "rect", [ x1, y1, dx, dy ]
+
+    # When rectangle finished being drawn
+    # @param  {Event} e the mouse event
+    # TODO: moved here but not finished
+    dragOnEnd: (e) ->
+      # if @obj?
+      #   attrs = @obj.attrs
+      #   if attrs?
+      #     globals.connection.emitPublishShape "rect",
+      #       [ attrs.x / @gw, attrs.y / @gh, attrs.width / @gw, attrs.height / @gh,
+      #         @currentColour, @currentThickness ]
+      # @obj = null
 
   WhiteboardRectModel

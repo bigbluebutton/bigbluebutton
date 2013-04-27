@@ -249,15 +249,24 @@ define [
       @currentTool = tool
       console.log "setting current tool to", tool
       switch tool
-        when "line"
+        when "path", "line"
           @cursor.undrag()
-          @cursor.drag _.bind(@_lineDragging, @),
-            _.bind(@_lineDragStart, @), _.bind(@_lineDragStop, @)
-        # TODO: Move to WhiteboardRectModel
+          @currentLine = new WhiteboardLineModel(@raphaelObj)
+          @currentLine.setPaperSize(@gh, @gw)
+          @currentLine.setOffsets.apply(@currentRect, @_currentSlideOffsets())
+          @currentLine.setPaperDimensions.apply(@currentRect, @_currentSlideDimensions())
+          @cursor.drag _.bind(@currentLine.dragOnMove, @currentLine),
+            _.bind(@currentLine.dragOnStart, @currentLine),
+            _.bind(@currentLine.dragOnEnd, @currentLine)
         when "rect"
           @cursor.undrag()
-          @cursor.drag _.bind(@_rectDragging, @),
-            _.bind(@_rectDragStart, @), _.bind(@_rectDragStop, @)
+          @currentRect = new WhiteboardRectModel(@raphaelObj)
+          @currentRect.setPaperSize(@gh, @gw)
+          @currentRect.setOffsets.apply(@currentRect, @_currentSlideOffsets())
+          @currentRect.setPaperDimensions.apply(@currentRect, @_currentSlideDimensions())
+          @cursor.drag _.bind(@currentRect.dragOnMove, @currentRect),
+            _.bind(@currentRect.dragOnStart, @currentRect),
+            _.bind(@currentRect.dragOnEnd, @currentRect)
         when "panzoom"
           @cursor.undrag()
           @cursor.drag _.bind(@_panDragging, @),
@@ -587,121 +596,6 @@ define [
     # @param  {Event} e the mouse event
     _panStop: (e) ->
       @stopPanning()
-
-    # When dragging for drawing lines starts
-    # @param  {number} x the x value of the cursor
-    # @param  {number} y the y value of the cursor
-    _lineDragStart: (x, y) ->
-      # find the x and y values in relation to the whiteboard
-      sx = (@containerWidth - @gw) / 2
-      sy = (@containerHeight - @gh) / 2
-      [sw, sh] = @_currentSlideDimensions()
-      [cx, cy] = @_currentSlideOffsets()
-      @lineX = x - @containerOffsetLeft - sx + cx
-      @lineY = y - @containerOffsetTop - sy + cy
-      values = [ @lineX / sw, @lineY / sh, @currentColour, @currentThickness ]
-      globals.connection.emitMakeShape "line", values
-
-    # As line drawing drag continues
-    # @param  {number} dx the difference between the x value from _lineDragStart and now
-    # @param  {number} dy the difference between the y value from _lineDragStart and now
-    # @param  {number} x  the x value of the cursor
-    # @param  {number} y  the y value of the cursor
-    _lineDragging: (dx, dy, x, y) ->
-      sx = (@containerWidth - @gw) / 2
-      sy = (@containerHeight - @gh) / 2
-      [sw, sh] = @_currentSlideDimensions()
-      [cx, cy] = @_currentSlideOffsets()
-      # find the x and y values in relation to the whiteboard
-      @cx2 = x - @containerOffsetLeft - sx + cx
-      @cy2 = y - @containerOffsetTop - sy + cy
-      if @shiftPressed
-        globals.connection.emitUpdateShape "line", [ @cx2 / sw, @cy2 / sh, false ]
-      else
-        @currentPathCount++
-        if @currentPathCount < MAX_PATHS_IN_SEQUENCE
-          globals.connection.emitUpdateShape "line", [ @cx2 / sw, @cy2 / sh, true ]
-        else if @currentLine?
-          @currentPathCount = 0
-          # save the last path of the line
-          @currentLine.attrs.path.pop()
-          path = @currentLine.attrs.path.join(" ")
-          @currentLine.attr path: (path + "L" + @lineX + " " + @lineY)
-
-          # scale the path appropriately before sending
-          pathStr = @currentLine.attrs.path.join(",")
-          globals.connection.emitPublishShape "path",
-            [ Utils.stringToScaledPath(pathStr, 1 / @gw, 1 / @gh),
-              @currentColour, @currentThickness ]
-          globals.connection.emitMakeShape "line",
-            [ @lineX / sw, @lineY / sh, @currentColour, @currentThickness ]
-        @lineX = @cx2
-        @lineY = @cy2
-
-    # Drawing line has ended
-    # @param  {Event} e the mouse event
-    _lineDragStop: (e) ->
-      if @currentLine?
-        path = @currentLine.attrs.path
-        @currentLine = null # any late updates will be blocked by this
-        # scale the path appropriately before sending
-        globals.connection.emitPublishShape "path",
-          [ Utils.stringToScaledPath(path.join(","), 1 / @gw, 1 / @gh),
-            @currentColour, @currentThickness ]
-
-    # Creating a rectangle has started
-    # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
-    # @param  {number} y the y value of cursor at the time in relation to the top of the browser
-    # TODO: Move to WhiteboardRectModel
-    _rectDragStart: (x, y) ->
-      sx = (@containerWidth - @gw) / 2
-      sy = (@containerHeight - @gh) / 2
-      [sw, sh] = @_currentSlideDimensions()
-      [cx, cy] = @_currentSlideOffsets()
-      # find the x and y values in relation to the whiteboard
-      @cx2 = (x - @containerOffsetLeft - sx + cx) / sw
-      @cy2 = (y - @containerOffsetTop - sy + cy) / sh
-      globals.connection.emitMakeShape "rect",
-        [ @cx2, @cy2, @currentColour, @currentThickness ]
-
-    # Adjusting rectangle continues
-    # @param  {number} dx the difference in the x value at the start as opposed to the x value now
-    # @param  {number} dy the difference in the y value at the start as opposed to the y value now
-    # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
-    # @param  {number} y the y value of cursor at the time in relation to the top of the browser
-    # @param  {Event} e  the mouse event
-    # TODO: Move to WhiteboardRectModel
-    _rectDragging: (dx, dy, x, y, e) ->
-      [sw, sh] = @_currentSlideDimensions()
-      # if shift is pressed, make it a square
-      dy = dx if @shiftPressed
-      dx = dx / sw
-      dy = dy / sh
-      # adjust for negative values as well
-      if dx >= 0
-        x1 = @cx2
-      else
-        x1 = @cx2 + dx
-        dx = -dx
-      if dy >= 0
-        y1 = @cy2
-      else
-        y1 = @cy2 + dy
-        dy = -dy
-      globals.connection.emitUpdateShape "rect", [ x1, y1, dx, dy ]
-
-    # When rectangle finished being drawn
-    # @param  {Event} e the mouse event
-    # TODO: Move to WhiteboardRectModel
-    _rectDragStop: (e) ->
-      if @currentRect?
-        attrs = undefined
-        attrs = @currentRect.attrs if @currentRect
-        if attrs?
-          globals.connection.emitPublishShape "rect",
-            [ attrs.x / @gw, attrs.y / @gh, attrs.width / @gw, attrs.height / @gh,
-              @currentColour, @currentThickness ]
-      @currentRect = null
 
     # When first starting drawing the ellipse
     # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
