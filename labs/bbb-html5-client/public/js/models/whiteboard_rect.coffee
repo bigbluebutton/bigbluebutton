@@ -66,7 +66,7 @@ define [
     draw: (x1, y1, x2, y2, colour, thickness) ->
       x = x1 * @gw
       y = y1 * @gh
-      r = @paper.rect(x + @xOffset, y + @yOffset, (x2 * @gw) - x, (y2 * @gh) - y)
+      r = @paper.rect(x + @xOffset, y + @yOffset, (x2 * @gw) - x, (y2 * @gh) - y, 1)
       r.attr Utils.strokeAndThickness(colour, thickness)
       r
 

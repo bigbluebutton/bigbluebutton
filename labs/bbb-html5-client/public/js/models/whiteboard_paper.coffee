@@ -436,8 +436,9 @@ define [
     # @param  {number} thickness the thickness of the line to be drawn
     _drawLine: (path, colour, thickness) ->
       [cx, cy] = @_currentSlideOffsets()
-      line = @raphaelObj.path(Utils.stringToScaledPath(path, @gw, @gh, cx, cy))
+      line = @raphaelObj.path(Utils.stringToScaledPath(path, @gw, @gh, cx, cy), 1)
       line.attr @_strokeAndThickness(colour, thickness)
+      line.attr({"stroke-linejoin": "round"})
       @currentShapes.push line
 
     # Draw an ellipse on the whiteboard
@@ -487,6 +488,7 @@ define [
       y = y * @gh + cy
       @currentLine = @raphaelObj.path("M" + x + " " + y + " L" + x + " " + y)
       @currentLine.attr @_strokeAndThickness(colour, thickness)
+      @currentLine.attr({"stroke-linejoin": "round"})
       @currentShapes.push @currentLine
 
     # Make an ellipse on the whiteboard
