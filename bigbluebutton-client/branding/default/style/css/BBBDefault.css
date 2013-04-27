@@ -145,7 +145,7 @@ DataGrid {
   icon: Embed('assets/images/triangle.png');    
 }
 
-.presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationForwardButtonStyle,
+.presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
 .presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle 
 {
   textIndent: 0;
@@ -173,8 +173,16 @@ DataGrid {
   icon:   Embed('assets/images/left-arrow.png'); 
 }
 
+.presentationBackButtonDisabledStyle {
+	icon:   Embed('assets/images/left-arrow-disabled.png'); 
+}
+
 .presentationForwardButtonStyle {
   icon:   Embed('assets/images/right-arrow.png'); 
+}
+
+.presentationForwardButtonDisabledStyle {
+	icon:   Embed('assets/images/right-arrow-disabled.png'); 
 }
 
 .presentationFitToWidthButtonStyle {
