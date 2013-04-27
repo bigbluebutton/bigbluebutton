@@ -19,6 +19,9 @@ public class WhiteboardBridge {
 	
 	private static final String RECTANGLE_TYPE = "rectangle";
 	private static final String PENCIL_TYPE = "pencil";
+	private static final String ELLIPSE_TYPE = "ellipse";
+	private static final String TRIANGLE_TYPE = "triangle";
+	
 	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardBridge.class, "bigbluebutton");
 	
 	public WhiteboardBridge(){
@@ -73,6 +76,78 @@ public class WhiteboardBridge {
 			updates.add(data);
 			
 			Gson gson = new Gson();
+			log.debug("sendAnnotation: " + gson.toJson(updates));
+			messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
+		}else if(an.getType().equalsIgnoreCase(WhiteboardBridge.ELLIPSE_TYPE)){
+			Map map = an.getAnnotation();
+			ArrayList<Object> updates = new ArrayList<Object>();
+			updates.add(meetingID);
+			
+			ArrayList points = (ArrayList) map.get("points");
+			Double pX = (Double) points.get(0);
+			Double pY = (Double) points.get(1);
+			Double vR = (Double) points.get(2);
+			Double hR = (Double) points.get(3);
+			
+			
+			ArrayList<Object> data = new ArrayList<Object>();
+			if(an.getStatus().equalsIgnoreCase("DRAW_START")){
+				updates.add("makeShape");
+				data.add(pX/100);
+				data.add(pY/100);
+				data.add(map.get("color"));
+				data.add(map.get("thickness"));
+				
+			}else{
+				updates.add("updShape");
+				data.add(pX/100);
+				data.add(pY/100);
+				data.add(hR/100);
+				data.add(vR/100);
+				
+			}
+			
+			updates.add("ellipsis");
+			updates.add(data);
+			
+			Gson gson = new Gson();
+			log.debug("sendAnnotation: " + gson.toJson(updates));
+			messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
+		}else if(an.getType().equalsIgnoreCase(WhiteboardBridge.TRIANGLE_TYPE)){
+			log.debug("start triangle shape");
+			Map map = an.getAnnotation();
+			log.debug("triangle map: " + map);
+			
+			ArrayList<Object> updates = new ArrayList<Object>();
+			updates.add(meetingID);
+			
+			ArrayList points = (ArrayList) map.get("points");
+			Double pX = (Double) points.get(0);
+			Double pY = (Double) points.get(1);
+			Double pBase = (Double) points.get(2);
+			Double pHeight = (Double) points.get(3);
+			
+			ArrayList<Object> data = new ArrayList<Object>();
+			if(an.getStatus().equalsIgnoreCase("DRAW_START")){
+				updates.add("makeShape");
+				data.add(pX/100);
+				data.add(pY/100);
+				data.add(map.get("color"));
+				data.add(map.get("thickness"));
+				
+			}else{
+				updates.add("updShape");
+				data.add(pX/100);
+				data.add(pY/100);
+				data.add(pBase/100);
+				data.add(pHeight/100);
+			}
+			
+			updates.add("triangle");
+			updates.add(data);
+			
+			Gson gson = new Gson();
+			log.debug("sendAnnotation: " + gson.toJson(updates));
 			messagingService.send(MessagingConstants.BIGBLUEBUTTON_BRIDGE, gson.toJson(updates));
 		}
 		
