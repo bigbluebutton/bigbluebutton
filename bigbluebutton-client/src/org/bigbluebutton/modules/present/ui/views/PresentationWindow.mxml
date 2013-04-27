@@ -472,14 +472,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function disableSlideNavigationButtons(pageNumber:int):void {
 				if (pageNumber == 0) {
 					backButton.enabled = false;
+					backButton.styleName = "presentationBackButtonDisabledStyle";
 				} else {
 					backButton.enabled = true;
+					backButton.styleName = "presentationBackButtonStyle";
 				}
 				
 				if (pageNumber < slideView.slides.length - 1) {
 					forwardButton.enabled = true;
+					forwardButton.styleName = "presentationForwardButtonStyle";
 				} else {
 					forwardButton.enabled = false;
+					forwardButton.styleName = "presentationForwardButtonDisabledStyle";
 				}
 			}
 			
