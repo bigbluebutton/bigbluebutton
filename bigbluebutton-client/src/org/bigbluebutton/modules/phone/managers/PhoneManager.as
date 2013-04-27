@@ -32,6 +32,8 @@ package org.bigbluebutton.modules.phone.managers {
 	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.BBBEvent;
+	import org.bigbluebutton.main.events.UserChangedBreakoutRoomEvent;
+	import org.bigbluebutton.main.model.User;
 	import org.bigbluebutton.main.views.BreakoutRoomsSelector;
 	import org.bigbluebutton.modules.phone.PhoneOptions;
 	import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
@@ -124,10 +126,10 @@ package org.bigbluebutton.modules.phone.managers {
 			connectionManager.connect(uid, attributes.internalUserID, uname , attributes.room, attributes.uri);
 		}
 		
-		public function setCallNumber(evt:BBBEvent):void{
-			LogUtil.debug("PhoneManager: " + evt.message);
-			this.attributes.room = evt.message;
-			this.attributes.webvoiceconf = evt.message;
+		public function setCallNumber(evt:UserChangedBreakoutRoomEvent):void{
+			LogUtil.debug("PhoneManager: " + evt.number);
+			this.attributes.room = evt.number;
+			this.attributes.webvoiceconf = evt.number;
 		}
 		
 		public function rejoin():void {

@@ -29,6 +29,9 @@ class ParticipantImp implements Participant {
 	private boolean muted = false;
 	private boolean talking = false;
 	private boolean locked = false;
+	private boolean joinedToBreakoutRoomName = false;
+	private String breakoutRoomName;
+	private String breakoutRoomNumber;
 	
 	ParticipantImp(int id, String name) {
 		this.id = id;
@@ -65,5 +68,32 @@ class ParticipantImp implements Participant {
 	
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	synchronized public boolean joinedToBreakoutRoom() {
+		return this.joinedToBreakoutRoomName;
+	}
+	
+	synchronized public void setJoinedToBreakoutRoom(boolean jbr) {
+		this.joinedToBreakoutRoomName = jbr;
+	}
+
+	@Override
+	synchronized public String getBreakoutRoomName() {
+		return this.breakoutRoomName;
+	}
+	
+	synchronized public void setBreakoutRoomName(String brn) {
+		this.breakoutRoomName = brn;
+	}
+
+	@Override
+	synchronized public String getBreakoutRoomNumber() {
+		return this.breakoutRoomNumber;
+	}
+	
+	synchronized public void setBreakoutRoomNumber(String brn) {
+		this.breakoutRoomNumber = brn;
 	}
 }

@@ -55,6 +55,8 @@ public class ClientManager implements ClientNotifier {
 		//for breakoutRooms
 		for(HashMap<String,String> map: breakoutRooms){
 			RoomInfo bsoi = new RoomInfo(webRoom, map.get("number"), so);
+			bsoi.isBreakoutRoom(true);
+			bsoi.setBreakoutRoomName(map.get("name"));
 			voiceRooms.putIfAbsent(map.get("number"), bsoi);
 			//webRooms.putIfAbsent(webRoom, bsoi);
 			ar_soi.add(bsoi);
@@ -79,10 +81,12 @@ public class ClientManager implements ClientNotifier {
 			List<Object> list = new ArrayList<Object>();
 			list.add(participant);
 			list.add(name);
-			list.add(name);
+			list.add(room);
 			list.add(muted);
 			list.add(talking);
 			list.add(locked);
+			list.add(soi.isBreakoutRoom());
+			list.add(soi.getBreakoutRoomName());
 			log.debug("Sending join to client " + name);
 			soi.getSharedObject().sendMessage("userJoin", list);
 		}				

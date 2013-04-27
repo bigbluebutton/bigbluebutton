@@ -155,6 +155,13 @@ public class RoomManager {
 		ParticipantImp p = new ParticipantImp(pje.getParticipantId(), pje.getCallerIdName());
 		p.setMuted(pje.getMuted());
 		p.setTalking(pje.getSpeaking());
+		if(rm.getBreakoutName().equalsIgnoreCase("meeting"))
+			p.setJoinedToBreakoutRoom(false);
+		else
+			p.setJoinedToBreakoutRoom(true);
+		p.setBreakoutRoomNumber(rm.getMeeting());
+		p.setBreakoutRoomName(rm.getBreakoutName());
+		
 		log.debug("Joined [" + p.getId() + "," + p.getName() + "," + p.isMuted() + "," + p.isTalking() + "] to room " + rm.getName());
 		
 		rm.add(p);

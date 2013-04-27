@@ -84,9 +84,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<MethodInvoker generator="{UserService}" method="removeStream" arguments="{event}" />
 	</EventHandlers>
 	
-	<EventHandlers type="{UserChangedBreakoutRoomEvent.BREAKOUT_ROOM_CHANGED}" >
-		<MethodInvoker generator="{UserService}" method="userJoinedToBreakoutRoom" arguments="{event}" />
-	</EventHandlers>
 	<!-- End Viewers Stuff -->
 	
 	<EventHandlers type="{KickUserEvent.KICK_USER}" >

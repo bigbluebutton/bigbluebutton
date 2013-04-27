@@ -24,4 +24,7 @@ public interface Participant {
 	public int getId();
 	public String getName();
 	public boolean isMuteLocked();
+	public boolean joinedToBreakoutRoom();
+	public String getBreakoutRoomName();
+	public String getBreakoutRoomNumber();
 }

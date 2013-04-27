@@ -25,11 +25,15 @@ public class RoomInfo {
 	private final String webRoom;
 	private final String voiceRoom;
 	private final ISharedObject sharedObject;
+	private boolean isBreakoutRoom;
+	private String breakoutRoomName;
 	
 	public RoomInfo(String webRoom, String voiceRoom, ISharedObject sharedObject) {
 		this.webRoom = webRoom;
 		this.voiceRoom = voiceRoom;
 		this.sharedObject = sharedObject;
+		this.isBreakoutRoom = false;
+		this.breakoutRoomName = "";
 	}
 
 	public String getWebRoom() {
@@ -43,4 +47,21 @@ public class RoomInfo {
 	public ISharedObject getSharedObject() {
 		return sharedObject;
 	}
+	
+	public boolean isBreakoutRoom(){
+		return this.isBreakoutRoom;
+	}
+	
+	public void isBreakoutRoom(boolean ibr){
+		this.isBreakoutRoom = ibr;
+	}
+	
+	public void setBreakoutRoomName(String brn){
+		this.breakoutRoomName = brn;
+	}
+	
+	public String getBreakoutRoomName(){
+		return this.breakoutRoomName;
+	}
+	
 }

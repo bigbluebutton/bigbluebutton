@@ -32,9 +32,14 @@ public class VoiceService {
 	@SuppressWarnings("unchecked")
 	public Map<String, List> getMeetMeUsers() {
 		String voiceBridge = getBbbSession().getVoiceBridge();
-		
-    	log.debug("GetMeetmeUsers request for room[" + voiceBridge + "]");
+		log.debug("GetMeetmeUsers request for room[" + voiceBridge + "]");
     	ArrayList<Participant> p = conferenceService.getParticipants(voiceBridge);
+    	
+    	//breakoutRooms
+    	ArrayList<HashMap<String,String>> breakoutRooms = getBbbSession().getBreakoutRooms();
+		for(HashMap<String,String> map: breakoutRooms){
+			p.addAll(conferenceService.getParticipants(map.get("number")));
+		}
 
 		Map participants = new HashMap();
 		if (p == null) {
@@ -60,6 +65,9 @@ public class VoiceService {
 			pmap.put("muted", p.isMuted());
 			pmap.put("talking", p.isTalking());
 			pmap.put("locked", p.isMuteLocked());
+			pmap.put("joinedToBreakoutRoom", p.joinedToBreakoutRoom());
+			pmap.put("breakoutRoomName", p.getBreakoutRoomName());
+			pmap.put("breakoutRoomNumber", p.getBreakoutRoomNumber());
 			log.debug("[" + p.getId() + "," + p.getName() + "," + p.isMuted() + "," + p.isTalking() + "]");
 			result.put(p.getId(), pmap);
 		}

@@ -105,7 +105,7 @@ package org.bigbluebutton.modules.users.business
 			_connectionListener = connectionListener;
 		}
 		   
-		public function userJoin(userId:Number, cidName:String, cidNum:String, muted:Boolean, talking:Boolean, locked:Boolean):void {
+		public function userJoin(userId:Number, cidName:String, cidNum:String, muted:Boolean, talking:Boolean, locked:Boolean, joinedToBreakoutRoom:Boolean, breakoutRoomName:String):void {
 			trace("***************** Voice user joining [" + cidName + "]");
 
 			if (cidName) {
@@ -127,6 +127,12 @@ package org.bigbluebutton.modules.users.business
 						bu.voiceUserid = userId;
 						bu.voiceMuted = muted;
 						bu.voiceJoined = true;
+						
+						if(joinedToBreakoutRoom){
+							bu.joinedToBreakoutRoom = joinedToBreakoutRoom;
+							bu.breakoutRoomNumber = cidNum;
+							bu.breakoutRoomName = breakoutRoomName;
+						}
 						
 						var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_JOINED);
 						bbbEvent.payload.userID = bu.userID;            
@@ -359,8 +365,10 @@ package org.bigbluebutton.modules.users.business
 						if (result.count > 0) {
 							for(var p:Object in result.participants) 
 							{
-								var u:Object = result.participants[p]
-								userJoin(u.participant, u.name, u.name, u.muted, u.talking, u.locked);
+								var u:Object = result.participants[p];
+								
+								userJoin(u.participant, u.name, u.breakoutRoomNumber, u.muted, u.talking, u.locked, u.joinedToBreakoutRoom, u.breakoutRoomName);
+								
 							}							
 						}	
 					},	

@@ -26,6 +26,7 @@ package org.bigbluebutton.main.model.users
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.core.UsersUtil;
 	import org.bigbluebutton.core.managers.UserConfigManager;
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.events.SuccessfulLoginEvent;
@@ -117,15 +118,6 @@ package org.bigbluebutton.main.model.users
 				
 				connect();
 			}
-		}
-		
-		public function userJoinedToBreakoutRoom(evt:UserChangedBreakoutRoomEvent):void{
-			var new_name:String = UserManager.getInstance().getConference().getMyName();
-			if(evt.number != UserManager.getInstance().getConference().dialNumber)
-				new_name = new_name + " (" + evt.name + ")";
-			
-			LogUtil.debug("Setted: " + new_name);
-			UserManager.getInstance().getConference().setMyName(new_name);
 		}
 		
 		private function connect():void{

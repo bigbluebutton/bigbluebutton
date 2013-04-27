@@ -1,21 +1,21 @@
 /**
-* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-* 
-* Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
-*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 3.0 of the License, or (at your option) any later
-* version.
-* 
-* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
-* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License along
-* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-*
-*/
+ * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
+ * 
+ * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
+ *
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation; either version 3.0 of the License, or (at your option) any later
+ * version.
+ * 
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package org.bigbluebutton.main.model.users
 {
 	import com.asfusion.mate.events.Dispatcher;
@@ -35,11 +35,17 @@ package org.bigbluebutton.main.model.users
 		
 		[Bindable] public var me:Boolean = false;
 		[Bindable] public var userID:String = "UNKNOWN USER";
-    [Bindable] public var externUserID:String = "UNKNOWN USER";
+		[Bindable] public var externUserID:String = "UNKNOWN USER";
 		[Bindable] public var name:String;
 		[Bindable] public var talking:Boolean = false;
 		[Bindable] public var phoneUser:Boolean = false;
+		[Bindable] public var breakoutRoomName:String;
+		[Bindable] public var breakoutRoomNumber:String;
+		[Bindable] public var joinedToBreakoutRoom:Boolean = false;
+		
+		
 		private var _hasStream:Boolean = false;
+		
 		[Bindable]
 		public function get hasStream():Boolean {
 			return _hasStream;
@@ -111,11 +117,11 @@ package org.bigbluebutton.main.model.users
 		[Bindable] public var customdata:Object = {};
 		
 		/*
-		 * This variable is for accessibility for the Users Window. It can't be manually set
-		 * and only changes when one of the relevant status variables changes. Use the verifyUserStatus
-		 * method to update the value.
-		 *			Chad
-		 */
+		* This variable is for accessibility for the Users Window. It can't be manually set
+		* and only changes when one of the relevant status variables changes. Use the verifyUserStatus
+		* method to update the value.
+		*			Chad
+		*/
 		private var _userStatus:String = "";
 		[Bindable] 
 		public function get userStatus():String {
@@ -147,13 +153,13 @@ package org.bigbluebutton.main.model.users
 		private function set media(m:String):void {}
 		private function verifyMedia():void {
 			_media = (hasStream ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcam') + " " : "") + 
-					(!voiceJoined ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.noAudio') : 
-									(voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.micOff') : 
-												  ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.micOn')));
+				(!voiceJoined ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.noAudio') : 
+					(voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.micOff') : 
+						ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.micOn')));
 		}
-		 
+		
 		private var _status:StatusCollection = new StatusCollection();
-			
+		
 		public function buildStatus():void{
 			var showingWebcam:String = "";
 			var isPresenter:String = "";
@@ -166,7 +172,7 @@ package org.bigbluebutton.main.model.users
 				handRaised = ResourceUtil.getInstance().getString('bbb.viewers.viewersGrid.statusItemRenderer.raiseHand.toolTip');
 			status = showingWebcam + isPresenter + handRaised;
 		}
-	
+		
 		public function addStatus(status:Status):void {
 			_status.addStatus(status);
 		}
@@ -213,7 +219,7 @@ package org.bigbluebutton.main.model.users
 		public function getStatus(name:String):Status {
 			return _status.getStatus(name);
 		}
-	
+		
 		public static function copy(user:BBBUser):BBBUser {
 			var n:BBBUser = new BBBUser();
 			n.authToken = user.authToken;
@@ -236,6 +242,10 @@ package org.bigbluebutton.main.model.users
 			n.voiceLocked = user.voiceLocked;
 			n.voiceMuted = user.voiceMuted;
 			n.voiceUserid = user.voiceUserid;
+			
+			n.joinedToBreakoutRoom = user.joinedToBreakoutRoom;
+			n.breakoutRoomName = user.breakoutRoomName;
+			n.breakoutRoomNumber = user.breakoutRoomNumber;
 			
 			return n;		
 		}
