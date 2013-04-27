@@ -44,6 +44,7 @@ define [
       @currentSlide = null
       @fitToPage = true
       @currentShapes = null
+      @currentShapesDefinitions = []
       @currentLine = null
       @currentRect = null
       @currentEllipse = null
@@ -98,13 +99,19 @@ define [
       if @raphaelObj?
         @raphaelObj.changeSize(windowWidth, windowHeight, center, clipping)
 
-        # TODO: isn't there a better way to do it? removing all and rebuilding doesn't seem very good.
-        slidesTmp = @slides
+        # TODO: we can scale the slides and drawings instead of re-adding them, but the logic
+        #       will change quite a bit
+        # slides
+        slidesTmp = _.clone(@slides)
         urlTmp = @_getCurrentSlide()
         @removeAllImagesFromPaper()
         @slides = slidesTmp
         @rebuild()
         @showImageFromPaper(urlTmp.url)
+        # drawings
+        tmp = _.clone(@currentShapesDefinitions)
+        @clearShapes()
+        @drawListOfShapes(tmp)
 
     # Add an image to the paper.
     # @param {string} url the URL of the image to add to the paper
@@ -262,7 +269,8 @@ define [
     setFitToPage: (value) ->
       @fitToPage = value
 
-      # TODO: isn't there a better way to do it? removing all and rebuilding doesn't seem very good.
+      # TODO: we can scale the slides and drawings instead of re-adding them, but the logic
+      #       will change quite a bit
       temp = @slides
       @removeAllImagesFromPaper()
       @slides = temp
@@ -314,6 +322,7 @@ define [
     # Draws an array of shapes to the paper.
     # @param  {array} shapes the array of shapes to draw
     drawListOfShapes: (shapes) ->
+      @currentShapesDefinitions = shapes
       @currentShapes = @raphaelObj.set()
       for shape in shapes
         data = JSON.parse(shape.data)
@@ -337,6 +346,7 @@ define [
         @currentShapes.forEach (element) ->
           element.remove()
         @currentShapes = null
+        @currentShapesDefinitions = []
 
     # Updated a shape `shape` with the data in `data`.
     updateShape: (shape, data) ->
