@@ -147,10 +147,11 @@ define [
       socket.on "makeShape", (shape, data) =>
         @paper?.makeShape shape, data
 
-      socket.on "shapePoints", (type,color,thickness,points) =>
-        if type == "line"
+      # Pencil drawings are received as points from the server and painted as lines.
+      socket.on "shapePoints", (type, color, thickness, points) =>
+        if type is "line"
           for i in [0..points.length] by 2
-            if i == 0
+            if i is 0
               data = [(points[i]/100),(points[i+1]/100),color,thickness]
               @paper?.makeShape type, data
             else

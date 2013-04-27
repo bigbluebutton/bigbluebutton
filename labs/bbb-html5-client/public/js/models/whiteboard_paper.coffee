@@ -6,8 +6,9 @@ define [
   'scale.raphael',
   'globals',
   'cs!utils',
-  'cs!models/whiteboard_rect'
-], ($, _, Backbone, Raphael, ScaleRaphael, globals, Utils, WhiteboardRectModel) ->
+  'cs!models/whiteboard_rect',
+  'cs!models/whiteboard_line'
+], ($, _, Backbone, Raphael, ScaleRaphael, globals, Utils, WhiteboardRectModel, WhiteboardLineModel) ->
 
   # TODO: text, ellipse, line, rect and cursor could be models
 
@@ -54,7 +55,6 @@ define [
       # pointers to the current shapes being drawn
       @currentLine = null
       @currentRect = null
-      @currentRectDefinition = null # TODO: Move to WhiteboardRectModel only
       @currentEllipse = null
       @currentText = null
 
@@ -335,10 +335,13 @@ define [
       @currentShapesDefinitions = shapes
       @currentShapes = @raphaelObj.set()
       for shape in shapes
-        data = if _.isString(shape.data) then  JSON.parse(shape.data) else shape.data
+        data = if _.isString(shape.data) then JSON.parse(shape.data) else shape.data
         switch shape.shape
-          when "path"
-            @_drawLine.apply @, data
+          when "path", "line"
+            line = new WhiteboardLineModel(@raphaelObj)
+            line.setPaperSize(@gh, @gw)
+            line.setOffsets.apply(line, @_currentSlideOffsets())
+            @currentShapes.push line.draw.apply(line, data)
           when "rect"
             rect = new WhiteboardRectModel(@raphaelObj)
             rect.setPaperSize(@gh, @gw)
@@ -354,7 +357,7 @@ define [
 
     # Clear all shapes from this paper.
     clearShapes: ->
-      console.log "clearing shapes", @currentShapes
+      console.log "clearing shapes"
       if @currentShapes?
         @currentShapes.forEach (element) ->
           element.remove()
@@ -365,7 +368,7 @@ define [
     updateShape: (shape, data) ->
       switch shape
         when "line"
-          @_updateLine.apply @, data
+          @currentLine.update.apply(@currentLine, data)
         when "rect"
           @currentRect.update.apply(@currentRect, data)
         when "ellipse"
@@ -378,8 +381,13 @@ define [
     # Make a shape `shape` with the data in `data`.
     makeShape: (shape, data) ->
       switch shape
-        when "line"
-          @_makeLine.apply @, data
+        when "path", "line"
+          @currentLine = new WhiteboardLineModel(@raphaelObj)
+          @currentLine.setPaperSize(@gh, @gw)
+          @currentLine.setOffsets.apply(@currentLine, @_currentSlideOffsets())
+          line = @currentLine.make.apply(@currentLine, data)
+          @currentShapes.push(line)
+          @currentShapesDefinitions.push(@currentLine.getDefinition())
         when "rect"
           @currentRect = new WhiteboardRectModel(@raphaelObj)
           @currentRect.setPaperSize(@gh, @gw)
@@ -430,17 +438,6 @@ define [
     _bringCursorToFront: ->
       @cursor.toFront()
 
-    # Drawing a line from the list o
-    # @param  {string} path      height of the shape as a percentage of the original height
-    # @param  {string} colour    the colour of the shape to be drawn
-    # @param  {number} thickness the thickness of the line to be drawn
-    _drawLine: (path, colour, thickness) ->
-      [cx, cy] = @_currentSlideOffsets()
-      line = @raphaelObj.path(Utils.stringToScaledPath(path, @gw, @gh, cx, cy), 1)
-      line.attr @_strokeAndThickness(colour, thickness)
-      line.attr({"stroke-linejoin": "round"})
-      @currentShapes.push line
-
     # Draw an ellipse on the whiteboard
     # @param  {[type]} cx        the x value of the center as a percentage of the original width
     # @param  {[type]} cy        the y value of the center as a percentage of the original height
@@ -477,20 +474,6 @@ define [
       dy = textFlow(t, txt.node, w, x, spacing, false)
       @currentShapes.push txt
 
-    # Make a line on the whiteboard that could be updated shortly after
-    # @param  {number} x         the x value of the line start point as a percentage of the original width
-    # @param  {number} y         the y value of the line start point as a percentage of the original height
-    # @param  {string} colour    the colour of the shape to be drawn
-    # @param  {number} thickness the thickness of the line to be drawn
-    _makeLine: (x, y, colour, thickness) ->
-      [cx, cy] = @_currentSlideOffsets()
-      x = x * @gw + cx
-      y = y * @gh + cy
-      @currentLine = @raphaelObj.path("M" + x + " " + y + " L" + x + " " + y)
-      @currentLine.attr @_strokeAndThickness(colour, thickness)
-      @currentLine.attr({"stroke-linejoin": "round"})
-      @currentShapes.push @currentLine
-
     # Make an ellipse on the whiteboard
     # @param  {[type]} cx        the x value of the center as a percentage of the original width
     # @param  {[type]} cy        the y value of the center as a percentage of the original height
@@ -501,26 +484,6 @@ define [
       @currentEllipse = @raphaelObj.ellipse(cx * @gw, cy * @gh, 0, 0)
       @currentEllipse.attr @_strokeAndThickness(colour, thickness)
       @currentShapes.push @currentEllipse
-
-    # Updating drawing the line
-    # @param  {number} x2  the next x point to be added to the line as a percentage of the original width
-    # @param  {number} y2  the next y point to be added to the line as a percentage of the original height
-    # @param  {boolean} add true if the line should be added to the current line, false if it should replace the last point
-    _updateLine: (x2, y2, add) ->
-      if @currentLine?
-        [cx, cy] = @_currentSlideOffsets()
-        x2 = x2 * @gw + cx
-        y2 = y2 * @gh + cy
-
-        # if adding to the line
-        if add
-          @currentLine.attr path: (@currentLine.attrs.path + "L" + x2 + " " + y2)
-
-        # if simply updating the last portion (for drawing a straight line)
-        else
-          @currentLine.attrs.path.pop()
-          path = @currentLine.attrs.path.join(" ")
-          @currentLine.attr path: (path + "L" + x2 + " " + y2)
 
     # Socket response - Update rectangle drawn
     # @param  {number} x the x value of the object as a percentage of the original width

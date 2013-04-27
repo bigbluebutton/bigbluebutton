@@ -14,6 +14,8 @@ define [
       @gh = 0
       @gw = 0
       @obj = 0
+
+      # the defintion of this shape, kept so we can redraw the shape whenever needed
       # format: x1, y1, x2, y2, stroke color, thickness
       @definition = [0, 0, 0, 0, "#000", "0px"]
 
@@ -31,7 +33,7 @@ define [
       @obj.attr Utils.strokeAndThickness(colour, thickness)
       @definition =
         shape: "rect"
-        data: [x, y, 0, 0, @obj.attrs.stroke, @obj.attrs["stroke-width"]]
+        data: [x, y, 0, 0, @obj.attrs["stroke"], @obj.attrs["stroke-width"]]
       @obj
 
     getDefinition: () ->
