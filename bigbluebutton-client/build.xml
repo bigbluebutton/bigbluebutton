@@ -487,18 +487,22 @@
 		<echo message="Done Generating ASDocs" />
 	</target>
 
-	<target name="clean">
-		<delete>
-			<fileset dir="${OUTPUT_DIR}" >
-		  		<exclude name="locale/*.swf"/>
-		  		<exclude name=".gitignore"/>
-			</fileset>
-			<dirset dir="${OUTPUT_DIR}">
-		  		<include name="**/*"/>
-		  		<exclude name=".gitignore"/>
-		  		<exclude name="locale"/>
-			</dirset>
-  		</delete>
+	<target name="clean" depends="init-ant-contrib">
+                <if>
+                <equals arg1="${OUTPUT_DIR}" arg2="true"/>
+                <then>
+			<echo message="Locale output dir exists. Deleting contents of ${OUTPUT_DIR}/locale"/>
+			<delete>
+				<fileset dir="${OUTPUT_DIR}">
+					<include name="**/*"/>
+				</fileset>
+			</delete>
+                </then>
+                <else>
+			<echo message="Output dir does not exists. Creating [${OUTPUT_DIR}] dir."/>
+			<mkdir dir="${OUTPUT_DIR}"/>
+                </else>
+        	</if>
 	</target>
 
 	<!-- NOTE: compile-deskshare-standalone MUST come first before compile-bbb as we need the deskshare-standalone
