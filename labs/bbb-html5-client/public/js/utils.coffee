@@ -46,4 +46,21 @@ define [
       j += 2
     path
 
+  # @param {string,int} stroke    stroke color, can be a number (a hex converted to int) or a
+  #                               string (e.g. "#ffff00")
+  # @param {string,ing} thickness thickness as a number or string (e.g. "2" or "2px")
+  Utils.strokeAndThickness = (stroke, thickness) ->
+    stroke = "0" unless stroke?
+    thickness = "1" unless thickness? and thickness
+    r =
+      stroke: if stroke.toString().match(/\#.*/) then stroke else  Utils.colourToHex(stroke)
+      "stroke-width": if thickness.toString().match(/.*px$/) then thickness else "#{thickness}px"
+    r
+
+  # Convert a color `value` as integer to a hex color (e.g. 255 to #0000ff)
+  Utils.colourToHex = (value) ->
+    hex = value.toString(16)
+    hex = "0" + hex while hex.length < 6
+    "##{hex}"
+
   Utils

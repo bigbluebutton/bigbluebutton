@@ -5,8 +5,9 @@ define [
   'raphael',
   'scale.raphael',
   'globals',
-  'cs!utils'
-], ($, _, Backbone, Raphael, ScaleRaphael, globals, Utils) ->
+  'cs!utils',
+  'cs!models/whiteboard_rect'
+], ($, _, Backbone, Raphael, ScaleRaphael, globals, Utils, WhiteboardRectModel) ->
 
   # TODO: text, ellipse, line, rect and cursor could be models
 
@@ -22,6 +23,7 @@ define [
 
     # Container must be a DOM element
     initialize: (@container, @textbox) ->
+      # TODO: these can be replaced by variables stored inside `@currentSlide`
       @gw = "100%"
       @gh = "100%"
 
@@ -43,12 +45,19 @@ define [
       @slides = null
       @currentSlide = null
       @fitToPage = true
+
+      # a raphaeljs set with all the shapes in the current slide
       @currentShapes = null
+      # a list of shapes as passed to this client when it receives `all_slides`
+      # (se we are able to redraw the shapes whenever needed)
       @currentShapesDefinitions = []
+      # pointers to the current shapes being drawn
       @currentLine = null
       @currentRect = null
+      @currentRectDefinition = null # TODO: Move to WhiteboardRectModel only
       @currentEllipse = null
       @currentText = null
+
       @zoomLevel = 1
       @shiftPressed = false
       @currentPathCount = 0
@@ -244,6 +253,7 @@ define [
           @cursor.undrag()
           @cursor.drag _.bind(@_lineDragging, @),
             _.bind(@_lineDragStart, @), _.bind(@_lineDragStop, @)
+        # TODO: Move to WhiteboardRectModel
         when "rect"
           @cursor.undrag()
           @cursor.drag _.bind(@_rectDragging, @),
@@ -325,12 +335,15 @@ define [
       @currentShapesDefinitions = shapes
       @currentShapes = @raphaelObj.set()
       for shape in shapes
-        data = JSON.parse(shape.data)
+        data = if _.isString(shape.data) then  JSON.parse(shape.data) else shape.data
         switch shape.shape
           when "path"
             @_drawLine.apply @, data
           when "rect"
-            @_drawRect.apply @, data
+            rect = new WhiteboardRectModel(@raphaelObj)
+            rect.setPaperSize(@gh, @gw)
+            rect.setOffsets.apply(rect, @_currentSlideOffsets())
+            @currentShapes.push rect.draw.apply(rect, data)
           when "ellipse"
             @_drawEllipse.apply @, data
           when "text"
@@ -354,7 +367,7 @@ define [
         when "line"
           @_updateLine.apply @, data
         when "rect"
-          @_updateRect.apply @, data
+          @currentRect.update.apply(@currentRect, data)
         when "ellipse"
           @_updateEllipse.apply @, data
         when "text"
@@ -368,7 +381,12 @@ define [
         when "line"
           @_makeLine.apply @, data
         when "rect"
-          @_makeRect.apply @, data
+          @currentRect = new WhiteboardRectModel(@raphaelObj)
+          @currentRect.setPaperSize(@gh, @gw)
+          @currentRect.setOffsets.apply(@currentRect, @_currentSlideOffsets())
+          rect = @currentRect.make.apply(@currentRect, data)
+          @currentShapes.push(rect)
+          @currentShapesDefinitions.push(@currentRect.getDefinition())
         when "ellipse"
           @_makeEllipse.apply @, data
         else
@@ -422,21 +440,6 @@ define [
       line.attr @_strokeAndThickness(colour, thickness)
       @currentShapes.push line
 
-    # Draw a rectangle on the paper
-    # @param  {number} x         the x value of the object as a percentage of the original width
-    # @param  {number} y         the y value of the object as a percentage of the original height
-    # @param  {number} w         width of the shape as a percentage of the original width
-    # @param  {number} h         height of the shape as a percentage of the original height
-    # @param  {string} colour    the colour of the object
-    # @param  {number} thickness the thickness of the object's line(s)
-    _drawRect: (x, y, w, h, colour, thickness) ->
-      [cx, cy] = @_currentSlideOffsets()
-      x = x * @gw
-      y = y * @gh
-      r = @raphaelObj.rect(x + cx, y + cy, (w * @gw) - x, (h * @gh) - y)
-      r.attr @_strokeAndThickness(colour, thickness)
-      @currentShapes.push r
-
     # Draw an ellipse on the whiteboard
     # @param  {[type]} cx        the x value of the center as a percentage of the original width
     # @param  {[type]} cy        the y value of the center as a percentage of the original height
@@ -486,17 +489,6 @@ define [
       @currentLine.attr @_strokeAndThickness(colour, thickness)
       @currentShapes.push @currentLine
 
-    # Socket response - Make rectangle on canvas
-    # @param  {number} x         the x value of the object as a percentage of the original width
-    # @param  {number} y         the y value of the object as a percentage of the original height
-    # @param  {string} colour    the colour of the object
-    # @param  {number} thickness the thickness of the object's line(s)
-    _makeRect: (x, y, colour, thickness) ->
-      [cx, cy] = @_currentSlideOffsets()
-      @currentRect = @raphaelObj.rect(x * @gw + cx, y * @gh + cy, 0, 0)
-      @currentRect.attr @_strokeAndThickness(colour, thickness)
-      @currentShapes.push @currentRect
-
     # Make an ellipse on the whiteboard
     # @param  {[type]} cx        the x value of the center as a percentage of the original width
     # @param  {[type]} cy        the y value of the center as a percentage of the original height
@@ -527,22 +519,6 @@ define [
           @currentLine.attrs.path.pop()
           path = @currentLine.attrs.path.join(" ")
           @currentLine.attr path: (path + "L" + x2 + " " + y2)
-
-    # Socket response - Update rectangle drawn
-    # @param  {number} x1 the x value of the object as a percentage of the original width
-    # @param  {number} y1 the y value of the object as a percentage of the original height
-    # @param  {number} w  width of the shape as a percentage of the original width
-    # @param  {number} h  height of the shape as a percentage of the original height
-    _updateRect: (x1, y1, w, h) ->
-      if @currentRect?
-        [cx, cy] = @_currentSlideOffsets()
-        x = x1 * @gw + cx
-        y = y1 * @gh + cy
-        @currentRect.attr
-          x: x
-          y: y
-          width: (w * @gw + cx) - x
-          height: (h * @gh + cy) - y
 
     # Socket response - Update rectangle drawn
     # @param  {number} x the x value of the object as a percentage of the original width
@@ -711,6 +687,7 @@ define [
     # Creating a rectangle has started
     # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
     # @param  {number} y the y value of cursor at the time in relation to the top of the browser
+    # TODO: Move to WhiteboardRectModel
     _rectDragStart: (x, y) ->
       sx = (@containerWidth - @gw) / 2
       sy = (@containerHeight - @gh) / 2
@@ -728,6 +705,7 @@ define [
     # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
     # @param  {number} y the y value of cursor at the time in relation to the top of the browser
     # @param  {Event} e  the mouse event
+    # TODO: Move to WhiteboardRectModel
     _rectDragging: (dx, dy, x, y, e) ->
       [sw, sh] = @_currentSlideDimensions()
       # if shift is pressed, make it a square
@@ -749,6 +727,7 @@ define [
 
     # When rectangle finished being drawn
     # @param  {Event} e the mouse event
+    # TODO: Move to WhiteboardRectModel
     _rectDragStop: (e) ->
       if @currentRect?
         attrs = undefined
@@ -928,6 +907,7 @@ define [
         "stroke-width": if thickness.toString().match(/.*px$/) then thickness else "#{thickness}px"
       r
 
+    # Convert a color `value` as integer to a hex color (e.g. 255 to #0000ff)
     _colourToHex: (value) ->
       hex = value.toString(16)
       hex = "0" + hex while hex.length < 6
