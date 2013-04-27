@@ -157,6 +157,7 @@
 				  http://forums.adobe.com/thread/758619
 				  ralam - sept 20, 2011
 				-->
+				<include-resource-bundles>SharedResources</include-resource-bundles>
 				<include-resource-bundles>bbbResources</include-resource-bundles>
 				<include-resource-bundles>collections</include-resource-bundles> 
 				<include-resource-bundles>containers</include-resource-bundles> 
@@ -289,7 +290,7 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
-			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard, build-notes"
+			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard, build-notes, build-polling"
 			description="Compile deskshare, phone, video, whiteboard modules">
 	</target>
 	
@@ -510,7 +511,7 @@
 	<target name="clean-build-bbb" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
 	                                        build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" 
 			description="Build BBB client skipping compiling of locales"/>	
-	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, build-polling, build-mic-check,
+	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, build-mic-check,
 	                                         build-cam-check, build-conn-check, build-webcam-preview-standalone, build-webcam-view-standalone, 
 	                                         compile-bbb, branding, branding-black" 
 			description="Build BBB client including locales"/>
