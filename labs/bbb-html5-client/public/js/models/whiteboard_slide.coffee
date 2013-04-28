@@ -8,15 +8,22 @@ define [
   # A slide in the whiteboard
   WhiteboardSlideModel = Backbone.Model.extend
 
-    initialize: (@id, @url, @img, @width, @height, @xOffset=0, @yOffset=0) ->
+    # TODO: check if we really need original and display width and heights separate or if they can be the same
+    initialize: (@id, @url, @img, @originalWidth, @originalHeight, @displayWidth, @displayHeight, @xOffset=0, @yOffset=0) ->
 
-    getWidth: -> @width
+    getWidth: -> @displayWidth
 
-    getHeight: -> @height
+    getHeight: -> @displayHeight
+
+    getOriginalWidth: -> @originalWidth
+
+    getOriginalHeight: -> @originalHeight
 
     getId: -> @id
 
-    getDimensions: -> [@width, @height]
+    getDimensions: -> [@getWidth(), @getHeight()]
+
+    getOriginalDimensions: -> [@getOriginalWidth(), @getOriginalHeight()]
 
     getOffsets: -> [@xOffset, @yOffset]
 

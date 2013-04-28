@@ -17,20 +17,12 @@ define [
     WhiteboardCursorModel, WhiteboardSlideModel, WhiteboardRectModel, WhiteboardLineModel,
     WhiteboardEllipseModel, WhiteboardTriangleModel, WhiteboardTextModel) ->
 
-  # TODO: temporary solution
-  PRESENTATION_SERVER = window.location.protocol + "//" + window.location.host
-  PRESENTATION_SERVER = PRESENTATION_SERVER.replace(/:\d+/, "/") # remove :port
-
   # "Paper" which is the Raphael term for the entire SVG object on the webpage.
   # This class deals with this SVG component only.
   WhiteboardPaperModel = Backbone.Model.extend
 
     # Container must be a DOM element
     initialize: (@container) ->
-      # TODO: these can be replaced by variables stored inside `@currentSlide`
-      @gw = "100%"
-      @gh = "100%"
-
       # a WhiteboardCursorModel
       @cursor = null
 
@@ -77,7 +69,7 @@ define [
     # are not yet created in the page.
     create: ->
       # paper is embedded within the div#slide of the page.
-      @raphaelObj ?= ScaleRaphael(@container, @gw, @gh)
+      @raphaelObj ?= ScaleRaphael(@container, "100%", "100%")
       @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
 
       @cursor = new WhiteboardCursorModel(@raphaelObj)
@@ -134,12 +126,14 @@ define [
         max = Math.max(width / @containerWidth, height / @containerHeight)
         # fit it all in appropriately
         # TODO: temporary solution
-        url = PRESENTATION_SERVER + url unless url.match(/http[s]?:/)
+        url = @_slideUrl(url)
         sw = width / max
         sh = height / max
         cx = (@containerWidth / 2) - (width / 2)
         cy = (@containerHeight / 2) - (height / 2)
-        img = @raphaelObj.image(url, cx, cy, @gw = width, @gh = height)
+        img = @raphaelObj.image(url, cx, cy, width, height)
+        originalWidth = width
+        originalHeight = height
       else
         # fit to width
         console.log "no fit"
@@ -147,20 +141,22 @@ define [
         sw = width / wr
         sh = height / wr
         wr = width / @containerWidth
-        img = @raphaelObj.image(url, cx = 0, cy = 0, width / wr, height / wr)
-        @gw = sw
-        @gh = sh
+        originalWidth = sw
+        originalHeight = sh
+        sw = width / wr
+        sh = height / wr
+        img = @raphaelObj.image(url, cx = 0, cy = 0, sw, sh)
 
       # sw slide width as percentage of original width of paper
       # sh slide height as a percentage of original height of paper
       # x-offset from top left corner as percentage of original width of paper
       # y-offset from top left corner as percentage of original height of paper
-      @slides[url] = new WhiteboardSlideModel(img.id, url, img, sw, sh, cx, cy)
+      @slides[url] = new WhiteboardSlideModel(img.id, url, img, originalWidth, originalHeight, sw, sh, cx, cy)
 
       unless @currentSlide?
         img.toBack()
         @currentSlide = @slides[url]
-      else if @currentSlide?.url is url
+      else if @currentSlide.url is url
         img.toBack()
       else
         img.hide()
@@ -187,10 +183,10 @@ define [
     # The url must be in the slides array.
     # @param  {string} url the url of the image (must be in slides array)
     showImageFromPaper: (url) ->
-      url = PRESENTATION_SERVER + url unless url.match(/http[s]?:/)
-      if @currentSlide?.url isnt url and @slides[url]?
-        # TODO: temporary solution
-        @_hideImageFromPaper @currentSlide?.url
+      # TODO: temporary solution
+      url = @_slideUrl(url)
+      if not @currentSlide? or (@slides[url]? and @currentSlide.url isnt url)
+        @_hideImageFromPaper(@currentSlide.url) if @currentSlide?
         next = @_getImageFromPaper(url)
         if next
           next.show()
@@ -208,28 +204,29 @@ define [
     # TODO: not tested yet
     updatePaperFromServer: (cx_, cy_, sw_, sh_) ->
       # if updating the slide size (zooming!)
+      [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
       if sw_ and sh_
-        @raphaelObj.setViewBox cx_ * @gw, cy_ * @gh, sw_ * @gw, sh_ * @gh
-        sw = @gw / sw_
-        sh = @gh / sh_
+        @raphaelObj.setViewBox cx_ * slideWidth, cy_ * slideHeight, sw_ * slideWidth, sh_ * slideHeight,
+        sw = slideWidth / sw_
+        sh = slideHeight / sh_
       # just panning, so use old slide size values
       else
         [sw, sh] = @_currentSlideDimensions()
-        @raphaelObj.setViewBox cx_ * @gw, cy_ * @gh, @raphaelObj._viewBox[2], @raphaelObj._viewBox[3]
+        @raphaelObj.setViewBox cx_ * slideWidth, cy_ * slideHeight, @raphaelObj._viewBox[2], @raphaelObj._viewBox[3]
 
       # update corners
       cx = cx_ * sw
       cy = cy_ * sh
       # update position of svg object in the window
-      sx = (@containerWidth - @gw) / 2
-      sy = (@containerHeight - @gh) / 2
+      sx = (@containerWidth - slideWidth) / 2
+      sy = (@containerHeight - slideHeight) / 2
       sy = 0  if sy < 0
       @raphaelObj.canvas.style.left = sx + "px"
       @raphaelObj.canvas.style.top = sy + "px"
-      @raphaelObj.setSize @gw - 2, @gh - 2
+      @raphaelObj.setSize slideWidth - 2, slideHeight - 2
 
       # update zoom level and cursor position
-      z = @raphaelObj._viewBox[2] / @gw
+      z = @raphaelObj._viewBox[2] / slideWidth
       @zoomLevel = z
       @cursor.setRadius(dcr * z)
 
@@ -395,7 +392,8 @@ define [
     # @param  {number} y the y value of the cursor as a percentage of the height
     moveCursor: (x, y) ->
       [cx, cy] = @_currentSlideOffsets()
-      @cursor.setPosition(x * @gw + cx,  y * @gh + cy)
+      [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
+      @cursor.setPosition(x * slideWidth + cx,  y * slideHeight + cy)
 
     # Update the dimensions of the container.
     _updateContainerDimensions: ->
@@ -444,8 +442,9 @@ define [
     # @param  {number} dx the difference between the x value from panGo and now
     # @param  {number} dy the difference between the y value from panGo and now
     _panDragging: (dx, dy) ->
-      sx = (@containerWidth - @gw) / 2
-      sy = (@containerHeight - @gh) / 2
+      [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
+      sx = (@containerWidth - slideWidth) / 2
+      sy = (@containerHeight - slideHeight) / 2
       [sw, sh] = @_currentSlideDimensions()
 
       # ensuring that we cannot pan outside of the boundaries
@@ -456,13 +455,13 @@ define [
       # cannot pan past the top of the page
       y = (if y < 0 then 0 else y)
       if @fitToPage
-        x2 = @gw + x
+        x2 = slideWidth + x
       else
         x2 = @containerWidth + x
       # cannot pan past the width
       x = (if x2 > sw then sw - (@containerWidth - sx * 2) else x)
       if @fitToPage
-        y2 = @gh + y
+        y2 = slideHeight + y
       else
         # height of image could be greater (or less) than the box it fits in
         y2 = @containerHeight + y
@@ -510,6 +509,9 @@ define [
     _currentSlideDimensions: ->
       if @currentSlide? then @currentSlide.getDimensions() else [0, 0]
 
+    _currentSlideOriginalDimensions: ->
+      if @currentSlide? then @currentSlide.getOriginalDimensions() else [0, 0]
+
     _currentSlideOffsets: ->
       if @currentSlide? then @currentSlide.getOffsets() else [0, 0]
 
@@ -528,12 +530,24 @@ define [
           model = WhiteboardTextModel
 
       if model?
+        [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
+        [xOffset, yOffset] = @_currentSlideOffsets()
+        [width, height] = @_currentSlideDimensions()
+
         tool = new model(@raphaelObj)
-        tool.setPaperSize(@gh, @gw)
-        tool.setOffsets.apply(tool, @_currentSlideOffsets())
-        tool.setPaperDimensions.apply(tool, @_currentSlideDimensions())
+        # TODO: why are the parameters inverted and it works?
+        tool.setPaperSize(slideHeight, slideWidth)
+        tool.setOffsets(xOffset, yOffset)
+        tool.setPaperDimensions(width,height)
         tool
       else
         null
+
+    # Adds the base url (the protocol+server part) to `url` if needed.
+    _slideUrl: (url) ->
+      if url.match(/http[s]?:/)
+        url
+      else
+        globals.presentationServer + url
 
   WhiteboardPaperModel

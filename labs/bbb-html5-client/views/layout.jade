@@ -13,12 +13,20 @@ html
       #container
 
   script(src='/js/lib/require/require-min.js')
+
+  // we add a javascript block to pass information from the server to the client using
+  // javascript variables in the module "globals"
   - if (typeof(meetings) == 'undefined')
     - meetings = []
   script(type='text/javascript')
     define('globals', function() {
+      server = window.location.protocol + '//' + window.location.host;
+      server = server.replace(/:\d+/, ''); // remove :port
+      if (server[server.length-1] != '/')
+        server = server + '/';
       return {
-        bootstrappedMeetings: !{JSON.stringify(meetings)}
+        bootstrappedMeetings: !{JSON.stringify(meetings)},
+        presentationServer: server
       };
     });
 
