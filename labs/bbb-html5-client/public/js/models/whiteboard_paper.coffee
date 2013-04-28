@@ -7,14 +7,15 @@ define [
   'globals',
   'cs!utils',
   'cs!models/whiteboard_cursor',
+  'cs!models/whiteboard_slide',
   'cs!models/whiteboard_rect',
   'cs!models/whiteboard_line',
   'cs!models/whiteboard_ellipse',
   'cs!models/whiteboard_triangle',
   'cs!models/whiteboard_text'
 ], ($, _, Backbone, Raphael, ScaleRaphael, globals, Utils,
-    WhiteboardCursorModel, WhiteboardRectModel, WhiteboardLineModel, WhiteboardEllipseModel,
-    WhiteboardTriangleModel, WhiteboardTextModel) ->
+    WhiteboardCursorModel, WhiteboardSlideModel, WhiteboardRectModel, WhiteboardLineModel,
+    WhiteboardEllipseModel, WhiteboardTriangleModel, WhiteboardTextModel) ->
 
   # TODO: temporary solution
   PRESENTATION_SERVER = window.location.protocol + "//" + window.location.host
@@ -33,10 +34,12 @@ define [
       # a WhiteboardCursorModel
       @cursor = null
 
-      @slides = null
+      # all slides in the presentation indexed by url
+      @slides = {}
+      # the slide being shown
       @currentSlide = null
-      @fitToPage = true
 
+      @fitToPage = true
       @panX = null
       @panY = null
 
@@ -91,10 +94,10 @@ define [
     # Re-add the images to the paper that are found
     # in the slides array (an object of urls and dimensions).
     rebuild: ->
-      @_setCurrentSlide(null)
+      @currentSlide = null
       for url of @slides
         if @slides.hasOwnProperty(url)
-          @addImageToPaper url, @slides[url].w, @slides[url].h
+          @addImageToPaper url, @slides[url].getWidth(), @slides[url].getHeight()
 
     # A wrapper around ScaleRaphael's `changeSize()` method, more details at:
     #   http://www.shapevent.com/scaleraphael/
@@ -107,7 +110,7 @@ define [
         #       will change quite a bit
         # slides
         slidesTmp = _.clone(@slides)
-        urlTmp = @_getCurrentSlide()
+        urlTmp = @currentSlide
         @removeAllImagesFromPaper()
         @slides = slidesTmp
         @rebuild()
@@ -148,19 +151,16 @@ define [
         @gw = sw
         @gh = sh
 
-      @slides[url] =
-        id: img.id
-        w: sw     # sw slide width as percentage of original width of paper
-        h: sh     # sh slide height as a percentage of original height of paper
-        img: img
-        url: url
-        cx: cx    # x-offset from top left corner as percentage of original width of paper
-        cy: cy    # y-offset from top left corner as percentage of original height of paper
+      # sw slide width as percentage of original width of paper
+      # sh slide height as a percentage of original height of paper
+      # x-offset from top left corner as percentage of original width of paper
+      # y-offset from top left corner as percentage of original height of paper
+      @slides[url] = new WhiteboardSlideModel(img.id, url, img, sw, sh, cx, cy)
 
-      unless @_getCurrentSlide()?
+      unless @currentSlide?
         img.toBack()
-        @_setCurrentSlide(@slides[url])
-      else if @_getCurrentSlide()?.url is url
+        @currentSlide = @slides[url]
+      else if @currentSlide?.url is url
         img.toBack()
       else
         img.hide()
@@ -178,19 +178,19 @@ define [
     removeAllImagesFromPaper: ->
       for url of @slides
         if @slides.hasOwnProperty(url)
-          @raphaelObj.getById(@slides[url].id).remove()
-          @trigger('paper:image:removed', @slides[url].id)
+          @raphaelObj.getById(@slides[url].getId()).remove()
+          @trigger('paper:image:removed', @slides[url].getId())
       @slides = {}
-      @_setCurrentSlide(null)
+      @currentSlide = null
 
     # Shows an image from the paper.
     # The url must be in the slides array.
     # @param  {string} url the url of the image (must be in slides array)
     showImageFromPaper: (url) ->
       url = PRESENTATION_SERVER + url unless url.match(/http[s]?:/)
-      if @_getCurrentSlide()?.url isnt url and @slides[url]?
+      if @currentSlide?.url isnt url and @slides[url]?
         # TODO: temporary solution
-        @_hideImageFromPaper @_getCurrentSlide()?.url
+        @_hideImageFromPaper @currentSlide?.url
         next = @_getImageFromPaper(url)
         if next
           next.show()
@@ -198,7 +198,7 @@ define [
           @currentShapes.forEach (element) ->
             element.toFront()
           @cursor.toFront()
-        @_setCurrentSlide(@slides[url])
+        @currentSlide = @slides[url]
 
     # Updates the paper from the server values.
     # @param  {number} cx_ the x-offset value as a percentage of the original width
@@ -411,7 +411,7 @@ define [
     # @return {Raphael.image}     return the image or null if not found
     _getImageFromPaper: (url) ->
       if @slides[url]
-        id = @slides[url].id
+        id = @slides[url].getId()
         return @raphaelObj.getById(id) if id?
       null
 
@@ -507,25 +507,11 @@ define [
         when 16 # shift key
           @shiftPressed = false
 
-    _setCurrentSlide: (value) ->
-      @currentSlide = value
-
-    _getCurrentSlide: ->
-      @currentSlide
-
     _currentSlideDimensions: ->
-      if @currentSlide?
-        [ @currentSlide.w or 0,
-          @currentSlide.h or 0 ]
-      else
-        [0, 0]
+      if @currentSlide? then @currentSlide.getDimensions() else [0, 0]
 
     _currentSlideOffsets: ->
-      if @currentSlide?
-        [ @currentSlide.cx or 0,
-          @currentSlide.cy or 0 ]
-      else
-        [0, 0]
+      if @currentSlide? then @currentSlide.getOffsets() else [0, 0]
 
     # Wrapper method to create a tool for the whiteboard
     _createTool: (type) ->
