@@ -8,6 +8,8 @@ define [
   'cs!models/whiteboard_tool'
 ], ($, _, Backbone, Raphael, globals, Utils, WhiteboardToolModel) ->
 
+  MAX_PATHS_IN_SEQUENCE = 30
+
   # A line in the whiteboard
   # Note: is used to draw lines from the pencil tool and from the line tool, this is why some
   # methods can receive different set of parameters.
@@ -21,6 +23,9 @@ define [
       # the defintion of this shape, kept so we can redraw the shape whenever needed
       # format: svg path, stroke color, thickness
       @definition = ["", "#000", "0px"]
+
+      # @lineX = null
+      # @lineY = null
 
     # Creates a line in the paper
     # @param  {number} x         the x value of the line start point as a percentage of the original width

@@ -19,6 +19,9 @@ define [
       # format: x, y, width, height, colour, fontSize, calcFontSize, text
       @definition = [0, 0, 0, 0, "#000", 0, 0, ""]
 
+      # @textX = null
+      # @textY = null
+
     # Make a text on the whiteboard
     make: (x, y, width, height, colour, fontSize, calcFontSize, text) ->
       @definition =

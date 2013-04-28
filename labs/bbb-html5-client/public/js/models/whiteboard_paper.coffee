@@ -6,51 +6,39 @@ define [
   'scale.raphael',
   'globals',
   'cs!utils',
+  'cs!models/whiteboard_cursor',
   'cs!models/whiteboard_rect',
   'cs!models/whiteboard_line',
   'cs!models/whiteboard_ellipse',
   'cs!models/whiteboard_triangle',
   'cs!models/whiteboard_text'
 ], ($, _, Backbone, Raphael, ScaleRaphael, globals, Utils,
-    WhiteboardRectModel, WhiteboardLineModel, WhiteboardEllipseModel, WhiteboardTriangleModel,
-    WhiteboardTextModel) ->
-
-  # TODO: text, ellipse, line, rect and cursor could be models
+    WhiteboardCursorModel, WhiteboardRectModel, WhiteboardLineModel, WhiteboardEllipseModel,
+    WhiteboardTriangleModel, WhiteboardTextModel) ->
 
   # TODO: temporary solution
   PRESENTATION_SERVER = window.location.protocol + "//" + window.location.host
   PRESENTATION_SERVER = PRESENTATION_SERVER.replace(/:\d+/, "/") # remove :port
-
-  MAX_PATHS_IN_SEQUENCE = 30
 
   # "Paper" which is the Raphael term for the entire SVG object on the webpage.
   # This class deals with this SVG component only.
   WhiteboardPaperModel = Backbone.Model.extend
 
     # Container must be a DOM element
-    initialize: (@container, @textbox) ->
+    initialize: (@container) ->
       # TODO: these can be replaced by variables stored inside `@currentSlide`
       @gw = "100%"
       @gh = "100%"
 
-      @panX = null
-      @panY = null
-      @lineX = null
-      @lineY = null
-      @ellipseX = null
-      @ellipseY = null
-      @textX = null
-      @textY = null
-
-      # TODO: could be local variables or defined with better names
-      @cx2 = null
-      @cy2 = null
-
+      # a WhiteboardCursorModel
       @cursor = null
-      @cursorRadius = 4
+
       @slides = null
       @currentSlide = null
       @fitToPage = true
+
+      @panX = null
+      @panY = null
 
       # a raphaeljs set with all the shapes in the current slide
       @currentShapes = null
@@ -88,10 +76,11 @@ define [
       # paper is embedded within the div#slide of the page.
       @raphaelObj ?= ScaleRaphael(@container, @gw, @gh)
       @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
-      @cursor = @raphaelObj.circle(0, 0, @cursorRadius)
-      @cursor.attr "fill", "red"
 
-      $(@cursor.node).on "mousewheel", _.bind(@_zoomSlide, @)
+      @cursor = new WhiteboardCursorModel(@raphaelObj)
+      @cursor.draw()
+      @cursor.on "cursor:mousewheel", _.bind(@_zoomSlide, @)
+
       if @slides
         @rebuild()
       else
@@ -175,7 +164,7 @@ define [
         img.toBack()
       else
         img.hide()
-      $(@container).on "mousemove", _.bind(@_onCursorMove, @)
+      $(@container).on "mousemove", _.bind(@_onMouseMove, @)
       $(@container).on "mousewheel", _.bind(@_zoomSlide, @)
       # TODO $(img.node).bind "mousewheel", zoomSlide
       @trigger('paper:image:added', img)
@@ -208,7 +197,7 @@ define [
           next.toFront()
           @currentShapes.forEach (element) ->
             element.toFront()
-          @_bringCursorToFront()
+          @cursor.toFront()
         @_setCurrentSlide(@slides[url])
 
     # Updates the paper from the server values.
@@ -241,8 +230,8 @@ define [
 
       # update zoom level and cursor position
       z = @raphaelObj._viewBox[2] / @gw
-      @cursor.attr r: dcr * z
       @zoomLevel = z
+      @cursor.setRadius(dcr * z)
 
       # force the slice attribute despite Raphael changing it
       @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
@@ -261,32 +250,28 @@ define [
           @currentLine.setPaperSize(@gh, @gw)
           @currentLine.setOffsets.apply(@currentRect, @_currentSlideOffsets())
           @currentLine.setPaperDimensions.apply(@currentRect, @_currentSlideDimensions())
-          @cursor.drag _.bind(@currentLine.dragOnMove, @currentLine),
-            _.bind(@currentLine.dragOnStart, @currentLine),
-            _.bind(@currentLine.dragOnEnd, @currentLine)
+          @cursor.drag(@currentLine.dragOnMove, @currentLine.dragOnStart, @currentLine.dragOnEnd)
         when "rect"
           @cursor.undrag()
           @currentRect = new WhiteboardRectModel(@raphaelObj)
           @currentRect.setPaperSize(@gh, @gw)
           @currentRect.setOffsets.apply(@currentRect, @_currentSlideOffsets())
           @currentRect.setPaperDimensions.apply(@currentRect, @_currentSlideDimensions())
-          @cursor.drag _.bind(@currentRect.dragOnMove, @currentRect),
-            _.bind(@currentRect.dragOnStart, @currentRect),
-            _.bind(@currentRect.dragOnEnd, @currentRect)
+          @cursor.drag(@currentRect.dragOnMove, @currentRect.dragOnStart, @currentRect.dragOnEnd)
 
         # TODO: the shapes below are still in the old format
-        when "panzoom"
-          @cursor.undrag()
-          @cursor.drag _.bind(@_panDragging, @),
-            _.bind(@_panGo, @), _.bind(@_panStop, @)
-        when "ellipse"
-          @cursor.undrag()
-          @cursor.drag _.bind(@_ellipseDragging, @),
-            _.bind(@_ellipseDragStart, @), _.bind(@_ellipseDragStop, @)
-        when "text"
-          @cursor.undrag()
-          @cursor.drag _.bind(@_rectDragging, @),
-            _.bind(@_textStart, @), _.bind(@_textStop, @)
+        # when "panzoom"
+        #   @cursor.undrag()
+        #   @cursor.drag _.bind(@_panDragging, @),
+        #     _.bind(@_panGo, @), _.bind(@_panStop, @)
+        # when "ellipse"
+        #   @cursor.undrag()
+        #   @cursor.drag _.bind(@_ellipseDragging, @),
+        #     _.bind(@_ellipseDragStart, @), _.bind(@_ellipseDragStop, @)
+        # when "text"
+        #   @cursor.undrag()
+        #   @cursor.drag _.bind(@_rectDragging, @),
+        #     _.bind(@_textStart, @), _.bind(@_textStop, @)
         else
           console.log "ERROR: Cannot set invalid tool:", tool
 
@@ -374,7 +359,7 @@ define [
             @currentShapes.push text.draw.apply(text, data)
 
       # make sure the cursor is still on top
-      @_bringCursorToFront()
+      @cursor.toFront()
 
     # Clear all shapes from this paper.
     clearShapes: ->
@@ -448,9 +433,7 @@ define [
     # @param  {number} y the y value of the cursor as a percentage of the height
     moveCursor: (x, y) ->
       [cx, cy] = @_currentSlideOffsets()
-      @cursor.attr
-        cx: x * @gw + cx
-        cy: y * @gh + cy
+      @cursor.setPosition(x * @gw + cx,  y * @gh + cy)
 
     # Update the dimensions of the container.
     _updateContainerDimensions: ->
@@ -477,10 +460,6 @@ define [
       img = @_getImageFromPaper(url)
       img.hide() if img?
 
-    # Puts the cursor on top so it doesn't get hidden behind any objects.
-    _bringCursorToFront: ->
-      @cursor.toFront()
-
     # Update zoom variables on all clients
     # @param  {Event} e the event that occurs when scrolling
     # @param  {number} delta the speed/direction at which the scroll occurred
@@ -492,7 +471,8 @@ define [
     # @param  {Event} e the mouse event
     # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
     # @param  {number} y the y value of cursor at the time in relation to the top of the browser
-    _onCursorMove: (e, x, y) ->
+    # TODO: this should only be done if the user is the presenter
+    _onMouseMove: (e, x, y) ->
       [sw, sh] = @_currentSlideDimensions()
       xLocal = (e.pageX - @containerOffsetLeft) / sw
       yLocal = (e.pageY - @containerOffsetTop) / sh

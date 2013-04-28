@@ -18,6 +18,9 @@ define [
       # format: top left x, top left y, bottom right x, bottom right y, stroke color, thickness
       @definition = [0, 0, 0, 0, "#000", "0px"]
 
+      # @ellipseX = null
+      # @ellipseY = null
+
     # Make an ellipse on the whiteboard
     # @param  {[type]} x         the x value of the top left corner
     # @param  {[type]} y         the y value of the top left corner
