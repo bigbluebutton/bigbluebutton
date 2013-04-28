@@ -246,17 +246,11 @@ define [
       switch tool
         when "path", "line"
           @cursor.undrag()
-          @currentLine = new WhiteboardLineModel(@raphaelObj)
-          @currentLine.setPaperSize(@gh, @gw)
-          @currentLine.setOffsets.apply(@currentRect, @_currentSlideOffsets())
-          @currentLine.setPaperDimensions.apply(@currentRect, @_currentSlideDimensions())
+          @currentLine = @_createTool(tool)
           @cursor.drag(@currentLine.dragOnMove, @currentLine.dragOnStart, @currentLine.dragOnEnd)
         when "rect"
           @cursor.undrag()
-          @currentRect = new WhiteboardRectModel(@raphaelObj)
-          @currentRect.setPaperSize(@gh, @gw)
-          @currentRect.setOffsets.apply(@currentRect, @_currentSlideOffsets())
-          @currentRect.setPaperDimensions.apply(@currentRect, @_currentSlideDimensions())
+          @currentRect = @_createTool(tool)
           @cursor.drag(@currentRect.dragOnMove, @currentRect.dragOnStart, @currentRect.dragOnEnd)
 
         # TODO: the shapes below are still in the old format
@@ -331,32 +325,11 @@ define [
       @currentShapes = @raphaelObj.set()
       for shape in shapes
         data = if _.isString(shape.data) then JSON.parse(shape.data) else shape.data
-        switch shape.shape
-          when "path", "line"
-            line = new WhiteboardLineModel(@raphaelObj)
-            line.setPaperSize(@gh, @gw)
-            line.setOffsets.apply(line, @_currentSlideOffsets())
-            @currentShapes.push line.draw.apply(line, data)
-          when "rect"
-            rect = new WhiteboardRectModel(@raphaelObj)
-            rect.setPaperSize(@gh, @gw)
-            rect.setOffsets.apply(rect, @_currentSlideOffsets())
-            @currentShapes.push rect.draw.apply(rect, data)
-          when "ellipse"
-            elip = new WhiteboardEllipseModel(@raphaelObj)
-            elip.setPaperSize(@gh, @gw)
-            elip.setOffsets.apply(elip, @_currentSlideOffsets())
-            @currentShapes.push elip.draw.apply(elip, data)
-          when "triangle"
-            triangle = new WhiteboardTriangleModel(@raphaelObj)
-            triangle.setPaperSize(@gh, @gw)
-            triangle.setOffsets.apply(triangle, @_currentSlideOffsets())
-            @currentShapes.push triangle.draw.apply(triangle, data)
-          when "text"
-            text = new WhiteboardTextModel(@raphaelObj)
-            text.setPaperSize(@gh, @gw)
-            text.setOffsets.apply(text, @_currentSlideOffsets())
-            @currentShapes.push text.draw.apply(text, data)
+        tool = @_createTool(shape.shape)
+        if tool?
+          @currentShapes.push tool.draw.apply(tool, data)
+        else
+          console.log "shape not recognized at drawListOfShapes", shape
 
       # make sure the cursor is still on top
       @cursor.toFront()
@@ -389,44 +362,33 @@ define [
 
     # Make a shape `shape` with the data in `data`.
     makeShape: (shape, data) ->
+      tool = null
       switch shape
         when "path", "line"
-          @currentLine = new WhiteboardLineModel(@raphaelObj)
-          @currentLine.setPaperSize(@gh, @gw)
-          @currentLine.setOffsets.apply(@currentLine, @_currentSlideOffsets())
-          line = @currentLine.make.apply(@currentLine, data)
-          @currentShapes.push(line)
-          @currentShapesDefinitions.push(@currentLine.getDefinition())
+          @currentLine = @_createTool(shape)
+          toolModel = @currentLine
+          tool = @currentLine.make.apply(@currentLine, data)
         when "rect"
-          @currentRect = new WhiteboardRectModel(@raphaelObj)
-          @currentRect.setPaperSize(@gh, @gw)
-          @currentRect.setOffsets.apply(@currentRect, @_currentSlideOffsets())
-          rect = @currentRect.make.apply(@currentRect, data)
-          @currentShapes.push(rect)
-          @currentShapesDefinitions.push(@currentRect.getDefinition())
+          @currentRect = @_createTool(shape)
+          toolModel = @currentRect
+          tool = @currentRect.make.apply(@currentRect, data)
         when "ellipse"
-          @currentEllipse = new WhiteboardEllipseModel(@raphaelObj)
-          @currentEllipse.setPaperSize(@gh, @gw)
-          @currentEllipse.setOffsets.apply(@currentEllipse, @_currentSlideOffsets())
-          ellipse = @currentEllipse.make.apply(@currentEllipse, data)
-          @currentShapes.push(ellipse)
-          @currentShapesDefinitions.push(@currentEllipse.getDefinition())
+          @currentEllipse = @_createTool(shape)
+          toolModel = @currentEllipse
+          tool = @currentEllipse.make.apply(@currentEllipse, data)
         when "triangle"
-          @currentTriangle = new WhiteboardTriangleModel(@raphaelObj)
-          @currentTriangle.setPaperSize(@gh, @gw)
-          @currentTriangle.setOffsets.apply(@currentTriangle, @_currentSlideOffsets())
-          triangle = @currentTriangle.make.apply(@currentTriangle, data)
-          @currentShapes.push(triangle)
-          @currentShapesDefinitions.push(@currentTriangle.getDefinition())
+          @currentTriangle = @_createTool(shape)
+          toolModel = @currentTriangle
+          tool = @currentTriangle.make.apply(@currentTriangle, data)
         when "text"
-          @currentText = new WhiteboardTextModel(@raphaelObj)
-          @currentText.setPaperSize(@gh, @gw)
-          @currentText.setOffsets.apply(@currentText, @_currentSlideOffsets())
-          text = @currentText.make.apply(@currentText, data)
-          @currentShapes.push(text)
-          @currentShapesDefinitions.push(@currentText.getDefinition())
+          @currentText = @_createTool(shape)
+          toolModel = @currentText
+          tool = @currentText.make.apply(@currentText, data)
         else
           console.log "shape not recognized at makeShape", shape
+      if tool?
+        @currentShapes.push(tool)
+        @currentShapesDefinitions.push(toolModel.getDefinition())
 
     # Update the cursor position on screen
     # @param  {number} x the x value of the cursor as a percentage of the width
@@ -564,5 +526,28 @@ define [
           @currentSlide.cy or 0 ]
       else
         [0, 0]
+
+    # Wrapper method to create a tool for the whiteboard
+    _createTool: (type) ->
+      switch type
+        when "path", "line"
+          model = WhiteboardLineModel
+        when "rect"
+          model = WhiteboardRectModel
+        when "ellipse"
+          model = WhiteboardEllipseModel
+        when "triangle"
+          model = WhiteboardTriangleModel
+        when "text"
+          model = WhiteboardTextModel
+
+      if model?
+        tool = new model(@raphaelObj)
+        tool.setPaperSize(@gh, @gw)
+        tool.setOffsets.apply(tool, @_currentSlideOffsets())
+        tool.setPaperDimensions.apply(tool, @_currentSlideDimensions())
+        tool
+      else
+        null
 
   WhiteboardPaperModel
