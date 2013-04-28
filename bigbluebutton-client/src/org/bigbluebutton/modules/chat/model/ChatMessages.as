@@ -34,13 +34,10 @@ package org.bigbluebutton.modules.chat.model
     public function numMessages():int {
       return messages.length;
     }
-    
+	
     public function newChatMessage(msg:ChatMessageVO):void {
       var cm:ChatMessage = new ChatMessage();
-      
-      var time:Date = new Date();
-      cm.time = ChatUtil.getHours(time) + ":" + ChatUtil.getMinutes(time);
-      
+	  
       if (messages.length == 0) {
         cm.lastSenderId = "";
         cm.lastTime = cm.time;
@@ -48,7 +45,6 @@ package org.bigbluebutton.modules.chat.model
         cm.lastSenderId = getLastSender();
         cm.lastTime = getLastTime();
       }
-      
       cm.senderId = msg.fromUserID;
       
       cm.senderLanguage = msg.fromLang;
@@ -67,7 +63,7 @@ package org.bigbluebutton.modules.chat.model
       
       var sentTime:Date = new Date();
       sentTime.setTime(cm.fromTime);
-      cm.senderTime = ChatUtil.getHours(sentTime) + ":" + ChatUtil.getMinutes(sentTime);
+      cm.time = ChatUtil.getHours(sentTime) + ":" + ChatUtil.getMinutes(sentTime);
       
       messages.addItem(cm); 
     }
@@ -88,7 +84,7 @@ package org.bigbluebutton.modules.chat.model
     
     private function getLastTime():String {
       var msg:ChatMessage = messages.getItemAt(messages.length - 1) as ChatMessage;
-      return msg.lastTime;
+      return msg.time;
     }
             
   }
