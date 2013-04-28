@@ -494,9 +494,14 @@
                 <then>
 			<echo message="Locale output dir exists. Deleting contents of ${OUTPUT_DIR}/locale"/>
 			<delete>
-				<fileset dir="${OUTPUT_DIR}">
-					<include name="**/*"/>
+				<fileset dir="${OUTPUT_DIR}" >
+		  			<exclude name="locale/*.swf"/>
+		  			<exclude name=".gitignore"/>
 				</fileset>
+				<dirset dir="${OUTPUT_DIR}">
+		  			<include name="**/*"/>
+		  			<exclude name="locale"/>
+				</dirset>
 			</delete>
                 </then>
                 <else>
