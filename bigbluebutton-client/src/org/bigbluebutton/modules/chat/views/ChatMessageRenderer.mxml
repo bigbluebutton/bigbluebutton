@@ -110,7 +110,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mx:HBox width="100%" id="hbHeader">
     <mx:Label id="lblName" text="{data.name} " visible="true" color="gray" width="100%" textAlign="left"/>
     <mx:Spacer width="100%"/>
-    <mx:Text id="lblTime" htmlText="{data.translateLocale} {rolledOver ? data.senderTime : data.time}" textAlign="right"
+    <mx:Text id="lblTime" htmlText="{data.translateLocale} {data.time}" textAlign="right"
              visible="true" 
              color="gray"  width="100%"/>       
   </mx:HBox>
