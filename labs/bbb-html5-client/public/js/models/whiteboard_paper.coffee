@@ -9,9 +9,11 @@ define [
   'cs!models/whiteboard_rect',
   'cs!models/whiteboard_line',
   'cs!models/whiteboard_ellipse',
-  'cs!models/whiteboard_triangle'
+  'cs!models/whiteboard_triangle',
+  'cs!models/whiteboard_text'
 ], ($, _, Backbone, Raphael, ScaleRaphael, globals, Utils,
-    WhiteboardRectModel, WhiteboardLineModel, WhiteboardEllipseModel, WhiteboardTriangleModel) ->
+    WhiteboardRectModel, WhiteboardLineModel, WhiteboardEllipseModel, WhiteboardTriangleModel,
+    WhiteboardTextModel) ->
 
   # TODO: text, ellipse, line, rect and cursor could be models
 
@@ -271,6 +273,8 @@ define [
           @cursor.drag _.bind(@currentRect.dragOnMove, @currentRect),
             _.bind(@currentRect.dragOnStart, @currentRect),
             _.bind(@currentRect.dragOnEnd, @currentRect)
+
+        # TODO: the shapes below are still in the old format
         when "panzoom"
           @cursor.undrag()
           @cursor.drag _.bind(@_panDragging, @),
@@ -335,13 +339,6 @@ define [
     stopPanning: ->
       # nothing to do
 
-    # The server has said the text is finished,
-    # so set it to null for the next text object
-    textDone: ->
-      if @currentText?
-        @currentText = null
-        @currentRect.hide() if @currentRect?
-
     # Draws an array of shapes to the paper.
     # @param  {array} shapes the array of shapes to draw
     drawListOfShapes: (shapes) ->
@@ -371,7 +368,10 @@ define [
             triangle.setOffsets.apply(triangle, @_currentSlideOffsets())
             @currentShapes.push triangle.draw.apply(triangle, data)
           when "text"
-            @_drawText.apply @, data
+            text = new WhiteboardTextModel(@raphaelObj)
+            text.setPaperSize(@gh, @gw)
+            text.setOffsets.apply(text, @_currentSlideOffsets())
+            @currentShapes.push text.draw.apply(text, data)
 
       # make sure the cursor is still on top
       @_bringCursorToFront()
@@ -386,6 +386,7 @@ define [
         @currentShapesDefinitions = []
 
     # Updated a shape `shape` with the data in `data`.
+    # TODO: check if the objects exist before calling update, if they don't they should be created
     updateShape: (shape, data) ->
       switch shape
         when "line"
@@ -397,7 +398,7 @@ define [
         when "triangle"
           @currentTriangle.update.apply(@currentTriangle, data)
         when "text"
-          @_updateText.apply @, data
+          @currentText.update.apply(@currentText, data)
         else
           console.log "shape not recognized at updateShape", shape
 
@@ -432,6 +433,13 @@ define [
           triangle = @currentTriangle.make.apply(@currentTriangle, data)
           @currentShapes.push(triangle)
           @currentShapesDefinitions.push(@currentTriangle.getDefinition())
+        when "text"
+          @currentText = new WhiteboardTextModel(@raphaelObj)
+          @currentText.setPaperSize(@gh, @gw)
+          @currentText.setOffsets.apply(@currentText, @_currentSlideOffsets())
+          text = @currentText.make.apply(@currentText, data)
+          @currentShapes.push(text)
+          @currentShapesDefinitions.push(@currentText.getDefinition())
         else
           console.log "shape not recognized at makeShape", shape
 
@@ -471,59 +479,6 @@ define [
 
     # Puts the cursor on top so it doesn't get hidden behind any objects.
     _bringCursorToFront: ->
-      @cursor.toFront()
-
-    # Drawing the text on the whiteboard from object
-    # @param  {string} t        the text of the text object
-    # @param  {number} x        the x value of the object as a percentage of the original width
-    # @param  {number} y        the y value of the object as a percentage of the original height
-    # @param  {number} w        the width of the text box as a percentage of the original width
-    # @param  {number} spacing  the spacing between the letters
-    # @param  {string} colour   the colour of the text
-    # @param  {string} font     the font family of the text
-    # @param  {number} fontsize the size of the font (in PIXELS)
-    # TODO: not tested yet
-    _drawText: (t, x, y, w, spacing, colour, font, fontsize) ->
-      x = x * @gw
-      y = y * @gh
-      txt = @raphaelObj.text(x, y, "").attr(
-        fill: colour
-        "font-family": font
-        "font-size": fontsize
-      )
-      txt.node.style["text-anchor"] = "start" # force left align
-      txt.node.style["textAnchor"] = "start"  # for firefox, 'cause they like to be different
-      dy = textFlow(t, txt.node, w, x, spacing, false)
-      @currentShapes.push txt
-
-
-    # Updating the text from the messages on the socket
-    # @param  {string} t        the text of the text object
-    # @param  {number} x        the x value of the object as a percentage of the original width
-    # @param  {number} y        the y value of the object as a percentage of the original height
-    # @param  {number} w        the width of the text box as a percentage of the original width
-    # @param  {number} spacing  the spacing between the letters
-    # @param  {string} colour   the colour of the text
-    # @param  {string} font     the font family of the text
-    # @param  {number} fontsize the size of the font (in PIXELS)
-    _updateText: (t, x, y, w, spacing, colour, font, fontsize) ->
-      x = x * @gw
-      y = y * @gh
-      unless @currentText?
-        # TODO: does almost the same as calling @_drawText()
-        @currentText = @raphaelObj.text(x, y, "").attr(
-          fill: colour
-          "font-family": font
-          "font-size": fontsize
-        )
-        @currentText.node.style["text-anchor"] = "start" # force left align
-        @currentText.node.style["textAnchor"] = "start"  # for firefox, 'cause they like to be different
-        @currentShapes.push text
-      else
-        @currentText.attr fill: colour
-        cell = @currentText.node
-        cell.removeChild cell.firstChild  while cell.hasChildNodes()
-        dy = textFlow(t, cell, w, x, spacing, false)
       @cursor.toFront()
 
     # Update zoom variables on all clients
@@ -585,120 +540,6 @@ define [
     # @param  {Event} e the mouse event
     _panStop: (e) ->
       @stopPanning()
-
-    # When first starting drawing the ellipse
-    # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
-    # @param  {number} y the y value of cursor at the time in relation to the top of the browser
-    _ellipseDragStart: (x, y) ->
-      sx = (@containerWidth - @gw) / 2
-      sy = (@containerHeight - @gh) / 2
-      [sw, sh] = @_currentSlideDimensions()
-      [cx, cy] = @_currentSlideOffsets()
-      # find the x and y values in relation to the whiteboard
-      @ellipseX = (x - @containerOffsetLeft - sx + cx)
-      @ellipseY = (y - @containerOffsetTop - sy + cy)
-      globals.connection.emitMakeShape "ellipse",
-        [ @ellipseX / sw, @ellipseY / sh, @currentColour, @currentThickness ]
-
-    # When first starting to draw an ellipse
-    # @param  {number} dx the difference in the x value at the start as opposed to the x value now
-    # @param  {number} dy the difference in the y value at the start as opposed to the y value now
-    # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
-    # @param  {number} y the y value of cursor at the time in relation to the top of the browser
-    # @param  {Event} e   the mouse event
-    _ellipseDragging: (dx, dy, x, y, e) ->
-      [sw, sh] = @_currentSlideDimensions()
-      # if shift is pressed, draw a circle instead of ellipse
-      dy = dx if @shiftPressed
-      dx = dx / 2
-      dy = dy / 2
-      # adjust for negative values as well
-      x = @ellipseX + dx
-      y = @ellipseY + dy
-      dx = (if dx < 0 then -dx else dx)
-      dy = (if dy < 0 then -dy else dy)
-      globals.connection.emitUpdateShape "ellipse",
-        [ x / sw, y / sh, dx / sw, dy / sh ]
-
-    # When releasing the mouse after drawing the ellipse
-    # @param  {Event} e the mouse event
-    _ellipseDragStop: (e) ->
-      attrs = undefined
-      attrs = @currentEllipse.attrs if @currentEllipse?
-      if attrs?
-        globals.connection.emitPublishShape "ellipse",
-          [ attrs.cx / @gw, attrs.cy / @gh, attrs.rx / @gw, attrs.ry / @gh,
-            @currentColour, @currentThickness ]
-      @currentEllipse = null # late updates will be blocked by this
-
-    # When first dragging the mouse to create the textbox size
-    # @param  {number} x the x value of cursor at the time in relation to the left side of the browser
-    # @param  {number} y the y value of cursor at the time in relation to the top of the browser
-    _textStart: (x, y) ->
-      [sw, sh] = @_currentSlideDimensions()
-      [cx, cy] = @_currentSlideOffsets()
-      if @currentText?
-        globals.connection.emitPublishShape "text",
-          [ @textbox.value, @currentText.attrs.x / @gw, @currentText.attrs.y / @gh,
-            @textbox.clientWidth, 16, @currentColour, "Arial", 14 ]
-        globals.connection.emitTextDone()
-      @textbox.value = ""
-      @textbox.style.visibility = "hidden"
-      @textX = x
-      @textY = y
-      sx = (@containerWidth - @gw) / 2
-      sy = (@containerHeight - @gh) / 2
-      @cx2 = (x - @containerOffsetLeft - sx + cx) / sw
-      @cy2 = (y - @containerOffsetTop - sy + cy) / sh
-      @_makeRect @cx2, @cy2, "#000", 1
-      globals.connection.emitMakeShape "rect", [ @cx2, @cy2, "#000", 1 ]
-
-    # Finished drawing the rectangle that the text will fit into
-    # @param  {Event} e the mouse event
-    _textStop: (e) ->
-      @currentRect.hide() if @currentRect?
-      [sw, sh] = @_currentSlideDimensions()
-      [cx, cy] = @_currentSlideOffsets()
-      tboxw = (e.pageX - @textX)
-      tboxh = (e.pageY - @textY)
-      if tboxw >= 14 or tboxh >= 14 # restrict size
-        @textbox.style.width = tboxw * (@gw / sw) + "px"
-        @textbox.style.visibility = "visible"
-        @textbox.style["font-size"] = 14 + "px"
-        @textbox.style["fontSize"] = 14 + "px" # firefox
-        @textbox.style.color = @currentColour
-        @textbox.value = ""
-        sx = (@containerWidth - @gw) / 2
-        sy = (@containerHeight - @gh) / 2
-        x = @textX - @containerOffsetLeft - sx + cx + 1 # 1px random padding
-        y = @textY - @containerOffsetTop - sy + cy
-        @textbox.focus()
-
-        # if you click outside, it will automatically sumbit
-        @textbox.onblur = (e) =>
-          if @currentText
-            globals.connection.emitPublishShape "text",
-              [ @value, @currentText.attrs.x / @gw, @currentText.attrs.y / @gh,
-                @textbox.clientWidth, 16, @currentColour, "Arial", 14 ]
-            globals.connection.emitTextDone()
-          @textbox.value = ""
-          @textbox.style.visibility = "hidden"
-
-        # if user presses enter key, then automatically submit
-        @textbox.onkeypress = (e) ->
-          if e.keyCode is "13"
-            e.preventDefault()
-            e.stopPropagation()
-            @onblur()
-
-        # update everyone with the new text at every change
-        _paper = @
-        @textbox.onkeyup = (e) ->
-          @style.color = _paper.currentColour
-          @value = @value.replace(/\n{1,}/g, " ").replace(/\s{2,}/g, " ")
-          globals.connection.emitUpdateShape "text",
-            [ @value, x / _paper.sw, (y + (14 * (_paper.sh / _paper.gh))) / _paper.sh,
-              tboxw * (_paper.gw / _paper.sw), 16, _paper.currentColour, "Arial", 14 ]
 
     # Called when the application window is resized.
     _onWindowResize: ->

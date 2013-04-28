@@ -118,6 +118,7 @@ define [
     # When dragging for drawing lines starts
     # @param  {number} x the x value of the cursor
     # @param  {number} y the y value of the cursor
+    # TODO: moved here but not finished
     dragOnStart: (x, y) ->
       # # find the x and y values in relation to the whiteboard
       # sx = (@paperWidth - @gw) / 2
@@ -132,6 +133,7 @@ define [
     # @param  {number} dy the difference between the y value from _lineDragStart and now
     # @param  {number} x  the x value of the cursor
     # @param  {number} y  the y value of the cursor
+    # TODO: moved here but not finished
     dragOnMove: (dx, dy, x, y) ->
       # sx = (@paperWidth - @gw) / 2
       # sy = (@paperHeight - @gh) / 2
@@ -164,6 +166,7 @@ define [
 
     # Drawing line has ended
     # @param  {Event} e the mouse event
+    # TODO: moved here but not finished
     dragOnEnd: (e) ->
       # if @obj?
       #   path = @obj.attrs.path
