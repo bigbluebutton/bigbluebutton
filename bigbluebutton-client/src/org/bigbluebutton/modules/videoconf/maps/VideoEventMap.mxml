@@ -43,7 +43,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
   <EventHandlers type="{VideoModuleStartEvent.START}">
     <ObjectBuilder generator="{VideoEventMapDelegate}" cache="global" constructorArguments="{scope.dispatcher}"/>
-    <MethodInvoker generator="{VideoEventMapDelegate}" method="start"/>
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="start" arguments="{event.uri}"/>
   </EventHandlers>
  
   <EventHandlers type="{VideoModuleStopEvent.STOP}">
