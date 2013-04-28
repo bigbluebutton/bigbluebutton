@@ -88,7 +88,7 @@ package org.bigbluebutton.modules.chat.model
     
     private function getLastTime():String {
       var msg:ChatMessage = messages.getItemAt(messages.length - 1) as ChatMessage;
-      return msg.lastTime;
+      return msg.senderTime;
     }
             
   }
