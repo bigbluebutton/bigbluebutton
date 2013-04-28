@@ -53,10 +53,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.common.Role;
       import org.bigbluebutton.common.events.CloseWindowEvent;
       import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.core.EventConstants;
       import org.bigbluebutton.core.UsersUtil;
       import org.bigbluebutton.core.events.CoreEvent;
       import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.core.model.VideoProfile;
       import org.bigbluebutton.main.events.BBBEvent;
       import org.bigbluebutton.main.events.SwitchedPresenterEvent;
       import org.bigbluebutton.main.views.MainCanvas;
@@ -73,10 +75,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var defaultHeight:Number = 240;
 			
       public var camIndex:int = 0;
-			private var camWidth:Number = 320;
-      private var camHeight:Number = 240;
+      public var selectedVideoProfile:VideoProfile;
 			private var _camera:Camera = null;
-			public var quality:Number = 0;
 						
 			// Timer to auto-publish webcam. We need this timer to delay
 			// the auto-publishing until after the Viewers's window has loaded
@@ -114,8 +114,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.glowBlurSize = videoOptions.glowBlurSize;
 				
 				_videoHolder = new UIComponent();
-				_videoHolder.width = camWidth;
-				_videoHolder.height = camHeight;
+				_videoHolder.width = defaultWidth;
+				_videoHolder.height = defaultHeight;
 				this.addChild(_videoHolder);				
 
 				this.minWidth = _minWidth;
@@ -218,15 +218,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			  _camera.addEventListener(ActivityEvent.ACTIVITY, onActivityEvent);
 			  _camera.addEventListener(StatusEvent.STATUS, onStatusEvent);
 				
-				_camera.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
-				_camera.setMode(camWidth, camHeight, videoOptions.camModeFps);
-				_camera.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
-				
-				if (_camera.width != camWidth || _camera.height != camHeight) {
-					trace("Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
-					setResolution(_camera.width, _camera.height);
-				}				
-				
+                _camera.setKeyFrameInterval(selectedVideoProfile.keyFrameInterval);
+                _camera.setMode(selectedVideoProfile.width, selectedVideoProfile.height, selectedVideoProfile.modeFps);
+                _camera.setQuality(selectedVideoProfile.qualityBandwidth, selectedVideoProfile.qualityPicture);
+                
+                setResolution();
+
 				_video = new Video;
 				_video.attachCamera(_camera);
 
@@ -308,6 +305,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var e:StartBroadcastEvent = new StartBroadcastEvent();
 				e.stream = this.streamName;
 				e.camera = _camera;
+                e.videoProfile = selectedVideoProfile;
 				dispatchEvent(e);
 				
 				maximizeRestoreBtn.visible = true;
@@ -355,10 +353,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 		
-			public function setResolution(width:int, height:int):void {
-				camWidth = originalWidth = width;
-				camHeight = originalHeight = height;
-				setAspectRatio(camWidth, camHeight);
+			public function setResolution():void {
+				originalWidth = selectedVideoProfile.width;
+				originalHeight = selectedVideoProfile.height;
+				setAspectRatio(selectedVideoProfile.width, selectedVideoProfile.height);
 				
  				/**
          		 * Add timestamp to create a unique stream name. This way we can record	 	
@@ -366,8 +364,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
          		 */	 	
 				var curTime:Number = new Date().getTime();	
         var uid:String = UserManager.getInstance().getConference().getMyUserId();
-        var res:String = camWidth + "x" + camHeight;
-        this.streamName = res.concat("-" + uid) + "-" + curTime;
+        this.streamName = selectedVideoProfile.id + "-" + uid + "-" + curTime;
+        trace("Using as streamName " + this.streamName);
+
 			}
 						
 			private function isPresenter():Boolean{

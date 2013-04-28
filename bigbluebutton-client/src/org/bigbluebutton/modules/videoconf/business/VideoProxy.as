@@ -110,47 +110,32 @@ package org.bigbluebutton.modules.videoconf.business
 			ns.attachCamera(e.camera);
 //		Uncomment if you want to build support for H264. But you need at least FP 11. (ralam july 23, 2011)	
 //			if (Capabilities.version.search("11,0") != -1) {
-			if ((BBB.getFlashPlayerVersion() >= 11) && videoOptions.enableH264) {
+			if ((BBB.getFlashPlayerVersion() >= 11) && e.videoProfile.enableH264) {
 //			if (BBB.getFlashPlayerVersion() >= 11) {
 				LogUtil.info("Using H264 codec for video.");
 				var h264:H264VideoStreamSettings = new H264VideoStreamSettings();
 				var h264profile:String = H264Profile.MAIN;
-				if (videoOptions.h264Profile != "main") {
+				if (e.videoProfile.h264Profile != "main") {
 					h264profile = H264Profile.BASELINE;
 				}
 				var h264Level:String = H264Level.LEVEL_4_1;
-				if (videoOptions.h264Level == "1") {
-					h264Level = H264Level.LEVEL_1;
-				} else if (videoOptions.h264Level == "1.1") {
-					h264Level = H264Level.LEVEL_1_1;
-				} else if (videoOptions.h264Level == "1.2") {
-					h264Level = H264Level.LEVEL_1_2;
-				} else if (videoOptions.h264Level == "1.3") {
-					h264Level = H264Level.LEVEL_1_3;
-				} else if (videoOptions.h264Level == "1b") {
-					h264Level = H264Level.LEVEL_1B;
-				} else if (videoOptions.h264Level == "2") {
-					h264Level = H264Level.LEVEL_2;
-				} else if (videoOptions.h264Level == "2.1") {
-					h264Level = H264Level.LEVEL_2_1;
-				} else if (videoOptions.h264Level == "2.2") {
-					h264Level = H264Level.LEVEL_2_2;
-				} else if (videoOptions.h264Level == "3") {
-					h264Level = H264Level.LEVEL_3;
-				} else if (videoOptions.h264Level == "3.1") {
-					h264Level = H264Level.LEVEL_3_1;
-				} else if (videoOptions.h264Level == "3.2") {
-					h264Level = H264Level.LEVEL_3_2;
-				} else if (videoOptions.h264Level == "4") {
-					h264Level = H264Level.LEVEL_4;
-				} else if (videoOptions.h264Level == "4.1") {
-					h264Level = H264Level.LEVEL_4_1;
-				} else if (videoOptions.h264Level == "4.2") {
-					h264Level = H264Level.LEVEL_4_2;
-				} else if (videoOptions.h264Level == "5") {
-					h264Level = H264Level.LEVEL_5;
-				} else if (videoOptions.h264Level == "5.1") {
-					h264Level = H264Level.LEVEL_5_1;
+				switch (e.videoProfile.h264Level) {
+					case "1": h264Level = H264Level.LEVEL_1; break;
+					case "1.1": h264Level = H264Level.LEVEL_1_1; break;
+					case "1.2": h264Level = H264Level.LEVEL_1_2; break;
+					case "1.3": h264Level = H264Level.LEVEL_1_3; break;
+					case "1b": h264Level = H264Level.LEVEL_1B; break;
+					case "2": h264Level = H264Level.LEVEL_2; break;
+					case "2.1": h264Level = H264Level.LEVEL_2_1; break;
+					case "2.2": h264Level = H264Level.LEVEL_2_2; break;
+					case "3": h264Level = H264Level.LEVEL_3; break;
+					case "3.1": h264Level = H264Level.LEVEL_3_1; break;
+					case "3.2": h264Level = H264Level.LEVEL_3_2; break;
+					case "4": h264Level = H264Level.LEVEL_4; break;
+					case "4.1": h264Level = H264Level.LEVEL_4_1; break;
+					case "4.2": h264Level = H264Level.LEVEL_4_2; break;
+					case "5": h264Level = H264Level.LEVEL_5; break;
+					case "5.1": h264Level = H264Level.LEVEL_5_1; break;
 				}
 				
 				LogUtil.info("Codec used: " + h264Level);

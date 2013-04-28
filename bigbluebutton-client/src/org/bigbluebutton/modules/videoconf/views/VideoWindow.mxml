@@ -51,6 +51,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.core.EventConstants;
 			import org.bigbluebutton.core.events.CoreEvent;
+			import org.bigbluebutton.core.model.VideoProfile;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
 			import org.bigbluebutton.main.events.SwitchedPresenterEvent;
@@ -163,13 +164,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				ns.receiveVideo(true);
 				ns.receiveAudio(false);
 				
-				var res:Array = getVideoResolution(stream);
-				if (res == null) // error
+				var pro:VideoProfile = getVideoProfile(stream);
+				trace("Remote video profile: " + pro.toString());
+				if (pro == null) // error
 					return;
-				_video = new Video(Number(res[0]), Number(res[1]));
-				_video.width = originalWidth = Number(res[0]);
-				_video.height = originalHeight = Number(res[1]);
-				setAspectRatio(Number(res[0]), Number(res[1])); 
+				_video = new Video(pro.width, pro.height);
+				_video.width = originalWidth = pro.width;
+				_video.height = originalHeight = pro.height;
+				setAspectRatio(pro.width, pro.height); 
 				_video.attachNetStream(ns);
 				
 				
@@ -209,6 +211,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onNetStatus(e:NetStatusEvent):void{
+				trace("VideoWindow::onNetStatus get on the stream " + streamName + " the event code " + e.info.code);
 				switch(e.info.code){
 					case "NetStream.Publish.Start":
 						LogUtil.debug("NetStream.Publish.Start for broadcast stream " + streamName);

@@ -147,15 +147,12 @@ package org.bigbluebutton.main.api
       var camSettings:CameraSettingsVO = UsersUtil.amIPublishing();
       obj.isPublishing = camSettings.isPublishing;
       obj.camIndex = camSettings.camIndex;
-      obj.camWidth = camSettings.camWidth;
-      obj.camHeight = camSettings.camHeight;
-      
-      var vidConf:VideoConfOptions = new VideoConfOptions();
-      
-      obj.camKeyFrameInterval = vidConf.camKeyFrameInterval;
-      obj.camModeFps = vidConf.camModeFps;
-      obj.camQualityBandwidth = vidConf.camQualityBandwidth;
-      obj.camQualityPicture = vidConf.camQualityPicture;  
+      obj.camWidth = camSettings.videoProfile.width;
+      obj.camHeight = camSettings.videoProfile.height;
+      obj.camKeyFrameInterval = camSettings.videoProfile.keyFrameInterval;
+      obj.camModeFps = camSettings.videoProfile.modeFps;
+      obj.camQualityBandwidth = camSettings.videoProfile.qualityBandwidth;
+      obj.camQualityPicture = camSettings.videoProfile.qualityPicture;
       
       return obj;
     }

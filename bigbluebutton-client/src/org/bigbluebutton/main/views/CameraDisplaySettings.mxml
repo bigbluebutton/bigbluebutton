@@ -28,11 +28,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <![CDATA[
 		import com.asfusion.mate.events.Dispatcher;     
 		import flash.ui.Keyboard;      
+		import mx.collections.ArrayCollection;
 		import mx.events.CloseEvent;
 		import mx.events.ItemClickEvent;
 		import mx.managers.PopUpManager;     
 		import org.bigbluebutton.common.Images;
 		import org.bigbluebutton.common.LogUtil;
+		import org.bigbluebutton.core.BBB;
+		import org.bigbluebutton.core.model.VideoProfile;
 		import org.bigbluebutton.core.UsersUtil;
 		import org.bigbluebutton.main.events.BBBEvent;
 		import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
@@ -47,11 +50,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private var cancelIcon:Class = images.control_play;
 		
 		[Bindable]
-		public var resolutions:Array;
+		public var _videoProfiles:ArrayCollection = new ArrayCollection();
+		public var selectedVideoProfile:VideoProfile;
 		public var publishInClient:Boolean;
 		
-		public var camWidth:Number = 320;
-		public var camHeight:Number = 240;
 		private var _camera:Camera = null;
 		
 		// Timer used to enable the start publishing button, only after get any activity on the camera. 
@@ -67,7 +69,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private function onCreationComplete():void {          
 			changeDefaultCamForMac();
 			
-			if (resolutions.length > 1) {
+			var idx:int = 0;
+			var defaultProfile:VideoProfile = BBB.defaultVideoProfile;
+			for each (var value:VideoProfile in BBB.videoProfiles) {
+				var item:Object = {index:idx, label:value.width + "x" + value.height + " " + value.name, profile:value};
+				_videoProfiles.addItem(item);
+
+				if (value.id == defaultProfile.id) {
+					cmbVideoProfile.selectedIndex = idx;
+				}
+
+				idx++;
+			}
+
+			if (_videoProfiles.length > 1) {
 				showResControls(true);
 			}
 			
@@ -130,17 +145,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 		
 		private function displayVideoPreview():void {
-			setComboResolution();		
+			selectedVideoProfile = cmbVideoProfile.selectedItem.profile as VideoProfile;
+			trace("Using this video profile:: " + selectedVideoProfile.toString());
+			setAspectRatio(selectedVideoProfile.width, selectedVideoProfile.height);
 		
 			var videoOptions:VideoConfOptions = new VideoConfOptions();
 			_camera.setMotionLevel(5, 1000);
-			_camera.setKeyFrameInterval(videoOptions.camKeyFrameInterval);
-			_camera.setMode(camWidth, camHeight, videoOptions.camModeFps);
-			_camera.setQuality(videoOptions.camQualityBandwidth, videoOptions.camQualityPicture);
+			_camera.setKeyFrameInterval(selectedVideoProfile.keyFrameInterval);
+			_camera.setMode(selectedVideoProfile.width, selectedVideoProfile.height, selectedVideoProfile.modeFps);
+			_camera.setQuality(selectedVideoProfile.qualityBandwidth, selectedVideoProfile.qualityPicture);
 			
-			if (_camera.width != camWidth || _camera.height != camHeight) {
-				LogUtil.debug("Resolution " + camWidth + "x" + camHeight + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
-				setResolution(_camera.width, _camera.height);
+			if (_camera.width != selectedVideoProfile.width || _camera.height != selectedVideoProfile.height) {
+				LogUtil.debug("Resolution " + selectedVideoProfile.width + "x" + selectedVideoProfile.height + " is not supported, using " + _camera.width + "x" + _camera.height + " instead");
+				setAspectRatio(_camera.width, _camera.height);
 			}
 			
 			if (_video != null) {
@@ -168,24 +185,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		}
 		
 		private function showResControls(show:Boolean):void {
-			if (show) cmbResolution.visible = true;
-			else cmbResolution.visible = false;
-		}
-		
-		private function setComboResolution():void {
-			var res:Array = cmbResolution.selectedLabel.split( "x" );
-			setResolution(Number(res[0]), Number(res[1]));
+			if (show) cmbVideoProfile.visible = true;
+			else cmbVideoProfile.visible = false;
 		}
 		
 		private function setAspectRatio(width:int, height:int):void {
 			aspectRatio = (width/height);
 			this.minHeight = Math.floor((this.minWidth - PADDING_HORIZONTAL) / aspectRatio) + PADDING_VERTICAL;
-		}
-		
-		private function setResolution(width:int, height:int):void {
-			camWidth = width;
-			camHeight = height;
-			setAspectRatio(camWidth, camHeight);
 		}
 		
 		private function startPublishing():void {
@@ -199,8 +205,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			var globalDispatcher:Dispatcher = new Dispatcher();
 			var camEvent:BBBEvent = new BBBEvent(BBBEvent.CAMERA_SETTING);
 			camEvent.payload.cameraIndex = camIndex;
-			camEvent.payload.cameraWidth = camWidth;
-			camEvent.payload.cameraHeight = camHeight;
+			camEvent.payload.videoProfile = selectedVideoProfile;
 			camEvent.payload.publishInClient = publishInClient;
 			
 			globalDispatcher.dispatchEvent(camEvent);
@@ -281,7 +286,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
     ]]>
   </mx:Script>
-  
+
 	<mx:VBox id="webcamDisplay" width="100%" height="100%" paddingTop="10" styleName="cameraDisplaySettingsWindowBackground">
 		<view:VideoHolder id="_videoHolder" width="100%" height="75%" />
 		<mx:HBox width="100%" height="20%"> 
@@ -291,8 +296,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.changeCamera.toolTip')}" 
 					   click="showCameraSettings()"/>
 			<mx:Spacer width="70%"/>
-			<mx:ComboBox id="cmbResolution" styleName="cameraDisplaySettingsWindowChangeResolutionCombo" 
-						 dataProvider="{resolutions}" visible="false" change="updateCamera()"/>
+			<mx:ComboBox id="cmbVideoProfile" styleName="cameraDisplaySettingsWindowProfileComboStyle"
+						 dataProvider="{_videoProfiles}" visible="false" change="updateCamera()"/>
 			<mx:Spacer width="5"/>
 			<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
 					   click="startPublishing()" enabled="true" styleName="cameraDisplaySettingsWindowStartBtn" 

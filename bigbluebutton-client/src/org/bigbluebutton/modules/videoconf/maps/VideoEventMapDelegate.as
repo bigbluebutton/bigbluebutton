@@ -26,9 +26,11 @@ package org.bigbluebutton.modules.videoconf.maps
   import org.bigbluebutton.common.events.CloseWindowEvent;
   import org.bigbluebutton.common.events.OpenWindowEvent;
   import org.bigbluebutton.common.events.ToolbarButtonEvent;
+  import org.bigbluebutton.core.BBB;
   import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.ConnectAppEvent;
   import org.bigbluebutton.core.managers.UserManager;
+  import org.bigbluebutton.core.model.VideoProfile;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.events.MadePresenterEvent;
@@ -185,15 +187,13 @@ package org.bigbluebutton.modules.videoconf.maps
       dockWindow(window);          
     }
     
-    private function openPublishWindowFor(userID:String, camIndex:int, camWidth:int, camHeight:int):void {
+    private function openPublishWindowFor(userID:String, camIndex:int, videoProfile:VideoProfile):void {
       var publishWindow:PublishWindow = new PublishWindow();
       publishWindow.userID = userID;
       publishWindow.title = UsersUtil.getUserName(userID);
       publishWindow.camIndex = camIndex;
-      publishWindow.setResolution(camWidth, camHeight);
       publishWindow.videoOptions = options;
-      publishWindow.quality = options.videoQuality;
-      publishWindow.resolutions = options.resolutions.split(",");
+      publishWindow.selectedVideoProfile = videoProfile;
       
 
       trace("VideoEventMapDelegate:: [" + me + "] openPublishWindowFor:: Closing window for [" + userID + "] [" + UsersUtil.getUserName(userID) + "]");
@@ -231,12 +231,17 @@ package org.bigbluebutton.modules.videoconf.maps
       var window:VideoWindow = new VideoWindow();
       window.userID = userID;
       window.videoOptions = options;       
-      window.resolutions = options.resolutions.split(",");
       window.title = UsersUtil.getUserName(userID);
       
       closeWindow(userID);
             
       var bbbUser:BBBUser = UsersUtil.getUser(userID);      
+      // HERE BEGINS THE HACK
+//      var pattern:RegExp = new RegExp("([A-Za-z0-9]+)-([A-Za-z0-9]+)-(\\d+)", "");
+//      var streamName:String = BBB.defaultVideoProfile.id + "-" + pattern.exec(bbbUser.streamName)[2] + "-" + pattern.exec(bbbUser.streamName)[3];
+//      trace("Changing the streamName from " + bbbUser.streamName + " to " + streamName);
+//      bbbUser.streamName = streamName;
+      // HERE FINISHES THE HACK
       window.startVideo(proxy.connection, bbbUser.streamName);
       
       webcamWindows.addWindow(window);        
@@ -325,7 +330,6 @@ package org.bigbluebutton.modules.videoconf.maps
     private function openWebcamPreview(publishInClient:Boolean):void {
       var openEvent:BBBEvent = new BBBEvent(BBBEvent.OPEN_WEBCAM_PREVIEW);
       openEvent.payload.publishInClient = publishInClient;
-      openEvent.payload.resolutions = options.resolutions;
       
       _dispatcher.dispatchEvent(openEvent);      
     }
@@ -375,17 +379,15 @@ package org.bigbluebutton.modules.videoconf.maps
     
     public function handleCameraSetting(event:BBBEvent):void {      
       var cameraIndex:int = event.payload.cameraIndex;
-      var camWidth:int = event.payload.cameraWidth;
-      var camHeight:int = event.payload.cameraHeight;     
-      trace("VideoEventMapDelegate::handleCameraSettings [" + cameraIndex + "," + camWidth + "," + camHeight + "]");
+      var videoProfile:VideoProfile = event.payload.videoProfile;
+      trace("VideoEventMapDelegate::handleCameraSettings [" + cameraIndex + "," + videoProfile.id + "]");
       var camSettings:CameraSettingsVO = new CameraSettingsVO();
       camSettings.camIndex = cameraIndex;
-      camSettings.camWidth = camWidth;
-      camSettings.camHeight = camHeight;
+      camSettings.videoProfile = videoProfile;
       
       UsersUtil.setCameraSettings(camSettings);
       
-      openPublishWindowFor(UsersUtil.getMyUserID(), cameraIndex, camWidth, camHeight);       
+      openPublishWindowFor(UsersUtil.getMyUserID(), cameraIndex, videoProfile);
     }
     
     public function handleStoppedViewingWebcamEvent(event:StoppedViewingWebcamEvent):void {
