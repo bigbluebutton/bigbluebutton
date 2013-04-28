@@ -24,7 +24,7 @@ dependencies {
 	providedCompile 'org.springframework:spring-core:3.1.1.RELEASE@jar'
 	
 	// Red5
-	providedCompile 'org/red5:red5:1.0r4630@jar'
+	providedCompile 'org/red5:red5:1.0r4633@jar'
 	
 	// Logging
 	providedCompile 'ch.qos.logback:logback-core:1.0.9@jar'
