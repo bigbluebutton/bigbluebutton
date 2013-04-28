@@ -18,7 +18,7 @@ define [
       # format: x1, y1, x2, y2, stroke color, thickness
       @definition = [0, 0, 0, 0, "#000", "0px"]
 
-    # Make an triangle on the whiteboard
+    # Make a triangle on the whiteboard
     # @param  {[type]} x         the x value of the top left corner
     # @param  {[type]} y         the y value of the top left corner
     # @param  {string} colour    the colour of the object
@@ -54,7 +54,7 @@ define [
         @definition.data[2] = x2
         @definition.data[3] = y2
 
-    # Draw an triangle on the whiteboard
+    # Draw a triangle on the whiteboard
     # @param  {number} x1 the x value of the top left corner
     # @param  {number} y1 the y value of the top left corner
     # @param  {number} x2 the x value of the bottom right corner
@@ -67,7 +67,7 @@ define [
       path = @_scaleTrianglePath(path, @gw, @gh, @xOffset, @yOffset)
       triangle = @paper.path(path)
       triangle.attr Utils.strokeAndThickness(colour, thickness)
-      triangle.attr({"stroke-trianglejoin": "round"})
+      triangle.attr({"stroke-linejoin": "round"})
       triangle
 
     _getCornersFromPoints: (x1, y1, x2, y2) ->

@@ -59,6 +59,9 @@ define [
         if _.isBoolean(x2)
           add = x2
 
+          pathPercent = "L" + x1 + " " + y1
+          @definition.data[0] += pathPercent
+
           x1 = x1 * @gw + @xOffset
           y1 = y1 * @gh + @yOffset
 
@@ -73,9 +76,6 @@ define [
             path = @obj.attrs.path.join(" ")
             path = path + "L" + x1 + " " + y1
             @obj.attr path: path
-
-          pathPercent = "L" + x1 + " " + y1
-          @definition.data[0] += pathPercent
 
         # adding lines from the line tool
         else

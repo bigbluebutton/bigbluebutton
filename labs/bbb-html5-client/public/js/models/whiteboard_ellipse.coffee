@@ -48,6 +48,9 @@ define [
           cy: (ry + y1) * @gh + @yOffset
           rx: rx * @gw
           ry: ry * @gh
+
+        @definition.data[0] = x1
+        @definition.data[1] = y1
         @definition.data[2] = x2
         @definition.data[3] = y2
 
