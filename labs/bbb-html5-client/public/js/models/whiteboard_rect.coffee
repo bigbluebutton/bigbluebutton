@@ -38,6 +38,9 @@ define [
     # @param  {number} y2 the y value of the bottom right corner
     update: (x1, y1, x2, y2) ->
       if @obj?
+        [x1, x2] = [x2, x1] if x2 < x1
+        [y1, y2] = [y2, y1] if y2 < y1
+
         x = x1 * @gw + @xOffset
         y = y1 * @gh + @yOffset
         width = (x2 * @gw + @xOffset) - x
@@ -58,6 +61,9 @@ define [
     # @param  {string} colour    the colour of the object
     # @param  {number} thickness the thickness of the object's line(s)
     draw: (x1, y1, x2, y2, colour, thickness) ->
+      [x1, x2] = [x2, x1] if x2 < x1
+      [y1, y2] = [y2, y1] if y2 < y1
+
       x = x1 * @gw
       y = y1 * @gh
       r = @paper.rect(x + @xOffset, y + @yOffset, (x2 * @gw) - x, (y2 * @gh) - y, 1)
