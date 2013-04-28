@@ -27,25 +27,6 @@ define [
     document.body.appendChild form
     form.submit()
 
-  # Scales a path string to fit within a width and height of the new paper size
-  # @param  {number} w width of the shape as a percentage of the original width
-  # @param  {number} h height of the shape as a percentage of the original height
-  # @return {string}   the path string after being manipulated to new paper size
-  Utils.stringToScaledPath = (string, w, h, xOffset=0, yOffset=0) ->
-    path = null
-    points = string.match(/(\d+[.]?\d*)/g)
-    len = points.length
-    j = 0
-
-    # go through each point and multiply it by the new height and width
-    while j < len
-      if j isnt 0
-        path += "L" + (points[j] * w + xOffset) + "," + (points[j + 1] * h + yOffset)
-      else
-        path = "M" + (points[j] * w + xOffset) + "," + (points[j + 1] * h + yOffset)
-      j += 2
-    path
-
   # @param {string,int} stroke    stroke color, can be a number (a hex converted to int) or a
   #                               string (e.g. "#ffff00")
   # @param {string,ing} thickness thickness as a number or string (e.g. "2" or "2px")

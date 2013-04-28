@@ -15,7 +15,7 @@ define [
       super @paper
 
       # the defintion of this shape, kept so we can redraw the shape whenever needed
-      # format: array of points, stroke color, thickness
+      # format: svg path, stroke color, thickness
       @definition = ["", "#000", "0px"]
 
     # Creates a line in the paper
@@ -67,7 +67,7 @@ define [
     # @param  {string} colour    the colour of the shape to be drawn
     # @param  {number} thickness the thickness of the line to be drawn
     draw: (path, colour, thickness) ->
-      line = @paper.path(Utils.stringToScaledPath(path, @gw, @gh, @xOffset, @yOffset))
+      line = @paper.path(@_scaleLinePath(path, @gw, @gh, @xOffset, @yOffset))
       line.attr Utils.strokeAndThickness(colour, thickness)
       line.attr({"stroke-linejoin": "round"})
       line
@@ -112,7 +112,7 @@ define [
       #     # scale the path appropriately before sending
       #     pathStr = @obj.attrs.path.join(",")
       #     globals.connection.emitPublishShape "path",
-      #       [ Utils.stringToScaledPath(pathStr, 1 / @gw, 1 / @gh),
+      #       [ @_scaleLinePath(pathStr, 1 / @gw, 1 / @gh),
       #         @currentColour, @currentThickness ]
       #     globals.connection.emitMakeShape "line",
       #       [ @lineX / @paperWidth, @lineY / @paperHeight, @currentColour, @currentThickness ]
@@ -127,7 +127,26 @@ define [
       #   @obj = null # any late updates will be blocked by this
       #   # scale the path appropriately before sending
       #   globals.connection.emitPublishShape "path",
-      #     [ Utils.stringToScaledPath(path.join(","), 1 / @gw, 1 / @gh),
+      #     [ @_scaleLinePath(path.join(","), 1 / @gw, 1 / @gh),
       #       @currentColour, @currentThickness ]
+
+    # Scales a path string to fit within a width and height of the new paper size
+    # @param  {number} w width of the shape as a percentage of the original width
+    # @param  {number} h height of the shape as a percentage of the original height
+    # @return {string}   the path string after being manipulated to new paper size
+    _scaleLinePath: (string, w, h, xOffset=0, yOffset=0) ->
+      path = null
+      points = string.match(/(\d+[.]?\d*)/g)
+      len = points.length
+      j = 0
+
+      # go through each point and multiply it by the new height and width
+      while j < len
+        if j isnt 0
+          path += "L" + (points[j] * w + xOffset) + "," + (points[j + 1] * h + yOffset)
+        else
+          path = "M" + (points[j] * w + xOffset) + "," + (points[j + 1] * h + yOffset)
+        j += 2
+      path
 
   WhiteboardLineModel

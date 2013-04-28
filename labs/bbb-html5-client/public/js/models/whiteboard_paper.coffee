@@ -7,8 +7,11 @@ define [
   'globals',
   'cs!utils',
   'cs!models/whiteboard_rect',
-  'cs!models/whiteboard_line'
-], ($, _, Backbone, Raphael, ScaleRaphael, globals, Utils, WhiteboardRectModel, WhiteboardLineModel) ->
+  'cs!models/whiteboard_line',
+  'cs!models/whiteboard_ellipse',
+  'cs!models/whiteboard_triangle'
+], ($, _, Backbone, Raphael, ScaleRaphael, globals, Utils,
+    WhiteboardRectModel, WhiteboardLineModel, WhiteboardEllipseModel, WhiteboardTriangleModel) ->
 
   # TODO: text, ellipse, line, rect and cursor could be models
 
@@ -56,6 +59,7 @@ define [
       @currentLine = null
       @currentRect = null
       @currentEllipse = null
+      @currentTriangle = null
       @currentText = null
 
       @zoomLevel = 1
@@ -357,7 +361,15 @@ define [
             rect.setOffsets.apply(rect, @_currentSlideOffsets())
             @currentShapes.push rect.draw.apply(rect, data)
           when "ellipse"
-            @_drawEllipse.apply @, data
+            elip = new WhiteboardEllipseModel(@raphaelObj)
+            elip.setPaperSize(@gh, @gw)
+            elip.setOffsets.apply(elip, @_currentSlideOffsets())
+            @currentShapes.push elip.draw.apply(elip, data)
+          when "triangle"
+            triangle = new WhiteboardTriangleModel(@raphaelObj)
+            triangle.setPaperSize(@gh, @gw)
+            triangle.setOffsets.apply(triangle, @_currentSlideOffsets())
+            @currentShapes.push triangle.draw.apply(triangle, data)
           when "text"
             @_drawText.apply @, data
 
@@ -381,7 +393,9 @@ define [
         when "rect"
           @currentRect.update.apply(@currentRect, data)
         when "ellipse"
-          @_updateEllipse.apply @, data
+          @currentEllipse.update.apply(@currentEllipse, data)
+        when "triangle"
+          @currentTriangle.update.apply(@currentTriangle, data)
         when "text"
           @_updateText.apply @, data
         else
@@ -405,7 +419,19 @@ define [
           @currentShapes.push(rect)
           @currentShapesDefinitions.push(@currentRect.getDefinition())
         when "ellipse"
-          @_makeEllipse.apply @, data
+          @currentEllipse = new WhiteboardEllipseModel(@raphaelObj)
+          @currentEllipse.setPaperSize(@gh, @gw)
+          @currentEllipse.setOffsets.apply(@currentEllipse, @_currentSlideOffsets())
+          ellipse = @currentEllipse.make.apply(@currentEllipse, data)
+          @currentShapes.push(ellipse)
+          @currentShapesDefinitions.push(@currentEllipse.getDefinition())
+        when "triangle"
+          @currentTriangle = new WhiteboardTriangleModel(@raphaelObj)
+          @currentTriangle.setPaperSize(@gh, @gw)
+          @currentTriangle.setOffsets.apply(@currentTriangle, @_currentSlideOffsets())
+          triangle = @currentTriangle.make.apply(@currentTriangle, data)
+          @currentShapes.push(triangle)
+          @currentShapesDefinitions.push(@currentTriangle.getDefinition())
         else
           console.log "shape not recognized at makeShape", shape
 
@@ -447,19 +473,6 @@ define [
     _bringCursorToFront: ->
       @cursor.toFront()
 
-    # Draw an ellipse on the whiteboard
-    # @param  {[type]} cx        the x value of the center as a percentage of the original width
-    # @param  {[type]} cy        the y value of the center as a percentage of the original height
-    # @param  {[type]} rx        the radius-x of the ellipse as a percentage of the original width
-    # @param  {[type]} ry        the radius-y of the ellipse as a percentage of the original height
-    # @param  {string} colour    the colour of the object
-    # @param  {number} thickness the thickness of the object's line(s)
-    # TODO: not tested yet
-    _drawEllipse: (cx, cy, rx, ry, colour, thickness) ->
-      elip = @raphaelObj.ellipse(cx * @gw, cy * @gh, rx * @gw, ry * @gh)
-      elip.attr @_strokeAndThickness(colour, thickness)
-      @currentShapes.push elip
-
     # Drawing the text on the whiteboard from object
     # @param  {string} t        the text of the text object
     # @param  {number} x        the x value of the object as a percentage of the original width
@@ -483,30 +496,6 @@ define [
       dy = textFlow(t, txt.node, w, x, spacing, false)
       @currentShapes.push txt
 
-    # Make an ellipse on the whiteboard
-    # @param  {[type]} cx        the x value of the center as a percentage of the original width
-    # @param  {[type]} cy        the y value of the center as a percentage of the original height
-    # @param  {string} colour    the colour of the object
-    # @param  {number} thickness the thickness of the object's line(s)
-    # TODO: not tested yet
-    _makeEllipse: (cx, cy, colour, thickness) ->
-      @currentEllipse = @raphaelObj.ellipse(cx * @gw, cy * @gh, 0, 0)
-      @currentEllipse.attr @_strokeAndThickness(colour, thickness)
-      @currentShapes.push @currentEllipse
-
-    # Socket response - Update rectangle drawn
-    # @param  {number} x the x value of the object as a percentage of the original width
-    # @param  {number} y the y value of the object as a percentage of the original height
-    # @param  {number} w width of the shape as a percentage of the original width
-    # @param  {number} h height of the shape as a percentage of the original height
-    # TODO: not tested yet
-    _updateEllipse: (x, y, w, h) ->
-      if @currentEllipse?
-        @currentEllipse.attr
-          cx: x * @gw
-          cy: y * @gh
-          rx: w * @gw
-          ry: h * @gh
 
     # Updating the text from the messages on the socket
     # @param  {string} t        the text of the text object
@@ -754,17 +743,6 @@ define [
           @currentSlide.cy or 0 ]
       else
         [0, 0]
-
-    # @param {string,int} stroke    stroke color, can be a number (a hex converted to int) or a
-    #                               string (e.g. "#ffff00")
-    # @param {string,ing} thickness thickness as a number or string (e.g. "2" or "2px")
-    _strokeAndThickness: (stroke, thickness) ->
-      stroke = "0" unless stroke?
-      thickness = "1" unless thickness? and thickness
-      r =
-        stroke: if stroke.toString().match(/\#.*/) then stroke else  @_colourToHex(stroke)
-        "stroke-width": if thickness.toString().match(/.*px$/) then thickness else "#{thickness}px"
-      r
 
     # Convert a color `value` as integer to a hex color (e.g. 255 to #0000ff)
     _colourToHex: (value) ->
