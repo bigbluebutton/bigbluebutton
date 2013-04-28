@@ -61,6 +61,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import flash.ui.Keyboard;
 			
+			import flexlib.mdi.events.MDIWindowEvent;
+			
 			import mx.containers.ControlBar;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
@@ -220,8 +222,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function positionToolbar(window:PresentationWindow):void {
         trace("Positioning whiteboard toolbar");
 				presentationWindow = window;
-				//presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
-				//presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
+				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
+				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
 				//presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
 				
 				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OVER, hideToolbar);

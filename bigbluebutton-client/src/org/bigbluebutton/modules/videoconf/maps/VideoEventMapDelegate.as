@@ -61,6 +61,8 @@ package org.bigbluebutton.modules.videoconf.maps
   public class VideoEventMapDelegate
   {
     private var options:VideoConfOptions = new VideoConfOptions();
+    private var uri:String;
+    
     private var webcamWindows:WindowManager = new WindowManager();
     
     private var button:ToolbarButton;
@@ -80,8 +82,9 @@ package org.bigbluebutton.modules.videoconf.maps
       return UsersUtil.getMyUsername();
     }
     
-    public function start():void {
+    public function start(uri:String):void {
       trace("VideoEventMapDelegate:: [" + me + "] Video Module Started.");
+      this.uri = uri;
     }
     
     public function stop():void {
@@ -263,7 +266,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function connectToVideoApp():void {
-      proxy = new VideoProxy(options.uri + "/" + UsersUtil.getInternalMeetingID());
+      proxy = new VideoProxy(uri + "/" + UsersUtil.getInternalMeetingID());
       proxy.connect();
     }
     

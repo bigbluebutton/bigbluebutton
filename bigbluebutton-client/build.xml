@@ -15,7 +15,7 @@
 	<property name="PROD_RESOURCES_DIR" value="${RESOURCES_DIR}/prod" />	
 	<property name="SRC_DIR" value="${BASE_DIR}/src" />
 		
-	<property name="OUTPUT_DIR" value="${BASE_DIR}/bin" />
+	<property name="OUTPUT_DIR" value="${BASE_DIR}/client" />
 	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
 
 	<!-- Declare module names here -->
@@ -157,6 +157,7 @@
 				  http://forums.adobe.com/thread/758619
 				  ralam - sept 20, 2011
 				-->
+				<include-resource-bundles>SharedResources</include-resource-bundles>
 				<include-resource-bundles>bbbResources</include-resource-bundles>
 				<include-resource-bundles>collections</include-resource-bundles> 
 				<include-resource-bundles>containers</include-resource-bundles> 
@@ -289,7 +290,7 @@
 	
 	<!-- just a grouping of modules to compile -->
 	<target name="build-deskshare-phone-video-whiteboard-dyn" 
-			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard, build-notes"
+			depends="build-deskshare, build-phone, build-video, build-videodock, build-whiteboard, build-notes, build-polling"
 			description="Compile deskshare, phone, video, whiteboard modules">
 	</target>
 	
@@ -438,8 +439,6 @@
 			<then>
 				<echo message="Copying config.xml for development environment"/>
 				<copy file="${BASE_DIR}/src/conf/config.xml" todir="${OUTPUT_DIR}/conf" /> 
-				<echo message="Copying join-mock.xml for development environment"/>
-				<copy file="${BASE_DIR}/src/conf/join-mock.xml" todir="${OUTPUT_DIR}/conf" /> 
 				<!-- echo message="Copying layout.xml for development environment"/>
 				<copy file="${BASE_DIR}/src/conf/layout.xml" todir="${OUTPUT_DIR}/conf" /--> 
 			</then>
@@ -490,17 +489,27 @@
 		<echo message="Done Generating ASDocs" />
 	</target>
 
-	<target name="clean">
-		<delete>
-			<fileset dir="${OUTPUT_DIR}" >
-		  		<exclude name="locale/*.swf"/>
-		  		<exclude name=".gitignore"/>
-			</fileset>
-			<dirset dir="${OUTPUT_DIR}">
-		  		<include name="**/*"/>
-		  		<exclude name="locale"/>
-			</dirset>
-  		</delete>
+	<target name="clean" depends="init-ant-contrib">
+                <if>
+                <equals arg1="${OUTPUT_DIR}" arg2="true"/>
+                <then>
+			<echo message="Locale output dir exists. Deleting contents of ${OUTPUT_DIR}/locale"/>
+			<delete>
+				<fileset dir="${OUTPUT_DIR}" >
+		  			<exclude name="locale/*.swf"/>
+		  			<exclude name=".gitignore"/>
+				</fileset>
+				<dirset dir="${OUTPUT_DIR}">
+		  			<include name="**/*"/>
+		  			<exclude name="locale"/>
+				</dirset>
+			</delete>
+                </then>
+                <else>
+			<echo message="Output dir does not exists. Creating [${OUTPUT_DIR}] dir."/>
+			<mkdir dir="${OUTPUT_DIR}"/>
+                </else>
+        	</if>
 	</target>
 
 	<!-- NOTE: compile-deskshare-standalone MUST come first before compile-bbb as we need the deskshare-standalone
@@ -508,7 +517,7 @@
 	<target name="clean-build-bbb" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, 
 	                                        build-webcam-preview-standalone, build-webcam-view-standalone, compile-bbb" 
 			description="Build BBB client skipping compiling of locales"/>	
-	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, build-polling, build-mic-check,
+	<target name="clean-build-all" depends="clean, init-ant-contrib, generate-html-wrapper, compile-deskshare-standalone, build-mic-check,
 	                                         build-cam-check, build-conn-check, build-webcam-preview-standalone, build-webcam-view-standalone, 
 	                                         compile-bbb, branding, branding-black" 
 			description="Build BBB client including locales"/>
