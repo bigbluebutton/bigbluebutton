@@ -50,6 +50,10 @@ define [
           y: y
           width: width
           height: height
+
+        # we need to update all these values, specially for when shapes are drawn backwards
+        @definition.data[0] = x1
+        @definition.data[1] = y1
         @definition.data[2] = x2
         @definition.data[3] = y2
 
