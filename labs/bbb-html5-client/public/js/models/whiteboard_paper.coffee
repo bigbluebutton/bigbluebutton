@@ -744,10 +744,4 @@ define [
       else
         [0, 0]
 
-    # Convert a color `value` as integer to a hex color (e.g. 255 to #0000ff)
-    _colourToHex: (value) ->
-      hex = value.toString(16)
-      hex = "0" + hex while hex.length < 6
-      "##{hex}"
-
   WhiteboardPaperModel

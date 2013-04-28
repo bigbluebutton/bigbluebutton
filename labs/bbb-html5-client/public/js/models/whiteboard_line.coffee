@@ -9,6 +9,10 @@ define [
 ], ($, _, Backbone, Raphael, globals, Utils, WhiteboardToolModel) ->
 
   # A line in the whiteboard
+  # Note: is used to draw lines from the pencil tool and from the line tool, this is why some
+  # methods can receive different set of parameters.
+  # TODO: Maybe this should be split in WhiteboardPathModel for the pencil and
+  #       WhiteboardLineModel for the line tool
   class WhiteboardLineModel extends WhiteboardToolModel
 
     initialize: (@paper) ->
@@ -39,34 +43,73 @@ define [
       @obj
 
     # Update the line dimensions
-    # @param  {number} x  the next x point to be added to the line as a percentage of the original width
-    # @param  {number} y  the next y point to be added to the line as a percentage of the original height
-    # @param  {boolean} add true if the line should be added to the current line, false if it should replace the last point
-    update: (x, y, add) ->
+    # @param  {number}  x1         1) the x of the first point
+    #                              2) the next x point to be added to the line
+    # @param  {number}  y1         1) the y of the first point
+    #                              2) the next y point to be added to the line
+    # @param  {number,boolean} x2  1) the x of the second point
+    #                              2) true if the line should be added to the current line,
+    #                                 false if it should replace the last point
+    # @param  {number}         y2  1) the y of the second point
+    #                              2) undefined
+    update: (x1, y1, x2, y2) ->
       if @obj?
-        x1 = x * @gw + @xOffset
-        y1 = y * @gh + @yOffset
 
-        # if adding to the line
-        if add
-          path = @obj.attrs.path + "L" + x1 + " " + y1
-          @obj.attr path: path
+        # addign points from the pencil
+        if _.isBoolean(x2)
+          add = x2
 
-        # if simply updating the last portion (for drawing a straight line)
+          x1 = x1 * @gw + @xOffset
+          y1 = y1 * @gh + @yOffset
+
+          # if adding to the line
+          if add
+            path = @obj.attrs.path + "L" + x1 + " " + y1
+            @obj.attr path: path
+
+          # if simply updating the last portion (for drawing a straight line)
+          else
+            @obj.attrs.path.pop()
+            path = @obj.attrs.path.join(" ")
+            path = path + "L" + x1 + " " + y1
+            @obj.attr path: path
+
+          pathPercent = "L" + x1 + " " + y1
+          @definition.data[0] += pathPercent
+
+        # adding lines from the line tool
         else
-          @obj.attrs.path.pop()
-          path = @obj.attrs.path.join(" ")
-          path = path + "L" + x1 + " " + y1
-          @obj.attr path: path
+          path = @_buildPath(x1, y1, x2, y2)
+          @definition.data[0] = path
 
-        pathPercent = "L" + x + " " + y
-        @definition.data[0] += pathPercent
+          path = @_scaleLinePath(path, @gw, @gh, @xOffset, @yOffset)
+          @obj.attr path: path
 
     # Draw a line on the paper
-    # @param  {string} path      height of the shape as a percentage of the original height
-    # @param  {string} colour    the colour of the shape to be drawn
-    # @param  {number} thickness the thickness of the line to be drawn
-    draw: (path, colour, thickness) ->
+    # @param  {number,string} x1 1) the x value of the first point
+    #                            2) the string path
+    # @param  {number,string} y1 1) the y value of the first point
+    #                            2) the colour
+    # @param  {number} x2        1) the x value of the second point
+    #                            2) the thickness
+    # @param  {number} y2        1) the y value of the second point
+    #                            2) undefined
+    # @param  {string} colour    1) the colour of the shape to be drawn
+    #                            2) undefined
+    # @param  {number} thickness 1) the thickness of the line to be drawn
+    #                            2) undefined
+    draw: (x1, y1, x2, y2, colour, thickness) ->
+
+      # if the drawing is from the pencil tool, it comes as a path first
+      if _.isString(x1)
+        colour = y1
+        thickness = x2
+        path = x1
+
+      # if the drawing is from the line tool, it comes with two points
+      else
+        path = @_buildPath(x1, y1, x2, y2)
+
       line = @paper.path(@_scaleLinePath(path, @gw, @gh, @xOffset, @yOffset))
       line.attr Utils.strokeAndThickness(colour, thickness)
       line.attr({"stroke-linejoin": "round"})
@@ -129,6 +172,9 @@ define [
       #   globals.connection.emitPublishShape "path",
       #     [ @_scaleLinePath(path.join(","), 1 / @gw, 1 / @gh),
       #       @currentColour, @currentThickness ]
+
+    _buildPath: (x1, y1, x2, y2) ->
+      "M#{x1} #{y1}L#{x2} #{y2}"
 
     # Scales a path string to fit within a width and height of the new paper size
     # @param  {number} w width of the shape as a percentage of the original width
