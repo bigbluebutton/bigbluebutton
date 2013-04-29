@@ -27,23 +27,21 @@ define [
     document.body.appendChild form
     form.submit()
 
-  # Scales a path string to fit within a width and height of the new paper size
-  # @param  {number} w width of the shape as a percentage of the original width
-  # @param  {number} h height of the shape as a percentage of the original height
-  # @return {string}   the path string after being manipulated to new paper size
-  Utils.stringToScaledPath = (string, w, h) ->
-    path = undefined
-    points = string.match(/(\d+[.]?\d*)/g)
-    len = points.length
-    j = 0
+  # @param {string,int} stroke    stroke color, can be a number (a hex converted to int) or a
+  #                               string (e.g. "#ffff00")
+  # @param {string,ing} thickness thickness as a number or string (e.g. "2" or "2px")
+  Utils.strokeAndThickness = (stroke, thickness) ->
+    stroke = "0" unless stroke?
+    thickness = "1" unless thickness? and thickness
+    r =
+      stroke: if stroke.toString().match(/\#.*/) then stroke else  Utils.colourToHex(stroke)
+      "stroke-width": if thickness.toString().match(/.*px$/) then thickness else "#{thickness}px"
+    r
 
-    # go through each point and multiply it by the new height and width
-    while j < len
-      if j isnt 0
-        path += "L" + (points[j] * w) + "," + (points[j + 1] * h)
-      else
-        path = "M" + (points[j] * w) + "," + (points[j + 1] * h)
-      j += 2
-    path
+  # Convert a color `value` as integer to a hex color (e.g. 255 to #0000ff)
+  Utils.colourToHex = (value) ->
+    hex = value.toString(16)
+    hex = "0" + hex while hex.length < 6
+    "##{hex}"
 
   Utils
