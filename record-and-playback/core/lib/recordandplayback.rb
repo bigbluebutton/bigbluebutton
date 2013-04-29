@@ -76,7 +76,7 @@ module BigBlueButton
  
         errors = stderr.readlines
         unless errors.empty?
-          BigBlueButton.logger.error( "Error: stderr: #{errors}")
+          BigBlueButton.logger.error( "Error: stderr: #{Array(errors).join()}")
  #         raise errors.to_s 
         end
     end
