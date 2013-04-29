@@ -19,6 +19,9 @@ define [
     # Authentication object, set when the user is authorized in
     globals.currentAuth = null
 
+    # An event bus to handle events in the application
+    globals.events = _.extend({}, Backbone.Events)
+
     # Default application router
     globals.router = new Router()
 
