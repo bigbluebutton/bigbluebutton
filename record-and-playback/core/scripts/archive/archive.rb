@@ -83,13 +83,14 @@ end
 
 
 ################## START ################################
-BigBlueButton.logger = Logger.new('/var/log/bigbluebutton/archive.log', 'daily' )
 
 opts = Trollop::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
 end
 
 meeting_id = opts[:meeting_id]
+
+BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/archive-#{meeting_id}.log", 'daily' )
 
 # This script lives in scripts/archive/steps while bigbluebutton.yml lives in scripts/
 props = YAML::load(File.open('bigbluebutton.yml'))
