@@ -46,7 +46,9 @@ class LtiService {
     private void initConsumerMap(){
         this.consumerMap = new HashMap<String, String>()
         String[] consumers = this.consumers.split(",")
-        for( int i=0; i < consumers.length; i++){
+        //for( int i=0; i < consumers.length; i++){
+        if ( consumers.length > 0 ){
+            int i = 0;
             String[] consumer = consumers[i].split(":")
             if( consumer.length == 2 ){
                 this.consumerMap.put(consumer[0], consumer[1])
