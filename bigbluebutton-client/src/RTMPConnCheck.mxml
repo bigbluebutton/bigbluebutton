@@ -7,6 +7,7 @@
         if (ExternalInterface.available) {
           ExternalInterface.addCallback("testRTMPConnection", handleTestRTMPConnectionRequest);
           ExternalInterface.addCallback("testSocketConnection", handleTestSocketRequest);
+          ExternalInterface.addCallback("setPolicyFileURL", handleSetPolicyFileURL);
         }
         
         // Tell out JS counterpart that we are ready.
@@ -34,6 +35,10 @@
       }
       
       private var rtmp:Boolean;
+      
+      private function handleSetPolicyFileURL(url:String):void {
+        Security.loadPolicyFile(url);
+      }
       
       private function connect(testRTMP:Boolean):void {
         rtmp = testRTMP;

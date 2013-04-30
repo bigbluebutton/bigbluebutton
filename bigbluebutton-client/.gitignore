@@ -5,7 +5,8 @@
 linker-report.xml
 bundles.txt
 build/
-client
+bin/
+client/
 bbbResources.properties.*
 asdoc/
 hs_err_pid*

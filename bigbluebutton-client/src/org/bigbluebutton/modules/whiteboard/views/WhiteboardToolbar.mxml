@@ -60,6 +60,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Script>
 		<![CDATA[
 			import flash.ui.Keyboard;
+			
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import mx.containers.ControlBar;
 			import mx.events.MoveEvent;
 			import mx.events.ResizeEvent;
 			import mx.managers.CursorManager;
@@ -72,6 +76,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.modules.present.events.PresentationEvent;
 			import org.bigbluebutton.modules.present.ui.views.PresentationWindow;
+			import org.bigbluebutton.modules.present.ui.views.SlideView;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.DrawObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.GraphicObject;
 			import org.bigbluebutton.modules.whiteboard.business.shapes.TextObject;
@@ -109,7 +114,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var wbOptions:WhiteboardOptions;
 			[Bindable] private var baseIndex:int;
 			
-			[Bindable] private var showWhiteboardToolbar:Boolean = true;
+			[Bindable] private var showWhiteboardToolbar:Boolean = false;
 
 			public var canvas:WhiteboardCanvas;
 			private var presentationWindow:PresentationWindow;
@@ -217,11 +222,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function positionToolbar(window:PresentationWindow):void {
         trace("Positioning whiteboard toolbar");
 				presentationWindow = window;
-				//presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
-				//presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
+				presentationWindow.addEventListener(MoveEvent.MOVE, setPositionAndDepth);
+				presentationWindow.addEventListener(ResizeEvent.RESIZE, setPositionAndDepth);
 				//presentationWindow.addEventListener(MouseEvent.CLICK, setPositionAndDepth);
-				presentationWindow.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
-				presentationWindow.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
+				
+				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OVER, hideToolbar);
+				window.presCtrlBar.addEventListener(MouseEvent.ROLL_OUT, showToolbar);
+				
+				window.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
+				window.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
+				
 				this.addEventListener(MouseEvent.ROLL_OVER, showToolbar);
 				this.addEventListener(MouseEvent.ROLL_OUT, hideToolbar);
 				
@@ -239,17 +249,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function closeToolbar(e:StopWhiteboardModuleEvent):void {
 				parent.removeChild(this);
 			}
-      
-      private function showToolbar(e:MouseEvent):void {
-        if (toolbarAllowed()) {
-        	setPositionAndDepth();
-        	showWhiteboardToolbar = true;
-        }
-      }
-      
-      private function hideToolbar(e:MouseEvent = null):void {
-        showWhiteboardToolbar = false;
-      }
+			
+			private function showToolbar(e:MouseEvent):void {
+				if (toolbarAllowed()) {
+					setPositionAndDepth();
+					showWhiteboardToolbar = true;
+				}
+			}
+			
+			private function hideToolbar(e:MouseEvent = null):void {
+				showWhiteboardToolbar = false;
+			}
            
       private function graphicObjSelected(event:GraphicObjectFocusEvent):void  {
         var gobj:GraphicObject = event.data;

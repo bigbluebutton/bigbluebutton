@@ -88,8 +88,14 @@
     if (swfObj) { 
       swfObj.testSocketConnection(host, port);
     }
-  }  
-
+  }
+  
+  BBBCheck.setSocketPolicyFileURL = function(url) {
+    var swfObj = getConnObj();
+    if (swfObj) { 
+      swfObj.setPolicyFileURL(url);
+    }
+  }
   
   /*** Callbacks from Flash test apps **/
   BBBCheck.microphoneCheckAppReady = function() {
@@ -148,6 +154,8 @@
   BBBCheck.socketConnTestSecurityError = function(host, port) {
     console.log("Connection security error to [" + host + "][" + port + "]");
   }
+  
+
   
     /* ***********************************************************************************
      *       Broadcasting of events to 3rd-party apps.

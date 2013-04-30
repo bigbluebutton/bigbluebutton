@@ -778,15 +778,7 @@ class ApiController {
     String defConfigXML = paramsProcessorUtil.getDefaultConfigXML();
     
     response.addHeader("Cache-Control", "no-cache")
-    withFormat {    
-      xml {
-        render(contentType:"text/xml") {
-          response() {
-            config(defConfigXML)
-          }
-        }
-      }
-    }
+    render text: defConfigXML, contentType: 'text/xml'
       
   }
 

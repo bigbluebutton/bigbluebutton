@@ -145,7 +145,7 @@ DataGrid {
   icon: Embed('assets/images/triangle.png');    
 }
 
-.presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationForwardButtonStyle,
+.presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
 .presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle 
 {
   textIndent: 0;
@@ -173,8 +173,16 @@ DataGrid {
   icon:   Embed('assets/images/left-arrow.png'); 
 }
 
+.presentationBackButtonDisabledStyle {
+	icon:   Embed('assets/images/left-arrow-disabled.png'); 
+}
+
 .presentationForwardButtonStyle {
   icon:   Embed('assets/images/right-arrow.png'); 
+}
+
+.presentationForwardButtonDisabledStyle {
+	icon:   Embed('assets/images/right-arrow-disabled.png'); 
 }
 
 .presentationFitToWidthButtonStyle {
@@ -364,8 +372,7 @@ DataGrid {
   fontSize: 12;    
 }
 
-.micSettingsWindowPlaySoundButtonStyle, .micSettingsWindowChangeMicButtonStyle, 
-.micSettingsWindowJoinButtonStyle {
+.micSettingsWindowPlaySoundButtonStyle, .micSettingsWindowChangeMicButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
   rollOverColor: #eeeeee;
@@ -374,6 +381,18 @@ DataGrid {
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;  
   cornerRadius: 5;      
+}
+
+.micSettingsWindowJoinButtonStyle {
+	fillAlphas: 1, 1, 1, 1;
+	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+	rollOverColor: #eeeeee;
+	color: #5e5f63;
+	textRollOverColor: #5e5f63;
+	textSelectedColor: #5e5f63;
+	borderColor: #b9babc;  
+	cornerRadius: 5; 
+	icon:   Embed('assets/images/headset.png');
 }
 
 .micSettingsWindowCancelButtonStyle {

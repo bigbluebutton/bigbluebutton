@@ -24,7 +24,7 @@ dependencies {
 	providedCompile 'org.springframework:spring-core:3.1.1.RELEASE@jar'
 	
 	// Red5
-	providedCompile 'org/red5:red5:1.0r4599@jar'
+	providedCompile 'org/red5:red5:1.0r4635.1@jar'
 	
 	// Logging
 	providedCompile 'ch.qos.logback:logback-core:1.0.9@jar'
@@ -75,7 +75,7 @@ dependencies {
     
         //redis
 	compile 'redis.clients:jedis:1.5.1'
-	compile 'commons-pool:commons-pool:1.5.6'
+	providedCompile 'commons-pool:commons-pool:1.5.6'
 }
 
 test {

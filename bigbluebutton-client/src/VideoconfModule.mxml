@@ -45,10 +45,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 		
 			public function get uri():String {
-				if (_attributes.mode == "PLAYBACK") {										
-					return _attributes.uri + "/" + _attributes.playbackRoom;
-				} 
-				
 				return _attributes.uri + "/" + _attributes.room;
 			}
 			
@@ -89,8 +85,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function start(attributes:Object):void {	
         trace("Starting Video Module");
+        _attributes = attributes;
+        
         var globalDispatcher:Dispatcher = new Dispatcher();
-        globalDispatcher.dispatchEvent(new VideoModuleStartEvent(VideoModuleStartEvent.START));
+        var event:VideoModuleStartEvent = new VideoModuleStartEvent(VideoModuleStartEvent.START);
+        event.uri = uri;
+        globalDispatcher.dispatchEvent(event);
 			}
 		
 			public function stop():void {

@@ -81,7 +81,7 @@ dependencies {
 	providedCompile 'org.springframework:spring-core:3.1.1.RELEASE@jar'
 	
 	// Red5
-	providedCompile 'org/red5:red5:1.0r4599@jar'
+	providedCompile 'org/red5:red5:1.0r4635.1@jar'
 	
 	// Logging
 	providedCompile 'ch.qos.logback:logback-core:1.0.9@jar'
@@ -97,7 +97,7 @@ dependencies {
 	compile 'aopalliance:aopalliance:1.0@jar'
 	
     // Java Concurrency In Practice
-    providedCompile 'net.jcip:jcip-annotations:1.0@jar'
+    //providedCompile 'net.jcip:jcip-annotations:1.0@jar'
         
     // Testing
     compile 'org.testng:testng:5.8@jar' 

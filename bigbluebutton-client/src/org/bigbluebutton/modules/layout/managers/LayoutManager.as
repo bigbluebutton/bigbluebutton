@@ -59,9 +59,9 @@ package org.bigbluebutton.modules.layout.managers
 		private var _containerDeactivated:Boolean = false;
 		private var _sendCurrentLayoutUpdateTimer:Timer = new Timer(500,1);
 		private var _applyCurrentLayoutTimer:Timer = new Timer(150,1);
-		private var _delayToSendLayoutsToCombobox:Timer = new Timer(60,0);
 		private var _customLayoutsCount:int = 0;
-		private var comboboxIsInitialized:Boolean = false;
+		private var _serverLayoutsLoaded:Boolean = false;
+        private var _comboLayoutCreated:Boolean = false;
 		private var _eventsToDelay:Array = new Array(MDIManagerEvent.WINDOW_RESTORE,
 				MDIManagerEvent.WINDOW_MINIMIZE,
 				MDIManagerEvent.WINDOW_MAXIMIZE);
@@ -74,47 +74,27 @@ package org.bigbluebutton.modules.layout.managers
 			_sendCurrentLayoutUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
 				sendLayoutUpdate(updateCurrentLayout());
 			});
-			
-			_delayToSendLayoutsToCombobox.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
-				checkIfCanSendLayoutToCombobox();
-			});
 		}
 		
-		
-		public function sendPopulateComboboxEvent():void {
-			LogUtil.debug("Sending layout to populate combobox");
-			var sendLayoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent(LayoutsLoadedEvent.SEND_LAYOUTS_LOADED_EVENT );
-		    	sendLayoutsLoaded.layouts = _layouts;
-			_globalDispatcher.dispatchEvent(sendLayoutsLoaded);
-		}
-		
-		
-		public function initDelayTimerUntilComboboxIsInitialized():void {
-			_delayToSendLayoutsToCombobox.start();
-		}
-		
-		
-		public function checkIfCanSendLayoutToCombobox():void {
-			if(comboboxIsInitialized) {
-				if(_delayToSendLayoutsToCombobox != null) {
-					_delayToSendLayoutsToCombobox.stop();
-				}
-				sendPopulateComboboxEvent();
-			}
-		}
-		
+        /**
+         *  There's a race condition when the layouts combo doesn't get populated 
+         *  with the server's layouts definition. The problem is that sometimes 
+         *  the layouts is loaded before the combo get created, and sometimes the 
+         *  combo is created first. We use two booleans to sync it and only dispatch 
+         *  the layouts to populate the list when both are created.
+         */
 		public function loadServerLayouts(layoutUrl:String):void {
 			LogUtil.debug("LayoutManager: loading server layouts from " + layoutUrl);
 			var loader:LayoutLoader = new LayoutLoader();
 			loader.addEventListener(LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT, function(e:LayoutsLoadedEvent):void {
 				if (e.success) {
 					_layouts = e.layouts;
-					if(comboboxIsInitialized) {
-						sendPopulateComboboxEvent();
-					}
-					else {
-						initDelayTimerUntilComboboxIsInitialized();
-					}
+
+                    if (_comboLayoutCreated) {
+                        broadcastLayouts();
+                    }
+					_serverLayoutsLoaded = true;
+
 					LogUtil.debug("LayoutManager: layouts loaded successfully");
 				} else {
 					LogUtil.error("LayoutManager: layouts not loaded (" + e.error.message + ")");
@@ -122,10 +102,19 @@ package org.bigbluebutton.modules.layout.managers
 			});
 			loader.loadFromUrl(layoutUrl);
 		}
-		
-		public function comboboxInitialized():void {
-			comboboxIsInitialized = true;
+
+		public function onComboLayoutCreated():void {
+			if (_serverLayoutsLoaded) {
+                broadcastLayouts();
+			}
+            _comboLayoutCreated = true;
 		}
+
+        private function broadcastLayouts():void {
+            var layoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent();
+            layoutsLoaded.layouts = _layouts;
+            _globalDispatcher.dispatchEvent(layoutsLoaded);
+        }
 		
 		public function saveLayoutsToFile():void {
 			var _fileRef:FileReference = new FileReference();
@@ -140,19 +129,13 @@ package org.bigbluebutton.modules.layout.managers
 			loader.addEventListener(LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT, function(e:LayoutsLoadedEvent):void {
 				if (e.success) {
 					_layouts = e.layouts;
+
+                    broadcastLayouts();
 					
-					/*
-					 * \TODO why do I need to create a new Event for this?
-					 */
-					//var layoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent();
-					//layoutsLoaded.layouts = _layouts;
-					//_globalDispatcher.dispatchEvent(layoutsLoaded);
 					/*
 					 *	it will update the ComboBox label, and will go back to this class
 					 * 	to apply the default layout
 					 */
-					 
-					 sendPopulateComboboxEvent();
 					_globalDispatcher.dispatchEvent(new LayoutEvent(LayoutEvent.APPLY_DEFAULT_LAYOUT_EVENT));
 					
 					Alert.show(ResourceUtil.getInstance().getString('bbb.layout.load.complete'), "", Alert.OK, _canvas);
