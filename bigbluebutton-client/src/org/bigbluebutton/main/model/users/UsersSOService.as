@@ -215,12 +215,14 @@ package org.bigbluebutton.main.model.users {
 		public function participantLeft(userID:String):void { 			
 			var user:BBBUser = UserManager.getInstance().getConference().getUser(userID);
 			
-			UserManager.getInstance().getConference().removeUser(userID);	
-			
-
+      trace("Notify others that user [" + user.userID + "] has left!!!!");
+      
 			var joinEvent:UserLeftEvent = new UserLeftEvent(UserLeftEvent.LEFT);
 			joinEvent.userID = user.userID;
 			dispatcher.dispatchEvent(joinEvent);	
+      
+      UserManager.getInstance().getConference().removeUser(userID);	
+      
 		}
 		
 		public function participantJoined(joinedUser:Object):void { 
