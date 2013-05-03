@@ -94,8 +94,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onLoadingComplete(event:Event):void {
-				loader.x = (_videoHolder.width - loader.width) / 2;
-				loader.y = (_videoHolder.height - loader.height) / 2;
+				_video.x = loader.x = (_videoHolder.width - loader.width) / 2;
+				_video.y = loader.y = (_videoHolder.height - loader.height) / 2;
 				_videoHolder.addChild(loader);
         _videoHolder.width = _video.width = camWidth;
         _videoHolder.height = _video.height = camHeight;
@@ -137,8 +137,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         super.onResize();
         
         if (loader != null && _videoHolder != null) {
-          loader.x = (_videoHolder.width - loader.width) / 2;
-          loader.y = (_videoHolder.height - loader.height) / 2;      
+          _video.x = loader.x = (this.width - loader.width) / 2;
+          _video.y = loader.y = (this.height - loader.height) / 2;      
           _video.width = loader.width;
           _video.height = loader.height;
         }

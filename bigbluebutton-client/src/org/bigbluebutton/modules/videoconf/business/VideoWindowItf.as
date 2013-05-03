@@ -251,6 +251,10 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		protected function updateButtonsPosition():void {
+      if (this.width < controlButtons.width) {
+        controlButtons.visible = false;
+      }
+      
 			if (controlButtons.visible == false) {
 				controlButtons.y = controlButtons.x = 0;
 			} else {
@@ -260,7 +264,7 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		protected function showButtons(event:MouseEvent = null):void {
-			if (_controlButtonsEnabled && controlButtons.visible == false) {
+			if (_controlButtonsEnabled && controlButtons.visible == false && this.width > controlButtons.width) {
 				controlButtons.visible = true;
 				updateButtonsPosition();
 			}
