@@ -97,7 +97,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				loader.x = (_videoHolder.width - loader.width) / 2;
 				loader.y = (_videoHolder.height - loader.height) / 2;
 				_videoHolder.addChild(loader);
-				
+        _videoHolder.width = _video.width = camWidth;
+        _videoHolder.height = _video.height = camHeight;
 				onResize();
 			}
 			
@@ -111,7 +112,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.addChild(_videoHolder);				
 				
 				_video = new Video();
-				
+        _video.width = camWidth;
+        _video.height = camHeight;
 				this.minWidth = _minWidth;
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = false;
@@ -132,12 +134,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			override protected function onResize():void {
-				super.onResize();
-				
-				if (loader != null && _videoHolder != null) {
-					loader.x = (_videoHolder.width - loader.width) / 2;
-					loader.y = (_videoHolder.height - loader.height) / 2;          
-				}
+        super.onResize();
+        
+        if (loader != null && _videoHolder != null) {
+          loader.x = (_videoHolder.width - loader.width) / 2;
+          loader.y = (_videoHolder.height - loader.height) / 2;      
+          _video.width = loader.width;
+          _video.height = loader.height;
+        }
+        
+        
 			}
 			
 			private function handleNewRoleEvent(event:SwitchedPresenterEvent):void {
@@ -164,9 +170,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function startPublishing():void{				
-				defaultWidth = originalWidth;
-				defaultHeight = originalHeight;
-				
+
 				maximizeRestoreBtn.visible = true;
 				this.resizable = true;
 				onResize();
