@@ -100,33 +100,34 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
       }
       
-      private function showControlButtons(presenter:Boolean):void {
-          var vidOptions:VideoConfOptions = new VideoConfOptions();
-          
-          if (muteUnmuteBtn != null && switchPresenter != null && ejectUserBtn != null) {
-			      if (UsersUtil.amIModerator()) {
-	            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = true;
-              if (UsersUtil.amIPresenter()) {
-                switchPresenter.visible = false;
-              } 
-	          } else if (vidOptions.controlsForPresenter) {
-	            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = presenter;
-              if (UsersUtil.amIPresenter()) {
-                switchPresenter.visible = false;
-              } 
-	          } else {
-	            muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = false;
-	          }
-	          
-    			  if(UsersUtil.isMe(sharerUserID)){
-    				  ejectUserBtn.visible = false;
-    			  }
-			  
-	          muteUnmuteBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.muteButton.toolTip', [UsersUtil.getUserName(sharerUserID)]);
-	          switchPresenter.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.switchPresenter.toolTip', [UsersUtil.getUserName(sharerUserID)]);
-	          ejectUserBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.ejectUserBtn.toolTip', [UsersUtil.getUserName(sharerUserID)]);
-          }
-      }
+		private function showControlButtons(presenter:Boolean):void {
+			var vidOptions:VideoConfOptions = new VideoConfOptions();
+			
+			if (muteUnmuteBtn != null && switchPresenter != null && ejectUserBtn != null) {
+				if (UsersUtil.amIModerator()) {
+					muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = true;
+					//if (UsersUtil.amIPresenter() || UsersUtil.getPresenterUserID() == sharerUserID) {
+					if (UsersUtil.getPresenterUserID() == sharerUserID) {
+						switchPresenter.visible = false;
+					} 
+				} else if (vidOptions.controlsForPresenter) {
+					muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = presenter;
+					if (UsersUtil.getPresenterUserID() == sharerUserID) {
+						switchPresenter.visible = false;
+					} 
+				} else {
+					muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = false;
+				}
+				
+				if(UsersUtil.isMe(sharerUserID)){
+					ejectUserBtn.visible = false;
+				}
+				
+				muteUnmuteBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.muteButton.toolTip', [UsersUtil.getUserName(sharerUserID)]);
+				switchPresenter.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.switchPresenter.toolTip', [UsersUtil.getUserName(sharerUserID)]);
+				ejectUserBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.ejectUserBtn.toolTip', [UsersUtil.getUserName(sharerUserID)]);
+			}
+		}
       
       private function showPrivateChatButton():void {
         var chatOptions:ChatOptions = new ChatOptions();
