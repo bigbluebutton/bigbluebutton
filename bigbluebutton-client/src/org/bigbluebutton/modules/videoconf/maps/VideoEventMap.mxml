@@ -111,6 +111,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{VideoEventMapDelegate}" method="handleStoppedViewingWebcamEvent"  arguments="{event}"/>
   </EventHandlers>
   
+  <EventHandlers type="{BBBEvent.CAM_SETTINGS_CLOSED}">
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="handleCamSettingsClosedEvent"  arguments="{event}"/>
+  </EventHandlers>
+  
   <!-- ~~~~~~~~~~~~~~~~~~    INJECTORS     ~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   
 </EventMap>
