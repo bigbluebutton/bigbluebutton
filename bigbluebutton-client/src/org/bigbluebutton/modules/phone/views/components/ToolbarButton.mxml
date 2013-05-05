@@ -24,9 +24,18 @@
 	icon="{phoneIcon}" click="startPhone()"
 	mouseOver = "mouseOverHandler(event)"
 	mouseOut = "mouseOutHandler(event)"
+	visible = "{amIPresenter || !phoneOptions.presenterShareOnly}"
+	includeInLayout = "{amIPresenter || !phoneOptions.presenterShareOnly}"
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent">
-	
+
+	<!-- TABELA VERDADE (TRADUZIR AQUI!)
+	phoneOptions.presenterShareOnly		amIPresenter	amIPresenter || !phoneOptions.presenterShareOnly
+	V 									V 				V
+	V 									F 				F -> do not show de button only if only presenters can share microphone and I'm not a
+	F 									V 				V
+	F 									F 				V
+	-->
 
 	<mate:Listener type="SPEAKING_AND_LISTENING" method="handleBBBSpeakingAndListening"/>
 	<mate:Listener type="LISTENING_ONLY" method="handleBBBListeningOnly"/>
@@ -38,6 +47,7 @@
 			
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.core.BBB;
+			import org.bigbluebutton.core.managers.UserManager
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.modules.phone.PhoneOptions;
@@ -48,7 +58,10 @@
 			
 			private var images:Images = new Images();
 			private var dispatcher:Dispatcher = new Dispatcher();
-
+			[Bindable]
+			private var phoneOptions:PhoneOptions = new PhoneOptions();
+			[Bindable]
+			private var amIPresenter:Boolean = UserManager.getInstance().getConference().amIPresenter();
 			
 			public const DEFAULT_STATE:Number = 0;
 			public const ACTIVE_STATE:Number = 1;
@@ -64,12 +77,6 @@
 				this.enabled = false;
 				var vxml:XML = BBB.getConfigForModule("PhoneModule");
 				var phoneOptions:PhoneOptions = new PhoneOptions();
-				if (vxml != null) {
-				phoneOptions.showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
-				phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
-				phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
-				phoneOptions.joinGlobal = (vxml.@joinGlobal.toString().toUpperCase() == "TRUE") ? true : false;
-				}
 				if (noMicrophone() == false) {
 					var askToChangeEvent:BBBEvent;
 					askToChangeEvent = new BBBEvent("ASK_TO_CHANGE_VOICE_CONFERENCE_EVENT");
@@ -160,6 +167,10 @@
 			
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_LEFT;
+			}
+
+			public function setPresenter(value:Boolean):void {
+				amIPresenter = value;
 			}
 		]]>
 	</mx:Script>

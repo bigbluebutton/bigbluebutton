@@ -24,6 +24,7 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml">
 	<mx:Script>
 		<![CDATA[
+			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.modules.phone.events.StopPhoneModuleEvent;
 			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
@@ -139,5 +140,12 @@
 		<MethodInvoker generator="{PhoneEventMapDelegate}" method="enableToolbarButton"/> 
     </EventHandlers>
 
+    <EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" >
+        <MethodInvoker generator="{PhoneEventMapDelegate}" method="switchToPresenter" />
+    </EventHandlers>
+
+    <EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
+        <MethodInvoker generator="{PhoneEventMapDelegate}" method="switchToViewer" />
+    </EventHandlers>
     
 </EventMap>

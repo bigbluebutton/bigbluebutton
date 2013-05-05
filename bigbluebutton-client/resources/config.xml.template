@@ -44,6 +44,7 @@
 			uri="rtmp://HOST/sip" 
 			autoJoin="false"
 			joinGlobal="true"
+			presenterShareOnly="false"
 			skipCheck="false"
 			showButton="true"
 			enabledEchoCancel="true"

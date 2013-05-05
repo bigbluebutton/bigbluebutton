@@ -60,8 +60,8 @@
 			private var _xPosition:int;
 			private var _yPosition:int;
  			
-			[Bindable] private var muteAllIcon:Class = images.sound_mute; 
-			[Bindable] private var unmuteAllIcon:Class = images.sound_none;
+			[Bindable] private var muteIcon:Class = images.sound_mute;
+			[Bindable] private var unmuteIcon:Class = images.sound_none;
 			[Bindable] private var kickIcon:Class = images.eject_user;
 			[Bindable] public var listeners:ArrayCollection = new ArrayCollection();
 			[Bindable] public var moderator:Boolean;
@@ -128,11 +128,9 @@
 				if (mute){
 					muteAllBtn.toolTip = ResourceUtil.getInstance().getString('bbb.listeners.unmuteAllBtn.toolTip');
 					muteAllBtn.selected = true;
-					muteAllIcon = images.sound_mute;
 				} else{
 					muteAllBtn.toolTip = ResourceUtil.getInstance().getString('bbb.listeners.muteAllBtn.toolTip');
 					muteAllBtn.selected = false;
-					muteAllIcon = images.sound_none;
 				}
 			}
 			
@@ -214,7 +212,7 @@
 							  toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" 
 							  click="toggleMuteMeState()" height="30" maxWidth="180">
 				<mx:HBox verticalAlign="middle" horizontalGap="0" paddingLeft="5" paddingTop="5" paddingRight="5" paddingBottom="5">
-					<mx:Image source="{UserManager.getInstance().getConference().voiceMuted ? images.sound_mute : images.sound_none}" />
+					<mx:Image source="{UserManager.getInstance().getConference().voiceMuted ? muteIcon : unmuteIcon}" />
 					<mx:Label text="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.talk') : ResourceUtil.getInstance().getString('bbb.listeners.mute')}" />
 				</mx:HBox> 
 			</flc:CanvasButton>

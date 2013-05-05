@@ -39,12 +39,6 @@ package org.bigbluebutton.modules.phone.maps
 			soundButton = new MuteButton();
 			globalDispatcher = new Dispatcher();
 			phoneOptions = new PhoneOptions();
-			var vxml:XML = BBB.getConfigForModule("PhoneModule");
-			if (vxml != null) {
-				phoneOptions.showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
-				phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
-				phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
-			}			
 		}
 
 		public function addToolbarButton():void {
@@ -90,6 +84,14 @@ package org.bigbluebutton.modules.phone.maps
 			phoneButton.selected = false;
 			phoneButton.enabled = true;
 			//phoneButton.userJoinedConference(false);
+		}
+
+		public function switchToPresenter():void {
+			phoneButton.setPresenter(true);
+		}
+
+		public function switchToViewer():void {
+			phoneButton.setPresenter(false);
 		}
 	}
 }

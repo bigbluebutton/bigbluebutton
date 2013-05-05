@@ -27,6 +27,7 @@
 		   mouseOut = "mouseOutHandler(event)"
 		   toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start')}"
 		   visible="{isPresenter}"
+		   includeInLayout="{isPresenter}"
 		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
 
 	<mx:Script>
