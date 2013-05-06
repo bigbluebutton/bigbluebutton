@@ -31,15 +31,8 @@ public class VoiceService {
 
 	@SuppressWarnings("unchecked")
 	public Map<String, List> getMeetMeUsers() {
-		String voiceBridge = getBbbSession().getVoiceBridge();
-		log.debug("GetMeetmeUsers request for room[" + voiceBridge + "]");
-    	ArrayList<Participant> p = conferenceService.getParticipants(voiceBridge);
-    	
-    	//breakoutRooms
-    	ArrayList<HashMap<String,String>> breakoutRooms = getBbbSession().getBreakoutRooms();
-		for(HashMap<String,String> map: breakoutRooms){
-			p.addAll(conferenceService.getParticipants(map.get("number")));
-		}
+		log.debug("GetMeetmeUsers request from " + getBbbSession().getRoom());
+		ArrayList<Participant> p = getAllParticipantsFromVoiceConf();
 
 		Map participants = new HashMap();
 		if (p == null) {
@@ -75,31 +68,39 @@ public class VoiceService {
 		return result;
 	}
 	
+	/**
+	 * We will need to mute the voice bridge room and all the breakout rooms
+	 * */
 	public void muteAllUsers(boolean mute) {
 		String conference = getBbbSession().getVoiceBridge();    	
     	log.debug("Mute all users in room[" + conference + "]");
-    	conferenceService.mute(conference, mute);	   	
+    	conferenceService.mute(conference, mute);
+    	
+    	ArrayList<HashMap<String,String>> breakoutRooms = getBbbSession().getBreakoutRooms();
+		for(HashMap<String,String> map: breakoutRooms){
+			conferenceService.mute(map.get("number"), mute);
+		}
 	}	
 	
 	public boolean isRoomMuted(){
-		String conference = getBbbSession().getVoiceBridge(); 
+		String conference = getVoiceRoomByUserID(Integer.parseInt(getBbbSession().getInternalUserID()));//getBbbSession().getVoiceBridge(); 
     	return conferenceService.isRoomMuted(conference);	
 	}
 	
 	public void muteUnmuteUser(Integer userid,Boolean mute) {
-		String conference = getBbbSession().getVoiceBridge();    	
+		String conference = getVoiceRoomByUserID(userid.intValue());//getBbbSession().getVoiceBridge();    	
     	log.debug("MuteUnmute request for user [" + userid + "] in room[" + conference + "]");
     	conferenceService.mute(userid, conference, mute);
 	}
 
 	public void lockMuteUser(Integer userid, Boolean lock) {
-		String conference = getBbbSession().getVoiceBridge();    	
+		String conference = getVoiceRoomByUserID(userid.intValue());//getBbbSession().getVoiceBridge();    	
     	log.debug("Lock request for user [" + userid + "] in room[" + conference + "]");
     	conferenceService.lock(userid, conference, lock);
 	}
 	
 	public void kickUSer(Integer userid) {
-		String conference = getBbbSession().getVoiceBridge();		
+		String conference = getVoiceRoomByUserID(userid.intValue());//getBbbSession().getVoiceBridge();		
     	log.debug("KickUser " + userid + " from " + conference);		
 		conferenceService.eject(userid, conference);
 	}
@@ -108,6 +109,29 @@ public class VoiceService {
 		log.debug("Setting voice server");
 		conferenceService = s;
 		log.debug("Setting voice server DONE");
+	}
+	
+	private String getVoiceRoomByUserID(int userID){
+		ArrayList<Participant> list = getAllParticipantsFromVoiceConf();
+		
+		for(Participant p: list){
+			if(p.getId() == userID)
+				return p.getBreakoutRoomNumber();
+		}
+		
+		return null;
+	}
+	
+	private ArrayList<Participant> getAllParticipantsFromVoiceConf(){
+		String voiceBridge = getBbbSession().getVoiceBridge();
+		ArrayList<Participant> list = conferenceService.getParticipants(voiceBridge);
+    	
+    	//breakoutRooms
+    	ArrayList<HashMap<String,String>> breakoutRooms = getBbbSession().getBreakoutRooms();
+		for(HashMap<String,String> map: breakoutRooms){
+			list.addAll(conferenceService.getParticipants(map.get("number")));
+		}
+		return list;
 	}
 	
 	private BigBlueButtonSession getBbbSession() {
