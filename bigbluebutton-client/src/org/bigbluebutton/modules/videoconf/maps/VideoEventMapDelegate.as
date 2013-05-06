@@ -263,7 +263,7 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function connectToVideoApp():void {
-      proxy = new VideoProxy(uri + "/" + UsersUtil.getInternalMeetingID());
+      proxy = new VideoProxy(uri);
       proxy.connect();
     }
     
