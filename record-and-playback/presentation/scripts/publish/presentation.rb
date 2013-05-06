@@ -47,7 +47,23 @@ def processPanAndZooms
 			y_prev = nil
 			timestamp_orig_prev = nil
 			timestamp_prev = nil
-			last_time = $panzoom_events.last[:timestamp].to_f
+			last_time = nil
+			if $panzoom_events.empty?
+				BigBlueButton.logger.info("No panzoom events; synthesizing one")
+				timestamp_orig = $slides_events.first[:timestamp].to_f + 1000
+				timestamp = ((timestamp_orig - $join_time) / 1000).round(1)
+				$xml.event(:timestamp => timestamp, :orig => timestamp_orig) do
+					$xml.viewBox "0 0 #{$vbox_width} #{$vbox_height}"
+				end
+				timestamp_orig_prev = timestamp_orig
+				timestamp_prev = timestamp
+				h_ratio_prev = 100
+				w_ratio_prev = 100
+				x_prev = 0
+				y_prev = 0
+			else
+				last_time = $panzoom_events.last[:timestamp].to_f
+			end
 			$panzoom_events.each do |panZoomEvent|
 				# Get variables
 				timestamp_orig = panZoomEvent[:timestamp].to_f
