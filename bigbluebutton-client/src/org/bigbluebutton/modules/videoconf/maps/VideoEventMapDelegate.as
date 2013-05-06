@@ -70,6 +70,8 @@ package org.bigbluebutton.modules.videoconf.maps
     private var _dispatcher:IEventDispatcher;
     private var _ready:Boolean = false;
     private var _isPublishing:Boolean = false;
+	private var _isPreviewWebcamOpen:Boolean = false;
+	private var _isWaitingActivation:Boolean = false;
     
     public function VideoEventMapDelegate(dispatcher:IEventDispatcher)
     {
@@ -266,10 +268,11 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function startPublishing(e:StartBroadcastEvent):void{
-      LogUtil.debug("VideoEventMapDelegate:: [" + me + "] startPublishing:: Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
+	  LogUtil.debug("VideoEventMapDelegate:: [" + me + "] startPublishing:: Publishing stream to: " + proxy.connection.uri + "/" + e.stream);
       streamName = e.stream;
       proxy.startPublishing(e);
       
+	  _isWaitingActivation = false;
       _isPublishing = true;
       UsersUtil.setIAmPublishing(true);
       
@@ -322,15 +325,23 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function handleShareCameraRequestEvent(event:ShareCameraRequestEvent):void {
-      openWebcamPreview(event.publishInClient);
+	  LogUtil.debug("Webcam: "+_isPublishing + " " + _isPreviewWebcamOpen);
+	  if (!_isPublishing && !_isPreviewWebcamOpen && !_isWaitingActivation)
+		openWebcamPreview(event.publishInClient);
     }
+	
+	public function handleCamSettingsClosedEvent(event:BBBEvent):void{
+		_isPreviewWebcamOpen = false;
+	}
     
     private function openWebcamPreview(publishInClient:Boolean):void {
       var openEvent:BBBEvent = new BBBEvent(BBBEvent.OPEN_WEBCAM_PREVIEW);
       openEvent.payload.publishInClient = publishInClient;
       openEvent.payload.resolutions = options.resolutions;
       
-      _dispatcher.dispatchEvent(openEvent);      
+	  _isPreviewWebcamOpen = true;
+	  
+      _dispatcher.dispatchEvent(openEvent);
     }
     
     public function stopModule():void {
@@ -388,6 +399,7 @@ package org.bigbluebutton.modules.videoconf.maps
       
       UsersUtil.setCameraSettings(camSettings);
       
+	  _isWaitingActivation = true;
       openPublishWindowFor(UsersUtil.getMyUserID(), cameraIndex, camWidth, camHeight);       
     }
     

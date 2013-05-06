@@ -276,16 +276,21 @@ package org.bigbluebutton.main.api
     }    
 
     public function handleUserLeftEvent(event:UserLeftEvent):void {
+      trace("Got notification that user [" + event.userID + "] has left the meeting");
+      
       var payload:Object = new Object();
       var user:BBBUser = UserManager.getInstance().getConference().getUser(event.userID);
       
       if (user == null) {
+        trace("[ExternalApiCall:handleParticipantJoinEvent] Cannot find user with ID [" + event.userID + "]");
         LogUtil.warn("[ExternalApiCall:handleParticipantJoinEvent] Cannot find user with ID [" + event.userID + "]");
         return;
       }
       
       payload.eventName = EventConstants.USER_LEFT;
       payload.userID = UsersUtil.internalUserIDToExternalUserID(user.userID);
+      
+      trace("Notifying JS API that user [" + payload.userID + "] has left the meeting");
       
       broadcastEvent(payload);        
     }  

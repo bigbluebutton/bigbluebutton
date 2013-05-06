@@ -864,6 +864,15 @@ check_state() {
 		echo "#"
 		echo "# (This is OK if you have setup a development environment.) "
 		echo
+
+		if [ ! -d $NEW_LOCATION ]; then
+			echo "# Warning: The directory"
+			echo "#"
+			echo "#    $NEW_LOCATION"
+			echo "#"
+			echo "# does not exist.  The BigBlueButton client will not load."
+			echo
+		fi
 	fi
 
 	#
