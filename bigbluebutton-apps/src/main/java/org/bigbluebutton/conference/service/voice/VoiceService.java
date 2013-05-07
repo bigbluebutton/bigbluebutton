@@ -88,7 +88,9 @@ public class VoiceService {
 	}
 	
 	public void muteUnmuteUser(Integer userid,Boolean mute) {
-		String conference = getVoiceRoomByUserID(userid.intValue());//getBbbSession().getVoiceBridge();    	
+		log.debug("muteUnmute checking: " + userid + " " + mute );
+		String conference = getVoiceRoomByUserID(userid.intValue());//getBbbSession().getVoiceBridge();
+		log.debug("muteUnmute checking: " + conference);
     	log.debug("MuteUnmute request for user [" + userid + "] in room[" + conference + "]");
     	conferenceService.mute(userid, conference, mute);
 	}
