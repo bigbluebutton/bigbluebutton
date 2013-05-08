@@ -164,6 +164,7 @@
 			// More details on the issue: http://bugs.jquery.com/ticket/8015
 			$wrapper[0].appendChild( acorn.$self[0].cloneNode(true) );
 			
+			acorn.$self.trigger('pause');
 			acorn.$self.remove();
 			acorn.$self = $wrapper.find('video, audio');
 			
