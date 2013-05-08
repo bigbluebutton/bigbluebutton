@@ -28,7 +28,7 @@ history=5
 #
 # Delete presentations older than N days
 #
-find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec rm -r '{}' \;
+find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec rm -rf '{}' \;
 
 #
 # Delete webcam streams in red5 older than N days
