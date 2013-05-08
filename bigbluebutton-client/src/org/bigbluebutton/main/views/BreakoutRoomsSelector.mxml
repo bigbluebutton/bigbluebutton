@@ -25,6 +25,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 dataProvider="{bRooms}"
 			 change="chooseBreakoutRoom(event)" width="120" height="22">
 	<mate:Listener type="{ConferenceCreatedEvent.CONFERENCE_CREATED_EVENT}" method="getBreakoutRoomNames" />
+	<mate:Listener type="{CallConnectedEvent.CALL_CONNECTED_EVENT}" method="disableCombo" />
+	<mate:Listener type="{CallDisconnectedEvent.CALL_DISCONNECTED_EVENT}" method="enableCombo" />
+	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -35,6 +38,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.UserChangedBreakoutRoomEvent;
 			import org.bigbluebutton.main.model.users.events.ConferenceCreatedEvent;
+			import org.bigbluebutton.modules.phone.events.CallConnectedEvent;
+			import org.bigbluebutton.modules.phone.events.CallDisconnectedEvent;
 			
 			[Bindable] private var bRooms:ArrayCollection = new ArrayCollection(); 
 			
@@ -45,6 +50,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var dispatcher:Dispatcher = new Dispatcher();
 				dispatcher.dispatchEvent(evt);
 			}
+
+			public function disableCombo(evt:Event):void{
+				this.enabled = false;
+			}
+
+			public function enableCombo(evt:Event):void{
+				this.enabled = true;
+			}
+
 			public function getBreakoutRoomNames(e:ConferenceCreatedEvent):void{
 				var breakoutRooms:Array = UserManager.getInstance().getConference().breakoutRooms;
 				bRooms = new ArrayCollection(); 

@@ -159,7 +159,7 @@ public class RoomManager {
 			p.setJoinedToBreakoutRoom(false);
 		else
 			p.setJoinedToBreakoutRoom(true);
-		p.setBreakoutRoomNumber(rm.getMeeting());
+		p.setBreakoutRoomNumber(rm.getName());
 		p.setBreakoutRoomName(rm.getBreakoutName());
 		
 		log.debug("Joined [" + p.getId() + "," + p.getName() + "," + p.isMuted() + "," + p.isTalking() + "] to room " + rm.getName());

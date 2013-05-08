@@ -19,6 +19,7 @@
 package org.bigbluebutton.conference.service.voice;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.red5.server.adapter.IApplication;
 import org.red5.server.api.IClient;
@@ -131,6 +132,11 @@ public class VoiceHandler extends ApplicationAdapter implements IApplication{
 		 */
 		String voiceBridge = (String) scope.getAttribute(VOICE_BRIDGE);
 		conferenceService.destroyConference(voiceBridge);
+		ArrayList breakoutNumbers = getBbbSession().getBreakoutRooms();
+		for(int i=0; i<breakoutNumbers.size();i++){
+			HashMap<String,String> item = (HashMap<String, String>) breakoutNumbers.get(0);
+			conferenceService.destroyConference(item.get("number"));
+		}
 		clientManager.removeSharedObject(scope.getName());
 		if (hasSharedObject(scope, VOICE_SO)) {
     		clearSharedObjects(scope, VOICE_SO);
