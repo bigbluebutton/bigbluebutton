@@ -41,7 +41,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-
+  import org.bigbluebutton.modules.present.events.UploadEvent;
 
   public class ExternalApiCalls { 
     
@@ -293,7 +293,66 @@ package org.bigbluebutton.main.api
       trace("Notifying JS API that user [" + payload.userID + "] has left the meeting");
       
       broadcastEvent(payload);        
-    }  
+    }
+
+    public function handleOfficeDocConversionSuccess(event:UploadEvent):void{
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.OFFICE_DOC_CONVERSION_SUCCESS;
+      broadcastEvent(payload);
+    }
+
+    public function handleOfficeDocConversionFailed(event:UploadEvent):void{
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.OFFICE_DOC_CONVERSION_FAILED;
+      broadcastEvent(payload);
+    }
+
+    public function handleSupportedDocument(event:UploadEvent):void{
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.SUPPORTED_DOCUMENT;
+      broadcastEvent(payload);
+    }
+
+    public function handleUnsupportedDocument(event:UploadEvent):void{
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.UNSUPPORTED_DOCUMENT;
+      broadcastEvent(payload);
+    }
+
+    public function handlePageCountFailed(event:UploadEvent):void{
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.PAGE_COUNT_FAILED;
+      broadcastEvent(payload);
+    }
+
+    public function handleThumbnailsUpdate(event:UploadEvent):void{
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.THUMBNAILS_UPDATE;
+      broadcastEvent(payload);
+    }
+
+    public function handlePageCountExceeded(event:UploadEvent):void{
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.PAGE_COUNT_EXCEEDED;
+      payload.maximumSupportedNumberOfSlides = event.maximumSupportedNumberOfSlides;
+      broadcastEvent(payload);
+    }
+
+    public function handleConvertSuccess(event:UploadEvent):void{
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.CONVERT_SUCCESS;
+      payload.presentationName = event.presentationName;
+      broadcastEvent(payload);
+    }
+
+    public function handleConvertUpdate(event:UploadEvent):void{
+      var payload:Object = new Object();
+      payload.eventName = EventConstants.CONVERT_UPDATE;
+      payload.totalSlides = event.totalSlides;
+      payload.completedSlides = event.completedSlides;
+      broadcastEvent(payload);
+    }
+
     
     private function broadcastEvent(message:Object):void {
       if (ExternalInterface.available) {

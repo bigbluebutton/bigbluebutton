@@ -62,6 +62,7 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("getPresenterUserID", handleGetPresenterUserID);
         ExternalInterface.addCallback("getMyUserID", handleGetMyUserID);
         ExternalInterface.addCallback("getExternalMeetingID", handleGetExternalMeetingID);
+        ExternalInterface.addCallback("getInternalMeetingID", handleGetInternalMeetingID);
         ExternalInterface.addCallback("joinVoiceRequest", handleJoinVoiceRequest);
         ExternalInterface.addCallback("leaveVoiceRequest", handleLeaveVoiceRequest);   
         ExternalInterface.addCallback("isUserPublishingCamRequestSync", handleIsUserPublishingCamRequestSync);
@@ -202,6 +203,10 @@ package org.bigbluebutton.main.api
     
     private function handleGetExternalMeetingID():String {
       return UserManager.getInstance().getConference().externalMeetingID;
+    }
+
+    private function handleGetInternalMeetingID():String {
+      return UserManager.getInstance().getConference().internalMeetingID;
     }
     
     private function handleSendLockLayoutRequest(lock:Boolean):void {

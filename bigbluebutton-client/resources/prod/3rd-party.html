@@ -72,11 +72,10 @@
       <button type="button" onclick="amIPresenterAsync()">Am I Presenter Async</button>
 	  <button type="button" onclick="getMyUserInfoAsynch()">User Info Async</button>
       <button type="button" onclick="getMyUserInfoSynch()">UserInfo Sync</button>
-      <form enctype="multipart/form-data">
-        <input type="file" name="fileupload" id="fileupload" />
+      <form id="formUpload" name="formUpload" enctype="multipart/form-data">
+        <input type="file" name="fileUpload" id="fileUpload" />
         <button type="button" onclick="uploadPresentation()">Upload Presentation</button>
       </form>
-      <progress></progress>
     </div>
     <div id="webcampreview" style="background-color:#FFD700;height:240px;width:320px;float:left;">
         <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540001" width="320" height="240" id="WebcamPreviewStandalone" name="WebcamPreviewStandalone" align="middle">
