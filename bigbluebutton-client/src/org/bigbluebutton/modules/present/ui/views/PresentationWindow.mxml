@@ -227,7 +227,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function maximizeHandler():void {
-//				LogUtil.debug("Max handler");
 				// When the window is maximized, we want to resize the slide maintaining the aspect ratio.			
 				fitSlideToWindowMaintainingAspectRatio();
 				//Remove focus from the maximize button in case the user presses the space bar, the window doesn't get maximized again.	
@@ -239,7 +238,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function onResizeEndEvent(event:MDIWindowEvent):void {
-//				LogUtil.debug("onResizeEndEvent");
 				fitSlideToWindowMaintainingAspectRatio();
 			}
 			

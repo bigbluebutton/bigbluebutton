@@ -55,6 +55,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var images:Images = new Images();
 			[Bindable] private var cancelIcon:Class = images.cancel;
 			
+      override public function move(x:Number, y:Number):void
+      {
+        return;
+      }
+      
 			private function initDefaultMic():void {
 				mic = Microphone.getMicrophone();
 				
