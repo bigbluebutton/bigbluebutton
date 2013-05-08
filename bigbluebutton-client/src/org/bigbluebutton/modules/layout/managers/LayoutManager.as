@@ -18,7 +18,8 @@
 */
 package org.bigbluebutton.modules.layout.managers
 {
-  import com.asfusion.mate.events.Dispatcher; 
+  import com.asfusion.mate.events.Dispatcher;
+  
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.events.TimerEvent;
@@ -26,14 +27,18 @@ package org.bigbluebutton.modules.layout.managers
   import flash.net.URLLoader;
   import flash.net.URLRequest;
   import flash.utils.Dictionary;
-  import flash.utils.Timer;  
+  import flash.utils.Timer;
+  
   import flexlib.mdi.containers.MDICanvas;
   import flexlib.mdi.containers.MDIWindow;
-  import flexlib.mdi.events.MDIManagerEvent;  
+  import flexlib.mdi.events.MDIManagerEvent;
+  
   import mx.controls.Alert;
-  import mx.events.ResizeEvent;  
+  import mx.events.ResizeEvent;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventBroadcaster;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.Config;
@@ -261,7 +266,7 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		private function sendLayoutUpdate(layout:LayoutDefinition):void {
-			if (_locked && UserManager.getInstance().getConference().amIModerator()) {
+			if (_locked && (UsersUtil.amIModerator() || UsersUtil.amIPresenter())) {
 				LogUtil.debug("LayoutManager: sending layout to remotes");
 				var e:UpdateLayoutEvent = new UpdateLayoutEvent();
 				e.layout = layout;

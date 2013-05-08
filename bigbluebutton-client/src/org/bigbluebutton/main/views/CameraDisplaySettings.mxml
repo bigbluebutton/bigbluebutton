@@ -64,6 +64,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		private var _video:Video;
 		private var aspectRatio:Number = 1;
 		
+    override public function move(x:Number, y:Number):void
+    {
+       return;
+    }
+      
 		private function onCreationComplete():void {          
 			changeDefaultCamForMac();
 			

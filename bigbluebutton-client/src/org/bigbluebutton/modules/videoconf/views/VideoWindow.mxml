@@ -167,8 +167,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				if (res == null) // error
 					return;
 				_video = new Video(Number(res[0]), Number(res[1]));
-				_video.width = originalWidth = Number(res[0]);
-				_video.height = originalHeight = Number(res[1]);
+				_video.width = Number(res[0]);
+				_video.height = Number(res[1]);
 				setAspectRatio(Number(res[0]), Number(res[1])); 
 				_video.attachNetStream(ns);
 				

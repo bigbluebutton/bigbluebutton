@@ -72,9 +72,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] public var glowColor:String = ""; 
 			[Bindable] public var glowBlurSize:Number = 0;
 			
-			private var camWidth:Number = 320;
-			private var camHeight:Number = 240;
-			
+			private var avatarWidth:Number = 320;
+			private var avatarHeight:Number = 240;
+
 			private var videoconfOptions:VideoConfOptions = new VideoConfOptions();
 			
 			private var windowType:String = "AvatarWindowType";
@@ -87,18 +87,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private var request:URLRequest;
 			
 			private function loadAvatar():void {
-				loader = new Loader();
+				
 				request = new URLRequest(UsersUtil.getAvatarURL());
 				loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadingComplete);
 				loader.load(request);        
 			}
 			
 			private function onLoadingComplete(event:Event):void {
-				_video.x = loader.x = (_videoHolder.width - loader.width) / 2;
-				_video.y = loader.y = (_videoHolder.height - loader.height) / 2;
-				_videoHolder.addChild(loader);
-        _videoHolder.width = _video.width = camWidth;
-        _videoHolder.height = _video.height = camHeight;
+        // Save the size of the avatar image.
+        avatarWidth = loader.content.width;
+        avatarHeight = loader.content.height;
+
 				onResize();
 			}
 			
@@ -106,14 +105,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.glowColor = videoconfOptions.glowColor;
 				this.glowBlurSize = videoconfOptions.glowBlurSize;
 				
+        loader = new Loader();
 				_videoHolder = new UIComponent();
-				_videoHolder.width = camWidth;
-				_videoHolder.height = camHeight;
+				_videoHolder.width = avatarWidth;
+				_videoHolder.height = avatarHeight;
 				this.addChild(_videoHolder);				
 				
+        _videoHolder.addChild(loader);
+        
 				_video = new Video();
-        _video.width = camWidth;
-        _video.height = camHeight;
+        _video.width = avatarWidth;
+        _video.height = avatarHeight;
 				this.minWidth = _minWidth;
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = false;
@@ -121,7 +123,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				showCloseButton = false;
 				
 				this.resizable = false;
-				setAspectRatio(camWidth, camHeight);
+				setAspectRatio(avatarWidth, avatarHeight);
 				
 				addEventListener(MDIWindowEvent.RESIZE_START, onResizeStart);
 				addEventListener(MDIWindowEvent.RESIZE_END, onResizeEnd);
@@ -134,17 +136,54 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			override protected function onResize():void {
+        
         super.onResize();
         
         if (loader != null && _videoHolder != null) {
-          _video.x = loader.x = (this.width - loader.width) / 2;
-          _video.y = loader.y = (this.height - loader.height) / 2;      
-          _video.width = loader.width;
-          _video.height = loader.height;
-        }
-        
+          if (avatarIsSmallerThanWindow()) {
+            // The avatar image is smaller than the window. Just center the image.
+            _video.width = loader.width = avatarWidth;
+            _video.height = loader.height = avatarHeight;
+            
+          } else {
+            // The avatar is bigger than the window. Fit into the window maintaining aspect ratio.
+            fitAvatarToWindow();
+          }
+
+          _video.x = loader.x = (this.width - PADDING_HORIZONTAL - loader.width) / 2;
+          _video.y = loader.y = (this.height - PADDING_VERTICAL - loader.height) / 2;    
+          
+        }      
         
 			}
+      
+      private function fitAvatarToWindow():void {
+        if (_videoHolder.width - PADDING_HORIZONTAL < _videoHolder.height - PADDING_VERTICAL) {
+          fitToHeightAndAdjustWidthToMaintainAspectRatio();         			
+        } else {
+          fitToWidthAndAdjustHeightToMaintainAspectRatio();	
+        }				
+      }
+            
+      private function avatarIsSmallerThanWindow():Boolean {
+        return (avatarWidth < _videoHolder.width - PADDING_HORIZONTAL) && (avatarHeight < _videoHolder.height - PADDING_VERTICAL);
+      }
+           
+      private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
+        var aspect:Number = avatarHeight / avatarWidth;
+        _video.width = loader.width = _videoHolder.width - PADDING_HORIZONTAL;
+
+        // Maintain aspect-ratio
+        _video.height = loader.height = loader.width * aspect;			
+      }
+      
+      private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
+        var aspect:Number = avatarWidth / avatarHeight;
+        _video.height = loader.height = _videoHolder.height - PADDING_VERTICAL;
+
+        // Maintain aspect-ratio
+        _video.width = loader.width = loader.height * aspect;				
+      }
 			
 			private function handleNewRoleEvent(event:SwitchedPresenterEvent):void {
 				switchRole(event.amIPresenter);
@@ -190,7 +229,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function closeThisWindow():void {
-				trace("******************** Closing avatar window for user [" + userID + "]*********************");
+				trace("* Closing avatar window for user [" + userID + "] *");
 			}
 			
 			
