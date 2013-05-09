@@ -240,6 +240,12 @@ package org.bigbluebutton.modules.users.business
 				l.talking = false;
         l.voiceLocked = false;
 				
+        if(l.joinedToBreakoutRoom){
+          l.joinedToBreakoutRoom = false;
+          l.breakoutRoomNumber = "";
+          l.breakoutRoomName = "";
+        }
+        
 				var bbbEvent:BBBEvent = new BBBEvent(BBBEvent.USER_VOICE_LEFT);
 				bbbEvent.payload.userID = l.userID;
 				globalDispatcher.dispatchEvent(bbbEvent);
