@@ -28,6 +28,10 @@ define [
       @paper = null
       @controlsView = new SessionWhiteboardControlsView()
 
+      # Resize the paper when the window is resize to make it always 100%x100%
+      resizePaper = => @_setPaperSize()
+      $(window).resize(resizePaper)
+
       # Bind to the event triggered when the client connects to the server
       globals.connection.bind "connection:connected",
         @_registerConnectionEvents, @
@@ -97,37 +101,38 @@ define [
         @paper?.removeAllImagesFromPaper()
         for url in urls
           @paper?.addImageToPaper(url[0], url[1], url[2])
+        # to make sure the paper will ocuupy all available area
+        @_setPaperSize()
 
       # Received event to clear the whiteboard shapes
       socket.on "clrPaper", =>
         console.log "received clrPaper"
-        @paper?._clearShapes()
+        @paper?.clearShapes()
 
       # Received event to update all the shapes in the whiteboard
       # @param  {Array} shapes Array of shapes to be drawn
       socket.on "all_shapes", (shapes) =>
         console.log "received all_shapes"
-        
+
         # TODO: a hackish trick for making compatible the shapes from redis with the node.js
         for shape in shapes
           properties = JSON.parse(shape.data)
-          points = properties[0]
-          strPoints = ""
-          for i in [0..points.length] by 2
-            letter = ""
-            pA = points[i];
-            pB = points[i+1];
-            if i == 0 
-              letter = "M";
-            else
-              letter = "L";
-        
-            strPoints += letter + (pA/100) + "," + (pB/100)
-          
-          properties[0] = strPoints
-          shape.data = JSON.stringify(properties)
-        
-        @paper?._clearShapes()
+          if shape.shape is "path"
+            points = properties[0]
+            strPoints = ""
+            for i in [0..points.length] by 2
+              letter = ""
+              pA = points[i];
+              pB = points[i+1];
+              if i == 0
+                letter = "M";
+              else
+                letter = "L";
+              strPoints += letter + (pA/100) + "," + (pB/100)
+            properties[0] = strPoints
+            shape.data = JSON.stringify(properties)
+
+        @paper?.clearShapes()
         @paper?.drawListOfShapes shapes
 
       # Received event to update a shape being created
@@ -142,15 +147,16 @@ define [
       socket.on "makeShape", (shape, data) =>
         @paper?.makeShape shape, data
 
-      socket.on "shapePoints", (type,color,thickness,points) =>
-        if type == "line"
+      # Pencil drawings are received as points from the server and painted as lines.
+      socket.on "shapePoints", (type, color, thickness, points) =>
+        if type is "line"
           for i in [0..points.length] by 2
-            if i == 0
+            if i is 0
               data = [(points[i]/100),(points[i+1]/100),color,thickness]
               @paper?.makeShape type, data
             else
               data = [(points[i]/100),(points[i+1]/100),true]
-              @paper?.updateShape type, data 
+              @paper?.updateShape type, data
 
       # Received event to update the cursor coordinates
       # @param  {number} x x-coord of the cursor as a percentage of page width
@@ -261,5 +267,8 @@ define [
       @colourViewCtx.fillStyle = colour
       @colourText.value = colour
       @colourViewCtx.fillRect 0, 0, 12, 12
+
+    _setPaperSize: () ->
+      @paper.changeSize(@$el.width(), @$el.height(), true, false)
 
    SessionWhiteboardView

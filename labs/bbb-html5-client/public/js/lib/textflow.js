@@ -49,6 +49,8 @@ somewhere in the source-code-comment or the "about" of your project and give cre
 
 */
 
+define([], function () {
+
 //main function
 function textFlow(myText,textToAppend,maxWidth,x,ddy,justified) {
         //extract and add line breaks for start
@@ -76,7 +78,7 @@ function textFlow(myText,textToAppend,maxWidth,x,ddy,justified) {
         var myTextNode;
         var tspanEl;
         var lastLineBreak = 0;
-        
+
         for (i=0;i<words.length;i++) {
                 var word = words[i];
                 curNumChars += word.length + 1;
@@ -100,7 +102,7 @@ function textFlow(myText,textToAppend,maxWidth,x,ddy,justified) {
                         myTextNode = document.createTextNode(line);
                         tspanEl.appendChild(myTextNode);
                         textToAppend.appendChild(tspanEl);
-                        
+
                         if(checkDashPosition(dashArray,curNumChars-1)) {
                            line = word + "-";
                         }
@@ -134,7 +136,7 @@ function textFlow(myText,textToAppend,maxWidth,x,ddy,justified) {
                     tspanEl.appendChild(myTextNode);
                     textToAppend.appendChild(tspanEl);
                   }
-                
+
                 }
         }
         return cumulY;
@@ -150,3 +152,7 @@ function checkDashPosition(dashArray,pos) {
         }
         return result;
 }
+
+  return textFlow;
+
+});
