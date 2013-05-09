@@ -20,11 +20,20 @@ package org.bigbluebutton.main.events {
 	import flash.events.Event;
 
 	public class ShortcutEvent extends Event {
+		public static const MAXIMIZE_USERS:String = 'MAXIMIZE_USERS';
+		public static const MINIMIZE_USERS:String = 'MINIMIZE_USERS';
+		public static const MAXIMIZE_DOCK:String = 'MAXIMIZE_DOCK';
+		public static const MINIMIZE_DOCK:String = 'MINIMIZE_DOCK';
+		public static const MAXIMIZE_PRES:String = 'MAXIMIZE_PRES';
+		public static const MINIMIZE_PRES:String = 'MINIMIZE_PRES';
+		public static const MAXIMIZE_CHAT:String = 'MAXIMIZE_CHAT';
+		public static const MINIMIZE_CHAT:String = 'MINIMIZE_CHAT';
+		
+		public static const FOCUS_AWAY_EVENT:String = 'FOCUS_AWAY_EVENT';
 		public static const MUTE_ME_EVENT:String = 'MUTE_ME_EVENT';
 		public static const FOCUS_CHAT_INPUT:String = 'FOCUS_CHAT_INPUT';
 		public static const UNDO_WHITEBOARD:String = 'UNDO_WHITEBOARD';
 		public static const FOCUS_SLIDE:String = 'FOCUS_SLIDE_VIEW';
-		public static const FOCUS_CHAT_TABS:String = 'FOCUS_CHAT_TABS';
 		public static const ADVANCE_MESSAGE:String = 'ADVANCE_MESSAGE';
 		public static const GOBACK_MESSAGE:String = 'GOBACK_MESSAGE';
 		public static const REPEAT_MESSAGE:String = 'REPEAT_MESSAGE';
@@ -33,6 +42,38 @@ package org.bigbluebutton.main.events {
 		public static const GOREAD_MESSAGE:String = 'GOREAD_MESSAGE';
 		public static const OPEN_SHORTCUT_WIN:String = 'OPEN_SHORTCUT_WIN';
 		
+		public static const FOCUS_USERS_WINDOW:String = 'FOCUS_USERS_WINDOW';
+		public static const FOCUS_VIDEO_WINDOW:String = 'FOCUS_VIDEO_WINDOW';
+		public static const FOCUS_PRESENTATION_WINDOW:String = 'FOCUS_PRESENTATION_WINDOW';
+		public static const FOCUS_CHAT_WINDOW:String = 'FOCUS_CHAT_WINDOW';
+		
+		public static const SHARE_DESKTOP:String = 'SHARE_DESKTOP';
+		public static const SHARE_MICROPHONE:String = 'SHARE_MICROPHONE';
+		public static const SHARE_WEBCAM:String = 'SHARE_WEBCAM';
+		
+		public static const REMOTE_FOCUS_DESKTOP:String = 'REMOTE_FOCUS_DESKTOP';
+		public static const REMOTE_FOCUS_WEBCAM:String = 'REMOTE_FOCUS_WEBCAM';
+		// Remote focus microphone not necessary; audio options already hog focus
+		
+		public static const REMOTE_OPEN_SHORTCUT_WIN:String = 'REMOTE_OPEN_SHORTCUT_WIN';
+		public static const LOGOUT:String = 'LOGOUT';
+		public static const RAISE_HAND:String = 'RAISE_HAND';
+		
+		public static const UPLOAD_PRESENTATION:String = 'UPLOAD_PRESENTATION';
+		public static const PREVIOUS_SLIDE:String = 'PREVIOUS_SLIDE';
+		public static const SELECT_SLIDES:String = 'SELECT_SLIDES';
+		public static const NEXT_SLIDE:String = 'NEXT_SLIDE';
+		public static const FIT_TO_WIDTH:String = 'FIT_TO_WIDTH';
+		public static const FIT_TO_PAGE:String = 'FIT_TO_PAGE';
+		
+		public static const FOCUS_CHAT_TABS:String = 'FOCUS_CHAT_TABS';
+		public static const FOCUS_CHAT_BOX:String = 'FOCUS_CHAT_BOX';
+		public static const CHANGE_FONT_COLOUR:String = 'CHANGE_FONT_COLOUR';
+		public static const SEND_MESSAGE:String = 'SEND_MESSAGE';
+		
+		// Temporary string to help fix chat message navigation for screen readers
+		public static const CHAT_DEBUG:String = 'CHAT_DEBUG';
+		
 		public var otherUserID:String;
 		
 		public function ShortcutEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false) {
@@ -40,3 +81,22 @@ package org.bigbluebutton.main.events {
 		}		
 	}
 }
+
+/*
+	Notes on adding shortcuts:
+	
+	Steps to making a GLOBAL shortcut:
+		-Add a constant to ShortcutEvent
+		-Create a locale string for the hotkey and the description
+		-Add modifier+hotkey string to keyCombos, instantiate it as the relevant ShortCutEvent:
+			keyCombos[modifier+(ResourceUtil.getInstance().getString('bbb.shortcutkey.focus.chat') as String)] = ShortcutEvent.FOCUS_CHAT_WINDOW;
+		-Add a <mate> tag in the MXML file (before mx:Script) which will process the event:
+			<mate:Listener type="{ShortcutEvent.FOCUS_CHAT_WINDOW}" method="focusWindow" />
+		-Add the hotkey locale to one of the resource arrays in ShortcutHelpWindow.mxml
+	
+	Steps to making a LOCAL shortcut:
+		-Copy the structure of hotKeyCapture, loadKeyCombos, and handleKeyDown into the window you're adding the shortcut to.
+		-Add the call to hotKeyCapture to onCreationComplete
+		-Change the stage.addListener in hotKeyCapture to <parent element id>.addListener
+		-Use the same process as for GLOBAL shortcuts
+*/

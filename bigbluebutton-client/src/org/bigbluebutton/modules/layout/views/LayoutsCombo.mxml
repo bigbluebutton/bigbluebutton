@@ -31,8 +31,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{LayoutEvent.REMOTE_LOCK_LAYOUT_EVENT}" receive="{enabled=false || UserManager.getInstance().getConference().amIModerator()}" />
 	<mate:Listener type="{LayoutEvent.REMOTE_UNLOCK_LAYOUT_EVENT}" receive="{enabled=true}" />
 	<mate:Listener type="{LayoutEvent.INVALIDATE_LAYOUT_EVENT}" method="invalidadeLayout" />
-	<mate:Listener type="{LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT}" method="populateLayoutsList" />
 	<mate:Listener type="{RedefineLayoutEvent.REDEFINE_LAYOUT_EVENT}" method="onRedefineLayout" />
+	<mate:Listener type="{LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT}" method="populateLayoutsList"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -60,6 +60,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			import org.bigbluebutton.modules.layout.events.LayoutEvent;
+			import org.bigbluebutton.modules.layout.events.ComboBoxCreatedEvent;
 			import org.bigbluebutton.modules.layout.events.LayoutsLoadedEvent;
 			import org.bigbluebutton.modules.layout.events.RedefineLayoutEvent;
 			import org.bigbluebutton.modules.layout.events.ViewInitializedEvent;
@@ -74,6 +75,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private function init():void {
 				LogUtil.debug("LayoutsCombo: view initialized");
+				var comboBoxCreated:ComboBoxCreatedEvent = new ComboBoxCreatedEvent();
+				_dispatcher.dispatchEvent(comboBoxCreated);
 			}
 			
 			private function populateLayoutsList(e:LayoutsLoadedEvent):void {
@@ -91,7 +94,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				invalidateDisplayList();
 			}
 			
-			private function onApplyDefaultLayout(e:Event):void {
+			private function onApplyDefaultLayout(e:Event = null):void {
 				if (_defaultLayout != null)
 					selectedItem = _defaultLayout; 
 			}
@@ -101,7 +104,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				 *	remote means that the this event wasn't dispatched by this class
 				 *	it will come tipically from LayoutService or LayoutManager
 				 */
+				LogUtil.debug("LayoutCombo::onRedefineLayout");
 				if (e.remote) {
+					LogUtil.debug("LayoutCombo::onRedefineLayout remote event");
+	
 					var idx:int = -1;
 					prompt = e.layout.name;
 					
@@ -111,6 +117,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					}
 					selectedIndex = idx;
 				}
+				invalidateDisplayList();
+				LogUtil.debug("LayoutCombo::onRedefineLayout done");
 			}
 			
 			private function onSelectedItemChanged(e:Event):void {

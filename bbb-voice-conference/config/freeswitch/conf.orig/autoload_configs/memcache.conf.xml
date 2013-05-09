@@ -1,6 +1,0 @@
-<configuration name="memcache.conf" description="memcache Configuration">
-  <settings>
-    <!-- comma sep list of servers: eg:  localhost,otherhost:port,anotherone -->
-    <param name="memcache-servers" value="localhost"/>
-  </settings>
-</configuration>

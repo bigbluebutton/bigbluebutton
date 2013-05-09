@@ -18,9 +18,13 @@
 */
 package org.bigbluebutton.deskshare.client;
 
+import javax.imageio.ImageIO;
 import javax.swing.JApplet;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+
+import java.io.IOException;
+import java.net.URL;
 import java.security.*;
 import java.awt.Image;
 
@@ -73,7 +77,11 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 
 		String tunnel = getParameter("HTTP_TUNNEL");
 		if (tunnel != null) tunnelValue = Boolean.parseBoolean(tunnel);
-		icon = getImage(getCodeBase(), "bbb.gif");
+		try {
+			URL url = new URL(getCodeBase(), "bbb.gif");
+			icon = ImageIO.read(url);
+		} catch (IOException e) {
+		}
 	}
 		
 	@Override
@@ -83,7 +91,7 @@ public class DeskShareApplet extends JApplet implements ClientListener {
 		client = new DeskshareClient.NewBuilder().host(hostValue).port(portValue)
 					.room(roomValue).captureWidth(cWidthValue)
 					.captureHeight(cHeightValue).scaleWidth(sWidthValue).scaleHeight(sHeightValue)
-					.quality(qualityValue).aspectRatio(aspectRatioValue)
+					.quality(qualityValue).autoScale(0.8)
 					.x(xValue).y(yValue).fullScreen(fullScreenValue).useSVC2(useSVC2Value)
 					.httpTunnel(tunnelValue).trayIcon(icon).enableTrayIconActions(false).build();
 		client.addClientListener(this);

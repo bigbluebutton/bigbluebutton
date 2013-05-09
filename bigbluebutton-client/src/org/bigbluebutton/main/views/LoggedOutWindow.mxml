@@ -22,6 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
     title="Logged Out" showCloseButton="false" creationComplete="init()"
+    verticalScrollPolicy="off" horizontalScrollPolicy="off"
     x="168" y="86" layout="vertical" width="400" height="100" horizontalAlign="center">
 	<mx:Script>
 		<![CDATA[

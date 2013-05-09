@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.*;
+import org.apache.commons.lang.RandomStringUtils;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.Playback;
 import org.bigbluebutton.api.domain.Recording;
@@ -40,6 +41,8 @@ public class MeetingService {
 	
 	private final ConcurrentMap<String, Meeting> meetings;	
 	private final ConcurrentMap<String, UserSession> sessions;
+	
+	
 	private int defaultMeetingExpireDuration = 1;	
 	private int defaultMeetingCreateJoinDuration = 5;
 	private RecordingService recordingService;
@@ -50,6 +53,7 @@ public class MeetingService {
 	public MeetingService() {
 		meetings = new ConcurrentHashMap<String, Meeting>();	
 		sessions = new ConcurrentHashMap<String, UserSession>();
+		
 	}
 	
 	public void addUserSession(String token, UserSession user) {
@@ -63,7 +67,7 @@ public class MeetingService {
 	public UserSession removeUserSession(String token) {
 		return sessions.remove(token);
 	}
-	
+		
 	/**
 	 * Remove the meetings that have ended from the list of
 	 * running meetings.
@@ -93,8 +97,7 @@ public class MeetingService {
 			if (m.hasExceededDuration()) {
 				log.info("Forcibly ending meeting [{} - {}]", m.getInternalId(), m.getName());
 				endMeeting(m.getInternalId());
-			}
-			
+			}			
 		}
 	}
 	
@@ -232,6 +235,13 @@ public class MeetingService {
 			}
 		}else{
 			log.debug("endMeeting - meeting doesn't exist: " + meetingId);
+		}
+	}
+	
+	public void addUserCustomData(String meetingId, String userID, Map<String,String> userCustomData){
+		Meeting m = getMeeting(meetingId);
+		if(m != null){
+			m.addUserCustomData(userID,userCustomData);
 		}
 	}
 

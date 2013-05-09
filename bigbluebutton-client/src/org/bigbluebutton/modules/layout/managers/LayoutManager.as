@@ -18,7 +18,8 @@
 */
 package org.bigbluebutton.modules.layout.managers
 {
-  import com.asfusion.mate.events.Dispatcher; 
+  import com.asfusion.mate.events.Dispatcher;
+  
   import flash.events.Event;
   import flash.events.EventDispatcher;
   import flash.events.TimerEvent;
@@ -26,14 +27,18 @@ package org.bigbluebutton.modules.layout.managers
   import flash.net.URLLoader;
   import flash.net.URLRequest;
   import flash.utils.Dictionary;
-  import flash.utils.Timer;  
+  import flash.utils.Timer;
+  
   import flexlib.mdi.containers.MDICanvas;
   import flexlib.mdi.containers.MDIWindow;
-  import flexlib.mdi.events.MDIManagerEvent;  
+  import flexlib.mdi.events.MDIManagerEvent;
+  
   import mx.controls.Alert;
-  import mx.events.ResizeEvent;  
+  import mx.events.ResizeEvent;
+  
   import org.bigbluebutton.common.LogUtil;
   import org.bigbluebutton.core.EventBroadcaster;
+  import org.bigbluebutton.core.UsersUtil;
   import org.bigbluebutton.core.events.SwitchedLayoutEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.model.Config;
@@ -49,45 +54,72 @@ package org.bigbluebutton.modules.layout.managers
   import org.bigbluebutton.modules.layout.model.WindowLayout;
   import org.bigbluebutton.util.i18n.ResourceUtil;
 
-  public class LayoutManager extends EventDispatcher {
-    private var _layouts:LayoutDefinitionFile = null;
-    private var _canvas:MDICanvas = null;
-    private var _globalDispatcher:Dispatcher = new Dispatcher();
-    private var _locked:Boolean = false;
-    private var _currentLayout:LayoutDefinition = null;
-    private var _detectContainerChange:Boolean = true;
-    private var _containerDeactivated:Boolean = false;
-    private var _sendCurrentLayoutUpdateTimer:Timer = new Timer(500,1);
-    private var _applyCurrentLayoutTimer:Timer = new Timer(150,1);
-    private var _customLayoutsCount:int = 0;
-    private var _eventsToDelay:Array = new Array(MDIManagerEvent.WINDOW_RESTORE,
-                                                  MDIManagerEvent.WINDOW_MINIMIZE,
-                                                  MDIManagerEvent.WINDOW_MAXIMIZE);
-
-    public function LayoutManager() {
-      _applyCurrentLayoutTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
-                  applyLayout(_currentLayout);
-              });
-      _sendCurrentLayoutUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
-                  sendLayoutUpdate(updateCurrentLayout());
-              });
-    }
+	public class LayoutManager extends EventDispatcher {
+		private var _layouts:LayoutDefinitionFile = null;
+		private var _canvas:MDICanvas = null;
+		private var _globalDispatcher:Dispatcher = new Dispatcher();
+		private var _locked:Boolean = false;
+		private var _currentLayout:LayoutDefinition = null;
+		private var _detectContainerChange:Boolean = true;
+		private var _containerDeactivated:Boolean = false;
+		private var _sendCurrentLayoutUpdateTimer:Timer = new Timer(500,1);
+		private var _applyCurrentLayoutTimer:Timer = new Timer(150,1);
+		private var _customLayoutsCount:int = 0;
+		private var _serverLayoutsLoaded:Boolean = false;
+        private var _comboLayoutCreated:Boolean = false;
+		private var _eventsToDelay:Array = new Array(MDIManagerEvent.WINDOW_RESTORE,
+				MDIManagerEvent.WINDOW_MINIMIZE,
+				MDIManagerEvent.WINDOW_MAXIMIZE);
 		
+		
+		public function LayoutManager() {
+			_applyCurrentLayoutTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
+				applyLayout(_currentLayout);
+			});
+			_sendCurrentLayoutUpdateTimer.addEventListener(TimerEvent.TIMER, function(e:TimerEvent):void {
+				sendLayoutUpdate(updateCurrentLayout());
+			});
+		}
+		
+        /**
+         *  There's a race condition when the layouts combo doesn't get populated 
+         *  with the server's layouts definition. The problem is that sometimes 
+         *  the layouts is loaded before the combo get created, and sometimes the 
+         *  combo is created first. We use two booleans to sync it and only dispatch 
+         *  the layouts to populate the list when both are created.
+         */
 		public function loadServerLayouts(layoutUrl:String):void {
 			LogUtil.debug("LayoutManager: loading server layouts from " + layoutUrl);
 			var loader:LayoutLoader = new LayoutLoader();
 			loader.addEventListener(LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT, function(e:LayoutsLoadedEvent):void {
 				if (e.success) {
 					_layouts = e.layouts;
+
+                    if (_comboLayoutCreated) {
+                        broadcastLayouts();
+                    }
+					_serverLayoutsLoaded = true;
+
 					LogUtil.debug("LayoutManager: layouts loaded successfully");
-          
-          
 				} else {
 					LogUtil.error("LayoutManager: layouts not loaded (" + e.error.message + ")");
 				}
 			});
 			loader.loadFromUrl(layoutUrl);
 		}
+
+		public function onComboLayoutCreated():void {
+			if (_serverLayoutsLoaded) {
+                broadcastLayouts();
+			}
+            _comboLayoutCreated = true;
+		}
+
+        private function broadcastLayouts():void {
+            var layoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent();
+            layoutsLoaded.layouts = _layouts;
+            _globalDispatcher.dispatchEvent(layoutsLoaded);
+        }
 		
 		public function saveLayoutsToFile():void {
 			var _fileRef:FileReference = new FileReference();
@@ -102,13 +134,9 @@ package org.bigbluebutton.modules.layout.managers
 			loader.addEventListener(LayoutsLoadedEvent.LAYOUTS_LOADED_EVENT, function(e:LayoutsLoadedEvent):void {
 				if (e.success) {
 					_layouts = e.layouts;
+
+                    broadcastLayouts();
 					
-					/*
-					 * \TODO why do I need to create a new Event for this?
-					 */
-					var layoutsLoaded:LayoutsLoadedEvent = new LayoutsLoadedEvent();
-					layoutsLoaded.layouts = _layouts;
-					_globalDispatcher.dispatchEvent(layoutsLoaded);
 					/*
 					 *	it will update the ComboBox label, and will go back to this class
 					 * 	to apply the default layout
@@ -238,7 +266,7 @@ package org.bigbluebutton.modules.layout.managers
 		}
 		
 		private function sendLayoutUpdate(layout:LayoutDefinition):void {
-			if (_locked && UserManager.getInstance().getConference().amIModerator()) {
+			if (_locked && (UsersUtil.amIModerator() || UsersUtil.amIPresenter())) {
 				LogUtil.debug("LayoutManager: sending layout to remotes");
 				var e:UpdateLayoutEvent = new UpdateLayoutEvent();
 				e.layout = layout;
@@ -347,4 +375,4 @@ package org.bigbluebutton.modules.layout.managers
 				applyLayout(_currentLayout);
 		}
 	}
-}
+}

@@ -18,17 +18,32 @@
  */
 package org.bigbluebutton.modules.present.ui.views
 {
+	import org.bigbluebutton.core.BBB;
+	import org.bigbluebutton.common.LogUtil;
 	public class PresentOptions
 	{
-		[Bindable]
-		public var showWindowControls:Boolean = true;
+		[Bindable] public var showWindowControls:Boolean = true;
+		[Bindable] public var baseTabIndex:int;
+		[Bindable] public var maxFileSize:Number;
 		
 		public function PresentOptions()
 		{
-			var vxml:XML = BBB.getConfigForModule("PresentationModule");
+			var vxml:XML = BBB.getConfigForModule("PresentModule");
 			if (vxml != null) {
 				if (vxml.@showWindowControls != undefined) {
 					showWindowControls = (vxml.@showWindowControls.toString().toUpperCase() == "TRUE") ? true : false;
+				}
+				if (vxml.@baseTabIndex != undefined) {
+					baseTabIndex = vxml.@baseTabIndex;
+				}
+				else{
+					baseTabIndex = 501;
+				}
+				if (vxml.@maxFileSize != undefined) {
+					maxFileSize = vxml.@maxFileSize;
+				}
+				else{
+					maxFileSize = 30;
 				}
 			}
 		}

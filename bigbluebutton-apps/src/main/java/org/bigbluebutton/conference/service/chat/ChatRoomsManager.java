@@ -41,7 +41,9 @@ public class ChatRoomsManager {
 	
 	public void addRoom(ChatRoom room) {
 		log.debug("In ChatRoomsManager adding room " + room.getName());
-		rooms.put(room.getName(), room);
+		if (!hasRoom(room.getName())) {
+			rooms.put(room.getName(), room);
+		}
 	}
 	
 	public void removeRoom(String name) {

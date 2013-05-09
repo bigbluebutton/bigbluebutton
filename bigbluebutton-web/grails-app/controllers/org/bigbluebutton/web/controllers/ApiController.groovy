@@ -26,6 +26,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
+import org.bigbluebutton.api.domain.Config;
 import org.bigbluebutton.api.domain.Meeting;
 import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.MeetingService;
@@ -79,6 +80,7 @@ class ApiController {
   def create = {
     String API_CALL = 'create'
     log.debug CONTROLLER_NAME + "#${API_CALL}"
+    log.debug params
   	
 	// BEGIN - backward compatibility
 	if (StringUtils.isEmpty(params.checksum)) {
@@ -145,7 +147,8 @@ class ApiController {
       return;    
     }
      
-    Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);            
+    Meeting newMeeting = paramsProcessorUtil.processCreateParams(params);      
+		      
     meetingService.createMeeting(newMeeting);
     
     // See if the request came with pre-uploading of presentation.
@@ -286,8 +289,8 @@ class ApiController {
 	    respondWithErrors(errors)
 	    return;
     }
-        
-    String webVoice = StringUtils.isEmpty(params.webVoiceConf) ? meeting.getTelVoice() : params.webVoiceConf
+	
+	String webVoice = StringUtils.isEmpty(params.webVoiceConf) ? meeting.getTelVoice() : params.webVoiceConf
 
     boolean redirectImm = parseBoolean(params.redirectImmediately)
     
@@ -297,7 +300,40 @@ class ApiController {
     if (StringUtils.isEmpty(externUserID)) {
       externUserID = internalUserID
     }
+	
+	//Return a Map with the user custom data
+	Map<String,String> userCustomData = paramsProcessorUtil.getUserCustomData(params);
+	//Currently, it's associated with the externalUserID
+	if(userCustomData.size()>0)
+		meetingService.addUserCustomData(meeting.getInternalId(),externUserID,userCustomData);
     
+	String configxml = null;
+	
+	if (! StringUtils.isEmpty(params.configToken)) {
+		Config conf = meeting.getConfig(params.configToken);
+		if (conf == null) {
+			errors.noConfigFoundForToken(params.configToken);
+			respondWithErrors(errors);
+		} else {
+			configxml = conf.config;
+			println ("USING PREFERRED CONFIG")
+		}
+	} else {
+		Config conf = meeting.getDefaultConfig();
+		if (conf == null) {
+			errors.noConfigFound();
+			respondWithErrors(errors);
+		} else {
+			configxml = conf.config;
+			println ("USING DEFAULT CONFIG")
+		}
+	}
+	
+	if (StringUtils.isEmpty(configxml)) {
+		errors.noConfigFound();
+		respondWithErrors(errors);
+	}
+	
 	UserSession us = new UserSession();
 	us.internalUserId = internalUserID
     us.conferencename = meeting.getName()
@@ -314,7 +350,8 @@ class ApiController {
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
 	us.logoutUrl = meeting.getLogoutUrl();
-	
+	us.configXML = configxml;
+			
 	if (! StringUtils.isEmpty(params.defaulLayout)) {
 		us.defaultLayout = params.defaulLayout;
 	}
@@ -340,19 +377,21 @@ class ApiController {
 	boolean redirectClient = true;
 	String clientURL = paramsProcessorUtil.getDefaultClientUrl();
 	
-	if(!StringUtils.isEmpty(params.redirect))
-	{
+	if(! StringUtils.isEmpty(params.redirect)) {
 		try{
 			redirectClient = Boolean.parseBoolean(params.redirect);
 		}catch(Exception e){
 			redirectClient = true;
 		}
 	}
+	
 	if(!StringUtils.isEmpty(params.clientURL)){
 		clientURL = params.clientURL;
 	}
 	
-	if(redirectClient){
+	if (redirectClient){
+		println("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}");
+		println "ClientURL ${clientURL}"
 		log.info("Successfully joined. Redirecting to ${paramsProcessorUtil.getDefaultClientUrl()}"); 		
 		redirect(url: clientURL);
 	}
@@ -717,7 +756,175 @@ class ApiController {
       }
     }
   }
+  
+  def getDefaultConfigXML = {
+ 
+    String API_CALL = "getDefaultConfigXML"
+    
+    ApiErrors errors = new ApiErrors();
+    
+    if (StringUtils.isEmpty(params.checksum)) {
+        invalid("checksumError", "You did not pass the checksum security check")
+        return
+    }
+        
+    // Do we agree on the checksum? If not, complain.       
+    if (! paramsProcessorUtil.isChecksumSame(API_CALL, params.checksum, request.getQueryString())) {
+        errors.checksumError()
+        respondWithErrors(errors)
+        return
+    }
+    
+    String defConfigXML = paramsProcessorUtil.getDefaultConfigXML();
+    
+    response.addHeader("Cache-Control", "no-cache")
+    render text: defConfigXML, contentType: 'text/xml'
+      
+  }
 
+  /***********************************************
+  * CONFIG API
+  ***********************************************/
+  def setConfigXML = {
+    String API_CALL = "setConfigXML"
+    log.debug CONTROLLER_NAME + "#${API_CALL}"
+    log.debug params
+	
+	if (StringUtils.isEmpty(params.checksum)) {
+		invalid("checksumError", "You did not pass the checksum security check")
+		return
+	}
+	
+	if (StringUtils.isEmpty(params.configXML)) {
+		invalid("configXMLError", "You did not pass a config XML")
+		return
+	}
+
+	if (StringUtils.isEmpty(params.meetingID)) {
+		invalid("missingParamMeetingID", "You must specify a meeting ID for the meeting.");
+		return
+	}
+	
+	// Translate the external meeting id into an internal meeting id.
+	String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
+	Meeting meeting = meetingService.getMeeting(internalMeetingId);
+	if (meeting == null) {
+		// BEGIN - backward compatibility
+		invalid("invalidMeetingIdentifier", "The meeting ID that you supplied did not match any existing meetings");
+		return;
+		// END - backward compatibility
+		
+	   errors.invalidMeetingIdError();
+	   respondWithErrors(errors)
+	   return;
+    }
+	 
+	String configXML = params.configXML
+	
+	String decodedConfigXML;
+        
+        try {
+            decodedConfigXML = URLDecoder.decode(configXML,"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            log.error("Couldn't decode config XML.");
+            invalid("configXMLError", "Cannot decode config XML")
+            return;
+        }
+         
+	  if (! paramsProcessorUtil.isConfigXMLChecksumSame(params.meetingID, configXML, params.checksum)) {		 
+		  response.addHeader("Cache-Control", "no-cache")
+		  withFormat {
+			xml {
+			  render(contentType:"text/xml") {
+				response() {
+				  returncode("FAILED")
+				  messageKey("configXMLChecksumError")
+				  message("configXMLChecksumError: request did not pass the checksum security check.")
+				}
+			  }
+			}
+		  }		  
+		} else {
+		    println "**************** CHECKSUM PASSED **************************"
+			boolean defaultConfig = false;
+			
+			if(! StringUtils.isEmpty(params.defaultConfig)) {
+				try{
+					defaultConfig = Boolean.parseBoolean(params.defaultConfig);
+				}catch(Exception e) {
+					defaultConfig = false;
+				}
+			}
+			
+			String token = meeting.storeConfig(defaultConfig, decodedConfigXML);
+			response.addHeader("Cache-Control", "no-cache")
+			withFormat {
+			  xml {
+				  println "**************** CHECKSUM PASSED - XML RESPONSE **************************"
+			    render(contentType:"text/xml") {
+				  response() {
+				    returncode("SUCCESS")
+				    configToken(token)
+				  }
+			    }
+			  }
+		    }
+		 }
+  }
+  
+  /***********************************************
+  * CONFIG API
+  ***********************************************/
+  def configXML = {
+	  println "Getting config xml"
+	  	  
+	  if (! session["user-token"] || (meetingService.getUserSession(session['user-token']) == null)) {
+		  log.info("No session for user in conference.")
+		  
+		  Meeting meeting = null;
+		  
+		  // Determine the logout url so we can send the user there.
+		  String logoutUrl = session["logout-url"]
+						
+		  if (! session['meeting-id']) {
+			  meeting = meetingService.getMeeting(session['meeting-id']);
+		  }
+		
+		  // Log the user out of the application.
+		  session.invalidate()
+		
+		  if (meeting != null) {
+			  log.debug("Logging out from [" + meeting.getInternalId() + "]");
+			  logoutUrl = meeting.getLogoutUrl();
+		  }
+		  
+		  if (StringUtils.isEmpty(logoutUrl))
+			  logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
+		  
+		  response.addHeader("Cache-Control", "no-cache")
+		  withFormat {
+			xml {
+			  render(contentType:"text/xml") {
+				response() {
+				  returncode("FAILED")
+				  message("Could not find conference.")
+				  logoutURL(logoutUrl)
+				}
+			  }
+			}
+		  }		  
+		} else {
+			UserSession us = meetingService.getUserSession(session['user-token']);
+			log.info("Found session for " + us.fullname)
+			println ("Found session for " + us.fullname)
+			println us.configXML
+			
+			response.addHeader("Cache-Control", "no-cache")
+			render text: us.configXML, contentType: 'text/xml'
+		}
+
+  }
+  
   /***********************************************
    * ENTER API
    ***********************************************/
@@ -759,7 +966,8 @@ class ApiController {
       }
 	  
     } else {
-		UserSession us = meetingService.getUserSession(session['user-token']);	
+		UserSession us = meetingService.getUserSession(session['user-token']);
+		Meeting meeting = meetingService.getMeeting(us.meetingID);
         log.info("Found conference for " + us.fullname)
         response.addHeader("Cache-Control", "no-cache")
         withFormat {				
@@ -777,6 +985,7 @@ class ApiController {
               conference(us.conference)
               room(us.room)
               voicebridge(us.voicebridge)
+			  dialnumber(meeting.getDialNumber())
               webvoiceconf(us.webvoiceconf)
               mode(us.mode)
               record(us.record)
@@ -784,6 +993,11 @@ class ApiController {
 			  logoutUrl(us.logoutUrl)
 			  defaultLayout(us.defaultLayout)
 			  avatarURL(us.avatarURL)
+			  customdata(){
+				  meeting.getUserCustomData(us.externUserID).each{ k,v ->
+					  "$k"("$v")
+				  }
+			  }
             }
           }
         }
@@ -1201,6 +1415,7 @@ class ApiController {
             meetingID(meeting.getExternalId())
 			createTime(meeting.getCreateTime())
 			voiceBridge(meeting.getTelVoice())
+			dialNumber(meeting.getDialNumber())
             attendeePW(meeting.getViewerPassword())
             moderatorPW(meeting.getModeratorPassword())
             running(meeting.isRunning() ? "true" : "false")
@@ -1217,6 +1432,11 @@ class ApiController {
                   userID("${att.externalUserId}")
                   fullName("${att.fullname}")
                   role("${att.role}")
+				  customdata(){
+					  meeting.getUserCustomData(att.externalUserId).each{ k,v ->
+						  "$k"("$v")
+					  }
+				  }
                 }
               }
             }
@@ -1316,4 +1536,5 @@ class ApiController {
 		}
 		return false
   }  
+  
 }

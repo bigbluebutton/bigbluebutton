@@ -188,7 +188,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				slideModel.parentChange(parentWidth, parentHeight);
 				
-				if (UserManager.getInstance().getConference().amIPresenter()) {
+				if (UserManager.getInstance().getConference().amIPresenter) {
 					slideModel.adjustSlideAfterParentResized();
 					slideModel.displayPresenterView();
 					slideModel.printViewedRegion();
@@ -271,7 +271,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Handles notification from presenter that the slide has moved.
 			 */
 			private function handleCurSlideSettingEvent(e:MoveEvent):void{
-				if (UserManager.getInstance().getConference().amIPresenter()) {
+				if (UserManager.getInstance().getConference().amIPresenter) {
 					return;
 				}
 
@@ -285,7 +285,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 * Handles notification from presenter that the slide has moved.
 			 */
 			private function handleMoveEvent(e:MoveEvent):void{
-				if (UserManager.getInstance().getConference().amIPresenter()) {
+				if (UserManager.getInstance().getConference().amIPresenter) {
 					return;
 				}
 				
@@ -308,8 +308,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			 */						
 			private function handleSlideLoadedEvent(e:SlideEvent):void{
 				slideLoader.source = e.slide;
-				slideLoader.accessibilityProperties.description = e.slideText;
-				Accessibility.updateProperties()
+				if(Capabilities.hasAccessibility){
+					slideLoader.accessibilityProperties.description = e.slideText;
+					Accessibility.updateProperties()
+				}
 			}
 			
 			/**
@@ -486,9 +488,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 		]]>
 	</mx:Script>
-	<fimage:FocusableImage id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" x="{slideModel.loaderX}" y="{slideModel.loaderY}" useHandCursor="true" buttonMode="true"
+	<fimage:FocusableImage id="slideLoader" width="{slideModel.loaderW}" height="{slideModel.loaderH}" x="{slideModel.loaderX}" y="{slideModel.loaderY}" useHandCursor="true" buttonMode="false"
 		creationComplete="listenForSlideLoadedCompleteEvent()" styleName="presentationSlideViewStyle" scaleContent="false" showBusyCursor="true" completeEffect="Fade" />
-	
    		
     <mx:HorizontalList id="thumbnailView" itemRenderer="org.bigbluebutton.modules.present.ui.views.Thumbnail" itemRollOver="changeIndex(event)" 
     	visible="false" width="100%" height="100" y="{this.height - 100}" change="changeSlide()" />

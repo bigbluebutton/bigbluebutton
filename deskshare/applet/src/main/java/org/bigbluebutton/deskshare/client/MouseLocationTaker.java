@@ -19,11 +19,13 @@
 package org.bigbluebutton.deskshare.client;
 
 import java.awt.HeadlessException;
+import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import org.bigbluebutton.deskshare.client.MouseLocationListener;
 
 public class MouseLocationTaker {
 	
@@ -66,23 +68,20 @@ public class MouseLocationTaker {
 		
 		if (pInfo == null) return pointerLocation;
 		
-		if (adjustPointerLocationDueToScaling()) {			
-			pointerLocation = calculatePointerLocation(pInfo.getLocation());
-		} else {
-			//pointerLocation = pInfo.getLocation();
-			pointerLocation = calculatePointerLocation(pInfo.getLocation());
-		}
-		return pointerLocation;		
+		return pInfo.getLocation();		
 	}
-	
+
 	private Point calculatePointerLocation(Point p) {
-		double mx = ((double)p.x/(double)captureWidth) * (double)scaleWidth;
-		double my = ((double)p.y/(double)captureHeight) * (double)scaleHeight;
+//		System.out.println("Mouse Tracker:: Image=[" + captureWidth + "," + captureHeight + "] scale=[" + scaleWidth + "," + scaleHeight + "]");
 		
-		mx = mx - captureX;
-		my = my - captureY;
+		int mouseXInCapturedRegion = p.x - captureX;
+		int mouseYInCapturedRegion = p.y - captureY;
 		
-		return new Point((int)mx, (int)my);
+		double scaledMouseX = mouseXInCapturedRegion * (double)((double)scaleWidth  / (double)captureWidth);
+		double scaledMouseY = mouseYInCapturedRegion * (double)((double)scaleHeight  / (double)captureHeight);
+		
+		return new Point((int)scaledMouseX, (int)scaledMouseY);
+		
 	}
 	
 	public boolean adjustPointerLocationDueToScaling() {
@@ -91,10 +90,17 @@ public class MouseLocationTaker {
 
 	private void takeMouseLocation() {		
 		Point mouseLocation = getMouseLocation();
-		if (!mouseLocation.equals(oldMouseLocation)) {
-			notifyListeners(getMouseLocation());
+		if ( !mouseLocation.equals(oldMouseLocation) && isMouseInsideCapturedRegion(mouseLocation)) {
+//			System.out.println("Mouse is inside captured region [" + mouseLocation.x + "," + mouseLocation.y + "]");
+			notifyListeners(calculatePointerLocation(mouseLocation));
 			oldMouseLocation = mouseLocation;
 		}
+	}
+	
+	private boolean isMouseInsideCapturedRegion(Point p) {
+		return true;
+//		return ( ( (p.x > captureX) && (p.x < (captureX + captureWidth) ) ) 
+//				&& (p.y > captureY && p.y < captureY + captureHeight));
 	}
 	
 	private void notifyListeners(Point location) {

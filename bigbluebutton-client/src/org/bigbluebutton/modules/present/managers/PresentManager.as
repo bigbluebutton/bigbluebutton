@@ -18,8 +18,11 @@
 */
 package org.bigbluebutton.modules.present.managers
 {
-	import com.asfusion.mate.events.Dispatcher;	
-	import mx.managers.PopUpManager;	
+	import com.asfusion.mate.events.Dispatcher;
+	
+	import mx.collections.ArrayCollection;
+	import mx.managers.PopUpManager;
+	
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
@@ -40,14 +43,16 @@ package org.bigbluebutton.modules.present.managers
 		private var presentWindow:PresentationWindow;
 		
 		//format: presentationNames = [{label:"00"}, {label:"11"}, {label:"22"} ];
-		[Bindable] public var presentationNames:Array = new Array();
+		[Bindable] public var presentationNames:ArrayCollection = new ArrayCollection();
 		
 		public function PresentManager() {
 			globalDispatcher = new Dispatcher();
 		}
 		
 		public function handleStartModuleEvent(e:PresentModuleEvent):void{
-			if (presentWindow != null) return;
+			if (presentWindow != null){ 
+				return;
+			}
 			presentWindow = new PresentationWindow();
 			presentWindow.visible = (e.data.showPresentWindow == "true");
 			presentWindow.showControls = (e.data.showWindowControls == "true");
@@ -58,18 +63,19 @@ package org.bigbluebutton.modules.present.managers
 			presentWindow.close();
 		}
 		
-		private function openWindow(window:IBbbModuleWindow):void{				
+		private function openWindow(window:IBbbModuleWindow):void{
 			var event:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			event.window = window;
-			globalDispatcher.dispatchEvent(event);		
+			globalDispatcher.dispatchEvent(event);
 		}
 	
 		public function handleOpenUploadWindow(e:UploadEvent):void{
 			if (uploadWindow != null) return;
 			
 			uploadWindow = new FileUploadWindow();
-			uploadWindow.presentationNames = presentationNames;
-			mx.managers.PopUpManager.addPopUp(uploadWindow, presentWindow, false);
+			uploadWindow.presentationNamesAC = presentationNames;
+			uploadWindow.maxFileSize = e.maxFileSize;
+			mx.managers.PopUpManager.addPopUp(uploadWindow, presentWindow, true);
 		}
 		
 		public function handleCloseUploadWindow():void{
@@ -82,18 +88,19 @@ package org.bigbluebutton.modules.present.managers
 			for (var i:int = 0; i < presentationNames.length; i++) {
 				if (presentationNames[i] == e.presentationName) return;
 			}
-			presentationNames.push(String(e.presentationName));
+			presentationNames.addItem(e.presentationName);
 		}
 
 		public function removePresentation(e:RemovePresentationEvent):void {
 			LogUtil.debug("Removing presentation " + e.presentationName);
-			var index:int = presentationNames.indexOf(e.presentationName as String);
-			LogUtil.debug("Presentation " + e.presentationName + " at index " + index);
-			
-			if (index > -1) {
-				presentationNames.splice(index, 1);
-				LogUtil.debug("Removing presentation " + e.presentationName + " at index " + index);
-			}
+      var p:String;
+      
+      for (var i:int = 0; i < presentationNames.length; i++) {
+        p = presentationNames.getItemAt(i) as String;
+        if (p == e.presentationName) {
+          presentationNames.removeItemAt(i);
+        }
+      }
 		}
 	}
 }

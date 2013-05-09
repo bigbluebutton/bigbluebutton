@@ -159,7 +159,7 @@ generateThumbnails = function() {
   for (var i = 0; i < xmlList.length; i++) {
     var element = xmlList[i];
     
-    if (!element.hasAttribute("xlink:href"))
+    if (!$(element).attr("xlink:href"))
       continue;
     var src = RECORDINGS + "/" + element.getAttribute("xlink:href");
     if (src.match(/\/presentation\/.*slide-.*\.png/)) {
@@ -301,8 +301,8 @@ document.addEventListener( "DOMContentLoaded", function() {
   }
   
   //load_audio();
-  load_script("lib/writing.js")
-  generateThumbnails();
+  load_script("lib/writing.js");
+  //generateThumbnails();
 
   //load up the acorn controls
   jQuery('#video').acornMediaPlayer({
@@ -313,9 +313,30 @@ document.addEventListener( "DOMContentLoaded", function() {
   $('.acorn-controls').position({
     "my": "center top",
     "at": "center bottom",
-    "of": '#playbackArea'
+    "of": '#playbackArea',
+    "collision": "none none"
   });
 }, false);
 
+var secondsToWait = 0;
 
+function addTime(time){
+  if (secondsToWait === 0) {
+    Popcorn('#video').pause();
+    window.setTimeout("Tick()", 1000);
+  }
+  secondsToWait += time;
+}
 
+function Tick() {
+  if (secondsToWait <= 0 || !($("#accEnabled").is(':checked'))) {
+    secondsToWait = 0;
+    Popcorn('#video').play();
+    $('#countdown').html(""); // remove the timer
+    return;
+  }
+  
+  secondsToWait -= 1;
+  $('#countdown').html(secondsToWait);
+  window.setTimeout("Tick()", 1000);
+}

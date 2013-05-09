@@ -25,47 +25,71 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	       showCloseButton="true"
 	       creationComplete="onCreationComplete()"
 		   xmlns:mate="http://mate.asfusion.com/" 
-		   title="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.title')}">
+		   title="{ResourceUtil.getInstance().getString('bbb.shortcuthelp.title')}" >
 		   
+	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
+	
 	<mx:Script>
 		<![CDATA[
 			import flash.events.Event;
-			import mx.collections.ArrayList;
+			
 			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.common.events.LocaleChangeEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-			import org.bigbluebutton.common.LogUtil;
 			
 			private var genKeys:ArrayList;
 			private var presKeys:ArrayList;
 			private var chatKeys:ArrayList;
-			private var audKeys:ArrayList;
+			private var userKeys:ArrayList;
 			
-			private var genResource:Array = [];
-			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', 'bbb.shortcutkey.whiteboard.undo'];
-			private var chatResource:Array = ['bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.chat.chattabs', 'bbb.shortcutkey.chat.chatbox.advance', 
-											  'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.repeat', 'bbb.shortcutkey.chat.chatbox.golatest', 
-											  'bbb.shortcutkey.chat.chatbox.gofirst', 'bbb.shortcutkey.chat.chatbox.goread'];
-			private var audResource:Array = ['bbb.shortcutkey.listeners.muteme'];
+			private var genResource:Array = ['bbb.shortcutkey.general.minimize', 'bbb.shortcutkey.general.maximize',
+											 'bbb.shortcutkey.flash.exit', 'bbb.shortcutkey.focus.users', 'bbb.shortcutkey.focus.video', 
+											 'bbb.shortcutkey.focus.presentation', 'bbb.shortcutkey.focus.chat', 'bbb.shortcutkey.share.desktop', 
+											 'bbb.shortcutkey.share.microphone', 'bbb.shortcutkey.share.webcam', 'bbb.shortcutkey.shortcutWindow', 
+											 'bbb.shortcutkey.logout', 'bbb.shortcutkey.raiseHand', 'bbb.shortcutkey.users.muteme'];
+											 
+			private var presResource:Array = ['bbb.shortcutkey.focus.presentation', 'bbb.shortcutkey.present.focusslide', 'bbb.shortcutkey.whiteboard.undo', 
+											  'bbb.shortcutkey.present.upload', 'bbb.shortcutkey.present.previous', 'bbb.shortcutkey.present.select',	
+											  'bbb.shortcutkey.present.next', 'bbb.shortcutkey.present.fitWidth', 'bbb.shortcutkey.present.fitPage'];
+			
+			private var chatResource:Array = ['bbb.shortcutkey.focus.chat', 'bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.chat.focusTabs', 
+											  'bbb.shortcutkey.chat.focusBox', 'bbb.shortcutkey.chat.changeColour', 'bbb.shortcutkey.chat.sendMessage',
+											  'bbb.shortcutkey.chat.explanation',
+											  'bbb.shortcutkey.chat.chatbox.gofirst', 'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.repeat', 
+											  'bbb.shortcutkey.chat.chatbox.advance', 'bbb.shortcutkey.chat.chatbox.golatest',  'bbb.shortcutkey.chat.chatbox.goread'];
+			
+			private var userResource:Array = ['bbb.shortcutkey.focus.users', 'bbb.shortcutkey.users.focusUsers', 'bbb.shortcutkey.users.makePresenter', 'bbb.shortcutkey.users.mute', 
+													  'bbb.shortcutkey.users.kick', 'bbb.shortcutkey.users.muteall'];
+			
 			[Bindable]
 			private var shownKeys:ArrayCollection;
 			
-			private function onCreationComplete():void {
-				LogUtil.debug("WATERFALL: Shortcut window has been opened");
-				reloadKeys();
-				ResourceUtil.getInstance().addEventListener(Event.CHANGE, reloadKeys); // Listen for locale changing
+			[Bindable]
+			private var baseIndex:int = 100;
+			
+			private function init():void {
+				
 			}
 			
-			private function reloadKeys(e:Event = null):void {
-				LogUtil.debug("Chad start of function");
+			private function onCreationComplete():void {
+				localeChanged();
+				
+				titleBarOverlay.tabIndex = baseIndex;
+				
+				minimizeBtn.tabIndex = baseIndex + 1;
+				maximizeRestoreBtn.tabIndex = baseIndex + 2;
+				closeBtn.tabIndex = baseIndex + 3;
+			}
+			
+			private function reloadKeys():void {
 				genKeys = loadKeys(genResource);
-				LogUtil.debug("CHAD loaded" + genKeys);
 				presKeys = loadKeys(presResource);
-				LogUtil.debug("CHAD loaded" + presKeys.length);
 				chatKeys = loadKeys(chatResource);
-				LogUtil.debug("CHAD loaded" + chatKeys.length);
-				audKeys = loadKeys(audResource);
-				LogUtil.debug("CHAD loaded" + audKeys.length);
+				userKeys = loadKeys(userResource);
 				
 				changeArray();
 			}
@@ -73,71 +97,106 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function changeArray():void {
 				shownKeys = new ArrayCollection();
 				switch(categories.selectedIndex) {
-				case 0: //All
-					shownKeys.addAll(genKeys);
-					shownKeys.addAll(presKeys);
-					shownKeys.addAll(chatKeys);
-					shownKeys.addAll(audKeys);
-					break;
-				case 1: //General
+				case 0: //General
 					shownKeys.addAll(genKeys);
 					break;
-				case 2: //Presentation
+				case 1: //Presentation
 					shownKeys.addAll(presKeys);
 					break;
-				case 3: //Chat
+				case 2: //Chat
 					shownKeys.addAll(chatKeys);
 					break;
-				case 4: //Audio
-					shownKeys.addAll(audKeys);
+				case 3: //Users
+					shownKeys.addAll(userKeys);
 					break;
 				}
 			}
 			
 			private function loadKeys(resource:Array):ArrayList {
 				var keyList:ArrayList = new ArrayList();
-				LogUtil.debug("CHAD " + resource.length);
 				var keyCombo:String;
-				var indx:int = 255;
-				LogUtil.debug("CHAD " + resource.length);
+				var modifier:String;
 				for (var i:int = 0; i < resource.length; i++) {
-					LogUtil.debug("CHAD inside" + resource.length);
+					
+					// Find the modifier key(s) for the user's browser
+					modifier = ExternalInterface.call("determineModifier");
 					keyCombo = ResourceUtil.getInstance().getString(resource[i]);
-					indx = keyCombo.lastIndexOf("+") + 1;
-					var key:int = int(keyCombo.substring(indx));
+					var key:int = int(keyCombo);
 					var convKey:String;
-					if (key == 32) { //special case
-						convKey = "Space";
-					} else {
-						convKey = String.fromCharCode(key);
+					
+					// Special cases where the keycodes don't render a sensible character
+					switch (key) {
+						case 32 :
+							convKey = "Space";
+						  	break;
+						case 189 :
+						  	convKey = "Minus";
+						  	break;
+						case 187 :
+						  	convKey = "Plus";
+						  	break;
+						default:
+							convKey = String.fromCharCode(key);
+							break;
 					}
-					keyList.addItem({Shortcut:keyCombo.substring(0, indx) + convKey, 
-								Function:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
+					
+					if (keyCombo == "----"){
+						keyList.addItem({shortcut:(ResourceUtil.getInstance().getString(resource[i] + '.function')), func:""});
+					} else{
+						keyList.addItem({shortcut:modifier + convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
+					}
 				}
-				LogUtil.debug("CHAD after " + resource.length);
 				return keyList;
 			}
 			
-			public function focusCategories():void {
-				focusManager.setFocus(categories);
-				categories.drawFocus(true);
+			private function localeChanged(e:LocaleChangeEvent = null):void{
+				reloadKeys();
+				resourcesChanged();
+			}
+			
+			override protected function resourcesChanged():void{
+				super.resourcesChanged();				
+				
+				this.title = ResourceUtil.getInstance().getString('bbb.shortcuthelp.title');
+				
+				if (titleBarOverlay != null) {
+					titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.shortcuthelp.titleBar');
+				}
+				
+				if (windowControls != null) {
+					minimizeBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.minimizeBtn.toolTip");
+					minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.shortcuthelp.minimizeBtn.accessibilityName");
+					
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.maximizeRestoreBtn.toolTip");
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.shortcuthelp.maximizeRestoreBtn.accessibilityName");
+					
+					maximizeRestoreBtn.toolTip = ResourceUtil.getInstance().getString("bbb.window.closeBtn.toolTip");
+					maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString("bbb.shortcuthelp.closeBtn.accessibilityName");
+				}
+			}
+			
+			public function focusCategories():void { //actually focuses the datagrid instead
+				focusManager.setFocus(keyList);
+				keyList.drawFocus(true);
 			}
 		]]>
 	</mx:Script>
 	
-	<mx:ComboBox id="categories" labelField="Please select an area for which to view shortcut keys: " editable="false" change="changeArray()">
+	<mx:ComboBox id="categories" labelField="Please select an area for which to view shortcut keys: " 
+				 editable="false" 
+				 change="changeArray()"
+				 tabIndex="{baseIndex + 10}">
 		<mx:ArrayCollection>
-        	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.all")}</mx:String>
         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.general")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.presentation")}</mx:String>
          	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.chat")}</mx:String>
-         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.audio")}</mx:String>
+         	<mx:String>{ResourceUtil.getInstance().getString("bbb.shortcuthelp.dropdown.users")}</mx:String>
       	</mx:ArrayCollection>
 	</mx:ComboBox>
-	<mx:DataGrid id="keyList" draggableColumns="false" dataProvider="{shownKeys}" width="100%" height="100%">
+	<mx:DataGrid id="keyList" draggableColumns="false" dataProvider="{shownKeys}" width="100%" height="100%" tabIndex="{baseIndex + 15}" >
 		<mx:columns>
-			<mx:DataGridColumn dataField="Shortcut" />
-			<mx:DataGridColumn dataField="Function" />
+			<mx:DataGridColumn dataField="shortcut" />
+			<mx:DataGridColumn dataField="func" />
 		</mx:columns>
 	</mx:DataGrid>
 </MDIWindow>

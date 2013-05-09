@@ -62,22 +62,22 @@ dependencies {
 	providedCompile 'javax.servlet:servlet-api:2.5@jar'
 	
 	// Mina
-	providedCompile 'mina:mina-core:2.0.4@jar'
-	providedCompile 'mina:mina-integration-beans:2.0.4@jar'
-	providedCompile 'mina:mina-integration-jmx:2.0.4@jar'
+	providedCompile 'org.apache.mina:mina-core:2.0.7@jar'
+	providedCompile 'org.apache.mina:mina-integration-beans:2.0.7@jar'
+	providedCompile 'org.apache.mina:mina-integration-jmx:2.0.7@jar'
 	
 	// Spring 
-	providedCompile 'org.springframework:spring-web:3.0.6.RELEASE@jar' 
-	providedCompile  'org.springframework:spring-beans:3.0.6.RELEASE@jar'
-	providedCompile 'org.springframework:spring-context:3.0.6.RELEASE@jar'
-	providedCompile 'org.springframework:spring-core:3.0.6.RELEASE@jar'
+	providedCompile 'org.springframework:spring-web:3.1.1.RELEASE@jar' 
+	providedCompile  'org.springframework:spring-beans:3.1.1.RELEASE@jar'
+	providedCompile 'org.springframework:spring-context:3.1.1.RELEASE@jar'
+	providedCompile 'org.springframework:spring-core:3.1.1.RELEASE@jar'
 	
 	// Red5
-	providedCompile 'org/red5:red5:1.0r4415@jar'
+	providedCompile 'org/red5:red5:1.0r4639@jar'
 	
 	// Logging
-	providedCompile 'org.slf4j:com.springsource.slf4j.api:1.6.1@jar'
-	providedCompile 'org.slf4j:com.springsource.slf4j.bridge:1.6.1@jar'
+	providedCompile 'ch.qos.logback:logback-core:1.0.9@jar'
+	providedCompile 'ch.qos.logback:logback-classic:1.0.9@jar'
 	providedCompile 'org.slf4j:log4j-over-slf4j:1.7.2@jar' 
 	providedCompile 'org.slf4j:jcl-over-slf4j:1.7.2@jar'
 	providedCompile 'org.slf4j:jul-to-slf4j:1.7.2@jar'
@@ -120,7 +120,6 @@ test {
 
 war.doLast {
   ant.unzip(src: war.archivePath, dest: "$buildDir/$appName")
-  ant.copy(file: "$buildDir/$appName/WEB-INF/logback-bigbluebutton.xml", todir: "$buildDir/$appName/WEB-INF/classes")
 }
 
 

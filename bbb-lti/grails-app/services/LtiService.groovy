@@ -26,8 +26,9 @@ class LtiService {
 
     boolean transactional = false
     
-    def endPoint = "http://192.168.0.153/lti/tool.xml"
+    def endPoint = "http://localhost/lti/tool.xml"
     def consumers = "demo:welcome"
+    def mode = "simple"
     Map<String, String> consumerMap
     
     private Map<String, String> getConsumer(consumerId) {
@@ -45,7 +46,9 @@ class LtiService {
     private void initConsumerMap(){
         this.consumerMap = new HashMap<String, String>()
         String[] consumers = this.consumers.split(",")
-        for( int i=0; i < consumers.length; i++){
+        //for( int i=0; i < consumers.length; i++){
+        if ( consumers.length > 0 ){
+            int i = 0;
             String[] consumer = consumers[i].split(":")
             if( consumer.length == 2 ){
                 this.consumerMap.put(consumer[0], consumer[1])

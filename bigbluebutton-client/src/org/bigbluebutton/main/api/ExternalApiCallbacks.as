@@ -32,9 +32,11 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.events.CoreEvent;
   import org.bigbluebutton.core.events.GetMyUserInfoRequestEvent;
   import org.bigbluebutton.core.events.IsUserPublishingCamRequest;
+  import org.bigbluebutton.core.events.VoiceConfEvent;
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.model.users.events.KickUserEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
   import org.bigbluebutton.modules.listeners.events.ListenersCommand;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
@@ -53,9 +55,11 @@ package org.bigbluebutton.main.api
     
     private function init():void {
       if (ExternalInterface.available) {
+        ExternalInterface.addCallback("ejectUserRequest", handleEjectUserRequest);
         ExternalInterface.addCallback("switchPresenterRequest", handleSwitchPresenterRequest);
         ExternalInterface.addCallback("getMyUserInfoSync", handleGetMyUserInfoSynch);
         ExternalInterface.addCallback("getMyUserInfoAsync", handleGetMyUserInfoAsynch);
+        ExternalInterface.addCallback("getPresenterUserID", handleGetPresenterUserID);
         ExternalInterface.addCallback("getMyUserID", handleGetMyUserID);
         ExternalInterface.addCallback("getExternalMeetingID", handleGetExternalMeetingID);
         ExternalInterface.addCallback("joinVoiceRequest", handleJoinVoiceRequest);
@@ -97,6 +101,11 @@ package org.bigbluebutton.main.api
       }
     }
  
+    private function handleEjectUserRequest(userID:String):void {
+        var intUserID:String = UsersUtil.externalUserIDToInternalUserID(userID);
+        _dispatcher.dispatchEvent(new KickUserEvent(intUserID));
+    }
+    
     private function handleIsUserPublishingCamRequestSync(userID:String):Object {
       var obj:Object = new Object();
       var isUserPublishing:Boolean = false;
@@ -126,6 +135,9 @@ package org.bigbluebutton.main.api
       obj.myAvatarURL = UsersUtil.getAvatarURL();
       obj.myRole = UsersUtil.getMyRole();
       obj.amIPresenter = UsersUtil.amIPresenter();
+	  obj.dialNumber = UsersUtil.getDialNumber();
+	  obj.voiceBridge = UsersUtil.getVoiceBridge();
+	  obj.customdata = UsersUtil.getCustomData();
       
       return obj;
     }
@@ -177,6 +189,15 @@ package org.bigbluebutton.main.api
     
     private function handleGetMyUserID():String {
       return UsersUtil.internalUserIDToExternalUserID(UsersUtil.getMyUserID());
+    }
+    
+    private function handleGetPresenterUserID():String {
+      var presUserID:String = UsersUtil.getPresenterUserID();
+      if (presUserID != "") {
+        return UsersUtil.internalUserIDToExternalUserID(presUserID);
+      }
+      // return an empty string. Meeting has no presenter.
+      return "";
     }
     
     private function handleGetExternalMeetingID():String {
@@ -271,22 +292,22 @@ package org.bigbluebutton.main.api
     }
     
     private function handleMuteAllUsersRequest():void {
-      _dispatcher.dispatchEvent(new ListenersCommand(ListenersCommand.MUTE_ALL));
+      _dispatcher.dispatchEvent(new VoiceConfEvent(VoiceConfEvent.MUTE_ALL));
     }
     
     private function handleUnmuteAllUsersRequest():void {
-      _dispatcher.dispatchEvent(new ListenersCommand(ListenersCommand.UNMUTE_ALL));
+      _dispatcher.dispatchEvent(new VoiceConfEvent(VoiceConfEvent.UNMUTE_ALL));
     }
     
     private function handleMuteMeRequest():void {
-      var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);
+      var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
       e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
       e.mute = true;
       _dispatcher.dispatchEvent(e);
     }
 
     private function handleUnmuteMeRequest():void {
-      var e:ListenersCommand = new ListenersCommand(ListenersCommand.MUTE_USER);
+      var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
       e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
       e.mute = false;
       _dispatcher.dispatchEvent(e);
@@ -303,9 +324,8 @@ package org.bigbluebutton.main.api
     
     private function handleJoinVoiceRequest():void {
       trace("handleJoinVoiceRequest");
-      var joinEvent:BBBEvent = new BBBEvent("JOIN_VOICE_CONFERENCE_EVENT");
-      joinEvent.payload['useMicrophone'] = true;
-      _dispatcher.dispatchEvent(joinEvent);
+      var showMicEvent:BBBEvent = new BBBEvent("SHOW_MIC_SETTINGS");
+      _dispatcher.dispatchEvent(showMicEvent);
     }
     
     private function handleLeaveVoiceRequest():void {

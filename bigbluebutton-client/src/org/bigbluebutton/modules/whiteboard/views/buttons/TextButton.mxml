@@ -20,8 +20,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
            width="30" height="30"
-       click="onClick()" styleName="whiteboardTextButtonStyle"
-		   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.text')}" toggle="true">
+           click="onClick()" styleName="whiteboardTextButtonStyle"
+		   toolTip="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.text')}" toggle="true"
+		   accessibilityName="{ResourceUtil.getInstance().getString('ltbcustom.bbb.highlighter.toolbar.text.accessibilityName')}">
 	<mx:Script>
 		<![CDATA[
             import org.bigbluebutton.common.Images;

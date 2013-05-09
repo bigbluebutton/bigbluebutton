@@ -20,8 +20,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 -->
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
            width="30" height="30"
-       click="onClick()" styleName="whiteboardUndoButtonStyle"
-		   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo')}">
+           click="onClick()" styleName="whiteboardUndoButtonStyle"
+		   toolTip="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo')}"
+		   accessibilityName="{ResourceUtil.getInstance().getString('bbb.highlighter.toolbar.undo.accessibilityName')}">
 	<mx:Script>
 		<![CDATA[
 

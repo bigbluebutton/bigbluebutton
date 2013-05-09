@@ -28,6 +28,15 @@ package org.bigbluebutton.core
   public class UsersUtil
   {
     
+    public static function getPresenterUserID():String {
+      var presenter:BBBUser = UserManager.getInstance().getConference().getPresenter();
+      if (presenter != null) {
+        return presenter.userID;
+      }
+      
+      return "";
+    }
+    
     public static function amIPublishing():CameraSettingsVO {
      return UserManager.getInstance().getConference().amIPublishing();
     }
@@ -69,6 +78,18 @@ package org.bigbluebutton.core
     public static function getAvatarURL():String {
       return UserManager.getInstance().getConference().avatarURL;
     }
+	
+	public static function getVoiceBridge():String {
+		return UserManager.getInstance().getConference().voiceBridge;
+	}
+	
+	public static function getDialNumber():String {
+		return UserManager.getInstance().getConference().dialNumber;
+	}
+	
+	public static function getCustomData():Object {
+		return UserManager.getInstance().getConference().getMyCustomData();
+	}
     
     public static function getExternalMeetingID():String {
       return UserManager.getInstance().getConference().externalMeetingID;
@@ -79,7 +100,7 @@ package org.bigbluebutton.core
     }
     
     public static function amIPresenter():Boolean {
-      return UserManager.getInstance().getConference().amIPresenter();
+      return UserManager.getInstance().getConference().amIPresenter;
     }
     
     public static function getVoiceUser(voiceUserID:Number):BBBUser {
@@ -96,6 +117,10 @@ package org.bigbluebutton.core
     
     public static function isMe(userID:String):Boolean {
       return UserManager.getInstance().getConference().amIThisUser(userID);
+    }
+    
+    public static function getMyExternalUserID():String {
+      return UserManager.getInstance().getConference().getMyExternalUserID();
     }
     
     public static function getMyUserID():String {

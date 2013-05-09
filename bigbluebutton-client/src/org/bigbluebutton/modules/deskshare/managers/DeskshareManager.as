@@ -59,7 +59,7 @@ package org.bigbluebutton.modules.deskshare.managers
 			LogUtil.debug("Sending startViewing command");
 			service.sendStartViewingNotification(videoWidth, videoHeight);
 		}
-		
+		    
 		public function handleStartedViewingEvent():void {
 			LogUtil.debug("handleStartedViewingEvent");
 			service.sendStartedViewingNotification();
@@ -67,12 +67,14 @@ package org.bigbluebutton.modules.deskshare.managers
 											
 		public function handleMadePresenterEvent(e:MadePresenterEvent):void {
 			LogUtil.debug("Got MadePresenterEvent ");
-			toolbarButtonManager.addToolbarButton();
 			sharing = false;
 			var option:DeskshareOptions = new DeskshareOptions();
 			option.parseOptions();
 			if (option.autoStart) {
 				handleStartSharingEvent(true);
+			}
+			if(option.showButton){
+				toolbarButtonManager.addToolbarButton();
 			}
 		}
 		

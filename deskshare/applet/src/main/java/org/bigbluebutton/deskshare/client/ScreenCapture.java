@@ -41,7 +41,7 @@ public class ScreenCapture {
 	private int scaleWidth, scaleHeight, x,y, captureWidth, captureHeight;
 	private boolean quality;
 	private GraphicsConfiguration graphicsConfig;
-	
+
 	public ScreenCapture(int x, int y, int captureWidth, int captureHeight, int scaleWidth, int scaleHeight, boolean quality) {
 		this.captureWidth = captureWidth;
 		this.captureHeight = captureHeight;
@@ -61,14 +61,15 @@ public class ScreenCapture {
 
 	    graphicsConfig = js.getDefaultConfiguration();
 	}
-	
+		
 	public BufferedImage takeSingleSnapshot() {
 		BufferedImage capturedImage = robot.createScreenCapture(this.screenBounds);
+
+//		System.out.println("ScreenCapture snap: [cw=" + captureWidth + ",ch=" + captureHeight + "] at [x=" + x + ",y=" + y +"]"
+//				+ "[sw==" + scaleWidth + ",sh=" + scaleHeight + "]");
+		
 		if (needToScaleImage()) {
-			if (quality) {
-				return useQuality(capturedImage);
-			}
-			return getScaledInstance(capturedImage, scaleWidth, scaleHeight, RenderingHints.VALUE_INTERPOLATION_BICUBIC, true);
+			return useQuality(capturedImage);
 		} else {
 			return capturedImage;
 		}
@@ -103,15 +104,19 @@ public class ScreenCapture {
 	}
 
 	private BufferedImage useQuality(BufferedImage image) {	    
-	    BufferedImage resultImage = graphicsConfig.createCompatibleImage(scaleWidth, scaleHeight, image.getType());
+	    BufferedImage resultImage = graphicsConfig.createCompatibleImage(scaleWidth, scaleHeight, Transparency.BITMASK);
 	    resultImage.setAccelerationPriority(1);
 	    
 		Graphics2D g2 = resultImage.createGraphics();
+					
 		Image scaledImage = image.getScaledInstance(scaleWidth, scaleHeight, Image.SCALE_AREA_AVERAGING);
-		g2.drawImage(scaledImage, 0, 0, scaleWidth, scaleHeight, null);
+		g2.drawImage(scaledImage, 0, 0, scaleWidth, scaleHeight, null);				
+
+
 		g2.dispose();
 		return resultImage;
 	}
+	
 		 
 	/**
 	 * See http://today.java.net/pub/a/today/2007/04/03/perils-of-image-getscaledinstance.html
@@ -137,12 +142,7 @@ public class ScreenCapture {
      *    the {@code BILINEAR} hint is specified)
      * @return a scaled version of the original {@code BufferedImage}
      */
-    public BufferedImage getScaledInstance(BufferedImage img,
-                                           int targetWidth,
-                                           int targetHeight,
-                                           Object hint,
-                                           boolean higherQuality)
-    {
+    public BufferedImage getScaledInstance(BufferedImage img, int targetWidth, int targetHeight, Object hint, boolean higherQuality) {
         int type = (img.getTransparency() == Transparency.OPAQUE) ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
         BufferedImage ret = (BufferedImage)img;
         int w, h;

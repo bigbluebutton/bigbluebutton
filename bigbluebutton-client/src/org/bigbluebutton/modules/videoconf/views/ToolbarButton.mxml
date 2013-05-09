@@ -25,18 +25,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		   click="openPublishWindow()" creationComplete="init()" 
 		   mouseOver = "mouseOverHandler(event)"
 		   mouseOut = "mouseOutHandler(event)"
-		   toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start')}"
+		   toolTip="{this.selected ? ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop') : ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start')}"
 		   visible="{isPresenter}"
 		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
 
+	<mate:Listener type="{ShortcutEvent.SHARE_WEBCAM}" method="remoteClick" />
+	<mate:Listener type="{BBBEvent.CAM_SETTINGS_CLOSED}" method="handleCamSettingsClosedEvent"/>
+	<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" receive="enabled=false" />
+	
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
 			
 			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.main.events.BBBEvent;
+			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainToolbar;
-			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
+			import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable] public var isPresenter:Boolean;
@@ -64,17 +70,22 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_currentState = OFF_STATE;
 			}
 			
+			public function remoteClick(e:ShortcutEvent):void{
+				openPublishWindow();
+				dispatchEvent(new ShortcutEvent(ShortcutEvent.REMOTE_FOCUS_WEBCAM));
+			}
+			
 			public function publishingStatus(status:Number):void {
 				if(status == START_PUBLISHING) {
 					_currentState = ON_STATE;
-					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop');
+					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop');
 					camIcon = images.webcamOn;
 					this.enabled = true;
 					this.selected = true;
 				}
 				else {
 					_currentState = OFF_STATE;
-					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
+					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
 					camIcon = images.webcam;
 					this.enabled = true;
 					this.selected = false;
@@ -85,20 +96,28 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function openPublishWindow():void{
 				if(_currentState == ON_STATE) {
 					_currentState = OFF_STATE;
-					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
+					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.start');
 					camIcon = images.webcam;
 					this.selected = false;
 					dispatchEvent(new ClosePublishWindowEvent());				
 				}
 				else {
 					_currentState = ON_STATE;
-					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop');
+					//this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.video.toolTip.stop');
 					camIcon = images.webcamOn;
 					this.selected = true;
 					dispatchEvent(new ShareCameraRequestEvent());
 				}			
 			}
 			
+			private function handleCamSettingsClosedEvent(e:BBBEvent):void {
+				if(e.payload['clicked'] == "cancel"){
+					this.enabled = true;
+					this.selected = false;
+					_currentState = OFF_STATE;
+					camIcon = images.webcam;
+				}
+			}
 
 			private function mouseOverHandler(event:MouseEvent):void {
 				if(_currentState == ON_STATE)
@@ -118,8 +137,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getAlignment():String{
 				return MainToolbar.ALIGN_LEFT;
 			}
+			
+			public function theory():String{
+				return "Webcam button";
+			}
 		]]>
 	</mx:Script>
-	
-	<mate:Listener type="{ShareCameraRequestEvent.SHARE_CAMERA_REQUEST}" receive="enabled=false" />
 </mx:Button>

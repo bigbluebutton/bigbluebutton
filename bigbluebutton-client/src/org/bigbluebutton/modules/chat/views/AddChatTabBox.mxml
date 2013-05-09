@@ -27,25 +27,39 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-      import com.asfusion.mate.events.Dispatcher;
-      
-      import mx.collections.ArrayCollection;
-      
-      import org.bigbluebutton.core.EventConstants;
-      import org.bigbluebutton.core.UsersUtil;
-      import org.bigbluebutton.core.events.CoreEvent;
-      import org.bigbluebutton.core.managers.UserManager;
-      import org.bigbluebutton.modules.chat.model.ChatOptions;
-      import org.bigbluebutton.util.i18n.ResourceUtil;
+			import com.asfusion.mate.events.Dispatcher;
+			
+			import mx.collections.ArrayCollection;
+			
+			import org.bigbluebutton.core.EventConstants;
+			import org.bigbluebutton.core.UsersUtil;
+			import org.bigbluebutton.core.events.CoreEvent;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.modules.chat.events.ChatOptionsEvent;
+			import org.bigbluebutton.modules.chat.model.ChatOptions;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable] public var users:ArrayCollection;
 			[Bindable] public var chatView:ChatView;
+			[Bindable] private var fontSizes:Array = ['8', '10', '12', '14', '16', '18'];
 
 			[Bindable] public var chatOptions:ChatOptions = new ChatOptions();			
 
 			
 			private function init():void{
 				users = UserManager.getInstance().getConference().users;
+			}
+			
+			public function accessibleClick(event:KeyboardEvent):void{
+				if (event.keyCode == 32){
+					openPrivateChat(event);
+				}
+			}
+			
+			private function changeFontSize():void {
+				var e:ChatOptionsEvent = new ChatOptionsEvent(ChatOptionsEvent.CHANGE_FONT_SIZE);
+				e.fontSize = int(cmbFontSize.selectedItem);
+				dispatchEvent(e);
 			}
 
 			protected function openPrivateChat(event:Event):void{
@@ -77,6 +91,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:List id="usersList" height="100%" width="100%" dataProvider="{users}" dragEnabled="false"
                itemRenderer="org.bigbluebutton.modules.chat.views.UserRenderer"
                itemClick="openPrivateChat(event)"/>
+			<mx:VBox id="optionsBox" height="100%" width="50%" >
+				<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.chatOptions')}" />
+				<mx:HBox width="100%">
+					<mx:Label text="{ResourceUtil.getInstance().getString('bbb.chat.fontSize')}" />
+					<mx:ComboBox width="60" id="cmbFontSize" dataProvider="{fontSizes}" close="changeFontSize()" selectedIndex="1" />
+				</mx:HBox>
+			</mx:VBox>
 		</mx:VBox>
 	</mx:HBox>	
 </mx:VBox>

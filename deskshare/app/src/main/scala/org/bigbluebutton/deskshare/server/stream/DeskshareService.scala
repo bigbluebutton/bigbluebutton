@@ -26,8 +26,8 @@ import net.lag.logging.Logger
 class DeskshareService(streamManager: StreamManager, sessionGateway: SessionManagerGateway) {
 	private val log = Logger.get
  
-	def checkIfStreamIsPublishing(): HashMap[String, Any] = {
-		val room: String = Red5.getConnectionLocal().getScope().getName();
+	def checkIfStreamIsPublishing(room:String): HashMap[String, Any] = {
+//		val room: String = Red5.getConnectionLocal().getScope().getName();
 		log.debug("Checking if %s is streaming.", room)
 		var publishing = false
 		var width = 0

@@ -46,7 +46,7 @@ public class RoomManager {
 		rooms = new ConcurrentHashMap<String, RoomImp>();
 	}
 	
-	public void createRoom(String name,boolean record, String meetingid) {
+	public void createRoom(String name, boolean record, String meetingid) {
 		log.debug("Creating room: " + name);
 		RoomImp r = new RoomImp(name,record,meetingid);
 		rooms.putIfAbsent(name, r);

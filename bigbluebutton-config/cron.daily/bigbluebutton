@@ -3,11 +3,11 @@
 #
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
-# Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+# Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 #
 # This program is free software; you can redistribute it and/or modify it under the
 # terms of the GNU Lesser General Public License as published by the Free Software
-# Foundation; either version 2.1 of the License, or (at your option) any later
+# Foundation; either version 3.0 of the License, or (at your option) any later
 # version.
 #
 # BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
@@ -16,32 +16,32 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-# 
+#
 
 test -x /var/bigbluebutton || exit 0
 
 #
-# How far back to delete old files
+# How N days back to keep files
 #
 history=5
 
 #
-# Delete presentations older than 10 days
+# Delete presentations older than N days
 #
-find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec rm -r '{}' \;
+find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-*" -mtime +$history -exec rm -rf '{}' \;
 
 #
-# Delete webcam streams in red5 older than one day
+# Delete webcam streams in red5 older than N days
 #
 find /usr/share/red5/webapps/video/streams/ -name "*.flv" -mtime +$history -exec rm '{}' \;
 
 #
-# Delete desktop sharing streams in red5 older than one day
+# Delete desktop sharing streams in red5 older than N days
 #
 find /var/bigbluebutton/deskshare/ -name "*.flv" -mtime +$history -exec rm '{}' \;
 
 #
-# Delete FreeSWITCH wav recordings older than one day
+# Delete FreeSWITCH wav recordings older than N days
 #
 find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -exec rm '{}' \;
 

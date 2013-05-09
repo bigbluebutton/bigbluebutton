@@ -56,6 +56,10 @@ class UrlMappings {
 		   action = [GET:'showTextfile']
       }
       
+	  "/api/setConfigXML"(controller:"api") {
+		  action = [POST:'setConfigXML']
+	 }
+	  
       "/$controller/$action?/$id?"{
 	      constraints {
 			 // apply constraints here

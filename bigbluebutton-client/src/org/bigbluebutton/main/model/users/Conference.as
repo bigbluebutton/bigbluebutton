@@ -18,62 +18,113 @@
 */
 package org.bigbluebutton.main.model.users {
 	import mx.collections.ArrayCollection;
+	import mx.collections.Sort;
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
 	import org.bigbluebutton.core.vo.CameraSettingsVO;
-
+	
 	public class Conference {		
     public var meetingName:String;
     public var externalMeetingID:String;
     public var internalMeetingID:String;
+    public var externalUserID:String;
     public var avatarURL:String;
+	public var voiceBridge:String;
+	public var dialNumber:String;
     
     private var _myCamSettings:CameraSettingsVO = new CameraSettingsVO();
     
 		[Bindable] private var me:BBBUser = null;		
 		[Bindable] public var users:ArrayCollection = null;			
-	
-    private var defaultLayout:String;
+		private var sort:Sort;
+		
+	    private var defaultLayout:String;
     
 		public function Conference():void {
 			me = new BBBUser();
 			users = new ArrayCollection();
+			sort = new Sort();
+			sort.compareFunction = sortFunction;
+			users.sort = sort;
+			users.refresh();
+		}
+		
+		// Custom sort function for the users ArrayCollection. Need to put dial-in users at the very bottom.
+		private function sortFunction(a:Object, b:Object, array:Array = null):int {
+			/*if (a.presenter)
+				return -1;
+			else if (b.presenter)
+				return 1;*/
+			if (a.role == Role.MODERATOR && b.role == Role.MODERATOR) {
+				// do nothing go to the end and check names
+			} else if (a.role == Role.MODERATOR)
+				return -1;
+			else if (b.role == Role.MODERATOR)
+				return 1;
+			else if (a.raiseHand && b.raiseHand) {
+				// do nothing go to the end and check names
+			} else if (a.raiseHand)
+				return -1;
+			else if (b.raiseHand)
+				return 1;
+			else if (a.phoneUser && b.phoneUser) {
+				
+			} else if (a.phoneUser)
+				return -1;
+			else if (b.phoneUser)
+				return 1;
+			
+			/* 
+			 * Check name (case-insensitive) in the event of a tie up above. If the name 
+			 * is the same then use userID which should be unique making the order the same 
+			 * across all clients.
+			 */
+			if (a.name.toLowerCase() > b.name.toLowerCase())
+				return -1;
+			else if (a.name.toLowerCase() < b.name.toLowerCase())
+				return 1;
+			else if (a.userID.toLowerCase() > b.userID.toLowerCase())
+				return -1;
+			else if (a.userID.toLowerCase() < b.userID.toLowerCase())
+				return 1;
+			
+			return 0;
 		}
 
 		public function addUser(newuser:BBBUser):void {
-      trace("Adding new user [" + newuser.userID + "]");
+			trace("Adding new user [" + newuser.userID + "]");
 			if (! hasUser(newuser.userID)) {
-        trace("Am I this new user [" + newuser.userID + ", " + me.userID + "]");
+				trace("Am I this new user [" + newuser.userID + ", " + me.userID + "]");
 				if (newuser.userID == me.userID) {
 					newuser.me = true;
 				}						
 				
 				users.addItem(newuser);
-				sort();
+				users.refresh();
 			}					
 		}
-
-    public function setCamPublishing(publishing:Boolean):void {
-      _myCamSettings.isPublishing = publishing;
-    }
+		
+		public function setCamPublishing(publishing:Boolean):void {
+			_myCamSettings.isPublishing = publishing;
+		}
+		
+		public function setCameraSettings(camSettings:CameraSettingsVO):void {
+			_myCamSettings = camSettings;
+		}
+		
+		public function amIPublishing():CameraSettingsVO {
+			return _myCamSettings;
+		}
+		
+		public function setDefaultLayout(defaultLayout:String):void {
+			this.defaultLayout = defaultLayout;  
+		}
     
-    public function setCameraSettings(camSettings:CameraSettingsVO):void {
-      _myCamSettings = camSettings;
-    }
-    
-    public function amIPublishing():CameraSettingsVO {
-      return _myCamSettings;
-    }
-    
-    public function setDefaultLayout(defaultLayout:String):void {
-      this.defaultLayout = defaultLayout;  
-    }
-    
-    public function getDefaultLayout():String {
-      return defaultLayout;
-    }
+		public function getDefaultLayout():String {
+			return defaultLayout;
+		}
     
 		public function hasUser(userID:String):Boolean {
 			var p:Object = getUserIndex(userID);
@@ -132,17 +183,17 @@ package org.bigbluebutton.main.model.users {
 			return null;				
 		}
     
-    public function getUserWithExternUserID(userID:String):BBBUser {
-      var p:BBBUser;
-      for (var i:int = 0; i < users.length; i++) {
-        p = users.getItemAt(i) as BBBUser;	
-        if (p.externUserID == userID) {
-          return BBBUser.copy(p);
-        }
-      }	
-      
-      return null;
-    }
+		public function getUserWithExternUserID(userID:String):BBBUser {
+			var p:BBBUser;
+			for (var i:int = 0; i < users.length; i++) {
+				p = users.getItemAt(i) as BBBUser;	
+				if (p.externUserID == userID) {
+					return BBBUser.copy(p);
+				}
+			}	
+		  
+			return null;
+		}
 
 		public function isUserPresenter(userID:String):Boolean {
 			var user:Object = getUserIndex(userID);
@@ -159,7 +210,8 @@ package org.bigbluebutton.main.model.users {
 			if (p != null) {
 				trace("removing user[" + p.participant.name + "," + p.participant.userID + "]");				
 				users.removeItemAt(p.index);
-				sort();
+				//sort();
+				users.refresh();
 			}							
 		}
 		
@@ -184,24 +236,25 @@ package org.bigbluebutton.main.model.users {
 			return null;
 		}
     
-    public function getVoiceUser(voiceUserID:Number):BBBUser {     
-      for (var i:int = 0; i < users.length; i++) {
-        var aUser:BBBUser = users.getItemAt(i) as BBBUser;
-        if (aUser.voiceUserid == voiceUserID) return aUser;
-      }
-      
-      return null;
-    }
+		public function getVoiceUser(voiceUserID:Number):BBBUser {     
+			for (var i:int = 0; i < users.length; i++) {
+				var aUser:BBBUser = users.getItemAt(i) as BBBUser;
+				if (aUser.voiceUserid == voiceUserID) return aUser;
+			}
+			
+			return null;
+		}
 	
-    public function whatsMyRole():String {
-      return me.role;
-    }
+		public function whatsMyRole():String {
+			return me.role;
+		}
     
-		public function amIPresenter():Boolean {
+    	[Bindable]
+		public function get amIPresenter():Boolean {
 			return me.presenter;
 		}
 		
-		public function setMePresenter(presenter:Boolean):void {
+		public function set amIPresenter(presenter:Boolean):void {
 			me.presenter = presenter;
 		}
 				
@@ -209,9 +262,9 @@ package org.bigbluebutton.main.model.users {
 			return me.userID == userID;
 		}
 		
-    public function getMyRole():String {
-      return me.role;
-    }
+		public function getMyRole():String {
+			return me.role;
+		}
     
 		public function amIModerator():Boolean {
 			return me.role == Role.MODERATOR;
@@ -273,6 +326,10 @@ package org.bigbluebutton.main.model.users {
 			return me.voiceLocked;
 		}
 		
+    public function getMyExternalUserID():String {
+      return externalUserID;
+    }
+    
 		public function getMyUserId():String {
 			return me.userID;
 		}
@@ -287,6 +344,14 @@ package org.bigbluebutton.main.model.users {
 		
 		public function getMyName():String {
 			return me.name;
+		}
+		
+		public function setMyCustomData(customdata:Object):void{
+			me.customdata = customdata;
+		}
+		
+		public function getMyCustomData():Object{
+			return me.customdata;
 		}
 		
 		public function setMyRole(role:String):void {
@@ -312,25 +377,16 @@ package org.bigbluebutton.main.model.users {
 				aUser.changeStatus(s);
 			}	
 			
-			sort();		
+			users.refresh();		
 		}
     
-    public function getUserIDs():ArrayCollection {
-      var uids:ArrayCollection = new ArrayCollection();
-      for (var i:int = 0; i < users.length; i++) {
-        var u:BBBUser = users.getItemAt(i) as BBBUser;
-        uids.addItem(u.userID);
-      }
-      return uids;
-    }
-		
-		/**
-		 * Sorts the users by name 
-		 * 
-		 */		
-		private function sort():void {
-			users.source.sortOn("name", Array.CASEINSENSITIVE);	
-			users.refresh();				
-		}				
+		public function getUserIDs():ArrayCollection {
+			var uids:ArrayCollection = new ArrayCollection();
+			for (var i:int = 0; i < users.length; i++) {
+				var u:BBBUser = users.getItemAt(i) as BBBUser;
+				uids.addItem(u.userID);
+			}
+			return uids;
+		}		
 	}
 }

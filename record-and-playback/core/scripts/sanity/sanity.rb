@@ -49,6 +49,22 @@ def check_audio_files(raw_dir,meeting_id)
 
 end
 
+def check_webcam_files(raw_dir, meeting_id)
+    webcams = BigBlueButton::Events.get_start_video_events("#{raw_dir}/#{meeting_id}/events.xml")
+    webcams.each do |webcam|
+        raw_webcam_file = "#{raw_dir}/#{meeting_id}/video/#{meeting_id}/#{webcam[:stream]}.flv"
+        raise Exception, "Webcam file #{webcam[:stream]}.flv was not archived" if not File.exists? raw_webcam_file
+    end
+end
+
+def check_deskshare_files(raw_dir, meeting_id)
+    desktops = BigBlueButton::Events.get_start_deskshare_events("#{raw_dir}/#{meeting_id}/events.xml")
+    desktops.each do |desktop|
+        raw_desktop_file = "#{raw_dir}/#{meeting_id}/deskshare/#{desktop[:stream]}"
+        raise Exception, "Deskshare file #{desktop[:stream]} was not archived" if not File.exists? raw_desktop_file
+    end
+end
+
 BigBlueButton.logger = Logger.new('/var/log/bigbluebutton/sanity.log', 'daily' )
 
 opts = Trollop::options do
@@ -71,6 +87,10 @@ begin
 	check_events_xml(raw_archive_dir,meeting_id)
 	BigBlueButton.logger.info("checking audio")
 	check_audio_files(raw_archive_dir,meeting_id)
+        BigBlueButton.logger.info("checking webcam videos")
+        check_webcam_files(raw_archive_dir,meeting_id)
+        BigBlueButton.logger.info("checking deskshare videos")
+        check_deskshare_files(raw_archive_dir,meeting_id)
 	#delete keys
 	BigBlueButton.logger.info("deleting keys")
 	redis = BigBlueButton::RedisWrapper.new(redis_host, redis_port)
