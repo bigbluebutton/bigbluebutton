@@ -148,7 +148,7 @@
         	}
 			
 			// Need to refresh the roleBtn toolTip text on locale change
-			private function localeChanged(e:LocaleChangeEvent):void {
+			private function localeChanged(e:Event):void {
 				updateButton();
 			}
 		]]>

@@ -75,7 +75,7 @@ $Id: $
 				}
 			}
 			
-			private function localeChanged(e:LocaleChangeEvent):void {
+			private function localeChanged(e:Event):void {
 				updateMuteMeBtn();
 			}
 			
