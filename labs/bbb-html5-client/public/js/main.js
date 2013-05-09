@@ -3,6 +3,7 @@ requirejs.config({
   baseUrl: 'js',
   shim: {
     'colorwheel': ['raphael'],
+    'textflow': ['textflow-helper'],
     'backbone': {
       deps: ["underscore"],
       exports: "Backbone"
@@ -32,6 +33,8 @@ requirejs.config({
     'socket.io': '/socket.io/socket.io',
     'underscore': 'lib/underscore-min',
     'backbone': 'lib/backbone-min',
+    'textflow-helper': 'lib/textflow-helper',
+    'textflow': 'lib/textflow',
     'cs': 'lib/require/cs',
     'text': 'lib/require/text',
     'templates': '../templates',

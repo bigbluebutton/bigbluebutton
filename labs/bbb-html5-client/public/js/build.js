@@ -12,6 +12,7 @@
 
   shim: {
     'colorwheel': ['raphael'],
+    'textflow': ['textflow-helper'],
     'backbone': {
       deps: ["underscore"],
       exports: "Backbone"
@@ -38,12 +39,14 @@
     'raphael.core': 'lib/raphael/raphael.core',
     'raphael.vml': 'lib/raphael/raphael.vml',
     'raphael.svg': 'lib/raphael/raphael.svg',
-    'raphael.scale': 'lib/raphael/raphael.scale',
+    'scale.raphael': 'lib/raphael/scale.raphael',
     'eve': 'lib/raphael/eve',
     'colorwheel': 'lib/colorwheel',
     'socket.io': 'lib/socket.io',
     'underscore': 'lib/underscore-min',
     'backbone': 'lib/backbone-min',
+    'textflow-helper': 'lib/textflow-helper',
+    'textflow': 'lib/textflow',
     'text': 'lib/require/text',
     'templates': '../templates',
   }
