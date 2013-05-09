@@ -180,7 +180,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					<mx:Spacer width="100%"/>
 					<mx:LinkButton fontSize="10" label="" 
 								   styleName="micSettingsWindowHelpButtonStyle"
-								   click="onHelpButtonClicked()"/>          
+								   click="onHelpButtonClicked()"
+								   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.micSettings.access.')}"/>          
 				</mx:HBox>
 				<mx:HRule width="100%"/>
 			</mx:VBox>   
@@ -197,11 +198,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:VBox width="100%">
 				<mx:Spacer height="5"/>
 				<mx:HBox width="100%">
-					<mx:Label id="testMicLabel" text="Test Microphone" styleName="micSettingsWindowTestMicrophoneLabelStyle"/>
-					<mx:Spacer width="100%"/>
-					<mx:LinkButton fontSize="10" label="" 
-								   styleName="micSettingsWindowHelpButtonStyle"
-								   click="onHelpButtonClicked()"/>          
+					<mx:Label id="testMicLabel" text="Test Microphone" styleName="micSettingsWindowTestMicrophoneLabelStyle"/>        
 				</mx:HBox>
 			</mx:VBox> 
 		</mx:HBox>
