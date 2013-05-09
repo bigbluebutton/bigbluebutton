@@ -27,7 +27,7 @@ $Id: $
 	visible="false" 
 	creationComplete="onCreationComplete()"
 	toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" 
-	click="toggleMuteMeState()" width="100" maxWidth="180"
+	click="toggleMuteMeState()" width="140" maxWidth="180"
 	mouseOver="mouseOverHandler()"
 	mouseOut="mouseOutHandler()"
 	paddingTop="0"
