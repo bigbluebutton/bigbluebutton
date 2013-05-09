@@ -63,8 +63,8 @@ package org.bigbluebutton.modules.videoconf.business
 		protected var _minHeight:int = 120 + PADDING_VERTICAL;
 		protected var aspectRatio:Number = 1;
 		protected var keepAspect:Boolean = false;
-		protected var originalWidth:Number;
-		protected var originalHeight:Number;
+//		protected var originalWidth:Number;
+//		protected var originalHeight:Number;
 		
 		protected var mousePositionOnDragStart:Point;
 		
@@ -245,8 +245,6 @@ package org.bigbluebutton.modules.videoconf.business
 		}
 		
 		protected function createButtons():void {      
-			// creates the window keeping the aspect ratio 
-			onKeepAspectClick();
       updateButtonsPosition();
 		}
 		
@@ -296,27 +294,6 @@ package org.bigbluebutton.modules.videoconf.business
 			_controlButtonsEnabled = enabled;
 		}
 		
-		protected function onOriginalSizeClick(event:MouseEvent = null):void {
-			_video.width = _videoHolder.width = originalWidth;
-			_video.height = _videoHolder.height = originalHeight;
-			onFitVideoClick();
-		}		
-    
-		protected function onFitVideoClick(event:MouseEvent = null):void {
-			var newWidth:int = _video.width + paddingHorizontal;
-			var newHeight:int = _video.height + paddingVertical;
-			
-			this.x += (this.width - newWidth)/2;
-			this.y += (this.height - newHeight)/2;
-      
-			onResize();
-		}
-		
-		protected function onKeepAspectClick(event:MouseEvent = null):void {
-			keepAspect = !keepAspect;
-					
-			onFitVideoClick();
-		}
 		
     protected function userMuted(muted:Boolean):void {
       _controlButtons.userMuted(muted);

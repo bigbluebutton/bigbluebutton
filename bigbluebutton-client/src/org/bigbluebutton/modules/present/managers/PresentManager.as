@@ -75,7 +75,7 @@ package org.bigbluebutton.modules.present.managers
 			uploadWindow = new FileUploadWindow();
 			uploadWindow.presentationNamesAC = presentationNames;
 			uploadWindow.maxFileSize = e.maxFileSize;
-			mx.managers.PopUpManager.addPopUp(uploadWindow, presentWindow, false);
+			mx.managers.PopUpManager.addPopUp(uploadWindow, presentWindow, true);
 		}
 		
 		public function handleCloseUploadWindow():void{

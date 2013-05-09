@@ -72,6 +72,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
       private var fileToUpload:FileReference = new FileReference();
 
+      override public function move(x:Number, y:Number):void
+      {
+        return;
+      }
+      
       private function initData():void {
         if (presentationNamesAC.length <= 0) {
           selectFile();

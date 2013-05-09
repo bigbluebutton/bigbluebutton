@@ -58,6 +58,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.events.CoreEvent;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.events.SwitchedPresenterEvent;
       import org.bigbluebutton.main.views.MainCanvas;
       import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
@@ -67,11 +68,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
-	  import org.bigbluebutton.main.events.ShortcutEvent;
       
-			[Bindable] private var defaultWidth:Number = 320;
-			[Bindable] private var defaultHeight:Number = 240;
-			
+      [Bindable] private var defaultWidth:Number = 320;
+      [Bindable] private var defaultHeight:Number = 240;
+
+      
       public var camIndex:int = 0;
 			private var camWidth:Number = 320;
       private var camHeight:Number = 240;
@@ -302,27 +303,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					
 				showWarning('bbb.video.publish.hint.publishing', true, "0xFFFF00");
 				
-				defaultWidth = originalWidth;
-				defaultHeight = originalHeight;
-
 				var e:StartBroadcastEvent = new StartBroadcastEvent();
 				e.stream = this.streamName;
 				e.camera = _camera;
 				dispatchEvent(e);
 				
 				maximizeRestoreBtn.visible = true;
-				
-				onResize();
-				
-
-				
+								
         // Store the userid for the publisher. This allows us to control
         // the user's status from the video window
         userID = UsersUtil.getMyUserID();
 				
         createButtons();
         addControlButtons();
-        			
+                
+ //       onResize();			
 			}
 			
       private var _isClosing:Boolean = false;
@@ -354,17 +349,63 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				dispatchEvent(e);
 			}
 			
+      override protected function onResize():void {
+        
+        super.onResize();
+        
+        if (_videoHolder != null) {
+          if (videoIsSmallerThanWindow()) {
+            _video.width = camWidth;
+            _video.height = camHeight;            
+          } else {
+            fitVideoToWindow();
+          }    
+          
+          _video.x = (this.width - PADDING_HORIZONTAL - _video.width) / 2;
+          _video.y = (this.height - PADDING_VERTICAL - _video.height) / 2;    
+        }
+                     
+      }
+      
+      private function fitVideoToWindow():void {
+        if (_videoHolder.width - PADDING_HORIZONTAL < _videoHolder.height - PADDING_VERTICAL) {
+          fitToHeightAndAdjustWidthToMaintainAspectRatio();         			
+        } else {
+          fitToWidthAndAdjustHeightToMaintainAspectRatio();	
+        }				
+      }
+      
+      private function videoIsSmallerThanWindow():Boolean {
+        return (camWidth < _videoHolder.width - PADDING_HORIZONTAL) && (camHeight < _videoHolder.height - PADDING_VERTICAL);
+      }
+      
+      private function fitToWidthAndAdjustHeightToMaintainAspectRatio():void {
+        var aspect:Number = camHeight / camWidth;
+        _video.width = _videoHolder.width - PADDING_HORIZONTAL;
+        
+        // Maintain aspect-ratio
+        _video.height = _video.width * aspect;			
+      }
+      
+      private function fitToHeightAndAdjustWidthToMaintainAspectRatio():void {
+        var aspect:Number = camWidth / camHeight;
+        _video.height = _videoHolder.height - PADDING_VERTICAL;
+        
+        // Maintain aspect-ratio
+        _video.width = _video.height * aspect;				
+      }
 		
 			public function setResolution(width:int, height:int):void {
-				camWidth = originalWidth = width;
-				camHeight = originalHeight = height;
+				camWidth = width;
+				camHeight = height;
 				setAspectRatio(camWidth, camHeight);
 				
  				/**
          		 * Add timestamp to create a unique stream name. This way we can record	 	
          		 * stream without overwriting previously recorded streams.	 	
          		 */	 	
-				var curTime:Number = new Date().getTime();	
+        var d:Date = new Date();
+				var curTime:Number = d.getTime();	
         var uid:String = UserManager.getInstance().getConference().getMyUserId();
         var res:String = camWidth + "x" + camHeight;
         this.streamName = res.concat("-" + uid) + "-" + curTime;
