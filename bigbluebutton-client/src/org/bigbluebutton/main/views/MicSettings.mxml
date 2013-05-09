@@ -181,7 +181,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					<mx:LinkButton fontSize="10" label="" 
 								   styleName="micSettingsWindowHelpButtonStyle"
 								   click="onHelpButtonClicked()"
-								   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.micSettings.access.')}"/>          
+								   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>          
 				</mx:HBox>
 				<mx:HRule width="100%"/>
 			</mx:VBox>   
