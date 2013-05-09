@@ -228,9 +228,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					setResolution(_camera.width, _camera.height);
 				}				
 				
-				_video = new Video;
+				_video = new Video();
 				_video.attachCamera(_camera);
-
+        _video.smoothing = true;
+        
 				if (aspectRatio > _videoHolder.width / _videoHolder.height) {
 					_video.width = _videoHolder.width;
 					_video.height = _videoHolder.width / aspectRatio;
@@ -316,8 +317,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
         createButtons();
         addControlButtons();
-                
- //       onResize();			
+                	
 			}
 			
       private var _isClosing:Boolean = false;
@@ -354,13 +354,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         super.onResize();
         
         if (_videoHolder != null) {
-          if (videoIsSmallerThanWindow()) {
-            _video.width = camWidth;
-            _video.height = camHeight;            
-          } else {
+
             fitVideoToWindow();
-          }    
-          
+
           _video.x = (this.width - PADDING_HORIZONTAL - _video.width) / 2;
           _video.y = (this.height - PADDING_VERTICAL - _video.height) / 2;    
         }
