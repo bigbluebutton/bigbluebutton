@@ -29,3 +29,7 @@ jar.doFirst {
    jar.merge('../common/build/libs/bbb-deskshare-common-0.8.jar')
 }
 
+jar {
+   manifest.mainAttributes("Trusted-library": "true")
+
+}
