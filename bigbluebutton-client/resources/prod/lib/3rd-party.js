@@ -282,7 +282,7 @@ var uploadPresentation = function() {
   
   BBB.getInternalMeetingID(function(meetingID) {
     var formData = new FormData($('form')[0]);
-    formData.append("presentation_name", $('#fileUpload').value);
+    formData.append("presentation_name", document.getElementById('fileUpload').value.split(/(\\|\/)/g).pop());
     formData.append("conference", meetingID);
     formData.append("room", meetingID);
     
