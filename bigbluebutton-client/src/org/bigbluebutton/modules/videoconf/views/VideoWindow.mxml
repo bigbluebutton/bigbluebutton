@@ -169,6 +169,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_video = new Video(Number(res[0]), Number(res[1]));
 				_video.width = Number(res[0]);
 				_video.height = Number(res[1]);
+        _video.smoothing = true;
 				setAspectRatio(Number(res[0]), Number(res[1])); 
 				_video.attachNetStream(ns);
 				
