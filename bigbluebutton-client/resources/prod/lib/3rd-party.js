@@ -101,40 +101,40 @@ var registerListeners = function() {
   });
 
   console.log("Listen Presentation Updates");
-  BBB.listen("OfficeDocConversionSuccess", function(bbbEvent) {
-    console.log("checking event: " + JSON.stringify(bbbEvent));
+  BBB.listen("OfficeDocConversionSuccessEvent", function(bbbEvent) {
+    console.log("Successfully converted Office document. : " + JSON.stringify(bbbEvent));
   });
 
-  BBB.listen("OfficeDocConversionFailed", function(bbbEvent) {
-    console.log("checking event: " + JSON.stringify(bbbEvent));
+  BBB.listen("OfficeDocConversionFailedEvent", function(bbbEvent) {
+    console.log("Failed to convert Office document. : " + JSON.stringify(bbbEvent));
   });
 
-  BBB.listen("SupportedDocument", function(bbbEvent) {
-    console.log("checking event: " + JSON.stringify(bbbEvent));
+  BBB.listen("SupportedDocEvent", function(bbbEvent) {
+    console.log("Uploaded presentation file type is supported. : " + JSON.stringify(bbbEvent));
   });
 
-  BBB.listen("UnsupportedDocument", function(bbbEvent) {
-    console.log("checking event: " + JSON.stringify(bbbEvent));
+  BBB.listen("UnsupportedDocEvent", function(bbbEvent) {
+    console.log("Uploaded presentation file type is unsupported. : " + JSON.stringify(bbbEvent));
   });
 
-  BBB.listen("PageCountFailed", function(bbbEvent) {
-    console.log("checking event: " + JSON.stringify(bbbEvent));
+  BBB.listen("PageCountFailedEvent", function(bbbEvent) {
+    console.log("Failed to determine number of pages for the uploaded presentation. : " + JSON.stringify(bbbEvent));
   });
 
-  BBB.listen("ThumbnailsUpdate", function(bbbEvent) {
-    console.log("checking event: " + JSON.stringify(bbbEvent));
+  BBB.listen("ThumbnailsUpdateEvent", function(bbbEvent) {
+    console.log("Generating thumbnails for uploaded presentation. : " + JSON.stringify(bbbEvent));
   });
 
-  BBB.listen("PageCountExceeded", function(bbbEvent) {
-    console.log("checking event: " + JSON.stringify(bbbEvent));
+  BBB.listen("PageCountExceededEvent", function(bbbEvent) {
+    console.log("Uploaded presentation had exceeded max number of pages. : " + JSON.stringify(bbbEvent));
   });
 
-  BBB.listen("ConvertSuccess", function(bbbEvent) {
-    console.log("checking event: " + JSON.stringify(bbbEvent));
+  BBB.listen("ConversionSuccessEvent", function(bbbEvent) {
+    console.log("Successfully converted uploaded presentation. : " + JSON.stringify(bbbEvent));
   });
 
-  BBB.listen("ConvertUpdate", function(bbbEvent) {
-    console.log("checking event: " + JSON.stringify(bbbEvent));
+  BBB.listen("ConversionProgressEvent", function(bbbEvent) {
+    console.log("Progress update on conversion process. : " + JSON.stringify(bbbEvent));
   });
   
 }

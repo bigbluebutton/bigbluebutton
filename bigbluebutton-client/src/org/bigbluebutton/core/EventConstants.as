@@ -62,16 +62,15 @@ package org.bigbluebutton.core
     public static const IS_USER_PUBLISHING_CAM_RESP:String = "IsUserPublishingCamResponse";
     
     /** For Conversion Update Events **/
-
-    public static const OFFICE_DOC_CONVERSION_SUCCESS:String = "OfficeDocConversionSuccess";
-    public static const OFFICE_DOC_CONVERSION_FAILED:String = "OfficeDocConversionFailed";
-    public static const SUPPORTED_DOCUMENT:String = "SupportedDocument";
-    public static const UNSUPPORTED_DOCUMENT:String = "UnsupportedDocument";    
-    public static const PAGE_COUNT_FAILED:String = "PageCountFailed";
-    public static const THUMBNAILS_UPDATE:String = "ThumbnailsUpdate";
-    public static const PAGE_COUNT_EXCEEDED:String = "PageCountExceeded";
-    public static const CONVERT_SUCCESS:String = "ConvertSuccess";
-    public static const CONVERT_UPDATE:String = "ConvertUpdate";
+    public static const OFFICE_DOC_CONVERSION_SUCCESS:String    = "OfficeDocConversionSuccessEvent";
+    public static const OFFICE_DOC_CONVERSION_FAILED:String     = "OfficeDocConversionFailedEvent";
+    public static const SUPPORTED_DOCUMENT:String               = "SupportedDocEvent";
+    public static const UNSUPPORTED_DOCUMENT:String             = "UnsupportedDocEvent";    
+    public static const PAGE_COUNT_FAILED:String                = "PageCountFailedEvent";
+    public static const THUMBNAILS_UPDATE:String                = "ThumbnailsUpdateEvent";
+    public static const PAGE_COUNT_EXCEEDED:String              = "PageCountExceededEvent";
+    public static const CONVERT_SUCCESS:String                  = "ConversionSuccessEvent";
+    public static const CONVERT_UPDATE:String                   = "ConversionProgressEvent";
 
   }
 }
