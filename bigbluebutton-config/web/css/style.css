@@ -27,7 +27,7 @@ a:hover { text-decoration:underline; }
 
 /* Content */
 #main { margin: 0 auto; position: relative; width: 800px;}
-#main_content {	 margin-top:40px; height:580px;  padding:30px; border:solid #D7D8D9 1px; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; box-shadow: 0 1px 0 #fff, inset 0 2px 3px rgba(0,0,0,0.06), inset 0 0 2px rgba(0,0,0,0.04); text-shadow: 0 1px 0 white; }
+#main_content {	 margin-top:40px; height:680px;  padding:30px; border:solid #D7D8D9 1px; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; box-shadow: 0 1px 0 #fff, inset 0 2px 3px rgba(0,0,0,0.06), inset 0 0 2px rgba(0,0,0,0.04); text-shadow: 0 1px 0 white; }
 #content_api { width: 750px; height:auto; min-height: 400px; margin: 0 auto; padding: 20px 20px; margin-top:56px; border:solid #666 1px; }
 #welcome { width:390px; height:250px; display: block; float:left; }
 #welcome img { padding-right:10px; padding-top: 3px;}
