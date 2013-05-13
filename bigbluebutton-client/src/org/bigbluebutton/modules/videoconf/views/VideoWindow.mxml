@@ -36,6 +36,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceMutedEvent" />
 	<mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
 	<mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleNewRoleEvent" />
+  <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleNewRoleEvent" />
+  <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleNewRoleEvent" />
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
 	
 	<mx:Script>
@@ -117,9 +119,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.showCloseButton = videoOptions.showCloseButton;
 			}
 			
-			private function handleNewRoleEvent(event:SwitchedPresenterEvent):void {
-				switchRole(event.amIPresenter)
-			}
+      private function handleNewRoleEvent(event:Event):void {
+        updateControlButtons();
+      }
 			
 			private function handleUserVoiceMutedEvent(event:BBBEvent):void {
 				if (event.payload.userID ==  userID) {

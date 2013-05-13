@@ -84,8 +84,8 @@ package org.bigbluebutton.modules.videoconf.business
       return windowType;
     }
     
-    protected function switchRole(presenter:Boolean):void {
-      _controlButtons.handleNewRoleEvent(presenter);
+    protected function updateControlButtons():void {
+      _controlButtons.updateControlButtons();
     }
     
 		protected function getVideoResolution(stream:String):Array {

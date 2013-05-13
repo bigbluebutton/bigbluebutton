@@ -37,6 +37,15 @@ package org.bigbluebutton.core
       return "";
     }
     
+    public static function isUserJoinedToVoice(userID:String):Boolean {
+      var u:BBBUser = getUser(userID);
+      if (u != null) {
+        return u.voiceJoined;
+      }
+      
+      return false;
+    }
+    
     public static function amIPublishing():CameraSettingsVO {
      return UserManager.getInstance().getConference().amIPublishing();
     }
