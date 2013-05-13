@@ -181,7 +181,7 @@
 					}
 					
                     if (data.hasStream) {
-                        if (data.viewingStream) {
+                        if (data.viewingStream || data.me) {
                             webcamImg.visible = true;
                             webcamImg.includeInLayout = true;
                             webcamBtn.visible = false;
