@@ -207,8 +207,8 @@
 						
 						if (data.voiceLocked)
 							lockImg.source = images.locked_20;
-						else if (moderator)
-							lockImg.source = images.unlocked_20;
+						//else if (moderator)
+						//	lockImg.source = images.unlocked_20;
 						else
 							lockImg.source = null;
 					} else {
