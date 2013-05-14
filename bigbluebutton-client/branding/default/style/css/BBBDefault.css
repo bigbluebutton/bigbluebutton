@@ -60,11 +60,17 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
 
 
 .helpLinkButtonStyle {
+  paddingLeft: 4;
+  paddingRight: 4;
+  paddingTop: 2;
+  paddingBottom: 2;
+  fontSize: 16;
   rollOverColor: #cccccc;
   selectionColor: #999999;
   color: #ffffff;
   textRollOverColor: #504f3d;
   textSelectedColor: #504f3d;
+  fontWeight: bold;
 }
 
 DataGrid {

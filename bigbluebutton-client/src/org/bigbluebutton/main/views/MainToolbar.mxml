@@ -245,9 +245,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
              click="onShortcutButtonClick()" height="22" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" 
              tabIndex="{baseIndex+numButtons+6}" />
-	<mx:LinkButton id="helpBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}" 
-                 visible="{showHelpBtn}" click="onHelpButtonClicked()" height="22" styleName="helpLinkButtonStyle"
-                 tabIndex="{baseIndex+numButtons+7}" />
+	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="22" 
+                   styleName="helpLinkButtonStyle" tabIndex="{baseIndex+numButtons+7}" />
 	<mx:Button label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn')}" id="btnLogout" styleName="logoutButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()" height="22"
                  tabIndex="{baseIndex+numButtons+8}" />
