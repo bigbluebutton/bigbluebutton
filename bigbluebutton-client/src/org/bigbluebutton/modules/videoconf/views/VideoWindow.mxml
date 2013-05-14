@@ -53,6 +53,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.core.EventConstants;
 			import org.bigbluebutton.core.events.CoreEvent;
+            import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
 			import org.bigbluebutton.main.events.SwitchedPresenterEvent;
@@ -137,7 +138,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					_closing = true;
 					var stopEvent:StoppedViewingWebcamEvent = new StoppedViewingWebcamEvent();
 					stopEvent.webcamUserID = userID;
-					globalDispatcher.dispatchEvent(stopEvent);          
+					globalDispatcher.dispatchEvent(stopEvent); 
+                    
+                    if (UserManager.getInstance().getConference().hasUser(userID)) {
+                        UserManager.getInstance().getConference().getUser(userID).viewingStream = false;
+                    }
 				}
 				
 			}
@@ -196,7 +201,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.streamName = stream;
 				
 				this.width = _video.width + paddingHorizontal;
-				this.height = _video.height + paddingVertical;	
+				this.height = _video.height + paddingVertical;
+                
+                if (UserManager.getInstance().getConference().hasUser(userID)) {
+                    UserManager.getInstance().getConference().getUser(userID).viewingStream = true;
+                }
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{

@@ -285,7 +285,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
-			private function localeChanged(e:LocaleChangeEvent):void{
+			private function localeChanged(e:Event):void{
 				resourcesChanged();
 			}
 			

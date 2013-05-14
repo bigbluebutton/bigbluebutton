@@ -369,7 +369,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function hotkeyCapture():void{
 			    this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
-			    ResourceUtil.getInstance().addEventListener(Event.CHANGE, localeChanged); // Listen for locale changing
 		    }
 			
 			private function handleKeyDown(e:KeyboardEvent) :void {
