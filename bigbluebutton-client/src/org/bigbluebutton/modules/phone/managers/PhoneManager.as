@@ -119,6 +119,8 @@ package org.bigbluebutton.modules.phone.managers {
 			var uid:String = String(Math.floor(new Date().getTime()));
 			var uname:String = encodeURIComponent(UsersUtil.getMyExternalUserID() + "-" + attributes.username);
 			connectionManager.connect(uid, attributes.internalUserID, uname , attributes.room, attributes.uri);
+			var dispatcher:Dispatcher = new Dispatcher();
+			dispatcher.dispatchEvent(new BBBEvent(BBBEvent.JOIN_VOICE_FOCUS_HEAD));
 		}		
 		
 		public function rejoin():void {
