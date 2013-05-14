@@ -168,7 +168,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:VBox width="100%" height="100%"  paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
     
 		<mx:HBox width="100%">
-			<mx:Label text="Audio Settings" styleName="micSettingsWindowTitleStyle"/>
+			<!-- mx:Label text="Audio Settings" styleName="micSettingsWindowTitleStyle"/ -->
+			<mx:TextArea borderSkin="{null}" editable="false" text="{ResourceUtil.getInstance().getString('bbb.users.settings.audioSettings')}" styleName="micSettingsWindowTitleStyle"/>
+						 <!-- accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.title')} "/ -->
 			<mx:Spacer width="50%"/>
 		</mx:HBox>
     
@@ -180,7 +182,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					<mx:Spacer width="100%"/>
 					<mx:LinkButton fontSize="10" label="" 
 								   styleName="micSettingsWindowHelpButtonStyle"
-								   click="onHelpButtonClicked()"/>          
+								   click="onHelpButtonClicked()"
+								   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.access.helpButton')}"/>          
 				</mx:HBox>
 				<mx:HRule width="100%"/>
 			</mx:VBox>   
@@ -190,18 +193,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.hearFromHeadset')}"
 					 styleName="micSettingsWindowHearFromHeadsetLabelStyle"/>
 			<mx:Button id="playButton" label="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}" 
-					   click="playButtonClickHandler()" toggle="true" styleName="micSettingsWindowPlaySoundButtonStyle"/>		
+					   click="playButtonClickHandler()" toggle="true" styleName="micSettingsWindowPlaySoundButtonStyle"
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.playSound')}"/>		
 		</mx:HBox>
     
 		<mx:HBox width="100%">
 			<mx:VBox width="100%">
 				<mx:Spacer height="5"/>
 				<mx:HBox width="100%">
-					<mx:Label id="testMicLabel" text="Test Microphone" styleName="micSettingsWindowTestMicrophoneLabelStyle"/>
-					<mx:Spacer width="100%"/>
-					<mx:LinkButton fontSize="10" label="" 
-								   styleName="micSettingsWindowHelpButtonStyle"
-								   click="onHelpButtonClicked()"/>          
+					<mx:Label id="testMicLabel" text="Test Microphone" styleName="micSettingsWindowTestMicrophoneLabelStyle"/>        
 				</mx:HBox>
 			</mx:VBox> 
 		</mx:HBox>
@@ -222,7 +222,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                    styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
   				<mx:Button id="settingBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic')}" 
   						   styleName="micSettingsWindowChangeMicButtonStyle" toggle="true"
-  						   click="showMicSettingsPanel()"/>		
+  						   click="showMicSettingsPanel()"
+						   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.changeMic')}"/>		
         </mx:HBox>	
 			</mx:VBox>
 		</mx:HBox>	
@@ -232,11 +233,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			<mx:Spacer width="80%"/>
 			<mx:Button id="okBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.join')}" 
 					   styleName="micSettingsWindowJoinButtonStyle"
-					   click="onJoinClicked()"/>
+					   click="onJoinClicked()"
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.join')}"/>
 			<mx:Spacer width="10"/>
-			<mx:Button id="cancelBtn" label="Cancel" 
+			<mx:Button id="cancelBtn" label="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel')}" 
 					   styleName="micSettingsWindowCancelButtonStyle"
-					   click="onCancelClicked()"/>
+					   click="onCancelClicked()"
+					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.micSettings.cancel')}"/>
 		</mx:HBox>
 		
 	</mx:VBox>		
