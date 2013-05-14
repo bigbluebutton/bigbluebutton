@@ -90,13 +90,13 @@ $Id: $
 							muteMeBtnImg.source = images.audio;
 							muteMeBtnTxt.visible = true;
 							muteMeBtnTxt.includeInLayout = true;
-							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.listeners.talk");
+							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.talk");
 							hboxMuteMe.setStyle("paddingTop",0);
 						} else {
 							muteMeBtnImg.source = images.audio_muted;
 							muteMeBtnTxt.visible = true;
 							muteMeBtnTxt.includeInLayout = true;
-							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.listeners.mute");
+							muteMeBtnTxt.text = ResourceUtil.getInstance().getString("bbb.users.muteMeBtnTxt.mute");
 							hboxMuteMe.setStyle("paddingTop",0);
 						}
 					} else {
