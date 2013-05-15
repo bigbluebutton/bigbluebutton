@@ -131,53 +131,51 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 setToolType(WhiteboardConstants.TYPE_ZOOM, null);
             }
                        
-			private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
-        setToolType(e.graphicType, e.toolType);
-      }
+            private function handleWhiteboardButtonPressed(e:WhiteboardButtonEvent):void {
+                setToolType(e.graphicType, e.toolType);
+            }
             
-      private function setToolType(graphicType:String, toolType:String):void {                
-        canvas.setGraphicType(graphicType);
-        canvas.setTool(toolType);
-                
-        if (panzoomBtn != null) {
-          panzoomBtn.setTool(graphicType, toolType);
-        }
-                
-        if (scribbleBtn != null) {
-          scribbleBtn.setTool(graphicType, toolType); 
-        }
-                                
-        if (rectangleBtn != null) {
-          rectangleBtn.setTool(graphicType, toolType); 
-        }
-                
-        if (circleBtn != null) {
-          circleBtn.setTool(graphicType, toolType);
-        }
-                
-        if (triangleBtn != null) {
-          triangleBtn.setTool(graphicType, toolType);
-        }
-                                
-        if (lineBtn != null) {
-          lineBtn.setTool(graphicType, toolType);
-        }
-                
-        if (textBtn != null) {
-          textBtn.setTool(graphicType, toolType);
-        }
-                                
-        if(graphicType == WhiteboardConstants.TYPE_CLEAR) {
-          dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
-        }
-                
-        if (graphicType == WhiteboardConstants.TYPE_UNDO) {
-          sendUndoCommand();
-        }
-			}
-						
-			protected function changeColor(e:Event):void {
-				canvas.changeColor(e);
+            private function setToolType(graphicType:String, toolType:String):void {                
+                if (graphicType == WhiteboardConstants.TYPE_CLEAR) {
+                    dispatchEvent(new WhiteboardDrawEvent(WhiteboardDrawEvent.CLEAR));
+                } else if (graphicType == WhiteboardConstants.TYPE_UNDO) {
+                    sendUndoCommand();
+                } else {
+                    canvas.setGraphicType(graphicType);
+                    canvas.setTool(toolType);
+                    
+                    if (panzoomBtn != null) {
+                        panzoomBtn.setTool(graphicType, toolType);
+                    }
+                    
+                    if (scribbleBtn != null) {
+                        scribbleBtn.setTool(graphicType, toolType); 
+                    }
+                    
+                    if (rectangleBtn != null) {
+                        rectangleBtn.setTool(graphicType, toolType); 
+                    }
+                    
+                    if (circleBtn != null) {
+                        circleBtn.setTool(graphicType, toolType);
+                    }
+                    
+                    if (triangleBtn != null) {
+                        triangleBtn.setTool(graphicType, toolType);
+                    }
+                    
+                    if (lineBtn != null) {
+                        lineBtn.setTool(graphicType, toolType);
+                    }
+                    
+                    if (textBtn != null) {
+                        textBtn.setTool(graphicType, toolType);
+                    }
+                }
+            }
+            
+            protected function changeColor(e:Event):void {
+                canvas.changeColor(e);
 			}
 			
 			protected function changeFillColor(e:Event):void {
