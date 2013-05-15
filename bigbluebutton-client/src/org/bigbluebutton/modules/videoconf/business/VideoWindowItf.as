@@ -84,8 +84,8 @@ package org.bigbluebutton.modules.videoconf.business
       return windowType;
     }
     
-    protected function switchRole(presenter:Boolean):void {
-      _controlButtons.handleNewRoleEvent(presenter);
+    protected function updateControlButtons():void {
+      _controlButtons.updateControlButtons();
     }
     
 		protected function getVideoResolution(stream:String):Array {
@@ -256,8 +256,8 @@ package org.bigbluebutton.modules.videoconf.business
 			if (controlButtons.visible == false) {
 				controlButtons.y = controlButtons.x = 0;
 			} else {
-				controlButtons.y = _video.y + _video.height - controlButtons.height - controlButtons.padding;
-				controlButtons.x = _video.x + _video.width - controlButtons.width - controlButtons.padding;
+				controlButtons.y = this.height - PADDING_VERTICAL - controlButtons.height - controlButtons.padding;
+				controlButtons.x = this.width - PADDING_HORIZONTAL - controlButtons.width - controlButtons.padding;
 			}
 		}
 		

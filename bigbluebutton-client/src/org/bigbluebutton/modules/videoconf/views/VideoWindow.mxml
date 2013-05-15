@@ -36,6 +36,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceMutedEvent" />
 	<mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
 	<mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleNewRoleEvent" />
+  <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleNewRoleEvent" />
+  <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleNewRoleEvent" />
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
 	
 	<mx:Script>
@@ -51,6 +53,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.common.events.CloseWindowEvent;
 			import org.bigbluebutton.core.EventConstants;
 			import org.bigbluebutton.core.events.CoreEvent;
+            import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.events.BBBEvent;
 			import org.bigbluebutton.main.events.StoppedViewingWebcamEvent;
 			import org.bigbluebutton.main.events.SwitchedPresenterEvent;
@@ -117,9 +120,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.showCloseButton = videoOptions.showCloseButton;
 			}
 			
-			private function handleNewRoleEvent(event:SwitchedPresenterEvent):void {
-				switchRole(event.amIPresenter)
-			}
+      private function handleNewRoleEvent(event:Event):void {
+        updateControlButtons();
+      }
 			
 			private function handleUserVoiceMutedEvent(event:BBBEvent):void {
 				if (event.payload.userID ==  userID) {
@@ -135,7 +138,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					_closing = true;
 					var stopEvent:StoppedViewingWebcamEvent = new StoppedViewingWebcamEvent();
 					stopEvent.webcamUserID = userID;
-					globalDispatcher.dispatchEvent(stopEvent);          
+					globalDispatcher.dispatchEvent(stopEvent); 
+                    
+                    if (UserManager.getInstance().getConference().hasUser(userID)) {
+                        UserManager.getInstance().getConference().getUser(userID).viewingStream = false;
+                    }
 				}
 				
 			}
@@ -169,6 +176,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				_video = new Video(Number(res[0]), Number(res[1]));
 				_video.width = Number(res[0]);
 				_video.height = Number(res[1]);
+        _video.smoothing = true;
 				setAspectRatio(Number(res[0]), Number(res[1])); 
 				_video.attachNetStream(ns);
 				
@@ -193,7 +201,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.streamName = stream;
 				
 				this.width = _video.width + paddingHorizontal;
-				this.height = _video.height + paddingVertical;	
+				this.height = _video.height + paddingVertical;
+                
+                if (UserManager.getInstance().getConference().hasUser(userID)) {
+                    UserManager.getInstance().getConference().getUser(userID).viewingStream = true;
+                }
 			}
 			
 			private function onAsyncError(e:AsyncErrorEvent):void{

@@ -58,13 +58,24 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
   fontSize: 12;
 }
 
-
 .helpLinkButtonStyle {
+  paddingLeft: 4;
+  paddingRight: 4;
+  paddingTop: 2;
+  paddingBottom: 2;
+  fontSize: 16;
   rollOverColor: #cccccc;
   selectionColor: #999999;
   color: #ffffff;
   textRollOverColor: #504f3d;
   textSelectedColor: #504f3d;
+  fontWeight: bold;
+}
+
+.logoutButtonStyle {
+  paddingLeft: 0;
+  paddingRight: 0;
+  icon: Embed('assets/images/logout.png');
 }
 
 DataGrid {

@@ -37,6 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
       import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
       import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
+      import org.bigbluebutton.modules.present.events.UploadEvent;
     ]]>
   </mx:Script>
   <!--
@@ -124,4 +125,41 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <MethodInvoker generator="{ExternalApiCalls}" method="handleStartPrivateChatEvent" arguments="{event}"/>
   </EventHandlers>
   
+  <!-- Conversion Message Update -->
+  <EventHandlers type="{UploadEvent.OFFICE_DOC_CONVERSION_SUCCESS}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleOfficeDocConversionSuccess" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{UploadEvent.OFFICE_DOC_CONVERSION_FAILED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleOfficeDocConversionFailed" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{UploadEvent.SUPPORTED_DOCUMENT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleSupportedDocument" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{UploadEvent.UNSUPPORTED_DOCUMENT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUnsupportedDocument" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{UploadEvent.PAGE_COUNT_FAILED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handlePageCountFailed" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{UploadEvent.THUMBNAILS_UPDATE}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleThumbnailsUpdate" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{UploadEvent.PAGE_COUNT_EXCEEDED}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handlePageCountExceeded" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{UploadEvent.CONVERT_SUCCESS}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleConvertSuccess" arguments="{event}" />
+  </EventHandlers>
+
+  <EventHandlers type="{UploadEvent.CONVERT_UPDATE}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleConvertUpdate" arguments="{event}" />
+  </EventHandlers>
+
 </EventMap>

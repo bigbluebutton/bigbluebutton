@@ -68,6 +68,13 @@ if not FileTest.directory?(target_dir)
     pres_dir = "#{presentation_dir}/#{pres}"
     num_pages = BigBlueButton::Presentation.get_number_of_pages_for(pres_dir)
     pres_pdf = "#{pres_dir}/#{pres}.pdf"
+    if !File.exists?(pres_pdf)
+      BigBlueButton.logger.info("Falling back to old presentation filename")
+      pres_pdf = "#{pres_dir}/#{pres}"
+    end
+    if !File.exists?(pres_pdf)
+      raise "Could not find pdf file for presentation #{pres}"
+    end
     
     target_pres_dir = "#{processed_pres_dir}/#{pres}"
     FileUtils.mkdir_p target_pres_dir
@@ -96,8 +103,6 @@ if not FileTest.directory?(target_dir)
   
   if !Dir["#{raw_archive_dir}/video/*"].empty?    
     BigBlueButton.process_multiple_videos(target_dir, temp_dir, meeting_id, presentation_props['video_output_width'], presentation_props['video_output_height'])
-  else    
-    BigBlueButton::AudioProcessor.process("#{temp_dir}/#{meeting_id}", "#{target_dir}/audio.ogg")
   end
 
   process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", "w")

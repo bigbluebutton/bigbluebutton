@@ -54,6 +54,8 @@ package org.bigbluebutton.main.model.users
 			_hasStream = s;
 			verifyMedia();
 		}
+        
+        [Bindable] public var viewingStream:Boolean = false;
 		
 		[Bindable] public var streamName:String = "";
 		
@@ -228,6 +230,7 @@ package org.bigbluebutton.main.model.users
 			n.externUserID = user.externUserID;
 			n.name = user.name;
 			n.hasStream = user.hasStream;
+            n.viewingStream = user.viewingStream;
 			n.streamName = user.streamName;
 			n.presenter = user.presenter;
 			n.raiseHand = user.raiseHand;

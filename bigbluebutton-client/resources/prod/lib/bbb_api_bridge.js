@@ -208,6 +208,16 @@
         }
       }
     }
+
+    BBB.getInternalMeetingID = function(callback) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        console.log("Getting internal meetingID");
+        if (typeof callback === 'function') {
+          callback(swfObj.getInternalMeetingID());
+        }
+      }
+    }
     
     /**
      * Join the voice conference.
@@ -496,7 +506,18 @@
     var START_PRIVATE_CHAT          = "StartPrivateChatEvent";
     var GET_MY_USER_INFO_REP        = "GetMyUserInfoResponse";
     var IS_USER_PUBLISHING_CAM_RESP  = "IsUserPublishingCamResponse";
-           
+    
+    /*conversion events*/
+    var OFFICE_DOC_CONVERSION_SUCCESS = "OfficeDocConversionSuccess";
+    var OFFICE_DOC_CONVERSION_FAILED = "OfficeDocConversionFailed";
+    var SUPPORTED_DOCUMENT = "SupportedDocument";
+    var UNSUPPORTED_DOCUMENT = "UnsupportedDocument";    
+    var PAGE_COUNT_FAILED = "PageCountFailed";
+    var THUMBNAILS_UPDATE = "ThumbnailsUpdate";
+    var PAGE_COUNT_EXCEEDED = "PageCountExceeded";
+    var CONVERT_SUCCESS = "ConvertSuccess";
+    var CONVERT_UPDATE = "ConvertUpdate";
+
     window.BBB = BBB;
 })(this);
 

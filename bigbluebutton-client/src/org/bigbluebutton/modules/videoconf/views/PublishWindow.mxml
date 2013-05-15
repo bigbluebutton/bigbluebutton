@@ -38,9 +38,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceMutedEvent" />
   <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
   <mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleNewRoleEvent" />
+  <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleNewRoleEvent" />
+  <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleNewRoleEvent" />
   <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
   <mate:Listener type="{ShortcutEvent.REMOTE_FOCUS_WEBCAM}" method="remoteFocus" />
-  
+   
 	<mx:Script>
 		<![CDATA[
       import flexlib.mdi.events.MDIWindowEvent;
@@ -164,10 +166,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				autoPublishTimer.stop();
 			}
 			
-      private function handleNewRoleEvent(event:SwitchedPresenterEvent):void {
-        switchRole(event.amIPresenter)
+      private function handleNewRoleEvent(event:Event):void {
+        updateControlButtons();
       }
-      
+            
       private function handleUserVoiceMutedEvent(event:BBBEvent):void {
         if (event.payload.userID ==  userID) {
           userMuted(event.payload.muted);
@@ -228,9 +230,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					setResolution(_camera.width, _camera.height);
 				}				
 				
-				_video = new Video;
+				_video = new Video();
 				_video.attachCamera(_camera);
-
+        _video.smoothing = true;
+        
 				if (aspectRatio > _videoHolder.width / _videoHolder.height) {
 					_video.width = _videoHolder.width;
 					_video.height = _videoHolder.width / aspectRatio;
@@ -316,8 +319,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
         createButtons();
         addControlButtons();
-                
- //       onResize();			
+                	
 			}
 			
       private var _isClosing:Boolean = false;
@@ -354,13 +356,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         super.onResize();
         
         if (_videoHolder != null) {
-          if (videoIsSmallerThanWindow()) {
-            _video.width = camWidth;
-            _video.height = camHeight;            
-          } else {
+
             fitVideoToWindow();
-          }    
-          
+
           _video.x = (this.width - PADDING_HORIZONTAL - _video.width) / 2;
           _video.y = (this.height - PADDING_VERTICAL - _video.height) / 2;    
         }

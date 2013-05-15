@@ -164,7 +164,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				focusManager.setFocus(titleBarOverlay);
 			}
 		
-			private function localeChanged(e:LocaleChangeEvent):void{
+			private function localeChanged(e:Event):void{
 				resourcesChanged();
 			}
 			

@@ -43,6 +43,7 @@ package org.bigbluebutton.main.events {
 	public static const CAM_SETTINGS_CLOSED:String = "CAM_SETTINGS_CLOSED";
 	public static const BREAKOUT_ROOM_CHANGED:String = "BREAKOUT_ROOM_CHANGED";
 	
+	public static const JOIN_VOICE_FOCUS_HEAD:String = "JOIN_VOICE_FOCUS_HEAD";
    
 		public var message:String;
 		public var payload:Object = new Object();

@@ -38,7 +38,6 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.model.users.events.KickUserEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
-  import org.bigbluebutton.modules.listeners.events.ListenersCommand;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
@@ -62,6 +61,7 @@ package org.bigbluebutton.main.api
         ExternalInterface.addCallback("getPresenterUserID", handleGetPresenterUserID);
         ExternalInterface.addCallback("getMyUserID", handleGetMyUserID);
         ExternalInterface.addCallback("getExternalMeetingID", handleGetExternalMeetingID);
+        ExternalInterface.addCallback("getInternalMeetingID", handleGetInternalMeetingID);
         ExternalInterface.addCallback("joinVoiceRequest", handleJoinVoiceRequest);
         ExternalInterface.addCallback("leaveVoiceRequest", handleLeaveVoiceRequest);   
         ExternalInterface.addCallback("isUserPublishingCamRequestSync", handleIsUserPublishingCamRequestSync);
@@ -202,6 +202,10 @@ package org.bigbluebutton.main.api
     
     private function handleGetExternalMeetingID():String {
       return UserManager.getInstance().getConference().externalMeetingID;
+    }
+
+    private function handleGetInternalMeetingID():String {
+      return UserManager.getInstance().getConference().internalMeetingID;
     }
     
     private function handleSendLockLayoutRequest(lock:Boolean):void {

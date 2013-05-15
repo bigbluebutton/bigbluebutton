@@ -26,7 +26,6 @@
 	verticalAlign="middle"
 	creationComplete="onCreationComplete()" > 
 	
-	<mate:Listener type="{StoppedViewingWebcamEvent.STOPPED_VIEWING_WEBCAM}" method="onViewVideoCloseEvent"/>
 	<mate:Listener type="{UsersRollEvent.USER_ROLL_OVER}" method="onRollOver" />
 	<mate:Listener type="{UsersRollEvent.USER_ROLL_OUT}" method="onRollOut" />
 	
@@ -77,10 +76,10 @@
 				BindingUtils.bindSetter(updateButtons, voiceJoinedInd, "visible");
 				BindingUtils.bindSetter(updateButtons, muteInd, "visible");
 				BindingUtils.bindSetter(updateButtons, voiceLockedInd, "visible");
-				
+				BindingUtils.bindSetter(updateButtons, hasStreamInd, "visible");
+                BindingUtils.bindSetter(updateButtons, viewingStreamInd, "visible");
+                
 				options = new UsersOptions();
-				
-				LogUtil.debug("CHAD: " + options.allowKickUser);
 			}
 			
 			private function dataChangeHandler(e:Event):void {
@@ -125,15 +124,8 @@
 			}
 			
 			private function viewCamera():void {
-   				webcamBtn.enabled = false;
 				dispatchEvent(new ViewCameraEvent(data.userID, data.streamName, data.name));
-   			}
-   			
-   			private function onViewVideoCloseEvent(event:StoppedViewingWebcamEvent):void {
-   				if (data.userID == event.webcamUserID) {
-   					webcamBtn.enabled = true;
-   				}
-   			}		
+   			}	
 			
 			private function kickUser():void{
 				dispatchEvent(new KickUserEvent(data.userID));
@@ -188,6 +180,25 @@
 						lockBtn.includeInLayout = rolledOver;
 					}
 					
+                    if (data.hasStream) {
+                        if (data.viewingStream || data.me) {
+                            webcamImg.visible = true;
+                            webcamImg.includeInLayout = true;
+                            webcamBtn.visible = false;
+                            webcamBtn.includeInLayout = false;
+                        } else {
+                            webcamImg.visible = false;
+                            webcamImg.includeInLayout = false;
+                            webcamBtn.visible = true;
+                            webcamBtn.includeInLayout = true;
+                        }
+                    } else {
+                        webcamImg.visible = false;
+                        webcamImg.includeInLayout = true;
+                        webcamBtn.visible = false;
+                        webcamBtn.includeInLayout = false;
+                    }
+                    
 					if (!rolledOver) {
 						if (data.voiceMuted)
 							muteImg.source = images.audio_muted_20;
@@ -196,8 +207,8 @@
 						
 						if (data.voiceLocked)
 							lockImg.source = images.locked_20;
-						else if (moderator)
-							lockImg.source = images.unlocked_20;
+						//else if (moderator)
+						//	lockImg.source = images.unlocked_20;
 						else
 							lockImg.source = null;
 					} else {
@@ -219,9 +230,12 @@
 	
 	<!--mx:Image id="talkingIcon" visible="{data.talking}" source="{images.sound_new}" width="20" height="16" 
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.talking')}" /-->
-	<mx:Button id="webcamBtn" visible="{data.hasStream}" click="viewCamera()" icon="{images.webcam_new}"
-				width="20" height="20" enabled="false"
+	<mx:Image id="webcamImg" visible="false" source="{images.webcam_new_20}"
+				width="20" height="20"
 				toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcam')}" />
+    <mx:Button id="webcamBtn" visible="false" includeInLayout="false" icon="{images.webcam_new_20}"
+              width="20" height="20" enabled="true" click="viewCamera()"
+              toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer.webcamBtn')}" />
 	<mx:Image id="muteImg" visible="false" includeInLayout="true" width="20" height="20" />
 	<mx:Button id="muteBtn" visible="false" includeInLayout="false" enabled="false" icon="{images.audio}"
 				width="20" height="20" click="toggleMuteState()"
@@ -242,4 +256,6 @@
 	<mx:Image id="muteInd" includeInLayout="false" visible="{data.voiceMuted}" />
 	<mx:Image id="voiceJoinedInd" includeInLayout="false" visible="{data.voiceJoined}" />
 	<mx:Image id="voiceLockedInd" includeInLayout="false" visible="{data.voiceLocked}" />
+    <mx:Image id="hasStreamInd" includeInLayout="false" visible="{data.hasStream}" />
+    <mx:Image id="viewingStreamInd" includeInLayout="false" visible="{data.viewingStream}" />
 </mx:HBox>

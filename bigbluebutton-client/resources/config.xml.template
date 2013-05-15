@@ -24,25 +24,10 @@
 			position="top-right"
 			baseTabIndex="701"
 		/>
-		
-<!--		
-		<module name="ViewersModule" url="http://HOST/client/ViewersModule.swf?v=VERSION" 
-			uri="rtmp://HOST/bigbluebutton" 
-			host="http://HOST/bigbluebutton/api/enter"
-			allowKickUser="false"
-			baseTabIndex="201"
-		/>
-			
-		<module name="ListenersModule" url="http://HOST/client/ListenersModule.swf?v=VERSION" 
-			uri="rtmp://HOST/bigbluebutton" 
-			recordingHost="http://HOST"
-			position="bottom-left"
-			baseTabIndex="301"
-		/>
--->
 
 		<module name="UsersModule" url="http://HOST/client/UsersModule.swf?v=VERSION" 
 			uri="rtmp://HOST/bigbluebutton" 
+			allowKickUser="true"
 		/>
 
 		
