@@ -129,7 +129,6 @@
 			}
 
 			public function disableButton():void {
-				LogUtil.debug("TESTE TESTE DESATIVA DESATIVA");
 				this.selected = false;
 				this.enabled = false;
 				stopChangingIcon = true;
