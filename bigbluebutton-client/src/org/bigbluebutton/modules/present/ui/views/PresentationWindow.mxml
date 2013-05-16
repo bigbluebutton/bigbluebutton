@@ -610,27 +610,45 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function remoteUpload(e:ShortcutEvent):void{
-				openUploadWindow();
+				if (uploadPres.visible){
+					uploadPres.setFocus();
+					openUploadWindow();
+				}
 			}
 			
 			private function remotePrevious(e:ShortcutEvent):void{
-				gotoPreviousSlide();
+				if (backButton.visible && backButton.enabled){
+					backButton.setFocus();
+					gotoPreviousSlide();
+				}
 			}
 			
 			private function remoteSelect(e:ShortcutEvent):void{
-				showThumbnails();
+				if (btnSlideNum.visible){
+					btnSlideNum.setFocus();
+					showThumbnails();
+				}
 			}
 			
 			private function remoteNext(e:ShortcutEvent):void{
-				gotoNextSlide();
+				if (forwardButton.visible && forwardButton.enabled){
+					forwardButton.setFocus();
+					gotoNextSlide();
+				}
 			}
 			
 			private function remoteWidth(e:ShortcutEvent):void{
-				onFitToPage(false);
+				if (btnFitToWidth.visible){
+					btnFitToWidth.setFocus();
+					onFitToPage(false);
+				}
 			}
 			
 			private function remotePage(e:ShortcutEvent):void{
-				onFitToPage(true);
+				if (btnFitToPage.visible){
+					btnFitToPage.setFocus();
+					onFitToPage(true);
+				}
 			}
 			
 			private function onUploadButtonClicked():void {
