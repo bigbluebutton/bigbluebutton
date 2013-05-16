@@ -55,12 +55,6 @@ package org.bigbluebutton.modules.phone.managers {
 			this.attributes = attributes;
 			var vxml:XML = BBB.getConfigForModule("PhoneModule");
 			phoneOptions = new PhoneOptions();
-			if (vxml != null) {
-				phoneOptions.showButton = (vxml.@showButton.toString().toUpperCase() == "TRUE") ? true : false;
-				phoneOptions.autoJoin = (vxml.@autoJoin.toString().toUpperCase() == "TRUE") ? true : false;
-				phoneOptions.skipCheck = (vxml.@skipCheck.toString().toUpperCase() == "TRUE") ? true : false;
-				phoneOptions.joinGlobal = (vxml.@joinGlobal.toString().toUpperCase() == "TRUE") ? true : false; 
-			}
 
 			if (phoneOptions.joinGlobal) {
 				joinVoiceGlobal();
