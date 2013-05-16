@@ -54,6 +54,7 @@
 			public const ACTIVE_STATE:Number = 1;
 			private var _currentState:Number = DEFAULT_STATE;
 			private var _changeState:Boolean = false;
+			private var stopChangingIcon:Boolean = false;
 		
 			
 			[Bindable] public var phoneIcon:Class = images.headsetDefaultIcon;
@@ -86,40 +87,77 @@
 					}
 					dispatcher.dispatchEvent(askToChangeEvent);
 				}
+				if(stopChangingIcon) {
+					disableButton();
+				}
 			}
 			
 			private function mouseOverHandler(event:MouseEvent):void {
-				if(_currentState == ACTIVE_STATE)
-					phoneIcon = images.headsetInactiveIcon;
-				else
-					phoneIcon = images.headsetActiveIcon;			
+				if(stopChangingIcon) {
+					disableButton();
+				}
+				else {
+					if(stopChangingIcon == false) {
+						if(_currentState == ACTIVE_STATE)
+							phoneIcon = images.headsetInactiveIcon;
+						else
+							phoneIcon = images.headsetActiveIcon;	
+					}
+					else {
+						phoneIcon = images.headsetDefaultIcon;
+					}		
+				}
 			}
 
 			private function mouseOutHandler(event:MouseEvent):void {
-				if(_currentState == ACTIVE_STATE)
-					phoneIcon = images.headsetActiveIcon;
-				else
-					phoneIcon = images.headsetDefaultIcon;			
+				if(stopChangingIcon) {
+					disableButton();
+				}
+				else {
+					if(_currentState == ACTIVE_STATE)
+						phoneIcon = images.headsetActiveIcon;
+					else
+						phoneIcon = images.headsetDefaultIcon;	
+				}		
+			}
+
+			public function disableButton():void {
+				LogUtil.debug("TESTE TESTE DESATIVA DESATIVA");
+				this.selected = false;
+				this.enabled = false;
+				stopChangingIcon = true;
+				phoneIcon = images.headsetDefaultIcon;
+				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.nomic');
 			}
 
 			public function userJoinedConference(joined: Boolean):void {
 				if (joined) {
-					this.selected = true;
-					this.enabled = true;
-					_currentState = ACTIVE_STATE;
-					phoneIcon = images.headsetActiveIcon;
-					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');
+					if(stopChangingIcon) {
+						disableButton();
+					}
+					else {
+						this.selected = true;
+						this.enabled = true;
+						_currentState = ACTIVE_STATE;
+						phoneIcon = images.headsetActiveIcon;
+						this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.stop');
+					}
 
 				} else {
-					this.selected = false;
-					this.enabled = true;
-					_currentState = DEFAULT_STATE;
-					phoneIcon = images.headsetDefaultIcon;
-					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
+					if(stopChangingIcon) {
+						disableButton();
+					}
+					else {
+						this.selected = false;
+						this.enabled = true;
+						_currentState = DEFAULT_STATE;
+						phoneIcon = images.headsetDefaultIcon;
+						this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
+					}
 				}
 			}
 			
-			private function noMicrophone():Boolean {
+			public function noMicrophone():Boolean {
 				return ((Microphone.getMicrophone() == null) || (Microphone.names.length == 0) 
 					|| ((Microphone.names.length == 1) && (Microphone.names[0] == "Unknown Microphone")));
 			}
@@ -130,6 +168,10 @@
 				_currentState = DEFAULT_STATE;
 				phoneIcon = images.headsetDefaultIcon;
 				this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
+				if(stopChangingIcon) {
+					disableButton();
+				}
+					
 			}
 			
 			
@@ -155,6 +197,9 @@
 				else {
 					phoneIcon = images.headsetDefaultIcon;
 					this.toolTip = ResourceUtil.getInstance().getString('bbb.toolbar.phone.toolTip.start');
+				}
+				if(stopChangingIcon) {
+					disableButton();
 				}
 			}
 			

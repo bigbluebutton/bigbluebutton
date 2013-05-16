@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.phone.maps
 	import org.bigbluebutton.modules.phone.PhoneOptions;
 	import org.bigbluebutton.modules.phone.views.components.ToolbarButton;
 	import org.bigbluebutton.modules.phone.views.components.MuteButton;
+	
 	public class PhoneEventMapDelegate {
 		private var phoneOptions:PhoneOptions;
 		private var phoneButton:ToolbarButton;
@@ -49,7 +50,9 @@ package org.bigbluebutton.modules.phone.maps
 
 		public function addToolbarButton():void {
 		   	phoneButton.toggle = true;
-		   	
+			if(phoneButton.noMicrophone())
+				phoneButton.disableButton();
+			
 		   	if (phoneOptions.showButton) {
 			   	// Use the GLobal Dispatcher so that this message will be heard by the
 			   	// main application.		   	
@@ -62,6 +65,9 @@ package org.bigbluebutton.modules.phone.maps
 			var event2:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 			event2.button = soundButton;
 			globalDispatcher.dispatchEvent(event2);
+
+			
+
 			
 		}
 		

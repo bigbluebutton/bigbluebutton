@@ -78,31 +78,34 @@ package org.bigbluebutton.modules.phone.managers {
 			if ((BBB.getFlashPlayerVersion() >= 10.3) && (phoneOptions.enabledEchoCancel)) {
 				LogUtil.debug("Using acoustic echo cancellation.");
 				mic = Microphone(Microphone["getEnhancedMicrophone"]());
-				var options:MicrophoneEnhancedOptions = new MicrophoneEnhancedOptions();
-				options.mode = MicrophoneEnhancedMode.FULL_DUPLEX;
-				options.autoGain = false;
-				options.echoPath = 128;
-				options.nonLinearProcessing = true;
-				mic['enhancedOptions'] = options;
+				if(mic != null) {
+					var options:MicrophoneEnhancedOptions = new MicrophoneEnhancedOptions();
+					options.mode = MicrophoneEnhancedMode.FULL_DUPLEX;
+					options.autoGain = false;
+					options.echoPath = 128;
+					options.nonLinearProcessing = true;
+					mic['enhancedOptions'] = options;
+				}
 			} else {
 				
 			}
-			
-			mic.setUseEchoSuppression(true);
-			mic.setLoopBack(false);
-			mic.setSilenceLevel(0,20000);
-			if (audioCodec == "SPEEX") {
-				mic.encodeQuality = 6;
-				mic.codec = SoundCodec.SPEEX;
-				mic.framesPerPacket = 1;
-				mic.rate = 16; 
-				LogUtil.debug("Using SPEEX whideband codec.");
-			} else {
-				mic.codec = SoundCodec.NELLYMOSER;
-				mic.rate = 8;
-				LogUtil.debug("Using Nellymoser codec.");
-			}			
-			mic.gain = 60;			
+			if(mic != null) {
+				mic.setUseEchoSuppression(true);
+				mic.setLoopBack(false);
+				mic.setSilenceLevel(0,20000);
+				if (audioCodec == "SPEEX") {
+					mic.encodeQuality = 6;
+					mic.codec = SoundCodec.SPEEX;
+					mic.framesPerPacket = 1;
+					mic.rate = 16; 
+					LogUtil.debug("Using SPEEX whideband codec.");
+				} else {
+					mic.codec = SoundCodec.NELLYMOSER;
+					mic.rate = 8;
+					LogUtil.debug("Using Nellymoser codec.");
+				}			
+				mic.gain = 60;		
+			}	
 		}
 		
 		public function initWithNoMicrophone(): void {
