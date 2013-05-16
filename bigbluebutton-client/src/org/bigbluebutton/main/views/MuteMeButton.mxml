@@ -119,6 +119,7 @@ $Id: $
 			
 			private function toggleMuteMeState(event:ShortcutEvent = null):void{
 				if (UserManager.getInstance().getConference().voiceJoined) {
+					this.setFocus();
 					if (UserManager.getInstance().getConference().voiceLocked && !UserManager.getInstance().getConference().amIModerator()) return;
 					
 					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
