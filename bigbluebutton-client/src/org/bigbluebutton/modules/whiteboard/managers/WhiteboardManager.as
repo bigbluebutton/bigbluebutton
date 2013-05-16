@@ -28,7 +28,6 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.Conference;
 	import org.bigbluebutton.modules.present.api.PresentationAPI;
-	import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 	import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasDisplayModel;
 	import org.bigbluebutton.modules.whiteboard.WhiteboardCanvasModel;
@@ -89,21 +88,12 @@ package org.bigbluebutton.modules.whiteboard.managers
 			//Necessary now because of module loading race conditions
 			var t:Timer = new Timer(1000, 1);
 			t.addEventListener(TimerEvent.TIMER, addHighlighterCanvas);
-			t.addEventListener(TimerEvent.TIMER, addHighlighterToolbar);
 			t.start();
 		}
 		
 		private function addHighlighterCanvas(e:TimerEvent):void {
 			PresentationAPI.getInstance().addOverlayCanvas(highlighterCanvas);
-		}
-		
-		private function addHighlighterToolbar(e:TimerEvent):void {
-			if (UserManager.getInstance().getConference().amIPresenter) {
-//				whiteboardButton.setVisible(true);
-			}
-			PresentationAPI.getInstance().addButtonToToolbar(whiteboardButton);
-		}
-			
+		}	
 
 		public function positionToolbar(e:WhiteboardButtonEvent):void {
 			// add text toolbar for allowing customization of text	
