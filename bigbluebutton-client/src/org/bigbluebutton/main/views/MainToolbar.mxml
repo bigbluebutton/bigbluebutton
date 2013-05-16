@@ -33,6 +33,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{SettingsEvent.SETTINGS_MODULE_LOADED}" method="showSettingsButton" />
 	<mate:Listener type="{ShortcutEvent.REMOTE_OPEN_SHORTCUT_WIN}" method="remoteShortcutClick" />
 	<mate:Listener type="{ShortcutEvent.LOGOUT}" method="remoteLogout" />
+	<mate:Listener type="{ShortcutEvent.FOCUS_SHORTCUT_BUTTON}" method="focusShortcutButton" />
 	
 	
 	<mx:Script>
@@ -226,6 +227,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			private function onShortcutButtonClick(e:Event = null):void {
 				var d:Dispatcher = new Dispatcher();
 				d.dispatchEvent(new ShortcutEvent(ShortcutEvent.OPEN_SHORTCUT_WIN));
+			}
+			
+			private function focusShortcutButton(e:ShortcutEvent):void{
+				shortcutKeysBtn.setFocus();
 			}
 
 		]]>
