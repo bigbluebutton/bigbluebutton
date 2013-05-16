@@ -187,6 +187,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}*/
 			
 			private function remoteSendMessage(e:ShortcutEvent):void{
+				focusManager.setFocus(sendBtn);
 				sendMessages();
 			}
       
