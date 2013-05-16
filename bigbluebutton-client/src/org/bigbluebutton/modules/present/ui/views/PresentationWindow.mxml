@@ -442,6 +442,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					loadSlide(pageNumber);
 					disableSlideNavigationButtons(pageNumber);
 					displaySlideNumber(pageNumber + 1);
+                    
+                    //change the thumbnail to match
+                    slideView.thumbnailView.selectedIndex = pageNumber;
 				}	
 			}
 			
