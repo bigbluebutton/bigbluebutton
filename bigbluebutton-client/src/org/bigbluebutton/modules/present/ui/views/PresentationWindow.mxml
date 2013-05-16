@@ -610,7 +610,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function remoteUpload(e:ShortcutEvent):void{
-				openUploadWindow();
+				if (uploadPres.visible){
+					uploadPres.setFocus();
+					openUploadWindow();
+				}
 			}
 			
 			private function remotePrevious(e:ShortcutEvent):void{
