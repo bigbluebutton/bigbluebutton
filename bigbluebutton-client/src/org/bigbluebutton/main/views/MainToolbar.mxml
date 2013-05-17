@@ -232,7 +232,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	</mx:Script>	
 	<mx:HBox id="addedBtns"/>
 	<mx:VRule strokeWidth="2" height="100%" visible="{muteMeBtn.visible}"/>
-	<views:MuteMeButton id="muteMeBtn"  height="20" />
+	<views:MuteMeButton id="muteMeBtn"  height="20" tabIndex="{baseIndex+numButtons+5}"/>
 	<mx:Spacer width="100%"/>
 	<views:LanguageSelector id="langSelector" 
 							visible="false" 
@@ -244,11 +244,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mx:Button id="shortcutKeysBtn" label="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn')}" styleName="shortcutButtonStyle"
              click="onShortcutButtonClick()" height="22" 
              toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.shortcutBtn.toolTip')}" 
-             tabIndex="{baseIndex+numButtons+6}" />
+             tabIndex="{baseIndex+numButtons+5}" />
 	<mx:LinkButton id="helpBtn" visible="{showHelpBtn}" label="?" click="onHelpButtonClicked()" height="22" 
-                   styleName="helpLinkButtonStyle" tabIndex="{baseIndex+numButtons+7}"
+                   styleName="helpLinkButtonStyle" tabIndex="{baseIndex+numButtons+6}"
 				   accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.mainToolbar.helpBtn')}"/>
 	<mx:Button label="" id="btnLogout" styleName="logoutButtonStyle"
                  toolTip="{ResourceUtil.getInstance().getString('bbb.mainToolbar.logoutBtn.toolTip')}" right="10" click="doLogout()" height="22"
-                 tabIndex="{baseIndex+numButtons+8}" />
+                 tabIndex="{baseIndex+numButtons+7}" />
 </mx:ApplicationControlBar>
