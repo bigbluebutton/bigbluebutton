@@ -207,7 +207,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				return "Audio button";
 			}
 			
-			private function joinVoiceFocusHead(e:BBBEvent):void{
+			private function joinVoiceFocusHead(e:Event):void{
 				this.setFocus();
 			}
 		]]>
