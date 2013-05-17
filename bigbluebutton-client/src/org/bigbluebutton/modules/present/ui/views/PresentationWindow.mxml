@@ -105,6 +105,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.managers.Slide;
 			import org.bigbluebutton.modules.present.managers.SlideManager;
 			import org.bigbluebutton.modules.present.ui.views.PresentOptions;
+            import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
              			
       public static const TITLE:String = "Presentation";
@@ -166,8 +167,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				slideView.slideLoader.tabIndex = baseIndex+4;
 				hotkeyCapture();
+                
+                //Necessary now because of module loading race conditions
+                var t:Timer = new Timer(2000, 1);
+                t.addEventListener(TimerEvent.TIMER, addWhiteboardToolbar);
+                t.start();
 			}
 			
+            private function addWhiteboardToolbar(event:TimerEvent):void {
+                // Tell the WhiteboardManager to add the toolbar
+                var e:WhiteboardButtonEvent = new WhiteboardButtonEvent(WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION);
+                e.window = this;
+                dispatchEvent(e);
+            }
+            
 			private function hotkeyCapture():void{
 			    LogUtil.debug("Entering hotkeyCapture");
 			    this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
