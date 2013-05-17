@@ -473,10 +473,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
-			public function showOverlayCanvas(show:Boolean):void{
-				whiteboardCanvas.showCanvas(show);
-			}
-			
 			public function showCanvas(show:Boolean):void{
 				
 			}
