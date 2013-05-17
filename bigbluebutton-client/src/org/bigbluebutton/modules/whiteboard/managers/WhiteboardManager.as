@@ -36,7 +36,6 @@ package org.bigbluebutton.modules.whiteboard.managers
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 	import org.bigbluebutton.modules.whiteboard.events.WhiteboardUpdate;
 	import org.bigbluebutton.modules.whiteboard.models.WhiteboardModel;
-	import org.bigbluebutton.modules.whiteboard.views.WhiteboardButton;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardCanvas;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardTextToolbar;
 	import org.bigbluebutton.modules.whiteboard.views.WhiteboardToolbar;
@@ -50,7 +49,7 @@ package org.bigbluebutton.modules.whiteboard.managers
 		private var highlighterCanvas:WhiteboardCanvas;
 		private var highlighterToolbar:WhiteboardToolbar;
 		private var textToolbar:WhiteboardTextToolbar;
-		private var whiteboardButton:WhiteboardButton;
+
 		private var model:WhiteboardCanvasModel = new WhiteboardCanvasModel();
 		private var displayModel:WhiteboardCanvasDisplayModel = new WhiteboardCanvasDisplayModel();
         
@@ -81,9 +80,6 @@ package org.bigbluebutton.modules.whiteboard.managers
 			textToolbar.canvas = highlighterCanvas;
 			textToolbar.init();
 			highlighterCanvas.textToolbar = textToolbar;
-            
-			if (whiteboardButton != null) return;
-			whiteboardButton = new WhiteboardButton();
             
 			//Necessary now because of module loading race conditions
 			var t:Timer = new Timer(1000, 1);
