@@ -598,7 +598,12 @@ def processShapesAndClears
 
 							# Process the rectangle shapes
 							elsif $shapeType.eql? "rectangle"
-                                                                $is_square = shape.xpath(".//square")[0].text()
+								square = shape.xpath(".//square")
+								if square.length > 0
+									$is_square = square[0].text()
+								else
+									$is_square = 'false'
+								end
 								storeRectShape()
 
 							# Process the triangle shapes
@@ -607,7 +612,12 @@ def processShapesAndClears
 
 							# Process the ellipse shapes
 							elsif $shapeType.eql? "ellipse"
-                                                                $is_circle = shape.xpath(".//circle")[0].text()
+								circle = shape.xpath(".//circle")
+								if circle.length > 0
+									$is_circle = circle[0].text()
+								else
+									$is_circle = 'false'
+								end
 								storeEllipseShape()
 							
 							elsif $shapeType.eql? "text"
