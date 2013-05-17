@@ -403,10 +403,12 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function handleStoppedViewingWebcamEvent(event:StoppedViewingWebcamEvent):void {
+      trace("VideoEventMapDelegate::handleStoppedViewingWebcamEvent [" + me + "] received StoppedViewingWebcamEvent for user [" + event.webcamUserID + "]");
+      
       closeWindow(event.webcamUserID);
             
-      if (options.displayAvatar && UsersUtil.hasUser(event.webcamUserID)) {
-        trace("VideoEventMapDelegate:: [" + me + "] Opening avatar for user [" + event.webcamUserID + "]");
+      if (options.displayAvatar && UsersUtil.hasUser(event.webcamUserID) && ! UsersUtil.isUserLeaving(event.webcamUserID)) {
+        trace("VideoEventMapDelegate::handleStoppedViewingWebcamEvent [" + me + "] Opening avatar for user [" + event.webcamUserID + "]");
         openAvatarWindowFor(event.webcamUserID);              
       }        
     }
