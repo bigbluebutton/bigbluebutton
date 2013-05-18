@@ -92,15 +92,12 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         
         connInvokerService.setAppScope(app);
 
-        connInvokerService.start();
-        
         return true;
     }
     
 	@Override
     public void appStop(IScope app) {
 		log.debug("***** " + APP + " [ " + " appStop [ " + scope.getName() + "] *********");
-        connInvokerService.stop();
         super.appStop(app);
     }
     

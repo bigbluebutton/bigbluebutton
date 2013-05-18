@@ -139,7 +139,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<!-- RECORDER AND MESSAGING -->
 	
-	<bean id="recorderApplication" class="org.bigbluebutton.conference.service.recorder.RecorderApplication">
+	<bean id="recorderApplication" class="org.bigbluebutton.conference.service.recorder.RecorderApplication" init-method="start" destroy-method="stop">
 		<property name="recorder"><ref local="redisRecorder" /> </property>
 	</bean>
 	
