@@ -94,7 +94,7 @@ public class WhiteboardService {
 	
 	public void toggleGrid() {
 		log.info("WhiteboardApplication - Toggling grid mode");
-		application.toggleGrid();
+		//application.toggleGrid();
 	}
 	
 	public void setActivePresentation(Map<String, Object> message) {		

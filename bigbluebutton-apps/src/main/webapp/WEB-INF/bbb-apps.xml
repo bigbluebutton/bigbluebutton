@@ -123,8 +123,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<!-- WHITEBOARD -->
 	<bean id="whiteboardApplication" 
 	    class="org.bigbluebutton.conference.service.whiteboard.WhiteboardApplication">
-	    <property name="roomManager"> <ref local="whiteboardRoomManager"/></property>
-	    <property name="recorderApplication"> <ref local="recorderApplication"/></property>
+	    <property name="whiteboardRecordingService"> <ref local="whiteboardRecordingService"/></property>
 	    <property name="connInvokerService"> <ref bean="connInvokerService"/></property>
 	</bean>
 	
@@ -132,7 +131,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<property name="whiteboardApplication"> <ref local="whiteboardApplication"/></property>
 	</bean>
 	
-	<bean id="whiteboardRoomManager" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardRoomManager"/>
+	<bean id="whiteboardRecordingService" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardRecordingService">
+	    <property name="recorderApplication"> <ref local="recorderApplication"/></property>
+	</bean>
+
 	<!-- END WHITEBOARD -->
 	
 	<!-- RECORDER AND MESSAGING -->

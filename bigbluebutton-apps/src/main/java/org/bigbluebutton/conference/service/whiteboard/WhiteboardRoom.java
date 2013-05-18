@@ -31,11 +31,12 @@ public class WhiteboardRoom {
 	private final String id;
 	private Presentation activePresentation;
 	private boolean whiteboardEnabled = false;
-	
+	private boolean record = false;
 	private final UIDGenerator uidGen;
 	private final Map<String, IWhiteboardRoomListener> listeners;
 	
-	public WhiteboardRoom(String id){
+	public WhiteboardRoom(String id, boolean record){
+		this.record = record;
 		this.id = id;
 		this.presentations = new ArrayList<Presentation>();
 		listeners = new ConcurrentHashMap<String, IWhiteboardRoomListener>();
@@ -45,7 +46,26 @@ public class WhiteboardRoom {
 	public String getId() {
 		return id;
 	}
+
+	public void record(boolean record) {
+		this.record = record;
+	}
+
+	public boolean isRecorded() {
+		return record;
+	}
 	
+	/**
+		Get the id of the current presentation.
+	 */
+	public String getPresentationID() {
+		return activePresentation.getName();
+	}
+
+	public int getPageNumber() {
+		return activePresentation.getActivePage().getPageIndex();
+	}
+
 	/**
 	 * Add a new presentation. Will also set the activePresentation
 	 * @param name
