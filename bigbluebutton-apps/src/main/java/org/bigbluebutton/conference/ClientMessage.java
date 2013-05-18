@@ -23,6 +23,7 @@ import java.util.Map;
 public class ClientMessage {
 	public static final String BROADCAST = "broadcast";
 	public static final String DIRECT = "direct";
+	public static final String SHAREDOBJECT = "sharedobject";
 	
 	private String type;
 	private String dest;
