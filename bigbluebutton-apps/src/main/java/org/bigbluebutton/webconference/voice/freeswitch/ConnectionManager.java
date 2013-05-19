@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.freeswitch.esl.client.inbound.Client;
 import org.freeswitch.esl.client.inbound.InboundConnectionFailure;
 import org.freeswitch.esl.client.manager.ManagerConnection;
 import org.red5.logging.Red5LoggerFactory;
@@ -29,6 +30,7 @@ import org.slf4j.Logger;
 
 public class ConnectionManager  {
     private static Logger log = Red5LoggerFactory.getLogger(ConnectionManager.class, "bigbluebutton");
+    private static final String EVENT_NAME = "Event-Name";
     
 	private static final int CONNECT_THREAD = 1;
 	private static final ScheduledExecutorService connExec = Executors.newScheduledThreadPool(CONNECT_THREAD);
@@ -36,11 +38,25 @@ public class ConnectionManager  {
     private ManagerConnection manager;
     private volatile boolean sendMessages = false;
     
+    private volatile boolean subscribed = false;
+    
     private void connect() {
     	try {
-    		if (! manager.getESLClient().canSend()) {
+    		Client c = manager.getESLClient();
+    		if (! c.canSend()) {
+    			subscribed = false;
     			manager.connect();
-    		}    			
+    		} 
+    		
+    		if (!subscribed) {
+                c.cancelEventSubscriptions();
+                c.setEventSubscriptions( "plain", "all" );
+                c.addEventFilter( EVENT_NAME, "heartbeat" );
+                c.addEventFilter( EVENT_NAME, "custom" );
+                c.addEventFilter( EVENT_NAME, "background_job" );
+                subscribed = true;
+    		}
+    		
 		} catch (InboundConnectionFailure e) {
 			log.error("Failed to connect to ESL");
 		}
@@ -55,7 +71,7 @@ public class ConnectionManager  {
 				}
 			}
 		};
-		connExec.scheduleWithFixedDelay(sender, 0, 1000, TimeUnit.SECONDS);	
+		connExec.scheduleWithFixedDelay(sender, 0, 5, TimeUnit.SECONDS);	
 	}
 	
 	public void stop() {
