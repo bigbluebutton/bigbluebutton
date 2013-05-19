@@ -80,15 +80,12 @@ public class Client
     private CommandResponse authenticationResponse;
     private Channel channel;
     
-    public boolean canSend()
-    {
+    public boolean canSend() {
         return channel != null && channel.isConnected() && authenticated; 
     }
     
-    public void addEventListener( IEslEventListener listener )
-    {
-        if ( listener != null )
-        {
+    public void addEventListener( IEslEventListener listener ) {
+        if ( listener != null ) {
             eventListeners.add( listener );
         }
     }
@@ -103,11 +100,9 @@ public class Client
      * @param password server event socket is expecting (set in event_socket_conf.xml) 
      * @param timeoutSeconds number of seconds to wait for the server socket before aborting
      */
-    public void connect( String host, int port, String password, int timeoutSeconds ) throws InboundConnectionFailure
-    {
+    public void connect( String host, int port, String password, int timeoutSeconds ) throws InboundConnectionFailure {
         // If already connected, disconnect first
-        if ( canSend() )
-        {
+        if ( canSend() ) {
             close();
         }
         
@@ -125,15 +120,15 @@ public class Client
         ChannelFuture future = bootstrap.connect( new InetSocketAddress( host, port ) );
         
         // Wait till attempt succeeds, fails or timeouts
-        if ( ! future.awaitUninterruptibly( timeoutSeconds, TimeUnit.SECONDS ) )
-        {
+        if ( ! future.awaitUninterruptibly( timeoutSeconds, TimeUnit.SECONDS ) ) {
             throw new InboundConnectionFailure( "Timeout connecting to " + host + ":" + port );
         }
+        
         // Did not timeout 
         channel = future.getChannel();
+        
         // But may have failed anyway
-        if ( !future.isSuccess() )
-        {
+        if ( !future.isSuccess() ) {
             log.warn( "Failed to connect to [{}:{}]", host, port );
             log.warn( "  * reason: {}", future.getCause() );
             
@@ -144,20 +139,16 @@ public class Client
         }
         
         //  Wait for the authentication handshake to call back
-        while ( ! authenticatorResponded.get() )
-        {
-            try
-            {
+        while ( ! authenticatorResponded.get() ) {
+            try {
                 Thread.sleep( 250 );
             } 
-            catch ( InterruptedException e )
-            {
+            catch ( InterruptedException e ) {
                 // ignore
             }
         }
         
-        if ( ! authenticated )
-        {
+        if ( ! authenticated ) {
             throw new InboundConnectionFailure( "Authentication failed: " + authenticationResponse.getReplyText() );
         }
     }
@@ -172,18 +163,18 @@ public class Client
      * @param arg command arguments
      * @return an {@link EslMessage} containing command results
      */
-    public EslMessage sendSyncApiCommand( String command, String arg )
-    {
+    public EslMessage sendSyncApiCommand( String command, String arg ) {
         checkConnected();
+        
         InboundClientHandler handler = (InboundClientHandler)channel.getPipeline().getLast();
         StringBuilder sb = new StringBuilder();
-        if ( command != null && !command.isEmpty() )
-        {
+        
+        if ( command != null && !command.isEmpty() ) {
             sb.append( "api " );
             sb.append( command );
         }
-        if ( arg != null && !arg.isEmpty() )
-        {
+        
+        if ( arg != null && !arg.isEmpty() ) {
             sb.append( ' ' );
             sb.append( arg );
         }
@@ -202,18 +193,18 @@ public class Client
      * @param arg command arguments
      * @return String Job-UUID that the server will tag result event with.
      */
-    public String sendAsyncApiCommand( String command, String arg )
-    {
+    public String sendAsyncApiCommand( String command, String arg ) {
         checkConnected();
+        
         InboundClientHandler handler = (InboundClientHandler)channel.getPipeline().getLast();
         StringBuilder sb = new StringBuilder();
-        if ( command != null && !command.isEmpty() )
-        {
+        
+        if ( command != null && !command.isEmpty() ) {
             sb.append( "bgapi " );
             sb.append( command );
         }
-        if ( arg != null && !arg.isEmpty() )
-        {
+        
+        if ( arg != null && !arg.isEmpty() ) {
             sb.append( ' ' );
             sb.append( arg );
         }
@@ -241,24 +232,24 @@ public class Client
     public CommandResponse setEventSubscriptions( String format, String events )
     {
         // temporary hack
-        if ( ! format.equals( "plain" ) )
-        {
+        if ( ! format.equals( "plain" ) ) {
             throw new IllegalStateException( "Only 'plain' event format is supported at present" );
         }
         
         checkConnected();
         InboundClientHandler handler = (InboundClientHandler)channel.getPipeline().getLast();
         StringBuilder sb = new StringBuilder();
-        if ( format != null && !format.isEmpty() )
-        {
+        
+        if ( format != null && !format.isEmpty() ) {
             sb.append( "event " );
             sb.append( format );
         }
-        if ( events != null && !events.isEmpty() )
-        {
+        
+        if ( events != null && !events.isEmpty() ) {
             sb.append( ' ' );
             sb.append( events );
         }
+        
         EslMessage response = handler.sendSyncSingleLineCommand( channel, sb.toString() );
 
         return new CommandResponse( sb.toString(), response );
@@ -272,6 +263,7 @@ public class Client
     public CommandResponse cancelEventSubscriptions()
     {
         checkConnected();
+        
         InboundClientHandler handler = (InboundClientHandler)channel.getPipeline().getLast();
         EslMessage response = handler.sendSyncSingleLineCommand( channel, "noevents" );
 
@@ -301,18 +293,21 @@ public class Client
     public CommandResponse addEventFilter( String eventHeader, String valueToFilter )
     {
         checkConnected();
+        
         InboundClientHandler handler = (InboundClientHandler)channel.getPipeline().getLast();
         StringBuilder sb = new StringBuilder();
-        if ( eventHeader != null && !eventHeader.isEmpty() )
-        {
+        
+        if ( eventHeader != null && !eventHeader.isEmpty() ) {
             sb.append( "filter " );
             sb.append( eventHeader );
         }
+        
         if ( valueToFilter != null && !valueToFilter.isEmpty() )
         {
             sb.append( ' ' );
             sb.append( valueToFilter );
         }
+        
         EslMessage response = handler.sendSyncSingleLineCommand( channel, sb.toString() );
         
         return new CommandResponse( sb.toString(), response );
@@ -329,15 +324,16 @@ public class Client
     public CommandResponse deleteEventFilter( String eventHeader, String valueToFilter )
     {
         checkConnected();
+        
         InboundClientHandler handler = (InboundClientHandler)channel.getPipeline().getLast();
         StringBuilder sb = new StringBuilder();
-        if ( eventHeader != null && !eventHeader.isEmpty() )
-        {
+        
+        if ( eventHeader != null && !eventHeader.isEmpty() ) {
             sb.append( "filter delete " );
             sb.append( eventHeader );
         }
-        if ( valueToFilter != null && !valueToFilter.isEmpty() )
-        {
+        
+        if ( valueToFilter != null && !valueToFilter.isEmpty() ) {
             sb.append( ' ' );
             sb.append( valueToFilter );
         }
@@ -356,6 +352,7 @@ public class Client
     public CommandResponse sendMessage( SendMsg sendMsg )
     {
         checkConnected();
+        
         InboundClientHandler handler = (InboundClientHandler)channel.getPipeline().getLast();
         EslMessage response = handler.sendSyncMultiLineCommand( channel, sendMsg.getMsgLines() );
         
@@ -371,8 +368,10 @@ public class Client
     public CommandResponse setLoggingLevel( String level )
     {
         checkConnected();
+        
         InboundClientHandler handler = (InboundClientHandler)channel.getPipeline().getLast();
         StringBuilder sb = new StringBuilder();
+        
         if ( level != null && !level.isEmpty() )
         {
             sb.append( "log " );
@@ -391,6 +390,7 @@ public class Client
     public CommandResponse cancelLogging()
     {
         checkConnected();
+        
         InboundClientHandler handler = (InboundClientHandler)channel.getPipeline().getLast();
         EslMessage response = handler.sendSyncSingleLineCommand( channel, "nolog" );
 
@@ -405,6 +405,7 @@ public class Client
     public CommandResponse close()
     {
         checkConnected();
+        
         InboundClientHandler handler = (InboundClientHandler)channel.getPipeline().getLast();
         EslMessage response = handler.sendSyncSingleLineCommand( channel, "exit" );
 
@@ -434,41 +435,28 @@ public class Client
              *  Use a different worker thread pool for async job results than for event driven
              *  events to keep the latency as low as possible.
              */
-            if ( event.getEventName().equals( "BACKGROUND_JOB" ) )
-            {
-                for ( final IEslEventListener listener : eventListeners )
-                {
-                    backgroundJobListenerExecutor.execute( new Runnable()
-                    {
-                        public void run()
-                        {
-                            try
-                            {
+            if ( event.getEventName().equals( "BACKGROUND_JOB" ) ) {
+                for ( final IEslEventListener listener : eventListeners ) {
+                    backgroundJobListenerExecutor.execute( new Runnable() {
+                        public void run() {
+                            try {
                                 listener.backgroundJobResultReceived( event );
-                            }
-                            catch ( Throwable t )
-                            {
+                            } catch ( Throwable t ) {
                                 log.error( "Error caught notifying listener of job result [" + event + ']', t );
                             }
                         }
                     } );
                 }
-            }
-            else
-            {
-                for ( final IEslEventListener listener : eventListeners )
-                {
-                    eventListenerExecutor.execute( new Runnable()
-                    {
-                        public void run()
-                        {
-                            try
-                            {
+            } else {
+                for ( final IEslEventListener listener : eventListeners ) {
+                    eventListenerExecutor.execute( new Runnable() {
+                        public void run() {
+                            try {
                                 /**
                                  * Custom extra parsing to get conference Events for BigBlueButton / FreeSwitch intergration
                                  */
                                 //FIXME: make the conference headers constants
-                                if(event.getEventSubclass().equals("conference::maintenance")){
+                                if (event.getEventSubclass().equals("conference::maintenance")) {
                                     Map<String, String> eventHeaders = event.getEventHeaders();
                                     String eventFunc = eventHeaders.get("Event-Calling-Function");
                                     String uniqueId = eventHeaders.get("Caller-Unique-ID");
@@ -477,42 +465,42 @@ public class Client
 
                                     //FIXME: all by Action eventHeader really.... maybe?
                                     // But this way we filter whole sections of Action events
-                                    if(eventFunc == null) {
+                                    if (eventFunc == null) {
                                         //Noop...
-                                    }else if(eventFunc.equals("conference_thread_run")) {
+                                    } else if (eventFunc.equals("conference_thread_run")) {
                                     	System.out.println("##### Client conference_thread_run");
                                         listener.conferenceEventThreadRun(uniqueId, confName, confSize, event);
                                         return;
-                                    }else if(eventFunc.equals("member_add_file_data")) {
+                                    } else if (eventFunc.equals("member_add_file_data")) {
                                     	System.out.println("##### Client member_add_file_data");
                                         listener.conferenceEventPlayFile(uniqueId, confName, confSize, event);
                                         return;
-                                    }else if(eventFunc.equals("conf_api_sub_transfer")) {
+                                    } else if (eventFunc.equals("conf_api_sub_transfer")) {
                                         //Member transfered to another conf...
                                         listener.conferenceEventTransfer(uniqueId, confName, confSize, event);
                                         return;
-                                    }else if(eventFunc.equals("conference_add_member")) {
+                                    } else if (eventFunc.equals("conference_add_member")) {
                                     	System.out.println("##### Client conference_add_member");
                                         listener.conferenceEventJoin(uniqueId, confName, confSize, event);
                                         return;
-                                    }else if(eventFunc.equals("conference_del_member")) {
+                                    } else if (eventFunc.equals("conference_del_member")) {
                                     	System.out.println("##### Client conference_del_member");
                                         listener.conferenceEventLeave(uniqueId, confName, confSize, event);
                                         return;
-                                    }else if(eventFunc.equals("conf_api_sub_mute")) {
+                                    } else if (eventFunc.equals("conf_api_sub_mute")) {
                                         listener.conferenceEventMute(uniqueId, confName, confSize, event);
                                         return;
-                                    }else if(eventFunc.equals("conf_api_sub_unmute")) {
+                                    } else if (eventFunc.equals("conf_api_sub_unmute")) {
                                         listener.conferenceEventUnMute(uniqueId, confName, confSize, event);
                                         return;
-                                    }else if(eventFunc.equals("conference_record_thread_run")) {
+                                    } else if (eventFunc.equals("conference_record_thread_run")) {
                                     	System.out.println("##### Client conference_record_thread_run");
                                         listener.conferenceEventRecord(uniqueId, confName, confSize, event);
                                         return;
-                                    }else if(eventFunc.equals("conference_loop_input")) {
+                                    } else if (eventFunc.equals("conference_loop_input")) {
                                         listener.conferenceEventAction(uniqueId, confName, confSize, eventHeaders.get("Action"), event);
                                         return;
-                                    }else{
+                                    } else {
                         /*              StringBuilder sb = new StringBuilder("");
                                         sb.append("\n");
                                         for (Iterator it=eventHeaders.entrySet().iterator(); it.hasNext(); ) {
@@ -529,9 +517,7 @@ public class Client
 
 
                                 listener.eventReceived( event );
-                            }
-                            catch ( Throwable t )
-                            {
+                            } catch ( Throwable t ) {
                                 log.error( "Error caught notifying listener of event [" + event + ']', t );
                             }
                         }
@@ -540,26 +526,19 @@ public class Client
             }
         }
 
-        public void disconnected()
-        {
+        public void disconnected() {
             log.info( "Disconnected .." );
         }
 
         public void exceptionCaught(final ExceptionEvent e) {
             log.debug( "exceptionCaught [{}]", e );
 
-            for ( final IEslEventListener listener : eventListeners )
-                {
-                    eventListenerExecutor.execute( new Runnable()
-                    {
-                        public void run()
-                        {
-                            try
-                            {
+            for ( final IEslEventListener listener : eventListeners ) {
+                    eventListenerExecutor.execute( new Runnable() {
+                        public void run() {
+                            try {
                                 listener.exceptionCaught( e );
-                            }
-                            catch ( Throwable t )
-                            {
+                            } catch ( Throwable t ) {
                                 log.error( "Error caught notifying listener of exception [" + e + ']', t );
                             }
                         }
@@ -569,10 +548,8 @@ public class Client
         }
     };
     
-    private void checkConnected()
-    {
-        if ( ! canSend() )
-        {
+    private void checkConnected() {
+        if ( ! canSend() ) {
             throw new IllegalStateException( "Not connected to FreeSWITCH Event Socket" );
         }
     }
