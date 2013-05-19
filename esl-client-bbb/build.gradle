@@ -59,6 +59,8 @@ dependencies {
     
     testRuntime 'junit:junit:4.8.1.@jar'
     compile 'org.jboss.netty:netty:3.2.9.Final@jar'
+    
+    //compile 'io.netty:netty:3.6.0.Final@jar'
 }
 
 
