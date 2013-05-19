@@ -46,6 +46,14 @@ package org.bigbluebutton.main.api
 
   public class ExternalApiCalls { 
     
+    public function handleOpenExternalUploadWindow(event:UploadEvent):void {
+      var payload:Object = new Object();
+      payload.maxFileSize = event.maxFileSize;
+      payload.eventName = EventConstants.OPEN_EXTERNAL_UPLOAD_WINDOW;
+      broadcastEvent(payload);      
+    }
+    
+    
     public function handleUserKickedOutEvent(event:LogoutEvent):void {
       var payload:Object = new Object();
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.userID);

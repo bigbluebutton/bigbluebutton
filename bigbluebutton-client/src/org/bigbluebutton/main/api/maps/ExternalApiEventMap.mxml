@@ -129,6 +129,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <EventHandlers type="{EventConstants.START_PRIVATE_CHAT}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleStartPrivateChatEvent" arguments="{event}"/>
   </EventHandlers>
+
+  <EventHandlers type="{UploadEvent.OPEN_EXTERNAL_UPLOAD_WINDOW}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleOpenExternalUploadWindow" arguments="{event}" />
+  </EventHandlers>
   
   <!-- Conversion Message Update -->
   <EventHandlers type="{UploadEvent.OFFICE_DOC_CONVERSION_SUCCESS}" >

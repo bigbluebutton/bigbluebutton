@@ -104,7 +104,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.managers.Slide;
 			import org.bigbluebutton.modules.present.managers.SlideManager;
 			import org.bigbluebutton.modules.present.ui.views.PresentOptions;
-            import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
+			import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
              			
       public static const TITLE:String = "Presentation";
@@ -613,9 +613,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function openUploadWindow():void {
-				var event:UploadEvent = new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW);
-				event.maxFileSize = presentOptions.maxFileSize;
-				dispatchEvent(event);
+        if (presentOptions.openExternalFileUploadDialog) {
+          var fileEvent:UploadEvent = new UploadEvent(UploadEvent.OPEN_EXTERNAL_UPLOAD_WINDOW);
+          fileEvent.maxFileSize = presentOptions.maxFileSize;
+          var gDispatcher:Dispatcher = new Dispatcher();
+          gDispatcher.dispatchEvent(fileEvent);         
+        } else {
+          var event:UploadEvent = new UploadEvent(UploadEvent.OPEN_UPLOAD_WINDOW);
+          event.maxFileSize = presentOptions.maxFileSize;
+          dispatchEvent(event);
+        }
+
 			}
 
 		]]>
