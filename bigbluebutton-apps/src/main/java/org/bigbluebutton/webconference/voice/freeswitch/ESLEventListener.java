@@ -1,8 +1,7 @@
 package org.bigbluebutton.webconference.voice.freeswitch;
 
-import java.util.Iterator;
-import java.util.Map;
 
+import java.util.Map;
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
 import org.bigbluebutton.webconference.voice.events.ParticipantJoinedEvent;
 import org.bigbluebutton.webconference.voice.events.ParticipantLeftEvent;
@@ -37,8 +36,8 @@ public class ESLEventListener implements IEslEventListener {
 
     @Override
     public void exceptionCaught(ExceptionEvent e) {
-        setChanged();
-        notifyObservers(e);
+//        setChanged();
+//        notifyObservers(e);
     }
 
     @Override
@@ -81,18 +80,6 @@ public class ESLEventListener implements IEslEventListener {
         ParticipantTalkingEvent pt;
 
         if (action == null) {
-            if (debug) {
-                Map<String, String> eventHeaders = event.getEventHeaders();
-                StringBuilder sb = new StringBuilder("\n");
-                for (Iterator it=eventHeaders.entrySet().iterator(); it.hasNext(); ) {
-                    Map.Entry entry = (Map.Entry)it.next();
-                    sb.append(entry.getKey());
-                    sb.append(" => '");
-                    sb.append(entry.getValue());
-                    sb.append("'\n");
-                }
-                log.debug ("NULL Conference Action [{}] Headers:\n{}\nEND", confName, sb.toString());
-            }
             return;
         }
 
@@ -159,8 +146,8 @@ public class ESLEventListener implements IEslEventListener {
 	@Override
 	public void eventReceived(EslEvent event) {
         if (event.getEventName().equals(FreeswitchHeartbeatMonitor.EVENT_HEARTBEAT)) {
-            setChanged();
-            notifyObservers(event);
+//            setChanged();
+ //           notifyObservers(event);
             return; 
         }
 	}

@@ -18,8 +18,10 @@
 */
 package org.bigbluebutton.webconference.voice.freeswitch;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.freeswitch.esl.client.inbound.InboundConnectionFailure;
 import org.freeswitch.esl.client.manager.ManagerConnection;
 import org.red5.logging.Red5LoggerFactory;
@@ -29,7 +31,7 @@ public class ConnectionManager  {
     private static Logger log = Red5LoggerFactory.getLogger(ConnectionManager.class, "bigbluebutton");
     
 	private static final int CONNECT_THREAD = 1;
-	private static final Executor connExec = Executors.newFixedThreadPool(CONNECT_THREAD);
+	private static final ScheduledExecutorService connExec = Executors.newScheduledThreadPool(CONNECT_THREAD);
 	
     private ManagerConnection manager;
     private volatile boolean sendMessages = false;
@@ -48,12 +50,12 @@ public class ConnectionManager  {
 		sendMessages = true;
 		Runnable sender = new Runnable() {
 			public void run() {
-				while (sendMessages) {
+				while (sendMessages) {					
 					connect();	
 				}
 			}
 		};
-		connExec.execute(sender);		
+		connExec.scheduleWithFixedDelay(sender, 0, 1000, TimeUnit.SECONDS);	
 	}
 	
 	public void stop() {
