@@ -82,8 +82,9 @@ public class FreeswitchServiceProvider implements ConferenceServiceProvider {
 	}
 	
 	public void setFreeswitchApplication(FreeswitchApplication f) {
-		appDelegate = f;
-		
+		appDelegate = f;		
     }
+	
+	
 
 }

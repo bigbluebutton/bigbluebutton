@@ -20,8 +20,8 @@ package org.bigbluebutton.webconference.voice.freeswitch;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
 import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.BroadcastConferenceCommand;
 import org.bigbluebutton.webconference.voice.freeswitch.actions.EjectAllUsersCommand;
@@ -40,84 +40,112 @@ public class ConnectionManager  {
     private static Logger log = Red5LoggerFactory.getLogger(ConnectionManager.class, "bigbluebutton");
     private static final String EVENT_NAME = "Event-Name";
     
-	private static final int CONNECT_THREAD = 1;
-	private static final ScheduledExecutorService connExec = Executors.newScheduledThreadPool(CONNECT_THREAD);
+	private static final ScheduledExecutorService connExec = Executors.newSingleThreadScheduledExecutor();
 	
     private ManagerConnection manager;
-    private volatile boolean attemptConnect = false;
+    private ScheduledFuture<ConnectThread> connectTask;
     
     private volatile boolean subscribed = false;
     
     private ConferenceEventListener conferenceEventListener;
+    private ESLEventListener eslEventListener;
     
     private void connect() {
     	try {
     		Client c = manager.getESLClient();
     		if (! c.canSend()) {
+				log.info("Attempting to connect to FreeSWITCH ESL");
     			subscribed = false;
-    			manager.disconnect();
     			manager.connect();
-    		} 
-    		
-    		if (!subscribed) {
-                c.cancelEventSubscriptions();
-                c.setEventSubscriptions( "plain", "all" );
-                c.addEventFilter( EVENT_NAME, "heartbeat" );
-                c.addEventFilter( EVENT_NAME, "custom" );
-                c.addEventFilter( EVENT_NAME, "background_job" );
-                subscribed = true;
-    		}
-    		
+    		} else {
+	    		if (!subscribed) {
+	    			log.info("Subscribing for ESL events.");
+	                c.cancelEventSubscriptions();
+	                c.addEventListener(eslEventListener);
+	                c.setEventSubscriptions( "plain", "all" );
+	                c.addEventFilter( EVENT_NAME, "heartbeat" );
+	                c.addEventFilter( EVENT_NAME, "custom" );
+	                c.addEventFilter( EVENT_NAME, "background_job" );
+	                subscribed = true;
+	    		} 
+	    	}    		
 		} catch (InboundConnectionFailure e) {
+			System.out.println("Failed to connect to ESL");
 			log.error("Failed to connect to ESL");
 		}
     }
     
 	public void start() {
-		attemptConnect = true;
-		Runnable sender = new Runnable() {
-			public void run() {
-				while (attemptConnect) {					
-					connect();	
-				}
-			}
-		};
-		connExec.scheduleWithFixedDelay(sender, 0, 5, TimeUnit.SECONDS);	
+		log.info("Starting FreeSWITCH ESL connection manager.");
+		System.out.println("***************** Starting FreeSWITCH ESL connection manager.");
+		ConnectThread connector = new ConnectThread();
+		connectTask = (ScheduledFuture<ConnectThread>) connExec.scheduleAtFixedRate(connector, 5, 5, TimeUnit.SECONDS);	
 	}
 	
 	public void stop() {
-		attemptConnect = false;
+		if (connectTask != null) {
+			connectTask.cancel(true);
+		}		
 	}
 	
+	private class ConnectThread implements Runnable {
+		public void run() {
+			connect();
+		}
+	}
+	
+	
 	public void broadcast(BroadcastConferenceCommand rcc) {
-    	EslMessage response = manager.getESLClient().sendSyncApiCommand(rcc.getCommand(), rcc.getCommandArgs());
-        rcc.handleResponse(response, conferenceEventListener); 
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+	    	EslMessage response = c.sendSyncApiCommand(rcc.getCommand(), rcc.getCommandArgs());
+	        rcc.handleResponse(response, conferenceEventListener); 	
+		}
 	}
 	
 	public void getUsers(PopulateRoomCommand prc) {
-        EslMessage response = manager.getESLClient().sendSyncApiCommand(prc.getCommand(), prc.getCommandArgs());
-        prc.handleResponse(response, conferenceEventListener); 
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+	        EslMessage response = c.sendSyncApiCommand(prc.getCommand(), prc.getCommandArgs());
+	        prc.handleResponse(response, conferenceEventListener); 			
+		}
 	}
 	
 	public void mute(MuteParticipantCommand mpc) {
-        String jobId = manager.getESLClient().sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+	        c.sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());			
+		}
 	}
 	
 	public void eject(EjectParticipantCommand mpc) {
-        String jobId = manager.getESLClient().sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+			c.sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
+		}       
 	}
 	
 	public void ejectAll(EjectAllUsersCommand mpc) {
-        String jobId = manager.getESLClient().sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+	        c.sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());	
+		}
 	}
 	
 	public void record(RecordConferenceCommand rcc) {
-    	EslMessage response = manager.getESLClient().sendSyncApiCommand(rcc.getCommand(), rcc.getCommandArgs());
-        rcc.handleResponse(response, conferenceEventListener); 
+		Client c = manager.getESLClient();
+		if (c.canSend()) {
+	    	EslMessage response = c.sendSyncApiCommand(rcc.getCommand(), rcc.getCommandArgs());
+	        rcc.handleResponse(response, conferenceEventListener); 			
+		}
 	}
 	
     public void setManagerConnection(ManagerConnection manager) {
     	this.manager = manager;
+    }
+    
+    public void setESLEventListener(ESLEventListener listener) {
+    	this.eslEventListener = listener;
     }
     
     public void setConferenceEventListener(ConferenceEventListener listener) {

@@ -104,8 +104,6 @@ public class ESLEventListener implements IEslEventListener {
     	
     }
     
-
-
     //@Override
     public void conferenceEventRecord(String uniqueId, String confName, int confSize, EslEvent event) {
     	String action = event.getEventHeaders().get("Action");

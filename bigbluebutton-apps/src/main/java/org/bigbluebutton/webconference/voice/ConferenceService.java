@@ -141,7 +141,6 @@ public class ConferenceService implements ConferenceEventListener {
 		
 	public void setConferenceServiceProvider(ConferenceServiceProvider c) {
 		confProvider = c;
-//		confProvider.setConferenceEventListener(this);
 	}
 		
 	public void setRoomManager(RoomManager roomManager) {
