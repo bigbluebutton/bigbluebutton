@@ -78,19 +78,12 @@ public class FreeswitchServiceProvider implements ConferenceServiceProvider {
 
 	@Override
 	public boolean startup() {
-		
+		return true;
 	}
 	
 	public void setFreeswitchApplication(FreeswitchApplication f) {
 		appDelegate = f;
 		
     }
-
-	@Override
-	public void setConferenceEventListener(ConferenceEventListener l) {
-		conferenceEventListener = l;		
-		appDelegate.setConferenceEventListener(conferenceEventListener);
-	}
-
 
 }

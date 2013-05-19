@@ -15,6 +15,6 @@ public class FreeswitchMeeting {
 	}
 	
 	public Integer getVoiceMeetingID() {
-		retuen voiceMeetingID;
+		return voiceMeetingID;
 	}
 }

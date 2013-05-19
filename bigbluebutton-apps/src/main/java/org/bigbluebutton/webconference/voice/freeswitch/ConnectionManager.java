@@ -22,9 +22,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.bigbluebutton.webconference.voice.events.ConferenceEventListener;
+import org.bigbluebutton.webconference.voice.freeswitch.actions.BroadcastConferenceCommand;
+import org.bigbluebutton.webconference.voice.freeswitch.actions.EjectAllUsersCommand;
+import org.bigbluebutton.webconference.voice.freeswitch.actions.EjectParticipantCommand;
+import org.bigbluebutton.webconference.voice.freeswitch.actions.MuteParticipantCommand;
+import org.bigbluebutton.webconference.voice.freeswitch.actions.PopulateRoomCommand;
+import org.bigbluebutton.webconference.voice.freeswitch.actions.RecordConferenceCommand;
 import org.freeswitch.esl.client.inbound.Client;
 import org.freeswitch.esl.client.inbound.InboundConnectionFailure;
 import org.freeswitch.esl.client.manager.ManagerConnection;
+import org.freeswitch.esl.client.transport.message.EslMessage;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
@@ -36,15 +44,18 @@ public class ConnectionManager  {
 	private static final ScheduledExecutorService connExec = Executors.newScheduledThreadPool(CONNECT_THREAD);
 	
     private ManagerConnection manager;
-    private volatile boolean sendMessages = false;
+    private volatile boolean attemptConnect = false;
     
     private volatile boolean subscribed = false;
+    
+    private ConferenceEventListener conferenceEventListener;
     
     private void connect() {
     	try {
     		Client c = manager.getESLClient();
     		if (! c.canSend()) {
     			subscribed = false;
+    			manager.disconnect();
     			manager.connect();
     		} 
     		
@@ -63,10 +74,10 @@ public class ConnectionManager  {
     }
     
 	public void start() {
-		sendMessages = true;
+		attemptConnect = true;
 		Runnable sender = new Runnable() {
 			public void run() {
-				while (sendMessages) {					
+				while (attemptConnect) {					
 					connect();	
 				}
 			}
@@ -75,10 +86,42 @@ public class ConnectionManager  {
 	}
 	
 	public void stop() {
-		sendMessages = false;
+		attemptConnect = false;
+	}
+	
+	public void broadcast(BroadcastConferenceCommand rcc) {
+    	EslMessage response = manager.getESLClient().sendSyncApiCommand(rcc.getCommand(), rcc.getCommandArgs());
+        rcc.handleResponse(response, conferenceEventListener); 
+	}
+	
+	public void getUsers(PopulateRoomCommand prc) {
+        EslMessage response = manager.getESLClient().sendSyncApiCommand(prc.getCommand(), prc.getCommandArgs());
+        prc.handleResponse(response, conferenceEventListener); 
+	}
+	
+	public void mute(MuteParticipantCommand mpc) {
+        String jobId = manager.getESLClient().sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
+	}
+	
+	public void eject(EjectParticipantCommand mpc) {
+        String jobId = manager.getESLClient().sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
+	}
+	
+	public void ejectAll(EjectAllUsersCommand mpc) {
+        String jobId = manager.getESLClient().sendAsyncApiCommand( mpc.getCommand(), mpc.getCommandArgs());
+	}
+	
+	public void record(RecordConferenceCommand rcc) {
+    	EslMessage response = manager.getESLClient().sendSyncApiCommand(rcc.getCommand(), rcc.getCommandArgs());
+        rcc.handleResponse(response, conferenceEventListener); 
 	}
 	
     public void setManagerConnection(ManagerConnection manager) {
     	this.manager = manager;
     }
+    
+    public void setConferenceEventListener(ConferenceEventListener listener) {
+        this.conferenceEventListener = listener;
+    }
+    
 }
