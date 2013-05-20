@@ -22,8 +22,6 @@
 	<property name="BBB_MAIN" value="BigBlueButton" />
 	<property name="BROADCAST" value="BroadcastModule" />
 	<property name="CHAT" value="ChatModule" />
-	<property name="VIEWERS" value="ViewersModule" />
-	<property name="LISTENERS" value="ListenersModule" />
 	<property name="PRESENT" value="PresentModule" />
 	<property name="DESKSHARE" value="DeskShareModule" />
 	<property name="DESKSHARE_SA" value="DeskshareStandalone" />
@@ -199,14 +197,6 @@
 	<target name="build-polling" description="Compile Polling Module">
 		<build-module src="${SRC_DIR}" target="${POLLING}" />
 	</target>
-
-	<target name="build-viewers" description="Compile Viewers Module">
-		<build-module src="${SRC_DIR}" target="${VIEWERS}" />
-	</target>
-	
-	<target name="build-listeners" description="Compile Listeners Module">
-		<build-module src="${SRC_DIR}" target="${LISTENERS}" />
-	</target>
 	
 	<target name="build-present" description="Compile Present Module">
 		<build-module src="${SRC_DIR}" target="${PRESENT}" />
@@ -250,6 +240,7 @@
 	<target name="build-deskshare" description="Compile Deskshare Module">
 		<build-module src="${SRC_DIR}" target="${DESKSHARE}" />
 		<echo message="Copying deskshare applet for Deskshare Module" />
+		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-unsigned-0.8.1.jar" todir="${OUTPUT_DIR}"/>		
 		<copy file="${PROD_RESOURCES_DIR}/bbb-deskshare-applet-0.8.1.jar" todir="${OUTPUT_DIR}"/>		
 	</target>
 	
@@ -283,9 +274,9 @@
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
-	<target name="build-main-chat-viewers-listeners-present" 
-			depends="build-bbb-main, build-chat, build-viewers, build-listeners, build-present, build-layout, build-broadcast, build-users"
-			description="Compile main, chat, viewers, listeners, present modules">
+	<target name="build-main-chat-present" 
+			depends="build-bbb-main, build-chat, build-present, build-layout, build-broadcast, build-users"
+			description="Compile main, chat, present modules">
 	</target>
 	
 	<!-- just a grouping of modules to compile -->
@@ -392,7 +383,7 @@
 			<echo message="Deskshare standalone built without optimization." />
 	</target>
 		
-	<target name="compile-bbb" depends="build-main-chat-viewers-listeners-present, build-deskshare-phone-video-whiteboard-dyn, copy-resource-files"
+	<target name="compile-bbb" depends="build-main-chat-present, build-deskshare-phone-video-whiteboard-dyn, copy-resource-files"
 			description="Compiling the BBB without copying config.xml">	
 	</target>
 

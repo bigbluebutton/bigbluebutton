@@ -53,7 +53,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	<mate:Listener type="{SlideResizedEvent.SLIDE_RESIZED_EVENT}" method="handleSlideResizedEvent" />
 	<mate:Listener type="{DisplaySlideEvent.DISPLAY_SLIDE_EVENT}" method="handleDisplaySlideEvent" />
 	<mate:Listener type="{AddOverlayCanvasEvent.ADD_OVERLAY_CANVAS}" method="addOverlayCanvas" />
-	<mate:Listener type="{AddButtonToPresentationEvent.ADD_BUTTON}" method="addButton" />
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	
 	<mate:Listener type="{ShortcutEvent.UPLOAD_PRESENTATION}" method="remoteUpload" />
@@ -91,8 +90,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.main.events.MadePresenterEvent;
 			import org.bigbluebutton.main.events.ShortcutEvent;
 			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.present.api.IPresentationButton;
-			import org.bigbluebutton.modules.present.events.AddButtonToPresentationEvent;
 			import org.bigbluebutton.modules.present.events.AddOverlayCanvasEvent;
 			import org.bigbluebutton.modules.present.events.DisplaySlideEvent;
 			import org.bigbluebutton.modules.present.events.MoveEvent;
@@ -107,6 +104,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			import org.bigbluebutton.modules.present.managers.Slide;
 			import org.bigbluebutton.modules.present.managers.SlideManager;
 			import org.bigbluebutton.modules.present.ui.views.PresentOptions;
+            import org.bigbluebutton.modules.whiteboard.events.WhiteboardButtonEvent;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
              			
       public static const TITLE:String = "Presentation";
@@ -144,7 +142,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			[Bindable] private var baseIndex:int; 
 			[Bindable] private var presentOptions:PresentOptions;
 			
-			private var externalButtons:ArrayCollection = new ArrayCollection();
 			private var keyCombos:Object;
 			private var localDispatcher:Dispatcher = new Dispatcher();
 			
@@ -169,8 +166,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				slideView.slideLoader.tabIndex = baseIndex+4;
 				hotkeyCapture();
+                
+                //Necessary now because of module loading race conditions
+                var t:Timer = new Timer(2000, 1);
+                t.addEventListener(TimerEvent.TIMER, addWhiteboardToolbar);
+                t.start();
 			}
 			
+            private function addWhiteboardToolbar(event:TimerEvent):void {
+                // Tell the WhiteboardManager to add the toolbar
+                var e:WhiteboardButtonEvent = new WhiteboardButtonEvent(WhiteboardButtonEvent.WHITEBOARD_ADDED_TO_PRESENTATION);
+                e.window = this;
+                dispatchEvent(e);
+            }
+            
 			private function hotkeyCapture():void{
 			    LogUtil.debug("Entering hotkeyCapture");
 			    this.addEventListener(KeyboardEvent.KEY_DOWN, handleKeyDown);
@@ -313,14 +322,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function getPrefferedPosition():String{
 				return MainCanvas.MIDDLE;
 			}
-			
-			/**
-			 * Hide the thumbnails in case the user moves the mouse outside this window
-			 */
-			private function hideThumbs():void{
-				if (slideView.slides != null)
-					displaySlideNumber(slideView.selectedSlide + 1);
-			}
 						
 			private function onSliderZoom():void {
 				slideView.onZoomSlide(zoomSlider.value);
@@ -363,8 +364,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	            	displaySlideNumber(slideView.selectedSlide + 1);	
 					displaySlideNavigationControls(isPresenter);
 				}
-					
-				notifyComponentsOfPresenterChange(isPresenter, presentersName);
 			}
 					
 			private function handlePresentationLoadedEvent(e:PresentationEvent):void {	
@@ -392,7 +391,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				btnSlideNum.visible = show;
 				btnFitToWidth.visible = show;
 				btnFitToPage.visible = show;
-				setButtonsVisibility(show);
 			}
 			
 			private function addContextMenuItems():void{
@@ -456,6 +454,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					loadSlide(pageNumber);
 					disableSlideNavigationButtons(pageNumber);
 					displaySlideNumber(pageNumber + 1);
+                    
+                    //change the thumbnail to match
+                    slideView.thumbnailView.selectedIndex = pageNumber;
 				}	
 			}
 			
@@ -516,8 +517,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             
             private function showThumbnails():void{
             	slideView.thumbnailView.visible = !slideView.thumbnailView.visible;
-            	setComponentsEnabled(!slideView.thumbnailView.visible);
-				slideView.addEventListener(SlideView.THUMBNAILS_CLOSED, thumnailsClosed);
             }
             
             private function addOverlayCanvas(e:AddOverlayCanvasEvent):void{
@@ -525,48 +524,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				e.canvas.acceptOverlayCanvas(slideView);
             	slideView.acceptOverlayCanvas(e.canvas);
             }
-            
-            /**
-            * Adds a button to the toolbar. The button is added by external modules through the API.
-            */
-            private function addButton(e:AddButtonToPresentationEvent):void{
-            	var button:IPresentationButton = e.button;
-            	externalButtons.addItem(button);
- 				this.presCtrlBar.addChild(button as Button);
- 				button.buttonAdded(this);
-            }
-            
-            /**
-            * Sets the visibility of buttons added throught the Presentation API
-            */
-            private function setButtonsVisibility(visible:Boolean):void{
-            	for (var i:int = 0; i < externalButtons.length; i++){
-            		(externalButtons.getItemAt(i) as IPresentationButton).setButtonVisibility(visible);
-            	}
-            }
-			
-			/**
-			 * Executed when the thumbnails viewer is closed
-			 */
-			private function thumnailsClosed(e:Event):void{
-				slideView.removeEventListener(SlideView.THUMBNAILS_CLOSED, thumnailsClosed);
-				setComponentsEnabled(true);
-			}
-            
-            /**
-            * Sets the enabled of buttons added throught the Presentation API
-            */
-            private function setComponentsEnabled(enabled:Boolean):void{
-            	for (var i:int = 0; i<externalButtons.length; i++){
-            		(externalButtons.getItemAt(i) as IPresentationButton).setComponentEnabled(enabled);
-            	}
-            }
-			
-			private function notifyComponentsOfPresenterChange(isPresenter:Boolean, presenterName:String):void{
-				for (var i:int = 0; i<externalButtons.length; i++){
-					(externalButtons.getItemAt(i) as IPresentationButton).presenterChanged(isPresenter, presenterName);
-				}
-			}
 					
 			override protected function resourcesChanged():void{
 				super.resourcesChanged();
@@ -591,7 +548,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					Accessibility.updateProperties();
 			}
 			
-			private function localeChanged(e:LocaleChangeEvent):void{
+			private function localeChanged(e:Event):void{
 				resourcesChanged();
 			}
 			
@@ -610,27 +567,45 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function remoteUpload(e:ShortcutEvent):void{
-				openUploadWindow();
+				if (uploadPres.visible){
+					uploadPres.setFocus();
+					openUploadWindow();
+				}
 			}
 			
 			private function remotePrevious(e:ShortcutEvent):void{
-				gotoPreviousSlide();
+				if (backButton.visible && backButton.enabled){
+					backButton.setFocus();
+					gotoPreviousSlide();
+				}
 			}
 			
 			private function remoteSelect(e:ShortcutEvent):void{
-				showThumbnails();
+				if (btnSlideNum.visible){
+					btnSlideNum.setFocus();
+					showThumbnails();
+				}
 			}
 			
 			private function remoteNext(e:ShortcutEvent):void{
-				gotoNextSlide();
+				if (forwardButton.visible && forwardButton.enabled){
+					forwardButton.setFocus();
+					gotoNextSlide();
+				}
 			}
 			
 			private function remoteWidth(e:ShortcutEvent):void{
-				onFitToPage(false);
+				if (btnFitToWidth.visible){
+					btnFitToWidth.setFocus();
+					onFitToPage(false);
+				}
 			}
 			
 			private function remotePage(e:ShortcutEvent):void{
-				onFitToPage(true);
+				if (btnFitToPage.visible){
+					btnFitToPage.setFocus();
+					onFitToPage(true);
+				}
 			}
 			
 			private function onUploadButtonClicked():void {

@@ -49,18 +49,22 @@ def processPanAndZooms
 			timestamp_prev = nil
 			last_time = nil
 			if $panzoom_events.empty?
-				BigBlueButton.logger.info("No panzoom events; synthesizing one")
-				timestamp_orig = $slides_events.first[:timestamp].to_f + 1000
-				timestamp = ((timestamp_orig - $join_time) / 1000).round(1)
-				$xml.event(:timestamp => timestamp, :orig => timestamp_orig) do
-					$xml.viewBox "0 0 #{$vbox_width} #{$vbox_height}"
+				if !$slides_events.empty?
+					BigBlueButton.logger.info("Slides found, but no panzoom events; synthesizing one")
+					timestamp_orig = $slides_events.first[:timestamp].to_f + 1000
+					timestamp = ((timestamp_orig - $join_time) / 1000).round(1)
+					$xml.event(:timestamp => timestamp, :orig => timestamp_orig) do
+						$xml.viewBox "0 0 #{$vbox_width} #{$vbox_height}"
+					end
+					timestamp_orig_prev = timestamp_orig
+					timestamp_prev = timestamp
+					h_ratio_prev = 100
+					w_ratio_prev = 100
+					x_prev = 0
+					y_prev = 0
+				else
+					BigBlueButton.logger.info("Couldn't find any slides! panzooms will be empty.")
 				end
-				timestamp_orig_prev = timestamp_orig
-				timestamp_prev = timestamp
-				h_ratio_prev = 100
-				w_ratio_prev = 100
-				x_prev = 0
-				y_prev = 0
 			else
 				last_time = $panzoom_events.last[:timestamp].to_f
 			end
@@ -594,7 +598,12 @@ def processShapesAndClears
 
 							# Process the rectangle shapes
 							elsif $shapeType.eql? "rectangle"
-                                                                $is_square = shape.xpath(".//square")[0].text()
+								square = shape.xpath(".//square")
+								if square.length > 0
+									$is_square = square[0].text()
+								else
+									$is_square = 'false'
+								end
 								storeRectShape()
 
 							# Process the triangle shapes
@@ -603,7 +612,12 @@ def processShapesAndClears
 
 							# Process the ellipse shapes
 							elsif $shapeType.eql? "ellipse"
-                                                                $is_circle = shape.xpath(".//circle")[0].text()
+								circle = shape.xpath(".//circle")
+								if circle.length > 0
+									$is_circle = circle[0].text()
+								else
+									$is_circle = 'false'
+								end
 								storeEllipseShape()
 							
 							elsif $shapeType.eql? "text"

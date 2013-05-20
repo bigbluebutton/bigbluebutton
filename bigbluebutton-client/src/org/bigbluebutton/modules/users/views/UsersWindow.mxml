@@ -133,7 +133,7 @@
 					this.title = ResourceUtil.getInstance().getString('bbb.users.title', ["", ""]);
 			}
 			
-			private function localeChanged(e:LocaleChangeEvent):void {
+			private function localeChanged(e:Event):void {
 				updateNumberofUsers(users.length);
 				resourcesChanged();
 			}

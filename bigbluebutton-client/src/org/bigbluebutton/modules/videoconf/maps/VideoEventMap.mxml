@@ -37,7 +37,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.modules.videoconf.events.StopBroadcastEvent;
       import org.bigbluebutton.modules.videoconf.events.VideoModuleStartEvent;
       import org.bigbluebutton.modules.videoconf.events.VideoModuleStopEvent;
-      import org.bigbluebutton.modules.viewers.events.ViewCameraEvent;		
+      import org.bigbluebutton.modules.users.events.ViewCameraEvent;		
 		]]>
 	</mx:Script>
 	

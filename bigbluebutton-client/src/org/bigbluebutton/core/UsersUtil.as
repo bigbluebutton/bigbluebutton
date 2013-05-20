@@ -28,6 +28,15 @@ package org.bigbluebutton.core
   public class UsersUtil
   {
     
+    public static function isUserLeaving(userID:String):Boolean {
+      var user:BBBUser = getUser(userID);
+      if (user != null) {
+        return user.isLeavingFlag;
+      }
+      
+      return true;      
+    }
+    
     public static function getPresenterUserID():String {
       var presenter:BBBUser = UserManager.getInstance().getConference().getPresenter();
       if (presenter != null) {
@@ -35,6 +44,15 @@ package org.bigbluebutton.core
       }
       
       return "";
+    }
+    
+    public static function isUserJoinedToVoice(userID:String):Boolean {
+      var u:BBBUser = getUser(userID);
+      if (u != null) {
+        return u.voiceJoined;
+      }
+      
+      return false;
     }
     
     public static function amIPublishing():CameraSettingsVO {

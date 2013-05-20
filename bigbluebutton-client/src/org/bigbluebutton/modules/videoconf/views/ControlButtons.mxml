@@ -36,7 +36,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.main.model.users.events.KickUserEvent;
       import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
       import org.bigbluebutton.modules.chat.model.ChatOptions;
-      import org.bigbluebutton.modules.listeners.events.ListenersCommand;
       import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
       
@@ -49,7 +48,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var showButton:Boolean;
       
       private function onCreationComplete():void {
-        showControlButtons(UsersUtil.amIPresenter());
+        showControlButtons();
         showPrivateChatButton();
       }
       
@@ -65,8 +64,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
       }
       
-      public function handleNewRoleEvent(presenter:Boolean):void {
-        showControlButtons(presenter);
+      public function updateControlButtons():void {
+        showControlButtons();
       }
       
       private function onKickUserClicked():void {
@@ -100,34 +99,78 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
       }
       
-		private function showControlButtons(presenter:Boolean):void {
+		private function showControlButtons():void {
 			var vidOptions:VideoConfOptions = new VideoConfOptions();
 			
-			if (muteUnmuteBtn != null && switchPresenter != null && ejectUserBtn != null) {
-				if (UsersUtil.amIModerator()) {
-					muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = true;
-					//if (UsersUtil.amIPresenter() || UsersUtil.getPresenterUserID() == sharerUserID) {
-					if (UsersUtil.getPresenterUserID() == sharerUserID) {
-						switchPresenter.visible = false;
-					} 
-				} else if (vidOptions.controlsForPresenter) {
-					muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = presenter;
-					if (UsersUtil.getPresenterUserID() == sharerUserID) {
-						switchPresenter.visible = false;
-					} 
-				} else {
-					muteUnmuteBtn.visible = switchPresenter.visible = ejectUserBtn.visible = false;
-				}
-				
-				if(UsersUtil.isMe(sharerUserID)){
-					ejectUserBtn.visible = false;
-				}
-				
-				muteUnmuteBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.muteButton.toolTip', [UsersUtil.getUserName(sharerUserID)]);
-				switchPresenter.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.switchPresenter.toolTip', [UsersUtil.getUserName(sharerUserID)]);
-				ejectUserBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.ejectUserBtn.toolTip', [UsersUtil.getUserName(sharerUserID)]);
-			}
+      displaySwitchPresenterButton(vidOptions.controlsForPresenter);
+      displayMuteButton(vidOptions.controlsForPresenter);
+      displayEjectButton(vidOptions.controlsForPresenter);
 		}
+      
+    private function displayEjectButton(controlsForPresenter:Boolean):void {
+      /**
+       * Display button if:
+       * 1. If I am moderator and this window is not me.
+       * 2. If I am the presenter and display controls for presenter and this window is not me.
+       */
+      if (ejectUserBtn != null) {
+        if (UsersUtil.amIModerator() && ! UsersUtil.isMe(sharerUserID)) {
+          ejectUserBtn.visible = true;
+          ejectUserBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.ejectUserBtn.toolTip', [UsersUtil.getUserName(sharerUserID)]); 
+          return;
+        }
+        
+        if (controlsForPresenter && UsersUtil.amIPresenter() && ! UsersUtil.isMe(sharerUserID)) { /** 2 **/
+          ejectUserBtn.visible = true;
+          ejectUserBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.ejectUserBtn.toolTip', [UsersUtil.getUserName(sharerUserID)]); 
+          return;
+        }
+        
+        ejectUserBtn.visible = false;
+      }
+    }
+    
+    private function displaySwitchPresenterButton(controlsForPresenter:Boolean):void {
+      /**
+      * Display button if:
+      * 1. If I am moderator and this window is not me and I am NOT the presenter.
+      * 2. If I am the presenter and display controls for presenter and this window is not me.
+      */
+      if (switchPresenter != null) {
+        if (UsersUtil.amIModerator() && ! UsersUtil.amIPresenter() && ! UsersUtil.isMe(sharerUserID)) { /** 1. **/ 
+            switchPresenter.visible = true;
+            switchPresenter.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.switchPresenter.toolTip', [UsersUtil.getUserName(sharerUserID)]);
+            return;
+        } 
+        
+        if (controlsForPresenter && UsersUtil.amIPresenter() && ! UsersUtil.isMe(sharerUserID)) { /** 2 **/
+          switchPresenter.visible = true;
+          switchPresenter.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.switchPresenter.toolTip', [UsersUtil.getUserName(sharerUserID)]);  
+          return;
+        }
+        
+        switchPresenter.visible = false;
+      }
+    }
+
+    private function displayMuteButton(controlsForPresenter:Boolean):void {
+      /**
+      * Display button if user is joined to voice and:
+      * 1. if I am moderator OR
+      * 2. if display controls for presenter and I am presenter OR
+      * 3. if this window is me
+      */
+      if (muteUnmuteBtn != null) {
+        if (UsersUtil.isUserJoinedToVoice(sharerUserID)) {
+          if (UsersUtil.amIModerator() || (controlsForPresenter && UsersUtil.amIPresenter()) || UsersUtil.isMe(sharerUserID)) {
+            muteUnmuteBtn.visible = true;
+            muteUnmuteBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.muteButton.toolTip', [UsersUtil.getUserName(sharerUserID)]);
+            return;
+          }                      
+        }
+        muteUnmuteBtn.visible = false;
+      }
+    }
       
       private function showPrivateChatButton():void {
         var chatOptions:ChatOptions = new ChatOptions();
