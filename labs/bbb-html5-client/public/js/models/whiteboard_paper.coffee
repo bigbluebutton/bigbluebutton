@@ -58,11 +58,11 @@ define [
       @_updateContainerDimensions()
 
       # Bind to the event triggered when the client connects to the server
-      if globals.connection.isConnected
-        @_registerConnectionEvents()
+      if globals.connection.isConnected()
+        @_registerEvents()
       else
-        globals.connection.bind "connection:connected",
-          @_registerConnectionEvents, @
+        globals.events.on "connection:connected", =>
+          @_registerEvents()
 
     # Override the close() to unbind events.
     unbindEvents: ->
@@ -404,7 +404,7 @@ define [
       @cursor.setPosition(x * slideWidth + cx, y * slideHeight + cy)
 
     # Registers listeners for events in the gloval event bus
-    _registerConnectionEvents: ->
+    _registerEvents: ->
 
       globals.events.on "connection:all_slides", (urls) =>
         @removeAllImagesFromPaper()

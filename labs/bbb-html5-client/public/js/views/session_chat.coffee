@@ -24,8 +24,11 @@ define [
       @model.start()
 
       # Bind to the event triggered when the client connects to the server
-      globals.connection.bind "connection:connected",
-        @_registerConnectionEvents, @
+      if globals.connection.isConnected()
+        @_registerEvents()
+      else
+        globals.events.on "connection:connected", =>
+          @_registerEvents()
 
     render: ->
       data = { auth: globals.currentAuth }
@@ -33,7 +36,7 @@ define [
       @$el.html compiledTemplate
 
     # Registers listeners for events in the application socket.
-    _registerConnectionEvents: ->
+    _registerEvents: ->
 
       globals.events.on "chat:msg", (name, msg) =>
         @_addChatMessage(name, msg)
@@ -47,9 +50,9 @@ define [
       # TODO: for now these messages are only being shown in the chat, maybe
       #       they should have their own view and do more stuff
       #       (e.g. disable the interface when disconnected)
-      globals.events.on "connection:connect", =>
+      globals.events.on "connection:connected", =>
         @_addChatMessage("system", "Connected to the server.")
-      globals.events.on "connection:disconnect", =>
+      globals.events.on "connection:disconnected", =>
         @_addChatMessage("system", "Disconnected form the server.")
       globals.events.on "connection:reconnect", =>
         @_addChatMessage("system", "Reconnected!")

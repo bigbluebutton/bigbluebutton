@@ -33,8 +33,11 @@ define [
       $(window).resize(resizePaper)
 
       # Bind to the event triggered when the client connects to the server
-      globals.connection.bind "connection:connected",
-        @_registerConnectionEvents, @
+      if globals.connection.isConnected()
+        @_registerEvents()
+      else
+        globals.events.on "connection:connected", =>
+          @_registerEvents()
 
     # Override the close() method so we can close the sub-views.
     close: ->
@@ -90,7 +93,7 @@ define [
       @paper.bind "paper:image:removed", @_removePreloadImage, this
 
     # Registers listeners for events in the gloval event bus
-    _registerConnectionEvents: ->
+    _registerEvents: ->
 
       globals.events.on "whiteboard:paper:all_slides", (urls) =>
         @controlsView.clearUploadStatus()

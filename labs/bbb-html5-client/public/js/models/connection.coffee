@@ -16,8 +16,6 @@ define [
       if @socket?
         console.log "disconnecting from", @host
         @socket.disconnect()
-        @socket = null
-        @trigger('connection:disconnected')
       else
         console.log "tried to disconnect but it's not connected"
 
@@ -26,8 +24,6 @@ define [
         console.log "connecting to the server", @host
         @socket = io.connect(@host)
         @_registerEvents()
-        @socket.emit "user connect" # tell the server we have a new user
-        @trigger('connection:connected');
       else
         console.log "tried to connect but it's already connected"
 
@@ -42,7 +38,8 @@ define [
       # Immediately say we are connected
       @socket.on "connect", =>
         console.log "socket on: connect"
-        globals.events.trigger("connection:connect")
+        globals.events.trigger("connection:connected")
+        @socket.emit "user connect" # tell the server we have a new user
 
       # Received event to logout yourself
       @socket.on "logout", ->
@@ -54,7 +51,8 @@ define [
       @socket.on "disconnect", ->
         console.log "socket on: disconnect"
         window.location.replace "./"
-        globals.events.trigger("connection:disconnect")
+        globals.events.trigger("connection:disconnected")
+        @socket = null
 
       @socket.on "reconnect", ->
         console.log "socket on: reconnect"

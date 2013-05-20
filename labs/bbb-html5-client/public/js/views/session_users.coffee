@@ -23,8 +23,11 @@ define [
       @model.start()
 
       # Bind to the event triggered when the client connects to the server
-      globals.connection.bind "connection:connected",
-        @_registerConnectionEvents, @
+      if globals.connection.isConnected()
+        @_registerEvents()
+      else
+        globals.events.on "connection:connected", =>
+          @_registerEvents()
 
     render: ->
       compiledTemplate = _.template(sessionUsersTemplate)
@@ -32,7 +35,7 @@ define [
 
     # Registers listeners for events in the event bus.
     # TODO: bind to backbone events in UserCollection such as 'user added', 'user removed'
-    _registerConnectionEvents: ->
+    _registerEvents: ->
 
       globals.events.on "users:user_list_change", (users) =>
         @_removeAllUsers()

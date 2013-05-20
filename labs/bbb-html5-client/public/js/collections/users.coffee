@@ -14,8 +14,12 @@ define [
     start: ->
       # TODO: this should be in `initialize`, but can't be right now because
       #       globals.connection doesn't exist yet
-      globals.connection.bind "connection:connected",
-        @_registerEvents, @
+      # Bind to the event triggered when the client connects to the server
+      if globals.connection.isConnected()
+        @_registerEvents()
+      else
+        globals.events.on "connection:connected", =>
+          @_registerEvents()
 
     _registerEvents: ->
 
