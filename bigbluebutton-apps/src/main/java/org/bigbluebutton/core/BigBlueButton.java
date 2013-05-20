@@ -4,6 +4,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.bigbluebutton.core.api.IBigBlueButtonGateway;
 import org.bigbluebutton.core.messages.*;
 
 public class BigBlueButton {
@@ -11,6 +13,7 @@ public class BigBlueButton {
 			
 	private BlockingQueue<Message> messages;
 	private volatile boolean sendMessages = false;
+	private IBigBlueButtonGateway gw;
 	
 	public BigBlueButton() {
 		messages = new LinkedBlockingQueue<Message>();
@@ -45,5 +48,9 @@ public class BigBlueButton {
 	
 	public void stop() {
 		sendMessages = false;
+	}
+	
+	public void setBigBlueButtonGateway(IBigBlueButtonGateway gw) {
+		this.gw = gw;
 	}
 }

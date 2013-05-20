@@ -19,7 +19,7 @@ public class Meetings {
 		} else {
 			Meeting m = meetings.get(message.getMeetingID());
 			if (m != null) {
-				m.processMessage(message)
+				m.processMessage(message);
 			}
 		}
 	}
