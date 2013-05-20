@@ -26,6 +26,14 @@ public class Question {
 		return question;
 	}
 	
+	public void addResponse(String id, Response r) {
+		responses.put(id, r);
+	}
+	
+	public void removeResponse(String id) {
+		responses.remove(id);
+	}
+	
 	public ArrayList<Response> getResponses() {
 		ArrayList<Response> resps = new ArrayList<Response>();
 		for (Response r : responses.values()) {

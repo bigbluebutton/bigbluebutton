@@ -16,6 +16,11 @@ public class Meetings {
 	public void processMessage(Message message) {
 		if (message instanceof CreateMeeting) {
 			processCreateMeetingMessage((CreateMeeting) message);
+		} else {
+			Meeting m = meetings.get(message.getMeetingID());
+			if (m != null) {
+				m.processMessage(message)
+			}
 		}
 	}
 	
@@ -23,6 +28,6 @@ public class Meetings {
 		if (meetings.containsKey(message.getMeetingID())) {
 			Meeting m = new Meeting(message.getMeetingID());
 			meetings.put(m.getMeetingID(), m);
-		}
+		} 
 	}
 }
