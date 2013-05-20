@@ -11,9 +11,9 @@ define [
 
     initialize: ->
 
-    # TODO: not the best solution, but can't do it on initialize because globals.connection doesn't
-    #       exist yet
     start: ->
+      # TODO: this should be in `initialize`, but can't be right now because
+      #       globals.connection doesn't exist yet
       globals.connection.bind "connection:connected",
         @_registerEvents, @
 

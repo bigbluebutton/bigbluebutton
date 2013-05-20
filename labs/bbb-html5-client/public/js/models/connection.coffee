@@ -26,6 +26,7 @@ define [
         console.log "connecting to the server", @host
         @socket = io.connect(@host)
         @_registerEvents()
+        @socket.emit "user connect" # tell the server we have a new user
         @trigger('connection:connected');
       else
         console.log "tried to connect but it's already connected"
@@ -41,7 +42,7 @@ define [
       # Immediately say we are connected
       @socket.on "connect", =>
         console.log "socket on: connect"
-        @socket.emit "user connect"
+        globals.events.trigger("connection:connect")
 
       # Received event to logout yourself
       @socket.on "logout", ->
@@ -53,6 +54,19 @@ define [
       @socket.on "disconnect", ->
         console.log "socket on: disconnect"
         window.location.replace "./"
+        globals.events.trigger("connection:disconnect")
+
+      @socket.on "reconnect", ->
+        console.log "socket on: reconnect"
+        globals.events.trigger("connection:reconnect")
+
+      @socket.on "reconnecting", ->
+        console.log "socket on: reconnecting"
+        globals.events.trigger("connection:reconnecting")
+
+      @socket.on "reconnect_failed", ->
+        console.log "socket on: reconnect_failed"
+        globals.events.trigger("connection:reconnect_failed")
 
       # If an error occurs while not connected
       # @param  {string} reason Reason for the error.
@@ -189,6 +203,19 @@ define [
       @socket.on "setPresenter", (userid) =>
         console.log "socket on: setPresenter"
         globals.events.trigger("connection:setPresenter", userid)
+
+      # Received event for a new public chat message
+      # @param  {string} name name of user
+      # @param  {string} msg  message to be displayed
+      @socket.on "msg", (name, msg) =>
+        console.log "socket on: msg"
+        globals.events.trigger("connection:msg", name, msg)
+
+      # Received event to update all the messages in the chat box
+      # @param  {Array} messages Array of messages in public chat box
+      @socket.on "all_messages", (messages) =>
+        console.log "socket on: all_messages"
+        globals.events.trigger("connection:all_messages", messages)
 
     # Emit an update to move the cursor around the canvas
     # @param  {number} x x-coord of the cursor as a percentage of page width
