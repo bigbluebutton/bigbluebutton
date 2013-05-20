@@ -104,6 +104,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <property name="defaultMeetingDuration" value="${defaultMeetingDuration}"/>
     <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
     <property name="defaultAvatarURL" value="${defaultAvatarURL}"/>
+    <property name="defaultConfigURL" value="${defaultConfigURL}"/>
   </bean>
         
 	<import resource="doc-conversion.xml" />

@@ -61,5 +61,16 @@ package org.bigbluebutton.core
     public static const GET_MY_USER_INFO_REP:String       = "GetMyUserInfoResponse";
     public static const IS_USER_PUBLISHING_CAM_RESP:String = "IsUserPublishingCamResponse";
     
+    /** For Conversion Update Events **/
+    public static const OFFICE_DOC_CONVERSION_SUCCESS:String    = "OfficeDocConversionSuccessEvent";
+    public static const OFFICE_DOC_CONVERSION_FAILED:String     = "OfficeDocConversionFailedEvent";
+    public static const SUPPORTED_DOCUMENT:String               = "SupportedDocEvent";
+    public static const UNSUPPORTED_DOCUMENT:String             = "UnsupportedDocEvent";    
+    public static const PAGE_COUNT_FAILED:String                = "PageCountFailedEvent";
+    public static const THUMBNAILS_UPDATE:String                = "ThumbnailsUpdateEvent";
+    public static const PAGE_COUNT_EXCEEDED:String              = "PageCountExceededEvent";
+    public static const CONVERT_SUCCESS:String                  = "ConversionSuccessEvent";
+    public static const CONVERT_UPDATE:String                   = "ConversionProgressEvent";
+
   }
 }

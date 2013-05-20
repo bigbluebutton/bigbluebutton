@@ -1,8 +1,6 @@
 .metadata/
 record-and-playback/playback-client-js/testmeeting/
 record-and-playback/playback-web/playback-web-0.1.war
-bigbluebutton-client/.actionScriptProperties
-bigbluebutton-client/.flexProperties
 push_to_git.py
 */.gradle
 .gitignore
@@ -12,3 +10,9 @@ bbb-lti/bin
 bbb-lti/lti-0.1.1.war
 bbb-lti/make.sh
 bbb-lti/deploy.sh
+bbb-api-demo/bin*
+bbb-api-demo/.classpath
+bbb-api-demo/.project
+bigbluebutton-web/.settings*
+bigbluebutton-web/.classpath
+bigbluebutton-web/.project

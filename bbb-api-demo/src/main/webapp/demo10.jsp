@@ -30,8 +30,8 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel="stylesheet" type="text/css" href="css/ui.jqgrid.css" />
 	<link rel="stylesheet" type="text/css" href="css/redmond/jquery-ui-redmond.css" />
-	<script type="text/javascript" src="js/jquery-ui.js"></script>
 	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui.js"></script>
 	<script type="text/javascript" src="js/jquery.validate.min.js"></script>
 	<script src="js/grid.locale-en.js" type="text/javascript"></script>
 	<script src="js/jquery.jqGrid.min.js" type="text/javascript"></script>
@@ -263,7 +263,7 @@ with BigBlueButton; if not, If not, see <http://www.gnu.org/licenses/>.
 		//
 		// This is the URL for to join the meeting as moderator
 		//
-		String welcomeMsg = "<br>Welcome to %%CONFNAME%%!<br><br>For help see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a>.<br><br>To join the voice bridge for this meeting click the headset icon in the upper-left <b>(you can mute yourself in the Listeners window)</b>.<br><br>This meeting is being recorded (audio + slides + chat).";
+		String welcomeMsg = "<br>Welcome to %%CONFNAME%%!<br><br>For help see our <a href=\"event:http://www.bigbluebutton.org/content/videos\"><u>tutorial videos</u></a>.<br><br>To join the voice bridge for this meeting click the headset icon in the upper-left <b>(you can mute yourself in the Listeners window)</b>.<br><br>This meeting is being recorded (webcams + audio + presentation + chat).";
 		String joinURL = getJoinURL(username, meetingID, "true", welcomeMsg, metadata, null);
 		if (joinURL.startsWith("http://")) {
 %>

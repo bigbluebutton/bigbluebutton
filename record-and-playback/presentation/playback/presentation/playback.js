@@ -159,7 +159,7 @@ generateThumbnails = function() {
   for (var i = 0; i < xmlList.length; i++) {
     var element = xmlList[i];
     
-    if (!element.hasAttribute("xlink:href"))
+    if (!$(element).attr("xlink:href"))
       continue;
     var src = RECORDINGS + "/" + element.getAttribute("xlink:href");
     if (src.match(/\/presentation\/.*slide-.*\.png/)) {
@@ -313,7 +313,8 @@ document.addEventListener( "DOMContentLoaded", function() {
   $('.acorn-controls').position({
     "my": "center top",
     "at": "center bottom",
-    "of": '#playbackArea'
+    "of": '#playbackArea',
+    "collision": "none none"
   });
 }, false);
 

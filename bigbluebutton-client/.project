@@ -6,6 +6,11 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
 			<name>com.adobe.flexbuilder.project.flexbuilder</name>
 			<arguments>
 			</arguments>
@@ -20,6 +25,7 @@
 		<nature>com.adobe.flexbuilder.project.flexnature</nature>
 		<nature>com.adobe.flexbuilder.project.actionscriptnature</nature>
 		<nature>com.powerflasher.fdt.core.FlashNature</nature>
+		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
 	<linkedResources>
 		<link>
@@ -29,3 +35,4 @@
 		</link>
 	</linkedResources>
 </projectDescription>
+

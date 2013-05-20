@@ -22,7 +22,7 @@
     <script type="text/javascript" src="http://192.168.0.249/client/lib/bbb_api_bridge.js"></script>
     <script type="text/javascript" src="http://192.168.0.249/client/lib/bbb_api_cam_preview.js"></script>
     <script type="text/javascript" src="http://192.168.0.249/client/lib/bbb_api_cam_view.js"></script>
-    <script type="text/javascript" src="http://192.168.0.235/3rd-party.js"></script>
+    <script type="text/javascript" src="http://192.168.0.249/3rd-party.js"></script>
     <script>
       window.chatLinkClicked = function(url) {
         window.open(url, '_blank');
@@ -72,9 +72,13 @@
       <button type="button" onclick="amIPresenterAsync()">Am I Presenter Async</button>
 	  <button type="button" onclick="getMyUserInfoAsynch()">User Info Async</button>
       <button type="button" onclick="getMyUserInfoSynch()">UserInfo Sync</button>
+      <form id="formUpload" name="formUpload" enctype="multipart/form-data">
+        <input type="file" name="fileUpload" id="fileUpload" />
+        <button type="button" onclick="uploadPresentation()">Upload Presentation</button>
+      </form>
     </div>
     <div id="webcampreview" style="background-color:#FFD700;height:240px;width:320px;float:left;">
-        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540001" width="320" height="240" id="WebcamPreviewStandalone" name="WebcamPreviewStandalone" align="middle">
+        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540001" width="100%" height="100%" id="WebcamPreviewStandalone" name="WebcamPreviewStandalone" align="middle">
           <param name="movie" value="http://192.168.0.249/client/WebcamPreviewStandalone.swf?v=VERSION" />
           <param name="quality" value="high" />
           <param name="allowfullscreen" value="true" />
@@ -82,7 +86,7 @@
           <param name="wmode" value="window" />
           <param name="allowScriptAccess" value="always" />
           <!--[if !IE]>-->
-            <object type="application/x-shockwave-flash" data="http://192.168.0.249/client/WebcamPreviewStandalone.swf?v=VERSION" width="100%" height="90%" align="middle">
+            <object type="application/x-shockwave-flash" data="http://192.168.0.249/client/WebcamPreviewStandalone.swf?v=VERSION" width="100%" height="100%" align="middle">
               <param name="quality" value="high" />
               <param name="bgcolor" value="#869ca7" />
               <param name="allowScriptAccess" value="always" />
@@ -96,7 +100,7 @@
         </object>
      </div>
     <div id="webcamview" style="background-color:#FFD700;height:240px;width:320px;float:left;">
-        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540002" width="320" height="240" id="WebcamViewStandalone" name="WebcamViewStandalone" align="middle">
+        <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540002" width="100%" height="100%" id="WebcamViewStandalone" name="WebcamViewStandalone" align="middle">
           <param name="movie" value="http://192.168.0.249/client/WebcamViewStandalone.swf?v=VERSION" />
           <param name="quality" value="high" />
           <param name="allowfullscreen" value="true" />
@@ -104,7 +108,7 @@
           <param name="wmode" value="window" />
           <param name="allowScriptAccess" value="always" />
           <!--[if !IE]>-->
-            <object type="application/x-shockwave-flash" data="http://192.168.0.249/client/WebcamViewStandalone.swf?v=VERSION" width="100%" height="90%" align="middle">
+            <object type="application/x-shockwave-flash" data="http://192.168.0.249/client/WebcamViewStandalone.swf?v=VERSION" width="100%" height="100%" align="middle">
               <param name="quality" value="high" />
               <param name="bgcolor" value="#869ca7" />
               <param name="allowScriptAccess" value="always" />

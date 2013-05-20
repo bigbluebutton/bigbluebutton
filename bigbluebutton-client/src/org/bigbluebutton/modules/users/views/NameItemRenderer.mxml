@@ -30,5 +30,5 @@
 	<mx:Label id="nameLabel" textAlign="left" text="{data.name} {data.me ? '(you)' : ''}" 
 		fontWeight="{data.me ? 'bold' : 'normal'}"
 		color="{data.me ? 0x003399 : 0x000000}"
-		toolTip="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}"/>
+		toolTip="{data.name}"/>
 </mx:HBox>

@@ -19,7 +19,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 -->
 <mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   creationComplete="init()" 
+		   creationComplete="init()" visible="{_visibleTools}"
 		   xmlns:mate="http://mate.asfusion.com/"
 		   xmlns:views="org.bigbluebutton.modules.layout.views.*"
 		   implements="org.bigbluebutton.common.IBbbToolbarComponent">
@@ -37,6 +37,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 			private var _dispatcher:Dispatcher = new Dispatcher();
 			[Bindable] private var _enableEdit:Boolean = false;
+			[Bindable] private var _visibleTools:Boolean = true;
+			
 			[Bindable] private var baseIndex:int = 110000;
 			
 			private function init():void {
@@ -47,6 +49,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			public function set enableEdit(arg:Boolean):void {
 				_enableEdit = arg && UserManager.getInstance().getConference().amIModerator();
+			}
+			
+			public function set visibleTools(arg:Boolean):void {
+				_visibleTools = arg;
 			}
 			
 			private function getMdiCanvas(p:DisplayObjectContainer):DisplayObject {
@@ -86,6 +92,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					  includeInLayout="{_enableEdit}" 
 					  visible="{_enableEdit}" 
 					  tabIndex="{baseIndex+3}"/>
-	<views:LockButton id="lockButton" 
+	<views:LockButton id="lockButton"
 					  tabIndex="{baseIndex+4}"/>
 </mx:HBox>

@@ -34,9 +34,18 @@ package org.bigbluebutton.common
 	[Embed(source="assets/images/audio.png")]
 	public var audio:Class;
 	
+	[Embed(source="assets/images/audio_muted_20.png")]
+	public var audio_muted_20:Class;
+	
+	[Embed(source="assets/images/audio_20.png")]
+	public var audio_20:Class;
+	
 	[Embed(source="assets/images/webcam_new.png")]
 	public var webcam_new:Class;
 	
+    [Embed(source="assets/images/webcam_new_20.png")]
+    public var webcam_new_20:Class;
+    
 	[Embed(source="assets/images/sound_new.png")]
 	public var sound_new:Class;
 	
@@ -234,6 +243,12 @@ package org.bigbluebutton.common
 		
 		[Embed(source="assets/images/unlock.png")]
 		public var unlocked:Class;
+		
+		[Embed(source="assets/images/lock_20.png")]
+		public var locked_20:Class;
+		
+		[Embed(source="assets/images/unlock_20.png")]
+		public var unlocked_20:Class;
 		
 		[Embed(source="assets/images/presenter.png")]
 		public var presenter:Class;

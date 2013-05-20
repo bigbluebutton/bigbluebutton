@@ -99,6 +99,44 @@ var registerListeners = function() {
     console.log("User BroadcastingCameraStoppedEvent ]");
     CAM_PREVIEW.stopPreviewCamera();
   });
+
+  console.log("Listen Presentation Updates");
+  BBB.listen("OfficeDocConversionSuccessEvent", function(bbbEvent) {
+    console.log("Successfully converted Office document. : " + JSON.stringify(bbbEvent));
+  });
+
+  BBB.listen("OfficeDocConversionFailedEvent", function(bbbEvent) {
+    console.log("Failed to convert Office document. : " + JSON.stringify(bbbEvent));
+  });
+
+  BBB.listen("SupportedDocEvent", function(bbbEvent) {
+    console.log("Uploaded presentation file type is supported. : " + JSON.stringify(bbbEvent));
+  });
+
+  BBB.listen("UnsupportedDocEvent", function(bbbEvent) {
+    console.log("Uploaded presentation file type is unsupported. : " + JSON.stringify(bbbEvent));
+  });
+
+  BBB.listen("PageCountFailedEvent", function(bbbEvent) {
+    console.log("Failed to determine number of pages for the uploaded presentation. : " + JSON.stringify(bbbEvent));
+  });
+
+  BBB.listen("ThumbnailsUpdateEvent", function(bbbEvent) {
+    console.log("Generating thumbnails for uploaded presentation. : " + JSON.stringify(bbbEvent));
+  });
+
+  BBB.listen("PageCountExceededEvent", function(bbbEvent) {
+    console.log("Uploaded presentation had exceeded max number of pages. : " + JSON.stringify(bbbEvent));
+  });
+
+  BBB.listen("ConversionSuccessEvent", function(bbbEvent) {
+    console.log("Successfully converted uploaded presentation. : " + JSON.stringify(bbbEvent));
+  });
+
+  BBB.listen("ConversionProgressEvent", function(bbbEvent) {
+    console.log("Progress update on conversion process. : " + JSON.stringify(bbbEvent));
+  });
+  
 }
 
 var leaveVoiceConference2 = function () {
@@ -236,4 +274,50 @@ var webcamPreviewStandaloneAppReady = function() {
   });
   // Am I presenter? If so, am I publishing my camera? If so, display my camera.
   
+}
+
+var uploadPresentation = function() {
+
+  console.log("uploadPresentation");
+  
+  BBB.getInternalMeetingID(function(meetingID) {
+    var formData = new FormData($('form')[0]);
+    formData.append("presentation_name", document.getElementById('fileUpload').value.split(/(\\|\/)/g).pop());
+    formData.append("conference", meetingID);
+    formData.append("room", meetingID);
+    
+    $.ajax({
+        url: '/bigbluebutton/presentation/upload',  //server script to process data
+        type: 'POST',
+        xhr: function() {  // custom xhr
+            myXhr = $.ajaxSettings.xhr();
+            if(myXhr.upload){ // check if upload property exists
+                myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // for handling the progress of the upload
+            }
+            return myXhr;
+        },
+        //Ajax events
+        success: completeHandler,
+        error: errorHandler,
+        // Form data
+        data: formData,
+        //Options to tell JQuery not to process data or worry about content-type
+        cache: false,
+        contentType: false,
+        processData: false
+    });
+  });
+}
+
+function progressHandlingFunction(e){
+    if(e.lengthComputable){
+        console.log("progress: loaded " + e.loaded + " total:" + e.total);
+    }
+}
+function completeHandler(e){
+  $('form')[0].reset();
+  console.log("you file has been uploaded!");
+}
+function errorHandler(e){
+  console.log("There was an error uploading your file.");
 }

@@ -22,6 +22,7 @@
 
 <mdi:MDIWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:mdi="flexlib.mdi.containers.*" 
+	xmlns:flc="flexlib.controls.*"
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	xmlns:mate="http://mate.asfusion.com/"
 	creationComplete="onCreationComplete()"
@@ -31,7 +32,6 @@
 	<mate:Listener type="{LocaleChangeEvent.LOCALE_CHANGED}" method="localeChanged" />
 	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
-	<mate:Listener type="{ShortcutEvent.MUTE_ME_EVENT}" method="toggleMuteMeState" />
 	<mate:Listener type="{UsersEvent.ROOM_MUTE_STATE}" method="setRoomMute" />
 	<mx:Script>
 		<![CDATA[
@@ -92,11 +92,15 @@
 			private const MUTE_USER:String = "Mute User";
 			private const MUTE_ALL_USER:String = "Mute All User";
 			
+			private var muteMeRolled:Boolean = false;
+			
 			private function onCreationComplete():void {
 				dispatcher = new Dispatcher();
 			
 				users = UserManager.getInstance().getConference().users;
 				amIModerator = UserManager.getInstance().getConference().amIModerator();
+				
+				settingsBtn.visible = settingsBtn.includeInLayout = amIModerator;
 				
 				BindingUtils.bindSetter(changeButtons, UserManager.getInstance().getConference(), "amIPresenter");
 				BindingUtils.bindSetter(updateNumberofUsers, users, "length");
@@ -129,7 +133,7 @@
 					this.title = ResourceUtil.getInstance().getString('bbb.users.title', ["", ""]);
 			}
 			
-			private function localeChanged(e:LocaleChangeEvent):void {
+			private function localeChanged(e:Event):void {
 				updateNumberofUsers(users.length);
 				resourcesChanged();
 			}
@@ -152,15 +156,6 @@
 				dispatcher.dispatchEvent(rollEvent);
 			}
 			
-			private function toggleMuteMeState(event:ShortcutEvent = null):void{
-				if (UserManager.getInstance().getConference().voiceJoined) {
-					var e:VoiceConfEvent = new VoiceConfEvent(VoiceConfEvent.MUTE_USER);
-					e.userid = UserManager.getInstance().getConference().getMyVoiceUserId();
-					e.mute = !UserManager.getInstance().getConference().isMyVoiceMuted();
-					dispatchEvent(e);
-				}
-			}
-			
 			private function raiseHand():void{
 				if (UserManager.getInstance().getConference().getMyRole() == Role.VIEWER) {
 					handRaised = !handRaised;
@@ -172,17 +167,15 @@
 			
 			private function openSettings():void {
 				// everyone can see the audio settings
-				var myMenuData:Array = [{label: ResourceUtil.getInstance().getString('bbb.users.settings.audioSettings'), icon: images.audio}];
+				var myMenuData:Array = [];
 				
-				if (amIModerator) {
-					myMenuData[1] = {type: "separator"};
-					myMenuData[2] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.lowerAllHands'), icon: images.hand_new};
-					if (!roomMuted) {
-						myMenuData[3] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted};
-						myMenuData[4] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept'), icon: images.audio_muted};
-					} else
-						myMenuData[3] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio};
-				}
+				myMenuData[0] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.lowerAllHands'), icon: images.hand_new};
+				if (!roomMuted) {
+					myMenuData[1] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAll'), icon: images.audio_muted};
+					if (UserManager.getInstance().getConference().getPresenter())
+						myMenuData[2] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.muteAllExcept') + ": " + UserManager.getInstance().getConference().getPresenter().name, icon: images.audio_muted};
+				} else
+					myMenuData[1] = {label: ResourceUtil.getInstance().getString('bbb.users.settings.unmuteAll'), icon: images.audio};
 				
 				// make sure the previous menu is closed before opening a new one
 				// This could be improved to include a flag that tells if the menu is open,
@@ -201,21 +194,14 @@
 				// case 1 is the separator and can never get called
 				switch (e.index) {
 				case 0:
-					showAudioSettings();
-					break;
-				case 2:
 					lowerHands();
 					break;
-				case 3:
+				case 1:
 					muteAll();
 					break;
-				case 4:
+				case 2:
 					muteAlmostAll();
 				}
-			}
-			
-			private function showAudioSettings():void {
-				Security.showSettings(SecurityPanel.MICROPHONE);
 			}
 			
 			private function setRoomMute(e:UsersEvent):void {
@@ -352,7 +338,7 @@
 			}
 			
 			public function remoteKickUser():void{
-				if (amIModerator && usersGrid.selectedIndex != -1) {
+				if (amIModerator && usersGrid.selectedIndex != -1 && partOptions.allowKickUser) {
 					var selData:Object = usersGrid.selectedItem;
 					
 					if (!selData.me)
@@ -382,17 +368,17 @@
 	</mx:Script>
 	
 	<mx:DataGrid id="usersGrid" dataProvider="{users}" editable="false" sortableColumns="true"
-    	dragEnabled="false" width="100%" height="100%" 
+    	dragEnabled="false" width="100%" height="100%" draggableColumns="false"
     	itemRollOver="onItemRollOver(event)"
 		itemRollOut="onItemRollOut(event)" 
 		tabIndex="{partOptions.baseTabIndex+5}"
 		accessibilityName="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.accessibilityName')}" >
     	<mx:columns>
-    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="45"
+    		<mx:DataGridColumn dataField="userStatus" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.statusItemRenderer')}" editable="false" width="45" minWidth="45"
     			itemRenderer="org.bigbluebutton.modules.users.views.StatusItemRenderer" sortable="false" />
-    		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}" editable="false" width="100" sortable="false"
+    		<mx:DataGridColumn dataField="name" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.nameItemRenderer')}" editable="false" sortable="false" minWidth="60"
     			itemRenderer="org.bigbluebutton.modules.users.views.NameItemRenderer"/>
-    		<mx:DataGridColumn dataField="media" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer')}" sortable="false"
+    		<mx:DataGridColumn dataField="media" headerText="{ResourceUtil.getInstance().getString('bbb.users.usersGrid.mediaItemRenderer')}" sortable="false" width="110" minWidth="110"
     			itemRenderer="org.bigbluebutton.modules.users.views.MediaItemRenderer"/>
     	</mx:columns>
     </mx:DataGrid>
@@ -404,12 +390,6 @@
 					width="30" height="30" toolTip="Raise Hand" click="raiseHand()"
 					visible="false" includeInLayout="{raiseHandBtn.visible}" tabIndex="{partOptions.baseTabIndex+15}" />
 		<mx:Spacer width="100%"/>
-		<mx:Button id="muteMeBtn" click="toggleMuteMeState()" height="30" width="30" 
-					icon="{UserManager.getInstance().getConference().voiceMuted ? images.audio_muted : images.audio}"
-					visible="{UserManager.getInstance().getConference().voiceJoined}"
-					toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.users.pushToMute.toolTip')}" 
-					tabIndex="{partOptions.baseTabIndex+20}"/>
-		
 	</mx:ControlBar>
 	
 </mdi:MDIWindow>

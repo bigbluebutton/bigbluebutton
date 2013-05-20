@@ -429,7 +429,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				   tabIndex="{baseIndex}"/>
 		
 		<!-- mx:Button width="20" height="20" visible="{layoutOptions.showResetLayout}" toolTip="{ResourceUtil.getInstance().getString('bbb.mainshell.resetLayoutBtn.toolTip')}" id="btnResetLayout" icon="{reset_layout_icon}" click="resetLayout()" /-->
-		<mx:Button id="btnNetwork" icon="{statsIcon}" width="20" height="20" mouseOver="openNetworkStatsWindow()" mouseOut="closeNetworkStatsWindow()" tabFocusEnabled="false"/>		
+		<mx:Button id="btnNetwork" icon="{statsIcon}" width="20" height="20" mouseOver="openNetworkStatsWindow()" mouseOut="closeNetworkStatsWindow()" tabFocusEnabled="false" visible="{layoutOptions.showNetworkMonitor}" />		
 		<mx:HBox id="addedBtns" />
 	</mx:ControlBar>
 </mx:VBox>

@@ -111,10 +111,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function handleCamSettingsClosedEvent(e:BBBEvent):void {
-				this.enabled = true;
-				this.selected = false;
-				_currentState = OFF_STATE;
-				camIcon = images.webcam;
+				if(e.payload['clicked'] == "cancel"){
+					this.enabled = true;
+					this.selected = false;
+					_currentState = OFF_STATE;
+					camIcon = images.webcam;
+				}
 			}
 
 			private function mouseOverHandler(event:MouseEvent):void {

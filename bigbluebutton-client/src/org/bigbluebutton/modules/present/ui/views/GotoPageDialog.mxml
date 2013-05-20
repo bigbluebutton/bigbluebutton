@@ -29,14 +29,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		<![CDATA[
 			import mx.managers.PopUpManager;
 			
+			import org.bigbluebutton.modules.present.events.PresenterCommands;
+			
 			public static const SWITCH_PAGE:String = "switch to page";
 			[Bindable] public var totalSlides:int;
 			public var window:PresentationWindow;
 			
 			private function closeDialog():void{
-				var page:Number = parseInt(txtPageNum.text);
-				window.loadPage(page - 1);
+				if( !isNaN( Number( txtPageNum.text ) ) ){
+					var page:Number = parseInt(txtPageNum.text);
+					if( page > 0 && page <= totalSlides ){
+						dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, page-1));
+					}
+				}
 				PopUpManager.removePopUp(this);
+				
 			}
 			
 			private function onCreationComplete():void{

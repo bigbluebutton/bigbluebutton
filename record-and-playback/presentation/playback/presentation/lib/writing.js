@@ -34,9 +34,14 @@ function getUrlParameters() {
 // Draw the cursor at a specific point
 function draw(x, y) {
     cursorStyle = document.getElementById("cursor").style;
+    var slide = document.getElementById("slide");
+    var obj = $("#slide > object");
+    var scaledX = parseInt(x, 10) * (parseInt(obj.attr("width"), 10) / 800);
+    var scaledY = parseInt(y, 10) * (parseInt(obj.attr("height"), 10) / 600); 
+    
     //move to the next place
-    var leftValue = parseInt(document.getElementById("slide").offsetLeft, 10) + parseInt(x, 10)
-    var topValue = parseInt(document.getElementById("slide").offsetTop, 10) + parseInt(y, 10)
+    var leftValue = parseInt(slide.offsetLeft, 10) + parseInt(scaledX, 10)
+    var topValue = parseInt(slide.offsetTop, 10) + parseInt(scaledY, 10)
     if (leftValue < 0){
         leftValue = 0
     }
@@ -134,7 +139,9 @@ function runPopcorn() {
   var shapeelements = xmlDoc.getElementsByTagName("svg");
 
   //get the array of values for the first shape (getDataPoints(0) is the first shape).
-  var array = shapeelements[0].getElementsByClassName("shape"); //get all the lines from the svg file
+  var array = $(shapeelements[0]).find("g").filter(function(){ //get all the lines from the svg file   
+    return $(this).attr('class') == 'shape';
+  });
   var images = shapeelements[0].getElementsByTagName("image");
 
   //fill the times array with the times of the svg images.

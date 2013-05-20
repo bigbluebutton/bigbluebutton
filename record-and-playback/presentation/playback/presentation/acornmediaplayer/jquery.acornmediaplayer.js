@@ -11,7 +11,7 @@
  * contact@ghinda.net
  *
  */
-
+ 
 (function($) {
 	$.fn.acornMediaPlayer = function(options) {
 		/*
@@ -85,6 +85,8 @@
 				unmute: 'Unmute',
 				fullscreen: 'Fullscreen',
 				fullscreenTitle: 'Toggle fullscreen mode',
+				swap: 'Swap',
+				swapTitle: 'Toggle video and presention swap',
 				volumeTitle: 'Volume control',
 				seekTitle: 'Video seek control',
 				captions: 'Captions',
@@ -122,6 +124,13 @@
 			 */
 			var fullscreenBtnMarkup = (acorn.$self.is('video')) ? '<button class="acorn-fullscreen-button" title="' + text.fullscreenTitle + '" aria-controls="' + acorn.id + '">' + text.fullscreen + '</button>' : '';
 			
+			/* 
+			 * Markup for the swap button
+			 * If the element is not <video> we leave if blank, as the button if useless on <audio> elements
+			 */
+			var swapBtnMarkup = (acorn.$self.is('video')) ? '<button class="acorn-swap-button" title="' + text.swapTitle + '" aria-controls="' + acorn.id + '">' + text.swap + '</button>' : '';
+			
+
 			/*
 			 * Complete markup
 			 */
@@ -133,6 +142,7 @@
 									'<button class="acorn-volume-button" title="' + text.mute + '" aria-controls="' + acorn.id + '">' + text.mute + '</button>' +
 									'<input type="range" class="acorn-volume-slider" title="' + text.volumeTitle + '" value="1" min="0" max="1" step="0.05" aria-controls="' + acorn.id + '"/>' +
 								'</div>' +
+								swapBtnMarkup +
 								fullscreenBtnMarkup +
 								'<button class="acorn-caption-button" title="' + text.captionsTitle + '"  aria-controls="' + acorn.id + '">' + text.captions + '</button>' +
 								'<div class="acorn-caption-selector"></div>' +
@@ -154,6 +164,7 @@
 			// More details on the issue: http://bugs.jquery.com/ticket/8015
 			$wrapper[0].appendChild( acorn.$self[0].cloneNode(true) );
 			
+			acorn.$self.trigger('pause');
 			acorn.$self.remove();
 			acorn.$self = $wrapper.find('video, audio');
 			
@@ -172,7 +183,7 @@
 			acorn.$volume = $('.acorn-volume-slider', acorn.$container);
 			acorn.$volumeBtn = $('.acorn-volume-button', acorn.$container);
 			acorn.$fullscreenBtn = $('.acorn-fullscreen-button', acorn.$container);				
-			
+			acorn.$swapBtn = $('.acorn-swap-button', acorn.$container);	
 			/*
 			 * Append the markup for the Captions and Transcript
 			 * and define newly created DOM nodes for these
@@ -640,6 +651,98 @@
 			};	
 			
 			/* 
+			 * Swap the video and presentation areas
+			 * 
+			 * Resizes and moves based on hard coded numbers
+			 * Uses css to move it 
+			 */
+
+			var swapped = false;
+
+			var goSwap = function() {
+				if (swapped === false) {
+					$('#slide').css("width", "400px");
+					$('#slide').css("height", "300px");
+					$('#slide > object').attr("width", "400px");
+					$('#slide > object').attr("height", "300px");
+					var svgfile = $('#slide > object')[0].contentDocument.getElementById("svgfile");
+					svgfile.style.width = "400px";
+					svgfile.style.height = "300px";
+					
+					var slide = document.getElementById("slide");
+					var cursor = document.getElementById("cursor");
+					var slideT = document.getElementById("slideText");
+					var video = document.getElementById("video");
+					
+					video.style.width = "800px";
+					video.style.height = "600px";
+					
+					$('#videoRecordingWrapper').position({
+						"my": "left top",
+						"at": "right top",
+						"of": '#thumbnails',
+						"collision": "none none",
+						"offset": "10 0"
+					});
+	  
+					$('#presentation').position({
+						"my": "center top",
+						"at": "center bottom",
+						"of": '#chat',
+						"collision": "none none"
+					});
+	  
+					$('.acorn-controls').position({
+						"my": "center top",
+						"at": "center bottom",
+						"of": '#playbackArea',
+						"collision": "none none"
+					});
+	  
+					draw(0,0);
+
+					swapped = true;
+				} else {
+					$('#slide').css("width", "800px");
+					$('#slide').css("height", "600px");
+					$('#slide > object').attr("width", "800px");
+					$('#slide > object').attr("height", "600px");
+					var svgfile = $('#slide > object')[0].contentDocument.getElementById("svgfile");
+					svgfile.style.width = "800px";
+					svgfile.style.height = "600px";
+					
+					var video = document.getElementById("video");
+					
+					video.style.width = "400px";
+					video.style.height = "300px";
+					
+					$('#presentation').position({
+						"my": "left top",
+						"at": "right top",
+						"of": '#thumbnails',
+						"collision": "none none",
+						"offset": "10 0"
+					});
+					
+					$('#videoRecordingWrapper').position({
+						"my": "center top",
+						"at": "center bottom",
+						"of": '#chat',
+						"collision": "none none"
+					});
+	  
+					$('.acorn-controls').position({
+						"my": "center top",
+						"at": "center bottom",
+						"of": '#playbackArea',
+						"collision": "none none"
+					});
+					
+					swapped = false;   
+				}
+			}
+
+			/* 
 			 * CAPTIONS Behaviour
 			 *		
 			 * Turning off the captions
@@ -909,6 +1012,9 @@
 				// bind Fullscreen Button
 				acorn.$fullscreenBtn.click(goFullscreen);
 				
+				// bind Swap Button
+				acorn.$swapBtn.click(goSwap);
+
 				// initialize volume controls
 				initVolume();				
 				

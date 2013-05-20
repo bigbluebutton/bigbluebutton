@@ -116,7 +116,7 @@ package org.red5.flash.bwcheck.app
 		{
 			LogUtil.debug("kbit Down: " + event.info.kbitDown + " Delta Down: " + event.info.deltaDown + " Delta Time: " + event.info.deltaTime + " Latency: " + event.info.latency);
 			LogUtil.debug("Server Client Bandwidth Detect Complete");
-			LogUtil.debug("Detecting Client Server Bandwidth)";
+			LogUtil.debug("Detecting Client Server Bandwidth");
 			ClientServer();
 		}
 		

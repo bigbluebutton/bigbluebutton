@@ -32,7 +32,7 @@ package org.bigbluebutton.modules.layout.model {
 		[Bindable] public var name:String;
 		// default is a reserved word in actionscript
 		[Bindable] public var defaultLayout:Boolean = false;
-		private var _windows:Dictionary = new Dictionary();
+		private var _layoutsPerRole:Dictionary = new Dictionary();
 		
 		static private var _ignoredWindows:Array = new Array("AvatarWindow", "PublishWindow", 
 				"VideoWindow", "DesktopPublishWindow", "DesktopViewWindow",
@@ -50,12 +50,12 @@ package org.bigbluebutton.modules.layout.model {
 			if (vxml.@role != undefined && _roles.indexOf(vxml.@role.toString().toUpperCase()) != -1) {
 				role = vxml.@role.toString().toUpperCase();
 			}
-			if (!_windows.hasOwnProperty(role))
-				_windows[role] = new Dictionary();
+			if (!_layoutsPerRole.hasOwnProperty(role))
+				_layoutsPerRole[role] = new Dictionary();
 			for each (var n:XML in vxml.window) {
 				var window:WindowLayout = new WindowLayout();
 				window.load(n);
-				_windows[role][window.name] = window;
+				_layoutsPerRole[role][window.name] = window;
 			}
 		}
 		
@@ -72,21 +72,21 @@ package org.bigbluebutton.modules.layout.model {
 		}
 
 		private function get myLayout():Dictionary {
-			var hasViewerLayout:Boolean = _windows.hasOwnProperty(Role.VIEWER);
-			var hasModeratorLayout:Boolean = _windows.hasOwnProperty(Role.MODERATOR);
-			var hasPresenterLayout:Boolean = _windows.hasOwnProperty(Role.PRESENTER);
+			var hasViewerLayout:Boolean = _layoutsPerRole.hasOwnProperty(Role.VIEWER);
+			var hasModeratorLayout:Boolean = _layoutsPerRole.hasOwnProperty(Role.MODERATOR);
+			var hasPresenterLayout:Boolean = _layoutsPerRole.hasOwnProperty(Role.PRESENTER);
 			
 			if (UserManager.getInstance().getConference().amIPresenter && hasPresenterLayout) {
-        return _windows[Role.PRESENTER];        
-      } else if (UserManager.getInstance().getConference().amIModerator() && hasModeratorLayout) {
-        return _windows[Role.MODERATOR];        
-      } else if (hasViewerLayout) {
-        return _windows[Role.VIEWER];        
-      } else if (hasModeratorLayout) {
-        return _windows[Role.MODERATOR];        
-      } else if (hasPresenterLayout) {
-        return _windows[Role.PRESENTER];        
-      } else {
+				return _layoutsPerRole[Role.PRESENTER];
+			} else if (UserManager.getInstance().getConference().amIModerator() && hasModeratorLayout) {
+				return _layoutsPerRole[Role.MODERATOR];
+			} else if (hasViewerLayout)   {
+				return _layoutsPerRole[Role.VIEWER];
+			} else if (hasModeratorLayout) {
+				return _layoutsPerRole[Role.MODERATOR];
+			} else if (hasPresenterLayout) {
+				return _layoutsPerRole[Role.PRESENTER];
+			} else {
 				LogUtil.error("There's no layout that fits the participants profile");
         trace("LayoutDefinition::getMyLayout There's no layout that fits the participants profile");
 				return null;
@@ -112,8 +112,8 @@ package org.bigbluebutton.modules.layout.model {
 			var xml:XML = <layout-block/>;
 			var tmp:XML;
 			for each (var value:String in _roles) {
-				if (_windows.hasOwnProperty(value)) {
-					tmp = windowsToXml(_windows[value]);
+				if (_layoutsPerRole.hasOwnProperty(value)) {
+					tmp = windowsToXml(_layoutsPerRole[value]);
 					if (value != Role.VIEWER)
 						tmp.@role = value;
 					xml.appendChild(tmp);
@@ -178,22 +178,161 @@ package org.bigbluebutton.modules.layout.model {
 				return;
 
 			adjustWindowsOrder(canvas);
-
-			for each (var window:MDIWindow in canvas.windowManager.windowList) {
-				applyToWindow(canvas, window);
+			
+			var windows:Array = canvas.windowManager.windowList;
+			// LogUtil.traceObject(myLayout);
+			var transformedLayout:Dictionary = generateWindowsTransformations(myLayout, windows, canvas.width, canvas.height);
+			
+			var type:String;
+			for each (var window:MDIWindow in windows) {
+					type = WindowLayout.getType(window);
+	
+				if (!ignoreWindowByType(type))
+					WindowLayout.setLayout(canvas, window, transformedLayout[type]);
 			}
 		}
 		
-		public function applyToWindow(canvas:MDICanvas, window:MDIWindow, type:String=null):void {
-			if (type == null) {
-        type = WindowLayout.getType(window);
-      }
+		// http://stackoverflow.com/questions/12162607/how-to-clone-a-dictionary-and-its-content
+		private function cloneLayoutDictionary(original:Dictionary):Dictionary {
+		    var cloned:Dictionary = new Dictionary();
+		    for(var key:Object in original) {
+				cloned[key] = original[key].clone();
+		    }
+		    return cloned;
+		}
+		
+		private function generateWindowsTransformations(layout:Dictionary, windows:Array, screen_w:int, screen_h:int):Dictionary {
+			var type:String;
+			var i:int;
+			var items:Array = new Array();
+			var item:Object;
+			var copiedLayout:Dictionary = cloneLayoutDictionary(layout);
+
+			for each (var window:MDIWindow in windows) {
+				type = WindowLayout.getType(window);
+				if (ignoreWindowByType(type) || !copiedLayout.hasOwnProperty(type))
+					continue;
 				
+				items.push({
+					type: type,
+					x0: copiedLayout[type].x,
+					y0: copiedLayout[type].y,
+					w0: copiedLayout[type].width,
+					h0: copiedLayout[type].height,
+					fixed_w: copiedLayout[type].minWidth != -1 && copiedLayout[type].minWidth / screen_w > copiedLayout[type].width,
+					fixed_h: copiedLayout[type].minHeight != -1 && copiedLayout[type].minHeight / screen_h > copiedLayout[type].height,
+					min_w: copiedLayout[type].minWidth != -1? copiedLayout[type].minWidth / screen_w: copiedLayout[type].width,
+					min_h: copiedLayout[type].minHeight != -1? copiedLayout[type].minHeight / screen_h: copiedLayout[type].height,
+					fixed_on_left0: 0.0,
+					not_fixed_on_left0: 0.0
+				});
+			}
+
+			items.sortOn("x0", Array.NUMERIC);
+
+			/**
+			 *	First we are interested in discovering which windows have a fixed 
+			 *	width. We understand as fixed width the window that will be restricted 
+			 *	in width by the minWidth parameter. The next procedure will discover 
+			 *	how many pixels are fixed or non-fixed at the left of each window. 
+			 *	This is an important information because it will say how the windows 
+			 *	will be positioned after the transformation.
+			 */
+			var pivot0:Number = 0.0;
+			var pivot1:Number = 0.0;
+			var fixed_w0:Number = 0.0;
+			var fixed_w1:Number = 0.0;
+			for (i = 0; i < items.length; ++i) {
+				item = items[i];
+				
+				item.fixed_on_left0 = fixed_w0 - (pivot0 > item.x0? pivot0 - item.x0: 0);
+				item.not_fixed_on_left0 = item.x0 - item.fixed_on_left0;
+				item.fixed_on_left1 = fixed_w1 - (pivot0 > item.x0? pivot1 - item.x0: 0);
+
+				if (item.fixed_w) {
+					item.w1 = item.min_w;
+
+					if (pivot0 <= item.x0) {
+						fixed_w0 += item.w0;
+					} else if (pivot0 < item.x0 + item.w0) {
+						fixed_w0 += item.x0 + item.w0 - pivot0;
+					}
+					pivot0 = Math.max(pivot0, item.x0 + item.w0);
+
+					if (pivot1 <= item.x0) {
+						fixed_w1 += item.w1;
+					} else if (pivot1 < item.x0 + item.w1) {
+						fixed_w1 += item.x0 + item.w1 - pivot1;
+					}
+					pivot1 = Math.max(pivot1, item.x0 + item.w1);
+				} else {
+					pivot0 = Math.max(pivot0, item.x0);
+					pivot1 = Math.max(pivot1, item.x0);
+				}
+			}
+
+			var not_fixed_w0:Number = 1 - fixed_w0;
+			var not_fixed_w1:Number = 1 - fixed_w1;
+			var not_fixed_multiplier:Number = (fixed_w1 - fixed_w0) / not_fixed_w0;
+
+			/**
+			 *	The same procedure is executed (using a pivot) to discover how 
+			 *	many pixels aren't fixed at the left of each window AFTER the transformation, 
+			 *	and then generate the transformation at the windows in position and width.
+			 */
+			pivot0 
+				= pivot1 
+				= fixed_w0 
+				= fixed_w1 
+				= not_fixed_w0 
+				= not_fixed_w1 
+				= 0.0;
+			for (i = 0; i < items.length; ++i) {
+				item = items[i];
+
+				item.not_fixed_on_left1 = item.not_fixed_on_left0 - item.not_fixed_on_left0 * not_fixed_multiplier;
+
+				item.w1 = item.fixed_w? item.min_w: item.w0 - item.w0 * not_fixed_multiplier;
+				item.x1 = item.x0 + (item.fixed_on_left1 - item.fixed_on_left0) + (item.not_fixed_on_left1 - item.not_fixed_on_left0);
+
+				if (item.fixed_w) {
+					item.w1 = item.min_w;
+
+					if (pivot0 <= item.x0) {
+						fixed_w0 += item.w0;
+					} else if (pivot0 < item.x0 + item.w0) {
+						fixed_w0 += item.x0 + item.w0 - pivot0;
+					}
+					pivot0 = Math.max(pivot0, item.x0 + item.w0);
+
+					if (pivot1 <= item.x0) {
+						fixed_w1 += item.w1;
+					} else if (pivot1 < item.x0 + item.w1) {
+						fixed_w1 += item.x0 + item.w1 - pivot1;
+					}
+					pivot1 = Math.max(pivot1, item.x0 + item.w1);
+				} else {
+					pivot0 = Math.max(pivot0, item.x0);
+					pivot1 = Math.max(pivot1, item.x0);
+				}
+				
+				copiedLayout[item.type].x = item.x1;
+				copiedLayout[item.type].y = item.y0;
+				copiedLayout[item.type].width = item.w1;
+				copiedLayout[item.type].height = item.h0;
+			}
+			
+			return copiedLayout;
+		}
+		
+		private function apply(canvas:MDICanvas, window:MDIWindow, type:String=null):void {
+			if (type == null) {
+				type = WindowLayout.getType(window);
+			}
 
 			if (!ignoreWindowByType(type)) {
-//        trace("LayoutDefinition::applyToWindow [" + window.name + ", type=" + type + "]");
-        WindowLayout.setLayout(canvas, window, myLayout[type]);
-      }				
+				WindowLayout.setLayout(canvas, window, myLayout[type]);
+			}
 		}
 		
 		static private function ignoreWindowByType(type:String):Boolean {
@@ -209,11 +348,11 @@ package org.bigbluebutton.modules.layout.model {
 			//LogUtil.debug("CHAD: Canvas is " + (canvas == null ? "null" : "not null") + ", Name is " + (name == null ? "null" : "not null"));
 			var layoutDefinition:LayoutDefinition = new LayoutDefinition();
 			layoutDefinition.name = name;
-			layoutDefinition._windows[Role.VIEWER] = new Dictionary();
+			layoutDefinition._layoutsPerRole[Role.VIEWER] = new Dictionary();
 			for each (var window:MDIWindow in canvas.windowManager.windowList) {
 				var layout:WindowLayout = WindowLayout.getLayout(canvas, window);
 				if (!ignoreWindowByType(layout.name))
-					layoutDefinition._windows[Role.VIEWER][layout.name] = layout;
+					layoutDefinition._layoutsPerRole[Role.VIEWER][layout.name] = layout;
 			}
 			return layoutDefinition;
 		}

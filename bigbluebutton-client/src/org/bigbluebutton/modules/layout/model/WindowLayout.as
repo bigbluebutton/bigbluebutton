@@ -39,6 +39,8 @@ package org.bigbluebutton.modules.layout.model {
 		[Bindable] public var name:String;
 		[Bindable] public var width:Number;
 		[Bindable] public var height:Number;
+		[Bindable] public var minWidth:int = -1;
+		[Bindable] public var minHeight:int = -1;
 		[Bindable] public var x:Number;
 		[Bindable] public var y:Number;
 		[Bindable] public var minimized:Boolean = false;
@@ -50,6 +52,24 @@ package org.bigbluebutton.modules.layout.model {
 		
 
 		static private var EVENT_DURATION:int = 500;
+
+		public function clone():WindowLayout {
+			var cloned:WindowLayout = new WindowLayout();
+			cloned.name = this.name;
+			cloned.width = this.width;
+			cloned.height = this.height;
+			cloned.minWidth = this.minWidth;
+			cloned.minHeight = this.minHeight;
+			cloned.x = this.x;
+			cloned.y = this.y;
+			cloned.minimized = this.minimized;
+			cloned.maximized = this.maximized;
+			cloned.hidden = this.hidden;
+			cloned.resizable = this.resizable;
+			cloned.draggable = this.draggable;
+			cloned.order = this.order;
+			return cloned;
+		}
 
 		public function load(vxml:XML):void {
 //      trace("Load layout \n" + vxml.toXMLString() + "\n");
@@ -69,6 +89,13 @@ package org.bigbluebutton.modules.layout.model {
 				if (vxml.@y != undefined) {
 					y = Number(vxml.@y);
 				}
+				if (vxml.@minWidth != undefined) {
+					minWidth = int(vxml.@minWidth);
+				}
+				// not implemented yet
+				//if (vxml.@minHeight != undefined) {
+				//	minHeight = int(vxml.@minHeight);
+				//}
 				if (vxml.@minimized != undefined) {
 					minimized = (vxml.@minimized.toString().toUpperCase() == "TRUE") ? true : false;
 				}
@@ -98,6 +125,8 @@ package org.bigbluebutton.modules.layout.model {
 			layout.name = getType(window);
 			layout.width = window.width / canvas.width;
 			layout.height = window.height / canvas.height;
+			layout.minWidth = -1;
+			//layout.minHeight = -1;
 			layout.x = window.x / canvas.width;
 			layout.y = window.y / canvas.height;
 			layout.minimized = window.minimized;
@@ -141,7 +170,7 @@ package org.bigbluebutton.modules.layout.model {
 			applyToWindow(obj.canvas, obj.window);
 		}
 		
-		public function applyToWindow(canvas:MDICanvas, window:MDIWindow):void {
+		private function applyToWindow(canvas:MDICanvas, window:MDIWindow):void {
 //      trace("WindowLayout::applyToWindow for " + window.name + " using layout " + this.name + "]");
       
 			var effect:Parallel = new Parallel();
@@ -231,8 +260,13 @@ package org.bigbluebutton.modules.layout.model {
 			else {
 				xml.@width = int(width * canvas.width);
 				xml.@height = int(height * canvas.height);
+				xml.@minWidth = minWidth;
+				//xml.@minHeight = minHeight;
 				xml.@x = int(x * canvas.width);
 				xml.@y = int(y * canvas.height);
+
+				xml.@draggable = draggable;
+				xml.@resizable = resizable;
 			}
 			xml.@order = order;
 			return xml;
@@ -250,8 +284,13 @@ package org.bigbluebutton.modules.layout.model {
 			else {
 				xml.@width = width;
 				xml.@height = height;
+				xml.@minWidth = minWidth;
+				//xml.@minHeight = minHeight;
 				xml.@x = x;
 				xml.@y = y;
+
+				xml.@draggable = draggable;
+				xml.@resizable = resizable;
 			}
 			xml.@order = order;
 			return xml;			

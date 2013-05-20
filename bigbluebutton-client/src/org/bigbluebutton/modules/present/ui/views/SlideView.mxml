@@ -131,10 +131,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function changeSlide():void {
-				dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, thumbnailView.selectedIndex));
-				thumbnailView.visible = false;
-				showOverlayCanvas(true);
-				dispatchEvent(new Event(THUMBNAILS_CLOSED));
+                if (thumbnailView.selectedIndex != selectedSlide) {
+				    dispatchEvent(new PresenterCommands(PresenterCommands.GOTO_SLIDE, thumbnailView.selectedIndex));
+				    thumbnailView.visible = false;
+                }
 			}
 			
 			private function changeIndex(e:ListEvent):void {
@@ -471,10 +471,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					//LogUtil.debug("Zooming Canvas " + width + " " + height);
 					whiteboardCanvas.zoomCanvas(width, height);
 				}
-			}
-			
-			public function showOverlayCanvas(show:Boolean):void{
-				whiteboardCanvas.showCanvas(show);
 			}
 			
 			public function showCanvas(show:Boolean):void{

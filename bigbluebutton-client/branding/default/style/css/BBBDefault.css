@@ -58,13 +58,24 @@ Button, .logoutButtonStyle, .chatSendButtonStyle, .helpLinkButtonStyle {
   fontSize: 12;
 }
 
-
 .helpLinkButtonStyle {
+  paddingLeft: 4;
+  paddingRight: 4;
+  paddingTop: 2;
+  paddingBottom: 2;
+  fontSize: 16;
   rollOverColor: #cccccc;
   selectionColor: #999999;
   color: #ffffff;
   textRollOverColor: #504f3d;
   textSelectedColor: #504f3d;
+  fontWeight: bold;
+}
+
+.logoutButtonStyle {
+  paddingLeft: 0;
+  paddingRight: 0;
+  icon: Embed('assets/images/logout.png');
 }
 
 DataGrid {
@@ -145,7 +156,7 @@ DataGrid {
   icon: Embed('assets/images/triangle.png');    
 }
 
-.presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationForwardButtonStyle,
+.presentationUploadButtonStyle, .presentationBackButtonStyle, .presentationBackButtonDisabledStyle, .presentationForwardButtonStyle, .presentationForwardButtonDisabledStyle,
 .presentationFitToWidthButtonStyle, .presentationFitToPageButtonStyle 
 {
   textIndent: 0;
@@ -173,8 +184,16 @@ DataGrid {
   icon:   Embed('assets/images/left-arrow.png'); 
 }
 
+.presentationBackButtonDisabledStyle {
+	icon:   Embed('assets/images/left-arrow-disabled.png'); 
+}
+
 .presentationForwardButtonStyle {
   icon:   Embed('assets/images/right-arrow.png'); 
+}
+
+.presentationForwardButtonDisabledStyle {
+	icon:   Embed('assets/images/right-arrow-disabled.png'); 
 }
 
 .presentationFitToWidthButtonStyle {
@@ -288,7 +307,7 @@ DataGrid {
 
 .presentationUploadCancelButtonStyle {
   fillAlphas: 1, 1, 1, 1;
-  fillColors: #ff0000, #ff0000, #ffffff, #eeeeee;
+  fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
   color: #5e5f63;
   textRollOverColor: #5e5f63;
   textSelectedColor: #5e5f63;
@@ -364,8 +383,7 @@ DataGrid {
   fontSize: 12;    
 }
 
-.micSettingsWindowPlaySoundButtonStyle, .micSettingsWindowChangeMicButtonStyle, 
-.micSettingsWindowJoinButtonStyle {
+.micSettingsWindowPlaySoundButtonStyle, .micSettingsWindowChangeMicButtonStyle {
   fillAlphas: 1, 1, 1, 1;
   fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
   rollOverColor: #eeeeee;
@@ -374,6 +392,18 @@ DataGrid {
   textSelectedColor: #5e5f63;
   borderColor: #b9babc;  
   cornerRadius: 5;      
+}
+
+.micSettingsWindowJoinButtonStyle {
+	fillAlphas: 1, 1, 1, 1;
+	fillColors: #fefeff, #e1e2e5, #ffffff, #eeeeee;
+	rollOverColor: #eeeeee;
+	color: #5e5f63;
+	textRollOverColor: #5e5f63;
+	textSelectedColor: #5e5f63;
+	borderColor: #b9babc;  
+	cornerRadius: 5; 
+	icon:   Embed('assets/images/headset.png');
 }
 
 .micSettingsWindowCancelButtonStyle {
