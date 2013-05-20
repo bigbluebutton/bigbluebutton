@@ -105,7 +105,11 @@ dependencies {
 
 	// Libraries needed for scala api
 	compile 'org.scala-lang:scala-library:2.9.2'
-  
+
+	// workaround for http://issues.gradle.org/browse/GRADLE-1273
+	compileScala.classpath = sourceSets.main.compileClasspath + files(sourceSets.main.classesDir)
+	compileTestScala.classpath = sourceSets.test.compileClasspath + files(sourceSets.test.classesDir)
+	  
    // Freeswitch ESL Client
    compile 'org/freeswitch:fs-esl-client:0.8.2@jar'
    compile 'org.jboss.netty:netty:3.2.1.Final@jar'
