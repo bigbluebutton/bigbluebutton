@@ -1,16 +1,26 @@
 package org.bigbluebutton.core.apps.poll
 
 import scala.collection.mutable.HashMap
+import QuestionType._
 
-class Question(val id: String, val question: String) {
+class Question(val id: Int, val questionType: QuestionType, val question: String) {
 
-  private val responses = new HashMap[String, Response]()
+  private val responses = new HashMap[Int, Response]()
   
   def addResponse(resp: Response):Unit = {
     responses.get(resp.id) match {
-    	case None => {
-		 responses += resp.id -> resp   
-    	}
+    	case None => responses += resp.id -> resp   
+    }
+  }
+  
+  def deleteResponse(id: Int) {
+    responses -= id
+  }
+  
+  def respondToQuestion(id: Int, resp: Responder) {
+    responses.get(id) match {
+    	case Some(r) => r.addResponder(resp)   
+    	case None => // do nothing
     }
   }
   
@@ -20,5 +30,5 @@ class Question(val id: String, val question: String) {
 	return r
   }
 	 
- 
+  
 }

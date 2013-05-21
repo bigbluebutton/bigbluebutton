@@ -4,12 +4,12 @@ import scala.collection.mutable.ArrayBuffer
 
 case class Responder(val userID: String, val name: String)
 
-class Response(val id: String, val response: String) {
+class Response(val id: Int, val response: String) {
 
   val responders = new ArrayBuffer[Responder]()
   
-  def addResponder(userID: String, name: String) {
-	responders += new Responder(userID, name)
+  def addResponder(responder: Responder) {
+	responders += responder
   }
   
   def numResponders():Int = {

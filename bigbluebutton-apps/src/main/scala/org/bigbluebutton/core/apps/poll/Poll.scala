@@ -1,7 +1,12 @@
 package org.bigbluebutton.core.apps.poll
 
-class Poll(val title: String, val allowMultipleAnswers: Boolean, id: String, question: Question) {						
+import scala.collection.mutable.HashMap
+import QuestionType._
+
+class Poll(val title: String, id: String) {						
 	private var _active: Boolean = false
+	private var questions = new HashMap[Int, Question]()
+	
 	
 	def active = _active
 	
@@ -13,7 +18,32 @@ class Poll(val title: String, val allowMultipleAnswers: Boolean, id: String, que
 	  _active = false;
 	}
 	
-	def response(responseID: String, userID: String):Unit = {
-	  
+	def addQuestion(id: Int, questionType: QuestionType, question: String) {
+	  questions += id -> new Question(id, questionType, question)
+	}
+	
+	def deleteQuestion(id: Int) {
+	  questions -= id
+	}
+	
+	def addResponse(questionID: Int, responseID: Int, responseText: String) {
+		questions.get(questionID) match {
+		  case Some(q) => q.addResponse(new Response(responseID, responseText))
+		  case None => // do nothing
+		}
+	}
+	
+	def deleteResponse(questionID: Int, responseID: Int) {
+	  questions.get(questionID) match {
+		case Some(q) => q.deleteResponse(responseID)
+		case None => // do nothing
+	  }
+	}
+	
+	def respondToQuestion(questionID: Int, responseID: Int, userID: String, username: String):Unit = {
+	  questions.get(questionID) match {
+		case Some(q) => q.respondToQuestion(responseID, new Responder(userID, username))
+		case None => // do nothing
+	  }	  
 	}
 }

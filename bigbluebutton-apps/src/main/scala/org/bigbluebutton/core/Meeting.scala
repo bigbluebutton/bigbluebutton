@@ -4,13 +4,15 @@ import scala.actors.Actor
 import scala.actors.Actor._
 import scala.collection.immutable.HashMap
 import org.bigbluebutton.core.apps.poll.PollApp
+import org.bigbluebutton.core.apps.poll.Poll
+import org.bigbluebutton.core.apps.poll.PollApp
 
-class Meeting extends Actor with PollApp {
+class Meeting extends Actor {
 
   import org.bigbluebutton.core.messages._
 
   val users = new HashMap[String, User]
-  val polls = new HashMap[String, Poll]
+  val polls = new PollApp()
   
   	def act() = {
 	  loop {
@@ -19,7 +21,7 @@ class Meeting extends Actor with PollApp {
 	        handleUserJoin(userJoin)
 	      }
 	      case createPoll: CreatePoll => {
-	        handleCreatePoll(createPoll)
+	        polls.createPoll(createPoll)
 	      }
 	    }
 	  }
