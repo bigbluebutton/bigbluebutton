@@ -325,7 +325,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var _isClosing:Boolean = false;
       
 			override public function close(event:MouseEvent=null):void{
-        trace("PublishWindow::close");
+        trace("PublishWindow:: closing");
+        
 			  if (!_isClosing) {
           _isClosing = true;
           stopPublishing();
@@ -333,9 +334,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function stopCamera():void {
+        trace("PublishWindow:: stopping camera");
+        
         _camera = null;
 				if (_video != null) {
+          trace("PublishWindow:: removing video from display");
 					_videoHolder.removeChild(_video);
+          
 					_video.attachCamera(null);
 					_video.clear();
 					_video = null;
