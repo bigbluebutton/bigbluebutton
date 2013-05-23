@@ -2,8 +2,9 @@ define [
   'underscore',
   'backbone',
   'socket.io',
+  'globals',
   'cs!utils'
-], (_, Backbone, IO, Utils) ->
+], (_, Backbone, IO, globals, Utils) ->
 
   ConnectionModel = Backbone.Model.extend
 
@@ -15,8 +16,6 @@ define [
       if @socket?
         console.log "disconnecting from", @host
         @socket.disconnect()
-        @socket = null
-        @trigger('connection:disconnected')
       else
         console.log "tried to disconnect but it's not connected"
 
@@ -25,18 +24,22 @@ define [
         console.log "connecting to the server", @host
         @socket = io.connect(@host)
         @_registerEvents()
-        @trigger('connection:connected');
       else
         console.log "tried to connect but it's already connected"
 
-    # Registers listeners to some events in the websocket.
-    # Events here are generic and related to the connection.
+    isConnected: ->
+      # if we have a socket set we assume we are connected
+      @socket?
+
+    # Registers listeners to all events in the websocket. Passes these events to the
+    # event bus so that other objects can receive them too.
     _registerEvents: ->
 
       # Immediately say we are connected
       @socket.on "connect", =>
         console.log "socket on: connect"
-        @socket.emit "user connect"
+        globals.events.trigger("connection:connected")
+        @socket.emit "user connect" # tell the server we have a new user
 
       # Received event to logout yourself
       @socket.on "logout", ->
@@ -48,11 +51,169 @@ define [
       @socket.on "disconnect", ->
         console.log "socket on: disconnect"
         window.location.replace "./"
+        globals.events.trigger("connection:disconnected")
+        @socket = null
+
+      @socket.on "reconnect", ->
+        console.log "socket on: reconnect"
+        globals.events.trigger("connection:reconnect")
+
+      @socket.on "reconnecting", ->
+        console.log "socket on: reconnecting"
+        globals.events.trigger("connection:reconnecting")
+
+      @socket.on "reconnect_failed", ->
+        console.log "socket on: reconnect_failed"
+        globals.events.trigger("connection:reconnect_failed")
 
       # If an error occurs while not connected
       # @param  {string} reason Reason for the error.
       @socket.on "error", (reason) ->
         console.error "unable to connect socket.io", reason
+
+      # Received event to update all the slide images
+      # @param  {Array} urls list of URLs to be added to the paper (after old images are removed)
+      @socket.on "all_slides", (urls) =>
+        console.log "socket on: all_slides"
+        globals.events.trigger("connection:all_slides", urls)
+
+      # Received event to clear the whiteboard shapes
+      @socket.on "clrPaper", =>
+        console.log "socket on: clrPaper"
+        globals.events.trigger("connection:clrPaper")
+
+      # Received event to update all the shapes in the whiteboard
+      # @param  {Array} shapes Array of shapes to be drawn
+      @socket.on "all_shapes", (shapes) =>
+        console.log "socket on: all_shapes"
+        globals.events.trigger("connection:all_shapes", shapes)
+
+      # Received event to update a shape being created
+      # @param  {string} shape type of shape being updated
+      # @param  {Array} data   all information to update the shape
+      @socket.on "updShape", (shape, data) =>
+        console.log "socket on: updShape"
+        globals.events.trigger("connection:updShape", shape, data)
+
+      # Received event to create a shape on the whiteboard
+      # @param  {string} shape type of shape being made
+      # @param  {Array} data   all information to make the shape
+      @socket.on "makeShape", (shape, data) =>
+        console.log "socket on: makeShape"
+        globals.events.trigger("connection:makeShape", shape, data)
+
+      # Pencil drawings are received as points from the server and painted as lines.
+      @socket.on "shapePoints", (type, color, thickness, points) =>
+        console.log "socket on: shapePoints"
+        globals.events.trigger("connection:shapePoints", type, color, thickness, points)
+
+      # Received event to update the cursor coordinates
+      # @param  {number} x x-coord of the cursor as a percentage of page width
+      # @param  {number} y y-coord of the cursor as a percentage of page height
+      @socket.on "mvCur", (x, y) =>
+        console.log "socket on: mvCur"
+        globals.events.trigger("connection:mvCur", x, y)
+
+      # Received event to update the slide image
+      # @param  {string} url URL of image to show
+      @socket.on "changeslide", (url) =>
+        console.log "socket on: changeslide"
+        globals.events.trigger("connection:changeslide", url)
+
+      # Received event to update the viewBox value
+      # @param  {string} xperc Percentage of x-offset from top left corner
+      # @param  {string} yperc Percentage of y-offset from top left corner
+      # @param  {string} wperc Percentage of full width of image to be displayed
+      # @param  {string} hperc Percentage of full height of image to be displayed
+      # TODO: not tested yet
+      @socket.on "viewBox", (xperc, yperc, wperc, hperc) =>
+        console.log "socket on: viewBox"
+        globals.events.trigger("connection:viewBox", xperc, yperc, wperc, hperc)
+
+      # Received event to update the whiteboard between fit to width and fit to page
+      # @param  {boolean} value choice of fit: true for fit to page, false for fit to width
+      @socket.on "fitToPage", (value) ->
+        console.log "socket on: fitToPage"
+        globals.events.trigger("connection:fitToPage", value)
+
+      # Received event to update the zoom level of the whiteboard.
+      # @param  {number} delta amount of change in scroll wheel
+      @socket.on "zoom", (delta) ->
+        console.log "socket on: zoom"
+        globals.events.trigger("connection:zoom", delta)
+
+      # Received event to update the whiteboard size and position
+      # @param  {number} cx x-offset from top left corner as percentage of original width of paper
+      # @param  {number} cy y-offset from top left corner as percentage of original height of paper
+      # @param  {number} sw slide width as percentage of original width of paper
+      # @param  {number} sh slide height as a percentage of original height of paper
+      @socket.on "paper", (cx, cy, sw, sh) ->
+        console.log "socket on: paper"
+        globals.events.trigger("connection:paper", cx, cy, sw, sh)
+
+      # Received event when the panning action finishes
+      @socket.on "panStop", ->
+        console.log "socket on: panStop"
+        globals.events.trigger("connection:panStop")
+
+      # Received event to change the current tool
+      # @param  {string} tool The tool to be turned on
+      @socket.on "toolChanged", (tool) ->
+        console.log "socket on: toolChanged"
+        globals.events.trigger("connection:toolChanged", tool)
+
+      # Received event to denote when the text has been created
+      @socket.on "textDone", ->
+        console.log "socket on: textDone"
+        globals.events.trigger("connection:textDone")
+
+      # Received event to update the status of the upload progress
+      # @param  {string} message  update message of status of upload progress
+      # @param  {boolean} fade    true if you wish the message to automatically disappear after 3 seconds
+      @socket.on "uploadStatus", (message, fade) =>
+        console.log "socket on: uploadStatus"
+        globals.events.trigger("connection:uploadStatus", message, fade)
+
+      # Received event for a new public chat message
+      # @param  {Array} users Array of names and publicIDs of connected users
+      # TODO: event name with spaces is bad
+      @socket.on "user list change", (users) =>
+        console.log "socket on: user list change"
+        globals.events.trigger("connection:user_list_change", users)
+
+      # TODO: event name with spaces is bad
+      @socket.on "load users", (users) =>
+        console.log "socket on: load users"
+        globals.events.trigger("connection:load_users", users)
+
+      # Received event for a new user
+      @socket.on "user join", (userid, username) =>
+        console.log "socket on: user join"
+        globals.events.trigger("connection:user_join", userid, username)
+
+      # Received event when a user leave
+      @socket.on "user leave", (userid) =>
+        console.log "socket on: user leave"
+        globals.events.trigger("connection:user_leave", userid)
+
+      # Received event to set the presenter to a user
+      # @param  {string} userID publicID of the user that is being set as the current presenter
+      @socket.on "setPresenter", (userid) =>
+        console.log "socket on: setPresenter"
+        globals.events.trigger("connection:setPresenter", userid)
+
+      # Received event for a new public chat message
+      # @param  {string} name name of user
+      # @param  {string} msg  message to be displayed
+      @socket.on "msg", (name, msg) =>
+        console.log "socket on: msg"
+        globals.events.trigger("connection:msg", name, msg)
+
+      # Received event to update all the messages in the chat box
+      # @param  {Array} messages Array of messages in public chat box
+      @socket.on "all_messages", (messages) =>
+        console.log "socket on: all_messages"
+        globals.events.trigger("connection:all_messages", messages)
 
     # Emit an update to move the cursor around the canvas
     # @param  {number} x x-coord of the cursor as a percentage of page width

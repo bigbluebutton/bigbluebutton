@@ -3,61 +3,62 @@ define [
   'underscore',
   'backbone',
   'globals',
+  'cs!collections/users',
   'text!templates/session_users.html',
-  'text!templates/user.html',
-], ($, _, Backbone, globals, sessionUsersTemplate, userTemplate) ->
+  'text!templates/user.html'
+], ($, _, Backbone, globals, UserCollection, sessionUsersTemplate, userTemplate) ->
 
   # The users panel in a session
   # The contents are rendered by SessionView, this class is Used to
   # manage the events in the users.
   SessionUsersView = Backbone.View.extend
+    model: new UserCollection()
+
     events:
       "click #switch-presenter": "_switchPresenter"
       "click .user": "_userClicked"
 
     initialize: ->
       @userListID = "#current-users"
+      @model.start()
 
       # Bind to the event triggered when the client connects to the server
-      globals.connection.bind "connection:connected",
-        @_registerConnectionEvents, @
+      if globals.connection.isConnected()
+        @_registerEvents()
+      else
+        globals.events.on "connection:connected", =>
+          @_registerEvents()
 
     render: ->
       compiledTemplate = _.template(sessionUsersTemplate)
       @$el.html compiledTemplate
 
-    # Registers listeners for events in the application socket.
-    _registerConnectionEvents: ->
-      socket = globals.connection.socket
+    # Registers listeners for events in the event bus.
+    # TODO: bind to backbone events in UserCollection such as 'user added', 'user removed'
+    _registerEvents: ->
 
-      # Received event for a new public chat message
-      # @param  {Array} users Array of names and publicIDs of connected users
-      socket.on "user list change", (users) =>
+      globals.events.on "users:user_list_change", (users) =>
         @_removeAllUsers()
         for userBlock in users
           @_addUser(userBlock.id, userBlock.name)
 
-      socket.on "load users", (users) =>
+      globals.events.on "users:load_users", (users) =>
         @_removeAllUsers()
         for userBlock in users
           @_addUser(userBlock.id, userBlock.name)
 
-      # Received event for a new user
-      socket.on "user join", (userid,username) =>
+      globals.events.on "users:user_join", (userid, username) =>
         #@_removeAllUsers()
         #for userBlock in users
         @_addUser(userid, username)
 
-      # Received event when a user leave
-      socket.on "user leave", (userid) =>
+      globals.events.on "users:user_leave", (userid) =>
         #@_removeAllUsers()
         #for userBlock in users
         @_removeUserByID(userid)
 
-      # Received event to set the presenter to a user
-      # @param  {string} userID publicID of the user that is being set as the current presenter
-      socket.on "setPresenter", (userID) =>
-        @_setPresenter(userID)
+      globals.events.on "users:setPresenter", (userid) =>
+        @_setPresenter(userid)
 
     # Removes all users from the screen.
     _removeAllUsers: ->
