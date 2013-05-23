@@ -33,8 +33,11 @@ define [
       $(window).resize(resizePaper)
 
       # Bind to the event triggered when the client connects to the server
-      globals.connection.bind "connection:connected",
-        @_registerConnectionEvents, @
+      if globals.connection.isConnected()
+        @_registerEvents()
+      else
+        globals.events.on "connection:connected", =>
+          @_registerEvents()
 
     # Override the close() method so we can close the sub-views.
     close: ->
@@ -89,132 +92,13 @@ define [
       @paper.bind "paper:image:added", @_addPreloadImage, this
       @paper.bind "paper:image:removed", @_removePreloadImage, this
 
-    # Registers listeners for events in the application socket.
-    _registerConnectionEvents: ->
-      socket = globals.connection.socket
+    # Registers listeners for events in the gloval event bus
+    _registerEvents: ->
 
-      # Received event to update all the slide images
-      # @param  {Array} urls list of URLs to be added to the paper (after old images are removed)
-      socket.on "all_slides", (urls) =>
-        console.log "received all_slides", urls
+      globals.events.on "whiteboard:paper:all_slides", (urls) =>
         @controlsView.clearUploadStatus()
-        @paper?.removeAllImagesFromPaper()
-        for url in urls
-          @paper?.addImageToPaper(url[0], url[1], url[2])
         # to make sure the paper will ocuupy all available area
         @_setPaperSize()
-
-      # Received event to clear the whiteboard shapes
-      socket.on "clrPaper", =>
-        console.log "received clrPaper"
-        @paper?.clearShapes()
-
-      # Received event to update all the shapes in the whiteboard
-      # @param  {Array} shapes Array of shapes to be drawn
-      socket.on "all_shapes", (shapes) =>
-        console.log "received all_shapes"
-
-        # TODO: a hackish trick for making compatible the shapes from redis with the node.js
-        for shape in shapes
-          properties = JSON.parse(shape.data)
-          if shape.shape is "path"
-            points = properties[0]
-            strPoints = ""
-            for i in [0..points.length] by 2
-              letter = ""
-              pA = points[i];
-              pB = points[i+1];
-              if i == 0
-                letter = "M";
-              else
-                letter = "L";
-              strPoints += letter + (pA/100) + "," + (pB/100)
-            properties[0] = strPoints
-            shape.data = JSON.stringify(properties)
-
-        @paper?.clearShapes()
-        @paper?.drawListOfShapes shapes
-
-      # Received event to update a shape being created
-      # @param  {string} shape type of shape being updated
-      # @param  {Array} data   all information to update the shape
-      socket.on "updShape", (shape, data) =>
-        @paper?.updateShape shape, data
-
-      # Received event to create a shape on the whiteboard
-      # @param  {string} shape type of shape being made
-      # @param  {Array} data   all information to make the shape
-      socket.on "makeShape", (shape, data) =>
-        @paper?.makeShape shape, data
-
-      # Pencil drawings are received as points from the server and painted as lines.
-      socket.on "shapePoints", (type, color, thickness, points) =>
-        if type is "line"
-          for i in [0..points.length] by 2
-            if i is 0
-              data = [(points[i]/100),(points[i+1]/100),color,thickness]
-              @paper?.makeShape type, data
-            else
-              data = [(points[i]/100),(points[i+1]/100),true]
-              @paper?.updateShape type, data
-
-      # Received event to update the cursor coordinates
-      # @param  {number} x x-coord of the cursor as a percentage of page width
-      # @param  {number} y y-coord of the cursor as a percentage of page height
-      socket.on "mvCur", (x, y) =>
-        @paper?.moveCursor x, y
-
-      # Received event to update the slide image
-      # @param  {string} url URL of image to show
-      socket.on "changeslide", (url) =>
-        console.log "received changeslide", url
-        @paper?.showImageFromPaper url
-
-      # Received event to update the viewBox value
-      # @param  {string} xperc Percentage of x-offset from top left corner
-      # @param  {string} yperc Percentage of y-offset from top left corner
-      # @param  {string} wperc Percentage of full width of image to be displayed
-      # @param  {string} hperc Percentage of full height of image to be displayed
-      # TODO: not tested yet
-      socket.on "viewBox", (xperc, yperc, wperc, hperc) =>
-        console.log "received viewBox", xperc, yperc, wperc, hperc
-        xperc = parseFloat(xperc, 10)
-        yperc = parseFloat(yperc, 10)
-        wperc = parseFloat(wperc, 10)
-        hperc = parseFloat(hperc, 10)
-        @paper?.updatePaperFromServer xperc, yperc, wperc, hperc
-
-      # Received event to update the whiteboard between fit to width and fit to page
-      # @param  {boolean} value choice of fit: true for fit to page, false for fit to width
-      socket.on "fitToPage", (value) ->
-        @paper?.setFitToPage value
-
-      # Received event to update the zoom level of the whiteboard.
-      # @param  {number} delta amount of change in scroll wheel
-      socket.on "zoom", (delta) ->
-        @paper?.setZoom delta
-
-      # Received event to update the whiteboard size and position
-      # @param  {number} cx x-offset from top left corner as percentage of original width of paper
-      # @param  {number} cy y-offset from top left corner as percentage of original height of paper
-      # @param  {number} sw slide width as percentage of original width of paper
-      # @param  {number} sh slide height as a percentage of original height of paper
-      socket.on "paper", (cx, cy, sw, sh) ->
-        @paper?.updatePaperFromServer cx, cy, sw, sh
-
-      # Received event when the panning action finishes
-      socket.on "panStop", ->
-        @paper?.stopPanning()
-
-      # Received event to change the current tool
-      # @param  {string} tool The tool to be turned on
-      socket.on "toolChanged", (tool) ->
-        console.log "received toolChanged", tool
-        @paper?.setCurrentTool tool
-
-      # Received event to denote when the text has been created
-      socket.on "textDone", ->
-        @paper?.textDone()
 
     # Toggles the visibility of the colour picker, which is hidden by
     # default. The picker is a RaphaelJS object, so each node of the object

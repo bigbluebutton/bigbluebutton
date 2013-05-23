@@ -19,8 +19,11 @@ define [
 
     initialize: ->
       # Bind to the event triggered when the client connects to the server
-      globals.connection.bind "connection:connected",
-        @_registerConnectionEvents, @
+      if globals.connection.isConnected()
+        @_registerEvents()
+      else
+        globals.events.on "connection:connected", =>
+          @_registerEvents()
 
     # don't need to render anything, the rendering is done by the parent view.
     render: ->
@@ -39,15 +42,9 @@ define [
         ), 3000
 
     # Registers listeners for events in the application socket.
-    _registerConnectionEvents: ->
-      socket = globals.connection.socket
-
-      # Received event to update the status of the upload progress
-      # @param  {string} message  update message of status of upload progress
-      # @param  {boolean} fade    true if you wish the message to automatically disappear after 3 seconds
-      socket.on "uploadStatus", (message, fade) =>
-        console.log "received uploadStatus"
-        @setUploadStatus message, fade
+    _registerEvents: ->
+      globals.events.on "whiteboard:paper:uploadStatus", (message, fade) =>
+        @setUploadStatus(message, fade)
 
     _uploadFileSelected: ->
       @$("#slide-upload-form").submit()
