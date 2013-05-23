@@ -3,14 +3,17 @@ define [
   'underscore',
   'backbone',
   'globals',
+  'cs!models/chat',
   'text!templates/session_chat.html',
   'text!templates/chat_message.html',
-], ($, _, Backbone, globals, sessionChatTemplate, chatMessageTemplate) ->
+], ($, _, Backbone, globals, ChatModel, sessionChatTemplate, chatMessageTemplate) ->
 
   # The chat panel in a session
   # The contents are rendered by SessionView, this class is Used to
   # manage the events in the chat.
   SessionChatView = Backbone.View.extend
+    model: new ChatModel()
+
     events:
       "click button#chat-send": "_sendMessage"
       "keyup #chat-input-box": "_inputKeyPressed"
@@ -18,10 +21,14 @@ define [
     initialize: ->
       @chatInputID = "#chat-input-box"
       @msgBoxID = "#chat-messages"
+      @model.start()
 
       # Bind to the event triggered when the client connects to the server
-      globals.connection.bind "connection:connected",
-        @_registerConnectionEvents, @
+      if globals.connection.isConnected()
+        @_registerEvents()
+      else
+        globals.events.on "connection:connected", =>
+          @_registerEvents()
 
     render: ->
       data = { auth: globals.currentAuth }
@@ -29,19 +36,13 @@ define [
       @$el.html compiledTemplate
 
     # Registers listeners for events in the application socket.
-    _registerConnectionEvents: ->
-      socket = globals.connection.socket
+    _registerEvents: ->
 
-      # Received event for a new public chat message
-      # @param  {string} name name of user
-      # @param  {string} msg  message to be displayed
-      socket.on "msg", (name, msg) =>
+      globals.events.on "chat:msg", (name, msg) =>
         @_addChatMessage(name, msg)
         @_scrollToBottom()
 
-      # Received event to update all the messages in the chat box
-      # @param  {Array} messages Array of messages in public chat box
-      socket.on "all_messages", (messages) =>
+      globals.events.on "chat:all_messages", (messages) =>
         for msgBlock in messages
           @_addChatMessage(msgBlock.username, msgBlock.message)
         @_scrollToBottom()
@@ -49,15 +50,15 @@ define [
       # TODO: for now these messages are only being shown in the chat, maybe
       #       they should have their own view and do more stuff
       #       (e.g. disable the interface when disconnected)
-      socket.on "connect", =>
+      globals.events.on "connection:connected", =>
         @_addChatMessage("system", "Connected to the server.")
-      socket.on "disconnect", =>
+      globals.events.on "connection:disconnected", =>
         @_addChatMessage("system", "Disconnected form the server.")
-      socket.on "reconnect", =>
+      globals.events.on "connection:reconnect", =>
         @_addChatMessage("system", "Reconnected!")
-      socket.on "reconnecting", =>
+      globals.events.on "connection:reconnecting", =>
         @_addChatMessage("system", "Reconnecting...")
-      socket.on "reconnect_failed", =>
+      globals.events.on "connection:reconnect_failed", =>
         @_addChatMessage("system", "Reconnect failed!")
 
     # Send a chat message

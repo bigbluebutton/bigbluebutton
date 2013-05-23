@@ -57,6 +57,13 @@ define [
 
       @_updateContainerDimensions()
 
+      # Bind to the event triggered when the client connects to the server
+      if globals.connection.isConnected()
+        @_registerEvents()
+      else
+        globals.events.on "connection:connected", =>
+          @_registerEvents()
+
     # Override the close() to unbind events.
     unbindEvents: ->
       $(window).off "resize.whiteboard_paper"
@@ -201,37 +208,38 @@ define [
     # @param  {number} cy_ the y-offset value as a percentage of the original height
     # @param  {number} sw_ the slide width value as a percentage of the original width
     # @param  {number} sh_ the slide height value as a percentage of the original height
-    # TODO: not tested yet
+    # TODO: not working as it should
     updatePaperFromServer: (cx_, cy_, sw_, sh_) ->
-      # if updating the slide size (zooming!)
-      [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
-      if sw_ and sh_
-        @raphaelObj.setViewBox cx_ * slideWidth, cy_ * slideHeight, sw_ * slideWidth, sh_ * slideHeight,
-        sw = slideWidth / sw_
-        sh = slideHeight / sh_
-      # just panning, so use old slide size values
-      else
-        [sw, sh] = @_currentSlideDimensions()
-        @raphaelObj.setViewBox cx_ * slideWidth, cy_ * slideHeight, @raphaelObj._viewBox[2], @raphaelObj._viewBox[3]
+      # # if updating the slide size (zooming!)
+      # [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
+      # if sw_ and sh_
+      #   @raphaelObj.setViewBox cx_ * slideWidth, cy_ * slideHeight, sw_ * slideWidth, sh_ * slideHeight,
+      #   sw = slideWidth / sw_
+      #   sh = slideHeight / sh_
+      # # just panning, so use old slide size values
+      # else
+      #   [sw, sh] = @_currentSlideDimensions()
+      #   @raphaelObj.setViewBox cx_ * slideWidth, cy_ * slideHeight, @raphaelObj._viewBox[2], @raphaelObj._viewBox[3]
 
-      # update corners
-      cx = cx_ * sw
-      cy = cy_ * sh
-      # update position of svg object in the window
-      sx = (@containerWidth - slideWidth) / 2
-      sy = (@containerHeight - slideHeight) / 2
-      sy = 0  if sy < 0
-      @raphaelObj.canvas.style.left = sx + "px"
-      @raphaelObj.canvas.style.top = sy + "px"
-      @raphaelObj.setSize slideWidth - 2, slideHeight - 2
+      # # update corners
+      # cx = cx_ * sw
+      # cy = cy_ * sh
+      # # update position of svg object in the window
+      # sx = (@containerWidth - slideWidth) / 2
+      # sy = (@containerHeight - slideHeight) / 2
+      # sy = 0  if sy < 0
+      # @raphaelObj.canvas.style.left = sx + "px"
+      # @raphaelObj.canvas.style.top = sy + "px"
+      # @raphaelObj.setSize slideWidth - 2, slideHeight - 2
 
-      # update zoom level and cursor position
-      z = @raphaelObj._viewBox[2] / slideWidth
-      @zoomLevel = z
-      @cursor.setRadius(dcr * z)
+      # # update zoom level and cursor position
+      # z = @raphaelObj._viewBox[2] / slideWidth
+      # @zoomLevel = z
+      # dcr = 1
+      # @cursor.setRadius(dcr * z)
 
-      # force the slice attribute despite Raphael changing it
-      @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
+      # # force the slice attribute despite Raphael changing it
+      # @raphaelObj.canvas.setAttribute "preserveAspectRatio", "xMinYMin slice"
 
     # Switches the tool and thus the functions that get
     # called when certain events are fired from Raphael.
@@ -393,7 +401,90 @@ define [
     moveCursor: (x, y) ->
       [cx, cy] = @_currentSlideOffsets()
       [slideWidth, slideHeight] = @_currentSlideOriginalDimensions()
-      @cursor.setPosition(x * slideWidth + cx,  y * slideHeight + cy)
+      @cursor.setPosition(x * slideWidth + cx, y * slideHeight + cy)
+
+    # Registers listeners for events in the gloval event bus
+    _registerEvents: ->
+
+      globals.events.on "connection:all_slides", (urls) =>
+        @removeAllImagesFromPaper()
+        for url in urls
+          @addImageToPaper(url[0], url[1], url[2])
+        globals.events.trigger("whiteboard:paper:all_slides", urls)
+
+      globals.events.on "connection:clrPaper", =>
+        @clearShapes()
+
+      globals.events.on "connection:all_shapes", (shapes) =>
+        # TODO: a hackish trick for making compatible the shapes from redis with the node.js
+        for shape in shapes
+          properties = JSON.parse(shape.data)
+          if shape.shape is "path"
+            points = properties[0]
+            strPoints = ""
+            for i in [0..points.length] by 2
+              letter = ""
+              pA = points[i];
+              pB = points[i+1];
+              if i == 0
+                letter = "M";
+              else
+                letter = "L";
+              strPoints += letter + (pA/100) + "," + (pB/100)
+            properties[0] = strPoints
+            shape.data = JSON.stringify(properties)
+        @clearShapes()
+        @drawListOfShapes(shapes)
+
+      globals.events.on "connection:updShape", (shape, data) =>
+        @updateShape(shape, data)
+
+      globals.events.on "connection:makeShape", (shape, data) =>
+        @makeShape(shape, data)
+
+      globals.events.on "connection:shapePoints", (type, color, thickness, points) =>
+        if type is "line"
+          for i in [0..points.length] by 2
+            if i is 0
+              data = [(points[i]/100),(points[i+1]/100),color,thickness]
+              @makeShape(type, data)
+            else
+              data = [(points[i]/100),(points[i+1]/100),true]
+              @updateShape(type, data)
+
+      globals.events.on "connection:mvCur", (x, y) =>
+        @moveCursor(x, y)
+
+      globals.events.on "connection:changeslide", (url) =>
+        @showImageFromPaper(url)
+
+      globals.events.on "connection:viewBox", (xperc, yperc, wperc, hperc) =>
+        xperc = parseFloat(xperc, 10)
+        yperc = parseFloat(yperc, 10)
+        wperc = parseFloat(wperc, 10)
+        hperc = parseFloat(hperc, 10)
+        @updatePaperFromServer(xperc, yperc, wperc, hperc)
+
+      globals.events.on "connection:fitToPage", (value) =>
+        @setFitToPage(value)
+
+      globals.events.on "connection:zoom", (delta) =>
+        @setZoom(delta)
+
+      globals.events.on "connection:paper", (cx, cy, sw, sh) =>
+        @updatePaperFromServer(cx, cy, sw, sh)
+
+      globals.events.on "connection:panStop", =>
+        @stopPanning()
+
+      globals.events.on "connection:toolChanged", (tool) =>
+        @setCurrentTool(tool)
+
+      globals.events.on "connection:textDone", =>
+        @textDone()
+
+      globals.events.on "connection:uploadStatus", (message, fade) =>
+        globals.events.trigger("whiteboard:paper:uploadStatus", message, fade)
 
     # Update the dimensions of the container.
     _updateContainerDimensions: ->
