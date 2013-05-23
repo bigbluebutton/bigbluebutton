@@ -92,7 +92,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function reloadKeys():void {
-				genKeys = loadGlobalKeys(genResource);
+				genKeys = loadKeys(genResource, true);
 				presKeys = loadKeys(presResource);
 				chatKeys = loadKeys(chatResource);
 				userKeys = loadKeys(userResource);
@@ -118,9 +118,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				}
 			}
 			
-			private function loadKeys(resource:Array):ArrayList {
+			private function loadKeys(resource:Array, global:Boolean=false):ArrayList {
 				var keyList:ArrayList = new ArrayList();
 				var keyCombo:String;
+				var mod:String;
+				
+				if (global)
+					mod = globalModifier;
+				else
+					mod = modifier;
 				
 				for (var i:int = 0; i < resource.length; i++) {
 					keyCombo = ResourceUtil.getInstance().getString(resource[i]);
@@ -146,41 +152,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					if (keyCombo == "----"){
 						keyList.addItem({shortcut:(ResourceUtil.getInstance().getString(resource[i] + '.function')), func:""});
 					} else{
-						keyList.addItem({shortcut:modifier + convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
-					}
-				}
-				return keyList;
-			}
-			
-			private function loadGlobalKeys(resource:Array):ArrayList {
-				var keyList:ArrayList = new ArrayList();
-				var keyCombo:String;
-				
-				for (var i:int = 0; i < resource.length; i++) {
-					keyCombo = ResourceUtil.getInstance().getString(resource[i]);
-					var key:int = int(keyCombo);
-					var convKey:String;
-					
-					// Special cases where the keycodes don't render a sensible character
-					switch (key) {
-						case 32 :
-							convKey = "Space";
-							break;
-						case 189 :
-							convKey = "Minus";
-							break;
-						case 187 :
-							convKey = "Plus";
-							break;
-						default:
-							convKey = String.fromCharCode(key);
-							break;
-					}
-					
-					if (keyCombo == "----"){
-						keyList.addItem({shortcut:(ResourceUtil.getInstance().getString(resource[i] + '.function')), func:""});
-					} else{
-						keyList.addItem({shortcut:globalModifier + convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
+						keyList.addItem({shortcut:mod + convKey, func:(ResourceUtil.getInstance().getString(resource[i] + '.function'))});
 					}
 				}
 				return keyList;
