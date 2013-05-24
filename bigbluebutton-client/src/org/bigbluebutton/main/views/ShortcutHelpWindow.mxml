@@ -53,19 +53,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 											 'bbb.shortcutkey.focus.users', 'bbb.shortcutkey.focus.video', 'bbb.shortcutkey.focus.presentation',  
 											 'bbb.shortcutkey.focus.chat', 'bbb.shortcutkey.chat.chatinput', 'bbb.shortcutkey.share.desktop', 
 											 'bbb.shortcutkey.share.microphone', 'bbb.shortcutkey.share.webcam', 'bbb.shortcutkey.shortcutWindow', 
-											 'bbb.shortcutkey.logout', 'bbb.shortcutkey.raiseHand', 'bbb.shortcutkey.users.muteme'];
+											 'bbb.shortcutkey.logout', 'bbb.shortcutkey.raiseHand', 'bbb.shortcutkey.users.muteme',
+											 'bbb.shortcutkey.users.muteAllButPres'];
 											 
-			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', 'bbb.shortcutkey.whiteboard.undo', 'bbb.shortcutkey.present.upload',  
+			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', /*'bbb.shortcutkey.whiteboard.undo',*/ 'bbb.shortcutkey.present.upload',  
 											  'bbb.shortcutkey.present.previous', 'bbb.shortcutkey.present.select', 'bbb.shortcutkey.present.next', 	
 											  'bbb.shortcutkey.present.fitWidth', 'bbb.shortcutkey.present.fitPage'];
 			
-			private var chatResource:Array = ['bbb.shortcutkey.chat.focusTabs', 'bbb.shortcutkey.chat.focusBox', 'bbb.shortcutkey.chat.changeColour', 
+			private var chatResource:Array = ['bbb.shortcutkey.chat.focusTabs', 'bbb.shortcutkey.chat.focusBox', /*'bbb.shortcutkey.chat.changeColour',*/ 
 											  'bbb.shortcutkey.chat.sendMessage', 'bbb.shortcutkey.chat.explanation', 'bbb.shortcutkey.chat.chatbox.gofirst',  
 											  'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.repeat', 'bbb.shortcutkey.chat.chatbox.advance', 
 											  'bbb.shortcutkey.chat.chatbox.golatest',  'bbb.shortcutkey.chat.chatbox.goread'];
 			
 			private var userResource:Array = ['bbb.shortcutkey.users.focusUsers', 'bbb.shortcutkey.users.makePresenter', 'bbb.shortcutkey.users.mute', 
-											  'bbb.shortcutkey.users.kick', 'bbb.shortcutkey.users.muteall'];
+											  /*'bbb.shortcutkey.users.kick',*/ 'bbb.shortcutkey.users.muteall'];
 			
 			[Bindable]
 			private var shownKeys:ArrayCollection;
