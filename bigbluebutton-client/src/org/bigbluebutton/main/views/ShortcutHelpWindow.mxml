@@ -55,7 +55,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 											 'bbb.shortcutkey.share.microphone', 'bbb.shortcutkey.share.webcam', 'bbb.shortcutkey.shortcutWindow', 
 											 'bbb.shortcutkey.logout', 'bbb.shortcutkey.raiseHand', 'bbb.shortcutkey.users.muteme'];
 											 
-			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', 'bbb.shortcutkey.whiteboard.undo', 'bbb.shortcutkey.present.upload',  
+			private var presResource:Array = ['bbb.shortcutkey.present.focusslide', /*'bbb.shortcutkey.whiteboard.undo',*/ 'bbb.shortcutkey.present.upload',  
 											  'bbb.shortcutkey.present.previous', 'bbb.shortcutkey.present.select', 'bbb.shortcutkey.present.next', 	
 											  'bbb.shortcutkey.present.fitWidth', 'bbb.shortcutkey.present.fitPage'];
 			
