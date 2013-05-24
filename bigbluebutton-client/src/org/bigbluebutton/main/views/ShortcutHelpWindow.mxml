@@ -59,7 +59,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 											  'bbb.shortcutkey.present.previous', 'bbb.shortcutkey.present.select', 'bbb.shortcutkey.present.next', 	
 											  'bbb.shortcutkey.present.fitWidth', 'bbb.shortcutkey.present.fitPage'];
 			
-			private var chatResource:Array = ['bbb.shortcutkey.chat.focusTabs', 'bbb.shortcutkey.chat.focusBox', 'bbb.shortcutkey.chat.changeColour', 
+			private var chatResource:Array = ['bbb.shortcutkey.chat.focusTabs', 'bbb.shortcutkey.chat.focusBox', /*'bbb.shortcutkey.chat.changeColour',*/ 
 											  'bbb.shortcutkey.chat.sendMessage', 'bbb.shortcutkey.chat.explanation', 'bbb.shortcutkey.chat.chatbox.gofirst',  
 											  'bbb.shortcutkey.chat.chatbox.goback', 'bbb.shortcutkey.chat.chatbox.repeat', 'bbb.shortcutkey.chat.chatbox.advance', 
 											  'bbb.shortcutkey.chat.chatbox.golatest',  'bbb.shortcutkey.chat.chatbox.goread'];
