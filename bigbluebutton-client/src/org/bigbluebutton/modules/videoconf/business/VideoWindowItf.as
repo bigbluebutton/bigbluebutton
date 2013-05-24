@@ -63,9 +63,7 @@ package org.bigbluebutton.modules.videoconf.business
 		protected var _minHeight:int = 120 + PADDING_VERTICAL;
 		protected var aspectRatio:Number = 1;
 		protected var keepAspect:Boolean = false;
-//		protected var originalWidth:Number;
-//		protected var originalHeight:Number;
-		
+	
 		protected var mousePositionOnDragStart:Point;
 		
 		public var streamName:String;
