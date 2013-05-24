@@ -37,12 +37,27 @@ recording_dir = bbb_props['recording_dir']
 raw_dir = "#{recording_dir}/raw"
 archived_dir = "#{recording_dir}/status/archived"
 
-if not get_recordings_url.nil? and not get_recordings_url.empty?
+def processGetRecordingsUrlInput(input)
+  if input.respond_to? "each"
+    input.each do |url|
+      processGetRecordingsUrlInput url
+    end
+  else
+    fetchRecordings input
+  end
+end
 
-  doc = Nokogiri::XML(Net::HTTP.get_response(URI.parse(get_recordings_url)).body)
-  returncode = doc.xpath("//returncode")
-  if returncode.empty? or returncode.text != "SUCCESS"
-    raise "getRecordings didn't return success"
+def fetchRecordings(url)
+  BigBlueButton.logger.debug("Fetching #{url}")
+  begin
+    doc = Nokogiri::XML(Net::HTTP.get_response(URI.parse(url)).body)
+    returncode = doc.xpath("//returncode")
+    if returncode.empty? or returncode.text != "SUCCESS"
+      raise "getRecordings didn't return success:\n#{doc.to_xml(:indent => 2)}"
+    end
+  rescue
+    BigBlueButton.logger.debug("Exception occurred: #{$!}")
+    return false
   end
 
   doc.xpath("//recording").each do |recording|
@@ -128,4 +143,7 @@ if not get_recordings_url.nil? and not get_recordings_url.empty?
       end
     end
   end
+  return true
 end
+
+processGetRecordingsUrlInput get_recordings_url
