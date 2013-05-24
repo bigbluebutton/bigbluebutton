@@ -65,7 +65,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 											  'bbb.shortcutkey.chat.chatbox.golatest',  'bbb.shortcutkey.chat.chatbox.goread'];
 			
 			private var userResource:Array = ['bbb.shortcutkey.users.focusUsers', 'bbb.shortcutkey.users.makePresenter', 'bbb.shortcutkey.users.mute', 
-											  'bbb.shortcutkey.users.kick', 'bbb.shortcutkey.users.muteall'];
+											  /*'bbb.shortcutkey.users.kick',*/ 'bbb.shortcutkey.users.muteall'];
 			
 			[Bindable]
 			private var shownKeys:ArrayCollection;
