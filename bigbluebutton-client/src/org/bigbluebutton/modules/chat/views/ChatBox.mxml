@@ -262,7 +262,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function handlePrivateChatMessageEvent(event:PrivateChatMessageEvent):void {
         var message:ChatMessageVO = event.message;
         
-        if (!publicChat && (message.fromUserID == chatWithUserID || UsersUtil.isMe(message.fromUserID))) {
+        if (!publicChat && 
+          ( (message.fromUserID == chatWithUserID && UsersUtil.isMe(message.toUserID)) ||
+            (message.toUserID == chatWithUserID && UsersUtil.isMe(message.fromUserID)) )) {
           chatMessages.newChatMessage(event.message);
           scrollToEndOfMessage();
         }        

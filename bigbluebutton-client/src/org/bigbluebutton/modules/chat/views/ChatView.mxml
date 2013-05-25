@@ -400,7 +400,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						else {
 							var names:String = "";
 							for (var i:int = 0; i < privateWaiting.length; i++){
-								names += " " + privateWaiting.getItemAt(i).message.chatobj.username;
+								names += " " + privateWaiting.getItemAt(i).message.fromUsername;
 								if (i < privateWaiting.length - 1)
 									names += ",";
 							}
@@ -435,7 +435,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var privateSenders:ArrayCollection = new ArrayCollection;
 				if (privateWaiting.length){
 					for (var i:int = 0; i < privateWaiting.length; i++){
-						privateSenders.addItem(privateWaiting.getItemAt(i).message.chatobj.userid);
+						privateSenders.addItem(privateWaiting.getItemAt(i).message.fromUserID);
 					}
 				}
 				return privateSenders;
@@ -446,7 +446,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				var success:Boolean = false;
 				if (privateWaiting.length){
 					for (var i:int = 0; i < privateWaiting.length; i++){
-						if (senderID == privateWaiting.getItemAt(i).message.chatobj.userid){
+						if (senderID == privateWaiting.getItemAt(i).message.fromUserID){
 							privateWaiting.removeItemAt(i);
 							success = true;
 							i = privateWaiting.length;
