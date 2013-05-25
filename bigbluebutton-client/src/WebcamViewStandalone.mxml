@@ -59,7 +59,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         trace("WebcamViewSA:: onCreationComplete [" + this.width + "," + this.height + "]");
         this.addChild(_videoHolder);
-                
+        
+        _videoHolder.addChild(loader);
+        
         Security.allowDomain(determineHTMLURL());
         trace("WebcamViewSA:: Security.allowDomain(" + determineHTMLURL() + ");");
         
@@ -155,23 +157,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         _avatarURL = avatarURL;
         _url = url;
         _stream = stream;
+        trace("WebcamViewSA::handleStartViewCameraRequest avatar=[" + _avatarURL + "]");
         
         connect(url);
       }
       
       private function handleStopViewCamera(avatarURL:String):void {
-        displayAvatar = true;
+        
         _avatarURL = avatarURL;
+        trace("WebcamViewSA::handleStopViewCamera avatar=[" + _avatarURL + "]");
+        
         stopViewing();
         
-        loadAvatar();
       }
       
       private var loader:Loader = new Loader();
       private var request:URLRequest;
       
-      private function loadAvatar():void {
-        
+      private function loadAvatar():void {       
         request = new URLRequest(_avatarURL);
         loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadingComplete);
         loader.load(request);        
@@ -187,10 +190,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           return;
         }
         
+        if (_video != null) _videoHolder.removeChild(_video);
+        _videoHolder.addChild(loader);
+        
         // Save the size of the avatar image.
         avatarWidth = loader.content.width;
         avatarHeight = loader.content.height;
-        _videoHolder.addChild(loader);
         
         onResizeAvatar();
       }
@@ -200,16 +205,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (loader != null && _videoHolder != null) {
           if (avatarIsSmallerThanWindow()) {
             // The avatar image is smaller than the window. Just center the image.
-            _video.width = loader.width = avatarWidth;
-            _video.height = loader.height = avatarHeight;
+            _videoHolder.width = loader.width = avatarWidth;
+            _videoHolder.height = loader.height = avatarHeight;
             
           } else {
             // The avatar is bigger than the window. Fit into the window maintaining aspect ratio.
             fitAvatarToWindow();
           }
           
-          _video.x = loader.x = (this.width - loader.width) / 2;
-          _video.y = loader.y = (this.height - loader.height) / 2;    
+          _videoHolder.x = (this.width - loader.width) / 2;
+          _videoHolder.y = (this.height - loader.height) / 2;   
           
         }      
         
@@ -229,18 +234,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function fitAvatarToWidthAndAdjustHeightToMaintainAspectRatio():void {
         var aspect:Number = avatarHeight / avatarWidth;
-        _video.width = loader.width = _videoHolder.width;
+        loader.width = _videoHolder.width = this.width;
         
         // Maintain aspect-ratio
-        _video.height = loader.height = loader.width * aspect;			
+        _videoHolder.height= loader.height = loader.width * aspect;			
       }
       
       private function fitAvatarToHeightAndAdjustWidthToMaintainAspectRatio():void {
         var aspect:Number = avatarWidth / avatarHeight;
-        _video.height = loader.height = _videoHolder.height;
+        loader.height = _videoHolder.height = this.height;
         
         // Maintain aspect-ratio
-        _video.width = loader.width = loader.height * aspect;				
+        _videoHolder.width = loader.width = loader.height * aspect;						
       }
       
       private function stopViewing():void {
@@ -250,11 +255,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           _video.clear();
           _video = null;
         }
-        _videoHolder.visible = false;
+        
         trace("WebcamViewSA:: closing stream");
         if (ns != null) {
           ns.close();
-        }        
+        }      
+        
+        displayAvatar = true;
+        loadAvatar();
       }
       
       private function playWebcamStream():void {
@@ -270,10 +278,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
         trace("WebcamViewSA:: WINDOW [" + this.width + "," + this.height + "]");
         
-        if (loader != null) {
-          _videoHolder.removeChild(loader);
-        }
-               
         _videoHolder.width = this.width;
         _videoHolder.height = this.height;
         
@@ -299,7 +303,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
         
         trace("WebcamViewSA:: adding video to video holder");
-        
+        _videoHolder.removeChild(loader);
         _videoHolder.addChild(_video);
                 
         _videoHolder.visible = true;

@@ -22,7 +22,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 <mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
 	creationComplete="onCreationComplete()"
-	pageTitle="WebcamPreview" width="600" height="400" layout="absolute">	
+	pageTitle="WebcamPreview" layout="absolute">	
   <mx:Script>
     <![CDATA[    
       import mx.core.UIComponent;
@@ -46,9 +46,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                      
       private function onCreationComplete():void{
         _videoHolder = new UIComponent();
-        _videoHolder.width = camWidth;
-        _videoHolder.height = camHeight;
+        _videoHolder.width = this.width;
+        _videoHolder.height = this.height;
         this.addChild(_videoHolder);				
+        
+        _videoHolder.addChild(loader);
         
         this.minWidth = _minWidth;
         this.minHeight = _minHeight;
@@ -99,12 +101,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         displayAvatar = false;
         _avatarURL = avatarURL;
         
+        trace("WebcamPreviewSA::handleStartPreviewCameraRequest avatar=[" + _avatarURL + "]");
+        
         displayCamera(camIndex, camWidth, camHeight, camKeyFrameInterval, camModeFps, camQualityBandwidth, camQualityPicture);
       }
       
       private function handleStopPreviewCamera(avatarURL:String):void {
         displayAvatar = true;
         _avatarURL = avatarURL;
+        
+        trace("WebcamPreviewSA::handleStopPreviewCamera avatar=[" + _avatarURL + "]");
         
         stopCamera();
         
@@ -114,8 +120,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var loader:Loader = new Loader();
       private var request:URLRequest;
       
-      private function loadAvatar():void {
-        
+      private function loadAvatar():void {        
         request = new URLRequest(_avatarURL);
         loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadingComplete);
         loader.load(request);        
@@ -131,10 +136,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           return;
         }
         
+        if (_video != null) _videoHolder.removeChild(_video);
+        _videoHolder.addChild(loader);
+        
         // Save the size of the avatar image.
         avatarWidth = loader.content.width;
         avatarHeight = loader.content.height;
-        
+                
         onResizeAvatar();
       }
       
@@ -143,19 +151,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         if (loader != null && _videoHolder != null) {
           if (avatarIsSmallerThanWindow()) {
             // The avatar image is smaller than the window. Just center the image.
-            //_video.width = loader.width = avatarWidth;
-            //_video.height = loader.height = avatarHeight;
-            
-            loader.width = avatarWidth;
-            loader.height = avatarHeight;
+            _videoHolder.width = loader.width = avatarWidth;
+            _videoHolder.height = loader.height = avatarHeight;
             
           } else {
             // The avatar is bigger than the window. Fit into the window maintaining aspect ratio.
             fitAvatarToWindow();
-          }
+          }   
           
-          loader.x = (this.width - loader.width) / 2;
-          loader.y = (this.height - loader.height) / 2;    
+          _videoHolder.x = (this.width - loader.width) / 2;
+          _videoHolder.y = (this.height - loader.height) / 2;  
           
         }             
       }
@@ -174,18 +179,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private function fitAvatarToWidthAndAdjustHeightToMaintainAspectRatio():void {
         var aspect:Number = avatarHeight / avatarWidth;
-        loader.width = _videoHolder.width;
+        loader.width = _videoHolder.width = this.width;
         
         // Maintain aspect-ratio
-        loader.height = loader.width * aspect;			
+        _videoHolder.height= loader.height = loader.width * aspect;	
+        
       }
       
       private function fitAvatarToHeightAndAdjustWidthToMaintainAspectRatio():void {
         var aspect:Number = avatarWidth / avatarHeight;
-        loader.height = _videoHolder.height;
+        loader.height = _videoHolder.height = this.height;
         
         // Maintain aspect-ratio
-        loader.width = loader.height * aspect;				
+        _videoHolder.width = loader.width = loader.height * aspect;			
+        
       }
 
       
@@ -234,6 +241,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           _video.y = 0;
         }				
         
+        _videoHolder.removeChild(loader);
         _videoHolder.addChild(_video);        
       }
               

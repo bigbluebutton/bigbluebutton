@@ -156,7 +156,7 @@ package org.bigbluebutton.main.api
       obj.camModeFps = vidConf.camModeFps;
       obj.camQualityBandwidth = vidConf.camQualityBandwidth;
       obj.camQualityPicture = vidConf.camQualityPicture;  
-      
+      obj.avatarURL = UsersUtil.getAvatarURL();
       return obj;
     }
     
