@@ -208,16 +208,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:HBox>
 		<mx:HBox width="100%">      
 			<mx:VBox width="100%">
-        <!--
-				<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"
-						 styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
-				<mx:HBox width="100%">
-					<mx:Text id="mic1Label" text="Microphone Name" styleName="micSettingsWindowMicNameLabelStyle"/>
-					<mx:ProgressBar id="micLevel1" minimum="0" maximum="100"  
-									labelPlacement="right" label="" styleName="micSettingsWindowMicProgressBarStyle"
-									direction="right" mode="manual" visible="true" width="120"/>	          
-				</mx:HBox>			
-      -->
         <mx:HBox width="100%">
           <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"
                    styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
