@@ -40,8 +40,8 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.main.model.users.events.BroadcastStartedEvent;
   import org.bigbluebutton.main.model.users.events.BroadcastStoppedEvent;
   import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
-  import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
   import org.bigbluebutton.modules.present.events.UploadEvent;
+  import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
   public class ExternalApiCalls { 
     
@@ -96,6 +96,7 @@ package org.bigbluebutton.main.api
       payload.userID = UsersUtil.internalUserIDToExternalUserID(event.userID);
       payload.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
       payload.streamName = event.stream;
+      payload.avatarURL = UsersUtil.getAvatarURL();
       
       broadcastEvent(payload);
     }
@@ -103,6 +104,8 @@ package org.bigbluebutton.main.api
     public function handleBroadcastStoppedEvent(event:BroadcastStoppedEvent):void {
       var payload:Object = new Object();
       payload.eventName = EventConstants.BROADCASTING_CAM_STOPPED;
+      payload.avatarURL = event.avatarURL;
+      payload.stream = event.stream;
       broadcastEvent(payload);  
     }
     
@@ -121,6 +124,7 @@ package org.bigbluebutton.main.api
       payload.camModeFps = vidConf.camModeFps;
       payload.camQualityBandwidth = vidConf.camQualityBandwidth;
       payload.camQualityPicture = vidConf.camQualityPicture;
+      payload.avatarURL = UsersUtil.getAvatarURL();
       
       broadcastEvent(payload);         
     }
@@ -139,6 +143,7 @@ package org.bigbluebutton.main.api
       payload.camModeFps = vidConf.camModeFps;
       payload.camQualityBandwidth = vidConf.camQualityBandwidth;
       payload.camQualityPicture = vidConf.camQualityPicture;
+      payload.avatarURL = UsersUtil.getAvatarURL();
       
       broadcastEvent(payload);        
     }

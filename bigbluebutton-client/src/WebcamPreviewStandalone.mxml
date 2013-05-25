@@ -90,16 +90,105 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }      
       }
       
+      private var _avatarURL:String;
+      private var displayAvatar:Boolean = false;
+      
       private function handleStartPreviewCameraRequest(camIndex:String, camWidth:int, camHeight:int,
                                                                         camKeyFrameInterval:int, camModeFps:Number, 
-                                                                        camQualityBandwidth:int, camQualityPicture:int):void {
+                                                                        camQualityBandwidth:int, camQualityPicture:int, avatarURL:String):void {
+        displayAvatar = false;
+        _avatarURL = avatarURL;
+        
         displayCamera(camIndex, camWidth, camHeight, camKeyFrameInterval, camModeFps, camQualityBandwidth, camQualityPicture);
       }
       
-      private function handleStopPreviewCamera():void {
+      private function handleStopPreviewCamera(avatarURL:String):void {
+        displayAvatar = true;
+        _avatarURL = avatarURL;
+        
         stopCamera();
+        
+        loadAvatar();
       }
+      
+      private var loader:Loader = new Loader();
+      private var request:URLRequest;
+      
+      private function loadAvatar():void {
+        
+        request = new URLRequest(_avatarURL);
+        loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadingComplete);
+        loader.load(request);        
+      }
+      
+      private var avatarWidth:Number = 320;
+      private var avatarHeight:Number = 240;
+      
+      private function onLoadingComplete(event:Event):void {
+        
+        if (!displayAvatar) {
+          // The user might have started sharing webcam again.
+          return;
+        }
+        
+        // Save the size of the avatar image.
+        avatarWidth = loader.content.width;
+        avatarHeight = loader.content.height;
+        
+        onResizeAvatar();
+      }
+      
+      private function onResizeAvatar():void {
+        
+        if (loader != null && _videoHolder != null) {
+          if (avatarIsSmallerThanWindow()) {
+            // The avatar image is smaller than the window. Just center the image.
+            //_video.width = loader.width = avatarWidth;
+            //_video.height = loader.height = avatarHeight;
+            
+            loader.width = avatarWidth;
+            loader.height = avatarHeight;
+            
+          } else {
+            // The avatar is bigger than the window. Fit into the window maintaining aspect ratio.
+            fitAvatarToWindow();
+          }
           
+          loader.x = (this.width - loader.width) / 2;
+          loader.y = (this.height - loader.height) / 2;    
+          
+        }             
+      }
+      
+      private function fitAvatarToWindow():void {
+        if (_videoHolder.width  < _videoHolder.height) {
+          fitAvatarToHeightAndAdjustWidthToMaintainAspectRatio();         			
+        } else {
+          fitAvatarToWidthAndAdjustHeightToMaintainAspectRatio();	
+        }				
+      }
+      
+      private function avatarIsSmallerThanWindow():Boolean {
+        return (avatarWidth < _videoHolder.width) && (avatarHeight < _videoHolder.height);
+      }
+      
+      private function fitAvatarToWidthAndAdjustHeightToMaintainAspectRatio():void {
+        var aspect:Number = avatarHeight / avatarWidth;
+        loader.width = _videoHolder.width;
+        
+        // Maintain aspect-ratio
+        loader.height = loader.width * aspect;			
+      }
+      
+      private function fitAvatarToHeightAndAdjustWidthToMaintainAspectRatio():void {
+        var aspect:Number = avatarWidth / avatarHeight;
+        loader.height = _videoHolder.height;
+        
+        // Maintain aspect-ratio
+        loader.width = loader.height * aspect;				
+      }
+
+      
       public function displayCamera(camIndex:String, camWidth:int, camHeight:int, camKeyFrameInterval:int, 
                                                                                   camModeFps:Number, camQualityBandwidth:int, 
                                                                                                      camQualityPicture:int):void {
@@ -130,7 +219,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           setResolution(_camera.width, _camera.height);
         }				
         
-        _video = new Video;
+        _video = new Video();
         _video.attachCamera(_camera);
         
         if (aspectRatio > _videoHolder.width / _videoHolder.height) {

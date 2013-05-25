@@ -298,6 +298,7 @@ package org.bigbluebutton.modules.videoconf.maps
       var broadcastEvent:BroadcastStoppedEvent = new BroadcastStoppedEvent();
       broadcastEvent.stream = streamName;
       broadcastEvent.userid = UsersUtil.getMyUserID();
+      broadcastEvent.avatarURL = UsersUtil.getAvatarURL();
       _dispatcher.dispatchEvent(broadcastEvent);
       
       
