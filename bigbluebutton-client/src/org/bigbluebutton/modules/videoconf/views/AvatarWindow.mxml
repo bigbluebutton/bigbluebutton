@@ -211,8 +211,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function startPublishing():void{				
-
-				maximizeRestoreBtn.visible = true;
 				this.resizable = true;
 				onResize();
 				

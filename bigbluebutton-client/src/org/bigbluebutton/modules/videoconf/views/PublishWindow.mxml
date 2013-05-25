@@ -140,10 +140,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
 				titleBarOverlay.tabIndex = baseIndex;
 				titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.titleBar');
-				minimizeBtn.tabIndex = baseIndex+1;
-				minimizeBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.minimizeBtn');
-				maximizeRestoreBtn.tabIndex = baseIndex+2;
-				maximizeRestoreBtn.accessibilityName = ResourceUtil.getInstance().getString('bbb.video.publish.maximizeRestoreBtn');
 				closeBtn.focusEnabled = true;
 				closeBtn.tabIndex = baseIndex+3;
 				
@@ -311,8 +307,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				e.camera = _camera;
 				dispatchEvent(e);
 				
-				maximizeRestoreBtn.visible = true;
-								
         // Store the userid for the publisher. This allows us to control
         // the user's status from the video window
         userID = UsersUtil.getMyUserID();
@@ -325,7 +319,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private var _isClosing:Boolean = false;
       
 			override public function close(event:MouseEvent=null):void{
-        trace("PublishWindow::close");
+        trace("PublishWindow:: closing");
+        
 			  if (!_isClosing) {
           _isClosing = true;
           stopPublishing();
@@ -333,9 +328,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			private function stopCamera():void {
+        trace("PublishWindow:: stopping camera");
+        
         _camera = null;
 				if (_video != null) {
+          trace("PublishWindow:: removing video from display");
 					_videoHolder.removeChild(_video);
+          
 					_video.attachCamera(null);
 					_video.clear();
 					_video = null;

@@ -33,6 +33,7 @@
 	<mate:Listener type="{ShortcutEvent.RAISE_HAND}" method="remoteRaiseHand" />
 	<mate:Listener type="{ShortcutEvent.FOCUS_USERS_WINDOW}" method="focusWindow" />
 	<mate:Listener type="{UsersEvent.ROOM_MUTE_STATE}" method="setRoomMute" />
+	<mate:Listener type="{ShortcutEvent.MUTE_ALL_BUT_PRES}" method="remoteMuteAllButPres" />
 	<mx:Script>
 		<![CDATA[
 			import com.asfusion.mate.events.Dispatcher;
@@ -65,6 +66,8 @@
 			import org.bigbluebutton.modules.users.events.UsersEvent;
 			import org.bigbluebutton.modules.users.model.UsersOptions;
 			import org.bigbluebutton.util.i18n.ResourceUtil;		
+			
+			import org.bigbluebutton.common.LogUtil;
 			
 			private var dispatcher:Dispatcher;
 			
@@ -362,6 +365,10 @@
 			public function remoteFocusUsers():void{
 				focusManager.setFocus(usersGrid);
 				usersGrid.drawFocus(true);
+			}
+			
+			private function remoteMuteAllButPres():void{
+				muteAlmostAll();
 			}
 			
 		]]>

@@ -102,7 +102,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				
 				this.minWidth = _minWidth;
 				this.minHeight = _minHeight;
-				maximizeRestoreBtn.visible = true;
+				maximizeRestoreBtn.visible = false;
 				this.resizable = true;
 				
 				/**

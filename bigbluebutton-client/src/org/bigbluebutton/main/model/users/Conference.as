@@ -81,9 +81,9 @@ package org.bigbluebutton.main.model.users {
 			 * is the same then use userID which should be unique making the order the same 
 			 * across all clients.
 			 */
-			if (a.name.toLowerCase() > b.name.toLowerCase())
+			if (a.name.toLowerCase() < b.name.toLowerCase())
 				return -1;
-			else if (a.name.toLowerCase() < b.name.toLowerCase())
+			else if (a.name.toLowerCase() > b.name.toLowerCase())
 				return 1;
 			else if (a.userID.toLowerCase() > b.userID.toLowerCase())
 				return -1;

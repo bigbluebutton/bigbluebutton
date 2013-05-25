@@ -85,11 +85,7 @@ package org.bigbluebutton.modules.videoconf.maps
       trace("VideoEventMapDelegate:: [" + me + "] Video Module Started.");
       this.uri = uri;
     }
-    
-    public function stop():void {
-      
-    }
-    
+        
     public function viewCamera(userID:String, stream:String, name:String, mock:Boolean = false):void {
       trace("VideoEventMapDelegate:: [" + me + "] viewCamera. ready = [" + _ready + "]");
       
@@ -293,6 +289,8 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     private function stopBroadcasting():void {
+      trace("Stopping broadcast of webcam");
+      
       proxy.stopBroadcasting();
       
       _isPublishing = false;
@@ -344,11 +342,13 @@ package org.bigbluebutton.modules.videoconf.maps
     }
     
     public function stopModule():void {
+      trace("VideoEventMapDelegate:: stopping video module");
       closeAllWindows();
       proxy.disconnect();
     }
     
     public function closeAllWindows():void{
+      trace("VideoEventMapDelegate:: closing all windows");
       if (_isPublishing) {
         stopBroadcasting();
       }

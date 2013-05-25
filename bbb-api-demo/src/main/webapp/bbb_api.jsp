@@ -296,8 +296,17 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
         xml_param = xml_param.replace(">    <", "><");
     }
 
-    String setConfigXML_parameters = "meetingID=" + urlEncode(meetingID) + 
-            "&checksum=" + checksum(meetingID + encodeURIComponent(xml_param) + salt) +"&configXML=" + urlEncode(encodeURIComponent(xml_param));
+    /** Create the parameters we want to send to the server. **/
+    Map<String, String[]> paramsMap = new HashMap<String, String[]>();
+    paramsMap.put("meetingID", new String[]{urlEncode(meetingID)});
+    paramsMap.put("configXML", new String[]{urlEncode(xml_param)});
+
+    String baseString = createBaseString(paramsMap);
+    String checksumString = createChecksum("setConfigXML", baseString);
+
+    System.out.println("Base String = [" + baseString + "]");
+
+    String setConfigXML_parameters = baseString + "&checksum=" + checksumString;
     
     url = "";
     try {
@@ -322,15 +331,46 @@ public String getJoinURLwithDynamicConfigXML(String username, String meetingID, 
     //
     // And finally return a URL to join that meeting
     //  
-    String join_parameters = "meetingID=" + urlEncode(meetingID)
-        + "&fullName=" + urlEncode(username) + "&password=mp&configToken=" + configToken;
+    String join_parameters = "meetingID=" + urlEncode(meetingID) + "&fullName=" + urlEncode(username) + "&password=mp&configToken=" + configToken;
 
-    return base_url_join + join_parameters + "&checksum="
-        + checksum("join" + join_parameters + salt);
+    return base_url_join + join_parameters + "&checksum=" + checksum("join" + join_parameters + salt);
 
 }
 
+// From the list of parameters we want to pass. Creates a base string with parameters
+// sorted in alphabetical order for us to sign.
+public String createBaseString(Map<String, String[]> params) {
+		StringBuffer csbuf = new StringBuffer();
+		SortedSet<String> keys = new TreeSet<String>(params.keySet());
+ 
+		boolean first = true;
+		String checksum = null;
+		for (String key: keys) {
+			for (String value: params.get(key)) {
+				if (first) {
+					first = false;
+				} else {
+					csbuf.append("&");
+				}
+				csbuf.append(key);
+				csbuf.append("=");
+				csbuf.append(value);
+			}
+		}
 
+		return csbuf.toString();
+	}
+
+	// Get a checksum for our basestring.
+	public String createChecksum(String apiCall, String baseString) {
+		StringBuffer csbuf = new StringBuffer();
+		csbuf.append(apiCall);
+ 		csbuf.append(baseString);
+		csbuf.append(salt);
+
+		//System.out.println("Calc checksum for =[" + csbuf.toString() + "]");
+		return DigestUtils.shaHex(csbuf.toString());
+	}
 
 //
 //Create a meeting and return a URL to join it as moderator
