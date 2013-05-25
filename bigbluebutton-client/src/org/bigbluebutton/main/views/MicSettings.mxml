@@ -29,20 +29,20 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mx:Script>
 		<![CDATA[
-			import flash.system.Security;
-			import flash.system.SecurityPanel;
-			import flash.ui.Keyboard;
-			
-			import mx.events.CloseEvent;
-			import mx.events.ItemClickEvent;
-			import mx.managers.PopUpManager;
-			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
-			import org.bigbluebutton.main.events.ShortcutEvent;
+      import flash.system.Security;
+      import flash.system.SecurityPanel;
+      import flash.ui.Keyboard;
+      
+      import mx.events.CloseEvent;
+      import mx.events.ItemClickEvent;
+      import mx.managers.PopUpManager;
+      
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.core.BBB;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.ShortcutEvent;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Embed(source="assets/audio-test.mp3")]
 			[Bindable] private var soundClass:Class;
@@ -161,6 +161,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			
 			private var DEFAULT_HELP_URL:String = "http://www.bigbluebutton.org/content/videos";
 			private function onHelpButtonClicked():void {
+        DEFAULT_HELP_URL =  BBB.initConfigManager().config.help.url;
 				navigateToURL(new URLRequest(DEFAULT_HELP_URL));
 			}
 		]]>
@@ -207,16 +208,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 		</mx:HBox>
 		<mx:HBox width="100%">      
 			<mx:VBox width="100%">
-        <!--
-				<mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"
-						 styleName="micSettingsWindowSpeakIntoMicLabelStyle" />
-				<mx:HBox width="100%">
-					<mx:Text id="mic1Label" text="Microphone Name" styleName="micSettingsWindowMicNameLabelStyle"/>
-					<mx:ProgressBar id="micLevel1" minimum="0" maximum="100"  
-									labelPlacement="right" label="" styleName="micSettingsWindowMicProgressBarStyle"
-									direction="right" mode="manual" visible="true" width="120"/>	          
-				</mx:HBox>			
-      -->
         <mx:HBox width="100%">
           <mx:Text width="100%" text="{ResourceUtil.getInstance().getString('bbb.micSettings.speakIntoMic')}"
                    styleName="micSettingsWindowSpeakIntoMicLabelStyle" />

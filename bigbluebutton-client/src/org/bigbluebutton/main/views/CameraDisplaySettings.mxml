@@ -291,28 +291,43 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     ]]>
   </mx:Script>
   
-	<mx:VBox id="webcamDisplay" width="100%" height="100%" paddingTop="10" styleName="cameraDisplaySettingsWindowBackground">
+	<mx:VBox id="webcamDisplay" width="100%" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" styleName="cameraDisplaySettingsWindowBackground">
+    <mx:HBox width="100%" horizontalAlign="left">
+      <mx:TextArea width="100%" wordWrap="false" borderSkin="{null}" editable="false" text="{ResourceUtil.getInstance().getString('bbb.users.settings.webcamSettings')}" 
+                   styleName="webcamSettingsWindowTitleStyle"/>
+    </mx:HBox>
+ 
+    <mx:HRule width="100%"/>
+    <mx:Spacer height="1"/>
+    
 		<view:VideoHolder id="_videoHolder" width="100%" height="75%" />
-		<mx:HBox width="100%" height="20%"> 
-			<mx:Spacer width="5"/>
+        
+		<mx:HBox width="100%" height="10%" horizontalAlign="center"> 	
 			<mx:Button id="changeCamera" styleName="cameraDisplaySettingsWindowChangeCamBtn" 
 					   label="{ResourceUtil.getInstance().getString('bbb.publishVideo.changeCameraBtn.labelText')}" 
 					   toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.changeCamera.toolTip')}" 
 					   click="showCameraSettings()"/>
-			<mx:Spacer width="70%"/>
+      <mx:Spacer width="5"/>
 			<mx:ComboBox id="cmbResolution" styleName="cameraDisplaySettingsWindowChangeResolutionCombo" 
 						 dataProvider="{resolutions}" visible="false" change="updateCamera()"/>
 			<mx:Spacer width="5"/>
-			<mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
-					   click="startPublishing()" enabled="true" styleName="cameraDisplaySettingsWindowStartBtn" 
-					   label="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.labelText')}" />
-			<mx:Spacer width="5"/>
-			<mx:Button id="btnClosePublish"   
-					   click="onCancelClicked()" 
-					   enabled="true"
-					   label="{ResourceUtil.getInstance().getString('bbb.video.publish.closeBtn.label')}"
-					   accessibilityName="{ResourceUtil.getInstance().getString('bbb.video.publish.closeBtn.accessName')}"/>
-		</mx:HBox>
-		
+    </mx:HBox>
+    
+    <mx:HRule width="100%"/>
+    <mx:Spacer height="1"/>
+    
+    <mx:HBox width="100%" height="10%" horizontalAlign="right">
+      <mx:Button id="btnStartPublish" toolTip="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.toolTip')}" 
+                 click="startPublishing()" enabled="true" styleName="cameraDisplaySettingsWindowStartBtn" 
+                 label="{ResourceUtil.getInstance().getString('bbb.publishVideo.startPublishBtn.labelText')}" />
+      <mx:Spacer width="5"/>
+      <mx:Button id="btnClosePublish"   
+                 click="onCancelClicked()" 
+                 enabled="true"
+                 label="{ResourceUtil.getInstance().getString('bbb.video.publish.closeBtn.label')}"
+                 accessibilityName="{ResourceUtil.getInstance().getString('bbb.video.publish.closeBtn.accessName')}"/>
+      <mx:Spacer width="5"/>
+    </mx:HBox>
+    <mx:Spacer height="5"/>
 	</mx:VBox>		
 </mx:TitleWindow>

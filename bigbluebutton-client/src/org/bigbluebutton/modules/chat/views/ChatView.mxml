@@ -45,19 +45,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import flash.media.Sound;
       import flash.media.SoundChannel;
       import flash.utils.Timer;
-
+      
       import flexlib.controls.tabBarClasses.SuperTab;
       import flexlib.controls.textClasses.StringBoundaries;
       import flexlib.events.SuperTabEvent;
       import flexlib.mdi.containers.MDIWindow;
-
+      
       import mx.collections.ArrayCollection;
       import mx.containers.ControlBar;
       import mx.controls.Button;
       import mx.core.Container;
       import mx.core.UIComponent;
       import mx.events.IndexChangedEvent;
-
+      
       import org.bigbluebutton.common.LogUtil;
       import org.bigbluebutton.core.BBB;
       import org.bigbluebutton.core.EventConstants;
@@ -266,7 +266,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				chatBox.id = chatWithUserID;
 		        chatBox.name = chatWithUserID;
 				chatBox.baseIndex = baseIndex;
-		        
+                
+                if (chatTabs.getChildByName(TAB_BOX_ID)) {
+                    chatBox.setStyle("fontSize", int((chatTabs.getChildByName(TAB_BOX_ID) as AddChatTabBox).cmbFontSize.selectedItem));
+                }
+                
 		        if (publicChat) {
 		          chatBox.label = PUBLIC_CHAT_USERNAME
 		          chatBox.publicChat = true;
