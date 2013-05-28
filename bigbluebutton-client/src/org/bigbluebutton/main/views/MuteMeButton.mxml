@@ -26,7 +26,7 @@ $Id: $
 	xmlns:mate="http://mate.asfusion.com/"
 	visible="false" 
 	creationComplete="onCreationComplete()"
-	toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.listeners.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.listeners.pushToMute.toolTip')}" 
+	toolTip="{UserManager.getInstance().getConference().voiceMuted ? ResourceUtil.getInstance().getString('bbb.users.pushToTalk.toolTip') : ResourceUtil.getInstance().getString('bbb.users.pushToMute.toolTip')}" 
 	click="toggleMuteMeState()" width="140" maxWidth="180"
 	mouseOver="mouseOverHandler()"
 	mouseOut="mouseOutHandler()"

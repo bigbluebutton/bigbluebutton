@@ -279,6 +279,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			}
 			
 			override public function close(event:MouseEvent = null):void {
+        for each(var windowItf:VideoWindowItf in mutableChildrenArray) {
+          windowItf.close();
+        }
+        
 				removeAllChildren();
 				super.close(event);
 			}

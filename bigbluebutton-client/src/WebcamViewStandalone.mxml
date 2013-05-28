@@ -25,7 +25,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
                 pageTitle="WebcamView" layout="absolute">	
   <mx:Script>
     <![CDATA[
-      import flash.net.NetConnection;    
+      import flash.net.NetConnection;
+      
       import mx.core.UIComponent;
       import mx.utils.URLUtil;
       
@@ -39,6 +40,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       
       private var _url:String;
       private var _stream:String;
+      private var _avatarURL:String;
+      private var displayAvatar:Boolean = false;
       
       private var smoothVideo:Boolean = true;
       private var applyConvolutionFilter:Boolean = false;
@@ -56,7 +59,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
         trace("WebcamViewSA:: onCreationComplete [" + this.width + "," + this.height + "]");
         this.addChild(_videoHolder);
-                
+        
+        _videoHolder.addChild(loader);
+        
         Security.allowDomain(determineHTMLURL());
         trace("WebcamViewSA:: Security.allowDomain(" + determineHTMLURL() + ");");
         
@@ -147,28 +152,126 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       private function onSecurityError(event:NetStatusEvent):void{
       }
       
-      private function handleStartViewCameraRequest(url:String, stream:String):void {
+      private function handleStartViewCameraRequest(url:String, stream:String, avatarURL:String):void {
+        displayAvatar = false;
+        _avatarURL = avatarURL;
         _url = url;
         _stream = stream;
+        trace("WebcamViewSA::handleStartViewCameraRequest avatar=[" + _avatarURL + "]");
+        
         connect(url);
       }
       
-      private function handleStopViewCamera():void {
+      private function handleStopViewCamera(avatarURL:String):void {
+        
+        _avatarURL = avatarURL;
+        trace("WebcamViewSA::handleStopViewCamera avatar=[" + _avatarURL + "]");
+        
         stopViewing();
+        
+      }
+      
+      private var loader:Loader = new Loader();
+      private var request:URLRequest;
+      
+      private function loadAvatar():void {       
+        request = new URLRequest(_avatarURL);
+        loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoadingComplete);
+        loader.load(request);        
+      }
+      
+      private var avatarWidth:Number = 320;
+      private var avatarHeight:Number = 240;
+      
+      private function onLoadingComplete(event:Event):void {
+        
+        if (!displayAvatar) {
+          // The user might have started sharing webcam again.
+          return;
+        }
+        
+        if (_video != null) _videoHolder.removeChild(_video);
+        _videoHolder.addChild(loader);
+        
+        // Save the size of the avatar image.
+        avatarWidth = loader.content.width;
+        avatarHeight = loader.content.height;
+        
+        onResizeAvatar();
+      }
+      
+      private function onResizeAvatar():void {
+                
+        if (loader != null && _videoHolder != null) {
+          if (avatarIsSmallerThanWindow()) {
+            // The avatar image is smaller than the window. Just center the image.
+            _videoHolder.width = loader.width = avatarWidth;
+            _videoHolder.height = loader.height = avatarHeight;
+            
+          } else {
+            // The avatar is bigger than the window. Fit into the window maintaining aspect ratio.
+            fitAvatarToWindow();
+          }
+          
+          _videoHolder.x = (this.width - loader.width) / 2;
+          _videoHolder.y = (this.height - loader.height) / 2;   
+          
+        }      
+        
+      }
+      
+      private function fitAvatarToWindow():void {
+        if (_videoHolder.width  < _videoHolder.height) {
+          fitAvatarToHeightAndAdjustWidthToMaintainAspectRatio();         			
+        } else {
+          fitAvatarToWidthAndAdjustHeightToMaintainAspectRatio();	
+        }				
+      }
+      
+      private function avatarIsSmallerThanWindow():Boolean {
+        return (avatarWidth < _videoHolder.width) && (avatarHeight < _videoHolder.height);
+      }
+      
+      private function fitAvatarToWidthAndAdjustHeightToMaintainAspectRatio():void {
+        var aspect:Number = avatarHeight / avatarWidth;
+        loader.width = _videoHolder.width = this.width;
+        
+        // Maintain aspect-ratio
+        _videoHolder.height= loader.height = loader.width * aspect;			
+      }
+      
+      private function resetVideoHolder():void {
+        _videoHolder.width = this.width;
+        _videoHolder.height = this.height;
+        _videoHolder.x = _videoHolder.y = 0;
+      }
+      
+      private function fitAvatarToHeightAndAdjustWidthToMaintainAspectRatio():void {
+        var aspect:Number = avatarWidth / avatarHeight;
+        loader.height = _videoHolder.height = this.height;
+        
+        // Maintain aspect-ratio
+        _videoHolder.width = loader.width = loader.height * aspect;						
       }
       
       private function stopViewing():void {
+        
+        resetVideoHolder();
+        
         if (_video != null) {
           trace("WebcamViewSA:: removing video from holder");
           _videoHolder.removeChild(_video);
           _video.clear();
           _video = null;
         }
-        _videoHolder.visible = false;
+        
         trace("WebcamViewSA:: closing stream");
         if (ns != null) {
           ns.close();
-        }        
+        }      
+        
+        displayAvatar = true;
+        loadAvatar();
       }
       
       private function playWebcamStream():void {
@@ -184,8 +287,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
         trace("WebcamViewSA:: WINDOW [" + this.width + "," + this.height + "]");
         
-        _videoHolder.width = this.width;
-        _videoHolder.height = this.height;
+        resetVideoHolder();
         
         _video = new Video(camWidth, camHeight);
         _video.width =  camWidth;
@@ -209,7 +311,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         }
         
         trace("WebcamViewSA:: adding video to video holder");
-        
+        _videoHolder.removeChild(loader);
         _videoHolder.addChild(_video);
                 
         _videoHolder.visible = true;

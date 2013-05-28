@@ -348,6 +348,24 @@ DataGrid {
   
 }
 
+.cameraDisplaySettingsWindowStyle {
+  borderColor: #b9babc;
+  borderAlpha: 1;
+  borderThicknessLeft: 10;
+  borderThicknessTop: 0;
+  borderThicknessBottom: 10;
+  borderThicknessRight: 10;
+  roundedBottomCorners: true;
+  cornerRadius: 5;
+  headerHeight: 20;
+  backgroundAlpha: 1;
+  headerColors: #b9babc, #b9babc;
+  footerColors: #b9babc, #b9babc;
+  backgroundColor: #EFEFEF;
+  dropShadowEnabled: true;
+  titleStyleName: "webcamSettingsWindowTitleStyle";
+}
+
 .micSettingsWindowStyle {
   borderColor: #b9babc;
   borderAlpha: 1;
@@ -366,7 +384,7 @@ DataGrid {
   titleStyleName: "micSettingsWindowTitleStyle";
 }
 
-.micSettingsWindowTitleStyle {
+.webcamSettingsWindowTitleStyle, .micSettingsWindowTitleStyle {
   fontFamily: Arial;
   fontSize: 20;  
   fontWeight: bold;
@@ -636,5 +654,5 @@ MDIWindow { /*None of the following properties are overridden by the MDIWindow c
 
 .cameraDisplaySettingsWindowStartBtn
 {
-  icon:   Embed('assets/images/play-blue.png');
+  icon:   Embed('assets/images/webcam.png');
 }

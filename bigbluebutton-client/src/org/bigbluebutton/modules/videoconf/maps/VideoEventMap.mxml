@@ -47,7 +47,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </EventHandlers>
  
   <EventHandlers type="{VideoModuleStopEvent.STOP}">
-    <MethodInvoker generator="{VideoEventMapDelegate}" method="stop"/>
+    <MethodInvoker generator="{VideoEventMapDelegate}" method="stopModule"/>
   </EventHandlers>
   
   <EventHandlers type="{BBBEvent.CAMERA_SETTING}" >
