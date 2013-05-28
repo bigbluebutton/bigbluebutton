@@ -248,7 +248,7 @@ public class Meeting {
 	}
 	
 	public boolean hasExpired(int expiry) {
-		System.out.println("meeting-id=" + intMeetingId + " started=" + hasStarted() + " ended=" + hasEnded() + " notRunning=" + !isRunning() + " expired=" + didExpire(expiry));
+	//	System.out.println("meeting-id=" + intMeetingId + " started=" + hasStarted() + " ended=" + hasEnded() + " notRunning=" + !isRunning() + " expired=" + didExpire(expiry));
 		return (hasStarted() && hasEnded() && !isRunning() && didExpire(expiry));
 	}
 	
@@ -257,7 +257,15 @@ public class Meeting {
 	}
 
 	private boolean pastDuration() {
-		if (duration == 0) return false; /* Meeting runs infinitely */
+		if (duration == 0 && !isRunning()) {
+			// The meeting is set to run indefinitely and there are still users in the meeting.
+			return false; 
+		} else if (duration == 0 && isRunning()) {
+			// The meeting is set to run indefinitely but there are no users in the meeting.
+			// End it. The first user that joins this meeting again, will re-create the meeting.
+			return true;
+		}
+		
 		return (System.currentTimeMillis() - startTime > (duration * MILLIS_IN_A_MINUTE));
 	}
 	
