@@ -122,7 +122,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.minHeight = _minHeight;
 				maximizeRestoreBtn.visible = false;
 				
-				showCloseButton = false;
+        this.showCloseButton = videoconfOptions.showCloseButton;
 				
 				this.resizable = false;
 				setAspectRatio(avatarWidth, avatarHeight);

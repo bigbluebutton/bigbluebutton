@@ -127,7 +127,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				this.resizable = false;
 							
 				this.visible = videoOptions.publishWindowVisible;
-				
+        this.showCloseButton = videoOptions.showCloseButton;
+        
 				if (videoOptions.autoStart) {
 					/*
 					 * Need to have a timer to trigger auto-publishing of webcam.
