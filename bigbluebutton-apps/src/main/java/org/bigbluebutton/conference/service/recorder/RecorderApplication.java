@@ -23,7 +23,6 @@ import org.red5.logging.Red5LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -47,6 +46,7 @@ public class RecorderApplication {
 	private Recorder recorder;
 	
 	public RecorderApplication() {
+		 messages = new LinkedBlockingQueue<RecordEvent>();
 		recordingSessions = new ConcurrentHashMap<String, String>();
 		log.debug("Instantiated ArchiveApplication");
 	}
