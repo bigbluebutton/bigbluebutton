@@ -26,6 +26,8 @@ package org.bigbluebutton.main.events
 		public static const DISCONNECT_TEST:String = "disconnect_test";
 		public static const USER_KICKED_OUT:String = "USER_KICKED_OUT";
 		
+    public var userID:String;
+    
 		public function LogoutEvent(type:String)
 		{
 			super(type, true, false);

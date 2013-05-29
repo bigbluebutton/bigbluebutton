@@ -500,6 +500,7 @@
     var REMOTE_UNLOCKED_LAYOUT      = 'RemoteUnlockedLayoutEvent';
     var USER_JOINED_VOICE           = 'UserJoinedVoiceEvent';
     var USER_LEFT_VOICE             = 'UserLeftVoiceEvent';
+    var USER_KICKED_OUT             = 'UserKickedOutEvent';
     var USER_MUTED_VOICE            = 'UserVoiceMutedEvent';
     var USER_TALKING                = 'UserTalkingEvent';
     var USER_LOCKED_VOICE           = 'UserLockedVoiceEvent';

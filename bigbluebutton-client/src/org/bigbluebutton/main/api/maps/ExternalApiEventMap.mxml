@@ -31,6 +31,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.events.SwitchedLayoutEvent;
       import org.bigbluebutton.main.api.ExternalApiCalls;
       import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.LogoutEvent;
       import org.bigbluebutton.main.events.SwitchedPresenterEvent;
       import org.bigbluebutton.main.events.UserJoinedEvent;
       import org.bigbluebutton.main.events.UserLeftEvent;
@@ -107,6 +108,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
   <EventHandlers type="{UserLeftEvent.LEFT}" >
     <MethodInvoker generator="{ExternalApiCalls}" method="handleUserLeftEvent" arguments="{event}"/>
+  </EventHandlers>
+  
+  <EventHandlers type="{LogoutEvent.USER_KICKED_OUT}" >
+    <MethodInvoker generator="{ExternalApiCalls}" method="handleUserKickedOutEvent" arguments="{event}"/>
   </EventHandlers>
   
   <EventHandlers type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" >
