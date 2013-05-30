@@ -37,7 +37,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
   <mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceMutedEvent" />
   <mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
-  <mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleNewRoleEvent" />
+  <mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleSwitchedPresenterEvent" />
+  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleMadePresenterEvent" /> 
   <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleNewRoleEvent" />
   <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleNewRoleEvent" />
   <mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
@@ -60,6 +61,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       import org.bigbluebutton.core.events.CoreEvent;
       import org.bigbluebutton.core.managers.UserManager;
       import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
       import org.bigbluebutton.main.events.ShortcutEvent;
       import org.bigbluebutton.main.events.SwitchedPresenterEvent;
       import org.bigbluebutton.main.views.MainCanvas;
@@ -163,6 +165,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 				autoPublishTimer.stop();
 			}
 			
+      private function handleMadePresenterEvent(event:MadePresenterEvent):void {
+        trace("******** PublishWindow: HandleMadePresenter event *********");
+        updateControlButtons();
+      }
+      
+      private function handleSwitchedPresenterEvent(event:SwitchedPresenterEvent):void {
+        trace("******** PublishWindow: handleSwitchedPresenterEvent event *********");
+        updateControlButtons();
+      }
+      
       private function handleNewRoleEvent(event:Event):void {
         updateControlButtons();
       }

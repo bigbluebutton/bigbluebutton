@@ -36,37 +36,39 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<mate:Listener type="{BBBEvent.USER_VOICE_MUTED}" method="handleUserVoiceMutedEvent" />
 	<mate:Listener type="{EventConstants.USER_TALKING}" method="handleUserTalkingEvent" />
-	<mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleNewRoleEvent" />
+  <mate:Listener type="{SwitchedPresenterEvent.SWITCHED_PRESENTER}" method="handleSwitchedPresenterEvent" />
+  <mate:Listener type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}" method="handleMadePresenterEvent" /> 
   <mate:Listener type="{BBBEvent.USER_VOICE_JOINED}" method="handleNewRoleEvent" />
   <mate:Listener type="{BBBEvent.USER_VOICE_LEFT}" method="handleNewRoleEvent" />
 	<mate:Listener type="{CloseAllWindowsEvent.CLOSE_ALL_WINDOWS}" method="closeWindow" />
 	
 	<mx:Script>
 		<![CDATA[
-			import flexlib.mdi.events.MDIWindowEvent;
-			
-			import mx.core.UIComponent;
-			import mx.events.ResizeEvent;
-			
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.common.Role;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.events.LocaleChangeEvent;
-			import org.bigbluebutton.core.EventConstants;
-			import org.bigbluebutton.core.UsersUtil;
-			import org.bigbluebutton.core.events.CoreEvent;
-			import org.bigbluebutton.core.events.SwitchedLayoutEvent;
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.events.BBBEvent;
-			import org.bigbluebutton.main.events.SwitchedPresenterEvent;
-			import org.bigbluebutton.main.views.MainCanvas;
-			import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
-			import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
-			import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
-			import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
-			import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
+      import flexlib.mdi.events.MDIWindowEvent;
+      
+      import mx.core.UIComponent;
+      import mx.events.ResizeEvent;
+      
+      import org.bigbluebutton.common.Images;
+      import org.bigbluebutton.common.LogUtil;
+      import org.bigbluebutton.common.Role;
+      import org.bigbluebutton.common.events.CloseWindowEvent;
+      import org.bigbluebutton.common.events.LocaleChangeEvent;
+      import org.bigbluebutton.core.EventConstants;
+      import org.bigbluebutton.core.UsersUtil;
+      import org.bigbluebutton.core.events.CoreEvent;
+      import org.bigbluebutton.core.events.SwitchedLayoutEvent;
+      import org.bigbluebutton.core.managers.UserManager;
+      import org.bigbluebutton.main.events.BBBEvent;
+      import org.bigbluebutton.main.events.MadePresenterEvent;
+      import org.bigbluebutton.main.events.SwitchedPresenterEvent;
+      import org.bigbluebutton.main.views.MainCanvas;
+      import org.bigbluebutton.modules.videoconf.business.TalkingButtonOverlay;
+      import org.bigbluebutton.modules.videoconf.events.CloseAllWindowsEvent;
+      import org.bigbluebutton.modules.videoconf.events.OpenVideoWindowEvent;
+      import org.bigbluebutton.modules.videoconf.events.StartBroadcastEvent;
+      import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
+      import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			[Bindable] private var defaultWidth:Number = 320;
 			[Bindable] private var defaultHeight:Number = 240;
@@ -187,6 +189,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         _video.width = loader.width = loader.height * aspect;				
       }
 			
+      private function handleMadePresenterEvent(event:MadePresenterEvent):void {
+        trace("******** Avatar: HandleMadePresenter event *********");
+        updateControlButtons();
+      }
+      
+      private function handleSwitchedPresenterEvent(event:SwitchedPresenterEvent):void {
+        trace("******** Avatar: handleSwitchedPresenterEvent event *********");
+        updateControlButtons();
+      }
+      
       private function handleNewRoleEvent(event:Event):void {
         updateControlButtons();
       }

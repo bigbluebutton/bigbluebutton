@@ -110,23 +110,23 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     private function displayEjectButton(controlsForPresenter:Boolean):void {
       /**
        * Display button if:
-       * 1. If I am moderator and this window is not me.
-       * 2. If I am the presenter and display controls for presenter and this window is not me.
+       * 1. If I am moderator and this window is NOT the presenter.
+       * 3. If I am the presenter and display controls for presenter and this window is not me.
        */
-      if (ejectUserBtn != null) {
-        if (UsersUtil.amIModerator() && ! UsersUtil.isMe(sharerUserID)) {
-          ejectUserBtn.visible = true;
-          ejectUserBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.ejectUserBtn.toolTip', [UsersUtil.getUserName(sharerUserID)]); 
+      if (switchPresenter != null) {
+        if (UsersUtil.amIModerator() && (sharerUserID != UsersUtil.getPresenterUserID())) { /** 1. **/ 
+          switchPresenter.visible = true;
+          switchPresenter.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.switchPresenter.toolTip', [UsersUtil.getUserName(sharerUserID)]);
           return;
         }
-        
+   
         if (controlsForPresenter && UsersUtil.amIPresenter() && ! UsersUtil.isMe(sharerUserID)) { /** 2 **/
-          ejectUserBtn.visible = true;
-          ejectUserBtn.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.ejectUserBtn.toolTip', [UsersUtil.getUserName(sharerUserID)]); 
+          switchPresenter.visible = true;
+          switchPresenter.toolTip = ResourceUtil.getInstance().getString('bbb.video.controls.switchPresenter.toolTip', [UsersUtil.getUserName(sharerUserID)]);  
           return;
         }
         
-        ejectUserBtn.visible = false;
+        switchPresenter.visible = false;
       }
     }
     
