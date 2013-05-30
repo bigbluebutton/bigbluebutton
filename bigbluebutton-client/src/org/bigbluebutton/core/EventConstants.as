@@ -54,6 +54,7 @@ package org.bigbluebutton.core
     public static const REMOTE_UNLOCKED_LAYOUT:String     = 'RemoteUnlockedLayoutEvent';
     public static const USER_JOINED_VOICE:String          = 'UserJoinedVoiceEvent';
     public static const USER_LEFT_VOICE:String            = 'UserLeftVoiceEvent';
+    public static const USER_KICKED_OUT:String            = 'UserKickedOutEvent';
     public static const USER_MUTED_VOICE:String           = 'UserVoiceMutedEvent';
     public static const USER_TALKING:String               = 'UserTalkingEvent';
     public static const USER_LOCKED_VOICE:String          = 'UserLockedVoiceEvent';

@@ -33,6 +33,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.managers.UserManager;
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
+  import org.bigbluebutton.main.events.LogoutEvent;
   import org.bigbluebutton.main.events.SwitchedPresenterEvent;
   import org.bigbluebutton.main.events.UserJoinedEvent;
   import org.bigbluebutton.main.events.UserLeftEvent;
@@ -44,6 +45,13 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.modules.videoconf.model.VideoConfOptions;
 
   public class ExternalApiCalls { 
+    
+    public function handleUserKickedOutEvent(event:LogoutEvent):void {
+      var payload:Object = new Object();
+      payload.userID = UsersUtil.internalUserIDToExternalUserID(event.userID);
+      payload.eventName = EventConstants.USER_KICKED_OUT;
+      broadcastEvent(payload);
+    }
     
     public function handleIsUserPublishingCamRequest(event:IsUserPublishingCamRequest):void {
       var payload:Object = new Object();
@@ -73,9 +81,9 @@ package org.bigbluebutton.main.api
       payload.myAvatarURL = UsersUtil.getAvatarURL();
       payload.myRole = UsersUtil.getMyRole();
       payload.amIPresenter = UsersUtil.amIPresenter();
-	  payload.dialNumber = UsersUtil.getDialNumber();
-	  payload.voiceBridge = UsersUtil.getVoiceBridge();
-	  payload.customdata = UsersUtil.getCustomData();
+	    payload.dialNumber = UsersUtil.getDialNumber();
+	    payload.voiceBridge = UsersUtil.getVoiceBridge();
+	    payload.customdata = UsersUtil.getCustomData();
       
       broadcastEvent(payload);
     } 

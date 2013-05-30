@@ -17,12 +17,14 @@
 *
 */
 package org.bigbluebutton.main.model.users {
-	import com.asfusion.mate.events.Dispatcher;	
+	import com.asfusion.mate.events.Dispatcher;
+	
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.net.NetConnection;
 	import flash.net.Responder;
-	import flash.net.SharedObject;	
+	import flash.net.SharedObject;
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
 	import org.bigbluebutton.core.BBB;
@@ -206,8 +208,12 @@ package org.bigbluebutton.main.model.users {
 			_participantsSO.send("kickUserCallback", userid);
 		}
 		
-		public function kickUserCallback(userid:String):void{
-			if (UserManager.getInstance().getConference().amIThisUser(userid)){
+		public function kickUserCallback(userid:String):void {
+      var kickedEvent:LogoutEvent = new LogoutEvent(LogoutEvent.USER_KICKED_OUT);
+      kickedEvent.userID = userid;
+      dispatcher.dispatchEvent(kickedEvent);
+      
+			if (UserManager.getInstance().getConference().amIThisUser(userid)) {
 				dispatcher.dispatchEvent(new LogoutEvent(LogoutEvent.USER_LOGGED_OUT));
 			}
 		}
