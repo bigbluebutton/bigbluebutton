@@ -120,6 +120,7 @@ package org.bigbluebutton.main.api
       obj.userID = userID;
       obj.isUserPublishing = isUserPublishing;
       obj.streamName = streamName;
+      obj.avatarURL = UsersUtil.getAvatarURL();
       
       return obj;
     }
@@ -157,6 +158,7 @@ package org.bigbluebutton.main.api
       obj.camQualityBandwidth = vidConf.camQualityBandwidth;
       obj.camQualityPicture = vidConf.camQualityPicture;  
       obj.avatarURL = UsersUtil.getAvatarURL();
+      
       return obj;
     }
     
