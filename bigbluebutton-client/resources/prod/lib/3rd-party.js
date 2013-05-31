@@ -53,7 +53,7 @@ var registerListeners = function() {
 						+ ",streamName=" + bbbEvent5.streamName + "]");
 			if (presenterUserID == bbbEvent.userID) {
 				CAM_VIEW.stopViewWebcamStream(bbbEvent.avatarURL);
-				CAM_VIEW.viewWebcamStream(bbbEvent.uri, bbbEvent.streamName, bbbEvent.avatarURL);
+				CAM_VIEW.viewWebcamStream(bbbEvent.uri, bbbEvent.streamName, bbbEvent5.avatarURL);
 			}
 		});	
 		CAM_PREVIEW.stopPreviewCamera(bbbEvent.avatarURL);
@@ -217,6 +217,10 @@ var getMeetingID = function() {
   BBB.getMeetingID(function(meetingID) {
     console.log("Meeting ID  = [" + meetingID + "]");
   });
+}
+
+var raiseHand = function(raiseHand) {
+  BBB.raiseHand(raiseHand);
 }
 
 var muteMe = function() {

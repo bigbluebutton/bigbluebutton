@@ -68,7 +68,7 @@ package org.bigbluebutton.main.api
       
       var vidConf:VideoConfOptions = new VideoConfOptions();
       payload.uri = vidConf.uri + "/" + UsersUtil.getInternalMeetingID();
-      
+      payload.avatarURL = UsersUtil.getAvatarURL();
       payload.streamName = streamName; 
       broadcastEvent(payload);
     }
@@ -171,12 +171,14 @@ package org.bigbluebutton.main.api
       payload.amIPresenter = event.amIPresenter;
       payload.role = event.amIPresenter ? Role.PRESENTER : Role.VIEWER;
       payload.newPresenterUserID = UsersUtil.internalUserIDToExternalUserID(event.newPresenterUserID);
+      payload.avatarURL = UsersUtil.getAvatarURL();
       broadcastEvent(payload);
       
       payload.eventName = EventConstants.NEW_ROLE;
       payload.amIPresenter = event.amIPresenter;
       payload.newPresenterUserID = UsersUtil.internalUserIDToExternalUserID(event.newPresenterUserID);
       payload.role = event.amIPresenter ? Role.PRESENTER : Role.VIEWER;
+      payload.avatarURL = UsersUtil.getAvatarURL();
       broadcastEvent(payload);      
     }
 

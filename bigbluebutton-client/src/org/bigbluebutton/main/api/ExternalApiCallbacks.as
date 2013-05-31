@@ -37,6 +37,7 @@ package org.bigbluebutton.main.api
   import org.bigbluebutton.core.vo.CameraSettingsVO;
   import org.bigbluebutton.main.events.BBBEvent;
   import org.bigbluebutton.main.model.users.events.KickUserEvent;
+  import org.bigbluebutton.main.model.users.events.RaiseHandEvent;
   import org.bigbluebutton.main.model.users.events.RoleChangeEvent;
   import org.bigbluebutton.modules.videoconf.events.ClosePublishWindowEvent;
   import org.bigbluebutton.modules.videoconf.events.ShareCameraRequestEvent;
@@ -54,6 +55,7 @@ package org.bigbluebutton.main.api
     
     private function init():void {
       if (ExternalInterface.available) {
+        ExternalInterface.addCallback("raiseHandRequest", handleRaiseHandRequest);
         ExternalInterface.addCallback("ejectUserRequest", handleEjectUserRequest);
         ExternalInterface.addCallback("switchPresenterRequest", handleSwitchPresenterRequest);
         ExternalInterface.addCallback("getMyUserInfoSync", handleGetMyUserInfoSynch);
@@ -101,6 +103,13 @@ package org.bigbluebutton.main.api
       }
     }
  
+    private function handleRaiseHandRequest(handRaised:Boolean):void {
+      trace("Received raise hand request from JS API [" + handRaised + "]");
+      var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
+      e.raised = handRaised;
+      _dispatcher.dispatchEvent(e);
+    }
+    
     private function handleEjectUserRequest(userID:String):void {
         var intUserID:String = UsersUtil.externalUserIDToInternalUserID(userID);
         _dispatcher.dispatchEvent(new KickUserEvent(intUserID));
@@ -120,6 +129,7 @@ package org.bigbluebutton.main.api
       obj.userID = userID;
       obj.isUserPublishing = isUserPublishing;
       obj.streamName = streamName;
+      obj.avatarURL = UsersUtil.getAvatarURL();
       
       return obj;
     }
@@ -157,6 +167,7 @@ package org.bigbluebutton.main.api
       obj.camQualityBandwidth = vidConf.camQualityBandwidth;
       obj.camQualityPicture = vidConf.camQualityPicture;  
       obj.avatarURL = UsersUtil.getAvatarURL();
+      
       return obj;
     }
     

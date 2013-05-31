@@ -480,8 +480,9 @@
 	</target>
 
 	<target name="clean" depends="init-ant-contrib">
+		<available file="${OUTPUT_DIR}" type="dir" property="client.dir.present"/>
                 <if>
-                <equals arg1="${OUTPUT_DIR}" arg2="true"/>
+                <equals arg1="${client.dir.present}" arg2="true"/>
                 <then>
 			<echo message="Locale output dir exists. Deleting contents of ${OUTPUT_DIR}/locale"/>
 			<delete>

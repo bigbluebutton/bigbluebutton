@@ -195,9 +195,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         
       }
 
-      private function resetVideoHolder():void {
-        _videoHolder.width = this.width;
-        _videoHolder.height = this.height;
+      private function resetVideoHolder():void {        
+        loader.width = _videoHolder.width = this.width;
+        loader.height = _videoHolder.height = this.height;
         _videoHolder.x = _videoHolder.y = 0;
       }
       
@@ -254,6 +254,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       }
               
       private function stopCamera():void {
+        resetVideoHolder();
         _camera = null;
         if (_video != null) {
           _videoHolder.removeChild(_video);
