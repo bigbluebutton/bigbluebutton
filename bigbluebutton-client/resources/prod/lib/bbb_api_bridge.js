@@ -72,7 +72,22 @@
         }
       }
     }
-    
+
+    /**
+     * Raise user's hand.
+     *
+     * Param:
+     *   raiseHand - [true/false]
+     * 
+     */
+    BBB.raiseHand = function(raiseHand) {
+      var swfObj = getSwfObj();
+      if (swfObj) {
+        console.log("Request to raise hand [" + raiseHand + "]");
+        swfObj.raiseHandRequest(raiseHand);
+      }    
+    }
+        
     /**
      * Issue a switch presenter command.
      *

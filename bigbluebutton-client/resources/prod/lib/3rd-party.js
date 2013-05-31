@@ -219,6 +219,10 @@ var getMeetingID = function() {
   });
 }
 
+var raiseHand = function(raiseHand) {
+  BBB.raiseHand(raiseHand);
+}
+
 var muteMe = function() {
   BBB.muteMe();
 }
