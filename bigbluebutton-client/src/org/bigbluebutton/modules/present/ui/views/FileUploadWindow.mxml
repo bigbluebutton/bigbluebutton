@@ -317,7 +317,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
       <mx:Spacer width="100%"/>
       <mx:Button id="okCancelBtn" label="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn')}"
                  styleName="presentationUploadCancelButtonStyle"
-                 click="globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))"/>
+                 click="globalDispatch.dispatchEvent(new UploadEvent(UploadEvent.CLOSE_UPLOAD_WINDOW))"
+                 toolTip="{ResourceUtil.getInstance().getString('bbb.fileupload.okCancelBtn.toolTip')}"/>
       <mx:Spacer width="5"/>
     </mx:HBox>	
   </mx:VBox>
