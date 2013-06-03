@@ -27,28 +27,21 @@ require 'open-uri'
 require 'digest/md5'
 
 BigBlueButton.logger = Logger.new("/var/log/bigbluebutton/decrypt.log",'daily' )
+#BigBlueButton.logger = Logger.new(STDOUT)
 
 bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
 mconf_props = YAML::load(File.open('mconf.yml'))
 
-private_key = mconf_props['private_key']
-get_recordings_url = mconf_props['get_recordings_url']
-recording_dir = bbb_props['recording_dir'] 
-raw_dir = "#{recording_dir}/raw"
-archived_dir = "#{recording_dir}/status/archived"
-
-def processGetRecordingsUrlInput(input)
-  if input.respond_to? "each"
-    input.each do |url|
-      processGetRecordingsUrlInput url
-    end
-  else
-    fetchRecordings input
-  end
-end
+# these properties must be global variables (starting with $)
+$private_key = mconf_props['private_key']
+$get_recordings_url = mconf_props['get_recordings_url']
+$recording_dir = bbb_props['recording_dir'] 
+$raw_dir = "#{$recording_dir}/raw"
+$archived_dir = "#{$recording_dir}/status/archived"
 
 def fetchRecordings(url)
-  BigBlueButton.logger.debug("Fetching #{url}")
+  #BigBlueButton.logger.debug("Fetching #{url}")
+  doc = nil
   begin
     doc = Nokogiri::XML(Net::HTTP.get_response(URI.parse(url)).body)
     returncode = doc.xpath("//returncode")
@@ -72,8 +65,8 @@ def fetchRecordings(url)
 
         encrypted_file = file_url.split("/").last
         decrypted_file = File.basename(encrypted_file, '.*') + ".zip"
-        if not File.exist?("#{archived_dir}/#{meeting_id}.done") then
-          Dir.chdir(raw_dir) do
+        if not File.exist?("#{$archived_dir}/#{meeting_id}.done") then
+          Dir.chdir($raw_dir) do
             BigBlueButton.logger.info("Decrypting the recording #{meeting_id}")
 
             BigBlueButton.logger.debug("recordID = #{record_id}")
@@ -100,11 +93,11 @@ def fetchRecordings(url)
 
               if key_file != decrypted_key_file
                 BigBlueButton.logger.debug("Locating private key")
-                if not File.exists?("#{private_key}")
-                  raise "Couldn't find the private key on #{private_key}"
+                if not File.exists?("#{$private_key}")
+                  raise "Couldn't find the private key on #{$private_key}"
                 end
                 BigBlueButton.logger.debug("Decrypting recording key")
-                command = "openssl rsautl -decrypt -inkey #{private_key} < #{key_file} > #{decrypted_key_file}"
+                command = "openssl rsautl -decrypt -inkey #{$private_key} < #{key_file} > #{decrypted_key_file}"
                 status = BigBlueButton.execute(command)
                 if not status.success?
                   raise "Couldn't decrypt the random key with the server private key"
@@ -121,9 +114,9 @@ def fetchRecordings(url)
                 raise "Couldn't decrypt the recording file using the random key"
               end
        
-              BigBlueButton::MconfProcessor.unzip("#{raw_dir}/#{meeting_id}", decrypted_file)
+              BigBlueButton::MconfProcessor.unzip("#{$raw_dir}/#{meeting_id}", decrypted_file)
 
-              archived_done = File.new("#{archived_dir}/#{meeting_id}.done", "w")
+              archived_done = File.new("#{$archived_dir}/#{meeting_id}.done", "w")
               archived_done.write("Archived #{meeting_id}")
               archived_done.close
               
@@ -146,4 +139,14 @@ def fetchRecordings(url)
   return true
 end
 
-processGetRecordingsUrlInput get_recordings_url
+def processGetRecordingsUrlInput(input)
+  if input.respond_to? "each"
+    input.each do |url|
+      processGetRecordingsUrlInput url
+    end
+  else
+    fetchRecordings input
+  end
+end
+
+processGetRecordingsUrlInput $get_recordings_url
