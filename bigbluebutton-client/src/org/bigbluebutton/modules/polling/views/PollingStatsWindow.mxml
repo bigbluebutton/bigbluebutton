@@ -301,21 +301,12 @@
 				resultBox.validateNow();	
 			} // end of function createResultsTable
 			
-			private function didNotVote():void{
-				var _tx:Text = new Text();
-				var _votes:Text= new Text;
-				var _hb:HBox = new HBox();
-				_tx.name = "optionNull";
-				_tx.width = 200;
-				_tx.text = ResourceUtil.getInstance().getString('bbb.polling.stats.didNotVote'); 
-				
-				_votes.name = "voteNull";
-				_votes.width = 30;
-				_votes.text = trackingPoll.didNotVote.toString();
-				
-				resultBox.addChild(_hb);					
-				_hb.addChild(_tx);
-				_hb.addChild(_votes);
+			private function didNotVote():PollStatLineObject{
+				var pso:PollStatLineObject = new PollStatLineObject();
+				pso.answer = ResourceUtil.getInstance().getString('bbb.polling.stats.didNotVote');
+				pso.votes = trackingPoll.didNotVote.toString();
+				pso.percentage = "";
+				return pso;
 			}
 	]]>
 	</mx:Script>
