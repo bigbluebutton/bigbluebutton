@@ -151,6 +151,7 @@
 
 		public function setUrlBoxText():void{
 			webPollURLBox.text = webPollUrl;
+			webPollURLBox.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.stats.webPollBoxAccessName', [webPollUrl]);
 			LogUtil.debug("webPollURLBox.Text is : " + webPollURLBox.text);
 			if (UsersUtil.amIPresenter())
 				messageForRecording(ResourceUtil.getInstance().getString('bbb.polling.stats.webPollURL') + " " + webPollUrl);
