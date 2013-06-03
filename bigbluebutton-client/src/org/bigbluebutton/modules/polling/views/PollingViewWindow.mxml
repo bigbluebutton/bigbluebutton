@@ -155,8 +155,10 @@
 					dispatchEvent(voteEvent);				
 					closeWindow();
 				}
-				else
+				else{
 					errorMessage.visible = true;
+					ExternalInterface.call("addAlert", errorMessage.text);
+				}
 			} // _vote
 						
 			// As the user clicks CheckBoxes, this function keeps a running tally of which boxes are and are not selected
@@ -187,32 +189,32 @@
 	</mx:Script>
 
 	<mx:RadioButtonGroup id="answersGroup"/>
- 	<!-- Prototype of Polling Module Design -->
-    <mx:VBox accessibilityDescription="The question will go into the V BOX" 
-    		 width="100%" 
-    		 height="75%" 
-    		 horizontalAlign="center" 
-    		 paddingLeft="10" 
-    		 paddingRight="10"
-    		 focusEnabled="true">
-    	<mx:HBox accessibilityDescription="The question will go into the H BOX"/>
-    	<mx:Text width="200" 
-        		 paddingTop="30" 
-        		 paddingBottom="10" 
-        		 fontWeight="bold" 
-        		 textAlign="center"
-       			 text="{question}"
-       			 accessibilityDescription="The question will go into the m x TEXT"
-       			 />
-       	<mx:Text id="checkInstructions" 
-       			 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll')}"/>
-     	<mx:Box id="answerBox"  
-     			width="90%" 
-     			height="90%" />
-		<mx:Text id="errorMessage"
-				 color="red"
-				 visible="false"/>
+ 	<!-- Accessible interface for voting -->
+	<mx:VBox id="votingBox"
+			 width="90%" 
+			 height="90%">
+		<mx:Panel id="titleShow" 
+				  width="90%" >
+			<mx:VBox paddingTop="10"
+					 paddingLeft="40" 
+					 paddingBottom="40"
+					 horizontalAlign="center"
+					 >
+				<mx:TextArea id="questionText"
+							 width="90%" 
+							 fontWeight="bold" 
+							 textAlign="center"
+							 editable="false"
+							 borderSkin="{null}"
+							 />
+				<mx:Box id="answerBox" />
+				<mx:Text id="errorMessage"
+						 color="red"
+						 visible="false"/>
+			</mx:VBox>
+		</mx:Panel>
 	</mx:VBox>
+	
     <mx:ControlBar width="100%" 
     			   horizontalAlign="center">
     	<mx:Button id="btnAcceptPoll" 
