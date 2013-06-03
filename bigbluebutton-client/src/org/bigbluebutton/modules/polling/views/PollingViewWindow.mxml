@@ -85,11 +85,11 @@
 				createButtons(answers.length,answers);
 				invalidateDisplayList();
 				validateNow(); 
-				/*var lines:int = (question.length / 28) + 1;
+				var lines:int = (question.length / 28) + 1;
 				for(var s:String in answers){
 					lines = lines + ((s.length / 28) + 1);	
 				}				 	            	
-				height = height + (lines * 50);*/
+				height = height + ((lines+1) * 45);
 			}
 						
 			// This function will receive information and generate radiobuttons on fly
