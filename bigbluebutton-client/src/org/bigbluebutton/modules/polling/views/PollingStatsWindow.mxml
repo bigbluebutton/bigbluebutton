@@ -247,59 +247,11 @@
 			dispatchEvent(stopPollEvent);
 		}
  		
-			// function receives Array.length and ArrayCollection
 			private function createResultsTable(amount:uint, content:Array):void{
-				var _tx: Text;
-				var _votes: Text;
-				var _percent: Text;
-				var _hb: HBox; 
-				var _line: HRule;
-				var totalVotes:int = 0;
-				for (var n:int = 0; n < trackingPoll.votes.length; n++){
-					totalVotes+= int(trackingPoll.votes[n]);
-				}
-				// delete existing rows
-				resultBox.removeAllChildren();
-				// creating rows one by one
-				for (var i:int = 0; i < amount; i++) {
-					_tx = new Text();
-					_votes= new Text;
-					_percent= new Text();
-					_hb = new HBox();
-					
-					_line = new HRule();
-					_line.width = 290;
-					
-					_tx.name = "option" +i;
-					_tx.width = 200;
-					_tx.text =content[i].toString(); 
-					
-					_votes.name = "votes" +i;
-					_votes.width = 30;
-					_votes.text = trackingPoll.votes[i];
-					
-					_percent.name = "percent" +i;
-					_percent.width = 50;
-					
-					// Percentage is in terms of how many votes each option has in terms of total votes
-					if (totalVotes > 0){
-						_percent.text = Math.round(100*(trackingPoll.votes[i]/totalVotes)) + "%";
-					}else{
-						// Prevents percentages from displaying misleading results before any votes come in, and from dividing by zero
-						_percent.text = " ";
-					}
-					
-					resultBox.addChild(_hb);					
-					_hb.addChild(_tx);
-					_hb.addChild(_votes);
-					_hb.addChild(_percent);
-					
-					resultBox.addChild(_line);
-				} // end of loop
-				didNotVote();
-				invalidateDisplayList();
-				resultBox.validateNow();	
-			} // end of function createResultsTable
+				answerCollection = trackingPoll.generateStats();
+				answerCollection.addItem(didNotVote());
+				resultsGrid.dataProvider = answerCollection;
+			}
 			
 			private function didNotVote():PollStatLineObject{
 				var pso:PollStatLineObject = new PollStatLineObject();
