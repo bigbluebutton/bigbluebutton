@@ -189,7 +189,7 @@
 	</mx:Script>
 
 	<mx:RadioButtonGroup id="answersGroup"/>
- 	<!-- Accessible interface for voting -->
+	<!-- Prototype of Polling Module Design -->
 	<mx:VBox id="votingBox"
 			 width="90%" 
 			 height="90%">
@@ -215,12 +215,13 @@
 		</mx:Panel>
 	</mx:VBox>
 	
-    <mx:ControlBar width="100%" 
-    			   horizontalAlign="center">
-    	<mx:Button id="btnAcceptPoll" 
-    			   label="{ResourceUtil.getInstance().getString('bbb.polling.pollView.vote')}" 
-    			   click="Vote()"  
-    			   width="100" 
-    			   height="30"/>
-    </mx:ControlBar> 	 
+	<mx:ControlBar width="100%" 
+				   horizontalAlign="center">
+		<mx:Button id="btnAcceptPoll" 
+				   label="{ResourceUtil.getInstance().getString('bbb.polling.pollView.vote')}" 
+				   click="Vote()"  
+				   width="100" 
+				   height="30"
+				   />
+	</mx:ControlBar> 	 
 </MDIWindow>
