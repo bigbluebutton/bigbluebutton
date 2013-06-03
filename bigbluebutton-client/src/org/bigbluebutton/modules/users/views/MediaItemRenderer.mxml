@@ -168,7 +168,7 @@
 						}
 					}
 					
-					if ((data.role == Role.MODERATOR) || !data.voiceJoined) {
+					if (!data.voiceJoined) {
 						lockImg.visible = false;
 						lockImg.includeInLayout = false;
 						lockBtn.visible = false;
