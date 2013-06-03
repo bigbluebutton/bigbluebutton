@@ -88,7 +88,7 @@
 		private var webClosed:Boolean;
 		private var notified:Boolean;
 		private var refreshTimer:Timer = new Timer(1000);
-		private var answersAC:ArrayCollection = new ArrayCollection();
+		[Bindable] private var answerCollection:ArrayCollection = new ArrayCollection();
 		
 		private function init():void{			
 			
