@@ -352,8 +352,8 @@ class ApiController {
 	us.logoutUrl = meeting.getLogoutUrl();
 	us.configXML = configxml;
 			
-	if (! StringUtils.isEmpty(params.defaulLayout)) {
-		us.defaultLayout = params.defaulLayout;
+	if (! StringUtils.isEmpty(params.defaultLayout)) {
+		us.defaultLayout = params.defaultLayout;
 	}
 
     if (! StringUtils.isEmpty(params.avatarURL)) {
