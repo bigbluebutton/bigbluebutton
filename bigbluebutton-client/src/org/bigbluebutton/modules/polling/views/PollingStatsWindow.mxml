@@ -91,6 +91,9 @@
 		private var answersAC:ArrayCollection = new ArrayCollection();
 		
 		private function init():void{			
+			
+			answerCollection = trackingPoll.generateStats();
+			
 			conference = UserManager.getInstance().getConference();
 			webPollText.visible = (UsersUtil.amIPresenter() && (!reviewing && trackingPoll.publishToWeb));
 			btnClosePoll.visible = UsersUtil.amIPresenter();
@@ -102,9 +105,6 @@
 				generate.poll = trackingPoll;
 				dispatchEvent(generate);
 			}
-			refreshTimer.addEventListener(TimerEvent.TIMER, autoRefresh);
-			refreshTimer.start();
-			answersAC = trackingPoll.generateStats();
 			notified = false;
 		}
 
@@ -285,9 +285,9 @@
 						 editable="false" 
 						 text="" 
 						 height="25"
-						 width="95%"
-						 tabIndex="{baseIndex+4}"
-						 />          
+						 width="95%"						 
+						 />         
+			<!-- tabIndex="{baseIndex+4}" -->
 		</mx:HBox>
 		<mx:Text width="200"
 				 paddingTop="15" paddingBottom="10"
@@ -298,7 +298,8 @@
 					 rowCount="{answerCollection.length}" 
 					 width="90%" 
 					 accessibilityName="{ResourceUtil.getInstance().getString('bbb.polling.stats.question', [trackingPoll.question])}"
-					 tabIndex="{baseIndex+5}">
+					 >
+			<!-- tabIndex="{baseIndex+5}" -->
 			<mx:columns>
 				<mx:DataGridColumn id="answerColumn"
 								   dataField="answer"
