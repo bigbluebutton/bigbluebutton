@@ -158,6 +158,7 @@
 			}				 	            	
 			height = height + ((lines+1) * 45);
 			createResultsTable(answers.length, answers);
+			focusManager.setFocus(titleBarOverlay);
 		}			
 
 		public function setUrlBoxText():void{

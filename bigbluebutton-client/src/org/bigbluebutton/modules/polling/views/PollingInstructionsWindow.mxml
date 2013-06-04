@@ -42,6 +42,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		import mx.collections.ArrayCollection;
 		import mx.core.IUIComponent;
 		import mx.containers.HBox;
+		import mx.controls.Text;
 		import mx.controls.CheckBox;
 		import mx.controls.RadioButton;
 		import org.bigbluebutton.modules.polling.events.SavePollEvent;
@@ -139,6 +140,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			userName = moduleAttributes.username;
 			
 			this.module = module;
+			focusManager.setFocus(titleBarOverlay);
 		}
 		
 		// Overwritting close to use custom function

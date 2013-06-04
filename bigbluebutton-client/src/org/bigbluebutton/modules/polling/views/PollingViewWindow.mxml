@@ -109,6 +109,7 @@
 					lines = lines + ((s.length / 28) + 1);	
 				}				 	            	
 				height = height + ((lines+1) * 45);
+				// We won't automatically focus to the Vote window when it is created, for a couple of reasons.
 			}
 						
 			// This function will receive information and generate radiobuttons on fly
