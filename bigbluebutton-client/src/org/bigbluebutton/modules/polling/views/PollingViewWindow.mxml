@@ -76,6 +76,10 @@
 			}
  			 
 			private function onCreationComplete():void{
+				questionText.text = question;
+				if (isMultiple)
+					questionText.text += " " + ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll');
+				
 				if (isMultiple)
 					errorMessage.text = ResourceUtil.getInstance().getString('bbb.polling.vote.error.check');
 				else
