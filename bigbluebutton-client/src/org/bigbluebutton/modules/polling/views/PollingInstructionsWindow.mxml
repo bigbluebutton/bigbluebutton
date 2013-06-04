@@ -463,7 +463,10 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 								 paddingLeft="35" 
 								 id="titleFormItem"
 								 focusEnabled="true">
-						<mx:TextInput id="pollTitle" focusEnabled="true" accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}"/>
+						<mx:TextInput id="pollTitle" 
+									  focusEnabled="true" 
+									  accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}"
+									  tabIndex="{baseIndex+4}"/>
 						<mx:Label id="titleErrMsg" 
 								  text="" 
 								  visible="false" 
@@ -480,7 +483,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 						<mx:TextArea id="pollQuestion" 
 									 width="200" 
 									 height="100" 
-									 accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}"/>
+									 accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}"
+									 tabIndex="{baseIndex+4}"/>
 						<mx:Label id="qErrMsg" 
 								  text="" 
 								  visible="false" 
@@ -497,7 +501,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 						<mx:TextArea id="pollAnswers" 
 									 width="200" 
 									 height="100" 
-									 accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}"/>
+									 accessibilityDescription="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}"
+									 tabIndex="{baseIndex+4}"/>
 						<mx:Label id="answerHint" 
 								  text="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.hint')}" 
 								  visible="true" 
@@ -522,10 +527,12 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 								 paddingTop="5" >
 						<mx:CheckBox id="multiple_response" 
 									 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}" 
-									 click="isMultiple()" />
+									 click="isMultiple()" 
+									 tabIndex="{baseIndex+4}"/>
 						<mx:CheckBox id="publishToWeb_response" 
 									 label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.publishToWeb')}" 
-									 click="publishToWeb()" />
+									 click="publishToWeb()" 
+									 tabIndex="{baseIndex+4}"/>
 					</mx:FormItem>
 				</mx:Form>
 			</mx:VBox>
@@ -533,46 +540,43 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 
 		<!-- Review Window that is invoked when Next button is clicked -->
 		<mx:Canvas id="review">
-			<mx:VBox width="90%" height="90%" paddingLeft="40">
-           		<mx:Label text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.hereIsYourPoll')}" 
-           				  fontSize="11" 
-           				  fontWeight="bold" 
-	           			  width ="100%" 
-    	       			  paddingTop="30" 
-        	   			  paddingLeft="20" 
-           				  paddingBottom="5"/>
-           		<mx:Label text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.pollWillPublishOnline')}" 
-           				  fontSize="11" 
-           				  fontWeight="bold" 
-	           			  width ="100%" 
-    	       			  color="red" 
-        	   			  paddingTop="10" 
-           				  paddingLeft="20" 
-           				  paddingBottom="15" 
-           				  visible="{_publishToWeb}"/>
-	           	<mx:Panel id="titleShow" 
-	           			  title="{_title}" 
-	           			  width="90%" >
-					<mx:VBox paddingLeft="40" 
-							 paddingBottom="40">
-           				<mx:Text text="{_question}" 
-           					 fontSize="10" 
-           					 fontWeight="bold" 
-	           				 paddingBottom="5" 
-    	       				 paddingTop="20" 
-        	   				 width="{_MAX_QUESTION_LENGTH}"/>
-           				<mx:Text id="checkInstructions" 
-           						 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll')}"/>
-                		<mx:Box id="options" />   
-           			</mx:VBox>
-           		</mx:Panel>
-                <mx:Label text=" {ResourceUtil.getInstance().getString('bbb.polling.pollPreview.ifYouWantChanges')}"
-          	 			  fontSize="11"
-           				  fontWeight="normal" 
-           				  width ="100%"
-           				  paddingLeft="20" 
-           			 	  paddingBottom="20" 
-	           			  paddingTop="20"/>
+			<mx:VBox id="previewBox"
+					 width="90%" height="90%" 
+					 paddingLeft="40">
+				<mx:TextArea id="previewExplanation"
+							 width="90%"
+							 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.hereIsYourPoll')}"
+							 editable="false"
+							 borderSkin="{null}"/>
+				<mx:TextArea text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.pollWillPublishOnline')}" 
+							 fontSize="11"
+							 editable="false"
+							 borderSkin="{null}"
+							 fontWeight="bold"
+							 width="90%"
+							 color="red"
+							 paddingTop="10"
+							 paddingLeft="20"
+							 paddingBottom="15"
+							 visible="{_publishToWeb}"/>
+				<mx:Panel id="titleShow" 
+						  title="{_title}" 
+						  width="90%" >
+					<mx:VBox paddingTop="10"
+							 paddingLeft="40" 
+							 paddingBottom="40"
+							 horizontalAlign="center"
+							 >
+						<mx:TextArea id="questionText"
+									 width="200" 
+									 fontWeight="bold" 
+									 textAlign="center"
+									 editable="false"
+									 borderSkin="{null}"
+									 />
+						<mx:Box id="options" />   
+					</mx:VBox>
+				</mx:Panel>
 			</mx:VBox>
 		</mx:Canvas>
 	</mx:ViewStack>
@@ -586,13 +590,15 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 				   click="{mainArea.selectedChild=instrMain} {buttons.selectedChild=instrButtons} goBack()" 
 				   width="100" 
 				   height="30" 
-				   visible="false"/>
+				   visible="false"
+				   tabIndex="{baseIndex+4}"/>
 		<mx:Button id="publishButton"
 				   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.publish')}"
 				   click="publish();"
 				   width="100"
 				   height="30"
-				   visible="false"/>
+				   visible="false"
+				   tabIndex="{baseIndex+4}"/>
 		<mx:ViewStack id="buttons">
 			<!--buttons that appear when Instructions is displayed -->
 			<mx:Canvas id="instrButtons">
@@ -600,7 +606,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 						   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.preview')}" 
 						   click="validateAndSubmit()" 
 						   width="100" 
-						   height="30"/>
+						   height="30"
+						   tabIndex="{baseIndex+4}"/>
 			</mx:Canvas>
 			<!-- buttons that appear on Review -->
 			<mx:Canvas id="reviewButtons">
@@ -608,7 +615,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 						   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.save')}" 
 						   click="savePoll()" 
 						   width="100" 
-						   height="30"/>
+						   height="30"
+						   tabIndex="{baseIndex+4}"/>
 			</mx:Canvas>
 		</mx:ViewStack>
 		<!-- Cancel button appear everywhere -->
@@ -616,6 +624,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 				   label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}" 
 				   click="closeInstructionsWindow()" 
 				   width="100" 
-				   height="30"/>
+				   height="30"
+				   tabIndex="{baseIndex+4}"/>
 	</mx:ControlBar>
 </MDIWindow>
