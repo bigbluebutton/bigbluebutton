@@ -358,8 +358,10 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			var _rb:RadioButton;
 			var _tx: Text;
 			var _hb: HBox;
+			var totalOptions:int = content.length;
 			// creating buttons one by one
 			for (var i:int = 0; i < amount; i++) {
+				var indicator:String = ResourceUtil.getInstance().getString('bbb.polling.vote.indicator', [i+1, totalOptions]);
 				_tx = new Text();
 				_hb = new HBox();
 				_tx.name = "option" +i;
