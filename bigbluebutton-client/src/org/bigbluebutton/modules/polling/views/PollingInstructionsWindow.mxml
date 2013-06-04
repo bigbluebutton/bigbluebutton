@@ -113,6 +113,9 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			titleBarOverlay.tabIndex = baseIndex;
 			minimizeBtn.tabIndex = baseIndex+1;
 			maximizeRestoreBtn.tabIndex = baseIndex+2;
+			closeBtn.tabIndex = baseIndex+3;
+			
+			titleBarOverlay.accessibilityName = ResourceUtil.getInstance().getString('bbb.polling.createPoll.accessTitle');
 			
 			if (incomingPoll != null){
 				LogUtil.debug("EDITING POLL");

@@ -89,6 +89,7 @@
 				titleBarOverlay.tabIndex = baseIndex;
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				closeBtn.tabIndex = baseIndex+3;
 				
 				questionText.text = question;
 				if (isMultiple)
