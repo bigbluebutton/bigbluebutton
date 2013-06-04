@@ -86,7 +86,6 @@
 			[Bindable]
 			private var users:ArrayCollection = new ArrayCollection();
 			
-			private var handRaised:Boolean = false;
 			private var amIModerator:Boolean = false;
 			
 			private const FOCUS_USERS_LIST:String = "Focus Users List";
@@ -161,9 +160,8 @@
 			
 			private function raiseHand():void{
 				if (UserManager.getInstance().getConference().getMyRole() == Role.VIEWER) {
-					handRaised = !handRaised;
 					var e:RaiseHandEvent = new RaiseHandEvent(RaiseHandEvent.RAISE_HAND);
-					e.raised = handRaised;
+					e.raised = !UserManager.getInstance().getConference().isMyHandRaised;
 					dispatchEvent(e);
 				}
 			}
@@ -393,8 +391,8 @@
 	<mx:ControlBar width="100%">
 		<mx:Button id="settingsBtn" icon="{images.users_settings}" width="30" height="30"
 					toolTip="{ResourceUtil.getInstance().getString('bbb.users.settings.buttonTooltip')}" click="openSettings()" visible="true" tabIndex="{partOptions.baseTabIndex+10}"/>
-		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}"
-					width="30" height="30" toolTip="Raise Hand" click="raiseHand()"
+		<mx:Button id="raiseHandBtn" toggle="true" icon="{images.hand_new}" selected="{UserManager.getInstance().getConference().isMyHandRaised}"
+					width="30" height="30" toolTip="{ResourceUtil.getInstance().getString('bbb.users.raiseHandBtn.toolTip')}" click="raiseHand()"
 					visible="false" includeInLayout="{raiseHandBtn.visible}" tabIndex="{partOptions.baseTabIndex+15}" />
 		<mx:Spacer width="100%"/>
 	</mx:ControlBar>
