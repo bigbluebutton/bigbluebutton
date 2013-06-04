@@ -293,9 +293,12 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		//#####################################################################################################
 		
 		public function goBack():void{
+			mainArea.selectedChild=instrMain; 
+			buttons.selectedChild=instrButtons;
 			back.visible=false;
 			publishButton.visible=false;
 			options.removeAllChildren();
+			focusTitle();
 		}
 		
 		private function isDuplicateAnswers(arr:Array):Boolean{
