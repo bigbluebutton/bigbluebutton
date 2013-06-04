@@ -52,6 +52,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
 		import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 		import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+		import org.bigbluebutton.main.events.ShortcutEvent;
 		
 		import org.bigbluebutton.modules.polling.model.PollObject;
 		import org.bigbluebutton.modules.polling.model.PollOptions;
@@ -336,12 +337,15 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			// Make Back button visible
 			back.visible=true;
 			publishButton.visible=true;
-			checkInstructions.visible = _isMultiple;
 			// Make Title and Question string first letter Upper case
 			_title = upperFirstLetter(_title);
 			_question = upperFirstLetter(_question);
 			createButtons(_answers.length,_answers);
-			focusManager.setFocus(back);
+			questionText.text = _question;
+			if (_isMultiple)
+				questionText.text += " " + ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll');
+			
+			focusManager.setFocus(previewExplanation);
 		}
 		
 		private function upperFirstLetter(str:String) : String {
@@ -369,6 +373,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 					_cb= new CheckBox();
 					// giving button a name of array elelment to process it easier later
 					_cb.name=content.getItemAt(i).toString();
+					_cb.accessibilityName = indicator + content.getItemAt(i).toString();
+					_cb.tabIndex = baseIndex + 5 + i
 					// gap between the buttons
 					_cb.y=i*20;
 					// adding buttons to the Horizontal Box
@@ -378,6 +384,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 					_rb.name = content.getItemAt(i).toString(); // giving button a name of array elelment to process it easier later
 					_rb.groupName = "answers";
 					_rb.label =" ";
+					_rb.tabIndex = baseIndex + 5;
 					_hb.addChild(_rb);
 				}
 			_hb.addChild(_tx); // adding text near button
@@ -432,6 +439,13 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		
 		private function allowPublishing():void {
 			dispatchEvent(new PollingStatusCheckEvent(PollingStatusCheckEvent.CHECK));
+		}
+				
+		private function focusTitle(e:ShortcutEvent = null):void{
+			LogUtil.debug("Focusing Title");
+			if (pollTitle.enabled && pollTitle.visible){
+				focusManager.setFocus(pollTitle);
+			}
 		}
 		]]>
 	</mx:Script>
