@@ -446,7 +446,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 			public function acceptOverlayCanvas(overlay:IBbbCanvas):void{
 				whiteboardCanvas = overlay;
 				var c:Canvas = overlay as Canvas;
-				this.addChild(c);
+                // add the canvas below the thumbnails
+				this.addChildAt(c, this.getChildIndex(thumbnailView));
 				c.x = slideLoader.x * SlideCalcUtil.MYSTERY_NUM;
 				c.y = slideLoader.y * SlideCalcUtil.MYSTERY_NUM;
 				c.width = slideLoader.width;
