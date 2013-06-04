@@ -23,6 +23,7 @@ Notes.mxml is the main view of the SharedNotes application
 width="510" height="600"
 xmlns:mate="http://mate.asfusion.com/"
 implements="org.bigbluebutton.common.IBbbModuleWindow"
+initialize="init()"
 creationComplete="onCreationComplete()"
 label="Create Poll" layout="absolute"
 title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
@@ -53,6 +54,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
 		
 		import org.bigbluebutton.modules.polling.model.PollObject;
+		import org.bigbluebutton.modules.polling.model.PollOptions;
 		
 		import org.bigbluebutton.core.managers.UserManager;
 		import org.bigbluebutton.main.model.users.Conference 
@@ -84,6 +86,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		[Bindable] public var invalidTitles:Array;
 		[Bindable] public var incomingPoll:PollObject;
 		[Bindable] public var editing:Boolean;
+		[Bindable] public var pollOptions:PollOptions;
+		[Bindable] private var baseIndex:int;
 		
 		// LENGTH CONSTRAINTS ( CHANGE IF YOU NEED)
 		//################################################
@@ -98,6 +102,11 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			return MainCanvas.POPUP;
 		}
 		
+		private function init():void{
+			pollOptions = new PollOptions();
+			baseIndex = pollOptions.baseTabIndex;
+		}
+			
 		private function onCreationComplete():void{
 			published = false;
 			

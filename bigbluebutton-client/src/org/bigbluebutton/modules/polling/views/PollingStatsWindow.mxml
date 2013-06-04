@@ -69,6 +69,7 @@
       import org.bigbluebutton.modules.polling.model.AnswerObject;
       import org.bigbluebutton.modules.polling.model.PollObject;
       import org.bigbluebutton.modules.polling.model.PollStatLineObject;
+	  import org.bigbluebutton.modules.polling.model.PollOptions;
       import org.bigbluebutton.util.i18n.ResourceUtil;
 
 	   	public static const LOGNAME:String = "[PollingStatsWindow] ";
@@ -89,9 +90,14 @@
 		private var notified:Boolean;
 		private var refreshTimer:Timer = new Timer(1000);
 		[Bindable] private var answerCollection:ArrayCollection = new ArrayCollection();
+			
+		[Bindable] public var pollOptions:PollOptions;
+		[Bindable] private var baseIndex:int;
 		
 		private function init():void{			
-			
+			pollOptions = new PollOptions();
+			baseIndex = pollOptions.baseTabIndex;
+						
 			answerCollection = trackingPoll.generateStats();
 			
 			conference = UserManager.getInstance().getConference();

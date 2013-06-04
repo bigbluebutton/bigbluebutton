@@ -23,7 +23,8 @@
 <MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="410" height="150" 
 	xmlns:mate="http://mate.asfusion.com/" 
-	implements="org.bigbluebutton.common.IBbbModuleWindow" 
+	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	initialize="init()"
 	creationComplete="onCreationComplete()"
 	label="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"  
 	title="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
@@ -40,6 +41,7 @@
 			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 			import org.bigbluebutton.modules.polling.managers.PollingManager;
 			import org.bigbluebutton.modules.polling.events.VoteEvent;
+			import org.bigbluebutton.modules.polling.model.PollOptions;
 			
 			import org.bigbluebutton.main.model.users.Conference;
 			
@@ -67,12 +69,20 @@
 			private var submissionAllowed:Boolean=false;		
 			public var cbSelected:Array = new Array(); // variable that receives either CheckBox or RadioButton info and sends it to VoteEvent
 			
+			[Bindable] public var pollOptions:PollOptions;
+			[Bindable] private var baseIndex:int;
+			
 			public function getPrefferedPosition():String{
 				return MainCanvas.POPUP;
 			}	
 									
 			private function closeWindow():void{
 				dispatchEvent(new PollingViewWindowEvent(PollingViewWindowEvent.CLOSE));
+			}
+			
+			private function init():void{
+				pollOptions = new PollOptions();
+				baseIndex = pollOptions.baseTabIndex;
 			}
  			 
 			private function onCreationComplete():void{
