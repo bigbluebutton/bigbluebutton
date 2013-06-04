@@ -122,6 +122,10 @@
 
 		private function onCreationComplete():void{
 			
+			titleBarOverlay.tabIndex = baseIndex;
+			minimizeBtn.tabIndex = baseIndex+1;
+			maximizeRestoreBtn.tabIndex = baseIndex+2;
+			
 			//conference.amIPresenter()
 			
 			// If the statistics window is being opened to view a poll that has been published and closed, the interface will 

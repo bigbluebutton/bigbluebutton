@@ -86,6 +86,10 @@
 			}
  			 
 			private function onCreationComplete():void{
+				titleBarOverlay.tabIndex = baseIndex;
+				minimizeBtn.tabIndex = baseIndex+1;
+				maximizeRestoreBtn.tabIndex = baseIndex+2;
+				
 				questionText.text = question;
 				if (isMultiple)
 					questionText.text += " " + ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll');

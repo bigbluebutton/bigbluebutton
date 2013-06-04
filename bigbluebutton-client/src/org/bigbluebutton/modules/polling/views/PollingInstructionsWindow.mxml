@@ -110,10 +110,9 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		private function onCreationComplete():void{
 			published = false;
 			
-			/*pollTitle.editable = false;
-			focusManager.setFocus(pollTitle);
-			pollTitle.editable = true;
-			focusManager.setFocus(pollTitle);*/
+			titleBarOverlay.tabIndex = baseIndex;
+			minimizeBtn.tabIndex = baseIndex+1;
+			maximizeRestoreBtn.tabIndex = baseIndex+2;
 			
 			if (incomingPoll != null){
 				LogUtil.debug("EDITING POLL");
