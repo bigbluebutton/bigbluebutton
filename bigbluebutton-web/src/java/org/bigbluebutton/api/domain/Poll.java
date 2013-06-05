@@ -40,7 +40,7 @@ public class Poll{
 	}
 
 	public void addAnswer(String answer){
-		String answerID = generateAnswerID();
+		String answerID = generateAnswerID(this.meetingID);
 		this.answers.put(answerID,answer);
 	}
 
@@ -48,11 +48,11 @@ public class Poll{
 		this.answers.remove(answerID);
 	}
 
-	public String generatePollID(){
+	public String generatePollID(String meetingID){
 		return null;
 	}
 
-	public String generateAnswerID(){
+	public String generateAnswerID(String meetingID){
 		return null;
 	}
 
@@ -60,14 +60,21 @@ public class Poll{
 
 	}
 
-	public HashMap<String,Object> toMap(){
-		HashMap<String,Object> map = new HashMap<String,Object>();
+	public String getMeetingID(){
+		return this.meetingID;
+	}
+
+	public String getPollID(){
+		return this.pollID;
+	}
+
+	public HashMap<String,String> toMap(){
+		HashMap<String,String> map = new HashMap<String,String>();
 		map.put("pollID",pollID);
 		map.put("meetingID",meetingID);
 		map.put("title", title);
 		map.put("question",question);
 		map.put("datetime",datetime);
-		map.put("answers",answers);
 		return map;
 	}
 

@@ -19,7 +19,9 @@
 
 package org.bigbluebutton.web.services;
 
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import java.util.HashMap;
 import org.bigbluebutton.api.domain.Poll;
 
 public class RedisStorageService implements IStorageService{
@@ -44,29 +46,37 @@ meeting:<id>:poll:<pollid>:answer:<answerid>:results [<userid>|1] <-- Set
 	*/
 
 	public String generatePollID(String meetingID){
-		Jedis jedis = jedisPool.getResource();
+		Jedis jedis = (Jedis) jedisPool.getResource();
 		String pattern = getPollRedisPattern(meetingID);
-		String pollID = jedis.incr(pattern + SEPARATOR + ID_SEED);
+		String pollID = Long.toString(jedis.incr(pattern + SEPARATOR + ID_SEED));
 		jedisPool.returnResource(jedis);
 		return pollID;
 	}
 
-	public String generatePollAnswerID(){
+	public String generatePollAnswerID(String meetingID){
 		Jedis jedis = jedisPool.getResource();
 		String pattern = getPollRedisPattern(meetingID);
-		String pollID = jedis.incr(pattern + SEPARATOR + POLL_ANSWER + SEPARATOR + ID_SEED);
+		String pollID = Long.toString(jedis.incr(pattern + SEPARATOR + POLL_ANSWER + SEPARATOR + ID_SEED));
 		jedisPool.returnResource(jedis);
 		return pollID;
 	}
 
 	public void storePoll(Poll p){
 		Jedis jedis = jedisPool.getResource();
+		String pattern = getPollRedisPattern(p.getMeetingID());
+
+		HashMap<String,String> pollMap = p.toMap();
+		jedis.hmset(pattern + SEPARATOR + p.getPollID(), pollMap);
+		jedisPool.returnResource(jedis);
+	}
+
+	public void storePollAnswers(String meetingID, String pollID, HashMap<String,String> answers){
+		Jedis jedis = jedisPool.getResource();
 		String pattern = getPollRedisPattern(meetingID);
 
-		HashMap<String,Object> pollMap = p.toMap();
-		String pollID = jedis.hmset(pattern + SEPARATOR + POLL_ANSWER + SEPARATOR + ID_SEED, pollMap);
-		jedisPool.returnResource(jedis);
-		return pollID;
+		HashMap<String,String> pollMap = p.toMap();
+		jedis.hmset(pattern + SEPARATOR + p.getPollID + SEPARATOR + POLL_ANSWER + SEPARATOR + ID_SEED, pollMap);
+		jedisPool.returnResource(jedis);	
 	}
 
 	private String getPollRedisPattern(String meetingID){

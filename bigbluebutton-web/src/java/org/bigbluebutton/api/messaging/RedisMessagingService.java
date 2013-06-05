@@ -90,6 +90,19 @@ public class RedisMessagingService implements MessagingService {
 		}
 	}
 
+	public void sendPolls(String meetingId, String title, String question, HashMap<String,String> answers){
+		Gson gson = new Gson();
+
+		HashMap<String,String> map = new HashMap<String, String>();
+		map.put("messageId", MessagingConstants.SEND_POLLS_EVENT);
+		map.put("meetingId", meetingId);
+		map.put("title",title);
+		map.put("question",question);
+		map.put("answers",gson.toJson(answers));
+		
+		send(MessagingConstants.POLLING_CHANNEL, gson.toJson(map));	
+	}
+
 	public void start() {
 		log.debug("Starting redis pubsub...");		
 

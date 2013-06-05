@@ -23,6 +23,7 @@ import org.bigbluebutton.api.domain.Poll;
 
 public interface IStorageService{
 	public String generatePollID(String meetingID);
-	public String generatePollAnswerID();
+	public String generatePollAnswerID(String meetingID);
 	public void storePoll(Poll p);
+	public void storePollAnswers(String meetingID, String pollID, HashMap<String,String> answers);
 }

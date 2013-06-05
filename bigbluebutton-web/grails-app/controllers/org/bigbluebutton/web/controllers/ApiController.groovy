@@ -1338,29 +1338,48 @@ class ApiController {
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody;
 
     if (requestBody == null) {
-		System.out.println("No pre-uploaded presentation. Downloading default presentation.");
-		downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf);
+		  System.out.println("No pre-uploaded presentation. Downloading default presentation.");
+		  downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf);
     } else {
-		System.out.println("Request body: \n" + requestBody);
-		log.debug "Request body: \n" + requestBody;
-	
-		def xml = new XmlSlurper().parseText(requestBody);
-		xml.children().each { module ->
-		  log.debug("module config found: [${module.@name}]");
-		  if ("presentation".equals(module.@name.toString())) {
-			// need to iterate over presentation files and process them
-			module.children().each { document ->
-			  if (!StringUtils.isEmpty(document.@url.toString())) {
-				downloadAndProcessDocument(document.@url.toString(), conf);
-			  } else if (!StringUtils.isEmpty(document.@name.toString())) {
-				def b64 = new Base64()
-				def decodedBytes = b64.decode(document.text().getBytes())
-				processDocumentFromRawBytes(decodedBytes, document.@name.toString(), conf);
-			  } else {
-				log.debug("presentation module config found, but it did not contain url or name attributes");
-			  }
-			}
-		  }
+		  System.out.println("Request body: \n" + requestBody);
+		  log.debug "Request body: \n" + requestBody;
+	    def xml = new XmlSlurper().parseText(requestBody);
+		  xml.children().each { module ->
+		    log.debug("module config found: [${module.@name}]");
+
+		    if ("presentation".equals(module.@name.toString())) {
+          // need to iterate over presentation files and process them
+          module.children().each { document ->
+            if (!StringUtils.isEmpty(document.@url.toString())) {
+				      downloadAndProcessDocument(document.@url.toString(), conf);
+            } else if (!StringUtils.isEmpty(document.@name.toString())) {
+				      def b64 = new Base64()
+				      def decodedBytes = b64.decode(document.text().getBytes())
+				      processDocumentFromRawBytes(decodedBytes, document.@name.toString(), conf);
+			     } else {
+				     log.debug("presentation module config found, but it did not contain url or name attributes");
+           }
+          }
+		    }
+        else if("polling".equals(module.@name.toString())){
+          module.children().each{ poll ->
+            if("poll".equals(poll.name().toString())){
+              String title = poll.title.text();
+              String question = poll.question.text();
+              ArrayList<String> answers = new ArrayList<String>():
+              poll.answers.children().each{ answer ->
+                answers.add(answer.text());
+              }
+              //send poll to BigBlueButton Apps
+              meetingService.createdPolls(conf.getInternalId(),title,question,answers);
+            }
+
+
+          }
+        }
+
+
+
 		}
 	}
 
