@@ -257,7 +257,16 @@ package org.bigbluebutton.main.model.users {
 		public function set amIPresenter(presenter:Boolean):void {
 			me.presenter = presenter;
 		}
-				
+		
+        [Bindable]
+        public function get isMyHandRaised():Boolean {
+            return me.raiseHand;
+        }
+        
+        public function set isMyHandRaised(raiseHand:Boolean):void {
+            me.raiseHand = raiseHand;
+        }
+        
 		public function amIThisUser(userID:String):Boolean {
 			return me.userID == userID;
 		}
