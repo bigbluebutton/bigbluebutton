@@ -24,6 +24,7 @@ package org.bigbluebutton.main.model.users
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.Role;
+    import org.bigbluebutton.core.managers.UserManager;
 	import org.bigbluebutton.main.model.users.events.StreamStartedEvent;
 	import org.bigbluebutton.util.i18n.ResourceUtil;
 
@@ -206,6 +207,9 @@ package org.bigbluebutton.main.model.users
 					break;
 				case "raiseHand":
 					raiseHand = status.value as Boolean;
+                    if (me) {
+                        UserManager.getInstance().getConference().isMyHandRaised = status.value;
+                    }
 					break;
 			}
 			buildStatus();

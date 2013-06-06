@@ -435,6 +435,13 @@ svgobj.addEventListener('load', function() {
   p.on('loadeddata', function() {
     p.currentTime(defineStartTime());
   });
+
+  // Sometimes media has already loaded before our loadeddata listener is 
+  // attached. If the media is already past the loadeddata stage then we 
+  // trigger the event manually ourselves
+  if ($('#video')[0].readyState > 0) {
+    p.emit('loadeddata');
+  }
 }, false);
 
 

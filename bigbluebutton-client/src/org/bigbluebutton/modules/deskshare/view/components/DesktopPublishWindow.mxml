@@ -370,8 +370,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullscreen.label')}" 
 							   visible="true" 
 							   click="shareScreen(true)" 
-							   tabIndex="{baseIndex+4}"
-							   accessibilityName="{ResourceUtil.getInstance().getString('bbb.desktopPublish.fullScreenBtn')}"/>
+							   tabIndex="{baseIndex+4}"/>
 					<mx:Spacer width="100%"/>
 					<mx:Button id="btnClosePublish" 
 							   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.stop.tooltip')}" 
@@ -379,16 +378,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 							   visible="true" 
 							   enabled="false" 
 							   click="stopSharing()" 
-							   tabIndex="{baseIndex+5}"
-							   accessibilityName="{ResourceUtil.getInstance().getString('bbb.desktopPublish.closeBtn')}"/>
+							   tabIndex="{baseIndex+5}"/>
 					<mx:Spacer width="100%"/>
 					<mx:Button id="btnRegionPublish" 
 							   toolTip="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.tooltip')}" 
 							   label="{ResourceUtil.getInstance().getString('bbb.desktopPublish.region.label')}" 
 							   visible="true" 
 							   click="shareScreen(false)" 
-							   tabIndex="{baseIndex+6}"
-							   accessibilityName="{ResourceUtil.getInstance().getString('bbb.desktopPublish.regionBtn')}"/>
+							   tabIndex="{baseIndex+6}"/>
 					<mx:Spacer width="100%"/>
 					<!--mx:CheckBox id="useSVC2Check" label="SVC2" selected="true" /-->
 				</mx:ControlBar>
