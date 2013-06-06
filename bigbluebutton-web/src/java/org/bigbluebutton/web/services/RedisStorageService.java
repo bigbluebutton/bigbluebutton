@@ -22,6 +22,7 @@ package org.bigbluebutton.web.services;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import java.util.HashMap;
+import java.util.Map;
 import org.bigbluebutton.api.domain.Poll;
 
 public class RedisStorageService implements IStorageService{
@@ -70,13 +71,13 @@ meeting:<id>:poll:<pollid>:answer:<answerid>:results [<userid>|1] <-- Set
 		jedisPool.returnResource(jedis);
 	}
 
-	public void storePollAnswers(String meetingID, String pollID, HashMap<String,String> answers){
+	public void storePollAnswers(String meetingID, String pollID, Map<String,String> answers){
 		Jedis jedis = jedisPool.getResource();
 		String pattern = getPollRedisPattern(meetingID);
 
-		HashMap<String,String> pollMap = p.toMap();
-		jedis.hmset(pattern + SEPARATOR + p.getPollID + SEPARATOR + POLL_ANSWER + SEPARATOR + ID_SEED, pollMap);
-		jedisPool.returnResource(jedis);	
+		//HashMap<String,String> pollMap = p.toMap();
+		//jedis.hmset(pattern + SEPARATOR + p.getPollID + SEPARATOR + POLL_ANSWER + SEPARATOR + ID_SEED, pollMap);
+		//jedisPool.returnResource(jedis);	
 	}
 
 	private String getPollRedisPattern(String meetingID){

@@ -22,6 +22,7 @@ package org.bigbluebutton.api.messaging;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -90,7 +91,7 @@ public class RedisMessagingService implements MessagingService {
 		}
 	}
 
-	public void sendPolls(String meetingId, String title, String question, HashMap<String,String> answers){
+	public void sendPolls(String meetingId, String title, String question, List<String> answers){
 		Gson gson = new Gson();
 
 		HashMap<String,String> map = new HashMap<String, String>();

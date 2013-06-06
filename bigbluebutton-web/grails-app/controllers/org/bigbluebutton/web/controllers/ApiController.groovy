@@ -1366,7 +1366,7 @@ class ApiController {
             if("poll".equals(poll.name().toString())){
               String title = poll.title.text();
               String question = poll.question.text();
-              ArrayList<String> answers = new ArrayList<String>():
+              ArrayList<String> answers = new ArrayList<String>();
               poll.answers.children().each{ answer ->
                 answers.add(answer.text());
               }

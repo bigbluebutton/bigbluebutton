@@ -20,10 +20,11 @@
 package org.bigbluebutton.web.services;
 
 import org.bigbluebutton.api.domain.Poll;
+import java.util.Map;
 
 public interface IStorageService{
 	public String generatePollID(String meetingID);
 	public String generatePollAnswerID(String meetingID);
 	public void storePoll(Poll p);
-	public void storePollAnswers(String meetingID, String pollID, HashMap<String,String> answers);
+	public void storePollAnswers(String meetingID, String pollID, Map<String,String> answers);
 }

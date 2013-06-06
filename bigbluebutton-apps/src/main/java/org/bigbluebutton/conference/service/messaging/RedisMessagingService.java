@@ -133,6 +133,19 @@ public class RedisMessagingService implements MessagingService{
 					listener.presentationUpdates(map);
 				}
 			}
+			else if(channel.equalsIgnoreCase(MessagingConstants.POLLING_CHANNEL)){
+				String meetingId = map.get("meetingId");
+				String messageId = map.get("messageId");
+				if(messageId != null){
+					if(messageId.equalsIgnoreCase(MessagingConstants.SEND_POLLS_EVENT)){
+						String title = map.get("title");
+						String question = map.get("question");
+						List<String> answers = gson.fromJson((String)map.get("answers"),new TypeToken<List<String>>() {}.getType());
+						for (MessageListener listener: listeners)
+							listener.storePoll(meetingId,title,question,answers);
+					}
+				}
+			}
 			
 		}
 

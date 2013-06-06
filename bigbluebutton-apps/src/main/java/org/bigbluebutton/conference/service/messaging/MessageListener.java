@@ -19,8 +19,10 @@
 package org.bigbluebutton.conference.service.messaging;
 
 import java.util.HashMap;
+import java.util.List;
 
 public interface MessageListener {
 	void endMeetingRequest(String meetingId);
 	void presentationUpdates(HashMap<String,String> map);
+	void storePoll(String meetingId, String title, String, question, List<String> answers);
 }
