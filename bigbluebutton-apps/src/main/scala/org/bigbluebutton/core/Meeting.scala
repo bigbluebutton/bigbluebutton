@@ -10,7 +10,8 @@ import org.bigbluebutton.core.apps.poll.PollApp
 class Meeting extends Actor {
 
   import org.bigbluebutton.core.messages._
-
+  import org.bigbluebutton.core.apps.poll.messages._
+  
   val users = new HashMap[String, User]
   val polls = new PollApp()
   

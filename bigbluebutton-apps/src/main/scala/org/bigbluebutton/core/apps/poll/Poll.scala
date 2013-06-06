@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.poll
 import scala.collection.mutable.HashMap
 import QuestionType._
 
-class Poll(val title: String, id: String) {						
+class Poll(val id: String, val title: String) {						
 	private var _active: Boolean = false
 	private var questions = new HashMap[Int, Question]()
 	
