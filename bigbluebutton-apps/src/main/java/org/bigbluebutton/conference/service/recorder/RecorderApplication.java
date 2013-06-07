@@ -37,7 +37,6 @@ public class RecorderApplication {
 	
 	public RecorderApplication() {
 		recordingSessions = new ConcurrentHashMap<String, String>();
-		log.debug("Instantiated ArchiveApplication");
 	}
 	
 	/**

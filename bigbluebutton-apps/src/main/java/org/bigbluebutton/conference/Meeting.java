@@ -31,16 +31,14 @@ public class Meeting {
 	private static Logger log = Red5LoggerFactory.getLogger( Meeting.class, "bigbluebutton" );	
 	ArrayList<String> currentPresenter = null;
 	private String name;
-	private Map <String, User> participants;
+	private Map <String, User> users;
 
-	// these should stay transient so they're not serialized in ActiveMQ messages:	
-	//private transient Map <Long, Participant> unmodifiableMap;
 	private transient final Map<String, IRoomListener> listeners;
 
 	public Meeting(String name) {
 		this.name = name;
-		participants = new ConcurrentHashMap<String, User>();
-		//unmodifiableMap = Collections.unmodifiableMap(participants);
+		users = new ConcurrentHashMap<String, User>();
+
 		listeners   = new ConcurrentHashMap<String, IRoomListener>();
 	}
 
@@ -63,8 +61,7 @@ public class Meeting {
 	public void addParticipant(User participant) {
 		synchronized (this) {
 			log.debug("adding participant " + participant.getInternalUserID());
-			participants.put(participant.getInternalUserID(), participant);
-//			unmodifiableMap = Collections.unmodifiableMap(participants)
+			users.put(participant.getInternalUserID(), participant);
 		}
 		log.debug("Informing roomlisteners " + listeners.size());
 		for (Iterator it = listeners.values().iterator(); it.hasNext();) {
@@ -78,10 +75,10 @@ public class Meeting {
 		boolean present = false;
 		User p = null;
 		synchronized (this) {
-			present = participants.containsKey(userid);
+			present = users.containsKey(userid);
 			if (present) {
 				log.debug("removing participant");
-				p = participants.remove(userid);
+				p = users.remove(userid);
 			}
 		}
 		if (present) {
@@ -97,10 +94,10 @@ public class Meeting {
 		boolean present = false;
 		User p = null;
 		synchronized (this) {
-			present = participants.containsKey(userid);
+			present = users.containsKey(userid);
 			if (present) {
 				log.debug("change participant status");
-				p = participants.get(userid);
+				p = users.get(userid);
 				p.setStatus(status, value);
 				//participants.put(userid, p);
 				//unmodifiableMap = Collections.unmodifiableMap(participants);
@@ -124,21 +121,21 @@ public class Meeting {
 	}
 
 	public Map getParticipants() {
-		return participants;//unmodifiableMap;
+		return users;//unmodifiableMap;
 	}	
 
 	public Collection<User> getParticipantCollection() {
-		return participants.values();
+		return users.values();
 	}
 
 	public int getNumberOfParticipants() {
-		log.debug("Returning number of participants: " + participants.size());
-		return participants.size();
+		log.debug("Returning number of participants: " + users.size());
+		return users.size();
 	}
 
 	public int getNumberOfModerators() {
 		int sum = 0;
-		for (Iterator<User> it = participants.values().iterator(); it.hasNext(); ) {
+		for (Iterator<User> it = users.values().iterator(); it.hasNext(); ) {
 			User part = it.next();
 			if (part.isModerator()) {
 				sum++;
