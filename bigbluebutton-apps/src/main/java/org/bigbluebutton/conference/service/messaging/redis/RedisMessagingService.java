@@ -18,43 +18,100 @@
 */
 package org.bigbluebutton.conference.service.messaging.redis;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.MessagingService;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
 
 public class RedisMessagingService implements MessagingService {
-
 	private static Logger log = Red5LoggerFactory.getLogger(RedisMessagingService.class, "bigbluebutton");
 	
 	private JedisPool redisPool;
-	private final Executor exec = Executors.newSingleThreadExecutor();
-	private Runnable pubsubListener;
 	
+	// Receives the messages from Redis
+	private final Executor msgReceiverExec = Executors.newSingleThreadExecutor();
+	// Publish messages to Redis 
+	private final Executor msgSenderExec = Executors.newSingleThreadExecutor();
+	private BlockingQueue<MessageToSend> messagesToSend = new LinkedBlockingQueue<MessageToSend>();
+	private BlockingQueue<ReceivedMessage> receivedMessages = new LinkedBlockingQueue<ReceivedMessage>();
+	
+	// Forwards received messages to Redis
+	private final Executor msgProcessorExec = Executors.newSingleThreadExecutor();
+	
+	private volatile boolean receiveMessages;
+		
 	private PubSubMessageReceiver listener;
 	
 	public void start() {
-		log.debug("Starting redis pubsub...");		
-		final Jedis jedis = redisPool.getResource();
-		try {
-			pubsubListener = new Runnable() {
-			    public void run() {
-			    	jedis.psubscribe(new PubSubListener(), MessagingConstants.BIGBLUEBUTTON_PATTERN);       			
-			    }
-			};
-			exec.execute(pubsubListener);
-		} catch (Exception e) {
-			log.error("Error subscribing to channels: " + e.getMessage());
-		}
+		startMessageReceiver();
+		startMessageProcessor();
+		startMessageSender();
 	}
 
+	private void startMessageReceiver() {
+		log.debug("Starting message receiver...");		
+		final Jedis jedis = redisPool.getResource();
+		try {
+			receiveMessages = true;
+			Runnable pubsubListener = new Runnable() {
+			    public void run() {
+			    	if (receiveMessages) {
+			    		jedis.psubscribe(new PubSubListener(), MessagingConstants.BIGBLUEBUTTON_PATTERN); 
+			    	}			    	      			
+			    }
+			};
+			msgReceiverExec.execute(pubsubListener);
+		} catch (Exception e) {
+			log.error("Error subscribing to channels: " + e.getMessage());
+		}		
+	}
+	
+	private void startMessageProcessor() {
+		log.debug("Starting message processor...");		
+		try {
+			Runnable messageProcessor = new Runnable() {
+			    public void run() {
+			    	while (receiveMessages) {
+			    		try {
+							ReceivedMessage msg = receivedMessages.take();
+							if (listener != null) listener.notifyListeners(msg.getPattern(), msg.getChannel(), msg.getMessage());
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+			    		
+			    	}   			
+			    }
+			};
+			msgProcessorExec.execute(messageProcessor);
+		} catch (Exception e) {
+			log.error("Error subscribing to channels: " + e.getMessage());
+		}			
+	}
+	
+	private void startMessageSender() {
+		log.debug("Starting message sender...");		
+		final Jedis jedis = redisPool.getResource();
+		try {
+			Runnable messageSender = new Runnable() {
+			    public void run() {
+			    	     			
+			    }
+			};
+			msgSenderExec.execute(messageSender);
+		} catch (Exception e) {
+			log.error("Error subscribing to channels: " + e.getMessage());
+		}			
+	}
+	
 	public void stop() {
 		try {
 			redisPool.destroy();
@@ -70,7 +127,7 @@ public class RedisMessagingService implements MessagingService {
 			jedis.publish(channel, message);
 		} catch(Exception e){
 			log.warn("Cannot publish the message to redis", e);
-		}finally{
+		} finally {
 			redisPool.returnResource(jedis);
 		}
 	}
@@ -92,7 +149,10 @@ public class RedisMessagingService implements MessagingService {
 
 		@Override
 		public void onPMessage(String pattern, String channel, String message) {
-			if (listener != null) listener.notifyListeners(pattern, channel, message);
+			ReceivedMessage rm = new ReceivedMessage(pattern, channel, message);
+			receivedMessages.add(rm);
+			
+			
 		}
 
 		@Override

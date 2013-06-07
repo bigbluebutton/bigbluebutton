@@ -2,11 +2,9 @@ package org.bigbluebutton.conference.meeting.messaging.redis;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import org.bigbluebutton.webconference.voice.internal.RoomManager;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -27,6 +25,10 @@ public class MeetingMessageHandler implements MessageHandler {
 				}
 			}
 		}
+	}
+	
+	public void setMeetingManager(RoomManager manager) {
+		meetingManager = manager;
 	}
 	
 }
