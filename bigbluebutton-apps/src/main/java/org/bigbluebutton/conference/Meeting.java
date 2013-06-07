@@ -21,20 +21,14 @@ package org.bigbluebutton.conference;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import net.jcip.annotations.ThreadSafe;
-import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-/**
- * Contains information about a Room and it's Participants. 
- * Encapsulates Participants and RoomListeners.
- */
-@ThreadSafe
-public class Room implements Serializable {
-	private static Logger log = Red5LoggerFactory.getLogger( Room.class, "bigbluebutton" );	
+
+public class Meeting {
+	private static Logger log = Red5LoggerFactory.getLogger( Meeting.class, "bigbluebutton" );	
 	ArrayList<String> currentPresenter = null;
 	private String name;
 	private Map <String, User> participants;
@@ -43,7 +37,7 @@ public class Room implements Serializable {
 	//private transient Map <Long, Participant> unmodifiableMap;
 	private transient final Map<String, IRoomListener> listeners;
 
-	public Room(String name) {
+	public Meeting(String name) {
 		this.name = name;
 		participants = new ConcurrentHashMap<String, User>();
 		//unmodifiableMap = Collections.unmodifiableMap(participants);

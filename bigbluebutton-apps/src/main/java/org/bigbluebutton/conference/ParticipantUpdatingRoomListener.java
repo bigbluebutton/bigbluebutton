@@ -35,9 +35,9 @@ public class ParticipantUpdatingRoomListener implements IRoomListener{
 	private static Logger log = Red5LoggerFactory.getLogger(ParticipantUpdatingRoomListener.class, "bigbluebutton");
 	
 	MessagingService messagingService;
-	private Room room;
+	private Meeting room;
 	
-	public ParticipantUpdatingRoomListener(Room room, MessagingService messagingService) {
+	public ParticipantUpdatingRoomListener(Meeting room, MessagingService messagingService) {
 		this.room = room;
 		this.messagingService = messagingService;
 	}

@@ -26,35 +26,34 @@ import org.bigbluebutton.conference.service.poll.PollApplication;
 import org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener;
 import org.red5.logging.Red5LoggerFactory;
 import com.google.gson.Gson;
-import net.jcip.annotations.ThreadSafe;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class RoomsManager {
-	private static Logger log = Red5LoggerFactory.getLogger(RoomsManager.class, "bigbluebutton");
+public class MeetingsManager {
+	private static Logger log = Red5LoggerFactory.getLogger(MeetingsManager.class, "bigbluebutton");
 	
-	private final Map <String, Room> rooms;
+	private final Map <String, Meeting> meetings;
 
 	private MessagePublisher publisher;
 	
-	public RoomsManager() {
-		rooms = new ConcurrentHashMap<String, Room>();		
+	public MeetingsManager() {
+		meetings = new ConcurrentHashMap<String, Meeting>();		
 	}
 	
-	public void addRoom(Room room) {
+	public void addRoom(Meeting room) {
 		room.addRoomListener(new ParticipantUpdatingRoomListener(room, messagingService)); 	
 		
 		publisher.meetingStarted(room.getName());
 		
-		rooms.put(room.getName(), room);
+		meetings.put(room.getName(), room);
 	}
 	
 	public void removeRoom(String name) {
 		log.debug("Remove room " + name);
-		Room room = rooms.remove(name);
+		Meeting room = meetings.remove(name);
 		if (room != null) {
 			room.endAndKickAll();
 			publisher.meetingEnded(name);
@@ -62,31 +61,31 @@ public class RoomsManager {
 	}
 
 	public void destroyAllRooms() {
-		for (Map.Entry<String, Room> entry : rooms.entrySet()) {
-		    Room room = entry.getValue();
+		for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
+		    Meeting room = entry.getValue();
 		    room.endAndKickAll();
 		}
 	}
 			
 	public boolean hasRoom(String name) {
-		return rooms.containsKey(name);
+		return meetings.containsKey(name);
 	}
 	
 	public int numberOfRooms() {
-		return rooms.size();
+		return meetings.size();
 	}
 	
 	/**
 	 * Keeping getRoom private so that all access to Room goes through here.
 	 */
 	//TODO: this method becomes public for ParticipantsApplication, ask if it's right? 
-	public Room getRoom(String name) {
+	public Meeting getRoom(String name) {
 		log.debug("Get room " + name);
-		return rooms.get(name);
+		return meetings.get(name);
 	}
 	
 	public Map getParticipants(String roomName) {
-		Room r = getRoom(roomName);
+		Meeting r = getRoom(roomName);
 		if (r != null) {
 			return r.getParticipants();
 		}
@@ -95,7 +94,7 @@ public class RoomsManager {
 	}
 	
 	public void addRoomListener(String roomName, IRoomListener listener) {
-		Room r = getRoom(roomName);
+		Meeting r = getRoom(roomName);
 		if (r != null) {
 			r.addRoomListener(listener);
 			return;
@@ -105,7 +104,7 @@ public class RoomsManager {
 	
 	public void addParticipant(String roomName, User participant) {
 		log.debug("Add participant " + participant.getName());
-		Room r = getRoom(roomName);
+		Meeting r = getRoom(roomName);
 		if (r != null) {
 			r.addParticipant(participant);
 			return;
@@ -114,7 +113,7 @@ public class RoomsManager {
 	
 	public void removeParticipant(String roomName, String userid) {
 		log.debug("Remove participant " + userid + " from " + roomName);
-		Room r = getRoom(roomName);
+		Meeting r = getRoom(roomName);
 		if (r != null) {
 			if (checkPublisher()) {
 				//conferenceEventListener.participantsUpdated(r);
@@ -128,7 +127,7 @@ public class RoomsManager {
 	}
 	
 	public void changeParticipantStatus(String roomName, String userid, String status, Object value) {
-		Room r = getRoom(roomName);
+		Meeting r = getRoom(roomName);
 		if (r != null) {
 			r.changeParticipantStatus(userid, status, value);
 			return;
@@ -136,7 +135,7 @@ public class RoomsManager {
 	}
 	
 	public ArrayList<String> getCurrentPresenter( String room){
-		Room r = getRoom(room);
+		Meeting r = getRoom(room);
 		if (r != null) {
 			return r.getCurrentPresenter();		
 		}	
@@ -145,7 +144,7 @@ public class RoomsManager {
 	}
 	
 	public void assignPresenter(String room, ArrayList<String> presenter){
-		Room r = getRoom(room);
+		Meeting r = getRoom(room);
 		if (r != null) {
 			r.assignPresenter(presenter);
 			return;
@@ -153,7 +152,7 @@ public class RoomsManager {
 	}
 	
 	public void endMeeting(String meetingID) {
-		Room room = getRoom(meetingID); 
+		Meeting room = getRoom(meetingID); 
 		if (room != null) {
 			room.endAndKickAll();
 		} 		
