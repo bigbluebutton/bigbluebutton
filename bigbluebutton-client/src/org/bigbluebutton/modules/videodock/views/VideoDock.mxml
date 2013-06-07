@@ -389,15 +389,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 					var window:VideoWindowItf = children[childIndex];
 					const wWidth:int = childWidth;
 					const wHeight:int = childHeight;
-
-          window.width = wWidth;
-          window.height = wHeight;
-		
+					
+					window.width = wWidth;
+					window.updateHeight();
+					
+					if (window.height > wHeight) {
+						window.height = wHeight;
+						window.updateWidth();
+					}
+					
+					// the extra padding is used to center the windows with higher aspect ratio
+					const horizontalExtraPadding:int = (wWidth - window.width) / 2;
+					const verticalExtraPadding:int = (wHeight - window.height) / 2;
+					
 					var row:int = (childIndex - (_prioritizeWindow? 1: 0)) / nColumns;
 					var column:int = (childIndex - (_prioritizeWindow? 1: 0)) % nColumns;
 					
-					window.y = row * (wHeight + verticalGap) + borderTop;
-					window.x = column * (wWidth + horizontalGap) + borderLeft;
+					window.y = row * (wHeight + verticalGap) + borderTop + verticalExtraPadding;;
+					window.x = column * (wWidth + horizontalGap) + borderLeft + horizontalExtraPadding;
 				} 
 			}
 			
@@ -410,7 +419,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 						|| options.layout == DockOptions.LAYOUT_NONE)
 					return;
 				
-				if (window == priorityWindow && !options.oneAlwaysBigger) {
+				if (_prioritizeWindow && window == priorityWindow && !options.oneAlwaysBigger) {
 					deprioritizeWindow();
 				} else {
 					var index:int = mutableChildrenArray.indexOf(window);
