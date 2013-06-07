@@ -45,6 +45,10 @@ public class MessageReceiver {
 		this.redisPool = redisPool;
 	}
 	
+	public void setMessageHandler(ReceivedMessageHandler handler) {
+		this.handler = handler;
+	}
+	
 	private class PubSubListener extends JedisPubSub {
 		
 		public PubSubListener() {

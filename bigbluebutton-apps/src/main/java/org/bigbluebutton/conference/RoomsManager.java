@@ -19,6 +19,7 @@
 package org.bigbluebutton.conference;
 
 import org.slf4j.Logger;
+import org.bigbluebutton.conference.meeting.messaging.MessagePublisher;
 import org.bigbluebutton.conference.service.messaging.MessagingService;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
 import org.bigbluebutton.conference.service.poll.PollApplication;
@@ -37,45 +38,26 @@ public class RoomsManager {
 	
 	private final Map <String, Room> rooms;
 
-	private MessagingService messagingService;
-	private ConversionUpdatesMessageListener conversionUpdatesMessageListener;
-	//temporary
-	PollApplication pollApplication;
+	private MessagePublisher publisher;
 	
 	public RoomsManager() {
 		rooms = new ConcurrentHashMap<String, Room>();		
 	}
 	
 	public void addRoom(Room room) {
-		log.debug("Adding room " + room.getName());
 		room.addRoomListener(new ParticipantUpdatingRoomListener(room, messagingService)); 	
 		
-		if (checkPublisher()) {
-			HashMap<String,String> map = new HashMap<String,String>();
-			map.put("meetingId", room.getName());
-			map.put("messageId", MessagingConstants.MEETING_STARTED_EVENT);
-			
-			Gson gson = new Gson();
-			messagingService.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
-			
-			log.debug("Notified event listener of conference start");
-		}
+		publisher.meetingStarted(room.getName());
+		
 		rooms.put(room.getName(), room);
 	}
 	
 	public void removeRoom(String name) {
 		log.debug("Remove room " + name);
 		Room room = rooms.remove(name);
-		if (checkPublisher() && room != null) {
+		if (room != null) {
 			room.endAndKickAll();
-			HashMap<String,String> map = new HashMap<String,String>();
-			map.put("meetingId", room.getName());
-			map.put("messageId", MessagingConstants.MEETING_ENDED_EVENT);
-			
-			Gson gson = new Gson();
-			messagingService.send(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
-			
-			log.debug("Notified event listener of conference end");
+			publisher.meetingEnded(name);
 		}
 	}
 
@@ -85,12 +67,7 @@ public class RoomsManager {
 		    room.endAndKickAll();
 		}
 	}
-	
-	private boolean checkPublisher() {
-		return messagingService != null;
-	}
-
-		
+			
 	public boolean hasRoom(String name) {
 		return rooms.containsKey(name);
 	}
@@ -130,24 +107,9 @@ public class RoomsManager {
 		log.debug("Add participant " + participant.getName());
 		Room r = getRoom(roomName);
 		if (r != null) {
-/*			if (checkPublisher()) {
-
-				if (r.getNumberOfParticipants() == 0) {
-					log.debug("Notified event listener of conference start");
-					HashMap<String,String> map = new HashMap<String,String>();
-					map.put("meetingId", roomName);
-					map.put("messageId", MessagingConstants.USER_JOINED_EVENT);
-					
-					Gson gson = new Gson();
-					publisher.publish(MessagingConstants.SYSTEM_CHANNEL, gson.toJson(map));
-					
-				}
-			}
-*/			r.addParticipant(participant);
-
+			r.addParticipant(participant);
 			return;
 		}
-		log.warn("Adding participant to a non-existing room " + roomName);
 	}
 	
 	public void removeParticipant(String roomName, String userid) {
@@ -195,5 +157,9 @@ public class RoomsManager {
 		if (room != null) {
 			room.endAndKickAll();
 		} 		
-	}		
+	}	
+	
+	public void setPublisher(MessagePublisher publisher) {
+		this.publisher = publisher;
+	}
 }

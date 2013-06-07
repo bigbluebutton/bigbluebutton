@@ -1,8 +1,7 @@
 package org.bigbluebutton.conference.meeting.messaging;
 
-public class MessagePublisher {
+public interface MessagePublisher {
 
-	public void meetingStarted(String meetingID) {
-		
-	}
+	void meetingStarted(String meetingID);
+	void meetingEnded(String meetingID);
 }

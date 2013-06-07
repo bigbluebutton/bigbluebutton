@@ -65,5 +65,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 	
 	<import resource="bbb-apps.xml" />
 	<import resource="bbb-voice-app.xml" />
-  <import resource="bbb-voice-freeswitch.xml" />
+  	<import resource="bbb-voice-freeswitch.xml" />
+  	<import resource="bbb-redis-recorder.xml"/>
+  	<import resource="bbb-redis-messaging.xml"/>
+  	<import resource="bbb-redis-pool.xml"/>
 </beans>
