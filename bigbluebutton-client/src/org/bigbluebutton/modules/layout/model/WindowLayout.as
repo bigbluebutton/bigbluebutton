@@ -185,8 +185,17 @@ package org.bigbluebutton.modules.layout.model {
         window.visible = true;
       }
       
-      window.draggable = this.draggable;
-      window.resizable = this.resizable;
+      // fcecagno 06/06/2013
+      // Fixing the issue https://code.google.com/p/bigbluebutton/issues/detail?id=1520
+      // Issue introduced in this commit https://github.com/bigbluebutton/bigbluebutton/commit/20487a75cbadac046e27ce5bdc124048b4bed1e0
+      // There's an important conceptual problem defining draggable and resizable properties for layouts. The problem
+      // is that, when the moderator locks the layout, the viewers shouldn't be able to drag nor resize the windows. But what if
+      // the layout definition says that the layout is draggable and/or resizable? Then, the lock button is no guarantee that
+      // all users are viewing the same window arrangement. My opinion is that the use case should be very well documented, as
+      // well as the expected behavior of these properties. In case we decide to remove completely this implementation, we should
+      // cleanup most part of the changes done in the above commit.
+      //window.draggable = this.draggable;
+      //window.resizable = this.resizable;
       
 			if (this.minimized) {
 				if (!window.minimized) window.minimize();
