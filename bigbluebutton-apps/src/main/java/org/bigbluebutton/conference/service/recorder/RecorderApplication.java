@@ -22,6 +22,10 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 
@@ -32,35 +36,64 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RecorderApplication {
 	private static Logger log = Red5LoggerFactory.getLogger(RecorderApplication.class, "bigbluebutton");
 	
+	private static final int NTHREADS = 1;
+	private static final Executor exec = Executors.newFixedThreadPool(NTHREADS);
+			
+	private BlockingQueue<RecordEvent> messages;
+	private volatile boolean recordEvents = false;
+
 	private final Map<String, String> recordingSessions;
 	private Recorder recorder;
 	
 	public RecorderApplication() {
+		 messages = new LinkedBlockingQueue<RecordEvent>();
 		recordingSessions = new ConcurrentHashMap<String, String>();
 	}
-	
-	/**
-	 * Destroy a Record Session
-	 * @param sessionName a bigbluebutton session 
-	 */
-	public void destroyRecordSession(String sessionName) {
-		recordingSessions.remove(sessionName);
+
+	public void start() {
+		recordEvents = true;
+		Runnable sender = new Runnable() {
+			public void run() {
+				while (recordEvents) {
+					RecordEvent message;
+					try {
+						message = messages.take();
+						recordEvent(message);	
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+									
+				}
+			}
+		};
+		exec.execute(sender);		
 	}
 	
-	/**
-	 * Creates a record session if there wasn't one created already.
-	 * @param conference name of a BigBlueButton conference
-	 * @param room name of a room
-	 * @param sessionName name of a session
-	 */
-	public void createRecordSession(String sessionName) {
-		recordingSessions.put(sessionName, sessionName);
+	public void stop() {
+		recordEvents = false;
+	}
+
+	public void destroyRecordSession(String meetingID) {
+		recordingSessions.remove(meetingID);
 	}
 	
-	public void record(String session, RecordEvent message) {
-		if (recordingSessions.containsKey(session)) {
-			recorder.record(session, message);
+	public void createRecordSession(String meetingID) {
+		recordingSessions.put(meetingID, meetingID);
+	}
+	
+	public void record(String meetingID, RecordEvent message) {
+		messages.offer(message);
+
+		if (recordingSessions.containsKey(meetingID)) {
+			recorder.record(meetingID, message);
 		}
+	}
+
+	private void recordEvent(RecordEvent message) {
+		if (recordingSessions.containsKey(message.getMeetingID())) {
+			recorder.record(message.getMeetingID(), message);
+		}		
 	}
 	
 	public void setRecorder(Recorder recorder) {

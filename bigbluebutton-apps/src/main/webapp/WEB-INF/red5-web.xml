@@ -61,7 +61,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   		<property name="connInvokerService"> <ref bean="connInvokerService"/></property>		
 	</bean>
 	
-	<bean id="connInvokerService" class="org.bigbluebutton.conference.ConnectionInvokerService"/>
+	<bean id="connInvokerService" class="org.bigbluebutton.conference.ConnectionInvokerService" init-method="start" destroy-method="stop"/>
 	
 	<import resource="bbb-app-chat.xml" />
 	<import resource="bbb-app-layout.xml" />

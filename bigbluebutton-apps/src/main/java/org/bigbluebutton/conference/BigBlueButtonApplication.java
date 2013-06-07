@@ -20,7 +20,8 @@ package org.bigbluebutton.conference;
 
 import java.util.Iterator;
 import java.util.Set;
-import org.red5.server.api.Red5;import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
+import org.red5.server.api.Red5;
+import org.bigbluebutton.conference.service.participants.ParticipantsApplication;
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.IApplication;
@@ -89,15 +90,14 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
         appCtx.registerShutdownHook();
         super.appStart(app);
         
-        connInvokerService.start();
-        
+        connInvokerService.setAppScope(app);
+
         return true;
     }
     
 	@Override
     public void appStop(IScope app) {
 		log.debug("***** " + APP + " [ " + " appStop [ " + scope.getName() + "] *********");
-        connInvokerService.stop();
         super.appStop(app);
     }
     
@@ -142,6 +142,7 @@ public class BigBlueButtonApplication extends MultiThreadedApplicationAdapter {
     	BigBlueButtonSession bbbSession = new BigBlueButtonSession(room, internalUserID,  username, role, 
     			voiceBridge, record, externalUserID);
         connection.setAttribute(Constants.SESSION, bbbSession);        
+        connection.setAttribute("INTERNAL_USER_ID", internalUserID);
         
         String debugInfo = "internalUserID=" + internalUserID + ",username=" + username + ",role=" +  role + "," + 
         					",voiceConf=" + voiceBridge + ",room=" + room + ",externalUserid=" + externalUserID;
