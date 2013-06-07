@@ -16,13 +16,14 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.conference.service.recorder.whiteboard;
+package org.bigbluebutton.conference.service.whiteboard.redis;
 
-public class ClearPageWhiteboardRecordEvent extends
+public class UndoShapeWhiteboardRecordEvent extends
 		AbstractWhiteboardRecordEvent {
 	
-	public ClearPageWhiteboardRecordEvent() {
+	public UndoShapeWhiteboardRecordEvent() {
 		super();
-		setEvent("ClearPageEvent");
+		setEvent("UndoShapeEvent");
 	}
+
 }

@@ -18,13 +18,13 @@
 */
 package org.bigbluebutton.conference.service.whiteboard;
 
-import org.bigbluebutton.conference.service.recorder.whiteboard.*;
 
 import org.bigbluebutton.conference.service.recorder.RecorderApplication;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 import org.bigbluebutton.conference.service.whiteboard.IWhiteboardRoomListener;
 import org.bigbluebutton.conference.service.whiteboard.Presentation;
+import org.bigbluebutton.conference.service.whiteboard.redis.*;
 import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
 
 public class WhiteboardRecordingService {

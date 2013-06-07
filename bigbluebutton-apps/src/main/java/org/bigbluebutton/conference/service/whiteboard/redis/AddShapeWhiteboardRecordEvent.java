@@ -16,16 +16,16 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.conference.service.recorder.whiteboard;
+package org.bigbluebutton.conference.service.whiteboard.redis;
 
 import java.util.ArrayList;
 import java.util.Map;
 
-public class AddTextWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
+public class AddShapeWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent {
 	
-	public AddTextWhiteboardRecordEvent() {
+	public AddShapeWhiteboardRecordEvent() {
 		super();
-		setEvent("AddTextEvent");
+		setEvent("AddShapeEvent");
 	}
 	
 	public void addAnnotation(Map<String, Object> annotation) {
@@ -33,8 +33,7 @@ public class AddTextWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent 
 		    String key = entry.getKey();
 		    		    
 		    if (key.equals("points")) {
-		    	ArrayList<Double> value = (ArrayList<Double>)entry.getValue();
-		    	eventMap.put("dataPoints", pointsToString(value));
+		    	eventMap.put("dataPoints", pointsToString((ArrayList<Object>)entry.getValue()));
 		    } else {
 		    	Object value = entry.getValue();
 		    	eventMap.put(key, value.toString());
@@ -42,13 +41,29 @@ public class AddTextWhiteboardRecordEvent extends AbstractWhiteboardRecordEvent 
 		}
 	}
 	
-	private String pointsToString(ArrayList<Double> points){
+	private String pointsToString(ArrayList<Object> points){
     	String datapoints = "";
-    	for (Double i : points) {
-    		datapoints += i + ",";
+    	for (int i = 0; i < points.size(); i++) {
+    		datapoints += (points.get(i)).toString() + ",";
     	}
     	// Trim the trailing comma
     	return datapoints.substring(0, datapoints.length() - 1);
 	}
+
+	public void setFillColor(int fillColor) {
+		eventMap.put("fillColor", Integer.toString(fillColor));
+	}
 	
+	public void setThickness(int thickness) {
+		eventMap.put("thickness", Integer.toString(thickness));
+	}
+
+    public void setFill(boolean fill) {
+                eventMap.put("fill", Boolean.toString(fill));
+    }
+	
+    public void setTransparent(boolean transparent) {
+                eventMap.put("transparent", Boolean.toString(transparent));
+    }
+
 }

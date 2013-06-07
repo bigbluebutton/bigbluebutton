@@ -16,21 +16,13 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.conference.service.recorder.whiteboard;
+package org.bigbluebutton.conference.service.whiteboard.redis;
 
-import org.bigbluebutton.conference.service.recorder.RecordEvent;
-
-public abstract class AbstractWhiteboardRecordEvent extends RecordEvent {
+public class ClearPageWhiteboardRecordEvent extends
+		AbstractWhiteboardRecordEvent {
 	
-	public AbstractWhiteboardRecordEvent() {
-		setModule("WHITEBOARD");
-	}
-
-	public void setPresentation(String name) {
-		eventMap.put("presentation", name);
-	}
-	
-	public void setPageNumber(int page) {
-		eventMap.put("pageNumber", Integer.toString(page));
+	public ClearPageWhiteboardRecordEvent() {
+		super();
+		setEvent("ClearPageEvent");
 	}
 }

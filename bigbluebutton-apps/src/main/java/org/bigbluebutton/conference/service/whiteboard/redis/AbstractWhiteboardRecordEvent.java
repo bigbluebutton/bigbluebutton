@@ -16,18 +16,21 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.conference.service.recorder.whiteboard;
+package org.bigbluebutton.conference.service.whiteboard.redis;
 
-public class ToggleGridWhiteboardRecordEvent extends
-		AbstractWhiteboardRecordEvent {
+import org.bigbluebutton.conference.service.recorder.RecordEvent;
+
+public abstract class AbstractWhiteboardRecordEvent extends RecordEvent {
 	
-	public ToggleGridWhiteboardRecordEvent() {
-		super();
-		setEvent("ToggleGridEvent");
-	}
-		
-	public void setGridEnabled(boolean enabled) {
-		eventMap.put("gridEnabled", Boolean.toString(enabled));
+	public AbstractWhiteboardRecordEvent() {
+		setModule("WHITEBOARD");
 	}
 
+	public void setPresentation(String name) {
+		eventMap.put("presentation", name);
+	}
+	
+	public void setPageNumber(int page) {
+		eventMap.put("pageNumber", Integer.toString(page));
+	}
 }

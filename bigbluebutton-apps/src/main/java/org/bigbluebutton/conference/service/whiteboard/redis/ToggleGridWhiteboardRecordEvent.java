@@ -16,14 +16,18 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 *
 */
-package org.bigbluebutton.conference.service.recorder.whiteboard;
+package org.bigbluebutton.conference.service.whiteboard.redis;
 
-public class UndoShapeWhiteboardRecordEvent extends
+public class ToggleGridWhiteboardRecordEvent extends
 		AbstractWhiteboardRecordEvent {
 	
-	public UndoShapeWhiteboardRecordEvent() {
+	public ToggleGridWhiteboardRecordEvent() {
 		super();
-		setEvent("UndoShapeEvent");
+		setEvent("ToggleGridEvent");
+	}
+		
+	public void setGridEnabled(boolean enabled) {
+		eventMap.put("gridEnabled", Boolean.toString(enabled));
 	}
 
 }

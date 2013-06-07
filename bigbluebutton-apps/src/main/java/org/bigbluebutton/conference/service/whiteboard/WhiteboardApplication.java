@@ -18,13 +18,8 @@
 */
 package org.bigbluebutton.conference.service.whiteboard;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.bigbluebutton.conference.BigBlueButtonSession;
-import org.bigbluebutton.conference.ClientMessage;
-import org.bigbluebutton.conference.ConnectionInvokerService;
 import org.bigbluebutton.conference.Constants;
 import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.adapter.ApplicationAdapter;
@@ -34,7 +29,7 @@ import org.red5.server.api.IConnection;
 import org.red5.server.api.Red5;
 import org.red5.server.api.scope.IScope;
 import org.slf4j.Logger;
-import org.bigbluebutton.conference.service.recorder.whiteboard.WhiteboardEventRecorder;
+import org.bigbluebutton.conference.service.whiteboard.red5.ClientMessageSender;
 import org.bigbluebutton.conference.service.whiteboard.shapes.Annotation;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -42,7 +37,7 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 	private static Logger log = Red5LoggerFactory.getLogger(WhiteboardApplication.class, "bigbluebutton");
 
 	private WhiteboardRecordingService recordingService;
-	private ConnectionInvokerService connInvokerService;
+	private ClientMessageSender clientSender;
 	private static final String APP = "WHITEBOARD";
 	private ConcurrentHashMap<String, WhiteboardRoom> rooms;
 
@@ -136,11 +131,7 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 				room.addPresentation(presentationID, numPages);
 			}
 		
-			Map<String, Object> message = new HashMap<String, Object>();
-			message.put("presentationID", presentationID);
-			message.put("numberOfPages", numPages);
-			ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, getMeetingId(), "WhiteboardChangePresentationCommand", message);
-			connInvokerService.sendMessage(m);
+			clientSender.setActivePresentation(meetingID, presentationID, numPages);
 		}
 	}
 	
@@ -150,44 +141,26 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 			WhiteboardRoom room = rooms.get(meetingID);
 			room.setWhiteboardEnabled(enabled);
 		
-			Map<String, Object> message = new HashMap<String, Object>();
-			message.put("enabled", room.isWhiteboardEnabled());
-			ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, meetingID, "WhiteboardEnableWhiteboardCommand", message);
-			connInvokerService.sendMessage(m);
+			clientSender.enableWhiteboard(meetingID, enabled);
 		}
 	}
 	
-	public void isWhiteboardEnabled(String userid) {
+	public void isWhiteboardEnabled(String userID) {
 		String meetingID = getMeetingId();
 		if (rooms.containsKey(meetingID)) {
 			WhiteboardRoom room = rooms.get(meetingID);
-			Map<String, Object> message = new HashMap<String, Object>();
-			message.put("enabled", room.isWhiteboardEnabled());
-			ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userid, "WhiteboardIsWhiteboardEnabledReply", message);
-			connInvokerService.sendMessage(m);
+
+			clientSender.isWhiteboardEnabled(meetingID, userID, room.isWhiteboardEnabled());
 		}
 	}
 
-	public void sendAnnotationHistory(String userid, String presentationID, Integer pageNumber) {
+	public void sendAnnotationHistory(String userID, String presentationID, Integer pageNumber) {
 		String meetingID = getMeetingId();
 		if (rooms.containsKey(meetingID)) {
 			WhiteboardRoom room = rooms.get(meetingID);
-
-			Map<String, Object> message = new HashMap<String, Object>();		
 			List<Annotation> annotations = room.getAnnotations(presentationID, pageNumber);
-			message.put("count", new Integer(annotations.size()));
 			
-			/** extract annotation into a Map */
-			List<Map<String, Object>> a = new ArrayList<Map<String, Object>>();
-			for (Annotation v : annotations) {
-				a.add(v.getAnnotation());
-			}
-			
-			message.put("presentationID", presentationID);
-			message.put("pageNumber", pageNumber);
-			message.put("annotations", a);
-			ClientMessage m = new ClientMessage(ClientMessage.DIRECT, userid, "WhiteboardRequestAnnotationHistoryReply", message);
-			connInvokerService.sendMessage(m);
+			clientSender.sendAnnotationHistory(meetingID, userID, presentationID, pageNumber, annotations);
 
 		}
 	}
@@ -234,8 +207,7 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 				}
 			}
 			
-			ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, meetingID, "WhiteboardNewAnnotationCommand", annotation.getAnnotation());
-			connInvokerService.sendMessage(m);
+			clientSender.sendAnnotation(meetingID, annotation.getAnnotation());
 
 		}
 	}
@@ -247,12 +219,8 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 		
 			Presentation pres = room.getActivePresentation();
 			pres.setActivePage(pageNum);
-			
-			Map<String, Object> message = new HashMap<String, Object>();		
-			message.put("pageNum", pageNum);
-			message.put("numAnnotations", pres.getActivePage().getNumShapesOnPage());
-			ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, meetingID, "WhiteboardChangePageCommand", message);
-			connInvokerService.sendMessage(m);
+						
+			clientSender.changePage(meetingID, pageNum, pres.getActivePage().getNumShapesOnPage());
 
 		}
 	}
@@ -267,9 +235,7 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 				recordingService.clearPage(meetingID, room.getPresentationID(), room.getPageNumber());							
 			}
 
-			Map<String, Object> message = new HashMap<String, Object>();		
-			ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, meetingID, "WhiteboardClearCommand", message);
-			connInvokerService.sendMessage(m);		
+			clientSender.clear(meetingID);		
 		
 		}
 	}
@@ -284,9 +250,7 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 				recordingService.undoWBGraphic(meetingID, room.getPresentationID(), room.getPageNumber());							
 			}
 
-			Map<String, Object> message = new HashMap<String, Object>();		
-			ClientMessage m = new ClientMessage(ClientMessage.BROADCAST, meetingID, "WhiteboardUndoCommand", message);
-			connInvokerService.sendMessage(m);
+			clientSender.undo(meetingID);
 		}
 	}
 	
@@ -302,7 +266,7 @@ public class WhiteboardApplication extends ApplicationAdapter implements IApplic
 		recordingService = recService;
 	}
 
-	public void setConnInvokerService(ConnectionInvokerService connInvokerService) {
-		this.connInvokerService = connInvokerService;
+	public void setConnInvokerService(ClientMessageSender connInvokerService) {
+		this.clientSender = connInvokerService;
 	}
 }
