@@ -90,6 +90,10 @@
 				minimizeBtn.tabIndex = baseIndex+1;
 				maximizeRestoreBtn.tabIndex = baseIndex+2;
 				closeBtn.tabIndex = baseIndex+3;
+				questionText.tabIndex = baseIndex+4
+				// Gap in indexes provided to account for dynamically-generated items, and baseIndex reset to +5 for the same reason.
+				btnAcceptPoll.tabIndex = baseIndex+16;
+				baseIndex = baseIndex+5;
 				
 				questionText.text = question;
 				if (isMultiple)
@@ -100,7 +104,7 @@
 				else
 					errorMessage.text = ResourceUtil.getInstance().getString('bbb.polling.vote.error.radio');
 				ExternalInterface.call("addAlert", errorMessage.text);
-				//checkInstructions.visible = isMultiple;
+
 				createButtons(answers.length,answers);
 				invalidateDisplayList();
 				validateNow(); 
@@ -141,7 +145,7 @@
 						_cb.addEventListener(MouseEvent.CLICK, checkBoxClick);
 						// gap between the buttons
 						_cb.y=i*20;
-						//_cb.tabIndex = baseIndex++;
+						_cb.tabIndex = baseIndex++;
 						// adding buttons to the Horizontal Box
 						_hb.addChild(_cb);
 					}else{
@@ -151,7 +155,7 @@
 						_rb.id = "answers"+i;
 						_rb.addEventListener(MouseEvent.CLICK, radioClick);
 						_rb.accessibilityName = indicator + content[i].toString();
-						//_rb.tabIndex = baseIndex++;
+						_rb.tabIndex = baseIndex++;
 						_hb.addChild(_rb);
 					}    
 					_hb.addChild(_tx); // adding text near button			 
