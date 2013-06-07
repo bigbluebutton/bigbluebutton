@@ -2,15 +2,15 @@ package org.bigbluebutton.conference.meeting.messaging.redis;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.bigbluebutton.conference.MeetingsManager;
 import org.bigbluebutton.conference.service.messaging.MessagingConstants;
 import org.bigbluebutton.conference.service.messaging.redis.MessageHandler;
-import org.bigbluebutton.webconference.voice.internal.RoomManager;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class MeetingMessageHandler implements MessageHandler {
 	
-	private RoomManager meetingManager;
+	private MeetingsManager meetingManager;
 	
 	@Override
 	public void handleMessage(String pattern, String channel, String message) {
@@ -27,7 +27,7 @@ public class MeetingMessageHandler implements MessageHandler {
 		}
 	}
 	
-	public void setMeetingManager(RoomManager manager) {
+	public void setMeetingManager(MeetingsManager manager) {
 		meetingManager = manager;
 	}
 	

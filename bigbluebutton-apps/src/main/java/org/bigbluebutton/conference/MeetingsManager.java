@@ -44,7 +44,7 @@ public class MeetingsManager {
 	}
 	
 	public void addRoom(Meeting room) {
-		room.addRoomListener(new ParticipantUpdatingRoomListener(room, messagingService)); 	
+//		room.addRoomListener(new ParticipantUpdatingRoomListener(room, messagingService)); 	
 		
 		publisher.meetingStarted(room.getName());
 		
@@ -115,10 +115,6 @@ public class MeetingsManager {
 		log.debug("Remove participant " + userid + " from " + roomName);
 		Meeting r = getRoom(roomName);
 		if (r != null) {
-			if (checkPublisher()) {
-				//conferenceEventListener.participantsUpdated(r);
-				//missing method()?
-			}
 			r.removeParticipant(userid);
 
 			return;

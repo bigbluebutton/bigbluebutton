@@ -30,17 +30,17 @@ public class PollVO{
 	private String datetime;
 	private List<AnswerVO> answers;
 
-	public Poll(String meetingID, String title, String question, List<AnswerVO> answers) {
+	public PollVO(String meetingID, String title, String question, List<String> answers) {
 		this.meetingID = meetingID;
 		this.title = title;
 		this.question = question;
 		this.datetime = Long.toString(System.currentTimeMillis()); 
-		this.answers = AnswerVO.toAnswerVOList(meetingID, null, answers);
+//		this.answers = AnswerVO.toAnswerVOList(meetingID, null, answers);
 	}
 
 	public void addAnswer(String answer){
 		String answerID = generateAnswerID(this.meetingID);
-		this.answers.put(answerID,answer);
+//		this.answers.put(answerID, answer);
 	}
 
 	public void removeAnswer(String answerID){
@@ -87,7 +87,7 @@ public class PollVO{
 			this.pollId = pollId;
 			this.answer = answer;
 		}
-
+/*
 		public static List<AnswerVO> toAnswerVOList(String meetingId, String pollId, List<AnswerVO> answers){
 			List<AnswerVO> list = ArrayList<AnswerVO>();
 			for(String ans:answers){
@@ -96,6 +96,7 @@ public class PollVO{
 			}
 			return list;
 		}
+*/
 	}
 
 }

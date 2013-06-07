@@ -1,4 +1,4 @@
-//usePlugin 'scala'
+usePlugin 'scala'
 usePlugin 'java'
 usePlugin 'war'
 usePlugin 'eclipse'
@@ -100,8 +100,8 @@ dependencies {
 	providedCompile 'commons-pool:commons-pool:1.5.6'
  
 	// Libraries needed to run the scala tools
-	//scalaTools 'org.scala-lang:scala-compiler:2.9.2'
-	//scalaTools 'org.scala-lang:scala-library:2.9.2'
+	scalaTools 'org.scala-lang:scala-compiler:2.9.2'
+	scalaTools 'org.scala-lang:scala-library:2.9.2'
 
 	// Libraries needed for scala api
 	compile 'org.scala-lang:scala-library:2.9.2'
