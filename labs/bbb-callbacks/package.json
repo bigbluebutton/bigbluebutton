@@ -1,0 +1,15 @@
+{
+  "name": "bbb-callbacks",
+  "version": "0.8.1",
+  "description": "a module that allows to do API callbacks",
+  "keywords": [
+    "bigbluebutton",
+    "Web API",
+    "callbacks"
+  ],
+  "dependencies" : {
+  },
+  "engines": {
+    "node": "0.8.21"
+  }
+}

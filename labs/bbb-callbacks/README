@@ -1,0 +1,9 @@
+bbb-callbacks
+-------------
+
+
+It's a webapp which allows to perform certain callbacks when an event happens in a bigbluebutton session.
+
+The webapp uses node.js and redis.
+
+For run: node app.js
