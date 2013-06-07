@@ -219,7 +219,7 @@ class BigbluebuttonService {
                 userFullName = userFirstName
             }
             if( userLastName != null && userLastName != "" ){
-                userFullName = userFullName.length() > 0? " ": ""
+                userFullName += userFullName.length() > 0? " ": ""
                 userFullName += userLastName
             }
             if( userFullName == null || userFullName == "" ){
